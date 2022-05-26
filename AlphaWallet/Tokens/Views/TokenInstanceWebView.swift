@@ -138,6 +138,10 @@ class TokenInstanceWebView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func stopLoading() {
+        webView.stopLoading()
+    }
+
     //Implementation: String concatenation is slow, but it's not obvious at all
     func update(withTokenHolder tokenHolder: TokenHolder, cardLevelAttributeValues updatedCardLevelAttributeValues: [AttributeId: AssetAttributeSyntaxValue]? = nil, isFungible: Bool, isFirstUpdate: Bool = true) {
         lastTokenHolder = tokenHolder

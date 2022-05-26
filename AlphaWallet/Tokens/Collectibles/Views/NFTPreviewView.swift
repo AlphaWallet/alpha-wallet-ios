@@ -7,8 +7,8 @@
 
 import UIKit
 
-class NFTPreviewView: UIView, ConfigurableNFTPreviewView, ViewRoundingSupportable, ContentBackgroundSupportable {
-    private var previewView: UIView & ConfigurableNFTPreviewView & ViewRoundingSupportable & ContentBackgroundSupportable
+class NFTPreviewView: UIView, ConfigurableNFTPreviewView, ViewRoundingSupportable, ContentBackgroundSupportable, ViewLoadingCancelable {
+    private var previewView: UIView & ConfigurableNFTPreviewView & ViewRoundingSupportable & ContentBackgroundSupportable & ViewLoadingCancelable
 
     var rounding: ViewRounding = .none {
         didSet { previewView.rounding = rounding }
@@ -49,6 +49,10 @@ class NFTPreviewView: UIView, ConfigurableNFTPreviewView, ViewRoundingSupportabl
         previewView.configure(params: params)
     }
 
+    func cancel() {
+        previewView.cancel()
+    }
+
     private static func generateTokenCardView(keystore: Keystore, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator) -> TokenCardWebView {
         let tokeCardWebView = TokenCardWebView(analyticsCoordinator: analyticsCoordinator, server: session.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: session.account)
         return tokeCardWebView
@@ -68,8 +72,8 @@ class NFTPreviewView: UIView, ConfigurableNFTPreviewView, ViewRoundingSupportabl
 
 extension TokenImageView: ConfigurableNFTPreviewView, ContentBackgroundSupportable {
     var contentBackgroundColor: UIColor? {
-        get { return backgroundColor }
-        set { backgroundColor = newValue }
+        get { return imageView.contentBackgroundColor }
+        set { imageView.contentBackgroundColor = newValue }
     }
 
     func configure(params: NFTPreviewViewType.Params) {

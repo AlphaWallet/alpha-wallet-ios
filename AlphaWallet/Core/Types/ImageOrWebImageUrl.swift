@@ -9,5 +9,5 @@ import UIKit
 
 enum ImageOrWebImageUrl {
     case url(WebImageURL)
-    case image(UIImage)
+    case image(UIImage?)
 }

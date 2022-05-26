@@ -23,7 +23,7 @@ class ImageView: UIImageView {
     }
 }
 
-class TokenImageView: UIView, ViewRoundingSupportable {
+class TokenImageView: UIView, ViewRoundingSupportable, ViewLoadingCancelable {
     private var subscriptionKey: Subscribable<TokenImage>.SubscribableKey?
     private let symbolLabel: UILabel = {
         let label = UILabel()
@@ -34,10 +34,9 @@ class TokenImageView: UIView, ViewRoundingSupportable {
 
         return label
     }()
-    private lazy var imageView: WebImageView = {
+    private (set) lazy var imageView: WebImageView = {
         let imageView = WebImageView()
         imageView.rounding = rounding
-        imageView.backgroundColor = backgroundColor
 
         return imageView
     }()
@@ -65,11 +64,7 @@ class TokenImageView: UIView, ViewRoundingSupportable {
 
     override var contentMode: UIView.ContentMode {
         didSet { imageView.contentMode = contentMode }
-    }
-
-    override var backgroundColor: UIColor? {
-        didSet { imageView.backgroundColor = backgroundColor; }
-    }
+    } 
 
     var subscribable: Subscribable<TokenImage>? {
         didSet {
@@ -88,7 +83,7 @@ class TokenImageView: UIView, ViewRoundingSupportable {
                     switch imageAndSymbol?.image {
                     case .image(let v):
                         strongSelf.symbolLabel.text = imageAndSymbol?.symbol ?? ""
-                        strongSelf.imageView.setImage(image: v)
+                        strongSelf.imageView.setImage(image: v, placeholder: strongSelf.tokenImagePlaceholder)
                     case .url(let v):
                         strongSelf.symbolLabel.text = ""
                         strongSelf.imageView.setImage(url: v, placeholder: strongSelf.tokenImagePlaceholder)
@@ -133,6 +128,10 @@ class TokenImageView: UIView, ViewRoundingSupportable {
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    func cancel() {
+        imageView.cancel()
     }
 }
 
