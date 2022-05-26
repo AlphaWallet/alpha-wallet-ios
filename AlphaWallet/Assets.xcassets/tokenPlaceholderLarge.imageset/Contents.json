@@ -1,15 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "tokenPlaceholderLarge.pdf",
+      "filename" : "icon-344x344.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "icon-688x688.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "icon-1032x1032.png",
       "idiom" : "universal",
       "scale" : "3x"
     }
@@ -19,6 +21,6 @@
     "version" : 1
   },
   "properties" : {
-      "preserves-vector-representation" : true
+    "preserves-vector-representation" : true
   }
 }
