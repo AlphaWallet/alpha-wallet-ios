@@ -12,7 +12,7 @@ import PromiseKit
 extension SingleChainTokensAutodetector {
     enum AddTokenObjectOperation {
         case ercToken(ERCToken)
-        case tokenObject(Activity.AssignedToken)
+        case tokenObject(Token)
         case delegateContracts([DelegateContract])
         case deletedContracts([DeletedContract])
         ///We re-use the existing balance value to avoid the Wallets tab showing that token (if it already exist) as balance = 0 momentarily

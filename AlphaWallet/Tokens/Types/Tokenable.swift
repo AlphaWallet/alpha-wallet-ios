@@ -33,7 +33,7 @@ extension TokenObject: Tokenable {
     var valueBI: BigInt { valueBigInt }
 }
 
-extension Activity.AssignedToken: Tokenable {
+extension Token: Tokenable {
     var valueBI: BigInt { value }
     var balanceNft: [TokenBalanceValue] { balance }
 }

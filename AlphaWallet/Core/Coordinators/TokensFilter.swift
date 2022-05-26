@@ -32,8 +32,8 @@ class TokensFilter {
         self.tokenGroupIdentifier = tokenGroupIdentifier
     }
 
-    func filterTokens(tokens: [Activity.AssignedToken], filter: WalletFilter) -> [Activity.AssignedToken] {
-        let filteredTokens: [Activity.AssignedToken]
+    func filterTokens(tokens: [Token], filter: WalletFilter) -> [Token] {
+        let filteredTokens: [Token]
         switch filter {
         case .all:
             filteredTokens = tokens
@@ -87,7 +87,7 @@ class TokensFilter {
         return filteredTokens
     }
 
-    func filterTokens(tokens: [PopularToken], walletTokens: [Activity.AssignedToken], filter: WalletFilter) -> [PopularToken] {
+    func filterTokens(tokens: [PopularToken], walletTokens: [Token], filter: WalletFilter) -> [PopularToken] {
         var filteredTokens: [PopularToken] = tokens.filter { token in
             !walletTokens.contains(where: { $0.contractAddress.sameContract(as: token.contractAddress) }) && !token.name.isEmpty
         }
@@ -111,9 +111,9 @@ class TokensFilter {
         return filteredTokens
     }
 
-    func sortDisplayedTokens(tokens: [Activity.AssignedToken]) -> [Activity.AssignedToken] {
+    func sortDisplayedTokens(tokens: [Token]) -> [Token] {
 
-        func sortTokensByFiatValues(_ token1: Activity.AssignedToken, _ token2: Activity.AssignedToken) -> Bool {
+        func sortTokensByFiatValues(_ token1: Token, _ token2: Token) -> Bool {
             let value1 = coinTickersFetcher.ticker(for: token1.addressAndRPCServer).flatMap({ ticker in
                 EthCurrencyHelper(ticker: ticker)
                     .fiatValue(value: token1.valueDecimal)
@@ -155,7 +155,7 @@ class TokensFilter {
         return result
     }
 
-    func sortDisplayedTokens(tokens: [Activity.AssignedToken], sortTokensParam: SortTokensParam) -> [Activity.AssignedToken] {
+    func sortDisplayedTokens(tokens: [Token], sortTokensParam: SortTokensParam) -> [Token] {
         let result = tokens.filter {
             $0.shouldDisplay
         }.sorted(by: {
@@ -181,7 +181,7 @@ class TokensFilter {
     }
 }
 
-fileprivate extension Activity.AssignedToken {
+fileprivate extension Token {
     var hasNonZeroBalance: Bool {
         switch type {
         case .nativeCryptocurrency, .erc20:

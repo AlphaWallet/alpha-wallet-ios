@@ -16,10 +16,10 @@ protocol WalletBalanceFetcherDelegate: AnyObject {
 }
 
 protocol WalletBalanceFetcherTypeTests {
-    func setNftBalanceTestsOnly(_ value: [String], forToken token: Activity.AssignedToken)
-    func setBalanceTestsOnly(_ value: BigInt, forToken token: Activity.AssignedToken)
-    func deleteTokenTestsOnly(token: Activity.AssignedToken)
-    func addOrUpdateTokenTestsOnly(token: Activity.AssignedToken)
+    func setNftBalanceTestsOnly(_ value: [String], forToken token: Token)
+    func setBalanceTestsOnly(_ value: BigInt, forToken token: Token)
+    func deleteTokenTestsOnly(token: Token)
+    func addOrUpdateTokenTestsOnly(token: Token)
     func triggerUpdateBalanceSubjectTestsOnly()
 }
 
@@ -86,7 +86,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         subscribeForTokenUpdates()
     }
 
-    private static var nativeCryptoForAllChains: [Activity.AssignedToken] = {
+    private static var nativeCryptoForAllChains: [Token] = {
         return RPCServer.allCases
             .map { MultipleChainsTokensDataStore.functional.etherToken(forServer: $0) }
     }()
@@ -178,7 +178,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         delegate?.didUpdate(in: self)
     }
 
-    private func balanceViewModel(forToken token: Activity.AssignedToken) -> BalanceViewModel {
+    private func balanceViewModel(forToken token: Token) -> BalanceViewModel {
         let ticker = coinTickersFetcher.ticker(for: token.addressAndRPCServer)
 
         switch token.type {
@@ -267,19 +267,19 @@ extension WalletBalanceFetcher: PrivateBalanceFetcherDelegate {
 
 extension WalletBalanceFetcher: WalletBalanceFetcherTypeTests {
 
-    func setBalanceTestsOnly(_ value: BigInt, forToken token: Activity.AssignedToken) {
+    func setBalanceTestsOnly(_ value: BigInt, forToken token: Token) {
         tokensDataStore.updateToken(primaryKey: token.primaryKey, action: .value(value))
     }
 
-    func setNftBalanceTestsOnly(_ value: [String], forToken token: Activity.AssignedToken) {
+    func setNftBalanceTestsOnly(_ value: [String], forToken token: Token) {
         tokensDataStore.updateToken(primaryKey: token.primaryKey, action: .nonFungibleBalance(value))
     }
 
-    func deleteTokenTestsOnly(token: Activity.AssignedToken) {
+    func deleteTokenTestsOnly(token: Token) {
         tokensDataStore.deleteTestsOnly(tokens: [token])
     }
 
-    func addOrUpdateTokenTestsOnly(token: Activity.AssignedToken) {
+    func addOrUpdateTokenTestsOnly(token: Token) {
         tokensDataStore.addTokenObjects(values: [
             .tokenObject(token)
         ])

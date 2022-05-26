@@ -658,7 +658,7 @@ extension ActiveWalletCoordinator: ActivityViewControllerDelegate {
     }
 
     func goToToken(viewController: ActivityViewController) {
-        let token = viewController.viewModel.activity.tokenObject
+        let token = viewController.viewModel.activity.token
         guard let tokenObject = tokensDataStore.tokenObject(forContract: token.contractAddress, server: token.server) else { return }
         guard let tokensCoordinator = tokensCoordinator, let navigationController = viewController.navigationController else { return }
 

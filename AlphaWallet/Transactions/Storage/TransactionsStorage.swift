@@ -340,7 +340,7 @@ extension TransactionDataStore {
 
 extension TransactionDataStore.functional {
 
-    static func transactionsFilter(for strategy: ActivitiesFilterStrategy, token: Activity.AssignedToken) -> TransactionsFilterStrategy {
+    static func transactionsFilter(for strategy: ActivitiesFilterStrategy, token: Token) -> TransactionsFilterStrategy {
         return .filter(strategy: strategy, token: token)
     }
 

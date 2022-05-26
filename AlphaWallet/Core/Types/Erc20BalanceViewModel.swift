@@ -9,10 +9,10 @@ import Foundation
 import BigInt
 
 struct Erc20BalanceViewModel: BalanceViewModel {
-    private let token: Activity.AssignedToken
+    private let token: Token
     private (set) var ticker: CoinTicker?
 
-    init(token: Activity.AssignedToken, ticker: CoinTicker?) {
+    init(token: Token, ticker: CoinTicker?) {
         self.token = token
         self.ticker = ticker
     }
@@ -41,7 +41,7 @@ struct Erc20BalanceViewModel: BalanceViewModel {
     var symbol: String { return token.symbol }
 
     //NOTE: we suppose ticker.symbol is the same as token.symbol, for erc20 tokens
-    private func cryptoRate(forToken token: Activity.AssignedToken) -> Rate? {
+    private func cryptoRate(forToken token: Token) -> Rate? {
         guard let ticker = ticker else { return nil }
         let symbol = ticker.symbol.lowercased()
         if let value = ticker.rate.rates.first(where: { $0.code == symbol }) {

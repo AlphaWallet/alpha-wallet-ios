@@ -79,7 +79,7 @@ enum ActivityRowModel {
         case .parentTransaction:
             return nil
         case .childActivity(_, let activity):
-            return activity.tokenObject.symbol
+            return activity.token.symbol
         case .childTransaction(transaction: let transaction, operation: let operation, _):
             if let symbol = operation.symbol {
                 return symbol
@@ -93,7 +93,7 @@ enum ActivityRowModel {
                 return transaction.server.symbol
             }
         case .standaloneActivity(activity: let activity):
-            return activity.tokenObject.symbol
+            return activity.token.symbol
         }
     }
 }

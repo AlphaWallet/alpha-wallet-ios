@@ -18,26 +18,26 @@ class FakeSingleChainTokenBalanceService: SingleChainTokenBalanceService {
     init(wallet: Wallet, server: RPCServer, etherToken: TokenObject) {
         self.wallet = wallet
         balanceService = FakeMultiWalletBalanceService(wallet: wallet, servers: [server])
-        super.init(wallet: wallet, server: server, etherToken: Activity.AssignedToken(tokenObject: etherToken), tokenBalanceProvider: balanceService)
+        super.init(wallet: wallet, server: server, etherToken: Token(tokenObject: etherToken), tokenBalanceProvider: balanceService)
     }
 
     func triggerUpdateBalanceSubjectTestsOnly(wallet: Wallet) {
         balanceService.triggerUpdateBalanceSubjectTestsOnly(wallet: wallet)
     }
 
-    func setBalanceTestsOnly(balance: Balance, forToken token: Activity.AssignedToken) {
+    func setBalanceTestsOnly(balance: Balance, forToken token: Token) {
         balanceService.setBalanceTestsOnly(balance.value, forToken: token, wallet: wallet)
     }
 
-    func setNftBalanceTestsOnly(_ value: [String], forToken token: Activity.AssignedToken) {
+    func setNftBalanceTestsOnly(_ value: [String], forToken token: Token) {
         balanceService.setNftBalanceTestsOnly(value, forToken: token, wallet: wallet)
     }
 
-    func addOrUpdateTokenTestsOnly(token: Activity.AssignedToken) {
+    func addOrUpdateTokenTestsOnly(token: Token) {
         balanceService.addOrUpdateTokenTestsOnly(token: token, wallet: wallet)
     }
 
-    func deleteTokenTestsOnly(token: Activity.AssignedToken) {
+    func deleteTokenTestsOnly(token: Token) {
         balanceService.deleteTokenTestsOnly(token: token, wallet: wallet)
     }
 

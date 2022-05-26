@@ -81,7 +81,7 @@ fileprivate class TokenJsonReader {
 
 }
 
-fileprivate extension Activity.AssignedToken {
+fileprivate extension Token {
     var tokenGroupKey: String {
         let key = self.contractAddress.eip55String + ":" + String(self.server.chainID)
         return key.trimmed.lowercased()
@@ -102,7 +102,7 @@ enum TokenGroup: String {
 
 protocol TokenGroupIdentifierProtocol {
     static func identifier(fromFileName: String) -> TokenGroupIdentifierProtocol?
-    func identify(tokenObject: Activity.AssignedToken) -> TokenGroup
+    func identify(tokenObject: Token) -> TokenGroup
 }
 
 class TokenGroupIdentifier: TokenGroupIdentifierProtocol {
@@ -123,7 +123,7 @@ class TokenGroupIdentifier: TokenGroupIdentifierProtocol {
         self.decodedTokenEntries = decodedTokenEntries
     }
 
-    func identify(tokenObject: Activity.AssignedToken) -> TokenGroup {
+    func identify(tokenObject: Token) -> TokenGroup {
         if tokenObject.isCollectibles {
             return .collectibles
         }

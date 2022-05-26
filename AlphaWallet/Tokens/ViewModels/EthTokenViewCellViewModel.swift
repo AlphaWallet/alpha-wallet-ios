@@ -6,14 +6,14 @@ import BigInt
 
 struct EthTokenViewCellViewModel {
     private let shortFormatter = EtherNumberFormatter.short
-    private let token: Activity.AssignedToken
+    private let token: Token
     private let currencyAmount: Double?
     private let ticker: CoinTicker?
     private let assetDefinitionStore: AssetDefinitionStore
     private let isVisible: Bool 
     
     init(
-        token: Activity.AssignedToken,
+        token: Token,
         ticker: CoinTicker?,
         currencyAmount: Double?,
         assetDefinitionStore: AssetDefinitionStore,

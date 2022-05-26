@@ -5,13 +5,13 @@ import UIKit
 import BigInt
 
 struct NonFungibleTokenViewCellViewModel {
-    private let token: Activity.AssignedToken
+    private let token: Token
     private let assetDefinitionStore: AssetDefinitionStore
     private let isVisible: Bool
     private let eventsDataStore: NonActivityEventsDataStore
     private let wallet: Wallet
 
-    init(token: Activity.AssignedToken, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, wallet: Wallet, isVisible: Bool = true) {
+    init(token: Token, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, wallet: Wallet, isVisible: Bool = true) {
         self.eventsDataStore = eventsDataStore
         self.wallet = wallet
         self.token = token

@@ -7,8 +7,8 @@ import Combine
 
 protocol TokensViewControllerDelegate: AnyObject {
     func viewWillAppear(in viewController: UIViewController)
-    func didSelect(token: Activity.AssignedToken, in viewController: UIViewController)
-    func didHide(token: Activity.AssignedToken, in viewController: UIViewController)
+    func didSelect(token: Token, in viewController: UIViewController)
+    func didHide(token: Token, in viewController: UIViewController)
     func didTapOpenConsole(in viewController: UIViewController)
     func walletConnectSelected(in viewController: UIViewController)
     func whereAreMyTokensSelected(in viewController: UIViewController)
@@ -723,7 +723,7 @@ extension TokensViewController: OpenSeaNonFungibleTokenPairTableCellDelegate {
         switch viewModel.sections[indexPath.section] {
         case .collectiblePairs:
             let pair = viewModel.collectiblePairs[indexPath.row]
-            guard let token: Activity.AssignedToken = isLeftCardSelected ? pair.left : pair.right else { return }
+            guard let token: Token = isLeftCardSelected ? pair.left : pair.right else { return }
             delegate?.didSelect(token: token, in: self)
         case .tokens, .testnetTokens, .activeWalletSession, .filters, .search, .walletSummary:
             break

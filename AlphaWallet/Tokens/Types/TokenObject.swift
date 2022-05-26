@@ -59,7 +59,7 @@ class TokenObject: Object {
         self.type = type
     }
 
-    convenience init(token: Activity.AssignedToken) {
+    convenience init(token: Token) {
         self.init()
         self.primaryKey = token.primaryKey
         self.contract = token.contractAddress.eip55String
