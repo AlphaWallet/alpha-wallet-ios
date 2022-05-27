@@ -34,7 +34,7 @@ class NFTCollectionViewController: UIViewController {
     private let tokenScriptFileStatusHandler: XMLHandler
 
     private lazy var collectionInfoPageView: NFTCollectionInfoPageView = {
-        let viewModel: NFTCollectionInfoPageViewModel = .init(server: session.server, token: viewModel.token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: session.account)
+        let viewModel: NFTCollectionInfoPageViewModel = .init(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, wallet: session.account)
         let view = NFTCollectionInfoPageView(viewModel: viewModel, keystore: keystore, session: session, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator)
         view.delegate = self
 
@@ -173,7 +173,7 @@ class NFTCollectionViewController: UIViewController {
         title = viewModel.navigationTitle
         updateNavigationRightBarButtons(tokenScriptFileStatusHandler: tokenScriptFileStatusHandler)
 
-        collectionInfoPageView.configure(viewModel: .init(server: session.server, token: viewModel.token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: session.account))
+        collectionInfoPageView.configure(viewModel: .init(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, wallet: session.account))
         nftAssetsPageView.configure(viewModel: .init(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, tokenHolders: viewModel.tokenHolders, selection: nftAssetsPageView.viewModel.selection))
 
         if viewModel.openInUrl != nil {

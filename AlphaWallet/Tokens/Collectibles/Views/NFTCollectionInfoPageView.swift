@@ -60,7 +60,7 @@ class NFTCollectionInfoPageView: ScrollableStackView, PageViewType {
 
                 stackView.addArrangedSubview(performanceHeader)
             case .field(let viewModel):
-                let view = TokenInstanceAttributeView(indexPath: IndexPath(row: index, section: 0))
+                let view = TokenAttributeView(indexPath: IndexPath(row: index, section: 0))
                 view.configure(viewModel: viewModel)
                 view.delegate = self
                 stackView.addArrangedSubview(view)
@@ -97,8 +97,8 @@ class NFTCollectionInfoPageView: ScrollableStackView, PageViewType {
     }
 }
 
-extension NFTCollectionInfoPageView: TokenInstanceAttributeViewDelegate {
-    func didSelect(in view: TokenInstanceAttributeView) {
+extension NFTCollectionInfoPageView: TokenAttributeViewDelegate {
+    func didSelect(in view: TokenAttributeView) {
         guard let url = viewModel.urlForField(indexPath: view.indexPath) else { return }
         delegate?.didPressOpenWebPage(url, in: self)
     }

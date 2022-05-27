@@ -1,5 +1,5 @@
 //
-//  TokenInstanceAttributeViewModel.swift
+//  TokenAttributeViewModel.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 15.11.2021.
@@ -7,9 +7,9 @@
 
 import UIKit
 
-struct TokenInstanceAttributeViewModel: Equatable {
+struct TokenAttributeViewModel: Equatable {
 
-    static func == (lsh: TokenInstanceAttributeViewModel, rhs: TokenInstanceAttributeViewModel) -> Bool {
+    static func == (lsh: TokenAttributeViewModel, rhs: TokenAttributeViewModel) -> Bool {
         return lsh.title == rhs.title &&
             lsh.attributedValue == rhs.attributedValue &&
             lsh.separatorColor == rhs.separatorColor &&
@@ -57,7 +57,7 @@ struct TokenInstanceAttributeViewModel: Equatable {
         attributedString(value, alignment: alignment, font: Screen.TokenCard.Font.valueChangeValue, foregroundColor: Colors.black, lineBreakMode: lineBreakMode)
     }
 
-    private static func attributedString(_ value: String, alignment: NSTextAlignment, font: UIFont, foregroundColor: UIColor, lineBreakMode: NSLineBreakMode) -> NSAttributedString {
+    static func attributedString(_ value: String, alignment: NSTextAlignment, font: UIFont, foregroundColor: UIColor, lineBreakMode: NSLineBreakMode) -> NSAttributedString {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = alignment
         paragraphStyle.lineBreakMode = lineBreakMode

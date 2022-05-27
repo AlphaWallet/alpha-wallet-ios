@@ -42,6 +42,6 @@ struct NonFungibleTraitViewModel: Equatable {
     }
 
     var attributedTitle: NSAttributedString? {
-        title.flatMap { TokenInstanceAttributeViewModel.defaultTitleAttributedString($0, alignment: .center) }
+        title.flatMap { TokenAttributeViewModel.defaultTitleAttributedString($0, alignment: .center) }
     }
 }

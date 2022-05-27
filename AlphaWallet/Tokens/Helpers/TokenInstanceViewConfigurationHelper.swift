@@ -29,31 +29,31 @@ final class TokenInstanceViewConfigurationHelper {
         self.displayHelper = OpenSeaNonFungibleTokenDisplayHelper(contract: tokenHolder.contractAddress)
     }
 
-    var values: [AttributeId: AssetAttributeSyntaxValue]? {
+    private var values: [AttributeId: AssetAttributeSyntaxValue]? {
         guard let values = tokenHolder.values(tokenId: tokenId), !values.isEmpty else { return nil }
         return values
     }
 
-    var descriptionViewModel: TokenInstanceAttributeViewModel? {
+    var descriptionViewModel: TokenAttributeViewModel? {
         return values?.collectionDescriptionStringValue.flatMap {
             guard $0.nonEmpty else { return nil }
-            return TokenInstanceAttributeViewModel.defaultValueAttributedString($0, alignment: .left)
+            return TokenAttributeViewModel.defaultValueAttributedString($0, alignment: .left)
         }.flatMap {
             .init(title: nil, attributedValue: $0, value: $0.string, isSeparatorHidden: true)
         }
     }
 
-    var createdDateViewModel: TokenInstanceAttributeViewModel? {
+    var createdDateViewModel: TokenAttributeViewModel? {
         return values?.collectionCreatedDateGeneralisedTimeValue
-            .flatMap { TokenInstanceAttributeViewModel.defaultValueAttributedString($0.formatAsShortDateString()) }
+            .flatMap { TokenAttributeViewModel.defaultValueAttributedString($0.formatAsShortDateString()) }
             .flatMap { .init(title: R.string.localizable.semifungiblesCreatedDate(), attributedValue: $0) }
     }
 
-    var tokenIdViewModel: TokenInstanceAttributeViewModel? {
+    var tokenIdViewModel: TokenAttributeViewModel? {
         return values?.tokenIdStringValue
-            .flatMap { TokenInstanceAttributeViewModel.defaultValueAttributedString($0) }
+            .flatMap { TokenAttributeViewModel.defaultValueAttributedString($0) }
             .flatMap {
-                var viewModel: TokenInstanceAttributeViewModel
+                var viewModel: TokenAttributeViewModel
                 viewModel = .init(title: R.string.localizable.semifungiblesTokenId(), attributedValue: $0, value: values?.tokenIdStringValue)
                 viewModel.valueLabelNumberOfLines = 1
 
@@ -61,83 +61,83 @@ final class TokenInstanceViewConfigurationHelper {
             }
     }
 
-    var supplyModelViewModel: TokenInstanceAttributeViewModel? {
+    var supplyModelViewModel: TokenAttributeViewModel? {
         return values?.supplyModel
-            .flatMap { TokenInstanceAttributeViewModel.defaultValueAttributedString($0) }
+            .flatMap { TokenAttributeViewModel.defaultValueAttributedString($0) }
             .flatMap { .init(title: R.string.localizable.semifungiblesAttributeSupplyType(), attributedValue: $0) }
     }
 
-    var valueModelViewModel: TokenInstanceAttributeViewModel? {
+    var valueModelViewModel: TokenAttributeViewModel? {
         return values?.valueIntValue
             .flatMap {
                 guard $0 > 1 else { return nil }
-                return TokenInstanceAttributeViewModel.defaultValueAttributedString(String($0))
+                return TokenAttributeViewModel.defaultValueAttributedString(String($0))
             }.flatMap { .init(title: R.string.localizable.semifungiblesValue(), attributedValue: $0) }
     }
 
-    var transferableViewModel: TokenInstanceAttributeViewModel? {
+    var transferableViewModel: TokenAttributeViewModel? {
         return values?.transferable
-            .flatMap { TokenInstanceAttributeViewModel.defaultValueAttributedString($0) }
+            .flatMap { TokenAttributeViewModel.defaultValueAttributedString($0) }
             .flatMap { .init(title: R.string.localizable.semifungiblesAttributeTransferable(), attributedValue: $0) }
     }
 
-    var meltValueViewModel: TokenInstanceAttributeViewModel? {
+    var meltValueViewModel: TokenAttributeViewModel? {
         return values?.meltStringValue
-            .flatMap { TokenInstanceAttributeViewModel.defaultValueAttributedString($0) }
+            .flatMap { TokenAttributeViewModel.defaultValueAttributedString($0) }
             .flatMap { .init(title: R.string.localizable.semifungiblesAttributeMelt(), attributedValue: $0) }
     }
 
-    var meltFeeRatioViewModel: TokenInstanceAttributeViewModel? {
+    var meltFeeRatioViewModel: TokenAttributeViewModel? {
         return values?.meltFeeRatio
-            .flatMap { TokenInstanceAttributeViewModel.defaultValueAttributedString(String($0)) }
+            .flatMap { TokenAttributeViewModel.defaultValueAttributedString(String($0)) }
             .flatMap { .init(title: R.string.localizable.semifungiblesAttributeMeltFeeRatio(), attributedValue: $0) }
     }
 
-    var meltFeeMaxRatioViewModel: TokenInstanceAttributeViewModel? {
+    var meltFeeMaxRatioViewModel: TokenAttributeViewModel? {
         return values?.meltFeeMaxRatio
-            .flatMap { TokenInstanceAttributeViewModel.defaultValueAttributedString(String($0)) }
+            .flatMap { TokenAttributeViewModel.defaultValueAttributedString(String($0)) }
             .flatMap { .init(title: R.string.localizable.semifungiblesAttributeMeltFeeMaxRatio(), attributedValue: $0) }
     }
 
-    var totalSupplyViewModel: TokenInstanceAttributeViewModel? {
+    var totalSupplyViewModel: TokenAttributeViewModel? {
         return values?.totalSupplyStringValue
-            .flatMap { TokenInstanceAttributeViewModel.defaultValueAttributedString($0) }
+            .flatMap { TokenAttributeViewModel.defaultValueAttributedString($0) }
             .flatMap { .init(title: R.string.localizable.semifungiblesAttributeTotalSupply(), attributedValue: $0) }
     }
 
-    var circulatingSupplyViewModel: TokenInstanceAttributeViewModel? {
+    var circulatingSupplyViewModel: TokenAttributeViewModel? {
         return values?.circulatingSupplyStringValue
-            .flatMap { TokenInstanceAttributeViewModel.defaultValueAttributedString($0) }
+            .flatMap { TokenAttributeViewModel.defaultValueAttributedString($0) }
             .flatMap { .init(title: R.string.localizable.semifungiblesAttributeCirculatingSupply(), attributedValue: $0) }
     }
 
-    var reserveViewModel: TokenInstanceAttributeViewModel? {
+    var reserveViewModel: TokenAttributeViewModel? {
         return values?.reserve
-            .flatMap { TokenInstanceAttributeViewModel.defaultValueAttributedString($0) }
+            .flatMap { TokenAttributeViewModel.defaultValueAttributedString($0) }
             .flatMap { .init(title: R.string.localizable.semifungiblesAttributeReserve(), attributedValue: $0) }
     }
 
-    var nonFungibleViewModel: TokenInstanceAttributeViewModel? {
+    var nonFungibleViewModel: TokenAttributeViewModel? {
         return values?.nonFungible
-            .flatMap { TokenInstanceAttributeViewModel.defaultValueAttributedString(String($0)) }
+            .flatMap { TokenAttributeViewModel.defaultValueAttributedString(String($0)) }
             .flatMap { .init(title: R.string.localizable.semifungiblesAttributeNonFungible(), attributedValue: $0) }
     }
 
-    var availableToMintViewModel: TokenInstanceAttributeViewModel? {
+    var availableToMintViewModel: TokenAttributeViewModel? {
         return values?.mintableSupply
-            .flatMap { TokenInstanceAttributeViewModel.defaultValueAttributedString(String($0)) }
+            .flatMap { TokenAttributeViewModel.defaultValueAttributedString(String($0)) }
             .flatMap { .init(title: R.string.localizable.semifungiblesAttributeAvailableToMint(), attributedValue: $0) }
     }
 
-    var issuerViewModel: TokenInstanceAttributeViewModel? {
+    var issuerViewModel: TokenAttributeViewModel? {
         return values?.enjinIssuer
-            .flatMap { TokenInstanceAttributeViewModel.urlValueAttributedString($0) }
+            .flatMap { TokenAttributeViewModel.urlValueAttributedString($0) }
             .flatMap { .init(title: R.string.localizable.semifungiblesAttributeIssuer(), attributedValue: $0) }
     }
 
-    var transferFeeViewModel: TokenInstanceAttributeViewModel? {
+    var transferFeeViewModel: TokenAttributeViewModel? {
         return values?.transferFee
-            .flatMap { TokenInstanceAttributeViewModel.defaultValueAttributedString(String($0)) }
+            .flatMap { TokenAttributeViewModel.defaultValueAttributedString(String($0)) }
             .flatMap { .init(title: R.string.localizable.semifungiblesAttributeTransferFee(), attributedValue: $0) }
     }
 
@@ -155,14 +155,14 @@ final class TokenInstanceViewConfigurationHelper {
 
             if let rarity = rarity {
                 let displayName = displayHelper.mapTraitsToDisplayName(name: trait.type)
-                let attribute = TokenInstanceAttributeViewModel.boldValueAttributedString("\(trait.value)".titleCasedWords(), alignment: .center)
+                let attribute = TokenAttributeViewModel.boldValueAttributedString("\(trait.value)".titleCasedWords(), alignment: .center)
                 var rarityValue: String
                 if rarity == 0 {
                     rarityValue = R.string.localizable.nonfungiblesValueRarityUnique()
                 } else {
                     rarityValue = R.string.localizable.nonfungiblesValueRarity(rarity, "%")
                 }
-                let rarity = TokenInstanceAttributeViewModel.defaultValueAttributedString(rarityValue, alignment: .center)
+                let rarity = TokenAttributeViewModel.defaultValueAttributedString(rarityValue, alignment: .center)
 
                 return .init(title: displayName, attributedValue: attribute, attributedCountValue: rarity)
             } else {
@@ -187,74 +187,74 @@ final class TokenInstanceViewConfigurationHelper {
         let displayName = displayHelper.mapTraitsToDisplayName(name: name)
         let displayValue = displayHelper.mapTraitsToDisplayValue(name: name, value: value)
 
-        let attributedValue = TokenInstanceAttributeViewModel.defaultValueAttributedString(displayValue, alignment: .center)
-        let count = count.flatMap { TokenInstanceAttributeViewModel.defaultValueAttributedString($0, alignment: .center) }
+        let attributedValue = TokenAttributeViewModel.defaultValueAttributedString(displayValue, alignment: .center)
+        let count = count.flatMap { TokenAttributeViewModel.defaultValueAttributedString($0, alignment: .center) }
 
         return .init(title: displayName, attributedValue: attributedValue, attributedCountValue: count)
     }
 
-    var ownedAssetCountViewModel: TokenInstanceAttributeViewModel? {
+    var ownedAssetCountViewModel: TokenAttributeViewModel? {
         openSeaCollection.flatMap {
-            TokenInstanceAttributeViewModel.defaultValueAttributedString(String($0.ownedAssetCount))
+            TokenAttributeViewModel.defaultValueAttributedString(String($0.ownedAssetCount))
         }.flatMap { .init(title: R.string.localizable.nonfungiblesValueOwnedAssetCount(), attributedValue: $0, value: $0.string) }
     }
 
-    var wikiUrlViewModel: TokenInstanceAttributeViewModel? {
+    var wikiUrlViewModel: TokenAttributeViewModel? {
         openSeaCollection?.wikiUrl.flatMap {
             guard $0.nonEmpty else { return nil }
-            return TokenInstanceAttributeViewModel.urlValueAttributedString(R.string.localizable.visitWiki())
+            return TokenAttributeViewModel.urlValueAttributedString(R.string.localizable.visitWiki())
         }.flatMap { .init(title: R.string.localizable.wiki(), attributedValue: $0, value: openSeaCollection?.wikiUrl) }
     }
 
-    var instagramUsernameViewModel: TokenInstanceAttributeViewModel? {
+    var instagramUsernameViewModel: TokenAttributeViewModel? {
         openSeaCollection?.instagramUsername.flatMap {
             guard $0.nonEmpty else { return nil }
-            return TokenInstanceAttributeViewModel.urlValueAttributedString(R.string.localizable.openOnInstagram())
+            return TokenAttributeViewModel.urlValueAttributedString(R.string.localizable.openOnInstagram())
         }.flatMap { .init(title: R.string.localizable.instagram(), attributedValue: $0, value: openSeaCollection?.instagramUsername) }
     }
 
-    var twitterUsernameViewModel: TokenInstanceAttributeViewModel? {
+    var twitterUsernameViewModel: TokenAttributeViewModel? {
         openSeaCollection?.twitterUsername.flatMap {
             guard $0.nonEmpty else { return nil }
-            return TokenInstanceAttributeViewModel.urlValueAttributedString(R.string.localizable.openOnTwitter())
+            return TokenAttributeViewModel.urlValueAttributedString(R.string.localizable.openOnTwitter())
         }.flatMap { .init(title: R.string.localizable.twitter(), attributedValue: $0, value: openSeaCollection?.twitterUsername) }
     }
 
-    var discordUrlViewModel: TokenInstanceAttributeViewModel? {
+    var discordUrlViewModel: TokenAttributeViewModel? {
         openSeaCollection?.discordUrl.flatMap {
             guard $0.nonEmpty else { return nil }
-            return TokenInstanceAttributeViewModel.urlValueAttributedString(R.string.localizable.openOnDiscord())
+            return TokenAttributeViewModel.urlValueAttributedString(R.string.localizable.openOnDiscord())
         }.flatMap { .init(title: R.string.localizable.discord(), attributedValue: $0, value: openSeaCollection?.discordUrl) }
     }
 
-    var telegramUrlViewModel: TokenInstanceAttributeViewModel? {
+    var telegramUrlViewModel: TokenAttributeViewModel? {
         openSeaCollection?.telegramUrl.flatMap {
             guard $0.nonEmpty else { return nil }
-            return TokenInstanceAttributeViewModel.urlValueAttributedString(R.string.localizable.openOnTelegram())
+            return TokenAttributeViewModel.urlValueAttributedString(R.string.localizable.openOnTelegram())
         }.flatMap { .init(title: R.string.localizable.telegram(), attributedValue: $0, value: openSeaCollection?.telegramUrl) }
     }
 
-    var externalUrlViewModel: TokenInstanceAttributeViewModel? {
+    var externalUrlViewModel: TokenAttributeViewModel? {
         openSeaCollection?.externalUrl.flatMap {
             guard $0.nonEmpty else { return nil }
-            return TokenInstanceAttributeViewModel.urlValueAttributedString(R.string.localizable.visitWebsite())
+            return TokenAttributeViewModel.urlValueAttributedString(R.string.localizable.visitWebsite())
         }.flatMap { .init(title: R.string.localizable.website(), attributedValue: $0, value: openSeaCollection?.externalUrl, isSeparatorHidden: true) }
     }
 
-    var itemsCount: TokenInstanceAttributeViewModel? {
+    var itemsCount: TokenAttributeViewModel? {
         return openSeaStats
             .flatMap { StringFormatter().largeNumberFormatter(for: $0.itemsCount, currency: "", decimals: 0) }
             .flatMap {
-                let attributedValue = TokenInstanceAttributeViewModel.defaultValueAttributedString($0)
+                let attributedValue = TokenAttributeViewModel.defaultValueAttributedString($0)
                 return .init(title: R.string.localizable.nonfungiblesValueItemsCount(), attributedValue: attributedValue)
             }
     }
 
-    var totalVolume: TokenInstanceAttributeViewModel? {
+    var totalVolume: TokenAttributeViewModel? {
         return openSeaStats
             .flatMap { Formatter.shortCrypto(symbol: RPCServer.main.symbol).string(from: $0.totalVolume) }
             .flatMap {
-                let attributedValue = TokenInstanceAttributeViewModel.defaultValueAttributedString($0)
+                let attributedValue = TokenAttributeViewModel.defaultValueAttributedString($0)
                 return .init(title: R.string.localizable.nonfungiblesValueTotalVolume(), attributedValue: attributedValue)
             }
     }
@@ -268,66 +268,66 @@ final class TokenInstanceViewConfigurationHelper {
         }
     }
 
-    var totalSales: TokenInstanceAttributeViewModel? {
+    var totalSales: TokenAttributeViewModel? {
         return openSeaStats
             .flatMap { StringFormatter().largeNumberFormatter(for: $0.totalSales, currency: "", decimals: decimalsForTotalSupplyOrTotalSales) }
             .flatMap {
-                let attributedValue = TokenInstanceAttributeViewModel.defaultValueAttributedString($0)
+                let attributedValue = TokenAttributeViewModel.defaultValueAttributedString($0)
                 return .init(title: R.string.localizable.nonfungiblesValueTotalSales(), attributedValue: attributedValue)
             }
     }
 
-    var totalSupply: TokenInstanceAttributeViewModel? {
+    var totalSupply: TokenAttributeViewModel? {
         return openSeaStats
             .flatMap { StringFormatter().largeNumberFormatter(for: $0.totalSupply, currency: "", decimals: decimalsForTotalSupplyOrTotalSales) }
             .flatMap {
-                let attributedValue = TokenInstanceAttributeViewModel.defaultValueAttributedString($0)
+                let attributedValue = TokenAttributeViewModel.defaultValueAttributedString($0)
                 return .init(title: R.string.localizable.nonfungiblesValueTotalSupply(), attributedValue: attributedValue)
             }
     }
 
-    var owners: TokenInstanceAttributeViewModel? {
+    var owners: TokenAttributeViewModel? {
         return openSeaStats
-            .flatMap { TokenInstanceAttributeViewModel.defaultValueAttributedString(String($0.owners)) }
+            .flatMap { TokenAttributeViewModel.defaultValueAttributedString(String($0.owners)) }
             .flatMap {
                 .init(title: R.string.localizable.nonfungiblesValueOwners(), attributedValue: $0)
             }
     }
 
-    var averagePrice: TokenInstanceAttributeViewModel? {
+    var averagePrice: TokenAttributeViewModel? {
         return openSeaStats
             .flatMap { Formatter.shortCrypto.string(from: $0.averagePrice) }
             .flatMap {
-                let attributedValue = TokenInstanceAttributeViewModel.defaultValueAttributedString($0)
+                let attributedValue = TokenAttributeViewModel.defaultValueAttributedString($0)
                 return .init(title: R.string.localizable.nonfungiblesValueAveragePrice(), attributedValue: attributedValue)
             }
     }
 
-    var marketCap: TokenInstanceAttributeViewModel? {
+    var marketCap: TokenAttributeViewModel? {
         return openSeaStats
             .flatMap { StringFormatter().largeNumberFormatter(for: $0.marketCap, currency: "") }
             .flatMap {
-                let attributedValue = TokenInstanceAttributeViewModel.defaultValueAttributedString($0)
+                let attributedValue = TokenAttributeViewModel.defaultValueAttributedString($0)
                 return .init(title: R.string.localizable.nonfungiblesValueMarketCap(), attributedValue: attributedValue)
             }
     }
 
-    var floorPrice: TokenInstanceAttributeViewModel? {
+    var floorPrice: TokenAttributeViewModel? {
         return (overridenFloorPrice ?? openSeaStats?.floorPrice)
             .flatMap { Formatter.shortCrypto(symbol: RPCServer.main.symbol).string(from: $0) }
             .flatMap {
-                let attributedValue = TokenInstanceAttributeViewModel.defaultValueAttributedString($0)
+                let attributedValue = TokenAttributeViewModel.defaultValueAttributedString($0)
                 return .init(title: R.string.localizable.nonfungiblesValueFloorPrice(), attributedValue: attributedValue)
             }
     }
 
-    var numReports: TokenInstanceAttributeViewModel? {
+    var numReports: TokenAttributeViewModel? {
         return openSeaStats
-            .flatMap { TokenInstanceAttributeViewModel.defaultValueAttributedString(String($0.numReports)) }
+            .flatMap { TokenAttributeViewModel.defaultValueAttributedString(String($0.numReports)) }
             .flatMap { .init(title: R.string.localizable.nonfungiblesValueNumReports(), attributedValue: $0) }
     }
 
-    var creator: TokenInstanceAttributeViewModel? {
+    var creator: TokenAttributeViewModel? {
         let value = values?.creatorValue?.contractAddress.eip55String
         return values?.creatorValue.flatMap { creator -> String in
             if let user = creator.user.flatMap({ $0.trimmed }), user.nonEmpty {
@@ -335,7 +335,7 @@ final class TokenInstanceViewConfigurationHelper {
             } else {
                 return creator.contractAddress.truncateMiddle
             }
-        }.flatMap { .init(title: "Created By", attributedValue: TokenInstanceAttributeViewModel.urlValueAttributedString($0), value: value) }
+        }.flatMap { .init(title: "Created By", attributedValue: TokenAttributeViewModel.urlValueAttributedString($0), value: value) }
     }
 }
 

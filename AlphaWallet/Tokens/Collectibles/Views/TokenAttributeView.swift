@@ -1,17 +1,17 @@
 //
-//  TokenInstanceAttributeView.swift
+//  TokenAttributeView.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 07.09.2021.
 //
 
-import UIKit
+import UIKit 
 
-protocol TokenInstanceAttributeViewDelegate: class {
-    func didSelect(in view: TokenInstanceAttributeView)
+protocol TokenAttributeViewDelegate: class {
+    func didSelect(in view: TokenAttributeView)
 }
 
-class TokenInstanceAttributeView: UIView {
+class TokenAttributeView: UIView {
 
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -38,7 +38,8 @@ class TokenInstanceAttributeView: UIView {
 
         return view
     }()
-    weak var delegate: TokenInstanceAttributeViewDelegate?
+
+    weak var delegate: TokenAttributeViewDelegate?
     let indexPath: IndexPath
 
     init(edgeInsets: UIEdgeInsets = .init(top: 0, left: 20, bottom: 0, right: 20), indexPath: IndexPath) {
@@ -76,7 +77,7 @@ class TokenInstanceAttributeView: UIView {
         return nil
     }
 
-    func configure(viewModel: TokenInstanceAttributeViewModel) {
+    func configure(viewModel: TokenAttributeViewModel) {
         titleLabel.attributedText = viewModel.attributedTitle
         titleLabel.isHidden = titleLabel.attributedText == nil
 

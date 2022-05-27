@@ -191,7 +191,7 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
 
                 containerView.stackView.addArrangedSubview(header)
             case .field(let viewModel):
-                let view = TokenInstanceAttributeView(indexPath: IndexPath(row: index, section: 0))
+                let view = TokenAttributeView(indexPath: IndexPath(row: index, section: 0))
                 view.configure(viewModel: viewModel)
                 view.delegate = self
 
@@ -226,8 +226,8 @@ extension NFTAssetViewController: VerifiableStatusViewController {
     }
 }
 
-extension NFTAssetViewController: TokenInstanceAttributeViewDelegate {
-    func didSelect(in view: TokenInstanceAttributeView) {
+extension NFTAssetViewController: TokenAttributeViewDelegate {
+    func didSelect(in view: TokenAttributeView) {
         switch viewModel.configurations[view.indexPath.row] {
         case .field(let vm) where viewModel.tokenIdViewModel == vm:
             UIPasteboard.general.string = vm.value

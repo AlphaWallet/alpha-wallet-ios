@@ -10,7 +10,7 @@ import BigInt
 import AlphaWalletOpenSea
 
 enum NFTCollectionInfoPageViewConfiguration {
-    case field(viewModel: TokenInstanceAttributeViewModel)
+    case field(viewModel: TokenAttributeViewModel)
     case header(viewModel: TokenInfoHeaderViewModel)
 }
 
@@ -39,7 +39,6 @@ struct NFTCollectionInfoPageViewModel {
     }
 
     let token: TokenObject
-    let server: RPCServer
     var contractAddress: AlphaWallet.Address {
         token.contractAddress
     }
@@ -113,9 +112,8 @@ struct NFTCollectionInfoPageViewModel {
         return Colors.appBackground
     }
 
-    init(server: RPCServer, token: TokenObject, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, forWallet wallet: Wallet) {
+    init(token: TokenObject, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, wallet: Wallet) {
         self.assetDefinitionStore = assetDefinitionStore
-        self.server = server
         self.token = token
         tokenHolders = token.getTokenHolders(assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: wallet)
         tokenHolder = tokenHolders[0]
@@ -133,30 +131,30 @@ struct NFTCollectionInfoPageViewModel {
     } 
 
     var blockChainTagViewModel: BlockchainTagLabelViewModel {
-        .init(server: server)
+        .init(server: token.server)
     }
 
-    var wikiUrlViewModel: TokenInstanceAttributeViewModel? {
+    var wikiUrlViewModel: TokenAttributeViewModel? {
         tokenHolderHelper.wikiUrlViewModel
     }
 
-    var instagramUsernameViewModel: TokenInstanceAttributeViewModel? {
+    var instagramUsernameViewModel: TokenAttributeViewModel? {
         tokenHolderHelper.instagramUsernameViewModel
     }
 
-    var twitterUsernameViewModel: TokenInstanceAttributeViewModel? {
+    var twitterUsernameViewModel: TokenAttributeViewModel? {
         tokenHolderHelper.twitterUsernameViewModel
     }
 
-    var discordUrlViewModel: TokenInstanceAttributeViewModel? {
+    var discordUrlViewModel: TokenAttributeViewModel? {
         tokenHolderHelper.discordUrlViewModel
     }
 
-    var telegramUrlViewModel: TokenInstanceAttributeViewModel? {
+    var telegramUrlViewModel: TokenAttributeViewModel? {
         tokenHolderHelper.telegramUrlViewModel
     }
 
-    var externalUrlViewModel: TokenInstanceAttributeViewModel? {
+    var externalUrlViewModel: TokenAttributeViewModel? {
         tokenHolderHelper.externalUrlViewModel
     }
 
@@ -169,8 +167,8 @@ struct NFTCollectionInfoPageViewModel {
     }
 
     private func generateFieldsConfigurationsForFifaToken() -> [NFTCollectionInfoPageViewConfiguration] {
-        let s = TokenInstanceAttributeViewModel.defaultValueAttributedString(R.string.localizable.semifungiblesEdconDescription(), alignment: .left)
-        let descriptionViewModel = TokenInstanceAttributeViewModel(title: nil, attributedValue: s, value: s.string, isSeparatorHidden: true)
+        let string = TokenAttributeViewModel.defaultValueAttributedString(R.string.localizable.semifungiblesEdconDescription(), alignment: .left)
+        let descriptionViewModel = TokenAttributeViewModel(title: nil, attributedValue: string, value: string.string, isSeparatorHidden: true)
 
         return [
             .header(viewModel: .init(title: R.string.localizable.semifungiblesProjectInfo())),
