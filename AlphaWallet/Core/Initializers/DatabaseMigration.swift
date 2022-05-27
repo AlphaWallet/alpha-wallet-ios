@@ -13,7 +13,7 @@ class DatabaseMigration: Initializer {
     }
 
     func perform() {
-        config.schemaVersion = 9
+        config.schemaVersion = 10
         //NOTE: use [weak self] to avoid memory leak
         config.migrationBlock = { [weak self] migration, oldSchemaVersion in
             guard let strongSelf = self else { return }
@@ -83,6 +83,16 @@ class DatabaseMigration: Initializer {
 
             if oldSchemaVersion < 9 {
                 //no-op
+            }
+
+            if oldSchemaVersion < 10 {
+                migration.enumerateObjects(ofType: TokenObject.className()) { oldObject, newObject in
+                    guard oldObject != nil else { return }
+                    guard let newObject = newObject else { return }
+                    guard let uid = oldObject?["primaryKey"] as? String else { return }
+                    
+                    newObject["_info"] = TokenInfoObject(uid: uid)
+                }
             }
         }
     }

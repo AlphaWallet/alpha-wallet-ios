@@ -16,24 +16,29 @@ class TokenObject: Object {
     @objc dynamic var symbol: String = ""
     @objc dynamic var decimals: Int = 0
     @objc dynamic var value: String = ""
+    /// Marks token object disable/enabme, isDisabled == false tokens balance and related events wount be available for token
     @objc dynamic var isDisabled: Bool = false
     @objc dynamic var rawType: String = TokenType.erc20.rawValue
+    /// Marks token object visible in tokens list, shouldDisplay == false allows updating tokens balance and retrieve events
     @objc dynamic var shouldDisplay: Bool = true
     var sortIndex = RealmOptional<Int>()
-    //NOTE: Refactor with renaming to nft balance or something similar
+
     let balance = List<TokenBalance>()
+
+    @objc dynamic var _info: TokenInfoObject?
+
+    var info: TokenInfoObject {
+        get { return _info ?? TokenInfoObject() }
+        set { _info = newValue }
+    }
 
     var nonZeroBalance: [TokenBalance] {
         return Array(balance.filter { isNonZeroBalance($0.balance, tokenType: self.type) })
     }
 
     var type: TokenType {
-        get {
-            return TokenType(rawValue: rawType)!
-        }
-        set {
-            rawType = newValue.rawValue
-        }
+        get { return TokenType(rawValue: rawType)! }
+        set { rawType = newValue.rawValue }
     }
 
     convenience init(
@@ -57,6 +62,7 @@ class TokenObject: Object {
         self.value = value
         self.isDisabled = isDisabled
         self.type = type
+        self._info = TokenInfoObject(uid: self.primaryKey)
     }
 
     convenience init(token: Token) {
@@ -70,6 +76,7 @@ class TokenObject: Object {
         self.value = token.value.description
         self.type = token.type
         self.balance.append(objectsIn: token.balanceNft.map { TokenBalance(balance: $0.balance, json: $0.json) })
+        self._info = TokenInfoObject(uid: token.primaryKey)
     }
 
     var optionalDecimalValue: NSDecimalNumber? {
@@ -89,7 +96,7 @@ class TokenObject: Object {
     }
 
     override static func ignoredProperties() -> [String] {
-        return ["type"]
+        return ["type", "info"]
     }
 
     override func isEqual(_ object: Any?) -> Bool {
