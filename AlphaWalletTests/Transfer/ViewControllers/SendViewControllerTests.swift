@@ -355,7 +355,7 @@ class SendViewControllerTests: XCTestCase {
         let token = TokenObject(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "2020224719101120", type: .erc20)
         tokenBalanceService.addOrUpdateTokenTestsOnly(token: Token(tokenObject: token))
 
-        let tokens = tokenBalanceService.tokensDataStore.enabledTokens(forServers: [.main])
+        let tokens = tokenBalanceService.tokensDataStore.enabledTokens(for: [.main])
 
         XCTAssertTrue(tokens.contains(Token(tokenObject: token)))
 
