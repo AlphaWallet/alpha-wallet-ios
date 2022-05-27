@@ -35,7 +35,7 @@ final class TokenInstanceViewConfigurationHelper {
     }
 
     var descriptionViewModel: TokenInstanceAttributeViewModel? {
-        values?.collectionDescriptionStringValue.flatMap {
+        return values?.collectionDescriptionStringValue.flatMap {
             guard $0.nonEmpty else { return nil }
             return TokenInstanceAttributeViewModel.defaultValueAttributedString($0, alignment: .left)
         }.flatMap {
@@ -44,13 +44,13 @@ final class TokenInstanceViewConfigurationHelper {
     }
 
     var createdDateViewModel: TokenInstanceAttributeViewModel? {
-        values?.collectionCreatedDateGeneralisedTimeValue
+        return values?.collectionCreatedDateGeneralisedTimeValue
             .flatMap { TokenInstanceAttributeViewModel.defaultValueAttributedString($0.formatAsShortDateString()) }
             .flatMap { .init(title: R.string.localizable.semifungiblesCreatedDate(), attributedValue: $0) }
     }
 
     var tokenIdViewModel: TokenInstanceAttributeViewModel? {
-        values?.tokenIdStringValue
+        return values?.tokenIdStringValue
             .flatMap { TokenInstanceAttributeViewModel.defaultValueAttributedString($0) }
             .flatMap {
                 var viewModel: TokenInstanceAttributeViewModel
@@ -62,15 +62,17 @@ final class TokenInstanceViewConfigurationHelper {
     }
 
     var supplyModelViewModel: TokenInstanceAttributeViewModel? {
-        values?.supplyModel
+        return values?.supplyModel
             .flatMap { TokenInstanceAttributeViewModel.defaultValueAttributedString($0) }
             .flatMap { .init(title: R.string.localizable.semifungiblesAttributeSupplyType(), attributedValue: $0) }
     }
 
     var valueModelViewModel: TokenInstanceAttributeViewModel? {
-        values?.valueIntValue
-            .flatMap { TokenInstanceAttributeViewModel.defaultValueAttributedString(String($0)) }
-            .flatMap { .init(title: R.string.localizable.semifungiblesValue(), attributedValue: $0) }
+        return values?.valueIntValue
+            .flatMap {
+                guard $0 > 1 else { return nil }
+                return TokenInstanceAttributeViewModel.defaultValueAttributedString(String($0))
+            }.flatMap { .init(title: R.string.localizable.semifungiblesValue(), attributedValue: $0) }
     }
 
     var transferableViewModel: TokenInstanceAttributeViewModel? {
