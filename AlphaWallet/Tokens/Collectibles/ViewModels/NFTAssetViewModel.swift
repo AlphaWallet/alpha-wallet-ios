@@ -124,11 +124,11 @@ class NFTAssetViewModel {
         }
     }
 
-    func firstMatchingTokenHolder(fromTokenHolders tokenHolders: [TokenHolder]) -> TokenHolder? {
+    func firstMatchingTokenHolder(from tokenHolders: [TokenHolder]) -> TokenHolder? {
         return tokenHolders.first { $0.tokens[0].id == tokenId }
     }
 
-    func isMatchingTokenHolder(fromTokenHolders tokenHolders: [TokenHolder]) -> (tokenHolder: TokenHolder, tokenId: TokenId)? {
+    func isMatchingTokenHolder(from tokenHolders: [TokenHolder]) -> (tokenHolder: TokenHolder, tokenId: TokenId)? {
         return tokenHolders.first(where: { $0.tokens.contains(where: { $0.id == tokenId }) }).flatMap { ($0, tokenId) }
     }
 

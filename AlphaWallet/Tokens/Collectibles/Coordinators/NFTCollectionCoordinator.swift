@@ -105,11 +105,21 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
                 vc.configure(viewModel: viewModel)
             case let vc as NFTAssetViewController:
                 let updatedTokenHolders = token.getTokenHolders(assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: session.account)
-                let tokenHolder = vc.viewModel.firstMatchingTokenHolder(fromTokenHolders: updatedTokenHolders)
-                if let tokenHolder = tokenHolder {
-                    let viewModel = NFTAssetViewModel(account: session.account, tokenId: tokenHolder.tokenId, token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
-                    vc.configure(viewModel: viewModel)
-                } 
+                switch token.type {
+                case .erc721, .erc875, .erc721ForTickets:
+                    let tokenHolder = vc.viewModel.firstMatchingTokenHolder(from: updatedTokenHolders)
+                    if let tokenHolder = tokenHolder {
+                        let viewModel = NFTAssetViewModel(account: session.account, tokenId: tokenHolder.tokenId, token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
+                        vc.configure(viewModel: viewModel)
+                    }
+                case .erc1155:
+                    if let selection = vc.viewModel.isMatchingTokenHolder(from: updatedTokenHolders) {
+                        let viewModel: NFTAssetViewModel = .init(account: session.account, tokenId: selection.tokenId, token: token, tokenHolder: selection.tokenHolder, assetDefinitionStore: assetDefinitionStore)
+                        vc.configure(viewModel: viewModel)
+                    }
+                case .nativeCryptocurrency, .erc20:
+                    break
+                }
             case let vc as TokenInstanceActionViewController:
                 //TODO it reloads, but doesn't live-reload the changes because the action contains the HTML and it doesn't change
                 vc.configure()
