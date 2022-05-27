@@ -200,8 +200,6 @@ extension Tokenable {
             }
         }
     }
-
-
 }
 
 extension String {
