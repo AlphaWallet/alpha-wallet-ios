@@ -90,7 +90,7 @@ struct ServerImageViewModel: ServerImageTableViewCellViewModelType {
         case .auto:
             return ""
         case .server(let rpcServer):
-            return R.string.localizable.chainIDWithPrefix(rpcServer.chainID);
+            return R.string.localizable.chainIDWithPrefix(rpcServer.chainID)
         }
 
     }
