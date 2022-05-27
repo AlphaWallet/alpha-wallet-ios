@@ -5,7 +5,7 @@ import UIKit
 
 class OpenSeaNonFungibleTokenView: UIView {
     private let background = UIView()
-    private let imageView: TokenImageView = {
+    let tokenImageView: TokenImageView = {
         let imageView: TokenImageView = TokenImageView()
         imageView.rounding = .none
         imageView.isChainOverlayHidden = true
@@ -51,13 +51,13 @@ class OpenSeaNonFungibleTokenView: UIView {
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
         background.addSubview(stackView)
-        imageHolder.addSubview(imageView)
+        imageHolder.addSubview(tokenImageView)
 
         NSLayoutConstraint.activate([
             background.anchorsConstraint(to: self, edgeInsets: .zero),
 
             stackView.anchorsConstraint(to: background),
-            imageView.anchorsConstraint(to: imageHolder)
+            tokenImageView.anchorsConstraint(to: imageHolder)
         ])
 
         translatesAutoresizingMaskIntoConstraints = false
@@ -77,7 +77,7 @@ class OpenSeaNonFungibleTokenView: UIView {
         background.borderColor = R.color.mercury()
 
         imageHolder.clipsToBounds = true
-        imageView.subscribable = viewModel.tokenIcon
+        tokenImageView.subscribable = viewModel.tokenIcon
 
         label.textAlignment = .center
         label.attributedText = viewModel.tickersTitleAttributedString
@@ -171,5 +171,11 @@ class OpenSeaNonFungibleTokenPairTableCell: UITableViewCell {
             right.configure(viewModel: viewModel)
         }
         right.isHidden = viewModel.rightViewModel == nil
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        left.tokenImageView.cancel()
+        right.tokenImageView.cancel()
     }
 }

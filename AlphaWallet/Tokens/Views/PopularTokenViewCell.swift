@@ -15,7 +15,7 @@ class PopularTokenViewCell: UITableViewCell {
         [titleLabel]
     }
 
-    private var tokenIconImageView: TokenImageView = {
+    private var tokenImageView: TokenImageView = {
         let imageView = TokenImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
@@ -29,14 +29,14 @@ class PopularTokenViewCell: UITableViewCell {
         background.translatesAutoresizingMaskIntoConstraints = false
 
         let stackView = [
-            tokenIconImageView, titleLabel, UIView.spacerWidth(flexible: true)
+            tokenImageView, titleLabel, UIView.spacerWidth(flexible: true)
         ].asStackView(axis: .horizontal, spacing: 12, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         background.addSubview(stackView) 
 
         NSLayoutConstraint.activate([
-            tokenIconImageView.heightAnchor.constraint(equalToConstant: 40),
-            tokenIconImageView.widthAnchor.constraint(equalToConstant: 40),
+            tokenImageView.heightAnchor.constraint(equalToConstant: 40),
+            tokenImageView.widthAnchor.constraint(equalToConstant: 40),
             stackView.anchorsConstraint(to: background, edgeInsets: .init(top: 16, left: 20, bottom: 16, right: 16)),
             background.anchorsConstraint(to: contentView)
         ])
@@ -56,11 +56,14 @@ class PopularTokenViewCell: UITableViewCell {
         titleLabel.attributedText = viewModel.titleAttributedString
         titleLabel.baselineAdjustment = .alignCenters
 
-        viewsWithContent.forEach {
-            $0.alpha = viewModel.alpha
-        }
-        tokenIconImageView.subscribable = viewModel.iconImage
+        viewsWithContent.forEach { $0.alpha = viewModel.alpha }
+        tokenImageView.subscribable = viewModel.iconImage
 
         blockChainTagLabel.configure(viewModel: viewModel.blockChainTagViewModel)
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        tokenImageView.cancel()
     }
 }

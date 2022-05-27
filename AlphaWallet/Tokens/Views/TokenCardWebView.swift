@@ -8,8 +8,7 @@
 import Foundation
 import UIKit
 
-class TokenCardWebView: UIView, TokenCardRowViewConfigurable, ViewRoundingSupportable {
-
+class TokenCardWebView: UIView, TokenCardRowViewConfigurable, ViewRoundingSupportable, ViewLoadingCancelable {
     private let analyticsCoordinator: AnalyticsCoordinator
     private let server: RPCServer
     private let assetDefinitionStore: AssetDefinitionStore
@@ -68,6 +67,9 @@ class TokenCardWebView: UIView, TokenCardRowViewConfigurable, ViewRoundingSuppor
         }
     }
 
+    func cancel() {
+        tokenScriptRendererView.stopLoading()
+    }
 }
 
 extension TokenCardWebView: TokenInstanceWebViewDelegate {

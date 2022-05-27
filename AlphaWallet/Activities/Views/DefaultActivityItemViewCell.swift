@@ -69,7 +69,6 @@ class DefaultActivityItemViewCell: UITableViewCell {
             stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: 20),
             stackView.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: -20),
             background.anchorsConstraint(to: contentView),
-            
             ] + stateView.anchorConstraints(to: tokenImageView))
     }
 
@@ -105,5 +104,10 @@ class DefaultActivityItemViewCell: UITableViewCell {
         tokenImageView.subscribable = viewModel.iconImage
 
         stateView.configure(viewModel: viewModel.activityStateViewViewModel)
-    } 
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        tokenImageView.cancel()
+    }
 }

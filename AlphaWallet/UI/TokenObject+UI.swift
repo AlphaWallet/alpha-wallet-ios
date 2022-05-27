@@ -138,12 +138,12 @@ class TokenImageFetcher {
     private static func programmaticallyGenerateIcon(for contractAddress: AlphaWallet.Address, type: TokenType, server: RPCServer, symbol: String) -> TokenImage? {
         guard let i = [TokenObject.numberOfCharactersOfSymbolToShowInIcon, symbol.count].min() else { return nil }
         let symbol = symbol.substring(to: i)
-        let rawImage: UIImage
+        let rawImage: UIImage?
         let overlayServerIcon: UIImage?
 
         switch type {
         case .erc1155, .erc721, .erc721ForTickets:
-            rawImage = R.image.tokenPlaceholderLarge()!
+            rawImage = nil
             overlayServerIcon = server.staticOverlayIcon
         case .erc20, .erc875:
             rawImage = programmaticallyGeneratedIconImage(for: contractAddress, server: server)
