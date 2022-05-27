@@ -445,11 +445,12 @@ enum TokenUpdateAction {
             .compactMap { token.balance.index(of: $0) }
 
         if !balancesToAdd.isEmpty || !balancesToDelete.isEmpty {
-            token.balance.append(objectsIn: balancesToAdd)
-
             for index in balancesToDelete {
                 token.balance.remove(at: index)
             }
+
+            token.balance.append(objectsIn: balancesToAdd)
+
             return true
         }
 
