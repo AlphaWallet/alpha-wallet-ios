@@ -793,7 +793,7 @@
 		8728FFD727428F29008E5524 /* Erc875NonFungibleRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8728FFD627428F29008E5524 /* Erc875NonFungibleRowViewModel.swift */; };
 		8728FFD927428F43008E5524 /* NonFungibleRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8728FFD827428F43008E5524 /* NonFungibleRowViewModel.swift */; };
 		8728FFDB27428F87008E5524 /* NonFungibleRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8728FFDA27428F87008E5524 /* NonFungibleRowView.swift */; };
-		8728FFDF27428FEA008E5524 /* TokenInstanceAttributeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8728FFDE27428FEA008E5524 /* TokenInstanceAttributeViewModel.swift */; };
+		8728FFDF27428FEA008E5524 /* TokenAttributeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8728FFDE27428FEA008E5524 /* TokenAttributeViewModel.swift */; };
 		8728FFE12742900A008E5524 /* SingleNFTAssetSelectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8728FFE02742900A008E5524 /* SingleNFTAssetSelectionViewModel.swift */; };
 		8728FFE32742906A008E5524 /* TokenCardTableViewCellFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8728FFE22742906A008E5524 /* TokenCardTableViewCellFactory.swift */; };
 		8728FFEA2743CAA7008E5524 /* NFTAssetSelectionSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8728FFE92743CAA7008E5524 /* NFTAssetSelectionSectionHeaderView.swift */; };
@@ -946,13 +946,12 @@
 		879CA41127FD5A98004461FE /* RealmStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879CA41027FD5A98004461FE /* RealmStore.swift */; };
 		879E1E40264BDD5C006CD362 /* TokenHistoryChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879E1E3F264BDD5C006CD362 /* TokenHistoryChartView.swift */; };
 		879E1E42264BFB9B006CD362 /* TokenHistoryPeriodSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879E1E41264BFB9B006CD362 /* TokenHistoryPeriodSelectorView.swift */; };
-		879E1E44264C0717006CD362 /* TickerFieldValueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879E1E43264C0717006CD362 /* TickerFieldValueView.swift */; };
 		879E1E46264C072D006CD362 /* TokenInfoHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879E1E45264C072D006CD362 /* TokenInfoHeaderView.swift */; };
 		879F184226E73BCF000602F2 /* SelectableNFTAssetTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879F184126E73BCF000602F2 /* SelectableNFTAssetTableViewCell.swift */; };
 		879F184426E73BFF000602F2 /* SingleNFTAssetSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879F184326E73BFF000602F2 /* SingleNFTAssetSelectionView.swift */; };
 		879F184626E73CAA000602F2 /* NFTAssetListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879F184526E73CAA000602F2 /* NFTAssetListViewController.swift */; };
 		879F184826E73CF4000602F2 /* NFTAssetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879F184726E73CF4000602F2 /* NFTAssetViewController.swift */; };
-		879F184A26E73D14000602F2 /* TokenInstanceAttributeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879F184926E73D14000602F2 /* TokenInstanceAttributeView.swift */; };
+		879F184A26E73D14000602F2 /* TokenAttributeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879F184926E73D14000602F2 /* TokenAttributeView.swift */; };
 		879F184C26E73D58000602F2 /* ContainerTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879F184B26E73D58000602F2 /* ContainerTableViewCell.swift */; };
 		879F184F26E73ECB000602F2 /* TransferTokenBatchCardsViaWalletAddressViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879F184E26E73ECB000602F2 /* TransferTokenBatchCardsViaWalletAddressViewController.swift */; };
 		879F185126E73F59000602F2 /* TransferTokenBatchCardsViaWalletAddressViewControllerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879F185026E73F59000602F2 /* TransferTokenBatchCardsViaWalletAddressViewControllerViewModel.swift */; };
@@ -1966,7 +1965,7 @@
 		8728FFD627428F29008E5524 /* Erc875NonFungibleRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Erc875NonFungibleRowViewModel.swift; sourceTree = "<group>"; };
 		8728FFD827428F43008E5524 /* NonFungibleRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NonFungibleRowViewModel.swift; sourceTree = "<group>"; };
 		8728FFDA27428F87008E5524 /* NonFungibleRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NonFungibleRowView.swift; sourceTree = "<group>"; };
-		8728FFDE27428FEA008E5524 /* TokenInstanceAttributeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenInstanceAttributeViewModel.swift; sourceTree = "<group>"; };
+		8728FFDE27428FEA008E5524 /* TokenAttributeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenAttributeViewModel.swift; sourceTree = "<group>"; };
 		8728FFE02742900A008E5524 /* SingleNFTAssetSelectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleNFTAssetSelectionViewModel.swift; sourceTree = "<group>"; };
 		8728FFE22742906A008E5524 /* TokenCardTableViewCellFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenCardTableViewCellFactory.swift; sourceTree = "<group>"; };
 		8728FFE92743CAA7008E5524 /* NFTAssetSelectionSectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTAssetSelectionSectionHeaderView.swift; sourceTree = "<group>"; };
@@ -2120,13 +2119,12 @@
 		879CA41027FD5A98004461FE /* RealmStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmStore.swift; sourceTree = "<group>"; };
 		879E1E3F264BDD5C006CD362 /* TokenHistoryChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenHistoryChartView.swift; sourceTree = "<group>"; };
 		879E1E41264BFB9B006CD362 /* TokenHistoryPeriodSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenHistoryPeriodSelectorView.swift; sourceTree = "<group>"; };
-		879E1E43264C0717006CD362 /* TickerFieldValueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TickerFieldValueView.swift; sourceTree = "<group>"; };
 		879E1E45264C072D006CD362 /* TokenInfoHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenInfoHeaderView.swift; sourceTree = "<group>"; };
 		879F184126E73BCF000602F2 /* SelectableNFTAssetTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableNFTAssetTableViewCell.swift; sourceTree = "<group>"; };
 		879F184326E73BFF000602F2 /* SingleNFTAssetSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleNFTAssetSelectionView.swift; sourceTree = "<group>"; };
 		879F184526E73CAA000602F2 /* NFTAssetListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTAssetListViewController.swift; sourceTree = "<group>"; };
 		879F184726E73CF4000602F2 /* NFTAssetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTAssetViewController.swift; sourceTree = "<group>"; };
-		879F184926E73D14000602F2 /* TokenInstanceAttributeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenInstanceAttributeView.swift; sourceTree = "<group>"; };
+		879F184926E73D14000602F2 /* TokenAttributeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenAttributeView.swift; sourceTree = "<group>"; };
 		879F184B26E73D58000602F2 /* ContainerTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerTableViewCell.swift; sourceTree = "<group>"; };
 		879F184E26E73ECB000602F2 /* TransferTokenBatchCardsViaWalletAddressViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferTokenBatchCardsViaWalletAddressViewController.swift; sourceTree = "<group>"; };
 		879F185026E73F59000602F2 /* TransferTokenBatchCardsViaWalletAddressViewControllerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferTokenBatchCardsViaWalletAddressViewControllerViewModel.swift; sourceTree = "<group>"; };
@@ -5013,19 +5011,18 @@
 		8739BB5326CCECC40045CFED /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				879F184926E73D14000602F2 /* TokenAttributeView.swift */,
 				5E7C7828BD821B6F04B71C00 /* FungibleTokenHeaderView.swift */,
 				8727149B2822489200901B3E /* ContainerCollectionViewCell.swift */,
 				87713EAF264BAB2500B1B9CB /* TokenPagesContainerView.swift */,
 				87713EB1264BAB4700B1B9CB /* TokenInfoPageView.swift */,
 				879E1E3F264BDD5C006CD362 /* TokenHistoryChartView.swift */,
 				879E1E41264BFB9B006CD362 /* TokenHistoryPeriodSelectorView.swift */,
-				879E1E43264C0717006CD362 /* TickerFieldValueView.swift */,
 				879E1E45264C072D006CD362 /* TokenInfoHeaderView.swift */,
 				8739BB5426CCECD10045CFED /* Erc875NonFungibleRowView.swift */,
 				8739BB6526CCED4B0045CFED /* NFTAssetsPageView.swift */,
 				879F184126E73BCF000602F2 /* SelectableNFTAssetTableViewCell.swift */,
 				879F184326E73BFF000602F2 /* SingleNFTAssetSelectionView.swift */,
-				879F184926E73D14000602F2 /* TokenInstanceAttributeView.swift */,
 				879F185426E74042000602F2 /* NFTCollectionInfoPageView.swift */,
 				8728FFDA27428F87008E5524 /* NonFungibleRowView.swift */,
 				8728FFE92743CAA7008E5524 /* NFTAssetSelectionSectionHeaderView.swift */,
@@ -5047,10 +5044,10 @@
 				879F185626E74077000602F2 /* NFTCollectionInfoPageViewModel.swift */,
 				8728FFD627428F29008E5524 /* Erc875NonFungibleRowViewModel.swift */,
 				8728FFD827428F43008E5524 /* NonFungibleRowViewModel.swift */,
-				8728FFDE27428FEA008E5524 /* TokenInstanceAttributeViewModel.swift */,
 				8728FFE02742900A008E5524 /* SingleNFTAssetSelectionViewModel.swift */,
 				875F867E27ABC7A60071ABD1 /* NonFungibleTraitViewModel.swift */,
 				87271499282175EB00901B3E /* NFTAssetListViewModel.swift */,
+				8728FFDE27428FEA008E5524 /* TokenAttributeViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -6378,7 +6375,7 @@
 				29F1C863200375D2003780D8 /* Wallet.swift in Sources */,
 				8780FDAF27BF887700BBE9DD /* ActivitiesFilterStrategy.swift in Sources */,
 				29E6E06E1FE897EE0079265A /* BrowserViewController.swift in Sources */,
-				879F184A26E73D14000602F2 /* TokenInstanceAttributeView.swift in Sources */,
+				879F184A26E73D14000602F2 /* TokenAttributeView.swift in Sources */,
 				2912CCF91F6A830700C6CBE3 /* AppDelegate.swift in Sources */,
 				29A0E1851F706B8C00BAAAED /* String.swift in Sources */,
 				8759C9EB279BD7C300FE361F /* JsonWalletAddressesStore.swift in Sources */,
@@ -6753,7 +6750,6 @@
 				5E7C78265EECE083C3EB1845 /* DappsHomeViewControllerViewModel.swift in Sources */,
 				5E7C77D12D8DE42157790BDC /* DappsAutoCompletionCell.swift in Sources */,
 				5E7C7186B20660F2C1462AA9 /* DiscoverDappsViewControllerViewModel.swift in Sources */,
-				879E1E44264C0717006CD362 /* TickerFieldValueView.swift in Sources */,
 				8765D6E7282BCC8000529F45 /* ReportUsersWalletAddresses.swift in Sources */,
 				5E7C70861A499FF79B7DA903 /* DiscoverDappCell.swift in Sources */,
 				5E7C72B359B220D0CBA7DCF1 /* DappsAutoCompletionViewController.swift in Sources */,
@@ -6805,7 +6801,7 @@
 				5E7C7EC8E473526629825ADA /* FungibleTokenViewModel.swift in Sources */,
 				87ED8F93248534E30005C69B /* SwitchTableViewCell.swift in Sources */,
 				871442FB27F74159008819D1 /* NewlyAddedTransactionProvider.swift in Sources */,
-				8728FFDF27428FEA008E5524 /* TokenInstanceAttributeViewModel.swift in Sources */,
+				8728FFDF27428FEA008E5524 /* TokenAttributeViewModel.swift in Sources */,
 				5E7C72EECA8154CEB7D9F46C /* ContainerViewWithShadow.swift in Sources */,
 				5E7C7A9628548EB8AB8B7A26 /* TokenCollection.swift in Sources */,
 				87D949BD2710559700A96A85 /* GetDASNameLookup.swift in Sources */,

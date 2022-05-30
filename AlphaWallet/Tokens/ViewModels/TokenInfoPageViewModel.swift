@@ -7,7 +7,7 @@ enum TokenInfoPageViewModelConfiguration {
     case charts
     case testnet
     case header(viewModel: TokenInfoHeaderViewModel)
-    case field(viewModel: TickerFieldValueViewModel)
+    case field(viewModel: TokenAttributeViewModel)
 }
 
 class TokenInfoPageViewModel: NSObject {
@@ -80,7 +80,7 @@ class TokenInfoPageViewModel: NSObject {
             return Just<CoinTicker?>(nil)
                 .eraseToAnyPublisher()
         }
-    }()
+    }() 
 
     private func generateConfigurations() -> [TokenInfoPageViewModelConfiguration] {
         var configurations: [TokenInfoPageViewModelConfiguration] = []
@@ -100,8 +100,6 @@ class TokenInfoPageViewModel: NSObject {
 
                 .header(viewModel: .init(title: R.string.localizable.tokenInfoHeaderStats())),
                 .field(viewModel: markerCapViewModel),
-                //.field(viewModel: viewModel.totalSupplyViewModel),
-                //.field(viewModel: viewModel.maxSupplyViewModel),
                 .field(viewModel: yearLowViewModel),
                 .field(viewModel: yearHighViewModel)
             ]
@@ -110,67 +108,25 @@ class TokenInfoPageViewModel: NSObject {
         return configurations
     }
 
-    private var valuePercentageChangeValue: String? {
-        switch EthCurrencyHelper(ticker: ticker).change24h {
-        case .appreciate(let percentageChange24h):
-            return "(\(percentageChange24h)%)"
-        case .depreciate(let percentageChange24h):
-            return "(\(percentageChange24h)%)"
-        case .none:
-            return nil
-        }
-    }
-
-    private var markerCapViewModel: TickerFieldValueViewModel {
-        let value: String = {
-            if let market_cap = ticker?.market_cap {
-                return StringFormatter().largeNumberFormatter(for: market_cap, currency: "USD")
-            } else {
-                return "-"
-            }
-        }()
-
-        let attributedValue: NSAttributedString = .init(string: value, attributes: [
-            .font: Screen.TokenCard.Font.valueChangeValue,
-            .foregroundColor: Colors.black
-        ])
-
+    private var markerCapViewModel: TokenAttributeViewModel {
+        let value: String = ticker?.market_cap.flatMap { StringFormatter().largeNumberFormatter(for: $0, currency: "USD") } ?? "-"
+        let attributedValue = TokenAttributeViewModel.defaultValueAttributedString(value)
         return .init(title: R.string.localizable.tokenInfoFieldStatsMarket_cap(), attributedValue: attributedValue)
     }
 
-    private var totalSupplyViewModel: TickerFieldValueViewModel {
-        let value: String = {
-            if let total_volume = ticker?.total_supply {
-                return String(total_volume)
-            } else {
-                return "-"
-            }
-        }()
-
-        let attributedValue: NSAttributedString = .init(string: value, attributes: [
-            .font: Screen.TokenCard.Font.valueChangeValue,
-            .foregroundColor: Colors.black
-        ])
+    private var totalSupplyViewModel: TokenAttributeViewModel {
+        let value: String = ticker?.total_supply.flatMap { String($0) } ?? "-"
+        let attributedValue = TokenAttributeViewModel.defaultValueAttributedString(value)
         return .init(title: R.string.localizable.tokenInfoFieldStatsTotal_supply(), attributedValue: attributedValue)
     }
 
-    private var maxSupplyViewModel: TickerFieldValueViewModel {
-        let value: String = {
-            if let max_supply = ticker?.max_supply, let value = Formatter.usd.string(from: max_supply) {
-                return String(value)
-            } else {
-                return "-"
-            }
-        }()
-
-        let attributedValue: NSAttributedString = .init(string: value, attributes: [
-            .font: Screen.TokenCard.Font.valueChangeValue,
-            .foregroundColor: Colors.black
-        ])
+    private var maxSupplyViewModel: TokenAttributeViewModel {
+        let value: String = ticker?.max_supply.flatMap { Formatter.usd.string(from: $0) } ?? "-"
+        let attributedValue = TokenAttributeViewModel.defaultValueAttributedString(value)
         return .init(title: R.string.localizable.tokenInfoFieldStatsMax_supply(), attributedValue: attributedValue)
     }
 
-    private var yearLowViewModel: TickerFieldValueViewModel {
+    private var yearLowViewModel: TokenAttributeViewModel {
         let value: String = {
             let history = chartHistories[safe: ChartHistoryPeriod.year.index]
             if let min = HistoryHelper(history: history).minMax?.min, let value = Formatter.usd.string(from: min) {
@@ -180,14 +136,11 @@ class TokenInfoPageViewModel: NSObject {
             }
         }()
 
-        let attributedValue: NSAttributedString = .init(string: value, attributes: [
-            .font: Screen.TokenCard.Font.valueChangeValue,
-            .foregroundColor: Colors.black
-        ])
+        let attributedValue = TokenAttributeViewModel.defaultValueAttributedString(value)
         return .init(title: R.string.localizable.tokenInfoFieldPerformanceYearLow(), attributedValue: attributedValue)
     }
 
-    private var yearHighViewModel: TickerFieldValueViewModel {
+    private var yearHighViewModel: TokenAttributeViewModel {
         let value: String = {
             let history = chartHistories[safe: ChartHistoryPeriod.year.index]
             if let max = HistoryHelper(history: history).minMax?.max, let value = Formatter.usd.string(from: max) {
@@ -197,35 +150,32 @@ class TokenInfoPageViewModel: NSObject {
             }
         }()
 
-        let attributedValue: NSAttributedString = .init(string: value, attributes: [
-            .font: Screen.TokenCard.Font.valueChangeValue,
-            .foregroundColor: Colors.black
-        ])
+        let attributedValue = TokenAttributeViewModel.defaultValueAttributedString(value)
         return .init(title: R.string.localizable.tokenInfoFieldPerformanceYearHigh(), attributedValue: attributedValue)
     }
 
-    private var yearViewModel: TickerFieldValueViewModel {
+    private var yearViewModel: TokenAttributeViewModel {
         let attributedValue: NSAttributedString = attributedHistoryValue(period: ChartHistoryPeriod.year)
         return .init(title: R.string.localizable.tokenInfoFieldStatsYear(), attributedValue: attributedValue)
     }
 
-    private var monthViewModel: TickerFieldValueViewModel {
+    private var monthViewModel: TokenAttributeViewModel {
         let attributedValue: NSAttributedString = attributedHistoryValue(period: ChartHistoryPeriod.month)
         return .init(title: R.string.localizable.tokenInfoFieldStatsMonth(), attributedValue: attributedValue)
     }
 
-    private var weekViewModel: TickerFieldValueViewModel {
+    private var weekViewModel: TokenAttributeViewModel {
         let attributedValue: NSAttributedString = attributedHistoryValue(period: ChartHistoryPeriod.week)
         return .init(title: R.string.localizable.tokenInfoFieldStatsWeek(), attributedValue: attributedValue)
     }
 
-    private var dayViewModel: TickerFieldValueViewModel {
+    private var dayViewModel: TokenAttributeViewModel {
         let attributedValue: NSAttributedString = attributedHistoryValue(period: ChartHistoryPeriod.day)
         return .init(title: R.string.localizable.tokenInfoFieldStatsDay(), attributedValue: attributedValue)
     }
 
     private func attributedHistoryValue(period: ChartHistoryPeriod) -> NSAttributedString {
-        let result: (String, UIColor) = {
+        let result: (string: String, foregroundColor: UIColor) = {
             let result = HistoryHelper(history: chartHistories[safe: period.index])
 
             switch result.change {
@@ -244,10 +194,7 @@ class TokenInfoPageViewModel: NSObject {
             }
         }()
 
-        return .init(string: result.0, attributes: [
-            .font: Screen.TokenCard.Font.valueChangeValue,
-            .foregroundColor: result.1
-        ])
+        return TokenAttributeViewModel.attributedString(result.string, alignment: .right, font: Fonts.regular(size: 17), foregroundColor: result.foregroundColor, lineBreakMode: .byTruncatingTail)
     }
 
     var backgroundColor: UIColor {

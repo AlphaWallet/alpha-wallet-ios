@@ -15,7 +15,7 @@ struct AttributeCollectionViewModel {
 
 enum TokenInstanceViewConfiguration {
     case header(viewModel: TokenInfoHeaderViewModel)
-    case field(viewModel: TokenInstanceAttributeViewModel)
+    case field(viewModel: TokenAttributeViewModel)
     case attributeCollection(viewModel: AttributeCollectionViewModel)
 }
 
@@ -94,7 +94,7 @@ class NFTAssetViewModel {
         self.assetDefinitionStore = assetDefinitionStore
         self.displayHelper = OpenSeaNonFungibleTokenDisplayHelper(contract: tokenHolder.contractAddress)
         self.tokenHolderHelper = TokenInstanceViewConfigurationHelper(tokenId: tokenId, tokenHolder: tokenHolder)
-        self.contractViewModel = TokenInstanceAttributeViewModel(title: R.string.localizable.nonfungiblesValueContract(), attributedValue: TokenInstanceAttributeViewModel.urlValueAttributedString(token.contractAddress.truncateMiddle))
+        self.contractViewModel = TokenAttributeViewModel(title: R.string.localizable.nonfungiblesValueContract(), attributedValue: TokenAttributeViewModel.urlValueAttributedString(token.contractAddress.truncateMiddle))
     }
 
     func configure(overiddenOpenSeaStats: Stats?) {
@@ -132,7 +132,7 @@ class NFTAssetViewModel {
         return tokenHolders.first(where: { $0.tokens.contains(where: { $0.id == tokenId }) }).flatMap { ($0, tokenId) }
     }
 
-    var tokenIdViewModel: TokenInstanceAttributeViewModel? {
+    var tokenIdViewModel: TokenAttributeViewModel? {
         tokenHolderHelper.tokenIdViewModel
     }
 
@@ -146,11 +146,11 @@ class NFTAssetViewModel {
             .contractUrl(address: token.contractAddress)?.url
     }
 
-    var creatorViewModel: TokenInstanceAttributeViewModel? {
+    var creatorViewModel: TokenAttributeViewModel? {
         tokenHolderHelper.creator
     }
 
-    var contractViewModel: TokenInstanceAttributeViewModel
+    var contractViewModel: TokenAttributeViewModel
 
     var tokenImagePlaceholder: UIImage? {
         return R.image.tokenPlaceholderLarge()
@@ -183,8 +183,8 @@ class NFTAssetViewModel {
             tokenHolderHelper.creator,
             tokenHolderHelper.tokenIdViewModel,
             contractViewModel,
-            TokenInstanceAttributeViewModel(title: R.string.localizable.nonfungiblesValueBlockchain(), attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString(token.server.blockChainName)),
-            TokenInstanceAttributeViewModel(title: R.string.localizable.nonfungiblesValueTokenStandard(), attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString(token.type.rawValue))
+            TokenAttributeViewModel(title: R.string.localizable.nonfungiblesValueBlockchain(), attributedValue: TokenAttributeViewModel.defaultValueAttributedString(token.server.blockChainName)),
+            TokenAttributeViewModel(title: R.string.localizable.nonfungiblesValueTokenStandard(), attributedValue: TokenAttributeViewModel.defaultValueAttributedString(token.type.rawValue))
         ].compactMap { each -> TokenInstanceViewConfiguration? in
             return each.flatMap { .field(viewModel: $0) }
         }

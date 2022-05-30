@@ -12,22 +12,12 @@ protocol TokenInfoPageViewDelegate: class {
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, in tokenInfoPageView: TokenInfoPageView)
 }
 
-class TokenInfoPageView: UIView, PageViewType {
+class TokenInfoPageView: ScrollableStackView, PageViewType {
     private lazy var headerView = FungibleTokenHeaderView(viewModel: viewModel.headerViewModel)
     private lazy var chartView: TokenHistoryChartView = {
         let chartView = TokenHistoryChartView(viewModel: viewModel.chartViewModel)
         return chartView
     }()
-
-    private var stackView: UIStackView {
-        return containerView.stackView
-    }
-
-    private lazy var containerView: ScrollableStackView = {
-        let view = ScrollableStackView()
-        return view
-    }()
-
     private let viewModel: TokenInfoPageViewModel
     private var cancelable = Set<AnyCancellable>()
 
@@ -37,13 +27,7 @@ class TokenInfoPageView: UIView, PageViewType {
 
     init(viewModel: TokenInfoPageViewModel) {
         self.viewModel = viewModel
-        super.init(frame: .zero)
-
-        translatesAutoresizingMaskIntoConstraints = false
-
-        addSubview(containerView)
-
-        NSLayoutConstraint.activate([containerView.anchorsConstraint(to: self)])
+        super.init()
 
         headerView.delegate = self
 
@@ -72,7 +56,9 @@ class TokenInfoPageView: UIView, PageViewType {
                 stackView.addArrangedSubview(UIView.spacer(backgroundColor: R.color.mike()!))
                 stackView.addArrangedSubview(UIView.spacer(height: 10))
             case .field(let viewModel):
-                let view = TickerFieldValueView()
+                let indexPath = IndexPath(row: 0, section: 0)
+                let view = TokenAttributeView(indexPath: indexPath)
+                view.delegate = self
                 view.configure(viewModel: viewModel)
 
                 stackView.addArrangedSubview(view)
@@ -94,6 +80,12 @@ class TokenInfoPageView: UIView, PageViewType {
 
     required init?(coder: NSCoder) {
         return nil
+    }
+}
+
+extension TokenInfoPageView: TokenAttributeViewDelegate {
+    func didSelect(in view: TokenAttributeView) {
+        //no-op
     }
 }
 
