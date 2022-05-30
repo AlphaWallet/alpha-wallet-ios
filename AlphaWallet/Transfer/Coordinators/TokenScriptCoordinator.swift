@@ -88,7 +88,7 @@ class TokenScriptCoordinator: Coordinator {
 
     private func subscribeForEthereumEventChanges() {
         eventsDataStore
-            .recentEvents(forTokenContract: tokenObject.contractAddress)
+            .recentEventsChangeset(for: tokenObject.contractAddress)
             .filter({ changeset in
                 switch changeset {
                 case .update(let events, _, let insertions, let modifications):
