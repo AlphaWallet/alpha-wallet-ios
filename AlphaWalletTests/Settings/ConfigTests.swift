@@ -36,7 +36,7 @@ class ConfigTests: XCTestCase {
         let coinTickersFetcher = FakeCoinTickersFetcher()
         let tokenActionsService = FakeSwapTokenService()
         let tokensDataStore = FakeTokensDataStore()
-        
+
         let coordinator_1 = TokensCoordinator(
             navigationController: FakeNavigationController(),
             sessions: sessions,
@@ -59,7 +59,7 @@ class ConfigTests: XCTestCase {
         XCTAssertEqual(coordinator_1.tokensViewController.title, "Wallet")
 
         Config.setLocale(AppLocale.simplifiedChinese)
-        
+
         let coordinator_2 = TokensCoordinator(
             navigationController: FakeNavigationController(),
             sessions: sessions,
@@ -83,5 +83,16 @@ class ConfigTests: XCTestCase {
 
         //Must change this back to system, otherwise other tests will break either immediately or the next run
         Config.setLocale(AppLocale.system)
+    }
+
+    func testMakeSureDevelopmentFlagsAreAllFalse() {
+        let mirror = Mirror(reflecting: Config.Development())
+        for child in mirror.children {
+            if let value = child.value as? Bool {
+                XCTAssertFalse(value, "Property: \(child.label) should be `false`")
+            } else {
+                XCTFail("Property: \(child.label) should be `bool`")
+            }
+        }
     }
 }
