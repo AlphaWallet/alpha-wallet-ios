@@ -218,7 +218,6 @@ public struct Constants {
     }
 
     enum WalletConnect {
-        static let relayURL = URL(string: "https://relay.walletconnect.com")!
         static let server = "AlphaWallet"
         static let websiteUrl = URL(string: Constants.website)!
         static let icons = [

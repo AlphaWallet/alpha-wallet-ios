@@ -23,17 +23,17 @@ protocol WalletConnectServer: WalletConnectResponder {
     var delegate: WalletConnectServerDelegate? { get set }
 
     func connect(url: AlphaWallet.WalletConnect.ConnectionUrl) throws
-    func session(forIdentifier identifier: AlphaWallet.WalletConnect.SessionIdentifier) -> AlphaWallet.WalletConnect.Session?
-    func reconnectSession(session: AlphaWallet.WalletConnect.Session) throws
-    func updateSession(session: AlphaWallet.WalletConnect.Session, servers: [RPCServer]) throws
-    func disconnectSession(session: AlphaWallet.WalletConnect.Session) throws
+    func session(for topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl) -> AlphaWallet.WalletConnect.Session?
+    func reconnect(_ topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl) throws
+    func update(_ topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl, servers: [RPCServer]) throws
+    func disconnect(_ topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl) throws
     func disconnectSession(sessions: [NFDSession]) throws
-    func hasConnectedSession(session: AlphaWallet.WalletConnect.Session) -> Bool
+    func isConnected(_ topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl) -> Bool
 }
 
 protocol WalletConnectServerDelegate: AnyObject {
     func server(_ server: WalletConnectServer, didConnect session: AlphaWallet.WalletConnect.Session)
-    func server(_ server: WalletConnectServer, shouldConnectFor sessionProposal: AlphaWallet.WalletConnect.SessionProposal, completion: @escaping (AlphaWallet.WalletConnect.SessionProposalResponse) -> Void)
+    func server(_ server: WalletConnectServer, shouldConnectFor proposal: AlphaWallet.WalletConnect.Proposal, completion: @escaping (AlphaWallet.WalletConnect.ProposalResponse) -> Void)
     func server(_ server: WalletConnectServer, action: AlphaWallet.WalletConnect.Action, request: AlphaWallet.WalletConnect.Session.Request, session: AlphaWallet.WalletConnect.Session)
     func server(_ server: WalletConnectServer, didFail error: Error)
     func server(_ server: WalletConnectServer, tookTooLongToConnectToUrl url: AlphaWallet.WalletConnect.ConnectionUrl)

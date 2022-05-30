@@ -116,7 +116,7 @@ class WalletConnectCoordinator: NSObject, Coordinator {
                 cancellable?.cancel()
                 for each in sessions {
                     do {
-                        try self.provider.reconnectSession(session: each)
+                        try self.provider.reconnect(each.topicOrUrl)
                     } catch {
                         let errorMessage = R.string.localizable.walletConnectFailureTitle()
                         self.displayErrorMessage(errorMessage)
@@ -272,7 +272,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
     }
 
     func server(_ server: WalletConnectServer, didConnect walletConnectSession: AlphaWallet.WalletConnect.Session) {
-        infoLog("WalletConnect didConnect session: \(walletConnectSession.identifier)")
+        infoLog("WalletConnect didConnect session: \(walletConnectSession.topicOrUrl)")
         resetSessionsToRemoveLoadingIfNeeded()
     }
 
@@ -341,11 +341,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
     //we have to send swith server request manually
     //WARNING: tweak for WalletConnect v2 as it might accept several servers at once
     func notifyUpdateServers(request: AlphaWallet.WalletConnect.Session.Request, server: RPCServer) throws {
-        guard let walletConnectSession = provider.session(forIdentifier: request.sessionId) else {
-            return
-        }
-
-        try provider.updateSession(session: walletConnectSession, servers: [server])
+        try provider.update(request.topicOrUrl, servers: [server])
     }
 
     private func switchChain(object targetChain: WalletSwitchEthereumChainObject, request: AlphaWallet.WalletConnect.Session.Request, walletConnectSession: AlphaWallet.WalletConnect.Session) -> Promise<AlphaWallet.WalletConnect.Response> {
@@ -454,10 +450,10 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         }
     }
 
-    func server(_ server: WalletConnectServer, shouldConnectFor sessionProposal: AlphaWallet.WalletConnect.SessionProposal, completion: @escaping (AlphaWallet.WalletConnect.SessionProposalResponse) -> Void) {
-        infoLog("WalletConnect shouldConnectFor connection: \(sessionProposal)")
+    func server(_ server: WalletConnectServer, shouldConnectFor proposal: AlphaWallet.WalletConnect.Proposal, completion: @escaping (AlphaWallet.WalletConnect.ProposalResponse) -> Void) {
+        infoLog("WalletConnect shouldConnectFor connection: \(proposal)")
         firstly {
-            WalletConnectToSessionCoordinator.promise(navigationController, coordinator: self, sessionProposal: sessionProposal, serverChoices: serverChoices, analyticsCoordinator: analyticsCoordinator, config: config)
+            WalletConnectToSessionCoordinator.promise(navigationController, coordinator: self, proposal: proposal, serverChoices: serverChoices, analyticsCoordinator: analyticsCoordinator, config: config)
         }.done { choise in
             completion(choise)
         }.catch { _ in
@@ -541,10 +537,10 @@ extension WalletConnectCoordinator: WalletConnectSessionsViewControllerDelegate 
     }
 
     func didDisconnectSelected(session: AlphaWallet.WalletConnect.Session, in viewController: WalletConnectSessionsViewController) {
-        infoLog("WalletConnect didDisconnect session: \(session.identifier.description)")
+        infoLog("WalletConnect didDisconnect session: \(session.topicOrUrl.description)")
         analyticsCoordinator.log(action: Analytics.Action.walletConnectDisconnect)
         do {
-            try provider.disconnectSession(session: session)
+            try provider.disconnect(session.topicOrUrl)
         } catch {
             let errorMessage = R.string.localizable.walletConnectFailureTitle()
             displayErrorMessage(errorMessage)
