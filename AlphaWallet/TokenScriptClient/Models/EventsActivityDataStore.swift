@@ -7,8 +7,8 @@ import Combine
 protocol EventsActivityDataStoreProtocol {
     var recentEventsChangeset: AnyPublisher<ChangeSet<[EventActivityInstance]>, Never> { get }
 
-    func getRecentEventsSortedByBlockNumber(forContract contract: AlphaWallet.Address, server: RPCServer, eventName: String, interpolatedFilter: String) -> [EventActivityInstance]
-    func getLastMatchingEventSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> EventActivityInstance?
+    func getRecentEventsSortedByBlockNumber(for contract: AlphaWallet.Address, server: RPCServer, eventName: String, interpolatedFilter: String) -> [EventActivityInstance]
+    func getLastMatchingEventSortedByBlockNumber(for contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> EventActivityInstance?
     func add(events: [EventActivityInstance])
 }
 
@@ -40,10 +40,10 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
         return publisher
     }
 
-    func getRecentEventsSortedByBlockNumber(forContract contract: AlphaWallet.Address, server: RPCServer, eventName: String, interpolatedFilter: String) -> [EventActivityInstance] {
+    func getRecentEventsSortedByBlockNumber(for contract: AlphaWallet.Address, server: RPCServer, eventName: String, interpolatedFilter: String) -> [EventActivityInstance] {
         let predicate = EventsActivityDataStore
             .functional
-            .matchingEventPredicate(forContract: contract, server: server, eventName: eventName, interpolatedFilter: interpolatedFilter)
+            .matchingEventPredicate(for: contract, server: server, eventName: eventName, interpolatedFilter: interpolatedFilter)
 
         var eventActivities: [EventActivityInstance] = []
         store.performSync { realm in
@@ -56,10 +56,10 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
         return eventActivities
     }
 
-    func getLastMatchingEventSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> EventActivityInstance? {
+    func getLastMatchingEventSortedByBlockNumber(for contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> EventActivityInstance? {
         let predicate = EventsActivityDataStore
             .functional
-            .matchingEventPredicate(forContract: contract, tokenContract: tokenContract, server: server, eventName: eventName)
+            .matchingEventPredicate(for: contract, tokenContract: tokenContract, server: server, eventName: eventName)
 
         var eventActivity: EventActivityInstance?
         store.performSync { realm in
@@ -110,7 +110,7 @@ extension EventsActivityDataStore.functional {
         return NSPredicate(format: "filter = '\(interpolatedFilter)'")
     }
 
-    static func matchingEventPredicate(forContract contract: AlphaWallet.Address, server: RPCServer, eventName: String, interpolatedFilter: String) -> NSPredicate {
+    static func matchingEventPredicate(for contract: AlphaWallet.Address, server: RPCServer, eventName: String, interpolatedFilter: String) -> NSPredicate {
         return NSCompoundPredicate(andPredicateWithSubpredicates: [
             isContractMatchPredicate(contract: contract),
             isChainIdMatchPredicate(server: server),
@@ -119,7 +119,7 @@ extension EventsActivityDataStore.functional {
         ])
     }
 
-    static func matchingEventPredicate(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> NSPredicate {
+    static func matchingEventPredicate(for contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> NSPredicate {
         return NSCompoundPredicate(andPredicateWithSubpredicates: [
             isContractMatchPredicate(contract: contract),
             isTokenContractMatchPredicate(contract: tokenContract),

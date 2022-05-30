@@ -75,7 +75,7 @@ final class EventSourceCoordinator: NSObject {
 
     private func fetchEvents(forTokenContract contract: AlphaWallet.Address, server: RPCServer) {
         guard let token = tokensDataStore.token(forContract: contract, server: server) else { return }
-        eventsDataStore.deleteEvents(forTokenContract: contract)
+        eventsDataStore.deleteEvents(for: contract)
 
         when(resolved: fetchEventsByTokenId(forToken: token))
             .done { _ in }
@@ -146,7 +146,7 @@ extension EventSourceCoordinator.functional {
             .map { Self.formFilterFrom(fromParameter: $0, tokenId: tokenId, filterName: filterName, filterValue: filterValue, wallet: wallet) }
 
         let oldEvent = eventsDataStore
-            .getLastMatchingEventSortedByBlockNumber(forContract: eventOrigin.contract, tokenContract: token.contractAddress, server: token.server, eventName: eventOrigin.eventName)
+            .getLastMatchingEventSortedByBlockNumber(for: eventOrigin.contract, tokenContract: token.contractAddress, server: token.server, eventName: eventOrigin.eventName)
         let fromBlock: EventFilter.Block
         if let newestEvent = oldEvent {
             fromBlock = .blockNumber(UInt64(newestEvent.blockNumber + 1))

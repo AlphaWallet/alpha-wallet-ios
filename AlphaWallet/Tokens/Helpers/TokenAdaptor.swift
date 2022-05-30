@@ -214,7 +214,7 @@ class TokenAdaptor {
             } else {
                 filterValue = eventFilter.value
             }
-            return eventsDataStore.getMatchingEvent(forContract: eventContract, tokenContract: token.contractAddress, server: token.server, eventName: eventName, filterName: filterName, filterValue: filterValue)
+            return eventsDataStore.getMatchingEvent(for: eventContract, tokenContract: token.contractAddress, server: token.server, eventName: eventName, filterName: filterName, filterValue: filterValue)
         } else {
             return nil
         }

@@ -75,7 +75,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
 
     private func subscribeForEthereumEventChanges() {
         eventsDataStore
-            .recentEvents(forTokenContract: token.contractAddress)
+            .recentEventsChangeset(for: token.contractAddress)
             .filter({ changeset in
                 switch changeset {
                 case .update(let events, _, let insertions, let modifications):

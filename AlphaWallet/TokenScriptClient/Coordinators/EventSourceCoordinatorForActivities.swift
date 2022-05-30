@@ -138,7 +138,7 @@ extension EventSourceCoordinatorForActivities.functional {
         }
 
         let oldEvent = eventsDataStore
-        .getLastMatchingEventSortedByBlockNumber(forContract: eventOrigin.contract, tokenContract: tokenContract, server: server, eventName: eventOrigin.eventName)
+        .getLastMatchingEventSortedByBlockNumber(for: eventOrigin.contract, tokenContract: tokenContract, server: server, eventName: eventOrigin.eventName)
 
         let fromBlock: (EventFilter.Block, UInt64)
         if let newestEvent = oldEvent {
