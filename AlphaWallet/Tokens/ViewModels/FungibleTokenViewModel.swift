@@ -55,7 +55,7 @@ class FungibleTokenViewModel {
         guard let token = validatedToken else { return [] }
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         let actionsFromTokenScript = xmlHandler.actions
-        let key = TokenActionsServiceKey(tokenObject: token)
+        let key = TokenActionsServiceKey(token: token)
 
         if actionsFromTokenScript.isEmpty {
             switch token.type {

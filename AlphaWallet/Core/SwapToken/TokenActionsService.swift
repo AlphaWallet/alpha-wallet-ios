@@ -15,12 +15,12 @@ struct TokenActionsServiceKey {
     var decimals: Int
     let type: TokenType
 
-    init(tokenObject: Tokenable) {
-        self.contractAddress = tokenObject.contractAddress
-        self.server = tokenObject.server
-        self.symbol = tokenObject.symbol
-        self.decimals = tokenObject.decimals
-        self.type = tokenObject.type
+    init(token: Tokenable) {
+        self.contractAddress = token.contractAddress
+        self.server = token.server
+        self.symbol = token.symbol
+        self.decimals = token.decimals
+        self.type = token.type
     }
 }
 
@@ -73,9 +73,9 @@ extension TransactionType {
     var swapServiceInputToken: TokenActionsServiceKey? {
         switch self {
         case .nativeCryptocurrency(let token, _, _):
-            return TokenActionsServiceKey(tokenObject: token)
+            return TokenActionsServiceKey(token: token)
         case .erc20Token(let token, _, _):
-            return TokenActionsServiceKey(tokenObject: token)
+            return TokenActionsServiceKey(token: token)
         case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return nil
         }

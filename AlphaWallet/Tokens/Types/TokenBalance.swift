@@ -7,15 +7,12 @@ import RealmSwift
 struct TokenBalanceValue {
     let json: String
     let balance: String
+    let nonFungibleBalance: NonFungibleFromJson?
 
     init(balance: TokenBalance) {
         self.json = balance.json
         self.balance = balance.balance
-    }
-
-    var nonFungibleBalance: NonFungibleFromJson? {
-        let nonFungibleBalance = balance.data(using: .utf8).flatMap { nonFungible(fromJsonData: $0) }
-        return nonFungibleBalance
+        self.nonFungibleBalance = balance.nonFungibleBalance
     }
 }
 
