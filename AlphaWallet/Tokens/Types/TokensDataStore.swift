@@ -42,6 +42,7 @@ enum TokenUpdateAction {
     case name(String)
     case type(TokenType)
     case isHidden(Bool)
+    case imageUrl(URL?)
 }
 
 /// Should be `final`, but removed for test purposes
@@ -418,6 +419,11 @@ enum TokenUpdateAction {
             tokenObject.shouldDisplay = !value
             if !value {
                 tokenObject.sortIndex.value = nil
+            }
+        case .imageUrl(let url):
+            if tokenObject._info?.imageUrl != url?.absoluteString {
+                tokenObject._info?.imageUrl = url?.absoluteString
+                result = true
             }
         }
 

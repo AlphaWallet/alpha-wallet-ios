@@ -52,7 +52,12 @@ extension Realm {
     }
 
     static func shared(_ name: String = "Shared") -> Realm {
-        let configuration = RealmConfiguration.configuration(name: name)
+        var configuration = RealmConfiguration.configuration(name: name)
+        configuration.objectTypes = [
+            Bookmark.self,
+            History.self
+        ]
+        
         let realm = try! Realm(configuration: configuration)
 
         return realm

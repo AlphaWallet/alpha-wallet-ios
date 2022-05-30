@@ -133,7 +133,6 @@ class SendViewControllerTests: XCTestCase {
                 }
                 
                 callbackCount += 1
-                print("XXX callbackCount: \(callbackCount)")
                 if callbackCount == callbackCountExpectation {
                     tokenBalanceUpdateCallbackExpectation.fulfill()
                 }
@@ -149,7 +148,6 @@ class SendViewControllerTests: XCTestCase {
 
                 callbackCount2 += 1
 
-                print("XXX callbackCount2: \(callbackCount2)")
                 if callbackCount2 == callbackCount2Expectation {
                     tokenBalanceUpdateCallback2Expectation.fulfill()
                 }
@@ -183,14 +181,12 @@ class SendViewControllerTests: XCTestCase {
                 }
 
                 callbackCount += 1
-                print("XXX callbackCount: \(callbackCount)")
                 if callbackCount == callbackCountExpectation {
                     tokenBalanceUpdateCallbackExpectation.fulfill()
                 }
             }.store(in: &cancelable)
 
         for each in 1 ... 10 {
-            print("XXX update balance: \(each)")
             if each % 2 == 0 {
                 DispatchQueue.global().asyncAfter(deadline: .now() + .seconds(each)) {
                     tokenBalanceService.setNftBalanceTestsOnly(["0x0\(each)"], forToken: token)
