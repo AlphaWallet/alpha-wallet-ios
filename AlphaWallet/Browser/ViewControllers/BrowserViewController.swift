@@ -43,7 +43,7 @@ final class BrowserViewController: UIViewController {
 
     lazy var webView: WKWebView = {
         let webView = WKWebView(
-            frame: .zero,
+            frame: .init(x: 0, y: 0, width: 40, height: 40),
             configuration: config
         )
         webView.allowsBackForwardNavigationGestures = true
