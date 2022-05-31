@@ -63,7 +63,7 @@ class TokenInstanceWebView: UIView {
     lazy private var webView: WKWebView = {
         let webViewConfig = WKWebViewConfiguration.make(forType: .tokenScriptRenderer, address: wallet.address, in: ScriptMessageProxy(delegate: self))
         webViewConfig.websiteDataStore = .default()
-        return .init(frame: .zero, configuration: webViewConfig)
+        return .init(frame: .init(x: 0, y: 0, width: 40, height: 40), configuration: webViewConfig)
     }()
     //Used to track asynchronous calls are called for correctly
     private var loadId: Int?

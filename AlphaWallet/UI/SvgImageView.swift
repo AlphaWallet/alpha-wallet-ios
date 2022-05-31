@@ -9,18 +9,23 @@ import UIKit
 import WebKit
 import Kingfisher
 
+private let svgImageViewSharedConfiguration: WKWebViewConfiguration = {
+    let preferences = WKPreferences()
+    preferences.javaScriptEnabled = false
+    let configuration = WKWebViewConfiguration()
+    configuration.preferences = preferences
+
+    return configuration
+}()
+
 final class SvgImageView: WKWebView {
     private var pendingLoadWebViewOperation: BlockOperation?
     private (set) var pageHasLoaded: Bool = false
     var rounding: ViewRounding = .none
 
-    init() {
-        let preferences = WKPreferences()
-        preferences.javaScriptEnabled = false
-        let configuration = WKWebViewConfiguration()
-        configuration.preferences = preferences
-
-        super.init(frame: .zero, configuration: configuration)
+    init() { 
+        //NOTE: set initial frame to avoid `[ViewportSizing] maximumViewportInset cannot be larger than frame`
+        super.init(frame: .init(x: 0, y: 0, width: 40, height: 40), configuration: svgImageViewSharedConfiguration)
 
         translatesAutoresizingMaskIntoConstraints = false
         isUserInteractionEnabled = false
