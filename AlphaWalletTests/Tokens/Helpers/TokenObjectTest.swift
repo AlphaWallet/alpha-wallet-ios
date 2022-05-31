@@ -12,7 +12,7 @@ class TokenObjectTest: XCTestCase {
     func testTokenInfo() {
         let dataStore = FakeTokensDataStore()
         let token = Token(contract: AlphaWallet.Address.make(address: "0x1000000000000000000000000000000000000004"), type: .erc20)
-        dataStore.addTokenObjects(values: [.tokenObject(token)])
+        dataStore.addTokenObjects(values: [.token(token)])
 
         let tokenObject = dataStore.tokenObject(forContract: token.contractAddress, server: token.server)
 

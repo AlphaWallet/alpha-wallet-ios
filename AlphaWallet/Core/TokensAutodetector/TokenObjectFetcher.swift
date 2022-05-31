@@ -48,10 +48,10 @@ class SingleChainTokenObjectFetcher: NSObject, TokenObjectFetcher {
                 case .fungibleTokenComplete(let name, let symbol, let decimals):
                     seal.fulfill(.fungibleTokenComplete(name: name, symbol: symbol, decimals: decimals, contract: contract, server: server, onlyIfThereIsABalance: onlyIfThereIsABalance))
                 case .delegateTokenComplete:
-                    seal.fulfill(.delegateContracts([DelegateContract(contractAddress: contract, server: server)]))
+                    seal.fulfill(.delegateContracts([AddressAndRPCServer(address: contract, server: server)]))
                 case .failed(let networkReachable):
                     if let networkReachable = networkReachable, networkReachable {
-                        seal.fulfill(.deletedContracts([DeletedContract(contractAddress: contract, server: server)]))
+                        seal.fulfill(.deletedContracts([AddressAndRPCServer(address: contract, server: server)]))
                     } else {
                         seal.fulfill(.none)
                     }
