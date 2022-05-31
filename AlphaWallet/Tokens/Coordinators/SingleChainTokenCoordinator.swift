@@ -42,8 +42,8 @@ class SingleChainTokenCoordinator: Coordinator {
     }
     private let alertService: PriceAlertServiceType
     private let tokensAutodetector: TokensAutodetector
-    private lazy var tokenObjectFetcher: TokenObjectFetcher = {
-        SingleChainTokenObjectFetcher(account: session.account, server: server, assetDefinitionStore: assetDefinitionStore)
+    private lazy var tokenFetcher: TokenFetcher = {
+        SingleChainTokenFetcher(session: session, assetDefinitionStore: assetDefinitionStore)
     }()
 
     init(
@@ -85,10 +85,10 @@ class SingleChainTokenCoordinator: Coordinator {
         struct ImportTokenError: Error { }
 
         return firstly {
-            tokenObjectFetcher.fetchTokenOrContract(for: contract, onlyIfThereIsABalance: onlyIfThereIsABalance)
+            tokenFetcher.fetchTokenOrContract(for: contract, onlyIfThereIsABalance: onlyIfThereIsABalance)
         }.map { operation -> Token in
-            if let tokenObject = self.tokensDataStore.addOrUpdate(tokensOrContracts: [operation]).first {
-                return tokenObject
+            if let token = self.tokensDataStore.addOrUpdate(tokensOrContracts: [operation]).first {
+                return token
             } else {
                 throw ImportTokenError()
             }

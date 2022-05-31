@@ -21,7 +21,7 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
     private let config: Config
     private let session: WalletSession
     private let queue: DispatchQueue
-    private let tokenObjectFetcher: TokenObjectFetcher
+    private let tokenFetcher: TokenFetcher
 
     var isAutoDetectingTransactedTokens = false
     var isAutoDetectingTokens = false
@@ -34,9 +34,9 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
             withAutoDetectTransactedTokensQueue autoDetectTransactedTokensQueue: OperationQueue,
             withAutoDetectTokensQueue autoDetectTokensQueue: OperationQueue,
             queue: DispatchQueue,
-            tokenObjectFetcher: TokenObjectFetcher
+            tokenFetcher: TokenFetcher
     ) {
-        self.tokenObjectFetcher = tokenObjectFetcher
+        self.tokenFetcher = tokenFetcher
         self.queue = queue
         self.session = session
         self.config = config
@@ -109,7 +109,7 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
 
             let promises = strongSelf.contractsForTransactedTokens(detectedContracts: detectedContracts, forServer: server)
                 .compactMap { contract -> Promise<TokenOrContract> in
-                    strongSelf.tokenObjectFetcher.fetchTokenOrContract(for: contract, onlyIfThereIsABalance: false)
+                    strongSelf.tokenFetcher.fetchTokenOrContract(for: contract, onlyIfThereIsABalance: false)
                 }
 
             return when(resolved: promises)
@@ -168,8 +168,8 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
 
         return TokenProvider(account: session.account, server: server)
             .getTokenType(for: contract)
-            .then(on: queue, { [weak tokenObjectFetcher] tokenType -> Promise<TokenOrContract> in
-                guard let tokenObjectFetcher = tokenObjectFetcher else { return .init(error: PMKError.cancelled) }
+            .then(on: queue, { [weak tokenFetcher] tokenType -> Promise<TokenOrContract> in
+                guard let tokenFetcher = tokenFetcher else { return .init(error: PMKError.cancelled) }
 
                 switch tokenType {
                 case .erc875:
@@ -179,7 +179,7 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
                         if balance.isEmpty {
                             return .value(.none)
                         } else {
-                            return tokenObjectFetcher.fetchTokenOrContract(for: contract, onlyIfThereIsABalance: false)
+                            return tokenFetcher.fetchTokenOrContract(for: contract, onlyIfThereIsABalance: false)
                         }
                     }.recover { _ -> Guarantee<TokenOrContract> in
                         return .value(.none)
@@ -188,7 +188,7 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
                     let balanceCoordinator = GetErc20Balance(forServer: server, queue: queue)
                     return balanceCoordinator.getBalance(for: accountAddress, contract: contract).then { balance -> Promise<TokenOrContract> in
                         if balance > 0 {
-                            return tokenObjectFetcher.fetchTokenOrContract(for: contract, onlyIfThereIsABalance: false)
+                            return tokenFetcher.fetchTokenOrContract(for: contract, onlyIfThereIsABalance: false)
                         } else {
                             return .value(.none)
                         }
