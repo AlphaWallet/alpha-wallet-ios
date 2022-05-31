@@ -306,10 +306,10 @@ fileprivate extension WalletFilter {
     static var orderedTabs: [WalletFilter] {
         return [
             .all,
-            .defi,
-            .governance,
             .assets,
             .collectiblesOnly,
+            .defi,
+            .governance,
         ]
     }
 
