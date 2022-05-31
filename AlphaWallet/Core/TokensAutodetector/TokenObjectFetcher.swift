@@ -9,7 +9,7 @@ import Foundation
 import PromiseKit
 
 protocol TokenObjectFetcher: NSObjectProtocol {
-    func fetchTokenObject(for contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool) -> Promise<SingleChainTokensAutodetector.AddTokenObjectOperation>
+    func fetchTokenOrContract(for contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool) -> Promise<TokenOrContract>
 }
 
 class SingleChainTokenObjectFetcher: NSObject, TokenObjectFetcher {
@@ -24,7 +24,7 @@ class SingleChainTokenObjectFetcher: NSObject, TokenObjectFetcher {
         self.assetDefinitionStore = assetDefinitionStore
     } 
 
-    func fetchTokenObject(for contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool = false) -> Promise<SingleChainTokensAutodetector.AddTokenObjectOperation> {
+    func fetchTokenOrContract(for contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool = false) -> Promise<TokenOrContract> {
         let server = server
         let detector = ContractDataDetector(address: contract, account: account, server: server, assetDefinitionStore: assetDefinitionStore)
         return Promise { seal in

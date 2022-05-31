@@ -15,7 +15,7 @@ import Result
 import SwiftyJSON
 
 protocol PrivateBalanceFetcherDelegate: AnyObject {
-    func didUpdateBalance(value operations: [PrivateBalanceFetcher.TokenBatchOperation], in fetcher: PrivateBalanceFetcher)
+    func didUpdateBalance(value operations: [AddOrUpdateTokenAction], in fetcher: PrivateBalanceFetcher)
 }
 
 protocol PrivateBalanceFetcherType: AnyObject {
@@ -101,7 +101,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         refreshBalanceForErc721Or1155Tokens(tokens: erc721Or1155Tokens)
     }
 
-    private func notifyUpdateBalance(_ operations: [TokenBatchOperation]) {
+    private func notifyUpdateBalance(_ operations: [AddOrUpdateTokenAction]) {
         delegate?.didUpdateBalance(value: operations, in: self)
     }
 
@@ -114,12 +114,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         case eth
         case all
         case token(token: Token)
-    }
-
-    enum TokenBatchOperation {
-        case add(ERCToken, shouldUpdateBalance: Bool)
-        case update(token: Token, action: TokenUpdateAction)
-    }
+    } 
 
     /// NOTE: here actually alway only one token, made it as array of being able to skip updating ether token
     private func refreshEtherTokens(tokens: [Token]) {
@@ -220,7 +215,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         }).then(on: queue, { (contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds) -> Promise<(contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds, tokenIdMetaDatas: [TokenIdMetaData])> in
                 self.fetchErc1155NonFungibleJsons(contractsAndTokenIds: contractsAndTokenIds, enjinTokens: enjinTokens)
                     .map { (contractsAndTokenIds: contractsAndTokenIds, tokenIdMetaDatas: $0) }
-        }).then(on: queue, { (contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds, tokenIdMetaDatas: [TokenIdMetaData]) -> Promise<[TokenBatchOperation]> in
+        }).then(on: queue, { (contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds, tokenIdMetaDatas: [TokenIdMetaData]) -> Promise<[AddOrUpdateTokenAction]> in
             let contractsToTokenIds: [AlphaWallet.Address: [BigInt]] = contractsAndTokenIds
                 .mapValues { tokenIds -> [BigInt] in
                     tokenIds.compactMap { BigInt($0) }
@@ -250,8 +245,8 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         //TODO log error remotely
     }
 
-    func buildUpdateNonFungiblesBalanceActions<T: NonFungibleFromJson>(contractToNonFungibles: [AlphaWallet.Address: [T]]) -> [PrivateBalanceFetcher.TokenBatchOperation] {
-        var actions: [PrivateBalanceFetcher.TokenBatchOperation] = []
+    func buildUpdateNonFungiblesBalanceActions<T: NonFungibleFromJson>(contractToNonFungibles: [AlphaWallet.Address: [T]]) -> [AddOrUpdateTokenAction] {
+        var actions: [AddOrUpdateTokenAction] = []
         for (contract, nonFungibles) in contractToNonFungibles {
             var listOfJson = [String]()
             var anyNonFungible: T?
@@ -458,7 +453,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         //All non-ERC1155 to be defensive
         let nonErc1155ContractToOpenSeaNonFungibles = contractToOpenSeaNonFungibles.filter { $0.value.randomElement()?.tokenType != .erc1155 }
 
-        func _buildErc1155Updater(contractToOpenSeaNonFungibles: [AlphaWallet.Address: [OpenSeaNonFungible]]) -> Promise<[PrivateBalanceFetcher.TokenBatchOperation]> {
+        func _buildErc1155Updater(contractToOpenSeaNonFungibles: [AlphaWallet.Address: [OpenSeaNonFungible]]) -> Promise<[AddOrUpdateTokenAction]> {
             let contractsToTokenIds: [AlphaWallet.Address: [BigInt]] = contractToOpenSeaNonFungibles.mapValues { openSeaNonFungibles -> [BigInt] in
                 openSeaNonFungibles.compactMap { BigInt($0.tokenId) }
             }
@@ -478,7 +473,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
             })
         }
 
-        func _buildNonErc1155Updater(contractToOpenSeaNonFungibles: [AlphaWallet.Address: [OpenSeaNonFungible]]) -> [PrivateBalanceFetcher.TokenBatchOperation] {
+        func _buildNonErc1155Updater(contractToOpenSeaNonFungibles: [AlphaWallet.Address: [OpenSeaNonFungible]]) -> [AddOrUpdateTokenAction] {
             buildUpdateNonFungiblesBalanceActions(contractToNonFungibles: contractToOpenSeaNonFungibles)
         }
 

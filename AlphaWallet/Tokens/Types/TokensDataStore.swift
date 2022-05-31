@@ -25,14 +25,42 @@ protocol TokensDataStore: NSObjectProtocol {
     func token(forContract contract: AlphaWallet.Address) -> Token?
     func tokenObject(forContract contract: AlphaWallet.Address, server: RPCServer) -> TokenObject?
     func token(forContract contract: AlphaWallet.Address, server: RPCServer) -> Token?
-    @discardableResult func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [Token]
     func add(hiddenContracts: [AddressAndRPCServer])
     func deleteTestsOnly(tokens: [Token])
     func updateOrderedTokens(with orderedTokens: [Token])
     func add(tokenUpdates updates: [TokenUpdate])
+    @discardableResult func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [Token]
     @discardableResult func updateToken(primaryKey: String, action: TokenUpdateAction) -> Bool?
-    @discardableResult func addTokenObjects(values: [SingleChainTokensAutodetector.AddTokenObjectOperation]) -> [Token]
-    @discardableResult func batchUpdateToken(_ actions: [PrivateBalanceFetcher.TokenBatchOperation]) -> Bool?
+    @discardableResult func addOrUpdate(tokensOrContracts: [TokenOrContract]) -> [Token]
+    @discardableResult func addOrUpdate(_ actions: [AddOrUpdateTokenAction]) -> Bool?
+}
+
+enum TokenOrContract {
+    case ercToken(ERCToken)
+    case token(Token)
+    case delegateContracts([AddressAndRPCServer])
+    case deletedContracts([AddressAndRPCServer])
+    ///We re-use the existing balance value to avoid the Wallets tab showing that token (if it already exist) as balance = 0 momentarily
+    case fungibleTokenComplete(name: String, symbol: String, decimals: UInt8, contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool)
+    case none
+
+    var addressAndRPCServer: AddressAndRPCServer? {
+        switch self {
+        case .ercToken(let eRCToken):
+            return .init(address: eRCToken.contract, server: eRCToken.server)
+        case .token(let token):
+            return .init(address: token.contractAddress, server: token.server)
+        case .delegateContracts, .deletedContracts, .none:
+            return nil
+        case .fungibleTokenComplete(_, _, _, let contract, let server, _):
+            return .init(address: contract, server: server)
+        }
+    }
+}
+
+enum AddOrUpdateTokenAction {
+    case add(ERCToken, shouldUpdateBalance: Bool)
+    case update(token: Token, action: TokenUpdateAction)
 }
 
 enum TokenUpdateAction {
@@ -257,12 +285,12 @@ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
         return tokensToReturn
     }
 
-    @discardableResult func addTokenObjects(values: [SingleChainTokensAutodetector.AddTokenObjectOperation]) -> [Token] {
-        guard !values.isEmpty else { return [] }
+    @discardableResult func addOrUpdate(tokensOrContracts: [TokenOrContract]) -> [Token] {
+        guard !tokensOrContracts.isEmpty else { return [] }
 
         store.performSync { realm in
             try? realm.safeWrite {
-                for each in values {
+                for each in tokensOrContracts {
                     switch each {
                     case .delegateContracts(let values):
                         let delegateContract = values.map { DelegateContract(contractAddress: $0.address, server: $0.server) }
@@ -301,7 +329,7 @@ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
             }
         }
 
-        let tokenObjects = values
+        let tokenObjects = tokensOrContracts
             .compactMap { $0.addressAndRPCServer }
             .compactMap { token(forContract: $0.address, server: $0.server) }
 
@@ -344,7 +372,7 @@ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
         }
     }
 
-    @discardableResult func batchUpdateToken(_ actions: [PrivateBalanceFetcher.TokenBatchOperation]) -> Bool? {
+    @discardableResult func addOrUpdate(_ actions: [AddOrUpdateTokenAction]) -> Bool? {
         guard !actions.isEmpty else { return nil }
 
         var result: Bool?
