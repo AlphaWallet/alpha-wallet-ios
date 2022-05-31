@@ -85,9 +85,9 @@ class SingleChainTokenCoordinator: Coordinator {
         struct ImportTokenError: Error { }
 
         return firstly {
-            tokenObjectFetcher.fetchTokenObject(for: contract, onlyIfThereIsABalance: onlyIfThereIsABalance)
+            tokenObjectFetcher.fetchTokenOrContract(for: contract, onlyIfThereIsABalance: onlyIfThereIsABalance)
         }.map { operation -> Token in
-            if let tokenObject = self.tokensDataStore.addTokenObjects(values: [operation]).first {
+            if let tokenObject = self.tokensDataStore.addOrUpdate(tokensOrContracts: [operation]).first {
                 return tokenObject
             } else {
                 throw ImportTokenError()
@@ -151,9 +151,9 @@ class SingleChainTokenCoordinator: Coordinator {
     }
 
     func add(token: ERCToken) -> Token {
-        let tokenObject = tokensDataStore.addCustom(tokens: [token], shouldUpdateBalance: true)
+        let token = tokensDataStore.addCustom(tokens: [token], shouldUpdateBalance: true)
 
-        return tokenObject[0]
+        return token[0]
     }
 
     private func showTokenInstanceActionView(forAction action: TokenInstanceAction, fungibleTokenObject tokenObject: TokenObject, navigationController: UINavigationController) {

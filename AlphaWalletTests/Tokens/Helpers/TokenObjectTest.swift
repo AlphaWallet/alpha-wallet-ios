@@ -12,7 +12,7 @@ class TokenObjectTest: XCTestCase {
     func testTokenInfo() {
         let dataStore = FakeTokensDataStore()
         let token = Token(contract: AlphaWallet.Address.make(address: "0x1000000000000000000000000000000000000004"), type: .erc20)
-        dataStore.addTokenObjects(values: [.token(token)])
+        dataStore.addOrUpdate(tokensOrContracts: [.token(token)])
 
         let tokenObject = dataStore.tokenObject(forContract: token.contractAddress, server: token.server)
 
@@ -25,12 +25,12 @@ class TokenObjectTest: XCTestCase {
         XCTAssertEqual(token1?.info, token.info)
 
         let url = URL(string: "http://google.com")
-        dataStore.batchUpdateToken([.update(token: token, action: .imageUrl(url))])
+        dataStore.addOrUpdate([.update(token: token, action: .imageUrl(url))])
 
         let token2 = dataStore.token(forContract: token.contractAddress, server: token.server)
         XCTAssertEqual(token2?.info.imageUrl, url?.absoluteString)
 
-        dataStore.batchUpdateToken([.update(token: token, action: .imageUrl(nil))])
+        dataStore.addOrUpdate([.update(token: token, action: .imageUrl(nil))])
 
         let token3 = dataStore.token(forContract: token.contractAddress, server: token.server)
         XCTAssertNil(token3?.info.imageUrl)

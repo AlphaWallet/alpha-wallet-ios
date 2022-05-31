@@ -256,10 +256,8 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
 }
 
 extension WalletBalanceFetcher: PrivateBalanceFetcherDelegate {
-    func didUpdateBalance(value operations: [PrivateBalanceFetcher.TokenBatchOperation], in fetcher: PrivateBalanceFetcher) {
-        guard !operations.isEmpty else { return }
-
-        if let balanceHasUpdated = tokensDataStore.batchUpdateToken(operations), balanceHasUpdated {
+    func didUpdateBalance(value actions: [AddOrUpdateTokenAction], in fetcher: PrivateBalanceFetcher) {
+        if let balanceHasUpdated = tokensDataStore.addOrUpdate(actions), balanceHasUpdated {
             reloadWalletBalance()
         }
     }
@@ -280,7 +278,7 @@ extension WalletBalanceFetcher: WalletBalanceFetcherTypeTests {
     }
 
     func addOrUpdateTokenTestsOnly(token: Token) {
-        tokensDataStore.addTokenObjects(values: [
+        tokensDataStore.addOrUpdate(tokensOrContracts: [
             .token(token)
         ])
     }
