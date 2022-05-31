@@ -281,7 +281,7 @@ extension WalletBalanceFetcher: WalletBalanceFetcherTypeTests {
 
     func addOrUpdateTokenTestsOnly(token: Token) {
         tokensDataStore.addTokenObjects(values: [
-            .tokenObject(token)
+            .token(token)
         ])
     }
 

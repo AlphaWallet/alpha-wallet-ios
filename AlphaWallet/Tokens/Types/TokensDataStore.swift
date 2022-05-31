@@ -26,7 +26,7 @@ protocol TokensDataStore: NSObjectProtocol {
     func tokenObject(forContract contract: AlphaWallet.Address, server: RPCServer) -> TokenObject?
     func token(forContract contract: AlphaWallet.Address, server: RPCServer) -> Token?
     @discardableResult func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [Token]
-    func add(hiddenContracts: [HiddenContract])
+    func add(hiddenContracts: [AddressAndRPCServer])
     func deleteTestsOnly(tokens: [Token])
     func updateOrderedTokens(with orderedTokens: [Token])
     func add(tokenUpdates updates: [TokenUpdate])
@@ -45,9 +45,7 @@ enum TokenUpdateAction {
     case imageUrl(URL?)
 }
 
-/// Should be `final`, but removed for test purposes
-/*final*/ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
-    //NOTE: adds synchronized access to realm, to make requests from different threads. Replace other calls
+class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
     private let store: RealmStore
 
     init(store: RealmStore, servers: [RPCServer]) {
@@ -266,15 +264,18 @@ enum TokenUpdateAction {
             try? realm.safeWrite {
                 for each in values {
                     switch each {
-                    case .delegateContracts(let delegateContract):
+                    case .delegateContracts(let values):
+                        let delegateContract = values.map { DelegateContract(contractAddress: $0.address, server: $0.server) }
+
                         realm.add(delegateContract, update: .all)
                     case .ercToken(let token):
                         let newTokenObject = MultipleChainsTokensDataStore.functional.createTokenObject(ercToken: token, shouldUpdateBalance: token.type.shouldUpdateBalanceWhenDetected)
                         self.addTokenWithoutCommitWrite(tokenObject: newTokenObject, realm: realm)
-                    case .tokenObject(let token):
+                    case .token(let token):
                         let tokenObject = TokenObject(token: token)
                         self.addTokenWithoutCommitWrite(tokenObject: tokenObject, realm: realm)
-                    case .deletedContracts(let deadContracts):
+                    case .deletedContracts(let values):
+                        let deadContracts = values.map { DelegateContract(contractAddress: $0.address, server: $0.server) }
                         realm.add(deadContracts, update: .all)
                     case .fungibleTokenComplete(let name, let symbol, let decimals, let contract, let server, let onlyIfThereIsABalance):
                         let existedTokenObject = self.tokenObject(forContract: contract, server: server, realm: realm)
@@ -307,9 +308,10 @@ enum TokenUpdateAction {
         return tokenObjects
     }
 
-    func add(hiddenContracts: [HiddenContract]) {
+    func add(hiddenContracts: [AddressAndRPCServer]) {
         store.performSync { realm in
             try? realm.safeWrite {
+                let hiddenContracts = hiddenContracts.map { HiddenContract(contractAddress: $0.address, server: $0.server) }
                 realm.add(hiddenContracts, update: .all)
             }
         }
