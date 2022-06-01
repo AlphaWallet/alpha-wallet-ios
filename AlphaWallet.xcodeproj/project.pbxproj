@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		021746122763311D00BAF19C /* ExportJsonKeystoreFileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 021746112763311D00BAF19C /* ExportJsonKeystoreFileViewModel.swift */; };
+		021C56362841ACB300A5C987 /* LaunchScreen.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 021C56272841A31200A5C987 /* LaunchScreen.xcassets */; };
 		02220CFC273A9A02006A09BF /* SaveCustomRpcCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02220CFB273A9A02006A09BF /* SaveCustomRpcCoordinator.swift */; };
 		0224D26727980664003D022A /* FormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0224D26627980664003D022A /* FormatterTests.swift */; };
 		0225192727EB667D00CC1C8B /* tokens.json in Resources */ = {isa = PBXBuildFile; fileRef = 0225192627EB667D00CC1C8B /* tokens.json */; };
@@ -1175,6 +1176,7 @@
 
 /* Begin PBXFileReference section */
 		021746112763311D00BAF19C /* ExportJsonKeystoreFileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportJsonKeystoreFileViewModel.swift; sourceTree = "<group>"; };
+		021C56272841A31200A5C987 /* LaunchScreen.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = LaunchScreen.xcassets; sourceTree = "<group>"; };
 		02220CFB273A9A02006A09BF /* SaveCustomRpcCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcCoordinator.swift; sourceTree = "<group>"; };
 		0224D26627980664003D022A /* FormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormatterTests.swift; sourceTree = "<group>"; };
 		0225192627EB667D00CC1C8B /* tokens.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = tokens.json; sourceTree = "<group>"; };
@@ -2555,6 +2557,7 @@
 				29AD8A071F93E1F0008E10E7 /* AlphaWallet.entitlements */,
 				613D04881FDE15F8008DE72E /* COMODO ECC Domain Validation Secure Server CA 2.cer */,
 				C868C5282053BDE00059672B /* LaunchScreen.storyboard */,
+				021C56272841A31200A5C987 /* LaunchScreen.xcassets */,
 				76F1D1936604D6A022E9AE90 /* Market */,
 				76F1D47A29573DA8BD3E4979 /* Redeem */,
 				5E7C7ACB32FB112CD7D92977 /* AlphaWalletHelp */,
@@ -5816,6 +5819,7 @@
 				C880330E2054371500D73D6F /* non_asset_catalog_redemption_location@3x.png in Resources */,
 				C880332020551DF800D73D6F /* howDoIGetMyMoneyInfo.html in Resources */,
 				613D04891FDE15F8008DE72E /* COMODO ECC Domain Validation Secure Server CA 2.cer in Resources */,
+				021C56362841ACB300A5C987 /* LaunchScreen.xcassets in Resources */,
 				C887C53A2057B703005ACF81 /* termsOfService.html in Resources */,
 				C876FF7D204A79D300B7D0EA /* SourceSansPro-Bold.otf in Resources */,
 				87FBF2B728056B8E00616B7D /* GoogleService-Info.plist in Resources */,
@@ -7519,6 +7523,7 @@
 				ALPHAWALLET_PRODUCT_BUNDLE_IDENTIFIER = com.stormbird.alphawallet;
 				ALPHAWALLET_PRODUCT_NAME = AlphaWallet;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = AlphaWallet/AlphaWallet.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -7559,6 +7564,7 @@
 				ALPHAWALLET_PRODUCT_BUNDLE_IDENTIFIER = com.stormbird.alphawallet;
 				ALPHAWALLET_PRODUCT_NAME = AlphaWallet;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = AlphaWallet/AlphaWallet.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
