@@ -135,7 +135,7 @@ class WalletConnectSessionViewController: UIViewController {
     }
 
     private func reconfigure() {
-        guard let session = provider.session(forIdentifier: viewModel.sessionIdentifier) else {
+        guard let session = provider.session(for: viewModel.topicOrUrl) else {
             //NOTE: actually this case should newer happend
             return configure(viewModel: viewModel)
         }

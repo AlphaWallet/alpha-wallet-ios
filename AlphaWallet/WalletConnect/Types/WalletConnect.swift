@@ -6,12 +6,9 @@
 //
 
 import Foundation
-import WalletConnectSwift 
+import WalletConnectSwift  
 
 typealias WalletConnectV1Request = WalletConnectSwift.Request
-protocol SessionIdentifiable {
-    var identifier: AlphaWallet.WalletConnect.SessionIdentifier { get }
-}
 
 extension AlphaWallet.WalletConnect.Session {
     enum Request: CustomStringConvertible {
@@ -37,10 +34,10 @@ extension AlphaWallet.WalletConnect.Session {
         }
 
         var description: String {
-            sessionId.description
+            topicOrUrl.description
         }
 
-        var sessionId: AlphaWallet.WalletConnect.SessionIdentifier {
+        var topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl {
             switch self {
             case .v1(let request, _):
                 return .url(url: request.url)
@@ -100,46 +97,49 @@ extension AlphaWallet {
             }
         }
 
-        struct SessionProposal {
+        enum ServerEditingAvailability {
+            case disabled
+            case enabled
+            case notSupporting
+        }
+
+        struct Proposal {
             let name: String
             let iconUrl: URL?
             let servers: [RPCServer]
             let dappUrl: URL
             let description: String?
             let methods: [String]
-            let isServerEditingAvailable: Bool?
-            var isV1SessionProposal: Bool {
-                return isServerEditingAvailable != nil
-            }
+            let serverEditing: ServerEditingAvailability
 
-            init(dAppInfo info: WalletConnectSwift.Session.DAppInfo, url: WalletConnectV1URL) {
+            init(dAppInfo info: WalletConnectSwift.Session.DAppInfo) {
                 description = info.peerMeta.description
                 name = info.peerMeta.name
                 dappUrl = info.peerMeta.url
                 iconUrl = info.peerMeta.icons.first
                 //NOTE: Keep in mind, changing servers is available in `info.chainId == nil`, only sing server connection
                 if let server: RPCServer = info.chainId.flatMap({ .init(chainID: $0) }) {
-                    isServerEditingAvailable = false
+                    serverEditing = .disabled
                     servers = [server]
                 } else {
                     servers = [.main]
-                    isServerEditingAvailable = true
+                    serverEditing = .enabled
                 }
                 methods = []
             }
             
         }
 
-        enum SessionIdentifier: Codable, CustomStringConvertible {
-            struct SessionIdentifierError: Error {}
+        enum TopicOrUrl: Codable, CustomStringConvertible {
+            struct TopicOrUrlError: Error {}
 
             case topic(string: String)
             case url(url: WalletConnectV1URL)
             
             var description: String {
                 switch self {
-                case .topic(let string):
-                    return string
+                case .topic(let topic):
+                    return topic
                 case .url(let url):
                     return url.absoluteString
                 }
@@ -154,12 +154,12 @@ extension AlphaWallet {
 
             init(from decoder: Decoder) throws {
                 let container = try decoder.container(keyedBy: Keys.self)
-                if let topic = try? container.decode([String: String].self, forKey: .topic), let value = topic[SessionIdentifier.valueKey] {
+                if let topic = try? container.decode([String: String].self, forKey: .topic), let value = topic[TopicOrUrl.valueKey] {
                     self = .topic(string: value)
-                } else if let url = try? container.decode([String: WalletConnectV1URL].self, forKey: .url), let value = url[SessionIdentifier.valueKey] {
+                } else if let url = try? container.decode([String: WalletConnectV1URL].self, forKey: .url), let value = url[TopicOrUrl.valueKey] {
                     self = .url(url: value)
                 } else {
-                    throw SessionIdentifierError()
+                    throw TopicOrUrlError()
                 }
             }
 
@@ -167,9 +167,9 @@ extension AlphaWallet {
                 var container = encoder.container(keyedBy: Keys.self)
                 switch self {
                 case .topic(let string):
-                    try container.encode([SessionIdentifier.valueKey: string], forKey: .topic)
+                    try container.encode([TopicOrUrl.valueKey: string], forKey: .topic)
                 case .url(let url):
-                    try container.encode([SessionIdentifier.valueKey: url], forKey: .url)
+                    try container.encode([TopicOrUrl.valueKey: url], forKey: .url)
                 }
             }
         }
@@ -188,23 +188,32 @@ extension AlphaWallet {
             }
         }
 
-        struct Session: Equatable, Hashable {
-            static func == (lhs: AlphaWallet.WalletConnect.Session, rhs: AlphaWallet.WalletConnect.Session) -> Bool {
-                return lhs.identifier == rhs.identifier
+        enum MultipleServersSelection {
+            case enabled
+            case disabled
+        }
+
+        struct Session: Hashable {
+            let topicOrUrl: TopicOrUrl
+            let dapp: Dapp
+            let multipleServersSelection: MultipleServersSelection
+            let namespaces: [String: SessionNamespace]
+
+            var servers: [RPCServer] {
+                let chains = Array(namespaces.values.flatMap { $0.accounts.map { $0.blockchain.absoluteString } })
+                return chains.compactMap { eip155URLCoder.decodeRPC(from: $0) }
             }
 
-            let identifier: SessionIdentifier
-            var servers: [RPCServer]
-            let dapp: Dapp
-            var methods: [String]
-            let isMultipleServersEnabled: Bool
+            var methods: [String] {
+                Array(namespaces.values.first?.methods ?? [])
+            }
 
             func hash(into hasher: inout Hasher) {
-                hasher.combine(identifier.description)
+                hasher.combine(topicOrUrl.description)
             }
         }
 
-        enum SessionProposalResponse {
+        enum ProposalResponse {
             case connect(RPCServer)
             case cancel
 
@@ -242,8 +251,14 @@ enum SessionsToDisconnect {
     case all
 }
 
-extension AlphaWallet.WalletConnect.SessionIdentifier {
-    static func == (_ lhs: AlphaWallet.WalletConnect.SessionIdentifier, _ rhs: AlphaWallet.WalletConnect.SessionIdentifier) -> Bool {
+extension AlphaWallet.WalletConnect.Session: Equatable {
+    static func == (lhs: AlphaWallet.WalletConnect.Session, rhs: AlphaWallet.WalletConnect.Session) -> Bool {
+        return lhs.topicOrUrl == rhs.topicOrUrl
+    }
+}
+
+extension AlphaWallet.WalletConnect.TopicOrUrl {
+    static func == (_ lhs: AlphaWallet.WalletConnect.TopicOrUrl, _ rhs: AlphaWallet.WalletConnect.TopicOrUrl) -> Bool {
         switch (lhs, rhs) {
         case (.url(let url1), .url(let url2)):
             return url1.absoluteString == url2.absoluteString
@@ -274,9 +289,9 @@ struct WalletConnectDappRequesterViewModel {
     }
 }
 
-extension WalletConnectSwift.Session: SessionIdentifiable {
+extension WalletConnectSwift.Session {
 
-    var identifier: AlphaWallet.WalletConnect.SessionIdentifier {
+    var topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl {
         return .url(url: url)
     }
 
@@ -286,13 +301,12 @@ extension WalletConnectSwift.Session: SessionIdentifiable {
 }
 
 extension AlphaWallet.WalletConnect.Session {
+
     var requester: DAppRequester {
         return .init(title: dappName, url: dappUrl)
     }
 
-    var dappName: String {
-        return dapp.name
-    }
+    var dappName: String { return dapp.name }
 
     var dappNameShort: String {
         guard let approxDapName = dappName.components(separatedBy: " ").first, approxDapName.nonEmpty else {
@@ -302,11 +316,7 @@ extension AlphaWallet.WalletConnect.Session {
         return approxDapName
     }
 
-    var dappIconUrl: URL? {
-        dapp.icons.first
-    }
+    var dappIconUrl: URL? { dapp.icons.first }
 
-    var dappUrl: URL {
-        dapp.url
-    }
+    var dappUrl: URL { dapp.url }
 }

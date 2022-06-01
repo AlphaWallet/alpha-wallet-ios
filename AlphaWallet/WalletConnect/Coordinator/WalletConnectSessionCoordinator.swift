@@ -58,7 +58,7 @@ extension WalletConnectSessionCoordinator: WalletConnectSessionViewControllerDel
         let selectedServers: [RPCServerOrAuto] = controller.rpcServers.map { return .server($0) }
         let servers = serverChoices.filter { config.enabledServers.contains($0) } .compactMap { RPCServerOrAuto.server($0) }
         var viewModel = ServersViewModel(servers: servers, selectedServers: selectedServers, displayWarningFooter: false)
-        viewModel.multipleSessionSelectionEnabled = session.isMultipleServersEnabled
+        viewModel.multipleSessionSelectionEnabled = session.multipleServersSelection == .enabled
 
         firstly {
             ServersCoordinator.promise(navigationController, viewModel: viewModel, coordinator: self)
@@ -67,7 +67,7 @@ extension WalletConnectSessionCoordinator: WalletConnectSessionViewControllerDel
             self.analyticsCoordinator.log(action: Analytics.Action.switchedServer, properties: [
                 Analytics.Properties.source.rawValue: "walletConnect"
             ])
-            try? self.provider.updateSession(session: self.session, servers: servers)
+            try? self.provider.update(self.session.topicOrUrl, servers: servers)
         }.catch { _ in
             self.analyticsCoordinator.log(action: Analytics.Action.cancelsSwitchServer, properties: [
                 Analytics.Properties.source.rawValue: "walletConnect"
@@ -78,7 +78,7 @@ extension WalletConnectSessionCoordinator: WalletConnectSessionViewControllerDel
     func controller(_ controller: WalletConnectSessionViewController, disconnectSelected sender: UIButton) {
         analyticsCoordinator.log(action: Analytics.Action.walletConnectDisconnect)
 
-        try? provider.disconnectSession(session: session)
+        try? provider.disconnect(session.topicOrUrl)
         navigationController.popViewController(animated: true)
         delegate?.didDismiss(in: self)
     }

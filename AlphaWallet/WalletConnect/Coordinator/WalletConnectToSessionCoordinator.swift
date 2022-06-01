@@ -9,16 +9,16 @@ import UIKit
 import PromiseKit
 
 protocol WalletConnectToSessionCoordinatorDelegate: AnyObject {
-    func coordinator(_ coordinator: WalletConnectToSessionCoordinator, didCompleteWithConnection result: AlphaWallet.WalletConnect.SessionProposalResponse)
+    func coordinator(_ coordinator: WalletConnectToSessionCoordinator, didCompleteWithConnection result: AlphaWallet.WalletConnect.ProposalResponse)
 }
 
 class WalletConnectToSessionCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
 
     private let analyticsCoordinator: AnalyticsCoordinator
-    private let sessionProposal: AlphaWallet.WalletConnect.SessionProposal
+    private let proposal: AlphaWallet.WalletConnect.Proposal
     private let navigationController: UINavigationController
-    private lazy var viewModel = WalletConnectToSessionViewModel(sessionProposal: sessionProposal, serversToConnect: serversToConnect)
+    private lazy var viewModel = WalletConnectToSessionViewModel(proposal: proposal, serversToConnect: serversToConnect)
     private lazy var rootViewController: WalletConnectToSessionViewController = {
         let viewController = WalletConnectToSessionViewController(viewModel: viewModel)
         viewController.delegate = self
@@ -41,11 +41,11 @@ class WalletConnectToSessionCoordinator: Coordinator {
     private let config: Config
     weak var delegate: WalletConnectToSessionCoordinatorDelegate?
 
-    init(analyticsCoordinator: AnalyticsCoordinator, sessionProposal: AlphaWallet.WalletConnect.SessionProposal, navigationController: UINavigationController, serverChoices: [RPCServer], config: Config) {
+    init(analyticsCoordinator: AnalyticsCoordinator, proposal: AlphaWallet.WalletConnect.Proposal, navigationController: UINavigationController, serverChoices: [RPCServer], config: Config) {
         self.config = config
         self.analyticsCoordinator = analyticsCoordinator
-        self.sessionProposal = sessionProposal
-        self.serversToConnect = sessionProposal.servers
+        self.proposal = proposal
+        self.serversToConnect = proposal.servers
         self.navigationController = navigationController
         self.serverChoices = serverChoices
     }
