@@ -28,8 +28,9 @@ public class AtomicDictionary<Key: Hashable, Value> {
         }
     }
     
-    public init(queue: DispatchQueue = DispatchQueue(label: "org.alphawallet.swift.atomicDictionary", qos: .background)) {
+    public init(queue: DispatchQueue = DispatchQueue(label: "org.alphawallet.swift.atomicDictionary", qos: .background), value: [Key: Value] = [:]) {
         self.queue = queue
+        self.cache = value
     }
 
     public func removeAll() {

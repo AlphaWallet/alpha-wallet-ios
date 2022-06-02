@@ -7,6 +7,7 @@
 
 import UIKit
 import Combine
+import AlphaWalletCore
 
 enum PriceAlertUpdates {
     case enabled(Bool)

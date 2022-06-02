@@ -10,6 +10,7 @@ import WalletConnectSwift
 import AlphaWalletAddress
 import PromiseKit
 import Combine
+import AlphaWalletCore
 
 class WalletConnectV1Provider: WalletConnectServer {
     enum Keys {

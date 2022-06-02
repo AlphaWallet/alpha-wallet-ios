@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'AlphaWalletAddress'
-  s.version          = '1.0.1'
+  s.version          = '1.0.2'
   s.summary          = 'Alpha Wallet Address library'
   s.description      = <<-DESC
   Lightweight library representing the Alpha Wallet Address with its functionality
@@ -16,9 +16,9 @@ Pod::Spec.new do |s|
   s.homepage         = "https://github.com/AlphaWallet/alpha-wallet-ios/tree/master/modules/AlphaWalletCore"
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'Vladyslav Shepitko' => 'vladyslav.shepitko@gmail.com' }
-  s.ios.deployment_target = '12.0'
-  s.swift_version    = '4.0'
-  s.platform         = :ios, "12.0"
+  s.ios.deployment_target = '13.0'
+  s.swift_version    = '4.2'
+  s.platform         = :ios, "13.0"
   s.source           = { :git => 'git@github.com:AlphaWallet/alpha-wallet-ios.git', :tag => "#{s.version}" }
   s.source_files     = 'AlphaWalletAddress/**/*.{h,m,swift}'
   s.pod_target_xcconfig = { 'SWIFT_OPTIMIZATION_LEVEL' => '-Owholemodule' }
@@ -28,4 +28,5 @@ Pod::Spec.new do |s|
   s.dependency 'TrustKeystore'
   s.dependency 'web3swift'
   s.dependency 'EthereumAddress'
+  s.dependency 'AlphaWalletCore'
 end

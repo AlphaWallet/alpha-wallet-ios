@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import AlphaWalletCore
 
 struct JsonWalletAddressesStore: WalletAddressesStore {
     private static let walletsFolderForTests = "testSuiteWalletsForWalletAddresses"
