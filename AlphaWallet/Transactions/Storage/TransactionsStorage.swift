@@ -189,6 +189,8 @@ class TransactionDataStore {
     }
 
     func delete(transactions: [TransactionInstance]) {
+        guard !transactions.isEmpty else { return }
+
         store.performSync { realm in
             let objects = transactions.compactMap { realm.object(ofType: Transaction.self, forPrimaryKey: $0.primaryKey) }
             try? realm.safeWrite {
@@ -214,6 +216,8 @@ class TransactionDataStore {
     }
 
     @discardableResult func addOrUpdate(transactions: [TransactionInstance]) -> [TransactionInstance] {
+        guard !transactions.isEmpty else { return [] }
+
         var transactionsToReturn: [TransactionInstance] = []
 
         store.performSync { realm in

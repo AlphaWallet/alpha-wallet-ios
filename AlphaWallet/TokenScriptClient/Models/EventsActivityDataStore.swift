@@ -75,6 +75,7 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
 
     func add(events: [EventActivityInstance]) {
         guard !events.isEmpty else { return }
+        
         let eventsToSave = events.map { EventActivity(value: $0) }
         store.performSync { realm in
             try? realm.safeWrite {
