@@ -182,6 +182,8 @@ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
     }
 
     func add(tokenUpdates updates: [TokenUpdate]) {
+        guard !updates.isEmpty else { return }
+
         store.performSync { realm in
             try? realm.safeWrite {
                 for token in updates {
@@ -269,6 +271,7 @@ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
 
     @discardableResult func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [Token] {
         guard !tokens.isEmpty else { return [] }
+
         var tokensToReturn: [Token] = []
         store.performSync { realm in
             let newTokens = tokens.compactMap { MultipleChainsTokensDataStore.functional.createTokenObject(ercToken: $0, shouldUpdateBalance: shouldUpdateBalance) }
@@ -337,6 +340,8 @@ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
     }
 
     func add(hiddenContracts: [AddressAndRPCServer]) {
+        guard !hiddenContracts.isEmpty else { return }
+
         store.performSync { realm in
             try? realm.safeWrite {
                 let hiddenContracts = hiddenContracts.map { HiddenContract(contractAddress: $0.address, server: $0.server) }
@@ -358,6 +363,7 @@ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
 
     func updateOrderedTokens(with orderedTokens: [Token]) {
         guard !orderedTokens.isEmpty else { return }
+
         store.performSync { realm in
             let orderedTokensIds = orderedTokens.map { $0.primaryKey }
 
