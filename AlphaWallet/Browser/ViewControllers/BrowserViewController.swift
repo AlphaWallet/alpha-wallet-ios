@@ -218,6 +218,8 @@ extension BrowserViewController: WKNavigationDelegate {
     }
 
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        infoLog("[Browser] decidePolicyFor url: \(String(describing: navigationAction.request.url?.absoluteString))")
+
         guard let url = navigationAction.request.url, let scheme = url.scheme else {
             decisionHandler(.allow)
             return
