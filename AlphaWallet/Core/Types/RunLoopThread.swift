@@ -8,6 +8,7 @@
 import UIKit
 
 class RunLoopThread: Thread {
+    let isRunLoopThreadLoggingEnabled: Bool = Config().development.isRunLoopThreadLoggingEnabled
 
     override init() {
         super.init()
@@ -17,13 +18,16 @@ class RunLoopThread: Thread {
     }
 
     deinit {
-        debugLog("[Thread] \(name ?? String(describing: self)) deallocated")
+        if isRunLoopThreadLoggingEnabled {
+            debugLog("[Thread] \(name ?? String(describing: self)) deallocated")
+        }
     }
 
     override func main() {
         autoreleasepool {
-            debugLog("[Thread] \(name ?? String(describing: self)) started")
-
+            if isRunLoopThreadLoggingEnabled {
+                debugLog("[Thread] \(name ?? String(describing: self)) started")
+            }
             let runLoop = RunLoop.current
             runLoop.add(Port(), forMode: RunLoop.Mode.default)
 
@@ -32,8 +36,9 @@ class RunLoopThread: Thread {
                     runLoop.run(mode: RunLoop.Mode.default, before: Date.distantFuture)
                 }
             }
-
-            debugLog("[Thread] \(name ?? String(describing: self)) cancelled")
+            if isRunLoopThreadLoggingEnabled {
+                debugLog("[Thread] \(name ?? String(describing: self)) cancelled")
+            }
             Thread.exit()
         }
     }
@@ -41,11 +46,15 @@ class RunLoopThread: Thread {
     func performSync(_ block: @escaping () -> Swift.Void) {
         guard self.isExecuting else {
             if !self.isCancelled {
-                debugLog("[Thread] \(name ?? String(describing: self)) hasn't started up yet. Starting soon...")
+                if isRunLoopThreadLoggingEnabled {
+                    debugLog("[Thread] \(name ?? String(describing: self)) hasn't started up yet. Starting soon...")
+                }
                 Thread.sleep(forTimeInterval: 0.002)
                 self.performSync(block)
             } else {
-                debugLog("[Thread] \(name ?? String(describing: self)) has already been cancelled!")
+                if isRunLoopThreadLoggingEnabled {
+                    debugLog("[Thread] \(name ?? String(describing: self)) has already been cancelled!")
+                }
             }
             return
         }

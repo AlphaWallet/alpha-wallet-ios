@@ -13,6 +13,7 @@ struct Config {
         ///Should only be used to allow users to take paths where the current wallet is real, not watched, e.g sign buttons are enabled. Some of those actions will fail, understandably. Should not display a watch wallet as if it is a real wallet though
         let shouldPretendIsRealWallet = false
         let isOpenSeaFetchingDisabled = false
+        let isRunLoopThreadLoggingEnabled = false
     }
 
     let development = Development()
