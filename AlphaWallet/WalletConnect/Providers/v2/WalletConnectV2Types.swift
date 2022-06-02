@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import WalletConnect
 import WalletConnectSign
 
 typealias WalletConnectV2URI = WalletConnectSign.WalletConnectURI
