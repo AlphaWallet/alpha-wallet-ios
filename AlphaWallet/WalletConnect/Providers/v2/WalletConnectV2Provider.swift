@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import WalletConnect
 import WalletConnectUtils
 import Combine
 import WalletConnectSign
