@@ -6,9 +6,12 @@ import AlphaWalletOpenSea
 
 final class OpenSea {
     private let storage: Storage<[AddressAndRPCServer: OpenSeaNonFungiblesToAddress]> = .init(fileName: "OpenSea", defaultValue: [:])
-    private var cachedPromises: AtomicDictionary<AddressAndRPCServer, Promise<OpenSeaNonFungiblesToAddress>> = .init()
-    private let queue: DispatchQueue = DispatchQueue(label: "com.OpenSea.UpdateQueue")
+    private let queue: DispatchQueue
     private lazy var networkProvider: OpenSeaNetworkProvider = OpenSeaNetworkProvider(queue: queue)
+
+    init(queue: DispatchQueue) {
+        self.queue = queue
+    }
 
     static func isServerSupported(_ server: RPCServer) -> Bool {
         switch server {
@@ -26,25 +29,7 @@ final class OpenSea {
             return .value([:])
         }
 
-        return makeFetchPromise(for: key)
-    }
-
-    private func makeFetchPromise(for key: AddressAndRPCServer) -> Promise<OpenSeaNonFungiblesToAddress> {
-        if let promise = cachedPromises[key] {
-            if promise.isResolved {
-                let promise = fetchFromLocalAndRemotePromise(key: key)
-                cachedPromises[key] = promise
-
-                return promise
-            } else {
-                return promise
-            }
-        } else {
-            let promise = fetchFromLocalAndRemotePromise(key: key)
-            cachedPromises[key] = promise
-
-            return promise
-        }
+        return fetchFromLocalAndRemotePromise(key: key)
     }
 
     private func fetchFromLocalAndRemotePromise(key: AddressAndRPCServer) -> Promise<OpenSeaNonFungiblesToAddress> {
@@ -65,9 +50,7 @@ final class OpenSea {
                 }
 
                 return storage?.value[key] ?? result.result
-            }).ensure(on: queue, {
-                self.cachedPromises[key] = .none
-            })
+            }) 
     }
 
     static func fetchAssetImageUrl(for value: Eip155URL, server: RPCServer) -> Promise<URL> {

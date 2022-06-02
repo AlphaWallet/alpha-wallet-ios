@@ -66,7 +66,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         return walletBalanceSubject.value
     }
 
-    required init(wallet: Wallet, servers: [RPCServer], tokensDataStore: TokensDataStore, transactionsStorage: TransactionDataStore, nftProvider: NFTProvider, config: Config, assetDefinitionStore: AssetDefinitionStore, queue: DispatchQueue, coinTickersFetcher: CoinTickersFetcherType) {
+    init(wallet: Wallet, servers: [RPCServer], tokensDataStore: TokensDataStore, transactionsStorage: TransactionDataStore, nftProvider: NFTProvider, config: Config, assetDefinitionStore: AssetDefinitionStore, queue: DispatchQueue, coinTickersFetcher: CoinTickersFetcherType) {
         self.wallet = wallet
         self.nftProvider = nftProvider
         self.assetDefinitionStore = assetDefinitionStore
@@ -114,14 +114,14 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
             }.store(in: &cancelable)
     }
 
-    private func subscribeForTokenUpdates(forServer server: RPCServer) {
+    private func subscribeForTokenUpdates(for server: RPCServer) {
         tokensDataStore
             .initialOrNewTokensChangeset(for: [server])
             .receive(on: queue)
             .sink { [weak self] tokens in
                 guard let balanceFetcher = self?.balanceFetchers[server] else { return }
 
-                balanceFetcher.refreshBalance(forTokens: tokens)
+                balanceFetcher.refreshBalance(for: tokens)
             }.store(in: &cancelable)
     }
 
@@ -135,7 +135,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         balanceFetcher.erc721TokenIdsFetcher = transactionsStorage
         balanceFetcher.delegate = self
 
-        subscribeForTokenUpdates(forServer: server)
+        subscribeForTokenUpdates(for: server)
 
         return balanceFetcher
     }
@@ -235,15 +235,15 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
             switch updatePolicy {
             case .token(let token):
                 guard let fetcher = self.balanceFetchers[token.server] else { return }
-                fetcher.refreshBalance(forTokens: [token])
+                fetcher.refreshBalance(for: [token])
             case .all:
                 for (server, fetcher) in self.balanceFetchers.values {
                     let tokens = self.tokensDataStore.enabledTokens(for: [server])
-                    fetcher.refreshBalance(forTokens: tokens)
+                    fetcher.refreshBalance(for: tokens)
                 }
             case .eth:
                 for (_, fetcher) in self.balanceFetchers.values {
-                    fetcher.refreshBalance(forTokens: [fetcher.etherToken])
+                    fetcher.refreshBalance(for: [fetcher.etherToken])
                 }
             }
         }
