@@ -24,7 +24,7 @@ protocol PrivateBalanceFetcherType: AnyObject {
     var delegate: PrivateBalanceFetcherDelegate? { get set }
     var erc721TokenIdsFetcher: Erc721TokenIdsFetcher? { get set }
 
-    func refreshBalance(forTokens tokens: [Token])
+    func refreshBalance(for tokens: [Token])
 }
 
 enum TokensDataStoreError: Error {
@@ -63,7 +63,6 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     private let config: Config
     private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
-    private var cancelable = Set<AnyCancellable>()
 
     private lazy var nonErc1155BalanceFetcher = TokenProvider(account: account, server: server, queue: queue)
     private lazy var nonFungibleContract = NonFungibleContract(server: server, queue: queue)
@@ -87,7 +86,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         self.assetDefinitionStore = assetDefinitionStore
     }
 
-    func refreshBalance(forTokens tokens: [Token]) {
+    func refreshBalance(for tokens: [Token]) {
         guard !isRunningTests() else { return }
         
         let etherTokens = tokens.filter { $0 == etherToken }

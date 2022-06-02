@@ -45,10 +45,10 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
         let summary = WalletSummary(balances: balances)
         return .init(summary)
     }()
-    private let queue: DispatchQueue = DispatchQueue(label: "com.MultiWalletBalanceService.updateQueue")
+    private let queue: DispatchQueue = DispatchQueue(label: "org.alphawallet.swift.walletBalance")
     private let walletAddressesStore: WalletAddressesStore
     private var cancelable = Set<AnyCancellable>()
-    private let nftProvider: NFTProvider = AlphaWalletNFTProvider()
+    private lazy var nftProvider: NFTProvider = AlphaWalletNFTProvider(queue: queue)
     
     var walletsSummaryPublisher: AnyPublisher<WalletSummary, Never> {
         return walletsSummarySubject
