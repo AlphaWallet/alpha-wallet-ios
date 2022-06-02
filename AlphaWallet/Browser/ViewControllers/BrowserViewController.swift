@@ -230,6 +230,14 @@ extension BrowserViewController: WKNavigationDelegate {
             decisionHandler(.cancel)
             return
         }
+
+        //TODO extract `DeepLink`, if reasonable
+        if url.host == "aw.app" && url.path == "/wc", let components = URLComponents(url: url, resolvingAgainstBaseURL: false), components.queryItems.isEmpty {
+            NSLog("[Browser] Swallowing URL and doing a no-op, url: \(url.absoluteString)")
+            decisionHandler(.cancel)
+            return
+        }
+
         if DeepLink.supports(url: url) {
             delegate?.handleUniversalLink(url, inBrowserViewController: self)
             decisionHandler(.cancel)
