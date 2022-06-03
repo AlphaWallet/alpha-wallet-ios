@@ -133,13 +133,19 @@ struct StyleLayout {
 
 struct Fonts {
     static func regular(size: CGFloat) -> UIFont {
-        return UIFont(resource: R.font.sourceSansProRegular, size: size)!
+        //hhh1 remove
+        //return UIFont(resource: R.font.sourceSansProRegular, size: size)!
+        return UIFont(resource: R.font.circularStdBook, size: size)!
     }
     static func semibold(size: CGFloat) -> UIFont {
-        return UIFont(resource: R.font.sourceSansProSemibold, size: size)!
+        //hhh1 remove
+        //return UIFont(resource: R.font.sourceSansProSemibold, size: size)!
+        return UIFont(resource: R.font.circularStdMedium, size: size)!
     }
     static func bold(size: CGFloat) -> UIFont {
-        return UIFont(resource: R.font.sourceSansProBold, size: size)!
+        //hhh1 remove
+        //return UIFont(resource: R.font.sourceSansProBold, size: size)!
+        return UIFont(resource: R.font.circularStdBold, size: size)!
     }
     static let tableHeader = Fonts.semibold(size: 15)
 }
