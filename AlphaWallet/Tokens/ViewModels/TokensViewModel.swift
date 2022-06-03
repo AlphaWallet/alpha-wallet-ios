@@ -200,7 +200,7 @@ class TokensViewModel {
 
     init(tokensFilter: TokensFilter, tokens: [Token], config: Config) {
         self.tokensFilter = tokensFilter
-        self.tokens = TokensViewModel.functional.filterAwaySpuriousTokens(tokens)
+        self.tokens = tokens
         self.config = config
     }
 
