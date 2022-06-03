@@ -42,9 +42,7 @@ class SingleChainTokenCoordinator: Coordinator {
     }
     private let alertService: PriceAlertServiceType
     private let tokensAutodetector: TokensAutodetector
-    private lazy var tokenFetcher: TokenFetcher = {
-        SingleChainTokenFetcher(session: session, assetDefinitionStore: assetDefinitionStore)
-    }()
+    private let importToken: ImportToken
 
     init(
             session: WalletSession,
@@ -57,7 +55,8 @@ class SingleChainTokenCoordinator: Coordinator {
             coinTickersFetcher: CoinTickersFetcherType,
             activitiesService: ActivitiesServiceType,
             alertService: PriceAlertServiceType,
-            tokensAutodetector: TokensAutodetector
+            tokensAutodetector: TokensAutodetector,
+            importToken: ImportToken
     ) {
         self.session = session
         self.keystore = keystore
@@ -70,6 +69,7 @@ class SingleChainTokenCoordinator: Coordinator {
         self.activitiesService = activitiesService
         self.alertService = alertService
         self.tokensAutodetector = tokensAutodetector
+        self.importToken = importToken
     }
 
     func start() {
@@ -78,26 +78,6 @@ class SingleChainTokenCoordinator: Coordinator {
 
     func isServer(_ server: RPCServer) -> Bool {
         return session.server == server
-    }
-
-    //Adding a token may fail if we lose connectivity while fetching the contract details (e.g. name and balance). So we remove the contract from the hidden list (if it was there) so that the app has the chance to add it automatically upon auto detection at startup
-    func addImportedToken(forContract contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool = false) -> Promise<Token> {
-        struct ImportTokenError: Error { }
-
-        return firstly {
-            tokenFetcher.fetchTokenOrContract(for: contract, onlyIfThereIsABalance: onlyIfThereIsABalance)
-        }.map { operation -> Token in
-            if let token = self.tokensDataStore.addOrUpdate(tokensOrContracts: [operation]).first {
-                return token
-            } else {
-                throw ImportTokenError()
-            }
-        }
-    }
-
-    func fetchContractData(for address: AlphaWallet.Address, completion: @escaping (ContractData) -> Void) {
-        ContractDataDetector(address: address, account: session.account, server: session.server, assetDefinitionStore: assetDefinitionStore)
-            .fetch(completion: completion)
     }
 
     func showTokenList(for type: PaymentFlow, token: TokenObject, navigationController: UINavigationController) {
@@ -140,20 +120,6 @@ class SingleChainTokenCoordinator: Coordinator {
         })
 
         navigationController.pushViewController(viewController, animated: true)
-    }
-
-    func updateOrderedTokens(with orderedTokens: [Token]) {
-        tokensDataStore.updateOrderedTokens(with: orderedTokens)
-    }
-
-    func mark(token: Token, isHidden: Bool) {
-        tokensDataStore.updateToken(primaryKey: token.primaryKey, action: .isHidden(isHidden))
-    }
-
-    func add(token: ERCToken) -> Token {
-        let token = tokensDataStore.addCustom(tokens: [token], shouldUpdateBalance: true)
-
-        return token[0]
     }
 
     private func showTokenInstanceActionView(forAction action: TokenInstanceAction, fungibleTokenObject tokenObject: TokenObject, navigationController: UINavigationController) {

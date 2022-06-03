@@ -147,6 +147,9 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private let notificationService: NotificationService
     private let localStore: LocalStore
     private let tokenSwapper: TokenSwapper
+    private lazy var importToken: ImportToken = {
+        return ImportToken(sessions: sessionsSubject, tokensDataStore: tokensDataStore, assetDefinitionStore: assetDefinitionStore)
+    }()
 
     init(
             navigationController: UINavigationController = UINavigationController(),
@@ -322,7 +325,8 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
                 coinTickersFetcher: coinTickersFetcher,
                 activitiesService: activitiesService,
                 walletBalanceService: walletBalanceService,
-                tokenCollection: tokenCollection
+                tokenCollection: tokenCollection,
+                importToken: importToken
         )
         coordinator.rootViewController.tabBarItem = UITabBarController.Tabs.tokens.tabBarItem
         coordinator.delegate = self
@@ -495,9 +499,11 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     func addImported(contract: AlphaWallet.Address, forServer server: RPCServer) {
         //Useful to check because we are/might action-only TokenScripts for native crypto currency
         guard !contract.sameContract(as: Constants.nativeCryptoAddressInDatabase) else { return }
-        let tokensCoordinator = coordinators.first { $0 is TokensCoordinator } as? TokensCoordinator
-        tokensCoordinator?.addImportedToken(forContract: contract, server: server)
-    } 
+
+        importToken.importToken(for: contract, server: server, onlyIfThereIsABalance: false)
+            .done { _ in }
+            .cauterize()
+    }
 
     func show(error: Error) {
         //TODO Not comprehensive. Example, if we are showing a token instance view and tap on unverified to open browser, this wouldn't owrk

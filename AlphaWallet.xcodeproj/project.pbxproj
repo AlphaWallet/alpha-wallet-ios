@@ -986,6 +986,7 @@
 		878EE951255BEC20000210DE /* ItemType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 878EE950255BEC20000210DE /* ItemType.swift */; };
 		878EE952255BEC20000210DE /* ItemType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 878EE950255BEC20000210DE /* ItemType.swift */; };
 		878EE954255BFFB9000210DE /* FeedbackGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 878EE953255BFFB9000210DE /* FeedbackGenerator.swift */; };
+		87927068284A9306006F5AE5 /* ImportToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87927067284A9306006F5AE5 /* ImportToken.swift */; };
 		8795994526049EF8006722B2 /* ActivityStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8795994426049EF8006722B2 /* ActivityStateView.swift */; };
 		8795994726049F0F006722B2 /* ActivityStateViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8795994626049F0F006722B2 /* ActivityStateViewViewModel.swift */; };
 		8795994A2604A5B6006722B2 /* CoinTickersFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879599492604A5B6006722B2 /* CoinTickersFetcher.swift */; };
@@ -2225,6 +2226,7 @@
 		878EE94D255BE1F0000210DE /* UrlSchemeCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UrlSchemeCoordinator.swift; sourceTree = "<group>"; };
 		878EE950255BEC20000210DE /* ItemType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemType.swift; sourceTree = "<group>"; };
 		878EE953255BFFB9000210DE /* FeedbackGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackGenerator.swift; sourceTree = "<group>"; };
+		87927067284A9306006F5AE5 /* ImportToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportToken.swift; sourceTree = "<group>"; };
 		8795042F27088C2B0075EEC2 /* AlphaWalletSafariExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AlphaWalletSafariExtension.entitlements; sourceTree = "<group>"; };
 		8795994426049EF8006722B2 /* ActivityStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityStateView.swift; sourceTree = "<group>"; };
 		8795994626049F0F006722B2 /* ActivityStateViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityStateViewViewModel.swift; sourceTree = "<group>"; };
@@ -5029,6 +5031,7 @@
 				870CC47A27C6563D00A19380 /* AutoDetectTransactedTokensOperation.swift */,
 				870CC47C27C6566400A19380 /* AutoDetectTokensOperation.swift */,
 				870CC47E27C657F100A19380 /* TokensAutodetector.swift */,
+				87927067284A9306006F5AE5 /* ImportToken.swift */,
 			);
 			path = TokensAutodetector;
 			sourceTree = "<group>";
@@ -7394,6 +7397,7 @@
 				874BD2BB2669F65800E62E02 /* PopularTokensCollection.swift in Sources */,
 				8757E5DE25DD231600812392 /* SignatureConfirmationConfirmationViewModel.swift in Sources */,
 				5E7C7CA66F3086000BA3E72C /* GasEstimates.swift in Sources */,
+				87927068284A9306006F5AE5 /* ImportToken.swift in Sources */,
 				5E7C766B96C59C7893CF2CB4 /* EditedTransactionConfiguration.swift in Sources */,
 				5E7C7DFC309C7CC499202375 /* DecodedFunctionCall.swift in Sources */,
 				5E7C7CD5C69451722BAB63E4 /* GetNextNonce.swift in Sources */,

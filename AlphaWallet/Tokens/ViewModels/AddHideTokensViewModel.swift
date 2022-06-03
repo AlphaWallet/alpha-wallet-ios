@@ -47,14 +47,14 @@ class AddHideTokensViewModel: ObservableObject {
         didSet { filter(tokens: tokens) }
     }
 
-    private let singleChainTokenCoordinators: [SingleChainTokenCoordinator]
+    private let importToken: ImportToken
     private let popularTokensCollection: PopularTokensCollectionType = LocalPopularTokensCollection()
     private let config: Config
 
-    init(tokens: [Token], tokensFilter: TokensFilter, singleChainTokenCoordinators: [SingleChainTokenCoordinator], config: Config) {
+    init(tokens: [Token], tokensFilter: TokensFilter, importToken: ImportToken, config: Config) {
         self.tokens = tokens
         self.tokensFilter = tokensFilter
-        self.singleChainTokenCoordinators = singleChainTokenCoordinators
+        self.importToken = importToken
         self.config = config
         filter(tokens: tokens)
     }
@@ -120,11 +120,7 @@ class AddHideTokensViewModel: ObservableObject {
 
         filter(tokens: tokens)
         objectWillChange.send()
-    }
-
-    private func singleChainTokenCoordinator(forServer server: RPCServer) -> SingleChainTokenCoordinator? {
-        singleChainTokenCoordinators.first { $0.isServer(server) }
-    }
+    } 
 
     typealias TokenWithIndexToInsert = (token: Token, indexPathToInsert: IndexPath)
 
@@ -146,17 +142,18 @@ class AddHideTokensViewModel: ObservableObject {
             }
         case .popularTokens:
             let token = popularTokens[indexPath.row]
+            let promise = importToken
+                .importToken(for: token.contractAddress, server: token.server, onlyIfThereIsABalance: false)
+                .then { token -> Promise<TokenWithIndexToInsert?> in
+                    self.popularTokens.remove(at: indexPath.row)
+                    self.displayedTokens.append(token)
 
-            let promise = fetchContractDataPromise(forServer: token.server, address: token.contractAddress).then { token -> Promise<TokenWithIndexToInsert?> in
-                self.popularTokens.remove(at: indexPath.row)
-                self.displayedTokens.append(token)
+                    if let sectionIndex = self.sections.index(of: .displayedTokens) {
+                        return .value((token, IndexPath(row: max(0, self.displayedTokens.count - 1), section: Int(sectionIndex))))
+                    }
 
-                if let sectionIndex = self.sections.index(of: .displayedTokens) {
-                    return .value((token, IndexPath(row: max(0, self.displayedTokens.count - 1), section: Int(sectionIndex))))
+                    return .value(nil)
                 }
-
-                return .value(nil)
-            }
 
             return .promise(promise)
         }
@@ -244,16 +241,6 @@ class AddHideTokensViewModel: ObservableObject {
         displayedTokens = tokensFilter.sortDisplayedTokens(tokens: displayedTokens, sortTokensParam: sortTokensParam)
         sections = AddHideTokensViewModel.functional.availableSectionsToDisplay(displayedTokens: displayedTokens, hiddenTokens: hiddenTokens, popularTokens: popularTokens, isSearchActive: isSearchActive)
     }
-
-    private func fetchContractDataPromise(forServer server: RPCServer, address: AlphaWallet.Address) -> Promise<Token> {
-        guard let coordinator = singleChainTokenCoordinator(forServer: server) else {
-            return .init(error: RetrieveSingleChainTokenCoordinator())
-        }
-
-        return coordinator.addImportedToken(forContract: address, onlyIfThereIsABalance: false)
-    }
-
-    private struct RetrieveSingleChainTokenCoordinator: Error { }
 }
 
 extension AddHideTokensViewModel {

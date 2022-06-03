@@ -21,7 +21,10 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
     private let config: Config
     private let session: WalletSession
     private let queue: DispatchQueue
-    private let tokenFetcher: TokenFetcher
+    private let importToken: ImportToken
+    private lazy var tokenProvider = TokenProvider(account: session.account, server: session.server)
+    private lazy var erc875BalanceFetcher = GetErc875Balance(forServer: session.server, queue: queue)
+    private lazy var erc20BalanceFetcher = GetErc20Balance(forServer: session.server, queue: queue)
 
     var isAutoDetectingTransactedTokens = false
     var isAutoDetectingTokens = false
@@ -34,9 +37,9 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
             withAutoDetectTransactedTokensQueue autoDetectTransactedTokensQueue: OperationQueue,
             withAutoDetectTokensQueue autoDetectTokensQueue: OperationQueue,
             queue: DispatchQueue,
-            tokenFetcher: TokenFetcher
+            importToken: ImportToken
     ) {
-        self.tokenFetcher = tokenFetcher
+        self.importToken = importToken
         self.queue = queue
         self.session = session
         self.config = config
@@ -104,12 +107,12 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
 
         return firstly {
             autoDetectTransactedContractsImpl(wallet: wallet, erc20: erc20, server: server)
-        }.then(on: queue, { [weak self] detectedContracts -> Promise<[TokenOrContract]> in
+        }.then(on: queue, { [weak self, importToken] detectedContracts -> Promise<[TokenOrContract]> in
             guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
 
             let promises = strongSelf.contractsForTransactedTokens(detectedContracts: detectedContracts, forServer: server)
                 .compactMap { contract -> Promise<TokenOrContract> in
-                    strongSelf.tokenFetcher.fetchTokenOrContract(for: contract, onlyIfThereIsABalance: false)
+                    importToken.fetchTokenOrContract(for: contract, server: server, onlyIfThereIsABalance: false)
                 }
 
             return when(resolved: promises)
@@ -163,38 +166,30 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
     }
 
     private func fetchCreateErc875OrErc20Token(forContract contract: AlphaWallet.Address, forServer server: RPCServer) -> Promise<TokenOrContract> {
-        let accountAddress = session.account.address
-        let queue = queue
-
-        return TokenProvider(account: session.account, server: server)
-            .getTokenType(for: contract)
-            .then(on: queue, { [weak tokenFetcher] tokenType -> Promise<TokenOrContract> in
-                guard let tokenFetcher = tokenFetcher else { return .init(error: PMKError.cancelled) }
-
+        return tokenProvider.getTokenType(for: contract)
+            .then(on: queue, { [session, importToken, erc875BalanceFetcher, erc20BalanceFetcher, queue] tokenType -> Promise<TokenOrContract> in
                 switch tokenType {
                 case .erc875:
                     //TODO long and very similar code below. Extract function
-                    let balanceCoordinator = GetErc875Balance(forServer: server, queue: queue)
-                    return balanceCoordinator.getERC875TokenBalance(for: accountAddress, contract: contract).then { balance -> Promise<TokenOrContract> in
+                    return erc875BalanceFetcher.getERC875TokenBalance(for: session.account.address, contract: contract).then(on: queue, { balance -> Promise<TokenOrContract> in
                         if balance.isEmpty {
                             return .value(.none)
                         } else {
-                            return tokenFetcher.fetchTokenOrContract(for: contract, onlyIfThereIsABalance: false)
+                            return importToken.fetchTokenOrContract(for: contract, server: server, onlyIfThereIsABalance: false)
                         }
-                    }.recover { _ -> Guarantee<TokenOrContract> in
+                    }).recover(on: queue, { _ -> Guarantee<TokenOrContract> in
                         return .value(.none)
-                    }
+                    })
                 case .erc20:
-                    let balanceCoordinator = GetErc20Balance(forServer: server, queue: queue)
-                    return balanceCoordinator.getBalance(for: accountAddress, contract: contract).then { balance -> Promise<TokenOrContract> in
+                    return erc20BalanceFetcher.getBalance(for: session.account.address, contract: contract).then(on: queue, { balance -> Promise<TokenOrContract> in
                         if balance > 0 {
-                            return tokenFetcher.fetchTokenOrContract(for: contract, onlyIfThereIsABalance: false)
+                            return importToken.fetchTokenOrContract(for: contract, server: server, onlyIfThereIsABalance: false)
                         } else {
                             return .value(.none)
                         }
-                    }.recover { _ -> Guarantee<TokenOrContract> in
+                    }).recover(on: queue, { _ -> Guarantee<TokenOrContract> in
                         return .value(.none)
-                    }
+                    })
                 case .erc721, .erc721ForTickets, .erc1155, .nativeCryptocurrency:
                     //Handled in PrivateBalanceFetcher.refreshBalanceForErc721Or1155Tokens()
                     return .value(.none)
