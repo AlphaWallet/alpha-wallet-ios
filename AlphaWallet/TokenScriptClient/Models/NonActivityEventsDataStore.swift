@@ -50,6 +50,8 @@ class NonActivityMultiChainEventsDataStore: NonActivityEventsDataStore {
             publisher = realm.objects(EventInstance.self)
                 .filter("tokenContract = '\(contract.eip55String)'")
                 .changesetPublisher
+                .freeze()
+                .receive(on: DispatchQueue.global())
                 .map { change in
                     switch change {
                     case .initial(let eventActivities):
