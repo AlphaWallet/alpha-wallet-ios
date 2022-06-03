@@ -28,7 +28,7 @@ class TokenObject: Object {
     @objc dynamic var _info: TokenInfoObject?
 
     var info: TokenInfoObject {
-        get { return _info ?? TokenInfoObject() }
+        get { return _info! } //NOTE: Better to make it crash than create dummy object
         set { _info = newValue }
     }
 
