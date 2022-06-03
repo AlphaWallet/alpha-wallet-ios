@@ -13,45 +13,34 @@ protocol AddHideTokensCoordinatorDelegate: AnyObject {
 class AddHideTokensCoordinator: Coordinator {
     private let analyticsCoordinator: AnalyticsCoordinator
     private let navigationController: UINavigationController
-    private var viewModel: AddHideTokensViewModel
-    private lazy var viewController: AddHideTokensViewController = .init(
-        viewModel: viewModel,
-        assetDefinitionStore: assetDefinitionStore
-    )
+    private lazy var viewModel = AddHideTokensViewModel(tokens: tokens, tokensFilter: tokensFilter, singleChainTokenCoordinators: singleChainTokenCoordinators, config: config)
+    private lazy var viewController: AddHideTokensViewController = {
+        return .init(viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
+    }()
 
     private let sessions: ServerDictionary<WalletSession>
     private let assetDefinitionStore: AssetDefinitionStore
     private let singleChainTokenCoordinators: [SingleChainTokenCoordinator]
     private let config: Config
-    private let popularTokensCollection: PopularTokensCollectionType = LocalPopularTokensCollection()
+    private var tokens: [Token]
+    private let tokensFilter: TokensFilter
     var coordinators: [Coordinator] = []
     weak var delegate: AddHideTokensCoordinatorDelegate?
-    private var tokens: [Token]
 
     init(tokens: [Token], assetDefinitionStore: AssetDefinitionStore, tokensFilter: TokensFilter, sessions: ServerDictionary<WalletSession>, analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, config: Config, singleChainTokenCoordinators: [SingleChainTokenCoordinator]) {
         self.config = config
         self.sessions = sessions
         self.tokens = tokens
+        self.tokensFilter = tokensFilter
         self.analyticsCoordinator = analyticsCoordinator
         self.navigationController = navigationController
         self.assetDefinitionStore = assetDefinitionStore
         self.singleChainTokenCoordinators = singleChainTokenCoordinators
-        self.viewModel = AddHideTokensViewModel(
-            tokens: tokens,
-            tokensFilter: tokensFilter,
-            singleChainTokenCoordinators: singleChainTokenCoordinators
-        )
     }
 
     func start() {
         viewController.delegate = self
         navigationController.pushViewController(viewController, animated: true)
-
-        popularTokensCollection.fetchTokens().done { [weak self] tokens in
-            guard let strongSelf = self else { return }
-            let tokensForEnabledChains = tokens.filter { each in strongSelf.config.enabledServers.contains(each.server) }
-            strongSelf.viewController.set(popularTokens: tokensForEnabledChains)
-        }.cauterize()
     }
 
     @objc func dismiss() {
@@ -72,7 +61,7 @@ extension AddHideTokensCoordinator: NewTokenCoordinatorDelegate {
     func coordinator(_ coordinator: NewTokenCoordinator, didAddToken token: Token) {
         removeCoordinator(coordinator)
 
-        viewController.add(token: token)
+        viewModel.add(token: token)
     }
 }
 

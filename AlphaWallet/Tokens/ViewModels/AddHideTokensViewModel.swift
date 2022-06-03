@@ -31,7 +31,7 @@ enum AddHideTokenSections: Int {
 }
 
 //NOTE: Changed to class to prevent update all ViewModel copies and apply updates only in one place.
-class AddHideTokensViewModel {
+class AddHideTokensViewModel: ObservableObject {
     var sections: [AddHideTokenSections] = [.sortingFilters, .displayedTokens, .hiddenTokens, .popularTokens]
     private let tokensFilter: TokensFilter
     private var tokens: [Token]
@@ -41,26 +41,33 @@ class AddHideTokensViewModel {
     private var popularTokens: [PopularToken] = []
 
     var sortTokensParam: SortTokensParam = .byField(field: .name, direction: .ascending) {
-        didSet {
-            filter(tokens: tokens)
-        }
+        didSet { filter(tokens: tokens) }
     }
     var searchText: String? {
-        didSet {
-            filter(tokens: tokens)
-        }
+        didSet { filter(tokens: tokens) }
     }
-    private let singleChainTokenCoordinators: [SingleChainTokenCoordinator]
 
-    init(tokens: [Token], tokensFilter: TokensFilter, singleChainTokenCoordinators: [SingleChainTokenCoordinator]) {
+    private let singleChainTokenCoordinators: [SingleChainTokenCoordinator]
+    private let popularTokensCollection: PopularTokensCollectionType = LocalPopularTokensCollection()
+    private let config: Config
+
+    init(tokens: [Token], tokensFilter: TokensFilter, singleChainTokenCoordinators: [SingleChainTokenCoordinator], config: Config) {
         self.tokens = tokens
         self.tokensFilter = tokensFilter
         self.singleChainTokenCoordinators = singleChainTokenCoordinators
-
+        self.config = config
         filter(tokens: tokens)
     }
 
-    func set(allPopularTokens: [PopularToken]) {
+    func viewDidLoad() {
+        popularTokensCollection.fetchTokens(for: config.enabledServers)
+            .done { [weak self] tokens in
+                self?.set(allPopularTokens: tokens)
+                self?.objectWillChange.send()
+            }.cauterize()
+    }
+
+    private func set(allPopularTokens: [PopularToken]) {
         self.allPopularTokens = allPopularTokens
 
         filter(tokens: tokens)
@@ -112,6 +119,7 @@ class AddHideTokensViewModel {
         }
 
         filter(tokens: tokens)
+        objectWillChange.send()
     }
 
     private func singleChainTokenCoordinator(forServer server: RPCServer) -> SingleChainTokenCoordinator? {
