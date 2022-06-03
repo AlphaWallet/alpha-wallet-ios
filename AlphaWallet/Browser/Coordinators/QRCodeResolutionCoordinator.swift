@@ -145,8 +145,10 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
 
     private func resolveScanResult(_ rawValue: String) {
         guard let delegate = delegate else { return }
+        let resolved = ScanQRCodeResolution(rawValue: rawValue)
+        infoLog("[QR Code] resolved: \(resolved)")
 
-        switch ScanQRCodeResolution(rawValue: rawValue) {
+        switch resolved {
         case .value(let value):
             switch value {
             case .address(let contract):
