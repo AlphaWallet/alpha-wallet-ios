@@ -14,6 +14,18 @@ class DatabaseMigration: Initializer {
 
     func perform() {
         config.schemaVersion = 11
+        config.objectTypes = [
+            DelegateContract.self,
+            DeletedContract.self,
+            EventActivity.self,
+            EventInstance.self,
+            HiddenContract.self,
+            LocalizedOperationObject.self,
+            TokenBalance.self,
+            TokenInfoObject.self,
+            TokenObject.self,
+            Transaction.self
+        ]
         //NOTE: use [weak self] to avoid memory leak
         config.migrationBlock = { [weak self] migration, oldSchemaVersion in
             guard let strongSelf = self else { return }
