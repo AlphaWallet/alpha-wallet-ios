@@ -13,7 +13,7 @@ target 'AlphaWallet' do
   pod 'QRCodeReaderViewController', :git=>'https://github.com/AlphaWallet/QRCodeReaderViewController.git', :commit=>'30d1a2a7d167d0d207ae0ae3a4d81bcf473d7a65'
   pod 'KeychainSwift', :git=>'https://github.com/AlphaWallet/keychain-swift.git', :commit=> 'b797d40a9d08ec509db4335140cf2259b226e6a2'
   pod 'SwiftLint', '0.40.3'
-  pod 'RealmSwift', '5.5.1'
+  pod 'RealmSwift', '10.27.0'
   pod 'Moya', '~> 10.0.1'
   pod 'CryptoSwift', '~> 1.4'
   pod 'Kingfisher', '~> 7.0'
