@@ -9,7 +9,7 @@ func applyStyle() {
     UITabBar.appearance().tintColor = Colors.appTint
     UITabBar.appearance().shadowImage = UIImage(color: Style.TabBar.Separator.color, size: CGSize(width: 0.25, height: 0.25))
     UITabBar.appearance().backgroundImage = UIImage(color: Style.TabBar.Background.color)
-    
+
     UINavigationBar.appearance().shadowImage = UIImage(color: Style.NavigationBar.Separator.color, size: CGSize(width: 0.25, height: 0.25))
     UINavigationBar.appearance().compactAppearance = UINavigationBarAppearance.defaultAppearence
     UINavigationBar.appearance().standardAppearance = UINavigationBarAppearance.defaultAppearence
@@ -376,7 +376,7 @@ enum Style {
             static let height = 60.0
             static let backgroundColor = R.color.alabaster()
             static let textColor = R.color.dove()
-            static let font = R.font.sourceSansProSemibold(size: 15.0)
+            static let font = Fonts.semibold(size: 15)
         }
         enum Row {
             static let height = 80.0
@@ -417,8 +417,8 @@ enum Style {
             static let color: UIColor = R.color.mercury()!
         }
         enum Font {
-            static let normal: UIFont = R.font.sourceSansProRegular(size: 13.0)!
-            static let selected: UIFont = R.font.sourceSansProSemibold(size: 13.0)!
+            static let normal: UIFont = Fonts.regular(size: 13)
+            static let selected: UIFont = Fonts.semibold(size: 13)
             enum Color {
                 static let selected: UIColor = R.color.azure()!
                 static let normal: UIColor = R.color.dove()!
@@ -430,7 +430,7 @@ enum Style {
             static let color: UIColor = R.color.mercury()!
         }
     }
-    
+
     enum NavigationBar {
         enum Separator {
             static let color: UIColor = R.color.mercury()!
@@ -453,7 +453,7 @@ enum Style {
     enum Search {
         enum Network {
             enum Empty {
-                static let font = R.font.sourceSansProRegular(size: 17.0)
+                static let font = Fonts.regular(size: 17)
                 static let color: UIColor = R.color.mine()!
                 static let text: String = R.string.localizable.searchNetworkResultEmpty()
             }
@@ -463,7 +463,7 @@ enum Style {
         static let configuration = ScrollableSegmentedControlConfiguration(lineConfiguration: ScrollableSegmentedControlHighlightableLineViewConfiguration(lineHeight: 1.0, highlightHeight: 3.0, lineColor: R.color.mercury()!, highLightColor: R.color.azure()!), isProportionalWidth: true, cellSpacing: 10.0, alignmentWhenNotScrollable: .filled, animationDuration: 0.25, animationCurve: .easeInOut)
     }
     enum ScrollableSegmentedControlCell {
-        static let configuration = ScrollableSegmentedControlCellConfiguration(backgroundColor: .white, highlightedTextColor: R.color.azure()!, nonHighlightedTextColor: R.color.dove()!, highlightedFont: R.font.sourceSansProSemibold(size: 15.0)!, nonHighlightedFont: R.font.sourceSansProRegular(size: 15.0)!, cellPadding: 8.0, textBottomPadding: 12.0)
+        static let configuration = ScrollableSegmentedControlCellConfiguration(backgroundColor: .white, highlightedTextColor: R.color.azure()!, nonHighlightedTextColor: R.color.dove()!, highlightedFont: Fonts.semibold(size: 15), nonHighlightedFont: Fonts.regular(size: 15), cellPadding: 8.0, textBottomPadding: 12.0)
     }
     enum value {
         static let appreciated: UIColor = R.color.green()!
