@@ -119,6 +119,9 @@
 		<string>SourceSansPro-Regular.otf</string>
 		<string>SourceSansPro-Semibold.otf</string>
 		<string>SourceSansPro-SemiboldIt.otf</string>
+		<string>CircularStd-Bold.otf</string>
+		<string>CircularStd-Book.otf</string>
+		<string>CircularStd-Medium.otf</string>
 	</array>
 	<key>UIApplicationShortcutItems</key>
 	<array>
