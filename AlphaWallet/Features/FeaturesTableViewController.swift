@@ -59,7 +59,7 @@ class FeaturesTableViewController: UITableViewController {
     private func configure(cell: UITableViewCell, at indexPath: IndexPath) -> UITableViewCell {
         let key = keys[indexPath.row]
         let value = features.isAvailable(key)
-        cell.textLabel?.font = R.font.sourceSansProRegular(size: 12.0)
+        cell.textLabel?.font = Fonts.regular(size: 12)
         cell.textLabel?.text = key.rawValue.insertSpaceBeforeCapitals()
         cell.accessoryType = value ? .checkmark : .none
         return cell

@@ -20,7 +20,7 @@ class AddMultipleCustomRpcView: UIView {
 
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.font = R.font.sourceSansProBold(size: 17.0)
+        label.font = Fonts.bold(size: 17)
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -36,7 +36,7 @@ class AddMultipleCustomRpcView: UIView {
 
     private lazy var networkNameLabel: UILabel = {
         let label = UILabel()
-        label.font = R.font.sourceSansProRegular(size: 15.0)
+        label.font = Fonts.regular(size: 15)
         label.text = "…"
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -51,7 +51,7 @@ class AddMultipleCustomRpcView: UIView {
 
     private lazy var progressLabel: UILabel = {
         let label = UILabel()
-        label.font = R.font.sourceSansProRegular(size: 15.0)
+        label.font = Fonts.regular(size: 15)
         label.text = "-"
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -144,7 +144,7 @@ class AddMultipleCustomRpcView: UIView {
     func stopActivityIndicator() {
         activityIndicatorView.stopAnimating()
     }
-    
+
     func update() {
         networkNameLabel.text = chainNameString
         progressLabel.text = progressString
