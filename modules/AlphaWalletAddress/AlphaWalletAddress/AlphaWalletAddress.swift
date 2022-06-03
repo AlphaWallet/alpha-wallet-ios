@@ -2,6 +2,7 @@
 
 import Foundation
 import TrustKeystore
+import AlphaWalletCore
 
 ///Use an enum as a namespace until Swift has proper namespaces
 public enum AlphaWallet {}
@@ -9,10 +10,6 @@ public enum AlphaWallet {}
 //TODO move this to a standard alone internal Pod with 0 external dependencies so main app and TokenScript can use it?
 extension AlphaWallet {
     public enum Address: Hashable, Codable {
-        //Computing EIP55 is really slow. Cache needed when we need to create many addresses, like parsing a whole lot of Ethereum event logs
-        //there is cases when cache accessing from different treads, fro this case we need to use sync access for it
-        private static var cache: AtomicDictionary<String, AlphaWallet.Address> = .init()
-
         case ethereumAddress(eip55String: String)
 
         enum Key: CodingKey {
@@ -20,8 +17,8 @@ extension AlphaWallet {
         }
 
         public init?(string: String) {
-            if let value = Self.cache[string] {
-                self = value
+            if let address = sharedAddressStorage?[string.lowercased()] {
+                self = address
                 return
             }
             let string = string.add0x
@@ -30,13 +27,13 @@ extension AlphaWallet {
             //    Terminating app due to uncaught exception 'NSRangeException', reason: '*** -[NSPathStore2 characterAtIndex:]: index (42) beyond bounds (42)'
             guard let address = TrustKeystore.Address(string: "\(string)") else { return nil }
             self = .ethereumAddress(eip55String: address.eip55String)
-            Self.cache[string] = self
+            sharedAddressStorage?[string.lowercased()] = self
         }
 
         //TODO not sure if we should keep this
         public init?(uncheckedAgainstNullAddress string: String) {
-            if let value = Self.cache[string] {
-                self = value
+            if let address = sharedAddressStorage?[string.lowercased()] {
+                self = address
                 return
             }
 
@@ -44,7 +41,7 @@ extension AlphaWallet {
             guard string.count == 42 else { return nil }
             guard let address = TrustKeystore.Address(uncheckedAgainstNullAddress: string) else { return nil }
             self = .ethereumAddress(eip55String: address.eip55String)
-            Self.cache[string] = self
+            sharedAddressStorage?[string.lowercased()] = self
         }
 
         public init(fromPrivateKey privateKey: Data) {

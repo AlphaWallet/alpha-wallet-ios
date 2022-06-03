@@ -7,16 +7,19 @@
 
 import Foundation
 import Combine
+import AlphaWalletCore
 
-class Storage<T: Codable> {
+public class Storage<T: Codable> {
     private let fileName: String
+    private let valueSubject: CurrentValueSubject<T, Never>
+    private let storage: StorageType
+    private let defaultValue: T
 
-    var publisher: AnyPublisher<T, Never> {
+    public var publisher: AnyPublisher<T, Never> {
         valueSubject.eraseToAnyPublisher()
     }
-    private let valueSubject: CurrentValueSubject<T, Never>
 
-    var value: T {
+    public var value: T {
         get {
             return valueSubject.value
         }
@@ -32,10 +35,7 @@ class Storage<T: Codable> {
         }
     }
 
-    private let storage: StorageType
-    private let defaultValue: T
-
-    init(fileName: String, storage: StorageType = FileStorage(), defaultValue: T) {
+    public init(fileName: String, storage: StorageType = FileStorage(), defaultValue: T) {
         self.defaultValue = defaultValue
         self.fileName = fileName
         self.storage = storage

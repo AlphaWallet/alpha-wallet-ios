@@ -2,6 +2,7 @@
 
 import Foundation
 import PromiseKit
+import AlphaWalletCore
 import AlphaWalletOpenSea
 
 final class OpenSea {
