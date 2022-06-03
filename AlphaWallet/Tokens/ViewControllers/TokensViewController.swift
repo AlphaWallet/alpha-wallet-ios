@@ -419,7 +419,7 @@ extension TokensViewController: UITableViewDataSource {
                 cell.configure(viewModel: TokenListServerTableViewCellViewModel(server: server, isTopSeparatorHidden: true))
 
                 return cell
-            case .tokenObject(let token):
+            case .token(let token):
                 let session = sessions[token.server]
 
                 switch token.type {
@@ -510,7 +510,7 @@ extension TokensViewController: UITableViewDataSource {
         switch item {
         case .rpcServer:
             return nil
-        case .tokenObject(let token):
+        case .token(let token):
             let title = R.string.localizable.walletsHideTokenTitle()
             let hideAction = UIContextualAction(style: .destructive, title: title) { [weak self] (_, _, completion) in
                 guard let strongSelf = self else { return }
@@ -712,7 +712,7 @@ extension TokensViewController: OpenSeaNonFungibleTokenPairTableCellDelegate {
         let selection = viewModel.item(for: indexPath.row, section: indexPath.section)
 
         switch (viewModel.sections[indexPath.section], selection) {
-        case (.tokens, .tokenObject(let token)):
+        case (.tokens, .token(let token)):
             delegate?.didSelect(token: token, in: self)
         case (_, _):
             break
