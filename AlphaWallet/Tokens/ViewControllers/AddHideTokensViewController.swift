@@ -3,6 +3,7 @@
 import UIKit
 import StatefulViewController
 import PromiseKit
+import Combine
 
 protocol AddHideTokensViewControllerDelegate: AnyObject {
     func didPressAddToken(in viewController: UIViewController, with addressString: String)
@@ -13,7 +14,7 @@ protocol AddHideTokensViewControllerDelegate: AnyObject {
 
 class AddHideTokensViewController: UIViewController {
     private let assetDefinitionStore: AssetDefinitionStore
-    private var viewModel: AddHideTokensViewModel
+    private let viewModel: AddHideTokensViewModel
     private let searchController: UISearchController
     private var isSearchBarConfigured = false
     private lazy var tableView: UITableView = {
@@ -41,6 +42,8 @@ class AddHideTokensViewController: UIViewController {
     }()
     private var bottomConstraint: NSLayoutConstraint!
     private lazy var keyboardChecker = KeyboardChecker(self, resetHeightDefaultValue: 0, ignoreBottomSafeArea: true)
+    private var cancelable = Set<AnyCancellable>()
+
     weak var delegate: AddHideTokensViewControllerDelegate?
 
     init(viewModel: AddHideTokensViewModel, assetDefinitionStore: AssetDefinitionStore) {
@@ -77,13 +80,14 @@ class AddHideTokensViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        configure(viewModel: viewModel)
+        bind(viewModel: viewModel)
         setupFilteringWithKeyword()
 
         navigationItem.largeTitleDisplayMode = .never
         navigationItem.rightBarButtonItem = UIBarButtonItem.addButton(self, selector: #selector(addToken))
 
         edgesForExtendedLayout = []
+        viewModel.viewDidLoad()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -111,31 +115,24 @@ class AddHideTokensViewController: UIViewController {
         delegate?.didPressAddToken(in: self, with: "")
     }
 
-    private func configure(viewModel: AddHideTokensViewModel) {
+    private func bind(viewModel: AddHideTokensViewModel) {
         title = viewModel.title
         tableView.backgroundColor = viewModel.backgroundColor
         view.backgroundColor = viewModel.backgroundColor
 
         tokenFilterView.configure(viewModel: .init(selectionItems: SortTokensParam.allCases, selected: viewModel.sortTokensParam))
+
+        viewModel.objectWillChange
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.reload()
+            }.store(in: &cancelable)
     }
 
     private func reload() {
         startLoading(animated: false)
         tableView.reloadData()
         endLoading(animated: false)
-    }
-
-    func add(token: Token) {
-        viewModel.add(token: token)
-        reload()
-    }
-
-    func set(popularTokens: [PopularToken]) {
-        viewModel.set(allPopularTokens: popularTokens)
-
-        DispatchQueue.main.async {
-            self.reload()
-        }
     }
 }
 
