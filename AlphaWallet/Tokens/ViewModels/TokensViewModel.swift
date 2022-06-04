@@ -7,7 +7,7 @@ enum TokenOrRpcServer {
     case token(Token)
     case rpcServer(RPCServer)
 
-    var tokenObject: Token? {
+    var token: Token? {
         switch self {
         case .rpcServer:
             return nil
@@ -53,7 +53,7 @@ class TokensViewModel {
     static var segmentedControlTitles: [String] { WalletFilter.orderedTabs.map { $0.title } }
 
     private let tokensFilter: TokensFilter
-    var tokens: [Token]
+    private (set) var tokens: [Token]
     let config: Config
     var isSearchActive: Bool = false
     var filter: WalletFilter = .all {
@@ -181,7 +181,7 @@ class TokensViewModel {
     }
 
     var collectiblePairs: [CollectiblePairs] {
-        let tokens = filteredTokens.compactMap { $0.tokenObject }
+        let tokens = filteredTokens.compactMap { $0.token }
         return tokens.chunked(into: 2).compactMap { elems -> CollectiblePairs? in
             guard let left = elems.first else { return nil }
 
@@ -236,7 +236,7 @@ class TokensViewModel {
         let tokens = tokensFilter.sortDisplayedTokens(tokens: displayedTokens)
         switch filter {
         case .all, .type, .defi, .governance, .assets, .keyword:
-            return TokensViewModel.functional.groupTokenObjectsWithServers(tokens: tokens)
+            return TokensViewModel.functional.groupTokensByServers(tokens: tokens)
         case .collectiblesOnly:
             return tokens.map { .token($0) }
         }
@@ -345,7 +345,7 @@ extension TokensViewModel {
 }
 
 extension TokensViewModel.functional {
-    static func groupTokenObjectsWithServers(tokens: [Token]) -> [TokenOrRpcServer] {
+    static func groupTokensByServers(tokens: [Token]) -> [TokenOrRpcServer] {
         var servers: [RPCServer] = []
         var results: [TokenOrRpcServer] = []
 
