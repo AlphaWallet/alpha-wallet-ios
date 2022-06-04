@@ -366,14 +366,3 @@ private class _ModalViewController: UIViewController {
         return nil
     }
 }
-
-extension UIApplication {
-    var keyboardHostView: UIView? {
-        windows
-        .filter { NSStringFromClass($0.classForCoder) == "UIRemoteKeyboardWindow" }
-        .first?.subviews.filter { NSStringFromClass($0.classForCoder) == "UIInputSetContainerView" }
-        .first?.subviews.filter { NSStringFromClass($0.classForCoder) == "UIInputSetHostView" }
-        .first
-    }
-}
-

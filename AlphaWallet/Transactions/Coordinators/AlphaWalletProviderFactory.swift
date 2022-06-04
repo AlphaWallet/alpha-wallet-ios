@@ -3,7 +3,7 @@
 import Alamofire
 import Foundation
 import Moya
-import PromiseKit
+import PromiseKit 
 import Combine
 
 struct AlphaWalletProviderFactory {
@@ -39,18 +39,23 @@ extension MoyaProvider {
     }
 }
 
+enum PromiseError: Error {
+    case some(error: Error)
+}
+
 extension Promise {
-    var publisher: AnyPublisher<T, Error> {
+    var publisher: AnyPublisher<T, PromiseError> {
         var isCanceled: Bool = false
         let publisher = Deferred {
-            Future<T, Error> { seal in
+            Future<T, PromiseError> { seal in
                 guard !isCanceled else { return }
+                let queue = DispatchQueue.global(qos: .userInitiated)
 
-                self.done { value in
+                self.done(on: queue, { value in
                     seal(.success((value)))
-                }.catch { error in
-                    seal(.failure(error))
-                }
+                }).catch(on: queue, { error in
+                    seal(.failure(.some(error: error)))
+                })
             }
         }.handleEvents(receiveCancel: {
             isCanceled = true

@@ -85,10 +85,6 @@ class RPCServerImageFetcher {
 
     private static var subscribables: AtomicDictionary<Int, Subscribable<Image>> = .init()
 
-    private static func programmaticallyGenerateIcon(for server: RPCServer) -> Image {
-        return UIView.tokenSymbolBackgroundImage(backgroundColor: server.blockChainNameColor)
-    }
-
     func image(server: RPCServer) -> Subscribable<Image> {
         if let sub = Self.subscribables[server.chainID] {
             return sub
@@ -96,11 +92,7 @@ class RPCServerImageFetcher {
             let sub = Subscribable<Image>(nil)
             Self.subscribables[server.chainID] = sub
 
-            if let value = server.iconImage {
-                sub.value = value
-            } else {
-                sub.value = Self.programmaticallyGenerateIcon(for: server)
-            }
+            sub.value = server.iconImage ?? R.image.tokenPlaceholderLarge()!
 
             return sub
         }

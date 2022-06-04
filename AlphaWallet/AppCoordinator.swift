@@ -56,6 +56,8 @@ class AppCoordinator: NSObject, Coordinator {
         return coordinator
     }()
 
+    private lazy var tokenSwapper = TokenSwapper(reachabilityManager: ReachabilityManager(), sessions: sessionsSubject.eraseToAnyPublisher())
+
     private lazy var tokenActionsService: TokenActionsService = {
         let service = TokenActionsService()
         service.register(service: Ramp())
@@ -74,7 +76,7 @@ class AppCoordinator: NSObject, Coordinator {
 
         var quickSwap = QuickSwap()
         quickSwap.theme = navigationController.traitCollection.uniswapTheme
-        service.register(service: SwapTokenNativeProvider())
+        service.register(service: SwapTokenNativeProvider(tokenSwapper: tokenSwapper))
         service.register(service: quickSwap)
         service.register(service: ArbitrumBridge())
         service.register(service: xDaiBridge())
@@ -191,7 +193,8 @@ class AppCoordinator: NSObject, Coordinator {
                 tokenActionsService: tokenActionsService,
                 walletConnectCoordinator: walletConnectCoordinator,
                 sessionsSubject: sessionsSubject,
-                notificationService: notificationService)
+                notificationService: notificationService,
+                tokenSwapper: tokenSwapper)
 
         coordinator.delegate = self
 

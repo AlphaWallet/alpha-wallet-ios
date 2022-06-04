@@ -102,6 +102,10 @@ extension UIBarButtonItem {
         .init(title: R.string.localizable.save(), style: .plain, target: target, action: selector)
     }
 
+    static func settingsBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
+        return .init(image: R.image.tab_settings(), style: .plain, target: target, action: selector)
+    }
+
     static func backBarButton(selectionClosure: @escaping (UIBarButtonItem) -> Void) -> UIBarButtonItem {
         let barButton = UIBarButtonItem(image: R.image.backWhite(), style: .plain, target: nil, action: nil)
         barButton.selectionClosure = selectionClosure

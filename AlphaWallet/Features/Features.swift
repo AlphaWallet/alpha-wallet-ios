@@ -98,6 +98,7 @@ enum FeaturesAvailable: String, CaseIterable, Codable {
     case isBlockscanChatEnabled
     case isTokenScriptSignatureStatusEnabled
     case isFirebaseEnabled
+    case isSwapEnabled
 
     var defaultValue: Bool {
         switch self {
@@ -147,6 +148,8 @@ enum FeaturesAvailable: String, CaseIterable, Codable {
             return false
         case .isFirebaseEnabled:
             return true
+        case .isSwapEnabled:
+            return false
         }
     }
 

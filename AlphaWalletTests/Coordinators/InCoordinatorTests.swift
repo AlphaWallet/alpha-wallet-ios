@@ -46,7 +46,8 @@ class InCoordinatorTests: XCTestCase {
             coinTickersFetcher: FakeCoinTickersFetcher(),
             tokenActionsService: FakeSwapTokenService(),
             walletConnectCoordinator: .fake(),
-            notificationService: FakeNotificationService()
+            notificationService: FakeNotificationService(),
+            tokenSwapper: FakeTokenSwapper()
         )
 
         coordinator.start(animated: false)
@@ -55,12 +56,20 @@ class InCoordinatorTests: XCTestCase {
         let tabbarController = coordinator.navigationController.viewControllers[1] as? UITabBarController
 
         XCTAssertNotNil(tabbarController)
-
-        XCTAssert(tabbarController?.viewControllers!.count == 4)
-        XCTAssert((tabbarController?.viewControllers?[0] as? UINavigationController)?.viewControllers[0] is TokensViewController)
-        XCTAssert((tabbarController?.viewControllers?[1] as? UINavigationController)?.viewControllers[0] is ActivitiesViewController)
-        XCTAssert((tabbarController?.viewControllers?[2] as? UINavigationController)?.viewControllers[0] is DappsHomeViewController)
-        XCTAssert((tabbarController?.viewControllers?[3] as? UINavigationController)?.viewControllers[0] is SettingsViewController)
+        if Features.default.isAvailable(.isSwapEnabled) {
+            XCTAssert(tabbarController?.viewControllers!.count == 5)
+            XCTAssert((tabbarController?.viewControllers?[0] as? UINavigationController)?.viewControllers[0] is TokensViewController)
+            XCTAssert((tabbarController?.viewControllers?[1] as? UINavigationController)?.viewControllers[0] is ActivitiesViewController)
+            XCTAssertNotNil(tabbarController?.viewControllers?[2])
+            XCTAssert((tabbarController?.viewControllers?[3] as? UINavigationController)?.viewControllers[0] is DappsHomeViewController)
+            XCTAssert((tabbarController?.viewControllers?[4] as? UINavigationController)?.viewControllers[0] is SettingsViewController)
+        } else {
+            XCTAssert(tabbarController?.viewControllers!.count == 4)
+            XCTAssert((tabbarController?.viewControllers?[0] as? UINavigationController)?.viewControllers[0] is TokensViewController)
+            XCTAssert((tabbarController?.viewControllers?[1] as? UINavigationController)?.viewControllers[0] is ActivitiesViewController)
+            XCTAssert((tabbarController?.viewControllers?[2] as? UINavigationController)?.viewControllers[0] is DappsHomeViewController)
+            XCTAssert((tabbarController?.viewControllers?[3] as? UINavigationController)?.viewControllers[0] is SettingsViewController)
+        }
     }
 
     func testChangeRecentlyUsedAccount() {
@@ -94,7 +103,8 @@ class InCoordinatorTests: XCTestCase {
             coinTickersFetcher: FakeCoinTickersFetcher(),
             tokenActionsService: FakeSwapTokenService(),
             walletConnectCoordinator: .fake(),
-            notificationService: FakeNotificationService()
+            notificationService: FakeNotificationService(),
+            tokenSwapper: FakeTokenSwapper()
         )
 
         c1.start(animated: false)
@@ -117,7 +127,8 @@ class InCoordinatorTests: XCTestCase {
             coinTickersFetcher: FakeCoinTickersFetcher(),
             tokenActionsService: FakeSwapTokenService(),
             walletConnectCoordinator: .fake(),
-            notificationService: FakeNotificationService()
+            notificationService: FakeNotificationService(),
+            tokenSwapper: FakeTokenSwapper()
         )
 
         c1.start(animated: false)
@@ -148,7 +159,8 @@ class InCoordinatorTests: XCTestCase {
                 coinTickersFetcher: FakeCoinTickersFetcher(),
                 tokenActionsService: FakeSwapTokenService(),
                 walletConnectCoordinator: .fake(),
-                notificationService: FakeNotificationService()
+                notificationService: FakeNotificationService(),
+                tokenSwapper: FakeTokenSwapper()
         )
         coordinator.start(animated: false)
         coordinator.showPaymentFlow(for: .send(type: .transaction(TransactionType.nativeCryptocurrency(TokenObject(), destination: .none, amount: nil))), server: .main, navigationController: coordinator.navigationController)
@@ -180,7 +192,8 @@ class InCoordinatorTests: XCTestCase {
             coinTickersFetcher: FakeCoinTickersFetcher(),
             tokenActionsService: FakeSwapTokenService(),
             walletConnectCoordinator: .fake(),
-            notificationService: FakeNotificationService()
+            notificationService: FakeNotificationService(),
+            tokenSwapper: FakeTokenSwapper()
         )
         coordinator.start(animated: false)
         coordinator.showPaymentFlow(for: .request, server: .main, navigationController: coordinator.navigationController)
@@ -212,7 +225,8 @@ class InCoordinatorTests: XCTestCase {
             coinTickersFetcher: FakeCoinTickersFetcher(),
             tokenActionsService: FakeSwapTokenService(),
             walletConnectCoordinator: .fake(),
-            notificationService: FakeNotificationService()
+            notificationService: FakeNotificationService(),
+            tokenSwapper: FakeTokenSwapper()
         )
         coordinator.start(animated: false)
 
@@ -263,7 +277,8 @@ class InCoordinatorTests: XCTestCase {
                     coinTickersFetcher: FakeCoinTickersFetcher(),
                     tokenActionsService: FakeSwapTokenService(),
                     walletConnectCoordinator: .fake(),
-                    notificationService: FakeNotificationService()
+                    notificationService: FakeNotificationService(),
+                    tokenSwapper: FakeTokenSwapper()
             )
             coordinator.start(animated: false) 
 

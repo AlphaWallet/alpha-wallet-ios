@@ -17,6 +17,7 @@ protocol TokensCoordinatorDelegate: CanOpenURL, SendTransactionDelegate {
     func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: TokensCoordinator)
     func blockieSelected(in coordinator: TokensCoordinator)
     func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TokensCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource)
+    func didSentTransaction(transaction: SentTransaction, in coordinator: TokensCoordinator)
 
     func whereAreMyTokensSelected(in coordinator: TokensCoordinator)
     func didSelectAccount(account: Wallet, in coordinator: TokensCoordinator)
@@ -27,17 +28,10 @@ class TokensCoordinator: Coordinator {
     private let sessions: ServerDictionary<WalletSession>
     private let keystore: Keystore
     private let config: Config
-
-    private lazy var tokenCollection: TokenCollection = {
-        return MultipleChainsTokenCollection(tokensFilter: tokensFilter, tokensDataStore: tokensDataStore, config: config)
-    }()
+    private let tokenCollection: TokenCollection
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: NonActivityEventsDataStore
     private let promptBackupCoordinator: PromptBackupCoordinator
-    private lazy var tokensFilter: TokensFilter = {
-        let tokenGroupIdentifier: TokenGroupIdentifierProtocol = TokenGroupIdentifier.identifier(fromFileName: "tokens")!
-        return .init(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: coinTickersFetcher, tokenGroupIdentifier: tokenGroupIdentifier)
-    }()
     private let analyticsCoordinator: AnalyticsCoordinator
     private let tokenActionsService: TokenActionsService
 
@@ -60,7 +54,6 @@ class TokensCoordinator: Coordinator {
             sessions: sessions,
             tokenCollection: tokenCollection,
             assetDefinitionStore: assetDefinitionStore,
-            tokensFilter: tokensFilter,
             config: config,
             walletConnectCoordinator: walletConnectCoordinator,
             walletBalanceService: walletBalanceService,
@@ -88,7 +81,9 @@ class TokensCoordinator: Coordinator {
         PriceAlertService(datastore: PriceAlertDataStore(wallet: sessions.anyValue.account), wallet: sessions.anyValue.account)
     }()
 
-    private let tokensDataStore: TokensDataStore
+    private var tokensDataStore: TokensDataStore {
+        return tokenCollection.tokensDataStore
+    }
     private let tokensAutoDetectionQueue: DispatchQueue = DispatchQueue(label: "com.TokensAutoDetection.updateQueue")
     private var viewWillAppearHandled = false
     private var cancelable = Set<AnyCancellable>()
@@ -99,7 +94,6 @@ class TokensCoordinator: Coordinator {
             sessions: ServerDictionary<WalletSession>,
             keystore: Keystore,
             config: Config,
-            tokensDataStore: TokensDataStore,
             assetDefinitionStore: AssetDefinitionStore,
             eventsDataStore: NonActivityEventsDataStore,
             promptBackupCoordinator: PromptBackupCoordinator,
@@ -108,13 +102,14 @@ class TokensCoordinator: Coordinator {
             walletConnectCoordinator: WalletConnectCoordinator,
             coinTickersFetcher: CoinTickersFetcherType,
             activitiesService: ActivitiesServiceType,
-            walletBalanceService: WalletBalanceService
+            walletBalanceService: WalletBalanceService,
+            tokenCollection: TokenCollection
     ) {
+        self.tokenCollection = tokenCollection
         self.navigationController = navigationController
         self.sessions = sessions
         self.keystore = keystore
         self.config = config
-        self.tokensDataStore = tokensDataStore
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
         self.promptBackupCoordinator = promptBackupCoordinator
@@ -163,8 +158,9 @@ class TokensCoordinator: Coordinator {
         for each in singleChainTokenCoordinators {
             each.start()
         }
+        navigationController.viewControllers = [rootViewController]
+
         addUefaTokenIfAny()
-        showTokens()
         alertService.start()
     }
     
@@ -186,10 +182,6 @@ class TokensCoordinator: Coordinator {
             coordinator.delegate = self
             addCoordinator(coordinator)
         }
-    }
-
-    private func showTokens() {
-        navigationController.viewControllers = [rootViewController]
     }
 
     func addImportedToken(forContract contract: AlphaWallet.Address, server: RPCServer) {
@@ -299,6 +291,18 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         }
         alertController.addAction(addHideTokensAction)
 
+        if Features.default.isAvailable(.isSwapEnabled) {
+            let swapAction = UIAlertAction(title: "Swap", style: .default) { [weak self] _ in
+                guard let strongSelf = self else { return }
+                guard let service = strongSelf.tokenActionsService.service(ofType: SwapTokenNativeProvider.self) as? SwapTokenNativeProvider else { return }
+                let transactionType: TransactionType = .prebuilt(strongSelf.config.anyEnabledServer())
+
+                strongSelf.delegate?.didTapSwap(forTransactionType: transactionType, service: service, in: strongSelf)
+            }
+
+            alertController.addAction(swapAction)
+        }
+        
         let renameThisWalletAction = UIAlertAction(title: R.string.localizable.tokensWalletRenameThisWallet(), style: .default) { [weak self] _ in
             guard let strongSelf = self else { return }
             strongSelf.didPressRenameThisWallet()
@@ -330,7 +334,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         let coordinator: AddHideTokensCoordinator = .init(
             tokens: viewModel.tokens,
             assetDefinitionStore: assetDefinitionStore,
-            tokensFilter: tokensFilter,
+            tokensFilter: tokenCollection.tokensFilter,
             sessions: sessions,
             analyticsCoordinator: analyticsCoordinator,
             navigationController: navigationController,
@@ -400,7 +404,7 @@ extension TokensCoordinator: SelectTokenCoordinatorDelegate {
         sendToAddress = .none
     }
 
-    func selectAssetDidCancel(in coordinator: SelectTokenCoordinator) {
+    func didCancel(in coordinator: SelectTokenCoordinator) {
         removeCoordinator(coordinator)
     }
 }
@@ -466,12 +470,13 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
 
         let coordinator = SelectTokenCoordinator(
             assetDefinitionStore: assetDefinitionStore,
-            sessions: sessions,
+            wallet: sessions.anyValue.account,
+            tokenBalanceService: sessions.anyValue.tokenBalanceService,
             tokenCollection: tokenCollection,
             navigationController: navigationController,
-            tokensFilter: tokensFilter,
+            filter: .filter(NativeCryptoOrErc20TokenFilter()),
             eventsDataStore: eventsDataStore
-        )
+        ) 
         coordinator.delegate = self
         addCoordinator(coordinator)
 

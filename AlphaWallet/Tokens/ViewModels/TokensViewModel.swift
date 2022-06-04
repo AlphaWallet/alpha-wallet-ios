@@ -69,7 +69,7 @@ class TokensViewModel {
     private func refreshSections(walletConnectSessions count: Int) {
         let varyTokenOrCollectiblePeirsSection: Section = {
             switch filter {
-            case .all, .defi, .governance, .keyword, .assets, .type:
+            case .all, .defi, .governance, .keyword, .assets, .filter:
                 return .tokens
             case .collectiblesOnly:
                 return .collectiblePairs
@@ -133,7 +133,7 @@ class TokensViewModel {
         switch filter {
         case .all, .keyword:
             return true
-        case .assets, .collectiblesOnly, .type, .defi, .governance:
+        case .assets, .collectiblesOnly, .filter, .defi, .governance:
             return false
         }
     }
@@ -144,7 +144,7 @@ class TokensViewModel {
 
     var shouldShowCollectiblesCollectionView: Bool {
         switch filter {
-        case .all, .defi, .governance, .assets, .keyword, .type:
+        case .all, .defi, .governance, .assets, .keyword, .filter:
             return false
         case .collectiblesOnly:
             return hasContent
@@ -172,7 +172,7 @@ class TokensViewModel {
             return 0
         case .tokens, .collectiblePairs:
             switch filter {
-            case .all, .defi, .governance, .keyword, .assets, .type:
+            case .all, .defi, .governance, .keyword, .assets, .filter:
                 return filteredTokens.count
             case .collectiblesOnly:
                 return collectiblePairs.count
@@ -235,7 +235,7 @@ class TokensViewModel {
         let displayedTokens = tokensFilter.filterTokens(tokens: tokens, filter: filter)
         let tokens = tokensFilter.sortDisplayedTokens(tokens: displayedTokens)
         switch filter {
-        case .all, .type, .defi, .governance, .assets, .keyword:
+        case .all, .filter, .defi, .governance, .assets, .keyword:
             return TokensViewModel.functional.groupTokensByServers(tokens: tokens)
         case .collectiblesOnly:
             return tokens.map { .token($0) }
@@ -329,7 +329,7 @@ fileprivate extension WalletFilter {
             return R.string.localizable.aWalletContentsFilterAssetsOnlyTitle()
         case .collectiblesOnly:
             return R.string.localizable.aWalletContentsFilterCollectiblesOnlyTitle()
-        case .keyword, .type:
+        case .keyword, .filter:
             return ""
         }
     }

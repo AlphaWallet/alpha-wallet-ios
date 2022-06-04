@@ -18,7 +18,7 @@ class SelectTokenViewModel {
         return .white
     }
 
-    var title: String {
+    var navigationTitle: String {
         return R.string.localizable.assetsSelectAssetTitle()
     }
 

@@ -32,6 +32,7 @@ class SendViewSectionHeader: UIView {
     }()
 
     private var topSeparatorLineHeight: NSLayoutConstraint!
+    private var bottomSeparatorLineHeight: NSLayoutConstraint!
     private let separatorHeight: CGFloat = 1
 
     init() {
@@ -48,8 +49,9 @@ class SendViewSectionHeader: UIView {
         addSubview(stackView)
         //NOTE: we want heigh to be 50 points, with setting textLabel.heightAnchor 22 we satisfy it
         topSeparatorLineHeight = topSeparatorView.heightAnchor.constraint(equalToConstant: separatorHeight)
+        bottomSeparatorLineHeight = bottomSeparatorView.heightAnchor.constraint(equalToConstant: separatorHeight)
         NSLayoutConstraint.activate([
-            bottomSeparatorView.heightAnchor.constraint(equalToConstant: separatorHeight),
+            bottomSeparatorLineHeight,
             topSeparatorLineHeight,
             textLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 22),
             stackView.anchorsConstraint(to: self)
@@ -68,5 +70,6 @@ class SendViewSectionHeader: UIView {
         topSeparatorView.backgroundColor = viewModel.separatorBackgroundColor
         bottomSeparatorView.backgroundColor = viewModel.separatorBackgroundColor
         topSeparatorLineHeight.constant = viewModel.showTopSeparatorLine ? separatorHeight : 0
+        bottomSeparatorLineHeight.constant = viewModel.showBottomSeparatorLine ? separatorHeight : 0
     }
 }

@@ -15,6 +15,7 @@ enum TransactionConfirmationViewModel {
     case claimPaidErc875MagicLink(ClaimPaidErc875MagicLinkViewModel)
     case speedupTransaction(SpeedupTransactionViewModel)
     case cancelTransaction(CancelTransactionViewModel)
+    case swapTransaction(SwapTransactionViewModel)
 
     init(configurator: TransactionConfigurator, configuration: TransactionConfirmationConfiguration) {
         switch configuration {
@@ -36,6 +37,12 @@ enum TransactionConfirmationViewModel {
             self = .speedupTransaction(.init(configurator: configurator))
         case .cancelTransaction(_):
             self = .cancelTransaction(.init(configurator: configurator))
+        case .swapTransaction(_, let fromToken, let fromAmount, let toToken, let toAmount):
+            self = .swapTransaction(.init(configurator: configurator, fromToken: fromToken, fromAmount: fromAmount, toToken: toToken, toAmount: toAmount))
+        case .approve:
+            //TODO rename `.dappOrWalletConnectTransaction` so it's more general?
+            self = .dappOrWalletConnectTransaction(.init(configurator: configurator, dappRequesterViewModel: nil))
+
         }
     }
 
@@ -53,6 +60,7 @@ enum TransactionConfirmationViewModel {
         case .claimPaidErc875MagicLink(let viewModel): return viewModel
         case .speedupTransaction(let viewModel): return viewModel
         case .cancelTransaction(let viewModel): return viewModel
+        case .swapTransaction(let viewModel): return viewModel
         }
     }
 
@@ -71,6 +79,8 @@ enum TransactionConfirmationViewModel {
         case .speedupTransaction(var viewModel):
             return viewModel.showHideSection(section)
         case .cancelTransaction(var viewModel):
+            return viewModel.showHideSection(section)
+        case .swapTransaction(var viewModel):
             return viewModel.showHideSection(section)
         }
     }
@@ -164,7 +174,7 @@ extension TransactionConfirmationViewModel {
         let transactionType: TransactionType
         let session: WalletSession
         let recipientResolver: RecipientResolver
-        
+
         var server: RPCServer {
             configurator.session.server
         }
@@ -831,6 +841,86 @@ extension TransactionConfirmationViewModel {
             }
         }
     }
+
+    class SwapTransactionViewModel: SectionProtocol, CryptoToFiatRateUpdatable {
+        enum Section {
+            case gas
+            case network
+            case from
+            case to
+
+            var title: String {
+                switch self {
+                case .gas:
+                    return R.string.localizable.tokenTransactionConfirmationGasTitle()
+                case .network:
+                    return R.string.localizable.tokenTransactionConfirmationNetwork()
+                case .from:
+                    return R.string.localizable.transactionFromLabelTitle()
+                case .to:
+                    return R.string.localizable.transactionToLabelTitle()
+                }
+            }
+
+            var isExpandable: Bool {
+                return false
+            }
+        }
+        private let configurator: TransactionConfigurator
+        private let fromToken: TokenToSwap
+        private let fromAmount: BigUInt
+        private let toToken: TokenToSwap
+        private let toAmount: BigUInt
+
+        private var configurationTitle: String {
+            return configurator.selectedConfigurationType.title
+        }
+        let session: WalletSession
+        var cryptoToDollarRate: Double?
+        var openedSections = Set<Int>()
+
+        var server: RPCServer {
+            configurator.session.server
+        }
+
+        var sections: [Section] {
+            [.network, .gas, .from, .to]
+        }
+
+        init(configurator: TransactionConfigurator, fromToken: TokenToSwap, fromAmount: BigUInt, toToken: TokenToSwap, toAmount: BigUInt) {
+            self.configurator = configurator
+            self.fromToken = fromToken
+            self.fromAmount = fromAmount
+            self.toToken = toToken
+            self.toAmount = toAmount
+            self.session = configurator.session
+        }
+
+        func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
+            let configuration: TransactionConfirmationHeaderView.Configuration = .init(isOpened: openedSections.contains(section), section: section, shouldHideChevron: !sections[section].isExpandable)
+            let headerName = sections[section].title
+            switch sections[section] {
+            case .gas:
+                let gasFee = gasFeeString(withConfigurator: configurator, cryptoToDollarRate: cryptoToDollarRate)
+                if let warning = configurator.gasPriceWarning {
+                    return .init(title: .warning(warning.shortTitle), headerName: headerName, details: gasFee, configuration: configuration)
+                } else {
+                    return .init(title: .normal(configurationTitle), headerName: headerName, details: gasFee, configuration: configuration)
+                }
+            case .from:
+                let amount = EtherNumberFormatter.short.string(from: BigInt(fromAmount), decimals: fromToken.decimals)
+                let symbol = fromToken.symbol
+                return .init(title: .normal("\(amount) \(symbol)"), headerName: headerName, configuration: configuration)
+            case .to:
+                //hhh0 why is short 3 dec if 0.001 and not 0.0010?
+                let amount = EtherNumberFormatter.short.string(from: BigInt(toAmount), decimals: toToken.decimals)
+                let symbol = toToken.symbol
+                return .init(title: .normal("\(amount) \(symbol)"), headerName: headerName, configuration: configuration)
+            case .network:
+                return .init(title: .normal(session.server.displayName), headerName: headerName, titleIcon: session.server.walletConnectIconImage, configuration: configuration)
+            }
+        }
+    }
 }
 
 extension TransactionConfirmationViewModel {
@@ -846,6 +936,8 @@ extension TransactionConfirmationViewModel {
             return R.string.localizable.tokenTransactionSpeedupConfirmationTitle()
         case .cancelTransaction:
             return R.string.localizable.tokenTransactionSpeedupConfirmationTitle()
+        case .swapTransaction:
+            return R.string.localizable.tokenTransactionConfirmationTitle()
         }
     }
 
@@ -860,6 +952,8 @@ extension TransactionConfirmationViewModel {
             return R.string.localizable.activitySpeedup()
         case .cancelTransaction:
             return R.string.localizable.tokenTransactionCancelConfirmationTitle()
+        case .swapTransaction:
+            return R.string.localizable.confirmPaymentConfirmButtonTitle()
         }
     }
 
@@ -875,7 +969,7 @@ extension TransactionConfirmationViewModel {
         switch self {
         case .sendFungiblesTransaction, .sendNftTransaction, .dappOrWalletConnectTransaction, .tokenScriptTransaction, .claimPaidErc875MagicLink:
             return true
-        case .speedupTransaction, .cancelTransaction:
+        case .speedupTransaction, .cancelTransaction, .swapTransaction:
             return false
         }
     }

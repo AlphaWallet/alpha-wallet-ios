@@ -42,7 +42,7 @@ class SendViewController: UIViewController {
         amountTextField.errorState = .none
         amountTextField.isAlternativeAmountEnabled = false
         amountTextField.allFundsAvailable = Features.default.isAvailable(.isSendAllFundsFungibleEnabled)
-
+        amountTextField.selectCurrencyButton.hasToken = true
         return amountTextField
     }()
     weak var delegate: SendViewControllerDelegate?

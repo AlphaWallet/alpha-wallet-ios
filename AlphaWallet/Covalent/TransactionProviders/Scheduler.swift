@@ -41,7 +41,7 @@ final class Scheduler: SchedulerProtocol {
     }
 
     func start() {
-        reachability.reachabilityObservable
+        reachability.isReachablePublisher
             .subscribe(on: queue)
             .sink { [weak self] isReachable in
                 self?.cancel()

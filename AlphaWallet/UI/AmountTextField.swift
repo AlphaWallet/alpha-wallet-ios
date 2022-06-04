@@ -403,14 +403,22 @@ class AmountTextField: UIControl {
 
         errorState = .none
         updateAlternateAmountLabel(alternativeAmount)
-
+        updateTextFieldInputAccessoryView(buttonType: buttonType)
+        
         NSLayoutConstraint.activate([
             stackView.anchorsConstraint(to: self),
         ])
 
-        updateTextFieldInputAccessoryView(buttonType: buttonType)
-
         inputAccessoryButton.addTarget(self, action: #selector(closeKeyboard), for: .touchUpInside)
+    }
+
+    private func updateTextFieldInputAccessoryView(buttonType: AmountTextField.AccessoryButtonTitle) {
+        switch buttonType {
+        case .done:
+            textField.inputAccessoryView = UIToolbar.doneToolbarButton(#selector(closeKeyboard), self)
+        case .next:
+            textField.inputAccessoryView = UIToolbar.nextToolbarButton(#selector(closeKeyboard), self)
+        }
     }
 
     func defaultLayout(edgeInsets: UIEdgeInsets = .zero) -> UIView {
@@ -450,15 +458,6 @@ class AmountTextField: UIControl {
         }
     }
 
-    private func updateTextFieldInputAccessoryView(buttonType: AmountTextField.AccessoryButtonTitle) {
-        switch buttonType {
-        case .done:
-            textField.inputAccessoryView = UIToolbar.doneToolbarButton(#selector(closeKeyboard), self)
-        case .next:
-            textField.inputAccessoryView = UIToolbar.nextToolbarButton(#selector(closeKeyboard), self)
-        }
-    }
-    
     @discardableResult override func becomeFirstResponder() -> Bool {
         super.becomeFirstResponder()
         return textField.becomeFirstResponder()

@@ -1,5 +1,5 @@
 //
-//  NotificationCenter.swift
+//  NotificationCenter+Publishers.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 04.04.2022.

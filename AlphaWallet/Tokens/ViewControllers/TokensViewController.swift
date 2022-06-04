@@ -164,7 +164,6 @@ class TokensViewController: UIViewController {
     init(sessions: ServerDictionary<WalletSession>,
          tokenCollection: TokenCollection,
          assetDefinitionStore: AssetDefinitionStore,
-         tokensFilter: TokensFilter,
          config: Config,
          walletConnectCoordinator: WalletConnectCoordinator,
          walletBalanceService: WalletBalanceService,
@@ -177,7 +176,7 @@ class TokensViewController: UIViewController {
         self.config = config
         self.walletConnectCoordinator = walletConnectCoordinator
 
-        viewModel = TokensViewModel(tokensFilter: tokensFilter, tokens: [], config: config)
+        viewModel = TokensViewModel(tokensFilter: tokenCollection.tokensFilter, tokens: [], config: config)
 
         searchController = UISearchController(searchResultsController: nil)
 
@@ -611,7 +610,7 @@ extension TokensViewController {
             //do nothing
         } else {
             switch filter {
-            case .all, .defi, .governance, .assets, .collectiblesOnly, .type:
+            case .all, .defi, .governance, .assets, .collectiblesOnly, .filter:
                 searchController.isActive = false
             case .keyword:
                 break
@@ -647,7 +646,7 @@ extension TokensViewController: UISearchResultsUpdating {
         shouldHidePromptBackupWalletViewHolderBecauseSearchIsActive = searchController.isActive
         guard searchController.isActive else {
             switch viewModel.filter {
-            case .all, .defi, .governance, .assets, .collectiblesOnly, .type:
+            case .all, .defi, .governance, .assets, .collectiblesOnly, .filter:
                 break
             case .keyword:
                 //Handle when user taps Cancel button to stop search

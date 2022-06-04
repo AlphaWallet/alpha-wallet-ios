@@ -155,7 +155,7 @@ class TransactionConfirmationViewController: UIViewController {
                 guard let strongSelf = self else { return }
                 strongSelf.generateSubviews()
             }
-        case .tokenScriptTransaction, .claimPaidErc875MagicLink, .speedupTransaction, .cancelTransaction:
+        case .tokenScriptTransaction, .claimPaidErc875MagicLink, .speedupTransaction, .cancelTransaction, .swapTransaction:
             break
         }
 
@@ -217,7 +217,7 @@ class TransactionConfirmationViewController: UIViewController {
     //NOTE: we need to recalculate all funds value to send according to updated gas estimates, nativecrypto only
     func reloadViewWithCurrentBalanceValue() {
         switch viewModel {
-        case .dappOrWalletConnectTransaction, .tokenScriptTransaction, .speedupTransaction, .cancelTransaction:
+        case .dappOrWalletConnectTransaction, .tokenScriptTransaction, .speedupTransaction, .cancelTransaction, .swapTransaction:
             break
         case .sendFungiblesTransaction(let sendFungiblesViewModel):
             switch sendFungiblesViewModel.transactionType {
@@ -274,7 +274,6 @@ extension TransactionConfirmationViewController {
         case .dappOrWalletConnectTransaction(let viewModel):
             for (sectionIndex, section) in viewModel.sections.enumerated() {
                 var children: [UIView] = []
-
                 let header = TransactionConfirmationHeaderView(viewModel: viewModel.headerViewModel(section: sectionIndex))
                 header.delegate = self
 
@@ -463,6 +462,25 @@ extension TransactionConfirmationViewController {
                     views.append(view)
                 }
             }
+        case .swapTransaction(let viewModel):
+            for (sectionIndex, section) in viewModel.sections.enumerated() {
+                let header = TransactionConfirmationHeaderView(viewModel: viewModel.headerViewModel(section: sectionIndex))
+                header.delegate = self
+                let children: [UIView] = []
+                switch section {
+                case .gas:
+                    if viewModel.server.canUserChangeGas {
+                        header.enableTapAction(title: R.string.localizable.editButtonTitle())
+                    } else {
+                        //no-op
+                    }
+                case .network, .from, .to:
+                    break
+                }
+                header.childrenStackView.addArrangedSubviews(children)
+                header.childrenStackView.isHidden = children.isEmpty
+                views.append(header)
+            }
         }
         containerView.stackView.addArrangedSubviews(views)
     }
@@ -477,7 +495,7 @@ extension TransactionConfirmationViewController: TransactionConfirmationHeaderVi
 
     func headerView(_ header: TransactionConfirmationHeaderView, shouldShowChildren section: Int, index: Int) -> Bool {
         switch viewModel {
-        case .dappOrWalletConnectTransaction, .claimPaidErc875MagicLink, .tokenScriptTransaction, .speedupTransaction, .cancelTransaction:
+        case .dappOrWalletConnectTransaction, .claimPaidErc875MagicLink, .tokenScriptTransaction, .speedupTransaction, .cancelTransaction, .swapTransaction:
             return true
         case .sendFungiblesTransaction(let viewModel):
             switch viewModel.sections[section] {
