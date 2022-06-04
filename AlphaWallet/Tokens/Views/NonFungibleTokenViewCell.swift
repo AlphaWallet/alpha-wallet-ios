@@ -62,6 +62,7 @@ class NonFungibleTokenViewCell: UITableViewCell {
         viewsWithContent.forEach { $0.alpha = viewModel.alpha }
         tokenImageView.subscribable = viewModel.iconImage
         blockChainTagLabel.configure(viewModel: viewModel.blockChainTagViewModel)
+        accessoryType = viewModel.accessoryType
     }
 
     override func prepareForReuse() {

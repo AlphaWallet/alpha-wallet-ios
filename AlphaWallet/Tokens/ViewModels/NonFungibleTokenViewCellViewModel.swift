@@ -10,13 +10,15 @@ struct NonFungibleTokenViewCellViewModel {
     private let isVisible: Bool
     private let eventsDataStore: NonActivityEventsDataStore
     private let wallet: Wallet
+    let accessoryType: UITableViewCell.AccessoryType
 
-    init(token: Token, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, wallet: Wallet, isVisible: Bool = true) {
+    init(token: Token, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, wallet: Wallet, isVisible: Bool = true, accessoryType: UITableViewCell.AccessoryType = .none) {
         self.eventsDataStore = eventsDataStore
         self.wallet = wallet
         self.token = token
         self.assetDefinitionStore = assetDefinitionStore
         self.isVisible = isVisible
+        self.accessoryType = accessoryType
     }
 
     private var amount: String {

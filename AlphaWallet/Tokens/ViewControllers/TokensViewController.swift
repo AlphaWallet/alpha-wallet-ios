@@ -442,11 +442,7 @@ extension TokensViewController: UITableViewDataSource {
                         ticker: session.tokenBalanceService.coinTicker(token.addressAndRPCServer)
                     ))
                     return cell
-                case .erc721, .erc721ForTickets, .erc1155:
-                    let cell: NonFungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
-                    cell.configure(viewModel: .init(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, wallet: session.account))
-                    return cell
-                case .erc875:
+                case .erc721, .erc721ForTickets, .erc1155, .erc875:
                     let cell: NonFungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
                     cell.configure(viewModel: .init(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, wallet: session.account))
                     return cell

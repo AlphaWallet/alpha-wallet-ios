@@ -9,11 +9,10 @@ protocol AddHideTokensViewControllerDelegate: AnyObject {
     func didPressAddToken(in viewController: UIViewController, with addressString: String)
     func didMark(token: Token, in viewController: UIViewController, isHidden: Bool)
     func didChangeOrder(tokens: [Token], in viewController: UIViewController)
-    func didClose(viewController: AddHideTokensViewController)
+    func didClose(in viewController: AddHideTokensViewController)
 }
 
 class AddHideTokensViewController: UIViewController {
-    private let assetDefinitionStore: AssetDefinitionStore
     private let viewModel: AddHideTokensViewModel
     private let searchController: UISearchController
     private var isSearchBarConfigured = false
@@ -46,8 +45,7 @@ class AddHideTokensViewController: UIViewController {
 
     weak var delegate: AddHideTokensViewControllerDelegate?
 
-    init(viewModel: AddHideTokensViewModel, assetDefinitionStore: AssetDefinitionStore) {
-        self.assetDefinitionStore = assetDefinitionStore
+    init(viewModel: AddHideTokensViewModel) {
         self.viewModel = viewModel
         searchController = UISearchController(searchResultsController: nil)
         super.init(nibName: nil, bundle: nil)
@@ -102,7 +100,7 @@ class AddHideTokensViewController: UIViewController {
         keyboardChecker.viewWillDisappear()
 
         if isMovingFromParent || isBeingDismissed {
-            delegate?.didClose(viewController: self)
+            delegate?.didClose(in: self)
             return
         }
     }
@@ -152,18 +150,16 @@ extension AddHideTokensViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let token = viewModel.item(atIndexPath: indexPath) else { return UITableViewCell() }
-        let isVisible = viewModel.displayedToken(indexPath: indexPath)
-
-        switch token {
-        case .walletToken(let tokenObject):
+        switch viewModel.viewModel(for: indexPath) {
+        case .undefined:
+            return UITableViewCell()
+        case .walletToken(let viewModel):
             let cell: WalletTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(viewModel: .init(token: tokenObject, assetDefinitionStore: assetDefinitionStore, isVisible: isVisible))
-
+            cell.configure(viewModel: viewModel)
             return cell
-        case .popularToken(let value):
+        case .popularToken(let viewModel):
             let cell: PopularTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(viewModel: .init(token: value, isVisible: isVisible))
+            cell.configure(viewModel: viewModel)
 
             return cell
         }
@@ -181,15 +177,15 @@ extension AddHideTokensViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        let result: AddHideTokensViewModel.ShowHideOperationResult
+        let result: AddHideTokensViewModel.ShowHideTokenResult
         let isTokenHidden: Bool
 
         switch editingStyle {
         case .insert:
-            result = viewModel.addDisplayed(indexPath: indexPath)
+            result = viewModel.markTokenAsDisplayed(at: indexPath)
             isTokenHidden = false
         case .delete:
-            result = viewModel.deleteToken(indexPath: indexPath)
+            result = viewModel.markTokenAsHidden(at: indexPath)
             isTokenHidden = true
         case .none:
             result = .value(nil)
@@ -230,7 +226,7 @@ extension AddHideTokensViewController: UITableViewDataSource {
         let hideAction = UIContextualAction(style: .destructive, title: title) { [weak self] _, _, completionHandler in
             guard let strongSelf = self else { return }
 
-            switch strongSelf.viewModel.deleteToken(indexPath: indexPath) {
+            switch strongSelf.viewModel.markTokenAsHidden(at: indexPath) {
             case .value(let result):
                 if let result = result, let delegate = strongSelf.delegate {
                     delegate.didMark(token: result.token, in: strongSelf, isHidden: true)

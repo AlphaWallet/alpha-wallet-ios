@@ -31,7 +31,8 @@ class SelectTokenCoordinator: Coordinator {
 
     private let parentsNavigationController: UINavigationController
     private (set) lazy var rootViewController: SelectTokenViewController = {
-        let viewController = SelectTokenViewController(wallet: wallet, tokenBalanceService: tokenBalanceService, tokenCollection: tokenCollection, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, filter: filter)
+        let viewModel = SelectTokenViewModel(wallet: wallet, tokenBalanceService: tokenBalanceService, tokenCollection: tokenCollection, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, filter: filter)
+        let viewController = SelectTokenViewController(viewModel: viewModel)
         viewController.navigationItem.rightBarButtonItem = UIBarButtonItem.closeBarButton(self, selector: #selector(closeDidSelect))
 
         return viewController

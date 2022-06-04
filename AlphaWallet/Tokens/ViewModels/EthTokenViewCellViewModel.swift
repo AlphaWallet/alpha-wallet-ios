@@ -11,19 +11,22 @@ struct EthTokenViewCellViewModel {
     private let ticker: CoinTicker?
     private let assetDefinitionStore: AssetDefinitionStore
     private let isVisible: Bool 
+    let accessoryType: UITableViewCell.AccessoryType
     
     init(
         token: Token,
         ticker: CoinTicker?,
         currencyAmount: Double?,
         assetDefinitionStore: AssetDefinitionStore,
-        isVisible: Bool = true
+        isVisible: Bool = true,
+        accessoryType: UITableViewCell.AccessoryType = .none
     ) {
         self.token = token
         self.ticker = ticker
         self.currencyAmount = currencyAmount
         self.assetDefinitionStore = assetDefinitionStore
         self.isVisible = isVisible
+        self.accessoryType = accessoryType
     }
 
     private var amount: String {

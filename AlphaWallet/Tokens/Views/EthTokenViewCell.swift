@@ -150,6 +150,7 @@ class EthTokenViewCell: UITableViewCell {
 
         blockChainTagLabel.configure(viewModel: viewModel.blockChainTagViewModel)
         changeValueContainer.isHidden = !viewModel.blockChainTagViewModel.blockChainNameLabelHidden
+        accessoryType = viewModel.accessoryType
     }
 
     override func prepareForReuse() {
