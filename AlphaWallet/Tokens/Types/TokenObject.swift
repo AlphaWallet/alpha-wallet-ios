@@ -28,7 +28,7 @@ class TokenObject: Object {
     @objc dynamic var _info: TokenInfoObject?
 
     var info: TokenInfoObject {
-        get { return _info! } //NOTE: Better to make it crash than create dummy object
+        get { return _info! }
         set { _info = newValue }
     }
 
@@ -103,16 +103,7 @@ class TokenObject: Object {
         guard let object = object as? TokenObject else { return false }
         //NOTE: to improve perfomance seems like we can use check for primary key instead of checking contracts
         return object.contractAddress.sameContract(as: contractAddress)
-    }
-
-    var isERC721Or1155AndNotForTickets: Bool {
-        switch type {
-        case .erc721, .erc1155:
-            return true
-        case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
-            return false
-        }
-    }
+    } 
 
     var server: RPCServer {
         return .init(chainID: chainId)
