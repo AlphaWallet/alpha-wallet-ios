@@ -11,6 +11,12 @@ protocol AccountsViewControllerDelegate: AnyObject {
 }
 
 class AccountsViewController: UIViewController {
+    private var cancelable = Set<AnyCancellable>()
+    private lazy var refreshControl: UIRefreshControl = {
+        let control = UIRefreshControl()
+        control.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
+        return control
+    }()
     private let roundedBackground = RoundedBackground()
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
@@ -18,24 +24,23 @@ class AccountsViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = GroupedTable.Color.background
+        tableView.backgroundColor = viewModel.backgroundColor
         tableView.tableFooterView = UIView()
         tableView.rowHeight = UITableView.automaticDimension
         tableView.register(AccountViewCell.self)
         tableView.register(WalletSummaryTableViewCell.self)
-        tableView.addSubview(tableViewRefreshControl)
+        tableView.addSubview(refreshControl)
         return tableView
     }()
-    let viewModel: AccountsViewModel
-    private var cancelable = Set<AnyCancellable>()
 
+    let viewModel: AccountsViewModel
     weak var delegate: AccountsViewControllerDelegate?
 
     init(viewModel: AccountsViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
-        roundedBackground.backgroundColor = GroupedTable.Color.background
+        roundedBackground.backgroundColor = viewModel.backgroundColor
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
         roundedBackground.addSubview(tableView)
@@ -44,31 +49,36 @@ class AccountsViewController: UIViewController {
             tableView.anchorsConstraintSafeArea(to: roundedBackground) +
             roundedBackground.createConstraintsWithContainer(view: view)
         )
-        bindViewModel()
     }
 
-    private func bindViewModel() {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        bind(viewModel: viewModel)
+    } 
+
+    private func bind(viewModel: AccountsViewModel) {
+        viewModel.objectWillChange
+            .receive(on: RunLoop.main)
+            .sink { [weak tableView] _ in
+                tableView?.reloadData()
+            }.store(in: &cancelable)
+
         viewModel.reloadBalancePublisher
             .receive(on: RunLoop.main)
-            .sink { [weak tableViewRefreshControl] state in
+            .sink { [weak refreshControl] state in
                 switch state {
                 case .fetching:
-                    tableViewRefreshControl?.beginRefreshing()
+                    refreshControl?.beginRefreshing()
                 case .done, .failure:
-                    tableViewRefreshControl?.endRefreshing()
+                    refreshControl?.endRefreshing()
                 }
             }.store(in: &cancelable)
     }
 
-    private lazy var tableViewRefreshControl: UIRefreshControl = {
-        let control = UIRefreshControl()
-        control.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
-        return control
-    }()
-
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        configure()
+        reload()
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -81,8 +91,8 @@ class AccountsViewController: UIViewController {
         tableView.scrollToRow(at: indexPath, at: .top, animated: true)
     }
 
-    func configure() {
-        viewModel.reloadWallets()
+    private func reload() {
+        viewModel.reload()
         title = viewModel.title
         tableView.reloadData()
     }
@@ -118,7 +128,7 @@ class AccountsViewController: UIViewController {
 
             switch result {
             case .success:
-                self?.configure()
+                self?.reload()
                 strongSelf.delegate?.didDeleteAccount(account: account, in: strongSelf)
             case .failure(let error):
                 strongSelf.displayError(error: error)
@@ -136,7 +146,7 @@ class AccountsViewController: UIViewController {
 extension AccountsViewController: UITableViewDataSource {
 
     public func numberOfSections(in tableView: UITableView) -> Int {
-        return viewModel.sections.count
+        return viewModel.numberOfSections
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -144,19 +154,19 @@ extension AccountsViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        switch viewModel.sections[indexPath.section] {
-        case .hdWallet, .keystoreWallet, .watchedWallet:
-            guard let viewModel = viewModel.accountViewModel(forIndexPath: indexPath) else { return UITableViewCell() }
-
+        switch viewModel.viewModel(at: indexPath) {
+        case .undefined:
+            return UITableViewCell()
+        case .wallet(let viewModel):
             let cell: AccountViewCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(viewModel: viewModel)
+            cell.bind(viewModel: viewModel)
 
             addLongPressGestureRecognizer(toView: cell)
 
             return cell
-        case .summary:
+        case .summary(let viewModel):
             let cell: WalletSummaryTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(viewModel: viewModel.walletSummaryViewModel)
+            cell.configure(viewModel: viewModel)
 
             return cell
         }
@@ -185,7 +195,7 @@ extension AccountsViewController: UITableViewDataSource {
 extension AccountsViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return viewModel.shouldHideHeader(in: section).shouldHide ? .leastNormalMagnitude : UITableView.automaticDimension
+        return viewModel.heightForHeader(in: section)
     }
 
     public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
