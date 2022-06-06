@@ -148,7 +148,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private let localStore: LocalStore
     private let tokenSwapper: TokenSwapper
     private lazy var importToken: ImportToken = {
-        return ImportToken(sessions: sessionsSubject, tokensDataStore: tokensDataStore, assetDefinitionStore: assetDefinitionStore)
+        return ImportToken(sessions: sessionsSubject, wallet: wallet, tokensDataStore: tokensDataStore, assetDefinitionStore: assetDefinitionStore)
     }()
 
     init(
