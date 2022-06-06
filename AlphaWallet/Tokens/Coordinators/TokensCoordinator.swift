@@ -88,7 +88,8 @@ class TokensCoordinator: Coordinator {
     private var viewWillAppearHandled = false
     private var cancelable = Set<AnyCancellable>()
     private let generator = BlockiesGenerator()
-
+    private let importToken: ImportToken
+    
     init(
             navigationController: UINavigationController = .withOverridenBarAppearence(),
             sessions: ServerDictionary<WalletSession>,
@@ -103,7 +104,8 @@ class TokensCoordinator: Coordinator {
             coinTickersFetcher: CoinTickersFetcherType,
             activitiesService: ActivitiesServiceType,
             walletBalanceService: WalletBalanceService,
-            tokenCollection: TokenCollection
+            tokenCollection: TokenCollection,
+            importToken: ImportToken
     ) {
         self.tokenCollection = tokenCollection
         self.navigationController = navigationController
@@ -119,6 +121,7 @@ class TokensCoordinator: Coordinator {
         self.coinTickersFetcher = coinTickersFetcher
         self.activitiesService = activitiesService
         self.walletBalanceService = walletBalanceService
+        self.importToken = importToken
         promptBackupCoordinator.prominentPromptDelegate = self
         setupSingleChainTokenCoordinators()
 
@@ -171,30 +174,23 @@ class TokensCoordinator: Coordinator {
 
     private func setupSingleChainTokenCoordinators() {
         for session in sessions.values {
-            let tokenFetcher: TokenFetcher = SingleChainTokenFetcher(session: session, assetDefinitionStore: assetDefinitionStore)
-
             let tokensAutodetector: TokensAutodetector = {
-                SingleChainTokensAutodetector(session: session, config: config, tokensDataStore: tokensDataStore, assetDefinitionStore: assetDefinitionStore, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, queue: tokensAutoDetectionQueue, tokenFetcher: tokenFetcher)
+                SingleChainTokensAutodetector(session: session, config: config, tokensDataStore: tokensDataStore, assetDefinitionStore: assetDefinitionStore, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, queue: tokensAutoDetectionQueue, importToken: importToken)
             }()
 
-            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, tokensStorage: tokensDataStore, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analyticsCoordinator: analyticsCoordinator, tokenActionsProvider: tokenActionsService, coinTickersFetcher: coinTickersFetcher, activitiesService: activitiesService, alertService: alertService, tokensAutodetector: tokensAutodetector)
+            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, tokensStorage: tokensDataStore, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analyticsCoordinator: analyticsCoordinator, tokenActionsProvider: tokenActionsService, coinTickersFetcher: coinTickersFetcher, activitiesService: activitiesService, alertService: alertService, tokensAutodetector: tokensAutodetector, importToken: importToken)
 
             coordinator.delegate = self
             addCoordinator(coordinator)
         }
     }
 
-    func addImportedToken(forContract contract: AlphaWallet.Address, server: RPCServer) {
-        guard let coordinator = singleChainTokenCoordinator(forServer: server) else { return }
-        coordinator.addImportedToken(forContract: contract)
-            .done { _ in }
-            .cauterize()
+    private func showTokens() {
+        navigationController.viewControllers = [rootViewController]
     }
 
     private func addUefaTokenIfAny() {
-        let server = Constants.uefaRpcServer
-        guard let coordinator = singleChainTokenCoordinator(forServer: server) else { return }
-        coordinator.addImportedToken(forContract: Constants.uefaMainnet, onlyIfThereIsABalance: true)
+        importToken.importToken(for: Constants.uefaMainnet, server: Constants.uefaRpcServer, onlyIfThereIsABalance: true)
             .done { _ in }
             .cauterize()
     }
@@ -335,11 +331,11 @@ extension TokensCoordinator: TokensViewControllerDelegate {
             tokens: viewModel.tokens,
             assetDefinitionStore: assetDefinitionStore,
             tokensFilter: tokenCollection.tokensFilter,
-            sessions: sessions,
             analyticsCoordinator: analyticsCoordinator,
             navigationController: navigationController,
             config: config,
-            singleChainTokenCoordinators: singleChainTokenCoordinators
+            importToken: importToken,
+            tokensDataStore: tokensDataStore
         )
         coordinator.delegate = self
         addCoordinator(coordinator)
@@ -347,7 +343,6 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     }
 
     func showSingleChainToken(tokenObject: TokenObject, in navigationController: UINavigationController) {
-
         guard let coordinator = singleChainTokenCoordinator(forServer: tokenObject.server) else { return }
 
         switch tokenObject.type {
@@ -372,8 +367,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     }
 
     func didHide(token: Token, in viewController: UIViewController) {
-        guard let coordinator = singleChainTokenCoordinator(forServer: token.server) else { return }
-        coordinator.mark(token: token, isHidden: true)
+        tokensDataStore.updateToken(primaryKey: token.primaryKey, action: .isHidden(true))
     }
 
     func didTapOpenConsole(in viewController: UIViewController) {
@@ -455,10 +449,8 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
             analyticsCoordinator: analyticsCoordinator,
             navigationController: navigationController,
             config: config,
-            singleChainTokenCoordinators: singleChainTokenCoordinators,
-            initialState: .address(address),
-            sessions: sessions
-        )
+            importToken: importToken,
+            initialState: .address(address))
         coordinator.delegate = self
         addCoordinator(coordinator)
 

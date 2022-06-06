@@ -62,7 +62,8 @@ class ConfigTests: XCTestCase {
             coinTickersFetcher: coinTickersFetcher,
             activitiesService: FakeActivitiesService(),
             walletBalanceService: FakeMultiWalletBalanceService(),
-            tokenCollection: MultipleChainsTokenCollection.fake()
+            tokenCollection: MultipleChainsTokenCollection.fake(),
+            importToken: FakeImportToken()
         )
 
         coordinator_1.start()
@@ -85,7 +86,8 @@ class ConfigTests: XCTestCase {
             coinTickersFetcher: coinTickersFetcher,
             activitiesService: FakeActivitiesService(),
             walletBalanceService: FakeMultiWalletBalanceService(),
-            tokenCollection: MultipleChainsTokenCollection.fake()
+            tokenCollection: MultipleChainsTokenCollection.fake(),
+            importToken: FakeImportToken()
         )
 
         coordinator_2.start()
