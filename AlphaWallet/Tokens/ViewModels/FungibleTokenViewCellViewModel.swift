@@ -12,14 +12,16 @@ struct FungibleTokenViewCellViewModel {
     private let isVisible: Bool
     private let eventsDataStore: NonActivityEventsDataStore
     private let wallet: Wallet
+    let accessoryType: UITableViewCell.AccessoryType
 
-    init(token: Token, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, wallet: Wallet, isVisible: Bool = true, ticker: CoinTicker?) {
+    init(token: Token, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, wallet: Wallet, isVisible: Bool = true, ticker: CoinTicker?, accessoryType: UITableViewCell.AccessoryType = .none) {
         self.token = token
         self.ticker = ticker
         self.assetDefinitionStore = assetDefinitionStore
         self.isVisible = isVisible
         self.eventsDataStore = eventsDataStore
         self.wallet = wallet
+        self.accessoryType = accessoryType
     }
 
     private var title: String {

@@ -7,41 +7,37 @@ private struct NoContractDetailsDetected: Error {
 }
 
 protocol AddHideTokensCoordinatorDelegate: AnyObject {
-    func didClose(coordinator: AddHideTokensCoordinator)
+    func didClose(in coordinator: AddHideTokensCoordinator)
 }
 
 class AddHideTokensCoordinator: Coordinator {
     private let analyticsCoordinator: AnalyticsCoordinator
     private let navigationController: UINavigationController
     private let importToken: ImportToken
-    private lazy var viewModel = AddHideTokensViewModel(tokens: tokens, tokensFilter: tokensFilter, importToken: importToken, config: config)
-    private lazy var viewController: AddHideTokensViewController = {
-        return .init(viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
+    private lazy var viewModel = AddHideTokensViewModel(tokenCollection: tokenCollection, importToken: importToken, config: config, assetDefinitionStore: assetDefinitionStore)
+    private lazy var rootViewController: AddHideTokensViewController = {
+        return .init(viewModel: viewModel)
     }()
 
-    private let tokensFilter: TokensFilter
     private let assetDefinitionStore: AssetDefinitionStore
     private let config: Config
-    private var tokens: [Token]
-    private let tokensDataStore: TokensDataStore
+    private let tokenCollection: TokenCollection
 
     var coordinators: [Coordinator] = []
     weak var delegate: AddHideTokensCoordinatorDelegate?
 
-    init(tokens: [Token], assetDefinitionStore: AssetDefinitionStore, tokensFilter: TokensFilter, analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, config: Config, importToken: ImportToken, tokensDataStore: TokensDataStore) {
+    init(assetDefinitionStore: AssetDefinitionStore, tokenCollection: TokenCollection, analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, config: Config, importToken: ImportToken) {
         self.config = config
-        self.tokensFilter = tokensFilter
-        self.tokens = tokens
+        self.tokenCollection = tokenCollection
         self.analyticsCoordinator = analyticsCoordinator
         self.navigationController = navigationController
         self.assetDefinitionStore = assetDefinitionStore
         self.importToken = importToken
-        self.tokensDataStore = tokensDataStore
     }
 
     func start() {
-        viewController.delegate = self
-        navigationController.pushViewController(viewController, animated: true)
+        rootViewController.delegate = self
+        navigationController.pushViewController(rootViewController, animated: true)
     }
 
     @objc func dismiss() {
@@ -65,11 +61,11 @@ extension AddHideTokensCoordinator: NewTokenCoordinatorDelegate {
 extension AddHideTokensCoordinator: AddHideTokensViewControllerDelegate {
 
     func didChangeOrder(tokens: [Token], in viewController: UIViewController) {
-        tokensDataStore.updateOrderedTokens(with: tokens)
+        tokenCollection.tokensDataStore.updateOrderedTokens(with: tokens)
     }
 
     func didMark(token: Token, in viewController: UIViewController, isHidden: Bool) {
-        tokensDataStore.updateToken(primaryKey: token.primaryKey, action: .isHidden(isHidden))
+        tokenCollection.tokensDataStore.updateToken(primaryKey: token.primaryKey, action: .isHidden(isHidden))
     }
 
     func didPressAddToken(in viewController: UIViewController, with addressString: String) {
@@ -91,7 +87,7 @@ extension AddHideTokensCoordinator: AddHideTokensViewControllerDelegate {
         coordinator.start()
     }
 
-    func didClose(viewController: AddHideTokensViewController) {
-        delegate?.didClose(coordinator: self)
+    func didClose(in viewController: AddHideTokensViewController) {
+        delegate?.didClose(in: self)
     }
 }

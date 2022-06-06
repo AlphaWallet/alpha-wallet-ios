@@ -328,15 +328,12 @@ extension TokensCoordinator: TokensViewControllerDelegate {
 
     private func didPressAddHideTokens(viewModel: TokensViewModel) {
         let coordinator: AddHideTokensCoordinator = .init(
-            tokens: viewModel.tokens,
             assetDefinitionStore: assetDefinitionStore,
-            tokensFilter: tokenCollection.tokensFilter,
+            tokenCollection: tokenCollection,
             analyticsCoordinator: analyticsCoordinator,
             navigationController: navigationController,
             config: config,
-            importToken: importToken,
-            tokensDataStore: tokensDataStore
-        )
+            importToken: importToken)
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start()
@@ -618,7 +615,7 @@ extension TokensCoordinator: PromptBackupCoordinatorProminentPromptDelegate {
 }
 
 extension TokensCoordinator: AddHideTokensCoordinatorDelegate {
-    func didClose(coordinator: AddHideTokensCoordinator) {
+    func didClose(in coordinator: AddHideTokensCoordinator) {
         removeCoordinator(coordinator)
     }
 }
