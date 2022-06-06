@@ -9,7 +9,7 @@ import Realm
 import RealmSwift
 import Foundation
 
-final class RealmStore {
+class RealmStore {
     private let thread: RunLoopThread = .init()
     private let mainThreadRealm: Realm
     private var backgroundThreadRealm: Realm?
@@ -40,6 +40,10 @@ final class RealmStore {
     }
 }
 
+extension RealmStore {
+    static var shared: RealmStore = RealmStore(realm: Realm.shared())
+}
+
 extension Realm {
 
     static func realm(forAccount account: Wallet) -> Realm {
@@ -55,8 +59,13 @@ extension Realm {
         var configuration = RealmConfiguration.configuration(name: name)
         configuration.objectTypes = [
             Bookmark.self,
-            History.self
+            History.self,
+            EnsRecordObject.self
         ]
+        configuration.schemaVersion = 2
+        configuration.migrationBlock = { migration, oldSchemaVersion in
+            migration.deleteData(forType: EnsRecordObject.className())
+        }
         
         let realm = try! Realm(configuration: configuration)
 
