@@ -955,7 +955,6 @@
 		87713EB4264BAB5A00B1B9CB /* ActivityPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87713EB3264BAB5A00B1B9CB /* ActivityPageView.swift */; };
 		87713EB6264BAB6E00B1B9CB /* PriceAlertsPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87713EB5264BAB6E00B1B9CB /* PriceAlertsPageView.swift */; };
 		87741F1827709073007F4604 /* TestnetTokenInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87741F1727709073007F4604 /* TestnetTokenInfoView.swift */; };
-		87741F1A277097BC007F4604 /* SourceSansPro-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 87741F19277097BC007F4604 /* SourceSansPro-Italic.ttf */; };
 		87741F212770C71E007F4604 /* WhereAreMyTokensCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87741F202770C71E007F4604 /* WhereAreMyTokensCoordinator.swift */; };
 		87741FC527747C5C007F4604 /* TokenInstanceViewConfigurationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87741FC427747C5C007F4604 /* TokenInstanceViewConfigurationHelper.swift */; };
 		87757284282D46A800EAD907 /* TokenCardWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87757283282D46A800EAD907 /* TokenCardWebView.swift */; };
@@ -1181,7 +1180,6 @@
 		C876FF79204A79D300B7D0EA /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = C876FF6B204A79D300B7D0EA /* README.md */; };
 		C876FF7A204A79D300B7D0EA /* SIL Open Font License.txt in Resources */ = {isa = PBXBuildFile; fileRef = C876FF6C204A79D300B7D0EA /* SIL Open Font License.txt */; };
 		C876FF7D204A79D300B7D0EA /* SourceSansPro-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = C876FF6F204A79D300B7D0EA /* SourceSansPro-Bold.otf */; };
-		C876FF82204A79D300B7D0EA /* SourceSansPro-Light.otf in Resources */ = {isa = PBXBuildFile; fileRef = C876FF74204A79D300B7D0EA /* SourceSansPro-Light.otf */; };
 		C876FF84204A79D300B7D0EA /* SourceSansPro-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = C876FF76204A79D300B7D0EA /* SourceSansPro-Regular.otf */; };
 		C876FF85204A79D300B7D0EA /* SourceSansPro-Semibold.otf in Resources */ = {isa = PBXBuildFile; fileRef = C876FF77204A79D300B7D0EA /* SourceSansPro-Semibold.otf */; };
 		C880330C2054371500D73D6F /* non_asset_catalog_redemption_location.png in Resources */ = {isa = PBXBuildFile; fileRef = C88033092054371500D73D6F /* non_asset_catalog_redemption_location.png */; };
@@ -2197,7 +2195,6 @@
 		87713EB3264BAB5A00B1B9CB /* ActivityPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityPageView.swift; sourceTree = "<group>"; };
 		87713EB5264BAB6E00B1B9CB /* PriceAlertsPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceAlertsPageView.swift; sourceTree = "<group>"; };
 		87741F1727709073007F4604 /* TestnetTokenInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestnetTokenInfoView.swift; sourceTree = "<group>"; };
-		87741F19277097BC007F4604 /* SourceSansPro-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SourceSansPro-Italic.ttf"; sourceTree = "<group>"; };
 		87741F202770C71E007F4604 /* WhereAreMyTokensCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhereAreMyTokensCoordinator.swift; sourceTree = "<group>"; };
 		87741FC427747C5C007F4604 /* TokenInstanceViewConfigurationHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenInstanceViewConfigurationHelper.swift; sourceTree = "<group>"; };
 		87757283282D46A800EAD907 /* TokenCardWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenCardWebView.swift; sourceTree = "<group>"; };
@@ -2426,7 +2423,6 @@
 		C876FF6B204A79D300B7D0EA /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		C876FF6C204A79D300B7D0EA /* SIL Open Font License.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "SIL Open Font License.txt"; sourceTree = "<group>"; };
 		C876FF6F204A79D300B7D0EA /* SourceSansPro-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file.otf; path = "SourceSansPro-Bold.otf"; sourceTree = "<group>"; };
-		C876FF74204A79D300B7D0EA /* SourceSansPro-Light.otf */ = {isa = PBXFileReference; lastKnownFileType = file.otf; path = "SourceSansPro-Light.otf"; sourceTree = "<group>"; };
 		C876FF76204A79D300B7D0EA /* SourceSansPro-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file.otf; path = "SourceSansPro-Regular.otf"; sourceTree = "<group>"; };
 		C876FF77204A79D300B7D0EA /* SourceSansPro-Semibold.otf */ = {isa = PBXFileReference; lastKnownFileType = file.otf; path = "SourceSansPro-Semibold.otf"; sourceTree = "<group>"; };
 		C88033092054371500D73D6F /* non_asset_catalog_redemption_location.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = non_asset_catalog_redemption_location.png; sourceTree = "<group>"; };
@@ -5856,11 +5852,9 @@
 		C876FF6A204A79D300B7D0EA /* source-sans-pro */ = {
 			isa = PBXGroup;
 			children = (
-				87741F19277097BC007F4604 /* SourceSansPro-Italic.ttf */,
 				C876FF6B204A79D300B7D0EA /* README.md */,
 				C876FF6C204A79D300B7D0EA /* SIL Open Font License.txt */,
 				C876FF6F204A79D300B7D0EA /* SourceSansPro-Bold.otf */,
-				C876FF74204A79D300B7D0EA /* SourceSansPro-Light.otf */,
 				C876FF76204A79D300B7D0EA /* SourceSansPro-Regular.otf */,
 				C876FF77204A79D300B7D0EA /* SourceSansPro-Semibold.otf */,
 			);
@@ -6108,7 +6102,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C876FF82204A79D300B7D0EA /* SourceSansPro-Light.otf in Resources */,
 				C876FF84204A79D300B7D0EA /* SourceSansPro-Regular.otf in Resources */,
 				87B93B142726C79400F6EA73 /* helpers.js in Resources */,
 				C868C5292053BDE00059672B /* LaunchScreen.storyboard in Resources */,
@@ -6130,7 +6123,6 @@
 				C868C536205409160059672B /* redeemInfo.html in Resources */,
 				C876FF7A204A79D300B7D0EA /* SIL Open Font License.txt in Resources */,
 				C880330C2054371500D73D6F /* non_asset_catalog_redemption_location.png in Resources */,
-				87741F1A277097BC007F4604 /* SourceSansPro-Italic.ttf in Resources */,
 				87B93B0F2726C59D00F6EA73 /* content.js in Resources */,
 				C876FF79204A79D300B7D0EA /* README.md in Resources */,
 				C880331F20551DF800D73D6F /* howDoITransferETHIntoMyWalletInfo.html in Resources */,
@@ -6803,7 +6795,7 @@
 				87C237DE26DE5389003CA387 /* SelectAssetAmountView.swift in Sources */,
 				442FC2CC21FFFC4FAB33A300 /* TokenScriptToken.swift in Sources */,
 				874ED68627D7C0A7001AB374 /* SwapTokensViewModel.swift in Sources */,
-				442FC2CC21FFFC4FAB33A300 /* Token.swift in Sources */,
+				442FC2CC21FFFC4FAB33A300 /* TokenScriptToken.swift in Sources */,
 				442FCAD7292D93C261B97D09 /* TokenHolder.swift in Sources */,
 				87F15B0E27F365BF00EB9787 /* TickerIdFilter.swift in Sources */,
 				442FC81F38F80EEF54C69C5B /* TokenAdaptor.swift in Sources */,
