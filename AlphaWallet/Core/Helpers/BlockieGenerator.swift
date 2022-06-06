@@ -53,12 +53,6 @@ class BlockiesGenerator {
     /// Address related icons cache without image size. Cache is using for determine images without sizes and scales, fetched out from OpenSea
     private static var sizeLessCache: [AlphaWallet.Address: BlockiesImage] = [:]
     
-    func generatedImage(address: AlphaWallet.Address, size: Int = 8, scale: Int = 3) -> Promise<BlockiesImage> {
-        createBlockiesImage(address: address, size: size, scale: scale).get { blockie in
-            self.cacheBlockie(address: address, blockie: blockie, size: .sized(size: size, scale: scale))
-        }
-    }
-
     func getBlockie(address: AlphaWallet.Address, ens: String? = nil, size: Int = 8, scale: Int = 3, fallbackImage: BlockiesImage = BlockiesImage.defaulBlockieImage) -> AnyPublisher<BlockiesImage, Never> {
         return promise(address: address, ens: ens, size: size, scale: size).publisher
             .receive(on: RunLoop.main)
