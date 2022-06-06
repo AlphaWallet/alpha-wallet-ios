@@ -3,10 +3,10 @@
 import XCTest
 @testable import AlphaWallet
 
-class InCoordinatorViewModelTests: XCTestCase {
+class ActiveWalletViewModelTests: XCTestCase {
     
     func testInitialTab() {
-        let viewModel = InCoordinatorViewModel()
+        let viewModel = ActiveWalletViewModel()
         XCTAssertEqual(.tokens, viewModel.initialTab)
     }
 }

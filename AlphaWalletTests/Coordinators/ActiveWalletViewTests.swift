@@ -20,7 +20,7 @@ final class FakeNotificationService: NotificationService {
     }
 }
 
-class InCoordinatorTests: XCTestCase {
+class ActiveWalletViewTests: XCTestCase {
 
     func testShowTabBar() {
         let config: Config = .make()

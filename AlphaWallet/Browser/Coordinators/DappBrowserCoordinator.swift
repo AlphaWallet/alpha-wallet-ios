@@ -475,7 +475,7 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
     func didCall(action: DappAction, callbackID: Int, inBrowserViewController viewController: BrowserViewController) {
         func rejectDappAction() {
             browserViewController.notifyFinish(callbackID: callbackID, value: .failure(DAppError.cancelled))
-            navigationController.topViewController?.displayError(error: InCoordinatorError.onlyWatchAccount)
+            navigationController.topViewController?.displayError(error: ActiveWalletViewModel.Error.onlyWatchAccount)
         }
 
         func performDappAction(account: AlphaWallet.Address) {
