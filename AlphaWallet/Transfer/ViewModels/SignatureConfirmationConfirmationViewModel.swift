@@ -132,14 +132,27 @@ enum SignatureConfirmationViewModel {
     }
 
     struct EIP712TypedDataConfirmationViewModel {
-        var values: [(key: String, value: EIP712TypedData.JSON)]
+        typealias EIP712TypedDataToKey = (key: String, value: EIP712TypedData.JSON)
+        let values: [EIP712TypedDataToKey]
         let walletConnectDappRequesterViewModel: WalletConnectDappRequesterViewModel?
 
         init(data: EIP712TypedData, walletConnectDappRequesterViewModel: WalletConnectDappRequesterViewModel?) {
             self.walletConnectDappRequesterViewModel = walletConnectDappRequesterViewModel
-            values = [
-                (key: data.domainName, value: .string(data.domainVerifyingContract?.truncateMiddle ?? ""))
-            ] + data.message.keyValueRepresentationToFirstLevel
+
+            var _values: [EIP712TypedDataToKey] = []
+            
+            if let verifyingContract = data.domainVerifyingContract, data.domainName.nonEmpty {
+                _values += [(key: data.domainName, value: .string(verifyingContract.truncateMiddle)) ]
+            } else if let verifyingContract = data.domainVerifyingContract {
+                _values += [(key: "domain.verifyingContract", value: .string(verifyingContract.truncateMiddle)) ]
+            } else if data.domainName.nonEmpty {
+                _values += [(key: "domain.name", value: .string(data.domainName)) ]
+            } else {
+                //no-op
+            }
+            
+            _values += data.message.keyValueRepresentationToFirstLevel
+            values = _values
         }
 
         var viewModels: [MessageConfirmationViewModel.ViewModelType] {
