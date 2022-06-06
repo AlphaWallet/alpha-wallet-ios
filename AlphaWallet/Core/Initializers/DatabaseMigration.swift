@@ -60,7 +60,7 @@ class DatabaseMigration: Initializer {
                     guard let newObject = newObject else { return }
 
                     newObject["shouldDisplay"] = true
-                    newObject["sortIndex"] = RealmOptional<Int>(nil)
+                    newObject["sortIndex"] = RealmProperty<Int?>()
                 }
             }
             if oldSchemaVersion < 7 {
