@@ -10,19 +10,21 @@ import PromiseKit
 import Combine
 
 class ImportToken {
+    enum ImportTokenError: Error {
+        case serverIsDisabled
+    }
     private let sessions: CurrentValueSubject<ServerDictionary<WalletSession>, Never>
     private let assetDefinitionStore: AssetDefinitionStore
     private let tokenFetchers: AtomicDictionary<RPCServer, TokenFetcher> = .init()
-
     private let tokensDataStore: TokensDataStore
-    var wallet: Wallet {
-        sessions.value.anyValue.account
-    }
 
-    init(sessions: CurrentValueSubject<ServerDictionary<WalletSession>, Never>, tokensDataStore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore) {
+    let wallet: Wallet
+
+    init(sessions: CurrentValueSubject<ServerDictionary<WalletSession>, Never>, wallet: Wallet, tokensDataStore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore) {
         self.sessions = sessions
         self.tokensDataStore = tokensDataStore
         self.assetDefinitionStore = assetDefinitionStore
+        self.wallet = wallet
     }
 
     //Adding a token may fail if we lose connectivity while fetching the contract details (e.g. name and balance). So we remove the contract from the hidden list (if it was there) so that the app has the chance to add it automatically upon auto detection at startup
@@ -30,9 +32,9 @@ class ImportToken {
         struct ImportTokenError: Error { }
 
         return firstly {
-            getOrCreateTokenFetcher(for: server).fetchTokenOrContract(for: contract, onlyIfThereIsABalance: onlyIfThereIsABalance)
-        }.map { operation -> Token in
-            if let token = self.tokensDataStore.addOrUpdate(tokensOrContracts: [operation]).first {
+            fetchTokenOrContract(for: contract, server: server, onlyIfThereIsABalance: onlyIfThereIsABalance)
+        }.map { [tokensDataStore] operation -> Token in
+            if let token = tokensDataStore.addOrUpdate(tokensOrContracts: [operation]).first {
                 return token
             } else {
                 throw ImportTokenError()
@@ -46,26 +48,30 @@ class ImportToken {
         return token[0]
     }
 
-    func fetchContractData(for address: AlphaWallet.Address, server: RPCServer, completion: @escaping (ContractData) -> Void) {
+    func fetchContractData(for contract: AlphaWallet.Address, server: RPCServer, completion: @escaping (ContractData) -> Void) {
         guard let session = sessions.value[safe: server] else {
             completion(.failed(networkReachable: true))
             return
         }
 
-        let detector = ContractDataDetector(address: address, account: session.account, server: session.server, assetDefinitionStore: assetDefinitionStore)
+        let detector = ContractDataDetector(address: contract, account: session.account, server: session.server, assetDefinitionStore: assetDefinitionStore)
         detector.fetch(completion: completion)
     }
 
     func fetchTokenOrContract(for contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool = false) -> Promise<TokenOrContract> {
-        return getOrCreateTokenFetcher(for: server)
-            .fetchTokenOrContract(for: contract, onlyIfThereIsABalance: onlyIfThereIsABalance)
+        do {
+            let fetcher = try getOrCreateTokenFetcher(for: server)
+            return fetcher.fetchTokenOrContract(for: contract, onlyIfThereIsABalance: onlyIfThereIsABalance)
+        } catch {
+            return .init(error: error)
+        }
     }
 
-    private func getOrCreateTokenFetcher(for server: RPCServer) -> TokenFetcher {
+    private func getOrCreateTokenFetcher(for server: RPCServer) throws -> TokenFetcher {
         if let fetcher = tokenFetchers[server] {
             return fetcher
         } else {
-            let session = sessions.value[server]
+            guard let session = sessions.value[safe: server] else { throw ImportTokenError.serverIsDisabled }
             let fetcher: TokenFetcher = SingleChainTokenFetcher(session: session, assetDefinitionStore: assetDefinitionStore)
             tokenFetchers[server] = fetcher
 

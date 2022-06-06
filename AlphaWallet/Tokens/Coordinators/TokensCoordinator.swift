@@ -191,8 +191,6 @@ class TokensCoordinator: Coordinator {
 
     private func addUefaTokenIfAny() {
         let server = Constants.uefaRpcServer
-        //TODO maybe should make `importToken` fail gracefully when requested for a server that isn't active instead, but it'd involve introducing optionals to other call-sites which seem to make things more complicated and worse
-        guard sessions.hasKey(server) else { return }
         importToken.importToken(for: Constants.uefaMainnet, server: server, onlyIfThereIsABalance: true)
             .done { _ in }
             .cauterize()
