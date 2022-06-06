@@ -17,18 +17,18 @@ protocol TokenFilterProtocol {
 }
 
 func == (lhs: WalletFilter, rhs: WalletFilter) -> Bool {
-	switch (lhs, rhs) {
-	case (.all, .all):
-		return true
-	case (.defi, .defi):
-		return true
-	case (.governance, .governance):
-		return true
-	case (.collectiblesOnly, .collectiblesOnly):
-		return true
-	case (.keyword(let keyword1), .keyword(let keyword2)):
-		return keyword1 == keyword2
-	case (.filter, _), (_, .filter):
+    switch (lhs, rhs) {
+    case (.all, .all):
+        return true
+    case (.defi, .defi):
+        return true
+    case (.governance, .governance):
+        return true
+    case (.collectiblesOnly, .collectiblesOnly):
+        return true
+    case (.keyword(let keyword1), .keyword(let keyword2)):
+        return keyword1 == keyword2
+    case (.filter, _), (_, .filter):
         return true
     default:
         return false

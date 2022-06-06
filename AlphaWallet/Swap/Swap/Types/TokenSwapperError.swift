@@ -16,8 +16,8 @@ extension TokenSwapper {
                 return true
             case (.swapPairNotFound, .swapPairNotFound):
                 return true
-            case (.general(let e1), .general(let e2)):
-                return true//e1 == e2
+            case (.general, .general):
+                return true
             default:
                 return false
             }
