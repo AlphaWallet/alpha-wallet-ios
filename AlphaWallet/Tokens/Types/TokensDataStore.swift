@@ -83,6 +83,8 @@ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
         for each in servers {
             addEthToken(forServer: each)
         }
+
+        MultipleChainsTokensDataStore.functional.recreateMissingInfoTokenObjects(for: store)
     }
 
     func enabledTokensChangeset(for servers: [RPCServer]) -> AnyPublisher<ChangeSet<[Token]>, Never> {
@@ -101,8 +103,7 @@ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
                     case .error(let error):
                         return .error(error)
                     }
-                }
-                .eraseToAnyPublisher()
+                }.eraseToAnyPublisher()
         }
 
         return publisher
@@ -117,14 +118,14 @@ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
         var notificationToken: NotificationToken?
 
         store.performSync { realm in
-            guard let token = realm.objects(TokenObject.self).filter(predicate).first else {
+            guard let tokenObject = realm.objects(TokenObject.self).filter(predicate).first else {
                 publisher.send(completion: .failure(DataStoreError.objectNotFound))
                 return
             }
 
-            publisher.send(Token(tokenObject: token))
+            publisher.send(Token(tokenObject: tokenObject))
 
-            notificationToken = token.observe { change in
+            notificationToken = tokenObject.observe { change in
                 switch change {
                 case .change(let object, _):
                     guard let token = object as? TokenObject else { return }
@@ -187,6 +188,11 @@ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
         store.performSync { realm in
             try? realm.safeWrite {
                 for token in updates {
+                    let infoUpdate: [String: Any] = [
+                        "uid": token.primaryKey
+                    ]
+
+                    let info = realm.create(TokenInfoObject.self, value: infoUpdate, update: .all)
                     //Even though primaryKey is provided, it is important to specific contract because this might be creating a new TokenObject instance from transactions
                     let update: [String: Any] = [
                         "primaryKey": token.primaryKey,
@@ -196,6 +202,7 @@ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
                         "symbol": token.symbol,
                         "decimals": token.decimals,
                         "rawType": token.tokenType.rawValue,
+                        "_info": info
                     ]
                     realm.create(TokenObject.self, value: update, update: .all)
                 }
@@ -300,8 +307,8 @@ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
 
                         realm.add(delegateContract, update: .all)
                     case .ercToken(let token):
-                        let newTokenObject = MultipleChainsTokensDataStore.functional.createTokenObject(ercToken: token, shouldUpdateBalance: token.type.shouldUpdateBalanceWhenDetected)
-                        self.addTokenWithoutCommitWrite(tokenObject: newTokenObject, realm: realm)
+                        let tokenObject = MultipleChainsTokensDataStore.functional.createTokenObject(ercToken: token, shouldUpdateBalance: token.type.shouldUpdateBalanceWhenDetected)
+                        self.addTokenWithoutCommitWrite(tokenObject: tokenObject, realm: realm)
                     case .token(let token):
                         let tokenObject = TokenObject(token: token)
                         self.addTokenWithoutCommitWrite(tokenObject: tokenObject, realm: realm)
@@ -663,5 +670,19 @@ extension MultipleChainsTokensDataStore.functional {
         }
 
         return result
+    }
+
+    static func recreateMissingInfoTokenObjects(for store: RealmStore) {
+        store.performSync { realm in
+            let predicate = NSPredicate(format: "_info == nil")
+            let nilInfoResult = realm.objects(TokenObject.self).filter(predicate)
+            guard !nilInfoResult.isEmpty else { return }
+
+            try? realm.safeWrite {
+                for each in nilInfoResult {
+                    each._info = realm.object(ofType: TokenInfoObject.self, forPrimaryKey: each.primaryKey) ?? TokenInfoObject(uid: each.primaryKey)
+                }
+            }
+        }
     }
 }
