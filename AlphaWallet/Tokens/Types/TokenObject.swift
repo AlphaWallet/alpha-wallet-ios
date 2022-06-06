@@ -21,7 +21,7 @@ class TokenObject: Object {
     @objc dynamic var rawType: String = TokenType.erc20.rawValue
     /// Marks token object visible in tokens list, shouldDisplay == false allows updating tokens balance and retrieve events
     @objc dynamic var shouldDisplay: Bool = true
-    var sortIndex = RealmOptional<Int>()
+    var sortIndex = RealmProperty<Int?>()
 
     let balance = List<TokenBalance>()
 
