@@ -15,7 +15,7 @@ class ContactUsBannerView: UIView {
     private let label = UILabel()
 
     weak var delegate: ContactUsBannerViewDelegate?
-    
+
     private var emailTemplate: String {
         return """
                \n\n\n
@@ -59,7 +59,7 @@ class ContactUsBannerView: UIView {
         imageView.image = R.image.onboarding_contact()
 
         label.textColor = Colors.appText
-        label.font = Fonts.light(size: 18)
+        label.font = Fonts.regular(size: 18)
         label.text = R.string.localizable.aHelpContactFooterButtonTitle()
     }
 

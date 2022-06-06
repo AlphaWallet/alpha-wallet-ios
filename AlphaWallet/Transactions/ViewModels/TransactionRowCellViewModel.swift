@@ -127,7 +127,7 @@ struct TransactionRowCellViewModel {
         return NSAttributedString(
                 string: amount,
                 attributes: [
-                    .font: Fonts.light(size: 25),
+                    .font: Fonts.regular(size: 25),
                     .foregroundColor: transactionRowViewModel.amountTextColor,
                 ]
         )

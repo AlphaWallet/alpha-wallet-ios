@@ -12,9 +12,9 @@ struct TestnetTokenInfoViewModel {
         let style = NSMutableParagraphStyle()
         style.alignment = .center
         style.lineSpacing = ScreenChecker().isNarrowScreen ? 6 : 12
-        
+
         return .init(string: R.string.localizable.tokenTestnetWarning(), attributes: [
-            .font: Fonts.italic(size: 17),
+            .font: Fonts.regular(size: 17),
             .foregroundColor: R.color.dove()!,
             .paragraphStyle: style
         ])

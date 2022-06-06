@@ -35,7 +35,7 @@ class DappsHomeEmptyView: UIView {
         backgroundColor = viewModel.headerViewViewModel.backgroundColor
         header.configure(viewModel: viewModel.headerViewViewModel)
 
-        label.font = Fonts.light(size: 18)
+        label.font = Fonts.regular(size: 18)
         label.textAlignment = .center
         label.numberOfLines = 0
         label.text = viewModel.title

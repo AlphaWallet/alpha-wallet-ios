@@ -53,11 +53,11 @@ extension TokenCardRowViewModelProtocol {
     }
 
     var titleFont: UIFont {
-        return Fonts.light(size: 21)
+        return Fonts.regular(size: 21)
     }
 
     var venueFont: UIFont {
-        return Fonts.light(size: 16)
+        return Fonts.regular(size: 16)
     }
 
     var stateBackgroundColor: UIColor {
@@ -73,7 +73,7 @@ extension TokenCardRowViewModelProtocol {
     }
 
     var detailsFont: UIFont {
-        return Fonts.light(size: 16)
+        return Fonts.regular(size: 16)
     }
 
     var buttonTitleColor: UIColor {

@@ -14,7 +14,7 @@ struct GenerateTransferMagicLinkViewControllerViewModel {
         return Colors.appText
     }
     var subtitleFont: UIFont {
-        return Fonts.light(size: 25)
+        return Fonts.regular(size: 25)
     }
     var subtitleLabelText: String {
         return R.string.localizable.aWalletTokenTransferConfirmSubtitle()

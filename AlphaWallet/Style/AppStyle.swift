@@ -132,12 +132,6 @@ struct StyleLayout {
 }
 
 struct Fonts {
-    static func light(size: CGFloat) -> UIFont {
-        return UIFont(resource: R.font.sourceSansProLight, size: size)!
-    }
-    static func italic(size: CGFloat) -> UIFont {
-        return UIFont(resource: R.font.sourceSansProItalic, size: size)!
-    }
     static func regular(size: CGFloat) -> UIFont {
         return UIFont(resource: R.font.sourceSansProRegular, size: size)!
     }

@@ -49,7 +49,7 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
     }
 
     var descriptionFont: UIFont {
-        return Fonts.light(size: 13)
+        return Fonts.regular(size: 13)
     }
 
     var stateColor: UIColor {
@@ -61,7 +61,7 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
     }
 
     var detailsFont: UIFont {
-        return Fonts.light(size: 16)
+        return Fonts.regular(size: 16)
     }
 
     var urlButtonText: String {

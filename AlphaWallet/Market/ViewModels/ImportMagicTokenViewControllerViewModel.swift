@@ -276,7 +276,7 @@ struct ImportMagicTokenViewControllerViewModel {
     }
 
     var dollarCostLabelFont: UIFont {
-        return Fonts.light(size: 21)
+        return Fonts.regular(size: 21)
     }
 
     var showActionButton: Bool {
