@@ -43,6 +43,7 @@
 		02645124277217D9009260DC /* CustomRpcTableViewSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02645123277217D9009260DC /* CustomRpcTableViewSection.swift */; };
 		0277D92B282A494600510ECE /* InitialNetworkSelectionCollectionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0277D92A282A494600510ECE /* InitialNetworkSelectionCollectionModel.swift */; };
 		0277D92E282A789000510ECE /* InitialNetworkSelectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0277D92D282A789000510ECE /* InitialNetworkSelectionViewModel.swift */; };
+		028CFFA0284B06540089B551 /* UIColorExtensionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 028CFF9F284B06540089B551 /* UIColorExtensionTests.swift */; };
 		028D4E5A277309ED00E7418D /* EmptyTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 028D4E59277309ED00E7418D /* EmptyTableView.swift */; };
 		02988ACC282C85F100433F3B /* InitialNetworkSelectionCollectionModelTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02988ACB282C85F100433F3B /* InitialNetworkSelectionCollectionModelTestCase.swift */; };
 		02B01A6327B3CD6F00379A00 /* ButtonsBarStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02B01A6227B3CD6F00379A00 /* ButtonsBarStyle.swift */; };
@@ -1275,6 +1276,7 @@
 		02645123277217D9009260DC /* CustomRpcTableViewSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomRpcTableViewSection.swift; sourceTree = "<group>"; };
 		0277D92A282A494600510ECE /* InitialNetworkSelectionCollectionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialNetworkSelectionCollectionModel.swift; sourceTree = "<group>"; };
 		0277D92D282A789000510ECE /* InitialNetworkSelectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialNetworkSelectionViewModel.swift; sourceTree = "<group>"; };
+		028CFF9F284B06540089B551 /* UIColorExtensionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColorExtensionTests.swift; sourceTree = "<group>"; };
 		028D4E59277309ED00E7418D /* EmptyTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyTableView.swift; sourceTree = "<group>"; };
 		02988ACB282C85F100433F3B /* InitialNetworkSelectionCollectionModelTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialNetworkSelectionCollectionModelTestCase.swift; sourceTree = "<group>"; };
 		02B01A6227B3CD6F00379A00 /* ButtonsBarStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonsBarStyle.swift; sourceTree = "<group>"; };
@@ -4703,6 +4705,7 @@
 				5E7C76D132F4BEA5CE4FFD0A /* StringExtensionTests.swift */,
 				5E7C7F4F209C6EE3828E18EC /* IntExtensionsTests.swift */,
 				024255172816662F009D626E /* StringInsertSpaceBeforeCapitalsTestCase.swift */,
+				028CFF9F284B06540089B551 /* UIColorExtensionTests.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -7533,6 +7536,7 @@
 				CCA4FE3A1FD42B4100749AE4 /* FakeJailbreakChecker.swift in Sources */,
 				8765D6DF282BAD1900529F45 /* FakeRealmLocalStore.swift in Sources */,
 				02CEFAF82807FF7500CF8722 /* GetIsERC1155ContractCoordinatorTestCase.swift in Sources */,
+				028CFFA0284B06540089B551 /* UIColorExtensionTests.swift in Sources */,
 				871442FD27FB1EE6008819D1 /* FunctionCallArgumentTests.swift in Sources */,
 				02CEFAFB2808027E00CF8722 /* urlUtilities.swift in Sources */,
 				29F114F81FA8165200114A29 /* SendCoordinatorTests.swift in Sources */,
