@@ -11,7 +11,6 @@ protocol TransactionCoordinatorDelegate: class, CanOpenURL {
 class TransactionCoordinator: NSObject, Coordinator {
     private let analyticsCoordinator: AnalyticsCoordinator
     private let sessions: ServerDictionary<WalletSession>
-    private let queue = DispatchQueue(label: "com.PendingTransactionProvider.updateQueue")
     private var cancelable = Set<AnyCancellable>()
     private var transactionsService: TransactionsService
 
@@ -42,7 +41,6 @@ class TransactionCoordinator: NSObject, Coordinator {
 
         transactionsService
             .transactionsChangeset
-            .receive(on: queue)
             .map { TransactionsViewModel.mapTransactions(transactions: $0) }
             .receive(on: DispatchQueue.main)
             .sink { [weak self] transactions in

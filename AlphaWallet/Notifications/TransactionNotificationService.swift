@@ -17,7 +17,6 @@ final class TransactionNotificationSourceService: NotificationSourceService {
     private let formatter = EtherNumberFormatter.short
     private static let maximumNumberOfNotifications = 10
     private let receiveNotificationSubject: PassthroughSubject<LocalNotification, Never> = .init()
-    private let queue: DispatchQueue = DispatchQueue(label: "com.Background.updateQueue", qos: .userInitiated)
     var receiveNotification: AnyPublisher<LocalNotification, Never> {
         receiveNotificationSubject.eraseToAnyPublisher()
     }
@@ -33,7 +32,6 @@ final class TransactionNotificationSourceService: NotificationSourceService {
 
         transactionDataStore
             .transactionsChangeset(forFilter: .predicate(predicate), servers: config.enabledServers)
-            .receive(on: queue)
             .map { changeset -> ServerDictionary<[TransactionInstance]> in
                 switch changeset {
                 case .initial(let transactions):
