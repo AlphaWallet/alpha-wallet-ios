@@ -81,7 +81,7 @@ extension ScanQRCodeCoordinator: QRCodeReaderDelegate {
 
     func reader(_ reader: QRCodeReaderViewController!, didScanResult result: String!) {
         stopScannerAndDismiss {
-            infoLog("[QR Code] Scanned value: \(result)")
+            infoLog("[QR Code] Scanned value: \(String(describing: result))")
             self.logCompleteScan(result: result)
             self.delegate?.didScan(result: result, in: self)
         }

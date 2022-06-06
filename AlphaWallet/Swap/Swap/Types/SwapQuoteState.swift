@@ -17,9 +17,8 @@ enum SwapQuoteState: Equatable {
         switch (lhs, rhs) {
         case (.pendingInput, .pendingInput), (.fetching, .fetching):
             return true
-        case (.completed(let e1), .completed(let e2)):
-            guard let e1 = e1, let e2 = e2 else { return true }
-            return true//e1 == e2
+        case (.completed, .completed):
+            return true
         default:
             return false
         }

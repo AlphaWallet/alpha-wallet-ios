@@ -796,7 +796,6 @@
 		871CE2EF27DF879C00B1E1CF /* TransactionDeadlineTextFieldModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871CE2EE27DF879C00B1E1CF /* TransactionDeadlineTextFieldModel.swift */; };
 		871CE2F127DF87AE00B1E1CF /* TransactionDeadlineTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871CE2F027DF87AE00B1E1CF /* TransactionDeadlineTextField.swift */; };
 		871CE2F827E0D5B000B1E1CF /* SwapOptionsHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871CE2F727E0D5B000B1E1CF /* SwapOptionsHeaderViewModel.swift */; };
-		871CE2FA27E4F5C000B1E1CF /* Control+Publishers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871CE2F927E4F5C000B1E1CF /* Control+Publishers.swift */; };
 		871E684324E56A4200F220A7 /* TransactionConfirmationHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871E684224E56A4200F220A7 /* TransactionConfirmationHeaderView.swift */; };
 		871E684524E56A6000F220A7 /* TransactionConfirmationTableHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871E684424E56A6000F220A7 /* TransactionConfirmationTableHeaderViewModel.swift */; };
 		871E684B24E574F100F220A7 /* ActivityIndicatorControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871E684824E574F000F220A7 /* ActivityIndicatorControl.swift */; };
@@ -2036,7 +2035,6 @@
 		871CE2EE27DF879C00B1E1CF /* TransactionDeadlineTextFieldModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionDeadlineTextFieldModel.swift; sourceTree = "<group>"; };
 		871CE2F027DF87AE00B1E1CF /* TransactionDeadlineTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionDeadlineTextField.swift; sourceTree = "<group>"; };
 		871CE2F727E0D5B000B1E1CF /* SwapOptionsHeaderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapOptionsHeaderViewModel.swift; sourceTree = "<group>"; };
-		871CE2F927E4F5C000B1E1CF /* Control+Publishers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Control+Publishers.swift"; sourceTree = "<group>"; };
 		871E684224E56A4200F220A7 /* TransactionConfirmationHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionConfirmationHeaderView.swift; sourceTree = "<group>"; };
 		871E684424E56A6000F220A7 /* TransactionConfirmationTableHeaderViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionConfirmationTableHeaderViewModel.swift; sourceTree = "<group>"; };
 		871E684824E574F000F220A7 /* ActivityIndicatorControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActivityIndicatorControl.swift; sourceTree = "<group>"; };
@@ -2536,13 +2534,6 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
-		0277D92C282A496500510ECE /* Helpers */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Helpers;
-			sourceTree = "<group>";
-		};
 		02988ACA282C85CD00433F3B /* Models */ = {
 			isa = PBXGroup;
 			children = (
@@ -2747,7 +2738,6 @@
 				2977CAEF1F7E0C14009682A0 /* ViewModels */,
 				2977CAEE1F7E0C0D009682A0 /* ViewControllers */,
 				2977CAE81F7E0B95009682A0 /* Coordinators */,
-				0277D92C282A496500510ECE /* Helpers */,
 				0277D929282A490B00510ECE /* Models */,
 			);
 			path = Wallet;
@@ -5408,7 +5398,6 @@
 			isa = PBXGroup;
 			children = (
 				8765D6C2282A376000529F45 /* NotificationCenter+Publishers.swift */,
-				871CE2F927E4F5C000B1E1CF /* Control+Publishers.swift */,
 				8782E9CF2828E47100E93689 /* RetryIf.swift */,
 				8765D6F4282BE0B100529F45 /* Alamofire+Publishers.swift */,
 				8765D6F6282BE26200529F45 /* Session+Publishers.swift */,
@@ -6547,7 +6536,6 @@
 				874527D9270B3A45008DB272 /* xDaiBridge.swift in Sources */,
 				8759C9E9279BD7B100FE361F /* DefaultsWalletAddressesStore.swift in Sources */,
 				291D73C61F7F500D00A8AB56 /* TransactionItemState.swift in Sources */,
-				29BE3FD21F707DC300F6BFC2 /* TransactionsService.swift in Sources */,
 				874ED68A27D9E4B4001AB374 /* AmountTextField_v2Pair.swift in Sources */,
 				29BE3FD21F707DC300F6BFC2 /* TransactionsService.swift in Sources */,
 				29F1C85120032688003780D8 /* Address.swift in Sources */,
@@ -6793,7 +6781,6 @@
 				8765D6C9282A3B2E00529F45 /* GasPriceWarning.swift in Sources */,
 				442FCD76B5C25C9FB7FE7479 /* NFTCollectionViewModel.swift in Sources */,
 				87C237DE26DE5389003CA387 /* SelectAssetAmountView.swift in Sources */,
-				442FC2CC21FFFC4FAB33A300 /* TokenScriptToken.swift in Sources */,
 				874ED68627D7C0A7001AB374 /* SwapTokensViewModel.swift in Sources */,
 				442FC2CC21FFFC4FAB33A300 /* TokenScriptToken.swift in Sources */,
 				442FCAD7292D93C261B97D09 /* TokenHolder.swift in Sources */,
@@ -7069,7 +7056,6 @@
 				5E7C7A67B6143DFB9B1CF02B /* ConfirmSignMessageTableViewCell.swift in Sources */,
 				5E7C74C6110D4E93C759D5DB /* ConfirmSignMessageTableViewCellViewModel.swift in Sources */,
 				5E7C7A928412AF3E16CDA038 /* AmountTextField_v2.swift in Sources */,
-				5E7C7A928412AF3E16CDA038 /* AmountTextField_v2.swift in Sources */,
 				8765D6D9282B7EA600529F45 /* SwapQuoteState.swift in Sources */,
 				5E7C7131E338A806132D989B /* DateEntryField.swift in Sources */,
 				87F15AF327F1EAE800EB9787 /* SwapFeesView.swift in Sources */,
@@ -7194,7 +7180,6 @@
 				8765D6C3282A376000529F45 /* NotificationCenter+Publishers.swift in Sources */,
 				5E7C74E1ECC13899FA369E1C /* ClearDappBrowserCacheCoordinator.swift in Sources */,
 				5E7C76393408CC2489FF4527 /* AssetDefinitionsOverridesViewController.swift in Sources */,
-				871CE2FA27E4F5C000B1E1CF /* Control+Publishers.swift in Sources */,
 				5E7C706F4BDF994D539F8040 /* AssetDefinitionsOverridesViewCell.swift in Sources */,
 				5E7C7A496E69849D06DF2731 /* AssetDefinitionStoreCoordinator.swift in Sources */,
 				5E7C70E4DF263B30CDF4BDB2 /* FetchAssetDefinitionsCoordinator.swift in Sources */,
@@ -7274,7 +7259,6 @@
 				5E7C7E34C8D389FB7056EB7D /* CollectionViewLeftAlignedFlowLayout.swift in Sources */,
 				5E7C7AD59EA28935E32B3E91 /* KeystoreBackupIntroductionViewController.swift in Sources */,
 				5E7C76AFB9D51A7890FD4C60 /* KeystoreBackupIntroductionViewModel.swift in Sources */,
-				879F184626E73CAA000602F2 /* NFTAssetListViewController.swift in Sources */,
 				879F184626E73CAA000602F2 /* NFTAssetListViewController.swift in Sources */,
 				871CE2F827E0D5B000B1E1CF /* SwapOptionsHeaderViewModel.swift in Sources */,
 				5E7C70C8C9FB794488211122 /* CoordinatorThatEnds.swift in Sources */,

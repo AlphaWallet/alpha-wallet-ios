@@ -117,11 +117,11 @@ class SwapOptionsViewController: UIViewController {
 
         //TODO: need to resolve error displaying, uncommenting this string causes displaying an error when screen in loading for first time
         // and for unavailable networks it shors error
-        viewModel.errorString
-            .receive(on: RunLoop.main)
-            .sink { [weak self] error in
-                //self?.displayError(message: error)
-            }.store(in: &cancelable)
+        //viewModel.errorString
+        //    .receive(on: RunLoop.main)
+        //    .sink { [weak self] error in
+        //        self?.displayError(message: error)
+        //    }.store(in: &cancelable)
 
         transactionDeadlineTextField 
             .textPublisher
