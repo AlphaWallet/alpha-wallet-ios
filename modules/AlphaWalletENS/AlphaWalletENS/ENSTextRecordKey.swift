@@ -1,10 +1,10 @@
 //
-//  ENSTextRecordKey.swift
+//  EnsTextRecordKey.swift
 //  AlphaWalletENS
 //
 //  Created by Hwee-Boon Yar on Apr/9/22.
 
-public enum ENSTextRecordKey: Equatable, Hashable {
+public enum EnsTextRecordKey: Equatable, Hashable {
     /// A URL to an image used as an avatar or logo
     case avatar
     /// A description of the name
@@ -28,7 +28,7 @@ public enum ENSTextRecordKey: Equatable, Hashable {
 
     case custom(String)
 
-    var rawValue: String {
+    public var rawValue: String {
         switch self {
         case .avatar: return "avatar"
         case .description: return "description"
@@ -41,6 +41,24 @@ public enum ENSTextRecordKey: Equatable, Hashable {
         case .url: return "url"
         case .custom(let value): return value
         case .mail: return "mail"
+        }
+    }
+}
+
+public extension EnsTextRecordKey {
+    init(rawValue: String) {
+        switch rawValue.lowercased() {
+        case "avatar": self = .avatar
+        case "description": self = .description
+        case "display": self = .display
+        case "email": self = .email
+        case "keywords": self = .keywords
+        case "notice": self = .notice
+        case "location": self = .location
+        case "phone": self = .phone
+        case "url": self = .url
+        case "mail": self = .mail
+        default: self = .custom(rawValue)
         }
     }
 }

@@ -95,8 +95,12 @@ class AppCoordinator: NSObject, Coordinator {
     }()
     private var walletAddressesStore: WalletAddressesStore
     private var cancelable = Set<AnyCancellable>()
-    lazy private var blockiesGenerator: BlockiesGenerator = BlockiesGenerator(openSea: openSea)
-    lazy private var domainResolutionService: DomainResolutionServiceType = DomainResolutionService(blockiesGenerator: blockiesGenerator)
+    private let sharedEnsRecordsStorage: EnsRecordsStorage = {
+        let storage: EnsRecordsStorage = RealmStore.shared
+        return storage
+    }()
+    lazy private var blockiesGenerator: BlockiesGenerator = BlockiesGenerator(openSea: openSea, storage: sharedEnsRecordsStorage)
+    lazy private var domainResolutionService: DomainResolutionServiceType = DomainResolutionService(blockiesGenerator: blockiesGenerator, storage: sharedEnsRecordsStorage)
 
     private lazy var notificationService: NotificationService = {
         return NotificationService(sources: [], walletBalanceService: walletBalanceService)
