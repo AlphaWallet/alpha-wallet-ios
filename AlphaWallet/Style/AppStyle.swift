@@ -69,8 +69,8 @@ extension UITabBarAppearance {
         tabBarAppearance.backgroundImage = UIImage(color: Style.TabBar.Background.color)
         let tabBarItemAppearance = UITabBarItemAppearance()
 
-        tabBarItemAppearance.normal.titleTextAttributes = [.font: Style.TabBar.Font.normal]
-        tabBarItemAppearance.selected.titleTextAttributes = [.font: Style.TabBar.Font.selected]
+        tabBarItemAppearance.normal.titleTextAttributes = [.font: Style.TabBar.Font.normal, .foregroundColor: Style.TabBar.Color.normal]
+        tabBarItemAppearance.selected.titleTextAttributes = [.font: Style.TabBar.Font.selected, .foregroundColor: Style.TabBar.Color.selected]
 
         tabBarAppearance.stackedLayoutAppearance = tabBarItemAppearance
 
@@ -82,7 +82,7 @@ extension UITabBarController {
     static func withOverridenBarAppearence(appearence tabBarAppearance: UITabBarAppearance = .defaultAppearence) -> UITabBarController {
         let tabBarController = UITabBarController()
         tabBarController.tabBar.isTranslucent = false
-        tabBarController.tabBar.tintColor = Colors.appTint
+        tabBarController.tabBar.tintColor = Style.TabBar.Background.tint
         tabBarController.tabBar.standardAppearance = tabBarAppearance
 
         if #available(iOS 15.0, *) {
@@ -403,6 +403,7 @@ enum Style {
     }
     enum TabBar {
         enum Background {
+            static let tint: UIColor = Colors.appTint
             static let color: UIColor = {
                 return UIColor.systemBackground
             }()
@@ -413,10 +414,10 @@ enum Style {
         enum Font {
             static let normal: UIFont = Fonts.regular(size: 13)
             static let selected: UIFont = Fonts.semibold(size: 13)
-            enum Color {
-                static let selected: UIColor = R.color.azure()!
-                static let normal: UIColor = R.color.dove()!
-            }
+        }
+        enum Color {
+            static let selected: UIColor = R.color.azure()!
+            static let normal: UIColor = R.color.dove()!
         }
     }
     enum SegmentedControl {
