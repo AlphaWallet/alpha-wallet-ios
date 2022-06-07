@@ -912,7 +912,6 @@ extension TransactionConfirmationViewModel {
                 let symbol = fromToken.symbol
                 return .init(title: .normal("\(amount) \(symbol)"), headerName: headerName, configuration: configuration)
             case .to:
-                //hhh0 why is short 3 dec if 0.001 and not 0.0010?
                 let amount = EtherNumberFormatter.short.string(from: BigInt(toAmount), decimals: toToken.decimals)
                 let symbol = toToken.symbol
                 return .init(title: .normal("\(amount) \(symbol)"), headerName: headerName, configuration: configuration)
