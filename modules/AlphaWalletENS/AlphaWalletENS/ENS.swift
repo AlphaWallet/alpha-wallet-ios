@@ -37,6 +37,7 @@ public class ENS {
 
     weak private var delegate: ENSDelegate?
     private var chainId: ChainId
+    private let queue: DispatchQueue = .global()
 
     public init(delegate: ENSDelegate, chainId: ChainId) {
         self.delegate = delegate
@@ -54,19 +55,29 @@ public class ENS {
             return .init(error: AnyError(ENSError(description: "Invalid ENS Name")))
         }
 
-        return firstly {
-            getResolver(forName: name)
-        }.then { resolver -> Promise<(AlphaWallet.Address, Bool)> in
-            self.isSupportEnsIp10(resolver: resolver).map { (resolver, $0) }
-        }.then { resolver, supportsEnsIp10 -> Promise<AlphaWallet.Address> in
-            verboseLog("[ENS] Fetch resolver: \(resolver.eip55String) supports ENSIP-10? \(supportsEnsIp10) for name: \(name)")
-            let node = name.lowercased().nameHash
-            if supportsEnsIp10 {
-                return self.getENSAddressFromResolverUsingResolve(forName: name, node: node, resolver: resolver)
-            } else {
-                return self.getENSAddressFromResolverUsingAddr(forName: name, node: node, resolver: resolver)
-            }
+        let (promise, seal) = Promise<AlphaWallet.Address>.pending()
+
+        queue.async {
+            firstly {
+                self.getResolver(forName: name)
+            }.then(on: .none, { resolver -> Promise<(AlphaWallet.Address, Bool)> in
+                self.isSupportEnsIp10(resolver: resolver).map { (resolver, $0) }
+            }).then(on: .none, { resolver, supportsEnsIp10 -> Promise<AlphaWallet.Address> in
+                verboseLog("[ENS] Fetch resolver: \(resolver.eip55String) supports ENSIP-10? \(supportsEnsIp10) for name: \(name) isMainThread: \(Thread.isMainThread)")
+                let node = name.lowercased().nameHash
+                if supportsEnsIp10 {
+                    return self.getENSAddressFromResolverUsingResolve(forName: name, node: node, resolver: resolver)
+                } else {
+                    return self.getENSAddressFromResolverUsingAddr(forName: name, node: node, resolver: resolver)
+                }
+            }).done(on: .none, { address in
+                seal.fulfill(address)
+            }).catch(on: .none, { error in
+                seal.reject(error)
+            })
         }
+
+        return promise
     }
 
     //Performs a ENS reverse lookup — figure out ENS name from a given Ethereum address — and then forward resolves the ENS name (look up Ethereum address from ENS name) to verify it. This is necessary because:
@@ -75,45 +86,73 @@ public class ENS {
     public func getName(fromAddress address: AlphaWallet.Address) -> Promise<String> {
         //TODO improve if delegate is nil
         guard let delegate = delegate else { return Promise { _ in } }
-
-        let node = address.nameHash
-        let function = GetENSResolverEncode()
         let chainId = chainId
-        return firstly {
-            delegate.callSmartContract(withChainId: chainId, contract: Self.registrarContract, functionName: function.name, abiString: function.abi, parameters: [node] as [AnyObject])
-        }.then { result -> Promise<[String: Any]> in
-            guard let resolverEthereumAddress = result["0"] as? EthereumAddress else { return .init(error: AnyError(ENSError(description: "Error extracting result from \(Self.registrarContract).\(function.name)()"))) }
-            let resolver = AlphaWallet.Address(address: resolverEthereumAddress)
-            guard !resolver.isNull else { return .init(error: AnyError(ENSError(description: "Null address returned"))) }
-            let function = ENSReverseLookupEncode()
-            return delegate.callSmartContract(withChainId: chainId, contract: resolver, functionName: function.name, abiString: function.abi, parameters: [node] as [AnyObject])
-        }.then { result -> Promise<(String, AlphaWallet.Address)> in
-            guard let ensName = result["0"] as? String, ensName.contains(".") else { return .init(error: AnyError(ENSError(description: "Incorrect data output from ENS resolver"))) }
-            return self.getENSAddress(fromName: ensName).map { (ensName, $0) }
-        }.map { ensName, resolvedAddress -> String in
-            if address == resolvedAddress {
-                return ensName
-            } else {
-                throw AnyError(ENSError(description: "Forward resolution of ENS name found by reverse look up doesn't match"))
-            }
+        let (promise, seal) = Promise<String>.pending()
+
+        queue.async {
+            let node = address.nameHash
+            let function = GetENSResolverEncode()
+
+            firstly {
+                delegate.callSmartContract(withChainId: chainId, contract: Self.registrarContract, functionName: function.name, abiString: function.abi, parameters: [node] as [AnyObject])
+            }.then(on: .none, { result -> Promise<[String: Any]> in
+                guard let resolverEthereumAddress = result["0"] as? EthereumAddress else { return .init(error: AnyError(ENSError(description: "Error extracting result from \(Self.registrarContract).\(function.name)()"))) }
+                let resolver = AlphaWallet.Address(address: resolverEthereumAddress)
+                guard !resolver.isNull else { return .init(error: AnyError(ENSError(description: "Null address returned"))) }
+                let function = ENSReverseLookupEncode()
+                return delegate.callSmartContract(withChainId: chainId, contract: resolver, functionName: function.name, abiString: function.abi, parameters: [node] as [AnyObject])
+            }).then(on: .none, { result -> Promise<(String, AlphaWallet.Address)> in
+                guard let ensName = result["0"] as? String, ensName.contains(".") else { return .init(error: AnyError(ENSError(description: "Incorrect data output from ENS resolver"))) }
+                return self.getENSAddress(fromName: ensName).map { (ensName, $0) }
+            }).map(on: .none, { ensName, resolvedAddress -> String in
+                if address == resolvedAddress {
+                    return ensName
+                } else {
+                    throw AnyError(ENSError(description: "Forward resolution of ENS name found by reverse look up doesn't match"))
+                }
+            }).done(on: .none, { result in
+                seal.fulfill(result)
+            }).catch(on: .none, { error in
+                seal.reject(error)
+            })
         }
+        return promise
     }
 
     public func getTextRecord(forName name: String, recordKey: EnsTextRecordKey) -> Promise<String> {
         //TODO improve if delegate is nil
-        guard let delegate = delegate else { return Promise { _ in } }
-        guard !name.components(separatedBy: ".").isEmpty else { return .init(error: AnyError(ENSError(description: "\(name) is invalid ENS name"))) }
-
-        let addr = name.lowercased().nameHash
-        let function = GetEnsTextRecord()
+        guard let delegate = delegate else { return .init(error: PMKError.cancelled) }
         let chainId = chainId
-        return firstly {
-            delegate.callSmartContract(withChainId: chainId, contract: getENSRecordsContract(forChainId: chainId), functionName: function.name, abiString: function.abi, parameters: [addr as AnyObject, recordKey.rawValue as AnyObject])
-        }.then { result -> Promise<String> in
-            guard let record = result["0"] as? String else { return .init(error: AnyError(ENSError(description: "interface doesn't support for chainId \(chainId)"))) }
-            guard !record.isEmpty else { return .init(error: AnyError(ENSError(description: "ENS text record not found for record: \(record) for chainId: \(chainId)"))) }
-            return .value(record)
+
+        let (promise, seal) = Promise<String>.pending()
+        let contract = getENSRecordsContract(forChainId: chainId)
+
+        queue.async {
+            guard !name.components(separatedBy: ".").isEmpty else {
+                seal.reject(AnyError(ENSError(description: "\(name) is invalid ENS name")))
+                return
+            }
+
+            let addr = name.lowercased().nameHash
+            let function = GetEnsTextRecord()
+            firstly {
+                delegate.callSmartContract(withChainId: chainId, contract: contract, functionName: function.name, abiString: function.abi, parameters: [addr as AnyObject, recordKey.rawValue as AnyObject])
+            }.map(on: .none, { result in
+                guard let record = result["0"] as? String else {
+                    throw AnyError(ENSError(description: "interface doesn't support for chainId \(chainId)"))
+                }
+                guard !record.isEmpty else {
+                    throw AnyError(ENSError(description: "ENS text record not found for record: \(record) for chainId: \(chainId)"))
+                }
+
+                return record
+            }).done(on: .none, { record in
+                seal.fulfill(record)
+            }).catch(on: .none, { error in
+                seal.reject(error)
+            })
         }
+        return promise
     }
 
     private func isSupportEnsIp10(resolver: AlphaWallet.Address) -> Promise<Bool> {
@@ -124,6 +163,7 @@ public class ENS {
         return delegate.getInterfaceSupported165(chainId: chainId, hash: hash, contract: resolver)
     }
 
+    //NOTE: .nameHash is heavy operation, move it to background queue
     private func getResolver(forName name: String) -> Promise<AlphaWallet.Address> {
         //TODO improve if delegate is nil
         guard let delegate = delegate else { return Promise { _ in } }
@@ -133,13 +173,13 @@ public class ENS {
         let node = name.lowercased().nameHash
         return firstly {
             delegate.callSmartContract(withChainId: chainId, contract: Self.registrarContract, functionName: function.name, abiString: function.abi, parameters: [node] as [AnyObject])
-        }.then { result -> Promise<AlphaWallet.Address> in
+        }.then(on: .none, { result -> Promise<AlphaWallet.Address> in
             if let resolver = (result["0"] as? EthereumAddress).flatMap({ AlphaWallet.Address(address: $0) }) {
                 verboseLog("[ENS] fetched resolver: \(resolver) for: \(name) arg: \(node)")
                 if resolver.isNull && name != "" {
                     //Wildcard resolution https://docs.ens.domains/ens-improvement-proposals/ensip-10-wildcard-resolution
                     let parentName = name.split(separator: ".").dropFirst().joined(separator: ".")
-                    verboseLog("[ENS] fetching parent \(parentName) resolver again for ENSIP-10. Was: \(resolver) for: \(name) arg: \(node)")
+                    verboseLog("[ENS] fetching parent \(parentName) resolver again for ENSIP-10. Was: \(resolver) for: \(name) arg: \(node) isMainThread: \(Thread.isMainThread)")
                     return self.getResolver(forName: parentName)
                 } else {
                     if resolver.isNull {
@@ -151,7 +191,7 @@ public class ENS {
             } else {
                 throw AnyError(ENSError(description: "Error extracting result from \(Self.registrarContract).\(function.name)()"))
             }
-        }
+        })
     }
 
     private func getENSAddressFromResolverUsingAddr(forName name: String, node: String, resolver: AlphaWallet.Address) -> Promise<AlphaWallet.Address> {
@@ -163,13 +203,13 @@ public class ENS {
         verboseLog("[ENS] calling function \(function.name) for name: \(name)…")
         return firstly {
             delegate.callSmartContract(withChainId: chainId, contract: resolver, functionName: function.name, abiString: function.abi, parameters: [node] as [AnyObject])
-        }.map { result in
+        }.map(on: .none, { result in
             guard let ensAddressEthereumAddress = result["0"] as? EthereumAddress else { throw AnyError(ENSError(description: "Incorrect data output from ENS resolver")) }
             let ensAddress = AlphaWallet.Address(address: ensAddressEthereumAddress)
-            verboseLog("[ENS] called function \(function.name) for name: \(name) result: \(ensAddress.eip55String)")
+            verboseLog("[ENS] called function \(function.name) for name: \(name) result: \(ensAddress.eip55String) isMainThread: \(Thread.isMainThread)")
             guard !ensAddress.isNull else { throw AnyError(ENSError(description: "Null address returned")) }
             return ensAddress
-        }
+        })
     }
 
     private func getENSAddressFromResolverUsingResolve(forName name: String, node: String, resolver: AlphaWallet.Address) -> Promise<AlphaWallet.Address> {
@@ -189,18 +229,18 @@ public class ENS {
             callData as AnyObject,
         ]
         let chainId = chainId
-        verboseLog("[ENS] calling function \(resolveFunction.name) for name: \(name) DNS-encoded name: \(dnsEncodedName.hex()) callData: \(callData.hex())…")
+        verboseLog("[ENS] calling function \(resolveFunction.name) for name: \(name) DNS-encoded name: \(dnsEncodedName.hex()) isMainThread: \(Thread.isMainThread) callData: \(callData.hex())…")
         return firstly {
             delegate.callSmartContract(withChainId: chainId, contract: resolver, functionName: resolveFunction.name, abiString: resolveFunction.abi, parameters: parameters)
-        }.map { result in
+        }.map(on: .none, { result in
             guard let addressStringAsData = result["0"] as? Data else { throw AnyError(ENSError(description: "Incorrect data output from ENS resolver")) }
             let addressStringLeftPaddedWithZeros = addressStringAsData.hexString
             let addressString = String(addressStringLeftPaddedWithZeros.dropFirst(addressStringLeftPaddedWithZeros.count - 40))
-            verboseLog("[ENS] called function \(resolveFunction.name) for name: \(name) result: \(addressString)")
+            verboseLog("[ENS] called function \(resolveFunction.name) for name: \(name) result: \(addressString) isMainThread: \(Thread.isMainThread)")
             guard let address = AlphaWallet.Address(uncheckedAgainstNullAddress: addressString) else { throw AnyError(ENSError(description: "Incorrect data output from ENS resolver")) }
             guard !address.isNull else { throw AnyError(ENSError(description: "Null address returned")) }
             return address
-        }
+        })
     }
 
     private func getENSRecordsContract(forChainId chainId: ChainId) -> AlphaWallet.Address {

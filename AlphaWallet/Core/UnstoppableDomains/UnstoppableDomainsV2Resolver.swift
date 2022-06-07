@@ -21,7 +21,7 @@ class UnstoppableDomainsV2Resolver {
 
     init(server: RPCServer, storage: EnsRecordsStorage) {
         self.server = server
-        self.storage = storage
+        self.storage = storage 
     }
 
     func resolveAddress(forName name: String) -> Promise<AlphaWallet.Address> {
@@ -41,7 +41,7 @@ class UnstoppableDomainsV2Resolver {
         verboseLog("[UnstoppableDomains] resolving name: \(name)…")
         return Alamofire
             .request(url, method: .get, headers: ["Authorization": Constants.Credentials.unstoppableDomainsV2ApiKey])
-            .responseJSON(queue: .main, options: .allowFragments).map { response -> AlphaWallet.Address in
+            .responseJSON(queue: .global(), options: .allowFragments).map(on: .none, { response -> AlphaWallet.Address in
                 guard let data = response.response.data, let json = try? JSON(data: data) else {
                     throw UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(baseURL) API isMainThread: \(Thread.isMainThread)")
                 }
@@ -53,10 +53,10 @@ class UnstoppableDomainsV2Resolver {
                 } else {
                     throw UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(baseURL) API isMainThread: \(Thread.isMainThread)")
                 }
-            }.get { address in
+            }).get(on: .none, { address in
                 let key = EnsLookupKey(nameOrAddress: name, server: self.server)
                 self.storage.addOrUpdate(record: .init(key: key, value: .address(address)))
-            }
+            })
     }
 
     func resolveDomain(address: AlphaWallet.Address) -> Promise<String> {
@@ -72,7 +72,7 @@ class UnstoppableDomainsV2Resolver {
         verboseLog("[UnstoppableDomains] resolving address: \(address.eip55String)…")
         return Alamofire
             .request(url, method: .get, headers: ["Authorization": Constants.Credentials.unstoppableDomainsV2ApiKey])
-            .responseJSON(queue: .main, options: .allowFragments).map { response -> String in
+            .responseJSON(queue: .global(), options: .allowFragments).map(on: .none, { response -> String in
                 guard let data = response.response.data, let json = try? JSON(data: data) else {
                     throw UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(baseURL) API isMainThread: \(Thread.isMainThread)")
                 }
@@ -84,10 +84,10 @@ class UnstoppableDomainsV2Resolver {
                 } else {
                     throw UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(baseURL) API isMainThread: \(Thread.isMainThread)")
                 }
-            }.get { domain in
+            }).get(on: .none, { domain in
                 let key = EnsLookupKey(nameOrAddress: address.eip55String, server: self.server)
                 self.storage.addOrUpdate(record: .init(key: key, value: .ens(domain)))
-            }
+            })
     }
 }
 

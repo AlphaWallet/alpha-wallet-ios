@@ -22,10 +22,10 @@ class EnsResolver: ENSDelegateImpl {
 
         return firstly {
             ens.getENSAddress(fromName: name)
-        }.get { address in
+        }.get(on: .none, { address in
             let key = EnsLookupKey(nameOrAddress: name, server: self.server)
             self.storage.addOrUpdate(record: .init(key: key, value: .address(address)))
-        }
+        })
     }
 }
 

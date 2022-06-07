@@ -48,7 +48,7 @@ extension RealmStore: EnsRecordsStorage {
     func record(for key: EnsLookupKey, expirationTime: TimeInterval) -> EnsRecord? {
         var record: EnsRecord?
         let expirationDate = NSDate(timeIntervalSinceNow: expirationTime)
-        let predicate = NSPredicate(format: "uid = %@ AND creatingDate < %@", key.description, expirationDate)
+        let predicate = NSPredicate(format: "uid = %@ AND creatingDate > %@", key.description, expirationDate)
 
         performSync { realm in
             record = realm.objects(EnsRecordObject.self)
@@ -56,7 +56,7 @@ extension RealmStore: EnsRecordsStorage {
                 .first
                 .flatMap { EnsRecord(recordObject: $0) }
         }
-
+        
         return record
     }
 

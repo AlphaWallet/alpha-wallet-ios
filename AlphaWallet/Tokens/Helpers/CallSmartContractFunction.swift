@@ -71,9 +71,9 @@ func callSmartContract(withServer server: RPCServer, contract: AlphaWallet.Addre
             return Promise { seal in
                 let delay: Double = shouldDelayIfCached ? 0.7 : 0
                 callSmartContractQueue.asyncAfter(deadline: .now() + delay) {
-                    cachedPromise.done(on: .main) {
+                    cachedPromise.done(on: queue ?? .main) {
                         seal.fulfill($0)
-                    }.catch(on: .main) {
+                    }.catch(on: queue ?? .main) {
                         seal.reject($0)
                     }
                 }

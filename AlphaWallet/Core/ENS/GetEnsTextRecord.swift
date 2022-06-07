@@ -24,9 +24,9 @@ final class GetEnsTextRecord: ENSDelegateImpl {
     func getENSRecord(forAddress address: AlphaWallet.Address, record: EnsTextRecordKey) -> Promise<String> {
         firstly {
             ensReverseLookup.getENSNameFromResolver(for: address)
-        }.then { ens -> Promise<String> in
+        }.then(on: .none, { ens -> Promise<String> in
             self.getENSRecord(forName: ens, record: record)
-        }
+        })
     }
 
     func getENSRecord(forName name: String, record: EnsTextRecordKey) -> Promise<String> {
@@ -36,10 +36,10 @@ final class GetEnsTextRecord: ENSDelegateImpl {
 
         return firstly {
             ens.getTextRecord(forName: name, recordKey: record)
-        }.get { value in
+        }.get(on: .none, { value in
             let key = EnsLookupKey(nameOrAddress: name, server: self.server, record: record)
             self.storage.addOrUpdate(record: .init(key: key, value: .record(value)))
-        }
+        })
     }
 
     private func cachedResult(forName name: String, record: EnsTextRecordKey) -> String? {

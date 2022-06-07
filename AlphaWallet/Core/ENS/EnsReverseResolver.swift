@@ -22,10 +22,10 @@ class EnsReverseResolver: ENSDelegateImpl {
 
         return firstly {
             ens.getName(fromAddress: address)
-        }.get { name in
+        }.get(on: .none, { name in
             let key = EnsLookupKey(nameOrAddress: address.eip55String, server: self.server)
             self.storage.addOrUpdate(record: .init(key: key, value: .ens(name)))
-        }
+        })
     }
 }
 
