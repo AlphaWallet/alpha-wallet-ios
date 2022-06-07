@@ -47,6 +47,7 @@ class WalletConnectV1Provider: WalletConnectServer {
     }()
     private let sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>
     private var cancelable = Set<AnyCancellable>()
+    private let queue: DispatchQueue = .main
 
     init(sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>, storage: Storage<[WalletConnectV1Session]> = .init(fileName: Keys.storageFileKey, defaultValue: [])) {
         self.sessionsSubject = sessionsSubject
@@ -165,7 +166,7 @@ extension WalletConnectV1Provider: WalletConnectV1ServerRequestHandlerDelegate {
     func handler(_ handler: RequestHandlerToAvoidMemoryLeak, request: WalletConnectV1Request) {
         debugLog("WalletConnect handler request: \(request.method) url: \(request.url.absoluteString)")
 
-        DispatchQueue.main.async { [weak self] in
+        queue.async { [weak self] in
             guard let strongSelf = self else { return }
 
             guard let session = strongSelf.storage.value.first(where: { $0.topicOrUrl == .url(url: request.url) }) else {
@@ -199,7 +200,7 @@ extension WalletConnectV1Provider: ServerDelegate {
 
     func server(_ server: Server, didFailToConnect url: WalletConnectV1URL) {
         debugLog("WalletConnect didFailToConnect: \(url)")
-        DispatchQueue.main.async {
+        queue.async {
             self.connectionTimeoutTimers[url] = nil
             self.removeSession(for: url)
             self.delegate?.server(self, didFail: WalletConnectError.connectionFailure(url))
@@ -210,7 +211,7 @@ extension WalletConnectV1Provider: ServerDelegate {
         connectionTimeoutTimers[session.url] = nil
         let wallets = Array(Set(sessionsSubject.value.values.map { $0.account.address.eip55String }))
 
-        DispatchQueue.main.async {
+        queue.async {
             if let delegate = self.delegate {
                 let sessionProposal = AlphaWallet.WalletConnect.Proposal(dAppInfo: session.dAppInfo)
 
@@ -257,19 +258,20 @@ extension WalletConnectV1Provider: ServerDelegate {
 
             storage.value.append(nativeSession)
         }
+
         return nativeSession
     }
 
     func server(_ server: Server, didUpdate session: Session) {
         debugLog("WalletConnect didUpdate: \(session.url.absoluteString)")
-        DispatchQueue.main.async {
+        queue.async {
             self.addOrUpdateSession(session: session)
         }
     }
 
     func server(_ server: Server, didConnect session: Session) {
         debugLog("WalletConnect didConnect: \(session.url.absoluteString)")
-        DispatchQueue.main.async {
+        queue.async {
             let nativeSession: WalletConnectV1Session = self.addOrUpdateSession(session: session)
             if let delegate = self.delegate {
                 delegate.server(self, didConnect: .init(session: nativeSession))
@@ -278,7 +280,7 @@ extension WalletConnectV1Provider: ServerDelegate {
     }
 
     func server(_ server: Server, didDisconnect session: Session) {
-        DispatchQueue.main.async {
+        queue.async {
             self.removeSession(for: session.url)
         }
     }
