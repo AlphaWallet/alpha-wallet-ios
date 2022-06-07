@@ -3,8 +3,9 @@
 import Foundation
 import Combine
 import Result
+import UIKit
 
-class AccountsViewModel {
+class AccountsViewModel: ObservableObject {
     private var config: Config
     private var hdWallets: [Wallet] = []
     private var keystoreWallets: [Wallet] = []
@@ -14,9 +15,8 @@ class AccountsViewModel {
     private let walletBalanceService: WalletBalanceService
     private let generator = BlockiesGenerator()
     private var reloadBalanceSubject: PassthroughSubject<ReloadState, Never> = .init()
-    private let resolver: DomainResolutionServiceType = DomainResolutionService()
-
-    var sections: [AccountsSectionType] {
+    private lazy var getWalletName = GetWalletName(config: config)
+    private var sections: [Section] {
         switch configuration {
         case .changeWallets:
             return [.hdWallet, .keystoreWallet, .watchedWallet]
@@ -24,7 +24,7 @@ class AccountsViewModel {
             return [.summary, .hdWallet, .keystoreWallet, .watchedWallet]
         }
     }
-
+    var numberOfSections: Int { sections.count }
     let configuration: AccountsCoordinatorViewModel.Configuration
     var allowsAccountDeletion: Bool = false
     var subscribeForBalanceUpdates: Bool {
@@ -56,6 +56,8 @@ class AccountsViewModel {
         return configuration.navigationTitle
     }
 
+    var backgroundColor: UIColor = GroupedTable.Color.background
+
     init(keystore: Keystore, config: Config, configuration: AccountsCoordinatorViewModel.Configuration, analyticsCoordinator: AnalyticsCoordinator, walletBalanceService: WalletBalanceService) {
 
         self.config = config
@@ -64,10 +66,28 @@ class AccountsViewModel {
         self.analyticsCoordinator = analyticsCoordinator
         self.walletBalanceService = walletBalanceService
 
+        reload()
+    }
+
+    func heightForHeader(in section: Int) -> CGFloat {
+        shouldHideHeader(in: section).shouldHide ? .leastNormalMagnitude : UITableView.automaticDimension
+    }
+
+    func reload() {
         reloadWallets()
     }
 
-    func reloadWallets() {
+    func set(walletName: String, for wallet: AlphaWallet.Address) {
+        if walletName.isEmpty {
+            config.deleteWalletName(forAccount: wallet)
+        } else {
+            config.saveWalletName(walletName, forAddress: wallet)
+        }
+        reload()
+        objectWillChange.send()
+    }
+
+    private func reloadWallets() {
         hdWallets = keystore.wallets.filter { keystore.isHdWallet(wallet: $0) }.sorted { $0.address.eip55String < $1.address.eip55String }
         keystoreWallets = keystore.wallets.filter { keystore.isKeystore(wallet: $0) }.sorted { $0.address.eip55String < $1.address.eip55String }
         watchedWallets = keystore.wallets.filter { keystore.isWatched(wallet: $0) }.sorted { $0.address.eip55String < $1.address.eip55String }
@@ -85,11 +105,16 @@ class AccountsViewModel {
         return keystore.delete(wallet: account)
     }
 
-    func accountViewModel(forIndexPath indexPath: IndexPath) -> AccountViewModel? {
-        guard let account = account(for: indexPath) else { return nil }
-        let viewModel = AccountViewModel(analyticsCoordinator: analyticsCoordinator, domainResolver: resolver, generator: generator, subscribeForBalanceUpdates: subscribeForBalanceUpdates, walletBalanceService: walletBalanceService, config: config, wallet: account, current: keystore.currentWallet)
+    func viewModel(at indexPath: IndexPath) -> ViewModelType {
+        switch sections[indexPath.section] {
+        case .hdWallet, .keystoreWallet, .watchedWallet:
+            guard let account = account(for: indexPath) else { return .undefined }
+            let viewModel = AccountViewModel(analyticsCoordinator: analyticsCoordinator, getWalletName: getWalletName, generator: generator, subscribeForBalanceUpdates: subscribeForBalanceUpdates, walletBalanceService: walletBalanceService, wallet: account, current: keystore.currentWallet)
 
-        return viewModel
+            return .wallet(viewModel)
+        case .summary:
+            return .summary(walletSummaryViewModel)
+        }
     }
 
     func numberOfItems(section: Int) -> Int {
@@ -119,7 +144,7 @@ class AccountsViewModel {
         }
     }
 
-    func shouldHideHeader(in section: Int) -> (shouldHide: Bool, section: AccountsSectionType) {
+    func shouldHideHeader(in section: Int) -> (shouldHide: Bool, section: Section) {
         let shouldHideSectionHeaders = shouldHideAllSectionHeaders()
         switch sections[section] {
         case .hdWallet:
@@ -203,28 +228,37 @@ class AccountsViewModel {
 
 }
 
-enum AccountsSectionType: Int, CaseIterable {
-    case summary
-    case hdWallet
-    case keystoreWallet
-    case watchedWallet
+extension AccountsViewModel {
+    enum ViewModelType {
+        case wallet(AccountViewModel)
+        case summary(WalletSummaryViewModel)
+        case undefined
+    }
+    
+    enum Section: Int, CaseIterable {
+        case summary
+        case hdWallet
+        case keystoreWallet
+        case watchedWallet
 
-    var title: String {
-        switch self {
-        case .summary:
-            return R.string.localizable.walletTypesSummary().uppercased()
-        case .hdWallet:
-            return R.string.localizable.walletTypesHdWallets().uppercased()
-        case .keystoreWallet:
-            return R.string.localizable.walletTypesKeystoreWallets().uppercased()
-        case .watchedWallet:
-            return R.string.localizable.walletTypesWatchedWallets().uppercased()
+        var title: String {
+            switch self {
+            case .summary:
+                return R.string.localizable.walletTypesSummary().uppercased()
+            case .hdWallet:
+                return R.string.localizable.walletTypesHdWallets().uppercased()
+            case .keystoreWallet:
+                return R.string.localizable.walletTypesKeystoreWallets().uppercased()
+            case .watchedWallet:
+                return R.string.localizable.walletTypesWatchedWallets().uppercased()
+            }
         }
     }
-}
 
-enum ReloadState {
-    case fetching
-    case done
-    case failure(error: Error)
+    enum ReloadState {
+        case fetching
+        case done
+        case failure(error: Error)
+    }
+
 }

@@ -208,13 +208,8 @@ class AccountsCoordinator: Coordinator {
         alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default, handler: { [weak self] _ -> Void in
             guard let strongSelf = self else { return }
             let textField = alertController.textFields![0] as UITextField
-            let name = textField.text?.trimmed ?? ""
-            if name.isEmpty {
-                strongSelf.config.deleteWalletName(forAccount: account)
-            } else {
-                strongSelf.config.saveWalletName(name, forAddress: account)
-            }
-            strongSelf.accountsViewController.configure()
+            let walletName = textField.text?.trimmed ?? ""
+            strongSelf.accountsViewController.viewModel.set(walletName: walletName, for: account)
         }))
 
         alertController.addAction(UIAlertAction(title: R.string.localizable.cancel(), style: .cancel))
@@ -265,7 +260,7 @@ extension AccountsCoordinator: WalletCoordinatorDelegate {
             removeCoordinator(coordinator)
             delegate.didSelectAccount(account: account, in: self)
         } else {
-            accountsViewController.configure()
+            accountsViewController.viewModel.reload()
 
             coordinator.navigationController.dismiss(animated: true)
             removeCoordinator(coordinator)
