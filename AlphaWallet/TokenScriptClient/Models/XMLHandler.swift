@@ -187,8 +187,7 @@ private class PrivateXMLHandler {
             if let baseTokenType = baseTokenType, Features.default.isAvailable(.isActivityEnabled) {
                 results.append(contentsOf: defaultActions(forTokenType: baseTokenType))
             } else {
-                tokenType
-                        .flatMap { results.append(contentsOf: defaultActions(forTokenType: $0)) }
+                tokenType.flatMap { results.append(contentsOf: defaultActions(forTokenType: $0)) }
             }
         } else {
             //TODO "erc20Send" name is not good for cryptocurrency
@@ -416,7 +415,6 @@ private class PrivateXMLHandler {
         } else {
             //TODO read from cache again, perhaps based on a timeout/TTL for each attribute. There was a bug with reading from cache sometimes. e.g. cache a token with 8 token origin attributes and 1 function origin attribute and when displaying it and reading from the cache, sometimes it'll only return the 1 function origin attribute in the cache
             values = resolveAttributesBypassingCache(withTokenIdOrEvent: tokenIdOrEvent, server: server, account: account)
-            cache(attributeValues: values, forTokenId: tokenIdOrEvent.tokenId)
         }
         return TokenScript.Token(
                 tokenIdOrEvent: tokenIdOrEvent,
@@ -480,26 +478,6 @@ private class PrivateXMLHandler {
             assertImpossibleCodePath()
             return .value(.type2BadTokenScript(isDebugMode: !isOfficial, message: "Not XML?", reason: nil))
         }
-    }
-
-    private func getValuesFromCache(forTokenId tokenId: TokenId) -> [AttributeId: AssetAttributeSyntaxValue]? {
-        guard let cache = assetDefinitionStore?.assetAttributesCache else { return nil }
-        guard let cachedAttributes: [AttributeId: AssetInternalValue] = cache.getValues(forContract: contractAddress, tokenId: tokenId) else { return nil }
-        var results: [AttributeId: AssetAttributeSyntaxValue] = .init()
-        for (attributeId, attribute) in fields {
-            if let value = cachedAttributes[attributeId] {
-                results[attributeId] = .init(syntax: attribute.syntax, value: value)
-            }
-        }
-        return results
-    }
-
-    private func cache(attributeValues values: [AttributeId: AssetAttributeSyntaxValue], forTokenId tokenId: TokenId) {
-        guard !values.isEmpty else { return }
-        guard let assetDefinitionStore = assetDefinitionStore else { return }
-        let cache = assetDefinitionStore.assetAttributesCache
-        let valuesAsDictionary = values.mapValues { $0.value }
-        cache.cache(attributes: fields, values: valuesAsDictionary, forContract: contractAddress, tokenId: tokenId)
     }
 
     private static func extractServer(fromXML xml: XMLDocument, xmlContext: XmlContext, matchingContract contractAddress: AlphaWallet.Address) -> RPCServer? {
@@ -697,7 +675,6 @@ final class ThreadSafe {
 fileprivate let threadSafeFoXmlHandler = ThreadSafe(label: "org.alphawallet.swift.xmlHandler.xmlHandlers")
 /// This class delegates all the functionality to a singleton of the actual XML parser. 1 for each contract. So we just parse the XML file 1 time only for each contract
 public class XMLHandler {
-    //TODO not the best thing to have, especially because it's an optional
     static var callForAssetAttributeCoordinator = CallForAssetAttributeCoordinator()
     fileprivate static var xmlHandlers = AtomicDictionary<AlphaWallet.Address, PrivateXMLHandler>()
     fileprivate static var baseXmlHandlers = AtomicDictionary<String, PrivateXMLHandler>()
