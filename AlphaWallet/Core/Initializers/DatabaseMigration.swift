@@ -220,9 +220,6 @@ extension DatabaseMigration {
                     let migration = MigrationInitializerForOneChainPerDatabase(account: account, server: each, assetDefinitionStore: assetDefinitionStore)
                     migration.perform()
                     let oldPerChainDatabase = try! Realm(configuration: migration.config)
-                    for each in oldPerChainDatabase.objects(Bookmark.self) {
-                        realm.create(Bookmark.self, value: each)
-                    }
                     for each in oldPerChainDatabase.objects(DelegateContract.self) {
                         realm.create(DelegateContract.self, value: each)
                     }
@@ -231,9 +228,6 @@ extension DatabaseMigration {
                     }
                     for each in oldPerChainDatabase.objects(HiddenContract.self) {
                         realm.create(HiddenContract.self, value: each)
-                    }
-                    for each in oldPerChainDatabase.objects(History.self) {
-                        realm.create(History.self, value: each)
                     }
                     for each in oldPerChainDatabase.objects(TokenObject.self) {
                         realm.create(TokenObject.self, value: each)
