@@ -9,11 +9,10 @@ class AssetAttributesCache {
     private var resolvedAttributesData: AssetAttributesCacheData
     private var functionOriginAttributes: [AlphaWallet.Address: [AttributeId: AssetAttribute]] = .init()
     private var functionOriginSubscribables: [AlphaWallet.Address: [TokenId: [AttributeId: Subscribable<AssetInternalValue>]]] = .init()
-    
+
     init() {
         let decoder = JSONDecoder()
-        //TODO read from JSON file/database (if it exists)
-        self.resolvedAttributesData = (try? decoder.decode(AssetAttributesCacheData.self, from: Data())) ?? .init()
+        self.resolvedAttributesData = .init()
     }
 
     func clearCacheWhenTokenScriptChanges(forContract contract: AlphaWallet.Address) {
@@ -94,8 +93,8 @@ class AssetAttributesCache {
     }
 }
 
-struct AssetAttributesCacheData: Codable {
-    private var contracts = [AlphaWallet.Address: ContractTokenIdsAttributeValues]()
+struct AssetAttributesCacheData {
+    private var contracts = AtomicDictionary<AlphaWallet.Address, ContractTokenIdsAttributeValues>()
 
     fileprivate subscript(contract: AlphaWallet.Address) -> ContractTokenIdsAttributeValues? {
         get {
