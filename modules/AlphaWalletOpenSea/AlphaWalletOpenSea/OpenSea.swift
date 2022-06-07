@@ -150,6 +150,7 @@ public class OpenSea {
         enum OpenSeaApiError: Error {
             case rateLimited
             case invalidApiKey
+            case expiredApiKey
         }
 
         func privatePerformRequest(url: URL) -> Promise<(HTTPURLResponse, JSON)> {
@@ -163,7 +164,11 @@ public class OpenSea {
                         if let response: HTTPURLResponse = response.response {
                             let statusCode = response.statusCode
                             if statusCode == 401 {
-                                throw OpenSeaApiError.invalidApiKey
+                                if let body = String(data: data, encoding: .utf8), body.contains("Expired API key") {
+                                    throw OpenSeaApiError.expiredApiKey
+                                } else {
+                                    throw OpenSeaApiError.invalidApiKey
+                                }
                             } else if statusCode == 429 {
                                 throw OpenSeaApiError.rateLimited
                             }
