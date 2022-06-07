@@ -1,13 +1,22 @@
-//
-//  Tabs.swift
-//  AlphaWallet
-//
-//  Created by Vladyslav Shepitko on 03.03.2022.
-//
+// Copyright SIX DAY LLC. All rights reserved.
 
+import Foundation
 import UIKit
 
-extension UITabBarController {
+struct ActiveWalletViewModel {
+    let initialTab: Tabs = .tokens
+}
+
+extension ActiveWalletViewModel {
+    enum Error: LocalizedError {
+        //TODO rename or move
+        case onlyWatchAccount
+
+        var errorDescription: String? {
+            return R.string.localizable.inCoordinatorErrorOnlyWatchAccount()
+        }
+    }
+
     enum Tabs {
         case tokens
         case settings
@@ -49,7 +58,7 @@ extension UITabBarController {
                 let tabBarItem = UITabBarItem(title: nil, image: nil, selectedImage: nil)
                 tabBarItem.imageInsets = .init(top: 7, left: 0, bottom: -7, right: 0)
                 tabBarItem.isEnabled = false
-                
+
                 return tabBarItem
             }
         }

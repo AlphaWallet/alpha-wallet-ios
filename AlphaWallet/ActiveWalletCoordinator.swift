@@ -298,8 +298,8 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
 
         navigationController.setNavigationBarHidden(true, animated: false)
 
-        let inCoordinatorViewModel = InCoordinatorViewModel()
-        showTab(inCoordinatorViewModel.initialTab)
+        let viewModel = ActiveWalletViewModel()
+        showTab(viewModel.initialTab)
 
         logEnabledChains()
         logWallets()
@@ -328,7 +328,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
                 tokenCollection: tokenCollection,
                 importToken: importToken
         )
-        coordinator.rootViewController.tabBarItem = UITabBarController.Tabs.tokens.tabBarItem
+        coordinator.rootViewController.tabBarItem = ActiveWalletViewModel.Tabs.tokens.tabBarItem
         coordinator.delegate = self
         coordinator.start()
 
@@ -348,7 +348,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
                 sessions: sessionsSubject.value,
                 transactionsService: transactionsService
         )
-        coordinator.rootViewController.tabBarItem = UITabBarController.Tabs.transactions.tabBarItem
+        coordinator.rootViewController.tabBarItem = ActiveWalletViewModel.Tabs.transactions.tabBarItem
         coordinator.navigationController.configureForLargeTitles()
         coordinator.delegate = self
         coordinator.start()
@@ -360,7 +360,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         let coordinator = ActivitiesCoordinator(analyticsCoordinator: analyticsCoordinator, sessions: sessionsSubject.value, activitiesService: activitiesService, keystore: keystore, wallet: wallet, assetDefinitionStore: assetDefinitionStore)
         coordinator.delegate = self
         coordinator.start()
-        coordinator.rootViewController.tabBarItem = UITabBarController.Tabs.activities.tabBarItem
+        coordinator.rootViewController.tabBarItem = ActiveWalletViewModel.Tabs.activities.tabBarItem
         coordinator.navigationController.configureForLargeTitles()
         addCoordinator(coordinator)
         return coordinator
@@ -370,7 +370,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         let coordinator = DappBrowserCoordinator(sessions: sessions, keystore: keystore, config: config, sharedRealm: Realm.shared(), browserOnly: browserOnly, restartQueue: restartQueue, analyticsCoordinator: analyticsCoordinator)
         coordinator.delegate = self
         coordinator.start()
-        coordinator.rootViewController.tabBarItem = UITabBarController.Tabs.browser.tabBarItem
+        coordinator.rootViewController.tabBarItem = ActiveWalletViewModel.Tabs.browser.tabBarItem
         addCoordinator(coordinator)
         return coordinator
     }
@@ -387,7 +387,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
                 walletBalanceService: walletBalanceService,
                 blockscanChatService: blockscanChatService
         )
-        coordinator.rootViewController.tabBarItem = UITabBarController.Tabs.settings.tabBarItem
+        coordinator.rootViewController.tabBarItem = ActiveWalletViewModel.Tabs.settings.tabBarItem
         coordinator.navigationController.configureForLargeTitles()
         coordinator.delegate = self
         coordinator.start()
@@ -412,7 +412,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         }
         if Features.default.isAvailable(.isSwapEnabled) {
             let swapDummyViewController = UIViewController()
-            swapDummyViewController.tabBarItem = UITabBarController.Tabs.swap.tabBarItem
+            swapDummyViewController.tabBarItem = ActiveWalletViewModel.Tabs.swap.tabBarItem
             viewControllers.append(swapDummyViewController)
         }
 
@@ -425,7 +425,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         tabBarController.viewControllers = viewControllers
     }
 
-    func showTab(_ selectTab: UITabBarController.Tabs) {
+    func showTab(_ selectTab: ActiveWalletViewModel.Tabs) {
         guard let viewControllers = tabBarController.viewControllers else {
             return
         }
@@ -465,9 +465,9 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
             addCoordinator(coordinator)
         case (_, _):
             if let topVC = navigationController.presentedViewController {
-                topVC.displayError(error: InCoordinatorError.onlyWatchAccount)
+                topVC.displayError(error: ActiveWalletViewModel.Error.onlyWatchAccount)
             } else {
-                navigationController.displayError(error: InCoordinatorError.onlyWatchAccount)
+                navigationController.displayError(error: ActiveWalletViewModel.Error.onlyWatchAccount)
             }
         }
     }
