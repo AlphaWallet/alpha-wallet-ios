@@ -155,7 +155,9 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
 
         for each in servers {
             //NOTE: when we change servers it might happen the case when native
-            tokensDataStore.addEthToken(forServer: each)
+            queue.async {
+                self.tokensDataStore.addEthToken(forServer: each)
+            }
             getOrCreateBalanceFetcher(server: each)
         }
 

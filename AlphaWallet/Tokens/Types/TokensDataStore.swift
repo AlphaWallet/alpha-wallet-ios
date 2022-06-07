@@ -79,12 +79,13 @@ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
     init(store: RealmStore, servers: [RPCServer]) {
         self.store = store
         super.init()
-
-        for each in servers {
-            addEthToken(forServer: each)
+        //NOTE: async on queue to avoid `_dispatch_sema4_wait` that blocks mainthread on begin transaction
+        DispatchQueue.global().async {
+            for each in servers {
+                self.addEthToken(forServer: each)
+            }
+            MultipleChainsTokensDataStore.functional.recreateMissingInfoTokenObjects(for: store)
         }
-
-        MultipleChainsTokensDataStore.functional.recreateMissingInfoTokenObjects(for: store)
     }
 
     func enabledTokensChangeset(for servers: [RPCServer]) -> AnyPublisher<ChangeSet<[Token]>, Never> {
