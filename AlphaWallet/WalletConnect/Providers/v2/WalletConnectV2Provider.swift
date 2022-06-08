@@ -21,6 +21,7 @@ class WalletConnectV2Provider: WalletConnectServer {
     //`SessionProposal` we are not able to manage connection timeout. As well as we are not able to mach topics of urls. connection timeout isn't supported for now for v2.
     private var sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>
     private var cancelable = Set<AnyCancellable>()
+    private let queue: DispatchQueue = .main
 
     weak var delegate: WalletConnectServerDelegate?
     lazy var sessions: AnyPublisher<[AlphaWallet.WalletConnect.Session], Never> = {
@@ -28,11 +29,14 @@ class WalletConnectV2Provider: WalletConnectServer {
             .map { $0.map { AlphaWallet.WalletConnect.Session(multiServerSession: $0) } }
             .eraseToAnyPublisher()
     }()
+    private lazy var client: Sign = {
+        Sign.configure(Sign.Config(metadata: metadata, projectId: Constants.Credentials.walletConnectProjectId))
+        return .instance
+    }()
 
     //NOTE: we support only single account session as WalletConnects request doesn't provide a wallets address to sign transaction or some other method, so we cant figure out wallet address to sign, so for now we use only active wallet session address
     init(sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>) {
         self.sessionsSubject = sessionsSubject
-        Sign.configure(Sign.Config(metadata: metadata, projectId: Constants.Credentials.walletConnectProjectId))
 
         //NOTE: skip empty sessions event
         sessionsSubject.filter { !$0.isEmpty }
@@ -40,27 +44,32 @@ class WalletConnectV2Provider: WalletConnectServer {
                 self?.reloadSessions(sessions: sessions)
             }.store(in: &cancelable)
 
-        Sign.instance.sessionProposalPublisher
+        client.sessionProposalPublisher
+            .receive(on: queue)
             .sink { proposal in
                 self.didReceive(proposal: proposal)
             }.store(in: &cancelable)
 
-        Sign.instance.sessionRequestPublisher
+        client.sessionRequestPublisher
+            .receive(on: queue)
             .sink { request in
                 self.didReceive(request: request)
             }.store(in: &cancelable)
 
-        Sign.instance.sessionDeletePublisher
+        client.sessionDeletePublisher
+            .receive(on: queue)
             .sink { request in
                 self.didDelete(topic: request.0, reason: request.1)
             }.store(in: &cancelable)
 
-        Sign.instance.sessionSettlePublisher
+        client.sessionSettlePublisher
+            .receive(on: queue)
             .sink { session in
                 self.didSettle(session: session)
             }.store(in: &cancelable)
 
-        Sign.instance.sessionUpdatePublisher
+        client.sessionUpdatePublisher
+            .receive(on: queue)
             .sink { data in
                 self.didUpgrade(topic: data.sessionTopic, namespaces: data.namespaces)
             }.store(in: &cancelable)
@@ -71,20 +80,20 @@ class WalletConnectV2Provider: WalletConnectServer {
             let accounts = Set(sessions.values.map { $0.capi10Account })
             guard let session = try? storage.update(each.topicOrUrl, accounts: accounts) else { continue }
 
-            Task { try await Sign.instance.update(topic: each.topicOrUrl.description, namespaces: session.namespaces) }
+            Task { try await client.update(topic: each.topicOrUrl.description, namespaces: session.namespaces) }
         }
     }
 
     func connect(url: AlphaWallet.WalletConnect.ConnectionUrl) throws {
         guard case .v2(let uri) = url else { return }
         debugLog("[RESPONDER] Pairing to: \(uri.absoluteString)")
-        Task { try await Sign.instance.pair(uri: uri.absoluteString) }
+        Task { try await client.pair(uri: uri.absoluteString) }
     }
 
     func update(_ topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl, servers: [RPCServer]) throws {
         guard let session = try? storage.update(topicOrUrl, servers: servers) else { return }
 
-        Task { try await Sign.instance.update(topic: topicOrUrl.description, namespaces: session.namespaces) }
+        Task { try await client.update(topic: topicOrUrl.description, namespaces: session.namespaces) }
     }
 
     func reconnect(_ topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl) throws {
@@ -105,12 +114,12 @@ class WalletConnectV2Provider: WalletConnectServer {
             if Set(each.session.servers) == Set(each.serversToDisconnect) {
                 storage.remove(for: topicOrUrl)
 
-                Task { try await Sign.instance.disconnect(topic: topicOrUrl.description, reason: .init(code: 0, message: "disconnect")) }
+                Task { try await client.disconnect(topic: topicOrUrl.description, reason: .init(code: 0, message: "disconnect")) }
             } else {
                 let leftServers = each.session.servers.filter { !each.serversToDisconnect.contains($0) }
                 let session = try storage.update(topicOrUrl, servers: leftServers)
 
-                Task { try await Sign.instance.update(topic: topicOrUrl.description, namespaces: session.namespaces) }
+                Task { try await client.update(topic: topicOrUrl.description, namespaces: session.namespaces) }
             }
         }
     }
@@ -118,10 +127,8 @@ class WalletConnectV2Provider: WalletConnectServer {
     func disconnect(_ topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl) throws {
         guard storage.contains(topicOrUrl) else { return }
 
-        Task {
-            try await Sign.instance.disconnect(topic: topicOrUrl.description, reason: .init(code: 0, message: "disconnect"))
-            storage.remove(for: topicOrUrl)
-        }
+        storage.remove(for: topicOrUrl)
+        Task { try await client.disconnect(topic: topicOrUrl.description, reason: .init(code: 0, message: "disconnect")) }
     }
 
     func isConnected(_ topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl) -> Bool {
@@ -134,16 +141,14 @@ class WalletConnectV2Provider: WalletConnectServer {
         case .value(let value):
             let payload = JSONRPCResponse<AnyCodable>(id: request.id, result: .init(value?.hexEncoded))
 
-            Sign.instance.respond(topic: request.topic, response: .response(payload))
+            client.respond(topic: request.topic, response: .response(payload))
         case .error(let code, let message):
             let response = JSONRPCErrorResponse(id: request.id, error: .init(code: code, message: message))
 
-            Sign.instance.respond(topic: request.topic, response: .error(response))
+            client.respond(topic: request.topic, response: .error(response))
         }
     }
-}
 
-extension WalletConnectV2Provider {
     private func didReceive(proposal: WalletConnectSign.Session.Proposal) {
         guard currentProposal == nil else {
             return pendingProposals.append(proposal)
@@ -159,7 +164,7 @@ extension WalletConnectV2Provider {
         debugLog("[RESPONDER] WC: Did reject session proposal: \(request) with error: \(error.message)")
 
         let response = JSONRPCErrorResponse(id: request.id, error: .init(code: error.code, message: error.message))
-        Sign.instance.respond(topic: request.topic, response: .error(response))
+        client.respond(topic: request.topic, response: .error(response))
     }
 
     private func didReceive(request: WalletConnectSign.Request) {
@@ -204,8 +209,9 @@ extension WalletConnectV2Provider {
     }
 
     private func didSettle(session: WalletConnectSign.Session) {
+
         debugLog("[RESPONDER] WC: Did settle session")
-        for each in Sign.instance.getSessions() {
+        for each in client.getSessions() {
             storage.addOrUpdate(session: each)
         }
     }
@@ -215,7 +221,7 @@ extension WalletConnectV2Provider {
 
         func reject(proposal: WalletConnectSign.Session.Proposal) {
             debugLog("[RESPONDER] WC: Did reject session proposal: \(proposal)")
-            Sign.instance.reject(proposal: proposal, reason: .disapprovedChains)
+            client.reject(proposal: proposal, reason: .disapprovedChains)
             completion()
         }
 
@@ -240,7 +246,7 @@ extension WalletConnectV2Provider {
 
                         let sessionNamespaces = try strongSelf.validateProposalForSupportingBlockchains(proposal)
 
-                        try Sign.instance.approve(proposalId: proposal.id, namespaces: sessionNamespaces)
+                        try strongSelf.client.approve(proposalId: proposal.id, namespaces: sessionNamespaces)
                         strongSelf.currentProposal = .none
 
                         completion()
