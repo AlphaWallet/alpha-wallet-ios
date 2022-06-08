@@ -39,6 +39,7 @@
 		025F5D1F2760C76A00B2A3BC /* ExportJsonKeystoreFileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025F5D1D2760C76A00B2A3BC /* ExportJsonKeystoreFileView.swift */; };
 		025F5D202760C76A00B2A3BC /* ExportJsonKeystorePasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025F5D1E2760C76A00B2A3BC /* ExportJsonKeystorePasswordView.swift */; };
 		025F5D2F2760CDE600B2A3BC /* StringValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025F5D2E2760CDE600B2A3BC /* StringValidator.swift */; };
+		026340912850C7D50033E51B /* Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 026340902850C7D50033E51B /* Configuration.swift */; };
 		02645122277206C0009260DC /* TableViewSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02645121277206C0009260DC /* TableViewSection.swift */; };
 		02645124277217D9009260DC /* CustomRpcTableViewSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02645123277217D9009260DC /* CustomRpcTableViewSection.swift */; };
 		0277D92B282A494600510ECE /* InitialNetworkSelectionCollectionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0277D92A282A494600510ECE /* InitialNetworkSelectionCollectionModel.swift */; };
@@ -1300,6 +1301,7 @@
 		025F5D1D2760C76A00B2A3BC /* ExportJsonKeystoreFileView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExportJsonKeystoreFileView.swift; sourceTree = "<group>"; };
 		025F5D1E2760C76A00B2A3BC /* ExportJsonKeystorePasswordView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExportJsonKeystorePasswordView.swift; sourceTree = "<group>"; };
 		025F5D2E2760CDE600B2A3BC /* StringValidator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringValidator.swift; sourceTree = "<group>"; };
+		026340902850C7D50033E51B /* Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Configuration.swift; sourceTree = "<group>"; };
 		02645121277206C0009260DC /* TableViewSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewSection.swift; sourceTree = "<group>"; };
 		02645123277217D9009260DC /* CustomRpcTableViewSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomRpcTableViewSection.swift; sourceTree = "<group>"; };
 		0277D92A282A494600510ECE /* InitialNetworkSelectionCollectionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialNetworkSelectionCollectionModel.swift; sourceTree = "<group>"; };
@@ -2756,6 +2758,7 @@
 				5E7C76487E444E00B78BAA14 /* BlockscanChat */,
 				5E7C72AB43EC4939E6C7D46B /* Lists */,
 				5E7C72F803CD9A3A6A8D0839 /* Swaps */,
+				026340902850C7D50033E51B /* Configuration.swift */,
 			);
 			path = AlphaWallet;
 			sourceTree = "<group>";
@@ -7422,6 +7425,7 @@
 				5E7C70DDE7C3BD32FA525753 /* PromptBackupWalletAfterIntervalViewViewModel.swift in Sources */,
 				5E7C76A585ED45EDAD8825CF /* BackupState.swift in Sources */,
 				87BBF98B2563DD7600FF4846 /* WalletConnectServer.swift in Sources */,
+				026340912850C7D50033E51B /* Configuration.swift in Sources */,
 				87C10A6525ED1105008E9B1B /* SignatureConfirmationDetailsViewController.swift in Sources */,
 				5E7C76738DDAAD623C6FB4DC /* PromptBackupWalletAfterExceedingThresholdViewViewModel.swift in Sources */,
 				87A3022724C02212000DF32E /* TransactionConfirmationViewController.swift in Sources */,

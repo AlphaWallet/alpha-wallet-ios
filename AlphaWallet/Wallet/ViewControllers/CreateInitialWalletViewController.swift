@@ -73,8 +73,11 @@ class CreateInitialWalletViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func loadView() {
+        self.view = UIKitFactory.defaultView(autoResizingMarkIntoConstraints: true)
+    }
+
     func configure() {
-        view.backgroundColor = Colors.appBackground
         imageView.image = viewModel.imageViewImage
         titleLabel.attributedText = viewModel.titleAttributedString
 

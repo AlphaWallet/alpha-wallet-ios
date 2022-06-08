@@ -35,4 +35,13 @@ extension UIColor {
             blue: CGFloat(b) / 0xff, alpha: 1
         )
     }
+
+    var lightMode: UIColor {
+        return resolvedColor(with: UITraitCollection(userInterfaceStyle: .light))
+    }
+
+    var darkMode: UIColor {
+        return resolvedColor(with: UITraitCollection(userInterfaceStyle: .dark))
+    }
+
 }
