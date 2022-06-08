@@ -119,24 +119,23 @@ private class PrivateXMLHandler {
     private let baseTokenType: TokenType?
     lazy private var contractNamesAndAddresses: [String: [(AlphaWallet.Address, RPCServer)]] = extractContractNamesAndAddresses()
 
-    private var tokenElement: XMLElement? {
+    private lazy var tokenElement: XMLElement? = {
         return XMLHandler.getTokenElement(fromRoot: xml, xmlContext: xmlContext)
-    }
+    }()
 
-    private var holdingContractElement: XMLElement? {
+    private lazy var holdingContractElement: XMLElement? = {
         return XMLHandler.getHoldingContractElement(fromRoot: xml, xmlContext: xmlContext)
-    }
+    }()
 
-    fileprivate var tokenType: TokenInterfaceType? {
-        holdingContractElement?["interface"]
-                .flatMap { TokenInterfaceType(rawValue: $0) }
-    }
+    fileprivate lazy var tokenType: TokenInterfaceType? = {
+        holdingContractElement?["interface"].flatMap { TokenInterfaceType(rawValue: $0) }
+    }()
 
     var hasValidTokenScriptFile: Bool
     let tokenScriptStatus: Promise<TokenLevelTokenScriptDisplayStatus>
     lazy var fields: [AttributeId: AssetAttribute] = extractFieldsForToken()
 
-    var introductionHtmlString: String {
+    lazy var introductionHtmlString: String = {
         //TODO fallback to first if not found
         if let introductionElement = XMLHandler.getTbmlIntroductionElement(fromRoot: xml, xmlContext: xmlContext) {
             let html = introductionElement.innerHTML ?? ""
@@ -144,27 +143,27 @@ private class PrivateXMLHandler {
         } else {
             return ""
         }
-    }
+    }()
 
-    var tokenViewIconifiedHtml: (html: String, style: String) {
+    lazy var tokenViewIconifiedHtml: (html: String, style: String) = {
         guard hasValidTokenScriptFile else { return (html: "", style: "") }
         if let element = XMLHandler.getTokenScriptTokenItemViewHtmlElement(fromRoot: xml, xmlContext: xmlContext) {
             return extractHtml(fromViewElement: element)
         } else {
             return (html: "", style: "")
         }
-    }
+    }()
 
-    var tokenViewHtml: (html: String, style: String) {
+    lazy var tokenViewHtml: (html: String, style: String) = {
         guard hasValidTokenScriptFile else { return (html: "", style: "") }
         if let element = XMLHandler.getTokenScriptTokenViewHtmlElement(fromRoot: xml, xmlContext: xmlContext) {
             return extractHtml(fromViewElement: element)
         } else {
             return (html: "", style: "")
         }
-    }
+    }()
 
-    var actions: [TokenInstanceAction] {
+    lazy var actions: [TokenInstanceAction] = {
         guard hasValidTokenScriptFile else { return [] }
         var results = [TokenInstanceAction]()
         let fromTokenAsTopLevel = Array(XMLHandler.getTokenScriptTokenInstanceActionCardElements(fromRoot: xml, xmlContext: xmlContext))
@@ -196,13 +195,13 @@ private class PrivateXMLHandler {
         }
 
         return results
-    }
+    }()
 
-    var attributesWithEventSource: [AssetAttribute] {
+    lazy var attributesWithEventSource: [AssetAttribute] = {
         fields.values.filter { $0.isEventOriginBased }
-    }
+    }()
 
-    var activityCards: [TokenScriptCard] {
+    lazy var activityCards: [TokenScriptCard] = {
         let cards = Array(XMLHandler.getTokenScriptTokenInstanceActivityCardElements(fromRoot: xml, xmlContext: xmlContext))
         let results: [TokenScriptCard] = cards.compactMap { eachCard in
             guard let name = eachCard["name"],
@@ -243,7 +242,7 @@ private class PrivateXMLHandler {
             }
         }
         return results
-    }
+    }()
 
     lazy var fieldIdsAndNames: [AttributeId: String] = {
         return Dictionary(uniqueKeysWithValues: fields.map { idAndAttribute in
@@ -251,7 +250,7 @@ private class PrivateXMLHandler {
         })
     }()
 
-    var labelInSingularForm: String? {
+    lazy var labelInSingularForm: String? = {
         if contractAddress.sameContract(as: Constants.katContractAddress) {
             return R.string.localizable.katTitlecase()
         }
@@ -261,9 +260,9 @@ private class PrivateXMLHandler {
         } else {
             return nil
         }
-    }
+    }()
 
-    var labelInPluralForm: String? {
+    lazy var labelInPluralForm: String? = {
         if contractAddress.sameContract(as: Constants.katContractAddress) {
             return R.string.localizable.katTitlecase()
         }
@@ -273,7 +272,7 @@ private class PrivateXMLHandler {
         } else {
             return labelInSingularForm
         }
-    }
+    }()
 
     static private var lang: String {
         let lang = Locale.preferredLanguages[0]
