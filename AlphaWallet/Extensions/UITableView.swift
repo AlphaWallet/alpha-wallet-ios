@@ -23,9 +23,6 @@ extension UITableViewCell: WithReusableIdentifier {
 extension UITableViewHeaderFooterView: WithReusableIdentifier {
 }
 
-extension UICollectionViewCell: WithReusableIdentifier {
-}
-
 extension UICollectionReusableView: WithReusableIdentifier {
 }
 
