@@ -4,10 +4,10 @@ import XCTest
 @testable import AlphaWallet
 import TrustKeystore
 
-class FakeUniversalLinkCoordinator: UniversalLinkCoordinatorType {
-    func handleUniversalLinkOpen(url: URL) -> Bool { return false }
-    func handlePendingUniversalLink(in coordinator: UrlSchemeResolver) {}
-    func handleUniversalLinkInPasteboard() {}
+class FakeUniversalLinkCoordinator: UniversalLinkService {
+    override func handleUniversalLink(url: URL) -> Bool { return false }
+    override func handlePendingUniversalLink(in coordinator: UrlSchemeResolver) {}
+    override func handleUniversalLinkInPasteboard() {}
 
     static func make() -> FakeUniversalLinkCoordinator {
         return .init()

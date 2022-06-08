@@ -21,8 +21,8 @@ class AppCoordinator: NSObject, Coordinator {
     var promptBackupCoordinator: PromptBackupCoordinator? {
         return coordinators.compactMap { $0 as? PromptBackupCoordinator }.first
     }
-    private lazy var universalLinkCoordinator: UniversalLinkCoordinatorType = {
-        let coordinator = UniversalLinkCoordinator()
+    private lazy var universalLinkService: UniversalLinkService = {
+        let coordinator = UniversalLinkService()
         coordinator.delegate = self
 
         return coordinator
@@ -101,7 +101,12 @@ class AppCoordinator: NSObject, Coordinator {
     }()
     lazy private var blockiesGenerator: BlockiesGenerator = BlockiesGenerator(openSea: openSea, storage: sharedEnsRecordsStorage)
     lazy private var domainResolutionService: DomainResolutionServiceType = DomainResolutionService(blockiesGenerator: blockiesGenerator, storage: sharedEnsRecordsStorage)
+    private lazy var walletApiService: WalletApiService = {
+        let service = WalletApiService(keystore: keystore, navigationController: navigationController, analyticsCoordinator: analyticsService, sessionsSubject: sessionsSubject)
+        service.delegate = self
 
+        return service
+    }()
     private lazy var notificationService: NotificationService = {
         return NotificationService(sources: [], walletBalanceService: walletBalanceService)
     }()
@@ -195,7 +200,7 @@ class AppCoordinator: NSObject, Coordinator {
                 analyticsCoordinator: analyticsService,
                 openSea: openSea,
                 restartQueue: restartQueue,
-                universalLinkCoordinator: universalLinkCoordinator,
+                universalLinkCoordinator: universalLinkService,
                 accountsCoordinator: accountsCoordinator,
                 walletBalanceService: walletBalanceService,
                 coinTickersFetcher: coinTickersFetcher,
@@ -274,11 +279,11 @@ class AppCoordinator: NSObject, Coordinator {
         createInitialWalletIfMissing()
         showActiveWalletIfNeeded()
 
-        return universalLinkCoordinator.handleUniversalLinkOpen(url: url)
+        return universalLinkService.handleUniversalLink(url: url)
     }
 
     func handleUniversalLinkInPasteboard() {
-        universalLinkCoordinator.handleUniversalLinkInPasteboard()
+        universalLinkService.handleUniversalLinkInPasteboard()
     }
 
     func launchUniversalScanner() {
@@ -434,7 +439,7 @@ extension AppCoordinator: AssetDefinitionStoreDelegate {
     }
 }
 
-extension AppCoordinator: UniversalLinkCoordinatorDelegate {
+extension AppCoordinator: UniversalLinkServiceDelegate {
 
     private var hasImportMagicLinkCoordinator: ImportMagicLinkCoordinator? {
         return coordinators.compactMap { $0 as? ImportMagicLinkCoordinator }.first
@@ -495,16 +500,34 @@ extension AppCoordinator: UniversalLinkCoordinatorDelegate {
                     addCoordinator(coordinator)
                 }
             } else {
-                let coordinator = ServerUnavailableCoordinator(navigationController: navigationController, servers: [server], coordinator: self)
-                coordinator.start().done { _ in
-                    //no-op
-                }.cauterize()
+                let coordinator = ServerUnavailableCoordinator(navigationController: navigationController, servers: [server])
+                coordinator.delegate = self
+                addCoordinator(coordinator)
+                coordinator.start() 
             }
+        case .walletApi(let action):
+            walletApiService.handle(action: action)
         }
     }
 
-    func resolve(for coordinator: UniversalLinkCoordinator) -> UrlSchemeResolver? {
+    func resolve(for coordinator: UniversalLinkService) -> UrlSchemeResolver? {
         return activeWalletCoordinator
+    }
+}
+
+extension AppCoordinator: ServerUnavailableCoordinatorDelegate {
+    func didDismiss(in coordinator: ServerUnavailableCoordinator) {
+        removeCoordinator(coordinator)
+    }
+}
+
+extension AppCoordinator: WalletApiServiceDelegate {
+    func didOpenUrl(in service: WalletApiService, redirectUrl: URL) {
+        if UIApplication.shared.canOpenURL(redirectUrl) {
+            UIApplication.shared.open(redirectUrl)
+        } else if let coordinator = activeWalletCoordinator {
+            coordinator.openURLInBrowser(url: redirectUrl)
+        }
     }
 }
 

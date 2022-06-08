@@ -26,6 +26,8 @@ extension web3swift.Web3Error: LocalizedError {
 extension Error {
     var prettyError: String {
         switch self {
+        case let error as WalletApiService.WalletApiServiceError:
+            return error.localizedDescription
         case let error as FunctionError:
             return error.localizedDescription
         case let error as TransactionConfiguratorError:

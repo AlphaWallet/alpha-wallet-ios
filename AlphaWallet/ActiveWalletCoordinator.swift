@@ -82,7 +82,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
     var keystore: Keystore
-    var universalLinkCoordinator: UniversalLinkCoordinatorType
+    var universalLinkService: UniversalLinkService
 
     weak var delegate: ActiveWalletCoordinatorDelegate?
 
@@ -166,7 +166,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
             analyticsCoordinator: AnalyticsCoordinator,
             openSea: OpenSea,
             restartQueue: RestartTaskQueue,
-            universalLinkCoordinator: UniversalLinkCoordinatorType,
+            universalLinkCoordinator: UniversalLinkService,
             accountsCoordinator: AccountsCoordinator,
             walletBalanceService: WalletBalanceService,
             coinTickersFetcher: CoinTickersFetcherType,
@@ -192,7 +192,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         self.openSea = openSea
         self.restartQueue = restartQueue
         self.assetDefinitionStore = assetDefinitionStore
-        self.universalLinkCoordinator = universalLinkCoordinator
+        self.universalLinkService = universalLinkCoordinator
         self.accountsCoordinator = accountsCoordinator
         self.walletBalanceService = walletBalanceService
         self.coinTickersFetcher = coinTickersFetcher
@@ -315,7 +315,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         logDynamicTypeSetting()
         promptBackupCoordinator.start()
 
-        universalLinkCoordinator.handlePendingUniversalLink(in: self)
+        universalLinkService.handlePendingUniversalLink(in: self)
     }
 
     private func createTokensCoordinator(promptBackupCoordinator: PromptBackupCoordinator, activitiesService: ActivitiesServiceType) -> TokensCoordinator {

@@ -13,7 +13,7 @@ import Result
 enum TransactionConfirmationConfiguration {
     case tokenScriptTransaction(confirmType: ConfirmType, contract: AlphaWallet.Address, keystore: Keystore, functionCallMetaData: DecodedFunctionCall)
     case dappTransaction(confirmType: ConfirmType, keystore: Keystore)
-    case walletConnect(confirmType: ConfirmType, keystore: Keystore, dappRequesterViewModel: WalletConnectDappRequesterViewModel)
+    case walletConnect(confirmType: ConfirmType, keystore: Keystore, requester: RequesterViewModel)
     case sendFungiblesTransaction(confirmType: ConfirmType, keystore: Keystore, assetDefinitionStore: AssetDefinitionStore, amount: FungiblesTransactionAmount)
     case sendNftTransaction(confirmType: ConfirmType, keystore: Keystore, tokenInstanceNames: [TokenId: String])
     case claimPaidErc875MagicLink(confirmType: ConfirmType, keystore: Keystore, price: BigUInt, numberOfTokens: UInt)

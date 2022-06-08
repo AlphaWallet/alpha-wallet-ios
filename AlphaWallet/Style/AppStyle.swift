@@ -104,6 +104,7 @@ struct Colors {
     static let darkGray = UIColor(hex: "2f2f2f")
     static let black = UIColor(hex: "313849")
     static let lightBlack = UIColor(hex: "313849")
+    static let clear = UIColor.clear
     static let appBackground = UIColor.white
     static let appTint = R.color.azure()!
     static let navigationTitleColor = UIColor.black

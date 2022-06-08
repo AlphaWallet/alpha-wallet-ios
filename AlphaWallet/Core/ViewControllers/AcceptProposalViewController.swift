@@ -1,5 +1,5 @@
 //
-//  WalletConnectToSessionViewController.swift
+//  AcceptProposalViewController.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 17.02.2021.
@@ -8,17 +8,17 @@
 import UIKit
 import Combine
 
-protocol WalletConnectToSessionViewControllerDelegate: AnyObject {
-    func controller(_ controller: WalletConnectToSessionViewController, continueButtonTapped sender: UIButton)
-    func changeConnectionServerSelected(in controller: WalletConnectToSessionViewController)
-    func didInvalidateLayout(in controller: WalletConnectToSessionViewController)
-    func didClose(in controller: WalletConnectToSessionViewController)
+protocol AcceptProposalViewControllerDelegate: AnyObject {
+    func controller(_ controller: AcceptProposalViewController, continueButtonTapped sender: UIButton)
+    func changeConnectionServerSelected(in controller: AcceptProposalViewController)
+    func didInvalidateLayout(in controller: AcceptProposalViewController)
+    func didClose(in controller: AcceptProposalViewController)
 }
 
-class WalletConnectToSessionViewController: UIViewController {
+class AcceptProposalViewController: UIViewController {
     private lazy var headerView = ConfirmationHeaderView(viewModel: .init(title: viewModel.navigationTitle))
-    private let buttonsBar = HorizontalButtonsBar(configuration: .custom(types: []))
-    private var viewModel: WalletConnectToSessionViewModel
+    private let buttonsBar = HorizontalButtonsBar(configuration: .empty)
+    private (set) var viewModel: AcceptProposalViewModel
 
     private let separatorLine: UIView = {
         let view = UIView()
@@ -42,9 +42,9 @@ class WalletConnectToSessionViewController: UIViewController {
     }()
     private var cancelable = Set<AnyCancellable>()
 
-    weak var delegate: WalletConnectToSessionViewControllerDelegate?
+    weak var delegate: AcceptProposalViewControllerDelegate?
 
-    init(viewModel: WalletConnectToSessionViewModel) {
+    init(viewModel: AcceptProposalViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
@@ -100,7 +100,6 @@ class WalletConnectToSessionViewController: UIViewController {
                 } else {
                     strongSelf.heightConstraint.constant = newHeight
                 }
-
             }.store(in: &cancelable)
 
         generateSubviews()
@@ -112,33 +111,30 @@ class WalletConnectToSessionViewController: UIViewController {
         configure(for: viewModel)
     }
 
-    @objc private func closeButtonSelected() {
-        delegate?.didClose(in: self)
-    }
-
     func reloadView() {
         generateSubviews()
     }
 
-    func configure(for viewModel: WalletConnectToSessionViewModel) {
-        self.viewModel = viewModel
-
+    private func configure(for viewModel: AcceptProposalViewModel) {
         containerView.scrollView.backgroundColor = viewModel.backgroundColor
         view.backgroundColor = viewModel.backgroundColor
-        navigationItem.title = viewModel.title
 
-        buttonsBar.configure(.custom(types: [.secondary, .primary]))
+        buttonsBar.configure(.custom(types: [.primary, .secondary]))
         headerView.iconImageView.setImage(url: viewModel.connectionIconUrl, placeholder: R.image.walletConnectIcon())
 
-        let button1 = buttonsBar.buttons[1]
+        let button1 = buttonsBar.buttons[0]
         button1.shrinkBorderColor = Colors.loadingIndicatorBorder
-        button1.setTitle(viewModel.connectionButtonTitle, for: .normal)
+        button1.setTitle(viewModel.connectButtonTitle, for: .normal)
         button1.addTarget(self, action: #selector(confirmButtonTapped), for: .touchUpInside)
 
-        let button2 = buttonsBar.buttons[0]
+        let button2 = buttonsBar.buttons[1]
         button2.shrinkBorderColor = Colors.loadingIndicatorBorder
-        button2.setTitle(viewModel.rejectionButtonTitle, for: .normal)
+        button2.setTitle(viewModel.rejectButtonTitle, for: .normal)
         button2.addTarget(self, action: #selector(closeButtonSelected), for: .touchUpInside)
+    }
+
+    @objc private func closeButtonSelected() {
+        delegate?.didClose(in: self)
     }
 
     @objc private func confirmButtonTapped(_ sender: UIButton) {
@@ -151,47 +147,42 @@ class WalletConnectToSessionViewController: UIViewController {
 
     private func generateSubviews() {
         containerView.stackView.removeAllArrangedSubviews()
-
         var views: [UIView] = []
-        for (sectionIndex, section) in viewModel.sections.enumerated() {
-            let header = TransactionConfirmationHeaderView(viewModel: viewModel.headerViewModel(section: sectionIndex))
-            header.delegate = self
-            var children: [UIView] = []
 
-            switch section {
-            case .networks:
-                if viewModel.editButtonEnabled {
+        var currentHeader: TransactionConfirmationHeaderView?
+
+        for each in viewModel.viewModels {
+            switch each {
+            case .header(let viewModel, let editButtonEnabled):
+                let header = TransactionConfirmationHeaderView(viewModel: viewModel)
+                if editButtonEnabled {
                     header.enableTapAction(title: R.string.localizable.editButtonTitle())
                 }
 
-                for (rowIndex, server) in viewModel.serversToConnect.enumerated() {
-                    let view = TransactionConfirmationRPCServerInfoView(viewModel: .init(server: server))
-                    view.isHidden = !viewModel.isSubviewsHidden(section: sectionIndex, row: rowIndex)
+                header.delegate = self
+                currentHeader = header
 
-                    children.append(view)
-                }
-            case .name, .url:
-                break
-            case .methods:
-                for (rowIndex, method) in viewModel.methods.enumerated() {
-                    let view = TransactionConfirmationRowInfoView(viewModel: .init(title: method, subtitle: nil))
-                    view.isHidden = !viewModel.isSubviewsHidden(section: sectionIndex, row: rowIndex)
+                views.append(header)
+            case .serverField(let viewModel, let isHidden):
+                let view = TransactionConfirmationRPCServerInfoView(viewModel: viewModel)
+                view.isHidden = isHidden
 
-                    children.append(view)
-                }
+                currentHeader?.childrenStackView.addArrangedSubview(view)
+                currentHeader?.childrenStackView.isHidden = currentHeader?.childrenStackView.arrangedSubviews.isEmpty ?? true
+            case .anyField(let viewModel, let isHidden):
+                let view = TransactionConfirmationRowInfoView(viewModel: viewModel)
+                view.isHidden = isHidden
+
+                currentHeader?.childrenStackView.addArrangedSubview(view)
+                currentHeader?.childrenStackView.isHidden = currentHeader?.childrenStackView.arrangedSubviews.isEmpty ?? true
             }
-
-            header.childrenStackView.addArrangedSubviews(children)
-            header.childrenStackView.isHidden = children.isEmpty
-
-            views.append(header)
         }
 
         containerView.stackView.addArrangedSubviews(views)
     }
 }
 
-extension WalletConnectToSessionViewController: TransactionConfirmationHeaderViewDelegate {
+extension AcceptProposalViewController: TransactionConfirmationHeaderViewDelegate {
 
     func headerView(_ header: TransactionConfirmationHeaderView, shouldHideChildren section: Int, index: Int) -> Bool {
         return true

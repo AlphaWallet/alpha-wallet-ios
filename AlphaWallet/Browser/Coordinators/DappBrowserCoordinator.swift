@@ -214,7 +214,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
 
     private func signMessage(with type: SignMessageType, account: AlphaWallet.Address, callbackID: Int) {
         firstly {
-            SignMessageCoordinator.promise(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, keystore: keystore, coordinator: self, signType: type, account: account, source: .dappBrowser, walletConnectDappRequesterViewModel: nil)
+            SignMessageCoordinator.promise(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, keystore: keystore, coordinator: self, signType: type, account: account, source: .dappBrowser, requester: nil)
         }.done { data in
             let callback: DappCallback
             switch type {
