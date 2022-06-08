@@ -32,7 +32,7 @@ target 'AlphaWallet' do
   pod 'EthereumABI', :git => 'https://github.com/AlphaWallet/EthereumABI.git', :commit => '877b77e8e7cbc54ab0712d509b74fec21b79d1bb'
   pod 'BlockiesSwift'
   pod 'PaperTrailLumberjack/Swift'
-  pod 'WalletConnectSwift', :git => 'https://github.com/WalletConnect/WalletConnectSwift.git'
+  pod 'WalletConnectSwift', :git => 'https://github.com/AlphaWallet/WalletConnectSwift.git', :commit => 'b6556058331f619e15482b82d7c6ab57d9711399'
   pod 'Charts'
   pod 'CocoaLumberjack', '3.7.0'
   pod 'AlphaWalletAddress', :path => 'modules/AlphaWalletAddress'
