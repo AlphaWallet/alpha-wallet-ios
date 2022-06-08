@@ -168,7 +168,7 @@ DEPENDENCIES:
   - TrezorCrypto (from `https://github.com/AlphaWallet/trezor-crypto-ios.git`, commit `50c16ba5527e269bbc838e80aee5bac0fe304cc7`)
   - TrustKeystore (from `https://github.com/AlphaWallet/latest-keystore-snapshot`, commit `c0bdc4f6ffc117b103e19d17b83109d4f5a0e764`)
   - TrustWalletCore (= 2.6.34)
-  - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift.git`)
+  - WalletConnectSwift (from `https://github.com/AlphaWallet/WalletConnectSwift.git`, commit `b6556058331f619e15482b82d7c6ab57d9711399`)
   - web3swift (from `https://github.com/AlphaWallet/web3swift.git`, commit `183b97078b9f98dbc7e6029db08c0cd1247829fc`)
   - xcbeautify
 
@@ -245,7 +245,8 @@ EXTERNAL SOURCES:
     :commit: c0bdc4f6ffc117b103e19d17b83109d4f5a0e764
     :git: https://github.com/AlphaWallet/latest-keystore-snapshot
   WalletConnectSwift:
-    :git: https://github.com/WalletConnect/WalletConnectSwift.git
+    :commit: b6556058331f619e15482b82d7c6ab57d9711399
+    :git: https://github.com/AlphaWallet/WalletConnectSwift.git
   web3swift:
     :commit: 183b97078b9f98dbc7e6029db08c0cd1247829fc
     :git: https://github.com/AlphaWallet/web3swift.git
@@ -273,8 +274,8 @@ CHECKOUT OPTIONS:
     :commit: c0bdc4f6ffc117b103e19d17b83109d4f5a0e764
     :git: https://github.com/AlphaWallet/latest-keystore-snapshot
   WalletConnectSwift:
-    :commit: f316e6dd91639d6e3e5a4c8860d823c08cc71bc3
-    :git: https://github.com/WalletConnect/WalletConnectSwift.git
+    :commit: b6556058331f619e15482b82d7c6ab57d9711399
+    :git: https://github.com/AlphaWallet/WalletConnectSwift.git
   web3swift:
     :commit: 183b97078b9f98dbc7e6029db08c0cd1247829fc
     :git: https://github.com/AlphaWallet/web3swift.git
@@ -333,6 +334,6 @@ SPEC CHECKSUMS:
   web3swift: 06118d4c4edc801444aaa995bbbddeda176b97ef
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: 7a71a86b28a4cf72f5db9ddc02904bcf64922c88
+PODFILE CHECKSUM: 52143efc7e4f68ff8804abb0cfe61dc1ed0d24b7
 
 COCOAPODS: 1.11.2
