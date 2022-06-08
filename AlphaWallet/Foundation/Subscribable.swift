@@ -2,6 +2,7 @@
 
 import Foundation
 
+fileprivate let threadSafeForSubscribable = ThreadSafe(label: "org.alphawallet.swift.subscribable")
 //TODO probably should have an ID which is really good for debugging
 open class Subscribable<T>: Hashable {
     public static func == (lhs: Subscribable<T>, rhs: Subscribable<T>) -> Bool {
@@ -29,15 +30,17 @@ open class Subscribable<T>: Hashable {
         }
         set {
             _value = newValue
-            for (_, f) in _subscribers {
-                f.callback(newValue)
-            }
-
-            if let value = value {
-                for f in _oneTimeSubscribers {
-                    f(value)
+            threadSafeForSubscribable.performSync {
+                for (_, f) in _subscribers {
+                    f.callback(newValue)
                 }
-                _oneTimeSubscribers = []
+
+                if let value = value {
+                    for f in _oneTimeSubscribers {
+                        f(value)
+                    }
+                    _oneTimeSubscribers = []
+                }
             }
         }
     }
@@ -57,7 +60,10 @@ open class Subscribable<T>: Hashable {
             subscribe(value)
         }
         let key = SubscribableKey()
-        _subscribers[key] = Subscription(callback: subscribe)
+        threadSafeForSubscribable.performSync {
+            _subscribers[key] = Subscription(callback: subscribe)
+        }
+
         return key
     }
 
@@ -65,16 +71,22 @@ open class Subscribable<T>: Hashable {
         if let value = _value {
             subscribe(value)
         } else {
-            _oneTimeSubscribers.append(subscribe)
+            threadSafeForSubscribable.performSync {
+                _oneTimeSubscribers.append(subscribe)
+            }
         }
     }
 
     func unsubscribe(_ key: SubscribableKey) {
-        _subscribers.removeValue(forKey: key)
+        threadSafeForSubscribable.performSync {
+            _subscribers.removeValue(forKey: key)
+        }
     }
 
     func unsubscribeAll() {
-        _subscribers.removeAll()
+        threadSafeForSubscribable.performSync {
+            _subscribers.removeAll()
+        }
     }
 
     public func hash(into hasher: inout Hasher) {

@@ -49,6 +49,10 @@ public class AtomicDictionary<Key: Hashable, Value> {
         return element
     }
 
+    public var count: Int {
+        return values.count
+    }
+
     public var values: [Key: Value] {
         var elements: [Key: Value] = [:]
         dispatchPrecondition(condition: .notOnQueue(queue))
@@ -58,4 +62,4 @@ public class AtomicDictionary<Key: Hashable, Value> {
 
         return elements
     }
-}
+} 
