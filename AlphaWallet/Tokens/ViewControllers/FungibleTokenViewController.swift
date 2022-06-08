@@ -126,10 +126,10 @@ class FungibleTokenViewController: UIViewController {
     }
 
     private func subscribeForActivities() {
-        activitiesService.viewModelPublisher
+        activitiesService.activitiesPublisher
             .receive(on: RunLoop.main)
-            .sink { [weak activitiesPageView] viewModel in
-                activitiesPageView?.configure(viewModel: .init(activitiesViewModel: viewModel))
+            .sink { [weak activitiesPageView] activities in
+                activitiesPageView?.configure(viewModel: .init(activitiesViewModel: .init(activities: activities)))
             }.store(in: &cancelable)
     }
 
