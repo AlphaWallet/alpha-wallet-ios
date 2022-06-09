@@ -6,7 +6,7 @@ import Combine
 
 protocol NonActivityEventsDataStore {
     func getLastMatchingEventSortedByBlockNumber(for contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> EventInstanceValue?
-    func add(events: [EventInstanceValue])
+    func addOrUpdate(events: [EventInstanceValue])
     func deleteEvents(for contract: AlphaWallet.Address)
     func getMatchingEvent(for contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String, filterName: String, filterValue: String) -> EventInstanceValue?
     func recentEventsChangeset(for contract: AlphaWallet.Address) -> AnyPublisher<ChangeSet<[EventInstanceValue]>, Never>
@@ -85,7 +85,7 @@ class NonActivityMultiChainEventsDataStore: NonActivityEventsDataStore {
         return event
     }
 
-    func add(events: [EventInstanceValue]) {
+    func addOrUpdate(events: [EventInstanceValue]) {
         guard !events.isEmpty else { return }
         let eventsToSave = events.map { EventInstance(event: $0) }
 
