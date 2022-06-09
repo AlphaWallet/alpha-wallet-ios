@@ -65,10 +65,10 @@ class ActivitiesCoordinator: NSObject, Coordinator {
 extension ActivitiesCoordinator: ActivitiesViewControllerDelegate {
 
     func subscribeForActivitiesUpdates() {
-        activitiesService.viewModelPublisher
+        activitiesService.activitiesPublisher
             .receive(on: RunLoop.main)
-            .sink { [weak rootViewController] viewModel in
-                rootViewController?.configure(viewModel: viewModel)
+            .sink { [weak rootViewController] activities in
+                rootViewController?.configure(viewModel: .init(activities: activities))
             }.store(in: &cancelable)
     }
 

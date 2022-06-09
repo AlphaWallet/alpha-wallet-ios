@@ -12,7 +12,7 @@ import Combine
 
 protocol ActivitiesServiceType: class {
     var sessions: ServerDictionary<WalletSession> { get }
-    var viewModelPublisher: AnyPublisher<ActivitiesViewModel, Never> { get }
+    var activitiesPublisher: AnyPublisher<[ActivitiesViewModel.MappedToDateActivityOrTransaction], Never> { get }
     var didUpdateActivityPublisher: AnyPublisher<Activity, Never> { get }
 
     func start()
@@ -41,7 +41,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
     private var hasLoadedActivitiesTheFirstTime = false
 
     private let didUpdateActivitySubject: PassthroughSubject<Activity, Never> = .init()
-    private let viewModelSubject: CurrentValueSubject<ActivitiesViewModel, Never> = .init(.init(activities: []))
+    private let activitiesSubject: CurrentValueSubject<[ActivitiesViewModel.MappedToDateActivityOrTransaction], Never> = .init([])
 
     private var wallet: Wallet {
         sessions.anyValue.account
@@ -53,8 +53,8 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
     private var cancelable = Set<AnyCancellable>()
     private let threadSafe = ThreadSafe(label: "org.alphawallet.swift.activities")
 
-    var viewModelPublisher: AnyPublisher<ActivitiesViewModel, Never> {
-        viewModelSubject.eraseToAnyPublisher()
+    var activitiesPublisher: AnyPublisher<[ActivitiesViewModel.MappedToDateActivityOrTransaction], Never> {
+        activitiesSubject.eraseToAnyPublisher()
     }
 
     var didUpdateActivityPublisher: AnyPublisher<Activity, Never> {
@@ -297,7 +297,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         let items = combine(activities: activities, withTransactions: transactions)
         let activities = ActivitiesViewModel.sorted(activities: items)
 
-        viewModelSubject.send(.init(activities: activities))
+        activitiesSubject.send(activities)
     }
 
     //Combining includes filtering around activities (from events) for ERC20 send/receive transactions which are already covered by transactions

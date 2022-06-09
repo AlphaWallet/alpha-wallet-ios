@@ -6,8 +6,8 @@ import Combine
 class FakeActivitiesService: ActivitiesServiceType {
     var sessions: ServerDictionary<WalletSession> { .make() }
     
-    var viewModelPublisher: AnyPublisher<ActivitiesViewModel, Never> {
-        Just(ActivitiesViewModel.init(activities: []))
+    var activitiesPublisher: AnyPublisher<[ActivitiesViewModel.MappedToDateActivityOrTransaction], Never> {
+        Just([])
             .eraseToAnyPublisher()
     }
     var didUpdateActivityPublisher: AnyPublisher<Activity, Never> {
