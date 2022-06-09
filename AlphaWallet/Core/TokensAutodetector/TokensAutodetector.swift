@@ -87,7 +87,7 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
         }
 
         return firstly {
-            GetContractInteractions(queue: queue)
+            GetContractInteractions()
                 .getContractList(walletAddress: wallet, server: server, startBlock: startBlock, erc20: erc20)
         }.map(on: queue) { contracts, maxBlockNumber -> [AlphaWallet.Address] in
             if let maxBlockNumber = maxBlockNumber {
