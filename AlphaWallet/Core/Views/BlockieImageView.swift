@@ -13,7 +13,8 @@ class BlockieImageView: UIView {
         imageView.contentMode = .scaleAspectFit
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.isUserInteractionEnabled = true
-
+        imageView.rounding = .circle
+        
         return imageView
     }()
 

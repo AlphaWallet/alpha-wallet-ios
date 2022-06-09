@@ -146,7 +146,7 @@
 "wallets.backupHdWallet.introduction.title" = "Back up your Wallet\nwith Seed Phrase";
 "wallets.showSeedPhrase.introduction.button.title" = "Got it, show my seed phrase";
 "wallets.showSeedPhrase.introduction.title" = "Beware of scammers!\nDon’t share seed phrase.";
-"wallets.showSeedPhrase.introduction.subtitle" = "CandleWallet will NEVER ask about your\nseed phrase (especially on Telegram).";
+"wallets.showSeedPhrase.introduction.subtitle" = "AlphaWallet will NEVER ask about your\nseed phrase (especially on Telegram).";
 "wallets.showSeedPhrase.subtitle2" = "Your seed phrase\n(do not share with anyone)";
 "wallets.showSeedPhrase.hideSeedPhrase" = "OK, hide my seed phrase";
 "wallets.showSeedPhrase.title" = "Your Seed Phrase";
@@ -416,6 +416,7 @@
 "accounts.delete.error.failedToExportPrivateKey" = "Failed to export private key";
 "accounts.delete.error.failedToExportSeed" = "Failed to export wallet seed. If you have migrated to a new phone or restored your device, you need to import your wallet again";
 "Chain ID" = "Chain ID";
+"Chain ID with prefix" = "Chain ID: %i";
 "Endpoint" = "Endpoint";
 "settings.preferences.button.title" = "Show Tokens on Launch";
 "settings.preferences.title" = "Preferences";
@@ -848,3 +849,5 @@
 "transactionState.unknown" = "Unknown";
 "settings.checkTransactionState" = "Check Transaction State";
 "advanced.settings.features.title" = "Features";
+"semifungiblesProjectInfo" = "Project Info";
+"semifungibles.Edcon.description" = "Edcon is a game centered around breedable, collectible, and adorable creatures where digital pandas live in the blockchain! Each panda comes from descendants of 50 giant pandas that have been officially licensed by China Panda Conservation and Research Center.";

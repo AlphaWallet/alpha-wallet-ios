@@ -13,7 +13,7 @@ target 'AlphaWallet' do
   pod 'QRCodeReaderViewController', :git=>'https://github.com/AlphaWallet/QRCodeReaderViewController.git', :commit=>'30d1a2a7d167d0d207ae0ae3a4d81bcf473d7a65'
   pod 'KeychainSwift', :git=>'https://github.com/AlphaWallet/keychain-swift.git', :commit=> 'b797d40a9d08ec509db4335140cf2259b226e6a2'
   pod 'SwiftLint', '0.40.3'
-  pod 'RealmSwift', '5.5.1'
+  pod 'RealmSwift', '10.27.0'
   pod 'Moya', '~> 10.0.1'
   pod 'CryptoSwift', '~> 1.4'
   pod 'Kingfisher', '~> 7.0'
@@ -29,10 +29,10 @@ target 'AlphaWallet' do
   pod 'TrustWalletCore', '2.6.34'
   pod 'AWSSNS', '2.18.0'
   pod 'Mixpanel-swift', '~> 3.1'
-  pod 'EthereumABI', '1.3.0'
+  pod 'EthereumABI', :git => 'https://github.com/AlphaWallet/EthereumABI.git', :commit => '877b77e8e7cbc54ab0712d509b74fec21b79d1bb'
   pod 'BlockiesSwift'
   pod 'PaperTrailLumberjack/Swift'
-  pod 'WalletConnectSwift', :git => 'https://github.com/WalletConnect/WalletConnectSwift.git'
+  pod 'WalletConnectSwift', :git => 'https://github.com/AlphaWallet/WalletConnectSwift.git', :commit => 'b6556058331f619e15482b82d7c6ab57d9711399'
   pod 'Charts'
   pod 'CocoaLumberjack', '3.7.0'
   pod 'AlphaWalletAddress', :path => 'modules/AlphaWalletAddress'
@@ -56,7 +56,7 @@ post_install do |installer|
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
       config.build_settings['ONLY_ACTIVE_ARCH'] = 'YES'
-      config.build_settings['ENABLE_BITCODE'] = 'YES'
+      config.build_settings['ENABLE_BITCODE'] = 'NO'
     end
     
     if ['MailchimpSDK'].include? target.name

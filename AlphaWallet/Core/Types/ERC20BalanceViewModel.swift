@@ -1,5 +1,5 @@
 //
-//  ERC20BalanceViewModel.swift
+//  Erc20BalanceViewModel.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 02.06.2021.
@@ -8,33 +8,22 @@
 import Foundation
 import BigInt
 
-struct ERC20BalanceViewModel: BalanceBaseViewModel {
-
-    var isZero: Bool {
-        balance.value.isZero
-    }
-
-    private let server: RPCServer
-    private let balance: BalanceProtocol
+struct Erc20BalanceViewModel: BalanceViewModel {
+    private let token: Token
     private (set) var ticker: CoinTicker?
 
-    init(server: RPCServer, balance: BalanceProtocol, ticker: CoinTicker?) {
-        self.server = server
-        self.balance = balance
+    init(token: Token, ticker: CoinTicker?) {
+        self.token = token
         self.ticker = ticker
     }
 
-    var value: BigInt {
-        balance.value
-    }
-
-    var amount: Double {
-        return EtherNumberFormatter.plain.string(from: balance.value).doubleValue
-    }
+    var value: BigInt { token.value }
+    var amount: Double { return EtherNumberFormatter.plain.string(from: token.value).doubleValue }
 
     var amountString: String {
-        guard !isZero else { return "0.00 \(server.symbol)" }
-        return "\(balance.amountFull) \(server.symbol)"
+        guard !isZero else { return "0.00 \(token.symbol)" }
+        let balance = EtherNumberFormatter.plain.string(from: token.value, decimals: token.decimals).droppedTrailingZeros
+        return "\(balance) \(token.symbol)"
     }
 
     var currencyAmount: String? {
@@ -43,19 +32,23 @@ struct ERC20BalanceViewModel: BalanceBaseViewModel {
     }
 
     var currencyAmountWithoutSymbol: Double? {
-        guard let currentRate = cryptoRate(forServer: server) else { return nil }
+        guard let currentRate = cryptoRate(forToken: token) else { return nil }
         return amount * currentRate.price
     }
 
-    var amountFull: String {
-        return balance.amountFull
+    var amountFull: String { return EtherNumberFormatter.plain.string(from: token.value, decimals: token.decimals).droppedTrailingZeros }
+    var amountShort: String { return EtherNumberFormatter.short.string(from: token.value, decimals: token.decimals).droppedTrailingZeros }
+    var symbol: String { return token.symbol }
+
+    //NOTE: we suppose ticker.symbol is the same as token.symbol, for erc20 tokens
+    private func cryptoRate(forToken token: Token) -> Rate? {
+        guard let ticker = ticker else { return nil }
+        let symbol = ticker.symbol.lowercased()
+        if let value = ticker.rate.rates.first(where: { $0.code == symbol }) {
+            return value
+        } else {
+            return nil
+        }
     }
 
-    var amountShort: String {
-        return balance.amountShort
-    }
-
-    var symbol: String {
-        return server.symbol
-    } 
 }

@@ -163,7 +163,11 @@ class TextField: UIControl {
         }
     }
 
-    init() {
+    private (set) lazy var heightConstraint: NSLayoutConstraint = {
+        heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen ? 30 : 50)
+    }()
+
+    init(edgeInsets: UIEdgeInsets = DataEntry.Metric.textFieldInsets) {
         super.init(frame: .zero)
 
         translatesAutoresizingMaskIntoConstraints = false
@@ -175,9 +179,8 @@ class TextField: UIControl {
         addSubview(textField)
 
         NSLayoutConstraint.activate([
-            textField.anchorsConstraint(to: self, edgeInsets: DataEntry.Metric.textFieldInsets),
-
-            heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen ? 30 : 50),
+            textField.anchorsConstraint(to: self, edgeInsets: edgeInsets),
+            heightConstraint,
         ])
     }
 
@@ -219,6 +222,11 @@ class TextField: UIControl {
     @discardableResult override func becomeFirstResponder() -> Bool {
         super.becomeFirstResponder()
         return textField.becomeFirstResponder()
+    }
+
+    @discardableResult override func resignFirstResponder() -> Bool {
+        super.resignFirstResponder()
+        return textField.resignFirstResponder()
     }
 }
 

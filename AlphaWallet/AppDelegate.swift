@@ -4,6 +4,7 @@ import AWSSNS
 import AWSCore
 import PromiseKit
 import UserNotifications
+import AlphaWalletAddress
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
@@ -18,6 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         return ProtectionCoordinator()
     }()
     private lazy var reportProvider = ReportProvider()
+    private let addressStorage = FileAddressStorage()
 
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
@@ -30,6 +32,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
                 reportProvider.start()
             }
 
+            register(addressStorage: addressStorage)
             //NOTE: we move AnalyticsService creation from AppCoordinator.init method to allow easily replace
             let analyticsService = AnalyticsService()
             let walletAddressesStore: WalletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: .standardOrForTests)

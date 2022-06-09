@@ -8,57 +8,22 @@
 import Foundation
 import BigInt
 
-struct NFTBalanceViewModel: BalanceBaseViewModel {
-    private let server: RPCServer
-    private let balance: BalanceProtocol
+struct NFTBalanceViewModel: BalanceViewModel {
     private (set) var ticker: CoinTicker?
+    private let token: Token
 
-    init(server: RPCServer, balance: BalanceProtocol, ticker: CoinTicker?) {
-        self.server = server
-        self.balance = balance
+    init(token: Token, ticker: CoinTicker?) {
+        self.token = token
         self.ticker = ticker
     }
 
-    var value: BigInt {
-        balance.value
-    }
+    var value: BigInt { return .zero }
+    var amount: Double { return 0.0 }
+    var amountString: String { return "0.00 \(token.server.symbol)" }
+    var currencyAmount: String? { return nil }
+    var currencyAmountWithoutSymbol: Double? { return nil }
+    var amountFull: String { return "" }
+    var amountShort: String { return "" }
+    var symbol: String { return "" }
 
-    var amount: Double {
-        return EtherNumberFormatter.plain.string(from: balance.value).doubleValue
-    }
-
-    var amountString: String {
-        guard !isZero else { return "0.00 \(server.symbol)" }
-        return "\(balance.amountFull) \(server.symbol)"
-    }
-
-    var currencyAmount: String? {
-        guard let totalAmount = currencyAmountWithoutSymbol else { return nil }
-        return Formatter.usd.string(from: totalAmount)
-    }
-
-    var currencyAmountWithoutSymbol: Double? {
-        guard let ticker = ticker else { return nil }
-        let rate = ticker.rate
-        let symbol = mapSymbolToVersionInRates(ticker.symbol.lowercased())
-        guard let currentRate = (rate.rates.filter { $0.code == symbol }.first), currentRate.price > 0, amount > 0 else { return nil }
-        return amount * currentRate.price
-    }
-
-    var amountFull: String {
-        return balance.amountFull
-    }
-
-    var amountShort: String {
-        return balance.amountShort
-    }
-
-    var symbol: String {
-        return server.symbol
-    }
-
-    private func mapSymbolToVersionInRates(_ symbol: String) -> String {
-        let mapping = ["xdai": "dai"]
-        return mapping[symbol] ?? symbol
-    }
 }

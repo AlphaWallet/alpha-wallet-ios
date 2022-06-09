@@ -7,8 +7,9 @@
 
 import Foundation
 import Kanna
-import PromiseKit 
+import PromiseKit
 
+// swiftlint:disable file_length
 enum SingularOrPlural {
     case singular
     case plural
@@ -118,24 +119,23 @@ private class PrivateXMLHandler {
     private let baseTokenType: TokenType?
     lazy private var contractNamesAndAddresses: [String: [(AlphaWallet.Address, RPCServer)]] = extractContractNamesAndAddresses()
 
-    private var tokenElement: XMLElement? {
+    private lazy var tokenElement: XMLElement? = {
         return XMLHandler.getTokenElement(fromRoot: xml, xmlContext: xmlContext)
-    }
+    }()
 
-    private var holdingContractElement: XMLElement? {
+    private lazy var holdingContractElement: XMLElement? = {
         return XMLHandler.getHoldingContractElement(fromRoot: xml, xmlContext: xmlContext)
-    }
+    }()
 
-    fileprivate var tokenType: TokenInterfaceType? {
-        holdingContractElement?["interface"]
-                .flatMap { TokenInterfaceType(rawValue: $0) }
-    }
+    fileprivate lazy var tokenType: TokenInterfaceType? = {
+        holdingContractElement?["interface"].flatMap { TokenInterfaceType(rawValue: $0) }
+    }()
 
     var hasValidTokenScriptFile: Bool
     let tokenScriptStatus: Promise<TokenLevelTokenScriptDisplayStatus>
     lazy var fields: [AttributeId: AssetAttribute] = extractFieldsForToken()
 
-    var introductionHtmlString: String {
+    lazy var introductionHtmlString: String = {
         //TODO fallback to first if not found
         if let introductionElement = XMLHandler.getTbmlIntroductionElement(fromRoot: xml, xmlContext: xmlContext) {
             let html = introductionElement.innerHTML ?? ""
@@ -143,27 +143,27 @@ private class PrivateXMLHandler {
         } else {
             return ""
         }
-    }
+    }()
 
-    var tokenViewIconifiedHtml: (html: String, style: String) {
+    lazy var tokenViewIconifiedHtml: (html: String, style: String) = {
         guard hasValidTokenScriptFile else { return (html: "", style: "") }
         if let element = XMLHandler.getTokenScriptTokenItemViewHtmlElement(fromRoot: xml, xmlContext: xmlContext) {
             return extractHtml(fromViewElement: element)
         } else {
             return (html: "", style: "")
         }
-    }
+    }()
 
-    var tokenViewHtml: (html: String, style: String) {
+    lazy var tokenViewHtml: (html: String, style: String) = {
         guard hasValidTokenScriptFile else { return (html: "", style: "") }
         if let element = XMLHandler.getTokenScriptTokenViewHtmlElement(fromRoot: xml, xmlContext: xmlContext) {
             return extractHtml(fromViewElement: element)
         } else {
             return (html: "", style: "")
         }
-    }
+    }()
 
-    var actions: [TokenInstanceAction] {
+    lazy var actions: [TokenInstanceAction] = {
         guard hasValidTokenScriptFile else { return [] }
         var results = [TokenInstanceAction]()
         let fromTokenAsTopLevel = Array(XMLHandler.getTokenScriptTokenInstanceActionCardElements(fromRoot: xml, xmlContext: xmlContext))
@@ -186,8 +186,7 @@ private class PrivateXMLHandler {
             if let baseTokenType = baseTokenType, Features.default.isAvailable(.isActivityEnabled) {
                 results.append(contentsOf: defaultActions(forTokenType: baseTokenType))
             } else {
-                tokenType
-                        .flatMap { results.append(contentsOf: defaultActions(forTokenType: $0)) }
+                tokenType.flatMap { results.append(contentsOf: defaultActions(forTokenType: $0)) }
             }
         } else {
             //TODO "erc20Send" name is not good for cryptocurrency
@@ -196,13 +195,13 @@ private class PrivateXMLHandler {
         }
 
         return results
-    }
+    }()
 
-    var attributesWithEventSource: [AssetAttribute] {
+    lazy var attributesWithEventSource: [AssetAttribute] = {
         fields.values.filter { $0.isEventOriginBased }
-    }
+    }()
 
-    var activityCards: [TokenScriptCard] {
+    lazy var activityCards: [TokenScriptCard] = {
         let cards = Array(XMLHandler.getTokenScriptTokenInstanceActivityCardElements(fromRoot: xml, xmlContext: xmlContext))
         let results: [TokenScriptCard] = cards.compactMap { eachCard in
             guard let name = eachCard["name"],
@@ -243,7 +242,7 @@ private class PrivateXMLHandler {
             }
         }
         return results
-    }
+    }()
 
     lazy var fieldIdsAndNames: [AttributeId: String] = {
         return Dictionary(uniqueKeysWithValues: fields.map { idAndAttribute in
@@ -251,7 +250,7 @@ private class PrivateXMLHandler {
         })
     }()
 
-    var labelInSingularForm: String? {
+    lazy var labelInSingularForm: String? = {
         if contractAddress.sameContract(as: Constants.katContractAddress) {
             return R.string.localizable.katTitlecase()
         }
@@ -261,9 +260,9 @@ private class PrivateXMLHandler {
         } else {
             return nil
         }
-    }
+    }()
 
-    var labelInPluralForm: String? {
+    lazy var labelInPluralForm: String? = {
         if contractAddress.sameContract(as: Constants.katContractAddress) {
             return R.string.localizable.katTitlecase()
         }
@@ -273,7 +272,7 @@ private class PrivateXMLHandler {
         } else {
             return labelInSingularForm
         }
-    }
+    }()
 
     static private var lang: String {
         let lang = Locale.preferredLanguages[0]
@@ -407,7 +406,7 @@ private class PrivateXMLHandler {
             inWallet account: Wallet,
             server: RPCServer,
             tokenType: TokenType
-    ) -> Token {
+    ) -> TokenScript.Token {
         guard tokenIdOrEvent.tokenId != 0 else { return .empty }
         let values: [AttributeId: AssetAttributeSyntaxValue]
         if fields.isEmpty {
@@ -415,9 +414,8 @@ private class PrivateXMLHandler {
         } else {
             //TODO read from cache again, perhaps based on a timeout/TTL for each attribute. There was a bug with reading from cache sometimes. e.g. cache a token with 8 token origin attributes and 1 function origin attribute and when displaying it and reading from the cache, sometimes it'll only return the 1 function origin attribute in the cache
             values = resolveAttributesBypassingCache(withTokenIdOrEvent: tokenIdOrEvent, server: server, account: account)
-            cache(attributeValues: values, forTokenId: tokenIdOrEvent.tokenId)
         }
-        return Token(
+        return TokenScript.Token(
                 tokenIdOrEvent: tokenIdOrEvent,
                 tokenType: tokenType,
                 index: index,
@@ -479,26 +477,6 @@ private class PrivateXMLHandler {
             assertImpossibleCodePath()
             return .value(.type2BadTokenScript(isDebugMode: !isOfficial, message: "Not XML?", reason: nil))
         }
-    }
-
-    private func getValuesFromCache(forTokenId tokenId: TokenId) -> [AttributeId: AssetAttributeSyntaxValue]? {
-        guard let cache = assetDefinitionStore?.assetAttributesCache else { return nil }
-        guard let cachedAttributes: [AttributeId: AssetInternalValue] = cache.getValues(forContract: contractAddress, tokenId: tokenId) else { return nil }
-        var results: [AttributeId: AssetAttributeSyntaxValue] = .init()
-        for (attributeId, attribute) in fields {
-            if let value = cachedAttributes[attributeId] {
-                results[attributeId] = .init(syntax: attribute.syntax, value: value)
-            }
-        }
-        return results
-    }
-
-    private func cache(attributeValues values: [AttributeId: AssetAttributeSyntaxValue], forTokenId tokenId: TokenId) {
-        guard !values.isEmpty else { return }
-        guard let assetDefinitionStore = assetDefinitionStore else { return }
-        let cache = assetDefinitionStore.assetAttributesCache
-        let valuesAsDictionary = values.mapValues { $0.value }
-        cache.cache(attributes: fields, values: valuesAsDictionary, forContract: contractAddress, tokenId: tokenId)
     }
 
     private static func extractServer(fromXML xml: XMLDocument, xmlContext: XmlContext, matchingContract contractAddress: AlphaWallet.Address) -> RPCServer? {
@@ -696,7 +674,6 @@ final class ThreadSafe {
 fileprivate let threadSafeFoXmlHandler = ThreadSafe(label: "org.alphawallet.swift.xmlHandler.xmlHandlers")
 /// This class delegates all the functionality to a singleton of the actual XML parser. 1 for each contract. So we just parse the XML file 1 time only for each contract
 public class XMLHandler {
-    //TODO not the best thing to have, especially because it's an optional
     static var callForAssetAttributeCoordinator = CallForAssetAttributeCoordinator()
     fileprivate static var xmlHandlers = AtomicDictionary<AlphaWallet.Address, PrivateXMLHandler>()
     fileprivate static var baseXmlHandlers = AtomicDictionary<String, PrivateXMLHandler>()
@@ -865,7 +842,7 @@ public class XMLHandler {
         return fieldIdsAndNames
     }
 
-    convenience init(token: TokenObject, assetDefinitionStore: AssetDefinitionStore) {
+    convenience init(token: Tokenable, assetDefinitionStore: AssetDefinitionStore) {
         self.init(contract: token.contractAddress, tokenType: token.type, assetDefinitionStore: assetDefinitionStore)
     }
 
@@ -914,16 +891,16 @@ public class XMLHandler {
         self.privateXMLHandler = privateXMLHandler
     }
 
-    func getToken(name: String, symbol: String, fromTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent, index: UInt16, inWallet account: Wallet, server: RPCServer, tokenType: TokenType) -> Token {
+    func getToken(name: String, symbol: String, fromTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent, index: UInt16, inWallet account: Wallet, server: RPCServer, tokenType: TokenType) -> TokenScript.Token {
         //TODO get rid of the forced unwrap
-        var token: Token!
+        var token: TokenScript.Token!
         threadSafe.performSync {
             let overrides = privateXMLHandler.getToken(name: name, symbol: symbol, fromTokenIdOrEvent: tokenIdOrEvent, index: index, inWallet: account, server: server, tokenType: tokenType)
             if let baseXMLHandler = baseXMLHandler {
                 let base = baseXMLHandler.getToken(name: name, symbol: symbol, fromTokenIdOrEvent: tokenIdOrEvent, index: index, inWallet: account, server: server, tokenType: tokenType)
                 let baseValues = base.values
                 let overriddenValues = overrides.values
-                token = Token(
+                token = TokenScript.Token(
                         tokenIdOrEvent: overrides.tokenIdOrEvent,
                         tokenType: overrides.tokenType,
                         index: overrides.index,
@@ -1089,3 +1066,4 @@ extension XMLHandler.functional {
         }
     }
 }
+// swiftlint:enable file_length

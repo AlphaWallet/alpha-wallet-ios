@@ -43,7 +43,7 @@ final class BrowserViewController: UIViewController {
 
     lazy var webView: WKWebView = {
         let webView = WKWebView(
-            frame: .zero,
+            frame: .init(x: 0, y: 0, width: 40, height: 40),
             configuration: config
         )
         webView.allowsBackForwardNavigationGestures = true
@@ -218,6 +218,8 @@ extension BrowserViewController: WKNavigationDelegate {
     }
 
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        infoLog("[Browser] decidePolicyFor url: \(String(describing: navigationAction.request.url?.absoluteString))")
+
         guard let url = navigationAction.request.url, let scheme = url.scheme else {
             decisionHandler(.allow)
             return
@@ -228,6 +230,14 @@ extension BrowserViewController: WKNavigationDelegate {
             decisionHandler(.cancel)
             return
         }
+
+        //TODO extract `DeepLink`, if reasonable
+        if url.host == "aw.app" && url.path == "/wc", let components = URLComponents(url: url, resolvingAgainstBaseURL: false), components.queryItems.isEmpty {
+            NSLog("[Browser] Swallowing URL and doing a no-op, url: \(url.absoluteString)")
+            decisionHandler(.cancel)
+            return
+        }
+
         if DeepLink.supports(url: url) {
             delegate?.handleUniversalLink(url, inBrowserViewController: self)
             decisionHandler(.cancel)

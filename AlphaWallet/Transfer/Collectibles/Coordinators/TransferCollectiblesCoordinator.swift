@@ -29,7 +29,6 @@ class TransferCollectiblesCoordinator: Coordinator {
     private let analyticsCoordinator: AnalyticsCoordinator
     private let filteredTokenHolders: [TokenHolder]
     private var transactionConfirmationResult: ConfirmResult? = .none
-    private var lastViewControllerInNavigationStack: UIViewController?
     
     weak var delegate: TransferCollectiblesCoordinatorDelegate?
     let navigationController: UINavigationController
@@ -52,7 +51,6 @@ class TransferCollectiblesCoordinator: Coordinator {
         self.assetDefinitionStore = assetDefinitionStore
         self.analyticsCoordinator = analyticsCoordinator
         navigationController.navigationBar.isTranslucent = false
-        self.lastViewControllerInNavigationStack = navigationController.viewControllers.last
     }
 
     func start() {
@@ -68,8 +66,11 @@ class TransferCollectiblesCoordinator: Coordinator {
     }
     
     private func makeTransferTokensCardViaWalletAddressViewController(token: TokenObject, tokenHolders: [TokenHolder]) -> TransferTokenBatchCardsViaWalletAddressViewController {
-        let viewModel = TransferTokenBatchCardsViaWalletAddressViewControllerViewModel(token: token, tokenHolders: tokenHolders, assetDefinitionStore: assetDefinitionStore)
-        let controller = TransferTokenBatchCardsViaWalletAddressViewController(analyticsCoordinator: analyticsCoordinator, token: token, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
+        let viewModel = TransferTokenBatchCardsViaWalletAddressViewControllerViewModel(token: token, tokenHolders: tokenHolders)
+        let tokenCardViewFactory: TokenCardViewFactory = {
+            TokenCardViewFactory(token: token, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, keystore: keystore, wallet: session.account)
+        }()
+        let controller = TransferTokenBatchCardsViaWalletAddressViewController(token: token, viewModel: viewModel, tokenCardViewFactory: tokenCardViewFactory)
         controller.configure()
         controller.delegate = self
 
@@ -182,12 +183,7 @@ extension TransferCollectiblesCoordinator: TransactionInProgressCoordinatorDeleg
     func didDismiss(in coordinator: TransactionInProgressCoordinator) {
         removeCoordinator(coordinator)
 
-        switch transactionConfirmationResult {
-        case .some(let result):
-            let _ = lastViewControllerInNavigationStack.flatMap { navigationController.popToViewController($0, animated: true) }
-            delegate?.didFinish(result, in: self)
-        case .none:
-            break
-        }
+        guard case .some(let result) = transactionConfirmationResult else { return }
+        delegate?.didFinish(result, in: self)
     }
 }

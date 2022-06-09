@@ -17,13 +17,19 @@ protocol NFTProvider: AnyObject {
 
 final class AlphaWalletNFTProvider: NFTProvider {
 
-    private let openSea = OpenSea()
-    private let enjin = Enjin()
+    private lazy var openSea = OpenSea(queue: queue)
+    private lazy var enjin = Enjin(queue: queue)
+    private var cachedPromises: AtomicDictionary<AddressAndRPCServer, Promise<NonFungiblesTokens>> = .init()
+    private let queue: DispatchQueue
+
+    init(queue: DispatchQueue) {
+        self.queue = queue
+    }
 
     // NOTE: Its important to return value for promise and not an error. As we are using `when(fulfilled: ...)`. There is force unwrap inside the `when(fulfilled` function
     private func getEnjinSemiFungible(account: Wallet, server: RPCServer) -> Promise<EnjinSemiFungiblesToTokenId> {
         return enjin.semiFungible(wallet: account, server: server)
-            .map({ mapped -> EnjinSemiFungiblesToTokenId in
+            .map(on: queue, { mapped -> EnjinSemiFungiblesToTokenId in
                 var result: EnjinSemiFungiblesToTokenId = [:]
                 let tokens = Array(mapped.values.flatMap { $0 })
                 for each in tokens {
@@ -32,9 +38,9 @@ final class AlphaWalletNFTProvider: NFTProvider {
                     result[TokenIdConverter.addTrailingZerosPadding(string: tokenId)] = each
                 }
                 return result
-            }).recover { _ -> Promise<EnjinSemiFungiblesToTokenId> in
+            }).recover(on: queue, { _ -> Promise<EnjinSemiFungiblesToTokenId> in
                 return .value([:])
-            }
+            })
     }
 
     private func getOpenSeaNonFungible(account: Wallet, server: RPCServer) -> Promise<OpenSeaNonFungiblesToAddress> {
@@ -42,13 +48,25 @@ final class AlphaWalletNFTProvider: NFTProvider {
     }
 
     func nonFungible(wallet: Wallet, server: RPCServer) -> Promise<NonFungiblesTokens> {
-        let tokensFromOpenSeaPromise = getOpenSeaNonFungible(account: wallet, server: server)
-        let enjinTokensPromise = getEnjinSemiFungible(account: wallet, server: server)
+        let key = AddressAndRPCServer(address: wallet.address, server: server)
 
-        return firstly {
-            when(fulfilled: tokensFromOpenSeaPromise, enjinTokensPromise)
-        }.map { (contractToOpenSeaNonFungibles, enjinTokens) -> NonFungiblesTokens in
-            return (contractToOpenSeaNonFungibles, enjinTokens)
+        if let promise = cachedPromises[key] {
+            return promise
+        } else {
+            let tokensFromOpenSeaPromise = getOpenSeaNonFungible(account: wallet, server: server)
+            let enjinTokensPromise = getEnjinSemiFungible(account: wallet, server: server)
+
+            let promise = firstly {
+                when(fulfilled: tokensFromOpenSeaPromise, enjinTokensPromise)
+            }.map(on: queue, { (contractToOpenSeaNonFungibles, enjinTokens) -> NonFungiblesTokens in
+                return (contractToOpenSeaNonFungibles, enjinTokens)
+            }).ensure(on: queue, {
+                self.cachedPromises[key] = .none
+            })
+
+            cachedPromises[key] = promise
+
+            return promise
         }
     }
 

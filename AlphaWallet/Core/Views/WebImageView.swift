@@ -4,14 +4,13 @@ import UIKit
 import WebKit
 import Kingfisher
 
-enum WebImageViewImage {
-    case url(WebImageURL)
-    case image(UIImage)
-}
-
 final class FixedContentModeImageView: UIImageView {
     var fixedContentMode: UIView.ContentMode {
         didSet { self.layoutSubviews() }
+    }
+
+    var rounding: ViewRounding = .none {
+        didSet { layoutSubviews() }
     }
 
     init(fixedContentMode contentMode: UIView.ContentMode) {
@@ -29,33 +28,46 @@ final class FixedContentModeImageView: UIImageView {
         contentMode = fixedContentMode
         layer.masksToBounds = true
         clipsToBounds = true
+
+        switch rounding {
+        case .none:
+            cornerRadius = 0
+        case .circle:
+            cornerRadius = bounds.width / 2
+        case .custom(let radius):
+            cornerRadius = radius
+        }
     }
 }
 
-final class WebImageView: UIView {
+final class WebImageView: UIView, ContentBackgroundSupportable {
+
+    private lazy var placeholderImageView: FixedContentModeImageView = {
+        let imageView = FixedContentModeImageView(fixedContentMode: contentMode)
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFill
+        imageView.backgroundColor = backgroundColor
+        imageView.isHidden = true
+        imageView.rounding = .none
+
+        return imageView
+    }()
 
     private lazy var imageView: FixedContentModeImageView = {
         let imageView = FixedContentModeImageView(fixedContentMode: contentMode)
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFill
-        imageView.backgroundColor = Colors.appBackground
+        imageView.backgroundColor = backgroundColor
 
         return imageView
     }()
 
-    private lazy var webView: WKWebView = {
-        let preferences = WKPreferences()
-        preferences.javaScriptEnabled = false
-        let configuration = WKWebViewConfiguration()
-        configuration.preferences = preferences
-
-        let webView = WKWebView(frame: .zero, configuration: configuration)
-        webView.translatesAutoresizingMaskIntoConstraints = false
-        webView.isUserInteractionEnabled = false
-        webView.scrollView.isScrollEnabled = false
-        webView.contentMode = .scaleAspectFit
-
-        return webView
+    private lazy var svgImageView: SvgImageView = {
+        let imageView = SvgImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.rounding = rounding
+        imageView.backgroundColor = backgroundColor
+        return imageView
     }()
 
     private var pendingLoadWebViewOperation: BlockOperation?
@@ -64,18 +76,29 @@ final class WebImageView: UIView {
         didSet { imageView.fixedContentMode = contentMode }
     }
 
-    init(placeholder: UIImage? = R.image.tokenPlaceholderLarge()) {
+    var rounding: ViewRounding = .none {
+        didSet { imageView.rounding = rounding; svgImageView.rounding = rounding; }
+    }
+
+    var contentBackgroundColor: UIColor? {
+        didSet { imageView.backgroundColor = contentBackgroundColor; }
+    }
+
+    init(edgeInsets: UIEdgeInsets = .zero) {
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
         isUserInteractionEnabled = false
+        backgroundColor = .clear
         clipsToBounds = true
 
         addSubview(imageView)
-        addSubview(webView)
+        addSubview(svgImageView)
+        addSubview(placeholderImageView)
 
         NSLayoutConstraint.activate([
-            webView.anchorsConstraint(to: self),
-            imageView.anchorsConstraint(to: self)
+            svgImageView.anchorsConstraint(to: self, edgeInsets: edgeInsets),
+            placeholderImageView.anchorsConstraint(to: self, edgeInsets: edgeInsets),
+            imageView.anchorsConstraint(to: self, edgeInsets: edgeInsets)
         ])
     }
 
@@ -83,96 +106,50 @@ final class WebImageView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func setImage(image: UIImage) {
-        webView.alpha = 0
+    func setImage(image: UIImage?, placeholder: UIImage? = R.image.tokenPlaceholderLarge()) {
+        placeholderImageView.image = placeholder
+        svgImageView.alpha = 0
         imageView.image = image
+        placeholderImageView.isHidden = imageView.image != nil
     }
 
     func setImage(url: WebImageURL?, placeholder: UIImage? = R.image.tokenPlaceholderLarge()) {
+        placeholderImageView.image = placeholder
+
         guard let url = url?.url else {
-            webView.alpha = 0
-            imageView.image = placeholder
+            svgImageView.alpha = 0
+            imageView.image = nil
+
+            placeholderImageView.isHidden = false
             return
         }
 
         if url.pathExtension == "svg" {
             imageView.image = nil
-
-            if let data = try? ImageCache.default.diskStorage.value(forKey: url.absoluteString), let svgString = data.flatMap({ String(data: $0, encoding: .utf8) }) {
-                webView.alpha = 1
-                webView.loadHTMLString(html(svgString: svgString), baseURL: nil)
-            } else {
-                webView.alpha = 0
-
-                DispatchQueue.global(qos: .utility).async {
-                    if let data = try? Data(contentsOf: url), let svgString = String(data: data, encoding: .utf8) {
-                        if let op = self.pendingLoadWebViewOperation {
-                            op.cancel()
-                        }
-
-                        let op = BlockOperation {
-                            self.webView.loadHTMLString(self.html(svgString: svgString), baseURL: nil)
-                            self.webView.alpha = 1
-                        }
-                        self.pendingLoadWebViewOperation = op
-
-                        OperationQueue.main.addOperations([op], waitUntilFinished: false)
-
-                        try? ImageCache.default.diskStorage.store(value: data, forKey: url.absoluteString)
-                    }
-                }
-            }
+            placeholderImageView.isHidden = !svgImageView.pageHasLoaded
+            svgImageView.setImage(url: url, completion: { [placeholderImageView] in
+                placeholderImageView.isHidden = true
+            })
         } else {
-            webView.alpha = 0
-            imageView.kf.setImage(with: url, placeholder: placeholder)
+            svgImageView.alpha = 0
+            placeholderImageView.isHidden = imageView.image != nil
+            //NOTE: not quite sure, but we need to cancel prev loading operation, othervise we receive an error `notCurrentSourceTask`
+            cancel()
+            imageView.kf.setImage(with: url, completionHandler: { [imageView, placeholderImageView] result in
+                switch result {
+                case .success(let res):
+                    imageView.image = res.image
+                case .failure:
+                    imageView.image = nil
+                }
+
+                placeholderImageView.isHidden = imageView.image != nil
+            })
         }
     }
-}
 
-extension WebImageView {
-
-    func html(svgString: String) -> String {
-        """
-        <!DOCTYPE html>
-        <html>
-            <head>
-                <meta charset="utf-8">
-                <meta name="viewport" content="width=device-width,initial-scale=1.0">
-                <title></title>
-                <style type="text/css">
-                    html {
-                        width: 100%;
-                        height: 100%;
-                        padding: 0;
-                        margin: 0;
-                    }
-
-                    body {
-                        margin: 0;
-                        padding: 0;
-                    }
-
-                    div {
-                        width: 100%;
-                        height: 100%;
-                        margin: 0;
-                        padding: 0;
-                    }
-
-                    svg {
-                        width: inherit;
-                        height: inherit;
-                        max-width: 100%;
-                        max-height: 100%;
-                    }
-                </style>
-            </head>
-            <body>
-            <div>
-                \(svgString)
-            </div>
-            </body>
-        </html>
-        """
+    func cancel() {
+        svgImageView.stopLoading()
+        imageView.kf.cancelDownloadTask()
     }
-} 
+}

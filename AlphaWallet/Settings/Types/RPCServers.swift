@@ -4,6 +4,12 @@ import Foundation
 import web3swift
 import BigInt
 
+extension RPCServer {
+    static func custom(chainId: Int) -> RPCServer {
+        return .custom(.custom(chainId: chainId))
+    }
+}
+
 // swiftlint:disable type_body_length
 enum RPCServer: Hashable, CaseIterable {
     static var customRpcs: [CustomRPC] = RPCServer.convertJsonToCustomRpcs(Config().customRpcServersJson) {

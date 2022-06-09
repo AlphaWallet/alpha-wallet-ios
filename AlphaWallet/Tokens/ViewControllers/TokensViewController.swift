@@ -7,8 +7,8 @@ import Combine
 
 protocol TokensViewControllerDelegate: AnyObject {
     func viewWillAppear(in viewController: UIViewController)
-    func didSelect(token: TokenObject, in viewController: UIViewController)
-    func didHide(token: TokenObject, in viewController: UIViewController)
+    func didSelect(token: Token, in viewController: UIViewController)
+    func didHide(token: Token, in viewController: UIViewController)
     func didTapOpenConsole(in viewController: UIViewController)
     func walletConnectSelected(in viewController: UIViewController)
     func whereAreMyTokensSelected(in viewController: UIViewController)
@@ -127,7 +127,7 @@ class TokensViewController: UIViewController {
             if listOfBadTokenScriptFiles.isEmpty {
                 isConsoleButtonHidden = true
             } else {
-                consoleButton.titleLabel?.font = Fonts.light(size: 22)
+                consoleButton.titleLabel?.font = Fonts.regular(size: 22)
                 consoleButton.setTitleColor(Colors.black, for: .normal)
                 consoleButton.setTitle(R.string.localizable.tokenScriptShowErrors(), for: .normal)
                 consoleButton.bounds.size.height = 44
@@ -164,7 +164,6 @@ class TokensViewController: UIViewController {
     init(sessions: ServerDictionary<WalletSession>,
          tokenCollection: TokenCollection,
          assetDefinitionStore: AssetDefinitionStore,
-         tokensFilter: TokensFilter,
          config: Config,
          walletConnectCoordinator: WalletConnectCoordinator,
          walletBalanceService: WalletBalanceService,
@@ -177,7 +176,7 @@ class TokensViewController: UIViewController {
         self.config = config
         self.walletConnectCoordinator = walletConnectCoordinator
 
-        viewModel = TokensViewModel(tokensFilter: tokensFilter, tokens: [], config: config)
+        viewModel = TokensViewModel(tokensFilter: tokenCollection.tokensFilter, tokens: [], config: config)
 
         searchController = UISearchController(searchResultsController: nil)
 
@@ -419,7 +418,7 @@ extension TokensViewController: UITableViewDataSource {
                 cell.configure(viewModel: TokenListServerTableViewCellViewModel(server: server, isTopSeparatorHidden: true))
 
                 return cell
-            case .tokenObject(let token):
+            case .token(let token):
                 let session = sessions[token.server]
 
                 switch token.type {
@@ -443,13 +442,9 @@ extension TokensViewController: UITableViewDataSource {
                         ticker: session.tokenBalanceService.coinTicker(token.addressAndRPCServer)
                     ))
                     return cell
-                case .erc721, .erc721ForTickets, .erc1155:
+                case .erc721, .erc721ForTickets, .erc1155, .erc875:
                     let cell: NonFungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
-                    cell.configure(viewModel: .init(token: token, server: token.server, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, wallet: session.account))
-                    return cell
-                case .erc875:
-                    let cell: NonFungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
-                    cell.configure(viewModel: .init(token: token, server: token.server, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, wallet: session.account))
+                    cell.configure(viewModel: .init(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, wallet: session.account))
                     return cell
                 }
             }
@@ -510,7 +505,7 @@ extension TokensViewController: UITableViewDataSource {
         switch item {
         case .rpcServer:
             return nil
-        case .tokenObject(let token):
+        case .token(let token):
             let title = R.string.localizable.walletsHideTokenTitle()
             let hideAction = UIContextualAction(style: .destructive, title: title) { [weak self] (_, _, completion) in
                 guard let strongSelf = self else { return }
@@ -611,7 +606,7 @@ extension TokensViewController {
             //do nothing
         } else {
             switch filter {
-            case .all, .defi, .governance, .assets, .collectiblesOnly, .type:
+            case .all, .defi, .governance, .assets, .collectiblesOnly, .filter:
                 searchController.isActive = false
             case .keyword:
                 break
@@ -647,7 +642,7 @@ extension TokensViewController: UISearchResultsUpdating {
         shouldHidePromptBackupWalletViewHolderBecauseSearchIsActive = searchController.isActive
         guard searchController.isActive else {
             switch viewModel.filter {
-            case .all, .defi, .governance, .assets, .collectiblesOnly, .type:
+            case .all, .defi, .governance, .assets, .collectiblesOnly, .filter:
                 break
             case .keyword:
                 //Handle when user taps Cancel button to stop search
@@ -712,7 +707,7 @@ extension TokensViewController: OpenSeaNonFungibleTokenPairTableCellDelegate {
         let selection = viewModel.item(for: indexPath.row, section: indexPath.section)
 
         switch (viewModel.sections[indexPath.section], selection) {
-        case (.tokens, .tokenObject(let token)):
+        case (.tokens, .token(let token)):
             delegate?.didSelect(token: token, in: self)
         case (_, _):
             break
@@ -723,7 +718,7 @@ extension TokensViewController: OpenSeaNonFungibleTokenPairTableCellDelegate {
         switch viewModel.sections[indexPath.section] {
         case .collectiblePairs:
             let pair = viewModel.collectiblePairs[indexPath.row]
-            guard let token: TokenObject = isLeftCardSelected ? pair.left : pair.right else { return }
+            guard let token: Token = isLeftCardSelected ? pair.left : pair.right else { return }
             delegate?.didSelect(token: token, in: self)
         case .tokens, .testnetTokens, .activeWalletSession, .filters, .search, .walletSummary:
             break

@@ -22,7 +22,7 @@ struct SetTransferTokensCardExpiryDateViewControllerViewModel {
     }
 
     var descriptionLabelFont: UIFont {
-        return Fonts.light(size: 21)
+        return Fonts.regular(size: 21)
     }
 
     var descriptionLabelColor: UIColor {
@@ -46,7 +46,7 @@ struct SetTransferTokensCardExpiryDateViewControllerViewModel {
     }
 
     var noteLabelFont: UIFont {
-        return Fonts.light(size: 21)
+        return Fonts.regular(size: 21)
     }
 
     var noteLabelColor: UIColor {

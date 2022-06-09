@@ -6,7 +6,7 @@ import Foundation
 
 class TokensDataStoreTest: XCTestCase {
     private let storage = FakeTokensDataStore()
-    private let token = TokenObject(
+    private let token = Token(
             contract: AlphaWallet.Address.make(),
             server: .main,
             value: "0",
@@ -14,14 +14,13 @@ class TokensDataStoreTest: XCTestCase {
     )
 
     override func setUp() {
-        storage.addTokenObjects(values: [.tokenObject(token)])
+        storage.addOrUpdate(tokensOrContracts: [.token(token)])
     }
 
     //We make a call to update token in datastore to store the updated balance after an async call to fetch the balance over the web. Token in the datastore might have been deleted when the web call is completed. Make sure this doesn't crash
     func testUpdateDeletedTokensDoNotCrash() {
         storage.deleteTestsOnly(tokens: [token])
-        guard !token.isInvalidated else { return }
-        XCTAssertNoThrow(storage.updateToken(primaryKey: token.primaryKey, action: .value(1)))
+        XCTAssertNil(storage.updateToken(primaryKey: token.primaryKey, action: .value(1)))
     }
 
     //Ensure this works:
@@ -32,7 +31,7 @@ class TokensDataStoreTest: XCTestCase {
     //5. BOOM.
     func testHideContractTwiceDoesNotCrash() {
         let contract = AlphaWallet.Address(string: "0x66F08Ca6892017A45Da6FB792a8E946FcBE3d865")!
-        storage.add(hiddenContracts: [HiddenContract(contractAddress: contract, server: .ropsten)])
-        XCTAssertNoThrow(storage.add(hiddenContracts: [HiddenContract(contractAddress: contract, server: .ropsten)]))
+        storage.add(hiddenContracts: [AddressAndRPCServer(address: contract, server: .ropsten)])
+        XCTAssertNoThrow(storage.add(hiddenContracts: [AddressAndRPCServer(address: contract, server: .ropsten)]))
     }
 }

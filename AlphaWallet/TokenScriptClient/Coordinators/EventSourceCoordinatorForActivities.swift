@@ -37,7 +37,7 @@ final class EventSourceCoordinatorForActivities {
 
     private func subscribeForTokenChanges() {
         tokensDataStore
-            .enabledTokenObjectsChangesetPublisher(forServers: enabledServers)
+            .enabledTokensChangeset(for: enabledServers)
             .receive(on: queue)
             .sink { [weak self] _ in
                 self?.fetchEthereumEvents()
@@ -57,7 +57,7 @@ final class EventSourceCoordinatorForActivities {
             }.store(in: &cancellable)
     }
 
-    private func fetchMappedContractsAndServers(token: TokenObject) -> [(contract: AlphaWallet.Address, server: RPCServer)] {
+    private func fetchMappedContractsAndServers(token: Token) -> [(contract: AlphaWallet.Address, server: RPCServer)] {
         var values: [(contract: AlphaWallet.Address, server: RPCServer)] = []
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         guard xmlHandler.hasAssetDefinition, let server = xmlHandler.server else { return [] }
@@ -78,7 +78,7 @@ final class EventSourceCoordinatorForActivities {
             .cauterize()
     }
 
-    private func getActivityCards(forToken token: TokenObject) -> [TokenScriptCard] {
+    private func getActivityCards(forToken token: Token) -> [TokenScriptCard] {
         var cards: [TokenScriptCard] = []
 
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
@@ -88,7 +88,7 @@ final class EventSourceCoordinatorForActivities {
         return cards
     }
 
-    private func fetchEvents(forToken token: TokenObject) -> [Promise<Void>] {
+    private func fetchEvents(forToken token: Token) -> [Promise<Void>] {
         return getActivityCards(forToken: token)
             .map { EventSourceCoordinatorForActivities.functional.fetchEvents(tokenContract: token.contractAddress, server: token.server, card: $0, eventsDataStore: eventsDataStore, queue: queue, wallet: wallet) }
     }
@@ -109,7 +109,7 @@ final class EventSourceCoordinatorForActivities {
         guard !isFetching else { return }
         isFetching = true
 
-        let tokens = tokensDataStore.enabledTokenObjects(forServers: enabledServers)
+        let tokens = tokensDataStore.enabledTokens(for: enabledServers)
         let promises = tokens.map { fetchEvents(forToken: $0) }.flatMap { $0 }
 
         when(resolved: promises).done { [weak self] _ in
@@ -138,7 +138,7 @@ extension EventSourceCoordinatorForActivities.functional {
         }
 
         let oldEvent = eventsDataStore
-        .getLastMatchingEventSortedByBlockNumber(forContract: eventOrigin.contract, tokenContract: tokenContract, server: server, eventName: eventOrigin.eventName)
+        .getLastMatchingEventSortedByBlockNumber(for: eventOrigin.contract, tokenContract: tokenContract, server: server, eventName: eventOrigin.eventName)
 
         let fromBlock: (EventFilter.Block, UInt64)
         if let newestEvent = oldEvent {
@@ -172,7 +172,7 @@ extension EventSourceCoordinatorForActivities.functional {
                 values.compactMap { $0.optionalValue }.compactMap { $0 }
             })
         }).map(on: queue, { events -> Void in
-            eventsDataStore.add(events: events)
+            eventsDataStore.addOrUpdate(events: events)
         }).recover(on: queue, { e in
             error(value: e, rpcServer: server, address: tokenContract)
         })

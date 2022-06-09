@@ -11,7 +11,7 @@ struct WalletConnectSessionDetailsViewModel {
 
     private let provider: WalletConnectServerProviderType
     private var isOnline: Bool {
-        provider.hasConnectedSession(session: session)
+        provider.isConnected(session.topicOrUrl)
     }
 
     var navigationTitle: String {
@@ -82,8 +82,8 @@ struct WalletConnectSessionDetailsViewModel {
     }
 
     private let session: AlphaWallet.WalletConnect.Session
-    var sessionIdentifier: AlphaWallet.WalletConnect.SessionIdentifier {
-        session.identifier
+    var topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl {
+        session.topicOrUrl
     }
     let rpcServers: [RPCServer]
     let methods: [String]

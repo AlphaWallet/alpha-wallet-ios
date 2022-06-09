@@ -9,32 +9,6 @@ import Foundation
 import AlphaWalletCore
 import PromiseKit
 
-extension SingleChainTokensAutodetector {
-    enum AddTokenObjectOperation {
-        case ercToken(ERCToken)
-        case tokenObject(TokenObject)
-        case delegateContracts([DelegateContract])
-        case deletedContracts([DeletedContract])
-        ///We re-use the existing balance value to avoid the Wallets tab showing that token (if it already exist) as balance = 0 momentarily
-        case fungibleTokenComplete(name: String, symbol: String, decimals: UInt8, contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool)
-        case none
-
-        var addressAndRPCServer: AddressAndRPCServer? {
-            switch self {
-            case .ercToken(let eRCToken):
-                return .init(address: eRCToken.contract, server: eRCToken.server)
-            case .tokenObject(let tokenObject):
-                return .init(address: tokenObject.contractAddress, server: tokenObject.server)
-            case .delegateContracts, .deletedContracts, .none:
-                return nil
-            case .fungibleTokenComplete(_, _, _, let contract, let server, _):
-                return .init(address: contract, server: server)
-            }
-        }
-    }
-
-}
-
 protocol TokensAutodetector: NSObjectProtocol {
     func start()
 }
@@ -47,7 +21,10 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
     private let config: Config
     private let session: WalletSession
     private let queue: DispatchQueue
-    private let tokenObjectFetcher: TokenObjectFetcher
+    private let importToken: ImportToken
+    private lazy var tokenProvider = TokenProvider(account: session.account, server: session.server)
+    private lazy var erc875BalanceFetcher = GetErc875Balance(forServer: session.server, queue: queue)
+    private lazy var erc20BalanceFetcher = GetErc20Balance(forServer: session.server, queue: queue)
 
     var isAutoDetectingTransactedTokens = false
     var isAutoDetectingTokens = false
@@ -60,9 +37,9 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
             withAutoDetectTransactedTokensQueue autoDetectTransactedTokensQueue: OperationQueue,
             withAutoDetectTokensQueue autoDetectTokensQueue: OperationQueue,
             queue: DispatchQueue,
-            tokenObjectFetcher: TokenObjectFetcher
+            importToken: ImportToken
     ) {
-        self.tokenObjectFetcher = tokenObjectFetcher
+        self.importToken = importToken
         self.queue = queue
         self.session = session
         self.config = config
@@ -93,10 +70,10 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
     }
 
     private func contractsForTransactedTokens(detectedContracts: [AlphaWallet.Address], forServer server: RPCServer) -> [AlphaWallet.Address] {
-        let alreadyAddedContracts = tokensDataStore.enabledTokenObjects(forServers: [server]).map { $0.contractAddress }
-        let deletedContracts = tokensDataStore.deletedContracts(forServer: server).map { $0.contractAddress }
-        let hiddenContracts = tokensDataStore.hiddenContracts(forServer: server).map { $0.contractAddress }
-        let delegateContracts = tokensDataStore.delegateContracts(forServer: server).map { $0.contractAddress }
+        let alreadyAddedContracts = tokensDataStore.enabledTokens(for: [server]).map { $0.contractAddress }
+        let deletedContracts = tokensDataStore.deletedContracts(forServer: server).map { $0.address }
+        let hiddenContracts = tokensDataStore.hiddenContracts(forServer: server).map { $0.address }
+        let delegateContracts = tokensDataStore.delegateContracts(forServer: server).map { $0.address }
 
         return detectedContracts - alreadyAddedContracts - deletedContracts - hiddenContracts - delegateContracts
     }
@@ -125,21 +102,21 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
         }
     }
 
-    private func autoDetectTransactedTokensImpl(wallet: AlphaWallet.Address, erc20: Bool) -> Promise<[SingleChainTokensAutodetector.AddTokenObjectOperation]> {
+    private func autoDetectTransactedTokensImpl(wallet: AlphaWallet.Address, erc20: Bool) -> Promise<[TokenOrContract]> {
         let server = session.server
 
         return firstly {
             autoDetectTransactedContractsImpl(wallet: wallet, erc20: erc20, server: server)
-        }.then(on: queue, { [weak self] detectedContracts -> Promise<[SingleChainTokensAutodetector.AddTokenObjectOperation]> in
+        }.then(on: queue, { [weak self, importToken] detectedContracts -> Promise<[TokenOrContract]> in
             guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
 
             let promises = strongSelf.contractsForTransactedTokens(detectedContracts: detectedContracts, forServer: server)
-                .compactMap { contract -> Promise<AddTokenObjectOperation> in
-                    strongSelf.tokenObjectFetcher.fetchTokenObject(for: contract, onlyIfThereIsABalance: false)
+                .compactMap { contract -> Promise<TokenOrContract> in
+                    importToken.fetchTokenOrContract(for: contract, server: server, onlyIfThereIsABalance: false)
                 }
 
             return when(resolved: promises)
-                .map(on: strongSelf.queue, { values -> [SingleChainTokensAutodetector.AddTokenObjectOperation] in
+                .map(on: strongSelf.queue, { values -> [TokenOrContract] in
                     return values.compactMap { $0.optionalValue }
                 })
         })
@@ -181,46 +158,38 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
 
     private func contractsToAutodetectTokens(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)], forServer server: RPCServer) -> [AlphaWallet.Address] {
 
-        let alreadyAddedContracts = tokensDataStore.enabledTokenObjects(forServers: [server]).map { $0.contractAddress }
-        let deletedContracts = tokensDataStore.deletedContracts(forServer: server).map { $0.contractAddress }
-        let hiddenContracts = tokensDataStore.hiddenContracts(forServer: server).map { $0.contractAddress }
+        let alreadyAddedContracts = tokensDataStore.enabledTokens(for: [server]).map { $0.contractAddress }
+        let deletedContracts = tokensDataStore.deletedContracts(forServer: server).map { $0.address }
+        let hiddenContracts = tokensDataStore.hiddenContracts(forServer: server).map { $0.address }
 
         return contractsToDetect.map { $0.contract } - alreadyAddedContracts - deletedContracts - hiddenContracts
     }
 
-    private func fetchCreateErc875OrErc20Token(forContract contract: AlphaWallet.Address, forServer server: RPCServer) -> Promise<AddTokenObjectOperation> {
-        let accountAddress = session.account.address
-        let queue = queue
-
-        return TokenProvider(account: session.account, server: server)
-            .getTokenType(for: contract)
-            .then(on: queue, { [weak tokenObjectFetcher] tokenType -> Promise<AddTokenObjectOperation> in
-                guard let tokenObjectFetcher = tokenObjectFetcher else { return .init(error: PMKError.cancelled) }
-
+    private func fetchCreateErc875OrErc20Token(forContract contract: AlphaWallet.Address, forServer server: RPCServer) -> Promise<TokenOrContract> {
+        return tokenProvider.getTokenType(for: contract)
+            .then(on: queue, { [session, importToken, erc875BalanceFetcher, erc20BalanceFetcher, queue] tokenType -> Promise<TokenOrContract> in
                 switch tokenType {
                 case .erc875:
                     //TODO long and very similar code below. Extract function
-                    let balanceCoordinator = GetErc875Balance(forServer: server, queue: queue)
-                    return balanceCoordinator.getERC875TokenBalance(for: accountAddress, contract: contract).then { balance -> Promise<AddTokenObjectOperation> in
+                    return erc875BalanceFetcher.getERC875TokenBalance(for: session.account.address, contract: contract).then(on: queue, { balance -> Promise<TokenOrContract> in
                         if balance.isEmpty {
                             return .value(.none)
                         } else {
-                            return tokenObjectFetcher.fetchTokenObject(for: contract, onlyIfThereIsABalance: false)
+                            return importToken.fetchTokenOrContract(for: contract, server: server, onlyIfThereIsABalance: false)
                         }
-                    }.recover { _ -> Guarantee<AddTokenObjectOperation> in
+                    }).recover(on: queue, { _ -> Guarantee<TokenOrContract> in
                         return .value(.none)
-                    }
+                    })
                 case .erc20:
-                    let balanceCoordinator = GetErc20Balance(forServer: server, queue: queue)
-                    return balanceCoordinator.getBalance(for: accountAddress, contract: contract).then { balance -> Promise<AddTokenObjectOperation> in
+                    return erc20BalanceFetcher.getBalance(for: session.account.address, contract: contract).then(on: queue, { balance -> Promise<TokenOrContract> in
                         if balance > 0 {
-                            return tokenObjectFetcher.fetchTokenObject(for: contract, onlyIfThereIsABalance: false)
+                            return importToken.fetchTokenOrContract(for: contract, server: server, onlyIfThereIsABalance: false)
                         } else {
                             return .value(.none)
                         }
-                    }.recover { _ -> Guarantee<AddTokenObjectOperation> in
+                    }).recover(on: queue, { _ -> Guarantee<TokenOrContract> in
                         return .value(.none)
-                    }
+                    })
                 case .erc721, .erc721ForTickets, .erc1155, .nativeCryptocurrency:
                     //Handled in PrivateBalanceFetcher.refreshBalanceForErc721Or1155Tokens()
                     return .value(.none)
@@ -231,7 +200,7 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
 
 extension SingleChainTokensAutodetector: AutoDetectTransactedTokensOperationDelegate {
 
-    func autoDetectTransactedErc20AndNonErc20Tokens(wallet: AlphaWallet.Address) -> Promise<[SingleChainTokensAutodetector.AddTokenObjectOperation]> {
+    func autoDetectTransactedErc20AndNonErc20Tokens(wallet: AlphaWallet.Address) -> Promise<[TokenOrContract]> {
         let fetchErc20Tokens = autoDetectTransactedTokensImpl(wallet: wallet, erc20: true)
         let fetchNonErc20Tokens = autoDetectTransactedTokensImpl(wallet: wallet, erc20: false)
 
@@ -244,9 +213,9 @@ extension SingleChainTokensAutodetector: AutoDetectTransactedTokensOperationDele
 
 extension SingleChainTokensAutodetector: AutoDetectTokensOperationDelegate {
 
-    func autoDetectTokensImpl(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)], server: RPCServer) -> Promise<[SingleChainTokensAutodetector.AddTokenObjectOperation]> {
+    func autoDetectTokensImpl(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)], server: RPCServer) -> Promise<[TokenOrContract]> {
         let promises = contractsToAutodetectTokens(withContracts: contractsToDetect, forServer: server)
-            .map { each -> Promise<AddTokenObjectOperation> in
+            .map { each -> Promise<TokenOrContract> in
                 return fetchCreateErc875OrErc20Token(forContract: each, forServer: server)
             }
 

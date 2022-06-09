@@ -24,7 +24,7 @@ class TransactionConfirmationRowInfoView: UIView {
         subTitleLabel.translatesAutoresizingMaskIntoConstraints = false
         subTitleLabel.textAlignment = .left
         subTitleLabel.textColor = Colors.black
-        subTitleLabel.font = Fonts.light(size: ScreenChecker().isNarrowScreen ? 13 : 15)
+        subTitleLabel.font = Fonts.regular(size: ScreenChecker().isNarrowScreen ? 13 : 15)
         subTitleLabel.numberOfLines = 0
 
         return subTitleLabel

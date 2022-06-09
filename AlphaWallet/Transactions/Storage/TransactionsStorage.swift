@@ -9,7 +9,6 @@ class TransactionDataStore {
     static var pendingTransactionsInformation: [String: (server: RPCServer, data: Data, transactionType: TransactionType, gasPrice: BigInt)] = .init()
 
     private let store: RealmStore
-    private let queue = DispatchQueue(label: "com.TransactionDataStore.UpdateQueue")
 
     init(store: RealmStore) {
         self.store = store
@@ -19,19 +18,19 @@ class TransactionDataStore {
         return transactions(forServer: server).count
     }
 
-    func transactions(forServer server: RPCServer, sortedDateAscending: Bool = false) -> [Transaction] {
-        var results: [Transaction] = []
+    func transactions(forServer server: RPCServer, sortedDateAscending: Bool = false) -> [TransactionInstance] {
+        var results: [TransactionInstance] = []
         store.performSync { realm in
             results = realm.objects(Transaction.self)
                 .filter(TransactionDataStore.functional.nonEmptyIdTransactionPredicate(server: server))
                 .sorted(byKeyPath: "date", ascending: sortedDateAscending)
-                .toArray()
+                .map { TransactionInstance(transaction: $0) }
         }
 
         return results
     }
 
-    func transactionsChangesetPublisher(forFilter filter: TransactionsFilterStrategy, servers: [RPCServer]) -> AnyPublisher<ChangeSet<[Transaction]>, Never> {
+    func transactionsChangeset(forFilter filter: TransactionsFilterStrategy, servers: [RPCServer]) -> AnyPublisher<ChangeSet<[TransactionInstance]>, Never> {
         let predicate: NSPredicate
         switch filter {
         case .filter(let filter, let tokenObject):
@@ -48,19 +47,20 @@ class TransactionDataStore {
             predicate = TransactionDataStore.functional.nonEmptyIdTransactionPredicate(servers: servers)
         }
 
-        var publisher: AnyPublisher<ChangeSet<[Transaction]>, Never>!
+        var publisher: AnyPublisher<ChangeSet<[TransactionInstance]>, Never>!
         store.performSync { realm in
             publisher = realm.objects(Transaction.self)
                 .filter(predicate)
                 .sorted(byKeyPath: "date", ascending: false)
                 .changesetPublisher
-                .subscribe(on: queue)
+                .freeze()
+                .receive(on: DispatchQueue.global())
                 .map { change in
                     switch change {
                     case .initial(let transactions):
-                        return .initial(Array(transactions.map { $0.detached() }))
+                        return .initial(Array(transactions.map { TransactionInstance(transaction: $0) }))
                     case .update(let transactions, let deletions, let insertions, let modifications):
-                        return .update(Array(transactions.map { $0.detached() }), deletions: deletions, insertions: insertions, modifications: modifications)
+                        return .update(Array(transactions.map { TransactionInstance(transaction: $0) }), deletions: deletions, insertions: insertions, modifications: modifications)
                     case .error(let error):
                         return .error(error)
                     }
@@ -71,7 +71,7 @@ class TransactionDataStore {
         return publisher
     }
 
-    func transactions(forFilter filter: TransactionsFilterStrategy, servers: [RPCServer], oldestBlockNumber: Int? = nil) -> [Transaction] {
+    func transactions(forFilter filter: TransactionsFilterStrategy, servers: [RPCServer], oldestBlockNumber: Int? = nil) -> [TransactionInstance] {
         let oldestBlockNumberPredicate = oldestBlockNumber.flatMap { [TransactionDataStore.functional.blockNumberPredicate(blockNumber: $0)] } ?? []
         let predicate: NSPredicate
         switch filter {
@@ -88,12 +88,13 @@ class TransactionDataStore {
             predicate = p
         }
 
-        var transactions: [Transaction] = []
+        var transactions: [TransactionInstance] = []
         store.performSync { realm in
             transactions = realm.objects(Transaction.self)
                 .filter(predicate)
                 .sorted(byKeyPath: "date", ascending: false)
-                .toArray()
+                .map { TransactionInstance(transaction: $0) }
+
         }
 
         return transactions
@@ -105,7 +106,6 @@ class TransactionDataStore {
             transactions = realm.objects(Transaction.self)
                 .filter(TransactionDataStore.functional.transactionPredicate(server: server, transactionState: transactionState))
                 .sorted(byKeyPath: "date", ascending: false)
-                .toArray()
                 .map { TransactionInstance(transaction: $0) }
         }
 
@@ -118,7 +118,6 @@ class TransactionDataStore {
             transaction = realm.objects(Transaction.self)
                 .filter(TransactionDataStore.functional.transactionPredicate(server: server, transactionState: transactionState))
                 .sorted(byKeyPath: "date", ascending: false)
-                .toArray()
                 .map { TransactionInstance(transaction: $0) }
                 .last
         }
@@ -151,7 +150,6 @@ class TransactionDataStore {
             transaction = realm.objects(Transaction.self)
                 .filter(predicate)
                 .sorted(byKeyPath: "date", ascending: false)
-                .toArray()
                 .map { TransactionInstance(transaction: $0) }
                 .first
         }
@@ -170,7 +168,6 @@ class TransactionDataStore {
             transaction = realm.objects(Transaction.self)
                 .filter(predicate)
                 .sorted(byKeyPath: "date", ascending: false)
-                .toArray()
                 .map { TransactionInstance(transaction: $0) }
                 .first
         }
@@ -187,7 +184,6 @@ class TransactionDataStore {
             transaction = realm.objects(Transaction.self)
                 .filter(predicate)
                 .sorted(byKeyPath: "date", ascending: false)
-                .toArray()
                 .map { TransactionInstance(transaction: $0) }
                 .first
         }
@@ -195,6 +191,8 @@ class TransactionDataStore {
     }
 
     func delete(transactions: [TransactionInstance]) {
+        guard !transactions.isEmpty else { return }
+
         store.performSync { realm in
             let objects = transactions.compactMap { realm.object(ofType: Transaction.self, forPrimaryKey: $0.primaryKey) }
             try? realm.safeWrite {
@@ -220,23 +218,24 @@ class TransactionDataStore {
     }
 
     @discardableResult func addOrUpdate(transactions: [TransactionInstance]) -> [TransactionInstance] {
-        let newTransactions = transactions.map { Transaction(object: $0) }
+        guard !transactions.isEmpty else { return [] }
+
         var transactionsToReturn: [TransactionInstance] = []
 
         store.performSync { realm in
-            let transactionsToCommit = filterTransactionsToNotOverrideERC20Transactions(newTransactions, realm: realm)
-            guard !transactionsToCommit.isEmpty else { return }
+            transactionsToReturn = self.filterTransactionsToNotOverrideERC20Transactions(transactions, realm: realm)
+            guard !transactionsToReturn.isEmpty else { return }
 
+            let transactionsToCommit = transactionsToReturn.map { Transaction(object: $0) }
             try? realm.safeWrite {
                 realm.add(transactionsToCommit, update: .all)
             }
-            transactionsToReturn = transactionsToCommit.map { TransactionInstance(transaction: $0) }
         }
         return transactionsToReturn
     }
 
     //We pull transactions data from the normal transactions API as well as ERC20 event log. For the same transaction, we only want data from the latter. Otherwise the UI will show the cell display switching between data from the 2 source as we fetch (or re-fetch)
-    private func filterTransactionsToNotOverrideERC20Transactions(_ transactions: [Transaction], realm: Realm) -> [Transaction] {
+    private func filterTransactionsToNotOverrideERC20Transactions(_ transactions: [TransactionInstance], realm: Realm) -> [TransactionInstance] {
         return transactions.filter { each in
             if each.isERC20Interaction {
                 return true
@@ -250,28 +249,26 @@ class TransactionDataStore {
         }
     }
 
-    @discardableResult func add(transactions: [Transaction]) -> [Transaction] {
+    @discardableResult func add(transactions: [TransactionInstance]) -> [TransactionInstance] {
         guard !transactions.isEmpty else { return [] }
-        var transactionsToReturn: [Transaction] = []
 
+        let transactionsToAdd = transactions.map { Transaction(object: $0) }
         store.performSync { realm in
             try? realm.safeWrite {
-                realm.add(transactions, update: .all)
+                realm.add(transactionsToAdd, update: .all)
             }
-
-            transactionsToReturn = transactions
-                .compactMap { realm.object(ofType: Transaction.self, forPrimaryKey: $0.primaryKey)?.detached() }
         }
 
-        return transactionsToReturn
+        return transactions
     }
 
-    func delete(_ items: [Transaction]) {
-        guard !items.isEmpty else { return }
+    func delete(_ transactions: [TransactionInstance]) {
+        guard !transactions.isEmpty else { return }
 
         store.performSync { realm in
             try? realm.safeWrite {
-                realm.delete(items)
+                let transactionsToDelete = transactions.compactMap { realm.object(ofType: Transaction.self, forPrimaryKey: $0.primaryKey) }
+                realm.delete(transactionsToDelete)
             }
         }
     }
@@ -349,8 +346,8 @@ extension TransactionDataStore {
 
 extension TransactionDataStore.functional {
 
-    static func transactionsFilter(for strategy: ActivitiesFilterStrategy, tokenObject: TokenObject) -> TransactionsFilterStrategy {
-        return .filter(strategy: strategy, tokenObject: tokenObject)
+    static func transactionsFilter(for strategy: ActivitiesFilterStrategy, token: Token) -> TransactionsFilterStrategy {
+        return .filter(strategy: strategy, token: token)
     }
 
     static func generateJsonForTransactions(transactionStorage: TransactionDataStore, server: RPCServer, toUrl url: URL) throws -> Data {

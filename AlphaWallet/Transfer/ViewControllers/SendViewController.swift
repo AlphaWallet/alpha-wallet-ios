@@ -42,7 +42,7 @@ class SendViewController: UIViewController {
         amountTextField.errorState = .none
         amountTextField.isAlternativeAmountEnabled = false
         amountTextField.allFundsAvailable = Features.default.isAvailable(.isSendAllFundsFungibleEnabled)
-
+        amountTextField.selectCurrencyButton.hasToken = true
         return amountTextField
     }()
     weak var delegate: SendViewControllerDelegate?
@@ -230,7 +230,7 @@ class SendViewController: UIViewController {
                 .receive(on: RunLoop.main)
                 .sink { [weak self] _ in
                     guard let celf = self else { return }
-                    guard celf.tokensDataStore.token(forContract: celf.viewModel.transactionType.contract, server: celf.session.server) != nil else { return }
+                    guard celf.tokensDataStore.tokenObject(forContract: celf.viewModel.transactionType.contract, server: celf.session.server) != nil else { return }
                     celf.configureFor(contract: celf.viewModel.transactionType.contract, recipient: recipient, amount: amount, shouldConfigureBalance: false)
                 }
             session.tokenBalanceService.refresh(refreshBalancePolicy: .eth)
@@ -246,7 +246,7 @@ class SendViewController: UIViewController {
         guard let result = QRCodeValueParser.from(string: result) else { return }
         switch result {
         case .address(let recipient):
-            guard let tokenObject = tokensDataStore.token(forContract: viewModel.transactionType.contract, server: session.server) else { return }
+            guard let tokenObject = tokensDataStore.tokenObject(forContract: viewModel.transactionType.contract, server: session.server) else { return }
             let amountAsIntWithDecimals = EtherNumberFormatter.plain.number(from: amountTextField.ethCost, decimals: tokenObject.decimals)
             configureFor(contract: transactionType.contract, recipient: .address(recipient), amount: amountAsIntWithDecimals)
             activateAmountView()
@@ -312,7 +312,7 @@ class SendViewController: UIViewController {
     }
 
     private func configureFor(contract: AlphaWallet.Address, recipient: AddressOrEnsName?, amount: BigInt?, shouldConfigureBalance: Bool = true) {
-        guard let tokenObject = tokensDataStore.token(forContract: contract, server: self.session.server) else { return }
+        guard let tokenObject = tokensDataStore.tokenObject(forContract: contract, server: self.session.server) else { return }
         let amount = amount.flatMap { EtherNumberFormatter.plain.string(from: $0, decimals: tokenObject.decimals) }
         let transactionType: TransactionType
         if let amount = amount, amount != "0" {

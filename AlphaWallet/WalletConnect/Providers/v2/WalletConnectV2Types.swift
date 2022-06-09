@@ -6,88 +6,59 @@
 //
 
 import Foundation
-import WalletConnect 
+import WalletConnectSign
 
-typealias WalletConnectV2URI = WalletConnectURI
+typealias WalletConnectV2URI = WalletConnectSign.WalletConnectURI
+typealias SessionNamespace = WalletConnectSign.SessionNamespace
+typealias Blockchain = WalletConnectSign.Blockchain
+typealias CAIP10Account = WalletConnectSign.Account
 
-struct MultiServerWalletConnectSession: Codable, SessionIdentifiable {
-    var dapp: AppMetadata
-    private (set) var blockchains: Set<String>
-    var methods: Set<String>
-    let identifier: AlphaWallet.WalletConnect.SessionIdentifier
-
-    var requester: DAppRequester {
-        return .init(title: dapp.name, url: dapp.url.flatMap({ URL(string: $0) }))
-    }
-
-    var permissions: Session.Permissions {
-        return .init(blockchains: blockchains, methods: methods)
-    }
+struct WalletConnectV2Session: Codable {
+    private (set) var namespaces: [String: SessionNamespace]
+    let expiryDate: Date
+    var requester: DAppRequester { .init(title: dapp.name, url: URL(string: dapp.url)) }
+    let dapp: WalletConnectSign.AppMetadata
+    let topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl
 
     var servers: [RPCServer] {
-        get {
-            return RPCServer.decodeEip155Array(values: blockchains)
-        }
-        set {
-            blockchains = Set(newValue.compactMap { $0.eip155 })
-        }
+        let blockchains = Set(namespaces.values.flatMap { n in n.accounts.map { $0.blockchain.absoluteString } })
+        return RPCServer.decodeEip155Array(values: blockchains)
     }
 
-    init(session: Session) {
-        self.identifier = .topic(string: session.topic)
-        self.dapp = session.peer
-        self.blockchains = session.permissions.blockchains
-        self.methods = session.permissions.methods
+    init(session: WalletConnectSign.Session) {
+        topicOrUrl = .topic(string: session.topic)
+        dapp = session.peer
+        namespaces = session.namespaces
+        expiryDate = session.expiryDate
     }
 
-    mutating func update(session: Session) {
-        self.dapp = session.peer
-        self.blockchains = session.permissions.blockchains
-        self.methods = session.permissions.methods
-    }
-
-    mutating func update(permissions: Session.Permissions) {
-        self.blockchains = permissions.blockchains
-        self.methods = permissions.methods
-    }
+    mutating func update(namespaces _namespaces: [String: SessionNamespace]) {
+        namespaces = _namespaces
+    } 
 }
 
 extension AlphaWallet.WalletConnect.Dapp {
 
-    init(appMetadata metadata: AppMetadata) {
-        self.name = metadata.name ?? ""
+    init(appMetadata metadata: WalletConnectSign.AppMetadata) {
+        self.name = metadata.name
         self.description = metadata.description
-        self.url = metadata.url.flatMap({ URL(string: $0) })!
-        self.icons = metadata.icons.flatMap({ $0.compactMap({ URL(string: $0) }) }) ?? []
+        self.url = URL(string: metadata.url)!
+        self.icons = metadata.icons.compactMap({ URL(string: $0) })
     }
 }
 
 extension AlphaWallet.WalletConnect.Session {
 
-    init(multiServerSession session: MultiServerWalletConnectSession) {
-        identifier = session.identifier
-        servers = session.servers
+    init(multiServerSession session: WalletConnectV2Session) {
+        topicOrUrl = session.topicOrUrl
         dapp = .init(appMetadata: session.dapp)
-        methods = Array(session.methods)
-        isMultipleServersEnabled = true
+        namespaces = session.namespaces
+        multipleServersSelection = .enabled
     }
 }
 
-enum WalletConnectV2ProviderError: Error {
-    case connectionIsAlreadyPending
-}
-
-typealias WalletConnectV2Request = Request
+typealias WalletConnectV2Request = WalletConnectSign.Request
 
 extension WalletConnectV2Request {
-    var rpcServer: RPCServer? {
-        guard let chainId = chainId else { return nil }
-        if let server = eip155URLCoder.decodeRPC(from: chainId) {
-            return server
-        } else if let value = Int(chainId, radix: 10) {
-            return RPCServer(chainID: value)
-        } else {
-            return nil
-        }
-    }
+    var rpcServer: RPCServer? { eip155URLCoder.decodeRPC(from: chainId.absoluteString) }
 }

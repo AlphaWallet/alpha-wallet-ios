@@ -17,6 +17,18 @@ extension WalletConnectCoordinator {
     }
 }
 
+extension MultipleChainsTokenCollection {
+    static func fake() -> MultipleChainsTokenCollection {
+        let tokensDataStore = FakeTokensDataStore()
+        let config: Config = .make()
+        let coinTickersFetcher = FakeCoinTickersFetcher()
+        let actionsService = TokenActionsService()
+        let tokenGroupIdentifier: TokenGroupIdentifierProtocol = FakeTokenGroupIdentifier()
+        let tokensFilter = TokensFilter(assetDefinitionStore: .init(), tokenActionsService: actionsService, coinTickersFetcher: coinTickersFetcher, tokenGroupIdentifier: tokenGroupIdentifier)
+        return MultipleChainsTokenCollection(tokensFilter: tokensFilter, tokensDataStore: tokensDataStore, config: config)
+    }
+}
+
 class ConfigTests: XCTestCase {
 
     //This is still used by Dapp browser
@@ -35,14 +47,12 @@ class ConfigTests: XCTestCase {
         Config.setLocale(AppLocale.english)
         let coinTickersFetcher = FakeCoinTickersFetcher()
         let tokenActionsService = FakeSwapTokenService()
-        let tokensDataStore = FakeTokensDataStore()
-        
+
         let coordinator_1 = TokensCoordinator(
             navigationController: FakeNavigationController(),
             sessions: sessions,
             keystore: FakeKeystore(),
             config: config,
-            tokensDataStore: tokensDataStore,
             assetDefinitionStore: AssetDefinitionStore(),
             eventsDataStore: FakeEventsDataStore(),
             promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeKeystore(), wallet: .make(), config: config, analyticsCoordinator: FakeAnalyticsService()),
@@ -51,7 +61,9 @@ class ConfigTests: XCTestCase {
             walletConnectCoordinator: .fake(),
             coinTickersFetcher: coinTickersFetcher,
             activitiesService: FakeActivitiesService(),
-            walletBalanceService: FakeMultiWalletBalanceService()
+            walletBalanceService: FakeMultiWalletBalanceService(),
+            tokenCollection: MultipleChainsTokenCollection.fake(),
+            importToken: FakeImportToken()
         )
 
         coordinator_1.start()
@@ -59,13 +71,12 @@ class ConfigTests: XCTestCase {
         XCTAssertEqual(coordinator_1.tokensViewController.title, "Wallet")
 
         Config.setLocale(AppLocale.simplifiedChinese)
-        
+
         let coordinator_2 = TokensCoordinator(
             navigationController: FakeNavigationController(),
             sessions: sessions,
             keystore: FakeKeystore(),
             config: config,
-            tokensDataStore: tokensDataStore,
             assetDefinitionStore: AssetDefinitionStore(),
             eventsDataStore: FakeEventsDataStore(),
             promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeKeystore(), wallet: .make(), config: config, analyticsCoordinator: FakeAnalyticsService()),
@@ -74,7 +85,9 @@ class ConfigTests: XCTestCase {
             walletConnectCoordinator: .fake(),
             coinTickersFetcher: coinTickersFetcher,
             activitiesService: FakeActivitiesService(),
-            walletBalanceService: FakeMultiWalletBalanceService()
+            walletBalanceService: FakeMultiWalletBalanceService(),
+            tokenCollection: MultipleChainsTokenCollection.fake(),
+            importToken: FakeImportToken()
         )
 
         coordinator_2.start()
@@ -83,5 +96,16 @@ class ConfigTests: XCTestCase {
 
         //Must change this back to system, otherwise other tests will break either immediately or the next run
         Config.setLocale(AppLocale.system)
+    }
+
+    func testMakeSureDevelopmentFlagsAreAllFalse() {
+        let mirror = Mirror(reflecting: Config.Development())
+        for child in mirror.children {
+            if let value = child.value as? Bool {
+                XCTAssertFalse(value, "Property: \(child.label) should be `false`")
+            } else {
+                XCTFail("Property: \(child.label) should be `bool`")
+            }
+        }
     }
 }

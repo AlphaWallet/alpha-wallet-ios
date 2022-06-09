@@ -10,7 +10,8 @@ import Combine
 
 public protocol ReachabilityManagerProtocol {
     var isReachable: Bool { get }
-    var reachabilityObservable: AnyPublisher<Bool, Never> { get }
+    var isReachablePublisher: AnyPublisher<Bool, Never> { get }
+    var networkBecomeReachablePublisher: AnyPublisher<Void, Never> { get }
 }
 
 public class ReachabilityManager {
@@ -39,18 +40,16 @@ public class ReachabilityManager {
 }
 
 extension ReachabilityManager: ReachabilityManagerProtocol {
+    public var networkBecomeReachablePublisher: AnyPublisher<Void, Never> {
+        isReachablePublisher
+            .filter { $0 }
+            .map { _ in }
+            .eraseToAnyPublisher()
+    }
 
-    public var reachabilityObservable: AnyPublisher<Bool, Never> {
+    public var isReachablePublisher: AnyPublisher<Bool, Never> {
         reachabilitySubject
             .removeDuplicates()
             .eraseToAnyPublisher()
     }
-}
-
-extension ReachabilityManager {
-
-    public enum ReachabilityError: Error {
-        case notReachable
-    }
-
 }

@@ -7,30 +7,7 @@
 
 import UIKit
 import Charts
-
-struct TokenHistoryChartViewModel {
-    var values: [ChartHistory]
-    var ticker: CoinTicker?
-
-    var selectedHistoryIndex: Int = 0
-    var periodTitles: [String] = ChartHistoryPeriod.allCases.map { $0.title }
-    var separatorBackgroundColor: UIColor = Colors.darkGray.withAlphaComponent(0.5)
-    var chartSetColor: UIColor { gradientColor }
-    var chartSelectionColor: UIColor { gradientColor }
-    
-    private var gradientColor: UIColor {
-        switch EthCurrencyHelper(ticker: ticker).change24h {
-        case .appreciate, .none:
-            return Colors.appActionButtonGreen
-        case .depreciate:
-            return Colors.appRed
-        }
-    }
-
-    var setGradientFill: Fill? {
-        return Fill.fillWithCGColor(UIColor.clear.cgColor)
-    }
-}
+import Combine
 
 class TokenHistoryChartView: UIView {
 
@@ -109,7 +86,8 @@ class TokenHistoryChartView: UIView {
         return view
     }()
 
-    private (set) var viewModel: TokenHistoryChartViewModel
+    private let viewModel: TokenHistoryChartViewModel
+    private var cancelable = Set<AnyCancellable>()
 
     init(viewModel: TokenHistoryChartViewModel) {
         self.viewModel = viewModel
@@ -131,48 +109,30 @@ class TokenHistoryChartView: UIView {
             periodSelectorView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
 
-        configure(viewModel: viewModel)
+        bind(viewModel: viewModel)
         periodSelectorView.set(selectedIndex: viewModel.selectedHistoryIndex)
     } 
 
     required init?(coder: NSCoder) {
         return nil
-    }
+    } 
 
-    func configure(viewModel: TokenHistoryChartViewModel) {
-        self.viewModel = viewModel
-        
-        fillChartView(viewModel: viewModel)
-    }
+    private func bind(viewModel: TokenHistoryChartViewModel) {
+        viewModel.lineChartDataSet
+            .receive(on: RunLoop.main)
+            .sink { [weak chartView] dataSet in
+                guard let set = dataSet else { chartView?.data = nil; return; }
 
-    private func fillChartView(viewModel: TokenHistoryChartViewModel) {
-        if let history = viewModel.values[safe: viewModel.selectedHistoryIndex], !history.prices.isEmpty {
-            let entries = history.prices.map { value -> ChartDataEntry in
-                return ChartDataEntry(x: value.timestamp, y: value.value)
-            }
+                set.fillFormatter = DefaultFillFormatter { _, _  -> CGFloat in
+                    guard let chartView = chartView else { return 0.0 }
+                    return CGFloat(chartView.leftAxis.axisMinimum)
+                }
 
-            let set = LineChartDataSet(entries: entries, label: "")
-            set.axisDependency = .left
-            set.setColor(viewModel.chartSetColor)
-            set.drawCirclesEnabled = false
-            set.lineWidth = 2
-            set.fillAlpha = 1
-            set.drawFilledEnabled = true
-            set.fill = viewModel.setGradientFill
-            set.highlightColor = viewModel.chartSelectionColor
-            set.drawCircleHoleEnabled = false
-            set.fillFormatter = DefaultFillFormatter { [weak self] _, _  -> CGFloat in
-                guard let strongSelf = self else { return 0.0 }
-                return CGFloat(strongSelf.chartView.leftAxis.axisMinimum)
-            }
+                let data: LineChartData = LineChartData(dataSets: [set])
+                data.setDrawValues(false)
 
-            let data: LineChartData = LineChartData(dataSets: [set])
-            data.setDrawValues(false)
-
-            chartView.data = data
-        } else {
-            chartView.data = nil
-        }
+                chartView?.data = data
+            }.store(in: &cancelable)
     }
 }
 
@@ -180,11 +140,10 @@ extension TokenHistoryChartView: TokenHistoryPeriodSelectorViewDelegate {
     func view(_ view: TokenHistoryPeriodSelectorView, didChangeSelection selection: ControlSelection) {
         switch selection {
         case .selected(let index):
-            viewModel.selectedHistoryIndex = Int(index)
+            viewModel.set(selectedHistoryIndex: Int(index))
         case .unselected:
             break
         }
-        configure(viewModel: viewModel)
     }
 }
 

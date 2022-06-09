@@ -10,7 +10,7 @@ import UIKit
 class WhatsNewHeaderView: UIView {
     lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.font = R.font.sourceSansProBold(size: 24.0)
+        label.font = Fonts.bold(size: 24)
         label.textAlignment = .center
         label.textColor = .black
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -54,7 +54,7 @@ class WhatsNewSubHeaderView: UIView {
     }()
     lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.font = R.font.sourceSansProSemibold(size: 20.0)
+        label.font = Fonts.semibold(size: 20)
         label.textAlignment = .center
         label.textColor = .black
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -99,7 +99,7 @@ class WhatsNewEntryView: UIView {
     }()
     lazy var entryLabel: UILabel = {
         let label = UILabel()
-        label.font = R.font.sourceSansProRegular(size: 20.0)
+        label.font = Fonts.regular(size: 20)
         label.textAlignment = .natural
         label.textColor = .black
         label.translatesAutoresizingMaskIntoConstraints = false

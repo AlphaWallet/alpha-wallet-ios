@@ -46,7 +46,7 @@ class NFTAssetSelectionViewController: UIViewController {
     private var isSearchBarConfigured = false
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
-        tableView.register(SelectableNFTAssetContainerTableViewCell.self)
+        tableView.register(SelectableNFTAssetTableViewCell.self)
         tableView.registerHeaderFooterView(NFTAssetSelectionSectionHeaderView.self)
         tableView.dataSource = self
         tableView.estimatedRowHeight = 100
@@ -68,22 +68,11 @@ class NFTAssetSelectionViewController: UIViewController {
     private let toolbar = ToolButtonsBarView()
     private let roundedBackground = RoundedBackground()
     private lazy var footerBar = ButtonsBarBackgroundView(buttonsBar: toolbar, edgeInsets: .init(top: 0, left: 0, bottom: 40, right: 0))
-    private lazy var factory: TokenCardTableViewCellFactory = {
-        TokenCardTableViewCellFactory()
-    }()
-
-    private var cachedCellsCardRowViews: [IndexPath: UIView & TokenCardRowViewProtocol & SelectionPositioningView] = [:]
-    private let assetDefinitionStore: AssetDefinitionStore
-    private let analyticsCoordinator: AnalyticsCoordinator
-    private let server: RPCServer
-    private let tokenObject: TokenObject
+    private let tokenCardViewFactory: TokenCardViewFactory
     weak var delegate: NFTAssetSelectionViewControllerDelegate?
 
-    init(viewModel: NFTAssetSelectionViewModel, tokenObject: TokenObject, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, server: RPCServer) {
-        self.tokenObject = tokenObject
-        self.assetDefinitionStore = assetDefinitionStore
-        self.analyticsCoordinator = analyticsCoordinator
-        self.server = server
+    init(viewModel: NFTAssetSelectionViewModel, tokenCardViewFactory: TokenCardViewFactory) {
+        self.tokenCardViewFactory = tokenCardViewFactory
         self.viewModel = viewModel
         searchController = UISearchController(searchResultsController: nil)
         super.init(nibName: nil, bundle: nil)
@@ -178,7 +167,7 @@ class NFTAssetSelectionViewController: UIViewController {
     }
 
     private func reconfigureCell(at indexPath: IndexPath) {
-        guard let cell = tableView.cellForRow(at: indexPath) as? SelectableNFTAssetContainerTableViewCell else { return }
+        guard let cell = tableView.cellForRow(at: indexPath) as? SelectableNFTAssetTableViewCell else { return }
 
         let selection = viewModel.tokenHolderSelection(indexPath: indexPath)
         cell.configure(viewModel: .init(tokenHolder: selection.tokenHolder, tokenId: selection.tokenId))
@@ -206,21 +195,13 @@ extension NFTAssetSelectionViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let selection = viewModel.tokenHolderSelection(indexPath: indexPath)
-        let cell: SelectableNFTAssetContainerTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-        let subview: UIView & SelectionPositioningView & TokenCardRowViewProtocol
-
-        if let view = cachedCellsCardRowViews[indexPath] {
-            subview = view
-        } else {
-            let view = factory.create(for: selection.tokenHolder, layout: .list, listEdgeInsets: .init(top: 5, left: 0, bottom: 5, right: 0))
-            subview = view
-            cachedCellsCardRowViews[indexPath] = subview
-        }
+        let cell: SelectableNFTAssetTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+        let subview = tokenCardViewFactory.create(for: selection.tokenHolder, layout: .list, listEdgeInsets: .init(top: 5, left: 0, bottom: 5, right: 0))
 
         cell.prapare(with: subview)
         cell.configure(viewModel: .init(tokenHolder: selection.tokenHolder, tokenId: selection.tokenId))
 
-        subview.configure(tokenHolder: selection.tokenHolder, tokenId: selection.tokenId, tokenView: .viewIconified, areDetailsVisible: false, width: tableView.frame.size.width, assetDefinitionStore: assetDefinitionStore)
+        subview.configure(tokenHolder: selection.tokenHolder, tokenId: selection.tokenId)
         //NOTE: tweak views background color
         subview.backgroundColor = .clear
 
@@ -266,7 +247,7 @@ extension NFTAssetSelectionViewController: NFTAssetSelectionSectionHeaderViewDel
         guard let section = view.section else { return }
 
         for indexPath in viewModel.selectAllTokens(for: section) {
-            guard let cell = tableView.cellForRow(at: indexPath) as? SelectableNFTAssetContainerTableViewCell else { continue }
+            guard let cell = tableView.cellForRow(at: indexPath) as? SelectableNFTAssetTableViewCell else { continue }
 
             let selection = viewModel.tokenHolderSelection(indexPath: indexPath)
             cell.configure(viewModel: .init(tokenHolder: selection.tokenHolder, tokenId: selection.tokenId))
@@ -276,9 +257,9 @@ extension NFTAssetSelectionViewController: NFTAssetSelectionSectionHeaderViewDel
     }
 }
 
-extension NFTAssetSelectionViewController: SelectableNFTAssetContainerTableViewCellDelegate {
+extension NFTAssetSelectionViewController: SelectableNFTAssetTableViewCellDelegate {
 
-    func didCloseSelection(in sender: SelectableNFTAssetContainerTableViewCell, with selectedAmount: Int) {
+    func didCloseSelection(in sender: SelectableNFTAssetTableViewCell, with selectedAmount: Int) {
         guard let indexPath = sender.indexPath else { return }
 
         let selection = viewModel.tokenHolderSelection(indexPath: indexPath)

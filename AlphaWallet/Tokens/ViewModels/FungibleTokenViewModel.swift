@@ -4,31 +4,58 @@ import Foundation
 import UIKit
 import BigInt
 import PromiseKit
+import Combine
 
-struct FungibleTokenViewModel {
-    private let transactionType: TransactionType
-    private let session: WalletSession
-    private let assetDefinitionStore: AssetDefinitionStore
-    private (set) var tokenActionsProvider: SupportedTokenActionsProvider
-    var chartHistory: [ChartHistory] = []
+class FungibleTokenViewModel {
 
-    var token: TokenObject? {
+    enum TokenScriptWarningMessage {
+        case warning(string: String)
+        case undefined
+    }
+
+    enum ActionButtonState {
+        case isDisplayed(Bool)
+        case isEnabled(Bool)
+        case noOption
+    }
+
+    private let coinTickersFetcher: CoinTickersFetcherType
+    private var validatedToken: Token? {
         switch transactionType {
         case .nativeCryptocurrency:
             //TODO might as well just make .nativeCryptocurrency hold the TokenObject instance too
             return MultipleChainsTokensDataStore.functional.etherToken(forServer: session.server)
         case .erc20Token(let token, _, _):
-            return token
+            return Token(tokenObject: token)
         case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return nil
         }
     }
+    private (set) var tokenActionsProvider: SupportedTokenActionsProvider
+    let transactionType: TransactionType
+    let session: WalletSession
+    let assetDefinitionStore: AssetDefinitionStore
+    var wallet: Wallet { session.account }
+
+    var navigationTitle: String {
+        transactionType.tokenObject.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
+    }
+
+    lazy var tokenScriptFileStatusHandler = XMLHandler(token: transactionType.tokenObject, assetDefinitionStore: assetDefinitionStore)
+
+    lazy var tokenHolder: TokenHolder? = {
+        return validatedToken.flatMap { $0.getTokenHolder(assetDefinitionStore: assetDefinitionStore, forWallet: session.account) }
+    }()
+
+    var token: Token {
+        return .init(tokenObject: transactionType.tokenObject)
+    }
 
     var actions: [TokenInstanceAction] {
-        guard let token = token else { return [] }
+        guard let token = validatedToken else { return [] }
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         let actionsFromTokenScript = xmlHandler.actions
-        let key = TokenActionsServiceKey(tokenObject: token)
+        let key = TokenActionsServiceKey(token: token)
 
         if actionsFromTokenScript.isEmpty {
             switch token.type {
@@ -80,10 +107,10 @@ struct FungibleTokenViewModel {
                 }
             }
         }
-    }
+    } 
 
     var tokenScriptStatus: Promise<TokenLevelTokenScriptDisplayStatus> {
-        if let token = token {
+        if let token = validatedToken {
             let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
             return xmlHandler.tokenScriptStatus
         } else {
@@ -103,6 +130,26 @@ struct FungibleTokenViewModel {
         }
     }
 
+    lazy var actionsPublisher: AnyPublisher<[TokenInstanceAction], Never> = {
+        let tokenHolderUpdates: AnyPublisher<Void, Never> = tokenHolder?.objectWillChange.eraseToAnyPublisher() ?? Empty(completeImmediately: true).eraseToAnyPublisher()
+            .receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
+
+        let tokenActionsUpdates = tokenActionsProvider.objectWillChange
+            .receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
+
+        let assetBodyChanges = assetDefinitionStore.assetBodyChanged(for: transactionType.contract)
+            .receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
+
+        let initialUpdate = Just<Void>(()).eraseToAnyPublisher()
+
+        return Publishers.MergeMany(initialUpdate, tokenHolderUpdates, tokenActionsUpdates, assetBodyChanges)
+            .compactMap { [weak self] _ in self?.actions }
+            .eraseToAnyPublisher()
+    }()
+
     var hasCoinTicker: Bool {
         switch transactionType {
         case .nativeCryptocurrency:
@@ -115,23 +162,7 @@ struct FungibleTokenViewModel {
         }
     }
 
-    init(transactionType: TransactionType, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, tokenActionsProvider: SupportedTokenActionsProvider) {
-        self.transactionType = transactionType
-        self.session = session
-        self.assetDefinitionStore = assetDefinitionStore
-        self.tokenActionsProvider = tokenActionsProvider
-    }
-
-    func refreshBalance() {
-        switch transactionType {
-        case .nativeCryptocurrency:
-            session.tokenBalanceService.refresh(refreshBalancePolicy: .eth)
-        case .erc20Token(let token, _, _):
-            session.tokenBalanceService.refresh(refreshBalancePolicy: .token(token: Activity.AssignedToken(tokenObject: token)))
-        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
-            break
-        }
-    }
+    lazy var tokenInfoPageViewModel = TokenInfoPageViewModel(session: session, transactionType: transactionType, assetDefinitionStore: assetDefinitionStore, coinTickersFetcher: coinTickersFetcher)
 
     var destinationAddress: AlphaWallet.Address {
         return transactionType.contract
@@ -141,13 +172,6 @@ struct FungibleTokenViewModel {
         return Colors.appBackground
     }
 
-    var showAlternativeAmount: Bool {
-        guard let coinTicker = session.tokenBalanceService.coinTicker(transactionType.addressAndRPCServer), coinTicker.price_usd > 0 else {
-            return false
-        }
-        return true
-    }
-
     var sendButtonTitle: String {
         return R.string.localizable.send()
     }
@@ -155,4 +179,64 @@ struct FungibleTokenViewModel {
     var receiveButtonTitle: String {
         return R.string.localizable.receive()
     }
+
+    init(transactionType: TransactionType, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, tokenActionsProvider: SupportedTokenActionsProvider, coinTickersFetcher: CoinTickersFetcherType) {
+        self.transactionType = transactionType
+        self.session = session
+        self.assetDefinitionStore = assetDefinitionStore
+        self.tokenActionsProvider = tokenActionsProvider
+        self.coinTickersFetcher = coinTickersFetcher
+    }
+
+    func tokenScriptWarningMessage(for action: TokenInstanceAction) -> TokenScriptWarningMessage? {
+        if let tokenHolder = tokenHolder, let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: wallet.address, fungibleBalance: fungibleBalance) {
+            if let denialMessage = selection.denial {
+                return .warning(string: denialMessage)
+            } else {
+                //no-op shouldn't have reached here since the button should be disabled. So just do nothing to be safe
+                return .undefined
+            }
+        } else {
+            return nil
+        }
+    }
+
+    func buttonState(for action: TokenInstanceAction) -> ActionButtonState {
+        func _configButton(action: TokenInstanceAction) -> ActionButtonState {
+            if let tokenHolder = tokenHolder, let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: wallet.address, fungibleBalance: fungibleBalance) {
+                if selection.denial == nil {
+                    return .isDisplayed(false)
+                }
+            }
+            return .noOption
+        }
+
+        switch wallet.type {
+        case .real:
+            return _configButton(action: action)
+        case .watch:
+            if session.config.development.shouldPretendIsRealWallet {
+                return _configButton(action: action)
+            } else {
+                return .isEnabled(false)
+            }
+        }
+    }
+
+    func viewDidLoad() {
+        refreshBalance()
+        tokenInfoPageViewModel.fetchChartHistory()
+    }
+
+    private func refreshBalance() {
+        switch transactionType {
+        case .nativeCryptocurrency:
+            session.tokenBalanceService.refresh(refreshBalancePolicy: .eth)
+        case .erc20Token(let token, _, _):
+            session.tokenBalanceService.refresh(refreshBalancePolicy: .token(token: Token(tokenObject: token)))
+        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+            break
+        }
+    }
+
 }

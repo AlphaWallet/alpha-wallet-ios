@@ -29,21 +29,17 @@ class TransactionsService {
 
     weak var delegate: TransactionsServiceDelegate?
 
-    var transactionsChangesetPublisher: AnyPublisher<[TransactionInstance], Never> {
+    var transactionsChangeset: AnyPublisher<[TransactionInstance], Never> {
         let servers = sessions.values.map { $0.server }
         return transactionDataStore
-            .transactionsChangesetPublisher(forFilter: .all, servers: servers)
+            .transactionsChangeset(forFilter: .all, servers: servers)
             .map { change -> [TransactionInstance] in
                 switch change {
-                case .initial(let transactions):
-                    return transactions.map { TransactionInstance(transaction: $0) }
-                case .update(let transactions, _, _, _):
-                    return transactions.map { TransactionInstance(transaction: $0) }
-                case .error:
-                    return []
+                case .initial(let transactions): return transactions
+                case .update(let transactions, _, _, _): return transactions
+                case .error: return []
                 }
-            }
-            .eraseToAnyPublisher()
+            }.eraseToAnyPublisher()
     }
     private var cancelable = Set<AnyCancellable>()
     private let queue = DispatchQueue(label: "com.TransactionsService.UpdateQueue")
@@ -130,7 +126,7 @@ class TransactionsService {
         
         TransactionDataStore.pendingTransactionsInformation[transaction.id] = (server: transaction.original.server, data: transaction.original.data, transactionType: transaction.original.transactionType, gasPrice: transaction.original.gasPrice)
         let token = transaction.original.to.flatMap { tokensDataStore.token(forContract: $0, server: transaction.original.server) }
-        let transaction = Transaction.from(from: session.account.address, transaction: transaction, token: token)
+        let transaction = TransactionInstance.from(from: session.account.address, transaction: transaction, token: token)
         transactionDataStore.add(transactions: [transaction])
     }
 

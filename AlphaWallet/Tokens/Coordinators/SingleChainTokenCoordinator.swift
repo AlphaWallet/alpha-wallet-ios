@@ -20,8 +20,8 @@ protocol SingleChainTokenCoordinatorDelegate: CanOpenURL, SendTransactionDelegat
     func didTap(transaction: TransactionInstance, viewController: UIViewController, in coordinator: SingleChainTokenCoordinator)
     func didTap(activity: Activity, viewController: UIViewController, in coordinator: SingleChainTokenCoordinator)
     func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: SingleChainTokenCoordinator)
-    func didTapAddAlert(for tokenObject: TokenObject, in coordinator: SingleChainTokenCoordinator)
-    func didTapEditAlert(for tokenObject: TokenObject, alert: PriceAlert, in coordinator: SingleChainTokenCoordinator)
+    func didTapAddAlert(for token: Token, in coordinator: SingleChainTokenCoordinator)
+    func didTapEditAlert(for token: Token, alert: PriceAlert, in coordinator: SingleChainTokenCoordinator)
 }
 
 class SingleChainTokenCoordinator: Coordinator {
@@ -42,9 +42,7 @@ class SingleChainTokenCoordinator: Coordinator {
     }
     private let alertService: PriceAlertServiceType
     private let tokensAutodetector: TokensAutodetector
-    private lazy var tokenObjectFetcher: TokenObjectFetcher = {
-        SingleChainTokenObjectFetcher(account: session.account, server: server, assetDefinitionStore: assetDefinitionStore)
-    }()
+    private let importToken: ImportToken
 
     init(
             session: WalletSession,
@@ -57,7 +55,8 @@ class SingleChainTokenCoordinator: Coordinator {
             coinTickersFetcher: CoinTickersFetcherType,
             activitiesService: ActivitiesServiceType,
             alertService: PriceAlertServiceType,
-            tokensAutodetector: TokensAutodetector
+            tokensAutodetector: TokensAutodetector,
+            importToken: ImportToken
     ) {
         self.session = session
         self.keystore = keystore
@@ -70,6 +69,7 @@ class SingleChainTokenCoordinator: Coordinator {
         self.activitiesService = activitiesService
         self.alertService = alertService
         self.tokensAutodetector = tokensAutodetector
+        self.importToken = importToken
     }
 
     func start() {
@@ -78,26 +78,6 @@ class SingleChainTokenCoordinator: Coordinator {
 
     func isServer(_ server: RPCServer) -> Bool {
         return session.server == server
-    }
-
-    //Adding a token may fail if we lose connectivity while fetching the contract details (e.g. name and balance). So we remove the contract from the hidden list (if it was there) so that the app has the chance to add it automatically upon auto detection at startup
-    func addImportedToken(forContract contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool = false) -> Promise<TokenObject> {
-        struct ImportTokenError: Error { }
-
-        return firstly {
-            tokenObjectFetcher.fetchTokenObject(for: contract, onlyIfThereIsABalance: onlyIfThereIsABalance)
-        }.map { operation -> TokenObject in
-            if let tokenObject = self.tokensDataStore.addTokenObjects(values: [operation]).first {
-                return tokenObject
-            } else {
-                throw ImportTokenError()
-            }
-        }
-    }
-
-    func fetchContractData(for address: AlphaWallet.Address, completion: @escaping (ContractData) -> Void) {
-        ContractDataDetector(address: address, account: session.account, server: session.server, assetDefinitionStore: assetDefinitionStore)
-            .fetch(completion: completion)
     }
 
     func showTokenList(for type: PaymentFlow, token: TokenObject, navigationController: UINavigationController) {
@@ -109,7 +89,7 @@ class SingleChainTokenCoordinator: Coordinator {
         guard let transactionType = type.transactionType else { return }
 
         let activitiesFilterStrategy = transactionType.activitiesFilterStrategy
-        let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: TransactionDataStore.functional.transactionsFilter(for: activitiesFilterStrategy, tokenObject: transactionType.tokenObject))
+        let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: TransactionDataStore.functional.transactionsFilter(for: activitiesFilterStrategy, token: Token(tokenObject: transactionType.tokenObject)))
 
         let coordinator = NFTCollectionCoordinator(
                 session: session,
@@ -127,45 +107,19 @@ class SingleChainTokenCoordinator: Coordinator {
         coordinator.start()
     }
 
-    func show(fungibleToken token: TokenObject, transactionType: TransactionType, navigationController: UINavigationController) {
+    func show(fungibleToken token: Token, transactionType: TransactionType, navigationController: UINavigationController) {
         //NOTE: create half mutable copy of `activitiesService` to configure it for fetching activities for specific token
         let activitiesFilterStrategy = transactionType.activitiesFilterStrategy
-        let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: TransactionDataStore.functional.transactionsFilter(for: activitiesFilterStrategy, tokenObject: transactionType.tokenObject))
-        let viewModel = FungibleTokenViewModel(transactionType: transactionType, session: session, assetDefinitionStore: assetDefinitionStore, tokenActionsProvider: tokenActionsProvider)
-        let viewController = FungibleTokenViewController(keystore: keystore, session: session, assetDefinition: assetDefinitionStore, transactionType: transactionType, analyticsCoordinator: analyticsCoordinator, token: token, viewModel: viewModel, activitiesService: activitiesService, alertService: alertService, tokenActionsProvider: tokenActionsProvider)
+        let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: TransactionDataStore.functional.transactionsFilter(for: activitiesFilterStrategy, token: Token(tokenObject: transactionType.tokenObject)))
+        let viewModel = FungibleTokenViewModel(transactionType: transactionType, session: session, assetDefinitionStore: assetDefinitionStore, tokenActionsProvider: tokenActionsProvider, coinTickersFetcher: coinTickersFetcher)
+        let viewController = FungibleTokenViewController(keystore: keystore, analyticsCoordinator: analyticsCoordinator, viewModel: viewModel, activitiesService: activitiesService, alertService: alertService)
         viewController.delegate = self
-
-        //NOTE: refactor later with subscribable coin ticker, and chart history
-        coinTickersFetcher.fetchChartHistories(addressToRPCServerKey: token.addressAndRPCServer, force: false, periods: ChartHistoryPeriod.allCases).done { [weak self, weak viewController] history in
-            guard let strongSelf = self, let viewController = viewController else { return }
-
-            var viewModel = FungibleTokenViewModel(transactionType: transactionType, session: strongSelf.session, assetDefinitionStore: strongSelf.assetDefinitionStore, tokenActionsProvider: strongSelf.tokenActionsProvider)
-            viewModel.chartHistory = history
-            viewController.configure(viewModel: viewModel)
-        }.catch { _ in
-            //no-op
-        }
 
         viewController.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(selectionClosure: { _ in
             navigationController.popToRootViewController(animated: true)
         })
 
         navigationController.pushViewController(viewController, animated: true)
-    }
-
-    func updateOrderedTokens(with orderedTokens: [TokenObject]) {
-        tokensDataStore.updateOrderedTokens(with: orderedTokens)
-    }
-
-    func mark(token: TokenObject, isHidden: Bool) {
-        guard !token.isInvalidated else { return }
-        tokensDataStore.updateToken(primaryKey: token.primaryKey, action: .isHidden(isHidden))
-    }
-
-    func add(token: ERCToken) -> TokenObject {
-        let tokenObject = tokensDataStore.addCustom(tokens: [token], shouldUpdateBalance: true)
-
-        return tokenObject[0]
     }
 
     private func showTokenInstanceActionView(forAction action: TokenInstanceAction, fungibleTokenObject tokenObject: TokenObject, navigationController: UINavigationController) {
@@ -198,12 +152,12 @@ extension SingleChainTokenCoordinator: NFTCollectionCoordinatorDelegate {
 
 extension SingleChainTokenCoordinator: FungibleTokenViewControllerDelegate {
 
-    func didTapAddAlert(for tokenObject: TokenObject, in viewController: FungibleTokenViewController) {
-        delegate?.didTapAddAlert(for: tokenObject, in: self)
+    func didTapAddAlert(for token: Token, in viewController: FungibleTokenViewController) {
+        delegate?.didTapAddAlert(for: token, in: self)
     }
 
-    func didTapEditAlert(for tokenObject: TokenObject, alert: PriceAlert, in viewController: FungibleTokenViewController) {
-        delegate?.didTapEditAlert(for: tokenObject, alert: alert, in: self)
+    func didTapEditAlert(for token: Token, alert: PriceAlert, in viewController: FungibleTokenViewController) {
+        delegate?.didTapEditAlert(for: token, alert: alert, in: self)
     }
 
     func didTapSwap(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in viewController: FungibleTokenViewController) {
@@ -244,7 +198,7 @@ extension SingleChainTokenCoordinator: FungibleTokenViewControllerDelegate {
         case .dapp, .erc721Token, .erc875Token, .erc875TokenOrder, .erc721ForTicketToken, .erc1155Token, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return
         case .nativeCryptocurrency:
-            token = MultipleChainsTokensDataStore.functional.etherToken(forServer: server)
+            token = MultipleChainsTokensDataStore.functional.etherTokenObject(forServer: server)
             showTokenInstanceActionView(forAction: action, fungibleTokenObject: token, navigationController: navigationController)
             return
         }

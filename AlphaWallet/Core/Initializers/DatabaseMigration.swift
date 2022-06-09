@@ -13,7 +13,22 @@ class DatabaseMigration: Initializer {
     }
 
     func perform() {
-        config.schemaVersion = 9
+        config.schemaVersion = 11
+        config.objectTypes = [
+            DelegateContract.self,
+            DeletedContract.self,
+            EventActivity.self,
+            EventInstance.self,
+            HiddenContract.self,
+            LocalizedOperationObject.self,
+            TokenBalance.self,
+            TokenInfoObject.self,
+            TokenObject.self,
+            Transaction.self,
+            //It is necessary to include these 2 classes even though they are no longer managed in this Realm database (since 8814bd234dec8fc01be2cf9e7201724572627c97 and earlier) because they can still be accessed by users for database migration
+            Bookmark.self,
+            History.self,
+        ]
         //NOTE: use [weak self] to avoid memory leak
         config.migrationBlock = { [weak self] migration, oldSchemaVersion in
             guard let strongSelf = self else { return }
@@ -60,7 +75,7 @@ class DatabaseMigration: Initializer {
                     guard let newObject = newObject else { return }
 
                     newObject["shouldDisplay"] = true
-                    newObject["sortIndex"] = RealmOptional<Int>(nil)
+                    newObject["sortIndex"] = RealmProperty<Int?>()
                 }
             }
             if oldSchemaVersion < 7 {
@@ -83,6 +98,21 @@ class DatabaseMigration: Initializer {
 
             if oldSchemaVersion < 9 {
                 //no-op
+            }
+
+            if oldSchemaVersion < 10 {
+                //no-op
+            }
+
+            if oldSchemaVersion < 11 {
+                migration.deleteData(forType: TokenInfoObject.className())
+                migration.enumerateObjects(ofType: TokenObject.className()) { old, new in
+                    guard let uid = old?["primaryKey"] as? String else { return }
+                    let info = migration.create(TokenInfoObject.className(), value: [
+                        "uid": uid
+                    ])
+                    new?["_info"] = info
+                }
             }
         }
     }
@@ -142,7 +172,10 @@ extension DatabaseMigration {
     }
 
     static func oneTimeMigrationForBookmarksAndUrlHistoryToSharedRealm(walletAddressesStore: WalletAddressesStore, config: Config) {
+//Disable what seems like a sprurious SwiftLint warning
+// swiftlint:disable empty_enum_arguments
         guard !config.hasMigratedToSharedRealm() else { return }
+// swiftlint:enable empty_enum_arguments
 
         for each in walletAddressesStore.wallets {
             let migration = DatabaseMigration(account: each)
@@ -190,9 +223,6 @@ extension DatabaseMigration {
                     let migration = MigrationInitializerForOneChainPerDatabase(account: account, server: each, assetDefinitionStore: assetDefinitionStore)
                     migration.perform()
                     let oldPerChainDatabase = try! Realm(configuration: migration.config)
-                    for each in oldPerChainDatabase.objects(Bookmark.self) {
-                        realm.create(Bookmark.self, value: each)
-                    }
                     for each in oldPerChainDatabase.objects(DelegateContract.self) {
                         realm.create(DelegateContract.self, value: each)
                     }
@@ -201,9 +231,6 @@ extension DatabaseMigration {
                     }
                     for each in oldPerChainDatabase.objects(HiddenContract.self) {
                         realm.create(HiddenContract.self, value: each)
-                    }
-                    for each in oldPerChainDatabase.objects(History.self) {
-                        realm.create(History.self, value: each)
                     }
                     for each in oldPerChainDatabase.objects(TokenObject.self) {
                         realm.create(TokenObject.self, value: each)

@@ -35,7 +35,6 @@ class AssetDefinitionStore: NSObject {
     private var lastContractInPasteboard: String?
     private var backingStore: AssetDefinitionBackingStore
 
-    lazy var assetAttributesCache: AssetAttributesCache = AssetAttributesCache()
     weak var delegate: AssetDefinitionStoreDelegate?
     var listOfBadTokenScriptFiles: [TokenScriptFileIndices.FileName] {
         return backingStore.badTokenScriptFileNames
@@ -123,12 +122,7 @@ class AssetDefinitionStore: NSObject {
     init(backingStore: AssetDefinitionBackingStore = AssetDefinitionDiskBackingStoreWithOverrides()) {
         self.backingStore = backingStore
         super.init()
-        self.backingStore.delegate = self
-        bodyChange
-            .receive(on: RunLoop.main)
-            .sink { [weak assetAttributesCache] contract in
-                assetAttributesCache?.clearCacheWhenTokenScriptChanges(forContract: contract)
-            }.store(in: &cancelable)
+        self.backingStore.delegate = self 
     }
 
     func hasConflict(forContract contract: AlphaWallet.Address) -> Bool {

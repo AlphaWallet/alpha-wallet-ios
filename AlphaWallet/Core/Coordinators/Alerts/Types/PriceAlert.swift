@@ -86,8 +86,8 @@ struct PriceAlert: Codable, Equatable {
         return type.title
     }
 
-    init(type: AlertType, tokenObject: TokenObject, isEnabled: Bool) {
-        self.addressAndRPCServer = tokenObject.addressAndRPCServer
+    init(type: AlertType, token: Token, isEnabled: Bool) {
+        self.addressAndRPCServer = token.addressAndRPCServer
         self.type = type
         self.isEnabled = isEnabled
     }

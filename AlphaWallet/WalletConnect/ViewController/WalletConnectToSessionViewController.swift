@@ -160,7 +160,7 @@ class WalletConnectToSessionViewController: UIViewController {
 
             switch section {
             case .networks:
-                if viewModel.allowChangeConnectionServer {
+                if viewModel.editButtonEnabled {
                     header.enableTapAction(title: R.string.localizable.editButtonTitle())
                 }
 

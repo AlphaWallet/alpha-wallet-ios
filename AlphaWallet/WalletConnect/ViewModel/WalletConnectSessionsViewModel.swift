@@ -28,14 +28,13 @@ class WalletConnectSessionsViewModel {
     let stateSubject: CurrentValueSubject<State, Never>
     var natigationTitle: String = R.string.localizable.walletConnectTitle()
     var sessionsSnapshot: AnyPublisher<WalletConnectSessionsSnapshot, Never> {
-        provider.sessions
-            .map {
-                var snapshot = NSDiffableDataSourceSnapshot<WalletConnectSessionsViewModel.Section, AlphaWallet.WalletConnect.Session>()
-                snapshot.appendSections([.sessions])
-                snapshot.appendItems($0)
+        provider.sessions.map {
+            var snapshot = NSDiffableDataSourceSnapshot<WalletConnectSessionsViewModel.Section, AlphaWallet.WalletConnect.Session>()
+            snapshot.appendSections([.sessions])
+            snapshot.appendItems($0)
 
-                return snapshot
-            }.eraseToAnyPublisher()
+            return snapshot
+        }.eraseToAnyPublisher()
     }
 
     init(provider: WalletConnectServerProviderType, state: State = .sessions) {

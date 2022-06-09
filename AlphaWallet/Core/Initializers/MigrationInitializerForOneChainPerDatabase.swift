@@ -22,6 +22,19 @@ class MigrationInitializerForOneChainPerDatabase: Initializer {
 // swiftlint:disable function_body_length
     func perform() {
         config.schemaVersion = 53
+        config.objectTypes = [
+            DelegateContract.self,
+            DeletedContract.self,
+            EventActivity.self,
+            EventInstance.self,
+            HiddenContract.self,
+            LocalizedOperationObject.self,
+            TokenBalance.self,
+            TokenInfoObject.self,
+            TokenObject.self,
+            Transaction.self
+        ]
+
         config.migrationBlock = { [weak self] migration, oldSchemaVersion in
             guard let strongSelf = self else { return }
 

@@ -10,18 +10,18 @@ import UIKit
 struct WalletConnectToSessionViewModel: SectionProtocol {
     var openedSections: Set<Int> = .init()
 
-    private let sessionProposal: AlphaWallet.WalletConnect.SessionProposal
+    private let proposal: AlphaWallet.WalletConnect.Proposal
     private (set) var serversToConnect: [RPCServer]
     private (set) var methods: [String]
 
     var connectionIconUrl: URL? {
-        sessionProposal.iconUrl
+        proposal.iconUrl
     }
 
-    init(sessionProposal: AlphaWallet.WalletConnect.SessionProposal, serversToConnect: [RPCServer]) {
-        self.sessionProposal = sessionProposal
+    init(proposal: AlphaWallet.WalletConnect.Proposal, serversToConnect: [RPCServer]) {
+        self.proposal = proposal
         self.serversToConnect = serversToConnect
-        self.methods = sessionProposal.methods
+        self.methods = proposal.methods
     }
 
     mutating func set(serversToConnect: [RPCServer]) {
@@ -89,8 +89,8 @@ struct WalletConnectToSessionViewModel: SectionProtocol {
         }
     }
 
-    var allowChangeConnectionServer: Bool {
-        return sessionProposal.isServerEditingAvailable ?? false
+    var editButtonEnabled: Bool {
+        return proposal.serverEditing == .enabled
     }
 
     func isSubviewsHidden(section: Int, row: Int) -> Bool {
@@ -99,9 +99,10 @@ struct WalletConnectToSessionViewModel: SectionProtocol {
         case .name, .url:
             return true
         case .networks:
-            if sessionProposal.isV1SessionProposal {
+            switch proposal.serverEditing {
+            case .notSupporting:
                 return false
-            } else {
+            case .disabled, .enabled:
                 return isOpened
             }
         case .methods:
@@ -110,10 +111,11 @@ struct WalletConnectToSessionViewModel: SectionProtocol {
     }
 
     private var serversSectionTitle: String {
-        if sessionProposal.isV1SessionProposal {
-            return R.string.localizable.walletConnectConnectionNetworkTitle()
-        } else {
+        switch proposal.serverEditing {
+        case .notSupporting:
             return R.string.localizable.walletConnectConnectionNetworksTitle()
+        case .disabled, .enabled:
+            return R.string.localizable.walletConnectConnectionNetworkTitle()
         }
     }
 
@@ -122,18 +124,19 @@ struct WalletConnectToSessionViewModel: SectionProtocol {
 
         switch sections[section] {
         case .name:
-            return .init(title: .normal(sessionProposal.name), headerName: sections[section].title, configuration: .init(section: section))
+            return .init(title: .normal(proposal.name), headerName: sections[section].title, configuration: .init(section: section))
         case .networks:
             let servers = serversToConnect.map { $0.displayName }.joined(separator: ", ")
+            let shouldHideChevron = proposal.serverEditing != .notSupporting || serversToConnect.count == 1
             let configuration: TransactionConfirmationHeaderView.Configuration = .init(
                 isOpened: isOpened,
                 section: section,
-                shouldHideChevron: sessionProposal.isV1SessionProposal)
+                shouldHideChevron: shouldHideChevron)
             let serverIcon = serversToConnect.first?.walletConnectIconImage ?? .init(nil)
             
             return .init(title: .normal(servers), headerName: serversSectionTitle, titleIcon: serverIcon, configuration: configuration)
         case .url:
-            let dappUrl = sessionProposal.dappUrl.absoluteString
+            let dappUrl = proposal.dappUrl.absoluteString
             return .init(title: .normal(dappUrl), headerName: sections[section].title, configuration: .init(section: section))
         case .methods:
             let methods = methods.joined(separator: ", ")

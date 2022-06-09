@@ -36,6 +36,12 @@ class TokenScriptSignatureVerifier {
 
     //TODO log reasons for failures `completion(.failed)` as well as those that triggers retries in in-app Console
     func verifyXMLSignatureViaAPI(xml: String, retryAttempt: Int = 0, completion: @escaping (VerifierResult) -> Void) {
+        guard Features.default.isAvailable(.isTokenScriptSignatureStatusEnabled) else {
+            //It is safe to return without calling `completion` here since we aren't supposed to be using the results with the feature flag above
+            infoLog("[TokenScript] Signature verification disabled")
+            return
+        }
+
         guard let xmlAsData = xml.data(using: String.Encoding.utf8) else {
             completion(.failed)
             return

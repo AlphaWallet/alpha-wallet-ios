@@ -44,12 +44,7 @@ struct CoinTicker: Codable, Hashable {
     let ath_change_percentage: Double?
 
     var rate: CurrencyRate {
-        CurrencyRate(
-            currency: symbol,
-            rates: [
-                Rate(code: symbol, price: price_usd),
-            ]
-        )
+        CurrencyRate(currency: symbol, rates: [Rate(code: symbol, price: price_usd)])
     }
 
     init(from decoder: Decoder) throws {

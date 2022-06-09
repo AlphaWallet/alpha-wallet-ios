@@ -38,7 +38,7 @@ final class EventSourceCoordinator: NSObject {
 
     private func subscribeForTokenChanges() {
         tokensDataStore
-            .enabledTokenObjectsChangesetPublisher(forServers: enabledServers)
+            .enabledTokensChangeset(for: enabledServers)
             .receive(on: queue)
             .sink { [weak self] _ in
                 self?.fetchEthereumEvents()
@@ -59,7 +59,7 @@ final class EventSourceCoordinator: NSObject {
             }.store(in: &cancellable)
     }
 
-    private func fetchMappedContractsAndServers(token: TokenObject) -> [(contract: AlphaWallet.Address, server: RPCServer)] {
+    private func fetchMappedContractsAndServers(token: Token) -> [(contract: AlphaWallet.Address, server: RPCServer)] {
         var values: [(contract: AlphaWallet.Address, server: RPCServer)] = []
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         guard xmlHandler.hasAssetDefinition, let server = xmlHandler.server else { return [] }
@@ -75,14 +75,14 @@ final class EventSourceCoordinator: NSObject {
 
     private func fetchEvents(forTokenContract contract: AlphaWallet.Address, server: RPCServer) {
         guard let token = tokensDataStore.token(forContract: contract, server: server) else { return }
-        eventsDataStore.deleteEvents(forTokenContract: contract)
+        eventsDataStore.deleteEvents(for: contract)
 
         when(resolved: fetchEventsByTokenId(forToken: token))
             .done { _ in }
             .cauterize()
     }
 
-    private func getEventOriginsAndTokenIds(forToken token: TokenObject) -> [(eventOrigin: EventOrigin, tokenIds: [TokenId])] {
+    private func getEventOriginsAndTokenIds(forToken token: Token) -> [(eventOrigin: EventOrigin, tokenIds: [TokenId])] {
         var cards: [(eventOrigin: EventOrigin, tokenIds: [TokenId])] = []
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         guard xmlHandler.hasAssetDefinition else { return [] }
@@ -99,7 +99,7 @@ final class EventSourceCoordinator: NSObject {
         return cards
     }
 
-    private func fetchEventsByTokenId(forToken token: TokenObject) -> [Promise<Void>] {
+    private func fetchEventsByTokenId(forToken token: Token) -> [Promise<Void>] {
         return getEventOriginsAndTokenIds(forToken: token)
             .flatMap { value in
                 value.tokenIds.map {
@@ -124,7 +124,7 @@ final class EventSourceCoordinator: NSObject {
         guard !isFetching else { return }
         isFetching = true
 
-        let tokens = tokensDataStore.enabledTokenObjects(forServers: enabledServers)
+        let tokens = tokensDataStore.enabledTokens(for: enabledServers)
         let promises = tokens.map { fetchEventsByTokenId(forToken: $0) }.flatMap { $0 }
         when(resolved: promises).done { [weak self] _ in
             self?.isFetching = false
@@ -138,7 +138,7 @@ extension EventSourceCoordinator {
 
 extension EventSourceCoordinator.functional {
 
-    static func fetchEvents(forTokenId tokenId: TokenId, token: TokenObject, eventOrigin: EventOrigin, wallet: Wallet, eventsDataStore: NonActivityEventsDataStore, queue: DispatchQueue) -> Promise<Void> {
+    static func fetchEvents(forTokenId tokenId: TokenId, token: Token, eventOrigin: EventOrigin, wallet: Wallet, eventsDataStore: NonActivityEventsDataStore, queue: DispatchQueue) -> Promise<Void> {
         let (filterName, filterValue) = eventOrigin.eventFilter
         let filterParam = eventOrigin
             .parameters
@@ -146,7 +146,7 @@ extension EventSourceCoordinator.functional {
             .map { Self.formFilterFrom(fromParameter: $0, tokenId: tokenId, filterName: filterName, filterValue: filterValue, wallet: wallet) }
 
         let oldEvent = eventsDataStore
-            .getLastMatchingEventSortedByBlockNumber(forContract: eventOrigin.contract, tokenContract: token.contractAddress, server: token.server, eventName: eventOrigin.eventName)
+            .getLastMatchingEventSortedByBlockNumber(for: eventOrigin.contract, tokenContract: token.contractAddress, server: token.server, eventName: eventOrigin.eventName)
         let fromBlock: EventFilter.Block
         if let newestEvent = oldEvent {
             fromBlock = .blockNumber(UInt64(newestEvent.blockNumber + 1))
@@ -164,7 +164,7 @@ extension EventSourceCoordinator.functional {
                 Self.convertEventToDatabaseObject($0, filterParam: filterParam, eventOrigin: eventOrigin, contractAddress: token.contractAddress, server: token.server)
             }
 
-            eventsDataStore.add(events: events)
+            eventsDataStore.addOrUpdate(events: events)
         }).recover(on: queue, { e in
             error(value: e, rpcServer: token.server, address: token.contractAddress)
         })

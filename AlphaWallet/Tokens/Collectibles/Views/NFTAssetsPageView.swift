@@ -22,16 +22,14 @@ class NFTAssetsPageView: UIView, PageViewType {
         viewModel.navigationTitle
     }
     private (set) var viewModel: NFTAssetsPageViewModel {
-        didSet {
-            viewModel.searchFilter = oldValue.searchFilter
-        }
+        didSet { viewModel.searchFilter = oldValue.searchFilter }
     }
     weak var delegate: NFTAssetsPageViewDelegate?
 
     var rightBarButtonItem: UIBarButtonItem?
 
     private lazy var gridLayout: UICollectionViewLayout = {
-        return UICollectionViewLayout.createGridLayout()
+        return UICollectionViewLayout.createGridLayout(contentInsets: viewModel.contentInsetsForGridLayout, spacing: viewModel.spacingForGridLayout, heightDimension: viewModel.heightDimensionForGridLayout, colums: viewModel.columsForGridLayout)
     }()
 
     private lazy var listLayout: UICollectionViewLayout = {
@@ -41,15 +39,13 @@ class NFTAssetsPageView: UIView, PageViewType {
     private (set) lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: gridLayout)
         collectionView.backgroundColor = viewModel.backgroundColor
-        collectionView.register(NFTAssetContainerCollectionViewCell.self)
+        collectionView.register(ContainerCollectionViewCell.self)
         collectionView.delegate = self
         collectionView.translatesAutoresizingMaskIntoConstraints = false
 
         return collectionView
     }()
-    private lazy var factory: TokenCardTableViewCellFactory = {
-        TokenCardTableViewCellFactory()
-    }()
+    private let tokenCardViewFactory: TokenCardViewFactory
 
     private (set) lazy var searchBar: UISearchBar = {
         let searchBar = UISearchBar()
@@ -63,13 +59,11 @@ class NFTAssetsPageView: UIView, PageViewType {
         return searchBar
     }()
 
-    private let assetDefinitionStore: AssetDefinitionStore
     private var dataSource: TokenHoldersDataSource!
 
-    init(assetDefinitionStore: AssetDefinitionStore, viewModel: NFTAssetsPageViewModel) {
+    init(tokenCardViewFactory: TokenCardViewFactory, viewModel: NFTAssetsPageViewModel) {
         self.viewModel = viewModel
-
-        self.assetDefinitionStore = assetDefinitionStore
+        self.tokenCardViewFactory = tokenCardViewFactory
         super.init(frame: .zero)
 
         translatesAutoresizingMaskIntoConstraints = false
@@ -98,17 +92,18 @@ class NFTAssetsPageView: UIView, PageViewType {
     }
 
     private func configureDataSource() {
-        let assetDefinitionStore = assetDefinitionStore
-        dataSource = TokenHoldersDataSource(collectionView: collectionView) { [weak self] cv, indexPath, tokenHolder -> NFTAssetContainerCollectionViewCell? in
+        dataSource = TokenHoldersDataSource(collectionView: collectionView) { [weak self] cv, indexPath, tokenHolder -> ContainerCollectionViewCell? in
             guard let strongSelf = self else { return nil }
 
-            let cell: NFTAssetContainerCollectionViewCell = cv.dequeueReusableCell(for: indexPath)
-            NFTAssetContainerCollectionViewCell.configureSeparatorLines(selection: strongSelf.viewModel.selection, cell)
+            let cell: ContainerCollectionViewCell = cv.dequeueReusableCell(for: indexPath)
+            ContainerCollectionViewCell.configureSeparatorLines(selection: strongSelf.viewModel.selection, cell)
             cell.containerEdgeInsets = .zero
 
-            let subview: TokenCardViewType = strongSelf.factory.create(for: tokenHolder, layout: strongSelf.viewModel.selection, gridEdgeInsets: .zero)
+            let subview: TokenCardViewType = strongSelf.tokenCardViewFactory.create(for: tokenHolder, layout: strongSelf.viewModel.selection, gridEdgeInsets: .zero)
+            subview.configure(tokenHolder: tokenHolder, tokenId: tokenHolder.tokenId)
+
             cell.configure(subview: subview)
-            cell.configure(viewModel: .init(tokenHolder: tokenHolder, cellWidth: cv.frame.width, tokenView: .viewIconified), tokenId: tokenHolder.tokenId, assetDefinitionStore: assetDefinitionStore)
+            cell.configure()
 
             return cell
         }
@@ -188,72 +183,11 @@ extension NFTAssetsPageView: StatefulViewController {
     }
 }
 
-extension UICollectionViewLayout {
-    static func createGridLayout(spacing: CGFloat = 16, heightDimension: CGFloat = 220) -> UICollectionViewLayout {
-        let layout = UICollectionViewCompositionalLayout { _, _ -> NSCollectionLayoutSection? in
-            let iosVersionRelatedFractionalWidthForGrid: CGFloat = 1.0
-
-            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
-            let item = NSCollectionLayoutItem(layoutSize: itemSize)
-
-            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(iosVersionRelatedFractionalWidthForGrid), heightDimension: .absolute(heightDimension))
-            let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitem: item, count: 2)
-            group.interItemSpacing = .fixed(spacing)
-            group.contentInsets = NSDirectionalEdgeInsets(top: spacing, leading: spacing, bottom: 0, trailing: spacing)
-
-            return NSCollectionLayoutSection(group: group)
-        }
-
-        let config = UICollectionViewCompositionalLayoutConfiguration()
-        config.scrollDirection = .vertical
-        layout.configuration = config
-
-        return layout
-    }
-
-    static func createListLayout(spacing: CGFloat = 16, heightDimension: CGFloat = 96) -> UICollectionViewLayout {
-        let layout = UICollectionViewCompositionalLayout { _, _ -> NSCollectionLayoutSection? in
-            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
-            let item = NSCollectionLayoutItem(layoutSize: itemSize)
-            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(heightDimension))
-            let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-            group.contentInsets = .zero
-
-            return NSCollectionLayoutSection(group: group)
-        }
-
-        let config = UICollectionViewCompositionalLayoutConfiguration()
-        config.scrollDirection = .vertical
-        layout.configuration = config
-
-        return layout
-    }
-}
-
 extension NFTAssetsPageView: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
 
-        guard let tokenHolder = viewModel.item(atIndexPath: indexPath) else { return }
+        guard let tokenHolder = viewModel.tokenHolder(for: indexPath) else { return }
         delegate?.nftAssetsPageView(self, didSelectTokenHolder: tokenHolder)
-    }
-}
-
-extension UISearchBar {
-
-    var textField: UITextField? {
-        return getTextField(inViews: subviews)
-    }
-
-    private func getTextField(inViews views: [UIView]?) -> UITextField? {
-        guard let views = views else { return nil }
-
-        for view in views {
-            if let textField = (view as? UITextField) ?? getTextField(inViews: view.subviews) {
-                return textField
-            }
-        }
-
-        return nil
     }
 }

@@ -12,17 +12,19 @@ import Combine
 
 protocol CoinTickerProvider: AnyObject {
     func coinTicker(_ addressAndRPCServer: AddressAndRPCServer) -> CoinTicker?
+    func fetchChartHistories(_ addressToRPCServerKey: AddressAndRPCServer, force: Bool, periods: [ChartHistoryPeriod]) -> Promise<[ChartHistory]>
 }
 
 protocol TokenBalanceProviderTests {
-    func setBalanceTestsOnly(_ value: BigInt, forToken token: TokenObject, wallet: Wallet)
-    func deleteTokenTestsOnly(token: TokenObject, wallet: Wallet)
-    func addOrUpdateTokenTestsOnly(token: TokenObject, wallet: Wallet)
+    func setNftBalanceTestsOnly(_ value: [String], forToken token: Token, wallet: Wallet)
+    func setBalanceTestsOnly(_ value: BigInt, forToken token: Token, wallet: Wallet)
+    func deleteTokenTestsOnly(token: Token, wallet: Wallet)
+    func addOrUpdateTokenTestsOnly(token: Token, wallet: Wallet)
 }
 
 protocol TokenBalanceProvider: AnyObject, TokenBalanceProviderTests {
-    func tokenBalance(_ key: AddressAndRPCServer, wallet: Wallet) -> BalanceBaseViewModel?
-    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer, wallet: Wallet) -> AnyPublisher<BalanceBaseViewModel?, Never>
+    func tokenBalance(_ key: AddressAndRPCServer, wallet: Wallet) -> BalanceViewModel?
+    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer, wallet: Wallet) -> AnyPublisher<BalanceViewModel?, Never>
     func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, wallets: [Wallet])
 }
 
@@ -44,10 +46,10 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
         let summary = WalletSummary(balances: balances)
         return .init(summary)
     }()
-    private let queue: DispatchQueue = DispatchQueue(label: "com.MultiWalletBalanceService.updateQueue")
+    private let queue: DispatchQueue = DispatchQueue(label: "org.alphawallet.swift.walletBalance")
     private let walletAddressesStore: WalletAddressesStore
     private var cancelable = Set<AnyCancellable>()
-    private let nftProvider: NFTProvider = AlphaWalletNFTProvider()
+    private lazy var nftProvider: NFTProvider = AlphaWalletNFTProvider(queue: queue)
     
     var walletsSummaryPublisher: AnyPublisher<WalletSummary, Never> {
         return walletsSummarySubject
@@ -110,12 +112,12 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
         }
     }
 
-    func tokenBalance(_ key: AddressAndRPCServer, wallet: Wallet) -> BalanceBaseViewModel? {
+    func tokenBalance(_ key: AddressAndRPCServer, wallet: Wallet) -> BalanceViewModel? {
         return getOrCreateBalanceFetcher(for: wallet)
             .tokenBalance(key)
     }
 
-    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer, wallet: Wallet) -> AnyPublisher<BalanceBaseViewModel?, Never> {
+    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer, wallet: Wallet) -> AnyPublisher<BalanceViewModel?, Never> {
         return getOrCreateBalanceFetcher(for: wallet)
             .tokenBalancePublisher(addressAndRPCServer)
     }
@@ -143,6 +145,11 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
             getOrCreateBalanceFetcher(for: wallet)
                 .refreshBalance(updatePolicy: updatePolicy)
         }
+    }
+
+    func fetchChartHistories(_ addressToRPCServerKey: AddressAndRPCServer, force: Bool, periods: [ChartHistoryPeriod]) -> Promise<[ChartHistory]> {
+        return coinTickersFetcher
+            .fetchChartHistories(addressToRPCServerKey: addressToRPCServerKey, force: force, periods: periods)
     }
 
     /// NOTE: internal for test ourposes
@@ -179,17 +186,22 @@ extension MultiWalletBalanceService {
             .triggerUpdateBalanceSubjectTestsOnly()
     }
 
-    func setBalanceTestsOnly(_ value: BigInt, forToken token: TokenObject, wallet: Wallet) {
+    func setBalanceTestsOnly(_ value: BigInt, forToken token: Token, wallet: Wallet) {
         getOrCreateBalanceFetcher(for: wallet)
             .setBalanceTestsOnly(value, forToken: token)
     }
 
-    func deleteTokenTestsOnly(token: TokenObject, wallet: Wallet) {
+    func setNftBalanceTestsOnly(_ value: [String], forToken token: Token, wallet: Wallet) {
+        getOrCreateBalanceFetcher(for: wallet)
+            .setNftBalanceTestsOnly(value, forToken: token)
+    }
+
+    func deleteTokenTestsOnly(token: Token, wallet: Wallet) {
         getOrCreateBalanceFetcher(for: wallet)
             .deleteTokenTestsOnly(token: token)
     }
 
-    func addOrUpdateTokenTestsOnly(token: TokenObject, wallet: Wallet) {
+    func addOrUpdateTokenTestsOnly(token: Token, wallet: Wallet) {
         getOrCreateBalanceFetcher(for: wallet)
             .addOrUpdateTokenTestsOnly(token: token)
     }

@@ -13,12 +13,12 @@ import Combine
 
 extension TokenHolder: ObservableObject { }
 
-extension TokenObject {
+extension Tokenable {
 
     func getTokenHolders(assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, forWallet account: Wallet, isSourcedFromEvents: Bool = true) -> [TokenHolder] {
         let tokenAdaptor = TokenAdaptor(token: self, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
         return tokenAdaptor.getTokenHolders(forWallet: account, isSourcedFromEvents: isSourcedFromEvents)
-    }
+    } 
 
     /// Generates token holder for fungible token, with id 1
     func getTokenHolder(assetDefinitionStore: AssetDefinitionStore, forWallet account: Wallet) -> TokenHolder {
@@ -30,7 +30,7 @@ extension TokenObject {
         let subscribablesForAttributeValues = values.values
         let allResolved = subscribablesForAttributeValues.allSatisfy { $0.subscribableValue?.value != nil }
 
-        let token = Token(tokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles), tokenType: type, index: 0, name: name, symbol: symbol, status: .available, values: values)
+        let token = TokenScript.Token(tokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles), tokenType: type, index: 0, name: name, symbol: symbol, status: .available, values: values)
         let tokenHolder = TokenHolder(tokens: [token], contractAddress: contractAddress, hasAssetDefinition: true)
 
         if allResolved {
@@ -49,12 +49,12 @@ extension TokenObject {
 }
 
 class TokenAdaptor {
-    private let token: TokenObject
+    private let token: Tokenable
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: NonActivityEventsDataStore
     private lazy var xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
 
-    init(token: TokenObject, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore) {
+    init(token: Tokenable, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore) {
         self.token = token
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
@@ -77,11 +77,10 @@ class TokenAdaptor {
     }
 
     private func getNotSupportedByNonFungibleJsonTokenHolders(forWallet account: Wallet) -> [TokenHolder] {
-        let balance = token.balance
-        var tokens = [Token]()
+        var tokens = [TokenScript.Token]()
         switch token.type {
         case .erc875, .erc721ForTickets, .erc721, .erc1155, .nativeCryptocurrency:
-            for (index, item) in balance.enumerated() {
+            for (index, item) in token.balanceNft.enumerated() {
                 //id is the value of the bytes32 token
                 let id = item.balance
                 guard isNonZeroBalance(id, tokenType: token.type) else { continue }
@@ -107,10 +106,9 @@ class TokenAdaptor {
     }
 
     private func getSupportedByNonFungibleJsonTokenHolders(forWallet account: Wallet, isSourcedFromEvents: Bool) -> [TokenHolder] {
-        let balance = token.balance
-        var tokens = [Token]()
-        for item in balance {
-            if let nonFungibleBalance = item.nonFungibleBalance, let token = getTokenForNonFungible(nonFungible: nonFungibleBalance, inWallet: account, server: self.token.server, isSourcedFromEvents: isSourcedFromEvents, tokenType: self.token.type) {
+        var tokens = [TokenScript.Token]()
+        for nonFungibleBalance in token.nftBalanceValue {
+            if let token = getTokenForNonFungible(nonFungible: nonFungibleBalance, inWallet: account, server: self.token.server, isSourcedFromEvents: isSourcedFromEvents, tokenType: self.token.type) {
                 tokens.append(token)
             }
         }
@@ -118,11 +116,11 @@ class TokenAdaptor {
     }
 
     //NOTE: internal for testing purposes
-    func bundleTestsOnly(tokens: [Token]) -> [TokenHolder] {
+    func bundleTestsOnly(tokens: [TokenScript.Token]) -> [TokenHolder] {
         bundle(tokens: tokens)
     }
 
-    private func bundle(tokens: [Token]) -> [TokenHolder] {
+    private func bundle(tokens: [TokenScript.Token]) -> [TokenHolder] {
         switch token.type {
         case .nativeCryptocurrency, .erc20, .erc875:
             if !tokens.isEmpty && tokens[0].isSpawnableMeetupContract {
@@ -156,13 +154,13 @@ class TokenAdaptor {
     //If sequential or have the same seat number, add them together
     ///e.g 21, 22, 25 is broken up into 2 bundles: 21-22 and 25.
     ///e.g 21, 21, 22, 25 is broken up into 2 bundles: (21,21-22) and 25.
-    private func breakBundlesFurtherToHaveContinuousSeatRange(tokens: [Token]) -> [[Token]] {
+    private func breakBundlesFurtherToHaveContinuousSeatRange(tokens: [TokenScript.Token]) -> [[TokenScript.Token]] {
         let tokens = tokens.sorted {
             let s0 = $0.values.numeroIntValue ?? 0
             let s1 = $1.values.numeroIntValue ?? 0
             return s0 <= s1
         }
-        return tokens.reduce([[Token]]()) { results, token in
+        return tokens.reduce([[TokenScript.Token]]()) { results, token in
             var results = results
             if var previousRange = results.last, let previousToken = previousRange.last, (previousToken.seatId + 1 == token.seatId || previousToken.seatId == token.seatId) {
                 previousRange.append(token)
@@ -176,8 +174,8 @@ class TokenAdaptor {
     }
 
     ///Group by the properties used in the hash. We abuse a dictionary to help with grouping
-    private func groupTokensByFields(tokens: [Token]) -> Dictionary<String, [Token]>.Values {
-        var dictionary = [String: [Token]]()
+    private func groupTokensByFields(tokens: [TokenScript.Token]) -> Dictionary<String, [TokenScript.Token]>.Values {
+        var dictionary = [String: [TokenScript.Token]]()
         for each in tokens {
             let city = each.values.localityStringValue ?? "N/A"
             let venue = each.values.venueStringValue ?? "N/A"
@@ -196,11 +194,11 @@ class TokenAdaptor {
     }
 
     //TODO pass lang into here
-    private func getToken(name: String, symbol: String, forTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent, index: UInt16, inWallet account: Wallet, server: RPCServer) -> Token {
+    private func getToken(name: String, symbol: String, forTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent, index: UInt16, inWallet account: Wallet, server: RPCServer) -> TokenScript.Token {
         xmlHandler.getToken(name: name, symbol: symbol, fromTokenIdOrEvent: tokenIdOrEvent, index: index, inWallet: account, server: server, tokenType: token.type)
     }
 
-    private func getFirstMatchingEvent(nonFungible: NonFungibleFromJson, inWallet account: Wallet, isSourcedFromEvents: Bool) -> EventInstance? {
+    private func getFirstMatchingEvent(nonFungible: NonFungibleFromJson, inWallet account: Wallet, isSourcedFromEvents: Bool) -> EventInstanceValue? {
         if isSourcedFromEvents, let attributeWithEventSource = xmlHandler.attributesWithEventSource.first, let eventFilter = attributeWithEventSource.eventOrigin?.eventFilter, let eventName = attributeWithEventSource.eventOrigin?.eventName, let eventContract = attributeWithEventSource.eventOrigin?.contract {
             let filterName = eventFilter.name
             let filterValue: String
@@ -216,13 +214,13 @@ class TokenAdaptor {
             } else {
                 filterValue = eventFilter.value
             }
-            return eventsDataStore.getMatchingEvent(forContract: eventContract, tokenContract: token.contractAddress, server: token.server, eventName: eventName, filterName: filterName, filterValue: filterValue)
+            return eventsDataStore.getMatchingEvent(for: eventContract, tokenContract: token.contractAddress, server: token.server, eventName: eventName, filterName: filterName, filterValue: filterValue)
         } else {
             return nil
         }
     }
 
-    private func getTokenIdOrEvent(event: EventInstance?, nonFungible: NonFungibleFromJson) -> TokenIdOrEvent {
+    private func getTokenIdOrEvent(event: EventInstanceValue?, nonFungible: NonFungibleFromJson) -> TokenIdOrEvent {
         let tokenId = BigUInt(nonFungible.tokenId) ?? BigUInt(0)
         let tokenIdOrEvent: TokenIdOrEvent
         if let eventNonOptional = event {
@@ -233,7 +231,7 @@ class TokenAdaptor {
         return tokenIdOrEvent
     }
 
-    private func getTokenForNonFungible(nonFungible: NonFungibleFromJson, inWallet account: Wallet, server: RPCServer, isSourcedFromEvents: Bool, tokenType: TokenType) -> Token? {
+    private func getTokenForNonFungible(nonFungible: NonFungibleFromJson, inWallet account: Wallet, server: RPCServer, isSourcedFromEvents: Bool, tokenType: TokenType) -> TokenScript.Token? {
         switch nonFungible.tokenType {
         case .erc721:
             break
@@ -285,14 +283,14 @@ class TokenAdaptor {
         values.setSlug(string: nonFungible.slug)
         values.setCreator(creator: nonFungible.creator)
 
-        let status: Token.Status
+        let status: TokenScript.Token.Status
         let cryptoKittyGenerationWhenDataNotAvailable = "-1"
         if let generation = nonFungible.generationTrait, generation.value == cryptoKittyGenerationWhenDataNotAvailable {
             status = .availableButDataUnavailable
         } else {
             status = .available
         }
-        return Token(
+        return TokenScript.Token(
                 tokenIdOrEvent: tokenIdOrEvent,
                 tokenType: nonFungible.tokenType.asTokenType,
                 index: 0,
@@ -303,7 +301,7 @@ class TokenAdaptor {
         )
     }
 
-    private func getTokenHolder(for tokens: [Token]) -> TokenHolder {
+    private func getTokenHolder(for tokens: [TokenScript.Token]) -> TokenHolder {
         return TokenHolder(
                 tokens: tokens,
                 contractAddress: token.contractAddress,
@@ -313,7 +311,7 @@ class TokenAdaptor {
 
 }
 
-extension Token {
+extension TokenScript.Token {
     //TODO Convenience-only. (Look for references). Should remove once we generalize things further and not hardcode the use of seatId
     var seatId: Int {
         return values.numeroIntValue.flatMap { Int($0) }  ?? 0

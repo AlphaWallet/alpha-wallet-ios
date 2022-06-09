@@ -17,7 +17,7 @@
                BlueprintIdentifier = "2912CCF41F6A830700C6CBE3"
                BuildableName = "AlphaWallet.app"
                BlueprintName = "AlphaWallet"
-               ReferencedContainer = "container:CandleWallet.xcodeproj">
+               ReferencedContainer = "container:AlphaWallet.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -47,7 +47,7 @@
             BlueprintIdentifier = "2912CCF41F6A830700C6CBE3"
             BuildableName = "AlphaWallet.app"
             BlueprintName = "AlphaWallet"
-            ReferencedContainer = "container:CandleWallet.xcodeproj">
+            ReferencedContainer = "container:AlphaWallet.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>

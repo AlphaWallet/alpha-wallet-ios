@@ -8,7 +8,7 @@
 import UIKit
 
 struct SelectableNFTAssetContainerViewModel {
-    private let token: Token?
+    private let token: TokenScript.Token?
     private let tokenHolder: TokenHolder
 
     var availableAmount: Int {

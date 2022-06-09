@@ -31,7 +31,6 @@ class TokenScriptCoordinator: Coordinator {
     private let action: TokenInstanceAction
     private let tokensStorage: TokensDataStore
     private let eventsDataStore: NonActivityEventsDataStore
-    private var lastViewControllerInNavigationStack: UIViewController?
     private var cancelable = Set<AnyCancellable>()
 
     weak var delegate: TokenScriptCoordinatorDelegate?
@@ -61,7 +60,6 @@ class TokenScriptCoordinator: Coordinator {
         self.analyticsCoordinator = analyticsCoordinator
         self.tokensStorage = tokensStorage
         navigationController.navigationBar.isTranslucent = false
-        self.lastViewControllerInNavigationStack = navigationController.viewControllers.last
     }
 
     func start() {
@@ -88,7 +86,7 @@ class TokenScriptCoordinator: Coordinator {
 
     private func subscribeForEthereumEventChanges() {
         eventsDataStore
-            .recentEvents(forTokenContract: tokenObject.contractAddress)
+            .recentEventsChangeset(for: tokenObject.contractAddress)
             .filter({ changeset in
                 switch changeset {
                 case .update(let events, _, let insertions, let modifications):
@@ -199,12 +197,7 @@ extension TokenScriptCoordinator: TransactionInProgressCoordinatorDelegate {
     func didDismiss(in coordinator: TransactionInProgressCoordinator) {
         removeCoordinator(coordinator)
         
-        switch transactionConfirmationResult {
-        case .some(let result):
-            let _ = lastViewControllerInNavigationStack.flatMap { navigationController.popToViewController($0, animated: true) }
-            delegate?.didFinish(result, in: self)
-        case .none:
-            break
-        }
+        guard case .some(let result) = transactionConfirmationResult else { return }
+        delegate?.didFinish(result, in: self)
     }
 }

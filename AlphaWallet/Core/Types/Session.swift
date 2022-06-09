@@ -2,7 +2,13 @@
 
 import Foundation
 
-class WalletSession {
+extension WalletSession {
+    static func == (_ lhs: WalletSession, _ rhs: WalletSession) -> Bool {
+        return lhs.server == rhs.server
+    }
+}
+
+class WalletSession: Equatable {
     let account: Wallet
     let server: RPCServer
     let tokenBalanceService: TokenBalanceService
@@ -38,6 +44,12 @@ class WalletSession {
 
     func stop() {
         chainState.stop()
+    }
+}
+
+extension WalletSession {
+    var capi10Account: CAIP10Account {
+        return CAIP10Account(blockchain: .init(server.eip155)!, address: account.address.eip55String)!
     }
 }
 

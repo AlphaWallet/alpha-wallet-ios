@@ -17,7 +17,7 @@
                      BlueprintIdentifier = "2912CCF41F6A830700C6CBE3"
                      BuildableName = "AlphaWallet.app"
                      BlueprintName = "AlphaWallet"
-                     ReferencedContainer = "container:CandleWallet.xcodeproj">
+                     ReferencedContainer = "container:AlphaWallet.xcodeproj">
                   </BuildableReference>
                </EnvironmentBuildable>
             </ActionContent>
@@ -35,7 +35,7 @@
                BlueprintIdentifier = "2912CCF41F6A830700C6CBE3"
                BuildableName = "AlphaWallet.app"
                BlueprintName = "AlphaWallet"
-               ReferencedContainer = "container:CandleWallet.xcodeproj">
+               ReferencedContainer = "container:AlphaWallet.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -53,7 +53,7 @@
                BlueprintIdentifier = "2912CD0A1F6A830700C6CBE3"
                BuildableName = "AlphaWalletTests.xctest"
                BlueprintName = "AlphaWalletTests"
-               ReferencedContainer = "container:CandleWallet.xcodeproj">
+               ReferencedContainer = "container:AlphaWallet.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -75,7 +75,7 @@
             BlueprintIdentifier = "2912CCF41F6A830700C6CBE3"
             BuildableName = "AlphaWallet.app"
             BlueprintName = "AlphaWallet"
-            ReferencedContainer = "container:CandleWallet.xcodeproj">
+            ReferencedContainer = "container:AlphaWallet.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <EnvironmentVariables>
@@ -120,7 +120,7 @@
             BlueprintIdentifier = "2912CCF41F6A830700C6CBE3"
             BuildableName = "AlphaWallet.app"
             BlueprintName = "AlphaWallet"
-            ReferencedContainer = "container:CandleWallet.xcodeproj">
+            ReferencedContainer = "container:AlphaWallet.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

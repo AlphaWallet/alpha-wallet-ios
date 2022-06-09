@@ -13,7 +13,7 @@ enum SortDirection: Int {
     case descending
 }
 
-extension TokenObject {
+extension Token {
     /// Helper enum represents fields available for sorting
     enum Field: Int {
         case name
@@ -23,7 +23,7 @@ extension TokenObject {
 
 /// Enum represents token objects sorting cases
 enum SortTokensParam: CaseIterable, Equatable {
-    case byField(field: TokenObject.Field, direction: SortDirection)
+    case byField(field: Token.Field, direction: SortDirection)
     case mostUsed
 
     static var allCases: [SortTokensParam] = Constants.defaultSortTokensParams

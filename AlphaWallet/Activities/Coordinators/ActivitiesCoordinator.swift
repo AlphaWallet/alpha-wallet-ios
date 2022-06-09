@@ -60,19 +60,15 @@ class ActivitiesCoordinator: NSObject, Coordinator {
     @objc func dismiss() {
         navigationController.dismiss(animated: true)
     }
-
-    func stop() {
-        activitiesService.stop()
-    }
 }
 
 extension ActivitiesCoordinator: ActivitiesViewControllerDelegate {
 
     func subscribeForActivitiesUpdates() {
-        activitiesService.viewModelPublisher
+        activitiesService.activitiesPublisher
             .receive(on: RunLoop.main)
-            .sink { [weak rootViewController] viewModel in
-                rootViewController?.configure(viewModel: viewModel)
+            .sink { [weak rootViewController] activities in
+                rootViewController?.configure(viewModel: .init(activities: activities))
             }.store(in: &cancelable)
     }
 

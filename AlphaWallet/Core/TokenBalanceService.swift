@@ -1,28 +1,31 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
+import PromiseKit
 import Combine
 
 protocol TokenBalanceService {
-    var etherToken: TokenObject { get }
-    var ethBalanceViewModel: BalanceBaseViewModel? { get }
-    var etherBalance: AnyPublisher<BalanceBaseViewModel?, Never> { get }
+    var etherToken: Token { get }
+    var ethBalanceViewModel: BalanceViewModel? { get }
+    var etherBalance: AnyPublisher<BalanceViewModel?, Never> { get }
     var etherToFiatRatePublisher: AnyPublisher<Double?, Never> { get }
     var etherToFiatRate: Double? { get }
 
     func start()
     func refresh(refreshBalancePolicy: PrivateBalanceFetcher.RefreshBalancePolicy)
     func coinTicker(_ addressAndRPCServer: AddressAndRPCServer) -> CoinTicker?
-    func tokenBalance(_ addressAndRPCServer: AddressAndRPCServer) -> BalanceBaseViewModel?
-    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer) -> AnyPublisher<BalanceBaseViewModel?, Never>
+    func tokenBalance(_ addressAndRPCServer: AddressAndRPCServer) -> BalanceViewModel?
+    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer) -> AnyPublisher<BalanceViewModel?, Never>
+    func fetchChartHistories(_ addressToRPCServerKey: AddressAndRPCServer, force: Bool, periods: [ChartHistoryPeriod]) -> Promise<[ChartHistory]>
 }
 
 class SingleChainTokenBalanceService: NSObject, TokenBalanceService {
+
     private let wallet: Wallet
     private let server: RPCServer
     private let balanceProvider: TokenBalanceProvider & CoinTickerProvider
 
-    let etherToken: TokenObject
+    let etherToken: Token
 
     private (set) lazy var etherToFiatRatePublisher: AnyPublisher<Double?, Never> = {
         return etherBalance
@@ -30,7 +33,7 @@ class SingleChainTokenBalanceService: NSObject, TokenBalanceService {
             .eraseToAnyPublisher()
     }()
 
-    private (set) lazy var etherBalance: AnyPublisher<BalanceBaseViewModel?, Never> = {
+    private (set) lazy var etherBalance: AnyPublisher<BalanceViewModel?, Never> = {
         return tokenBalancePublisher(etherToken.addressAndRPCServer)
             .eraseToAnyPublisher()
     }()
@@ -40,11 +43,11 @@ class SingleChainTokenBalanceService: NSObject, TokenBalanceService {
             .flatMap { $0.price_usd }
     }
 
-    var ethBalanceViewModel: BalanceBaseViewModel? {
+    var ethBalanceViewModel: BalanceViewModel? {
         return tokenBalance(etherToken.addressAndRPCServer)
     }
 
-    init(wallet: Wallet, server: RPCServer, etherToken: TokenObject, tokenBalanceProvider: TokenBalanceProvider & CoinTickerProvider) {
+    init(wallet: Wallet, server: RPCServer, etherToken: Token, tokenBalanceProvider: TokenBalanceProvider & CoinTickerProvider) {
         self.wallet = wallet
         self.etherToken = etherToken
         self.server = server
@@ -56,15 +59,20 @@ class SingleChainTokenBalanceService: NSObject, TokenBalanceService {
         //no-op
     }
 
+    func fetchChartHistories(_ addressToRPCServerKey: AddressAndRPCServer, force: Bool, periods: [ChartHistoryPeriod]) -> Promise<[ChartHistory]> {
+        return balanceProvider
+            .fetchChartHistories(addressToRPCServerKey, force: force, periods: periods)
+    }
+
     func coinTicker(_ addressAndRPCServer: AddressAndRPCServer) -> CoinTicker? {
         balanceProvider.coinTicker(addressAndRPCServer)
     }
 
-    func tokenBalance(_ addressAndRPCServer: AddressAndRPCServer) -> BalanceBaseViewModel? {
+    func tokenBalance(_ addressAndRPCServer: AddressAndRPCServer) -> BalanceViewModel? {
         balanceProvider.tokenBalance(addressAndRPCServer, wallet: wallet)
     }
 
-    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer) -> AnyPublisher<BalanceBaseViewModel?, Never> {
+    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer) -> AnyPublisher<BalanceViewModel?, Never> {
         balanceProvider.tokenBalancePublisher(addressAndRPCServer, wallet: wallet)
     }
 

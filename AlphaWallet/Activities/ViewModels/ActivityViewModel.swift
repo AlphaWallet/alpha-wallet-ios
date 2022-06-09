@@ -27,7 +27,7 @@ struct ActivityViewModel {
     }
 
     var title: NSAttributedString {
-        let symbol = activity.tokenObject.symbol
+        let symbol = activity.token.symbol
         switch activity.nativeViewType {
         case .erc20Sent, .erc721Sent, .nativeCryptoSent:
             let string: NSMutableAttributedString
@@ -122,7 +122,7 @@ struct ActivityViewModel {
     }
 
     var iconImage: Subscribable<TokenImage> {
-        activity.tokenObject.icon(withSize: .s300)
+        activity.token.icon(withSize: .s300)
     }
 
     var stateImage: UIImage? {

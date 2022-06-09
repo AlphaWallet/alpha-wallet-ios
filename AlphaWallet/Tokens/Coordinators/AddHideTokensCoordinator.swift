@@ -7,61 +7,41 @@ private struct NoContractDetailsDetected: Error {
 }
 
 protocol AddHideTokensCoordinatorDelegate: AnyObject {
-    func didClose(coordinator: AddHideTokensCoordinator)
+    func didClose(in coordinator: AddHideTokensCoordinator)
 }
 
 class AddHideTokensCoordinator: Coordinator {
     private let analyticsCoordinator: AnalyticsCoordinator
     private let navigationController: UINavigationController
-    private var viewModel: AddHideTokensViewModel
-    private lazy var viewController: AddHideTokensViewController = .init(
-        viewModel: viewModel,
-        assetDefinitionStore: assetDefinitionStore
-    )
+    private let importToken: ImportToken
+    private lazy var viewModel = AddHideTokensViewModel(tokenCollection: tokenCollection, importToken: importToken, config: config, assetDefinitionStore: assetDefinitionStore)
+    private lazy var rootViewController: AddHideTokensViewController = {
+        return .init(viewModel: viewModel)
+    }()
 
-    private let sessions: ServerDictionary<WalletSession>
-    private let tokensFilter: TokensFilter
     private let assetDefinitionStore: AssetDefinitionStore
-    private let singleChainTokenCoordinators: [SingleChainTokenCoordinator]
     private let config: Config
-    private let popularTokensCollection: PopularTokensCollectionType = LocalPopularTokensCollection()
+    private let tokenCollection: TokenCollection
+
     var coordinators: [Coordinator] = []
     weak var delegate: AddHideTokensCoordinatorDelegate?
-    private var tokens: [TokenObject]
 
-    init(tokens: [TokenObject], assetDefinitionStore: AssetDefinitionStore, tokensFilter: TokensFilter, sessions: ServerDictionary<WalletSession>, analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, config: Config, singleChainTokenCoordinators: [SingleChainTokenCoordinator]) {
+    init(assetDefinitionStore: AssetDefinitionStore, tokenCollection: TokenCollection, analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, config: Config, importToken: ImportToken) {
         self.config = config
-        self.tokensFilter = tokensFilter
-        self.sessions = sessions
-        self.tokens = tokens
+        self.tokenCollection = tokenCollection
         self.analyticsCoordinator = analyticsCoordinator
         self.navigationController = navigationController
         self.assetDefinitionStore = assetDefinitionStore
-        self.singleChainTokenCoordinators = singleChainTokenCoordinators
-        self.viewModel = AddHideTokensViewModel(
-            tokens: tokens,
-            tokensFilter: tokensFilter,
-            singleChainTokenCoordinators: singleChainTokenCoordinators
-        )
+        self.importToken = importToken
     }
 
     func start() {
-        viewController.delegate = self
-        navigationController.pushViewController(viewController, animated: true)
-
-        popularTokensCollection.fetchTokens().done { [weak self] tokens in
-            guard let strongSelf = self else { return }
-            let tokensForEnabledChains = tokens.filter { each in strongSelf.config.enabledServers.contains(each.server) }
-            strongSelf.viewController.set(popularTokens: tokensForEnabledChains)
-        }.cauterize()
+        rootViewController.delegate = self
+        navigationController.pushViewController(rootViewController, animated: true)
     }
 
     @objc func dismiss() {
         navigationController.dismiss(animated: true)
-    }
-
-    private func singleChainTokenCoordinator(forServer server: RPCServer) -> SingleChainTokenCoordinator? {
-        singleChainTokenCoordinators.first { $0.isServer(server) }
     }
 }
 
@@ -71,24 +51,21 @@ extension AddHideTokensCoordinator: NewTokenCoordinatorDelegate {
         removeCoordinator(coordinator)
     }
 
-    func coordinator(_ coordinator: NewTokenCoordinator, didAddToken token: TokenObject) {
+    func coordinator(_ coordinator: NewTokenCoordinator, didAddToken token: Token) {
         removeCoordinator(coordinator)
 
-        viewController.add(token: token)
+        viewModel.add(token: token)
     }
 }
 
 extension AddHideTokensCoordinator: AddHideTokensViewControllerDelegate {
 
-    func didChangeOrder(tokens: [TokenObject], in viewController: UIViewController) {
-        guard let token = tokens.first else { return }
-        guard let coordinator = singleChainTokenCoordinator(forServer: token.server) else { return }
-        coordinator.updateOrderedTokens(with: tokens)
+    func didChangeOrder(tokens: [Token], in viewController: UIViewController) {
+        tokenCollection.tokensDataStore.updateOrderedTokens(with: tokens)
     }
 
-    func didMark(token: TokenObject, in viewController: UIViewController, isHidden: Bool) {
-        guard let coordinator = singleChainTokenCoordinator(forServer: token.server) else { return }
-        coordinator.mark(token: token, isHidden: isHidden)
+    func didMark(token: Token, in viewController: UIViewController, isHidden: Bool) {
+        tokenCollection.tokensDataStore.updateToken(primaryKey: token.primaryKey, action: .isHidden(isHidden))
     }
 
     func didPressAddToken(in viewController: UIViewController, with addressString: String) {
@@ -102,17 +79,15 @@ extension AddHideTokensCoordinator: AddHideTokensViewControllerDelegate {
             analyticsCoordinator: analyticsCoordinator,
             navigationController: navigationController,
             config: config,
-            singleChainTokenCoordinators: singleChainTokenCoordinators,
-            initialState: initialState,
-            sessions: sessions
-        )
+            importToken: importToken,
+            initialState: initialState)
         coordinator.delegate = self
         addCoordinator(coordinator)
 
         coordinator.start()
     }
 
-    func didClose(viewController: AddHideTokensViewController) {
-        delegate?.didClose(coordinator: self)
+    func didClose(in viewController: AddHideTokensViewController) {
+        delegate?.didClose(in: self)
     }
 }

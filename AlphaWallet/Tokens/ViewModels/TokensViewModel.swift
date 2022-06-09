@@ -3,15 +3,15 @@
 import Foundation
 import UIKit
 
-enum TokenObjectOrRpcServerPair {
-    case tokenObject(TokenObject)
+enum TokenOrRpcServer {
+    case token(Token)
     case rpcServer(RPCServer)
 
-    var tokenObject: TokenObject? {
+    var token: Token? {
         switch self {
         case .rpcServer:
             return nil
-        case .tokenObject(let token):
+        case .token(let token):
             return token
         }
     }
@@ -20,8 +20,8 @@ enum TokenObjectOrRpcServerPair {
         switch self {
         case .rpcServer:
             return false
-        case .tokenObject(let token):
-            guard !token.isInvalidated else { return false }
+        case .token(let token):
+            //guard !token.isInvalidated else { return false }
             if token.contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
                 return false
             }
@@ -31,15 +31,8 @@ enum TokenObjectOrRpcServerPair {
 }
 
 struct CollectiblePairs: Hashable {
-    let left: TokenObject
-    let right: TokenObject?
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(left.hash)
-        if let value = right {
-            hasher.combine(value.hash)
-        }
-    }
+    let left: Token
+    let right: Token?
 }
 
 extension TokensViewModel {
@@ -60,7 +53,7 @@ class TokensViewModel {
     static var segmentedControlTitles: [String] { WalletFilter.orderedTabs.map { $0.title } }
 
     private let tokensFilter: TokensFilter
-    var tokens: [TokenObject]
+    private (set) var tokens: [Token]
     let config: Config
     var isSearchActive: Bool = false
     var filter: WalletFilter = .all {
@@ -76,7 +69,7 @@ class TokensViewModel {
     private func refreshSections(walletConnectSessions count: Int) {
         let varyTokenOrCollectiblePeirsSection: Section = {
             switch filter {
-            case .all, .defi, .governance, .keyword, .assets, .type:
+            case .all, .defi, .governance, .keyword, .assets, .filter:
                 return .tokens
             case .collectiblesOnly:
                 return .collectiblePairs
@@ -119,7 +112,7 @@ class TokensViewModel {
         }
     }
 
-    lazy var filteredTokens: [TokenObjectOrRpcServerPair] = {
+    lazy var filteredTokens: [TokenOrRpcServer] = {
         return filteredAndSortedTokens()
     }()
 
@@ -140,7 +133,7 @@ class TokensViewModel {
         switch filter {
         case .all, .keyword:
             return true
-        case .assets, .collectiblesOnly, .type, .defi, .governance:
+        case .assets, .collectiblesOnly, .filter, .defi, .governance:
             return false
         }
     }
@@ -151,7 +144,7 @@ class TokensViewModel {
 
     var shouldShowCollectiblesCollectionView: Bool {
         switch filter {
-        case .all, .defi, .governance, .assets, .keyword, .type:
+        case .all, .defi, .governance, .assets, .keyword, .filter:
             return false
         case .collectiblesOnly:
             return hasContent
@@ -179,7 +172,7 @@ class TokensViewModel {
             return 0
         case .tokens, .collectiblePairs:
             switch filter {
-            case .all, .defi, .governance, .keyword, .assets, .type:
+            case .all, .defi, .governance, .keyword, .assets, .filter:
                 return filteredTokens.count
             case .collectiblesOnly:
                 return collectiblePairs.count
@@ -188,7 +181,7 @@ class TokensViewModel {
     }
 
     var collectiblePairs: [CollectiblePairs] {
-        let tokens = filteredTokens.compactMap { $0.tokenObject }
+        let tokens = filteredTokens.compactMap { $0.token }
         return tokens.chunked(into: 2).compactMap { elems -> CollectiblePairs? in
             guard let left = elems.first else { return nil }
 
@@ -197,7 +190,7 @@ class TokensViewModel {
         }
     }
 
-    func item(for row: Int, section: Int) -> TokenObjectOrRpcServerPair {
+    func item(for row: Int, section: Int) -> TokenOrRpcServer {
         return filteredTokens[row]
     }
 
@@ -205,13 +198,13 @@ class TokensViewModel {
         return item(for: row, section: section).canDelete
     }
 
-    init(tokensFilter: TokensFilter, tokens: [TokenObject], config: Config) {
+    init(tokensFilter: TokensFilter, tokens: [Token], config: Config) {
         self.tokensFilter = tokensFilter
-        self.tokens = TokensViewModel.functional.filterAwaySpuriousTokens(tokens)
+        self.tokens = tokens
         self.config = config
     }
 
-    func markTokenHidden(token: TokenObject) -> Bool {
+    func markTokenHidden(token: Token) -> Bool {
         if let index = tokens.firstIndex(where: { $0.primaryKey == token.primaryKey }) {
             tokens.remove(at: index)
             filteredTokens = filteredAndSortedTokens()
@@ -228,7 +221,7 @@ class TokensViewModel {
             switch item(for: indexPath.row, section: indexPath.section) {
             case .rpcServer:
                 return Style.Wallet.Header.height
-            case .tokenObject:
+            case .token:
                 return Style.Wallet.Row.height
             }
         case .search, .walletSummary, .filters, .activeWalletSession:
@@ -238,18 +231,18 @@ class TokensViewModel {
         }
     }
 
-    private func filteredAndSortedTokens() -> [TokenObjectOrRpcServerPair] {
+    private func filteredAndSortedTokens() -> [TokenOrRpcServer] {
         let displayedTokens = tokensFilter.filterTokens(tokens: tokens, filter: filter)
         let tokens = tokensFilter.sortDisplayedTokens(tokens: displayedTokens)
         switch filter {
-        case .all, .type, .defi, .governance, .assets, .keyword:
-            return TokensViewModel.functional.groupTokenObjectsWithServers(tokens: tokens)
+        case .all, .filter, .defi, .governance, .assets, .keyword:
+            return TokensViewModel.functional.groupTokensByServers(tokens: tokens)
         case .collectiblesOnly:
-            return tokens.map { .tokenObject($0) }
+            return tokens.map { .token($0) }
         }
     }
 
-    func nativeCryptoCurrencyToken(forServer server: RPCServer) -> TokenObject? {
+    func nativeCryptoCurrencyToken(forServer server: RPCServer) -> Token? {
         return tokens.first(where: { $0.primaryKey == MultipleChainsTokensDataStore.functional.etherToken(forServer: server).primaryKey })
     }
 
@@ -298,12 +291,12 @@ class TokensViewModel {
     }
 }
 
-fileprivate extension TokenObjectOrRpcServerPair {
+fileprivate extension TokenOrRpcServer {
     var isRemovable: Bool {
         switch self {
         case .rpcServer:
             return false
-        case .tokenObject:
+        case .token:
             return true
         }
     }
@@ -313,10 +306,10 @@ fileprivate extension WalletFilter {
     static var orderedTabs: [WalletFilter] {
         return [
             .all,
-            .defi,
-            .governance,
             .assets,
             .collectiblesOnly,
+            .defi,
+            .governance,
         ]
     }
 
@@ -336,7 +329,7 @@ fileprivate extension WalletFilter {
             return R.string.localizable.aWalletContentsFilterAssetsOnlyTitle()
         case .collectiblesOnly:
             return R.string.localizable.aWalletContentsFilterCollectiblesOnlyTitle()
-        case .keyword, .type:
+        case .keyword, .filter:
             return ""
         }
     }
@@ -352,9 +345,9 @@ extension TokensViewModel {
 }
 
 extension TokensViewModel.functional {
-    static func groupTokenObjectsWithServers(tokens: [TokenObject]) -> [TokenObjectOrRpcServerPair] {
+    static func groupTokensByServers(tokens: [Token]) -> [TokenOrRpcServer] {
         var servers: [RPCServer] = []
-        var results: [TokenObjectOrRpcServerPair] = []
+        var results: [TokenOrRpcServer] = []
 
         for each in tokens {
             guard !servers.contains(each.server) else { continue }
@@ -362,7 +355,7 @@ extension TokensViewModel.functional {
         }
 
         for each in servers {
-            let tokens = tokens.filter { $0.server == each }.map { TokenObjectOrRpcServerPair.tokenObject($0) }
+            let tokens = tokens.filter { $0.server == each }.map { TokenOrRpcServer.token($0) }
             guard !tokens.isEmpty else { continue }
 
             results.append(.rpcServer(each))
@@ -373,7 +366,7 @@ extension TokensViewModel.functional {
     }
 
     //Remove tokens that look unwanted in the Wallet tab
-    static func filterAwaySpuriousTokens(_ tokens: [TokenObject]) -> [TokenObject] {
+    static func filterAwaySpuriousTokens(_ tokens: [Token]) -> [Token] {
         tokens.filter {
             switch $0.type {
             case .nativeCryptocurrency, .erc20, .erc875, .erc721, .erc721ForTickets:

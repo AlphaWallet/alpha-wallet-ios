@@ -11,7 +11,7 @@ class NonFungibleTokenViewCell: UITableViewCell {
     private var viewsWithContent: [UIView] {
         [titleLabel, tickersAmountLabel]
     }
-    private var tokenIconImageView: TokenImageView = {
+    private var tokenImageView: TokenImageView = {
         let imageView = TokenImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
@@ -25,7 +25,7 @@ class NonFungibleTokenViewCell: UITableViewCell {
         contentView.addSubview(background)
         background.translatesAutoresizingMaskIntoConstraints = false
 
-        let col0 = tokenIconImageView
+        let col0 = tokenImageView
         let col1 = [
             titleLabel,
             [tickersAmountLabel, UIView.spacerWidth(flexible: true), blockChainTagLabel].asStackView(spacing: 15)
@@ -35,8 +35,8 @@ class NonFungibleTokenViewCell: UITableViewCell {
         background.addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            tokenIconImageView.heightAnchor.constraint(equalToConstant: 40),
-            tokenIconImageView.widthAnchor.constraint(equalToConstant: 40),
+            tokenImageView.heightAnchor.constraint(equalToConstant: 40),
+            tokenImageView.widthAnchor.constraint(equalToConstant: 40),
             stackView.anchorsConstraint(to: background, edgeInsets: .init(top: 16, left: 20, bottom: 16, right: 16)),
             background.anchorsConstraint(to: contentView)
         ])
@@ -59,10 +59,14 @@ class NonFungibleTokenViewCell: UITableViewCell {
 
         tickersAmountLabel.attributedText = viewModel.tickersAmountAttributedString
 
-        viewsWithContent.forEach {
-            $0.alpha = viewModel.alpha
-        }
-        tokenIconImageView.subscribable = viewModel.iconImage
+        viewsWithContent.forEach { $0.alpha = viewModel.alpha }
+        tokenImageView.subscribable = viewModel.iconImage
         blockChainTagLabel.configure(viewModel: viewModel.blockChainTagViewModel)
+        accessoryType = viewModel.accessoryType
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        tokenImageView.cancel()
     }
 }

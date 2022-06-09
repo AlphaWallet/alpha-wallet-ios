@@ -15,6 +15,6 @@ struct DappsHomeHeaderViewViewModel {
     }
 
     var titleFont: UIFont? {
-        return Fonts.light(size: 20)
+        return Fonts.regular(size: 20)
     }
 }

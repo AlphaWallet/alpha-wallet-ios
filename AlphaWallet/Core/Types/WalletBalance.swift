@@ -8,19 +8,6 @@
 import UIKit
 import BigInt
 
-extension TokenObject {
-
-    var valueDecimal: NSDecimalNumber? {
-        switch type {
-        case .erc20, .nativeCryptocurrency:
-            let fullValue = EtherNumberFormatter.plain.string(from: valueBigInt, decimals: decimals)
-            return fullValue.optionalDecimalValue
-        case .erc721, .erc721ForTickets, .erc875, .erc1155:
-            return NSDecimalNumber(value: 0)
-        }
-    }
-}
-
 struct WalletBalance: Equatable {
     static func == (lhs: WalletBalance, rhs: WalletBalance) -> Bool {
         return lhs.wallet.address.sameContract(as: rhs.wallet.address) &&
@@ -29,11 +16,11 @@ struct WalletBalance: Equatable {
     }
 
     private let wallet: Wallet
-    private let tokens: [TokenObject]
+    private let tokens: [Token]
     var totalAmountDouble: Double?
     var changeDouble: Double?
 
-    init(wallet: Wallet, tokens: [TokenObject], coinTickersFetcher: CoinTickersFetcherType) {
+    init(wallet: Wallet, tokens: [Token], coinTickersFetcher: CoinTickersFetcherType) {
         self.wallet = wallet
         self.tokens = tokens
         self.totalAmountDouble = WalletBalance.functional.createTotalAmountDouble(tokens: tokens, coinTickersFetcher: coinTickersFetcher)
@@ -51,12 +38,12 @@ struct WalletBalance: Equatable {
     }
 
     var etherAmountShort: String? {
-        guard let token = etherTokenObject, let value = token.valueDecimal else { return nil }
+        guard let token = etherToken, let value = token.valueDecimal else { return nil }
 
         return Formatter.shortCrypto.string(from: value.doubleValue)
     }
 
-    var etherTokenObject: TokenObject? {
+    var etherToken: Token? {
         let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: .main)
         guard let token = tokens.first(where: { $0.primaryKey == etherToken.primaryKey }) else {
             return nil
@@ -91,7 +78,7 @@ struct WalletBalance: Equatable {
 
 extension Balance: CustomStringConvertible {
     var description: String {
-        return "value: \(amountFull)"
+        return "value: \(EtherNumberFormatter.full.string(from: value))"
     }
 }
 
@@ -101,7 +88,7 @@ extension WalletBalance {
 
 extension WalletBalance.functional {
 
-    static func createChangeDouble(tokens: [TokenObject], coinTickersFetcher: CoinTickersFetcherType) -> Double? {
+    static func createChangeDouble(tokens: [Token], coinTickersFetcher: CoinTickersFetcherType) -> Double? {
         var totalChange: Double?
         for each in tokens {
             guard let value = each.valueDecimal, let ticker = coinTickersFetcher.ticker(for: each.addressAndRPCServer) else { continue }
@@ -118,7 +105,7 @@ extension WalletBalance.functional {
         return totalChange
     }
 
-    static func createTotalAmountDouble(tokens: [TokenObject], coinTickersFetcher: CoinTickersFetcherType) -> Double? {
+    static func createTotalAmountDouble(tokens: [Token], coinTickersFetcher: CoinTickersFetcherType) -> Double? {
         var totalAmount: Double?
 
         for each in tokens {

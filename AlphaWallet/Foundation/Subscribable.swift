@@ -2,6 +2,7 @@
 
 import Foundation
 
+fileprivate let threadSafeForSubscribable = ThreadSafe(label: "org.alphawallet.swift.subscribable")
 //TODO probably should have an ID which is really good for debugging
 open class Subscribable<T>: Hashable {
     public static func == (lhs: Subscribable<T>, rhs: Subscribable<T>) -> Bool {
@@ -29,19 +30,17 @@ open class Subscribable<T>: Hashable {
         }
         set {
             _value = newValue
-            for (_, f) in _subscribers {
-                if let q = f.queue {
-                    q.async { f.callback(newValue) }
-                } else {
+            threadSafeForSubscribable.performSync {
+                for (_, f) in _subscribers {
                     f.callback(newValue)
                 }
-            }
 
-            if let value = value {
-                for f in _oneTimeSubscribers {
-                    f(value)
+                if let value = value {
+                    for f in _oneTimeSubscribers {
+                        f(value)
+                    }
+                    _oneTimeSubscribers = []
                 }
-                _oneTimeSubscribers = []
             }
         }
     }
@@ -53,76 +52,41 @@ open class Subscribable<T>: Hashable {
     }
 
     private struct Subscription {
-        let queue: DispatchQueue?
         let callback: (T?) -> Void
     }
 
-    @discardableResult open func subscribe(_ subscribe: @escaping (T?) -> Void, on queue: DispatchQueue? = .none) -> SubscribableKey {
+    @discardableResult open func subscribe(_ subscribe: @escaping (T?) -> Void) -> SubscribableKey {
         if let value = _value {
-            if let q = queue {
-                q.async { subscribe(value) }
-            } else {
-                subscribe(value)
-            }
+            subscribe(value)
         }
         let key = SubscribableKey()
-        _subscribers[key] = Subscription(queue: queue, callback: subscribe)
+        threadSafeForSubscribable.performSync {
+            _subscribers[key] = Subscription(callback: subscribe)
+        }
+
         return key
-    }
-
-    static func merge<T>(_ elements: [Subscribable<T>], on queue: DispatchQueue? = .none) -> Subscribable<[T]> {
-        let values = elements.compactMap { $0.value }
-        let notifier = Subscribable<[T]>(values)
-
-        for each in elements {
-            each.subscribe { _ in
-                if let queue = queue {
-                    queue.async {
-                        notifier.value = elements.compactMap { $0.value }
-                    }
-                } else {
-                    notifier.value = elements.compactMap { $0.value }
-                }
-            }
-        }
-
-        return notifier
-    }
-
-    func map<V>(_ mapClosure: @escaping (T) -> V?, on queue: DispatchQueue? = .none) -> Subscribable<V> {
-        let notifier = Subscribable<V>(nil)
-
-        func updateNotifier(with value: T?, on queue: DispatchQueue?) {
-            if let queue = queue {
-                queue.async {
-                    notifier.value = value.flatMap { mapClosure($0) }
-                }
-            } else {
-                notifier.value = value.flatMap { mapClosure($0) }
-            }
-        }
-
-        subscribe { value in
-            updateNotifier(with: value, on: queue)
-        }
-
-        return notifier
     }
 
     open func subscribeOnce(_ subscribe: @escaping (T) -> Void) {
         if let value = _value {
             subscribe(value)
         } else {
-            _oneTimeSubscribers.append(subscribe)
+            threadSafeForSubscribable.performSync {
+                _oneTimeSubscribers.append(subscribe)
+            }
         }
     }
 
     func unsubscribe(_ key: SubscribableKey) {
-        _subscribers.removeValue(forKey: key)
+        threadSafeForSubscribable.performSync {
+            _subscribers.removeValue(forKey: key)
+        }
     }
 
     func unsubscribeAll() {
-        _subscribers.removeAll()
+        threadSafeForSubscribable.performSync {
+            _subscribers.removeAll()
+        }
     }
 
     public func hash(into hasher: inout Hasher) {

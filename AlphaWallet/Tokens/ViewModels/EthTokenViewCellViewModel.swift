@@ -6,28 +6,31 @@ import BigInt
 
 struct EthTokenViewCellViewModel {
     private let shortFormatter = EtherNumberFormatter.short
-    private let token: TokenObject
+    private let token: Token
     private let currencyAmount: Double?
     private let ticker: CoinTicker?
     private let assetDefinitionStore: AssetDefinitionStore
     private let isVisible: Bool 
+    let accessoryType: UITableViewCell.AccessoryType
     
     init(
-        token: TokenObject,
+        token: Token,
         ticker: CoinTicker?,
         currencyAmount: Double?,
         assetDefinitionStore: AssetDefinitionStore,
-        isVisible: Bool = true
+        isVisible: Bool = true,
+        accessoryType: UITableViewCell.AccessoryType = .none
     ) {
         self.token = token
         self.ticker = ticker
         self.currencyAmount = currencyAmount
         self.assetDefinitionStore = assetDefinitionStore
         self.isVisible = isVisible
+        self.accessoryType = accessoryType
     }
 
     private var amount: String {
-        return shortFormatter.string(from: BigInt(token.value) ?? BigInt(), decimals: token.decimals)
+        return shortFormatter.string(from: token.value, decimals: token.decimals)
     }
 
     private var title: String {
@@ -98,7 +101,7 @@ struct EthTokenViewCellViewModel {
     }
 
     private var priceChangeUSDValue: String {
-        if let result = EthCurrencyHelper(ticker: ticker).valueChanged24h(value: token.optionalDecimalValue) {
+        if let result = EthCurrencyHelper(ticker: ticker).valueChanged24h(value: token.valueDecimal) {
             return Formatter.priceChange.string(from: result) ?? UiTweaks.noPriceMarker
         } else {
             return UiTweaks.noPriceMarker
@@ -155,7 +158,7 @@ struct EthTokenViewCellViewModel {
     }
 
     private func priceChangeUSDValue(ticker: CoinTicker?) -> String {
-        if let result = EthCurrencyHelper(ticker: ticker).valueChanged24h(value: token.optionalDecimalValue) {
+        if let result = EthCurrencyHelper(ticker: ticker).valueChanged24h(value: token.valueDecimal) {
             return Formatter.usd.string(from: result) ?? "-"
         } else {
             return "-"

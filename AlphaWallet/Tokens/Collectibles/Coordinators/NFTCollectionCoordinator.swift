@@ -75,7 +75,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
 
     private func subscribeForEthereumEventChanges() {
         eventsDataStore
-            .recentEvents(forTokenContract: token.contractAddress)
+            .recentEventsChangeset(for: token.contractAddress)
             .filter({ changeset in
                 switch changeset {
                 case .update(let events, _, let insertions, let modifications):
@@ -105,11 +105,21 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
                 vc.configure(viewModel: viewModel)
             case let vc as NFTAssetViewController:
                 let updatedTokenHolders = token.getTokenHolders(assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: session.account)
-                let tokenHolder = vc.viewModel.firstMatchingTokenHolder(fromTokenHolders: updatedTokenHolders)
-                if let tokenHolder = tokenHolder {
-                    let viewModel = NFTAssetViewModel(account: session.account, tokenId: tokenHolder.tokenId, token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
-                    vc.configure(viewModel: viewModel)
-                } 
+                switch token.type {
+                case .erc721, .erc875, .erc721ForTickets:
+                    let tokenHolder = vc.viewModel.firstMatchingTokenHolder(from: updatedTokenHolders)
+                    if let tokenHolder = tokenHolder {
+                        let viewModel = NFTAssetViewModel(account: session.account, tokenId: tokenHolder.tokenId, token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
+                        vc.configure(viewModel: viewModel)
+                    }
+                case .erc1155:
+                    if let selection = vc.viewModel.isMatchingTokenHolder(from: updatedTokenHolders) {
+                        let viewModel: NFTAssetViewModel = .init(account: session.account, tokenId: selection.tokenId, token: token, tokenHolder: selection.tokenHolder, assetDefinitionStore: assetDefinitionStore)
+                        vc.configure(viewModel: viewModel)
+                    }
+                case .nativeCryptocurrency, .erc20:
+                    break
+                }
             case let vc as TokenInstanceActionViewController:
                 //TODO it reloads, but doesn't live-reload the changes because the action contains the HTML and it doesn't change
                 vc.configure()
@@ -323,7 +333,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
         switch paymentFlow {
         case .send(let transactionType):
             server = transactionType.server
-        case .request:
+        case .request, .swap:
             return
         }
         let url = generateSellLink(
@@ -351,7 +361,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
         switch paymentFlow {
         case .send(let transactionType):
             server = transactionType.server
-        case .request:
+        case .request, .swap:
             return
         }
 
@@ -426,14 +436,17 @@ extension NFTCollectionCoordinator: NFTCollectionViewControllerDelegate {
 
     private func createNFTAssetListViewController(tokenHolder: TokenHolder) -> NFTAssetListViewController {
         let viewModel = NFTAssetListViewModel(tokenHolder: tokenHolder)
-        let vc = NFTAssetListViewController(viewModel: viewModel, tokenObject: token, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, server: session.server)
+        let tokenCardViewFactory: TokenCardViewFactory = {
+            TokenCardViewFactory(token: token, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, keystore: keystore, wallet: session.account)
+        }()
+        let vc = NFTAssetListViewController(viewModel: viewModel, tokenCardViewFactory: tokenCardViewFactory)
         vc.delegate = self
         return vc
     }
 
     private func createNFTAssetViewController(tokenHolder: TokenHolder, tokenId: TokenId, mode: TokenInstanceViewMode = .interactive) -> UIViewController {
         let viewModel = NFTAssetViewModel(account: session.account, tokenId: tokenId, token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
-        let vc = NFTAssetViewController(analyticsCoordinator: analyticsCoordinator, assetDefinitionStore: assetDefinitionStore, viewModel: viewModel, mode: mode)
+        let vc = NFTAssetViewController(analyticsCoordinator: analyticsCoordinator, session: session, assetDefinitionStore: assetDefinitionStore, keystore: keystore, viewModel: viewModel, mode: mode)
         vc.delegate = self
         vc.navigationItem.largeTitleDisplayMode = .never
 
@@ -491,7 +504,10 @@ extension NFTCollectionCoordinator: NFTAssetListViewControllerDelegate {
 extension NFTCollectionCoordinator: NFTAssetSelectionCoordinatorDelegate {
 
     private func showTokenCardSelection(tokenHolders: [TokenHolder]) {
-        let coordinator = NFTAssetSelectionCoordinator(navigationController: navigationController, tokenObject: token, tokenHolders: tokenHolders, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, server: session.server)
+        let tokenCardViewFactory: TokenCardViewFactory = {
+            TokenCardViewFactory(token: token, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, keystore: keystore, wallet: session.account)
+        }()
+        let coordinator = NFTAssetSelectionCoordinator(navigationController: navigationController, tokenObject: token, tokenHolders: tokenHolders, tokenCardViewFactory: tokenCardViewFactory)
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start()

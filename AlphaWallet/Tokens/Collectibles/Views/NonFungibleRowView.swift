@@ -8,14 +8,6 @@
 import UIKit
 
 class NonFungibleRowView: TokenCardViewType {
-    var checkboxImageView: UIImageView = UIImageView()
-    var stateLabel: UILabel = UILabel()
-    var tokenView: TokenView
-    var showCheckbox: Bool = false
-    var areDetailsVisible: Bool = false
-    var additionalHeightToCompensateForAutoLayout: CGFloat = 0.0
-    var shouldOnlyRenderIfHeightIsCached: Bool = false
-
     private let titleLabel = UILabel()
     private let descriptionLabel = UILabel()
 
@@ -23,16 +15,31 @@ class NonFungibleRowView: TokenCardViewType {
         thumbnailImageView
     }
 
-    private var thumbnailImageView: WebImageView = {
-        let imageView = WebImageView()
+    private var thumbnailImageView: TokenImageView = {
+        let imageView = TokenImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.isUserInteractionEnabled = true
+        imageView.rounding = .none
+        imageView.isChainOverlayHidden = true
+        imageView.contentMode = .scaleAspectFill
+
         return imageView
     }()
 
     private var imageSmallSizeContraints: [NSLayoutConstraint] = []
     private var imageLargeSizeContraints: [NSLayoutConstraint] = []
 
-    init(tokenView: TokenView, layout: GridOrListSelectionState, gridEdgeInsets: UIEdgeInsets = .zero, listEdgeInsets: UIEdgeInsets = .init(top: 0, left: 16, bottom: 0, right: 16)) {
-        self.tokenView = tokenView
+    private lazy var col0 = thumbnailImageView
+    private lazy var col1 = [
+        [titleLabel, UIView.spacerWidth(flexible: true)].asStackView(axis: .horizontal, spacing: 5),
+        [descriptionLabel, UIView.spacerWidth(flexible: true)].asStackView(axis: .horizontal, spacing: 5)
+    ].asStackView(axis: .vertical, spacing: 2)
+
+    private var _constraints: [NSLayoutConstraint] = []
+    private var gridEdgeInsets: UIEdgeInsets
+    private var listEdgeInsets: UIEdgeInsets
+
+    init(layout: GridOrListSelectionState, gridEdgeInsets: UIEdgeInsets = .zero, listEdgeInsets: UIEdgeInsets = .init(top: 0, left: 16, bottom: 0, right: 16)) {
         self.gridEdgeInsets = gridEdgeInsets
         self.listEdgeInsets = listEdgeInsets
         super.init(frame: .zero)
@@ -52,21 +59,8 @@ class NonFungibleRowView: TokenCardViewType {
         configureLayout(layout: layout)
     }
 
-    private lazy var col0 = thumbnailImageView
-    private lazy var descriptionCo1 = [descriptionLabel, UIView.spacerWidth(flexible: true)].asStackView(axis: .horizontal, spacing: 5)
-    private lazy var col1 = [
-        [titleLabel, UIView.spacerWidth(flexible: true)].asStackView(axis: .horizontal, spacing: 5),
-        descriptionCo1
-    ].asStackView(axis: .vertical, spacing: 2)
-
-    private var _constraints: [NSLayoutConstraint] = []
-    private var gridEdgeInsets: UIEdgeInsets
-    private var listEdgeInsets: UIEdgeInsets
-
     func configureLayout(layout: GridOrListSelectionState) {
-        for each in subviews {
-            each.removeFromSuperview()
-        }
+        for each in subviews { each.removeFromSuperview() }
         NSLayoutConstraint.deactivate(_constraints)
 
         switch layout {
@@ -74,8 +68,8 @@ class NonFungibleRowView: TokenCardViewType {
             borderWidth = 0
             cornerRadius = 0
             col1.alignment = .fill
-            descriptionCo1.isHidden = false
-            contentMode = .scaleAspectFit
+            thumbnailImageView.rounding = .custom(8)
+
             let stackView = [
                 col0,
                 col1,
@@ -88,8 +82,8 @@ class NonFungibleRowView: TokenCardViewType {
             borderWidth = 1
             cornerRadius = Metrics.CornerRadius.nftBox
             col1.alignment = .center
-            descriptionCo1.isHidden = true
-            contentMode = .scaleAspectFit
+            thumbnailImageView.rounding = .none
+
             let stackView = [
                 col0,
                 .spacer(height: 12),
@@ -110,37 +104,15 @@ class NonFungibleRowView: TokenCardViewType {
         return nil
     }
 
-    func configure(viewModel: NonFungibleRowViewModelType) {
-        backgroundColor = viewModel.contentsBackgroundColor
-        titleLabel.text = viewModel.title
-        thumbnailImageView.setImage(url: viewModel.imageUrl(rewriteGoogleContentSizeUrl: .s300))
-
-        descriptionLabel.font = viewModel.descriptionTextFont
-        descriptionLabel.textColor = viewModel.descriptionTextForegroundColor
-        descriptionLabel.text = viewModel.descriptionText
-
-        titleLabel.font = viewModel.titleTextFont
-        titleLabel.textColor = viewModel.titleTextForegroundColor
-        titleLabel.text = viewModel.titleText
+    func configure(viewModel: NonFungibleRowViewModel) {
+        thumbnailImageView.contentBackgroundColor = viewModel.contentBackgroundColor
+        backgroundColor = viewModel.backgroundColor
+        thumbnailImageView.subscribable = viewModel.assetImage
+        descriptionLabel.attributedText = viewModel.description
+        titleLabel.attributedText = viewModel.title
     }
 
-    func configure(tokenHolder: TokenHolder, tokenId: TokenId, tokenView: TokenView, areDetailsVisible: Bool, width: CGFloat, assetDefinitionStore: AssetDefinitionStore) {
-        self.tokenView = tokenView
-        configure(viewModel: NonFungibleRowViewModel(tokenHolder: tokenHolder, tokenId: tokenId, areDetailsVisible: areDetailsVisible, width: width))
+    func configure(tokenHolder: TokenHolder, tokenId: TokenId) {
+        configure(viewModel: NonFungibleRowViewModel(tokenHolder: tokenHolder, tokenId: tokenId))
     }
-}
-
-protocol NonFungibleRowViewModelType {
-    var contentsBackgroundColor: UIColor { get }
-    var title: String { get }
-
-    var descriptionTextFont: UIFont { get }
-    var descriptionTextForegroundColor: UIColor { get }
-    var descriptionText: String { get }
-
-    var titleTextFont: UIFont { get }
-    var titleTextForegroundColor: UIColor { get }
-    var titleText: String { get }
-    
-    func imageUrl(rewriteGoogleContentSizeUrl size: GoogleContentSize) -> WebImageURL?
 }

@@ -85,7 +85,7 @@ class EthTokenViewCell: UITableViewCell {
 
     private lazy var changeValueContainer: UIView = [priceChangeLabel, apprecation24hoursView].asStackView(spacing: 5)
 
-    private var tokenIconImageView: TokenImageView = {
+    private var tokenImageView: TokenImageView = {
         let imageView = TokenImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
@@ -103,7 +103,7 @@ class EthTokenViewCell: UITableViewCell {
         fiatValueLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         fiatValueLabel.setContentHuggingPriority(.required, for: .horizontal)
 
-        let col0 = tokenIconImageView
+        let col0 = tokenImageView
         let row1 = [cryptoValueLabel, UIView.spacerWidth(flexible: true), changeValueContainer, blockChainTagLabel].asStackView(spacing: 5, alignment: .center)
         let col1 = [
             [titleLabel, UIView.spacerWidth(flexible: true), fiatValueLabel].asStackView(spacing: 5),
@@ -114,8 +114,8 @@ class EthTokenViewCell: UITableViewCell {
         background.addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            tokenIconImageView.heightAnchor.constraint(equalToConstant: 40),
-            tokenIconImageView.widthAnchor.constraint(equalToConstant: 40),
+            tokenImageView.heightAnchor.constraint(equalToConstant: 40),
+            tokenImageView.widthAnchor.constraint(equalToConstant: 40),
             row1.heightAnchor.constraint(greaterThanOrEqualToConstant: 20),
             stackView.anchorsConstraint(to: background, edgeInsets: .init(top: 12, left: 16, bottom: 15, right: 16)),
             background.anchorsConstraint(to: contentView)
@@ -145,12 +145,16 @@ class EthTokenViewCell: UITableViewCell {
 
         fiatValueLabel.attributedText = viewModel.fiatValueAttributedString
 
-        viewsWithContent.forEach {
-            $0.alpha = viewModel.alpha
-        }
-        tokenIconImageView.subscribable = viewModel.iconImage
+        viewsWithContent.forEach { $0.alpha = viewModel.alpha }
+        tokenImageView.subscribable = viewModel.iconImage
 
         blockChainTagLabel.configure(viewModel: viewModel.blockChainTagViewModel)
         changeValueContainer.isHidden = !viewModel.blockChainTagViewModel.blockChainNameLabelHidden
+        accessoryType = viewModel.accessoryType
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        tokenImageView.cancel()
     }
 }

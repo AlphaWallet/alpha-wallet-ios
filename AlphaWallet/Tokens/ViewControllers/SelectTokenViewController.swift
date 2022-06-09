@@ -10,24 +10,13 @@ import StatefulViewController
 import Combine
 
 protocol SelectTokenViewControllerDelegate: AnyObject {
-    func controller(_ controller: SelectTokenViewController, didSelectToken token: TokenObject)
-    func controller(_ controller: SelectTokenViewController, didCancelSelected sender: UIBarButtonItem)
+    func controller(_ controller: SelectTokenViewController, didSelectToken token: Token)
 }
 
 class SelectTokenViewController: UIViewController {
-    private lazy var viewModel = SelectTokenViewModel(
-        tokensFilter: tokensFilter,
-        tokens: [],
-        filter: filter
-    )
+    private let viewModel: SelectTokenViewModel
     private var cancellable = Set<AnyCancellable>()
-    private let tokenCollection: TokenCollection
-    private let assetDefinitionStore: AssetDefinitionStore
-    private let sessions: ServerDictionary<WalletSession>
-    private let tokensFilter: TokensFilter
-    private var selectedToken: TokenObject?
-    private let filter: WalletFilter
-    private let eventsDataStore: NonActivityEventsDataStore
+
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.register(FungibleTokenViewCell.self)
@@ -44,34 +33,42 @@ class SelectTokenViewController: UIViewController {
         return tableView
     }()
 
+    private (set) lazy var headerView: ConfirmationHeaderView = {
+        let view = ConfirmationHeaderView(viewModel: .init(title: viewModel.navigationTitle))
+        view.isHidden = true
+
+        return view
+    }()
+
     weak var delegate: SelectTokenViewControllerDelegate?
 
-    override func loadView() {
-        view = tableView
-    }
-
-    init(sessions: ServerDictionary<WalletSession>, tokenCollection: TokenCollection, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, tokensFilter: TokensFilter, filter: WalletFilter) {
-        self.filter = filter
-        self.sessions = sessions
-        self.tokenCollection = tokenCollection
-        self.assetDefinitionStore = assetDefinitionStore
-        self.tokensFilter = tokensFilter
-        self.eventsDataStore = eventsDataStore
+    init(viewModel: SelectTokenViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
-        handleTokenCollectionUpdates()
+
+        let stackView = [headerView, tableView].asStackView(axis: .vertical)
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(stackView)
+
+        NSLayoutConstraint.activate([
+            stackView.anchorsConstraint(to: view)
+        ])
 
         errorView = ErrorView(onRetry: { [weak self] in
-            self?.startLoading()
-            self?.tokenCollection.fetch()
+            self?.fetchTokens()
         })
 
-        loadingView = LoadingView()
+        loadingView = LoadingView(insets: .init(top: Style.SearchBar.height, left: 0, bottom: 0, right: 0))
         emptyView = EmptyView.tokensEmptyView(completion: { [weak self] in
-            self?.startLoading()
-            self?.tokenCollection.fetch()
-        }) 
+            self?.fetchTokens()
+        })
+    }
 
-        configure(viewModel: viewModel)
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        bind(viewModel: viewModel)
+        viewModel.viewDidLoad()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -80,43 +77,36 @@ class SelectTokenViewController: UIViewController {
         navigationController?.applyTintAdjustment()
         navigationController?.navigationBar.prefersLargeTitles = false
         hidesBottomBarWhenPushed = true
-        navigationItem.rightBarButtonItem = UIBarButtonItem.closeBarButton(self, selector: #selector(dismiss))
 
         fetchTokens()
     }
 
     private func fetchTokens() {
         startLoading()
-        tokenCollection.fetch()
+        viewModel.fetch()
     }
 
     required init?(coder aDecoder: NSCoder) {
         return nil
     }
 
-    private func configure(viewModel: SelectTokenViewModel) {
-        title = viewModel.title
+    private func bind(viewModel: SelectTokenViewModel) {
+        title = viewModel.navigationTitle
         view.backgroundColor = viewModel.backgroundColor
         tableView.backgroundColor = viewModel.backgroundColor
-    }
 
-    private func handleTokenCollectionUpdates() {
-        tokenCollection.tokensViewModel.sink { [weak self] viewModel in
-            guard let strongSelf = self else { return }
-            strongSelf.viewModel = .init(tokensViewModel: viewModel, tokensFilter: strongSelf.tokensFilter, filter: strongSelf.filter)
-            strongSelf.endLoading()
-        }.store(in: &cancellable)
-    }
-
-    @objc private func dismiss(_ sender: UIBarButtonItem) {
-        delegate?.controller(self, didCancelSelected: sender)
+        viewModel.objectWillChange
+            .receive(on: RunLoop.main)
+            .sink { [weak self]  _ in
+                self?.tableView.reloadData()
+                self?.endLoading()
+            }.store(in: &cancellable)
     }
 }
 
 extension SelectTokenViewController: StatefulViewController {
-    //Always return true, otherwise users will be stuck in the assets sub-tab when they have no assets
     func hasContent() -> Bool {
-        return true
+        return viewModel.numberOfItems() > 0
     }
 }
 
@@ -125,9 +115,7 @@ extension SelectTokenViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
-        let token = viewModel.item(for: indexPath.row)
-        selectedToken = token
-
+        let token = viewModel.selectToken(at: indexPath)
         delegate?.controller(self, didSelectToken: token)
     }
 }
@@ -135,37 +123,20 @@ extension SelectTokenViewController: UITableViewDelegate {
 extension SelectTokenViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let token = viewModel.item(for: indexPath.row)
-        let server = token.server
-        let session = sessions[server]
-
-        switch token.type {
-        case .nativeCryptocurrency:
+        switch viewModel.viewModel(for: indexPath) {
+        case .nativeCryptocurrency(let viewModel):
             let cell: EthTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(viewModel: .init(
-                token: token,
-                ticker: session.tokenBalanceService.coinTicker(token.addressAndRPCServer),
-                currencyAmount: session.tokenBalanceService.ethBalanceViewModel?.currencyAmountWithoutSymbol,
-                assetDefinitionStore: assetDefinitionStore
-            ))
-            cell.accessoryType = viewModel.accessoryType(selectedToken, indexPath: indexPath)
+            cell.configure(viewModel: viewModel)
 
             return cell
-        case .erc20:
+        case .erc20(let viewModel):
             let cell: FungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(viewModel: .init(token: token,
-                assetDefinitionStore: assetDefinitionStore,
-                eventsDataStore: eventsDataStore,
-                wallet: session.account,
-                ticker: session.tokenBalanceService.coinTicker(token.addressAndRPCServer)
-            ))
-            cell.accessoryType = viewModel.accessoryType(selectedToken, indexPath: indexPath)
+            cell.configure(viewModel: viewModel)
 
             return cell
-        case .erc721, .erc721ForTickets, .erc875, .erc1155:
+        case .nonFungible(let viewModel):
             let cell: NonFungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(viewModel: .init(token: token, server: server, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, wallet: session.account))
-            cell.accessoryType = viewModel.accessoryType(selectedToken, indexPath: indexPath)
+            cell.configure(viewModel: viewModel)
 
             return cell
         }

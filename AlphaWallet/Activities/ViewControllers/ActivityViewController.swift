@@ -37,7 +37,7 @@ class ActivityViewController: UIViewController {
     private let defaultErc20ActivityView = DefaultActivityView()
 
     private var server: RPCServer {
-        viewModel.activity.tokenObject.server
+        viewModel.activity.token.server
     }
 
     var viewModel: ActivityViewModel
@@ -225,7 +225,7 @@ class ActivityViewController: UIViewController {
     }
 
     @objc private func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(viewModel.activity.tokenObject.contractAddress, server: viewModel.activity.tokenObject.server, viewController: self)
+        delegate?.didPressViewContractWebPage(viewModel.activity.token.contractAddress, server: viewModel.activity.token.server, viewController: self)
     }
 
     @objc private func showTransaction() {
@@ -241,10 +241,6 @@ extension ActivityViewController: TokenInstanceWebViewDelegate {
 
     func shouldClose(tokenInstanceWebView: TokenInstanceWebView) {
         //no-op
-    }
-
-    func heightChangedFor(tokenInstanceWebView: TokenInstanceWebView) {
-        //no-op. Auto layout handles it
     }
 
     func reinject(tokenInstanceWebView: TokenInstanceWebView) {

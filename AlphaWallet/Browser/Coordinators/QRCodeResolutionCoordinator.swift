@@ -145,8 +145,10 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
 
     private func resolveScanResult(_ rawValue: String) {
         guard let delegate = delegate else { return }
+        let resolved = ScanQRCodeResolution(rawValue: rawValue)
+        infoLog("[QR Code] resolved: \(resolved)")
 
-        switch ScanQRCodeResolution(rawValue: rawValue) {
+        switch resolved {
         case .value(let value):
             switch value {
             case .address(let contract):
@@ -243,7 +245,7 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
         Eip681Parser(protocolName: params.protocolName, address: params.address, functionName: params.functionName, params: params.params).parse().then { result -> Promise<(transactionType: TransactionType, token: TokenObject)> in
             guard let (contract: contract, customServer, recipient, maybeScientificAmountString) = result.parameters else { return .init(error: CheckEIP681Error.parameterInvalid) }
             guard let server = self.serverFromEip681LinkOrDefault(customServer) else { return .init(error: CheckEIP681Error.missingRpcServer) }
-            if let token = tokensDatastore.token(forContract: contract, server: server) {
+            if let token = tokensDatastore.tokenObject(forContract: contract, server: server) {
                 let amount = maybeScientificAmountString.scientificAmountToBigInt.flatMap {
                     EtherNumberFormatter.full.string(from: $0, decimals: token.decimals)
                 }
@@ -256,7 +258,7 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
                         case .name, .symbol, .balance, .decimals, .nonFungibleTokenComplete, .delegateTokenComplete, .failed:
                             resolver.reject(CheckEIP681Error.contractInvalid)
                         case .fungibleTokenComplete(let name, let symbol, let decimals):
-                            let tokenObject = tokensDatastore.addCustom(tokens: [.init(
+                            let token = tokensDatastore.addCustom(tokens: [.init(
                                 contract: contract,
                                 server: server,
                                 name: name,
@@ -265,6 +267,7 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
                                 type: .erc20,
                                 balance: ["0"]
                             )], shouldUpdateBalance: true)[0]
+                            guard let tokenObject = tokensDatastore.tokenObject(forContract: token.contractAddress, server: token.server) else { return }
                             let amount = maybeScientificAmountString.scientificAmountToBigInt.flatMap {
                                 EtherNumberFormatter.full.string(from: $0, decimals: tokenObject.decimals)
                             }

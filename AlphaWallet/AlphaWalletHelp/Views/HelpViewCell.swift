@@ -36,7 +36,7 @@ class HelpViewCell: UITableViewCell {
         iconImageView.image = R.image.info_accessory()
 
         textLabel?.textColor = Colors.appText
-        textLabel?.font = Fonts.light(size: 18)
+        textLabel?.font = Fonts.regular(size: 18)
         textLabel?.text = text
     }
 }

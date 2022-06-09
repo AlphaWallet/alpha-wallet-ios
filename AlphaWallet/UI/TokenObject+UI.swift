@@ -7,7 +7,7 @@ import AlphaWalletOpenSea
 
 typealias GoogleContentSize = AlphaWalletCore.GoogleContentSize
 typealias WebImageURL = AlphaWalletCore.WebImageURL
-typealias TokenImage = (image: WebImageViewImage, symbol: String, isFinal: Bool, overlayServerIcon: UIImage?)
+typealias TokenImage = (image: ImageOrWebImageUrl, symbol: String, isFinal: Bool, overlayServerIcon: UIImage?)
 typealias Image = UIImage
 
 private func programmaticallyGeneratedIconImage(for contractAddress: AlphaWallet.Address, server: RPCServer) -> UIImage {
@@ -87,10 +87,6 @@ class RPCServerImageFetcher {
 
     private static var subscribables: AtomicDictionary<Int, Subscribable<Image>> = .init()
 
-    private static func programmaticallyGenerateIcon(for server: RPCServer) -> Image {
-        return UIView.tokenSymbolBackgroundImage(backgroundColor: server.blockChainNameColor)
-    }
-
     func image(server: RPCServer) -> Subscribable<Image> {
         if let sub = Self.subscribables[server.chainID] {
             return sub
@@ -98,11 +94,7 @@ class RPCServerImageFetcher {
             let sub = Subscribable<Image>(nil)
             Self.subscribables[server.chainID] = sub
 
-            if let value = server.iconImage {
-                sub.value = value
-            } else {
-                sub.value = Self.programmaticallyGenerateIcon(for: server)
-            }
+            sub.value = server.iconImage ?? R.image.tokenPlaceholderLarge()!
 
             return sub
         }
@@ -117,7 +109,7 @@ extension TokenObject {
     }
 }
 
-extension Activity.AssignedToken {
+extension Token {
 
     func icon(withSize size: GoogleContentSize) -> Subscribable<TokenImage> {
         let name = symbol.nilIfEmpty ?? name
@@ -135,17 +127,17 @@ class TokenImageFetcher {
     static var instance = TokenImageFetcher()
 
     private static var subscribables: AtomicDictionary<String, Subscribable<TokenImage>> = .init()
-    private let queue: DispatchQueue = .global()
+    private let queue: DispatchQueue = DispatchQueue(label: "org.alphawallet.swift.tokenImageFetcher", qos: .userInteractive)
 
     private static func programmaticallyGenerateIcon(for contractAddress: AlphaWallet.Address, type: TokenType, server: RPCServer, symbol: String) -> TokenImage? {
         guard let i = [TokenObject.numberOfCharactersOfSymbolToShowInIcon, symbol.count].min() else { return nil }
         let symbol = symbol.substring(to: i)
-        let rawImage: UIImage
+        let rawImage: UIImage?
         let overlayServerIcon: UIImage?
 
         switch type {
         case .erc1155, .erc721, .erc721ForTickets:
-            rawImage = R.image.tokenPlaceholderLarge()!
+            rawImage = nil
             overlayServerIcon = server.staticOverlayIcon
         case .erc20, .erc875:
             rawImage = programmaticallyGeneratedIconImage(for: contractAddress, server: server)
@@ -168,6 +160,21 @@ class TokenImageFetcher {
         return image(contractAddress: contractAddress, server: server, name: name, type: .erc20, balance: nil, size: size)
     }
 
+    private func getDefaultOrGenerateIcon(server: RPCServer, contractAddress: AlphaWallet.Address, type: TokenType, name: String) -> TokenImage? {
+        switch type {
+        case .nativeCryptocurrency:
+            if let img = server.iconImage {
+                return (image: .image(img), symbol: "", isFinal: true, overlayServerIcon: nil)
+            }
+        case .erc20, .erc875, .erc721, .erc721ForTickets, .erc1155:
+            if let img = contractAddress.tokenImage {
+                return (image: .image(img), symbol: "", isFinal: true, overlayServerIcon: server.staticOverlayIcon)
+            }
+        }
+
+        return TokenImageFetcher.programmaticallyGenerateIcon(for: contractAddress, type: type, server: server, symbol: name)
+    }
+
     func image(contractAddress: AlphaWallet.Address, server: RPCServer, name: String, type: TokenType, balance: NonFungibleFromJson?, size: GoogleContentSize) -> Subscribable<TokenImage> {
         let queue = self.queue
         let subscribable: Subscribable<TokenImage>
@@ -178,39 +185,19 @@ class TokenImageFetcher {
                 return subscribable
             }
         } else {
-            let sub = Subscribable<TokenImage>(getDefaultOrGenerateIcon())
+            let sub = Subscribable<TokenImage>(getDefaultOrGenerateIcon(server: server, contractAddress: contractAddress, type: type, name: name))
             TokenImageFetcher.subscribables[key] = sub
             subscribable = sub
         }
 
-        func getDefaultOrGenerateIcon() -> TokenImage? {
-            switch type {
-            case .nativeCryptocurrency:
-                if let img = server.iconImage {
-                    return (image: .image(img), symbol: "", isFinal: true, overlayServerIcon: nil)
-                }
-            case .erc20, .erc875, .erc721, .erc721ForTickets, .erc1155:
-                if let img = contractAddress.tokenImage {
-                    return (image: .image(img), symbol: "", isFinal: true, overlayServerIcon: server.staticOverlayIcon)
-                }
-            }
-
-            return TokenImageFetcher.programmaticallyGenerateIcon(for: contractAddress, type: type, server: server, symbol: name)
-        }
-
-        if contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
-            queue.async {
-                let generatedImage = getDefaultOrGenerateIcon()
-
+        queue.async {
+            let generatedImage = self.getDefaultOrGenerateIcon(server: server, contractAddress: contractAddress, type: type, name: name)
+            if contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
                 DispatchQueue.main.async {
                     subscribable.value = generatedImage
                 }
+                return 
             }
-            return subscribable
-        }
-
-        queue.async {
-            let generatedImage = getDefaultOrGenerateIcon()
 
             DispatchQueue.main.async {
                 if subscribable.value == nil {
@@ -250,7 +237,7 @@ class TokenImageFetcher {
         return subscribable
     }
 
-    private static func fetchFromOpenSea(_ type: TokenType, balance: NonFungibleFromJson?, size: GoogleContentSize, queue: DispatchQueue) -> Promise<WebImageViewImage> {
+    private static func fetchFromOpenSea(_ type: TokenType, balance: NonFungibleFromJson?, size: GoogleContentSize, queue: DispatchQueue) -> Promise<ImageOrWebImageUrl> {
         switch type {
         case .erc721, .erc1155:
             guard let openSeaNonFungible = balance, let url = openSeaNonFungible.nonFungibleImageUrl(rewriteGoogleContentSizeUrl: size) else {

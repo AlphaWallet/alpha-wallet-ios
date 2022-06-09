@@ -414,6 +414,7 @@
 "accounts.delete.error.failedToExportPrivateKey" = "秘密鍵をエクスポートできませんでした";
 "accounts.delete.error.failedToExportSeed" = "Failed to export wallet seed. If you have migrated to a new phone or restored your device, you need to import your wallet again";
 "Chain ID" = "チェーン ID";
+"Chain ID with prefix" = "Chain ID: %i";
 "Endpoint" = "エンドポイント";
 "settings.preferences.button.title" = "起動時にトークンを表示";
 "settings.preferences.title" = "基本設定";
@@ -848,3 +849,5 @@
 "transactionState.unknown" = "Unknown";
 "settings.checkTransactionState" = "Check Transaction State";
 "advanced.settings.features.title" = "Features";
+"semifungiblesProjectInfo" = "Project Info";
+"semifungibles.Edcon.description" = "Edcon is a game centered around breedable, collectible, and adorable creatures where digital pandas live in the blockchain! Each panda comes from descendants of 50 giant pandas that have been officially licensed by China Panda Conservation and Research Center.";

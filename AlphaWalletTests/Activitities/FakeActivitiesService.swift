@@ -6,8 +6,8 @@ import Combine
 class FakeActivitiesService: ActivitiesServiceType {
     var sessions: ServerDictionary<WalletSession> { .make() }
     
-    var viewModelPublisher: AnyPublisher<ActivitiesViewModel, Never> {
-        Just(ActivitiesViewModel.init(activities: []))
+    var activitiesPublisher: AnyPublisher<[ActivitiesViewModel.MappedToDateActivityOrTransaction], Never> {
+        Just([])
             .eraseToAnyPublisher()
     }
     var didUpdateActivityPublisher: AnyPublisher<Activity, Never> {
@@ -15,7 +15,7 @@ class FakeActivitiesService: ActivitiesServiceType {
             .eraseToAnyPublisher()
     }
 
-    func stop() {}
+    func start() {}
     func reinject(activity: Activity) {}
     func copy(activitiesFilterStrategy: ActivitiesFilterStrategy, transactionsFilterStrategy: TransactionsFilterStrategy) -> ActivitiesServiceType { self }
 }

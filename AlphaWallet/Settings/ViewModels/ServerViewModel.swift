@@ -82,7 +82,7 @@ struct ServerImageViewModel: ServerImageTableViewCellViewModelType {
     var primaryText: String {
         return server.displayName
     }
-    var primaryFont: UIFont = R.font.sourceSansProRegular(size: 20.0)!
+    var primaryFont: UIFont = Fonts.regular(size: 20)
     var primaryFontColor: UIColor = R.color.black()!
 
     var secondaryText: String {
@@ -90,11 +90,11 @@ struct ServerImageViewModel: ServerImageTableViewCellViewModelType {
         case .auto:
             return ""
         case .server(let rpcServer):
-            return "ChainID: \(rpcServer.chainID)"
+            return R.string.localizable.chainIDWithPrefix(rpcServer.chainID)
         }
 
     }
-    var secondaryFont: UIFont = R.font.sourceSansProRegular(size: 15.0)!
+    var secondaryFont: UIFont = Fonts.regular(size: 15)
     var secondaryFontColor: UIColor = R.color.dove()!
 }
 

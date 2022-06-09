@@ -219,7 +219,6 @@ public struct Constants {
     }
 
     enum WalletConnect {
-        static let relayURL = URL(string: "https://relay.walletconnect.com")!
         static let server = "AlphaWallet"
         static let websiteUrl = URL(string: Constants.website)!
         static let icons = [
@@ -249,4 +248,10 @@ public struct Constants {
         R.file.googleServiceInfoPlist()?.path
     }()
 
+    enum AmountTextField {
+        static let allowedCharacters: String = {
+            let decimalSeparator = Config.locale.decimalSeparator ?? ""
+            return "0123456789" + decimalSeparator + EtherNumberFormatter.decimalPoint
+        }()
+    }
 }

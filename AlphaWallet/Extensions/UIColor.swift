@@ -19,7 +19,7 @@ extension UIColor {
 
     convenience init(hex: String) {
         let scanner = Scanner(string: hex)
-        scanner.scanLocation = 0
+        scanner.currentIndex = hex.startIndex
 
         var rgbValue: UInt64 = 0
 

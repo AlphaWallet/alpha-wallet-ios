@@ -113,7 +113,6 @@ class WalletConnectSessionsViewController: UIViewController {
             }.store(in: &cancelable)
 
         viewModel.sessionsSnapshot
-            .receive(on: RunLoop.main)
             .sink { [weak self] snapshot in
                 self?.dataSource.apply(snapshot, animatingDifferences: false)
                 self?.endLoading()

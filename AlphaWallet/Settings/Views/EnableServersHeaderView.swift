@@ -55,6 +55,10 @@ class EnableServersHeaderView: UIView {
         toggle.isOn = isEnabled
     }
 
+    func toggle(isEnabled: Bool) {
+        toggle.isOn = isEnabled
+    }
+    
     @objc private func toggled() {
         delegate?.toggledTo(toggle.isOn, headerView: self)
     }

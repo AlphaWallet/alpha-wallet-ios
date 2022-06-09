@@ -2,80 +2,60 @@
 
 import Foundation
 import PromiseKit
-
-enum AddHideTokenSections: Int {
-    case sortingFilters
-    case availableNewTokens
-    case displayedTokens
-    case hiddenTokens
-    case popularTokens
-
-    var description: String {
-        switch self {
-        case .sortingFilters:
-            return String()
-        case .availableNewTokens:
-            return R.string.localizable.addHideTokensSectionNewTokens()
-        case .displayedTokens:
-            return R.string.localizable.addHideTokensSectionDisplayedTokens()
-        case .hiddenTokens:
-            return R.string.localizable.addHideTokensSectionHiddenTokens()
-        case .popularTokens:
-            return R.string.localizable.addHideTokensSectionPopularTokens()
-        }
-    }
-
-    static var enabledSectins: [AddHideTokenSections] {
-        [.sortingFilters, .displayedTokens, .hiddenTokens, .popularTokens]
-    }
-}
+import Combine
 
 //NOTE: Changed to class to prevent update all ViewModel copies and apply updates only in one place.
-class AddHideTokensViewModel {
-    var sections: [AddHideTokenSections] = [.sortingFilters, .displayedTokens, .hiddenTokens, .popularTokens]
-    private let tokensFilter: TokensFilter
-    private var tokens: [TokenObject]
+class AddHideTokensViewModel: ObservableObject {
+    private var tokens: [Token] = []
     private var allPopularTokens: [PopularToken] = []
-    private var displayedTokens: [TokenObject] = []
-    private var hiddenTokens: [TokenObject] = []
+    private var displayedTokens: [Token] = []
+    private var hiddenTokens: [Token] = []
     private var popularTokens: [PopularToken] = []
+    private let importToken: ImportToken
+    private let popularTokensCollection: PopularTokensCollectionType = LocalPopularTokensCollection()
+    private let config: Config
+    private var cancelable = Set<AnyCancellable>()
+    private let tokenCollection: TokenCollection
+    private let assetDefinitionStore: AssetDefinitionStore
 
     var sortTokensParam: SortTokensParam = .byField(field: .name, direction: .ascending) {
-        didSet {
-            filter(tokens: tokens)
-        }
+        didSet { filterTokens() }
     }
     var searchText: String? {
-        didSet {
-            filter(tokens: tokens)
-        }
-    }
-    private let singleChainTokenCoordinators: [SingleChainTokenCoordinator]
-
-    init(tokens: [TokenObject], tokensFilter: TokensFilter, singleChainTokenCoordinators: [SingleChainTokenCoordinator]) {
-        self.tokens = tokens
-        self.tokensFilter = tokensFilter
-        self.singleChainTokenCoordinators = singleChainTokenCoordinators
-
-        filter(tokens: tokens)
+        didSet { filterTokens() }
     }
 
-    func set(allPopularTokens: [PopularToken]) {
-        self.allPopularTokens = allPopularTokens
-
-        filter(tokens: tokens)
-    }
-
-    var title: String {
-        R.string.localizable.walletsAddHideTokensTitle()
-    }
-
-    var backgroundColor: UIColor {
-        GroupedTable.Color.background
-    }
+    var isSearchActive: Bool = false
+    var sections: [Section] = [.sortingFilters, .displayedTokens, .hiddenTokens, .popularTokens]
+    var title: String = R.string.localizable.walletsAddHideTokensTitle()
+    var backgroundColor: UIColor = GroupedTable.Color.background
 
     var numberOfSections: Int {
         sections.count
+    }
+
+    init(tokenCollection: TokenCollection, importToken: ImportToken, config: Config, assetDefinitionStore: AssetDefinitionStore) {
+        self.assetDefinitionStore = assetDefinitionStore
+        self.tokenCollection = tokenCollection
+        self.importToken = importToken
+        self.config = config
+    }
+
+    func viewDidLoad() {
+        tokenCollection.tokensViewModel
+            .first() //NOTE: out of current logic we load db snapshot, and not handling updates in changeset
+            .sink { [weak self] viewModel in
+                self?.tokens = viewModel.tokens
+                self?.filterTokens()
+                self?.objectWillChange.send()
+            }.store(in: &cancelable)
+
+        popularTokensCollection.fetchTokens(for: config.enabledServers)
+            .done { [weak self] tokens in
+                self?.allPopularTokens = tokens
+                self?.filterTokens()
+                self?.objectWillChange.send()
+            }.cauterize()
     }
 
     func titleForSection(_ section: Int) -> String {
@@ -106,26 +86,16 @@ class AddHideTokensViewModel {
         }
     }
 
-    func add(token: TokenObject) {
+    func add(token: Token) {
         if !tokens.contains(token) {
             tokens.append(token)
         }
 
-        filter(tokens: tokens)
-    }
+        filterTokens()
+        objectWillChange.send()
+    } 
 
-    private func singleChainTokenCoordinator(forServer server: RPCServer) -> SingleChainTokenCoordinator? {
-        singleChainTokenCoordinators.first { $0.isServer(server) }
-    }
-
-    typealias TokenWithIndexToInsert = (token: TokenObject, indexPathToInsert: IndexPath)
-
-    enum ShowHideOperationResult {
-        case value(TokenWithIndexToInsert?)
-        case promise(Promise<TokenWithIndexToInsert?>)
-    }
-
-    func addDisplayed(indexPath: IndexPath) -> ShowHideOperationResult {
+    func markTokenAsDisplayed(at indexPath: IndexPath) -> ShowHideTokenResult {
         switch sections[indexPath.section] {
         case .displayedTokens, .availableNewTokens, .sortingFilters:
             break
@@ -138,17 +108,18 @@ class AddHideTokensViewModel {
             }
         case .popularTokens:
             let token = popularTokens[indexPath.row]
+            let promise = importToken
+                .importToken(for: token.contractAddress, server: token.server, onlyIfThereIsABalance: false)
+                .then { token -> Promise<TokenWithIndexToInsert?> in
+                    self.popularTokens.remove(at: indexPath.row)
+                    self.displayedTokens.append(token)
 
-            let promise = fetchContractDataPromise(forServer: token.server, address: token.contractAddress).then { token -> Promise<TokenWithIndexToInsert?> in
-                self.popularTokens.remove(at: indexPath.row)
-                self.displayedTokens.append(token)
+                    if let sectionIndex = self.sections.index(of: .displayedTokens) {
+                        return .value((token, IndexPath(row: max(0, self.displayedTokens.count - 1), section: Int(sectionIndex))))
+                    }
 
-                if let sectionIndex = self.sections.index(of: .displayedTokens) {
-                    return .value((token, IndexPath(row: max(0, self.displayedTokens.count - 1), section: Int(sectionIndex))))
+                    return .value(nil)
                 }
-
-                return .value(nil)
-            }
 
             return .promise(promise)
         }
@@ -156,7 +127,7 @@ class AddHideTokensViewModel {
         return .value(nil)
     }
 
-    func deleteToken(indexPath: IndexPath) -> ShowHideOperationResult {
+    func markTokenAsHidden(at indexPath: IndexPath) -> ShowHideTokenResult {
         switch sections[indexPath.section] {
         case .displayedTokens:
             let token = displayedTokens.remove(at: indexPath.row)
@@ -183,31 +154,21 @@ class AddHideTokensViewModel {
         }
     }
 
-    func displayedToken(indexPath: IndexPath) -> Bool {
-        switch sections[indexPath.section] {
-        case .displayedTokens:
-            return true
-        case .availableNewTokens, .popularTokens, .hiddenTokens, .sortingFilters:
-            return false
+    func viewModel(for indexPath: IndexPath) -> ViewModelType {
+        guard let token = token(at: indexPath) else { return .undefined }
+        let isVisible = displayedToken(indexPath: indexPath)
+
+        switch token {
+        case .walletToken(let token):
+            let viewModel = WalletTokenViewCellViewModel(token: token, assetDefinitionStore: assetDefinitionStore, isVisible: isVisible)
+            return .walletToken(viewModel)
+        case .popularToken(let token):
+            let viewModel = PopularTokenViewCellViewModel(token: token, isVisible: isVisible)
+            return .popularToken(viewModel)
         }
     }
 
-    func item(atIndexPath indexPath: IndexPath) -> WalletOrPopularToken? {
-        switch sections[indexPath.section] {
-        case .displayedTokens:
-            return .walletToken(displayedTokens[indexPath.row])
-        case .hiddenTokens:
-            return .walletToken(hiddenTokens[indexPath.row])
-        case .availableNewTokens:
-            return nil
-        case .popularTokens:
-            return .popularToken(popularTokens[indexPath.row])
-        case .sortingFilters:
-            return nil
-        }
-    }
-
-    func moveItem(from: IndexPath, to: IndexPath) -> [TokenObject]? {
+    func moveItem(from: IndexPath, to: IndexPath) -> [Token]? {
         switch sections[from.section] {
         case .displayedTokens:
             let token = displayedTokens.remove(at: from.row)
@@ -218,13 +179,34 @@ class AddHideTokensViewModel {
             return nil
         }
     }
-    var isSearchActive: Bool = false
 
-    private func filter(tokens: [TokenObject]) {
+    private func displayedToken(indexPath: IndexPath) -> Bool {
+        switch sections[indexPath.section] {
+        case .displayedTokens:
+            return true
+        case .availableNewTokens, .popularTokens, .hiddenTokens, .sortingFilters:
+            return false
+        }
+    }
+
+    private func token(at indexPath: IndexPath) -> WalletOrPopularToken? {
+        switch sections[indexPath.section] {
+        case .displayedTokens:
+            return .walletToken(displayedTokens[indexPath.row])
+        case .hiddenTokens:
+            return .walletToken(hiddenTokens[indexPath.row])
+        case .availableNewTokens, .sortingFilters:
+            return nil
+        case .popularTokens:
+            return .popularToken(popularTokens[indexPath.row])
+        }
+    }
+
+    private func filterTokens() {
         displayedTokens.removeAll()
         hiddenTokens.removeAll()
 
-        let filteredTokens = tokensFilter.filterTokens(tokens: tokens, filter: .keyword(searchText ?? ""))
+        let filteredTokens = tokenCollection.tokensFilter.filterTokens(tokens: tokens, filter: .keyword(searchText ?? ""))
         for token in filteredTokens {
             if token.shouldDisplay {
                 displayedTokens.append(token)
@@ -232,20 +214,52 @@ class AddHideTokensViewModel {
                 hiddenTokens.append(token)
             }
         }
-        popularTokens = tokensFilter.filterTokens(tokens: allPopularTokens, walletTokens: tokens, filter: .keyword(searchText ?? ""))
-        displayedTokens = tokensFilter.sortDisplayedTokens(tokens: displayedTokens, sortTokensParam: sortTokensParam)
+        popularTokens = tokenCollection.tokensFilter.filterTokens(tokens: allPopularTokens, walletTokens: tokens, filter: .keyword(searchText ?? ""))
+        displayedTokens = tokenCollection.tokensFilter.sortDisplayedTokens(tokens: displayedTokens, sortTokensParam: sortTokensParam)
         sections = AddHideTokensViewModel.functional.availableSectionsToDisplay(displayedTokens: displayedTokens, hiddenTokens: hiddenTokens, popularTokens: popularTokens, isSearchActive: isSearchActive)
     }
+}
 
-    private func fetchContractDataPromise(forServer server: RPCServer, address: AlphaWallet.Address) -> Promise<TokenObject> {
-        guard let coordinator = singleChainTokenCoordinator(forServer: server) else {
-            return .init(error: RetrieveSingleChainTokenCoordinator())
+extension AddHideTokensViewModel {
+    enum Section: Int {
+        case sortingFilters
+        case availableNewTokens
+        case displayedTokens
+        case hiddenTokens
+        case popularTokens
+
+        var description: String {
+            switch self {
+            case .sortingFilters:
+                return String()
+            case .availableNewTokens:
+                return R.string.localizable.addHideTokensSectionNewTokens()
+            case .displayedTokens:
+                return R.string.localizable.addHideTokensSectionDisplayedTokens()
+            case .hiddenTokens:
+                return R.string.localizable.addHideTokensSectionHiddenTokens()
+            case .popularTokens:
+                return R.string.localizable.addHideTokensSectionPopularTokens()
+            }
         }
 
-        return coordinator.addImportedToken(forContract: address, onlyIfThereIsABalance: false)
+        static var enabledSectins: [Section] {
+            [.sortingFilters, .displayedTokens, .hiddenTokens, .popularTokens]
+        }
     }
 
-    private struct RetrieveSingleChainTokenCoordinator: Error { }
+    enum ViewModelType {
+        case walletToken(WalletTokenViewCellViewModel)
+        case popularToken(PopularTokenViewCellViewModel)
+        case undefined
+    }
+
+    typealias TokenWithIndexToInsert = (token: Token, indexPathToInsert: IndexPath)
+
+    enum ShowHideTokenResult {
+        case value(TokenWithIndexToInsert?)
+        case promise(Promise<TokenWithIndexToInsert?>)
+    }
 }
 
 extension AddHideTokensViewModel {
@@ -253,9 +267,9 @@ extension AddHideTokensViewModel {
 }
 
 extension AddHideTokensViewModel.functional {
-    static func availableSectionsToDisplay(displayedTokens: [Any], hiddenTokens: [Any], popularTokens: [Any], isSearchActive: Bool) -> [AddHideTokenSections] {
+    static func availableSectionsToDisplay(displayedTokens: [Any], hiddenTokens: [Any], popularTokens: [Any], isSearchActive: Bool) -> [AddHideTokensViewModel.Section] {
         if isSearchActive {
-            var sections: [AddHideTokenSections] = []
+            var sections: [AddHideTokensViewModel.Section] = []
             if !displayedTokens.isEmpty {
                 sections.append(.displayedTokens)
             }
@@ -267,7 +281,7 @@ extension AddHideTokensViewModel.functional {
             }
             return sections
         } else {
-            return AddHideTokenSections.enabledSectins
+            return AddHideTokensViewModel.Section.enabledSectins
         }
     }
 }

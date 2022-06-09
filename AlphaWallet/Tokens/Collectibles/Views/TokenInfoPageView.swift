@@ -6,84 +6,44 @@
 //
 
 import UIKit
+import Combine
 
 protocol TokenInfoPageViewDelegate: class {
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, in tokenInfoPageView: TokenInfoPageView)
 }
 
-class TokenInfoPageView: UIView, PageViewType {
-    private let headerViewRefreshInterval: TimeInterval = 5.0
-
-    var title: String {
-        return viewModel.tabTitle
-    }
-
-    private let headerView = SendHeaderView()
+class TokenInfoPageView: ScrollableStackView, PageViewType {
+    private lazy var headerView = FungibleTokenHeaderView(viewModel: viewModel.headerViewModel)
     private lazy var chartView: TokenHistoryChartView = {
-        let viewModel = TokenHistoryChartViewModel(values: [], ticker: nil)
-        let chartView = TokenHistoryChartView(viewModel: viewModel)
-
+        let chartView = TokenHistoryChartView(viewModel: viewModel.chartViewModel)
         return chartView
     }()
+    private let viewModel: TokenInfoPageViewModel
+    private var cancelable = Set<AnyCancellable>()
 
-    private var stackView: UIStackView {
-        return containerView.stackView
-    }
-
-    private lazy var containerView: ScrollableStackView = {
-        let view = ScrollableStackView()
-        return view
-    }()
-    private let config: Config
-    lazy var viewModel = TokenInfoPageViewModel(server: server, token: token, transactionType: transactionType)
     weak var delegate: TokenInfoPageViewDelegate?
-    private var headerRefreshTimer: Timer?
-
-    private let server: RPCServer
-    private let token: TokenObject
-    private let transactionType: TransactionType
     var rightBarButtonItem: UIBarButtonItem?
+    var title: String { return viewModel.tabTitle }
 
-    init(server: RPCServer, token: TokenObject, config: Config, transactionType: TransactionType) {
-        self.server = server
-        self.token = token
-        self.config = config
-        self.transactionType = transactionType
-        super.init(frame: .zero)
-
-        translatesAutoresizingMaskIntoConstraints = false
-
-        addSubview(containerView)
-
-        NSLayoutConstraint.activate([containerView.anchorsConstraint(to: self)])
-
-        generateSubviews(viewModel: viewModel)
-
-        let timer = Timer(timeInterval: headerViewRefreshInterval, repeats: true) { [weak self] _ in
-            self?.refreshHeaderView()
-        }
-
-        RunLoop.main.add(timer, forMode: .default)
-        headerRefreshTimer = timer
+    init(viewModel: TokenInfoPageViewModel) {
+        self.viewModel = viewModel
+        super.init()
 
         headerView.delegate = self
+
+        bind(viewModel: viewModel)
     }
 
-    deinit {
-        headerRefreshTimer?.invalidate()
-        headerRefreshTimer = nil
-    }
-
-    private func generateSubviews(viewModel: TokenInfoPageViewModel) {
+    private func generateSubviews(configurations: [TokenInfoPageViewModelConfiguration]) {
         stackView.removeAllArrangedSubviews()
 
         stackView.addArrangedSubview(headerView)
 
-        for each in viewModel.configurations {
+        for each in configurations {
             switch each {
             case .testnet:
                 stackView.addArrangedSubview(UIView.spacer(height: 40))
-                stackView.addArrangedSubview(UIView.separator())
+                stackView.addArrangedSubview(UIView.spacer(backgroundColor: R.color.mike()!))
 
                 let view = TestnetTokenInfoView()
                 view.configure(viewModel: .init())
@@ -93,10 +53,12 @@ class TokenInfoPageView: UIView, PageViewType {
                 stackView.addArrangedSubview(chartView)
 
                 stackView.addArrangedSubview(UIView.spacer(height: 10))
-                stackView.addArrangedSubview(UIView.separator())
+                stackView.addArrangedSubview(UIView.spacer(backgroundColor: R.color.mike()!))
                 stackView.addArrangedSubview(UIView.spacer(height: 10))
             case .field(let viewModel):
-                let view = TickerFieldValueView()
+                let indexPath = IndexPath(row: 0, section: 0)
+                let view = TokenAttributeView(indexPath: indexPath)
+                view.delegate = self
                 view.configure(viewModel: viewModel)
 
                 stackView.addArrangedSubview(view)
@@ -109,50 +71,27 @@ class TokenInfoPageView: UIView, PageViewType {
         }
     }
 
-    func configure(viewModel: TokenInfoPageViewModel) {
-        self.viewModel = viewModel
-
-        generateSubviews(viewModel: viewModel)
-
-        var chartViewModel = chartView.viewModel
-        chartViewModel.ticker = viewModel.ticker
-        chartViewModel.values = viewModel.values
-
-        chartView.configure(viewModel: chartViewModel)
-        headerView.configure(viewModel: viewModel)
+    private func bind(viewModel: TokenInfoPageViewModel) {
+        viewModel.fieldsViewModelConfigurations
+            .sink { [weak self] configurations in
+                self?.generateSubviews(configurations: configurations)
+            }.store(in: &cancelable)
     }
 
     required init?(coder: NSCoder) {
         return nil
     }
-
-    @objc private func refreshHeaderView() {
-        viewModel.isShowingValue.toggle()
-        headerView.configure(viewModel: viewModel)
-    } 
 }
 
-extension TokenInfoPageView: SendHeaderViewDelegate {
-
-    func didPressViewContractWebPage(inHeaderView: SendHeaderView) {
-        delegate?.didPressViewContractWebPage(forContract: transactionType.contract, in: self)
-    }
-
-    func showHideMarketPriceSelected(inHeaderView: SendHeaderView) {
-        refreshHeaderView()
+extension TokenInfoPageView: TokenAttributeViewDelegate {
+    func didSelect(in view: TokenAttributeView) {
+        //no-op
     }
 }
 
-extension UIView {
-    static func separator(backgroundColor: UIColor = R.color.mike()!) -> UIView {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = backgroundColor
+extension TokenInfoPageView: FungibleTokenHeaderViewDelegate {
 
-        NSLayoutConstraint.activate([
-            view.heightAnchor.constraint(equalToConstant: 1)
-        ])
-
-        return view
+    func didPressViewContractWebPage(inHeaderView: FungibleTokenHeaderView) {
+        delegate?.didPressViewContractWebPage(forContract: viewModel.transactionType.contract, in: self)
     }
 }

@@ -15,7 +15,7 @@ struct AttributeCollectionViewModel {
 
 enum TokenInstanceViewConfiguration {
     case header(viewModel: TokenInfoHeaderViewModel)
-    case field(viewModel: TokenInstanceAttributeViewModel)
+    case field(viewModel: TokenAttributeViewModel)
     case attributeCollection(viewModel: AttributeCollectionViewModel)
 }
 
@@ -24,16 +24,16 @@ enum TokenInstanceViewMode {
     case interactive
 }
 
-struct NFTAssetViewModel {
+class NFTAssetViewModel {
+    private let displayHelper: OpenSeaNonFungibleTokenDisplayHelper
+    private let tokenHolderHelper: TokenInstanceViewConfigurationHelper
+
     let tokenId: TokenId
     let token: TokenObject
     let tokenHolder: TokenHolder
     let assetDefinitionStore: AssetDefinitionStore
-    private let displayHelper: OpenSeaNonFungibleTokenDisplayHelper
     var backgroundColor: UIColor = Colors.appBackground
-    private let tokenHolderHelper: TokenInstanceViewConfigurationHelper
     let account: Wallet
-
     var transferTransactionType: TransactionType {
         tokenHolder.select(with: .allFor(tokenId: tokenHolder.tokenId))
         return TransactionType(nonFungibleToken: token, tokenHolders: [tokenHolder])
@@ -44,6 +44,48 @@ struct NFTAssetViewModel {
         return TransactionType.erc875Token(token, tokenHolders: [tokenHolder])
     }
 
+    var previewViewType: NFTPreviewViewType {
+        switch OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
+        case .backedByOpenSea:
+            return .imageView
+        case .notBackedByOpenSea:
+            return .tokenCardView
+        }
+    }
+
+    var previewViewParams: NFTPreviewViewType.Params {
+        switch previewViewType {
+        case .tokenCardView:
+            return .tokenScriptWebView(tokenHolder: tokenHolder, tokenId: tokenId)
+        case .imageView:
+            let tokenImage = tokenHolder.assetImageUrl(tokenId: tokenId)
+                .flatMap { TokenImage(image: .url($0), symbol: "", isFinal: true, overlayServerIcon: nil) }
+
+            return .image(iconImage: .init(tokenImage))
+        }
+    }
+
+    var previewViewContentBackgroundColor: UIColor {
+        if displayHelper.imageHasBackgroundColor {
+            return Colors.appBackground
+        } else {
+            if let color = tokenHolder.values.backgroundColorStringValue.nilIfEmpty {
+                return UIColor(hex: color)
+            } else {
+                return UIColor(red: 247, green: 197, blue: 196)
+            }
+        }
+    }
+
+    var previewEdgeInsets: UIEdgeInsets {
+        switch previewViewType {
+        case .tokenCardView:
+            return .init(top: 0, left: 8, bottom: 0, right: 8)
+        case .imageView:
+            return .init(top: 0, left: 15, bottom: 0, right: 15)
+        }
+    }
+
     init(account: Wallet, tokenId: TokenId, token: TokenObject, tokenHolder: TokenHolder, assetDefinitionStore: AssetDefinitionStore) {
         self.account = account
         self.tokenId = tokenId
@@ -52,10 +94,10 @@ struct NFTAssetViewModel {
         self.assetDefinitionStore = assetDefinitionStore
         self.displayHelper = OpenSeaNonFungibleTokenDisplayHelper(contract: tokenHolder.contractAddress)
         self.tokenHolderHelper = TokenInstanceViewConfigurationHelper(tokenId: tokenId, tokenHolder: tokenHolder)
-        self.contractViewModel = TokenInstanceAttributeViewModel(title: R.string.localizable.nonfungiblesValueContract(), attributedValue: TokenInstanceAttributeViewModel.urlValueAttributedString(token.contractAddress.truncateMiddle))
+        self.contractViewModel = TokenAttributeViewModel(title: R.string.localizable.nonfungiblesValueContract(), attributedValue: TokenAttributeViewModel.urlValueAttributedString(token.contractAddress.truncateMiddle))
     }
 
-    mutating func configure(overiddenOpenSeaStats: Stats?) {
+    func configure(overiddenOpenSeaStats: Stats?) {
         self.tokenHolderHelper.overridenFloorPrice = overiddenOpenSeaStats?.floorPrice
         self.tokenHolderHelper.overridenItemsCount = overiddenOpenSeaStats?.itemsCount
     }
@@ -82,15 +124,15 @@ struct NFTAssetViewModel {
         }
     }
 
-    func firstMatchingTokenHolder(fromTokenHolders tokenHolders: [TokenHolder]) -> TokenHolder? {
+    func firstMatchingTokenHolder(from tokenHolders: [TokenHolder]) -> TokenHolder? {
         return tokenHolders.first { $0.tokens[0].id == tokenId }
     }
 
-    func isMatchingTokenHolder(fromTokenHolders tokenHolders: [TokenHolder]) -> (tokenHolder: TokenHolder, tokenId: TokenId)? {
+    func isMatchingTokenHolder(from tokenHolders: [TokenHolder]) -> (tokenHolder: TokenHolder, tokenId: TokenId)? {
         return tokenHolders.first(where: { $0.tokens.contains(where: { $0.id == tokenId }) }).flatMap { ($0, tokenId) }
     }
 
-    var tokenIdViewModel: TokenInstanceAttributeViewModel? {
+    var tokenIdViewModel: TokenAttributeViewModel? {
         tokenHolderHelper.tokenIdViewModel
     }
 
@@ -104,11 +146,11 @@ struct NFTAssetViewModel {
             .contractUrl(address: token.contractAddress)?.url
     }
 
-    var creatorViewModel: TokenInstanceAttributeViewModel? {
+    var creatorViewModel: TokenAttributeViewModel? {
         tokenHolderHelper.creator
     }
 
-    var contractViewModel: TokenInstanceAttributeViewModel
+    var contractViewModel: TokenAttributeViewModel
 
     var tokenImagePlaceholder: UIImage? {
         return R.image.tokenPlaceholderLarge()
@@ -141,8 +183,8 @@ struct NFTAssetViewModel {
             tokenHolderHelper.creator,
             tokenHolderHelper.tokenIdViewModel,
             contractViewModel,
-            TokenInstanceAttributeViewModel(title: R.string.localizable.nonfungiblesValueBlockchain(), attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString(token.server.blockChainName)),
-            TokenInstanceAttributeViewModel(title: R.string.localizable.nonfungiblesValueTokenStandard(), attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString(token.type.rawValue))
+            TokenAttributeViewModel(title: R.string.localizable.nonfungiblesValueBlockchain(), attributedValue: TokenAttributeViewModel.defaultValueAttributedString(token.server.blockChainName)),
+            TokenAttributeViewModel(title: R.string.localizable.nonfungiblesValueTokenStandard(), attributedValue: TokenAttributeViewModel.defaultValueAttributedString(token.type.rawValue))
         ].compactMap { each -> TokenInstanceViewConfiguration? in
             return each.flatMap { .field(viewModel: $0) }
         }

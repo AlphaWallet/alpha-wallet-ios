@@ -11,7 +11,7 @@ import PromiseKit
 protocol AutoDetectTransactedTokensOperationDelegate: class {
     var isAutoDetectingTransactedTokens: Bool { get set }
 
-    func autoDetectTransactedErc20AndNonErc20Tokens(wallet: AlphaWallet.Address) -> Promise<[SingleChainTokensAutodetector.AddTokenObjectOperation]>
+    func autoDetectTransactedErc20AndNonErc20Tokens(wallet: AlphaWallet.Address) -> Promise<[TokenOrContract]>
 }
 
 final class AutoDetectTransactedTokensOperation: Operation {
@@ -51,7 +51,7 @@ final class AutoDetectTransactedTokensOperation: Operation {
             strongSelf.didChangeValue(forKey: "isFinished")
 
             guard !strongSelf.isCancelled else { return }
-            strongSelf.tokensDataStore.addTokenObjects(values: values)
+            strongSelf.tokensDataStore.addOrUpdate(tokensOrContracts: values)
         }.cauterize()
     }
 }

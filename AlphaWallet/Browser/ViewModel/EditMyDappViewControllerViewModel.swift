@@ -73,7 +73,7 @@ struct EditMyDappViewControllerViewModel {
     var titleTextFieldTextAlignment: NSTextAlignment {
         return .left
     }
-    
+
     var titleTextFieldBorderStyle: UITextField.BorderStyle {
         return .roundedRect
     }
@@ -91,7 +91,7 @@ struct EditMyDappViewControllerViewModel {
     }
 
     var titleTextFieldFont: UIFont {
-        return Fonts.light(size: 16)
+        return Fonts.regular(size: 16)
     }
 
     var titleTextFieldText: String {
@@ -115,7 +115,7 @@ struct EditMyDappViewControllerViewModel {
     }
 
     var urlTextFieldFont: UIFont {
-        return Fonts.light(size: 16)
+        return Fonts.regular(size: 16)
     }
 
     var urlTextFieldText: String {

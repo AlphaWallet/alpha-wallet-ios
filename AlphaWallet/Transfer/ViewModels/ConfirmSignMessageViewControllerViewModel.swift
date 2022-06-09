@@ -188,7 +188,7 @@ extension EIP712TypedData.JSON {
         case .array:
             return "[...]"
         }
-    } 
+    }
 
     private func flatArrayRepresentation(json: EIP712TypedData.JSON, key: String?, indention: Int, maxIndention: Int) -> [(key: String, value: EIP712TypedData.JSON)] {
         switch json {
@@ -221,7 +221,7 @@ extension EIP712TypedData.JSON {
 
     //TODO Better to follow the order define in the type
     func formattedString(indentationLevel: Int = 0) -> NSAttributedString {
-        let nameAttributes: [NSAttributedString.Key: Any] = [.foregroundColor: Colors.gray, .font: Fonts.light(size: 15)]
+        let nameAttributes: [NSAttributedString.Key: Any] = [.foregroundColor: Colors.gray, .font: Fonts.regular(size: 15)]
         let valueAttributes: [NSAttributedString.Key: Any] = [.foregroundColor: R.color.dove()!, .font: Fonts.regular(size: 15)]
 
         switch self {

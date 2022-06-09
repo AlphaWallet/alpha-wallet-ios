@@ -19,6 +19,10 @@ class DeletedContract: Object {
         return "primaryKey"
     }
 
+    var server: RPCServer {
+        return RPCServer(chainID: chainId)
+    }
+    
     var contractAddress: AlphaWallet.Address {
         return AlphaWallet.Address(uncheckedAgainstNullAddress: contract)!
     }

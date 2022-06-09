@@ -31,7 +31,7 @@ struct StatusViewControllerViewModel {
 		return Colors.appText
 	}
 	var titleFont: UIFont {
-		return Fonts.light(size: 25)
+		return Fonts.regular(size: 25)
 	}
 	var activityIndicatorColor: UIColor {
 		return Colors.navigationTitleColor

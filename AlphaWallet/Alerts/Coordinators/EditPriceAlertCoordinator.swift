@@ -16,21 +16,21 @@ class EditPriceAlertCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     private let configuration: EdiPricetAlertViewModelConfiguration
     private let navigationController: UINavigationController
-    private let tokenObject: TokenObject
+    private let token: Token
     private let session: WalletSession
     private let alertService: PriceAlertServiceType
     weak var delegate: EditPriceAlertCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, configuration: EdiPricetAlertViewModelConfiguration, tokenObject: TokenObject, session: WalletSession, alertService: PriceAlertServiceType) {
+    init(navigationController: UINavigationController, configuration: EdiPricetAlertViewModelConfiguration, token: Token, session: WalletSession, alertService: PriceAlertServiceType) {
         self.configuration = configuration
         self.navigationController = navigationController
-        self.tokenObject = tokenObject
+        self.token = token
         self.session = session
         self.alertService = alertService
     }
 
     func start() {
-        let viewController = EditPriceAlertViewController(viewModel: .init(configuration: configuration, tokenObject: tokenObject), session: session, alertService: alertService)
+        let viewController = EditPriceAlertViewController(viewModel: .init(configuration: configuration, token: token), session: session, alertService: alertService)
         viewController.delegate = self
         viewController.hidesBottomBarWhenPushed = true
         viewController.navigationItem.leftBarButtonItem = .backBarButton(self, selector: #selector(backSelected))

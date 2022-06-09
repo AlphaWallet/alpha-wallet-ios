@@ -7,7 +7,7 @@
 
 import UIKit
 
-@objc protocol WhatsNewListingCoordinatorProtocol {
+@objc protocol WhatsNewListingCoordinatorDelegate {
     func didDismiss(controller: WhatsNewListingViewController)
 }
 
@@ -20,7 +20,7 @@ class WhatsNewListingCoordinator: NSObject, Coordinator {
         super.init()
     }
 
-    func display(viewModel: WhatsNewListingViewModel, delegate: WhatsNewListingCoordinatorProtocol) {
+    func display(viewModel: WhatsNewListingViewModel, delegate: WhatsNewListingCoordinatorDelegate) {
         let viewController = WhatsNewListingViewController(viewModel: viewModel)
         viewController.whatsNewListingDelegate = delegate
         navigationController.present(viewController, animated: true)

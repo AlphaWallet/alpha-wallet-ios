@@ -19,16 +19,11 @@ protocol NonFungibleTokenViewControllerDelegate: class, CanOpenURL {
 class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewController {
     private let analyticsCoordinator: AnalyticsCoordinator
     private (set) var viewModel: NFTAssetViewModel
-    private let bigImageView: WebImageView = {
-        let imageView = WebImageView()
-        imageView.contentMode = .scaleAspectFit
-
-        return imageView
-    }()
+    private let previewView: NFTPreviewView
     private let buttonsBar = HorizontalButtonsBar(configuration: .combined(buttons: 3))
     private lazy var containerView: ScrollableStackView = ScrollableStackView()
     private let mode: TokenInstanceViewMode
-    private lazy var attributesStackView = GridStackView(viewModel: .init(edgeInsets: .init(top: 0, left: 20, bottom: 15, right: 20)))
+    private lazy var attributesStackView = GridStackView(viewModel: .init(edgeInsets: .init(top: 0, left: 16, bottom: 15, right: 16)))
 
     var server: RPCServer {
         return viewModel.token.server
@@ -39,24 +34,37 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
     let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: NonFungibleTokenViewControllerDelegate?
 
-    init(analyticsCoordinator: AnalyticsCoordinator, assetDefinitionStore: AssetDefinitionStore, viewModel: NFTAssetViewModel, mode: TokenInstanceViewMode) {
+    init(analyticsCoordinator: AnalyticsCoordinator, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore, viewModel: NFTAssetViewModel, mode: TokenInstanceViewMode) {
         self.analyticsCoordinator = analyticsCoordinator
         self.assetDefinitionStore = assetDefinitionStore
         self.mode = mode
         self.viewModel = viewModel
+        self.previewView = .init(type: viewModel.previewViewType, keystore: keystore, session: session, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, edgeInsets: viewModel.previewEdgeInsets)
+        self.previewView.rounding = .custom(20)
+        self.previewView.contentMode = .scaleAspectFill
         super.init(nibName: nil, bundle: nil)
 
         let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar)
         let stackView = [containerView, footerBar].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
+
         view.addSubview(stackView)
+
+        let previewHeightConstraint: [NSLayoutConstraint]
+        switch viewModel.previewViewType {
+        case .imageView:
+            previewHeightConstraint = [previewView.heightAnchor.constraint(equalTo: previewView.widthAnchor)]
+        case .tokenCardView:
+            previewHeightConstraint = []
+        }
 
         NSLayoutConstraint.activate([
             stackView.anchorsConstraint(to: view),
-            bigImageView.heightAnchor.constraint(equalToConstant: 250),
+            previewHeightConstraint
         ])
 
         configure(viewModel: viewModel)
+        previewView.configure(params: viewModel.previewViewParams)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -81,48 +89,11 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
 
         let values = viewModel.tokenHolder.values
         if let openSeaSlug = values.slug, openSeaSlug.trimmed.nonEmpty {
-            var viewModel = viewModel
             OpenSea.collectionStats(slug: openSeaSlug, server: viewModel.token.server).done { stats in
-                viewModel.configure(overiddenOpenSeaStats: stats)
-                self.configure(viewModel: viewModel)
+                self.viewModel.configure(overiddenOpenSeaStats: stats)
+                self.configure(viewModel: self.viewModel)
             }.cauterize()
-        }
-    }
-
-    private func generateSubviews(viewModel: NFTAssetViewModel) {
-        let stackView = containerView.stackView
-        stackView.removeAllArrangedSubviews()
-
-        var subviews: [UIView] = [bigImageView]
-
-        for (index, each) in viewModel.configurations.enumerated() {
-            switch each {
-            case .header(let viewModel):
-                let header = TokenInfoHeaderView(edgeInsets: .init(top: 15, left: 15, bottom: 20, right: 0))
-                header.configure(viewModel: viewModel)
-
-                subviews.append(header)
-            case .field(let viewModel):
-                let view = TokenInstanceAttributeView(indexPath: IndexPath(row: index, section: 0))
-                view.configure(viewModel: viewModel)
-                view.delegate = self
-
-                subviews.append(view)
-            case .attributeCollection(let viewModel):
-                var views: [UIView] = []
-                for (row, attribute) in viewModel.traits.enumerated() {
-                    let view = NonFungibleTraitView(edgeInsets: .init(top: 10, left: 10, bottom: 10, right: 10), indexPath: IndexPath(row: row, section: index))
-                    view.configure(viewModel: attribute)
-
-                    views.append(view)
-                }
-                attributesStackView.set(subviews: views)
-
-                subviews.append(attributesStackView)
-            }
-        }
-
-        stackView.addArrangedSubviews(subviews)
+        } 
     }
 
     func configure(viewModel newViewModel: NFTAssetViewModel) {
@@ -166,7 +137,8 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
             }
         }
 
-        bigImageView.setImage(url: viewModel.tokenHolder.assetImageUrl(tokenId: viewModel.tokenId), placeholder: viewModel.tokenImagePlaceholder)
+        previewView.configure(params: viewModel.previewViewParams)
+        previewView.contentBackgroundColor = viewModel.previewViewContentBackgroundColor
 
         generateSubviews(viewModel: viewModel)
     }
@@ -176,14 +148,14 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
         for (action, button) in zip(actions, buttonsBar.buttons) where button == sender {
             switch action.type {
             case .nftRedeem:
-                redeem()
+                delegate?.didPressRedeem(token: viewModel.token, tokenHolder: viewModel.tokenHolder, in: self)
             case .nftSell:
-                sell()
+                delegate?.didPressSell(tokenHolder: viewModel.tokenHolder, for: .send(type: .transaction(viewModel.sellTransactionType)), in: self)
             case .erc20Send, .erc20Receive, .swap, .buy, .bridge:
                 //TODO when we support TokenScript views for ERC20s, we need to perform the action here
                 break
             case .nonFungibleTransfer:
-                transfer()
+                delegate?.didPressTransfer(token: viewModel.token, tokenHolder: viewModel.tokenHolder, forPaymentFlow: .send(type: .transaction(viewModel.transferTransactionType)), in: self)
             case .tokenScript:
                 if let selection = action.activeExcludingSelection(selectedTokenHolder: viewModel.tokenHolder, tokenId: viewModel.tokenId, forWalletAddress: viewModel.account.address) {
                     if let denialMessage = selection.denial {
@@ -206,16 +178,37 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
         }
     }
 
-    private func transfer() {
-        delegate?.didPressTransfer(token: viewModel.token, tokenHolder: viewModel.tokenHolder, forPaymentFlow: .send(type: .transaction(viewModel.transferTransactionType)), in: self)
-    }
+    private func generateSubviews(viewModel: NFTAssetViewModel) {
+        containerView.stackView.removeAllArrangedSubviews()
 
-    private func redeem() {
-        delegate?.didPressRedeem(token: viewModel.token, tokenHolder: viewModel.tokenHolder, in: self)
-    }
+        containerView.stackView.addArrangedSubview(previewView)
 
-    private func sell() {
-        delegate?.didPressSell(tokenHolder: viewModel.tokenHolder, for: .send(type: .transaction(viewModel.sellTransactionType)), in: self)
+        for (index, each) in viewModel.configurations.enumerated() {
+            switch each {
+            case .header(let viewModel):
+                let header = TokenInfoHeaderView(edgeInsets: .init(top: 16, left: 16, bottom: 20, right: 0))
+                header.configure(viewModel: viewModel)
+
+                containerView.stackView.addArrangedSubview(header)
+            case .field(let viewModel):
+                let view = TokenAttributeView(indexPath: IndexPath(row: index, section: 0))
+                view.configure(viewModel: viewModel)
+                view.delegate = self
+
+                containerView.stackView.addArrangedSubview(view)
+            case .attributeCollection(let viewModel):
+                var views: [UIView] = []
+                for (row, attribute) in viewModel.traits.enumerated() {
+                    let view = NonFungibleTraitView(edgeInsets: .init(top: 10, left: 10, bottom: 10, right: 10), indexPath: IndexPath(row: row, section: index))
+                    view.configure(viewModel: attribute)
+
+                    views.append(view)
+                }
+                attributesStackView.set(subviews: views)
+
+                containerView.stackView.addArrangedSubview(attributesStackView)
+            }
+        }
     }
 }
 
@@ -233,8 +226,8 @@ extension NFTAssetViewController: VerifiableStatusViewController {
     }
 }
 
-extension NFTAssetViewController: TokenInstanceAttributeViewDelegate {
-    func didSelect(in view: TokenInstanceAttributeView) {
+extension NFTAssetViewController: TokenAttributeViewDelegate {
+    func didSelect(in view: TokenAttributeView) {
         switch viewModel.configurations[view.indexPath.row] {
         case .field(let vm) where viewModel.tokenIdViewModel == vm:
             UIPasteboard.general.string = vm.value

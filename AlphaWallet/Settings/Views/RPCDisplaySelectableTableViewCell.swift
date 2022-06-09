@@ -15,7 +15,7 @@ class RPCDisplaySelectableTableViewCell: UITableViewCell {
     private let chainIconView: ImageView = ImageView()
     private let accessoryImageView: UIImageView = UIImageView()
     private let infoView: ServerInformationView = ServerInformationView()
-    private let topSeparator: UIView = UIView.separator()
+    private let topSeparator: UIView = UIView.spacer(backgroundColor: R.color.mike()!)
 
     // MARK: - Initializers
 

@@ -31,7 +31,7 @@ struct DappsAutoCompletionCellViewModel {
     }
 
     var descriptionFont: UIFont {
-        return Fonts.light(size: 12)
+        return Fonts.regular(size: 12)
     }
 
     private var nameColor: UIColor? {

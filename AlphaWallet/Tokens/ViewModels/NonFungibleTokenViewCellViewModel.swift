@@ -5,20 +5,20 @@ import UIKit
 import BigInt
 
 struct NonFungibleTokenViewCellViewModel {
-    private let token: TokenObject
-    private let server: RPCServer
+    private let token: Token
     private let assetDefinitionStore: AssetDefinitionStore
     private let isVisible: Bool
     private let eventsDataStore: NonActivityEventsDataStore
     private let wallet: Wallet
+    let accessoryType: UITableViewCell.AccessoryType
 
-    init(token: TokenObject, server: RPCServer, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, wallet: Wallet, isVisible: Bool = true) {
+    init(token: Token, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, wallet: Wallet, isVisible: Bool = true, accessoryType: UITableViewCell.AccessoryType = .none) {
         self.eventsDataStore = eventsDataStore
         self.wallet = wallet
         self.token = token
-        self.server = server
         self.assetDefinitionStore = assetDefinitionStore
         self.isVisible = isVisible
+        self.accessoryType = accessoryType
     }
 
     private var amount: String {
@@ -35,11 +35,11 @@ struct NonFungibleTokenViewCellViewModel {
     }
 
     var blockChainNameBackgroundColor: UIColor {
-        return server.blockChainNameColor
+        return token.server.blockChainNameColor
     }
 
     var blockChainTag: String {
-        return "  \(server.name)     "
+        return "  \(token.server.name)     "
     }
 
     var blockChainNameTextAlignment: NSTextAlignment {
@@ -51,7 +51,7 @@ struct NonFungibleTokenViewCellViewModel {
     }
 
     var blockChainName: String {
-        return server.blockChainName
+        return token.server.blockChainName
     }
 
     var backgroundColor: UIColor {
@@ -90,7 +90,7 @@ struct NonFungibleTokenViewCellViewModel {
     }
 
     var blockChainTagViewModel: BlockchainTagLabelViewModel {
-        return .init(server: server)
+        return .init(server: token.server)
     }
 
 }

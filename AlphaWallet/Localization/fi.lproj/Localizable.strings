@@ -416,6 +416,7 @@
 "accounts.delete.error.failedToExportPrivateKey" = "Salaisen avaimen vienti epäonnistui";
 "accounts.delete.error.failedToExportSeed" = "Lompakon siemenluvun vienti epäonnistui. Jos olet vaihtanut puhelintasi tai palauttanut puhelimen asetukset varmuuskopiolta, lompakko pitää palauttaa tuomalla se erilliseltä varmuuskopiolta";
 "Chain ID" = "Ketjun tunniste (Chain ID)";
+"Chain ID with prefix" = "Chain ID: %i";
 "Endpoint" = "Päätepiste (Endpoint)";
 "settings.preferences.button.title" = "Näytä rahakkeet käynnistyksen aikana";
 "settings.preferences.title" = "Asetukset";
@@ -848,3 +849,5 @@
 "transactionState.unknown" = "Unknown";
 "settings.checkTransactionState" = "Check Transaction State";
 "advanced.settings.features.title" = "Features";
+"semifungiblesProjectInfo" = "Project Info";
+"semifungibles.Edcon.description" = "Edcon is a game centered around breedable, collectible, and adorable creatures where digital pandas live in the blockchain! Each panda comes from descendants of 50 giant pandas that have been officially licensed by China Panda Conservation and Research Center.";

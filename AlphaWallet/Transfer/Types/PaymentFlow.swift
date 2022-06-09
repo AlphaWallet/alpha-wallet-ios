@@ -17,6 +17,7 @@ enum PaymentFlowType {
 }
 
 enum PaymentFlow {
+    case swap(pair: SwapPair)
     case send(type: PaymentFlowType)
     case request
 
@@ -29,7 +30,7 @@ enum PaymentFlow {
             case .tokenScript:
                 return nil
             }
-        case .request:
+        case .request, .swap:
             return nil
         }
     }

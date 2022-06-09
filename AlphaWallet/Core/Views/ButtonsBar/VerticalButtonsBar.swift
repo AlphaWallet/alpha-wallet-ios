@@ -65,9 +65,10 @@ class VerticalButtonsBar: UIView {
         let primaryButton = createButton(viewModel: .primaryButton)
         primaryButton.childView.borderWidth = 0
         buttonViews.append(primaryButton)
-        guard numberOfButtons > 1 else { return }
-        (1 ..< numberOfButtons).forEach { _ in
-            buttonViews.append(createButton(viewModel: .secondaryButton))
+        if numberOfButtons > 1 {
+            (1 ..< numberOfButtons).forEach { _ in
+                buttonViews.append(createButton(viewModel: .secondaryButton))
+            }
         }
         setupStackView(views: buttonViews)
         setupButtons(views: buttonViews)

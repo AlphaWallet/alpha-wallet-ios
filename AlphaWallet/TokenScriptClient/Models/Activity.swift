@@ -27,8 +27,7 @@ struct Activity {
     //We use the internal id to track which activity to replace/update
     let id: Int
     var rowType: ActivityRowType
-    //TODO safe to have TokenObject here? Maybe a struct is better
-    let tokenObject: AssignedToken
+    let token: Token
     let server: RPCServer
     let name: String
     let eventName: String
@@ -44,12 +43,12 @@ struct Activity {
     let state: State
 
     init() {
-        self.init(id: 0, rowType: .item, tokenObject: .init(), server: .main, name: "", eventName: "", blockNumber: 0, transactionId: "", transactionIndex: 0, logIndex: 0, date: Date(), values: (token: [:], card: [:]), view: (html: "", style: ""), itemView: (html: "", style: ""), isBaseCard: false, state: .completed)
+        self.init(id: 0, rowType: .item, token: .init(), server: .main, name: "", eventName: "", blockNumber: 0, transactionId: "", transactionIndex: 0, logIndex: 0, date: Date(), values: (token: [:], card: [:]), view: (html: "", style: ""), itemView: (html: "", style: ""), isBaseCard: false, state: .completed)
     }
 
-    init(id: Int, rowType: ActivityRowType, tokenObject: AssignedToken, server: RPCServer, name: String, eventName: String, blockNumber: Int, transactionId: String, transactionIndex: Int, logIndex: Int, date: Date, values: (token: [AttributeId: AssetInternalValue], card: [AttributeId: AssetInternalValue]), view: (html: String, style: String), itemView: (html: String, style: String), isBaseCard: Bool, state: State) {
+    init(id: Int, rowType: ActivityRowType, token: Token, server: RPCServer, name: String, eventName: String, blockNumber: Int, transactionId: String, transactionIndex: Int, logIndex: Int, date: Date, values: (token: [AttributeId: AssetInternalValue], card: [AttributeId: AssetInternalValue]), view: (html: String, style: String), itemView: (html: String, style: String), isBaseCard: Bool, state: State) {
         self.id = id
-        self.tokenObject = tokenObject
+        self.token = token
         self.server = server
         self.name = name
         self.eventName = eventName
@@ -77,7 +76,7 @@ struct Activity {
     }
 
     var nativeViewType: NativeViewType {
-        switch tokenObject.type {
+        switch token.type {
         case .nativeCryptocurrency:
             switch name {
             case "sent":

@@ -4,8 +4,6 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
-	<key>CFBundleDisplayName</key>
-	<string>Candle Wallet</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>

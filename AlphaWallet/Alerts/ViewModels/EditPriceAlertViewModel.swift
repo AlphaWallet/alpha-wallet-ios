@@ -35,16 +35,16 @@ enum EdiPricetAlertViewModelConfiguration {
 
 struct EditPriceAlertViewModel {
     let configuration: EdiPricetAlertViewModelConfiguration
-    let tokenObject: TokenObject
+    let token: Token
     var backgroundColor: UIColor = Colors.appWhite
     var navigationTitle: String { configuration.navigationTitle }
     private (set) var marketPrice: Double?
 
     let value: String
 
-    init(configuration: EdiPricetAlertViewModelConfiguration, tokenObject: TokenObject) {
+    init(configuration: EdiPricetAlertViewModelConfiguration, token: Token) {
         self.configuration = configuration
-        self.tokenObject = tokenObject
+        self.token = token
         value = configuration.value
     }
 
