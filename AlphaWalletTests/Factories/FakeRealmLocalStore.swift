@@ -9,7 +9,7 @@
 import RealmSwift
 
 fileprivate extension Realm {
-    static func fake(forWallet wallet: Wallet) -> Realm {
+    static func fake(for wallet: Wallet) -> Realm {
         return try! Realm(configuration: Realm.Configuration(inMemoryIdentifier: "MyInMemoryRealm-\(wallet.address.eip55String)"))
     }
 }
@@ -21,7 +21,7 @@ class FakeRealmLocalStore: LocalStore {
         if let store = cachedStores[wallet] {
             return store
         } else {
-            let store = RealmStore(realm: Realm.fake(forWallet: wallet))
+            let store = RealmStore(realm: Realm.fake(for: wallet), name: RealmStore.threadName(for: wallet))
             cachedStores[wallet] = store
 
             return store
