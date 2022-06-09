@@ -15,7 +15,7 @@ class FakeActivitiesService: ActivitiesServiceType {
             .eraseToAnyPublisher()
     }
 
-    func stop() {}
+    func start() {}
     func reinject(activity: Activity) {}
     func copy(activitiesFilterStrategy: ActivitiesFilterStrategy, transactionsFilterStrategy: TransactionsFilterStrategy) -> ActivitiesServiceType { self }
 }

@@ -15,7 +15,7 @@ protocol ActivitiesServiceType: class {
     var viewModelPublisher: AnyPublisher<ActivitiesViewModel, Never> { get }
     var didUpdateActivityPublisher: AnyPublisher<Activity, Never> { get }
 
-    func stop()
+    func start()
     func reinject(activity: Activity)
     func copy(activitiesFilterStrategy: ActivitiesFilterStrategy, transactionsFilterStrategy: TransactionsFilterStrategy) -> ActivitiesServiceType
 }
@@ -47,7 +47,6 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         sessions.anyValue.account
     }
 
-    private let queue: DispatchQueue = DispatchQueue(label: "com.Background.updateQueue", qos: .userInitiated)
     private let activitiesFilterStrategy: ActivitiesFilterStrategy
     private let transactionDataStore: TransactionDataStore
     private let transactionsFilterStrategy: TransactionsFilterStrategy
@@ -83,7 +82,9 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         self.transactionsFilterStrategy = transactionsFilterStrategy
         self.tokensDataStore = tokensDataStore
         super.init()
+    }
 
+    func start() {
         let transactionsChangeset = transactionDataStore
             .transactionsChangeset(forFilter: transactionsFilterStrategy, servers: config.enabledServers)
             .map { _ in }
@@ -95,7 +96,6 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
             .eraseToAnyPublisher()
 
         Publishers.Merge(transactionsChangeset, eventsActivity)
-            .receive(on: queue)
             .sink { [weak self]  _ in
                 self?.createActivities(reloadImmediately: true)
             }.store(in: &cancelable)
@@ -103,13 +103,6 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
 
     func copy(activitiesFilterStrategy: ActivitiesFilterStrategy, transactionsFilterStrategy: TransactionsFilterStrategy) -> ActivitiesServiceType {
         return ActivitiesService(config: config, sessions: sessions, assetDefinitionStore: assetDefinitionStore, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore, transactionDataStore: transactionDataStore, activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: transactionsFilterStrategy, tokensDataStore: tokensDataStore)
-    }
-
-    func stop() {
-        //TODO seems not good to stop here because others call stop too
-        for each in sessions.values {
-            each.stop()
-        }
     }
 
     private func getTokensAndXmlHandlers(forTokens tokens: [Token]) -> TokenObjectsAndXMLHandlers {

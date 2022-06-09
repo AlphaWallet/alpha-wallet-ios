@@ -60,10 +60,6 @@ class ActivitiesCoordinator: NSObject, Coordinator {
     @objc func dismiss() {
         navigationController.dismiss(animated: true)
     }
-
-    func stop() {
-        activitiesService.stop()
-    }
 }
 
 extension ActivitiesCoordinator: ActivitiesViewControllerDelegate {

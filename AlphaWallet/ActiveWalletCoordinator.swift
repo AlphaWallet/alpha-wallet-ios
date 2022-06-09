@@ -798,6 +798,7 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
             each.start()
         }
         sessions.anyValue.tokenBalanceService.refresh(refreshBalancePolicy: .all)
+        activitiesService.start()
     }
 
     func whereAreMyTokensSelected(in coordinator: TokensCoordinator) {
