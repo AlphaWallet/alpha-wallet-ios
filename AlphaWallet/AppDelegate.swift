@@ -18,8 +18,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     private lazy var protectionCoordinator: ProtectionCoordinator = {
         return ProtectionCoordinator()
     }()
-    private lazy var reportProvider = ReportProvider()
+    //hhh1 maybe shouldn't lazy?
+    //private lazy var reportProvider = ReportProvider()
+    private var reportProvider = ReportProvider()
     private let addressStorage = FileAddressStorage()
+    //hhh remove
+    private func showCrashMessageWindow() {
+        guard let window = window else { return }
+        let v = UILabel(frame: CGRect(x: 30, y: 140, width: 300, height: 100))
+        v.translatesAutoresizingMaskIntoConstraints = false
+        v.backgroundColor = .white
+        v.text = "The app crashed previously, we are sending the logs now. Please wait for a minute and then restart the app"
+        v.numberOfLines = 0
+        let vc = UIViewController()
+        vc.view.backgroundColor = .white
+        vc.view.addSubview(v)
+        window.rootViewController = vc
+        window.makeKeyAndVisible()
+    }
 
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
@@ -30,6 +46,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         do {
             if Features.default.isAvailable(.isFirebaseEnabled) {
                 reportProvider.start()
+                //hhh1 move this code?
+                NSLog("xxx didCrashDuringPreviousExecution: \(crashlytics.didCrashDuringPreviousExecution())")
+                if crashlytics.didCrashDuringPreviousExecution() {
+                    NSLog("xxx didCrashDuringPreviousExecution yes, so we show the window and early exit")
+                    showCrashMessageWindow()
+                    return true
+                }
             }
 
             register(addressStorage: addressStorage)
@@ -83,6 +106,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 
     func applicationDidBecomeActive(_ application: UIApplication) {
         protectionCoordinator.applicationDidBecomeActive()
+        //hhh remove
+        if appCoordinator == nil {
+            NSLog("xxx early return because appCoordinator is nil")
+            return
+        }
         appCoordinator.handleUniversalLinkInPasteboard()
     }
 
