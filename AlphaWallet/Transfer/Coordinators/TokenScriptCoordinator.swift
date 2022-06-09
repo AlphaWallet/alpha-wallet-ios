@@ -129,15 +129,16 @@ extension TokenScriptCoordinator: TokenInstanceActionViewControllerDelegate {
     func confirmTransactionSelected(in viewController: TokenInstanceActionViewController, tokenObject: TokenObject, contract: AlphaWallet.Address, tokenId: TokenId, values: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession, keystore: Keystore, transactionFunction: FunctionOrigin) {
         guard let navigationController = viewController.navigationController else { return }
 
-        switch transactionFunction.makeUnConfirmedTransaction(withTokenObject: tokenObject, tokenId: tokenId, attributeAndValues: values, localRefs: localRefs, server: server, session: session) {
-        case .success((let transaction, let functionCallMetaData)):
-            let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: .tokenScriptTransaction(confirmType: .signThenSend, contract: contract, keystore: keystore, functionCallMetaData: functionCallMetaData), analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
+        do {
+            let data = try transactionFunction.makeUnConfirmedTransaction(withTokenObject: tokenObject, tokenId: tokenId, attributeAndValues: values, localRefs: localRefs, server: server, session: session)
+            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: data.0, configuration: .tokenScriptTransaction(confirmType: .signThenSend, contract: contract, keystore: keystore, functionCallMetaData: data.1), analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
             coordinator.delegate = self
             addCoordinator(coordinator)
             coordinator.start(fromSource: .tokenScript)
-        case .failure:
-            //TODO throw an error
-            break
+        } catch {
+            UIApplication.shared
+                .presentedViewController(or: navigationController)
+                .displayError(message: error.prettyError)
         }
     }
 
