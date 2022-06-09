@@ -1,48 +1,49 @@
 //
-//  HoneySwap.swift
+//  Uniswap.swift
 //  AlphaWallet
 //
-//  Created by Vladyslav Shepitko on 19.02.2021.
+//  Created by Vladyslav Shepitko on 21.08.2020.
 //
 
 import UIKit
 import Combine
 
-class HoneySwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
+struct Uniswap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
     var objectWillChange: AnyPublisher<Void, Never> {
         return Empty<Void, Never>(completeImmediately: true).eraseToAnyPublisher()
     }
 
     var action: String {
-        return R.string.localizable.aWalletTokenErc20ExchangeHoneyswapButtonTitle()
+        return R.string.localizable.aWalletTokenErc20ExchangeOnUniswapButtonTitle()
     }
-    //NOTE: While selection on action browser will be automatically switched to defined server `rpcServer`
+    
     func rpcServer(forToken token: TokenActionsServiceKey) -> RPCServer? {
-        return .xDai
+        return .main
     }
 
     var analyticsName: String {
-        "Honeyswap"
+        "Uniswap"
     }
 
-    private static let baseURL = "https://app.honeyswap.org/#"
+    private static let baseURL = "https://app.uniswap.org/#"
 
     var version: Version = .v2
     var theme: Theme = .dark
     var method: Method = .swap
 
     func url(token: TokenActionsServiceKey) -> URL? {
+        let input = Input.input(token.contractAddress)
         var components = URLComponents()
         components.path = method.rawValue
         components.queryItems = [
             URLQueryItem(name: Version.key, value: version.rawValue),
             URLQueryItem(name: Theme.key, value: theme.rawValue)
-        ]
+        ] + input.urlQueryItems
 
         //NOTE: URLComponents doesn't allow path to contain # symbol
         guard let pathWithQueryItems = components.url?.absoluteString else { return nil }
 
-        return URL(string: HoneySwap.baseURL + pathWithQueryItems)
+        return URL(string: Uniswap.baseURL + pathWithQueryItems)
     }
 
     enum Version: String {
@@ -78,15 +79,26 @@ class HoneySwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
             switch self {
             case .inputOutput(let inputAddress, let outputAddress):
                 return [
-                    .init(name: Keys.input, value: inputAddress.eip55String),
+                    .init(name: Keys.input, value: functional.rewriteContractInput(inputAddress)),
                     .init(name: Keys.output, value: outputAddress.stringValue),
                 ]
             case .input(let address):
                 return [
-                    .init(name: Keys.input, value: address.eip55String)
+                    .init(name: Keys.input, value: functional.rewriteContractInput(address))
                 ]
             case .none:
                 return []
+            }
+        }
+
+        class functional {
+            static func rewriteContractInput(_ address: AlphaWallet.Address) -> String {
+                if address.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
+                    //Uniswap likes it this way
+                    return "ETH"
+                } else {
+                    return address.eip55String
+                }
             }
         }
     }
@@ -97,22 +109,17 @@ class HoneySwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
         ]
     }
 
-    func start() {
-        //no-op
+    func isSupport(token: TokenActionsServiceKey) -> Bool {
+        return UniswapERC20Token.isSupport(token: token)
     }
 
-    func isSupport(token: TokenActionsServiceKey) -> Bool {
-        switch token.server {
-        case .xDai:
-            return true
-        case .main, .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .custom, .poa, .callisto, .classic, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .candle, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet:
-            return false
-        }
+    func start() {
+        //no-op
     }
 }
 
 extension UITraitCollection {
-    var honeyswapTheme: HoneySwap.Theme {
+    var uniswapTheme: Uniswap.Theme {
         switch userInterfaceStyle {
         case .dark:
             return .dark

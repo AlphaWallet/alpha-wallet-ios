@@ -5528,6 +5528,7 @@
 		87B65268256FBF22000EF927 /* SwapToken */ = {
 			isa = PBXGroup;
 			children = (
+				E7F44F672852BF69006A7C93 /* New Group */,
 				87A5D53C26B9765000856995 /* QuickSwap */,
 				87374A4125DFAEF200267160 /* HoneySwap */,
 				8731E6DD2565269400A6A7DA /* Oneinch */,
@@ -5906,6 +5907,13 @@
 				87C650C225F2408E007B02CB /* ServerUnavailableCoordinator.swift */,
 			);
 			path = Coordinators;
+			sourceTree = "<group>";
+		};
+		E7F44F672852BF69006A7C93 /* New Group */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = "New Group";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

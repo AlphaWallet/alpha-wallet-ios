@@ -67,6 +67,7 @@ struct TickerIdFilter {
         case .binance_smart_chain: return platform == "binance-smart-chain"
         case .avalanche: return platform == "avalanche"
         case .polygon: return platform == "polygon-pos"
+        case .candle: return platform == "candle"
         case .fantom: return platform == "fantom"
         case .arbitrum: return platform == "arbitrum-one"
         case .klaytnCypress, .klaytnBaobabTestnet: return platform == "klay-token"
@@ -83,6 +84,7 @@ struct TickerIdFilter {
         case .binance_smart_chain: return true
         case .avalanche: return true
         case .polygon: return true
+        case .candle: return true
         case .arbitrum: return true
         case .fantom: return true
         case .palm: return true
