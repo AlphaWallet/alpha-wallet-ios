@@ -15,7 +15,6 @@ final class EnjinNetworkProvider {
     static let client = URLSessionClient()
     static let cache = InMemoryNormalizedCache()
     static var store = ApolloStore(cache: cache)
-    private let queue: DispatchQueue
 
     private lazy var graphqlClient: ApolloClient = {
         let provider = NetworkInterceptorProvider(store: EnjinNetworkProvider.store, client: EnjinNetworkProvider.client)
@@ -24,15 +23,11 @@ final class EnjinNetworkProvider {
         return ApolloClient(networkTransport: transport, store: EnjinNetworkProvider.store)
     }()
 
-    init(queue: DispatchQueue) {
-        self.queue = queue
-    }
-
     typealias GetEnjinBalancesResponse = (balances: Enjin.MappedEnjinBalances, owner: AlphaWallet.Address)
 
     func getEnjinBalances(forOwner owner: AlphaWallet.Address, offset: Int, sum: Enjin.MappedEnjinBalances = [:], limit: Int = 50, completion: @escaping (Swift.Result<GetEnjinBalancesResponse, EnjinError>) -> Void) {
 
-        graphqlClient.fetch(query: GetEnjinBalancesQuery(ethAddress: owner.eip55String, page: offset, limit: limit), queue: queue) { response in
+        graphqlClient.fetch(query: GetEnjinBalancesQuery(ethAddress: owner.eip55String, page: offset, limit: limit), queue: .global()) { response in
             switch response {
             case .failure(let error):
                 completion(.failure(EnjinError(localizedDescription: "Error calling Engin API: \(String(describing: error))")))
@@ -69,7 +64,7 @@ final class EnjinNetworkProvider {
 
         let promises = ids.map { tokenId in
             return Promise<GetEnjinTokenQuery.Data.EnjinToken> { seal in
-                graphqlClient.fetch(query: GetEnjinTokenQuery(id: tokenId), queue: queue) { response in
+                graphqlClient.fetch(query: GetEnjinTokenQuery(id: tokenId), queue: .global()) { response in
                     switch response {
                     case .failure(let error):
                         seal.reject(error)
@@ -85,10 +80,10 @@ final class EnjinNetworkProvider {
             }
         }
 
-        return when(resolved: promises).map { results in
+        return when(resolved: promises).map(on: .none, { results in
             let tokens = results.compactMap { $0.optionalValue }
             return [owner: tokens]
-        }
+        })
     }
 
 }

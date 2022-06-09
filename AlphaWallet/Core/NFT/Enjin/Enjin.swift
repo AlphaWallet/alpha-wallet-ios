@@ -17,14 +17,12 @@ typealias EnjinSemiFungiblesToAddress = [AlphaWallet.Address: [GetEnjinTokenQuer
 typealias EnjinSemiFungiblesToTokenId = [String: GetEnjinTokenQuery.Data.EnjinToken]
 
 final class Enjin {
-    private lazy var networkProvider = EnjinNetworkProvider(queue: queue)
-    private let queue: DispatchQueue
-    
+    private lazy var networkProvider = EnjinNetworkProvider()
+
     typealias EnjinBalances = [GetEnjinBalancesQuery.Data.EnjinBalance]
     typealias MappedEnjinBalances = [AlphaWallet.Address: EnjinBalances]
-
-    init(queue: DispatchQueue) {
-        self.queue = queue
+    init() {
+        //no-op
     }
 
     func semiFungible(wallet: Wallet, server: RPCServer) -> Promise<EnjinSemiFungiblesToAddress> {
@@ -48,7 +46,7 @@ final class Enjin {
                     seal.reject(error)
                 }
             }
-        }.then(on: queue, { [networkProvider] balances -> Promise<EnjinSemiFungiblesToAddress> in
+        }.then(on: .none, { [networkProvider] balances -> Promise<EnjinSemiFungiblesToAddress> in
             let ids = (balances[wallet.address] ?? []).compactMap { $0.token?.id }
             return networkProvider.getEnjinTokens(ids: ids, owner: wallet.address)
         })

@@ -17,19 +17,14 @@ protocol NFTProvider: AnyObject {
 
 final class AlphaWalletNFTProvider: NFTProvider {
 
-    private lazy var openSea = OpenSea(queue: queue)
-    private lazy var enjin = Enjin(queue: queue)
+    private lazy var openSea = OpenSea()
+    private lazy var enjin = Enjin()
     private var cachedPromises: AtomicDictionary<AddressAndRPCServer, Promise<NonFungiblesTokens>> = .init()
-    private let queue: DispatchQueue
-
-    init(queue: DispatchQueue) {
-        self.queue = queue
-    }
 
     // NOTE: Its important to return value for promise and not an error. As we are using `when(fulfilled: ...)`. There is force unwrap inside the `when(fulfilled` function
     private func getEnjinSemiFungible(account: Wallet, server: RPCServer) -> Promise<EnjinSemiFungiblesToTokenId> {
         return enjin.semiFungible(wallet: account, server: server)
-            .map(on: queue, { mapped -> EnjinSemiFungiblesToTokenId in
+            .map(on: .none, { mapped -> EnjinSemiFungiblesToTokenId in
                 var result: EnjinSemiFungiblesToTokenId = [:]
                 let tokens = Array(mapped.values.flatMap { $0 })
                 for each in tokens {
@@ -38,7 +33,7 @@ final class AlphaWalletNFTProvider: NFTProvider {
                     result[TokenIdConverter.addTrailingZerosPadding(string: tokenId)] = each
                 }
                 return result
-            }).recover(on: queue, { _ -> Promise<EnjinSemiFungiblesToTokenId> in
+            }).recover(on: .none, { _ -> Promise<EnjinSemiFungiblesToTokenId> in
                 return .value([:])
             })
     }
@@ -58,9 +53,9 @@ final class AlphaWalletNFTProvider: NFTProvider {
 
             let promise = firstly {
                 when(fulfilled: tokensFromOpenSeaPromise, enjinTokensPromise)
-            }.map(on: queue, { (contractToOpenSeaNonFungibles, enjinTokens) -> NonFungiblesTokens in
+            }.map(on: .none, { (contractToOpenSeaNonFungibles, enjinTokens) -> NonFungiblesTokens in
                 return (contractToOpenSeaNonFungibles, enjinTokens)
-            }).ensure(on: queue, {
+            }).ensure(on: .none, {
                 self.cachedPromises[key] = .none
             })
 

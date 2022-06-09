@@ -19,9 +19,6 @@ public class OpenSea {
     //Important to be static so it's for *all* OpenSea calls
     private static let callCounter = CallCounter()
 
-    //TODO why is this needed? Make it always respond on main instead
-    private let queue: DispatchQueue
-
     private let sessionManagerWithDefaultHttpHeaders: SessionManager = {
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = 30
@@ -32,9 +29,8 @@ public class OpenSea {
 
     private var apiKeys: [ChainId: String]
 
-    public init(apiKeys: [ChainId: String], queue: DispatchQueue) {
+    public init(apiKeys: [ChainId: String]) {
         self.apiKeys = apiKeys
-        self.queue = queue
     }
 
     public func fetchAssetsPromise(address owner: AlphaWallet.Address, chainId: ChainId, excludeContracts: [(AlphaWallet.Address, ChainId)]) -> Promise<Response<OpenSeaNonFungiblesToAddress>> {
@@ -52,7 +48,7 @@ public class OpenSea {
         let collectionsPromise = fetchCollectionsPage(forOwner: owner, chainId: chainId, offset: offset)
 
         return when(resolved: [assetsPromise.asVoid(), collectionsPromise.asVoid()])
-                .map(on: queue, { _ -> Response<OpenSeaNonFungiblesToAddress> in
+                .map(on: .none, { _ -> Response<OpenSeaNonFungiblesToAddress> in
                     let assets = assetsPromise.result?.optionalValue ?? .init(hasError: true, result: [:])
                     let collections = collectionsPromise.result?.optionalValue ?? .init(hasError: true, result: [:])
 
@@ -99,14 +95,14 @@ public class OpenSea {
         }
 
         return firstly {
-            performRequestWithRetry(chainId: chainId, url: url, queue: .main)
-        }.map { json -> URL in
+            performRequestWithRetry(chainId: chainId, url: url)
+        }.map(on: .none, { json -> URL in
             let image: String = json["image_url"].string ?? json["image_preview_url"].string ?? json["image_thumbnail_url"].string ?? json["image_original_url"].string ?? ""
             guard let url = URL(string: image) else {
                 throw AnyError(OpenSeaError(localizedDescription: "Error calling \(baseURL)"))
             }
             return url
-        }
+        })
     }
 
     public func collectionStats(slug: String, chainId: ChainId) -> Promise<Stats> {
@@ -117,10 +113,10 @@ public class OpenSea {
 
         //TODO Why is specifying .main queue needed?
         return firstly {
-            performRequestWithRetry(chainId: chainId, url: url, queue: .main)
-        }.map { json -> Stats in
+            performRequestWithRetry(chainId: chainId, url: url)
+        }.map(on: .none, { json -> Stats in
             try Stats(json: json)
-        }
+        })
     }
 
     private func fetchCollectionsPage(forOwner owner: AlphaWallet.Address, chainId: ChainId, offset: Int, sum: [CollectionKey: Collection] = [:]) -> Promise<Response<[CollectionKey: Collection]>> {
@@ -130,8 +126,8 @@ public class OpenSea {
         }
 
         return firstly {
-            performRequestWithRetry(chainId: chainId, url: url, queue: queue)
-        }.then(on: queue, { [weak self] json -> Promise<Response<[CollectionKey: Collection]>> in
+            performRequestWithRetry(chainId: chainId, url: url)
+        }.then(on: .none, { [weak self] json -> Promise<Response<[CollectionKey: Collection]>> in
             guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
             let results = OpenSeaCollectionDecoder.decode(json: json, results: sum)
             let fetchedCount = json.arrayValue.count
@@ -140,13 +136,13 @@ public class OpenSea {
             } else {
                 return .value(.init(hasError: false, result: sum))
             }
-        }).recover { _ -> Promise<Response<[CollectionKey: Collection]>> in
+        }).recover(on: .none, { _ -> Promise<Response<[CollectionKey: Collection]>> in
             //NOTE: return some already fetched amount
             return .value(.init(hasError: true, result: sum))
-        }
+        })
     }
 
-    private func performRequestWithRetry(chainId: ChainId, url: URL, maximumRetryCount: Int = 3, delayMultiplayer: Int = 5, retryDelay: DispatchTimeInterval = .seconds(2), queue: DispatchQueue) -> Promise<JSON> {
+    private func performRequestWithRetry(chainId: ChainId, url: URL, maximumRetryCount: Int = 3, delayMultiplayer: Int = 5, retryDelay: DispatchTimeInterval = .seconds(2)) -> Promise<JSON> {
         enum OpenSeaApiError: Error {
             case rateLimited
             case invalidApiKey
@@ -159,8 +155,8 @@ public class OpenSea {
             //Using responseData() instead of responseJSON() below because `PromiseKit`'s `responseJSON()` resolves to failure if body isn't JSON. But OpenSea returns a non-JSON when the status code is 401 (unauthorized, aka. wrong API key) and we want to detect that.
             return sessionManagerWithDefaultHttpHeaders
                     .request(url, method: .get, headers: headers)
-                    .responseData()
-                    .map(on: queue, { data, response -> (HTTPURLResponse, JSON) in
+                    .responseData(queue: .global())
+                    .map(on: .none, { data, response -> (HTTPURLResponse, JSON) in
                         if let response: HTTPURLResponse = response.response {
                             let statusCode = response.statusCode
                             if statusCode == 401 {
@@ -192,14 +188,14 @@ public class OpenSea {
                 }
                 return firstly {
                     privatePerformRequest(url: url)
-                }.map { _, json -> JSON in
+                }.map(on: .none, { _, json -> JSON in
                     json
-                }
+                })
             }
-        }.recover { error -> Promise<JSON> in
+        }.recover(on: .none, { error -> Promise<JSON> in
             infoLog("[OpenSea] API error: \(error)")
             throw error
-        }
+        })
     }
 
     private func fetchAssetsPage(forOwner owner: AlphaWallet.Address, chainId: ChainId, offset: Int, assets: OpenSeaNonFungiblesToAddress = [:], excludeContracts: [(AlphaWallet.Address, ChainId)]) -> Promise<Response<OpenSeaNonFungiblesToAddress>> {
@@ -210,8 +206,8 @@ public class OpenSea {
         }
 
         return firstly {
-            performRequestWithRetry(chainId: chainId, url: url, queue: queue)
-        }.then({ [weak self] json -> Promise<Response<OpenSeaNonFungiblesToAddress>> in
+            performRequestWithRetry(chainId: chainId, url: url)
+        }.then(on: .none,{ [weak self] json -> Promise<Response<OpenSeaNonFungiblesToAddress>> in
             guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
             let results = OpenSeaAssetDecoder.decode(json: json, assets: assets)
             let fetchedCount = json["assets"].count
@@ -224,14 +220,14 @@ public class OpenSea {
                 }
                 return .value(.init(hasError: false, result: assetsExcluding))
             }
-        }).recover { _ -> Promise<Response<OpenSeaNonFungiblesToAddress>> in
+        }).recover(on: .none, { _ -> Promise<Response<OpenSeaNonFungiblesToAddress>> in
             //NOTE: return some already fetched amount
             let excludeContracts = excludeContracts.map { $0.0 }
             let assetsExcluding = assets.filter { eachAsset in
                 !excludeContracts.contains { $0.sameContract(as: eachAsset.key) }
             }
             return .value(.init(hasError: true, result: assetsExcluding))
-        }
+        })
     }
 }
 

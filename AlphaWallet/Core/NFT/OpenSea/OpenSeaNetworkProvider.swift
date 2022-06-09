@@ -13,8 +13,8 @@ final class OpenSeaNetworkProvider {
     //TODO should pass in instead
     private let config: Config = Config()
 
-    init(queue: DispatchQueue) {
-        self.openSea = AlphaWalletOpenSea.OpenSea(apiKeys: Self.openSeaApiKeys(), queue: queue)
+    init() {
+        self.openSea = AlphaWalletOpenSea.OpenSea(apiKeys: Self.openSeaApiKeys())
     }
 
     func fetchAssetsPromise(address owner: AlphaWallet.Address, server: RPCServer) -> Promise<Response<OpenSeaNonFungiblesToAddress>> {

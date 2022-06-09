@@ -7,13 +7,12 @@ import AlphaWalletOpenSea
 
 final class OpenSea {
     private let storage: Storage<[AddressAndRPCServer: OpenSeaNonFungiblesToAddress]> = .init(fileName: "OpenSea", defaultValue: [:])
-    private let queue: DispatchQueue
-    private lazy var networkProvider: OpenSeaNetworkProvider = OpenSeaNetworkProvider(queue: queue)
+    private lazy var networkProvider: OpenSeaNetworkProvider = OpenSeaNetworkProvider()
 
-    init(queue: DispatchQueue) {
-        self.queue = queue
+    init() {
+        //no-op
     }
-
+    
     static func isServerSupported(_ server: RPCServer) -> Bool {
         switch server {
         case .main, .rinkeby:
@@ -36,7 +35,7 @@ final class OpenSea {
     private func fetchFromLocalAndRemotePromise(key: AddressAndRPCServer) -> Promise<OpenSeaNonFungiblesToAddress> {
         return networkProvider
             .fetchAssetsPromise(address: key.address, server: key.server)
-            .map(on: queue, { [weak storage] result in
+            .map(on: .none, { [weak storage] result in
                 if result.hasError {
                     let merged = (storage?.value[key] ?? [:])
                         .merging(result.result) { Array(Set($0 + $1)) }
@@ -55,10 +54,10 @@ final class OpenSea {
     }
 
     static func fetchAssetImageUrl(for value: Eip155URL, server: RPCServer) -> Promise<URL> {
-        OpenSeaNetworkProvider(queue: .global()).fetchAssetImageUrl(for: value, server: server)
+        OpenSeaNetworkProvider().fetchAssetImageUrl(for: value, server: server)
     }
 
     static func collectionStats(slug: String, server: RPCServer) -> Promise<Stats> {
-        OpenSeaNetworkProvider(queue: .global()).collectionStats(slug: slug, server: server)
+        OpenSeaNetworkProvider().collectionStats(slug: slug, server: server)
     }
 }
