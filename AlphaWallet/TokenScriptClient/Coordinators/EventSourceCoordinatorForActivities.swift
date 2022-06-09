@@ -172,7 +172,7 @@ extension EventSourceCoordinatorForActivities.functional {
                 values.compactMap { $0.optionalValue }.compactMap { $0 }
             })
         }).map(on: queue, { events -> Void in
-            eventsDataStore.add(events: events)
+            eventsDataStore.addOrUpdate(events: events)
         }).recover(on: queue, { e in
             error(value: e, rpcServer: server, address: tokenContract)
         })

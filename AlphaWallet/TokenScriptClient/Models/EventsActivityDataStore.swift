@@ -9,7 +9,7 @@ protocol EventsActivityDataStoreProtocol {
 
     func getRecentEventsSortedByBlockNumber(for contract: AlphaWallet.Address, server: RPCServer, eventName: String, interpolatedFilter: String) -> [EventActivityInstance]
     func getLastMatchingEventSortedByBlockNumber(for contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> EventActivityInstance?
-    func add(events: [EventActivityInstance])
+    func addOrUpdate(events: [EventActivityInstance])
 }
 
 class EventsActivityDataStore: EventsActivityDataStoreProtocol {
@@ -75,7 +75,7 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
         return eventActivity
     }
 
-    func add(events: [EventActivityInstance]) {
+    func addOrUpdate(events: [EventActivityInstance]) {
         guard !events.isEmpty else { return }
         
         let eventsToSave = events.map { EventActivity(value: $0) }
