@@ -352,11 +352,11 @@ extension SettingsCoordinator: ChooseSendPrivateTransactionsProviderViewControll
 
 extension SettingsCoordinator: PingInfuraCoordinatorDelegate {
     func didPing(in coordinator: PingInfuraCoordinator) {
-        removeCoordinator(self)
+        removeCoordinator(coordinator)
     }
 
     func didCancel(in coordinator: PingInfuraCoordinator) {
-        removeCoordinator(self)
+        removeCoordinator(coordinator)
     }
 }
 
@@ -374,11 +374,11 @@ extension SettingsCoordinator: ExportJsonKeystoreCoordinatorDelegate {
 
 extension SettingsCoordinator: ClearDappBrowserCacheCoordinatorDelegate {
     func done(in coordinator: ClearDappBrowserCacheCoordinator) {
-        removeCoordinator(self)
+        removeCoordinator(coordinator)
     }
 
     func didCancel(in coordinator: ClearDappBrowserCacheCoordinator) {
-        removeCoordinator(self)
+        removeCoordinator(coordinator)
     }
 }
 
