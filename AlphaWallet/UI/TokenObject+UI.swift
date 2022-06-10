@@ -60,6 +60,8 @@ extension RPCServer {
             return R.image.iconsNetworkFantom()
         case .avalanche, .avalanche_testnet:
             return R.image.iconsNetworkAvalanche()
+        case .candle:
+            return R.image.iconsNetworkCandle()
         case .polygon:
             return R.image.iconsNetworkPolygon()
         case .mumbai_testnet:

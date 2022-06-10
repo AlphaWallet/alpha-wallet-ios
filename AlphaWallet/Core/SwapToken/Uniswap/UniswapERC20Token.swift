@@ -19,7 +19,7 @@ extension UniswapERC20Token {
         switch token.server {
         case .main:
             return availableTokens.contains(where: { $0.contract.sameContract(as: token.contractAddress) })
-        case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .custom, .poa, .callisto, .xDai, .classic, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet:
+        case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .custom, .poa, .callisto, .xDai, .classic, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .candle, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet:
             return false
         }
     }
@@ -27,6 +27,7 @@ extension UniswapERC20Token {
     private static let availableTokens: [UniswapERC20Token] = [
         .init(name: "ETH", contract: Constants.nullAddress, decimal: 0),
         .init(name: "USDT", contract: AlphaWallet.Address(string: "0xdAC17F958D2ee523a2206206994597C13D831ec7")!, decimal: 6),
+        .init(name: "CNDL", contract: AlphaWallet.Address(string: "0x3D97EdB1c1D87C0cBf098a0D2230d7380d4b1432")!, decimal: 18),
         .init(name: "LINK", contract: AlphaWallet.Address(string: "0x514910771AF9Ca656af840dff83E8264EcF986CA")!, decimal: 18),
         .init(name: "BNB", contract: AlphaWallet.Address(string: "0xB8c77482e45F1F44dE1745F52C74426C631bDD52")!, decimal: 18),
         .init(name: "WETH", contract: AlphaWallet.Address(string: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2")!, decimal: 18),

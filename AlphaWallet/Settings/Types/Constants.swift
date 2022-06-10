@@ -33,6 +33,7 @@ public struct Constants {
     public static let fantomTestMagicLinkHost = "test-fantom.aw.app"
     public static let avalancheMagicLinkHost = "avalanche.aw.app"
     public static let avalancheTestMagicLinkHost = "test-avalanche.aw.app"
+    public static let candleMagicLinkHost = "candle.aw.app"
     public static let maticMagicLinkHost = "polygon.aw.app"
     public static let mumbaiTestMagicLinkHost = "test-polygon.aw.app"
     public static let optimisticMagicLinkHost = "optimistic.aw.app"
@@ -171,7 +172,7 @@ public struct Constants {
 
     static let ensContractOnMainnet = AlphaWallet.Address.ethereumAddress(eip55String: "0x57f1887a8BF19b14fC0dF6Fd9B2acc9Af147eA85")
 
-    static let defaultEnabledServers: [RPCServer] = [.main, .xDai, .polygon]
+    static let defaultEnabledServers: [RPCServer] = [.main, .xDai, .candle, .polygon]
     static let defaultEnabledTestnetServers: [RPCServer] = [.ropsten]
 
     static let tokenScriptUrlSchemeForResources = "tokenscript-resource:///"
