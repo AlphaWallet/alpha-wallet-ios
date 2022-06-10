@@ -10,15 +10,19 @@ import RealmSwift
 import Foundation
 
 final class RealmStore {
+    static func threadName(for wallet: Wallet) -> String {
+        return "org.alphawallet.swift.realmStore.\(wallet.address).wallet"
+    }
+
     private let thread: RunLoopThread = .init()
     private let mainThreadRealm: Realm
     private var backgroundThreadRealm: Realm?
 
-    public init(realm: Realm) {
+    public init(realm: Realm, name: String = "org.alphawallet.swift.realmStore") {
         self.mainThreadRealm = realm
         let config = realm.configuration
 
-        thread.name = "org.alphawallet.swift.realmStore"
+        thread.name = name
         thread.start()
 
         thread.performSync() {
@@ -42,7 +46,7 @@ final class RealmStore {
 
 extension Realm {
 
-    static func realm(forAccount account: Wallet) -> Realm {
+    static func realm(for account: Wallet) -> Realm {
         let migration = DatabaseMigration(account: account)
         migration.perform()
 
