@@ -20,7 +20,7 @@ final class RealmLocalStore: LocalStore {
         if let store = cachedStores[wallet] {
             return store
         } else {
-            let store = RealmStore(realm: .realm(forAccount: wallet))
+            let store = RealmStore(realm: .realm(for: wallet), name: RealmStore.threadName(for: wallet))
             cachedStores[wallet] = store
 
             return store
