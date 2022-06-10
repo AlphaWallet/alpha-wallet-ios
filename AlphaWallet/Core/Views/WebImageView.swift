@@ -135,7 +135,18 @@ final class WebImageView: UIView, ContentBackgroundSupportable {
             placeholderImageView.isHidden = imageView.image != nil
             //NOTE: not quite sure, but we need to cancel prev loading operation, othervise we receive an error `notCurrentSourceTask`
             cancel()
-            imageView.kf.setImage(with: url, completionHandler: { [imageView, placeholderImageView] result in
+
+            let size = bounds.size.width.isZero ? CGSize(width: 200, height: 200) : bounds.size
+            let processor = DownsamplingImageProcessor(size: size)
+
+            imageView.kf.setImage(with: url, options: [
+                .processor(processor),
+                .scaleFactor(UIScreen.main.scale),
+                .cacheOriginalImage,
+                .keepCurrentImageWhileLoading,
+                .alsoPrefetchToMemory,
+                .loadDiskFileSynchronously
+            ], completionHandler: { [imageView, placeholderImageView] result in
                 switch result {
                 case .success(let res):
                     imageView.image = res.image
@@ -151,5 +162,6 @@ final class WebImageView: UIView, ContentBackgroundSupportable {
     func cancel() {
         svgImageView.stopLoading()
         imageView.kf.cancelDownloadTask()
+        imageView.image = nil
     }
 }

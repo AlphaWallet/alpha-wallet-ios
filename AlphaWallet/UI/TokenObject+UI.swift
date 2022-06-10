@@ -4,6 +4,7 @@ import UIKit
 import PromiseKit
 import AlphaWalletCore
 import AlphaWalletOpenSea
+import Kingfisher
 
 typealias GoogleContentSize = AlphaWalletCore.GoogleContentSize
 typealias WebImageURL = AlphaWalletCore.WebImageURL
@@ -209,19 +210,20 @@ class TokenImageFetcher {
 
             firstly {
                 TokenImageFetcher
-                    .fetchFromAssetGitHubRepo(.alphaWallet, contractAddress: contractAddress, queue: queue)
+                    .fetchFromAssetGitHubRepo(.alphaWallet, contractAddress: contractAddress)
                     .map(on: queue, { image -> TokenImage in
                         return (image: .image(image), symbol: "", isFinal: true, overlayServerIcon: server.staticOverlayIcon)
                     })
             }.recover(on: queue, { _ -> Promise<TokenImage> in
-                return TokenImageFetcher
-                    .fetchFromOpenSea(type, balance: balance, size: size, queue: queue)
-                    .map(on: queue, { url -> TokenImage in
-                        return (image: url, symbol: "", isFinal: true, overlayServerIcon: server.staticOverlayIcon)
-                    })
+                do {
+                    let url = try TokenImageFetcher.imageUrlFromOpenSea(type, balance: balance, size: size)
+                    return .value((image: url, symbol: "", isFinal: true, overlayServerIcon: server.staticOverlayIcon))
+                } catch {
+                    return .init(error: error)
+                }
             }).recover(on: queue, { _ -> Promise<TokenImage> in
                 return TokenImageFetcher
-                    .fetchFromAssetGitHubRepo(.thirdParty, contractAddress: contractAddress, queue: queue)
+                    .fetchFromAssetGitHubRepo(.thirdParty, contractAddress: contractAddress)
                     .map(on: queue, { image -> TokenImage in
                         return (image: .image(image), symbol: "", isFinal: false, overlayServerIcon: server.staticOverlayIcon)
                     })
@@ -235,42 +237,37 @@ class TokenImageFetcher {
         return subscribable
     }
 
-    private static func fetchFromOpenSea(_ type: TokenType, balance: NonFungibleFromJson?, size: GoogleContentSize, queue: DispatchQueue) -> Promise<ImageOrWebImageUrl> {
+    private static func imageUrlFromOpenSea(_ type: TokenType, balance: NonFungibleFromJson?, size: GoogleContentSize) throws -> ImageOrWebImageUrl {
         switch type {
         case .erc721, .erc1155:
             guard let openSeaNonFungible = balance, let url = openSeaNonFungible.nonFungibleImageUrl(rewriteGoogleContentSizeUrl: size) else {
-                return .init(error: ImageAvailabilityError.notAvailable)
+                throw ImageAvailabilityError.notAvailable
             }
-            return .value(.url(url))
+            return .url(url)
         case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
-            return .init(error: ImageAvailabilityError.notAvailable)
+            throw ImageAvailabilityError.notAvailable
         }
     }
 
-    private static func fetchFromAssetGitHubRepo(_ githubAssetsSource: GithubAssetsURLResolver.Source, contractAddress: AlphaWallet.Address, queue: DispatchQueue) -> Promise<UIImage> {
-        firstly {
-            GithubAssetsURLResolver().resolve(for: githubAssetsSource, contractAddress: contractAddress)
-        }.then(on: queue, { request -> Promise<UIImage> in
-            fetch(request: request, queue: queue)
-        })
-    }
+    private static func fetchFromAssetGitHubRepo(_ githubAssetsSource: GithubAssetsURLResolver.Source, contractAddress: AlphaWallet.Address) -> Promise<UIImage> {
+        struct AnyError: Error { }
+        let value = githubAssetsSource.url(forContract: contractAddress)
+        guard let url = URL(string: value) else {
+            verboseLog("Loading token icon URL: \(value) error")
+            return .init(error: AnyError())
+        }
+        let resource = ImageResource(downloadURL: url, cacheKey: value)
 
-    private static func fetch(request: URLRequest, queue: DispatchQueue) -> Promise<UIImage> {
-        return Alamofire.request(request).responseData(queue: queue).map(on: queue, { response -> UIImage in
-            if let img = UIImage(data: response.data) {
-                return img
-            } else {
-                throw ImageAvailabilityError.notAvailable
+        return Promise { seal in
+            KingfisherManager.shared.retrieveImage(with: resource) { result in
+                switch result {
+                case .success(let response):
+                    seal.fulfill(response.image)
+                case .failure(let error):
+                    seal.reject(error)
+                }
             }
-        }).recover(on: queue, { error -> Promise<UIImage> in
-            //This is expected. Some tokens will not have icons
-            if let url = request.url?.absoluteString {
-                verboseLog("Loading token icon URL: \(url) error")
-            } else {
-                verboseLog("Loading token icon URL: nil error")
-            }
-            throw error
-        })
+        }
     }
 }
 
@@ -289,19 +286,5 @@ class GithubAssetsURLResolver {
                 return rawValue + contract.eip55String + "/" + GithubAssetsURLResolver.file
             }
         }
-    }
-
-    enum AnyError: Error {
-        case case1
-    }
-
-    func resolve(for githubAssetsSource: GithubAssetsURLResolver.Source, contractAddress: AlphaWallet.Address) -> Promise<URLRequest> {
-        let value = githubAssetsSource.url(forContract: contractAddress)
-        guard let url = URL(string: value) else {
-            verboseLog("Loading token icon URL: \(value) error")
-            return .init(error: AnyError.case1)
-        }
-        let request = URLRequest(url: url)
-        return .value(request)
     }
 }
