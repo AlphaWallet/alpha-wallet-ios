@@ -37,15 +37,9 @@ class MultipleChainsTokenCollection: NSObject, TokenCollection {
         super.init()
 
         tokensDataStore
-            .enabledTokensChangeset(for: enabledServers)
+            .enabledTokensPublisher(for: enabledServers)
             .receive(on: queue)
-            .combineLatest(refereshSubject, { changeset, _ in
-                switch changeset {
-                case .initial(let tokens): return tokens
-                case .update(let tokens, _, _, _): return tokens
-                case .error: return []
-                }
-            })
+            .combineLatest(refereshSubject, { tokens, _ in tokens })
             .map { MultipleChainsTokensDataStore.functional.erc20AddressForNativeTokenFilter(servers: enabledServers, tokens: $0) }
             .map { TokensViewModel.functional.filterAwaySpuriousTokens($0) }
             .map { TokensViewModel(tokensFilter: tokensFilter, tokens: $0, config: config) }
