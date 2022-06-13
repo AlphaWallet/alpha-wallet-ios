@@ -814,6 +814,7 @@
 		872D9564271D633E00870971 /* WalletConnectConnectionTimeoutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872D9563271D633D00870971 /* WalletConnectConnectionTimeoutViewController.swift */; };
 		872D9567271D66C200870971 /* GasPriceEstimates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872D9565271D66C200870971 /* GasPriceEstimates.swift */; };
 		872D9568271D66C200870971 /* EtherscanGasPriceEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872D9566271D66C200870971 /* EtherscanGasPriceEstimator.swift */; };
+		87300E9228573461009DE4B3 /* ConfigureImageStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87300E9128573461009DE4B3 /* ConfigureImageStorage.swift */; };
 		8731E6E02565269400A6A7DA /* Uniswap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8731E6DB2565269400A6A7DA /* Uniswap.swift */; };
 		8731E6E12565269400A6A7DA /* UniswapERC20Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8731E6DC2565269400A6A7DA /* UniswapERC20Token.swift */; };
 		8731E6E22565269400A6A7DA /* Oneinch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8731E6DE2565269400A6A7DA /* Oneinch.swift */; };
@@ -2051,6 +2052,7 @@
 		872D9563271D633D00870971 /* WalletConnectConnectionTimeoutViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectConnectionTimeoutViewController.swift; sourceTree = "<group>"; };
 		872D9565271D66C200870971 /* GasPriceEstimates.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GasPriceEstimates.swift; sourceTree = "<group>"; };
 		872D9566271D66C200870971 /* EtherscanGasPriceEstimator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EtherscanGasPriceEstimator.swift; sourceTree = "<group>"; };
+		87300E9128573461009DE4B3 /* ConfigureImageStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigureImageStorage.swift; sourceTree = "<group>"; };
 		8731E6DB2565269400A6A7DA /* Uniswap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Uniswap.swift; sourceTree = "<group>"; };
 		8731E6DC2565269400A6A7DA /* UniswapERC20Token.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UniswapERC20Token.swift; sourceTree = "<group>"; };
 		8731E6DE2565269400A6A7DA /* Oneinch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Oneinch.swift; sourceTree = "<group>"; };
@@ -3718,6 +3720,7 @@
 				8782E9D12828F52500E93689 /* ConfigureApp.swift */,
 				8782E9D32828F59A00E93689 /* CleanupWallets.swift */,
 				8765D6E6282BCC8000529F45 /* ReportUsersWalletAddresses.swift */,
+				87300E9128573461009DE4B3 /* ConfigureImageStorage.swift */,
 			);
 			path = Initializers;
 			sourceTree = "<group>";
@@ -6560,6 +6563,7 @@
 				2961BD071FB146EB00C4B840 /* ChainState.swift in Sources */,
 				879F184426E73BFF000602F2 /* SingleNFTAssetSelectionView.swift in Sources */,
 				2996F14D1F6CA743005C33AE /* UIViewController.swift in Sources */,
+				87300E9228573461009DE4B3 /* ConfigureImageStorage.swift in Sources */,
 				2959961F1FAE759700DB66A8 /* RawTransaction.swift in Sources */,
 				87E2555824F52EBF00F025F7 /* GasSpeedTableViewCellViewModel.swift in Sources */,
 				025F5D202760C76A00B2A3BC /* ExportJsonKeystorePasswordView.swift in Sources */,
