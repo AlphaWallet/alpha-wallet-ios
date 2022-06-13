@@ -5,7 +5,7 @@
 //  Created by Vladyslav Shepitko on 20.07.2020.
 //
 
-import UIKit 
+import UIKit
 import PromiseKit
 
 private struct NoContractDetailsDetected: Error {
@@ -32,18 +32,20 @@ class NewTokenCoordinator: Coordinator {
     private let importToken: ImportToken
     private let config: Config
     private let analyticsCoordinator: AnalyticsCoordinator
+    private let domainResolutionService: DomainResolutionServiceType
     private let navigationController: UINavigationController
-    private lazy var viewController: NewTokenViewController = .init(server: serverToAddCustomTokenOn, initialState: initialState)
+    private lazy var viewController: NewTokenViewController = .init(server: serverToAddCustomTokenOn, domainResolutionService: domainResolutionService, initialState: initialState)
     private let initialState: NewTokenInitialState
     var coordinators: [Coordinator] = []
     weak var delegate: NewTokenCoordinatorDelegate?
 
-    init(analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, config: Config, importToken: ImportToken, initialState: NewTokenInitialState = .empty) {
+    init(analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, config: Config, importToken: ImportToken, initialState: NewTokenInitialState = .empty, domainResolutionService: DomainResolutionServiceType) {
         self.config = config
         self.analyticsCoordinator = analyticsCoordinator
         self.navigationController = navigationController
         self.importToken = importToken
         self.initialState = initialState
+        self.domainResolutionService = domainResolutionService
     }
 
     func start() {
@@ -186,7 +188,7 @@ extension NewTokenCoordinator: NewTokenViewControllerDelegate {
     func openQRCode(in controller: NewTokenViewController) {
         guard let nc = controller.navigationController, nc.ensureHasDeviceAuthorization() else { return }
 
-        let coordinator = ScanQRCodeCoordinator(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, account: importToken.wallet)
+        let coordinator = ScanQRCodeCoordinator(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, account: importToken.wallet, domainResolutionService: domainResolutionService)
         coordinator.delegate = self
         addCoordinator(coordinator)
 

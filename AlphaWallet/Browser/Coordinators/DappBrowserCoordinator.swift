@@ -25,6 +25,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     private let keystore: Keystore
     private var config: Config
     private let analyticsCoordinator: AnalyticsCoordinator
+    private let domainResolutionService: DomainResolutionServiceType
     private var browserNavBar: DappBrowserNavigationBar? {
         return navigationController.navigationBar as? DappBrowserNavigationBar
     }
@@ -96,7 +97,8 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         sharedRealm: Realm,
         browserOnly: Bool,
         restartQueue: RestartTaskQueue,
-        analyticsCoordinator: AnalyticsCoordinator
+        analyticsCoordinator: AnalyticsCoordinator,
+        domainResolutionService: DomainResolutionServiceType
     ) {
         self.navigationController = UINavigationController(navigationBarClass: DappBrowserNavigationBar.self, toolbarClass: nil)
         self.sessions = sessions
@@ -106,6 +108,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         self.browserOnly = browserOnly
         self.restartQueue = restartQueue
         self.analyticsCoordinator = analyticsCoordinator
+        self.domainResolutionService = domainResolutionService
 
         super.init()
         //Necessary so that some sites don't bleed into (under) navigation bar after we tweak global styles for navigationBars after adding large title support
@@ -161,7 +164,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
 
     private func executeTransaction(account: AlphaWallet.Address, action: DappAction, callbackID: Int, transaction: UnconfirmedTransaction, type: ConfirmType, server: RPCServer) {
         pendingTransaction = .data(callbackID: callbackID)
-        let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: .dappTransaction(confirmType: type, keystore: keystore), analyticsCoordinator: analyticsCoordinator)
+        let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: .dappTransaction(confirmType: type, keystore: keystore), analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start(fromSource: .browser)
@@ -350,7 +353,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     private func scanQrCode() {
         guard navigationController.ensureHasDeviceAuthorization() else { return }
 
-        let coordinator = ScanQRCodeCoordinator(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, account: session.account)
+        let coordinator = ScanQRCodeCoordinator(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, account: session.account, domainResolutionService: domainResolutionService)
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start(fromSource: .browserScreen)

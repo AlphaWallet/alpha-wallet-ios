@@ -22,6 +22,7 @@ class SettingsViewController: UIViewController {
     private let keystore: Keystore
     private let account: Wallet
     private let analyticsCoordinator: AnalyticsCoordinator
+    private let domainResolutionService: DomainResolutionServiceType
     private let promptBackupWalletViewHolder = UIView()
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
@@ -60,11 +61,12 @@ class SettingsViewController: UIViewController {
         }
     }
 
-    init(config: Config, keystore: Keystore, account: Wallet, analyticsCoordinator: AnalyticsCoordinator) {
+    init(config: Config, keystore: Keystore, account: Wallet, analyticsCoordinator: AnalyticsCoordinator, domainResolutionService: DomainResolutionServiceType) {
         self.config = config
         self.keystore = keystore
         self.account = account
         self.analyticsCoordinator = analyticsCoordinator
+        self.domainResolutionService = domainResolutionService
         viewModel = SettingsViewModel(account: account, keystore: keystore, blockscanChatUnreadCount: nil)
         super.init(nibName: nil, bundle: nil)
 
@@ -137,7 +139,7 @@ class SettingsViewController: UIViewController {
         )
 
         firstly {
-            GetWalletName(config: config).getName(forAddress: account.address)
+            GetWalletName(config: config, domainResolutionService: domainResolutionService).getName(forAddress: account.address)
         }.done { [weak self] name in
             //NOTE check if still correct cell, since this is async
             guard let strongSelf = self, cell.indexPath == indexPath else { return }

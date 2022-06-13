@@ -10,7 +10,8 @@ class WalletCoordinatorTests: XCTestCase {
             config: .make(),
             navigationController: FakeNavigationController(),
             keystore: FakeKeystore(),
-            analyticsCoordinator: FakeAnalyticsService()
+            analyticsCoordinator: FakeAnalyticsService(),
+            domainResolutionService: FakeDomainResolutionService()
         )
 
         coordinator.start(.importWallet)
@@ -24,7 +25,8 @@ class WalletCoordinatorTests: XCTestCase {
             config: .make(),
             navigationController: FakeNavigationController(),
             keystore: FakeEtherKeystore(),
-            analyticsCoordinator: FakeAnalyticsService()
+            analyticsCoordinator: FakeAnalyticsService(),
+            domainResolutionService: FakeDomainResolutionService()
         )
         coordinator.delegate = delegate
 
@@ -36,7 +38,8 @@ class WalletCoordinatorTests: XCTestCase {
             config: .make(),
             navigationController: FakeNavigationController(),
             keystore: FakeKeystore(),
-            analyticsCoordinator: FakeAnalyticsService()
+            analyticsCoordinator: FakeAnalyticsService(),
+            domainResolutionService: FakeDomainResolutionService()
         )
 
         coordinator.start(.addInitialWallet)

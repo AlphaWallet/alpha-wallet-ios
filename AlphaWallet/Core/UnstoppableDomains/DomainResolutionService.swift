@@ -10,13 +10,18 @@ import PromiseKit
 
 class DomainResolutionService {
     let server: RPCServer = .forResolvingEns
+    let blockiesGenerator: BlockiesGenerator
+
+    init(blockiesGenerator: BlockiesGenerator) {
+        self.blockiesGenerator = blockiesGenerator
+    }
 }
 
 extension DomainResolutionService: DomainResolutionServiceType {
     func resolveAddress(string value: String) -> Promise<BlockieAndAddressOrEnsResolution> {
 
         func resolveBlockieImage(addr: AlphaWallet.Address) -> Promise<BlockieAndAddressOrEnsResolution> {
-            BlockiesGenerator()
+            blockiesGenerator
                 .promise(address: addr, ens: value)
                 .map { image -> BlockieAndAddressOrEnsResolution in
                     return (image, .resolved(.address(addr)))
@@ -49,7 +54,7 @@ extension DomainResolutionService: DomainResolutionServiceType {
     func resolveEns(address: AlphaWallet.Address) -> Promise<BlockieAndAddressOrEnsResolution> {
 
         func resolveBlockieImage(ens: String) -> Promise<BlockieAndAddressOrEnsResolution> {
-            BlockiesGenerator()
+            blockiesGenerator
                 .promise(address: address, ens: ens)
                 .map { image -> BlockieAndAddressOrEnsResolution in
                     return (image, .resolved(.ensName(ens)))

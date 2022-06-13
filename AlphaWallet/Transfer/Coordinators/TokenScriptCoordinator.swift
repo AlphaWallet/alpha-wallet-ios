@@ -20,12 +20,13 @@ class TokenScriptCoordinator: Coordinator {
     private lazy var viewController: TokenInstanceActionViewController = {
         return makeTokenInstanceActionViewController(token: tokenObject, for: tokenHolder, action: action)
     }()
-    
+
     private let keystore: Keystore
     private let tokenObject: TokenObject
     private let session: WalletSession
     private let assetDefinitionStore: AssetDefinitionStore
     private let analyticsCoordinator: AnalyticsCoordinator
+    private let domainResolutionService: DomainResolutionServiceType
     private let tokenHolder: TokenHolder
     private var transactionConfirmationResult: ConfirmResult? = .none
     private let action: TokenInstanceAction
@@ -46,6 +47,7 @@ class TokenScriptCoordinator: Coordinator {
             tokenObject: TokenObject,
             assetDefinitionStore: AssetDefinitionStore,
             analyticsCoordinator: AnalyticsCoordinator,
+            domainResolutionService: DomainResolutionServiceType,
             action: TokenInstanceAction,
             eventsDataStore: NonActivityEventsDataStore
     ) {
@@ -58,6 +60,7 @@ class TokenScriptCoordinator: Coordinator {
         self.tokenObject = tokenObject
         self.assetDefinitionStore = assetDefinitionStore
         self.analyticsCoordinator = analyticsCoordinator
+        self.domainResolutionService = domainResolutionService
         self.tokensStorage = tokensStorage
         navigationController.navigationBar.isTranslucent = false
     }
@@ -110,7 +113,7 @@ class TokenScriptCoordinator: Coordinator {
 }
 
 extension TokenScriptCoordinator: TokenInstanceActionViewControllerDelegate {
-    
+
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
         delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
     }
@@ -128,7 +131,7 @@ extension TokenScriptCoordinator: TokenInstanceActionViewControllerDelegate {
 
         switch transactionFunction.makeUnConfirmedTransaction(withTokenObject: tokenObject, tokenId: tokenId, attributeAndValues: values, localRefs: localRefs, server: server, session: session) {
         case .success((let transaction, let functionCallMetaData)):
-            let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: .tokenScriptTransaction(confirmType: .signThenSend, contract: contract, keystore: keystore, functionCallMetaData: functionCallMetaData), analyticsCoordinator: analyticsCoordinator)
+            let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: .tokenScriptTransaction(confirmType: .signThenSend, contract: contract, keystore: keystore, functionCallMetaData: functionCallMetaData), analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
             coordinator.delegate = self
             addCoordinator(coordinator)
             coordinator.start(fromSource: .tokenScript)
@@ -196,7 +199,7 @@ extension TokenScriptCoordinator: TransactionConfirmationCoordinatorDelegate {
 extension TokenScriptCoordinator: TransactionInProgressCoordinatorDelegate {
     func didDismiss(in coordinator: TransactionInProgressCoordinator) {
         removeCoordinator(coordinator)
-        
+
         guard case .some(let result) = transactionConfirmationResult else { return }
         delegate?.didFinish(result, in: self)
     }

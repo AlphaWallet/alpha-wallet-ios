@@ -24,7 +24,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
     private let token: TokenObject
     lazy var rootViewController: NFTCollectionViewController = {
         let viewModel = NFTCollectionViewModel(token: token, forWallet: session.account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
-        let controller = NFTCollectionViewController(keystore: keystore, session: session, assetDefinition: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, viewModel: viewModel, activitiesService: activitiesService, eventsDataStore: eventsDataStore)
+        let controller = NFTCollectionViewController(keystore: keystore, session: session, assetDefinition: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, viewModel: viewModel, openSea: openSea, activitiesService: activitiesService, eventsDataStore: eventsDataStore)
         controller.hidesBottomBarWhenPushed = true
         controller.delegate = self
 
@@ -35,6 +35,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: NonActivityEventsDataStore
     private let analyticsCoordinator: AnalyticsCoordinator
+    private let openSea: OpenSea
     private let activitiesService: ActivitiesServiceType
     weak var delegate: NFTCollectionCoordinatorDelegate?
     let navigationController: UINavigationController
@@ -49,6 +50,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
             assetDefinitionStore: AssetDefinitionStore,
             eventsDataStore: NonActivityEventsDataStore,
             analyticsCoordinator: AnalyticsCoordinator,
+            openSea: OpenSea,
             activitiesService: ActivitiesServiceType
     ) {
         self.activitiesService = activitiesService
@@ -59,6 +61,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
         self.analyticsCoordinator = analyticsCoordinator
+        self.openSea = openSea
         navigationController.navigationBar.isTranslucent = false
     }
 
@@ -446,7 +449,7 @@ extension NFTCollectionCoordinator: NFTCollectionViewControllerDelegate {
 
     private func createNFTAssetViewController(tokenHolder: TokenHolder, tokenId: TokenId, mode: TokenInstanceViewMode = .interactive) -> UIViewController {
         let viewModel = NFTAssetViewModel(account: session.account, tokenId: tokenId, token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
-        let vc = NFTAssetViewController(analyticsCoordinator: analyticsCoordinator, session: session, assetDefinitionStore: assetDefinitionStore, keystore: keystore, viewModel: viewModel, mode: mode)
+        let vc = NFTAssetViewController(analyticsCoordinator: analyticsCoordinator, openSea: openSea, session: session, assetDefinitionStore: assetDefinitionStore, keystore: keystore, viewModel: viewModel, mode: mode)
         vc.delegate = self
         vc.navigationItem.largeTitleDisplayMode = .never
 

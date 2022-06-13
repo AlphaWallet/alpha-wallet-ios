@@ -44,16 +44,17 @@ struct AccountsCoordinatorViewModel {
 }
 
 class AccountsCoordinator: Coordinator {
-
     private let config: Config
     private let keystore: Keystore
     private let analyticsCoordinator: AnalyticsCoordinator
     private let walletBalanceService: WalletBalanceService
+    private let blockiesGenerator: BlockiesGenerator
+    private let domainResolutionService: DomainResolutionServiceType
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
 
     lazy var accountsViewController: AccountsViewController = {
-        let viewModel = AccountsViewModel(keystore: keystore, config: config, configuration: self.viewModel.configuration, analyticsCoordinator: analyticsCoordinator, walletBalanceService: walletBalanceService)
+        let viewModel = AccountsViewModel(keystore: keystore, config: config, configuration: self.viewModel.configuration, analyticsCoordinator: analyticsCoordinator, walletBalanceService: walletBalanceService, blockiesGenerator: blockiesGenerator, domainResolutionService: domainResolutionService)
         viewModel.allowsAccountDeletion = self.viewModel.configuration.allowsAccountDeletion
 
         let controller = AccountsViewController(viewModel: viewModel)
@@ -80,7 +81,9 @@ class AccountsCoordinator: Coordinator {
         keystore: Keystore,
         analyticsCoordinator: AnalyticsCoordinator,
         viewModel: AccountsCoordinatorViewModel,
-        walletBalanceService: WalletBalanceService
+        walletBalanceService: WalletBalanceService,
+        blockiesGenerator: BlockiesGenerator,
+        domainResolutionService: DomainResolutionServiceType
     ) {
         self.config = config
         self.navigationController = navigationController
@@ -88,6 +91,8 @@ class AccountsCoordinator: Coordinator {
         self.analyticsCoordinator = analyticsCoordinator
         self.viewModel = viewModel
         self.walletBalanceService = walletBalanceService
+        self.blockiesGenerator = blockiesGenerator
+        self.domainResolutionService = domainResolutionService
     }
 
     func start() {
@@ -129,7 +134,7 @@ class AccountsCoordinator: Coordinator {
 	}
 
     private func importOrCreateWallet(entryPoint: WalletEntryPoint) {
-        let coordinator = WalletCoordinator(config: config, keystore: keystore, analyticsCoordinator: analyticsCoordinator)
+        let coordinator = WalletCoordinator(config: config, keystore: keystore, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
         if case .createInstantWallet = entryPoint {
             coordinator.navigationController = navigationController
         }
@@ -215,8 +220,7 @@ class AccountsCoordinator: Coordinator {
         alertController.addAction(UIAlertAction(title: R.string.localizable.cancel(), style: .cancel))
         alertController.addTextField(configurationHandler: { [weak self] (textField: UITextField!) -> Void in
             guard let strongSelf = self else { return }
-            let resolver: DomainResolutionServiceType = DomainResolutionService()
-            resolver.resolveEns(address: account).done { resolution in
+            strongSelf.domainResolutionService.resolveEns(address: account).done { resolution in
                 textField.placeholder = resolution.resolution.value
             }.cauterize()
             let walletNames = strongSelf.config.walletNames
@@ -286,7 +290,7 @@ extension AccountsCoordinator: BackupCoordinatorDelegate {
 
     func didFinish(account: AlphaWallet.Address, in coordinator: BackupCoordinator) {
         delegate?.didFinishBackup(account: account, in: self)
-        
+
         removeCoordinator(coordinator)
     }
 }

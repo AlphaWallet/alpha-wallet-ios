@@ -9,4 +9,3 @@ class FakeEventsDataStore: NonActivityMultiChainEventsDataStore {
         self.init(store: store.getOrCreateStore(forWallet: account))
     }
 }
-

@@ -23,6 +23,7 @@ class PaymentCoordinatorTests: XCTestCase {
             analyticsCoordinator: FakeAnalyticsService(),
             eventsDataStore: FakeEventsDataStore(),
             tokenCollection: MultipleChainsTokenCollection.fake(),
+            domainResolutionService: FakeDomainResolutionService(),
             tokenSwapper: FakeTokenSwapper()
         )
         coordinator.start()
@@ -43,6 +44,7 @@ class PaymentCoordinatorTests: XCTestCase {
             analyticsCoordinator: FakeAnalyticsService(),
             eventsDataStore: FakeEventsDataStore(),
             tokenCollection: MultipleChainsTokenCollection.fake(),
+            domainResolutionService: FakeDomainResolutionService(),
             tokenSwapper: FakeTokenSwapper()
         )
 

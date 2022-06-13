@@ -66,7 +66,7 @@ class NewTokenViewController: UIViewController {
             updateSaveButtonBasedOnTokenTypeDetected()
         }
     }
-    private let addressTextField = AddressTextField()
+    lazy private var addressTextField = AddressTextField(domainResolutionService: domainResolutionService)
     private let symbolTextField = TextField()
     private let decimalsTextField = TextField()
     private let balanceTextField = TextField()
@@ -75,6 +75,7 @@ class NewTokenViewController: UIViewController {
     private let changeServerButton = UIButton()
     private var scrollViewBottomAnchorConstraint: NSLayoutConstraint!
     private var shouldFireDetectionWhenAppear: Bool
+    private let domainResolutionService: DomainResolutionServiceType
 
     var server: RPCServerOrAuto
     weak var delegate: NewTokenViewControllerDelegate?
@@ -88,8 +89,9 @@ class NewTokenViewController: UIViewController {
         .spacer(height: 4),
     ]
 
-    init(server: RPCServerOrAuto, initialState: NewTokenInitialState) {
+    init(server: RPCServerOrAuto, domainResolutionService: DomainResolutionServiceType, initialState: NewTokenInitialState) {
         self.server = server
+        self.domainResolutionService = domainResolutionService
         switch initialState {
         case .address:
             shouldFireDetectionWhenAppear = true

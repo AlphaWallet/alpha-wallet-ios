@@ -10,13 +10,14 @@ protocol TransferTokensCardViaWalletAddressViewControllerDelegate: class, CanOpe
 
 class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenVerifiableStatusViewController {
     private let analyticsCoordinator: AnalyticsCoordinator
+    private let domainResolutionService: DomainResolutionServiceType
     private let token: TokenObject
     private let roundedBackground = RoundedBackground()
     private let header = TokensCardViewControllerTitleHeader()
     private let scrollView = UIScrollView()
     private let tokenRowView: TokenRowView & UIView
     private let targetAddressLabel = UILabel()
-    private let targetAddressTextField = AddressTextField()
+    lazy private var targetAddressTextField = AddressTextField(domainResolutionService: domainResolutionService)
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
     private (set) var viewModel: TransferTokensCardViaWalletAddressViewControllerViewModel
     private var tokenHolder: TokenHolder
@@ -32,8 +33,9 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
     weak var delegate: TransferTokensCardViaWalletAddressViewControllerDelegate?
 
     // swiftlint:disable function_body_length
-    init(analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, tokenHolder: TokenHolder, paymentFlow: PaymentFlow, viewModel: TransferTokensCardViaWalletAddressViewControllerViewModel, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore, session: WalletSession) {
+    init(analyticsCoordinator: AnalyticsCoordinator, domainResolutionService: DomainResolutionServiceType, token: TokenObject, tokenHolder: TokenHolder, paymentFlow: PaymentFlow, viewModel: TransferTokensCardViaWalletAddressViewControllerViewModel, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore, session: WalletSession) {
         self.analyticsCoordinator = analyticsCoordinator
+        self.domainResolutionService = domainResolutionService
         self.token = token
         self.tokenHolder = tokenHolder
         self.paymentFlow = paymentFlow

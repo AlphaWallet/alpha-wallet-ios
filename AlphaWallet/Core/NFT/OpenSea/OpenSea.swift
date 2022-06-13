@@ -51,14 +51,14 @@ final class OpenSea {
                 }
 
                 return storage?.value[key] ?? result.result
-            }) 
+            })
     }
 
-    static func fetchAssetImageUrl(for value: Eip155URL, server: RPCServer) -> Promise<URL> {
-        OpenSeaNetworkProvider(queue: .global()).fetchAssetImageUrl(for: value, server: server)
+    func fetchAssetImageUrl(for value: Eip155URL, server: RPCServer) -> Promise<URL> {
+        networkProvider.fetchAssetImageUrl(for: value, server: server)
     }
 
-    static func collectionStats(slug: String, server: RPCServer) -> Promise<Stats> {
-        OpenSeaNetworkProvider(queue: .global()).collectionStats(slug: slug, server: server)
+    func collectionStats(slug: String, server: RPCServer) -> Promise<Stats> {
+        networkProvider.collectionStats(slug: slug, server: server)
     }
 }

@@ -17,7 +17,7 @@ enum TransactionConfirmationViewModel {
     case cancelTransaction(CancelTransactionViewModel)
     case swapTransaction(SwapTransactionViewModel)
 
-    init(configurator: TransactionConfigurator, configuration: TransactionConfirmationConfiguration) {
+    init(configurator: TransactionConfigurator, configuration: TransactionConfirmationConfiguration, domainResolutionService: DomainResolutionServiceType) {
         switch configuration {
         case .tokenScriptTransaction(_, let contract, _, let functionCallMetaData):
             self = .tokenScriptTransaction(.init(address: contract, configurator: configurator, functionCallMetaData: functionCallMetaData))
@@ -26,10 +26,10 @@ enum TransactionConfirmationViewModel {
         case .walletConnect(_, _, let dappRequesterViewModel):
             self = .dappOrWalletConnectTransaction(.init(configurator: configurator, dappRequesterViewModel: dappRequesterViewModel))
         case .sendFungiblesTransaction(_, _, let assetDefinitionStore, let amount):
-            let resolver = RecipientResolver(address: configurator.transaction.recipient)
+            let resolver = RecipientResolver(address: configurator.transaction.recipient, domainResolutionService: domainResolutionService)
             self = .sendFungiblesTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: resolver, amount: amount))
         case .sendNftTransaction(_, _, let tokenInstanceNames):
-            let resolver = RecipientResolver(address: configurator.transaction.recipient)
+            let resolver = RecipientResolver(address: configurator.transaction.recipient, domainResolutionService: domainResolutionService)
             self = .sendNftTransaction(.init(configurator: configurator, recipientResolver: resolver, tokenInstanceNames: tokenInstanceNames))
         case .claimPaidErc875MagicLink(_, _, let price, let numberOfTokens):
             self = .claimPaidErc875MagicLink(.init(configurator: configurator, price: price, numberOfTokens: numberOfTokens))

@@ -29,6 +29,8 @@ class SettingsCoordinator: Coordinator {
     private let walletConnectCoordinator: WalletConnectCoordinator
     private let walletBalanceService: WalletBalanceService
     private let blockscanChatService: BlockscanChatService
+    private let blockiesGenerator: BlockiesGenerator
+    private let domainResolutionService: DomainResolutionServiceType
 	private var account: Wallet {
 		return sessions.anyValue.account
 	}
@@ -39,7 +41,7 @@ class SettingsCoordinator: Coordinator {
 	var coordinators: [Coordinator] = []
 
 	lazy var rootViewController: SettingsViewController = {
-		let controller = SettingsViewController(config: config, keystore: keystore, account: account, analyticsCoordinator: analyticsCoordinator)
+		let controller = SettingsViewController(config: config, keystore: keystore, account: account, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
 		controller.delegate = self
 		return controller
 	}()
@@ -54,7 +56,9 @@ class SettingsCoordinator: Coordinator {
         analyticsCoordinator: AnalyticsCoordinator,
         walletConnectCoordinator: WalletConnectCoordinator,
         walletBalanceService: WalletBalanceService,
-        blockscanChatService: BlockscanChatService
+        blockscanChatService: BlockscanChatService,
+        blockiesGenerator: BlockiesGenerator,
+        domainResolutionService: DomainResolutionServiceType
 	) {
 		self.navigationController = navigationController
 
@@ -67,6 +71,8 @@ class SettingsCoordinator: Coordinator {
         self.walletConnectCoordinator = walletConnectCoordinator
         self.walletBalanceService = walletBalanceService
         self.blockscanChatService = blockscanChatService
+        self.blockiesGenerator = blockiesGenerator
+        self.domainResolutionService = domainResolutionService
 		promptBackupCoordinator.subtlePromptDelegate = self
 	}
 
@@ -106,7 +112,7 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
     func settingsViewControllerNameWalletSelected(in controller: SettingsViewController) {
         let viewModel = RenameWalletViewModel(account: account.address)
 
-        let viewController = RenameWalletViewController(viewModel: viewModel, analyticsCoordinator: analyticsCoordinator, config: config)
+        let viewController = RenameWalletViewController(viewModel: viewModel, analyticsCoordinator: analyticsCoordinator, config: config, domainResolutionService: domainResolutionService)
         viewController.delegate = self
         viewController.navigationItem.largeTitleDisplayMode = .never
         viewController.hidesBottomBarWhenPushed = true
@@ -150,7 +156,9 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
                 keystore: keystore,
 				analyticsCoordinator: analyticsCoordinator,
                 viewModel: .init(configuration: .changeWallets, animatedPresentation: true),
-                walletBalanceService: walletBalanceService
+                walletBalanceService: walletBalanceService,
+                blockiesGenerator: blockiesGenerator,
+                domainResolutionService: domainResolutionService
         )
         coordinator.delegate = self
         coordinator.start()
