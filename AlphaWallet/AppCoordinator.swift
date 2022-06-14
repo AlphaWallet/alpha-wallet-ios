@@ -132,7 +132,6 @@ class AppCoordinator: NSObject, Coordinator {
 
     func start() { 
         initializers()
-        cleanPasscodeIfNeeded()
         appTracker.start()
         notificationService.registerForReceivingRemoteNotifications()
         applyStyle()
@@ -212,17 +211,11 @@ class AppCoordinator: NSObject, Coordinator {
             ConfigureApp(),
             CleanupWallets(keystore: keystore, walletAddressesStore: walletAddressesStore, config: config),
             SkipBackupFiles(legacyFileBasedKeystore: legacyFileBasedKeystore),
-            ReportUsersWalletAddresses(walletAddressesStore: walletAddressesStore)
+            ReportUsersWalletAddresses(walletAddressesStore: walletAddressesStore),
+            CleanupPasscode(keystore: keystore)
         ]
 
         initializers.forEach { $0.perform() }
-    }
-
-    private func cleanPasscodeIfNeeded() {
-        //We should clean passcode if there is no wallets. This step is required for app reinstall.
-        if !keystore.hasWallets {
-            lock.clear()
-        }
     }
 
     @objc func reset() {

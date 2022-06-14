@@ -761,6 +761,7 @@
 		8703FC11270366DA0062C416 /* popup.js in Resources */ = {isa = PBXBuildFile; fileRef = 8703FC10270366DA0062C416 /* popup.js */; };
 		8703FC15270366DA0062C416 /* AlphaWalletSafariExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 8703FBFD270366DA0062C416 /* AlphaWalletSafariExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		870415A125E8FBD30013F3E2 /* MixpanelCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 870415A025E8FBD30013F3E2 /* MixpanelCoordinatorTests.swift */; };
+		87094598285853B800E2746E /* CleanupPasscode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87094597285853B800E2746E /* CleanupPasscode.swift */; };
 		870CC47927C6561F00A19380 /* TokenFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 870CC47827C6561F00A19380 /* TokenFetcher.swift */; };
 		870CC47B27C6563D00A19380 /* AutoDetectTransactedTokensOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 870CC47A27C6563D00A19380 /* AutoDetectTransactedTokensOperation.swift */; };
 		870CC47D27C6566400A19380 /* AutoDetectTokensOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 870CC47C27C6566400A19380 /* AutoDetectTokensOperation.swift */; };
@@ -1999,6 +2000,7 @@
 		8703FC10270366DA0062C416 /* popup.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = popup.js; sourceTree = "<group>"; };
 		8703FC12270366DA0062C416 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		870415A025E8FBD30013F3E2 /* MixpanelCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MixpanelCoordinatorTests.swift; sourceTree = "<group>"; };
+		87094597285853B800E2746E /* CleanupPasscode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CleanupPasscode.swift; sourceTree = "<group>"; };
 		870CC47827C6561F00A19380 /* TokenFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFetcher.swift; sourceTree = "<group>"; };
 		870CC47A27C6563D00A19380 /* AutoDetectTransactedTokensOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoDetectTransactedTokensOperation.swift; sourceTree = "<group>"; };
 		870CC47C27C6566400A19380 /* AutoDetectTokensOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoDetectTokensOperation.swift; sourceTree = "<group>"; };
@@ -3721,6 +3723,7 @@
 				8782E9D32828F59A00E93689 /* CleanupWallets.swift */,
 				8765D6E6282BCC8000529F45 /* ReportUsersWalletAddresses.swift */,
 				87300E9128573461009DE4B3 /* ConfigureImageStorage.swift */,
+				87094597285853B800E2746E /* CleanupPasscode.swift */,
 			);
 			path = Initializers;
 			sourceTree = "<group>";
@@ -7316,6 +7319,7 @@
 				5E7C72D6C4AB97A1FCB3AA32 /* MnemonicInWordListValidator.swift in Sources */,
 				87D1757824ADAEEB002130D2 /* BlockchainTagLabel.swift in Sources */,
 				8499D446C6ADE858FE633096 /* GetErc721ForTicketsBalance.swift in Sources */,
+				87094598285853B800E2746E /* CleanupPasscode.swift in Sources */,
 				8782E9D02828E47100E93689 /* RetryIf.swift in Sources */,
 				8499D8751F2D70FBD13F3C93 /* GetERC721ForTicketsBalance.swift in Sources */,
 				8499D235831FBC245735B2C7 /* GetInterfaceSupported165Encode.swift in Sources */,
