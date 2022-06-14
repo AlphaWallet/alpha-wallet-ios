@@ -9,12 +9,15 @@ import AlphaWalletOpenSea
 import PromiseKit
 
 final class OpenSeaNetworkProvider {
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let openSea: AlphaWalletOpenSea.OpenSea
     //TODO should pass in instead
     private let config: Config = Config()
 
-    init(queue: DispatchQueue) {
+    init(analyticsCoordinator: AnalyticsCoordinator, queue: DispatchQueue) {
+        self.analyticsCoordinator = analyticsCoordinator
         self.openSea = AlphaWalletOpenSea.OpenSea(apiKeys: Self.openSeaApiKeys(), queue: queue)
+        openSea.delegate = self
     }
 
     func fetchAssetsPromise(address owner: AlphaWallet.Address, server: RPCServer) -> Promise<Response<OpenSeaNonFungiblesToAddress>> {
@@ -45,5 +48,20 @@ final class OpenSeaNetworkProvider {
         results[RPCServer.main.chainID] = Constants.Credentials.openseaKey
         results[RPCServer.rinkeby.chainID] = nil
         return results
+    }
+}
+
+extension OpenSeaNetworkProvider: OpenSeaDelegate {
+    func openSeaError(error: OpenSeaApiError) {
+        let e: Analytics.WebApiErrors
+        switch error {
+        case .rateLimited:
+            e = .openSeaRateLimited
+        case .expiredApiKey:
+            e = .openSeaExpiredApiKey
+        case .invalidApiKey:
+            e = .openSeaInvalidApiKey
+        }
+        analyticsCoordinator.log(error: e)
     }
 }

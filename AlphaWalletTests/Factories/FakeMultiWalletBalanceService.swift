@@ -26,7 +26,7 @@ class FakeMultiWalletBalanceService: MultiWalletBalanceService {
         }
 
         let keystore = FakeKeystore(wallets: [wallet], recentlyUsedWallet: wallet)
-        super.init(store: FakeRealmLocalStore(), keystore: keystore, config: .make(), assetDefinitionStore: .init(), coinTickersFetcher: tickersFetcher, walletAddressesStore: walletAddressesStore)
+        super.init(store: FakeRealmLocalStore(), keystore: keystore, config: .make(), assetDefinitionStore: .init(), analyticsCoordinator: FakeAnalyticsService(), coinTickersFetcher: tickersFetcher, walletAddressesStore: walletAddressesStore)
     }
 
     override func createWalletBalanceFetcher(wallet: Wallet) -> WalletBalanceFetcherType {

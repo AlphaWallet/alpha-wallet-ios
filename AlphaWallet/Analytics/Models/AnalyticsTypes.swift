@@ -88,6 +88,12 @@ enum Analytics {
         case sendTransactionNonceTooLow = "Send Transaction Nonce Too Low Error"
     }
 
+    enum WebApiErrors: String, AnalyticsError {
+        case openSeaRateLimited
+        case openSeaInvalidApiKey
+        case openSeaExpiredApiKey
+    }
+
     enum Properties: String {
         case address
         case from

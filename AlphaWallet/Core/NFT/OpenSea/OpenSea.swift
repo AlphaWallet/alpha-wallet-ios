@@ -6,11 +6,13 @@ import AlphaWalletCore
 import AlphaWalletOpenSea
 
 final class OpenSea {
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let storage: Storage<[AddressAndRPCServer: OpenSeaNonFungiblesToAddress]> = .init(fileName: "OpenSea", defaultValue: [:])
     private let queue: DispatchQueue
-    private lazy var networkProvider: OpenSeaNetworkProvider = OpenSeaNetworkProvider(queue: queue)
+    private lazy var networkProvider: OpenSeaNetworkProvider = OpenSeaNetworkProvider(analyticsCoordinator: analyticsCoordinator, queue: queue)
 
-    init(queue: DispatchQueue) {
+    init(analyticsCoordinator: AnalyticsCoordinator, queue: DispatchQueue) {
+        self.analyticsCoordinator = analyticsCoordinator
         self.queue = queue
     }
 
