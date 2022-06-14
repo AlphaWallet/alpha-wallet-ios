@@ -25,7 +25,7 @@ class TokensCoordinatorTests: XCTestCase {
             eventsDataStore: FakeEventsDataStore(),
             promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeKeystore(), wallet: .make(), config: config, analyticsCoordinator: FakeAnalyticsService()),
             analyticsCoordinator: FakeAnalyticsService(),
-            openSea: OpenSea(queue: .global()),
+            openSea: OpenSea(analyticsCoordinator: FakeAnalyticsService(), queue: .global()),
             tokenActionsService: tokenActionsService,
             walletConnectCoordinator: .fake(),
             coinTickersFetcher: CoinTickersFetcher(provider: AlphaWalletProviderFactory.makeProvider(), config: config),

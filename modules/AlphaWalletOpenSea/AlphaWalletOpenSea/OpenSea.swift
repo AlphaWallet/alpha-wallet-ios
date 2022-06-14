@@ -14,6 +14,16 @@ import SwiftyJSON
 public typealias ChainId = Int
 public typealias OpenSeaNonFungiblesToAddress = [AlphaWallet.Address: [OpenSeaNonFungible]]
 
+public protocol OpenSeaDelegate {
+    func openSeaError(error: OpenSeaApiError)
+}
+
+public enum OpenSeaApiError: Error {
+    case rateLimited
+    case invalidApiKey
+    case expiredApiKey
+}
+
 public class OpenSea {
     public static var isLoggingEnabled = false
     //Important to be static so it's for *all* OpenSea calls
@@ -31,6 +41,8 @@ public class OpenSea {
     }()
 
     private var apiKeys: [ChainId: String]
+
+    public var delegate: OpenSeaDelegate?
 
     public init(apiKeys: [ChainId: String], queue: DispatchQueue) {
         self.apiKeys = apiKeys
@@ -147,12 +159,6 @@ public class OpenSea {
     }
 
     private func performRequestWithRetry(chainId: ChainId, url: URL, maximumRetryCount: Int = 3, delayMultiplayer: Int = 5, retryDelay: DispatchTimeInterval = .seconds(2), queue: DispatchQueue) -> Promise<JSON> {
-        enum OpenSeaApiError: Error {
-            case rateLimited
-            case invalidApiKey
-            case expiredApiKey
-        }
-
         func privatePerformRequest(url: URL) -> Promise<(HTTPURLResponse, JSON)> {
             var headers: [String: String] = .init()
             headers["X-API-KEY"] = openSeaKey(forChainId: chainId)
@@ -180,7 +186,14 @@ public class OpenSea {
                         } else {
                             throw AnyError(OpenSeaError(localizedDescription: "Error calling \(url)"))
                         }
-                    })
+                    }).recover { error -> Promise<(HTTPURLResponse, JSON)> in
+                        if let error = error as? OpenSeaApiError {
+                            self.delegate?.openSeaError(error: error)
+                        } else {
+                            //no-op
+                        }
+                        throw error
+                    }
         }
 
         let delayUpperRangeValueFrom0To: Int = delayMultiplayer

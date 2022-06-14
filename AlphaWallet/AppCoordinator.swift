@@ -29,7 +29,7 @@ class AppCoordinator: NSObject, Coordinator {
     }()
 
     private var analyticsService: AnalyticsServiceType
-    private let openSea: OpenSea = OpenSea(queue: .global())
+    lazy private var openSea: OpenSea = OpenSea(analyticsCoordinator: analyticsService, queue: .global())
     private let restartQueue = RestartTaskQueue()
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -39,7 +39,7 @@ class AppCoordinator: NSObject, Coordinator {
     private let localStore: LocalStore = RealmLocalStore()
     private lazy var coinTickersFetcher: CoinTickersFetcherType = CoinTickersFetcher(provider: AlphaWalletProviderFactory.makeProvider(), config: config)
     private lazy var walletBalanceService: WalletBalanceService = {
-        return MultiWalletBalanceService(store: localStore, keystore: keystore, config: config, assetDefinitionStore: assetDefinitionStore, coinTickersFetcher: coinTickersFetcher, walletAddressesStore: walletAddressesStore)
+        return MultiWalletBalanceService(store: localStore, keystore: keystore, config: config, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsService, coinTickersFetcher: coinTickersFetcher, walletAddressesStore: walletAddressesStore)
     }()
     private var pendingActiveWalletCoordinator: ActiveWalletCoordinator?
 
