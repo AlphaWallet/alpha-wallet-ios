@@ -208,6 +208,7 @@ class AppCoordinator: NSObject, Coordinator {
 
     private func initializers() {
         let initializers: [Initializer] = [
+            ConfigureImageStorage(),
             ConfigureApp(),
             CleanupWallets(keystore: keystore, walletAddressesStore: walletAddressesStore, config: config),
             SkipBackupFiles(legacyFileBasedKeystore: legacyFileBasedKeystore),

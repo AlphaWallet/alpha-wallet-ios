@@ -13,23 +13,22 @@ final class RealmStore {
     static func threadName(for wallet: Wallet) -> String {
         return "org.alphawallet.swift.realmStore.\(wallet.address).wallet"
     }
-
+    private let config: Realm.Configuration
     private let thread: RunLoopThread = .init()
     private let mainThreadRealm: Realm
-    private var backgroundThreadRealm: Realm?
+    //NOTE: Making it as lazy removes blocking main thread (when init method get called), and we sure that backgroundThreadRealm always get called in thread.performSync() { context
+    private lazy var backgroundThreadRealm: Realm = {
+        guard let realm = try? Realm(configuration: config) else { fatalError("Failure to resolve background realm") }
+
+        return realm
+    }()
 
     public init(realm: Realm, name: String = "org.alphawallet.swift.realmStore") {
         self.mainThreadRealm = realm
-        let config = realm.configuration
+        config = realm.configuration
 
         thread.name = name
         thread.start()
-
-        thread.performSync() {
-            self.backgroundThreadRealm = try? Realm(configuration: config)
-        }
-
-        assert(backgroundThreadRealm != nil)
     }
 
     func performSync(_ callback: @escaping (Realm) -> Void) {
@@ -37,8 +36,7 @@ final class RealmStore {
             callback(mainThreadRealm)
         } else {
             thread.performSync() {
-                guard let realm = self.backgroundThreadRealm else { fatalError("Failure to resolve background realm") }
-                callback(realm)
+                callback(self.backgroundThreadRealm)
             }
         }
     }
