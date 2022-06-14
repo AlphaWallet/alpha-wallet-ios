@@ -20,6 +20,7 @@ final class AlphaWalletNFTProvider: NFTProvider {
     private lazy var openSea = OpenSea(queue: queue)
     private lazy var enjin = Enjin(queue: queue)
     private var cachedPromises: AtomicDictionary<AddressAndRPCServer, Promise<NonFungiblesTokens>> = .init()
+    //TODO when we remove `queue`, it's also a good time to look at using a shared copy of `OpenSea` from `AppCoordinator`
     private let queue: DispatchQueue
 
     init(queue: DispatchQueue) {

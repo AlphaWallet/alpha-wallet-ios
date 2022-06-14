@@ -71,8 +71,11 @@ class RequestViewController: UIViewController {
 
 	private let viewModel: RequestViewModel
 
-	init(viewModel: RequestViewModel) {
+	private let domainResolutionService: DomainResolutionServiceType
+
+	init(viewModel: RequestViewModel, domainResolutionService: DomainResolutionServiceType) {
 		self.viewModel = viewModel
+		self.domainResolutionService = domainResolutionService
 
 		super.init(nibName: nil, bundle: nil)
 
@@ -174,8 +177,7 @@ class RequestViewController: UIViewController {
 
 	private func resolveEns() {
 		let address = viewModel.myAddress
-        let resolver: DomainResolutionServiceType = DomainResolutionService()
-        resolver.resolveEns(address: address).done { [weak self] result in
+        domainResolutionService.resolveEns(address: address).done { [weak self] result in
             guard let strongSelf = self else { return }
 
             if let ensName = result.resolution.value {

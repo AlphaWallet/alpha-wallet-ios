@@ -524,6 +524,7 @@
 		5E7C793BF142AEC0792A68C3 /* BackupSeedPhraseCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C79107D8AAA345518435F /* BackupSeedPhraseCoordinator.swift */; };
 		5E7C793EEF16E1689FE62543 /* WhatsNewListingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C710FD4CF798DEAC11F83 /* WhatsNewListingViewController.swift */; };
 		5E7C793F7E346402CDAF771F /* AssetDefinitionStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7FE30D58E4022AF04E48 /* AssetDefinitionStoreTests.swift */; };
+		5E7C7965C9BF539ABAD1D01C /* FakeDomainResolutionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7900C580D38703DEB396 /* FakeDomainResolutionService.swift */; };
 		5E7C797BE2C8DB7EF6F217B3 /* OnboardingPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7103135DCCCAB96EE5FC /* OnboardingPage.swift */; };
 		5E7C797F3278A290BE47BFA2 /* TokenIdOrEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78302634885C93D9B6FA /* TokenIdOrEvent.swift */; };
 		5E7C79880D398BF8D145D666 /* ImportMagicLinkCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74A5A91E5DE208B33325 /* ImportMagicLinkCoordinatorTests.swift */; };
@@ -672,6 +673,7 @@
 		5E7C7F67945615E242B61CC3 /* BoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7C5454600A70DCFD7C0E /* BoxView.swift */; };
 		5E7C7F72926D84CF741C0D18 /* ABIType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7CBCC0A74A084AC2F053 /* ABIType.swift */; };
 		5E7C7F808D0B0B19ECEA6623 /* ETH.tsml in Resources */ = {isa = PBXBuildFile; fileRef = 5E7C768D3C3F400E0B88B575 /* ETH.tsml */; };
+		5E7C7F8271F730462D4E3D93 /* FakeBlockiesGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C737AF4E3BED49DD63CF4 /* FakeBlockiesGenerator.swift */; };
 		5E7C7F906FE07C75F357569B /* DAI.tsml in Resources */ = {isa = PBXBuildFile; fileRef = 5E7C75D9C3EA9FF978ECF8E5 /* DAI.tsml */; };
 		5E7C7F95F75D39673B88D774 /* GetERC721BalanceEncode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C72CD0C22247A6AF7C95E /* GetERC721BalanceEncode.swift */; };
 		5E7C7FC0770A411DB09F8C09 /* FungibleTokenViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7C077372C3F2A4349FA1 /* FungibleTokenViewCell.swift */; };
@@ -1573,6 +1575,7 @@
 		5E7C73553968E56A08D90D0C /* Erc1155TokenIdsFetcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Erc1155TokenIdsFetcher.swift; sourceTree = "<group>"; };
 		5E7C7365D14169D22AE1D20A /* TransactionRowCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionRowCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C7375430F36C549EA8748 /* DappsHomeViewControllerHeaderViewViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DappsHomeViewControllerHeaderViewViewModel.swift; sourceTree = "<group>"; };
+		5E7C737AF4E3BED49DD63CF4 /* FakeBlockiesGenerator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FakeBlockiesGenerator.swift; sourceTree = "<group>"; };
 		5E7C737CC822F8143DE1FDC0 /* EventActivity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventActivity.swift; sourceTree = "<group>"; };
 		5E7C7382EAC8B9CE5EE0668D /* OpenSeaNonFungible+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "OpenSeaNonFungible+Extension.swift"; sourceTree = "<group>"; };
 		5E7C73883FBA3C4BAF889E97 /* Constants+Credentials.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Constants+Credentials.swift"; sourceTree = "<group>"; };
@@ -1724,6 +1727,7 @@
 		5E7C78E5C8FAEA752B32626D /* UIActivityViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIActivityViewController.swift; sourceTree = "<group>"; };
 		5E7C78EFAF641C41F06C46BF /* ServersCoordinatorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServersCoordinatorTests.swift; sourceTree = "<group>"; };
 		5E7C78FAB9070B10A476DB29 /* AssetImplicitAttributes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetImplicitAttributes.swift; sourceTree = "<group>"; };
+		5E7C7900C580D38703DEB396 /* FakeDomainResolutionService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FakeDomainResolutionService.swift; sourceTree = "<group>"; };
 		5E7C790B6371A5BCD733A4BE /* DappsHomeEmptyView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DappsHomeEmptyView.swift; sourceTree = "<group>"; };
 		5E7C79107D8AAA345518435F /* BackupSeedPhraseCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackupSeedPhraseCoordinator.swift; sourceTree = "<group>"; };
 		5E7C7914F01B5FEA5B20398B /* Collection+UIView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Collection+UIView.swift"; sourceTree = "<group>"; };
@@ -4483,6 +4487,14 @@
 			path = Types;
 			sourceTree = "<group>";
 		};
+		5E7C7B7607941788030CA3CE /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				5E7C737AF4E3BED49DD63CF4 /* FakeBlockiesGenerator.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
 		5E7C7C37B4E80BA2E0DC7FA4 /* Marketplace */ = {
 			isa = PBXGroup;
 			children = (
@@ -5867,6 +5879,8 @@
 				29F1C85420036879003780D8 /* Types */,
 				CCA4FE311FD3653300749AE4 /* Coordinators */,
 				5E7C76A8CADEA69A91FECFD0 /* Ethereum */,
+				5E7C7900C580D38703DEB396 /* FakeDomainResolutionService.swift */,
+				5E7C7B7607941788030CA3CE /* Helpers */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -7607,6 +7621,8 @@
 				5E7C7BA90D4D854B33D0E355 /* WebImageUrlTests.swift in Sources */,
 				5E7C7900E8FF0E478376861B /* URLTests.swift in Sources */,
 				5E7C76C4BDFB2FA2F6289AF0 /* AddressAndRPCServerTests.swift in Sources */,
+				5E7C7965C9BF539ABAD1D01C /* FakeDomainResolutionService.swift in Sources */,
+				5E7C7F8271F730462D4E3D93 /* FakeBlockiesGenerator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -27,9 +27,10 @@ class TransferCollectiblesCoordinator: Coordinator {
     private let session: WalletSession
     private let assetDefinitionStore: AssetDefinitionStore
     private let analyticsCoordinator: AnalyticsCoordinator
+    private let domainResolutionService: DomainResolutionServiceType
     private let filteredTokenHolders: [TokenHolder]
     private var transactionConfirmationResult: ConfirmResult? = .none
-    
+
     weak var delegate: TransferCollectiblesCoordinatorDelegate?
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -41,7 +42,8 @@ class TransferCollectiblesCoordinator: Coordinator {
             filteredTokenHolders: [TokenHolder],
             tokenObject: TokenObject,
             assetDefinitionStore: AssetDefinitionStore,
-            analyticsCoordinator: AnalyticsCoordinator
+            analyticsCoordinator: AnalyticsCoordinator,
+            domainResolutionService: DomainResolutionServiceType
     ) {
         self.filteredTokenHolders = filteredTokenHolders
         self.session = session
@@ -50,6 +52,7 @@ class TransferCollectiblesCoordinator: Coordinator {
         self.tokenObject = tokenObject
         self.assetDefinitionStore = assetDefinitionStore
         self.analyticsCoordinator = analyticsCoordinator
+        self.domainResolutionService = domainResolutionService
         navigationController.navigationBar.isTranslucent = false
     }
 
@@ -64,13 +67,13 @@ class TransferCollectiblesCoordinator: Coordinator {
 
         delegate?.didCancel(in: self)
     }
-    
+
     private func makeTransferTokensCardViaWalletAddressViewController(token: TokenObject, tokenHolders: [TokenHolder]) -> TransferTokenBatchCardsViaWalletAddressViewController {
         let viewModel = TransferTokenBatchCardsViaWalletAddressViewControllerViewModel(token: token, tokenHolders: tokenHolders)
         let tokenCardViewFactory: TokenCardViewFactory = {
             TokenCardViewFactory(token: token, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, keystore: keystore, wallet: session.account)
         }()
-        let controller = TransferTokenBatchCardsViaWalletAddressViewController(token: token, viewModel: viewModel, tokenCardViewFactory: tokenCardViewFactory)
+        let controller = TransferTokenBatchCardsViaWalletAddressViewController(token: token, viewModel: viewModel, tokenCardViewFactory: tokenCardViewFactory, domainResolutionService: domainResolutionService)
         controller.configure()
         controller.delegate = self
 
@@ -117,7 +120,7 @@ extension TransferCollectiblesCoordinator: TransferTokenBatchCardsViaWalletAddre
         )
 
         let configuration: TransactionConfirmationConfiguration = .sendNftTransaction(confirmType: .signThenSend, keystore: keystore, tokenInstanceNames: tokenInstanceNames)
-        let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator)
+        let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start(fromSource: .sendNft)
@@ -126,7 +129,7 @@ extension TransferCollectiblesCoordinator: TransferTokenBatchCardsViaWalletAddre
     func openQRCode(in controller: TransferTokenBatchCardsViaWalletAddressViewController) {
         guard navigationController.ensureHasDeviceAuthorization() else { return }
 
-        let coordinator = ScanQRCodeCoordinator(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, account: session.account)
+        let coordinator = ScanQRCodeCoordinator(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, account: session.account, domainResolutionService: domainResolutionService)
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start(fromSource: .addressTextField)
@@ -134,7 +137,7 @@ extension TransferCollectiblesCoordinator: TransferTokenBatchCardsViaWalletAddre
 }
 
 extension TransferCollectiblesCoordinator: ScanQRCodeCoordinatorDelegate {
-    
+
     func didCancel(in coordinator: ScanQRCodeCoordinator) {
         removeCoordinator(coordinator)
     }
@@ -165,7 +168,7 @@ extension TransferCollectiblesCoordinator: TransactionConfirmationCoordinatorDel
             guard let strongSelf = self else { return }
             strongSelf.removeCoordinator(coordinator)
             strongSelf.transactionConfirmationResult = result
-            
+
             let coordinator = TransactionInProgressCoordinator(presentingViewController: strongSelf.navigationController)
             coordinator.delegate = strongSelf
             strongSelf.addCoordinator(coordinator)

@@ -15,13 +15,15 @@ protocol NFTCollectionInfoPageViewDelegate: class {
 class NFTCollectionInfoPageView: ScrollableStackView, PageViewType {
     private let previewView: NFTPreviewView
     private (set) var viewModel: NFTCollectionInfoPageViewModel
+    private let openSea: OpenSea
 
     weak var delegate: NFTCollectionInfoPageViewDelegate?
     var rightBarButtonItem: UIBarButtonItem?
     var title: String { return viewModel.tabTitle }
 
-    init(viewModel: NFTCollectionInfoPageViewModel, keystore: Keystore, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator) {
+    init(viewModel: NFTCollectionInfoPageViewModel, openSea: OpenSea, keystore: Keystore, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator) {
         self.viewModel = viewModel
+        self.openSea = openSea
         self.previewView = .init(type: viewModel.previewViewType, keystore: keystore, session: session, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, edgeInsets: viewModel.previewEdgeInsets)
         self.previewView.rounding = .custom(20)
         self.previewView.contentMode = .scaleAspectFill
@@ -73,7 +75,7 @@ class NFTCollectionInfoPageView: ScrollableStackView, PageViewType {
 
         if let openSeaSlug = values.slug, openSeaSlug.trimmed.nonEmpty {
             var viewModel = viewModel
-            OpenSea.collectionStats(slug: openSeaSlug, server: viewModel.token.server).done { stats in
+            openSea.collectionStats(slug: openSeaSlug, server: viewModel.token.server).done { stats in
                 viewModel.configure(overiddenOpenSeaStats: stats)
                 self.configure(viewModel: viewModel)
             }.cauterize()

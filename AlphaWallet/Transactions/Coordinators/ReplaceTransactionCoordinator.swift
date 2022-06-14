@@ -17,6 +17,7 @@ class ReplaceTransactionCoordinator: Coordinator {
     }
 
     private let analyticsCoordinator: AnalyticsCoordinator
+    private let domainResolutionService: DomainResolutionServiceType
     private let pendingTransactionInformation: (server: RPCServer, data: Data, transactionType: TransactionType, gasPrice: BigInt)
     private let nonce: BigInt
     private let keystore: Keystore
@@ -79,12 +80,13 @@ class ReplaceTransactionCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: ReplaceTransactionCoordinatorDelegate?
 
-    init?(analyticsCoordinator: AnalyticsCoordinator, keystore: Keystore, presentingViewController: UIViewController, session: WalletSession, transaction: TransactionInstance, mode: Mode) {
+    init?(analyticsCoordinator: AnalyticsCoordinator, domainResolutionService: DomainResolutionServiceType, keystore: Keystore, presentingViewController: UIViewController, session: WalletSession, transaction: TransactionInstance, mode: Mode) {
         guard let pendingTransactionInformation = TransactionDataStore.pendingTransactionsInformation[transaction.id] else { return nil }
         guard let nonce = BigInt(transaction.nonce) else { return nil }
         self.pendingTransactionInformation = pendingTransactionInformation
         self.keystore = keystore
         self.analyticsCoordinator = analyticsCoordinator
+        self.domainResolutionService = domainResolutionService
         self.presentingViewController = presentingViewController
         self.session = session
         self.transaction = transaction
@@ -100,7 +102,8 @@ class ReplaceTransactionCoordinator: Coordinator {
                 session: session,
                 transaction: unconfirmedTransaction,
                 configuration: transactionConfirmationConfiguration,
-                analyticsCoordinator: analyticsCoordinator
+                analyticsCoordinator: analyticsCoordinator,
+                domainResolutionService: domainResolutionService
         )
         coordinator.delegate = self
         addCoordinator(coordinator)
@@ -160,7 +163,7 @@ extension ReplaceTransactionCoordinator: TransactionConfirmationCoordinatorDeleg
 }
 
 extension ReplaceTransactionCoordinator: TransactionInProgressCoordinatorDelegate {
-    
+
     func didDismiss(in coordinator: TransactionInProgressCoordinator) {
         removeCoordinator(coordinator)
 

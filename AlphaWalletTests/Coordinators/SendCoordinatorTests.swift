@@ -13,7 +13,8 @@ class SendCoordinatorTests: XCTestCase {
             keystore: FakeKeystore(),
             tokensDataStore: FakeTokensDataStore(),
             assetDefinitionStore: AssetDefinitionStore(),
-            analyticsCoordinator: FakeAnalyticsService()
+            analyticsCoordinator: FakeAnalyticsService(),
+            domainResolutionService: FakeDomainResolutionService()
         )
 
         coordinator.start()
@@ -30,7 +31,8 @@ class SendCoordinatorTests: XCTestCase {
             keystore: FakeKeystore(),
             tokensDataStore: FakeTokensDataStore(),
             assetDefinitionStore: AssetDefinitionStore(),
-            analyticsCoordinator: FakeAnalyticsService()
+            analyticsCoordinator: FakeAnalyticsService(),
+            domainResolutionService: FakeDomainResolutionService()
         )
         coordinator.start()
 

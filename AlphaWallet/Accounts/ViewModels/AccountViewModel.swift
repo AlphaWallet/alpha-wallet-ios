@@ -1,11 +1,11 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import UIKit
-import Combine 
+import Combine
 
 class AccountViewModel {
     private let getWalletName: GetWalletName
-    private let generator: BlockiesGenerator
+    private let blockiesGenerator: BlockiesGenerator
     private let subscribeForBalanceUpdates: Bool
     private let walletBalanceService: WalletBalanceService
     private let analyticsCoordinator: AnalyticsCoordinator
@@ -14,7 +14,7 @@ class AccountViewModel {
 
     lazy var apprecation24hour: AnyPublisher<NSAttributedString, Never> = {
         let initialApprecation24hour = apprecation24hourAttributedString(walletBalanceService.walletBalance(wallet: wallet))
-        
+
         return walletBalanceService
             .walletBalancePublisher(wallet: wallet)
             .compactMap { [weak self] in self?.apprecation24hourAttributedString($0) }
@@ -32,9 +32,9 @@ class AccountViewModel {
             .prepend(initialBalance)
             .eraseToAnyPublisher()
     }()
-    
+
     lazy var blockieImage: AnyPublisher<BlockiesImage, Never> = {
-        return generator.getBlockie(address: wallet.address)
+        return blockiesGenerator.getBlockie(address: wallet.address)
             .handleEvents(receiveOutput: { [weak self] value in
                 guard value.isEnsAvatar else { return }
                 self?.analyticsCoordinator.setUser(property: Analytics.UserProperties.hasEnsAvatar, value: true)
@@ -57,7 +57,7 @@ class AccountViewModel {
     init(
         analyticsCoordinator: AnalyticsCoordinator,
         getWalletName: GetWalletName,
-        generator: BlockiesGenerator,
+        blockiesGenerator: BlockiesGenerator,
         subscribeForBalanceUpdates: Bool,
         walletBalanceService: WalletBalanceService,
         wallet: Wallet,
@@ -67,14 +67,14 @@ class AccountViewModel {
         self.wallet = wallet
         self.current = current
         self.getWalletName = getWalletName
-        self.generator = generator
+        self.blockiesGenerator = blockiesGenerator
         self.subscribeForBalanceUpdates = subscribeForBalanceUpdates
         self.walletBalanceService = walletBalanceService
-    } 
+    }
 
     var showWatchIcon: Bool {
         return wallet.type == .watch(wallet.address)
-    } 
+    }
 
     var isSelected: Bool {
         return wallet == current
@@ -109,4 +109,4 @@ class AccountViewModel {
             .foregroundColor: R.color.dove()!
         ])
     }
-} 
+}

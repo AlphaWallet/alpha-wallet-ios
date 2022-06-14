@@ -30,7 +30,7 @@ final class SwapTokensCoordinator: Coordinator {
         ]
         viewController.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(cancelSelected))
         viewController.delegate = self
-        
+
         return viewController
     }()
     private let assetDefinitionStore: AssetDefinitionStore
@@ -44,22 +44,24 @@ final class SwapTokensCoordinator: Coordinator {
     }()
     private let keystore: Keystore
     private let analyticsCoordinator: AnalyticsCoordinator
+    private let domainResolutionService: DomainResolutionServiceType
     private let eventsDataStore: NonActivityEventsDataStore
     private var cancelable = Set<AnyCancellable>()
     private var transactionConfirmationResult: ConfirmResult? = .none
-    
+
     var coordinators: [Coordinator] = []
     weak var delegate: SwapTokensCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, configurator: SwapOptionsConfigurator, keystore: Keystore, analyticsCoordinator: AnalyticsCoordinator, assetDefinitionStore: AssetDefinitionStore, tokenCollection: TokenCollection, eventsDataStore: NonActivityEventsDataStore) {
+    init(navigationController: UINavigationController, configurator: SwapOptionsConfigurator, keystore: Keystore, analyticsCoordinator: AnalyticsCoordinator, domainResolutionService: DomainResolutionServiceType, assetDefinitionStore: AssetDefinitionStore, tokenCollection: TokenCollection, eventsDataStore: NonActivityEventsDataStore) {
         self.assetDefinitionStore = assetDefinitionStore
         self.tokenCollection = tokenCollection
         self.configurator = configurator
         self.navigationController = navigationController
         self.keystore = keystore
         self.analyticsCoordinator = analyticsCoordinator
+        self.domainResolutionService = domainResolutionService
         self.eventsDataStore = eventsDataStore
-    } 
+    }
 
     func start() {
         configurator.start()
@@ -84,7 +86,7 @@ final class SwapTokensCoordinator: Coordinator {
         coordinator.configureForSelectionSwapToken()
         coordinator.delegate = self
         addCoordinator(coordinator)
-        
+
         let panel = FloatingPanelController(isPanEnabled: false)
         panel.layout = FullScreenScrollableFloatingPanelLayout()
         panel.set(contentViewController: coordinator.rootViewController)
@@ -165,7 +167,7 @@ extension SwapTokensCoordinator: ApproveSwapProviderDelegate {
 
     func promptToSwap(unsignedTransaction: UnsignedSwapTransaction, fromToken: TokenToSwap, fromAmount: BigUInt, toToken: TokenToSwap, toAmount: BigUInt, in provider: ApproveSwapProvider) {
         let (transaction, configuration) = configurator.tokenSwapper.buildSwapTransaction(keystore: keystore, unsignedTransaction: unsignedTransaction, fromToken: fromToken, fromAmount: fromAmount, toToken: toToken, toAmount: toAmount)
-        let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: configurator.session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator)
+        let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: configurator.session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start(fromSource: .swap)
@@ -175,7 +177,7 @@ extension SwapTokensCoordinator: ApproveSwapProviderDelegate {
         let (transaction, configuration) = Erc20.buildApproveTransaction(keystore: keystore, token: token, server: server, owner: owner, spender: spender, amount: amount)
 
         return firstly {
-            TransactionConfirmationCoordinator.promise(navigationController, session: configurator.session, coordinator: self, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator, source: .swapApproval, delegate: self)
+            TransactionConfirmationCoordinator.promise(navigationController, session: configurator.session, coordinator: self, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService, source: .swapApproval, delegate: self)
         }.map { confirmationResult in
             switch confirmationResult {
             case .signedTransaction, .sentRawTransaction:

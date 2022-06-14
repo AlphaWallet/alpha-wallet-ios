@@ -22,15 +22,16 @@ class RecipientResolver {
         }
         return false
     }
-    private let resolver: DomainResolutionServiceType = DomainResolutionService()
-    
-    init(address: AlphaWallet.Address?) {
+    private let domainResolutionService: DomainResolutionServiceType
+
+    init(address: AlphaWallet.Address?, domainResolutionService: DomainResolutionServiceType) {
         self.address = address
+        self.domainResolutionService = domainResolutionService
     }
 
     func resolve(completion: @escaping () -> Void) {
         guard let address = address else { return }
-        resolver.resolveEns(address: address).done { [weak self] result in
+        domainResolutionService.resolveEns(address: address).done { [weak self] result in
             guard let strongSelf = self else { return }
 
             strongSelf.ensName = result.resolution.value

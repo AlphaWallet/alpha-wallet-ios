@@ -25,6 +25,8 @@ class AddressOrEnsNameLabel: UILabel {
         }
     }
 
+    private let domainResolutionService: DomainResolutionServiceType
+
     private var inResolvingState: Bool = false {
         didSet {
             if inResolvingState && shouldShowLoadingIndicator {
@@ -80,7 +82,8 @@ class AddressOrEnsNameLabel: UILabel {
     var addressFormat: AddressFormat = .truncateMiddle
     var shouldShowLoadingIndicator: Bool = false
 
-    init() {
+    init(domainResolutionService: DomainResolutionServiceType) {
+        self.domainResolutionService = domainResolutionService
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
         numberOfLines = 0
@@ -128,7 +131,7 @@ class AddressOrEnsNameLabel: UILabel {
             if let address = AlphaWallet.Address(string: value) {
                 inResolvingState = true
 
-                DomainResolutionService()
+                domainResolutionService
                     .resolveEns(address: address)
                     .done { value in
                         // NOTE: improve loading indicator hidding
@@ -140,7 +143,7 @@ class AddressOrEnsNameLabel: UILabel {
             } else if value.contains(".") {
                 inResolvingState = true
 
-                DomainResolutionService()
+                domainResolutionService
                     .resolveAddress(string: value)
                     .done { value in
                         self.requestsIdsStore.removeAll()

@@ -20,6 +20,7 @@ protocol NFTCollectionViewControllerDelegate: class, CanOpenURL {
 
 class NFTCollectionViewController: UIViewController {
     private (set) var viewModel: NFTCollectionViewModel
+    private let openSea: OpenSea
     private let session: WalletSession
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: NonActivityEventsDataStore
@@ -35,7 +36,7 @@ class NFTCollectionViewController: UIViewController {
 
     private lazy var collectionInfoPageView: NFTCollectionInfoPageView = {
         let viewModel: NFTCollectionInfoPageViewModel = .init(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, wallet: session.account)
-        let view = NFTCollectionInfoPageView(viewModel: viewModel, keystore: keystore, session: session, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator)
+        let view = NFTCollectionInfoPageView(viewModel: viewModel, openSea: openSea, keystore: keystore, session: session, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator)
         view.delegate = self
 
         return view
@@ -70,8 +71,9 @@ class NFTCollectionViewController: UIViewController {
 
     weak var delegate: NFTCollectionViewControllerDelegate?
 
-    init(keystore: Keystore, session: WalletSession, assetDefinition: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, viewModel: NFTCollectionViewModel, activitiesService: ActivitiesServiceType, eventsDataStore: NonActivityEventsDataStore) {
+    init(keystore: Keystore, session: WalletSession, assetDefinition: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, viewModel: NFTCollectionViewModel, openSea: OpenSea, activitiesService: ActivitiesServiceType, eventsDataStore: NonActivityEventsDataStore) {
         self.viewModel = viewModel
+        self.openSea = openSea
         self.session = session
         self.tokenScriptFileStatusHandler = XMLHandler(token: viewModel.token, assetDefinitionStore: assetDefinition)
         self.assetDefinitionStore = assetDefinition
@@ -79,7 +81,7 @@ class NFTCollectionViewController: UIViewController {
         self.analyticsCoordinator = analyticsCoordinator
         self.activitiesService = activitiesService
         self.keystore = keystore
-        
+
         super.init(nibName: nil, bundle: nil)
 
         hidesBottomBarWhenPushed = true

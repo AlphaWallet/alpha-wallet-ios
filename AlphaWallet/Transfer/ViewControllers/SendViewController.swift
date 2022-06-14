@@ -25,7 +25,7 @@ class SendViewController: UIViewController {
     //We storing link to make sure that only one alert is displaying on the screen.
     private weak var invalidTokenAlert: UIViewController?
     lazy var targetAddressTextField: AddressTextField = {
-        let targetAddressTextField = AddressTextField()
+        let targetAddressTextField = AddressTextField(domainResolutionService: domainResolutionService)
         targetAddressTextField.translatesAutoresizingMaskIntoConstraints = false
         targetAddressTextField.delegate = self
         targetAddressTextField.returnKeyType = .done
@@ -52,6 +52,7 @@ class SendViewController: UIViewController {
     }
 
     private let tokensDataStore: TokensDataStore
+    private let domainResolutionService: DomainResolutionServiceType
     @objc private (set) dynamic var isAllFunds: Bool = false
     private var observation: NSKeyValueObservation!
     private var etherToFiatRateCancelable: AnyCancellable?
@@ -62,9 +63,10 @@ class SendViewController: UIViewController {
         return view
     }()
 
-    init(session: WalletSession, tokensDataStore: TokensDataStore, transactionType: TransactionType) {
+    init(session: WalletSession, tokensDataStore: TokensDataStore, transactionType: TransactionType, domainResolutionService: DomainResolutionServiceType) {
         self.session = session
         self.tokensDataStore = tokensDataStore
+        self.domainResolutionService = domainResolutionService
         self.viewModel = .init(transactionType: transactionType, session: session, tokensDataStore: tokensDataStore)
 
         super.init(nibName: nil, bundle: nil)

@@ -17,7 +17,7 @@ protocol TransferTokenBatchCardsViaWalletAddressViewControllerDelegate: class, C
 class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, TokenVerifiableStatusViewController {
     private let token: TokenObject
     private lazy var targetAddressTextField: AddressTextField = {
-        let textField = AddressTextField()
+        let textField = AddressTextField(domainResolutionService: domainResolutionService)
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.delegate = self
         textField.returnKeyType = .done
@@ -55,6 +55,7 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
     private var viewModel: TransferTokenBatchCardsViaWalletAddressViewControllerViewModel
     private let tokenCardViewFactory: TokenCardViewFactory
+    private let domainResolutionService: DomainResolutionServiceType
 
     var contract: AlphaWallet.Address {
         return token.contractAddress
@@ -72,10 +73,11 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
         return view
     }()
 
-    init(token: TokenObject, viewModel: TransferTokenBatchCardsViaWalletAddressViewControllerViewModel, tokenCardViewFactory: TokenCardViewFactory) {
+    init(token: TokenObject, viewModel: TransferTokenBatchCardsViaWalletAddressViewControllerViewModel, tokenCardViewFactory: TokenCardViewFactory, domainResolutionService: DomainResolutionServiceType) {
         self.token = token
         self.viewModel = viewModel
         self.tokenCardViewFactory = tokenCardViewFactory
+        self.domainResolutionService = domainResolutionService
 
         super.init(nibName: nil, bundle: nil)
 

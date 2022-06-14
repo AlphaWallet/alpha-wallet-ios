@@ -59,7 +59,7 @@ protocol TransactionConfirmationCoordinatorDelegate: CanOpenURL, SendTransaction
 
 class TransactionConfirmationCoordinator: Coordinator {
     private let configuration: TransactionConfirmationConfiguration
-    private lazy var viewModel: TransactionConfirmationViewModel = .init(configurator: configurator, configuration: configuration)
+    private lazy var viewModel: TransactionConfirmationViewModel = .init(configurator: configurator, configuration: configuration, domainResolutionService: domainResolutionService)
     private lazy var rootViewController: TransactionConfirmationViewController = {
         let controller = TransactionConfirmationViewController(viewModel: viewModel, session: configurator.session)
         controller.delegate = self
@@ -77,6 +77,7 @@ class TransactionConfirmationCoordinator: Coordinator {
     private weak var configureTransactionViewController: ConfigureTransactionViewController?
     private let configurator: TransactionConfigurator
     private let analyticsCoordinator: AnalyticsCoordinator
+    private let domainResolutionService: DomainResolutionServiceType
     private var canBeDismissed = true
     private var server: RPCServer { configurator.session.server }
     private let navigationController: UIViewController
@@ -84,10 +85,11 @@ class TransactionConfirmationCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: TransactionConfirmationCoordinatorDelegate?
 
-    init(presentingViewController: UIViewController, session: WalletSession, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationConfiguration, analyticsCoordinator: AnalyticsCoordinator) {
+    init(presentingViewController: UIViewController, session: WalletSession, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationConfiguration, analyticsCoordinator: AnalyticsCoordinator, domainResolutionService: DomainResolutionServiceType) {
         configurator = TransactionConfigurator(session: session, transaction: transaction)
         self.configuration = configuration
         self.analyticsCoordinator = analyticsCoordinator
+        self.domainResolutionService = domainResolutionService
         self.navigationController = presentingViewController
     }
 
@@ -228,7 +230,7 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
         let navigationController = UINavigationController(rootViewController: controller)
         navigationController.makePresentationFullScreenForiOS13Migration()
         controller.navigationItem.leftBarButtonItem = .closeBarButton(self, selector: #selector(configureTransactionDidDismiss))
-        
+
         hostViewController.present(navigationController, animated: true)
 
         configureTransactionViewController = controller

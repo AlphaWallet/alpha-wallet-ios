@@ -52,13 +52,19 @@ class BlockiesGenerator {
 
     /// Address related icons cache without image size. Cache is using for determine images without sizes and scales, fetched out from OpenSea
     private static var sizeLessCache: [AlphaWallet.Address: BlockiesImage] = [:]
-    
+
+    private let openSea: OpenSea
+
+    init(openSea: OpenSea) {
+        self.openSea = openSea
+    }
+
     func getBlockie(address: AlphaWallet.Address, ens: String? = nil, size: Int = 8, scale: Int = 3, fallbackImage: BlockiesImage = BlockiesImage.defaulBlockieImage) -> AnyPublisher<BlockiesImage, Never> {
         return promise(address: address, ens: ens, size: size, scale: size).publisher
             .receive(on: RunLoop.main)
             .prepend(fallbackImage)
             .replaceError(with: fallbackImage)
-            .eraseToAnyPublisher() 
+            .eraseToAnyPublisher()
     }
 
     func promise(address: AlphaWallet.Address, ens: String? = nil, size: Int = 8, scale: Int = 3) -> Promise<BlockiesImage> {
@@ -99,7 +105,7 @@ class BlockiesGenerator {
                 return .init(error: TokenImageFetcher.ImageAvailabilityError.notAvailable)
             }
             return firstly {
-                OpenSea.fetchAssetImageUrl(for: result, server: .main)
+                self.openSea.fetchAssetImageUrl(for: result, server: .main)
             }.map { url -> BlockiesImage in
                 .url(url: WebImageURL(url: url, rewriteGoogleContentSizeUrl: .s120), isEnsAvatar: true)
             }.recover { _ -> Promise<BlockiesImage> in
@@ -107,7 +113,7 @@ class BlockiesGenerator {
                 return .value(.url(url: WebImageURL(url: url, rewriteGoogleContentSizeUrl: .s120), isEnsAvatar: true))
             }
         }
-    } 
+    }
 
     private func cacheBlockie(address: AlphaWallet.Address, blockie: BlockiesImage, size: BlockieSize) {
         switch size {
