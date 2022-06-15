@@ -35,6 +35,33 @@ protocol TokensDataStore: NSObjectProtocol {
     @discardableResult func addOrUpdate(_ actions: [AddOrUpdateTokenAction]) -> Bool?
 }
 
+extension TokensDataStore {
+    func initialOrNewTokensPublisher(for servers: [RPCServer]) -> AnyPublisher<[Token], Never> {
+        return enabledTokensChangeset(for: servers)
+            .tryMap { changeset -> [Token] in
+                switch changeset {
+                case .initial(let tokens): return tokens
+                case .update(let tokens, _, let insertions, _): return insertions.map { tokens[$0] }
+                case .error: return []
+                }
+            }.replaceError(with: [])
+            .filter { !$0.isEmpty }
+            .eraseToAnyPublisher()
+    }
+
+    func enabledTokensPublisher(for servers: [RPCServer]) -> AnyPublisher<[Token], Never> {
+        return enabledTokensChangeset(for: servers)
+            .map { changeset in
+                  switch changeset {
+                  case .initial(let tokens): return tokens
+                  case .update(let tokens, _, _, _): return tokens
+                  case .error: return []
+                  }
+            }.removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+}
+
 enum TokenOrContract {
     case ercToken(ERCToken)
     case token(Token)

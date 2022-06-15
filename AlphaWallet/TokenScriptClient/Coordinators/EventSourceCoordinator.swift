@@ -38,7 +38,7 @@ final class EventSourceCoordinator: NSObject {
 
     private func subscribeForTokenChanges() {
         tokensDataStore
-            .enabledTokensChangeset(for: enabledServers)
+            .enabledTokensPublisher(for: enabledServers)
             .receive(on: queue)
             .sink { [weak self] _ in
                 self?.fetchEthereumEvents()

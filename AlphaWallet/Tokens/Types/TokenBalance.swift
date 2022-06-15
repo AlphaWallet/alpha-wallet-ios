@@ -48,3 +48,10 @@ class TokenBalance: Object {
         return ["openSeaNonFungible", "_openSeaNonFungible"]
     }
 }
+
+extension TokenBalanceValue: Equatable {
+    static func == (lhs: TokenBalanceValue, rhs: TokenBalanceValue) -> Bool {
+        return lhs.json == rhs.json && lhs.balance == rhs.balance
+    }
+
+}
