@@ -95,23 +95,29 @@ class ReplaceTransactionCoordinator: Coordinator {
     }
 
     func start() {
-        let higherGasPrice = computeGasPriceForReplacementTransaction(pendingTransactionInformation.gasPrice)
-        let unconfirmedTransaction = UnconfirmedTransaction(transactionType: transactionType, value: transactionValue, recipient: recipient, contract: contract, data: transactionData, gasPrice: higherGasPrice, nonce: nonce)
-        let coordinator = TransactionConfirmationCoordinator(
-                presentingViewController: presentingViewController,
-                session: session,
-                transaction: unconfirmedTransaction,
-                configuration: transactionConfirmationConfiguration,
-                analyticsCoordinator: analyticsCoordinator,
-                domainResolutionService: domainResolutionService
-        )
-        coordinator.delegate = self
-        addCoordinator(coordinator)
-        switch mode {
-        case .speedup:
-            coordinator.start(fromSource: .speedupTransaction)
-        case .cancel:
-            coordinator.start(fromSource: .cancelTransaction)
+        do {
+            let higherGasPrice = computeGasPriceForReplacementTransaction(pendingTransactionInformation.gasPrice)
+            let unconfirmedTransaction = UnconfirmedTransaction(transactionType: transactionType, value: transactionValue, recipient: recipient, contract: contract, data: transactionData, gasPrice: higherGasPrice, nonce: nonce)
+            
+            let coordinator = try TransactionConfirmationCoordinator(
+                    presentingViewController: presentingViewController,
+                    session: session,
+                    transaction: unconfirmedTransaction,
+                    configuration: transactionConfirmationConfiguration,
+                    analyticsCoordinator: analyticsCoordinator,
+                    domainResolutionService: domainResolutionService)
+            coordinator.delegate = self
+            addCoordinator(coordinator)
+            switch mode {
+            case .speedup:
+                coordinator.start(fromSource: .speedupTransaction)
+            case .cancel:
+                coordinator.start(fromSource: .cancelTransaction)
+            }
+        } catch {
+            UIApplication.shared
+                .presentedViewController(or: presentingViewController)
+                .displayError(message: error.prettyError)
         }
     }
 

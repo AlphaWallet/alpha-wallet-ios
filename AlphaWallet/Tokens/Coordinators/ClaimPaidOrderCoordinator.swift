@@ -64,20 +64,27 @@ class ClaimPaidOrderCoordinator: Coordinator {
             let strongSelf = self
             switch result {
             case .success(let payload):
-                let transaction = UnconfirmedTransaction(
-                        transactionType: .claimPaidErc875MagicLink(strongSelf.tokenObject),
-                        value: BigInt(strongSelf.signedOrder.order.price),
-                        recipient: nil,
-                        contract: strongSelf.signedOrder.order.contractAddress,
-                        data: payload,
-                        gasLimit: nil,
-                        gasPrice: nil,
-                        nonce: nil
-                )
-                let coordinator = TransactionConfirmationCoordinator(presentingViewController: strongSelf.navigationController, session: strongSelf.session, transaction: transaction, configuration: .claimPaidErc875MagicLink(confirmType: .signThenSend, keystore: strongSelf.keystore, price: strongSelf.signedOrder.order.price, numberOfTokens: strongSelf.numberOfTokens), analyticsCoordinator: strongSelf.analyticsCoordinator, domainResolutionService: strongSelf.domainResolutionService)
-                coordinator.delegate = self
-                strongSelf.addCoordinator(coordinator)
-                coordinator.start(fromSource: .claimPaidMagicLink)
+                do {
+                    let transaction = UnconfirmedTransaction(
+                            transactionType: .claimPaidErc875MagicLink(strongSelf.tokenObject),
+                            value: BigInt(strongSelf.signedOrder.order.price),
+                            recipient: nil,
+                            contract: strongSelf.signedOrder.order.contractAddress,
+                            data: payload,
+                            gasLimit: nil,
+                            gasPrice: nil,
+                            nonce: nil
+                    )
+                    
+                    let coordinator = try TransactionConfirmationCoordinator(presentingViewController: strongSelf.navigationController, session: strongSelf.session, transaction: transaction, configuration: .claimPaidErc875MagicLink(confirmType: .signThenSend, keystore: strongSelf.keystore, price: strongSelf.signedOrder.order.price, numberOfTokens: strongSelf.numberOfTokens), analyticsCoordinator: strongSelf.analyticsCoordinator, domainResolutionService: strongSelf.domainResolutionService)
+                    coordinator.delegate = self
+                    strongSelf.addCoordinator(coordinator)
+                    coordinator.start(fromSource: .claimPaidMagicLink)
+                } catch {
+                    UIApplication.shared
+                        .presentedViewController(or: strongSelf.navigationController)
+                        .displayError(message: error.prettyError)
+                }
             case .failure:
                 break
             }

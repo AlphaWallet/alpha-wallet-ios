@@ -113,16 +113,22 @@ extension SendCoordinator: SendViewControllerDelegate {
     }
 
     func didPressConfirm(transaction: UnconfirmedTransaction, in viewController: SendViewController, amount: String, shortValue: String?) {
-        let configuration: TransactionConfirmationConfiguration = .sendFungiblesTransaction(
-            confirmType: .signThenSend,
-            keystore: keystore,
-            assetDefinitionStore: assetDefinitionStore,
-            amount: FungiblesTransactionAmount(value: amount, shortValue: shortValue, isAllFunds: viewController.isAllFunds)
-        )
-        let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
-        addCoordinator(coordinator)
-        coordinator.delegate = self
-        coordinator.start(fromSource: .sendFungible)
+        do {
+            let configuration: TransactionConfirmationConfiguration = .sendFungiblesTransaction(
+                confirmType: .signThenSend,
+                keystore: keystore,
+                assetDefinitionStore: assetDefinitionStore,
+                amount: FungiblesTransactionAmount(value: amount, shortValue: shortValue, isAllFunds: viewController.isAllFunds))
+
+            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
+            addCoordinator(coordinator)
+            coordinator.delegate = self
+            coordinator.start(fromSource: .sendFungible)
+        } catch {
+            UIApplication.shared
+                .presentedViewController(or: navigationController)
+                .displayError(message: error.prettyError)
+        }
     }
 
     func lookup(contract: AlphaWallet.Address, in viewController: SendViewController, completion: @escaping (ContractData) -> Void) {

@@ -99,31 +99,37 @@ extension TransferCollectiblesCoordinator: TransferTokenBatchCardsViaWalletAddre
     }
 
     func didEnterWalletAddress(tokenHolders: [TokenHolder], to recipient: AlphaWallet.Address, in viewController: TransferTokenBatchCardsViaWalletAddressViewController) {
+        do {
+            //NOTE: we have to make sure that token holders have the same contract address!
+            guard let firstTokenHolder = tokenHolders.first else { throw TransactionConfiguratorError.impossibleToBuildConfiguration }
 
-        //NOTE: we have to make sure that token holders have the same contract address!
-        guard let firstTokenHolder = tokenHolders.first else { return }
+            let tokenIdsAndValues: [UnconfirmedTransaction.TokenIdAndValue] = tokenHolders
+                .flatMap { $0.selections }
+                .compactMap { .init(tokenId: $0.tokenId, value: BigUInt($0.value)) }
 
-        let tokenIdsAndValues: [UnconfirmedTransaction.TokenIdAndValue] = tokenHolders
-            .flatMap { $0.selections }
-            .compactMap { .init(tokenId: $0.tokenId, value: BigUInt($0.value)) }
-        let tokenInstanceNames = tokenHolders
-            .valuesAll
-            .compactMapValues { $0.nameStringValue }
+            let tokenInstanceNames = tokenHolders
+                .valuesAll
+                .compactMapValues { $0.nameStringValue }
 
-        let transaction = UnconfirmedTransaction(
-            transactionType: .erc1155Token(tokenObject, transferType: tokenIdsAndValues.erc1155TokenTransactionType, tokenHolders: tokenHolders),
-                value: BigInt(0),
-                recipient: recipient,
-                contract: firstTokenHolder.contractAddress,
-                data: nil,
-                tokenIdsAndValues: tokenIdsAndValues
-        )
+            let transaction = UnconfirmedTransaction(
+                transactionType: .erc1155Token(tokenObject, transferType: tokenIdsAndValues.erc1155TokenTransactionType, tokenHolders: tokenHolders),
+                    value: BigInt(0),
+                    recipient: recipient,
+                    contract: firstTokenHolder.contractAddress,
+                    data: nil,
+                    tokenIdsAndValues: tokenIdsAndValues
+            )
 
-        let configuration: TransactionConfirmationConfiguration = .sendNftTransaction(confirmType: .signThenSend, keystore: keystore, tokenInstanceNames: tokenInstanceNames)
-        let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
-        addCoordinator(coordinator)
-        coordinator.delegate = self
-        coordinator.start(fromSource: .sendNft)
+            let configuration: TransactionConfirmationConfiguration = .sendNftTransaction(confirmType: .signThenSend, keystore: keystore, tokenInstanceNames: tokenInstanceNames)
+            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
+            addCoordinator(coordinator)
+            coordinator.delegate = self
+            coordinator.start(fromSource: .sendNft)
+        } catch {
+            UIApplication.shared
+                .presentedViewController(or: navigationController)
+                .displayError(message: error.prettyError)
+        }
     }
 
     func openQRCode(in controller: TransferTokenBatchCardsViaWalletAddressViewController) {
