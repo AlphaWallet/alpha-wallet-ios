@@ -3,7 +3,7 @@
 //
 import Foundation
 import AlphaWalletENS
-import PromiseKit
+import Combine
 
 class EnsResolver: ENSDelegateImpl {
     private let storage: EnsRecordsStorage
@@ -15,17 +15,16 @@ class EnsResolver: ENSDelegateImpl {
         self.storage = storage
     }
 
-    func getENSAddressFromResolver(for name: String) -> Promise<AlphaWallet.Address> {
+    func getENSAddressFromResolver(for name: String) -> AnyPublisher<AlphaWallet.Address, SmartContractError> {
         if let cachedResult = cachedAddressValue(for: name) {
-            return .value(cachedResult)
+            return .just(cachedResult)
         }
 
-        return firstly {
-            ens.getENSAddress(fromName: name)
-        }.get { address in
-            let key = EnsLookupKey(nameOrAddress: name, server: self.server)
-            self.storage.addOrUpdate(record: .init(key: key, value: .address(address)))
-        }
+        return ens.getENSAddress(fromName: name)
+            .handleEvents(receiveOutput: { [server, storage] address in
+                let key = EnsLookupKey(nameOrAddress: name, server: server)
+                storage.addOrUpdate(record: .init(key: key, value: .address(address)))
+            }).eraseToAnyPublisher()
     }
 }
 

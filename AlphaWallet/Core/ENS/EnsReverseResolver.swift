@@ -2,7 +2,7 @@
 
 import Foundation
 import AlphaWalletENS
-import PromiseKit
+import Combine
 
 class EnsReverseResolver: ENSDelegateImpl {
     private let storage: EnsRecordsStorage
@@ -15,17 +15,16 @@ class EnsReverseResolver: ENSDelegateImpl {
     }
 
     //TODO make calls from multiple callers at the same time for the same address more efficient
-    func getENSNameFromResolver(for address: AlphaWallet.Address) -> Promise<String> {
+    func getENSNameFromResolver(for address: AlphaWallet.Address) -> AnyPublisher<String, SmartContractError> {
         if let cachedResult = cachedEnsValue(for: address) {
-            return .value(cachedResult)
+            return .just(cachedResult)
         }
 
-        return firstly {
-            ens.getName(fromAddress: address)
-        }.get { name in
-            let key = EnsLookupKey(nameOrAddress: address.eip55String, server: self.server)
-            self.storage.addOrUpdate(record: .init(key: key, value: .ens(name)))
-        }
+        return ens.getName(fromAddress: address)
+            .handleEvents(receiveOutput: { [server, storage] name in
+                let key = EnsLookupKey(nameOrAddress: address.eip55String, server: server)
+                storage.addOrUpdate(record: .init(key: key, value: .ens(name)))
+            }).eraseToAnyPublisher()
     }
 }
 

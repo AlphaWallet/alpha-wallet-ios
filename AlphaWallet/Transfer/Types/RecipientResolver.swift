@@ -32,15 +32,15 @@ class RecipientResolver {
 
     func resolveRecipient() -> AnyPublisher<Void, Never> {
         guard let address = address else {
-            return Just(()).eraseToAnyPublisher()
+            return .just(())
         }
+        
         return domainResolutionService.resolveEns(address: address)
             .map { ens -> EnsName? in return ens }
             .replaceError(with: nil)
             .handleEvents(receiveOutput: { [weak self] ensName in
                 self?.ensName = ensName
             }).map { _ in }
-            .replaceError(with: ())
             .eraseToAnyPublisher()
     }
 
