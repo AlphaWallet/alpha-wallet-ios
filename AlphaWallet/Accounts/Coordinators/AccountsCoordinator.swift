@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import Combine
 
 protocol AccountsCoordinatorDelegate: AnyObject {
     func didCancel(in coordinator: AccountsCoordinator)
@@ -74,6 +75,7 @@ class AccountsCoordinator: Coordinator {
 
     weak var delegate: AccountsCoordinatorDelegate?
     private let viewModel: AccountsCoordinatorViewModel
+    private var cancelable: AnyCancellable?
 
     init(
         config: Config,
@@ -212,17 +214,24 @@ class AccountsCoordinator: Coordinator {
 
         alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default, handler: { [weak self] _ -> Void in
             guard let strongSelf = self else { return }
-            let textField = alertController.textFields![0] as UITextField
+            guard let textField = alertController.textFields?.first else { return }
             let walletName = textField.text?.trimmed ?? ""
             strongSelf.accountsViewController.viewModel.set(walletName: walletName, for: account)
         }))
 
         alertController.addAction(UIAlertAction(title: R.string.localizable.cancel(), style: .cancel))
-        alertController.addTextField(configurationHandler: { [weak self] (textField: UITextField!) -> Void in
+        alertController.addTextField(configurationHandler: { [weak self] textField in
             guard let strongSelf = self else { return }
-            strongSelf.domainResolutionService.resolveEns(address: account).done { resolution in
-                textField.placeholder = resolution.resolution.value
-            }.cauterize()
+            strongSelf.cancelable?.cancel()
+            strongSelf.cancelable = strongSelf.domainResolutionService.resolveEns(address: account)
+                .map { $0.resolution.value }
+                .receive(on: RunLoop.main)
+                .sink(receiveCompletion: { _ in
+                    //no-op
+                }, receiveValue: { name in
+                    textField.placeholder = name
+                })
+
             let walletNames = strongSelf.config.walletNames
             textField.text = walletNames[account]
         })

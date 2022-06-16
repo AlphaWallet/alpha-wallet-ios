@@ -128,10 +128,11 @@ class TransactionConfirmationViewController: UIViewController {
         case .dappOrWalletConnectTransaction(let dappTransactionViewModel):
             headerView.iconImageView.setImage(url: dappTransactionViewModel.dappIconUrl, placeholder: dappTransactionViewModel.placeholderIcon)
         case .sendFungiblesTransaction(let sendFungiblesViewModel):
-            sendFungiblesViewModel.recipientResolver.resolve { [weak self] in
-                guard let strongSelf = self else { return }
-                strongSelf.generateSubviews()
-            }
+            sendFungiblesViewModel.recipientResolver.resolveRecipient()
+                .receive(on: RunLoop.main)
+                .sink { [weak self] _ in
+                    self?.generateSubviews()
+                }.store(in: &cancelable)
 
             switch sendFungiblesViewModel.transactionType {
             case .nativeCryptocurrency:
@@ -151,10 +152,11 @@ class TransactionConfirmationViewController: UIViewController {
                 break
             }
         case .sendNftTransaction(let sendNftViewModel):
-            sendNftViewModel.recipientResolver.resolve { [weak self] in
-                guard let strongSelf = self else { return }
-                strongSelf.generateSubviews()
-            }
+            sendNftViewModel.recipientResolver.resolveRecipient()
+                .receive(on: RunLoop.main)
+                .sink { [weak self] _ in
+                    self?.generateSubviews()
+                }.store(in: &cancelable)
         case .tokenScriptTransaction, .claimPaidErc875MagicLink, .speedupTransaction, .cancelTransaction, .swapTransaction:
             break
         }

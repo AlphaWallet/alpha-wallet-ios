@@ -91,6 +91,8 @@ class TokensCoordinator: Coordinator {
     private let blockiesGenerator: BlockiesGenerator
     private let domainResolutionService: DomainResolutionServiceType
     private let importToken: ImportToken
+    private lazy var walletNameFetcher = GetWalletName(config: config, domainResolutionService: domainResolutionService)
+    private var getWalletNameCancelable: AnyCancellable?
 
     init(
             navigationController: UINavigationController = .withOverridenBarAppearence(),
@@ -235,15 +237,13 @@ extension TokensCoordinator: TokensViewControllerDelegate {
 
         tokensViewController.title = viewModel.walletDefaultTitle
 
-        firstly {
-            GetWalletName(config: config, domainResolutionService: domainResolutionService).getName(forAddress: sessions.anyValue.account.address)
-        }.done { [weak self] name in
-            self?.tokensViewController.navigationItem.title = name
-            //Don't `cauterize` here because we don't want to PromiseKit to show the error messages from UnstoppableDomains API, suggesting there's an API error when the reason could be that the address being looked up simply does not have a registered name
-            //eg.: PromiseKit:cauterized-error: UnstoppableDomainsV2ApiError(localizedDescription: "Error calling https://unstoppabledomains.g.alchemy.com API true")
-        }.catch { [weak self] _ in
-            self?.tokensViewController.navigationItem.title = viewModel.walletDefaultTitle
-        }
+        walletNameFetcher
+            .getName(for: sessions.anyValue.account.address)
+            .replaceError(with: viewModel.walletDefaultTitle)
+            .receive(on: RunLoop.main)
+            .sink(receiveValue: { [weak self] name in
+                self?.tokensViewController.navigationItem.title = name
+            }).store(in: &cancelable)
     }
 
     private func getWalletBlockie() {
@@ -254,6 +254,8 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     }
 
     func viewWillAppear(in viewController: UIViewController) {
+        cancelable.cancellAll() //important to cancel all prev subscriptions, need to make sure that sink called once for such subscriptions
+
         getWalletName()
         getWalletBlockie()
 
