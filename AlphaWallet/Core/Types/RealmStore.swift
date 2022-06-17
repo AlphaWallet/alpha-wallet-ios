@@ -9,7 +9,7 @@ import Realm
 import RealmSwift
 import Foundation
 
-final class RealmStore {
+class RealmStore {
     static func threadName(for wallet: Wallet) -> String {
         return "org.alphawallet.swift.realmStore.\(wallet.address).wallet"
     }
@@ -42,6 +42,10 @@ final class RealmStore {
     }
 }
 
+extension RealmStore {
+    static var shared: RealmStore = RealmStore(realm: Realm.shared())
+}
+
 extension Realm {
 
     static func realm(for account: Wallet) -> Realm {
@@ -57,7 +61,8 @@ extension Realm {
         var configuration = RealmConfiguration.configuration(name: name)
         configuration.objectTypes = [
             Bookmark.self,
-            History.self
+            History.self,
+            EnsRecordObject.self
         ]
         
         let realm = try! Realm(configuration: configuration)

@@ -226,6 +226,10 @@ public struct Constants {
         static let connectionTimeout: TimeInterval = 10
     }
 
+    enum Ens {
+        static let recordExpiration: TimeInterval = -(2 * 24 * 60 * 60)
+    }
+
     //CurrencyFormatter
     static let formatterFractionDigits = 2
 

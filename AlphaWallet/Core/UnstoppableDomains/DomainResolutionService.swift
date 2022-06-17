@@ -9,14 +9,17 @@ import Foundation
 import Combine
 
 class DomainResolutionService {
-    let server: RPCServer = .forResolvingEns
-    let blockiesGenerator: BlockiesGenerator
-    private lazy var getEnsAddressResolver = ENSResolver(server: server)
-    private lazy var unstoppableDomainsV2Resolver = UnstoppableDomainsV2Resolver(server: server)
-    private lazy var ensReverseLookupResolver = ENSReverseResolver(server: server)
+    private let storage: EnsRecordsStorage
+    private let blockiesGenerator: BlockiesGenerator
+    private lazy var getEnsAddressResolver = EnsResolver(server: server, storage: storage)
+    private lazy var unstoppableDomainsV2Resolver = UnstoppableDomainsV2Resolver(server: server, storage: storage)
+    private lazy var ensReverseLookupResolver = EnsReverseResolver(server: server, storage: storage)
 
-    init(blockiesGenerator: BlockiesGenerator) {
+    let server: RPCServer = .forResolvingEns
+
+    init(blockiesGenerator: BlockiesGenerator, storage: EnsRecordsStorage) {
         self.blockiesGenerator = blockiesGenerator
+        self.storage = storage
     }
 }
 
@@ -38,12 +41,12 @@ extension DomainResolutionService: DomainResolutionServiceType {
             unstoppableDomainsV2Resolver
         ]
 
-        if let cached = services.compactMap({ $0.cachedAddressValue(forName: value) }).first {
+        if let cached = services.compactMap({ $0.cachedAddressValue(for: value) }).first {
             return resolveBlockieImage(addr: cached)
         }
 
         return getEnsAddressResolver
-            .getENSAddressFromResolver(forName: value).publisher
+            .getENSAddressFromResolver(for: value).publisher
             .catch { _ -> AnyPublisher<AlphaWallet.Address, PromiseError> in
                 self.unstoppableDomainsV2Resolver.resolveAddress(forName: value).publisher
                     .eraseToAnyPublisher()
@@ -69,12 +72,12 @@ extension DomainResolutionService: DomainResolutionServiceType {
             unstoppableDomainsV2Resolver
         ]
 
-        if let cached = services.compactMap({ $0.cachedEnsValue(forAddress: address) }).first {
+        if let cached = services.compactMap({ $0.cachedEnsValue(for: address) }).first {
             return resolveBlockieImage(ens: cached)
         }
 
         return ensReverseLookupResolver
-            .getENSNameFromResolver(forAddress: address).publisher
+            .getENSNameFromResolver(for: address).publisher
             .catch { [unstoppableDomainsV2Resolver] _ -> AnyPublisher<String, PromiseError> in
                 unstoppableDomainsV2Resolver.resolveDomain(address: address).publisher
                     .eraseToAnyPublisher()

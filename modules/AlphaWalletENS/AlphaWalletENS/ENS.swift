@@ -99,13 +99,13 @@ public class ENS {
         }
     }
 
-    public func getTextRecord(forName name: String, recordKey: ENSTextRecordKey) -> Promise<String> {
+    public func getTextRecord(forName name: String, recordKey: EnsTextRecordKey) -> Promise<String> {
         //TODO improve if delegate is nil
         guard let delegate = delegate else { return Promise { _ in } }
         guard !name.components(separatedBy: ".").isEmpty else { return .init(error: AnyError(ENSError(description: "\(name) is invalid ENS name"))) }
 
         let addr = name.lowercased().nameHash
-        let function = GetENSTextRecord()
+        let function = GetEnsTextRecord()
         let chainId = chainId
         return firstly {
             delegate.callSmartContract(withChainId: chainId, contract: getENSRecordsContract(forChainId: chainId), functionName: function.name, abiString: function.abi, parameters: [addr as AnyObject, recordKey.rawValue as AnyObject])
