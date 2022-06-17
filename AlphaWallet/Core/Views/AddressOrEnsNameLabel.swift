@@ -8,6 +8,7 @@
 import UIKit
 import PromiseKit
 import CryptoSwift
+import Combine
 
 class AddressOrEnsNameLabel: UILabel {
 
@@ -121,7 +122,7 @@ class AddressOrEnsNameLabel: UILabel {
     // NOTE: caching ids for call `func resolve(_ value: String)` function, for verifying activity state
     // adds a new id once function get called, and removes once resolve a value.
     private var requestsIdsStore: Set<String> = .init()
-
+    private var cancelable: AnyCancellable?
     func resolve(_ value: String) -> Promise<BlockieAndAddressOrEnsResolution> {
         let id = UUID().uuidString
         requestsIdsStore.insert(id)
@@ -131,26 +132,29 @@ class AddressOrEnsNameLabel: UILabel {
             if let address = AlphaWallet.Address(string: value) {
                 inResolvingState = true
 
-                domainResolutionService
-                    .resolveEns(address: address)
-                    .done { value in
+                cancelable?.cancel()
+                cancelable = domainResolutionService.resolveEns(address: address)
+                    .receive(on: RunLoop.main)
+                    .sink(receiveCompletion: { _ in
+                        seal.fulfill((nil, .resolved(.none)))
+                    }, receiveValue: { value in
                         // NOTE: improve loading indicator hidding
                         self.requestsIdsStore.removeAll()
                         seal.fulfill(value)
-                    }.catch { _ in
-                        seal.fulfill((nil, .resolved(.none)))
-                    }
+                    })
             } else if value.contains(".") {
                 inResolvingState = true
 
-                domainResolutionService
-                    .resolveAddress(string: value)
-                    .done { value in
+                cancelable?.cancel()
+                cancelable = domainResolutionService.resolveAddress(string: value)
+                    .receive(on: RunLoop.main)
+                    .sink(receiveCompletion: { _ in
+                        seal.fulfill((nil, .resolved(.none)))
+                    }, receiveValue: { value in
+                        // NOTE: improve loading indicator hidding
                         self.requestsIdsStore.removeAll()
                         seal.fulfill(value)
-                    }.catch { _ in
-                        seal.fulfill((nil, .resolved(.none)))
-                    }
+                    })
             } else {
                 seal.fulfill((nil, .resolved(.none)))
             }

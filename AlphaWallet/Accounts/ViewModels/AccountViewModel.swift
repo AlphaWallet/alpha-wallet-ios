@@ -45,7 +45,7 @@ class AccountViewModel {
     lazy var addressOrEnsName: AnyPublisher<NSAttributedString, Never> = {
         let address = wallet.address
 
-        return getWalletName.getName(forAddress: address).publisher
+        return getWalletName.getName(for: address)
             .map { ensOrName in "\(ensOrName) | \(address.truncateMiddle)" }
             .receive(on: RunLoop.main)
             .replaceError(with: address.eip55String)

@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import PromiseKit
+import Combine
 
 enum AddressOrEnsResolution {
     case invalidInput
@@ -25,8 +25,8 @@ enum AddressOrEnsResolution {
 typealias BlockieAndAddressOrEnsResolution = (image: BlockiesImage?, resolution: AddressOrEnsResolution)
 
 protocol DomainResolutionServiceType {
-    func resolveAddress(string value: String) -> Promise<BlockieAndAddressOrEnsResolution>
-    func resolveEns(address: AlphaWallet.Address) -> Promise<BlockieAndAddressOrEnsResolution>
+    func resolveAddress(string value: String) -> AnyPublisher<BlockieAndAddressOrEnsResolution, PromiseError>
+    func resolveEns(address: AlphaWallet.Address) -> AnyPublisher<BlockieAndAddressOrEnsResolution, PromiseError>
 }
 
 protocol CachebleAddressResolutionServiceType {

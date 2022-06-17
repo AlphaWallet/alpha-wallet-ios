@@ -2,14 +2,16 @@
 
 @testable import AlphaWallet
 import Foundation
-import PromiseKit
+import Combine
 
 class FakeDomainResolutionService: DomainResolutionServiceType {
-    func resolveAddress(string value: String) -> Promise<BlockieAndAddressOrEnsResolution> {
-        return Promise { _ in }
+    struct E: Error {}
+
+    func resolveAddress(string value: String) -> AnyPublisher<BlockieAndAddressOrEnsResolution, PromiseError> {
+        return Fail(error: PromiseError.some(error: E())).eraseToAnyPublisher()
     }
 
-    func resolveEns(address: AlphaWallet.Address) -> Promise<BlockieAndAddressOrEnsResolution> {
-        return Promise { _ in }
+    func resolveEns(address: AlphaWallet.Address) -> AnyPublisher<BlockieAndAddressOrEnsResolution, PromiseError> {
+        return Fail(error: PromiseError.some(error: E())).eraseToAnyPublisher()
     }
 }

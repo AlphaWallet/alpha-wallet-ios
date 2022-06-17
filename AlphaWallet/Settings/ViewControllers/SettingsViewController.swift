@@ -38,7 +38,8 @@ class SettingsViewController: UIViewController {
         return tableView
     }()
     private var viewModel: SettingsViewModel
-
+    private lazy var walletNameFetcher = GetWalletName(config: config, domainResolutionService: domainResolutionService)
+    
     weak var delegate: SettingsViewControllerDelegate?
     var promptBackupWalletView: UIView? {
         didSet {
@@ -138,18 +139,15 @@ class SettingsViewController: UIViewController {
             icon: row.icon)
         )
 
-        firstly {
-            GetWalletName(config: config, domainResolutionService: domainResolutionService).getName(forAddress: account.address)
-        }.done { [weak self] name in
-            //NOTE check if still correct cell, since this is async
-            guard let strongSelf = self, cell.indexPath == indexPath else { return }
-            let viewModel: SettingTableViewCellViewModel = .init(
-                    titleText: row.title,
-                    subTitleText: strongSelf.viewModel.addressReplacedWithENSOrWalletName(name),
-                    icon: row.icon
-            )
-            cell.configure(viewModel: viewModel)
-        }.cauterize()
+        cell.walletNameCancelable?.cancel()
+        cell.walletNameCancelable = walletNameFetcher.getName(for: account.address)
+            .receive(on: RunLoop.main)
+            .sink(receiveCompletion: { _ in
+                //no-op
+            }, receiveValue: { [viewModel] name in
+                let viewModel = SettingTableViewCellViewModel(titleText: row.title, subTitleText: viewModel.addressReplacedWithENSOrWalletName(name), icon: row.icon)
+                cell.configure(viewModel: viewModel)
+            })
     }
 
     required init?(coder aDecoder: NSCoder) {
