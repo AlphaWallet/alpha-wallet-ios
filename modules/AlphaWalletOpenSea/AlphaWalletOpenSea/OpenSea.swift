@@ -14,7 +14,7 @@ import SwiftyJSON
 public typealias ChainId = Int
 public typealias OpenSeaNonFungiblesToAddress = [AlphaWallet.Address: [OpenSeaNonFungible]]
 
-public protocol OpenSeaDelegate {
+public protocol OpenSeaDelegate: class {
     func openSeaError(error: OpenSeaApiError)
 }
 
@@ -42,7 +42,7 @@ public class OpenSea {
 
     private var apiKeys: [ChainId: String]
 
-    public var delegate: OpenSeaDelegate?
+    weak public var delegate: OpenSeaDelegate?
 
     public init(apiKeys: [ChainId: String], queue: DispatchQueue) {
         self.apiKeys = apiKeys
