@@ -7,15 +7,26 @@
 
 import UIKit
 
-class WhatsNewListingViewController: ModalViewController {
+class WhatsNewListingViewController: UIViewController {
     let viewModel: WhatsNewListingViewModel
-    weak var whatsNewListingDelegate: WhatsNewListingCoordinatorDelegate?
 
+    private lazy var containerView: UIStackView = {
+        let view = UIStackView()
+        view.axis = .vertical
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.spacing = 0
+
+        return view
+    }()
+    
     init(viewModel: WhatsNewListingViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
-        configureView()
-        presentationDelegate = self
+
+        view.addSubview(containerView)
+        NSLayoutConstraint.activate([
+            containerView.anchorsConstraint(to: view)
+        ])
     }
 
     required init?(coder: NSCoder) {
@@ -24,10 +35,11 @@ class WhatsNewListingViewController: ModalViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        configureView()
     }
 
     private func configureView() {
-        var views: [UIView] = []
+        var views: [UIView] = [.spacer(height: 30)]
         views.append(WhatsNewHeaderView(title: viewModel.title))
         for entry in viewModel.entries {
             views.append(WhatsNewSubHeaderView(title: entry.title))
@@ -35,24 +47,8 @@ class WhatsNewListingViewController: ModalViewController {
                 views.append(WhatsNewEntryView(entryString: change, shouldShowCheckmarks: viewModel.shouldShowCheckmarks))
             }
         }
-        stackView.addArrangedSubviews(views)
-    }
-}
+        views += [.spacer(height: 30)]
 
-extension WhatsNewListingViewController: ModalViewControllerDelegate {
-    func didDismiss(_ controller: ModalViewController) {
-        controller.dismissViewAnimated {
-            controller.dismiss(animated: false) {
-                self.whatsNewListingDelegate?.didDismiss(controller: self)
-            }
-        }
-    }
-
-    func didClose(_ controller: ModalViewController) {
-        controller.dismissViewAnimated {
-            controller.dismiss(animated: false) {
-                self.whatsNewListingDelegate?.didDismiss(controller: self)
-            }
-        }
+        containerView.addArrangedSubviews(views)
     }
 }
