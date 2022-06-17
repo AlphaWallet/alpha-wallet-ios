@@ -605,7 +605,7 @@ enum RPCServer: Hashable, CaseIterable {
             case .poa: return "https://core.poa.network"
             case .sokol: return "https://sokol.poa.network"
             case .goerli: return "https://goerli.infura.io/v3/\(Constants.Credentials.infuraKey)"
-            case .xDai: return "https://rpc.xdaichain.com"
+            case .xDai: return "https://rpc.ankr.com/gnosis"
             case .artis_sigma1: return "https://rpc.sigma1.artis.network"
             case .artis_tau1: return "https://rpc.tau1.artis.network"
             case .binance_smart_chain: return "https://bsc-dataseed.binance.org"
