@@ -82,7 +82,8 @@ enum OriginalDapps {
         Dapp(name: "CNCUK", description: "CNCUK Tokenomics", url: "https://alpha.cynocoin.co.uk", cat: "Tool",
         Dapp(name: "Swapzone", description: "Swapzone is a custody-free cryptocurrency exchange aggregator with no registration needed.", url: "https://swapzone.io/", cat: "Exchange"),
         Dapp(name: "MetaPath", description: "Assets can be routed across different blockchains", url: "https://dapp.path.finance?source=alpha", cat: "Exchange"),  
-        Dapp(name: "SWFT", description: "One Stop Cross-Chain swap, supporting 300+ tokens on 30+ chains", url: "https://defi.swft.pro?sourceFlag=alpha", cat: "Exchange")     
+        Dapp(name: "SWFT", description: "One Stop Cross-Chain swap, supporting 300+ tokens on 30+ chains", url: "https://defi.swft.pro?sourceFlag=alpha", cat: "Exchange")
+        Dapp(name: "PancakeSwap", description: " A next evolution DeFi exchange on BNB Smart Chain (BSC)", url: "https://pancakeswap.finance/info", cat: "Exchange")
 ),
     ]
 
