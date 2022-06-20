@@ -472,6 +472,7 @@
 "blockchain.arbitrum.rinkeby" = "Arbitrum Rinkeby";
 "blockchain.palm" = "Palm";
 "blockchain.palm.Testnet" = "Palm (Testnet)";
+"blockchain.phi" = "PHI";
 "photos" = "浏览";
 "light" = "闪光灯";
 "qrCode.title" = "将相机对准二维码";

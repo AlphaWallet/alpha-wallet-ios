@@ -9,7 +9,7 @@ protocol TokenCollection {
     var tokensViewModel: AnyPublisher<TokensViewModel, Never> { get }
     var tokensDataStore: TokensDataStore { get }
     var tokensFilter: TokensFilter { get }
-    
+
     func fetch()
 }
 
@@ -89,7 +89,8 @@ extension RPCServer {
         case .palm: return 27
         case .palmTestnet: return 28
         case .klaytnCypress: return 29
-        case .klaytnBaobabTestnet: return 30 
+        case .klaytnBaobabTestnet: return 30
+        case .phi: return 31
         }
     }
 }
