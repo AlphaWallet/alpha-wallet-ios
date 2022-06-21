@@ -67,7 +67,7 @@ enum TokenOrContract {
     case token(Token)
     case delegateContracts([AddressAndRPCServer])
     case deletedContracts([AddressAndRPCServer])
-    ///We re-use the existing balance value to avoid the Wallets tab showing that token (if it already exist) as balance = 0 momentarily
+    /// We re-use the existing balance value to avoid the `Wallets` tab showing that token (if it already exist) as `balance = 0` momentarily
     case fungibleTokenComplete(name: String, symbol: String, decimals: UInt8, contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool)
     case none
 
@@ -90,10 +90,93 @@ enum AddOrUpdateTokenAction {
     case update(token: Token, action: TokenUpdateAction)
 }
 
+//TODO: Rename with more better name
+struct NonFungibleBalanceAndItsSource<T> {
+    let tokenId: String
+    let value: T
+    let source: NonFungibleBalance.Source
+}
+
+typealias JsonString = String
+
+enum NonFungibleBalance {
+    /// The value taken from `openSea, enjin, or Uri`
+    case assets([NftAssetRawValue])
+    /// The value taken from `getBalances` function call for `erc721ForTickets`
+    case erc721ForTickets([String])
+    /// The value taken from `balanceOf` function call for `erc875`
+    case erc875([String])
+    /// The value taken from `balanceOf` function call for `erc721`
+    case balance([String])
+
+    var rawValue: [String] {
+        switch self {
+        case .assets(let values):
+            return values.map { $0.json }
+        case .erc875(let values):
+            return values
+        case .erc721ForTickets(let values):
+            return values
+        case .balance(let value):
+            return value
+        }
+    }
+
+    var isEmpty: Bool {
+        switch self {
+        case .assets(let values):
+            return values.isEmpty
+        case .erc875(let values):
+            return values.isEmpty
+        case .erc721ForTickets(let values):
+            return values.isEmpty
+        case .balance(let value):
+            return value.isEmpty
+        }
+    }
+
+    struct NftAssetRawValue {
+        let json: JsonString
+        var source: Source = .undefined
+    }
+
+    enum Source: CustomStringConvertible {
+        /// Generated with loading from Url
+        case uri(URL)
+        /// Generated with some on native providers, web3 call for erc20 token
+        case nativeProvider(ProviderType)
+        /// Generated with fallback function,
+        case fallback
+        /// Other case
+        case undefined
+
+        var description: String {
+            switch self {
+            case .uri(let url):
+                return url.absoluteString
+            case .nativeProvider(let provider):
+                return "\(provider.rawValue) Provider"
+            case .fallback:
+                return "Fallback"
+            case .undefined:
+                return "Undefined"
+            }
+        }
+    }
+
+    enum ProviderType: String {
+        case nativeCrypto
+        case erc20
+        case erc875
+        case erc721ForTickets
+        case openSea
+    }
+}
+
 enum TokenUpdateAction {
     case value(BigInt)
     case isDisabled(Bool)
-    case nonFungibleBalance([String])
+    case nonFungibleBalance(NonFungibleBalance)
     case name(String)
     case type(TokenType)
     case isHidden(Bool)
@@ -469,8 +552,8 @@ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
         switch action {
         case .value(let value):
             return updateFungibleBalance(balance: value, token: tokenObject)
-        case .nonFungibleBalance(let balances):
-            return updateNonFungibleBalance(balances: balances, token: tokenObject)
+        case .nonFungibleBalance(let balance):
+            return updateNonFungibleBalance(balance: balance, token: tokenObject)
         case .name(let name):
             if tokenObject.name != name {
                 tokenObject.name = name
@@ -511,15 +594,15 @@ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
         return false
     }
 
-    private func updateNonFungibleBalance(balances: [String], token: TokenObject) -> Bool {
+    private func updateNonFungibleBalance(balance: NonFungibleBalance, token: TokenObject) -> Bool {
         //NOTE: add new balances
-        let balancesToAdd = balances
+        let balancesToAdd = balance.rawValue
             .filter { b in !token.balance.contains(where: { v in v.balance == b }) }
             .map { TokenBalance(balance: $0) }
 
         //NOTE: remove old balances if something has changed
         let balancesToDelete = token.balance
-            .filter { !balances.contains($0.balance) }
+            .filter { !balance.rawValue.contains($0.balance) }
             .compactMap { token.balance.index(of: $0) }
 
         if !balancesToAdd.isEmpty || !balancesToDelete.isEmpty {
@@ -680,7 +763,7 @@ extension MultipleChainsTokensDataStore.functional {
                 type: token.type
         )
         if shouldUpdateBalance {
-            token.balance.forEach { balance in
+            token.balance.rawValue.forEach { balance in
                 newToken.balance.append(TokenBalance(balance: balance))
             }
         }

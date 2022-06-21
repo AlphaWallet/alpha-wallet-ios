@@ -9,5 +9,5 @@ struct ERCToken {
     let symbol: String
     let decimals: Int
     let type: TokenType
-    let balance: [String]
+    let balance: NonFungibleBalance
 }

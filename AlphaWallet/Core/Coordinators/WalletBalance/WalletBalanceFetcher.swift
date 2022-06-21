@@ -16,7 +16,7 @@ protocol WalletBalanceFetcherDelegate: AnyObject {
 }
 
 protocol WalletBalanceFetcherTypeTests {
-    func setNftBalanceTestsOnly(_ value: [String], forToken token: Token)
+    func setNftBalanceTestsOnly(_ value: NonFungibleBalance, forToken token: Token)
     func setBalanceTestsOnly(_ value: BigInt, forToken token: Token)
     func deleteTokenTestsOnly(token: Token)
     func addOrUpdateTokenTestsOnly(token: Token)
@@ -257,6 +257,8 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
 
 extension WalletBalanceFetcher: PrivateBalanceFetcherDelegate {
     func didUpdateBalance(value actions: [AddOrUpdateTokenAction], in fetcher: PrivateBalanceFetcher) {
+        crashlytics.logLargeNftJsonFiles(for: actions)
+        
         if let balanceHasUpdated = tokensDataStore.addOrUpdate(actions), balanceHasUpdated {
             reloadWalletBalance()
         }
@@ -269,7 +271,7 @@ extension WalletBalanceFetcher: WalletBalanceFetcherTypeTests {
         tokensDataStore.updateToken(primaryKey: token.primaryKey, action: .value(value))
     }
 
-    func setNftBalanceTestsOnly(_ value: [String], forToken token: Token) {
+    func setNftBalanceTestsOnly(_ value: NonFungibleBalance, forToken token: Token) {
         tokensDataStore.updateToken(primaryKey: token.primaryKey, action: .nonFungibleBalance(value))
     }
 

@@ -298,7 +298,7 @@ class SendViewController: UIViewController {
                                 symbol: symbol,
                                 decimals: Int(decimals),
                                 type: .erc20,
-                                balance: ["0"]
+                                balance: .balance(["0"])
                         )
                         self.tokensDataStore.addCustom(tokens: [token], shouldUpdateBalance: true)
                         self.configureFor(contract: contract, recipient: recipient, amount: amount)

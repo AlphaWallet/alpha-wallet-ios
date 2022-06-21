@@ -367,7 +367,7 @@ class NewTokenViewController: UIViewController {
             symbol: symbol,
             decimals: decimals,
             type: tokenType,
-            balance: balance
+            balance: .erc875(balance)
         )
 
         delegate?.didAddToken(token: ercToken, in: self)

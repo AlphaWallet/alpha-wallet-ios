@@ -823,6 +823,10 @@
 		87300E892851C9D8009DE4B3 /* AcceptWalletConnectSessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87300E882851C9D8009DE4B3 /* AcceptWalletConnectSessionViewModel.swift */; };
 		87300E8B2851C9FE009DE4B3 /* AcceptDeepLinkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87300E8A2851C9FE009DE4B3 /* AcceptDeepLinkViewModel.swift */; };
 		87300E9228573461009DE4B3 /* ConfigureImageStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87300E9128573461009DE4B3 /* ConfigureImageStorage.swift */; };
+		872A98662862EC0C00196EA3 /* base64_image_example.txt in Resources */ = {isa = PBXBuildFile; fileRef = 872A98652862EC0C00196EA3 /* base64_image_example.txt */; };
+		872D9564271D633E00870971 /* WalletConnectConnectionTimeoutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872D9563271D633D00870971 /* WalletConnectConnectionTimeoutViewController.swift */; };
+		872D9567271D66C200870971 /* GasPriceEstimates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872D9565271D66C200870971 /* GasPriceEstimates.swift */; };
+		872D9568271D66C200870971 /* EtherscanGasPriceEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872D9566271D66C200870971 /* EtherscanGasPriceEstimator.swift */; };
 		87300E8E28520F28009DE4B3 /* EnsRecordsStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87300E8D28520F28009DE4B3 /* EnsRecordsStorageTests.swift */; };
 		87300E9228573461009DE4B3 /* ConfigureImageStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87300E9128573461009DE4B3 /* ConfigureImageStorage.swift */; };
 		8731E6E02565269400A6A7DA /* Uniswap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8731E6DB2565269400A6A7DA /* Uniswap.swift */; };
@@ -840,6 +844,7 @@
 		8738DDDC2652B98200064CCA /* ActivitiesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8738DDDB2652B98200064CCA /* ActivitiesService.swift */; };
 		87399127285B42DF00465D3C /* Requester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87399126285B42DF00465D3C /* Requester.swift */; };
 		87399129285B42F700465D3C /* RequesterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87399128285B42F700465D3C /* RequesterViewModel.swift */; };
+		8739912D2861ED9B00465D3C /* LogLargeNftJsonFilesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8739912C2861ED9B00465D3C /* LogLargeNftJsonFilesTests.swift */; };
 		8739BB5526CCECD10045CFED /* Erc875NonFungibleRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8739BB5426CCECD10045CFED /* Erc875NonFungibleRowView.swift */; };
 		8739BB6026CCED010045CFED /* SelectableNFTAssetContainerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8739BB5F26CCED010045CFED /* SelectableNFTAssetContainerViewModel.swift */; };
 		8739BB6626CCED4B0045CFED /* NFTAssetsPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8739BB6526CCED4B0045CFED /* NFTAssetsPageView.swift */; };
@@ -2078,6 +2083,10 @@
 		87300E882851C9D8009DE4B3 /* AcceptWalletConnectSessionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcceptWalletConnectSessionViewModel.swift; sourceTree = "<group>"; };
 		87300E8A2851C9FE009DE4B3 /* AcceptDeepLinkViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcceptDeepLinkViewModel.swift; sourceTree = "<group>"; };
 		87300E9128573461009DE4B3 /* ConfigureImageStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigureImageStorage.swift; sourceTree = "<group>"; };
+		872A98652862EC0C00196EA3 /* base64_image_example.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = base64_image_example.txt; sourceTree = "<group>"; };
+		872D9563271D633D00870971 /* WalletConnectConnectionTimeoutViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectConnectionTimeoutViewController.swift; sourceTree = "<group>"; };
+		872D9565271D66C200870971 /* GasPriceEstimates.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GasPriceEstimates.swift; sourceTree = "<group>"; };
+		872D9566271D66C200870971 /* EtherscanGasPriceEstimator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EtherscanGasPriceEstimator.swift; sourceTree = "<group>"; };
 		87300E8D28520F28009DE4B3 /* EnsRecordsStorageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnsRecordsStorageTests.swift; sourceTree = "<group>"; };
 		87300E9128573461009DE4B3 /* ConfigureImageStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigureImageStorage.swift; sourceTree = "<group>"; };
 		8731E6DB2565269400A6A7DA /* Uniswap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Uniswap.swift; sourceTree = "<group>"; };
@@ -2095,6 +2104,7 @@
 		8738DDDB2652B98200064CCA /* ActivitiesService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivitiesService.swift; sourceTree = "<group>"; };
 		87399126285B42DF00465D3C /* Requester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Requester.swift; sourceTree = "<group>"; };
 		87399128285B42F700465D3C /* RequesterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequesterViewModel.swift; sourceTree = "<group>"; };
+		8739912C2861ED9B00465D3C /* LogLargeNftJsonFilesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogLargeNftJsonFilesTests.swift; sourceTree = "<group>"; };
 		8739BB5426CCECD10045CFED /* Erc875NonFungibleRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Erc875NonFungibleRowView.swift; sourceTree = "<group>"; };
 		8739BB5F26CCED010045CFED /* SelectableNFTAssetContainerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableNFTAssetContainerViewModel.swift; sourceTree = "<group>"; };
 		8739BB6526CCED4B0045CFED /* NFTAssetsPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTAssetsPageView.swift; sourceTree = "<group>"; };
@@ -4526,6 +4536,8 @@
 			isa = PBXGroup;
 			children = (
 				5E7C737AF4E3BED49DD63CF4 /* FakeBlockiesGenerator.swift */,
+				8739912C2861ED9B00465D3C /* LogLargeNftJsonFilesTests.swift */,
+				872A98652862EC0C00196EA3 /* base64_image_example.txt */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -6217,6 +6229,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				872A98662862EC0C00196EA3 /* base64_image_example.txt in Resources */,
 				87831C842849E4E0002E856E /* tikersForTest.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -7589,6 +7602,7 @@
 				0256B64227F73EBF008AF8CF /* StringValidatorTestCases.swift in Sources */,
 				290B2B6C1F92C35B0053C83E /* RPCServerTests.swift in Sources */,
 				290B2B6A1F92C0440053C83E /* ConfigTests.swift in Sources */,
+				8739912D2861ED9B00465D3C /* LogLargeNftJsonFilesTests.swift in Sources */,
 				29BDF1941FEE43AA0023A45F /* TransactionConfiguratorTests.swift in Sources */,
 				29FF13081F75F0AE00AFD326 /* AppCoordinatorTests.swift in Sources */,
 				2923D9B71FDA5E51000CF3F8 /* PasswordGeneratorTests.swift in Sources */,

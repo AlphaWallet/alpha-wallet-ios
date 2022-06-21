@@ -16,7 +16,7 @@ protocol CoinTickerProvider: AnyObject {
 }
 
 protocol TokenBalanceProviderTests {
-    func setNftBalanceTestsOnly(_ value: [String], forToken token: Token, wallet: Wallet)
+    func setNftBalanceTestsOnly(_ value: NonFungibleBalance, forToken token: Token, wallet: Wallet)
     func setBalanceTestsOnly(_ value: BigInt, forToken token: Token, wallet: Wallet)
     func deleteTokenTestsOnly(token: Token, wallet: Wallet)
     func addOrUpdateTokenTestsOnly(token: Token, wallet: Wallet)
@@ -193,7 +193,7 @@ extension MultiWalletBalanceService {
             .setBalanceTestsOnly(value, forToken: token)
     }
 
-    func setNftBalanceTestsOnly(_ value: [String], forToken token: Token, wallet: Wallet) {
+    func setNftBalanceTestsOnly(_ value: NonFungibleBalance, forToken token: Token, wallet: Wallet) {
         getOrCreateBalanceFetcher(for: wallet)
             .setNftBalanceTestsOnly(value, forToken: token)
     }
