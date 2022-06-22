@@ -26,7 +26,7 @@ class ReplaceTransactionCoordinator: Coordinator {
     private let transaction: TransactionInstance
     private let mode: Mode
     private var transactionConfirmationResult: ConfirmResult? = .none
-
+    private let assetDefinitionStore: AssetDefinitionStore
     private var recipient: AlphaWallet.Address? {
         switch transactionType {
         case .nativeCryptocurrency:
@@ -68,19 +68,19 @@ class ReplaceTransactionCoordinator: Coordinator {
             return nil
         }
     }
-    private var transactionConfirmationConfiguration: TransactionConfirmationConfiguration {
+    private var transactionConfirmationConfiguration: TransactionConfirmationViewModel.Configuration {
         switch mode {
         case .speedup:
-            return .speedupTransaction(keystore: keystore)
+            return .speedupTransaction
         case .cancel:
-            return .cancelTransaction(keystore: keystore)
+            return .cancelTransaction
         }
     }
 
     var coordinators: [Coordinator] = []
     weak var delegate: ReplaceTransactionCoordinatorDelegate?
 
-    init?(analyticsCoordinator: AnalyticsCoordinator, domainResolutionService: DomainResolutionServiceType, keystore: Keystore, presentingViewController: UIViewController, session: WalletSession, transaction: TransactionInstance, mode: Mode) {
+    init?(analyticsCoordinator: AnalyticsCoordinator, domainResolutionService: DomainResolutionServiceType, keystore: Keystore, presentingViewController: UIViewController, session: WalletSession, transaction: TransactionInstance, mode: Mode, assetDefinitionStore: AssetDefinitionStore) {
         guard let pendingTransactionInformation = TransactionDataStore.pendingTransactionsInformation[transaction.id] else { return nil }
         guard let nonce = BigInt(transaction.nonce) else { return nil }
         self.pendingTransactionInformation = pendingTransactionInformation
@@ -92,6 +92,7 @@ class ReplaceTransactionCoordinator: Coordinator {
         self.transaction = transaction
         self.mode = mode
         self.nonce = nonce
+        self.assetDefinitionStore = assetDefinitionStore
     }
 
     func start() {
@@ -105,7 +106,9 @@ class ReplaceTransactionCoordinator: Coordinator {
                     transaction: unconfirmedTransaction,
                     configuration: transactionConfirmationConfiguration,
                     analyticsCoordinator: analyticsCoordinator,
-                    domainResolutionService: domainResolutionService)
+                    domainResolutionService: domainResolutionService,
+                    keystore: keystore,
+                    assetDefinitionStore: assetDefinitionStore)
             coordinator.delegate = self
             addCoordinator(coordinator)
             switch mode {

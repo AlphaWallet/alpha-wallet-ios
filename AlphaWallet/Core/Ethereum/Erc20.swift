@@ -28,8 +28,8 @@ enum Erc20 {
         }
     }
 
-    static func buildApproveTransaction(keystore: Keystore, token: AlphaWallet.Address, server: RPCServer, owner: AlphaWallet.Address, spender: AlphaWallet.Address, amount: BigUInt) -> (UnconfirmedTransaction, TransactionConfirmationConfiguration) {
-        let configuration: TransactionConfirmationConfiguration = .approve(keystore: keystore)
+    static func buildApproveTransaction(keystore: Keystore, token: AlphaWallet.Address, server: RPCServer, owner: AlphaWallet.Address, spender: AlphaWallet.Address, amount: BigUInt) -> (UnconfirmedTransaction, TransactionConfirmationViewModel.Configuration) {
+        let configuration: TransactionConfirmationViewModel.Configuration = .approve
         let transactionType: TransactionType = .prebuilt(server)
         //TODO should just provide a function name and be able to get the signature from the ABI in ERC20.json
         let function = Function(name: "approve", parameters: [ABIType.address, ABIType.uint(bits: 256)])
