@@ -9,6 +9,7 @@ import Realm
 import RealmSwift
 import Foundation
 
+fileprivate let queueForRealmStore = DispatchQueue(label: "org.alphawallet.swift.realm.store", qos: .background)
 class RealmStore {
     static func threadName(for wallet: Wallet) -> String {
         return "org.alphawallet.swift.realmStore.\(wallet.address).wallet"
@@ -31,12 +32,18 @@ class RealmStore {
         thread.start()
     }
 
-    func performSync(_ callback: @escaping (Realm) -> Void) {
+    func performSync(_ block: @escaping (Realm) -> Void) {
         if Thread.isMainThread {
-            callback(mainThreadRealm)
+            block(mainThreadRealm)
         } else {
-            thread.performSync() {
-                callback(self.backgroundThreadRealm)
+            //NOTE: synchronize calls from different threads to avoid
+            //*** -[AlphaWallet.RunLoopThread performSelector:onThread:withObject:waitUntilDone:modes:]: target thread exited while waiting for the perform
+            dispatchPrecondition(condition: .notOnQueue(queueForRealmStore))
+            queueForRealmStore.sync {
+                //NOTE: perform an operation on run loop thread
+                thread._perform {
+                    block(self.backgroundThreadRealm)
+                }
             }
         }
     }

@@ -43,14 +43,14 @@ class RunLoopThread: Thread {
         }
     }
 
-    func performSync(_ block: @escaping () -> Swift.Void) {
+    func _perform(_ block: @escaping () -> Swift.Void) {
         guard self.isExecuting else {
             if !self.isCancelled {
                 if isRunLoopThreadLoggingEnabled {
                     debugLog("[Thread] \(name ?? String(describing: self)) hasn't started up yet. Starting soon...")
                 }
                 Thread.sleep(forTimeInterval: 0.002)
-                self.performSync(block)
+                self._perform(block)
             } else {
                 if isRunLoopThreadLoggingEnabled {
                     debugLog("[Thread] \(name ?? String(describing: self)) has already been cancelled!")
@@ -69,7 +69,7 @@ class RunLoopThread: Thread {
     }
 
     func stop() {
-        self.performSync() {
+        self._perform() {
             self.cancel()
         }
     }
