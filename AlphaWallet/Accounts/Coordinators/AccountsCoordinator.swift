@@ -75,7 +75,7 @@ class AccountsCoordinator: Coordinator {
 
     weak var delegate: AccountsCoordinatorDelegate?
     private let viewModel: AccountsCoordinatorViewModel
-    private var cancelable: AnyCancellable?
+    private var cancelable = Set<AnyCancellable>()
 
     init(
         config: Config,
@@ -154,16 +154,16 @@ class AccountsCoordinator: Coordinator {
         controller.popoverPresentationController?.sourceView = sender
 
         switch account.type {
-        case .real(let account):
+        case .real(let address):
             let actionTitle: String
-            if keystore.isHdWallet(account: account) {
+            if keystore.isHdWallet(account: address) {
                 actionTitle = R.string.localizable.walletsBackupHdWalletAlertSheetTitle()
             } else {
                 actionTitle = R.string.localizable.walletsBackupKeystoreWalletAlertSheetTitle()
             }
             let backupKeystoreAction = UIAlertAction(title: actionTitle, style: .default) { [weak self] _ in
                 guard let strongSelf = self else { return }
-                let coordinator = BackupCoordinator(navigationController: strongSelf.navigationController, keystore: strongSelf.keystore, account: account, analyticsCoordinator: strongSelf.analyticsCoordinator)
+                let coordinator = BackupCoordinator(navigationController: strongSelf.navigationController, keystore: strongSelf.keystore, account: address, analyticsCoordinator: strongSelf.analyticsCoordinator)
                 coordinator.delegate = strongSelf
                 coordinator.start()
                 strongSelf.addCoordinator(coordinator)
@@ -179,7 +179,7 @@ class AccountsCoordinator: Coordinator {
             }
 
             let copyAction = UIAlertAction(title: R.string.localizable.copyAddress(), style: .default) { _ in
-                UIPasteboard.general.string = account.eip55String
+                UIPasteboard.general.string = address.eip55String
             }
             controller.addAction(copyAction)
 
@@ -190,7 +190,7 @@ class AccountsCoordinator: Coordinator {
             navigationController.present(controller, animated: true)
         case .watch:
             let renameAction = UIAlertAction(title: R.string.localizable.walletsNameRename(), style: .default) { [weak self] _ in
-                self?.promptRenameWallet(account.address)
+                self?.promptRenameWallet(account)
             }
             controller.addAction(renameAction)
 
@@ -205,7 +205,7 @@ class AccountsCoordinator: Coordinator {
         }
     }
 
-    private func promptRenameWallet(_ account: AlphaWallet.Address) {
+    private func promptRenameWallet(_ account: Wallet) {
         let alertController = UIAlertController(
                 title: R.string.localizable.walletsNameRenameTo(),
                 message: nil,
@@ -215,25 +215,20 @@ class AccountsCoordinator: Coordinator {
         alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default, handler: { [weak self] _ -> Void in
             guard let strongSelf = self else { return }
             guard let textField = alertController.textFields?.first else { return }
-            let walletName = textField.text?.trimmed ?? ""
-            strongSelf.accountsViewController.viewModel.set(walletName: walletName, for: account)
+            strongSelf.accountsViewController.viewModel.set(name: textField.text?.trimmed ?? "", for: account)
         }))
 
         alertController.addAction(UIAlertAction(title: R.string.localizable.cancel(), style: .cancel))
         alertController.addTextField(configurationHandler: { [weak self] textField in
             guard let strongSelf = self else { return }
-            strongSelf.cancelable?.cancel()
-            strongSelf.cancelable = strongSelf.domainResolutionService.resolveEns(address: account)
-                .map { $0.resolution.value }
-                .receive(on: RunLoop.main)
-                .sink(receiveCompletion: { _ in
-                    //no-op
-                }, receiveValue: { name in
-                    textField.placeholder = name
-                })
 
-            let walletNames = strongSelf.config.walletNames
-            textField.text = walletNames[account]
+            strongSelf.accountsViewController.viewModel.resolvedEns(for: account)
+                .assign(to: \.placeholder, on: textField)
+                .store(in: &strongSelf.cancelable)
+
+            strongSelf.accountsViewController.viewModel.assignedName(for: account)
+                .assign(to: \.text, on: textField)
+                .store(in: &strongSelf.cancelable)
         })
 
         navigationController.present(alertController, animated: true)

@@ -179,9 +179,8 @@ class RequestViewController: UIViewController {
     private func resolveEns() {
         cancelable?.cancel()
         cancelable = domainResolutionService.resolveEns(address: viewModel.myAddress)
-            .map { $0.resolution.value }
+            .map { ens -> EnsName? in return ens }
             .replaceError(with: nil)
-            .receive(on: RunLoop.main)
             .sink(receiveValue: { [weak self] ensName in
                 guard let strongSelf = self else { return }
 
