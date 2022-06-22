@@ -44,6 +44,7 @@ public struct Constants {
     public static let palmTestnetMagicLinkHost = "palmTestnet.aw.app"
     public static let klaytnCypressMagicLinkHost = "klaytnCypress.aw.app"
     public static let klaytnBaobabTestnetMagicLinkHost = "klaytnBaobabTestnet.aw.app"
+    public static let phiMagicLinkHost = "phi.aw.app"
 
     public enum Currency {
         static let usd = "USD"
