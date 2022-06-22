@@ -145,6 +145,8 @@ class SettingsViewController: UIViewController {
             .sink(receiveCompletion: { _ in
                 //no-op
             }, receiveValue: { [viewModel] name in
+                guard cell.indexPath == indexPath else { return }
+                
                 let viewModel = SettingTableViewCellViewModel(titleText: row.title, subTitleText: viewModel.addressReplacedWithENSOrWalletName(name), icon: row.icon)
                 cell.configure(viewModel: viewModel)
             })

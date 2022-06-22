@@ -73,6 +73,7 @@ class SettingTableViewCell: UITableViewCell {
 
     override func prepareForReuse() {
         accessoryView = nil
+        walletNameCancelable?.cancel()
     }
 
     required init?(coder aDecoder: NSCoder) {
