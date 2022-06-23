@@ -19,7 +19,7 @@ typealias EnjinSemiFungiblesToTokenId = [String: GetEnjinTokenQuery.Data.EnjinTo
 final class Enjin {
     private lazy var networkProvider = EnjinNetworkProvider(queue: queue)
     private let queue: DispatchQueue
-    
+
     typealias EnjinBalances = [GetEnjinBalancesQuery.Data.EnjinBalance]
     typealias MappedEnjinBalances = [AlphaWallet.Address: EnjinBalances]
 
@@ -58,7 +58,7 @@ final class Enjin {
         switch server {
         case .main:
             return true
-        case .rinkeby, .kovan, .ropsten, .poa, .sokol, .classic, .callisto, .custom, .goerli, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .candle, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet:
+        case .rinkeby, .kovan, .ropsten, .poa, .sokol, .classic, .callisto, .custom, .goerli, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .candle, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet, .phi:
             return false
         }
     }

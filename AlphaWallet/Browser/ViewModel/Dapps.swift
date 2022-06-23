@@ -12,6 +12,9 @@ enum OriginalDapps {
         Dapp(name: "TokenSets", description: "Enhance your portfolio with automated asset management strategies.", url: "https://www.tokensets.com/", cat: "Finance"),
         Dapp(name: "State of the ÐApps", description: "Directory of Decentralized Applications", url: "https://www.stateofthedapps.com/", cat: "Directory"),
         Dapp(name: "BulkSender", description: "Batch sending of tokens", url: "https://bulksender.app/", cat: "Finance"),
+        Dapp(name: "Phiswap", description: "Swap Assets On The Largest Decentralized Exchange", url: "https://app.phiswap.com", cat: "Finance"),
+        Dapp(name: "Phitoken", description: "Mint New PHI20 Assets", url: "https://app.phitoken.com", cat: "Finance"),
+        Dapp(name: "Phi.Auction", description: "Buy, Sell, Mint NFTS", url: "https://phi.auction", cat: "Marketplace"),
         Dapp(name: "loanscan", description: "Get the best return on your Tokens", url: "https://loanscan.io/", cat: "Finance"),
         Dapp(name: "Fuse Studio", description: "Turning communities into economies", url: "https://studio.fusenet.io/", cat: "Finance"),
         Dapp(name: "Axie Infinity", description: "Collect and raise fantasy creatures", url: "https://axieinfinity.com/", cat: "Games"),
@@ -82,7 +85,8 @@ enum OriginalDapps {
         Dapp(name: "CNCUK", description: "CNCUK Tokenomics", url: "https://alpha.cynocoin.co.uk", cat: "Tool",
         Dapp(name: "Swapzone", description: "Swapzone is a custody-free cryptocurrency exchange aggregator with no registration needed.", url: "https://swapzone.io/", cat: "Exchange"),
         Dapp(name: "MetaPath", description: "Assets can be routed across different blockchains", url: "https://dapp.path.finance?source=alpha", cat: "Exchange"),  
-        Dapp(name: "SWFT", description: "One Stop Cross-Chain swap, supporting 300+ tokens on 30+ chains", url: "https://defi.swft.pro?sourceFlag=alpha", cat: "Exchange")     
+        Dapp(name: "SWFT", description: "One Stop Cross-Chain swap, supporting 300+ tokens on 30+ chains", url: "https://defi.swft.pro?sourceFlag=alpha", cat: "Exchange")
+        Dapp(name: "PancakeSwap", description: " A next evolution DeFi exchange on BNB Smart Chain (BSC)", url: "https://pancakeswap.finance/info", cat: "Exchange")
 ),
     ]
 

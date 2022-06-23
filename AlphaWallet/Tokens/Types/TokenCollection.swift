@@ -9,7 +9,7 @@ protocol TokenCollection {
     var tokensViewModel: AnyPublisher<TokensViewModel, Never> { get }
     var tokensDataStore: TokensDataStore { get }
     var tokensFilter: TokensFilter { get }
-    
+
     func fetch()
 }
 
@@ -37,15 +37,9 @@ class MultipleChainsTokenCollection: NSObject, TokenCollection {
         super.init()
 
         tokensDataStore
-            .enabledTokensChangeset(for: enabledServers)
+            .enabledTokensPublisher(for: enabledServers)
             .receive(on: queue)
-            .combineLatest(refereshSubject, { changeset, _ in
-                switch changeset {
-                case .initial(let tokens): return tokens
-                case .update(let tokens, _, _, _): return tokens
-                case .error: return []
-                }
-            })
+            .combineLatest(refereshSubject, { tokens, _ in tokens })
             .map { MultipleChainsTokensDataStore.functional.erc20AddressForNativeTokenFilter(servers: enabledServers, tokens: $0) }
             .map { TokensViewModel.functional.filterAwaySpuriousTokens($0) }
             .map { TokensViewModel(tokensFilter: tokensFilter, tokens: $0, config: config) }
@@ -97,6 +91,7 @@ extension RPCServer {
         case .palmTestnet: return 28
         case .klaytnCypress: return 29
         case .klaytnBaobabTestnet: return 30
+        case .phi: return 31
         }
     }
 }

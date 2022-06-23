@@ -1,7 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Combine
-import UIKit 
+import UIKit
 import PromiseKit
 
 class AppCoordinator: NSObject, Coordinator {
@@ -29,6 +29,7 @@ class AppCoordinator: NSObject, Coordinator {
     }()
 
     private var analyticsService: AnalyticsServiceType
+    lazy private var openSea: OpenSea = OpenSea(analyticsCoordinator: analyticsService, queue: .global())
     private let restartQueue = RestartTaskQueue()
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -38,7 +39,7 @@ class AppCoordinator: NSObject, Coordinator {
     private let localStore: LocalStore = RealmLocalStore()
     private lazy var coinTickersFetcher: CoinTickersFetcherType = CoinTickersFetcher(provider: AlphaWalletProviderFactory.makeProvider(), config: config)
     private lazy var walletBalanceService: WalletBalanceService = {
-        return MultiWalletBalanceService(store: localStore, keystore: keystore, config: config, assetDefinitionStore: assetDefinitionStore, coinTickersFetcher: coinTickersFetcher, walletAddressesStore: walletAddressesStore)
+        return MultiWalletBalanceService(store: localStore, keystore: keystore, config: config, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsService, coinTickersFetcher: coinTickersFetcher, walletAddressesStore: walletAddressesStore)
     }()
     private var pendingActiveWalletCoordinator: ActiveWalletCoordinator?
 
@@ -49,7 +50,9 @@ class AppCoordinator: NSObject, Coordinator {
                 keystore: keystore,
                 analyticsCoordinator: analyticsService,
                 viewModel: .init(configuration: .summary),
-                walletBalanceService: walletBalanceService
+                walletBalanceService: walletBalanceService,
+                blockiesGenerator: blockiesGenerator,
+                domainResolutionService: domainResolutionService
         )
         coordinator.delegate = self
 
@@ -86,12 +89,18 @@ class AppCoordinator: NSObject, Coordinator {
 
     private lazy var sessionsSubject = CurrentValueSubject<ServerDictionary<WalletSession>, Never>(.init())
     private lazy var walletConnectCoordinator: WalletConnectCoordinator = {
-        let coordinator = WalletConnectCoordinator(keystore: keystore, navigationController: navigationController, analyticsCoordinator: analyticsService, config: config, sessionsSubject: sessionsSubject)
+        let coordinator = WalletConnectCoordinator(keystore: keystore, navigationController: navigationController, analyticsCoordinator: analyticsService, domainResolutionService: domainResolutionService, config: config, sessionsSubject: sessionsSubject)
 
         return coordinator
     }()
     private var walletAddressesStore: WalletAddressesStore
     private var cancelable = Set<AnyCancellable>()
+    private let sharedEnsRecordsStorage: EnsRecordsStorage = {
+        let storage: EnsRecordsStorage = RealmStore.shared
+        return storage
+    }()
+    lazy private var blockiesGenerator: BlockiesGenerator = BlockiesGenerator(openSea: openSea, storage: sharedEnsRecordsStorage)
+    lazy private var domainResolutionService: DomainResolutionServiceType = DomainResolutionService(blockiesGenerator: blockiesGenerator, storage: sharedEnsRecordsStorage)
 
     private lazy var notificationService: NotificationService = {
         return NotificationService(sources: [], walletBalanceService: walletBalanceService)
@@ -130,9 +139,8 @@ class AppCoordinator: NSObject, Coordinator {
             }.store(in: &cancelable)
     }
 
-    func start() { 
+    func start() {
         initializers()
-        cleanPasscodeIfNeeded()
         appTracker.start()
         notificationService.registerForReceivingRemoteNotifications()
         applyStyle()
@@ -185,6 +193,7 @@ class AppCoordinator: NSObject, Coordinator {
                 config: config,
                 appTracker: appTracker,
                 analyticsCoordinator: analyticsService,
+                openSea: openSea,
                 restartQueue: restartQueue,
                 universalLinkCoordinator: universalLinkCoordinator,
                 accountsCoordinator: accountsCoordinator,
@@ -194,6 +203,8 @@ class AppCoordinator: NSObject, Coordinator {
                 walletConnectCoordinator: walletConnectCoordinator,
                 sessionsSubject: sessionsSubject,
                 notificationService: notificationService,
+                blockiesGenerator: blockiesGenerator,
+                domainResolutionService: domainResolutionService,
                 tokenSwapper: tokenSwapper)
 
         coordinator.delegate = self
@@ -212,17 +223,11 @@ class AppCoordinator: NSObject, Coordinator {
             ConfigureApp(),
             CleanupWallets(keystore: keystore, walletAddressesStore: walletAddressesStore, config: config),
             SkipBackupFiles(legacyFileBasedKeystore: legacyFileBasedKeystore),
-            ReportUsersWalletAddresses(walletAddressesStore: walletAddressesStore)
+            ReportUsersWalletAddresses(walletAddressesStore: walletAddressesStore),
+            CleanupPasscode(keystore: keystore)
         ]
 
         initializers.forEach { $0.perform() }
-    }
-
-    private func cleanPasscodeIfNeeded() {
-        //We should clean passcode if there is no wallets. This step is required for app reinstall.
-        if !keystore.hasWallets {
-            lock.clear()
-        }
     }
 
     @objc func reset() {
@@ -234,7 +239,7 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     func showInitialWalletCoordinator() {
-        let coordinator = InitialWalletCreationCoordinator(config: config, navigationController: navigationController, keystore: keystore, analyticsCoordinator: analyticsService)
+        let coordinator = InitialWalletCreationCoordinator(config: config, navigationController: navigationController, keystore: keystore, analyticsCoordinator: analyticsService, domainResolutionService: domainResolutionService)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -248,7 +253,7 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     private func createInitialWalletIfMissing() {
-        WalletCoordinator(config: config, keystore: keystore, analyticsCoordinator: analyticsService).createInitialWalletIfMissing()
+        WalletCoordinator(config: config, keystore: keystore, analyticsCoordinator: analyticsService, domainResolutionService: domainResolutionService).createInitialWalletIfMissing()
     }
 
     private func showActiveWalletIfNeeded() {

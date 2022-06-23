@@ -45,6 +45,7 @@ public struct Constants {
     public static let palmTestnetMagicLinkHost = "palmTestnet.aw.app"
     public static let klaytnCypressMagicLinkHost = "klaytnCypress.aw.app"
     public static let klaytnBaobabTestnetMagicLinkHost = "klaytnBaobabTestnet.aw.app"
+    public static let phiMagicLinkHost = "phi.aw.app"
 
     public enum Currency {
         static let usd = "USD"
@@ -225,6 +226,10 @@ public struct Constants {
             "https://gblobscdn.gitbook.com/spaces%2F-LJJeCjcLrr53DcT1Ml7%2Favatar.png?alt=media"
         ]
         static let connectionTimeout: TimeInterval = 10
+    }
+
+    enum Ens {
+        static let recordExpiration: TimeInterval = -(2 * 24 * 60 * 60)
     }
 
     //CurrencyFormatter

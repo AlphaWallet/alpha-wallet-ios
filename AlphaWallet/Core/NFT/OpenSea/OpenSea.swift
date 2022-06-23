@@ -6,11 +6,13 @@ import AlphaWalletCore
 import AlphaWalletOpenSea
 
 final class OpenSea {
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let storage: Storage<[AddressAndRPCServer: OpenSeaNonFungiblesToAddress]> = .init(fileName: "OpenSea", defaultValue: [:])
     private let queue: DispatchQueue
-    private lazy var networkProvider: OpenSeaNetworkProvider = OpenSeaNetworkProvider(queue: queue)
+    private lazy var networkProvider: OpenSeaNetworkProvider = OpenSeaNetworkProvider(analyticsCoordinator: analyticsCoordinator, queue: queue)
 
-    init(queue: DispatchQueue) {
+    init(analyticsCoordinator: AnalyticsCoordinator, queue: DispatchQueue) {
+        self.analyticsCoordinator = analyticsCoordinator
         self.queue = queue
     }
 
@@ -18,7 +20,7 @@ final class OpenSea {
         switch server {
         case .main, .rinkeby:
             return true
-        case .kovan, .ropsten, .poa, .sokol, .classic, .callisto, .custom, .goerli, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .candle, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet:
+        case .kovan, .ropsten, .poa, .sokol, .classic, .callisto, .custom, .goerli, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .candle, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet, .phi:
             return false
         }
     }
@@ -51,14 +53,14 @@ final class OpenSea {
                 }
 
                 return storage?.value[key] ?? result.result
-            }) 
+            })
     }
 
-    static func fetchAssetImageUrl(for value: Eip155URL, server: RPCServer) -> Promise<URL> {
-        OpenSeaNetworkProvider(queue: .global()).fetchAssetImageUrl(for: value, server: server)
+    func fetchAssetImageUrl(for value: Eip155URL, server: RPCServer) -> Promise<URL> {
+        networkProvider.fetchAssetImageUrl(for: value, server: server)
     }
 
-    static func collectionStats(slug: String, server: RPCServer) -> Promise<Stats> {
-        OpenSeaNetworkProvider(queue: .global()).collectionStats(slug: slug, server: server)
+    func collectionStats(slug: String, server: RPCServer) -> Promise<Stats> {
+        networkProvider.collectionStats(slug: slug, server: server)
     }
 }

@@ -473,6 +473,7 @@
 "blockchain.arbitrum.rinkeby" = "Arbitrum Rinkeby";
 "blockchain.palm" = "Palm";
 "blockchain.palm.Testnet" = "Palm (Testnet)";
+"blockchain.phi" = "PHI";
 "photos" = "Explorar";
 "light" = "Luz";
 "qrCode.title" = "Apunta la cámara al código QR";

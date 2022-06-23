@@ -24,6 +24,7 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
     private lazy var containerView: ScrollableStackView = ScrollableStackView()
     private let mode: TokenInstanceViewMode
     private lazy var attributesStackView = GridStackView(viewModel: .init(edgeInsets: .init(top: 0, left: 16, bottom: 15, right: 16)))
+    private let openSea: OpenSea
 
     var server: RPCServer {
         return viewModel.token.server
@@ -34,8 +35,9 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
     let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: NonFungibleTokenViewControllerDelegate?
 
-    init(analyticsCoordinator: AnalyticsCoordinator, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore, viewModel: NFTAssetViewModel, mode: TokenInstanceViewMode) {
+    init(analyticsCoordinator: AnalyticsCoordinator, openSea: OpenSea, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore, viewModel: NFTAssetViewModel, mode: TokenInstanceViewMode) {
         self.analyticsCoordinator = analyticsCoordinator
+        self.openSea = openSea
         self.assetDefinitionStore = assetDefinitionStore
         self.mode = mode
         self.viewModel = viewModel
@@ -89,11 +91,11 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
 
         let values = viewModel.tokenHolder.values
         if let openSeaSlug = values.slug, openSeaSlug.trimmed.nonEmpty {
-            OpenSea.collectionStats(slug: openSeaSlug, server: viewModel.token.server).done { stats in
+            openSea.collectionStats(slug: openSeaSlug, server: viewModel.token.server).done { stats in
                 self.viewModel.configure(overiddenOpenSeaStats: stats)
                 self.configure(viewModel: self.viewModel)
             }.cauterize()
-        } 
+        }
     }
 
     func configure(viewModel newViewModel: NFTAssetViewModel) {

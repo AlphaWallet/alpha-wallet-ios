@@ -41,7 +41,8 @@ class ServersCoordinator: Coordinator {
             .arbitrum,
             .arbitrumRinkeby,
             .klaytnCypress,
-            .klaytnBaobabTestnet
+            .klaytnBaobabTestnet,
+            .phi,
         ] + RPCServer.customServers
         if Features.default.isAvailable(.isPalmEnabled) {
             return all + [.palm, .palmTestnet]

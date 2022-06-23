@@ -19,10 +19,11 @@ class TransferNFTCoordinator: Coordinator {
     private let session: WalletSession
     private let assetDefinitionStore: AssetDefinitionStore
     private let analyticsCoordinator: AnalyticsCoordinator
+    private let domainResolutionService: DomainResolutionServiceType
     private let tokenHolder: TokenHolder
     private var transactionConfirmationResult: ConfirmResult? = .none
     private let transactionType: TransactionType
-    
+
     weak var delegate: TransferNFTCoordinatorDelegate?
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -35,7 +36,8 @@ class TransferNFTCoordinator: Coordinator {
             tokenObject: TokenObject,
             transactionType: TransactionType,
             assetDefinitionStore: AssetDefinitionStore,
-            analyticsCoordinator: AnalyticsCoordinator
+            analyticsCoordinator: AnalyticsCoordinator,
+            domainResolutionService: DomainResolutionServiceType
     ) {
         self.transactionType = transactionType
         self.tokenHolder = tokenHolder
@@ -45,6 +47,7 @@ class TransferNFTCoordinator: Coordinator {
         self.tokenObject = tokenObject
         self.assetDefinitionStore = assetDefinitionStore
         self.analyticsCoordinator = analyticsCoordinator
+        self.domainResolutionService = domainResolutionService
         navigationController.navigationBar.isTranslucent = false
     }
 
@@ -62,7 +65,7 @@ class TransferNFTCoordinator: Coordinator {
 
     private func makeTransferTokensCardViaWalletAddressViewController(token: TokenObject, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> TransferTokensCardViaWalletAddressViewController {
         let viewModel = TransferTokensCardViaWalletAddressViewControllerViewModel(token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
-        let controller = TransferTokensCardViaWalletAddressViewController(analyticsCoordinator: analyticsCoordinator, token: token, tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, keystore: keystore, session: session)
+        let controller = TransferTokensCardViaWalletAddressViewController(analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService, token: token, tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, keystore: keystore, session: session)
         controller.configure()
         controller.delegate = self
         return controller
@@ -85,30 +88,37 @@ extension TransferNFTCoordinator: TransferTokensCardViaWalletAddressViewControll
     func openQRCode(in controller: TransferTokensCardViaWalletAddressViewController) {
         guard navigationController.ensureHasDeviceAuthorization() else { return }
 
-        let coordinator = ScanQRCodeCoordinator(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, account: session.account)
+        let coordinator = ScanQRCodeCoordinator(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, account: session.account, domainResolutionService: domainResolutionService)
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start(fromSource: .addressTextField)
     }
 
     func didEnterWalletAddress(tokenHolder: TokenHolder, to recipient: AlphaWallet.Address, paymentFlow: PaymentFlow, in viewController: TransferTokensCardViaWalletAddressViewController) {
+        do {
+            guard let token = tokenHolder.tokens.first else { throw TransactionConfiguratorError.impossibleToBuildConfiguration }
+            let transaction = UnconfirmedTransaction(
+                    transactionType: transactionType,
+                    value: BigInt(0),
+                    recipient: recipient,
+                    contract: tokenHolder.contractAddress,
+                    data: nil,
+                    tokenId: token.id,
+                    indices: tokenHolder.indices
+            )
 
-        let transaction = UnconfirmedTransaction(
-                transactionType: transactionType,
-                value: BigInt(0),
-                recipient: recipient,
-                contract: tokenHolder.contractAddress,
-                data: nil,
-                tokenId: tokenHolder.tokens[0].id,
-                indices: tokenHolder.indices
-        )
+            let tokenInstanceNames = tokenHolder.valuesAll.compactMapValues { $0.nameStringValue }
+            let configuration: TransactionConfirmationConfiguration = .sendNftTransaction(confirmType: .signThenSend, keystore: keystore, tokenInstanceNames: tokenInstanceNames)
 
-        let tokenInstanceNames = tokenHolder.valuesAll.compactMapValues { $0.nameStringValue }
-        let configuration: TransactionConfirmationConfiguration = .sendNftTransaction(confirmType: .signThenSend, keystore: keystore, tokenInstanceNames: tokenInstanceNames)
-        let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator)
-        addCoordinator(coordinator)
-        coordinator.delegate = self
-        coordinator.start(fromSource: .sendNft)
+            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
+            addCoordinator(coordinator)
+            coordinator.delegate = self
+            coordinator.start(fromSource: .sendNft)
+        } catch {
+            UIApplication.shared
+                .presentedViewController(or: navigationController)
+                .displayError(message: error.prettyError)
+        }
     }
 
     func didPressViewInfo(in viewController: TransferTokensCardViaWalletAddressViewController) {
@@ -165,7 +175,7 @@ extension TransferNFTCoordinator: TransactionConfirmationCoordinatorDelegate {
 extension TransferNFTCoordinator: TransactionInProgressCoordinatorDelegate {
     func didDismiss(in coordinator: TransactionInProgressCoordinator) {
         removeCoordinator(coordinator)
-        
+
         guard case .some(let result) = transactionConfirmationResult else { return }
         delegate?.didFinish(result, in: self)
     }

@@ -17,12 +17,15 @@ protocol NFTProvider: AnyObject {
 
 final class AlphaWalletNFTProvider: NFTProvider {
 
-    private lazy var openSea = OpenSea(queue: queue)
+    private let analyticsCoordinator: AnalyticsCoordinator
+    private lazy var openSea = OpenSea(analyticsCoordinator: analyticsCoordinator, queue: queue)
     private lazy var enjin = Enjin(queue: queue)
     private var cachedPromises: AtomicDictionary<AddressAndRPCServer, Promise<NonFungiblesTokens>> = .init()
+    //TODO when we remove `queue`, it's also a good time to look at using a shared copy of `OpenSea` from `AppCoordinator`
     private let queue: DispatchQueue
 
-    init(queue: DispatchQueue) {
+    init(analyticsCoordinator: AnalyticsCoordinator, queue: DispatchQueue) {
+        self.analyticsCoordinator = analyticsCoordinator
         self.queue = queue
     }
 

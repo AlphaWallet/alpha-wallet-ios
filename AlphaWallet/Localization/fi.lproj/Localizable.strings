@@ -473,6 +473,7 @@
 "blockchain.arbitrum.rinkeby" = "Arbitrum Rinkeby";
 "blockchain.palm" = "Palm";
 "blockchain.palm.Testnet" = "Palm (Testnet)";
+"blockchain.phi" = "PHI";
 "photos" = "Selaa kuvia";
 "light" = "Valo";
 "qrCode.title" = "Aseta QR-koodi neliöön";

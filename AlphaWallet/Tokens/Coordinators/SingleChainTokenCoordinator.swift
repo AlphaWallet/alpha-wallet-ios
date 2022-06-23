@@ -30,6 +30,7 @@ class SingleChainTokenCoordinator: Coordinator {
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: NonActivityEventsDataStore
     private let analyticsCoordinator: AnalyticsCoordinator
+    private let openSea: OpenSea
     private let tokenActionsProvider: SupportedTokenActionsProvider
     private let coinTickersFetcher: CoinTickersFetcherType
     private let activitiesService: ActivitiesServiceType
@@ -51,6 +52,7 @@ class SingleChainTokenCoordinator: Coordinator {
             assetDefinitionStore: AssetDefinitionStore,
             eventsDataStore: NonActivityEventsDataStore,
             analyticsCoordinator: AnalyticsCoordinator,
+            openSea: OpenSea,
             tokenActionsProvider: SupportedTokenActionsProvider,
             coinTickersFetcher: CoinTickersFetcherType,
             activitiesService: ActivitiesServiceType,
@@ -64,6 +66,7 @@ class SingleChainTokenCoordinator: Coordinator {
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
         self.analyticsCoordinator = analyticsCoordinator
+        self.openSea = openSea
         self.tokenActionsProvider = tokenActionsProvider
         self.coinTickersFetcher = coinTickersFetcher
         self.activitiesService = activitiesService
@@ -99,6 +102,7 @@ class SingleChainTokenCoordinator: Coordinator {
                 assetDefinitionStore: assetDefinitionStore,
                 eventsDataStore: eventsDataStore,
                 analyticsCoordinator: analyticsCoordinator,
+                openSea: openSea,
                 activitiesService: activitiesService
         )
 

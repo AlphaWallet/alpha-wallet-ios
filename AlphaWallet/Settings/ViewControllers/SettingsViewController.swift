@@ -22,6 +22,7 @@ class SettingsViewController: UIViewController {
     private let keystore: Keystore
     private let account: Wallet
     private let analyticsCoordinator: AnalyticsCoordinator
+    private let domainResolutionService: DomainResolutionServiceType
     private let promptBackupWalletViewHolder = UIView()
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
@@ -37,7 +38,8 @@ class SettingsViewController: UIViewController {
         return tableView
     }()
     private var viewModel: SettingsViewModel
-
+    private lazy var walletNameFetcher = GetWalletName(config: config, domainResolutionService: domainResolutionService)
+    
     weak var delegate: SettingsViewControllerDelegate?
     var promptBackupWalletView: UIView? {
         didSet {
@@ -60,11 +62,12 @@ class SettingsViewController: UIViewController {
         }
     }
 
-    init(config: Config, keystore: Keystore, account: Wallet, analyticsCoordinator: AnalyticsCoordinator) {
+    init(config: Config, keystore: Keystore, account: Wallet, analyticsCoordinator: AnalyticsCoordinator, domainResolutionService: DomainResolutionServiceType) {
         self.config = config
         self.keystore = keystore
         self.account = account
         self.analyticsCoordinator = analyticsCoordinator
+        self.domainResolutionService = domainResolutionService
         viewModel = SettingsViewModel(account: account, keystore: keystore, blockscanChatUnreadCount: nil)
         super.init(nibName: nil, bundle: nil)
 
@@ -136,18 +139,17 @@ class SettingsViewController: UIViewController {
             icon: row.icon)
         )
 
-        firstly {
-            GetWalletName(config: config).getName(forAddress: account.address)
-        }.done { [weak self] name in
-            //NOTE check if still correct cell, since this is async
-            guard let strongSelf = self, cell.indexPath == indexPath else { return }
-            let viewModel: SettingTableViewCellViewModel = .init(
-                    titleText: row.title,
-                    subTitleText: strongSelf.viewModel.addressReplacedWithENSOrWalletName(name),
-                    icon: row.icon
-            )
-            cell.configure(viewModel: viewModel)
-        }.cauterize()
+        cell.walletNameCancelable?.cancel()
+        cell.walletNameCancelable = walletNameFetcher.getName(for: account.address)
+            .receive(on: RunLoop.main)
+            .sink(receiveCompletion: { _ in
+                //no-op
+            }, receiveValue: { [viewModel] name in
+                guard cell.indexPath == indexPath else { return }
+                
+                let viewModel = SettingTableViewCellViewModel(titleText: row.title, subTitleText: viewModel.addressReplacedWithENSOrWalletName(name), icon: row.icon)
+                cell.configure(viewModel: viewModel)
+            })
     }
 
     required init?(coder aDecoder: NSCoder) {

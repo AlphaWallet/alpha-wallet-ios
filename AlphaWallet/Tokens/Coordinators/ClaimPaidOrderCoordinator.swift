@@ -21,6 +21,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
     private let tokenObject: TokenObject
     private let signedOrder: SignedOrder
     private let analyticsCoordinator: AnalyticsCoordinator
+    private let domainResolutionService: DomainResolutionServiceType
 
     private var numberOfTokens: UInt {
         if let tokenIds = signedOrder.order.tokenIds, !tokenIds.isEmpty {
@@ -35,13 +36,14 @@ class ClaimPaidOrderCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: ClaimOrderCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, keystore: Keystore, session: WalletSession, tokenObject: TokenObject, signedOrder: SignedOrder, analyticsCoordinator: AnalyticsCoordinator) {
+    init(navigationController: UINavigationController, keystore: Keystore, session: WalletSession, tokenObject: TokenObject, signedOrder: SignedOrder, analyticsCoordinator: AnalyticsCoordinator, domainResolutionService: DomainResolutionServiceType) {
         self.navigationController = navigationController
         self.keystore = keystore
         self.session = session
         self.tokenObject = tokenObject
         self.signedOrder = signedOrder
         self.analyticsCoordinator = analyticsCoordinator
+        self.domainResolutionService = domainResolutionService
     }
 
     func start() {
@@ -62,20 +64,27 @@ class ClaimPaidOrderCoordinator: Coordinator {
             let strongSelf = self
             switch result {
             case .success(let payload):
-                let transaction = UnconfirmedTransaction(
-                        transactionType: .claimPaidErc875MagicLink(strongSelf.tokenObject),
-                        value: BigInt(strongSelf.signedOrder.order.price),
-                        recipient: nil,
-                        contract: strongSelf.signedOrder.order.contractAddress,
-                        data: payload,
-                        gasLimit: nil,
-                        gasPrice: nil,
-                        nonce: nil
-                )
-                let coordinator = TransactionConfirmationCoordinator(presentingViewController: strongSelf.navigationController, session: strongSelf.session, transaction: transaction, configuration: .claimPaidErc875MagicLink(confirmType: .signThenSend, keystore: strongSelf.keystore, price: strongSelf.signedOrder.order.price, numberOfTokens: strongSelf.numberOfTokens), analyticsCoordinator: strongSelf.analyticsCoordinator)
-                coordinator.delegate = self
-                strongSelf.addCoordinator(coordinator)
-                coordinator.start(fromSource: .claimPaidMagicLink)
+                do {
+                    let transaction = UnconfirmedTransaction(
+                            transactionType: .claimPaidErc875MagicLink(strongSelf.tokenObject),
+                            value: BigInt(strongSelf.signedOrder.order.price),
+                            recipient: nil,
+                            contract: strongSelf.signedOrder.order.contractAddress,
+                            data: payload,
+                            gasLimit: nil,
+                            gasPrice: nil,
+                            nonce: nil
+                    )
+                    
+                    let coordinator = try TransactionConfirmationCoordinator(presentingViewController: strongSelf.navigationController, session: strongSelf.session, transaction: transaction, configuration: .claimPaidErc875MagicLink(confirmType: .signThenSend, keystore: strongSelf.keystore, price: strongSelf.signedOrder.order.price, numberOfTokens: strongSelf.numberOfTokens), analyticsCoordinator: strongSelf.analyticsCoordinator, domainResolutionService: strongSelf.domainResolutionService)
+                    coordinator.delegate = self
+                    strongSelf.addCoordinator(coordinator)
+                    coordinator.start(fromSource: .claimPaidMagicLink)
+                } catch {
+                    UIApplication.shared
+                        .presentedViewController(or: strongSelf.navigationController)
+                        .displayError(message: error.prettyError)
+                }
             case .failure:
                 break
             }
@@ -204,7 +213,7 @@ extension ClaimPaidOrderCoordinator: TransactionConfirmationCoordinatorDelegate 
         UIApplication.shared
             .presentedViewController(or: navigationController)
             .displayError(message: error.prettyError)
-        
+
         delegate?.coordinator(self, didFailTransaction: error)
     }
 

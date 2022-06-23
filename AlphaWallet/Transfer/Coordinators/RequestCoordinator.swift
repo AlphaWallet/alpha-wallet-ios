@@ -9,10 +9,11 @@ protocol RequestCoordinatorDelegate: AnyObject {
 
 class RequestCoordinator: Coordinator {
     private let account: Wallet
+    private let domainResolutionService: DomainResolutionServiceType
 
     private lazy var requestViewController: RequestViewController = {
         let viewModel: RequestViewModel = .init(account: account)
-        let controller = RequestViewController(viewModel: viewModel)
+        let controller = RequestViewController(viewModel: viewModel, domainResolutionService: domainResolutionService)
         controller.navigationItem.largeTitleDisplayMode = .never
         controller.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(dismiss))
 
@@ -23,9 +24,10 @@ class RequestCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: RequestCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, account: Wallet) {
+    init(navigationController: UINavigationController, account: Wallet, domainResolutionService: DomainResolutionServiceType) {
         self.navigationController = navigationController
         self.account = account
+        self.domainResolutionService = domainResolutionService
     }
 
     func start() {

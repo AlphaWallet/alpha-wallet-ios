@@ -1,6 +1,6 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
-import UIKit 
+import UIKit
 import PromiseKit
 
 private struct NoContractDetailsDetected: Error {
@@ -12,6 +12,7 @@ protocol AddHideTokensCoordinatorDelegate: AnyObject {
 
 class AddHideTokensCoordinator: Coordinator {
     private let analyticsCoordinator: AnalyticsCoordinator
+    private let domainResolutionService: DomainResolutionServiceType
     private let navigationController: UINavigationController
     private let importToken: ImportToken
     private lazy var viewModel = AddHideTokensViewModel(tokenCollection: tokenCollection, importToken: importToken, config: config, assetDefinitionStore: assetDefinitionStore)
@@ -26,10 +27,11 @@ class AddHideTokensCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: AddHideTokensCoordinatorDelegate?
 
-    init(assetDefinitionStore: AssetDefinitionStore, tokenCollection: TokenCollection, analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, config: Config, importToken: ImportToken) {
+    init(assetDefinitionStore: AssetDefinitionStore, tokenCollection: TokenCollection, analyticsCoordinator: AnalyticsCoordinator, domainResolutionService: DomainResolutionServiceType, navigationController: UINavigationController, config: Config, importToken: ImportToken) {
         self.config = config
         self.tokenCollection = tokenCollection
         self.analyticsCoordinator = analyticsCoordinator
+        self.domainResolutionService = domainResolutionService
         self.navigationController = navigationController
         self.assetDefinitionStore = assetDefinitionStore
         self.importToken = importToken
@@ -80,7 +82,8 @@ extension AddHideTokensCoordinator: AddHideTokensViewControllerDelegate {
             navigationController: navigationController,
             config: config,
             importToken: importToken,
-            initialState: initialState)
+            initialState: initialState,
+            domainResolutionService: domainResolutionService)
         coordinator.delegate = self
         addCoordinator(coordinator)
 

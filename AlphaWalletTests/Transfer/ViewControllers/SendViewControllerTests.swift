@@ -34,7 +34,7 @@ class SendViewControllerTests: XCTestCase {
         XCTAssertNil(balance)
 
         let isNotNilInitialValueExpectation = self.expectation(description: "Non nil value when subscribe for publisher")
-        
+
         tokenBalanceService.tokenBalancePublisher(token.addressAndRPCServer)
             .sink { value in
                 guard value == nil else { return }
@@ -131,7 +131,7 @@ class SendViewControllerTests: XCTestCase {
                 if callbackCount2 == 0 {
                     XCTAssertNotNil(value)
                 }
-                
+
                 callbackCount += 1
                 if callbackCount == callbackCountExpectation {
                     tokenBalanceUpdateCallbackExpectation.fulfill()
@@ -340,7 +340,7 @@ class SendViewControllerTests: XCTestCase {
         XCTAssertEqual(vc.amountTextField.value, "")
 
         vc.allFundsSelected()
-        
+
         XCTAssertEqual(vc.amountTextField.value, "0,002")
         XCTAssertNotNil(vc.shortValueForAllFunds)
         XCTAssertTrue((vc.shortValueForAllFunds ?? "").nonEmpty)
@@ -399,12 +399,13 @@ class SendViewControllerTests: XCTestCase {
     }
 
     private func createSendViewControllerAndSetLocale(locale: AppLocale, transactionType: TransactionType) -> SendViewController {
-        
+
         Config.setLocale(locale)
 
         let vc = SendViewController(session: session,
                                     tokensDataStore: tokenBalanceService.tokensDataStore,
-                                    transactionType: nativeCryptocurrencyTransactionType)
+                                    transactionType: nativeCryptocurrencyTransactionType,
+                                    domainResolutionService: FakeDomainResolutionService())
 
         vc.configure(viewModel: .init(transactionType: transactionType, session: session, tokensDataStore: tokenBalanceService.tokensDataStore))
 

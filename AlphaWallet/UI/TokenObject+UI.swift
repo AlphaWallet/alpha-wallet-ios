@@ -79,6 +79,8 @@ extension RPCServer {
             return R.image.iconsTokensPalm()
         case .klaytnCypress: return R.image.klaytnIcon()
         case .klaytnBaobabTestnet: return R.image.klaytnIcon()
+        case .phi:
+            return nil
         }
     }
 }

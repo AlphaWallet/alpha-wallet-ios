@@ -49,6 +49,7 @@ class WhatsNewExperimentCoordinator: Coordinator {
         hasRan = true
 
         let coordinator = WhatsNewListingCoordinator(navigationController: navigationController)
+        coordinator.delegate = self
         addCoordinator(coordinator)
         let listings = WhatsNewListing(listing: [
             WhatsNew(
@@ -60,12 +61,12 @@ class WhatsNewExperimentCoordinator: Coordinator {
                         "3. Type: wallet QR",
                     ])
         ])
-        coordinator.display(viewModel: .init(model: listings, title: R.string.localizable.whatsNew(), shouldShowCheckmarks: false), delegate: self)
+        coordinator.start(viewModel: .init(model: listings, title: R.string.localizable.whatsNew(), shouldShowCheckmarks: false))
     }
 }
 
 extension WhatsNewExperimentCoordinator: WhatsNewListingCoordinatorDelegate {
-    func didDismiss(controller: WhatsNewListingViewController) {
+    func didDismiss(in coordinator: WhatsNewListingCoordinator) {
         delegate?.didEnd(in: self)
     }
 }

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Combine
 
 protocol RenameWalletViewControllerDelegate: AnyObject {
     func didFinish(in viewController: RenameWalletViewController)
@@ -16,7 +17,8 @@ class RenameWalletViewController: UIViewController {
     private let viewModel: RenameWalletViewModel
     private let analyticsCoordinator: AnalyticsCoordinator
     private var config: Config
-
+    private let domainResolutionService: DomainResolutionServiceType
+    private var cancelable: AnyCancellable?
     private lazy var nameTextField: TextField = {
         let textField = TextField()
         textField.label.translatesAutoresizingMaskIntoConstraints = false
@@ -35,10 +37,11 @@ class RenameWalletViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
     weak var delegate: RenameWalletViewControllerDelegate?
 
-    init(viewModel: RenameWalletViewModel, analyticsCoordinator: AnalyticsCoordinator, config: Config) {
+    init(viewModel: RenameWalletViewModel, analyticsCoordinator: AnalyticsCoordinator, config: Config, domainResolutionService: DomainResolutionServiceType) {
         self.viewModel = viewModel
         self.analyticsCoordinator = analyticsCoordinator
         self.config = config
+        self.domainResolutionService = domainResolutionService
 
         super.init(nibName: nil, bundle: nil)
 
@@ -128,10 +131,13 @@ class RenameWalletViewController: UIViewController {
     }
 
     private func fulfillTextField(account: AlphaWallet.Address) {
-        let resolver: DomainResolutionServiceType = DomainResolutionService()
-        resolver.resolveEns(address: account).done { resolution in
-            self.nameTextField.textField.placeholder = resolution.resolution.value
-        }.cauterize()
+        cancelable?.cancel()
+        cancelable = domainResolutionService.resolveEns(address: account)
+            .replaceError(with: (image: nil, resolution: .resolved(nil)))
+            .receive(on: RunLoop.main)
+            .sink(receiveValue: { [nameTextField] result in
+                nameTextField.textField.placeholder = result.resolution.value
+            })
 
         let walletNames = config.walletNames
         nameTextField.textField.text = walletNames[account]

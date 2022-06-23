@@ -9,6 +9,17 @@ enum FunctionError: LocalizedError {
     case formPayload
     case formValue
     case postTransaction
+
+    var localizedDescription: String {
+        switch self {
+        case .formPayload:
+            return "Impossible To Build Configuration! Form Payload missing"
+        case .formValue:
+            return "Impossible To Build Configuration! Form Value missing"
+        case .postTransaction:
+            return "Impossible To Build Configuration! Post Transaction"
+        }
+    }
 }
 
 struct FunctionOrigin {
@@ -251,33 +262,32 @@ struct FunctionOrigin {
         }
     }
 
-    func makeUnConfirmedTransaction(withTokenObject tokenObject: TokenObject, tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession) -> ResultResult<(UnconfirmedTransaction, DecodedFunctionCall), FunctionError>.t {
+    func makeUnConfirmedTransaction(withTokenObject tokenObject: TokenObject, tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession) throws -> (UnconfirmedTransaction, DecodedFunctionCall) {
         assert(functionType.isTransaction)
         let payload: Data
         let value: BigUInt
         let functionCallMetaData: DecodedFunctionCall
         switch functionType {
         case .functionCall, .eventFiltering:
-            return .init(error: FunctionError.postTransaction)
+            throw FunctionError.postTransaction
         case .paymentTransaction:
             payload = .init()
             guard let val = formValue(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: session.account) else {
-                return .failure(FunctionError.formValue)
+                throw FunctionError.formValue
             }
             functionCallMetaData = .nativeCryptoTransfer(value: val)
             value = val
         case .functionTransaction:
             guard let (data, metadata) = formTransactionPayload(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: session.account) else {
-                return .failure(FunctionError.formPayload)
+                throw FunctionError.formPayload
             }
             payload = data
             functionCallMetaData = metadata
             value = formValue(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: session.account) ?? 0
         }
         //TODO feels ike everything can just be in `.tokenScript`. But have to check dapp, it includes other parameters like gas
-        return .success((
-                UnconfirmedTransaction(transactionType: .tokenScript(tokenObject), value: BigInt(value), recipient: nil, contract: originContractOrRecipientAddress, data: payload),
-                functionCallMetaData))
+        return (UnconfirmedTransaction(transactionType: .tokenScript(tokenObject), value: BigInt(value), recipient: nil, contract: originContractOrRecipientAddress, data: payload),
+                functionCallMetaData)
     }
 
     func generateDataAndValue(withTokenId tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession, keystore: Keystore) -> (Data?, BigUInt)? {

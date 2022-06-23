@@ -36,7 +36,7 @@ class WalletPupupViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        regenerateSubviews(viewModel: viewModel)
+        generateSubviews(viewModel: viewModel)
         configure(viewModel: viewModel)
     }
 
@@ -49,7 +49,7 @@ class WalletPupupViewController: UIViewController {
         view.backgroundColor = viewModel.backbroundColor
     }
 
-    private func regenerateSubviews(viewModel: WalletPupupViewModel) {
+    private func generateSubviews(viewModel: WalletPupupViewModel) {
         containerView.removeAllArrangedSubviews()
 
         var subviews: [UIView] = []

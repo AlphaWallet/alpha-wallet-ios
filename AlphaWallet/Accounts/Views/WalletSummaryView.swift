@@ -36,8 +36,8 @@ class WalletSummaryView: UIView, ReusableTableHeaderViewType {
         addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            balanceLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 40),
-            apprecation24HoursLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 40),
+            balanceLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 40).set(priority: .defaultHigh),
+            apprecation24HoursLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 40).set(priority: .defaultHigh),
             stackView.anchorsConstraintLessThanOrEqualTo(to: self, edgeInsets: edgeInsets),
             stackView.centerYAnchor.constraint(equalTo: centerYAnchor, constant: 0),
             stackView.centerXAnchor.constraint(equalTo: centerXAnchor, constant: 0),

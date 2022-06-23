@@ -3,6 +3,7 @@
 import Foundation
 
 protocol AnalyticsCoordinator {
+
     func log(navigation: AnalyticsNavigation, properties: [String: AnalyticsEventPropertyValue]?)
     func log(action: AnalyticsAction, properties: [String: AnalyticsEventPropertyValue]?)
     func log(stat: AnalyticsStat, properties: [String: AnalyticsEventPropertyValue]?)

@@ -13,7 +13,7 @@ extension WalletConnectCoordinator {
         sessions[session.server] = session
         let sessionsSubject = CurrentValueSubject<ServerDictionary<WalletSession>, Never>(sessions)
 
-        return WalletConnectCoordinator(keystore: keystore, navigationController: .init(), analyticsCoordinator: FakeAnalyticsService(), config: .make(), sessionsSubject: sessionsSubject)
+        return WalletConnectCoordinator(keystore: keystore, navigationController: .init(), analyticsCoordinator: FakeAnalyticsService(), domainResolutionService: FakeDomainResolutionService(), config: .make(), sessionsSubject: sessionsSubject)
     }
 }
 
@@ -57,13 +57,16 @@ class ConfigTests: XCTestCase {
             eventsDataStore: FakeEventsDataStore(),
             promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeKeystore(), wallet: .make(), config: config, analyticsCoordinator: FakeAnalyticsService()),
             analyticsCoordinator: FakeAnalyticsService(),
+            openSea: OpenSea(analyticsCoordinator: FakeAnalyticsService(), queue: .global()),
             tokenActionsService: tokenActionsService,
             walletConnectCoordinator: .fake(),
             coinTickersFetcher: coinTickersFetcher,
             activitiesService: FakeActivitiesService(),
             walletBalanceService: FakeMultiWalletBalanceService(),
             tokenCollection: MultipleChainsTokenCollection.fake(),
-            importToken: FakeImportToken()
+            importToken: FakeImportToken(),
+            blockiesGenerator: .make(),
+            domainResolutionService: FakeDomainResolutionService()
         )
 
         coordinator_1.start()
@@ -81,13 +84,16 @@ class ConfigTests: XCTestCase {
             eventsDataStore: FakeEventsDataStore(),
             promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeKeystore(), wallet: .make(), config: config, analyticsCoordinator: FakeAnalyticsService()),
             analyticsCoordinator: FakeAnalyticsService(),
+            openSea: OpenSea(analyticsCoordinator: FakeAnalyticsService(), queue: .global()),
             tokenActionsService: tokenActionsService,
             walletConnectCoordinator: .fake(),
             coinTickersFetcher: coinTickersFetcher,
             activitiesService: FakeActivitiesService(),
             walletBalanceService: FakeMultiWalletBalanceService(),
             tokenCollection: MultipleChainsTokenCollection.fake(),
-            importToken: FakeImportToken()
+            importToken: FakeImportToken(),
+            blockiesGenerator: .make(),
+            domainResolutionService: FakeDomainResolutionService()
         )
 
         coordinator_2.start()

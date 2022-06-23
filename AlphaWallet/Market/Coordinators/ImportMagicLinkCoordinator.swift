@@ -3,7 +3,7 @@
 import Foundation
 import Alamofire
 import BigInt
-import PromiseKit 
+import PromiseKit
 import web3swift
 import Combine
 
@@ -412,7 +412,7 @@ class ImportMagicLinkCoordinator: Coordinator {
                     celf.notEnoughEthForPaidImport(signedOrder: signedOrder)
                 }
                 celf.balanceWhenHandlePaidImportsCancelable?.cancel()
-            } 
+            }
     }
 
     private func notEnoughEthForPaidImport(signedOrder: SignedOrder) {
@@ -420,7 +420,7 @@ class ImportMagicLinkCoordinator: Coordinator {
         switch server {
         case .xDai:
             errorMessage = R.string.localizable.aClaimTokenFailedNotEnoughXDAITitle()
-        case .classic, .main, .poa, .callisto, .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .candle, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet:
+        case .classic, .main, .poa, .callisto, .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .candle, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet, .phi:
             errorMessage = R.string.localizable.aClaimTokenFailedNotEnoughEthTitle()
         }
 

@@ -13,9 +13,10 @@ class AccountsViewModel: ObservableObject {
     private let keystore: Keystore
     private let analyticsCoordinator: AnalyticsCoordinator
     private let walletBalanceService: WalletBalanceService
-    private let generator = BlockiesGenerator()
+    private let blockiesGenerator: BlockiesGenerator
+    private let domainResolutionService: DomainResolutionServiceType
     private var reloadBalanceSubject: PassthroughSubject<ReloadState, Never> = .init()
-    private lazy var getWalletName = GetWalletName(config: config)
+    private lazy var getWalletName = GetWalletName(config: config, domainResolutionService: domainResolutionService)
     private var sections: [Section] {
         switch configuration {
         case .changeWallets:
@@ -58,13 +59,14 @@ class AccountsViewModel: ObservableObject {
 
     var backgroundColor: UIColor = GroupedTable.Color.background
 
-    init(keystore: Keystore, config: Config, configuration: AccountsCoordinatorViewModel.Configuration, analyticsCoordinator: AnalyticsCoordinator, walletBalanceService: WalletBalanceService) {
-
+    init(keystore: Keystore, config: Config, configuration: AccountsCoordinatorViewModel.Configuration, analyticsCoordinator: AnalyticsCoordinator, walletBalanceService: WalletBalanceService, blockiesGenerator: BlockiesGenerator, domainResolutionService: DomainResolutionServiceType) {
         self.config = config
         self.keystore = keystore
         self.configuration = configuration
         self.analyticsCoordinator = analyticsCoordinator
         self.walletBalanceService = walletBalanceService
+        self.blockiesGenerator = blockiesGenerator
+        self.domainResolutionService = domainResolutionService
 
         reload()
     }
@@ -98,7 +100,7 @@ class AccountsViewModel: ObservableObject {
         walletBalanceService.refreshBalance(updatePolicy: .all, wallets: keystore.wallets)
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             self.reloadBalanceSubject.send(.done)
-        } 
+        }
     }
 
     func delete(account: Wallet) -> Result<Void, KeystoreError> {
@@ -109,7 +111,7 @@ class AccountsViewModel: ObservableObject {
         switch sections[indexPath.section] {
         case .hdWallet, .keystoreWallet, .watchedWallet:
             guard let account = account(for: indexPath) else { return .undefined }
-            let viewModel = AccountViewModel(analyticsCoordinator: analyticsCoordinator, getWalletName: getWalletName, generator: generator, subscribeForBalanceUpdates: subscribeForBalanceUpdates, walletBalanceService: walletBalanceService, wallet: account, current: keystore.currentWallet)
+            let viewModel = AccountViewModel(analyticsCoordinator: analyticsCoordinator, getWalletName: getWalletName, blockiesGenerator: blockiesGenerator, subscribeForBalanceUpdates: subscribeForBalanceUpdates, walletBalanceService: walletBalanceService, wallet: account, current: keystore.currentWallet)
 
             return .wallet(viewModel)
         case .summary:
@@ -234,7 +236,7 @@ extension AccountsViewModel {
         case summary(WalletSummaryViewModel)
         case undefined
     }
-    
+
     enum Section: Int, CaseIterable {
         case summary
         case hdWallet

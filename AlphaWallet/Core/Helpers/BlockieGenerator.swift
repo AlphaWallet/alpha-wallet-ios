@@ -52,13 +52,21 @@ class BlockiesGenerator {
 
     /// Address related icons cache without image size. Cache is using for determine images without sizes and scales, fetched out from OpenSea
     private static var sizeLessCache: [AlphaWallet.Address: BlockiesImage] = [:]
-    
+    private let storage: EnsRecordsStorage
+    private lazy var ensTextRecordFetcher = GetEnsTextRecord(server: .forResolvingEns, storage: storage)
+    private let openSea: OpenSea
+
+    init(openSea: OpenSea, storage: EnsRecordsStorage) {
+        self.openSea = openSea
+        self.storage = storage
+    }
+
     func getBlockie(address: AlphaWallet.Address, ens: String? = nil, size: Int = 8, scale: Int = 3, fallbackImage: BlockiesImage = BlockiesImage.defaulBlockieImage) -> AnyPublisher<BlockiesImage, Never> {
         return promise(address: address, ens: ens, size: size, scale: size).publisher
             .receive(on: RunLoop.main)
             .prepend(fallbackImage)
             .replaceError(with: fallbackImage)
-            .eraseToAnyPublisher() 
+            .eraseToAnyPublisher()
     }
 
     func promise(address: AlphaWallet.Address, ens: String? = nil, size: Int = 8, scale: Int = 3) -> Promise<BlockiesImage> {
@@ -85,29 +93,33 @@ class BlockiesGenerator {
         let promise: Promise<String>
 
         if let ens = ens {
-            promise = GetENSTextRecord(server: .forResolvingEns)
-                .getENSRecord(forName: ens, record: .avatar)
+            promise = ensTextRecordFetcher.getENSRecord(forName: ens, record: .avatar)
         } else {
-            promise = GetENSTextRecord(server: .forResolvingEns)
-                .getENSRecord(forAddress: address, record: .avatar)
+            promise = ensTextRecordFetcher.getENSRecord(forAddress: address, record: .avatar)
         }
 
         return firstly {
             promise
         }.then { url -> Promise<BlockiesImage> in
+            //NOTE: once open sea image url cached it will be here as `url`, so the next time we willn't decode it as eip155 and return it as it is
             guard let result = eip155URLCoder.decode(from: url) else {
-                return .init(error: TokenImageFetcher.ImageAvailabilityError.notAvailable)
+                guard let url = URL(string: url) else { return .init(error: AnyError.blockieCreateFailure) }
+                return .value(.url(url: WebImageURL(url: url, rewriteGoogleContentSizeUrl: .s120), isEnsAvatar: true))
             }
+
             return firstly {
-                OpenSea.fetchAssetImageUrl(for: result, server: .main)
+                self.openSea.fetchAssetImageUrl(for: result, server: .main)
+            }.get { url in //NOTE: cache fetched open sea image url and rewrite ens avatar with new image
+                let key = EnsLookupKey(nameOrAddress: ens ?? address.eip55String, server: .forResolvingEns, record: .avatar)
+                self.storage.addOrUpdate(record: .init(key: key, value: .record(url.absoluteString)))
             }.map { url -> BlockiesImage in
                 .url(url: WebImageURL(url: url, rewriteGoogleContentSizeUrl: .s120), isEnsAvatar: true)
-            }.recover { _ -> Promise<BlockiesImage> in
+            }.recover { error -> Promise<BlockiesImage> in
                 guard let url = URL(string: url) else { return .init(error: AnyError.blockieCreateFailure) }
                 return .value(.url(url: WebImageURL(url: url, rewriteGoogleContentSizeUrl: .s120), isEnsAvatar: true))
             }
         }
-    } 
+    }
 
     private func cacheBlockie(address: AlphaWallet.Address, blockie: BlockiesImage, size: BlockieSize) {
         switch size {

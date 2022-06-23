@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Combine
 
 class SettingTableViewCell: UITableViewCell {
     private let iconImageView: UIImageView = {
@@ -46,7 +47,8 @@ class SettingTableViewCell: UITableViewCell {
 
         return label
     }()
-
+    var walletNameCancelable: AnyCancellable?
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         selectionStyle = .none
@@ -71,6 +73,7 @@ class SettingTableViewCell: UITableViewCell {
 
     override func prepareForReuse() {
         accessoryView = nil
+        walletNameCancelable?.cancel()
     }
 
     required init?(coder aDecoder: NSCoder) {

@@ -37,7 +37,7 @@ final class EventSourceCoordinatorForActivities {
 
     private func subscribeForTokenChanges() {
         tokensDataStore
-            .enabledTokensChangeset(for: enabledServers)
+            .enabledTokensPublisher(for: enabledServers)
             .receive(on: queue)
             .sink { [weak self] _ in
                 self?.fetchEthereumEvents()

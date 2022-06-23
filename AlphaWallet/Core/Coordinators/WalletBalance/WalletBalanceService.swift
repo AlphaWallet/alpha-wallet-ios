@@ -38,6 +38,7 @@ protocol WalletBalanceService: TokenBalanceProvider, CoinTickerProvider {
 class MultiWalletBalanceService: NSObject, WalletBalanceService {
     private let keystore: Keystore
     private let config: Config
+    private let analyticsCoordinator: AnalyticsCoordinator
     let assetDefinitionStore: AssetDefinitionStore
     var coinTickersFetcher: CoinTickersFetcherType
     private var balanceFetchers: AtomicDictionary<Wallet, WalletBalanceFetcherType> = .init()
@@ -49,8 +50,8 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
     private let queue: DispatchQueue = DispatchQueue(label: "org.alphawallet.swift.walletBalance")
     private let walletAddressesStore: WalletAddressesStore
     private var cancelable = Set<AnyCancellable>()
-    private lazy var nftProvider: NFTProvider = AlphaWalletNFTProvider(queue: queue)
-    
+    private lazy var nftProvider: NFTProvider = AlphaWalletNFTProvider(analyticsCoordinator: analyticsCoordinator, queue: queue)
+
     var walletsSummaryPublisher: AnyPublisher<WalletSummary, Never> {
         return walletsSummarySubject
             .receive(on: RunLoop.main)
@@ -65,10 +66,11 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
     }
     private let store: LocalStore
 
-    init(store: LocalStore, keystore: Keystore, config: Config, assetDefinitionStore: AssetDefinitionStore, coinTickersFetcher: CoinTickersFetcherType, walletAddressesStore: WalletAddressesStore) {
+    init(store: LocalStore, keystore: Keystore, config: Config, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, coinTickersFetcher: CoinTickersFetcherType, walletAddressesStore: WalletAddressesStore) {
         self.store = store
         self.keystore = keystore
         self.config = config
+        self.analyticsCoordinator = analyticsCoordinator
         self.assetDefinitionStore = assetDefinitionStore
         self.coinTickersFetcher = coinTickersFetcher
         self.walletAddressesStore = walletAddressesStore
@@ -121,7 +123,7 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
         return getOrCreateBalanceFetcher(for: wallet)
             .tokenBalancePublisher(addressAndRPCServer)
     }
-    
+
     @discardableResult private func getOrCreateBalanceFetcher(for wallet: Wallet) -> WalletBalanceFetcherType {
         if let fether = balanceFetchers[wallet] {
             return fether
