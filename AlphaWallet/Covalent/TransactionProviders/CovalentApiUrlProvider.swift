@@ -40,6 +40,7 @@ extension Covalent {
             }
 
             guard let url = components.url else { throw AFError.invalidURL(url: self) }
+            
             return url
         }
     }
