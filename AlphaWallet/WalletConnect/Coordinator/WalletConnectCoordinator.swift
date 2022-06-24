@@ -53,9 +53,6 @@ class WalletConnectCoordinator: NSObject, Coordinator {
     private let config: Config
     private weak var connectionTimeoutViewController: WalletConnectConnectionTimeoutViewController?
     private weak var notificationAlertController: UIViewController?
-    private var serverChoices: [RPCServer] {
-        ServersCoordinator.serversOrdered.filter { config.enabledServers.contains($0) }
-    }
     private weak var sessionsViewController: WalletConnectSessionsViewController?
     private var sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>
 
@@ -286,7 +283,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
             return
         }
 
-        let dappRequesterViewModel = WalletConnectDappRequesterViewModel(walletConnectSession: walletConnectSession, request: request)
+        let requester = DappRequesterViewModel(requester: Requester(walletConnectSession: walletConnectSession, request: request))
         let account = walletSession.account.address
 
         firstly {
@@ -294,17 +291,17 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         }.then { _ -> Promise<AlphaWallet.WalletConnect.Response> in
             switch action.type {
             case .signTransaction(let transaction):
-                return self.executeTransaction(session: walletSession, dappRequesterViewModel: dappRequesterViewModel, transaction: transaction, type: .sign)
+                return self.executeTransaction(session: walletSession, requester: requester, transaction: transaction, type: .sign)
             case .sendTransaction(let transaction):
-                return self.executeTransaction(session: walletSession, dappRequesterViewModel: dappRequesterViewModel, transaction: transaction, type: .signThenSend)
+                return self.executeTransaction(session: walletSession, requester: requester, transaction: transaction, type: .signThenSend)
             case .signMessage(let hexMessage):
-                return self.signMessage(with: .message(hexMessage.toHexData), account: account, dappRequesterViewModel: dappRequesterViewModel)
+                return self.signMessage(with: .message(hexMessage.toHexData), account: account, requester: requester)
             case .signPersonalMessage(let hexMessage):
-                return self.signMessage(with: .personalMessage(hexMessage.toHexData), account: account, dappRequesterViewModel: dappRequesterViewModel)
+                return self.signMessage(with: .personalMessage(hexMessage.toHexData), account: account, requester: requester)
             case .signTypedMessageV3(let typedData):
-                return self.signMessage(with: .eip712v3And4(typedData), account: account, dappRequesterViewModel: dappRequesterViewModel)
+                return self.signMessage(with: .eip712v3And4(typedData), account: account, requester: requester)
             case .typedMessage(let typedData):
-                return self.signMessage(with: .typedMessage(typedData), account: account, dappRequesterViewModel: dappRequesterViewModel)
+                return self.signMessage(with: .typedMessage(typedData), account: account, requester: requester)
             case .sendRawTransaction(let raw):
                 return self.sendRawTransaction(session: walletSession, rawTransaction: raw)
             case .getTransactionCount:
@@ -377,18 +374,18 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         return .init(error: DelayWalletConnectResponseError())
     }
 
-    private func signMessage(with type: SignMessageType, account: AlphaWallet.Address, dappRequesterViewModel: WalletConnectDappRequesterViewModel) -> Promise<AlphaWallet.WalletConnect.Response> {
+    private func signMessage(with type: SignMessageType, account: AlphaWallet.Address, requester: RequesterViewModel) -> Promise<AlphaWallet.WalletConnect.Response> {
         infoLog("[WalletConnect] signMessage: \(type)")
 
         return firstly {
-            SignMessageCoordinator.promise(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, keystore: keystore, coordinator: self, signType: type, account: account, source: .walletConnect, walletConnectDappRequesterViewModel: dappRequesterViewModel)
+            SignMessageCoordinator.promise(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, keystore: keystore, coordinator: self, signType: type, account: account, source: .walletConnect, requester: requester)
         }.map { data -> AlphaWallet.WalletConnect.Response in
             return .value(data)
         }
     }
 
-    private func executeTransaction(session: WalletSession, dappRequesterViewModel: WalletConnectDappRequesterViewModel, transaction: UnconfirmedTransaction, type: ConfirmType) -> Promise<AlphaWallet.WalletConnect.Response> {
-        let configuration: TransactionConfirmationConfiguration = .walletConnect(confirmType: type, keystore: keystore, dappRequesterViewModel: dappRequesterViewModel)
+    private func executeTransaction(session: WalletSession, requester: DappRequesterViewModel, transaction: UnconfirmedTransaction, type: ConfirmType) -> Promise<AlphaWallet.WalletConnect.Response> {
+        let configuration: TransactionConfirmationConfiguration = .walletConnect(confirmType: type, keystore: keystore, requester: requester)
         infoLog("[WalletConnect] executeTransaction: \(transaction) type: \(type)")
         return firstly {
             TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService, source: .walletConnect, delegate: self.delegate)
@@ -454,10 +451,16 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
 
     func server(_ server: WalletConnectServer, shouldConnectFor proposal: AlphaWallet.WalletConnect.Proposal, completion: @escaping (AlphaWallet.WalletConnect.ProposalResponse) -> Void) {
         infoLog("[WalletConnect] shouldConnectFor connection: \(proposal)")
+        let proposalType: ProposalType = .walletConnect(.init(proposal: proposal, config: config))
         firstly {
-            WalletConnectToSessionCoordinator.promise(navigationController, coordinator: self, proposal: proposal, serverChoices: serverChoices, analyticsCoordinator: analyticsCoordinator, config: config)
+            AcceptProposalCoordinator.promise(navigationController, coordinator: self, proposalType: proposalType, analyticsCoordinator: analyticsCoordinator)
         }.done { choise in
-            completion(choise)
+            guard case .walletConnect(let server) = choise else {
+                completion(.cancel)
+                return
+            }
+
+            completion(.connect(server))
         }.catch { _ in
             completion(.cancel)
         }.finally {

@@ -36,6 +36,7 @@ enum Analytics {
         case tapBrowserMore = "Screen: Browser More Options"
         case signMessageRequest = "Screen: Sign Message Request"
         case walletConnect = "Screen: WalletConnect"
+        case deepLink = "Screen: DeepLink"
         case faq = "Screen: FAQ"
         case discord = "Screen: Discord"
         case telegramCustomerSupport = "Screen: Telegram: Customer Support"
@@ -76,6 +77,7 @@ enum Analytics {
         case editCustomChain = "Edit Custom Chain"
         case subscribeToEmailNewsletter = "Subscribe Email Newsletter"
         case tapSafariExtensionRewrittenUrl = "Tap Safari Extension Rewritten URL"
+        case DeepLinkCancel = "DeepLink Cancel"
     }
 
     //TODO re-evaluate if these should go into the main analytic engine
@@ -180,6 +182,7 @@ enum Analytics {
 
     enum SignMessageRequestSource: String {
         case dappBrowser
+        case deepLink
         case tokenScript
         case walletConnect
     }

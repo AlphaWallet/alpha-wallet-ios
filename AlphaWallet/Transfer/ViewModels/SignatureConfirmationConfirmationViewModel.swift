@@ -7,70 +7,69 @@
 
 import UIKit
 
-enum SignatureConfirmationViewModel {
-    case personalMessage(viewModel: MessageConfirmationViewModel)
-    case eip712v3And4(viewModel: EIP712TypedDataConfirmationViewModel)
-    case typedMessage(viewModel: TypedMessageConfirmationViewModel)
-    case message(viewModel: MessageConfirmationViewModel)
+struct SignatureConfirmationViewModel {
 
-    init(message: SignMessageType, walletConnectDappRequesterViewModel: WalletConnectDappRequesterViewModel?) {
+    private let requester: RequesterViewModel?
+    let type: ViewModelType
+
+    init(message: SignMessageType, requester: RequesterViewModel?) {
+        self.requester = requester
+
         switch message {
         case .eip712v3And4(let data):
-            self = .eip712v3And4(viewModel: .init(data: data, walletConnectDappRequesterViewModel: walletConnectDappRequesterViewModel))
+            self.type = .eip712v3And4(viewModel: .init(data: data, requester: requester))
         case .message(let data):
-            self = .message(viewModel: .init(data: data, walletConnectDappRequesterViewModel: walletConnectDappRequesterViewModel))
+            self.type = .message(viewModel: .init(data: data, requester: requester))
         case .personalMessage(let data):
-            self = .personalMessage(viewModel: .init(data: data, walletConnectDappRequesterViewModel: walletConnectDappRequesterViewModel))
+            self.type = .personalMessage(viewModel: .init(data: data, requester: requester))
         case .typedMessage(let data):
-            self = .typedMessage(viewModel: .init(data: data, walletConnectDappRequesterViewModel: walletConnectDappRequesterViewModel))
+            self.type = .typedMessage(viewModel: .init(data: data, requester: requester))
         }
     }
+
     var placeholderIcon: UIImage? {
-        return walletConnectDappRequesterViewModel == nil ? R.image.awLogoSmall() : R.image.walletConnectIcon()
+        return requester == nil ? R.image.awLogoSmall() : R.image.walletConnectIcon()
     }
 
-    var dappIconUrl: URL? {
-        walletConnectDappRequesterViewModel?.dappIconUrl
-    }
+    var iconUrl: URL? {
+        return requester?.iconUrl
+    } 
 
-    var walletConnectDappRequesterViewModel: WalletConnectDappRequesterViewModel? {
-        switch self {
-        case .personalMessage(let viewModel):
-            return viewModel.walletConnectDappRequesterViewModel
-        case .eip712v3And4(let viewModel):
-            return viewModel.walletConnectDappRequesterViewModel
+    var navigationTitle: String = R.string.localizable.signatureConfirmationTitle()
+    var confirmationButtonTitle: String = R.string.localizable.confirmPaymentSignButtonTitle()
+    var cancelationButtonTitle: String = R.string.localizable.cancel()
+    var backgroundColor: UIColor = UIColor.clear
+    var footerBackgroundColor: UIColor = Colors.appWhite
+
+    var viewModels: [SignatureConfirmationViewModel.ViewType] {
+        switch type {
         case .typedMessage(let viewModel):
-            return viewModel.walletConnectDappRequesterViewModel
-        case .message(let viewModel):
-            return viewModel.walletConnectDappRequesterViewModel
+            return viewModel.viewModels
+        case .personalMessage(let viewModel), .message(let viewModel):
+            return viewModel.viewModels
+        case .eip712v3And4(let viewModel):
+            return viewModel.viewModels
         }
     }
+}
 
-    var navigationTitle: String {
-        return R.string.localizable.signatureConfirmationTitle()
+extension SignatureConfirmationViewModel {
+    
+    enum ViewModelType {
+        case personalMessage(viewModel: MessageConfirmationViewModel)
+        case eip712v3And4(viewModel: EIP712TypedDataConfirmationViewModel)
+        case typedMessage(viewModel: TypedMessageConfirmationViewModel)
+        case message(viewModel: MessageConfirmationViewModel)
     }
 
-    var title: String {
-        return R.string.localizable.confirmPaymentConfirmButtonTitle()
-    }
-    var confirmationButtonTitle: String {
-        return R.string.localizable.confirmPaymentSignButtonTitle()
-    }
-
-    var cancelationButtonTitle: String {
-        return R.string.localizable.cancel()
-    }
-
-    var backgroundColor: UIColor {
-        return UIColor.clear
-    }
-
-    var footerBackgroundColor: UIColor {
-        return Colors.appWhite
+    ///Helper enum for view model representation, when when want to display different from `TransactionConfirmationHeaderViewModel` view model
+    enum ViewType {
+        /// 0 - view model, 1 - should show full message button
+        case headerWithShowButton(TransactionConfirmationHeaderViewModel, Bool)
+        case header(TransactionConfirmationHeaderViewModel)
     }
 
     struct MessageConfirmationViewModel {
-        let message: String
         private static let MessagePrefixLength = 15
         // NOTE: we are displaying short string in action scheet, whole message user will see after tapping on Show button.
         // Remove leading newspaces and new lines and get first 30 characters
@@ -80,10 +79,11 @@ enum SignatureConfirmationViewModel {
         private var availableToShowFullMessage: Bool {
             message.removingWhitespacesAndNewlines.count > messagePrefix.count
         }
-        let walletConnectDappRequesterViewModel: WalletConnectDappRequesterViewModel?
+        private let requester: RequesterViewModel?
+        let message: String
 
-        init(data: Data, walletConnectDappRequesterViewModel: WalletConnectDappRequesterViewModel?) {
-            self.walletConnectDappRequesterViewModel = walletConnectDappRequesterViewModel
+        init(data: Data, requester: RequesterViewModel?) {
+            self.requester = requester
             if let value = String(data: data, encoding: .utf8) {
                 message = value
             } else {
@@ -91,54 +91,25 @@ enum SignatureConfirmationViewModel {
             }
         }
 
-        var viewModels: [ViewModelType] {
+        var viewModels: [ViewType] {
             let header = R.string.localizable.signatureConfirmationMessageTitle()
-            var values: [ViewModelType] = []
-            values = WalletConnectSessionBridgeToViewModelTypeArray(walletConnectDappRequesterViewModel).convert()
+            var values: [ViewType] = []
+            values = requester?.viewModels ?? []
 
             return values + [
                 .headerWithShowButton(.init(title: .normal(messagePrefix), headerName: header, configuration: .init(section: values.count)), availableToShowFullMessage)
-            ]
-        }
-        
-        ///Helper enum for view model representation, when when want to display different from `TransactionConfirmationHeaderViewModel` view model
-        enum ViewModelType {
-            /// 0 - view model, 1 - should show full message button
-            case headerWithShowButton(TransactionConfirmationHeaderViewModel, Bool)
-            case header(TransactionConfirmationHeaderViewModel)
-        }
-    }
-
-    private struct WalletConnectSessionBridgeToViewModelTypeArray {
-        private let walletConnectDappRequesterViewModel: WalletConnectDappRequesterViewModel?
-
-        init(_ walletConnectDappRequesterViewModel: WalletConnectDappRequesterViewModel?) {
-            self.walletConnectDappRequesterViewModel = walletConnectDappRequesterViewModel
-        }
-
-        func convert() -> [MessageConfirmationViewModel.ViewModelType] {
-            guard let viewModel = walletConnectDappRequesterViewModel else { return [] }
-
-            var dappNameHeader: String { R.string.localizable.walletConnectDappName() }
-            var dappWebsiteHeader: String { R.string.localizable.walletConnectDappWebsite() }
-            var dappServerHeader: String { R.string.localizable.settingsNetworkButtonTitle() }
-
-            return [
-                .header(.init(title: .normal(viewModel.dappShortName), headerName: dappNameHeader, configuration: .init(section: 0))),
-                .header(.init(title: .normal(viewModel.dappUrl.absoluteString), headerName: dappWebsiteHeader, configuration: .init(section: 0))),
-                .header(.init(title: .normal(viewModel.server.name), headerName: dappServerHeader, configuration: .init(section: 0))),
             ]
         }
     }
 
     struct EIP712TypedDataConfirmationViewModel {
         typealias EIP712TypedDataToKey = (key: String, value: EIP712TypedData.JSON)
+
+        private let requester: RequesterViewModel?
         let values: [EIP712TypedDataToKey]
-        let walletConnectDappRequesterViewModel: WalletConnectDappRequesterViewModel?
 
-        init(data: EIP712TypedData, walletConnectDappRequesterViewModel: WalletConnectDappRequesterViewModel?) {
-            self.walletConnectDappRequesterViewModel = walletConnectDappRequesterViewModel
-
+        init(data: EIP712TypedData, requester: RequesterViewModel?) {
+            self.requester = requester
             var _values: [EIP712TypedDataToKey] = []
             
             if let verifyingContract = data.domainVerifyingContract, data.domainName.nonEmpty {
@@ -155,9 +126,9 @@ enum SignatureConfirmationViewModel {
             values = _values
         }
 
-        var viewModels: [MessageConfirmationViewModel.ViewModelType] {
-            var values: [MessageConfirmationViewModel.ViewModelType] = []
-            values = WalletConnectSessionBridgeToViewModelTypeArray(walletConnectDappRequesterViewModel).convert()
+        var viewModels: [ViewType] {
+            var values: [ViewType] = []
+            values = requester?.viewModels ?? []
 
             for sectionIndex in self.values.indices {
                 let data = self.values[sectionIndex]
@@ -176,16 +147,16 @@ enum SignatureConfirmationViewModel {
 
     struct TypedMessageConfirmationViewModel {
         let typedData: [EthTypedData]
-        let walletConnectDappRequesterViewModel: WalletConnectDappRequesterViewModel?
+        let requester: RequesterViewModel?
 
-        init(data: [EthTypedData], walletConnectDappRequesterViewModel: WalletConnectDappRequesterViewModel?) {
-            self.walletConnectDappRequesterViewModel = walletConnectDappRequesterViewModel
+        init(data: [EthTypedData], requester: RequesterViewModel?) {
+            self.requester = requester
             self.typedData = data
         } 
 
-        var viewModels: [MessageConfirmationViewModel.ViewModelType] {
-            var values: [MessageConfirmationViewModel.ViewModelType] = []
-            values = WalletConnectSessionBridgeToViewModelTypeArray(walletConnectDappRequesterViewModel).convert()
+        var viewModels: [ViewType] {
+            var values: [ViewType] = []
+            values = requester?.viewModels ?? []
             for (sectionIndex, typedMessage) in self.typedData.enumerated() {
                 let string = typedMessage.value.string
                 values += [

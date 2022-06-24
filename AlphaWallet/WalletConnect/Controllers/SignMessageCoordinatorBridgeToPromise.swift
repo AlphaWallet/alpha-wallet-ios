@@ -37,8 +37,8 @@ private class SignMessageCoordinatorBridgeToPromise {
         }.cauterize()
     }
 
-    func promise(signType: SignMessageType, account: AlphaWallet.Address, walletConnectDappRequesterViewModel: WalletConnectDappRequesterViewModel?) -> Promise<Data> {
-        let coordinator = SignMessageCoordinator(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, keystore: keystore, account: account, message: signType, source: source, walletConnectDappRequesterViewModel: walletConnectDappRequesterViewModel)
+    func promise(signType: SignMessageType, account: AlphaWallet.Address, requester: RequesterViewModel?) -> Promise<Data> {
+        let coordinator = SignMessageCoordinator(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, keystore: keystore, account: account, message: signType, source: source, requester: requester)
         coordinator.delegate = self
         coordinator.start()
 
@@ -65,8 +65,8 @@ extension SignMessageCoordinatorBridgeToPromise: SignMessageCoordinatorDelegate 
 }
 
 extension SignMessageCoordinator {
-    static func promise(analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, keystore: Keystore, coordinator: Coordinator, signType: SignMessageType, account: AlphaWallet.Address, source: Analytics.SignMessageRequestSource, walletConnectDappRequesterViewModel: WalletConnectDappRequesterViewModel?) -> Promise<Data> {
+    static func promise(analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, keystore: Keystore, coordinator: Coordinator, signType: SignMessageType, account: AlphaWallet.Address, source: Analytics.SignMessageRequestSource, requester: RequesterViewModel?) -> Promise<Data> {
         let bridge = SignMessageCoordinatorBridgeToPromise(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, keystore: keystore, coordinator: coordinator, source: source)
-        return bridge.promise(signType: signType, account: account, walletConnectDappRequesterViewModel: walletConnectDappRequesterViewModel)
+        return bridge.promise(signType: signType, account: account, requester: requester)
     }
 }

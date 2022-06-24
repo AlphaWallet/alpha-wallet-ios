@@ -34,6 +34,7 @@ class TransactionConfirmationHeaderView: UIView {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
+
         return label
     }()
 
@@ -66,14 +67,15 @@ class TransactionConfirmationHeaderView: UIView {
     }()
 
     lazy var trailingStackView: UIStackView = {
-        return [].asStackView(axis: .horizontal)
+        let view = [].asStackView(axis: .horizontal)
+        view.isHidden = true
+        return view
     }()
 
     lazy var childrenStackView: UIStackView = {
         return [].asStackView(axis: .vertical)
     }()
 
-    private var isSelectedObservation: NSKeyValueObservation!
     private var viewModel: TransactionConfirmationHeaderViewModel
 
     weak var delegate: TransactionConfirmationHeaderViewDelegate?
@@ -88,7 +90,7 @@ class TransactionConfirmationHeaderView: UIView {
         separatorLine.translatesAutoresizingMaskIntoConstraints = false
         separatorLine.backgroundColor = R.color.mercury()
 
-        let titleRow = [titleIconImageView, titleLabel].asStackView(axis: .horizontal, spacing: 6)
+        let titleRow = [titleIconImageView, titleLabel].asStackView(axis: .horizontal, spacing: 6, alignment: .center)
 
         let col0 = nameLabel
         let col1 = [
@@ -101,15 +103,16 @@ class TransactionConfirmationHeaderView: UIView {
         contents.translatesAutoresizingMaskIntoConstraints = false
         contents.addSubview(col0)
         contents.addSubview(col1)
-        trailingStackView.isHidden = true
 
-        let row0 = [.spacerWidth(ScreenChecker().isNarrowScreen ? 8 : 16), contents, trailingStackView, chevronView, .spacerWidth(ScreenChecker().isNarrowScreen ? 8 : 16)].asStackView(axis: .horizontal, alignment: .top)
+        let leadingSpacer: UIView = .spacerWidth(ScreenChecker().isNarrowScreen ? 8 : 16)
+        let trailingSpacer: UIView = .spacerWidth(ScreenChecker().isNarrowScreen ? 8 : 16)
+        let row0 = [leadingSpacer, contents, trailingStackView, chevronView, trailingSpacer].asStackView(axis: .horizontal, alignment: .top)
 
         let headerViews = [
             separatorLine,
-            .spacer(height: ScreenChecker().isNarrowScreen ? 10 : 20),
+            .spacer(height: ScreenChecker().isNarrowScreen ? 10 : 15),
             row0,
-            .spacer(height: ScreenChecker().isNarrowScreen ? 10 : 20)
+            .spacer(height: ScreenChecker().isNarrowScreen ? 10 : 15)
         ]
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(didTap))
@@ -124,7 +127,7 @@ class TransactionConfirmationHeaderView: UIView {
 
         NSLayoutConstraint.activate([
             trailingStackView.heightAnchor.constraint(equalTo: row0.heightAnchor),
-            nameLabel.topAnchor.constraint(equalTo: contents.topAnchor, constant: 5),
+            nameLabel.topAnchor.constraint(equalTo: contents.topAnchor, constant: 0),
             nameLabel.leadingAnchor.constraint(equalTo: contents.leadingAnchor),
             nameLabel.widthAnchor.constraint(equalToConstant: 80),
 
@@ -132,7 +135,7 @@ class TransactionConfirmationHeaderView: UIView {
 
             col1.leadingAnchor.constraint(equalTo: nameLabel.trailingAnchor, constant: ScreenChecker().isNarrowScreen ? 8 : 16),
             col1.trailingAnchor.constraint(equalTo: contents.trailingAnchor),
-            col1.topAnchor.constraint(lessThanOrEqualTo: nameLabel.topAnchor),
+            col1.topAnchor.constraint(greaterThanOrEqualTo: nameLabel.topAnchor),
             col1.bottomAnchor.constraint(equalTo: contents.bottomAnchor),
 
             separatorLine.heightAnchor.constraint(equalToConstant: 1),
@@ -142,7 +145,9 @@ class TransactionConfirmationHeaderView: UIView {
             chevronImageView.trailingAnchor.constraint(equalTo: chevronView.trailingAnchor),
             chevronImageView.leadingAnchor.constraint(equalTo: chevronView.leadingAnchor),
             chevronView.widthAnchor.constraint(equalToConstant: 30),
-            
+
+            //NOTE: set minimum height for title container view, so when there is no image, layout shouldn't be broken
+            titleRow.heightAnchor.constraint(greaterThanOrEqualToConstant: 24),
             stackView.anchorsConstraint(to: self)
         ])
 
@@ -161,8 +166,8 @@ class TransactionConfirmationHeaderView: UIView {
 
         titleIconImageView.isHidden = viewModel.isTitleIconHidden
         titleIconImageView.subscribable = viewModel.titleIcon
-
         titleIconImageView.alpha = viewModel.titleAlpha
+
         titleLabel.alpha = viewModel.titleAlpha
         titleLabel.attributedText = viewModel.titleAttributedString
         titleLabel.isHidden = titleLabel.attributedText == nil

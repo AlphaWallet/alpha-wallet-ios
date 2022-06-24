@@ -1,5 +1,5 @@
 //
-//  WalletConnectToSessionCoordinatorBridgeToPromise.swift
+//  AcceptProposalCoordinatorBridgeToPromise.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 18.02.2021.
@@ -7,15 +7,15 @@
 
 import PromiseKit
 
-private class WalletConnectToSessionCoordinatorBridgeToPromise {
+private class AcceptProposalCoordinatorBridgeToPromise {
 
-    private let (promiseToReturn, seal) = Promise<AlphaWallet.WalletConnect.ProposalResponse>.pending()
-    private var retainCycle: WalletConnectToSessionCoordinatorBridgeToPromise?
+    private let (promiseToReturn, seal) = Promise<ProposalResult>.pending()
+    private var retainCycle: AcceptProposalCoordinatorBridgeToPromise?
 
-    init(navigationController: UINavigationController, coordinator: Coordinator, proposal: AlphaWallet.WalletConnect.Proposal, serverChoices: [RPCServer], analyticsCoordinator: AnalyticsCoordinator, config: Config) {
+    init(navigationController: UINavigationController, coordinator: Coordinator, proposalType: ProposalType, analyticsCoordinator: AnalyticsCoordinator) {
         retainCycle = self
 
-        let newCoordinator = WalletConnectToSessionCoordinator(analyticsCoordinator: analyticsCoordinator, proposal: proposal, navigationController: navigationController, serverChoices: serverChoices, config: config)
+        let newCoordinator = AcceptProposalCoordinator(analyticsCoordinator: analyticsCoordinator, proposalType: proposalType, navigationController: navigationController)
         newCoordinator.delegate = self
         coordinator.addCoordinator(newCoordinator)
 
@@ -28,27 +28,20 @@ private class WalletConnectToSessionCoordinatorBridgeToPromise {
         newCoordinator.start()
     }
 
-    var promise: Promise<AlphaWallet.WalletConnect.ProposalResponse> {
+    var promise: Promise<ProposalResult> {
         return promiseToReturn
     }
 }
 
-extension WalletConnectToSessionCoordinatorBridgeToPromise: WalletConnectToSessionCoordinatorDelegate {
-    func coordinator(_ coordinator: WalletConnectToSessionCoordinator, didCompleteWithConnection result: AlphaWallet.WalletConnect.ProposalResponse) {
+extension AcceptProposalCoordinatorBridgeToPromise: AcceptProposalCoordinatorDelegate {
+    func coordinator(_ coordinator: AcceptProposalCoordinator, didComplete result: ProposalResult) {
         seal.fulfill(result)
     }
 }
 
-extension WalletConnectToSessionCoordinator {
+extension AcceptProposalCoordinator {
 
-    static func promise(_ navigationController: UINavigationController, coordinator: Coordinator, proposal: AlphaWallet.WalletConnect.Proposal, serverChoices: [RPCServer], analyticsCoordinator: AnalyticsCoordinator, config: Config) -> Promise<AlphaWallet.WalletConnect.ProposalResponse> {
-        return WalletConnectToSessionCoordinatorBridgeToPromise(
-            navigationController: navigationController,
-            coordinator: coordinator,
-            proposal: proposal,
-            serverChoices: serverChoices,
-            analyticsCoordinator: analyticsCoordinator,
-            config: config
-        ).promise
+    static func promise(_ navigationController: UINavigationController, coordinator: Coordinator, proposalType: ProposalType, analyticsCoordinator: AnalyticsCoordinator) -> Promise<ProposalResult> {
+        return AcceptProposalCoordinatorBridgeToPromise(navigationController: navigationController, coordinator: coordinator, proposalType: proposalType, analyticsCoordinator: analyticsCoordinator).promise
     }
 }

@@ -851,3 +851,9 @@
 "advanced.settings.features.title" = "Features";
 "semifungiblesProjectInfo" = "Project Info";
 "semifungibles.Edcon.description" = "Edcon is a game centered around breedable, collectible, and adorable creatures where digital pandas live in the blockchain! Each panda comes from descendants of 50 giant pandas that have been officially licensed by China Panda Conservation and Research Center.";
+"requester.field.url" = "URL";
+"accept.deepLink.navigationTitle" = "Connect to";
+"accept.deepLink.field.note" = "This will inform them your wallet address is %@";
+"accept.deepLink.field.url.title" = "URL";
+"accept.deepLink.field.note.title" = "Note";
+"accept.walletConnect.field.methods.title" = "Methods";
