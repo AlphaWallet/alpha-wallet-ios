@@ -110,9 +110,9 @@ extension SettingsCoordinator: RenameWalletViewControllerDelegate {
 extension SettingsCoordinator: SettingsViewControllerDelegate {
 
     func settingsViewControllerNameWalletSelected(in controller: SettingsViewController) {
-        let viewModel = RenameWalletViewModel(account: account.address)
+        let viewModel = RenameWalletViewModel(account: account.address, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
 
-        let viewController = RenameWalletViewController(viewModel: viewModel, analyticsCoordinator: analyticsCoordinator, config: config, domainResolutionService: domainResolutionService)
+        let viewController = RenameWalletViewController(viewModel: viewModel)
         viewController.delegate = self
         viewController.navigationItem.largeTitleDisplayMode = .never
         viewController.hidesBottomBarWhenPushed = true

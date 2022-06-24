@@ -25,8 +25,10 @@ enum AddressOrEnsResolution {
 typealias BlockieAndAddressOrEnsResolution = (image: BlockiesImage?, resolution: AddressOrEnsResolution)
 
 protocol DomainResolutionServiceType {
-    func resolveAddress(string value: String) -> AnyPublisher<BlockieAndAddressOrEnsResolution, PromiseError>
-    func resolveEns(address: AlphaWallet.Address) -> AnyPublisher<BlockieAndAddressOrEnsResolution, PromiseError>
+    func resolveAddress(string value: String) -> AnyPublisher<AlphaWallet.Address, PromiseError>
+    func resolveEns(address: AlphaWallet.Address) -> AnyPublisher<EnsName, PromiseError>
+    func resolveEnsAndBlockie(address: AlphaWallet.Address) -> AnyPublisher<BlockieAndAddressOrEnsResolution, PromiseError>
+    func resolveAddressAndBlockie(string: String) -> AnyPublisher<BlockieAndAddressOrEnsResolution, PromiseError>
 }
 
 protocol CachebleAddressResolutionServiceType {

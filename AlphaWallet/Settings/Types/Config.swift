@@ -319,25 +319,9 @@ extension Config {
         }
     }
 
-    private func setWalletNames(walletNames: [AlphaWallet.Address: String]) {
-        let names = walletNames.map { ($0.key.eip55String, $0.value) }
-        let dictionary = Dictionary(names, uniquingKeysWith: { $1 })
-        defaults.set(dictionary, forKey: Keys.walletNames)
-    }
-
-    func saveWalletName(_ walletName: String, forAddress address: AlphaWallet.Address) {
-        let walletName = walletName.trimmed
-        guard !walletName.isEmpty else { return }
-        var names = walletNames
-        names[address] = walletName
-        setWalletNames(walletNames: names)
-    }
-
-    func deleteWalletName(forAccount address: AlphaWallet.Address) {
-        var names = walletNames
-        names[address] = nil
-        setWalletNames(walletNames: names)
-    }
+    func removeAllWalletNames() {
+        defaults.removeObject(forKey: Keys.walletNames)
+    } 
 }
 
 extension Config {

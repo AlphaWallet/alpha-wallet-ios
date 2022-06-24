@@ -134,7 +134,8 @@ class AppCoordinator: NSObject, Coordinator {
             .sink { [weak self] account in
                 guard let `self` = self else { return }
 
-                self.config.deleteWalletName(forAccount: account.address)
+                //TODO: pass ref
+                FileWalletStorage().addOrUpdate(name: nil, for: account.address)
                 PromptBackupCoordinator(keystore: self.keystore, wallet: account, config: self.config, analyticsCoordinator: self.analyticsService).deleteWallet()
                 TransactionsTracker.resetFetchingState(account: account, config: self.config)
                 Erc1155TokenIdsFetcher.deleteForWallet(account.address)

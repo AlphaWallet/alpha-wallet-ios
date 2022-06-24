@@ -133,8 +133,7 @@ class AddressOrEnsNameLabel: UILabel {
                 inResolvingState = true
 
                 cancelable?.cancel()
-                cancelable = domainResolutionService.resolveEns(address: address)
-                    .receive(on: RunLoop.main)
+                cancelable = domainResolutionService.resolveEnsAndBlockie(address: address)
                     .sink(receiveCompletion: { _ in
                         seal.fulfill((nil, .resolved(.none)))
                     }, receiveValue: { value in
@@ -146,8 +145,7 @@ class AddressOrEnsNameLabel: UILabel {
                 inResolvingState = true
 
                 cancelable?.cancel()
-                cancelable = domainResolutionService.resolveAddress(string: value)
-                    .receive(on: RunLoop.main)
+                cancelable = domainResolutionService.resolveAddressAndBlockie(string: value)
                     .sink(receiveCompletion: { _ in
                         seal.fulfill((nil, .resolved(.none)))
                     }, receiveValue: { value in

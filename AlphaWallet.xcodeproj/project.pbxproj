@@ -814,6 +814,8 @@
 		8728FFE12742900A008E5524 /* SingleNFTAssetSelectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8728FFE02742900A008E5524 /* SingleNFTAssetSelectionViewModel.swift */; };
 		8728FFE32742906A008E5524 /* TokenCardTableViewCellFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8728FFE22742906A008E5524 /* TokenCardTableViewCellFactory.swift */; };
 		8728FFEA2743CAA7008E5524 /* NFTAssetSelectionSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8728FFE92743CAA7008E5524 /* NFTAssetSelectionSectionHeaderView.swift */; };
+		872A986C28637D0D00196EA3 /* Publisher+Utils.swift.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872A986B28637D0D00196EA3 /* Publisher+Utils.swift.swift */; };
+		872A986E28638F1600196EA3 /* WalletStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872A986D28638F1600196EA3 /* WalletStorage.swift */; };
 		872D9564271D633E00870971 /* WalletConnectConnectionTimeoutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872D9563271D633D00870971 /* WalletConnectConnectionTimeoutViewController.swift */; };
 		872D9567271D66C200870971 /* GasPriceEstimates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872D9565271D66C200870971 /* GasPriceEstimates.swift */; };
 		872D9568271D66C200870971 /* EtherscanGasPriceEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872D9566271D66C200870971 /* EtherscanGasPriceEstimator.swift */; };
@@ -822,6 +824,7 @@
 		87300E8B2851C9FE009DE4B3 /* AcceptDeepLinkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87300E8A2851C9FE009DE4B3 /* AcceptDeepLinkViewModel.swift */; };
 		87300E9228573461009DE4B3 /* ConfigureImageStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87300E9128573461009DE4B3 /* ConfigureImageStorage.swift */; };
 		87300E8E28520F28009DE4B3 /* EnsRecordsStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87300E8D28520F28009DE4B3 /* EnsRecordsStorageTests.swift */; };
+		87300E9228573461009DE4B3 /* ConfigureImageStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87300E9128573461009DE4B3 /* ConfigureImageStorage.swift */; };
 		8731E6E02565269400A6A7DA /* Uniswap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8731E6DB2565269400A6A7DA /* Uniswap.swift */; };
 		8731E6E12565269400A6A7DA /* UniswapERC20Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8731E6DC2565269400A6A7DA /* UniswapERC20Token.swift */; };
 		8731E6E22565269400A6A7DA /* Oneinch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8731E6DE2565269400A6A7DA /* Oneinch.swift */; };
@@ -2066,6 +2069,8 @@
 		8728FFE02742900A008E5524 /* SingleNFTAssetSelectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleNFTAssetSelectionViewModel.swift; sourceTree = "<group>"; };
 		8728FFE22742906A008E5524 /* TokenCardTableViewCellFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenCardTableViewCellFactory.swift; sourceTree = "<group>"; };
 		8728FFE92743CAA7008E5524 /* NFTAssetSelectionSectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTAssetSelectionSectionHeaderView.swift; sourceTree = "<group>"; };
+		872A986B28637D0D00196EA3 /* Publisher+Utils.swift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Publisher+Utils.swift.swift"; sourceTree = "<group>"; };
+		872A986D28638F1600196EA3 /* WalletStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletStorage.swift; sourceTree = "<group>"; };
 		872D9563271D633D00870971 /* WalletConnectConnectionTimeoutViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectConnectionTimeoutViewController.swift; sourceTree = "<group>"; };
 		872D9565271D66C200870971 /* GasPriceEstimates.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GasPriceEstimates.swift; sourceTree = "<group>"; };
 		872D9566271D66C200870971 /* EtherscanGasPriceEstimator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EtherscanGasPriceEstimator.swift; sourceTree = "<group>"; };
@@ -2074,6 +2079,7 @@
 		87300E8A2851C9FE009DE4B3 /* AcceptDeepLinkViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcceptDeepLinkViewModel.swift; sourceTree = "<group>"; };
 		87300E9128573461009DE4B3 /* ConfigureImageStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigureImageStorage.swift; sourceTree = "<group>"; };
 		87300E8D28520F28009DE4B3 /* EnsRecordsStorageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnsRecordsStorageTests.swift; sourceTree = "<group>"; };
+		87300E9128573461009DE4B3 /* ConfigureImageStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigureImageStorage.swift; sourceTree = "<group>"; };
 		8731E6DB2565269400A6A7DA /* Uniswap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Uniswap.swift; sourceTree = "<group>"; };
 		8731E6DC2565269400A6A7DA /* UniswapERC20Token.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UniswapERC20Token.swift; sourceTree = "<group>"; };
 		8731E6DE2565269400A6A7DA /* Oneinch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Oneinch.swift; sourceTree = "<group>"; };
@@ -5454,6 +5460,7 @@
 				8765D6F4282BE0B100529F45 /* Alamofire+Publishers.swift */,
 				8765D6F6282BE26200529F45 /* Session+Publishers.swift */,
 				8765D6F8282BE30D00529F45 /* Control+Publishers.swift */,
+				872A986B28637D0D00196EA3 /* Publisher+Utils.swift.swift */,
 			);
 			path = Publishers;
 			sourceTree = "<group>";
@@ -5967,6 +5974,7 @@
 				87FBF2B228056AEE00616B7D /* ReportService.swift */,
 				87FBF2B428056B6F00616B7D /* FirebaseReportService.swift */,
 				87300E862850A674009DE4B3 /* WalletApiService.swift */,
+				872A986D28638F1600196EA3 /* WalletStorage.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -7210,6 +7218,7 @@
 				87455C262834C05200B7B95F /* Tokenable.swift in Sources */,
 				5E7C7DC485AD4401A3F6D071 /* FungibleTokenViewController.swift in Sources */,
 				5E7C7EC8E473526629825ADA /* FungibleTokenViewModel.swift in Sources */,
+				872A986E28638F1600196EA3 /* WalletStorage.swift in Sources */,
 				87ED8F93248534E30005C69B /* SwitchTableViewCell.swift in Sources */,
 				871442FB27F74159008819D1 /* NewlyAddedTransactionProvider.swift in Sources */,
 				8728FFDF27428FEA008E5524 /* TokenAttributeViewModel.swift in Sources */,
@@ -7478,6 +7487,7 @@
 				5E7C7CD5C69451722BAB63E4 /* GetNextNonce.swift in Sources */,
 				871CE2F127DF87AE00B1E1CF /* TransactionDeadlineTextField.swift in Sources */,
 				5E7C7B1689D3E1D51788FE26 /* Session+PromiseKit.swift in Sources */,
+				872A986C28637D0D00196EA3 /* Publisher+Utils.swift.swift in Sources */,
 				5E7C78C68AD1922796E6C88F /* WalletConnectSessionsViewController.swift in Sources */,
 				8765D6DD282B9C7D00529F45 /* RealmLocalStore.swift in Sources */,
 				5E7C78C511CD388E882DBD83 /* WalletConnectSessionCell.swift in Sources */,

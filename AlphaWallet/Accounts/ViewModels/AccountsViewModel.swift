@@ -16,7 +16,7 @@ class AccountsViewModel: ObservableObject {
     private let blockiesGenerator: BlockiesGenerator
     private let domainResolutionService: DomainResolutionServiceType
     private var reloadBalanceSubject: PassthroughSubject<ReloadState, Never> = .init()
-    private lazy var getWalletName = GetWalletName(config: config, domainResolutionService: domainResolutionService)
+    private lazy var getWalletName = GetWalletName(domainResolutionService: domainResolutionService)
     private var sections: [Section] {
         switch configuration {
         case .changeWallets:
@@ -79,14 +79,27 @@ class AccountsViewModel: ObservableObject {
         reloadWallets()
     }
 
-    func set(walletName: String, for wallet: AlphaWallet.Address) {
-        if walletName.isEmpty {
-            config.deleteWalletName(forAccount: wallet)
-        } else {
-            config.saveWalletName(walletName, forAddress: wallet)
-        }
+    func set(name: String, for wallet: Wallet) {
+        //TODO: pass ref
+        FileWalletStorage().addOrUpdate(name: name, for: wallet.address)
         reload()
         objectWillChange.send()
+    }
+
+    func assignedNameOrEns(for wallet: Wallet) -> AnyPublisher<String?, Never> {
+        return getWalletName.assignedNameOrEns(for: wallet.address)
+    }
+
+    func resolvedEns(for wallet: Wallet) -> AnyPublisher<String?, Never> {
+        domainResolutionService.resolveEns(address: wallet.address)
+            .map { ens -> EnsName? in return ens }
+            .replaceError(with: nil)
+            .eraseToAnyPublisher()
+    }
+
+    func assignedName(for wallet: Wallet) -> AnyPublisher<String?, Never> {
+        let walletName = FileWalletStorage().name(for: wallet.address)
+        return .just(walletName)
     }
 
     private func reloadWallets() {

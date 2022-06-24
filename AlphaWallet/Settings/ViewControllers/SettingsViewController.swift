@@ -38,7 +38,7 @@ class SettingsViewController: UIViewController {
         return tableView
     }()
     private var viewModel: SettingsViewModel
-    private lazy var walletNameFetcher = GetWalletName(config: config, domainResolutionService: domainResolutionService)
+    private lazy var getWalletName = GetWalletName(domainResolutionService: domainResolutionService)
     
     weak var delegate: SettingsViewControllerDelegate?
     var promptBackupWalletView: UIView? {
@@ -140,13 +140,8 @@ class SettingsViewController: UIViewController {
         )
 
         cell.walletNameCancelable?.cancel()
-        cell.walletNameCancelable = walletNameFetcher.getName(for: account.address)
-            .receive(on: RunLoop.main)
-            .sink(receiveCompletion: { _ in
-                //no-op
-            }, receiveValue: { [viewModel] name in
-                guard cell.indexPath == indexPath else { return }
-                
+        cell.walletNameCancelable = getWalletName.assignedNameOrEns(for: account.address)
+            .sink(receiveValue: { [viewModel] name in
                 let viewModel = SettingTableViewCellViewModel(titleText: row.title, subTitleText: viewModel.addressReplacedWithENSOrWalletName(name), icon: row.icon)
                 cell.configure(viewModel: viewModel)
             })
