@@ -7,9 +7,9 @@ import PromiseKit
 enum ContractData {
     case name(String)
     case symbol(String)
-    case balance(balance: [String], tokenType: TokenType)
+    case balance(balance: NonFungibleBalance, tokenType: TokenType)
     case decimals(UInt8)
-    case nonFungibleTokenComplete(name: String, symbol: String, balance: [String], tokenType: TokenType)
+    case nonFungibleTokenComplete(name: String, symbol: String, balance: NonFungibleBalance, tokenType: TokenType)
     case fungibleTokenComplete(name: String, symbol: String, decimals: UInt8)
     case delegateTokenComplete
     case failed(networkReachable: Bool?)
@@ -22,7 +22,7 @@ class ContractDataDetector {
     private let namePromise: Promise<String>
     private let symbolPromise: Promise<String>
     private let tokenTypePromise: Promise<TokenType>
-    private let (nonFungibleBalancePromise, nonFungibleBalanceSeal) = Promise<[String]>.pending()
+    private let (nonFungibleBalancePromise, nonFungibleBalanceSeal) = Promise<NonFungibleBalance>.pending()
     private let (decimalsPromise, decimalsSeal) = Promise<UInt8>.pending()
     private var failed = false
     private var completion: ((ContractData) -> Void)?
@@ -69,32 +69,32 @@ class ContractDataDetector {
             switch tokenType {
             case .erc875:
                 self.tokenProvider.getERC875Balance(for: self.address).done { balance in
-                    self.nonFungibleBalanceSeal.fulfill(balance)
-                    self.completionOfPartialData(.balance(balance: balance, tokenType: .erc875))
+                    self.nonFungibleBalanceSeal.fulfill(.erc875(balance))
+                    self.completionOfPartialData(.balance(balance: .erc875(balance), tokenType: .erc875))
                 }.catch { error in
                     self.nonFungibleBalanceSeal.reject(error)
                     self.callCompletionFailed()
                 }
             case .erc721:
                 self.tokenProvider.getERC721Balance(for: self.address).done { balance in
-                    self.nonFungibleBalanceSeal.fulfill(balance)
-                    self.completionOfPartialData(.balance(balance: balance, tokenType: .erc721))
+                    self.nonFungibleBalanceSeal.fulfill(.balance(balance))
+                    self.completionOfPartialData(.balance(balance: .balance(balance), tokenType: .erc721))
                 }.catch { error in
                     self.nonFungibleBalanceSeal.reject(error)
                     self.callCompletionFailed()
                 }
             case .erc721ForTickets:
                 self.tokenProvider.getERC721ForTicketsBalance(for: self.address).done { balance in
-                    self.nonFungibleBalanceSeal.fulfill(balance)
-                    self.completionOfPartialData(.balance(balance: balance, tokenType: .erc721ForTickets))
+                    self.nonFungibleBalanceSeal.fulfill(.erc721ForTickets(balance))
+                    self.completionOfPartialData(.balance(balance: .erc721ForTickets(balance), tokenType: .erc721ForTickets))
                 }.catch { error in
                     self.nonFungibleBalanceSeal.reject(error)
                     self.callCompletionFailed()
                 }
             case .erc1155:
                 let balance: [String] = .init()
-                self.nonFungibleBalanceSeal.fulfill(balance)
-                self.completionOfPartialData(.balance(balance: balance, tokenType: .erc1155))
+                self.nonFungibleBalanceSeal.fulfill(.balance(balance))
+                self.completionOfPartialData(.balance(balance: .balance(balance), tokenType: .erc1155))
             case .erc20:
                 self.tokenProvider.getDecimals(for: self.address).done { decimal in
                     self.decimalsSeal.fulfill(decimal)

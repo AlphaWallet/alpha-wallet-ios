@@ -142,7 +142,7 @@ extension NewTokenCoordinator: NewTokenViewControllerDelegate {
                 case .nonFungibleTokenComplete(let name, let symbol, let balance, let tokenType):
                     viewController.updateNameValue(name)
                     viewController.updateSymbolValue(symbol)
-                    viewController.updateBalanceValue(balance, tokenType: tokenType)
+                    viewController.updateBalanceValue(balance.rawValue, tokenType: tokenType)
                     seal.fulfill(tokenType)
                 case .fungibleTokenComplete(let name, let symbol, let decimals):
                     viewController.updateNameValue(name)
@@ -166,7 +166,7 @@ extension NewTokenCoordinator: NewTokenViewControllerDelegate {
             case .symbol(let symbol):
                 viewController.updateSymbolValue(symbol)
             case .balance(let balance, let tokenType):
-                viewController.updateBalanceValue(balance, tokenType: tokenType)
+                viewController.updateBalanceValue(balance.rawValue, tokenType: tokenType)
             case .decimals(let decimals):
                 viewController.updateDecimalsValue(decimals)
             case .nonFungibleTokenComplete(_, _, _, let tokenType):
