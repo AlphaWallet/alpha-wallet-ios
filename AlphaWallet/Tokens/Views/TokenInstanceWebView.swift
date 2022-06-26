@@ -429,7 +429,7 @@ extension TokenInstanceWebView: Coordinator {
     func signMessage(with type: SignMessageType, account: AlphaWallet.Address, callbackID: Int) {
         guard let navigationController = delegate?.navigationControllerFor(tokenInstanceWebView: self) else { return }
         firstly {
-            SignMessageCoordinator.promise(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, keystore: keystore, coordinator: self, signType: type, account: account, source: .tokenScript, walletConnectDappRequesterViewModel: nil)
+            SignMessageCoordinator.promise(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, keystore: keystore, coordinator: self, signType: type, account: account, source: .tokenScript, requester: nil)
         }.done { data in
             let callback: DappCallback
             switch type {

@@ -6,8 +6,9 @@
 //
 
 import Foundation
+import Combine
 
-struct RenameWalletViewModel {
+class RenameWalletViewModel {
     let account: AlphaWallet.Address
 
     var title: String {
@@ -22,7 +23,29 @@ struct RenameWalletViewModel {
         return R.string.localizable.walletRenameEnterNameTitle()
     }
 
-    init(account: AlphaWallet.Address) {
+    private let analyticsCoordinator: AnalyticsCoordinator
+    private let domainResolutionService: DomainResolutionServiceType
+
+    init(account: AlphaWallet.Address, analyticsCoordinator: AnalyticsCoordinator, domainResolutionService: DomainResolutionServiceType) {
         self.account = account
+        self.analyticsCoordinator = analyticsCoordinator
+        self.domainResolutionService = domainResolutionService
+    }
+
+    func set(walletName: String) {
+        FileWalletStorage().addOrUpdate(name: walletName, for: account)
+        analyticsCoordinator.log(action: Analytics.Action.nameWallet)
+    }
+
+    var resolvedEns: AnyPublisher<String?, Never> {
+        return domainResolutionService.resolveEns(address: account)
+            .map { ens -> EnsName? in return ens }
+            .replaceError(with: nil)
+            .eraseToAnyPublisher()
+    }
+
+    var assignedName: AnyPublisher<String?, Never> {
+        let name = FileWalletStorage().name(for: account)
+        return .just(name)
     }
 }

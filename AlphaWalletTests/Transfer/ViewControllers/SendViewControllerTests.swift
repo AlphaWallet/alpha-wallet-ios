@@ -190,11 +190,11 @@ class SendViewControllerTests: XCTestCase {
         for each in 1 ... 10 {
             if each % 2 == 0 {
                 DispatchQueue.global().asyncAfter(deadline: .now() + .seconds(each)) {
-                    tokenBalanceService.setNftBalanceTestsOnly(["0x0\(each)"], forToken: token)
+                    tokenBalanceService.setNftBalanceTestsOnly(.balance(["0x0\(each)"]), forToken: token)
                 }
             } else {
                 DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(each)) {
-                    tokenBalanceService.setNftBalanceTestsOnly(["0x0\(each)"], forToken: token)
+                    tokenBalanceService.setNftBalanceTestsOnly(.balance(["0x0\(each)"]), forToken: token)
                 }
             }
         }

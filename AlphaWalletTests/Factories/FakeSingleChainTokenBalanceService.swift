@@ -29,7 +29,7 @@ class FakeSingleChainTokenBalanceService: SingleChainTokenBalanceService {
         balanceService.setBalanceTestsOnly(balance.value, forToken: token, wallet: wallet)
     }
 
-    func setNftBalanceTestsOnly(_ value: [String], forToken token: Token) {
+    func setNftBalanceTestsOnly(_ value: NonFungibleBalance, forToken token: Token) {
         balanceService.setNftBalanceTestsOnly(value, forToken: token, wallet: wallet)
     }
 

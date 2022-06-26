@@ -37,7 +37,7 @@ struct TransactionConfirmationHeaderViewModel {
 
     var titleAttributedString: NSAttributedString? {
         guard let title = title else { return nil }
-
+        
         return NSAttributedString(string: title, attributes: [
             .foregroundColor: Colors.black,
             .font: Fonts.regular(size: 17)

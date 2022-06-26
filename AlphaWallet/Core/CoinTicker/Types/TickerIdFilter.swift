@@ -71,7 +71,7 @@ struct TickerIdFilter {
         case .fantom: return platform == "fantom"
         case .arbitrum: return platform == "arbitrum-one"
         case .klaytnCypress, .klaytnBaobabTestnet: return platform == "klay-token"
-        case .poa, .kovan, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .ropsten, .rinkeby, .heco, .heco_testnet, .fantom_testnet, .avalanche_testnet, .mumbai_testnet, .custom, .optimistic, .optimisticKovan, .cronosTestnet, .palm, .palmTestnet, .arbitrumRinkeby, .phi:
+        case .poa, .kovan, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .ropsten, .rinkeby, .heco, .heco_testnet, .fantom_testnet, .avalanche_testnet, .mumbai_testnet, .custom, .optimistic, .optimisticKovan, .cronosTestnet, .palm, .palmTestnet, .arbitrumRinkeby, .phi, .ioTeX, .ioTeXTestnet:
             return false
         }
     }
@@ -89,7 +89,7 @@ struct TickerIdFilter {
         case .fantom: return true
         case .palm: return true
         case .klaytnCypress, .klaytnBaobabTestnet: return true
-        case .poa, .kovan, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .ropsten, .rinkeby, .heco, .heco_testnet, .fantom_testnet, .avalanche_testnet, .mumbai_testnet, .custom, .optimistic, .optimisticKovan, .cronosTestnet, .palmTestnet, .arbitrumRinkeby, .phi:
+        case .poa, .kovan, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .ropsten, .rinkeby, .heco, .heco_testnet, .fantom_testnet, .avalanche_testnet, .mumbai_testnet, .custom, .optimistic, .optimisticKovan, .cronosTestnet, .palmTestnet, .arbitrumRinkeby, .phi, .ioTeX, .ioTeXTestnet:
             return false
         }
     }

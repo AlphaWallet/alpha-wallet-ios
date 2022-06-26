@@ -272,20 +272,14 @@ extension AlphaWallet.WalletConnect.TopicOrUrl {
     }
 }
 
-struct WalletConnectDappRequesterViewModel {
-    let dappShortName: String
-    let dappName: String
-    let server: RPCServer
-    let dappUrl: URL
-    let dappIconUrl: URL?
-
+extension Requester {
     init(walletConnectSession session: AlphaWallet.WalletConnect.Session, request: AlphaWallet.WalletConnect.Session.Request) {
-        dappName = session.dappName
-        dappShortName = session.dappNameShort
-        dappUrl = session.dappUrl
+        name = session.dappName
+        shortName = session.dappNameShort
+        url = session.dappUrl
         //NOTE: actually it should always have a value
-        server = request.server!
-        dappIconUrl = session.dappIconUrl
+        server = request.server
+        iconUrl = session.dappIconUrl
     }
 }
 

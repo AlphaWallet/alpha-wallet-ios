@@ -1,5 +1,5 @@
 //
-//  UniversalLinkCoordinator.swift
+//  UniversalLinkService.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 11.11.2020.
@@ -17,21 +17,15 @@ protocol UrlSchemeResolver: AnyObject {
     func showPaymentFlow(for type: PaymentFlow, server: RPCServer, navigationController: UINavigationController)
 } 
 
-protocol UniversalLinkCoordinatorDelegate: AnyObject {
+protocol UniversalLinkServiceDelegate: AnyObject {
     func handle(url: DeepLink, for resolver: UrlSchemeResolver)
-    func resolve(for coordinator: UniversalLinkCoordinator) -> UrlSchemeResolver?
+    func resolve(for coordinator: UniversalLinkService) -> UrlSchemeResolver?
 }
 
-protocol UniversalLinkCoordinatorType {
-    func handleUniversalLinkOpen(url: URL) -> Bool
-    func handlePendingUniversalLink(in coordinator: UrlSchemeResolver)
-    func handleUniversalLinkInPasteboard()
-}
+class UniversalLinkService {
+    private var pendingUniversalLinkUrl: DeepLink? = .none
 
-class UniversalLinkCoordinator: UniversalLinkCoordinatorType {
-    private var pendingUniversalUrl: DeepLink? = .none
-
-    weak var delegate: UniversalLinkCoordinatorDelegate?
+    weak var delegate: UniversalLinkServiceDelegate?
 
     func handleUniversalLinkInPasteboard() {
         let universalLinkPasteboardCoordinator = UniversalLinkInPasteboardCoordinator()
@@ -39,12 +33,12 @@ class UniversalLinkCoordinator: UniversalLinkCoordinatorType {
         universalLinkPasteboardCoordinator.start()
     }
 
-    @discardableResult func handleUniversalLinkOpen(url: URL) -> Bool {
-        if let magicLink = DeepLink(url: url) {
-            if let coordinator = delegate?.resolve(for: self) {
-                handle(url: magicLink, with: coordinator)
+    @discardableResult func handleUniversalLink(url: URL) -> Bool {
+        if let universalLink = DeepLink(url: url) {
+            if let resolver = delegate?.resolve(for: self) {
+                handle(url: universalLink, with: resolver)
             } else {
-                pendingUniversalUrl = magicLink
+                pendingUniversalLinkUrl = universalLink
             }
 
             return true
@@ -53,25 +47,25 @@ class UniversalLinkCoordinator: UniversalLinkCoordinatorType {
         }
     }
 
-    func handlePendingUniversalLink(in coordinator: UrlSchemeResolver) {
-        guard let url = pendingUniversalUrl else { return }
+    func handlePendingUniversalLink(in resolver: UrlSchemeResolver) {
+        guard let url = pendingUniversalLinkUrl else { return }
 
-        handle(url: url, with: coordinator)
+        handle(url: url, with: resolver)
     }
 
-    private func handle(url: DeepLink, with coordinator: UrlSchemeResolver) {
-        delegate?.handle(url: url, for: coordinator)
+    private func handle(url: DeepLink, with resolver: UrlSchemeResolver) {
+        delegate?.handle(url: url, for: resolver)
         
-        pendingUniversalUrl = .none
+        pendingUniversalLinkUrl = .none
     }
 }
 
-extension UniversalLinkCoordinator: UniversalLinkInPasteboardCoordinatorDelegate {
+extension UniversalLinkService: UniversalLinkInPasteboardCoordinatorDelegate {
     func importUniversalLink(url: DeepLink, for coordinator: UniversalLinkInPasteboardCoordinator) {
         if let coordinator = delegate?.resolve(for: self) {
             self.handle(url: url, with: coordinator)
         } else {
-            pendingUniversalUrl = url
+            pendingUniversalLinkUrl = url
         }
     }
 }

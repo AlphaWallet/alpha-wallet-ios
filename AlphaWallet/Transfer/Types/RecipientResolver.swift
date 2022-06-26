@@ -35,10 +35,10 @@ class RecipientResolver {
             return Just(()).eraseToAnyPublisher()
         }
         return domainResolutionService.resolveEns(address: address)
-            .handleEvents(receiveOutput: { [weak self] result in
-                self?.ensName = result.resolution.value
-            }, receiveCompletion: { [weak self] _ in
-                self?.ensName = nil
+            .map { ens -> EnsName? in return ens }
+            .replaceError(with: nil)
+            .handleEvents(receiveOutput: { [weak self] ensName in
+                self?.ensName = ensName
             }).map { _ in }
             .replaceError(with: ())
             .eraseToAnyPublisher()

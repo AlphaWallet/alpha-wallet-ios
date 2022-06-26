@@ -23,22 +23,9 @@ struct ConfigExplorer {
             .flatMap { (url: $0, name: result.name) }
     }
 
-    private static func explorerName(for server: RPCServer) -> String {
-        switch server {
-        case .main, .kovan, .ropsten, .rinkeby, .goerli:
-            return "Etherscan"
-        case .classic, .poa, .custom, .callisto, .sokol, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet, .phi:
-            return "\(server.name) Explorer"
-        case .xDai, .candle:
-            return "Blockscout"
-        case .artis_sigma1, .artis_tau1:
-            return "ARTIS"
-        }
-    }
 
     private static func explorer(for server: RPCServer) -> (url: String?, name: String) {
-        let nameForServer = explorerName(for: server)
         let url = server.etherscanWebpageRoot
-        return (url?.absoluteString, nameForServer)
+        return (url?.absoluteString, server.explorerName)
     }
 }

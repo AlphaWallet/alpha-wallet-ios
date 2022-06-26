@@ -8,50 +8,42 @@
 import UIKit
 import PromiseKit
 
+protocol ServerUnavailableCoordinatorDelegate: AnyObject {
+    func didDismiss(in coordinator: ServerUnavailableCoordinator)
+}
+
 class ServerUnavailableCoordinator: Coordinator {
-    var coordinators: [Coordinator] = []
-
     private let navigationController: UINavigationController
-    private var retainCycle: ServerUnavailableCoordinator?
-    private let (promiseToReturn, seal) = Promise<Void>.pending()
     private let servers: [RPCServer]
+    private lazy var message: String? = {
+        guard !servers.isEmpty else { return nil }
 
-    init(navigationController: UINavigationController, servers: [RPCServer], coordinator: Coordinator) {
-        self.navigationController = navigationController
-        self.servers = servers
-
-        retainCycle = self
-
-        promiseToReturn.ensure {
-            // ensure we break the retain cycle
-            self.retainCycle = nil
-            coordinator.removeCoordinator(self)
-        }.cauterize()
-        
-        addCoordinator(self)
-    }
-
-    func start() -> Promise<Void> {
-        guard let keyWindow = UIApplication.shared.firstKeyWindow, !servers.isEmpty else { return promiseToReturn }
-
-        let message: String
         if servers.count == 1 {
-            message = R.string.localizable.serverWarningServerIsDisabled(servers[0].name)
+            return R.string.localizable.serverWarningServerIsDisabled(servers[0].name)
         } else {
             let value = servers.map { $0.name }.joined(separator: ", ")
-            message = R.string.localizable.serverWarningServersAreDisabled(value)
+            return R.string.localizable.serverWarningServersAreDisabled(value)
+        }
+    }()
+
+    var coordinators: [Coordinator] = []
+    weak var delegate: ServerUnavailableCoordinatorDelegate?
+
+    init(navigationController: UINavigationController, servers: [RPCServer]) {
+        self.navigationController = navigationController
+        self.servers = servers
+    }
+
+    func start() {
+        guard let message = message else {
+            delegate?.didDismiss(in: self)
+            return
         }
 
-        if let controller = keyWindow.rootViewController?.presentedViewController {
-            controller.displayError(message: message) {
-                self.seal.fulfill(())
-            }
-        } else {
-            navigationController.displayError(message: message) {
-                self.seal.fulfill(())
-            }
-        }
-
-        return promiseToReturn
+        UIApplication.shared
+            .presentedViewController(or: navigationController)
+            .displayError(message: message, completion: {
+                self.delegate?.didDismiss(in: self)
+            })
     } 
 }

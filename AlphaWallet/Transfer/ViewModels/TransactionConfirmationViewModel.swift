@@ -22,9 +22,9 @@ enum TransactionConfirmationViewModel {
         case .tokenScriptTransaction(_, let contract, _, let functionCallMetaData):
             self = .tokenScriptTransaction(.init(address: contract, configurator: configurator, functionCallMetaData: functionCallMetaData))
         case .dappTransaction(_, _):
-            self = .dappOrWalletConnectTransaction(.init(configurator: configurator, dappRequesterViewModel: nil))
-        case .walletConnect(_, _, let dappRequesterViewModel):
-            self = .dappOrWalletConnectTransaction(.init(configurator: configurator, dappRequesterViewModel: dappRequesterViewModel))
+            self = .dappOrWalletConnectTransaction(.init(configurator: configurator, requester: nil))
+        case .walletConnect(_, _, let requester):
+            self = .dappOrWalletConnectTransaction(.init(configurator: configurator, requester: requester))
         case .sendFungiblesTransaction(_, _, let assetDefinitionStore, let amount):
             let resolver = RecipientResolver(address: configurator.transaction.recipient, domainResolutionService: domainResolutionService)
             self = .sendFungiblesTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: resolver, amount: amount))
@@ -41,7 +41,7 @@ enum TransactionConfirmationViewModel {
             self = .swapTransaction(.init(configurator: configurator, fromToken: fromToken, fromAmount: fromAmount, toToken: toToken, toAmount: toAmount))
         case .approve:
             //TODO rename `.dappOrWalletConnectTransaction` so it's more general?
-            self = .dappOrWalletConnectTransaction(.init(configurator: configurator, dappRequesterViewModel: nil))
+            self = .dappOrWalletConnectTransaction(.init(configurator: configurator, requester: nil))
 
         }
     }
@@ -373,18 +373,18 @@ extension TransactionConfirmationViewModel {
         }
 
         var placeholderIcon: UIImage? {
-            return dappRequesterViewModel == nil ? R.image.awLogoSmall() : R.image.walletConnectIcon()
+            return requester == nil ? R.image.awLogoSmall() : R.image.walletConnectIcon()
         }
 
-        var dappIconUrl: URL? { dappRequesterViewModel?.dappIconUrl }
+        var dappIconUrl: URL? { requester?.iconUrl }
 
-        private var dappRequesterViewModel: WalletConnectDappRequesterViewModel?
+        private var requester: RequesterViewModel?
 
-        init(configurator: TransactionConfigurator, dappRequesterViewModel: WalletConnectDappRequesterViewModel?) {
+        init(configurator: TransactionConfigurator, requester: RequesterViewModel?) {
             self.configurator = configurator
             self.functionCallMetaData = configurator.transaction.data.flatMap { DecodedFunctionCall(data: $0) }
             self.session = configurator.session
-            self.dappRequesterViewModel = dappRequesterViewModel
+            self.requester = requester
         }
 
         func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {

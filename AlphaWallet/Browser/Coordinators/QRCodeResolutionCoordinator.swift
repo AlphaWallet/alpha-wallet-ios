@@ -265,7 +265,7 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
                                 symbol: symbol,
                                 decimals: Int(decimals),
                                 type: .erc20,
-                                balance: ["0"]
+                                balance: .balance(["0"])
                             )], shouldUpdateBalance: true)[0]
                             guard let tokenObject = tokensDatastore.tokenObject(forContract: token.contractAddress, server: token.server) else { return }
                             let amount = maybeScientificAmountString.scientificAmountToBigInt.flatMap {

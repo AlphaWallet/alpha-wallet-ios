@@ -106,6 +106,8 @@ extension Covalent.NetworkProvider {
             return false
         case .klaytnCypress:
             return true
+        case .ioTeX, .ioTeXTestnet:
+            return true
         }
     }
 }

@@ -91,7 +91,7 @@ class TokensCoordinator: Coordinator {
     private let blockiesGenerator: BlockiesGenerator
     private let domainResolutionService: DomainResolutionServiceType
     private let importToken: ImportToken
-    private lazy var walletNameFetcher = GetWalletName(config: config, domainResolutionService: domainResolutionService)
+    private lazy var walletNameFetcher = GetWalletName(domainResolutionService: domainResolutionService)
     private var getWalletNameCancelable: AnyCancellable?
 
     init(
@@ -238,9 +238,14 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         tokensViewController.title = viewModel.walletDefaultTitle
 
         walletNameFetcher
-            .getName(for: sessions.anyValue.account.address)
-            .replaceError(with: viewModel.walletDefaultTitle)
-            .receive(on: RunLoop.main)
+            .assignedNameOrEns(for: sessions.anyValue.account.address)
+            .map { ensOrName in
+                if let ensOrName = ensOrName {
+                    return ensOrName
+                } else {
+                    return viewModel.walletDefaultTitle
+                }
+            }.prepend(viewModel.walletDefaultTitle)
             .sink(receiveValue: { [weak self] name in
                 self?.tokensViewController.navigationItem.title = name
             }).store(in: &cancelable)
@@ -327,9 +332,9 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     }
 
     private func didPressRenameThisWallet() {
-        let viewModel = RenameWalletViewModel(account: sessions.anyValue.account.address)
+        let viewModel = RenameWalletViewModel(account: sessions.anyValue.account.address, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
 
-        let viewController = RenameWalletViewController(viewModel: viewModel, analyticsCoordinator: analyticsCoordinator, config: config, domainResolutionService: domainResolutionService)
+        let viewController = RenameWalletViewController(viewModel: viewModel)
         viewController.delegate = self
         viewController.navigationItem.largeTitleDisplayMode = .never
         viewController.hidesBottomBarWhenPushed = true

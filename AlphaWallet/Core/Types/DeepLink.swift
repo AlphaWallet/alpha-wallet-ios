@@ -6,11 +6,13 @@
 //
 
 import Foundation
+import SwiftyJSON 
 
 enum DeepLink {
     static let walletConnectPath = "/wc"
     static let eip681Path = "/ethereum:"
     static let openUrlPath = "/openurl"
+    static let walletPath = "/wallet"
 
     enum WalletConnectSource {
         case mobileLinking
@@ -23,6 +25,7 @@ enum DeepLink {
     case shareContentAction(action: ShareContentAction)
     case magicLink(signedOrder: SignedOrder, server: RPCServer, url: URL)
     case maybeFileUrl(url: URL)
+    case walletApi(DeepLink.WalletApi)
 
     init?(url: URL, supportedServers: [RPCServer] = [.main]) {
         if url.isFileURL {
@@ -37,6 +40,8 @@ enum DeepLink {
             self = .shareContentAction(action: value)
         } else if let (server, signedOrder) = Self.functional.hasMagicLink(url: url) {
             self = .magicLink(signedOrder: signedOrder, server: server, url: url)
+        } else if let value = Self.functional.hasEmbeddedWalletApiAction(url: url, supportedServers: []) {
+            self = .walletApi(value)
         } else {
             return nil
         }
@@ -51,7 +56,89 @@ extension DeepLink {
     class functional {}
 }
 
+extension DeepLink {
+    enum WalletApi {
+        case signPersonalMessage(address: AlphaWallet.Address?, server: RPCServer, redirectUrl: URL, version: String, metadata: Metadata, message: String)
+        case connect(redirectUrl: URL, version: String, metadata: Metadata)
+
+        enum Action: String {
+            case signPersonalMessage = "signpersonalmessage"
+            case connect = "connect"
+
+            init?(string: String) {
+                self.init(rawValue: string.lowercased())
+            }
+        }
+
+        enum Params {
+            static let redirectUrl = "redirecturl"
+            static let metadata = "metadata"
+            static let message = "message"
+            static let address = "address"
+        }
+    }
+
+    struct Metadata {
+        let name: String
+        let iconUrl: URL?
+        let appUrl: URL?
+        let note: String?
+
+        init?(json: JSON) {
+            guard let name = json["name"].string else { return nil }
+
+            self.name = name
+            self.iconUrl = json["iconurl"].string.flatMap { URL(string: $0) }
+            self.appUrl = json["appurl"].string.flatMap { URL(string: $0) }
+            self.note = json["note"].string
+        }
+    }
+}
+
 extension DeepLink.functional {
+    //E.g. https://aw.app/wallet/v1/connect?redirecturl=https%3A%2F%2Fmyapp.com&metadata=%7B%22name%22%3A%22Some%20app%22%2C%22iconurl%22%3A%22https%3A%2F%2Fimg.icons8.com%2Fnolan%2F344%2Fethereum.png%22%2C%20%22appurl%22%3A%20%22https%3A%2F%2Funiswap.org%2F%22%2C%20%22note%22%3A%22This%20will%20inform%20them%20your%20wallet%20address%20is%200x2322%E2%80%A62324%22%7D
+    //E.g https://aw.app/wallet/v1/signpersonalmessage?redirecturl=https%3A%2F%2Fmyapp.com%3Fparam_1%3Dnope%26param_2%3D34&metadata=%7B%22name%22%3A%22Some%20app%22%2C%22iconurl%22%3A%22https%3A%2F%2Fimg.icons8.com%2Fnolan%2F344%2Fethereum.png%22%2C%20%22appurl%22%3A%20%22https%3A%2F%2Funiswap.org%2F%22%2C%20%22note%22%3A%22This%20will%20inform%20them%20your%20wallet%20address%20is%200x2322%E2%80%A62324%22%7D&message=0x48656c6c6f20416c7068612057616c6c6574
+    
+    static func hasEmbeddedWalletApiAction(url: URL, supportedServers: [RPCServer]) -> DeepLink.WalletApi? {
+        guard let result = validateSupportingServerAndPath(url: url, supportedServers: supportedServers, path: DeepLink.walletPath) else {
+            return nil
+        }
+
+        guard let decodedPath = result.path.replacingPlusWithPercent20 else { return nil }
+        guard let components = URLComponents(string: decodedPath) else { return nil }
+        let queryItems = components.queryItemsDictionary
+        let pathComponents = components.path.components(separatedBy: "/")
+
+        guard pathComponents.count >= 3 else { return nil }
+
+        let version = pathComponents[1]
+        switch DeepLink.WalletApi.Action(string: pathComponents[2]) {
+        case .connect:
+            guard let redirectUrl = components.queryItemsDictionary[DeepLink.WalletApi.Params.redirectUrl].flatMap({ URL(string: $0) }) else { return nil }
+
+            guard let json = queryItems[DeepLink.WalletApi.Params.metadata]
+                .flatMap({ $0.data(using: .utf8) })
+                .flatMap({ try? JSON(data: $0) }) else { return nil }
+
+            guard let metadata = DeepLink.Metadata(json: json) else { return nil }
+
+            return .connect(redirectUrl: redirectUrl, version: version, metadata: metadata)
+        case .signPersonalMessage:
+            guard let redirectUrl = queryItems[DeepLink.WalletApi.Params.redirectUrl].flatMap({ URL(string: $0) }) else { return nil }
+
+            guard let json = queryItems[DeepLink.WalletApi.Params.metadata]
+                .flatMap({ $0.data(using: .utf8) })
+                .flatMap({ try? JSON(data: $0) }) else { return nil }
+
+            guard let metadata = DeepLink.Metadata(json: json) else { return nil }
+            guard let message = queryItems[DeepLink.WalletApi.Params.message] else { return nil }
+            let address = components.queryItemsDictionary[DeepLink.WalletApi.Params.address].flatMap({ AlphaWallet.Address(string: $0) })
+
+            return .signPersonalMessage(address: address, server: result.server, redirectUrl: redirectUrl, version: version, metadata: metadata, message: message)
+        case .none:
+            return nil
+        }
+    }
 
     static func hasMagicLink(url: URL) -> (server: RPCServer, signedOrder: SignedOrder)? {
         guard let server = RPCServer(withMagicLink: url) else { return nil }
@@ -167,5 +254,35 @@ extension DeepLink.functional {
 
         return wcUrl1 ?? wcUrl2
         //no-op. According to WalletConnect docs, this is just to get iOS to switch over to the app for signing, etc. e.g. https://aw.app/wc?uri=wc:00e46b69-d0cc-4b3e-b6a2-cee442f97188@1
+    }
+}
+
+extension URLComponents {
+    var queryItemsDictionary: [String: String] {
+        set {
+            queryItems = newValue.map { URLQueryItem(name: $0, value: "\($1)") }
+        }
+        get {
+            var params: [String: String] = [:]
+            return queryItems?.reduce([:], { (_, item) -> [String: String] in
+                params[item.name] = item.value
+                return params
+            }) ?? [:]
+        }
+    }
+}
+
+extension String {
+
+    var replacingPlusWithPercent20: String? {
+        let unreserved = "*-._"
+        let allowed = NSMutableCharacterSet.alphanumeric()
+        allowed.addCharacters(in: unreserved)
+        allowed.addCharacters(in: "+")
+
+        var encoded = addingPercentEncoding(withAllowedCharacters: allowed as CharacterSet)
+        encoded = encoded?.replacingOccurrences(of: "+", with: "%20")
+
+        return encoded?.removingPercentEncoding?.replacingOccurrences(of: " ", with: "%20")
     }
 }

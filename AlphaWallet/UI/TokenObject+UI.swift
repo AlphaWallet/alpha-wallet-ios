@@ -36,53 +36,6 @@ extension RPCServer {
     var walletConnectIconImage: Subscribable<Image> {
         return RPCServerImageFetcher.instance.image(server: self)
     }
-
-    var staticOverlayIcon: UIImage? {
-        switch self {
-        case .main:
-            return R.image.iconsNetworkEth()
-        case .xDai:
-            return R.image.iconsNetworkXdai()
-        case .poa:
-            return R.image.iconsNetworkPoa()
-        case .classic:
-            return nil
-        case .callisto:
-            return R.image.iconsNetworkCallisto()
-        case .artis_sigma1:
-            return nil
-        case .binance_smart_chain:
-            return R.image.iconsNetworkBsc()
-        case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_tau1, .binance_smart_chain_testnet, .cronosTestnet, .custom:
-            return nil
-        case .heco, .heco_testnet:
-            return R.image.iconsNetworkHeco()
-        case .fantom, .fantom_testnet:
-            return R.image.iconsNetworkFantom()
-        case .avalanche, .avalanche_testnet:
-            return R.image.iconsNetworkAvalanche()
-        case .candle:
-            return R.image.iconsNetworkCandle()
-        case .polygon:
-            return R.image.iconsNetworkPolygon()
-        case .mumbai_testnet:
-            return nil
-        case .optimistic:
-            return R.image.iconsNetworkOptimism()
-        case .optimisticKovan:
-            return nil
-        case .arbitrum:
-            return R.image.iconsNetworkArbitrum()
-        case .arbitrumRinkeby:
-            return nil
-        case .palm, .palmTestnet:
-            return R.image.iconsTokensPalm()
-        case .klaytnCypress: return R.image.klaytnIcon()
-        case .klaytnBaobabTestnet: return R.image.klaytnIcon()
-        case .phi:
-            return nil
-        }
-    }
 }
 
 class RPCServerImageFetcher {

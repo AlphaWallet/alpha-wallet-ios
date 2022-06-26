@@ -74,7 +74,7 @@ class PaymentFlowFromEip681UrlResolver: Coordinator {
                                         symbol: symbol,
                                         decimals: Int(decimals),
                                         type: .erc20,
-                                        balance: ["0"]
+                                        balance: .balance(["0"])
                                 )
                                 let tokenObject = tokensDataStore.addCustom(tokens: [token], shouldUpdateBalance: true)[0]
                                 guard let t = tokensDataStore.tokenObject(forContract: tokenObject.contractAddress, server: tokenObject.server) else { return }

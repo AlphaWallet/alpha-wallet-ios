@@ -34,6 +34,7 @@ enum SendPrivateTransactionsProvider: String {
                 return nil
             case .klaytnCypress: return nil
             case .klaytnBaobabTestnet: return nil
+            case .ioTeX, .ioTeXTestnet: return nil
             }
         case .eden:
             switch server {
@@ -45,6 +46,7 @@ enum SendPrivateTransactionsProvider: String {
                 return nil
             case .klaytnCypress: return nil
             case .klaytnBaobabTestnet: return nil
+            case .ioTeX, .ioTeXTestnet: return nil
             }
         }
     }

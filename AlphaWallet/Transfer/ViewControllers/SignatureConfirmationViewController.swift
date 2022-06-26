@@ -17,7 +17,7 @@ protocol SignatureConfirmationViewControllerDelegate: AnyObject {
 class SignatureConfirmationViewController: UIViewController {
     private lazy var headerView = ConfirmationHeaderView(viewModel: .init(title: viewModel.navigationTitle))
     private let buttonsBar = HorizontalButtonsBar(configuration: .empty)
-    private (set) var viewModel: SignatureConfirmationViewModel
+    let viewModel: SignatureConfirmationViewModel
 
     private let separatorLine: UIView = {
         let view = UIView()
@@ -122,17 +122,16 @@ class SignatureConfirmationViewController: UIViewController {
     private func configure(for viewModel: SignatureConfirmationViewModel) {
         containerView.scrollView.backgroundColor = viewModel.backgroundColor
         view.backgroundColor = viewModel.backgroundColor
-        navigationItem.title = viewModel.title
 
-        headerView.iconImageView.setImage(url: viewModel.dappIconUrl, placeholder: viewModel.placeholderIcon)
-        buttonsBar.configure(.custom(types: [.secondary, .primary]))
+        headerView.iconImageView.setImage(url: viewModel.iconUrl, placeholder: viewModel.placeholderIcon)
+        buttonsBar.configure(.custom(types: [.primary, .secondary]))
 
-        let button1 = buttonsBar.buttons[1]
+        let button1 = buttonsBar.buttons[0]
         button1.shrinkBorderColor = Colors.loadingIndicatorBorder
         button1.setTitle(viewModel.confirmationButtonTitle, for: .normal)
         button1.addTarget(self, action: #selector(confirmButtonTapped), for: .touchUpInside)
 
-        let button2 = buttonsBar.buttons[0]
+        let button2 = buttonsBar.buttons[1]
         button2.shrinkBorderColor = Colors.loadingIndicatorBorder
         button2.setTitle(viewModel.cancelationButtonTitle, for: .normal)
         button2.addTarget(self, action: #selector(closeButtonSelected), for: .touchUpInside)
@@ -153,63 +152,23 @@ extension SignatureConfirmationViewController {
         containerView.stackView.removeAllArrangedSubviews()
 
         var views: [UIView] = []
-        switch viewModel {
-        case .typedMessage(let viewModel):
-            for each in viewModel.viewModels {
-                switch each {
-                case .header(let headerViewModel):
-                    let header = TransactionConfirmationHeaderView(viewModel: headerViewModel)
-                    header.delegate = self
 
-                    views.append(header)
-                case .headerWithShowButton(let headerViewModel, let availableToShowFullMessage):
-                    let header = TransactionConfirmationHeaderView(viewModel: headerViewModel)
-                    header.delegate = self
+        for each in viewModel.viewModels {
+            switch each {
+            case .header(let headerViewModel):
+                let header = TransactionConfirmationHeaderView(viewModel: headerViewModel)
+                header.delegate = self
 
-                    if availableToShowFullMessage {
-                        header.enableTapAction(title: "Show")
-                    }
+                views.append(header)
+            case .headerWithShowButton(let headerViewModel, let availableToShowFullMessage):
+                let header = TransactionConfirmationHeaderView(viewModel: headerViewModel)
+                header.delegate = self
 
-                    views.append(header)
+                if availableToShowFullMessage {
+                    header.enableTapAction(title: "Show")
                 }
-            }
-        case .personalMessage(let viewModel), .message(let viewModel):
-            for each in viewModel.viewModels {
-                switch each {
-                case .header(let headerViewModel):
-                    let header = TransactionConfirmationHeaderView(viewModel: headerViewModel)
-                    header.delegate = self
 
-                    views.append(header)
-                case .headerWithShowButton(let headerViewModel, let availableToShowFullMessage):
-                    let header = TransactionConfirmationHeaderView(viewModel: headerViewModel)
-                    header.delegate = self
-
-                    if availableToShowFullMessage {
-                        header.enableTapAction(title: "Show")
-                    }
-
-                    views.append(header)
-                }
-            }
-        case .eip712v3And4(let viewModel):
-            for each in viewModel.viewModels {
-                switch each {
-                case .header(let headerViewModel):
-                    let header = TransactionConfirmationHeaderView(viewModel: headerViewModel)
-                    header.delegate = self
-
-                    views.append(header)
-                case .headerWithShowButton(let headerViewModel, let availableToShowFullMessage):
-                    let header = TransactionConfirmationHeaderView(viewModel: headerViewModel)
-                    header.delegate = self
-
-                    if availableToShowFullMessage {
-                        header.enableTapAction(title: "Show")
-                    }
-
-                    views.append(header)
-                }
+                views.append(header)
             }
         }
 
