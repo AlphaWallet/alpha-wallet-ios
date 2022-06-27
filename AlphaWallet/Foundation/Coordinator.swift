@@ -12,6 +12,7 @@ extension Coordinator {
     }
 
     func removeCoordinator(_ coordinator: Coordinator) {
+        assert(coordinator !== self)
         guard coordinator !== self else { return }
         coordinators = coordinators.filter { $0 !== coordinator }
     }
