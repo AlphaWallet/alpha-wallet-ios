@@ -22,6 +22,8 @@ func == (lhs: WalletFilter, rhs: WalletFilter) -> Bool {
         return true
     case (.defi, .defi):
         return true
+    case (.assets, .assets):
+        return true
     case (.governance, .governance):
         return true
     case (.collectiblesOnly, .collectiblesOnly):

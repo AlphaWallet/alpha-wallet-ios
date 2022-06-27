@@ -302,7 +302,7 @@ fileprivate extension TokenOrRpcServer {
     }
 }
 
-fileprivate extension WalletFilter {
+extension WalletFilter {
     static var orderedTabs: [WalletFilter] {
         return [
             .all,
@@ -313,6 +313,13 @@ fileprivate extension WalletFilter {
         ]
     }
 
+    var selectionIndex: UInt? {
+        //This is safe only because index can't possibly be negative
+        return WalletFilter.orderedTabs.firstIndex { $0 == self }.flatMap { UInt($0) }
+    }
+}
+
+fileprivate extension WalletFilter {
     static func filter(fromIndex index: UInt) -> WalletFilter? {
         return WalletFilter.orderedTabs.first { $0.selectionIndex == index }
     }
@@ -332,11 +339,6 @@ fileprivate extension WalletFilter {
         case .keyword, .filter:
             return ""
         }
-    }
-
-    var selectionIndex: UInt? {
-        //This is safe only because index can't possibly be negative
-        return WalletFilter.orderedTabs.firstIndex { $0 == self }.flatMap { UInt($0) }
     }
 }
 
