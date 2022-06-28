@@ -104,7 +104,7 @@ final class AcceptWalletConnectSessionViewModel: SectionProtocol {
             return .init(title: .normal(proposal.name), headerName: sections[section].title, configuration: .init(section: section))
         case .networks:
             let servers = serversToConnect.map { $0.displayName }.joined(separator: ", ")
-            let shouldHideChevron = proposal.serverEditing != .notSupporting || serversToConnect.count == 1
+            let shouldHideChevron = proposal.serverEditing == .notSupporting || serversToConnect.count == 1
             let configuration: TransactionConfirmationHeaderView.Configuration = .init(
                 isOpened: isOpened,
                 section: section,
