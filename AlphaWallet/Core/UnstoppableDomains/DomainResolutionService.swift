@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import AlphaWalletENS
 
 class DomainResolutionService {
     private let storage: EnsRecordsStorage
@@ -35,42 +36,50 @@ extension DomainResolutionService: DomainResolutionServiceType {
             return .just(cached)
         }
 
-        return getEnsAddressResolver
-            .getENSAddressFromResolver(for: value).publisher
-            .catch { _ -> AnyPublisher<AlphaWallet.Address, PromiseError> in
-                self.unstoppableDomainsV2Resolver.resolveAddress(forName: value).publisher.eraseToAnyPublisher()
+        return Just(value)
+            .receive(on: DispatchQueue.global())
+            .setFailureType(to: SmartContractError.self)
+            .flatMap { [getEnsAddressResolver] value in
+                getEnsAddressResolver.getENSAddressFromResolver(for: value)
+            }.catch { [unstoppableDomainsV2Resolver] _ -> AnyPublisher<AlphaWallet.Address, PromiseError> in
+                unstoppableDomainsV2Resolver.resolveAddress(forName: value)
             }.receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }
 
     func resolveEnsAndBlockie(address: AlphaWallet.Address) -> AnyPublisher<BlockieAndAddressOrEnsResolution, PromiseError> {
+
+        func getBlockieImage(for ens: String) -> AnyPublisher<BlockieAndAddressOrEnsResolution, PromiseError> {
+            return blockiesGenerator.getBlockieOrEnsAvatarImage(address: address, ens: ens)
+                .map { image -> BlockieAndAddressOrEnsResolution in
+                    return (image, .resolved(.ensName(ens)))
+                }.catch { _ -> AnyPublisher<BlockieAndAddressOrEnsResolution, PromiseError> in
+                    return .just((nil, .resolved(.ensName(ens))))
+                }.eraseToAnyPublisher()
+        }
+
         return resolveEns(address: address)
-            .flatMap { [blockiesGenerator] ens in
-                blockiesGenerator.promise(address: address, ens: ens).publisher
-                    .map { image -> BlockieAndAddressOrEnsResolution in
-                        return (image, .resolved(.ensName(ens)))
-                    }.catch { _ -> AnyPublisher<BlockieAndAddressOrEnsResolution, PromiseError> in
-                        return Just((nil, .resolved(.ensName(ens)))).setFailureType(to: PromiseError.self).eraseToAnyPublisher()
-                    }
-            }.receive(on: RunLoop.main)
+            .flatMap { getBlockieImage(for: $0) }
             .eraseToAnyPublisher()
     }
 
     func resolveAddressAndBlockie(string: String) -> AnyPublisher<BlockieAndAddressOrEnsResolution, PromiseError> {
+
+        func getBlockieImage(for addr: AlphaWallet.Address) -> AnyPublisher<BlockieAndAddressOrEnsResolution, PromiseError> {
+            return blockiesGenerator.getBlockieOrEnsAvatarImage(address: addr, ens: string)
+                .map { image -> BlockieAndAddressOrEnsResolution in
+                    return (image, .resolved(.address(addr)))
+                }.catch { _ -> AnyPublisher<BlockieAndAddressOrEnsResolution, PromiseError> in
+                    return .just((nil, .resolved(.address(addr))))
+                }.eraseToAnyPublisher()
+        }
+
         return resolveAddress(string: string)
-            .flatMap { [blockiesGenerator] addr in
-                blockiesGenerator.promise(address: addr, ens: string).publisher
-                    .map { image -> BlockieAndAddressOrEnsResolution in
-                        return (image, .resolved(.address(addr)))
-                    }.catch { _ -> AnyPublisher<BlockieAndAddressOrEnsResolution, PromiseError> in
-                        Just((nil, .resolved(.address(addr)))).setFailureType(to: PromiseError.self).eraseToAnyPublisher()
-                    }
-            }.receive(on: RunLoop.main)
+            .flatMap { getBlockieImage(for: $0) }
             .eraseToAnyPublisher()
     }
 
     func resolveEns(address: AlphaWallet.Address) -> AnyPublisher<EnsName, PromiseError> {
-
         let services: [CachedEnsResolutionServiceType] = [
             ensReverseLookupResolver,
             unstoppableDomainsV2Resolver
@@ -80,10 +89,13 @@ extension DomainResolutionService: DomainResolutionServiceType {
             return .just(cached)
         }
 
-        return ensReverseLookupResolver
-            .getENSNameFromResolver(for: address).publisher
-            .catch { [unstoppableDomainsV2Resolver] _ -> AnyPublisher<String, PromiseError> in
-                unstoppableDomainsV2Resolver.resolveDomain(address: address).publisher.eraseToAnyPublisher()
+        return Just(address)
+            .receive(on: DispatchQueue.global())
+            .setFailureType(to: SmartContractError.self)
+            .flatMap { [ensReverseLookupResolver] address in
+                ensReverseLookupResolver.getENSNameFromResolver(for: address)
+            }.catch { [unstoppableDomainsV2Resolver] _ -> AnyPublisher<String, PromiseError> in
+                unstoppableDomainsV2Resolver.resolveDomain(address: address)
             }.receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }
