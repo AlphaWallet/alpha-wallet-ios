@@ -96,7 +96,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
             .eraseToAnyPublisher()
 
         Publishers.Merge(transactionsChangeset, eventsActivity)
-            .sink { [weak self]  _ in
+            .sink { [weak self] _ in
                 self?.createActivities(reloadImmediately: true)
             }.store(in: &cancelable)
     }
@@ -291,18 +291,16 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
             hasLoadedActivitiesTheFirstTime = true
         }
 
-        let transactions = transactionDataStore
-            .transactions(forFilter: transactionsFilterStrategy, servers: config.enabledServers, oldestBlockNumber: activities.last?.blockNumber)
-
-        let items = combine(activities: activities, withTransactions: transactions)
+        let transactions = transactionDataStore.transactions(forFilter: transactionsFilterStrategy, servers: config.enabledServers, oldestBlockNumber: activities.last?.blockNumber)
+        let items = combine(activities: activities, with: transactions)
         let activities = ActivitiesViewModel.sorted(activities: items)
 
         activitiesSubject.send(activities)
     }
 
     //Combining includes filtering around activities (from events) for ERC20 send/receive transactions which are already covered by transactions
-    private func combine(activities: [Activity], withTransactions transactionInstances: [TransactionInstance]) -> [ActivityRowModel] {
-        let all: [ActivityOrTransactionInstance] = activities.map { .activity($0) } + transactionInstances.map { .transaction($0) }
+    private func combine(activities: [Activity], with transactions: [TransactionInstance]) -> [ActivityRowModel] {
+        let all: [ActivityOrTransactionInstance] = activities.map { .activity($0) } + transactions.map { .transaction($0) }
         let sortedAll: [ActivityOrTransactionInstance] = all.sorted { $0.blockNumber < $1.blockNumber }
         let counters = Dictionary(grouping: sortedAll, by: \.blockNumber)
 
