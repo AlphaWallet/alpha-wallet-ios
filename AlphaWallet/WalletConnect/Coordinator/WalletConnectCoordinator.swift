@@ -55,7 +55,8 @@ class WalletConnectCoordinator: NSObject, Coordinator {
     private weak var notificationAlertController: UIViewController?
     private weak var sessionsViewController: WalletConnectSessionsViewController?
     private var sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>
-
+    private let assetDefinitionStore: AssetDefinitionStore
+    
     weak var delegate: WalletConnectCoordinatorDelegate?
     var coordinators: [Coordinator] = []
 
@@ -63,13 +64,14 @@ class WalletConnectCoordinator: NSObject, Coordinator {
         provider.sessions
     }
 
-    init(keystore: Keystore, navigationController: UINavigationController, analyticsCoordinator: AnalyticsCoordinator, domainResolutionService: DomainResolutionServiceType, config: Config, sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>) {
+    init(keystore: Keystore, navigationController: UINavigationController, analyticsCoordinator: AnalyticsCoordinator, domainResolutionService: DomainResolutionServiceType, config: Config, sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>, assetDefinitionStore: AssetDefinitionStore) {
         self.sessionsSubject = sessionsSubject
         self.config = config
         self.keystore = keystore
         self.navigationController = navigationController
         self.analyticsCoordinator = analyticsCoordinator
         self.domainResolutionService = domainResolutionService
+        self.assetDefinitionStore = assetDefinitionStore
         super.init()
         start()
     }
@@ -385,10 +387,12 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
     }
 
     private func executeTransaction(session: WalletSession, requester: DappRequesterViewModel, transaction: UnconfirmedTransaction, type: ConfirmType) -> Promise<AlphaWallet.WalletConnect.Response> {
-        let configuration: TransactionConfirmationConfiguration = .walletConnect(confirmType: type, keystore: keystore, requester: requester)
+        
+        let configuration: TransactionConfirmationViewModel.Configuration = .walletConnect(confirmType: type, requester: requester)
+
         infoLog("[WalletConnect] executeTransaction: \(transaction) type: \(type)")
         return firstly {
-            TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService, source: .walletConnect, delegate: self.delegate)
+            TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService, source: .walletConnect, delegate: self.delegate, keystore: keystore, assetDefinitionStore: assetDefinitionStore)
         }.map { data -> AlphaWallet.WalletConnect.Response in
             switch data {
             case .signedTransaction(let data):

@@ -94,7 +94,7 @@ class TokenSwapper: ObservableObject {
             }).eraseToAnyPublisher()
     }
 
-    func buildSwapTransaction(keystore: Keystore, unsignedTransaction: UnsignedSwapTransaction, fromToken: TokenToSwap, fromAmount: BigUInt, toToken: TokenToSwap, toAmount: BigUInt) -> (UnconfirmedTransaction, TransactionConfirmationConfiguration) {
+    func buildSwapTransaction(keystore: Keystore, unsignedTransaction: UnsignedSwapTransaction, fromToken: TokenToSwap, fromAmount: BigUInt, toToken: TokenToSwap, toAmount: BigUInt) -> (UnconfirmedTransaction, TransactionConfirmationViewModel.Configuration) {
         functional.buildSwapTransaction(keystore: keystore, unsignedTransaction: unsignedTransaction, fromToken: fromToken, fromAmount: fromAmount, toToken: toToken, toAmount: toAmount)
     }
 
@@ -133,8 +133,8 @@ extension TokenSwapper {
 }
 
 fileprivate extension TokenSwapper.functional {
-    static func buildSwapTransaction(keystore: Keystore, unsignedTransaction: UnsignedSwapTransaction, fromToken: TokenToSwap, fromAmount: BigUInt, toToken: TokenToSwap, toAmount: BigUInt) -> (UnconfirmedTransaction, TransactionConfirmationConfiguration) {
-        let configuration: TransactionConfirmationConfiguration = .swapTransaction(keystore: keystore, fromToken: fromToken, fromAmount: fromAmount, toToken: toToken, toAmount: toAmount )
+    static func buildSwapTransaction(keystore: Keystore, unsignedTransaction: UnsignedSwapTransaction, fromToken: TokenToSwap, fromAmount: BigUInt, toToken: TokenToSwap, toAmount: BigUInt) -> (UnconfirmedTransaction, TransactionConfirmationViewModel.Configuration) {
+        let configuration: TransactionConfirmationViewModel.Configuration = .swapTransaction(fromToken: fromToken, fromAmount: fromAmount, toToken: toToken, toAmount: toAmount )
         let transactionType: TransactionType = .prebuilt(unsignedTransaction.server)
         let transaction: UnconfirmedTransaction = .init(transactionType: transactionType, value: unsignedTransaction.value, recipient: unsignedTransaction.from, contract: unsignedTransaction.to, data: unsignedTransaction.data, gasLimit: unsignedTransaction.gasLimit, gasPrice: unsignedTransaction.gasPrice)
         return (transaction, configuration)

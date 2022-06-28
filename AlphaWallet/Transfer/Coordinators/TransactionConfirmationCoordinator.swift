@@ -10,36 +10,6 @@ import BigInt
 import PromiseKit
 import Result
 
-enum TransactionConfirmationConfiguration {
-    case tokenScriptTransaction(confirmType: ConfirmType, contract: AlphaWallet.Address, keystore: Keystore, functionCallMetaData: DecodedFunctionCall)
-    case dappTransaction(confirmType: ConfirmType, keystore: Keystore)
-    case walletConnect(confirmType: ConfirmType, keystore: Keystore, requester: RequesterViewModel)
-    case sendFungiblesTransaction(confirmType: ConfirmType, keystore: Keystore, assetDefinitionStore: AssetDefinitionStore, amount: FungiblesTransactionAmount)
-    case sendNftTransaction(confirmType: ConfirmType, keystore: Keystore, tokenInstanceNames: [TokenId: String])
-    case claimPaidErc875MagicLink(confirmType: ConfirmType, keystore: Keystore, price: BigUInt, numberOfTokens: UInt)
-    case speedupTransaction(keystore: Keystore)
-    case cancelTransaction(keystore: Keystore)
-    case swapTransaction(keystore: Keystore, fromToken: TokenToSwap, fromAmount: BigUInt, toToken: TokenToSwap, toAmount: BigUInt)
-    //TODO: generalize type name so it can be used for more types (some of the enum-cases above), if possible
-    case approve(keystore: Keystore)
-
-    var confirmType: ConfirmType {
-        switch self {
-        case .dappTransaction(let confirmType, _), .walletConnect(let confirmType, _, _ ), .sendFungiblesTransaction(let confirmType, _, _, _), .sendNftTransaction(let confirmType, _, _), .tokenScriptTransaction(let confirmType, _, _, _), .claimPaidErc875MagicLink(let confirmType, _, _, _):
-            return confirmType
-        case .speedupTransaction, .cancelTransaction, .swapTransaction, .approve:
-            return .signThenSend
-        }
-    }
-
-    var keystore: Keystore {
-        switch self {
-        case .dappTransaction(_, let keystore), .walletConnect(_, let keystore, _), .sendFungiblesTransaction(_, let keystore, _, _), .sendNftTransaction(_, let keystore, _), .tokenScriptTransaction(_, _, let keystore, _), .claimPaidErc875MagicLink(_, let keystore, _, _), .speedupTransaction(let keystore), .cancelTransaction(let keystore), .swapTransaction(let keystore, _, _, _, _), .approve(let keystore):
-            return keystore
-        }
-    }
-}
-
 enum ConfirmType {
     case sign
     case signThenSend
@@ -58,10 +28,10 @@ protocol TransactionConfirmationCoordinatorDelegate: CanOpenURL, SendTransaction
 }
 
 class TransactionConfirmationCoordinator: Coordinator {
-    private let configuration: TransactionConfirmationConfiguration
-    private lazy var viewModel: TransactionConfirmationViewModel = .init(configurator: configurator, configuration: configuration, domainResolutionService: domainResolutionService)
+    private let configuration: TransactionConfirmationViewModel.Configuration
+    private lazy var viewModel: TransactionConfirmationViewModel = .init(configurator: configurator, configuration: configuration, assetDefinitionStore: assetDefinitionStore, domainResolutionService: domainResolutionService)
     private lazy var rootViewController: TransactionConfirmationViewController = {
-        let controller = TransactionConfirmationViewController(viewModel: viewModel, session: configurator.session)
+        let controller = TransactionConfirmationViewController(viewModel: viewModel)
         controller.delegate = self
         return controller
     }()
@@ -81,12 +51,15 @@ class TransactionConfirmationCoordinator: Coordinator {
     private var canBeDismissed = true
     private var server: RPCServer { configurator.session.server }
     private let navigationController: UIViewController
-
+    private let keystore: Keystore
+    private let assetDefinitionStore: AssetDefinitionStore
     var coordinators: [Coordinator] = []
     weak var delegate: TransactionConfirmationCoordinatorDelegate?
 
-    init(presentingViewController: UIViewController, session: WalletSession, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationConfiguration, analyticsCoordinator: AnalyticsCoordinator, domainResolutionService: DomainResolutionServiceType) throws {
+    init(presentingViewController: UIViewController, session: WalletSession, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationViewModel.Configuration, analyticsCoordinator: AnalyticsCoordinator, domainResolutionService: DomainResolutionServiceType, keystore: Keystore, assetDefinitionStore: AssetDefinitionStore) throws {
         configurator = try TransactionConfigurator(session: session, transaction: transaction)
+        self.keystore = keystore
+        self.assetDefinitionStore = assetDefinitionStore
         self.configuration = configuration
         self.analyticsCoordinator = analyticsCoordinator
         self.domainResolutionService = domainResolutionService
@@ -99,7 +72,6 @@ class TransactionConfirmationCoordinator: Coordinator {
 
         configurator.delegate = self
         configurator.start()
-        rootViewController.reloadView()
 
         logStartActionSheetForTransactionConfirmation(source: source)
     }
@@ -179,7 +151,7 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
     }
 
     private func sendTransaction() -> Promise<ConfirmResult> {
-        let coordinator = SendTransactionCoordinator(session: configurator.session, keystore: configuration.keystore, confirmType: configuration.confirmType, config: configurator.session.config, analyticsCoordinator: analyticsCoordinator)
+        let coordinator = SendTransactionCoordinator(session: configurator.session, keystore: keystore, confirmType: configuration.confirmType, config: configurator.session.config, analyticsCoordinator: analyticsCoordinator)
         let transaction = configurator.formUnsignedTransaction()
         return coordinator.send(transaction: transaction)
     }
@@ -255,20 +227,25 @@ extension TransactionConfirmationCoordinator: ConfigureTransactionViewController
 
 extension TransactionConfirmationCoordinator: TransactionConfiguratorDelegate {
     func configurationChanged(in configurator: TransactionConfigurator) {
-        rootViewController.reloadView()
-        rootViewController.reloadViewWithCurrentBalanceValue()
+        //TODO: improve these few time view updates
+        viewModel.reloadView()
+        viewModel.updateBalance()
     }
-
+    
     func gasLimitEstimateUpdated(to estimate: BigInt, in configurator: TransactionConfigurator) {
         configureTransactionViewController?.configure(withEstimatedGasLimit: estimate, configurator: configurator)
-        rootViewController.reloadViewWithGasChanges()
-        rootViewController.reloadViewWithCurrentBalanceValue()
+
+        //TODO: improve these few time view updates
+        viewModel.reloadViewWithGasChanges()
+        viewModel.updateBalance()
     }
 
     func gasPriceEstimateUpdated(to estimate: BigInt, in configurator: TransactionConfigurator) {
         configureTransactionViewController?.configure(withEstimatedGasPrice: estimate, configurator: configurator)
-        rootViewController.reloadViewWithGasChanges()
-        rootViewController.reloadViewWithCurrentBalanceValue()
+
+        //TODO: improve these few time view updates
+        viewModel.reloadViewWithGasChanges()
+        viewModel.updateBalance()
     }
 
     func updateNonce(to nonce: Int, in configurator: TransactionConfigurator) {
@@ -316,7 +293,7 @@ extension TransactionConfirmationCoordinator {
             infoLog("Sent transaction publicly")
         }
         switch configuration {
-        case .sendFungiblesTransaction(_, _, _, amount: let amount):
+        case .sendFungiblesTransaction(_, let amount):
             analyticsProperties[Analytics.Properties.isAllFunds.rawValue] = amount.isAllFunds
         case .tokenScriptTransaction, .dappTransaction, .walletConnect, .sendNftTransaction, .claimPaidErc875MagicLink, .speedupTransaction, .cancelTransaction, .swapTransaction, .approve:
             break
@@ -343,7 +320,7 @@ extension TransactionConfirmationCoordinator {
             Analytics.Properties.transactionType.rawValue: transactionType.rawValue,
         ]
         switch configuration {
-        case .sendFungiblesTransaction(_, _, _, amount: let amount):
+        case .sendFungiblesTransaction(_, let amount):
             analyticsProperties[Analytics.Properties.isAllFunds.rawValue] = amount.isAllFunds
         case .tokenScriptTransaction, .dappTransaction, .walletConnect, .sendNftTransaction, .claimPaidErc875MagicLink, .speedupTransaction, .cancelTransaction, .swapTransaction, .approve:
             break
@@ -396,7 +373,7 @@ extension TransactionConfirmationCoordinator {
 }
 
 fileprivate extension TransactionConfirmationCoordinator.functional {
-    static func isSwapTransaction(configuration: TransactionConfirmationConfiguration) -> Bool {
+    static func isSwapTransaction(configuration: TransactionConfirmationViewModel.Configuration) -> Bool {
         switch configuration {
         case .swapTransaction:
             return true
@@ -405,7 +382,7 @@ fileprivate extension TransactionConfirmationCoordinator.functional {
         }
     }
 
-    static func analyticsTransactionType(fromConfiguration configuration: TransactionConfirmationConfiguration, data: Data) -> Analytics.TransactionType {
+    static func analyticsTransactionType(fromConfiguration configuration: TransactionConfirmationViewModel.Configuration, data: Data) -> Analytics.TransactionType {
         if let functionCallMetaData = DecodedFunctionCall(data: data) {
             switch functionCallMetaData.type {
             case .erc1155SafeTransfer:

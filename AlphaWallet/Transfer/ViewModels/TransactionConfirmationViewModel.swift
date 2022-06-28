@@ -2,57 +2,170 @@
 
 import Foundation
 import BigInt
+import Combine
 
 protocol CryptoToFiatRateUpdatable: class {
     var cryptoToDollarRate: Double? { get set }
 }
 
-enum TransactionConfirmationViewModel {
-    case dappOrWalletConnectTransaction(DappOrWalletConnectTransactionViewModel)
-    case tokenScriptTransaction(TokenScriptTransactionViewModel)
-    case sendFungiblesTransaction(SendFungiblesTransactionViewModel)
-    case sendNftTransaction(SendNftTransactionViewModel)
-    case claimPaidErc875MagicLink(ClaimPaidErc875MagicLinkViewModel)
-    case speedupTransaction(SpeedupTransactionViewModel)
-    case cancelTransaction(CancelTransactionViewModel)
-    case swapTransaction(SwapTransactionViewModel)
+protocol BalanceUpdatable: class {
+    func updateBalance(_ balanceViewModel: BalanceViewModel?)
+}
 
-    init(configurator: TransactionConfigurator, configuration: TransactionConfirmationConfiguration, domainResolutionService: DomainResolutionServiceType) {
+class TransactionConfirmationViewModel {
+    private let session: WalletSession
+    private lazy var token: AnyPublisher<Token, Never> = {
+        let token = Token(tokenObject: configurator.transaction.transactionType.tokenObject)
+        return Just(token)
+            .eraseToAnyPublisher()
+    }()
+    private let configurationHasChangedSubject = PassthroughSubject<Void, Never>()
+    private let reloadViewSubject = PassthroughSubject<Void, Never>()
+    private let resolver: RecipientResolver
+    private let configurator: TransactionConfigurator
+    private (set) var canBeConfirmed = true
+    private var timerToReenableConfirmButton: Timer?
+    private let type: ViewModelType
+
+    var title: String = R.string.localizable.confirmPaymentConfirmButtonTitle()
+    var backgroundColor: UIColor = UIColor.clear
+    var footerBackgroundColor: UIColor = Colors.appWhite
+
+    init(configurator: TransactionConfigurator, configuration: TransactionConfirmationViewModel.Configuration, assetDefinitionStore: AssetDefinitionStore, domainResolutionService: DomainResolutionServiceType) {
+        let recipientOrContract = configurator.transaction.recipient ?? configurator.transaction.contract
+        resolver = RecipientResolver(address: recipientOrContract, domainResolutionService: domainResolutionService)
+        self.configurator = configurator
+        session = configurator.session
+
         switch configuration {
-        case .tokenScriptTransaction(_, let contract, _, let functionCallMetaData):
-            self = .tokenScriptTransaction(.init(address: contract, configurator: configurator, functionCallMetaData: functionCallMetaData))
-        case .dappTransaction(_, _):
-            self = .dappOrWalletConnectTransaction(.init(configurator: configurator, requester: nil))
-        case .walletConnect(_, _, let requester):
-            self = .dappOrWalletConnectTransaction(.init(configurator: configurator, requester: requester))
-        case .sendFungiblesTransaction(_, _, let assetDefinitionStore, let amount):
+        case .tokenScriptTransaction(_, let contract, let functionCallMetaData):
+            type = .tokenScriptTransaction(.init(address: contract, configurator: configurator, functionCallMetaData: functionCallMetaData))
+        case .dappTransaction:
+            type = .dappOrWalletConnectTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: resolver, requester: nil))
+        case .walletConnect(_, let requester):
+            type = .dappOrWalletConnectTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: resolver, requester: requester))
+        case .sendFungiblesTransaction(_, let amount):
             let resolver = RecipientResolver(address: configurator.transaction.recipient, domainResolutionService: domainResolutionService)
-            self = .sendFungiblesTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: resolver, amount: amount))
-        case .sendNftTransaction(_, _, let tokenInstanceNames):
+            type = .sendFungiblesTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: resolver, amount: amount))
+        case .sendNftTransaction(_, let tokenInstanceNames):
             let resolver = RecipientResolver(address: configurator.transaction.recipient, domainResolutionService: domainResolutionService)
-            self = .sendNftTransaction(.init(configurator: configurator, recipientResolver: resolver, tokenInstanceNames: tokenInstanceNames))
-        case .claimPaidErc875MagicLink(_, _, let price, let numberOfTokens):
-            self = .claimPaidErc875MagicLink(.init(configurator: configurator, price: price, numberOfTokens: numberOfTokens))
-        case .speedupTransaction(_):
-            self = .speedupTransaction(.init(configurator: configurator))
-        case .cancelTransaction(_):
-            self = .cancelTransaction(.init(configurator: configurator))
-        case .swapTransaction(_, let fromToken, let fromAmount, let toToken, let toAmount):
-            self = .swapTransaction(.init(configurator: configurator, fromToken: fromToken, fromAmount: fromAmount, toToken: toToken, toAmount: toAmount))
+            type = .sendNftTransaction(.init(configurator: configurator, recipientResolver: resolver, tokenInstanceNames: tokenInstanceNames))
+        case .claimPaidErc875MagicLink(_, let price, let numberOfTokens):
+            type = .claimPaidErc875MagicLink(.init(configurator: configurator, price: price, numberOfTokens: numberOfTokens))
+        case .speedupTransaction:
+            type = .speedupTransaction(.init(configurator: configurator))
+        case .cancelTransaction:
+            type = .cancelTransaction(.init(configurator: configurator))
+        case .swapTransaction(let fromToken, let fromAmount, let toToken, let toAmount):
+            type = .swapTransaction(.init(configurator: configurator, fromToken: fromToken, fromAmount: fromAmount, toToken: toToken, toAmount: toAmount))
         case .approve:
             //TODO rename `.dappOrWalletConnectTransaction` so it's more general?
-            self = .dappOrWalletConnectTransaction(.init(configurator: configurator, requester: nil))
-
+            type = .dappOrWalletConnectTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: resolver, requester: nil))
         }
     }
 
-    enum Action {
-        case show
-        case hide
+    private lazy var resolvedRecipient: AnyPublisher<Void, Never> = {
+        return resolver.resolveRecipient()
+            .receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
+    }()
+
+    private lazy var tokenBalance: AnyPublisher<BalanceViewModel?, Never> = {
+        let tokenBalanceService: TokenBalanceService = session.tokenBalanceService
+        let forceTriggerUpdateBalance = configurationHasChangedSubject
+            .flatMap { _ in self.token }
+            .map { [tokenBalanceService] token -> BalanceViewModel? in
+                switch token.type {
+                case .nativeCryptocurrency:
+                    let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: token.server).addressAndRPCServer
+                    return tokenBalanceService.tokenBalance(etherToken)
+                case .erc20:
+                    return tokenBalanceService.tokenBalance(token.addressAndRPCServer)
+                case .erc1155, .erc721, .erc875, .erc721ForTickets:
+                    return tokenBalanceService.tokenBalance(token.addressAndRPCServer)
+                }
+            }.eraseToAnyPublisher()
+
+        let tokenBalance = token.flatMap { [tokenBalanceService] token -> AnyPublisher<BalanceViewModel?, Never> in
+            switch token.type {
+            case .nativeCryptocurrency:
+                let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: token.server).addressAndRPCServer
+                return tokenBalanceService.tokenBalancePublisher(etherToken)
+            case .erc20:
+                return tokenBalanceService.tokenBalancePublisher(token.addressAndRPCServer)
+            case .erc1155, .erc721, .erc875, .erc721ForTickets:
+                return tokenBalanceService.tokenBalancePublisher(token.addressAndRPCServer)
+            }
+        }.receive(on: RunLoop.main)
+        .eraseToAnyPublisher()
+
+        return Publishers.Merge(tokenBalance, forceTriggerUpdateBalance)
+            .handleEvents(receiveOutput: { [weak self] balance in
+                self?.cryptoToFiatRateUpdatable.cryptoToDollarRate = balance?.ticker?.price_usd
+                self?.updateBalance(balance)
+            }).eraseToAnyPublisher()
+    }()
+
+    lazy var views: AnyPublisher<[ViewType], Never> = {
+        let balanceUpdated = tokenBalance
+            .map { _ in }
+            .eraseToAnyPublisher()
+
+        let recipientUpdated = resolvedRecipient
+            .map { _ in }
+            .eraseToAnyPublisher()
+
+        let forceViewReload = reloadViewSubject.eraseToAnyPublisher()
+
+        let initial = Just<Void>(()).eraseToAnyPublisher()
+
+        return Publishers.Merge4(initial, balanceUpdated, recipientUpdated, forceViewReload)
+            .map { _ in TransactionConfirmationViewModel.generateViews(for: self) }
+            .eraseToAnyPublisher()
+    }()
+
+    var canUserChangeGas: Bool {
+        configurator.session.server.canUserChangeGas
+    }
+
+    /// Method called when configuration has changes and we need to recalculate new balance value
+    func updateBalance() {
+        configurationHasChangedSubject.send(())
+    }
+
+    func reloadView() {
+        reloadViewSubject.send(())
+    }
+
+    func reloadViewWithGasChanges() {
+        reloadViewSubject.send(())
+        disableConfirmButtonForShortTime()
+    }
+
+    func shouldShowChildren(for section: Int, index: Int) -> Bool {
+        switch type {
+        case .dappOrWalletConnectTransaction, .claimPaidErc875MagicLink, .tokenScriptTransaction, .speedupTransaction, .cancelTransaction, .swapTransaction:
+            return true
+        case .sendFungiblesTransaction(let viewModel):
+            switch viewModel.sections[section] {
+            case .recipient, .network:
+                return !viewModel.isSubviewsHidden(section: section, row: index)
+            case .gas, .amount, .balance:
+                return true
+            }
+        case .sendNftTransaction(let viewModel):
+            switch viewModel.sections[section] {
+            case .recipient, .network:
+                //NOTE: Here we need to make sure that this view is available to display
+                return !viewModel.isSubviewsHidden(section: section, row: index)
+            case .gas, .tokenId:
+                return true
+            }
+        }
     }
 
     var cryptoToFiatRateUpdatable: CryptoToFiatRateUpdatable {
-        switch self {
+        switch type {
         case .dappOrWalletConnectTransaction(let viewModel): return viewModel
         case .tokenScriptTransaction(let viewModel): return viewModel
         case .sendFungiblesTransaction(let viewModel): return viewModel
@@ -64,56 +177,146 @@ enum TransactionConfirmationViewModel {
         }
     }
 
-    mutating func showHideSection(_ section: Int) -> Action {
-        switch self {
-        case .dappOrWalletConnectTransaction(var viewModel):
+    func showHideSection(_ section: Int) -> Action {
+        switch type {
+        case .dappOrWalletConnectTransaction(let viewModel):
             return viewModel.showHideSection(section)
-        case .tokenScriptTransaction(var viewModel):
+        case .tokenScriptTransaction(let viewModel):
             return viewModel.showHideSection(section)
-        case .sendFungiblesTransaction(var viewModel):
+        case .sendFungiblesTransaction(let viewModel):
             return viewModel.showHideSection(section)
-        case .sendNftTransaction(var viewModel):
+        case .sendNftTransaction(let viewModel):
             return viewModel.showHideSection(section)
-        case .claimPaidErc875MagicLink(var viewModel):
+        case .claimPaidErc875MagicLink(let viewModel):
             return viewModel.showHideSection(section)
-        case .speedupTransaction(var viewModel):
+        case .speedupTransaction(let viewModel):
             return viewModel.showHideSection(section)
-        case .cancelTransaction(var viewModel):
+        case .cancelTransaction(let viewModel):
             return viewModel.showHideSection(section)
-        case .swapTransaction(var viewModel):
+        case .swapTransaction(let viewModel):
             return viewModel.showHideSection(section)
         }
     }
-}
 
-protocol SectionProtocol {
-    var openedSections: Set<Int> { get set }
-
-    mutating func showHideSection(_ section: Int) -> TransactionConfirmationViewModel.Action
-}
-
-extension SectionProtocol {
-    mutating func showHideSection(_ section: Int) -> TransactionConfirmationViewModel.Action {
-        if !openedSections.contains(section) {
-            openedSections.insert(section)
-
-            return .show
-        } else {
-            openedSections.remove(section)
-
-            return .hide
+    var navigationTitle: String {
+        switch type {
+        case .sendFungiblesTransaction, .sendNftTransaction:
+            return R.string.localizable.tokenTransactionTransferConfirmationTitle()
+        case .dappOrWalletConnectTransaction, .tokenScriptTransaction:
+            return R.string.localizable.tokenTransactionConfirmationTitle()
+        case .claimPaidErc875MagicLink:
+            return R.string.localizable.tokenTransactionPurchaseConfirmationTitle()
+        case .speedupTransaction:
+            return R.string.localizable.tokenTransactionSpeedupConfirmationTitle()
+        case .cancelTransaction:
+            return R.string.localizable.tokenTransactionSpeedupConfirmationTitle()
+        case .swapTransaction:
+            return R.string.localizable.tokenTransactionConfirmationTitle()
         }
     }
-}
 
-enum UpdateBalanceValue {
-    case nativeCryptocurrency(balanceViewModel: BalanceViewModel?)
-    case erc20(token: TokenObject)
-    case other
-}
+    var confirmationButtonTitle: String {
+        switch type {
+        case .dappOrWalletConnectTransaction, .tokenScriptTransaction, .sendFungiblesTransaction, .sendNftTransaction, .claimPaidErc875MagicLink:
+            return R.string.localizable.confirmPaymentConfirmButtonTitle()
+        case .speedupTransaction:
+            return R.string.localizable.activitySpeedup()
+        case .cancelTransaction:
+            return R.string.localizable.tokenTransactionCancelConfirmationTitle()
+        case .swapTransaction:
+            return R.string.localizable.confirmPaymentConfirmButtonTitle()
+        }
+    }
+
+    var hasSeparatorAboveConfirmButton: Bool {
+        switch type {
+        case .sendFungiblesTransaction, .sendNftTransaction, .dappOrWalletConnectTransaction, .tokenScriptTransaction, .claimPaidErc875MagicLink:
+            return true
+        case .speedupTransaction, .cancelTransaction, .swapTransaction:
+            return false
+        }
+    }
+
+    private func disableConfirmButtonForShortTime() {
+        timerToReenableConfirmButton?.invalidate()
+        let gap = TimeInterval(0.3)
+        canBeConfirmed = false
+        timerToReenableConfirmButton = Timer.scheduledTimer(withTimeInterval: gap, repeats: false) { [weak self] _ in
+            self?.canBeConfirmed = true
+        }
+    }
+
+    private func updateBalance(_ balanceViewModel: BalanceViewModel?) {
+        switch type {
+        case .dappOrWalletConnectTransaction(let viewModel):
+            viewModel.updateBalance(balanceViewModel)
+        case .tokenScriptTransaction(let viewModel):
+            viewModel.updateBalance(balanceViewModel)
+        case .sendFungiblesTransaction(let viewModel):
+            viewModel.updateBalance(balanceViewModel)
+        case .sendNftTransaction(let viewModel):
+            viewModel.updateBalance(balanceViewModel)
+        case .claimPaidErc875MagicLink(let viewModel):
+            viewModel.updateBalance(balanceViewModel)
+        case .speedupTransaction(let viewModel):
+            viewModel.updateBalance(balanceViewModel)
+        case .cancelTransaction(let viewModel):
+            viewModel.updateBalance(balanceViewModel)
+        case .swapTransaction(let viewModel):
+            viewModel.updateBalance(balanceViewModel)
+        }
+    }
+} 
 
 extension TransactionConfirmationViewModel {
-    private static func gasFeeString(withConfigurator configurator: TransactionConfigurator, cryptoToDollarRate: Double?) -> String {
+
+    enum ViewType {
+        case separator(height: CGFloat)
+        case details(viewModel: TransactionRowDescriptionTableViewCellViewModel)
+        case view(viewModel: TransactionConfirmationRowInfoViewModel, isHidden: Bool)
+        case header(viewModel: TransactionConfirmationHeaderViewModel, isEditEnabled: Bool)
+    }
+
+    enum Action {
+        case show
+        case hide
+    }
+
+    enum Configuration {
+        case tokenScriptTransaction(confirmType: ConfirmType, contract: AlphaWallet.Address, functionCallMetaData: DecodedFunctionCall)
+        case dappTransaction(confirmType: ConfirmType)
+        case walletConnect(confirmType: ConfirmType, requester: RequesterViewModel)
+        case sendFungiblesTransaction(confirmType: ConfirmType, amount: FungiblesTransactionAmount)
+        case sendNftTransaction(confirmType: ConfirmType, tokenInstanceNames: [TokenId: String])
+        case claimPaidErc875MagicLink(confirmType: ConfirmType, price: BigUInt, numberOfTokens: UInt)
+        case speedupTransaction
+        case cancelTransaction
+        case swapTransaction(fromToken: TokenToSwap, fromAmount: BigUInt, toToken: TokenToSwap, toAmount: BigUInt)
+        //TODO: generalize type name so it can be used for more types (some of the enum-cases above), if possible
+        case approve
+
+        var confirmType: ConfirmType {
+            switch self {
+            case .dappTransaction(let confirmType), .walletConnect(let confirmType, _), .sendFungiblesTransaction(let confirmType, _), .sendNftTransaction(let confirmType, _), .tokenScriptTransaction(let confirmType, _, _), .claimPaidErc875MagicLink(let confirmType, _, _):
+                return confirmType
+            case .speedupTransaction, .cancelTransaction, .swapTransaction, .approve:
+                return .signThenSend
+            }
+        }
+    }
+
+    enum ViewModelType {
+        case dappOrWalletConnectTransaction(DappOrWalletConnectTransactionViewModel)
+        case tokenScriptTransaction(TokenScriptTransactionViewModel)
+        case sendFungiblesTransaction(SendFungiblesTransactionViewModel)
+        case sendNftTransaction(SendNftTransactionViewModel)
+        case claimPaidErc875MagicLink(ClaimPaidErc875MagicLinkViewModel)
+        case speedupTransaction(SpeedupTransactionViewModel)
+        case cancelTransaction(CancelTransactionViewModel)
+        case swapTransaction(SwapTransactionViewModel)
+    }
+
+    static func gasFeeString(for configurator: TransactionConfigurator, cryptoToDollarRate: Double?) -> String {
         let fee = configurator.currentConfiguration.gasPrice * configurator.currentConfiguration.gasLimit
         let estimatedProcessingTime = configurator.selectedConfigurationType.estimatedProcessingTime
         let symbol = configurator.session.server.symbol
@@ -134,842 +337,165 @@ extension TransactionConfirmationViewModel {
         }
     }
 
-    class SendFungiblesTransactionViewModel: SectionProtocol, CryptoToFiatRateUpdatable {
-        enum Section: Int, CaseIterable {
-            case balance
-            case network
-            case gas
-            case recipient
-            case amount
+    // swiftlint:disable function_body_length
+    private static func generateViews(for _viewModel: TransactionConfirmationViewModel) -> [ViewType] {
+        var views: [ViewType] = []
 
-            var title: String {
-                switch self {
-                case .network:
-                    return R.string.localizable.tokenTransactionConfirmationNetwork()
+        switch _viewModel.type {
+        case .dappOrWalletConnectTransaction(let viewModel):
+            for (sectionIndex, section) in viewModel.sections.enumerated() {
+                switch section {
                 case .gas:
-                    return R.string.localizable.tokenTransactionConfirmationGasTitle()
-                case .balance:
-                    return R.string.localizable.transactionConfirmationSendSectionBalanceTitle()
-                case .amount:
-                    return R.string.localizable.transactionConfirmationSendSectionAmountTitle()
+                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: _viewModel.canUserChangeGas)]
+                case .amount, .network, .balance:
+                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: false)]
                 case .recipient:
-                    return R.string.localizable.transactionConfirmationSendSectionRecipientTitle()
-                }
-            }
-        }
+                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: false)]
+                    for (rowIndex, row) in RecipientResolver.Row.allCases.enumerated() {
+                        let isSubViewsHidden = viewModel.isSubviewsHidden(section: sectionIndex, row: rowIndex)
+                        switch row {
+                        case .ens:
+                            let vm = TransactionConfirmationRowInfoViewModel(title: R.string.localizable.transactionConfirmationRowTitleEns(), subtitle: viewModel.ensName)
 
-        private var amount: FungiblesTransactionAmount
-        private var balance: String?
-        private var newBalance: String?
-        private let configurator: TransactionConfigurator
-        private let assetDefinitionStore: AssetDefinitionStore
-        private var configurationTitle: String {
-            configurator.selectedConfigurationType.title
-        }
+                            views += [.view(viewModel: vm, isHidden: isSubViewsHidden)]
+                        case .address:
+                            let vm = TransactionConfirmationRowInfoViewModel(title: R.string.localizable.transactionConfirmationRowTitleWallet(), subtitle: viewModel.addressString)
 
-        var cryptoToDollarRate: Double?
-        var ensName: String? { recipientResolver.ensName }
-        var addressString: String? { recipientResolver.address?.eip55String }
-        var openedSections = Set<Int>()
-        let transactionType: TransactionType
-        let session: WalletSession
-        let recipientResolver: RecipientResolver
-
-        var server: RPCServer {
-            configurator.session.server
-        }
-
-        var sections: [Section] {
-            Section.allCases
-        }
-
-        init(configurator: TransactionConfigurator, assetDefinitionStore: AssetDefinitionStore, recipientResolver: RecipientResolver, amount: FungiblesTransactionAmount) {
-            self.configurator = configurator
-            self.transactionType = configurator.transaction.transactionType
-            self.session = configurator.session
-            self.assetDefinitionStore = assetDefinitionStore
-            self.recipientResolver = recipientResolver
-            self.amount = amount
-        }
-
-        func updateBalance(_ value: UpdateBalanceValue) {
-            switch value {
-            case .nativeCryptocurrency(let balanceViewModel):
-                guard let viewModel = balanceViewModel else { return }
-                balance = "\(viewModel.amountShort) \(viewModel.symbol)"
-
-                var availableAmount: BigInt
-                if amount.isAllFunds {
-                    //NOTE: we need to handle balance updates, and refresh `amount` balance - gas
-                    //if balance is equals to 0, or in case when value (balance - gas) less then zero we willn't crash
-                    let allFundsWithoutGas = viewModel.value - configurator.gasValue
-                    availableAmount = allFundsWithoutGas
-
-                    configurator.updateTransaction(value: allFundsWithoutGas)
-                    amount.value = EtherNumberFormatter.short.string(from: allFundsWithoutGas, units: .ether)
-                } else {
-                    availableAmount = viewModel.value
-                }
-
-                let newAmountShort = EtherNumberFormatter.short.string(from: availableAmount - configurator.transaction.value)
-                newBalance = R.string.localizable.transactionConfirmationSendSectionBalanceNewTitle(newAmountShort, viewModel.symbol)
-
-            case .erc20(let token):
-                let amount = EtherNumberFormatter.short.string(from: token.valueBigInt, decimals: token.decimals)
-                let symbol = token.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
-                let newAmountShort = EtherNumberFormatter.short.string(from: token.valueBigInt - configurator.transaction.value, decimals: token.decimals)
-                balance = "\(amount) \(symbol)"
-                newBalance = R.string.localizable.transactionConfirmationSendSectionBalanceNewTitle(newAmountShort, symbol)
-            case .other:
-                break
-            }
-        }
-
-        var formattedAmountValue: String {
-            switch transactionType {
-            case .nativeCryptocurrency(let token, _, _):
-                if let cryptoToDollarRate = cryptoToDollarRate {
-                    let cryptoToDollarSymbol = Constants.Currency.usd
-                    let double = amount.value.optionalDecimalValue ?? 0
-                    let value = double.multiplying(by: NSDecimalNumber(value: cryptoToDollarRate))
-                    let cryptoToDollarValue = StringFormatter().currency(with: value, and: cryptoToDollarSymbol)
-
-                    return "\(amount.value) \(token.symbol) ≈ \(cryptoToDollarValue) \(cryptoToDollarSymbol)"
-                } else {
-                    return "\(amount.value) \(token.symbol)"
-                }
-            case .erc20Token(let token, _, _):
-                if let amount = amount.shortValue, amount.nonEmpty {
-                    return "\(amount) \(token.symbol)"
-                } else {
-                    return "\(amount.value) \(token.symbol)"
-                }
-            case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
-                return String()
-            }
-        }
-
-        var gasFee: String {
-            let fee: BigInt = configurator.currentConfiguration.gasPrice * configurator.currentConfiguration.gasLimit
-            let feeString = EtherNumberFormatter.short.string(from: fee)
-            let cryptoToDollarSymbol = Constants.Currency.usd
-            if let cryptoToDollarRate = cryptoToDollarRate {
-                let cryptoToDollarValue = StringFormatter().currency(with: Double(fee) * cryptoToDollarRate / Double(EthereumUnit.ether.rawValue), and: cryptoToDollarSymbol)
-                return "< ~\(feeString) \(session.server.symbol) (\(cryptoToDollarValue) \(cryptoToDollarSymbol))"
-            } else {
-                return "< ~\(feeString) \(session.server.symbol)"
-            }
-        }
-
-        func isSubviewsHidden(section: Int, row: Int) -> Bool {
-            let isOpened = openedSections.contains(section)
-
-            switch sections[section] {
-            case .balance, .amount, .gas, .network:
-                return isOpened
-            case .recipient:
-                if isOpened {
-                    switch RecipientResolver.Row.allCases[row] {
-                    case .address:
-                        return false
-                    case .ens:
-                        return !recipientResolver.hasResolvedEnsName
-                    }
-                } else {
-                    return true
-                }
-            }
-        }
-
-        func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
-            let configuration: TransactionConfirmationHeaderView.Configuration = .init(
-                isOpened: openedSections.contains(section),
-                section: section,
-                shouldHideChevron: sections[section] != .recipient
-            )
-            let headerName = sections[section].title
-            switch sections[section] {
-            case .network:
-                return .init(title: .normal(session.server.displayName), headerName: headerName, titleIcon: .init(session.server.iconImage), configuration: configuration)
-            case .balance:
-                let title = R.string.localizable.tokenTransactionConfirmationDefault()
-                return .init(title: .normal(balance ?? title), headerName: headerName, details: newBalance, configuration: configuration)
-            case .gas:
-                let gasFee = gasFeeString(withConfigurator: configurator, cryptoToDollarRate: cryptoToDollarRate)
-                if let warning = configurator.gasPriceWarning {
-                    return .init(title: .warning(warning.shortTitle), headerName: headerName, details: gasFee, configuration: configuration)
-                } else {
-                    return .init(title: .normal(configurationTitle), headerName: headerName, details: gasFee, configuration: configuration)
-                }
-            case .amount:
-                return .init(title: .normal(formattedAmountValue), headerName: headerName, configuration: configuration)
-            case .recipient:
-                return .init(title: .normal(recipientResolver.value), headerName: headerName, configuration: configuration)
-            }
-        }
-    }
-
-    class DappOrWalletConnectTransactionViewModel: SectionProtocol, CryptoToFiatRateUpdatable {
-        enum Section {
-            case gas
-            case network
-            case amount
-            case function(DecodedFunctionCall)
-
-            var title: String {
-                switch self {
-                case .network:
-                    return R.string.localizable.tokenTransactionConfirmationNetwork()
-                case .gas:
-                    return R.string.localizable.tokenTransactionConfirmationGasTitle()
-                case .amount:
-                    return R.string.localizable.transactionConfirmationSendSectionAmountTitle()
-                case .function:
-                    return R.string.localizable.tokenTransactionConfirmationFunctionTitle()
-                }
-            }
-
-            var isExpandable: Bool {
-                switch self {
-                case .gas, .amount, .network:
-                    return false
-                case .function:
-                    return true
-                }
-            }
-        }
-        private let configurator: TransactionConfigurator
-        private var configurationTitle: String {
-            return configurator.selectedConfigurationType.title
-        }
-        let session: WalletSession
-        private var formattedAmountValue: String {
-            let cryptoToDollarSymbol = Constants.Currency.usd
-            let amount = Double(configurator.transaction.value) / Double(EthereumUnit.ether.rawValue)
-            let amountString = EtherNumberFormatter.short.string(from: configurator.transaction.value)
-            let symbol = configurator.session.server.symbol
-            if let cryptoToDollarRate = cryptoToDollarRate {
-                let cryptoToDollarValue = StringFormatter().currency(with: amount * cryptoToDollarRate, and: cryptoToDollarSymbol)
-                return "\(amountString) \(symbol) ≈ \(cryptoToDollarValue) \(cryptoToDollarSymbol)"
-            } else {
-                return "\(amountString) \(symbol)"
-            }
-        }
-
-        let functionCallMetaData: DecodedFunctionCall?
-        var cryptoToDollarRate: Double?
-        var openedSections = Set<Int>()
-
-        var server: RPCServer {
-            configurator.session.server
-        }
-
-        var sections: [Section] {
-            if let functionCallMetaData = functionCallMetaData {
-                return [.gas, .amount, .function(functionCallMetaData)]
-            } else {
-                return [.gas, .amount]
-            }
-        }
-
-        var placeholderIcon: UIImage? {
-            return requester == nil ? R.image.awLogoSmall() : R.image.walletConnectIcon()
-        }
-
-        var dappIconUrl: URL? { requester?.iconUrl }
-
-        private var requester: RequesterViewModel?
-
-        init(configurator: TransactionConfigurator, requester: RequesterViewModel?) {
-            self.configurator = configurator
-            self.functionCallMetaData = configurator.transaction.data.flatMap { DecodedFunctionCall(data: $0) }
-            self.session = configurator.session
-            self.requester = requester
-        }
-
-        func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
-            let configuration: TransactionConfirmationHeaderView.Configuration = .init(isOpened: openedSections.contains(section), section: section, shouldHideChevron: !sections[section].isExpandable)
-            let headerName = sections[section].title
-            switch sections[section] {
-            case .network:
-                return .init(title: .normal(session.server.displayName), headerName: headerName, titleIcon: .init(session.server.iconImage), configuration: configuration)
-            case .gas:
-                let gasFee = gasFeeString(withConfigurator: configurator, cryptoToDollarRate: cryptoToDollarRate)
-                if let warning = configurator.gasPriceWarning {
-                    return .init(title: .warning(warning.shortTitle), headerName: headerName, details: gasFee, configuration: configuration)
-                } else {
-                    return .init(title: .normal(configurationTitle), headerName: headerName, details: gasFee, configuration: configuration)
-                }
-            case .amount:
-                return .init(title: .normal(formattedAmountValue), headerName: headerName, configuration: configuration)
-            case .function(let functionCallMetaData):
-                return .init(title: .normal(functionCallMetaData.name), headerName: headerName, configuration: configuration)
-            }
-        }
-
-        func isSubviewsHidden(section: Int) -> Bool {
-            !openedSections.contains(section)
-        }
-    }
-
-    class TokenScriptTransactionViewModel: SectionProtocol, CryptoToFiatRateUpdatable {
-        enum Section: Int, CaseIterable {
-            case gas
-            case network
-            case contract
-            case function
-            case amount
-
-            var title: String {
-                switch self {
-                case .network:
-                    return R.string.localizable.tokenTransactionConfirmationNetwork()
-                case .gas:
-                    return R.string.localizable.tokenTransactionConfirmationGasTitle()
-                case .contract:
-                    return R.string.localizable.tokenTransactionConfirmationContractTitle()
-                case .function:
-                    return R.string.localizable.tokenTransactionConfirmationFunctionTitle()
-                case .amount:
-                    return R.string.localizable.transactionConfirmationSendSectionAmountTitle()
-                }
-            }
-        }
-
-        private let address: AlphaWallet.Address
-        private let configurator: TransactionConfigurator
-        private var configurationTitle: String {
-            configurator.selectedConfigurationType.title
-        }
-        private var formattedAmountValue: String {
-            let cryptoToDollarSymbol = Constants.Currency.usd
-            let amount = Double(configurator.transaction.value) / Double(EthereumUnit.ether.rawValue)
-            let amountString = EtherNumberFormatter.short.string(from: configurator.transaction.value)
-            let symbol = configurator.session.server.symbol
-            if let cryptoToDollarRate = cryptoToDollarRate {
-                let cryptoToDollarValue = StringFormatter().currency(with: amount * cryptoToDollarRate, and: cryptoToDollarSymbol)
-                return "\(amountString) \(symbol) ≈ \(cryptoToDollarValue) \(cryptoToDollarSymbol)"
-            } else {
-                return "\(amountString) \(symbol)"
-            }
-        }
-
-        var cryptoToDollarRate: Double?
-        let functionCallMetaData: DecodedFunctionCall
-        var openedSections = Set<Int>()
-        var sections: [Section] {
-            return Section.allCases
-        }
-        var server: RPCServer {
-            configurator.session.server
-        }
-        let session: WalletSession
-
-        init(address: AlphaWallet.Address, configurator: TransactionConfigurator, functionCallMetaData: DecodedFunctionCall) {
-            self.address = address
-            self.configurator = configurator
-            self.functionCallMetaData = functionCallMetaData
-            self.session = configurator.session
-        }
-
-        func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
-            let configuration = TransactionConfirmationHeaderView.Configuration(isOpened: openedSections.contains(section), section: section, shouldHideChevron: sections[section] != .function)
-            let headerName = sections[section].title
-            switch sections[section] {
-            case .gas:
-                let gasFee = gasFeeString(withConfigurator: configurator, cryptoToDollarRate: cryptoToDollarRate)
-                if let warning = configurator.gasPriceWarning {
-                    return .init(title: .warning(warning.shortTitle), headerName: headerName, details: gasFee, configuration: configuration)
-                } else {
-                    return .init(title: .normal(configurationTitle), headerName: headerName, details: gasFee, configuration: configuration)
-                }
-            case .contract:
-                return .init(title: .normal(address.truncateMiddle), headerName: headerName, configuration: configuration)
-            case .function:
-                return .init(title: .normal(functionCallMetaData.name), headerName: headerName, configuration: configuration)
-            case .amount:
-                return .init(title: .normal(formattedAmountValue), headerName: headerName, configuration: configuration)
-            case .network:
-                return .init(title: .normal(session.server.displayName), headerName: headerName, titleIcon: .init(session.server.iconImage), configuration: configuration)
-            }
-        }
-
-        func isSubviewsHidden(section: Int) -> Bool {
-            !openedSections.contains(section)
-        }
-    }
-
-    class SendNftTransactionViewModel: SectionProtocol, CryptoToFiatRateUpdatable {
-        enum Section: Int, CaseIterable {
-            case gas
-            case network
-            case recipient
-            case tokenId
-
-            var title: String {
-                switch self {
-                case .network:
-                    return R.string.localizable.tokenTransactionConfirmationNetwork()
-                case .gas:
-                    return R.string.localizable.tokenTransactionConfirmationGasTitle()
-                case .recipient:
-                    return R.string.localizable.transactionConfirmationSendSectionRecipientTitle()
-                case .tokenId:
-                    return R.string.localizable.transactionConfirmationSendSectionTokenIdTitle()
-                }
-            }
-        }
-
-        private let configurator: TransactionConfigurator
-        private let transactionType: TransactionType
-        private let tokenInstanceNames: [TokenId: String]
-
-        var server: RPCServer {
-            configurator.session.server
-        }
-
-        private var configurationTitle: String {
-            configurator.selectedConfigurationType.title
-        }
-
-        var ensName: String? { recipientResolver.ensName }
-        var addressString: String? { recipientResolver.address?.eip55String }
-        var openedSections = Set<Int>()
-        let recipientResolver: RecipientResolver
-        var cryptoToDollarRate: Double?
-        var sections: [Section] {
-            return Section.allCases
-        }
-        let session: WalletSession
-
-        init(configurator: TransactionConfigurator, recipientResolver: RecipientResolver, tokenInstanceNames: [TokenId: String]) {
-            self.configurator = configurator
-            self.transactionType = configurator.transaction.transactionType
-            self.session = configurator.session
-            self.recipientResolver = recipientResolver
-            self.tokenInstanceNames = tokenInstanceNames
-        }
-
-        func isSubviewsHidden(section: Int, row: Int) -> Bool {
-            let isOpened = openedSections.contains(section)
-            switch sections[section] {
-            case .gas, .tokenId, .network:
-                return isOpened
-            case .recipient:
-                if isOpened {
-                    switch RecipientResolver.Row.allCases[row] {
-                    case .address:
-                        return false
-                    case .ens:
-                        return !recipientResolver.hasResolvedEnsName
-                    }
-                } else {
-                    return true
-                }
-            }
-        }
-
-        private var tokenIdsAndValues: [UnconfirmedTransaction.TokenIdAndValue] {
-            configurator.transaction.tokenIdsAndValues ?? []
-        }
-
-        func tokenIdAndValueViewModels() -> [String] {
-            return tokenIdsAndValues.map { tokenIdAndValue in
-
-                let tokenId = tokenIdAndValue.tokenId
-                let value = tokenIdAndValue.value
-                let title: String
-
-                if let tokenInstanceName = tokenInstanceNames[tokenId], !tokenInstanceName.isEmpty {
-                    title = "\(value) x \(tokenInstanceName) (\(tokenId))"
-                } else {
-                    title = "\(value) x \(tokenId)"
-                }
-
-                return title
-            }
-        }
-
-        func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
-            let configuration: TransactionConfirmationHeaderView.Configuration = .init(
-                    isOpened: openedSections.contains(section),
-                    section: section,
-                    shouldHideChevron: sections[section] != .recipient
-            )
-
-            let headerName = sections[section].title
-            switch sections[section] {
-            case .network:
-                return .init(title: .normal(session.server.displayName), headerName: headerName, titleIcon: .init(session.server.iconImage), configuration: configuration)
-            case .gas:
-                let gasFee = gasFeeString(withConfigurator: configurator, cryptoToDollarRate: cryptoToDollarRate)
-                if let warning = configurator.gasPriceWarning {
-                    return .init(title: .warning(warning.shortTitle), headerName: headerName, details: gasFee, configuration: configuration)
-                } else {
-                    return .init(title: .normal(configurationTitle), headerName: headerName, details: gasFee, configuration: configuration)
-                }
-            case .tokenId:
-                switch transactionType {
-                case .erc1155Token:
-                    let viewModels = tokenIdAndValueViewModels()
-                    guard viewModels.count == 1 else {
-                        return .init(title: .normal(nil), headerName: "Token IDs", configuration: configuration)
-                    }
-
-                    return .init(title: .normal(viewModels.first ?? "-"), headerName: headerName, configuration: configuration)
-                case .nativeCryptocurrency, .erc20Token, .erc721Token, .claimPaidErc875MagicLink, .erc875Token, .erc875TokenOrder, .erc721ForTicketToken, .dapp, .tokenScript, .prebuilt:
-                    //This is really just for ERC721, but the type system…
-                    let tokenId = configurator.transaction.tokenId.flatMap({ String($0) })
-                    let title: String
-                    let tokenInstanceName = configurator.transaction.tokenId.flatMap { tokenInstanceNames[$0] }
-
-                    if let tokenInstanceName = tokenInstanceName, !tokenInstanceName.isEmpty {
-                        if let tokenId = tokenId {
-                            title = "\(tokenInstanceName) (\(tokenId))"
-                        } else {
-                            title = tokenInstanceName
+                            views += [.view(viewModel: vm, isHidden: isSubViewsHidden)]
                         }
-                    } else {
-                        title = tokenId ?? ""
                     }
-                    return .init(title: .normal(title), headerName: headerName, configuration: configuration)
+                case .function(let functionCallMetaData):
+                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: false)]
+
+                    let isSubViewsHidden = viewModel.isSubviewsHidden(section: sectionIndex, row: 0)
+                    let vm = TransactionConfirmationRowInfoViewModel(title: "\(functionCallMetaData.name)()", subtitle: "")
+                    views += [.view(viewModel: vm, isHidden: isSubViewsHidden)]
+                    for arg in functionCallMetaData.arguments {
+                        let vm = TransactionConfirmationRowInfoViewModel(title: arg.type.description, subtitle: arg.description)
+                        views += [.view(viewModel: vm, isHidden: isSubViewsHidden)]
+                    }
                 }
-            case .recipient:
-                return .init(title: .normal(recipientResolver.value), headerName: headerName, configuration: configuration)
             }
-        }
-    }
+        case .tokenScriptTransaction(let viewModel):
+            for (sectionIndex, section) in viewModel.sections.enumerated() {
+                switch section {
+                case .gas:
+                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: _viewModel.canUserChangeGas)]
+                case .function:
+                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: false)]
 
-    class ClaimPaidErc875MagicLinkViewModel: SectionProtocol, CryptoToFiatRateUpdatable {
-        enum Section: Int, CaseIterable {
-            case gas
-            case network
-            case amount
-            case numberOfTokens
+                    let isSubViewsHidden = viewModel.isSubviewsHidden(section: sectionIndex)
+                    let vm = TransactionConfirmationRowInfoViewModel(title: "\(viewModel.functionCallMetaData.name)()", subtitle: "")
 
-            var title: String {
-                switch self {
+                    views += [.view(viewModel: vm, isHidden: isSubViewsHidden)]
+
+                    for arg in viewModel.functionCallMetaData.arguments {
+                        let vm = TransactionConfirmationRowInfoViewModel(title: arg.type.description, subtitle: arg.description)
+                        views += [.view(viewModel: vm, isHidden: isSubViewsHidden)]
+                    }
+                case .contract, .amount, .network:
+                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: false)]
+                }
+            }
+        case .sendFungiblesTransaction(let viewModel):
+            for (sectionIndex, section) in viewModel.sections.enumerated() {
+                switch section {
+                case .recipient:
+                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: false)]
+
+                    for (rowIndex, row) in RecipientResolver.Row.allCases.enumerated() {
+                        let isSubViewsHidden = viewModel.isSubviewsHidden(section: sectionIndex, row: rowIndex)
+                        switch row {
+                        case .ens:
+                            let vm = TransactionConfirmationRowInfoViewModel(title: R.string.localizable.transactionConfirmationRowTitleEns(), subtitle: viewModel.ensName)
+                            views += [.view(viewModel: vm, isHidden: isSubViewsHidden)]
+                        case .address:
+                            let vm = TransactionConfirmationRowInfoViewModel(title: R.string.localizable.transactionConfirmationRowTitleWallet(), subtitle: viewModel.addressString)
+
+                            views += [.view(viewModel: vm, isHidden: isSubViewsHidden)]
+                        }
+                    }
+                case .gas:
+                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: _viewModel.canUserChangeGas)]
+                case .amount, .balance, .network:
+                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: false)]
+                }
+            }
+        case .sendNftTransaction(let viewModel):
+            for (sectionIndex, section) in viewModel.sections.enumerated() {
+                switch section {
+                case .recipient:
+                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: false)]
+
+                    for (rowIndex, row) in RecipientResolver.Row.allCases.enumerated() {
+                        let isSubViewsHidden = viewModel.isSubviewsHidden(section: sectionIndex, row: rowIndex)
+                        switch row {
+                        case .ens:
+                            let vm = TransactionConfirmationRowInfoViewModel(title: R.string.localizable.transactionConfirmationRowTitleEns(), subtitle: viewModel.ensName)
+                            views += [.view(viewModel: vm, isHidden: isSubViewsHidden)]
+                        case .address:
+                            let vm = TransactionConfirmationRowInfoViewModel(title: R.string.localizable.transactionConfirmationRowTitleWallet(), subtitle: viewModel.addressString)
+                            views += [.view(viewModel: vm, isHidden: isSubViewsHidden)]
+                        }
+                    }
+                case .gas:
+                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: _viewModel.canUserChangeGas)]
+                case .tokenId:
+                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: false)]
+                    //NOTE: Maybe its needed to update with something else
+                    let tokenIdsAndValuesViews = viewModel.tokenIdAndValueViewModels().enumerated().map { (index, value) -> ViewType in
+                        let vm = TransactionConfirmationRowInfoViewModel(title: value, subtitle: "")
+                        let isSubviewsHidden = viewModel.isSubviewsHidden(section: sectionIndex, row: index)
+                        return .view(viewModel: vm, isHidden: isSubviewsHidden)
+                    }
+
+                    views += [.separator(height: 20)]
+                    views += tokenIdsAndValuesViews
                 case .network:
-                    return R.string.localizable.tokenTransactionConfirmationNetwork()
+                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: false)]
+                }
+            }
+        case .claimPaidErc875MagicLink(let viewModel):
+            for (sectionIndex, section) in viewModel.sections.enumerated() {
+                switch section {
                 case .gas:
-                    return R.string.localizable.tokenTransactionConfirmationGasTitle()
-                case .amount:
-                    return R.string.localizable.transactionConfirmationSendSectionAmountTitle()
-                case .numberOfTokens:
-                    return R.string.localizable.tokensTitlecase()
+                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: _viewModel.canUserChangeGas)]
+                case .amount, .numberOfTokens, .network:
+                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: false)]
                 }
             }
-        }
-        private let configurator: TransactionConfigurator
-        private let price: BigUInt
-        private let numberOfTokens: UInt
-        let session: WalletSession
-        private var defaultTitle: String {
-            return R.string.localizable.tokenTransactionConfirmationDefault()
-        }
-        private var configurationTitle: String {
-            return configurator.selectedConfigurationType.title
-        }
-
-        var openedSections = Set<Int>()
-        var cryptoToDollarRate: Double?
-
-        var server: RPCServer {
-            configurator.session.server
-        }
-
-        var sections: [Section] {
-            return Section.allCases
-        }
-
-        init(configurator: TransactionConfigurator, price: BigUInt, numberOfTokens: UInt) {
-            self.configurator = configurator
-            self.price = price
-            self.numberOfTokens = numberOfTokens
-            self.session = configurator.session
-        }
-
-        func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
-            let configuration: TransactionConfirmationHeaderView.Configuration = .init(
-                    isOpened: openedSections.contains(section),
-                    section: section,
-                    shouldHideChevron: true
-            )
-
-            let headerName = sections[section].title
-            switch sections[section] {
-            case .network:
-                return .init(title: .normal(session.server.displayName), headerName: headerName, titleIcon: .init(session.server.iconImage), configuration: configuration)
-            case .gas:
-                if let warning = configurator.gasPriceWarning {
-                    return .init(title: .warning(warning.shortTitle), headerName: headerName, configuration: configuration)
-                } else {
-                    return .init(title: .normal(configurationTitle), headerName: headerName, configuration: configuration)
-                }
-            case .amount:
-                let cryptoToDollarSymbol = Constants.Currency.usd
-                let nativeCryptoSymbol = configurator.session.server.symbol
-                let formattedAmountValue: String
-                let nativeCryptoPrice = EtherNumberFormatter.short.string(from: BigInt(price))
-                if let cryptoToDollarRate = cryptoToDollarRate {
-                    let cryptoToDollarValue = StringFormatter().currency(with: Double(price) * cryptoToDollarRate / Double(EthereumUnit.ether.rawValue), and: cryptoToDollarSymbol)
-                    formattedAmountValue = "\(nativeCryptoPrice) \(nativeCryptoSymbol) ≈ \(cryptoToDollarValue) \(cryptoToDollarSymbol)"
-                } else {
-                    formattedAmountValue = "\(nativeCryptoPrice) \(nativeCryptoSymbol)"
-                }
-                return .init(title: .normal(formattedAmountValue), headerName: headerName, configuration: configuration)
-            case .numberOfTokens:
-                return .init(title: .normal(String(numberOfTokens)), headerName: headerName, configuration: configuration)
-            }
-        }
-    }
-
-    class SpeedupTransactionViewModel: SectionProtocol, CryptoToFiatRateUpdatable {
-        enum Section {
-            case gas
-            case description
-
-            var title: String {
-                switch self {
+        case .speedupTransaction(let viewModel):
+            for (sectionIndex, section) in viewModel.sections.enumerated() {
+                switch section {
                 case .gas:
-                    return R.string.localizable.tokenTransactionConfirmationGasTitle()
-                case .description:
-                    return R.string.localizable.activitySpeedupDescription()
+                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: _viewModel.canUserChangeGas)]
+                case .description, .network:
+                    let vm = TransactionRowDescriptionTableViewCellViewModel(title: section.title)
+                    views += [.details(viewModel: vm)]
                 }
             }
-
-            var isExpandable: Bool {
-                switch self {
-                case .gas, .description:
-                    return false
-                }
-            }
-        }
-        private let configurator: TransactionConfigurator
-        private var configurationTitle: String {
-            return configurator.selectedConfigurationType.title
-        }
-        let session: WalletSession
-        var cryptoToDollarRate: Double?
-        var openedSections = Set<Int>()
-
-        var server: RPCServer {
-            configurator.session.server
-        }
-
-        var sections: [Section] {
-            [.gas, .description]
-        }
-
-        init(configurator: TransactionConfigurator) {
-            self.configurator = configurator
-            self.session = configurator.session
-        }
-
-        func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
-            let configuration: TransactionConfirmationHeaderView.Configuration = .init(isOpened: openedSections.contains(section), section: section, shouldHideChevron: !sections[section].isExpandable)
-            let headerName = sections[section].title
-            switch sections[section] {
-            case .gas:
-                let gasFee = gasFeeString(withConfigurator: configurator, cryptoToDollarRate: cryptoToDollarRate)
-                if let warning = configurator.gasPriceWarning {
-                    return .init(title: .warning(warning.shortTitle), headerName: headerName, details: gasFee, configuration: configuration)
-                } else {
-                    return .init(title: .normal(configurationTitle), headerName: headerName, details: gasFee, configuration: configuration)
-                }
-            case .description:
-                return .init(title: .normal(sections[section].title), headerName: nil, configuration: configuration)
-            }
-        }
-    }
-
-    class CancelTransactionViewModel: SectionProtocol, CryptoToFiatRateUpdatable {
-        enum Section {
-            case gas
-            case description
-
-            var title: String {
-                switch self {
+        case .cancelTransaction(let viewModel):
+            for (sectionIndex, section) in viewModel.sections.enumerated() {
+                switch section {
                 case .gas:
-                    return R.string.localizable.tokenTransactionConfirmationGasTitle()
-                case .description:
-                    return R.string.localizable.activityCancelDescription()
+                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: _viewModel.canUserChangeGas)]
+                case .description, .network:
+                    let vm = TransactionRowDescriptionTableViewCellViewModel(title: section.title)
+                    views += [.details(viewModel: vm)]
                 }
             }
-
-            var isExpandable: Bool {
-                switch self {
-                case .gas, .description:
-                    return false
-                }
-            }
-        }
-        private let configurator: TransactionConfigurator
-        private var configurationTitle: String {
-            return configurator.selectedConfigurationType.title
-        }
-        let session: WalletSession
-        var cryptoToDollarRate: Double?
-        var openedSections = Set<Int>()
-
-        var server: RPCServer {
-            configurator.session.server
-        }
-
-        var sections: [Section] {
-            [.gas, .description]
-        }
-
-        init(configurator: TransactionConfigurator) {
-            self.configurator = configurator
-            self.session = configurator.session
-        }
-
-        func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
-            let configuration: TransactionConfirmationHeaderView.Configuration = .init(isOpened: openedSections.contains(section), section: section, shouldHideChevron: !sections[section].isExpandable)
-            let headerName = sections[section].title
-            switch sections[section] {
-            case .gas:
-                let gasFee = gasFeeString(withConfigurator: configurator, cryptoToDollarRate: cryptoToDollarRate)
-                if let warning = configurator.gasPriceWarning {
-                    return .init(title: .warning(warning.shortTitle), headerName: headerName, details: gasFee, configuration: configuration)
-                } else {
-                    return .init(title: .normal(configurationTitle), headerName: headerName, details: gasFee, configuration: configuration)
-                }
-            case .description:
-                return .init(title: .normal(sections[section].title), headerName: nil, configuration: configuration)
-            }
-        }
-    }
-
-    class SwapTransactionViewModel: SectionProtocol, CryptoToFiatRateUpdatable {
-        enum Section {
-            case gas
-            case network
-            case from
-            case to
-
-            var title: String {
-                switch self {
+        case .swapTransaction(let viewModel):
+            for (sectionIndex, section) in viewModel.sections.enumerated() {
+                switch section {
                 case .gas:
-                    return R.string.localizable.tokenTransactionConfirmationGasTitle()
-                case .network:
-                    return R.string.localizable.tokenTransactionConfirmationNetwork()
-                case .from:
-                    return R.string.localizable.transactionFromLabelTitle()
-                case .to:
-                    return R.string.localizable.transactionToLabelTitle()
+                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: _viewModel.canUserChangeGas)]
+                case .network, .from, .to:
+                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: false)]
                 }
             }
-
-            var isExpandable: Bool {
-                return false
-            }
-        }
-        private let configurator: TransactionConfigurator
-        private let fromToken: TokenToSwap
-        private let fromAmount: BigUInt
-        private let toToken: TokenToSwap
-        private let toAmount: BigUInt
-
-        private var configurationTitle: String {
-            return configurator.selectedConfigurationType.title
-        }
-        let session: WalletSession
-        var cryptoToDollarRate: Double?
-        var openedSections = Set<Int>()
-
-        var server: RPCServer {
-            configurator.session.server
         }
 
-        var sections: [Section] {
-            [.network, .gas, .from, .to]
-        }
-
-        init(configurator: TransactionConfigurator, fromToken: TokenToSwap, fromAmount: BigUInt, toToken: TokenToSwap, toAmount: BigUInt) {
-            self.configurator = configurator
-            self.fromToken = fromToken
-            self.fromAmount = fromAmount
-            self.toToken = toToken
-            self.toAmount = toAmount
-            self.session = configurator.session
-        }
-
-        func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
-            let configuration: TransactionConfirmationHeaderView.Configuration = .init(isOpened: openedSections.contains(section), section: section, shouldHideChevron: !sections[section].isExpandable)
-            let headerName = sections[section].title
-            switch sections[section] {
-            case .gas:
-                let gasFee = gasFeeString(withConfigurator: configurator, cryptoToDollarRate: cryptoToDollarRate)
-                if let warning = configurator.gasPriceWarning {
-                    return .init(title: .warning(warning.shortTitle), headerName: headerName, details: gasFee, configuration: configuration)
-                } else {
-                    return .init(title: .normal(configurationTitle), headerName: headerName, details: gasFee, configuration: configuration)
-                }
-            case .from:
-                let amount = EtherNumberFormatter.short.string(from: BigInt(fromAmount), decimals: fromToken.decimals)
-                let symbol = fromToken.symbol
-                return .init(title: .normal("\(amount) \(symbol)"), headerName: headerName, configuration: configuration)
-            case .to:
-                let amount = EtherNumberFormatter.short.string(from: BigInt(toAmount), decimals: toToken.decimals)
-                let symbol = toToken.symbol
-                return .init(title: .normal("\(amount) \(symbol)"), headerName: headerName, configuration: configuration)
-            case .network:
-                return .init(title: .normal(session.server.displayName), headerName: headerName, titleIcon: session.server.walletConnectIconImage, configuration: configuration)
-            }
-        }
+        return views
     }
-}
-
-extension TransactionConfirmationViewModel {
-    var navigationTitle: String {
-        switch self {
-        case .sendFungiblesTransaction, .sendNftTransaction:
-            return R.string.localizable.tokenTransactionTransferConfirmationTitle()
-        case .dappOrWalletConnectTransaction, .tokenScriptTransaction:
-            return R.string.localizable.tokenTransactionConfirmationTitle()
-        case .claimPaidErc875MagicLink:
-            return R.string.localizable.tokenTransactionPurchaseConfirmationTitle()
-        case .speedupTransaction:
-            return R.string.localizable.tokenTransactionSpeedupConfirmationTitle()
-        case .cancelTransaction:
-            return R.string.localizable.tokenTransactionSpeedupConfirmationTitle()
-        case .swapTransaction:
-            return R.string.localizable.tokenTransactionConfirmationTitle()
-        }
-    }
-
-    var title: String {
-        return R.string.localizable.confirmPaymentConfirmButtonTitle()
-    }
-    var confirmationButtonTitle: String {
-        switch self {
-        case .dappOrWalletConnectTransaction, .tokenScriptTransaction, .sendFungiblesTransaction, .sendNftTransaction, .claimPaidErc875MagicLink:
-            return R.string.localizable.confirmPaymentConfirmButtonTitle()
-        case .speedupTransaction:
-            return R.string.localizable.activitySpeedup()
-        case .cancelTransaction:
-            return R.string.localizable.tokenTransactionCancelConfirmationTitle()
-        case .swapTransaction:
-            return R.string.localizable.confirmPaymentConfirmButtonTitle()
-        }
-    }
-
-    var backgroundColor: UIColor {
-        return UIColor.clear
-    }
-
-    var footerBackgroundColor: UIColor {
-        return Colors.appWhite
-    }
-
-    var hasSeparatorAboveConfirmButton: Bool {
-        switch self {
-        case .sendFungiblesTransaction, .sendNftTransaction, .dappOrWalletConnectTransaction, .tokenScriptTransaction, .claimPaidErc875MagicLink:
-            return true
-        case .speedupTransaction, .cancelTransaction, .swapTransaction:
-            return false
-        }
-    }
+    // swiftlint:enable function_body_length
 }

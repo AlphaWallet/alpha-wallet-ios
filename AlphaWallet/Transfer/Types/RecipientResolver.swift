@@ -28,13 +28,13 @@ class RecipientResolver {
     init(address: AlphaWallet.Address?, domainResolutionService: DomainResolutionServiceType) {
         self.address = address
         self.domainResolutionService = domainResolutionService
-    }
+    } 
 
     func resolveRecipient() -> AnyPublisher<Void, Never> {
         guard let address = address else {
             return .just(())
         }
-        
+
         return domainResolutionService.resolveEns(address: address)
             .map { ens -> EnsName? in return ens }
             .replaceError(with: nil)

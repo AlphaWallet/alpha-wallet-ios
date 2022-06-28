@@ -114,13 +114,11 @@ extension SendCoordinator: SendViewControllerDelegate {
 
     func didPressConfirm(transaction: UnconfirmedTransaction, in viewController: SendViewController, amount: String, shortValue: String?) {
         do {
-            let configuration: TransactionConfirmationConfiguration = .sendFungiblesTransaction(
+            let configuration: TransactionConfirmationViewModel.Configuration = .sendFungiblesTransaction(
                 confirmType: .signThenSend,
-                keystore: keystore,
-                assetDefinitionStore: assetDefinitionStore,
                 amount: FungiblesTransactionAmount(value: amount, shortValue: shortValue, isAllFunds: viewController.isAllFunds))
 
-            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
+            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore)
             addCoordinator(coordinator)
             coordinator.delegate = self
             coordinator.start(fromSource: .sendFungible)

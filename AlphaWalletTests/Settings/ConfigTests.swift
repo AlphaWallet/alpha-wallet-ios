@@ -13,7 +13,7 @@ extension WalletConnectCoordinator {
         sessions[session.server] = session
         let sessionsSubject = CurrentValueSubject<ServerDictionary<WalletSession>, Never>(sessions)
 
-        return WalletConnectCoordinator(keystore: keystore, navigationController: .init(), analyticsCoordinator: FakeAnalyticsService(), domainResolutionService: FakeDomainResolutionService(), config: .make(), sessionsSubject: sessionsSubject)
+        return WalletConnectCoordinator(keystore: keystore, navigationController: .init(), analyticsCoordinator: FakeAnalyticsService(), domainResolutionService: FakeDomainResolutionService(), config: .make(), sessionsSubject: sessionsSubject, assetDefinitionStore: AssetDefinitionStore())
     }
 }
 

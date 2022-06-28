@@ -108,9 +108,9 @@ extension TransferNFTCoordinator: TransferTokensCardViaWalletAddressViewControll
             )
 
             let tokenInstanceNames = tokenHolder.valuesAll.compactMapValues { $0.nameStringValue }
-            let configuration: TransactionConfirmationConfiguration = .sendNftTransaction(confirmType: .signThenSend, keystore: keystore, tokenInstanceNames: tokenInstanceNames)
+            let configuration: TransactionConfirmationViewModel.Configuration = .sendNftTransaction(confirmType: .signThenSend, tokenInstanceNames: tokenInstanceNames)
 
-            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
+            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore)
             addCoordinator(coordinator)
             coordinator.delegate = self
             coordinator.start(fromSource: .sendNft)

@@ -22,8 +22,7 @@ class TransactionConfirmationViewController: UIViewController {
 
     private lazy var headerView = ConfirmationHeaderView(viewModel: .init(title: viewModel.navigationTitle))
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
-    private var viewModel: TransactionConfirmationViewModel
-    private var timerToReenableConfirmButton: Timer?
+    private let viewModel: TransactionConfirmationViewModel
     private let separatorLine: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -45,16 +44,12 @@ class TransactionConfirmationViewController: UIViewController {
         return view.heightAnchor.constraint(equalToConstant: preferredContentSize.height)
     }()
 
-    private let session: WalletSession
-    private var canBeConfirmed = true
     private var cancelable = Set<AnyCancellable>()
 
     weak var delegate: TransactionConfirmationViewControllerDelegate?
 
-// swiftlint:disable function_body_length
-    init(viewModel: TransactionConfirmationViewModel, session: WalletSession) {
+    init(viewModel: TransactionConfirmationViewModel) {
         self.viewModel = viewModel
-        self.session = session
         super.init(nibName: nil, bundle: nil)
 
         view.addSubview(containerView)
@@ -112,64 +107,14 @@ class TransactionConfirmationViewController: UIViewController {
                 } else {
                     strongSelf.heightConstraint.constant = newHeight
                 }
-
             }.store(in: &cancelable)
-
-        session
-            .tokenBalanceService
-            .etherToFiatRatePublisher
-            .receive(on: RunLoop.main)
-            .sink { [weak self] price in
-                viewModel.cryptoToFiatRateUpdatable.cryptoToDollarRate = price
-                self?.generateSubviews()
-            }.store(in: &cancelable)
-
-        switch viewModel {
-        case .dappOrWalletConnectTransaction(let dappTransactionViewModel):
-            headerView.iconImageView.setImage(url: dappTransactionViewModel.dappIconUrl, placeholder: dappTransactionViewModel.placeholderIcon)
-        case .sendFungiblesTransaction(let sendFungiblesViewModel):
-            sendFungiblesViewModel.recipientResolver.resolveRecipient()
-                .receive(on: RunLoop.main)
-                .sink { [weak self] _ in
-                    self?.generateSubviews()
-                }.store(in: &cancelable)
-
-            switch sendFungiblesViewModel.transactionType {
-            case .nativeCryptocurrency:
-                sendFungiblesViewModel.session
-                    .tokenBalanceService
-                    .etherBalance
-                    .receive(on: RunLoop.main)
-                    .sink { [weak self] balanceBaseViewModel in
-                        sendFungiblesViewModel.updateBalance(.nativeCryptocurrency(balanceViewModel: balanceBaseViewModel))
-                        self?.generateSubviews()
-                    }.store(in: &cancelable)
-                
-                sendFungiblesViewModel.session.tokenBalanceService.refresh(refreshBalancePolicy: .eth)
-            case .erc20Token(let token, _, _):
-                sendFungiblesViewModel.updateBalance(.erc20(token: token))
-            case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
-                break
-            }
-        case .sendNftTransaction(let sendNftViewModel):
-            sendNftViewModel.recipientResolver.resolveRecipient()
-                .receive(on: RunLoop.main)
-                .sink { [weak self] _ in
-                    self?.generateSubviews()
-                }.store(in: &cancelable)
-        case .tokenScriptTransaction, .claimPaidErc875MagicLink, .speedupTransaction, .cancelTransaction, .swapTransaction:
-            break
-        }
-
-        generateSubviews()
-    }
-// swiftlint:enable function_body_length
+    } 
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
         set(state: .ready)
-        configure(for: viewModel)
+        bind(for: viewModel)
     }
 
     func set(state: State, completion: (() -> Void)? = nil) {
@@ -206,44 +151,7 @@ class TransactionConfirmationViewController: UIViewController {
         delegate?.didClose(in: self)
     }
 
-    func reloadView() {
-        generateSubviews()
-    }
-
-    func reloadViewWithGasChanges() {
-        canBeConfirmed = false
-        reloadView()
-        createTimerToRestoreConfirmButton()
-    }
-
-    //NOTE: we need to recalculate all funds value to send according to updated gas estimates, nativecrypto only
-    func reloadViewWithCurrentBalanceValue() {
-        switch viewModel {
-        case .dappOrWalletConnectTransaction, .tokenScriptTransaction, .speedupTransaction, .cancelTransaction, .swapTransaction:
-            break
-        case .sendFungiblesTransaction(let sendFungiblesViewModel):
-            switch sendFungiblesViewModel.transactionType {
-            case .nativeCryptocurrency:
-                let balanceBaseViewModel = sendFungiblesViewModel.session.tokenBalanceService.ethBalanceViewModel
-
-                sendFungiblesViewModel.updateBalance(.nativeCryptocurrency(balanceViewModel: balanceBaseViewModel))
-            case .erc20Token, .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
-                break
-            }
-        case .sendNftTransaction, .claimPaidErc875MagicLink:
-            break
-        }
-    }
-
-    private func createTimerToRestoreConfirmButton() {
-        timerToReenableConfirmButton?.invalidate()
-        let gap = TimeInterval(0.3)
-        timerToReenableConfirmButton = Timer.scheduledTimer(withTimeInterval: gap, repeats: false) { [weak self] _ in
-            self?.canBeConfirmed = true
-        }
-    }
-
-    private func configure(for viewModel: TransactionConfirmationViewModel) {
+    private func bind(for viewModel: TransactionConfirmationViewModel) {
         containerView.scrollView.backgroundColor = viewModel.backgroundColor
         view.backgroundColor = viewModel.backgroundColor
         navigationItem.title = viewModel.title
@@ -255,10 +163,15 @@ class TransactionConfirmationViewController: UIViewController {
         button.shrinkBorderColor = Colors.loadingIndicatorBorder
         button.setTitle(viewModel.confirmationButtonTitle, for: .normal)
         button.addTarget(self, action: #selector(confirmButtonTapped), for: .touchUpInside)
+
+        viewModel.views
+            .sink { [weak self] views in
+                self?.generateSubviews(for: views)
+            }.store(in: &cancelable)
     }
 
     @objc func confirmButtonTapped(_ sender: UIButton) {
-        guard canBeConfirmed else { return }
+        guard viewModel.canBeConfirmed else { return }
         delegate?.controller(self, continueButtonTapped: sender)
     }
 
@@ -268,225 +181,41 @@ class TransactionConfirmationViewController: UIViewController {
 }
 
 extension TransactionConfirmationViewController {
-    // swiftlint:disable function_body_length
-    private func generateSubviews() {
+
+    private func generateSubviews(for views: [TransactionConfirmationViewModel.ViewType]) {
         containerView.stackView.removeAllArrangedSubviews()
-        var views: [UIView] = []
-        switch viewModel {
-        case .dappOrWalletConnectTransaction(let viewModel):
-            for (sectionIndex, section) in viewModel.sections.enumerated() {
-                var children: [UIView] = []
-                let header = TransactionConfirmationHeaderView(viewModel: viewModel.headerViewModel(section: sectionIndex))
-                header.delegate = self
 
-                switch section {
-                case .gas:
-                    if viewModel.server.canUserChangeGas {
-                        header.enableTapAction(title: R.string.localizable.editButtonTitle())
-                    } else {
-                        //no-op
-                    }
-                case .amount, .network:
-                    break
-                case .function(let functionCallMetaData):
-                    let isSubViewsHidden = viewModel.isSubviewsHidden(section: sectionIndex)
-                    let view = TransactionConfirmationRowInfoView(viewModel: .init(title: "\(functionCallMetaData.name)()", subtitle: ""))
-                    view.isHidden = isSubViewsHidden
-                    children.append(view)
+        var activeHeaderView: TransactionConfirmationHeaderView?
 
-                    for arg in functionCallMetaData.arguments {
-                        let view = TransactionConfirmationRowInfoView(viewModel: .init(title: arg.type.description, subtitle: arg.description))
-                        view.isHidden = isSubViewsHidden
-                        children.append(view)
-                    }
-                }
-                header.childrenStackView.addArrangedSubviews(children)
-                header.childrenStackView.isHidden = children.isEmpty
-                views.append(header)
-            }
-        case .tokenScriptTransaction(let viewModel):
-            for (sectionIndex, section) in viewModel.sections.enumerated() {
-                let header = TransactionConfirmationHeaderView(viewModel: viewModel.headerViewModel(section: sectionIndex))
-                header.delegate = self
-                var children: [UIView] = []
-                switch section {
-                case .gas:
-                    if viewModel.server.canUserChangeGas {
-                        header.enableTapAction(title: R.string.localizable.editButtonTitle())
-                    } else {
-                        //no-op
-                    }
-                case .function:
-                    let isSubViewsHidden = viewModel.isSubviewsHidden(section: sectionIndex)
-                    let view = TransactionConfirmationRowInfoView(viewModel: .init(title: "\(viewModel.functionCallMetaData.name)()", subtitle: ""))
-                    view.isHidden = isSubViewsHidden
-                    children.append(view)
+        for each in views {
+            switch each {
+            case .view(let viewModel, let isHidden):
+                let view = TransactionConfirmationRowInfoView(viewModel: viewModel)
+                view.isHidden = isHidden
 
-                    for arg in viewModel.functionCallMetaData.arguments {
-                        let view = TransactionConfirmationRowInfoView(viewModel: .init(title: arg.type.description, subtitle: arg.description))
-                        view.isHidden = isSubViewsHidden
-                        children.append(view)
-                    }
-                case .contract, .amount, .network:
-                    break
-                }
-                header.childrenStackView.addArrangedSubviews(children)
-                header.childrenStackView.isHidden = children.isEmpty
-                views.append(header)
-            }
-        case .sendFungiblesTransaction(let viewModel):
-            for (sectionIndex, section) in viewModel.sections.enumerated() {
-                let header = TransactionConfirmationHeaderView(viewModel: viewModel.headerViewModel(section: sectionIndex))
-                header.delegate = self
-                var children: [UIView] = []
-                switch section {
-                case .recipient:
-                    for (rowIndex, row) in RecipientResolver.Row.allCases.enumerated() {
-                        switch row {
-                        case .ens:
-                            let view = TransactionConfirmationRowInfoView(viewModel: .init(title: R.string.localizable.transactionConfirmationRowTitleEns(), subtitle: viewModel.ensName))
-                            view.isHidden = viewModel.isSubviewsHidden(section: sectionIndex, row: rowIndex)
-                            children.append(view)
-                        case .address:
-                            let view = TransactionConfirmationRowInfoView(viewModel: .init(title: R.string.localizable.transactionConfirmationRowTitleWallet(), subtitle: viewModel.addressString))
-                            view.isHidden = viewModel.isSubviewsHidden(section: sectionIndex, row: rowIndex)
-                            children.append(view)
-                        }
-                    }
-                case .gas:
-                    if viewModel.server.canUserChangeGas {
-                        header.enableTapAction(title: R.string.localizable.editButtonTitle())
-                    } else {
-                        //no-op
-                    }
-                case .amount, .balance, .network:
-                    break
-                }
-                header.childrenStackView.addArrangedSubviews(children)
-                header.childrenStackView.isHidden = children.isEmpty
-                views.append(header)
-            }
-        case .sendNftTransaction(let viewModel):
-            for (sectionIndex, section) in viewModel.sections.enumerated() {
-                let header = TransactionConfirmationHeaderView(viewModel: viewModel.headerViewModel(section: sectionIndex))
-                header.delegate = self
-                var children: [UIView] = []
-                switch section {
-                case .recipient:
-                    for (rowIndex, row) in RecipientResolver.Row.allCases.enumerated() {
-                        switch row {
-                        case .ens:
-                            let view = TransactionConfirmationRowInfoView(viewModel: .init(title: R.string.localizable.transactionConfirmationRowTitleEns(), subtitle: viewModel.ensName))
-                            view.isHidden = viewModel.isSubviewsHidden(section: sectionIndex, row: rowIndex)
-                            children.append(view)
-                        case .address:
-                            let view = TransactionConfirmationRowInfoView(viewModel: .init(title: R.string.localizable.transactionConfirmationRowTitleWallet(), subtitle: viewModel.addressString))
-                            view.isHidden = viewModel.isSubviewsHidden(section: sectionIndex, row: rowIndex)
-                            children.append(view)
-                        }
-                    }
-                case .gas:
-                    if viewModel.server.canUserChangeGas {
-                        header.enableTapAction(title: R.string.localizable.editButtonTitle())
-                    } else {
-                        //no-op
-                    }
-                case .tokenId:
-                    //NOTE: Maybe its needed to update with something else
-                    let tokenIdsAndValuesViews = viewModel.tokenIdAndValueViewModels().enumerated().map { (index, value) -> UIView in
-                        let view = TransactionConfirmationRowInfoView(viewModel: .init(title: value, subtitle: ""))
-                        view.isHidden = viewModel.isSubviewsHidden(section: sectionIndex, row: index)
-                        return view
-                    }
+                activeHeaderView?.childrenStackView.addArrangedSubview(view)
+            case .separator(let height):
+                let view: UIView = UIView.spacer(height: height)
 
-                    children.append(UIView.spacer(height: 20))
-                    children.append(contentsOf: tokenIdsAndValuesViews)
-                case .network:
-                    break
-                }
-                header.childrenStackView.addArrangedSubviews(children)
-                header.childrenStackView.isHidden = children.isEmpty
-                views.append(header)
-            }
-        case .claimPaidErc875MagicLink(let viewModel):
-            for (sectionIndex, section) in viewModel.sections.enumerated() {
-                let header = TransactionConfirmationHeaderView(viewModel: viewModel.headerViewModel(section: sectionIndex))
-                header.delegate = self
-                switch section {
-                case .gas:
-                    if viewModel.server.canUserChangeGas {
-                        header.enableTapAction(title: R.string.localizable.editButtonTitle())
-                    } else {
-                        //no-op
-                    }
-                case .amount, .numberOfTokens, .network:
-                    break
-                }
-                views.append(header)
-            }
-        case .speedupTransaction(let viewModel):
-            for (sectionIndex, section) in viewModel.sections.enumerated() {
-                let children: [UIView] = []
+                activeHeaderView?.childrenStackView.addArrangedSubview(view)
+            case .details(let viewModel):
+                let view = TransactionConfirmationRowDescriptionView(viewModel: viewModel)
 
-                switch section {
-                case .gas:
-                    if viewModel.server.canUserChangeGas {
-                        let header = TransactionConfirmationHeaderView(viewModel: viewModel.headerViewModel(section: sectionIndex))
-                        header.delegate = self
-                        header.enableTapAction(title: R.string.localizable.editButtonTitle())
-                        header.childrenStackView.addArrangedSubviews(children)
-                        views.append(header)
-                    } else {
-                        //no-op
-                    }
-                case .description:
-                    let view = TransactionConfirmationRowDescriptionView(viewModel: .init(title: section.title))
-                    views.append(view)
-                }
-            }
-        case .cancelTransaction(let viewModel):
-            for (sectionIndex, section) in viewModel.sections.enumerated() {
-                let children: [UIView] = []
-
-                switch section {
-                case .gas:
-                    if viewModel.server.canUserChangeGas {
-                        let header = TransactionConfirmationHeaderView(viewModel: viewModel.headerViewModel(section: sectionIndex))
-                        header.delegate = self
-                        header.enableTapAction(title: R.string.localizable.editButtonTitle())
-                        header.childrenStackView.addArrangedSubviews(children)
-                        views.append(header)
-                    } else {
-                        //no-op
-                    }
-                case .description:
-                    let view = TransactionConfirmationRowDescriptionView(viewModel: .init(title: section.title))
-                    views.append(view)
-                }
-            }
-        case .swapTransaction(let viewModel):
-            for (sectionIndex, section) in viewModel.sections.enumerated() {
-                let header = TransactionConfirmationHeaderView(viewModel: viewModel.headerViewModel(section: sectionIndex))
+                activeHeaderView?.childrenStackView.addArrangedSubview(view)
+            case .header(let viewModel, let isEditEnabled):
+                let header = TransactionConfirmationHeaderView(viewModel: viewModel)
                 header.delegate = self
-                let children: [UIView] = []
-                switch section {
-                case .gas:
-                    if viewModel.server.canUserChangeGas {
-                        header.enableTapAction(title: R.string.localizable.editButtonTitle())
-                    } else {
-                        //no-op
-                    }
-                case .network, .from, .to:
-                    break
+                if isEditEnabled {
+                    header.enableTapAction(title: R.string.localizable.editButtonTitle())
                 }
-                header.childrenStackView.addArrangedSubviews(children)
-                header.childrenStackView.isHidden = children.isEmpty
-                views.append(header)
+
+                containerView.stackView.addArrangedSubview(header)
+                activeHeaderView = header
             }
+
+            activeHeaderView?.childrenStackView.isHidden = activeHeaderView?.childrenStackView.arrangedSubviews.isEmpty ?? true
         }
-        containerView.stackView.addArrangedSubviews(views)
     }
-    // swiftlint:enable function_body_length
 }
 
 extension TransactionConfirmationViewController: TransactionConfirmationHeaderViewDelegate {
@@ -496,25 +225,7 @@ extension TransactionConfirmationViewController: TransactionConfirmationHeaderVi
     }
 
     func headerView(_ header: TransactionConfirmationHeaderView, shouldShowChildren section: Int, index: Int) -> Bool {
-        switch viewModel {
-        case .dappOrWalletConnectTransaction, .claimPaidErc875MagicLink, .tokenScriptTransaction, .speedupTransaction, .cancelTransaction, .swapTransaction:
-            return true
-        case .sendFungiblesTransaction(let viewModel):
-            switch viewModel.sections[section] {
-            case .recipient, .network:
-                return !viewModel.isSubviewsHidden(section: section, row: index)
-            case .gas, .amount, .balance:
-                return true
-            }
-        case .sendNftTransaction(let viewModel):
-            switch viewModel.sections[section] {
-            case .recipient, .network:
-                //NOTE: Here we need to make sure that this view is available to display
-                return !viewModel.isSubviewsHidden(section: section, row: index)
-            case .gas, .tokenId:
-                return true
-            }
-        }
+        return viewModel.shouldShowChildren(for: section, index: index)
     }
 
     func headerView(_ header: TransactionConfirmationHeaderView, openStateChanged section: Int) {

@@ -70,7 +70,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
             navigationController.isToolbarHidden = !enableToolbar
         }
     }
-
+    private let assetDefinitionStore: AssetDefinitionStore
     private var currentUrl: URL? {
         return browserViewController.webView.url
     }
@@ -98,7 +98,8 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         browserOnly: Bool,
         restartQueue: RestartTaskQueue,
         analyticsCoordinator: AnalyticsCoordinator,
-        domainResolutionService: DomainResolutionServiceType
+        domainResolutionService: DomainResolutionServiceType,
+        assetDefinitionStore: AssetDefinitionStore
     ) {
         self.navigationController = UINavigationController(navigationBarClass: DappBrowserNavigationBar.self, toolbarClass: nil)
         self.sessions = sessions
@@ -109,7 +110,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         self.restartQueue = restartQueue
         self.analyticsCoordinator = analyticsCoordinator
         self.domainResolutionService = domainResolutionService
-
+        self.assetDefinitionStore = assetDefinitionStore
         super.init()
         //Necessary so that some sites don't bleed into (under) navigation bar after we tweak global styles for navigationBars after adding large title support
         navigationController.navigationBar.isTranslucent = false
@@ -165,7 +166,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     private func executeTransaction(account: AlphaWallet.Address, action: DappAction, callbackID: Int, transaction: UnconfirmedTransaction, type: ConfirmType, server: RPCServer) {
         pendingTransaction = .data(callbackID: callbackID)
         do {
-            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: .dappTransaction(confirmType: type, keystore: keystore), analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
+            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: .dappTransaction(confirmType: type), analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore)
             coordinator.delegate = self
             addCoordinator(coordinator)
             coordinator.start(fromSource: .browser)
