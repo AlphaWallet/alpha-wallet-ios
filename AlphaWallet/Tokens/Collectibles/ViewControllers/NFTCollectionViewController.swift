@@ -153,11 +153,7 @@ class NFTCollectionViewController: UIViewController {
 
         collectionInfoPageView.viewDidLoad()
 
-        activitiesService.activitiesPublisher
-            .receive(on: RunLoop.main)
-            .sink { [weak activitiesPageView] activities in
-                activitiesPageView?.configure(viewModel: .init(activitiesViewModel: .init(activities: activities)))
-            }.store(in: &cancelable)
+        subscribeForActivities()
     }
 
     @objc private func didPullToRefresh(_ sender: UIRefreshControl) {
@@ -186,6 +182,15 @@ class NFTCollectionViewController: UIViewController {
         } else {
             buttonsBar.configure(.empty)
         }
+    }
+
+    private func subscribeForActivities() {
+        activitiesService.start()
+        activitiesService.activitiesPublisher
+            .receive(on: RunLoop.main)
+            .sink { [weak activitiesPageView] activities in
+                activitiesPageView?.configure(viewModel: .init(activitiesViewModel: .init(activities: activities)))
+            }.store(in: &cancelable)
     }
 
     private func updateNavigationRightBarButtons(tokenScriptFileStatusHandler xmlHandler: XMLHandler) {
