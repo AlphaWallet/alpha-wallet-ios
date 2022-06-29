@@ -185,7 +185,7 @@ enum GroupedTable {
     }
 
     enum Color {
-        static let title = UIColor(red: 76, green: 76, blue: 76)
+        static let title = R.color.black()!
         static let background = R.color.alabaster()!
         static let cellSeparator = UIColor(red: 233, green: 233, blue: 233)
     }
