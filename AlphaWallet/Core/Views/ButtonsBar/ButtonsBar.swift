@@ -339,23 +339,23 @@ class HorizontalButtonsBar: UIView, ButtonsBarViewType {
 struct ButtonsBarViewModel {
 
     static let primaryButton = ButtonsBarViewModel(
-        buttonBackgroundColor: ButtonsBarStyle.Colors.primaryBackgroundActive,
-        highlightedButtonBackgroundColor: ButtonsBarStyle.Colors.primaryHighlightedBackground,
-        disabledButtonBackgroundColor: ButtonsBarStyle.Colors.primaryBackgroundInactive,
-        disabledButtonBorderColor: ButtonsBarStyle.Colors.primaryBorderInactive,
-        buttonTitleColor: ButtonsBarStyle.Colors.primaryTextActive,
-        disabledButtonTitleColor: ButtonsBarStyle.Colors.primaryTextInactive,
-        buttonBorderColor: ButtonsBarStyle.Colors.primaryBorderActive
+        buttonBackgroundColor: Configuration.Color.Semantic.primaryButtonBackground,
+        highlightedButtonBackgroundColor: Configuration.Color.Semantic.primaryButtonHighlightedBackground,
+        disabledButtonBackgroundColor: Configuration.Color.Semantic.primaryButtonBackgroundInactive,
+        disabledButtonBorderColor: Configuration.Color.Semantic.primaryButtonBorderInactive,
+        buttonTitleColor: Configuration.Color.Semantic.primaryButtonTextActive,
+        disabledButtonTitleColor: Configuration.Color.Semantic.primaryButtonTextInactive,
+        buttonBorderColor: Configuration.Color.Semantic.primaryButtonBorderActive
     )
 
     static let secondaryButton = ButtonsBarViewModel(
-        buttonBackgroundColor: ButtonsBarStyle.Colors.secondaryBackgroundActive,
-        highlightedButtonBackgroundColor: ButtonsBarStyle.Colors.secondaryHighlightedBackground,
-        disabledButtonBackgroundColor: ButtonsBarStyle.Colors.secondaryBackgroundInactive,
-        disabledButtonBorderColor: ButtonsBarStyle.Colors.secondaryBorderInactive,
-        buttonTitleColor: ButtonsBarStyle.Colors.secondaryTextActive,
-        disabledButtonTitleColor: ButtonsBarStyle.Colors.secondaryTextInactive,
-        buttonBorderColor: ButtonsBarStyle.Colors.secondaryBorderActive
+        buttonBackgroundColor: Configuration.Color.Semantic.secondaryButtonBackground,
+        highlightedButtonBackgroundColor: Configuration.Color.Semantic.secondaryButtonHighlightedBackground,
+        disabledButtonBackgroundColor: Configuration.Color.Semantic.secondaryButtonBackgroundInactive,
+        disabledButtonBorderColor: Configuration.Color.Semantic.secondaryButtonBorderInactive,
+        buttonTitleColor: Configuration.Color.Semantic.secondaryButtonTextActive,
+        disabledButtonTitleColor: Configuration.Color.Semantic.secondaryButtonTextInactive,
+        buttonBorderColor: Configuration.Color.Semantic.secondaryButtonBorderActive
     )
 
     static let systemButton = ButtonsBarViewModel(
@@ -372,6 +372,7 @@ struct ButtonsBarViewModel {
     static let moreButton = ButtonsBarViewModel(buttonBorderWidth: 0)
 
     var buttonBackgroundColor: UIColor = Colors.appWhite
+
     var highlightedButtonBackgroundColor: UIColor?
     var disabledButtonBackgroundColor: UIColor = Colors.disabledActionButton
     var disabledButtonBorderColor: UIColor = Colors.disabledActionButton
