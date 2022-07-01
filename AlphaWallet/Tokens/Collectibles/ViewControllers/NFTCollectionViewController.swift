@@ -153,11 +153,7 @@ class NFTCollectionViewController: UIViewController {
 
         collectionInfoPageView.viewDidLoad()
 
-        activitiesService.activitiesPublisher
-            .receive(on: RunLoop.main)
-            .sink { [weak activitiesPageView] activities in
-                activitiesPageView?.configure(viewModel: .init(activitiesViewModel: .init(activities: activities)))
-            }.store(in: &cancelable)
+        subscribeForActivities()
     }
 
     @objc private func didPullToRefresh(_ sender: UIRefreshControl) {
@@ -188,18 +184,27 @@ class NFTCollectionViewController: UIViewController {
         }
     }
 
+    private func subscribeForActivities() {
+        activitiesService.start()
+        activitiesService.activitiesPublisher
+            .receive(on: RunLoop.main)
+            .sink { [weak activitiesPageView] activities in
+                activitiesPageView?.configure(viewModel: .init(activitiesViewModel: .init(activities: activities)))
+            }.store(in: &cancelable)
+    }
+
     private func updateNavigationRightBarButtons(tokenScriptFileStatusHandler xmlHandler: XMLHandler) {
-        let tokenScriptStatusPromise = xmlHandler.tokenScriptStatus
-        if tokenScriptStatusPromise.isPending {
-            let label: UIBarButtonItem = .init(title: R.string.localizable.tokenScriptVerifying(), style: .plain, target: nil, action: nil)
-            collectionInfoPageView.rightBarButtonItem = label
-
-            tokenScriptStatusPromise.done { [weak self] _ in
-                self?.updateNavigationRightBarButtons(tokenScriptFileStatusHandler: xmlHandler)
-            }.cauterize()
-        }
-
         if Features.default.isAvailable(.isTokenScriptSignatureStatusEnabled) {
+            let tokenScriptStatusPromise = xmlHandler.tokenScriptStatus
+            if tokenScriptStatusPromise.isPending {
+                let label: UIBarButtonItem = .init(title: R.string.localizable.tokenScriptVerifying(), style: .plain, target: nil, action: nil)
+                collectionInfoPageView.rightBarButtonItem = label
+
+                tokenScriptStatusPromise.done { [weak self] _ in
+                            self?.updateNavigationRightBarButtons(tokenScriptFileStatusHandler: xmlHandler)
+                        }.cauterize()
+            }
+
             if let server = xmlHandler.server, let status = tokenScriptStatusPromise.value, server.matches(server: session.server) {
                 switch status {
                 case .type0NoTokenScript:

@@ -80,7 +80,7 @@ class FungibleTokenViewController: UIViewController {
 
         subscribeForAlerts()
         subscribeForActivities()
-    } 
+    }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -126,6 +126,7 @@ class FungibleTokenViewController: UIViewController {
     }
 
     private func subscribeForActivities() {
+        activitiesService.start()
         activitiesService.activitiesPublisher
             .receive(on: RunLoop.main)
             .sink { [weak activitiesPageView] activities in
@@ -141,17 +142,17 @@ class FungibleTokenViewController: UIViewController {
     }
 
     private func updateNavigationRightBarButtons(tokenScriptFileStatusHandler xmlHandler: XMLHandler) {
-        let tokenScriptStatusPromise = xmlHandler.tokenScriptStatus
-        if tokenScriptStatusPromise.isPending {
-            let label: UIBarButtonItem = .init(title: R.string.localizable.tokenScriptVerifying(), style: .plain, target: nil, action: nil)
-            navigationItem.rightBarButtonItem = label
-
-            tokenScriptStatusPromise.done { [weak self] _ in
-                self?.updateNavigationRightBarButtons(tokenScriptFileStatusHandler: xmlHandler)
-            }.cauterize()
-        }
-
         if Features.default.isAvailable(.isTokenScriptSignatureStatusEnabled) {
+            let tokenScriptStatusPromise = xmlHandler.tokenScriptStatus
+            if tokenScriptStatusPromise.isPending {
+                let label: UIBarButtonItem = .init(title: R.string.localizable.tokenScriptVerifying(), style: .plain, target: nil, action: nil)
+                navigationItem.rightBarButtonItem = label
+
+                tokenScriptStatusPromise.done { [weak self] _ in
+                            self?.updateNavigationRightBarButtons(tokenScriptFileStatusHandler: xmlHandler)
+                        }.cauterize()
+            }
+
             if let server = xmlHandler.server, let status = tokenScriptStatusPromise.value, server.matches(server: viewModel.session.server) {
                 switch status {
                 case .type0NoTokenScript:

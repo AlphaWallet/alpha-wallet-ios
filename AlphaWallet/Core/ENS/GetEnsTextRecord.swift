@@ -7,6 +7,7 @@
 import Foundation
 import AlphaWalletENS
 import PromiseKit
+import Combine
 
 /// https://eips.ethereum.org/EIPS/eip-634
 final class GetEnsTextRecord: ENSDelegateImpl {
@@ -21,25 +22,23 @@ final class GetEnsTextRecord: ENSDelegateImpl {
         ensReverseLookup = EnsReverseResolver(server: server, storage: storage)
     }
 
-    func getENSRecord(forAddress address: AlphaWallet.Address, record: EnsTextRecordKey) -> Promise<String> {
-        firstly {
-            ensReverseLookup.getENSNameFromResolver(for: address)
-        }.then { ens -> Promise<String> in
-            self.getENSRecord(forName: ens, record: record)
-        }
+    func getENSRecord(forAddress address: AlphaWallet.Address, record: EnsTextRecordKey) -> AnyPublisher<String, SmartContractError> {
+        ensReverseLookup.getENSNameFromResolver(for: address)
+            .flatMap { ens in
+                self.getENSRecord(forName: ens, record: record)
+            }.eraseToAnyPublisher()
     }
 
-    func getENSRecord(forName name: String, record: EnsTextRecordKey) -> Promise<String> {
+    func getENSRecord(forName name: String, record: EnsTextRecordKey) -> AnyPublisher<String, SmartContractError> {
         if let cachedResult = cachedResult(forName: name, record: record) {
-            return .value(cachedResult)
+            return .just(cachedResult)
         }
 
-        return firstly {
-            ens.getTextRecord(forName: name, recordKey: record)
-        }.get { value in
-            let key = EnsLookupKey(nameOrAddress: name, server: self.server, record: record)
-            self.storage.addOrUpdate(record: .init(key: key, value: .record(value)))
-        }
+        return ens.getTextRecord(forName: name, recordKey: record)
+            .handleEvents(receiveOutput: { [storage, server] value in
+                let key = EnsLookupKey(nameOrAddress: name, server: server, record: record)
+                storage.addOrUpdate(record: .init(key: key, value: .record(value)))
+            }).eraseToAnyPublisher()
     }
 
     private func cachedResult(forName name: String, record: EnsTextRecordKey) -> String? {

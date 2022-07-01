@@ -34,12 +34,11 @@ class AccountViewModel {
     }()
 
     lazy var blockieImage: AnyPublisher<BlockiesImage, Never> = {
-        return blockiesGenerator.getBlockie(address: wallet.address)
+        return blockiesGenerator.getBlockieOrEnsAvatarImage(address: wallet.address, fallbackImage: BlockiesImage.defaulBlockieImage)
             .handleEvents(receiveOutput: { [weak self] value in
                 guard value.isEnsAvatar else { return }
                 self?.analyticsCoordinator.setUser(property: Analytics.UserProperties.hasEnsAvatar, value: true)
-            })
-            .eraseToAnyPublisher()
+            }).eraseToAnyPublisher()
     }()
 
     lazy var addressOrEnsName: AnyPublisher<NSAttributedString, Never> = {

@@ -64,15 +64,19 @@ class TransactionDataStore {
                     case .error(let error):
                         return .error(error)
                     }
-                }
-                .eraseToAnyPublisher()
+                }.eraseToAnyPublisher()
         }
 
         return publisher
     }
 
     func transactions(forFilter filter: TransactionsFilterStrategy, servers: [RPCServer], oldestBlockNumber: Int? = nil) -> [TransactionInstance] {
-        let oldestBlockNumberPredicate = oldestBlockNumber.flatMap { [TransactionDataStore.functional.blockNumberPredicate(blockNumber: $0)] } ?? []
+        //NOTE: Allow pending transactions othewise it willn't appear as activity 
+        let isPendingTransction = NSPredicate(format: "blockNumber == 0")
+        let oldestBlockNumberPredicate = oldestBlockNumber.flatMap { [
+            NSCompoundPredicate(orPredicateWithSubpredicates: [TransactionDataStore.functional.blockNumberPredicate(blockNumber: $0), isPendingTransction])
+        ] } ?? []
+
         let predicate: NSPredicate
         switch filter {
         case .filter(let filter, let tokenObject):

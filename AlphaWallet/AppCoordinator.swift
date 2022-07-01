@@ -89,7 +89,7 @@ class AppCoordinator: NSObject, Coordinator {
 
     private lazy var sessionsSubject = CurrentValueSubject<ServerDictionary<WalletSession>, Never>(.init())
     private lazy var walletConnectCoordinator: WalletConnectCoordinator = {
-        let coordinator = WalletConnectCoordinator(keystore: keystore, navigationController: navigationController, analyticsCoordinator: analyticsService, domainResolutionService: domainResolutionService, config: config, sessionsSubject: sessionsSubject)
+        let coordinator = WalletConnectCoordinator(keystore: keystore, navigationController: navigationController, analyticsCoordinator: analyticsService, domainResolutionService: domainResolutionService, config: config, sessionsSubject: sessionsSubject, assetDefinitionStore: assetDefinitionStore)
 
         return coordinator
     }()

@@ -15,13 +15,13 @@ struct CreateInitialViewModel {
 
         return .init(string: R.string.localizable.gettingStartedSubtitle(), attributes: [
             .font: font,
-            .foregroundColor: Colors.appText,
+            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
             .paragraphStyle: paragraph
         ])
     }
 
     var imageViewImage: UIImage {
-        return R.image.launch_icon()!
+        return R.image.launchScreen()!
     }
 
     var createWalletButtonTitle: String {

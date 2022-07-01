@@ -60,7 +60,6 @@ extension DappAction {
     }
 
     private static func makeUnconfirmedTransaction(_ object: [String: DappCommandObjectValue], server: RPCServer, transactionType: TransactionType) -> UnconfirmedTransaction {
-        let to = AlphaWallet.Address(string: object["to"]?.value ?? "")
         let value = BigInt((object["value"]?.value ?? "0").drop0x, radix: 16) ?? BigInt()
         let nonce: BigInt? = {
             guard let value = object["nonce"]?.value else { return .none }
@@ -75,11 +74,23 @@ extension DappAction {
             return BigInt((value).drop0x, radix: 16)
         }()
         let data = Data(_hex: object["data"]?.value ?? "0x")
+
+        var recipient: AlphaWallet.Address?
+        var contract: AlphaWallet.Address?
+
+        if data.isEmpty || data.toHexString() == "0x" {
+            recipient = AlphaWallet.Address(string: object["to"]?.value ?? "")
+            contract = nil
+        } else {
+            recipient = nil
+            contract = AlphaWallet.Address(string: object["to"]?.value ?? "")
+        }
+
         return UnconfirmedTransaction(
             transactionType: transactionType,
             value: value,
-            recipient: nil,
-            contract: to,
+            recipient: recipient,
+            contract: contract,
             data: data,
             gasLimit: gasLimit,
             gasPrice: gasPrice,

@@ -141,4 +141,8 @@ func getEventLogs(
     }
 
     return contractInstance.getIndexedEventsPromise(eventName: eventName, filter: filter)
+        .recover { error -> Promise<[EventParserResultProtocol]> in
+            debugLog("[eth_getLogs] failure for server: \(server) with error: \(error)")
+            return .init(error: error)
+        }
 }

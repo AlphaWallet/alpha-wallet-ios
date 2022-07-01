@@ -40,4 +40,21 @@ class UIColorExtensionTests: XCTestCase {
         XCTAssert(blue*0xff == 0x56, "\(blue)")
     }
 
+    func testLightDarkColorMode() throws {
+        let lightColor = UIColor.yellow
+        let darkColor = UIColor.gray
+        let compositeColor = UIColor { trait in
+            switch trait.userInterfaceStyle {
+            case .unspecified, .light:
+                return lightColor
+            case .dark:
+                return darkColor
+            }
+        }
+
+        XCTAssertEqual(compositeColor.lightMode, lightColor)
+        XCTAssertEqual(compositeColor.darkMode, darkColor)
+
+    }
+
 }
