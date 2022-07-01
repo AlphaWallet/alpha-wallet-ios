@@ -9,7 +9,7 @@ import Foundation
 import AlphaWalletOpenSea
 import PromiseKit
 
-typealias NonFungiblesTokens = (openSea: OpenSeaNonFungiblesToAddress, enjin: EnjinSemiFungiblesToTokenId)
+typealias NonFungiblesTokens = (openSea: OpenSeaAddressesToNonFungibles, enjin: EnjinSemiFungiblesToTokenId)
 
 protocol NFTProvider: AnyObject {
     func nonFungible(wallet: Wallet, server: RPCServer) -> Promise<NonFungiblesTokens>
@@ -46,7 +46,7 @@ final class AlphaWalletNFTProvider: NFTProvider {
             })
     }
 
-    private func getOpenSeaNonFungible(account: Wallet, server: RPCServer) -> Promise<OpenSeaNonFungiblesToAddress> {
+    private func getOpenSeaNonFungible(account: Wallet, server: RPCServer) -> Promise<OpenSeaAddressesToNonFungibles> {
         return openSea.nonFungible(wallet: account, server: server)
     }
 

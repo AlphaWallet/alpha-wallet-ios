@@ -20,7 +20,7 @@ final class OpenSeaNetworkProvider {
         openSea.delegate = self
     }
 
-    func fetchAssetsPromise(address owner: AlphaWallet.Address, server: RPCServer) -> Promise<Response<OpenSeaNonFungiblesToAddress>> {
+    func fetchAssetsPromise(address owner: AlphaWallet.Address, server: RPCServer) -> Promise<Response<OpenSeaAddressesToNonFungibles>> {
         //OK and safer to return a promise that never resolves so we don't mangle with real OpenSea data we stored previously, since this is for development only
         guard !config.development.isOpenSeaFetchingDisabled else { return Promise { _ in } }
         //Ignore UEFA from OpenSea, otherwise the token type would be saved wrongly as `.erc721` instead of `.erc721ForTickets`
