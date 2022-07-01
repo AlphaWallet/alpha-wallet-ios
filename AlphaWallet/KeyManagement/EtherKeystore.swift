@@ -167,7 +167,7 @@ open class EtherKeystore: NSObject, Keystore {
                 return .failure(error)
             }
         case .privateKey(let privateKey):
-            let address = AlphaWallet.Address(fromPrivateKey: privateKey)
+            guard let address = AlphaWallet.Address(fromPrivateKey: privateKey) else { return .failure(.failedToImportPrivateKey) }
             guard !isAddressAlreadyInWalletsList(address: address) else {
                 return .failure(.duplicateAccount)
             }
@@ -187,7 +187,7 @@ open class EtherKeystore: NSObject, Keystore {
             guard mnemonicIsGood else { return .failure(.failedToCreateWallet) }
             guard let wallet = HDWallet(mnemonic: mnemonicString, passphrase: emptyPassphrase) else { return .failure(.failedToCreateWallet) }
             let privateKey = derivePrivateKeyOfAccount0(fromHdWallet: wallet)
-            let address = AlphaWallet.Address(fromPrivateKey: privateKey)
+            guard let address = AlphaWallet.Address(fromPrivateKey: privateKey) else { return .failure(.failedToCreateWallet) }
             guard !isAddressAlreadyInWalletsList(address: address) else {
                 return .failure(.duplicateAccount)
             }
@@ -249,7 +249,7 @@ open class EtherKeystore: NSObject, Keystore {
 
         guard walletWhenImported.mnemonic == mnemonic else { return false }
         let privateKey = derivePrivateKeyOfAccount0(fromHdWallet: walletWhenImported)
-        let address = AlphaWallet.Address(fromPrivateKey: privateKey)
+        guard let address = AlphaWallet.Address(fromPrivateKey: privateKey) else { return false }
         let testData = "any data will do here"
         let hash = testData.data(using: .utf8)!.sha3(.keccak256)
         //Do not use EthereumSigner.vitaliklizeConstant because the ECRecover implementation doesn't include it

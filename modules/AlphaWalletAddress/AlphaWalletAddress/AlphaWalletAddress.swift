@@ -44,7 +44,8 @@ extension AlphaWallet {
             sharedAddressStorage?[string.lowercased()] = self
         }
 
-        public init(fromPrivateKey privateKey: Data) {
+        public init?(fromPrivateKey privateKey: Data) {
+            guard functional.validatePrivateKey(privateKey) else { return nil }
             let publicKey = Secp256k1.shared.pubicKey(from: privateKey)
             self = Address.deriveEthereumAddress(fromPublicKey: publicKey)
         }
@@ -85,6 +86,30 @@ extension AlphaWallet {
         public func sameContract(as contract: AlphaWallet.Address) -> Bool {
             return eip55String == contract.eip55String
         }
+    }
+}
+
+extension AlphaWallet.Address {
+    struct functional {}
+}
+
+fileprivate extension AlphaWallet.Address.functional {
+    //TODO Should exploring using secp256k1_ec_seckey_verify() instead
+    static func validatePrivateKey(_ privateKey: Data) -> Bool {
+        //See https://en.bitcoin.it/wiki/Secp256k1 for n, order of curve
+        let n = "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141"
+        let privateKey = privateKey.hex().lowercased()
+        let allZeros = "0000000000000000000000000000000000000000000000000000000000000000"
+        if privateKey.count != 64 {
+            return false
+        }
+        if privateKey == allZeros {
+            return false
+        }
+        if privateKey >= n {
+            return false
+        }
+        return true
     }
 }
 

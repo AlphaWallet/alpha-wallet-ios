@@ -375,6 +375,7 @@
 		5E7C73AB79C2C5FC6C76CDFF /* ERC20-TokenScript.tsml in Resources */ = {isa = PBXBuildFile; fileRef = 5E7C78795F6336DDBE2EB4C5 /* ERC20-TokenScript.tsml */; };
 		5E7C73CE76679D1E1D6714F7 /* SolidityType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7C43F1B371836552CC18 /* SolidityType.swift */; };
 		5E7C73E7A68C56162FA2E845 /* EtherscanSingleChainTransactionProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74259A3F3B0277B0E8C5 /* EtherscanSingleChainTransactionProvider.swift */; };
+		5E7C73EAE1DE07CF7B6C1B70 /* KeysTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C79A125DB5FBD258F9F95 /* KeysTests.swift */; };
 		5E7C73F6762376F5B2B4214D /* EtherKeystore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7BA8A301CEEDE36D76A3 /* EtherKeystore.swift */; };
 		5E7C73F723684B295A8DEEB3 /* GetTokenUri.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7870764B15D5E213604B /* GetTokenUri.swift */; };
 		5E7C73FB906BF267F28B0205 /* ActivityRowType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C762AA80515C4E0A87C44 /* ActivityRowType.swift */; };
@@ -1778,6 +1779,7 @@
 		5E7C799836611BEE66000EE1 /* DappsHomeHeaderViewViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DappsHomeHeaderViewViewModel.swift; sourceTree = "<group>"; };
 		5E7C799D2B7D91072FC0050B /* DappsHomeViewControllerHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DappsHomeViewControllerHeaderView.swift; sourceTree = "<group>"; };
 		5E7C799E4784815CB0202820 /* Core.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Core.swift; sourceTree = "<group>"; };
+		5E7C79A125DB5FBD258F9F95 /* KeysTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeysTests.swift; sourceTree = "<group>"; };
 		5E7C79C0C9631E4DFC4A40DF /* TokenScriptCard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenScriptCard.swift; sourceTree = "<group>"; };
 		5E7C79D674D45A07E694CE31 /* LockView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LockView.swift; sourceTree = "<group>"; };
 		5E7C79E3BC4CACB123840A42 /* LocaleViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocaleViewCell.swift; sourceTree = "<group>"; };
@@ -2843,6 +2845,7 @@
 				2923D9B61FDA5E51000CF3F8 /* PasswordGeneratorTests.swift */,
 				61DCE17C2001A7A20053939F /* RLPTests.swift */,
 				61C359E12002AC9D0097B04D /* TransactionSigningTests.swift */,
+				5E7C79A125DB5FBD258F9F95 /* KeysTests.swift */,
 			);
 			path = EtherClient;
 			sourceTree = "<group>";
@@ -7767,6 +7770,7 @@
 				5E7C7965C9BF539ABAD1D01C /* FakeDomainResolutionService.swift in Sources */,
 				5E7C7F8271F730462D4E3D93 /* FakeBlockiesGenerator.swift in Sources */,
 				5E7C7D198781B7C98A12ABBC /* WalletFilterTest.swift in Sources */,
+				5E7C73EAE1DE07CF7B6C1B70 /* KeysTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
