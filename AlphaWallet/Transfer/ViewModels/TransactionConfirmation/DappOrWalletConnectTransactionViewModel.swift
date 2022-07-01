@@ -56,7 +56,7 @@ extension TransactionConfirmationViewModel {
         private var formattedAmountValue: String {
             let cryptoToDollarSymbol = Constants.Currency.usd
             let amount = Double(configurator.transaction.value) / Double(EthereumUnit.ether.rawValue)
-            let amountString = EtherNumberFormatter.short.string(from: configurator.transaction.value)
+            let amountString = EtherNumberFormatter.full.string(from: configurator.transaction.value)
             let symbol = configurator.session.server.symbol
             if let cryptoToDollarRate = cryptoToDollarRate {
                 let cryptoToDollarValue = StringFormatter().currency(with: amount * cryptoToDollarRate, and: cryptoToDollarSymbol)
@@ -103,11 +103,11 @@ extension TransactionConfirmationViewModel {
                 switch token.type {
                 case .nativeCryptocurrency:
                     balance = "\(viewModel.amountShort) \(viewModel.symbol)"
-                    let newAmountShort = EtherNumberFormatter.short.string(from: viewModel.value - configurator.transaction.value)
+                    let newAmountShort = EtherNumberFormatter.short.string(from: abs(viewModel.value - configurator.transaction.value))
                     newBalance = R.string.localizable.transactionConfirmationSendSectionBalanceNewTitle(newAmountShort, viewModel.symbol)
                 case .erc1155, .erc20, .erc721, .erc721ForTickets, .erc875:
                     let symbol = token.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
-                    let newAmountShort = EtherNumberFormatter.short.string(from: viewModel.value - configurator.transaction.value, decimals: token.decimals)
+                    let newAmountShort = EtherNumberFormatter.short.string(from: abs(viewModel.value - configurator.transaction.value), decimals: token.decimals)
                     balance = "\(viewModel.amountShort) \(symbol)"
                     newBalance = R.string.localizable.transactionConfirmationSendSectionBalanceNewTitle(newAmountShort, symbol)
                 }

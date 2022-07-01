@@ -1,6 +1,6 @@
 // Copyright SIX DAY LLC. All rights reserved.
 import BigInt
-import Foundation
+import Foundation 
 
 extension EtherNumberFormatter {
 
@@ -130,15 +130,13 @@ final class EtherNumberFormatter {
         precondition(minimumFractionDigits >= 0)
         precondition(maximumFractionDigits >= 0)
 
-        let dividend = BigInt(10).power(decimals)
-        let (integerPart, remainder) = number.quotientAndRemainder(dividingBy: dividend)
-        let integerString = self.integerString(from: integerPart)
-        let fractionalString = self.fractionalString(from: BigInt(sign: .plus, magnitude: remainder.magnitude), decimals: decimals)
-        if fractionalString.isEmpty {
-            return integerString
+        let formatted = formatToPrecision(number.magnitude, decimals: decimals)
+        switch number.sign {
+        case .plus:
+            return formatted
+        case .minus:
+            return "-" + formatted
         }
-
-        return "\(integerString)\(decimalSeparator)\(fractionalString)"
     }
 
     private func integerString(from: BigInt) -> String {
@@ -151,37 +149,75 @@ final class EtherNumberFormatter {
         return string
     }
 
-    private func fractionalString(from number: BigInt, decimals: Int) -> String {
-        var number = number
-        let digits = number.description.count
+    private func formatToPrecision(_ number: BigUInt, decimals: Int) -> String {
+        guard number != 0 else { return "0" }
 
-        if number == 0 || decimals - digits > maximumFractionDigits {
-            // Value is smaller than can be represented with `maximumFractionDigits`
-            return String(repeating: "0", count: minimumFractionDigits)
-        }
+        let divisor = BigUInt(10).power(decimals)
+        let (quotient, remainder) = number.quotientAndRemainder(dividingBy: divisor)
 
-        if decimals < minimumFractionDigits {
-            number *= BigInt(10).power(minimumFractionDigits - decimals)
-        }
-        if decimals > maximumFractionDigits {
-            number /= BigInt(10).power(decimals - maximumFractionDigits)
-        }
+        let remainderFormatted = fractionalString(from: remainder, quotient: quotient, decimals: decimals)
+        if remainderFormatted.isEmpty {
+            return integerString(from: BigInt(quotient))
+        } else {
+            return integerString(from: BigInt(quotient)) + decimalSeparator + remainderFormatted
+        } 
+    }
 
-        var string = number.description
-        if digits < decimals {
-            // Pad with zeros at the left if necessary
-            string = String(repeating: "0", count: decimals - digits) + string
+    private func fractionalString(from remainder: BigUInt, quotient: BigUInt, decimals: Int) -> String {
+        var formattingDecimals = maximumFractionDigits
+        if decimals < maximumFractionDigits {
+            formattingDecimals = decimals
         }
+        guard formattingDecimals != 0 else { return "" }
+
+        let fullPaddedRemainder = String(remainder).leftPadding(toLength: decimals, withPad: "0")
+        var remainderPadded = fullPaddedRemainder[0 ..< formattingDecimals]
 
         // Remove extra zeros after the decimal point.
-        if let lastNonZeroIndex = string.reversed().index(where: { $0 != "0" })?.base {
-            let numberOfZeros = string.distance(from: string.startIndex, to: lastNonZeroIndex)
+        if let lastNonZeroIndex = remainderPadded.reversed().index(where: { $0 != "0" })?.base {
+            let numberOfZeros = remainderPadded.distance(from: remainderPadded.startIndex, to: lastNonZeroIndex)
             if numberOfZeros > minimumFractionDigits {
-                let newEndIndex = string.index(string.startIndex, offsetBy: numberOfZeros - minimumFractionDigits)
-                string = String(string[string.startIndex..<newEndIndex])
+                let newEndIndex = remainderPadded.index(remainderPadded.startIndex, offsetBy: numberOfZeros - minimumFractionDigits)
+                remainderPadded = String(remainderPadded[remainderPadded.startIndex..<newEndIndex])
             }
         }
 
-        return string
+        if remainderPadded == String(repeating: "0", count: formattingDecimals) {
+            if quotient != 0 {
+                return ""
+            }
+        }
+
+        return remainderPadded
+    }
+}
+
+fileprivate extension String {
+
+    subscript (bounds: CountableClosedRange<Int>) -> String {
+        let start = index(self.startIndex, offsetBy: bounds.lowerBound)
+        let end = index(self.startIndex, offsetBy: bounds.upperBound)
+        return String(self[start...end])
+    }
+
+    subscript (bounds: CountableRange<Int>) -> String {
+        let start = index(self.startIndex, offsetBy: bounds.lowerBound)
+        let end = index(self.startIndex, offsetBy: bounds.upperBound)
+        return String(self[start..<end])
+    }
+
+    subscript (bounds: CountablePartialRangeFrom<Int>) -> String {
+        let start = index(self.startIndex, offsetBy: bounds.lowerBound)
+        let end = self.endIndex
+        return String(self[start..<end])
+    }
+
+    func leftPadding(toLength: Int, withPad character: Character) -> String {
+        let stringLength = self.count
+        if stringLength < toLength {
+            return String(repeatElement(character, count: toLength - stringLength)) + self
+        } else {
+            return String(self.suffix(toLength))
+        }
     }
 }
