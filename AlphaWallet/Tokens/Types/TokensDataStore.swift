@@ -57,8 +57,7 @@ extension TokensDataStore {
                   case .update(let tokens, _, _, _): return tokens
                   case .error: return []
                   }
-            }.removeDuplicates()
-            .eraseToAnyPublisher()
+            }.eraseToAnyPublisher()
     }
 }
 
