@@ -25,31 +25,31 @@ func applyStyle() {
     //Background (not needed in iOS 12.1 on simulator)
     UISearchBar.appearance().backgroundColor = Colors.appBackground
     //Cancel button
-    UISearchBar.appearance().tintColor = Colors.navigationButtonTintColor
+    UISearchBar.appearance().tintColor = Configuration.Color.Semantic.searchbarTint
     //Cursor color
-    UITextField.appearance(whenContainedInInstancesOf: [UISearchBar.self]).tintColor = Colors.navigationTitleColor
+    UITextField.appearance(whenContainedInInstancesOf: [UISearchBar.self]).tintColor = Configuration.Color.Semantic.searchbarTint
 
     UIRefreshControl.appearance().tintColor = Colors.navigationTitleColor
 
     UISwitch.appearance().onTintColor = Colors.appTint
 
-    UITableView.appearance().separatorColor = Style.TableView.Separator.color
+    UITableView.appearance().separatorColor = Configuration.Color.Semantic.tableViewSeparator
 }
 
 extension UINavigationBarAppearance {
     static var defaultAppearence: UINavigationBarAppearance {
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = R.color.white()!
-        appearance.shadowColor = Style.NavigationBar.Separator.color
+        appearance.backgroundColor = Configuration.Color.Semantic.navigationbarBackgroundColor
+        appearance.shadowColor = Configuration.Color.Semantic.navigationbarSeparator
         appearance.shadowImage = nil
         appearance.setBackIndicatorImage(R.image.backWhite(), transitionMaskImage: R.image.backWhite())
         appearance.titleTextAttributes = [
-            .foregroundColor: R.color.black()!,
+            .foregroundColor: Configuration.Color.Semantic.navigationbarPrimaryFont,
             .font: Fonts.semibold(size: 17) as Any
         ]
         appearance.largeTitleTextAttributes = [
-            .foregroundColor: R.color.black()!,
+            .foregroundColor: Configuration.Color.Semantic.navigationbarPrimaryFont,
             .font: Fonts.bold(size: 36) as Any,
         ]
         //NOTE: Hides back button text

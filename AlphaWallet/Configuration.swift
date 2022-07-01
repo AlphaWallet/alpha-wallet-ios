@@ -69,6 +69,72 @@ struct Configuration {
             static let secondaryButtonBorderActive = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.dusty()!)
             }
+
+            static let labelTextActive = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.mine()!, darkColor: R.color.white()!)
+            }
+
+            static let tableViewBackground = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.alabaster()!, darkColor: R.color.venus()!)
+            }
+            static let tableViewCellBackground = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.alabaster()!, darkColor: R.color.venus()!)
+            }
+            static let tableViewCellPrimaryFont = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.black()!, darkColor: R.color.white()!)
+            }
+            static let tableViewCellSecondaryFont = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.dove()!, darkColor: R.color.dusty()!)
+            }
+            static let tableViewAccessoryBackground = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.alabaster()!, darkColor: R.color.venus()!)
+            }
+            static let tableViewHeaderBackground = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.alabaster()!, darkColor: R.color.venus()!)
+            }
+            static let tableViewHeaderPrimaryFont = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.black()!, darkColor: R.color.white()!)
+            }
+
+            static let tableViewSeparator = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.mercury()!, darkColor: R.color.venus()!)
+            }
+
+            static let searchbarTint = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.mine()!, darkColor: R.color.white()!)
+            }
+
+            static let navigationbarBackgroundColor = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.black()!)
+            }
+
+            static let navigationbarSeparator = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.mercury()!, darkColor: R.color.venus()!)
+            }
+
+            static let navigationbarPrimaryFont = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.black()!, darkColor: R.color.white()!)
+            }
+
+            static let popupBackground = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.mercury()!, darkColor: R.color.venus()!)
+            }
+
+            static let popupPrimaryFont = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.black()!, darkColor: R.color.white()!)
+            }
+
+            static let popupSecondaryFont = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.mine()!, darkColor: R.color.white()!)
+            }
+
+            static let popupSeparator = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.mercury()!, darkColor: R.color.venus()!)
+            }
+
+            static let popupSwipeIndicator = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.black()!.withAlphaComponent(0.2), darkColor: R.color.white()!.withAlphaComponent(0.2))
+            }
         }
     }
 }
@@ -84,6 +150,10 @@ class UIKitFactory {
     @discardableResult static func decorateAsDefaultView(_ view: UIView) -> UIView {
         view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         return view
+    }
+
+    @discardableResult static func decorateAsDefaultView(_ views: [UIView]) -> [UIView] {
+        return views.map { decorateAsDefaultView($0) }
     }
 
     static func defaultLabel(text: String) -> UILabel {
