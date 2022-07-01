@@ -9,7 +9,7 @@ import Foundation
 import AlphaWalletOpenSea
 import PromiseKit
 
-typealias NonFungiblesTokens = (openSea: OpenSeaNonFungiblesToAddress, enjin: EnjinSemiFungiblesToTokenId)
+typealias NonFungiblesTokens = (openSea: OpenSeaAddressesToNonFungibles, enjin: EnjinTokenIdsToSemiFungibles)
 
 protocol NFTProvider: AnyObject {
     func nonFungible(wallet: Wallet, server: RPCServer) -> Promise<NonFungiblesTokens>
@@ -30,10 +30,10 @@ final class AlphaWalletNFTProvider: NFTProvider {
     }
 
     // NOTE: Its important to return value for promise and not an error. As we are using `when(fulfilled: ...)`. There is force unwrap inside the `when(fulfilled` function
-    private func getEnjinSemiFungible(account: Wallet, server: RPCServer) -> Promise<EnjinSemiFungiblesToTokenId> {
+    private func getEnjinSemiFungible(account: Wallet, server: RPCServer) -> Promise<EnjinTokenIdsToSemiFungibles> {
         return enjin.semiFungible(wallet: account, server: server)
-            .map(on: queue, { mapped -> EnjinSemiFungiblesToTokenId in
-                var result: EnjinSemiFungiblesToTokenId = [:]
+            .map(on: queue, { mapped -> EnjinTokenIdsToSemiFungibles in
+                var result: EnjinTokenIdsToSemiFungibles = [:]
                 let tokens = Array(mapped.values.flatMap { $0 })
                 for each in tokens {
                     guard let tokenId = each.id else { continue }
@@ -41,12 +41,12 @@ final class AlphaWalletNFTProvider: NFTProvider {
                     result[TokenIdConverter.addTrailingZerosPadding(string: tokenId)] = each
                 }
                 return result
-            }).recover(on: queue, { _ -> Promise<EnjinSemiFungiblesToTokenId> in
+            }).recover(on: queue, { _ -> Promise<EnjinTokenIdsToSemiFungibles> in
                 return .value([:])
             })
     }
 
-    private func getOpenSeaNonFungible(account: Wallet, server: RPCServer) -> Promise<OpenSeaNonFungiblesToAddress> {
+    private func getOpenSeaNonFungible(account: Wallet, server: RPCServer) -> Promise<OpenSeaAddressesToNonFungibles> {
         return openSea.nonFungible(wallet: account, server: server)
     }
 
