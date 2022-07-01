@@ -94,17 +94,7 @@ struct Token: Equatable, Hashable {
     }
 
     static func == (lhs: Token, rhs: Token) -> Bool {
-        return lhs.contractAddress == rhs.contractAddress &&
-            lhs.symbol == rhs.symbol &&
-            lhs.decimals == rhs.decimals &&
-            lhs.server == rhs.server &&
-            lhs.type == rhs.type &&
-            lhs.name == rhs.name &&
-            lhs.value == rhs.value &&
-            lhs.balance == rhs.balance &&
-            lhs.shouldDisplay == rhs.shouldDisplay &&
-            lhs.sortIndex == rhs.sortIndex &&
-            lhs.info == rhs.info
+        return lhs.primaryKey == rhs.primaryKey
     }
 
     func hash(into hasher: inout Hasher) {
