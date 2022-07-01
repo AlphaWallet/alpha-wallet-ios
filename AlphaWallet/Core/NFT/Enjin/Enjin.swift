@@ -13,7 +13,7 @@ struct EnjinError: Error {
     var localizedDescription: String
 }
 
-typealias EnjinSemiFungiblesToAddress = [AlphaWallet.Address: [GetEnjinTokenQuery.Data.EnjinToken]]
+typealias EnjinAddressesToSemiFungibles = [AlphaWallet.Address: [GetEnjinTokenQuery.Data.EnjinToken]]
 typealias EnjinSemiFungiblesToTokenId = [String: GetEnjinTokenQuery.Data.EnjinToken]
 
 final class Enjin {
@@ -27,7 +27,7 @@ final class Enjin {
         self.queue = queue
     }
 
-    func semiFungible(wallet: Wallet, server: RPCServer) -> Promise<EnjinSemiFungiblesToAddress> {
+    func semiFungible(wallet: Wallet, server: RPCServer) -> Promise<EnjinAddressesToSemiFungibles> {
         let key: AddressAndRPCServer = .init(address: wallet.address, server: server)
 
         guard Enjin.isServerSupported(key.server) else {
@@ -37,7 +37,7 @@ final class Enjin {
         return fetchFromRemotePromise(wallet: wallet)
     }
 
-    private func fetchFromRemotePromise(wallet: Wallet) -> Promise<EnjinSemiFungiblesToAddress> {
+    private func fetchFromRemotePromise(wallet: Wallet) -> Promise<EnjinAddressesToSemiFungibles> {
         return Promise<[AlphaWallet.Address: [GetEnjinBalancesQuery.Data.EnjinBalance]]> { seal in
             let offset = 1
             networkProvider.getEnjinBalances(forOwner: wallet.address, offset: offset) { result in
@@ -48,7 +48,7 @@ final class Enjin {
                     seal.reject(error)
                 }
             }
-        }.then(on: queue, { [networkProvider] balances -> Promise<EnjinSemiFungiblesToAddress> in
+        }.then(on: queue, { [networkProvider] balances -> Promise<EnjinAddressesToSemiFungibles> in
             let ids = (balances[wallet.address] ?? []).compactMap { $0.token?.id }
             return networkProvider.getEnjinTokens(ids: ids, owner: wallet.address)
         })
