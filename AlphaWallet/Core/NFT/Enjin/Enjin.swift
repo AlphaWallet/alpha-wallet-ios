@@ -14,7 +14,7 @@ struct EnjinError: Error {
 }
 
 typealias EnjinAddressesToSemiFungibles = [AlphaWallet.Address: [GetEnjinTokenQuery.Data.EnjinToken]]
-typealias EnjinSemiFungiblesToTokenId = [String: GetEnjinTokenQuery.Data.EnjinToken]
+typealias EnjinTokenIdsToSemiFungibles = [String: GetEnjinTokenQuery.Data.EnjinToken]
 
 final class Enjin {
     private lazy var networkProvider = EnjinNetworkProvider(queue: queue)
