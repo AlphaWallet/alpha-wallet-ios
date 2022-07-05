@@ -20,3 +20,9 @@ struct SwitchTableViewCellViewModel {
         return Colors.black
     }
 }
+
+extension SwitchTableViewCellViewModel: Hashable {
+    static func == (lhs: SwitchTableViewCellViewModel, rhs: SwitchTableViewCellViewModel) -> Bool {
+        return lhs.titleText == rhs.titleText && lhs.icon == rhs.icon && lhs.value == rhs.value
+    }
+}

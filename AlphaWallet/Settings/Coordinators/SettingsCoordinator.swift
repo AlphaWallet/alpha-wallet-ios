@@ -41,7 +41,8 @@ class SettingsCoordinator: Coordinator {
 	var coordinators: [Coordinator] = []
 
 	lazy var rootViewController: SettingsViewController = {
-		let controller = SettingsViewController(config: config, keystore: keystore, account: account, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
+        let viewModel = SettingsViewModel(account: account, keystore: keystore, config: config, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
+		let controller = SettingsViewController(viewModel: viewModel)
 		controller.delegate = self
 		return controller
 	}()

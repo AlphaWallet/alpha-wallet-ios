@@ -1,7 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
-import PromiseKit
+import Combine
 
 protocol SettingsViewControllerDelegate: class, CanOpenURL {
     func settingsViewControllerAdvancedSettingsSelected(in controller: SettingsViewController)
@@ -17,12 +17,6 @@ protocol SettingsViewControllerDelegate: class, CanOpenURL {
 }
 
 class SettingsViewController: UIViewController {
-    private let lock = Lock()
-    private var config: Config
-    private let keystore: Keystore
-    private let account: Wallet
-    private let analyticsCoordinator: AnalyticsCoordinator
-    private let domainResolutionService: DomainResolutionServiceType
     private let promptBackupWalletViewHolder = UIView()
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
@@ -30,16 +24,19 @@ class SettingsViewController: UIViewController {
         tableView.register(SwitchTableViewCell.self)
         tableView.separatorStyle = .singleLine
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.dataSource = self
-        tableView.delegate = self
         tableView.estimatedRowHeight = Metrics.anArbitraryRowHeightSoAutoSizingCellsWorkIniOS10
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
 
         return tableView
     }()
-    private var viewModel: SettingsViewModel
-    private lazy var getWalletName = GetWalletName(domainResolutionService: domainResolutionService)
-    
+    private lazy var dataSource = makeDataSource()
+    private let appear = PassthroughSubject<Void, Never>()
+    private let toggleSelection = PassthroughSubject<(indexPath: IndexPath, isOn: Bool), Never>()
+    private let blockscanChatUnreadCount = PassthroughSubject<Int?, Never>()
+    private let didSetPasscode = PassthroughSubject<Bool, Never>()
+    private var cancellable = Set<AnyCancellable>()
+    let viewModel: SettingsViewModel
+
     weak var delegate: SettingsViewControllerDelegate?
     var promptBackupWalletView: UIView? {
         didSet {
@@ -62,13 +59,8 @@ class SettingsViewController: UIViewController {
         }
     }
 
-    init(config: Config, keystore: Keystore, account: Wallet, analyticsCoordinator: AnalyticsCoordinator, domainResolutionService: DomainResolutionServiceType) {
-        self.config = config
-        self.keystore = keystore
-        self.account = account
-        self.analyticsCoordinator = analyticsCoordinator
-        self.domainResolutionService = domainResolutionService
-        viewModel = SettingsViewModel(account: account, keystore: keystore, blockscanChatUnreadCount: nil)
+    init(viewModel: SettingsViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
         view.addSubview(tableView)
@@ -80,30 +72,55 @@ class SettingsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        title = R.string.localizable.aSettingsNavigationTitle()
-        view.backgroundColor = GroupedTable.Color.background
-        navigationItem.largeTitleDisplayMode = .automatic
-        tableView.backgroundColor = GroupedTable.Color.background
+        tableView.dataSource = dataSource
+        tableView.delegate = self
 
         if promptBackupWalletView == nil {
             hidePromptBackupWalletView()
         }
+
+        bind(viewModel: viewModel)
     }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        reflectCurrentWalletSecurityLevel()
+        appear.send(())
+    }
+
+    private func bind(viewModel: SettingsViewModel) {
+        cancellable.cancellAll()
+
+        navigationItem.largeTitleDisplayMode = viewModel.largeTitleDisplayMode
+        title = viewModel.title
+        view.backgroundColor = viewModel.backgroundColor
+        tableView.backgroundColor = viewModel.backgroundColor
+
+        let input = SettingsViewModelInput(
+            appear: appear.eraseToAnyPublisher(),
+            toggleSelection: toggleSelection.eraseToAnyPublisher(),
+            didSetPasscode: didSetPasscode.eraseToAnyPublisher(),
+            blockscanChatUnreadCount: blockscanChatUnreadCount.eraseToAnyPublisher()
+        )
+
+        let output = viewModel.transform(input: input)
+
+        output.viewModels.sink { [weak self, viewModel] viewModels in
+            self?.update(with: viewModels, animate: viewModel.animatingDifferences)
+        }.store(in: &cancellable)
+
+        output.badgeValue.sink { [tabBarItem] badgeValue in
+            tabBarItem?.badgeValue = badgeValue
+        }.store(in: &cancellable)
+
+        output.askToSetPasscode.sink { [weak self, didSetPasscode] _ in
+            self?.askUserToSetPasscode { value in
+                didSetPasscode.send(value)
+            }
+        }.store(in: &cancellable)
     }
 
     func configure(blockscanChatUnreadCount: Int?) {
-        viewModel = SettingsViewModel(account: account, keystore: keystore, blockscanChatUnreadCount: blockscanChatUnreadCount)
-        tableView.reloadData()
-        if let unreadCount = viewModel.blockscanChatUnreadCount, unreadCount > 0 {
-            tabBarItem.badgeValue = String(unreadCount)
-        } else {
-            tabBarItem.badgeValue = nil
-        }
+        self.blockscanChatUnreadCount.send(blockscanChatUnreadCount)
     }
 
     private func showPromptBackupWalletViewAsTableHeaderView() {
@@ -117,11 +134,7 @@ class SettingsViewController: UIViewController {
         tableView.tableHeaderView = nil
     }
 
-    private func reflectCurrentWalletSecurityLevel() {
-        tableView.reloadData()
-    }
-
-    private func setPasscode(completion: ((Bool) -> Void)? = .none) {
+    private func askUserToSetPasscode(completion: ((Bool) -> Void)? = .none) {
         guard let navigationController = navigationController else { return }
         let viewModel = LockCreatePasscodeViewModel()
         let lock = LockCreatePasscodeCoordinator(navigationController: navigationController, model: viewModel)
@@ -130,21 +143,6 @@ class SettingsViewController: UIViewController {
             completion?(result)
             lock.stop()
         }
-    }
-
-    private func configureChangeWalletCellWithResolvedENS(_ row: SettingsWalletRow, indexPath: IndexPath, cell: SettingTableViewCell) {
-        cell.configure(viewModel: .init(
-            titleText: row.title,
-            subTitleText: viewModel.addressReplacedWithENSOrWalletName(),
-            icon: row.icon)
-        )
-
-        cell.walletNameCancelable?.cancel()
-        cell.walletNameCancelable = getWalletName.assignedNameOrEns(for: account.address)
-            .sink(receiveValue: { [viewModel] name in
-                let viewModel = SettingTableViewCellViewModel(titleText: row.title, subTitleText: viewModel.addressReplacedWithENSOrWalletName(name), icon: row.icon)
-                cell.configure(viewModel: viewModel)
-            })
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -172,85 +170,42 @@ extension SettingsViewController: SwitchTableViewCellDelegate {
     func cell(_ cell: SwitchTableViewCell, switchStateChanged isOn: Bool) {
         guard let indexPath = cell.indexPath else { return }
 
-        switch viewModel.sections[indexPath.section] {
-        case .system(let rows):
-            switch rows[indexPath.row] {
-            case .passcode:
-                if isOn {
-                    setPasscode { result in
-                        cell.isOn = result
-                    }
-                } else {
-                    lock.deletePasscode()
-                }
-            case .notifications, .selectActiveNetworks, .advanced:
-                break
-            }
-        case .help, .tokenStandard, .version, .wallet:
-            break
-        }
+        toggleSelection.send((indexPath, isOn))
     }
 }
 
-extension SettingsViewController: UITableViewDataSource {
+fileprivate extension SettingsViewController {
+    func makeDataSource() -> UITableViewDiffableDataSource<SettingsSection, SettingsViewModel.ViewType> {
+        return UITableViewDiffableDataSource(tableView: tableView, cellProvider: { tableView, indexPath, viewModel in
+            switch viewModel {
+            case .cell(let vm):
+                let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+                cell.accessoryView = vm.accessoryView
+                cell.accessoryType = vm.accessoryType
+                cell.configure(viewModel: vm)
 
-    public func numberOfSections(in tableView: UITableView) -> Int {
-        return viewModel.numberOfSections()
-    }
-
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.numberOfSections(in: section)
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        switch viewModel.sections[indexPath.section] {
-        case .system(let rows):
-            let row = rows[indexPath.row]
-            switch row {
-            case .passcode:
+                return cell
+            case .undefined:
+                return UITableViewCell()
+            case .passcode(let vm):
                 let cell: SwitchTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-                cell.configure(viewModel: .init(
-                    titleText: viewModel.passcodeTitle,
-                    icon: R.image.biometrics()!,
-                    value: lock.isPasscodeSet)
-                )
+                cell.configure(viewModel: vm)
                 cell.delegate = self
 
                 return cell
-            case .notifications, .selectActiveNetworks, .advanced:
-                let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-                cell.configure(viewModel: .init(settingsSystemRow: row))
-
-                return cell
             }
-        case .help:
-            let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(viewModel: .init(titleText: R.string.localizable.settingsSupportTitle(), icon: R.image.support()!))
+        })
+    }
 
-            return cell
-        case .wallet(let rows):
-            let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-            let row = rows[indexPath.row]
-            switch row {
-            case .changeWallet:
-                configureChangeWalletCellWithResolvedENS(row, indexPath: indexPath, cell: cell)
-
-                return cell
-            case .backup:
-                cell.configure(viewModel: .init(settingsWalletRow: row))
-                let walletSecurityLevel = PromptBackupCoordinator(keystore: keystore, wallet: account, config: .init(), analyticsCoordinator: analyticsCoordinator).securityLevel
-                cell.accessoryView = walletSecurityLevel.flatMap { WalletSecurityLevelIndicator(level: $0) }
-                cell.accessoryType = .disclosureIndicator
-
-                return cell
-            case .showMyWallet, .showSeedPhrase, .walletConnect, .nameWallet, .blockscanChat:
-                cell.configure(viewModel: .init(settingsWalletRow: row))
-
-                return cell
-            }
-        case .tokenStandard, .version:
-            return UITableViewCell()
+    private func update(with viewModels: [SettingsViewModel.SectionViewModel], animate: Bool = true) {
+        var snapshot = NSDiffableDataSourceSnapshot<SettingsSection, SettingsViewModel.ViewType>()
+        let sections = viewModels.map { $0.section }
+        snapshot.appendSections(sections)
+        for each in viewModels {
+            snapshot.appendItems(each.views, toSection: each.section)
         }
+
+        dataSource.apply(snapshot, animatingDifferences: animate)
     }
 }
 
@@ -311,18 +266,6 @@ extension SettingsViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        let height = tableView.rowHeight
-        switch viewModel.sections[indexPath.section] {
-        case .wallet(let rows):
-            let row = rows[indexPath.row]
-            switch row {
-            case .changeWallet:
-                return Style.TableView.ChangeWalletCell.height
-            default:
-                return height
-            }
-        default:
-            return height
-        }
+        return viewModel.heightForRow(at: indexPath, fallbackHeight: tableView.rowHeight)
     }
 }

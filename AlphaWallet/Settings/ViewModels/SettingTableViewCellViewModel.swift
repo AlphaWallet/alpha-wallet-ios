@@ -11,6 +11,8 @@ struct SettingTableViewCellViewModel {
     let titleText: String
     var subTitleText: String?
     let icon: UIImage?
+    var accessoryType: UITableViewCell.AccessoryType = .none
+    var accessoryView: UIView? = nil
 
     var subTitleHidden: Bool {
         return subTitleText == nil
@@ -33,7 +35,7 @@ struct SettingTableViewCellViewModel {
     }
 }
 
-extension SettingTableViewCellViewModel {
+extension SettingTableViewCellViewModel: Hashable {
     init(settingsSystemRow row: SettingsSystemRow) {
         titleText = row.title
         icon = row.icon
@@ -42,5 +44,8 @@ extension SettingTableViewCellViewModel {
     init(settingsWalletRow row: SettingsWalletRow) {
         titleText = row.title
         icon = row.icon
+    }
+    static func == (lhs: SettingTableViewCellViewModel, rhs: SettingTableViewCellViewModel) -> Bool {
+        return lhs.titleText == rhs.titleText && lhs.icon == rhs.icon && lhs.subTitleText == rhs.subTitleText && lhs.accessoryType == rhs.accessoryType && lhs.accessoryView == rhs.accessoryView
     }
 }
