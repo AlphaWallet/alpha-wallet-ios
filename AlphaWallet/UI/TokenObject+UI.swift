@@ -80,6 +80,12 @@ extension Token: HasTokenImage {
     }
 }
 
+extension TokenViewModel: HasTokenImage {
+    var firstNftAsset: NonFungibleFromJson? {
+        balance.balance.compactMap { $0.nonFungibleBalance }.first
+    }
+}
+
 extension PopularToken: HasTokenImage {
     var symbol: String { "" }
     var type: TokenType { .erc20 }

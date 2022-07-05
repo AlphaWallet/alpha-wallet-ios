@@ -15,13 +15,13 @@ protocol SelectTokenCoordinatorDelegate: AnyObject {
 struct TokenTypeFilter: TokenFilterProtocol {
     let tokenTypes: [TokenType]
 
-    func filter(token: Token) -> Bool {
+    func filter(token: TokenFilterable) -> Bool {
         tokenTypes.contains(token.type)
     }
 }
 
 struct NativeCryptoOrErc20TokenFilter: TokenFilterProtocol {
-    func filter(token: Token) -> Bool {
+    func filter(token: TokenFilterable) -> Bool {
         TokenTypeFilter(tokenTypes: [.erc20, .nativeCryptocurrency])
             .filter(token: token)
     }
@@ -31,7 +31,7 @@ class SelectTokenCoordinator: Coordinator {
 
     private let parentsNavigationController: UINavigationController
     private (set) lazy var rootViewController: SelectTokenViewController = {
-        let viewModel = SelectTokenViewModel(wallet: wallet, tokenBalanceService: tokenBalanceService, tokenCollection: tokenCollection, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, filter: filter)
+        let viewModel = SelectTokenViewModel(tokenCollection: tokenCollection, filter: filter)
         let viewController = SelectTokenViewController(viewModel: viewModel)
         viewController.navigationItem.rightBarButtonItem = UIBarButtonItem.closeBarButton(self, selector: #selector(closeDidSelect))
 
@@ -39,25 +39,17 @@ class SelectTokenCoordinator: Coordinator {
     }()
 
     private let tokenCollection: TokenCollection
-    private let assetDefinitionStore: AssetDefinitionStore
     private let filter: WalletFilter
-    private let eventsDataStore: NonActivityEventsDataStore
-    private let wallet: Wallet
-    private let tokenBalanceService: TokenBalanceService
-
+    
     lazy var navigationController = UINavigationController(rootViewController: rootViewController)
     var coordinators: [Coordinator] = []
     weak var delegate: SelectTokenCoordinatorDelegate?
 
     //NOTE: `filter: WalletFilter` parameter allow us to to filter tokens we need
-    init(assetDefinitionStore: AssetDefinitionStore, wallet: Wallet, tokenBalanceService: TokenBalanceService, tokenCollection: TokenCollection, navigationController: UINavigationController, filter: WalletFilter, eventsDataStore: NonActivityEventsDataStore) {
-        self.eventsDataStore = eventsDataStore
-        self.wallet = wallet
-        self.tokenBalanceService = tokenBalanceService
+    init(tokenCollection: TokenCollection, navigationController: UINavigationController, filter: WalletFilter) {
         self.filter = filter
         self.parentsNavigationController = navigationController
         self.tokenCollection = tokenCollection
-        self.assetDefinitionStore = assetDefinitionStore
         self.navigationController.hidesBottomBarWhenPushed = true
 
         rootViewController.delegate = self

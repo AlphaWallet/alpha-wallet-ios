@@ -92,21 +92,14 @@ struct Token: Equatable, Hashable {
     static func == (lhs: Token, rhs: Token) -> Bool {
         return lhs.primaryKey == rhs.primaryKey
     }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(name)
-        hasher.combine(primaryKey)
-        hasher.combine(server)
-        hasher.combine(contractAddress)
-        hasher.combine(symbol)
-        hasher.combine(decimals)
-        hasher.combine(type.rawValue)
-    }
 }
-
-extension Token: TokenActionsIdentifiable {}
 
 extension Token: TokenScriptSupportable {
     var valueBI: BigInt { value }
     var balanceNft: [TokenBalanceValue] { balance }
 }
+extension Token: TokenFilterable { }
+extension Token: TokenSortable { }
+extension Token: TokenActionsIdentifiable { }
+extension Token: BalanceRepresentable { }
+extension Token: TokenIdentifiable { }

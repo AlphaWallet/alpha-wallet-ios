@@ -16,6 +16,14 @@ struct TokenBalanceValue {
     }
 }
 
+extension TokenBalanceValue: Hashable {
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(json)
+        hasher.combine(balance)
+    }
+}
+
 class TokenBalance: Object {
     @objc dynamic var balance = "0" {
         didSet {

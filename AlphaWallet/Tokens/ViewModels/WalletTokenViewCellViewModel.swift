@@ -9,12 +9,11 @@ import UIKit
 import BigInt
 
 struct WalletTokenViewCellViewModel {
-    private let shortFormatter = EtherNumberFormatter.short
-    private let token: Token
+    private let token: TokenViewModel
     private let assetDefinitionStore: AssetDefinitionStore
     private let isVisible: Bool
 
-    init(token: Token, assetDefinitionStore: AssetDefinitionStore, isVisible: Bool = true) {
+    init(token: TokenViewModel, assetDefinitionStore: AssetDefinitionStore, isVisible: Bool = true) {
         self.token = token
         self.assetDefinitionStore = assetDefinitionStore
         self.isVisible = isVisible
@@ -25,7 +24,7 @@ struct WalletTokenViewCellViewModel {
     }
 
     private var amount: String {
-        return shortFormatter.string(from: token.value, decimals: token.decimals)
+        return token.balance.amountShort
     }
 
     var cryptoValueAttributedString: NSAttributedString {

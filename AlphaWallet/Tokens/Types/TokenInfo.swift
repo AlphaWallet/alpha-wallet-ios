@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct TokenInfo: Equatable {
+struct TokenInfo: Hashable {
     let uid: String
     let coinGeckoId: String?
     let imageUrl: String?

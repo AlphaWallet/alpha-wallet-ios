@@ -5,25 +5,14 @@ import UIKit
 import BigInt
 
 struct NonFungibleTokenViewCellViewModel {
-    private let token: Token
-    private let assetDefinitionStore: AssetDefinitionStore
+    private let token: TokenViewModel
     private let isVisible: Bool
-    private let eventsDataStore: NonActivityEventsDataStore
-    private let wallet: Wallet
     let accessoryType: UITableViewCell.AccessoryType
 
-    init(token: Token, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, wallet: Wallet, isVisible: Bool = true, accessoryType: UITableViewCell.AccessoryType = .none) {
-        self.eventsDataStore = eventsDataStore
-        self.wallet = wallet
+    init(token: TokenViewModel, isVisible: Bool = true, accessoryType: UITableViewCell.AccessoryType = .none) {
         self.token = token
-        self.assetDefinitionStore = assetDefinitionStore
         self.isVisible = isVisible
         self.accessoryType = accessoryType
-    }
-
-    private var amount: String {
-        let actualBalance = token.nonZeroBalance
-        return actualBalance.count.toString()
     }
 
     var blockChainNameFont: UIFont {
@@ -67,15 +56,14 @@ struct NonFungibleTokenViewCellViewModel {
     }
 
     var titleAttributedString: NSAttributedString {
-        let title = token.shortTitleInPluralForm(withAssetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: wallet)
-        return .init(string: title, attributes: [
+        return .init(string: token.tokenScriptOverrides?.shortTitleInPluralForm ?? "-", attributes: [
             .font: Screen.TokenCard.Font.title,
             .foregroundColor: Screen.TokenCard.Color.title
         ])
     }
 
     var tickersAmountAttributedString: NSAttributedString {
-        return .init(string: "\(amount) \(token.symbol)", attributes: [
+        return .init(string: "\(token.nonZeroBalance.count.toString()) \(token.symbol)", attributes: [
             .font: Screen.TokenCard.Font.subtitle,
             .foregroundColor: Screen.TokenCard.Color.subtitle
         ])
@@ -93,4 +81,12 @@ struct NonFungibleTokenViewCellViewModel {
         return .init(server: token.server)
     }
 
+}
+
+extension NonFungibleTokenViewCellViewModel: Hashable {
+    static func == (lhs: NonFungibleTokenViewCellViewModel, rhs: NonFungibleTokenViewCellViewModel) -> Bool {
+        return lhs.token == rhs.token &&
+            lhs.token.tokenScriptOverrides?.shortTitleInPluralForm == rhs.token.tokenScriptOverrides?.shortTitleInPluralForm &&
+            lhs.token.nonZeroBalance.count.toString() == rhs.token.nonZeroBalance.count.toString()
+    } 
 }

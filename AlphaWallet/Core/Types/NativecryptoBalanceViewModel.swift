@@ -6,17 +6,17 @@
 //
 
 import Foundation
-import BigInt
+import BigInt 
 
-struct NativecryptoBalanceViewModel: BalanceViewModel {
-    private (set) var ticker: CoinTicker?
-    private let token: Token
+struct NativecryptoBalanceViewModel: BalanceViewModelType {
+    var ticker: CoinTicker?
+    private let token: BalanceRepresentable
 
-    init(token: Token, ticker: CoinTicker?) {
+    init(token: BalanceRepresentable, ticker: CoinTicker?) {
         self.token = token
         self.ticker = ticker
     }
-
+    var balance: [TokenBalanceValue] { return [] }
     var value: BigInt { token.value }
     var amount: Double { return EtherNumberFormatter.plain.string(from: token.value, units: .ether).doubleValue }
 

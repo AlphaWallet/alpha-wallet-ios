@@ -22,24 +22,22 @@ class SelectTokenViewController: UIViewController {
         tableView.register(FungibleTokenViewCell.self)
         tableView.register(EthTokenViewCell.self)
         tableView.register(NonFungibleTokenViewCell.self)
-        tableView.dataSource = self
         tableView.estimatedRowHeight = 100
-        tableView.delegate = self
-        tableView.dataSource = self
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.separatorInset = .zero
         tableView.translatesAutoresizingMaskIntoConstraints = false
 
         return tableView
     }()
-
+    private lazy var dataSource = makeDataSource()
     private (set) lazy var headerView: ConfirmationHeaderView = {
         let view = ConfirmationHeaderView(viewModel: .init(title: viewModel.navigationTitle))
         view.isHidden = true
 
         return view
     }()
-
+    private let appear = PassthroughSubject<Void, Never>()
+    private let fetch = PassthroughSubject<Void, Never>()
     weak var delegate: SelectTokenViewControllerDelegate?
 
     init(viewModel: SelectTokenViewModel) {
@@ -54,21 +52,15 @@ class SelectTokenViewController: UIViewController {
             stackView.anchorsConstraint(to: view)
         ])
 
-        errorView = ErrorView(onRetry: { [weak self] in
-            self?.fetchTokens()
-        })
-
-        loadingView = LoadingView(insets: .init(top: Style.SearchBar.height, left: 0, bottom: 0, right: 0))
-        emptyView = EmptyView.tokensEmptyView(completion: { [weak self] in
-            self?.fetchTokens()
+        emptyView = EmptyView.tokensEmptyView(completion: { [fetch] in
+            fetch.send(())
         })
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        tableView.delegate = self
         bind(viewModel: viewModel)
-        viewModel.viewDidLoad()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -78,12 +70,7 @@ class SelectTokenViewController: UIViewController {
         navigationController?.navigationBar.prefersLargeTitles = false
         hidesBottomBarWhenPushed = true
 
-        fetchTokens()
-    }
-
-    private func fetchTokens() {
-        startLoading()
-        viewModel.fetch()
+        appear.send(())
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -95,13 +82,26 @@ class SelectTokenViewController: UIViewController {
         view.backgroundColor = viewModel.backgroundColor
         tableView.backgroundColor = viewModel.backgroundColor
 
-        viewModel.objectWillChange
-            .receive(on: RunLoop.main)
-            .sink { [weak self]  _ in
-                self?.tableView.reloadData()
-                self?.endLoading()
-            }.store(in: &cancellable)
-    }
+        let input = SelectTokenViewModelInput(
+            appear: appear.eraseToAnyPublisher(),
+            fetch: fetch.eraseToAnyPublisher())
+
+        let output = viewModel.transform(input: input)
+        output.loadingState.sink { [weak self] state in
+            switch state {
+            case .idle:
+                break
+            case .beginLoading:
+                self?.startLoading(animated: false)
+            case .endLoading:
+                self?.endLoading(animated: false)
+            }
+        }.store(in: &cancellable)
+
+        output.viewModels.sink { [weak self] viewModel in
+            self?.applySnapshot(with: viewModel, animate: false)
+        }.store(in: &cancellable)
+    } 
 }
 
 extension SelectTokenViewController: StatefulViewController {
@@ -115,37 +115,12 @@ extension SelectTokenViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
-        let token = viewModel.selectToken(at: indexPath)
+        guard let token = viewModel.selectTokenViewModel(at: indexPath) else { return }
         delegate?.controller(self, didSelectToken: token)
     }
 }
 
-extension SelectTokenViewController: UITableViewDataSource {
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        switch viewModel.viewModel(for: indexPath) {
-        case .nativeCryptocurrency(let viewModel):
-            let cell: EthTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(viewModel: viewModel)
-
-            return cell
-        case .erc20(let viewModel):
-            let cell: FungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(viewModel: viewModel)
-
-            return cell
-        case .nonFungible(let viewModel):
-            let cell: NonFungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(viewModel: viewModel)
-
-            return cell
-        }
-    }
-
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.numberOfItems()
-    }
-
+extension SelectTokenViewController {
     //Hide the header
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         .leastNormalMagnitude
@@ -160,5 +135,37 @@ extension SelectTokenViewController: UITableViewDataSource {
     }
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         nil
+    }
+}
+
+fileprivate extension SelectTokenViewController {
+    func makeDataSource() -> TableViewDiffableDataSource<SelectTokenViewModel.Section, SelectTokenViewModel.ViewModelType> {
+        return TableViewDiffableDataSource(tableView: tableView, cellProvider: { tableView, indexPath, viewModel in
+            switch viewModel {
+            case .nativeCryptocurrency(let viewModel):
+                let cell: EthTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
+                cell.configure(viewModel: viewModel)
+
+                return cell
+            case .fungible(let viewModel):
+                let cell: FungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
+                cell.configure(viewModel: viewModel)
+
+                return cell
+            case .nonFungible(let viewModel):
+                let cell: NonFungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
+                cell.configure(viewModel: viewModel)
+
+                return cell
+            }
+        })
+    }
+
+    private func applySnapshot(with viewModels: [SelectTokenViewModel.ViewModelType], animate: Bool = true) {
+        var snapshot = NSDiffableDataSourceSnapshot<SelectTokenViewModel.Section, SelectTokenViewModel.ViewModelType>()
+        snapshot.appendSections([.tokens])
+        snapshot.appendItems(viewModels, toSection: .tokens)
+
+        dataSource.apply(snapshot, animatingDifferences: animate)
     }
 }

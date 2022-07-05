@@ -75,7 +75,7 @@ final class SwapTokensCoordinator: Coordinator {
     }
 
     private func showSelectToken() {
-        let coordinator = SelectTokenCoordinator(assetDefinitionStore: assetDefinitionStore, wallet: configurator.session.account, tokenBalanceService: configurator.session.tokenBalanceService, tokenCollection: tokenCollection, navigationController: navigationController, filter: .filter(tokenSelectionProvider), eventsDataStore: eventsDataStore)
+        let coordinator = SelectTokenCoordinator(tokenCollection: tokenCollection, navigationController: navigationController, filter: .filter(tokenSelectionProvider))
         coordinator.configureForSelectionSwapToken()
         coordinator.delegate = self
         addCoordinator(coordinator)

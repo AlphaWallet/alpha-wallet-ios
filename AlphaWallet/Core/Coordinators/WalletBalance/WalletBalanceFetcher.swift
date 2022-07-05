@@ -205,11 +205,11 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
 
         switch token.type {
         case .nativeCryptocurrency:
-            return NativecryptoBalanceViewModel(token: token, ticker: ticker)
+            return .init(balance: NativecryptoBalanceViewModel(token: token, ticker: ticker))
         case .erc20:
-            return Erc20BalanceViewModel(token: token, ticker: ticker)
+            return .init(balance: Erc20BalanceViewModel(token: token, ticker: ticker))
         case .erc875, .erc721, .erc721ForTickets, .erc1155:
-            return NFTBalanceViewModel(token: token, ticker: ticker)
+            return .init(balance: NFTBalanceViewModel(token: token, ticker: ticker))
         }
     }
 

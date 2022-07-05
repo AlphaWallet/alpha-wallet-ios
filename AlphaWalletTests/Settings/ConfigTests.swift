@@ -23,8 +23,14 @@ extension MultipleChainsTokenCollection {
         let config: Config = .make()
         let actionsService = TokenActionsService()
         let tokenGroupIdentifier: TokenGroupIdentifierProtocol = FakeTokenGroupIdentifier()
-        let tokensFilter = TokensFilter(assetDefinitionStore: .init(), tokenActionsService: actionsService, coinTickersFetcher: CoinGeckoTickersFetcher.make(), tokenGroupIdentifier: tokenGroupIdentifier)
-        return MultipleChainsTokenCollection(tokensFilter: tokensFilter, tokensDataStore: tokensDataStore, config: config, coinTickersFetcher: CoinGeckoTickersFetcher.make())
+        let coinTickersFetcher = CoinGeckoTickersFetcher.make()
+        let tokensFilter = TokensFilter(assetDefinitionStore: .init(), tokenActionsService: actionsService, coinTickersFetcher: coinTickersFetcher, tokenGroupIdentifier: tokenGroupIdentifier)
+
+        let eventsDataStore = FakeEventsDataStore()
+        let collection = MultipleChainsTokenCollection(tokensFilter: tokensFilter, tokensDataStore: tokensDataStore, assetDefinitionStore: .init(), eventsDataStore: eventsDataStore, sessions: .make(), config: config, coinTickersFetcher: coinTickersFetcher)
+        collection.start()
+
+        return collection
     }
 }
 
