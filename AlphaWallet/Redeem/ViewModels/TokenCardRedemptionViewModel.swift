@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 struct TokenCardRedemptionViewModel {
-    let token: TokenObject
+    let token: Token
     let tokenHolder: TokenHolder
 
     var headerTitle: String {

@@ -18,14 +18,14 @@ protocol TokenCardRowViewConfigurable {
 typealias TokenCardViewType = UIView & TokenCardRowViewConfigurable & SelectionPositioningView & TokenCardRowViewLayoutConfigurableProtocol
 
 class TokenCardViewFactory {
-    private let token: TokenObject
+    private let token: Token
     private let analyticsCoordinator: AnalyticsCoordinator
     private let keystore: Keystore
     private let wallet: Wallet
 
     let assetDefinitionStore: AssetDefinitionStore
     
-    init(token: TokenObject, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, keystore: Keystore, wallet: Wallet) {
+    init(token: Token, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, keystore: Keystore, wallet: Wallet) {
         self.token = token
         self.assetDefinitionStore = assetDefinitionStore
         self.analyticsCoordinator = analyticsCoordinator

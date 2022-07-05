@@ -25,7 +25,7 @@ enum AssetFilter {
 }
 
 class NFTAssetSelectionViewModel {
-    let tokenObject: TokenObject
+    let token: Token
     let tokenHolders: [TokenHolder]
     private var filteredTokenHolders: [TokenHolderWithItsTokenIds] = []
 
@@ -124,8 +124,8 @@ class NFTAssetSelectionViewModel {
         return sum
     }
 
-    init(tokenObject: TokenObject, tokenHolders: [TokenHolder]) {
-        self.tokenObject = tokenObject
+    init(token: Token, tokenHolders: [TokenHolder]) {
+        self.token = token
         self.tokenHolders = tokenHolders
 
         filter(tokenHolders: tokenHolders)

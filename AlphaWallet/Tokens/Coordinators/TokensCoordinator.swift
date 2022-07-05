@@ -356,28 +356,25 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         coordinator.start()
     }
 
-    func showSingleChainToken(tokenObject: TokenObject, in navigationController: UINavigationController) {
-        guard let coordinator = singleChainTokenCoordinator(forServer: tokenObject.server) else { return }
-
-        switch tokenObject.type {
+    func showSingleChainToken(token: Token, in navigationController: UINavigationController) {
+        guard let coordinator = singleChainTokenCoordinator(forServer: token.server) else { return }
+        switch token.type {
         case .nativeCryptocurrency:
-            let token = Token(tokenObject: tokenObject)
-            coordinator.show(fungibleToken: token, transactionType: .nativeCryptocurrency(tokenObject, destination: .none, amount: nil), navigationController: navigationController)
+            coordinator.show(fungibleToken: token, transactionType: .nativeCryptocurrency(token, destination: .none, amount: nil), navigationController: navigationController)
         case .erc20:
-            let token = Token(tokenObject: tokenObject)
-            coordinator.show(fungibleToken: token, transactionType: .erc20Token(tokenObject, destination: nil, amount: nil), navigationController: navigationController)
+            coordinator.show(fungibleToken: token, transactionType: .erc20Token(token, destination: nil, amount: nil), navigationController: navigationController)
         case .erc721:
-            coordinator.showTokenList(for: .send(type: .transaction(.erc721Token(tokenObject, tokenHolders: []))), token: tokenObject, navigationController: navigationController)
+            coordinator.showTokenList(for: .send(type: .transaction(.erc721Token(token, tokenHolders: []))), token: token, navigationController: navigationController)
         case .erc875, .erc721ForTickets:
-            coordinator.showTokenList(for: .send(type: .transaction(.erc875Token(tokenObject, tokenHolders: []))), token: tokenObject, navigationController: navigationController)
+            coordinator.showTokenList(for: .send(type: .transaction(.erc875Token(token, tokenHolders: []))), token: token, navigationController: navigationController)
         case .erc1155:
-            coordinator.showTokenList(for: .send(type: .transaction(.erc1155Token(tokenObject, transferType: .singleTransfer, tokenHolders: []))), token: tokenObject, navigationController: navigationController)
+            coordinator.showTokenList(for: .send(type: .transaction(.erc1155Token(token, transferType: .singleTransfer, tokenHolders: []))), token: token, navigationController: navigationController)
         }
     }
 
     func didSelect(token: Token, in viewController: UIViewController) {
-        guard let tokenObject = tokensDataStore.tokenObject(forContract: token.contractAddress, server: token.server) else { return }
-        showSingleChainToken(tokenObject: tokenObject, in: navigationController)
+
+        showSingleChainToken(token: token, in: navigationController)
     }
 
     func didHide(token: Token, in viewController: UIViewController) {
@@ -400,12 +397,11 @@ extension TokensCoordinator: SelectTokenCoordinatorDelegate {
 
     func coordinator(_ coordinator: SelectTokenCoordinator, didSelectToken token: Token) {
         removeCoordinator(coordinator)
-        guard let tokenObject = tokensDataStore.tokenObject(forContract: token.contractAddress, server: token.server) else { return }
         switch sendToAddress {
         case .some(let address):
-            let paymentFlow = PaymentFlow.send(type: .transaction(.init(fungibleToken: tokenObject, recipient: .address(address), amount: nil)))
+            let paymentFlow = PaymentFlow.send(type: .transaction(.init(fungibleToken: token, recipient: .address(address), amount: nil)))
 
-            delegate?.didPress(for: paymentFlow, server: tokenObject.server, viewController: .none, in: self)
+            delegate?.didPress(for: paymentFlow, server: token.server, viewController: .none, in: self)
         case .none:
             break
         }
@@ -435,7 +431,7 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
         removeCoordinator(coordinator)
     }
 
-    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveTransactionType transactionType: TransactionType, token: TokenObject) {
+    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveTransactionType transactionType: TransactionType, token: Token) {
         removeCoordinator(coordinator)
 
         let paymentFlow = PaymentFlow.send(type: .transaction(transactionType))

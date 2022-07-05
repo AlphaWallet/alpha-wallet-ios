@@ -25,7 +25,7 @@ class NFTAssetsPageViewModel {
     private (set) var filteredTokenHolders: [TokenHolder] = []
     private (set) var sections: [AssetsSection] = [.assets]
     private (set) var selection: GridOrListSelectionState
-    private let token: TokenObject
+    private let token: Token
     private let assetDefinitionStore: AssetDefinitionStore
 
     var searchFilter: ActivityOrTransactionFilter = .keyword(nil) {
@@ -91,7 +91,7 @@ class NFTAssetsPageViewModel {
         }
     }
 
-    init(token: TokenObject, assetDefinitionStore: AssetDefinitionStore, tokenHolders: [TokenHolder], selection: GridOrListSelectionState) {
+    init(token: Token, assetDefinitionStore: AssetDefinitionStore, tokenHolders: [TokenHolder], selection: GridOrListSelectionState) {
         self.tokenHolders = tokenHolders
         self.selection = selection
         self.assetDefinitionStore = assetDefinitionStore

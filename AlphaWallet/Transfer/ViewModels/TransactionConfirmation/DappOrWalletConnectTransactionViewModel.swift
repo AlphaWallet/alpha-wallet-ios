@@ -99,7 +99,7 @@ extension TransactionConfirmationViewModel {
 
         func updateBalance(_ balanceViewModel: BalanceViewModel?) {
             if let viewModel = balanceViewModel {
-                let token = Token(tokenObject: transactionType.tokenObject)
+                let token = transactionType.tokenObject
                 switch token.type {
                 case .nativeCryptocurrency:
                     balance = "\(viewModel.amountShort) \(viewModel.symbol)"

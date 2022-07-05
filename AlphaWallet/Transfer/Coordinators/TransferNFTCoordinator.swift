@@ -12,10 +12,10 @@ protocol TransferNFTCoordinatorDelegate: CanOpenURL, SendTransactionDelegate {
 
 class TransferNFTCoordinator: Coordinator {
     private lazy var sendViewController: TransferTokensCardViaWalletAddressViewController = {
-        return makeTransferTokensCardViaWalletAddressViewController(token: tokenObject, for: tokenHolder, paymentFlow: .send(type: .transaction(transactionType)))
+        return makeTransferTokensCardViaWalletAddressViewController(token: token, for: tokenHolder, paymentFlow: .send(type: .transaction(transactionType)))
     }()
     private let keystore: Keystore
-    private let tokenObject: TokenObject
+    private let token: Token
     private let session: WalletSession
     private let assetDefinitionStore: AssetDefinitionStore
     private let analyticsCoordinator: AnalyticsCoordinator
@@ -33,7 +33,7 @@ class TransferNFTCoordinator: Coordinator {
             navigationController: UINavigationController,
             keystore: Keystore,
             tokenHolder: TokenHolder,
-            tokenObject: TokenObject,
+            token: Token,
             transactionType: TransactionType,
             assetDefinitionStore: AssetDefinitionStore,
             analyticsCoordinator: AnalyticsCoordinator,
@@ -44,7 +44,7 @@ class TransferNFTCoordinator: Coordinator {
         self.session = session
         self.keystore = keystore
         self.navigationController = navigationController
-        self.tokenObject = tokenObject
+        self.token = token
         self.assetDefinitionStore = assetDefinitionStore
         self.analyticsCoordinator = analyticsCoordinator
         self.domainResolutionService = domainResolutionService
@@ -63,7 +63,7 @@ class TransferNFTCoordinator: Coordinator {
         delegate?.didCancel(in: self)
     }
 
-    private func makeTransferTokensCardViaWalletAddressViewController(token: TokenObject, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> TransferTokensCardViaWalletAddressViewController {
+    private func makeTransferTokensCardViaWalletAddressViewController(token: Token, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> TransferTokensCardViaWalletAddressViewController {
         let viewModel = TransferTokensCardViaWalletAddressViewControllerViewModel(token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
         let controller = TransferTokensCardViaWalletAddressViewController(analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService, token: token, tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, keystore: keystore, session: session)
         controller.configure()

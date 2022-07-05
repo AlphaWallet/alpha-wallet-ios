@@ -38,7 +38,7 @@ struct NFTCollectionInfoPageViewModel {
         return R.string.localizable.tokenTabInfo()
     }
 
-    let token: TokenObject
+    let token: Token
     var contractAddress: AlphaWallet.Address {
         token.contractAddress
     }
@@ -112,7 +112,7 @@ struct NFTCollectionInfoPageViewModel {
         return Colors.appBackground
     }
 
-    init(token: TokenObject, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, wallet: Wallet) {
+    init(token: Token, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, wallet: Wallet) {
         self.assetDefinitionStore = assetDefinitionStore
         self.token = token
         tokenHolders = token.getTokenHolders(assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: wallet)

@@ -54,7 +54,7 @@ class PaymentFlowFromEip681UrlResolver: Coordinator {
                     let server = optionalServer ?? config.anyEnabledServer()
 
                     //NOTE: self is required here because object has delated before resolving state
-                    if let token = tokensDataStore.tokenObject(forContract: contract, server: server) {
+                    if let token = tokensDataStore.token(forContract: contract, server: server) {
                         let transactionType = Self.transactionType(token, recipient: recipient, amount: amount)
 
                         seal.fulfill((paymentFlow: .send(type: .transaction(transactionType)), server: server))
@@ -67,7 +67,7 @@ class PaymentFlowFromEip681UrlResolver: Coordinator {
                             case .fungibleTokenComplete(let name, let symbol, let decimals):
                                 //TODO update fetching to retrieve balance too so we can display the correct balance in the view controller
                                 //Explicit type declaration to speed up build time. 130msec -> 50ms, as of Xcode 11.7
-                                let token: ERCToken = ERCToken(
+                                let ercToken: ERCToken = ERCToken(
                                         contract: contract,
                                         server: server,
                                         name: name,
@@ -76,9 +76,8 @@ class PaymentFlowFromEip681UrlResolver: Coordinator {
                                         type: .erc20,
                                         balance: .balance(["0"])
                                 )
-                                let tokenObject = tokensDataStore.addCustom(tokens: [token], shouldUpdateBalance: true)[0]
-                                guard let t = tokensDataStore.tokenObject(forContract: tokenObject.contractAddress, server: tokenObject.server) else { return }
-                                let transactionType = Self.transactionType(t, recipient: recipient, amount: amount)
+                                let token = tokensDataStore.addCustom(tokens: [ercToken], shouldUpdateBalance: true)[0]
+                                let transactionType = Self.transactionType(token, recipient: recipient, amount: amount)
 
                                 seal.fulfill((paymentFlow: .send(type: .transaction(transactionType)), server: server))
                             }
@@ -89,14 +88,14 @@ class PaymentFlowFromEip681UrlResolver: Coordinator {
         }
     }
 
-    private static func transactionType(_ tokenObject: TokenObject, recipient: AddressOrEnsName?, amount: String) -> TransactionType {
+    private static func transactionType(_ token: Token, recipient: AddressOrEnsName?, amount: String) -> TransactionType {
         let amountConsideringDecimals: String
         if let bigIntAmount = Double(amount).flatMap({ BigInt($0) }) {
-            amountConsideringDecimals = EtherNumberFormatter.full.string(from: bigIntAmount, decimals: tokenObject.decimals)
+            amountConsideringDecimals = EtherNumberFormatter.full.string(from: bigIntAmount, decimals: token.decimals)
         } else {
             amountConsideringDecimals = ""
         }
 
-        return TransactionType(fungibleToken: tokenObject, recipient: recipient, amount: amountConsideringDecimals)
+        return TransactionType(fungibleToken: token, recipient: recipient, amount: amountConsideringDecimals)
     }
 }

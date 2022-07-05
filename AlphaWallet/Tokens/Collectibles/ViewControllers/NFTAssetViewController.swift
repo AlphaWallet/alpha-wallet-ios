@@ -8,9 +8,9 @@
 import UIKit
 
 protocol NonFungibleTokenViewControllerDelegate: class, CanOpenURL {
-    func didPressRedeem(token: TokenObject, tokenHolder: TokenHolder, in viewController: NFTAssetViewController)
+    func didPressRedeem(token: Token, tokenHolder: TokenHolder, in viewController: NFTAssetViewController)
     func didPressSell(tokenHolder: TokenHolder, for paymentFlow: PaymentFlow, in viewController: NFTAssetViewController)
-    func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, forPaymentFlow paymentFlow: PaymentFlow, in viewController: NFTAssetViewController)
+    func didPressTransfer(token: Token, tokenHolder: TokenHolder, forPaymentFlow paymentFlow: PaymentFlow, in viewController: NFTAssetViewController)
     func didPressViewRedemptionInfo(in viewController: NFTAssetViewController)
     func didTapURL(url: URL, in viewController: NFTAssetViewController)
     func didTap(action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: NFTAssetViewController)

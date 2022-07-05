@@ -29,7 +29,7 @@ class NFTAssetViewModel {
     private let tokenHolderHelper: TokenInstanceViewConfigurationHelper
 
     let tokenId: TokenId
-    let token: TokenObject
+    let token: Token
     let tokenHolder: TokenHolder
     let assetDefinitionStore: AssetDefinitionStore
     var backgroundColor: UIColor = Colors.appBackground
@@ -86,7 +86,7 @@ class NFTAssetViewModel {
         }
     }
 
-    init(account: Wallet, tokenId: TokenId, token: TokenObject, tokenHolder: TokenHolder, assetDefinitionStore: AssetDefinitionStore) {
+    init(account: Wallet, tokenId: TokenId, token: Token, tokenHolder: TokenHolder, assetDefinitionStore: AssetDefinitionStore) {
         self.account = account
         self.tokenId = tokenId
         self.token = token

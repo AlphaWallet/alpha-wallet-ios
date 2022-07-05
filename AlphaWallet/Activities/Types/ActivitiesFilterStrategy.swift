@@ -36,14 +36,14 @@ extension TransactionState {
 extension TransactionType {
     var activitiesFilterStrategy: ActivitiesFilterStrategy {
         switch self {
-        case .nativeCryptocurrency(let tokenObject, _, _):
-            return .nativeCryptocurrency(primaryKey: tokenObject.primaryKey)
+        case .nativeCryptocurrency(let token, _, _):
+            return .nativeCryptocurrency(primaryKey: token.primaryKey)
         case .erc20Token(let tokenObject, _, _):
             return .contract(contract: tokenObject.contractAddress)
-        case .erc875Token(let tokenObject, _), .erc875TokenOrder(let tokenObject, _):
-            return .contract(contract: tokenObject.contractAddress)
-        case .erc721Token(let tokenObject, _), .erc721ForTicketToken(let tokenObject, _), .erc1155Token(let tokenObject, _, _):
-            return .operationTypes(operationTypes: [], contract: tokenObject.contractAddress)
+        case .erc875Token(let token, _), .erc875TokenOrder(let token, _):
+            return .contract(contract: token.contractAddress)
+        case .erc721Token(let token, _), .erc721ForTicketToken(let token, _), .erc1155Token(let token, _, _):
+            return .operationTypes(operationTypes: [], contract: token.contractAddress)
         case .dapp, .claimPaidErc875MagicLink, .tokenScript, .prebuilt:
             return .none
         }

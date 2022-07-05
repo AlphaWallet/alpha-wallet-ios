@@ -9,7 +9,7 @@ import UIKit
 
 protocol NFTAssetSelectionCoordinatorDelegate: AnyObject {
     func didFinish(in coordinator: NFTAssetSelectionCoordinator)
-    func didTapSend(in coordinator: NFTAssetSelectionCoordinator, tokenObject: TokenObject, tokenHolders: [TokenHolder])
+    func didTapSend(in coordinator: NFTAssetSelectionCoordinator, token: Token, tokenHolders: [TokenHolder])
 }
 
 class NFTAssetSelectionCoordinator: Coordinator {
@@ -17,20 +17,20 @@ class NFTAssetSelectionCoordinator: Coordinator {
     private let parentsNavigationController: UINavigationController
     var coordinators: [Coordinator] = []
     weak var delegate: NFTAssetSelectionCoordinatorDelegate?
-    private let tokenObject: TokenObject
+    private let token: Token
     private let tokenHolders: [TokenHolder]
     private let tokenCardViewFactory: TokenCardViewFactory
 
     //NOTE: `filter: WalletFilter` parameter allow us to filter tokens we needed
-    init(navigationController: UINavigationController, tokenObject: TokenObject, tokenHolders: [TokenHolder], tokenCardViewFactory: TokenCardViewFactory) {
-        self.tokenObject = tokenObject
+    init(navigationController: UINavigationController, token: Token, tokenHolders: [TokenHolder], tokenCardViewFactory: TokenCardViewFactory) {
+        self.token = token
         self.tokenHolders = tokenHolders
         self.parentsNavigationController = navigationController
         self.tokenCardViewFactory = tokenCardViewFactory
     }
 
     func start() {
-        let viewController = NFTAssetSelectionViewController(viewModel: .init(tokenObject: tokenObject, tokenHolders: tokenHolders), tokenCardViewFactory: tokenCardViewFactory)
+        let viewController = NFTAssetSelectionViewController(viewModel: .init(token: token, tokenHolders: tokenHolders), tokenCardViewFactory: tokenCardViewFactory)
         viewController.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(doneButtonSelected))
         viewController.delegate = self
         let navigationController = UINavigationController(rootViewController: viewController)
@@ -49,9 +49,9 @@ class NFTAssetSelectionCoordinator: Coordinator {
 
 extension NFTAssetSelectionCoordinator: NFTAssetSelectionViewControllerDelegate {
 
-    func didTapSend(in viewController: NFTAssetSelectionViewController, tokenObject: TokenObject, tokenHolders: [TokenHolder]) {
+    func didTapSend(in viewController: NFTAssetSelectionViewController, token: Token, tokenHolders: [TokenHolder]) {
         parentsNavigationController.dismiss(animated: true) {
-            self.delegate?.didTapSend(in: self, tokenObject: tokenObject, tokenHolders: tokenHolders)
+            self.delegate?.didTapSend(in: self, token: token, tokenHolders: tokenHolders)
         }
     }
 }

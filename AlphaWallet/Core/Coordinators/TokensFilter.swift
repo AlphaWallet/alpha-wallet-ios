@@ -68,7 +68,7 @@ class TokensFilter {
         let filteredTokens: [Token]
 
         func hasMatchingInNftBalance(token: Token, string: String) -> Bool {
-            return token.balanceNft.contains(where: {
+            return token.balance.contains(where: {
                 guard let balance = $0.nonFungibleBalance else { return false }
                 return balance.name.trimmed.lowercased().contains(string) || balance.description.trimmed.lowercased().contains(string)
             })
