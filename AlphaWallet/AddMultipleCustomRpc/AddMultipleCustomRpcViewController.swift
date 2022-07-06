@@ -27,6 +27,7 @@ class AddMultipleCustomRpcViewController: UIViewController {
     private var isCanceled: Bool
     private var viewModel: AddMultipleCustomRpcViewModel
     private var restartQueue: RestartTaskQueue
+    private let analyticsCoordinator: AnalyticsCoordinator
 
     // MARK: Public
 
@@ -38,10 +39,11 @@ class AddMultipleCustomRpcViewController: UIViewController {
 
     // MARK: - Constructor
 
-    init(model: AddMultipleCustomRpcModel, restartQueue: RestartTaskQueue) {
+    init(model: AddMultipleCustomRpcModel, analyticsCoordinator: AnalyticsCoordinator, restartQueue: RestartTaskQueue) {
         let viewModel = AddMultipleCustomRpcViewModel(model: model)
         self.viewModel = viewModel
         self.isCanceled = false
+        self.analyticsCoordinator = analyticsCoordinator
         self.restartQueue = restartQueue
         super.init(nibName: nil, bundle: nil)
         self.modalPresentationStyle = .custom
@@ -107,7 +109,7 @@ class AddMultipleCustomRpcViewController: UIViewController {
     }
 
     private func startAddChain(for customRpc: CustomRPC) {
-        let chain = AddCustomChain(customRpc, restartQueue: restartQueue)
+        let chain = AddCustomChain(customRpc, analyticsCoordinator: analyticsCoordinator, restartQueue: restartQueue)
         chain.delegate = self
         chain.run()
     }
@@ -180,7 +182,7 @@ extension AddMultipleCustomRpcViewController: AddCustomChainDelegate {
 
 extension AddCustomChain {
 
-    convenience init(_ customRpc: CustomRPC, restartQueue: RestartTaskQueue) {
+    convenience init(_ customRpc: CustomRPC, analyticsCoordinator: AnalyticsCoordinator, restartQueue: RestartTaskQueue) {
         let defaultDecimals = 18
         let explorerEndpoints: [String]?
 
@@ -192,7 +194,7 @@ extension AddCustomChain {
 
         let customChain = WalletAddEthereumChainObject(nativeCurrency: .init(name: customRpc.nativeCryptoTokenName ?? R.string.localizable.addCustomChainUnnamed(), symbol: customRpc.symbol ?? "", decimals: defaultDecimals), blockExplorerUrls: explorerEndpoints, chainName: customRpc.chainName, chainId: String(customRpc.chainID), rpcUrls: [customRpc.rpcEndpoint])
 
-        self.init(customChain, isTestnet: customRpc.isTestnet, restartQueue: restartQueue, url: nil, operation: .add)
+        self.init(customChain, analyticsCoordinator: analyticsCoordinator, isTestnet: customRpc.isTestnet, restartQueue: restartQueue, url: nil, operation: .add)
     }
 
 }

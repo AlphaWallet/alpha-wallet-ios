@@ -11,10 +11,10 @@ enum EthereumTransaction {
 
     struct NotCompletedYet: Error {}
 
-    static func isCompleted(transactionId: Id, server: RPCServer) -> Promise<Bool> {
+    static func isCompleted(transactionId: Id, server: RPCServer, analyticsCoordinator: AnalyticsCoordinator) -> Promise<Bool> {
         let request = GetTransactionRequest(hash: transactionId)
         return firstly {
-            Session.send(EtherServiceRequest(server: server, batch: BatchFactory().create(request)))
+            Session.send(EtherServiceRequest(server: server, batch: BatchFactory().create(request)), analyticsCoordinator: analyticsCoordinator)
         }.map { pendingTransaction in
             if let blockNumber = Int(pendingTransaction.blockNumber), blockNumber > 0 {
                 return true
@@ -25,10 +25,10 @@ enum EthereumTransaction {
     }
 
     //TODO use pub-sub API or similar, instead
-    static func waitTillCompleted(transactionId: Id, server: RPCServer, timesToRepeat: Int = 50) -> Promise<Void> {
+    static func waitTillCompleted(transactionId: Id, server: RPCServer, analyticsCoordinator: AnalyticsCoordinator, timesToRepeat: Int = 50) -> Promise<Void> {
         return attempt(maximumRetryCount: timesToRepeat, delayBeforeRetry: .seconds(10), delayUpperRangeValueFrom0To: 20) {
             firstly {
-                EthereumTransaction.isCompleted(transactionId: transactionId, server: server)
+                EthereumTransaction.isCompleted(transactionId: transactionId, server: server, analyticsCoordinator: analyticsCoordinator)
             }.map { isCompleted in
                 if isCompleted {
                     return ()

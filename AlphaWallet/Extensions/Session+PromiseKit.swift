@@ -7,7 +7,7 @@ import PromiseKit
 
 extension Session {
 
-    private class func sendImpl<Request: APIKit.Request>(_ request: Request, callbackQueue: CallbackQueue? = nil) -> Promise<Request.Response> {
+    private class func sendImpl<Request: APIKit.Request>(_ request: Request, analyticsCoordinator: AnalyticsCoordinator, callbackQueue: CallbackQueue? = nil) -> Promise<Request.Response> {
         let (promise, seal) = Promise<Request.Response>.pending()
         Session.send(request, callbackQueue: callbackQueue) { result in
             switch result {
@@ -21,17 +21,17 @@ extension Session {
                 }
             }
         }
-        
+
         return promise
     }
 
-    class func send<Request: APIKit.Request>(_ request: Request, callbackQueue: CallbackQueue? = nil) -> Promise<Request.Response> {
-        let promise = sendImpl(request, callbackQueue: callbackQueue)
+    class func send<Request: APIKit.Request>(_ request: Request, analyticsCoordinator: AnalyticsCoordinator, callbackQueue: CallbackQueue? = nil) -> Promise<Request.Response> {
+        let promise = sendImpl(request, analyticsCoordinator: analyticsCoordinator, callbackQueue: callbackQueue)
         return firstly {
             promise
         }.recover { error -> Promise<Request.Response> in
             if error is SendTransactionRetryableError {
-                return sendImpl(request, callbackQueue: callbackQueue)
+                return sendImpl(request, analyticsCoordinator: analyticsCoordinator, callbackQueue: callbackQueue)
             } else {
                 return promise
             }

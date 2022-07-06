@@ -453,7 +453,7 @@ extension AppCoordinator: UniversalLinkServiceDelegate {
             coordinator.handleOpen(url: url)
         case .eip681(let url):
             let account = resolver.sessions.anyValue.account
-            let paymentFlowResolver = PaymentFlowFromEip681UrlResolver(tokensDataStore: resolver.tokensDataStore, account: account, assetDefinitionStore: assetDefinitionStore, config: config)
+            let paymentFlowResolver = PaymentFlowFromEip681UrlResolver(tokensDataStore: resolver.tokensDataStore, account: account, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsService, config: config)
             guard let promise = paymentFlowResolver.resolve(url: url) else { return }
             firstly {
                 promise
@@ -504,7 +504,7 @@ extension AppCoordinator: UniversalLinkServiceDelegate {
                 let coordinator = ServerUnavailableCoordinator(navigationController: navigationController, servers: [server])
                 coordinator.delegate = self
                 addCoordinator(coordinator)
-                coordinator.start() 
+                coordinator.start()
             }
         case .walletApi(let action):
             walletApiService.handle(action: action)

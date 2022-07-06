@@ -5,6 +5,6 @@ import Foundation
 
 class FakeGetBalanceCoordinator: GetNativeCryptoCurrencyBalance {
     convenience init() {
-        self.init(forServer: .main)
+        self.init(forServer: .main, analyticsCoordinator: FakeAnalyticsService())
     }
 }

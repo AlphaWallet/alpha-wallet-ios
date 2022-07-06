@@ -16,13 +16,14 @@ protocol TokensAutodetector: NSObjectProtocol {
 class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
     private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let autoDetectTransactedTokensQueue: OperationQueue
     private let autoDetectTokensQueue: OperationQueue
     private let config: Config
     private let session: WalletSession
     private let queue: DispatchQueue
     private let importToken: ImportToken
-    private lazy var tokenProvider = TokenProvider(account: session.account, server: session.server)
+    private lazy var tokenProvider = TokenProvider(account: session.account, server: session.server, analyticsCoordinator: analyticsCoordinator)
     private lazy var erc875BalanceFetcher = GetErc875Balance(forServer: session.server, queue: queue)
     private lazy var erc20BalanceFetcher = GetErc20Balance(forServer: session.server, queue: queue)
 
@@ -34,6 +35,7 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
             config: Config,
             tokensDataStore: TokensDataStore,
             assetDefinitionStore: AssetDefinitionStore,
+            analyticsCoordinator: AnalyticsCoordinator,
             withAutoDetectTransactedTokensQueue autoDetectTransactedTokensQueue: OperationQueue,
             withAutoDetectTokensQueue autoDetectTokensQueue: OperationQueue,
             queue: DispatchQueue,
@@ -44,6 +46,7 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
         self.session = session
         self.config = config
         self.tokensDataStore = tokensDataStore
+        self.analyticsCoordinator = analyticsCoordinator
         self.assetDefinitionStore = assetDefinitionStore
         self.autoDetectTransactedTokensQueue = autoDetectTransactedTokensQueue
         self.autoDetectTokensQueue = autoDetectTokensQueue

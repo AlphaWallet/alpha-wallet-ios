@@ -41,6 +41,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     private static let updateBalanceInterval: TimeInterval = 60
     private var timer: Timer?
     private let wallet: Wallet
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let assetDefinitionStore: AssetDefinitionStore
     private var balanceFetchers: AtomicDictionary<RPCServer, PrivateBalanceFetcherType> = .init()
     private let queue: DispatchQueue
@@ -66,10 +67,11 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         return walletBalanceSubject.value
     }
 
-    init(wallet: Wallet, servers: [RPCServer], tokensDataStore: TokensDataStore, transactionsStorage: TransactionDataStore, nftProvider: NFTProvider, config: Config, assetDefinitionStore: AssetDefinitionStore, queue: DispatchQueue, coinTickersFetcher: CoinTickersFetcherType) {
+    init(wallet: Wallet, servers: [RPCServer], tokensDataStore: TokensDataStore, transactionsStorage: TransactionDataStore, nftProvider: NFTProvider, config: Config, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, queue: DispatchQueue, coinTickersFetcher: CoinTickersFetcherType) {
         self.wallet = wallet
         self.nftProvider = nftProvider
         self.assetDefinitionStore = assetDefinitionStore
+        self.analyticsCoordinator = analyticsCoordinator
         self.queue = queue
         self.tokensDataStore = tokensDataStore
         self.coinTickersFetcher = coinTickersFetcher
@@ -128,10 +130,10 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     func triggerUpdateBalanceSubjectTestsOnly() {
         triggerUpdateBalance()
     }
-    
+
     private func createBalanceFetcher(wallet: Wallet, server: RPCServer) -> PrivateBalanceFetcherType {
         let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: server)
-        let balanceFetcher = PrivateBalanceFetcher(account: wallet, nftProvider: nftProvider, tokensDataStore: tokensDataStore, etherToken: etherToken, server: server, config: config, assetDefinitionStore: assetDefinitionStore, queue: queue)
+        let balanceFetcher = PrivateBalanceFetcher(account: wallet, nftProvider: nftProvider, tokensDataStore: tokensDataStore, etherToken: etherToken, server: server, config: config, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, queue: queue)
         balanceFetcher.erc721TokenIdsFetcher = transactionsStorage
         balanceFetcher.delegate = self
 
@@ -207,7 +209,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         let tokenPublisher = tokensDataStore
             .tokenPublisher(for: key.address, server: key.server)
             .replaceError(with: nil)
-        
+
         let forceReloadBalanceWhenServersChange = balanceUpdateSubject
             .map { [tokensDataStore] _ in tokensDataStore.token(forContract: key.address, server: key.server) }
             .eraseToAnyPublisher()
@@ -258,7 +260,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
 extension WalletBalanceFetcher: PrivateBalanceFetcherDelegate {
     func didUpdateBalance(value actions: [AddOrUpdateTokenAction], in fetcher: PrivateBalanceFetcher) {
         crashlytics.logLargeNftJsonFiles(for: actions)
-        
+
         if let balanceHasUpdated = tokensDataStore.addOrUpdate(actions), balanceHasUpdated {
             reloadWalletBalance()
         }

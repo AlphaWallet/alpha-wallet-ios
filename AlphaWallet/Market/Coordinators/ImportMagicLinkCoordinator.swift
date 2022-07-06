@@ -470,7 +470,7 @@ class ImportMagicLinkCoordinator: Coordinator {
         return filteredTokens
     }
     private lazy var tokenProvider: TokenProviderType = {
-        return TokenProvider(account: wallet, server: server)
+        return TokenProvider(account: wallet, server: server, analyticsCoordinator: analyticsCoordinator)
     }()
 
     private func makeTokenHolder(_ bytes32Tokens: [String], _ contractAddress: AlphaWallet.Address) {

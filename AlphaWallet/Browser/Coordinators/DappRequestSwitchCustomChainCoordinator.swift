@@ -91,7 +91,7 @@ class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
 
     private func promptAndAddAndActivateServer(customChain: WalletAddEthereumChainObject, customChainId: Int, inViewController viewController: UIViewController, callbackID: SwitchCustomChainCallbackId) {
         func runAddCustomChain(isTestnet: Bool) {
-            let addCustomChain = AddCustomChain(customChain, isTestnet: isTestnet, restartQueue: restartQueue, url: currentUrl, operation: .add)
+            let addCustomChain = AddCustomChain(customChain, analyticsCoordinator: analyticsCoordinator, isTestnet: isTestnet, restartQueue: restartQueue, url: currentUrl, operation: .add)
             self.addCustomChain = (chain: addCustomChain, callbackId: callbackID)
             addCustomChain.delegate = self
             addCustomChain.run()

@@ -47,8 +47,9 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     private let config: Config
     private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
+    private let analyticsCoordinator: AnalyticsCoordinator
 
-    private lazy var nonErc1155BalanceFetcher = TokenProvider(account: account, server: server, queue: queue)
+    private lazy var nonErc1155BalanceFetcher = TokenProvider(account: account, server: server, analyticsCoordinator: analyticsCoordinator, queue: queue)
     private lazy var nonFungibleContract = NonFungibleContract(server: server, queue: queue)
 
     private lazy var erc1155TokenIdsFetcher = Erc1155TokenIdsFetcher(address: account.address, server: server, config: config, queue: queue)
@@ -59,7 +60,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     weak var delegate: PrivateBalanceFetcherDelegate?
     weak var erc721TokenIdsFetcher: Erc721TokenIdsFetcher?
 
-    init(account: Wallet, nftProvider: NFTProvider, tokensDataStore: TokensDataStore, etherToken: Token, server: RPCServer, config: Config, assetDefinitionStore: AssetDefinitionStore, queue: DispatchQueue) {
+    init(account: Wallet, nftProvider: NFTProvider, tokensDataStore: TokensDataStore, etherToken: Token, server: RPCServer, config: Config, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, queue: DispatchQueue) {
         self.nftProvider = nftProvider
         self.account = account
         self.server = server
@@ -68,6 +69,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         self.etherToken = etherToken
         self.tokensDataStore = tokensDataStore
         self.assetDefinitionStore = assetDefinitionStore
+        self.analyticsCoordinator = analyticsCoordinator
     }
 
     func refreshBalance(for tokens: [Token]) {
@@ -412,7 +414,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
             }
         }
         for each in contractsToAdd {
-            ContractDataDetector(address: each, account: account, server: server, assetDefinitionStore: assetDefinitionStore).fetch { data in
+            ContractDataDetector(address: each, account: account, server: server, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator).fetch { data in
                 switch data {
                 case .name, .symbol, .balance, .decimals:
                     break
