@@ -14,6 +14,7 @@ import Combine
 typealias PendingTransactionResponse = EtherServiceRequest<Batch1<GetTransactionRequest>>.Response
 final class PendingTransactionFetcher {
 
+    //TODO log `Analytics.WebApiErrors.rpcNodeRateLimited` when appropriate too
     func transaction(forServer server: RPCServer, id: String) -> AnyPublisher<PendingTransactionResponse, SessionTaskError> {
         let request = GetTransactionRequest(hash: id)
 

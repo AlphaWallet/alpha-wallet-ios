@@ -15,6 +15,10 @@ extension Session {
                 seal.fulfill(result)
             case .failure(let error):
                 if let e = convertToUserFriendlyError(error: error, baseUrl: request.baseURL) {
+                    if let e = e as? SendTransactionRetryableError {
+                        logRpcNodeError(e, analyticsCoordinator: analyticsCoordinator)
+                    }
+
                     seal.reject(e)
                 } else {
                     seal.reject(error)
@@ -23,6 +27,15 @@ extension Session {
         }
 
         return promise
+    }
+
+    private static func logRpcNodeError(_ rpcNodeError: SendTransactionRetryableError, analyticsCoordinator: AnalyticsCoordinator) {
+        switch rpcNodeError {
+        case .rateLimited:
+            analyticsCoordinator.log(error: Analytics.WebApiErrors.rpcNodeRateLimited)
+        case .possibleBinanceTestnetTimeout, .networkConnectionWasLost, .invalidCertificate, .requestTimedOut:
+            return
+        }
     }
 
     class func send<Request: APIKit.Request>(_ request: Request, analyticsCoordinator: AnalyticsCoordinator, callbackQueue: CallbackQueue? = nil) -> Promise<Request.Response> {
