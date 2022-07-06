@@ -220,7 +220,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         notificationService.unregister(source: transactionNotificationService)
     }
 
-    private func shartPromptBackup() {
+    private func startPromptBackup() {
         promptBackupCoordinator.start()
         addCoordinator(promptBackupCoordinator)
     }
@@ -236,7 +236,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
 
         checkDevice()
         showHelpUs()
-        shartPromptBackup()
+        startPromptBackup()
 
         fetchXMLAssetDefinitions()
         listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles + assetDefinitionStore.conflictingTokenScriptFileNames.all)
