@@ -11,7 +11,7 @@ enum OpenSeaBackedNonFungibleTokenHandling {
 
     init(token: Tokenable, assetDefinitionStore: AssetDefinitionStore, tokenViewType: TokenView) {
         self = {
-            if !token.balanceNft.isEmpty && token.balanceNft[0].balance.hasPrefix("{") {
+            if !token.balance.isEmpty && token.balance[0].balance.hasPrefix("{") {
                 let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
                 let view: String
                 switch tokenViewType {
@@ -41,7 +41,7 @@ enum NonFungibleFromJsonSupportedTokenHandling {
 
     init(token: Tokenable) {
         self = {
-            if !token.balanceNft.isEmpty && token.balanceNft[0].balance.hasPrefix("{") {
+            if !token.balance.isEmpty && token.balance[0].balance.hasPrefix("{") {
                 return .supported
             } else {
                 return .notSupported

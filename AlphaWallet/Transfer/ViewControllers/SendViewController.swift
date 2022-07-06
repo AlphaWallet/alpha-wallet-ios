@@ -232,7 +232,7 @@ class SendViewController: UIViewController {
                 .receive(on: RunLoop.main)
                 .sink { [weak self] _ in
                     guard let celf = self else { return }
-                    guard celf.tokensDataStore.tokenObject(forContract: celf.viewModel.transactionType.contract, server: celf.session.server) != nil else { return }
+                    guard celf.tokensDataStore.token(forContract: celf.viewModel.transactionType.contract, server: celf.session.server) != nil else { return }
                     celf.configureFor(contract: celf.viewModel.transactionType.contract, recipient: recipient, amount: amount, shouldConfigureBalance: false)
                 }
             session.tokenBalanceService.refresh(refreshBalancePolicy: .eth)
@@ -248,8 +248,8 @@ class SendViewController: UIViewController {
         guard let result = QRCodeValueParser.from(string: result) else { return }
         switch result {
         case .address(let recipient):
-            guard let tokenObject = tokensDataStore.tokenObject(forContract: viewModel.transactionType.contract, server: session.server) else { return }
-            let amountAsIntWithDecimals = EtherNumberFormatter.plain.number(from: amountTextField.ethCost, decimals: tokenObject.decimals)
+            guard let token = tokensDataStore.token(forContract: viewModel.transactionType.contract, server: session.server) else { return }
+            let amountAsIntWithDecimals = EtherNumberFormatter.plain.number(from: amountTextField.ethCost, decimals: token.decimals)
             configureFor(contract: transactionType.contract, recipient: .address(recipient), amount: amountAsIntWithDecimals)
             activateAmountView()
         case .eip681(let protocolName, let address, let functionName, let params):
@@ -314,19 +314,19 @@ class SendViewController: UIViewController {
     }
 
     private func configureFor(contract: AlphaWallet.Address, recipient: AddressOrEnsName?, amount: BigInt?, shouldConfigureBalance: Bool = true) {
-        guard let tokenObject = tokensDataStore.tokenObject(forContract: contract, server: self.session.server) else { return }
-        let amount = amount.flatMap { EtherNumberFormatter.plain.string(from: $0, decimals: tokenObject.decimals) }
+        guard let token = tokensDataStore.token(forContract: contract, server: self.session.server) else { return }
+        let amount = amount.flatMap { EtherNumberFormatter.plain.string(from: $0, decimals: token.decimals) }
         let transactionType: TransactionType
         if let amount = amount, amount != "0" {
-            transactionType = TransactionType(fungibleToken: tokenObject, recipient: recipient, amount: amount)
+            transactionType = TransactionType(fungibleToken: token, recipient: recipient, amount: amount)
         } else {
             switch viewModel.transactionType {
             case .nativeCryptocurrency(_, _, let amount):
-                transactionType = TransactionType(fungibleToken: tokenObject, recipient: recipient, amount: amount.flatMap { EtherNumberFormatter().string(from: $0, units: .ether) })
+                transactionType = TransactionType(fungibleToken: token, recipient: recipient, amount: amount.flatMap { EtherNumberFormatter().string(from: $0, units: .ether) })
             case .erc20Token(_, _, let amount):
-                transactionType = TransactionType(fungibleToken: tokenObject, recipient: recipient, amount: amount)
+                transactionType = TransactionType(fungibleToken: token, recipient: recipient, amount: amount)
             case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
-                transactionType = TransactionType(fungibleToken: tokenObject, recipient: recipient, amount: nil)
+                transactionType = TransactionType(fungibleToken: token, recipient: recipient, amount: nil)
             }
         }
 

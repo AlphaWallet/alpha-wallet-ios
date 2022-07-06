@@ -406,8 +406,8 @@ extension AppCoordinator: ImportMagicLinkCoordinatorDelegate {
         }
     }
 
-    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, inViewController viewController: ImportMagicTokenViewController, completion: @escaping (Bool) -> Void) {
-        activeWalletCoordinator?.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject, inViewController: viewController, completion: completion)
+    func importPaidSignedOrder(signedOrder: SignedOrder, token: Token, inViewController viewController: ImportMagicTokenViewController, completion: @escaping (Bool) -> Void) {
+        activeWalletCoordinator?.importPaidSignedOrder(signedOrder: signedOrder, token: token, inViewController: viewController, completion: completion)
     }
 
     func completed(in coordinator: ImportMagicLinkCoordinator) {

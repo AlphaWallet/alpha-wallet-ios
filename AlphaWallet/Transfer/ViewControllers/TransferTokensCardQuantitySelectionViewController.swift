@@ -3,7 +3,7 @@
 import UIKit
 
 protocol TransferTokenCardQuantitySelectionViewControllerDelegate: class, CanOpenURL {
-    func didSelectQuantity(token: TokenObject, tokenHolder: TokenHolder, in viewController: TransferTokensCardQuantitySelectionViewController)
+    func didSelectQuantity(token: Token, tokenHolder: TokenHolder, in viewController: TransferTokensCardQuantitySelectionViewController)
     func didPressViewInfo(in viewController: TransferTokensCardQuantitySelectionViewController)
 }
 
@@ -15,7 +15,7 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
     private let tokenRowView: TokenRowView & UIView
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
     private var viewModel: TransferTokensCardQuantitySelectionViewModel
-    private let token: TokenObject
+    private let token: Token
 
     var contract: AlphaWallet.Address {
         return token.contractAddress
@@ -31,7 +31,7 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
     init(
             analyticsCoordinator: AnalyticsCoordinator,
             paymentFlow: PaymentFlow,
-            token: TokenObject,
+            token: Token,
             viewModel: TransferTokensCardQuantitySelectionViewModel,
             assetDefinitionStore: AssetDefinitionStore,
             keystore: Keystore,

@@ -14,7 +14,7 @@ struct NFTCollectionViewModel {
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: NonActivityEventsDataStore
 
-    let token: TokenObject
+    let token: Token
     var initiallySelectedTabIndex: Int = 1
     var backgroundColor: UIColor = Colors.appBackground
 
@@ -36,7 +36,7 @@ struct NFTCollectionViewModel {
 
     let wallet: Wallet
 
-    init(token: TokenObject, forWallet wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore) {
+    init(token: Token, forWallet wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore) {
         self.token = token
         self.wallet = wallet
         self.eventsDataStore = eventsDataStore

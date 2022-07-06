@@ -19,7 +19,7 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
     private let tokenRowView: TokenRowView & UIView
     private var timer: Timer!
     private var session: WalletSession
-    private let token: TokenObject
+    private let token: Token
     private let analyticsCoordinator: AnalyticsCoordinator
     private let keystore: Keystore
 
@@ -32,7 +32,7 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
     let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: TokenCardRedemptionViewControllerDelegate?
 
-    init(session: WalletSession, token: TokenObject, viewModel: TokenCardRedemptionViewModel, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, keystore: Keystore) {
+    init(session: WalletSession, token: Token, viewModel: TokenCardRedemptionViewModel, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, keystore: Keystore) {
 		self.session = session
         self.token = token
         self.viewModel = viewModel

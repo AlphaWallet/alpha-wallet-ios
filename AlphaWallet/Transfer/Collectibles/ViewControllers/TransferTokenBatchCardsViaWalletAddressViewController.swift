@@ -15,7 +15,7 @@ protocol TransferTokenBatchCardsViaWalletAddressViewControllerDelegate: class, C
 
 //TODO: support ERC1155 fungibles (where decimals is provided and > 0)
 class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, TokenVerifiableStatusViewController {
-    private let token: TokenObject
+    private let token: Token
     private lazy var targetAddressTextField: AddressTextField = {
         let textField = AddressTextField(domainResolutionService: domainResolutionService)
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -73,7 +73,7 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
         return view
     }()
 
-    init(token: TokenObject, viewModel: TransferTokenBatchCardsViaWalletAddressViewControllerViewModel, tokenCardViewFactory: TokenCardViewFactory, domainResolutionService: DomainResolutionServiceType) {
+    init(token: Token, viewModel: TransferTokenBatchCardsViaWalletAddressViewControllerViewModel, tokenCardViewFactory: TokenCardViewFactory, domainResolutionService: DomainResolutionServiceType) {
         self.token = token
         self.viewModel = viewModel
         self.tokenCardViewFactory = tokenCardViewFactory

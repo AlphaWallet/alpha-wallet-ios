@@ -6,7 +6,7 @@ import BigInt
 
 extension UnconfirmedTransaction {
     static func make(
-        transactionType: TransactionType = .nativeCryptocurrency(TokenObject(), destination: .none, amount: nil),
+        transactionType: TransactionType = .nativeCryptocurrency(Token(), destination: .none, amount: nil),
         value: BigInt = BigInt(1),
         to: AlphaWallet.Address = .make(),
         recipient: AlphaWallet.Address? = .none,

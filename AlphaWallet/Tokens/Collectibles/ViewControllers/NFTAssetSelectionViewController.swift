@@ -37,7 +37,7 @@ extension NFTAssetSelectionViewController {
     }
 }
 protocol NFTAssetSelectionViewControllerDelegate: class {
-    func didTapSend(in viewController: NFTAssetSelectionViewController, tokenObject: TokenObject, tokenHolders: [TokenHolder])
+    func didTapSend(in viewController: NFTAssetSelectionViewController, token: Token, tokenHolders: [TokenHolder])
 }
 
 class NFTAssetSelectionViewController: UIViewController {
@@ -154,7 +154,7 @@ class NFTAssetSelectionViewController: UIViewController {
             case .sell, .deal:
                 break
             case .send:
-                delegate?.didTapSend(in: self, tokenObject: viewModel.tokenObject, tokenHolders: viewModel.tokenHolders)
+                delegate?.didTapSend(in: self, token: viewModel.token, tokenHolders: viewModel.tokenHolders)
             }
         }
     }

@@ -23,7 +23,6 @@ protocol TokensDataStore: NSObjectProtocol {
     func hiddenContracts(forServer server: RPCServer) -> [AddressAndRPCServer]
     func addEthToken(forServer server: RPCServer)
     func token(forContract contract: AlphaWallet.Address) -> Token?
-    func tokenObject(forContract contract: AlphaWallet.Address, server: RPCServer) -> TokenObject?
     func token(forContract contract: AlphaWallet.Address, server: RPCServer) -> Token?
     func add(hiddenContracts: [AddressAndRPCServer])
     func deleteTestsOnly(tokens: [Token])
@@ -363,15 +362,6 @@ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
                 .filter(predicate)
                 .first
                 .map { Token(tokenObject: $0) }
-        }
-
-        return token
-    }
-
-    func tokenObject(forContract contract: AlphaWallet.Address, server: RPCServer) -> TokenObject? {
-        var token: TokenObject?
-        store.performSync { realm in
-            token = self.tokenObject(forContract: contract, server: server, realm: realm)
         }
 
         return token
@@ -736,8 +726,8 @@ extension MultipleChainsTokensDataStore.functional {
     }
 
     //TODO might be best to remove ethToken(for:) and just use token(for:) if possible, but careful with the contract value returned for .ether
-    static func token(forServer server: RPCServer) -> TokenObject {
-        return TokenObject(
+    static func token(forServer server: RPCServer) -> Token {
+        return Token(
                 contract: server.priceID,
                 server: server,
                 name: server.name,

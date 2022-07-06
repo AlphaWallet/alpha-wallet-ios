@@ -9,13 +9,13 @@
 import UIKit
 
 protocol RedeemTokenCardQuantitySelectionViewControllerDelegate: class, CanOpenURL {
-    func didSelectQuantity(token: TokenObject, tokenHolder: TokenHolder, in viewController: RedeemTokenCardQuantitySelectionViewController)
+    func didSelectQuantity(token: Token, tokenHolder: TokenHolder, in viewController: RedeemTokenCardQuantitySelectionViewController)
     func didPressViewInfo(in viewController: RedeemTokenCardQuantitySelectionViewController)
 }
 
 class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVerifiableStatusViewController {
     private let analyticsCoordinator: AnalyticsCoordinator
-    private let token: TokenObject
+    private let token: Token
     private let roundedBackground = RoundedBackground()
     private let header = TokensCardViewControllerTitleHeader()
 	private let subtitleLabel = UILabel()
@@ -35,7 +35,7 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
 
     init(
         analyticsCoordinator: AnalyticsCoordinator,
-        token: TokenObject,
+        token: Token,
         viewModel: RedeemTokenCardQuantitySelectionViewModel,
         assetDefinitionStore: AssetDefinitionStore,
         keystore: Keystore,

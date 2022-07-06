@@ -3,8 +3,8 @@
 import UIKit
 
 protocol ChooseTokenCardTransferModeViewControllerDelegate: class, CanOpenURL {
-    func didChooseTransferViaMagicLink(token: TokenObject, tokenHolder: TokenHolder, in viewController: ChooseTokenCardTransferModeViewController)
-    func didChooseTransferNow(token: TokenObject, tokenHolder: TokenHolder, in viewController: ChooseTokenCardTransferModeViewController)
+    func didChooseTransferViaMagicLink(token: Token, tokenHolder: TokenHolder, in viewController: ChooseTokenCardTransferModeViewController)
+    func didChooseTransferNow(token: Token, tokenHolder: TokenHolder, in viewController: ChooseTokenCardTransferModeViewController)
     func didPressViewInfo(in viewController: ChooseTokenCardTransferModeViewController)
 }
 

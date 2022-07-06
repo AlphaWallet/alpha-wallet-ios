@@ -16,27 +16,19 @@ protocol Tokenable {
     var type: TokenType { get }
     var decimals: Int { get }
     var server: RPCServer { get }
-    var valueBI: BigInt { get }
-    var balanceNft: [TokenBalanceValue] { get }
+    var value: BigInt { get }
+    var balance: [TokenBalanceValue] { get }
 
     func icon(withSize size: GoogleContentSize) -> Subscribable<TokenImage>
 }
 
 extension Tokenable {
     var nftBalanceValue: [NonFungibleFromJson] {
-        return balanceNft.compactMap { $0.nonFungibleBalance }
+        return balance.compactMap { $0.nonFungibleBalance }
     }
 }
 
-extension TokenObject: Tokenable {
-    var balanceNft: [TokenBalanceValue] { balance.map { .init(balance: $0) } }
-    var valueBI: BigInt { valueBigInt }
-}
-
-extension Token: Tokenable {
-    var valueBI: BigInt { value }
-    var balanceNft: [TokenBalanceValue] { balance }
-}
+extension Token: Tokenable {}
 
 extension Tokenable {
 
@@ -92,9 +84,9 @@ extension Tokenable {
             let daiSymbol = "DAI\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}"
             //We could have just trimmed away all trailing \0, but this is faster and safer since only DAI seems to have this problem
             if daiSymbol == symbol {
-                return "\(valueBI) (DAI)".uppercased()
+                return "\(value) (DAI)".uppercased()
             } else {
-                return "\(valueBI) (\(symbol))".uppercased()
+                return "\(value) (\(symbol))".uppercased()
             }
         }
         let xmlHandler = XMLHandler(token: self, assetDefinitionStore: assetDefinitionStore)
@@ -141,9 +133,9 @@ extension Tokenable {
             let daiSymbol = "DAI\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}"
             //We could have just trimmed away all trailing \0, but this is faster and safer since only DAI seems to have this problem
             if daiSymbol == symbol {
-                return "\(valueBI) (DAI)".uppercased()
+                return "\(value) (DAI)".uppercased()
             } else {
-                return "\(valueBI) (\(symbol))".uppercased()
+                return "\(value) (\(symbol))".uppercased()
             }
         }
         let xmlHandler = XMLHandler(token: self, assetDefinitionStore: assetDefinitionStore)

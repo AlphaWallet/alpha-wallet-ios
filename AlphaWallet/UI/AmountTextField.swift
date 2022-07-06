@@ -77,7 +77,7 @@ class AmountTextField: UIControl {
     }
 
     enum Currency {
-        case cryptoCurrency(Tokenable)
+        case cryptoCurrency(Token)
         case usd
     }
 
@@ -389,7 +389,7 @@ class AmountTextField: UIControl {
 
     weak var delegate: AmountTextFieldDelegate?
 
-    init(tokenObject: Tokenable, buttonType: AmountTextField.AccessoryButtonTitle = .done) {
+    init(tokenObject: Token, buttonType: AmountTextField.AccessoryButtonTitle = .done) {
         cryptoCurrency = .cryptoCurrency(tokenObject)
         currentPair = Pair(left: cryptoCurrency, right: .usd)
 

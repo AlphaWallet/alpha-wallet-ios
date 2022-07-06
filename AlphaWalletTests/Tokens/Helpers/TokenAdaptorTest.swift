@@ -41,8 +41,7 @@ class TokenAdaptorTest: XCTestCase {
             ]),
         ]
         let assetDefinitionStore = AssetDefinitionStore()
-        let token = TokenObject()
-        token.contract = Constants.nullAddress.eip55String
+        let token = Token(contract: Constants.nullAddress)
         let bundles = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: FakeEventsDataStore()).bundleTestsOnly(tokens: tokens)
         XCTAssertEqual(bundles.count, 2)
     }
@@ -92,8 +91,8 @@ class TokenAdaptorTest: XCTestCase {
             ])
         ]
         let assetDefinitionStore = AssetDefinitionStore()
-        let token = TokenObject()
-        token.contract = Constants.nullAddress.eip55String
+        let token = Token(contract: Constants.nullAddress)
+
         let bundles = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: FakeEventsDataStore()).bundleTestsOnly(tokens: tokens)
         XCTAssertEqual(bundles.count, 2)
     }

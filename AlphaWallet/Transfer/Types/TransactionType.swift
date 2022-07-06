@@ -7,7 +7,7 @@ enum Erc1155TokenTransactionType {
 }
 
 enum TransactionType {
-    init(nonFungibleToken token: TokenObject, tokenHolders: [TokenHolder]) {
+    init(nonFungibleToken token: Token, tokenHolders: [TokenHolder]) {
         switch token.type {
         case .nativeCryptocurrency:
             self = .nativeCryptocurrency(token, destination: nil, amount: nil)
@@ -26,7 +26,7 @@ enum TransactionType {
         }
     }
 
-    init(fungibleToken token: TokenObject, recipient: AddressOrEnsName? = nil, amount: String? = nil) {
+    init(fungibleToken token: Token, recipient: AddressOrEnsName? = nil, amount: String? = nil) {
         switch token.type {
         case .nativeCryptocurrency:
             let amount = amount.flatMap { EtherNumberFormatter().number(from: $0, units: .ether) }
@@ -46,16 +46,16 @@ enum TransactionType {
         }
     }
 
-    case nativeCryptocurrency(TokenObject, destination: AddressOrEnsName?, amount: BigInt?)
-    case erc20Token(TokenObject, destination: AddressOrEnsName?, amount: String?)
-    case erc875Token(TokenObject, tokenHolders: [TokenHolder])
-    case erc875TokenOrder(TokenObject, tokenHolders: [TokenHolder])
-    case erc721Token(TokenObject, tokenHolders: [TokenHolder])
-    case erc721ForTicketToken(TokenObject, tokenHolders: [TokenHolder])
-    case erc1155Token(TokenObject, transferType: Erc1155TokenTransactionType, tokenHolders: [TokenHolder])
-    case dapp(TokenObject, DAppRequester)
-    case claimPaidErc875MagicLink(TokenObject)
-    case tokenScript(TokenObject)
+    case nativeCryptocurrency(Token, destination: AddressOrEnsName?, amount: BigInt?)
+    case erc20Token(Token, destination: AddressOrEnsName?, amount: String?)
+    case erc875Token(Token, tokenHolders: [TokenHolder])
+    case erc875TokenOrder(Token, tokenHolders: [TokenHolder])
+    case erc721Token(Token, tokenHolders: [TokenHolder])
+    case erc721ForTicketToken(Token, tokenHolders: [TokenHolder])
+    case erc1155Token(Token, transferType: Erc1155TokenTransactionType, tokenHolders: [TokenHolder])
+    case dapp(Token, DAppRequester)
+    case claimPaidErc875MagicLink(Token)
+    case tokenScript(Token)
     //TODO replace some of those above with this?
     case prebuilt(RPCServer)
 
@@ -103,7 +103,7 @@ extension TransactionType {
         }
     }
 
-    var tokenObject: TokenObject {
+    var tokenObject: Token {
         switch self {
         case .nativeCryptocurrency(let token, _, _):
             return token
@@ -125,7 +125,7 @@ extension TransactionType {
             return token
         case .prebuilt(let server):
             //Not applicable
-            return MultipleChainsTokensDataStore.functional.etherTokenObject(forServer: server)
+            return MultipleChainsTokensDataStore.functional.etherToken(forServer: server)
         }
     }
 

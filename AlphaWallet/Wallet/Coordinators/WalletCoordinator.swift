@@ -153,7 +153,7 @@ extension WalletCoordinator: QRCodeResolutionCoordinatorDelegate {
         importWalletViewController?.setValueForCurrentField(string: address.eip55String)
     }
 
-    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveTransactionType transactionType: TransactionType, token: TokenObject) {
+    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveTransactionType transactionType: TransactionType, token: Token) {
         removeCoordinator(coordinator)
         //no op
     }

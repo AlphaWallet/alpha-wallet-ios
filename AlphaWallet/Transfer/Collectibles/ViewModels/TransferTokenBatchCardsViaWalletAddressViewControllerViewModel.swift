@@ -8,7 +8,7 @@
 import UIKit
 
 struct TransferTokenBatchCardsViaWalletAddressViewControllerViewModel {
-    let token: TokenObject
+    let token: Token
     let tokenHolders: [TokenHolder]
     var availableAmountInt: Int {
         Int(tokenHolders[0].values.valueIntValue ?? 0)
