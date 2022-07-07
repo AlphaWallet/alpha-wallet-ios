@@ -15,7 +15,7 @@ enum SendTransactionNotRetryableError: Error {
 //TODO name is not right. It's not "SendTransaction" since `eth_getBalance` etc uses it too. Maybe RpcNodeRetryableRequestError?
 enum SendTransactionRetryableError: LocalizedError {
     case possibleBinanceTestnetTimeout
-    case rateLimited
+    case rateLimited(server: RPCServer, domainName: String)
     case networkConnectionWasLost
     case invalidCertificate
     case requestTimedOut

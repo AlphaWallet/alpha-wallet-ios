@@ -31,8 +31,8 @@ extension Session {
 
     private static func logRpcNodeError(_ rpcNodeError: SendTransactionRetryableError, analyticsCoordinator: AnalyticsCoordinator) {
         switch rpcNodeError {
-        case .rateLimited:
-            analyticsCoordinator.log(error: Analytics.WebApiErrors.rpcNodeRateLimited)
+        case .rateLimited(let server, let domainName):
+            analyticsCoordinator.log(error: Analytics.WebApiErrors.rpcNodeRateLimited, properties: [Analytics.Properties.chain.rawValue: server.chainID, Analytics.Properties.domainName.rawValue: domainName])
         case .possibleBinanceTestnetTimeout, .networkConnectionWasLost, .invalidCertificate, .requestTimedOut:
             return
         }
@@ -121,7 +121,7 @@ extension Session {
                 case .unacceptableStatusCode(let statusCode):
                     if statusCode == 429 {
                         warnLog("[API] Rate limited by baseURL: \(baseUrl.absoluteString)")
-                        return SendTransactionRetryableError.rateLimited
+                        return SendTransactionRetryableError.rateLimited(server: server, domainName: baseUrl.host ?? "")
                     } else {
                         RemoteLogger.instance.logRpcOrOtherWebError("APIKit.ResponseError.unacceptableStatusCode | status: \(statusCode)", url: baseUrl.absoluteString)
                     }
