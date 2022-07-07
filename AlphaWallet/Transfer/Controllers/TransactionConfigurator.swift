@@ -112,7 +112,7 @@ class TransactionConfigurator {
         )
 
         firstly {
-            Session.send(EtherServiceRequest(server: session.server, batch: BatchFactory().create(request)), analyticsCoordinator: analyticsCoordinator)
+            Session.send(EtherServiceRequest(server: session.server, batch: BatchFactory().create(request)), server: session.server, analyticsCoordinator: analyticsCoordinator)
         }.done { gasLimit in
             infoLog("Estimated gas limit with eth_estimateGas: \(gasLimit)")
             let gasLimit: BigInt = {

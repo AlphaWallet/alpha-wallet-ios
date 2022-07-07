@@ -7,14 +7,14 @@ import PromiseKit
 
 extension Session {
 
-    private class func sendImpl<Request: APIKit.Request>(_ request: Request, analyticsCoordinator: AnalyticsCoordinator, callbackQueue: CallbackQueue? = nil) -> Promise<Request.Response> {
+    private class func sendImpl<Request: APIKit.Request>(_ request: Request, server: RPCServer, analyticsCoordinator: AnalyticsCoordinator, callbackQueue: CallbackQueue? = nil) -> Promise<Request.Response> {
         let (promise, seal) = Promise<Request.Response>.pending()
         Session.send(request, callbackQueue: callbackQueue) { result in
             switch result {
             case .success(let result):
                 seal.fulfill(result)
             case .failure(let error):
-                if let e = convertToUserFriendlyError(error: error, baseUrl: request.baseURL) {
+                if let e = convertToUserFriendlyError(error: error, server: server, baseUrl: request.baseURL) {
                     if let e = e as? SendTransactionRetryableError {
                         logRpcNodeError(e, analyticsCoordinator: analyticsCoordinator)
                     }
@@ -31,27 +31,27 @@ extension Session {
 
     private static func logRpcNodeError(_ rpcNodeError: SendTransactionRetryableError, analyticsCoordinator: AnalyticsCoordinator) {
         switch rpcNodeError {
-        case .rateLimited:
-            analyticsCoordinator.log(error: Analytics.WebApiErrors.rpcNodeRateLimited)
+        case .rateLimited(let server, let domainName):
+            analyticsCoordinator.log(error: Analytics.WebApiErrors.rpcNodeRateLimited, properties: [Analytics.Properties.chain.rawValue: server.chainID, Analytics.Properties.domainName.rawValue: domainName])
         case .possibleBinanceTestnetTimeout, .networkConnectionWasLost, .invalidCertificate, .requestTimedOut:
             return
         }
     }
 
-    class func send<Request: APIKit.Request>(_ request: Request, analyticsCoordinator: AnalyticsCoordinator, callbackQueue: CallbackQueue? = nil) -> Promise<Request.Response> {
-        let promise = sendImpl(request, analyticsCoordinator: analyticsCoordinator, callbackQueue: callbackQueue)
+    class func send<Request: APIKit.Request>(_ request: Request, server: RPCServer, analyticsCoordinator: AnalyticsCoordinator, callbackQueue: CallbackQueue? = nil) -> Promise<Request.Response> {
+        let promise = sendImpl(request, server: server, analyticsCoordinator: analyticsCoordinator, callbackQueue: callbackQueue)
         return firstly {
             promise
         }.recover { error -> Promise<Request.Response> in
             if error is SendTransactionRetryableError {
-                return sendImpl(request, analyticsCoordinator: analyticsCoordinator, callbackQueue: callbackQueue)
+                return sendImpl(request, server: server, analyticsCoordinator: analyticsCoordinator, callbackQueue: callbackQueue)
             } else {
                 return promise
             }
         }
     }
 
-    static func convertToUserFriendlyError(error: SessionTaskError, baseUrl: URL) -> Error? {
+    static func convertToUserFriendlyError(error: SessionTaskError, server: RPCServer, baseUrl: URL) -> Error? {
         infoLog("convertToUserFriendlyError URL: \(baseUrl.absoluteString) error: \(error)")
         switch error {
         case .connectionError(let e):
@@ -121,7 +121,7 @@ extension Session {
                 case .unacceptableStatusCode(let statusCode):
                     if statusCode == 429 {
                         warnLog("[API] Rate limited by baseURL: \(baseUrl.absoluteString)")
-                        return SendTransactionRetryableError.rateLimited
+                        return SendTransactionRetryableError.rateLimited(server: server, domainName: baseUrl.host ?? "")
                     } else {
                         RemoteLogger.instance.logRpcOrOtherWebError("APIKit.ResponseError.unacceptableStatusCode | status: \(statusCode)", url: baseUrl.absoluteString)
                     }

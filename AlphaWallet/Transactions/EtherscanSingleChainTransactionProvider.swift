@@ -162,7 +162,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
         let request = GetTransactionRequest(hash: transaction.id)
 
         firstly {
-            Session.send(EtherServiceRequest(server: session.server, batch: BatchFactory().create(request)), analyticsCoordinator: analyticsCoordinator)
+            Session.send(EtherServiceRequest(server: session.server, batch: BatchFactory().create(request)), server: session.server, analyticsCoordinator: analyticsCoordinator)
         }.done(on: queue, { [weak self] pendingTransaction in
             guard let strongSelf = self else { return }
 

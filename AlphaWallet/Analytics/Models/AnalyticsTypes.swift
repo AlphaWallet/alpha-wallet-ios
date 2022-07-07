@@ -117,6 +117,7 @@ enum Analytics {
         case addCustomChainType
         case isAccepted
         case reason
+        case domainName
     }
 
     enum UserProperties: String, AnalyticsUserProperty {

@@ -83,7 +83,7 @@ final class GasPriceEstimator {
         let defaultPrice: BigInt = GasPriceConfiguration.defaultPrice(forServer: server)
 
         return firstly {
-            Session.send(request, analyticsCoordinator: analyticsCoordinator)
+            Session.send(request, server: server, analyticsCoordinator: analyticsCoordinator)
         }.map {
             if let gasPrice = BigInt($0.drop0x, radix: 16) {
                 if (gasPrice + GasPriceConfiguration.oneGwei) > maxPrice {
