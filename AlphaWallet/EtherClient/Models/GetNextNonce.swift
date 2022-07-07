@@ -12,11 +12,8 @@ class GetNextNonce {
     private let wallet: AlphaWallet.Address
     private let analyticsCoordinator: AnalyticsCoordinator
 
-    init(server: RPCServer, wallet: AlphaWallet.Address, analyticsCoordinator: AnalyticsCoordinator) {
-        self.rpcURL = server.rpcURL
-        self.server = server
-        self.wallet = wallet
-        self.analyticsCoordinator = analyticsCoordinator
+    convenience init(server: RPCServer, wallet: AlphaWallet.Address, analyticsCoordinator: AnalyticsCoordinator) {
+        self.init(rpcURL: server.rpcURL, server: server, wallet: wallet, analyticsCoordinator: analyticsCoordinator)
     }
 
     init(rpcURL: URL, server: RPCServer, wallet: AlphaWallet.Address, analyticsCoordinator: AnalyticsCoordinator) {
