@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import SwiftyJSON 
+import SwiftyJSON
 
 enum DeepLink {
     static let walletConnectPath = "/wc"
@@ -82,7 +82,6 @@ extension DeepLink {
         let name: String
         let iconUrl: URL?
         let appUrl: URL?
-        let note: String?
 
         init?(json: JSON) {
             guard let name = json["name"].string else { return nil }
@@ -90,7 +89,6 @@ extension DeepLink {
             self.name = name
             self.iconUrl = json["iconurl"].string.flatMap { URL(string: $0) }
             self.appUrl = json["appurl"].string.flatMap { URL(string: $0) }
-            self.note = json["note"].string
         }
     }
 }
@@ -98,7 +96,7 @@ extension DeepLink {
 extension DeepLink.functional {
     //E.g. https://aw.app/wallet/v1/connect?redirecturl=https%3A%2F%2Fmyapp.com&metadata=%7B%22name%22%3A%22Some%20app%22%2C%22iconurl%22%3A%22https%3A%2F%2Fimg.icons8.com%2Fnolan%2F344%2Fethereum.png%22%2C%20%22appurl%22%3A%20%22https%3A%2F%2Funiswap.org%2F%22%2C%20%22note%22%3A%22This%20will%20inform%20them%20your%20wallet%20address%20is%200x2322%E2%80%A62324%22%7D
     //E.g https://aw.app/wallet/v1/signpersonalmessage?redirecturl=https%3A%2F%2Fmyapp.com%3Fparam_1%3Dnope%26param_2%3D34&metadata=%7B%22name%22%3A%22Some%20app%22%2C%22iconurl%22%3A%22https%3A%2F%2Fimg.icons8.com%2Fnolan%2F344%2Fethereum.png%22%2C%20%22appurl%22%3A%20%22https%3A%2F%2Funiswap.org%2F%22%2C%20%22note%22%3A%22This%20will%20inform%20them%20your%20wallet%20address%20is%200x2322%E2%80%A62324%22%7D&message=0x48656c6c6f20416c7068612057616c6c6574
-    
+
     static func hasEmbeddedWalletApiAction(url: URL, supportedServers: [RPCServer]) -> DeepLink.WalletApi? {
         guard let result = validateSupportingServerAndPath(url: url, supportedServers: supportedServers, path: DeepLink.walletPath) else {
             return nil
