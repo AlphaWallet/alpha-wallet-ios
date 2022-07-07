@@ -19,7 +19,7 @@ final class PendingTransactionFetcher {
         let request = GetTransactionRequest(hash: id)
 
         return Session
-            .sendPublisher(EtherServiceRequest(server: server, batch: BatchFactory().create(request)))
+            .sendPublisher(EtherServiceRequest(server: server, batch: BatchFactory().create(request)), server: server)
             .eraseToAnyPublisher()
     }
 }

@@ -14,7 +14,7 @@ import PromiseKit
 
 extension Session {
     typealias SendPublisherExampleClosure = (_ callback: @escaping(SessionTaskError?) -> Void) -> Void
-    
+
     class func sendPublisherTestsOnly(closure: @escaping SendPublisherExampleClosure) -> AnyPublisher<Void, SessionTaskError> {
         var isCanceled: Bool = false
         let publisher = Deferred {
@@ -22,7 +22,8 @@ extension Session {
                 closure { error in
                     guard !isCanceled else { return }
                     if let error = error {
-                        if let e = convertToUserFriendlyError(error: error, baseUrl: URL(string: "http:/google.com")!) {
+                        let server = RPCServer.main
+                        if let e = convertToUserFriendlyError(error: error, server: server, baseUrl: URL(string: "http:/google.com")!) {
                             seal(.failure(.requestError(e)))
                         } else {
                             seal(.failure(error))

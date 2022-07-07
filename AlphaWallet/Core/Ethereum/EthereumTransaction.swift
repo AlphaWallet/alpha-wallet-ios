@@ -14,7 +14,7 @@ enum EthereumTransaction {
     static func isCompleted(transactionId: Id, server: RPCServer, analyticsCoordinator: AnalyticsCoordinator) -> Promise<Bool> {
         let request = GetTransactionRequest(hash: transactionId)
         return firstly {
-            Session.send(EtherServiceRequest(server: server, batch: BatchFactory().create(request)), analyticsCoordinator: analyticsCoordinator)
+            Session.send(EtherServiceRequest(server: server, batch: BatchFactory().create(request)), server: server, analyticsCoordinator: analyticsCoordinator)
         }.map { pendingTransaction in
             if let blockNumber = Int(pendingTransaction.blockNumber), blockNumber > 0 {
                 return true

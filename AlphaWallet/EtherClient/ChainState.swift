@@ -56,7 +56,7 @@ class ChainState {
     @objc func fetch() {
         let request = EtherServiceRequest(server: server, batch: BatchFactory().create(BlockNumberRequest()))
         firstly {
-            Session.send(request, analyticsCoordinator: analyticsCoordinator)
+            Session.send(request, server: server, analyticsCoordinator: analyticsCoordinator)
         }.done { [weak self] in
             self?.latestBlock = $0
         }.catch { error in
