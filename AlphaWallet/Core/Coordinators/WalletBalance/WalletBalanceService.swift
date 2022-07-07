@@ -154,7 +154,7 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
             .fetchChartHistories(addressToRPCServerKey: addressToRPCServerKey, force: force, periods: periods)
     }
 
-    /// NOTE: internal for test ourposes
+    /// NOTE: internal for test purposes
     func createWalletBalanceFetcher(wallet: Wallet) -> WalletBalanceFetcherType {
         let tokensDataStore: TokensDataStore = MultipleChainsTokensDataStore(store: store.getOrCreateStore(forWallet: wallet), servers: config.enabledServers)
         let transactionsStorage = TransactionDataStore(store: store.getOrCreateStore(forWallet: wallet))
