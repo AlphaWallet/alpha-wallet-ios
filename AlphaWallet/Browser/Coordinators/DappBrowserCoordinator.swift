@@ -180,7 +180,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     private func ethCall(callbackID: Int, from: AlphaWallet.Address?, to: AlphaWallet.Address?, value: String?, data: String, server: RPCServer) {
         let request = EthCallRequest(from: from, to: to, value: value, data: data)
         firstly {
-            Session.send(EtherServiceRequest(server: server, batch: BatchFactory().create(request)))
+            Session.send(EtherServiceRequest(server: server, batch: BatchFactory().create(request)), analyticsCoordinator: analyticsCoordinator)
         }.done { result in
             let callback = DappCallback(id: callbackID, value: .ethCall(result))
             self.browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))

@@ -57,7 +57,7 @@ class TransactionConfirmationCoordinator: Coordinator {
     weak var delegate: TransactionConfirmationCoordinatorDelegate?
 
     init(presentingViewController: UIViewController, session: WalletSession, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationViewModel.Configuration, analyticsCoordinator: AnalyticsCoordinator, domainResolutionService: DomainResolutionServiceType, keystore: Keystore, assetDefinitionStore: AssetDefinitionStore) throws {
-        configurator = try TransactionConfigurator(session: session, transaction: transaction)
+        configurator = try TransactionConfigurator(session: session, analyticsCoordinator: analyticsCoordinator, transaction: transaction)
         self.keystore = keystore
         self.assetDefinitionStore = assetDefinitionStore
         self.configuration = configuration
@@ -231,7 +231,7 @@ extension TransactionConfirmationCoordinator: TransactionConfiguratorDelegate {
         viewModel.reloadView()
         viewModel.updateBalance()
     }
-    
+
     func gasLimitEstimateUpdated(to estimate: BigInt, in configurator: TransactionConfigurator) {
         configureTransactionViewController?.configure(withEstimatedGasLimit: estimate, configurator: configurator)
 

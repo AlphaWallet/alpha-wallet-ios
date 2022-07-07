@@ -33,7 +33,7 @@ class SendTransactionCoordinator {
         let request = EtherServiceRequest(rpcURL: rpcURL, batch: BatchFactory().create(rawRequest))
 
         return firstly {
-            Session.send(request)
+            Session.send(request, analyticsCoordinator: analyticsCoordinator)
         }.recover { error -> Promise<SendRawTransactionRequest.Response> in
             self.logSelectSendError(error)
             throw error
@@ -72,7 +72,7 @@ class SendTransactionCoordinator {
 
     private func resolveNextNonce(for transaction: UnsignedTransaction) -> Promise<UnsignedTransaction> {
         firstly {
-            GetNextNonce(rpcURL: rpcURL, wallet: session.account.address).promise()
+            GetNextNonce(rpcURL: rpcURL, wallet: session.account.address, analyticsCoordinator: analyticsCoordinator).promise()
         }.map { nonce -> UnsignedTransaction in
             let transaction = self.appendNonce(to: transaction, currentNonce: nonce)
             return transaction
@@ -97,7 +97,7 @@ class SendTransactionCoordinator {
         let request = EtherServiceRequest(rpcURL: rpcURL, batch: BatchFactory().create(rawTransaction))
 
         return firstly {
-            Session.send(request)
+            Session.send(request, analyticsCoordinator: analyticsCoordinator)
         }.recover { error -> Promise<SendRawTransactionRequest.Response> in
             self.logSelectSendError(error)
             throw error

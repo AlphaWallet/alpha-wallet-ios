@@ -7,14 +7,16 @@ import PromiseKit
 class PaymentFlowFromEip681UrlResolver: Coordinator {
     private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let config: Config
     private let account: Wallet
     var coordinators: [Coordinator] = []
 
-    init(tokensDataStore: TokensDataStore, account: Wallet, assetDefinitionStore: AssetDefinitionStore, config: Config) {
+    init(tokensDataStore: TokensDataStore, account: Wallet, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, config: Config) {
         self.tokensDataStore = tokensDataStore
         self.account = account
         self.assetDefinitionStore = assetDefinitionStore
+        self.analyticsCoordinator = analyticsCoordinator
         self.config = config
     }
 
@@ -37,6 +39,7 @@ class PaymentFlowFromEip681UrlResolver: Coordinator {
 
         let tokensDataStore = self.tokensDataStore
         let assetDefinitionStore = self.assetDefinitionStore
+        let analyticsCoordinator = self.analyticsCoordinator
         let config = self.config
 
         switch result {
@@ -59,7 +62,7 @@ class PaymentFlowFromEip681UrlResolver: Coordinator {
 
                         seal.fulfill((paymentFlow: .send(type: .transaction(transactionType)), server: server))
                     } else {
-                        ContractDataDetector(address: contract, account: self.account, server: server, assetDefinitionStore: assetDefinitionStore).fetch { data in
+                        ContractDataDetector(address: contract, account: self.account, server: server, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator).fetch { data in
                             switch data {
                             case .name, .symbol, .balance, .decimals, .nonFungibleTokenComplete, .delegateTokenComplete, .failed:
                                 //seal.reject(PMKError.cancelled)

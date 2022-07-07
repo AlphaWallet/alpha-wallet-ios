@@ -151,7 +151,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private let localStore: LocalStore
     private let tokenSwapper: TokenSwapper
     private lazy var importToken: ImportToken = {
-        return ImportToken(sessions: sessionsSubject, wallet: wallet, tokensDataStore: tokensDataStore, assetDefinitionStore: assetDefinitionStore)
+        return ImportToken(sessions: sessionsSubject, wallet: wallet, tokensDataStore: tokensDataStore, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator)
     }()
 
     init(
@@ -287,7 +287,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         for each in config.enabledServers {
             let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: each)
             let tokenBalanceService = SingleChainTokenBalanceService(wallet: wallet, server: each, etherToken: etherToken, tokenBalanceProvider: walletBalanceService)
-            let session = WalletSession(account: wallet, server: each, config: config, tokenBalanceService: tokenBalanceService)
+            let session = WalletSession(account: wallet, server: each, config: config, tokenBalanceService: tokenBalanceService, analyticsCoordinator: analyticsCoordinator)
 
             walletSessions[each] = session
         }
@@ -352,7 +352,8 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         let transactionsService = TransactionsService(
             sessions: sessionsSubject.value,
             transactionDataStore: transactionDataStore,
-            tokensDataStore: tokensDataStore
+            tokensDataStore: tokensDataStore,
+            analyticsCoordinator: analyticsCoordinator
         )
         transactionsService.delegate = self
         let coordinator = TransactionCoordinator(

@@ -98,14 +98,16 @@ final class QRCodeResolutionCoordinator: Coordinator {
     }
     private let scanQRCodeCoordinator: ScanQRCodeCoordinator
     private let account: Wallet
+    private let analyticsCoordinator: AnalyticsCoordinator
     var coordinators: [Coordinator] = []
     weak var delegate: QRCodeResolutionCoordinatorDelegate?
 
-    init(config: Config, coordinator: ScanQRCodeCoordinator, usage: Usage, account: Wallet) {
+    init(config: Config, coordinator: ScanQRCodeCoordinator, usage: Usage, account: Wallet, analyticsCoordinator: AnalyticsCoordinator) {
         self.config = config
         self.usage = usage
         self.scanQRCodeCoordinator = coordinator
         self.account = account
+        self.analyticsCoordinator = analyticsCoordinator
     }
 
     func start(fromSource source: Analytics.ScanQRCodeSource) {
@@ -242,7 +244,8 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
     }
 
     private func checkEIP681(_ params: CheckEIP681Params, tokensDatastore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore) -> Promise<(transactionType: TransactionType, token: Token)> {
-        Eip681Parser(protocolName: params.protocolName, address: params.address, functionName: params.functionName, params: params.params).parse().then { result -> Promise<(transactionType: TransactionType, token: Token)> in
+        let analyticsCoordinator = self.analyticsCoordinator
+        return Eip681Parser(protocolName: params.protocolName, address: params.address, functionName: params.functionName, params: params.params).parse().then { result -> Promise<(transactionType: TransactionType, token: Token)> in
             guard let (contract: contract, customServer, recipient, maybeScientificAmountString) = result.parameters else { return .init(error: CheckEIP681Error.parameterInvalid) }
             guard let server = self.serverFromEip681LinkOrDefault(customServer) else { return .init(error: CheckEIP681Error.missingRpcServer) }
             if let token = tokensDatastore.token(forContract: contract, server: server) {
@@ -253,7 +256,7 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
                 return .value((transactionType, token))
             } else {
                 return Promise { resolver in
-                    ContractDataDetector(address: contract, account: self.account, server: server, assetDefinitionStore: assetDefinitionStore).fetch { result in
+                    ContractDataDetector(address: contract, account: self.account, server: server, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator).fetch { result in
                         switch result {
                         case .name, .symbol, .balance, .decimals, .nonFungibleTokenComplete, .delegateTokenComplete, .failed:
                             resolver.reject(CheckEIP681Error.contractInvalid)

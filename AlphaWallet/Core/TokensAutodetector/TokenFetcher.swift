@@ -15,20 +15,22 @@ protocol TokenFetcher: NSObjectProtocol {
 class SingleChainTokenFetcher: NSObject, TokenFetcher {
 
     private let assetDefinitionStore: AssetDefinitionStore
+    private let analyticsCoordinator: AnalyticsCoordinator
     private var promises: AtomicDictionary<AlphaWallet.Address, Promise<TokenOrContract>> = .init()
     private let session: WalletSession
 
-    init(session: WalletSession, assetDefinitionStore: AssetDefinitionStore) {
+    init(session: WalletSession, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator) {
         self.session = session
         self.assetDefinitionStore = assetDefinitionStore
-    } 
+        self.analyticsCoordinator = analyticsCoordinator
+    }
 
     func fetchTokenOrContract(for contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool = false) -> Promise<TokenOrContract> {
         if let promise = promises[contract] {
             return promise
         } else {
             let server = session.server
-            let detector = ContractDataDetector(address: contract, account: session.account, server: server, assetDefinitionStore: assetDefinitionStore)
+            let detector = ContractDataDetector(address: contract, account: session.account, server: server, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator)
             let promise = Promise<TokenOrContract> { seal in
                 detector.fetch { data in
                     switch data {

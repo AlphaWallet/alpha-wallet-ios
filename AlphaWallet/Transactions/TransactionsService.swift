@@ -17,6 +17,7 @@ class TransactionsService {
     let transactionDataStore: TransactionDataStore
     private let sessions: ServerDictionary<WalletSession>
     private let tokensDataStore: TokensDataStore
+    private let analyticsCoordinator: AnalyticsCoordinator
     private var providers: [SingleChainTransactionProvider] = []
     private var config: Config { return sessions.anyValue.config }
     private let fetchLatestTransactionsQueue: OperationQueue = {
@@ -44,10 +45,11 @@ class TransactionsService {
     private var cancelable = Set<AnyCancellable>()
     private let queue = DispatchQueue(label: "com.TransactionsService.UpdateQueue")
 
-    init(sessions: ServerDictionary<WalletSession>, transactionDataStore: TransactionDataStore, tokensDataStore: TokensDataStore) {
+    init(sessions: ServerDictionary<WalletSession>, transactionDataStore: TransactionDataStore, tokensDataStore: TokensDataStore, analyticsCoordinator: AnalyticsCoordinator) {
         self.sessions = sessions
         self.transactionDataStore = transactionDataStore
         self.tokensDataStore = tokensDataStore
+        self.analyticsCoordinator = analyticsCoordinator
 
         setupSingleChainTransactionProviders()
 
@@ -59,7 +61,7 @@ class TransactionsService {
                     self?.stopTimers()
                 case .willEnterForeground:
                     self?.restartTimers()
-                } 
+                }
             }.store(in: &cancelable)
 
     }
@@ -78,9 +80,9 @@ class TransactionsService {
             let providerType = each.server.transactionProviderType
             let tokensFromTransactionsFetcher = TokensFromTransactionsFetcher(tokensDataStore: tokensDataStore, session: each)
             tokensFromTransactionsFetcher.delegate = self
-            let provider = providerType.init(session: each, transactionDataStore: transactionDataStore, tokensDataStore: tokensDataStore, fetchLatestTransactionsQueue: fetchLatestTransactionsQueue, tokensFromTransactionsFetcher: tokensFromTransactionsFetcher)
+            let provider = providerType.init(session: each, analyticsCoordinator: analyticsCoordinator, transactionDataStore: transactionDataStore, tokensDataStore: tokensDataStore, fetchLatestTransactionsQueue: fetchLatestTransactionsQueue, tokensFromTransactionsFetcher: tokensFromTransactionsFetcher)
             provider.delegate = self
-            
+
             return provider
         }
     }
@@ -89,7 +91,7 @@ class TransactionsService {
         for each in providers {
             each.start()
         }
-        
+
         queue.async {
             self.removeUnknownTransactions()
         }
@@ -123,7 +125,7 @@ class TransactionsService {
 
     func addSentTransaction(_ transaction: SentTransaction) {
         let session = sessions[transaction.original.server]
-        
+
         TransactionDataStore.pendingTransactionsInformation[transaction.id] = (server: transaction.original.server, data: transaction.original.data, transactionType: transaction.original.transactionType, gasPrice: transaction.original.gasPrice)
         let token = transaction.original.to.flatMap { tokensDataStore.token(forContract: $0, server: transaction.original.server) }
         let transaction = TransactionInstance.from(from: session.account.address, transaction: transaction, token: token)

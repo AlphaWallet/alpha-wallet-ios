@@ -110,7 +110,7 @@ extension SaveCustomRpcCoordinator: SaveCustomRpcEntryViewControllerDataDelegate
         }
 
         let customChain = WalletAddEthereumChainObject(nativeCurrency: .init(name: customRpc.nativeCryptoTokenName ?? R.string.localizable.addCustomChainUnnamed(), symbol: customRpc.symbol ?? "", decimals: defaultDecimals), blockExplorerUrls: explorerEndpoints, chainName: customRpc.chainName, chainId: String(customRpc.chainID), rpcUrls: [customRpc.rpcEndpoint])
-        let saveCustomChain = AddCustomChain(customChain, isTestnet: customRpc.isTestnet, restartQueue: restartQueue, url: nil, operation: operation)
+        let saveCustomChain = AddCustomChain(customChain, analyticsCoordinator: analyticsCoordinator, isTestnet: customRpc.isTestnet, restartQueue: restartQueue, url: nil, operation: operation)
         saveCustomChain.delegate = self
         saveCustomChain.run()
     }
@@ -121,7 +121,7 @@ extension SaveCustomRpcCoordinator: SaveCustomRpcBrowseViewControllerDataDelegat
 
     func didFinish(in viewController: SaveCustomRpcBrowseViewController, customRpcArray: [CustomRPC]) {
         let model = AddMultipleCustomRpcModel(remainingCustomRpc: customRpcArray)
-        let addViewController = AddMultipleCustomRpcViewController(model: model, restartQueue: restartQueue)
+        let addViewController = AddMultipleCustomRpcViewController(model: model, analyticsCoordinator: analyticsCoordinator, restartQueue: restartQueue)
         addViewController.delegate = self
         viewController.present(addViewController, animated: true) {
             addViewController.start()

@@ -7,7 +7,7 @@ import PromiseKit
 
 extension Session {
 
-    private class func sendImpl<Request: APIKit.Request>(_ request: Request, callbackQueue: CallbackQueue? = nil) -> Promise<Request.Response> {
+    private class func sendImpl<Request: APIKit.Request>(_ request: Request, analyticsCoordinator: AnalyticsCoordinator, callbackQueue: CallbackQueue? = nil) -> Promise<Request.Response> {
         let (promise, seal) = Promise<Request.Response>.pending()
         Session.send(request, callbackQueue: callbackQueue) { result in
             switch result {
@@ -15,23 +15,36 @@ extension Session {
                 seal.fulfill(result)
             case .failure(let error):
                 if let e = convertToUserFriendlyError(error: error, baseUrl: request.baseURL) {
+                    if let e = e as? SendTransactionRetryableError {
+                        logRpcNodeError(e, analyticsCoordinator: analyticsCoordinator)
+                    }
+
                     seal.reject(e)
                 } else {
                     seal.reject(error)
                 }
             }
         }
-        
+
         return promise
     }
 
-    class func send<Request: APIKit.Request>(_ request: Request, callbackQueue: CallbackQueue? = nil) -> Promise<Request.Response> {
-        let promise = sendImpl(request, callbackQueue: callbackQueue)
+    private static func logRpcNodeError(_ rpcNodeError: SendTransactionRetryableError, analyticsCoordinator: AnalyticsCoordinator) {
+        switch rpcNodeError {
+        case .rateLimited:
+            analyticsCoordinator.log(error: Analytics.WebApiErrors.rpcNodeRateLimited)
+        case .possibleBinanceTestnetTimeout, .networkConnectionWasLost, .invalidCertificate, .requestTimedOut:
+            return
+        }
+    }
+
+    class func send<Request: APIKit.Request>(_ request: Request, analyticsCoordinator: AnalyticsCoordinator, callbackQueue: CallbackQueue? = nil) -> Promise<Request.Response> {
+        let promise = sendImpl(request, analyticsCoordinator: analyticsCoordinator, callbackQueue: callbackQueue)
         return firstly {
             promise
         }.recover { error -> Promise<Request.Response> in
             if error is SendTransactionRetryableError {
-                return sendImpl(request, callbackQueue: callbackQueue)
+                return sendImpl(request, analyticsCoordinator: analyticsCoordinator, callbackQueue: callbackQueue)
             } else {
                 return promise
             }
