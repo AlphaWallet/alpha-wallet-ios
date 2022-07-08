@@ -19,7 +19,6 @@ class PaymentCoordinator: Coordinator {
     private let server: RPCServer
     private let sessions: CurrentValueSubject<ServerDictionary<WalletSession>, Never>
     private let keystore: Keystore
-    private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
     private let analyticsCoordinator: AnalyticsCoordinator
     private let eventsDataStore: NonActivityEventsDataStore
@@ -41,7 +40,6 @@ class PaymentCoordinator: Coordinator {
             server: RPCServer,
             sessions: CurrentValueSubject<ServerDictionary<WalletSession>, Never>,
             keystore: Keystore,
-            tokensDataStore: TokensDataStore,
             assetDefinitionStore: AssetDefinitionStore,
             analyticsCoordinator: AnalyticsCoordinator,
             eventsDataStore: NonActivityEventsDataStore,
@@ -58,7 +56,6 @@ class PaymentCoordinator: Coordinator {
         self.sessions = sessions
         self.flow = flow
         self.keystore = keystore
-        self.tokensDataStore = tokensDataStore
         self.assetDefinitionStore = assetDefinitionStore
         self.analyticsCoordinator = analyticsCoordinator
         self.eventsDataStore = eventsDataStore
@@ -74,7 +71,7 @@ class PaymentCoordinator: Coordinator {
             navigationController: navigationController,
             session: session,
             keystore: keystore,
-            tokensDataStore: tokensDataStore,
+            service: tokenCollection,
             assetDefinitionStore: assetDefinitionStore,
             analyticsCoordinator: analyticsCoordinator,
             domainResolutionService: domainResolutionService
@@ -99,7 +96,7 @@ class PaymentCoordinator: Coordinator {
     }
 
     private func startWithTokenScriptCoordinator(action: TokenInstanceAction, token: Token, tokenHolder: TokenHolder) {
-        let coordinator = TokenScriptCoordinator(session: session, navigationController: navigationController, keystore: keystore, tokenHolder: tokenHolder, tokensStorage: tokensDataStore, tokenObject: token, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService, action: action, eventsDataStore: eventsDataStore)
+        let coordinator = TokenScriptCoordinator(session: session, navigationController: navigationController, keystore: keystore, tokenHolder: tokenHolder, tokenObject: token, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService, action: action, eventsDataStore: eventsDataStore)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)

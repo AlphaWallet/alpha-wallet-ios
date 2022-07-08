@@ -18,7 +18,6 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
     private let action: TokenInstanceAction
     private let session: WalletSession
     private let keystore: Keystore
-    private let tokensStorage: TokensDataStore
     private let roundedBackground = RoundedBackground()
     lazy private var tokenScriptRendererView: TokenInstanceWebView = {
         let webView = TokenInstanceWebView(analyticsCoordinator: analyticsCoordinator, server: server, wallet: session.account, assetDefinitionStore: assetDefinitionStore, keystore: keystore)
@@ -68,11 +67,10 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
         }
     }
 
-    init(analyticsCoordinator: AnalyticsCoordinator, token: Token, tokenHolder: TokenHolder, tokensStorage: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, action: TokenInstanceAction, session: WalletSession, keystore: Keystore) {
+    init(analyticsCoordinator: AnalyticsCoordinator, token: Token, tokenHolder: TokenHolder, assetDefinitionStore: AssetDefinitionStore, action: TokenInstanceAction, session: WalletSession, keystore: Keystore) {
         self.analyticsCoordinator = analyticsCoordinator
         self.token = token
         self.tokenHolder = tokenHolder
-        self.tokensStorage = tokensStorage
         self.assetDefinitionStore = assetDefinitionStore
         self.action = action
         self.session = session

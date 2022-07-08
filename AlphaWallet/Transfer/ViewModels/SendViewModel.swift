@@ -6,14 +6,12 @@ import BigInt
 
 struct SendViewModel {
     private let session: WalletSession
-    private let tokensDataStore: TokensDataStore
 
     let transactionType: TransactionType
 
-    init(transactionType: TransactionType, session: WalletSession, tokensDataStore: TokensDataStore) {
+    init(transactionType: TransactionType, session: WalletSession) {
         self.transactionType = transactionType
-        self.session = session
-        self.tokensDataStore = tokensDataStore
+        self.session = session 
     }
 
     let amountViewModel = SendViewSectionHeaderViewModel(
