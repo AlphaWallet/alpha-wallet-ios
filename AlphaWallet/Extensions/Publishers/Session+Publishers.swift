@@ -16,7 +16,7 @@ extension Session {
         sendImplPublisher(request, server: server, callbackQueue: callbackQueue)
             .retry(times: 2, when: {
                 guard case SessionTaskError.requestError(let e) = $0 else { return false }
-                return e is SendTransactionRetryableError
+                return e is RpcNodeRetryableRequestError
             })
             .eraseToAnyPublisher()
     }

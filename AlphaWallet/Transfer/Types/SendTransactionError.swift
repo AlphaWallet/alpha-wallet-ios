@@ -12,8 +12,7 @@ enum SendTransactionNotRetryableError: Error {
     case executionReverted(message: String)
 }
 
-//TODO name is not right. It's not "SendTransaction" since `eth_getBalance` etc uses it too. Maybe RpcNodeRetryableRequestError?
-enum SendTransactionRetryableError: LocalizedError {
+enum RpcNodeRetryableRequestError: LocalizedError {
     case possibleBinanceTestnetTimeout
     case rateLimited(server: RPCServer, domainName: String)
     case networkConnectionWasLost

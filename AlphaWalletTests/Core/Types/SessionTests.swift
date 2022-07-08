@@ -51,7 +51,7 @@ class SessionTests: XCTestCase {
 
         let testExampleClosure: Session.SendPublisherExampleClosure = { closure in
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                closure(.requestError(SendTransactionRetryableError.networkConnectionWasLost))
+                closure(.requestError(RpcNodeRetryableRequestError.networkConnectionWasLost))
             }
             callbackCallCounter += 1
         }
@@ -59,7 +59,7 @@ class SessionTests: XCTestCase {
         Session.sendPublisherTestsOnly(closure: testExampleClosure)
             .retry(times: 2, when: {
                 guard case SessionTaskError.requestError(let e) = $0 else { return false }
-                return e is SendTransactionRetryableError
+                return e is RpcNodeRetryableRequestError
             })
             .replaceError(with: ())
             .eraseToAnyPublisher()
@@ -77,7 +77,7 @@ class SessionTests: XCTestCase {
 
         let testExampleClosure: Session.SendPublisherExampleClosure = { closure in
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                closure(.requestError(SendTransactionRetryableError.networkConnectionWasLost))
+                closure(.requestError(RpcNodeRetryableRequestError.networkConnectionWasLost))
             }
         }
 
@@ -86,7 +86,7 @@ class SessionTests: XCTestCase {
             .retry(times: 2, when: {
                 retryCallbackCallCounter += 1
                 guard case SessionTaskError.requestError(let e) = $0 else { return false }
-                return e is SendTransactionRetryableError
+                return e is RpcNodeRetryableRequestError
             })
             .eraseToAnyPublisher()
             .sink(receiveCompletion: { _ in
