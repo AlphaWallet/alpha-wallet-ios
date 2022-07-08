@@ -12,6 +12,8 @@ import Combine
 class ImportToken {
     enum ImportTokenError: Error {
         case serverIsDisabled
+        case nothingToImport
+        case others
     }
     private let sessions: CurrentValueSubject<ServerDictionary<WalletSession>, Never>
     private let assetDefinitionStore: AssetDefinitionStore
@@ -34,7 +36,7 @@ class ImportToken {
 
     private func addUefaTokenIfAny() {
         guard !isRunningTests() else { return }
-        
+
         //NOTE: initally when we set sessions, we want to import uefa tokens, for enabled chain
         sessions.filter { !$0.values.isEmpty }
             .first()
@@ -42,21 +44,39 @@ class ImportToken {
                 let server = Constants.uefaRpcServer
                 self.importToken(for: Constants.uefaMainnet, server: server, onlyIfThereIsABalance: true)
                     .done { _ in }
-                    .cauterize()
+                    .recover { error in
+                        if let error = error as? ImportToken.ImportTokenError {
+                            switch error {
+                            case .serverIsDisabled:
+                                //no-op. Since we didn't check if chain is enabled, we just let it be. But if there are other enum-cases, we don't want to eat the errors, we should re-throw those
+                                break
+                            case .nothingToImport:
+                                //no-op. We don't import it, possibly because balance is 0
+                                break
+                            case .others:
+                                throw error
+                            }
+                        } else {
+                            throw error
+                        }
+                    }
             }.store(in: &cancelable)
     }
 
     //Adding a token may fail if we lose connectivity while fetching the contract details (e.g. name and balance). So we remove the contract from the hidden list (if it was there) so that the app has the chance to add it automatically upon auto detection at startup
     func importToken(for contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool = false) -> Promise<Token> {
-        struct ImportTokenError: Error { }
-
-        return firstly {
+        firstly {
             fetchTokenOrContract(for: contract, server: server, onlyIfThereIsABalance: onlyIfThereIsABalance)
         }.map { [tokensDataStore] operation -> Token in
-            if let token = tokensDataStore.addOrUpdate(tokensOrContracts: [operation]).first {
-                return token
-            } else {
-                throw ImportTokenError()
+            switch operation {
+            case .none:
+                throw ImportTokenError.nothingToImport
+            case .ercToken, .token, .delegateContracts, .deletedContracts, .fungibleTokenComplete:
+                if let token = tokensDataStore.addOrUpdate(tokensOrContracts: [operation]).first {
+                    return token
+                } else {
+                    throw ImportTokenError.others
+                }
             }
         }
     }
