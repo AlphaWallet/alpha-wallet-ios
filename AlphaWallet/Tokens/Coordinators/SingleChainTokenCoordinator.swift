@@ -2,9 +2,6 @@
 
 import Foundation
 import UIKit
-import BigInt
-import PromiseKit
-import Result
 
 struct NoTokenError: LocalizedError {
     var errorDescription: String? {
@@ -43,7 +40,6 @@ class SingleChainTokenCoordinator: Coordinator {
     }
     private let alertService: PriceAlertServiceType
     private let tokensAutodetector: TokensAutodetector
-    private let importToken: ImportToken
 
     init(
             session: WalletSession,
@@ -57,8 +53,7 @@ class SingleChainTokenCoordinator: Coordinator {
             coinTickersFetcher: CoinTickersFetcherType,
             activitiesService: ActivitiesServiceType,
             alertService: PriceAlertServiceType,
-            tokensAutodetector: TokensAutodetector,
-            importToken: ImportToken
+            tokensAutodetector: TokensAutodetector
     ) {
         self.session = session
         self.keystore = keystore
@@ -72,7 +67,6 @@ class SingleChainTokenCoordinator: Coordinator {
         self.activitiesService = activitiesService
         self.alertService = alertService
         self.tokensAutodetector = tokensAutodetector
-        self.importToken = importToken
     }
 
     func start() {

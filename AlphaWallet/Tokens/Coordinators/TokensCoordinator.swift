@@ -92,7 +92,6 @@ class TokensCoordinator: Coordinator {
     private let domainResolutionService: DomainResolutionServiceType
     private let importToken: ImportToken
     private lazy var walletNameFetcher = GetWalletName(domainResolutionService: domainResolutionService)
-    private var getWalletNameCancelable: AnyCancellable?
 
     init(
             navigationController: UINavigationController = .withOverridenBarAppearence(),
@@ -173,7 +172,6 @@ class TokensCoordinator: Coordinator {
         }
         navigationController.viewControllers = [rootViewController]
 
-        addUefaTokenIfAny()
         alertService.start()
     }
 
@@ -188,7 +186,7 @@ class TokensCoordinator: Coordinator {
                 SingleChainTokensAutodetector(session: session, config: config, tokensDataStore: tokensDataStore, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, queue: tokensAutoDetectionQueue, importToken: importToken)
             }()
 
-            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, tokensStorage: tokensDataStore, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analyticsCoordinator: analyticsCoordinator, openSea: openSea, tokenActionsProvider: tokenActionsService, coinTickersFetcher: coinTickersFetcher, activitiesService: activitiesService, alertService: alertService, tokensAutodetector: tokensAutodetector, importToken: importToken)
+            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, tokensStorage: tokensDataStore, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analyticsCoordinator: analyticsCoordinator, openSea: openSea, tokenActionsProvider: tokenActionsService, coinTickersFetcher: coinTickersFetcher, activitiesService: activitiesService, alertService: alertService, tokensAutodetector: tokensAutodetector)
 
             coordinator.delegate = self
             addCoordinator(coordinator)
@@ -197,13 +195,6 @@ class TokensCoordinator: Coordinator {
 
     private func showTokens() {
         navigationController.viewControllers = [rootViewController]
-    }
-
-    private func addUefaTokenIfAny() {
-        let server = Constants.uefaRpcServer
-        importToken.importToken(for: Constants.uefaMainnet, server: server, onlyIfThereIsABalance: true)
-            .done { _ in }
-            .cauterize()
     }
 
     private func singleChainTokenCoordinator(forServer server: RPCServer) -> SingleChainTokenCoordinator? {
