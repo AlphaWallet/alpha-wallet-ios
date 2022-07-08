@@ -434,6 +434,7 @@
 		5E7C760E41FF2E035BC968C5 /* AssetFunctionCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C70021319DD5C92314A8A /* AssetFunctionCall.swift */; };
 		5E7C760F9D7C178E17C75C52 /* ImportTokenViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7487BDF72352446E1266 /* ImportTokenViewControllerTests.swift */; };
 		5E7C76194F5934264E5BABC8 /* ActivityViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7F5A42365FDA22AEE6F7 /* ActivityViewModel.swift */; };
+		5E7C762FC313F112981FAD35 /* DevelopmentForcedError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7E96297DA0571067C85E /* DevelopmentForcedError.swift */; };
 		5E7C763797FA4BE836308C25 /* Function.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73E8500C2573331D800D /* Function.swift */; };
 		5E7C76393408CC2489FF4527 /* AssetDefinitionsOverridesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7F21FA7A02F6341FB58D /* AssetDefinitionsOverridesViewController.swift */; };
 		5E7C76484BE3E1F41ABA4A00 /* SwapEstimate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7BAA0982F291BCE00361 /* SwapEstimate.swift */; };
@@ -1914,6 +1915,7 @@
 		5E7C7E7720DE64069CCF37D5 /* AccountViewTableSectionHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccountViewTableSectionHeader.swift; sourceTree = "<group>"; };
 		5E7C7E7EBDAAD262715E5EC4 /* TokenScriptSignatureVerifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenScriptSignatureVerifier.swift; sourceTree = "<group>"; };
 		5E7C7E8CCEE99C27D58F1BAC /* ENSDelegateImpl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ENSDelegateImpl.swift; sourceTree = "<group>"; };
+		5E7C7E96297DA0571067C85E /* DevelopmentForcedError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DevelopmentForcedError.swift; sourceTree = "<group>"; };
 		5E7C7E9871A0D0D81A012640 /* WhatsNewViewModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WhatsNewViewModels.swift; sourceTree = "<group>"; };
 		5E7C7E9A5E7D36AA3BC108A4 /* EnsResolverTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EnsResolverTests.swift; sourceTree = "<group>"; };
 		5E7C7EA385280B0BAB6F0745 /* TransactionViewModelTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionViewModelTests.swift; sourceTree = "<group>"; };
@@ -2761,6 +2763,7 @@
 				5E7C72AB43EC4939E6C7D46B /* Lists */,
 				5E7C72F803CD9A3A6A8D0839 /* Swaps */,
 				026340902850C7D50033E51B /* Configuration.swift */,
+				5E7C7957E8BD5934EF245DE1 /* Development */,
 			);
 			path = AlphaWallet;
 			sourceTree = "<group>";
@@ -4470,6 +4473,14 @@
 				5E7C743FCC624ABD8640FAB5 /* UnitConfiguration.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		5E7C7957E8BD5934EF245DE1 /* Development */ = {
+			isa = PBXGroup;
+			children = (
+				5E7C7E96297DA0571067C85E /* DevelopmentForcedError.swift */,
+			);
+			path = Development;
 			sourceTree = "<group>";
 		};
 		5E7C79B61997F5903F0C6D70 /* Coordinators */ = {
@@ -7644,6 +7655,7 @@
 				5E7C7D9DAC7F1CF547506102 /* SwapPairs.swift in Sources */,
 				5E7C70F8A7DD8D5EC812A80F /* SwapQuote.swift in Sources */,
 				5E7C76484BE3E1F41ABA4A00 /* SwapEstimate.swift in Sources */,
+				5E7C762FC313F112981FAD35 /* DevelopmentForcedError.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
