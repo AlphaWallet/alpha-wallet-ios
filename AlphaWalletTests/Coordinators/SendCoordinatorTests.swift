@@ -11,7 +11,7 @@ class SendCoordinatorTests: XCTestCase {
             navigationController: FakeNavigationController(),
             session: .make(),
             keystore: FakeKeystore(),
-            tokensDataStore: FakeTokensDataStore(),
+            service: FakeTokensService(),
             assetDefinitionStore: AssetDefinitionStore(),
             analyticsCoordinator: FakeAnalyticsService(),
             domainResolutionService: FakeDomainResolutionService()
@@ -29,7 +29,7 @@ class SendCoordinatorTests: XCTestCase {
             navigationController: FakeNavigationController(),
             session: .make(),
             keystore: FakeKeystore(),
-            tokensDataStore: FakeTokensDataStore(),
+            service: FakeTokensService(),
             assetDefinitionStore: AssetDefinitionStore(),
             analyticsCoordinator: FakeAnalyticsService(),
             domainResolutionService: FakeDomainResolutionService()
@@ -38,6 +38,27 @@ class SendCoordinatorTests: XCTestCase {
 
         XCTAssertEqual(address.eip55String, coordinator.sendViewController.targetAddressTextField.value)
         XCTAssertTrue(coordinator.navigationController.viewControllers[0] is SendViewController)
+    }
+
+}
+
+class FakeTokensService: TokenAddable, TokenProvidable {
+    private let dataStore: TokensDataStore
+
+    init(dataStore: TokensDataStore = FakeTokensDataStore()) {
+        self.dataStore = dataStore
+    }
+
+    func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [Token] {
+        dataStore.addCustom(tokens: tokens, shouldUpdateBalance: shouldUpdateBalance)
+    }
+
+    func token(for contract: AlphaWallet.Address) -> Token? {
+        dataStore.token(forContract: contract)
+    }
+
+    func token(for contract: AlphaWallet.Address, server: RPCServer) -> Token? {
+        dataStore.token(forContract: contract, server: server)
     }
 
 }

@@ -5,7 +5,16 @@ import Result
 import PromiseKit
 import Combine
 
-protocol TokenCollection {
+protocol TokenProvidable {
+    func token(for contract: AlphaWallet.Address) -> Token?
+    func token(for contract: AlphaWallet.Address, server: RPCServer) -> Token?
+}
+
+protocol TokenAddable {
+    @discardableResult func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [Token]
+}
+
+protocol TokenCollection: TokenProvidable, TokenAddable {
     var tokensViewModel: AnyPublisher<TokensViewModel, Never> { get }
     var tokensDataStore: TokensDataStore { get }
     var tokensFilter: TokensFilter { get }
@@ -15,6 +24,7 @@ protocol TokenCollection {
 
 ///This contains tokens across multiple-chains
 class MultipleChainsTokenCollection: NSObject, TokenCollection {
+
     let tokensFilter: TokensFilter
     private var tokensViewModelSubject: CurrentValueSubject<TokensViewModel, Never>
 
@@ -52,5 +62,17 @@ class MultipleChainsTokenCollection: NSObject, TokenCollection {
 
     func fetch() {
         refereshSubject.send(())
+    }
+
+    func token(for contract: AlphaWallet.Address) -> Token? {
+        tokensDataStore.token(forContract: contract)
+    }
+
+    func token(for contract: AlphaWallet.Address, server: RPCServer) -> Token? {
+        tokensDataStore.token(forContract: contract, server: server)
+    }
+
+    @discardableResult func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [Token] {
+        tokensDataStore.addCustom(tokens: tokens, shouldUpdateBalance: shouldUpdateBalance)
     }
 }

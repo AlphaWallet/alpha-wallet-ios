@@ -30,7 +30,6 @@ class TokenScriptCoordinator: Coordinator {
     private let tokenHolder: TokenHolder
     private var transactionConfirmationResult: ConfirmResult? = .none
     private let action: TokenInstanceAction
-    private let tokensStorage: TokensDataStore
     private let eventsDataStore: NonActivityEventsDataStore
     private var cancelable = Set<AnyCancellable>()
 
@@ -43,7 +42,6 @@ class TokenScriptCoordinator: Coordinator {
             navigationController: UINavigationController,
             keystore: Keystore,
             tokenHolder: TokenHolder,
-            tokensStorage: TokensDataStore,
             tokenObject: Token,
             assetDefinitionStore: AssetDefinitionStore,
             analyticsCoordinator: AnalyticsCoordinator,
@@ -61,7 +59,6 @@ class TokenScriptCoordinator: Coordinator {
         self.assetDefinitionStore = assetDefinitionStore
         self.analyticsCoordinator = analyticsCoordinator
         self.domainResolutionService = domainResolutionService
-        self.tokensStorage = tokensStorage
         navigationController.navigationBar.isTranslucent = false
     }
 
@@ -80,7 +77,7 @@ class TokenScriptCoordinator: Coordinator {
     }
 
     private func makeTokenInstanceActionViewController(token: Token, for tokenHolder: TokenHolder, action: TokenInstanceAction) -> TokenInstanceActionViewController {
-        let vc = TokenInstanceActionViewController(analyticsCoordinator: analyticsCoordinator, token: token, tokenHolder: tokenHolder, tokensStorage: tokensStorage, assetDefinitionStore: assetDefinitionStore, action: action, session: session, keystore: keystore)
+        let vc = TokenInstanceActionViewController(analyticsCoordinator: analyticsCoordinator, token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore, action: action, session: session, keystore: keystore)
         vc.delegate = self
         vc.configure()
 

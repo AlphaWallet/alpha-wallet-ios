@@ -403,11 +403,11 @@ class SendViewControllerTests: XCTestCase {
         Config.setLocale(locale)
 
         let vc = SendViewController(session: session,
-                                    tokensDataStore: tokenBalanceService.tokensDataStore,
+                                    service: tokenBalanceService,
                                     transactionType: nativeCryptocurrencyTransactionType,
                                     domainResolutionService: FakeDomainResolutionService())
 
-        vc.configure(viewModel: .init(transactionType: transactionType, session: session, tokensDataStore: tokenBalanceService.tokensDataStore))
+        vc.configure(viewModel: .init(transactionType: transactionType, session: session))
 
         return vc
     }

@@ -468,14 +468,12 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
                     server: server,
                     sessions: sessionsSubject,
                     keystore: keystore,
-                    tokensDataStore: tokensDataStore,
                     assetDefinitionStore: assetDefinitionStore,
                     analyticsCoordinator: analyticsCoordinator,
                     eventsDataStore: eventsDataStore,
                     tokenCollection: tokenCollection,
                     domainResolutionService: domainResolutionService,
-                    tokenSwapper: tokenSwapper
-                    )
+                    tokenSwapper: tokenSwapper)
             coordinator.delegate = self
             coordinator.start()
 

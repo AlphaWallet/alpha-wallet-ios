@@ -45,3 +45,17 @@ class FakeSingleChainTokenBalanceService: SingleChainTokenBalanceService {
         //no-op
     }
 }
+
+extension FakeSingleChainTokenBalanceService: TokenProvidable, TokenAddable {
+    func token(for contract: AlphaWallet.Address) -> Token? {
+        tokensDataStore.token(forContract: contract)
+    }
+
+    func token(for contract: AlphaWallet.Address, server: RPCServer) -> Token? {
+        tokensDataStore.token(forContract: contract, server: server)
+    }
+
+    func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [Token] {
+        tokensDataStore.addCustom(tokens: tokens, shouldUpdateBalance: shouldUpdateBalance)
+    }
+}
