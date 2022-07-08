@@ -84,6 +84,8 @@ final class GasPriceEstimator {
 
         return firstly {
             Session.send(request, server: server, analyticsCoordinator: analyticsCoordinator)
+        }.get { estimate in
+            infoLog("Estimated gas price with RPC node server: \(server) estimate: \(estimate)")
         }.map {
             if let gasPrice = BigInt($0.drop0x, radix: 16) {
                 if (gasPrice + GasPriceConfiguration.oneGwei) > maxPrice {
