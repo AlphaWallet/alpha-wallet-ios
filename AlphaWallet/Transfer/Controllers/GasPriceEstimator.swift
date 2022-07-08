@@ -62,7 +62,7 @@ final class GasPriceEstimator {
         return firstly {
             EtherscanGasPriceEstimator().fetch(server: server)
         }.get { estimates in
-            infoLog("Estimated gas price with gas price estimator API: \(estimates)")
+            infoLog("Estimated gas price with gas price estimator API server: \(server) estimate: \(estimates)")
         }.map { estimates in
             GasEstimates(standard: BigInt(estimates.standard), others: [
                 TransactionConfigurationType.slow: BigInt(estimates.slow),
@@ -84,6 +84,8 @@ final class GasPriceEstimator {
 
         return firstly {
             Session.send(request, server: server, analyticsCoordinator: analyticsCoordinator)
+        }.get { estimate in
+            infoLog("Estimated gas price with RPC node server: \(server) estimate: \(estimate)")
         }.map {
             if let gasPrice = BigInt($0.drop0x, radix: 16) {
                 if (gasPrice + GasPriceConfiguration.oneGwei) > maxPrice {
