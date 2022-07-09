@@ -26,7 +26,7 @@ class FungibleTokenViewModel {
             //TODO might as well just make .nativeCryptocurrency hold the TokenObject instance too
             return MultipleChainsTokensDataStore.functional.etherToken(forServer: session.server)
         case .erc20Token(let token, _, _):
-            return Token(tokenObject: token)
+            return token
         case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return nil
         }
@@ -48,7 +48,7 @@ class FungibleTokenViewModel {
     }()
 
     var token: Token {
-        return .init(tokenObject: transactionType.tokenObject)
+        return transactionType.tokenObject
     }
 
     var actions: [TokenInstanceAction] {
@@ -124,8 +124,8 @@ class FungibleTokenViewModel {
         switch transactionType {
         case .nativeCryptocurrency:
             return session.tokenBalanceService.ethBalanceViewModel?.value
-        case .erc20Token(let tokenObject, _, _):
-            return tokenObject.valueBigInt
+        case .erc20Token(let token, _, _):
+            return token.value
         case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return nil
         }
@@ -234,7 +234,7 @@ class FungibleTokenViewModel {
         case .nativeCryptocurrency:
             session.tokenBalanceService.refresh(refreshBalancePolicy: .eth)
         case .erc20Token(let token, _, _):
-            session.tokenBalanceService.refresh(refreshBalancePolicy: .token(token: Token(tokenObject: token)))
+            session.tokenBalanceService.refresh(refreshBalancePolicy: .token(token: token))
         case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             break
         }

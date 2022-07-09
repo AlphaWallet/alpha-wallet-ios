@@ -38,7 +38,7 @@ final class SwapTokensCoordinator: Coordinator {
     private let configurator: SwapOptionsConfigurator
     private lazy var tokenSelectionProvider = SwapTokenSelectionProvider(configurator: configurator)
     private lazy var approveSwapProvider: ApproveSwapProvider = {
-        let provider = ApproveSwapProvider(configurator: configurator)
+        let provider = ApproveSwapProvider(configurator: configurator, analyticsCoordinator: analyticsCoordinator)
         provider.delegate = self
         return provider
     }()
@@ -168,7 +168,7 @@ extension SwapTokensCoordinator: ApproveSwapProviderDelegate {
     func promptToSwap(unsignedTransaction: UnsignedSwapTransaction, fromToken: TokenToSwap, fromAmount: BigUInt, toToken: TokenToSwap, toAmount: BigUInt, in provider: ApproveSwapProvider) {
         do {
             let (transaction, configuration) = configurator.tokenSwapper.buildSwapTransaction(keystore: keystore, unsignedTransaction: unsignedTransaction, fromToken: fromToken, fromAmount: fromAmount, toToken: toToken, toAmount: toAmount)
-            
+
             let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: configurator.session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore)
             addCoordinator(coordinator)
             coordinator.delegate = self

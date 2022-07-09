@@ -15,7 +15,7 @@ protocol BalanceUpdatable: class {
 class TransactionConfirmationViewModel {
     private let session: WalletSession
     private lazy var token: AnyPublisher<Token, Never> = {
-        let token = Token(tokenObject: configurator.transaction.transactionType.tokenObject)
+        let token = configurator.transaction.transactionType.tokenObject
         return Just(token)
             .eraseToAnyPublisher()
     }()

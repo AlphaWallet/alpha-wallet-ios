@@ -57,7 +57,7 @@ class TransactionConfirmationCoordinator: Coordinator {
     weak var delegate: TransactionConfirmationCoordinatorDelegate?
 
     init(presentingViewController: UIViewController, session: WalletSession, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationViewModel.Configuration, analyticsCoordinator: AnalyticsCoordinator, domainResolutionService: DomainResolutionServiceType, keystore: Keystore, assetDefinitionStore: AssetDefinitionStore) throws {
-        configurator = try TransactionConfigurator(session: session, transaction: transaction)
+        configurator = try TransactionConfigurator(session: session, analyticsCoordinator: analyticsCoordinator, transaction: transaction)
         self.keystore = keystore
         self.assetDefinitionStore = assetDefinitionStore
         self.configuration = configuration
@@ -153,7 +153,11 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
     private func sendTransaction() -> Promise<ConfirmResult> {
         let coordinator = SendTransactionCoordinator(session: configurator.session, keystore: keystore, confirmType: configuration.confirmType, config: configurator.session.config, analyticsCoordinator: analyticsCoordinator)
         let transaction = configurator.formUnsignedTransaction()
-        return coordinator.send(transaction: transaction)
+        if configurator.session.config.development.shouldNotSendTransactions {
+            return Promise(error: DevelopmentForcedError(message: "Did not send transaction because of development flag"))
+        } else {
+            return coordinator.send(transaction: transaction)
+        }
     }
 
     private func handleSendTransactionSuccessfully(result: ConfirmResult) {
@@ -231,7 +235,7 @@ extension TransactionConfirmationCoordinator: TransactionConfiguratorDelegate {
         viewModel.reloadView()
         viewModel.updateBalance()
     }
-    
+
     func gasLimitEstimateUpdated(to estimate: BigInt, in configurator: TransactionConfigurator) {
         configureTransactionViewController?.configure(withEstimatedGasLimit: estimate, configurator: configurator)
 

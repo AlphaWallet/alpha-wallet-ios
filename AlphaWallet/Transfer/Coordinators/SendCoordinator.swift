@@ -15,7 +15,7 @@ class SendCoordinator: Coordinator {
     private let transactionType: TransactionType
     private let session: WalletSession
     private let keystore: Keystore
-    private let tokensDataStore: TokensDataStore
+    private let service: TokenProvidable & TokenAddable
     private let assetDefinitionStore: AssetDefinitionStore
     private let analyticsCoordinator: AnalyticsCoordinator
     private let domainResolutionService: DomainResolutionServiceType
@@ -34,7 +34,7 @@ class SendCoordinator: Coordinator {
             navigationController: UINavigationController,
             session: WalletSession,
             keystore: Keystore,
-            tokensDataStore: TokensDataStore,
+            service: TokenProvidable & TokenAddable,
             assetDefinitionStore: AssetDefinitionStore,
             analyticsCoordinator: AnalyticsCoordinator,
             domainResolutionService: DomainResolutionServiceType
@@ -43,14 +43,14 @@ class SendCoordinator: Coordinator {
         self.navigationController = navigationController
         self.session = session
         self.keystore = keystore
-        self.tokensDataStore = tokensDataStore
+        self.service = service
         self.assetDefinitionStore = assetDefinitionStore
         self.analyticsCoordinator = analyticsCoordinator
         self.domainResolutionService = domainResolutionService
     }
 
     func start() {
-        sendViewController.configure(viewModel: .init(transactionType: sendViewController.transactionType, session: session, tokensDataStore: tokensDataStore))
+        sendViewController.configure(viewModel: .init(transactionType: sendViewController.transactionType, session: session))
 
         navigationController.pushViewController(sendViewController, animated: true)
     }
@@ -58,7 +58,7 @@ class SendCoordinator: Coordinator {
     private func makeSendViewController() -> SendViewController {
         let controller = SendViewController(
             session: session,
-            tokensDataStore: tokensDataStore,
+            service: service,
             transactionType: transactionType,
             domainResolutionService: domainResolutionService
         )
@@ -130,7 +130,7 @@ extension SendCoordinator: SendViewControllerDelegate {
     }
 
     func lookup(contract: AlphaWallet.Address, in viewController: SendViewController, completion: @escaping (ContractData) -> Void) {
-        ContractDataDetector(address: contract, account: session.account, server: session.server, assetDefinitionStore: assetDefinitionStore).fetch(completion: completion)
+        ContractDataDetector(address: contract, account: session.account, server: session.server, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator).fetch(completion: completion)
     }
 }
 

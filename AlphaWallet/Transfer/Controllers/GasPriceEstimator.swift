@@ -12,6 +12,11 @@ import APIKit
 import JSONRPCKit
 
 final class GasPriceEstimator {
+    private let analyticsCoordinator: AnalyticsCoordinator
+
+    init(analyticsCoordinator: AnalyticsCoordinator) {
+        self.analyticsCoordinator = analyticsCoordinator
+    }
 
     func shouldUseEstimatedGasPrice(_ estimatedGasPrice: BigInt, forTransaction transaction: UnconfirmedTransaction) -> Bool {
         //Gas price may be specified in the transaction object, and it will be if we are trying to speedup or cancel a transaction. The replacement transaction will be automatically assigned a slightly higher gas price. We don't want to override that with what we fetch back from gas price estimate if the estimate is lower
@@ -57,7 +62,7 @@ final class GasPriceEstimator {
         return firstly {
             EtherscanGasPriceEstimator().fetch(server: server)
         }.get { estimates in
-            infoLog("Estimated gas price with gas price estimator API: \(estimates)")
+            infoLog("Estimated gas price with gas price estimator API server: \(server) estimate: \(estimates)")
         }.map { estimates in
             GasEstimates(standard: BigInt(estimates.standard), others: [
                 TransactionConfigurationType.slow: BigInt(estimates.slow),
@@ -78,7 +83,9 @@ final class GasPriceEstimator {
         let defaultPrice: BigInt = GasPriceConfiguration.defaultPrice(forServer: server)
 
         return firstly {
-            Session.send(request)
+            Session.send(request, server: server, analyticsCoordinator: analyticsCoordinator)
+        }.get { estimate in
+            infoLog("Estimated gas price with RPC node server: \(server) estimate: \(estimate)")
         }.map {
             if let gasPrice = BigInt($0.drop0x, radix: 16) {
                 if (gasPrice + GasPriceConfiguration.oneGwei) > maxPrice {

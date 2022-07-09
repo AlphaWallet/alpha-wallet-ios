@@ -20,10 +20,10 @@ protocol TransferCollectiblesCoordinatorDelegate: CanOpenURL, SendTransactionDel
 
 class TransferCollectiblesCoordinator: Coordinator {
     private lazy var sendViewController: TransferTokenBatchCardsViaWalletAddressViewController = {
-        return makeTransferTokensCardViaWalletAddressViewController(token: tokenObject, tokenHolders: filteredTokenHolders)
+        return makeTransferTokensCardViaWalletAddressViewController(token: token, tokenHolders: filteredTokenHolders)
     }()
     private let keystore: Keystore
-    private let tokenObject: TokenObject
+    private let token: Token
     private let session: WalletSession
     private let assetDefinitionStore: AssetDefinitionStore
     private let analyticsCoordinator: AnalyticsCoordinator
@@ -40,7 +40,7 @@ class TransferCollectiblesCoordinator: Coordinator {
             navigationController: UINavigationController,
             keystore: Keystore,
             filteredTokenHolders: [TokenHolder],
-            tokenObject: TokenObject,
+            token: Token,
             assetDefinitionStore: AssetDefinitionStore,
             analyticsCoordinator: AnalyticsCoordinator,
             domainResolutionService: DomainResolutionServiceType
@@ -49,7 +49,7 @@ class TransferCollectiblesCoordinator: Coordinator {
         self.session = session
         self.keystore = keystore
         self.navigationController = navigationController
-        self.tokenObject = tokenObject
+        self.token = token
         self.assetDefinitionStore = assetDefinitionStore
         self.analyticsCoordinator = analyticsCoordinator
         self.domainResolutionService = domainResolutionService
@@ -68,7 +68,7 @@ class TransferCollectiblesCoordinator: Coordinator {
         delegate?.didCancel(in: self)
     }
 
-    private func makeTransferTokensCardViaWalletAddressViewController(token: TokenObject, tokenHolders: [TokenHolder]) -> TransferTokenBatchCardsViaWalletAddressViewController {
+    private func makeTransferTokensCardViaWalletAddressViewController(token: Token, tokenHolders: [TokenHolder]) -> TransferTokenBatchCardsViaWalletAddressViewController {
         let viewModel = TransferTokenBatchCardsViaWalletAddressViewControllerViewModel(token: token, tokenHolders: tokenHolders)
         let tokenCardViewFactory: TokenCardViewFactory = {
             TokenCardViewFactory(token: token, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, keystore: keystore, wallet: session.account)
@@ -112,7 +112,7 @@ extension TransferCollectiblesCoordinator: TransferTokenBatchCardsViaWalletAddre
                 .compactMapValues { $0.nameStringValue }
 
             let transaction = UnconfirmedTransaction(
-                transactionType: .erc1155Token(tokenObject, transferType: tokenIdsAndValues.erc1155TokenTransactionType, tokenHolders: tokenHolders),
+                transactionType: .erc1155Token(token, transferType: tokenIdsAndValues.erc1155TokenTransactionType, tokenHolders: tokenHolders),
                     value: BigInt(0),
                     recipient: recipient,
                     contract: firstTokenHolder.contractAddress,

@@ -48,9 +48,9 @@ class Erc875NonFungibleRowView: TokenCardViewType {
     private let keystore: Keystore
     private let assetDefinitionStore: AssetDefinitionStore
     private let wallet: Wallet
-    private let token: TokenObject
+    private let token: Token
 
-    init(token: TokenObject, tokenType: OpenSeaBackedNonFungibleTokenHandling, analyticsCoordinator: AnalyticsCoordinator, keystore: Keystore, assetDefinitionStore: AssetDefinitionStore, wallet: Wallet, layout: GridOrListSelectionState, gridEdgeInsets: UIEdgeInsets = .zero, listEdgeInsets: UIEdgeInsets = .init(top: 0, left: 16, bottom: 0, right: 16)) {
+    init(token: Token, tokenType: OpenSeaBackedNonFungibleTokenHandling, analyticsCoordinator: AnalyticsCoordinator, keystore: Keystore, assetDefinitionStore: AssetDefinitionStore, wallet: Wallet, layout: GridOrListSelectionState, gridEdgeInsets: UIEdgeInsets = .zero, listEdgeInsets: UIEdgeInsets = .init(top: 0, left: 16, bottom: 0, right: 16)) {
         self.gridEdgeInsets = gridEdgeInsets
         self.listEdgeInsets = listEdgeInsets
         self.tokenType = tokenType

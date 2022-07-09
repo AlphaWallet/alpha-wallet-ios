@@ -31,7 +31,8 @@ class FakeMultiWalletBalanceService: MultiWalletBalanceService {
 
     override func createWalletBalanceFetcher(wallet: Wallet) -> WalletBalanceFetcherType {
         let nftProvider = FakeNftProvider()
-        let fetcher = WalletBalanceFetcher(wallet: wallet, servers: servers, tokensDataStore: tokensDataStore, transactionsStorage: FakeTransactionsStorage(), nftProvider: nftProvider, config: .make(), assetDefinitionStore: assetDefinitionStore, queue: .main, coinTickersFetcher: coinTickersFetcher)
+        let analyticsCoordinator = FakeAnalyticsService()
+        let fetcher = WalletBalanceFetcher(wallet: wallet, servers: servers, tokensDataStore: tokensDataStore, transactionsStorage: FakeTransactionsStorage(), nftProvider: nftProvider, config: .make(), assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, queue: .main, coinTickersFetcher: coinTickersFetcher)
         fetcher.delegate = self
 
         return fetcher

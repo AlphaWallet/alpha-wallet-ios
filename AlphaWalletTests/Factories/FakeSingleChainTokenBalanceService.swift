@@ -15,10 +15,10 @@ class FakeSingleChainTokenBalanceService: SingleChainTokenBalanceService {
         balanceService.tokensDataStore
     }
 
-    init(wallet: Wallet, server: RPCServer, etherToken: TokenObject) {
+    init(wallet: Wallet, server: RPCServer, etherToken: Token) {
         self.wallet = wallet
         balanceService = FakeMultiWalletBalanceService(wallet: wallet, servers: [server])
-        super.init(wallet: wallet, server: server, etherToken: Token(tokenObject: etherToken), tokenBalanceProvider: balanceService)
+        super.init(wallet: wallet, server: server, etherToken: etherToken, tokenBalanceProvider: balanceService)
     }
 
     func triggerUpdateBalanceSubjectTestsOnly(wallet: Wallet) {
@@ -43,5 +43,19 @@ class FakeSingleChainTokenBalanceService: SingleChainTokenBalanceService {
 
     override func refresh(refreshBalancePolicy: PrivateBalanceFetcher.RefreshBalancePolicy) {
         //no-op
+    }
+}
+
+extension FakeSingleChainTokenBalanceService: TokenProvidable, TokenAddable {
+    func token(for contract: AlphaWallet.Address) -> Token? {
+        tokensDataStore.token(forContract: contract)
+    }
+
+    func token(for contract: AlphaWallet.Address, server: RPCServer) -> Token? {
+        tokensDataStore.token(forContract: contract, server: server)
+    }
+
+    func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [Token] {
+        tokensDataStore.addCustom(tokens: tokens, shouldUpdateBalance: shouldUpdateBalance)
     }
 }

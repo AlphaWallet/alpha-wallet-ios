@@ -8,17 +8,16 @@ import PromiseKit
 protocol TokenInstanceActionViewControllerDelegate: class, CanOpenURL {
     func didPressViewRedemptionInfo(in viewController: TokenInstanceActionViewController)
     func shouldCloseFlow(inViewController viewController: TokenInstanceActionViewController)
-    func confirmTransactionSelected(in viewController: TokenInstanceActionViewController, tokenObject: TokenObject, contract: AlphaWallet.Address, tokenId: TokenId, values: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession, keystore: Keystore, transactionFunction: FunctionOrigin)
+    func confirmTransactionSelected(in viewController: TokenInstanceActionViewController, token: Token, contract: AlphaWallet.Address, tokenId: TokenId, values: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession, keystore: Keystore, transactionFunction: FunctionOrigin)
 }
 
 class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatusViewController {
     private let analyticsCoordinator: AnalyticsCoordinator
-    private let tokenObject: TokenObject
+    private let token: Token
     private let tokenHolder: TokenHolder
     private let action: TokenInstanceAction
     private let session: WalletSession
     private let keystore: Keystore
-    private let tokensStorage: TokensDataStore
     private let roundedBackground = RoundedBackground()
     lazy private var tokenScriptRendererView: TokenInstanceWebView = {
         let webView = TokenInstanceWebView(analyticsCoordinator: analyticsCoordinator, server: server, wallet: session.account, assetDefinitionStore: assetDefinitionStore, keystore: keystore)
@@ -32,7 +31,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
     //TODO might have to change the number of buttons? if the action type change or should we just go back since the flow may be broken if we remain in this screen
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
     private var isFungible: Bool {
-        switch tokenObject.type {
+        switch token.type {
         case .nativeCryptocurrency:
             return true
         case .erc20:
@@ -47,10 +46,10 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
     }
 
     var server: RPCServer {
-        return tokenObject.server
+        return token.server
     }
     var contract: AlphaWallet.Address {
-        return tokenObject.contractAddress
+        return token.contractAddress
     }
     var tokenId: TokenId {
         return tokenHolder.tokens[0].id
@@ -59,7 +58,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
     weak var delegate: TokenInstanceActionViewControllerDelegate?
 
     var canPeekToken: Bool {
-        let tokenType = NonFungibleFromJsonSupportedTokenHandling(token: tokenObject)
+        let tokenType = NonFungibleFromJsonSupportedTokenHandling(token: token)
         switch tokenType {
         case .supported:
             return true
@@ -68,11 +67,10 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
         }
     }
 
-    init(analyticsCoordinator: AnalyticsCoordinator, tokenObject: TokenObject, tokenHolder: TokenHolder, tokensStorage: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, action: TokenInstanceAction, session: WalletSession, keystore: Keystore) {
+    init(analyticsCoordinator: AnalyticsCoordinator, token: Token, tokenHolder: TokenHolder, assetDefinitionStore: AssetDefinitionStore, action: TokenInstanceAction, session: WalletSession, keystore: Keystore) {
         self.analyticsCoordinator = analyticsCoordinator
-        self.tokenObject = tokenObject
+        self.token = token
         self.tokenHolder = tokenHolder
-        self.tokensStorage = tokensStorage
         self.assetDefinitionStore = assetDefinitionStore
         self.action = action
         self.session = session
@@ -154,7 +152,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
         let fetchUserEntries = userEntryIds
                 .map { "document.getElementById(\"\($0)\").value" }
                 .compactMap { tokenScriptRendererView.inject(javaScript: $0) }
-        let xmlHandler = XMLHandler(token: tokenObject, assetDefinitionStore: assetDefinitionStore)
+        let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         let tokenLevelAttributeValues = xmlHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: tokenHolder.tokens[0].tokenIdOrEvent, server: server, account: session.account)
         let resolveTokenLevelSubscribableAttributes = Array(tokenLevelAttributeValues.values).filterToSubscribables.createPromiseForSubscribeOnce()
 
@@ -187,7 +185,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
 
             guard transactionFunction.generateDataAndValue(withTokenId: tokenId, attributeAndValues: values, localRefs: strongSelf.tokenScriptRendererView.localRefs, server: strongSelf.server, session: strongSelf.session, keystore: strongSelf.keystore) != nil else { return }
 
-            strongSelf.delegate?.confirmTransactionSelected(in: strongSelf, tokenObject: strongSelf.tokenObject, contract: contract, tokenId: tokenId, values: values, localRefs: strongSelf.tokenScriptRendererView.localRefs, server: strongSelf.server, session: strongSelf.session, keystore: strongSelf.keystore, transactionFunction: transactionFunction)
+            strongSelf.delegate?.confirmTransactionSelected(in: strongSelf, token: strongSelf.token, contract: contract, tokenId: tokenId, values: values, localRefs: strongSelf.tokenScriptRendererView.localRefs, server: strongSelf.server, session: strongSelf.session, keystore: strongSelf.keystore, transactionFunction: transactionFunction)
 
         }.cauterize()
         //TODO catch
@@ -219,7 +217,7 @@ extension TokenInstanceActionViewController: VerifiableStatusViewController {
     }
 
     func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: tokenObject.contractAddress, server: server, in: self)
+        delegate?.didPressViewContractWebPage(forContract: token.contractAddress, server: server, in: self)
     }
 
     func open(url: URL) {

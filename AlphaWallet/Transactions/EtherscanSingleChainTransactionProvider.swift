@@ -11,6 +11,7 @@ import PromiseKit
 class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
     private let transactionDataStore: TransactionDataStore
     private let session: WalletSession
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let tokensDataStore: TokensDataStore
     private let fetchLatestTransactionsQueue: OperationQueue
     private let queue = DispatchQueue(label: "com.SingleChainTransaction.updateQueue")
@@ -29,12 +30,14 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
 
     required init(
         session: WalletSession,
+        analyticsCoordinator: AnalyticsCoordinator,
         transactionDataStore: TransactionDataStore,
         tokensDataStore: TokensDataStore,
         fetchLatestTransactionsQueue: OperationQueue,
         tokensFromTransactionsFetcher: TokensFromTransactionsFetcher
     ) {
         self.session = session
+        self.analyticsCoordinator = analyticsCoordinator
         self.transactionDataStore = transactionDataStore
         self.tokensDataStore = tokensDataStore
         self.fetchLatestTransactionsQueue = fetchLatestTransactionsQueue
@@ -48,7 +51,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
             autoDetectERC20Transactions()
             autoDetectErc721Transactions()
         }
-    } 
+    }
 
     func stopTimers() {
         timer?.invalidate()
@@ -159,7 +162,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
         let request = GetTransactionRequest(hash: transaction.id)
 
         firstly {
-            Session.send(EtherServiceRequest(server: session.server, batch: BatchFactory().create(request)))
+            Session.send(EtherServiceRequest(server: session.server, batch: BatchFactory().create(request)), server: session.server, analyticsCoordinator: analyticsCoordinator)
         }.done(on: queue, { [weak self] pendingTransaction in
             guard let strongSelf = self else { return }
 
@@ -216,7 +219,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
         } else {
             startBlock = 1
             sortOrder = .desc
-        } 
+        }
 
         let operation = FetchLatestTransactionsOperation(forSession: session, coordinator: self, startBlock: startBlock, sortOrder: sortOrder, queue: queue)
         fetchLatestTransactionsQueue.addOperation(operation)
@@ -307,7 +310,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
                 strongSelf.didChangeValue(forKey: "isExecuting")
                 strongSelf.didChangeValue(forKey: "isFinished")
             })
-        } 
+        }
     }
 }
 

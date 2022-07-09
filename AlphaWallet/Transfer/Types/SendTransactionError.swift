@@ -12,9 +12,9 @@ enum SendTransactionNotRetryableError: Error {
     case executionReverted(message: String)
 }
 
-enum SendTransactionRetryableError: LocalizedError {
+enum RpcNodeRetryableRequestError: LocalizedError {
     case possibleBinanceTestnetTimeout
-    case rateLimited
+    case rateLimited(server: RPCServer, domainName: String)
     case networkConnectionWasLost
     case invalidCertificate
     case requestTimedOut

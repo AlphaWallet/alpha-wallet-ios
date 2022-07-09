@@ -375,6 +375,7 @@
 		5E7C73AB79C2C5FC6C76CDFF /* ERC20-TokenScript.tsml in Resources */ = {isa = PBXBuildFile; fileRef = 5E7C78795F6336DDBE2EB4C5 /* ERC20-TokenScript.tsml */; };
 		5E7C73CE76679D1E1D6714F7 /* SolidityType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7C43F1B371836552CC18 /* SolidityType.swift */; };
 		5E7C73E7A68C56162FA2E845 /* EtherscanSingleChainTransactionProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74259A3F3B0277B0E8C5 /* EtherscanSingleChainTransactionProvider.swift */; };
+		5E7C73EAE1DE07CF7B6C1B70 /* KeysTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C79A125DB5FBD258F9F95 /* KeysTests.swift */; };
 		5E7C73F6762376F5B2B4214D /* EtherKeystore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7BA8A301CEEDE36D76A3 /* EtherKeystore.swift */; };
 		5E7C73F723684B295A8DEEB3 /* GetTokenUri.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7870764B15D5E213604B /* GetTokenUri.swift */; };
 		5E7C73FB906BF267F28B0205 /* ActivityRowType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C762AA80515C4E0A87C44 /* ActivityRowType.swift */; };
@@ -433,6 +434,7 @@
 		5E7C760E41FF2E035BC968C5 /* AssetFunctionCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C70021319DD5C92314A8A /* AssetFunctionCall.swift */; };
 		5E7C760F9D7C178E17C75C52 /* ImportTokenViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7487BDF72352446E1266 /* ImportTokenViewControllerTests.swift */; };
 		5E7C76194F5934264E5BABC8 /* ActivityViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7F5A42365FDA22AEE6F7 /* ActivityViewModel.swift */; };
+		5E7C762FC313F112981FAD35 /* DevelopmentForcedError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7E96297DA0571067C85E /* DevelopmentForcedError.swift */; };
 		5E7C763797FA4BE836308C25 /* Function.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73E8500C2573331D800D /* Function.swift */; };
 		5E7C76393408CC2489FF4527 /* AssetDefinitionsOverridesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7F21FA7A02F6341FB58D /* AssetDefinitionsOverridesViewController.swift */; };
 		5E7C76484BE3E1F41ABA4A00 /* SwapEstimate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7BAA0982F291BCE00361 /* SwapEstimate.swift */; };
@@ -1778,6 +1780,7 @@
 		5E7C799836611BEE66000EE1 /* DappsHomeHeaderViewViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DappsHomeHeaderViewViewModel.swift; sourceTree = "<group>"; };
 		5E7C799D2B7D91072FC0050B /* DappsHomeViewControllerHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DappsHomeViewControllerHeaderView.swift; sourceTree = "<group>"; };
 		5E7C799E4784815CB0202820 /* Core.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Core.swift; sourceTree = "<group>"; };
+		5E7C79A125DB5FBD258F9F95 /* KeysTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeysTests.swift; sourceTree = "<group>"; };
 		5E7C79C0C9631E4DFC4A40DF /* TokenScriptCard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenScriptCard.swift; sourceTree = "<group>"; };
 		5E7C79D674D45A07E694CE31 /* LockView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LockView.swift; sourceTree = "<group>"; };
 		5E7C79E3BC4CACB123840A42 /* LocaleViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocaleViewCell.swift; sourceTree = "<group>"; };
@@ -1912,6 +1915,7 @@
 		5E7C7E7720DE64069CCF37D5 /* AccountViewTableSectionHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccountViewTableSectionHeader.swift; sourceTree = "<group>"; };
 		5E7C7E7EBDAAD262715E5EC4 /* TokenScriptSignatureVerifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenScriptSignatureVerifier.swift; sourceTree = "<group>"; };
 		5E7C7E8CCEE99C27D58F1BAC /* ENSDelegateImpl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ENSDelegateImpl.swift; sourceTree = "<group>"; };
+		5E7C7E96297DA0571067C85E /* DevelopmentForcedError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DevelopmentForcedError.swift; sourceTree = "<group>"; };
 		5E7C7E9871A0D0D81A012640 /* WhatsNewViewModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WhatsNewViewModels.swift; sourceTree = "<group>"; };
 		5E7C7E9A5E7D36AA3BC108A4 /* EnsResolverTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EnsResolverTests.swift; sourceTree = "<group>"; };
 		5E7C7EA385280B0BAB6F0745 /* TransactionViewModelTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionViewModelTests.swift; sourceTree = "<group>"; };
@@ -2759,6 +2763,7 @@
 				5E7C72AB43EC4939E6C7D46B /* Lists */,
 				5E7C72F803CD9A3A6A8D0839 /* Swaps */,
 				026340902850C7D50033E51B /* Configuration.swift */,
+				5E7C7957E8BD5934EF245DE1 /* Development */,
 			);
 			path = AlphaWallet;
 			sourceTree = "<group>";
@@ -2843,6 +2848,7 @@
 				2923D9B61FDA5E51000CF3F8 /* PasswordGeneratorTests.swift */,
 				61DCE17C2001A7A20053939F /* RLPTests.swift */,
 				61C359E12002AC9D0097B04D /* TransactionSigningTests.swift */,
+				5E7C79A125DB5FBD258F9F95 /* KeysTests.swift */,
 			);
 			path = EtherClient;
 			sourceTree = "<group>";
@@ -4467,6 +4473,14 @@
 				5E7C743FCC624ABD8640FAB5 /* UnitConfiguration.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		5E7C7957E8BD5934EF245DE1 /* Development */ = {
+			isa = PBXGroup;
+			children = (
+				5E7C7E96297DA0571067C85E /* DevelopmentForcedError.swift */,
+			);
+			path = Development;
 			sourceTree = "<group>";
 		};
 		5E7C79B61997F5903F0C6D70 /* Coordinators */ = {
@@ -7649,6 +7663,7 @@
 				5E7C7D9DAC7F1CF547506102 /* SwapPairs.swift in Sources */,
 				5E7C70F8A7DD8D5EC812A80F /* SwapQuote.swift in Sources */,
 				5E7C76484BE3E1F41ABA4A00 /* SwapEstimate.swift in Sources */,
+				5E7C762FC313F112981FAD35 /* DevelopmentForcedError.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7775,6 +7790,7 @@
 				5E7C7965C9BF539ABAD1D01C /* FakeDomainResolutionService.swift in Sources */,
 				5E7C7F8271F730462D4E3D93 /* FakeBlockiesGenerator.swift in Sources */,
 				5E7C7D198781B7C98A12ABBC /* WalletFilterTest.swift in Sources */,
+				5E7C73EAE1DE07CF7B6C1B70 /* KeysTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7932,7 +7948,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer: Cyrus Goh (47455VP7P2)";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 440;
+				CURRENT_PROJECT_VERSION = 441;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = LRAW5PL536;
 				ENABLE_BITCODE = NO;
@@ -7953,7 +7969,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 3.44;
+				MARKETING_VERSION = 3.45;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -8001,7 +8017,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 440;
+				CURRENT_PROJECT_VERSION = 441;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = LRAW5PL536;
 				ENABLE_BITCODE = NO;
@@ -8016,7 +8032,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 3.44;
+				MARKETING_VERSION = 3.45;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;

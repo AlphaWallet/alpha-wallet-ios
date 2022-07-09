@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 struct RedeemTokenCardQuantitySelectionViewModel {
-    let token: TokenObject
+    let token: Token
     let tokenHolder: TokenHolder
     let assetDefinitionStore: AssetDefinitionStore
 

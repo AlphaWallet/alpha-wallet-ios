@@ -13,13 +13,13 @@ import Combine
 
 class SendViewControllerTests: XCTestCase {
     private lazy var tokenBalanceService = FakeSingleChainTokenBalanceService(wallet: .make(), server: .main, etherToken: token)
-    private let token = TokenObject(contract: AlphaWallet.Address.make(), server: .main, value: "0", type: .nativeCryptocurrency)
+    private let token = Token(contract: AlphaWallet.Address.make(), server: .main, value: "0", type: .nativeCryptocurrency)
     private lazy var nativeCryptocurrencyTransactionType: TransactionType = {
         return .nativeCryptocurrency(token, destination: nil, amount: nil)
     }()
     private var cancelable = Set<AnyCancellable>()
     private lazy var session: WalletSession = {
-        tokenBalanceService.addOrUpdateTokenTestsOnly(token: Token(tokenObject: token))
+        tokenBalanceService.addOrUpdateTokenTestsOnly(token: token)
         tokenBalanceService.start()
         return .make(tokenBalanceService: tokenBalanceService)
     }()
@@ -240,10 +240,10 @@ class SendViewControllerTests: XCTestCase {
     }
 
     func testUpdateNativeCryptoBalance() {
-        let token = TokenObject(contract: AlphaWallet.Address.make(), server: .main, value: "0", type: .nativeCryptocurrency)
+        let token = Token(contract: AlphaWallet.Address.make(), server: .main, value: "0", type: .nativeCryptocurrency)
         let tokenBalanceService = FakeSingleChainTokenBalanceService(wallet: .make(), server: .main, etherToken: token)
         let session: WalletSession = {
-            tokenBalanceService.addOrUpdateTokenTestsOnly(token: Token(tokenObject: token))
+            tokenBalanceService.addOrUpdateTokenTestsOnly(token: token)
             tokenBalanceService.start()
             return .make(tokenBalanceService: tokenBalanceService)
         }()
@@ -253,12 +253,12 @@ class SendViewControllerTests: XCTestCase {
         XCTAssertEqual(session.tokenBalanceService.ethBalanceViewModel!.value, .zero)
 
         let testValue1 = BigInt("10000000000000000000000")
-        tokenBalanceService.setBalanceTestsOnly(balance: .init(value: testValue1), forToken: Token(tokenObject: token))
+        tokenBalanceService.setBalanceTestsOnly(balance: .init(value: testValue1), forToken: token)
 
         XCTAssertEqual(session.tokenBalanceService.ethBalanceViewModel!.value, testValue1)
 
         let testValue2 = BigInt("20000000000000000000000")
-        tokenBalanceService.setBalanceTestsOnly(balance: .init(value: testValue2), forToken: Token(tokenObject: token))
+        tokenBalanceService.setBalanceTestsOnly(balance: .init(value: testValue2), forToken: token)
 
         XCTAssertNotNil(session.tokenBalanceService.ethBalanceViewModel)
         XCTAssertEqual(session.tokenBalanceService.ethBalanceViewModel!.value, testValue2)
@@ -270,7 +270,7 @@ class SendViewControllerTests: XCTestCase {
         XCTAssertEqual(vc.amountTextField.value, "")
 
         let testValue = BigInt("10000000000000000000000")
-        tokenBalanceService.setBalanceTestsOnly(balance: .init(value: testValue), forToken: Token(tokenObject: token))
+        tokenBalanceService.setBalanceTestsOnly(balance: .init(value: testValue), forToken: token)
 
         vc.allFundsSelected()
         XCTAssertEqual(vc.amountTextField.value, "10000")
@@ -285,7 +285,7 @@ class SendViewControllerTests: XCTestCase {
         XCTAssertEqual(vc.amountTextField.value, "")
 
         let testValue = BigInt("10000000000000000000000")
-        tokenBalanceService.setBalanceTestsOnly(balance: .init(value: testValue), forToken: Token(tokenObject: token))
+        tokenBalanceService.setBalanceTestsOnly(balance: .init(value: testValue), forToken: token)
 
         vc.allFundsSelected()
 
@@ -302,7 +302,7 @@ class SendViewControllerTests: XCTestCase {
         XCTAssertEqual(vc.amountTextField.value, "")
 
         let testValue = BigInt("10000000000000")
-        tokenBalanceService.setBalanceTestsOnly(balance: .init(value: testValue), forToken: Token(tokenObject: token))
+        tokenBalanceService.setBalanceTestsOnly(balance: .init(value: testValue), forToken: token)
 
         vc.allFundsSelected()
 
@@ -314,10 +314,10 @@ class SendViewControllerTests: XCTestCase {
     }
 
     func testERC20AllFunds() {
-        let token = TokenObject(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "2000000020224719101120", type: .erc20)
-        tokenBalanceService.addOrUpdateTokenTestsOnly(token: Token(tokenObject: token))
+        let token = Token(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "2000000020224719101120", type: .erc20)
+        tokenBalanceService.addOrUpdateTokenTestsOnly(token: token)
         let vc = createSendViewControllerAndSetLocale(locale: .spanish, transactionType: .erc20Token(token, destination: .none, amount: nil))
-        tokenBalanceService.setBalanceTestsOnly(balance: .init(value: BigInt("2000000020224719101120")), forToken: Token(tokenObject: token))
+        tokenBalanceService.setBalanceTestsOnly(balance: .init(value: BigInt("2000000020224719101120")), forToken: token)
         XCTAssertEqual(vc.amountTextField.value, "")
         vc.allFundsSelected()
 
@@ -325,7 +325,7 @@ class SendViewControllerTests: XCTestCase {
         XCTAssertNotNil(vc.shortValueForAllFunds)
         XCTAssertTrue((vc.shortValueForAllFunds ?? "").nonEmpty)
 
-        tokenBalanceService.setBalanceTestsOnly(balance: .init(value: .zero), forToken: Token(tokenObject: token))
+        tokenBalanceService.setBalanceTestsOnly(balance: .init(value: .zero), forToken: token)
         vc.allFundsSelected()
         XCTAssertEqual(vc.amountTextField.value, "0")
 
@@ -333,10 +333,10 @@ class SendViewControllerTests: XCTestCase {
     }
 
     func testERC20AllFundsSpanish() {
-        let token = TokenObject(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "0", type: .erc20)
-        tokenBalanceService.addOrUpdateTokenTestsOnly(token: Token(tokenObject: token))
+        let token = Token(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "0", type: .erc20)
+        tokenBalanceService.addOrUpdateTokenTestsOnly(token: token)
         let vc = createSendViewControllerAndSetLocale(locale: .spanish, transactionType: .erc20Token(token, destination: .none, amount: nil))
-        tokenBalanceService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), forToken: Token(tokenObject: token))
+        tokenBalanceService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), forToken: token)
         XCTAssertEqual(vc.amountTextField.value, "")
 
         vc.allFundsSelected()
@@ -349,18 +349,18 @@ class SendViewControllerTests: XCTestCase {
     }
 
     func testTokenBalance() {
-        let token = TokenObject(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "2020224719101120", type: .erc20)
-        tokenBalanceService.addOrUpdateTokenTestsOnly(token: Token(tokenObject: token))
+        let token = Token(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "2020224719101120", type: .erc20)
+        tokenBalanceService.addOrUpdateTokenTestsOnly(token: token)
 
         let tokens = tokenBalanceService.tokensDataStore.enabledTokens(for: [.main])
 
-        XCTAssertTrue(tokens.contains(Token(tokenObject: token)))
+        XCTAssertTrue(tokens.contains(token))
 
         let viewModel = tokenBalanceService.tokenBalance(token.addressAndRPCServer)
         XCTAssertNotNil(viewModel)
         XCTAssertEqual(viewModel!.value, BigInt("2020224719101120")!)
 
-        tokenBalanceService.setBalanceTestsOnly(balance: .init(value: BigInt("10000000000000")), forToken: Token(tokenObject: token))
+        tokenBalanceService.setBalanceTestsOnly(balance: .init(value: BigInt("10000000000000")), forToken: token)
 
         let viewModel_2 = tokenBalanceService.tokenBalance(token.addressAndRPCServer)
         XCTAssertNotNil(viewModel_2)
@@ -368,10 +368,10 @@ class SendViewControllerTests: XCTestCase {
     }
 
     func testERC20AllFundsEnglish() {
-        let token = TokenObject(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "0", type: .erc20)
-        tokenBalanceService.addOrUpdateTokenTestsOnly(token: Token(tokenObject: token))
+        let token = Token(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "0", type: .erc20)
+        tokenBalanceService.addOrUpdateTokenTestsOnly(token: token)
         let vc = createSendViewControllerAndSetLocale(locale: .english, transactionType: .erc20Token(token, destination: .none, amount: nil))
-        tokenBalanceService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), forToken: Token(tokenObject: token))
+        tokenBalanceService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), forToken: token)
 
         XCTAssertEqual(vc.amountTextField.value, "")
 
@@ -385,10 +385,10 @@ class SendViewControllerTests: XCTestCase {
     }
 
     func testERC20English() {
-        let token = TokenObject(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "0", type: .erc20)
-        tokenBalanceService.addOrUpdateTokenTestsOnly(token: Token(tokenObject: token))
+        let token = Token(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "0", type: .erc20)
+        tokenBalanceService.addOrUpdateTokenTestsOnly(token: token)
         let vc = createSendViewControllerAndSetLocale(locale: .english, transactionType: .erc20Token(token, destination: .none, amount: nil))
-        tokenBalanceService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), forToken: Token(tokenObject: token))
+        tokenBalanceService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), forToken: token)
         XCTAssertEqual(vc.amountTextField.value, "")
 
         XCTAssertNil(vc.shortValueForAllFunds)
@@ -403,11 +403,11 @@ class SendViewControllerTests: XCTestCase {
         Config.setLocale(locale)
 
         let vc = SendViewController(session: session,
-                                    tokensDataStore: tokenBalanceService.tokensDataStore,
+                                    service: tokenBalanceService,
                                     transactionType: nativeCryptocurrencyTransactionType,
                                     domainResolutionService: FakeDomainResolutionService())
 
-        vc.configure(viewModel: .init(transactionType: transactionType, session: session, tokensDataStore: tokenBalanceService.tokensDataStore))
+        vc.configure(viewModel: .init(transactionType: transactionType, session: session))
 
         return vc
     }

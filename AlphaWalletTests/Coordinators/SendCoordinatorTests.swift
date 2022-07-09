@@ -7,11 +7,11 @@ class SendCoordinatorTests: XCTestCase {
 
     func testRootViewController() {
         let coordinator = SendCoordinator(
-            transactionType: .nativeCryptocurrency(TokenObject(), destination: .none, amount: nil),
+            transactionType: .nativeCryptocurrency(Token(), destination: .none, amount: nil),
             navigationController: FakeNavigationController(),
             session: .make(),
             keystore: FakeKeystore(),
-            tokensDataStore: FakeTokensDataStore(),
+            service: FakeTokensService(),
             assetDefinitionStore: AssetDefinitionStore(),
             analyticsCoordinator: FakeAnalyticsService(),
             domainResolutionService: FakeDomainResolutionService()
@@ -25,11 +25,11 @@ class SendCoordinatorTests: XCTestCase {
     func testDestination() {
         let address: AlphaWallet.Address = .make()
         let coordinator = SendCoordinator(
-            transactionType: .nativeCryptocurrency(TokenObject(), destination: .init(address: address), amount: nil),
+            transactionType: .nativeCryptocurrency(Token(), destination: .init(address: address), amount: nil),
             navigationController: FakeNavigationController(),
             session: .make(),
             keystore: FakeKeystore(),
-            tokensDataStore: FakeTokensDataStore(),
+            service: FakeTokensService(),
             assetDefinitionStore: AssetDefinitionStore(),
             analyticsCoordinator: FakeAnalyticsService(),
             domainResolutionService: FakeDomainResolutionService()
@@ -38,6 +38,27 @@ class SendCoordinatorTests: XCTestCase {
 
         XCTAssertEqual(address.eip55String, coordinator.sendViewController.targetAddressTextField.value)
         XCTAssertTrue(coordinator.navigationController.viewControllers[0] is SendViewController)
+    }
+
+}
+
+class FakeTokensService: TokenAddable, TokenProvidable {
+    private let dataStore: TokensDataStore
+
+    init(dataStore: TokensDataStore = FakeTokensDataStore()) {
+        self.dataStore = dataStore
+    }
+
+    func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [Token] {
+        dataStore.addCustom(tokens: tokens, shouldUpdateBalance: shouldUpdateBalance)
+    }
+
+    func token(for contract: AlphaWallet.Address) -> Token? {
+        dataStore.token(forContract: contract)
+    }
+
+    func token(for contract: AlphaWallet.Address, server: RPCServer) -> Token? {
+        dataStore.token(forContract: contract, server: server)
     }
 
 }

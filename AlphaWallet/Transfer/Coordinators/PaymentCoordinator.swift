@@ -19,7 +19,6 @@ class PaymentCoordinator: Coordinator {
     private let server: RPCServer
     private let sessions: CurrentValueSubject<ServerDictionary<WalletSession>, Never>
     private let keystore: Keystore
-    private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
     private let analyticsCoordinator: AnalyticsCoordinator
     private let eventsDataStore: NonActivityEventsDataStore
@@ -41,7 +40,6 @@ class PaymentCoordinator: Coordinator {
             server: RPCServer,
             sessions: CurrentValueSubject<ServerDictionary<WalletSession>, Never>,
             keystore: Keystore,
-            tokensDataStore: TokensDataStore,
             assetDefinitionStore: AssetDefinitionStore,
             analyticsCoordinator: AnalyticsCoordinator,
             eventsDataStore: NonActivityEventsDataStore,
@@ -58,7 +56,6 @@ class PaymentCoordinator: Coordinator {
         self.sessions = sessions
         self.flow = flow
         self.keystore = keystore
-        self.tokensDataStore = tokensDataStore
         self.assetDefinitionStore = assetDefinitionStore
         self.analyticsCoordinator = analyticsCoordinator
         self.eventsDataStore = eventsDataStore
@@ -74,7 +71,7 @@ class PaymentCoordinator: Coordinator {
             navigationController: navigationController,
             session: session,
             keystore: keystore,
-            tokensDataStore: tokensDataStore,
+            service: tokenCollection,
             assetDefinitionStore: assetDefinitionStore,
             analyticsCoordinator: analyticsCoordinator,
             domainResolutionService: domainResolutionService
@@ -84,22 +81,22 @@ class PaymentCoordinator: Coordinator {
         addCoordinator(coordinator)
     }
 
-    private func startWithSendCollectiblesCoordinator(tokenObject: TokenObject, transferType: Erc1155TokenTransactionType, tokenHolders: [TokenHolder]) {
-        let coordinator = TransferCollectiblesCoordinator(session: session, navigationController: navigationController, keystore: keystore, filteredTokenHolders: tokenHolders, tokenObject: tokenObject, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
+    private func startWithSendCollectiblesCoordinator(token: Token, transferType: Erc1155TokenTransactionType, tokenHolders: [TokenHolder]) {
+        let coordinator = TransferCollectiblesCoordinator(session: session, navigationController: navigationController, keystore: keystore, filteredTokenHolders: tokenHolders, token: token, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
     }
 
-    private func startWithSendNFTCoordinator(transactionType: TransactionType, tokenObject: TokenObject, tokenHolder: TokenHolder) {
-        let coordinator = TransferNFTCoordinator(session: session, navigationController: navigationController, keystore: keystore, tokenHolder: tokenHolder, tokenObject: tokenObject, transactionType: transactionType, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
+    private func startWithSendNFTCoordinator(transactionType: TransactionType, token: Token, tokenHolder: TokenHolder) {
+        let coordinator = TransferNFTCoordinator(session: session, navigationController: navigationController, keystore: keystore, tokenHolder: tokenHolder, token: token, transactionType: transactionType, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
     }
 
-    private func startWithTokenScriptCoordinator(action: TokenInstanceAction, tokenObject: TokenObject, tokenHolder: TokenHolder) {
-        let coordinator = TokenScriptCoordinator(session: session, navigationController: navigationController, keystore: keystore, tokenHolder: tokenHolder, tokensStorage: tokensDataStore, tokenObject: tokenObject, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService, action: action, eventsDataStore: eventsDataStore)
+    private func startWithTokenScriptCoordinator(action: TokenInstanceAction, token: Token, tokenHolder: TokenHolder) {
+        let coordinator = TokenScriptCoordinator(session: session, navigationController: navigationController, keystore: keystore, tokenHolder: tokenHolder, tokenObject: token, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService, action: action, eventsDataStore: eventsDataStore)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -122,17 +119,17 @@ class PaymentCoordinator: Coordinator {
             switch transactionType {
             case .transaction(let transactionType):
                 switch transactionType {
-                case .erc1155Token(let tokenObject, let transferType, let tokenHolders):
-                    startWithSendCollectiblesCoordinator(tokenObject: tokenObject, transferType: transferType, tokenHolders: tokenHolders)
+                case .erc1155Token(let token, let transferType, let tokenHolders):
+                    startWithSendCollectiblesCoordinator(token: token, transferType: transferType, tokenHolders: tokenHolders)
                 case .nativeCryptocurrency, .erc20Token, .dapp, .claimPaidErc875MagicLink, .tokenScript, .erc875TokenOrder, .prebuilt:
                     startWithSendCoordinator(transactionType: transactionType)
-                case .erc875Token(let tokenObject, let tokenHolders), .erc721Token(let tokenObject, let tokenHolders):
-                    startWithSendNFTCoordinator(transactionType: transactionType, tokenObject: tokenObject, tokenHolder: tokenHolders[0])
-                case .erc721ForTicketToken(let tokenObject, let tokenHolders):
-                    startWithSendNFTCoordinator(transactionType: transactionType, tokenObject: tokenObject, tokenHolder: tokenHolders[0])
+                case .erc875Token(let token, let tokenHolders), .erc721Token(let token, let tokenHolders):
+                    startWithSendNFTCoordinator(transactionType: transactionType, token: token, tokenHolder: tokenHolders[0])
+                case .erc721ForTicketToken(let token, let tokenHolders):
+                    startWithSendNFTCoordinator(transactionType: transactionType, token: token, tokenHolder: tokenHolders[0])
                 }
-            case .tokenScript(let action, let tokenObject, let tokenHolder):
-                startWithTokenScriptCoordinator(action: action, tokenObject: tokenObject, tokenHolder: tokenHolder)
+            case .tokenScript(let action, let token, let tokenHolder):
+                startWithTokenScriptCoordinator(action: action, token: token, tokenHolder: tokenHolder)
             }
         }
 

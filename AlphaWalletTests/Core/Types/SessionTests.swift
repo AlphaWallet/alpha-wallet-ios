@@ -14,7 +14,7 @@ import PromiseKit
 
 extension Session {
     typealias SendPublisherExampleClosure = (_ callback: @escaping(SessionTaskError?) -> Void) -> Void
-    
+
     class func sendPublisherTestsOnly(closure: @escaping SendPublisherExampleClosure) -> AnyPublisher<Void, SessionTaskError> {
         var isCanceled: Bool = false
         let publisher = Deferred {
@@ -22,7 +22,8 @@ extension Session {
                 closure { error in
                     guard !isCanceled else { return }
                     if let error = error {
-                        if let e = convertToUserFriendlyError(error: error, baseUrl: URL(string: "http:/google.com")!) {
+                        let server = RPCServer.main
+                        if let e = convertToUserFriendlyError(error: error, server: server, baseUrl: URL(string: "http:/google.com")!) {
                             seal(.failure(.requestError(e)))
                         } else {
                             seal(.failure(error))
@@ -50,7 +51,7 @@ class SessionTests: XCTestCase {
 
         let testExampleClosure: Session.SendPublisherExampleClosure = { closure in
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                closure(.requestError(SendTransactionRetryableError.networkConnectionWasLost))
+                closure(.requestError(RpcNodeRetryableRequestError.networkConnectionWasLost))
             }
             callbackCallCounter += 1
         }
@@ -58,7 +59,7 @@ class SessionTests: XCTestCase {
         Session.sendPublisherTestsOnly(closure: testExampleClosure)
             .retry(times: 2, when: {
                 guard case SessionTaskError.requestError(let e) = $0 else { return false }
-                return e is SendTransactionRetryableError
+                return e is RpcNodeRetryableRequestError
             })
             .replaceError(with: ())
             .eraseToAnyPublisher()
@@ -76,7 +77,7 @@ class SessionTests: XCTestCase {
 
         let testExampleClosure: Session.SendPublisherExampleClosure = { closure in
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                closure(.requestError(SendTransactionRetryableError.networkConnectionWasLost))
+                closure(.requestError(RpcNodeRetryableRequestError.networkConnectionWasLost))
             }
         }
 
@@ -85,7 +86,7 @@ class SessionTests: XCTestCase {
             .retry(times: 2, when: {
                 retryCallbackCallCounter += 1
                 guard case SessionTaskError.requestError(let e) = $0 else { return false }
-                return e is SendTransactionRetryableError
+                return e is RpcNodeRetryableRequestError
             })
             .eraseToAnyPublisher()
             .sink(receiveCompletion: { _ in

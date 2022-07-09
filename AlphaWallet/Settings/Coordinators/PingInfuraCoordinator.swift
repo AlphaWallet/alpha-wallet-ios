@@ -40,9 +40,10 @@ class PingInfuraCoordinator: Coordinator {
     }
 
     private func pingInfura() {
-        let request = EtherServiceRequest(server: .main, batch: BatchFactory().create(BlockNumberRequest()))
+        let server = RPCServer.main
+        let request = EtherServiceRequest(server: server, batch: BatchFactory().create(BlockNumberRequest()))
         firstly {
-            Session.send(request)
+            Session.send(request, server: server, analyticsCoordinator: analyticsCoordinator)
         }.done { _ in
             UIAlertController.alert(
                     title: R.string.localizable.settingsPingInfuraSuccessful(),

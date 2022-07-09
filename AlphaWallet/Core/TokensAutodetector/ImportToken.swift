@@ -15,16 +15,35 @@ class ImportToken {
     }
     private let sessions: CurrentValueSubject<ServerDictionary<WalletSession>, Never>
     private let assetDefinitionStore: AssetDefinitionStore
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let tokenFetchers: AtomicDictionary<RPCServer, TokenFetcher> = .init()
     private let tokensDataStore: TokensDataStore
+    private var cancelable = Set<AnyCancellable>()
 
     let wallet: Wallet
 
-    init(sessions: CurrentValueSubject<ServerDictionary<WalletSession>, Never>, wallet: Wallet, tokensDataStore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore) {
+    init(sessions: CurrentValueSubject<ServerDictionary<WalletSession>, Never>, wallet: Wallet, tokensDataStore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator) {
         self.sessions = sessions
         self.tokensDataStore = tokensDataStore
         self.assetDefinitionStore = assetDefinitionStore
+        self.analyticsCoordinator = analyticsCoordinator
         self.wallet = wallet
+
+        addUefaTokenIfAny()
+    }
+
+    private func addUefaTokenIfAny() {
+        guard !isRunningTests() else { return }
+        
+        //NOTE: initally when we set sessions, we want to import uefa tokens, for enabled chain
+        sessions.filter { !$0.values.isEmpty }
+            .first()
+            .sink { _ in
+                let server = Constants.uefaRpcServer
+                self.importToken(for: Constants.uefaMainnet, server: server, onlyIfThereIsABalance: true)
+                    .done { _ in }
+                    .cauterize()
+            }.store(in: &cancelable)
     }
 
     //Adding a token may fail if we lose connectivity while fetching the contract details (e.g. name and balance). So we remove the contract from the hidden list (if it was there) so that the app has the chance to add it automatically upon auto detection at startup
@@ -54,7 +73,7 @@ class ImportToken {
             return
         }
 
-        let detector = ContractDataDetector(address: contract, account: session.account, server: session.server, assetDefinitionStore: assetDefinitionStore)
+        let detector = ContractDataDetector(address: contract, account: session.account, server: session.server, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator)
         detector.fetch(completion: completion)
     }
 
@@ -72,7 +91,7 @@ class ImportToken {
             return fetcher
         } else {
             guard let session = sessions.value[safe: server] else { throw ImportTokenError.serverIsDisabled }
-            let fetcher: TokenFetcher = SingleChainTokenFetcher(session: session, assetDefinitionStore: assetDefinitionStore)
+            let fetcher: TokenFetcher = SingleChainTokenFetcher(session: session, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator)
             tokenFetchers[server] = fetcher
 
             return fetcher

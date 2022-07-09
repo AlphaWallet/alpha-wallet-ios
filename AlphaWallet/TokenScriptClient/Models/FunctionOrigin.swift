@@ -262,7 +262,7 @@ struct FunctionOrigin {
         }
     }
 
-    func makeUnConfirmedTransaction(withTokenObject tokenObject: TokenObject, tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession) throws -> (UnconfirmedTransaction, DecodedFunctionCall) {
+    func makeUnConfirmedTransaction(withTokenObject token: Token, tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession) throws -> (UnconfirmedTransaction, DecodedFunctionCall) {
         assert(functionType.isTransaction)
         let payload: Data
         let value: BigUInt
@@ -286,7 +286,7 @@ struct FunctionOrigin {
             value = formValue(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: session.account) ?? 0
         }
         //TODO feels ike everything can just be in `.tokenScript`. But have to check dapp, it includes other parameters like gas
-        return (UnconfirmedTransaction(transactionType: .tokenScript(tokenObject), value: BigInt(value), recipient: nil, contract: originContractOrRecipientAddress, data: payload),
+        return (UnconfirmedTransaction(transactionType: .tokenScript(token), value: BigInt(value), recipient: nil, contract: originContractOrRecipientAddress, data: payload),
                 functionCallMetaData)
     }
 

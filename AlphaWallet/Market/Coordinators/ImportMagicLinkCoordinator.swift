@@ -10,7 +10,7 @@ import Combine
 protocol ImportMagicLinkCoordinatorDelegate: class, CanOpenURL {
 	func viewControllerForPresenting(in coordinator: ImportMagicLinkCoordinator) -> UIViewController?
 	func completed(in coordinator: ImportMagicLinkCoordinator)
-    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, inViewController viewController: ImportMagicTokenViewController, completion: @escaping (Bool) -> Void)
+    func importPaidSignedOrder(signedOrder: SignedOrder, token: Token, inViewController viewController: ImportMagicTokenViewController, completion: @escaping (Bool) -> Void)
     func didImported(contract: AlphaWallet.Address, in coordinator: ImportMagicLinkCoordinator)
 }
 
@@ -18,7 +18,7 @@ protocol ImportMagicLinkCoordinatorDelegate: class, CanOpenURL {
 class ImportMagicLinkCoordinator: Coordinator {
     private enum TransactionType {
         case freeTransfer(query: String, parameters: Parameters)
-        case paid(signedOrder: SignedOrder, tokenObject: TokenObject)
+        case paid(signedOrder: SignedOrder, token: Token)
     }
 
     private let analyticsCoordinator: AnalyticsCoordinator
@@ -142,18 +142,18 @@ class ImportMagicLinkCoordinator: Coordinator {
 
         //TODO we might not need to pass a TokenObject. Maybe something simpler? Especially since name and symbol is unused
         //TODO: not always ERC875
-        let tokenObject = TokenObject(
+        let token = Token(
                 contract: signedOrder.order.contractAddress,
                 server: server,
                 name: "",
                 symbol: "",
                 decimals: 0,
-                value: signedOrder.order.price.description,
+                value: BigInt(signedOrder.order.price),
                 isCustom: true,
                 isDisabled: false,
                 type: .erc875
         )
-        transactionType = .paid(signedOrder: signedOrder, tokenObject: tokenObject)
+        transactionType = .paid(signedOrder: signedOrder, token: token)
 
         let ethCost = convert(ethCost: signedOrder.order.price)
         promptImportUniversalLink(cost: .paid(eth: ethCost, dollar: nil))
@@ -470,7 +470,7 @@ class ImportMagicLinkCoordinator: Coordinator {
         return filteredTokens
     }
     private lazy var tokenProvider: TokenProviderType = {
-        return TokenProvider(account: wallet, server: server)
+        return TokenProvider(account: wallet, server: server, analyticsCoordinator: analyticsCoordinator)
     }()
 
     private func makeTokenHolder(_ bytes32Tokens: [String], _ contractAddress: AlphaWallet.Address) {
@@ -567,9 +567,9 @@ class ImportMagicLinkCoordinator: Coordinator {
         updateImportTokenController(with: .failed(errorMessage: errorMessage), cost: cost)
 	}
 
-    private func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject) {
+    private func importPaidSignedOrder(signedOrder: SignedOrder, token: Token) {
         guard let importTokenViewController = importTokenViewController else { return }
-        delegate?.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject, inViewController: importTokenViewController) { [weak self] successful in
+        delegate?.importPaidSignedOrder(signedOrder: signedOrder, token: token, inViewController: importTokenViewController) { [weak self] successful in
             guard let strongSelf = self else { return }
             guard let vc = strongSelf.importTokenViewController, case .ready = vc.state else { return }
             if successful {
@@ -637,8 +637,8 @@ extension ImportMagicLinkCoordinator: ImportMagicTokenViewControllerDelegate {
         switch transactionType {
         case .freeTransfer(let query, let parameters):
             importFreeTransfer(query: query, parameters: parameters)
-        case .paid(let signedOrder, let tokenObject):
-            importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject)
+        case .paid(let signedOrder, let token):
+            importPaidSignedOrder(signedOrder: signedOrder, token: token)
         }
 	}
 }

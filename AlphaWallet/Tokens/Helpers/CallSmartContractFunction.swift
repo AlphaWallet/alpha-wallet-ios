@@ -29,7 +29,7 @@ private func createWeb3(webProvider: Web3HttpProvider, forServer server: RPCServ
     }
 
     return web3swift.web3(provider: webProvider, queue: web3Queue, requestDispatcher: requestDispatcher)
-} 
+}
 
 func getCachedWeb3(forServer server: RPCServer, timeout: TimeInterval) throws -> web3 {
     if let result = web3s[server]?[timeout] {
@@ -58,6 +58,7 @@ func getCachedWeb3(forServer server: RPCServer, timeout: TimeInterval) throws ->
 
 private let callSmartContractQueue = DispatchQueue(label: "com.callSmartContractQueue.updateQueue")
 //`shouldDelayIfCached` is a hack for TokenScript views
+//TODO should trap 429 from RPC node
 func callSmartContract(withServer server: RPCServer, contract: AlphaWallet.Address, functionName: String, abiString: String, parameters: [AnyObject] = [], timeout: TimeInterval? = nil, shouldDelayIfCached: Bool = false, queue: DispatchQueue? = nil) -> Promise<[String: Any]> {
     let timeout: TimeInterval = 60
     //We must include the ABI string in the key because the order of elements in a dictionary when serialized in the string is not ordered. Parameters (which is ordered) should ensure it's the same function

@@ -75,7 +75,7 @@ class TokenObject: Object {
         self.decimals = token.decimals
         self.value = token.value.description
         self.type = token.type
-        self.balance.append(objectsIn: token.balanceNft.map { TokenBalance(balance: $0.balance, json: $0.json) })
+        self.balance.append(objectsIn: token.balance.map { TokenBalance(balance: $0.balance, json: $0.json) })
         self._info = TokenInfoObject(uid: token.primaryKey)
     }
 

@@ -56,7 +56,7 @@ class WalletConnectCoordinator: NSObject, Coordinator {
     private weak var sessionsViewController: WalletConnectSessionsViewController?
     private var sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>
     private let assetDefinitionStore: AssetDefinitionStore
-    
+
     weak var delegate: WalletConnectCoordinatorDelegate?
     var coordinators: [Coordinator] = []
 
@@ -387,7 +387,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
     }
 
     private func executeTransaction(session: WalletSession, requester: DappRequesterViewModel, transaction: UnconfirmedTransaction, type: ConfirmType) -> Promise<AlphaWallet.WalletConnect.Response> {
-        
+
         let configuration: TransactionConfirmationViewModel.Configuration = .walletConnect(confirmType: type, requester: requester)
 
         infoLog("[WalletConnect] executeTransaction: \(transaction) type: \(type)")
@@ -495,7 +495,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
 
     private func getTransactionCount(session: WalletSession) -> Promise<AlphaWallet.WalletConnect.Response> {
         return firstly {
-            GetNextNonce(server: session.server, wallet: session.account.address).promise()
+            GetNextNonce(server: session.server, wallet: session.account.address, analyticsCoordinator: analyticsCoordinator).promise()
         }.map {
             if let data = Data(fromHexEncodedString: String(format: "%02X", $0)) {
                 return .value(data)

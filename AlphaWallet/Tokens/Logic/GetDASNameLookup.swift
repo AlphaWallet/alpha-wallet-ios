@@ -17,6 +17,14 @@ public final class GetDASNameLookup {
 
     private static let ethAddressKey = "address.eth"
 
+    private let server: RPCServer
+    private let analyticsCoordinator: AnalyticsCoordinator
+
+    init(server: RPCServer, analyticsCoordinator: AnalyticsCoordinator) {
+        self.server = server
+        self.analyticsCoordinator = analyticsCoordinator
+    }
+
     static func isValid(value: String) -> Bool {
         return value.trimmed.hasSuffix(".bit")
     }
@@ -29,7 +37,7 @@ public final class GetDASNameLookup {
 
         let request = EtherServiceRequest(rpcURL: rpcURL, batch: BatchFactory().create(DASLookupRequest(value: value)))
         debugLog("[DAS] Looking up value \(value)")
-        return Session.send(request).map { response -> AlphaWallet.Address in
+        return Session.send(request, server: server, analyticsCoordinator: analyticsCoordinator).map { response -> AlphaWallet.Address in
             debugLog("[DAS] response for value: \(value) response : \(response)")
             if let record = response.records.first(where: { $0.key == GetDASNameLookup.ethAddressKey }), let address = AlphaWallet.Address(string: record.value) {
                 infoLog("[DAS] resolve value: \(value) to address: \(address)")

@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 
 struct ChooseTokenCardTransferModeViewControllerViewModel {
-    var token: TokenObject
+    var token: Token
     var tokenHolder: TokenHolder
     let assetDefinitionStore: AssetDefinitionStore
 

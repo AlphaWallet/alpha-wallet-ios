@@ -154,11 +154,11 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
             .fetchChartHistories(addressToRPCServerKey: addressToRPCServerKey, force: force, periods: periods)
     }
 
-    /// NOTE: internal for test ourposes
+    /// NOTE: internal for test purposes
     func createWalletBalanceFetcher(wallet: Wallet) -> WalletBalanceFetcherType {
         let tokensDataStore: TokensDataStore = MultipleChainsTokensDataStore(store: store.getOrCreateStore(forWallet: wallet), servers: config.enabledServers)
         let transactionsStorage = TransactionDataStore(store: store.getOrCreateStore(forWallet: wallet))
-        let fetcher = WalletBalanceFetcher(wallet: wallet, servers: config.enabledServers, tokensDataStore: tokensDataStore, transactionsStorage: transactionsStorage, nftProvider: nftProvider, config: config, assetDefinitionStore: assetDefinitionStore, queue: queue, coinTickersFetcher: coinTickersFetcher)
+        let fetcher = WalletBalanceFetcher(wallet: wallet, servers: config.enabledServers, tokensDataStore: tokensDataStore, transactionsStorage: transactionsStorage, nftProvider: nftProvider, config: config, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, queue: queue, coinTickersFetcher: coinTickersFetcher)
         fetcher.delegate = self
 
         return fetcher

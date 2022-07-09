@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 
 struct TransferTokensCardViaWalletAddressViewControllerViewModel {
-    let token: TokenObject
+    let token: Token
     let tokenHolder: TokenHolder
     let assetDefinitionStore: AssetDefinitionStore
 

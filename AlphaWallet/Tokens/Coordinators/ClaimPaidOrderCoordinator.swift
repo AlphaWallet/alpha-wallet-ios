@@ -18,7 +18,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
     private let navigationController: UINavigationController
     private let keystore: Keystore
     private let session: WalletSession
-    private let tokenObject: TokenObject
+    private let token: Token
     private let signedOrder: SignedOrder
     private let analyticsCoordinator: AnalyticsCoordinator
     private let domainResolutionService: DomainResolutionServiceType
@@ -36,11 +36,11 @@ class ClaimPaidOrderCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: ClaimOrderCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, keystore: Keystore, session: WalletSession, tokenObject: TokenObject, signedOrder: SignedOrder, analyticsCoordinator: AnalyticsCoordinator, domainResolutionService: DomainResolutionServiceType, assetDefinitionStore: AssetDefinitionStore) {
+    init(navigationController: UINavigationController, keystore: Keystore, session: WalletSession, token: Token, signedOrder: SignedOrder, analyticsCoordinator: AnalyticsCoordinator, domainResolutionService: DomainResolutionServiceType, assetDefinitionStore: AssetDefinitionStore) {
         self.navigationController = navigationController
         self.keystore = keystore
         self.session = session
-        self.tokenObject = tokenObject
+        self.token = token
         self.signedOrder = signedOrder
         self.analyticsCoordinator = analyticsCoordinator
         self.domainResolutionService = domainResolutionService
@@ -67,7 +67,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
             case .success(let payload):
                 do {
                     let transaction = UnconfirmedTransaction(
-                            transactionType: .claimPaidErc875MagicLink(strongSelf.tokenObject),
+                            transactionType: .claimPaidErc875MagicLink(strongSelf.token),
                             value: BigInt(strongSelf.signedOrder.order.price),
                             recipient: nil,
                             contract: strongSelf.signedOrder.order.contractAddress,

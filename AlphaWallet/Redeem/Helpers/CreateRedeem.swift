@@ -7,9 +7,9 @@ import Foundation
 import BigInt
 
 class CreateRedeem {
-    private let token: TokenObject
+    private let token: Token
 
-    init(token: TokenObject) {
+    init(token: Token) {
         self.token = token
     }
 

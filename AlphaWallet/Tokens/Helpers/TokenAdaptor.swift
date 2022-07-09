@@ -80,7 +80,7 @@ class TokenAdaptor {
         var tokens = [TokenScript.Token]()
         switch token.type {
         case .erc875, .erc721ForTickets, .erc721, .erc1155, .nativeCryptocurrency:
-            for (index, item) in token.balanceNft.enumerated() {
+            for (index, item) in token.balance.enumerated() {
                 //id is the value of the bytes32 token
                 let id = item.balance
                 guard isNonZeroBalance(id, tokenType: token.type) else { continue }

@@ -94,6 +94,7 @@ enum Analytics {
         case openSeaRateLimited
         case openSeaInvalidApiKey
         case openSeaExpiredApiKey
+        case rpcNodeRateLimited
     }
 
     enum Properties: String {
@@ -116,6 +117,7 @@ enum Analytics {
         case addCustomChainType
         case isAccepted
         case reason
+        case domainName
     }
 
     enum UserProperties: String, AnalyticsUserProperty {

@@ -12,6 +12,7 @@ class ChainState {
     }
 
     private let server: RPCServer
+    private let analyticsCoordinator: AnalyticsCoordinator
 
     private var latestBlockKey: String {
         return "\(server.chainID)-" + Keys.latestBlock
@@ -29,8 +30,9 @@ class ChainState {
 
     var updateLatestBlock: Timer?
 
-    init(config: Config, server: RPCServer) {
+    init(config: Config, server: RPCServer, analyticsCoordinator: AnalyticsCoordinator) {
         self.server = server
+        self.analyticsCoordinator = analyticsCoordinator
         self.defaults = config.defaults
         if config.development.isAutoFetchingDisabled {
             //No-op
@@ -54,12 +56,12 @@ class ChainState {
     @objc func fetch() {
         let request = EtherServiceRequest(server: server, batch: BatchFactory().create(BlockNumberRequest()))
         firstly {
-            Session.send(request)
+            Session.send(request, server: server, analyticsCoordinator: analyticsCoordinator)
         }.done { [weak self] in
             self?.latestBlock = $0
         }.catch { error in
             //We need to catch (and since we can make a good guess what it might be, capture it below) it instead of `.cauterize()` because the latter would log a scary message about malformed JSON in the console.
-            if case SendTransactionRetryableError.possibleBinanceTestnetTimeout = error {
+            if case RpcNodeRetryableRequestError.possibleBinanceTestnetTimeout = error {
                 //TODO log
             }
         }

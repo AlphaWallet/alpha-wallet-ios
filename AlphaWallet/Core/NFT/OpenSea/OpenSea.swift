@@ -7,7 +7,7 @@ import AlphaWalletOpenSea
 
 final class OpenSea {
     private let analyticsCoordinator: AnalyticsCoordinator
-    private let storage: Storage<[AddressAndRPCServer: OpenSeaNonFungiblesToAddress]> = .init(fileName: "OpenSea", defaultValue: [:])
+    private let storage: Storage<[AddressAndRPCServer: OpenSeaAddressesToNonFungibles]> = .init(fileName: "OpenSea", defaultValue: [:])
     private let queue: DispatchQueue
     private lazy var networkProvider: OpenSeaNetworkProvider = OpenSeaNetworkProvider(analyticsCoordinator: analyticsCoordinator, queue: queue)
 
@@ -25,7 +25,7 @@ final class OpenSea {
         }
     }
 
-    func nonFungible(wallet: Wallet, server: RPCServer) -> Promise<OpenSeaNonFungiblesToAddress> {
+    func nonFungible(wallet: Wallet, server: RPCServer) -> Promise<OpenSeaAddressesToNonFungibles> {
         let key: AddressAndRPCServer = .init(address: wallet.address, server: server)
 
         guard OpenSea.isServerSupported(key.server) else {
@@ -35,7 +35,7 @@ final class OpenSea {
         return fetchFromLocalAndRemotePromise(key: key)
     }
 
-    private func fetchFromLocalAndRemotePromise(key: AddressAndRPCServer) -> Promise<OpenSeaNonFungiblesToAddress> {
+    private func fetchFromLocalAndRemotePromise(key: AddressAndRPCServer) -> Promise<OpenSeaAddressesToNonFungibles> {
         return networkProvider
             .fetchAssetsPromise(address: key.address, server: key.server)
             .map(on: queue, { [weak storage] result in

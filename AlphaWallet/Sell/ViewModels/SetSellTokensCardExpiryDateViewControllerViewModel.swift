@@ -8,7 +8,7 @@ struct SetSellTokensCardExpiryDateViewControllerViewModel {
     private let server: RPCServer
     private let assetDefinitionStore: AssetDefinitionStore
 
-    let token: TokenObject
+    let token: Token
     let tokenHolder: TokenHolder
 
     var headerTitle: String {
@@ -113,7 +113,7 @@ struct SetSellTokensCardExpiryDateViewControllerViewModel {
         return tokenHolder.count
     }
 
-    init(token: TokenObject, tokenHolder: TokenHolder, ethCost: Ether, server: RPCServer, assetDefinitionStore: AssetDefinitionStore) {
+    init(token: Token, tokenHolder: TokenHolder, ethCost: Ether, server: RPCServer, assetDefinitionStore: AssetDefinitionStore) {
         self.token = token
         self.tokenHolder = tokenHolder
         self.ethCost = ethCost

@@ -176,7 +176,7 @@ extension WalletApiService {
             case .success(let data):
                 components?.queryItems = queryItems + [
                     .init(name: "call", value: "signpersonalmessage"),
-                    .init(name: "message", value: data.hexEncoded)
+                    .init(name: "signature", value: data.hexEncoded)
                 ]
             case .failure:
                 components?.queryItems = queryItems + [

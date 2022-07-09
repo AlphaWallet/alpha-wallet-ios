@@ -174,7 +174,7 @@ class ActiveWalletViewTests: XCTestCase {
                 tokenSwapper: FakeTokenSwapper()
         )
         coordinator.start(animated: false)
-        coordinator.showPaymentFlow(for: .send(type: .transaction(TransactionType.nativeCryptocurrency(TokenObject(), destination: .none, amount: nil))), server: .main, navigationController: coordinator.navigationController)
+        coordinator.showPaymentFlow(for: .send(type: .transaction(TransactionType.nativeCryptocurrency(Token(), destination: .none, amount: nil))), server: .main, navigationController: coordinator.navigationController)
 
         XCTAssertTrue(coordinator.coordinators.last is PaymentCoordinator)
         XCTAssertTrue(coordinator.navigationController.viewControllers.last is SendViewController)

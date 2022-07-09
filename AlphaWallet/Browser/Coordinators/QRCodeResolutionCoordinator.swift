@@ -11,7 +11,7 @@ import PromiseKit
 
 protocol QRCodeResolutionCoordinatorDelegate: AnyObject {
     func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveAddress address: AlphaWallet.Address, action: ScanQRCodeAction)
-    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveTransactionType transactionType: TransactionType, token: TokenObject)
+    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveTransactionType transactionType: TransactionType, token: Token)
     func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveWalletConnectURL url: AlphaWallet.WalletConnect.ConnectionUrl)
     func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveString value: String)
     func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveURL url: URL)
@@ -98,14 +98,16 @@ final class QRCodeResolutionCoordinator: Coordinator {
     }
     private let scanQRCodeCoordinator: ScanQRCodeCoordinator
     private let account: Wallet
+    private let analyticsCoordinator: AnalyticsCoordinator
     var coordinators: [Coordinator] = []
     weak var delegate: QRCodeResolutionCoordinatorDelegate?
 
-    init(config: Config, coordinator: ScanQRCodeCoordinator, usage: Usage, account: Wallet) {
+    init(config: Config, coordinator: ScanQRCodeCoordinator, usage: Usage, account: Wallet, analyticsCoordinator: AnalyticsCoordinator) {
         self.config = config
         self.usage = usage
         self.scanQRCodeCoordinator = coordinator
         self.account = account
+        self.analyticsCoordinator = analyticsCoordinator
     }
 
     func start(fromSource source: Analytics.ScanQRCodeSource) {
@@ -241,11 +243,12 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
         let params: [String: String]
     }
 
-    private func checkEIP681(_ params: CheckEIP681Params, tokensDatastore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore) -> Promise<(transactionType: TransactionType, token: TokenObject)> {
-        Eip681Parser(protocolName: params.protocolName, address: params.address, functionName: params.functionName, params: params.params).parse().then { result -> Promise<(transactionType: TransactionType, token: TokenObject)> in
+    private func checkEIP681(_ params: CheckEIP681Params, tokensDatastore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore) -> Promise<(transactionType: TransactionType, token: Token)> {
+        let analyticsCoordinator = self.analyticsCoordinator
+        return Eip681Parser(protocolName: params.protocolName, address: params.address, functionName: params.functionName, params: params.params).parse().then { result -> Promise<(transactionType: TransactionType, token: Token)> in
             guard let (contract: contract, customServer, recipient, maybeScientificAmountString) = result.parameters else { return .init(error: CheckEIP681Error.parameterInvalid) }
             guard let server = self.serverFromEip681LinkOrDefault(customServer) else { return .init(error: CheckEIP681Error.missingRpcServer) }
-            if let token = tokensDatastore.tokenObject(forContract: contract, server: server) {
+            if let token = tokensDatastore.token(forContract: contract, server: server) {
                 let amount = maybeScientificAmountString.scientificAmountToBigInt.flatMap {
                     EtherNumberFormatter.full.string(from: $0, decimals: token.decimals)
                 }
@@ -253,7 +256,7 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
                 return .value((transactionType, token))
             } else {
                 return Promise { resolver in
-                    ContractDataDetector(address: contract, account: self.account, server: server, assetDefinitionStore: assetDefinitionStore).fetch { result in
+                    ContractDataDetector(address: contract, account: self.account, server: server, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator).fetch { result in
                         switch result {
                         case .name, .symbol, .balance, .decimals, .nonFungibleTokenComplete, .delegateTokenComplete, .failed:
                             resolver.reject(CheckEIP681Error.contractInvalid)
@@ -267,13 +270,13 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
                                 type: .erc20,
                                 balance: .balance(["0"])
                             )], shouldUpdateBalance: true)[0]
-                            guard let tokenObject = tokensDatastore.tokenObject(forContract: token.contractAddress, server: token.server) else { return }
+                            guard let token = tokensDatastore.token(forContract: token.contractAddress, server: token.server) else { return }
                             let amount = maybeScientificAmountString.scientificAmountToBigInt.flatMap {
-                                EtherNumberFormatter.full.string(from: $0, decimals: tokenObject.decimals)
+                                EtherNumberFormatter.full.string(from: $0, decimals: token.decimals)
                             }
-                            let transactionType = TransactionType(fungibleToken: tokenObject, recipient: recipient, amount: amount)
+                            let transactionType = TransactionType(fungibleToken: token, recipient: recipient, amount: amount)
 
-                            resolver.fulfill((transactionType, tokenObject))
+                            resolver.fulfill((transactionType, token))
                         }
                     }
                 }

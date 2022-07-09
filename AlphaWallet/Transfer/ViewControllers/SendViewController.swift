@@ -51,7 +51,6 @@ class SendViewController: UIViewController {
         return viewModel.transactionType
     }
 
-    private let tokensDataStore: TokensDataStore
     private let domainResolutionService: DomainResolutionServiceType
     @objc private (set) dynamic var isAllFunds: Bool = false
     private var observation: NSKeyValueObservation!
@@ -63,11 +62,13 @@ class SendViewController: UIViewController {
         return view
     }()
 
-    init(session: WalletSession, tokensDataStore: TokensDataStore, transactionType: TransactionType, domainResolutionService: DomainResolutionServiceType) {
+    private let service: TokenProvidable & TokenAddable
+
+    init(session: WalletSession, service: TokenProvidable & TokenAddable, transactionType: TransactionType, domainResolutionService: DomainResolutionServiceType) {
         self.session = session
-        self.tokensDataStore = tokensDataStore
+        self.service = service
         self.domainResolutionService = domainResolutionService
-        self.viewModel = .init(transactionType: transactionType, session: session, tokensDataStore: tokensDataStore)
+        self.viewModel = .init(transactionType: transactionType, session: session)
 
         super.init(nibName: nil, bundle: nil)
 
@@ -232,7 +233,7 @@ class SendViewController: UIViewController {
                 .receive(on: RunLoop.main)
                 .sink { [weak self] _ in
                     guard let celf = self else { return }
-                    guard celf.tokensDataStore.tokenObject(forContract: celf.viewModel.transactionType.contract, server: celf.session.server) != nil else { return }
+                    guard celf.service.token(for: celf.viewModel.transactionType.contract, server: celf.session.server) != nil else { return }
                     celf.configureFor(contract: celf.viewModel.transactionType.contract, recipient: recipient, amount: amount, shouldConfigureBalance: false)
                 }
             session.tokenBalanceService.refresh(refreshBalancePolicy: .eth)
@@ -248,8 +249,8 @@ class SendViewController: UIViewController {
         guard let result = QRCodeValueParser.from(string: result) else { return }
         switch result {
         case .address(let recipient):
-            guard let tokenObject = tokensDataStore.tokenObject(forContract: viewModel.transactionType.contract, server: session.server) else { return }
-            let amountAsIntWithDecimals = EtherNumberFormatter.plain.number(from: amountTextField.ethCost, decimals: tokenObject.decimals)
+            guard let token = service.token(for: viewModel.transactionType.contract, server: session.server) else { return }
+            let amountAsIntWithDecimals = EtherNumberFormatter.plain.number(from: amountTextField.ethCost, decimals: token.decimals)
             configureFor(contract: transactionType.contract, recipient: .address(recipient), amount: amountAsIntWithDecimals)
             activateAmountView()
         case .eip681(let protocolName, let address, let functionName, let params):
@@ -278,7 +279,7 @@ class SendViewController: UIViewController {
                 guard self.session.server == server else { return }
             }
 
-            if self.tokensDataStore.token(forContract: contract, server: self.session.server) != nil {
+            if self.service.token(for: contract, server: self.session.server) != nil {
                 //For user-safety and simpler implementation, we ignore the link if it is for a different chain
                 self.configureFor(contract: contract, recipient: recipient, amount: amount)
                 self.activateAmountView()
@@ -300,7 +301,7 @@ class SendViewController: UIViewController {
                                 type: .erc20,
                                 balance: .balance(["0"])
                         )
-                        self.tokensDataStore.addCustom(tokens: [token], shouldUpdateBalance: true)
+                        self.service.addCustom(tokens: [token], shouldUpdateBalance: true)
                         self.configureFor(contract: contract, recipient: recipient, amount: amount)
                         self.activateAmountView()
                     case .delegateTokenComplete:
@@ -314,23 +315,23 @@ class SendViewController: UIViewController {
     }
 
     private func configureFor(contract: AlphaWallet.Address, recipient: AddressOrEnsName?, amount: BigInt?, shouldConfigureBalance: Bool = true) {
-        guard let tokenObject = tokensDataStore.tokenObject(forContract: contract, server: self.session.server) else { return }
-        let amount = amount.flatMap { EtherNumberFormatter.plain.string(from: $0, decimals: tokenObject.decimals) }
+        guard let token = service.token(for: contract, server: self.session.server) else { return }
+        let amount = amount.flatMap { EtherNumberFormatter.plain.string(from: $0, decimals: token.decimals) }
         let transactionType: TransactionType
         if let amount = amount, amount != "0" {
-            transactionType = TransactionType(fungibleToken: tokenObject, recipient: recipient, amount: amount)
+            transactionType = TransactionType(fungibleToken: token, recipient: recipient, amount: amount)
         } else {
             switch viewModel.transactionType {
             case .nativeCryptocurrency(_, _, let amount):
-                transactionType = TransactionType(fungibleToken: tokenObject, recipient: recipient, amount: amount.flatMap { EtherNumberFormatter().string(from: $0, units: .ether) })
+                transactionType = TransactionType(fungibleToken: token, recipient: recipient, amount: amount.flatMap { EtherNumberFormatter().string(from: $0, units: .ether) })
             case .erc20Token(_, _, let amount):
-                transactionType = TransactionType(fungibleToken: tokenObject, recipient: recipient, amount: amount)
+                transactionType = TransactionType(fungibleToken: token, recipient: recipient, amount: amount)
             case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
-                transactionType = TransactionType(fungibleToken: tokenObject, recipient: recipient, amount: nil)
+                transactionType = TransactionType(fungibleToken: token, recipient: recipient, amount: nil)
             }
         }
 
-        configure(viewModel: .init(transactionType: transactionType, session: session, tokensDataStore: tokensDataStore), shouldConfigureBalance: shouldConfigureBalance)
+        configure(viewModel: .init(transactionType: transactionType, session: session), shouldConfigureBalance: shouldConfigureBalance)
     }
 }
 
