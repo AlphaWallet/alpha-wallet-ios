@@ -37,7 +37,10 @@ class SingleChainTokenFetcher: NSObject, TokenFetcher {
                     case .name, .symbol, .balance, .decimals:
                         break
                     case .nonFungibleTokenComplete(let name, let symbol, let balance, let tokenType):
-                        guard !onlyIfThereIsABalance || (onlyIfThereIsABalance && !balance.isEmpty) else { break }
+                        guard !onlyIfThereIsABalance || (onlyIfThereIsABalance && !balance.isEmpty) else {
+                            seal.fulfill(.none)
+                            break
+                        }
                         let token = ERCToken(
                                 contract: contract,
                                 server: server,
