@@ -73,19 +73,23 @@ class ContractDataDetector {
                     self.completionOfPartialData(.balance(balance: .erc875(balance), tokenType: .erc875))
                 }.catch { error in
                     self.nonFungibleBalanceSeal.reject(error)
+                    self.decimalsSeal.fulfill(0)
                     self.callCompletionFailed()
                 }
             case .erc721:
                 self.tokenProvider.getERC721Balance(for: self.address).done { balance in
                     self.nonFungibleBalanceSeal.fulfill(.balance(balance))
+                    self.decimalsSeal.fulfill(0)
                     self.completionOfPartialData(.balance(balance: .balance(balance), tokenType: .erc721))
                 }.catch { error in
                     self.nonFungibleBalanceSeal.reject(error)
+                    self.decimalsSeal.fulfill(0)
                     self.callCompletionFailed()
                 }
             case .erc721ForTickets:
                 self.tokenProvider.getERC721ForTicketsBalance(for: self.address).done { balance in
                     self.nonFungibleBalanceSeal.fulfill(.erc721ForTickets(balance))
+                    self.decimalsSeal.fulfill(0)
                     self.completionOfPartialData(.balance(balance: .erc721ForTickets(balance), tokenType: .erc721ForTickets))
                 }.catch { error in
                     self.nonFungibleBalanceSeal.reject(error)
@@ -94,6 +98,7 @@ class ContractDataDetector {
             case .erc1155:
                 let balance: [String] = .init()
                 self.nonFungibleBalanceSeal.fulfill(.balance(balance))
+                self.decimalsSeal.fulfill(0)
                 self.completionOfPartialData(.balance(balance: .balance(balance), tokenType: .erc1155))
             case .erc20:
                 self.tokenProvider.getDecimals(for: self.address).done { decimal in

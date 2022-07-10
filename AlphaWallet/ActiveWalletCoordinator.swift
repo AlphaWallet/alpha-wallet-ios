@@ -517,7 +517,9 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
 
         importToken.importToken(for: contract, server: server, onlyIfThereIsABalance: false)
             .done { _ in }
-            .cauterize()
+            .catch { error in
+                verboseLog("Error while adding imported token contract: \(contract.eip55String) server: \(server) wallet: \(self.wallet.address.eip55String) error: \(error)")
+            }
     }
 
     func show(error: Error) {
