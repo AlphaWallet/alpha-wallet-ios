@@ -92,7 +92,7 @@ final class GasPriceEstimator {
                     // Guard against really high prices
                     return GasEstimates(standard: maxPrice)
                 } else {
-                    if server.canUserChangeGas {
+                    if server.canUserChangeGas && server.shouldAddBufferWhenEstimatingGasPrice {
                         //Add an extra gwei because the estimate is sometimes too low
                         return GasEstimates(standard: gasPrice + GasPriceConfiguration.oneGwei)
                     } else {
