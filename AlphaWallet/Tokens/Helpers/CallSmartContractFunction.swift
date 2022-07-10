@@ -101,9 +101,22 @@ func callSmartContract(withServer server: RPCServer, contract: AlphaWallet.Addre
             }
 
             //callPromise() creates a promise. It doesn't "call" a promise. Bad name
-            promiseCreator.callPromise(options: nil).done(on: queue ?? .main, { d in
+            firstly {
+                promiseCreator.callPromise(options: nil)
+            }.done(on: queue ?? .main, { d in
                 seal.fulfill(d)
             }).catch(on: queue ?? .main, { e in
+                if let e  = e as? web3swift.Web3Error {
+                    switch e {
+                    case .rateLimited:
+                        warnLog("[API] Rate limited by RPC node server: \(server)")
+                    case .transactionSerializationError, .connectionError, .dataError, .walletError, .inputError, .nodeError, .processingError, .keystoreError, .generalError, .unknownError:
+                        //no-op. We only want to log rate limit errors above
+                        break
+                    }
+                } else {
+                    //no-op
+                }
                 seal.reject(e)
             })
         }

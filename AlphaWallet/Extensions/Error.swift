@@ -19,6 +19,7 @@ extension web3swift.Web3Error: LocalizedError {
         case .keystoreError(let e): return e.localizedDescription
         case .generalError(let e): return e.localizedDescription
         case .unknownError: return "Unknown Error"
+        case .rateLimited: return "Rate limited"
         }
     }
 }
