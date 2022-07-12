@@ -111,12 +111,8 @@ class Erc1155TokenIdsFetcher {
     private static func writeJson(contractsAndTokenIds: Erc1155TokenIds, address: AlphaWallet.Address, server: RPCServer) -> Promise<Void> {
         Promise { seal in
             if let data = try? JSONEncoder().encode(contractsAndTokenIds) {
-                do {
-                    try data.write(to: Self.fileUrl(forWallet: address, server: server), options: .atomicWrite)
-                    seal.fulfill(())
-                } catch {
-                    seal.reject(error)
-                }
+                try data.write(to: Self.fileUrl(forWallet: address, server: server), options: .atomicWrite)
+                seal.fulfill(())
             } else {
                 struct E: Error {}
                 seal.reject(E())

@@ -165,12 +165,8 @@ class TokenImageFetcher {
                     return (image: .image(image), symbol: "", isFinal: true, overlayServerIcon: server.staticOverlayIcon)
                 }
         }.recover { _ -> Promise<TokenImage> in
-            do {
-                let url = try TokenImageFetcher.imageUrlFromOpenSea(type, balance: balance, size: size)
-                return .value((image: url, symbol: "", isFinal: true, overlayServerIcon: server.staticOverlayIcon))
-            } catch {
-                return .init(error: error)
-            }
+            let url = try TokenImageFetcher.imageUrlFromOpenSea(type, balance: balance, size: size)
+            return .value((image: url, symbol: "", isFinal: true, overlayServerIcon: server.staticOverlayIcon))
         }.recover { _ -> Promise<TokenImage> in
             return TokenImageFetcher
                 .fetchFromAssetGitHubRepo(.thirdParty, contractAddress: contractAddress)

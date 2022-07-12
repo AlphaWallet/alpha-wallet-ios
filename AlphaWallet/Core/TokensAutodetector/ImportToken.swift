@@ -98,11 +98,9 @@ class ImportToken {
     }
 
     func fetchTokenOrContract(for contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool = false) -> Promise<TokenOrContract> {
-        do {
+        firstly { () -> Promise<TokenOrContract> in
             let fetcher = try getOrCreateTokenFetcher(for: server)
             return fetcher.fetchTokenOrContract(for: contract, onlyIfThereIsABalance: onlyIfThereIsABalance)
-        } catch {
-            return .init(error: error)
         }
     }
 
