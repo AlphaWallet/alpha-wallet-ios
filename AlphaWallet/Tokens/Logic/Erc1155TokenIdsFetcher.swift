@@ -111,12 +111,8 @@ class Erc1155TokenIdsFetcher {
     private static func writeJson(contractsAndTokenIds: Erc1155TokenIds, address: AlphaWallet.Address, server: RPCServer) -> Promise<Void> {
         Promise { seal in
             if let data = try? JSONEncoder().encode(contractsAndTokenIds) {
-                do {
-                    try data.write(to: Self.fileUrl(forWallet: address, server: server), options: .atomicWrite)
-                    seal.fulfill(())
-                } catch {
-                    seal.reject(error)
-                }
+                try data.write(to: Self.fileUrl(forWallet: address, server: server), options: .atomicWrite)
+                seal.fulfill(())
             } else {
                 struct E: Error {}
                 seal.reject(E())
@@ -137,6 +133,9 @@ extension Erc1155TokenIdsFetcher {
 }
 
 extension Erc1155TokenIdsFetcher.functional {
+    //This is only for development purposes to keep the PromiseKit `Resolver`(s) from being deallocated when they aren't resolved so PromiseKit don't show a warning and create noise and confusion
+    private static var fetchEventsPromiseKitResolversKeptForDevelopmentFeatureFlagOnly: [Resolver<[Erc1155TransferEvent]>] = .init()
+
     static func fetchEvents(config: Config, forAddress address: AlphaWallet.Address, server: RPCServer, fromBlock: EventFilter.Block, toBlock: EventFilter.Block, queue: DispatchQueue) -> Promise<Erc1155TokenIds> {
         let recipientAddress = EthereumAddress(address.eip55String)!
         let nullFilter: [EventFilterable]? = nil
@@ -177,7 +176,9 @@ extension Erc1155TokenIdsFetcher.functional {
 
     fileprivate static func fetchEvents(config: Config, server: RPCServer, transferType: Erc1155TransferEvent.TransferType, eventName: String, parameterFilters: [[EventFilterable]?], fromBlock: EventFilter.Block, toBlock: EventFilter.Block, queue: DispatchQueue) -> Promise<[Erc1155TransferEvent]> {
         if config.development.isAutoFetchingDisabled {
-            return Promise { _ in }
+            return Promise<[Erc1155TransferEvent]> { seal in
+                fetchEventsPromiseKitResolversKeptForDevelopmentFeatureFlagOnly.append(seal)
+            }
         }
 
         //We just need any contract for the Swift API to get events, it's not actually used

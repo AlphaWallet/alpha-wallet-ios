@@ -15,7 +15,7 @@ protocol AutoDetectTransactedTokensOperationDelegate: class {
 }
 
 final class AutoDetectTransactedTokensOperation: Operation {
-    
+
     weak private var delegate: AutoDetectTransactedTokensOperationDelegate?
     override var isExecuting: Bool {
         return delegate?.isAutoDetectingTransactedTokens ?? false
@@ -36,7 +36,7 @@ final class AutoDetectTransactedTokensOperation: Operation {
         self.tokensDataStore = tokensDataStore
         super.init()
         self.queuePriority = session.server.networkRequestsQueuePriority
-    } 
+    }
 
     override func main() {
         guard let delegate = delegate else { return }
@@ -52,6 +52,8 @@ final class AutoDetectTransactedTokensOperation: Operation {
 
             guard !strongSelf.isCancelled else { return }
             strongSelf.tokensDataStore.addOrUpdate(tokensOrContracts: values)
-        }.cauterize()
+        }.catch { error in
+            verboseLog("Error while detecting tokens wallet: \(self.session.account.address.eip55String) error: \(error)")
+        }
     }
 }

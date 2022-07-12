@@ -12,6 +12,19 @@ class EtherNumberFormatterTests: XCTestCase {
         return formatter
     }()
 
+    func testLessThatZero() {
+        XCTAssertEqual(shortFormatter.string(from: BigInt("-10000000000000")), "-0.0000")
+        XCTAssertEqual(fullFormatter.string(from: BigInt("-10000000000000")), "-0.00001")
+        XCTAssertEqual(fullFormatter.string(from: BigInt("-819947500000000000")), "-0.8199475")
+        XCTAssertEqual(shortFormatter.string(from: BigInt("-1000220000000000000")), "-1.0002")
+        XCTAssertEqual(shortFormatter.string(from: BigInt("-189000000000000")), "-0.0001")
+    }
+
+    func testAbs() {
+        XCTAssertEqual(shortFormatter.string(from: BigInt("-189000000000000")), "-0.0001")
+        XCTAssertEqual(shortFormatter.string(from: abs(BigInt("-189000000000000"))), "0.0001")
+    }
+
     func testZero() {
         XCTAssertEqual(fullFormatter.string(from: BigInt(0)), "0")
         XCTAssertEqual(shortFormatter.string(from: BigInt(0)), "0")
@@ -19,7 +32,7 @@ class EtherNumberFormatterTests: XCTestCase {
 
     func testSmall() {
         XCTAssertEqual(fullFormatter.string(from: BigInt(1)), "0.000000000000000001")
-        XCTAssertEqual(shortFormatter.string(from: BigInt(1)), "0")
+        XCTAssertEqual(shortFormatter.string(from: BigInt(1)), "0.0000")
     }
 
     func testLarge() {
@@ -28,14 +41,32 @@ class EtherNumberFormatterTests: XCTestCase {
         XCTAssertEqual(fullFormatter.string(from: BigInt("10000000000000000"), units: .wei), "10,000,000,000,000,000")
     }
 
+    func testMinimumFractionDigits2() {
+        let formatter3: EtherNumberFormatter = {
+            let formatter = EtherNumberFormatter(locale: Locale(identifier: "en_US_POSIX"))
+            formatter.minimumFractionDigits = 2
+            formatter.maximumFractionDigits = 4
+            return formatter
+        }()
+        XCTAssertEqual(formatter3.string(from: BigInt("819947500000000000")!), "0.81")
+    }
+
     func testMinimumFractionDigits() {
-        let formatter: EtherNumberFormatter = {
+        let formatter1: EtherNumberFormatter = {
             let formatter = EtherNumberFormatter(locale: Locale(identifier: "en_US_POSIX"))
             formatter.minimumFractionDigits = 3
             formatter.maximumFractionDigits = 3
             return formatter
         }()
-        XCTAssertEqual(formatter.string(from: BigInt(1)), "0.000")
+        XCTAssertEqual(formatter1.string(from: BigInt(1)), "0.000")
+
+        let formatter2: EtherNumberFormatter = {
+            let formatter = EtherNumberFormatter(locale: Locale(identifier: "en_US_POSIX"))
+            formatter.minimumFractionDigits = 2
+            formatter.maximumFractionDigits = 4
+            return formatter
+        }()
+        XCTAssertEqual(formatter2.string(from: BigInt(1)), "0.0000") 
     }
 
     func testDigits() {

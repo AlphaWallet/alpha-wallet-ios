@@ -11,7 +11,7 @@ class ConfirmationHeaderView: UIView {
     private let separatorLine: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = R.color.mercury()
+        view.backgroundColor = Configuration.Color.Semantic.popupSeparator
 
         return view
     }()
@@ -19,8 +19,8 @@ class ConfirmationHeaderView: UIView {
     private let titleLabel: UILabel = {
         let titleLabel = UILabel(frame: .zero)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-
-        return titleLabel
+        titleLabel.backgroundColor = Configuration.Color.Semantic.popupPrimaryFont
+       return titleLabel
     }()
 
     let iconImageView: RoundedImageView = {
@@ -41,7 +41,7 @@ class ConfirmationHeaderView: UIView {
     private let swipeIndicatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = Colors.black.withAlphaComponent(0.2)
+        view.backgroundColor = Configuration.Color.Semantic.popupSwipeIndicator
         view.cornerRadius = 2.5
 
         NSLayoutConstraint.activate([

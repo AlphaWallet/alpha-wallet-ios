@@ -45,10 +45,10 @@ class EnableServersHeaderView: UIView {
 
     func configure(mode: EnabledServersViewModel.Mode, isEnabled: Bool) {
         self.mode = mode
-        backgroundColor  = GroupedTable.Color.background
+        backgroundColor  = Configuration.Color.Semantic.tableViewHeaderBackground
 
-        label.backgroundColor = GroupedTable.Color.background
-        label.textColor = GroupedTable.Color.title
+        label.backgroundColor = Configuration.Color.Semantic.tableViewHeaderBackground
+        label.textColor = Configuration.Color.Semantic.tableViewCellPrimaryFont
         label.font = Fonts.tableHeader
         label.text = mode.headerText
 

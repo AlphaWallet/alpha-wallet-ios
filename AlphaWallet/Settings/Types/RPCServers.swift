@@ -354,6 +354,16 @@ enum RPCServer: Hashable, CaseIterable {
         }
     }
 
+    var shouldAddBufferWhenEstimatingGasPrice: Bool {
+        switch self {
+        case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet:
+            return true
+        case .phi:
+            //PHI chain has very low gas requirements (2000wei as of writing) so we must not add 1gwei to it
+            return false
+        }
+    }
+
     func getEtherscanURLForGeneralTransactionHistory(for address: AlphaWallet.Address, startBlock: Int?) -> URL? {
          etherscanURLForGeneralTransactionHistory.flatMap {
              let apiKeyParameter: String

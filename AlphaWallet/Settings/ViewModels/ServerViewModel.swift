@@ -75,15 +75,15 @@ struct ServerImageViewModel: ServerImageTableViewCellViewModelType {
         self.isTopSeparatorHidden = true
     }
 
-    var backgroundColor: UIColor = Colors.appBackground
-    var serverColor: UIColor = Colors.black
+    var backgroundColor: UIColor = Configuration.Color.Semantic.tableViewBackground
+    var serverColor: UIColor = Configuration.Color.Semantic.tableViewCellPrimaryFont
     var selectionStyle: UITableViewCell.SelectionStyle = .default
 
     var primaryText: String {
         return server.displayName
     }
     var primaryFont: UIFont = Fonts.regular(size: 20)
-    var primaryFontColor: UIColor = R.color.black()!
+    var primaryFontColor: UIColor = Configuration.Color.Semantic.tableViewCellPrimaryFont
 
     var secondaryText: String {
         switch server {
@@ -95,7 +95,7 @@ struct ServerImageViewModel: ServerImageTableViewCellViewModelType {
 
     }
     var secondaryFont: UIFont = Fonts.regular(size: 15)
-    var secondaryFontColor: UIColor = R.color.dove()!
+    var secondaryFontColor: UIColor = Configuration.Color.Semantic.tableViewCellSecondaryFont
 }
 
 struct TokenListServerTableViewCellViewModel: ServerTableViewCellViewModelType {
@@ -108,9 +108,9 @@ struct TokenListServerTableViewCellViewModel: ServerTableViewCellViewModelType {
     }
 
     var accessoryType: UITableViewCell.AccessoryType = LocaleViewCell.selectionAccessoryType.unselected
-    var backgroundColor: UIColor = R.color.alabaster()!
+    var backgroundColor: UIColor = Configuration.Color.Semantic.tableViewHeaderBackground
     var serverFont: UIFont = Fonts.semibold(size: 15)
-    var serverColor: UIColor = R.color.dove()!
+    var serverColor: UIColor = Configuration.Color.Semantic.tableViewCellSecondaryFont
     var serverName: String {
         return server.displayName.uppercased()
     }

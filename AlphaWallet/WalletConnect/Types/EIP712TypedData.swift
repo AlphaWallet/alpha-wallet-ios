@@ -224,6 +224,12 @@ private extension BigInt {
     }
 }
 
+func abs(_ value: BigInt) -> BigInt {
+    guard value.sign == .minus else { return value }
+
+    return BigInt(sign: .plus, magnitude: value.magnitude)
+}
+
 private extension BigUInt {
     init?(value: String) {
         if value.starts(with: "0x") {

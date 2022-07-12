@@ -15,7 +15,7 @@ class EmptyTableView: UIView {
     private lazy var label: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = Style.Search.Network.Empty.color
+        label.textColor = Configuration.Color.Semantic.labelTextActive
         label.font = Style.Search.Network.Empty.font
         label.textAlignment = .center
         return label
@@ -48,6 +48,7 @@ class EmptyTableView: UIView {
         translatesAutoresizingMaskIntoConstraints = false
         configureImageView()
         configureLabel()
+        UIKitFactory.decorateAsDefaultView(self)
     }
 
     private func configureImageView() {
