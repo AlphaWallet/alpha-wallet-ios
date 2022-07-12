@@ -90,7 +90,6 @@ class TokensViewController: UIViewController {
     private var bottomConstraint: NSLayoutConstraint!
     private lazy var keyboardChecker = KeyboardChecker(self, resetHeightDefaultValue: 0, ignoreBottomSafeArea: true)
     private let config: Config
-    private let walletConnectCoordinator: WalletConnectCoordinator
     private lazy var whereAreMyTokensView: AddHideTokensView = {
         let view = AddHideTokensView()
         view.delegate = self
@@ -174,7 +173,6 @@ class TokensViewController: UIViewController {
         self.tokenCollection = tokenCollection
         self.assetDefinitionStore = assetDefinitionStore
         self.config = config
-        self.walletConnectCoordinator = walletConnectCoordinator
 
         viewModel = TokensViewModel(tokensFilter: tokenCollection.tokensFilter, tokens: [], config: config)
 

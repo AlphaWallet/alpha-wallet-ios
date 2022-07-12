@@ -110,9 +110,9 @@ class ActiveWalletSessionView: UITableViewHeaderFooterView {
 
         NSLayoutConstraint.activate([
             iconImageView.heightAnchor.constraint(equalToConstant: 40),
-            iconImageView.widthAnchor.constraint(equalToConstant: 40),
+            iconImageView.widthAnchor.constraint(equalToConstant: 40).set(priority: .defaultHigh),
 
-            stackView.anchorsConstraint(to: background, edgeInsets: .init(top: 16, left: 20, bottom: 16, right: 16)),
+            stackView.anchorsConstraint(to: background, edgeInsets: .init(top: 16, left: 20, bottom: 16, right: 16)).map { $0.set(priority: .defaultHigh) },
             background.anchorsConstraint(to: contentView)
         ])
 
