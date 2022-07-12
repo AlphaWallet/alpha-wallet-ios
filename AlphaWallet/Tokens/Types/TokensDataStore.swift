@@ -26,7 +26,6 @@ protocol TokensDataStore: NSObjectProtocol {
     func token(forContract contract: AlphaWallet.Address, server: RPCServer) -> Token?
     func add(hiddenContracts: [AddressAndRPCServer])
     func deleteTestsOnly(tokens: [Token])
-    func updateOrderedTokens(with orderedTokens: [Token])
     func add(tokenUpdates updates: [TokenUpdate])
     @discardableResult func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [Token]
     @discardableResult func updateToken(primaryKey: String, action: TokenUpdateAction) -> Bool?
@@ -465,23 +464,6 @@ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
             try? realm.safeWrite {
                 let tokendToDelete = tokens.compactMap { realm.object(ofType: TokenObject.self, forPrimaryKey: $0.primaryKey) }
                 realm.delete(tokendToDelete)
-            }
-        }
-    }
-
-    func updateOrderedTokens(with orderedTokens: [Token]) {
-        guard !orderedTokens.isEmpty else { return }
-
-        store.performSync { realm in
-            let orderedTokensIds = orderedTokens.map { $0.primaryKey }
-
-            let storedTokens = Array(realm.objects(TokenObject.self))
-            guard !storedTokens.isEmpty else { return }
-
-            try? realm.safeWrite {
-                for token in storedTokens {
-                    token.sortIndex.value = orderedTokensIds.firstIndex(where: { $0 == token.primaryKey })
-                }
             }
         }
     }
