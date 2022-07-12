@@ -65,8 +65,8 @@ platform :ios do
 
   # You can define as many lanes as you want
 
-  desc "Upload a build for TestFlight"
-  lane :testflight do
+  desc "Upload a build for TestFlight and submission"
+  lane :upload do
     cocoapods(use_bundle_exec: true)
 
     build_app(workspace: "AlphaWallet.xcworkspace", scheme: "AlphaWallet",

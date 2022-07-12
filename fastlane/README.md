@@ -47,13 +47,13 @@ Screenshots
 
 
 
-### ios testflight
+### ios upload
 
 ```sh
-[bundle exec] fastlane ios testflight
+[bundle exec] fastlane ios upload
 ```
 
-Upload a build for TestFlight
+Upload a build for TestFlight and submission
 
 ----
 
