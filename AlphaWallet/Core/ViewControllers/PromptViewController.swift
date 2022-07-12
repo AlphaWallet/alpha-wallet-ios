@@ -15,7 +15,7 @@ class PromptViewController: ModalViewController {
         let v = UILabel()
         v.numberOfLines = 0
         v.textAlignment = .center
-        v.textColor = R.color.black()
+        v.textColor = Configuration.Color.Semantic.popupPrimaryFont
         v.font = Fonts.bold(size: 24)
 
         return v
@@ -25,7 +25,7 @@ class PromptViewController: ModalViewController {
         let v = UILabel()
         v.numberOfLines = 0
         v.textAlignment = .center
-        v.textColor = R.color.mine()
+        v.textColor = Configuration.Color.Semantic.popupSecondaryFont
         v.font = Fonts.regular(size: 17)
 
         return v
@@ -39,7 +39,7 @@ class PromptViewController: ModalViewController {
     init() {
         super.init(nibName: nil, bundle: nil)
         let footerView = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
-
+        UIKitFactory.decorateAsDefaultView(footerView)
         footerStackView.addArrangedSubview(footerView)
         generateSubviews()
         presentationDelegate = self

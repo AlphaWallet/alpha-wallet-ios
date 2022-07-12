@@ -76,7 +76,7 @@ extension UIView {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 0.5).isActive = true
-        view.backgroundColor = Style.Wallet.Header.backgroundColor
+        view.backgroundColor = Configuration.Color.Semantic.tableViewHeaderBackground
 
         return view
     }

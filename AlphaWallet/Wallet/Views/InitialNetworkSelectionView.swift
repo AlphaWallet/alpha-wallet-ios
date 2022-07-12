@@ -56,7 +56,7 @@ class InitialNetworkSelectionView: UIView {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = GroupedTable.Color.background
+        tableView.backgroundColor = Configuration.Color.Semantic.tableViewBackground
         tableView.isEditing = false
         return tableView
     }()
@@ -115,6 +115,7 @@ class InitialNetworkSelectionView: UIView {
             emptyTableView.centerXAnchor.constraint(equalTo: tableView.centerXAnchor),
             emptyTableView.centerYAnchor.constraint(equalTo: tableView.centerYAnchor),
         ])
+        UIKitFactory.decorateAsDefaultView(self)
     }
 
     // MARK: - public functions
