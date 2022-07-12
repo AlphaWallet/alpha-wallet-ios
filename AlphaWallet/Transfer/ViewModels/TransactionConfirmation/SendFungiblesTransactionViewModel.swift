@@ -74,7 +74,7 @@ extension TransactionConfirmationViewModel {
                     if amount.isAllFunds {
                         //NOTE: we need to handle balance updates, and refresh `amount` balance - gas
                         //if balance is equals to 0, or in case when value (balance - gas) less then zero we willn't crash
-                        let allFundsWithoutGas = viewModel.value - configurator.gasValue
+                        let allFundsWithoutGas = abs(viewModel.value - configurator.gasValue)
                         availableAmount = allFundsWithoutGas
 
                         configurator.updateTransaction(value: allFundsWithoutGas)
@@ -83,11 +83,11 @@ extension TransactionConfirmationViewModel {
                         availableAmount = viewModel.value
                     }
 
-                    let newAmountShort = EtherNumberFormatter.short.string(from: availableAmount - configurator.transaction.value)
+                    let newAmountShort = EtherNumberFormatter.short.string(from: abs(availableAmount - configurator.transaction.value))
                     newBalance = R.string.localizable.transactionConfirmationSendSectionBalanceNewTitle(newAmountShort, viewModel.symbol)
                 case .erc1155, .erc20, .erc721, .erc721ForTickets, .erc875:
                     let symbol = token.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
-                    let newAmountShort = EtherNumberFormatter.short.string(from: viewModel.value - configurator.transaction.value, decimals: token.decimals)
+                    let newAmountShort = EtherNumberFormatter.short.string(from: abs(viewModel.value - configurator.transaction.value), decimals: token.decimals)
                     balance = "\(viewModel.amountShort) \(symbol)"
                     newBalance = R.string.localizable.transactionConfirmationSendSectionBalanceNewTitle(newAmountShort, symbol)
                 }
