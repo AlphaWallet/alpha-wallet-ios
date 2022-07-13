@@ -600,6 +600,24 @@ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
     }
 }
 
+extension MultipleChainsTokensDataStore: DetectedContractsProvideble {
+    func alreadyAddedContracts(for server: RPCServer) -> [AlphaWallet.Address] {
+        enabledTokens(for: [server]).map { $0.contractAddress }
+    }
+
+    func deletedContracts(for server: RPCServer) -> [AlphaWallet.Address] {
+        deletedContracts(forServer: server).map { $0.address }
+    }
+
+    func hiddenContracts(for server: RPCServer) -> [AlphaWallet.Address] {
+        hiddenContracts(forServer: server).map { $0.address }
+    }
+
+    func delegateContracts(for server: RPCServer) -> [AlphaWallet.Address] {
+        delegateContracts(forServer: server).map { $0.address }
+    }
+}
+
 extension TokenObject {
     var addressAndRPCServer: AddressAndRPCServer {
         return .init(address: contractAddress, server: server)

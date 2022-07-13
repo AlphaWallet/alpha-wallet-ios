@@ -12,6 +12,7 @@ protocol AutoDetectTransactedTokensOperationDelegate: class {
     var isAutoDetectingTransactedTokens: Bool { get set }
 
     func autoDetectTransactedErc20AndNonErc20Tokens(wallet: AlphaWallet.Address) -> Promise<[TokenOrContract]>
+    func didDetect(tokensOrContracts: [TokenOrContract])
 }
 
 final class AutoDetectTransactedTokensOperation: Operation {
@@ -28,12 +29,10 @@ final class AutoDetectTransactedTokensOperation: Operation {
     }
 
     private let session: WalletSession
-    private let tokensDataStore: TokensDataStore
 
-    init(session: WalletSession, tokensDataStore: TokensDataStore, delegate: AutoDetectTransactedTokensOperationDelegate) {
+    init(session: WalletSession, delegate: AutoDetectTransactedTokensOperationDelegate) {
         self.delegate = delegate
         self.session = session
-        self.tokensDataStore = tokensDataStore
         super.init()
         self.queuePriority = session.server.networkRequestsQueuePriority
     }
@@ -51,7 +50,7 @@ final class AutoDetectTransactedTokensOperation: Operation {
             strongSelf.didChangeValue(forKey: "isFinished")
 
             guard !strongSelf.isCancelled else { return }
-            strongSelf.tokensDataStore.addOrUpdate(tokensOrContracts: values)
+            strongSelf.delegate?.didDetect(tokensOrContracts: values)
         }.catch { error in
             verboseLog("Error while detecting tokens wallet: \(self.session.account.address.eip55String) error: \(error)")
         }

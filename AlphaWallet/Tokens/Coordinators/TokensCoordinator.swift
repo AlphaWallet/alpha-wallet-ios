@@ -82,7 +82,7 @@ class TokensCoordinator: Coordinator {
         PriceAlertService(datastore: PriceAlertDataStore(wallet: sessions.anyValue.account), wallet: sessions.anyValue.account)
     }()
 
-    private var tokensDataStore: TokensDataStore {
+    private var tokensDataStore: TokensDataStore & DetectedContractsProvideble {
         return tokenCollection.tokensDataStore
     }
     private let tokensAutoDetectionQueue: DispatchQueue = DispatchQueue(label: "com.TokensAutoDetection.updateQueue")
@@ -183,7 +183,7 @@ class TokensCoordinator: Coordinator {
     private func setupSingleChainTokenCoordinators() {
         for session in sessions.values {
             let tokensAutodetector: TokensAutodetector = {
-                SingleChainTokensAutodetector(session: session, config: config, tokensDataStore: tokensDataStore, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, queue: tokensAutoDetectionQueue, importToken: importToken)
+                SingleChainTokensAutodetector(session: session, detectedTokens: tokensDataStore, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, queue: tokensAutoDetectionQueue, importToken: importToken)
             }()
 
             let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, tokensStorage: tokensDataStore, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analyticsCoordinator: analyticsCoordinator, openSea: openSea, tokenActionsProvider: tokenActionsService, coinTickersFetcher: coinTickersFetcher, activitiesService: activitiesService, alertService: alertService, tokensAutodetector: tokensAutodetector)

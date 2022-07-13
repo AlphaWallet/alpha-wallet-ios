@@ -8,7 +8,7 @@
 import UIKit
 
 protocol UrlSchemeResolver: AnyObject {
-    var tokensDataStore: TokensDataStore { get }
+    var tokensDataStore: TokensDataStore & DetectedContractsProvideble { get }
     var sessions: ServerDictionary<WalletSession> { get }
     var presentationNavigationController: UINavigationController { get }
 
