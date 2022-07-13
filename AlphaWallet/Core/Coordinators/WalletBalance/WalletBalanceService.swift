@@ -76,10 +76,10 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
         self.walletAddressesStore = walletAddressesStore
         super.init()
 
-        walletAddressesStore
-            .walletsPublisher
-            .receive(on: RunLoop.main)
+        walletAddressesStore.walletsPublisher
             .sink { [weak self] wallets in
+                assert(Thread.isMainThread)
+
                 guard let strongSelf = self else { return }
 
                 for wallet in wallets {

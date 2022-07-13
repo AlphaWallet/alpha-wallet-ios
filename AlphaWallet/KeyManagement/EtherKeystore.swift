@@ -127,12 +127,19 @@ open class EtherKeystore: NSObject, Keystore {
 
     func createAccount(completion: @escaping (Result<AlphaWallet.Address, KeystoreError>) -> Void) {
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            guard let strongSelf = self else {
-                return
-            }
-            let result = strongSelf.createAccount()
-            OperationQueue.main.addOperation {
-                completion(result)
+            guard let strongSelf = self else { return }
+
+            let mnemonicString = strongSelf.generateMnemonic()
+            let mnemonic = mnemonicString.split(separator: " ").map { String($0) }
+
+            DispatchQueue.main.async {
+                let result = strongSelf.importWallet(type: .mnemonic(words: mnemonic, password: strongSelf.emptyPassphrase))
+                switch result {
+                case .success(let wallet):
+                    completion(.success(wallet.address))
+                case .failure:
+                    completion(.failure(.failedToCreateWallet))
+                }
             }
         }
     }
