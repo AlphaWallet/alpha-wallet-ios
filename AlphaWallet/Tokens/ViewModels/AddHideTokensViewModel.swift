@@ -168,18 +168,6 @@ class AddHideTokensViewModel: ObservableObject {
         }
     }
 
-    func moveItem(from: IndexPath, to: IndexPath) -> [Token]? {
-        switch sections[from.section] {
-        case .displayedTokens:
-            let token = displayedTokens.remove(at: from.row)
-            displayedTokens.insert(token, at: to.row)
-
-            return displayedTokens
-        case .hiddenTokens, .availableNewTokens, .popularTokens, .sortingFilters:
-            return nil
-        }
-    }
-
     private func displayedToken(indexPath: IndexPath) -> Bool {
         switch sections[indexPath.section] {
         case .displayedTokens:

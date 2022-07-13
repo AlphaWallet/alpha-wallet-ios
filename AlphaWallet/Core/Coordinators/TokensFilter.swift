@@ -178,23 +178,19 @@ class TokensFilter {
         let result = tokens.filter {
             $0.shouldDisplay
         }.sorted(by: {
-            if let value1 = $0.sortIndex, let value2 = $1.sortIndex {
-                return value1 < value2
-            } else {
-                let contract0 = $0.contractAddress.eip55String
-                let contract1 = $1.contractAddress.eip55String
+            let contract0 = $0.contractAddress.eip55String
+            let contract1 = $1.contractAddress.eip55String
 
-                if contract0 == nativeCryptoAddressInDatabase && contract1 == nativeCryptoAddressInDatabase {
-                    return $0.server.displayOrderPriority < $1.server.displayOrderPriority
-                } else if contract0 == nativeCryptoAddressInDatabase {
-                    return true
-                } else if contract1 == nativeCryptoAddressInDatabase {
-                    return false
-                } else if $0.server != $1.server {
-                    return $0.server.displayOrderPriority < $1.server.displayOrderPriority
-                } else {
-                    return sortTokensByFiatValues($0, $1)
-                }
+            if contract0 == nativeCryptoAddressInDatabase && contract1 == nativeCryptoAddressInDatabase {
+                return $0.server.displayOrderPriority < $1.server.displayOrderPriority
+            } else if contract0 == nativeCryptoAddressInDatabase {
+                return true
+            } else if contract1 == nativeCryptoAddressInDatabase {
+                return false
+            } else if $0.server != $1.server {
+                return $0.server.displayOrderPriority < $1.server.displayOrderPriority
+            } else {
+                return sortTokensByFiatValues($0, $1)
             }
         })
 
