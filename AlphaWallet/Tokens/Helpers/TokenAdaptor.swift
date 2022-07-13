@@ -13,7 +13,7 @@ import Combine
 
 extension TokenHolder: ObservableObject { }
 
-extension Tokenable {
+extension TokenScriptSupportable {
 
     func getTokenHolders(assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, forWallet account: Wallet, isSourcedFromEvents: Bool = true) -> [TokenHolder] {
         let tokenAdaptor = TokenAdaptor(token: self, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
@@ -49,12 +49,12 @@ extension Tokenable {
 }
 
 class TokenAdaptor {
-    private let token: Tokenable
+    private let token: TokenScriptSupportable
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: NonActivityEventsDataStore
     private lazy var xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
 
-    init(token: Tokenable, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore) {
+    init(token: TokenScriptSupportable, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore) {
         self.token = token
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
@@ -80,7 +80,7 @@ class TokenAdaptor {
         var tokens = [TokenScript.Token]()
         switch token.type {
         case .erc875, .erc721ForTickets, .erc721, .erc1155, .nativeCryptocurrency:
-            for (index, item) in token.balance.enumerated() {
+            for (index, item) in token.balanceNft.enumerated() {
                 //id is the value of the bytes32 token
                 let id = item.balance
                 guard isNonZeroBalance(id, tokenType: token.type) else { continue }
@@ -107,7 +107,7 @@ class TokenAdaptor {
 
     private func getSupportedByNonFungibleJsonTokenHolders(forWallet account: Wallet, isSourcedFromEvents: Bool) -> [TokenHolder] {
         var tokens = [TokenScript.Token]()
-        for nonFungibleBalance in token.nftBalanceValue {
+        for nonFungibleBalance in token.balanceNft.compactMap ({ $0.nonFungibleBalance }) {
             if let token = getTokenForNonFungible(nonFungible: nonFungibleBalance, inWallet: account, server: self.token.server, isSourcedFromEvents: isSourcedFromEvents, tokenType: self.token.type) {
                 tokens.append(token)
             }

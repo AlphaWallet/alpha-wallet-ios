@@ -1,36 +1,25 @@
 //
-//  TokensService.swift
+//  TokenScriptSupportable.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 18.05.2022.
 //
 
 import Foundation
-import BigInt
-import AlphaWalletOpenSea
+import BigInt 
 
-protocol Tokenable {
+protocol TokenScriptSupportable {
     var name: String { get }
     var symbol: String { get }
     var contractAddress: AlphaWallet.Address { get }
     var type: TokenType { get }
     var decimals: Int { get }
     var server: RPCServer { get }
-    var value: BigInt { get }
-    var balance: [TokenBalanceValue] { get }
-
-    func icon(withSize size: GoogleContentSize) -> Subscribable<TokenImage>
+    var valueBI: BigInt { get }
+    var balanceNft: [TokenBalanceValue] { get }
 }
 
-extension Tokenable {
-    var nftBalanceValue: [NonFungibleFromJson] {
-        return balance.compactMap { $0.nonFungibleBalance }
-    }
-}
-
-extension Token: Tokenable {}
-
-extension Tokenable {
+extension TokenScriptSupportable {
 
     func title(withAssetDefinitionStore assetDefinitionStore: AssetDefinitionStore) -> String {
         let localizedNameFromAssetDefinition = XMLHandler(token: self, assetDefinitionStore: assetDefinitionStore).getLabel(fallback: name)
@@ -84,9 +73,9 @@ extension Tokenable {
             let daiSymbol = "DAI\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}"
             //We could have just trimmed away all trailing \0, but this is faster and safer since only DAI seems to have this problem
             if daiSymbol == symbol {
-                return "\(value) (DAI)".uppercased()
+                return "\(valueBI) (DAI)".uppercased()
             } else {
-                return "\(value) (\(symbol))".uppercased()
+                return "\(valueBI) (\(symbol))".uppercased()
             }
         }
         let xmlHandler = XMLHandler(token: self, assetDefinitionStore: assetDefinitionStore)
@@ -133,9 +122,9 @@ extension Tokenable {
             let daiSymbol = "DAI\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}"
             //We could have just trimmed away all trailing \0, but this is faster and safer since only DAI seems to have this problem
             if daiSymbol == symbol {
-                return "\(value) (DAI)".uppercased()
+                return "\(valueBI) (DAI)".uppercased()
             } else {
-                return "\(value) (\(symbol))".uppercased()
+                return "\(valueBI) (\(symbol))".uppercased()
             }
         }
         let xmlHandler = XMLHandler(token: self, assetDefinitionStore: assetDefinitionStore)

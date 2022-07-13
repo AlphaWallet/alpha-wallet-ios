@@ -106,3 +106,8 @@ struct Token: Equatable, Hashable {
 }
 
 extension Token: TokenActionsIdentifiable {}
+
+extension Token: TokenScriptSupportable {
+    var valueBI: BigInt { value }
+    var balanceNft: [TokenBalanceValue] { balance }
+}
