@@ -40,7 +40,7 @@ struct PopularTokenViewCellViewModel {
     }
 
     var iconImage: Subscribable<TokenImage> {
-        token.iconImage
+        token.icon(withSize: .s120)
     }
 
     var blockChainTagViewModel: BlockchainTagLabelViewModel {
