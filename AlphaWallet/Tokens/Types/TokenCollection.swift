@@ -16,7 +16,7 @@ protocol TokenAddable {
 
 protocol TokenCollection: TokenProvidable, TokenAddable {
     var tokensViewModel: AnyPublisher<TokensViewModel, Never> { get }
-    var tokensDataStore: TokensDataStore { get }
+    var tokensDataStore: TokensDataStore & DetectedContractsProvideble { get }
     var tokensFilter: TokensFilter { get }
 
     func fetch()
@@ -31,13 +31,13 @@ class MultipleChainsTokenCollection: NSObject, TokenCollection {
     private let refereshSubject = PassthroughSubject<Void, Never>.init()
     private var cancelable = Set<AnyCancellable>()
 
-    let tokensDataStore: TokensDataStore
+    let tokensDataStore: TokensDataStore & DetectedContractsProvideble
     var tokensViewModel: AnyPublisher<TokensViewModel, Never> {
         tokensViewModelSubject.eraseToAnyPublisher()
     }
     private let queue = DispatchQueue(label: "com.MultipleChainsTokenCollection.updateQueue")
 
-    init(tokensFilter: TokensFilter, tokensDataStore: TokensDataStore, config: Config) {
+    init(tokensFilter: TokensFilter, tokensDataStore: TokensDataStore & DetectedContractsProvideble, config: Config) {
         self.tokensFilter = tokensFilter
         self.tokensDataStore = tokensDataStore
 
