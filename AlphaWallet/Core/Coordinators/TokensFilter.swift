@@ -88,11 +88,11 @@ class TokensFilter {
         case .filter(let filter):
             filteredTokens = tokens.filter { filter.filter(token: $0) }
         case .defi:
-            filteredTokens = tokens.filter { tokenGroupIdentifier.identify(tokenObject: $0) == .defi }
+            filteredTokens = tokens.filter { tokenGroupIdentifier.identify(token: $0) == .defi }
         case .governance:
-            filteredTokens = tokens.filter { tokenGroupIdentifier.identify(tokenObject: $0) == .governance }
+            filteredTokens = tokens.filter { tokenGroupIdentifier.identify(token: $0) == .governance }
         case .assets:
-            filteredTokens = tokens.filter { tokenGroupIdentifier.identify(tokenObject: $0) == .assets }
+            filteredTokens = tokens.filter { tokenGroupIdentifier.identify(token: $0) == .assets }
         case .collectiblesOnly:
             filteredTokens = tokens.filter { ($0.type == .erc721 || $0.type == .erc1155) && !$0.balance.isEmpty }
         case .keyword(let keyword):

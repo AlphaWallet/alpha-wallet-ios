@@ -13,7 +13,7 @@ final class FakeTokenGroupIdentifier: TokenGroupIdentifierProtocol {
         return nil
     }
 
-    func identify(tokenObject: Token) -> TokenGroup {
+    func identify(token: TokenGroupIdentifiable) -> TokenGroup {
         return .assets
     }
 }
