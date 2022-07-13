@@ -818,16 +818,9 @@
 		8728FFE12742900A008E5524 /* SingleNFTAssetSelectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8728FFE02742900A008E5524 /* SingleNFTAssetSelectionViewModel.swift */; };
 		8728FFE32742906A008E5524 /* TokenCardTableViewCellFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8728FFE22742906A008E5524 /* TokenCardTableViewCellFactory.swift */; };
 		8728FFEA2743CAA7008E5524 /* NFTAssetSelectionSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8728FFE92743CAA7008E5524 /* NFTAssetSelectionSectionHeaderView.swift */; };
+		872A98662862EC0C00196EA3 /* base64_image_example.txt in Resources */ = {isa = PBXBuildFile; fileRef = 872A98652862EC0C00196EA3 /* base64_image_example.txt */; };
 		872A986C28637D0D00196EA3 /* Publisher+Utils.swift.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872A986B28637D0D00196EA3 /* Publisher+Utils.swift.swift */; };
 		872A986E28638F1600196EA3 /* WalletStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872A986D28638F1600196EA3 /* WalletStorage.swift */; };
-		872D9564271D633E00870971 /* WalletConnectConnectionTimeoutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872D9563271D633D00870971 /* WalletConnectConnectionTimeoutViewController.swift */; };
-		872D9567271D66C200870971 /* GasPriceEstimates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872D9565271D66C200870971 /* GasPriceEstimates.swift */; };
-		872D9568271D66C200870971 /* EtherscanGasPriceEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872D9566271D66C200870971 /* EtherscanGasPriceEstimator.swift */; };
-		87300E872850A674009DE4B3 /* WalletApiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87300E862850A674009DE4B3 /* WalletApiService.swift */; };
-		87300E892851C9D8009DE4B3 /* AcceptWalletConnectSessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87300E882851C9D8009DE4B3 /* AcceptWalletConnectSessionViewModel.swift */; };
-		87300E8B2851C9FE009DE4B3 /* AcceptDeepLinkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87300E8A2851C9FE009DE4B3 /* AcceptDeepLinkViewModel.swift */; };
-		87300E9228573461009DE4B3 /* ConfigureImageStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87300E9128573461009DE4B3 /* ConfigureImageStorage.swift */; };
-		872A98662862EC0C00196EA3 /* base64_image_example.txt in Resources */ = {isa = PBXBuildFile; fileRef = 872A98652862EC0C00196EA3 /* base64_image_example.txt */; };
 		872A987128645EF100196EA3 /* SectionProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872A987028645EF100196EA3 /* SectionProtocol.swift */; };
 		872A987328645F1D00196EA3 /* SendFungiblesTransactionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872A987228645F1D00196EA3 /* SendFungiblesTransactionViewModel.swift */; };
 		872A987528645F6800196EA3 /* DappOrWalletConnectTransactionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872A987428645F6800196EA3 /* DappOrWalletConnectTransactionViewModel.swift */; };
@@ -840,6 +833,9 @@
 		872D9564271D633E00870971 /* WalletConnectConnectionTimeoutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872D9563271D633D00870971 /* WalletConnectConnectionTimeoutViewController.swift */; };
 		872D9567271D66C200870971 /* GasPriceEstimates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872D9565271D66C200870971 /* GasPriceEstimates.swift */; };
 		872D9568271D66C200870971 /* EtherscanGasPriceEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872D9566271D66C200870971 /* EtherscanGasPriceEstimator.swift */; };
+		87300E872850A674009DE4B3 /* WalletApiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87300E862850A674009DE4B3 /* WalletApiService.swift */; };
+		87300E892851C9D8009DE4B3 /* AcceptWalletConnectSessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87300E882851C9D8009DE4B3 /* AcceptWalletConnectSessionViewModel.swift */; };
+		87300E8B2851C9FE009DE4B3 /* AcceptDeepLinkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87300E8A2851C9FE009DE4B3 /* AcceptDeepLinkViewModel.swift */; };
 		87300E8E28520F28009DE4B3 /* EnsRecordsStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87300E8D28520F28009DE4B3 /* EnsRecordsStorageTests.swift */; };
 		87300E9228573461009DE4B3 /* ConfigureImageStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87300E9128573461009DE4B3 /* ConfigureImageStorage.swift */; };
 		8731E6E02565269400A6A7DA /* Uniswap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8731E6DB2565269400A6A7DA /* Uniswap.swift */; };
@@ -2091,16 +2087,9 @@
 		8728FFE02742900A008E5524 /* SingleNFTAssetSelectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleNFTAssetSelectionViewModel.swift; sourceTree = "<group>"; };
 		8728FFE22742906A008E5524 /* TokenCardTableViewCellFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenCardTableViewCellFactory.swift; sourceTree = "<group>"; };
 		8728FFE92743CAA7008E5524 /* NFTAssetSelectionSectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTAssetSelectionSectionHeaderView.swift; sourceTree = "<group>"; };
+		872A98652862EC0C00196EA3 /* base64_image_example.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = base64_image_example.txt; sourceTree = "<group>"; };
 		872A986B28637D0D00196EA3 /* Publisher+Utils.swift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Publisher+Utils.swift.swift"; sourceTree = "<group>"; };
 		872A986D28638F1600196EA3 /* WalletStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletStorage.swift; sourceTree = "<group>"; };
-		872D9563271D633D00870971 /* WalletConnectConnectionTimeoutViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectConnectionTimeoutViewController.swift; sourceTree = "<group>"; };
-		872D9565271D66C200870971 /* GasPriceEstimates.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GasPriceEstimates.swift; sourceTree = "<group>"; };
-		872D9566271D66C200870971 /* EtherscanGasPriceEstimator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EtherscanGasPriceEstimator.swift; sourceTree = "<group>"; };
-		87300E862850A674009DE4B3 /* WalletApiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletApiService.swift; sourceTree = "<group>"; };
-		87300E882851C9D8009DE4B3 /* AcceptWalletConnectSessionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcceptWalletConnectSessionViewModel.swift; sourceTree = "<group>"; };
-		87300E8A2851C9FE009DE4B3 /* AcceptDeepLinkViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcceptDeepLinkViewModel.swift; sourceTree = "<group>"; };
-		87300E9128573461009DE4B3 /* ConfigureImageStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigureImageStorage.swift; sourceTree = "<group>"; };
-		872A98652862EC0C00196EA3 /* base64_image_example.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = base64_image_example.txt; sourceTree = "<group>"; };
 		872A987028645EF100196EA3 /* SectionProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionProtocol.swift; sourceTree = "<group>"; };
 		872A987228645F1D00196EA3 /* SendFungiblesTransactionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFungiblesTransactionViewModel.swift; sourceTree = "<group>"; };
 		872A987428645F6800196EA3 /* DappOrWalletConnectTransactionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DappOrWalletConnectTransactionViewModel.swift; sourceTree = "<group>"; };
@@ -2113,6 +2102,9 @@
 		872D9563271D633D00870971 /* WalletConnectConnectionTimeoutViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectConnectionTimeoutViewController.swift; sourceTree = "<group>"; };
 		872D9565271D66C200870971 /* GasPriceEstimates.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GasPriceEstimates.swift; sourceTree = "<group>"; };
 		872D9566271D66C200870971 /* EtherscanGasPriceEstimator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EtherscanGasPriceEstimator.swift; sourceTree = "<group>"; };
+		87300E862850A674009DE4B3 /* WalletApiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletApiService.swift; sourceTree = "<group>"; };
+		87300E882851C9D8009DE4B3 /* AcceptWalletConnectSessionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcceptWalletConnectSessionViewModel.swift; sourceTree = "<group>"; };
+		87300E8A2851C9FE009DE4B3 /* AcceptDeepLinkViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcceptDeepLinkViewModel.swift; sourceTree = "<group>"; };
 		87300E8D28520F28009DE4B3 /* EnsRecordsStorageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnsRecordsStorageTests.swift; sourceTree = "<group>"; };
 		87300E9128573461009DE4B3 /* ConfigureImageStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigureImageStorage.swift; sourceTree = "<group>"; };
 		8731E6DB2565269400A6A7DA /* Uniswap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Uniswap.swift; sourceTree = "<group>"; };
@@ -6422,6 +6414,7 @@
 				"${BUILT_PRODUCTS_DIR}/Charts/Charts.framework",
 				"${BUILT_PRODUCTS_DIR}/CocoaAsyncSocket/CocoaAsyncSocket.framework",
 				"${BUILT_PRODUCTS_DIR}/CocoaLumberjack/CocoaLumberjack.framework",
+				"${BUILT_PRODUCTS_DIR}/CombineExt/CombineExt.framework",
 				"${BUILT_PRODUCTS_DIR}/CryptoSwift/CryptoSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/EthereumABI/EthereumABI.framework",
 				"${BUILT_PRODUCTS_DIR}/EthereumAddress/EthereumAddress.framework",
@@ -6472,6 +6465,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Charts.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CocoaAsyncSocket.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CocoaLumberjack.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CombineExt.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CryptoSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/EthereumABI.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/EthereumAddress.framework",
