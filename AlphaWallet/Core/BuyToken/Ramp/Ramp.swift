@@ -30,7 +30,7 @@ class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType {
         self.account = account
     }
 
-    func url(token: TokenActionsServiceKey) -> URL? {
+    func url(token: TokenActionsIdentifiable) -> URL? {
         guard let account = account else { return nil }
 
         switch token.server {
@@ -44,13 +44,13 @@ class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType {
         }
     }
 
-    func actions(token: TokenActionsServiceKey) -> [TokenInstanceAction] {
+    func actions(token: TokenActionsIdentifiable) -> [TokenInstanceAction] {
         return [
             .init(type: .buy(service: self))
         ]
     }
 
-    func isSupport(token: TokenActionsServiceKey) -> Bool {
+    func isSupport(token: TokenActionsIdentifiable) -> Bool {
         switch token.server {
         case .xDai:
             return true
@@ -59,7 +59,7 @@ class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType {
         }
     }
 
-    private func asset(for token: TokenActionsServiceKey) -> Asset? {
+    private func asset(for token: TokenActionsIdentifiable) -> Asset? {
         //We only operate for mainnets. This is because we store native cryptos for Ethereum testnets like `.goerli` with symbol "ETH" which would match Ramp's Ethereum token
         guard !token.server.isTestnet else { return nil }
         return assets.first(where: {

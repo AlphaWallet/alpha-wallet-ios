@@ -104,3 +104,5 @@ struct Token: Equatable, Hashable {
         hasher.combine(type.rawValue)
     }
 }
+
+extension Token: TokenActionsIdentifiable {}

@@ -17,7 +17,7 @@ struct QuickSwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
         return R.string.localizable.aWalletTokenErc20ExchangeOnQuickSwapButtonTitle()
     }
 
-    func rpcServer(forToken token: TokenActionsServiceKey) -> RPCServer? {
+    func rpcServer(forToken token: TokenActionsIdentifiable) -> RPCServer? {
         return .polygon
     }
 
@@ -31,7 +31,7 @@ struct QuickSwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
     var theme: Uniswap.Theme = .dark
     var method: Method = .swap
 
-    func url(token: TokenActionsServiceKey) -> URL? {
+    func url(token: TokenActionsIdentifiable) -> URL? {
         let input = Input.input(token.contractAddress)
         var components = URLComponents()
         components.path = method.rawValue
@@ -96,13 +96,13 @@ struct QuickSwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
         }
     }
 
-    func actions(token: TokenActionsServiceKey) -> [TokenInstanceAction] {
+    func actions(token: TokenActionsIdentifiable) -> [TokenInstanceAction] {
         return [
             .init(type: .swap(service: self))
         ]
     }
 
-    func isSupport(token: TokenActionsServiceKey) -> Bool {
+    func isSupport(token: TokenActionsIdentifiable) -> Bool {
         switch token.server {
         case .polygon:
             return true

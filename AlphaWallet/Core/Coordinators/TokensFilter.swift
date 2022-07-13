@@ -100,7 +100,7 @@ class TokensFilter {
             case .all:
                 filteredTokens = tokens
             case .swap:
-                filteredTokens = tokens.filter { tokenActionsService.isSupport(token: TokenActionsServiceKey(token: $0)) }
+                filteredTokens = tokens.filter { tokenActionsService.isSupport(token: $0) }
             case .erc20:
                 filteredTokens = tokens.filter { $0.type == .erc20 }
             case .erc721:

@@ -10,6 +10,6 @@ import Foundation
 protocol SwapTokenViaUrlProvider: TokenActionProvider {
     var analyticsName: String { get }
 
-    func rpcServer(forToken token: TokenActionsServiceKey) -> RPCServer?
-    func url(token: TokenActionsServiceKey) -> URL?
+    func rpcServer(forToken token: TokenActionsIdentifiable) -> RPCServer?
+    func url(token: TokenActionsIdentifiable) -> URL?
 }

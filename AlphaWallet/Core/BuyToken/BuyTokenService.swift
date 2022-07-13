@@ -8,5 +8,5 @@
 import Foundation
 
 protocol BuyTokenURLProviderType: TokenActionProvider {
-    func url(token: TokenActionsServiceKey) -> URL?
+    func url(token: TokenActionsIdentifiable) -> URL?
 }

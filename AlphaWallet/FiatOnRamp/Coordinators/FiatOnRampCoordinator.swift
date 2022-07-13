@@ -25,7 +25,7 @@ class FiatOnRampCoordinator: Coordinator {
 
     func start() {
         let ramp = Ramp(account: wallet)
-        if let url = ramp.url(token: TokenActionsServiceKey(token: MultipleChainsTokensDataStore.functional.etherToken(forServer: server))) {
+        if let url = ramp.url(token: MultipleChainsTokensDataStore.functional.etherToken(forServer: server)) {
             FiatOnRampCoordinator.logStartOnRamp(name: "Ramp", source: source, analyticsCoordinator: analyticsCoordinator)
             delegate?.didPressOpenWebPage(url, in: sourceViewController)
         } else {
