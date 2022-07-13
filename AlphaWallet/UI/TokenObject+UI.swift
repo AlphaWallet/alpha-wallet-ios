@@ -57,22 +57,33 @@ class RPCServerImageFetcher {
     }
 }
 
-extension TokenObject {
-    fileprivate static let numberOfCharactersOfSymbolToShowInIcon = 4
-
-    func icon(withSize size: GoogleContentSize) -> Subscribable<TokenImage> {
-        return TokenImageFetcher.instance.image(forToken: self, size: size)
-    }
-}
-
-extension Token {
+extension HasTokenImage {
 
     func icon(withSize size: GoogleContentSize) -> Subscribable<TokenImage> {
         let name = symbol.nilIfEmpty ?? name
-        let nftBalance = nftBalanceValue.first
-
-        return TokenImageFetcher.instance.image(contractAddress: contractAddress, server: server, name: name, type: type, balance: nftBalance, size: size)
+        return TokenImageFetcher.instance.image(contractAddress: contractAddress, server: server, name: name, type: type, balance: firstNftAsset, size: size)
     }
+}
+
+protocol HasTokenImage {
+    var name: String { get }
+    var symbol: String { get }
+    var contractAddress: AlphaWallet.Address { get }
+    var type: TokenType { get }
+    var server: RPCServer { get }
+    var firstNftAsset: NonFungibleFromJson? { get }
+}
+
+extension Token: HasTokenImage {
+    var firstNftAsset: NonFungibleFromJson? {
+        balance.compactMap { $0.nonFungibleBalance }.first
+    }
+}
+
+extension PopularToken: HasTokenImage {
+    var symbol: String { "" }
+    var type: TokenType { .erc20 }
+    var firstNftAsset: NonFungibleFromJson? { nil }
 }
 
 class TokenImageFetcher {
@@ -85,7 +96,7 @@ class TokenImageFetcher {
     private static var subscribables: AtomicDictionary<String, Subscribable<TokenImage>> = .init()
 
     private static func programmaticallyGenerateIcon(for contractAddress: AlphaWallet.Address, type: TokenType, server: RPCServer, symbol: String) -> TokenImage? {
-        guard let i = [TokenObject.numberOfCharactersOfSymbolToShowInIcon, symbol.count].min() else { return nil }
+        guard let i = [Constants.Image.numberOfCharactersOfSymbolToShowInIcon, symbol.count].min() else { return nil }
         let symbol = symbol.substring(to: i)
         let rawImage: UIImage?
         let overlayServerIcon: UIImage?
@@ -103,16 +114,6 @@ class TokenImageFetcher {
         }
 
         return (image: .image(rawImage), symbol: symbol, isFinal: false, overlayServerIcon: overlayServerIcon)
-    }
-
-    //Relies on built-in HTTP/HTTPS caching in iOS for the images
-    func image(forToken tokenObject: TokenObject, size: GoogleContentSize) -> Subscribable<TokenImage> {
-        return image(contractAddress: tokenObject.contractAddress, server: tokenObject.server, name: tokenObject.symbol.nilIfEmpty ?? tokenObject.name, type: tokenObject.type, balance: tokenObject.balance.first?.nonFungibleBalance, size: size)
-    }
-
-    func image(contractAddress: AlphaWallet.Address, server: RPCServer, name: String, size: GoogleContentSize) -> Subscribable<TokenImage> {
-        // NOTE: not meatter what type we passa as `type`, here we are not going to fetch from OpenSea
-        return image(contractAddress: contractAddress, server: server, name: name, type: .erc20, balance: nil, size: size)
     }
 
     private func getDefaultOrGenerateIcon(server: RPCServer, contractAddress: AlphaWallet.Address, type: TokenType, name: String) -> TokenImage? {

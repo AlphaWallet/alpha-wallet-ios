@@ -233,6 +233,10 @@ public struct Constants {
         static let recordExpiration: TimeInterval = -(2 * 24 * 60 * 60)
     }
 
+    enum Image {
+        static let numberOfCharactersOfSymbolToShowInIcon = 4
+    }
+
     //CurrencyFormatter
     static let formatterFractionDigits = 2
 
