@@ -25,10 +25,35 @@ final class NewlyAddedTransactionProvider: NSObject {
         super.init()
     }
 
+    func startScheduler() {
+        queue.async { [scheduler, transactionDataStore, session] in
+            //NOTE: only when there are some transactions, otherwise transactions will be fetched via, OldestTransactionProvider
+            guard transactionDataStore.transactionCount(forServer: session.server) > 0 else { return }
+            scheduler.start()
+        }
+    }
+
+    func resumeScheduler() {
+        queue.async { [scheduler, transactionDataStore, session] in
+            guard transactionDataStore.transactionCount(forServer: session.server) > 0 else { return }
+            scheduler.resume()
+        }
+    }
+
+    func cancelScheduler() {
+        queue.async { [scheduler] in
+            scheduler.cancel()
+        }
+    }
+
+    deinit {
+        scheduler.cancel() 
+    }
+
     private func didReceiveValue(transactions: [TransactionInstance]) {
         let newOrUpdatedTransactions = transactionDataStore.addOrUpdate(transactions: transactions)
         tokensFromTransactionsFetcher.extractNewTokens(from: newOrUpdatedTransactions)
-
+        //NOTE: in case if thre some transactions that already exist we can suggest to reset `covalentLastNewestPage`
         if newOrUpdatedTransactions.count != transactions.count || transactions.isEmpty {
             session.config.set(covalentLastNewestPage: session.server, wallet: session.account, page: nil)
         }
@@ -37,29 +62,6 @@ final class NewlyAddedTransactionProvider: NSObject {
     private func didReceiveError(error: Covalent.CovalentError) {
         //no-op
     }
-
-    func startScheduler() {
-        queue.async {
-            self.scheduler.start()
-        }
-    }
-
-    func resumeScheduler() {
-        queue.async {
-            self.scheduler.resume()
-        }
-    }
-
-    func cancelScheduler() {
-        queue.async {
-            self.scheduler.cancel()
-        }
-    }
-
-    deinit {
-        scheduler.cancel() 
-    }
-
 }
 
 extension NewlyAddedTransactionProvider: NewlyAddedTransactionSchedulerProviderDelegate {
