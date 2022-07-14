@@ -19,7 +19,8 @@ class ConfirmationHeaderView: UIView {
     private let titleLabel: UILabel = {
         let titleLabel = UILabel(frame: .zero)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        titleLabel.backgroundColor = Configuration.Color.Semantic.popupPrimaryFont
+        titleLabel.backgroundColor = .clear
+        titleLabel.textColor = Configuration.Color.Semantic.popupPrimaryFont
        return titleLabel
     }()
 
