@@ -8,11 +8,11 @@
 import Foundation
 import BigInt
 
-struct WalletSummary: Equatable {
-
+struct WalletSummary {
     private var totalAmountDouble: Double?
     private var etherTotalAmountDouble: NSDecimalNumber?
-    var changePercentage: Double?
+
+    let changePercentage: Double?
 
     init(balances: [WalletBalance]) {
         self.changePercentage = WalletSummary.functional.createChangePercentage(balances: balances)
@@ -38,6 +38,8 @@ struct WalletSummary: Equatable {
         }
     }
 }
+
+extension WalletSummary: Hashable { }
 
 extension Double {
     var nilIfNan: Double? {

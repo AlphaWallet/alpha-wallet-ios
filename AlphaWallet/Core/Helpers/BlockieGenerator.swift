@@ -29,6 +29,8 @@ enum BlockiesImage {
     }
 }
 
+extension BlockiesImage: Hashable { }
+
 class BlockiesGenerator {
     private enum BlockieSize {
         case sized(size: Int, scale: Int)

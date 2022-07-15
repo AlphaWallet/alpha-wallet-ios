@@ -169,7 +169,7 @@ class TokensCoordinator: Coordinator {
     }
 
     func listOfBadTokenScriptFilesChanged(fileNames: [TokenScriptFileIndices.FileName]) {
-        tokensViewController.listOfBadTokenScriptFiles = fileNames
+        tokensViewController.viewModel.set(listOfBadTokenScriptFiles: fileNames)
     }
 
     func launchUniversalScanner(fromSource source: Analytics.ScanQRCodeSource) {
