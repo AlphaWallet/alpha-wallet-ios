@@ -134,6 +134,7 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
         })
     }
 
+    //TODO consolidate with adding `Constants.uefaMainnet` which is done elsewhere
     private func autoDetectPartnerTokens() {
         guard !session.config.development.isAutoFetchingDisabled else { return }
         switch session.server {
