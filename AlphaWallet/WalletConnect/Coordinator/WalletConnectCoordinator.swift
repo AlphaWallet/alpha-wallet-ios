@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletGoBack
 import WalletConnectSwift
 import PromiseKit
 import Result
@@ -317,6 +318,8 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
             }
         }.done { response in
             try? server.respond(response, request: request)
+        }.ensure {
+            JumpBackToPreviousApp.goBack(forWalletConnectAction: action)
         }.catch { error in
             if error is WalletConnectCoordinator.RequestCanceledDueToWatchWalletError {
                 self.navigationController.displayError(error: error)
@@ -461,10 +464,11 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         }.done { choise in
             guard case .walletConnect(let server) = choise else {
                 completion(.cancel)
+                JumpBackToPreviousApp.goBackForWalletConnectSessionCancelled()
                 return
             }
-
             completion(.connect(server))
+            JumpBackToPreviousApp.goBackForWalletConnectSessionApproved()
         }.catch { _ in
             completion(.cancel)
         }.finally {
@@ -575,5 +579,34 @@ extension WalletConnectCoordinator: CanOpenURL {
 
     func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
         delegate?.didPressOpenWebPage(url, in: viewController)
+    }
+}
+
+fileprivate class JumpBackToPreviousApp {
+    static func goBack(forWalletConnectAction action: AlphaWallet.WalletConnect.Action) {
+        if action.type.shouldGoBackToPreviousAppAfterAction {
+            _ = UIApplication.shared.goBackToPreviousAppIfAvailable()
+        } else {
+            //no-op
+        }
+    }
+
+    static func goBackForWalletConnectSessionApproved() {
+        _ = UIApplication.shared.goBackToPreviousAppIfAvailable()
+    }
+
+    static func goBackForWalletConnectSessionCancelled() {
+        _ = UIApplication.shared.goBackToPreviousAppIfAvailable()
+    }
+}
+
+fileprivate extension AlphaWallet.WalletConnect.Action.ActionType {
+    var shouldGoBackToPreviousAppAfterAction: Bool {
+        switch self {
+        case .signMessage, .signPersonalMessage, .signTypedMessageV3, .signTransaction, .sendTransaction, .typedMessage, .sendRawTransaction, .walletSwitchEthereumChain, .walletAddEthereumChain:
+            return true
+        case .getTransactionCount, .unknown:
+            return false
+        }
     }
 }
