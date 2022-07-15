@@ -22,11 +22,11 @@ final class SwapTokenNativeProvider: SupportedTokenActionsProvider, TokenActionP
         self.tokenSwapper = tokenSwapper
     }
 
-    func isSupport(token: TokenActionsServiceKey) -> Bool {
+    func isSupport(token: TokenActionsIdentifiable) -> Bool {
         return tokenSwapper.supports(contractAddress: token.contractAddress, server: token.server)
     }
 
-    func actions(token: TokenActionsServiceKey) -> [TokenInstanceAction] {
+    func actions(token: TokenActionsIdentifiable) -> [TokenInstanceAction] {
         return [.init(type: .swap(service: self))]
     }
 

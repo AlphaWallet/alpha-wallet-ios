@@ -15,7 +15,7 @@ final class xDaiBridge: SupportedTokenActionsProvider, BridgeTokenURLProviderTyp
 
     private static let supportedServer: RPCServer = .xDai
 
-    func isSupport(token: TokenActionsServiceKey) -> Bool {
+    func isSupport(token: TokenActionsIdentifiable) -> Bool {
         switch token.type {
         case .erc1155, .erc20, .erc721, .erc721ForTickets, .erc875:
             return false
@@ -24,11 +24,11 @@ final class xDaiBridge: SupportedTokenActionsProvider, BridgeTokenURLProviderTyp
         }
     }
 
-    func actions(token: TokenActionsServiceKey) -> [TokenInstanceAction] {
+    func actions(token: TokenActionsIdentifiable) -> [TokenInstanceAction] {
         return [.init(type: .bridge(service: self))]
     }
 
-    func rpcServer(forToken token: TokenActionsServiceKey) -> RPCServer? {
+    func rpcServer(forToken token: TokenActionsIdentifiable) -> RPCServer? {
         return xDaiBridge.supportedServer
     }
 
@@ -40,7 +40,7 @@ final class xDaiBridge: SupportedTokenActionsProvider, BridgeTokenURLProviderTyp
         "xDai Bridge"
     }
 
-    func url(token: TokenActionsServiceKey) -> URL? {
+    func url(token: TokenActionsIdentifiable) -> URL? {
         return Constants.xDaiBridge
     }
 

@@ -88,11 +88,11 @@ class TokensFilter {
         case .filter(let filter):
             filteredTokens = tokens.filter { filter.filter(token: $0) }
         case .defi:
-            filteredTokens = tokens.filter { tokenGroupIdentifier.identify(tokenObject: $0) == .defi }
+            filteredTokens = tokens.filter { tokenGroupIdentifier.identify(token: $0) == .defi }
         case .governance:
-            filteredTokens = tokens.filter { tokenGroupIdentifier.identify(tokenObject: $0) == .governance }
+            filteredTokens = tokens.filter { tokenGroupIdentifier.identify(token: $0) == .governance }
         case .assets:
-            filteredTokens = tokens.filter { tokenGroupIdentifier.identify(tokenObject: $0) == .assets }
+            filteredTokens = tokens.filter { tokenGroupIdentifier.identify(token: $0) == .assets }
         case .collectiblesOnly:
             filteredTokens = tokens.filter { ($0.type == .erc721 || $0.type == .erc1155) && !$0.balance.isEmpty }
         case .keyword(let keyword):
@@ -100,7 +100,7 @@ class TokensFilter {
             case .all:
                 filteredTokens = tokens
             case .swap:
-                filteredTokens = tokens.filter { tokenActionsService.isSupport(token: TokenActionsServiceKey(token: $0)) }
+                filteredTokens = tokens.filter { tokenActionsService.isSupport(token: $0) }
             case .erc20:
                 filteredTokens = tokens.filter { $0.type == .erc20 }
             case .erc721:
@@ -178,23 +178,19 @@ class TokensFilter {
         let result = tokens.filter {
             $0.shouldDisplay
         }.sorted(by: {
-            if let value1 = $0.sortIndex, let value2 = $1.sortIndex {
-                return value1 < value2
-            } else {
-                let contract0 = $0.contractAddress.eip55String
-                let contract1 = $1.contractAddress.eip55String
+            let contract0 = $0.contractAddress.eip55String
+            let contract1 = $1.contractAddress.eip55String
 
-                if contract0 == nativeCryptoAddressInDatabase && contract1 == nativeCryptoAddressInDatabase {
-                    return $0.server.displayOrderPriority < $1.server.displayOrderPriority
-                } else if contract0 == nativeCryptoAddressInDatabase {
-                    return true
-                } else if contract1 == nativeCryptoAddressInDatabase {
-                    return false
-                } else if $0.server != $1.server {
-                    return $0.server.displayOrderPriority < $1.server.displayOrderPriority
-                } else {
-                    return sortTokensByFiatValues($0, $1)
-                }
+            if contract0 == nativeCryptoAddressInDatabase && contract1 == nativeCryptoAddressInDatabase {
+                return $0.server.displayOrderPriority < $1.server.displayOrderPriority
+            } else if contract0 == nativeCryptoAddressInDatabase {
+                return true
+            } else if contract1 == nativeCryptoAddressInDatabase {
+                return false
+            } else if $0.server != $1.server {
+                return $0.server.displayOrderPriority < $1.server.displayOrderPriority
+            } else {
+                return sortTokensByFiatValues($0, $1)
             }
         })
 

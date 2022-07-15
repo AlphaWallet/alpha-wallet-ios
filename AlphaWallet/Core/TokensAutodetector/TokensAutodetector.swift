@@ -8,34 +8,46 @@
 import Foundation
 import AlphaWalletCore
 import PromiseKit
+import Combine
 
 protocol TokensAutodetector: NSObjectProtocol {
+    var tokensOrContractsDetected: AnyPublisher<[TokenOrContract], Never> { get }
+
     func start()
 }
 
+protocol DetectedContractsProvideble {
+    /// Tokens contracts
+    func alreadyAddedContracts(for server: RPCServer) -> [AlphaWallet.Address]
+    /// Not using anymore, leave it to avoid migration fixing
+    func deletedContracts(for server: RPCServer) -> [AlphaWallet.Address]
+    /// Also seems like not supported
+    func hiddenContracts(for server: RPCServer) -> [AlphaWallet.Address]
+    /// Partially resolved token contracts
+    func delegateContracts(for server: RPCServer) -> [AlphaWallet.Address]
+}
+
 class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
-    private let tokensDataStore: TokensDataStore
-    private let assetDefinitionStore: AssetDefinitionStore
-    private let analyticsCoordinator: AnalyticsCoordinator
     private let autoDetectTransactedTokensQueue: OperationQueue
     private let autoDetectTokensQueue: OperationQueue
-    private let config: Config
     private let session: WalletSession
     private let queue: DispatchQueue
     private let importToken: ImportToken
-    private lazy var tokenProvider = TokenProvider(account: session.account, server: session.server, analyticsCoordinator: analyticsCoordinator)
+    private let detectedTokens: DetectedContractsProvideble
     private lazy var erc875BalanceFetcher = GetErc875Balance(forServer: session.server, queue: queue)
     private lazy var erc20BalanceFetcher = GetErc20Balance(forServer: session.server, queue: queue)
+    private let tokensOrContractsDetectedSubject = PassthroughSubject<[TokenOrContract], Never>()
+
+    var tokensOrContractsDetected: AnyPublisher<[TokenOrContract], Never> {
+        tokensOrContractsDetectedSubject.eraseToAnyPublisher()
+    }
 
     var isAutoDetectingTransactedTokens = false
     var isAutoDetectingTokens = false
 
     init(
             session: WalletSession,
-            config: Config,
-            tokensDataStore: TokensDataStore,
-            assetDefinitionStore: AssetDefinitionStore,
-            analyticsCoordinator: AnalyticsCoordinator,
+            detectedTokens: DetectedContractsProvideble,
             withAutoDetectTransactedTokensQueue autoDetectTransactedTokensQueue: OperationQueue,
             withAutoDetectTokensQueue autoDetectTokensQueue: OperationQueue,
             queue: DispatchQueue,
@@ -44,10 +56,7 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
         self.importToken = importToken
         self.queue = queue
         self.session = session
-        self.config = config
-        self.tokensDataStore = tokensDataStore
-        self.analyticsCoordinator = analyticsCoordinator
-        self.assetDefinitionStore = assetDefinitionStore
+        self.detectedTokens = detectedTokens
         self.autoDetectTransactedTokensQueue = autoDetectTransactedTokensQueue
         self.autoDetectTokensQueue = autoDetectTokensQueue
     }
@@ -64,19 +73,19 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
     private func autoDetectTransactedTokens() {
         //TODO we don't auto detect tokens if we are running tests. Maybe better to move this into app delegate's application(_:didFinishLaunchingWithOptions:)
         guard !isRunningTests() else { return }
-        guard !config.development.isAutoFetchingDisabled else { return }
+        guard !session.config.development.isAutoFetchingDisabled else { return }
         guard !isAutoDetectingTransactedTokens else { return }
 
         isAutoDetectingTransactedTokens = true
-        let operation = AutoDetectTransactedTokensOperation(session: session, tokensDataStore: tokensDataStore, delegate: self)
+        let operation = AutoDetectTransactedTokensOperation(session: session, delegate: self)
         autoDetectTransactedTokensQueue.addOperation(operation)
     }
 
     private func contractsForTransactedTokens(detectedContracts: [AlphaWallet.Address], forServer server: RPCServer) -> [AlphaWallet.Address] {
-        let alreadyAddedContracts = tokensDataStore.enabledTokens(for: [server]).map { $0.contractAddress }
-        let deletedContracts = tokensDataStore.deletedContracts(forServer: server).map { $0.address }
-        let hiddenContracts = tokensDataStore.hiddenContracts(forServer: server).map { $0.address }
-        let delegateContracts = tokensDataStore.delegateContracts(forServer: server).map { $0.address }
+        let alreadyAddedContracts = detectedTokens.alreadyAddedContracts(for: server)
+        let deletedContracts = detectedTokens.deletedContracts(for: server)
+        let hiddenContracts = detectedTokens.hiddenContracts(for: server)
+        let delegateContracts = detectedTokens.delegateContracts(for: server)
 
         return detectedContracts - alreadyAddedContracts - deletedContracts - hiddenContracts - delegateContracts
     }
@@ -126,7 +135,7 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
     }
 
     private func autoDetectPartnerTokens() {
-        guard !config.development.isAutoFetchingDisabled else { return }
+        guard !session.config.development.isAutoFetchingDisabled else { return }
         switch session.server {
         case .main:
             autoDetectMainnetPartnerTokens()
@@ -155,21 +164,20 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
         guard !isAutoDetectingTokens else { return }
 
         isAutoDetectingTokens = true
-        let operation = AutoDetectTokensOperation(session: session, tokensDataStore: tokensDataStore, delegate: self, tokens: contractsToDetect)
+        let operation = AutoDetectTokensOperation(session: session, delegate: self, tokens: contractsToDetect)
         autoDetectTokensQueue.addOperation(operation)
     }
 
     private func contractsToAutodetectTokens(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)], forServer server: RPCServer) -> [AlphaWallet.Address] {
-
-        let alreadyAddedContracts = tokensDataStore.enabledTokens(for: [server]).map { $0.contractAddress }
-        let deletedContracts = tokensDataStore.deletedContracts(forServer: server).map { $0.address }
-        let hiddenContracts = tokensDataStore.hiddenContracts(forServer: server).map { $0.address }
+        let alreadyAddedContracts = detectedTokens.alreadyAddedContracts(for: server)
+        let deletedContracts = detectedTokens.deletedContracts(for: server)
+        let hiddenContracts = detectedTokens.hiddenContracts(for: server)
 
         return contractsToDetect.map { $0.contract } - alreadyAddedContracts - deletedContracts - hiddenContracts
     }
 
     private func fetchCreateErc875OrErc20Token(forContract contract: AlphaWallet.Address, forServer server: RPCServer) -> Promise<TokenOrContract> {
-        return tokenProvider.getTokenType(for: contract)
+        return session.tokenProvider.getTokenType(for: contract)
             .then(on: queue, { [session, importToken, erc875BalanceFetcher, erc20BalanceFetcher, queue] tokenType -> Promise<TokenOrContract> in
                 switch tokenType {
                 case .erc875:
@@ -227,4 +235,9 @@ extension SingleChainTokensAutodetector: AutoDetectTokensOperationDelegate {
                 return results.compactMap { $0.optionalValue }
             })
     }
+
+    func didDetect(tokensOrContracts: [TokenOrContract]) {
+        tokensOrContractsDetectedSubject.send(tokensOrContracts)
+    }
+
 }

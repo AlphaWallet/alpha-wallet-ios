@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import Combine
 
 struct NoTokenError: LocalizedError {
     var errorDescription: String? {
@@ -40,6 +41,7 @@ class SingleChainTokenCoordinator: Coordinator {
     }
     private let alertService: PriceAlertServiceType
     private let tokensAutodetector: TokensAutodetector
+    private var cancelable = Set<AnyCancellable>()
 
     init(
             session: WalletSession,
@@ -70,6 +72,10 @@ class SingleChainTokenCoordinator: Coordinator {
     }
 
     func start() {
+        tokensAutodetector.tokensOrContractsDetected.sink { [tokensDataStore] tokensOrContracts in
+            tokensDataStore.addOrUpdate(tokensOrContracts: tokensOrContracts)
+        }.store(in: &cancelable)
+
         tokensAutodetector.start()
     }
 

@@ -23,7 +23,7 @@ class Oneinch: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
         return [.main, .binance_smart_chain, .polygon, .optimistic, .arbitrum]
     }
 
-    func rpcServer(forToken token: TokenActionsServiceKey) -> RPCServer? {
+    func rpcServer(forToken token: TokenActionsIdentifiable) -> RPCServer? {
         if supportedServers.contains(where: { $0 == token.server }) {
             return token.server
         } else {
@@ -45,7 +45,7 @@ class Oneinch: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
     private var availableTokens: AtomicDictionary<AlphaWallet.Address, Oneinch.ERC20Token> = .init()
     private let queue = DispatchQueue(label: "com.Oneinch.updateQueue")
 
-    func url(token: TokenActionsServiceKey) -> URL? {
+    func url(token: TokenActionsIdentifiable) -> URL? {
         var components = URLComponents()
         components.path = Oneinch.referralSlug + "/" + subpath(inputAddress: token.contractAddress)
         //NOTE: URLComponents doesn't allow path to contain # symbol
@@ -60,13 +60,13 @@ class Oneinch: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
         }.joined(separator: "/")
     }
 
-    func actions(token: TokenActionsServiceKey) -> [TokenInstanceAction] {
+    func actions(token: TokenActionsIdentifiable) -> [TokenInstanceAction] {
         return [
             .init(type: .swap(service: self))
         ]
     }
 
-    func isSupport(token: TokenActionsServiceKey) -> Bool {
+    func isSupport(token: TokenActionsIdentifiable) -> Bool {
         switch token.server {
         case .main, .arbitrum:
             return availableTokens[token.contractAddress] != nil

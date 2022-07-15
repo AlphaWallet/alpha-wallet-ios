@@ -40,6 +40,7 @@ PODS:
   - CocoaLumberjack/Core (3.7.0)
   - CocoaLumberjack/Swift (3.7.0):
     - CocoaLumberjack/Core
+  - CombineExt (1.6.1)
   - CryptoSwift (1.4.2)
   - EthereumABI (1.3.0):
     - BigInt (~> 3.1)
@@ -143,6 +144,7 @@ DEPENDENCIES:
   - BlockiesSwift
   - Charts
   - CocoaLumberjack (= 3.7.0)
+  - CombineExt
   - CryptoSwift (~> 1.4)
   - EthereumABI (from `https://github.com/AlphaWallet/EthereumABI.git`, commit `877b77e8e7cbc54ab0712d509b74fec21b79d1bb`)
   - FloatingPanel
@@ -185,6 +187,7 @@ SPEC REPOS:
     - Charts
     - CocoaAsyncSocket
     - CocoaLumberjack
+    - CombineExt
     - CryptoSwift
     - EthereumAddress
     - FloatingPanel
@@ -297,6 +300,7 @@ SPEC CHECKSUMS:
   Charts: b1e3a1f5a1c9ba5394438ca3b91bd8c9076310af
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   CocoaLumberjack: e8955b9d337ac307103b0a34fd141c32f27e53c5
+  CombineExt: 57d5234da457f4dab303bac37929192cb4d9626f
   CryptoSwift: a532e74ed010f8c95f611d00b8bbae42e9fe7c17
   EthereumABI: c021720744d260b87def6aa45d94554d260cb5a9
   EthereumAddress: 39fe8e11cf04e4e9902b55ae653dbc4e0aee5f30
@@ -334,6 +338,6 @@ SPEC CHECKSUMS:
   web3swift: 06118d4c4edc801444aaa995bbbddeda176b97ef
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: d7a1a9cbe40a9b914e5dd0d7a3756f447c78f91b
+PODFILE CHECKSUM: d70edc444b96b2e66265320d56d42b773c7c4055
 
 COCOAPODS: 1.11.2

@@ -36,7 +36,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     }()
     private let coinTickersFetcher: CoinTickersFetcherType
 
-    lazy var tokensDataStore: TokensDataStore = {
+    lazy var tokensDataStore: TokensDataStore & DetectedContractsProvideble = {
         return MultipleChainsTokensDataStore(store: localStore.getOrCreateStore(forWallet: wallet), servers: config.enabledServers)
     }()
 

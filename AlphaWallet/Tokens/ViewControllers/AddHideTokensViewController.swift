@@ -8,7 +8,6 @@ import Combine
 protocol AddHideTokensViewControllerDelegate: AnyObject {
     func didPressAddToken(in viewController: UIViewController, with addressString: String)
     func didMark(token: Token, in viewController: UIViewController, isHidden: Bool)
-    func didChangeOrder(tokens: [Token], in viewController: UIViewController)
     func didClose(in viewController: AddHideTokensViewController)
 }
 
@@ -165,17 +164,6 @@ extension AddHideTokensViewController: UITableViewDataSource {
         }
     }
 
-    func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        if let tokens = viewModel.moveItem(from: sourceIndexPath, to: destinationIndexPath) {
-            delegate?.didChangeOrder(tokens: tokens, in: self)
-        }
-        reload()
-    }
-
-    func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        viewModel.canMoveItem(indexPath: indexPath)
-    }
-
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         let result: AddHideTokensViewModel.ShowHideTokenResult
         let isTokenHidden: Bool
@@ -265,17 +253,6 @@ extension AddHideTokensViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
         false
-    }
-
-    func tableView(_ tableView: UITableView, targetIndexPathForMoveFromRowAt sourceIndexPath: IndexPath, toProposedIndexPath proposedDestinationIndexPath: IndexPath) -> IndexPath {
-        if sourceIndexPath.section != proposedDestinationIndexPath.section {
-            var row = 0
-            if sourceIndexPath.section < proposedDestinationIndexPath.section {
-                row = self.tableView(tableView, numberOfRowsInSection: sourceIndexPath.section) - 1
-            }
-            return IndexPath(row: row, section: sourceIndexPath.section)
-        }
-        return proposedDestinationIndexPath
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {

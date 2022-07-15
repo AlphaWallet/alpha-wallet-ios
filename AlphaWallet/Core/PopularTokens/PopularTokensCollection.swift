@@ -31,10 +31,6 @@ struct PopularToken: Decodable {
     var server: RPCServer
     var name: String
 
-    var iconImage: Subscribable<TokenImage> {
-        return TokenImageFetcher.instance.image(contractAddress: contractAddress, server: server, name: name, size: .s120)
-    }
-
     enum CodingKeys: String, CodingKey {
         case address
         case server = "network"

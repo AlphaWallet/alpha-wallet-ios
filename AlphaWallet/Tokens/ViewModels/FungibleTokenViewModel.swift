@@ -55,7 +55,6 @@ class FungibleTokenViewModel {
         guard let token = validatedToken else { return [] }
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         let actionsFromTokenScript = xmlHandler.actions
-        let key = TokenActionsServiceKey(token: token)
 
         if actionsFromTokenScript.isEmpty {
             switch token.type {
@@ -73,7 +72,7 @@ class FungibleTokenViewModel {
                     .init(type: .erc20Receive)
                 ]
 
-                return actions + tokenActionsProvider.actions(token: key)
+                return actions + tokenActionsProvider.actions(token: token)
             case .nativeCryptocurrency:
                 let actions: [TokenInstanceAction] = [
                     .init(type: .erc20Send),
@@ -81,10 +80,10 @@ class FungibleTokenViewModel {
                 ]
                 switch token.server {
                 case .xDai:
-                    return [.init(type: .erc20Send), .init(type: .erc20Receive)] + tokenActionsProvider.actions(token: key)
-                case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .candle, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet, .phi, .ioTeX, .ioTeXTestnet:
 
-                    return actions + tokenActionsProvider.actions(token: key)
+                    return [.init(type: .erc20Send), .init(type: .erc20Receive)] + tokenActionsProvider.actions(token: token)
+                case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .candle, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet, .phi, .ioTeX, .ioTeXTestnet:
+                    return actions + tokenActionsProvider.actions(token: token)
                 }
             }
         } else {
@@ -92,11 +91,11 @@ class FungibleTokenViewModel {
             case .erc875, .erc721, .erc721ForTickets, .erc1155:
                 return actionsFromTokenScript
             case .erc20:
-                return actionsFromTokenScript + tokenActionsProvider.actions(token: key)
+                return actionsFromTokenScript + tokenActionsProvider.actions(token: token)
             case .nativeCryptocurrency:
-//                TODO we should support retrieval of XML (and XMLHandler) based on address + server. For now, this is only important for native cryptocurrency. So might be ok to check like this for now
+                //TODO we should support retrieval of XML (and XMLHandler) based on address + server. For now, this is only important for native cryptocurrency. So might be ok to check like this for now
                 if let server = xmlHandler.server, server.matches(server: token.server) {
-                    return actionsFromTokenScript + tokenActionsProvider.actions(token: key)
+                    return actionsFromTokenScript + tokenActionsProvider.actions(token: token)
                 } else {
                     //TODO .erc20Send and .erc20Receive names aren't appropriate
                     let actions: [TokenInstanceAction] = [
@@ -104,7 +103,7 @@ class FungibleTokenViewModel {
                         .init(type: .erc20Receive)
                     ]
 
-                    return actions + tokenActionsProvider.actions(token: key)
+                    return actions + tokenActionsProvider.actions(token: token)
                 }
             }
         }

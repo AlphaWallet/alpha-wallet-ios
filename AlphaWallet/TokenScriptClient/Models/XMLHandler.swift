@@ -842,7 +842,7 @@ public class XMLHandler {
         return fieldIdsAndNames
     }
 
-    convenience init(token: Tokenable, assetDefinitionStore: AssetDefinitionStore) {
+    convenience init(token: TokenScriptSupportable, assetDefinitionStore: AssetDefinitionStore) {
         self.init(contract: token.contractAddress, tokenType: token.type, assetDefinitionStore: assetDefinitionStore)
     }
 

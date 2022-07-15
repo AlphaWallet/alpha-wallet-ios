@@ -26,7 +26,6 @@ protocol TokensDataStore: NSObjectProtocol {
     func token(forContract contract: AlphaWallet.Address, server: RPCServer) -> Token?
     func add(hiddenContracts: [AddressAndRPCServer])
     func deleteTestsOnly(tokens: [Token])
-    func updateOrderedTokens(with orderedTokens: [Token])
     func add(tokenUpdates updates: [TokenUpdate])
     @discardableResult func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [Token]
     @discardableResult func updateToken(primaryKey: String, action: TokenUpdateAction) -> Bool?
@@ -469,23 +468,6 @@ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
         }
     }
 
-    func updateOrderedTokens(with orderedTokens: [Token]) {
-        guard !orderedTokens.isEmpty else { return }
-
-        store.performSync { realm in
-            let orderedTokensIds = orderedTokens.map { $0.primaryKey }
-
-            let storedTokens = Array(realm.objects(TokenObject.self))
-            guard !storedTokens.isEmpty else { return }
-
-            try? realm.safeWrite {
-                for token in storedTokens {
-                    token.sortIndex.value = orderedTokensIds.firstIndex(where: { $0 == token.primaryKey })
-                }
-            }
-        }
-    }
-
     @discardableResult func addOrUpdate(_ actions: [AddOrUpdateTokenAction]) -> Bool? {
         guard !actions.isEmpty else { return nil }
 
@@ -615,6 +597,24 @@ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
         return realm
             .objects(TokenObject.self)
             .filter(predicate)
+    }
+}
+
+extension MultipleChainsTokensDataStore: DetectedContractsProvideble {
+    func alreadyAddedContracts(for server: RPCServer) -> [AlphaWallet.Address] {
+        enabledTokens(for: [server]).map { $0.contractAddress }
+    }
+
+    func deletedContracts(for server: RPCServer) -> [AlphaWallet.Address] {
+        deletedContracts(forServer: server).map { $0.address }
+    }
+
+    func hiddenContracts(for server: RPCServer) -> [AlphaWallet.Address] {
+        hiddenContracts(forServer: server).map { $0.address }
+    }
+
+    func delegateContracts(for server: RPCServer) -> [AlphaWallet.Address] {
+        delegateContracts(forServer: server).map { $0.address }
     }
 }
 

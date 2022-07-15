@@ -43,7 +43,8 @@ target 'AlphaWallet' do
   pod 'MailchimpSDK'
   pod 'xcbeautify'
   pod 'FloatingPanel'
-
+  pod 'CombineExt'
+  
   target 'AlphaWalletTests' do
       inherit! :search_paths
       # Pods for testing

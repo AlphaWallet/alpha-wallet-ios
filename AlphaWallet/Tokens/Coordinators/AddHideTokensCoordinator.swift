@@ -62,10 +62,6 @@ extension AddHideTokensCoordinator: NewTokenCoordinatorDelegate {
 
 extension AddHideTokensCoordinator: AddHideTokensViewControllerDelegate {
 
-    func didChangeOrder(tokens: [Token], in viewController: UIViewController) {
-        tokenCollection.tokensDataStore.updateOrderedTokens(with: tokens)
-    }
-
     func didMark(token: Token, in viewController: UIViewController, isHidden: Bool) {
         tokenCollection.tokensDataStore.updateToken(primaryKey: token.primaryKey, action: .isHidden(isHidden))
     }

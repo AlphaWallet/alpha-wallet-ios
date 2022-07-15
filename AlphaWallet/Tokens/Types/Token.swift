@@ -21,7 +21,6 @@ struct Token: Equatable, Hashable {
     let value: BigInt
     let balance: [TokenBalanceValue]
     let shouldDisplay: Bool
-    let sortIndex: Int?
     let info: TokenInfo
 
     var addressAndRPCServer: AddressAndRPCServer {
@@ -74,7 +73,6 @@ struct Token: Equatable, Hashable {
         self.type = type
         self.balance = balance
         self.shouldDisplay = shouldDisplay
-        self.sortIndex = sortIndex
         self.info = .init(uid: self.primaryKey)
     }
 
@@ -87,7 +85,6 @@ struct Token: Equatable, Hashable {
         decimals = tokenObject.decimals
         type = tokenObject.type
         shouldDisplay = tokenObject.shouldDisplay
-        sortIndex = tokenObject.sortIndex.value
         value = tokenObject.valueBigInt
         balance = Array(tokenObject.balance.map { TokenBalanceValue(balance: $0) })
         info = .init(tokenInfoObject: tokenObject.info)
@@ -106,4 +103,11 @@ struct Token: Equatable, Hashable {
         hasher.combine(decimals)
         hasher.combine(type.rawValue)
     }
+}
+
+extension Token: TokenActionsIdentifiable {}
+
+extension Token: TokenScriptSupportable {
+    var valueBI: BigInt { value }
+    var balanceNft: [TokenBalanceValue] { balance }
 }
