@@ -37,7 +37,7 @@ extension Covalent {
                 .compactMap { logEvent -> LocalizedOperationObjectInstance? in
                     guard let contractAddress = AlphaWallet.Address(uncheckedAgainstNullAddress: logEvent.senderAddress) else { return nil }
                     var params = logEvent.params
-
+                    //TODO: Improve with adding more transaction types, approve and other
                     guard let from = AlphaWallet.Address(uncheckedAgainstNullAddress: params["from"]?.value ?? "") else { return nil }
                     guard let to = AlphaWallet.Address(uncheckedAgainstNullAddress: params["to"]?.value ?? "") else { return nil }
                     let tokenId = logEvent.senderContractDecimals == 0 ? (params["value"]?.value ?? "") : ""
