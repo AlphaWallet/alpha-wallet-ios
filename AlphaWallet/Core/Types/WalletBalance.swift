@@ -15,16 +15,16 @@ struct WalletBalance: Equatable {
             lhs.changeDouble == rhs.changeDouble
     }
 
-    private let wallet: Wallet
-    private let tokens: [Token]
+    let wallet: Wallet
+    private let tokens: [TokenViewModel]
     var totalAmountDouble: Double?
     var changeDouble: Double?
 
-    init(wallet: Wallet, tokens: [Token], coinTickersFetcher: CoinTickersFetcher) {
+    init(wallet: Wallet, tokens: [TokenViewModel]) {
         self.wallet = wallet
         self.tokens = tokens
-        self.totalAmountDouble = WalletBalance.functional.createTotalAmountDouble(tokens: tokens, coinTickersFetcher: coinTickersFetcher)
-        self.changeDouble = WalletBalance.functional.createChangeDouble(tokens: tokens, coinTickersFetcher: coinTickersFetcher)
+        self.totalAmountDouble = WalletBalance.functional.createTotalAmountDouble(tokens: tokens)
+        self.changeDouble = WalletBalance.functional.createChangeDouble(tokens: tokens)
     }
 
     var totalAmountString: String {
@@ -43,12 +43,12 @@ struct WalletBalance: Equatable {
         return Formatter.shortCrypto.string(from: value.doubleValue)
     }
 
-    var etherToken: Token? {
-        let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: .main)
-        guard let token = tokens.first(where: { $0.primaryKey == etherToken.primaryKey }) else {
+    var etherToken: TokenViewModel? {
+        let etherToken: TokenViewModel = .init(token: MultipleChainsTokensDataStore.functional.etherToken(forServer: .main))
+        guard let token = tokens.first(where: { $0 == etherToken }) else {
             return nil
         }
-        
+
         return token
     }
     
@@ -88,10 +88,10 @@ extension WalletBalance {
 
 extension WalletBalance.functional {
 
-    static func createChangeDouble(tokens: [Token], coinTickersFetcher: CoinTickersFetcher) -> Double? {
+    static func createChangeDouble(tokens: [TokenViewModel]) -> Double? {
         var totalChange: Double?
-        for each in tokens {
-            guard let value = each.valueDecimal, let ticker = coinTickersFetcher.ticker(for: each.addressAndRPCServer) else { continue }
+        for token in tokens {
+            guard let value = token.balance.valueDecimal, let ticker = token.balance.ticker else { continue }
             if totalChange == nil { totalChange = 0.0 }
 
             if var totalChangePrev = totalChange {
@@ -105,11 +105,11 @@ extension WalletBalance.functional {
         return totalChange
     }
 
-    static func createTotalAmountDouble(tokens: [Token], coinTickersFetcher: CoinTickersFetcher) -> Double? {
+    static func createTotalAmountDouble(tokens: [TokenViewModel]) -> Double? {
         var totalAmount: Double?
 
-        for each in tokens {
-            guard let value = each.valueDecimal, let ticker = coinTickersFetcher.ticker(for: each.addressAndRPCServer) else { continue }
+        for token in tokens {
+            guard let value = token.valueDecimal, let ticker = token.balance.ticker else { continue }
 
             if totalAmount == nil {
                 totalAmount = 0.0

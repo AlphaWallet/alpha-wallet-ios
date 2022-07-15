@@ -8,7 +8,7 @@ struct ConfigureTransactionViewModel {
         case invalidNonce
         case none
     }
-
+    private let service: TokenViewModelState
     private let transactionType: TransactionType
     private let configurator: TransactionConfigurator
     private let fullFormatter = EtherNumberFormatter.full
@@ -19,7 +19,8 @@ struct ConfigureTransactionViewModel {
         configurator.session.server
     }
     private var currencyRate: CurrencyRate? {
-        configurator.session.tokenBalanceService.ethBalanceViewModel?.ticker?.rate
+        let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: configurator.session.server)
+        return service.tokenViewModel(for: etherToken)?.balance.ticker?.rate
     }
 
     var recoveryMode: RecoveryMode
@@ -143,13 +144,14 @@ struct ConfigureTransactionViewModel {
         }
     }
 
-    init(configurator: TransactionConfigurator, recoveryMode: ConfigureTransactionViewModel.RecoveryMode) {
+    init(configurator: TransactionConfigurator, recoveryMode: ConfigureTransactionViewModel.RecoveryMode, service: TokenViewModelState) {
         let configurations = configurator.configurations
         self.configurationTypes = ConfigureTransactionViewModel.sortedConfigurationTypes(fromConfigurations: configurations)
         self.configurator = configurator
         self.configurations = configurations
         transactionType = configurator.transaction.transactionType
         self.recoveryMode = recoveryMode
+        self.service = service
         switch recoveryMode {
         case .invalidNonce:
             selectedConfigurationType = .custom
@@ -170,7 +172,8 @@ struct ConfigureTransactionViewModel {
         let isSelected = selectedConfigurationType == configurationType
         let configuration = configurations[configurationType]!
         //TODO if subscribable price are resolved or changes, will be good to refresh, but not essential
-        let ethPrice = configurator.session.tokenBalanceService.ethBalanceViewModel?.ticker?.price_usd
+        let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: configurator.session.server)
+        let ethPrice: Double? = service.tokenViewModel(for: etherToken)?.balance.ticker?.price_usd
         return .init(configuration: configuration, configurationType: configurationType, cryptoToDollarRate: ethPrice, symbol: server.symbol, title: configurationType.title, isSelected: isSelected)
     }
 
@@ -178,7 +181,8 @@ struct ConfigureTransactionViewModel {
         let isSelected = selectedConfigurationType == configurationType
         let configuration = configurations[configurationType]!
         //TODO if subscribable price are resolved or changes, will be good to refresh, but not essential
-        let ethPrice = configurator.session.tokenBalanceService.ethBalanceViewModel?.ticker?.price_usd
+        let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: configurator.session.server)
+        let ethPrice: Double? = service.tokenViewModel(for: etherToken)?.balance.ticker?.price_usd
         return .init(configuration: configuration, configurationType: configurationType, cryptoToDollarRate: ethPrice, symbol: server.symbol, title: configurationType.title, isSelected: isSelected)
     }
 

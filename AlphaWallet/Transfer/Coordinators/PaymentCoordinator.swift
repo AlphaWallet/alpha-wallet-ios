@@ -14,21 +14,20 @@ protocol PaymentCoordinatorDelegate: class, CanOpenURL {
 
 class PaymentCoordinator: Coordinator {
     private var session: WalletSession {
-        sessions.value[server]
+        return sessionProvider.session(for: server)!
     }
     private let server: RPCServer
-    private let sessions: CurrentValueSubject<ServerDictionary<WalletSession>, Never>
+    private let sessionProvider: SessionsProvider
     private let keystore: Keystore
     private let assetDefinitionStore: AssetDefinitionStore
     private let analytics: AnalyticsLogger
-    private let eventsDataStore: NonActivityEventsDataStore
     private let tokenCollection: TokenCollection
     private let tokenSwapper: TokenSwapper
     private var shouldRestoreNavigationBarIsHiddenState: Bool
     private var latestNavigationStackViewController: UIViewController?
     private let reachabilityManager: ReachabilityManagerProtocol
     private let domainResolutionService: DomainResolutionServiceType
-
+    private let tokensFilter: TokensFilter
     let flow: PaymentFlow
     weak var delegate: PaymentCoordinatorDelegate?
     var coordinators: [Coordinator] = []
@@ -38,27 +37,27 @@ class PaymentCoordinator: Coordinator {
             navigationController: UINavigationController,
             flow: PaymentFlow,
             server: RPCServer,
-            sessions: CurrentValueSubject<ServerDictionary<WalletSession>, Never>,
+            sessionProvider: SessionsProvider,
             keystore: Keystore,
             assetDefinitionStore: AssetDefinitionStore,
             analytics: AnalyticsLogger,
-            eventsDataStore: NonActivityEventsDataStore,
             tokenCollection: TokenCollection,
             reachabilityManager: ReachabilityManagerProtocol = ReachabilityManager(),
             domainResolutionService: DomainResolutionServiceType,
-            tokenSwapper: TokenSwapper
+            tokenSwapper: TokenSwapper,
+            tokensFilter: TokensFilter
     ) {
+        self.tokensFilter = tokensFilter
         self.tokenSwapper = tokenSwapper
         self.reachabilityManager = reachabilityManager
         self.tokenCollection = tokenCollection
         self.navigationController = navigationController
         self.server = server
-        self.sessions = sessions
+        self.sessionProvider = sessionProvider
         self.flow = flow
         self.keystore = keystore
         self.assetDefinitionStore = assetDefinitionStore
         self.analytics = analytics
-        self.eventsDataStore = eventsDataStore
         self.domainResolutionService = domainResolutionService
 
         shouldRestoreNavigationBarIsHiddenState = navigationController.navigationBar.isHidden
@@ -82,29 +81,29 @@ class PaymentCoordinator: Coordinator {
     }
 
     private func startWithSendCollectiblesCoordinator(token: Token, transferType: Erc1155TokenTransactionType, tokenHolders: [TokenHolder]) {
-        let coordinator = TransferCollectiblesCoordinator(session: session, navigationController: navigationController, keystore: keystore, filteredTokenHolders: tokenHolders, token: token, assetDefinitionStore: assetDefinitionStore, analytics: analytics, domainResolutionService: domainResolutionService)
+        let coordinator = TransferCollectiblesCoordinator(session: session, navigationController: navigationController, keystore: keystore, filteredTokenHolders: tokenHolders, token: token, assetDefinitionStore: assetDefinitionStore, analytics: analytics, domainResolutionService: domainResolutionService, service: tokenCollection)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
     }
 
     private func startWithSendNFTCoordinator(transactionType: TransactionType, token: Token, tokenHolder: TokenHolder) {
-        let coordinator = TransferNFTCoordinator(session: session, navigationController: navigationController, keystore: keystore, tokenHolder: tokenHolder, token: token, transactionType: transactionType, assetDefinitionStore: assetDefinitionStore, analytics: analytics, domainResolutionService: domainResolutionService)
+        let coordinator = TransferNFTCoordinator(session: session, navigationController: navigationController, keystore: keystore, tokenHolder: tokenHolder, token: token, transactionType: transactionType, assetDefinitionStore: assetDefinitionStore, analytics: analytics, domainResolutionService: domainResolutionService, service: tokenCollection)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
     }
 
     private func startWithTokenScriptCoordinator(action: TokenInstanceAction, token: Token, tokenHolder: TokenHolder) {
-        let coordinator = TokenScriptCoordinator(session: session, navigationController: navigationController, keystore: keystore, tokenHolder: tokenHolder, tokenObject: token, assetDefinitionStore: assetDefinitionStore, analytics: analytics, domainResolutionService: domainResolutionService, action: action, eventsDataStore: eventsDataStore)
+        let coordinator = TokenScriptCoordinator(session: session, navigationController: navigationController, keystore: keystore, tokenHolder: tokenHolder, tokenObject: token, assetDefinitionStore: assetDefinitionStore, analytics: analytics, domainResolutionService: domainResolutionService, action: action, service: tokenCollection)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
     }
 
     private func startWithSwapCoordinator(swapPair: SwapPair) {
-        let configurator = SwapOptionsConfigurator(walletSessions: sessions, swapPair: swapPair, tokenCollection: tokenCollection, reachabilityManager: reachabilityManager, tokenSwapper: tokenSwapper)
-        let coordinator = SwapTokensCoordinator(navigationController: navigationController, configurator: configurator, keystore: keystore, analytics: analytics, domainResolutionService: domainResolutionService, assetDefinitionStore: assetDefinitionStore, tokenCollection: tokenCollection, eventsDataStore: eventsDataStore)
+        let configurator = SwapOptionsConfigurator(sessionProvider: sessionProvider, swapPair: swapPair, tokenCollection: tokenCollection, reachabilityManager: reachabilityManager, tokenSwapper: tokenSwapper)
+        let coordinator = SwapTokensCoordinator(navigationController: navigationController, configurator: configurator, keystore: keystore, analytics: analytics, domainResolutionService: domainResolutionService, assetDefinitionStore: assetDefinitionStore, tokenCollection: tokenCollection, tokensFilter: tokensFilter)
         coordinator.start()
         coordinator.delegate = self
         addCoordinator(coordinator)

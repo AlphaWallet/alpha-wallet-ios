@@ -21,7 +21,7 @@ final class FakeReachabilityManager: ReachabilityManagerProtocol {
 }
 
 final class FakeTokenSwapper: TokenSwapper {
-    convenience init(sessions: AnyPublisher<ServerDictionary<WalletSession>, Never> = sessions(server: .main).eraseToAnyPublisher()) {
-        self.init(reachabilityManager: FakeReachabilityManager(), sessions: sessions, networkProvider: FakeTokenSwapperNetworkProvider())
+    convenience init(sessionProvider: SessionsProvider = .make(wallet: .make(), servers: [.main])) {
+        self.init(reachabilityManager: FakeReachabilityManager(), sessionProvider: sessionProvider, networkProvider: FakeTokenSwapperNetworkProvider())
     }
 }

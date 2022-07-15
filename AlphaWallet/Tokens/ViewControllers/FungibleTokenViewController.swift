@@ -33,17 +33,16 @@ class FungibleTokenViewController: UIViewController {
         return PriceAlertsPageView(viewModel: .init(alerts: []))
     }()
     private let activitiesService: ActivitiesServiceType
-    private let alertService: PriceAlertServiceType
     private let analytics: AnalyticsLogger
     private let keystore: Keystore
     private var cancelable = Set<AnyCancellable>()
+    private let appear = PassthroughSubject<Void, Never>()
     weak var delegate: FungibleTokenViewControllerDelegate?
 
-    init(keystore: Keystore, analytics: AnalyticsLogger, viewModel: FungibleTokenViewModel, activitiesService: ActivitiesServiceType, alertService: PriceAlertServiceType) {
+    init(keystore: Keystore, analytics: AnalyticsLogger, viewModel: FungibleTokenViewModel, activitiesService: ActivitiesServiceType) {
         self.viewModel = viewModel
         self.keystore = keystore
         self.activitiesService = activitiesService
-        self.alertService = alertService
         self.analytics = analytics
 
         super.init(nibName: nil, bundle: nil)
@@ -78,16 +77,13 @@ class FungibleTokenViewController: UIViewController {
         buttonsBar.viewController = self
 
         bind(viewModel: viewModel)
-
-        subscribeForAlerts()
-        subscribeForActivities()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         hideNavigationBarTopSeparatorLine()
 
-        viewModel.viewDidLoad()
+        appear.send(())
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -103,13 +99,22 @@ class FungibleTokenViewController: UIViewController {
         view.backgroundColor = viewModel.backgroundColor
         title = viewModel.navigationTitle
 
-        alertsPageView.configure(viewModel: .init(alerts: alertService.alerts(forStrategy: .token(viewModel.token))))
         updateNavigationRightBarButtons(tokenScriptFileStatusHandler: viewModel.tokenScriptFileStatusHandler)
 
-        viewModel.actionsPublisher
-            .sink { [weak self] actions in
-                self?.configureActionButtons(with: actions)
-            }.store(in: &cancelable)
+        let input = FungibleTokenViewModelInput(appear: appear.eraseToAnyPublisher())
+
+        let output = viewModel.transform(input: input)
+        output.actions.sink { [weak self] actions in
+            self?.configureActionButtons(with: actions)
+        }.store(in: &cancelable)
+
+        output.activities.sink { [weak activitiesPageView] viewModel in
+            activitiesPageView?.configure(viewModel: viewModel)
+        }.store(in: &cancelable)
+
+        output.alerts.sink { [weak alertsPageView] viewModel in
+            alertsPageView?.configure(viewModel: viewModel)
+        }.store(in: &cancelable)
     }
 
     private func configureActionButtons(with actions: [TokenInstanceAction]) {
@@ -128,22 +133,6 @@ class FungibleTokenViewController: UIViewController {
                 continue
             }
         }
-    }
-
-    private func subscribeForActivities() {
-        activitiesService.start()
-        activitiesService.activitiesPublisher
-            .receive(on: RunLoop.main)
-            .sink { [weak activitiesPageView] activities in
-                activitiesPageView?.configure(viewModel: .init(activitiesViewModel: .init(activities: activities)))
-            }.store(in: &cancelable)
-    }
-
-    private func subscribeForAlerts() {
-        alertService.alertsPublisher(forStrategy: .token(viewModel.token))
-            .sink { [weak alertsPageView] alerts in
-                alertsPageView?.configure(viewModel: .init(alerts: alerts))
-            }.store(in: &cancelable)
     }
 
     private func updateNavigationRightBarButtons(tokenScriptFileStatusHandler xmlHandler: XMLHandler) {
@@ -225,11 +214,11 @@ extension FungibleTokenViewController: PriceAlertsPageViewDelegate {
     }
 
     func removeAlert(in view: PriceAlertsPageView, indexPath: IndexPath) {
-        alertService.remove(indexPath: indexPath)
+        viewModel.removeAlert(at: indexPath)
     }
 
     func updateAlert(in view: PriceAlertsPageView, value: Bool, indexPath: IndexPath) {
-        alertService.update(indexPath: indexPath, update: .enabled(value))
+        viewModel.updateAlert(value: value, at: indexPath)
     }
 }
 

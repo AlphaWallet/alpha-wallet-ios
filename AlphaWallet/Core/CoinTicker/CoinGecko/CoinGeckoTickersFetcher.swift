@@ -44,6 +44,15 @@ final class CoinGeckoTickersFetcher: CoinTickersFetcher {
         promises.removeAll()
     }
 
+    func addOrUpdateTestsOnly(ticker: CoinTicker?, for token: TokenMappedToTicker) {
+        let tickers: [AssignedCoinTickerId: CoinTicker] = ticker.flatMap { ticker in
+            let tickerId = AssignedCoinTickerId(tickerId: "tickerId-\(token.contractAddress)-\(token.server.chainID)", token: token)
+            return [tickerId: ticker]
+        } ?? [:]
+
+        storage.addOrUpdate(tickers: tickers)
+    }
+
     func fetchTickers(for tokens: [TokenMappedToTicker], force: Bool = false) {
         let targetTokensToFetchTickers = tokens.filter {
             if promises[$0] != nil {

@@ -17,12 +17,12 @@ struct NativecryptoBalanceViewModel: BalanceViewModelType {
         self.ticker = ticker
     }
     var balance: [TokenBalanceValue] { return [] }
-    var value: BigInt { token.value }
-    var amount: Double { return EtherNumberFormatter.plain.string(from: token.value, units: .ether).doubleValue }
+    var value: BigInt { token.valueBI }
+    var amount: Double { return EtherNumberFormatter.plain.string(from: token.valueBI, units: .ether).doubleValue }
 
     var amountString: String {
         guard !isZero else { return "0.00 \(token.server.symbol)" }
-        let balance = EtherNumberFormatter.full.string(from: token.value)
+        let balance = EtherNumberFormatter.full.string(from: token.valueBI)
         return "\(balance) \(token.server.symbol)"
     }
 
@@ -36,7 +36,7 @@ struct NativecryptoBalanceViewModel: BalanceViewModelType {
         return amount * currentRate.price
     }
 
-    var amountFull: String { return EtherNumberFormatter.full.string(from: value) }
+    var amountFull: String { return EtherNumberFormatter.plain.string(from: value) }
     var amountShort: String { return EtherNumberFormatter.short.string(from: value) }
     var symbol: String { return token.server.symbol }
 

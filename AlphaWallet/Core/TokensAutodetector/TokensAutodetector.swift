@@ -31,7 +31,7 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
     private let autoDetectTransactedTokensQueue: OperationQueue
     private let autoDetectTokensQueue: OperationQueue
     private let session: WalletSession
-    private let queue: DispatchQueue
+    private let queue: DispatchQueue = DispatchQueue(label: "org.alphawallet.swift.tokensAutoDetection")
     private let importToken: ImportToken
     private let detectedTokens: DetectedContractsProvideble
     private lazy var erc875BalanceFetcher = GetErc875Balance(forServer: session.server, queue: queue)
@@ -41,7 +41,6 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
     var tokensOrContractsDetected: AnyPublisher<[TokenOrContract], Never> {
         tokensOrContractsDetectedSubject.eraseToAnyPublisher()
     }
-
     var isAutoDetectingTransactedTokens = false
     var isAutoDetectingTokens = false
 
@@ -50,11 +49,9 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
             detectedTokens: DetectedContractsProvideble,
             withAutoDetectTransactedTokensQueue autoDetectTransactedTokensQueue: OperationQueue,
             withAutoDetectTokensQueue autoDetectTokensQueue: OperationQueue,
-            queue: DispatchQueue,
             importToken: ImportToken
     ) {
         self.importToken = importToken
-        self.queue = queue
         self.session = session
         self.detectedTokens = detectedTokens
         self.autoDetectTransactedTokensQueue = autoDetectTransactedTokensQueue
@@ -62,6 +59,9 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
     }
 
     func start() {
+        //TODO we don't auto detect tokens if we are running tests. Maybe better to move this into app delegate's application(_:didFinishLaunchingWithOptions:)
+        guard !isRunningTests() else { return }
+        
         //Since this is called at launch, we don't want it to block launching
         queue.async { [weak self] in
             self?.autoDetectTransactedTokens()
@@ -69,10 +69,12 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
         }
     }
 
+    deinit {
+        print("XXX.\(self).deinit for server: \(session.server)")
+    }
+
     ///Implementation: We refresh once only, after all the auto detected tokens' data have been pulled because each refresh pulls every tokens' (including those that already exist before the this auto detection) price as well as balance, placing heavy and redundant load on the device. After a timeout, we refresh once just in case it took too long, so user at least gets the chance to see some auto detected tokens
     private func autoDetectTransactedTokens() {
-        //TODO we don't auto detect tokens if we are running tests. Maybe better to move this into app delegate's application(_:didFinishLaunchingWithOptions:)
-        guard !isRunningTests() else { return }
         guard !session.config.development.isAutoFetchingDisabled else { return }
         guard !isAutoDetectingTransactedTokens else { return }
 
@@ -127,10 +129,9 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
                     importToken.fetchTokenOrContract(for: contract, server: server, onlyIfThereIsABalance: false)
                 }
 
-            return when(resolved: promises)
-                .map(on: strongSelf.queue, { values -> [TokenOrContract] in
-                    return values.compactMap { $0.optionalValue }
-                })
+            return when(resolved: promises).map(on: strongSelf.queue, { values -> [TokenOrContract] in
+                return values.compactMap { $0.optionalValue }
+            })
         })
     }
 
@@ -178,12 +179,13 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
     }
 
     private func fetchCreateErc875OrErc20Token(forContract contract: AlphaWallet.Address, forServer server: RPCServer) -> Promise<TokenOrContract> {
+        let account = session.account.address
         return session.tokenProvider.getTokenType(for: contract)
-            .then(on: queue, { [session, importToken, erc875BalanceFetcher, erc20BalanceFetcher, queue] tokenType -> Promise<TokenOrContract> in
+            .then(on: queue, { [importToken, erc875BalanceFetcher, erc20BalanceFetcher, queue] tokenType -> Promise<TokenOrContract> in
                 switch tokenType {
                 case .erc875:
                     //TODO long and very similar code below. Extract function
-                    return erc875BalanceFetcher.getERC875TokenBalance(for: session.account.address, contract: contract).then(on: queue, { balance -> Promise<TokenOrContract> in
+                    return erc875BalanceFetcher.getERC875TokenBalance(for: account, contract: contract).then(on: queue, { balance -> Promise<TokenOrContract> in
                         if balance.isEmpty {
                             return .value(.none)
                         } else {
@@ -193,7 +195,7 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
                         return .value(.none)
                     })
                 case .erc20:
-                    return erc20BalanceFetcher.getBalance(for: session.account.address, contract: contract).then(on: queue, { balance -> Promise<TokenOrContract> in
+                    return erc20BalanceFetcher.getBalance(for: account, contract: contract).then(on: queue, { balance -> Promise<TokenOrContract> in
                         if balance > 0 {
                             return importToken.fetchTokenOrContract(for: contract, server: server, onlyIfThereIsABalance: false)
                         } else {
@@ -203,7 +205,7 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
                         return .value(.none)
                     })
                 case .erc721, .erc721ForTickets, .erc1155, .nativeCryptocurrency:
-                    //Handled in PrivateBalanceFetcher.refreshBalanceForErc721Or1155Tokens()
+                    //Handled in TokenBalanceFetcher.refreshBalanceForErc721Or1155Tokens()
                     return .value(.none)
                 }
             })
@@ -211,15 +213,13 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
 }
 
 extension SingleChainTokensAutodetector: AutoDetectTransactedTokensOperationDelegate {
-
     func autoDetectTransactedErc20AndNonErc20Tokens(wallet: AlphaWallet.Address) -> Promise<[TokenOrContract]> {
         let fetchErc20Tokens = autoDetectTransactedTokensImpl(wallet: wallet, erc20: true)
         let fetchNonErc20Tokens = autoDetectTransactedTokensImpl(wallet: wallet, erc20: false)
 
-        return when(resolved: [fetchErc20Tokens, fetchNonErc20Tokens])
-            .map(on: queue, { results in
-                return results.compactMap { $0.optionalValue }.flatMap { $0 }
-            })
+        return when(resolved: [fetchErc20Tokens, fetchNonErc20Tokens]).map(on: queue, { results in
+            return results.compactMap { $0.optionalValue }.flatMap { $0 }
+        })
     }
 }
 
@@ -231,13 +231,21 @@ extension SingleChainTokensAutodetector: AutoDetectTokensOperationDelegate {
                 return fetchCreateErc875OrErc20Token(forContract: each, forServer: server)
             }
 
-        return when(resolved: promises)
-            .map(on: queue, { results in
-                return results.compactMap { $0.optionalValue }
-            })
+        return when(resolved: promises).map(on: queue, { results in
+            return results.compactMap { $0.optionalValue }
+        })
     }
 
     func didDetect(tokensOrContracts: [TokenOrContract]) {
+        let tokensOrContracts = tokensOrContracts.filter { tokenOrContract in
+            switch tokenOrContract {
+            case .delegateContracts, .deletedContracts, .ercToken, .token, .fungibleTokenComplete:
+                return true
+            case .none:
+                return false
+            }
+        }
+        
         tokensOrContractsDetectedSubject.send(tokensOrContracts)
     }
 

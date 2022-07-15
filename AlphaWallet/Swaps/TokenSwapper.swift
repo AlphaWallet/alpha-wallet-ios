@@ -22,10 +22,10 @@ class TokenSwapper: ObservableObject {
             .eraseToAnyPublisher()
     }
 
-    init(reachabilityManager: ReachabilityManagerProtocol, sessions: AnyPublisher<ServerDictionary<WalletSession>, Never>, networkProvider: TokenSwapperNetworkProvider = LiQuestTokenSwapperNetworkProvider()) {
+    init(reachabilityManager: ReachabilityManagerProtocol, sessionProvider: SessionsProvider, networkProvider: TokenSwapperNetworkProvider = LiQuestTokenSwapperNetworkProvider()) {
         self.reachabilityManager = reachabilityManager
         self.networkProvider = networkProvider
-        self.sessions = sessions
+        self.sessions = sessionProvider.sessions
             .filter { !$0.isEmpty }
             .eraseToAnyPublisher()
     }

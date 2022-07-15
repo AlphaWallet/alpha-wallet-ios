@@ -10,7 +10,7 @@ import BigInt
 
 struct NFTBalanceViewModel: BalanceViewModelType {
     var ticker: CoinTicker?
-    var token: BalanceRepresentable
+    private let token: BalanceRepresentable
 
     init(token: BalanceRepresentable, ticker: CoinTicker?) {
         self.token = token
@@ -18,10 +18,10 @@ struct NFTBalanceViewModel: BalanceViewModelType {
     }
 
     var balance: [TokenBalanceValue] {
-        return token.balance
+        return token.balanceNft
     }
 
-    var value: BigInt { return token.value }
+    var value: BigInt { return token.valueBI }
     var amount: Double { return Double(nonZeroBalance) }
     var amountString: String { return "\(nonZeroBalance) \(token.symbol)" }
     var currencyAmount: String? { return nil }
@@ -31,7 +31,7 @@ struct NFTBalanceViewModel: BalanceViewModelType {
     var symbol: String { return token.symbol }
 
     private var nonZeroBalance: Int {
-        let actualBalance = Array(token.balance.filter { isNonZeroBalance($0.balance, tokenType: token.type) })
+        let actualBalance = Array(token.balanceNft.filter { isNonZeroBalance($0.balance, tokenType: token.type) })
         return actualBalance.count
     }
 }

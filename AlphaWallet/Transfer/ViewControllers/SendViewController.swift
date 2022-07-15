@@ -63,13 +63,13 @@ class SendViewController: UIViewController {
         return view
     }()
 
-    private let service: TokenProvidable & TokenAddable
+    private let service: TokenProvidable & TokenAddable & TokenBalanceRefreshable & TokenViewModelState
 
-    init(session: WalletSession, service: TokenProvidable & TokenAddable, transactionType: TransactionType, domainResolutionService: DomainResolutionServiceType) {
+    init(session: WalletSession, service: TokenProvidable & TokenAddable & TokenBalanceRefreshable & TokenViewModelState, transactionType: TransactionType, domainResolutionService: DomainResolutionServiceType) {
         self.session = session
         self.service = service
         self.domainResolutionService = domainResolutionService
-        self.viewModel = .init(transactionType: transactionType, session: session)
+        self.viewModel = .init(transactionType: transactionType, session: session, service: service)
 
         super.init(nibName: nil, bundle: nil)
 
@@ -150,10 +150,8 @@ class SendViewController: UIViewController {
                 amountTextField.ethCost = EtherNumberFormatter.plain.string(from: amount, units: .ether)
             }
 
-            etherToFiatRateCancelable = session
-                .tokenBalanceService
-                .etherToFiatRatePublisher
-                .compactMap { $0.flatMap { NSDecimalNumber(value: $0) } }
+            etherToFiatRateCancelable = service.tokenViewModelPublisher(for: transactionType.tokenObject)
+                .compactMap { $0?.balance.ticker.flatMap { NSDecimalNumber(value: $0.price_usd) } }
                 .receive(on: RunLoop.main)
                 .sink { [weak amountTextField] price in
                     amountTextField?.cryptoToDollarRate = price
@@ -236,15 +234,13 @@ class SendViewController: UIViewController {
 
         switch transactionType {
         case .nativeCryptocurrency(_, let recipient, let amount):
-            etherBalanceCancelable = session.tokenBalanceService
-                .etherBalance
-                .receive(on: RunLoop.main)
+            etherToFiatRateCancelable = service.tokenViewModelPublisher(for: transactionType.tokenObject)
                 .sink { [weak self] _ in
                     guard let celf = self else { return }
                     guard celf.service.token(for: celf.viewModel.transactionType.contract, server: celf.session.server) != nil else { return }
                     celf.configureFor(contract: celf.viewModel.transactionType.contract, recipient: recipient, amount: amount, shouldConfigureBalance: false)
                 }
-            session.tokenBalanceService.refresh(refreshBalancePolicy: .eth)
+            service.refreshBalance(updatePolicy: .token(token: transactionType.tokenObject))
         case .erc20Token(let token, let recipient, let amount):
             let amount = amount.flatMap { EtherNumberFormatter.plain.number(from: $0, decimals: token.decimals) }
             configureFor(contract: viewModel.transactionType.contract, recipient: recipient, amount: amount, shouldConfigureBalance: false)
@@ -339,7 +335,7 @@ class SendViewController: UIViewController {
             }
         }
 
-        configure(viewModel: .init(transactionType: transactionType, session: session), shouldConfigureBalance: shouldConfigureBalance)
+        configure(viewModel: .init(transactionType: transactionType, session: session, service: service), shouldConfigureBalance: shouldConfigureBalance)
     }
 }
 

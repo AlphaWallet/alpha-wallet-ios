@@ -2,7 +2,31 @@
 
 import Foundation 
 
-struct CoinTicker: Codable, Hashable {
+struct CoinTicker: Hashable {
+    let id: String
+    let symbol: String
+    let image: String = ""
+    let price_usd: Double
+    let percent_change_24h: Double
+    let market_cap: Double?
+    let market_cap_rank: Double?
+    let total_volume: Double?
+    let high_24h: Double?
+    let low_24h: Double?
+    let market_cap_change_24h: Double?
+    let market_cap_change_percentage_24h: Double?
+    let circulating_supply: Double?
+    let total_supply: Double?
+    let max_supply: Double?
+    let ath: Double?
+    let ath_change_percentage: Double?
+
+    var rate: CurrencyRate {
+        CurrencyRate(currency: symbol, rates: [Rate(code: symbol, price: price_usd)])
+    }
+}
+
+extension CoinTicker: Codable {
     private enum CodingKeys: String, CodingKey {
         case price_usd = "current_price"
         case percent_change_24h = "price_change_percentage_24h"
@@ -23,28 +47,8 @@ struct CoinTicker: Codable, Hashable {
         case ath_change_percentage
     }
 
-    let id: String
-    let symbol: String
-    let image: String = ""
-
-    let price_usd: Double
-    let percent_change_24h: Double
-
-    let market_cap: Double?
-    let market_cap_rank: Double?
-    let total_volume: Double?
-    let high_24h: Double?
-    let low_24h: Double?
-    let market_cap_change_24h: Double?
-    let market_cap_change_percentage_24h: Double?
-    let circulating_supply: Double?
-    let total_supply: Double?
-    let max_supply: Double?
-    let ath: Double?
-    let ath_change_percentage: Double?
-
-    var rate: CurrencyRate {
-        CurrencyRate(currency: symbol, rates: [Rate(code: symbol, price: price_usd)])
+    var imageURL: URL? {
+        return URL(string: image)
     }
 
     init(from decoder: Decoder) throws {
@@ -81,12 +85,7 @@ struct CoinTicker: Codable, Hashable {
             throw AnyError.invalid
         }
     }
-}
 
-extension CoinTicker {
-    var imageURL: URL? {
-        return URL(string: image)
-    }
 }
 
 extension KeyedDecodingContainer where Key: Hashable {

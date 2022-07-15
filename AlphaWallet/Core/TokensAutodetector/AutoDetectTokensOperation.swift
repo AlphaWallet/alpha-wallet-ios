@@ -11,8 +11,8 @@ import PromiseKit
 protocol AutoDetectTokensOperationDelegate: class {
     var isAutoDetectingTokens: Bool { get set }
 
-    func autoDetectTokensImpl(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)], server: RPCServer) -> Promise<[TokenOrContract]>
     func didDetect(tokensOrContracts: [TokenOrContract])
+    func autoDetectTokensImpl(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)], server: RPCServer) -> Promise<[TokenOrContract]>
 }
 
 final class AutoDetectTokensOperation: Operation {
@@ -29,7 +29,7 @@ final class AutoDetectTokensOperation: Operation {
         return true
     }
     private let session: WalletSession
-    
+
     init(session: WalletSession, delegate: AutoDetectTokensOperationDelegate, tokens: [(name: String, contract: AlphaWallet.Address)]) {
         self.delegate = delegate
         self.session = session

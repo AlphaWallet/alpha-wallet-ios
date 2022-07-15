@@ -25,7 +25,9 @@ protocol TokensViewModelType {
 }
 
 //Must be a class, and not a struct, otherwise changing `filter` will silently create a copy of TokensViewModel when user taps to change the filter in the UI and break filtering
+// swiftlint:disable type_body_length
 class TokensViewModel: TokensViewModelType {
+    //TODO: replace with batch of protocols, TokenViewModelState, ...
     private let tokenCollection: TokenCollection
     private let walletConnectCoordinator: WalletConnectCoordinator
     private let walletBalanceService: WalletBalanceService
@@ -157,10 +159,10 @@ class TokensViewModel: TokensViewModelType {
     private let viewModelsSubject = PassthroughSubject<[TokensViewModel.SectionViewModel], Never>()
     private let deletionSubject = PassthroughSubject<[IndexPath], Never>()
     
-    init(wallet: Wallet, tokenCollection: TokenCollection, walletConnectCoordinator: WalletConnectCoordinator, walletBalanceService: WalletBalanceService, config: Config, domainResolutionService: DomainResolutionServiceType, blockiesGenerator: BlockiesGenerator) {
+    init(wallet: Wallet, tokenCollection: TokenCollection, tokensFilter: TokensFilter, walletConnectCoordinator: WalletConnectCoordinator, walletBalanceService: WalletBalanceService, config: Config, domainResolutionService: DomainResolutionServiceType, blockiesGenerator: BlockiesGenerator) {
         self.wallet = wallet
         self.tokenCollection = tokenCollection
-        self.tokensFilter = tokenCollection.tokensFilter
+        self.tokensFilter = tokensFilter
         self.walletConnectCoordinator = walletConnectCoordinator
         self.walletBalanceService = walletBalanceService
         self.config = config
@@ -172,7 +174,7 @@ class TokensViewModel: TokensViewModelType {
         cancellable.cancellAll()
 
         let appearOrInitial: AnyPublisher<Void, Never> = Publishers.Merge(Just<Void>(()), input.appear).eraseToAnyPublisher()
-        let fetchTokens: AnyPublisher<Void, Never> = Publishers.Merge(appearOrInitial, input.pullToRefresh).eraseToAnyPublisher()
+        let refreshTokens: AnyPublisher<Void, Never> = Publishers.Merge(appearOrInitial, input.pullToRefresh).eraseToAnyPublisher()
 
         //NOTE: when we make db snapshot data mignt not changed, so table view refresh control will never ended, as we do `viewModelsSubject.removeDuplicates()`
         let beginLoading = input.pullToRefresh.map { _ in PullToRefreshState.beginLoading }
@@ -183,8 +185,8 @@ class TokensViewModel: TokensViewModelType {
             .merge(with: beginLoading, loadingHasEnded)
             .eraseToAnyPublisher()
 
-        fetchTokens.sink { [tokenCollection] _ in
-            tokenCollection.fetch()
+        refreshTokens.sink { [tokenCollection] _ in
+            tokenCollection.refresh()
         }.store(in: &cancellable)
 
         walletConnectCoordinator.sessions
@@ -194,16 +196,14 @@ class TokensViewModel: TokensViewModelType {
                 self?.reloadData()
             }.store(in: &cancellable)
 
-        tokenCollection.tokens.sink { [weak self] tokens in
+        tokenCollection.tokenViewModels.sink { [weak self] tokens in
             self?.tokens = tokens
             self?.reloadData()
         }.store(in: &cancellable)
 
         let walletSummary = walletBalanceService
-            .walletBalancePublisher(wallet: wallet)
+            .walletBalance(for: wallet)
             .map { return WalletSummary(balances: [$0]) }
-            .receive(on: RunLoop.main)
-            .prepend(WalletSummary(balances: [walletBalanceService.walletBalance(wallet: wallet)]))
             .eraseToAnyPublisher()
 
         let navigationTitle = appearOrInitial.flatMap { [unowned self, walletNameFetcher, wallet] _ -> AnyPublisher<String, Never> in
@@ -481,6 +481,7 @@ class TokensViewModel: TokensViewModelType {
         tokenListSection = varyTokenOrCollectiblePeirsSection
     }
 }
+// swiftlint:enable type_body_length
 
 extension TokensViewModel {
     enum HideTokenResult {

@@ -12,7 +12,7 @@ import BigInt
 class SwapTokensViewModel: NSObject {
     private var cancelable = Set<AnyCancellable>()
     private let configurator: SwapOptionsConfigurator
-
+    private let service: TokenViewModelState
     var backgoundColor: UIColor = R.color.alabaster()!
 
     var footerBackgroundColor: UIColor = Colors.appWhite
@@ -91,14 +91,15 @@ class SwapTokensViewModel: NSObject {
         let token = configurator.swapPair.from
         switch token.type {
         case .nativeCryptocurrency:
-            let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: token.server).addressAndRPCServer
-            guard let balance = configurator.session.tokenBalanceService.tokenBalance(etherToken) else { return nil }
+            let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: token.server)
+
+            guard let balance = service.tokenViewModel(for: etherToken).flatMap({ $0.balance }) else { return nil }
             let fullValue = EtherNumberFormatter.plain.string(from: balance.value, units: .ether).droppedTrailingZeros
             let shortValue = EtherNumberFormatter.shortPlain.string(from: balance.value, units: .ether).droppedTrailingZeros
 
             return (fullValue.optionalDecimalValue, shortValue)
         case .erc20:
-            guard let balance = configurator.session.tokenBalanceService.tokenBalance(token.addressAndRPCServer) else { return nil }
+            guard let balance = service.tokenViewModel(for: token).flatMap({ $0.balance }) else { return nil }
             let fullValue = EtherNumberFormatter.plain.string(from: balance.value, decimals: token.decimals).droppedTrailingZeros
             let shortValue = EtherNumberFormatter.shortPlain.string(from: balance.value, decimals: token.decimals).droppedTrailingZeros
 
@@ -135,8 +136,9 @@ class SwapTokensViewModel: NSObject {
             }.eraseToAnyPublisher()
     }
 
-    init(configurator: SwapOptionsConfigurator) {
+    init(configurator: SwapOptionsConfigurator, service: TokenViewModelState) {
         self.configurator = configurator
+        self.service = service
         let value = configurator.swapPair
         self.swapPair = .init(value)
 
@@ -183,15 +185,9 @@ class SwapTokensViewModel: NSObject {
     }
 
     private func balancePublisher(for token: Token, session: WalletSession) -> AnyPublisher<BalanceViewModel?, Never> {
-        switch token.type {
-        case .nativeCryptocurrency:
-            let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: token.server).addressAndRPCServer
-            return session.tokenBalanceService.tokenBalancePublisher(etherToken)
-        case .erc20:
-            return session.tokenBalanceService.tokenBalancePublisher(token.addressAndRPCServer)
-        case .erc1155, .erc721, .erc875, .erc721ForTickets:
-            return session.tokenBalanceService.tokenBalancePublisher(token.addressAndRPCServer)
-        }
+        return service.tokenViewModelPublisher(for: token)
+            .map { $0?.balance }
+            .eraseToAnyPublisher()
     }
 
     private func checkIfGreaterThanZero(for token: Token) -> Bool {
@@ -215,14 +211,7 @@ class SwapTokensViewModel: NSObject {
     }
 
     private func balance(for token: Token, session: WalletSession) -> BalanceViewModel? {
-        switch token.type {
-        case .nativeCryptocurrency:
-            let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: token.server).addressAndRPCServer
-            return session.tokenBalanceService.tokenBalance(etherToken)
-        case .erc20:
-            return session.tokenBalanceService.tokenBalance(token.addressAndRPCServer)
-        case .erc1155, .erc721, .erc875, .erc721ForTickets:
-            return session.tokenBalanceService.tokenBalance(token.addressAndRPCServer)
-        }
+        return service.tokenViewModel(for: token)
+            .flatMap { $0.balance }
     }
 }

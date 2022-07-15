@@ -15,7 +15,7 @@ enum UrlSource {
 }
 
 protocol UrlSchemeResolver: AnyObject {
-    var tokensDataStore: TokensDataStore & DetectedContractsProvideble { get }
+    var service: TokenViewModelState & TokenProvidable & TokenAddable { get }
     var sessions: ServerDictionary<WalletSession> { get }
     var presentationNavigationController: UINavigationController { get }
 

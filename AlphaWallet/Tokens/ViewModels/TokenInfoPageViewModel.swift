@@ -9,11 +9,9 @@ enum TokenInfoPageViewModelConfiguration {
     case header(viewModel: TokenInfoHeaderViewModel)
     case field(viewModel: TokenAttributeViewModel)
 }
-
+//TODO: apply input output interface
 class TokenInfoPageViewModel: NSObject {
     private var chartHistoriesSubject: CurrentValueSubject<[ChartHistory], Never> = .init([])
-    private let session: WalletSession
-    private let assetDefinitionStore: AssetDefinitionStore
     private let coinTickersFetcher: CoinTickersFetcher
     private var ticker: CoinTicker?
 
@@ -23,7 +21,7 @@ class TokenInfoPageViewModel: NSObject {
 
     let transactionType: TransactionType
 
-    var chartHistories: [ChartHistory] {
+    private var chartHistories: [ChartHistory] {
         chartHistoriesSubject.value
     }
 
@@ -43,14 +41,14 @@ class TokenInfoPageViewModel: NSObject {
     }()
     
     lazy var chartViewModel: TokenHistoryChartViewModel = .init(chartHistories: chartHistoriesSubject.eraseToAnyPublisher(), coinTicker: coinTicker)
-    lazy var headerViewModel: FungibleTokenHeaderViewModel = .init(session: session, transactionType: transactionType, assetDefinitionStore: assetDefinitionStore)
     private var chartHistoryCancelable: AnyCancellable?
+    lazy var headerViewModel: FungibleTokenHeaderViewModel = .init(transactionType: transactionType, service: service)
+    private let service: TokenViewModelState
 
-    init(session: WalletSession, transactionType: TransactionType, assetDefinitionStore: AssetDefinitionStore, coinTickersFetcher: CoinTickersFetcher) {
-        self.session = session
+    init(transactionType: TransactionType, coinTickersFetcher: CoinTickersFetcher, service: TokenViewModelState) {
+        self.service = service
         self.coinTickersFetcher = coinTickersFetcher
         self.transactionType = transactionType
-        self.assetDefinitionStore = assetDefinitionStore
         super.init()
     }
 
@@ -66,18 +64,13 @@ class TokenInfoPageViewModel: NSObject {
     private lazy var coinTicker: AnyPublisher<CoinTicker?, Never> = {
         switch transactionType {
         case .nativeCryptocurrency:
-            return session.tokenBalanceService
-                .etherBalance
-                .map { $0?.ticker }
-                .receive(on: RunLoop.main)
-                .prepend(session.tokenBalanceService.ethBalanceViewModel?.ticker)
+            let etherToken = MultipleChainsTokensDataStore.functional.token(forServer: transactionType.server)
+            return service.tokenViewModelPublisher(for: etherToken)
+                .map { $0?.balance.ticker }
                 .eraseToAnyPublisher()
         case .erc20Token(let token, _, _):
-            return session.tokenBalanceService
-                .tokenBalancePublisher(token.addressAndRPCServer)
-                .receive(on: RunLoop.main)
-                .map { $0?.ticker }
-                .prepend(session.tokenBalanceService.coinTicker(token.addressAndRPCServer))
+            return service.tokenViewModelPublisher(for: token)
+                .map { $0?.balance.ticker }
                 .eraseToAnyPublisher()
         case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return Just<CoinTicker?>(nil)
@@ -88,7 +81,7 @@ class TokenInfoPageViewModel: NSObject {
     private func generateConfigurations() -> [TokenInfoPageViewModelConfiguration] {
         var configurations: [TokenInfoPageViewModelConfiguration] = []
 
-        if session.server.isTestnet {
+        if transactionType.tokenObject.server.isTestnet {
             configurations = [
                 .testnet
             ]

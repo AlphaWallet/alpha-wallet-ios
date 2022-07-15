@@ -11,8 +11,8 @@ import PromiseKit
 protocol AutoDetectTransactedTokensOperationDelegate: class {
     var isAutoDetectingTransactedTokens: Bool { get set }
 
-    func autoDetectTransactedErc20AndNonErc20Tokens(wallet: AlphaWallet.Address) -> Promise<[TokenOrContract]>
     func didDetect(tokensOrContracts: [TokenOrContract])
+    func autoDetectTransactedErc20AndNonErc20Tokens(wallet: AlphaWallet.Address) -> Promise<[TokenOrContract]>
 }
 
 final class AutoDetectTransactedTokensOperation: Operation {

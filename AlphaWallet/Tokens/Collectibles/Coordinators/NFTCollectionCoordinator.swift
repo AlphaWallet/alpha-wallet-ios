@@ -41,6 +41,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
     private var cancelable = Set<AnyCancellable>()
+    private let service: TokenViewModelState
 
     init(
             session: WalletSession,
@@ -51,8 +52,10 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
             eventsDataStore: NonActivityEventsDataStore,
             analytics: AnalyticsLogger,
             openSea: OpenSea,
-            activitiesService: ActivitiesServiceType
+            activitiesService: ActivitiesServiceType,
+            service: TokenViewModelState
     ) {
+        self.service = service
         self.activitiesService = activitiesService
         self.session = session
         self.keystore = keystore
@@ -240,7 +243,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
 
     private func makeEnterSellTokensCardPriceQuantityViewController(token: Token, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> EnterSellTokensCardPriceQuantityViewController {
         let viewModel = EnterSellTokensCardPriceQuantityViewControllerViewModel(token: token, tokenHolder: tokenHolder, server: session.server, assetDefinitionStore: assetDefinitionStore)
-        let controller = EnterSellTokensCardPriceQuantityViewController(analytics: analytics, paymentFlow: paymentFlow, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, walletSession: session, keystore: keystore)
+        let controller = EnterSellTokensCardPriceQuantityViewController(analytics: analytics, paymentFlow: paymentFlow, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, walletSession: session, keystore: keystore, service: service)
         controller.configure()
         controller.delegate = self
         return controller

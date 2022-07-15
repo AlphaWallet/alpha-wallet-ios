@@ -22,7 +22,7 @@ protocol SwapTokensCoordinatorDelegate: class, CanOpenURL {
 final class SwapTokensCoordinator: Coordinator {
     private let navigationController: UINavigationController
     private lazy var rootViewController: SwapTokensViewController = {
-        let viewModel = SwapTokensViewModel(configurator: configurator)
+        let viewModel = SwapTokensViewModel(configurator: configurator, service: tokenCollection)
         let viewController = SwapTokensViewController(viewModel: viewModel)
         viewController.navigationItem.rightBarButtonItems = [
             UIBarButtonItem.settingsBarButton(self, selector: #selector(swapConfiguratinSelected)),
@@ -44,14 +44,14 @@ final class SwapTokensCoordinator: Coordinator {
     private let keystore: Keystore
     private let analytics: AnalyticsLogger
     private let domainResolutionService: DomainResolutionServiceType
-    private let eventsDataStore: NonActivityEventsDataStore
     private var cancelable = Set<AnyCancellable>()
     private var transactionConfirmationResult: ConfirmResult? = .none
-
+    private let tokensFilter: TokensFilter
     var coordinators: [Coordinator] = []
     weak var delegate: SwapTokensCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, configurator: SwapOptionsConfigurator, keystore: Keystore, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, assetDefinitionStore: AssetDefinitionStore, tokenCollection: TokenCollection, eventsDataStore: NonActivityEventsDataStore) {
+    init(navigationController: UINavigationController, configurator: SwapOptionsConfigurator, keystore: Keystore, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, assetDefinitionStore: AssetDefinitionStore, tokenCollection: TokenCollection, tokensFilter: TokensFilter) {
+        self.tokensFilter = tokensFilter
         self.assetDefinitionStore = assetDefinitionStore
         self.tokenCollection = tokenCollection
         self.configurator = configurator
@@ -59,7 +59,6 @@ final class SwapTokensCoordinator: Coordinator {
         self.keystore = keystore
         self.analytics = analytics
         self.domainResolutionService = domainResolutionService
-        self.eventsDataStore = eventsDataStore
     }
 
     func start() {
@@ -75,7 +74,7 @@ final class SwapTokensCoordinator: Coordinator {
     }
 
     private func showSelectToken() {
-        let coordinator = SelectTokenCoordinator(tokenCollection: tokenCollection, navigationController: navigationController, filter: .filter(tokenSelectionProvider))
+        let coordinator = SelectTokenCoordinator(tokenCollection: tokenCollection, tokensFilter: tokensFilter, navigationController: navigationController, filter: .filter(tokenSelectionProvider))
         coordinator.configureForSelectionSwapToken()
         coordinator.delegate = self
         addCoordinator(coordinator)
@@ -168,7 +167,7 @@ extension SwapTokensCoordinator: ApproveSwapProviderDelegate {
         do {
             let (transaction, configuration) = configurator.tokenSwapper.buildSwapTransaction(keystore: keystore, unsignedTransaction: unsignedTransaction, fromToken: fromToken, fromAmount: fromAmount, toToken: toToken, toAmount: toAmount)
 
-            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: configurator.session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore)
+            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: configurator.session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, service: tokenCollection)
             addCoordinator(coordinator)
             coordinator.delegate = self
             coordinator.start(fromSource: .swap)
@@ -183,7 +182,7 @@ extension SwapTokensCoordinator: ApproveSwapProviderDelegate {
         let (transaction, configuration) = Erc20.buildApproveTransaction(keystore: keystore, token: token, server: server, owner: owner, spender: spender, amount: amount)
 
         return firstly {
-            TransactionConfirmationCoordinator.promise(navigationController, session: configurator.session, coordinator: self, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, source: .swapApproval, delegate: self, keystore: keystore, assetDefinitionStore: assetDefinitionStore)
+            TransactionConfirmationCoordinator.promise(navigationController, session: configurator.session, coordinator: self, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, source: .swapApproval, delegate: self, keystore: keystore, assetDefinitionStore: assetDefinitionStore, service: tokenCollection)
         }.map { confirmationResult in
             switch confirmationResult {
             case .signedTransaction, .sentRawTransaction:

@@ -16,6 +16,7 @@ class ReplaceTransactionCoordinator: Coordinator {
         case cancel
     }
 
+    private let service: TokenViewModelState
     private let analytics: AnalyticsLogger
     private let domainResolutionService: DomainResolutionServiceType
     private let pendingTransactionInformation: (server: RPCServer, data: Data, transactionType: TransactionType, gasPrice: BigInt)
@@ -80,9 +81,10 @@ class ReplaceTransactionCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: ReplaceTransactionCoordinatorDelegate?
 
-    init?(analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, keystore: Keystore, presentingViewController: UIViewController, session: WalletSession, transaction: TransactionInstance, mode: Mode, assetDefinitionStore: AssetDefinitionStore) {
+    init?(analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, keystore: Keystore, presentingViewController: UIViewController, session: WalletSession, transaction: TransactionInstance, mode: Mode, assetDefinitionStore: AssetDefinitionStore, service: TokenViewModelState) {
         guard let pendingTransactionInformation = TransactionDataStore.pendingTransactionsInformation[transaction.id] else { return nil }
         guard let nonce = BigInt(transaction.nonce) else { return nil }
+        self.service = service
         self.pendingTransactionInformation = pendingTransactionInformation
         self.keystore = keystore
         self.analytics = analytics
@@ -108,7 +110,8 @@ class ReplaceTransactionCoordinator: Coordinator {
                     analytics: analytics,
                     domainResolutionService: domainResolutionService,
                     keystore: keystore,
-                    assetDefinitionStore: assetDefinitionStore)
+                    assetDefinitionStore: assetDefinitionStore,
+                    service: service)
             coordinator.delegate = self
             addCoordinator(coordinator)
             switch mode {

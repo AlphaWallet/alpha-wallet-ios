@@ -55,7 +55,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
     weak var delegate: EnterSellTokensCardPriceQuantityViewControllerDelegate?
     private let walletSession: WalletSession
     private var cancelable = Set<AnyCancellable>()
-
+    private let service: TokenViewModelState
 // swiftlint:disable function_body_length
     init(
             analytics: AnalyticsLogger,
@@ -63,8 +63,10 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
             viewModel: EnterSellTokensCardPriceQuantityViewControllerViewModel,
             assetDefinitionStore: AssetDefinitionStore,
             walletSession: WalletSession,
-            keystore: Keystore
+            keystore: Keystore,
+            service: TokenViewModelState
     ) {
+        self.service = service
         self.analytics = analytics
         self.paymentFlow = paymentFlow
         self.walletSession = walletSession
@@ -100,11 +102,9 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         pricePerTokenField.translatesAutoresizingMaskIntoConstraints = false
         pricePerTokenField.selectCurrencyButton.hasToken = true
 
-        walletSession
-            .tokenBalanceService
-            .etherToFiatRatePublisher
-            .map { $0.flatMap { NSDecimalNumber(value: $0) } }
-            .receive(on: RunLoop.main)
+        let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: walletSession.server)
+        service.tokenViewModelPublisher(for: etherToken)
+            .map { $0?.balance.ticker.flatMap { NSDecimalNumber(value: $0.price_usd) } }
             .sink { [weak pricePerTokenField] value in
                 pricePerTokenField?.cryptoToDollarRate = value
             }.store(in: &cancelable)

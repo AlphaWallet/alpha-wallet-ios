@@ -24,7 +24,6 @@ protocol SingleChainTokenCoordinatorDelegate: CanOpenURL, SendTransactionDelegat
 
 class SingleChainTokenCoordinator: Coordinator {
     private let keystore: Keystore
-    private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: NonActivityEventsDataStore
     private let analytics: AnalyticsLogger
@@ -40,13 +39,11 @@ class SingleChainTokenCoordinator: Coordinator {
         session.server
     }
     private let alertService: PriceAlertServiceType
-    private let tokensAutodetector: TokensAutodetector
-    private var cancelable = Set<AnyCancellable>()
+    private let service: TokenBalanceRefreshable & TokenViewModelState
 
     init(
             session: WalletSession,
             keystore: Keystore,
-            tokensStorage: TokensDataStore,
             assetDefinitionStore: AssetDefinitionStore,
             eventsDataStore: NonActivityEventsDataStore,
             analytics: AnalyticsLogger,
@@ -55,11 +52,11 @@ class SingleChainTokenCoordinator: Coordinator {
             coinTickersFetcher: CoinTickersFetcher,
             activitiesService: ActivitiesServiceType,
             alertService: PriceAlertServiceType,
-            tokensAutodetector: TokensAutodetector
+            service: TokenBalanceRefreshable & TokenViewModelState
     ) {
+        self.service = service
         self.session = session
         self.keystore = keystore
-        self.tokensDataStore = tokensStorage
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
         self.analytics = analytics
@@ -68,15 +65,6 @@ class SingleChainTokenCoordinator: Coordinator {
         self.coinTickersFetcher = coinTickersFetcher
         self.activitiesService = activitiesService
         self.alertService = alertService
-        self.tokensAutodetector = tokensAutodetector
-    }
-
-    func start() {
-        tokensAutodetector.tokensOrContractsDetected.sink { [tokensDataStore] tokensOrContracts in
-            tokensDataStore.addOrUpdate(tokensOrContracts: tokensOrContracts)
-        }.store(in: &cancelable)
-
-        tokensAutodetector.start()
     }
 
     func isServer(_ server: RPCServer) -> Bool {
@@ -103,8 +91,8 @@ class SingleChainTokenCoordinator: Coordinator {
                 eventsDataStore: eventsDataStore,
                 analytics: analytics,
                 openSea: openSea,
-                activitiesService: activitiesService
-        )
+                activitiesService: activitiesService,
+                service: service)
 
         addCoordinator(coordinator)
         coordinator.delegate = self
@@ -115,8 +103,8 @@ class SingleChainTokenCoordinator: Coordinator {
         //NOTE: create half mutable copy of `activitiesService` to configure it for fetching activities for specific token
         let activitiesFilterStrategy = transactionType.activitiesFilterStrategy
         let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: TransactionDataStore.functional.transactionsFilter(for: activitiesFilterStrategy, token: transactionType.tokenObject))
-        let viewModel = FungibleTokenViewModel(transactionType: transactionType, session: session, assetDefinitionStore: assetDefinitionStore, tokenActionsProvider: tokenActionsProvider, coinTickersFetcher: coinTickersFetcher)
-        let viewController = FungibleTokenViewController(keystore: keystore, analytics: analytics, viewModel: viewModel, activitiesService: activitiesService, alertService: alertService)
+        let viewModel = FungibleTokenViewModel(activitiesService: activitiesService, alertService: alertService, transactionType: transactionType, session: session, assetDefinitionStore: assetDefinitionStore, tokenActionsProvider: tokenActionsProvider, coinTickersFetcher: coinTickersFetcher, service: service)
+        let viewController = FungibleTokenViewController(keystore: keystore, analytics: analytics, viewModel: viewModel, activitiesService: activitiesService)
         viewController.delegate = self
 
         navigationController.pushViewController(viewController, animated: true)

@@ -45,17 +45,17 @@ class WalletConnectV1Provider: WalletConnectServer {
 
         return handler
     }()
-    private let sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>
+    private let serviceProvider: SessionsProvider
     private var cancelable = Set<AnyCancellable>()
     private let queue: DispatchQueue = .main
 
-    init(sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>, storage: Storage<[WalletConnectV1Session]> = .init(fileName: Keys.storageFileKey, defaultValue: [])) {
-        self.sessionsSubject = sessionsSubject
+    init(serviceProvider: SessionsProvider, storage: Storage<[WalletConnectV1Session]> = .init(fileName: Keys.storageFileKey, defaultValue: [])) {
+        self.serviceProvider = serviceProvider
         self.storage = storage
 
         server.register(handler: requestHandler)
 
-        sessionsSubject
+        serviceProvider.sessions
             .filter { !$0.isEmpty }
             .sink { [weak self] sessions in
                 guard let strongSelf = self else { return }
@@ -99,7 +99,7 @@ class WalletConnectV1Provider: WalletConnectServer {
         let namespaces = namespaces(for: server)
         storage.value[index] = .init(session: storage.value[index].session, namespaces: namespaces)
 
-        let wallets = Array(Set(sessionsSubject.value.values.map { $0.account.address.eip55String }))
+        let wallets = Array(Set(serviceProvider.activeSessions.values.map { $0.account.address.eip55String }))
         let walletInfo = walletInfo(choice: .connect(server), wallets: wallets)
         try self.server.updateSession(storage.value[index].session, with: walletInfo)
     }
@@ -209,7 +209,7 @@ extension WalletConnectV1Provider: ServerDelegate {
 
     func server(_ server: Server, shouldStart session: Session, completion: @escaping (Session.WalletInfo) -> Void) {
         connectionTimeoutTimers[session.url] = nil
-        let wallets = Array(Set(sessionsSubject.value.values.map { $0.account.address.eip55String }))
+        let wallets = Array(Set(serviceProvider.activeSessions.values.map { $0.account.address.eip55String }))
 
         queue.async {
             if let delegate = self.delegate {
@@ -235,7 +235,7 @@ extension WalletConnectV1Provider: ServerDelegate {
     }
 
     private func namespaces(for server: RPCServer?) -> [String: SessionNamespace] {
-        let accounts = Set(sessionsSubject.value.values.compactMap { _session -> CAIP10Account? in
+        let accounts = Set(serviceProvider.activeSessions.values.compactMap { _session -> CAIP10Account? in
             let server = server ?? _session.server
             guard let blockchain = Blockchain(server.eip155) else { return nil }
 
