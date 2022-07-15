@@ -25,22 +25,23 @@ final class OldestTransactionProvider: NSObject {
     }
 
     func startScheduler() {
-        queue.async {
-            guard self.transactionsTracker.fetchingState != .done else { return }
-            self.scheduler.start()
+        queue.async { [scheduler] in
+            //NOTE: we don't check for `fetchingState is .done` to allow the app make a call on app launch because previously fetcher might be stopped because of error appeared, what is not realy correct.
+            scheduler.start()
         }
     }
 
     func resumeScheduler() {
-        queue.async {
-            guard self.transactionsTracker.fetchingState != .done else { return }
-            self.scheduler.resume()
+        queue.async { [scheduler, transactionsTracker] in
+            //NOTE: Don't resume timer if what is `.done`
+            guard transactionsTracker.fetchingState != .done else { return }
+            scheduler.resume()
         }
     }
 
     func cancelScheduler() {
-        queue.async {
-            self.scheduler.cancel()
+        queue.async { [scheduler] in
+            scheduler.cancel()
         }
     }
 
@@ -49,20 +50,7 @@ final class OldestTransactionProvider: NSObject {
     }
 
     private func didReceiveError(error: Covalent.CovalentError) {
-        switch error {
-        case .requestFailure(let e):
-            switch e {
-            case .general(error: let e):
-                if case Covalent.DecodyingError.paginationNotFound = e {
-                    transactionsTracker.fetchingState = .done
-                    scheduler.cancel()
-                } else {
-                    transactionsTracker.fetchingState = .failed
-                }
-            }
-        case .jsonDecodeFailure, .sessionError:
-            transactionsTracker.fetchingState = .failed
-        }
+        transactionsTracker.fetchingState = .failed
     }
 
     private func didReceiveValue(transactions: [TransactionInstance]) {

@@ -10,6 +10,10 @@ import PromiseKit
 import Combine
 
 class ImportToken {
+    private let defaultTokens: [(AlphaWallet.Address, RPCServer)] = [
+        (Constants.uefaMainnet, Constants.uefaRpcServer),
+    ]
+
     enum ImportTokenError: Error {
         case serverIsDisabled
         case nothingToImport
@@ -31,20 +35,22 @@ class ImportToken {
         self.analyticsCoordinator = analyticsCoordinator
         self.wallet = wallet
 
-        addUefaTokenIfAny()
+        addDefaultTokens()
     }
 
-    private func addUefaTokenIfAny() {
+    private func addDefaultTokens() {
         guard !isRunningTests() else { return }
 
-        //NOTE: initally when we set sessions, we want to import uefa tokens, for enabled chain
+        let defaultTokens = self.defaultTokens
         sessions.filter { !$0.values.isEmpty }
             .first()
             .sink { _ in
-                let server = Constants.uefaRpcServer
-                self.importToken(for: Constants.uefaMainnet, server: server, onlyIfThereIsABalance: true)
-                    .done { _ in }
-                    .recover { error in
+                for (address, server) in defaultTokens {
+                    firstly {
+                        self.importToken(for: address, server: server, onlyIfThereIsABalance: true)
+                    }.done { _ in
+                        //no-op
+                    }.recover { error in
                         if let error = error as? ImportToken.ImportTokenError {
                             switch error {
                             case .serverIsDisabled:
@@ -60,6 +66,7 @@ class ImportToken {
                             throw error
                         }
                     }
+                }
             }.store(in: &cancelable)
     }
 
