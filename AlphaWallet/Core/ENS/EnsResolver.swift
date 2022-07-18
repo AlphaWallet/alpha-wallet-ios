@@ -7,7 +7,7 @@ import Combine
 
 class EnsResolver: ENSDelegateImpl {
     private let storage: EnsRecordsStorage
-    private (set) var server: RPCServer
+    private let server: RPCServer
     private lazy var ens = ENS(delegate: self, chainId: server.chainID)
 
     init(server: RPCServer, storage: EnsRecordsStorage) {
