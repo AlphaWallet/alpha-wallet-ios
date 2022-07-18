@@ -8,6 +8,7 @@
 import Foundation
 import Moya
 import Combine
+import SwiftyJSON
 
 enum CoinGeckoNetworkProviderError: Error {
     case underlying(Error)
@@ -54,7 +55,7 @@ class CoinGeckoNetworkProvider {
     func fetchChartHistory(for period: ChartHistoryPeriod, tickerId: String) -> AnyPublisher<ChartHistory, CoinGeckoNetworkProviderError> {
         provider.publisher(.priceHistoryOfToken(id: tickerId, currency: Constants.Currency.usd, days: period.rawValue), callbackQueue: .global())
             .retry(times: 3, when: { _ in return true }) //return true any error
-            .tryMap { [decoder] response in try response.map(ChartHistory.self, using: decoder) }
+            .tryMap { response in try ChartHistory(json: try JSON(data: response.data)) }
             .mapError { e in return CoinGeckoNetworkProviderError.underlying(e) }
             .share()
             .eraseToAnyPublisher()
