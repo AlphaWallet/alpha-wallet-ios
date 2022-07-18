@@ -41,7 +41,7 @@ public class ENS {
     public static var isLoggingEnabled = false
 
     weak private var delegate: ENSDelegate?
-    private var chainId: ChainId
+    private let chainId: ChainId
 
     public init(delegate: ENSDelegate, chainId: ChainId) {
         self.delegate = delegate
