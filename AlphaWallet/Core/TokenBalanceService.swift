@@ -16,7 +16,7 @@ protocol TokenBalanceService {
     func coinTicker(_ addressAndRPCServer: AddressAndRPCServer) -> CoinTicker?
     func tokenBalance(_ addressAndRPCServer: AddressAndRPCServer) -> BalanceViewModel?
     func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer) -> AnyPublisher<BalanceViewModel?, Never>
-    func fetchChartHistories(_ addressToRPCServerKey: AddressAndRPCServer, force: Bool, periods: [ChartHistoryPeriod]) -> Promise<[ChartHistory]>
+    func fetchChartHistories(for token: Token, force: Bool, periods: [ChartHistoryPeriod]) -> AnyPublisher<[ChartHistory], Never>
 }
 
 class SingleChainTokenBalanceService: NSObject, TokenBalanceService {
@@ -59,9 +59,8 @@ class SingleChainTokenBalanceService: NSObject, TokenBalanceService {
         //no-op
     }
 
-    func fetchChartHistories(_ addressToRPCServerKey: AddressAndRPCServer, force: Bool, periods: [ChartHistoryPeriod]) -> Promise<[ChartHistory]> {
-        return balanceProvider
-            .fetchChartHistories(addressToRPCServerKey, force: force, periods: periods)
+    func fetchChartHistories(for token: Token, force: Bool, periods: [ChartHistoryPeriod]) -> AnyPublisher<[ChartHistory], Never> {
+        return balanceProvider.fetchChartHistories(for: token, force: force, periods: periods)
     }
 
     func coinTicker(_ addressAndRPCServer: AddressAndRPCServer) -> CoinTicker? {

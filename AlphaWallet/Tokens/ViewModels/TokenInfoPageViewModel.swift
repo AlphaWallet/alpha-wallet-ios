@@ -44,6 +44,7 @@ class TokenInfoPageViewModel: NSObject {
     
     lazy var chartViewModel: TokenHistoryChartViewModel = .init(chartHistories: chartHistoriesSubject.eraseToAnyPublisher(), coinTicker: coinTicker)
     lazy var headerViewModel: FungibleTokenHeaderViewModel = .init(session: session, transactionType: transactionType, assetDefinitionStore: assetDefinitionStore)
+    private var chartHistoryCancelable: AnyCancellable?
 
     init(session: WalletSession, transactionType: TransactionType, assetDefinitionStore: AssetDefinitionStore, coinTickersFetcher: CoinTickersFetcherType) {
         self.session = session
@@ -54,10 +55,12 @@ class TokenInfoPageViewModel: NSObject {
     }
 
     func fetchChartHistory() {
-        coinTickersFetcher.fetchChartHistories(addressToRPCServerKey: transactionType.tokenObject.addressAndRPCServer, force: false, periods: ChartHistoryPeriod.allCases)
-            .done { chartHistories in
-                self.chartHistoriesSubject.send(chartHistories)
-            }.cauterize()
+        chartHistoryCancelable?.cancel()
+
+        chartHistoryCancelable = coinTickersFetcher.fetchChartHistories(for: .init(token: transactionType.tokenObject), force: false, periods: ChartHistoryPeriod.allCases)
+            .sink { [chartHistoriesSubject] chartHistories in
+                chartHistoriesSubject.send(chartHistories)
+            }
     }
 
     private lazy var coinTicker: AnyPublisher<CoinTicker?, Never> = {

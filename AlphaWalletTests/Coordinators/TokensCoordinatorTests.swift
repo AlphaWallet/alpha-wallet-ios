@@ -28,7 +28,7 @@ class TokensCoordinatorTests: XCTestCase {
             openSea: OpenSea(analyticsCoordinator: FakeAnalyticsService(), queue: .global()),
             tokenActionsService: tokenActionsService,
             walletConnectCoordinator: .fake(),
-            coinTickersFetcher: CoinTickersFetcher(provider: AlphaWalletProviderFactory.makeProvider(), config: config),
+            coinTickersFetcher: FakeCoinTickersFetcher(),
             activitiesService: FakeActivitiesService(),
             walletBalanceService: FakeMultiWalletBalanceService(),
             tokenCollection: MultipleChainsTokenCollection.fake(),

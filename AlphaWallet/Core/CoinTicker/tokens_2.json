@@ -1,0 +1,27 @@
+[
+    {
+        "contracts": [
+            {"address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", "chainId": 1},
+            {"address": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174", "chainId": 137},
+            {"address": "0x2f28Add68e59733D23D5F57d94c31fb965f835D0", "chainId": 137},
+        ],
+        "group": "usdc"
+    },
+    {
+        "contracts": [
+            {"address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", "chainId": 1},
+            {"address": "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619", "chainId": 137},
+            {"address": "0xC11b1268C1A384e55C48c2391d8d480264A3A7F4", "chainId": 1},
+        ],
+        "group": "WETH"
+    },
+    {
+        "contracts": [
+            {"address": "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56", "chainId": 56},
+            {"address": "0xf04d3A8Eb17B832Fbebf43610e94BdC4fD5Cf2dd", "chainId": 137},
+            {"address": "0xdab529f40e671a1d4bf91361c21bf9f0c9712ab7", "chainId": 137},
+
+        ],
+        "group": "BUSD"
+    }
+ ]

@@ -26,7 +26,6 @@ public extension StorageType {
 
             return defaultValue
         }
-
         return result
     }
 

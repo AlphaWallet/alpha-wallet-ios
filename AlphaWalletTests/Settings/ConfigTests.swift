@@ -25,7 +25,7 @@ extension MultipleChainsTokenCollection {
         let actionsService = TokenActionsService()
         let tokenGroupIdentifier: TokenGroupIdentifierProtocol = FakeTokenGroupIdentifier()
         let tokensFilter = TokensFilter(assetDefinitionStore: .init(), tokenActionsService: actionsService, coinTickersFetcher: coinTickersFetcher, tokenGroupIdentifier: tokenGroupIdentifier)
-        return MultipleChainsTokenCollection(tokensFilter: tokensFilter, tokensDataStore: tokensDataStore, config: config)
+        return MultipleChainsTokenCollection(tokensFilter: tokensFilter, tokensDataStore: tokensDataStore, config: config, coinTickersFetcher: coinTickersFetcher)
     }
 }
 

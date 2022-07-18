@@ -314,30 +314,35 @@ class ActiveWalletViewTests: XCTestCase {
     }
 }
 
-import PromiseKit
 import Combine
 
 final class FakeCoinTickersFetcher: CoinTickersFetcherType {
 
-    func fetchPrices(forTokens tokens: [TokenMappedToTicker]) {
-
+    var tickersDidUpdate: AnyPublisher<Void, Never> {
+        return Empty<Void, Never>(completeImmediately: true).eraseToAnyPublisher()
     }
-
-    var tickersUpdatedPublisher: AnyPublisher<Void, Never> {
-        Just(())
-            .eraseToAnyPublisher()
-    }
-
-    func fetchChartHistories(addressToRPCServerKey: AddressAndRPCServer) -> Promise<[ChartHistory]> {
-        return .value([])
-    }
-
-    func fetchChartHistories(addressToRPCServerKey: AddressAndRPCServer, force: Bool, periods: [ChartHistoryPeriod]) -> Promise<[ChartHistory]> {
-        return Promise { _ in }
+    var updateTickerId: AnyPublisher<(tickerId: TickerIdString, key: AddressAndRPCServer), Never> {
+        return Empty<(tickerId: TickerIdString, key: AddressAndRPCServer), Never>(completeImmediately: true).eraseToAnyPublisher()
     }
 
     func ticker(for addressAndPRCServer: AddressAndRPCServer) -> CoinTicker? {
         return nil
+    }
+
+    func fetchTickers(for tokens: [TokenMappedToTicker], force: Bool) {
+        //no-op
+    }
+
+    func resolveTikerIds(for tokens: [TokenMappedToTicker]) {
+        //no-op
+    }
+
+    func fetchChartHistories(for token: TokenMappedToTicker, force: Bool, periods: [ChartHistoryPeriod]) -> AnyPublisher<[ChartHistory], Never> {
+        return Empty<[ChartHistory], Never>(completeImmediately: true).eraseToAnyPublisher()
+    }
+
+    func cancel() {
+        //no-op
     }
 
 }

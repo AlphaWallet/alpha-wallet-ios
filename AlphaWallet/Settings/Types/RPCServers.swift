@@ -935,6 +935,22 @@ enum RPCServer: Hashable, CaseIterable {
             return "ARTIS"
         }
     }
+
+    var coinGeckoPlatform: String? {
+        switch self {
+        case .main: return "ethereum"
+        case .classic: return "ethereum-classic"
+        case .xDai: return "xdai"
+        case .binance_smart_chain: return "binance-smart-chain"
+        case .avalanche: return "avalanche"
+        case .polygon: return "polygon-pos"
+        case .fantom: return "fantom"
+        case .arbitrum: return "arbitrum-one"
+        case .klaytnCypress, .klaytnBaobabTestnet: return "klay-token"
+        case .poa, .kovan, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .ropsten, .rinkeby, .heco, .heco_testnet, .fantom_testnet, .avalanche_testnet, .mumbai_testnet, .custom, .optimistic, .optimisticKovan, .cronosTestnet, .palm, .palmTestnet, .arbitrumRinkeby, .phi, .ioTeX, .ioTeXTestnet:
+            return nil
+        }
+    }
 }
 // swiftlint:enable type_body_length
 

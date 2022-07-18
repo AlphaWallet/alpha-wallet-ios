@@ -39,6 +39,29 @@ extension MoyaProvider {
     }
 }
 
+extension MoyaProvider {
+    func publisher(_ target: Target, callbackQueue: DispatchQueue? = .none, progress: ProgressBlock? = .none) -> AnyPublisher<Moya.Response, MoyaError> {
+        var cancelable: Moya.Cancellable?
+        let publisher = Deferred {
+            Future<Moya.Response, MoyaError> { seal in
+                cancelable = self.request(target, callbackQueue: callbackQueue, progress: progress) { result in
+                    switch result {
+                    case .success(let response):
+                        seal(.success(response))
+                    case .failure(let error):
+                        seal(.failure(error))
+                    }
+                }
+            }
+        }.handleEvents(receiveCancel: {
+            cancelable?.cancel()
+        })
+
+        return publisher
+            .eraseToAnyPublisher()
+    }
+}
+
 enum PromiseError: Error {
     case some(error: Error)
 }

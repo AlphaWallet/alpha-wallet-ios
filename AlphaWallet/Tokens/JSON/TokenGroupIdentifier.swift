@@ -7,21 +7,28 @@
 
 import Foundation
 
-fileprivate struct Contract: Decodable {
+struct Contract: Codable, Hashable {
     let address: String
     let chainId: Int
+    
     var key: String {
         let returnKey = address + ":" + String(chainId)
         return returnKey.trimmed.lowercased()
     }
 }
 
-fileprivate struct TokenEntry: Decodable {
+extension Contract: Equatable {
+    static func == (lhs: Contract, rhs: Contract) -> Bool {
+        return lhs.key == rhs.key
+    }
+}
+
+struct TokenEntry: Decodable {
     let contracts: [Contract]
     let group: String?
 }
 
-fileprivate class TokenJsonReader {
+class TokenJsonReader {
 
     enum error: Error {
         case duplicateKey(String)

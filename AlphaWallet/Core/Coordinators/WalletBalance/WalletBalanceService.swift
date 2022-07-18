@@ -12,7 +12,7 @@ import Combine
 
 protocol CoinTickerProvider: AnyObject {
     func coinTicker(_ addressAndRPCServer: AddressAndRPCServer) -> CoinTicker?
-    func fetchChartHistories(_ addressToRPCServerKey: AddressAndRPCServer, force: Bool, periods: [ChartHistoryPeriod]) -> Promise<[ChartHistory]>
+    func fetchChartHistories(for token: Token, force: Bool, periods: [ChartHistoryPeriod]) -> AnyPublisher<[ChartHistory], Never>
 }
 
 protocol TokenBalanceProviderTests {
@@ -149,9 +149,8 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
         }
     }
 
-    func fetchChartHistories(_ addressToRPCServerKey: AddressAndRPCServer, force: Bool, periods: [ChartHistoryPeriod]) -> Promise<[ChartHistory]> {
-        return coinTickersFetcher
-            .fetchChartHistories(addressToRPCServerKey: addressToRPCServerKey, force: force, periods: periods)
+    func fetchChartHistories(for token: Token, force: Bool, periods: [ChartHistoryPeriod]) -> AnyPublisher<[ChartHistory], Never> {
+        return coinTickersFetcher.fetchChartHistories(for: .init(token: token), force: force, periods: periods)
     }
 
     /// NOTE: internal for test purposes

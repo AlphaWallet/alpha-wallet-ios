@@ -27,19 +27,20 @@ class MultipleChainsTokenCollection: NSObject, TokenCollection {
 
     let tokensFilter: TokensFilter
     private var tokensViewModelSubject: CurrentValueSubject<TokensViewModel, Never>
-
-    private let refereshSubject = PassthroughSubject<Void, Never>.init()
+    private let queue = DispatchQueue(label: "com.MultipleChainsTokenCollection.updateQueue")
+    private let refreshSubject = PassthroughSubject<Void, Never>.init()
     private var cancelable = Set<AnyCancellable>()
+    private let coinTickersFetcher: CoinTickersFetcherType
 
     let tokensDataStore: TokensDataStore & DetectedContractsProvideble
     var tokensViewModel: AnyPublisher<TokensViewModel, Never> {
         tokensViewModelSubject.eraseToAnyPublisher()
     }
-    private let queue = DispatchQueue(label: "com.MultipleChainsTokenCollection.updateQueue")
 
-    init(tokensFilter: TokensFilter, tokensDataStore: TokensDataStore & DetectedContractsProvideble, config: Config) {
+    init(tokensFilter: TokensFilter, tokensDataStore: TokensDataStore & DetectedContractsProvideble, config: Config, coinTickersFetcher: CoinTickersFetcherType) {
         self.tokensFilter = tokensFilter
         self.tokensDataStore = tokensDataStore
+        self.coinTickersFetcher = coinTickersFetcher
 
         let enabledServers = config.enabledServers
         let tokens = tokensDataStore.enabledTokens(for: enabledServers)
@@ -49,7 +50,7 @@ class MultipleChainsTokenCollection: NSObject, TokenCollection {
         tokensDataStore
             .enabledTokensPublisher(for: enabledServers)
             .receive(on: queue)
-            .combineLatest(refereshSubject, { tokens, _ in tokens })
+            .combineLatest(refreshSubject, coinTickersFetcher.tickersDidUpdate, { tokens, _, _ in tokens })
             .map { MultipleChainsTokensDataStore.functional.erc20AddressForNativeTokenFilter(servers: enabledServers, tokens: $0) }
             .map { TokensViewModel.functional.filterAwaySpuriousTokens($0) }
             .map { TokensViewModel(tokensFilter: tokensFilter, tokens: $0, config: config) }
@@ -61,7 +62,7 @@ class MultipleChainsTokenCollection: NSObject, TokenCollection {
     }
 
     func fetch() {
-        refereshSubject.send(())
+        refreshSubject.send(())
     }
 
     func token(for contract: AlphaWallet.Address) -> Token? {

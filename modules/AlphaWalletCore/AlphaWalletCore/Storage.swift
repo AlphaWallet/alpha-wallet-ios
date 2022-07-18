@@ -11,7 +11,7 @@ import AlphaWalletCore
 
 public class Storage<T: Codable> {
     private let fileName: String
-    private let valueSubject: CurrentValueSubject<T, Never>
+    private lazy var valueSubject: CurrentValueSubject<T, Never> = .init(storage.load(forKey: fileName, defaultValue: defaultValue))
     private let storage: StorageType
     private let defaultValue: T
 
@@ -25,8 +25,7 @@ public class Storage<T: Codable> {
         }
         set {
             guard let data = try? JSONEncoder().encode(newValue) else {
-                storage.deleteEntry(forKey: fileName)
-                valueSubject.value = defaultValue
+                removeAll()
                 return
             }
 
@@ -39,7 +38,10 @@ public class Storage<T: Codable> {
         self.defaultValue = defaultValue
         self.fileName = fileName
         self.storage = storage
+    }
 
-        valueSubject = .init(storage.load(forKey: fileName, defaultValue: defaultValue))
+    public func removeAll() {
+        storage.deleteEntry(forKey: fileName)
+        valueSubject.value = defaultValue
     }
 }
