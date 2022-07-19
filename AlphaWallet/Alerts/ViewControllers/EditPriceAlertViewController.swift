@@ -27,7 +27,6 @@ class EditPriceAlertViewController: UIViewController {
         view.delegate = self
         view.accessoryButtonTitle = .next
         view.errorState = .none
-
         view.togglePair()
 
         view.isAlternativeAmountEnabled = false
@@ -36,6 +35,7 @@ class EditPriceAlertViewController: UIViewController {
         view.selectCurrencyButton.expandIconHidden = true
         view.statusLabel.text = nil
         view.availableTextHidden = false
+        view.selectCurrencyButton.hasToken = true
 
         return view
     }()
@@ -79,6 +79,7 @@ class EditPriceAlertViewController: UIViewController {
         buttonsBar.buttons[0].addTarget(self, action: #selector(saveAlertSelected), for: .touchUpInside)
 
         configure(viewModel: viewModel)
+
         //NOTE: we want to enter only fiat value, as `amountTextField` accepts eth we have to convert it with 1 to 1 rate
         amountTextField.cryptoToDollarRate = 1
         amountTextField.set(ethCost: viewModel.value, useFormatting: false)
@@ -106,7 +107,7 @@ class EditPriceAlertViewController: UIViewController {
                 }.store(in: &cancelable)
         case .erc875, .erc721, .erc721ForTickets, .erc1155:
             break
-        }
+        } 
     }
 
     func configure(viewModel: EditPriceAlertViewModel) {
