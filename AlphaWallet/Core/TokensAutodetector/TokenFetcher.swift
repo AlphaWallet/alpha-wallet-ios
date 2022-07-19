@@ -16,7 +16,7 @@ class SingleChainTokenFetcher: NSObject, TokenFetcher {
 
     private let assetDefinitionStore: AssetDefinitionStore
     private let analyticsCoordinator: AnalyticsCoordinator
-    private var promises: AtomicDictionary<AlphaWallet.Address, Promise<TokenOrContract>> = .init()
+    private var inflightPromises: AtomicDictionary<AlphaWallet.Address, Promise<TokenOrContract>> = .init()
     private let session: WalletSession
 
     init(session: WalletSession, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator) {
@@ -26,7 +26,7 @@ class SingleChainTokenFetcher: NSObject, TokenFetcher {
     }
 
     func fetchTokenOrContract(for contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool = false) -> Promise<TokenOrContract> {
-        if let promise = promises[contract] {
+        if let promise = inflightPromises[contract] {
             return promise
         } else {
             let server = session.server
@@ -65,9 +65,9 @@ class SingleChainTokenFetcher: NSObject, TokenFetcher {
                     }
                 }
             }.ensure {
-                self.promises[contract] = nil
+                self.inflightPromises[contract] = nil
             }
-            promises[contract] = promise
+            inflightPromises[contract] = promise
 
             return promise
         }
