@@ -1144,6 +1144,7 @@
 		87E2555424F52E9500F025F7 /* GasSpeedTableViewHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87E2555324F52E9500F025F7 /* GasSpeedTableViewHeaderView.swift */; };
 		87E2555624F52EAA00F025F7 /* GasSpeedTableViewHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87E2555524F52EAA00F025F7 /* GasSpeedTableViewHeaderViewModel.swift */; };
 		87E2555824F52EBF00F025F7 /* GasSpeedTableViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87E2555724F52EBF00F025F7 /* GasSpeedTableViewCellViewModel.swift */; };
+		87E960DD28868D3600218E7E /* TickerIdsFetcherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87E960DC28868D3600218E7E /* TickerIdsFetcherTests.swift */; };
 		87EA6A722869A4F30007E47E /* tokens_2.json in Resources */ = {isa = PBXBuildFile; fileRef = 87EA6A712869851F0007E47E /* tokens_2.json */; };
 		87ED843B24C564B5001A3747 /* NewTokenCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED843A24C564B5001A3747 /* NewTokenCoordinator.swift */; };
 		87ED8F93248534E30005C69B /* SwitchTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED8F92248534E30005C69B /* SwitchTableViewCell.swift */; };
@@ -2417,6 +2418,7 @@
 		87E2555324F52E9500F025F7 /* GasSpeedTableViewHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GasSpeedTableViewHeaderView.swift; sourceTree = "<group>"; };
 		87E2555524F52EAA00F025F7 /* GasSpeedTableViewHeaderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GasSpeedTableViewHeaderViewModel.swift; sourceTree = "<group>"; };
 		87E2555724F52EBF00F025F7 /* GasSpeedTableViewCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GasSpeedTableViewCellViewModel.swift; sourceTree = "<group>"; };
+		87E960DC28868D3600218E7E /* TickerIdsFetcherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TickerIdsFetcherTests.swift; sourceTree = "<group>"; };
 		87EA6A712869851F0007E47E /* tokens_2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = tokens_2.json; sourceTree = "<group>"; };
 		87ED843A24C564B5001A3747 /* NewTokenCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTokenCoordinator.swift; sourceTree = "<group>"; };
 		87ED8F92248534E30005C69B /* SwitchTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchTableViewCell.swift; sourceTree = "<group>"; };
@@ -3758,6 +3760,7 @@
 				8782E9CB2828DBAA00E93689 /* SessionTests.swift */,
 				87831C812849E47A002E856E /* AddressStorageTests.swift */,
 				87831C832849E4E0002E856E /* tikersForTest.json */,
+				87E960DC28868D3600218E7E /* TickerIdsFetcherTests.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -7769,6 +7772,7 @@
 				442FCBA4A5E39A4C4B16426A /* EventsRestTest.swift in Sources */,
 				76F1DC92CDEB695115DBC47C /* UniversalLinkHandlerTests.swift in Sources */,
 				5E7C786AD8E4877C36D3B14A /* TokenAdaptorTest.swift in Sources */,
+				87E960DD28868D3600218E7E /* TickerIdsFetcherTests.swift in Sources */,
 				87242E4225F2749500F0E89D /* SendViewControllerTests.swift in Sources */,
 				02988ACC282C85F100433F3B /* InitialNetworkSelectionCollectionModelTestCase.swift in Sources */,
 				5E7C7CCA357CB7BF12E1F2B4 /* UIStackView+Array.swift in Sources */,

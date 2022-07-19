@@ -10,14 +10,14 @@ import Foundation
 
 /// Ticker ids are havy objects, that don't change often, keep them cached and in separate fetcher to extract logic
 class CoinGeckoTickerIdsFetcher: TickerIdsFetcher {
-    private let networkProvider: CoinGeckoNetworkProvider
+    private let networkProvider: CoinGeckoNetworkProviderType
     private let spamTokens = SpamTokens()
     private let storage: TickerIdsStorage & CoinTickersStorage
     private var config: Config
     private let pricesCacheLifetime: TimeInterval = 604800 // one week
     private var fetchSupportedTickerIdsPublisher: AnyPublisher<Void, CoinGeckoNetworkProviderError>?
 
-    init(networkProvider: CoinGeckoNetworkProvider, storage: TickerIdsStorage & CoinTickersStorage, config: Config) {
+    init(networkProvider: CoinGeckoNetworkProviderType, storage: TickerIdsStorage & CoinTickersStorage, config: Config) {
         self.networkProvider = networkProvider
         self.storage = storage
         self.config = config
@@ -27,10 +27,12 @@ class CoinGeckoTickerIdsFetcher: TickerIdsFetcher {
     func tickerId(for token: TokenMappedToTicker) -> AnyPublisher<TickerIdString?, Never> {
         return Just(token)
             .receive(on: DispatchQueue.global())
-            .flatMap { [unowned self, storage] token in
-                self.fetchSupportedTickerIds()
+            .flatMap { [weak self, storage] token -> AnyPublisher<TickerIdString?, Never> in
+                guard let strongSelf = self else { return .empty() }
+                return strongSelf.fetchSupportedTickerIds()
                     .map { _ in return TickerIdFilter(tickerIds: storage.tickerIds).tickerId(forToken: token) }
                     .replaceError(with: nil)
+                    .eraseToAnyPublisher()
             }.receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }

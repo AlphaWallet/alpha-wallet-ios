@@ -13,7 +13,7 @@ final class CoinGeckoTickersFetcher: CoinTickersFetcherType {
     private let dayChartHistoryCacheLifetime: TimeInterval = 60 * 60
     private let config: Config
     private let storage: CoinTickersStorage & ChartHistoryStorage & TickerIdsStorage
-    private let networkProvider: CoinGeckoNetworkProvider
+    private let networkProvider: CoinGeckoNetworkProviderType
     private let tickerIdsFetcher: TickerIdsFetcherImpl
     /// Cached fetch ticker prices operations
     private var promises: AtomicDictionary<TokenMappedToTicker, AnyCancellable> = .init()
@@ -30,7 +30,7 @@ final class CoinGeckoTickersFetcher: CoinTickersFetcherType {
         storage.updateTickerId
     }
 
-    init(networkProvider: CoinGeckoNetworkProvider, config: Config, storage: CoinTickersStorage & ChartHistoryStorage & TickerIdsStorage) {
+    init(networkProvider: CoinGeckoNetworkProviderType, config: Config, storage: CoinTickersStorage & ChartHistoryStorage & TickerIdsStorage) {
         self.networkProvider = networkProvider
         let coinGeckoTickerIdsFetcher = CoinGeckoTickerIdsFetcher(networkProvider: networkProvider, storage: storage, config: config)
         let fileTokenEntriesProvider = FileTokenEntriesProvider(fileName: "tokens_2")
@@ -39,7 +39,7 @@ final class CoinGeckoTickersFetcher: CoinTickersFetcherType {
             InMemoryTickerIdsFetcher(storage: storage),
             coinGeckoTickerIdsFetcher,
             AlphaWalletRemoteTickerIdsFetcher(provider: fileTokenEntriesProvider, tickerIdsFetcher: coinGeckoTickerIdsFetcher)
-        ], storage: storage)
+        ])
         self.config = config
         self.storage = storage
     }
@@ -117,12 +117,13 @@ final class CoinGeckoTickersFetcher: CoinTickersFetcherType {
 
     private func fetchChartHistory(force: Bool, period: ChartHistoryPeriod, for token: TokenMappedToTicker) -> AnyPublisher<HistoryToPeriod, Never> {
         return tickerIdsFetcher.tickerId(for: token)
-            .flatMap { [storage, networkProvider, unowned self] tickerId -> AnyPublisher<HistoryToPeriod, Never> in
+            .flatMap { [storage, networkProvider, weak self] tickerId -> AnyPublisher<HistoryToPeriod, Never> in
+                guard let strongSelf = self else { return .empty() }
                 guard let tickerId = tickerId.flatMap({ AssignedCoinTickerId(tickerId: $0, token: token) }) else {
                     return .just(.init(period: period, history: .empty))
                 }
 
-                if let data = storage.chartHistory(period: period, for: tickerId), !self.hasExpired(history: data, for: period), !force {
+                if let data = storage.chartHistory(period: period, for: tickerId), !strongSelf.hasExpired(history: data, for: period), !force {
                     return .just(.init(period: period, history: data.history))
                 } else {
                     debugLog("[CoinGecko] fetch chart history for tickerId: \(tickerId)")

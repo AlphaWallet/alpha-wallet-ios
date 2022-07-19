@@ -23,13 +23,6 @@ class AlphaWalletRemoteTickerIdsFetcher: TickerIdsFetcher {
     private let provider: TokenEntriesProvider
     private let tickerIdsFetcher: CoinGeckoTickerIdsFetcher
 
-    private lazy var tokenEntries: AnyPublisher<[TokenEntry], Never> = {
-        return provider.tokenEntries()
-            .replaceError(with: [])
-            .share(replay: 1) //TODO: not sure if it will work in case when we send a network call, it might share an error than
-            .eraseToAnyPublisher()
-    }()
-
     init(provider: TokenEntriesProvider, tickerIdsFetcher: CoinGeckoTickerIdsFetcher) {
         self.provider = provider
         self.tickerIdsFetcher = tickerIdsFetcher
@@ -39,9 +32,11 @@ class AlphaWalletRemoteTickerIdsFetcher: TickerIdsFetcher {
     func tickerId(for token: TokenMappedToTicker) -> AnyPublisher<TickerIdString?, Never> {
         return Just(token)
             .receive(on: DispatchQueue.global())
-            .flatMap { [unowned self] _ in tokenEntries }
-            .flatMap { [unowned self] in self.resolveTickerId(in: $0, for: token) }
-            .receive(on: RunLoop.main)
+            .flatMap { [provider] _ in provider.tokenEntries().replaceError(with: []) }
+            .flatMap { [weak self] entries -> AnyPublisher<TickerIdString?, Never> in
+                guard let strongSelf = self else { return .empty() }
+                return strongSelf.resolveTickerId(in: entries, for: token)
+            }.receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }
 
@@ -50,13 +45,14 @@ class AlphaWalletRemoteTickerIdsFetcher: TickerIdsFetcher {
             .map { token -> TokenEntry? in
                 let targetContract: Contract = .init(address: token.contractAddress.eip55String, chainId: token.server.chainID)
                 return tokenEntries.first(where: { entry in entry.contracts.contains(targetContract) })
-            }.flatMap { [unowned self] entry -> AnyPublisher<TickerIdString?, Never> in
+            }.flatMap { [weak self] entry -> AnyPublisher<TickerIdString?, Never> in
+                guard let strongSelf = self else { return .empty() }
                 guard let entry = entry else { return .just(nil) }
 
-                return self.lookupAnyTickerId(for: entry, token: token)
+                return strongSelf.lookupAnyTickerId(for: entry, token: token)
             }.eraseToAnyPublisher()
     }
-
+    /// Searches for non nil ticker id in token entries array, might be improved for large entries array.
     private func lookupAnyTickerId(for entry: TokenEntry, token: TokenMappedToTicker) -> AnyPublisher<TickerIdString?, Never> {
         let publishers = entry.contracts.compactMap { contract -> TokenMappedToTicker? in
             guard let contractAddress = AlphaWallet.Address(string: contract.address) else { return nil }
@@ -100,25 +96,30 @@ final class RemoteTokenEntriesProvider: TokenEntriesProvider {
 
 final class FileTokenEntriesProvider: TokenEntriesProvider {
     private let fileName: String
+    private var cachedTokenEntries: [TokenEntry] = []
 
     init(fileName: String) {
         self.fileName = fileName
     }
 
     func tokenEntries() -> AnyPublisher<[TokenEntry], PromiseError> {
-        do {
-            guard let bundlePath = Bundle.main.path(forResource: fileName, ofType: "json") else { throw TokenJsonReader.error.fileDoesNotExist }
-            guard let jsonData = try String(contentsOfFile: bundlePath).data(using: .utf8) else { throw TokenJsonReader.error.fileIsNotUtf8 }
+        if cachedTokenEntries.isEmpty {
             do {
-                let decodedTokenEntries = try JSONDecoder().decode([TokenEntry].self, from: jsonData)
-                return .just(decodedTokenEntries)
-            } catch DecodingError.dataCorrupted {
-                throw TokenJsonReader.error.fileCannotBeDecoded
+                guard let bundlePath = Bundle.main.path(forResource: fileName, ofType: "json") else { throw TokenJsonReader.error.fileDoesNotExist }
+                guard let jsonData = try String(contentsOfFile: bundlePath).data(using: .utf8) else { throw TokenJsonReader.error.fileIsNotUtf8 }
+                do {
+                    cachedTokenEntries = try JSONDecoder().decode([TokenEntry].self, from: jsonData)
+                    return .just(cachedTokenEntries)
+                } catch DecodingError.dataCorrupted {
+                    throw TokenJsonReader.error.fileCannotBeDecoded
+                } catch {
+                    throw TokenJsonReader.error.unknown(error)
+                }
             } catch {
-                throw TokenJsonReader.error.unknown(error)
+                return .fail(.some(error: error))
             }
-        } catch {
-            return .fail(.some(error: error))
+        } else {
+            return .just(cachedTokenEntries)
         }
     }
 }
