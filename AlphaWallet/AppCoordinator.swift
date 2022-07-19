@@ -38,7 +38,7 @@ class AppCoordinator: NSObject, Coordinator {
         return coordinators.first { $0 is ActiveWalletCoordinator } as? ActiveWalletCoordinator
     }
     private let localStore: LocalStore = RealmLocalStore()
-    private lazy var coinTickersFetcher: CoinTickersFetcherType = {
+    private lazy var coinTickersFetcher: CoinTickersFetcher = {
         let networkProvider: CoinGeckoNetworkProviderType
         let persistentStorage: StorageType
 

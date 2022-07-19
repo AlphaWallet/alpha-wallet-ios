@@ -34,7 +34,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         guard Features.default.isAvailable(.isActivityEnabled) else { return nil }
         return EventSourceCoordinatorForActivities(wallet: wallet, config: config, tokensDataStore: tokensDataStore, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsActivityDataStore)
     }()
-    private let coinTickersFetcher: CoinTickersFetcherType
+    private let coinTickersFetcher: CoinTickersFetcher
 
     lazy var tokensDataStore: TokensDataStore & DetectedContractsProvideble = {
         return MultipleChainsTokensDataStore(store: localStore.getOrCreateStore(forWallet: wallet), servers: config.enabledServers)
@@ -169,7 +169,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
             universalLinkCoordinator: UniversalLinkService,
             accountsCoordinator: AccountsCoordinator,
             walletBalanceService: WalletBalanceService,
-            coinTickersFetcher: CoinTickersFetcherType,
+            coinTickersFetcher: CoinTickersFetcher,
             tokenActionsService: TokenActionsService,
             walletConnectCoordinator: WalletConnectCoordinator,
             sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never> = .init(.init()),

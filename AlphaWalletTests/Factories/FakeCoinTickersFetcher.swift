@@ -11,7 +11,7 @@ import Combine
 import AlphaWalletCore
 
 extension CoinGeckoTickersFetcher {
-    static func make(config: Config = .make()) -> CoinTickersFetcherType {
+    static func make(config: Config = .make()) -> CoinTickersFetcher {
         let networkProvider: CoinGeckoNetworkProviderType = FakeCoinGeckoNetworkProvider()
         let persistentStorage: StorageType = try! FileStorage.forTestSuite(folder: "testSuiteForTickersStorage", fileExtension: "json")
 

@@ -30,14 +30,14 @@ class MultipleChainsTokenCollection: NSObject, TokenCollection {
     private let queue = DispatchQueue(label: "com.MultipleChainsTokenCollection.updateQueue")
     private let refreshSubject = PassthroughSubject<Void, Never>.init()
     private var cancelable = Set<AnyCancellable>()
-    private let coinTickersFetcher: CoinTickersFetcherType
+    private let coinTickersFetcher: CoinTickersFetcher
 
     let tokensDataStore: TokensDataStore & DetectedContractsProvideble
     var tokensViewModel: AnyPublisher<TokensViewModel, Never> {
         tokensViewModelSubject.eraseToAnyPublisher()
     }
 
-    init(tokensFilter: TokensFilter, tokensDataStore: TokensDataStore & DetectedContractsProvideble, config: Config, coinTickersFetcher: CoinTickersFetcherType) {
+    init(tokensFilter: TokensFilter, tokensDataStore: TokensDataStore & DetectedContractsProvideble, config: Config, coinTickersFetcher: CoinTickersFetcher) {
         self.tokensFilter = tokensFilter
         self.tokensDataStore = tokensDataStore
         self.coinTickersFetcher = coinTickersFetcher

@@ -5,8 +5,6 @@
 //  Created by Vladyslav Shepitko on 11.06.2021.
 //
 
-import Foundation
-import PromiseKit
 import Combine
 import AlphaWalletCore
 

@@ -1,16 +1,14 @@
 //
-//  CoinTickersFetcherType.swift
+//  CoinTickersFetcher.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 27.01.2021.
 //
 
-import PromiseKit
-import Moya
 import Combine
 import Foundation
 
-protocol CoinTickersFetcherType: AnyObject {
+protocol CoinTickersFetcher: AnyObject {
     var tickersDidUpdate: AnyPublisher<Void, Never> { get }
     var updateTickerId: AnyPublisher<(tickerId: TickerIdString, key: AddressAndRPCServer), Never> { get }
     

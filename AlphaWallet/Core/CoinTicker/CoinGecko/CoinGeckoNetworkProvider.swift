@@ -55,7 +55,7 @@ class CoinGeckoNetworkProvider: CoinGeckoNetworkProviderType {
         var page = 1
         var allResults: [CoinTicker] = .init()
         func fetchPageImpl() -> AnyPublisher<[CoinTicker], CoinGeckoNetworkProviderError> {
-            self.fetchPricesPage(for: tickerIds, page: page, shouldRetry: true)
+            fetchPricesPage(for: tickerIds, page: page, shouldRetry: true)
                 .flatMap { results -> AnyPublisher<[CoinTicker], CoinGeckoNetworkProviderError> in
                     if results.isEmpty {
                         return .just(allResults)

@@ -45,7 +45,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     private let assetDefinitionStore: AssetDefinitionStore
     private var balanceFetchers: AtomicDictionary<RPCServer, PrivateBalanceFetcherType> = .init()
     private let queue: DispatchQueue
-    private let coinTickersFetcher: CoinTickersFetcherType
+    private let coinTickersFetcher: CoinTickersFetcher
     let tokensDataStore: TokensDataStore
     private let nftProvider: NFTProvider
     private let transactionsStorage: TransactionDataStore
@@ -67,7 +67,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         return walletBalanceSubject.value
     }
 
-    init(wallet: Wallet, servers: [RPCServer], tokensDataStore: TokensDataStore, transactionsStorage: TransactionDataStore, nftProvider: NFTProvider, config: Config, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, queue: DispatchQueue, coinTickersFetcher: CoinTickersFetcherType) {
+    init(wallet: Wallet, servers: [RPCServer], tokensDataStore: TokensDataStore, transactionsStorage: TransactionDataStore, nftProvider: NFTProvider, config: Config, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, queue: DispatchQueue, coinTickersFetcher: CoinTickersFetcher) {
         self.wallet = wallet
         self.nftProvider = nftProvider
         self.assetDefinitionStore = assetDefinitionStore

@@ -73,7 +73,7 @@ class TokensCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: TokensCoordinatorDelegate?
 
-    private let coinTickersFetcher: CoinTickersFetcherType
+    private let coinTickersFetcher: CoinTickersFetcher
     lazy var rootViewController: TokensViewController = {
         return tokensViewController
     }()
@@ -105,7 +105,7 @@ class TokensCoordinator: Coordinator {
             openSea: OpenSea,
             tokenActionsService: TokenActionsService,
             walletConnectCoordinator: WalletConnectCoordinator,
-            coinTickersFetcher: CoinTickersFetcherType,
+            coinTickersFetcher: CoinTickersFetcher,
             activitiesService: ActivitiesServiceType,
             walletBalanceService: WalletBalanceService,
             tokenCollection: TokenCollection,
