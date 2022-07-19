@@ -98,6 +98,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         dollarCostLabelLabel.translatesAutoresizingMaskIntoConstraints = false
         dollarCostLabel.translatesAutoresizingMaskIntoConstraints = false
         pricePerTokenField.translatesAutoresizingMaskIntoConstraints = false
+        pricePerTokenField.selectCurrencyButton.hasToken = true
 
         walletSession
             .tokenBalanceService
