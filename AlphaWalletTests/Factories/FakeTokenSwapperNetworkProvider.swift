@@ -10,15 +10,15 @@ import Combine
 import BigInt
 
 final class FakeTokenSwapperNetworkProvider: TokenSwapperNetworkProvider {
-    func fetchSupportedChains() -> AnyPublisher<[RPCServer], DataRequestError> {
+    func fetchSupportedChains() -> AnyPublisher<[RPCServer], PromiseError> {
         return Just<[RPCServer]>([])
-            .setFailureType(to: DataRequestError.self)
+            .setFailureType(to: PromiseError.self)
             .eraseToAnyPublisher()
     }
 
-    func fetchSupportedTokens(forServer server: RPCServer) -> AnyPublisher<SwapPairs, DataRequestError> {
+    func fetchSupportedTokens(forServer server: RPCServer) -> AnyPublisher<SwapPairs, PromiseError> {
         return Just<SwapPairs>(.init(connections: .init(connections: [])))
-            .setFailureType(to: DataRequestError.self)
+            .setFailureType(to: PromiseError.self)
             .eraseToAnyPublisher()
     }
     func fetchSwapQuote(fromToken: TokenToSwap, toToken: TokenToSwap, wallet: AlphaWallet.Address, slippage: Double, fromAmount: BigUInt) -> AnyPublisher<SwapQuote, SwapError> {

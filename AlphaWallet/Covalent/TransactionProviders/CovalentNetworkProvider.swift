@@ -13,7 +13,7 @@ import APIKit
 extension Covalent {
     enum CovalentError: Error {
         case jsonDecodeFailure
-        case requestFailure(DataRequestError)
+        case requestFailure(PromiseError)
         case sessionError(SessionTaskError)
     }
 
@@ -29,7 +29,7 @@ extension Covalent {
                     guard let rawJson = response.json as? [String: Any] else { throw CovalentError.jsonDecodeFailure }
                     return try TransactionsResponse(json: JSON(rawJson))
                 }
-                .mapError { return CovalentError.requestFailure(.general(error: $0)) }
+                .mapError { return CovalentError.requestFailure(.some(error: $0)) }
                 .eraseToAnyPublisher()
         }
 
@@ -42,7 +42,7 @@ extension Covalent {
                     guard let rawJson = response.json as? [String: Any] else { throw CovalentError.jsonDecodeFailure }
                     return try BalancesResponse(json: JSON(rawJson))
                 }
-                .mapError { return CovalentError.requestFailure(.general(error: $0)) }
+                .mapError { return CovalentError.requestFailure(.some(error: $0)) }
                 .eraseToAnyPublisher()
         }
     }

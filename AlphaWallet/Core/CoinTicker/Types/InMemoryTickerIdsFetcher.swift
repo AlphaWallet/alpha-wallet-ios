@@ -11,7 +11,7 @@ import CombineExt
 
 /// Provides tokens groups
 protocol TokenEntriesProvider {
-    func tokenEntries() -> AnyPublisher<[TokenEntry], DataRequestError>
+    func tokenEntries() -> AnyPublisher<[TokenEntry], PromiseError>
 }
 
 /// Looks up for tokens groups, and searches for each token matched in group to resolve ticker id. We know that tokens in group relate to same coin, on different chaing.
@@ -91,7 +91,7 @@ class InMemoryTickerIdsFetcher: TickerIdsFetcher {
 
 //TODO: Future impl for remote TokenEntries provider
 final class RemoteTokenEntriesProvider: TokenEntriesProvider {
-    func tokenEntries() -> AnyPublisher<[TokenEntry], DataRequestError> {
+    func tokenEntries() -> AnyPublisher<[TokenEntry], PromiseError> {
         return .just([])
             .share()
             .eraseToAnyPublisher()
@@ -105,7 +105,7 @@ final class FileTokenEntriesProvider: TokenEntriesProvider {
         self.fileName = fileName
     }
 
-    func tokenEntries() -> AnyPublisher<[TokenEntry], DataRequestError> {
+    func tokenEntries() -> AnyPublisher<[TokenEntry], PromiseError> {
         do {
             guard let bundlePath = Bundle.main.path(forResource: fileName, ofType: "json") else { throw TokenJsonReader.error.fileDoesNotExist }
             guard let jsonData = try String(contentsOfFile: bundlePath).data(using: .utf8) else { throw TokenJsonReader.error.fileIsNotUtf8 }
@@ -118,7 +118,7 @@ final class FileTokenEntriesProvider: TokenEntriesProvider {
                 throw TokenJsonReader.error.unknown(error)
             }
         } catch {
-            return .fail(.general(error: error))
+            return .fail(.some(error: error))
         }
     }
 }

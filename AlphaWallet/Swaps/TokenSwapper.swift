@@ -7,7 +7,7 @@ import AlphaWalletAddress
 
 class TokenSwapper: ObservableObject {
     private var store: TokenSwapperStore = InMemoryTokenSwapperStore()
-    private var pendingFetchSupportedServersPublisher: AnyPublisher<[RPCServer], DataRequestError>?
+    private var pendingFetchSupportedServersPublisher: AnyPublisher<[RPCServer], PromiseError>?
     private let sessions: AnyPublisher<ServerDictionary<WalletSession>, Never>
     private var cancelable = Set<AnyCancellable>()
     private var reloadSubject = PassthroughSubject<Void, Never>()
@@ -70,7 +70,7 @@ class TokenSwapper: ObservableObject {
             return Just(server).eraseToAnyPublisher()
         } else {
             return fetchSupportedChains()
-                .flatMap { _ -> AnyPublisher<SwapPairs, DataRequestError> in
+                .flatMap { _ -> AnyPublisher<SwapPairs, PromiseError> in
                     if self.store.supports(forServer: server) {
                         return self.networkProvider.fetchSupportedTokens(forServer: server)
                     } else {
@@ -107,7 +107,7 @@ class TokenSwapper: ObservableObject {
             .eraseToAnyPublisher()
     }
 
-    @discardableResult private func fetchSupportedChains() -> AnyPublisher<[RPCServer], DataRequestError> {
+    @discardableResult private func fetchSupportedChains() -> AnyPublisher<[RPCServer], PromiseError> {
         if let pendingPublisher = pendingFetchSupportedServersPublisher { return pendingPublisher }
 
         let publisher = networkProvider.fetchSupportedChains()

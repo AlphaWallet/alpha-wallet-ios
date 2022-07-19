@@ -12,8 +12,8 @@ import Alamofire
 import BigInt
 
 protocol TokenSwapperNetworkProvider {
-    func fetchSupportedChains() -> AnyPublisher<[RPCServer], DataRequestError>
-    func fetchSupportedTokens(forServer server: RPCServer) -> AnyPublisher<SwapPairs, DataRequestError>
+    func fetchSupportedChains() -> AnyPublisher<[RPCServer], PromiseError>
+    func fetchSupportedTokens(forServer server: RPCServer) -> AnyPublisher<SwapPairs, PromiseError>
     func fetchSwapQuote(fromToken: TokenToSwap, toToken: TokenToSwap, wallet: AlphaWallet.Address, slippage: Double, fromAmount: BigUInt) -> AnyPublisher<SwapQuote, SwapError>
 }
 
@@ -24,7 +24,7 @@ final class LiQuestTokenSwapperNetworkProvider: TokenSwapperNetworkProvider {
         static let fetchSupportedChains = URL(string: "https://li.quest/v1/chains")!
     }
 
-    func fetchSupportedChains() -> AnyPublisher<[RPCServer], DataRequestError> {
+    func fetchSupportedChains() -> AnyPublisher<[RPCServer], PromiseError> {
         return Alamofire.request(LiQuestTokenSwapperNetworkProvider.Url.fetchSupportedChains).validate()
             .responseJSONPublisher()
             .map { rawJson, _ -> [RPCServer] in
@@ -33,7 +33,7 @@ final class LiQuestTokenSwapperNetworkProvider: TokenSwapperNetworkProvider {
             }.eraseToAnyPublisher()
     }
 
-    func fetchSupportedTokens(forServer server: RPCServer) -> AnyPublisher<SwapPairs, DataRequestError> {
+    func fetchSupportedTokens(forServer server: RPCServer) -> AnyPublisher<SwapPairs, PromiseError> {
         let parameters: [String: Any] = [
             "fromChain": server.chainID,
             "toChain": server.chainID,

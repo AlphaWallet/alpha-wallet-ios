@@ -62,7 +62,7 @@ extension MoyaProvider {
     }
 }
 
-enum PromiseError: Error {
+public enum PromiseError: Error {
     case some(error: Error)
 }
 
