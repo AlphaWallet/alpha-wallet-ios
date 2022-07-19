@@ -265,7 +265,9 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     }
 
     private func donateWalletShortcut() {
-        WalletQrCodeDonation(address: wallet.address).donate()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            WalletQrCodeDonation(address: self.wallet.address).donate()
+        }
     }
 
     func didFinishBackup(account: AlphaWallet.Address) {
