@@ -38,7 +38,7 @@ class NumberStepper: UIControl {
     public var buttonsBackgroundColor: UIColor = .clear {
         didSet {
             for button in [leftButton, rightButton] {
-                button.setBackgroundColor(buttonsBackgroundColor, forState: .normal)
+                button.setBackgroundColor(buttonsBackgroundColor, forState: .normal, darkModeEnabled: false)
             }
             backgroundColor = buttonsBackgroundColor
         }
@@ -77,7 +77,7 @@ class NumberStepper: UIControl {
 		button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("-", for: .normal)
         button.setTitleColor(buttonsTextColor, for: .normal)
-        button.setBackgroundColor(buttonsBackgroundColor, forState: .normal)
+        button.setBackgroundColor(buttonsBackgroundColor, forState: .normal, darkModeEnabled: false)
         button.titleLabel?.font = buttonsFont
         button.addTarget(self, action: #selector(rightButtonTouchDown), for: .touchDown)
         button.addTarget(self, action: #selector(buttonTouchUp), for: .touchUpInside)
@@ -91,7 +91,7 @@ class NumberStepper: UIControl {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("+", for: .normal)
         button.setTitleColor(buttonsTextColor, for: .normal)
-        button.setBackgroundColor(buttonsBackgroundColor, forState: .normal)
+        button.setBackgroundColor(buttonsBackgroundColor, forState: .normal, darkModeEnabled: false)
         button.titleLabel?.font = buttonsFont
         button.addTarget(self, action: #selector(leftButtonTouchDown), for: .touchDown)
         button.addTarget(self, action: #selector(buttonTouchUp), for: .touchUpInside)

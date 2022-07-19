@@ -50,7 +50,7 @@ class AddressTextField: UIControl {
         button.setTitle(R.string.localizable.sendPasteButtonTitle(), for: .normal)
         button.titleLabel?.font = DataEntry.Font.accessory
         button.setTitleColor(DataEntry.Color.icon, for: .normal)
-        button.setBackgroundColor(.clear, forState: .normal)
+        button.setBackgroundColor(.clear, forState: .normal, darkModeEnabled: false)
         button.contentHorizontalAlignment = .right
         button.heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
         button.setContentHuggingPriority(.required, for: .horizontal)
@@ -67,7 +67,7 @@ class AddressTextField: UIControl {
         button.setTitle(R.string.localizable.clearButtonTitle(), for: .normal)
         button.titleLabel?.font = DataEntry.Font.accessory
         button.setTitleColor(DataEntry.Color.icon, for: .normal)
-        button.setBackgroundColor(.clear, forState: .normal)
+        button.setBackgroundColor(.clear, forState: .normal, darkModeEnabled: false)
         button.contentHorizontalAlignment = .right
         button.heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
         button.setContentHuggingPriority(.required, for: .horizontal)
@@ -274,7 +274,7 @@ class AddressTextField: UIControl {
         scanQRCodeButton.translatesAutoresizingMaskIntoConstraints = false
         scanQRCodeButton.setImage(R.image.qr_code_icon(), for: .normal)
         scanQRCodeButton.addTarget(self, action: #selector(openReader), for: .touchUpInside)
-        scanQRCodeButton.setBackgroundColor(.clear, forState: .normal)
+        scanQRCodeButton.setBackgroundColor(.clear, forState: .normal, darkModeEnabled: false)
         //NOTE: Fix clipped shadow on textField (iPhone 5S)
         scanQRCodeButton.clipsToBounds = false
         scanQRCodeButton.layer.masksToBounds = false

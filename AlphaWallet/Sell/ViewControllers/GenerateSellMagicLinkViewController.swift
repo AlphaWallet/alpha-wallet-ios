@@ -145,13 +145,13 @@ class GenerateSellMagicLinkViewController: UIViewController {
             detailsBackground.backgroundColor = viewModel.detailsBackgroundBackgroundColor
 
             actionButton.setTitleColor(viewModel.actionButtonTitleColor, for: .normal)
-            actionButton.setBackgroundColor(viewModel.actionButtonBackgroundColor, forState: .normal)
+            actionButton.setBackgroundColor(viewModel.actionButtonBackgroundColor, forState: .normal, darkModeEnabled: false)
             actionButton.titleLabel?.font = viewModel.actionButtonTitleFont
             actionButton.setTitle(viewModel.actionButtonTitle, for: .normal)
             actionButton.cornerRadius = Metrics.CornerRadius.button
 
             cancelButton.setTitleColor(viewModel.cancelButtonTitleColor, for: .normal)
-            cancelButton.setBackgroundColor(viewModel.cancelButtonBackgroundColor, forState: .normal)
+            cancelButton.setBackgroundColor(viewModel.cancelButtonBackgroundColor, forState: .normal, darkModeEnabled: false)
             cancelButton.titleLabel?.font = viewModel.cancelButtonTitleFont
             cancelButton.setTitle(viewModel.cancelButtonTitle, for: .normal)
             cancelButton.layer.masksToBounds = true

@@ -43,9 +43,9 @@ class TokenHistoryPeriodSelectorView: UIView {
             button.setTitleColor(viewModel.selectedStateTextColor, for: .highlighted)
             button.setTitleColor(viewModel.normalStateTextColor, for: .normal)
 
-            button.setBackgroundColor(viewModel.selectedStateBackgroundColor, forState: .selected)
-            button.setBackgroundColor(viewModel.selectedStateBackgroundColor, forState: .highlighted)
-            button.setBackgroundColor(viewModel.normalStateBackgroundColor, forState: .normal)
+            button.setBackgroundColor(viewModel.selectedStateBackgroundColor, forState: .selected, darkModeEnabled: false)
+            button.setBackgroundColor(viewModel.selectedStateBackgroundColor, forState: .highlighted, darkModeEnabled: false)
+            button.setBackgroundColor(viewModel.normalStateBackgroundColor, forState: .normal, darkModeEnabled: false)
 
             button.layer.cornerRadius = 5
             button.clipsToBounds = true

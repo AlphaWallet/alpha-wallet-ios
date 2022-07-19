@@ -188,7 +188,7 @@ public enum StopAnimationStyle {
         animation4.timingFunction = shrinkCurve
         animation4.isRemovedOnCompletion = false
 
-        setBackgroundColor(shrinkBackgroundColor, forState: .normal)
+        setBackgroundColor(shrinkBackgroundColor, forState: .normal, darkModeEnabled: false)
 
         CATransaction.animate(block: {
             layer.add(animation1, forKey: animation1.keyPath)

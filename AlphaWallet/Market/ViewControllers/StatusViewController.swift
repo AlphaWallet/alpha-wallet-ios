@@ -108,7 +108,7 @@ class StatusViewController: UIViewController {
 			titleLabel.text = viewModel.titleLabelText
 
 			actionButton.setTitleColor(viewModel.actionButtonTitleColor, for: .normal)
-			actionButton.setBackgroundColor(viewModel.actionButtonBackgroundColor, forState: .normal)
+            actionButton.setBackgroundColor(viewModel.actionButtonBackgroundColor, forState: .normal, darkModeEnabled: false)
 			actionButton.titleLabel?.font = viewModel.actionButtonTitleFont
 			actionButton.setTitle(viewModel.actionButtonTitle, for: .normal)
 			actionButton.layer.masksToBounds = true

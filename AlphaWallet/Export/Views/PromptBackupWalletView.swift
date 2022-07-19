@@ -75,7 +75,7 @@ class PromptBackupWalletView: UIView {
 
         backupButton.tintColor = viewModel.backupButtonTitleColor
         backupButton.titleLabel?.font = viewModel.backupButtonTitleFont
-        backupButton.setBackgroundColor(viewModel.backupButtonBackgroundColor, forState: .normal)
+        backupButton.setBackgroundColor(viewModel.backupButtonBackgroundColor, forState: .normal, darkModeEnabled: false)
         backupButton.setTitleColor(viewModel.backupButtonTitleColor, for: .normal)
         backupButton.setTitle(viewModel.backupButtonTitle, for: .normal)
         backupButton.setImage(viewModel.backupButtonImage, for: .normal)

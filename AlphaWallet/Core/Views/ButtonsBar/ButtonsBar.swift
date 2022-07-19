@@ -214,10 +214,10 @@ class HorizontalButtonsBar: UIView, ButtonsBarViewType {
         view.configureShadow(color: viewModel.buttonShadowColor, offset: viewModel.buttonShadowOffset, opacity: viewModel.buttonShadowOpacity, radius: viewModel.buttonShadowRadius, cornerRadius: viewModel.buttonCornerRadius)
 
         let button = view.childView
-        button.setBackgroundColor(viewModel.buttonBackgroundColor, forState: .normal)
-        button.setBackgroundColor(viewModel.disabledButtonBackgroundColor, forState: .disabled)
+        button.setBackgroundColor(viewModel.buttonBackgroundColor, forState: .normal, darkModeEnabled: false)
+        button.setBackgroundColor(viewModel.disabledButtonBackgroundColor, forState: .disabled, darkModeEnabled: false)
 
-        viewModel.highlightedButtonBackgroundColor.flatMap { button.setBackgroundColor($0, forState: .highlighted) }
+        viewModel.highlightedButtonBackgroundColor.flatMap { button.setBackgroundColor($0, forState: .highlighted, darkModeEnabled: false) }
         viewModel.highlightedButtonTitleColor.flatMap { button.setTitleColor($0, for: .highlighted) }
 
         button.setTitleColor(viewModel.buttonTitleColor, for: .normal)
