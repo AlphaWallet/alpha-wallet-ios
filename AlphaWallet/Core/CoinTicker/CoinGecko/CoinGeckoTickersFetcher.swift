@@ -11,10 +11,9 @@ import Foundation
 final class CoinGeckoTickersFetcher: CoinTickersFetcherType {
     private let pricesCacheLifetime: TimeInterval = 60 * 60
     private let dayChartHistoryCacheLifetime: TimeInterval = 60 * 60
-    private let config: Config
     private let storage: CoinTickersStorage & ChartHistoryStorage & TickerIdsStorage
     private let networkProvider: CoinGeckoNetworkProviderType
-    private let tickerIdsFetcher: TickerIdsFetcherImpl
+    private let tickerIdsFetcher: TickerIdsFetcher
     /// Cached fetch ticker prices operations
     private var promises: AtomicDictionary<TokenMappedToTicker, AnyCancellable> = .init()
     /// Ticker last update dates
@@ -30,17 +29,9 @@ final class CoinGeckoTickersFetcher: CoinTickersFetcherType {
         storage.updateTickerId
     }
 
-    init(networkProvider: CoinGeckoNetworkProviderType, config: Config, storage: CoinTickersStorage & ChartHistoryStorage & TickerIdsStorage) {
+    init(networkProvider: CoinGeckoNetworkProviderType, storage: CoinTickersStorage & ChartHistoryStorage & TickerIdsStorage, tickerIdsFetcher: TickerIdsFetcher) {
         self.networkProvider = networkProvider
-        let coinGeckoTickerIdsFetcher = CoinGeckoTickerIdsFetcher(networkProvider: networkProvider, storage: storage, config: config)
-        let fileTokenEntriesProvider = FileTokenEntriesProvider(fileName: "tokens_2")
-
-        self.tickerIdsFetcher = TickerIdsFetcherImpl(providers: [
-            InMemoryTickerIdsFetcher(storage: storage),
-            coinGeckoTickerIdsFetcher,
-            AlphaWalletRemoteTickerIdsFetcher(provider: fileTokenEntriesProvider, tickerIdsFetcher: coinGeckoTickerIdsFetcher)
-        ])
-        self.config = config
+        self.tickerIdsFetcher = tickerIdsFetcher
         self.storage = storage
     }
 

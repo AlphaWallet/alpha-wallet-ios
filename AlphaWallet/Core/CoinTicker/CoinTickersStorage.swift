@@ -40,15 +40,13 @@ class CoinTickersFileStorage: NSObject {
     private let tickersStore: Storage<[AssignedCoinTickerId: CoinTicker]>
     private let allTickersIdsStore: Storage<[TickerId]>
     private let knownTickersIdsStore: Storage<[AddressAndRPCServer: TickerIdString]>
-    private var config: Config
     private let updateTickerIdSubject: PassthroughSubject<(tickerId: TickerIdString, key: AddressAndRPCServer), Never> = .init()
 
-    init(config: Config) {
-        self.config = config
-        historyStore = .init(fileName: "history", storage: FileStorage(fileExtension: "json"), defaultValue: [:])
-        allTickersIdsStore = .init(fileName: "tickersIds", storage: FileStorage(fileExtension: "json"), defaultValue: [])
-        tickersStore = .init(fileName: "tickers", storage: FileStorage(fileExtension: "json"), defaultValue: [:])
-        knownTickersIdsStore = .init(fileName: "knownTickersIds", storage: FileStorage(fileExtension: "json"), defaultValue: [:])
+    init(config: Config, storage: StorageType) {
+        historyStore = .init(fileName: "history", storage: storage, defaultValue: [:])
+        allTickersIdsStore = .init(fileName: "tickersIds", storage: storage, defaultValue: [])
+        tickersStore = .init(fileName: "tickers", storage: storage, defaultValue: [:])
+        knownTickersIdsStore = .init(fileName: "knownTickersIds", storage: storage, defaultValue: [:])
         super.init()
         CoinTickersFileStorage.migrateTickerIdsFrom_v1To_v2(config: config, storage: self)
     }

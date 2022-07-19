@@ -3,6 +3,7 @@
 import Combine
 import UIKit
 import PromiseKit
+import AlphaWalletCore
 
 class AppCoordinator: NSObject, Coordinator {
     private let config = Config()
@@ -39,14 +40,27 @@ class AppCoordinator: NSObject, Coordinator {
     private let localStore: LocalStore = RealmLocalStore()
     private lazy var coinTickersFetcher: CoinTickersFetcherType = {
         let networkProvider: CoinGeckoNetworkProviderType
+        let persistentStorage: StorageType
+
         if isRunningTests() {
             networkProvider = FakeCoinGeckoNetworkProvider()
+            persistentStorage = try! FileStorage.forTestSuite(folder: "testSuiteForTickersStorage", fileExtension: "json")
         } else {
             networkProvider = CoinGeckoNetworkProvider(provider: AlphaWalletProviderFactory.makeProvider())
+            persistentStorage = FileStorage(fileExtension: "json")
         }
-        let storage = CoinTickersFileStorage(config: config)
 
-        return CoinGeckoTickersFetcher(networkProvider: networkProvider, config: config, storage: storage)
+        let storage: CoinTickersStorage & ChartHistoryStorage & TickerIdsStorage = CoinTickersFileStorage(config: config, storage: persistentStorage)
+        let coinGeckoTickerIdsFetcher = CoinGeckoTickerIdsFetcher(networkProvider: networkProvider, storage: storage, config: config)
+        let fileTokenEntriesProvider = FileTokenEntriesProvider(fileName: "tokens_2")
+
+        let tickerIdsFetcher: TickerIdsFetcher = TickerIdsFetcherImpl(providers: [
+            InMemoryTickerIdsFetcher(storage: storage),
+            coinGeckoTickerIdsFetcher,
+            AlphaWalletRemoteTickerIdsFetcher(provider: fileTokenEntriesProvider, tickerIdsFetcher: coinGeckoTickerIdsFetcher)
+        ])
+
+        return CoinGeckoTickersFetcher(networkProvider: networkProvider, storage: storage, tickerIdsFetcher: tickerIdsFetcher)
     }()
     private lazy var walletBalanceService: WalletBalanceService = {
         return MultiWalletBalanceService(store: localStore, keystore: keystore, config: config, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsService, coinTickersFetcher: coinTickersFetcher, walletAddressesStore: walletAddressesStore)
