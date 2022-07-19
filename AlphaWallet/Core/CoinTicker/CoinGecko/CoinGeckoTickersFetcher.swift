@@ -106,25 +106,31 @@ final class CoinGeckoTickersFetcher: CoinTickersFetcherType {
         let publishers = periods.map { fetchChartHistory(force: force, period: $0, for: token) }
 
         return Publishers.MergeMany(publishers).collect()
-            .map { $0 }
+            .map { $0.reorder(by: periods).map { $0.history } }
             .eraseToAnyPublisher()
     }
 
-    private func fetchChartHistory(force: Bool, period: ChartHistoryPeriod, for token: TokenMappedToTicker) -> AnyPublisher<ChartHistory, Never> {
+    struct HistoryToPeriod {
+        let period: ChartHistoryPeriod
+        let history: ChartHistory
+    }
+
+    private func fetchChartHistory(force: Bool, period: ChartHistoryPeriod, for token: TokenMappedToTicker) -> AnyPublisher<HistoryToPeriod, Never> {
         return tickerIdsFetcher.tickerId(for: token)
-            .flatMap { [storage, networkProvider, unowned self] tickerId -> AnyPublisher<ChartHistory, Never> in
+            .flatMap { [storage, networkProvider, unowned self] tickerId -> AnyPublisher<HistoryToPeriod, Never> in
                 guard let tickerId = tickerId.flatMap({ AssignedCoinTickerId(tickerId: $0, token: token) }) else {
-                    return .just(.empty)
+                    return .just(.init(period: period, history: .empty))
                 }
 
                 if let data = storage.chartHistory(period: period, for: tickerId), !self.hasExpired(history: data, for: period), !force {
-                    return .just(data.history)
+                    return .just(.init(period: period, history: data.history))
                 } else {
                     debugLog("[CoinGecko] fetch chart history for tickerId: \(tickerId)")
                     return networkProvider.fetchChartHistory(for: period, tickerId: tickerId.tickerId)
                         .handleEvents(receiveOutput: { history in
                             storage.addOrUpdateChartHistory(history: history, period: period, for: tickerId)
                         }).replaceError(with: .empty)
+                        .map { HistoryToPeriod(period: period, history: $0) }
                         .receive(on: RunLoop.main)
                         .eraseToAnyPublisher()
                 }
@@ -184,5 +190,32 @@ final class CoinGeckoTickersFetcher: CoinTickersFetcherType {
                 }.eraseToAnyPublisher()
             }.receive(on: RunLoop.main)
             .eraseToAnyPublisher()
+    }
+}
+
+extension CoinGeckoTickersFetcher.HistoryToPeriod: Reorderable {
+    typealias OrderElement = ChartHistoryPeriod
+    var orderElement: ChartHistoryPeriod { return period }
+}
+
+protocol Reorderable {
+    associatedtype OrderElement: Equatable
+    var orderElement: OrderElement { get }
+}
+
+extension Array where Element: Reorderable {
+
+    func reorder(by preferredOrder: [Element.OrderElement]) -> [Element] {
+        sorted {
+            guard let first = preferredOrder.firstIndex(of: $0.orderElement) else {
+                return false
+            }
+
+            guard let second = preferredOrder.firstIndex(of: $1.orderElement) else {
+                return true
+            }
+
+            return first < second
+        }
     }
 }

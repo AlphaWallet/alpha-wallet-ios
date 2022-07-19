@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SwiftyJSON
 
 enum ChartHistoryPeriod: Int, CaseIterable, Codable {
     case day = 1
@@ -55,20 +56,20 @@ struct MappedChartHistory: Codable {
     let fetchDate: Date
 }
 
-struct ChartHistory: Codable, CustomDebugStringConvertible {
+struct ChartHistory {
+    static var empty: ChartHistory = .init(prices: [])
 
+    let prices: [HistoryValue]
+}
+
+extension ChartHistory: Codable, CustomDebugStringConvertible {
     private enum CodingKeys: String, CodingKey {
         case prices
     }
 
-    let prices: [HistoryValue]
-
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-
-        prices = container.decode([[Double]].self, forKey: .prices, defaultValue: []).map { value -> HistoryValue in
-            return .init(timestamp: value[0] / 1000.0, value: value[1])
-        }
+        prices = try container.decode([HistoryValue].self, forKey: .prices)
     }
 
     func encode(to encoder: Encoder) throws {
@@ -76,13 +77,24 @@ struct ChartHistory: Codable, CustomDebugStringConvertible {
         try container.encode(prices, forKey: .prices)
     }
 
-    init(prices: [HistoryValue]) {
-        self.prices = prices
-    }
-
-    static var empty: ChartHistory = .init(prices: [])
-
     var debugDescription: String {
         return "prices: \(prices.count)"
+    }
+}
+
+extension ChartHistory {
+    enum DecodingError: Error {
+        case jsonDecodeFailure
+    }
+
+    init(json: JSON) throws {
+        guard json["prices"].null == nil else { throw DecodingError.jsonDecodeFailure }
+
+        prices = json["prices"].arrayValue.map { json -> HistoryValue in
+            let timestamp = json.arrayValue[0].numberValue.doubleValue / 1000.0
+            let value = json.arrayValue[1].numberValue.doubleValue
+
+            return HistoryValue(timestamp: timestamp, value: value)
+        }
     }
 }
