@@ -23,7 +23,7 @@ class EtherKeystoreTests: XCTestCase {
     }
 
     func testEmptyPassword() throws {
-        let keystore = try LegacyFileBasedKeystore(keystore: FakeKeystore())
+        let keystore = try LegacyFileBasedKeystore(keystore: FakeEtherKeystore())
         let password = keystore.getPassword(for: .make())
         XCTAssertNil(password)
     }

@@ -237,7 +237,6 @@
 		29FF12F61F74799D00AFD326 /* NSAttributedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FF12F51F74799D00AFD326 /* NSAttributedString.swift */; };
 		29FF12F81F747D6C00AFD326 /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FF12F71F747D6C00AFD326 /* Error.swift */; };
 		29FF12FB1F74CC8200AFD326 /* EthereumAddressValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FF12FA1F74CC8200AFD326 /* EthereumAddressValidator.swift */; };
-		29FF13011F75EAD900AFD326 /* FakeKeystore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FF13001F75EAD900AFD326 /* FakeKeystore.swift */; };
 		29FF13081F75F0AE00AFD326 /* AppCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FF13071F75F0AE00AFD326 /* AppCoordinatorTests.swift */; };
 		29FF130A1F75F67200AFD326 /* Address.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FF13091F75F67200AFD326 /* Address.swift */; };
 		29FF130D1F7626E800AFD326 /* FakeNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FF130C1F7626E800AFD326 /* FakeNavigationController.swift */; };
@@ -992,6 +991,7 @@
 		877581B32886E81300701808 /* FakeCoinTickersFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877581B22886E81300701808 /* FakeCoinTickersFetcher.swift */; };
 		877581B728886D3200701808 /* NonFungibleJsonBalanceFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877581B628886D3100701808 /* NonFungibleJsonBalanceFetcher.swift */; };
 		877581B928886D5400701808 /* NonFungibleErc1155JsonBalanceFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877581B828886D5400701808 /* NonFungibleErc1155JsonBalanceFetcher.swift */; };
+		877581B52887F91400701808 /* FakeWalletAddressStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877581B42887F91400701808 /* FakeWalletAddressStore.swift */; };
 		877D00AF25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877D00AE25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift */; };
 		8780FDAD27BF883F00BBE9DD /* ActivityOrTransactionInstance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8780FDAC27BF883F00BBE9DD /* ActivityOrTransactionInstance.swift */; };
 		8780FDAF27BF887700BBE9DD /* ActivitiesFilterStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8780FDAE27BF887700BBE9DD /* ActivitiesFilterStrategy.swift */; };
@@ -1514,7 +1514,6 @@
 		29FF12F51F74799D00AFD326 /* NSAttributedString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSAttributedString.swift; sourceTree = "<group>"; };
 		29FF12F71F747D6C00AFD326 /* Error.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
 		29FF12FA1F74CC8200AFD326 /* EthereumAddressValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumAddressValidator.swift; sourceTree = "<group>"; };
-		29FF13001F75EAD900AFD326 /* FakeKeystore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeKeystore.swift; sourceTree = "<group>"; };
 		29FF13071F75F0AE00AFD326 /* AppCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinatorTests.swift; sourceTree = "<group>"; };
 		29FF13091F75F67200AFD326 /* Address.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Address.swift; sourceTree = "<group>"; };
 		29FF130C1F7626E800AFD326 /* FakeNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeNavigationController.swift; sourceTree = "<group>"; };
@@ -2271,6 +2270,7 @@
 		877581B22886E81300701808 /* FakeCoinTickersFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeCoinTickersFetcher.swift; sourceTree = "<group>"; };
 		877581B628886D3100701808 /* NonFungibleJsonBalanceFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NonFungibleJsonBalanceFetcher.swift; sourceTree = "<group>"; };
 		877581B828886D5400701808 /* NonFungibleErc1155JsonBalanceFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NonFungibleErc1155JsonBalanceFetcher.swift; sourceTree = "<group>"; };
+		877581B42887F91400701808 /* FakeWalletAddressStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeWalletAddressStore.swift; sourceTree = "<group>"; };
 		877D00AE25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionConfiguratorTransactionsTests.swift; sourceTree = "<group>"; };
 		8780FDAC27BF883F00BBE9DD /* ActivityOrTransactionInstance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityOrTransactionInstance.swift; sourceTree = "<group>"; };
 		8780FDAE27BF887700BBE9DD /* ActivitiesFilterStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivitiesFilterStrategy.swift; sourceTree = "<group>"; };
@@ -3890,7 +3890,6 @@
 		29FF12FF1F75EAC800AFD326 /* Factories */ = {
 			isa = PBXGroup;
 			children = (
-				29FF13001F75EAD900AFD326 /* FakeKeystore.swift */,
 				29FF13091F75F67200AFD326 /* Address.swift */,
 				29FF130C1F7626E800AFD326 /* FakeNavigationController.swift */,
 				2977CADF1F7DEEB0009682A0 /* FakeEtherKeystore.swift */,
@@ -3917,6 +3916,7 @@
 				8765D6F2282BDF8400529F45 /* FakeTokenGroupIdentifier.swift */,
 				8792707B284F40D1006F5AE5 /* FakeEnsRecordsStorage.swift */,
 				877581B22886E81300701808 /* FakeCoinTickersFetcher.swift */,
+				877581B42887F91400701808 /* FakeWalletAddressStore.swift */,
 			);
 			path = Factories;
 			sourceTree = "<group>";
@@ -7748,7 +7748,6 @@
 				CCA4FE331FD3655900749AE4 /* CheckDeviceCoordinatorTests.swift in Sources */,
 				024255182816662F009D626E /* StringInsertSpaceBeforeCapitalsTestCase.swift in Sources */,
 				8765D6F3282BDF8400529F45 /* FakeTokenGroupIdentifier.swift in Sources */,
-				29FF13011F75EAD900AFD326 /* FakeKeystore.swift in Sources */,
 				29FC9BCC1F831860000209CD /* PaymentCoordinatorTests.swift in Sources */,
 				732E0F522022754600B39C1F /* FakeLockProtocol.swift in Sources */,
 				2961BD091FB14B6D00C4B840 /* Config.swift in Sources */,
@@ -7798,6 +7797,7 @@
 				5E7C7705B09D780E84E2FDA5 /* XMLHandlerTest.swift in Sources */,
 				8765D6E5282BAD7E00529F45 /* FakeSingleChainTokenBalanceService.swift in Sources */,
 				5E7C7D5843B705ACD26E9090 /* AssetDefinitionDiskBackingStoreWithOverridesTests.swift in Sources */,
+				877581B52887F91400701808 /* FakeWalletAddressStore.swift in Sources */,
 				5E7C71D1D16FE09032EB4B7E /* TokenObjectTest.swift in Sources */,
 				5E7C760F9D7C178E17C75C52 /* ImportTokenViewControllerTests.swift in Sources */,
 				8792707C284F40D1006F5AE5 /* FakeEnsRecordsStorage.swift in Sources */,

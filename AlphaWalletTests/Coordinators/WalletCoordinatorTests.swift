@@ -9,7 +9,7 @@ class WalletCoordinatorTests: XCTestCase {
         let coordinator = WalletCoordinator(
             config: .make(),
             navigationController: FakeNavigationController(),
-            keystore: FakeKeystore(),
+            keystore: FakeEtherKeystore(),
             analyticsCoordinator: FakeAnalyticsService(),
             domainResolutionService: FakeDomainResolutionService()
         )
@@ -37,7 +37,7 @@ class WalletCoordinatorTests: XCTestCase {
         let coordinator = WalletCoordinator(
             config: .make(),
             navigationController: FakeNavigationController(),
-            keystore: FakeKeystore(),
+            keystore: FakeEtherKeystore(),
             analyticsCoordinator: FakeAnalyticsService(),
             domainResolutionService: FakeDomainResolutionService()
         )
