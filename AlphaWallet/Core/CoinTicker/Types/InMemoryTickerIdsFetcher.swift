@@ -94,6 +94,7 @@ final class RemoteTokenEntriesProvider: TokenEntriesProvider {
     }
 }
 
+fileprivate let threadSafeForTokenEntries = ThreadSafe(label: "org.alphawallet.swift.tokenEntries")
 final class FileTokenEntriesProvider: TokenEntriesProvider {
     private let fileName: String
     private var cachedTokenEntries: [TokenEntry] = []
@@ -104,20 +105,25 @@ final class FileTokenEntriesProvider: TokenEntriesProvider {
 
     func tokenEntries() -> AnyPublisher<[TokenEntry], PromiseError> {
         if cachedTokenEntries.isEmpty {
-            do {
-                guard let bundlePath = Bundle.main.path(forResource: fileName, ofType: "json") else { throw TokenJsonReader.error.fileDoesNotExist }
-                guard let jsonData = try String(contentsOfFile: bundlePath).data(using: .utf8) else { throw TokenJsonReader.error.fileIsNotUtf8 }
+            var publisher: AnyPublisher<[TokenEntry], PromiseError>!
+            threadSafeForTokenEntries.performSync {
                 do {
-                    cachedTokenEntries = try JSONDecoder().decode([TokenEntry].self, from: jsonData)
-                    return .just(cachedTokenEntries)
-                } catch DecodingError.dataCorrupted {
-                    throw TokenJsonReader.error.fileCannotBeDecoded
+                    guard let bundlePath = Bundle.main.path(forResource: fileName, ofType: "json") else { throw TokenJsonReader.error.fileDoesNotExist }
+                    guard let jsonData = try String(contentsOfFile: bundlePath).data(using: .utf8) else { throw TokenJsonReader.error.fileIsNotUtf8 }
+                    do {
+                        cachedTokenEntries = try JSONDecoder().decode([TokenEntry].self, from: jsonData)
+                        publisher = .just(cachedTokenEntries)
+                    } catch DecodingError.dataCorrupted {
+                        throw TokenJsonReader.error.fileCannotBeDecoded
+                    } catch {
+                        throw TokenJsonReader.error.unknown(error)
+                    }
                 } catch {
-                    throw TokenJsonReader.error.unknown(error)
+                    publisher = .fail(.some(error: error))
                 }
-            } catch {
-                return .fail(.some(error: error))
             }
+
+            return publisher
         } else {
             return .just(cachedTokenEntries)
         }
