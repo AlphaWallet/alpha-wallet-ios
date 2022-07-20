@@ -579,6 +579,9 @@ enum RPCServer: Hashable, CaseIterable {
             case .poa: return "https://core.poa.network"
             case .sokol: return "https://sokol.poa.network"
             case .goerli: return "https://goerli.infura.io/v3/\(Constants.Credentials.infuraKey)"
+            //https://rpc.ankr.com/gnosis handles batching and errors differently from other RPC nodes
+            // if there's an error, the `id` field is null (unlike others)
+            // if it's a batched request of N requests and there's an error, 1 error is returned instead of N array and the `id` field in the error is null (unlike others)
             case .xDai: return "https://rpc.ankr.com/gnosis"
             case .phi: return "https://rpc1.phi.network"
             case .artis_sigma1: return "https://rpc.sigma1.artis.network"
@@ -847,7 +850,9 @@ enum RPCServer: Hashable, CaseIterable {
         case .cronosTestnet, .arbitrum, .arbitrumRinkeby:
             //These not allow range more than 100000
             return .blockNumber(fromBlockNumber + 99990)
-        case .main, .kovan, .ropsten, .rinkeby, .poa, .classic, .callisto, .xDai, .phi, .goerli, .artis_sigma1, .artis_tau1, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .optimisticKovan, .sokol, .custom, .palm, .palmTestnet:
+        case .xDai:
+            return .blockNumber(fromBlockNumber + 3000)
+        case .main, .kovan, .ropsten, .rinkeby, .poa, .classic, .callisto, .phi, .goerli, .artis_sigma1, .artis_tau1, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .optimisticKovan, .sokol, .custom, .palm, .palmTestnet:
             return .latest
         case .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet:
             //These not allow range more than 10,000
