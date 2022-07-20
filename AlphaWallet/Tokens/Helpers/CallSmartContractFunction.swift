@@ -22,8 +22,11 @@ private let web3Queue: OperationQueue = {
 
 private func createWeb3(webProvider: Web3HttpProvider, forServer server: RPCServer) -> web3 {
     var requestDispatcher: JSONRPCrequestDispatcher
+    //TODO change to switch statement
     if server == .klaytnCypress || server == .klaytnBaobabTestnet {
         requestDispatcher = JSONRPCrequestDispatcher(provider: webProvider, queue: web3Queue.underlyingQueue!, policy: .NoBatching)
+    } else if server == .xDai {
+        requestDispatcher = JSONRPCrequestDispatcher(provider: webProvider, queue: web3Queue.underlyingQueue!, policy: .Batch(6))
     } else {
         requestDispatcher = JSONRPCrequestDispatcher(provider: webProvider, queue: web3Queue.underlyingQueue!, policy: .Batch(32))
     }
