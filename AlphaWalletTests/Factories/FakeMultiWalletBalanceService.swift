@@ -16,7 +16,6 @@ class FakeMultiWalletBalanceService: MultiWalletBalanceService {
         self.servers = servers
         self.wallet = wallet
 
-        let tickersFetcher = FakeCoinTickersFetcher()
         var walletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: .test)
         switch wallet.type {
         case .real:
@@ -26,7 +25,7 @@ class FakeMultiWalletBalanceService: MultiWalletBalanceService {
         }
 
         let keystore = FakeKeystore(wallets: [wallet], recentlyUsedWallet: wallet)
-        super.init(store: FakeRealmLocalStore(), keystore: keystore, config: .make(), assetDefinitionStore: .init(), analyticsCoordinator: FakeAnalyticsService(), coinTickersFetcher: tickersFetcher, walletAddressesStore: walletAddressesStore)
+        super.init(store: FakeRealmLocalStore(), keystore: keystore, config: .make(), assetDefinitionStore: .init(), analyticsCoordinator: FakeAnalyticsService(), coinTickersFetcher: CoinGeckoTickersFetcher.make(), walletAddressesStore: walletAddressesStore)
     }
 
     override func createWalletBalanceFetcher(wallet: Wallet) -> WalletBalanceFetcherType {

@@ -989,6 +989,7 @@
 		8775728C282E8FDC00EAD907 /* SvgImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8775728B282E8FDC00EAD907 /* SvgImageView.swift */; };
 		8775728E282E902D00EAD907 /* ImageOrWebImageUrl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8775728D282E902D00EAD907 /* ImageOrWebImageUrl.swift */; };
 		87757290282EA12100EAD907 /* ViewRounding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8775728F282EA12100EAD907 /* ViewRounding.swift */; };
+		877581B32886E81300701808 /* FakeCoinTickersFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877581B22886E81300701808 /* FakeCoinTickersFetcher.swift */; };
 		877D00AF25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877D00AE25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift */; };
 		8780FDAD27BF883F00BBE9DD /* ActivityOrTransactionInstance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8780FDAC27BF883F00BBE9DD /* ActivityOrTransactionInstance.swift */; };
 		8780FDAF27BF887700BBE9DD /* ActivitiesFilterStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8780FDAE27BF887700BBE9DD /* ActivitiesFilterStrategy.swift */; };
@@ -2265,6 +2266,7 @@
 		8775728B282E8FDC00EAD907 /* SvgImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SvgImageView.swift; sourceTree = "<group>"; };
 		8775728D282E902D00EAD907 /* ImageOrWebImageUrl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageOrWebImageUrl.swift; sourceTree = "<group>"; };
 		8775728F282EA12100EAD907 /* ViewRounding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewRounding.swift; sourceTree = "<group>"; };
+		877581B22886E81300701808 /* FakeCoinTickersFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeCoinTickersFetcher.swift; sourceTree = "<group>"; };
 		877D00AE25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionConfiguratorTransactionsTests.swift; sourceTree = "<group>"; };
 		8780FDAC27BF883F00BBE9DD /* ActivityOrTransactionInstance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityOrTransactionInstance.swift; sourceTree = "<group>"; };
 		8780FDAE27BF887700BBE9DD /* ActivitiesFilterStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivitiesFilterStrategy.swift; sourceTree = "<group>"; };
@@ -3910,6 +3912,7 @@
 				8765D6F0282BDDC400529F45 /* FakeTokenSwapper.swift */,
 				8765D6F2282BDF8400529F45 /* FakeTokenGroupIdentifier.swift */,
 				8792707B284F40D1006F5AE5 /* FakeEnsRecordsStorage.swift */,
+				877581B22886E81300701808 /* FakeCoinTickersFetcher.swift */,
 			);
 			path = Factories;
 			sourceTree = "<group>";
@@ -7699,6 +7702,7 @@
 				290B2B6A1F92C0440053C83E /* ConfigTests.swift in Sources */,
 				8739912D2861ED9B00465D3C /* LogLargeNftJsonFilesTests.swift in Sources */,
 				29BDF1941FEE43AA0023A45F /* TransactionConfiguratorTests.swift in Sources */,
+				877581B32886E81300701808 /* FakeCoinTickersFetcher.swift in Sources */,
 				29FF13081F75F0AE00AFD326 /* AppCoordinatorTests.swift in Sources */,
 				2923D9B71FDA5E51000CF3F8 /* PasswordGeneratorTests.swift in Sources */,
 				29F1C865200384FE003780D8 /* Wallet.swift in Sources */,

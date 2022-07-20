@@ -43,7 +43,7 @@ class ActiveWalletViewTests: XCTestCase {
             universalLinkCoordinator: FakeUniversalLinkCoordinator.make(),
             accountsCoordinator: ac,
             walletBalanceService: FakeMultiWalletBalanceService(),
-            coinTickersFetcher: FakeCoinTickersFetcher(),
+            coinTickersFetcher: CoinGeckoTickersFetcher.make(),
             tokenActionsService: FakeSwapTokenService(),
             walletConnectCoordinator: .fake(),
             notificationService: FakeNotificationService(),
@@ -103,7 +103,7 @@ class ActiveWalletViewTests: XCTestCase {
             universalLinkCoordinator: FakeUniversalLinkCoordinator.make(),
             accountsCoordinator: ac,
             walletBalanceService: FakeMultiWalletBalanceService(),
-            coinTickersFetcher: FakeCoinTickersFetcher(),
+            coinTickersFetcher: CoinGeckoTickersFetcher.make(),
             tokenActionsService: FakeSwapTokenService(),
             walletConnectCoordinator: .fake(),
             notificationService: FakeNotificationService(),
@@ -130,7 +130,7 @@ class ActiveWalletViewTests: XCTestCase {
             universalLinkCoordinator: FakeUniversalLinkCoordinator.make(),
             accountsCoordinator: ac,
             walletBalanceService: FakeMultiWalletBalanceService(),
-            coinTickersFetcher: FakeCoinTickersFetcher(),
+            coinTickersFetcher: CoinGeckoTickersFetcher.make(),
             tokenActionsService: FakeSwapTokenService(),
             walletConnectCoordinator: .fake(),
             notificationService: FakeNotificationService(),
@@ -165,7 +165,7 @@ class ActiveWalletViewTests: XCTestCase {
                 universalLinkCoordinator: FakeUniversalLinkCoordinator.make(),
                 accountsCoordinator: ac,
                 walletBalanceService: FakeMultiWalletBalanceService(),
-                coinTickersFetcher: FakeCoinTickersFetcher(),
+                coinTickersFetcher: CoinGeckoTickersFetcher.make(),
                 tokenActionsService: FakeSwapTokenService(),
                 walletConnectCoordinator: .fake(),
                 notificationService: FakeNotificationService(),
@@ -201,7 +201,7 @@ class ActiveWalletViewTests: XCTestCase {
             universalLinkCoordinator: FakeUniversalLinkCoordinator.make(),
             accountsCoordinator: ac,
             walletBalanceService: FakeMultiWalletBalanceService(),
-            coinTickersFetcher: FakeCoinTickersFetcher(),
+            coinTickersFetcher: CoinGeckoTickersFetcher.make(),
             tokenActionsService: FakeSwapTokenService(),
             walletConnectCoordinator: .fake(),
             notificationService: FakeNotificationService(),
@@ -237,7 +237,7 @@ class ActiveWalletViewTests: XCTestCase {
             universalLinkCoordinator: FakeUniversalLinkCoordinator.make(),
             accountsCoordinator: ac,
             walletBalanceService: FakeMultiWalletBalanceService(),
-            coinTickersFetcher: FakeCoinTickersFetcher(),
+            coinTickersFetcher: CoinGeckoTickersFetcher.make(),
             tokenActionsService: FakeSwapTokenService(),
             walletConnectCoordinator: .fake(),
             notificationService: FakeNotificationService(),
@@ -292,7 +292,7 @@ class ActiveWalletViewTests: XCTestCase {
                     universalLinkCoordinator: FakeUniversalLinkCoordinator.make(),
                     accountsCoordinator: ac,
                     walletBalanceService: FakeMultiWalletBalanceService(),
-                    coinTickersFetcher: FakeCoinTickersFetcher(),
+                    coinTickersFetcher: CoinGeckoTickersFetcher.make(),
                     tokenActionsService: FakeSwapTokenService(),
                     walletConnectCoordinator: .fake(),
                     notificationService: FakeNotificationService(),
@@ -312,37 +312,4 @@ class ActiveWalletViewTests: XCTestCase {
             XCTFail()
         }
     }
-}
-
-import Combine
-
-final class FakeCoinTickersFetcher: CoinTickersFetcherType {
-
-    var tickersDidUpdate: AnyPublisher<Void, Never> {
-        return Empty<Void, Never>(completeImmediately: true).eraseToAnyPublisher()
-    }
-    var updateTickerId: AnyPublisher<(tickerId: TickerIdString, key: AddressAndRPCServer), Never> {
-        return Empty<(tickerId: TickerIdString, key: AddressAndRPCServer), Never>(completeImmediately: true).eraseToAnyPublisher()
-    }
-
-    func ticker(for addressAndPRCServer: AddressAndRPCServer) -> CoinTicker? {
-        return nil
-    }
-
-    func fetchTickers(for tokens: [TokenMappedToTicker], force: Bool) {
-        //no-op
-    }
-
-    func resolveTikerIds(for tokens: [TokenMappedToTicker]) {
-        //no-op
-    }
-
-    func fetchChartHistories(for token: TokenMappedToTicker, force: Bool, periods: [ChartHistoryPeriod]) -> AnyPublisher<[ChartHistory], Never> {
-        return Empty<[ChartHistory], Never>(completeImmediately: true).eraseToAnyPublisher()
-    }
-
-    func cancel() {
-        //no-op
-    }
-
 }

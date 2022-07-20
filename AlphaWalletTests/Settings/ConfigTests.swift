@@ -21,11 +21,10 @@ extension MultipleChainsTokenCollection {
     static func fake() -> MultipleChainsTokenCollection {
         let tokensDataStore = FakeTokensDataStore()
         let config: Config = .make()
-        let coinTickersFetcher = FakeCoinTickersFetcher()
         let actionsService = TokenActionsService()
         let tokenGroupIdentifier: TokenGroupIdentifierProtocol = FakeTokenGroupIdentifier()
-        let tokensFilter = TokensFilter(assetDefinitionStore: .init(), tokenActionsService: actionsService, coinTickersFetcher: coinTickersFetcher, tokenGroupIdentifier: tokenGroupIdentifier)
-        return MultipleChainsTokenCollection(tokensFilter: tokensFilter, tokensDataStore: tokensDataStore, config: config, coinTickersFetcher: coinTickersFetcher)
+        let tokensFilter = TokensFilter(assetDefinitionStore: .init(), tokenActionsService: actionsService, coinTickersFetcher: CoinGeckoTickersFetcher.make(), tokenGroupIdentifier: tokenGroupIdentifier)
+        return MultipleChainsTokenCollection(tokensFilter: tokensFilter, tokensDataStore: tokensDataStore, config: config, coinTickersFetcher: CoinGeckoTickersFetcher.make())
     }
 }
 
@@ -45,7 +44,6 @@ class ConfigTests: XCTestCase {
 
         let config: Config = .make()
         Config.setLocale(AppLocale.english)
-        let coinTickersFetcher = FakeCoinTickersFetcher()
         let tokenActionsService = FakeSwapTokenService()
 
         let coordinator_1 = TokensCoordinator(
@@ -60,7 +58,7 @@ class ConfigTests: XCTestCase {
             openSea: OpenSea(analyticsCoordinator: FakeAnalyticsService(), queue: .global()),
             tokenActionsService: tokenActionsService,
             walletConnectCoordinator: .fake(),
-            coinTickersFetcher: coinTickersFetcher,
+            coinTickersFetcher: CoinGeckoTickersFetcher.make(),
             activitiesService: FakeActivitiesService(),
             walletBalanceService: FakeMultiWalletBalanceService(),
             tokenCollection: MultipleChainsTokenCollection.fake(),
@@ -87,7 +85,7 @@ class ConfigTests: XCTestCase {
             openSea: OpenSea(analyticsCoordinator: FakeAnalyticsService(), queue: .global()),
             tokenActionsService: tokenActionsService,
             walletConnectCoordinator: .fake(),
-            coinTickersFetcher: coinTickersFetcher,
+            coinTickersFetcher: CoinGeckoTickersFetcher.make(),
             activitiesService: FakeActivitiesService(),
             walletBalanceService: FakeMultiWalletBalanceService(),
             tokenCollection: MultipleChainsTokenCollection.fake(),
