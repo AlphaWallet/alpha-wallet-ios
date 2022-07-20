@@ -14,7 +14,27 @@ enum CoinGeckoNetworkProviderError: Error {
     case underlying(Error)
 }
 
-class CoinGeckoNetworkProvider {
+protocol CoinGeckoNetworkProviderType {
+    func fetchSupportedTickerIds() -> AnyPublisher<[TickerId], CoinGeckoNetworkProviderError>
+    func fetchTickers(for tickerIds: String) -> AnyPublisher<[CoinTicker], CoinGeckoNetworkProviderError>
+    func fetchChartHistory(for period: ChartHistoryPeriod, tickerId: String) -> AnyPublisher<ChartHistory, CoinGeckoNetworkProviderError>
+}
+
+class FakeCoinGeckoNetworkProvider: CoinGeckoNetworkProviderType {
+    func fetchSupportedTickerIds() -> AnyPublisher<[TickerId], CoinGeckoNetworkProviderError> {
+        Empty(completeImmediately: true).eraseToAnyPublisher()
+    }
+
+    func fetchTickers(for tickerIds: String) -> AnyPublisher<[CoinTicker], CoinGeckoNetworkProviderError> {
+        Empty(completeImmediately: true).eraseToAnyPublisher()
+    }
+
+    func fetchChartHistory(for period: ChartHistoryPeriod, tickerId: String) -> AnyPublisher<ChartHistory, CoinGeckoNetworkProviderError> {
+        Empty(completeImmediately: true).eraseToAnyPublisher()
+    }
+}
+
+class CoinGeckoNetworkProvider: CoinGeckoNetworkProviderType {
     private let provider: MoyaProvider<AlphaWalletService>
     private let decoder = JSONDecoder()
 

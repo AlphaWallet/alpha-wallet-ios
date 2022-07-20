@@ -11,15 +11,13 @@ import Combine
 protocol TickerIdsFetcher {
     func tickerId(for token: TokenMappedToTicker) -> AnyPublisher<TickerIdString?, Never>
 }
-
+/// Returns first matching ticker id, perform searching in data source sequentially, wait until publisher being resolved and resolves next one
 class TickerIdsFetcherImpl: TickerIdsFetcher {
     private let providers: [TickerIdsFetcher]
-    private let storage: TickerIdsStorage
     private let spamTokens = SpamTokens()
 
-    init(providers: [TickerIdsFetcher], storage: TickerIdsStorage) {
+    init(providers: [TickerIdsFetcher]) {
         self.providers = providers
-        self.storage = storage
     }
 
     /// Returns associated ticker id, callback on .main queue, or immideatelly if ticker id has already exists
@@ -32,13 +30,15 @@ class TickerIdsFetcherImpl: TickerIdsFetcher {
         func firstMatchingTickerId(_ publishers: [AnyPublisher<TickerIdString?, Never>]) -> AnyPublisher<TickerIdString?, Never> {
             var publishers = publishers
 
-            guard !publishers.isEmpty else { return .just(nil) }
+            guard !publishers.isEmpty else { return .empty() }
             let publisher = publishers.removeFirst()
 
-            return publisher.flatMap { ticker -> AnyPublisher<TickerIdString?, Never> in
-                guard let ticker = ticker else { return firstMatchingTickerId(publishers) }
-                return .just(ticker)
-            }.eraseToAnyPublisher()
+            return publisher.replaceEmpty(with: nil)
+                .replaceError(with: nil)
+                .flatMap { tickerId -> AnyPublisher<TickerIdString?, Never> in
+                    guard let tickerId = tickerId else { return firstMatchingTickerId(publishers) }
+                    return .just(tickerId)
+                }.eraseToAnyPublisher()
         }
 
         return firstMatchingTickerId(publishers)

@@ -38,7 +38,12 @@ class AppCoordinator: NSObject, Coordinator {
     }
     private let localStore: LocalStore = RealmLocalStore()
     private lazy var coinTickersFetcher: CoinTickersFetcherType = {
-        let networkProvider = CoinGeckoNetworkProvider(provider: AlphaWalletProviderFactory.makeProvider())
+        let networkProvider: CoinGeckoNetworkProviderType
+        if isRunningTests() {
+            networkProvider = FakeCoinGeckoNetworkProvider()
+        } else {
+            networkProvider = CoinGeckoNetworkProvider(provider: AlphaWalletProviderFactory.makeProvider())
+        }
         let storage = CoinTickersFileStorage(config: config)
 
         return CoinGeckoTickersFetcher(networkProvider: networkProvider, config: config, storage: storage)
