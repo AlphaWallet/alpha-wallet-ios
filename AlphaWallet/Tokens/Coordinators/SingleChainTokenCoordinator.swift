@@ -30,7 +30,7 @@ class SingleChainTokenCoordinator: Coordinator {
     private let analyticsCoordinator: AnalyticsCoordinator
     private let openSea: OpenSea
     private let tokenActionsProvider: SupportedTokenActionsProvider
-    private let coinTickersFetcher: CoinTickersFetcherType
+    private let coinTickersFetcher: CoinTickersFetcher
     private let activitiesService: ActivitiesServiceType
     let session: WalletSession
     weak var delegate: SingleChainTokenCoordinatorDelegate?
@@ -52,7 +52,7 @@ class SingleChainTokenCoordinator: Coordinator {
             analyticsCoordinator: AnalyticsCoordinator,
             openSea: OpenSea,
             tokenActionsProvider: SupportedTokenActionsProvider,
-            coinTickersFetcher: CoinTickersFetcherType,
+            coinTickersFetcher: CoinTickersFetcher,
             activitiesService: ActivitiesServiceType,
             alertService: PriceAlertServiceType,
             tokensAutodetector: TokensAutodetector

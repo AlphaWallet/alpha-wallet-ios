@@ -40,7 +40,7 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
     private let config: Config
     private let analyticsCoordinator: AnalyticsCoordinator
     let assetDefinitionStore: AssetDefinitionStore
-    var coinTickersFetcher: CoinTickersFetcherType
+    var coinTickersFetcher: CoinTickersFetcher
     private var balanceFetchers: AtomicDictionary<Wallet, WalletBalanceFetcherType> = .init()
     private lazy var walletsSummarySubject: CurrentValueSubject<WalletSummary, Never> = {
         let balances = balanceFetchers.values.map { $0.value.balance }
@@ -66,7 +66,7 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
     }
     private let store: LocalStore
 
-    init(store: LocalStore, keystore: Keystore, config: Config, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, coinTickersFetcher: CoinTickersFetcherType, walletAddressesStore: WalletAddressesStore) {
+    init(store: LocalStore, keystore: Keystore, config: Config, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, coinTickersFetcher: CoinTickersFetcher, walletAddressesStore: WalletAddressesStore) {
         self.store = store
         self.keystore = keystore
         self.config = config

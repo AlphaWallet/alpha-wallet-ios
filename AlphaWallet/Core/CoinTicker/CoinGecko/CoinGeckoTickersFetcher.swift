@@ -8,7 +8,7 @@
 import Combine
 import Foundation
 
-final class CoinGeckoTickersFetcher: CoinTickersFetcherType {
+final class CoinGeckoTickersFetcher: CoinTickersFetcher {
     private let pricesCacheLifetime: TimeInterval = 60 * 60
     private let dayChartHistoryCacheLifetime: TimeInterval = 60 * 60
     private let storage: CoinTickersStorage & ChartHistoryStorage & TickerIdsStorage

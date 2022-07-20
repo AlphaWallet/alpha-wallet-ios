@@ -14,7 +14,7 @@ class TokenInfoPageViewModel: NSObject {
     private var chartHistoriesSubject: CurrentValueSubject<[ChartHistory], Never> = .init([])
     private let session: WalletSession
     private let assetDefinitionStore: AssetDefinitionStore
-    private let coinTickersFetcher: CoinTickersFetcherType
+    private let coinTickersFetcher: CoinTickersFetcher
     private var ticker: CoinTicker?
 
     var tabTitle: String {
@@ -46,7 +46,7 @@ class TokenInfoPageViewModel: NSObject {
     lazy var headerViewModel: FungibleTokenHeaderViewModel = .init(session: session, transactionType: transactionType, assetDefinitionStore: assetDefinitionStore)
     private var chartHistoryCancelable: AnyCancellable?
 
-    init(session: WalletSession, transactionType: TransactionType, assetDefinitionStore: AssetDefinitionStore, coinTickersFetcher: CoinTickersFetcherType) {
+    init(session: WalletSession, transactionType: TransactionType, assetDefinitionStore: AssetDefinitionStore, coinTickersFetcher: CoinTickersFetcher) {
         self.session = session
         self.coinTickersFetcher = coinTickersFetcher
         self.transactionType = transactionType

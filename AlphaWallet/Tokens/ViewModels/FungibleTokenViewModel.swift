@@ -19,7 +19,7 @@ class FungibleTokenViewModel {
         case noOption
     }
 
-    private let coinTickersFetcher: CoinTickersFetcherType
+    private let coinTickersFetcher: CoinTickersFetcher
     private var validatedToken: Token? {
         switch transactionType {
         case .nativeCryptocurrency:
@@ -179,7 +179,7 @@ class FungibleTokenViewModel {
         return R.string.localizable.receive()
     }
 
-    init(transactionType: TransactionType, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, tokenActionsProvider: SupportedTokenActionsProvider, coinTickersFetcher: CoinTickersFetcherType) {
+    init(transactionType: TransactionType, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, tokenActionsProvider: SupportedTokenActionsProvider, coinTickersFetcher: CoinTickersFetcher) {
         self.transactionType = transactionType
         self.session = session
         self.assetDefinitionStore = assetDefinitionStore

@@ -54,10 +54,10 @@ class TokensFilter {
 
     private let assetDefinitionStore: AssetDefinitionStore
     private let tokenActionsService: TokenActionsService
-    private let coinTickersFetcher: CoinTickersFetcherType
+    private let coinTickersFetcher: CoinTickersFetcher
     private let tokenGroupIdentifier: TokenGroupIdentifierProtocol
 
-    init(assetDefinitionStore: AssetDefinitionStore, tokenActionsService: TokenActionsService, coinTickersFetcher: CoinTickersFetcherType, tokenGroupIdentifier: TokenGroupIdentifierProtocol) {
+    init(assetDefinitionStore: AssetDefinitionStore, tokenActionsService: TokenActionsService, coinTickersFetcher: CoinTickersFetcher, tokenGroupIdentifier: TokenGroupIdentifierProtocol) {
         self.assetDefinitionStore = assetDefinitionStore
         self.tokenActionsService = tokenActionsService
         self.coinTickersFetcher = coinTickersFetcher
@@ -233,7 +233,7 @@ fileprivate extension Token {
         }
     }
 
-    func hasTicker(coinTickersFetcher: CoinTickersFetcherType) -> Bool {
+    func hasTicker(coinTickersFetcher: CoinTickersFetcher) -> Bool {
         let ticker = coinTickersFetcher.ticker(for: addressAndRPCServer)
         return ticker != nil
     }
