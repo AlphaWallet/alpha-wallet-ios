@@ -62,10 +62,7 @@ final class CoinGeckoTickersFetcher: CoinTickersFetcherType {
             }
         }
 
-        guard !targetTokensToFetchTickers.isEmpty else {
-            debugLog("[CoinGecko] already has load tickers operation")
-            return
-        }
+        guard !targetTokensToFetchTickers.isEmpty else { return }
 
         //NOTE: use shared loading tickers operation for batch of tokens
         let operation = fetchBatchOfTickers(for: targetTokensToFetchTickers)
@@ -80,8 +77,6 @@ final class CoinGeckoTickersFetcher: CoinTickersFetcherType {
                     self?.setLastTickerUpdateDate(date: Date(), for: token)
                 }
             })
-
-        debugLog("[CoinGecko] start fetch tickers for \(targetTokensToFetchTickers.count) tokens")
 
         for token in targetTokensToFetchTickers {
             promises[token] = operation
@@ -126,7 +121,6 @@ final class CoinGeckoTickersFetcher: CoinTickersFetcherType {
                 if let data = storage.chartHistory(period: period, for: tickerId), !strongSelf.hasExpired(history: data, for: period), !force {
                     return .just(.init(period: period, history: data.history))
                 } else {
-                    debugLog("[CoinGecko] fetch chart history for tickerId: \(tickerId)")
                     return networkProvider.fetchChartHistory(for: period, tickerId: tickerId.tickerId)
                         .handleEvents(receiveOutput: { history in
                             storage.addOrUpdateChartHistory(history: history, period: period, for: tickerId)
@@ -167,8 +161,6 @@ final class CoinGeckoTickersFetcher: CoinTickersFetcherType {
     }
 
     private func fetchBatchOfTickers(for tokens: [TokenMappedToTicker]) -> AnyPublisher<[AssignedCoinTickerId: CoinTicker], CoinGeckoNetworkProviderError> {
-        debugLog("[CoinGecko] fetch ticker ids for tokens: \(tokens.map { "\($0.contractAddress)-\($0.server.chainID)-\($0.symbol)" })")
-
         let publishers = tokens.map { token in
             tickerIdsFetcher.tickerId(for: token).map { $0.flatMap { AssignedCoinTickerId(tickerId: $0, token: token) } }
         }
@@ -178,7 +170,6 @@ final class CoinGeckoTickersFetcher: CoinTickersFetcherType {
             .flatMap { [networkProvider] tickerIds -> AnyPublisher<[AssignedCoinTickerId: CoinTicker], CoinGeckoNetworkProviderError> in
                 let tickerIds = tickerIds.compactMap { $0 }
                 let ids = Set(tickerIds.compactMap { $0.tickerId }).joined(separator: ",")
-                debugLog("[CoinGecko] fetch tickers for ids: \(ids)")
                 return networkProvider.fetchTickers(for: ids).map { tickers in
                     var result: [AssignedCoinTickerId: CoinTicker] = [:]
 
@@ -189,8 +180,7 @@ final class CoinGeckoTickersFetcher: CoinTickersFetcherType {
                     }
                     return result
                 }.eraseToAnyPublisher()
-            }.receive(on: RunLoop.main)
-            .eraseToAnyPublisher()
+            }.eraseToAnyPublisher()
     }
 }
 
