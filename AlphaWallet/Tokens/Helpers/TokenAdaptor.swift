@@ -18,7 +18,7 @@ extension TokenScriptSupportable {
     func getTokenHolders(assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, forWallet account: Wallet, isSourcedFromEvents: Bool = true) -> [TokenHolder] {
         let tokenAdaptor = TokenAdaptor(token: self, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
         return tokenAdaptor.getTokenHolders(forWallet: account, isSourcedFromEvents: isSourcedFromEvents)
-    } 
+    }
 
     /// Generates token holder for fungible token, with id 1
     func getTokenHolder(assetDefinitionStore: AssetDefinitionStore, forWallet account: Wallet) -> TokenHolder {
@@ -107,7 +107,7 @@ class TokenAdaptor {
 
     private func getSupportedByNonFungibleJsonTokenHolders(forWallet account: Wallet, isSourcedFromEvents: Bool) -> [TokenHolder] {
         var tokens = [TokenScript.Token]()
-        for nonFungibleBalance in token.balanceNft.compactMap ({ $0.nonFungibleBalance }) {
+        for nonFungibleBalance in token.balanceNft.compactMap({ $0.nonFungibleBalance }) {
             if let token = getTokenForNonFungible(nonFungible: nonFungibleBalance, inWallet: account, server: self.token.server, isSourcedFromEvents: isSourcedFromEvents, tokenType: self.token.type) {
                 tokens.append(token)
             }

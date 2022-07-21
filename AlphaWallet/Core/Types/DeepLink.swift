@@ -257,15 +257,15 @@ extension DeepLink.functional {
 
 extension URLComponents {
     var queryItemsDictionary: [String: String] {
-        set {
-            queryItems = newValue.map { URLQueryItem(name: $0, value: "\($1)") }
-        }
         get {
             var params: [String: String] = [:]
             return queryItems?.reduce([:], { (_, item) -> [String: String] in
                 params[item.name] = item.value
                 return params
             }) ?? [:]
+        }
+        set {
+            queryItems = newValue.map { URLQueryItem(name: $0, value: "\($1)") }
         }
     }
 }
