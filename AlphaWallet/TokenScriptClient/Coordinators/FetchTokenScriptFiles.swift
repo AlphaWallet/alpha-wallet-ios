@@ -2,8 +2,7 @@
 
 import Foundation
 
-class FetchAssetDefinitionsCoordinator: Coordinator {
-    var coordinators: [Coordinator] = []
+class FetchTokenScriptFiles {
     private let assetDefinitionStore: AssetDefinitionStore
     private let tokensDataStore: TokensDataStore
     private let config: Config
@@ -18,7 +17,7 @@ class FetchAssetDefinitionsCoordinator: Coordinator {
                 return false
             }
         }.map { $0.contractAddress })
-        
+
         return contracts
     }
 

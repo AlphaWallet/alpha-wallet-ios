@@ -286,7 +286,7 @@
 		5E7C70D2C586C8BFCE53B0B4 /* ENSDelegateImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7E8CCEE99C27D58F1BAC /* ENSDelegateImpl.swift */; };
 		5E7C70DDE7C3BD32FA525753 /* PromptBackupWalletAfterIntervalViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7F1B07B1403E6382B21F /* PromptBackupWalletAfterIntervalViewViewModel.swift */; };
 		5E7C70E4C7053E9794A8FE30 /* CallForAssetAttribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7251A04A7D77CE07C94D /* CallForAssetAttribute.swift */; };
-		5E7C70E4DF263B30CDF4BDB2 /* FetchAssetDefinitionsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C72445F818B38DAEA783A /* FetchAssetDefinitionsCoordinator.swift */; };
+		5E7C70E4DF263B30CDF4BDB2 /* FetchTokenScriptFiles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C72445F818B38DAEA783A /* FetchTokenScriptFiles.swift */; };
 		5E7C70E4E194FEA5DA2F610C /* OpenSeaNonFungible+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7382EAC8B9CE5EE0668D /* OpenSeaNonFungible+Extension.swift */; };
 		5E7C70EFC8EB462F10BA3913 /* ChooseSendPrivateTransactionsProviderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7177F1DDDDDDE020CB4D /* ChooseSendPrivateTransactionsProviderViewController.swift */; };
 		5E7C70F407FBA1BD69901861 /* SecureEnclave.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7778166E01A0D483C58D /* SecureEnclave.swift */; };
@@ -989,9 +989,9 @@
 		8775728E282E902D00EAD907 /* ImageOrWebImageUrl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8775728D282E902D00EAD907 /* ImageOrWebImageUrl.swift */; };
 		87757290282EA12100EAD907 /* ViewRounding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8775728F282EA12100EAD907 /* ViewRounding.swift */; };
 		877581B32886E81300701808 /* FakeCoinTickersFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877581B22886E81300701808 /* FakeCoinTickersFetcher.swift */; };
+		877581B52887F91400701808 /* FakeWalletAddressStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877581B42887F91400701808 /* FakeWalletAddressStore.swift */; };
 		877581B728886D3200701808 /* NonFungibleJsonBalanceFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877581B628886D3100701808 /* NonFungibleJsonBalanceFetcher.swift */; };
 		877581B928886D5400701808 /* NonFungibleErc1155JsonBalanceFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877581B828886D5400701808 /* NonFungibleErc1155JsonBalanceFetcher.swift */; };
-		877581B52887F91400701808 /* FakeWalletAddressStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877581B42887F91400701808 /* FakeWalletAddressStore.swift */; };
 		877D00AF25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877D00AE25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift */; };
 		8780FDAD27BF883F00BBE9DD /* ActivityOrTransactionInstance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8780FDAC27BF883F00BBE9DD /* ActivityOrTransactionInstance.swift */; };
 		8780FDAF27BF887700BBE9DD /* ActivitiesFilterStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8780FDAE27BF887700BBE9DD /* ActivitiesFilterStrategy.swift */; };
@@ -1586,7 +1586,7 @@
 		5E7C720596AD351B21CE7583 /* DatabaseMigration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DatabaseMigration.swift; sourceTree = "<group>"; };
 		5E7C7228C9BEB801D4CD34DE /* EtherTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EtherTests.swift; sourceTree = "<group>"; };
 		5E7C723C21F6376387AD1DCE /* PromptBackupWalletAfterWalletCreationViewViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromptBackupWalletAfterWalletCreationViewViewModel.swift; sourceTree = "<group>"; };
-		5E7C72445F818B38DAEA783A /* FetchAssetDefinitionsCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FetchAssetDefinitionsCoordinator.swift; sourceTree = "<group>"; };
+		5E7C72445F818B38DAEA783A /* FetchTokenScriptFiles.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FetchTokenScriptFiles.swift; sourceTree = "<group>"; };
 		5E7C7251A04A7D77CE07C94D /* CallForAssetAttribute.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CallForAssetAttribute.swift; sourceTree = "<group>"; };
 		5E7C7251DB61EB9468910C81 /* GetERC875Balance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetERC875Balance.swift; sourceTree = "<group>"; };
 		5E7C72571AB0FECB26FEB1B1 /* ClearDappBrowserCacheCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClearDappBrowserCacheCoordinator.swift; sourceTree = "<group>"; };
@@ -2268,9 +2268,9 @@
 		8775728D282E902D00EAD907 /* ImageOrWebImageUrl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageOrWebImageUrl.swift; sourceTree = "<group>"; };
 		8775728F282EA12100EAD907 /* ViewRounding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewRounding.swift; sourceTree = "<group>"; };
 		877581B22886E81300701808 /* FakeCoinTickersFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeCoinTickersFetcher.swift; sourceTree = "<group>"; };
+		877581B42887F91400701808 /* FakeWalletAddressStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeWalletAddressStore.swift; sourceTree = "<group>"; };
 		877581B628886D3100701808 /* NonFungibleJsonBalanceFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NonFungibleJsonBalanceFetcher.swift; sourceTree = "<group>"; };
 		877581B828886D5400701808 /* NonFungibleErc1155JsonBalanceFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NonFungibleErc1155JsonBalanceFetcher.swift; sourceTree = "<group>"; };
-		877581B42887F91400701808 /* FakeWalletAddressStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeWalletAddressStore.swift; sourceTree = "<group>"; };
 		877D00AE25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionConfiguratorTransactionsTests.swift; sourceTree = "<group>"; };
 		8780FDAC27BF883F00BBE9DD /* ActivityOrTransactionInstance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityOrTransactionInstance.swift; sourceTree = "<group>"; };
 		8780FDAE27BF887700BBE9DD /* ActivitiesFilterStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivitiesFilterStrategy.swift; sourceTree = "<group>"; };
@@ -4443,7 +4443,7 @@
 			isa = PBXGroup;
 			children = (
 				5E7C7D58E7A5DE05425623D2 /* AssetDefinitionStoreCoordinator.swift */,
-				5E7C72445F818B38DAEA783A /* FetchAssetDefinitionsCoordinator.swift */,
+				5E7C72445F818B38DAEA783A /* FetchTokenScriptFiles.swift */,
 				5E7C7D4B3B2FEA6D4FDAE01C /* EventSourceCoordinator.swift */,
 				5E7C7812E27A6638E036BBB1 /* EventSourceCoordinatorForActivities.swift */,
 			);
@@ -7385,7 +7385,7 @@
 				5E7C76393408CC2489FF4527 /* AssetDefinitionsOverridesViewController.swift in Sources */,
 				5E7C706F4BDF994D539F8040 /* AssetDefinitionsOverridesViewCell.swift in Sources */,
 				5E7C7A496E69849D06DF2731 /* AssetDefinitionStoreCoordinator.swift in Sources */,
-				5E7C70E4DF263B30CDF4BDB2 /* FetchAssetDefinitionsCoordinator.swift in Sources */,
+				5E7C70E4DF263B30CDF4BDB2 /* FetchTokenScriptFiles.swift in Sources */,
 				5E7C739447F6BADDBBBF7278 /* AssetDefinitionsOverridesViewCellViewModel.swift in Sources */,
 				5E7C70E4C7053E9794A8FE30 /* CallForAssetAttribute.swift in Sources */,
 				5E7C78374AD8C536E0DF264C /* AssetDefinitionDiskBackingStoreWithOverrides.swift in Sources */,
