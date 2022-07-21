@@ -86,7 +86,7 @@ public enum WebImageURL: Codable, Hashable, Equatable, CustomStringConvertible {
     public init(url: URL, withUrlRewriting: Bool = true, rewriteGoogleContentSizeUrl size: GoogleContentSize = .s750) {
         if let url = WebImageURL.functional.rewriteGoogleContentSizeUrl(url: url, size: size), withUrlRewriting {
             self = .googleContentRewritten(url)
-        } else if let url = WebImageURL.functional.rewriteIfIpfs(url: url), withUrlRewriting {
+        } else if let url = WebImageURL.functional.rewriteIfIpfsOrNil(url: url), withUrlRewriting {
             self = .ipfs(url)
         } else {
             self = .origin(url)
@@ -106,7 +106,7 @@ extension WebImageURL {
 
 extension URL {
     public var rewrittenIfIpfs: URL {
-        return WebImageURL.functional.rewriteIfIpfs(url: self) ?? self
+        return WebImageURL.functional.rewriteIfIpfsOrNil(url: self) ?? self
     }
 }
 
@@ -147,7 +147,7 @@ extension WebImageURL.functional {
         return components.url
     }
 
-    static func rewriteIfIpfs(url: URL) -> URL? {
+    static func rewriteIfIpfsOrNil(url: URL) -> URL? {
         if url.scheme == "ipfs" {
             //We can't use `URLComponents` or `pathComponents` here
             let path = url.absoluteString.replacingOccurrences(of: "ipfs://", with: "")
