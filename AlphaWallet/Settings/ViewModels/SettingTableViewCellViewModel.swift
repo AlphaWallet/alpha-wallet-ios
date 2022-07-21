@@ -12,7 +12,7 @@ struct SettingTableViewCellViewModel {
     var subTitleText: String?
     let icon: UIImage?
     var accessoryType: UITableViewCell.AccessoryType = .none
-    var accessoryView: UIView? = nil
+    var accessoryView: UIView?
 
     var subTitleHidden: Bool {
         return subTitleText == nil

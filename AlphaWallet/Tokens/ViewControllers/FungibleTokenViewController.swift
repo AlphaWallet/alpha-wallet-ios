@@ -149,8 +149,8 @@ class FungibleTokenViewController: UIViewController {
                 navigationItem.rightBarButtonItem = label
 
                 tokenScriptStatusPromise.done { [weak self] _ in
-                            self?.updateNavigationRightBarButtons(tokenScriptFileStatusHandler: xmlHandler)
-                        }.cauterize()
+                    self?.updateNavigationRightBarButtons(tokenScriptFileStatusHandler: xmlHandler)
+                }.cauterize()
             }
 
             if let server = xmlHandler.server, let status = tokenScriptStatusPromise.value, server.matches(server: viewModel.session.server) {

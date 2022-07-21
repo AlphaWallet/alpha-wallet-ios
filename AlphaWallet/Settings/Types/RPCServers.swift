@@ -4,6 +4,7 @@ import Foundation
 import web3swift
 import BigInt
 
+// swiftlint:disable file_length
 extension RPCServer {
     static func custom(chainId: Int) -> RPCServer {
         return .custom(.custom(chainId: chainId))
@@ -1001,3 +1002,4 @@ extension RPCServer {
         return nil
     }
 }
+// swiftlint:enable file_length

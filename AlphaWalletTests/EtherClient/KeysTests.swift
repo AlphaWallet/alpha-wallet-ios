@@ -25,7 +25,7 @@ class KeysTests: XCTestCase {
         XCTAssertNil(deriveAddressFromPrivateKey("fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364142"))
     }
 
-    private func deriveAddressFromPrivateKey(_ privateKeyInput : String) -> AlphaWallet.Address? {
+    private func deriveAddressFromPrivateKey(_ privateKeyInput: String) -> AlphaWallet.Address? {
         let privateKey = Data(hexString: privateKeyInput)
         guard let privateKey = privateKey else { return nil }
         return AlphaWallet.Address(fromPrivateKey: privateKey)

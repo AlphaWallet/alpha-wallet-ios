@@ -10,7 +10,7 @@ import Foundation
 struct Contract: Codable, Hashable {
     let address: String
     let chainId: Int
-    
+
     var key: String {
         let returnKey = address + ":" + String(chainId)
         return returnKey.trimmed.lowercased()
@@ -116,7 +116,6 @@ protocol TokenGroupIdentifierProtocol {
     static func identifier(fromFileName: String) -> TokenGroupIdentifierProtocol?
     func identify(token: TokenGroupIdentifiable) -> TokenGroup
 }
-
 
 class TokenGroupIdentifier: TokenGroupIdentifierProtocol {
 

@@ -71,11 +71,13 @@ class TransactionDataStore {
     }
 
     func transactions(forFilter filter: TransactionsFilterStrategy, servers: [RPCServer], oldestBlockNumber: Int? = nil) -> [TransactionInstance] {
-        //NOTE: Allow pending transactions othewise it willn't appear as activity 
+        //NOTE: Allow pending transactions othewise it willn't appear as activity
         let isPendingTransction = NSPredicate(format: "blockNumber == 0")
-        let oldestBlockNumberPredicate = oldestBlockNumber.flatMap { [
-            NSCompoundPredicate(orPredicateWithSubpredicates: [TransactionDataStore.functional.blockNumberPredicate(blockNumber: $0), isPendingTransction])
-        ] } ?? []
+        let oldestBlockNumberPredicate = oldestBlockNumber.flatMap {
+            [
+                NSCompoundPredicate(orPredicateWithSubpredicates: [TransactionDataStore.functional.blockNumberPredicate(blockNumber: $0), isPendingTransction])
+            ]
+        } ?? []
 
         let predicate: NSPredicate
         switch filter {
@@ -306,7 +308,7 @@ class TransactionDataStore {
         } catch {
             verboseLog("Error writing transactions for \(server) to JSON: \(url.absoluteString) error: \(error)")
         }
-    } 
+    }
 }
 
 extension TransactionDataStore: Erc721TokenIdsFetcher {
