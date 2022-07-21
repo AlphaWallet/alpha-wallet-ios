@@ -990,6 +990,8 @@
 		8775728E282E902D00EAD907 /* ImageOrWebImageUrl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8775728D282E902D00EAD907 /* ImageOrWebImageUrl.swift */; };
 		87757290282EA12100EAD907 /* ViewRounding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8775728F282EA12100EAD907 /* ViewRounding.swift */; };
 		877581B32886E81300701808 /* FakeCoinTickersFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877581B22886E81300701808 /* FakeCoinTickersFetcher.swift */; };
+		877581B728886D3200701808 /* NonFungibleJsonBalanceFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877581B628886D3100701808 /* NonFungibleJsonBalanceFetcher.swift */; };
+		877581B928886D5400701808 /* NonFungibleErc1155JsonBalanceFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877581B828886D5400701808 /* NonFungibleErc1155JsonBalanceFetcher.swift */; };
 		877D00AF25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877D00AE25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift */; };
 		8780FDAD27BF883F00BBE9DD /* ActivityOrTransactionInstance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8780FDAC27BF883F00BBE9DD /* ActivityOrTransactionInstance.swift */; };
 		8780FDAF27BF887700BBE9DD /* ActivitiesFilterStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8780FDAE27BF887700BBE9DD /* ActivitiesFilterStrategy.swift */; };
@@ -2267,6 +2269,8 @@
 		8775728D282E902D00EAD907 /* ImageOrWebImageUrl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageOrWebImageUrl.swift; sourceTree = "<group>"; };
 		8775728F282EA12100EAD907 /* ViewRounding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewRounding.swift; sourceTree = "<group>"; };
 		877581B22886E81300701808 /* FakeCoinTickersFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeCoinTickersFetcher.swift; sourceTree = "<group>"; };
+		877581B628886D3100701808 /* NonFungibleJsonBalanceFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NonFungibleJsonBalanceFetcher.swift; sourceTree = "<group>"; };
+		877581B828886D5400701808 /* NonFungibleErc1155JsonBalanceFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NonFungibleErc1155JsonBalanceFetcher.swift; sourceTree = "<group>"; };
 		877D00AE25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionConfiguratorTransactionsTests.swift; sourceTree = "<group>"; };
 		8780FDAC27BF883F00BBE9DD /* ActivityOrTransactionInstance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityOrTransactionInstance.swift; sourceTree = "<group>"; };
 		8780FDAE27BF887700BBE9DD /* ActivitiesFilterStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivitiesFilterStrategy.swift; sourceTree = "<group>"; };
@@ -3980,6 +3984,8 @@
 				442FC20E6470B92A46479342 /* TokenAdaptor.swift */,
 				5E7C77C2844B3579A59C3F2F /* CallSmartContractFunction.swift */,
 				87741FC427747C5C007F4604 /* TokenInstanceViewConfigurationHelper.swift */,
+				877581B628886D3100701808 /* NonFungibleJsonBalanceFetcher.swift */,
+				877581B828886D5400701808 /* NonFungibleErc1155JsonBalanceFetcher.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -6885,6 +6891,7 @@
 				294DFB9E1FE0CA59004CEB56 /* TransactionsViewModel.swift in Sources */,
 				73ED85A72034BFEF00593BF3 /* UITextFieldAdditions.swift in Sources */,
 				2923D9B51FDA4E07000CF3F8 /* PasswordGenerator.swift in Sources */,
+				877581B928886D5400701808 /* NonFungibleErc1155JsonBalanceFetcher.swift in Sources */,
 				298542F51FBD8E6A00CB5081 /* ConfigExplorer.swift in Sources */,
 				022CED80277B01E10043287F /* ScrollableSegmentedControlCell.swift in Sources */,
 				87E2555224F52E5700F025F7 /* SliderTableViewCellViewModel.swift in Sources */,
@@ -7535,6 +7542,7 @@
 				870CC47D27C6566400A19380 /* AutoDetectTokensOperation.swift in Sources */,
 				5E7C7193C577A84710D71F5C /* TokenScriptFilterParser.swift in Sources */,
 				5E7C708F30E73521E6A494D5 /* TokenScriptSelection.swift in Sources */,
+				877581B728886D3200701808 /* NonFungibleJsonBalanceFetcher.swift in Sources */,
 				5E7C710D1522AFA533B0C22B /* XMLHandler+XPaths.swift in Sources */,
 				5E7C782069BAD4A667543979 /* SettingsViewController.swift in Sources */,
 				874ED68227D79793001AB374 /* SwapTokensCoordinator.swift in Sources */,
