@@ -43,7 +43,21 @@ class UIColorExtensionTests: XCTestCase {
     func testLightDarkColorMode() throws {
         let lightColor = UIColor.yellow
         let darkColor = UIColor.gray
-        let compositeColor = UIColor { trait in
+        let compositeColor = compositeColor(lightColor: lightColor, darkColor: darkColor)
+        XCTAssertEqual(compositeColor.lightMode, lightColor)
+        XCTAssertEqual(compositeColor.darkMode, darkColor)
+
+    }
+
+    func testDynamicColorDetection() throws {
+        let color = UIColor.red
+        let compositeColor = compositeColor()
+        XCTAssertFalse(color.isDynamic)
+        XCTAssertTrue(compositeColor.isDynamic)
+    }
+
+    func compositeColor(lightColor: UIColor = .yellow, darkColor: UIColor = .green) -> UIColor {
+        return UIColor { trait in
             switch trait.userInterfaceStyle {
             case .unspecified, .light:
                 return lightColor
@@ -51,10 +65,5 @@ class UIColorExtensionTests: XCTestCase {
                 return darkColor
             }
         }
-
-        XCTAssertEqual(compositeColor.lightMode, lightColor)
-        XCTAssertEqual(compositeColor.darkMode, darkColor)
-
     }
-
 }

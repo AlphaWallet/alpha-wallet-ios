@@ -44,4 +44,7 @@ extension UIColor {
         return resolvedColor(with: UITraitCollection(userInterfaceStyle: .dark))
     }
 
+    var isDynamic: Bool {
+        return lightMode != darkMode
+    }
 }
