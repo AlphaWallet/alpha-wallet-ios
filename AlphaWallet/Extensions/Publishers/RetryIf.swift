@@ -32,7 +32,7 @@ extension Publishers {
 }
 
 extension Publisher {
-    func retry(times: Int, when condition: @escaping (Failure) -> Bool) -> Publishers.RetryIf<Self> {
+    func retry(times: Int, when condition: @escaping (Failure) -> Bool = { _ in return true }) -> Publishers.RetryIf<Self> {
         Publishers.RetryIf(publisher: self, times: times, condition: condition)
     }
 }

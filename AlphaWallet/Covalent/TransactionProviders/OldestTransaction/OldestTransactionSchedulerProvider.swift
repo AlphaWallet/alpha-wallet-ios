@@ -65,7 +65,7 @@ final class OldestTransactionSchedulerProvider: SchedulerProvider {
 
         return provider
             .transactions(walletAddress: session.account.address, server: session.server, page: lastPage, pageSize: Constants.Covalent.oldestAddedTransactionsPerPage)
-            .retry(times: 3, when: { _ in return true })
+            .retry(times: 3)
             .subscribe(on: fetchLatestTransactionsQueue)
             .handleEvents(receiveOutput: { [weak self] response in
                 self?.didReceiveValue(response)
