@@ -110,7 +110,7 @@ extension URL {
     }
 }
 
-extension WebImageURL.functional {
+fileprivate extension WebImageURL.functional {
 
     private static let googleImageSizeInUrlRegex: NSRegularExpression = {
         return try! NSRegularExpression(pattern: "(=s|=S).*[0-9]", options: .init())
