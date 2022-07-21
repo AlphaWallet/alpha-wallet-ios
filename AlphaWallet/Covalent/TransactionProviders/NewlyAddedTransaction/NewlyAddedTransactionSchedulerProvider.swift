@@ -54,7 +54,7 @@ final class NewlyAddedTransactionSchedulerProvider: SchedulerProvider {
 
         return provider
             .transactions(walletAddress: session.account.address, server: session.server, page: lastPage, pageSize: Constants.Covalent.newlyAddedTransactionsPerPage)
-            .retry(times: 3, when: { _ in return true })
+            .retry(times: 3)
             .subscribe(on: fetchNewlyAddedTransactionsQueue)
             .handleEvents(receiveOutput: { [weak self] response in
                 self?.didReceiveValue(response: response)
