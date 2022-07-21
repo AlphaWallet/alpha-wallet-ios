@@ -498,9 +498,8 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     }
 
     private func fetchXMLAssetDefinitions() {
-        let coordinator = FetchAssetDefinitionsCoordinator(assetDefinitionStore: assetDefinitionStore, tokensDataStore: tokensDataStore, config: config)
-        coordinator.start()
-        addCoordinator(coordinator)
+        let fetch = FetchTokenScriptFiles(assetDefinitionStore: assetDefinitionStore, tokensDataStore: tokensDataStore, config: config)
+        fetch.start()
     }
 
     func importPaidSignedOrder(signedOrder: SignedOrder, token: Token, inViewController viewController: ImportMagicTokenViewController, completion: @escaping (Bool) -> Void) {

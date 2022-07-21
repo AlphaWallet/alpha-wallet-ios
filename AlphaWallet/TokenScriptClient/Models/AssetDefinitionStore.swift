@@ -1,7 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Alamofire
-import Combine 
+import Combine
 
 protocol AssetDefinitionStoreDelegate: AnyObject {
     func listOfBadTokenScriptFilesChanged(in: AssetDefinitionStore)
@@ -122,7 +122,7 @@ class AssetDefinitionStore: NSObject {
     init(backingStore: AssetDefinitionBackingStore = AssetDefinitionDiskBackingStoreWithOverrides()) {
         self.backingStore = backingStore
         super.init()
-        self.backingStore.delegate = self 
+        self.backingStore.delegate = self
     }
 
     func hasConflict(forContract contract: AlphaWallet.Address) -> Bool {
