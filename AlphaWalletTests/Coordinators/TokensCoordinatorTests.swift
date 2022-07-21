@@ -19,11 +19,11 @@ class TokensCoordinatorTests: XCTestCase {
         let coordinator = TokensCoordinator(
             navigationController: FakeNavigationController(),
             sessions: sessions,
-            keystore: FakeKeystore(),
+            keystore: FakeEtherKeystore(),
             config: config,
             assetDefinitionStore: AssetDefinitionStore(),
             eventsDataStore: FakeEventsDataStore(),
-            promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeKeystore(), wallet: .make(), config: config, analyticsCoordinator: FakeAnalyticsService()),
+            promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeEtherKeystore(), wallet: .make(), config: config, analyticsCoordinator: FakeAnalyticsService()),
             analyticsCoordinator: FakeAnalyticsService(),
             openSea: OpenSea(analyticsCoordinator: FakeAnalyticsService(), queue: .global()),
             tokenActionsService: tokenActionsService,

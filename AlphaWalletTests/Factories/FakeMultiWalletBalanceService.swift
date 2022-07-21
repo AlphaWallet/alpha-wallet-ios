@@ -16,15 +16,8 @@ class FakeMultiWalletBalanceService: MultiWalletBalanceService {
         self.servers = servers
         self.wallet = wallet
 
-        var walletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: .test)
-        switch wallet.type {
-        case .real:
-            walletAddressesStore.addToListOfEthereumAddressesWithSeed(wallet.address)
-        case .watch:
-            walletAddressesStore.addToListOfWatchEthereumAddresses(wallet.address)
-        }
-
-        let keystore = FakeKeystore(wallets: [wallet], recentlyUsedWallet: wallet)
+        let walletAddressesStore = fakeWalletAddressStore(wallets: [.init(wallet: wallet)])
+        let keystore = FakeEtherKeystore(walletAddressesStore: walletAddressesStore)
         super.init(store: FakeRealmLocalStore(), keystore: keystore, config: .make(), assetDefinitionStore: .init(), analyticsCoordinator: FakeAnalyticsService(), coinTickersFetcher: CoinGeckoTickersFetcher.make(), walletAddressesStore: walletAddressesStore)
     }
 
