@@ -2,6 +2,7 @@
 
 import Alamofire
 import Combine
+import PromiseKit
 
 protocol AssetDefinitionStoreDelegate: AnyObject {
     func listOfBadTokenScriptFilesChanged(in: AssetDefinitionStore)
@@ -172,7 +173,18 @@ class AssetDefinitionStore: NSObject {
         if useCacheAndFetch && self[contract] != nil {
             completionHandler?(.cached)
         }
-        guard let url = urlToFetch(contract: contract) else { return }
+        firstly {
+            urlToFetch(contract: contract)
+        }.done { url in
+            guard let url = url else { return }
+            self.fetchXML(forContract: contract, withUrl: url, useCacheAndFetch: useCacheAndFetch, completionHandler: completionHandler)
+        }.catch { error in
+            //no-op
+            debugLog("[TokenScript] unexpected error while fetching TokenScript file for contract: \(contract.eip55String) error: \(error)")
+        }
+    }
+
+    private func fetchXML(forContract contract: AlphaWallet.Address, withUrl url: URL, useCacheAndFetch: Bool = false, completionHandler: ((Result) -> Void)? = nil) {
         Alamofire.request(
                 url,
                 method: .get,
@@ -230,9 +242,10 @@ class AssetDefinitionStore: NSObject {
         fetchXML(forContract: address)
     }
 
-    private func urlToFetch(contract: AlphaWallet.Address) -> URL? {
+    private func urlToFetch(contract: AlphaWallet.Address) -> Promise<URL?> {
         let name = contract.eip55String
-        return URL(string: TokenScript.repoServer)?.appendingPathComponent(name)
+        let url = URL(string: TokenScript.repoServer)?.appendingPathComponent(name)
+        return .value(url)
     }
 
     private func lastModifiedDateOfCachedAssetDefinitionFile(forContract contract: AlphaWallet.Address) -> Date? {
