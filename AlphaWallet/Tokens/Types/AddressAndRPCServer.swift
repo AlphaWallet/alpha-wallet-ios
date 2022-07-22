@@ -19,3 +19,20 @@ struct AddressAndRPCServer: Hashable, Codable, CustomStringConvertible {
         hasher.combine(description)
     }
 }
+
+struct AddressAndOptionalRPCServer: Hashable, Codable, CustomStringConvertible {
+    let address: AlphaWallet.Address
+    let server: RPCServer?
+
+    var description: String {
+        if let server = server {
+            return "\(address.eip55String)-\(server)"
+        } else {
+            return address.eip55String
+        }
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(description)
+    }
+}

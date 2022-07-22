@@ -29,8 +29,8 @@ class AssetDefinitionDiskBackingStoreWithOverrides: AssetDefinitionBackingStore 
         } else {
             let store = AssetDefinitionDiskBackingStore(directoryName: AssetDefinitionDiskBackingStoreWithOverrides.overridesDirectoryName)
             self.overridesStore = store
-            store.watchDirectoryContents { [weak self] contract in
-                self?.delegate?.invalidateAssetDefinition(forContract: contract)
+            store.watchDirectoryContents { [weak self] contractAndServer in
+                self?.delegate?.invalidateAssetDefinition(forContractAndServer: contractAndServer)
             }
         }
 
@@ -120,7 +120,7 @@ class AssetDefinitionDiskBackingStoreWithOverrides: AssetDefinitionBackingStore 
 }
 
 extension AssetDefinitionDiskBackingStoreWithOverrides: AssetDefinitionBackingStoreDelegate {
-    func invalidateAssetDefinition(forContract contract: AlphaWallet.Address) {
+    func invalidateAssetDefinition(forContractAndServer contractAndServer: AddressAndOptionalRPCServer) {
         //do nothing
     }
 

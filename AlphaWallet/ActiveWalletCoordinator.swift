@@ -1114,9 +1114,9 @@ extension ActiveWalletCoordinator: TransactionsServiceDelegate {
         walletBalanceService.refreshBalance(updatePolicy: .all, wallets: [wallet])
     }
 
-    func didExtractNewContracts(in service: TransactionsService, contracts: [AlphaWallet.Address]) {
-        for each in contracts {
-            assetDefinitionStore.fetchXML(forContract: each)
+    func didExtractNewContracts(in service: TransactionsService, contractsAndServers: [AddressAndRPCServer]) {
+        for each in contractsAndServers {
+            assetDefinitionStore.fetchXML(forContract: each.address, server: each.server)
         }
     }
 }

@@ -215,7 +215,7 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
         }
     }
 
-    func watchDirectoryContents(changeHandler: @escaping (AlphaWallet.Address) -> Void) {
+    func watchDirectoryContents(changeHandler: @escaping (AddressAndOptionalRPCServer) -> Void) {
         guard directoryWatcher == nil else { return }
         directoryWatcher = DirectoryContentsWatcher.Local(path: directory.path)
         try? directoryWatcher?.start { [weak self] results in
@@ -231,9 +231,9 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
         }
     }
 
-    private func handleTokenScriptFileChanged(withFilename fileName: String, changeHandler: @escaping (AlphaWallet.Address) -> Void) {
+    private func handleTokenScriptFileChanged(withFilename fileName: String, changeHandler: @escaping (AddressAndOptionalRPCServer) -> Void) {
         let url = directory.appendingPathComponent(fileName)
-        var contractsAffected: [AlphaWallet.Address]
+        var contractsAndServersAffected: [AddressAndOptionalRPCServer]
         if url.pathExtension == AssetDefinitionDiskBackingStore.fileExtension || url.pathExtension == "xml" {
             let contractsPreviouslyForThisXmlFile = tokenScriptFileIndices.contractsToFileNames.filter { _, fileNames in
                 return fileNames.contains(fileName)
@@ -249,50 +249,50 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
             tokenScriptFileIndices.contractsToEntities.removeValue(forKey: fileName)
             tokenScriptFileIndices.removeHash(forFile: fileName)
 
-            let contracts: [AlphaWallet.Address]
+            let contractsAndServers: [AddressAndOptionalRPCServer]
             if let contents = try? String(contentsOf: url) {
-                if let holdingContracts = XMLHandler.functional.getHoldingContracts(forTokenScript: contents)?.map({ $0.0 }) {
-                    contracts = holdingContracts
+                if let holdingContracts: [AddressAndOptionalRPCServer] = XMLHandler.functional.getHoldingContracts(forTokenScript: contents)?.map({ AddressAndOptionalRPCServer(address: $0.0, server: RPCServer(chainID: $0.1)) }) {
+                    contractsAndServers = holdingContracts
                     let entities = XMLHandler.functional.getEntities(forTokenScript: contents)
-                    for eachContract in contracts {
-                        tokenScriptFileIndices.contractsToFileNames[eachContract, default: []] += [fileName]
+                    for eachContractAndServer in contractsAndServers {
+                        tokenScriptFileIndices.contractsToFileNames[eachContractAndServer.address, default: []] += [fileName]
                     }
                     tokenScriptFileIndices.contractsToEntities[fileName] = entities
                     tokenScriptFileIndices.trackHash(forFile: fileName, contents: contents)
                     tokenScriptFileIndices.removeBadTokenScriptFileName(fileName)
                     tokenScriptFileIndices.removeOldTokenScriptFileName(fileName)
                 } else {
-                    contracts = []
+                    contractsAndServers = []
                     tokenScriptFileIndices.badTokenScriptFileNames += [fileName]
                 }
             } else {
-                contracts = []
+                contractsAndServers = []
                 tokenScriptFileIndices.removeHash(forFile: fileName)
                 tokenScriptFileIndices.removeBadTokenScriptFileName(fileName)
                 tokenScriptFileIndices.removeOldTokenScriptFileName(fileName)
             }
 
-            contractsAffected = contracts + contractsPreviouslyForThisXmlFile
+            contractsAndServersAffected = contractsAndServers + contractsPreviouslyForThisXmlFile.map { AddressAndOptionalRPCServer(address: $0, server: nil) }
         } else {
-            contractsAffected = [AlphaWallet.Address]()
+            contractsAndServersAffected = [AddressAndOptionalRPCServer]()
             for (xmlFileName, entities) in tokenScriptFileIndices.contractsToEntities {
                 if entities.contains(where: { $0.fileName == fileName }) {
                     let contracts = tokenScriptFileIndices.contracts(inFileName: xmlFileName)
-                    contractsAffected.append(contentsOf: contracts)
+                    contractsAndServersAffected.append(contentsOf: contracts.map { AddressAndOptionalRPCServer(address: $0, server: nil) })
                 }
             }
         }
-        purgeCacheFor(contracts: contractsAffected, changeHandler: changeHandler)
+        purgeCacheFor(contractsAndServers: contractsAndServersAffected, changeHandler: changeHandler)
         writeIndicesToDisk()
         delegate?.badTokenScriptFilesChanged(in: self)
     }
 
-    private func purgeCacheFor(contracts: [AlphaWallet.Address], changeHandler: @escaping (AlphaWallet.Address) -> Void) {
+    private func purgeCacheFor(contractsAndServers: [AddressAndOptionalRPCServer], changeHandler: @escaping (AddressAndOptionalRPCServer) -> Void) {
         //Import to clear the signature cache (which includes conflicts) because a file which was in conflict with another earlier might no longer be
         //TODO clear the cache more intelligently rather than purge it entirely. It might be hard or impossible to know which other contracts are affected
         tokenScriptFileIndices.signatureVerificationTypes = .init()
-        for each in Array(Set(contracts)) {
-            XMLHandler.invalidate(forContract: each)
+        for each in Array(Set(contractsAndServers)) {
+            XMLHandler.invalidate(forContract: each.address)
             changeHandler(each)
         }
     }

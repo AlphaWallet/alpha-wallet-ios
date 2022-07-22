@@ -10,7 +10,7 @@ enum TransactionError: Error {
 
 protocol TransactionsServiceDelegate: AnyObject {
     func didCompleteTransaction(in service: TransactionsService, transaction: TransactionInstance)
-    func didExtractNewContracts(in service: TransactionsService, contracts: [AlphaWallet.Address])
+    func didExtractNewContracts(in service: TransactionsService, contractsAndServers: [AddressAndRPCServer])
 }
 
 class TransactionsService {
@@ -140,9 +140,9 @@ class TransactionsService {
 }
 
 extension TransactionsService: TokensFromTransactionsFetcherDelegate {
-    func didExtractTokens(in fetcher: TokensFromTransactionsFetcher, contracts: [AlphaWallet.Address], tokenUpdates: [TokenUpdate]) {
+    func didExtractTokens(in fetcher: TokensFromTransactionsFetcher, contractsAndServers: [AddressAndRPCServer], tokenUpdates: [TokenUpdate]) {
         tokensDataStore.add(tokenUpdates: tokenUpdates)
-        delegate?.didExtractNewContracts(in: self, contracts: contracts)
+        delegate?.didExtractNewContracts(in: self, contractsAndServers: contractsAndServers)
     }
 }
 

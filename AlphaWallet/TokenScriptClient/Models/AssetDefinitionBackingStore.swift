@@ -21,6 +21,6 @@ protocol AssetDefinitionBackingStore {
 }
 
 protocol AssetDefinitionBackingStoreDelegate: AnyObject {
-    func invalidateAssetDefinition(forContract contract: AlphaWallet.Address)
+    func invalidateAssetDefinition(forContractAndServer contractAndServer: AddressAndOptionalRPCServer)
     func badTokenScriptFilesChanged(in: AssetDefinitionBackingStore)
 }

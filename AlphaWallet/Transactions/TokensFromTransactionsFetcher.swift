@@ -9,19 +9,19 @@ import Foundation
 import PromiseKit
 
 protocol TokensFromTransactionsFetcherDelegate: AnyObject {
-    func didExtractTokens(in fetcher: TokensFromTransactionsFetcher, contracts: [AlphaWallet.Address], tokenUpdates: [TokenUpdate])
+    func didExtractTokens(in fetcher: TokensFromTransactionsFetcher, contractsAndServers: [AddressAndRPCServer], tokenUpdates: [TokenUpdate])
 }
 
 final class TokensFromTransactionsFetcher {
     private let tokensDataStore: TokensDataStore
     private let session: WalletSession
-    
+
     weak var delegate: TokensFromTransactionsFetcherDelegate?
 
     init(tokensDataStore: TokensDataStore, session: WalletSession) {
         self.tokensDataStore = tokensDataStore
         self.session = session
-    } 
+    }
 
     func extractNewTokens(from transactions: [TransactionInstance]) {
         guard !transactions.isEmpty else { return }
@@ -34,9 +34,9 @@ final class TokensFromTransactionsFetcher {
 
     private func addTokensFromUpdates(transactionsToPullContractsFrom transactions: [TransactionInstance], contractsAndTokenTypes: [AlphaWallet.Address: TokenType]) {
         let tokenUpdates = TokensFromTransactionsFetcher.functional.tokens(from: transactions, contractsAndTokenTypes: contractsAndTokenTypes)
-        let contracts = Array(Set(tokenUpdates.map { $0.address }))
+        let contractsAndServers = Array(Set(tokenUpdates.map { AddressAndRPCServer(address: $0.address, server: $0.server) }))
 
-        delegate?.didExtractTokens(in: self, contracts: contracts, tokenUpdates: tokenUpdates)
+        delegate?.didExtractTokens(in: self, contractsAndServers: contractsAndServers, tokenUpdates: tokenUpdates)
     }
 
     private var contractsToAvoid: [AlphaWallet.Address] {

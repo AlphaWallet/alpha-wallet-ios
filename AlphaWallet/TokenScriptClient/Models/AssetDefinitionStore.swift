@@ -139,9 +139,9 @@ class AssetDefinitionStore: NSObject {
         NotificationCenter.default.addObserver(self, selector: #selector(fetchXMLForContractInPasteboard), name: UIApplication.didBecomeActiveNotification, object: nil)
     }
 
-    func fetchXMLs(forContracts contracts: [AlphaWallet.Address]) {
-        for each in contracts {
-            fetchXML(forContract: each)
+    func fetchXMLs(forContractsAndServers contractsAndServers: [AddressAndOptionalRPCServer]) {
+        for each in contractsAndServers {
+            fetchXML(forContract: each.address, server: each.server)
         }
     }
 
@@ -169,22 +169,22 @@ class AssetDefinitionStore: NSObject {
     /// useCacheAndFetch: when true, the completionHandler will be called immediately and a second time if an updated XML is fetched. When false, the completionHandler will only be called up fetching an updated XML
     ///
     /// IMPLEMENTATION NOTE: Current implementation will fetch the same XML multiple times if this function is called again before the previous attempt has completed. A check (which requires tracking completion handlers) hasn't been implemented because this doesn't usually happen in practice
-    func fetchXML(forContract contract: AlphaWallet.Address, useCacheAndFetch: Bool = false, completionHandler: ((Result) -> Void)? = nil) {
+    func fetchXML(forContract contract: AlphaWallet.Address, server: RPCServer?, useCacheAndFetch: Bool = false, completionHandler: ((Result) -> Void)? = nil) {
         if useCacheAndFetch && self[contract] != nil {
             completionHandler?(.cached)
         }
         firstly {
-            urlToFetch(contract: contract)
+            urlToFetch(contract: contract, server: server)
         }.done { url in
             guard let url = url else { return }
-            self.fetchXML(forContract: contract, withUrl: url, useCacheAndFetch: useCacheAndFetch, completionHandler: completionHandler)
+            self.fetchXML(forContract: contract, server: server, withUrl: url, useCacheAndFetch: useCacheAndFetch, completionHandler: completionHandler)
         }.catch { error in
             //no-op
             debugLog("[TokenScript] unexpected error while fetching TokenScript file for contract: \(contract.eip55String) error: \(error)")
         }
     }
 
-    private func fetchXML(forContract contract: AlphaWallet.Address, withUrl url: URL, useCacheAndFetch: Bool = false, completionHandler: ((Result) -> Void)? = nil) {
+    private func fetchXML(forContract contract: AlphaWallet.Address, server: RPCServer?, withUrl url: URL, useCacheAndFetch: Bool = false, completionHandler: ((Result) -> Void)? = nil) {
         Alamofire.request(
                 url,
                 method: .get,
@@ -203,7 +203,7 @@ class AssetDefinitionStore: NSObject {
                     if xml == strongSelf[contract] {
                         completionHandler?(.unmodified)
                     } else if strongSelf.isTruncatedXML(xml: xml) {
-                        strongSelf.fetchXML(forContract: contract, useCacheAndFetch: false) { result in
+                        strongSelf.fetchXML(forContract: contract, server: server, useCacheAndFetch: false) { result in
                             completionHandler?(result)
                         }
                     } else {
@@ -239,13 +239,21 @@ class AssetDefinitionStore: NSObject {
         guard CryptoAddressValidator.isValidAddress(contents) else { return }
         guard let address = AlphaWallet.Address(string: contents) else { return }
         defer { lastContractInPasteboard = contents }
-        fetchXML(forContract: address)
+        fetchXML(forContract: address, server: nil)
     }
 
-    private func urlToFetch(contract: AlphaWallet.Address) -> Promise<URL?> {
-        let name = contract.eip55String
-        let url = URL(string: TokenScript.repoServer)?.appendingPathComponent(name)
-        return .value(url)
+    private func urlToFetch(contract: AlphaWallet.Address, server: RPCServer?) -> Promise<URL?> {
+        if let server = server {
+            return firstly {
+                Self.functional.urlToFetchFromScriptUri(contract: contract, server: server)
+            }.map {
+                $0
+            }.recover { _ -> Promise<URL?> in
+                Self.functional.urlToFetchFromTokenScriptRepo(contract: contract)
+            }
+        } else {
+            return Self.functional.urlToFetchFromTokenScriptRepo(contract: contract)
+        }
     }
 
     private func lastModifiedDateOfCachedAssetDefinitionFile(forContract contract: AlphaWallet.Address) -> Date? {
@@ -289,11 +297,12 @@ class AssetDefinitionStore: NSObject {
 }
 
 extension AssetDefinitionStore: AssetDefinitionBackingStoreDelegate {
-    func invalidateAssetDefinition(forContract contract: AlphaWallet.Address) {
-        XMLHandler.invalidate(forContract: contract)
-        triggerBodyChangedSubscribers(forContract: contract)
-        triggerSignatureChangedSubscribers(forContract: contract)
-        fetchXML(forContract: contract)
+    func invalidateAssetDefinition(forContractAndServer contractAndServer: AddressAndOptionalRPCServer) {
+        XMLHandler.invalidate(forContract: contractAndServer.address)
+        triggerBodyChangedSubscribers(forContract: contractAndServer.address)
+        triggerSignatureChangedSubscribers(forContract: contractAndServer.address)
+        //TODO check why we are fetching here. Current func gets called when on-disk changed too?
+        fetchXML(forContract: contractAndServer.address, server: contractAndServer.server)
     }
 
     func badTokenScriptFilesChanged(in: AssetDefinitionBackingStore) {
@@ -301,5 +310,21 @@ extension AssetDefinitionStore: AssetDefinitionBackingStoreDelegate {
         DispatchQueue.main.async {
             self.delegate?.listOfBadTokenScriptFilesChanged(in: self)
         }
+    }
+}
+
+extension AssetDefinitionStore {
+    enum functional {}
+}
+
+extension AssetDefinitionStore.functional {
+    static func urlToFetchFromTokenScriptRepo(contract: AlphaWallet.Address) -> Promise<URL?> {
+        let name = contract.eip55String
+        let url = URL(string: TokenScript.repoServer)?.appendingPathComponent(name)
+        return .value(url)
+    }
+
+    static func urlToFetchFromScriptUri(contract: AlphaWallet.Address, server: RPCServer) -> Promise<URL> {
+        ScriptUri(forServer: server).get(forContract: contract)
     }
 }
