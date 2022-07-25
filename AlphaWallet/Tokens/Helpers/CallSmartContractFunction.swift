@@ -2,6 +2,7 @@
 
 import Foundation
 import PromiseKit
+import Result
 import web3swift
 
 //TODO time to wrap `callSmartContract` with a class
@@ -162,4 +163,8 @@ func getEventLogs(
             debugLog("[eth_getLogs] failure for server: \(server) with error: \(error)")
             return .init(error: error)
         }
+}
+
+func createSmartContractCallError(forContract contract: AlphaWallet.Address, functionName: String) -> AnyError {
+    AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))
 }
