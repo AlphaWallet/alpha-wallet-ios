@@ -6,29 +6,22 @@
 //
 
 @testable import AlphaWallet
+import Foundation
 import RealmSwift
 
 fileprivate extension Realm {
     static func fake(for wallet: Wallet) -> Realm {
-        return try! Realm(configuration: Realm.Configuration(inMemoryIdentifier: "MyInMemoryRealm-\(wallet.address.eip55String)"))
+        let uuid = UUID().uuidString
+        return try! Realm(configuration: Realm.Configuration(inMemoryIdentifier: "MyInMemoryRealm-\(wallet.address.eip55String)-\(uuid)"))
     }
 }
 
 class FakeRealmLocalStore: LocalStore {
-    private var cachedStores: AtomicDictionary<Wallet, RealmStore> = .init()
-
     func getOrCreateStore(forWallet wallet: Wallet) -> RealmStore {
-        if let store = cachedStores[wallet] {
-            return store
-        } else {
-            let store = RealmStore(realm: Realm.fake(for: wallet), name: RealmStore.threadName(for: wallet))
-            cachedStores[wallet] = store
-
-            return store
-        }
+        return RealmStore(realm: Realm.fake(for: wallet), name: RealmStore.threadName(for: wallet))
     }
 
     func removeStore(forWallet wallet: Wallet) {
-        cachedStores.removeValue(forKey: wallet)
+        //no-op
     }
 }

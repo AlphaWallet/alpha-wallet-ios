@@ -26,6 +26,7 @@ protocol TokensDataStore: NSObjectProtocol {
     func token(forContract contract: AlphaWallet.Address, server: RPCServer) -> Token?
     func add(hiddenContracts: [AddressAndRPCServer])
     func deleteTestsOnly(tokens: [Token])
+    func tokenBalancesTestsOnly() -> [TokenBalanceValue]
     func add(tokenUpdates updates: [TokenUpdate])
     @discardableResult func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [Token]
     @discardableResult func updateToken(primaryKey: String, action: TokenUpdateAction) -> Bool?
@@ -464,6 +465,14 @@ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
         }
     }
 
+    func tokenBalancesTestsOnly() -> [TokenBalanceValue] {
+        var balances: [TokenBalanceValue] = []
+        store.performSync { realm in
+            balances = realm.objects(TokenBalance.self).map { TokenBalanceValue(balance: $0) }
+        }
+        return balances
+    }
+
     func deleteTestsOnly(tokens: [Token]) {
         guard !tokens.isEmpty else { return }
 
@@ -531,7 +540,7 @@ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
         case .value(let value):
             return updateFungibleBalance(balance: value, token: tokenObject)
         case .nonFungibleBalance(let balance):
-            return updateNonFungibleBalance(balance: balance, token: tokenObject)
+            return updateNonFungibleBalance(balance: balance, token: tokenObject, realm: realm)
         case .name(let name):
             if tokenObject.name != name {
                 tokenObject.name = name
@@ -577,28 +586,29 @@ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
         return false
     }
 
-    private func updateNonFungibleBalance(balance: NonFungibleBalance, token: TokenObject) -> Bool {
+    private func updateNonFungibleBalance(balance: NonFungibleBalance, token: TokenObject, realm: Realm) -> Bool {
+        var hasUpdatedBalance: Bool = false
+
         //NOTE: add new balances
         let balancesToAdd = balance.rawValue
             .filter { b in !token.balance.contains(where: { v in v.balance == b }) }
             .map { TokenBalance(balance: $0) }
 
         //NOTE: remove old balances if something has changed
-        let balancesToDelete = token.balance
-            .filter { !balance.rawValue.contains($0.balance) }
-            .compactMap { token.balance.index(of: $0) }
+        let balancesToDelete = Array(token.balance
+            .filter { !balance.rawValue.contains($0.balance) })
 
-        if !balancesToAdd.isEmpty || !balancesToDelete.isEmpty {
-            for index in balancesToDelete {
-                token.balance.remove(at: index)
-            }
-
-            token.balance.append(objectsIn: balancesToAdd)
-
-            return true
+        if !balancesToDelete.isEmpty {
+            realm.delete(balancesToDelete)
+            hasUpdatedBalance = true
         }
 
-        return false
+        if !balancesToAdd.isEmpty {
+            token.balance.append(objectsIn: balancesToAdd)
+            hasUpdatedBalance = true
+        }
+
+        return hasUpdatedBalance
     }
 
     private func enabledTokenObjectResults(forServers servers: [RPCServer], realm: Realm) -> Results<TokenObject> {
