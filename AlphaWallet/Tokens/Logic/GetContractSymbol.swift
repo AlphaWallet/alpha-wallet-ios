@@ -18,7 +18,7 @@ class GetContractSymbol {
             if let symbol = symbolsResult["0"] as? String {
                 return symbol
             } else {
-                throw AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))
+                throw createSmartContractCallError(forContract: contract, functionName: functionName)
             }
         }
     }
