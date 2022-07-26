@@ -270,8 +270,6 @@ extension AccountsCoordinator: WalletCoordinatorDelegate {
             removeCoordinator(coordinator)
             delegate.didSelectAccount(account: account, in: self)
         } else {
-            accountsViewController.viewModel.reload()
-
             coordinator.navigationController.dismiss(animated: true)
             removeCoordinator(coordinator)
         }

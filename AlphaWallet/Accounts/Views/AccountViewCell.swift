@@ -23,8 +23,6 @@ class AccountViewCell: UITableViewCell {
     }()
 
     private var cancelable = Set<AnyCancellable>()
-    //NOTE: its crucial to get strong ref to view model, otherwise it will be dellocated
-    private var viewModel: AccountViewModel?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -64,7 +62,7 @@ class AccountViewCell: UITableViewCell {
     }
 
     func bind(viewModel: AccountViewModel) {
-        self.viewModel = viewModel
+        cancelable.cancellAll()
 
         backgroundColor = viewModel.backgroundColor
         accessoryView = Style.AccessoryView.chevron
