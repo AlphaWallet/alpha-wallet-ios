@@ -9,9 +9,9 @@
 Pod::Spec.new do |s|
   s.name             = 'AlphaWalletCore'
   s.version          = '1.0.2'
-  s.summary          = 'Alpha Wallet core library'
+  s.summary          = 'AlphaWallet core library'
   s.description      = <<-DESC
-  Lightweight library representing the Alpha Wallet core with its functionality
+  Lightweight library representing the AlphaWallet core with its functionality
                        DESC
   s.homepage         = "https://github.com/AlphaWallet/alpha-wallet-ios/tree/master/modules/AlphaWalletCore"
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
