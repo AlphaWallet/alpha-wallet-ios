@@ -13,7 +13,7 @@ class DatabaseMigration: Initializer {
     }
 
     func perform() {
-        config.schemaVersion = 11
+        config.schemaVersion = 12
         config.objectTypes = [
             DelegateContract.self,
             DeletedContract.self,
@@ -113,6 +113,10 @@ class DatabaseMigration: Initializer {
                     ])
                     new?["_info"] = info
                 }
+            }
+
+            if oldSchemaVersion < 12 {
+                migration.deleteData(forType: TokenBalance.className())
             }
         }
     }

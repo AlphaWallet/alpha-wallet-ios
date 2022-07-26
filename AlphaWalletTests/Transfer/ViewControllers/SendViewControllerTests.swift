@@ -128,7 +128,7 @@ class SendViewControllerTests: XCTestCase {
 
         tokenBalanceService.tokenBalancePublisher(token.addressAndRPCServer)
             .sink { value in
-                if callbackCount2 == 0 {
+                if callbackCount == 0 {
                     XCTAssertNotNil(value)
                 }
 
