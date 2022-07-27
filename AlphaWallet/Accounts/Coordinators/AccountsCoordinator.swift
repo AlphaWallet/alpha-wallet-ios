@@ -194,8 +194,10 @@ class AccountsCoordinator: Coordinator {
             }
             controller.addAction(renameAction)
 
-            let copyAction = UIAlertAction(title: R.string.localizable.copyAddress(), style: .default) { _ in
+            let copyAction = UIAlertAction(title: R.string.localizable.copyAddress(), style: .default) { [weak self] _ in
+                guard let strongSelf = self else { return }
                 UIPasteboard.general.string = account.address.eip55String
+                strongSelf.navigationController.view.showCopiedToClipboard(title: R.string.localizable.copiedToClipboard())
             }
             controller.addAction(copyAction)
             let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
