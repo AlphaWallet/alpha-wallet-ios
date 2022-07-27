@@ -37,7 +37,7 @@ extension DomainResolutionService: DomainResolutionServiceType {
         }
 
         return Just(value)
-            .receive(on: DispatchQueue.global())
+            .receive(on: Config.backgroundQueue)
             .setFailureType(to: SmartContractError.self)
             .flatMap { [getEnsAddressResolver] value in
                 getEnsAddressResolver.getENSAddressFromResolver(for: value)
@@ -90,7 +90,7 @@ extension DomainResolutionService: DomainResolutionServiceType {
         }
 
         return Just(address)
-            .receive(on: DispatchQueue.global())
+            .receive(on: Config.backgroundQueue)
             .setFailureType(to: SmartContractError.self)
             .flatMap { [ensReverseLookupResolver] address in
                 ensReverseLookupResolver.getENSNameFromResolver(for: address)

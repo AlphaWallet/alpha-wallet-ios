@@ -26,7 +26,7 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
                 .sorted(byKeyPath: "date", ascending: false)
                 .changesetPublisher
                 .freeze()
-                .receive(on: DispatchQueue.global())
+                .receive(on: Config.backgroundQueue)
                 .map { change in
                     switch change {
                     case .initial(let eventActivities):

@@ -31,7 +31,7 @@ class AlphaWalletRemoteTickerIdsFetcher: TickerIdsFetcher {
     /// Returns already defined, stored associated with token ticker id
     func tickerId(for token: TokenMappedToTicker) -> AnyPublisher<TickerIdString?, Never> {
         return Just(token)
-            .receive(on: DispatchQueue.global())
+            .receive(on: Config.backgroundQueue)
             .flatMap { [provider] _ in provider.tokenEntries().replaceError(with: []) }
             .flatMap { [weak self] entries -> AnyPublisher<TickerIdString?, Never> in
                 guard let strongSelf = self else { return .empty() }

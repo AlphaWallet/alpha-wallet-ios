@@ -27,7 +27,6 @@ class MultipleChainsTokenCollection: NSObject, TokenCollection {
 
     let tokensFilter: TokensFilter
     private var tokensViewModelSubject: CurrentValueSubject<TokensViewModel, Never>
-    private let queue = DispatchQueue(label: "com.MultipleChainsTokenCollection.updateQueue")
     private let refreshSubject = PassthroughSubject<Void, Never>.init()
     private var cancelable = Set<AnyCancellable>()
     private let coinTickersFetcher: CoinTickersFetcher
@@ -49,12 +48,12 @@ class MultipleChainsTokenCollection: NSObject, TokenCollection {
 
         tokensDataStore
             .enabledTokensPublisher(for: enabledServers)
-            .receive(on: queue)
+            .receive(on: Config.backgroundQueue)
             .combineLatest(refreshSubject, coinTickersFetcher.tickersDidUpdate, { tokens, _, _ in tokens })
             .map { MultipleChainsTokensDataStore.functional.erc20AddressForNativeTokenFilter(servers: enabledServers, tokens: $0) }
             .map { TokensViewModel.functional.filterAwaySpuriousTokens($0) }
             .map { TokensViewModel(tokensFilter: tokensFilter, tokens: $0, config: config) }
-            .debounce(for: .seconds(Constants.refreshTokensThresholdSec), scheduler: queue)
+            .debounce(for: .seconds(Constants.refreshTokensThresholdSec), scheduler: Config.backgroundQueue)
             .receive(on: RunLoop.main)
             .sink { [weak self] tokensViewModel in
                 self?.tokensViewModelSubject.send(tokensViewModel)
