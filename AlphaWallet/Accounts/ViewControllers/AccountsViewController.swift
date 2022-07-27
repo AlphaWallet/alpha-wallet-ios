@@ -219,6 +219,7 @@ extension AccountsViewController: UITableViewDelegate {
         let copyAction = UIContextualAction(style: .normal, title: R.string.localizable.copyAddress()) { _, _, complete in
             guard let account = self.viewModel.account(for: indexPath) else { return }
             UIPasteboard.general.string = account.address.eip55String
+            self.view.showCopiedToClipboard(title: R.string.localizable.copiedToClipboard())
             complete(true)
         }
 
