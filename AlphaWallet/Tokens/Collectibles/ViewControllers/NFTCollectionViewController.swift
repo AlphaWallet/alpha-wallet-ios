@@ -49,10 +49,11 @@ class NFTCollectionViewController: UIViewController {
 
         return view
     }()
-
+    private let tokenHoldersSubject = CurrentValueSubject<[TokenHolder], Never>([])
     private lazy var nftAssetsPageView: NFTAssetsPageView = {
         let tokenCardViewFactory = TokenCardViewFactory(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, keystore: keystore, wallet: viewModel.wallet)
-        let viewModel: NFTAssetsPageViewModel = .init(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, tokenHolders: viewModel.tokenHolders, selection: .list)
+
+        let viewModel: NFTAssetsPageViewModel = .init(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, tokenHolders: tokenHoldersSubject.eraseToAnyPublisher(), selection: .list)
 
         let view = NFTAssetsPageView(tokenCardViewFactory: tokenCardViewFactory, viewModel: viewModel)
         view.delegate = self
@@ -130,6 +131,7 @@ class NFTCollectionViewController: UIViewController {
         super.viewWillAppear(animated)
 
         hideNavigationBarTopSeparatorLine()
+        nftAssetsPageView.viewWillAppear()
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -172,7 +174,8 @@ class NFTCollectionViewController: UIViewController {
         updateNavigationRightBarButtons(tokenScriptFileStatusHandler: tokenScriptFileStatusHandler)
 
         collectionInfoPageView.configure(viewModel: .init(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, wallet: session.account))
-        nftAssetsPageView.configure(viewModel: .init(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, tokenHolders: viewModel.tokenHolders, selection: nftAssetsPageView.viewModel.selection))
+        //FIXME: will be replaced later
+        tokenHoldersSubject.send(viewModel.tokenHolders)
 
         if viewModel.openInUrl != nil {
             buttonsBar.configure(.secondary(buttons: 1))
@@ -230,8 +233,7 @@ class NFTCollectionViewController: UIViewController {
 extension NFTCollectionViewController: UISearchBarDelegate {
 
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        nftAssetsPageView.viewModel.searchFilter = .keyword(searchText)
-        nftAssetsPageView.reload(animatingDifferences: true)
+        nftAssetsPageView.viewModel.set(searchFilter: .keyword(searchText))
     }
 }
 
@@ -246,7 +248,7 @@ extension NFTCollectionViewController: PagesContainerViewDelegate {
 
     @objc private func assetsDisplayTypeSelected(_ sender: UIBarButtonItem) {
         let selection = nftAssetsPageView.viewModel.selection
-        nftAssetsPageView.configure(viewModel: .init(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, tokenHolders: viewModel.tokenHolders, selection: sender.selection ?? selection))
+        nftAssetsPageView.viewModel.set(selection: sender.selection ?? selection)
         sender.toggleSelection()
     }
 }
