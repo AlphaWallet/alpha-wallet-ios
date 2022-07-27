@@ -97,7 +97,7 @@ class AccountsViewController: UIViewController {
         tableView.reloadData()
     }
 
-    private func confirmDelete(account: Wallet) {
+    private func confirmDelete(account: Wallet, complete: @escaping (Bool) -> Void) {
         confirm(
             title: R.string.localizable.accountsConfirmDeleteTitle(),
             message: R.string.localizable.accountsConfirmDeleteMessage(),
@@ -108,7 +108,9 @@ class AccountsViewController: UIViewController {
             switch result {
             case .success:
                 strongSelf.delete(account: account)
-            case .failure: break
+                complete(true)
+            case .failure:
+                complete(false)
             }
         }
     }
@@ -178,10 +180,6 @@ extension AccountsViewController: UITableViewDataSource {
         view.addGestureRecognizer(gesture)
     }
 
-    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return viewModel.canEditCell(indexPath: indexPath)
-    }
-
     @objc private func didLongPress(_ recognizer: UILongPressGestureRecognizer) {
         guard let cell = recognizer.view as? AccountViewCell, let indexPath = cell.indexPath, recognizer.state == .began else { return }
         guard let account = viewModel.account(for: indexPath) else { return }
@@ -215,6 +213,7 @@ extension AccountsViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        var actions: [UIContextualAction] = []
 
         let copyAction = UIContextualAction(style: .normal, title: R.string.localizable.copyAddress()) { _, _, complete in
             guard let account = self.viewModel.account(for: indexPath) else { return }
@@ -222,21 +221,24 @@ extension AccountsViewController: UITableViewDelegate {
             self.view.showCopiedToClipboard(title: R.string.localizable.copiedToClipboard())
             complete(true)
         }
-
         copyAction.image = R.image.copy()?.withRenderingMode(.alwaysTemplate)
         copyAction.backgroundColor = R.color.azure()
 
-        let deleteAction = UIContextualAction(style: .normal, title: R.string.localizable.accountsConfirmDeleteAction()) { _, _, complete in
-            guard let account = self.viewModel.account(for: indexPath) else { return }
-            self.confirmDelete(account: account)
+        actions += [copyAction]
 
-            complete(true)
+        if viewModel.canDeleteWallet(at: indexPath) {
+            let deleteAction = UIContextualAction(style: .normal, title: R.string.localizable.accountsConfirmDeleteAction()) { _, _, complete in
+                guard let account = self.viewModel.account(for: indexPath) else { return }
+                self.confirmDelete(account: account, complete: complete)
+            }
+
+            deleteAction.image = R.image.close()?.withRenderingMode(.alwaysTemplate)
+            deleteAction.backgroundColor = R.color.danger()
+
+            actions += [deleteAction]
         }
 
-        deleteAction.image = R.image.close()?.withRenderingMode(.alwaysTemplate)
-        deleteAction.backgroundColor = R.color.danger()
-
-        let configuration = UISwipeActionsConfiguration(actions: [copyAction, deleteAction])
+        let configuration = UISwipeActionsConfiguration(actions: actions)
         configuration.performsFirstActionWithFullSwipe = true
 
         return configuration
