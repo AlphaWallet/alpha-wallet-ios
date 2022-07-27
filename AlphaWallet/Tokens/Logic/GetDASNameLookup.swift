@@ -29,13 +29,13 @@ public final class GetDASNameLookup {
         return value.trimmed.hasSuffix(".bit")
     }
 
-    func resolve(rpcURL: URL, value: String) -> Promise<AlphaWallet.Address> {
+    func resolve(rpcURL: URL, rpcHeaders: [String: String], value: String) -> Promise<AlphaWallet.Address> {
         guard GetDASNameLookup.isValid(value: value) else {
             debugLog("[DAS] Invalid lookup: \(value)")
             return .init(error: DASNameLookupError.invalidInput)
         }
 
-        let request = EtherServiceRequest(rpcURL: rpcURL, batch: BatchFactory().create(DASLookupRequest(value: value)))
+        let request = EtherServiceRequest(rpcURL: rpcURL, rpcHeaders: rpcHeaders, batch: BatchFactory().create(DASLookupRequest(value: value)))
         debugLog("[DAS] Looking up value \(value)")
         return Session.send(request, server: server, analyticsCoordinator: analyticsCoordinator).map { response -> AlphaWallet.Address in
             debugLog("[DAS] response for value: \(value) response : \(response)")

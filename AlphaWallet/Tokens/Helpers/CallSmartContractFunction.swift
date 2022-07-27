@@ -39,7 +39,8 @@ func getCachedWeb3(forServer server: RPCServer, timeout: TimeInterval) throws ->
     if let result = web3s[server]?[timeout] {
         return result
     } else {
-        guard let webProvider = Web3HttpProvider(server.rpcURL, network: server.web3Network) else {
+        let rpcHeaders = server.rpcHeaders
+        guard let webProvider = Web3HttpProvider(server.rpcURL, headers: rpcHeaders, network: server.web3Network) else {
             throw Web3Error(description: "Error creating web provider for: \(server.rpcURL) + \(server.web3Network)")
         }
         let configuration = webProvider.session.configuration

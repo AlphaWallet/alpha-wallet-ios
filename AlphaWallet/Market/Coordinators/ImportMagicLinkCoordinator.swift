@@ -389,7 +389,7 @@ class ImportMagicLinkCoordinator: Coordinator {
         let vString = "0" + String(vInt)
         let signature = "0x" + signedOrder.signature.drop0x.substring(to: 128) + vString
         let nodeURL = server.rpcURL
-        let provider = Web3HttpProvider(nodeURL, network: server.web3Network)!
+        let provider = Web3HttpProvider(nodeURL, headers: server.rpcHeaders, network: server.web3Network)!
         let web3Instance = web3swift.web3(provider: provider)
 
         return web3swift.web3.Personal(provider: web3Instance.provider, web3: web3Instance).ecrecover(

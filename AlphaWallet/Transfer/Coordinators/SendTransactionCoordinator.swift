@@ -30,7 +30,8 @@ class SendTransactionCoordinator {
 
     func send(rawTransaction: String) -> Promise<ConfirmResult> {
         let rawRequest = SendRawTransactionRequest(signedTransaction: rawTransaction.add0x)
-        let request = EtherServiceRequest(rpcURL: rpcURL, batch: BatchFactory().create(rawRequest))
+        let (rpcURL, rpcHeaders) = rpcURLAndHeaders
+        let request = EtherServiceRequest(rpcURL: rpcURL, rpcHeaders: rpcHeaders, batch: BatchFactory().create(rawRequest))
 
         return firstly {
             Session.send(request, server: session.server, analyticsCoordinator: analyticsCoordinator)
@@ -71,8 +72,9 @@ class SendTransactionCoordinator {
     }
 
     private func resolveNextNonce(for transaction: UnsignedTransaction) -> Promise<UnsignedTransaction> {
-        firstly {
-            GetNextNonce(rpcURL: rpcURL, server: session.server, wallet: session.account.address, analyticsCoordinator: analyticsCoordinator).promise()
+        let (rpcURL, rpcHeaders) = rpcURLAndHeaders
+        return firstly {
+            GetNextNonce(rpcURL: rpcURL, rpcHeaders: rpcHeaders, server: session.server, wallet: session.account.address, analyticsCoordinator: analyticsCoordinator).promise()
         }.map { nonce -> UnsignedTransaction in
             let transaction = self.appendNonce(to: transaction, currentNonce: nonce)
             return transaction
@@ -94,7 +96,8 @@ class SendTransactionCoordinator {
 
     private func sendTransactionRequest(transaction: UnsignedTransaction, data: Data) -> Promise<ConfirmResult> {
         let rawTransaction = SendRawTransactionRequest(signedTransaction: data.hexEncoded)
-        let request = EtherServiceRequest(rpcURL: rpcURL, batch: BatchFactory().create(rawTransaction))
+        let (rpcURL, rpcHeaders) = rpcURLAndHeaders
+        let request = EtherServiceRequest(rpcURL: rpcURL, rpcHeaders: rpcHeaders, batch: BatchFactory().create(rawTransaction))
 
         return firstly {
             Session.send(request, server: session.server, analyticsCoordinator: analyticsCoordinator)
@@ -118,17 +121,17 @@ class SendTransactionCoordinator {
         }
     }
 
-    private var rpcURL: URL {
-        session.server.rpcUrlWithReplacementSendPrivateTransactionsProviderIfEnabled(config: config)
+    private var rpcURLAndHeaders: (url: URL, rpcHeaders: [String: String]) {
+        session.server.rpcUrlAndHeadersWithReplacementSendPrivateTransactionsProviderIfEnabled(config: config)
     }
 }
 
 extension RPCServer {
-    func rpcUrlWithReplacementSendPrivateTransactionsProviderIfEnabled(config: Config) -> URL {
+    func rpcUrlAndHeadersWithReplacementSendPrivateTransactionsProviderIfEnabled(config: Config) -> (url: URL, rpcHeaders: [String: String]) {
         if let rpcUrlForSendPrivateTransactionsNetworkProvider = config.sendPrivateTransactionsProvider?.rpcUrl(forServer: self) {
-            return rpcUrlForSendPrivateTransactionsNetworkProvider
+            return (url: rpcUrlForSendPrivateTransactionsNetworkProvider, rpcHeaders: .init())
         } else {
-            return rpcURL
+            return (url: rpcURL, rpcHeaders: rpcHeaders)
         }
     }
 }

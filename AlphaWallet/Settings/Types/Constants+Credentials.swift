@@ -19,5 +19,7 @@ extension Constants {
         static let unstoppableDomainsV2ApiKey = "Bearer rLuujk_dLBN-JDE6Xl8QSCg-FeIouRKM"
         static let blockscanChatProxyKey = ""
         static let covalentApiKey = "ckey_7ee61be7f8364ba784f697510bd"
+        //Without the "Basic " prefix
+        static let klaytnRpcNodeKeyBasicAuth = ""
     }
 }

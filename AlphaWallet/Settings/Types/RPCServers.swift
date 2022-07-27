@@ -605,13 +605,42 @@ enum RPCServer: Hashable, CaseIterable {
             case .arbitrumRinkeby: return "https://arbitrum-rinkeby.infura.io/v3/\(Constants.Credentials.infuraKey)"
             case .palm: return "https://palm-mainnet.infura.io/v3/\(Constants.Credentials.infuraKey)"
             case .palmTestnet: return "https://palm-testnet.infura.io/v3/\(Constants.Credentials.infuraKey)"
-            case .klaytnCypress: return "https://public-node-api.klaytnapi.com/v1/cypress"
-            case .klaytnBaobabTestnet: return "https://api.baobab.klaytn.net:8651"
+            case .klaytnCypress:
+                let basicAuth = Constants.Credentials.klaytnRpcNodeKeyBasicAuth
+                if basicAuth.isEmpty {
+                    return "https://public-node-api.klaytnapi.com/v1/cypress"
+                } else {
+                    return "https://node-api.klaytnapi.com/v1/klaytn"
+                }
+            case .klaytnBaobabTestnet:
+                let basicAuth = Constants.Credentials.klaytnRpcNodeKeyBasicAuth
+                if basicAuth.isEmpty {
+                    return "https://api.baobab.klaytn.net:8651"
+                } else {
+                    return "https://node-api.klaytnapi.com/v1/klaytn"
+                }
             case .ioTeX: return "https://babel-api.mainnet.iotex.io"
             case .ioTeXTestnet: return "https://babel-api.testnet.iotex.io"
             }
         }()
         return URL(string: urlString)!
+    }
+
+    var rpcHeaders: RPCNodeHTTPHeaders {
+        switch self {
+        case .klaytnCypress, .klaytnBaobabTestnet:
+            let basicAuth = Constants.Credentials.klaytnRpcNodeKeyBasicAuth
+            if basicAuth.isEmpty {
+                return .init()
+            } else {
+                return [
+                    "Authorization": "Basic \(basicAuth)",
+                    "x-chain-id": "\(chainID)",
+                ]
+            }
+        case .main, .classic, .callisto, .kovan, .ropsten, .rinkeby, .poa, .sokol, .goerli, .xDai, .phi, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .ioTeX, .ioTeXTestnet:
+            return .init()
+        }
     }
 
     var transactionInfoEndpoints: URL? {
