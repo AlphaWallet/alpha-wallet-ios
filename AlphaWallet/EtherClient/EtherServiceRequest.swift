@@ -6,15 +6,18 @@ import JSONRPCKit
 
 struct EtherServiceRequest<Batch: JSONRPCKit.Batch>: APIKit.Request {
     private let rpcURL: URL
+    private let rpcHeaders: [String: String]
     private let batch: Batch
 
     init(server: RPCServer, batch: Batch) {
         self.batch = batch
         self.rpcURL = server.rpcURL
+        self.rpcHeaders = server.rpcHeaders
     }
 
-    init(rpcURL: URL, batch: Batch) {
+    init(rpcURL: URL, rpcHeaders: [String: String], batch: Batch) {
         self.batch = batch
+        self.rpcHeaders = rpcHeaders
         self.rpcURL = rpcURL
     }
 
@@ -34,6 +37,10 @@ struct EtherServiceRequest<Batch: JSONRPCKit.Batch>: APIKit.Request {
 
     var parameters: Any? {
         return batch.requestObject
+    }
+
+    var headerFields: [String: String] {
+        return rpcHeaders
     }
 
     func response(from object: Any, urlResponse: HTTPURLResponse) throws -> Response {
