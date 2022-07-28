@@ -2,7 +2,6 @@
 
 import Foundation
 @testable import AlphaWallet
-import RealmSwift
 
 class FakeTransactionsStorage: TransactionDataStore {
     convenience init(wallet: Wallet = .init(type: .watch(Constants.nativeCryptoAddressInDatabase))) {

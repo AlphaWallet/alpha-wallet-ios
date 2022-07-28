@@ -1,6 +1,5 @@
 import XCTest
 @testable import AlphaWallet
-import RealmSwift
 import BigInt
 
 class OrderSigningTests: XCTestCase {

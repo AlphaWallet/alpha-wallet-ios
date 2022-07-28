@@ -6,12 +6,10 @@
 //
 
 import Foundation
-import RealmSwift
 @testable import AlphaWallet
 
 final class FakeEnsRecordsStorage: RealmStore {
     init() {
-        let realm = try! Realm(configuration: Realm.Configuration(inMemoryIdentifier: "MyInMemoryEnsRecordsRealm"))
-        super.init(realm: realm)
+        super.init(realm: fakeRealm())
     }
 }

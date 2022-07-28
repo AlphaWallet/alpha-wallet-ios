@@ -5,8 +5,7 @@
 //  Created by Vladyslav Shepitko on 28.05.2021.
 //
 
-import UIKit
-import RealmSwift
+import UIKit 
 import BigInt
 import PromiseKit
 import Combine
