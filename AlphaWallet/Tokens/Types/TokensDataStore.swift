@@ -208,7 +208,7 @@ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
             publisher = self.enabledTokenObjectResults(forServers: servers, realm: realm)
                 .changesetPublisher
                 .freeze()
-                .receive(on: DispatchQueue.global())
+                .receive(on: Config.backgroundQueue)
                 .map { change in
                     switch change {
                     case .initial(let tokenObjects):

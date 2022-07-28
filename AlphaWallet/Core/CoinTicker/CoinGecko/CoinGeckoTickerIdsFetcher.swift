@@ -26,7 +26,7 @@ class CoinGeckoTickerIdsFetcher: TickerIdsFetcher {
     /// Searching for ticker id very havy operation, and takes to mutch time, we use cacing in `knownTickerIds` to store all know ticker ids
     func tickerId(for token: TokenMappedToTicker) -> AnyPublisher<TickerIdString?, Never> {
         return Just(token)
-            .receive(on: DispatchQueue.global())
+            .receive(on: Config.backgroundQueue)
             .flatMap { [weak self, storage] token -> AnyPublisher<TickerIdString?, Never> in
                 guard let strongSelf = self else { return .empty() }
                 return strongSelf.fetchSupportedTickerIds()

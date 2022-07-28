@@ -51,7 +51,7 @@ class NonActivityMultiChainEventsDataStore: NonActivityEventsDataStore {
                 .filter("tokenContract = '\(contract.eip55String)'")
                 .changesetPublisher
                 .freeze()
-                .receive(on: DispatchQueue.global())
+                .receive(on: Config.backgroundQueue)
                 .map { change in
                     switch change {
                     case .initial(let eventActivities):

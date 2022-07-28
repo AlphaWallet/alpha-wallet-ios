@@ -27,7 +27,7 @@ class SwapOptionsViewModel {
     var tansactionDeadalineViewModel: TransactionDeadlineTextFieldModel
     lazy var sessionsViewModels: AnyPublisher<[SelectNetworkViewModel], Never> = {
         return Publishers.CombineLatest(configurator.$sessions, configurator.$server)
-            .receive(on: DispatchQueue(label: "com.WalletSessionViewModels.Queue", qos: .utility))
+            .receive(on: Config.backgroundQueue)
             .map { [weak configurator] sessions, server in
                 guard let configurator = configurator else { return [] }
                 return sessions.map {
