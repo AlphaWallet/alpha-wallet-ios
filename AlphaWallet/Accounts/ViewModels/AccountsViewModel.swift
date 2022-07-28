@@ -145,7 +145,7 @@ class AccountsViewModel: ObservableObject {
         }
     }
 
-    func canEditCell(indexPath: IndexPath) -> Bool {
+    func canDeleteWallet(at indexPath: IndexPath) -> Bool {
         guard allowsAccountDeletion else { return false }
         switch sections[indexPath.section] {
         case .hdWallet:
