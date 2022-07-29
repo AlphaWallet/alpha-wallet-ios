@@ -462,8 +462,9 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     }
 
     func showPaymentFlow(for type: PaymentFlow, server: RPCServer, navigationController: UINavigationController) {
-        switch (type, sessionsSubject.value[server].account.type) {
-        case (.send, .real), (.swap, .real), (.request, _):
+        switch (type, wallet.type) {
+        case (.send, .real), (.swap, .real), (.request, _),
+            (_, _) where Config().development.shouldPretendIsRealWallet:
             let coordinator = PaymentCoordinator(
                     navigationController: navigationController,
                     flow: type,
