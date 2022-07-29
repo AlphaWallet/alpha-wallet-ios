@@ -9,7 +9,18 @@ import Realm
 import RealmSwift
 import Foundation
 
+func fakeRealm(wallet: Wallet, inMemoryIdentifier: String = "MyInMemoryRealm") -> Realm {
+    let uuid = UUID().uuidString
+    return try! Realm(configuration: Realm.Configuration(inMemoryIdentifier: "\(inMemoryIdentifier)-\(wallet.address.eip55String)-\(uuid)"))
+}
+
+func fakeRealm(inMemoryIdentifier: String = "MyInMemoryRealm") -> Realm {
+    let uuid = UUID().uuidString
+    return try! Realm(configuration: Realm.Configuration(inMemoryIdentifier: "\(inMemoryIdentifier)-\(uuid)"))
+}
+
 fileprivate let queueForRealmStore = DispatchQueue(label: "org.alphawallet.swift.realm.store", qos: .background)
+
 class RealmStore {
     static func threadName(for wallet: Wallet) -> String {
         return "org.alphawallet.swift.realmStore.\(wallet.address).wallet"

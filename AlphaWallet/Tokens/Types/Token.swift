@@ -7,7 +7,6 @@
 
 import Foundation
 import AlphaWalletOpenSea
-import RealmSwift
 import BigInt
 
 struct Token: Equatable, Hashable {

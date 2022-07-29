@@ -5,8 +5,7 @@
 //  Created by Vladyslav Shepitko on 11.05.2022.
 //
 
-import Foundation
-import RealmSwift
+import Foundation 
 
 protocol LocalStore {
     func getOrCreateStore(forWallet wallet: Wallet) -> RealmStore
