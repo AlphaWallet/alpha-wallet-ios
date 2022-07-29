@@ -599,6 +599,7 @@
 "sendTransaction.error.networkConnectionWasLost" = "The network connection was lost. Please try again";
 "sendTransaction.error.invalidCertificate" = "It seems like there is a problem with the RPC node certificate. Please try again later";
 "sendTransaction.error.requestTimedOut" = "Request has timed out. Please try again";
+"sendTransaction.error.invalidKey" = "Something went wrong when making the request. Please try again later";
 "transactionConfiguration.Type.slow" = "Slow";
 "transactionConfiguration.Type.average" = "Average";
 "transactionConfiguration.Type.fast" = "Fast";
