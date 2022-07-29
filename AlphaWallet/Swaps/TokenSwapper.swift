@@ -36,8 +36,7 @@ class TokenSwapper: ObservableObject {
         reachabilityManager.networkBecomeReachablePublisher
             .combineLatest(sessions, reloadSubject)
             .receive(on: DispatchQueue.global(qos: .userInitiated))
-            .map { (_, sessions, _) in return self.fetchAllSupportedTokens(sessions: sessions) }
-            .switchToLatest()
+            .flatMapLatest { (_, sessions, _) in return self.fetchAllSupportedTokens(sessions: sessions) }
             .sink { [weak self] _ in
                 self?.loadingStateSubject.send(.done)
             }.store(in: &cancelable)

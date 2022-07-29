@@ -157,8 +157,7 @@ final class SwapOptionsConfigurator {
     /// Fetches supported tokens for active server
     private func fetchSupportedTokensForSelectedServer() {
         $server.removeDuplicates()
-            .map { [tokenSwapper] in tokenSwapper.fetchSupportedTokens(forServer: $0) }
-            .switchToLatest()
+            .flatMapLatest { [tokenSwapper] in tokenSwapper.fetchSupportedTokens(forServer: $0) }
             .sink { [weak self] server in
                 guard let strongSelf = self else { return }
 
@@ -206,8 +205,7 @@ final class SwapOptionsConfigurator {
         fetchSwapQuoteStateSubject.send(.fetching)
 
         return Just(tokens)
-            .map { tokens in tokenSwapper.fetchSwapQuote(fromToken: tokens.from, toToken: tokens.to, wallet: wallet, slippage: slippage.value.doubleValue, fromAmount: amount) }
-            .switchToLatest()
+            .flatMapLatest { [tokenSwapper, slippage] tokens in tokenSwapper.fetchSwapQuote(fromToken: tokens.from, toToken: tokens.to, wallet: wallet, slippage: slippage.value.doubleValue, fromAmount: amount) }
             .handleEvents(receiveOutput: { [weak fetchSwapQuoteStateSubject, weak errorSubject, weak self] result in
                 switch result {
                 case .success(let swapQuote):
