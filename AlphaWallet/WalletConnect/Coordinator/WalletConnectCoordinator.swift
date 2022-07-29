@@ -483,8 +483,8 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         }.then { shouldSend -> Promise<ConfirmResult> in
             guard shouldSend else { return .init(error: DAppError.cancelled) }
 
-            let coordinator = SendTransactionCoordinator(session: session, keystore: self.keystore, confirmType: .sign, config: self.config, analyticsCoordinator: self.analyticsCoordinator)
-            return coordinator.send(rawTransaction: rawTransaction)
+            let sender = SendTransaction(session: session, keystore: self.keystore, confirmType: .sign, config: self.config, analyticsCoordinator: self.analyticsCoordinator)
+            return sender.send(rawTransaction: rawTransaction)
         }.map { data in
             switch data {
             case .signedTransaction, .sentTransaction:
