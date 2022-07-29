@@ -7,7 +7,7 @@ import JSONRPCKit
 import PromiseKit
 import Result
 
-class SendTransactionCoordinator {
+class SendTransaction {
     private let keystore: Keystore
     private let session: WalletSession
     private let confirmType: ConfirmType
