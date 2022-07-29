@@ -86,8 +86,7 @@ class SettingsViewModel {
         }.eraseToAnyPublisher()
         //NOTE: Refresh wallet name or ens when view will appear called, cancel prev. one if in loading proc.
         let assignedNameOrEns = input.appear
-            .map { [ account, getWalletName] _ in getWalletName.assignedNameOrEns(for: account.address) }
-            .switchToLatest()
+            .flatMapLatest { [ account, getWalletName] _ in getWalletName.assignedNameOrEns(for: account.address) }
             .handleEvents(receiveOutput: { nameOrEns in
                 self.assignedNameOrEns = nameOrEns
             }).prepend(nil)

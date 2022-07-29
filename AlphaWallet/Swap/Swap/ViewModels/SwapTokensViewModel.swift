@@ -111,8 +111,7 @@ class SwapTokensViewModel: NSObject {
 
     var fromTokenBalance: AnyPublisher<String, Never> {
         return activeSession.combineLatest(swapPair)
-            .map { self.balancePublisher(for: $0.1.from, session: $0.0) }
-            .switchToLatest()
+            .flatMapLatest { self.balancePublisher(for: $0.1.from, session: $0.0) }
             .map { R.string.localizable.sendAvailable($0.flatMap { $0.amountShort } ?? "-") }
             .eraseToAnyPublisher()
     }
