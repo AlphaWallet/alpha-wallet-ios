@@ -599,6 +599,7 @@
 "sendTransaction.error.networkConnectionWasLost" = "Verkkoyhteys ei toimi. Yritä uudelleen.";
 "sendTransaction.error.invalidCertificate" = "RPC-palvelun sertifikaatin kanssa on ongelma. Yritä myöhemmin uudelleen.";
 "sendTransaction.error.requestTimedOut" = "Aikaraja ylittyi.  Yritä myöhemmin uudelleen.";
+"sendTransaction.error.invalidKey" = "Something went wrong when making the request. Please try again later";
 "transactionConfiguration.Type.slow" = "Hidas";
 "transactionConfiguration.Type.average" = "Keskimääräinen";
 "transactionConfiguration.Type.fast" = "Nopea";

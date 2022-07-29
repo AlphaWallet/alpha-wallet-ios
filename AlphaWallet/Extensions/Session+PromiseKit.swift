@@ -33,6 +33,8 @@ extension Session {
         switch rpcNodeError {
         case .rateLimited(let server, let domainName):
             analyticsCoordinator.log(error: Analytics.WebApiErrors.rpcNodeRateLimited, properties: [Analytics.Properties.chain.rawValue: server.chainID, Analytics.Properties.domainName.rawValue: domainName])
+        case .invalidApiKey(let server, let domainName):
+            analyticsCoordinator.log(error: Analytics.WebApiErrors.rpcNodeInvalidApiKey, properties: [Analytics.Properties.chain.rawValue: server.chainID, Analytics.Properties.domainName.rawValue: domainName])
         case .possibleBinanceTestnetTimeout, .networkConnectionWasLost, .invalidCertificate, .requestTimedOut:
             return
         }
@@ -51,6 +53,7 @@ extension Session {
         }
     }
 
+    //TODO we should make sure we only call this RPC nodes because the errors we map to mentions "RPC"
     static func convertToUserFriendlyError(error: SessionTaskError, server: RPCServer, baseUrl: URL) -> Error? {
         infoLog("convertToUserFriendlyError URL: \(baseUrl.absoluteString) error: \(error)")
         switch error {
@@ -119,7 +122,10 @@ extension Session {
                 case .nonHTTPURLResponse:
                     RemoteLogger.instance.logRpcOrOtherWebError("APIKit.ResponseError.nonHTTPURLResponse", url: baseUrl.absoluteString)
                 case .unacceptableStatusCode(let statusCode):
-                    if statusCode == 429 {
+                    if statusCode == 401 {
+                        warnLog("[API] Invalid API key with baseURL: \(baseUrl.absoluteString)")
+                        return RpcNodeRetryableRequestError.invalidApiKey(server: server, domainName: baseUrl.host ?? "")
+                    } else if statusCode == 429 {
                         warnLog("[API] Rate limited by baseURL: \(baseUrl.absoluteString)")
                         return RpcNodeRetryableRequestError.rateLimited(server: server, domainName: baseUrl.host ?? "")
                     } else {

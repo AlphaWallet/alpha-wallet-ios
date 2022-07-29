@@ -95,6 +95,7 @@ enum Analytics {
         case openSeaInvalidApiKey
         case openSeaExpiredApiKey
         case rpcNodeRateLimited
+        case rpcNodeInvalidApiKey
     }
 
     enum Properties: String {
