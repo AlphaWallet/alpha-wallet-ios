@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import CombineExt
 
 protocol WalletConnectServerProviderType: WalletConnectResponder {
     var sessions: AnyPublisher<[AlphaWallet.WalletConnect.Session], Never> { get }
@@ -29,7 +30,7 @@ class WalletConnectServerProvider: NSObject, WalletConnectServerProviderType {
     @Published private var services: [WalletConnectServer] = []
     private (set) lazy var sessions: AnyPublisher<[AlphaWallet.WalletConnect.Session], Never> = {
         return $services
-            .flatMap { $0.map { $0.sessions }.combineLatest }
+            .flatMap { $0.map { $0.sessions }.combineLatest() }
             .map { $0.flatMap { $0 } }
             .eraseToAnyPublisher()
     }()

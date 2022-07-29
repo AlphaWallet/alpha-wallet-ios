@@ -80,6 +80,13 @@ class AlphaWalletTokensService: TokensService {
         adapters.forEach { $0.refresh() }
     }
 
+    func stop() {
+        //NOTE: TokenBalanceFetcher has strong ref to Tokens Service, so we need to remove fetchers manually
+        providers.value = .init()
+        autoDetectTransactedTokensQueue.cancelAllOperations()
+        autoDetectTokensQueue.cancelAllOperations()
+    }
+
     func start() {
         sessionsProvider.sessions.map { [weak self] sessions in
             var providers: ServerDictionary<TokenSourceProvider> = .init()
@@ -120,8 +127,7 @@ class AlphaWalletTokensService: TokensService {
 
     deinit {
         print("XXX.\(self).deinit for wallet: \(sessionsProvider.activeSessions.anyValue.account)")
-        autoDetectTransactedTokensQueue.cancelAllOperations()
-        autoDetectTokensQueue.cancelAllOperations()
+        stop()
     }
 
     func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [Token] {

@@ -32,7 +32,7 @@ class FungibleTokenHeaderView: UIView {
         label.isUserInteractionEnabled = true
         return label
     }()
-
+    private let toggleValue = PassthroughSubject<Void, Never>()
     private var blockChainTagLabel = BlockchainTagLabel()
     private var cancelable = Set<AnyCancellable>()
 
@@ -65,7 +65,6 @@ class FungibleTokenHeaderView: UIView {
         valueLabel.addGestureRecognizer(tap1)
 
         bind(viewModel: viewModel)
-        viewModel.runRefreshHeaderTimer()
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -78,12 +77,11 @@ class FungibleTokenHeaderView: UIView {
         tokenIconImageView.subscribable = viewModel.iconImage
         blockChainTagLabel.configure(viewModel: viewModel.blockChainTagViewModel)
 
-        viewModel.title.sink { [weak titleLabel] value in
-            titleLabel?.attributedText = value
-        }.store(in: &cancelable)
-
-        viewModel.value.sink { [weak valueLabel] value in
-            valueLabel?.attributedText = value
+        let input = FungibleTokenHeaderViewModelInput(toggleValue: toggleValue.eraseToAnyPublisher())
+        let output = viewModel.transform(input: input)
+        output.viewState.print("XXX FungibleTokenHeaderViewModel.ViewState").sink { [weak titleLabel, weak valueLabel] state in
+            titleLabel?.attributedText = state.title
+            valueLabel?.attributedText = state.value
         }.store(in: &cancelable)
     }
 
@@ -94,8 +92,6 @@ class FungibleTokenHeaderView: UIView {
     @objc private func showHideMarketSelected(_ sender: UITapGestureRecognizer) {
         guard !viewModel.server.isTestnet else { return }
 
-        viewModel.tiggleIsShowingValue()
-        viewModel.invalidateRefreshHeaderTimer()
-        viewModel.runRefreshHeaderTimer()
+        toggleValue.send(())
     }
 }

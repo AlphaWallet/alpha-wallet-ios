@@ -8,6 +8,7 @@
 import UIKit
 import BigInt
 import Combine
+import CombineExt
 
 protocol TokenBalanceProviderTests {
     func setNftBalanceTestsOnly(_ value: NonFungibleBalance, forToken token: Token, wallet: Wallet)
@@ -74,9 +75,9 @@ class MultiWalletBalanceService: WalletBalanceService {
             }.store(in: &cancelable)
 
         fetchers.map { $0.values }
-            .flatMapLatest { $0.map { $0.walletBalance }.combineLatest }
+            .flatMapLatest { $0.map { $0.walletBalance }.combineLatest() }
             .map { WalletSummary(balances: $0) }
-            .assign(to: \.value, on: walletsSummarySubject)
+            .assign(to: \.value, on: walletsSummarySubject, ownership: .weak)
             .store(in: &cancelable)
     }
 

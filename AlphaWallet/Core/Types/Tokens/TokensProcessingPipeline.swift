@@ -79,6 +79,7 @@ class WalletDataProcessingPipeline: TokensProcessingPipeline {
 
     deinit {
         print("XXX.\(self).deinit for wallet: \(wallet)")
+        tokensService.stop()
     }
 
     func refreshBalance(updatePolicy: TokenBalanceFetcher.RefreshBalancePolicy) {
@@ -121,7 +122,6 @@ class WalletDataProcessingPipeline: TokensProcessingPipeline {
             .map { $0.flatMap { TokenViewModel(token: $0) } }
             .map { [weak self] in self?.applyTicker(token: $0) }
             .map { [weak self] in self?.applyTokenScriptOverrides(token: $0) }
-            //.removeDuplicates(by: { return $0?.hashValue == $1?.hashValue })
             .eraseToAnyPublisher()
     }
 
@@ -161,8 +161,7 @@ class WalletDataProcessingPipeline: TokensProcessingPipeline {
             .map { $0.map { TokenViewModel(token: $0) } }
             .flatMapLatest { [weak self] in self?.applyTickers(tokens: $0) ?? .empty() }
             .flatMapLatest { [weak self] in self?.applyTokenScriptOverrides(tokens: $0) ?? .empty() }
-            //.removeDuplicates(by: { $0.hashValue == $1.hashValue })
-            .assign(to: \.value, on: tokenViewModelsSubject)
+            .assign(to: \.value, on: tokenViewModelsSubject, ownership: .weak)
             .store(in: &cancelable)
     }
 
