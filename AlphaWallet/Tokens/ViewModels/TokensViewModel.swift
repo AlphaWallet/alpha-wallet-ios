@@ -514,7 +514,6 @@ extension TokensViewModel {
             case .rpcServer:
                 return false
             case .token(let token):
-                //guard !token.isInvalidated else { return false }
                 if token.contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
                     return false
                 }

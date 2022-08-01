@@ -23,8 +23,8 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
     private let keystore: Keystore
     private let token: Token
     lazy var rootViewController: NFTCollectionViewController = {
-        let viewModel = NFTCollectionViewModel(token: token, forWallet: session.account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
-        let controller = NFTCollectionViewController(keystore: keystore, session: session, assetDefinition: assetDefinitionStore, analytics: analytics, viewModel: viewModel, openSea: openSea, activitiesService: activitiesService, eventsDataStore: eventsDataStore)
+        let viewModel = NFTCollectionViewModel(token: token, wallet: session.account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, service: service, activitiesService: activitiesService, openSea: openSea)
+        let controller = NFTCollectionViewController(keystore: keystore, session: session, assetDefinition: assetDefinitionStore, analytics: analytics, viewModel: viewModel, eventsDataStore: eventsDataStore)
         controller.hidesBottomBarWhenPushed = true
         controller.delegate = self
 
@@ -104,9 +104,6 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
     private func refreshScreen() {
         for each in navigationController.viewControllers {
             switch each {
-            case let vc as NFTCollectionViewController:
-                let viewModel = NFTCollectionViewModel(token: token, forWallet: session.account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
-                vc.configure(viewModel: viewModel)
             case let vc as NFTAssetViewController:
                 let updatedTokenHolders = token.getTokenHolders(assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: session.account)
                 switch token.type {
@@ -403,7 +400,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
 extension NFTCollectionCoordinator: NFTCollectionViewControllerDelegate {
 
     func didSelectAssetSelection(in viewController: NFTCollectionViewController) {
-        showTokenCardSelection(tokenHolders: viewController.viewModel.tokenHolders)
+        showTokenCardSelection(tokenHolders: viewController.viewModel.tokenHolders.value)
     }
 
     func didTap(transaction: TransactionInstance, in viewController: NFTCollectionViewController) {

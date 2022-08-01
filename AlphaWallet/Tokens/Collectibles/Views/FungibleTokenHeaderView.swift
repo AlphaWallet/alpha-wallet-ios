@@ -79,7 +79,7 @@ class FungibleTokenHeaderView: UIView {
 
         let input = FungibleTokenHeaderViewModelInput(toggleValue: toggleValue.eraseToAnyPublisher())
         let output = viewModel.transform(input: input)
-        output.viewState.print("XXX FungibleTokenHeaderViewModel.ViewState").sink { [weak titleLabel, weak valueLabel] state in
+        output.viewState.sink { [weak titleLabel, weak valueLabel] state in
             titleLabel?.attributedText = state.title
             valueLabel?.attributedText = state.value
         }.store(in: &cancelable)

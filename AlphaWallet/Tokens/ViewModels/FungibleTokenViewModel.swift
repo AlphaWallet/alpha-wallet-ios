@@ -116,7 +116,7 @@ class FungibleTokenViewModel: FungibleTokenViewModelType {
         self.tokenActionsProvider = tokenActionsProvider
         self.coinTickersFetcher = coinTickersFetcher
         self.service = service
-    }
+    } 
 
     func tokenScriptWarningMessage(for action: TokenInstanceAction) -> TokenScriptWarningMessage? {
         if let tokenHolder = tokenHolder, let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: wallet.address, fungibleBalance: fungibleBalance) {
@@ -167,8 +167,8 @@ class FungibleTokenViewModel: FungibleTokenViewModelType {
         let tokenViewModel = service.tokenViewModelPublisher(for: token).eraseToAnyPublisher()
 
         let actions = Publishers.MergeMany(tokenViewModel, whenTokenHolderHasChange, whenTokenActionsHasChange)
-            .map { _ in self.buildTokenActions() }
-            .handleEvents(receiveOutput: { self.actions = $0 })
+            .compactMap { [weak self] _ in self?.buildTokenActions() }
+            .handleEvents(receiveOutput: { [weak self] in self?.actions = $0 })
 
         let navigationTitle = tokenViewModel.compactMap { $0?.tokenScriptOverrides?.titleInPluralForm }
 

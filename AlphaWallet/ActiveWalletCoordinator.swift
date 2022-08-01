@@ -400,7 +400,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         return coordinator
     }
 
-    //TODO do we need 2 separate MultipleChainsTokensDataStore instances? Is it because they have different delegates?
     private func setupTabBarController() {
         var viewControllers = [UIViewController]()
 

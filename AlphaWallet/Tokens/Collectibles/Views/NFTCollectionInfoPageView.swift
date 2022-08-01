@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Combine
 
 protocol NFTCollectionInfoPageViewDelegate: class {
     func didPressOpenWebPage(_ url: URL, in view: NFTCollectionInfoPageView)
@@ -14,16 +15,15 @@ protocol NFTCollectionInfoPageViewDelegate: class {
 
 class NFTCollectionInfoPageView: ScrollableStackView, PageViewType {
     private let previewView: NFTPreviewView
-    private (set) var viewModel: NFTCollectionInfoPageViewModel
-    private let openSea: OpenSea
+    private let viewModel: NFTCollectionInfoPageViewModel
+    private var cancelable = Set<AnyCancellable>()
 
     weak var delegate: NFTCollectionInfoPageViewDelegate?
     var rightBarButtonItem: UIBarButtonItem?
     var title: String { return viewModel.tabTitle }
 
-    init(viewModel: NFTCollectionInfoPageViewModel, openSea: OpenSea, keystore: Keystore, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger) {
+    init(viewModel: NFTCollectionInfoPageViewModel, keystore: Keystore, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger) {
         self.viewModel = viewModel
-        self.openSea = openSea
         self.previewView = .init(type: viewModel.previewViewType, keystore: keystore, session: session, assetDefinitionStore: assetDefinitionStore, analytics: analytics, edgeInsets: viewModel.previewEdgeInsets)
         self.previewView.rounding = .custom(20)
         self.previewView.contentMode = .scaleAspectFill
@@ -41,20 +41,20 @@ class NFTCollectionInfoPageView: ScrollableStackView, PageViewType {
 
         NSLayoutConstraint.activate([previewHeightConstraint])
 
-        generateSubviews(viewModel: viewModel)
-
         let tap = UITapGestureRecognizer(target: self, action: #selector(showContractWebPage))
         previewView.addGestureRecognizer(tap)
+
+        bind(viewModel: viewModel)
     }
 
-    private func generateSubviews(viewModel: NFTCollectionInfoPageViewModel) {
+    private func generateSubviews(for viewTypes: [NFTCollectionInfoPageViewModel.ViewType]) {
         stackView.removeAllArrangedSubviews()
 
         stackView.addArrangedSubview(UIView.spacer(height: 10))
         stackView.addArrangedSubview(previewView)
         stackView.addArrangedSubview(UIView.spacer(height: 20))
 
-        for (index, each) in viewModel.configurations.enumerated() {
+        for (index, each) in viewTypes.enumerated() {
             switch each {
             case .header(let viewModel):
                 let performanceHeader = TokenInfoHeaderView(edgeInsets: .init(top: 15, left: 15, bottom: 20, right: 0))
@@ -70,24 +70,15 @@ class NFTCollectionInfoPageView: ScrollableStackView, PageViewType {
         }
     }
 
-    func viewDidLoad() {
-        let values = viewModel.tokenHolders[0].values
+    private func bind(viewModel: NFTCollectionInfoPageViewModel) {
+        let input = NFTCollectionInfoPageViewModelInput()
+        let output = viewModel.transform(input: input)
 
-        if let openSeaSlug = values.slug, openSeaSlug.trimmed.nonEmpty {
-            var viewModel = viewModel
-            openSea.collectionStats(slug: openSeaSlug, server: viewModel.token.server).done { stats in
-                viewModel.configure(overiddenOpenSeaStats: stats)
-                self.configure(viewModel: viewModel)
-            }.cauterize()
-        }
-    }
-
-    func configure(viewModel: NFTCollectionInfoPageViewModel) {
-        self.viewModel = viewModel
-
-        generateSubviews(viewModel: viewModel)
-        previewView.configure(params: viewModel.previewViewParams)
-        previewView.contentBackgroundColor = viewModel.previewViewContentBackgroundColor
+        output.viewState.sink { [weak self, weak previewView] state in
+            self?.generateSubviews(for: state.viewTypes)
+            previewView?.configure(params: state.previewViewParams)
+            previewView?.contentBackgroundColor = state.previewViewContentBackgroundColor
+        }.store(in: &cancelable)
     }
 
     required init?(coder: NSCoder) {
