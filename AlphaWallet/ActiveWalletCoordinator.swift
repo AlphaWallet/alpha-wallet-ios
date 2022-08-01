@@ -18,7 +18,7 @@ protocol ActiveWalletCoordinatorDelegate: AnyObject {
 // swiftlint:disable type_body_length
 class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
 
-    private var wallet: Wallet
+    private let wallet: Wallet
     private let config: Config
     private let assetDefinitionStore: AssetDefinitionStore
     private let appTracker: AppTracker
@@ -228,7 +228,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
 
     func start(animated: Bool) {
         donateWalletShortcut()
-
+        
         setupResourcesOnMultiChain()
         walletConnectCoordinator.delegate = self
         setupTabBarController()

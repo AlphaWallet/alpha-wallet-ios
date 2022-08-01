@@ -17,7 +17,8 @@ final class ReportUsersWalletAddresses: Initializer {
     }
 
     func perform() {
-        walletAddressesStore.walletsPublisher.sink { wallets in
+        //NOTE: make 2 sec delay to avoid load on launch
+        walletAddressesStore.walletsPublisher.delay(for: .seconds(2), scheduler: RunLoop.main).sink { wallets in
             crashlytics.track(wallets: Array(wallets))
         }.store(in: &cancelable)
     }

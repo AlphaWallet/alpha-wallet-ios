@@ -72,6 +72,7 @@ class WalletDataProcessingPipeline: TokensProcessingPipeline {
     }
     
     func start() {
+        cancelable.cancellAll()
         tokensService.start()
         startTickersHandling()
         preparePipeline()
