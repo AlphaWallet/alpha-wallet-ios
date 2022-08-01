@@ -26,6 +26,7 @@ extension Publisher {
 
     static func just(_ output: Output) -> AnyPublisher<Output, Failure> {
         return Just(output)
+            .setFailureType(to: Failure.self)
             .eraseToAnyPublisher()
     }
 
