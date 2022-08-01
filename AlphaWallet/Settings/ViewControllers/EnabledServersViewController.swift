@@ -25,7 +25,7 @@ class EnabledServersViewController: UIViewController {
         tableView.register(RPCDisplaySelectableTableViewCell.self)
         tableView.dataSource = self
         tableView.isEditing = false
-        
+
         return tableView
     }()
     private let restartQueue: RestartTaskQueue
@@ -54,7 +54,7 @@ class EnabledServersViewController: UIViewController {
             tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
             tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ] + roundedBackground.createConstraintsWithContainer(view: view))
     }
 
@@ -115,7 +115,7 @@ class EnabledServersViewController: UIViewController {
         guard let customRpc = server.customRpc else { return }
         delegate?.didEditSelectedServer(customRpc: customRpc, in: self)
     }
-    
+
     private func markForDeletion(server: RPCServer) {
         guard let customRpc = server.customRpc else { return }
         pushReloadServersIfNeeded()
