@@ -46,7 +46,7 @@ class ImportToken {
             .first()
             .sink { _ in
                 for (address, server) in defaultTokens {
-                    firstly {
+                    _ = firstly {
                         self.importToken(for: address, server: server, onlyIfThereIsABalance: true)
                     }.done { _ in
                         //no-op
