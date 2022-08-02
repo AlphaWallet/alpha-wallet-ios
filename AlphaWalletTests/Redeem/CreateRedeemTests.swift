@@ -19,7 +19,7 @@ class CreateRedeemTests: XCTestCase {
         let message = CreateRedeem(token: Token()).redeemMessage(tokenIds: token).0
         let data = message.data(using: String.Encoding.utf8)
         do {
-            let signature = try keyStore.signMessageData(data!, for: account.dematerialize())
+            let signature = try keyStore.signMessageData(data!, for: account.dematerialize().address)
             //message and signature is to go in qr code
             debugLog("message: " + message)
             debugLog(try "signature: " + signature.dematerialize().hexString)

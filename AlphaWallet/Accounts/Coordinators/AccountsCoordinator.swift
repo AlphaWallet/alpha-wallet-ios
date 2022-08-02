@@ -156,14 +156,14 @@ class AccountsCoordinator: Coordinator {
         switch account.type {
         case .real(let address):
             let actionTitle: String
-            if keystore.isHdWallet(account: address) {
+            if account.origin == .hd {
                 actionTitle = R.string.localizable.walletsBackupHdWalletAlertSheetTitle()
             } else {
                 actionTitle = R.string.localizable.walletsBackupKeystoreWalletAlertSheetTitle()
             }
             let backupKeystoreAction = UIAlertAction(title: actionTitle, style: .default) { [weak self] _ in
                 guard let strongSelf = self else { return }
-                let coordinator = BackupCoordinator(navigationController: strongSelf.navigationController, keystore: strongSelf.keystore, account: address, analytics: strongSelf.analytics)
+                let coordinator = BackupCoordinator(navigationController: strongSelf.navigationController, keystore: strongSelf.keystore, account: account, analytics: strongSelf.analytics)
                 coordinator.delegate = strongSelf
                 coordinator.start()
                 strongSelf.addCoordinator(coordinator)

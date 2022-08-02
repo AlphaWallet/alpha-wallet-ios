@@ -11,14 +11,14 @@ protocol BackupCoordinatorDelegate: AnyObject {
 
 class BackupCoordinator: Coordinator {
     private let keystore: Keystore
-    private let account: AlphaWallet.Address
+    private let account: Wallet
     private let analytics: AnalyticsLogger
 
     let navigationController: UINavigationController
     weak var delegate: BackupCoordinatorDelegate?
     var coordinators: [Coordinator] = []
 
-    init(navigationController: UINavigationController, keystore: Keystore, account: AlphaWallet.Address, analytics: AnalyticsLogger) {
+    init(navigationController: UINavigationController, keystore: Keystore, account: Wallet, analytics: AnalyticsLogger) {
         self.navigationController = navigationController
         self.keystore = keystore
         self.account = account
@@ -33,7 +33,7 @@ class BackupCoordinator: Coordinator {
     private func finish(result: Result<Bool, AnyError>) {
         switch result {
         case .success:
-            delegate?.didFinish(account: account, in: self)
+            delegate?.didFinish(account: account.address, in: self)
         case .failure:
             delegate?.didCancel(coordinator: self)
         }
@@ -52,7 +52,7 @@ class BackupCoordinator: Coordinator {
     private func handleExport(result: Result<String, KeystoreError>, completion: @escaping (Result<Bool, AnyError>) -> Void) {
         switch result {
         case .success(let value):
-            let url = URL(fileURLWithPath: NSTemporaryDirectory().appending("alphawallet_backup_\(account.eip55String).json"))
+            let url = URL(fileURLWithPath: NSTemporaryDirectory().appending("alphawallet_backup_\(account.address.eip55String).json"))
             do {
                 try value.data(using: .utf8)!.write(to: url)
             } catch {
@@ -99,7 +99,7 @@ class BackupCoordinator: Coordinator {
 
     private func promptElevateSecurityOrEnd() {
         guard keystore.isUserPresenceCheckPossible else { return cleanUpAfterBackupAndNotPromptedToElevateSecurity() }
-        guard !keystore.isProtectedByUserPresence(account: account) else { return cleanUpAfterBackupAndNotPromptedToElevateSecurity() }
+        guard !keystore.isProtectedByUserPresence(account: account.address) else { return cleanUpAfterBackupAndNotPromptedToElevateSecurity() }
 
         let coordinator = ElevateWalletSecurityCoordinator(navigationController: navigationController, keystore: keystore, account: account)
         coordinator.delegate = self
@@ -108,13 +108,13 @@ class BackupCoordinator: Coordinator {
     }
 
     private func export() {
-        if keystore.isHdWallet(account: account) {
-            let coordinator = BackupSeedPhraseCoordinator(navigationController: navigationController, keystore: keystore, account: account, analytics: analytics)
+        if account.origin == .hd {
+            let coordinator = BackupSeedPhraseCoordinator(navigationController: navigationController, keystore: keystore, account: account.address, analytics: analytics)
             coordinator.delegate = self
             coordinator.start()
             addCoordinator(coordinator)
         } else {
-            let coordinator = EnterPasswordCoordinator(navigationController: navigationController, account: account)
+            let coordinator = EnterPasswordCoordinator(navigationController: navigationController, account: account.address)
             coordinator.delegate = self
             coordinator.start()
             addCoordinator(coordinator)

@@ -28,7 +28,7 @@ class AppCoordinatorTests: XCTestCase {
                 window: UIWindow(),
                 analytics: FakeAnalyticsService(),
                 keystore: FakeEtherKeystore(
-                    wallets: [.init(wallet: .make())],
+                    wallets: [.make()],
                     recentlyUsedWallet: .make()
                 ),
                 walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
@@ -52,7 +52,7 @@ class AppCoordinatorTests: XCTestCase {
                 window: UIWindow(),
                 analytics: FakeAnalyticsService(),
                 keystore: FakeEtherKeystore(
-                    wallets: [.init(wallet: .make())],
+                    wallets: [.make()],
                     recentlyUsedWallet: .make()
                 ),
                 walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test)
@@ -72,7 +72,7 @@ class AppCoordinatorTests: XCTestCase {
                 window: UIWindow(),
                 analytics: FakeAnalyticsService(),
                 keystore: FakeEtherKeystore(
-                    wallets: [.init(wallet: .make())],
+                    wallets: [.make()],
                     recentlyUsedWallet: .make()
                 ),
                 walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
@@ -93,7 +93,7 @@ class AppCoordinatorTests: XCTestCase {
                 window: UIWindow(),
                 analytics: FakeAnalyticsService(),
                 keystore: FakeEtherKeystore(
-                    wallets: [.init(wallet: .make())],
+                    wallets: [.make()],
                     recentlyUsedWallet: .make()
                 ),
                 walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
@@ -117,7 +117,7 @@ class AppCoordinatorTests: XCTestCase {
                 window: .init(),
                 analytics: FakeAnalyticsService(),
                 keystore: FakeEtherKeystore(
-                    wallets: [.init(wallet: .make())],
+                    wallets: [.make()],
                     recentlyUsedWallet: .make()
                 ),
                 walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test)

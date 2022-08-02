@@ -19,14 +19,14 @@ class ElevateWalletSecurityCoordinator: Coordinator {
         controller.delegate = self
         return controller
     }()
-    private let account: AlphaWallet.Address
+    private let account: Wallet
     private let keystore: Keystore
 
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
     weak var delegate: ElevateWalletSecurityCoordinatorDelegate?
 
-    init(navigationController: UINavigationController = UINavigationController(), keystore: Keystore, account: AlphaWallet.Address) {
+    init(navigationController: UINavigationController = UINavigationController(), keystore: Keystore, account: Wallet) {
         self.navigationController = navigationController
         self.keystore = keystore
         self.account = account
@@ -48,9 +48,9 @@ class ElevateWalletSecurityCoordinator: Coordinator {
 
 extension ElevateWalletSecurityCoordinator: ElevateWalletSecurityViewControllerDelegate {
     func didTapLock(inViewController viewController: ElevateWalletSecurityViewController) {
-        let isSuccessful = keystore.elevateSecurity(forAccount: account)
+        let isSuccessful = keystore.elevateSecurity(forAccount: account.address)
         if isSuccessful {
-            delegate?.didLockWalletSuccessfully(forAccount: account, inCoordinator: self)
+            delegate?.didLockWalletSuccessfully(forAccount: account.address, inCoordinator: self)
         } else {
             if keystore.isUserPresenceCheckPossible {
                 //do nothing. User cancelled
@@ -61,6 +61,6 @@ extension ElevateWalletSecurityCoordinator: ElevateWalletSecurityViewControllerD
     }
 
     func didCancelLock(inViewController viewController: ElevateWalletSecurityViewController) {
-        delegate?.didCancelLock(forAccount: account, inCoordinator: self)
+        delegate?.didCancelLock(forAccount: account.address, inCoordinator: self)
     }
 }

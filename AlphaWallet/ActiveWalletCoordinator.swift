@@ -1042,9 +1042,9 @@ extension ActiveWalletCoordinator {
 
     private func logWallets() {
         let totalCount = keystore.wallets.count
-        let hdWalletsCount = keystore.wallets.filter { keystore.isHdWallet(wallet: $0) }.count
-        let keystoreWalletsCount = keystore.wallets.filter { keystore.isKeystore(wallet: $0) }.count
-        let watchedWalletsCount = keystore.wallets.filter { keystore.isWatched(wallet: $0) }.count
+        let hdWalletsCount = keystore.wallets.filter { $0.origin == .hd }.count
+        let keystoreWalletsCount = keystore.wallets.filter { $0.origin == .privateKey }.count
+        let watchedWalletsCount = keystore.wallets.filter { $0.origin == .watch }.count
         analytics.setUser(property: Analytics.UserProperties.walletsCount, value: totalCount)
         analytics.setUser(property: Analytics.UserProperties.hdWalletsCount, value: hdWalletsCount)
         analytics.setUser(property: Analytics.UserProperties.keystoreWalletsCount, value: keystoreWalletsCount)

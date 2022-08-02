@@ -19,7 +19,7 @@ class ExportJsonKeystoreFileViewModel {
 
     func computeJsonKeystore(password: String) -> Promise<String> {
         return Promise { seal in
-            if keystore.isHdWallet(wallet: wallet) {
+            if wallet.origin == .hd {
                 keystore.exportRawPrivateKeyFromHdWallet0thAddressForBackup(forAccount: wallet.address, newPassword: password) { result in
                     switch result {
                     case .success(let jsonString):

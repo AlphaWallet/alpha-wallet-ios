@@ -4,7 +4,7 @@ import Foundation
 @testable import AlphaWallet
 
 class FakeTransactionsStorage: TransactionDataStore {
-    convenience init(wallet: Wallet = .init(type: .watch(Constants.nativeCryptoAddressInDatabase))) {
+    convenience init(wallet: Wallet = .init(address: Constants.nativeCryptoAddressInDatabase, origin: .hd)) {
         let store = FakeRealmLocalStore()
         self.init(store: store.getOrCreateStore(forWallet: wallet))
     }

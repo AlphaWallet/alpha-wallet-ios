@@ -9,13 +9,13 @@ import XCTest
 
 @testable import AlphaWallet
 
-func fakeWalletAddressStore(wallets: [FakeWallet] = [], recentlyUsedWallet: Wallet? = nil) -> WalletAddressesStore {
+func fakeWalletAddressStore(wallets: [Wallet] = [], recentlyUsedWallet: Wallet? = nil) -> WalletAddressesStore {
     var walletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: .test)
     for wallet in wallets {
         switch wallet.origin {
         case .privateKey:
             walletAddressesStore.addToListOfEthereumAddressesWithPrivateKeys(wallet.address)
-        case .mnemonic:
+        case .hd:
             walletAddressesStore.addToListOfEthereumAddressesWithSeed(wallet.address)
         case .watch:
             walletAddressesStore.addToListOfWatchEthereumAddresses(wallet.address)

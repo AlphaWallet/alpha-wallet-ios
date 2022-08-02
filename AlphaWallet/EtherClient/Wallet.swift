@@ -18,12 +18,13 @@ enum WalletType: Equatable, CustomStringConvertible {
 
 enum WalletOrigin: Int {
     case privateKey
-    case mnemonic
+    case hd
     case watch
 }
 
 struct Wallet: Equatable, CustomStringConvertible {
     let type: WalletType
+    let origin: WalletOrigin
     
     var address: AlphaWallet.Address {
         switch type {
@@ -45,5 +46,15 @@ struct Wallet: Equatable, CustomStringConvertible {
     
     var description: String {
         type.description
+    }
+
+    init(address: AlphaWallet.Address, origin: WalletOrigin) {
+        switch origin {
+        case .privateKey, .hd:
+            self.type = .real(address)
+        case .watch:
+            self.type = .watch(address)
+        }
+        self.origin = origin
     }
 }

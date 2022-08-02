@@ -85,7 +85,7 @@ class EtherKeystoreTests: XCTestCase {
     func testExportHdWalletToSeedPhrase() throws {
         let keystore = FakeEtherKeystore()
         let result = keystore.createAccount()
-        let account = try result.dematerialize()
+        let account = try result.dematerialize().address
         let expectation = self.expectation(description: "completion block called")
         keystore.exportSeedPhraseOfHdWallet(forAccount: account, context: .init(), reason: .backup) { result in
             expectation.fulfill()
@@ -122,7 +122,7 @@ class EtherKeystoreTests: XCTestCase {
 
         XCTAssertNil(keystore.recentlyUsedWallet)
 
-        let account = try Wallet(type: .real(keystore.createAccount().dematerialize()))
+        let account = try keystore.createAccount().dematerialize()
 
         keystore.recentlyUsedWallet = account
 
@@ -136,7 +136,7 @@ class EtherKeystoreTests: XCTestCase {
 
     func testDeleteAccount() throws {
         let keystore = FakeEtherKeystore()
-        let wallet = try Wallet(type: .real(keystore.createAccount().dematerialize()))
+        let wallet = try keystore.createAccount().dematerialize()
 
         XCTAssertEqual(1, keystore.wallets.count)
 
