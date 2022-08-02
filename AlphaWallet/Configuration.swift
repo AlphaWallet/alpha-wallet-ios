@@ -75,10 +75,10 @@ struct Configuration {
             }
 
             static let tableViewBackground = UIColor { trait in
-                return colorFrom(trait: trait, lightColor: R.color.alabaster()!, darkColor: R.color.venus()!)
+                return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.cod()!)
             }
             static let tableViewCellBackground = UIColor { trait in
-                return colorFrom(trait: trait, lightColor: R.color.alabaster()!, darkColor: R.color.venus()!)
+                return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.cod()!)
             }
             static let tableViewCellPrimaryFont = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.black()!, darkColor: R.color.white()!)
