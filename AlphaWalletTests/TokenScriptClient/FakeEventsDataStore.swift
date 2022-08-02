@@ -4,7 +4,6 @@
 
 class FakeEventsDataStore: NonActivityMultiChainEventsDataStore {
     convenience init(account: Wallet = .make()) {
-        let store = FakeRealmLocalStore()
-        self.init(store: store.getOrCreateStore(forWallet: account))
+        self.init(store: .fake(for: account))
     }
 }

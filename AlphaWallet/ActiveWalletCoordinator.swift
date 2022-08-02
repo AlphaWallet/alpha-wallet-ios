@@ -26,12 +26,10 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private let restartQueue: RestartTaskQueue
     private let coinTickersFetcher: CoinTickersFetcher
     private let tokensDataStore: TokensDataStore
-    private lazy var transactionDataStore: TransactionDataStore = {
-        return TransactionDataStore(store: localStore.getOrCreateStore(forWallet: wallet))
-    }()
+    private let transactionsDataStore: TransactionDataStore
     private var claimOrderCoordinatorCompletionBlock: ((Bool) -> Void)?
     private let blockscanChatService: BlockscanChatService
-    private lazy var activitiesPipeLine = ActivitiesPipeLine(config: config, wallet: wallet, localStore: localStore, assetDefinitionStore: assetDefinitionStore, transactionDataStore: transactionDataStore, tokensDataStore: tokensDataStore, sessionsProvider: sessionsProvider)
+    private lazy var activitiesPipeLine = ActivitiesPipeLine(config: config, wallet: wallet, store: store, assetDefinitionStore: assetDefinitionStore, transactionDataStore: transactionsDataStore, tokensDataStore: tokensDataStore, sessionsProvider: sessionsProvider)
     private let sessionsProvider: SessionsProvider
     private let importToken: ImportToken
     private lazy var tokensFilter: TokensFilter = {
@@ -122,17 +120,17 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         return handler
     }()
 
-    private lazy var transactionNotificationService = TransactionNotificationSourceService(transactionDataStore: transactionDataStore, promptBackupCoordinator: promptBackupCoordinator, config: config)
+    private lazy var transactionNotificationService = TransactionNotificationSourceService(transactionDataStore: transactionsDataStore, promptBackupCoordinator: promptBackupCoordinator, config: config)
     private let notificationService: NotificationService
     private let blockiesGenerator: BlockiesGenerator
     private let domainResolutionService: DomainResolutionServiceType
-    private let localStore: LocalStore
+    private let store: RealmStore
     private let tokenSwapper: TokenSwapper
 
     init(
             navigationController: UINavigationController = UINavigationController(),
             walletAddressesStore: WalletAddressesStore,
-            localStore: LocalStore,
+            store: RealmStore,
             wallet: Wallet,
             keystore: Keystore,
             assetDefinitionStore: AssetDefinitionStore,
@@ -154,12 +152,14 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
             sessionsProvider: SessionsProvider,
             tokenCollection: TokenCollection,
             importToken: ImportToken,
-            tokensDataStore: TokensDataStore
+            tokensDataStore: TokensDataStore,
+            transactionsDataStore: TransactionDataStore
     ) {
+        self.transactionsDataStore = transactionsDataStore
         self.tokensDataStore = tokensDataStore
         self.importToken = importToken
         self.tokenCollection = tokenCollection
-        self.localStore = localStore
+        self.store = store
         self.tokenSwapper = tokenSwapper
         self.sessionsProvider = sessionsProvider
         self.walletConnectCoordinator = walletConnectCoordinator
@@ -384,7 +384,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         let tokensCoordinator = createTokensCoordinator(promptBackupCoordinator: promptBackupCoordinator, activitiesService: activitiesPipeLine)
         viewControllers.append(tokensCoordinator.navigationController)
 
-        let transactionCoordinator = createTransactionCoordinator(transactionDataStore: transactionDataStore)
+        let transactionCoordinator = createTransactionCoordinator(transactionDataStore: transactionsDataStore)
 
         if Features.default.isAvailable(.isActivityEnabled) {
             let activityCoordinator = createActivityCoordinator(activitiesService: activitiesPipeLine)
@@ -694,7 +694,7 @@ extension ActiveWalletCoordinator: ActivityViewControllerDelegate {
     }
 
     func speedupTransaction(transactionId: String, server: RPCServer, viewController: ActivityViewController) {
-        guard let transaction = transactionDataStore.transaction(withTransactionId: transactionId, forServer: server) else { return }
+        guard let transaction = transactionsDataStore.transaction(withTransactionId: transactionId, forServer: server) else { return }
         guard let session = sessionsProvider.session(for: transaction.server) else { return }
         guard let coordinator = ReplaceTransactionCoordinator(analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, presentingViewController: viewController, session: session, transaction: transaction, mode: .speedup, assetDefinitionStore: assetDefinitionStore, service: tokenCollection) else { return }
         coordinator.delegate = self
@@ -703,7 +703,7 @@ extension ActiveWalletCoordinator: ActivityViewControllerDelegate {
     }
 
     func cancelTransaction(transactionId: String, server: RPCServer, viewController: ActivityViewController) {
-        guard let transaction = transactionDataStore.transaction(withTransactionId: transactionId, forServer: server) else { return }
+        guard let transaction = transactionsDataStore.transaction(withTransactionId: transactionId, forServer: server) else { return }
         guard let session = sessionsProvider.session(for: transaction.server) else { return }
         guard let coordinator = ReplaceTransactionCoordinator(analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, presentingViewController: viewController, session: session, transaction: transaction, mode: .cancel, assetDefinitionStore: assetDefinitionStore, service: tokenCollection) else { return }
         coordinator.delegate = self

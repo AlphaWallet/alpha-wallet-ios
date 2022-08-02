@@ -11,16 +11,16 @@ import Combine
 final class ActivitiesPipeLine: ActivitiesServiceType {
     private let config: Config
     private let wallet: Wallet
-    private let localStore: LocalStore
+    private let store: RealmStore
     private let assetDefinitionStore: AssetDefinitionStore
     private let sessionsProvider: SessionsProvider
     private let transactionDataStore: TransactionDataStore
 
     lazy private var eventsDataStore: NonActivityEventsDataStore = {
-        return NonActivityMultiChainEventsDataStore(store: localStore.getOrCreateStore(forWallet: wallet))
+        return NonActivityMultiChainEventsDataStore(store: store)
     }()
     lazy private var eventsActivityDataStore: EventsActivityDataStoreProtocol = {
-        return EventsActivityDataStore(store: localStore.getOrCreateStore(forWallet: wallet))
+        return EventsActivityDataStore(store: store)
     }()
     private lazy var eventSourceCoordinatorForActivities: EventSourceCoordinatorForActivities? = {
         guard Features.default.isAvailable(.isActivityEnabled) else { return nil }
@@ -45,10 +45,10 @@ final class ActivitiesPipeLine: ActivitiesServiceType {
         activitiesSubService.didUpdateActivityPublisher
     }
 
-    init(config: Config, wallet: Wallet, localStore: LocalStore, assetDefinitionStore: AssetDefinitionStore, transactionDataStore: TransactionDataStore, tokensDataStore: TokensDataStore, sessionsProvider: SessionsProvider) {
+    init(config: Config, wallet: Wallet, store: RealmStore, assetDefinitionStore: AssetDefinitionStore, transactionDataStore: TransactionDataStore, tokensDataStore: TokensDataStore, sessionsProvider: SessionsProvider) {
         self.config = config
         self.wallet = wallet
-        self.localStore = localStore
+        self.store = store
         self.assetDefinitionStore = assetDefinitionStore
         self.transactionDataStore = transactionDataStore
         self.tokensDataStore = tokensDataStore

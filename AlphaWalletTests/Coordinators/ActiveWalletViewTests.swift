@@ -19,8 +19,8 @@ class ActiveWalletViewTests: XCTestCase {
         let coordinator = ActiveWalletCoordinator(
             navigationController: navigationController,
             walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
-            localStore: FakeRealmLocalStore(),
-            wallet: .make(),
+            store: .fake(for: wallet),
+            wallet: wallet,
             keystore: keystore,
             assetDefinitionStore: AssetDefinitionStore(),
             config: config,
@@ -40,8 +40,8 @@ class ActiveWalletViewTests: XCTestCase {
             sessionsProvider: dep.sessionsProvider,
             tokenCollection: dep.pipeline,
             importToken: dep.importToken,
-            tokensDataStore: dep.tokensDataStore
-        )
+            tokensDataStore: dep.tokensDataStore,
+            transactionsDataStore: dep.transactionsDataStore)
 
         coordinator.start(animated: false)
 
@@ -86,7 +86,7 @@ class ActiveWalletViewTests: XCTestCase {
         let c1 = ActiveWalletCoordinator(
             navigationController: FakeNavigationController(),
             walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
-            localStore: FakeRealmLocalStore(),
+            store: .fake(for: account1),
             wallet: account1,
             keystore: keystore,
             assetDefinitionStore: AssetDefinitionStore(),
@@ -107,8 +107,8 @@ class ActiveWalletViewTests: XCTestCase {
             sessionsProvider: dep1.sessionsProvider,
             tokenCollection: dep1.pipeline,
             importToken: dep1.importToken,
-            tokensDataStore: dep1.tokensDataStore
-        )
+            tokensDataStore: dep1.tokensDataStore,
+            transactionsDataStore: dep1.transactionsDataStore)
 
         c1.start(animated: false)
 
@@ -119,7 +119,7 @@ class ActiveWalletViewTests: XCTestCase {
         let c2 = ActiveWalletCoordinator(
             navigationController: FakeNavigationController(),
             walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
-            localStore: FakeRealmLocalStore(),
+            store: .fake(for: account2),
             wallet: account2,
             keystore: keystore,
             assetDefinitionStore: AssetDefinitionStore(),
@@ -140,8 +140,8 @@ class ActiveWalletViewTests: XCTestCase {
             sessionsProvider: dep2.sessionsProvider,
             tokenCollection: dep2.pipeline,
             importToken: dep2.importToken,
-            tokensDataStore: dep2.tokensDataStore
-        )
+            tokensDataStore: dep2.tokensDataStore,
+            transactionsDataStore: dep2.transactionsDataStore)
 
         c1.start(animated: false)
 
@@ -161,7 +161,7 @@ class ActiveWalletViewTests: XCTestCase {
         let coordinator = ActiveWalletCoordinator(
                 navigationController: FakeNavigationController(),
                 walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
-                localStore: FakeRealmLocalStore(),
+                store: .fake(for: wallet),
                 wallet: wallet,
                 keystore: keystore,
                 assetDefinitionStore: AssetDefinitionStore(),
@@ -182,8 +182,8 @@ class ActiveWalletViewTests: XCTestCase {
                 sessionsProvider: dep.sessionsProvider,
                 tokenCollection: dep.pipeline,
                 importToken: dep.importToken,
-                tokensDataStore: dep.tokensDataStore
-        )
+                tokensDataStore: dep.tokensDataStore,
+                transactionsDataStore: dep.transactionsDataStore)
         coordinator.start(animated: false)
         coordinator.showPaymentFlow(for: .send(type: .transaction(TransactionType.nativeCryptocurrency(Token(), destination: .none, amount: nil))), server: .main, navigationController: coordinator.navigationController)
 
@@ -204,7 +204,7 @@ class ActiveWalletViewTests: XCTestCase {
         let coordinator = ActiveWalletCoordinator(
             navigationController: navigationController,
             walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
-            localStore: FakeRealmLocalStore(),
+            store: .fake(for: wallet),
             wallet: wallet,
             keystore: keystore,
             assetDefinitionStore: AssetDefinitionStore(),
@@ -225,8 +225,8 @@ class ActiveWalletViewTests: XCTestCase {
             sessionsProvider: dep.sessionsProvider,
             tokenCollection: dep.pipeline,
             importToken: dep.importToken,
-            tokensDataStore: dep.tokensDataStore
-        )
+            tokensDataStore: dep.tokensDataStore,
+            transactionsDataStore: dep.transactionsDataStore)
         coordinator.start(animated: false)
         coordinator.showPaymentFlow(for: .request, server: .main, navigationController: coordinator.navigationController)
 
@@ -247,7 +247,7 @@ class ActiveWalletViewTests: XCTestCase {
         let coordinator = ActiveWalletCoordinator(
             navigationController: navigationController,
             walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
-            localStore: FakeRealmLocalStore(),
+            store: .fake(for: wallet),
             wallet: wallet,
             keystore: keystore,
             assetDefinitionStore: AssetDefinitionStore(),
@@ -268,8 +268,8 @@ class ActiveWalletViewTests: XCTestCase {
             sessionsProvider: dep.sessionsProvider,
             tokenCollection: dep.pipeline,
             importToken: dep.importToken,
-            tokensDataStore: dep.tokensDataStore
-        )
+            tokensDataStore: dep.tokensDataStore,
+            transactionsDataStore: dep.transactionsDataStore)
         coordinator.start(animated: false)
 
         let viewController = (coordinator.tabBarController.selectedViewController as? UINavigationController)?.viewControllers[0]
@@ -309,7 +309,7 @@ class ActiveWalletViewTests: XCTestCase {
             let coordinator: ActiveWalletCoordinator = ActiveWalletCoordinator(
                     navigationController: navigationController,
                     walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
-                    localStore: FakeRealmLocalStore(),
+                    store: .fake(for: wallet),
                     wallet: wallet,
                     keystore: keystore,
                     assetDefinitionStore: AssetDefinitionStore(),
@@ -330,8 +330,8 @@ class ActiveWalletViewTests: XCTestCase {
                     sessionsProvider: dep.sessionsProvider,
                     tokenCollection: dep.pipeline,
                     importToken: dep.importToken,
-                    tokensDataStore: dep.tokensDataStore
-            )
+                    tokensDataStore: dep.tokensDataStore,
+                    transactionsDataStore: dep.transactionsDataStore)
 
             coordinator.start(animated: false)
 

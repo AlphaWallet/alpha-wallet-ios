@@ -62,6 +62,10 @@ class RealmStore {
 
 extension RealmStore {
     static var shared: RealmStore = RealmStore(realm: Realm.shared())
+
+    static func storage(for wallet: Wallet) -> RealmStore {
+        RealmStore(realm: .realm(for: wallet), name: RealmStore.threadName(for: wallet))
+    } 
 }
 
 extension Realm {

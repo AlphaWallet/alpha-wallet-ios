@@ -34,7 +34,7 @@ final class FakeMultiWalletBalanceService: MultiWalletBalanceService {
 
         let fas = FakeAnalyticsService()
         let fnftp = FakeNftProvider()
-        let walletDependencyContainer = WalletComponentsFactory(analytics: fas, nftProvider: fnftp, assetDefinitionStore: .init(), store: FakeRealmLocalStore(), coinTickersFetcher: tickersFetcher, config: .make())
+        let walletDependencyContainer = WalletComponentsFactory(analytics: fas, nftProvider: fnftp, assetDefinitionStore: .init(), coinTickersFetcher: tickersFetcher, config: .make())
         super.init(walletAddressesStore: walletAddressesStore, dependencyContainer: walletDependencyContainer)
         start()
     } 
