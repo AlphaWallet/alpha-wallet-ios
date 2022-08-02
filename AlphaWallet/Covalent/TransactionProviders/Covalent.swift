@@ -157,7 +157,12 @@ extension Covalent {
                 let rawValue: String = (lp.value != nil && lp.value!.nonEmpty) ? lp.value! : rawLogValue
 
                 if lp.type.starts(with: "uint") || lp.type.starts(with: "int") {
-                    param.value = BigInt((rawValue).drop0x, radix: 16)?.description
+                    //`tokenId`s in Covalent don't start with 0x, but `value`s does
+                    if rawValue.starts(with: "0x") {
+                        param.value = BigInt((rawValue).drop0x, radix: 16)?.description
+                    } else {
+                        param.value = BigInt(rawValue)?.description
+                    }
                 } else {
                     param.value = rawValue
                 }
