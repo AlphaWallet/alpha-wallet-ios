@@ -116,7 +116,7 @@ class BlockscanChatService {
     }
 
     private func periodicallyRefreshUnreadCountForCurrentWallet() {
-        infoLog("[BlockscanChat] periodicallyRefreshUnreadCountForCurrentWallet")
+        infoLog("[BlockscanChat] periodicallyRefreshUnreadCountForCurrentWallet wallet: \(account.address.eip55String)")
         //TODO refresh for all wallets (maybe less often as the current wallet). Not doing it yet because we don't have a way to show the unread count for inactive wallets
         refreshUnreadCountForCurrentWallet()
     }
