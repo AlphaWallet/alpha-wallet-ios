@@ -23,6 +23,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
     private let keystore: Keystore
     private let token: Token
     private let session: WalletSession
+    private let sessions: ServerDictionary<WalletSession>
     private let assetDefinitionStore: AssetDefinitionStore
     private let analytics: AnalyticsLogger
     private let openSea: OpenSea
@@ -35,7 +36,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
     var coordinators: [Coordinator] = []
     lazy var rootViewController: NFTCollectionViewController = {
         let viewModel = NFTCollectionViewModel(token: token, wallet: session.account, assetDefinitionStore: assetDefinitionStore, service: service, activitiesService: activitiesService, openSea: openSea)
-        let controller = NFTCollectionViewController(keystore: keystore, session: session, assetDefinition: assetDefinitionStore, analytics: analytics, viewModel: viewModel)
+        let controller = NFTCollectionViewController(keystore: keystore, session: session, assetDefinition: assetDefinitionStore, analytics: analytics, viewModel: viewModel, sessions: sessions)
         controller.hidesBottomBarWhenPushed = true
         controller.delegate = self
 
@@ -51,8 +52,10 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
             analytics: AnalyticsLogger,
             openSea: OpenSea,
             activitiesService: ActivitiesServiceType,
-            service: TokenViewModelState & TokenHolderState
+            service: TokenViewModelState & TokenHolderState,
+            sessions: ServerDictionary<WalletSession>
     ) {
+        self.sessions = sessions
         self.service = service
         self.activitiesService = activitiesService
         self.session = session

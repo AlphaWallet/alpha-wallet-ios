@@ -28,7 +28,6 @@ class TokensCoordinator: Coordinator {
     private let config: Config
     private let tokenCollection: TokenCollection
     private let assetDefinitionStore: AssetDefinitionStore
-    private let eventsDataStore: NonActivityEventsDataStore
     private let promptBackupCoordinator: PromptBackupCoordinator
     private let analytics: AnalyticsLogger
     private let openSea: OpenSea
@@ -75,7 +74,6 @@ class TokensCoordinator: Coordinator {
             keystore: Keystore,
             config: Config,
             assetDefinitionStore: AssetDefinitionStore,
-            eventsDataStore: NonActivityEventsDataStore,
             promptBackupCoordinator: PromptBackupCoordinator,
             analytics: AnalyticsLogger,
             openSea: OpenSea,
@@ -98,7 +96,6 @@ class TokensCoordinator: Coordinator {
         self.keystore = keystore
         self.config = config
         self.assetDefinitionStore = assetDefinitionStore
-        self.eventsDataStore = eventsDataStore
         self.promptBackupCoordinator = promptBackupCoordinator
         self.analytics = analytics
         self.openSea = openSea
@@ -153,7 +150,7 @@ class TokensCoordinator: Coordinator {
 
     private func setupSingleChainTokenCoordinators() {
         for session in sessions.values {
-            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analytics: analytics, openSea: openSea, tokenActionsProvider: tokenActionsService, coinTickersFetcher: coinTickersFetcher, activitiesService: activitiesService, alertService: alertService, service: tokenCollection)
+            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, assetDefinitionStore: assetDefinitionStore, analytics: analytics, openSea: openSea, tokenActionsProvider: tokenActionsService, coinTickersFetcher: coinTickersFetcher, activitiesService: activitiesService, alertService: alertService, service: tokenCollection, sessions: sessions)
 
             coordinator.delegate = self
             addCoordinator(coordinator)

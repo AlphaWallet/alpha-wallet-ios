@@ -23,7 +23,6 @@ class TokensCoordinatorTests: XCTestCase {
             keystore: FakeEtherKeystore(),
             config: config,
             assetDefinitionStore: AssetDefinitionStore(),
-            eventsDataStore: FakeEventsDataStore(),
             promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeEtherKeystore(), wallet: .make(), config: config, analytics: FakeAnalyticsService()),
             analytics: FakeAnalyticsService(),
             openSea: OpenSea(analytics: FakeAnalyticsService(), queue: .global()),

@@ -792,6 +792,7 @@
 		8717DA3B273AB176002D3D66 /* RequestHandlerToAvoidMemoryLeak.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8717DA3A273AB176002D3D66 /* RequestHandlerToAvoidMemoryLeak.swift */; };
 		8717DA3D273AB19E002D3D66 /* WalletConnectRequestConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8717DA3C273AB19E002D3D66 /* WalletConnectRequestConverter.swift */; };
 		8717DA40273AC5C7002D3D66 /* WalletConnectV1Provider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8717DA3F273AC5C7002D3D66 /* WalletConnectV1Provider.swift */; };
+		87182BA028991CBA004BBB32 /* ActivitiesPipeLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87182B9F28991CBA004BBB32 /* ActivitiesPipeLine.swift */; };
 		87186FD4283E51F100A977B4 /* RunLoopThread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87186FD3283E51F100A977B4 /* RunLoopThread.swift */; };
 		871CE2E727DF80AF00B1E1CF /* SelectableSlippageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871CE2E627DF80AF00B1E1CF /* SelectableSlippageView.swift */; };
 		871CE2E927DF80C800B1E1CF /* SelectableSlippageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871CE2E827DF80C800B1E1CF /* SelectableSlippageViewModel.swift */; };
@@ -2083,6 +2084,7 @@
 		8717DA3A273AB176002D3D66 /* RequestHandlerToAvoidMemoryLeak.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestHandlerToAvoidMemoryLeak.swift; sourceTree = "<group>"; };
 		8717DA3C273AB19E002D3D66 /* WalletConnectRequestConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectRequestConverter.swift; sourceTree = "<group>"; };
 		8717DA3F273AC5C7002D3D66 /* WalletConnectV1Provider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectV1Provider.swift; sourceTree = "<group>"; };
+		87182B9F28991CBA004BBB32 /* ActivitiesPipeLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivitiesPipeLine.swift; sourceTree = "<group>"; };
 		87186FD3283E51F100A977B4 /* RunLoopThread.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunLoopThread.swift; sourceTree = "<group>"; };
 		871CE2E627DF80AF00B1E1CF /* SelectableSlippageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableSlippageView.swift; sourceTree = "<group>"; };
 		871CE2E827DF80C800B1E1CF /* SelectableSlippageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableSlippageViewModel.swift; sourceTree = "<group>"; };
@@ -3723,6 +3725,7 @@
 		29E9CFD01FE737EE00017744 /* Types */ = {
 			isa = PBXGroup;
 			children = (
+				87182B9E28991CB0004BBB32 /* Activities */,
 				875E5DAA28782729006DEF0F /* Tokens */,
 				29E9CFD11FE737FE00017744 /* RealmConfiguration.swift */,
 				29F1C85720036926003780D8 /* AppTracker.swift */,
@@ -5269,6 +5272,14 @@
 				879FD3A4273C113000D9747D /* v2 */,
 			);
 			path = Providers;
+			sourceTree = "<group>";
+		};
+		87182B9E28991CB0004BBB32 /* Activities */ = {
+			isa = PBXGroup;
+			children = (
+				87182B9F28991CBA004BBB32 /* ActivitiesPipeLine.swift */,
+			);
+			path = Activities;
 			sourceTree = "<group>";
 		};
 		871CE2F227E0D53200B1E1CF /* SwapOptions */ = {
@@ -7374,6 +7385,7 @@
 				8759C9ED279E9D6100FE361F /* TextFieldView.swift in Sources */,
 				5E7C7FE5F70D5777FD7258B2 /* DappsHomeEmptyView.swift in Sources */,
 				5E7C7EAAF2BD4D12987968E4 /* MyDappCellViewModel.swift in Sources */,
+				87182BA028991CBA004BBB32 /* ActivitiesPipeLine.swift in Sources */,
 				5E7C746219CE5A1139756869 /* MyDappsViewControllerHeaderView.swift in Sources */,
 				5E7C7C0D3181CD31A581AEBE /* EditMyDappViewController.swift in Sources */,
 				5E7C76D28BB14C7685296BEF /* DappsHomeEmptyViewViewModel.swift in Sources */,
