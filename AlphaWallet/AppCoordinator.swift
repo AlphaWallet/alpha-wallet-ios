@@ -243,6 +243,7 @@ class AppCoordinator: NSObject, Coordinator {
         addCoordinator(accountsCoordinator)
 
         coordinator.start(animated: animated)
+        notificationService.start(wallet: wallet)
 
         return coordinator
     }
