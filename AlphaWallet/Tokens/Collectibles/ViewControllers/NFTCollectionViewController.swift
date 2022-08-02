@@ -19,10 +19,8 @@ protocol NFTCollectionViewControllerDelegate: class, CanOpenURL {
 }
 
 class NFTCollectionViewController: UIViewController {
-    let viewModel: NFTCollectionViewModel
     private let session: WalletSession
     private let assetDefinitionStore: AssetDefinitionStore
-    private let eventsDataStore: NonActivityEventsDataStore
     private let analytics: AnalyticsLogger
     private lazy var buttonsBar: HorizontalButtonsBar = {
         let buttonsBar = HorizontalButtonsBar(configuration: .empty)
@@ -65,13 +63,13 @@ class NFTCollectionViewController: UIViewController {
     private let keystore: Keystore
     private var cancellable = Set<AnyCancellable>()
 
+    let viewModel: NFTCollectionViewModel
     weak var delegate: NFTCollectionViewControllerDelegate?
 
-    init(keystore: Keystore, session: WalletSession, assetDefinition: AssetDefinitionStore, analytics: AnalyticsLogger, viewModel: NFTCollectionViewModel, eventsDataStore: NonActivityEventsDataStore) {
+    init(keystore: Keystore, session: WalletSession, assetDefinition: AssetDefinitionStore, analytics: AnalyticsLogger, viewModel: NFTCollectionViewModel) {
         self.viewModel = viewModel
         self.session = session
         self.assetDefinitionStore = assetDefinition
-        self.eventsDataStore = eventsDataStore
         self.analytics = analytics
         self.keystore = keystore
 

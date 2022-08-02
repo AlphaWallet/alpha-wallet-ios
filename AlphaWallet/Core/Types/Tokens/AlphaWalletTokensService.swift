@@ -126,7 +126,6 @@ class AlphaWalletTokensService: TokensService {
     }
 
     deinit {
-        print("XXX.\(self).deinit for wallet: \(sessionsProvider.activeSessions.anyValue.account)")
         stop()
     }
 

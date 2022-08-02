@@ -17,13 +17,9 @@ struct TokensViewModelOutput {
     let deletion: AnyPublisher<[IndexPath], Never>
 }
 
-protocol TokensViewModelType {
-    func transform(input: TokensViewModelInput) -> TokensViewModelOutput
-}
-
 //Must be a class, and not a struct, otherwise changing `filter` will silently create a copy of TokensViewModel when user taps to change the filter in the UI and break filtering
 // swiftlint:disable type_body_length
-class TokensViewModel: TokensViewModelType {
+final class TokensViewModel {
     private let tokenCollection: TokenCollection
     private let walletConnectCoordinator: WalletConnectCoordinator
     private let walletBalanceService: WalletBalanceService

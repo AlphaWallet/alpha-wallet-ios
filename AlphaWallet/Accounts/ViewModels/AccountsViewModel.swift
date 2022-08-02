@@ -17,11 +17,7 @@ struct AccountsViewModelOutput {
     let askDeleteWalletConfirmation: AnyPublisher<Wallet, Never>
 }
 
-protocol AccountsViewModelType {
-    func transform(input: AccountsViewModelInput) -> AccountsViewModelOutput
-}
-
-class AccountsViewModel: AccountsViewModelType {
+final class AccountsViewModel {
     private var config: Config
     private var viewModels: [AccountsViewModel.SectionViewModel] = []
     private let keystore: Keystore

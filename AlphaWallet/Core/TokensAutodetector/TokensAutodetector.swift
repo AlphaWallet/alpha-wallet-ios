@@ -69,10 +69,6 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
         }
     }
 
-    deinit {
-        print("XXX.\(self).deinit for server: \(session.server)")
-    }
-
     ///Implementation: We refresh once only, after all the auto detected tokens' data have been pulled because each refresh pulls every tokens' (including those that already exist before the this auto detection) price as well as balance, placing heavy and redundant load on the device. After a timeout, we refresh once just in case it took too long, so user at least gets the chance to see some auto detected tokens
     private func autoDetectTransactedTokens() {
         guard !session.config.development.isAutoFetchingDisabled else { return }

@@ -21,22 +21,16 @@ struct NFTCollectionViewModelOutput {
     let pullToRefreshState: AnyPublisher<TokensViewModel.PullToRefreshState, Never>
 }
 
-protocol NFTCollectionViewModelType {
-    func transform(input: NFTCollectionViewModelInput) -> NFTCollectionViewModelOutput
-}
-
-class NFTCollectionViewModel: NFTCollectionViewModelType {
+final class NFTCollectionViewModel {
     private var cancelable = Set<AnyCancellable>()
     private let assetDefinitionStore: AssetDefinitionStore
-    private let eventsDataStore: NonActivityEventsDataStore
-    private let service: TokenViewModelState
+    private let service: TokenViewModelState & TokenHolderState
     private let openSea: OpenSea
     private (set) var openInUrl: URL?
     private (set) lazy var tokenScriptFileStatusHandler: XMLHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
     
     let activitiesService: ActivitiesServiceType
     let tokenHolders: CurrentValueSubject<[TokenHolder], Never>
-    
     let token: Token
     let initiallySelectedTabIndex: Int = 1
     let backgroundColor: UIColor = Colors.appBackground
@@ -45,14 +39,13 @@ class NFTCollectionViewModel: NFTCollectionViewModelType {
     private (set) lazy var infoPageViewModel = NFTCollectionInfoPageViewModel(token: token, assetDefinitionStore: assetDefinitionStore, tokenHolders: tokenHolders.value, wallet: wallet, _tokenHolders: tokenHolders.eraseToAnyPublisher(), openSea: openSea)
     private (set) lazy var nftAssetsPageViewModel = NFTAssetsPageViewModel(token: token, assetDefinitionStore: assetDefinitionStore, tokenHolders: tokenHolders.eraseToAnyPublisher(), selection: .list)
 
-    init(token: Token, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, service: TokenViewModelState, activitiesService: ActivitiesServiceType, openSea: OpenSea) {
+    init(token: Token, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, service: TokenViewModelState & TokenHolderState, activitiesService: ActivitiesServiceType, openSea: OpenSea) {
         self.activitiesService = activitiesService
         self.openSea = openSea
         self.service = service
         self.token = token
         self.wallet = wallet
-        self.eventsDataStore = eventsDataStore
-        self.tokenHolders = .init(token.getTokenHolders(assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: wallet))
+        self.tokenHolders = .init(service.tokenHolders(for: token))
         self.assetDefinitionStore = assetDefinitionStore
     } 
     
@@ -70,13 +63,9 @@ class NFTCollectionViewModel: NFTCollectionViewModelType {
             .eraseToAnyPublisher()
 
         let whenPullToRefresh = loadingHasEnded.map { [token] _ in token }
-            .compactMap { [assetDefinitionStore, eventsDataStore, wallet] in
-                $0.getTokenHolders(assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: wallet)
-            }
+            .compactMap { [service] in service.tokenHolders(for: $0) }
 
-        let whenViewModelHasChange = tokenViewModel.dropFirst().compactMap { [assetDefinitionStore, eventsDataStore, wallet] in
-            $0?.getTokenHolders(assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: wallet)
-        }
+        let whenViewModelHasChange = tokenViewModel.dropFirst().compactMap { [service] in $0.flatMap { service.tokenHolders(for: $0) } }
 
         Publishers.Merge(whenViewModelHasChange, whenPullToRefresh)
             .assign(to: \.value, on: tokenHolders)

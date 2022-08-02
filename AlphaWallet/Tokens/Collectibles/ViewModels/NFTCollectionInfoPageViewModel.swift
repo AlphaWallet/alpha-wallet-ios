@@ -33,11 +33,7 @@ struct NFTCollectionInfoPageViewModelOutput {
     let viewState: AnyPublisher<NFTCollectionInfoPageViewModel.ViewState, Never>
 }
 
-protocol NFTCollectionInfoPageViewModelType {
-    func transform(input: NFTCollectionInfoPageViewModelInput) -> NFTCollectionInfoPageViewModelOutput
-}
-
-class NFTCollectionInfoPageViewModel: NFTCollectionInfoPageViewModelType {
+final class NFTCollectionInfoPageViewModel {
     private var tokenHolderHelper: TokenInstanceViewConfigurationHelper
     private let assetDefinitionStore: AssetDefinitionStore
     private var viewTypes: [NFTCollectionInfoPageViewModel.ViewType] = []
@@ -117,7 +113,7 @@ class NFTCollectionInfoPageViewModel: NFTCollectionInfoPageViewModelType {
         }.handleEvents(receiveOutput: { [weak self, tokenHolderHelper] in
             self?.tokenId = $0.tokenId
             self?.tokenHolder = $0.tokenHolder
-            tokenHolderHelper.tokenHolder = $0.tokenHolder
+            tokenHolderHelper.update(tokenHolder: $0.tokenHolder, tokenId: $0.tokenId)
         }).map { _ in }
 
         let viewTypes = Publishers.Merge(whenTokehHolderHasChange, whenOpenSeaStatsHasChange)

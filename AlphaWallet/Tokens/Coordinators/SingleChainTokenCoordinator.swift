@@ -39,7 +39,7 @@ class SingleChainTokenCoordinator: Coordinator {
         session.server
     }
     private let alertService: PriceAlertServiceType
-    private let service: TokenBalanceRefreshable & TokenViewModelState
+    private let service: TokenBalanceRefreshable & TokenViewModelState & TokenHolderState
 
     init(
             session: WalletSession,
@@ -52,7 +52,7 @@ class SingleChainTokenCoordinator: Coordinator {
             coinTickersFetcher: CoinTickersFetcher,
             activitiesService: ActivitiesServiceType,
             alertService: PriceAlertServiceType,
-            service: TokenBalanceRefreshable & TokenViewModelState
+            service: TokenBalanceRefreshable & TokenViewModelState & TokenHolderState
     ) {
         self.service = service
         self.session = session
@@ -88,7 +88,6 @@ class SingleChainTokenCoordinator: Coordinator {
                 keystore: keystore,
                 token: token,
                 assetDefinitionStore: assetDefinitionStore,
-                eventsDataStore: eventsDataStore,
                 analytics: analytics,
                 openSea: openSea,
                 activitiesService: activitiesService,

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Combine
 
 protocol NonFungibleTokenViewControllerDelegate: class, CanOpenURL {
     func didPressRedeem(token: Token, tokenHolder: TokenHolder, in viewController: NFTAssetViewController)
@@ -17,15 +18,14 @@ protocol NonFungibleTokenViewControllerDelegate: class, CanOpenURL {
 }
 
 class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewController {
-    private let analytics: AnalyticsLogger
-    private (set) var viewModel: NFTAssetViewModel
     private let previewView: NFTPreviewView
     private let buttonsBar = HorizontalButtonsBar(configuration: .combined(buttons: 3))
     private lazy var containerView: ScrollableStackView = ScrollableStackView()
-    private let mode: TokenInstanceViewMode
     private lazy var attributesStackView = GridStackView(viewModel: .init(edgeInsets: .init(top: 0, left: 16, bottom: 15, right: 16)))
-    private let openSea: OpenSea
+    private var cancelable = Set<AnyCancellable>()
+    private let appear = PassthroughSubject<Void, Never>()
 
+    let viewModel: NFTAssetViewModel
     var server: RPCServer {
         return viewModel.token.server
     }
@@ -35,11 +35,8 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
     let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: NonFungibleTokenViewControllerDelegate?
 
-    init(analytics: AnalyticsLogger, openSea: OpenSea, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore, viewModel: NFTAssetViewModel, mode: TokenInstanceViewMode) {
-        self.analytics = analytics
-        self.openSea = openSea
+    init(analytics: AnalyticsLogger, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore, viewModel: NFTAssetViewModel) {
         self.assetDefinitionStore = assetDefinitionStore
-        self.mode = mode
         self.viewModel = viewModel
         self.previewView = .init(type: viewModel.previewViewType, keystore: keystore, session: session, assetDefinitionStore: assetDefinitionStore, analytics: analytics, edgeInsets: viewModel.previewEdgeInsets)
         self.previewView.rounding = .custom(20)
@@ -65,19 +62,19 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
             previewHeightConstraint
         ])
 
-        configure(viewModel: viewModel)
         previewView.configure(params: viewModel.previewViewParams)
     }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
+    } 
 
     //NOTE: Blank out the title before pushing the send screen because longer (not even very long ones) titles will overlay the Send screen's back button
     override func viewWillAppear(_ animated: Bool) {
         title = viewModel.navigationTitle
         super.viewWillAppear(animated)
         hideNavigationBarTopSeparatorLine()
+        appear.send(())
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -89,60 +86,43 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let values = viewModel.tokenHolder.values
-        if let openSeaSlug = values.slug, openSeaSlug.trimmed.nonEmpty {
-            openSea.collectionStats(slug: openSeaSlug, server: viewModel.token.server).done { stats in
-                self.viewModel.configure(overiddenOpenSeaStats: stats)
-                self.configure(viewModel: self.viewModel)
-            }.cauterize()
-        }
+        bind(viewModel: viewModel)
     }
 
-    func configure(viewModel newViewModel: NFTAssetViewModel) {
-        viewModel = newViewModel
-
+    private func bind(viewModel: NFTAssetViewModel) {
         view.backgroundColor = viewModel.backgroundColor
         containerView.backgroundColor = viewModel.backgroundColor
         updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus)
         title = viewModel.navigationTitle
 
-        switch mode {
-        case .preview:
-            buttonsBar.configure(.empty)
-        case .interactive:
-            buttonsBar.configure(.combined(buttons: viewModel.actions.count))
-            buttonsBar.viewController = self
+        let input = NFTAssetViewModelInput(appear: appear.eraseToAnyPublisher())
+        let output = viewModel.transform(input: input)
 
-            func _configButton(action: TokenInstanceAction, button: BarButton) {
-                if let selection = action.activeExcludingSelection(selectedTokenHolders: [viewModel.tokenHolder], forWalletAddress: viewModel.account.address) {
-                    if selection.denial == nil {
-                        button.displayButton = false
-                    }
-                }
-            }
+        output.state.sink { [weak self, weak previewView] state in
+            self?.title = state.navigationTitle
+            previewView?.configure(params: state.previewViewParams)
+            previewView?.contentBackgroundColor = state.previewViewContentBackgroundColor
+            self?.generateSubviews(for: state.viewTypes)
+            self?.configureActionButtons(with: state.actions)
+        }.store(in: &cancelable)
+    }
 
-            for (index, button) in buttonsBar.buttons.enumerated() {
-                let action = viewModel.actions[index]
-                button.setTitle(action.name, for: .normal)
-                button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
-                switch viewModel.account.type {
-                case .real:
-                    _configButton(action: action, button: button)
-                case .watch:
-                    //TODO pass in a Config instance instead
-                    if Config().development.shouldPretendIsRealWallet {
-                        _configButton(action: action, button: button)
-                    } else {
-                        button.isEnabled = false
-                    }
-                }
+    private func configureActionButtons(with actions: [TokenInstanceAction]) {
+        buttonsBar.configure(.combined(buttons: actions.count))
+
+        for (action, button) in zip(actions, buttonsBar.buttons) {
+            button.setTitle(action.name, for: .normal)
+            button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
+
+            switch viewModel.buttonState(for: action) {
+            case .isEnabled(let isEnabled):
+                button.isEnabled = isEnabled
+            case .isDisplayed(let isDisplayed):
+                button.displayButton = isDisplayed
+            case .noOption:
+                continue
             }
         }
-
-        previewView.configure(params: viewModel.previewViewParams)
-        previewView.contentBackgroundColor = viewModel.previewViewContentBackgroundColor
-
-        generateSubviews(viewModel: viewModel)
     }
 
     @objc private func actionButtonTapped(sender: UIButton) {
@@ -159,19 +139,9 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
             case .nonFungibleTransfer:
                 delegate?.didPressTransfer(token: viewModel.token, tokenHolder: viewModel.tokenHolder, forPaymentFlow: .send(type: .transaction(viewModel.transferTransactionType)), in: self)
             case .tokenScript:
-                if let selection = action.activeExcludingSelection(selectedTokenHolder: viewModel.tokenHolder, tokenId: viewModel.tokenId, forWalletAddress: viewModel.account.address) {
-                    if let denialMessage = selection.denial {
-                        UIAlertController.alert(
-                                title: nil,
-                                message: denialMessage,
-                                alertButtonTitles: [R.string.localizable.oK()],
-                                alertButtonStyles: [.default],
-                                viewController: self,
-                                completion: nil
-                        )
-                    } else {
-                        //no-op shouldn't have reached here since the button should be disabled. So just do nothing to be safe
-                    }
+                if let message = viewModel.tokenScriptWarningMessage(for: action) {
+                    guard case .warning(let denialMessage) = message else { return }
+                    UIAlertController.alert(message: denialMessage, alertButtonTitles: [R.string.localizable.oK()], alertButtonStyles: [.default], viewController: self)
                 } else {
                     delegate?.didTap(action: action, tokenHolder: viewModel.tokenHolder, viewController: self)
                 }
@@ -180,12 +150,12 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
         }
     }
 
-    private func generateSubviews(viewModel: NFTAssetViewModel) {
+    private func generateSubviews(for viewTypes: [NFTAssetViewModel.ViewType]) {
         containerView.stackView.removeAllArrangedSubviews()
 
         containerView.stackView.addArrangedSubview(previewView)
 
-        for (index, each) in viewModel.configurations.enumerated() {
+        for (index, each) in viewTypes.enumerated() {
             switch each {
             case .header(let viewModel):
                 let header = TokenInfoHeaderView(edgeInsets: .init(top: 16, left: 16, bottom: 20, right: 0))
@@ -230,7 +200,7 @@ extension NFTAssetViewController: VerifiableStatusViewController {
 
 extension NFTAssetViewController: TokenAttributeViewDelegate {
     func didSelect(in view: TokenAttributeView) {
-        switch viewModel.configurations[view.indexPath.row] {
+        switch viewModel.viewTypes[view.indexPath.row] {
         case .field(let vm) where viewModel.tokenIdViewModel == vm:
             UIPasteboard.general.string = vm.value
 

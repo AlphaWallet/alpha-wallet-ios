@@ -42,9 +42,6 @@ class WalletSession: Equatable {
         chainState.stop()
     }
 
-    deinit {
-        print("XXX.\(self).deinit for server: \(server)")
-    }
 }
 
 extension WalletSession {

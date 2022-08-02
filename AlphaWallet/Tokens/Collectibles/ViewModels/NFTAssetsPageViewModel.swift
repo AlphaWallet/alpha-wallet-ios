@@ -17,11 +17,7 @@ struct NFTAssetsPageViewModelOutput {
     let viewState: AnyPublisher<NFTAssetsPageViewModel.ViewState, Never>
 }
 
-protocol NFTAssetsPageViewModelType {
-    func transform(input: NFTAssetsPageViewModelInput) -> NFTAssetsPageViewModelOutput
-}
-
-class NFTAssetsPageViewModel: NFTAssetsPageViewModelType {
+final class NFTAssetsPageViewModel {
 
     enum AssetsSection: Int, Hashable, CaseIterable {
         case assets
