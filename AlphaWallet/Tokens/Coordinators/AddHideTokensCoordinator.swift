@@ -38,11 +38,7 @@ class AddHideTokensCoordinator: Coordinator {
     func start() {
         rootViewController.delegate = self
         navigationController.pushViewController(rootViewController, animated: true)
-    }
-
-    @objc func dismiss() {
-        navigationController.dismiss(animated: true)
-    }
+    } 
 }
 
 extension AddHideTokensCoordinator: NewTokenCoordinatorDelegate {

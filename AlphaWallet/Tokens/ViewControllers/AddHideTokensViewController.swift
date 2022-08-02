@@ -40,6 +40,9 @@ class AddHideTokensViewController: UIViewController {
     private var bottomConstraint: NSLayoutConstraint!
     private lazy var keyboardChecker = KeyboardChecker(self, resetHeightDefaultValue: 0, ignoreBottomSafeArea: true)
     private var cancelable = Set<AnyCancellable>()
+    private let sortTokensParam = PassthroughSubject<SortTokensParam, Never>()
+    private let searchText = PassthroughSubject<String?, Never>()
+    private let isSearchActive = PassthroughSubject<Bool, Never>()
 
     weak var delegate: AddHideTokensViewControllerDelegate?
 
@@ -83,7 +86,6 @@ class AddHideTokensViewController: UIViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem.addButton(self, selector: #selector(addToken))
 
         edgesForExtendedLayout = []
-        viewModel.viewDidLoad()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -118,10 +120,15 @@ class AddHideTokensViewController: UIViewController {
 
         tokenFilterView.configure(viewModel: .init(selectionItems: SortTokensParam.allCases, selected: viewModel.sortTokensParam))
 
-        viewModel.objectWillChange
-            .sink { [weak self] _ in
-                self?.reload()
-            }.store(in: &cancelable)
+        let input = AddHideTokensViewModelInput(
+            sortTokensParam: sortTokensParam.eraseToAnyPublisher(),
+            searchText: searchText.eraseToAnyPublisher(),
+            isSearchActive: isSearchActive.eraseToAnyPublisher())
+
+        let output = viewModel.transform(input: input)
+        output.viewState.sink { [weak self] _ in
+            self?.reload()
+        }.store(in: &cancelable)
     }
 
     private func reload() {
@@ -269,27 +276,24 @@ extension AddHideTokensViewController: DropDownViewDelegate {
     func filterDropDownViewDidChange(selection: ControlSelection) {
         guard let filterParam = tokenFilterView.value(from: selection) else { return }
 
-        viewModel.sortTokensParam = filterParam
-        reload()
+        sortTokensParam.send(filterParam)
     }
 }
 
 extension AddHideTokensViewController: UISearchControllerDelegate {
     func willPresentSearchController(_ searchController: UISearchController) {
-        viewModel.isSearchActive = true
+        isSearchActive.send(true)
     }
 
     func willDismissSearchController(_ searchController: UISearchController) {
-        viewModel.isSearchActive = false
+        isSearchActive.send(false)
     }
 }
 
 extension AddHideTokensViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
-        DispatchQueue.main.async { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.viewModel.searchText = searchController.searchBar.text ?? ""
-            strongSelf.reload()
+        DispatchQueue.main.async { [searchText] in
+            searchText.send(searchController.searchBar.text ?? "")
         }
     }
 }
