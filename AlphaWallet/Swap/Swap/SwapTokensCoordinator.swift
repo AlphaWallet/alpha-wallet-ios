@@ -28,7 +28,6 @@ final class SwapTokensCoordinator: Coordinator {
             UIBarButtonItem.settingsBarButton(self, selector: #selector(swapConfiguratinSelected)),
             UIBarButtonItem(customView: viewController.loadingIndicatorView)
         ]
-        viewController.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(cancelSelected))
         viewController.delegate = self
 
         return viewController
@@ -66,12 +65,6 @@ final class SwapTokensCoordinator: Coordinator {
     func start() {
         configurator.start()
         navigationController.pushViewController(rootViewController, animated: true)
-    }
-
-    @objc private func cancelSelected(_ sender: UIBarButtonItem) {
-        removeAllCoordinators()
-
-        delegate?.didCancel(in: self)
     }
 
     @objc private func swapConfiguratinSelected(_ sender: UIBarButtonItem) {
@@ -140,6 +133,12 @@ extension SwapTokensCoordinator: SwapTokensViewControllerDelegate {
         }
 
         approveSwapProvider.approveSwap(value: value, fromAmount: fromAmount)
+    }
+
+    func didClose(in viewController: SwapTokensViewController) {
+        removeAllCoordinators()
+
+        delegate?.didCancel(in: self)
     }
 }
 
