@@ -26,7 +26,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
 
     private let config: Config
     let sessions: ServerDictionary<WalletSession>
-    private let tokensDataStore: TokensDataStore
+    private let tokensService: TokenProvidable
 
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsActivityDataStore: EventsActivityDataStoreProtocol
@@ -68,7 +68,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         transactionDataStore: TransactionDataStore,
         activitiesFilterStrategy: ActivitiesFilterStrategy = .none,
         transactionsFilterStrategy: TransactionsFilterStrategy = .all,
-        tokensDataStore: TokensDataStore
+        tokensService: TokenProvidable
     ) {
         self.config = config
         self.sessions = sessions
@@ -78,7 +78,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         self.activitiesFilterStrategy = activitiesFilterStrategy
         self.transactionDataStore = transactionDataStore
         self.transactionsFilterStrategy = transactionsFilterStrategy
-        self.tokensDataStore = tokensDataStore
+        self.tokensService = tokensService
         super.init()
     }
 
@@ -99,7 +99,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
     }
 
     func copy(activitiesFilterStrategy: ActivitiesFilterStrategy, transactionsFilterStrategy: TransactionsFilterStrategy) -> ActivitiesServiceType {
-        return ActivitiesService(config: config, sessions: sessions, assetDefinitionStore: assetDefinitionStore, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore, transactionDataStore: transactionDataStore, activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: transactionsFilterStrategy, tokensDataStore: tokensDataStore)
+        return ActivitiesService(config: config, sessions: sessions, assetDefinitionStore: assetDefinitionStore, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore, transactionDataStore: transactionDataStore, activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: transactionsFilterStrategy, tokensService: tokensService)
     }
 
     private func getTokensAndXmlHandlers(forTokens tokens: [Token]) -> TokenObjectsAndXMLHandlers {
@@ -151,7 +151,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
     private func getTokensForActivities() -> [Token] {
         switch transactionsFilterStrategy {
         case .all:
-            return tokensDataStore.enabledTokens(for: config.enabledServers)
+            return tokensService.tokens(for: config.enabledServers)
         case .filter(_, let token):
             return [token]
         case .predicate:
@@ -210,7 +210,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         let events = eventsActivityDataStore.getRecentEventsSortedByBlockNumber(for: card.eventOrigin.contract, server: server, eventName: card.eventOrigin.eventName, interpolatedFilter: interpolatedFilter)
 
         let activitiesForThisCard: [ActivityTokenObjectTokenHolder] = events.compactMap { eachEvent in
-            guard let token = tokensDataStore.token(forContract: contract, server: server) else { return nil }
+            guard let token = tokensService.token(for: contract, server: server) else { return nil }
 
             let implicitAttributes = generateImplicitAttributesForToken(forContract: contract, server: server, symbol: token.symbol)
             let tokenAttributes = implicitAttributes
@@ -317,7 +317,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
                     let operations = transaction.localizedOperations
                     return operations.allSatisfy { activity != $0 }
                 }
-                let activity = ActivitiesViewModel.functional.createPseudoActivity(fromTransactionRow: .standalone(transaction), tokensDataStore: tokensDataStore, wallet: wallet.address)
+                let activity = ActivitiesViewModel.functional.createPseudoActivity(fromTransactionRow: .standalone(transaction), service: tokensService, wallet: wallet.address)
                 if transaction.localizedOperations.isEmpty && activities.isEmpty {
                     results.append(.standaloneTransaction(transaction: transaction, activity: activity))
                 } else if transaction.localizedOperations.count == 1, transaction.value == "0", activities.isEmpty {
@@ -330,7 +330,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
                     results.append(.parentTransaction(transaction: transaction, isSwap: isSwap, activities: activities))
 
                     results.append(contentsOf: transaction.localizedOperations.map {
-                        let activity = ActivitiesViewModel.functional.createPseudoActivity(fromTransactionRow: .item(transaction: transaction, operation: $0), tokensDataStore: tokensDataStore, wallet: wallet.address)
+                        let activity = ActivitiesViewModel.functional.createPseudoActivity(fromTransactionRow: .item(transaction: transaction, operation: $0), service: tokensService, wallet: wallet.address)
                         return .childTransaction(transaction: transaction, operation: $0, activity: activity)
                     })
                     for each in activities {
@@ -347,7 +347,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
             case .activity(let activity):
                 return [.standaloneActivity(activity: activity)]
             case .transaction(let transaction):
-                let activity = ActivitiesViewModel.functional.createPseudoActivity(fromTransactionRow: .standalone(transaction), tokensDataStore: tokensDataStore, wallet: wallet.address)
+                let activity = ActivitiesViewModel.functional.createPseudoActivity(fromTransactionRow: .standalone(transaction), service: tokensService, wallet: wallet.address)
                 if transaction.localizedOperations.isEmpty {
                     return [.standaloneTransaction(transaction: transaction, activity: activity)]
                 } else if transaction.localizedOperations.count == 1 {
@@ -357,7 +357,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
                     var results: [ActivityRowModel] = .init()
                     results.append(.parentTransaction(transaction: transaction, isSwap: isSwap, activities: .init()))
                     results.append(contentsOf: transaction.localizedOperations.map {
-                        let activity = ActivitiesViewModel.functional.createPseudoActivity(fromTransactionRow: .item(transaction: transaction, operation: $0), tokensDataStore: tokensDataStore, wallet: wallet.address)
+                        let activity = ActivitiesViewModel.functional.createPseudoActivity(fromTransactionRow: .item(transaction: transaction, operation: $0), service: tokensService, wallet: wallet.address)
 
                         return .childTransaction(transaction: transaction, operation: $0, activity: activity)
                     })

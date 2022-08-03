@@ -8,11 +8,10 @@
 import Foundation
 import Combine
 
-protocol TokenSourceProvider: TokensState, TokenDetectable {
+protocol TokenSourceProvider: TokensState, TokenAutoDetectable {
     var session: WalletSession { get }
 
     func start()
     func refresh()
     func refreshBalance(for tokens: [Token])
-    func tokenPublisher(for contract: AlphaWallet.Address) -> AnyPublisher<Token?, Never>
 }

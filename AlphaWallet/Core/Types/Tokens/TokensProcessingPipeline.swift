@@ -28,21 +28,6 @@ protocol TokensProcessingPipeline: TokenViewModelState, TokenProvidable, TokenAd
 typealias TokenCollection = TokenViewModelState & TokenProvidable & TokenAddable & TokenHidable & TokenBalanceRefreshable & TokenHolderState
 
 class WalletDataProcessingPipeline: TokensProcessingPipeline {
-
-//    func start() -> WalletData {
-//        let walletApiData = await callWalletApi(mostChains)
-//        let unsupportedOrPrivateChainData = await callInfuraAndEtherscan(unsupportedByWalletApiChains)
-//        let walletData = combineData(walletApiData, unsupportedOrPrivateChainData)
-//        let contracts = contractsFrom(walletData)
-//        let withCoinGeckoData = await callAndApplyCoinGecko(contracts)
-//        let withTokenScript = await applyTokenScriptAndFetch()
-//        return withTokenScript
-//    }
-
-    var tokenViewModels: AnyPublisher<[TokenViewModel], Never> {
-        return tokenViewModelsSubject.eraseToAnyPublisher()
-    }
-
     private let coinTickersFetcher: CoinTickersFetcher
     private let tokensService: TokensService
     private let assetDefinitionStore: AssetDefinitionStore
@@ -50,6 +35,10 @@ class WalletDataProcessingPipeline: TokensProcessingPipeline {
     private let tokenViewModelsSubject = CurrentValueSubject<[TokenViewModel], Never>([])
     private let eventsDataStore: NonActivityEventsDataStore
     private let wallet: Wallet
+
+    var tokenViewModels: AnyPublisher<[TokenViewModel], Never> {
+        return tokenViewModelsSubject.eraseToAnyPublisher()
+    }
 
     init(wallet: Wallet, tokensService: TokensService, coinTickersFetcher: CoinTickersFetcher, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore) {
         self.wallet = wallet
@@ -152,6 +141,18 @@ class WalletDataProcessingPipeline: TokensProcessingPipeline {
 
     func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [Token] {
         tokensService.addCustom(tokens: tokens, shouldUpdateBalance: shouldUpdateBalance)
+    }
+
+    func add(tokenUpdates updates: [TokenUpdate]) {
+        tokensService.add(tokenUpdates: updates)
+    }
+
+    func addOrUpdate(tokensOrContracts: [TokenOrContract]) -> [Token] {
+        tokensService.addOrUpdate(tokensOrContracts: tokensOrContracts)
+    }
+
+    func addOrUpdate(_ actions: [AddOrUpdateTokenAction]) -> Bool? {
+        tokensService.addOrUpdate(actions)
     }
 
     func tokenPublisher(for contract: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<Token?, Never> {

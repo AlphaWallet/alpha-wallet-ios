@@ -14,7 +14,6 @@ protocol WalletDependencyContainer {
 
 protocol WalletDependency {
     var store: RealmStore { get }
-    var tokensDataStore: TokensDataStore { get }
     var transactionsDataStore: TransactionDataStore { get }
     var importToken: ImportToken { get }
     var tokensService: TokensService { get }
@@ -34,7 +33,6 @@ class WalletComponentsFactory: WalletDependencyContainer {
 
     struct Dependencies: WalletDependency {
         let store: RealmStore
-        let tokensDataStore: TokensDataStore
         let transactionsDataStore: TransactionDataStore
         let importToken: ImportToken
         let tokensService: TokensService
@@ -69,7 +67,7 @@ class WalletComponentsFactory: WalletDependencyContainer {
 
         let fetcher = WalletBalanceFetcher(wallet: wallet, service: pipeline)
 
-        let dependency: WalletDependency = Dependencies(store: store, tokensDataStore: tokensDataStore, transactionsDataStore: transactionsDataStore, importToken: importToken, tokensService: tokensService, pipeline: pipeline, fetcher: fetcher, sessionsProvider: sessionsProvider, eventsDataStore: eventsDataStore)
+        let dependency: WalletDependency = Dependencies(store: store, transactionsDataStore: transactionsDataStore, importToken: importToken, tokensService: tokensService, pipeline: pipeline, fetcher: fetcher, sessionsProvider: sessionsProvider, eventsDataStore: eventsDataStore)
 
         walletDependencies[wallet] = dependency
 

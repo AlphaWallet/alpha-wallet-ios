@@ -32,11 +32,15 @@ extension WalletDataProcessingPipeline {
         let tokensService: TokensService = AlphaWalletTokensService(sessionsProvider: sessionsProvider, tokensDataStore: tokensDataStore, analytics: fas, importToken: importToken, transactionsStorage: transactionsDataStore, nftProvider: nftProvider, assetDefinitionStore: .init())
 
         let pipeline: TokensProcessingPipeline = WalletDataProcessingPipeline(wallet: wallet, tokensService: tokensService, coinTickersFetcher: coinTickersFetcher, assetDefinitionStore: .init(), eventsDataStore: eventsDataStore)
-        pipeline.start()
 
         let fetcher = WalletBalanceFetcher(wallet: wallet, service: pipeline)
 
-        return FakeWalletDep(store: store, tokensDataStore: tokensDataStore, transactionsDataStore: transactionsDataStore, importToken: importToken, tokensService: tokensService, pipeline: pipeline, fetcher: fetcher, sessionsProvider: sessionsProvider)
+        let dep = FakeWalletDep(store: store, tokensDataStore: tokensDataStore, transactionsDataStore: transactionsDataStore, importToken: importToken, tokensService: tokensService, pipeline: pipeline, fetcher: fetcher, sessionsProvider: sessionsProvider)
+        dep.sessionsProvider.start(wallet: wallet)
+        dep.fetcher.start()
+        dep.pipeline.start()
+
+        return dep
     }
 
     struct FakeWalletDep: WalletDependency {

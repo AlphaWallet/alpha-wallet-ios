@@ -10,10 +10,8 @@ import Combine
 import CombineExt
 
 class AlphaWalletTokensService: TokensService {
-    //FIXME: remove it later
-    private static let tokenUpdateBalanceQueue = DispatchQueue(label: "org.alphawallet.swift.tokenBalanceFetcher")
     private var cancelable = Set<AnyCancellable>()
-    private var tokensChangedSubject: PassthroughSubject<Void, Never> = .init()
+    private var tokensHasChange: PassthroughSubject<Void, Never> = .init()
     private let providers: CurrentValueSubject<ServerDictionary<TokenSourceProvider>, Never> = .init(.init())
     private let autoDetectTransactedTokensQueue: OperationQueue = {
         let queue = OperationQueue()
@@ -36,7 +34,7 @@ class AlphaWalletTokensService: TokensService {
     private let assetDefinitionStore: AssetDefinitionStore
 
     var objectWillChange: AnyPublisher<Void, Never> {
-        tokensChangedSubject.eraseToAnyPublisher()
+        tokensHasChange.eraseToAnyPublisher()
     }
     private (set) var tokens: [Token] = []
 
@@ -66,12 +64,10 @@ class AlphaWalletTokensService: TokensService {
     }
 
     func token(for contract: AlphaWallet.Address) -> Token? {
-        //NOTE: same as below
         return tokensDataStore.token(forContract: contract)
     }
 
     func token(for contract: AlphaWallet.Address, server: RPCServer) -> Token? {
-        //NOTE: do we need to get it from datastore and not from adapter?
         return tokensDataStore.token(forContract: contract, server: server)
     }
 
@@ -108,18 +104,19 @@ class AlphaWalletTokensService: TokensService {
         providers.map { $0.values }
             .flatMapLatest { $0.map { $0.tokensPublisher }.combineLatest() }
             .map { $0.flatMap { $0 } }
-            .map { [providers] in MultipleChainsTokensDataStore.functional.erc20AddressForNativeTokenFilter(servers: Array(providers.value.keys), tokens: $0) }
-            .map { TokensViewModel.functional.filterAwaySpuriousTokens($0) }
-            //.removeDuplicates() //FIXME: Maybe it needs to handle duplicates here, but what the logic is? do we need to compare all fields for object?
+            .map { [providers] tokens -> [Token] in
+                let servers = Array(providers.value.keys)
+                return MultipleChainsTokensDataStore.functional.erc20AddressForNativeTokenFilter(servers: servers, tokens: tokens)
+            }.map { TokensViewModel.functional.filterAwaySpuriousTokens($0) }
             .sink(receiveValue: { [weak self] tokens in
                 self?.tokens = tokens
-                self?.tokensChangedSubject.send(())
+                self?.tokensHasChange.send(())
             }).store(in: &cancelable)
     }
 
     private func makeTokenSource(session: WalletSession) -> TokenSourceProvider {
         let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: session.server)
-        let balanceFetcher = TokenBalanceFetcher(session: session, nftProvider: nftProvider, service: self, etherToken: etherToken, assetDefinitionStore: assetDefinitionStore, analytics: analytics, queue: AlphaWalletTokensService.tokenUpdateBalanceQueue)
+        let balanceFetcher = TokenBalanceFetcher(session: session, nftProvider: nftProvider, service: self, etherToken: etherToken, assetDefinitionStore: assetDefinitionStore, analytics: analytics, queue: Config.backgroundQueue)
         balanceFetcher.erc721TokenIdsFetcher = transactionsStorage
         
         return ClientSideTokenSourceProvider(session: session, autoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, autoDetectTokensQueue: autoDetectTokensQueue, importToken: importToken, tokensDataStore: tokensDataStore, balanceFetcher: balanceFetcher)
@@ -131,6 +128,22 @@ class AlphaWalletTokensService: TokensService {
 
     func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [Token] {
         tokensDataStore.addCustom(tokens: tokens, shouldUpdateBalance: shouldUpdateBalance)
+    }
+
+    func add(tokenUpdates updates: [TokenUpdate]) {
+        tokensDataStore.add(tokenUpdates: updates)
+    }
+
+    func addOrUpdate(tokensOrContracts: [TokenOrContract]) -> [Token] {
+        tokensDataStore.addOrUpdate(tokensOrContracts: tokensOrContracts)
+    }
+
+    func addOrUpdate(_ actions: [AddOrUpdateTokenAction]) -> Bool? {
+        tokensDataStore.addOrUpdate(actions)
+    }
+
+    func updateToken(primaryKey: String, action: TokenUpdateAction) -> Bool? {
+        tokensDataStore.updateToken(primaryKey: primaryKey, action: action)
     }
 
     func refreshBalance(updatePolicy: TokenBalanceFetcher.RefreshBalancePolicy) {
@@ -156,8 +169,9 @@ class AlphaWalletTokensService: TokensService {
     }
 
     func tokenPublisher(for contract: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<Token?, Never> {
-        guard let provider = providers.value[safe: server] else { return .empty() }
-        return provider.tokenPublisher(for: contract)
+        tokensDataStore.tokenPublisher(for: contract, server: server)
+            .replaceError(with: nil)
+            .eraseToAnyPublisher()
     }
 
     func update(token: TokenIdentifiable, value: TokenUpdateAction) {
@@ -182,4 +196,23 @@ extension AlphaWalletTokensService: TokensServiceTests {
     func deleteTokenTestsOnly(token: Token) {
         tokensDataStore.deleteTestsOnly(tokens: [token])
     } 
+}
+
+extension AlphaWalletTokensService {
+
+    func alreadyAddedContracts(for server: RPCServer) -> [AlphaWallet.Address] {
+        tokensDataStore.enabledTokens(for: [server]).map { $0.contractAddress }
+    }
+
+    func deletedContracts(for server: RPCServer) -> [AlphaWallet.Address] {
+        tokensDataStore.deletedContracts(forServer: server).map { $0.address }
+    }
+
+    func hiddenContracts(for server: RPCServer) -> [AlphaWallet.Address] {
+        tokensDataStore.hiddenContracts(forServer: server).map { $0.address }
+    }
+
+    func delegateContracts(for server: RPCServer) -> [AlphaWallet.Address] {
+        tokensDataStore.delegateContracts(forServer: server).map { $0.address }
+    }
 }

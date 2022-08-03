@@ -250,8 +250,8 @@ class AppCoordinator: NSObject, Coordinator {
                 sessionsProvider: dep.sessionsProvider,
                 tokenCollection: dep.pipeline,
                 importToken: dep.importToken,
-                tokensDataStore: dep.tokensDataStore,
-                transactionsDataStore: dep.transactionsDataStore)
+                transactionsDataStore: dep.transactionsDataStore,
+                tokensService: dep.tokensService)
 
         coordinator.delegate = self
 

@@ -25,18 +25,17 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private let openSea: OpenSea
     private let restartQueue: RestartTaskQueue
     private let coinTickersFetcher: CoinTickersFetcher
-    private let tokensDataStore: TokensDataStore
     private let transactionsDataStore: TransactionDataStore
     private var claimOrderCoordinatorCompletionBlock: ((Bool) -> Void)?
     private let blockscanChatService: BlockscanChatService
-    private lazy var activitiesPipeLine = ActivitiesPipeLine(config: config, wallet: wallet, store: store, assetDefinitionStore: assetDefinitionStore, transactionDataStore: transactionsDataStore, tokensDataStore: tokensDataStore, sessionsProvider: sessionsProvider)
+    private lazy var activitiesPipeLine = ActivitiesPipeLine(config: config, wallet: wallet, store: store, assetDefinitionStore: assetDefinitionStore, transactionDataStore: transactionsDataStore, tokensService: tokensService, sessionsProvider: sessionsProvider)
     private let sessionsProvider: SessionsProvider
     private let importToken: ImportToken
     private lazy var tokensFilter: TokensFilter = {
         let tokenGroupIdentifier: TokenGroupIdentifierProtocol = TokenGroupIdentifier.identifier(fromFileName: "tokens")!
         return TokensFilter(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: coinTickersFetcher, tokenGroupIdentifier: tokenGroupIdentifier)
     }()
-
+    //FIXME: Rename to pipeline, as what it actually does
     private let tokenCollection: TokenCollection
 
     private var transactionCoordinator: TransactionCoordinator? {
@@ -126,6 +125,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private let domainResolutionService: DomainResolutionServiceType
     private let store: RealmStore
     private let tokenSwapper: TokenSwapper
+    private let tokensService: TokensService
 
     init(
             navigationController: UINavigationController = UINavigationController(),
@@ -152,11 +152,11 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
             sessionsProvider: SessionsProvider,
             tokenCollection: TokenCollection,
             importToken: ImportToken,
-            tokensDataStore: TokensDataStore,
-            transactionsDataStore: TransactionDataStore
+            transactionsDataStore: TransactionDataStore,
+            tokensService: TokensService
     ) {
+        self.tokensService = tokensService
         self.transactionsDataStore = transactionsDataStore
-        self.tokensDataStore = tokensDataStore
         self.importToken = importToken
         self.tokenCollection = tokenCollection
         self.store = store
@@ -320,9 +320,9 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         let transactionsService = TransactionsService(
             sessions: sessionsProvider.activeSessions,
             transactionDataStore: transactionDataStore,
-            tokensDataStore: tokensDataStore,
-            analytics: analytics
-        )
+            analytics: analytics,
+            tokensService: tokensService)
+
         transactionsService.delegate = self
         let coordinator = TransactionCoordinator(
                 analytics: analytics,
@@ -464,7 +464,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     }
 
     private func fetchXMLAssetDefinitions() {
-        let fetch = FetchTokenScriptFiles(assetDefinitionStore: assetDefinitionStore, tokensDataStore: tokensDataStore, config: config)
+        let fetch = FetchTokenScriptFiles(assetDefinitionStore: assetDefinitionStore, tokensService: tokensService, config: config)
         fetch.start()
     }
 

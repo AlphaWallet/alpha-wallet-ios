@@ -13,13 +13,13 @@ protocol TokensFromTransactionsFetcherDelegate: AnyObject {
 }
 
 final class TokensFromTransactionsFetcher {
-    private let tokensDataStore: TokensDataStore
+    private let detectedTokens: DetectedContractsProvideble
     private let session: WalletSession
 
     weak var delegate: TokensFromTransactionsFetcherDelegate?
 
-    init(tokensDataStore: TokensDataStore, session: WalletSession) {
-        self.tokensDataStore = tokensDataStore
+    init(detectedTokens: DetectedContractsProvideble, session: WalletSession) {
+        self.detectedTokens = detectedTokens
         self.session = session
     }
 
@@ -40,10 +40,10 @@ final class TokensFromTransactionsFetcher {
     }
 
     private var contractsToAvoid: [AlphaWallet.Address] {
-        let deletedContracts = tokensDataStore.deletedContracts(forServer: session.server).map { $0.address }
-        let hiddenContracts = tokensDataStore.hiddenContracts(forServer: session.server).map { $0.address }
-        let delegateContracts = tokensDataStore.delegateContracts(forServer: session.server).map { $0.address }
-        let alreadyAddedContracts = tokensDataStore.enabledTokens(for: [session.server]).map { $0.contractAddress }
+        let deletedContracts = detectedTokens.deletedContracts(for: session.server)
+        let hiddenContracts = detectedTokens.hiddenContracts(for: session.server)
+        let delegateContracts = detectedTokens.delegateContracts(for: session.server)
+        let alreadyAddedContracts = detectedTokens.alreadyAddedContracts(for: session.server)
 
         return alreadyAddedContracts + deletedContracts + hiddenContracts + delegateContracts
     }

@@ -68,7 +68,7 @@ class ClientSideTokenSourceProvider: TokenSourceProvider {
 
         let addedOrChanged = tokensDataStore.enabledTokensPublisher(for: [session.server])
             .dropFirst()
-            .debounce(for: .seconds(Constants.refreshTokensThresholdSec), scheduler: RunLoop.main)
+            .receive(on: RunLoop.main)
 
         Publishers.Merge(initialOrForceSnapshot, addedOrChanged)
             .sink { [weak self] tokens in
@@ -78,17 +78,12 @@ class ClientSideTokenSourceProvider: TokenSourceProvider {
     }
 
     private func startTokenAutodetection() {
-        tokensAutodetector.tokensOrContractsDetected.sink { [tokensDataStore] tokensOrContracts in
-            tokensDataStore.addOrUpdate(tokensOrContracts: tokensOrContracts)
-        }.store(in: &cancelable)
+        tokensAutodetector.tokensOrContractsDetected
+            .sink { [tokensDataStore] tokensOrContracts in
+                tokensDataStore.addOrUpdate(tokensOrContracts: tokensOrContracts)
+            }.store(in: &cancelable)
 
         tokensAutodetector.start()
-    }
-
-    func tokenPublisher(for contract: AlphaWallet.Address) -> AnyPublisher<Token?, Never> {
-        tokensDataStore.tokenPublisher(for: contract, server: session.server)
-            .replaceError(with: nil)
-            .eraseToAnyPublisher()
     }
 
     func refresh() {
