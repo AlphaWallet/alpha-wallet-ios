@@ -12,6 +12,7 @@ import BigInt
 protocol SwapTokensViewControllerDelegate: class {
     func swapSelected(in viewController: SwapTokensViewController)
     func chooseTokenSelected(in viewController: SwapTokensViewController, selection: SwapTokens.TokenSelection)
+    func didClose(in viewController: SwapTokensViewController)
 }
 
 class SwapTokensViewController: UIViewController {
@@ -102,6 +103,10 @@ class SwapTokensViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         checker.viewWillDisappear()
+        if isMovingFromParent || isBeingDismissed {
+            delegate?.didClose(in: self)
+            return
+        }
     }
 
     required init?(coder: NSCoder) {
