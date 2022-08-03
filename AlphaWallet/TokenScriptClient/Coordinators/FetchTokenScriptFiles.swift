@@ -7,18 +7,15 @@ class FetchTokenScriptFiles {
     private let tokensDataStore: TokensDataStore
     private let config: Config
 
-    private var contractsInDatabase: [AlphaWallet.Address] {
-        var contracts = [AlphaWallet.Address]()
-        contracts.append(contentsOf: tokensDataStore.enabledTokens(for: config.enabledServers).filter {
+    private var contractsInDatabase: [AddressAndOptionalRPCServer] {
+        return tokensDataStore.enabledTokens(for: config.enabledServers).filter {
             switch $0.type {
             case .erc20, .erc721, .erc875, .erc721ForTickets, .erc1155:
                 return true
             case .nativeCryptocurrency:
                 return false
             }
-        }.map { $0.contractAddress })
-
-        return contracts
+        }.map { AddressAndOptionalRPCServer(address: $0.contractAddress, server: $0.server) }
     }
 
     private var contractsWithTokenScriptFileFromOfficialRepo: [AlphaWallet.Address] {
@@ -35,8 +32,8 @@ class FetchTokenScriptFiles {
 
     func start() {
         queue.async {
-            let contracts = Array(Set(self.contractsInDatabase + self.contractsWithTokenScriptFileFromOfficialRepo))
-            self.assetDefinitionStore.fetchXMLs(forContracts: contracts)
+            let contractsAndServers = Array(Set(self.contractsInDatabase + self.contractsWithTokenScriptFileFromOfficialRepo.map { AddressAndOptionalRPCServer(address: $0, server: nil) }))
+            self.assetDefinitionStore.fetchXMLs(forContractsAndServers: contractsAndServers)
         }
     }
 

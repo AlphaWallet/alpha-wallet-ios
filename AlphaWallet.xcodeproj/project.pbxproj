@@ -548,6 +548,7 @@
 		5E7C7A5ACC0CB30368182EA1 /* EnsResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74A233BDB3465C93BAB3 /* EnsResolver.swift */; };
 		5E7C7A67B6143DFB9B1CF02B /* ConfirmSignMessageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7DD9C564F2C7DE435894 /* ConfirmSignMessageTableViewCell.swift */; };
 		5E7C7A6CC21C553CD4008F14 /* DappButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C75E7D995ABE0E6B7AD55 /* DappButton.swift */; };
+		5E7C7A709C0BF6C7716A6251 /* ScriptUri.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C71F2CAF30A270E966817 /* ScriptUri.swift */; };
 		5E7C7A7FFA16D3505F94BB9E /* FakeActivitiesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7BB70AD8C1E92D37196F /* FakeActivitiesService.swift */; };
 		5E7C7A91D0F6CBDA3C89DEAC /* LocaleViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C79E3BC4CACB123840A42 /* LocaleViewCell.swift */; };
 		5E7C7A928412AF3E16CDA038 /* AmountTextField_v2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73D0DCE61EA2DE2DA21D /* AmountTextField_v2.swift */; };
@@ -1582,6 +1583,7 @@
 		5E7C71DB4EDD10EA665101C2 /* ActivityViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActivityViewCell.swift; sourceTree = "<group>"; };
 		5E7C71E355BD14E975AF7491 /* TokensDataStoreTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokensDataStoreTest.swift; sourceTree = "<group>"; };
 		5E7C71E8E2D256BC461E9597 /* TokenScriptSelection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenScriptSelection.swift; sourceTree = "<group>"; };
+		5E7C71F2CAF30A270E966817 /* ScriptUri.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScriptUri.swift; sourceTree = "<group>"; };
 		5E7C71FA42A4828FDC07E72E /* SendPrivateTransactionsProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendPrivateTransactionsProvider.swift; sourceTree = "<group>"; };
 		5E7C720596AD351B21CE7583 /* DatabaseMigration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DatabaseMigration.swift; sourceTree = "<group>"; };
 		5E7C7228C9BEB801D4CD34DE /* EtherTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EtherTests.swift; sourceTree = "<group>"; };
@@ -4638,6 +4640,7 @@
 				5E7C73553968E56A08D90D0C /* Erc1155TokenIdsFetcher.swift */,
 				8728FFE22742906A008E5524 /* TokenCardTableViewCellFactory.swift */,
 				87E1A5EC2837884300E98555 /* HistoryHelper.swift */,
+				5E7C71F2CAF30A270E966817 /* ScriptUri.swift */,
 			);
 			path = Logic;
 			sourceTree = "<group>";
@@ -7698,6 +7701,7 @@
 				5E7C70F8A7DD8D5EC812A80F /* SwapQuote.swift in Sources */,
 				5E7C76484BE3E1F41ABA4A00 /* SwapEstimate.swift in Sources */,
 				5E7C762FC313F112981FAD35 /* DevelopmentForcedError.swift in Sources */,
+				5E7C7A709C0BF6C7716A6251 /* ScriptUri.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

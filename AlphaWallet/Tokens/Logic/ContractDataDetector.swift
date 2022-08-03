@@ -41,7 +41,7 @@ class ContractDataDetector {
     func fetch(completion: @escaping (ContractData) -> Void) {
         self.completion = completion
 
-        assetDefinitionStore.fetchXML(forContract: address)
+        assetDefinitionStore.fetchXML(forContract: address, server: nil)
 
         firstly {
             namePromise
