@@ -11,7 +11,6 @@ import CombineExt
 
 class AlphaWalletTokensService: TokensService {
     private var cancelable = Set<AnyCancellable>()
-    private var tokensHasChange: PassthroughSubject<Void, Never> = .init()
     private let providers: CurrentValueSubject<ServerDictionary<TokenSourceProvider>, Never> = .init(.init())
     private let autoDetectTransactedTokensQueue: OperationQueue = {
         let queue = OperationQueue()
@@ -33,16 +32,35 @@ class AlphaWalletTokensService: TokensService {
     private let nftProvider: NFTProvider
     private let assetDefinitionStore: AssetDefinitionStore
 
-    var objectWillChange: AnyPublisher<Void, Never> {
-        tokensHasChange.eraseToAnyPublisher()
-    }
-    private (set) var tokens: [Token] = []
+    lazy var tokensPublisher: AnyPublisher<[Token], Never> = {
+        providers.map { $0.values }
+            .flatMapLatest { $0.map { $0.tokensPublisher }.combineLatest() }
+            .map { $0.flatMap { $0 } }
+            .map { [providers] tokens -> [Token] in
+                let servers = Array(providers.value.keys)
+                return MultipleChainsTokensDataStore.functional.erc20AddressForNativeTokenFilter(servers: servers, tokens: tokens)
+            }.map { TokensViewModel.functional.filterAwaySpuriousTokens($0) }
+            .eraseToAnyPublisher()
+    }()
 
-    var newTokens: AnyPublisher<[Token], Never> {
+    func tokensPublisher(servers: [RPCServer]) -> AnyPublisher<[Token], Never> {
+        providers.map { $0.values.filter { servers.contains($0.session.server) } }
+            .flatMapLatest { $0.map { $0.tokensPublisher }.combineLatest() }
+            .map { $0.flatMap { $0 } }
+            .map { [providers] tokens -> [Token] in
+                let servers = Array(providers.value.keys)
+                return MultipleChainsTokensDataStore.functional.erc20AddressForNativeTokenFilter(servers: servers, tokens: tokens)
+            }.map { TokensViewModel.functional.filterAwaySpuriousTokens($0) }
+            .eraseToAnyPublisher()
+    }
+
+    var tokens: [Token] { providers.value.flatMap { $0.value.tokens } }
+
+    lazy var newTokens: AnyPublisher<[Token], Never> = {
         providers.map { $0.values }
             .flatMapLatest { $0.map { $0.newTokens }.merge() }
             .eraseToAnyPublisher()
-    }
+    }()
 
     init(sessionsProvider: SessionsProvider, tokensDataStore: TokensDataStore, analytics: AnalyticsLogger, importToken: ImportToken, transactionsStorage: TransactionDataStore, nftProvider: NFTProvider, assetDefinitionStore: AssetDefinitionStore) {
         self.sessionsProvider = sessionsProvider
@@ -100,18 +118,6 @@ class AlphaWalletTokensService: TokensService {
             return providers
         }.assign(to: \.value, on: providers, ownership: .weak)
         .store(in: &cancelable)
-
-        providers.map { $0.values }
-            .flatMapLatest { $0.map { $0.tokensPublisher }.combineLatest() }
-            .map { $0.flatMap { $0 } }
-            .map { [providers] tokens -> [Token] in
-                let servers = Array(providers.value.keys)
-                return MultipleChainsTokensDataStore.functional.erc20AddressForNativeTokenFilter(servers: servers, tokens: tokens)
-            }.map { TokensViewModel.functional.filterAwaySpuriousTokens($0) }
-            .sink(receiveValue: { [weak self] tokens in
-                self?.tokens = tokens
-                self?.tokensHasChange.send(())
-            }).store(in: &cancelable)
     }
 
     private func makeTokenSource(session: WalletSession) -> TokenSourceProvider {

@@ -26,7 +26,7 @@ final class ActivitiesPipeLine: ActivitiesServiceType {
         guard Features.default.isAvailable(.isActivityEnabled) else { return nil }
         return EventSourceCoordinatorForActivities(wallet: wallet, config: config, tokensService: tokensService, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsActivityDataStore)
     }()
-    private let tokensService: TokensState & TokenProvidable
+    private let tokensService: TokenProvidable
 
     private lazy var eventSourceCoordinator: EventSourceCoordinator = {
         EventSourceCoordinator(wallet: wallet, tokensService: tokensService, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, config: config)
@@ -44,7 +44,7 @@ final class ActivitiesPipeLine: ActivitiesServiceType {
         activitiesSubService.didUpdateActivityPublisher
     }
 
-    init(config: Config, wallet: Wallet, store: RealmStore, assetDefinitionStore: AssetDefinitionStore, transactionDataStore: TransactionDataStore, tokensService: TokensState & TokenProvidable, sessionsProvider: SessionsProvider) {
+    init(config: Config, wallet: Wallet, store: RealmStore, assetDefinitionStore: AssetDefinitionStore, transactionDataStore: TransactionDataStore, tokensService: TokenProvidable, sessionsProvider: SessionsProvider) {
         self.tokensService = tokensService
         self.config = config
         self.wallet = wallet

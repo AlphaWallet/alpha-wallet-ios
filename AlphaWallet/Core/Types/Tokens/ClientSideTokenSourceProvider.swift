@@ -9,12 +9,6 @@ import Foundation
 import Combine
 
 class ClientSideTokenSourceProvider: TokenSourceProvider {
-    private (set) var tokens: [Token] = []
-
-    var objectWillChange: AnyPublisher<Void, Never> {
-        tokensHasChangeSubject.eraseToAnyPublisher()
-    }
-
     private lazy var tokensAutodetector: TokensAutodetector = {
         let detectedContractsProvider = DetectedContractsProvider(tokensDataStore: tokensDataStore)
         let autodetector = SingleChainTokensAutodetector(session: session, detectedTokens: detectedContractsProvider, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, importToken: importToken)
@@ -26,7 +20,6 @@ class ClientSideTokenSourceProvider: TokenSourceProvider {
     private let autoDetectTransactedTokensQueue: OperationQueue
     private let autoDetectTokensQueue: OperationQueue
     private let importToken: ImportToken
-    private let tokensHasChangeSubject = PassthroughSubject<Void, Never>.init()
     private let refreshSubject = PassthroughSubject<Void, Never>.init()
     private let balanceFetcher: TokenBalanceFetcherType
 
@@ -39,6 +32,21 @@ class ClientSideTokenSourceProvider: TokenSourceProvider {
                 }
             }.replaceError(with: [])
             .filter { !$0.isEmpty }
+            .eraseToAnyPublisher()
+    }
+
+    var tokens: [Token] { tokensDataStore.enabledTokens(for: [session.server]) }
+
+    var tokensPublisher: AnyPublisher<[Token], Never> {
+        let initialOrForceSnapshot = Publishers.Merge(Just<Void>(()), refreshSubject)
+            .map { [tokensDataStore, session] _ in tokensDataStore.enabledTokens(for: [session.server]) }
+            .eraseToAnyPublisher()
+
+        let addedOrChanged = tokensDataStore.enabledTokensPublisher(for: [session.server])
+            .dropFirst()
+            .receive(on: RunLoop.main)
+
+        return Publishers.Merge(initialOrForceSnapshot, addedOrChanged)
             .eraseToAnyPublisher()
     }
 
@@ -58,23 +66,6 @@ class ClientSideTokenSourceProvider: TokenSourceProvider {
 
         startTokenAutodetection()
         balanceFetcher.delegate = self
-        startTokensHandling()
-    }
-
-    private func startTokensHandling() {
-        let initialOrForceSnapshot = Publishers.Merge(Just<Void>(()), refreshSubject)
-            .map { [tokensDataStore, session] _ in tokensDataStore.enabledTokens(for: [session.server]) }
-            .eraseToAnyPublisher()
-
-        let addedOrChanged = tokensDataStore.enabledTokensPublisher(for: [session.server])
-            .dropFirst()
-            .receive(on: RunLoop.main)
-
-        Publishers.Merge(initialOrForceSnapshot, addedOrChanged)
-            .sink { [weak self] tokens in
-                self?.tokens = tokens
-                self?.tokensHasChangeSubject.send(())
-            }.store(in: &cancelable)
     }
 
     private func startTokenAutodetection() {

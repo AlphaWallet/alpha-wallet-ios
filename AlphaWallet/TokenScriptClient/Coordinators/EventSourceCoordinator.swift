@@ -16,9 +16,9 @@ final class EventSourceCoordinator: NSObject {
     private let queue = DispatchQueue(label: "com.eventSourceCoordinator.updateQueue")
     private let enabledServers: [RPCServer]
     private var cancellable = Set<AnyCancellable>()
-    private let tokensService: TokensState & TokenProvidable
+    private let tokensService: TokenProvidable
 
-    init(wallet: Wallet, tokensService: TokensState & TokenProvidable, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, config: Config) {
+    init(wallet: Wallet, tokensService: TokenProvidable, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, config: Config) {
         self.wallet = wallet
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
@@ -36,7 +36,7 @@ final class EventSourceCoordinator: NSObject {
     }
 
     private func subscribeForTokenChanges() {
-        tokensService.tokensPublisher
+        tokensService.tokensPublisher(servers: enabledServers)
             .receive(on: queue)
             .sink { [weak self] _ in
                 self?.fetchEthereumEvents()
@@ -122,7 +122,7 @@ final class EventSourceCoordinator: NSObject {
         guard !isFetching else { return }
         isFetching = true
 
-        let promises = tokensService.tokens.map { fetchEventsByTokenId(forToken: $0) }.flatMap { $0 }
+        let promises = tokensService.tokens(for: enabledServers).map { fetchEventsByTokenId(forToken: $0) }.flatMap { $0 }
         when(resolved: promises).done { [weak self] _ in
             self?.isFetching = false
         }

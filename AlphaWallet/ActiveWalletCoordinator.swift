@@ -125,7 +125,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private let domainResolutionService: DomainResolutionServiceType
     private let store: RealmStore
     private let tokenSwapper: TokenSwapper
-    private let tokensService: TokensService
+    private let tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable
 
     init(
             navigationController: UINavigationController = UINavigationController(),
@@ -153,7 +153,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
             tokenCollection: TokenCollection,
             importToken: ImportToken,
             transactionsDataStore: TransactionDataStore,
-            tokensService: TokensService
+            tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable
     ) {
         self.tokensService = tokensService
         self.transactionsDataStore = transactionsDataStore

@@ -10,7 +10,7 @@ import Combine
 final class EventSourceCoordinatorForActivities {
     private var wallet: Wallet
     private let config: Config
-    private let tokensService: TokensState & TokenProvidable
+    private let tokensService: TokenProvidable
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsActivityDataStoreProtocol
     private var isFetching = false
@@ -19,7 +19,7 @@ final class EventSourceCoordinatorForActivities {
     private let enabledServers: [RPCServer]
     private var cancellable = Set<AnyCancellable>()
 
-    init(wallet: Wallet, config: Config, tokensService: TokensState & TokenProvidable, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsActivityDataStoreProtocol) {
+    init(wallet: Wallet, config: Config, tokensService: TokenProvidable, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsActivityDataStoreProtocol) {
         self.wallet = wallet
         self.config = config
         self.tokensService = tokensService
@@ -36,7 +36,7 @@ final class EventSourceCoordinatorForActivities {
     }
 
     private func subscribeForTokenChanges() {
-        tokensService.tokensPublisher
+        tokensService.tokensPublisher(servers: enabledServers)
             .receive(on: queue)
             .sink { [weak self] _ in
                 self?.fetchEthereumEvents()
@@ -108,7 +108,7 @@ final class EventSourceCoordinatorForActivities {
         guard !isFetching else { return }
         isFetching = true
 
-        let promises = tokensService.tokens.map { fetchEvents(forToken: $0) }.flatMap { $0 }
+        let promises = tokensService.tokens(for: enabledServers).map { fetchEvents(forToken: $0) }.flatMap { $0 }
 
         when(resolved: promises).done { [weak self] _ in
             self?.isFetching = false

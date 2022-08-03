@@ -4,7 +4,7 @@ import Foundation
 
 class FetchTokenScriptFiles {
     private let assetDefinitionStore: AssetDefinitionStore
-    private let tokensService: TokensService
+    private let tokensService: TokenProvidable
     private let config: Config
 
     private var contractsInDatabase: [AddressAndOptionalRPCServer] {
@@ -22,7 +22,7 @@ class FetchTokenScriptFiles {
         return assetDefinitionStore.contractsWithTokenScriptFileFromOfficialRepo
     }
 
-    init(assetDefinitionStore: AssetDefinitionStore, tokensService: TokensService, config: Config) {
+    init(assetDefinitionStore: AssetDefinitionStore, tokensService: TokenProvidable, config: Config) {
         self.assetDefinitionStore = assetDefinitionStore
         self.tokensService = tokensService
         self.config = config

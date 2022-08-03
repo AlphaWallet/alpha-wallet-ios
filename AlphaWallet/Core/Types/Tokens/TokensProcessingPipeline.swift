@@ -9,23 +9,26 @@ import Foundation
 import Combine
 import CombineExt
 
+protocol TokenViewModelRefreshable {
+    func refresh()
+}
+
 protocol TokenViewModelState {
     var tokenViewModels: AnyPublisher<[TokenViewModel], Never> { get }
 
     func tokenViewModelPublisher(for contract: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<TokenViewModel?, Never>
     func tokenViewModel(for contract: AlphaWallet.Address, server: RPCServer) -> TokenViewModel?
-    func refresh()
 }
 
 protocol TokenBalanceRefreshable {
     func refreshBalance(updatePolicy: TokenBalanceFetcher.RefreshBalancePolicy)
 }
 
-protocol TokensProcessingPipeline: TokenViewModelState, TokenProvidable, TokenAddable, TokenHidable, TokenBalanceRefreshable, PipelineTests & TokenHolderState {
+protocol TokensProcessingPipeline: TokenViewModelState & TokenViewModelRefreshable, TokenProvidable, TokenAddable, TokenHidable, TokenBalanceRefreshable, PipelineTests & TokenHolderState {
     func start()
 }
 
-typealias TokenCollection = TokenViewModelState & TokenProvidable & TokenAddable & TokenHidable & TokenBalanceRefreshable & TokenHolderState
+typealias TokenCollection = TokenViewModelState & TokenViewModelRefreshable & TokenProvidable & TokenAddable & TokenHidable & TokenBalanceRefreshable & TokenHolderState
 
 class WalletDataProcessingPipeline: TokensProcessingPipeline {
     private let coinTickersFetcher: CoinTickersFetcher
@@ -157,6 +160,10 @@ class WalletDataProcessingPipeline: TokensProcessingPipeline {
 
     func tokenPublisher(for contract: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<Token?, Never> {
         tokensService.tokenPublisher(for: contract, server: server)
+    }
+
+    func tokensPublisher(servers: [RPCServer]) -> AnyPublisher<[Token], Never> {
+        tokensService.tokensPublisher(servers: servers)
     }
 
     func addOrUpdateTestsOnly(ticker: CoinTicker?, for token: TokenMappedToTicker) {

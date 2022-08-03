@@ -12,7 +12,9 @@ protocol TokenProvidable {
     func token(for contract: AlphaWallet.Address) -> Token?
     func token(for contract: AlphaWallet.Address, server: RPCServer) -> Token?
     func tokens(for servers: [RPCServer]) -> [Token]
+
     func tokenPublisher(for contract: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<Token?, Never>
+    func tokensPublisher(servers: [RPCServer]) -> AnyPublisher<[Token], Never>
 }
 
 protocol TokenAddable {
@@ -28,17 +30,7 @@ protocol TokenAutoDetectable {
 
 protocol TokensState {
     var tokens: [Token] { get }
-    //NOTE: as protocol can't be marked as ObservableObject
-    var objectWillChange: AnyPublisher<Void, Never> { get }
-}
-
-extension TokensState {
-    var tokensPublisher: AnyPublisher<[Token], Never> {
-        let tokensWhenChanged = objectWillChange.map { _ in tokens }
-        return Just(tokens)
-            .merge(with: tokensWhenChanged)
-            .eraseToAnyPublisher()
-    }
+    var tokensPublisher: AnyPublisher<[Token], Never> { get }
 }
 
 protocol TokenHidable {
