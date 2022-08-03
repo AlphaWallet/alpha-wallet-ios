@@ -15,7 +15,8 @@ class RequestCoordinator: Coordinator {
         let viewModel: RequestViewModel = .init(account: account)
         let controller = RequestViewController(viewModel: viewModel, domainResolutionService: domainResolutionService)
         controller.navigationItem.largeTitleDisplayMode = .never
-        controller.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(dismiss))
+        controller.hidesBottomBarWhenPushed = true
+        controller.delegate = self
 
         return controller
     }()
@@ -31,11 +32,12 @@ class RequestCoordinator: Coordinator {
     }
 
     func start() {
-        requestViewController.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(requestViewController, animated: true)
-    }
+    } 
+}
 
-    @objc func dismiss() {
+extension RequestCoordinator: RequestViewControllerDelegate {
+    func didClose(in viewController: RequestViewController) {
         delegate?.didCancel(in: self)
     }
 }

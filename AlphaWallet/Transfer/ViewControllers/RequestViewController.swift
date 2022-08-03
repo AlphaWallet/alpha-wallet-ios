@@ -5,6 +5,10 @@ import CoreImage
 import MBProgressHUD
 import Combine
 
+protocol RequestViewControllerDelegate: AnyObject {
+    func didClose(in viewController: RequestViewController)
+}
+
 //Careful to fit in shorter phone like iPhone 5s without needing to scroll
 class RequestViewController: UIViewController {
     private let roundedBackground: RoundedBackground = {
@@ -73,6 +77,8 @@ class RequestViewController: UIViewController {
     private let viewModel: RequestViewModel
     private var cancelable: AnyCancellable?
     private let domainResolutionService: DomainResolutionServiceType
+
+    weak var delegate: RequestViewControllerDelegate?
 
     init(viewModel: RequestViewModel, domainResolutionService: DomainResolutionServiceType) {
         self.viewModel = viewModel
@@ -167,6 +173,15 @@ class RequestViewController: UIViewController {
         super.viewDidLayoutSubviews()
         addressContainerView.cornerRadius = addressContainerView.frame.size.height / 2
         ensContainerView.cornerRadius = ensContainerView.frame.size.height / 2
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        if isMovingFromParent || isBeingDismissed {
+            delegate?.didClose(in: self)
+            return
+        }
     }
 
     private func configure() {
