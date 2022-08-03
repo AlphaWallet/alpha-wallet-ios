@@ -188,7 +188,9 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         //NOTE: here is a lot of calculations, `contractsAndCards` could reach up of 1000 items, as well as recentEvents could reach 1000.Simply it call inner function 1 000 000 times
         for (eachContract, eachServer, card, interpolatedFilter) in contractsAndCards {
             let activities = getActivities(forTokenContract: eachContract, server: eachServer, card: card, interpolatedFilter: interpolatedFilter)
-            activitiesAndTokens.append(contentsOf: activities)
+            //NOTE: filter activities to avoid: `Fatal error: Duplicate values for key: '<id>'`
+            let filteredActivities = activities.filter { data in !activitiesAndTokens.contains(where: { $0.activity.id == data.activity.id }) }
+            activitiesAndTokens.append(contentsOf: filteredActivities)
         }
 
         return Self.filter(activities: activitiesAndTokens, strategy: activitiesFilterStrategy)
