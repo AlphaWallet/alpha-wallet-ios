@@ -43,28 +43,28 @@ class NFTAssetsPageViewModel: NFTAssetsPageViewModelType {
 
     var spacingForGridLayout: CGFloat {
         switch token.type {
-        case .erc875:
+        case .erc875, .erc721ForTickets:
             switch OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
             case .notBackedByOpenSea:
                 return 0
             case .backedByOpenSea:
                 return 16
             }
-        case .nativeCryptocurrency, .erc20, .erc721, .erc721ForTickets, .erc1155:
+        case .nativeCryptocurrency, .erc20, .erc721, .erc1155:
             return 16
         }
     }
 
     var columsForGridLayout: Int {
         switch token.type {
-        case .erc875:
+        case .erc875, .erc721ForTickets:
             switch OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
             case .notBackedByOpenSea:
                 return 1
             case .backedByOpenSea:
                 return 2
             }
-        case .nativeCryptocurrency, .erc20, .erc721, .erc721ForTickets, .erc1155:
+        case .nativeCryptocurrency, .erc20, .erc721, .erc1155:
             return 2
         }
     }
@@ -72,28 +72,28 @@ class NFTAssetsPageViewModel: NFTAssetsPageViewModelType {
     //NOTE: height dimension calculates including additional insets applied to grid layout, pay attention on it
     var heightDimensionForGridLayout: CGFloat {
         switch token.type {
-        case .erc875:
+        case .erc875, .erc721ForTickets:
             switch OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
             case .notBackedByOpenSea:
                 return 200
             case .backedByOpenSea:
                 return 261
             }
-        case .nativeCryptocurrency, .erc20, .erc721, .erc721ForTickets, .erc1155:
+        case .nativeCryptocurrency, .erc20, .erc721, .erc1155:
             return 261
         }
     }
 
     var contentInsetsForGridLayout: NSDirectionalEdgeInsets {
         switch token.type {
-        case .erc875:
+        case .erc875, .erc721ForTickets:
             switch OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
             case .notBackedByOpenSea:
                 return .init(top: 0, leading: 10, bottom: 0, trailing: 10)
             case .backedByOpenSea:
                 return .init(top: 16, leading: 16, bottom: 0, trailing: 16)
             }
-        case .nativeCryptocurrency, .erc20, .erc721, .erc721ForTickets, .erc1155:
+        case .nativeCryptocurrency, .erc20, .erc721, .erc1155:
             return .init(top: 16, leading: 16, bottom: 0, trailing: 16)
         }
     }

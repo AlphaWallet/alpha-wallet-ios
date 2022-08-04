@@ -39,9 +39,9 @@ class TokenCardViewFactory {
         let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified)
 
         switch tokenHolder.tokenType {
-        case .erc875:
+        case .erc875, .erc721ForTickets:
             rowView = Erc875NonFungibleRowView(token: token, tokenType: tokenType, analyticsCoordinator: analyticsCoordinator, keystore: keystore, assetDefinitionStore: assetDefinitionStore, wallet: wallet, layout: layout, gridEdgeInsets: gridEdgeInsets, listEdgeInsets: listEdgeInsets)
-        case .nativeCryptocurrency, .erc20, .erc721, .erc721ForTickets, .erc1155:
+        case .nativeCryptocurrency, .erc20, .erc721, .erc1155:
             rowView = NonFungibleRowView(layout: layout, gridEdgeInsets: gridEdgeInsets, listEdgeInsets: listEdgeInsets)
         } 
 
