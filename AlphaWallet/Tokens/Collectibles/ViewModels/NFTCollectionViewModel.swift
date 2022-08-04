@@ -65,9 +65,9 @@ final class NFTCollectionViewModel {
         let whenPullToRefresh = loadingHasEnded.map { [token] _ in token }
             .compactMap { [service] in service.tokenHolders(for: $0) }
 
-        let whenViewModelHasChange = tokenViewModel.dropFirst().compactMap { [service] in $0.flatMap { service.tokenHolders(for: $0) } }
+        let whenViewModelHasChanged = tokenViewModel.dropFirst().compactMap { [service] in $0.flatMap { service.tokenHolders(for: $0) } }
 
-        Publishers.Merge(whenViewModelHasChange, whenPullToRefresh)
+        Publishers.Merge(whenViewModelHasChanged, whenPullToRefresh)
             .assign(to: \.value, on: tokenHolders)
             .store(in: &cancelable)
 

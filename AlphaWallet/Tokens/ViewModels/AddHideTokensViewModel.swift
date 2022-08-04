@@ -56,18 +56,18 @@ class AddHideTokensViewModel: ObservableObject {
             self?.isSearchActive = $0
         }.store(in: &cancelable)
 
-        let whenTokensHasChange = PassthroughSubject<Void, Never>()
+        let whenTokensHasChanged = PassthroughSubject<Void, Never>()
         tokenCollection.tokenViewModels
             .first() //NOTE: out of current logic we load db snapshot, and not handling updates in changeset
             .sink { [weak self] tokens in
                 self?.tokens = tokens
-                whenTokensHasChange.send(())
+                whenTokensHasChanged.send(())
             }.store(in: &cancelable)
 
         popularTokensCollection.fetchTokens(for: config.enabledServers)
             .done { [weak self] tokens in
                 self?.allPopularTokens = tokens
-                whenTokensHasChange.send(())
+                whenTokensHasChanged.send(())
             }.cauterize()
 
         let searchText = input.searchText.handleEvents(receiveOutput: { [weak self] in self?.searchText = $0 })
@@ -76,7 +76,7 @@ class AddHideTokensViewModel: ObservableObject {
         let sortTokensParam = input.sortTokensParam.handleEvents(receiveOutput: { [weak self] in self?.sortTokensParam = $0 })
             .map { _ in }
 
-        let viewState = Publishers.Merge4(whenTokensHasChange, searchText, sortTokensParam, addToken.map { _ in })
+        let viewState = Publishers.Merge4(whenTokensHasChanged, searchText, sortTokensParam, addToken.map { _ in })
             .handleEvents(receiveOutput: { [weak self] _ in self?.filterTokens() })
 
         return .init(viewState: viewState.eraseToAnyPublisher())

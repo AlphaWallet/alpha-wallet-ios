@@ -97,18 +97,18 @@ final class NFTCollectionInfoPageViewModel {
     }
 
     func transform(input: NFTCollectionInfoPageViewModelInput) -> NFTCollectionInfoPageViewModelOutput {
-        let whenOpenSeaStatsHasChange = PassthroughSubject<Void, Never>()
+        let whenOpenSeaStatsHasChanged = PassthroughSubject<Void, Never>()
 
         if let openSeaSlug = tokenHolder.values.slug, openSeaSlug.trimmed.nonEmpty {
             openSea.collectionStats(slug: openSeaSlug, server: token.server).done { [tokenHolderHelper] overiddenOpenSeaStats in
                 tokenHolderHelper.overiddenOpenSeaStats = overiddenOpenSeaStats
-                whenOpenSeaStatsHasChange.send(())
+                whenOpenSeaStatsHasChanged.send(())
             }.cauterize()
         }
 
         let tokenHolder = _tokenHolders.compactMap { $0.first }
 
-        let whenTokehHolderHasChange = tokenHolder.map { tokenHolder -> (tokenHolder: TokenHolder, tokenId: TokenId) in
+        let whenTokehHolderHasChanged = tokenHolder.map { tokenHolder -> (tokenHolder: TokenHolder, tokenId: TokenId) in
             return (tokenHolder: tokenHolder, tokenId: tokenHolder.tokenId)
         }.handleEvents(receiveOutput: { [weak self, tokenHolderHelper] in
             self?.tokenId = $0.tokenId
@@ -116,7 +116,7 @@ final class NFTCollectionInfoPageViewModel {
             tokenHolderHelper.update(tokenHolder: $0.tokenHolder, tokenId: $0.tokenId)
         }).map { _ in }
 
-        let viewTypes = Publishers.Merge(whenTokehHolderHasChange, whenOpenSeaStatsHasChange)
+        let viewTypes = Publishers.Merge(whenTokehHolderHasChanged, whenOpenSeaStatsHasChanged)
             .compactMap { [tokenHolderHelper, weak self] _ in self?.buildViewTypes(helper: tokenHolderHelper) }
             .handleEvents(receiveOutput: { [weak self] in self?.viewTypes = $0 })
 

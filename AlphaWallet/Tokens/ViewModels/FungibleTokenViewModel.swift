@@ -150,19 +150,19 @@ final class FungibleTokenViewModel {
     }
 
     func transform(input: FungibleTokenViewModelInput) -> FungibleTokenViewModelOutput {
-        let whenTokenHolderHasChange: AnyPublisher<TokenViewModel?, Never> = (tokenHolder?.objectWillChange.eraseToAnyPublisher() ?? .empty())
+        let whenTokenHolderHasChanged: AnyPublisher<TokenViewModel?, Never> = (tokenHolder?.objectWillChange.eraseToAnyPublisher() ?? .empty())
             .map { [service, token] _ in service.tokenViewModel(for: token) }
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
 
-        let whenTokenActionsHasChange = tokenActionsProvider.objectWillChange
+        let whenTokenActionsHasChanged = tokenActionsProvider.objectWillChange
             .map { [service, token] _ in service.tokenViewModel(for: token) }
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
 
         let tokenViewModel = service.tokenViewModelPublisher(for: token).eraseToAnyPublisher()
 
-        let actions = Publishers.MergeMany(tokenViewModel, whenTokenHolderHasChange, whenTokenActionsHasChange)
+        let actions = Publishers.MergeMany(tokenViewModel, whenTokenHolderHasChanged, whenTokenActionsHasChanged)
             .compactMap { [weak self] _ in self?.buildTokenActions() }
             .handleEvents(receiveOutput: { [weak self] in self?.actions = $0 })
 
