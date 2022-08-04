@@ -10,7 +10,7 @@ protocol ActiveWalletCoordinatorDelegate: AnyObject {
     func didCancel(in coordinator: ActiveWalletCoordinator)
     func didShowWallet(in coordinator: ActiveWalletCoordinator)
     func assetDefinitionsOverrideViewController(for coordinator: ActiveWalletCoordinator) -> UIViewController?
-    func handleUniversalLink(_ url: URL, forCoordinator coordinator: ActiveWalletCoordinator)
+    func handleUniversalLink(_ url: URL, forCoordinator coordinator: ActiveWalletCoordinator, source: UrlSource)
     func showWallets(in coordinator: ActiveWalletCoordinator)
     func didRestart(in coordinator: ActiveWalletCoordinator, reason: RestartReason, wallet: Wallet)
 }
@@ -976,7 +976,7 @@ extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
     }
 
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: DappBrowserCoordinator) {
-        delegate?.handleUniversalLink(url, forCoordinator: self)
+        delegate?.handleUniversalLink(url, forCoordinator: self, source: .dappBrowser)
     }
 
     func restartToAddEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappBrowserCoordinator) {

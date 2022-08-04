@@ -103,7 +103,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 
     // URI scheme links and AirDrop
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
-        return appCoordinator.handleUniversalLink(url: url)
+        return handleUniversalLink(url: url, source: .customUrlScheme)
     }
 
     func application(_ application: UIApplication,
@@ -116,7 +116,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 
         var handled = false
         if let url = userActivity.webpageURL {
-            handled = handleUniversalLink(url: url)
+            handled = handleUniversalLink(url: url, source: .deeplink)
         }
         //TODO: if we handle other types of URLs, check if handled==false, then we pass the url to another handlers
         return handled
@@ -186,9 +186,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         //no op
     }
 
-    @discardableResult private func handleUniversalLink(url: URL) -> Bool {
-        let handled = appCoordinator.handleUniversalLink(url: url)
+    private func handleUniversalLink(url: URL, source: UrlSource) -> Bool {
+        let handled = appCoordinator.handleUniversalLink(url: url, source: source)
         return handled
     }
 }
-
