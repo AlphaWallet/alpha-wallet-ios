@@ -155,11 +155,6 @@ extension DeepLink.functional {
     }
 
     private static func validateSupportingServerAndPath(url: URL, supportedServers: [RPCServer], path: String) -> (path: String, server: RPCServer)? {
-        func isServerSupported(server: RPCServer) -> Bool {
-            guard !supportedServers.isEmpty else { return true }
-            return supportedServers.contains(server)
-        }
-
         guard let magicLinkServer = RPCServer(withMagicLink: url), url.path.starts(with: path) else { return nil }
         let eip681Url = url.absoluteString.replacingOccurrences(of: magicLinkServer.magicLinkPrefix.absoluteString, with: "")
         return (eip681Url, magicLinkServer)
