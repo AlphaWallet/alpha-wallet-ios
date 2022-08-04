@@ -171,21 +171,31 @@ class WalletDataProcessingPipeline: TokensProcessingPipeline {
     }
 
     private func preparePipeline() {
-        let whenTickersChange: AnyPublisher<[Token], Never> = coinTickersFetcher.tickersDidUpdate.dropFirst()
+        let whenTickersChanged = coinTickersFetcher.tickersDidUpdate.dropFirst()
+            .receive(on: Config.backgroundQueue)
             .map { [tokensService] _ in tokensService.tokens }
-            .receive(on: RunLoop.main)
-            .eraseToAnyPublisher()
 
-        let whenSignatureOrBodyChange: AnyPublisher<[Token], Never> = assetDefinitionStore
-            .assetsSignatureOrBodyChange
+        let whenSignatureOrBodyChanged = assetDefinitionStore.assetsSignatureOrBodyChange
+            .receive(on: Config.backgroundQueue)
             .map { [tokensService] _ in tokensService.tokens }
-            .receive(on: RunLoop.main)
-            .eraseToAnyPublisher()
 
-        Publishers.Merge3(tokensService.tokensPublisher, whenTickersChange, whenSignatureOrBodyChange)
+        let whenTokensHasChanged = tokensService.tokensPublisher
+            .dropFirst()
+            .receive(on: Config.backgroundQueue)
+
+        let whenCollectionHasChanged = Publishers.Merge3(whenTokensHasChanged, whenTickersChanged, whenSignatureOrBodyChanged)
             .map { $0.map { TokenViewModel(token: $0) } }
             .flatMapLatest { [weak self] in self?.applyTickers(tokens: $0) ?? .empty() }
             .flatMapLatest { [weak self] in self?.applyTokenScriptOverrides(tokens: $0) ?? .empty() }
+            .removeAllDuplicates(by: { return $0.hashValue == $1.hashValue })
+            .receive(on: RunLoop.main)
+
+        let initialSnapshot = Just(tokensService.tokens)
+            .map { $0.map { TokenViewModel(token: $0) } }
+            .flatMapLatest { [weak self] in self?.applyTickers(tokens: $0) ?? .empty() }
+            .flatMapLatest { [weak self] in self?.applyTokenScriptOverrides(tokens: $0) ?? .empty() }
+
+        Publishers.Merge(whenCollectionHasChanged, initialSnapshot)
             .assign(to: \.value, on: tokenViewModelsSubject, ownership: .weak)
             .store(in: &cancelable)
     }

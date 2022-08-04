@@ -36,11 +36,6 @@ final class TokensViewModel {
     private var listOfBadTokenScriptFiles: [TokenScriptFileIndices.FileName] = .init()
     //TODO: Replace with usage single array of data, instead of using filteredTokens, and collectiblePairs
     private var filteredTokens: [TokenOrRpcServer] = []
-    private lazy var walletNameFetcher = GetWalletName(domainResolutionService: domainResolutionService)
-    private let domainResolutionService: DomainResolutionServiceType
-    private let blockiesGenerator: BlockiesGenerator
-    private let sectionViewModelsSubject = PassthroughSubject<[TokensViewModel.SectionViewModel], Never>()
-    private let deletionSubject = PassthroughSubject<[IndexPath], Never>()
     private var collectiblePairs: [CollectiblePairs] {
         let tokens = filteredTokens.compactMap { $0.token }
         return tokens.chunked(into: 2).compactMap { elems -> CollectiblePairs? in
@@ -50,6 +45,11 @@ final class TokensViewModel {
             return .init(left: left, right: right)
         }
     }
+    private lazy var walletNameFetcher = GetWalletName(domainResolutionService: domainResolutionService)
+    private let domainResolutionService: DomainResolutionServiceType
+    private let blockiesGenerator: BlockiesGenerator
+    private let sectionViewModelsSubject = PassthroughSubject<[TokensViewModel.SectionViewModel], Never>()
+    private let deletionSubject = PassthroughSubject<[IndexPath], Never>()
     private let wallet: Wallet
 
     let config: Config
@@ -200,11 +200,11 @@ final class TokensViewModel {
 
         let walletSummary = walletBalanceService
             .walletBalance(for: wallet)
-            .map { return WalletSummary(balances: [$0]) }
+            .map { WalletSummary(balances: [$0]) }
             .eraseToAnyPublisher()
 
         let navigationTitle = input.appear.flatMap { [unowned self, walletNameFetcher, wallet] _ -> AnyPublisher<String, Never> in
-            return walletNameFetcher.assignedNameOrEns(for: wallet.address)
+            walletNameFetcher.assignedNameOrEns(for: wallet.address)
                 .map { $0 ?? self.walletDefaultTitle }
                 .prepend(self.walletDefaultTitle)
                 .eraseToAnyPublisher()

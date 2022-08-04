@@ -23,7 +23,7 @@ class ClientSideTokenSourceProvider: TokenSourceProvider {
     private let refreshSubject = PassthroughSubject<Void, Never>.init()
     private let balanceFetcher: TokenBalanceFetcherType
 
-    var newTokens: AnyPublisher<[Token], Never> {
+    private (set) lazy var newTokens: AnyPublisher<[Token], Never> = {
         return tokensDataStore.enabledTokensChangeset(for: [session.server])
             .map { changeset -> [Token] in
                 switch changeset {
@@ -33,22 +33,21 @@ class ClientSideTokenSourceProvider: TokenSourceProvider {
             }.replaceError(with: [])
             .filter { !$0.isEmpty }
             .eraseToAnyPublisher()
-    }
+    }()
 
     var tokens: [Token] { tokensDataStore.enabledTokens(for: [session.server]) }
 
-    var tokensPublisher: AnyPublisher<[Token], Never> {
+    private (set) lazy var tokensPublisher: AnyPublisher<[Token], Never> = {
         let initialOrForceSnapshot = Publishers.Merge(Just<Void>(()), refreshSubject)
             .map { [tokensDataStore, session] _ in tokensDataStore.enabledTokens(for: [session.server]) }
             .eraseToAnyPublisher()
 
         let addedOrChanged = tokensDataStore.enabledTokensPublisher(for: [session.server])
             .dropFirst()
-            .receive(on: RunLoop.main)
 
         return Publishers.Merge(initialOrForceSnapshot, addedOrChanged)
             .eraseToAnyPublisher()
-    }
+    }()
 
     let session: WalletSession
 
