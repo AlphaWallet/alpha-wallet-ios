@@ -30,17 +30,17 @@ enum DeepLink {
     init?(url: URL, supportedServers: [RPCServer] = [.main]) {
         if url.isFileURL {
             self = .maybeFileUrl(url: url)
-        } else if let eip681Url = Self.functional.hasEip681Path(in: url, supportedServers: supportedServers) {
+        } else if let eip681Url = Self.functional.extractEip681UrlMaybeEmbedded(in: url, supportedServers: supportedServers) {
             self  = .eip681(url: eip681Url)
-        } else if let (wcUrl, source) = Self.functional.hasWalletConnectPath(in: url) {
+        } else if let (wcUrl, source) = Self.functional.extractWalletConnectUrlMaybeEmbedded(in: url) {
             self = .walletConnect(url: wcUrl, source: source)
-        } else if let (server, url) = Self.functional.hasEmbeddedUrlPath(in: url, supportedServers: supportedServers) {
+        } else if let (server, url) = Self.functional.extractEmbeddedUrl(in: url, supportedServers: supportedServers) {
             self = .embeddedUrl(server: server, url: url)
         } else if let value = ShareContentAction(url) {
             self = .shareContentAction(action: value)
-        } else if let (server, signedOrder) = Self.functional.hasMagicLink(url: url) {
+        } else if let (server, signedOrder) = Self.functional.extractEmbeddedMagicLinkData(url: url) {
             self = .magicLink(signedOrder: signedOrder, server: server, url: url)
-        } else if let value = Self.functional.hasEmbeddedWalletApiAction(url: url, supportedServers: []) {
+        } else if let value = Self.functional.extractEmbeddedWalletApiCall(url: url, supportedServers: []) {
             self = .walletApi(value)
         } else {
             return nil
@@ -97,8 +97,8 @@ extension DeepLink.functional {
     //E.g. https://aw.app/wallet/v1/connect?redirecturl=https%3A%2F%2Fmyapp.com&metadata=%7B%22name%22%3A%22Some%20app%22%2C%22iconurl%22%3A%22https%3A%2F%2Fimg.icons8.com%2Fnolan%2F344%2Fethereum.png%22%2C%20%22appurl%22%3A%20%22https%3A%2F%2Funiswap.org%2F%22%2C%20%22note%22%3A%22This%20will%20inform%20them%20your%20wallet%20address%20is%200x2322%E2%80%A62324%22%7D
     //E.g https://aw.app/wallet/v1/signpersonalmessage?redirecturl=https%3A%2F%2Fmyapp.com%3Fparam_1%3Dnope%26param_2%3D34&metadata=%7B%22name%22%3A%22Some%20app%22%2C%22iconurl%22%3A%22https%3A%2F%2Fimg.icons8.com%2Fnolan%2F344%2Fethereum.png%22%2C%20%22appurl%22%3A%20%22https%3A%2F%2Funiswap.org%2F%22%2C%20%22note%22%3A%22This%20will%20inform%20them%20your%20wallet%20address%20is%200x2322%E2%80%A62324%22%7D&message=0x48656c6c6f20416c7068612057616c6c6574
 
-    static func hasEmbeddedWalletApiAction(url: URL, supportedServers: [RPCServer]) -> DeepLink.WalletApi? {
-        guard let result = validateSupportingServerAndPath(url: url, supportedServers: supportedServers, path: DeepLink.walletPath) else {
+    static func extractEmbeddedWalletApiCall(url: URL, supportedServers: [RPCServer]) -> DeepLink.WalletApi? {
+        guard let result = extractSupportingServerAndPath(url: url, supportedServers: supportedServers, path: DeepLink.walletPath) else {
             return nil
         }
 
@@ -138,7 +138,7 @@ extension DeepLink.functional {
         }
     }
 
-    static func hasMagicLink(url: URL) -> (server: RPCServer, signedOrder: SignedOrder)? {
+    static func extractEmbeddedMagicLinkData(url: URL) -> (server: RPCServer, signedOrder: SignedOrder)? {
         guard let server = RPCServer(withMagicLink: url) else { return nil }
         let isLegacyLink = url.description.hasPrefix(Constants.legacyMagicLinkPrefix)
         let prefix: String
@@ -154,14 +154,14 @@ extension DeepLink.functional {
         return (server: server, signedOrder: signedOrder)
     }
 
-    private static func validateSupportingServerAndPath(url: URL, supportedServers: [RPCServer], path: String) -> (path: String, server: RPCServer)? {
+    private static func extractSupportingServerAndPath(url: URL, supportedServers: [RPCServer], path: String) -> (path: String, server: RPCServer)? {
         guard let magicLinkServer = RPCServer(withMagicLink: url), url.path.starts(with: path) else { return nil }
         let eip681Url = url.absoluteString.replacingOccurrences(of: magicLinkServer.magicLinkPrefix.absoluteString, with: "")
         return (eip681Url, magicLinkServer)
     }
 
     //E.g. https://aw.app/ethereum:0x89205a3a3b2a69de6dbf7f01ed13b2108b2c43e7/transfer?address=0x8e23ee67d1332ad560396262c48ffbb01f93d052&uint256=1
-    static func hasEip681Path(in url: URL, supportedServers: [RPCServer]) -> URL? {
+    static func extractEip681UrlMaybeEmbedded(in url: URL, supportedServers: [RPCServer]) -> URL? {
         let rawEip681Url: URL? = {
             guard let scheme = url.scheme, scheme == Eip681Parser.scheme, QRCodeValueParser.from(string: url.absoluteString) != nil else { return nil }
             switch QRCodeValueParser.from(string: url.absoluteString) {
@@ -173,7 +173,7 @@ extension DeepLink.functional {
         }()
 
         let eip681Url: URL? = {
-            guard let result = validateSupportingServerAndPath(url: url, supportedServers: supportedServers, path: DeepLink.eip681Path) else {
+            guard let result = extractSupportingServerAndPath(url: url, supportedServers: supportedServers, path: DeepLink.eip681Path) else {
                 return nil
             }
             let eip681Url = result.path
@@ -188,8 +188,8 @@ extension DeepLink.functional {
         return rawEip681Url ?? eip681Url
     }
 
-    static func hasEmbeddedUrlPath(in url: URL, supportedServers: [RPCServer]) -> (RPCServer, URL)? {
-        guard let result = validateSupportingServerAndPath(url: url, supportedServers: supportedServers, path: DeepLink.openUrlPath) else {
+    static func extractEmbeddedUrl(in url: URL, supportedServers: [RPCServer]) -> (RPCServer, URL)? {
+        guard let result = extractSupportingServerAndPath(url: url, supportedServers: supportedServers, path: DeepLink.openUrlPath) else {
             return nil
         }
 
@@ -203,7 +203,7 @@ extension DeepLink.functional {
     //Multiple formats:
     //From WalletConnect mobile linking: e.g. https://aw.app/wc?uri=wc%3A588422fd-929d-438a-b337-31c3c9184d9b%401%3Fbridge%3Dhttps%253A%252F%252Fbridge.walletconnect.org%26key%3D8f9459f72aed0790282c47fe45f37ed5cb121bc17795f8f2a229a910bc447202
     //From AlphaWallet iOS Safari extension's rewriting: eg. https://aw.app/wc:f607884e-63a5-4fa3-8e7d-af6f6fa9b51f@1?bridge=https%3A%2F%2Fn.bridge.walletconnect.org&key=cff9abba23cb9f843e9d623b891a5f8948b41f7d4afc7f7155aa252504cd8264
-    static func hasWalletConnectPath(in url: URL) -> (url: AlphaWallet.WalletConnect.ConnectionUrl, source: DeepLink.WalletConnectSource)? {
+    static func extractWalletConnectUrlMaybeEmbedded(in url: URL) -> (url: AlphaWallet.WalletConnect.ConnectionUrl, source: DeepLink.WalletConnectSource)? {
         if url.scheme == "wc", let wcUrl = AlphaWallet.WalletConnect.ConnectionUrl(url.absoluteString) {
             return (wcUrl, .mobileLinking)
         } else if url.path.starts(with: DeepLink.walletConnectPath) {
