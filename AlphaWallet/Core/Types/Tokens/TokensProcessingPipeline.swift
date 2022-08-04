@@ -27,8 +27,8 @@ protocol TokenBalanceRefreshable {
 protocol TokensProcessingPipeline: TokenViewModelState & TokenViewModelRefreshable, TokenProvidable, TokenAddable, TokenHidable, TokenBalanceRefreshable, PipelineTests & TokenHolderState {
     func start()
 }
-
-typealias TokenCollection = TokenViewModelState & TokenViewModelRefreshable & TokenProvidable & TokenAddable & TokenHidable & TokenBalanceRefreshable & TokenHolderState
+//FIXME: Remove TokenCollection later
+typealias TokenCollection = TokensProcessingPipeline
 
 class WalletDataProcessingPipeline: TokensProcessingPipeline {
     private let coinTickersFetcher: CoinTickersFetcher
