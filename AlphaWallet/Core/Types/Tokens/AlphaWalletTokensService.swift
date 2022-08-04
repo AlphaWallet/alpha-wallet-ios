@@ -122,7 +122,7 @@ class AlphaWalletTokensService: TokensService {
 
     private func makeTokenSource(session: WalletSession) -> TokenSourceProvider {
         let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: session.server)
-        let balanceFetcher = TokenBalanceFetcher(session: session, nftProvider: nftProvider, service: self, etherToken: etherToken, assetDefinitionStore: assetDefinitionStore, analytics: analytics, queue: Config.backgroundQueue)
+        let balanceFetcher = TokenBalanceFetcher(session: session, nftProvider: nftProvider, tokensService: self, etherToken: etherToken, assetDefinitionStore: assetDefinitionStore, analytics: analytics, queue: Config.backgroundQueue)
         balanceFetcher.erc721TokenIdsFetcher = transactionsStorage
         
         return ClientSideTokenSourceProvider(session: session, autoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, autoDetectTokensQueue: autoDetectTokensQueue, importToken: importToken, tokensDataStore: tokensDataStore, balanceFetcher: balanceFetcher)

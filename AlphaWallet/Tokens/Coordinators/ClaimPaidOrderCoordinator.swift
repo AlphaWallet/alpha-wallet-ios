@@ -16,7 +16,7 @@ protocol ClaimOrderCoordinatorDelegate: class, CanOpenURL {
 
 class ClaimPaidOrderCoordinator: Coordinator {
     private let navigationController: UINavigationController
-    private let service: TokenViewModelState
+    private let tokensService: TokenViewModelState
     private let keystore: Keystore
     private let session: WalletSession
     private let token: Token
@@ -37,9 +37,9 @@ class ClaimPaidOrderCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: ClaimOrderCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, keystore: Keystore, session: WalletSession, token: Token, signedOrder: SignedOrder, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, assetDefinitionStore: AssetDefinitionStore, service: TokenViewModelState) {
+    init(navigationController: UINavigationController, keystore: Keystore, session: WalletSession, token: Token, signedOrder: SignedOrder, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, assetDefinitionStore: AssetDefinitionStore, tokensService: TokenViewModelState) {
         self.navigationController = navigationController
-        self.service = service
+        self.tokensService = tokensService
         self.keystore = keystore
         self.session = session
         self.token = token
@@ -79,7 +79,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
                             nonce: nil
                     )
 
-                    let coordinator = try TransactionConfirmationCoordinator(presentingViewController: strongSelf.navigationController, session: strongSelf.session, transaction: transaction, configuration: .claimPaidErc875MagicLink(confirmType: .signThenSend, price: strongSelf.signedOrder.order.price, numberOfTokens: strongSelf.numberOfTokens), analytics: strongSelf.analytics, domainResolutionService: strongSelf.domainResolutionService, keystore: strongSelf.keystore, assetDefinitionStore: strongSelf.assetDefinitionStore, service: strongSelf.service)
+                    let coordinator = try TransactionConfirmationCoordinator(presentingViewController: strongSelf.navigationController, session: strongSelf.session, transaction: transaction, configuration: .claimPaidErc875MagicLink(confirmType: .signThenSend, price: strongSelf.signedOrder.order.price, numberOfTokens: strongSelf.numberOfTokens), analytics: strongSelf.analytics, domainResolutionService: strongSelf.domainResolutionService, keystore: strongSelf.keystore, assetDefinitionStore: strongSelf.assetDefinitionStore, tokensService: strongSelf.tokensService)
                     coordinator.delegate = self
                     strongSelf.addCoordinator(coordinator)
                     coordinator.start(fromSource: .claimPaidMagicLink)

@@ -57,7 +57,7 @@ class WalletConnectCoordinator: NSObject, Coordinator {
     private weak var sessionsViewController: WalletConnectSessionsViewController?
     private let sessionProvider: SessionsProvider
     private let assetDefinitionStore: AssetDefinitionStore
-    private var service: TokenViewModelState?
+    private var tokensService: TokenViewModelState?
     weak var delegate: WalletConnectCoordinatorDelegate?
     var coordinators: [Coordinator] = []
 
@@ -77,8 +77,8 @@ class WalletConnectCoordinator: NSObject, Coordinator {
         start()
     }
     //FIXME: think about better way
-    func configure(with service: TokenViewModelState?) {
-        self.service = service
+    func configure(with tokensService: TokenViewModelState?) {
+        self.tokensService = tokensService
     }
 
     //NOTE: we are using disconnection to notify dapp that we get disconnect, in other case dapp still stay connected
@@ -396,11 +396,11 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
     private func executeTransaction(session: WalletSession, requester: DappRequesterViewModel, transaction: UnconfirmedTransaction, type: ConfirmType) -> Promise<AlphaWallet.WalletConnect.Response> {
 
         let configuration: TransactionConfirmationViewModel.Configuration = .walletConnect(confirmType: type, requester: requester)
-        guard let service = service else { return Promise<AlphaWallet.WalletConnect.Response> { _ in } }
+        guard let tokensService = tokensService else { return Promise<AlphaWallet.WalletConnect.Response> { _ in } }
 
         infoLog("[WalletConnect] executeTransaction: \(transaction) type: \(type)")
         return firstly {
-            TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, source: .walletConnect, delegate: self.delegate, keystore: keystore, assetDefinitionStore: assetDefinitionStore, service: service)
+            TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, source: .walletConnect, delegate: self.delegate, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
         }.map { data -> AlphaWallet.WalletConnect.Response in
             switch data {
             case .signedTransaction(let data):

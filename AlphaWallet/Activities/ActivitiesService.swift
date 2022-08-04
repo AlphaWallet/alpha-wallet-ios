@@ -7,7 +7,6 @@
 
 import Foundation
 import CoreFoundation
-import PromiseKit
 import Combine
 
 protocol ActivitiesServiceType: class {

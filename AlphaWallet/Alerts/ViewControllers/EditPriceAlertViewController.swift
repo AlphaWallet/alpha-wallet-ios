@@ -50,14 +50,14 @@ class EditPriceAlertViewController: UIViewController {
     private let session: WalletSession
     private let alertService: PriceAlertServiceType
     private var cancelable = Set<AnyCancellable>()
-    private let service: TokenViewModelState
+    private let tokensService: TokenViewModelState
     weak var delegate: EditPriceAlertViewControllerDelegate?
 
-    init(viewModel: EditPriceAlertViewModel, session: WalletSession, service: TokenViewModelState, alertService: PriceAlertServiceType) {
+    init(viewModel: EditPriceAlertViewModel, session: WalletSession, tokensService: TokenViewModelState, alertService: PriceAlertServiceType) {
         self.viewModel = viewModel
         self.session = session
         self.alertService = alertService
-        self.service = service
+        self.tokensService = tokensService
         super.init(nibName: nil, bundle: nil)
 
         let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
@@ -85,7 +85,7 @@ class EditPriceAlertViewController: UIViewController {
         amountTextField.cryptoToDollarRate = 1
         amountTextField.set(ethCost: viewModel.value, useFormatting: false)
 
-        service.tokenViewModelPublisher(for: viewModel.token)
+        tokensService.tokenViewModelPublisher(for: viewModel.token)
             .map { $0?.balance.ticker?.price_usd }
             .receive(on: RunLoop.main)
             .sink { [weak self] price in

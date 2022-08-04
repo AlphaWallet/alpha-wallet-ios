@@ -16,7 +16,7 @@ import SwiftyJSON
 
 //TODO: think about the name, remove queue later, replace with any publisher
 class NonFungibleJsonBalanceFetcher {
-    private let service: TokenProvidable
+    private let tokensService: TokenProvidable
     //Unlike `SessionManager.default`, this doesn't add default HTTP headers. It looks like POAP token URLs (e.g. https://api.poap.xyz/metadata/2503/278569) don't like them and return `406` in the JSON. It's strangely not responsible when curling, but only when running in the app
     private var sessionManagerWithDefaultHttpHeaders: SessionManager = {
         let configuration = URLSessionConfiguration.default
@@ -26,9 +26,9 @@ class NonFungibleJsonBalanceFetcher {
     private let server: RPCServer
     private let queue: DispatchQueue
 
-    init(server: RPCServer, service: TokenProvidable, queue: DispatchQueue) {
+    init(server: RPCServer, tokensService: TokenProvidable, queue: DispatchQueue) {
         self.server = server
-        self.service = service
+        self.tokensService = tokensService
         self.queue = queue
     }
 
@@ -45,7 +45,7 @@ class NonFungibleJsonBalanceFetcher {
 
     private func generateTokenJsonFallback(forTokenId tokenId: String, tokenType: TokenType, address: AlphaWallet.Address) -> Guarantee<NonFungibleBalanceAndItsSource<JsonString>> {
         var jsonDictionary = JSON()
-        if let token = service.token(for: address, server: server) {
+        if let token = tokensService.token(for: address, server: server) {
             jsonDictionary["tokenId"] = JSON(tokenId)
             jsonDictionary["tokenType"] = JSON(tokenType.rawValue)
             jsonDictionary["contractName"] = JSON(token.name)
@@ -70,7 +70,7 @@ class NonFungibleJsonBalanceFetcher {
         return firstly {
             //Must not use `SessionManager.default.request` or `Alamofire.request` which uses the former. See comment in var
             sessionManagerWithDefaultHttpHeaders.request(uri, method: .get).responseData(queue: queue)
-        }.map(on: queue, { [service] (data, _) -> NonFungibleBalanceAndItsSource in
+        }.map(on: queue, { [tokensService] (data, _) -> NonFungibleBalanceAndItsSource in
             if let json = try? JSON(data: data) {
                 if let errorMessage = json["error"].string {
                     verboseLog("Fetched token URI: \(originalUri.absoluteString) error: \(errorMessage)")
@@ -80,7 +80,7 @@ class NonFungibleJsonBalanceFetcher {
                 } else {
                     verboseLog("Fetched token URI: \(originalUri.absoluteString)")
                     var jsonDictionary = json
-                    if let token = service.token(for: address, server: server) {
+                    if let token = tokensService.token(for: address, server: server) {
                         jsonDictionary["tokenType"] = JSON(tokenType.rawValue)
                         //We must make sure the value stored is at least an empty string, never nil because we need to deserialise/decode it
                         jsonDictionary["contractName"] = JSON(token.name)

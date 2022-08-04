@@ -23,7 +23,7 @@ class TransferNFTCoordinator: Coordinator {
     private let tokenHolder: TokenHolder
     private var transactionConfirmationResult: ConfirmResult? = .none
     private let transactionType: TransactionType
-    private let service: TokenViewModelState
+    private let tokensService: TokenViewModelState
     weak var delegate: TransferNFTCoordinatorDelegate?
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -38,9 +38,9 @@ class TransferNFTCoordinator: Coordinator {
             assetDefinitionStore: AssetDefinitionStore,
             analytics: AnalyticsLogger,
             domainResolutionService: DomainResolutionServiceType,
-            service: TokenViewModelState
+            tokensService: TokenViewModelState
     ) {
-        self.service = service
+        self.tokensService = tokensService
         self.transactionType = transactionType
         self.tokenHolder = tokenHolder
         self.session = session
@@ -104,7 +104,7 @@ extension TransferNFTCoordinator: TransferTokensCardViaWalletAddressViewControll
 
             let tokenInstanceNames = tokenHolder.valuesAll.compactMapValues { $0.nameStringValue }
             let configuration: TransactionConfirmationViewModel.Configuration = .sendNftTransaction(confirmType: .signThenSend, tokenInstanceNames: tokenInstanceNames)
-            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, service: service)
+            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
             addCoordinator(coordinator)
             coordinator.delegate = self
             coordinator.start(fromSource: .sendNft)

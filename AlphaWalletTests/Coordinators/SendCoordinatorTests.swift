@@ -11,7 +11,7 @@ class SendCoordinatorTests: XCTestCase {
             navigationController: FakeNavigationController(),
             session: .make(),
             keystore: FakeEtherKeystore(),
-            service: WalletDataProcessingPipeline.make().pipeline,
+            tokensService: WalletDataProcessingPipeline.make().pipeline,
             assetDefinitionStore: AssetDefinitionStore(),
             analytics: FakeAnalyticsService(),
             domainResolutionService: FakeDomainResolutionService()
@@ -29,7 +29,7 @@ class SendCoordinatorTests: XCTestCase {
             navigationController: FakeNavigationController(),
             session: .make(),
             keystore: FakeEtherKeystore(),
-            service: WalletDataProcessingPipeline.make().pipeline,
+            tokensService: WalletDataProcessingPipeline.make().pipeline,
             assetDefinitionStore: AssetDefinitionStore(),
             analytics: FakeAnalyticsService(),
             domainResolutionService: FakeDomainResolutionService()

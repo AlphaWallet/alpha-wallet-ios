@@ -31,7 +31,7 @@ final class FungibleTokenViewModel {
         }
     }
     private let tokenActionsProvider: SupportedTokenActionsProvider
-    private let service: TokenViewModelState & TokenBalanceRefreshable
+    private let tokensService: TokenViewModelState & TokenBalanceRefreshable
     private let activitiesService: ActivitiesServiceType
     private let alertService: PriceAlertServiceType
     private lazy var tokenHolder: TokenHolder? = {
@@ -65,9 +65,9 @@ final class FungibleTokenViewModel {
         switch transactionType {
         case .nativeCryptocurrency:
             let token: Token = MultipleChainsTokensDataStore.functional.token(forServer: transactionType.server)
-            return service.tokenViewModel(for: token)?.balance.value
+            return tokensService.tokenViewModel(for: token)?.balance.value
         case .erc20Token(let token, _, _):
-            return service.tokenViewModel(for: token)?.balance.value
+            return tokensService.tokenViewModel(for: token)?.balance.value
         case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return nil
         }
@@ -77,15 +77,15 @@ final class FungibleTokenViewModel {
         switch transactionType {
         case .nativeCryptocurrency:
             let token: Token = MultipleChainsTokensDataStore.functional.token(forServer: transactionType.server)
-            return service.tokenViewModel(for: token)?.balance.ticker != nil
+            return tokensService.tokenViewModel(for: token)?.balance.ticker != nil
         case .erc20Token(let token, _, _):
-            return service.tokenViewModel(for: token)?.balance.ticker != nil
+            return tokensService.tokenViewModel(for: token)?.balance.ticker != nil
         case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return false
         }
     }
 
-    lazy var tokenInfoPageViewModel = TokenInfoPageViewModel(transactionType: transactionType, coinTickersFetcher: coinTickersFetcher, service: service)
+    lazy var tokenInfoPageViewModel = TokenInfoPageViewModel(transactionType: transactionType, coinTickersFetcher: coinTickersFetcher, service: tokensService)
 
     var destinationAddress: AlphaWallet.Address {
         return transactionType.contract
@@ -103,7 +103,7 @@ final class FungibleTokenViewModel {
         return R.string.localizable.receive()
     }
 
-    init(activitiesService: ActivitiesServiceType, alertService: PriceAlertServiceType, transactionType: TransactionType, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, tokenActionsProvider: SupportedTokenActionsProvider, coinTickersFetcher: CoinTickersFetcher, service: TokenViewModelState & TokenBalanceRefreshable) {
+    init(activitiesService: ActivitiesServiceType, alertService: PriceAlertServiceType, transactionType: TransactionType, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, tokenActionsProvider: SupportedTokenActionsProvider, coinTickersFetcher: CoinTickersFetcher, tokensService: TokenViewModelState & TokenBalanceRefreshable) {
         self.activitiesService = activitiesService
         self.alertService = alertService
         self.transactionType = transactionType
@@ -111,7 +111,7 @@ final class FungibleTokenViewModel {
         self.assetDefinitionStore = assetDefinitionStore
         self.tokenActionsProvider = tokenActionsProvider
         self.coinTickersFetcher = coinTickersFetcher
-        self.service = service
+        self.tokensService = tokensService
     } 
 
     func tokenScriptWarningMessage(for action: TokenInstanceAction) -> TokenScriptWarningMessage? {
@@ -151,16 +151,16 @@ final class FungibleTokenViewModel {
 
     func transform(input: FungibleTokenViewModelInput) -> FungibleTokenViewModelOutput {
         let whenTokenHolderHasChanged: AnyPublisher<TokenViewModel?, Never> = (tokenHolder?.objectWillChange.eraseToAnyPublisher() ?? .empty())
-            .map { [service, token] _ in service.tokenViewModel(for: token) }
+            .map { [tokensService, token] _ in tokensService.tokenViewModel(for: token) }
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
 
         let whenTokenActionsHasChanged = tokenActionsProvider.objectWillChange
-            .map { [service, token] _ in service.tokenViewModel(for: token) }
+            .map { [tokensService, token] _ in tokensService.tokenViewModel(for: token) }
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
 
-        let tokenViewModel = service.tokenViewModelPublisher(for: token).eraseToAnyPublisher()
+        let tokenViewModel = tokensService.tokenViewModelPublisher(for: token).eraseToAnyPublisher()
 
         let actions = Publishers.MergeMany(tokenViewModel, whenTokenHolderHasChanged, whenTokenActionsHasChanged)
             .compactMap { [weak self] _ in self?.buildTokenActions() }
@@ -251,9 +251,9 @@ final class FungibleTokenViewModel {
     private func refreshBalance() {
         switch transactionType {
         case .nativeCryptocurrency:
-            service.refreshBalance(updatePolicy: .eth)
+            tokensService.refreshBalance(updatePolicy: .eth)
         case .erc20Token(let token, _, _):
-            service.refreshBalance(updatePolicy: .token(token: token))
+            tokensService.refreshBalance(updatePolicy: .token(token: token))
         case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             break
         }

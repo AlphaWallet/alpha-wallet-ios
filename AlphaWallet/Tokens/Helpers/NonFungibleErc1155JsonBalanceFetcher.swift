@@ -24,17 +24,17 @@ class NonFungibleErc1155JsonBalanceFetcher {
     private let account: Wallet
     private let queue: DispatchQueue
     private let server: RPCServer
-    private let service: TokenProvidable & TokenAddable
+    private let tokensService: TokenProvidable & TokenAddable
     private let analytics: AnalyticsLogger
     private let assetDefinitionStore: AssetDefinitionStore
 
-    init(assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger, service: TokenProvidable & TokenAddable, account: Wallet, server: RPCServer, erc1155TokenIdsFetcher: Erc1155TokenIdsFetcher, nonFungibleJsonBalanceFetcher: NonFungibleJsonBalanceFetcher, erc1155BalanceFetcher: Erc1155BalanceFetcher, queue: DispatchQueue) {
+    init(assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger, tokensService: TokenProvidable & TokenAddable, account: Wallet, server: RPCServer, erc1155TokenIdsFetcher: Erc1155TokenIdsFetcher, nonFungibleJsonBalanceFetcher: NonFungibleJsonBalanceFetcher, erc1155BalanceFetcher: Erc1155BalanceFetcher, queue: DispatchQueue) {
         self.assetDefinitionStore = assetDefinitionStore
         self.account = account
         self.server = server
         self.erc1155TokenIdsFetcher = erc1155TokenIdsFetcher
         self.queue = queue
-        self.service = service
+        self.tokensService = tokensService
         self.nonFungibleJsonBalanceFetcher = nonFungibleJsonBalanceFetcher
         self.analytics = analytics
         self.erc1155BalanceFetcher = erc1155BalanceFetcher
@@ -99,8 +99,8 @@ class NonFungibleErc1155JsonBalanceFetcher {
     private func addUnknownErc1155ContractsToDatabase(contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds) -> Promise<Erc1155TokenIds.ContractsAndTokenIds> {
         return firstly {
             fetchUnknownErc1155ContractsDetails(contractsAndTokenIds: contractsAndTokenIds)
-        }.map(on: queue, { [service] tokensToAdd in
-            service.addCustom(tokens: tokensToAdd, shouldUpdateBalance: false)
+        }.map(on: queue, { [tokensService] tokensToAdd in
+            tokensService.addCustom(tokens: tokensToAdd, shouldUpdateBalance: false)
 
             return contractsAndTokenIds
         })
@@ -108,7 +108,7 @@ class NonFungibleErc1155JsonBalanceFetcher {
 
     private func fetchUnknownErc1155ContractsDetails(contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds) -> Promise<[ERCToken]> {
         let contractsToAdd: [AlphaWallet.Address] = contractsAndTokenIds.keys.filter { contract in
-            service.token(for: contract, server: server) == nil
+            tokensService.token(for: contract, server: server) == nil
         }
         guard !contractsToAdd.isEmpty else { return Promise<[ERCToken]>.value(.init()) }
         let (promise, seal) = Promise<[ERCToken]>.pending()

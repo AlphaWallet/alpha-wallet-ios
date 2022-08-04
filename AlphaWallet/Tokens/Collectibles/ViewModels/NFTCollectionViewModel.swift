@@ -24,7 +24,7 @@ struct NFTCollectionViewModelOutput {
 final class NFTCollectionViewModel {
     private var cancelable = Set<AnyCancellable>()
     private let assetDefinitionStore: AssetDefinitionStore
-    private let service: TokenViewModelState & TokenHolderState
+    private let tokensService: TokenViewModelState & TokenHolderState
     private let openSea: OpenSea
     private (set) var openInUrl: URL?
     private (set) lazy var tokenScriptFileStatusHandler: XMLHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
@@ -39,20 +39,20 @@ final class NFTCollectionViewModel {
     private (set) lazy var infoPageViewModel = NFTCollectionInfoPageViewModel(token: token, assetDefinitionStore: assetDefinitionStore, tokenHolders: tokenHolders.value, wallet: wallet, _tokenHolders: tokenHolders.eraseToAnyPublisher(), openSea: openSea)
     private (set) lazy var nftAssetsPageViewModel = NFTAssetsPageViewModel(token: token, assetDefinitionStore: assetDefinitionStore, tokenHolders: tokenHolders.eraseToAnyPublisher(), selection: .list)
 
-    init(token: Token, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, service: TokenViewModelState & TokenHolderState, activitiesService: ActivitiesServiceType, openSea: OpenSea) {
+    init(token: Token, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, tokensService: TokenViewModelState & TokenHolderState, activitiesService: ActivitiesServiceType, openSea: OpenSea) {
         self.activitiesService = activitiesService
         self.openSea = openSea
-        self.service = service
+        self.tokensService = tokensService
         self.token = token
         self.wallet = wallet
-        self.tokenHolders = .init(service.tokenHolders(for: token))
+        self.tokenHolders = .init(tokensService.tokenHolders(for: token))
         self.assetDefinitionStore = assetDefinitionStore
     } 
     
     func transform(input: NFTCollectionViewModelInput) -> NFTCollectionViewModelOutput {
         activitiesService.start()
         
-        let tokenViewModel = service.tokenViewModelPublisher(for: token)
+        let tokenViewModel = tokensService.tokenViewModelPublisher(for: token)
 
         let beginLoading = input.pullToRefresh.map { _ in TokensViewModel.PullToRefreshState.beginLoading }
         let loadingHasEnded = beginLoading.delay(for: .seconds(2), scheduler: RunLoop.main)
@@ -63,9 +63,9 @@ final class NFTCollectionViewModel {
             .eraseToAnyPublisher()
 
         let whenPullToRefresh = loadingHasEnded.map { [token] _ in token }
-            .compactMap { [service] in service.tokenHolders(for: $0) }
+            .compactMap { [tokensService] in tokensService.tokenHolders(for: $0) }
 
-        let whenViewModelHasChanged = tokenViewModel.dropFirst().compactMap { [service] in $0.flatMap { service.tokenHolders(for: $0) } }
+        let whenViewModelHasChanged = tokenViewModel.dropFirst().compactMap { [tokensService] in $0.flatMap { tokensService.tokenHolders(for: $0) } }
 
         Publishers.Merge(whenViewModelHasChanged, whenPullToRefresh)
             .assign(to: \.value, on: tokenHolders)

@@ -33,7 +33,7 @@ extension WalletDataProcessingPipeline {
 
         let pipeline: TokensProcessingPipeline = WalletDataProcessingPipeline(wallet: wallet, tokensService: tokensService, coinTickersFetcher: coinTickersFetcher, assetDefinitionStore: .init(), eventsDataStore: eventsDataStore)
 
-        let fetcher = WalletBalanceFetcher(wallet: wallet, service: pipeline)
+        let fetcher = WalletBalanceFetcher(wallet: wallet, tokensService: pipeline)
 
         let dep = FakeWalletDep(store: store, tokensDataStore: tokensDataStore, transactionsDataStore: transactionsDataStore, importToken: importToken, tokensService: tokensService, pipeline: pipeline, fetcher: fetcher, sessionsProvider: sessionsProvider)
         dep.sessionsProvider.start(wallet: wallet)

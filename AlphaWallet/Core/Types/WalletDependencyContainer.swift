@@ -65,7 +65,7 @@ class WalletComponentsFactory: WalletDependencyContainer {
         let tokensService = AlphaWalletTokensService(sessionsProvider: sessionsProvider, tokensDataStore: tokensDataStore, analytics: analytics, importToken: importToken, transactionsStorage: transactionsDataStore, nftProvider: nftProvider, assetDefinitionStore: assetDefinitionStore)
         let pipeline: TokensProcessingPipeline = WalletDataProcessingPipeline(wallet: wallet, tokensService: tokensService, coinTickersFetcher: coinTickersFetcher, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
 
-        let fetcher = WalletBalanceFetcher(wallet: wallet, service: pipeline)
+        let fetcher = WalletBalanceFetcher(wallet: wallet, tokensService: pipeline)
 
         let dependency: WalletDependency = Dependencies(store: store, transactionsDataStore: transactionsDataStore, importToken: importToken, tokensService: tokensService, pipeline: pipeline, fetcher: fetcher, sessionsProvider: sessionsProvider, eventsDataStore: eventsDataStore)
 

@@ -39,7 +39,7 @@ class SingleChainTokenCoordinator: Coordinator {
         session.server
     }
     private let alertService: PriceAlertServiceType
-    private let service: TokenBalanceRefreshable & TokenViewModelState & TokenHolderState
+    private let tokensService: TokenBalanceRefreshable & TokenViewModelState & TokenHolderState
     
     init(
             session: WalletSession,
@@ -51,11 +51,11 @@ class SingleChainTokenCoordinator: Coordinator {
             coinTickersFetcher: CoinTickersFetcher,
             activitiesService: ActivitiesServiceType,
             alertService: PriceAlertServiceType,
-            service: TokenBalanceRefreshable & TokenViewModelState & TokenHolderState,
+            tokensService: TokenBalanceRefreshable & TokenViewModelState & TokenHolderState,
             sessions: ServerDictionary<WalletSession>
     ) {
         self.sessions = sessions
-        self.service = service
+        self.tokensService = tokensService
         self.session = session
         self.keystore = keystore
         self.assetDefinitionStore = assetDefinitionStore
@@ -91,7 +91,7 @@ class SingleChainTokenCoordinator: Coordinator {
                 analytics: analytics,
                 openSea: openSea,
                 activitiesService: activitiesService,
-                service: service,
+                tokensService: tokensService,
                 sessions: sessions)
 
         addCoordinator(coordinator)
@@ -103,7 +103,7 @@ class SingleChainTokenCoordinator: Coordinator {
         //NOTE: create half mutable copy of `activitiesService` to configure it for fetching activities for specific token
         let activitiesFilterStrategy = transactionType.activitiesFilterStrategy
         let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: TransactionDataStore.functional.transactionsFilter(for: activitiesFilterStrategy, token: transactionType.tokenObject))
-        let viewModel = FungibleTokenViewModel(activitiesService: activitiesService, alertService: alertService, transactionType: transactionType, session: session, assetDefinitionStore: assetDefinitionStore, tokenActionsProvider: tokenActionsProvider, coinTickersFetcher: coinTickersFetcher, service: service)
+        let viewModel = FungibleTokenViewModel(activitiesService: activitiesService, alertService: alertService, transactionType: transactionType, session: session, assetDefinitionStore: assetDefinitionStore, tokenActionsProvider: tokenActionsProvider, coinTickersFetcher: coinTickersFetcher, tokensService: tokensService)
         let viewController = FungibleTokenViewController(keystore: keystore, analytics: analytics, viewModel: viewModel, activitiesService: activitiesService, sessions: sessions)
         viewController.delegate = self
 

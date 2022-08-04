@@ -29,16 +29,16 @@ protocol TokenBalanceFetcherType: AnyObject {
 class TokenBalanceFetcher: TokenBalanceFetcherType {
     private let nftProvider: NFTProvider
     private let queue: DispatchQueue
-    private let service: TokenProvidable & TokenAddable
+    private let tokensService: TokenProvidable & TokenAddable
     private let assetDefinitionStore: AssetDefinitionStore
     private let analytics: AnalyticsLogger
 
     private lazy var nonErc1155BalanceFetcher: TokenProviderType = session.tokenProvider
-    private lazy var nonFungibleJsonBalanceFetcher = NonFungibleJsonBalanceFetcher(server: session.server, service: service, queue: queue)
+    private lazy var nonFungibleJsonBalanceFetcher = NonFungibleJsonBalanceFetcher(server: session.server, tokensService: tokensService, queue: queue)
     private lazy var erc1155TokenIdsFetcher = Erc1155TokenIdsFetcher(address: session.account.address, server: session.server, config: session.config, queue: queue)
     private lazy var erc1155BalanceFetcher = Erc1155BalanceFetcher(address: session.account.address, server: session.server)
     private lazy var erc1155JsonBalanceFetcher: NonFungibleErc1155JsonBalanceFetcher = {
-        return NonFungibleErc1155JsonBalanceFetcher(assetDefinitionStore: assetDefinitionStore, analytics: analytics, service: service, account: session.account, server: session.server, erc1155TokenIdsFetcher: erc1155TokenIdsFetcher, nonFungibleJsonBalanceFetcher: nonFungibleJsonBalanceFetcher, erc1155BalanceFetcher: erc1155BalanceFetcher, queue: queue)
+        return NonFungibleErc1155JsonBalanceFetcher(assetDefinitionStore: assetDefinitionStore, analytics: analytics, tokensService: tokensService, account: session.account, server: session.server, erc1155TokenIdsFetcher: erc1155TokenIdsFetcher, nonFungibleJsonBalanceFetcher: nonFungibleJsonBalanceFetcher, erc1155BalanceFetcher: erc1155BalanceFetcher, queue: queue)
     }()
     private let session: WalletSession
     private let etherToken: Token
@@ -46,12 +46,12 @@ class TokenBalanceFetcher: TokenBalanceFetcherType {
     weak var delegate: TokenBalanceFetcherDelegate?
     weak var erc721TokenIdsFetcher: Erc721TokenIdsFetcher? 
 
-    init(session: WalletSession, nftProvider: NFTProvider, service: TokenProvidable & TokenAddable, etherToken: Token, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger, queue: DispatchQueue) {
+    init(session: WalletSession, nftProvider: NFTProvider, tokensService: TokenProvidable & TokenAddable, etherToken: Token, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger, queue: DispatchQueue) {
         self.session = session
         self.nftProvider = nftProvider
         self.queue = queue
         self.etherToken = etherToken
-        self.service = service
+        self.tokensService = tokensService
         self.assetDefinitionStore = assetDefinitionStore
         self.analytics = analytics
 
@@ -180,10 +180,10 @@ class TokenBalanceFetcher: TokenBalanceFetcherType {
             let guarantees: [Guarantee<NonFungibleBalanceAndItsSource>] = tokenIds
                 .map { nonFungibleJsonBalanceFetcher.fetchNonFungibleJson(forTokenId: $0, tokenType: .erc721, address: contract, enjinTokens: enjinTokens) }
             return when(fulfilled: guarantees)
-        }).done(on: queue, { [weak self, service] jsons in
+        }).done(on: queue, { [weak self, tokensService] jsons in
             guard let strongSelf = self else { return }
 
-            guard let token = service.token(for: contract, server: strongSelf.session.server) else { return }
+            guard let token = tokensService.token(for: contract, server: strongSelf.session.server) else { return }
 
             let listOfAssets = jsons.map { NonFungibleBalance.NftAssetRawValue(json: $0.value, source: $0.source) }
             strongSelf.notifyUpdateBalance([
@@ -214,7 +214,7 @@ class TokenBalanceFetcher: TokenBalanceFetcherType {
                 //Default to ERC721 because this is what we supported (from OpenSea) before adding ERC1155 support
                 tokenType = .erc721
             }
-            if let token = service.token(for: contract, server: session.server) {
+            if let token = tokensService.token(for: contract, server: session.server) {
                 actions += [
                     .update(token: token, action: .type(tokenType)),
                     .update(token: token, action: .nonFungibleBalance(.assets(listOfAssets))),

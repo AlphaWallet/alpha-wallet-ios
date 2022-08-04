@@ -5,15 +5,15 @@ import BigInt
 import PromiseKit
 
 class PaymentFlowFromEip681UrlResolver: Coordinator {
-    private let service: TokenProvidable & TokenAddable
+    private let tokensService: TokenProvidable & TokenAddable
     private let assetDefinitionStore: AssetDefinitionStore
     private let analytics: AnalyticsLogger
     private let config: Config
     private let account: Wallet
     var coordinators: [Coordinator] = []
 
-    init(service: TokenProvidable & TokenAddable, account: Wallet, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger, config: Config) {
-        self.service = service
+    init(tokensService: TokenProvidable & TokenAddable, account: Wallet, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger, config: Config) {
+        self.tokensService = tokensService
         self.account = account
         self.assetDefinitionStore = assetDefinitionStore
         self.analytics = analytics
@@ -37,18 +37,13 @@ class PaymentFlowFromEip681UrlResolver: Coordinator {
             return nil
         }
 
-        let service = self.service
-        let assetDefinitionStore = self.assetDefinitionStore
-        let analytics = self.analytics
-        let config = self.config
-
         switch result {
         case .address:
             return nil
         case .eip681(let protocolName, let address, let functionName, let params):
             return firstly {
                 Eip681Parser(protocolName: protocolName, address: address, functionName: functionName, params: params).parse()
-            }.then { result -> Promise<(paymentFlow: PaymentFlow, server: RPCServer)> in
+            }.then { [config, analytics, assetDefinitionStore, tokensService] result -> Promise<(paymentFlow: PaymentFlow, server: RPCServer)> in
                 return Promise<(paymentFlow: PaymentFlow, server: RPCServer)> { seal in
                     guard let (contract: contract, optionalServer, recipient, amount) = result.parameters else {
                         seal.reject(PMKError.cancelled)
@@ -57,7 +52,7 @@ class PaymentFlowFromEip681UrlResolver: Coordinator {
                     let server = optionalServer ?? config.anyEnabledServer()
 
                     //NOTE: self is required here because object has delated before resolving state
-                    if let token = service.token(for: contract, server: server) {
+                    if let token = tokensService.token(for: contract, server: server) {
                         let transactionType = Self.transactionType(token, recipient: recipient, amount: amount)
 
                         seal.fulfill((paymentFlow: .send(type: .transaction(transactionType)), server: server))
@@ -65,7 +60,6 @@ class PaymentFlowFromEip681UrlResolver: Coordinator {
                         ContractDataDetector(address: contract, account: self.account, server: server, assetDefinitionStore: assetDefinitionStore, analytics: analytics).fetch { data in
                             switch data {
                             case .name, .symbol, .balance, .decimals, .nonFungibleTokenComplete, .delegateTokenComplete, .failed:
-                                //seal.reject(PMKError.cancelled)
                                 break
                             case .fungibleTokenComplete(let name, let symbol, let decimals):
                                 //TODO update fetching to retrieve balance too so we can display the correct balance in the view controller
@@ -79,7 +73,7 @@ class PaymentFlowFromEip681UrlResolver: Coordinator {
                                         type: .erc20,
                                         balance: .balance(["0"])
                                 )
-                                let token = service.addCustom(tokens: [ercToken], shouldUpdateBalance: true)[0]
+                                let token = tokensService.addCustom(tokens: [ercToken], shouldUpdateBalance: true)[0]
                                 let transactionType = Self.transactionType(token, recipient: recipient, amount: amount)
 
                                 seal.fulfill((paymentFlow: .send(type: .transaction(transactionType)), server: server))
