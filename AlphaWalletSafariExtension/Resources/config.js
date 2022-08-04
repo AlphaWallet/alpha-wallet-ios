@@ -10,6 +10,7 @@ var optionsByDefault = {
 function hrefMapper(options) {
     const alpwaWalletPrefix = options.alphaWalletPrefix;
     let defaultMapper = function(element) {
+        console.log(`Rewrite to: ${alpwaWalletPrefix + element}`)
         return alpwaWalletPrefix + element;
     }
 
@@ -37,6 +38,7 @@ function hrefMapper(options) {
 }
 
 function isValidEip681(options, str) {
+    console.log(`value? ${options.enableEip681UrlsOverriding && str.startsWith("ethereum:")} str: ${str}`)
     return options.enableEip681UrlsOverriding && str.startsWith("ethereum:");
 }
 

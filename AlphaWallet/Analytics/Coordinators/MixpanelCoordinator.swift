@@ -11,6 +11,8 @@ class MixpanelCoordinator {
     init(withKey key: String) {
         Mixpanel.initialize(token: key)
         mixpanelInstance.identify(distinctId: mixpanelInstance.distinctId)
+        //hhh remove
+        Mixpanel.mainInstance().loggingEnabled = true
     }
 
     func convertParameterToSdkSpecificVersion(_ parameter: AnalyticsEventPropertyValue) -> MixpanelType? {

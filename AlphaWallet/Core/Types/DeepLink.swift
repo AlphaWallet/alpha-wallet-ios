@@ -28,19 +28,25 @@ enum DeepLink {
     case walletApi(DeepLink.WalletApi)
 
     init?(url: URL, supportedServers: [RPCServer] = [.main]) {
+        NSLog("xxx DeepLink init url: \(url.absoluteString) ")
         if url.isFileURL {
             self = .maybeFileUrl(url: url)
         } else if let eip681Url = Self.functional.hasEip681Path(in: url, supportedServers: supportedServers) {
+            NSLog("xxx DeepLink init EIP681: \(eip681Url.absoluteString)")
             self  = .eip681(url: eip681Url)
         } else if let (wcUrl, source) = Self.functional.hasWalletConnectPath(in: url) {
             self = .walletConnect(url: wcUrl, source: source)
         } else if let (server, url) = Self.functional.hasEmbeddedUrlPath(in: url, supportedServers: supportedServers) {
+            NSLog("xxx DeepLink init embeddedUrl: \(url.absoluteString)")
             self = .embeddedUrl(server: server, url: url)
         } else if let value = ShareContentAction(url) {
+            NSLog("xxx DeepLink init share: \(value)")
             self = .shareContentAction(action: value)
         } else if let (server, signedOrder) = Self.functional.hasMagicLink(url: url) {
+            NSLog("xxx DeepLink init magic link")
             self = .magicLink(signedOrder: signedOrder, server: server, url: url)
         } else if let value = Self.functional.hasEmbeddedWalletApiAction(url: url, supportedServers: []) {
+            NSLog("xxx DeepLink init walletApi value: \(value)")
             self = .walletApi(value)
         } else {
             return nil
@@ -213,6 +219,7 @@ extension DeepLink.functional {
             return (wcUrl, .mobileLinking)
         } else if url.path.starts(with: DeepLink.walletConnectPath) {
             if let url = extractWalletConnectUrlFromSafariExtensionRewrittenUrl(url) {
+                //hhh1 comes from here
                 return (url, .safariExtension)
             } else if let url = extractWalletConnectUrlFromWalletConnectMobileLinking(url) {
                 return (url, .mobileLinking)

@@ -487,6 +487,7 @@ extension AppCoordinator: UniversalLinkServiceDelegate {
         case .walletConnect(let url, let source):
             switch source {
             case .safariExtension:
+                //hhh1 why only under wallet connect?
                 analyticsService.log(action: Analytics.Action.tapSafariExtensionRewrittenUrl, properties: [
                     Analytics.Properties.type.rawValue: "walletConnect"
                 ])

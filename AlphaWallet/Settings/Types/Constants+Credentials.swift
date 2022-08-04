@@ -4,11 +4,16 @@ import Foundation
 
 extension Constants {
     enum Credentials {
-        static let infuraKey = "ad6d834b7a1e4d03a7fde92020616149"
+        //hhh restore
+        //static let infuraKey = "ad6d834b7a1e4d03a7fde92020616149"
+        static let infuraKey = "3f22e503f06448d89617f6b9b252865e"
         static let etherscanKey = "1PX7RG8H4HTDY8X55YRMCAKPZK476M23ZR"
         static let binanceSmartChainExplorerApiKey: String? = nil
         static let polygonScanExplorerApiKey: String? = nil
-        static let analyticsKey = ""
+        //hhh restore
+        //static let analyticsKey = ""
+        //hhh remove
+        static let analyticsKey = "5b6a0e4fd168b54495f7bd5201796820"
         static let paperTrail = (host: "", port: UInt(0))
         static let mailChimpListSpecificKey = ""
         static let openseaKey = "11ba1b4f0c4246aeb07b1f8e5a20525f"
@@ -20,6 +25,8 @@ extension Constants {
         static let blockscanChatProxyKey = ""
         static let covalentApiKey = "ckey_7ee61be7f8364ba784f697510bd"
         //Without the "Basic " prefix
-        static let klaytnRpcNodeKeyBasicAuth = ""
+        //hhh restore
+        //static let klaytnRpcNodeKeyBasicAuth = ""
+        static let klaytnRpcNodeKeyBasicAuth = "S0FTS1U3WVdUWUVDUE4xVVhHUUhGU0IyOlhOcmhSOFlzdzduUUNkd3ZwdU9mQTdWekQ3LWFTdGMwQjlILW5tbVM="
     }
 }
