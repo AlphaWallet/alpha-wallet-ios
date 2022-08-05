@@ -78,6 +78,9 @@ enum Analytics {
         case subscribeToEmailNewsletter = "Subscribe Email Newsletter"
         case tapSafariExtensionRewrittenUrl = "Tap Safari Extension Rewritten URL"
         case DeepLinkCancel = "DeepLink Cancel"
+        case deeplinkVisited = "DeepLink Visit"
+        case customUrlSchemeVisited = "Custom URL Scheme Visit"
+        case deepLinkWalletApiCall = "Deep Link Wallet API Call"
     }
 
     //TODO re-evaluate if these should go into the main analytic engine
@@ -119,6 +122,13 @@ enum Analytics {
         case isAccepted
         case reason
         case domainName
+        case scheme
+    }
+
+    enum EmbeddedDeepLinkType: String, AnalyticsUserProperty {
+        case eip681
+        case walletConnect
+        case others
     }
 
     enum UserProperties: String, AnalyticsUserProperty {

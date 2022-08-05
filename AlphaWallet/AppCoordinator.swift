@@ -23,7 +23,7 @@ class AppCoordinator: NSObject, Coordinator {
         return coordinators.compactMap { $0 as? PromptBackupCoordinator }.first
     }
     private lazy var universalLinkService: UniversalLinkService = {
-        let coordinator = UniversalLinkService()
+        let coordinator = UniversalLinkService(analyticsCoordinator: analyticsService)
         coordinator.delegate = self
 
         return coordinator
@@ -300,11 +300,11 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     /// Return true if handled
-    @discardableResult func handleUniversalLink(url: URL) -> Bool {
+    @discardableResult func handleUniversalLink(url: URL, source: UrlSource) -> Bool {
         createInitialWalletIfMissing()
         showActiveWalletIfNeeded()
 
-        return universalLinkService.handleUniversalLink(url: url)
+        return universalLinkService.handleUniversalLink(url: url, source: source)
     }
 
     func handleUniversalLinkInPasteboard() {
@@ -412,8 +412,8 @@ extension AppCoordinator: ActiveWalletCoordinatorDelegate {
         return assetDefinitionStoreCoordinator?.createOverridesViewController()
     }
 
-    func handleUniversalLink(_ url: URL, forCoordinator coordinator: ActiveWalletCoordinator) {
-        handleUniversalLink(url: url)
+    func handleUniversalLink(_ url: URL, forCoordinator coordinator: ActiveWalletCoordinator, source: UrlSource) {
+        handleUniversalLink(url: url, source: source)
     }
 }
 

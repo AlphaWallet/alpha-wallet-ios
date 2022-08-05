@@ -5,12 +5,12 @@ import XCTest
 import TrustKeystore
 
 class FakeUniversalLinkCoordinator: UniversalLinkService {
-    override func handleUniversalLink(url: URL) -> Bool { return false }
+    override func handleUniversalLink(url: URL, source: UrlSource) -> Bool { return false }
     override func handlePendingUniversalLink(in coordinator: UrlSchemeResolver) {}
     override func handleUniversalLinkInPasteboard() {}
 
     static func make() -> FakeUniversalLinkCoordinator {
-        return .init()
+        return .init(analyticsCoordinator: FakeAnalyticsService())
     }
 }
 
