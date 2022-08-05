@@ -114,7 +114,6 @@ extension UniversalLinkService {
                 analyticsCoordinator.log(action: Analytics.Action.deepLinkWalletApiCall, properties: [
                     Analytics.Properties.type.rawValue: type
                 ])
-                break
             case .shareContentAction, .magicLink, .maybeFileUrl:
                 break
             }
