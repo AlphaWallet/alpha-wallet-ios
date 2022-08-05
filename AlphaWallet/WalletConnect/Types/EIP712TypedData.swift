@@ -115,7 +115,7 @@ extension EIP712TypedData {
             //Can't check for "[]" because we want to support static arrays: Type[n]
         } else if let indexOfOpenBracket = type.index(of: "["), type.hasSuffix("]"), case let .array(elements) = value {
             var encodedElements: Data = .init()
-            let elementType = type.substring(to: indexOfOpenBracket)
+            let elementType = String(type[type.startIndex..<indexOfOpenBracket])
             for each in elements {
                 if let value = try encodeField(value: each, type: elementType) {
                     let encoder = ABIEncoder()
