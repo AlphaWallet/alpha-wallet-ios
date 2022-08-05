@@ -106,9 +106,9 @@ class ConfigTests: XCTestCase {
         let mirror = Mirror(reflecting: Config.Development())
         for child in mirror.children {
             if let value = child.value as? Bool {
-                XCTAssertFalse(value, "Property: \(child.label) should be `false`")
+                XCTAssertFalse(value, "Property: \(String(describing: child.label)) should be `false`")
             } else {
-                XCTFail("Property: \(child.label) should be `bool`")
+                XCTFail("Property: \(String(describing: child.label)) should be `bool`")
             }
         }
     }
