@@ -10,6 +10,7 @@ import BlockiesSwift
 import UIKit.UIImage
 import Combine
 import AlphaWalletENS
+import AlphaWalletCore
 
 enum BlockiesImage {
     case image(image: UIImage, isEnsAvatar: Bool)

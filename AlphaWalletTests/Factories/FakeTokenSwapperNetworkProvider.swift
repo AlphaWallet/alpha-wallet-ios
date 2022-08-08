@@ -8,6 +8,7 @@
 @testable import AlphaWallet
 import Combine
 import BigInt
+import AlphaWalletCore
 
 final class FakeTokenSwapperNetworkProvider: TokenSwapperNetworkProvider {
     func fetchSupportedChains() -> AnyPublisher<[RPCServer], PromiseError> {

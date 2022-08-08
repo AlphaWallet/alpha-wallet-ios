@@ -9,6 +9,7 @@ import Alamofire
 import SwiftyJSON 
 import Combine
 import APIKit
+import AlphaWalletCore
 
 extension Covalent {
     enum CovalentError: Error {

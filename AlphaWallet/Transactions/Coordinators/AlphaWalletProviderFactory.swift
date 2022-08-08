@@ -5,6 +5,7 @@ import Foundation
 import Moya
 import PromiseKit 
 import Combine
+import AlphaWalletCore
 
 struct AlphaWalletProviderFactory {
     static let policies: [String: ServerTrustPolicy] = [:]
@@ -60,10 +61,6 @@ extension MoyaProvider {
         return publisher
             .eraseToAnyPublisher()
     }
-}
-
-public enum PromiseError: Error {
-    case some(error: Error)
 }
 
 extension Promise {

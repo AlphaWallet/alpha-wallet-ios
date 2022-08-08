@@ -4,6 +4,7 @@ import Foundation
 import BigInt
 import Combine
 import AlphaWalletAddress
+import AlphaWalletCore
 
 class TokenSwapper: ObservableObject {
     private var store: TokenSwapperStore = InMemoryTokenSwapperStore()

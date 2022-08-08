@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import AlphaWalletCore
 
 enum AddressOrEnsResolution {
     case invalidInput
