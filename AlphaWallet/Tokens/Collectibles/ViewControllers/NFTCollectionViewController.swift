@@ -15,7 +15,7 @@ protocol NFTCollectionViewControllerDelegate: class, CanOpenURL {
     func didTap(transaction: TransactionInstance, in viewController: NFTCollectionViewController)
     func didTap(activity: Activity, in viewController: NFTCollectionViewController)
     func didSelectTokenHolder(in viewController: NFTCollectionViewController, didSelectTokenHolder tokenHolder: TokenHolder)
-    func didCancel(in viewController: NFTCollectionViewController)
+    func didClose(in viewController: NFTCollectionViewController)
 }
 
 class NFTCollectionViewController: UIViewController {
@@ -145,6 +145,10 @@ class NFTCollectionViewController: UIViewController {
 
         keyboardChecker.viewWillDisappear()
         showNavigationBarTopSeparatorLine()
+        
+        if isMovingFromParent || isBeingDismissed {
+            delegate?.didClose(in: self)
+        }
     }
 
     override func viewDidLoad() {

@@ -14,6 +14,7 @@ protocol FungibleTokenViewControllerDelegate: class, CanOpenURL {
     func didTap(action: TokenInstanceAction, transactionType: TransactionType, in viewController: FungibleTokenViewController)
     func didTapAddAlert(for token: Token, in viewController: FungibleTokenViewController)
     func didTapEditAlert(for token: Token, alert: PriceAlert, in viewController: FungibleTokenViewController)
+    func didClose(in viewController: FungibleTokenViewController)
 }
 
 class FungibleTokenViewController: UIViewController {
@@ -92,6 +93,10 @@ class FungibleTokenViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         showNavigationBarTopSeparatorLine()
+
+        if isMovingFromParent || isBeingDismissed {
+            delegate?.didClose(in: self)
+        }
     }
 
     private func bind(viewModel: FungibleTokenViewModel) {
