@@ -12,7 +12,7 @@ class DeletedContract: Object {
         self.init()
         self.contract = contractAddress.eip55String
         self.chainId = server.chainID
-        self.primaryKey = "\(self.contract)-\(server.chainID)"
+        self.primaryKey = DeletedContract.primaryKey(contractAddress: contractAddress, server: server)
     }
 
     override static func primaryKey() -> String? {
@@ -25,5 +25,9 @@ class DeletedContract: Object {
     
     var contractAddress: AlphaWallet.Address {
         return AlphaWallet.Address(uncheckedAgainstNullAddress: contract)!
+    }
+
+    static func primaryKey(contractAddress: AlphaWallet.Address, server: RPCServer) -> String {
+        return "\(contractAddress)-\(server.chainID)"
     }
 }

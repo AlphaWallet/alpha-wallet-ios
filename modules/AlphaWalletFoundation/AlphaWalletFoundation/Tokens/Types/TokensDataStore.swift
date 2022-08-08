@@ -17,8 +17,9 @@ public enum DataStoreError: Error {
 public protocol TokensDataStore: NSObjectProtocol {
     func token(for contract: AlphaWallet.Address) -> Token?
     func token(for contract: AlphaWallet.Address, server: RPCServer) -> Token?
-    func tokensChangesetPublisher(for servers: [RPCServer]) -> AnyPublisher<ChangeSet<[Token]>, Never>
+    func tokensChangesetPublisher(for servers: [RPCServer], predicate: NSPredicate?) -> AnyPublisher<ChangeSet<[Token]>, Never>
     func tokens(for servers: [RPCServer]) -> [Token]
+    func delegateContractsChangeset(for servers: [RPCServer]) -> AnyPublisher<ChangeSet<[AddressAndRPCServer]>, Never>
     func tokenPublisher(for contract: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<Token?, DataStoreError>
     func deletedContracts(forServer server: RPCServer) -> [AddressAndRPCServer]
     func delegateContracts(forServer server: RPCServer) -> [AddressAndRPCServer]
@@ -29,7 +30,6 @@ public protocol TokensDataStore: NSObjectProtocol {
     func tokenBalancesTestsOnly() -> [TokenBalanceValue]
     func contains(deletedContract: AddressAndRPCServer) -> Bool
     @discardableResult func updateToken(primaryKey: String, action: TokenFieldUpdate) -> Bool?
-    @discardableResult func addOrUpdate(tokensOrContracts: [TokenOrContract]) -> [Token]
     @discardableResult func addOrUpdate(with actions: [AddOrUpdateTokenAction]) -> [Token]
 }
 
@@ -41,7 +41,7 @@ extension TokensDataStore {
     }
 
     func initialOrNewTokensPublisher(for servers: [RPCServer]) -> AnyPublisher<[Token], Never> {
-        return tokensChangesetPublisher(for: servers)
+        return tokensChangesetPublisher(for: servers, predicate: nil)
             .tryMap { changeset -> [Token] in
                 switch changeset {
                 case .initial(let tokens): return tokens
@@ -54,7 +54,7 @@ extension TokensDataStore {
     }
 
     func enabledTokensPublisher(for servers: [RPCServer]) -> AnyPublisher<[Token], Never> {
-        return tokensChangesetPublisher(for: servers)
+        return tokensChangesetPublisher(for: servers, predicate: nil)
             .map { changeset in
                   switch changeset {
                   case .initial(let tokens): return tokens
@@ -81,9 +81,26 @@ public enum AddOrUpdateTokenAction {
     /// - action - update some of tokens fields, nil for create a new token or update if its already exists
     /// - token - token to update
     case update(token: Token, field: TokenFieldUpdate?)
+    /// delegateContracts - partially detect contract data and its rpc server
+    case addOrUpdateDelegateContracts(delegateContracts: [AddressAndRPCServer])
+    /// deletedContracts - failed to detect contact and its rpc server
+    case addOrUpdateDeletedContracts(deletedContracts: [AddressAndRPCServer])
+    /// delegateContracts - partially detect contract data and its rpc server
+    case deleteDeletedContracts(deletedContracts: [AddressAndRPCServer])
 
     public init(_ token: Token) {
         self = .update(token: token, field: nil)
+    }
+
+    public init(_ token: TokenOrContract) {
+        switch token {
+        case .ercToken(let token):
+            self = .add(ercToken: token, shouldUpdateBalance: false)
+        case .deletedContracts(let array):
+            self = .addOrUpdateDeletedContracts(deletedContracts: array)
+        case .delegateContracts(let array):
+            self = .addOrUpdateDelegateContracts(delegateContracts: array)
+        }
     }
 }
 
@@ -197,10 +214,10 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
         MultipleChainsTokensDataStore.functional.recreateMissingInfoTokenObjects(for: store)
     }
 
-    public func tokensChangesetPublisher(for servers: [RPCServer]) -> AnyPublisher<ChangeSet<[Token]>, Never> {
+    public func tokensChangesetPublisher(for servers: [RPCServer], predicate: NSPredicate?) -> AnyPublisher<ChangeSet<[Token]>, Never> {
         var publisher: AnyPublisher<ChangeSet<[Token]>, Never>!
         store.performSync { realm in
-            publisher = self.enabledTokenObjectResults(forServers: servers, realm: realm)
+            publisher = self.enabledTokenObjectResults(forServers: servers, predicate: predicate, realm: realm)
                 .changesetPublisher
                 .freeze()
                 .receive(on: DispatchQueue.global())
@@ -212,6 +229,31 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
                     case .update(let tokenObjects, let deletions, let insertions, let modifications):
                         let tokens = Array(tokenObjects).map { Token(tokenObject: $0) }
                         return .update(tokens, deletions: deletions, insertions: insertions, modifications: modifications)
+                    case .error(let error):
+                        return .error(error)
+                    }
+                }.eraseToAnyPublisher()
+        }
+
+        return publisher
+    }
+
+    public func delegateContractsChangeset(for servers: [RPCServer]) -> AnyPublisher<ChangeSet<[AddressAndRPCServer]>, Never> {
+        var publisher: AnyPublisher<ChangeSet<[AddressAndRPCServer]>, Never>!
+        store.performSync { realm in
+            publisher = realm.objects(DelegateContract.self)
+                .filter(MultipleChainsTokensDataStore.functional.chainIdPredicate(servers: servers))
+                .changesetPublisher
+                .freeze()
+                .receive(on: DispatchQueue.global())
+                .map { change in
+                    switch change {
+                    case .initial(let contracts):
+                        let contracts = Array(contracts).map { AddressAndRPCServer(address: $0.contractAddress, server: $0.server) }
+                        return .initial(contracts)
+                    case .update(let contracts, let deletions, let insertions, let modifications):
+                        let contracts = Array(contracts).map { AddressAndRPCServer(address: $0.contractAddress, server: $0.server) }
+                        return .update(contracts, deletions: deletions, insertions: insertions, modifications: modifications)
                     case .error(let error):
                         return .error(error)
                     }
@@ -259,7 +301,7 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
     public func tokens(for servers: [RPCServer]) -> [Token] {
         var tokensToReturn: [Token] = []
         store.performSync { realm in
-            let tokens = Array(self.enabledTokenObjectResults(forServers: servers, realm: realm).map { Token(tokenObject: $0) })
+            let tokens = Array(self.enabledTokenObjectResults(forServers: servers, predicate: nil, realm: realm).map { Token(tokenObject: $0) })
             tokensToReturn = MultipleChainsTokensDataStore.functional.erc20AddressForNativeTokenFilter(servers: servers, tokens: tokens)
         }
 
@@ -358,36 +400,6 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
             .first
     }
 
-    @discardableResult public func addOrUpdate(tokensOrContracts: [TokenOrContract]) -> [Token] {
-        guard !tokensOrContracts.isEmpty else { return [] }
-        var tokens: [Token] = []
-
-        store.performSync { realm in
-            try? realm.safeWrite {
-                for each in tokensOrContracts {
-                    switch each {
-                    case .delegateContracts(let values):
-                        let delegateContract = values.map { DelegateContract(contractAddress: $0.address, server: $0.server) }
-
-                        realm.add(delegateContract, update: .all)
-                    case .ercToken(let ercToken):
-                        let newTokenObject = TokenObject(ercToken: ercToken, shouldUpdateBalance: ercToken.type.shouldUpdateBalanceWhenDetected)
-                        self.addTokenWithoutCommitWrite(tokenObject: newTokenObject, realm: realm)
-
-                        if let tokenObject = self.tokenObject(forContract: ercToken.contract, server: ercToken.server, realm: realm) {
-                            tokens += [Token(tokenObject: tokenObject)]
-                        }
-                    case .deletedContracts(let values):
-                        let deadContracts = values.map { DelegateContract(contractAddress: $0.address, server: $0.server) }
-                        realm.add(deadContracts, update: .all)
-                    }
-                }
-            }
-        }
-
-        return tokens
-    }
-
     public func add(hiddenContracts: [AddressAndRPCServer]) {
         guard !hiddenContracts.isEmpty else { return }
 
@@ -442,6 +454,20 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
                         if let tokenObject = self.tokenObject(forContract: token.contractAddress, server: token.server, realm: realm) {
                             tokens += [Token(tokenObject: tokenObject)]
                         }
+                    case .addOrUpdateDelegateContracts(let delegateContracts):
+                        let delegateContracts = delegateContracts.map { DelegateContract(contractAddress: $0.address, server: $0.server) }
+                        realm.add(delegateContracts, update: .all)
+                    case .addOrUpdateDeletedContracts(let deletedContracts):
+                        let deletedContracts = deletedContracts.map { DeletedContract(contractAddress: $0.address, server: $0.server) }
+                        realm.add(deletedContracts, update: .all)
+                    case .deleteDeletedContracts(let deletedContracts):
+                        let deletedContracts = deletedContracts.compactMap {
+                            let pk = DeletedContract.primaryKey(contractAddress: $0.contractAddress, server: $0.server)
+                            return realm.object(ofType: DeletedContract.self, forPrimaryKey: pk)
+                        }
+                        guard !deletedContracts.isEmpty else { continue }
+                        
+                        realm.add(deletedContracts, update: .all)
                     }
                 }
             }
@@ -550,14 +576,19 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
         return hasUpdatedBalance
     }
 
-    private func enabledTokenObjectResults(forServers servers: [RPCServer], realm: Realm) -> Results<TokenObject> {
-        let predicate = MultipleChainsTokensDataStore
+    private func enabledTokenObjectResults(forServers servers: [RPCServer], predicate: NSPredicate?, realm: Realm) -> Results<TokenObject> {
+        let nonEmptyTokens = MultipleChainsTokensDataStore
             .functional
             .nonEmptyContractTokenPredicateWithErc20AddressForNativeTokenFilter(servers: servers, isDisabled: false)
 
+        var predicates: [NSPredicate] = [nonEmptyTokens]
+        if let predicate = predicate {
+            predicates += [predicate]
+        }
+
         return realm
             .objects(TokenObject.self)
-            .filter(predicate)
+            .filter(NSCompoundPredicate(andPredicateWithSubpredicates: predicates))
     }
 }
 // swiftlint:enable type_body_length
