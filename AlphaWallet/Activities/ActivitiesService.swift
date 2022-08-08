@@ -33,8 +33,8 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
     private let eventsActivityDataStore: EventsActivityDataStoreProtocol
     private let eventsDataStore: NonActivityEventsDataStore
     //Dictionary for lookup. Using `.firstIndex` too many times is too slow (60s for 10k events)
-    private var activitiesIndexLookup: [Int: (index: Int, activity: Activity)] = .init()
-    private var activities: [Activity] = .init()
+    private var activitiesIndexLookup: AtomicDictionary<Int, (index: Int, activity: Activity)> = .init()
+    private var activities: AtomicArray<Activity> = .init()
 
     private var tokensAndTokenHolders: AtomicDictionary<AddressAndRPCServer, [TokenHolder]> = .init()
     private var rateLimitedViewControllerReloader: RateLimiter?
@@ -51,7 +51,6 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
     private let transactionDataStore: TransactionDataStore
     private let transactionsFilterStrategy: TransactionsFilterStrategy
     private var cancelable = Set<AnyCancellable>()
-    private let threadSafe = ThreadSafe(label: "org.alphawallet.swift.activities")
 
     var activitiesPublisher: AnyPublisher<[ActivitiesViewModel.MappedToDateActivityOrTransaction], Never> {
         activitiesSubject.eraseToAnyPublisher()
@@ -96,9 +95,8 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
             .eraseToAnyPublisher()
 
         Publishers.Merge(transactionsChangeset, eventsActivity)
-            .sink { [weak self] _ in
-                self?.createActivities(reloadImmediately: true)
-            }.store(in: &cancelable)
+            .sink { [weak self] _ in self?.createActivities() }
+            .store(in: &cancelable)
     }
 
     func copy(activitiesFilterStrategy: ActivitiesFilterStrategy, transactionsFilterStrategy: TransactionsFilterStrategy) -> ActivitiesServiceType {
@@ -163,20 +161,16 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         }
     }
 
-    private func createActivities(reloadImmediately: Bool) {
+    private func createActivities() {
         let tokens = getTokensForActivities()
         let tokensAndXmlHandlers = getTokensAndXmlHandlers(forTokens: tokens)
         let contractsAndCards = getContractsAndCards(contractServerXmlHandlers: tokensAndXmlHandlers)
         let activitiesAndTokens = getActivitiesAndTokens(contractsAndCards: contractsAndCards)
 
-        threadSafe.performSync { [weak self] in
-            self?.activities = activitiesAndTokens.compactMap { $0.activity }
-            self?.activities.sort { $0.blockNumber > $1.blockNumber }
+        activities.set(array: activitiesAndTokens.compactMap { $0.activity }.sorted { $0.blockNumber > $1.blockNumber })
+        updateActivitiesIndexLookup(with: activities.array)
 
-            self?.updateActivitiesIndexLookup()
-        }
-
-        reloadViewController(reloadImmediately: reloadImmediately)
+        reloadViewController(reloadImmediately: true)
 
         for (activity, token, tokenHolder) in activitiesAndTokens {
             refreshActivity(token: token, tokenHolder: tokenHolder, activity: activity)
@@ -265,19 +259,19 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
 
     private func reloadViewController(reloadImmediately: Bool) {
         if reloadImmediately {
-            reloadViewControllerImpl()
+            combineActivitiesWithTransactions()
         } else {
             //We want to show the activities tab immediately the first time activities are available, otherwise when the app launch and user goes to the tab immediately and wait for a few seconds, they'll see some of the transactions transforming into activities. Very jarring
             if hasLoadedActivitiesTheFirstTime {
                 if rateLimitedViewControllerReloader == nil {
                     rateLimitedViewControllerReloader = RateLimiter(name: "Reload activity/transactions in Activity tab", limit: 5, autoRun: true) { [weak self] in
-                        self?.reloadViewControllerImpl()
+                        self?.combineActivitiesWithTransactions()
                     }
                 } else {
                     rateLimitedViewControllerReloader?.run()
                 }
             } else {
-                reloadViewControllerImpl()
+                combineActivitiesWithTransactions()
             }
         }
     }
@@ -288,13 +282,13 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         refreshActivity(token: activity.token, tokenHolder: tokenHolders[0], activity: activity, isFirstUpdate: true)
     }
 
-    private func reloadViewControllerImpl() {
+    private func combineActivitiesWithTransactions() {
         if !activities.isEmpty {
             hasLoadedActivitiesTheFirstTime = true
         }
 
-        let transactions = transactionDataStore.transactions(forFilter: transactionsFilterStrategy, servers: config.enabledServers, oldestBlockNumber: activities.last?.blockNumber)
-        let items = combine(activities: activities, with: transactions)
+        let transactions = transactionDataStore.transactions(forFilter: transactionsFilterStrategy, servers: config.enabledServers, oldestBlockNumber: activities.array.last?.blockNumber)
+        let items = combine(activities: activities.array, with: transactions)
         let activities = ActivitiesViewModel.sorted(activities: items)
 
         activitiesSubject.send(activities)
@@ -360,7 +354,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
                 } else if transaction.localizedOperations.count == 1 {
                     return [.standaloneTransaction(transaction: transaction, activity: activity)]
                 } else {
-                    let isSwap = self.isSwap(activities: activities, operations: transaction.localizedOperations, wallet: wallet)
+                    let isSwap = self.isSwap(activities: activities.array, operations: transaction.localizedOperations, wallet: wallet)
                     var results: [ActivityRowModel] = .init()
                     results.append(.parentTransaction(transaction: transaction, isSwap: isSwap, activities: .init()))
                     results.append(contentsOf: transaction.localizedOperations.map {
@@ -391,23 +385,19 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
             self?.refreshActivity(token: token, tokenHolder: tokenHolder, activity: activity, isFirstUpdate: false)
         }
 
-        threadSafe.performSync { [weak self] in
-            guard let strongSelf = self else { return }
+        //NOTE: Fix crush when element with index out of range
+        if let (index, oldActivity) = activitiesIndexLookup[activity.id] {
+            let updatedValues = (token: oldActivity.values.token.merging(resolvedAttributeNameValues) { _, new in new }, card: oldActivity.values.card)
+            let updatedActivity: Activity = .init(id: oldActivity.id, rowType: oldActivity.rowType, token: token, server: oldActivity.server, name: oldActivity.name, eventName: oldActivity.eventName, blockNumber: oldActivity.blockNumber, transactionId: oldActivity.transactionId, transactionIndex: oldActivity.transactionIndex, logIndex: oldActivity.logIndex, date: oldActivity.date, values: updatedValues, view: oldActivity.view, itemView: oldActivity.itemView, isBaseCard: oldActivity.isBaseCard, state: oldActivity.state)
 
-            //NOTE: Fix crush when element with index out of range
-            if let (index, oldActivity) = activitiesIndexLookup[activity.id], activities.indices.contains(index) {
-                let updatedValues = (token: oldActivity.values.token.merging(resolvedAttributeNameValues) { _, new in new }, card: oldActivity.values.card)
-                let updatedActivity: Activity = .init(id: oldActivity.id, rowType: oldActivity.rowType, token: token, server: oldActivity.server, name: oldActivity.name, eventName: oldActivity.eventName, blockNumber: oldActivity.blockNumber, transactionId: oldActivity.transactionId, transactionIndex: oldActivity.transactionIndex, logIndex: oldActivity.logIndex, date: oldActivity.date, values: updatedValues, view: oldActivity.view, itemView: oldActivity.itemView, isBaseCard: oldActivity.isBaseCard, state: oldActivity.state)
+            if activities.indices.contains(index) {
+                activities[index] = updatedActivity
+                reloadViewController(reloadImmediately: false)
 
-                if strongSelf.activities.indices.contains(index) {
-                    strongSelf.activities[index] = updatedActivity
-                    strongSelf.reloadViewController(reloadImmediately: false)
-
-                    strongSelf.didUpdateActivitySubject.send(updatedActivity)
-                }
-            } else {
-                //no-op. We should be able to find it unless the list of activities has changed
+                didUpdateActivitySubject.send(updatedActivity)
             }
+        } else {
+            //no-op. We should be able to find it unless the list of activities has changed
         }
     }
 
@@ -435,12 +425,13 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
     }
 
     //We can't run this in `activities` didSet {} because this will then be run unnecessarily, when we refresh each activity (we only want this to update when we refresh the entire activity list)
-    private func updateActivitiesIndexLookup() {
+    private func updateActivitiesIndexLookup(with activities: [Activity]) {
         var arrayIndex = -1
-        activitiesIndexLookup = Dictionary(uniqueKeysWithValues: activities.map {
+        let newValue: [Int: (index: Int, activity: Activity)] = Dictionary(uniqueKeysWithValues: activities.map {
             arrayIndex += 1
             return ($0.id, (arrayIndex, $0))
         })
+        activitiesIndexLookup.set(value: newValue)
     }
 }
 
