@@ -17,20 +17,20 @@ class DappRequestSwitchExistingChainCoordinator: NSObject, Coordinator {
     let callbackId: SwitchCustomChainCallbackId
     private let targetChain: WalletSwitchEthereumChainObject
     private let restartQueue: RestartTaskQueue
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let currentUrl: URL?
     private let viewController: UIViewController
 
     var coordinators: [Coordinator] = []
     weak var delegate: DappRequestSwitchExistingChainCoordinatorDelegate?
 
-    init(config: Config, server: RPCServer, callbackId: SwitchCustomChainCallbackId, targetChain: WalletSwitchEthereumChainObject, restartQueue: RestartTaskQueue, analyticsCoordinator: AnalyticsCoordinator, currentUrl: URL?, inViewController viewController: UIViewController) {
+    init(config: Config, server: RPCServer, callbackId: SwitchCustomChainCallbackId, targetChain: WalletSwitchEthereumChainObject, restartQueue: RestartTaskQueue, analytics: AnalyticsLogger, currentUrl: URL?, inViewController viewController: UIViewController) {
         self.config = config
         self.server = server
         self.callbackId = callbackId
         self.targetChain = targetChain
         self.restartQueue = restartQueue
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.currentUrl = currentUrl
         self.viewController = viewController
     }

@@ -11,7 +11,7 @@ protocol InitialWalletCreationCoordinatorDelegate: AnyObject {
 class InitialWalletCreationCoordinator: Coordinator {
     private let keystore: Keystore
     private let config: Config
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let domainResolutionService: DomainResolutionServiceType
 
     let navigationController: UINavigationController
@@ -22,13 +22,13 @@ class InitialWalletCreationCoordinator: Coordinator {
         config: Config,
         navigationController: UINavigationController,
         keystore: Keystore,
-        analyticsCoordinator: AnalyticsCoordinator,
+        analytics: AnalyticsLogger,
         domainResolutionService: DomainResolutionServiceType
     ) {
         self.config = config
         self.navigationController = navigationController
         self.keystore = keystore
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.domainResolutionService = domainResolutionService
 
         navigationController.setNavigationBarHidden(false, animated: true)
@@ -39,7 +39,7 @@ class InitialWalletCreationCoordinator: Coordinator {
     }
 
     private func startWalletCoordinator() {
-        let coordinator = WalletCoordinator(config: config, navigationController: navigationController, keystore: keystore, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
+        let coordinator = WalletCoordinator(config: config, navigationController: navigationController, keystore: keystore, analytics: analytics, domainResolutionService: domainResolutionService)
         coordinator.delegate = self
         coordinator.start(.addInitialWallet)
 

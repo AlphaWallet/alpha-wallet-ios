@@ -32,7 +32,7 @@ class TokensCoordinator: Coordinator {
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: NonActivityEventsDataStore
     private let promptBackupCoordinator: PromptBackupCoordinator
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let openSea: OpenSea
     private let tokenActionsService: TokenActionsService
 
@@ -100,7 +100,7 @@ class TokensCoordinator: Coordinator {
             assetDefinitionStore: AssetDefinitionStore,
             eventsDataStore: NonActivityEventsDataStore,
             promptBackupCoordinator: PromptBackupCoordinator,
-            analyticsCoordinator: AnalyticsCoordinator,
+            analytics: AnalyticsLogger,
             openSea: OpenSea,
             tokenActionsService: TokenActionsService,
             walletConnectCoordinator: WalletConnectCoordinator,
@@ -120,7 +120,7 @@ class TokensCoordinator: Coordinator {
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
         self.promptBackupCoordinator = promptBackupCoordinator
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.openSea = openSea
         self.tokenActionsService = tokenActionsService
         self.walletConnectCoordinator = walletConnectCoordinator
@@ -185,7 +185,7 @@ class TokensCoordinator: Coordinator {
                 SingleChainTokensAutodetector(session: session, detectedTokens: tokensDataStore, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, queue: Config.backgroundQueue, importToken: importToken)
             }()
 
-            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, tokensStorage: tokensDataStore, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analyticsCoordinator: analyticsCoordinator, openSea: openSea, tokenActionsProvider: tokenActionsService, coinTickersFetcher: coinTickersFetcher, activitiesService: activitiesService, alertService: alertService, tokensAutodetector: tokensAutodetector)
+            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, tokensStorage: tokensDataStore, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analytics: analytics, openSea: openSea, tokenActionsProvider: tokenActionsService, coinTickersFetcher: coinTickersFetcher, activitiesService: activitiesService, alertService: alertService, tokensAutodetector: tokensAutodetector)
 
             coordinator.delegate = self
             addCoordinator(coordinator)
@@ -206,9 +206,9 @@ class TokensCoordinator: Coordinator {
 
     func launchUniversalScanner(fromSource source: Analytics.ScanQRCodeSource) {
         let account = sessions.anyValue.account
-        let scanQRCodeCoordinator = ScanQRCodeCoordinator(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, account: account, domainResolutionService: domainResolutionService)
+        let scanQRCodeCoordinator = ScanQRCodeCoordinator(analytics: analytics, navigationController: navigationController, account: account, domainResolutionService: domainResolutionService)
 
-        let coordinator = QRCodeResolutionCoordinator(config: config, coordinator: scanQRCodeCoordinator, usage: .all(tokensDatastore: tokensDataStore, assetDefinitionStore: assetDefinitionStore), account: account, analyticsCoordinator: analyticsCoordinator)
+        let coordinator = QRCodeResolutionCoordinator(config: config, coordinator: scanQRCodeCoordinator, usage: .all(tokensDatastore: tokensDataStore, assetDefinitionStore: assetDefinitionStore), account: account, analytics: analytics)
         coordinator.delegate = self
 
         addCoordinator(coordinator)
@@ -322,7 +322,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     }
 
     private func didPressRenameThisWallet() {
-        let viewModel = RenameWalletViewModel(account: sessions.anyValue.account.address, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
+        let viewModel = RenameWalletViewModel(account: sessions.anyValue.account.address, analytics: analytics, domainResolutionService: domainResolutionService)
 
         let viewController = RenameWalletViewController(viewModel: viewModel)
         viewController.delegate = self
@@ -336,7 +336,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         let coordinator: AddHideTokensCoordinator = .init(
             assetDefinitionStore: assetDefinitionStore,
             tokenCollection: tokenCollection,
-            analyticsCoordinator: analyticsCoordinator,
+            analytics: analytics,
             domainResolutionService: domainResolutionService,
             navigationController: navigationController,
             config: config,
@@ -446,7 +446,7 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
 
     private func handleAddCustomToken(_ address: AlphaWallet.Address) {
         let coordinator = NewTokenCoordinator(
-            analyticsCoordinator: analyticsCoordinator,
+            analytics: analytics,
             navigationController: navigationController,
             config: config,
             importToken: importToken,
@@ -477,7 +477,7 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
     }
 
     private func handleWatchWallet(_ address: AlphaWallet.Address) {
-        let walletCoordinator = WalletCoordinator(config: config, keystore: keystore, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
+        let walletCoordinator = WalletCoordinator(config: config, keystore: keystore, analytics: analytics, domainResolutionService: domainResolutionService)
         walletCoordinator.delegate = self
 
         addCoordinator(walletCoordinator)

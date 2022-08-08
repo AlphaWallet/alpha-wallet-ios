@@ -11,7 +11,7 @@ import PromiseKit
 class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
     private let transactionDataStore: TransactionDataStore
     private let session: WalletSession
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let tokensDataStore: TokensDataStore
     private let fetchLatestTransactionsQueue: OperationQueue
     private let queue = DispatchQueue(label: "com.SingleChainTransaction.updateQueue")
@@ -30,14 +30,14 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
 
     required init(
         session: WalletSession,
-        analyticsCoordinator: AnalyticsCoordinator,
+        analytics: AnalyticsLogger,
         transactionDataStore: TransactionDataStore,
         tokensDataStore: TokensDataStore,
         fetchLatestTransactionsQueue: OperationQueue,
         tokensFromTransactionsFetcher: TokensFromTransactionsFetcher
     ) {
         self.session = session
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.transactionDataStore = transactionDataStore
         self.tokensDataStore = tokensDataStore
         self.fetchLatestTransactionsQueue = fetchLatestTransactionsQueue
@@ -162,7 +162,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
         let request = GetTransactionRequest(hash: transaction.id)
 
         firstly {
-            Session.send(EtherServiceRequest(server: session.server, batch: BatchFactory().create(request)), server: session.server, analyticsCoordinator: analyticsCoordinator)
+            Session.send(EtherServiceRequest(server: session.server, batch: BatchFactory().create(request)), server: session.server, analytics: analytics)
         }.done(on: queue, { [weak self] pendingTransaction in
             guard let strongSelf = self else { return }
 

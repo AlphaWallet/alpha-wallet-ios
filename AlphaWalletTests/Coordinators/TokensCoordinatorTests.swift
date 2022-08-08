@@ -23,9 +23,9 @@ class TokensCoordinatorTests: XCTestCase {
             config: config,
             assetDefinitionStore: AssetDefinitionStore(),
             eventsDataStore: FakeEventsDataStore(),
-            promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeEtherKeystore(), wallet: .make(), config: config, analyticsCoordinator: FakeAnalyticsService()),
-            analyticsCoordinator: FakeAnalyticsService(),
-            openSea: OpenSea(analyticsCoordinator: FakeAnalyticsService(), queue: .global()),
+            promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeEtherKeystore(), wallet: .make(), config: config, analytics: FakeAnalyticsService()),
+            analytics: FakeAnalyticsService(),
+            openSea: OpenSea(analytics: FakeAnalyticsService(), queue: .global()),
             tokenActionsService: tokenActionsService,
             walletConnectCoordinator: .fake(),
             coinTickersFetcher: CoinGeckoTickersFetcher.make(),
@@ -44,8 +44,8 @@ class TokensCoordinatorTests: XCTestCase {
 
 class FakeImportToken: ImportToken {
     convenience init() {
-        let analyticsCoordinator = FakeAnalyticsService()
-        self.init(sessions: .init(.make()), wallet: .make(), tokensDataStore: FakeTokensDataStore(), assetDefinitionStore: .init(), analyticsCoordinator: analyticsCoordinator)
+        let analytics = FakeAnalyticsService()
+        self.init(sessions: .init(.make()), wallet: .make(), tokensDataStore: FakeTokensDataStore(), assetDefinitionStore: .init(), analytics: analytics)
     }
         //Adding a token may fail if we lose connectivity while fetching the contract details (e.g. name and balance). So we remove the contract from the hidden list (if it was there) so that the app has the chance to add it automatically upon auto detection at startup
     override func importToken(for contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool = false) -> Promise<Token> {

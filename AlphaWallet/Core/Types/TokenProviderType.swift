@@ -27,15 +27,15 @@ class TokenProvider: TokenProviderType {
     private let account: Wallet
     private let numberOfTimesToRetryFetchContractData = 2
     private let server: RPCServer
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let queue: DispatchQueue?
     private lazy var isERC1155ContractDetector = IsErc1155Contract(forServer: server)
 
-    init(account: Wallet, server: RPCServer, analyticsCoordinator: AnalyticsCoordinator, queue: DispatchQueue? = .none) {
+    init(account: Wallet, server: RPCServer, analytics: AnalyticsLogger, queue: DispatchQueue? = .none) {
         self.account = account
         self.queue = queue
         self.server = server
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
     }
 
     func getEthBalance(for address: AlphaWallet.Address) -> Promise<Balance> {
@@ -44,7 +44,7 @@ class TokenProvider: TokenProviderType {
 
         return firstly {
             attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData) {
-                GetNativeCryptoCurrencyBalance(forServer: server, analyticsCoordinator: self.analyticsCoordinator, queue: queue)
+                GetNativeCryptoCurrencyBalance(forServer: server, analytics: self.analytics, queue: queue)
                     .getBalance(for: address)
             }
         }

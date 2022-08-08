@@ -16,7 +16,7 @@ class ReplaceTransactionCoordinator: Coordinator {
         case cancel
     }
 
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let domainResolutionService: DomainResolutionServiceType
     private let pendingTransactionInformation: (server: RPCServer, data: Data, transactionType: TransactionType, gasPrice: BigInt)
     private let nonce: BigInt
@@ -80,12 +80,12 @@ class ReplaceTransactionCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: ReplaceTransactionCoordinatorDelegate?
 
-    init?(analyticsCoordinator: AnalyticsCoordinator, domainResolutionService: DomainResolutionServiceType, keystore: Keystore, presentingViewController: UIViewController, session: WalletSession, transaction: TransactionInstance, mode: Mode, assetDefinitionStore: AssetDefinitionStore) {
+    init?(analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, keystore: Keystore, presentingViewController: UIViewController, session: WalletSession, transaction: TransactionInstance, mode: Mode, assetDefinitionStore: AssetDefinitionStore) {
         guard let pendingTransactionInformation = TransactionDataStore.pendingTransactionsInformation[transaction.id] else { return nil }
         guard let nonce = BigInt(transaction.nonce) else { return nil }
         self.pendingTransactionInformation = pendingTransactionInformation
         self.keystore = keystore
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.domainResolutionService = domainResolutionService
         self.presentingViewController = presentingViewController
         self.session = session
@@ -105,7 +105,7 @@ class ReplaceTransactionCoordinator: Coordinator {
                     session: session,
                     transaction: unconfirmedTransaction,
                     configuration: transactionConfirmationConfiguration,
-                    analyticsCoordinator: analyticsCoordinator,
+                    analytics: analytics,
                     domainResolutionService: domainResolutionService,
                     keystore: keystore,
                     assetDefinitionStore: assetDefinitionStore)

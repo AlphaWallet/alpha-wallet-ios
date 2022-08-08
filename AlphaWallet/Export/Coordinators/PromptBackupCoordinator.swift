@@ -28,7 +28,7 @@ class PromptBackupCoordinator: Coordinator {
     private let keystore: Keystore
     private let wallet: Wallet
     private let config: Config
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     //TODO this should be the total of mainnets instead of just Ethereum mainnet
     private var nativeCryptoCurrencyDollarValueInUsd: Double = 0
 
@@ -40,11 +40,11 @@ class PromptBackupCoordinator: Coordinator {
     weak var prominentPromptDelegate: PromptBackupCoordinatorProminentPromptDelegate?
     weak var subtlePromptDelegate: PromptBackupCoordinatorSubtlePromptDelegate?
 
-    init(keystore: Keystore, wallet: Wallet, config: Config, analyticsCoordinator: AnalyticsCoordinator) {
+    init(keystore: Keystore, wallet: Wallet, config: Config, analytics: AnalyticsLogger) {
         self.keystore = keystore
         self.wallet = wallet
         self.config = config
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
     }
 
     func start() {
@@ -378,7 +378,7 @@ extension PromptBackupCoordinator: PromptBackupWalletViewDelegate {
 
     func didChooseBackup(inView view: PromptBackupWalletView) {
         guard let nc = viewControllerToShowBackupLaterAlert(forView: view)?.navigationController else { return }
-        let coordinator = BackupCoordinator(navigationController: nc, keystore: keystore, account: wallet.address, analyticsCoordinator: analyticsCoordinator)
+        let coordinator = BackupCoordinator(navigationController: nc, keystore: keystore, account: wallet.address, analytics: analytics)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)

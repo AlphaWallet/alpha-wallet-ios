@@ -18,13 +18,13 @@ class FakeMultiWalletBalanceService: MultiWalletBalanceService {
 
         let walletAddressesStore = fakeWalletAddressStore(wallets: [.init(wallet: wallet)])
         let keystore = FakeEtherKeystore(walletAddressesStore: walletAddressesStore)
-        super.init(store: FakeRealmLocalStore(), keystore: keystore, config: .make(), assetDefinitionStore: .init(), analyticsCoordinator: FakeAnalyticsService(), coinTickersFetcher: CoinGeckoTickersFetcher.make(), walletAddressesStore: walletAddressesStore)
+        super.init(store: FakeRealmLocalStore(), keystore: keystore, config: .make(), assetDefinitionStore: .init(), analytics: FakeAnalyticsService(), coinTickersFetcher: CoinGeckoTickersFetcher.make(), walletAddressesStore: walletAddressesStore)
     }
 
     override func createWalletBalanceFetcher(wallet: Wallet) -> WalletBalanceFetcherType {
         let nftProvider = FakeNftProvider()
-        let analyticsCoordinator = FakeAnalyticsService()
-        let fetcher = WalletBalanceFetcher(wallet: wallet, servers: servers, tokensDataStore: tokensDataStore, transactionsStorage: FakeTransactionsStorage(), nftProvider: nftProvider, config: .make(), assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, queue: .main, coinTickersFetcher: coinTickersFetcher)
+        let analytics = FakeAnalyticsService()
+        let fetcher = WalletBalanceFetcher(wallet: wallet, servers: servers, tokensDataStore: tokensDataStore, transactionsStorage: FakeTransactionsStorage(), nftProvider: nftProvider, config: .make(), assetDefinitionStore: assetDefinitionStore, analytics: analytics, queue: .main, coinTickersFetcher: coinTickersFetcher)
         fetcher.delegate = self
 
         return fetcher

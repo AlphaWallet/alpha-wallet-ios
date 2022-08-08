@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-protocol AnalyticsServiceType: AnalyticsCoordinator {
+protocol AnalyticsServiceType: AnalyticsLogger {
     func applicationDidBecomeActive()
     func application(continue userActivity: NSUserActivity)
     func application(open url: URL, sourceApplication: String?, annotation: Any)
@@ -16,7 +16,7 @@ protocol AnalyticsServiceType: AnalyticsCoordinator {
     func application(didReceiveRemoteNotification userInfo: [AnyHashable: Any])
 }
 
-class AnalyticsService: NSObject, AnalyticsServiceType {
+final class AnalyticsService: NSObject, AnalyticsServiceType {
     private var mixpanelService: MixpanelCoordinator?
     private var config: Config
 

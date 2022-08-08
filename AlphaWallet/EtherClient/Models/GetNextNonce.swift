@@ -11,22 +11,22 @@ class GetNextNonce {
     private let rpcHeaders: [String: String]
     private let server: RPCServer
     private let wallet: AlphaWallet.Address
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
 
-    convenience init(server: RPCServer, wallet: AlphaWallet.Address, analyticsCoordinator: AnalyticsCoordinator) {
-        self.init(rpcURL: server.rpcURL, rpcHeaders: server.rpcHeaders, server: server, wallet: wallet, analyticsCoordinator: analyticsCoordinator)
+    convenience init(server: RPCServer, wallet: AlphaWallet.Address, analytics: AnalyticsLogger) {
+        self.init(rpcURL: server.rpcURL, rpcHeaders: server.rpcHeaders, server: server, wallet: wallet, analytics: analytics)
     }
 
-    init(rpcURL: URL, rpcHeaders: [String: String], server: RPCServer, wallet: AlphaWallet.Address, analyticsCoordinator: AnalyticsCoordinator) {
+    init(rpcURL: URL, rpcHeaders: [String: String], server: RPCServer, wallet: AlphaWallet.Address, analytics: AnalyticsLogger) {
         self.rpcURL = rpcURL
         self.rpcHeaders = rpcHeaders
         self.server = server
         self.wallet = wallet
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
     }
 
     func promise() -> Promise<Int> {
         let request = EtherServiceRequest(rpcURL: rpcURL, rpcHeaders: rpcHeaders, batch: BatchFactory().create(GetTransactionCountRequest(address: wallet, state: "pending")))
-        return Session.send(request, server: server, analyticsCoordinator: analyticsCoordinator)
+        return Session.send(request, server: server, analytics: analytics)
     }
 }

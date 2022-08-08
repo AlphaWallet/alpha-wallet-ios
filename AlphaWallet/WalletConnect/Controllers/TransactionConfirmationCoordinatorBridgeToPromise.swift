@@ -20,7 +20,7 @@ protocol FiatOnRampDelegate: class {
 typealias SendTransactionAndFiatOnRampDelegate = SendTransactionDelegate & FiatOnRampDelegate
 
 private class TransactionConfirmationCoordinatorBridgeToPromise {
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let domainResolutionService: DomainResolutionServiceType
     private let navigationController: UINavigationController
     private let session: WalletSession
@@ -32,11 +32,11 @@ private class TransactionConfirmationCoordinatorBridgeToPromise {
     private let keystore: Keystore
     private let assetDefinitionStore: AssetDefinitionStore
 
-    init(_ navigationController: UINavigationController, session: WalletSession, coordinator: Coordinator & CanOpenURL, analyticsCoordinator: AnalyticsCoordinator, domainResolutionService: DomainResolutionServiceType, delegate: SendTransactionAndFiatOnRampDelegate?, keystore: Keystore, assetDefinitionStore: AssetDefinitionStore) {
+    init(_ navigationController: UINavigationController, session: WalletSession, coordinator: Coordinator & CanOpenURL, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, delegate: SendTransactionAndFiatOnRampDelegate?, keystore: Keystore, assetDefinitionStore: AssetDefinitionStore) {
         self.navigationController = navigationController
         self.session = session
         self.coordinator = coordinator
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.domainResolutionService = domainResolutionService
         self.keystore = keystore
         self.assetDefinitionStore = assetDefinitionStore
@@ -56,7 +56,7 @@ private class TransactionConfirmationCoordinatorBridgeToPromise {
 
     func promise(transaction: UnconfirmedTransaction, configuration: TransactionConfirmationViewModel.Configuration, source: Analytics.TransactionConfirmationSource) -> Promise<ConfirmResult> {
         do {
-            let confirmationCoordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore)
+            let confirmationCoordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore)
 
             confirmationCoordinator.delegate = self
             self.confirmationCoordinator = confirmationCoordinator
@@ -117,8 +117,8 @@ extension TransactionConfirmationCoordinatorBridgeToPromise: CanOpenURL {
 }
 
 extension TransactionConfirmationCoordinator {
-    static func promise(_ navigationController: UINavigationController, session: WalletSession, coordinator: Coordinator & CanOpenURL, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationViewModel.Configuration, analyticsCoordinator: AnalyticsCoordinator, domainResolutionService: DomainResolutionServiceType, source: Analytics.TransactionConfirmationSource, delegate: SendTransactionAndFiatOnRampDelegate?, keystore: Keystore, assetDefinitionStore: AssetDefinitionStore) -> Promise<ConfirmResult> {
-        let bridge = TransactionConfirmationCoordinatorBridgeToPromise(navigationController, session: session, coordinator: coordinator, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService, delegate: delegate, keystore: keystore, assetDefinitionStore: assetDefinitionStore)
+    static func promise(_ navigationController: UINavigationController, session: WalletSession, coordinator: Coordinator & CanOpenURL, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationViewModel.Configuration, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, source: Analytics.TransactionConfirmationSource, delegate: SendTransactionAndFiatOnRampDelegate?, keystore: Keystore, assetDefinitionStore: AssetDefinitionStore) -> Promise<ConfirmResult> {
+        let bridge = TransactionConfirmationCoordinatorBridgeToPromise(navigationController, session: session, coordinator: coordinator, analytics: analytics, domainResolutionService: domainResolutionService, delegate: delegate, keystore: keystore, assetDefinitionStore: assetDefinitionStore)
         return bridge.promise(transaction: transaction, configuration: configuration, source: source)
     }
 }

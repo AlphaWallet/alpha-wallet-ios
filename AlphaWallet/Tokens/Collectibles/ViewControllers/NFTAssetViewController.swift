@@ -17,7 +17,7 @@ protocol NonFungibleTokenViewControllerDelegate: class, CanOpenURL {
 }
 
 class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewController {
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private (set) var viewModel: NFTAssetViewModel
     private let previewView: NFTPreviewView
     private let buttonsBar = HorizontalButtonsBar(configuration: .combined(buttons: 3))
@@ -35,13 +35,13 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
     let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: NonFungibleTokenViewControllerDelegate?
 
-    init(analyticsCoordinator: AnalyticsCoordinator, openSea: OpenSea, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore, viewModel: NFTAssetViewModel, mode: TokenInstanceViewMode) {
-        self.analyticsCoordinator = analyticsCoordinator
+    init(analytics: AnalyticsLogger, openSea: OpenSea, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore, viewModel: NFTAssetViewModel, mode: TokenInstanceViewMode) {
+        self.analytics = analytics
         self.openSea = openSea
         self.assetDefinitionStore = assetDefinitionStore
         self.mode = mode
         self.viewModel = viewModel
-        self.previewView = .init(type: viewModel.previewViewType, keystore: keystore, session: session, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, edgeInsets: viewModel.previewEdgeInsets)
+        self.previewView = .init(type: viewModel.previewViewType, keystore: keystore, session: session, assetDefinitionStore: assetDefinitionStore, analytics: analytics, edgeInsets: viewModel.previewEdgeInsets)
         self.previewView.rounding = .custom(20)
         self.previewView.contentMode = .scaleAspectFill
         super.init(nibName: nil, bundle: nil)

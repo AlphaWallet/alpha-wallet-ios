@@ -6,9 +6,9 @@ import Foundation
 extension ChainState {
     static func make(
         config: Config = .make(),
-        analyticsCoordinator: AnalyticsCoordinator = FakeAnalyticsService(),
+        analytics: AnalyticsLogger = FakeAnalyticsService(),
         server: RPCServer = .main
     ) -> ChainState {
-        return ChainState(config: config, server: server, analyticsCoordinator: analyticsCoordinator)
+        return ChainState(config: config, server: server, analytics: analytics)
     }
 }

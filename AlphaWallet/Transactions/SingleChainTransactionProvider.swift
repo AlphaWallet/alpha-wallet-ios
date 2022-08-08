@@ -9,7 +9,7 @@ protocol SingleChainTransactionProviderDelegate: AnyObject {
 protocol SingleChainTransactionProvider: AnyObject {
     var delegate: SingleChainTransactionProviderDelegate? { get set }
 
-    init(session: WalletSession, analyticsCoordinator: AnalyticsCoordinator, transactionDataStore: TransactionDataStore, tokensDataStore: TokensDataStore, fetchLatestTransactionsQueue: OperationQueue, tokensFromTransactionsFetcher: TokensFromTransactionsFetcher)
+    init(session: WalletSession, analytics: AnalyticsLogger, transactionDataStore: TransactionDataStore, tokensDataStore: TokensDataStore, fetchLatestTransactionsQueue: OperationQueue, tokensFromTransactionsFetcher: TokensFromTransactionsFetcher)
 
     func start()
     func stopTimers()

@@ -9,14 +9,14 @@ extension WalletSession {
 }
 
 class WalletSession: Equatable {
-    let analyticsCoordinator: AnalyticsCoordinator
+    let analytics: AnalyticsLogger
     let account: Wallet
     let server: RPCServer
     let tokenBalanceService: TokenBalanceService
     let config: Config
     let chainState: ChainState
     lazy private (set) var tokenProvider: TokenProviderType = {
-        return TokenProvider(account: account, server: server, analyticsCoordinator: analyticsCoordinator, queue: queue)
+        return TokenProvider(account: account, server: server, analytics: analytics, queue: queue)
     }()
     var sessionID: String {
         return WalletSession.functional.sessionID(account: account, server: server)
@@ -25,12 +25,12 @@ class WalletSession: Equatable {
         return DispatchQueue(label: "com.WalletSession.\(account.address.eip55String).\(server)")
     }()
 
-    init(account: Wallet, server: RPCServer, config: Config, tokenBalanceService: TokenBalanceService, analyticsCoordinator: AnalyticsCoordinator) {
-        self.analyticsCoordinator = analyticsCoordinator
+    init(account: Wallet, server: RPCServer, config: Config, tokenBalanceService: TokenBalanceService, analytics: AnalyticsLogger) {
+        self.analytics = analytics
         self.account = account
         self.server = server
         self.config = config
-        self.chainState = ChainState(config: config, server: server, analyticsCoordinator: analyticsCoordinator)
+        self.chainState = ChainState(config: config, server: server, analytics: analytics)
         self.tokenBalanceService = tokenBalanceService
 
         if config.development.isAutoFetchingDisabled {

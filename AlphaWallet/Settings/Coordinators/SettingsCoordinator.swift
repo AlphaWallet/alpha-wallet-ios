@@ -25,7 +25,7 @@ class SettingsCoordinator: Coordinator {
 	private let sessions: ServerDictionary<WalletSession>
     private let restartQueue: RestartTaskQueue
     private let promptBackupCoordinator: PromptBackupCoordinator
-	private let analyticsCoordinator: AnalyticsCoordinator
+	private let analytics: AnalyticsLogger
     private let walletConnectCoordinator: WalletConnectCoordinator
     private let walletBalanceService: WalletBalanceService
     private let blockscanChatService: BlockscanChatService
@@ -41,7 +41,7 @@ class SettingsCoordinator: Coordinator {
 	var coordinators: [Coordinator] = []
 
 	lazy var rootViewController: SettingsViewController = {
-        let viewModel = SettingsViewModel(account: account, keystore: keystore, config: config, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
+        let viewModel = SettingsViewModel(account: account, keystore: keystore, config: config, analytics: analytics, domainResolutionService: domainResolutionService)
 		let controller = SettingsViewController(viewModel: viewModel)
 		controller.delegate = self
 		return controller
@@ -54,7 +54,7 @@ class SettingsCoordinator: Coordinator {
         sessions: ServerDictionary<WalletSession>,
         restartQueue: RestartTaskQueue,
         promptBackupCoordinator: PromptBackupCoordinator,
-        analyticsCoordinator: AnalyticsCoordinator,
+        analytics: AnalyticsLogger,
         walletConnectCoordinator: WalletConnectCoordinator,
         walletBalanceService: WalletBalanceService,
         blockscanChatService: BlockscanChatService,
@@ -68,7 +68,7 @@ class SettingsCoordinator: Coordinator {
 		self.sessions = sessions
         self.restartQueue = restartQueue
         self.promptBackupCoordinator = promptBackupCoordinator
-		self.analyticsCoordinator = analyticsCoordinator
+		self.analytics = analytics
         self.walletConnectCoordinator = walletConnectCoordinator
         self.walletBalanceService = walletBalanceService
         self.blockscanChatService = blockscanChatService
@@ -111,7 +111,7 @@ extension SettingsCoordinator: RenameWalletViewControllerDelegate {
 extension SettingsCoordinator: SettingsViewControllerDelegate {
 
     func settingsViewControllerNameWalletSelected(in controller: SettingsViewController) {
-        let viewModel = RenameWalletViewModel(account: account.address, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
+        let viewModel = RenameWalletViewModel(account: account.address, analytics: analytics, domainResolutionService: domainResolutionService)
 
         let viewController = RenameWalletViewController(viewModel: viewModel)
         viewController.delegate = self
@@ -142,7 +142,7 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
     }
 
     func settingsViewControllerHelpSelected(in controller: SettingsViewController) {
-        let viewController = SupportViewController(analyticsCoordinator: analyticsCoordinator)
+        let viewController = SupportViewController(analytics: analytics)
         viewController.delegate = self
         viewController.navigationItem.largeTitleDisplayMode = .never
         viewController.hidesBottomBarWhenPushed = true
@@ -155,7 +155,7 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
                 config: config,
                 navigationController: navigationController,
                 keystore: keystore,
-				analyticsCoordinator: analyticsCoordinator,
+				analytics: analytics,
                 viewModel: .init(configuration: .changeWallets, animatedPresentation: true),
                 walletBalanceService: walletBalanceService,
                 blockiesGenerator: blockiesGenerator,
@@ -177,7 +177,7 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
                     navigationController: navigationController,
                     keystore: keystore,
                     account: account,
-					analyticsCoordinator: analyticsCoordinator
+					analytics: analytics
             )
             coordinator.delegate = self
             coordinator.start()
@@ -188,7 +188,7 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
     }
 
     func settingsViewControllerActiveNetworksSelected(in controller: SettingsViewController) {
-        let coordinator = EnabledServersCoordinator(navigationController: navigationController, selectedServers: config.enabledServers, restartQueue: restartQueue, analyticsCoordinator: analyticsCoordinator)
+        let coordinator = EnabledServersCoordinator(navigationController: navigationController, selectedServers: config.enabledServers, restartQueue: restartQueue, analytics: analytics)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -301,7 +301,7 @@ extension SettingsCoordinator: AdvancedSettingsViewControllerDelegate {
     }
 
     func advancedSettingsViewControllerClearBrowserCacheSelected(in controller: AdvancedSettingsViewController) {
-        let coordinator = ClearDappBrowserCacheCoordinator(inViewController: rootViewController, analyticsCoordinator: analyticsCoordinator)
+        let coordinator = ClearDappBrowserCacheCoordinator(inViewController: rootViewController, analytics: analytics)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -404,7 +404,7 @@ extension SettingsCoordinator: ToolsViewControllerDelegate {
     }
 
     func toolsPingInfuraSelected(in controller: ToolsViewController) {
-        let coordinator = PingInfuraCoordinator(inViewController: controller, analyticsCoordinator: analyticsCoordinator)
+        let coordinator = PingInfuraCoordinator(inViewController: controller, analytics: analytics)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)

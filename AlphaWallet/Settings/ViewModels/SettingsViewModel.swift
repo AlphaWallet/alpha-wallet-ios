@@ -25,7 +25,7 @@ class SettingsViewModel {
     private let lock = Lock()
     private var config: Config
     private let keystore: Keystore
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let getWalletName: GetWalletName
 
     let animatingDifferences: Bool = false
@@ -42,11 +42,11 @@ class SettingsViewModel {
         }
     }
 
-    init(account: Wallet, keystore: Keystore, config: Config, analyticsCoordinator: AnalyticsCoordinator, domainResolutionService: DomainResolutionServiceType) {
+    init(account: Wallet, keystore: Keystore, config: Config, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType) {
         self.account = account
         self.config = config
         self.keystore = keystore
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.getWalletName = GetWalletName(domainResolutionService: domainResolutionService)
     }
 
@@ -158,7 +158,7 @@ class SettingsViewModel {
             case .changeWallet:
                 return .cell(.init(titleText: row.title, subTitleText: addressReplacedWithENSOrWalletName(assignedNameOrEns), icon: row.icon))
             case .backup:
-                let walletSecurityLevel = PromptBackupCoordinator(keystore: keystore, wallet: account, config: .init(), analyticsCoordinator: analyticsCoordinator).securityLevel
+                let walletSecurityLevel = PromptBackupCoordinator(keystore: keystore, wallet: account, config: .init(), analytics: analytics).securityLevel
                 let accessoryView = walletSecurityLevel.flatMap { WalletSecurityLevelIndicator(level: $0) }
                 return .cell(.init(titleText: row.title, subTitleText: nil, icon: row.icon, accessoryType: .disclosureIndicator, accessoryView: accessoryView))
             case .showMyWallet, .showSeedPhrase, .walletConnect, .nameWallet, .blockscanChat:

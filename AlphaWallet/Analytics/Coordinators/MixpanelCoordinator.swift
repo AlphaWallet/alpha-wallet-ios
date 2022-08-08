@@ -18,7 +18,7 @@ class MixpanelCoordinator {
     }
 }
 
-extension MixpanelCoordinator: AnalyticsCoordinator {
+extension MixpanelCoordinator: AnalyticsLogger {
     func log(navigation: AnalyticsNavigation, properties: [String: AnalyticsEventPropertyValue]?) {
         let props: Properties? = properties?.compactMapValues(convertParameterToSdkSpecificVersion)
         mixpanelInstance.track(event: navigation.rawValue, properties: props)

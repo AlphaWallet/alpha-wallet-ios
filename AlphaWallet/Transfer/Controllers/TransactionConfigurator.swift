@@ -28,7 +28,7 @@ class TransactionConfigurator {
     }
 
     let session: WalletSession
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     weak var delegate: TransactionConfiguratorDelegate?
 
     var transaction: UnconfirmedTransaction
@@ -83,12 +83,12 @@ class TransactionConfigurator {
         gasPriceWarning(forConfiguration: currentConfiguration)
     }
 
-    init(session: WalletSession, analyticsCoordinator: AnalyticsCoordinator, transaction: UnconfirmedTransaction) throws {
+    init(session: WalletSession, analytics: AnalyticsLogger, transaction: UnconfirmedTransaction) throws {
         self.session = session
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.transaction = transaction
 
-        let standardConfiguration = try TransactionConfigurator.createConfiguration(server: session.server, analyticsCoordinator: analyticsCoordinator, transaction: transaction, account: session.account.address)
+        let standardConfiguration = try TransactionConfigurator.createConfiguration(server: session.server, analytics: analytics, transaction: transaction, account: session.account.address)
         self.configurations = .init(standard: standardConfiguration)
     }
 
@@ -112,7 +112,7 @@ class TransactionConfigurator {
         )
 
         firstly {
-            Session.send(EtherServiceRequest(server: session.server, batch: BatchFactory().create(request)), server: session.server, analyticsCoordinator: analyticsCoordinator)
+            Session.send(EtherServiceRequest(server: session.server, batch: BatchFactory().create(request)), server: session.server, analytics: analytics)
         }.done { gasLimit in
             infoLog("Estimated gas limit with eth_estimateGas: \(gasLimit)")
             let gasLimit: BigInt = {
@@ -145,7 +145,7 @@ class TransactionConfigurator {
     }
 
     private func estimateGasPrice() {
-        let estimator = GasPriceEstimator(analyticsCoordinator: analyticsCoordinator)
+        let estimator = GasPriceEstimator(analytics: analytics)
         firstly {
             estimator.estimateGasPrice(server: session.server)
         }.done { estimates in
@@ -206,28 +206,28 @@ class TransactionConfigurator {
         return nil
     }
 
-    private static func createConfiguration(server: RPCServer, analyticsCoordinator: AnalyticsCoordinator, transaction: UnconfirmedTransaction, gasLimit: BigInt, data: Data) -> TransactionConfiguration {
-        let gasPrice = GasPriceEstimator(analyticsCoordinator: analyticsCoordinator).estimateDefaultGasPrice(server: server, transaction: transaction)
+    private static func createConfiguration(server: RPCServer, analytics: AnalyticsLogger, transaction: UnconfirmedTransaction, gasLimit: BigInt, data: Data) -> TransactionConfiguration {
+        let gasPrice = GasPriceEstimator(analytics: analytics).estimateDefaultGasPrice(server: server, transaction: transaction)
         return TransactionConfiguration(gasPrice: gasPrice, gasLimit: gasLimit, data: data)
     }
 
 // swiftlint:disable function_body_length
-    private static func createConfiguration(server: RPCServer, analyticsCoordinator: AnalyticsCoordinator, transaction: UnconfirmedTransaction, account: AlphaWallet.Address) throws -> TransactionConfiguration {
+    private static func createConfiguration(server: RPCServer, analytics: AnalyticsLogger, transaction: UnconfirmedTransaction, account: AlphaWallet.Address) throws -> TransactionConfiguration {
         let maxGasLimit = GasLimitConfiguration.maxGasLimit(forServer: server)
         do {
             switch transaction.transactionType {
             case .dapp:
                 let gasLimit = transaction.gasLimit ?? maxGasLimit
 
-                return createConfiguration(server: server, analyticsCoordinator: analyticsCoordinator, transaction: transaction, gasLimit: gasLimit, data: transaction.data ?? .init())
+                return createConfiguration(server: server, analytics: analytics, transaction: transaction, gasLimit: gasLimit, data: transaction.data ?? .init())
             case .nativeCryptocurrency:
                 let gasLimit = GasLimitConfiguration.minGasLimit
 
-                return createConfiguration(server: server, analyticsCoordinator: analyticsCoordinator, transaction: transaction, gasLimit: gasLimit, data: transaction.data ?? .init())
+                return createConfiguration(server: server, analytics: analytics, transaction: transaction, gasLimit: gasLimit, data: transaction.data ?? .init())
             case .tokenScript:
                 let gasLimit = transaction.gasLimit ?? maxGasLimit
 
-                return createConfiguration(server: server, analyticsCoordinator: analyticsCoordinator, transaction: transaction, gasLimit: gasLimit, data: transaction.data ?? .init())
+                return createConfiguration(server: server, analytics: analytics, transaction: transaction, gasLimit: gasLimit, data: transaction.data ?? .init())
             case .erc20Token:
                 guard let recipient = transaction.recipient else {
                     throw TransactionConfiguratorError.impossibleToBuildConfiguration
@@ -238,7 +238,7 @@ class TransactionConfigurator {
                 try encoder.encode(function: function, arguments: [recipient, BigUInt(transaction.value)])
                 let gasLimit = transaction.gasLimit ?? maxGasLimit
 
-                return createConfiguration(server: server, analyticsCoordinator: analyticsCoordinator, transaction: transaction, gasLimit: gasLimit, data: encoder.data)
+                return createConfiguration(server: server, analytics: analytics, transaction: transaction, gasLimit: gasLimit, data: encoder.data)
             case .erc875Token(let token, _):
                 guard let recipient = transaction.recipient, let indices = transaction.indices else {
                     throw TransactionConfiguratorError.impossibleToBuildConfiguration
@@ -255,7 +255,7 @@ class TransactionConfigurator {
                 try encoder.encode(function: functionEncoder, arguments: parameters)
                 let gasLimit = transaction.gasLimit ?? maxGasLimit
 
-                return createConfiguration(server: server, analyticsCoordinator: analyticsCoordinator, transaction: transaction, gasLimit: gasLimit, data: encoder.data)
+                return createConfiguration(server: server, analytics: analytics, transaction: transaction, gasLimit: gasLimit, data: encoder.data)
             case .erc875TokenOrder(let token, _):
                 guard let expiry = transaction.expiry, let indices = transaction.indices, let v = transaction.v, let r = transaction.r, let s = transaction.s else {
                     throw TransactionConfiguratorError.impossibleToBuildConfiguration
@@ -286,7 +286,7 @@ class TransactionConfigurator {
                 try encoder.encode(function: functionEncoder, arguments: parameters)
                 let gasLimit = transaction.gasLimit ?? maxGasLimit
 
-                return createConfiguration(server: server, analyticsCoordinator: analyticsCoordinator, transaction: transaction, gasLimit: gasLimit, data: encoder.data)
+                return createConfiguration(server: server, analytics: analytics, transaction: transaction, gasLimit: gasLimit, data: encoder.data)
             case .erc721Token(let token, _), .erc721ForTicketToken(let token, _):
                 guard let recipient = transaction.recipient, let tokenId = transaction.tokenId else {
                     throw TransactionConfiguratorError.impossibleToBuildConfiguration
@@ -306,7 +306,7 @@ class TransactionConfigurator {
                 try encoder.encode(function: function, arguments: parameters)
                 let gasLimit = transaction.gasLimit ?? maxGasLimit
 
-                return createConfiguration(server: server, analyticsCoordinator: analyticsCoordinator, transaction: transaction, gasLimit: gasLimit, data: encoder.data)
+                return createConfiguration(server: server, analytics: analytics, transaction: transaction, gasLimit: gasLimit, data: encoder.data)
             case .erc1155Token(_, let transferType, _):
                 guard let recipient = transaction.recipient, let tokenIdAndValue = transaction.tokenIdsAndValues?.first else {
                     throw TransactionConfiguratorError.impossibleToBuildConfiguration
@@ -325,7 +325,7 @@ class TransactionConfigurator {
                     try encoder.encode(function: function, arguments: parameters)
                     let gasLimit = transaction.gasLimit ?? maxGasLimit
 
-                    return createConfiguration(server: server, analyticsCoordinator: analyticsCoordinator, transaction: transaction, gasLimit: gasLimit, data: encoder.data)
+                    return createConfiguration(server: server, analytics: analytics, transaction: transaction, gasLimit: gasLimit, data: encoder.data)
                 case .batchTransfer:
                     guard let recipient = transaction.recipient, let tokenIdsAndValues = transaction.tokenIdsAndValues else {
                         throw TransactionConfiguratorError.impossibleToBuildConfiguration
@@ -351,18 +351,18 @@ class TransactionConfigurator {
                     try encoder.encode(function: function, arguments: parameters)
                     let gasLimit = transaction.gasLimit ?? maxGasLimit
 
-                    return createConfiguration(server: server, analyticsCoordinator: analyticsCoordinator, transaction: transaction, gasLimit: gasLimit, data: encoder.data)
+                    return createConfiguration(server: server, analytics: analytics, transaction: transaction, gasLimit: gasLimit, data: encoder.data)
                 }
             case .claimPaidErc875MagicLink:
                 let gasLimit = transaction.gasLimit ?? maxGasLimit
                 let data = transaction.data ?? .init()
 
-                return createConfiguration(server: server, analyticsCoordinator: analyticsCoordinator, transaction: transaction, gasLimit: gasLimit, data: data)
+                return createConfiguration(server: server, analytics: analytics, transaction: transaction, gasLimit: gasLimit, data: data)
             case .prebuilt:
                 let gasLimit = transaction.gasLimit ?? maxGasLimit
                 let data = transaction.data ?? .init()
 
-                return createConfiguration(server: server, analyticsCoordinator: analyticsCoordinator, transaction: transaction, gasLimit: gasLimit, data: data)
+                return createConfiguration(server: server, analytics: analytics, transaction: transaction, gasLimit: gasLimit, data: data)
             }
         } catch {
             if case TransactionConfiguratorError.impossibleToBuildConfiguration = error {
@@ -408,7 +408,7 @@ class TransactionConfigurator {
             useNonce(Int(nonce))
         } else {
             firstly {
-                GetNextNonce(server: session.server, wallet: session.account.address, analyticsCoordinator: analyticsCoordinator).promise()
+                GetNextNonce(server: session.server, wallet: session.account.address, analytics: analytics).promise()
             }.done {
                 self.useNonce($0)
             }.cauterize()

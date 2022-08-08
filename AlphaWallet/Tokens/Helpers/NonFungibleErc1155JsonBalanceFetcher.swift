@@ -25,10 +25,10 @@ class NonFungibleErc1155JsonBalanceFetcher {
     private let queue: DispatchQueue
     private let server: RPCServer
     private let tokensDataStore: TokensDataStore
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let assetDefinitionStore: AssetDefinitionStore
 
-    init(assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, tokensDataStore: TokensDataStore, account: Wallet, server: RPCServer, erc1155TokenIdsFetcher: Erc1155TokenIdsFetcher, nonFungibleJsonBalanceFetcher: NonFungibleJsonBalanceFetcher, erc1155BalanceFetcher: Erc1155BalanceFetcher, queue: DispatchQueue) {
+    init(assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger, tokensDataStore: TokensDataStore, account: Wallet, server: RPCServer, erc1155TokenIdsFetcher: Erc1155TokenIdsFetcher, nonFungibleJsonBalanceFetcher: NonFungibleJsonBalanceFetcher, erc1155BalanceFetcher: Erc1155BalanceFetcher, queue: DispatchQueue) {
         self.assetDefinitionStore = assetDefinitionStore
         self.account = account
         self.server = server
@@ -36,7 +36,7 @@ class NonFungibleErc1155JsonBalanceFetcher {
         self.queue = queue
         self.tokensDataStore = tokensDataStore
         self.nonFungibleJsonBalanceFetcher = nonFungibleJsonBalanceFetcher
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.erc1155BalanceFetcher = erc1155BalanceFetcher
     }
 
@@ -122,7 +122,7 @@ class NonFungibleErc1155JsonBalanceFetcher {
             }
         }
         for each in contractsToAdd {
-            ContractDataDetector(address: each, account: account, server: server, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator).fetch { data in
+            ContractDataDetector(address: each, account: account, server: server, assetDefinitionStore: assetDefinitionStore, analytics: analytics).fetch { data in
                 switch data {
                 case .name, .symbol, .balance, .decimals:
                     break

@@ -37,16 +37,16 @@ class WalletApiService: NSObject, Coordinator {
     private let sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>
     private let navigationController: UINavigationController
     private let keystore: Keystore
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
 
     var coordinators: [Coordinator] = []
     weak var delegate: WalletApiServiceDelegate?
 
-    init(keystore: Keystore, navigationController: UINavigationController, analyticsCoordinator: AnalyticsCoordinator, sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>) {
+    init(keystore: Keystore, navigationController: UINavigationController, analytics: AnalyticsLogger, sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>) {
         self.sessionsSubject = sessionsSubject
         self.keystore = keystore
         self.navigationController = navigationController
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         super.init()
     }
 
@@ -136,13 +136,13 @@ class WalletApiService: NSObject, Coordinator {
 
     private func acceptProposal(proposalType: ProposalType) -> Promise<ProposalResult> {
         infoLog("[WalletApi] acceptProposal: \(proposalType)")
-        return AcceptProposalCoordinator.promise(navigationController, coordinator: self, proposalType: proposalType, analyticsCoordinator: analyticsCoordinator)
+        return AcceptProposalCoordinator.promise(navigationController, coordinator: self, proposalType: proposalType, analytics: analytics)
     }
 
     private func signPersonalMessage(with type: SignMessageType, account: AlphaWallet.Address, requester: RequesterViewModel) -> Promise<Data> {
         infoLog("[WalletApi] signMessage: \(type)")
 
-        return SignMessageCoordinator.promise(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, keystore: keystore, coordinator: self, signType: type, account: account, source: .deepLink, requester: requester)
+        return SignMessageCoordinator.promise(analytics: analytics, navigationController: navigationController, keystore: keystore, coordinator: self, signType: type, account: account, source: .deepLink, requester: requester)
     }
 }
 

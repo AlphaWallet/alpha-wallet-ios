@@ -37,12 +37,12 @@ final class SwapTokensCoordinator: Coordinator {
     private let configurator: SwapOptionsConfigurator
     private lazy var tokenSelectionProvider = SwapTokenSelectionProvider(configurator: configurator)
     private lazy var approveSwapProvider: ApproveSwapProvider = {
-        let provider = ApproveSwapProvider(configurator: configurator, analyticsCoordinator: analyticsCoordinator)
+        let provider = ApproveSwapProvider(configurator: configurator, analytics: analytics)
         provider.delegate = self
         return provider
     }()
     private let keystore: Keystore
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let domainResolutionService: DomainResolutionServiceType
     private let eventsDataStore: NonActivityEventsDataStore
     private var cancelable = Set<AnyCancellable>()
@@ -51,13 +51,13 @@ final class SwapTokensCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: SwapTokensCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, configurator: SwapOptionsConfigurator, keystore: Keystore, analyticsCoordinator: AnalyticsCoordinator, domainResolutionService: DomainResolutionServiceType, assetDefinitionStore: AssetDefinitionStore, tokenCollection: TokenCollection, eventsDataStore: NonActivityEventsDataStore) {
+    init(navigationController: UINavigationController, configurator: SwapOptionsConfigurator, keystore: Keystore, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, assetDefinitionStore: AssetDefinitionStore, tokenCollection: TokenCollection, eventsDataStore: NonActivityEventsDataStore) {
         self.assetDefinitionStore = assetDefinitionStore
         self.tokenCollection = tokenCollection
         self.configurator = configurator
         self.navigationController = navigationController
         self.keystore = keystore
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.domainResolutionService = domainResolutionService
         self.eventsDataStore = eventsDataStore
     }
@@ -168,7 +168,7 @@ extension SwapTokensCoordinator: ApproveSwapProviderDelegate {
         do {
             let (transaction, configuration) = configurator.tokenSwapper.buildSwapTransaction(keystore: keystore, unsignedTransaction: unsignedTransaction, fromToken: fromToken, fromAmount: fromAmount, toToken: toToken, toAmount: toAmount)
 
-            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: configurator.session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore)
+            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: configurator.session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore)
             addCoordinator(coordinator)
             coordinator.delegate = self
             coordinator.start(fromSource: .swap)
@@ -183,7 +183,7 @@ extension SwapTokensCoordinator: ApproveSwapProviderDelegate {
         let (transaction, configuration) = Erc20.buildApproveTransaction(keystore: keystore, token: token, server: server, owner: owner, spender: spender, amount: amount)
 
         return firstly {
-            TransactionConfirmationCoordinator.promise(navigationController, session: configurator.session, coordinator: self, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService, source: .swapApproval, delegate: self, keystore: keystore, assetDefinitionStore: assetDefinitionStore)
+            TransactionConfirmationCoordinator.promise(navigationController, session: configurator.session, coordinator: self, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, source: .swapApproval, delegate: self, keystore: keystore, assetDefinitionStore: assetDefinitionStore)
         }.map { confirmationResult in
             switch confirmationResult {
             case .signedTransaction, .sentRawTransaction:

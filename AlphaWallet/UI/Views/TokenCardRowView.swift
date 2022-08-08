@@ -4,7 +4,7 @@ import UIKit
 import WebKit
 
 class TokenCardRowView: UIView, TokenCardRowViewProtocol {
-	private let analyticsCoordinator: AnalyticsCoordinator
+	private let analytics: AnalyticsLogger
     private let server: RPCServer
 	private let assetDefinitionStore: AssetDefinitionStore
 	private let tokenCountLabel = UILabel()
@@ -53,7 +53,7 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 	var stateLabel = UILabel()
 	var tokenView: TokenView
 	lazy var tokenScriptRendererView: TokenInstanceWebView = {
-		let webView = TokenInstanceWebView(analyticsCoordinator: analyticsCoordinator, server: server, wallet: wallet, assetDefinitionStore: assetDefinitionStore, keystore: keystore)
+		let webView = TokenInstanceWebView(analytics: analytics, server: server, wallet: wallet, assetDefinitionStore: assetDefinitionStore, keystore: keystore)
 		webView.delegate = self
 		return webView
 	}()
@@ -89,9 +89,9 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
     private let keystore: Keystore
     private let wallet: Wallet
 
-    init(analyticsCoordinator: AnalyticsCoordinator, server: RPCServer, tokenView: TokenView, showCheckbox: Bool = false, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore, wallet: Wallet) {
+    init(analytics: AnalyticsLogger, server: RPCServer, tokenView: TokenView, showCheckbox: Bool = false, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore, wallet: Wallet) {
         self.keystore = keystore
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
 		self.server = server
 		self.tokenView = tokenView
         self.showCheckbox = showCheckbox

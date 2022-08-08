@@ -20,7 +20,7 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
     private var timer: Timer!
     private var session: WalletSession
     private let token: Token
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let keystore: Keystore
 
     var contract: AlphaWallet.Address {
@@ -32,12 +32,12 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
     let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: TokenCardRedemptionViewControllerDelegate?
 
-    init(session: WalletSession, token: Token, viewModel: TokenCardRedemptionViewModel, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, keystore: Keystore) {
+    init(session: WalletSession, token: Token, viewModel: TokenCardRedemptionViewModel, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger, keystore: Keystore) {
 		self.session = session
         self.token = token
         self.viewModel = viewModel
         self.assetDefinitionStore = assetDefinitionStore
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.keystore = keystore
 
         let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified)
@@ -45,7 +45,7 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
         case .backedByOpenSea:
             tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notBackedByOpenSea:
-            tokenRowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: session.account)
+            tokenRowView = TokenCardRowView(analytics: analytics, server: token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: session.account)
         }
 
         super.init(nibName: nil, bundle: nil)

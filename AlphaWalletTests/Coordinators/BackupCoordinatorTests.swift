@@ -9,7 +9,7 @@ class BackupCoordinatorTests: XCTestCase {
             navigationController: FakeNavigationController(),
             keystore: FakeEtherKeystore(wallets: [.init(address: .make(), origin: .mnemonic)]),
             account: .make(),
-            analyticsCoordinator: FakeAnalyticsService()
+            analytics: FakeAnalyticsService()
         )
         coordinator.start()
 
@@ -21,7 +21,7 @@ class BackupCoordinatorTests: XCTestCase {
                 navigationController: FakeNavigationController(),
                 keystore: FakeEtherKeystore(wallets: [.init(address: .make(), origin: .privateKey)]),
                 account: .make(),
-                analyticsCoordinator: FakeAnalyticsService()
+                analytics: FakeAnalyticsService()
         )
         coordinator.start()
 

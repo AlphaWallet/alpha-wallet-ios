@@ -14,7 +14,7 @@ protocol RedeemTokenCardQuantitySelectionViewControllerDelegate: class, CanOpenU
 }
 
 class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVerifiableStatusViewController {
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let token: Token
     private let roundedBackground = RoundedBackground()
     private let header = TokensCardViewControllerTitleHeader()
@@ -34,14 +34,14 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
     weak var delegate: RedeemTokenCardQuantitySelectionViewControllerDelegate?
 
     init(
-        analyticsCoordinator: AnalyticsCoordinator,
+        analytics: AnalyticsLogger,
         token: Token,
         viewModel: RedeemTokenCardQuantitySelectionViewModel,
         assetDefinitionStore: AssetDefinitionStore,
         keystore: Keystore,
         session: WalletSession
     ) {
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.token = token
         self.viewModel = viewModel
         self.assetDefinitionStore = assetDefinitionStore
@@ -51,7 +51,7 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
         case .backedByOpenSea:
             tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notBackedByOpenSea:
-            tokenRowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: session.account)
+            tokenRowView = TokenCardRowView(analytics: analytics, server: token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: session.account)
         }
 
         super.init(nibName: nil, bundle: nil)

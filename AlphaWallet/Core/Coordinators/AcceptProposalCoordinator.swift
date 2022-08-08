@@ -15,10 +15,10 @@ protocol AcceptProposalCoordinatorDelegate: AnyObject {
 class AcceptProposalCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
 
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let proposalType: ProposalType
     private let navigationController: UINavigationController
-    private lazy var viewModel = AcceptProposalViewModel(proposalType: proposalType, analyticsCoordinator: analyticsCoordinator)
+    private lazy var viewModel = AcceptProposalViewModel(proposalType: proposalType, analytics: analytics)
     private lazy var rootViewController: AcceptProposalViewController = {
         let viewController = AcceptProposalViewController(viewModel: viewModel)
         viewController.delegate = self
@@ -38,8 +38,8 @@ class AcceptProposalCoordinator: Coordinator {
 
     weak var delegate: AcceptProposalCoordinatorDelegate?
 
-    init(analyticsCoordinator: AnalyticsCoordinator, proposalType: ProposalType, navigationController: UINavigationController) {
-        self.analyticsCoordinator = analyticsCoordinator
+    init(analytics: AnalyticsLogger, proposalType: ProposalType, navigationController: UINavigationController) {
+        self.analytics = analytics
         self.proposalType = proposalType
         self.navigationController = navigationController
     }

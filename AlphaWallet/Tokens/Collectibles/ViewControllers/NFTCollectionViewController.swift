@@ -24,7 +24,7 @@ class NFTCollectionViewController: UIViewController {
     private let session: WalletSession
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: NonActivityEventsDataStore
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private lazy var buttonsBar: HorizontalButtonsBar = {
         let buttonsBar = HorizontalButtonsBar(configuration: .empty)
         buttonsBar.viewController = self
@@ -36,7 +36,7 @@ class NFTCollectionViewController: UIViewController {
 
     private lazy var collectionInfoPageView: NFTCollectionInfoPageView = {
         let viewModel: NFTCollectionInfoPageViewModel = .init(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, wallet: session.account)
-        let view = NFTCollectionInfoPageView(viewModel: viewModel, openSea: openSea, keystore: keystore, session: session, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator)
+        let view = NFTCollectionInfoPageView(viewModel: viewModel, openSea: openSea, keystore: keystore, session: session, assetDefinitionStore: assetDefinitionStore, analytics: analytics)
         view.delegate = self
 
         return view
@@ -44,14 +44,14 @@ class NFTCollectionViewController: UIViewController {
 
     private lazy var activitiesPageView: ActivitiesPageView = {
         let viewModel: ActivityPageViewModel = .init(activitiesViewModel: .init())
-        let view = ActivitiesPageView(analyticsCoordinator: analyticsCoordinator, keystore: keystore, wallet: session.account, viewModel: viewModel, sessions: activitiesService.sessions, assetDefinitionStore: assetDefinitionStore)
+        let view = ActivitiesPageView(analytics: analytics, keystore: keystore, wallet: session.account, viewModel: viewModel, sessions: activitiesService.sessions, assetDefinitionStore: assetDefinitionStore)
         view.delegate = self
 
         return view
     }()
     private let tokenHoldersSubject = CurrentValueSubject<[TokenHolder], Never>([])
     private lazy var nftAssetsPageView: NFTAssetsPageView = {
-        let tokenCardViewFactory = TokenCardViewFactory(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, keystore: keystore, wallet: viewModel.wallet)
+        let tokenCardViewFactory = TokenCardViewFactory(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, analytics: analytics, keystore: keystore, wallet: viewModel.wallet)
 
         let viewModel: NFTAssetsPageViewModel = .init(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, tokenHolders: tokenHoldersSubject.eraseToAnyPublisher(), selection: .list)
 
@@ -72,14 +72,14 @@ class NFTCollectionViewController: UIViewController {
 
     weak var delegate: NFTCollectionViewControllerDelegate?
 
-    init(keystore: Keystore, session: WalletSession, assetDefinition: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, viewModel: NFTCollectionViewModel, openSea: OpenSea, activitiesService: ActivitiesServiceType, eventsDataStore: NonActivityEventsDataStore) {
+    init(keystore: Keystore, session: WalletSession, assetDefinition: AssetDefinitionStore, analytics: AnalyticsLogger, viewModel: NFTCollectionViewModel, openSea: OpenSea, activitiesService: ActivitiesServiceType, eventsDataStore: NonActivityEventsDataStore) {
         self.viewModel = viewModel
         self.openSea = openSea
         self.session = session
         self.tokenScriptFileStatusHandler = XMLHandler(token: viewModel.token, assetDefinitionStore: assetDefinition)
         self.assetDefinitionStore = assetDefinition
         self.eventsDataStore = eventsDataStore
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.activitiesService = activitiesService
         self.keystore = keystore
 

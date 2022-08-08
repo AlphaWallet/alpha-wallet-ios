@@ -34,14 +34,14 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     private let config: Config
     private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
 
-    private lazy var nonErc1155BalanceFetcher = TokenProvider(account: account, server: server, analyticsCoordinator: analyticsCoordinator, queue: queue)
+    private lazy var nonErc1155BalanceFetcher = TokenProvider(account: account, server: server, analytics: analytics, queue: queue)
     private lazy var nonFungibleJsonBalanceFetcher = NonFungibleJsonBalanceFetcher(server: server, tokensDataStore: tokensDataStore, queue: queue)
     private lazy var erc1155TokenIdsFetcher = Erc1155TokenIdsFetcher(address: account.address, server: server, config: config, queue: queue)
     private lazy var erc1155BalanceFetcher = Erc1155BalanceFetcher(address: account.address, server: server)
     private lazy var erc1155JsonBalanceFetcher: NonFungibleErc1155JsonBalanceFetcher = {
-        return NonFungibleErc1155JsonBalanceFetcher(assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, tokensDataStore: tokensDataStore, account: account, server: server, erc1155TokenIdsFetcher: erc1155TokenIdsFetcher, nonFungibleJsonBalanceFetcher: nonFungibleJsonBalanceFetcher, erc1155BalanceFetcher: erc1155BalanceFetcher, queue: queue)
+        return NonFungibleErc1155JsonBalanceFetcher(assetDefinitionStore: assetDefinitionStore, analytics: analytics, tokensDataStore: tokensDataStore, account: account, server: server, erc1155TokenIdsFetcher: erc1155TokenIdsFetcher, nonFungibleJsonBalanceFetcher: nonFungibleJsonBalanceFetcher, erc1155BalanceFetcher: erc1155BalanceFetcher, queue: queue)
     }()
 
     let server: RPCServer
@@ -49,7 +49,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     weak var delegate: PrivateBalanceFetcherDelegate?
     weak var erc721TokenIdsFetcher: Erc721TokenIdsFetcher?
 
-    init(account: Wallet, nftProvider: NFTProvider, tokensDataStore: TokensDataStore, etherToken: Token, server: RPCServer, config: Config, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, queue: DispatchQueue) {
+    init(account: Wallet, nftProvider: NFTProvider, tokensDataStore: TokensDataStore, etherToken: Token, server: RPCServer, config: Config, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger, queue: DispatchQueue) {
         self.nftProvider = nftProvider
         self.account = account
         self.server = server
@@ -58,7 +58,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         self.etherToken = etherToken
         self.tokensDataStore = tokensDataStore
         self.assetDefinitionStore = assetDefinitionStore
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
     }
 
     func refreshBalance(for tokens: [Token]) {

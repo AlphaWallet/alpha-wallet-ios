@@ -19,16 +19,16 @@ typealias TokenCardViewType = UIView & TokenCardRowViewConfigurable & SelectionP
 
 class TokenCardViewFactory {
     private let token: Token
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let keystore: Keystore
     private let wallet: Wallet
 
     let assetDefinitionStore: AssetDefinitionStore
     
-    init(token: Token, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, keystore: Keystore, wallet: Wallet) {
+    init(token: Token, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger, keystore: Keystore, wallet: Wallet) {
         self.token = token
         self.assetDefinitionStore = assetDefinitionStore
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.keystore = keystore
         self.wallet = wallet
     }
@@ -40,7 +40,7 @@ class TokenCardViewFactory {
 
         switch tokenHolder.tokenType {
         case .erc875, .erc721ForTickets:
-            rowView = Erc875NonFungibleRowView(token: token, tokenType: tokenType, analyticsCoordinator: analyticsCoordinator, keystore: keystore, assetDefinitionStore: assetDefinitionStore, wallet: wallet, layout: layout, gridEdgeInsets: gridEdgeInsets, listEdgeInsets: listEdgeInsets)
+            rowView = Erc875NonFungibleRowView(token: token, tokenType: tokenType, analytics: analytics, keystore: keystore, assetDefinitionStore: assetDefinitionStore, wallet: wallet, layout: layout, gridEdgeInsets: gridEdgeInsets, listEdgeInsets: listEdgeInsets)
         case .nativeCryptocurrency, .erc20, .erc721, .erc1155:
             rowView = NonFungibleRowView(layout: layout, gridEdgeInsets: gridEdgeInsets, listEdgeInsets: listEdgeInsets)
         } 

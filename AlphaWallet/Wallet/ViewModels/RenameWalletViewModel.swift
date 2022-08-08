@@ -23,18 +23,18 @@ class RenameWalletViewModel {
         return R.string.localizable.walletRenameEnterNameTitle()
     }
 
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let domainResolutionService: DomainResolutionServiceType
 
-    init(account: AlphaWallet.Address, analyticsCoordinator: AnalyticsCoordinator, domainResolutionService: DomainResolutionServiceType) {
+    init(account: AlphaWallet.Address, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType) {
         self.account = account
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.domainResolutionService = domainResolutionService
     }
 
     func set(walletName: String) {
         FileWalletStorage().addOrUpdate(name: walletName, for: account)
-        analyticsCoordinator.log(action: Analytics.Action.nameWallet)
+        analytics.log(action: Analytics.Action.nameWallet)
     }
 
     var resolvedEns: AnyPublisher<String?, Never> {

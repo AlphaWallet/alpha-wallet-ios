@@ -27,7 +27,7 @@ class SingleChainTokenCoordinator: Coordinator {
     private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: NonActivityEventsDataStore
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let openSea: OpenSea
     private let tokenActionsProvider: SupportedTokenActionsProvider
     private let coinTickersFetcher: CoinTickersFetcher
@@ -49,7 +49,7 @@ class SingleChainTokenCoordinator: Coordinator {
             tokensStorage: TokensDataStore,
             assetDefinitionStore: AssetDefinitionStore,
             eventsDataStore: NonActivityEventsDataStore,
-            analyticsCoordinator: AnalyticsCoordinator,
+            analytics: AnalyticsLogger,
             openSea: OpenSea,
             tokenActionsProvider: SupportedTokenActionsProvider,
             coinTickersFetcher: CoinTickersFetcher,
@@ -62,7 +62,7 @@ class SingleChainTokenCoordinator: Coordinator {
         self.tokensDataStore = tokensStorage
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.openSea = openSea
         self.tokenActionsProvider = tokenActionsProvider
         self.coinTickersFetcher = coinTickersFetcher
@@ -101,7 +101,7 @@ class SingleChainTokenCoordinator: Coordinator {
                 token: token,
                 assetDefinitionStore: assetDefinitionStore,
                 eventsDataStore: eventsDataStore,
-                analyticsCoordinator: analyticsCoordinator,
+                analytics: analytics,
                 openSea: openSea,
                 activitiesService: activitiesService
         )
@@ -116,7 +116,7 @@ class SingleChainTokenCoordinator: Coordinator {
         let activitiesFilterStrategy = transactionType.activitiesFilterStrategy
         let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: TransactionDataStore.functional.transactionsFilter(for: activitiesFilterStrategy, token: transactionType.tokenObject))
         let viewModel = FungibleTokenViewModel(transactionType: transactionType, session: session, assetDefinitionStore: assetDefinitionStore, tokenActionsProvider: tokenActionsProvider, coinTickersFetcher: coinTickersFetcher)
-        let viewController = FungibleTokenViewController(keystore: keystore, analyticsCoordinator: analyticsCoordinator, viewModel: viewModel, activitiesService: activitiesService, alertService: alertService)
+        let viewController = FungibleTokenViewController(keystore: keystore, analytics: analytics, viewModel: viewModel, activitiesService: activitiesService, alertService: alertService)
         viewController.delegate = self
 
         viewController.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(selectionClosure: { _ in

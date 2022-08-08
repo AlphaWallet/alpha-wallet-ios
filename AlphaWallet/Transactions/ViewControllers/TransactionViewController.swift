@@ -9,7 +9,7 @@ protocol TransactionViewControllerDelegate: class, CanOpenURL {
 }
 
 class TransactionViewController: UIViewController {
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private lazy var viewModel: TransactionDetailsViewModel = {
         return .init(
             transactionRow: transactionRow,
@@ -26,8 +26,8 @@ class TransactionViewController: UIViewController {
 
     weak var delegate: TransactionViewControllerDelegate?
 
-    init(analyticsCoordinator: AnalyticsCoordinator, session: WalletSession, transactionRow: TransactionRow, delegate: TransactionViewControllerDelegate?) {
-        self.analyticsCoordinator = analyticsCoordinator
+    init(analytics: AnalyticsLogger, session: WalletSession, transactionRow: TransactionRow, delegate: TransactionViewControllerDelegate?) {
+        self.analytics = analytics
         self.session = session
         self.transactionRow = transactionRow
         self.delegate = delegate
@@ -182,6 +182,6 @@ class TransactionViewController: UIViewController {
 // MARK: Analytics
 extension TransactionViewController {
     private func logUse() {
-        analyticsCoordinator.log(navigation: Analytics.Navigation.explorer, properties: [Analytics.Properties.type.rawValue: Analytics.ExplorerType.transaction.rawValue])
+        analytics.log(navigation: Analytics.Navigation.explorer, properties: [Analytics.Properties.type.rawValue: Analytics.ExplorerType.transaction.rawValue])
     }
 }

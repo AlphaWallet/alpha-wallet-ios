@@ -39,7 +39,7 @@ class CovalentSingleChainTransactionProvider: SingleChainTransactionProvider {
 
     weak var delegate: SingleChainTransactionProviderDelegate?
 
-    required init(session: WalletSession, analyticsCoordinator: AnalyticsCoordinator, transactionDataStore: TransactionDataStore, tokensDataStore: TokensDataStore, fetchLatestTransactionsQueue: OperationQueue, tokensFromTransactionsFetcher: TokensFromTransactionsFetcher) {
+    required init(session: WalletSession, analytics: AnalyticsLogger, transactionDataStore: TransactionDataStore, tokensDataStore: TokensDataStore, fetchLatestTransactionsQueue: OperationQueue, tokensFromTransactionsFetcher: TokensFromTransactionsFetcher) {
         self.session = session
         self.transactionDataStore = transactionDataStore
         self.tokensDataStore = tokensDataStore

@@ -19,7 +19,7 @@ enum ProposalResult {
 }
 
 class AcceptProposalViewModel: NSObject {
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
 
     let proposalType: ProposalType
 
@@ -71,9 +71,9 @@ class AcceptProposalViewModel: NSObject {
         }
     }
 
-    init(proposalType: ProposalType, analyticsCoordinator: AnalyticsCoordinator) {
+    init(proposalType: ProposalType, analytics: AnalyticsLogger) {
         self.proposalType = proposalType
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         super.init()
     }
 
@@ -98,7 +98,7 @@ class AcceptProposalViewModel: NSObject {
     func logServerSelected() {
         switch proposalType {
         case .walletConnect:
-            analyticsCoordinator.log(action: Analytics.Action.switchedServer, properties: [
+            analytics.log(action: Analytics.Action.switchedServer, properties: [
                 Analytics.Properties.source.rawValue: "walletConnect"
             ])
         case .deepLink:
@@ -109,7 +109,7 @@ class AcceptProposalViewModel: NSObject {
     func logSwitchServer() {
         switch proposalType {
         case .walletConnect:
-            analyticsCoordinator.log(navigation: Analytics.Navigation.switchServers, properties: [
+            analytics.log(navigation: Analytics.Navigation.switchServers, properties: [
                 Analytics.Properties.source.rawValue: "walletConnect"
             ])
         case .deepLink:
@@ -120,7 +120,7 @@ class AcceptProposalViewModel: NSObject {
     func logCancelServerSelection() {
         switch proposalType {
         case .walletConnect:
-            analyticsCoordinator.log(action: Analytics.Action.cancelsSwitchServer, properties: [
+            analytics.log(action: Analytics.Action.cancelsSwitchServer, properties: [
                 Analytics.Properties.source.rawValue: "walletConnect"
             ])
         case .deepLink:
@@ -131,7 +131,7 @@ class AcceptProposalViewModel: NSObject {
     func logConnectToServers() {
         switch proposalType {
         case .walletConnect(let viewModel):
-            analyticsCoordinator.log(action: Analytics.Action.walletConnectConnect, properties: [
+            analytics.log(action: Analytics.Action.walletConnectConnect, properties: [
                 Analytics.Properties.chains.rawValue: viewModel.serversToConnect.map({ $0.chainID })
             ])
         case .deepLink:
@@ -142,7 +142,7 @@ class AcceptProposalViewModel: NSObject {
     func logConnectToServersDisabled() {
         switch proposalType {
         case .walletConnect(let viewModel):
-            analyticsCoordinator.log(action: Analytics.Action.walletConnectConnectionFailed, properties: [
+            analytics.log(action: Analytics.Action.walletConnectConnectionFailed, properties: [
                 Analytics.Properties.chains.rawValue: viewModel.serversToConnect.map({ $0.chainID }),
                 Analytics.Properties.reason.rawValue: "Chain Disabled"
             ])
@@ -154,17 +154,17 @@ class AcceptProposalViewModel: NSObject {
     func logStart() {
         switch proposalType {
         case .walletConnect(let viewModel):
-            analyticsCoordinator.log(action: Analytics.Action.walletConnectConnectionFailed, properties: [
+            analytics.log(action: Analytics.Action.walletConnectConnectionFailed, properties: [
                 Analytics.Properties.chains.rawValue: viewModel.serversToConnect.map({ $0.chainID }),
                 Analytics.Properties.reason.rawValue: "Chain Disabled"
             ])
         case .deepLink:
-            analyticsCoordinator.log(navigation: Analytics.Navigation.deepLink)
+            analytics.log(navigation: Analytics.Navigation.deepLink)
         }
     }
 
     func logApproveCancelation() {
-        analyticsCoordinator.log(action: Analytics.Action.DeepLinkCancel)
+        analytics.log(action: Analytics.Action.DeepLinkCancel)
     }
 }
 

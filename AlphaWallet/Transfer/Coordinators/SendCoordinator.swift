@@ -17,7 +17,7 @@ class SendCoordinator: Coordinator {
     private let keystore: Keystore
     private let service: TokenProvidable & TokenAddable
     private let assetDefinitionStore: AssetDefinitionStore
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let domainResolutionService: DomainResolutionServiceType
     private var transactionConfirmationResult: ConfirmResult? = .none
 
@@ -36,7 +36,7 @@ class SendCoordinator: Coordinator {
             keystore: Keystore,
             service: TokenProvidable & TokenAddable,
             assetDefinitionStore: AssetDefinitionStore,
-            analyticsCoordinator: AnalyticsCoordinator,
+            analytics: AnalyticsLogger,
             domainResolutionService: DomainResolutionServiceType
     ) {
         self.transactionType = transactionType
@@ -45,7 +45,7 @@ class SendCoordinator: Coordinator {
         self.keystore = keystore
         self.service = service
         self.assetDefinitionStore = assetDefinitionStore
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.domainResolutionService = domainResolutionService
     }
 
@@ -106,7 +106,7 @@ extension SendCoordinator: SendViewControllerDelegate {
     func openQRCode(in controller: SendViewController) {
         guard navigationController.ensureHasDeviceAuthorization() else { return }
 
-        let coordinator = ScanQRCodeCoordinator(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, account: session.account, domainResolutionService: domainResolutionService)
+        let coordinator = ScanQRCodeCoordinator(analytics: analytics, navigationController: navigationController, account: session.account, domainResolutionService: domainResolutionService)
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start(fromSource: .sendFungibleScreen)
@@ -118,7 +118,7 @@ extension SendCoordinator: SendViewControllerDelegate {
                 confirmType: .signThenSend,
                 amount: FungiblesTransactionAmount(value: amount, shortValue: shortValue, isAllFunds: viewController.isAllFunds))
 
-            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore)
+            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore)
             addCoordinator(coordinator)
             coordinator.delegate = self
             coordinator.start(fromSource: .sendFungible)
@@ -130,7 +130,7 @@ extension SendCoordinator: SendViewControllerDelegate {
     }
 
     func lookup(contract: AlphaWallet.Address, in viewController: SendViewController, completion: @escaping (ContractData) -> Void) {
-        ContractDataDetector(address: contract, account: session.account, server: session.server, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator).fetch(completion: completion)
+        ContractDataDetector(address: contract, account: session.account, server: session.server, assetDefinitionStore: assetDefinitionStore, analytics: analytics).fetch(completion: completion)
     }
 }
 

@@ -61,7 +61,7 @@ open class EtherKeystore: NSObject, Keystore {
     private let defaultKeychainAccessUserPresenceRequired: KeychainSwiftAccessOptions = .accessibleWhenUnlockedThisDeviceOnly(userPresenceRequired: true)
     private let defaultKeychainAccessUserPresenceNotRequired: KeychainSwiftAccessOptions = .accessibleWhenUnlockedThisDeviceOnly(userPresenceRequired: false)
     private var walletAddressesStore: WalletAddressesStore
-    private var analyticsCoordinator: AnalyticsCoordinator
+    private var analytics: AnalyticsLogger
 
     private var isSimulator: Bool {
         TARGET_OS_SIMULATOR != 0
@@ -110,13 +110,13 @@ open class EtherKeystore: NSObject, Keystore {
         }
     }
 
-    init(keychain: KeychainSwift = KeychainSwift(keyPrefix: Constants.keychainKeyPrefix), walletAddressesStore: WalletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: .standardOrForTests), analyticsCoordinator: AnalyticsCoordinator) throws {
+    init(keychain: KeychainSwift = KeychainSwift(keyPrefix: Constants.keychainKeyPrefix), walletAddressesStore: WalletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: .standardOrForTests), analytics: AnalyticsLogger) throws {
         if !UIApplication.shared.isProtectedDataAvailable {
             throw EtherKeystoreError.protectionDisabled
         }
         self.keychain = keychain
         self.keychain.synchronizable = false
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.walletAddressesStore = walletAddressesStore
         super.init()
 
@@ -149,7 +149,7 @@ open class EtherKeystore: NSObject, Keystore {
         switch results {
         case .success(let wallet):
             //TODO not the best way to do this but let's see if there's a better way to inform the coordinator that a wallet has been imported to avoid it being prompted for back
-            PromptBackupCoordinator(keystore: self, wallet: wallet, config: .init(), analyticsCoordinator: analyticsCoordinator).markWalletAsImported()
+            PromptBackupCoordinator(keystore: self, wallet: wallet, config: .init(), analytics: analytics).markWalletAsImported()
         case .failure:
             break
         }

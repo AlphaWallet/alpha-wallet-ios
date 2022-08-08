@@ -21,7 +21,7 @@ class ImportMagicLinkCoordinator: Coordinator {
         case paid(signedOrder: SignedOrder, token: Token)
     }
 
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private var wallet: Wallet {
         sessions.anyValue.account
     }
@@ -63,8 +63,8 @@ class ImportMagicLinkCoordinator: Coordinator {
     private var balanceWhenHandlePaidImportsCancelable: AnyCancellable?
     private let sessions: ServerDictionary<WalletSession>
 
-    init(analyticsCoordinator: AnalyticsCoordinator, sessions: ServerDictionary<WalletSession>, config: Config, tokensDatastore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, url: URL, server: RPCServer, keystore: Keystore) {
-        self.analyticsCoordinator = analyticsCoordinator
+    init(analytics: AnalyticsLogger, sessions: ServerDictionary<WalletSession>, config: Config, tokensDatastore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, url: URL, server: RPCServer, keystore: Keystore) {
+        self.analytics = analytics
         self.sessions = sessions
         self.config = config
         self.tokensDataStore = tokensDatastore
@@ -470,7 +470,7 @@ class ImportMagicLinkCoordinator: Coordinator {
         return filteredTokens
     }
     private lazy var tokenProvider: TokenProviderType = {
-        return TokenProvider(account: wallet, server: server, analyticsCoordinator: analyticsCoordinator)
+        return TokenProvider(account: wallet, server: server, analytics: analytics)
     }()
 
     private func makeTokenHolder(_ bytes32Tokens: [String], _ contractAddress: AlphaWallet.Address) {
@@ -522,7 +522,7 @@ class ImportMagicLinkCoordinator: Coordinator {
 
 	private func preparingToImportUniversalLink() {
 		guard let viewController = delegate?.viewControllerForPresenting(in: self) else { return }
-        importTokenViewController = ImportMagicTokenViewController(analyticsCoordinator: analyticsCoordinator, assetDefinitionStore: assetDefinitionStore, keystore: keystore, session: sessions[server])
+        importTokenViewController = ImportMagicTokenViewController(analytics: analytics, assetDefinitionStore: assetDefinitionStore, keystore: keystore, session: sessions[server])
         guard let vc = importTokenViewController else { return }
         vc.delegate = self
         vc.configure(viewModel: .init(state: .validating, server: server))

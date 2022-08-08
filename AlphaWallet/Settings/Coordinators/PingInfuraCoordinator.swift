@@ -12,14 +12,14 @@ protocol PingInfuraCoordinatorDelegate: AnyObject {
 
 class PingInfuraCoordinator: Coordinator {
     private let viewController: UIViewController
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
 
     var coordinators: [Coordinator] = []
     weak var delegate: PingInfuraCoordinatorDelegate?
 
-    init(inViewController viewController: UIViewController, analyticsCoordinator: AnalyticsCoordinator) {
+    init(inViewController viewController: UIViewController, analytics: AnalyticsLogger) {
         self.viewController = viewController
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
     }
 
     func start() {
@@ -43,7 +43,7 @@ class PingInfuraCoordinator: Coordinator {
         let server = RPCServer.main
         let request = EtherServiceRequest(server: server, batch: BatchFactory().create(BlockNumberRequest()))
         firstly {
-            Session.send(request, server: server, analyticsCoordinator: analyticsCoordinator)
+            Session.send(request, server: server, analytics: analytics)
         }.done { _ in
             UIAlertController.alert(
                     title: R.string.localizable.settingsPingInfuraSuccessful(),
@@ -74,6 +74,6 @@ class PingInfuraCoordinator: Coordinator {
 // MARK: Analytics
 extension PingInfuraCoordinator {
     private func logUse() {
-        analyticsCoordinator.log(action: Analytics.Action.pingInfura)
+        analytics.log(action: Analytics.Action.pingInfura)
     }
 }

@@ -10,23 +10,23 @@ class FiatOnRampCoordinator: Coordinator {
     private let server: RPCServer
     private let sourceViewController: UIViewController
     private let source: Analytics.FiatOnRampSource
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
 
     var coordinators: [Coordinator] = []
     weak var delegate: FiatOnRampCoordinatorDelegate?
 
-    init(wallet: Wallet, server: RPCServer, viewController: UIViewController, source: Analytics.FiatOnRampSource, analyticsCoordinator: AnalyticsCoordinator) {
+    init(wallet: Wallet, server: RPCServer, viewController: UIViewController, source: Analytics.FiatOnRampSource, analytics: AnalyticsLogger) {
         self.wallet = wallet
         self.server = server
         self.sourceViewController = viewController
         self.source = source
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
     }
 
     func start() {
         let ramp = Ramp(account: wallet)
         if let url = ramp.url(token: MultipleChainsTokensDataStore.functional.etherToken(forServer: server)) {
-            FiatOnRampCoordinator.logStartOnRamp(name: "Ramp", source: source, analyticsCoordinator: analyticsCoordinator)
+            FiatOnRampCoordinator.logStartOnRamp(name: "Ramp", source: source, analytics: analytics)
             delegate?.didPressOpenWebPage(url, in: sourceViewController)
         } else {
             let fallbackUrl = URL(string: "https://alphawallet.com/browser-item-category/utilities/")!
@@ -34,7 +34,7 @@ class FiatOnRampCoordinator: Coordinator {
         }
     }
 
-    static func logStartOnRamp(name: String, source: Analytics.FiatOnRampSource, analyticsCoordinator: AnalyticsCoordinator) {
-        analyticsCoordinator.log(navigation: Analytics.Navigation.onRamp, properties: [Analytics.Properties.name.rawValue: name, Analytics.Properties.source.rawValue: source.rawValue])
+    static func logStartOnRamp(name: String, source: Analytics.FiatOnRampSource, analytics: AnalyticsLogger) {
+        analytics.log(navigation: Analytics.Navigation.onRamp, properties: [Analytics.Properties.name.rawValue: name, Analytics.Properties.source.rawValue: source.rawValue])
     }
 }

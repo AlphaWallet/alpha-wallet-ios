@@ -46,7 +46,7 @@ class TransactionConfirmationCoordinator: Coordinator {
     }()
     private weak var configureTransactionViewController: ConfigureTransactionViewController?
     private let configurator: TransactionConfigurator
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let domainResolutionService: DomainResolutionServiceType
     private var canBeDismissed = true
     private var server: RPCServer { configurator.session.server }
@@ -56,12 +56,12 @@ class TransactionConfirmationCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: TransactionConfirmationCoordinatorDelegate?
 
-    init(presentingViewController: UIViewController, session: WalletSession, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationViewModel.Configuration, analyticsCoordinator: AnalyticsCoordinator, domainResolutionService: DomainResolutionServiceType, keystore: Keystore, assetDefinitionStore: AssetDefinitionStore) throws {
-        configurator = try TransactionConfigurator(session: session, analyticsCoordinator: analyticsCoordinator, transaction: transaction)
+    init(presentingViewController: UIViewController, session: WalletSession, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationViewModel.Configuration, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, keystore: Keystore, assetDefinitionStore: AssetDefinitionStore) throws {
+        configurator = try TransactionConfigurator(session: session, analytics: analytics, transaction: transaction)
         self.keystore = keystore
         self.assetDefinitionStore = assetDefinitionStore
         self.configuration = configuration
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.domainResolutionService = domainResolutionService
         self.navigationController = presentingViewController
     }
@@ -85,7 +85,7 @@ class TransactionConfirmationCoordinator: Coordinator {
     }
 
     private func rectifyTransactionError(error: SendTransactionNotRetryableError) {
-        analyticsCoordinator.log(action: Analytics.Action.rectifySendTransactionErrorInActionSheet, properties: [Analytics.Properties.type.rawValue: error.analyticsName])
+        analytics.log(action: Analytics.Action.rectifySendTransactionErrorInActionSheet, properties: [Analytics.Properties.type.rawValue: error.analyticsName])
         switch error {
         case .insufficientFunds:
             delegate?.openFiatOnRamp(wallet: configurator.session.account, server: server, inCoordinator: self, viewController: rootViewController)
@@ -120,7 +120,7 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
     func didClose(in controller: TransactionConfirmationViewController) {
         guard canBeDismissed else { return }
 
-        analyticsCoordinator.log(action: Analytics.Action.cancelsTransactionInActionSheet)
+        analytics.log(action: Analytics.Action.cancelsTransactionInActionSheet)
         rootViewController.dismiss(animated: true) {
             self.delegate?.didClose(in: self)
         }
@@ -151,7 +151,7 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
     }
 
     private func sendTransaction() -> Promise<ConfirmResult> {
-        let sender = SendTransaction(session: configurator.session, keystore: keystore, confirmType: configuration.confirmType, config: configurator.session.config, analyticsCoordinator: analyticsCoordinator)
+        let sender = SendTransaction(session: configurator.session, keystore: keystore, confirmType: configuration.confirmType, config: configurator.session.config, analytics: analytics)
         let transaction = configurator.formUnsignedTransaction()
         if configurator.session.config.development.shouldNotSendTransactions {
             return Promise(error: DevelopmentForcedError(message: "Did not send transaction because of development flag"))
@@ -177,7 +177,7 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
     private func handleSendTransactionError(_ error: Error) {
         switch error {
         case let e as SendTransactionNotRetryableError:
-            let errorViewController = SendTransactionErrorViewController(server: server, analyticsCoordinator: analyticsCoordinator, error: e)
+            let errorViewController = SendTransactionErrorViewController(server: server, analytics: analytics, error: e)
             errorViewController.delegate = self
 
             let panel = FloatingPanelController(isPanEnabled: false)
@@ -303,17 +303,17 @@ extension TransactionConfirmationCoordinator {
             break
         }
 
-        analyticsCoordinator.log(navigation: Analytics.Navigation.actionSheetForTransactionConfirmationSuccessful, properties: analyticsProperties)
+        analytics.log(navigation: Analytics.Navigation.actionSheetForTransactionConfirmationSuccessful, properties: analyticsProperties)
         if server.isTestnet {
-            analyticsCoordinator.incrementUser(property: Analytics.UserProperties.testnetTransactionCount, by: 1)
+            analytics.incrementUser(property: Analytics.UserProperties.testnetTransactionCount, by: 1)
         } else {
-            analyticsCoordinator.incrementUser(property: Analytics.UserProperties.transactionCount, by: 1)
+            analytics.incrementUser(property: Analytics.UserProperties.transactionCount, by: 1)
         }
     }
 
     //TODO log a finite list of error types
     private func logActionSheetForTransactionConfirmationFailed() {
-        analyticsCoordinator.log(navigation: Analytics.Navigation.actionSheetForTransactionConfirmationFailed)
+        analytics.log(navigation: Analytics.Navigation.actionSheetForTransactionConfirmationFailed)
     }
 
     private func logStartActionSheetForTransactionConfirmation(source: Analytics.TransactionConfirmationSource) {
@@ -329,7 +329,7 @@ extension TransactionConfirmationCoordinator {
         case .tokenScriptTransaction, .dappTransaction, .walletConnect, .sendNftTransaction, .claimPaidErc875MagicLink, .speedupTransaction, .cancelTransaction, .swapTransaction, .approve:
             break
         }
-        analyticsCoordinator.log(navigation: Analytics.Navigation.actionSheetForTransactionConfirmation, properties: analyticsProperties)
+        analytics.log(navigation: Analytics.Navigation.actionSheetForTransactionConfirmation, properties: analyticsProperties)
     }
 }
 

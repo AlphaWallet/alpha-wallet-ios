@@ -2,8 +2,7 @@
 
 import Foundation
 
-protocol AnalyticsCoordinator {
-
+protocol AnalyticsLogger {
     func log(navigation: AnalyticsNavigation, properties: [String: AnalyticsEventPropertyValue]?)
     func log(action: AnalyticsAction, properties: [String: AnalyticsEventPropertyValue]?)
     func log(stat: AnalyticsStat, properties: [String: AnalyticsEventPropertyValue]?)
@@ -13,7 +12,7 @@ protocol AnalyticsCoordinator {
     func incrementUser(property: AnalyticsUserProperty, by value: Double)
 }
 
-extension AnalyticsCoordinator {
+extension AnalyticsLogger {
     func log(navigation: AnalyticsNavigation) {
         log(navigation: navigation, properties: nil)
     }

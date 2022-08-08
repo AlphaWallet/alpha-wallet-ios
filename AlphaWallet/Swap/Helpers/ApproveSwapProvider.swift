@@ -27,12 +27,12 @@ enum ApproveSwapState {
 
 final class ApproveSwapProvider {
     private let configurator: SwapOptionsConfigurator
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     weak var delegate: ApproveSwapProviderDelegate?
 
-    init(configurator: SwapOptionsConfigurator, analyticsCoordinator: AnalyticsCoordinator) {
+    init(configurator: SwapOptionsConfigurator, analytics: AnalyticsLogger) {
         self.configurator = configurator
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
     }
 
     func approveSwap(value: (swapQuote: SwapQuote, tokens: FromAndToTokens), fromAmount: BigUInt) {
@@ -82,7 +82,7 @@ final class ApproveSwapProvider {
         }.then { transactionId -> Promise<Bool> in
             self.delegate?.changeState(in: self, state: .waitTillApproveCompleted)
             return firstly {
-                EthereumTransaction.waitTillCompleted(transactionId: transactionId, server: server, analyticsCoordinator: self.analyticsCoordinator)
+                EthereumTransaction.waitTillCompleted(transactionId: transactionId, server: server, analytics: self.analytics)
             }.map {
                 return true
             }.recover { error -> Promise<Bool> in

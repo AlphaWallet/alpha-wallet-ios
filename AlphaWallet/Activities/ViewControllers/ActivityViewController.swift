@@ -13,7 +13,7 @@ protocol ActivityViewControllerDelegate: AnyObject {
 }
 
 class ActivityViewController: UIViewController {
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let roundedBackground = RoundedBackground()
     private let wallet: Wallet
     private let assetDefinitionStore: AssetDefinitionStore
@@ -26,7 +26,7 @@ class ActivityViewController: UIViewController {
     private let separator = UIView()
     private let bottomFiller = UIView.spacerWidth()
     lazy private var tokenScriptRendererView: TokenInstanceWebView = {
-        let webView = TokenInstanceWebView(analyticsCoordinator: analyticsCoordinator, server: server, wallet: wallet, assetDefinitionStore: assetDefinitionStore, keystore: keystore)
+        let webView = TokenInstanceWebView(analytics: analytics, server: server, wallet: wallet, assetDefinitionStore: assetDefinitionStore, keystore: keystore)
         webView.isWebViewInteractionEnabled = true
         webView.delegate = self
         webView.isStandalone = true
@@ -47,10 +47,10 @@ class ActivityViewController: UIViewController {
     private let keystore: Keystore
     private var cancelable = Set<AnyCancellable>()
 
-    init(analyticsCoordinator: AnalyticsCoordinator, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, viewModel: ActivityViewModel, service: ActivitiesServiceType, keystore: Keystore) {
+    init(analytics: AnalyticsLogger, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, viewModel: ActivityViewModel, service: ActivitiesServiceType, keystore: Keystore) {
         self.keystore = keystore
         self.service = service
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.wallet = wallet
         self.assetDefinitionStore = assetDefinitionStore
         self.viewModel = viewModel

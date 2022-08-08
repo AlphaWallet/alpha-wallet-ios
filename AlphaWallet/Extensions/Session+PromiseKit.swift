@@ -7,7 +7,7 @@ import PromiseKit
 
 extension Session {
 
-    private class func sendImpl<Request: APIKit.Request>(_ request: Request, server: RPCServer, analyticsCoordinator: AnalyticsCoordinator, callbackQueue: CallbackQueue? = nil) -> Promise<Request.Response> {
+    private class func sendImpl<Request: APIKit.Request>(_ request: Request, server: RPCServer, analytics: AnalyticsLogger, callbackQueue: CallbackQueue? = nil) -> Promise<Request.Response> {
         let (promise, seal) = Promise<Request.Response>.pending()
         Session.send(request, callbackQueue: callbackQueue) { result in
             switch result {
@@ -16,7 +16,7 @@ extension Session {
             case .failure(let error):
                 if let e = convertToUserFriendlyError(error: error, server: server, baseUrl: request.baseURL) {
                     if let e = e as? RpcNodeRetryableRequestError {
-                        logRpcNodeError(e, analyticsCoordinator: analyticsCoordinator)
+                        logRpcNodeError(e, analytics: analytics)
                     }
 
                     seal.reject(e)
@@ -29,24 +29,24 @@ extension Session {
         return promise
     }
 
-    private static func logRpcNodeError(_ rpcNodeError: RpcNodeRetryableRequestError, analyticsCoordinator: AnalyticsCoordinator) {
+    private static func logRpcNodeError(_ rpcNodeError: RpcNodeRetryableRequestError, analytics: AnalyticsLogger) {
         switch rpcNodeError {
         case .rateLimited(let server, let domainName):
-            analyticsCoordinator.log(error: Analytics.WebApiErrors.rpcNodeRateLimited, properties: [Analytics.Properties.chain.rawValue: server.chainID, Analytics.Properties.domainName.rawValue: domainName])
+            analytics.log(error: Analytics.WebApiErrors.rpcNodeRateLimited, properties: [Analytics.Properties.chain.rawValue: server.chainID, Analytics.Properties.domainName.rawValue: domainName])
         case .invalidApiKey(let server, let domainName):
-            analyticsCoordinator.log(error: Analytics.WebApiErrors.rpcNodeInvalidApiKey, properties: [Analytics.Properties.chain.rawValue: server.chainID, Analytics.Properties.domainName.rawValue: domainName])
+            analytics.log(error: Analytics.WebApiErrors.rpcNodeInvalidApiKey, properties: [Analytics.Properties.chain.rawValue: server.chainID, Analytics.Properties.domainName.rawValue: domainName])
         case .possibleBinanceTestnetTimeout, .networkConnectionWasLost, .invalidCertificate, .requestTimedOut:
             return
         }
     }
 
-    class func send<Request: APIKit.Request>(_ request: Request, server: RPCServer, analyticsCoordinator: AnalyticsCoordinator, callbackQueue: CallbackQueue? = nil) -> Promise<Request.Response> {
-        let promise = sendImpl(request, server: server, analyticsCoordinator: analyticsCoordinator, callbackQueue: callbackQueue)
+    class func send<Request: APIKit.Request>(_ request: Request, server: RPCServer, analytics: AnalyticsLogger, callbackQueue: CallbackQueue? = nil) -> Promise<Request.Response> {
+        let promise = sendImpl(request, server: server, analytics: analytics, callbackQueue: callbackQueue)
         return firstly {
             promise
         }.recover { error -> Promise<Request.Response> in
             if error is RpcNodeRetryableRequestError {
-                return sendImpl(request, server: server, analyticsCoordinator: analyticsCoordinator, callbackQueue: callbackQueue)
+                return sendImpl(request, server: server, analytics: analytics, callbackQueue: callbackQueue)
             } else {
                 return promise
             }

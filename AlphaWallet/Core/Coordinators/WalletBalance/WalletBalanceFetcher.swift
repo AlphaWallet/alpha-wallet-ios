@@ -40,7 +40,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     private static let updateBalanceInterval: TimeInterval = 60
     private var timer: Timer?
     private let wallet: Wallet
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let assetDefinitionStore: AssetDefinitionStore
     private var balanceFetchers: AtomicDictionary<RPCServer, PrivateBalanceFetcherType> = .init()
     private let queue: DispatchQueue
@@ -66,11 +66,11 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         return walletBalanceSubject.value
     }
 
-    init(wallet: Wallet, servers: [RPCServer], tokensDataStore: TokensDataStore, transactionsStorage: TransactionDataStore, nftProvider: NFTProvider, config: Config, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, queue: DispatchQueue, coinTickersFetcher: CoinTickersFetcher) {
+    init(wallet: Wallet, servers: [RPCServer], tokensDataStore: TokensDataStore, transactionsStorage: TransactionDataStore, nftProvider: NFTProvider, config: Config, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger, queue: DispatchQueue, coinTickersFetcher: CoinTickersFetcher) {
         self.wallet = wallet
         self.nftProvider = nftProvider
         self.assetDefinitionStore = assetDefinitionStore
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.queue = queue
         self.tokensDataStore = tokensDataStore
         self.coinTickersFetcher = coinTickersFetcher
@@ -153,7 +153,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
 
     private func createBalanceFetcher(wallet: Wallet, server: RPCServer) -> PrivateBalanceFetcherType {
         let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: server)
-        let balanceFetcher = PrivateBalanceFetcher(account: wallet, nftProvider: nftProvider, tokensDataStore: tokensDataStore, etherToken: etherToken, server: server, config: config, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, queue: queue)
+        let balanceFetcher = PrivateBalanceFetcher(account: wallet, nftProvider: nftProvider, tokensDataStore: tokensDataStore, etherToken: etherToken, server: server, config: config, assetDefinitionStore: assetDefinitionStore, analytics: analytics, queue: queue)
         balanceFetcher.erc721TokenIdsFetcher = transactionsStorage
         balanceFetcher.delegate = self
 

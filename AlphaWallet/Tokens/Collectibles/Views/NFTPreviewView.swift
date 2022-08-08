@@ -23,12 +23,12 @@ class NFTPreviewView: UIView, ConfigurableNFTPreviewView, ViewRoundingSupportabl
         set { previewView.contentBackgroundColor = newValue }
     }
 
-    init(type: NFTPreviewViewType, keystore: Keystore, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, edgeInsets: UIEdgeInsets = .zero) {
+    init(type: NFTPreviewViewType, keystore: Keystore, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger, edgeInsets: UIEdgeInsets = .zero) {
         switch type {
         case .imageView:
             previewView = NFTPreviewView.generateTokenImageView()
         case .tokenCardView:
-            previewView = NFTPreviewView.generateTokenCardView(keystore: keystore, session: session, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator)
+            previewView = NFTPreviewView.generateTokenCardView(keystore: keystore, session: session, assetDefinitionStore: assetDefinitionStore, analytics: analytics)
         }
         super.init(frame: .zero)
 
@@ -53,8 +53,8 @@ class NFTPreviewView: UIView, ConfigurableNFTPreviewView, ViewRoundingSupportabl
         previewView.cancel()
     }
 
-    private static func generateTokenCardView(keystore: Keystore, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator) -> TokenCardWebView {
-        let tokeCardWebView = TokenCardWebView(analyticsCoordinator: analyticsCoordinator, server: session.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: session.account)
+    private static func generateTokenCardView(keystore: Keystore, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger) -> TokenCardWebView {
+        let tokeCardWebView = TokenCardWebView(analytics: analytics, server: session.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: session.account)
         return tokeCardWebView
     }
 
