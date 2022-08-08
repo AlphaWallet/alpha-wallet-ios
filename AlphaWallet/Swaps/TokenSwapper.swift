@@ -102,7 +102,7 @@ class TokenSwapper: ObservableObject {
 
         let publishers = sessions.values.map { fetchSupportedTokens(forServer: $0.server) }
         return Publishers.MergeMany(publishers).collect()
-            .map { _ in }
+            .mapToVoid()
             .eraseToAnyPublisher()
     }
 

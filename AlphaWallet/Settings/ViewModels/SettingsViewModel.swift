@@ -91,10 +91,10 @@ class SettingsViewModel {
                 self.assignedNameOrEns = nameOrEns
             }).prepend(nil)
             .removeDuplicates()
-            .map { _ in }
+            .mapToVoid()
 
         let blockscanChatUnreadCount = Publishers.Merge(Just<Int?>(nil), input.blockscanChatUnreadCount)
-        let didSetPasscode = input.didSetPasscode.map { _ in }
+        let didSetPasscode = input.didSetPasscode.mapToVoid()
 
         let reload = Publishers.Merge4(Just<Void>(()), input.appear, didSetPasscode, assignedNameOrEns)
 

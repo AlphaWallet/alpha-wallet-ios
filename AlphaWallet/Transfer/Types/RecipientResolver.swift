@@ -40,7 +40,7 @@ class RecipientResolver {
             .replaceError(with: nil)
             .handleEvents(receiveOutput: { [weak self] ensName in
                 self?.ensName = ensName
-            }).map { _ in }
+            }).mapToVoid()
             .eraseToAnyPublisher()
     }
 

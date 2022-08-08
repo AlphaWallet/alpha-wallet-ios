@@ -36,7 +36,7 @@ class TokenActionsService: SupportedTokenActionsProvider {
     private (set) lazy var objectWillChange: AnyPublisher<Void, Never> = {
         return $services
             .flatMap { Publishers.MergeMany($0.map { $0.objectWillChange }) }
-            .map { _ in }
+            .mapToVoid()
             .eraseToAnyPublisher()
     }()
 

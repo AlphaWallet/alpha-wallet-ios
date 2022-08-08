@@ -43,7 +43,7 @@ extension ReachabilityManager: ReachabilityManagerProtocol {
     public var networkBecomeReachablePublisher: AnyPublisher<Void, Never> {
         isReachablePublisher
             .filter { $0 }
-            .map { _ in }
+            .mapToVoid()
             .eraseToAnyPublisher()
     }
 
