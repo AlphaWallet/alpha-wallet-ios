@@ -6,6 +6,7 @@ protocol TransferTokensCardViaWalletAddressViewControllerDelegate: class, CanOpe
     func didEnterWalletAddress(tokenHolder: TokenHolder, to recipient: AlphaWallet.Address, paymentFlow: PaymentFlow, in viewController: TransferTokensCardViaWalletAddressViewController)
     func didPressViewInfo(in viewController: TransferTokensCardViaWalletAddressViewController)
     func openQRCode(in controller: TransferTokensCardViaWalletAddressViewController)
+    func didClose(in viewController: TransferTokensCardViaWalletAddressViewController)
 }
 
 class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenVerifiableStatusViewController {
@@ -149,6 +150,13 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
 
     required init?(coder aDecoder: NSCoder) {
         return nil
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if isMovingFromParent || isBeingDismissed {
+            delegate?.didClose(in: self)
+        }
     }
 
     @objc func nextButtonTapped() {

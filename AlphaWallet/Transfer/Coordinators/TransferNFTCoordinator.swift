@@ -52,15 +52,8 @@ class TransferNFTCoordinator: Coordinator {
     }
 
     func start() {
-        sendViewController.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(dismiss))
         sendViewController.navigationItem.largeTitleDisplayMode = .never
         navigationController.pushViewController(sendViewController, animated: true)
-    }
-
-    @objc private func dismiss() {
-        removeAllCoordinators()
-
-        delegate?.didCancel(in: self)
     }
 
     private func makeTransferTokensCardViaWalletAddressViewController(token: Token, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> TransferTokensCardViaWalletAddressViewController {
@@ -123,6 +116,10 @@ extension TransferNFTCoordinator: TransferTokensCardViaWalletAddressViewControll
 
     func didPressViewInfo(in viewController: TransferTokensCardViaWalletAddressViewController) {
         //showViewEthereumInfo(in: viewController)
+    }
+
+    func didClose(in viewController: TransferTokensCardViaWalletAddressViewController) {
+        delegate?.didCancel(in: self)
     }
 }
 

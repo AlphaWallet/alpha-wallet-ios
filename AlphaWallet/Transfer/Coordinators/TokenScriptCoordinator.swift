@@ -64,16 +64,9 @@ class TokenScriptCoordinator: Coordinator {
 
     func start() {
         viewController.navigationItem.largeTitleDisplayMode = .never
-        viewController.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(dismiss))
         navigationController.pushViewController(viewController, animated: true)
 
         subscribeForEthereumEventChanges()
-    }
-
-    @objc private func dismiss() {
-        removeAllCoordinators()
-
-        delegate?.didCancel(in: self)
     }
 
     private func makeTokenInstanceActionViewController(token: Token, for tokenHolder: TokenHolder, action: TokenInstanceAction) -> TokenInstanceActionViewController {
@@ -110,6 +103,10 @@ class TokenScriptCoordinator: Coordinator {
 }
 
 extension TokenScriptCoordinator: TokenInstanceActionViewControllerDelegate {
+
+    func didClose(in viewController: TokenInstanceActionViewController) {
+        delegate?.didCancel(in: self)
+    }
 
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
         delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)

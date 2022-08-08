@@ -9,6 +9,7 @@ protocol TokenInstanceActionViewControllerDelegate: class, CanOpenURL {
     func didPressViewRedemptionInfo(in viewController: TokenInstanceActionViewController)
     func shouldCloseFlow(inViewController viewController: TokenInstanceActionViewController)
     func confirmTransactionSelected(in viewController: TokenInstanceActionViewController, token: Token, contract: AlphaWallet.Address, tokenId: TokenId, values: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession, keystore: Keystore, transactionFunction: FunctionOrigin)
+    func didClose(in viewController: TokenInstanceActionViewController)
 }
 
 class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatusViewController {
@@ -115,6 +116,13 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if isMovingFromParent || isBeingDismissed {
+            delegate?.didClose(in: self)
+        }
     }
 
     func configure() {

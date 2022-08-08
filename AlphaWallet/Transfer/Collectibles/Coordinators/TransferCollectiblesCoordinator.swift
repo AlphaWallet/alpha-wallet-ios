@@ -57,15 +57,8 @@ class TransferCollectiblesCoordinator: Coordinator {
     }
 
     func start() {
-        sendViewController.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(dismiss))
         sendViewController.navigationItem.largeTitleDisplayMode = .never
         navigationController.pushViewController(sendViewController, animated: true)
-    }
-
-    @objc private func dismiss() {
-        removeAllCoordinators()
-
-        delegate?.didCancel(in: self)
     }
 
     private func makeTransferTokensCardViaWalletAddressViewController(token: Token, tokenHolders: [TokenHolder]) -> TransferTokenBatchCardsViaWalletAddressViewController {
@@ -139,6 +132,10 @@ extension TransferCollectiblesCoordinator: TransferTokenBatchCardsViaWalletAddre
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start(fromSource: .addressTextField)
+    }
+
+    func didClose(in viewController: TransferTokenBatchCardsViaWalletAddressViewController) {
+        delegate?.didCancel(in: self)
     }
 }
 
