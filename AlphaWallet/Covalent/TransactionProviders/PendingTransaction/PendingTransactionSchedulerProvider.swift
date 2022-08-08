@@ -42,7 +42,7 @@ final class PendingTransactionSchedulerProvider: SchedulerProvider {
                 guard case .failure(let error) = result else { return }
                 self?.didReceiveError(error)
             })
-            .map { _ in }
+            .mapToVoid()
             .mapError { SchedulerError.covalentError(.sessionError($0)) }
             .eraseToAnyPublisher()
     }

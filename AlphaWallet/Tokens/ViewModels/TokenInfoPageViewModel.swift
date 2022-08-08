@@ -30,11 +30,11 @@ class TokenInfoPageViewModel: NSObject {
     lazy var fieldsViewModelConfigurations: AnyPublisher<[TokenInfoPageViewModelConfiguration], Never> = {
         let coinTicker = coinTicker.handleEvents(receiveOutput: { [weak self] ticker in
                 self?.ticker = ticker
-            }).map { _ in }
+            }).mapToVoid()
             .eraseToAnyPublisher()
 
         let chartHistories = chartHistoriesSubject
-            .map { _ in }
+            .mapToVoid()
             .eraseToAnyPublisher()
 
         return Publishers.Merge(coinTicker, chartHistories)

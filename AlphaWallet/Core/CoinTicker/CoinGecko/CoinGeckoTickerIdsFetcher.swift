@@ -50,7 +50,7 @@ class CoinGeckoTickerIdsFetcher: TickerIdsFetcher {
                         self?.config.tickerIdsLastFetchedDate = Date()
                     }, receiveCompletion: { [weak self] _ in
                         self?.fetchSupportedTickerIdsPublisher = .none
-                    }).map { _ in }
+                    }).mapToVoid()
                     .share()
                     .eraseToAnyPublisher()
 

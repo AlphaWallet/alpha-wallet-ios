@@ -75,7 +75,7 @@ extension CoinTickersFileStorage: CoinTickersStorage {
 
     var tickersDidUpdate: AnyPublisher<Void, Never> {
         tickersStore.publisher
-            .map { _ in }
+            .mapToVoid()
             .eraseToAnyPublisher()
     }
 

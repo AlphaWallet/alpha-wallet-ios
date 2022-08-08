@@ -87,12 +87,12 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
     func start() {
         let transactionsChangeset = transactionDataStore
             .transactionsChangeset(forFilter: transactionsFilterStrategy, servers: config.enabledServers)
-            .map { _ in }
+            .mapToVoid()
             .eraseToAnyPublisher()
 
         let eventsActivity = eventsActivityDataStore
             .recentEventsChangeset
-            .map { _ in }
+            .mapToVoid()
             .eraseToAnyPublisher()
 
         Publishers.Merge(transactionsChangeset, eventsActivity)

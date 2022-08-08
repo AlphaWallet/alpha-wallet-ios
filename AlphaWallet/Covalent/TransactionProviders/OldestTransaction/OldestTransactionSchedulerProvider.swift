@@ -73,7 +73,7 @@ final class OldestTransactionSchedulerProvider: SchedulerProvider {
                 guard case .failure(let e) = result else { return }
                 self?.didReceiveError(e)
             })
-            .map { _ in }
+            .mapToVoid()
             .mapError { SchedulerError.covalentError($0) }
             .eraseToAnyPublisher()
     }

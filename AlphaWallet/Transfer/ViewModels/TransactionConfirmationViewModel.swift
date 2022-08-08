@@ -108,11 +108,11 @@ class TransactionConfirmationViewModel {
 
     lazy var views: AnyPublisher<[ViewType], Never> = {
         let balanceUpdated = tokenBalance
-            .map { _ in }
+            .mapToVoid()
             .eraseToAnyPublisher()
 
         let recipientUpdated = resolvedRecipient
-            .map { _ in }
+            .mapToVoid()
             .eraseToAnyPublisher()
 
         let forceViewReload = reloadViewSubject.eraseToAnyPublisher()

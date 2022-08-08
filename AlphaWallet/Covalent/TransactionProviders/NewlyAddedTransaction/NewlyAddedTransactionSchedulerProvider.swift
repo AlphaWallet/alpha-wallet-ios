@@ -62,7 +62,7 @@ final class NewlyAddedTransactionSchedulerProvider: SchedulerProvider {
                 guard case .failure(let e) = result else { return }
                 self?.didReceiveError(error: e)
             })
-            .map { _ in }
+            .mapToVoid()
             .mapError { SchedulerError.covalentError($0) }
             .eraseToAnyPublisher()
     }
