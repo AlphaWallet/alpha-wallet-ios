@@ -7,18 +7,18 @@ class HelpUsCoordinator: Coordinator {
     private let hostViewController: UIViewController
     private let appTracker: AppTracker
     private let viewModel = HelpUsViewModel()
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
 
     var coordinators: [Coordinator] = []
 
     init(
         hostViewController: UIViewController = UIViewController(),
         appTracker: AppTracker = AppTracker(),
-        analyticsCoordinator: AnalyticsCoordinator
+        analytics: AnalyticsLogger
     ) {
         self.hostViewController = hostViewController
         self.appTracker = appTracker
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
     }
 
     func start() {
@@ -109,6 +109,6 @@ extension HelpUsCoordinator: WellDoneViewControllerDelegate {
 // MARK: Analytics
 extension HelpUsCoordinator {
     private func logEmailNewsletterSubscription(isSubscribed: Bool) {
-        analyticsCoordinator.log(action: Analytics.Action.subscribeToEmailNewsletter, properties: [Analytics.Properties.isAccepted.rawValue: isSubscribed])
+        analytics.log(action: Analytics.Action.subscribeToEmailNewsletter, properties: [Analytics.Properties.isAccepted.rawValue: isSubscribed])
     }
 }

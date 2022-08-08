@@ -10,7 +10,7 @@ protocol SendTransactionErrorViewControllerDelegate: AnyObject {
 
 class SendTransactionErrorViewController: UIViewController {
     private let server: RPCServer
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let error: SendTransactionNotRetryableError
     private lazy var viewModel = SendTransactionErrorViewModel(server: server, error: error)
     private lazy var headerView = ConfirmationHeaderView(viewModel: .init(title: "", isMinimalMode: true))
@@ -54,9 +54,9 @@ class SendTransactionErrorViewController: UIViewController {
 
     weak var delegate: SendTransactionErrorViewControllerDelegate?
 
-    init(server: RPCServer, analyticsCoordinator: AnalyticsCoordinator, error: SendTransactionNotRetryableError) {
+    init(server: RPCServer, analytics: AnalyticsLogger, error: SendTransactionNotRetryableError) {
         self.server = server
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.error = error
         super.init(nibName: nil, bundle: nil)
 
@@ -85,7 +85,7 @@ class SendTransactionErrorViewController: UIViewController {
         if let url = viewModel.linkUrl {
             switch viewModel.error {
             case .insufficientFunds:
-                analyticsCoordinator.log(navigation: Analytics.Navigation.openHelpUrl, properties: [Analytics.Properties.type.rawValue: Analytics.HelpUrl.insufficientFunds.rawValue])
+                analytics.log(navigation: Analytics.Navigation.openHelpUrl, properties: [Analytics.Properties.type.rawValue: Analytics.HelpUrl.insufficientFunds.rawValue])
             case .nonceTooLow, .gasPriceTooLow, .gasLimitTooLow, .gasLimitTooHigh, .possibleChainIdMismatch, .executionReverted:
                 break
             }

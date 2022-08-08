@@ -21,18 +21,18 @@ class ImportToken {
     }
     private let sessions: CurrentValueSubject<ServerDictionary<WalletSession>, Never>
     private let assetDefinitionStore: AssetDefinitionStore
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let tokenFetchers: AtomicDictionary<RPCServer, TokenFetcher> = .init()
     private let tokensDataStore: TokensDataStore
     private var cancelable = Set<AnyCancellable>()
 
     let wallet: Wallet
 
-    init(sessions: CurrentValueSubject<ServerDictionary<WalletSession>, Never>, wallet: Wallet, tokensDataStore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator) {
+    init(sessions: CurrentValueSubject<ServerDictionary<WalletSession>, Never>, wallet: Wallet, tokensDataStore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger) {
         self.sessions = sessions
         self.tokensDataStore = tokensDataStore
         self.assetDefinitionStore = assetDefinitionStore
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.wallet = wallet
 
         addDefaultTokens()
@@ -100,7 +100,7 @@ class ImportToken {
             return
         }
 
-        let detector = ContractDataDetector(address: contract, account: session.account, server: session.server, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator)
+        let detector = ContractDataDetector(address: contract, account: session.account, server: session.server, assetDefinitionStore: assetDefinitionStore, analytics: analytics)
         detector.fetch(completion: completion)
     }
 
@@ -116,7 +116,7 @@ class ImportToken {
             return fetcher
         } else {
             guard let session = sessions.value[safe: server] else { throw ImportTokenError.serverIsDisabled }
-            let fetcher: TokenFetcher = SingleChainTokenFetcher(session: session, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator)
+            let fetcher: TokenFetcher = SingleChainTokenFetcher(session: session, assetDefinitionStore: assetDefinitionStore, analytics: analytics)
             tokenFetchers[server] = fetcher
 
             return fetcher

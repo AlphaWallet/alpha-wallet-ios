@@ -12,17 +12,17 @@ protocol BackupCoordinatorDelegate: AnyObject {
 class BackupCoordinator: Coordinator {
     private let keystore: Keystore
     private let account: AlphaWallet.Address
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
 
     let navigationController: UINavigationController
     weak var delegate: BackupCoordinatorDelegate?
     var coordinators: [Coordinator] = []
 
-    init(navigationController: UINavigationController, keystore: Keystore, account: AlphaWallet.Address, analyticsCoordinator: AnalyticsCoordinator) {
+    init(navigationController: UINavigationController, keystore: Keystore, account: AlphaWallet.Address, analytics: AnalyticsLogger) {
         self.navigationController = navigationController
         self.keystore = keystore
         self.account = account
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         navigationController.navigationBar.isTranslucent = false
     }
 
@@ -109,7 +109,7 @@ class BackupCoordinator: Coordinator {
 
     private func export() {
         if keystore.isHdWallet(account: account) {
-            let coordinator = BackupSeedPhraseCoordinator(navigationController: navigationController, keystore: keystore, account: account, analyticsCoordinator: analyticsCoordinator)
+            let coordinator = BackupSeedPhraseCoordinator(navigationController: navigationController, keystore: keystore, account: account, analytics: analytics)
             coordinator.delegate = self
             coordinator.start()
             addCoordinator(coordinator)

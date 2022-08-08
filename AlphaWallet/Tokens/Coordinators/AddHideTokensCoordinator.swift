@@ -11,7 +11,7 @@ protocol AddHideTokensCoordinatorDelegate: AnyObject {
 }
 
 class AddHideTokensCoordinator: Coordinator {
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let domainResolutionService: DomainResolutionServiceType
     private let navigationController: UINavigationController
     private let importToken: ImportToken
@@ -27,10 +27,10 @@ class AddHideTokensCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: AddHideTokensCoordinatorDelegate?
 
-    init(assetDefinitionStore: AssetDefinitionStore, tokenCollection: TokenCollection, analyticsCoordinator: AnalyticsCoordinator, domainResolutionService: DomainResolutionServiceType, navigationController: UINavigationController, config: Config, importToken: ImportToken) {
+    init(assetDefinitionStore: AssetDefinitionStore, tokenCollection: TokenCollection, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, navigationController: UINavigationController, config: Config, importToken: ImportToken) {
         self.config = config
         self.tokenCollection = tokenCollection
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.domainResolutionService = domainResolutionService
         self.navigationController = navigationController
         self.assetDefinitionStore = assetDefinitionStore
@@ -74,7 +74,7 @@ extension AddHideTokensCoordinator: AddHideTokensViewControllerDelegate {
             initialState = .empty
         }
         let coordinator = NewTokenCoordinator(
-            analyticsCoordinator: analyticsCoordinator,
+            analytics: analytics,
             navigationController: navigationController,
             config: config,
             importToken: importToken,

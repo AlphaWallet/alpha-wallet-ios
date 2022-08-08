@@ -26,24 +26,24 @@ class FungibleTokenViewController: UIViewController {
         return view
     }()
     private lazy var activitiesPageView: ActivitiesPageView = {
-        return ActivitiesPageView(analyticsCoordinator: analyticsCoordinator, keystore: keystore, wallet: viewModel.wallet, viewModel: .init(activitiesViewModel: .init()), sessions: activitiesService.sessions, assetDefinitionStore: viewModel.assetDefinitionStore)
+        return ActivitiesPageView(analytics: analytics, keystore: keystore, wallet: viewModel.wallet, viewModel: .init(activitiesViewModel: .init()), sessions: activitiesService.sessions, assetDefinitionStore: viewModel.assetDefinitionStore)
     }()
     private lazy var alertsPageView: PriceAlertsPageView = {
         return PriceAlertsPageView(viewModel: .init(alerts: []))
     }()
     private let activitiesService: ActivitiesServiceType
     private let alertService: PriceAlertServiceType
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let keystore: Keystore
     private var cancelable = Set<AnyCancellable>()
     weak var delegate: FungibleTokenViewControllerDelegate?
 
-    init(keystore: Keystore, analyticsCoordinator: AnalyticsCoordinator, viewModel: FungibleTokenViewModel, activitiesService: ActivitiesServiceType, alertService: PriceAlertServiceType) {
+    init(keystore: Keystore, analytics: AnalyticsLogger, viewModel: FungibleTokenViewModel, activitiesService: ActivitiesServiceType, alertService: PriceAlertServiceType) {
         self.viewModel = viewModel
         self.keystore = keystore
         self.activitiesService = activitiesService
         self.alertService = alertService
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
 
         super.init(nibName: nil, bundle: nil)
         hidesBottomBarWhenPushed = true

@@ -13,7 +13,7 @@ extension WalletConnectCoordinator {
         sessions[session.server] = session
         let sessionsSubject = CurrentValueSubject<ServerDictionary<WalletSession>, Never>(sessions)
 
-        return WalletConnectCoordinator(keystore: keystore, navigationController: .init(), analyticsCoordinator: FakeAnalyticsService(), domainResolutionService: FakeDomainResolutionService(), config: .make(), sessionsSubject: sessionsSubject, assetDefinitionStore: AssetDefinitionStore())
+        return WalletConnectCoordinator(keystore: keystore, navigationController: .init(), analytics: FakeAnalyticsService(), domainResolutionService: FakeDomainResolutionService(), config: .make(), sessionsSubject: sessionsSubject, assetDefinitionStore: AssetDefinitionStore())
     }
 }
 
@@ -53,9 +53,9 @@ class ConfigTests: XCTestCase {
             config: config,
             assetDefinitionStore: AssetDefinitionStore(),
             eventsDataStore: FakeEventsDataStore(),
-            promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeEtherKeystore(), wallet: .make(), config: config, analyticsCoordinator: FakeAnalyticsService()),
-            analyticsCoordinator: FakeAnalyticsService(),
-            openSea: OpenSea(analyticsCoordinator: FakeAnalyticsService(), queue: .global()),
+            promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeEtherKeystore(), wallet: .make(), config: config, analytics: FakeAnalyticsService()),
+            analytics: FakeAnalyticsService(),
+            openSea: OpenSea(analytics: FakeAnalyticsService(), queue: .global()),
             tokenActionsService: tokenActionsService,
             walletConnectCoordinator: .fake(),
             coinTickersFetcher: CoinGeckoTickersFetcher.make(),
@@ -80,9 +80,9 @@ class ConfigTests: XCTestCase {
             config: config,
             assetDefinitionStore: AssetDefinitionStore(),
             eventsDataStore: FakeEventsDataStore(),
-            promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeEtherKeystore(), wallet: .make(), config: config, analyticsCoordinator: FakeAnalyticsService()),
-            analyticsCoordinator: FakeAnalyticsService(),
-            openSea: OpenSea(analyticsCoordinator: FakeAnalyticsService(), queue: .global()),
+            promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeEtherKeystore(), wallet: .make(), config: config, analytics: FakeAnalyticsService()),
+            analytics: FakeAnalyticsService(),
+            openSea: OpenSea(analytics: FakeAnalyticsService(), queue: .global()),
             tokenActionsService: tokenActionsService,
             walletConnectCoordinator: .fake(),
             coinTickersFetcher: CoinGeckoTickersFetcher.make(),

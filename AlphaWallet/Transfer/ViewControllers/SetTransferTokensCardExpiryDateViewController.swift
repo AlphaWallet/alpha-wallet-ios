@@ -24,7 +24,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
     private let noteBorderView = UIView()
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
     private var viewModel: SetTransferTokensCardExpiryDateViewControllerViewModel
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let tokenHolder: TokenHolder
 
     var contract: AlphaWallet.Address {
@@ -39,7 +39,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
 
 // swiftlint:disable function_body_length
     init(
-            analyticsCoordinator: AnalyticsCoordinator,
+            analytics: AnalyticsLogger,
             tokenHolder: TokenHolder,
             paymentFlow: PaymentFlow,
             viewModel: SetTransferTokensCardExpiryDateViewControllerViewModel,
@@ -47,7 +47,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
             keystore: Keystore,
             session: WalletSession
     ) {
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.tokenHolder = tokenHolder
         self.paymentFlow = paymentFlow
         self.viewModel = viewModel
@@ -58,7 +58,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
         case .backedByOpenSea:
             tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notBackedByOpenSea:
-            tokenRowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: session.account)
+            tokenRowView = TokenCardRowView(analytics: analytics, server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: session.account)
         }
 
         super.init(nibName: nil, bundle: nil)

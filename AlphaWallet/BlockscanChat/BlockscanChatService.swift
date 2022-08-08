@@ -15,7 +15,7 @@ class BlockscanChatService {
     private let account: Wallet
     private var blockscanChatsForRealWallets: [BlockscanChat]
     private let walletAddressesStore: WalletAddressesStore
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private var cancelable = Set<AnyCancellable>()
     private var periodicRefreshTimer: Timer?
     private var realWalletAddresses: [AlphaWallet.Address] {
@@ -31,11 +31,11 @@ class BlockscanChatService {
 
     weak var delegate: BlockscanChatServiceDelegate?
 
-    init(walletAddressesStore: WalletAddressesStore, account: Wallet, analyticsCoordinator: AnalyticsCoordinator) {
+    init(walletAddressesStore: WalletAddressesStore, account: Wallet, analytics: AnalyticsLogger) {
         self.blockscanChatsForRealWallets = []
         self.walletAddressesStore = walletAddressesStore
         self.account = account
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
 
         watchForWalletChanges()
         NotificationCenter.default.addObserver(self, selector: #selector(applicationWillEnterForeground(_:)), name: UIApplication.willEnterForegroundNotification, object: nil)
@@ -140,6 +140,6 @@ extension BlockscanChatService {
 // MARK: Analytics
 extension BlockscanChatService {
     private func logUnreadAnalytics(resultType: Analytics.BlockscanChatResultType) {
-        analyticsCoordinator.log(stat: Analytics.Stat.blockscanChatFetchUnread, properties: [Analytics.Properties.resultType.rawValue: resultType.rawValue])
+        analytics.log(stat: Analytics.Stat.blockscanChatFetchUnread, properties: [Analytics.Properties.resultType.rawValue: resultType.rawValue])
     }
 }

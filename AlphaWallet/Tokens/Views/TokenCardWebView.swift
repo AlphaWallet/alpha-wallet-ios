@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 
 class TokenCardWebView: UIView, TokenCardRowViewConfigurable, ViewRoundingSupportable, ViewLoadingCancelable {
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let server: RPCServer
     private let assetDefinitionStore: AssetDefinitionStore
     private var lastTokenHolder: TokenHolder?
@@ -17,7 +17,7 @@ class TokenCardWebView: UIView, TokenCardRowViewConfigurable, ViewRoundingSuppor
     private let keystore: Keystore
     private let wallet: Wallet
     private lazy var tokenScriptRendererView: TokenInstanceWebView = {
-        let webView = TokenInstanceWebView(analyticsCoordinator: analyticsCoordinator, server: server, wallet: wallet, assetDefinitionStore: assetDefinitionStore, keystore: keystore)
+        let webView = TokenInstanceWebView(analytics: analytics, server: server, wallet: wallet, assetDefinitionStore: assetDefinitionStore, keystore: keystore)
         webView.delegate = self
         return webView
     }()
@@ -29,9 +29,9 @@ class TokenCardWebView: UIView, TokenCardRowViewConfigurable, ViewRoundingSuppor
         set { tokenScriptRendererView.isStandalone = newValue }
     }
 
-    init(analyticsCoordinator: AnalyticsCoordinator, server: RPCServer, tokenView: TokenView, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore, wallet: Wallet) {
+    init(analytics: AnalyticsLogger, server: RPCServer, tokenView: TokenView, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore, wallet: Wallet) {
         self.keystore = keystore
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.server = server
         self.tokenView = tokenView
         self.assetDefinitionStore = assetDefinitionStore

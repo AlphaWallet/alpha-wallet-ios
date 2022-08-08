@@ -49,7 +49,7 @@ class WalletConnectCoordinator: NSObject, Coordinator {
 
     private let navigationController: UINavigationController
     private let keystore: Keystore
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let domainResolutionService: DomainResolutionServiceType
     private let config: Config
     private weak var connectionTimeoutViewController: WalletConnectConnectionTimeoutViewController?
@@ -65,12 +65,12 @@ class WalletConnectCoordinator: NSObject, Coordinator {
         provider.sessions
     }
 
-    init(keystore: Keystore, navigationController: UINavigationController, analyticsCoordinator: AnalyticsCoordinator, domainResolutionService: DomainResolutionServiceType, config: Config, sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>, assetDefinitionStore: AssetDefinitionStore) {
+    init(keystore: Keystore, navigationController: UINavigationController, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, config: Config, sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>, assetDefinitionStore: AssetDefinitionStore) {
         self.sessionsSubject = sessionsSubject
         self.config = config
         self.keystore = keystore
         self.navigationController = navigationController
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.domainResolutionService = domainResolutionService
         self.assetDefinitionStore = assetDefinitionStore
         super.init()
@@ -187,7 +187,7 @@ class WalletConnectCoordinator: NSObject, Coordinator {
     }
 
     private func display(session: AlphaWallet.WalletConnect.Session, in navigationController: UINavigationController) {
-        let coordinator = WalletConnectSessionCoordinator(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, provider: provider, session: session)
+        let coordinator = WalletConnectSessionCoordinator(analytics: analytics, navigationController: navigationController, provider: provider, session: session)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -383,7 +383,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         infoLog("[WalletConnect] signMessage: \(type)")
 
         return firstly {
-            SignMessageCoordinator.promise(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, keystore: keystore, coordinator: self, signType: type, account: account, source: .walletConnect, requester: requester)
+            SignMessageCoordinator.promise(analytics: analytics, navigationController: navigationController, keystore: keystore, coordinator: self, signType: type, account: account, source: .walletConnect, requester: requester)
         }.map { data -> AlphaWallet.WalletConnect.Response in
             return .value(data)
         }
@@ -395,7 +395,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
 
         infoLog("[WalletConnect] executeTransaction: \(transaction) type: \(type)")
         return firstly {
-            TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService, source: .walletConnect, delegate: self.delegate, keystore: keystore, assetDefinitionStore: assetDefinitionStore)
+            TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, source: .walletConnect, delegate: self.delegate, keystore: keystore, assetDefinitionStore: assetDefinitionStore)
         }.map { data -> AlphaWallet.WalletConnect.Response in
             switch data {
             case .signedTransaction(let data):
@@ -446,7 +446,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
     func server(_ server: WalletConnectServer, tookTooLongToConnectToUrl url: AlphaWallet.WalletConnect.ConnectionUrl) {
         if Features.default.isAvailable(.isUsingAppEnforcedTimeoutForMakingWalletConnectConnections) {
             infoLog("[WalletConnect] app-enforced timeout for waiting for new connection")
-            analyticsCoordinator.log(action: Analytics.Action.walletConnectConnectionTimeout, properties: [
+            analytics.log(action: Analytics.Action.walletConnectConnectionTimeout, properties: [
                 Analytics.WalletConnectAction.connectionUrl.rawValue: url.absoluteString
             ])
             let errorMessage = R.string.localizable.walletConnectErrorConnectionTimeoutErrorMessage()
@@ -460,7 +460,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         infoLog("[WalletConnect] shouldConnectFor connection: \(proposal)")
         let proposalType: ProposalType = .walletConnect(.init(proposal: proposal, config: config))
         firstly {
-            AcceptProposalCoordinator.promise(navigationController, coordinator: self, proposalType: proposalType, analyticsCoordinator: analyticsCoordinator)
+            AcceptProposalCoordinator.promise(navigationController, coordinator: self, proposalType: proposalType, analytics: analytics)
         }.done { choise in
             guard case .walletConnect(let server) = choise else {
                 completion(.cancel)
@@ -483,7 +483,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         }.then { shouldSend -> Promise<ConfirmResult> in
             guard shouldSend else { return .init(error: DAppError.cancelled) }
 
-            let sender = SendTransaction(session: session, keystore: self.keystore, confirmType: .sign, config: self.config, analyticsCoordinator: self.analyticsCoordinator)
+            let sender = SendTransaction(session: session, keystore: self.keystore, confirmType: .sign, config: self.config, analytics: self.analytics)
             return sender.send(rawTransaction: rawTransaction)
         }.map { data in
             switch data {
@@ -499,7 +499,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
 
     private func getTransactionCount(session: WalletSession) -> Promise<AlphaWallet.WalletConnect.Response> {
         return firstly {
-            GetNextNonce(server: session.server, wallet: session.account.address, analyticsCoordinator: analyticsCoordinator).promise()
+            GetNextNonce(server: session.server, wallet: session.account.address, analytics: analytics).promise()
         }.map {
             if let data = Data(fromHexEncodedString: String(format: "%02X", $0)) {
                 return .value(data)
@@ -551,7 +551,7 @@ extension WalletConnectCoordinator: WalletConnectSessionsViewControllerDelegate 
 
     func didDisconnectSelected(session: AlphaWallet.WalletConnect.Session, in viewController: WalletConnectSessionsViewController) {
         infoLog("[WalletConnect] didDisconnect session: \(session.topicOrUrl.description)")
-        analyticsCoordinator.log(action: Analytics.Action.walletConnectDisconnect)
+        analytics.log(action: Analytics.Action.walletConnectDisconnect)
         do {
             try provider.disconnect(session.topicOrUrl)
         } catch {

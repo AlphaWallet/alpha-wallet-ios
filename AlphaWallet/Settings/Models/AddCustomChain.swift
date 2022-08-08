@@ -39,15 +39,15 @@ extension AddCustomChainDelegate {
 //TODO The detection and tests for various URLs are async so the UI might appear to do nothing to user as it is happening
 class AddCustomChain {
     private var customChain: WalletAddEthereumChainObject
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let isTestnet: Bool
     private let restartQueue: RestartTaskQueue
     private let url: URL?
     private let operation: SaveOperationType
     weak var delegate: AddCustomChainDelegate?
-    init(_ customChain: WalletAddEthereumChainObject, analyticsCoordinator: AnalyticsCoordinator, isTestnet: Bool, restartQueue: RestartTaskQueue, url: URL?, operation: SaveOperationType) {
+    init(_ customChain: WalletAddEthereumChainObject, analytics: AnalyticsLogger, isTestnet: Bool, restartQueue: RestartTaskQueue, url: URL?, operation: SaveOperationType) {
         self.customChain = customChain
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.isTestnet = isTestnet
         self.restartQueue = restartQueue
         self.url = url
@@ -59,7 +59,7 @@ class AddCustomChain {
         firstly {
             functional.checkChainId(customChain)
         }.then { customChain, chainId -> Promise<CustomChainWithChainIdAndRPC> in
-            functional.checkAndDetectUrls(customChain, chainId: chainId, analyticsCoordinator: self.analyticsCoordinator).recover { e -> Promise<CustomChainWithChainIdAndRPC> in
+            functional.checkAndDetectUrls(customChain, chainId: chainId, analytics: self.analytics).recover { e -> Promise<CustomChainWithChainIdAndRPC> in
                 if case ResolveExplorerApiHostnameError.resolveExplorerApiHostnameFailure = e {
                     return self.requestToUseFailedExplorerHostname(customChain: customChain, chainId: chainId)
                 } else {
@@ -154,25 +154,25 @@ extension AddCustomChain.functional {
         return .value((customChain: customChain, chainId: chainId))
     }
 
-    static func checkAndDetectUrls(_ customChain: WalletAddEthereumChainObject, chainId: Int, analyticsCoordinator: AnalyticsCoordinator) -> Promise<(customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String)> {
+    static func checkAndDetectUrls(_ customChain: WalletAddEthereumChainObject, chainId: Int, analytics: AnalyticsLogger) -> Promise<(customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String)> {
         //We need a check that the url is a valid URL (especially because it might contain markers like `${INFURA_API_KEY}` and `${ALCHEMY_API_KEY}` which we don't support. We can't support Infura keys because if we don't already support this chain in the app, then it must not have been enabled for our Infura account so it wouldn't work anyway.)
         guard let rpcUrl = customChain.rpcUrls?.first(where: { URL(string: $0) != nil }) else {
             //Not to spec since RPC URLs are optional according to EIP3085, but it is so much easier to assume it's needed, and quite useless if it isn't provided
             return Promise(error: AddCustomChainError.others(R.string.localizable.addCustomChainErrorNoRpcNodeUrl()))
         }
         return firstly {
-            checkRpcServer(customChain: customChain, chainId: chainId, rpcUrl: rpcUrl, analyticsCoordinator: analyticsCoordinator)
+            checkRpcServer(customChain: customChain, chainId: chainId, rpcUrl: rpcUrl, analytics: analytics)
         }.then { chainId, rpcUrl in
             checkBlockchainExplorerApiHostname(customChain: customChain, chainId: chainId, rpcUrl: rpcUrl)
         }
     }
-    private static func checkRpcServer(customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String, analyticsCoordinator: AnalyticsCoordinator) -> Promise<(chainId: Int, rpcUrl: String)> {
+    private static func checkRpcServer(customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String, analytics: AnalyticsLogger) -> Promise<(chainId: Int, rpcUrl: String)> {
         //Whether the explorer API endpoint is Etherscan or blockscout or testnet or not doesn't matter here
         let customRpc = CustomRPC(customChain: customChain, chainId: chainId, rpcUrl: rpcUrl, etherscanCompatibleType: .unknown, isTestnet: false)
         let server = RPCServer.custom(customRpc)
         let request = EthChainIdRequest()
         return firstly {
-            Session.send(EtherServiceRequest(server: server, batch: BatchFactory().create(request)), server: server, analyticsCoordinator: analyticsCoordinator)
+            Session.send(EtherServiceRequest(server: server, batch: BatchFactory().create(request)), server: server, analytics: analytics)
         }.map { result in
             if let retrievedChainId = Int(chainId0xString: result), retrievedChainId == chainId {
                 return (chainId: chainId, rpcUrl: rpcUrl)

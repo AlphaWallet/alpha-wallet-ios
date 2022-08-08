@@ -9,7 +9,7 @@ class AppCoordinatorTests: XCTestCase {
         do {
             let coordinator = try AppCoordinator(
                 window: UIWindow(),
-                analyticsService: FakeAnalyticsService(),
+                analytics: FakeAnalyticsService(),
                 keystore: FakeEtherKeystore(),
                 walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test)
             )
@@ -26,7 +26,7 @@ class AppCoordinatorTests: XCTestCase {
         do {
             let coordinator = try AppCoordinator(
                 window: UIWindow(),
-                analyticsService: FakeAnalyticsService(),
+                analytics: FakeAnalyticsService(),
                 keystore: FakeEtherKeystore(
                     wallets: [.init(wallet: .make())],
                     recentlyUsedWallet: .make()
@@ -50,7 +50,7 @@ class AppCoordinatorTests: XCTestCase {
         do {
             let coordinator = try AppCoordinator(
                 window: UIWindow(),
-                analyticsService: FakeAnalyticsService(),
+                analytics: FakeAnalyticsService(),
                 keystore: FakeEtherKeystore(
                     wallets: [.init(wallet: .make())],
                     recentlyUsedWallet: .make()
@@ -70,7 +70,7 @@ class AppCoordinatorTests: XCTestCase {
         do {
             let coordinator = try AppCoordinator(
                 window: UIWindow(),
-                analyticsService: FakeAnalyticsService(),
+                analytics: FakeAnalyticsService(),
                 keystore: FakeEtherKeystore(
                     wallets: [.init(wallet: .make())],
                     recentlyUsedWallet: .make()
@@ -91,7 +91,7 @@ class AppCoordinatorTests: XCTestCase {
         do {
             let coordinator = try AppCoordinator(
                 window: UIWindow(),
-                analyticsService: FakeAnalyticsService(),
+                analytics: FakeAnalyticsService(),
                 keystore: FakeEtherKeystore(
                     wallets: [.init(wallet: .make())],
                     recentlyUsedWallet: .make()
@@ -115,7 +115,7 @@ class AppCoordinatorTests: XCTestCase {
         do {
             let coordinator = try AppCoordinator(
                 window: .init(),
-                analyticsService: FakeAnalyticsService(),
+                analytics: FakeAnalyticsService(),
                 keystore: FakeEtherKeystore(
                     wallets: [.init(wallet: .make())],
                     recentlyUsedWallet: .make()
@@ -135,7 +135,7 @@ class AppCoordinatorTests: XCTestCase {
         do {
             let coordinator = try AppCoordinator(
                 window: .init(),
-                analyticsService: FakeAnalyticsService(),
+                analytics: FakeAnalyticsService(),
                 keystore: FakeEtherKeystore(),
                 walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .standardOrForTests)
             )

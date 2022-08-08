@@ -23,7 +23,7 @@ class BackupSeedPhraseCoordinator: Coordinator {
         return createVerifySeedPhraseViewController()
     }()
     private let account: AlphaWallet.Address
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let keystore: Keystore
     private var _context: LAContext?
     private var context: LAContext {
@@ -49,11 +49,11 @@ class BackupSeedPhraseCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: BackupSeedPhraseCoordinatorDelegate?
 
-    init(navigationController: UINavigationController = UINavigationController(), keystore: Keystore, account: AlphaWallet.Address, analyticsCoordinator: AnalyticsCoordinator) {
+    init(navigationController: UINavigationController = UINavigationController(), keystore: Keystore, account: AlphaWallet.Address, analytics: AnalyticsLogger) {
         self.navigationController = navigationController
         self.keystore = keystore
         self.account = account
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
 
         NotificationCenter.default.addObserver(self, selector: #selector(appWillResignsActive), name: UIApplication.willResignActiveNotification, object: nil)
     }
@@ -75,7 +75,7 @@ class BackupSeedPhraseCoordinator: Coordinator {
     }
 
     private func createVerifySeedPhraseViewController() -> VerifySeedPhraseViewController {
-        let controller = VerifySeedPhraseViewController(keystore: keystore, account: account, analyticsCoordinator: analyticsCoordinator)
+        let controller = VerifySeedPhraseViewController(keystore: keystore, account: account, analytics: analytics)
         controller.delegate = self
         return controller
     }

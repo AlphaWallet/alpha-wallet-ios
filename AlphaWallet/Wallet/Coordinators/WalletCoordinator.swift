@@ -12,7 +12,7 @@ class WalletCoordinator: Coordinator {
     private let config: Config
     private var keystore: Keystore
     private weak var importWalletViewController: ImportWalletViewController?
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let domainResolutionService: DomainResolutionServiceType
 
     var navigationController: UINavigationController
@@ -23,13 +23,13 @@ class WalletCoordinator: Coordinator {
         config: Config,
         navigationController: UINavigationController = UINavigationController(),
         keystore: Keystore,
-        analyticsCoordinator: AnalyticsCoordinator,
+        analytics: AnalyticsLogger,
         domainResolutionService: DomainResolutionServiceType
     ) {
         self.config = config
         self.navigationController = navigationController
         self.keystore = keystore
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.domainResolutionService = domainResolutionService
         navigationController.navigationBar.isTranslucent = false
     }
@@ -38,13 +38,13 @@ class WalletCoordinator: Coordinator {
     @discardableResult func start(_ entryPoint: WalletEntryPoint) -> Bool {
         switch entryPoint {
         case .importWallet:
-            let controller = ImportWalletViewController(keystore: keystore, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
+            let controller = ImportWalletViewController(keystore: keystore, analytics: analytics, domainResolutionService: domainResolutionService)
             controller.delegate = self
             controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
             navigationController.viewControllers = [controller]
             importWalletViewController = controller
         case .watchWallet(let address):
-            let controller = ImportWalletViewController(keystore: keystore, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
+            let controller = ImportWalletViewController(keystore: keystore, analytics: analytics, domainResolutionService: domainResolutionService)
             controller.delegate = self
             controller.watchAddressTextField.value = address?.eip55String ?? ""
             controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
@@ -64,7 +64,7 @@ class WalletCoordinator: Coordinator {
     }
 
     func pushImportWallet() {
-        let controller = ImportWalletViewController(keystore: keystore, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
+        let controller = ImportWalletViewController(keystore: keystore, analytics: analytics, domainResolutionService: domainResolutionService)
         controller.delegate = self
         controller.navigationItem.largeTitleDisplayMode = .never
         navigationController.pushViewController(controller, animated: true)
@@ -105,7 +105,7 @@ class WalletCoordinator: Coordinator {
 
     private func addWalletWith(entryPoint: WalletEntryPoint) {
         //Intentionally creating an instance of myself
-        let coordinator = WalletCoordinator(config: config, keystore: keystore, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
+        let coordinator = WalletCoordinator(config: config, keystore: keystore, analytics: analytics, domainResolutionService: domainResolutionService)
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start(entryPoint)
@@ -131,8 +131,8 @@ extension WalletCoordinator: ImportWalletViewControllerDelegate {
 
     func openQRCode(in controller: ImportWalletViewController) {
         guard let wallet = keystore.currentWallet, navigationController.ensureHasDeviceAuthorization() else { return }
-        let scanQRCodeCoordinator = ScanQRCodeCoordinator(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, account: wallet, domainResolutionService: domainResolutionService)
-        let coordinator = QRCodeResolutionCoordinator(config: config, coordinator: scanQRCodeCoordinator, usage: .importWalletOnly, account: wallet, analyticsCoordinator: analyticsCoordinator)
+        let scanQRCodeCoordinator = ScanQRCodeCoordinator(analytics: analytics, navigationController: navigationController, account: wallet, domainResolutionService: domainResolutionService)
+        let coordinator = QRCodeResolutionCoordinator(config: config, coordinator: scanQRCodeCoordinator, usage: .importWalletOnly, account: wallet, analytics: analytics)
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start(fromSource: .importWalletScreen)
@@ -234,6 +234,6 @@ extension WalletCoordinator: WalletCoordinatorDelegate {
 // MARK: Analytics
 extension WalletCoordinator {
     private func logInitialAction(_ action: Analytics.FirstWalletAction) {
-        analyticsCoordinator.log(action: Analytics.Action.firstWalletAction, properties: [Analytics.Properties.type.rawValue: action.rawValue])
+        analytics.log(action: Analytics.Action.firstWalletAction, properties: [Analytics.Properties.type.rawValue: action.rawValue])
     }
 }

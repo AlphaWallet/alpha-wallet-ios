@@ -14,10 +14,10 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
         case notReady
     }
 
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let roundedBackground = RoundedBackground()
     private let header = TokensCardViewControllerTitleHeader()
-    lazy private var tokenCardRowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: session.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: session.account)
+    lazy private var tokenCardRowView = TokenCardRowView(analytics: analytics, server: session.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: session.account)
     private let statusLabel = UILabel()
     private let activityIndicator = UIActivityIndicatorView(style: .large)
     private var costStackView: UIStackView?
@@ -53,8 +53,8 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
     private let keystore: Keystore
     private let session: WalletSession
 
-    init(analyticsCoordinator: AnalyticsCoordinator, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore, session: WalletSession) {
-        self.analyticsCoordinator = analyticsCoordinator
+    init(analytics: AnalyticsLogger, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore, session: WalletSession) {
+        self.analytics = analytics
         self.assetDefinitionStore = assetDefinitionStore
         self.keystore = keystore
         self.session = session

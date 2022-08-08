@@ -47,7 +47,7 @@ struct AccountsCoordinatorViewModel {
 class AccountsCoordinator: Coordinator {
     private let config: Config
     private let keystore: Keystore
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let walletBalanceService: WalletBalanceService
     private let blockiesGenerator: BlockiesGenerator
     private let domainResolutionService: DomainResolutionServiceType
@@ -55,7 +55,7 @@ class AccountsCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
 
     lazy var accountsViewController: AccountsViewController = {
-        let viewModel = AccountsViewModel(keystore: keystore, config: config, configuration: self.viewModel.configuration, analyticsCoordinator: analyticsCoordinator, walletBalanceService: walletBalanceService, blockiesGenerator: blockiesGenerator, domainResolutionService: domainResolutionService)
+        let viewModel = AccountsViewModel(keystore: keystore, config: config, configuration: self.viewModel.configuration, analytics: analytics, walletBalanceService: walletBalanceService, blockiesGenerator: blockiesGenerator, domainResolutionService: domainResolutionService)
         viewModel.allowsAccountDeletion = self.viewModel.configuration.allowsAccountDeletion
 
         let controller = AccountsViewController(viewModel: viewModel)
@@ -81,7 +81,7 @@ class AccountsCoordinator: Coordinator {
         config: Config,
         navigationController: UINavigationController,
         keystore: Keystore,
-        analyticsCoordinator: AnalyticsCoordinator,
+        analytics: AnalyticsLogger,
         viewModel: AccountsCoordinatorViewModel,
         walletBalanceService: WalletBalanceService,
         blockiesGenerator: BlockiesGenerator,
@@ -90,7 +90,7 @@ class AccountsCoordinator: Coordinator {
         self.config = config
         self.navigationController = navigationController
         self.keystore = keystore
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.viewModel = viewModel
         self.walletBalanceService = walletBalanceService
         self.blockiesGenerator = blockiesGenerator
@@ -136,7 +136,7 @@ class AccountsCoordinator: Coordinator {
 	}
 
     private func importOrCreateWallet(entryPoint: WalletEntryPoint) {
-        let coordinator = WalletCoordinator(config: config, keystore: keystore, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService)
+        let coordinator = WalletCoordinator(config: config, keystore: keystore, analytics: analytics, domainResolutionService: domainResolutionService)
         if case .createInstantWallet = entryPoint {
             coordinator.navigationController = navigationController
         }
@@ -163,7 +163,7 @@ class AccountsCoordinator: Coordinator {
             }
             let backupKeystoreAction = UIAlertAction(title: actionTitle, style: .default) { [weak self] _ in
                 guard let strongSelf = self else { return }
-                let coordinator = BackupCoordinator(navigationController: strongSelf.navigationController, keystore: strongSelf.keystore, account: address, analyticsCoordinator: strongSelf.analyticsCoordinator)
+                let coordinator = BackupCoordinator(navigationController: strongSelf.navigationController, keystore: strongSelf.keystore, account: address, analytics: strongSelf.analytics)
                 coordinator.delegate = strongSelf
                 coordinator.start()
                 strongSelf.addCoordinator(coordinator)

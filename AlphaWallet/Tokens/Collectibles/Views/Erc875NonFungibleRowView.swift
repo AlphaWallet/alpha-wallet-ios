@@ -23,7 +23,7 @@ class Erc875NonFungibleRowView: TokenCardViewType {
     }()
 
     private lazy var tokenCardWebView: TokenCardWebView = {
-        return TokenCardWebView(analyticsCoordinator: analyticsCoordinator, server: token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: wallet)
+        return TokenCardWebView(analytics: analytics, server: token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: wallet)
     }()
 
     private var tokenIconImageView: TokenImageView = {
@@ -44,18 +44,18 @@ class Erc875NonFungibleRowView: TokenCardViewType {
     private var imageSmallSizeContraints: [NSLayoutConstraint] = []
     private var imageLargeSizeContraints: [NSLayoutConstraint] = []
     private let tokenType: OpenSeaBackedNonFungibleTokenHandling
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let keystore: Keystore
     private let assetDefinitionStore: AssetDefinitionStore
     private let wallet: Wallet
     private let token: Token
 
-    init(token: Token, tokenType: OpenSeaBackedNonFungibleTokenHandling, analyticsCoordinator: AnalyticsCoordinator, keystore: Keystore, assetDefinitionStore: AssetDefinitionStore, wallet: Wallet, layout: GridOrListSelectionState, gridEdgeInsets: UIEdgeInsets = .zero, listEdgeInsets: UIEdgeInsets = .init(top: 0, left: 16, bottom: 0, right: 16)) {
+    init(token: Token, tokenType: OpenSeaBackedNonFungibleTokenHandling, analytics: AnalyticsLogger, keystore: Keystore, assetDefinitionStore: AssetDefinitionStore, wallet: Wallet, layout: GridOrListSelectionState, gridEdgeInsets: UIEdgeInsets = .zero, listEdgeInsets: UIEdgeInsets = .init(top: 0, left: 16, bottom: 0, right: 16)) {
         self.gridEdgeInsets = gridEdgeInsets
         self.listEdgeInsets = listEdgeInsets
         self.tokenType = tokenType
 
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.keystore = keystore
         self.assetDefinitionStore = assetDefinitionStore
         self.wallet = wallet

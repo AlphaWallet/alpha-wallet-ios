@@ -15,7 +15,7 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
     private let tokenRowView: TokenRowView & UIView
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 2))
     private var viewModel: ChooseTokenCardTransferModeViewControllerViewModel
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let tokenHolder: TokenHolder
 
     var contract: AlphaWallet.Address {
@@ -29,7 +29,7 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
     weak var delegate: ChooseTokenCardTransferModeViewControllerDelegate?
 
     init(
-            analyticsCoordinator: AnalyticsCoordinator,
+            analytics: AnalyticsLogger,
             tokenHolder: TokenHolder,
             paymentFlow: PaymentFlow,
             viewModel: ChooseTokenCardTransferModeViewControllerViewModel,
@@ -37,7 +37,7 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
             keystore: Keystore,
             session: WalletSession
     ) {
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.tokenHolder = tokenHolder
         self.paymentFlow = paymentFlow
         self.viewModel = viewModel
@@ -48,7 +48,7 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
         case .backedByOpenSea:
             tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notBackedByOpenSea:
-            tokenRowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: session.account)
+            tokenRowView = TokenCardRowView(analytics: analytics, server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: session.account)
         }
 
         super.init(nibName: nil, bundle: nil)

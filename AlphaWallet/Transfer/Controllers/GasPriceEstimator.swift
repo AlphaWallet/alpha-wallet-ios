@@ -12,10 +12,10 @@ import APIKit
 import JSONRPCKit
 
 final class GasPriceEstimator {
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
 
-    init(analyticsCoordinator: AnalyticsCoordinator) {
-        self.analyticsCoordinator = analyticsCoordinator
+    init(analytics: AnalyticsLogger) {
+        self.analytics = analytics
     }
 
     func shouldUseEstimatedGasPrice(_ estimatedGasPrice: BigInt, forTransaction transaction: UnconfirmedTransaction) -> Bool {
@@ -83,7 +83,7 @@ final class GasPriceEstimator {
         let defaultPrice: BigInt = GasPriceConfiguration.defaultPrice(forServer: server)
 
         return firstly {
-            Session.send(request, server: server, analyticsCoordinator: analyticsCoordinator)
+            Session.send(request, server: server, analytics: analytics)
         }.get { estimate in
             infoLog("Estimated gas price with RPC node server: \(server) estimate: \(estimate)")
         }.map {

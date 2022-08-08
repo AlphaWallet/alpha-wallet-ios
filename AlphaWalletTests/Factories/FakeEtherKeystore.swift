@@ -26,13 +26,13 @@ class FakeEtherKeystore: EtherKeystore {
         let uniqueString = NSUUID().uuidString
         let walletAddressesStore = fakeWalletAddressStore(wallets: wallets, recentlyUsedWallet: recentlyUsedWallet)
 
-        try! self.init(keychain: KeychainSwift(keyPrefix: "fake" + uniqueString), walletAddressesStore: walletAddressesStore, analyticsCoordinator: FakeAnalyticsService())
+        try! self.init(keychain: KeychainSwift(keyPrefix: "fake" + uniqueString), walletAddressesStore: walletAddressesStore, analytics: FakeAnalyticsService())
         self.recentlyUsedWallet = recentlyUsedWallet
     }
 
     convenience init(walletAddressesStore: WalletAddressesStore) {
         let uniqueString = NSUUID().uuidString
-        try! self.init(keychain: KeychainSwift(keyPrefix: "fake" + uniqueString), walletAddressesStore: walletAddressesStore, analyticsCoordinator: FakeAnalyticsService())
+        try! self.init(keychain: KeychainSwift(keyPrefix: "fake" + uniqueString), walletAddressesStore: walletAddressesStore, analytics: FakeAnalyticsService())
         self.recentlyUsedWallet = recentlyUsedWallet
     }
 }

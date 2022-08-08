@@ -9,7 +9,7 @@ protocol TransferTokensCardViaWalletAddressViewControllerDelegate: class, CanOpe
 }
 
 class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenVerifiableStatusViewController {
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let domainResolutionService: DomainResolutionServiceType
     private let token: Token
     private let roundedBackground = RoundedBackground()
@@ -33,8 +33,8 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
     weak var delegate: TransferTokensCardViaWalletAddressViewControllerDelegate?
 
     // swiftlint:disable function_body_length
-    init(analyticsCoordinator: AnalyticsCoordinator, domainResolutionService: DomainResolutionServiceType, token: Token, tokenHolder: TokenHolder, paymentFlow: PaymentFlow, viewModel: TransferTokensCardViaWalletAddressViewControllerViewModel, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore, session: WalletSession) {
-        self.analyticsCoordinator = analyticsCoordinator
+    init(analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, token: Token, tokenHolder: TokenHolder, paymentFlow: PaymentFlow, viewModel: TransferTokensCardViaWalletAddressViewControllerViewModel, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore, session: WalletSession) {
+        self.analytics = analytics
         self.domainResolutionService = domainResolutionService
         self.token = token
         self.tokenHolder = tokenHolder
@@ -47,7 +47,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
         case .backedByOpenSea:
             tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notBackedByOpenSea:
-            tokenRowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: session.account)
+            tokenRowView = TokenCardRowView(analytics: analytics, server: token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: session.account)
         }
 
         super.init(nibName: nil, bundle: nil)

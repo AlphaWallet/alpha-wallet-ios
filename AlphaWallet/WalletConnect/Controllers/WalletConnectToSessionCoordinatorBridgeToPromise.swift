@@ -12,10 +12,10 @@ private class AcceptProposalCoordinatorBridgeToPromise {
     private let (promiseToReturn, seal) = Promise<ProposalResult>.pending()
     private var retainCycle: AcceptProposalCoordinatorBridgeToPromise?
 
-    init(navigationController: UINavigationController, coordinator: Coordinator, proposalType: ProposalType, analyticsCoordinator: AnalyticsCoordinator) {
+    init(navigationController: UINavigationController, coordinator: Coordinator, proposalType: ProposalType, analytics: AnalyticsLogger) {
         retainCycle = self
 
-        let newCoordinator = AcceptProposalCoordinator(analyticsCoordinator: analyticsCoordinator, proposalType: proposalType, navigationController: navigationController)
+        let newCoordinator = AcceptProposalCoordinator(analytics: analytics, proposalType: proposalType, navigationController: navigationController)
         newCoordinator.delegate = self
         coordinator.addCoordinator(newCoordinator)
 
@@ -41,7 +41,7 @@ extension AcceptProposalCoordinatorBridgeToPromise: AcceptProposalCoordinatorDel
 
 extension AcceptProposalCoordinator {
 
-    static func promise(_ navigationController: UINavigationController, coordinator: Coordinator, proposalType: ProposalType, analyticsCoordinator: AnalyticsCoordinator) -> Promise<ProposalResult> {
-        return AcceptProposalCoordinatorBridgeToPromise(navigationController: navigationController, coordinator: coordinator, proposalType: proposalType, analyticsCoordinator: analyticsCoordinator).promise
+    static func promise(_ navigationController: UINavigationController, coordinator: Coordinator, proposalType: ProposalType, analytics: AnalyticsLogger) -> Promise<ProposalResult> {
+        return AcceptProposalCoordinatorBridgeToPromise(navigationController: navigationController, coordinator: coordinator, proposalType: proposalType, analytics: analytics).promise
     }
 }

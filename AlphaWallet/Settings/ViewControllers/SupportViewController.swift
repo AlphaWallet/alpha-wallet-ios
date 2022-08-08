@@ -12,7 +12,7 @@ protocol SupportViewControllerDelegate: class, CanOpenURL {
 }
 
 class SupportViewController: UIViewController {
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private lazy var viewModel: SupportViewModel = SupportViewModel()
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
@@ -30,8 +30,8 @@ class SupportViewController: UIViewController {
     weak var delegate: SupportViewControllerDelegate?
     private let resolver = ContactUsEmailResolver()
 
-    init(analyticsCoordinator: AnalyticsCoordinator) {
-        self.analyticsCoordinator = analyticsCoordinator
+    init(analytics: AnalyticsLogger) {
+        self.analytics = analytics
         super.init(nibName: nil, bundle: nil)
 
         roundedBackground.backgroundColor = GroupedTable.Color.background
@@ -152,30 +152,30 @@ extension SupportViewController: UITableViewDelegate {
 // MARK: Analytics
 extension SupportViewController {
     private func logAccessFaq() {
-        analyticsCoordinator.log(navigation: Analytics.Navigation.faq)
+        analytics.log(navigation: Analytics.Navigation.faq)
     }
 
     private func logAccessDiscord() {
-        analyticsCoordinator.log(navigation: Analytics.Navigation.discord)
+        analytics.log(navigation: Analytics.Navigation.discord)
     }
 
     private func logAccessTelegramCustomerSupport() {
-        analyticsCoordinator.log(navigation: Analytics.Navigation.telegramCustomerSupport)
+        analytics.log(navigation: Analytics.Navigation.telegramCustomerSupport)
     }
 
     private func logAccessTwitter() {
-        analyticsCoordinator.log(navigation: Analytics.Navigation.twitter)
+        analytics.log(navigation: Analytics.Navigation.twitter)
     }
 
     private func logAccessReddit() {
-        analyticsCoordinator.log(navigation: Analytics.Navigation.reddit)
+        analytics.log(navigation: Analytics.Navigation.reddit)
     }
 
     private func logAccessFacebook() {
-        analyticsCoordinator.log(navigation: Analytics.Navigation.facebook)
+        analytics.log(navigation: Analytics.Navigation.facebook)
     }
 
     private func logAccessGithub() {
-        analyticsCoordinator.log(navigation: Analytics.Navigation.github)
+        analytics.log(navigation: Analytics.Navigation.github)
     }
 }

@@ -10,7 +10,7 @@ class FakeUniversalLinkCoordinator: UniversalLinkService {
     override func handleUniversalLinkInPasteboard() {}
 
     static func make() -> FakeUniversalLinkCoordinator {
-        return .init(analyticsCoordinator: FakeAnalyticsService())
+        return .init(analytics: FakeAnalyticsService())
     }
 }
 
@@ -28,7 +28,7 @@ class ActiveWalletViewTests: XCTestCase {
         let navigationController = FakeNavigationController()
         let fas = FakeAnalyticsService()
         let keystore = FakeEtherKeystore(wallets: [.init(wallet: wallet)])
-        let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, analyticsCoordinator: fas, viewModel: .init(configuration: .changeWallets), walletBalanceService: FakeMultiWalletBalanceService(), blockiesGenerator: .make(), domainResolutionService: FakeDomainResolutionService())
+        let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, analytics: fas, viewModel: .init(configuration: .changeWallets), walletBalanceService: FakeMultiWalletBalanceService(), blockiesGenerator: .make(), domainResolutionService: FakeDomainResolutionService())
         let coordinator = ActiveWalletCoordinator(
             navigationController: navigationController,
             walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
@@ -37,8 +37,8 @@ class ActiveWalletViewTests: XCTestCase {
             keystore: keystore,
             assetDefinitionStore: AssetDefinitionStore(),
             config: config,
-            analyticsCoordinator: FakeAnalyticsService(),
-            openSea: OpenSea(analyticsCoordinator: FakeAnalyticsService(), queue: .global()),
+            analytics: FakeAnalyticsService(),
+            openSea: OpenSea(analytics: FakeAnalyticsService(), queue: .global()),
             restartQueue: .init(),
             universalLinkCoordinator: FakeUniversalLinkCoordinator.make(),
             accountsCoordinator: ac,
@@ -87,7 +87,7 @@ class ActiveWalletViewTests: XCTestCase {
 
         let navigationController = FakeNavigationController()
         let fas = FakeAnalyticsService()
-        let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, analyticsCoordinator: fas, viewModel: .init(configuration: .changeWallets),
+        let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, analytics: fas, viewModel: .init(configuration: .changeWallets),
         walletBalanceService: FakeMultiWalletBalanceService(), blockiesGenerator: .make(), domainResolutionService: FakeDomainResolutionService())
         let c1 = ActiveWalletCoordinator(
             navigationController: FakeNavigationController(),
@@ -97,8 +97,8 @@ class ActiveWalletViewTests: XCTestCase {
             keystore: keystore,
             assetDefinitionStore: AssetDefinitionStore(),
             config: .make(),
-            analyticsCoordinator: FakeAnalyticsService(),
-            openSea: OpenSea(analyticsCoordinator: FakeAnalyticsService(), queue: .global()),
+            analytics: FakeAnalyticsService(),
+            openSea: OpenSea(analytics: FakeAnalyticsService(), queue: .global()),
             restartQueue: .init(),
             universalLinkCoordinator: FakeUniversalLinkCoordinator.make(),
             accountsCoordinator: ac,
@@ -124,8 +124,8 @@ class ActiveWalletViewTests: XCTestCase {
             keystore: keystore,
             assetDefinitionStore: AssetDefinitionStore(),
             config: .make(),
-            analyticsCoordinator: FakeAnalyticsService(),
-            openSea: OpenSea(analyticsCoordinator: FakeAnalyticsService(), queue: .global()),
+            analytics: FakeAnalyticsService(),
+            openSea: OpenSea(analytics: FakeAnalyticsService(), queue: .global()),
             restartQueue: .init(),
             universalLinkCoordinator: FakeUniversalLinkCoordinator.make(),
             accountsCoordinator: ac,
@@ -149,7 +149,7 @@ class ActiveWalletViewTests: XCTestCase {
         let navigationController = FakeNavigationController()
         let fas = FakeAnalyticsService()
         let keystore = FakeEtherKeystore(wallets: [.init(wallet: wallet)])
-        let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, analyticsCoordinator: fas, viewModel: .init(configuration: .changeWallets),
+        let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, analytics: fas, viewModel: .init(configuration: .changeWallets),
         walletBalanceService: FakeMultiWalletBalanceService(), blockiesGenerator: .make(), domainResolutionService: FakeDomainResolutionService())
         let coordinator = ActiveWalletCoordinator(
                 navigationController: FakeNavigationController(),
@@ -159,8 +159,8 @@ class ActiveWalletViewTests: XCTestCase {
                 keystore: keystore,
                 assetDefinitionStore: AssetDefinitionStore(),
                 config: .make(),
-                analyticsCoordinator: FakeAnalyticsService(),
-                openSea: OpenSea(analyticsCoordinator: FakeAnalyticsService(), queue: .global()),
+                analytics: FakeAnalyticsService(),
+                openSea: OpenSea(analytics: FakeAnalyticsService(), queue: .global()),
                 restartQueue: .init(),
                 universalLinkCoordinator: FakeUniversalLinkCoordinator.make(),
                 accountsCoordinator: ac,
@@ -185,7 +185,7 @@ class ActiveWalletViewTests: XCTestCase {
         let navigationController = FakeNavigationController()
         let fas = FakeAnalyticsService()
         let keystore = FakeEtherKeystore(wallets: [.init(wallet: wallet)])
-        let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, analyticsCoordinator: fas, viewModel: .init(configuration: .changeWallets),
+        let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, analytics: fas, viewModel: .init(configuration: .changeWallets),
         walletBalanceService: FakeMultiWalletBalanceService(), blockiesGenerator: .make(), domainResolutionService: FakeDomainResolutionService())
         let coordinator = ActiveWalletCoordinator(
             navigationController: navigationController,
@@ -195,8 +195,8 @@ class ActiveWalletViewTests: XCTestCase {
             keystore: keystore,
             assetDefinitionStore: AssetDefinitionStore(),
             config: .make(),
-            analyticsCoordinator: FakeAnalyticsService(),
-            openSea: OpenSea(analyticsCoordinator: FakeAnalyticsService(), queue: .global()),
+            analytics: FakeAnalyticsService(),
+            openSea: OpenSea(analytics: FakeAnalyticsService(), queue: .global()),
             restartQueue: .init(),
             universalLinkCoordinator: FakeUniversalLinkCoordinator.make(),
             accountsCoordinator: ac,
@@ -220,7 +220,7 @@ class ActiveWalletViewTests: XCTestCase {
         let navigationController = FakeNavigationController()
         let fas = FakeAnalyticsService()
         let keystore = FakeEtherKeystore()
-        let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, analyticsCoordinator: fas, viewModel: .init(configuration: .changeWallets),
+        let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, analytics: fas, viewModel: .init(configuration: .changeWallets),
         walletBalanceService: FakeMultiWalletBalanceService(), blockiesGenerator: .make(), domainResolutionService: FakeDomainResolutionService())
 
         let coordinator = ActiveWalletCoordinator(
@@ -231,8 +231,8 @@ class ActiveWalletViewTests: XCTestCase {
             keystore: keystore,
             assetDefinitionStore: AssetDefinitionStore(),
             config: .make(),
-            analyticsCoordinator: FakeAnalyticsService(),
-            openSea: OpenSea(analyticsCoordinator: FakeAnalyticsService(), queue: .global()),
+            analytics: FakeAnalyticsService(),
+            openSea: OpenSea(analytics: FakeAnalyticsService(), queue: .global()),
             restartQueue: .init(),
             universalLinkCoordinator: FakeUniversalLinkCoordinator.make(),
             accountsCoordinator: ac,
@@ -277,7 +277,7 @@ class ActiveWalletViewTests: XCTestCase {
             keystore.recentlyUsedWallet = wallet
             let navigationController = FakeNavigationController()
             let fas = FakeAnalyticsService()
-            let ac: AccountsCoordinator = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, analyticsCoordinator: fas, viewModel: .init(configuration: .changeWallets), walletBalanceService: FakeMultiWalletBalanceService(), blockiesGenerator: .make(), domainResolutionService: FakeDomainResolutionService())
+            let ac: AccountsCoordinator = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, analytics: fas, viewModel: .init(configuration: .changeWallets), walletBalanceService: FakeMultiWalletBalanceService(), blockiesGenerator: .make(), domainResolutionService: FakeDomainResolutionService())
             let coordinator: ActiveWalletCoordinator = ActiveWalletCoordinator(
                     navigationController: navigationController,
                     walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
@@ -286,8 +286,8 @@ class ActiveWalletViewTests: XCTestCase {
                     keystore: keystore,
                     assetDefinitionStore: AssetDefinitionStore(),
                     config: .make(),
-                    analyticsCoordinator: FakeAnalyticsService(),
-                    openSea: OpenSea(analyticsCoordinator: FakeAnalyticsService(), queue: .global()),
+                    analytics: FakeAnalyticsService(),
+                    openSea: OpenSea(analytics: FakeAnalyticsService(), queue: .global()),
                     restartQueue: .init(),
                     universalLinkCoordinator: FakeUniversalLinkCoordinator.make(),
                     accountsCoordinator: ac,

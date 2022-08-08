@@ -31,12 +31,12 @@ protocol UniversalLinkServiceDelegate: AnyObject {
 
 class UniversalLinkService {
     private var pendingUniversalLinkUrl: DeepLink? = .none
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
 
     weak var delegate: UniversalLinkServiceDelegate?
 
-    init(analyticsCoordinator: AnalyticsCoordinator) {
-        self.analyticsCoordinator = analyticsCoordinator
+    init(analytics: AnalyticsLogger) {
+        self.analytics = analytics
     }
 
     func handleUniversalLinkInPasteboard() {
@@ -91,15 +91,15 @@ extension UniversalLinkService {
         case .deeplink:
             switch universalLink {
             case .eip681:
-                analyticsCoordinator.log(action: Analytics.Action.deeplinkVisited, properties: [
+                analytics.log(action: Analytics.Action.deeplinkVisited, properties: [
                     Analytics.Properties.type.rawValue: Analytics.EmbeddedDeepLinkType.eip681.rawValue
                 ])
             case .walletConnect:
-                analyticsCoordinator.log(action: Analytics.Action.deeplinkVisited, properties: [
+                analytics.log(action: Analytics.Action.deeplinkVisited, properties: [
                     Analytics.Properties.type.rawValue: Analytics.EmbeddedDeepLinkType.walletConnect.rawValue
                 ])
             case .embeddedUrl:
-                analyticsCoordinator.log(action: Analytics.Action.deeplinkVisited, properties: [
+                analytics.log(action: Analytics.Action.deeplinkVisited, properties: [
                     Analytics.Properties.type.rawValue: Analytics.EmbeddedDeepLinkType.others.rawValue
                 ])
             case .walletApi(let type):
@@ -111,14 +111,14 @@ extension UniversalLinkService {
                         return "signPersonalMessage"
                     }
                 }()
-                analyticsCoordinator.log(action: Analytics.Action.deepLinkWalletApiCall, properties: [
+                analytics.log(action: Analytics.Action.deepLinkWalletApiCall, properties: [
                     Analytics.Properties.type.rawValue: type
                 ])
             case .shareContentAction, .magicLink, .maybeFileUrl:
                 break
             }
         case .customUrlScheme:
-            analyticsCoordinator.log(action: Analytics.Action.customUrlSchemeVisited, properties: [
+            analytics.log(action: Analytics.Action.customUrlSchemeVisited, properties: [
                 //Custom URL scheme should actually be extracted from the `DeepLink`, but since it's a custom URL scheme the original `url` shouldn't be a deeplink embedding it, so it's a shortcut
                 Analytics.Properties.scheme.rawValue: url.scheme ?? ""
             ])

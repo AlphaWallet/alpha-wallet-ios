@@ -11,7 +11,7 @@ class AccountsViewModel: ObservableObject {
     private var keystoreWallets: [Wallet] = []
     private var watchedWallets: [Wallet] = []
     private let keystore: Keystore
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let walletBalanceService: WalletBalanceService
     private let blockiesGenerator: BlockiesGenerator
     private let domainResolutionService: DomainResolutionServiceType
@@ -59,11 +59,11 @@ class AccountsViewModel: ObservableObject {
 
     var backgroundColor: UIColor = GroupedTable.Color.background
 
-    init(keystore: Keystore, config: Config, configuration: AccountsCoordinatorViewModel.Configuration, analyticsCoordinator: AnalyticsCoordinator, walletBalanceService: WalletBalanceService, blockiesGenerator: BlockiesGenerator, domainResolutionService: DomainResolutionServiceType) {
+    init(keystore: Keystore, config: Config, configuration: AccountsCoordinatorViewModel.Configuration, analytics: AnalyticsLogger, walletBalanceService: WalletBalanceService, blockiesGenerator: BlockiesGenerator, domainResolutionService: DomainResolutionServiceType) {
         self.config = config
         self.keystore = keystore
         self.configuration = configuration
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.walletBalanceService = walletBalanceService
         self.blockiesGenerator = blockiesGenerator
         self.domainResolutionService = domainResolutionService
@@ -124,7 +124,7 @@ class AccountsViewModel: ObservableObject {
         switch sections[indexPath.section] {
         case .hdWallet, .keystoreWallet, .watchedWallet:
             guard let account = account(for: indexPath) else { return .undefined }
-            let viewModel = AccountViewModel(analyticsCoordinator: analyticsCoordinator, getWalletName: getWalletName, blockiesGenerator: blockiesGenerator, subscribeForBalanceUpdates: subscribeForBalanceUpdates, walletBalanceService: walletBalanceService, wallet: account, current: keystore.currentWallet)
+            let viewModel = AccountViewModel(analytics: analytics, getWalletName: getWalletName, blockiesGenerator: blockiesGenerator, subscribeForBalanceUpdates: subscribeForBalanceUpdates, walletBalanceService: walletBalanceService, wallet: account, current: keystore.currentWallet)
 
             return .wallet(viewModel)
         case .summary:

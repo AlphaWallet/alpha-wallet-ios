@@ -9,13 +9,13 @@ import AlphaWalletOpenSea
 import PromiseKit
 
 final class OpenSeaNetworkProvider {
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let openSea: AlphaWalletOpenSea.OpenSea
     //TODO should pass in instead
     private let config: Config = Config()
 
-    init(analyticsCoordinator: AnalyticsCoordinator, queue: DispatchQueue) {
-        self.analyticsCoordinator = analyticsCoordinator
+    init(analytics: AnalyticsLogger, queue: DispatchQueue) {
+        self.analytics = analytics
         self.openSea = AlphaWalletOpenSea.OpenSea(apiKeys: Self.openSeaApiKeys(), queue: queue)
         openSea.delegate = self
     }
@@ -62,6 +62,6 @@ extension OpenSeaNetworkProvider: OpenSeaDelegate {
         case .invalidApiKey:
             e = .openSeaInvalidApiKey
         }
-        analyticsCoordinator.log(error: e)
+        analytics.log(error: e)
     }
 }

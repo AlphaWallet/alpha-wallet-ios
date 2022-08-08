@@ -14,7 +14,7 @@ class WhatsNewExperimentCoordinator: Coordinator {
 
     private let navigationController: UINavigationController
     private let viewModel = HelpUsViewModel()
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let userDefaults: UserDefaults
 
     var coordinators: [Coordinator] = []
@@ -30,11 +30,11 @@ class WhatsNewExperimentCoordinator: Coordinator {
         }
     }
 
-    init(navigationController: UINavigationController, userDefaults: UserDefaults, analyticsCoordinator: AnalyticsCoordinator) {
+    init(navigationController: UINavigationController, userDefaults: UserDefaults, analytics: AnalyticsLogger) {
         self.navigationController = navigationController
         self.navigationController.modalPresentationStyle = .formSheet
         self.userDefaults = userDefaults
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
     }
 
     func start() {

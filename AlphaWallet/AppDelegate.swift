@@ -34,13 +34,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 
             register(addressStorage: addressStorage)
             //NOTE: we move AnalyticsService creation from AppCoordinator.init method to allow easily replace
-            let analyticsService = AnalyticsService()
+            let analytics = AnalyticsService()
             let walletAddressesStore: WalletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: .standardOrForTests)
-            let keystore: Keystore = try EtherKeystore(walletAddressesStore: walletAddressesStore, analyticsCoordinator: analyticsService)
+            let keystore: Keystore = try EtherKeystore(walletAddressesStore: walletAddressesStore, analytics: analytics)
             let navigationController = UINavigationController()
             navigationController.view.backgroundColor = Colors.appWhite
 
-            appCoordinator = try AppCoordinator(window: window!, analyticsService: analyticsService, keystore: keystore, walletAddressesStore: walletAddressesStore, navigationController: navigationController)
+            appCoordinator = try AppCoordinator(window: window!, analytics: analytics, keystore: keystore, walletAddressesStore: walletAddressesStore, navigationController: navigationController)
             appCoordinator.start()
 
             if let shortcutItem = launchOptions?[UIApplication.LaunchOptionsKey.shortcutItem] as? UIApplicationShortcutItem, shortcutItem.type == Constants.launchShortcutKey {

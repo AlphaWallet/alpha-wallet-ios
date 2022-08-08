@@ -10,14 +10,14 @@ protocol ClearDappBrowserCacheCoordinatorDelegate: AnyObject {
 
 class ClearDappBrowserCacheCoordinator: Coordinator {
     private let viewController: UIViewController
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
 
     var coordinators: [Coordinator] = []
     weak var delegate: ClearDappBrowserCacheCoordinatorDelegate?
 
-    init(inViewController viewController: UIViewController, analyticsCoordinator: AnalyticsCoordinator) {
+    init(inViewController viewController: UIViewController, analytics: AnalyticsLogger) {
         self.viewController = viewController
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
     }
 
     func start() {
@@ -41,6 +41,6 @@ class ClearDappBrowserCacheCoordinator: Coordinator {
 // MARK: Analytics
 extension ClearDappBrowserCacheCoordinator {
     private func logUse() {
-        analyticsCoordinator.log(action: Analytics.Action.clearBrowserCache)
+        analytics.log(action: Analytics.Action.clearBrowserCache)
     }
 }

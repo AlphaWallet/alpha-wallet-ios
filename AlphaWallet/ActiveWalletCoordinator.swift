@@ -21,7 +21,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private let config: Config
     private let assetDefinitionStore: AssetDefinitionStore
     private let appTracker: AppTracker
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let openSea: OpenSea
     private let restartQueue: RestartTaskQueue
     lazy private var eventsDataStore: NonActivityEventsDataStore = {
@@ -67,11 +67,11 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         return coordinators.compactMap { $0 as? SettingsCoordinator }.first
     }
     private lazy var helpUsCoordinator: HelpUsCoordinator = {
-        HelpUsCoordinator(hostViewController: navigationController, appTracker: appTracker, analyticsCoordinator: analyticsCoordinator)
+        HelpUsCoordinator(hostViewController: navigationController, appTracker: appTracker, analytics: analytics)
     }()
 
     private lazy var whatsNewExperimentCoordinator: WhatsNewExperimentCoordinator = {
-        let coordinator = WhatsNewExperimentCoordinator(navigationController: navigationController, userDefaults: UserDefaults.standardOrForTests, analyticsCoordinator: analyticsCoordinator)
+        let coordinator = WhatsNewExperimentCoordinator(navigationController: navigationController, userDefaults: UserDefaults.standardOrForTests, analytics: analytics)
         coordinator.delegate = self
         return coordinator
     }()
@@ -91,7 +91,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private var tokenActionsService: TokenActionsService
     private let walletConnectCoordinator: WalletConnectCoordinator
     private lazy var promptBackupCoordinator: PromptBackupCoordinator = {
-        return PromptBackupCoordinator(keystore: keystore, wallet: wallet, config: config, analyticsCoordinator: analyticsCoordinator)
+        return PromptBackupCoordinator(keystore: keystore, wallet: wallet, config: config, analytics: analytics)
     }()
 
     private (set) var swapButton: UIButton = {
@@ -151,7 +151,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private let localStore: LocalStore
     private let tokenSwapper: TokenSwapper
     private lazy var importToken: ImportToken = {
-        return ImportToken(sessions: sessionsSubject, wallet: wallet, tokensDataStore: tokensDataStore, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator)
+        return ImportToken(sessions: sessionsSubject, wallet: wallet, tokensDataStore: tokensDataStore, assetDefinitionStore: assetDefinitionStore, analytics: analytics)
     }()
 
     init(
@@ -163,7 +163,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
             assetDefinitionStore: AssetDefinitionStore,
             config: Config,
             appTracker: AppTracker = AppTracker(),
-            analyticsCoordinator: AnalyticsCoordinator,
+            analytics: AnalyticsLogger,
             openSea: OpenSea,
             restartQueue: RestartTaskQueue,
             universalLinkCoordinator: UniversalLinkService,
@@ -188,7 +188,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         self.keystore = keystore
         self.config = config
         self.appTracker = appTracker
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.openSea = openSea
         self.restartQueue = restartQueue
         self.assetDefinitionStore = assetDefinitionStore
@@ -197,7 +197,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         self.walletBalanceService = walletBalanceService
         self.coinTickersFetcher = coinTickersFetcher
         self.tokenActionsService = tokenActionsService
-        self.blockscanChatService = BlockscanChatService(walletAddressesStore: walletAddressesStore, account: wallet, analyticsCoordinator: analyticsCoordinator)
+        self.blockscanChatService = BlockscanChatService(walletAddressesStore: walletAddressesStore, account: wallet, analytics: analytics)
         self.notificationService = notificationService
         self.blockiesGenerator = blockiesGenerator
         self.domainResolutionService = domainResolutionService
@@ -289,7 +289,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         for each in config.enabledServers {
             let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: each)
             let tokenBalanceService = SingleChainTokenBalanceService(wallet: wallet, server: each, etherToken: etherToken, tokenBalanceProvider: walletBalanceService)
-            let session = WalletSession(account: wallet, server: each, config: config, tokenBalanceService: tokenBalanceService, analyticsCoordinator: analyticsCoordinator)
+            let session = WalletSession(account: wallet, server: each, config: config, tokenBalanceService: tokenBalanceService, analytics: analytics)
 
             walletSessions[each] = session
         }
@@ -330,7 +330,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
                 assetDefinitionStore: assetDefinitionStore,
                 eventsDataStore: eventsDataStore,
                 promptBackupCoordinator: promptBackupCoordinator,
-                analyticsCoordinator: analyticsCoordinator,
+                analytics: analytics,
                 openSea: openSea,
                 tokenActionsService: tokenActionsService,
                 walletConnectCoordinator: walletConnectCoordinator,
@@ -355,11 +355,11 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
             sessions: sessionsSubject.value,
             transactionDataStore: transactionDataStore,
             tokensDataStore: tokensDataStore,
-            analyticsCoordinator: analyticsCoordinator
+            analytics: analytics
         )
         transactionsService.delegate = self
         let coordinator = TransactionCoordinator(
-                analyticsCoordinator: analyticsCoordinator,
+                analytics: analytics,
                 sessions: sessionsSubject.value,
                 transactionsService: transactionsService
         )
@@ -372,7 +372,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     }
 
     private func createActivityCoordinator(activitiesService: ActivitiesServiceType) -> ActivitiesCoordinator {
-        let coordinator = ActivitiesCoordinator(analyticsCoordinator: analyticsCoordinator, sessions: sessionsSubject.value, activitiesService: activitiesService, keystore: keystore, wallet: wallet, assetDefinitionStore: assetDefinitionStore)
+        let coordinator = ActivitiesCoordinator(analytics: analytics, sessions: sessionsSubject.value, activitiesService: activitiesService, keystore: keystore, wallet: wallet, assetDefinitionStore: assetDefinitionStore)
         coordinator.delegate = self
         coordinator.start()
         coordinator.rootViewController.tabBarItem = ActiveWalletViewModel.Tabs.activities.tabBarItem
@@ -381,8 +381,8 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         return coordinator
     }
 
-    private func createBrowserCoordinator(sessions: ServerDictionary<WalletSession>, browserOnly: Bool, analyticsCoordinator: AnalyticsCoordinator) -> DappBrowserCoordinator {
-        let coordinator = DappBrowserCoordinator(sessions: sessions, keystore: keystore, config: config, sharedRealm: Realm.shared(), browserOnly: browserOnly, restartQueue: restartQueue, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService, assetDefinitionStore: assetDefinitionStore)
+    private func createBrowserCoordinator(sessions: ServerDictionary<WalletSession>, browserOnly: Bool, analytics: AnalyticsLogger) -> DappBrowserCoordinator {
+        let coordinator = DappBrowserCoordinator(sessions: sessions, keystore: keystore, config: config, sharedRealm: Realm.shared(), browserOnly: browserOnly, restartQueue: restartQueue, analytics: analytics, domainResolutionService: domainResolutionService, assetDefinitionStore: assetDefinitionStore)
         coordinator.delegate = self
         coordinator.start()
         coordinator.rootViewController.tabBarItem = ActiveWalletViewModel.Tabs.browser.tabBarItem
@@ -397,7 +397,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
                 sessions: sessionsSubject.value,
                 restartQueue: restartQueue,
                 promptBackupCoordinator: promptBackupCoordinator,
-                analyticsCoordinator: analyticsCoordinator,
+                analytics: analytics,
                 walletConnectCoordinator: walletConnectCoordinator,
                 walletBalanceService: walletBalanceService,
                 blockscanChatService: blockscanChatService,
@@ -433,7 +433,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
             viewControllers.append(swapDummyViewController)
         }
 
-        let browserCoordinator = createBrowserCoordinator(sessions: sessionsSubject.value, browserOnly: false, analyticsCoordinator: analyticsCoordinator)
+        let browserCoordinator = createBrowserCoordinator(sessions: sessionsSubject.value, browserOnly: false, analytics: analytics)
         viewControllers.append(browserCoordinator.navigationController)
 
         let settingsCoordinator = createSettingsCoordinator(keystore: keystore, promptBackupCoordinator: promptBackupCoordinator)
@@ -472,7 +472,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
                     sessions: sessionsSubject,
                     keystore: keystore,
                     assetDefinitionStore: assetDefinitionStore,
-                    analyticsCoordinator: analyticsCoordinator,
+                    analytics: analytics,
                     eventsDataStore: eventsDataStore,
                     tokenCollection: tokenCollection,
                     domainResolutionService: domainResolutionService,
@@ -507,7 +507,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         guard let navigationController = viewController.navigationController else { return }
         let session = sessionsSubject.value[token.server]
         claimOrderCoordinatorCompletionBlock = completion
-        let coordinator = ClaimPaidOrderCoordinator(navigationController: navigationController, keystore: keystore, session: session, token: token, signedOrder: signedOrder, analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService, assetDefinitionStore: assetDefinitionStore)
+        let coordinator = ClaimPaidOrderCoordinator(navigationController: navigationController, keystore: keystore, session: session, token: token, signedOrder: signedOrder, analytics: analytics, domainResolutionService: domainResolutionService, assetDefinitionStore: assetDefinitionStore)
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start()
@@ -578,7 +578,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     }
 
     private func openFiatOnRamp(wallet: Wallet, server: RPCServer, inViewController viewController: UIViewController, source: Analytics.FiatOnRampSource) {
-        let coordinator = FiatOnRampCoordinator(wallet: wallet, server: server, viewController: viewController, source: source, analyticsCoordinator: analyticsCoordinator)
+        let coordinator = FiatOnRampCoordinator(wallet: wallet, server: server, viewController: viewController, source: source, analytics: analytics)
         coordinator.delegate = self
         coordinator.start()
     }
@@ -586,14 +586,14 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
 
 extension ActiveWalletCoordinator {
     func requestSwitchChain(server: RPCServer, currentUrl: URL?, callbackID: SwitchCustomChainCallbackId, targetChain: WalletSwitchEthereumChainObject) {
-        let coordinator = DappRequestSwitchExistingChainCoordinator(config: config, server: server, callbackId: callbackID, targetChain: targetChain, restartQueue: restartQueue, analyticsCoordinator: analyticsCoordinator, currentUrl: currentUrl, inViewController: presentationViewController)
+        let coordinator = DappRequestSwitchExistingChainCoordinator(config: config, server: server, callbackId: callbackID, targetChain: targetChain, restartQueue: restartQueue, analytics: analytics, currentUrl: currentUrl, inViewController: presentationViewController)
         coordinator.delegate = dappRequestHandler
         dappRequestHandler.addCoordinator(coordinator)
         coordinator.start()
     }
 
     func requestAddCustomChain(server: RPCServer, callbackId: SwitchCustomChainCallbackId, customChain: WalletAddEthereumChainObject) {
-        let coordinator = DappRequestSwitchCustomChainCoordinator(config: config, server: server, callbackId: callbackId, customChain: customChain, restartQueue: restartQueue, analyticsCoordinator: analyticsCoordinator, currentUrl: nil, inViewController: presentationViewController)
+        let coordinator = DappRequestSwitchCustomChainCoordinator(config: config, server: server, callbackId: callbackId, customChain: customChain, restartQueue: restartQueue, analytics: analytics, currentUrl: nil, inViewController: presentationViewController)
         coordinator.delegate = dappRequestHandler
         dappRequestHandler.addCoordinator(coordinator)
         coordinator.start()
@@ -619,7 +619,7 @@ extension ActiveWalletCoordinator: WalletConnectCoordinatorDelegate {
 extension ActiveWalletCoordinator: CanOpenURL {
     private func open(url: URL, in viewController: UIViewController) {
         //TODO duplication of code to set up a BrowserCoordinator when creating the application's tabbar
-        let browserCoordinator = createBrowserCoordinator(sessions: sessionsSubject.value, browserOnly: true, analyticsCoordinator: analyticsCoordinator)
+        let browserCoordinator = createBrowserCoordinator(sessions: sessionsSubject.value, browserOnly: true, analytics: analytics)
         let controller = browserCoordinator.navigationController
         browserCoordinator.open(url: url, animated: false)
         controller.makePresentationFullScreenForiOS13Migration()
@@ -726,7 +726,7 @@ extension ActiveWalletCoordinator: ActivityViewControllerDelegate {
     func speedupTransaction(transactionId: String, server: RPCServer, viewController: ActivityViewController) {
         guard let transaction = transactionDataStore.transaction(withTransactionId: transactionId, forServer: server) else { return }
         let session = sessionsSubject.value[transaction.server]
-        guard let coordinator = ReplaceTransactionCoordinator(analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService, keystore: keystore, presentingViewController: viewController, session: session, transaction: transaction, mode: .speedup, assetDefinitionStore: assetDefinitionStore) else { return }
+        guard let coordinator = ReplaceTransactionCoordinator(analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, presentingViewController: viewController, session: session, transaction: transaction, mode: .speedup, assetDefinitionStore: assetDefinitionStore) else { return }
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -735,7 +735,7 @@ extension ActiveWalletCoordinator: ActivityViewControllerDelegate {
     func cancelTransaction(transactionId: String, server: RPCServer, viewController: ActivityViewController) {
         guard let transaction = transactionDataStore.transaction(withTransactionId: transactionId, forServer: server) else { return }
         let session = sessionsSubject.value[transaction.server]
-        guard let coordinator = ReplaceTransactionCoordinator(analyticsCoordinator: analyticsCoordinator, domainResolutionService: domainResolutionService, keystore: keystore, presentingViewController: viewController, session: session, transaction: transaction, mode: .cancel, assetDefinitionStore: assetDefinitionStore) else { return }
+        guard let coordinator = ReplaceTransactionCoordinator(analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, presentingViewController: viewController, session: session, transaction: transaction, mode: .cancel, assetDefinitionStore: assetDefinitionStore) else { return }
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -832,7 +832,7 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
     }
 
     private func showActivity(_ activity: Activity, navigationController: UINavigationController) {
-        let controller = ActivityViewController(analyticsCoordinator: analyticsCoordinator, wallet: wallet, assetDefinitionStore: assetDefinitionStore, viewModel: .init(activity: activity), service: activitiesService, keystore: keystore)
+        let controller = ActivityViewController(analytics: analytics, wallet: wallet, assetDefinitionStore: assetDefinitionStore, viewModel: .init(activity: activity), service: activitiesService, keystore: keystore)
         controller.delegate = self
 
         controller.hidesBottomBarWhenPushed = true
@@ -952,7 +952,7 @@ extension ActiveWalletCoordinator: PaymentCoordinatorDelegate {
     private func askUserToRateAppOrSubscribeToNewsletter() {
         let hostViewController = UIApplication.shared.presentedViewController(or: navigationController)
 
-        let coordinator = HelpUsCoordinator(hostViewController: hostViewController, appTracker: AppTracker(), analyticsCoordinator: analyticsCoordinator)
+        let coordinator = HelpUsCoordinator(hostViewController: hostViewController, appTracker: AppTracker(), analytics: analytics)
         coordinator.rateUsOrSubscribeToNewsletter()
     }
 
@@ -1037,7 +1037,7 @@ extension ActiveWalletCoordinator: ClaimOrderCoordinatorDelegate {
 extension ActiveWalletCoordinator {
     private func logEnabledChains() {
         let list = config.enabledServers.map(\.chainID).sorted()
-        analyticsCoordinator.setUser(property: Analytics.UserProperties.enabledChains, value: list)
+        analytics.setUser(property: Analytics.UserProperties.enabledChains, value: list)
     }
 
     private func logWallets() {
@@ -1045,27 +1045,27 @@ extension ActiveWalletCoordinator {
         let hdWalletsCount = keystore.wallets.filter { keystore.isHdWallet(wallet: $0) }.count
         let keystoreWalletsCount = keystore.wallets.filter { keystore.isKeystore(wallet: $0) }.count
         let watchedWalletsCount = keystore.wallets.filter { keystore.isWatched(wallet: $0) }.count
-        analyticsCoordinator.setUser(property: Analytics.UserProperties.walletsCount, value: totalCount)
-        analyticsCoordinator.setUser(property: Analytics.UserProperties.hdWalletsCount, value: hdWalletsCount)
-        analyticsCoordinator.setUser(property: Analytics.UserProperties.keystoreWalletsCount, value: keystoreWalletsCount)
-        analyticsCoordinator.setUser(property: Analytics.UserProperties.watchedWalletsCount, value: watchedWalletsCount)
+        analytics.setUser(property: Analytics.UserProperties.walletsCount, value: totalCount)
+        analytics.setUser(property: Analytics.UserProperties.hdWalletsCount, value: hdWalletsCount)
+        analytics.setUser(property: Analytics.UserProperties.keystoreWalletsCount, value: keystoreWalletsCount)
+        analytics.setUser(property: Analytics.UserProperties.watchedWalletsCount, value: watchedWalletsCount)
     }
 
     private func logDynamicTypeSetting() {
         let setting = UIApplication.shared.preferredContentSizeCategory.rawValue
-        analyticsCoordinator.setUser(property: Analytics.UserProperties.dynamicTypeSetting, value: setting)
+        analytics.setUser(property: Analytics.UserProperties.dynamicTypeSetting, value: setting)
     }
 
     private func logTappedSwap(service: SwapTokenViaUrlProvider) {
-        analyticsCoordinator.log(navigation: Analytics.Navigation.tokenSwap, properties: [Analytics.Properties.name.rawValue: service.analyticsName])
+        analytics.log(navigation: Analytics.Navigation.tokenSwap, properties: [Analytics.Properties.name.rawValue: service.analyticsName])
     }
 
     private func logExplorerUse(type: Analytics.ExplorerType) {
-        analyticsCoordinator.log(navigation: Analytics.Navigation.explorer, properties: [Analytics.Properties.type.rawValue: type.rawValue])
+        analytics.log(navigation: Analytics.Navigation.explorer, properties: [Analytics.Properties.type.rawValue: type.rawValue])
     }
 
     private func logStartOnRamp(name: String) {
-        FiatOnRampCoordinator.logStartOnRamp(name: name, source: .token, analyticsCoordinator: analyticsCoordinator)
+        FiatOnRampCoordinator.logStartOnRamp(name: name, source: .token, analytics: analytics)
     }
 }
 
@@ -1099,7 +1099,7 @@ extension ActiveWalletCoordinator: LoadUrlInDappBrowserProvider {
 
 extension ActiveWalletCoordinator: BlockscanChatServiceDelegate {
     func openBlockscanChat(url: URL, for: BlockscanChatService) {
-        analyticsCoordinator.log(navigation: Analytics.Navigation.blockscanChat)
+        analytics.log(navigation: Analytics.Navigation.blockscanChat)
         open(for: url)
     }
 

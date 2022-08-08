@@ -8,7 +8,7 @@ class AccountViewModel {
     private let blockiesGenerator: BlockiesGenerator
     private let subscribeForBalanceUpdates: Bool
     private let walletBalanceService: WalletBalanceService
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let wallet: Wallet
     private let current: Wallet?
 
@@ -37,7 +37,7 @@ class AccountViewModel {
         return blockiesGenerator.getBlockieOrEnsAvatarImage(address: wallet.address, fallbackImage: BlockiesImage.defaulBlockieImage)
             .handleEvents(receiveOutput: { [weak self] value in
                 guard value.isEnsAvatar else { return }
-                self?.analyticsCoordinator.setUser(property: Analytics.UserProperties.hasEnsAvatar, value: true)
+                self?.analytics.setUser(property: Analytics.UserProperties.hasEnsAvatar, value: true)
             }).eraseToAnyPublisher()
     }()
 
@@ -55,7 +55,7 @@ class AccountViewModel {
     }()
 
     init(
-        analyticsCoordinator: AnalyticsCoordinator,
+        analytics: AnalyticsLogger,
         getWalletName: GetWalletName,
         blockiesGenerator: BlockiesGenerator,
         subscribeForBalanceUpdates: Bool,
@@ -63,7 +63,7 @@ class AccountViewModel {
         wallet: Wallet,
         current: Wallet?
     ) {
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.wallet = wallet
         self.current = current
         self.getWalletName = getWalletName

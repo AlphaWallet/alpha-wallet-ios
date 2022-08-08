@@ -23,14 +23,14 @@ class AppCoordinator: NSObject, Coordinator {
         return coordinators.compactMap { $0 as? PromptBackupCoordinator }.first
     }
     private lazy var universalLinkService: UniversalLinkService = {
-        let coordinator = UniversalLinkService(analyticsCoordinator: analyticsService)
+        let coordinator = UniversalLinkService(analytics: analytics)
         coordinator.delegate = self
 
         return coordinator
     }()
 
-    private var analyticsService: AnalyticsServiceType
-    lazy private var openSea: OpenSea = OpenSea(analyticsCoordinator: analyticsService, queue: .global())
+    private let analytics: AnalyticsServiceType
+    lazy private var openSea: OpenSea = OpenSea(analytics: analytics, queue: .global())
     private let restartQueue = RestartTaskQueue()
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -63,7 +63,7 @@ class AppCoordinator: NSObject, Coordinator {
         return CoinGeckoTickersFetcher(networkProvider: networkProvider, storage: storage, tickerIdsFetcher: tickerIdsFetcher)
     }()
     private lazy var walletBalanceService: WalletBalanceService = {
-        return MultiWalletBalanceService(store: localStore, keystore: keystore, config: config, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsService, coinTickersFetcher: coinTickersFetcher, walletAddressesStore: walletAddressesStore)
+        return MultiWalletBalanceService(store: localStore, keystore: keystore, config: config, assetDefinitionStore: assetDefinitionStore, analytics: analytics, coinTickersFetcher: coinTickersFetcher, walletAddressesStore: walletAddressesStore)
     }()
     private var pendingActiveWalletCoordinator: ActiveWalletCoordinator?
 
@@ -72,7 +72,7 @@ class AppCoordinator: NSObject, Coordinator {
                 config: config,
                 navigationController: navigationController,
                 keystore: keystore,
-                analyticsCoordinator: analyticsService,
+                analytics: analytics,
                 viewModel: .init(configuration: .summary),
                 walletBalanceService: walletBalanceService,
                 blockiesGenerator: blockiesGenerator,
@@ -113,7 +113,7 @@ class AppCoordinator: NSObject, Coordinator {
 
     private lazy var sessionsSubject = CurrentValueSubject<ServerDictionary<WalletSession>, Never>(.init())
     private lazy var walletConnectCoordinator: WalletConnectCoordinator = {
-        let coordinator = WalletConnectCoordinator(keystore: keystore, navigationController: navigationController, analyticsCoordinator: analyticsService, domainResolutionService: domainResolutionService, config: config, sessionsSubject: sessionsSubject, assetDefinitionStore: assetDefinitionStore)
+        let coordinator = WalletConnectCoordinator(keystore: keystore, navigationController: navigationController, analytics: analytics, domainResolutionService: domainResolutionService, config: config, sessionsSubject: sessionsSubject, assetDefinitionStore: assetDefinitionStore)
 
         return coordinator
     }()
@@ -126,7 +126,7 @@ class AppCoordinator: NSObject, Coordinator {
     lazy private var blockiesGenerator: BlockiesGenerator = BlockiesGenerator(openSea: openSea, storage: sharedEnsRecordsStorage)
     lazy private var domainResolutionService: DomainResolutionServiceType = DomainResolutionService(blockiesGenerator: blockiesGenerator, storage: sharedEnsRecordsStorage)
     private lazy var walletApiService: WalletApiService = {
-        let service = WalletApiService(keystore: keystore, navigationController: navigationController, analyticsCoordinator: analyticsService, sessionsSubject: sessionsSubject)
+        let service = WalletApiService(keystore: keystore, navigationController: navigationController, analytics: analytics, sessionsSubject: sessionsSubject)
         service.delegate = self
 
         return service
@@ -135,10 +135,10 @@ class AppCoordinator: NSObject, Coordinator {
         return NotificationService(sources: [], walletBalanceService: walletBalanceService)
     }()
 
-    init(window: UIWindow, analyticsService: AnalyticsServiceType, keystore: Keystore, walletAddressesStore: WalletAddressesStore, navigationController: UINavigationController = .withOverridenBarAppearence()) throws {
+    init(window: UIWindow, analytics: AnalyticsServiceType, keystore: Keystore, walletAddressesStore: WalletAddressesStore, navigationController: UINavigationController = .withOverridenBarAppearence()) throws {
         self.navigationController = navigationController
         self.window = window
-        self.analyticsService = analyticsService
+        self.analytics = analytics
         self.keystore = keystore
         self.walletAddressesStore = walletAddressesStore
         self.legacyFileBasedKeystore = try LegacyFileBasedKeystore(keystore: keystore)
@@ -160,7 +160,7 @@ class AppCoordinator: NSObject, Coordinator {
 
                 //TODO: pass ref
                 FileWalletStorage().addOrUpdate(name: nil, for: account.address)
-                PromptBackupCoordinator(keystore: self.keystore, wallet: account, config: self.config, analyticsCoordinator: self.analyticsService).deleteWallet()
+                PromptBackupCoordinator(keystore: self.keystore, wallet: account, config: self.config, analytics: self.analytics).deleteWallet()
                 TransactionsTracker.resetFetchingState(account: account, config: self.config)
                 Erc1155TokenIdsFetcher.deleteForWallet(account.address)
                 DatabaseMigration.removeRealmFiles(account: account)
@@ -222,7 +222,7 @@ class AppCoordinator: NSObject, Coordinator {
                 assetDefinitionStore: assetDefinitionStore,
                 config: config,
                 appTracker: appTracker,
-                analyticsCoordinator: analyticsService,
+                analytics: analytics,
                 openSea: openSea,
                 restartQueue: restartQueue,
                 universalLinkCoordinator: universalLinkService,
@@ -269,7 +269,7 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     func showInitialWalletCoordinator() {
-        let coordinator = InitialWalletCreationCoordinator(config: config, navigationController: navigationController, keystore: keystore, analyticsCoordinator: analyticsService, domainResolutionService: domainResolutionService)
+        let coordinator = InitialWalletCreationCoordinator(config: config, navigationController: navigationController, keystore: keystore, analytics: analytics, domainResolutionService: domainResolutionService)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -283,7 +283,7 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     private func createInitialWalletIfMissing() {
-        WalletCoordinator(config: config, keystore: keystore, analyticsCoordinator: analyticsService, domainResolutionService: domainResolutionService).createInitialWalletIfMissing()
+        WalletCoordinator(config: config, keystore: keystore, analytics: analytics, domainResolutionService: domainResolutionService).createInitialWalletIfMissing()
     }
 
     private func showActiveWalletIfNeeded() {
@@ -330,7 +330,7 @@ class AppCoordinator: NSObject, Coordinator {
 
     func handleIntent(userActivity: NSUserActivity) -> Bool {
         if let type = userActivity.userInfo?[WalletQrCodeDonation.userInfoType.key] as? String, type == WalletQrCodeDonation.userInfoType.value {
-            analyticsService.log(navigation: Analytics.Navigation.openShortcut, properties: [
+            analytics.log(navigation: Analytics.Navigation.openShortcut, properties: [
                 Analytics.Properties.type.rawValue: Analytics.ShortcutType.walletQrCode.rawValue
             ])
             activeWalletCoordinator?.showWalletQrCode()
@@ -477,7 +477,7 @@ extension AppCoordinator: UniversalLinkServiceDelegate {
             coordinator.handleOpen(url: url)
         case .eip681(let url):
             let account = resolver.sessions.anyValue.account
-            let paymentFlowResolver = PaymentFlowFromEip681UrlResolver(tokensDataStore: resolver.tokensDataStore, account: account, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsService, config: config)
+            let paymentFlowResolver = PaymentFlowFromEip681UrlResolver(tokensDataStore: resolver.tokensDataStore, account: account, assetDefinitionStore: assetDefinitionStore, analytics: analytics, config: config)
             guard let promise = paymentFlowResolver.resolve(url: url) else { return }
             firstly {
                 promise
@@ -487,7 +487,7 @@ extension AppCoordinator: UniversalLinkServiceDelegate {
         case .walletConnect(let url, let source):
             switch source {
             case .safariExtension:
-                analyticsService.log(action: Analytics.Action.tapSafariExtensionRewrittenUrl, properties: [
+                analytics.log(action: Analytics.Action.tapSafariExtensionRewrittenUrl, properties: [
                     Analytics.Properties.type.rawValue: "walletConnect"
                 ])
             case .mobileLinking:
@@ -508,7 +508,7 @@ extension AppCoordinator: UniversalLinkServiceDelegate {
 
             if resolver.sessions[safe: server] != nil {
                 let coordinator = ImportMagicLinkCoordinator(
-                    analyticsCoordinator: analyticsService,
+                    analytics: analytics,
                     sessions: resolver.sessions,
                     config: config,
                     tokensDatastore: resolver.tokensDataStore,

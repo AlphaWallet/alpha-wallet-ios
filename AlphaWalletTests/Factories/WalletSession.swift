@@ -9,14 +9,14 @@ extension WalletSession {
         server: RPCServer = .main,
         config: Config = .make(),
         tokenBalanceService: TokenBalanceService,
-        analyticsCoordinator: AnalyticsCoordinator = FakeAnalyticsService()
+        analytics: AnalyticsLogger = FakeAnalyticsService()
     ) -> WalletSession {
         return WalletSession(
             account: account,
             server: server,
             config: config,
             tokenBalanceService: tokenBalanceService,
-            analyticsCoordinator: analyticsCoordinator
+            analytics: analytics
         )
     }
 
@@ -24,7 +24,7 @@ extension WalletSession {
         account: Wallet = .make(),
         server: RPCServer = .main,
         config: Config = .make(),
-        analyticsCoordinator: AnalyticsCoordinator = FakeAnalyticsService()
+        analytics: AnalyticsLogger = FakeAnalyticsService()
     ) -> WalletSession {
         let tokenBalanceService = FakeSingleChainTokenBalanceService(wallet: account, server: server, etherToken: Token(contract: AlphaWallet.Address.make(), server: server, value: "0", type: .nativeCryptocurrency))
         return WalletSession(
@@ -32,7 +32,7 @@ extension WalletSession {
             server: server,
             config: config,
             tokenBalanceService: tokenBalanceService,
-            analyticsCoordinator: analyticsCoordinator
+            analytics: analytics
         )
     }
 
@@ -41,7 +41,7 @@ extension WalletSession {
         server: RPCServer,
         config: Config = .make(),
         tokenBalanceService: TokenBalanceService,
-        analyticsCoordinator: AnalyticsCoordinator = FakeAnalyticsService()
+        analytics: AnalyticsLogger = FakeAnalyticsService()
     ) -> WalletSession {
         let tokenBalanceService = FakeSingleChainTokenBalanceService(wallet: account, server: server, etherToken: Token(contract: AlphaWallet.Address.make(), server: server, value: "0", type: .nativeCryptocurrency))
         return WalletSession(
@@ -49,7 +49,7 @@ extension WalletSession {
             server: server,
             config: config,
             tokenBalanceService: tokenBalanceService,
-            analyticsCoordinator: analyticsCoordinator
+            analytics: analytics
         )
     }
 }

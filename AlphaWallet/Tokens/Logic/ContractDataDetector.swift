@@ -27,9 +27,9 @@ class ContractDataDetector {
     private var failed = false
     private var completion: ((ContractData) -> Void)?
 
-    init(address: AlphaWallet.Address, account: Wallet, server: RPCServer, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator) {
+    init(address: AlphaWallet.Address, account: Wallet, server: RPCServer, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger) {
         self.address = address
-        self.tokenProvider = TokenProvider(account: account, server: server, analyticsCoordinator: analyticsCoordinator)
+        self.tokenProvider = TokenProvider(account: account, server: server, analytics: analytics)
         self.assetDefinitionStore = assetDefinitionStore
         namePromise = tokenProvider.getContractName(for: address)
         symbolPromise = tokenProvider.getContractSymbol(for: address)

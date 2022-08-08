@@ -8,7 +8,7 @@ protocol SetSellTokensCardExpiryDateViewControllerDelegate: class, CanOpenURL {
 }
 
 class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiableStatusViewController {
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let roundedBackground = RoundedBackground()
     private let scrollView = UIScrollView()
     private let header = TokensCardViewControllerTitleHeader()
@@ -54,7 +54,7 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
 
 // swiftlint:disable function_body_length
     init(
-            analyticsCoordinator: AnalyticsCoordinator,
+            analytics: AnalyticsLogger,
             paymentFlow: PaymentFlow,
             tokenHolder: TokenHolder,
             ethCost: Ether,
@@ -63,7 +63,7 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
             keystore: Keystore,
             session: WalletSession
     ) {
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.paymentFlow = paymentFlow
         self.tokenHolder = tokenHolder
         self.ethCost = ethCost
@@ -75,7 +75,7 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
         case .backedByOpenSea:
             tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notBackedByOpenSea:
-            tokenRowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: session.account)
+            tokenRowView = TokenCardRowView(analytics: analytics, server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: session.account)
         }
 
         super.init(nibName: nil, bundle: nil)

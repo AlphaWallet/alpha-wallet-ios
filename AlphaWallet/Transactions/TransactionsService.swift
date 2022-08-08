@@ -17,7 +17,7 @@ class TransactionsService {
     let transactionDataStore: TransactionDataStore
     private let sessions: ServerDictionary<WalletSession>
     private let tokensDataStore: TokensDataStore
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private var providers: [SingleChainTransactionProvider] = []
     private var config: Config { return sessions.anyValue.config }
     private let fetchLatestTransactionsQueue: OperationQueue = {
@@ -45,11 +45,11 @@ class TransactionsService {
     private var cancelable = Set<AnyCancellable>()
     private let queue = DispatchQueue(label: "com.TransactionsService.UpdateQueue")
 
-    init(sessions: ServerDictionary<WalletSession>, transactionDataStore: TransactionDataStore, tokensDataStore: TokensDataStore, analyticsCoordinator: AnalyticsCoordinator) {
+    init(sessions: ServerDictionary<WalletSession>, transactionDataStore: TransactionDataStore, tokensDataStore: TokensDataStore, analytics: AnalyticsLogger) {
         self.sessions = sessions
         self.transactionDataStore = transactionDataStore
         self.tokensDataStore = tokensDataStore
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
 
         setupSingleChainTransactionProviders()
 
@@ -80,7 +80,7 @@ class TransactionsService {
             let providerType = each.server.transactionProviderType
             let tokensFromTransactionsFetcher = TokensFromTransactionsFetcher(tokensDataStore: tokensDataStore, session: each)
             tokensFromTransactionsFetcher.delegate = self
-            let provider = providerType.init(session: each, analyticsCoordinator: analyticsCoordinator, transactionDataStore: transactionDataStore, tokensDataStore: tokensDataStore, fetchLatestTransactionsQueue: fetchLatestTransactionsQueue, tokensFromTransactionsFetcher: tokensFromTransactionsFetcher)
+            let provider = providerType.init(session: each, analytics: analytics, transactionDataStore: transactionDataStore, tokensDataStore: tokensDataStore, fetchLatestTransactionsQueue: fetchLatestTransactionsQueue, tokensFromTransactionsFetcher: tokensFromTransactionsFetcher)
             provider.delegate = self
 
             return provider

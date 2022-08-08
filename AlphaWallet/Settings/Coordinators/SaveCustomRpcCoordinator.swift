@@ -34,18 +34,18 @@ class SaveCustomRpcCoordinator: NSObject, Coordinator {
     private let navigationController: UINavigationController
     private let config: Config
     private let restartQueue: RestartTaskQueue
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
     private let operation: SaveOperationType
     private var activeViewController: OverallProtocol?
 
     var coordinators: [Coordinator] = []
     weak var delegate: SaveCustomRpcCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, config: Config, restartQueue: RestartTaskQueue, analyticsCoordinator: AnalyticsCoordinator, operation: SaveOperationType) {
+    init(navigationController: UINavigationController, config: Config, restartQueue: RestartTaskQueue, analytics: AnalyticsLogger, operation: SaveOperationType) {
         self.navigationController = navigationController
         self.config = config
         self.restartQueue = restartQueue
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
         self.operation = operation
     }
 
@@ -110,7 +110,7 @@ extension SaveCustomRpcCoordinator: SaveCustomRpcEntryViewControllerDataDelegate
         }
 
         let customChain = WalletAddEthereumChainObject(nativeCurrency: .init(name: customRpc.nativeCryptoTokenName ?? R.string.localizable.addCustomChainUnnamed(), symbol: customRpc.symbol ?? "", decimals: defaultDecimals), blockExplorerUrls: explorerEndpoints, chainName: customRpc.chainName, chainId: String(customRpc.chainID), rpcUrls: [customRpc.rpcEndpoint])
-        let saveCustomChain = AddCustomChain(customChain, analyticsCoordinator: analyticsCoordinator, isTestnet: customRpc.isTestnet, restartQueue: restartQueue, url: nil, operation: operation)
+        let saveCustomChain = AddCustomChain(customChain, analytics: analytics, isTestnet: customRpc.isTestnet, restartQueue: restartQueue, url: nil, operation: operation)
         saveCustomChain.delegate = self
         saveCustomChain.run()
     }
@@ -121,7 +121,7 @@ extension SaveCustomRpcCoordinator: SaveCustomRpcBrowseViewControllerDataDelegat
 
     func didFinish(in viewController: SaveCustomRpcBrowseViewController, customRpcArray: [CustomRPC]) {
         let model = AddMultipleCustomRpcModel(remainingCustomRpc: customRpcArray)
-        let addViewController = AddMultipleCustomRpcViewController(model: model, analyticsCoordinator: analyticsCoordinator, restartQueue: restartQueue)
+        let addViewController = AddMultipleCustomRpcViewController(model: model, analytics: analytics, restartQueue: restartQueue)
         addViewController.delegate = self
         viewController.present(addViewController, animated: true) {
             addViewController.start()
@@ -139,9 +139,9 @@ extension SaveCustomRpcCoordinator: AddCustomChainDelegate {
     func notifyAddCustomChainQueuedSuccessfully(in addCustomChain: AddCustomChain) {
         switch operation {
         case .add:
-            analyticsCoordinator.log(action: Analytics.Action.addCustomChain, properties: [Analytics.Properties.addCustomChainType.rawValue: "user"])
+            analytics.log(action: Analytics.Action.addCustomChain, properties: [Analytics.Properties.addCustomChainType.rawValue: "user"])
         case .edit:
-            analyticsCoordinator.log(action: Analytics.Action.editCustomChain, properties: [Analytics.Properties.addCustomChainType.rawValue: "user"])
+            analytics.log(action: Analytics.Action.editCustomChain, properties: [Analytics.Properties.addCustomChainType.rawValue: "user"])
         }
         delegate?.restartToEdit(in: self)
     }

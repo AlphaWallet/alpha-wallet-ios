@@ -12,20 +12,20 @@ class SendTransaction {
     private let session: WalletSession
     private let confirmType: ConfirmType
     private let config: Config
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private let analytics: AnalyticsLogger
 
     init(
         session: WalletSession,
         keystore: Keystore,
         confirmType: ConfirmType,
         config: Config,
-        analyticsCoordinator: AnalyticsCoordinator
+        analytics: AnalyticsLogger
     ) {
         self.session = session
         self.keystore = keystore
         self.confirmType = confirmType
         self.config = config
-        self.analyticsCoordinator = analyticsCoordinator
+        self.analytics = analytics
     }
 
     func send(rawTransaction: String) -> Promise<ConfirmResult> {
@@ -34,7 +34,7 @@ class SendTransaction {
         let request = EtherServiceRequest(rpcURL: rpcURL, rpcHeaders: rpcHeaders, batch: BatchFactory().create(rawRequest))
 
         return firstly {
-            Session.send(request, server: session.server, analyticsCoordinator: analyticsCoordinator)
+            Session.send(request, server: session.server, analytics: analytics)
         }.recover { error -> Promise<SendRawTransactionRequest.Response> in
             self.logSelectSendError(error)
             throw error
@@ -74,7 +74,7 @@ class SendTransaction {
     private func resolveNextNonce(for transaction: UnsignedTransaction) -> Promise<UnsignedTransaction> {
         let (rpcURL, rpcHeaders) = rpcURLAndHeaders
         return firstly {
-            GetNextNonce(rpcURL: rpcURL, rpcHeaders: rpcHeaders, server: session.server, wallet: session.account.address, analyticsCoordinator: analyticsCoordinator).promise()
+            GetNextNonce(rpcURL: rpcURL, rpcHeaders: rpcHeaders, server: session.server, wallet: session.account.address, analytics: analytics).promise()
         }.map { nonce -> UnsignedTransaction in
             let transaction = self.appendNonce(to: transaction, currentNonce: nonce)
             return transaction
@@ -100,7 +100,7 @@ class SendTransaction {
         let request = EtherServiceRequest(rpcURL: rpcURL, rpcHeaders: rpcHeaders, batch: BatchFactory().create(rawTransaction))
 
         return firstly {
-            Session.send(request, server: session.server, analyticsCoordinator: analyticsCoordinator)
+            Session.send(request, server: session.server, analytics: analytics)
         }.recover { error -> Promise<SendRawTransactionRequest.Response> in
             self.logSelectSendError(error)
             throw error
@@ -115,7 +115,7 @@ class SendTransaction {
         guard let error = error as? SendTransactionNotRetryableError else { return }
         switch error {
         case .nonceTooLow:
-            analyticsCoordinator.log(error: Analytics.Error.sendTransactionNonceTooLow)
+            analytics.log(error: Analytics.Error.sendTransactionNonceTooLow)
         case .insufficientFunds, .gasPriceTooLow, .gasLimitTooLow, .gasLimitTooHigh, .possibleChainIdMismatch, .executionReverted:
             break
         }
