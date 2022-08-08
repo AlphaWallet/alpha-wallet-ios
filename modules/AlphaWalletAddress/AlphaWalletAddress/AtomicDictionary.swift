@@ -33,6 +33,13 @@ public class AtomicDictionary<Key: Hashable, Value> {
         self.cache = value
     }
 
+    public func set(value: [Key: Value]) {
+        dispatchPrecondition(condition: .notOnQueue(queue))
+        queue.sync { [unowned self] in
+            self.cache = value
+        }
+    }
+
     public func removeAll() {
         dispatchPrecondition(condition: .notOnQueue(queue))
         queue.sync { [unowned self] in
