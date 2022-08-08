@@ -21,7 +21,7 @@ extension FakeWallet {
     }
 }
 
-class FakeEtherKeystore: EtherKeystore {
+final class FakeEtherKeystore: EtherKeystore {
     convenience init(wallets: [FakeWallet] = [], recentlyUsedWallet: Wallet? = nil) {
         let uniqueString = NSUUID().uuidString
         let walletAddressesStore = fakeWalletAddressStore(wallets: wallets, recentlyUsedWallet: recentlyUsedWallet)
