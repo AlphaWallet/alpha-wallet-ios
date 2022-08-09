@@ -13,7 +13,7 @@ import BigInt
 import Combine
 
 protocol NFTCollectionCoordinatorDelegate: class, CanOpenURL {
-    func didCancel(in coordinator: NFTCollectionCoordinator)
+    func didClose(in coordinator: NFTCollectionCoordinator)
     func didPress(for type: PaymentFlow, inViewController viewController: UIViewController, in coordinator: NFTCollectionCoordinator)
     func didTap(transaction: TransactionInstance, in coordinator: NFTCollectionCoordinator)
     func didTap(activity: Activity, in coordinator: NFTCollectionCoordinator)
@@ -66,15 +66,13 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
     }
 
     func start() {
-        rootViewController.navigationItem.leftBarButtonItem = .backBarButton(self, selector: #selector(closeDidSelect))
         navigationController.pushViewController(rootViewController, animated: true)
         subscribeForEthereumEventChanges()
     }
 
-    @objc private func closeDidSelect(_ sender: UIBarButtonItem) {
-        navigationController.popViewController(animated: true)
-        delegate?.didCancel(in: self)
-    }
+    func didClose(in viewController: NFTCollectionViewController) {
+        delegate?.didClose(in: self)
+    } 
 
     private func subscribeForEthereumEventChanges() {
         eventsDataStore
@@ -352,7 +350,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
             //Be annoying if user copies and we close the sell process
             if completed && activityType != UIActivity.ActivityType.copyToPasteboard {
                 strongSelf.navigationController.dismiss(animated: false) {
-                    strongSelf.delegate?.didCancel(in: strongSelf)
+                    strongSelf.delegate?.didClose(in: strongSelf)
                 }
             }
         }
@@ -376,7 +374,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
             //Be annoying if user copies and we close the transfer process
             if completed && activityType != UIActivity.ActivityType.copyToPasteboard {
                 strongSelf.navigationController.dismiss(animated: false) {
-                    strongSelf.delegate?.didCancel(in: strongSelf)
+                    strongSelf.delegate?.didClose(in: strongSelf)
                 }
             }
         }
@@ -430,10 +428,6 @@ extension NFTCollectionCoordinator: NFTCollectionViewControllerDelegate {
             vc = createNFTAssetViewController(tokenHolder: tokenHolder, tokenId: tokenHolder.tokenId, mode: mode)
         }
 
-        vc.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(selectionClosure: { _ in
-            navigationController?.popViewController(animated: true)
-        })
-
         navigationController?.pushViewController(vc, animated: true)
     }
 
@@ -464,10 +458,6 @@ extension NFTCollectionCoordinator: NFTCollectionViewControllerDelegate {
         showEnterPriceQuantityViewController(tokenHolder: tokenHolder, forPaymentFlow: paymentFlow, in: viewController)
     }
 
-    func didCancel(in viewController: NFTCollectionViewController) {
-        delegate?.didCancel(in: self)
-    }
-
     func didPressViewRedemptionInfo(in viewController: NFTCollectionViewController) {
         showViewRedemptionInfo(in: viewController)
     }
@@ -481,10 +471,6 @@ extension NFTCollectionCoordinator: NFTCollectionViewControllerDelegate {
 
     func didTapTokenInstanceIconified(tokenHolder: TokenHolder, in viewController: NFTCollectionViewController) {
         let vc = createNFTAssetViewController(tokenHolder: tokenHolder, tokenId: tokenHolder.tokenId)
-        vc.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(selectionClosure: { _ in
-            viewController.navigationController?.popViewController(animated: true)
-        })
-
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
 }
@@ -496,10 +482,6 @@ extension NFTCollectionCoordinator: NFTAssetListViewControllerDelegate {
 
     func didSelectTokenCard(in viewController: NFTAssetListViewController, tokenId: TokenId) {
         let vc = createNFTAssetViewController(tokenHolder: viewController.tokenHolder, tokenId: tokenId)
-        vc.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(selectionClosure: { _ in
-            viewController.navigationController?.popViewController(animated: true)
-        })
-
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
 }

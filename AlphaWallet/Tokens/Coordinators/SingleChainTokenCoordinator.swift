@@ -119,10 +119,6 @@ class SingleChainTokenCoordinator: Coordinator {
         let viewController = FungibleTokenViewController(keystore: keystore, analytics: analytics, viewModel: viewModel, activitiesService: activitiesService, alertService: alertService)
         viewController.delegate = self
 
-        viewController.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(selectionClosure: { _ in
-            navigationController.popToRootViewController(animated: true)
-        })
-
         navigationController.pushViewController(viewController, animated: true)
     }
 
@@ -130,6 +126,10 @@ class SingleChainTokenCoordinator: Coordinator {
         let tokenHolder = token.getTokenHolder(assetDefinitionStore: assetDefinitionStore, forWallet: session.account)
         delegate?.didPress(for: .send(type: .tokenScript(action: action, token: token, tokenHolder: tokenHolder)), viewController: navigationController, in: self)
     }
+
+    func didClose(in viewController: FungibleTokenViewController) {
+        //no-op
+    } 
 }
 
 extension SingleChainTokenCoordinator: NFTCollectionCoordinatorDelegate {
@@ -145,7 +145,7 @@ extension SingleChainTokenCoordinator: NFTCollectionCoordinatorDelegate {
         delegate?.didPress(for: type, viewController: viewController, in: self)
     }
 
-    func didCancel(in coordinator: NFTCollectionCoordinator) {
+    func didClose(in coordinator: NFTCollectionCoordinator) {
         removeCoordinator(coordinator)
     }
 
