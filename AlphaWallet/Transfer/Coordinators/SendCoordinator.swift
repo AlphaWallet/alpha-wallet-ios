@@ -54,7 +54,7 @@ class SendCoordinator: Coordinator {
 
         navigationController.pushViewController(sendViewController, animated: true)
     }
-
+    
     private func makeSendViewController() -> SendViewController {
         let controller = SendViewController(
             session: session,
@@ -79,16 +79,9 @@ class SendCoordinator: Coordinator {
         }
         controller.delegate = self
         controller.navigationItem.largeTitleDisplayMode = .never
-        controller.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(dismiss))
 
         return controller
-    }
-
-    @objc private func dismiss() {
-        removeAllCoordinators()
-
-        delegate?.didCancel(in: self)
-    }
+    } 
 }
 
 extension SendCoordinator: ScanQRCodeCoordinatorDelegate {
@@ -103,7 +96,11 @@ extension SendCoordinator: ScanQRCodeCoordinatorDelegate {
 }
 
 extension SendCoordinator: SendViewControllerDelegate {
-    func openQRCode(in controller: SendViewController) {
+    func didClose(in viewController: SendViewController) {
+        delegate?.didCancel(in: self)
+    }
+
+    func openQRCode(in viewController: SendViewController) {
         guard navigationController.ensureHasDeviceAuthorization() else { return }
 
         let coordinator = ScanQRCodeCoordinator(analytics: analytics, navigationController: navigationController, account: session.account, domainResolutionService: domainResolutionService)

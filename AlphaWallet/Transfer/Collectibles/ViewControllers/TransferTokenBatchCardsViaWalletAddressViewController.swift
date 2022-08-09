@@ -11,6 +11,7 @@ protocol TransferTokenBatchCardsViaWalletAddressViewControllerDelegate: class, C
     func didEnterWalletAddress(tokenHolders: [TokenHolder], to recipient: AlphaWallet.Address, in viewController: TransferTokenBatchCardsViaWalletAddressViewController)
     func openQRCode(in controller: TransferTokenBatchCardsViaWalletAddressViewController)
     func didSelectTokenHolder(tokenHolder: TokenHolder, in viewController: TransferTokenBatchCardsViaWalletAddressViewController)
+    func didClose(in viewController: TransferTokenBatchCardsViaWalletAddressViewController)
 }
 
 //TODO: support ERC1155 fungibles (where decimals is provided and > 0)
@@ -101,6 +102,13 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
 
     required init?(coder aDecoder: NSCoder) {
         return nil
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if isMovingFromParent || isBeingDismissed {
+            delegate?.didClose(in: self)
+        }
     }
 
     private func generateSubviews(viewModel: TransferTokenBatchCardsViaWalletAddressViewControllerViewModel) {

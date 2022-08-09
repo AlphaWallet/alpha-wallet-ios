@@ -12,7 +12,8 @@ import Combine
 protocol SendViewControllerDelegate: class, CanOpenURL {
     func didPressConfirm(transaction: UnconfirmedTransaction, in viewController: SendViewController, amount: String, shortValue: String?)
     func lookup(contract: AlphaWallet.Address, in viewController: SendViewController, completion: @escaping (ContractData) -> Void)
-    func openQRCode(in controller: SendViewController)
+    func openQRCode(in viewController: SendViewController)
+    func didClose(in viewController: SendViewController)
 }
 
 class SendViewController: UIViewController {
@@ -107,6 +108,13 @@ class SendViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         activateAmountView()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if isMovingFromParent || isBeingDismissed {
+            delegate?.didClose(in: self)
+        }
     }
 
     @objc func closeKeyboard() {
