@@ -7,16 +7,27 @@
 
 import Foundation
 import BigInt
+import AlphaWalletOpenSea
 
-struct Erc20BalanceViewModel: BalanceViewModel {
-    private let token: Token
-    private (set) var ticker: CoinTicker?
+protocol BalanceRepresentable {
+    var balance: [TokenBalanceValue] { get }
+    var value: BigInt { get }
+    var type: TokenType { get }
+    var decimals: Int { get }
+    var symbol: String { get }
+    var server: RPCServer { get }
+}
 
-    init(token: Token, ticker: CoinTicker?) {
+struct Erc20BalanceViewModel: BalanceViewModelType {
+    private let token: BalanceRepresentable
+    var ticker: CoinTicker?
+
+    init(token: BalanceRepresentable, ticker: CoinTicker?) {
         self.token = token
         self.ticker = ticker
     }
 
+    var balance: [TokenBalanceValue] { return [] }
     var value: BigInt { token.value }
     var amount: Double { return EtherNumberFormatter.plain.string(from: token.value).doubleValue }
 
@@ -32,7 +43,7 @@ struct Erc20BalanceViewModel: BalanceViewModel {
     }
 
     var currencyAmountWithoutSymbol: Double? {
-        guard let currentRate = cryptoRate(forToken: token) else { return nil }
+        guard let currentRate = cryptoRate() else { return nil }
         return amount * currentRate.price
     }
 
@@ -41,7 +52,7 @@ struct Erc20BalanceViewModel: BalanceViewModel {
     var symbol: String { return token.symbol }
 
     //NOTE: we suppose ticker.symbol is the same as token.symbol, for erc20 tokens
-    private func cryptoRate(forToken token: Token) -> Rate? {
+    private func cryptoRate() -> Rate? {
         guard let ticker = ticker else { return nil }
         let symbol = ticker.symbol.lowercased()
         if let value = ticker.rate.rates.first(where: { $0.code == symbol }) {

@@ -51,16 +51,11 @@ class TokensCoordinator: Coordinator {
     private let activitiesService: ActivitiesServiceType
     //NOTE: private (set) - `For test purposes only`
     private (set) lazy var tokensViewController: TokensViewController = {
-        let controller = TokensViewController(
-            sessions: sessions,
-            tokenCollection: tokenCollection,
-            assetDefinitionStore: assetDefinitionStore,
-            config: config,
-            walletConnectCoordinator: walletConnectCoordinator,
-            walletBalanceService: walletBalanceService,
-            eventsDataStore: eventsDataStore
-        )
+        let viewModel = TokensViewModel(wallet: sessions.anyValue.account, tokenCollection: tokenCollection, walletConnectCoordinator: walletConnectCoordinator, walletBalanceService: walletBalanceService, config: config, domainResolutionService: domainResolutionService, blockiesGenerator: blockiesGenerator)
+        let controller = TokensViewController(viewModel: viewModel)
+
         controller.delegate = self
+
         return controller
     }()
 
@@ -86,11 +81,9 @@ class TokensCoordinator: Coordinator {
         return tokenCollection.tokensDataStore
     }
     private var viewWillAppearHandled = false
-    private var cancelable = Set<AnyCancellable>()
     private let blockiesGenerator: BlockiesGenerator
     private let domainResolutionService: DomainResolutionServiceType
     private let importToken: ImportToken
-    private lazy var walletNameFetcher = GetWalletName(domainResolutionService: domainResolutionService)
 
     init(
             navigationController: UINavigationController = .withOverridenBarAppearence(),
@@ -221,39 +214,8 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     func whereAreMyTokensSelected(in viewController: UIViewController) {
         delegate?.whereAreMyTokensSelected(in: self)
     }
-
-    private func getWalletName() {
-        let viewModel = tokensViewController.viewModel
-
-        tokensViewController.title = viewModel.walletDefaultTitle
-
-        walletNameFetcher
-            .assignedNameOrEns(for: sessions.anyValue.account.address)
-            .map { ensOrName in
-                if let ensOrName = ensOrName {
-                    return ensOrName
-                } else {
-                    return viewModel.walletDefaultTitle
-                }
-            }.prepend(viewModel.walletDefaultTitle)
-            .sink(receiveValue: { [weak self] name in
-                self?.tokensViewController.navigationItem.title = name
-            }).store(in: &cancelable)
-    }
-
-    private func getWalletBlockie() {
-        blockiesGenerator.getBlockieOrEnsAvatarImage(address: sessions.anyValue.account.address, fallbackImage: BlockiesImage.defaulBlockieImage)
-            .sink(receiveValue: { [weak tokensViewController] image in
-                tokensViewController?.blockieImageView.setBlockieImage(image: image)
-            }).store(in: &cancelable)
-    }
-
+    
     func viewWillAppear(in viewController: UIViewController) {
-        cancelable.cancellAll() //important to cancel all prev subscriptions, need to make sure that sink called once for such subscriptions
-
-        getWalletName()
-        getWalletBlockie()
-
         guard !viewWillAppearHandled else { return }
         viewWillAppearHandled = true
 
@@ -289,7 +251,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
 
         let addHideTokensAction = UIAlertAction(title: R.string.localizable.walletsAddHideTokensTitle(), style: .default) { [weak self] _ in
             guard let strongSelf = self else { return }
-            strongSelf.didPressAddHideTokens(viewModel: strongSelf.rootViewController.viewModel)
+            strongSelf.didPressAddHideTokens()
         }
         alertController.addAction(addHideTokensAction)
 
@@ -332,7 +294,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         navigationController.pushViewController(viewController, animated: true)
     }
 
-    private func didPressAddHideTokens(viewModel: TokensViewModel) {
+    private func didPressAddHideTokens() {
         let coordinator: AddHideTokensCoordinator = .init(
             assetDefinitionStore: assetDefinitionStore,
             tokenCollection: tokenCollection,
@@ -363,12 +325,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     }
 
     func didSelect(token: Token, in viewController: UIViewController) {
-
         showSingleChainToken(token: token, in: navigationController)
-    }
-
-    func didHide(token: Token, in viewController: UIViewController) {
-        tokensDataStore.updateToken(primaryKey: token.primaryKey, action: .isHidden(true))
     }
 
     func didTapOpenConsole(in viewController: UIViewController) {
@@ -462,14 +419,9 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
         sendToAddress = address
 
         let coordinator = SelectTokenCoordinator(
-            assetDefinitionStore: assetDefinitionStore,
-            wallet: sessions.anyValue.account,
-            tokenBalanceService: sessions.anyValue.tokenBalanceService,
             tokenCollection: tokenCollection,
             navigationController: navigationController,
-            filter: .filter(NativeCryptoOrErc20TokenFilter()),
-            eventsDataStore: eventsDataStore
-        )
+            filter: .filter(NativeCryptoOrErc20TokenFilter()))
         coordinator.delegate = self
         addCoordinator(coordinator)
 

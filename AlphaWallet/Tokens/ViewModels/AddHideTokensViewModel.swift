@@ -4,12 +4,18 @@ import Foundation
 import PromiseKit
 import Combine
 
+protocol TokenIdentifiable {
+    var contractAddress: AlphaWallet.Address { get }
+    var server: RPCServer { get }
+}
+
 //NOTE: Changed to class to prevent update all ViewModel copies and apply updates only in one place.
+//TODO: Refactor with input and output for view model
 class AddHideTokensViewModel: ObservableObject {
-    private var tokens: [Token] = []
+    private var tokens: [TokenViewModel] = []
     private var allPopularTokens: [PopularToken] = []
-    private var displayedTokens: [Token] = []
-    private var hiddenTokens: [Token] = []
+    private var displayedTokens: [TokenViewModel] = []
+    private var hiddenTokens: [TokenViewModel] = []
     private var popularTokens: [PopularToken] = []
     private let importToken: ImportToken
     private let popularTokensCollection: PopularTokensCollectionType = LocalPopularTokensCollection()
@@ -42,10 +48,10 @@ class AddHideTokensViewModel: ObservableObject {
     }
 
     func viewDidLoad() {
-        tokenCollection.tokensViewModel
+        tokenCollection.tokens
             .first() //NOTE: out of current logic we load db snapshot, and not handling updates in changeset
-            .sink { [weak self] viewModel in
-                self?.tokens = viewModel.tokens
+            .sink { [weak self] tokens in
+                self?.tokens = tokens
                 self?.filterTokens()
                 self?.objectWillChange.send()
             }.store(in: &cancelable)
@@ -87,34 +93,40 @@ class AddHideTokensViewModel: ObservableObject {
     }
 
     func add(token: Token) {
-        if !tokens.contains(token) {
-            tokens.append(token)
+        let viewModel = TokenViewModel(token: token)
+        if !tokens.contains(viewModel) {
+            tokens.append(viewModel)
         }
 
         filterTokens()
         objectWillChange.send()
-    } 
+    }
 
     func markTokenAsDisplayed(at indexPath: IndexPath) -> ShowHideTokenResult {
         switch sections[indexPath.section] {
         case .displayedTokens, .availableNewTokens, .sortingFilters:
             break
         case .hiddenTokens:
-            let token = hiddenTokens.remove(at: indexPath.row)
-            displayedTokens.append(token)
+            let tokenViewModel = hiddenTokens.remove(at: indexPath.row)
+            guard let token = tokenCollection.token(for: tokenViewModel.contractAddress, server: tokenViewModel.server) else { return .value(nil) }
+            displayedTokens.append(tokenViewModel)
 
             if let sectionIndex = sections.index(of: .displayedTokens) {
+                tokenCollection.mark(token: token, isHidden: false)
+
                 return .value((token, IndexPath(row: max(0, displayedTokens.count - 1), section: Int(sectionIndex))))
             }
         case .popularTokens:
             let token = popularTokens[indexPath.row]
             let promise = importToken
                 .importToken(for: token.contractAddress, server: token.server, onlyIfThereIsABalance: false)
-                .then { token -> Promise<TokenWithIndexToInsert?> in
+                .then { [tokenCollection] token -> Promise<TokenWithIndexToInsert?> in
                     self.popularTokens.remove(at: indexPath.row)
-                    self.displayedTokens.append(token)
+                    self.displayedTokens.append(.init(token: token))
 
                     if let sectionIndex = self.sections.index(of: .displayedTokens) {
+                        tokenCollection.mark(token: token, isHidden: false)
+
                         return .value((token, IndexPath(row: max(0, self.displayedTokens.count - 1), section: Int(sectionIndex))))
                     }
 
@@ -130,10 +142,13 @@ class AddHideTokensViewModel: ObservableObject {
     func markTokenAsHidden(at indexPath: IndexPath) -> ShowHideTokenResult {
         switch sections[indexPath.section] {
         case .displayedTokens:
-            let token = displayedTokens.remove(at: indexPath.row)
-            hiddenTokens.insert(token, at: 0)
+            let viewModel = displayedTokens.remove(at: indexPath.row)
+            guard let token = tokenCollection.token(for: viewModel.contractAddress, server: viewModel.server) else { return .value(nil) }
+            hiddenTokens.insert(viewModel, at: 0)
 
             if let sectionIndex = sections.index(of: .hiddenTokens) {
+                tokenCollection.mark(token: token, isHidden: true)
+                
                 return .value((token, IndexPath(row: 0, section: Int(sectionIndex))))
             }
         case .hiddenTokens, .availableNewTokens, .popularTokens, .sortingFilters:
@@ -146,7 +161,9 @@ class AddHideTokensViewModel: ObservableObject {
     func editingStyle(indexPath: IndexPath) -> UITableViewCell.EditingStyle {
         switch sections[indexPath.section] {
         case .displayedTokens:
-            return .delete
+            let token = displayedTokens[indexPath.row]
+            guard token.contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) else { return .delete }
+            return .none
         case .availableNewTokens, .popularTokens, .hiddenTokens:
             return .insert
         case .sortingFilters:
@@ -194,7 +211,7 @@ class AddHideTokensViewModel: ObservableObject {
         displayedTokens.removeAll()
         hiddenTokens.removeAll()
 
-        let filteredTokens = tokenCollection.tokensFilter.filterTokens(tokens: tokens, filter: .keyword(searchText ?? ""))
+        let filteredTokens: [TokenViewModel] = tokenCollection.tokensFilter.filterTokens(tokens: tokens, filter: .keyword(searchText ?? ""))
         for token in filteredTokens {
             if token.shouldDisplay {
                 displayedTokens.append(token)
@@ -249,6 +266,8 @@ extension AddHideTokensViewModel {
         case promise(Promise<TokenWithIndexToInsert?>)
     }
 }
+
+extension TokenViewModel: TokenIdentifiable { }
 
 extension AddHideTokensViewModel {
     class functional {}

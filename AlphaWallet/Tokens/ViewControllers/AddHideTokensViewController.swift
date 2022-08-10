@@ -7,7 +7,6 @@ import Combine
 
 protocol AddHideTokensViewControllerDelegate: AnyObject {
     func didPressAddToken(in viewController: UIViewController, with addressString: String)
-    func didMark(token: Token, in viewController: UIViewController, isHidden: Bool)
     func didClose(in viewController: AddHideTokensViewController)
 }
 
@@ -120,7 +119,6 @@ class AddHideTokensViewController: UIViewController {
         tokenFilterView.configure(viewModel: .init(selectionItems: SortTokensParam.allCases, selected: viewModel.sortTokensParam))
 
         viewModel.objectWillChange
-            .receive(on: RunLoop.main)
             .sink { [weak self] _ in
                 self?.reload()
             }.store(in: &cancelable)
@@ -166,24 +164,18 @@ extension AddHideTokensViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         let result: AddHideTokensViewModel.ShowHideTokenResult
-        let isTokenHidden: Bool
-
         switch editingStyle {
         case .insert:
             result = viewModel.markTokenAsDisplayed(at: indexPath)
-            isTokenHidden = false
         case .delete:
             result = viewModel.markTokenAsHidden(at: indexPath)
-            isTokenHidden = true
         case .none:
             result = .value(nil)
-            isTokenHidden = false
         }
 
         switch result {
         case .value(let result):
-            if let result = result, let delegate = delegate {
-                delegate.didMark(token: result.token, in: self, isHidden: isTokenHidden)
+            if let result = result {
                 tableView.performBatchUpdates({
                     tableView.insertRows(at: [result.indexPathToInsert], with: .automatic)
                     tableView.deleteRows(at: [indexPath], with: .automatic)
@@ -193,12 +185,8 @@ extension AddHideTokensViewController: UITableViewDataSource {
             }
         case .promise(let promise):
             self.displayLoading()
-            promise.done(on: .none, flags: .barrier) { [weak self] result in
-                guard let strongSelf = self else { return }
-
-                if let result = result, let delegate = strongSelf.delegate {
-                    delegate.didMark(token: result.token, in: strongSelf, isHidden: isTokenHidden)
-                }
+            promise.done(on: .none, flags: .barrier) { _ in
+                //no-op
             }.catch { _ in
                 self.displayError(message: R.string.localizable.walletsHideTokenErrorAddTokenFailure())
             }.finally {
@@ -211,14 +199,10 @@ extension AddHideTokensViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let title = R.string.localizable.walletsHideTokenTitle()
-        let hideAction = UIContextualAction(style: .destructive, title: title) { [weak self] _, _, completionHandler in
-            guard let strongSelf = self else { return }
-
-            switch strongSelf.viewModel.markTokenAsHidden(at: indexPath) {
+        let hideAction = UIContextualAction(style: .destructive, title: title) { [viewModel] _, _, completionHandler in
+            switch viewModel.markTokenAsHidden(at: indexPath) {
             case .value(let result):
-                if let result = result, let delegate = strongSelf.delegate {
-                    delegate.didMark(token: result.token, in: strongSelf, isHidden: true)
-
+                if let result = result {
                     tableView.performBatchUpdates({
                         tableView.deleteRows(at: [indexPath], with: .automatic)
                         tableView.insertRows(at: [result.indexPathToInsert], with: .automatic)

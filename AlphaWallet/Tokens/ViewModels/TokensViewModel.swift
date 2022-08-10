@@ -2,100 +2,52 @@
 
 import Foundation
 import UIKit
+import Combine
 
-enum TokenOrRpcServer {
-    case token(Token)
-    case rpcServer(RPCServer)
-
-    var token: Token? {
-        switch self {
-        case .rpcServer:
-            return nil
-        case .token(let token):
-            return token
-        }
-    }
-
-    var canDelete: Bool {
-        switch self {
-        case .rpcServer:
-            return false
-        case .token(let token):
-            //guard !token.isInvalidated else { return false }
-            if token.contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
-                return false
-            }
-            return true
-        }
-    }
+struct TokensViewModelInput {
+    let appear: AnyPublisher<Void, Never>
+    let pullToRefresh: AnyPublisher<Void, Never>
+    let selection: AnyPublisher<TokensViewModel.SelectionSource, Never>
 }
 
-struct CollectiblePairs: Hashable {
-    let left: Token
-    let right: Token?
+struct TokensViewModelOutput {
+    let viewModels: AnyPublisher<[TokensViewModel.SectionViewModel], Never>
+    let walletSummary: AnyPublisher<WalletSummary, Never>
+    let blockieImage: AnyPublisher<BlockiesImage, Never>
+    let navigationTitle: AnyPublisher<String, Never>
+    let selection: AnyPublisher<Token, Never>
+    let pullToRefreshState: AnyPublisher<TokensViewModel.PullToRefreshState, Never>
+    let deletion: AnyPublisher<[IndexPath], Never>
 }
 
-extension TokensViewModel {
-    enum Section: Equatable {
-        case walletSummary
-        case filters
-        case testnetTokens
-        case search
-        case tokens
-        case collectiblePairs
-        case activeWalletSession(count: Int)
-    }
+protocol TokensViewModelType {
+    func transform(input: TokensViewModelInput) -> TokensViewModelOutput
 }
 
 //Must be a class, and not a struct, otherwise changing `filter` will silently create a copy of TokensViewModel when user taps to change the filter in the UI and break filtering
-class TokensViewModel {
+class TokensViewModel: TokensViewModelType {
+    private let tokenCollection: TokenCollection
+    private let walletConnectCoordinator: WalletConnectCoordinator
+    private let walletBalanceService: WalletBalanceService
     //Must be computed because localization can be overridden by user dynamically
     static var segmentedControlTitles: [String] { WalletFilter.orderedTabs.map { $0.title } }
-
+    private var cancellable = Set<AnyCancellable>()
     private let tokensFilter: TokensFilter
-    private (set) var tokens: [Token]
-    let config: Config
-    var isSearchActive: Bool = false
-    var filter: WalletFilter = .all {
-        didSet {
-            filteredTokens = filteredAndSortedTokens()
-            refreshSections(walletConnectSessions: walletConnectSessions)
-        }
-    }
-    var walletConnectSessions: Int = 0
+    private (set) var tokens: [TokenViewModel] = []
+    private (set) var isSearchActive: Bool = false
+    private (set) var filter: WalletFilter = .all
+    private (set) var walletConnectSessions: Int = 0
     private (set) var sections: [Section] = []
     private var tokenListSection: Section = .tokens
-
-    private func refreshSections(walletConnectSessions count: Int) {
-        let varyTokenOrCollectiblePeirsSection: Section = {
-            switch filter {
-            case .all, .defi, .governance, .keyword, .assets, .filter:
-                return .tokens
-            case .collectiblesOnly:
-                return .collectiblePairs
-            }
-        }()
-
-        if isSearchActive {
-            sections = [varyTokenOrCollectiblePeirsSection]
-        } else {
-            let initialSections: [Section]
-            let testnetHeaderSections: [Section]
-
-            if config.enabledServers.allSatisfy({ $0.isTestnet }) {
-                testnetHeaderSections = [.testnetTokens]
-            } else {
-                testnetHeaderSections = []
-            }
-
-            if count == .zero {
-                initialSections = [.walletSummary, .filters, .search]
-            } else {
-                initialSections = [.walletSummary, .filters, .search, .activeWalletSession(count: count)]
-            }
-            sections = initialSections + testnetHeaderSections + [varyTokenOrCollectiblePeirsSection]
+    let config: Config
+    let largeTitleDisplayMode: UINavigationItem.LargeTitleDisplayMode = .never
+    var filterViewModel: (cells: [ScrollableSegmentedControlCell], configuration: ScrollableSegmentedControlConfiguration) {
+        let cellConfiguration = Style.ScrollableSegmentedControlCell.configuration
+        let controlConfiguration = Style.ScrollableSegmentedControl.configuration
+        let cells = TokensViewModel.segmentedControlTitles.map { title in
+            ScrollableSegmentedControlCell(frame: .zero, title: title, configuration: cellConfiguration)
         }
-        tokenListSection = varyTokenOrCollectiblePeirsSection
+        return (cells: cells, configuration: controlConfiguration)
     }
 
     //NOTE: For case with empty tokens list we want
@@ -112,9 +64,26 @@ class TokensViewModel {
         }
     }
 
-    lazy var filteredTokens: [TokenOrRpcServer] = {
-        return filteredAndSortedTokens()
-    }()
+    var emptyTokensTitle: String {
+        switch filter {
+        case .assets:
+            return R.string.localizable.emptyTableViewWalletTitle(R.string.localizable.aWalletContentsFilterAssetsOnlyTitle())
+        case .collectiblesOnly:
+            return R.string.localizable.emptyTableViewWalletTitle(R.string.localizable.aWalletContentsFilterCollectiblesOnlyTitle())
+        case .defi:
+            return R.string.localizable.emptyTableViewWalletTitle(R.string.localizable.aWalletContentsFilterDefiTitle())
+        case .governance:
+            return R.string.localizable.emptyTableViewWalletTitle(R.string.localizable.aWalletContentsFilterGovernanceTitle())
+        case .keyword:
+            return R.string.localizable.emptyTableViewSearchTitle()
+        case .all:
+            return R.string.localizable.emptyTableViewWalletTitle(R.string.localizable.emptyTableViewAllTitle())
+        case .filter:
+            return R.string.localizable.emptyTableViewSearchTitle()
+        }
+    }
+    //TODO: Replace with usage single array of data, instead of using filteredTokens, and collectiblePairs
+    private var filteredTokens: [TokenOrRpcServer] = []
 
     var headerBackgroundColor: UIColor {
         return .white
@@ -140,15 +109,6 @@ class TokensViewModel {
 
     var hasContent: Bool {
         return !collectiblePairs.isEmpty
-    }
-
-    var shouldShowCollectiblesCollectionView: Bool {
-        switch filter {
-        case .all, .defi, .governance, .assets, .keyword, .filter:
-            return false
-        case .collectiblesOnly:
-            return hasContent
-        }
     }
 
     func heightForHeaderInSection(for section: Int) -> CGFloat {
@@ -180,7 +140,7 @@ class TokensViewModel {
         }
     }
 
-    var collectiblePairs: [CollectiblePairs] {
+    private var collectiblePairs: [CollectiblePairs] {
         let tokens = filteredTokens.compactMap { $0.token }
         return tokens.chunked(into: 2).compactMap { elems -> CollectiblePairs? in
             guard let left = elems.first else { return nil }
@@ -189,36 +149,206 @@ class TokensViewModel {
             return .init(left: left, right: right)
         }
     }
-
-    func item(for row: Int, section: Int) -> TokenOrRpcServer {
-        return filteredTokens[row]
-    }
-
-    func canDelete(for row: Int, section: Int) -> Bool {
-        return item(for: row, section: section).canDelete
-    }
-
-    init(tokensFilter: TokensFilter, tokens: [Token], config: Config) {
-        self.tokensFilter = tokensFilter
-        self.tokens = tokens
+    
+    let wallet: Wallet
+    private lazy var walletNameFetcher = GetWalletName(domainResolutionService: domainResolutionService)
+    private let domainResolutionService: DomainResolutionServiceType
+    private let blockiesGenerator: BlockiesGenerator
+    private let viewModelsSubject = PassthroughSubject<[TokensViewModel.SectionViewModel], Never>()
+    private let deletionSubject = PassthroughSubject<[IndexPath], Never>()
+    
+    init(wallet: Wallet, tokenCollection: TokenCollection, walletConnectCoordinator: WalletConnectCoordinator, walletBalanceService: WalletBalanceService, config: Config, domainResolutionService: DomainResolutionServiceType, blockiesGenerator: BlockiesGenerator) {
+        self.wallet = wallet
+        self.tokenCollection = tokenCollection
+        self.tokensFilter = tokenCollection.tokensFilter
+        self.walletConnectCoordinator = walletConnectCoordinator
+        self.walletBalanceService = walletBalanceService
         self.config = config
+        self.domainResolutionService = domainResolutionService
+        self.blockiesGenerator = blockiesGenerator
     }
 
-    func markTokenHidden(token: Token) -> Bool {
-        if let index = tokens.firstIndex(where: { $0.primaryKey == token.primaryKey }) {
-            tokens.remove(at: index)
-            filteredTokens = filteredAndSortedTokens()
+    func transform(input: TokensViewModelInput) -> TokensViewModelOutput {
+        cancellable.cancellAll()
 
-            return true
+        let appearOrInitial: AnyPublisher<Void, Never> = Publishers.Merge(Just<Void>(()), input.appear).eraseToAnyPublisher()
+        let fetchTokens: AnyPublisher<Void, Never> = Publishers.Merge(appearOrInitial, input.pullToRefresh).eraseToAnyPublisher()
+
+        //NOTE: when we make db snapshot data mignt not changed, so table view refresh control will never ended, as we do `viewModelsSubject.removeDuplicates()`
+        let beginLoading = input.pullToRefresh.map { _ in PullToRefreshState.beginLoading }
+        let loadingHasEnded = beginLoading.delay(for: .seconds(2), scheduler: RunLoop.main)
+            .map { _ in PullToRefreshState.endLoading }
+
+        let fakePullToRefreshState = Just<PullToRefreshState>(PullToRefreshState.idle)
+            .merge(with: beginLoading, loadingHasEnded)
+            .eraseToAnyPublisher()
+
+        fetchTokens.sink { [tokenCollection] _ in
+            tokenCollection.fetch()
+        }.store(in: &cancellable)
+
+        walletConnectCoordinator.sessions
+            .receive(on: RunLoop.main)
+            .sink { [weak self] sessions in
+                self?.walletConnectSessions = sessions.count
+                self?.reloadData()
+            }.store(in: &cancellable)
+
+        tokenCollection.tokens.sink { [weak self] tokens in
+            self?.tokens = tokens
+            self?.reloadData()
+        }.store(in: &cancellable)
+
+        let walletSummary = walletBalanceService
+            .walletBalancePublisher(wallet: wallet)
+            .map { return WalletSummary(balances: [$0]) }
+            .receive(on: RunLoop.main)
+            .prepend(WalletSummary(balances: [walletBalanceService.walletBalance(wallet: wallet)]))
+            .eraseToAnyPublisher()
+
+        let navigationTitle = appearOrInitial.flatMap { [unowned self, walletNameFetcher, wallet] _ -> AnyPublisher<String, Never> in
+            return walletNameFetcher.assignedNameOrEns(for: wallet.address).map { ensOrName -> String in
+                if let ensOrName = ensOrName {
+                    return ensOrName
+                } else {
+                    return self.walletDefaultTitle
+                }
+            }.prepend(self.walletDefaultTitle).eraseToAnyPublisher()
+        }.eraseToAnyPublisher()
+
+        let blockieImage = appearOrInitial.flatMap { [blockiesGenerator, wallet] _ in
+            blockiesGenerator.getBlockieOrEnsAvatarImage(address: wallet.address, fallbackImage: BlockiesImage.defaulBlockieImage)
+        }.eraseToAnyPublisher()
+
+        let selection = input.selection.compactMap { [unowned self, tokenCollection] source -> Token? in
+            switch source {
+            case .gridItem(let indexPath, let isLeftCardSelected):
+                switch self.sections[indexPath.section] {
+                case .collectiblePairs:
+                    let pair = collectiblePairs[indexPath.row]
+                    guard let viewModel: TokenViewModel = isLeftCardSelected ? pair.left : pair.right else { return nil }
+                    guard let token = tokenCollection.token(for: viewModel.contractAddress, server: viewModel.server) else { return nil }
+                    return token
+                case .tokens, .testnetTokens, .activeWalletSession, .filters, .search, .walletSummary:
+                    return nil
+                }
+            case .cell(let indexPath):
+                let tokenOrServer = self.tokenOrServer(at: indexPath)
+                switch (self.sections[indexPath.section], tokenOrServer) {
+                case (.tokens, .token(let viewModel)):
+                    guard let token: Token = tokenCollection.token(for: viewModel.contractAddress, server: viewModel.server) else { return nil }
+                    return token
+                case (_, _):
+                    return nil
+                }
+            }
+        }.eraseToAnyPublisher()
+
+        return .init(
+            viewModels: viewModelsSubject.removeDuplicates().eraseToAnyPublisher(),
+            walletSummary: walletSummary,
+            blockieImage: blockieImage,
+            navigationTitle: navigationTitle,
+            selection: selection,
+            pullToRefreshState: fakePullToRefreshState,
+            deletion: deletionSubject.eraseToAnyPublisher())
+    }
+
+    func set(isSearchActive: Bool) {
+        self.isSearchActive = isSearchActive
+        
+        reloadData()
+    }
+
+    func set(filter: WalletFilter) {
+        self.filter = filter
+
+        reloadData()
+    }
+
+    private func tokenOrServer(at indexPath: IndexPath) -> TokenOrRpcServer {
+        return filteredTokens[indexPath.row]
+    }
+
+    func trailingSwipeActionsConfiguration(for indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        func trailingSwipeActionsConfiguration(forRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+            let item = tokenOrServer(at: indexPath)
+            guard item.canDelete else { return nil }
+            switch item {
+            case .rpcServer:
+                return nil
+            case .token(let token):
+                let title = R.string.localizable.walletsHideTokenTitle()
+                let hideAction = UIContextualAction(style: .destructive, title: title) { [weak self] (_, _, completion) in
+                    guard let strongSelf = self else { return }
+
+                    let deletedIndexPathArray = strongSelf.indexPathArrayForDeletingAt(indexPath: indexPath)
+                    strongSelf.markTokenHidden(token: token)
+
+                    guard !deletedIndexPathArray.isEmpty else { return }
+                    strongSelf.deletionSubject.send(deletedIndexPathArray)
+
+                    completion(true)
+                }
+
+                hideAction.backgroundColor = R.color.danger()
+                hideAction.image = R.image.hideToken()
+                let configuration = UISwipeActionsConfiguration(actions: [hideAction])
+                configuration.performsFirstActionWithFullSwipe = true
+
+                return configuration
+            }
         }
 
-        return false
+        switch sections[indexPath.section] {
+        case .collectiblePairs, .testnetTokens, .search, .walletSummary, .filters, .activeWalletSession:
+            return nil
+        case .tokens:
+            return trailingSwipeActionsConfiguration(forRowAt: indexPath)
+        }
+    }
+
+    private func viewModel(for indexPath: IndexPath) -> ViewModelType {
+        switch sections[indexPath.section] {
+        case .search, .testnetTokens, .walletSummary, .filters, .activeWalletSession:
+            return .undefined
+        case .tokens:
+            switch tokenOrServer(at: indexPath) {
+            case .rpcServer(let server):
+                let viewModel = TokenListServerTableViewCellViewModel(server: server, isTopSeparatorHidden: true)
+
+                return .rpcServer(viewModel)
+            case .token(let token):
+                switch token.type {
+                case .nativeCryptocurrency:
+                    let viewModel = EthTokenViewCellViewModel(token: token)
+
+                    return .nativeCryptocurrency(viewModel)
+                case .erc20:
+                    let viewModel = FungibleTokenViewCellViewModel(token: token)
+
+                    return .fungibleToken(viewModel)
+                case .erc721, .erc721ForTickets, .erc1155, .erc875:
+                    let viewModel = NonFungibleTokenViewCellViewModel(token: token)
+
+                    return .nonFungible(viewModel)
+                }
+            }
+        case .collectiblePairs:
+            let pair = collectiblePairs[indexPath.row]
+            let left = OpenSeaNonFungibleTokenViewCellViewModel(token: pair.left)
+            let right: OpenSeaNonFungibleTokenViewCellViewModel? = pair.right.flatMap { token in .init(token: token) }
+
+            let viewModel = OpenSeaNonFungibleTokenPairTableCellViewModel(leftViewModel: left, rightViewModel: right)
+
+            return .nftCollection(viewModel)
+        }
     }
 
     func cellHeight(for indexPath: IndexPath) -> CGFloat {
         switch sections[indexPath.section] {
         case .tokens, .testnetTokens:
-            switch item(for: indexPath.row, section: indexPath.section) {
+            switch tokenOrServer(at: indexPath) {
             case .rpcServer:
                 return Style.Wallet.Header.height
             case .token:
@@ -231,19 +361,17 @@ class TokensViewModel {
         }
     }
 
-    private func filteredAndSortedTokens() -> [TokenOrRpcServer] {
-        let displayedTokens = tokensFilter.filterTokens(tokens: tokens, filter: filter)
-        let tokens = tokensFilter.sortDisplayedTokens(tokens: displayedTokens)
-        switch filter {
-        case .all, .filter, .defi, .governance, .assets, .keyword:
-            return TokensViewModel.functional.groupTokensByServers(tokens: tokens)
-        case .collectiblesOnly:
-            return tokens.map { .token($0) }
-        }
-    }
+    @discardableResult private func markTokenHidden(token: TokenViewModel) -> Bool {
+        tokenCollection.mark(token: token, isHidden: true)
 
-    func nativeCryptoCurrencyToken(forServer server: RPCServer) -> Token? {
-        return tokens.first(where: { $0.primaryKey == MultipleChainsTokensDataStore.functional.etherToken(forServer: server).primaryKey })
+        if let index = tokens.firstIndex(where: { $0 == token }) {
+            tokens.remove(at: index)
+            filteredTokens = filteredAndSortedTokens()
+
+            return true
+        }
+
+        return false
     }
 
     func convertSegmentedControlSelectionToFilter(_ selection: ControlSelection) -> WalletFilter? {
@@ -256,11 +384,11 @@ class TokensViewModel {
     }
 
     func indexPathArrayForDeletingAt(indexPath current: IndexPath) -> [IndexPath] {
-        let canRemoveCurrentItem: Bool  = item(for: current.row, section: current.section).isRemovable
-        let canRemovePreviousItem: Bool = current.row > 0 ? item(for: current.row - 1, section: current.section).isRemovable : false
+        let canRemoveCurrentItem: Bool = tokenOrServer(at: current).isRemovable
+        let canRemovePreviousItem: Bool = current.row > 0 ? tokenOrServer(at: current.previous).isRemovable : false
         let canRemoveNextItem: Bool = {
             guard (current.row + 1) < filteredTokens.count else { return false }
-            return item(for: current.row + 1, section: current.section).isRemovable
+            return tokenOrServer(at: current.next).isRemovable
         }()
         switch (canRemovePreviousItem, canRemoveCurrentItem, canRemoveNextItem) {
             // Truth table for deletion
@@ -289,15 +417,182 @@ class TokensViewModel {
             return [current]
         }
     }
+
+    private func reloadData() {
+        filteredTokens = filteredAndSortedTokens()
+        refreshSections(walletConnectSessions: walletConnectSessions)
+
+        let viewModels = sections.enumerated().map { (sectionIndex, section) -> TokensViewModel.SectionViewModel in
+            guard numberOfItems(for: sectionIndex) > 0 else {
+                return TokensViewModel.SectionViewModel(section: section, views: [])
+            }
+
+            let viewModels = (0 ..< numberOfItems(for: sectionIndex)).map { row -> ViewModelType in
+                let indexPath = IndexPath(row: row, section: sectionIndex)
+                return self.viewModel(for: indexPath)
+            }
+
+            return TokensViewModel.SectionViewModel(section: section, views: viewModels)
+        }
+
+        viewModelsSubject.send(viewModels)
+    }
+
+    private func filteredAndSortedTokens() -> [TokenOrRpcServer] {
+        let displayedTokens = tokensFilter.filterTokens(tokens: tokens, filter: filter)
+        let tokens = tokensFilter.sortDisplayedTokens(tokens: displayedTokens)
+        switch filter {
+        case .all, .filter, .defi, .governance, .assets, .keyword:
+            return TokensViewModel.functional.groupTokensByServers(tokens: tokens)
+        case .collectiblesOnly:
+            return tokens.map { .token($0) }
+        }
+    }
+
+    private func refreshSections(walletConnectSessions count: Int) {
+        let varyTokenOrCollectiblePeirsSection: Section = {
+            switch filter {
+            case .all, .defi, .governance, .keyword, .assets, .filter:
+                return .tokens
+            case .collectiblesOnly:
+                return .collectiblePairs
+            }
+        }()
+
+        if isSearchActive {
+            sections = [varyTokenOrCollectiblePeirsSection]
+        } else {
+            let initialSections: [Section]
+            let testnetHeaderSections: [Section]
+
+            if config.enabledServers.allSatisfy({ $0.isTestnet }) {
+                testnetHeaderSections = [.testnetTokens]
+            } else {
+                testnetHeaderSections = []
+            }
+
+            if count == .zero {
+                initialSections = [.walletSummary, .filters, .search]
+            } else {
+                initialSections = [.walletSummary, .filters, .search, .activeWalletSession]
+            }
+            sections = initialSections + testnetHeaderSections + [varyTokenOrCollectiblePeirsSection]
+        }
+        tokenListSection = varyTokenOrCollectiblePeirsSection
+    }
 }
 
-fileprivate extension TokenOrRpcServer {
-    var isRemovable: Bool {
-        switch self {
-        case .rpcServer:
-            return false
-        case .token:
+extension TokensViewModel {
+    enum HideTokenResult {
+        case success(indexPaths: [IndexPath])
+        case failure
+    }
+
+    enum TokenOrRpcServer {
+        case token(TokenViewModel)
+        case rpcServer(RPCServer)
+
+        var token: TokenViewModel? {
+            switch self {
+            case .rpcServer:
+                return nil
+            case .token(let token):
+                return token
+            }
+        }
+
+        var canDelete: Bool {
+            switch self {
+            case .rpcServer:
+                return false
+            case .token(let token):
+                //guard !token.isInvalidated else { return false }
+                if token.contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
+                    return false
+                }
+                return true
+            }
+        }
+
+        var isRemovable: Bool {
+            switch self {
+            case .rpcServer:
+                return false
+            case .token:
+                return true
+            }
+        }
+    }
+
+    struct CollectiblePairs: Hashable {
+        let left: TokenViewModel
+        let right: TokenViewModel?
+    }
+
+    enum Section: Int, Hashable {
+        case walletSummary
+        case filters
+        case testnetTokens
+        case search
+        case tokens
+        case collectiblePairs
+        case activeWalletSession
+    }
+
+    enum ViewModelType {
+        case nftCollection(OpenSeaNonFungibleTokenPairTableCellViewModel)
+        case nonFungible(NonFungibleTokenViewCellViewModel)
+        case fungibleToken(FungibleTokenViewCellViewModel)
+        case nativeCryptocurrency(EthTokenViewCellViewModel)
+        case rpcServer(TokenListServerTableViewCellViewModel)
+        case undefined
+    }
+
+    struct SectionViewModel {
+        let section: Section
+        let views: [TokensViewModel.ViewModelType]
+    }
+
+    enum TokensLayoutType {
+        case list
+        case grid
+    }
+
+    enum SelectionSource {
+        case gridItem(indexPath: IndexPath, isLeftCardSelected: Bool)
+        case cell(indexPath: IndexPath)
+    }
+
+    enum PullToRefreshState {
+        case idle
+        case beginLoading
+        case endLoading
+    }
+}
+
+extension TokensViewModel.SectionViewModel: Hashable {
+    static func == (lhs: TokensViewModel.SectionViewModel, rhs: TokensViewModel.SectionViewModel) -> Bool {
+        return lhs.section == rhs.section && lhs.views == rhs.views
+    }
+}
+
+extension TokensViewModel.ViewModelType: Hashable {
+    static func == (lhs: TokensViewModel.ViewModelType, rhs: TokensViewModel.ViewModelType) -> Bool {
+        switch (lhs, rhs) {
+        case (.undefined, .undefined):
             return true
+        case (.nftCollection(let vm1), .nftCollection(let vm2)):
+            return vm1 == vm2
+        case (.nonFungible(let vm1), .nonFungible(let vm2)):
+            return vm1 == vm2
+        case (.fungibleToken(let vm1), .fungibleToken(let vm2)):
+            return vm1 == vm2
+        case (.nativeCryptocurrency(let vm1), .nativeCryptocurrency(let vm2)):
+            return vm1 == vm2
+        case (.rpcServer(let vm1), .rpcServer(let vm2)):
+            return vm1 == vm2
+        default:
+            return false
         }
     }
 }
@@ -347,9 +642,9 @@ extension TokensViewModel {
 }
 
 extension TokensViewModel.functional {
-    static func groupTokensByServers(tokens: [Token]) -> [TokenOrRpcServer] {
+    static func groupTokensByServers(tokens: [TokenViewModel]) -> [TokensViewModel.TokenOrRpcServer] {
         var servers: [RPCServer] = []
-        var results: [TokenOrRpcServer] = []
+        var results: [TokensViewModel.TokenOrRpcServer] = []
 
         for each in tokens {
             guard !servers.contains(each.server) else { continue }
@@ -357,7 +652,7 @@ extension TokensViewModel.functional {
         }
 
         for each in servers {
-            let tokens = tokens.filter { $0.server == each }.map { TokenOrRpcServer.token($0) }
+            let tokens = tokens.filter { $0.server == each }.map { TokensViewModel.TokenOrRpcServer.token($0) }
             guard !tokens.isEmpty else { continue }
 
             results.append(.rpcServer(each))
@@ -368,8 +663,8 @@ extension TokensViewModel.functional {
     }
 
     //Remove tokens that look unwanted in the Wallet tab
-    static func filterAwaySpuriousTokens(_ tokens: [Token]) -> [Token] {
-        tokens.filter {
+    static func filterAwaySpuriousTokens<T>(_ tokens: [T]) -> [T] where T: TokenFilterable {
+        return tokens.filter {
             switch $0.type {
             case .nativeCryptocurrency, .erc20, .erc875, .erc721, .erc721ForTickets:
                 return !($0.name.isEmpty && $0.symbol.isEmpty && $0.decimals == 0)
@@ -382,6 +677,10 @@ extension TokensViewModel.functional {
 
 fileprivate extension IndexPath {
     var previous: IndexPath {
+        IndexPath(row: row - 1, section: section)
+    }
+
+    var next: IndexPath {
         IndexPath(row: row - 1, section: section)
     }
 }

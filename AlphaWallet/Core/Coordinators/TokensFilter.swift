@@ -6,6 +6,25 @@
 //
 
 import Foundation
+import BigInt
+
+protocol TokenFilterable: TokenScriptSupportable, TokenGroupIdentifiable, TokenActionsIdentifiable { }
+
+protocol TokenSortable {
+    var name: String { get }
+    var value: BigInt { get }
+    var contractAddress: AlphaWallet.Address { get }
+    var server: RPCServer { get }
+    var shouldDisplay: Bool { get }
+    var decimals: Int { get }
+}
+
+extension TokenSortable {
+    var valueDecimal: NSDecimalNumber? {
+        let value = EtherNumberFormatter.plain.string(from: value, decimals: decimals)
+        return value.optionalDecimalValue
+    }
+}
 
 class TokensFilter {
     private enum FilterKeys {
@@ -64,17 +83,17 @@ class TokensFilter {
         self.tokenGroupIdentifier = tokenGroupIdentifier
     }
 
-    func filterTokens(tokens: [Token], filter: WalletFilter) -> [Token] {
-        let filteredTokens: [Token]
+    func filterTokens<T>(tokens: [T], filter: WalletFilter) -> [T] where T: TokenFilterable {
+        let filteredTokens: [T]
 
-        func hasMatchingInNftBalance(token: Token, string: String) -> Bool {
-            return token.balance.contains(where: {
+        func hasMatchingInNftBalance(token: T, string: String) -> Bool {
+            return token.balanceNft.contains(where: {
                 guard let balance = $0.nonFungibleBalance else { return false }
                 return balance.name.trimmed.lowercased().contains(string) || balance.description.trimmed.lowercased().contains(string)
             })
         }
 
-        func hasMatchingInTitle(token: Token, string: String) -> Bool {
+        func hasMatchingInTitle(token: T, string: String) -> Bool {
             return token.name.trimmed.lowercased().contains(string) ||
                 token.symbol.trimmed.lowercased().contains(string) ||
                 token.contractAddress.eip55String.lowercased().contains(string) ||
@@ -94,7 +113,7 @@ class TokensFilter {
         case .assets:
             filteredTokens = tokens.filter { tokenGroupIdentifier.identify(token: $0) == .assets }
         case .collectiblesOnly:
-            filteredTokens = tokens.filter { ($0.type == .erc721 || $0.type == .erc1155) && !$0.balance.isEmpty }
+            filteredTokens = tokens.filter { ($0.type == .erc721 || $0.type == .erc1155) && !$0.balanceNft.isEmpty }
         case .keyword(let keyword):
             switch FilterKeys(keyword: keyword) {
             case .all:
@@ -133,7 +152,7 @@ class TokensFilter {
         return filteredTokens
     }
 
-    func filterTokens(tokens: [PopularToken], walletTokens: [Token], filter: WalletFilter) -> [PopularToken] {
+    func filterTokens(tokens: [PopularToken], walletTokens: [TokenViewModel], filter: WalletFilter) -> [PopularToken] {
         var filteredTokens: [PopularToken] = tokens.filter { token in
             !walletTokens.contains(where: { $0.contractAddress.sameContract(as: token.contractAddress) }) && !token.name.isEmpty
         }
@@ -157,15 +176,15 @@ class TokensFilter {
         return filteredTokens
     }
 
-    func sortDisplayedTokens(tokens: [Token]) -> [Token] {
+    func sortDisplayedTokens<T>(tokens: [T]) -> [T] where T: TokenSortable {
 
-        func sortTokensByFiatValues(_ token1: Token, _ token2: Token) -> Bool {
-            let value1 = coinTickersFetcher.ticker(for: token1.addressAndRPCServer).flatMap({ ticker in
+        func sortTokensByFiatValues(_ token1: T, _ token2: T) -> Bool {
+            let value1 = coinTickersFetcher.ticker(for: .init(address: token1.contractAddress, server: token1.server)).flatMap({ ticker in
                 EthCurrencyHelper(ticker: ticker)
                     .fiatValue(value: token1.valueDecimal)
             }) ?? -1
 
-            let value2 = coinTickersFetcher.ticker(for: token2.addressAndRPCServer).flatMap({ ticker in
+            let value2 = coinTickersFetcher.ticker(for: .init(address: token2.contractAddress, server: token2.server)).flatMap({ ticker in
                 EthCurrencyHelper(ticker: ticker)
                     .fiatValue(value: token2.valueDecimal)
             }) ?? -1
@@ -197,7 +216,7 @@ class TokensFilter {
         return result
     }
 
-    func sortDisplayedTokens(tokens: [Token], sortTokensParam: SortTokensParam) -> [Token] {
+    func sortDisplayedTokens<T>(tokens: [T], sortTokensParam: SortTokensParam) -> [T] where T: TokenSortable {
         let result = tokens.filter {
             $0.shouldDisplay
         }.sorted(by: {
@@ -223,18 +242,23 @@ class TokensFilter {
     }
 }
 
-fileprivate extension Token {
+fileprivate extension TokenFilterable {
+
+    var nonZeroBalance: [TokenBalanceValue] {
+        return Array(balanceNft.filter { isNonZeroBalance($0.balance, tokenType: self.type) })
+    }
+
     var hasNonZeroBalance: Bool {
         switch type {
         case .nativeCryptocurrency, .erc20:
-            return !value.isZero
+            return !valueBI.isZero
         case .erc875, .erc721, .erc721ForTickets, .erc1155:
             return !nonZeroBalance.isEmpty
         }
     }
 
     func hasTicker(coinTickersFetcher: CoinTickersFetcher) -> Bool {
-        let ticker = coinTickersFetcher.ticker(for: addressAndRPCServer)
+        let ticker = coinTickersFetcher.ticker(for: .init(address: contractAddress, server: server))
         return ticker != nil
     }
 }

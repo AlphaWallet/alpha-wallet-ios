@@ -98,6 +98,19 @@ extension Token: TokenGroupIdentifiable {
     }
 }
 
+extension TokenViewModel: TokenGroupIdentifiable {
+    var tokenGroupKey: String {
+        let key = self.contractAddress.eip55String + ":" + String(self.server.chainID)
+        return key.trimmed.lowercased()
+    }
+
+    var isCollectibles: Bool {
+        return self.type == .erc721 || self.type == .erc1155
+    }
+}
+
+extension TokenFilterable {}
+
 typealias TokenGroupDictionary = [String: TokenGroup]
 
 enum TokenGroup: String {

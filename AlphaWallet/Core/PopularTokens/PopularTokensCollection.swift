@@ -51,7 +51,7 @@ struct PopularToken: Decodable {
 }
 
 enum WalletOrPopularToken {
-    case walletToken(Token)
+    case walletToken(TokenViewModel)
     case popularToken(PopularToken)
 }
 

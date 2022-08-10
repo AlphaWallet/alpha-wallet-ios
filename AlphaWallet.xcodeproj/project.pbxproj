@@ -813,6 +813,10 @@
 		872714982821619200901B3E /* CombineTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872714972821619200901B3E /* CombineTimer.swift */; };
 		8727149A282175EB00901B3E /* NFTAssetListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87271499282175EB00901B3E /* NFTAssetListViewModel.swift */; };
 		8727149C2822489300901B3E /* ContainerCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8727149B2822489200901B3E /* ContainerCollectionViewCell.swift */; };
+		87281AEC287FE6920066E31E /* TokenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87281AEB287FE6920066E31E /* TokenViewModel.swift */; };
+		87281AEE2885219A0066E31E /* TableViewDiffableDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87281AED2885219A0066E31E /* TableViewDiffableDataSource.swift */; };
+		87281AF0288521CB0066E31E /* DummySearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87281AEF288521CB0066E31E /* DummySearchView.swift */; };
+		87281AF2288581320066E31E /* TokenViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87281AF1288581320066E31E /* TokenViewModelTests.swift */; };
 		8728FFD727428F29008E5524 /* Erc875NonFungibleRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8728FFD627428F29008E5524 /* Erc875NonFungibleRowViewModel.swift */; };
 		8728FFD927428F43008E5524 /* NonFungibleRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8728FFD827428F43008E5524 /* NonFungibleRowViewModel.swift */; };
 		8728FFDB27428F87008E5524 /* NonFungibleRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8728FFDA27428F87008E5524 /* NonFungibleRowView.swift */; };
@@ -2093,6 +2097,10 @@
 		872714972821619200901B3E /* CombineTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CombineTimer.swift; sourceTree = "<group>"; };
 		87271499282175EB00901B3E /* NFTAssetListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTAssetListViewModel.swift; sourceTree = "<group>"; };
 		8727149B2822489200901B3E /* ContainerCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContainerCollectionViewCell.swift; sourceTree = "<group>"; };
+		87281AEB287FE6920066E31E /* TokenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenViewModel.swift; sourceTree = "<group>"; };
+		87281AED2885219A0066E31E /* TableViewDiffableDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewDiffableDataSource.swift; sourceTree = "<group>"; };
+		87281AEF288521CB0066E31E /* DummySearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DummySearchView.swift; sourceTree = "<group>"; };
+		87281AF1288581320066E31E /* TokenViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenViewModelTests.swift; sourceTree = "<group>"; };
 		8728FFD627428F29008E5524 /* Erc875NonFungibleRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Erc875NonFungibleRowViewModel.swift; sourceTree = "<group>"; };
 		8728FFD827428F43008E5524 /* NonFungibleRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NonFungibleRowViewModel.swift; sourceTree = "<group>"; };
 		8728FFDA27428F87008E5524 /* NonFungibleRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NonFungibleRowView.swift; sourceTree = "<group>"; };
@@ -3312,6 +3320,7 @@
 				87455C272834CDDA00B7B95F /* Token.swift */,
 				87F2F0C22844D73C00CE3B94 /* TokenInfoObject.swift */,
 				87F2F0C42844D76900CE3B94 /* TokenInfo.swift */,
+				87281AEB287FE6920066E31E /* TokenViewModel.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -3769,6 +3778,7 @@
 				87831C812849E47A002E856E /* AddressStorageTests.swift */,
 				87831C832849E4E0002E856E /* tikersForTest.json */,
 				87E960DC28868D3600218E7E /* TickerIdsFetcherTests.swift */,
+				87281AF1288581320066E31E /* TokenViewModelTests.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -4259,6 +4269,8 @@
 				8712A38A26F476030009C376 /* StatefulView.swift */,
 				87584FA427E9DDB0006A7CD1 /* GridStackView.swift */,
 				87584FAD27EC64FA006A7CD1 /* SelfSizingPanelLayout.swift */,
+				87281AED2885219A0066E31E /* TableViewDiffableDataSource.swift */,
+				87281AEF288521CB0066E31E /* DummySearchView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -7146,6 +7158,7 @@
 				87CC3853273E7980005BE9B8 /* eip155URLDecoder.swift in Sources */,
 				5E7C7ECE164289A89734B4EF /* LocalesCoordinator.swift in Sources */,
 				874D2F8027A2B1D1005459DA /* UnstoppableDomainsV2Resolver.swift in Sources */,
+				87281AEE2885219A0066E31E /* TableViewDiffableDataSource.swift in Sources */,
 				879F184826E73CF4000602F2 /* NFTAssetViewController.swift in Sources */,
 				8750F91724EE5AE100E19DFF /* RecipientResolver.swift in Sources */,
 				5E7C730C6AEF556AFB9A4B2C /* LocalesViewController.swift in Sources */,
@@ -7253,6 +7266,7 @@
 				5E7C7D28171AB1C7FF5379A7 /* OpenSeaNonFungibleTokenViewCell.swift in Sources */,
 				5E7C7E02785866606FF298F3 /* OpenSeaNonFungibleTokenViewCellViewModel.swift in Sources */,
 				87F15AEB27F1EA4E00EB9787 /* SwapDetailsView.swift in Sources */,
+				87281AEC287FE6920066E31E /* TokenViewModel.swift in Sources */,
 				5E7C772EC476993A170C840B /* GenerateSellMagicLinkViewController.swift in Sources */,
 				5E7C7AC88DB7EB58FDAF1B21 /* ConfirmSignMessageViewControllerViewModel.swift in Sources */,
 				02334299278480CF00492080 /* AddMultipleCustomRpcModel.swift in Sources */,
@@ -7651,6 +7665,7 @@
 				5E7C77AC072B44B7E60030B5 /* RestartTaskQueue.swift in Sources */,
 				5E7C72B4302A10E137EEF94A /* DappRequestSwitchCustomChainCoordinator.swift in Sources */,
 				879F185526E74042000602F2 /* NFTCollectionInfoPageView.swift in Sources */,
+				87281AF0288521CB0066E31E /* DummySearchView.swift in Sources */,
 				5E7C732AA43385E80681B24F /* EmailList.swift in Sources */,
 				87757288282E4B8100EAD907 /* UISearchBar+Extensions.swift in Sources */,
 				5E7C776B88B6CDC18CA39D72 /* Environment.swift in Sources */,
@@ -7735,6 +7750,7 @@
 				877D00AF25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift in Sources */,
 				299573A21FA1F369006F17FD /* QRCodeValueParserTests.swift in Sources */,
 				87DD0C44279980E500460260 /* ValidatorsTests.swift in Sources */,
+				87281AF2288581320066E31E /* TokenViewModelTests.swift in Sources */,
 				87831C822849E47A002E856E /* AddressStorageTests.swift in Sources */,
 				61FC5ED11FCFBDEB00CCB12A /* EtherNumberFormatterTests.swift in Sources */,
 				29E14FD91F7F4D4E00185568 /* FakeTransactionsStorage.swift in Sources */,

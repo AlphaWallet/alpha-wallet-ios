@@ -122,7 +122,10 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         let tokenGroupIdentifier: TokenGroupIdentifierProtocol = TokenGroupIdentifier.identifier(fromFileName: "tokens")!
         let tokensFilter = TokensFilter(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: coinTickersFetcher, tokenGroupIdentifier: tokenGroupIdentifier)
 
-        return MultipleChainsTokenCollection(tokensFilter: tokensFilter, tokensDataStore: tokensDataStore, config: config, coinTickersFetcher: coinTickersFetcher)
+        let collection = MultipleChainsTokenCollection(tokensFilter: tokensFilter, tokensDataStore: tokensDataStore, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, sessions: sessionsSubject.value, config: config, coinTickersFetcher: coinTickersFetcher)
+        collection.start()
+        
+        return collection
     }()
 
     var presentationNavigationController: UINavigationController {

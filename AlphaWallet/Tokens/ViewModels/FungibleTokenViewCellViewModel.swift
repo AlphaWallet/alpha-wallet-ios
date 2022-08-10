@@ -1,35 +1,16 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
 import UIKit
-import BigInt
 
 struct FungibleTokenViewCellViewModel {
-    private let shortFormatter = EtherNumberFormatter.short
-    private let token: Token
-    private let ticker: CoinTicker?
-    private let assetDefinitionStore: AssetDefinitionStore
+    private let token: TokenViewModel
     private let isVisible: Bool
-    private let eventsDataStore: NonActivityEventsDataStore
-    private let wallet: Wallet
     let accessoryType: UITableViewCell.AccessoryType
 
-    init(token: Token, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, wallet: Wallet, isVisible: Bool = true, ticker: CoinTicker?, accessoryType: UITableViewCell.AccessoryType = .none) {
+    init(token: TokenViewModel, isVisible: Bool = true, accessoryType: UITableViewCell.AccessoryType = .none) {
         self.token = token
-        self.ticker = ticker
-        self.assetDefinitionStore = assetDefinitionStore
         self.isVisible = isVisible
-        self.eventsDataStore = eventsDataStore
-        self.wallet = wallet
         self.accessoryType = accessoryType
-    }
-
-    private var title: String {
-        return token.shortTitleInPluralForm(withAssetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: wallet)
-    }
-
-    private var amount: String {
-        return shortFormatter.string(from: token.value, decimals: token.decimals)
     }
 
     var backgroundColor: UIColor {
@@ -41,21 +22,21 @@ struct FungibleTokenViewCellViewModel {
     }
 
     var titleAttributedString: NSAttributedString {
-        return NSAttributedString(string: title, attributes: [
+        return NSAttributedString(string: token.tokenScriptOverrides?.shortTitleInPluralForm ?? "", attributes: [
             .foregroundColor: Screen.TokenCard.Color.title,
             .font: Screen.TokenCard.Font.title
         ])
     }
 
     var cryptoValueAttributedString: NSAttributedString {
-        return NSAttributedString(string: amount + " " + token.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore), attributes: [
+        return NSAttributedString(string: token.balance.amountShort + " " + (token.tokenScriptOverrides?.symbolInPluralForm ?? ""), attributes: [
             .foregroundColor: Screen.TokenCard.Color.subtitle,
             .font: Screen.TokenCard.Font.subtitle
         ])
     }
 
     private var valuePercentageChangeColor: UIColor {
-        return Screen.TokenCard.Color.valueChangeValue(ticker: ticker)
+        return Screen.TokenCard.Color.valueChangeValue(ticker: token.balance.ticker)
     }
 
     var apprecation24hoursBackgroundColor: UIColor {
@@ -75,7 +56,7 @@ struct FungibleTokenViewCellViewModel {
 
     private var apprecation24hoursAttributedString: NSAttributedString {
         let apprecation24hours: String = {
-            switch EthCurrencyHelper(ticker: ticker).change24h {
+            switch EthCurrencyHelper(ticker: token.balance.ticker).change24h {
             case .appreciate(let percentageChange24h):
                 return "\(percentageChange24h)%"
             case .depreciate(let percentageChange24h):
@@ -96,7 +77,7 @@ struct FungibleTokenViewCellViewModel {
     }
 
     private var apprecation24hoursImage: UIImage? {
-        switch EthCurrencyHelper(ticker: ticker).change24h {
+        switch EthCurrencyHelper(ticker: token.balance.ticker).change24h {
         case .appreciate:
             return R.image.price_up()
         case .depreciate:
@@ -107,7 +88,7 @@ struct FungibleTokenViewCellViewModel {
     }
 
     private var priceChangeUSDValue: String {
-        if let result = EthCurrencyHelper(ticker: ticker).valueChanged24h(value: token.valueDecimal) {
+        if let result = EthCurrencyHelper(ticker: token.balance.ticker).valueChanged24h(value: token.valueDecimal) {
             return Formatter.priceChange.string(from: result) ?? UiTweaks.noPriceMarker
         } else {
             return UiTweaks.noPriceMarker
@@ -122,7 +103,7 @@ struct FungibleTokenViewCellViewModel {
     }
 
     private var fiatValue: String {
-        if let fiatValue = EthCurrencyHelper(ticker: ticker).fiatValue(value: token.valueDecimal) {
+        if let fiatValue = EthCurrencyHelper(ticker: token.balance.ticker).fiatValue(value: token.valueDecimal) {
             return Formatter.fiat.string(from: fiatValue) ?? UiTweaks.noPriceMarker
         } else {
             return UiTweaks.noPriceMarker
@@ -147,4 +128,14 @@ struct FungibleTokenViewCellViewModel {
     var blockChainTagViewModel: BlockchainTagLabelViewModel {
         return .init(server: token.server)
     }
+}
+
+extension FungibleTokenViewCellViewModel: Hashable {
+    static func == (lhs: FungibleTokenViewCellViewModel, rhs: FungibleTokenViewCellViewModel) -> Bool {
+        return lhs.token == rhs.token &&
+            lhs.token.tokenScriptOverrides?.shortTitleInPluralForm == rhs.token.tokenScriptOverrides?.shortTitleInPluralForm &&
+            lhs.token.tokenScriptOverrides?.symbolInPluralForm == rhs.token.tokenScriptOverrides?.symbolInPluralForm &&
+            lhs.token.valueDecimal == rhs.token.valueDecimal &&
+            lhs.token.balance.ticker == rhs.token.balance.ticker
+    } 
 }

@@ -1,7 +1,6 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
 import UIKit
-import PromiseKit
 
 private struct NoContractDetailsDetected: Error {
 }
@@ -61,10 +60,6 @@ extension AddHideTokensCoordinator: NewTokenCoordinatorDelegate {
 }
 
 extension AddHideTokensCoordinator: AddHideTokensViewControllerDelegate {
-
-    func didMark(token: Token, in viewController: UIViewController, isHidden: Bool) {
-        tokenCollection.tokensDataStore.updateToken(primaryKey: token.primaryKey, action: .isHidden(isHidden))
-    }
 
     func didPressAddToken(in viewController: UIViewController, with addressString: String) {
         let initialState: NewTokenInitialState

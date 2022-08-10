@@ -13,7 +13,7 @@ enum WalletFilter: Equatable {
 }
 
 protocol TokenFilterProtocol {
-    func filter(token: Token) -> Bool
+    func filter(token: TokenFilterable) -> Bool
 }
 
 func == (lhs: WalletFilter, rhs: WalletFilter) -> Bool {

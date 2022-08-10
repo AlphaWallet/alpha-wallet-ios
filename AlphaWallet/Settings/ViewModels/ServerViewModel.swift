@@ -116,3 +116,9 @@ struct TokenListServerTableViewCellViewModel: ServerTableViewCellViewModelType {
     }
     var selectionStyle: UITableViewCell.SelectionStyle = .none
 }
+
+extension TokenListServerTableViewCellViewModel: Hashable {
+    static func == (lhs: TokenListServerTableViewCellViewModel, rhs: TokenListServerTableViewCellViewModel) -> Bool {
+        return lhs.server == rhs.server
+    }
+}

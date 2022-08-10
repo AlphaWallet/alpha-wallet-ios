@@ -80,16 +80,22 @@ class OpenSeaNonFungibleTokenView: UIView {
         tokenImageView.subscribable = viewModel.tokenIcon
 
         label.textAlignment = .center
-        label.attributedText = viewModel.tickersTitleAttributedString
+        label.attributedText = viewModel.titleAttributedString
 
         countLabel.textAlignment = .center
-        countLabel.attributedText = viewModel.tickersAmountAttributedString
+        countLabel.attributedText = viewModel.assetsCountAttributedString
     }
 }
 
 struct OpenSeaNonFungibleTokenPairTableCellViewModel {
     var leftViewModel: OpenSeaNonFungibleTokenViewCellViewModel
     var rightViewModel: OpenSeaNonFungibleTokenViewCellViewModel?
+}
+
+extension OpenSeaNonFungibleTokenPairTableCellViewModel: Hashable {
+    static func == (lhs: OpenSeaNonFungibleTokenPairTableCellViewModel, rhs: OpenSeaNonFungibleTokenPairTableCellViewModel) -> Bool {
+        return lhs.leftViewModel == rhs.leftViewModel && lhs.rightViewModel == rhs.rightViewModel
+    } 
 }
 
 protocol OpenSeaNonFungibleTokenPairTableCellDelegate: class {
