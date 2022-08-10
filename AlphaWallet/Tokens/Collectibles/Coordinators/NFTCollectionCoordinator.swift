@@ -22,26 +22,25 @@ protocol NFTCollectionCoordinatorDelegate: class, CanOpenURL {
 class NFTCollectionCoordinator: NSObject, Coordinator {
     private let keystore: Keystore
     private let token: Token
+    private let session: WalletSession
+    private let assetDefinitionStore: AssetDefinitionStore
+    private let analytics: AnalyticsLogger
+    private let openSea: OpenSea
+    private let activitiesService: ActivitiesServiceType
+    private var cancelable = Set<AnyCancellable>()
+    private let service: TokenViewModelState & TokenHolderState
+
+    weak var delegate: NFTCollectionCoordinatorDelegate?
+    let navigationController: UINavigationController
+    var coordinators: [Coordinator] = []
     lazy var rootViewController: NFTCollectionViewController = {
-        let viewModel = NFTCollectionViewModel(token: token, wallet: session.account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, service: service, activitiesService: activitiesService, openSea: openSea)
-        let controller = NFTCollectionViewController(keystore: keystore, session: session, assetDefinition: assetDefinitionStore, analytics: analytics, viewModel: viewModel, eventsDataStore: eventsDataStore)
+        let viewModel = NFTCollectionViewModel(token: token, wallet: session.account, assetDefinitionStore: assetDefinitionStore, service: service, activitiesService: activitiesService, openSea: openSea)
+        let controller = NFTCollectionViewController(keystore: keystore, session: session, assetDefinition: assetDefinitionStore, analytics: analytics, viewModel: viewModel)
         controller.hidesBottomBarWhenPushed = true
         controller.delegate = self
 
         return controller
     }()
-
-    private let session: WalletSession
-    private let assetDefinitionStore: AssetDefinitionStore
-    private let eventsDataStore: NonActivityEventsDataStore
-    private let analytics: AnalyticsLogger
-    private let openSea: OpenSea
-    private let activitiesService: ActivitiesServiceType
-    weak var delegate: NFTCollectionCoordinatorDelegate?
-    let navigationController: UINavigationController
-    var coordinators: [Coordinator] = []
-    private var cancelable = Set<AnyCancellable>()
-    private let service: TokenViewModelState
 
     init(
             session: WalletSession,
@@ -49,11 +48,10 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
             keystore: Keystore,
             token: Token,
             assetDefinitionStore: AssetDefinitionStore,
-            eventsDataStore: NonActivityEventsDataStore,
             analytics: AnalyticsLogger,
             openSea: OpenSea,
             activitiesService: ActivitiesServiceType,
-            service: TokenViewModelState
+            service: TokenViewModelState & TokenHolderState
     ) {
         self.service = service
         self.activitiesService = activitiesService
@@ -62,7 +60,6 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
         self.navigationController = navigationController
         self.token = token
         self.assetDefinitionStore = assetDefinitionStore
-        self.eventsDataStore = eventsDataStore
         self.analytics = analytics
         self.openSea = openSea
         navigationController.navigationBar.isTranslucent = false
@@ -70,69 +67,11 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
 
     func start() {
         navigationController.pushViewController(rootViewController, animated: true)
-        subscribeForEthereumEventChanges()
     }
 
     func didClose(in viewController: NFTCollectionViewController) {
         delegate?.didClose(in: self)
     } 
-
-    private func subscribeForEthereumEventChanges() {
-        eventsDataStore
-            .recentEventsChangeset(for: token.contractAddress)
-            .filter({ changeset in
-                switch changeset {
-                case .update(let events, _, let insertions, let modifications):
-                    return !insertions.map { events[$0] }.isEmpty || !modifications.map { events[$0] }.isEmpty
-                case .initial, .error:
-                    return false
-                }
-            })
-            .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [weak self] _ in
-                self?.refreshScreen()
-            }).store(in: &cancelable)
-
-        assetDefinitionStore
-            .assetsSignatureOrBodyChange(for: token.contractAddress)
-            .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [weak self] _ in
-                self?.refreshScreen()
-            }).store(in: &cancelable)
-    }
-
-    private func refreshScreen() {
-        for each in navigationController.viewControllers {
-            switch each {
-            case let vc as NFTAssetViewController:
-                let updatedTokenHolders = token.getTokenHolders(assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: session.account)
-                switch token.type {
-                case .erc721, .erc875, .erc721ForTickets:
-                    let tokenHolder = vc.viewModel.firstMatchingTokenHolder(from: updatedTokenHolders)
-                    if let tokenHolder = tokenHolder {
-                        let viewModel = NFTAssetViewModel(account: session.account, tokenId: tokenHolder.tokenId, token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
-                        vc.configure(viewModel: viewModel)
-                    }
-                case .erc1155:
-                    if let selection = vc.viewModel.isMatchingTokenHolder(from: updatedTokenHolders) {
-                        let viewModel: NFTAssetViewModel = .init(account: session.account, tokenId: selection.tokenId, token: token, tokenHolder: selection.tokenHolder, assetDefinitionStore: assetDefinitionStore)
-                        vc.configure(viewModel: viewModel)
-                    }
-                case .nativeCryptocurrency, .erc20:
-                    break
-                }
-            case let vc as TokenInstanceActionViewController:
-                //TODO it reloads, but doesn't live-reload the changes because the action contains the HTML and it doesn't change
-                vc.configure()
-            default:
-                break
-            }
-        }
-    }
-
-    func stop() {
-        session.stop()
-    }
 
     private func showChooseTokensCardTransferModeViewController(token: Token,
                                                                 for tokenHolder: TokenHolder,
@@ -442,8 +381,8 @@ extension NFTCollectionCoordinator: NFTCollectionViewControllerDelegate {
     }
 
     private func createNFTAssetViewController(tokenHolder: TokenHolder, tokenId: TokenId, mode: TokenInstanceViewMode = .interactive) -> UIViewController {
-        let viewModel = NFTAssetViewModel(account: session.account, tokenId: tokenId, token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
-        let vc = NFTAssetViewController(analytics: analytics, openSea: openSea, session: session, assetDefinitionStore: assetDefinitionStore, keystore: keystore, viewModel: viewModel, mode: mode)
+        let viewModel = NFTAssetViewModel(tokenId: tokenId, token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore, mode: mode, openSea: openSea, session: session, service: service)
+        let vc = NFTAssetViewController(analytics: analytics, session: session, assetDefinitionStore: assetDefinitionStore, keystore: keystore, viewModel: viewModel)
         vc.delegate = self
         vc.navigationItem.largeTitleDisplayMode = .never
 

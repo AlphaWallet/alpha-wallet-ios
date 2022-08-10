@@ -95,10 +95,6 @@ class ClientSideTokenSourceProvider: TokenSourceProvider {
         refreshSubject.send(())
     }
 
-    deinit {
-        print("xxx \(self).deinit for server: \(session.server)")
-    }
-
     func refreshBalance(for tokens: [Token]) {
         balanceFetcher.refreshBalance(for: tokens)
     }

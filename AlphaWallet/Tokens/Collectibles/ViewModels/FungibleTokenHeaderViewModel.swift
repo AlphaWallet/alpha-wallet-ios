@@ -16,11 +16,7 @@ struct FungibleTokenHeaderViewModelOutput {
     let viewState: AnyPublisher<FungibleTokenHeaderViewModel.ViewState, Never>
 }
 
-protocol FungibleTokenHeaderViewModelType {
-    func transform(input: FungibleTokenHeaderViewModelInput) -> FungibleTokenHeaderViewModelOutput
-}
-
-class FungibleTokenHeaderViewModel: NSObject {
+final class FungibleTokenHeaderViewModel {
     private let headerViewRefreshInterval: TimeInterval = 5.0
     private var headerRefreshTimer: Timer?
     private let transactionType: TransactionType
@@ -40,13 +36,22 @@ class FungibleTokenHeaderViewModel: NSObject {
         }
     }()
     private let service: TokenViewModelState
-    var server: RPCServer { return transactionType.tokenObject.server }
     private var cancelable = Set<AnyCancellable>()
+
+    var server: RPCServer { return transactionType.tokenObject.server }
+    var backgroundColor: UIColor {
+        return Screen.TokenCard.Color.background
+    }
+    var iconImage: Subscribable<TokenImage> {
+        transactionType.tokenObject.icon(withSize: .s300)
+    }
+    var blockChainTagViewModel: BlockchainTagLabelViewModel {
+        return .init(server: transactionType.tokenObject.server)
+    }
 
     init(transactionType: TransactionType, service: TokenViewModelState) {
         self.transactionType = transactionType
         self.service = service
-        super.init()
     }
 
     deinit {
@@ -104,18 +109,6 @@ class FungibleTokenHeaderViewModel: NSObject {
     private func invalidateRefreshHeaderTimer() {
         headerRefreshTimer?.invalidate()
         headerRefreshTimer = nil
-    }
-
-    var backgroundColor: UIColor {
-        return Screen.TokenCard.Color.background
-    }
-
-    var iconImage: Subscribable<TokenImage> {
-        transactionType.tokenObject.icon(withSize: .s300)
-    }
-
-    var blockChainTagViewModel: BlockchainTagLabelViewModel {
-        return .init(server: transactionType.tokenObject.server)
     }
 
     private func tiggleIsShowingValue() {
@@ -218,6 +211,4 @@ extension FungibleTokenHeaderViewModel {
     }
 }
 
-extension FungibleTokenHeaderViewModel.ViewState: Equatable {
-
-}
+extension FungibleTokenHeaderViewModel.ViewState: Equatable { }

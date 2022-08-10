@@ -8,15 +8,10 @@
 import UIKit
 import AlphaWalletOpenSea
 import BigInt
+import Combine
 
 struct AttributeCollectionViewModel {
     let traits: [NonFungibleTraitViewModel]
-}
-
-enum TokenInstanceViewConfiguration {
-    case header(viewModel: TokenInfoHeaderViewModel)
-    case field(viewModel: TokenAttributeViewModel)
-    case attributeCollection(viewModel: AttributeCollectionViewModel)
 }
 
 enum TokenInstanceViewMode {
@@ -24,16 +19,28 @@ enum TokenInstanceViewMode {
     case interactive
 }
 
+struct NFTAssetViewModelInput {
+    let appear: AnyPublisher<Void, Never>
+}
+
+struct NFTAssetViewModelOutput {
+    let state: AnyPublisher<NFTAssetViewModel.ViewState, Never>
+}
+
 class NFTAssetViewModel {
     private let displayHelper: OpenSeaNonFungibleTokenDisplayHelper
     private let tokenHolderHelper: TokenInstanceViewConfigurationHelper
+    private let openSea: OpenSea
+    private let session: WalletSession
+    private let mode: TokenInstanceViewMode
+    private let service: TokenViewModelState & TokenHolderState
+    private (set) var viewTypes: [NFTAssetViewModel.ViewType] = []
 
-    let tokenId: TokenId
     let token: Token
-    let tokenHolder: TokenHolder
+    private (set) var tokenId: TokenId
+    private (set) var tokenHolder: TokenHolder
     let assetDefinitionStore: AssetDefinitionStore
     var backgroundColor: UIColor = Colors.appBackground
-    let account: Wallet
     var transferTransactionType: TransactionType {
         tokenHolder.select(with: .allFor(tokenId: tokenHolder.tokenId))
         return TransactionType(nonFungibleToken: token, tokenHolders: [tokenHolder])
@@ -86,9 +93,12 @@ class NFTAssetViewModel {
         }
     }
 
-    init(account: Wallet, tokenId: TokenId, token: Token, tokenHolder: TokenHolder, assetDefinitionStore: AssetDefinitionStore) {
-        self.account = account
+    init(tokenId: TokenId, token: Token, tokenHolder: TokenHolder, assetDefinitionStore: AssetDefinitionStore, mode: TokenInstanceViewMode, openSea: OpenSea, session: WalletSession, service: TokenViewModelState & TokenHolderState) {
+        self.service = service
+        self.openSea = openSea
+        self.session = session
         self.tokenId = tokenId
+        self.mode = mode
         self.token = token
         self.tokenHolder = tokenHolder
         self.assetDefinitionStore = assetDefinitionStore
@@ -97,12 +107,60 @@ class NFTAssetViewModel {
         self.contractViewModel = TokenAttributeViewModel(title: R.string.localizable.nonfungiblesValueContract(), attributedValue: TokenAttributeViewModel.urlValueAttributedString(token.contractAddress.truncateMiddle))
     }
 
-    func configure(overiddenOpenSeaStats: Stats?) {
+    func transform(input: NFTAssetViewModelInput) -> NFTAssetViewModelOutput {
+        let whenOpenSeaStatsHasChange = PassthroughSubject<Void, Never>()
+        if let openSeaSlug = tokenHolder.values.slug, openSeaSlug.trimmed.nonEmpty {
+            openSea.collectionStats(slug: openSeaSlug, server: token.server).done { [weak self] stats in
+                self?.configure(overiddenOpenSeaStats: stats)
+                whenOpenSeaStatsHasChange.send(())
+            }.cauterize()
+        }
+
+        let tokenHolderHasChange = service.tokenHoldersPublisher(for: token)
+            .dropFirst()
+            .compactMap { [weak self, token] updatedTokenHolders -> (tokenHolder: TokenHolder, tokenId: TokenId)? in
+                switch token.type {
+                case .erc721, .erc875, .erc721ForTickets:
+                    if let tokenHolder = self?.firstMatchingTokenHolder(from: updatedTokenHolders) {
+                        return (tokenHolder, tokenHolder.tokenId)
+                    }
+                case .erc1155:
+                    if let selection = self?.isMatchingTokenHolder(from: updatedTokenHolders) {
+                        return selection
+                    }
+                case .nativeCryptocurrency, .erc20:
+                    break
+                }
+                return nil
+            }.handleEvents(receiveOutput: { [weak self] in
+                self?.tokenId = $0.tokenId
+                self?.tokenHolder = $0.tokenHolder
+                self?.tokenHolderHelper.update(tokenHolder: $0.tokenHolder, tokenId: $0.tokenId)
+            }).map { _ in }.eraseToAnyPublisher()
+
+        let viewState = Publishers.Merge3(input.appear, tokenHolderHasChange, whenOpenSeaStatsHasChange)
+            .compactMap { [weak self] _ -> NFTAssetViewModel.ViewState? in
+                guard let strongSelf = self else { return nil }
+                strongSelf.viewTypes = strongSelf.buildViewTypes(for: strongSelf.tokenHolderHelper)
+                return NFTAssetViewModel.ViewState(navigationTitle: strongSelf.navigationTitle, actions: strongSelf.actions, viewTypes: strongSelf.viewTypes, previewViewParams: strongSelf.previewViewParams, previewViewContentBackgroundColor: strongSelf.previewViewContentBackgroundColor)
+            }.eraseToAnyPublisher()
+
+        return .init(state: viewState)
+    }
+
+    private func configure(overiddenOpenSeaStats: Stats?) {
         self.tokenHolderHelper.overridenFloorPrice = overiddenOpenSeaStats?.floorPrice
         self.tokenHolderHelper.overridenItemsCount = overiddenOpenSeaStats?.itemsCount
     }
 
     var actions: [TokenInstanceAction] {
+        switch mode {
+        case .preview:
+            return []
+        case .interactive:
+            break
+        }
+
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         let actionsFromTokenScript = xmlHandler.actions
         if xmlHandler.hasAssetDefinition {
@@ -124,11 +182,11 @@ class NFTAssetViewModel {
         }
     }
 
-    func firstMatchingTokenHolder(from tokenHolders: [TokenHolder]) -> TokenHolder? {
+    private func firstMatchingTokenHolder(from tokenHolders: [TokenHolder]) -> TokenHolder? {
         return tokenHolders.first { $0.tokens[0].id == tokenId }
     }
 
-    func isMatchingTokenHolder(from tokenHolders: [TokenHolder]) -> (tokenHolder: TokenHolder, tokenId: TokenId)? {
+    private func isMatchingTokenHolder(from tokenHolders: [TokenHolder]) -> (tokenHolder: TokenHolder, tokenId: TokenId)? {
         return tokenHolders.first(where: { $0.tokens.contains(where: { $0.id == tokenId }) }).flatMap { ($0, tokenId) }
     }
 
@@ -156,8 +214,8 @@ class NFTAssetViewModel {
         return R.image.tokenPlaceholderLarge()
     }
 
-    var configurations: [TokenInstanceViewConfiguration] {
-        var configurations: [TokenInstanceViewConfiguration] = []
+    private func buildViewTypes(for tokenHolderHelper: TokenInstanceViewConfigurationHelper)-> [NFTAssetViewModel.ViewType] {
+        var configurations: [NFTAssetViewModel.ViewType] = []
 
         configurations += [
             tokenHolderHelper.valueModelViewModel,
@@ -173,7 +231,7 @@ class NFTAssetViewModel {
             tokenHolderHelper.nonFungibleViewModel,
             tokenHolderHelper.availableToMintViewModel,
             tokenHolderHelper.transferableViewModel,
-        ].compactMap { each -> TokenInstanceViewConfiguration? in
+        ].compactMap { each -> NFTAssetViewModel.ViewType? in
             return each.flatMap { .field(viewModel: $0) }
         }
 
@@ -185,7 +243,7 @@ class NFTAssetViewModel {
             contractViewModel,
             TokenAttributeViewModel(title: R.string.localizable.nonfungiblesValueBlockchain(), attributedValue: TokenAttributeViewModel.defaultValueAttributedString(token.server.blockChainName)),
             TokenAttributeViewModel(title: R.string.localizable.nonfungiblesValueTokenStandard(), attributedValue: TokenAttributeViewModel.defaultValueAttributedString(token.type.rawValue))
-        ].compactMap { each -> TokenInstanceViewConfiguration? in
+        ].compactMap { each -> NFTAssetViewModel.ViewType? in
             return each.flatMap { .field(viewModel: $0) }
         }
 
@@ -197,7 +255,7 @@ class NFTAssetViewModel {
             tokenHolderHelper.owners,
             tokenHolderHelper.averagePrice,
             tokenHolderHelper.floorPrice
-        ].compactMap { viewModel -> TokenInstanceViewConfiguration? in
+        ].compactMap { viewModel -> NFTAssetViewModel.ViewType? in
             return viewModel.flatMap { .field(viewModel: $0) }
         }
 
@@ -240,4 +298,56 @@ class NFTAssetViewModel {
             return displayHelper.title(fromTokenName: tokenHolder.name, tokenId: tokenId)
         }
     }
+
+    func tokenScriptWarningMessage(for action: TokenInstanceAction) -> FungibleTokenViewModel.TokenScriptWarningMessage? {
+        if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: session.account.address) {
+            if let denialMessage = selection.denial {
+                return .warning(string: denialMessage)
+            } else {
+                //no-op shouldn't have reached here since the button should be disabled. So just do nothing to be safe
+                return .undefined
+            }
+        } else {
+            return nil
+        }
+    }
+
+    func buttonState(for action: TokenInstanceAction) -> FungibleTokenViewModel.ActionButtonState {
+        func _configButton(action: TokenInstanceAction) -> FungibleTokenViewModel.ActionButtonState {
+            if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: session.account.address) {
+                if selection.denial == nil {
+                    return .isDisplayed(false)
+                }
+            }
+            return .noOption
+        }
+
+        switch session.account.type {
+        case .real:
+            return _configButton(action: action)
+        case .watch:
+            if session.config.development.shouldPretendIsRealWallet {
+                return _configButton(action: action)
+            } else {
+                return .isEnabled(false)
+            }
+        }
+    }
+}
+
+extension NFTAssetViewModel {
+    enum ViewType {
+        case header(viewModel: TokenInfoHeaderViewModel)
+        case field(viewModel: TokenAttributeViewModel)
+        case attributeCollection(viewModel: AttributeCollectionViewModel)
+    }
+
+    struct ViewState {
+        let navigationTitle: String
+        let actions: [TokenInstanceAction]
+        let viewTypes: [NFTAssetViewModel.ViewType]
+        let previewViewParams: NFTPreviewViewType.Params
+        let previewViewContentBackgroundColor: UIColor
+    }
+
 }

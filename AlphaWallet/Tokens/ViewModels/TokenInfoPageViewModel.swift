@@ -11,11 +11,7 @@ struct TokenInfoPageViewModelOutput {
     let viewState: AnyPublisher<TokenInfoPageViewModel.ViewState, Never>
 }
 
-protocol TokenInfoPageViewModelType {
-    func transform(input: TokenInfoPageViewModelInput) -> TokenInfoPageViewModelOutput
-}
-
-class TokenInfoPageViewModel: NSObject, TokenInfoPageViewModelType {
+final class TokenInfoPageViewModel {
     private var chartHistoriesSubject: CurrentValueSubject<[ChartHistory], Never> = .init([])
     private let coinTickersFetcher: CoinTickersFetcher
     private var ticker: CoinTicker?
@@ -51,7 +47,6 @@ class TokenInfoPageViewModel: NSObject, TokenInfoPageViewModelType {
         self.service = service
         self.coinTickersFetcher = coinTickersFetcher
         self.transactionType = transactionType
-        super.init()
     }
 
     func transform(input: TokenInfoPageViewModelInput) -> TokenInfoPageViewModelOutput {

@@ -18,17 +18,14 @@ struct SelectTokenViewModelOutput {
     let loadingState: AnyPublisher<SelectTokenViewModel.LoadingState, Never>
 }
 
-protocol SelectTokenViewModelType {
-    func transform(input: SelectTokenViewModelInput) -> SelectTokenViewModelOutput
-}
-
-class SelectTokenViewModel: SelectTokenViewModelType {
+final class SelectTokenViewModel {
     private let filter: WalletFilter
     private let tokenCollection: TokenCollection
     private var cancelable = Set<AnyCancellable>()
     private var selectedToken: TokenViewModel?
     private var filteredTokens: [TokenViewModel] = []
     private let tokensFilter: TokensFilter
+    
     var headerBackgroundColor: UIColor = Colors.appBackground
     var navigationTitle: String = R.string.localizable.assetsSelectAssetTitle()
     var backgroundColor: UIColor = Colors.appBackground

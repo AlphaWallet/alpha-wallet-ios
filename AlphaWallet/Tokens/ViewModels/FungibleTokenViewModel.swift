@@ -16,11 +16,7 @@ struct FungibleTokenViewModelOutput {
     let alerts: AnyPublisher<PriceAlertsPageViewModel, Never>
 }
 
-protocol FungibleTokenViewModelType {
-    func transform(input: FungibleTokenViewModelInput) -> FungibleTokenViewModelOutput
-}
-
-class FungibleTokenViewModel: FungibleTokenViewModelType {
+final class FungibleTokenViewModel {
     private var cancelable = Set<AnyCancellable>()
     private let coinTickersFetcher: CoinTickersFetcher
     private var validatedToken: Token? {

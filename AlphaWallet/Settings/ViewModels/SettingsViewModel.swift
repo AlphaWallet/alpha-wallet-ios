@@ -17,7 +17,7 @@ struct SettingsViewModelOutput {
     let askToSetPasscode: AnyPublisher<Void, Never>
 }
 
-class SettingsViewModel {
+final class SettingsViewModel {
     private let account: Wallet
 
     private (set) var sections: [SettingsSection] = []

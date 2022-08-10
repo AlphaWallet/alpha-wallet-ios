@@ -61,10 +61,6 @@ class SessionsProvider {
             .store(in: &cancelable)
     }
 
-    deinit {
-        print("XXX.\(self).deinit for wallet: \(activeSessions.anyValue.account)")
-    }
-
     func session(for server: RPCServer) -> WalletSession? {
         sessionsSubject.value[safe: server]
     }

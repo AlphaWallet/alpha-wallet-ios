@@ -21,11 +21,11 @@ protocol TokenBalanceRefreshable {
     func refreshBalance(updatePolicy: TokenBalanceFetcher.RefreshBalancePolicy)
 }
 
-protocol TokensProcessingPipeline: TokenViewModelState, TokenProvidable, TokenAddable, TokenHidable, TokenBalanceRefreshable, PipelineTests {
+protocol TokensProcessingPipeline: TokenViewModelState, TokenProvidable, TokenAddable, TokenHidable, TokenBalanceRefreshable, PipelineTests & TokenHolderState {
     func start()
 }
 
-typealias TokenCollection = TokenViewModelState & TokenProvidable & TokenAddable & TokenHidable & TokenBalanceRefreshable
+typealias TokenCollection = TokenViewModelState & TokenProvidable & TokenAddable & TokenHidable & TokenBalanceRefreshable & TokenHolderState
 
 class WalletDataProcessingPipeline: TokensProcessingPipeline {
 
@@ -126,6 +126,20 @@ class WalletDataProcessingPipeline: TokensProcessingPipeline {
             .map { [weak self] in self?.applyTicker(token: $0) }
             .map { [weak self] in self?.applyTokenScriptOverrides(token: $0) }
             .eraseToAnyPublisher()
+    }
+
+    func tokenHolders(for token: TokenIdentifiable) -> [TokenHolder] {
+        tokenViewModel(for: token.contractAddress, server: token.server).flatMap { [assetDefinitionStore, eventsDataStore, wallet] in
+            $0.getTokenHolders(assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: wallet)
+        } ?? []
+    }
+
+    func tokenHoldersPublisher(for token: TokenIdentifiable) -> AnyPublisher<[TokenHolder], Never> {
+        tokenViewModelPublisher(for: token.contractAddress, server: token.server)
+            .compactMap { $0 }
+            .map { [assetDefinitionStore, eventsDataStore, wallet] in
+                $0.getTokenHolders(assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: wallet)
+            }.eraseToAnyPublisher()
     }
 
     func token(for contract: AlphaWallet.Address) -> Token? {

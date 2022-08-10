@@ -58,12 +58,7 @@ class TokenBalanceFetcher: TokenBalanceFetcherType {
         assert(etherToken.server == session.server)
     }
 
-    deinit {
-        print("XXX.\(self).deinit for server: \(session.server)")
-    }
-
     func refreshBalance(for tokens: [Token]) {
-        //print("XXX asked to reload balances for \(tokens.count) for wallet: \(session.account)")
         guard !isRunningTests() else { return }
 
         let etherTokens = tokens.filter { $0 == etherToken }

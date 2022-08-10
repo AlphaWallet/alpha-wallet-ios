@@ -9,8 +9,8 @@ import UIKit
 import AlphaWalletOpenSea
 
 final class TokenInstanceViewConfigurationHelper {
-    private let tokenId: TokenId
-    var tokenHolder: TokenHolder
+    private (set) var tokenId: TokenId
+    private (set) var tokenHolder: TokenHolder
     private let displayHelper: OpenSeaNonFungibleTokenDisplayHelper
 
     private var openSeaCollection: AlphaWalletOpenSea.Collection? {
@@ -27,6 +27,11 @@ final class TokenInstanceViewConfigurationHelper {
         self.tokenId = tokenId
         self.tokenHolder = tokenHolder
         self.displayHelper = OpenSeaNonFungibleTokenDisplayHelper(contract: tokenHolder.contractAddress)
+    }
+
+    func update(tokenHolder: TokenHolder, tokenId: TokenId) {
+        self.tokenId = tokenId
+        self.tokenHolder = tokenHolder
     }
 
     private var values: [AttributeId: AssetAttributeSyntaxValue]? {

@@ -11,6 +11,11 @@ import AlphaWalletOpenSea
 import BigInt
 import Combine
 
+protocol TokenHolderState {
+    func tokenHolders(for token: TokenIdentifiable) -> [TokenHolder]
+    func tokenHoldersPublisher(for token: TokenIdentifiable) -> AnyPublisher<[TokenHolder], Never>
+}
+
 extension TokenHolder: ObservableObject { }
 
 extension TokenScriptSupportable {
