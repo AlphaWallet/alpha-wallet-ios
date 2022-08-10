@@ -14,24 +14,20 @@ struct WalletSummaryViewModel {
         config.enabledServers.allSatisfy { $0.isTestnet }
     }
     private let config: Config
-    private let walletSummary: AnyPublisher<WalletSummary, Never>
+    private let walletSummary: WalletSummary
 
-    init(walletSummary: AnyPublisher<WalletSummary, Never>, config: Config, alignment: NSTextAlignment = .left) {
+    init(walletSummary: WalletSummary, config: Config, alignment: NSTextAlignment = .left) {
         self.walletSummary = walletSummary
         self.alignment = alignment
         self.config = config
     }
 
-    var balanceAttributedString: AnyPublisher<NSAttributedString, Never> {
-        walletSummary
-            .map { createbalanceAttributedString(summary: $0) }
-            .eraseToAnyPublisher()
+    var balanceAttributedString: NSAttributedString {
+        createbalanceAttributedString(summary: walletSummary)
     }
 
-    var apprecation24HoursAttributedString: AnyPublisher<NSAttributedString, Never> {
-        walletSummary
-            .compactMap { createApprecationAttributedString(summary: $0) }
-            .eraseToAnyPublisher()
+    var apprecation24HoursAttributedString: NSAttributedString {
+        createApprecationAttributedString(summary: walletSummary)
     }
 
     private func createbalanceAttributedString(summary: WalletSummary) -> NSAttributedString {

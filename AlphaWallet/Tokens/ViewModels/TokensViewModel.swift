@@ -11,10 +11,7 @@ struct TokensViewModelInput {
 }
 
 struct TokensViewModelOutput {
-    let viewModels: AnyPublisher<[TokensViewModel.SectionViewModel], Never>
-    let walletSummary: AnyPublisher<WalletSummary, Never>
-    let blockieImage: AnyPublisher<BlockiesImage, Never>
-    let navigationTitle: AnyPublisher<String, Never>
+    let viewState: AnyPublisher<TokensViewModel.ViewState, Never>
     let selection: AnyPublisher<Token, Never>
     let pullToRefreshState: AnyPublisher<TokensViewModel.PullToRefreshState, Never>
     let deletion: AnyPublisher<[IndexPath], Never>
@@ -27,7 +24,6 @@ protocol TokensViewModelType {
 //Must be a class, and not a struct, otherwise changing `filter` will silently create a copy of TokensViewModel when user taps to change the filter in the UI and break filtering
 // swiftlint:disable type_body_length
 class TokensViewModel: TokensViewModelType {
-    //TODO: replace with batch of protocols, TokenViewModelState, ...
     private let tokenCollection: TokenCollection
     private let walletConnectCoordinator: WalletConnectCoordinator
     private let walletBalanceService: WalletBalanceService
@@ -41,6 +37,25 @@ class TokensViewModel: TokensViewModelType {
     private (set) var walletConnectSessions: Int = 0
     private (set) var sections: [Section] = []
     private var tokenListSection: Section = .tokens
+    private var listOfBadTokenScriptFiles: [TokenScriptFileIndices.FileName] = .init()
+    //TODO: Replace with usage single array of data, instead of using filteredTokens, and collectiblePairs
+    private var filteredTokens: [TokenOrRpcServer] = []
+    private lazy var walletNameFetcher = GetWalletName(domainResolutionService: domainResolutionService)
+    private let domainResolutionService: DomainResolutionServiceType
+    private let blockiesGenerator: BlockiesGenerator
+    private let sectionViewModelsSubject = PassthroughSubject<[TokensViewModel.SectionViewModel], Never>()
+    private let deletionSubject = PassthroughSubject<[IndexPath], Never>()
+    private var collectiblePairs: [CollectiblePairs] {
+        let tokens = filteredTokens.compactMap { $0.token }
+        return tokens.chunked(into: 2).compactMap { elems -> CollectiblePairs? in
+            guard let left = elems.first else { return nil }
+
+            let right = (elems.last?.contractAddress.sameContract(as: left.contractAddress) ?? false) ? nil : elems.last
+            return .init(left: left, right: right)
+        }
+    }
+    private let wallet: Wallet
+
     let config: Config
     let largeTitleDisplayMode: UINavigationItem.LargeTitleDisplayMode = .never
     var filterViewModel: (cells: [ScrollableSegmentedControlCell], configuration: ScrollableSegmentedControlConfiguration) {
@@ -84,8 +99,6 @@ class TokensViewModel: TokensViewModelType {
             return R.string.localizable.emptyTableViewSearchTitle()
         }
     }
-    //TODO: Replace with usage single array of data, instead of using filteredTokens, and collectiblePairs
-    private var filteredTokens: [TokenOrRpcServer] = []
 
     var headerBackgroundColor: UIColor {
         return .white
@@ -111,6 +124,11 @@ class TokensViewModel: TokensViewModelType {
 
     var hasContent: Bool {
         return !collectiblePairs.isEmpty
+    }
+
+    func set(listOfBadTokenScriptFiles: [TokenScriptFileIndices.FileName]) {
+        self.listOfBadTokenScriptFiles = listOfBadTokenScriptFiles
+        reloadData()
     }
 
     func heightForHeaderInSection(for section: Int) -> CGFloat {
@@ -141,23 +159,6 @@ class TokensViewModel: TokensViewModelType {
             }
         }
     }
-
-    private var collectiblePairs: [CollectiblePairs] {
-        let tokens = filteredTokens.compactMap { $0.token }
-        return tokens.chunked(into: 2).compactMap { elems -> CollectiblePairs? in
-            guard let left = elems.first else { return nil }
-
-            let right = (elems.last?.contractAddress.sameContract(as: left.contractAddress) ?? false) ? nil : elems.last
-            return .init(left: left, right: right)
-        }
-    }
-    
-    let wallet: Wallet
-    private lazy var walletNameFetcher = GetWalletName(domainResolutionService: domainResolutionService)
-    private let domainResolutionService: DomainResolutionServiceType
-    private let blockiesGenerator: BlockiesGenerator
-    private let viewModelsSubject = PassthroughSubject<[TokensViewModel.SectionViewModel], Never>()
-    private let deletionSubject = PassthroughSubject<[IndexPath], Never>()
     
     init(wallet: Wallet, tokenCollection: TokenCollection, tokensFilter: TokensFilter, walletConnectCoordinator: WalletConnectCoordinator, walletBalanceService: WalletBalanceService, config: Config, domainResolutionService: DomainResolutionServiceType, blockiesGenerator: BlockiesGenerator) {
         self.wallet = wallet
@@ -244,11 +245,14 @@ class TokensViewModel: TokensViewModelType {
             }
         }.eraseToAnyPublisher()
 
+        let viewState = Publishers.CombineLatest4(sectionViewModelsSubject, walletSummary, blockieImage, navigationTitle)
+            .map { sections, summary, blockiesImage, navigationTitle in
+                return TokensViewModel.ViewState(navigationTitle: navigationTitle, summary: summary, blockiesImage: blockiesImage, isConsoleButtonHidden: self.listOfBadTokenScriptFiles.isEmpty, sections: sections)
+            }.removeDuplicates()
+            .eraseToAnyPublisher()
+
         return .init(
-            viewModels: viewModelsSubject.removeDuplicates().eraseToAnyPublisher(),
-            walletSummary: walletSummary,
-            blockieImage: blockieImage,
-            navigationTitle: navigationTitle,
+            viewState: viewState,
             selection: selection,
             pullToRefreshState: fakePullToRefreshState,
             deletion: deletionSubject.eraseToAnyPublisher())
@@ -422,7 +426,12 @@ class TokensViewModel: TokensViewModelType {
         filteredTokens = filteredAndSortedTokens()
         refreshSections(walletConnectSessions: walletConnectSessions)
 
-        let viewModels = sections.enumerated().map { (sectionIndex, section) -> TokensViewModel.SectionViewModel in
+        let sections = buildSectionViewModels()
+        sectionViewModelsSubject.send(sections)
+    }
+
+    private func buildSectionViewModels() -> [TokensViewModel.SectionViewModel] {
+        return sections.enumerated().map { (sectionIndex, section) -> TokensViewModel.SectionViewModel in
             guard numberOfItems(for: sectionIndex) > 0 else {
                 return TokensViewModel.SectionViewModel(section: section, views: [])
             }
@@ -434,8 +443,6 @@ class TokensViewModel: TokensViewModelType {
 
             return TokensViewModel.SectionViewModel(section: section, views: viewModels)
         }
-
-        viewModelsSubject.send(viewModels)
     }
 
     private func filteredAndSortedTokens() -> [TokenOrRpcServer] {
@@ -569,34 +576,19 @@ extension TokensViewModel {
         case beginLoading
         case endLoading
     }
-}
 
-extension TokensViewModel.SectionViewModel: Hashable {
-    static func == (lhs: TokensViewModel.SectionViewModel, rhs: TokensViewModel.SectionViewModel) -> Bool {
-        return lhs.section == rhs.section && lhs.views == rhs.views
+    struct ViewState {
+        let navigationTitle: String
+        let summary: WalletSummary
+        let blockiesImage: BlockiesImage
+        let isConsoleButtonHidden: Bool
+        let sections: [TokensViewModel.SectionViewModel]
     }
 }
 
-extension TokensViewModel.ViewModelType: Hashable {
-    static func == (lhs: TokensViewModel.ViewModelType, rhs: TokensViewModel.ViewModelType) -> Bool {
-        switch (lhs, rhs) {
-        case (.undefined, .undefined):
-            return true
-        case (.nftCollection(let vm1), .nftCollection(let vm2)):
-            return vm1 == vm2
-        case (.nonFungible(let vm1), .nonFungible(let vm2)):
-            return vm1 == vm2
-        case (.fungibleToken(let vm1), .fungibleToken(let vm2)):
-            return vm1 == vm2
-        case (.nativeCryptocurrency(let vm1), .nativeCryptocurrency(let vm2)):
-            return vm1 == vm2
-        case (.rpcServer(let vm1), .rpcServer(let vm2)):
-            return vm1 == vm2
-        default:
-            return false
-        }
-    }
-}
+extension TokensViewModel.ViewState: Hashable { }
+extension TokensViewModel.SectionViewModel: Hashable { }
+extension TokensViewModel.ViewModelType: Hashable { }
 
 extension WalletFilter {
     static var orderedTabs: [WalletFilter] {

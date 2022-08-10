@@ -19,7 +19,6 @@ protocol TokenBalanceFetcherDelegate: AnyObject {
 }
 
 protocol TokenBalanceFetcherType: AnyObject {
-    //var etherToken: Token { get }
     var delegate: TokenBalanceFetcherDelegate? { get set }
     var erc721TokenIdsFetcher: Erc721TokenIdsFetcher? { get set }
 
@@ -45,7 +44,7 @@ class TokenBalanceFetcher: TokenBalanceFetcherType {
     private let etherToken: Token
 
     weak var delegate: TokenBalanceFetcherDelegate?
-    weak var erc721TokenIdsFetcher: Erc721TokenIdsFetcher?
+    weak var erc721TokenIdsFetcher: Erc721TokenIdsFetcher? 
 
     init(session: WalletSession, nftProvider: NFTProvider, service: TokenProvidable & TokenAddable, etherToken: Token, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger, queue: DispatchQueue) {
         self.session = session

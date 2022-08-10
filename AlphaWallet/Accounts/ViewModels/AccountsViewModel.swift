@@ -42,7 +42,7 @@ class AccountsViewModel: ObservableObject {
     }
 
     lazy var walletSummaryViewModel: WalletSummaryViewModel = {
-        return .init(walletSummary: walletBalanceService.walletsSummary, config: config)
+        return .init(walletSummary: /*walletBalanceService.walletsSummary*/ .init(balances: []), config: config)
     }()
 
     var hasWallets: Bool {

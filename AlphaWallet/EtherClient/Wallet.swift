@@ -2,7 +2,7 @@
 
 import Foundation
 
-enum WalletType: Equatable, CustomStringConvertible {
+enum WalletType: Equatable, Hashable, CustomStringConvertible {
     case real(AlphaWallet.Address)
     case watch(AlphaWallet.Address)
 
@@ -59,8 +59,4 @@ struct Wallet: Equatable, CustomStringConvertible {
     }
 }
 
-extension Wallet: Hashable {
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(address.eip55String)
-    }
-}
+extension Wallet: Hashable { }

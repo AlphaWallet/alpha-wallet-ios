@@ -16,7 +16,7 @@ class TokensViewController: UIViewController {
     private let appear = PassthroughSubject<Void, Never>()
     private let _pullToRefresh = PassthroughSubject<Void, Never>()
     private let selection = PassthroughSubject<TokensViewModel.SelectionSource, Never>()
-    private let viewModel: TokensViewModel
+    let viewModel: TokensViewModel
 
     lazy private var filterView: ScrollableSegmentedControl = {
         let control = ScrollableSegmentedControl(cells: viewModel.filterViewModel.cells, configuration: viewModel.filterViewModel.configuration)
@@ -57,9 +57,16 @@ class TokensViewController: UIViewController {
     }()
     private (set) lazy var blockieImageView: BlockieImageView = BlockieImageView(viewSize: .init(width: 44, height: 44), imageSize: .init(width: 24, height: 24))
     private let searchController: UISearchController
-    private var consoleButton: UIButton {
-        return tableViewHeader.consoleButton
-    }
+    private lazy var consoleButton: UIButton = {
+        let consoleButton = tableViewHeader.consoleButton
+        consoleButton.titleLabel?.font = Fonts.regular(size: 22)
+        consoleButton.setTitleColor(Colors.black, for: .normal)
+        consoleButton.setTitle(R.string.localizable.tokenScriptShowErrors(), for: .normal)
+        consoleButton.bounds.size.height = 44
+        consoleButton.isHidden = true
+
+        return consoleButton
+    }()
     private var promptBackupWalletViewHolder: UIView {
         return tableViewHeader.promptBackupWalletViewHolder
     }
@@ -89,6 +96,7 @@ class TokensViewController: UIViewController {
             adjustTableViewHeaderHeightToFitContents()
         }
     }
+    
     private var isPromptBackupWalletViewHolderHidden: Bool {
         get {
             return promptBackupWalletViewHolder.isHidden
@@ -101,20 +109,7 @@ class TokensViewController: UIViewController {
     }
 
     weak var delegate: TokensViewControllerDelegate?
-    //TODO The name "bad" isn't correct. Because it includes "conflicts" too
-    var listOfBadTokenScriptFiles: [TokenScriptFileIndices.FileName] = .init() {
-        didSet {
-            if listOfBadTokenScriptFiles.isEmpty {
-                isConsoleButtonHidden = true
-            } else {
-                consoleButton.titleLabel?.font = Fonts.regular(size: 22)
-                consoleButton.setTitleColor(Colors.black, for: .normal)
-                consoleButton.setTitle(R.string.localizable.tokenScriptShowErrors(), for: .normal)
-                consoleButton.bounds.size.height = 44
-                consoleButton.isHidden = false
-            }
-        }
-    }
+    
     var promptBackupWalletView: UIView? {
         didSet {
             oldValue?.removeFromSuperview()
@@ -233,7 +228,8 @@ class TokensViewController: UIViewController {
         navigationItem.largeTitleDisplayMode = viewModel.largeTitleDisplayMode
         view.backgroundColor = viewModel.backgroundColor
         tableView.backgroundColor = viewModel.backgroundColor
-
+        title = viewModel.walletDefaultTitle
+        
         let input = TokensViewModelInput(
             appear: appear.eraseToAnyPublisher(),
             pullToRefresh: _pullToRefresh.eraseToAnyPublisher(),
@@ -241,15 +237,21 @@ class TokensViewController: UIViewController {
 
         let output = viewModel.transform(input: input)
 
-        walletSummaryView.configure(viewModel: .init(walletSummary: output.walletSummary, config: viewModel.config, alignment: .center))
         dataSource.numberOfRowsInSection.sink { [weak self, viewModel] section in
             guard viewModel.sections[section] == .tokens || viewModel.sections[section] == .collectiblePairs else { return }
             self?.handleTokensCountChange(rows: viewModel.numberOfItems(for: section))
         }.store(in: &cancellable)
 
-        output.viewModels.sink { [weak self] viewModels in
+        output.viewState.sink { [weak self, weak walletSummaryView, blockieImageView, navigationItem] state in
             self?.showOrHideBackupWalletViewHolder()
-            self?.applySnapshot(with: viewModels, animate: false)
+            
+            walletSummaryView?.configure(viewModel: .init(walletSummary: state.summary, config: viewModel.config, alignment: .center))
+            blockieImageView.setBlockieImage(image: state.blockiesImage)
+
+            navigationItem.title = state.navigationTitle
+            self?.isConsoleButtonHidden = state.isConsoleButtonHidden
+
+            self?.applySnapshot(with: state.sections, animate: false)
         }.store(in: &cancellable)
 
         output.deletion.sink { [dataSource] indexPaths in
@@ -270,15 +272,6 @@ class TokensViewController: UIViewController {
             case .beginLoading:
                 refreshControl.beginRefreshing()
             }
-        }.store(in: &cancellable)
-
-        output.blockieImage.sink { [blockieImageView] image in
-            blockieImageView.setBlockieImage(image: image)
-        }.store(in: &cancellable)
-
-        title = viewModel.walletDefaultTitle
-        output.navigationTitle.sink { [navigationItem] title in
-            navigationItem.title = title
         }.store(in: &cancellable)
 
         output.selection.sink { [weak self] token in
