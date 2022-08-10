@@ -11,7 +11,6 @@ import PromiseKit
 import Combine
 
 protocol ActivitiesServiceType: class {
-    var sessions: ServerDictionary<WalletSession> { get }
     var activitiesPublisher: AnyPublisher<[ActivitiesViewModel.MappedToDateActivityOrTransaction], Never> { get }
     var didUpdateActivityPublisher: AnyPublisher<Activity, Never> { get }
 

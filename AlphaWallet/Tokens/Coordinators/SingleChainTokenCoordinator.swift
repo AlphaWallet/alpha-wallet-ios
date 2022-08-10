@@ -25,12 +25,12 @@ protocol SingleChainTokenCoordinatorDelegate: CanOpenURL, SendTransactionDelegat
 class SingleChainTokenCoordinator: Coordinator {
     private let keystore: Keystore
     private let assetDefinitionStore: AssetDefinitionStore
-    private let eventsDataStore: NonActivityEventsDataStore
     private let analytics: AnalyticsLogger
     private let openSea: OpenSea
     private let tokenActionsProvider: SupportedTokenActionsProvider
     private let coinTickersFetcher: CoinTickersFetcher
     private let activitiesService: ActivitiesServiceType
+    private let sessions: ServerDictionary<WalletSession>
     let session: WalletSession
     weak var delegate: SingleChainTokenCoordinatorDelegate?
     var coordinators: [Coordinator] = []
@@ -40,25 +40,25 @@ class SingleChainTokenCoordinator: Coordinator {
     }
     private let alertService: PriceAlertServiceType
     private let service: TokenBalanceRefreshable & TokenViewModelState & TokenHolderState
-
+    
     init(
             session: WalletSession,
             keystore: Keystore,
             assetDefinitionStore: AssetDefinitionStore,
-            eventsDataStore: NonActivityEventsDataStore,
             analytics: AnalyticsLogger,
             openSea: OpenSea,
             tokenActionsProvider: SupportedTokenActionsProvider,
             coinTickersFetcher: CoinTickersFetcher,
             activitiesService: ActivitiesServiceType,
             alertService: PriceAlertServiceType,
-            service: TokenBalanceRefreshable & TokenViewModelState & TokenHolderState
+            service: TokenBalanceRefreshable & TokenViewModelState & TokenHolderState,
+            sessions: ServerDictionary<WalletSession>
     ) {
+        self.sessions = sessions
         self.service = service
         self.session = session
         self.keystore = keystore
         self.assetDefinitionStore = assetDefinitionStore
-        self.eventsDataStore = eventsDataStore
         self.analytics = analytics
         self.openSea = openSea
         self.tokenActionsProvider = tokenActionsProvider
@@ -91,7 +91,8 @@ class SingleChainTokenCoordinator: Coordinator {
                 analytics: analytics,
                 openSea: openSea,
                 activitiesService: activitiesService,
-                service: service)
+                service: service,
+                sessions: sessions)
 
         addCoordinator(coordinator)
         coordinator.delegate = self
@@ -103,7 +104,7 @@ class SingleChainTokenCoordinator: Coordinator {
         let activitiesFilterStrategy = transactionType.activitiesFilterStrategy
         let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: TransactionDataStore.functional.transactionsFilter(for: activitiesFilterStrategy, token: transactionType.tokenObject))
         let viewModel = FungibleTokenViewModel(activitiesService: activitiesService, alertService: alertService, transactionType: transactionType, session: session, assetDefinitionStore: assetDefinitionStore, tokenActionsProvider: tokenActionsProvider, coinTickersFetcher: coinTickersFetcher, service: service)
-        let viewController = FungibleTokenViewController(keystore: keystore, analytics: analytics, viewModel: viewModel, activitiesService: activitiesService)
+        let viewController = FungibleTokenViewController(keystore: keystore, analytics: analytics, viewModel: viewModel, activitiesService: activitiesService, sessions: sessions)
         viewController.delegate = self
 
         navigationController.pushViewController(viewController, animated: true)

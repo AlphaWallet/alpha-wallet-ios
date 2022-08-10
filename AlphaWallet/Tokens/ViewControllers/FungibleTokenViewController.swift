@@ -27,7 +27,7 @@ class FungibleTokenViewController: UIViewController {
         return view
     }()
     private lazy var activitiesPageView: ActivitiesPageView = {
-        return ActivitiesPageView(analytics: analytics, keystore: keystore, wallet: viewModel.wallet, viewModel: .init(activitiesViewModel: .init()), sessions: activitiesService.sessions, assetDefinitionStore: viewModel.assetDefinitionStore)
+        return ActivitiesPageView(analytics: analytics, keystore: keystore, wallet: viewModel.wallet, viewModel: .init(activitiesViewModel: .init()), sessions: sessions, assetDefinitionStore: viewModel.assetDefinitionStore)
     }()
     private lazy var alertsPageView: PriceAlertsPageView = {
         return PriceAlertsPageView(viewModel: .init(alerts: []))
@@ -37,9 +37,11 @@ class FungibleTokenViewController: UIViewController {
     private let keystore: Keystore
     private var cancelable = Set<AnyCancellable>()
     private let appear = PassthroughSubject<Void, Never>()
+    private let sessions: ServerDictionary<WalletSession>
     weak var delegate: FungibleTokenViewControllerDelegate?
 
-    init(keystore: Keystore, analytics: AnalyticsLogger, viewModel: FungibleTokenViewModel, activitiesService: ActivitiesServiceType) {
+    init(keystore: Keystore, analytics: AnalyticsLogger, viewModel: FungibleTokenViewModel, activitiesService: ActivitiesServiceType, sessions: ServerDictionary<WalletSession>) {
+        self.sessions = sessions
         self.viewModel = viewModel
         self.keystore = keystore
         self.activitiesService = activitiesService

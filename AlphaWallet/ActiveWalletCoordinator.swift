@@ -17,7 +17,6 @@ protocol ActiveWalletCoordinatorDelegate: AnyObject {
 
 // swiftlint:disable type_body_length
 class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
-
     private let wallet: Wallet
     private let config: Config
     private let assetDefinitionStore: AssetDefinitionStore
@@ -25,30 +24,22 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private let analytics: AnalyticsLogger
     private let openSea: OpenSea
     private let restartQueue: RestartTaskQueue
-    lazy private var eventsDataStore: NonActivityEventsDataStore = {
-        return NonActivityMultiChainEventsDataStore(store: localStore.getOrCreateStore(forWallet: wallet))
-    }()
-    lazy private var eventsActivityDataStore: EventsActivityDataStoreProtocol = {
-        return EventsActivityDataStore(store: localStore.getOrCreateStore(forWallet: wallet))
-    }()
-    private lazy var eventSourceCoordinatorForActivities: EventSourceCoordinatorForActivities? = {
-        guard Features.default.isAvailable(.isActivityEnabled) else { return nil }
-        return EventSourceCoordinatorForActivities(wallet: wallet, config: config, tokensDataStore: tokensDataStore, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsActivityDataStore)
-    }()
     private let coinTickersFetcher: CoinTickersFetcher
-
     private let tokensDataStore: TokensDataStore
-
-    private lazy var eventSourceCoordinator: EventSourceCoordinator = {
-        EventSourceCoordinator(wallet: wallet, tokensDataStore: tokensDataStore, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, config: config)
-    }()
-
     private lazy var transactionDataStore: TransactionDataStore = {
         return TransactionDataStore(store: localStore.getOrCreateStore(forWallet: wallet))
     }()
-
     private var claimOrderCoordinatorCompletionBlock: ((Bool) -> Void)?
     private let blockscanChatService: BlockscanChatService
+    private lazy var activitiesPipeLine = ActivitiesPipeLine(config: config, wallet: wallet, localStore: localStore, assetDefinitionStore: assetDefinitionStore, transactionDataStore: transactionDataStore, tokensDataStore: tokensDataStore, sessionsProvider: sessionsProvider)
+    private let sessionsProvider: SessionsProvider
+    private let importToken: ImportToken
+    private lazy var tokensFilter: TokensFilter = {
+        let tokenGroupIdentifier: TokenGroupIdentifierProtocol = TokenGroupIdentifier.identifier(fromFileName: "tokens")!
+        return TokensFilter(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: coinTickersFetcher, tokenGroupIdentifier: tokenGroupIdentifier)
+    }()
+
+    private let tokenCollection: TokenCollection
 
     private var transactionCoordinator: TransactionCoordinator? {
         return coordinators.compactMap { $0 as? TransactionCoordinator }.first
@@ -75,9 +66,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         return coordinator
     }()
 
-    private lazy var activitiesService: ActivitiesServiceType = {
-        return ActivitiesService(config: config, sessions: sessionsProvider.activeSessions, assetDefinitionStore: assetDefinitionStore, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore, transactionDataStore: transactionDataStore, tokensDataStore: tokensDataStore)
-    }()
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
     var keystore: Keystore
@@ -114,15 +102,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     }()
 
     private let accountsCoordinator: AccountsCoordinator
-    private let sessionsProvider: SessionsProvider
-    private let importToken: ImportToken
-
-    private lazy var tokensFilter: TokensFilter = {
-        let tokenGroupIdentifier: TokenGroupIdentifierProtocol = TokenGroupIdentifier.identifier(fromFileName: "tokens")!
-        return TokensFilter(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: coinTickersFetcher, tokenGroupIdentifier: tokenGroupIdentifier)
-    }()
-
-    private let tokenCollection: TokenCollection
 
     var presentationNavigationController: UINavigationController {
         if let nc = tabBarController.viewControllers?.first as? UINavigationController {
@@ -315,7 +294,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
                 keystore: keystore,
                 config: config,
                 assetDefinitionStore: assetDefinitionStore,
-                eventsDataStore: eventsDataStore,
                 promptBackupCoordinator: promptBackupCoordinator,
                 analytics: analytics,
                 openSea: openSea,
@@ -403,13 +381,13 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private func setupTabBarController() {
         var viewControllers = [UIViewController]()
 
-        let tokensCoordinator = createTokensCoordinator(promptBackupCoordinator: promptBackupCoordinator, activitiesService: activitiesService)
+        let tokensCoordinator = createTokensCoordinator(promptBackupCoordinator: promptBackupCoordinator, activitiesService: activitiesPipeLine)
         viewControllers.append(tokensCoordinator.navigationController)
 
         let transactionCoordinator = createTransactionCoordinator(transactionDataStore: transactionDataStore)
 
         if Features.default.isAvailable(.isActivityEnabled) {
-            let activityCoordinator = createActivityCoordinator(activitiesService: activitiesService)
+            let activityCoordinator = createActivityCoordinator(activitiesService: activitiesPipeLine)
             viewControllers.append(activityCoordinator.navigationController)
         } else {
             viewControllers.append(transactionCoordinator.navigationController)
@@ -705,7 +683,7 @@ extension ActiveWalletCoordinator: UrlSchemeResolver {
 
 extension ActiveWalletCoordinator: ActivityViewControllerDelegate {
     func reinject(viewController: ActivityViewController) {
-        activitiesService.reinject(activity: viewController.viewModel.activity)
+        activitiesPipeLine.reinject(activity: viewController.viewModel.activity)
     }
 
     func goToToken(viewController: ActivityViewController) {
@@ -800,12 +778,8 @@ extension ActiveWalletCoordinator: WhereAreMyTokensCoordinatorDelegate {
 extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
 
     func viewWillAppearOnce(in coordinator: TokensCoordinator) {
-        //NOTE: need to figure out creating xml handlers, object creating takes a lot of resources
-        eventSourceCoordinator.start()
-        eventSourceCoordinatorForActivities?.start()
-
         tokenCollection.refreshBalance(updatePolicy: .all)
-        activitiesService.start()
+        activitiesPipeLine.start()
     }
 
     func whereAreMyTokensSelected(in coordinator: TokensCoordinator) {
@@ -821,7 +795,7 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
     }
 
     private func showActivity(_ activity: Activity, navigationController: UINavigationController) {
-        let controller = ActivityViewController(analytics: analytics, wallet: wallet, assetDefinitionStore: assetDefinitionStore, viewModel: .init(activity: activity), service: activitiesService, keystore: keystore)
+        let controller = ActivityViewController(analytics: analytics, wallet: wallet, assetDefinitionStore: assetDefinitionStore, viewModel: .init(activity: activity), service: activitiesPipeLine, keystore: keystore)
         controller.delegate = self
 
         controller.hidesBottomBarWhenPushed = true
