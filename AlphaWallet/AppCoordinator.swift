@@ -221,6 +221,9 @@ class AppCoordinator: NSObject, Coordinator {
         }
 
         let dep = dependencyProvider.makeDependencies(for: wallet)
+        dep.sessionsProvider.start(wallet: wallet)
+        dep.fetcher.start()
+        dep.pipeline.start()
 
         walletConnectCoordinator.configure(with: dep.pipeline)
 

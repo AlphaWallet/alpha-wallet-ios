@@ -45,6 +45,7 @@ class MultiWalletBalanceService: WalletBalanceService {
     func start() {
         walletAddressesStore
             .walletsPublisher
+            .receive(on: RunLoop.main) //NOTE: async to avoid `swift_beginAccess` crash
             .map { [dependencyContainer, weak self] wallets -> [Wallet: WalletBalanceFetcherType] in
                 guard let strongSelf = self else { return [:] }
                 var fetchers: [Wallet: WalletBalanceFetcherType] = [:]
