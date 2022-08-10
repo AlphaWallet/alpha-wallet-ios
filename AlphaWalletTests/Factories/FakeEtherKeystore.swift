@@ -4,25 +4,8 @@ import Foundation
 @testable import AlphaWallet
 import KeychainSwift
 
-struct FakeWallet {
-    let address: AlphaWallet.Address
-    let origin: WalletOrigin
-}
-
-extension FakeWallet {
-    init(wallet: Wallet) {
-        address = wallet.address
-        switch wallet.type {
-        case .real:
-            origin = .mnemonic
-        case .watch:
-            origin = .watch
-        }
-    }
-}
-
 final class FakeEtherKeystore: EtherKeystore {
-    convenience init(wallets: [FakeWallet] = [], recentlyUsedWallet: Wallet? = nil) {
+    convenience init(wallets: [Wallet] = [], recentlyUsedWallet: Wallet? = nil) {
         let uniqueString = NSUUID().uuidString
         let walletAddressesStore = fakeWalletAddressStore(wallets: wallets, recentlyUsedWallet: recentlyUsedWallet)
 

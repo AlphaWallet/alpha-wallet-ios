@@ -210,7 +210,7 @@ extension SettingsViewModel.functional {
     fileprivate static func computeSections(account: Wallet, keystore: Keystore, blockscanChatUnreadCount: Int?) -> [SettingsSection] {
         let walletRows: [SettingsWalletRow]
         if account.allowBackup {
-            if keystore.isHdWallet(wallet: account) {
+            if account.origin == .hd {
                 walletRows = [.showMyWallet, .changeWallet, .backup, .showSeedPhrase, .nameWallet, .walletConnect, .blockscanChat(blockscanChatUnreadCount: blockscanChatUnreadCount)]
             } else {
                 walletRows = [.showMyWallet, .changeWallet, .backup, .nameWallet, .walletConnect, .blockscanChat(blockscanChatUnreadCount: blockscanChatUnreadCount)]

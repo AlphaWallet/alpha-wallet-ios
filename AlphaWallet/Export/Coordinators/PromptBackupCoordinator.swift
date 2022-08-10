@@ -378,7 +378,7 @@ extension PromptBackupCoordinator: PromptBackupWalletViewDelegate {
 
     func didChooseBackup(inView view: PromptBackupWalletView) {
         guard let nc = viewControllerToShowBackupLaterAlert(forView: view)?.navigationController else { return }
-        let coordinator = BackupCoordinator(navigationController: nc, keystore: keystore, account: wallet.address, analytics: analytics)
+        let coordinator = BackupCoordinator(navigationController: nc, keystore: keystore, account: wallet, analytics: analytics)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)

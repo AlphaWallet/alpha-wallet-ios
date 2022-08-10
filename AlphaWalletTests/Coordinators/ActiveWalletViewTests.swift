@@ -27,7 +27,7 @@ class ActiveWalletViewTests: XCTestCase {
         let wallet: Wallet = .make()
         let navigationController = FakeNavigationController()
         let fas = FakeAnalyticsService()
-        let keystore = FakeEtherKeystore(wallets: [.init(wallet: wallet)])
+        let keystore = FakeEtherKeystore(wallets: [wallet])
         let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, analytics: fas, viewModel: .init(configuration: .changeWallets), walletBalanceService: FakeMultiWalletBalanceService(), blockiesGenerator: .make(), domainResolutionService: FakeDomainResolutionService())
         let coordinator = ActiveWalletCoordinator(
             navigationController: navigationController,
@@ -75,13 +75,13 @@ class ActiveWalletViewTests: XCTestCase {
     }
 
     func testChangeRecentlyUsedAccount() {
-        let account1: Wallet = .make(type: .watch(AlphaWallet.Address(string: "0x1000000000000000000000000000000000000000")!))
-        let account2: Wallet = .make(type: .watch(AlphaWallet.Address(string: "0x2000000000000000000000000000000000000000")!))
+        let account1: Wallet = .make(address: AlphaWallet.Address(string: "0x1000000000000000000000000000000000000000")!)
+        let account2: Wallet = .make(address: AlphaWallet.Address(string: "0x2000000000000000000000000000000000000000")!)
 
         let keystore = FakeEtherKeystore(
             wallets: [
-                .init(wallet: account1),
-                .init(wallet: account2)
+                account1,
+                account2
             ]
         )
 
@@ -148,7 +148,7 @@ class ActiveWalletViewTests: XCTestCase {
         let wallet: Wallet = .make()
         let navigationController = FakeNavigationController()
         let fas = FakeAnalyticsService()
-        let keystore = FakeEtherKeystore(wallets: [.init(wallet: wallet)])
+        let keystore = FakeEtherKeystore(wallets: [wallet])
         let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, analytics: fas, viewModel: .init(configuration: .changeWallets),
         walletBalanceService: FakeMultiWalletBalanceService(), blockiesGenerator: .make(), domainResolutionService: FakeDomainResolutionService())
         let coordinator = ActiveWalletCoordinator(
@@ -184,7 +184,7 @@ class ActiveWalletViewTests: XCTestCase {
         let wallet: Wallet = .make()
         let navigationController = FakeNavigationController()
         let fas = FakeAnalyticsService()
-        let keystore = FakeEtherKeystore(wallets: [.init(wallet: wallet)])
+        let keystore = FakeEtherKeystore(wallets: [wallet])
         let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, analytics: fas, viewModel: .init(configuration: .changeWallets),
         walletBalanceService: FakeMultiWalletBalanceService(), blockiesGenerator: .make(), domainResolutionService: FakeDomainResolutionService())
         let coordinator = ActiveWalletCoordinator(
@@ -272,8 +272,7 @@ class ActiveWalletViewTests: XCTestCase {
     func testShowTabAlphwaWalletWallet() {
         let keystore = FakeEtherKeystore()
         switch keystore.createAccount() {
-        case .success(let account):
-            let wallet = Wallet(type: .real(account))
+        case .success(let wallet):
             keystore.recentlyUsedWallet = wallet
             let navigationController = FakeNavigationController()
             let fas = FakeAnalyticsService()

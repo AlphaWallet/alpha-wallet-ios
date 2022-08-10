@@ -75,7 +75,7 @@ class WalletCoordinator: Coordinator {
             let result = keystore.createAccount()
             switch result {
             case .success(let account):
-                keystore.recentlyUsedWallet = Wallet(type: WalletType.real(account))
+                keystore.recentlyUsedWallet = account
             case .failure:
                 //TODO handle initial wallet creation error. App can't be used!
                 break
@@ -89,11 +89,10 @@ class WalletCoordinator: Coordinator {
         keystore.createAccount { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
-            case .success(let account):
+            case .success(let wallet):
                 //Not the best implementation, since there's some coupling, but it's clean. We need this so we don't show the What's New UI right after a wallet is created and clash with the pop up prompting user to back up the new wallet, for new installs and creating new wallets for existing installs
                 WhatsNewExperimentCoordinator.lastCreatedWalletTimestamp = Date()
 
-                let wallet = Wallet(type: WalletType.real(account))
                 strongSelf.delegate?.didFinish(with: wallet, in: strongSelf)
             case .failure(let error):
                 //TODO this wouldn't work since navigationController isn't shown anymore

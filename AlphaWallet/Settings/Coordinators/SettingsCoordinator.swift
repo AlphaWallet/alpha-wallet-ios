@@ -172,7 +172,7 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
 
     func settingsViewControllerBackupWalletSelected(in controller: SettingsViewController) {
         switch account.type {
-        case .real(let account):
+        case .real:
             let coordinator = BackupCoordinator(
                     navigationController: navigationController,
                     keystore: keystore,

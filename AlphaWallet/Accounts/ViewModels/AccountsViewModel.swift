@@ -103,9 +103,9 @@ class AccountsViewModel: ObservableObject {
     }
 
     private func reloadWallets() {
-        hdWallets = keystore.wallets.filter { keystore.isHdWallet(wallet: $0) }.sorted { $0.address.eip55String < $1.address.eip55String }
-        keystoreWallets = keystore.wallets.filter { keystore.isKeystore(wallet: $0) }.sorted { $0.address.eip55String < $1.address.eip55String }
-        watchedWallets = keystore.wallets.filter { keystore.isWatched(wallet: $0) }.sorted { $0.address.eip55String < $1.address.eip55String }
+        hdWallets = keystore.wallets.filter { $0.origin == .hd }.sorted { $0.address.eip55String < $1.address.eip55String }
+        keystoreWallets = keystore.wallets.filter { $0.origin == .privateKey }.sorted { $0.address.eip55String < $1.address.eip55String }
+        watchedWallets = keystore.wallets.filter { $0.origin == .watch }.sorted { $0.address.eip55String < $1.address.eip55String }
     }
 
     func reloadBalance() {
@@ -213,11 +213,11 @@ class AccountsViewModel: ObservableObject {
             case .summary:
                 return false
             case .hdWallet:
-                return keystore.isHdWallet(wallet: wallet)
+                return wallet.origin == .hd
             case .keystoreWallet:
-                return keystore.isKeystore(wallet: wallet)
+                return wallet.origin == .privateKey
             case .watchedWallet:
-                return keystore.isWatched(wallet: wallet)
+                return wallet.origin == .watch
             }
         }) else { return nil }
         switch sections[sectionIndex] {

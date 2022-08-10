@@ -7,7 +7,7 @@ class OrderSigningTests: XCTestCase {
     func testSigningOrders() {
         let keystore = FakeEtherKeystore()
         let contractAddress = AlphaWallet.Address(string: "0xacDe9017473D7dC82ACFd0da601E4de291a7d6b0")!
-        guard let account = try? keystore.createAccount().dematerialize() else {
+        guard let account = try? keystore.createAccount().dematerialize().address else {
             XCTFail("Failure to import wallet")
             return
         }
@@ -35,7 +35,7 @@ class OrderSigningTests: XCTestCase {
             return
         }
         XCTAssertGreaterThanOrEqual(2016, signedOrders.count)
-        keystore.delete(wallet: Wallet(type: WalletType.real(account)))
+        keystore.delete(wallet: Wallet(address: account, origin: .hd))
     }
 }
 

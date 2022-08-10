@@ -16,7 +16,7 @@ class FakeMultiWalletBalanceService: MultiWalletBalanceService {
         self.servers = servers
         self.wallet = wallet
 
-        let walletAddressesStore = fakeWalletAddressStore(wallets: [.init(wallet: wallet)])
+        let walletAddressesStore = fakeWalletAddressStore(wallets: [wallet])
         let keystore = FakeEtherKeystore(walletAddressesStore: walletAddressesStore)
         super.init(store: FakeRealmLocalStore(), keystore: keystore, config: .make(), assetDefinitionStore: .init(), analytics: FakeAnalyticsService(), coinTickersFetcher: CoinGeckoTickersFetcher.make(), walletAddressesStore: walletAddressesStore)
     }

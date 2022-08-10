@@ -230,9 +230,9 @@ private struct WalletAddresses: Codable {
     }
 
     var wallets: Set<Wallet> {
-        let watchAddresses = (watchAddresses ?? []).compactMap { AlphaWallet.Address(string: $0) }.map { Wallet(type: .watch($0)) }
-        let addressesWithPrivateKeys = (ethereumAddressesWithPrivateKeys ?? []).compactMap { AlphaWallet.Address(string: $0) }.map { Wallet(type: .real($0)) }
-        let addressesWithSeed = (ethereumAddressesWithSeed ?? []).compactMap { AlphaWallet.Address(string: $0) }.map { Wallet(type: .real($0)) }
+        let watchAddresses = (watchAddresses ?? []).compactMap { AlphaWallet.Address(string: $0) }.map { Wallet(address: $0, origin: .watch) }
+        let addressesWithPrivateKeys = (ethereumAddressesWithPrivateKeys ?? []).compactMap { AlphaWallet.Address(string: $0) }.map { Wallet(address: $0, origin: .privateKey) }
+        let addressesWithSeed = (ethereumAddressesWithSeed ?? []).compactMap { AlphaWallet.Address(string: $0) }.map { Wallet(address: $0, origin: .hd) }
 
         return Set(addressesWithSeed + addressesWithPrivateKeys + watchAddresses)
     }
