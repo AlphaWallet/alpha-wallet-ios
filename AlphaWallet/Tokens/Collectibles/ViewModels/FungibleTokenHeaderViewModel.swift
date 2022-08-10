@@ -8,7 +8,18 @@
 import UIKit
 import Combine
 
-//TODO: Apply input output interface
+struct FungibleTokenHeaderViewModelInput {
+    let toggleValue: AnyPublisher<Void, Never>
+}
+
+struct FungibleTokenHeaderViewModelOutput {
+    let viewState: AnyPublisher<FungibleTokenHeaderViewModel.ViewState, Never>
+}
+
+protocol FungibleTokenHeaderViewModelType {
+    func transform(input: FungibleTokenHeaderViewModelInput) -> FungibleTokenHeaderViewModelOutput
+}
+
 class FungibleTokenHeaderViewModel: NSObject {
     private let headerViewRefreshInterval: TimeInterval = 5.0
     private var headerRefreshTimer: Timer?
@@ -30,6 +41,7 @@ class FungibleTokenHeaderViewModel: NSObject {
     }()
     private let service: TokenViewModelState
     var server: RPCServer { return transactionType.tokenObject.server }
+    private var cancelable = Set<AnyCancellable>()
 
     init(transactionType: TransactionType, service: TokenViewModelState) {
         self.transactionType = transactionType
@@ -41,7 +53,46 @@ class FungibleTokenHeaderViewModel: NSObject {
         invalidateRefreshHeaderTimer()
     }
 
-    func runRefreshHeaderTimer() {
+    func transform(input: FungibleTokenHeaderViewModelInput) -> FungibleTokenHeaderViewModelOutput {
+        runRefreshHeaderTimer()
+
+        input.toggleValue.sink { [weak self] in
+            self?.tiggleIsShowingValue()
+            self?.invalidateRefreshHeaderTimer()
+            self?.runRefreshHeaderTimer()
+        }.store(in: &cancelable)
+
+        let tokenViewModel = tokenViewModel.combineLatest(isShowingValueSubject, { balance, _ in return balance })
+
+        let title = tokenViewModel.map { [weak self] token -> NSAttributedString in
+            guard let strongSelf = self, let token = token else { return .init(string: UiTweaks.noPriceMarker) }
+            let value: String
+            switch strongSelf.transactionType {
+            case .nativeCryptocurrency:
+                value = "\(token.balance.amountShort) \(token.balance.symbol)"
+            case .erc20Token:
+                value = "\(token.balance.amountShort) \(token.tokenScriptOverrides?.symbolInPluralForm ?? token.balance.symbol)"
+            case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+                value = UiTweaks.noPriceMarker
+            }
+
+            return strongSelf.asTitleAttributedString(value)
+        }
+        
+        let value = tokenViewModel.map { $0?.balance }
+            .map { [weak self] balance -> NSAttributedString in
+                guard let strongSelf = self, let balance = balance else { return .init(string: UiTweaks.noPriceMarker) }
+                return strongSelf.asValueAttributedString(for: balance) ?? .init(string: UiTweaks.noPriceMarker)
+            }
+
+        let viewState = Publishers.CombineLatest(title, value)
+            .map { title, value in FungibleTokenHeaderViewModel.ViewState(title: title, value: value) }
+            .removeDuplicates()
+
+        return .init(viewState: viewState.eraseToAnyPublisher())
+    }
+
+    private func runRefreshHeaderTimer() {
         let timer = Timer(timeInterval: headerViewRefreshInterval, repeats: true) { [weak self] _ in
            self?.tiggleIsShowingValue()
         }
@@ -50,7 +101,7 @@ class FungibleTokenHeaderViewModel: NSObject {
         headerRefreshTimer = timer
     }
 
-    func invalidateRefreshHeaderTimer() {
+    private func invalidateRefreshHeaderTimer() {
         headerRefreshTimer?.invalidate()
         headerRefreshTimer = nil
     }
@@ -67,33 +118,7 @@ class FungibleTokenHeaderViewModel: NSObject {
         return .init(server: transactionType.tokenObject.server)
     }
 
-    lazy var title: AnyPublisher<NSAttributedString, Never> = {
-        return tokenViewModel.combineLatest(isShowingValueSubject, { balance, _ in return balance })
-            .map { [weak self] token -> NSAttributedString in
-                guard let strongSelf = self, let token = token else { return .init(string: UiTweaks.noPriceMarker) }
-                let value: String
-                switch strongSelf.transactionType {
-                case .nativeCryptocurrency:
-                    value = "\(token.balance.amountShort) \(token.balance.symbol)"
-                case .erc20Token:
-                    value = "\(token.balance.amountShort) \(token.tokenScriptOverrides?.symbolInPluralForm ?? token.balance.symbol)"
-                case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
-                    value = UiTweaks.noPriceMarker
-                }
-                return strongSelf.asTitleAttributedString(value)
-            }.eraseToAnyPublisher()
-    }()
-
-    lazy var value: AnyPublisher<NSAttributedString, Never> = {
-        return tokenViewModel.combineLatest(isShowingValueSubject, { balance, _ in return balance })
-            .map { $0?.balance }
-            .map { [weak self] balance -> NSAttributedString in
-                guard let strongSelf = self, let balance = balance else { return .init(string: UiTweaks.noPriceMarker) }
-                return strongSelf.asValueAttributedString(for: balance) ?? .init(string: UiTweaks.noPriceMarker)
-            }.eraseToAnyPublisher()
-    }()
-
-    func tiggleIsShowingValue() {
+    private func tiggleIsShowingValue() {
         isShowingValueSubject.value.toggle()
     }
 
@@ -183,5 +208,16 @@ class FungibleTokenHeaderViewModel: NSObject {
             .foregroundColor: Colors.black
         ])
     }
+
+}
+
+extension FungibleTokenHeaderViewModel {
+    struct ViewState {
+        let title: NSAttributedString
+        let value: NSAttributedString
+    }
+}
+
+extension FungibleTokenHeaderViewModel.ViewState: Equatable {
 
 }

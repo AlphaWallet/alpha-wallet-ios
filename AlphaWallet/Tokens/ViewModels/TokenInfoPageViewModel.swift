@@ -3,62 +3,26 @@
 import UIKit
 import Combine
 
-enum TokenInfoPageViewModelConfiguration {
-    case charts
-    case testnet
-    case header(viewModel: TokenInfoHeaderViewModel)
-    case field(viewModel: TokenAttributeViewModel)
+struct TokenInfoPageViewModelInput {
+    let appear: AnyPublisher<Void, Never>
 }
-//TODO: apply input output interface
-class TokenInfoPageViewModel: NSObject {
+
+struct TokenInfoPageViewModelOutput {
+    let viewState: AnyPublisher<TokenInfoPageViewModel.ViewState, Never>
+}
+
+protocol TokenInfoPageViewModelType {
+    func transform(input: TokenInfoPageViewModelInput) -> TokenInfoPageViewModelOutput
+}
+
+class TokenInfoPageViewModel: NSObject, TokenInfoPageViewModelType {
     private var chartHistoriesSubject: CurrentValueSubject<[ChartHistory], Never> = .init([])
     private let coinTickersFetcher: CoinTickersFetcher
     private var ticker: CoinTicker?
-
-    var tabTitle: String {
-        return R.string.localizable.tokenTabInfo()
-    }
-
-    let transactionType: TransactionType
-
+    private let service: TokenViewModelState
+    private var cancelable = Set<AnyCancellable>()
     private var chartHistories: [ChartHistory] {
         chartHistoriesSubject.value
-    }
-
-    lazy var fieldsViewModelConfigurations: AnyPublisher<[TokenInfoPageViewModelConfiguration], Never> = {
-        let coinTicker = coinTicker.handleEvents(receiveOutput: { [weak self] ticker in
-                self?.ticker = ticker
-            }).mapToVoid()
-            .eraseToAnyPublisher()
-
-        let chartHistories = chartHistoriesSubject
-            .mapToVoid()
-            .eraseToAnyPublisher()
-
-        return Publishers.Merge(coinTicker, chartHistories)
-            .compactMap { [weak self] _ in self?.generateConfigurations() }
-            .eraseToAnyPublisher()
-    }()
-    
-    lazy var chartViewModel: TokenHistoryChartViewModel = .init(chartHistories: chartHistoriesSubject.eraseToAnyPublisher(), coinTicker: coinTicker)
-    private var chartHistoryCancelable: AnyCancellable?
-    lazy var headerViewModel: FungibleTokenHeaderViewModel = .init(transactionType: transactionType, service: service)
-    private let service: TokenViewModelState
-
-    init(transactionType: TransactionType, coinTickersFetcher: CoinTickersFetcher, service: TokenViewModelState) {
-        self.service = service
-        self.coinTickersFetcher = coinTickersFetcher
-        self.transactionType = transactionType
-        super.init()
-    }
-
-    func fetchChartHistory() {
-        chartHistoryCancelable?.cancel()
-
-        chartHistoryCancelable = coinTickersFetcher.fetchChartHistories(for: .init(token: transactionType.tokenObject), force: false, periods: ChartHistoryPeriod.allCases)
-            .sink { [chartHistoriesSubject] chartHistories in
-                chartHistoriesSubject.send(chartHistories)
-            }
     }
 
     private lazy var coinTicker: AnyPublisher<CoinTicker?, Never> = {
@@ -76,17 +40,45 @@ class TokenInfoPageViewModel: NSObject {
             return Just<CoinTicker?>(nil)
                 .eraseToAnyPublisher()
         }
-    }() 
+    }()
 
-    private func generateConfigurations() -> [TokenInfoPageViewModelConfiguration] {
-        var configurations: [TokenInfoPageViewModelConfiguration] = []
+    var tabTitle: String { return R.string.localizable.tokenTabInfo() }
+    let transactionType: TransactionType
+    lazy var chartViewModel: TokenHistoryChartViewModel = .init(chartHistories: chartHistoriesSubject.eraseToAnyPublisher(), coinTicker: coinTicker)
+    lazy var headerViewModel: FungibleTokenHeaderViewModel = .init(transactionType: transactionType, service: service)
+
+    init(transactionType: TransactionType, coinTickersFetcher: CoinTickersFetcher, service: TokenViewModelState) {
+        self.service = service
+        self.coinTickersFetcher = coinTickersFetcher
+        self.transactionType = transactionType
+        super.init()
+    }
+
+    func transform(input: TokenInfoPageViewModelInput) -> TokenInfoPageViewModelOutput {
+        input.appear.flatMapLatest { [coinTickersFetcher, transactionType] _ in
+            coinTickersFetcher.fetchChartHistories(for: .init(token: transactionType.tokenObject), force: false, periods: ChartHistoryPeriod.allCases)
+        }.assign(to: \.value, on: chartHistoriesSubject)
+        .store(in: &cancelable)
+
+        let coinTicker = coinTicker.handleEvents(receiveOutput: { [weak self] in self?.ticker = $0 }).map { _ in }
+        let chartHistories = chartHistoriesSubject.map { _ in }
+        let viewTypes = Publishers.Merge(coinTicker, chartHistories)
+            .compactMap { [weak self] _ in self?.buildViewTypes() }
+
+        let viewState = viewTypes.map { viewTypes in TokenInfoPageViewModel.ViewState.init(views: viewTypes) }
+
+        return .init(viewState: viewState.eraseToAnyPublisher())
+    }
+
+    private func buildViewTypes() -> [TokenInfoPageViewModel.ViewType] {
+        var views: [TokenInfoPageViewModel.ViewType] = []
 
         if transactionType.tokenObject.server.isTestnet {
-            configurations = [
+            views = [
                 .testnet
             ]
         } else {
-            configurations = [
+            views = [
                 .charts,
                 .header(viewModel: .init(title: R.string.localizable.tokenInfoHeaderPerformance())),
                 .field(viewModel: dayViewModel),
@@ -101,7 +93,7 @@ class TokenInfoPageViewModel: NSObject {
             ]
         }
 
-        return configurations
+        return views
     }
 
     private var markerCapViewModel: TokenAttributeViewModel {
@@ -195,5 +187,18 @@ class TokenInfoPageViewModel: NSObject {
 
     var backgroundColor: UIColor {
         return Screen.TokenCard.Color.background
+    }
+}
+
+extension TokenInfoPageViewModel {
+    enum ViewType {
+        case charts
+        case testnet
+        case header(viewModel: TokenInfoHeaderViewModel)
+        case field(viewModel: TokenAttributeViewModel)
+    }
+
+    struct ViewState {
+        let views: [TokenInfoPageViewModel.ViewType]
     }
 }

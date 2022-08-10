@@ -84,6 +84,7 @@ class FungibleTokenViewController: UIViewController {
         hideNavigationBarTopSeparatorLine()
 
         appear.send(())
+        tokenInfoPageView.viewWillAppear()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -97,15 +98,15 @@ class FungibleTokenViewController: UIViewController {
 
     private func bind(viewModel: FungibleTokenViewModel) {
         view.backgroundColor = viewModel.backgroundColor
-        title = viewModel.navigationTitle
 
         updateNavigationRightBarButtons(tokenScriptFileStatusHandler: viewModel.tokenScriptFileStatusHandler)
 
         let input = FungibleTokenViewModelInput(appear: appear.eraseToAnyPublisher())
 
         let output = viewModel.transform(input: input)
-        output.actions.sink { [weak self] actions in
-            self?.configureActionButtons(with: actions)
+        output.viewState.sink { [weak self] state in
+            self?.title = state.navigationTitle
+            self?.configureActionButtons(with: state.actions)
         }.store(in: &cancelable)
 
         output.activities.sink { [weak activitiesPageView] viewModel in

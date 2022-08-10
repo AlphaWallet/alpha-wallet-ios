@@ -57,7 +57,7 @@ class SessionsProvider {
                 }
                 
                 return sessions
-            }.assign(to: \.value, on: sessionsSubject)
+            }.assign(to: \.value, on: sessionsSubject, ownership: .weak)
             .store(in: &cancelable)
     }
 

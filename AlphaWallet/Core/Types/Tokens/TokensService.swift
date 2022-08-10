@@ -58,4 +58,5 @@ protocol TokenUpdatable {
 protocol TokensService: TokensState, TokenProvidable, TokenAddable, TokenHidable, TokenDetectable, TokenBalanceRefreshable, TokensServiceTests, TokenUpdatable {
     func refresh()
     func start()
+    func stop()
 }

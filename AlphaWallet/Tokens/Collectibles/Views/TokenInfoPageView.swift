@@ -20,6 +20,7 @@ class TokenInfoPageView: ScrollableStackView, PageViewType {
     }()
     private let viewModel: TokenInfoPageViewModel
     private var cancelable = Set<AnyCancellable>()
+    private let appear = PassthroughSubject<Void, Never>()
 
     weak var delegate: TokenInfoPageViewDelegate?
     var rightBarButtonItem: UIBarButtonItem?
@@ -34,12 +35,16 @@ class TokenInfoPageView: ScrollableStackView, PageViewType {
         bind(viewModel: viewModel)
     }
 
-    private func generateSubviews(configurations: [TokenInfoPageViewModelConfiguration]) {
+    func viewWillAppear() {
+        appear.send(())
+    }
+
+    private func generateSubviews(for viewTypes: [TokenInfoPageViewModel.ViewType]) {
         stackView.removeAllArrangedSubviews()
 
         stackView.addArrangedSubview(headerView)
 
-        for each in configurations {
+        for each in viewTypes {
             switch each {
             case .testnet:
                 stackView.addArrangedSubview(UIView.spacer(height: 40))
@@ -63,18 +68,20 @@ class TokenInfoPageView: ScrollableStackView, PageViewType {
 
                 stackView.addArrangedSubview(view)
             case .header(let viewModel):
-                let perfomanceHeader = TokenInfoHeaderView()
-                perfomanceHeader.configure(viewModel: viewModel)
+                let view = TokenInfoHeaderView()
+                view.configure(viewModel: viewModel)
 
-                stackView.addArrangedSubview(perfomanceHeader)
+                stackView.addArrangedSubview(view)
             }
         }
     }
 
     private func bind(viewModel: TokenInfoPageViewModel) {
-        viewModel.fieldsViewModelConfigurations
-            .sink { [weak self] configurations in
-                self?.generateSubviews(configurations: configurations)
+        let input = TokenInfoPageViewModelInput(appear: appear.eraseToAnyPublisher())
+        let output = viewModel.transform(input: input)
+        output.viewState
+            .sink { [weak self] state in
+                self?.generateSubviews(for: state.views)
             }.store(in: &cancelable)
     }
 

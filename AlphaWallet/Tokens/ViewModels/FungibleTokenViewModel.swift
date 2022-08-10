@@ -11,7 +11,7 @@ struct FungibleTokenViewModelInput {
 }
 
 struct FungibleTokenViewModelOutput {
-    let actions: AnyPublisher<[TokenInstanceAction], Never>
+    let viewState: AnyPublisher<FungibleTokenViewModel.ViewState, Never>
     let activities: AnyPublisher<ActivityPageViewModel, Never>
     let alerts: AnyPublisher<PriceAlertsPageViewModel, Never>
 }
@@ -34,7 +34,7 @@ class FungibleTokenViewModel: FungibleTokenViewModelType {
             return nil
         }
     }
-    private (set) var tokenActionsProvider: SupportedTokenActionsProvider
+    private let tokenActionsProvider: SupportedTokenActionsProvider
     private let service: TokenViewModelState & TokenBalanceRefreshable
     private let activitiesService: ActivitiesServiceType
     private let alertService: PriceAlertServiceType
@@ -47,72 +47,13 @@ class FungibleTokenViewModel: FungibleTokenViewModelType {
     let assetDefinitionStore: AssetDefinitionStore
     var wallet: Wallet { session.account }
 
-    var navigationTitle: String {
-        transactionType.tokenObject.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
-    }
-
     lazy var tokenScriptFileStatusHandler = XMLHandler(token: transactionType.tokenObject, assetDefinitionStore: assetDefinitionStore)
 
     var token: Token {
         return transactionType.tokenObject
     }
 
-    var actions: [TokenInstanceAction] {
-        guard let token = validatedToken else { return [] }
-        let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
-        let actionsFromTokenScript = xmlHandler.actions
-
-        if actionsFromTokenScript.isEmpty {
-            switch token.type {
-            case .erc875:
-                return []
-            case .erc721:
-                return []
-            case .erc721ForTickets:
-                return []
-            case .erc1155:
-                return []
-            case .erc20:
-                let actions: [TokenInstanceAction] = [
-                    .init(type: .erc20Send),
-                    .init(type: .erc20Receive)
-                ]
-
-                return actions + tokenActionsProvider.actions(token: token)
-            case .nativeCryptocurrency:
-                let actions: [TokenInstanceAction] = [
-                    .init(type: .erc20Send),
-                    .init(type: .erc20Receive)
-                ]
-                switch token.server {
-                case .xDai:
-                    return [.init(type: .erc20Send), .init(type: .erc20Receive)] + tokenActionsProvider.actions(token: token)
-                case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet, .phi, .ioTeX, .ioTeXTestnet:
-                    return actions + tokenActionsProvider.actions(token: token)
-                }
-            }
-        } else {
-            switch token.type {
-            case .erc875, .erc721, .erc721ForTickets, .erc1155:
-                return actionsFromTokenScript
-            case .erc20:
-                return actionsFromTokenScript + tokenActionsProvider.actions(token: token)
-            case .nativeCryptocurrency:
-                //TODO we should support retrieval of XML (and XMLHandler) based on address + server. For now, this is only important for native cryptocurrency. So might be ok to check like this for now
-                if let server = xmlHandler.server, server.matches(server: token.server) {
-                    return actionsFromTokenScript + tokenActionsProvider.actions(token: token)
-                } else {
-                    //TODO .erc20Send and .erc20Receive names aren't appropriate
-                    let actions: [TokenInstanceAction] = [
-                        .init(type: .erc20Send),
-                        .init(type: .erc20Receive)
-                    ]
-
-                    return actions + tokenActionsProvider.actions(token: token)
-                }
-            }
-        }
-    }
+    private (set) var actions: [TokenInstanceAction] = []
 
     var tokenScriptStatus: Promise<TokenLevelTokenScriptDisplayStatus> {
         if let token = validatedToken {
@@ -213,27 +154,28 @@ class FungibleTokenViewModel: FungibleTokenViewModelType {
     }
 
     func transform(input: FungibleTokenViewModelInput) -> FungibleTokenViewModelOutput {
-        let tokenHolderUpdates: AnyPublisher<Void, Never> = tokenHolder?.objectWillChange.eraseToAnyPublisher() ?? .empty()
+        let whenTokenHolderHasChange: AnyPublisher<TokenViewModel?, Never> = (tokenHolder?.objectWillChange.eraseToAnyPublisher() ?? .empty())
+            .map { [service, token] _ in service.tokenViewModel(for: token) }
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
 
-        let tokenActionsUpdates = tokenActionsProvider.objectWillChange
+        let whenTokenActionsHasChange = tokenActionsProvider.objectWillChange
+            .map { [service, token] _ in service.tokenViewModel(for: token) }
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
 
-        let assetBodyChanges = assetDefinitionStore.assetBodyChanged(for: transactionType.contract)
-            .receive(on: RunLoop.main)
-            .eraseToAnyPublisher()
+        let tokenViewModel = service.tokenViewModelPublisher(for: token).eraseToAnyPublisher()
 
-        let initialUpdate = Just<Void>(()).eraseToAnyPublisher()
+        let actions = Publishers.MergeMany(tokenViewModel, whenTokenHolderHasChange, whenTokenActionsHasChange)
+            .map { _ in self.buildTokenActions() }
+            .handleEvents(receiveOutput: { self.actions = $0 })
 
-        let actions = Publishers.MergeMany(initialUpdate, tokenHolderUpdates, tokenActionsUpdates, assetBodyChanges)
-            .compactMap { [weak self] _ in self?.actions }
+        let navigationTitle = tokenViewModel.compactMap { $0?.tokenScriptOverrides?.titleInPluralForm }
 
-        input.appear.sink { [weak self] _ in
-            self?.refreshBalance()
-            self?.tokenInfoPageViewModel.fetchChartHistory()
-        }.store(in: &cancelable)
+        input.appear.receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.refreshBalance()
+            }.store(in: &cancelable)
 
         activitiesService.start()
 
@@ -245,9 +187,69 @@ class FungibleTokenViewModel: FungibleTokenViewModelType {
             .map { PriceAlertsPageViewModel(alerts: $0) }
             .receive(on: RunLoop.main)
 
-        return .init(actions: actions.eraseToAnyPublisher(),
+        let viewState = Publishers.CombineLatest(actions, navigationTitle)
+            .map { actions, navigationTitle in FungibleTokenViewModel.ViewState(navigationTitle: navigationTitle, actions: actions) }
+
+        return .init(viewState: viewState.eraseToAnyPublisher(),
                     activities: activities.eraseToAnyPublisher(),
                     alerts: alerts.eraseToAnyPublisher())
+    }
+
+    private func buildTokenActions() -> [TokenInstanceAction] {
+        guard let token = validatedToken else { return [] }
+        let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
+        let actionsFromTokenScript = xmlHandler.actions
+
+        if actionsFromTokenScript.isEmpty {
+            switch token.type {
+            case .erc875:
+                return []
+            case .erc721:
+                return []
+            case .erc721ForTickets:
+                return []
+            case .erc1155:
+                return []
+            case .erc20:
+                let actions: [TokenInstanceAction] = [
+                    .init(type: .erc20Send),
+                    .init(type: .erc20Receive)
+                ]
+
+                return actions + tokenActionsProvider.actions(token: token)
+            case .nativeCryptocurrency:
+                let actions: [TokenInstanceAction] = [
+                    .init(type: .erc20Send),
+                    .init(type: .erc20Receive)
+                ]
+                switch token.server {
+                case .xDai:
+                    return [.init(type: .erc20Send), .init(type: .erc20Receive)] + tokenActionsProvider.actions(token: token)
+                case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet, .phi, .ioTeX, .ioTeXTestnet:
+                    return actions + tokenActionsProvider.actions(token: token)
+                }
+            }
+        } else {
+            switch token.type {
+            case .erc875, .erc721, .erc721ForTickets, .erc1155:
+                return actionsFromTokenScript
+            case .erc20:
+                return actionsFromTokenScript + tokenActionsProvider.actions(token: token)
+            case .nativeCryptocurrency:
+                //TODO we should support retrieval of XML (and XMLHandler) based on address + server. For now, this is only important for native cryptocurrency. So might be ok to check like this for now
+                if let server = xmlHandler.server, server.matches(server: token.server) {
+                    return actionsFromTokenScript + tokenActionsProvider.actions(token: token)
+                } else {
+                    //TODO .erc20Send and .erc20Receive names aren't appropriate
+                    let actions: [TokenInstanceAction] = [
+                        .init(type: .erc20Send),
+                        .init(type: .erc20Receive)
+                    ]
+
+                    return actions + tokenActionsProvider.actions(token: token)
+                }
+            }
+        }
     }
 
     private func refreshBalance() {
@@ -281,6 +283,11 @@ extension FungibleTokenViewModel {
         case isDisplayed(Bool)
         case isEnabled(Bool)
         case noOption
+    }
+
+    struct ViewState {
+        let navigationTitle: String
+        let actions: [TokenInstanceAction]
     }
 
 }
