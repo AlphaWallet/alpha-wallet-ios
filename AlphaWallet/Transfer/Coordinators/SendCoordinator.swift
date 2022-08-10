@@ -15,7 +15,7 @@ class SendCoordinator: Coordinator {
     private let transactionType: TransactionType
     private let session: WalletSession
     private let keystore: Keystore
-    private let service: TokenProvidable & TokenAddable & TokenViewModelState & TokenBalanceRefreshable
+    private let tokensService: TokenProvidable & TokenAddable & TokenViewModelState & TokenBalanceRefreshable
     private let assetDefinitionStore: AssetDefinitionStore
     private let analytics: AnalyticsLogger
     private let domainResolutionService: DomainResolutionServiceType
@@ -34,7 +34,7 @@ class SendCoordinator: Coordinator {
             navigationController: UINavigationController,
             session: WalletSession,
             keystore: Keystore,
-            service: TokenProvidable & TokenAddable & TokenViewModelState & TokenBalanceRefreshable,
+            tokensService: TokenProvidable & TokenAddable & TokenViewModelState & TokenBalanceRefreshable,
             assetDefinitionStore: AssetDefinitionStore,
             analytics: AnalyticsLogger,
             domainResolutionService: DomainResolutionServiceType
@@ -43,14 +43,14 @@ class SendCoordinator: Coordinator {
         self.navigationController = navigationController
         self.session = session
         self.keystore = keystore
-        self.service = service
+        self.tokensService = tokensService
         self.assetDefinitionStore = assetDefinitionStore
         self.analytics = analytics
         self.domainResolutionService = domainResolutionService
     }
 
     func start() {
-        sendViewController.configure(viewModel: .init(transactionType: sendViewController.transactionType, session: session, service: service))
+        sendViewController.configure(viewModel: .init(transactionType: sendViewController.transactionType, session: session, service: tokensService))
 
         navigationController.pushViewController(sendViewController, animated: true)
     }
@@ -58,7 +58,7 @@ class SendCoordinator: Coordinator {
     private func makeSendViewController() -> SendViewController {
         let controller = SendViewController(
             session: session,
-            service: service,
+            service: tokensService,
             transactionType: transactionType,
             domainResolutionService: domainResolutionService
         )
@@ -115,7 +115,7 @@ extension SendCoordinator: SendViewControllerDelegate {
                 confirmType: .signThenSend,
                 amount: FungiblesTransactionAmount(value: amount, shortValue: shortValue, isAllFunds: viewController.isAllFunds))
 
-            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, service: service)
+            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
             addCoordinator(coordinator)
             coordinator.delegate = self
             coordinator.start(fromSource: .sendFungible)

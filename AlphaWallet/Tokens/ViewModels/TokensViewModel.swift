@@ -36,11 +36,6 @@ final class TokensViewModel {
     private var listOfBadTokenScriptFiles: [TokenScriptFileIndices.FileName] = .init()
     //TODO: Replace with usage single array of data, instead of using filteredTokens, and collectiblePairs
     private var filteredTokens: [TokenOrRpcServer] = []
-    private lazy var walletNameFetcher = GetWalletName(domainResolutionService: domainResolutionService)
-    private let domainResolutionService: DomainResolutionServiceType
-    private let blockiesGenerator: BlockiesGenerator
-    private let sectionViewModelsSubject = PassthroughSubject<[TokensViewModel.SectionViewModel], Never>()
-    private let deletionSubject = PassthroughSubject<[IndexPath], Never>()
     private var collectiblePairs: [CollectiblePairs] {
         let tokens = filteredTokens.compactMap { $0.token }
         return tokens.chunked(into: 2).compactMap { elems -> CollectiblePairs? in
@@ -50,6 +45,11 @@ final class TokensViewModel {
             return .init(left: left, right: right)
         }
     }
+    private lazy var walletNameFetcher = GetWalletName(domainResolutionService: domainResolutionService)
+    private let domainResolutionService: DomainResolutionServiceType
+    private let blockiesGenerator: BlockiesGenerator
+    private let sectionViewModelsSubject = PassthroughSubject<[TokensViewModel.SectionViewModel], Never>()
+    private let deletionSubject = PassthroughSubject<[IndexPath], Never>()
     private let wallet: Wallet
 
     let config: Config
@@ -170,8 +170,7 @@ final class TokensViewModel {
     func transform(input: TokensViewModelInput) -> TokensViewModelOutput {
         cancellable.cancellAll()
 
-        let appearOrInitial: AnyPublisher<Void, Never> = Publishers.Merge(Just<Void>(()), input.appear).eraseToAnyPublisher()
-        let refreshTokens: AnyPublisher<Void, Never> = Publishers.Merge(appearOrInitial, input.pullToRefresh).eraseToAnyPublisher()
+        let refreshTokens: AnyPublisher<Void, Never> = Publishers.Merge(input.appear, input.pullToRefresh).eraseToAnyPublisher()
 
         //NOTE: when we make db snapshot data mignt not changed, so table view refresh control will never ended, as we do `viewModelsSubject.removeDuplicates()`
         let beginLoading = input.pullToRefresh.map { _ in PullToRefreshState.beginLoading }
@@ -182,9 +181,10 @@ final class TokensViewModel {
             .merge(with: beginLoading, loadingHasEnded)
             .eraseToAnyPublisher()
 
-        refreshTokens.sink { [tokenCollection] _ in
-            tokenCollection.refresh()
-        }.store(in: &cancellable)
+        refreshTokens.receive(on: RunLoop.main)
+            .sink { [tokenCollection] _ in
+                tokenCollection.refresh()
+            }.store(in: &cancellable)
 
         walletConnectCoordinator.sessions
             .receive(on: RunLoop.main)
@@ -200,20 +200,17 @@ final class TokensViewModel {
 
         let walletSummary = walletBalanceService
             .walletBalance(for: wallet)
-            .map { return WalletSummary(balances: [$0]) }
+            .map { WalletSummary(balances: [$0]) }
             .eraseToAnyPublisher()
 
-        let navigationTitle = appearOrInitial.flatMap { [unowned self, walletNameFetcher, wallet] _ -> AnyPublisher<String, Never> in
-            return walletNameFetcher.assignedNameOrEns(for: wallet.address).map { ensOrName -> String in
-                if let ensOrName = ensOrName {
-                    return ensOrName
-                } else {
-                    return self.walletDefaultTitle
-                }
-            }.prepend(self.walletDefaultTitle).eraseToAnyPublisher()
+        let navigationTitle = input.appear.flatMap { [unowned self, walletNameFetcher, wallet] _ -> AnyPublisher<String, Never> in
+            walletNameFetcher.assignedNameOrEns(for: wallet.address)
+                .map { $0 ?? self.walletDefaultTitle }
+                .prepend(self.walletDefaultTitle)
+                .eraseToAnyPublisher()
         }.eraseToAnyPublisher()
 
-        let blockieImage = appearOrInitial.flatMap { [blockiesGenerator, wallet] _ in
+        let blockieImage = input.appear.flatMap { [blockiesGenerator, wallet] _ in
             blockiesGenerator.getBlockieOrEnsAvatarImage(address: wallet.address, fallbackImage: BlockiesImage.defaulBlockieImage)
         }.eraseToAnyPublisher()
 

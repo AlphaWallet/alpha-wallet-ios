@@ -11,7 +11,6 @@ import Combine
 class CovalentSingleChainTransactionProvider: SingleChainTransactionProvider {
     private let transactionDataStore: TransactionDataStore
     private let session: WalletSession
-    private let tokensDataStore: TokensDataStore
     private let fetchLatestTransactionsQueue: OperationQueue
     private let tokensFromTransactionsFetcher: TokensFromTransactionsFetcher
     private lazy var oldestTransactionProvider: OldestTransactionProvider = {
@@ -39,10 +38,9 @@ class CovalentSingleChainTransactionProvider: SingleChainTransactionProvider {
 
     weak var delegate: SingleChainTransactionProviderDelegate?
 
-    required init(session: WalletSession, analytics: AnalyticsLogger, transactionDataStore: TransactionDataStore, tokensDataStore: TokensDataStore, fetchLatestTransactionsQueue: OperationQueue, tokensFromTransactionsFetcher: TokensFromTransactionsFetcher) {
+    required init(session: WalletSession, analytics: AnalyticsLogger, transactionDataStore: TransactionDataStore, tokensService: TokenProvidable, fetchLatestTransactionsQueue: OperationQueue, tokensFromTransactionsFetcher: TokensFromTransactionsFetcher) {
         self.session = session
         self.transactionDataStore = transactionDataStore
-        self.tokensDataStore = tokensDataStore
         self.fetchLatestTransactionsQueue = fetchLatestTransactionsQueue
         self.tokensFromTransactionsFetcher = tokensFromTransactionsFetcher
     }

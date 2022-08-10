@@ -8,7 +8,6 @@ import Combine
 
 final class EventSourceCoordinator: NSObject {
     private var wallet: Wallet
-    private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: NonActivityEventsDataStore
     private let config: Config
@@ -17,15 +16,15 @@ final class EventSourceCoordinator: NSObject {
     private let queue = DispatchQueue(label: "com.eventSourceCoordinator.updateQueue")
     private let enabledServers: [RPCServer]
     private var cancellable = Set<AnyCancellable>()
+    private let tokensService: TokenProvidable
 
-    init(wallet: Wallet, tokensDataStore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, config: Config) {
+    init(wallet: Wallet, tokensService: TokenProvidable, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, config: Config) {
         self.wallet = wallet
-        self.tokensDataStore = tokensDataStore
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
         self.config = config
         self.enabledServers = config.enabledServers
-
+        self.tokensService = tokensService
         super.init()
     }
 
@@ -37,8 +36,7 @@ final class EventSourceCoordinator: NSObject {
     }
 
     private func subscribeForTokenChanges() {
-        tokensDataStore
-            .enabledTokensPublisher(for: enabledServers)
+        tokensService.tokensPublisher(servers: enabledServers)
             .receive(on: queue)
             .sink { [weak self] _ in
                 self?.fetchEthereumEvents()
@@ -49,7 +47,7 @@ final class EventSourceCoordinator: NSObject {
         //TODO this is firing twice for each contract. We can be more efficient
         assetDefinitionStore.bodyChange
             .receive(on: queue)
-            .compactMap { [weak self] in self?.tokensDataStore.token(forContract: $0) }
+            .compactMap { [tokensService] in tokensService.token(for: $0) }
             .sink { [weak self] token in
                 guard let strongSelf = self else { return }
 
@@ -74,7 +72,7 @@ final class EventSourceCoordinator: NSObject {
     }
 
     private func fetchEvents(forTokenContract contract: AlphaWallet.Address, server: RPCServer) {
-        guard let token = tokensDataStore.token(forContract: contract, server: server) else { return }
+        guard let token = tokensService.token(for: contract, server: server) else { return }
         eventsDataStore.deleteEvents(for: contract)
 
         when(resolved: fetchEventsByTokenId(forToken: token))
@@ -124,8 +122,7 @@ final class EventSourceCoordinator: NSObject {
         guard !isFetching else { return }
         isFetching = true
 
-        let tokens = tokensDataStore.enabledTokens(for: enabledServers)
-        let promises = tokens.map { fetchEventsByTokenId(forToken: $0) }.flatMap { $0 }
+        let promises = tokensService.tokens(for: enabledServers).map { fetchEventsByTokenId(forToken: $0) }.flatMap { $0 }
         when(resolved: promises).done { [weak self] _ in
             self?.isFetching = false
         }

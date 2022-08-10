@@ -250,8 +250,8 @@ class AppCoordinator: NSObject, Coordinator {
                 sessionsProvider: dep.sessionsProvider,
                 tokenCollection: dep.pipeline,
                 importToken: dep.importToken,
-                tokensDataStore: dep.tokensDataStore,
-                transactionsDataStore: dep.transactionsDataStore)
+                transactionsDataStore: dep.transactionsDataStore,
+                tokensService: dep.tokensService)
 
         coordinator.delegate = self
 
@@ -495,7 +495,7 @@ extension AppCoordinator: UniversalLinkServiceDelegate {
             coordinator.handleOpen(url: url)
         case .eip681(let url):
             let account = resolver.sessions.anyValue.account
-            let paymentFlowResolver = PaymentFlowFromEip681UrlResolver(service: resolver.service, account: account, assetDefinitionStore: assetDefinitionStore, analytics: analytics, config: config)
+            let paymentFlowResolver = PaymentFlowFromEip681UrlResolver(tokensService: resolver.service, account: account, assetDefinitionStore: assetDefinitionStore, analytics: analytics, config: config)
             guard let promise = paymentFlowResolver.resolve(url: url) else { return }
             firstly {
                 promise
@@ -532,7 +532,7 @@ extension AppCoordinator: UniversalLinkServiceDelegate {
                     assetDefinitionStore: assetDefinitionStore,
                     url: url,
                     keystore: keystore,
-                    service: resolver.service)
+                    tokensService: resolver.service)
 
                 coordinator.delegate = self
                 let handled = coordinator.start(url: url)

@@ -35,7 +35,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     private let sharedRealm: Realm
     private let browserOnly: Bool
     private let restartQueue: RestartTaskQueue
-    private let service: TokenViewModelState
+    private let tokensService: TokenViewModelState
     private lazy var bookmarksStore: BookmarksStore = {
         return BookmarksStore(realm: sharedRealm)
     }()
@@ -100,9 +100,9 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         analytics: AnalyticsLogger,
         domainResolutionService: DomainResolutionServiceType,
         assetDefinitionStore: AssetDefinitionStore,
-        service: TokenViewModelState
+        tokensService: TokenViewModelState
     ) {
-        self.service = service
+        self.tokensService = tokensService
         self.navigationController = UINavigationController(navigationBarClass: DappBrowserNavigationBar.self, toolbarClass: nil)
         self.sessions = sessions
         self.keystore = keystore
@@ -168,7 +168,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     private func executeTransaction(account: AlphaWallet.Address, action: DappAction, callbackID: Int, transaction: UnconfirmedTransaction, type: ConfirmType, server: RPCServer) {
         pendingTransaction = .data(callbackID: callbackID)
         do {
-            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: .dappTransaction(confirmType: type), analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, service: service)
+            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: .dappTransaction(confirmType: type), analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
             coordinator.delegate = self
             addCoordinator(coordinator)
             coordinator.start(fromSource: .browser)

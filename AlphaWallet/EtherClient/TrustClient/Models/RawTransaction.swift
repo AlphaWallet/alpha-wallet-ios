@@ -53,7 +53,7 @@ struct RawTransaction: Decodable {
 }
 
 extension TransactionInstance {
-    static func from(transaction: RawTransaction, tokensDataStore: TokensDataStore, session: WalletSession) -> Promise<TransactionInstance?> {
+    static func from(transaction: RawTransaction, tokensService: TokenProvidable, session: WalletSession) -> Promise<TransactionInstance?> {
         guard let from = AlphaWallet.Address(string: transaction.from) else {
             return Promise.value(nil)
         }
@@ -68,7 +68,7 @@ extension TransactionInstance {
         let to = AlphaWallet.Address(string: transaction.to)?.eip55String ?? transaction.to
 
         return firstly {
-            createOperationForTokenTransfer(forTransaction: transaction, tokensDataStore: tokensDataStore, session: session)
+            createOperationForTokenTransfer(forTransaction: transaction, tokensService: tokensService, session: session)
         }.then(on: session.queue, { operations -> Promise<TransactionInstance?> in
             let result = TransactionInstance(
                     id: transaction.hash,
@@ -92,13 +92,13 @@ extension TransactionInstance {
         })
     }
 
-    static private func createOperationForTokenTransfer(forTransaction transaction: RawTransaction, tokensDataStore: TokensDataStore, session: WalletSession) -> Promise<[LocalizedOperationObjectInstance]> {
+    static private func createOperationForTokenTransfer(forTransaction transaction: RawTransaction, tokensService: TokenProvidable, session: WalletSession) -> Promise<[LocalizedOperationObjectInstance]> {
         guard let contract = transaction.toAddress else {
             return Promise.value([])
         }
 
         func generateLocalizedOperation(value: BigUInt, contract: AlphaWallet.Address, to recipient: AlphaWallet.Address, functionCall: DecodedFunctionCall, server: RPCServer) -> Promise<[LocalizedOperationObjectInstance]> {
-            if let token = tokensDataStore.token(forContract: contract, server: server) {
+            if let token = tokensService.token(for: contract, server: server) {
                 let operationType = mapTokenTypeToTransferOperationType(token.type, functionCall: functionCall)
                 let result = LocalizedOperationObjectInstance(from: transaction.from, to: recipient.eip55String, contract: contract, type: operationType.rawValue, value: String(value), tokenId: "", symbol: token.symbol, name: token.name, decimals: token.decimals)
                 return .value([result])

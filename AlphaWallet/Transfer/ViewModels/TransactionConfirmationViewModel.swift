@@ -26,13 +26,13 @@ class TransactionConfirmationViewModel {
     private (set) var canBeConfirmed = true
     private var timerToReenableConfirmButton: Timer?
     private let type: ViewModelType
-    private let service: TokenViewModelState
+    private let tokensService: TokenViewModelState
     var title: String = R.string.localizable.confirmPaymentConfirmButtonTitle()
     var backgroundColor: UIColor = UIColor.clear
     var footerBackgroundColor: UIColor = Colors.appWhite
 
-    init(configurator: TransactionConfigurator, configuration: TransactionConfirmationViewModel.Configuration, assetDefinitionStore: AssetDefinitionStore, domainResolutionService: DomainResolutionServiceType, service: TokenViewModelState) {
-        self.service = service
+    init(configurator: TransactionConfigurator, configuration: TransactionConfirmationViewModel.Configuration, assetDefinitionStore: AssetDefinitionStore, domainResolutionService: DomainResolutionServiceType, tokensService: TokenViewModelState) {
+        self.tokensService = tokensService
         let recipientOrContract = configurator.transaction.recipient ?? configurator.transaction.contract
         resolver = RecipientResolver(address: recipientOrContract, domainResolutionService: domainResolutionService)
         self.configurator = configurator
@@ -74,28 +74,28 @@ class TransactionConfirmationViewModel {
     private lazy var tokenBalance: AnyPublisher<BalanceViewModel?, Never> = {
         let forceTriggerUpdateBalance = configurationHasChangedSubject
             .flatMap { _ in self.token }
-            .map { [service] token -> TokenViewModel? in
+            .map { [tokensService] token -> TokenViewModel? in
                 switch token.type {
                 case .nativeCryptocurrency:
                     let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: token.server)
-                    return service.tokenViewModel(for: etherToken)
+                    return tokensService.tokenViewModel(for: etherToken)
                 case .erc20:
-                    return service.tokenViewModel(for: token)
+                    return tokensService.tokenViewModel(for: token)
                 case .erc1155, .erc721, .erc875, .erc721ForTickets:
-                    return service.tokenViewModel(for: token)
+                    return tokensService.tokenViewModel(for: token)
                 }
             }.map { $0?.balance }
             .eraseToAnyPublisher()
 
-        let tokenBalance = token.flatMap { [service] token -> AnyPublisher<TokenViewModel?, Never> in
+        let tokenBalance = token.flatMap { [tokensService] token -> AnyPublisher<TokenViewModel?, Never> in
             switch token.type {
             case .nativeCryptocurrency:
                 let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: token.server)
-                return service.tokenViewModelPublisher(for: etherToken)
+                return tokensService.tokenViewModelPublisher(for: etherToken)
             case .erc20:
-                return service.tokenViewModelPublisher(for: token)
+                return tokensService.tokenViewModelPublisher(for: token)
             case .erc1155, .erc721, .erc875, .erc721ForTickets:
-                return service.tokenViewModelPublisher(for: token)
+                return tokensService.tokenViewModelPublisher(for: token)
             }
         }.map { $0?.balance }
         .eraseToAnyPublisher()

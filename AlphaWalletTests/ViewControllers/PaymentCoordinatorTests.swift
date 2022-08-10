@@ -29,14 +29,18 @@ extension WalletDataProcessingPipeline {
         let nftProvider = FakeNftProvider()
         let coinTickersFetcher = CoinGeckoTickersFetcher.make()
 
-        let tokensService: TokensService = AlphaWalletTokensService(sessionsProvider: sessionsProvider, tokensDataStore: tokensDataStore, analytics: fas, importToken: importToken, transactionsStorage: transactionsDataStore, nftProvider: nftProvider, assetDefinitionStore: .init())
+        let tokensService = AlphaWalletTokensService(sessionsProvider: sessionsProvider, tokensDataStore: tokensDataStore, analytics: fas, importToken: importToken, transactionsStorage: transactionsDataStore, nftProvider: nftProvider, assetDefinitionStore: .init())
 
         let pipeline: TokensProcessingPipeline = WalletDataProcessingPipeline(wallet: wallet, tokensService: tokensService, coinTickersFetcher: coinTickersFetcher, assetDefinitionStore: .init(), eventsDataStore: eventsDataStore)
-        pipeline.start()
 
-        let fetcher = WalletBalanceFetcher(wallet: wallet, service: pipeline)
+        let fetcher = WalletBalanceFetcher(wallet: wallet, tokensService: pipeline)
 
-        return FakeWalletDep(store: store, tokensDataStore: tokensDataStore, transactionsDataStore: transactionsDataStore, importToken: importToken, tokensService: tokensService, pipeline: pipeline, fetcher: fetcher, sessionsProvider: sessionsProvider)
+        let dep = FakeWalletDep(store: store, tokensDataStore: tokensDataStore, transactionsDataStore: transactionsDataStore, importToken: importToken, tokensService: tokensService, pipeline: pipeline, fetcher: fetcher, sessionsProvider: sessionsProvider)
+        dep.sessionsProvider.start(wallet: wallet)
+        dep.fetcher.start()
+        dep.pipeline.start()
+
+        return dep
     }
 
     struct FakeWalletDep: WalletDependency {
@@ -44,7 +48,7 @@ extension WalletDataProcessingPipeline {
         let tokensDataStore: TokensDataStore
         let transactionsDataStore: TransactionDataStore
         let importToken: ImportToken
-        let tokensService: TokensService
+        let tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable & TokensServiceTests
         let pipeline: TokensProcessingPipeline
         let fetcher: WalletBalanceFetcher
         let sessionsProvider: SessionsProvider

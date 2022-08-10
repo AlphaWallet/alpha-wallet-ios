@@ -25,18 +25,17 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private let openSea: OpenSea
     private let restartQueue: RestartTaskQueue
     private let coinTickersFetcher: CoinTickersFetcher
-    private let tokensDataStore: TokensDataStore
     private let transactionsDataStore: TransactionDataStore
     private var claimOrderCoordinatorCompletionBlock: ((Bool) -> Void)?
     private let blockscanChatService: BlockscanChatService
-    private lazy var activitiesPipeLine = ActivitiesPipeLine(config: config, wallet: wallet, store: store, assetDefinitionStore: assetDefinitionStore, transactionDataStore: transactionsDataStore, tokensDataStore: tokensDataStore, sessionsProvider: sessionsProvider)
+    private lazy var activitiesPipeLine = ActivitiesPipeLine(config: config, wallet: wallet, store: store, assetDefinitionStore: assetDefinitionStore, transactionDataStore: transactionsDataStore, tokensService: tokensService, sessionsProvider: sessionsProvider)
     private let sessionsProvider: SessionsProvider
     private let importToken: ImportToken
     private lazy var tokensFilter: TokensFilter = {
         let tokenGroupIdentifier: TokenGroupIdentifierProtocol = TokenGroupIdentifier.identifier(fromFileName: "tokens")!
         return TokensFilter(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: coinTickersFetcher, tokenGroupIdentifier: tokenGroupIdentifier)
     }()
-
+    //FIXME: Rename to pipeline, as what it actually does
     private let tokenCollection: TokenCollection
 
     private var transactionCoordinator: TransactionCoordinator? {
@@ -126,6 +125,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private let domainResolutionService: DomainResolutionServiceType
     private let store: RealmStore
     private let tokenSwapper: TokenSwapper
+    private let tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable
 
     init(
             navigationController: UINavigationController = UINavigationController(),
@@ -152,11 +152,11 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
             sessionsProvider: SessionsProvider,
             tokenCollection: TokenCollection,
             importToken: ImportToken,
-            tokensDataStore: TokensDataStore,
-            transactionsDataStore: TransactionDataStore
+            transactionsDataStore: TransactionDataStore,
+            tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable
     ) {
+        self.tokensService = tokensService
         self.transactionsDataStore = transactionsDataStore
-        self.tokensDataStore = tokensDataStore
         self.importToken = importToken
         self.tokenCollection = tokenCollection
         self.store = store
@@ -320,9 +320,9 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         let transactionsService = TransactionsService(
             sessions: sessionsProvider.activeSessions,
             transactionDataStore: transactionDataStore,
-            tokensDataStore: tokensDataStore,
-            analytics: analytics
-        )
+            analytics: analytics,
+            tokensService: tokensService)
+
         transactionsService.delegate = self
         let coordinator = TransactionCoordinator(
                 analytics: analytics,
@@ -347,8 +347,8 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         return coordinator
     }
 
-    private func createBrowserCoordinator(sessions: ServerDictionary<WalletSession>, browserOnly: Bool, analytics: AnalyticsLogger) -> DappBrowserCoordinator {
-        let coordinator = DappBrowserCoordinator(sessions: sessions, keystore: keystore, config: config, sharedRealm: Realm.shared(), browserOnly: browserOnly, restartQueue: restartQueue, analytics: analytics, domainResolutionService: domainResolutionService, assetDefinitionStore: assetDefinitionStore, service: tokenCollection)
+    private func createBrowserCoordinator(sessions: ServerDictionary<WalletSession>, browserOnly: Bool) -> DappBrowserCoordinator {
+        let coordinator = DappBrowserCoordinator(sessions: sessions, keystore: keystore, config: config, sharedRealm: Realm.shared(), browserOnly: browserOnly, restartQueue: restartQueue, analytics: analytics, domainResolutionService: domainResolutionService, assetDefinitionStore: assetDefinitionStore, tokensService: tokenCollection)
         coordinator.delegate = self
         coordinator.start()
         coordinator.rootViewController.tabBarItem = ActiveWalletViewModel.Tabs.browser.tabBarItem
@@ -398,7 +398,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
             viewControllers.append(swapDummyViewController)
         }
 
-        let browserCoordinator = createBrowserCoordinator(sessions: sessionsProvider.activeSessions, browserOnly: false, analytics: analytics)
+        let browserCoordinator = createBrowserCoordinator(sessions: sessionsProvider.activeSessions, browserOnly: false)
         viewControllers.append(browserCoordinator.navigationController)
 
         let settingsCoordinator = createSettingsCoordinator(keystore: keystore, promptBackupCoordinator: promptBackupCoordinator)
@@ -464,7 +464,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     }
 
     private func fetchXMLAssetDefinitions() {
-        let fetch = FetchTokenScriptFiles(assetDefinitionStore: assetDefinitionStore, tokensDataStore: tokensDataStore, config: config)
+        let fetch = FetchTokenScriptFiles(assetDefinitionStore: assetDefinitionStore, tokensService: tokensService, config: config)
         fetch.start()
     }
 
@@ -472,7 +472,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         guard let navigationController = viewController.navigationController else { return }
         guard let session = sessionsProvider.session(for: token.server) else { return }
         claimOrderCoordinatorCompletionBlock = completion
-        let coordinator = ClaimPaidOrderCoordinator(navigationController: navigationController, keystore: keystore, session: session, token: token, signedOrder: signedOrder, analytics: analytics, domainResolutionService: domainResolutionService, assetDefinitionStore: assetDefinitionStore, service: tokenCollection)
+        let coordinator = ClaimPaidOrderCoordinator(navigationController: navigationController, keystore: keystore, session: session, token: token, signedOrder: signedOrder, analytics: analytics, domainResolutionService: domainResolutionService, assetDefinitionStore: assetDefinitionStore, tokensService: tokenCollection)
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start()
@@ -584,7 +584,7 @@ extension ActiveWalletCoordinator: WalletConnectCoordinatorDelegate {
 extension ActiveWalletCoordinator: CanOpenURL {
     private func open(url: URL, in viewController: UIViewController) {
         //TODO duplication of code to set up a BrowserCoordinator when creating the application's tabbar
-        let browserCoordinator = createBrowserCoordinator(sessions: sessionsProvider.activeSessions, browserOnly: true, analytics: analytics)
+        let browserCoordinator = createBrowserCoordinator(sessions: sessionsProvider.activeSessions, browserOnly: true)
         let controller = browserCoordinator.navigationController
         browserCoordinator.open(url: url, animated: false)
         controller.makePresentationFullScreenForiOS13Migration()
@@ -696,7 +696,7 @@ extension ActiveWalletCoordinator: ActivityViewControllerDelegate {
     func speedupTransaction(transactionId: String, server: RPCServer, viewController: ActivityViewController) {
         guard let transaction = transactionsDataStore.transaction(withTransactionId: transactionId, forServer: server) else { return }
         guard let session = sessionsProvider.session(for: transaction.server) else { return }
-        guard let coordinator = ReplaceTransactionCoordinator(analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, presentingViewController: viewController, session: session, transaction: transaction, mode: .speedup, assetDefinitionStore: assetDefinitionStore, service: tokenCollection) else { return }
+        guard let coordinator = ReplaceTransactionCoordinator(analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, presentingViewController: viewController, session: session, transaction: transaction, mode: .speedup, assetDefinitionStore: assetDefinitionStore, tokensService: tokenCollection) else { return }
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -705,7 +705,7 @@ extension ActiveWalletCoordinator: ActivityViewControllerDelegate {
     func cancelTransaction(transactionId: String, server: RPCServer, viewController: ActivityViewController) {
         guard let transaction = transactionsDataStore.transaction(withTransactionId: transactionId, forServer: server) else { return }
         guard let session = sessionsProvider.session(for: transaction.server) else { return }
-        guard let coordinator = ReplaceTransactionCoordinator(analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, presentingViewController: viewController, session: session, transaction: transaction, mode: .cancel, assetDefinitionStore: assetDefinitionStore, service: tokenCollection) else { return }
+        guard let coordinator = ReplaceTransactionCoordinator(analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, presentingViewController: viewController, session: session, transaction: transaction, mode: .cancel, assetDefinitionStore: assetDefinitionStore, tokensService: tokenCollection) else { return }
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)

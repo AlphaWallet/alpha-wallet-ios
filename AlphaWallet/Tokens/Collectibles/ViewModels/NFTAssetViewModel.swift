@@ -108,15 +108,15 @@ class NFTAssetViewModel {
     }
 
     func transform(input: NFTAssetViewModelInput) -> NFTAssetViewModelOutput {
-        let whenOpenSeaStatsHasChange = PassthroughSubject<Void, Never>()
+        let whenOpenSeaStatsHasChanged = PassthroughSubject<Void, Never>()
         if let openSeaSlug = tokenHolder.values.slug, openSeaSlug.trimmed.nonEmpty {
             openSea.collectionStats(slug: openSeaSlug, server: token.server).done { [weak self] stats in
                 self?.configure(overiddenOpenSeaStats: stats)
-                whenOpenSeaStatsHasChange.send(())
+                whenOpenSeaStatsHasChanged.send(())
             }.cauterize()
         }
 
-        let tokenHolderHasChange = service.tokenHoldersPublisher(for: token)
+        let tokenHolderHasChanged = service.tokenHoldersPublisher(for: token)
             .dropFirst()
             .compactMap { [weak self, token] updatedTokenHolders -> (tokenHolder: TokenHolder, tokenId: TokenId)? in
                 switch token.type {
@@ -138,7 +138,7 @@ class NFTAssetViewModel {
                 self?.tokenHolderHelper.update(tokenHolder: $0.tokenHolder, tokenId: $0.tokenId)
             }).map { _ in }.eraseToAnyPublisher()
 
-        let viewState = Publishers.Merge3(input.appear, tokenHolderHasChange, whenOpenSeaStatsHasChange)
+        let viewState = Publishers.Merge3(input.appear, tokenHolderHasChanged, whenOpenSeaStatsHasChanged)
             .compactMap { [weak self] _ -> NFTAssetViewModel.ViewState? in
                 guard let strongSelf = self else { return nil }
                 strongSelf.viewTypes = strongSelf.buildViewTypes(for: strongSelf.tokenHolderHelper)

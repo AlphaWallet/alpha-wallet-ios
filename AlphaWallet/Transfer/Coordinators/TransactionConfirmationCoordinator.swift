@@ -29,7 +29,7 @@ protocol TransactionConfirmationCoordinatorDelegate: CanOpenURL, SendTransaction
 
 class TransactionConfirmationCoordinator: Coordinator {
     private let configuration: TransactionConfirmationViewModel.Configuration
-    private lazy var viewModel: TransactionConfirmationViewModel = .init(configurator: configurator, configuration: configuration, assetDefinitionStore: assetDefinitionStore, domainResolutionService: domainResolutionService, service: service)
+    private lazy var viewModel: TransactionConfirmationViewModel = .init(configurator: configurator, configuration: configuration, assetDefinitionStore: assetDefinitionStore, domainResolutionService: domainResolutionService, tokensService: tokensService)
     private lazy var rootViewController: TransactionConfirmationViewController = {
         let controller = TransactionConfirmationViewController(viewModel: viewModel)
         controller.delegate = self
@@ -53,11 +53,12 @@ class TransactionConfirmationCoordinator: Coordinator {
     private let navigationController: UIViewController
     private let keystore: Keystore
     private let assetDefinitionStore: AssetDefinitionStore
-    private let service: TokenViewModelState
+    private let tokensService: TokenViewModelState
+    
     var coordinators: [Coordinator] = []
     weak var delegate: TransactionConfirmationCoordinatorDelegate?
 
-    init(presentingViewController: UIViewController, session: WalletSession, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationViewModel.Configuration, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, keystore: Keystore, assetDefinitionStore: AssetDefinitionStore, service: TokenViewModelState) throws {
+    init(presentingViewController: UIViewController, session: WalletSession, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationViewModel.Configuration, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, keystore: Keystore, assetDefinitionStore: AssetDefinitionStore, tokensService: TokenViewModelState) throws {
         configurator = try TransactionConfigurator(session: session, analytics: analytics, transaction: transaction)
         self.keystore = keystore
         self.assetDefinitionStore = assetDefinitionStore
@@ -65,7 +66,7 @@ class TransactionConfirmationCoordinator: Coordinator {
         self.analytics = analytics
         self.domainResolutionService = domainResolutionService
         self.navigationController = presentingViewController
-        self.service = service
+        self.tokensService = tokensService
     }
 
     func start(fromSource source: Analytics.TransactionConfirmationSource) {
@@ -202,7 +203,7 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
     }
 
     private func showConfigureTransactionViewController(_ configurator: TransactionConfigurator, recoveryMode: ConfigureTransactionViewModel.RecoveryMode = .none) {
-        let controller = ConfigureTransactionViewController(viewModel: .init(configurator: configurator, recoveryMode: recoveryMode, service: service))
+        let controller = ConfigureTransactionViewController(viewModel: .init(configurator: configurator, recoveryMode: recoveryMode, service: tokensService))
         controller.delegate = self
 
         let navigationController = UINavigationController(rootViewController: controller)

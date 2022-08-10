@@ -40,8 +40,8 @@ class ActiveWalletViewTests: XCTestCase {
             sessionsProvider: dep.sessionsProvider,
             tokenCollection: dep.pipeline,
             importToken: dep.importToken,
-            tokensDataStore: dep.tokensDataStore,
-            transactionsDataStore: dep.transactionsDataStore)
+            transactionsDataStore: dep.transactionsDataStore,
+            tokensService: dep.tokensService)
 
         coordinator.start(animated: false)
 
@@ -107,8 +107,8 @@ class ActiveWalletViewTests: XCTestCase {
             sessionsProvider: dep1.sessionsProvider,
             tokenCollection: dep1.pipeline,
             importToken: dep1.importToken,
-            tokensDataStore: dep1.tokensDataStore,
-            transactionsDataStore: dep1.transactionsDataStore)
+            transactionsDataStore: dep1.transactionsDataStore,
+            tokensService: dep1.tokensService)
 
         c1.start(animated: false)
 
@@ -140,8 +140,8 @@ class ActiveWalletViewTests: XCTestCase {
             sessionsProvider: dep2.sessionsProvider,
             tokenCollection: dep2.pipeline,
             importToken: dep2.importToken,
-            tokensDataStore: dep2.tokensDataStore,
-            transactionsDataStore: dep2.transactionsDataStore)
+            transactionsDataStore: dep2.transactionsDataStore,
+            tokensService: dep2.tokensService)
 
         c1.start(animated: false)
 
@@ -160,7 +160,7 @@ class ActiveWalletViewTests: XCTestCase {
 
         let coordinator = ActiveWalletCoordinator(
                 navigationController: FakeNavigationController(),
-                walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
+                walletAddressesStore: fakeWalletAddressesStore(wallets: [.make()]),
                 store: .fake(for: wallet),
                 wallet: wallet,
                 keystore: keystore,
@@ -182,8 +182,8 @@ class ActiveWalletViewTests: XCTestCase {
                 sessionsProvider: dep.sessionsProvider,
                 tokenCollection: dep.pipeline,
                 importToken: dep.importToken,
-                tokensDataStore: dep.tokensDataStore,
-                transactionsDataStore: dep.transactionsDataStore)
+                transactionsDataStore: dep.transactionsDataStore,
+                tokensService: dep.tokensService)
         coordinator.start(animated: false)
         coordinator.showPaymentFlow(for: .send(type: .transaction(TransactionType.nativeCryptocurrency(Token(), destination: .none, amount: nil))), server: .main, navigationController: coordinator.navigationController)
 
@@ -225,8 +225,8 @@ class ActiveWalletViewTests: XCTestCase {
             sessionsProvider: dep.sessionsProvider,
             tokenCollection: dep.pipeline,
             importToken: dep.importToken,
-            tokensDataStore: dep.tokensDataStore,
-            transactionsDataStore: dep.transactionsDataStore)
+            transactionsDataStore: dep.transactionsDataStore,
+            tokensService: dep.tokensService)
         coordinator.start(animated: false)
         coordinator.showPaymentFlow(for: .request, server: .main, navigationController: coordinator.navigationController)
 
@@ -268,8 +268,8 @@ class ActiveWalletViewTests: XCTestCase {
             sessionsProvider: dep.sessionsProvider,
             tokenCollection: dep.pipeline,
             importToken: dep.importToken,
-            tokensDataStore: dep.tokensDataStore,
-            transactionsDataStore: dep.transactionsDataStore)
+            transactionsDataStore: dep.transactionsDataStore,
+            tokensService: dep.tokensService)
         coordinator.start(animated: false)
 
         let viewController = (coordinator.tabBarController.selectedViewController as? UINavigationController)?.viewControllers[0]
@@ -330,8 +330,8 @@ class ActiveWalletViewTests: XCTestCase {
                     sessionsProvider: dep.sessionsProvider,
                     tokenCollection: dep.pipeline,
                     importToken: dep.importToken,
-                    tokensDataStore: dep.tokensDataStore,
-                    transactionsDataStore: dep.transactionsDataStore)
+                    transactionsDataStore: dep.transactionsDataStore,
+                    tokensService: dep.tokensService)
 
             coordinator.start(animated: false)
 

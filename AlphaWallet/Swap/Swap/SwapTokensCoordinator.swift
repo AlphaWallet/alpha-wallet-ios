@@ -22,7 +22,7 @@ protocol SwapTokensCoordinatorDelegate: class, CanOpenURL {
 final class SwapTokensCoordinator: Coordinator {
     private let navigationController: UINavigationController
     private lazy var rootViewController: SwapTokensViewController = {
-        let viewModel = SwapTokensViewModel(configurator: configurator, service: tokenCollection)
+        let viewModel = SwapTokensViewModel(configurator: configurator, tokensService: tokenCollection)
         let viewController = SwapTokensViewController(viewModel: viewModel)
         viewController.navigationItem.rightBarButtonItems = [
             UIBarButtonItem.settingsBarButton(self, selector: #selector(swapConfiguratinSelected)),
@@ -167,7 +167,7 @@ extension SwapTokensCoordinator: ApproveSwapProviderDelegate {
         do {
             let (transaction, configuration) = configurator.tokenSwapper.buildSwapTransaction(keystore: keystore, unsignedTransaction: unsignedTransaction, fromToken: fromToken, fromAmount: fromAmount, toToken: toToken, toAmount: toAmount)
 
-            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: configurator.session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, service: tokenCollection)
+            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: configurator.session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokenCollection)
             addCoordinator(coordinator)
             coordinator.delegate = self
             coordinator.start(fromSource: .swap)
@@ -182,7 +182,7 @@ extension SwapTokensCoordinator: ApproveSwapProviderDelegate {
         let (transaction, configuration) = Erc20.buildApproveTransaction(keystore: keystore, token: token, server: server, owner: owner, spender: spender, amount: amount)
 
         return firstly {
-            TransactionConfirmationCoordinator.promise(navigationController, session: configurator.session, coordinator: self, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, source: .swapApproval, delegate: self, keystore: keystore, assetDefinitionStore: assetDefinitionStore, service: tokenCollection)
+            TransactionConfirmationCoordinator.promise(navigationController, session: configurator.session, coordinator: self, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, source: .swapApproval, delegate: self, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokenCollection)
         }.map { confirmationResult in
             switch confirmationResult {
             case .signedTransaction, .sentRawTransaction:

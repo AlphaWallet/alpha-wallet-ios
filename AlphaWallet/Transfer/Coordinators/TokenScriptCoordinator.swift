@@ -31,7 +31,7 @@ class TokenScriptCoordinator: Coordinator {
     private var transactionConfirmationResult: ConfirmResult? = .none
     private let action: TokenInstanceAction
     private var cancelable = Set<AnyCancellable>()
-    private let service: TokenViewModelState
+    private let tokensService: TokenViewModelState
     weak var delegate: TokenScriptCoordinatorDelegate?
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -46,9 +46,9 @@ class TokenScriptCoordinator: Coordinator {
             analytics: AnalyticsLogger,
             domainResolutionService: DomainResolutionServiceType,
             action: TokenInstanceAction,
-            service: TokenViewModelState
+            tokensService: TokenViewModelState
     ) {
-        self.service = service
+        self.tokensService = tokensService
         self.action = action
         self.tokenHolder = tokenHolder
         self.session = session
@@ -77,7 +77,7 @@ class TokenScriptCoordinator: Coordinator {
     }
     //FIXME: Move to view model
     private func subscribeForEthereumEventChanges() {
-        service.tokenViewModelPublisher(for: token).sink { [weak self] _ in
+        tokensService.tokenViewModelPublisher(for: token).sink { [weak self] _ in
             self?.viewController.configure()
         }.store(in: &cancelable)
     }
@@ -106,7 +106,7 @@ extension TokenScriptCoordinator: TokenInstanceActionViewControllerDelegate {
 
         do {
             let data = try transactionFunction.makeUnConfirmedTransaction(withTokenObject: token, tokenId: tokenId, attributeAndValues: values, localRefs: localRefs, server: server, session: session)
-            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: data.0, configuration: .tokenScriptTransaction(confirmType: .signThenSend, contract: contract, functionCallMetaData: data.1), analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, service: service)
+            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: data.0, configuration: .tokenScriptTransaction(confirmType: .signThenSend, contract: contract, functionCallMetaData: data.1), analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
             coordinator.delegate = self
             addCoordinator(coordinator)
             coordinator.start(fromSource: .tokenScript)

@@ -12,7 +12,7 @@ import BigInt
 class SwapTokensViewModel: NSObject {
     private var cancelable = Set<AnyCancellable>()
     private let configurator: SwapOptionsConfigurator
-    private let service: TokenViewModelState
+    private let tokensService: TokenViewModelState
     var backgoundColor: UIColor = R.color.alabaster()!
 
     var footerBackgroundColor: UIColor = Colors.appWhite
@@ -93,13 +93,13 @@ class SwapTokensViewModel: NSObject {
         case .nativeCryptocurrency:
             let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: token.server)
 
-            guard let balance = service.tokenViewModel(for: etherToken).flatMap({ $0.balance }) else { return nil }
+            guard let balance = tokensService.tokenViewModel(for: etherToken).flatMap({ $0.balance }) else { return nil }
             let fullValue = EtherNumberFormatter.plain.string(from: balance.value, units: .ether).droppedTrailingZeros
             let shortValue = EtherNumberFormatter.shortPlain.string(from: balance.value, units: .ether).droppedTrailingZeros
 
             return (fullValue.optionalDecimalValue, shortValue)
         case .erc20:
-            guard let balance = service.tokenViewModel(for: token).flatMap({ $0.balance }) else { return nil }
+            guard let balance = tokensService.tokenViewModel(for: token).flatMap({ $0.balance }) else { return nil }
             let fullValue = EtherNumberFormatter.plain.string(from: balance.value, decimals: token.decimals).droppedTrailingZeros
             let shortValue = EtherNumberFormatter.shortPlain.string(from: balance.value, decimals: token.decimals).droppedTrailingZeros
 
@@ -136,9 +136,9 @@ class SwapTokensViewModel: NSObject {
             }.eraseToAnyPublisher()
     }
 
-    init(configurator: SwapOptionsConfigurator, service: TokenViewModelState) {
+    init(configurator: SwapOptionsConfigurator, tokensService: TokenViewModelState) {
         self.configurator = configurator
-        self.service = service
+        self.tokensService = tokensService
         let value = configurator.swapPair
         self.swapPair = .init(value)
 
@@ -185,7 +185,7 @@ class SwapTokensViewModel: NSObject {
     }
 
     private func balancePublisher(for token: Token, session: WalletSession) -> AnyPublisher<BalanceViewModel?, Never> {
-        return service.tokenViewModelPublisher(for: token)
+        return tokensService.tokenViewModelPublisher(for: token)
             .map { $0?.balance }
             .eraseToAnyPublisher()
     }
@@ -211,7 +211,7 @@ class SwapTokensViewModel: NSObject {
     }
 
     private func balance(for token: Token, session: WalletSession) -> BalanceViewModel? {
-        return service.tokenViewModel(for: token)
+        return tokensService.tokenViewModel(for: token)
             .flatMap { $0.balance }
     }
 }

@@ -110,13 +110,13 @@ class SendViewControllerTests: XCTestCase {
 
         let viewModel = dep.pipeline.tokenViewModel(for: token)
         XCTAssertNotNil(viewModel)
-        XCTAssertEqual(viewModel!.value, BigInt("2020224719101120")!)
+        XCTAssertEqual(viewModel?.value, BigInt("2020224719101120")!)
 
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("10000000000000")), for: token)
 
         let viewModel_2 = dep.pipeline.tokenViewModel(for: token)
         XCTAssertNotNil(viewModel_2)
-        XCTAssertEqual(viewModel_2!.value, BigInt("10000000000000")!)
+        XCTAssertEqual(viewModel_2?.value, BigInt("10000000000000")!)
     }
 
     func testERC20AllFundsEnglish() {
@@ -169,7 +169,6 @@ class TokenBalanceTests: XCTestCase {
     let dep = WalletDataProcessingPipeline.make(wallet: .make(), server: .main)
 
     func testTokenViewModelChanges() {
-        return;
         let pipeline = dep.pipeline
         let tokensService = dep.tokensService
 

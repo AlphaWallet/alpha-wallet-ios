@@ -9,40 +9,28 @@ import Foundation
 import Combine
 import CombineExt
 
+protocol TokenViewModelRefreshable {
+    func refresh()
+}
+
 protocol TokenViewModelState {
     var tokenViewModels: AnyPublisher<[TokenViewModel], Never> { get }
 
     func tokenViewModelPublisher(for contract: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<TokenViewModel?, Never>
     func tokenViewModel(for contract: AlphaWallet.Address, server: RPCServer) -> TokenViewModel?
-    func refresh()
 }
 
 protocol TokenBalanceRefreshable {
     func refreshBalance(updatePolicy: TokenBalanceFetcher.RefreshBalancePolicy)
 }
 
-protocol TokensProcessingPipeline: TokenViewModelState, TokenProvidable, TokenAddable, TokenHidable, TokenBalanceRefreshable, PipelineTests & TokenHolderState {
+protocol TokensProcessingPipeline: TokenViewModelState & TokenViewModelRefreshable, TokenProvidable, TokenAddable, TokenHidable, TokenBalanceRefreshable, PipelineTests & TokenHolderState {
     func start()
 }
-
-typealias TokenCollection = TokenViewModelState & TokenProvidable & TokenAddable & TokenHidable & TokenBalanceRefreshable & TokenHolderState
+//FIXME: Remove TokenCollection later
+typealias TokenCollection = TokensProcessingPipeline
 
 class WalletDataProcessingPipeline: TokensProcessingPipeline {
-
-//    func start() -> WalletData {
-//        let walletApiData = await callWalletApi(mostChains)
-//        let unsupportedOrPrivateChainData = await callInfuraAndEtherscan(unsupportedByWalletApiChains)
-//        let walletData = combineData(walletApiData, unsupportedOrPrivateChainData)
-//        let contracts = contractsFrom(walletData)
-//        let withCoinGeckoData = await callAndApplyCoinGecko(contracts)
-//        let withTokenScript = await applyTokenScriptAndFetch()
-//        return withTokenScript
-//    }
-
-    var tokenViewModels: AnyPublisher<[TokenViewModel], Never> {
-        return tokenViewModelsSubject.eraseToAnyPublisher()
-    }
-
     private let coinTickersFetcher: CoinTickersFetcher
     private let tokensService: TokensService
     private let assetDefinitionStore: AssetDefinitionStore
@@ -50,6 +38,10 @@ class WalletDataProcessingPipeline: TokensProcessingPipeline {
     private let tokenViewModelsSubject = CurrentValueSubject<[TokenViewModel], Never>([])
     private let eventsDataStore: NonActivityEventsDataStore
     private let wallet: Wallet
+
+    var tokenViewModels: AnyPublisher<[TokenViewModel], Never> {
+        return tokenViewModelsSubject.eraseToAnyPublisher()
+    }
 
     init(wallet: Wallet, tokensService: TokensService, coinTickersFetcher: CoinTickersFetcher, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore) {
         self.wallet = wallet
@@ -154,8 +146,24 @@ class WalletDataProcessingPipeline: TokensProcessingPipeline {
         tokensService.addCustom(tokens: tokens, shouldUpdateBalance: shouldUpdateBalance)
     }
 
+    func add(tokenUpdates updates: [TokenUpdate]) {
+        tokensService.add(tokenUpdates: updates)
+    }
+
+    func addOrUpdate(tokensOrContracts: [TokenOrContract]) -> [Token] {
+        tokensService.addOrUpdate(tokensOrContracts: tokensOrContracts)
+    }
+
+    func addOrUpdate(_ actions: [AddOrUpdateTokenAction]) -> Bool? {
+        tokensService.addOrUpdate(actions)
+    }
+
     func tokenPublisher(for contract: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<Token?, Never> {
         tokensService.tokenPublisher(for: contract, server: server)
+    }
+
+    func tokensPublisher(servers: [RPCServer]) -> AnyPublisher<[Token], Never> {
+        tokensService.tokensPublisher(servers: servers)
     }
 
     func addOrUpdateTestsOnly(ticker: CoinTicker?, for token: TokenMappedToTicker) {
@@ -163,21 +171,31 @@ class WalletDataProcessingPipeline: TokensProcessingPipeline {
     }
 
     private func preparePipeline() {
-        let whenTickersChange: AnyPublisher<[Token], Never> = coinTickersFetcher.tickersDidUpdate.dropFirst()
+        let whenTickersChanged = coinTickersFetcher.tickersDidUpdate.dropFirst()
+            .receive(on: Config.backgroundQueue)
             .map { [tokensService] _ in tokensService.tokens }
-            .receive(on: RunLoop.main)
-            .eraseToAnyPublisher()
 
-        let whenSignatureOrBodyChange: AnyPublisher<[Token], Never> = assetDefinitionStore
-            .assetsSignatureOrBodyChange
+        let whenSignatureOrBodyChanged = assetDefinitionStore.assetsSignatureOrBodyChange
+            .receive(on: Config.backgroundQueue)
             .map { [tokensService] _ in tokensService.tokens }
-            .receive(on: RunLoop.main)
-            .eraseToAnyPublisher()
 
-        Publishers.Merge3(tokensService.tokensPublisher, whenTickersChange, whenSignatureOrBodyChange)
+        let whenTokensHasChanged = tokensService.tokensPublisher
+            .dropFirst()
+            .receive(on: Config.backgroundQueue)
+
+        let whenCollectionHasChanged = Publishers.Merge3(whenTokensHasChanged, whenTickersChanged, whenSignatureOrBodyChanged)
             .map { $0.map { TokenViewModel(token: $0) } }
             .flatMapLatest { [weak self] in self?.applyTickers(tokens: $0) ?? .empty() }
             .flatMapLatest { [weak self] in self?.applyTokenScriptOverrides(tokens: $0) ?? .empty() }
+            .removeAllDuplicates(by: { return $0.hashValue == $1.hashValue })
+            .receive(on: RunLoop.main)
+
+        let initialSnapshot = Just(tokensService.tokens)
+            .map { $0.map { TokenViewModel(token: $0) } }
+            .flatMapLatest { [weak self] in self?.applyTickers(tokens: $0) ?? .empty() }
+            .flatMapLatest { [weak self] in self?.applyTokenScriptOverrides(tokens: $0) ?? .empty() }
+
+        Publishers.Merge(whenCollectionHasChanged, initialSnapshot)
             .assign(to: \.value, on: tokenViewModelsSubject, ownership: .weak)
             .store(in: &cancelable)
     }

@@ -24,17 +24,16 @@ final class ActivitiesPipeLine: ActivitiesServiceType {
     }()
     private lazy var eventSourceCoordinatorForActivities: EventSourceCoordinatorForActivities? = {
         guard Features.default.isAvailable(.isActivityEnabled) else { return nil }
-        return EventSourceCoordinatorForActivities(wallet: wallet, config: config, tokensDataStore: tokensDataStore, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsActivityDataStore)
+        return EventSourceCoordinatorForActivities(wallet: wallet, config: config, tokensService: tokensService, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsActivityDataStore)
     }()
-
-    private let tokensDataStore: TokensDataStore
+    private let tokensService: TokenProvidable
 
     private lazy var eventSourceCoordinator: EventSourceCoordinator = {
-        EventSourceCoordinator(wallet: wallet, tokensDataStore: tokensDataStore, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, config: config)
+        EventSourceCoordinator(wallet: wallet, tokensService: tokensService, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, config: config)
     }()
 
     private lazy var activitiesSubService: ActivitiesServiceType = {
-        return ActivitiesService(config: config, sessions: sessionsProvider.activeSessions, assetDefinitionStore: assetDefinitionStore, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore, transactionDataStore: transactionDataStore, tokensDataStore: tokensDataStore)
+        return ActivitiesService(config: config, sessions: sessionsProvider.activeSessions, assetDefinitionStore: assetDefinitionStore, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore, transactionDataStore: transactionDataStore, tokensService: tokensService)
     }()
 
     var activitiesPublisher: AnyPublisher<[ActivitiesViewModel.MappedToDateActivityOrTransaction], Never> {
@@ -45,13 +44,13 @@ final class ActivitiesPipeLine: ActivitiesServiceType {
         activitiesSubService.didUpdateActivityPublisher
     }
 
-    init(config: Config, wallet: Wallet, store: RealmStore, assetDefinitionStore: AssetDefinitionStore, transactionDataStore: TransactionDataStore, tokensDataStore: TokensDataStore, sessionsProvider: SessionsProvider) {
+    init(config: Config, wallet: Wallet, store: RealmStore, assetDefinitionStore: AssetDefinitionStore, transactionDataStore: TransactionDataStore, tokensService: TokenProvidable, sessionsProvider: SessionsProvider) {
+        self.tokensService = tokensService
         self.config = config
         self.wallet = wallet
         self.store = store
         self.assetDefinitionStore = assetDefinitionStore
         self.transactionDataStore = transactionDataStore
-        self.tokensDataStore = tokensDataStore
         self.sessionsProvider = sessionsProvider
     }
 

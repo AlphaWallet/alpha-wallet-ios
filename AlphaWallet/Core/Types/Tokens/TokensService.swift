@@ -12,30 +12,25 @@ protocol TokenProvidable {
     func token(for contract: AlphaWallet.Address) -> Token?
     func token(for contract: AlphaWallet.Address, server: RPCServer) -> Token?
     func tokens(for servers: [RPCServer]) -> [Token]
+
     func tokenPublisher(for contract: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<Token?, Never>
+    func tokensPublisher(servers: [RPCServer]) -> AnyPublisher<[Token], Never>
 }
 
 protocol TokenAddable {
+    func add(tokenUpdates updates: [TokenUpdate])
     @discardableResult func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [Token]
+    @discardableResult func addOrUpdate(tokensOrContracts: [TokenOrContract]) -> [Token]
+    @discardableResult func addOrUpdate(_ actions: [AddOrUpdateTokenAction]) -> Bool?
 }
 
-protocol TokenDetectable {
+protocol TokenAutoDetectable {
     var newTokens: AnyPublisher<[Token], Never> { get }
 }
 
 protocol TokensState {
     var tokens: [Token] { get }
-    //NOTE: as protocol can't be marked as ObservableObject
-    var objectWillChange: AnyPublisher<Void, Never> { get }
-}
-
-extension TokensState {
-    var tokensPublisher: AnyPublisher<[Token], Never> {
-        let tokensWhenChanged = objectWillChange.map { _ in tokens }
-        return Just(tokens)
-            .merge(with: tokensWhenChanged)
-            .eraseToAnyPublisher()
-    }
+    var tokensPublisher: AnyPublisher<[Token], Never> { get }
 }
 
 protocol TokenHidable {
@@ -53,9 +48,10 @@ protocol PipelineTests: CoinTickersFetcherTests { }
 
 protocol TokenUpdatable {
     func update(token: TokenIdentifiable, value: TokenUpdateAction)
+    @discardableResult func updateToken(primaryKey: String, action: TokenUpdateAction) -> Bool?
 }
 
-protocol TokensService: TokensState, TokenProvidable, TokenAddable, TokenHidable, TokenDetectable, TokenBalanceRefreshable, TokensServiceTests, TokenUpdatable {
+protocol TokensService: TokensState, TokenProvidable, TokenAddable, TokenHidable, TokenAutoDetectable, TokenBalanceRefreshable, TokensServiceTests, TokenUpdatable, DetectedContractsProvideble {
     func refresh()
     func start()
     func stop()

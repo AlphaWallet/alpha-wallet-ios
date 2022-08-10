@@ -4,11 +4,11 @@ import Foundation
 
 class FetchTokenScriptFiles {
     private let assetDefinitionStore: AssetDefinitionStore
-    private let tokensDataStore: TokensDataStore
+    private let tokensService: TokenProvidable
     private let config: Config
 
     private var contractsInDatabase: [AddressAndOptionalRPCServer] {
-        return tokensDataStore.enabledTokens(for: config.enabledServers).filter {
+        return tokensService.tokens(for: config.enabledServers).filter {
             switch $0.type {
             case .erc20, .erc721, .erc875, .erc721ForTickets, .erc1155:
                 return true
@@ -22,9 +22,9 @@ class FetchTokenScriptFiles {
         return assetDefinitionStore.contractsWithTokenScriptFileFromOfficialRepo
     }
 
-    init(assetDefinitionStore: AssetDefinitionStore, tokensDataStore: TokensDataStore, config: Config) {
+    init(assetDefinitionStore: AssetDefinitionStore, tokensService: TokenProvidable, config: Config) {
         self.assetDefinitionStore = assetDefinitionStore
-        self.tokensDataStore = tokensDataStore
+        self.tokensService = tokensService
         self.config = config
     }
 
