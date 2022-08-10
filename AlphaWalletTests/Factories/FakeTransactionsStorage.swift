@@ -5,7 +5,6 @@ import Foundation
 
 class FakeTransactionsStorage: TransactionDataStore {
     convenience init(wallet: Wallet = .init(address: Constants.nativeCryptoAddressInDatabase, origin: .hd)) {
-        let store = FakeRealmLocalStore()
-        self.init(store: store.getOrCreateStore(forWallet: wallet))
+        self.init(store: .fake(for: wallet))
     }
 }

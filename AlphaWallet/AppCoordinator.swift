@@ -37,7 +37,6 @@ class AppCoordinator: NSObject, Coordinator {
     var activeWalletCoordinator: ActiveWalletCoordinator? {
         return coordinators.first { $0 is ActiveWalletCoordinator } as? ActiveWalletCoordinator
     }
-    private let localStore: LocalStore = RealmLocalStore()
     private lazy var coinTickersFetcher: CoinTickersFetcher = {
         let networkProvider: CoinGeckoNetworkProviderType
         let persistentStorage: StorageType
@@ -67,7 +66,7 @@ class AppCoordinator: NSObject, Coordinator {
         return AlphaWalletNFTProvider(analytics: analytics, queue: queue)
     }()
     private lazy var dependencyProvider: WalletDependencyContainer = {
-        WalletComponentsFactory(analytics: analytics, nftProvider: nftProvider, assetDefinitionStore: assetDefinitionStore, store: localStore, coinTickersFetcher: coinTickersFetcher, config: config)
+        WalletComponentsFactory(analytics: analytics, nftProvider: nftProvider, assetDefinitionStore: assetDefinitionStore, coinTickersFetcher: coinTickersFetcher, config: config)
     }()
     private lazy var walletBalanceService: WalletBalanceService = {
         let service = MultiWalletBalanceService(walletAddressesStore: walletAddressesStore, dependencyContainer: dependencyProvider)
@@ -171,8 +170,7 @@ class AppCoordinator: NSObject, Coordinator {
                 TransactionsTracker.resetFetchingState(account: account, config: self.config)
                 Erc1155TokenIdsFetcher.deleteForWallet(account.address)
                 DatabaseMigration.removeRealmFiles(account: account)
-                self.legacyFileBasedKeystore.delete(wallet: account)
-                self.localStore.removeStore(forWallet: account)
+                self.legacyFileBasedKeystore.delete(wallet: account) 
             }.store(in: &cancelable)
     }
 
@@ -230,7 +228,7 @@ class AppCoordinator: NSObject, Coordinator {
         let coordinator = ActiveWalletCoordinator(
                 navigationController: navigationController,
                 walletAddressesStore: walletAddressesStore,
-                localStore: localStore,
+                store: dep.store,
                 wallet: wallet,
                 keystore: keystore,
                 assetDefinitionStore: assetDefinitionStore,
@@ -252,7 +250,8 @@ class AppCoordinator: NSObject, Coordinator {
                 sessionsProvider: dep.sessionsProvider,
                 tokenCollection: dep.pipeline,
                 importToken: dep.importToken,
-                tokensDataStore: dep.tokensDataStore)
+                tokensDataStore: dep.tokensDataStore,
+                transactionsDataStore: dep.transactionsDataStore)
 
         coordinator.delegate = self
 
