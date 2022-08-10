@@ -78,7 +78,6 @@ class WalletDataProcessingPipeline: TokensProcessingPipeline {
     }
 
     deinit {
-        print("XXX.\(self).deinit for wallet: \(wallet)")
         tokensService.stop()
     }
 
@@ -95,6 +94,9 @@ class WalletDataProcessingPipeline: TokensProcessingPipeline {
 
     func tokenViewModelPublisher(for contract: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<TokenViewModel?, Never> {
         let whenTickersHasChanged: AnyPublisher<Token?, Never> = coinTickersFetcher.tickersDidUpdate.dropFirst()
+            //NOTE: filter coin ticker events, allow only if ticker has change
+            .compactMap { [coinTickersFetcher] _ in coinTickersFetcher.ticker(for: .init(address: contract, server: server)) }
+            .removeDuplicates()
             .map { [tokensService] _ in tokensService.token(for: contract, server: server) }
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()

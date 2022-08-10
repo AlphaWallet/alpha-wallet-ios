@@ -10,7 +10,7 @@ import AlphaWalletOpenSea
 
 final class TokenInstanceViewConfigurationHelper {
     private let tokenId: TokenId
-    private let tokenHolder: TokenHolder
+    var tokenHolder: TokenHolder
     private let displayHelper: OpenSeaNonFungibleTokenDisplayHelper
 
     private var openSeaCollection: AlphaWalletOpenSea.Collection? {

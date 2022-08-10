@@ -48,10 +48,6 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         service.tokenViewModels
             .map { [wallet] in WalletBalance(wallet: wallet, tokens: $0) }
             .removeDuplicates()
-            .breakpoint(receiveOutput: { [unowned self] balance in
-                print("XXX walletBalance for: \(self.wallet) value: \(balance.totalAmountString)")
-                return false
-            })
             .assign(to: \.value, on: walletBalanceSubject)
             .store(in: &cancelable)
 
@@ -63,7 +59,6 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     }
 
     deinit {
-        print("XXX.\(self).deinit for wallet: \(wallet)")
         self.stop()
     }
 

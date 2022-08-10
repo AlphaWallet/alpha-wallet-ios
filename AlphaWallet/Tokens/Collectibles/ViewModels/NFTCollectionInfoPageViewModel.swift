@@ -8,11 +8,7 @@
 import UIKit
 import BigInt
 import AlphaWalletOpenSea
-
-enum NFTCollectionInfoPageViewConfiguration {
-    case field(viewModel: TokenAttributeViewModel)
-    case header(viewModel: TokenInfoHeaderViewModel)
-}
+import Combine
 
 enum NFTPreviewViewType {
     case tokenCardView
@@ -30,56 +26,30 @@ protocol ConfigurableNFTPreviewView {
     func configure(params: NFTPreviewViewType.Params)
 }
 
-struct NFTCollectionInfoPageViewModel {
-    private let tokenHolderHelper: TokenInstanceViewConfigurationHelper
+struct NFTCollectionInfoPageViewModelInput {
+}
+
+struct NFTCollectionInfoPageViewModelOutput {
+    let viewState: AnyPublisher<NFTCollectionInfoPageViewModel.ViewState, Never>
+}
+
+protocol NFTCollectionInfoPageViewModelType {
+    func transform(input: NFTCollectionInfoPageViewModelInput) -> NFTCollectionInfoPageViewModelOutput
+}
+
+class NFTCollectionInfoPageViewModel: NFTCollectionInfoPageViewModelType {
+    private var tokenHolderHelper: TokenInstanceViewConfigurationHelper
     private let assetDefinitionStore: AssetDefinitionStore
-
-    var tabTitle: String {
-        return R.string.localizable.tokenTabInfo()
-    }
-
-    let token: Token
-    var contractAddress: AlphaWallet.Address {
-        token.contractAddress
-    }
-    let tokenHolders: [TokenHolder]
-
-    var tokenImagePlaceholder: UIImage? {
-        return R.image.tokenPlaceholderLarge()
-    }
-
-    var wikiUrl: URL? {
-        tokenHolderHelper.wikiUrlViewModel?.value
-            .flatMap { URL(string: $0) }
-    }
-
-    var instagramUrl: URL? {
-        tokenHolderHelper.instagramUsernameViewModel?.value
-            .flatMap { SocialNetworkUrlProvider.resolveUrl(for: $0, urlProvider: .instagram) }
-    }
-
-    var twitterUrl: URL? {
-        tokenHolderHelper.twitterUsernameViewModel?.value
-            .flatMap { SocialNetworkUrlProvider.resolveUrl(for: $0, urlProvider: .twitter) }
-    }
-
-    var discordUrl: URL? {
-        tokenHolderHelper.discordUrlViewModel?.value
-            .flatMap { SocialNetworkUrlProvider.resolveUrl(for: $0, urlProvider: .discord) }
-    }
-
-    var telegramUrl: URL? {
-        tokenHolderHelper.telegramUrlViewModel?.value
-            .flatMap { SocialNetworkUrlProvider.resolveUrl(for: $0, urlProvider: .telegram) }
-    }
-
-    var externalUrl: URL? {
-        tokenHolderHelper.externalUrlViewModel?.value
-            .flatMap { URL(string: $0) }
-    }
+    private var viewTypes: [NFTCollectionInfoPageViewModel.ViewType] = []
+    private let _tokenHolders: AnyPublisher<[TokenHolder], Never>
+    private let openSea: OpenSea
     
-    let tokenHolder: TokenHolder
-    let tokenId: TokenId
+    var tabTitle: String { return R.string.localizable.tokenTabInfo() }
+    let token: Token
+    var contractAddress: AlphaWallet.Address { token.contractAddress }
+    var tokenImagePlaceholder: UIImage? { return R.image.tokenPlaceholderLarge() }
+    var tokenHolder: TokenHolder
+    var tokenId: TokenId
 
     var previewViewType: NFTPreviewViewType {
         switch OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
@@ -108,22 +78,18 @@ struct NFTCollectionInfoPageViewModel {
         }
     }
 
-    var previewViewContentBackgroundColor: UIColor {
-        return Colors.appBackground
-    }
+    var previewViewContentBackgroundColor: UIColor { return Colors.appBackground }
 
-    init(token: Token, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, wallet: Wallet) {
+    init(token: Token, assetDefinitionStore: AssetDefinitionStore, tokenHolders: [TokenHolder], wallet: Wallet, _tokenHolders: AnyPublisher<[TokenHolder], Never>, openSea: OpenSea) {
+        self.openSea = openSea
+        self._tokenHolders = _tokenHolders
         self.assetDefinitionStore = assetDefinitionStore
         self.token = token
-        tokenHolders = token.getTokenHolders(assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: wallet)
+
         tokenHolder = tokenHolders[0]
         tokenId = tokenHolder.tokenIds[0]
 
         self.tokenHolderHelper = TokenInstanceViewConfigurationHelper(tokenId: tokenId, tokenHolder: tokenHolder)
-    }
-
-    mutating func configure(overiddenOpenSeaStats: Stats?) {
-        self.tokenHolderHelper.overiddenOpenSeaStats = overiddenOpenSeaStats
     }
 
     var backgroundColor: UIColor {
@@ -134,39 +100,46 @@ struct NFTCollectionInfoPageViewModel {
         .init(server: token.server)
     }
 
-    var wikiUrlViewModel: TokenAttributeViewModel? {
-        tokenHolderHelper.wikiUrlViewModel
+    func transform(input: NFTCollectionInfoPageViewModelInput) -> NFTCollectionInfoPageViewModelOutput {
+        let whenOpenSeaStatsHasChange = PassthroughSubject<Void, Never>()
+
+        if let openSeaSlug = tokenHolder.values.slug, openSeaSlug.trimmed.nonEmpty {
+            openSea.collectionStats(slug: openSeaSlug, server: token.server).done { [tokenHolderHelper] overiddenOpenSeaStats in
+                tokenHolderHelper.overiddenOpenSeaStats = overiddenOpenSeaStats
+                whenOpenSeaStatsHasChange.send(())
+            }.cauterize()
+        }
+
+        let tokenHolder = _tokenHolders.compactMap { $0.first }
+
+        let whenTokehHolderHasChange = tokenHolder.map { tokenHolder -> (tokenHolder: TokenHolder, tokenId: TokenId) in
+            return (tokenHolder: tokenHolder, tokenId: tokenHolder.tokenId)
+        }.handleEvents(receiveOutput: { [weak self, tokenHolderHelper] in
+            self?.tokenId = $0.tokenId
+            self?.tokenHolder = $0.tokenHolder
+            tokenHolderHelper.tokenHolder = $0.tokenHolder
+        }).map { _ in }
+
+        let viewTypes = Publishers.Merge(whenTokehHolderHasChange, whenOpenSeaStatsHasChange)
+            .compactMap { [tokenHolderHelper, weak self] _ in self?.buildViewTypes(helper: tokenHolderHelper) }
+            .handleEvents(receiveOutput: { [weak self] in self?.viewTypes = $0 })
+
+        let viewState = viewTypes.map {
+            NFTCollectionInfoPageViewModel.ViewState(previewViewType: self.previewViewType, previewViewParams: self.previewViewParams, previewViewContentBackgroundColor: self.previewViewContentBackgroundColor, viewTypes: $0)
+        }
+
+        return .init(viewState: viewState.eraseToAnyPublisher())
     }
 
-    var instagramUsernameViewModel: TokenAttributeViewModel? {
-        tokenHolderHelper.instagramUsernameViewModel
-    }
-
-    var twitterUsernameViewModel: TokenAttributeViewModel? {
-        tokenHolderHelper.twitterUsernameViewModel
-    }
-
-    var discordUrlViewModel: TokenAttributeViewModel? {
-        tokenHolderHelper.discordUrlViewModel
-    }
-
-    var telegramUrlViewModel: TokenAttributeViewModel? {
-        tokenHolderHelper.telegramUrlViewModel
-    }
-
-    var externalUrlViewModel: TokenAttributeViewModel? {
-        tokenHolderHelper.externalUrlViewModel
-    }
-
-    var configurations: [NFTCollectionInfoPageViewConfiguration] {
+    private func buildViewTypes(helper tokenHolderHelper: TokenInstanceViewConfigurationHelper) -> [NFTCollectionInfoPageViewModel.ViewType] {
         if Constants.ticketContractAddress.sameContract(as: token.contractAddress) {
-            return generateFieldsConfigurationsForFifaToken()
+            return buildViewTypesForFifaToken(helper: tokenHolderHelper)
         } else {
-            return generateFieldsConfigurations()
+            return buildDefaultViewTypes(helper: tokenHolderHelper)
         }
     }
 
-    private func generateFieldsConfigurationsForFifaToken() -> [NFTCollectionInfoPageViewConfiguration] {
+    private func buildViewTypesForFifaToken(helper tokenHolderHelper: TokenInstanceViewConfigurationHelper) -> [NFTCollectionInfoPageViewModel.ViewType] {
         let string = TokenAttributeViewModel.defaultValueAttributedString(R.string.localizable.semifungiblesEdconDescription(), alignment: .left)
         let descriptionViewModel = TokenAttributeViewModel(title: nil, attributedValue: string, value: string.string, isSeparatorHidden: true)
 
@@ -176,8 +149,8 @@ struct NFTCollectionInfoPageViewModel {
         ]
     }
 
-    private func generateFieldsConfigurations() -> [NFTCollectionInfoPageViewConfiguration] {
-        var configurations: [NFTCollectionInfoPageViewConfiguration] = []
+    private func buildDefaultViewTypes(helper tokenHolderHelper: TokenInstanceViewConfigurationHelper) -> [NFTCollectionInfoPageViewModel.ViewType] {
+        var configurations: [NFTCollectionInfoPageViewModel.ViewType] = []
 
         let detailsSectionViewModels = [
             tokenHolderHelper.createdDateViewModel,
@@ -191,7 +164,7 @@ struct NFTCollectionInfoPageViewModel {
             tokenHolderHelper.marketCap,
             tokenHolderHelper.floorPrice,
             tokenHolderHelper.numReports,
-        ].compactMap { viewModel -> NFTCollectionInfoPageViewConfiguration? in
+        ].compactMap { viewModel -> NFTCollectionInfoPageViewModel.ViewType? in
             return viewModel.flatMap { .field(viewModel: $0) }
         }
 
@@ -205,7 +178,7 @@ struct NFTCollectionInfoPageViewModel {
 
         let descriptionSectionViewModels = [
             tokenHolderHelper.descriptionViewModel
-        ].compactMap { viewModel -> NFTCollectionInfoPageViewConfiguration? in
+        ].compactMap { viewModel -> NFTCollectionInfoPageViewModel.ViewType? in
             return viewModel.flatMap { .field(viewModel: $0) }
         }
 
@@ -224,8 +197,8 @@ struct NFTCollectionInfoPageViewModel {
             tokenHolderHelper.discordUrlViewModel,
             tokenHolderHelper.telegramUrlViewModel,
             tokenHolderHelper.externalUrlViewModel
-        ].compactMap { viewModel -> NFTCollectionInfoPageViewConfiguration? in
-            return viewModel.flatMap { NFTCollectionInfoPageViewConfiguration.field(viewModel: $0) }
+        ].compactMap { viewModel -> NFTCollectionInfoPageViewModel.ViewType? in
+            return viewModel.flatMap { NFTCollectionInfoPageViewModel.ViewType.field(viewModel: $0) }
         }
 
         if linksSectionViewModels.isEmpty {
@@ -240,21 +213,35 @@ struct NFTCollectionInfoPageViewModel {
     }
 
     func urlForField(indexPath: IndexPath) -> URL? {
-        switch configurations[indexPath.row] {
-        case .field(let vm) where wikiUrlViewModel == vm:
-            return wikiUrl
-        case .field(let vm) where instagramUsernameViewModel == vm:
-            return instagramUrl
-        case .field(let vm) where twitterUsernameViewModel == vm:
-            return twitterUrl
-        case .field(let vm) where discordUrlViewModel == vm:
-            return discordUrl
-        case .field(let vm) where telegramUrlViewModel == vm:
-            return telegramUrl
-        case .field(let vm) where externalUrlViewModel == vm:
-            return externalUrl
+        switch viewTypes[indexPath.row] {
+        case .field(let vm) where tokenHolderHelper.wikiUrlViewModel == vm:
+            return tokenHolderHelper.wikiUrlViewModel?.value.flatMap { URL(string: $0) }
+        case .field(let vm) where tokenHolderHelper.instagramUsernameViewModel == vm:
+            return tokenHolderHelper.instagramUsernameViewModel?.value.flatMap { SocialNetworkUrlProvider.resolveUrl(for: $0, urlProvider: .instagram) }
+        case .field(let vm) where tokenHolderHelper.twitterUsernameViewModel == vm:
+            return tokenHolderHelper.twitterUsernameViewModel?.value.flatMap { SocialNetworkUrlProvider.resolveUrl(for: $0, urlProvider: .twitter) }
+        case .field(let vm) where tokenHolderHelper.discordUrlViewModel == vm:
+            return tokenHolderHelper.discordUrlViewModel?.value.flatMap { SocialNetworkUrlProvider.resolveUrl(for: $0, urlProvider: .discord) }
+        case .field(let vm) where tokenHolderHelper.telegramUrlViewModel == vm:
+            return tokenHolderHelper.telegramUrlViewModel?.value.flatMap { SocialNetworkUrlProvider.resolveUrl(for: $0, urlProvider: .telegram) }
+        case .field(let vm) where tokenHolderHelper.externalUrlViewModel == vm:
+            return tokenHolderHelper.externalUrlViewModel?.value.flatMap { URL(string: $0) }
         case .header, .field:
             return .none
         }
+    }
+}
+
+extension NFTCollectionInfoPageViewModel {
+    enum ViewType {
+        case field(viewModel: TokenAttributeViewModel)
+        case header(viewModel: TokenInfoHeaderViewModel)
+    }
+
+    struct ViewState {
+        let previewViewType: NFTPreviewViewType
+        let previewViewParams: NFTPreviewViewType.Params
+        let previewViewContentBackgroundColor: UIColor
+        let viewTypes: [NFTCollectionInfoPageViewModel.ViewType]
     }
 }

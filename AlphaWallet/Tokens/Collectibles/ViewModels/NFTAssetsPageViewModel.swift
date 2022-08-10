@@ -116,10 +116,10 @@ class NFTAssetsPageViewModel: NFTAssetsPageViewModelType {
     }
 
     func transform(input: NFTAssetsPageViewModelInput) -> NFTAssetsPageViewModelOutput {
-        let filterWhenAppear = input.appear.map { _ in self.searchFilterSubject.value }
+        let filterWhenAppear = input.appear.map { [searchFilterSubject] _ in searchFilterSubject.value }
 
         let sections = Publishers.CombineLatest(tokenHolders, filterWhenAppear.merge(with: searchFilterSubject))
-            .map { tokenHolders, filter in self.filter(filter, tokenHolders: tokenHolders) }
+            .compactMap { [weak self] tokenHolders, filter in self?.filter(filter, tokenHolders: tokenHolders) }
             .map { [SectionViewModel(section: .assets, views: $0)] }
 
         let viewState = sections

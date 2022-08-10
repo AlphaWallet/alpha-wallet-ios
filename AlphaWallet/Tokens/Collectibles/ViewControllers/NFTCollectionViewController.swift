@@ -19,8 +19,7 @@ protocol NFTCollectionViewControllerDelegate: class, CanOpenURL {
 }
 
 class NFTCollectionViewController: UIViewController {
-    private (set) var viewModel: NFTCollectionViewModel
-    private let openSea: OpenSea
+    let viewModel: NFTCollectionViewModel
     private let session: WalletSession
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: NonActivityEventsDataStore
@@ -32,11 +31,8 @@ class NFTCollectionViewController: UIViewController {
         return buttonsBar
     }()
 
-    private let tokenScriptFileStatusHandler: XMLHandler
-
     private lazy var collectionInfoPageView: NFTCollectionInfoPageView = {
-        let viewModel: NFTCollectionInfoPageViewModel = .init(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, wallet: session.account)
-        let view = NFTCollectionInfoPageView(viewModel: viewModel, openSea: openSea, keystore: keystore, session: session, assetDefinitionStore: assetDefinitionStore, analytics: analytics)
+        let view = NFTCollectionInfoPageView(viewModel: viewModel.infoPageViewModel, keystore: keystore, session: session, assetDefinitionStore: assetDefinitionStore, analytics: analytics)
         view.delegate = self
 
         return view
@@ -44,18 +40,18 @@ class NFTCollectionViewController: UIViewController {
 
     private lazy var activitiesPageView: ActivitiesPageView = {
         let viewModel: ActivityPageViewModel = .init(activitiesViewModel: .init())
-        let view = ActivitiesPageView(analytics: analytics, keystore: keystore, wallet: session.account, viewModel: viewModel, sessions: activitiesService.sessions, assetDefinitionStore: assetDefinitionStore)
+        let view = ActivitiesPageView(analytics: analytics, keystore: keystore, wallet: self.viewModel.wallet, viewModel: viewModel, sessions: self.viewModel.activitiesService.sessions, assetDefinitionStore: assetDefinitionStore)
         view.delegate = self
 
         return view
     }()
-    private let tokenHoldersSubject = CurrentValueSubject<[TokenHolder], Never>([])
+    private let appear = PassthroughSubject<Void, Never>()
+    private let _pullToRefresh = PassthroughSubject<Void, Never>()
+
     private lazy var nftAssetsPageView: NFTAssetsPageView = {
         let tokenCardViewFactory = TokenCardViewFactory(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, analytics: analytics, keystore: keystore, wallet: viewModel.wallet)
 
-        let viewModel: NFTAssetsPageViewModel = .init(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, tokenHolders: tokenHoldersSubject.eraseToAnyPublisher(), selection: .list)
-
-        let view = NFTAssetsPageView(tokenCardViewFactory: tokenCardViewFactory, viewModel: viewModel)
+        let view = NFTAssetsPageView(tokenCardViewFactory: tokenCardViewFactory, viewModel: viewModel.nftAssetsPageViewModel)
         view.delegate = self
         view.searchBar.delegate = self
         view.collectionView.refreshControl = refreshControl
@@ -66,21 +62,17 @@ class NFTCollectionViewController: UIViewController {
     private lazy var keyboardChecker: KeyboardChecker = {
         return KeyboardChecker(self, resetHeightDefaultValue: 0, ignoreBottomSafeArea: true)
     }()
-    private let activitiesService: ActivitiesServiceType
     private let keystore: Keystore
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable = Set<AnyCancellable>()
 
     weak var delegate: NFTCollectionViewControllerDelegate?
 
-    init(keystore: Keystore, session: WalletSession, assetDefinition: AssetDefinitionStore, analytics: AnalyticsLogger, viewModel: NFTCollectionViewModel, openSea: OpenSea, activitiesService: ActivitiesServiceType, eventsDataStore: NonActivityEventsDataStore) {
+    init(keystore: Keystore, session: WalletSession, assetDefinition: AssetDefinitionStore, analytics: AnalyticsLogger, viewModel: NFTCollectionViewModel, eventsDataStore: NonActivityEventsDataStore) {
         self.viewModel = viewModel
-        self.openSea = openSea
         self.session = session
-        self.tokenScriptFileStatusHandler = XMLHandler(token: viewModel.token, assetDefinitionStore: assetDefinition)
         self.assetDefinitionStore = assetDefinition
         self.eventsDataStore = eventsDataStore
         self.analytics = analytics
-        self.activitiesService = activitiesService
         self.keystore = keystore
 
         super.init(nibName: nil, bundle: nil)
@@ -103,23 +95,16 @@ class NFTCollectionViewController: UIViewController {
     }
 
     private func configure(nftAssetsPageView: NFTAssetsPageView, viewModel: NFTCollectionViewModel) {
-        switch viewModel.token.type {
-        case .erc1155:
+        switch viewModel.rightBarButtonItem {
+        case .none:
+            nftAssetsPageView.rightBarButtonItem = .none
+        case .assetSelection(let isEnabled):
             nftAssetsPageView.rightBarButtonItem = UIBarButtonItem.selectBarButton(self, selector: #selector(assetSelectionSelected))
-
-            switch session.account.type {
-            case .real:
-                nftAssetsPageView.rightBarButtonItem?.isEnabled = true
-            case .watch:
-                nftAssetsPageView.rightBarButtonItem?.isEnabled = Config().development.shouldPretendIsRealWallet
-            }
-        case .erc721, .erc721ForTickets, .erc875:
-            let selection = nftAssetsPageView.viewModel.selection.inverted
+            nftAssetsPageView.rightBarButtonItem?.isEnabled = isEnabled
+        case .assetsDisplayType(let selection):
             let buttonItem = UIBarButtonItem.switchGridToListViewBarButton(selection: selection, self, selector: #selector(assetsDisplayTypeSelected))
 
             nftAssetsPageView.rightBarButtonItem = buttonItem
-        case .erc20, .nativeCryptocurrency:
-            nftAssetsPageView.rightBarButtonItem = .none
         }
     }
 
@@ -127,11 +112,16 @@ class NFTCollectionViewController: UIViewController {
         return nil
     }
 
+    deinit {
+        nftAssetsPageView.resetStatefulStateToReleaseObjectToAvoidMemoryLeak()
+    }
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
         hideNavigationBarTopSeparatorLine()
         nftAssetsPageView.viewWillAppear()
+        appear.send(())
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -154,50 +144,56 @@ class NFTCollectionViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        configure(viewModel: viewModel)
-        refreshControl.addTarget(self, action: #selector(didPullToRefresh), for: .valueChanged)
-
-        collectionInfoPageView.viewDidLoad()
-
-        subscribeForActivities()
+        bind(viewModel: viewModel)
+        refreshControl.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
     }
 
-    @objc private func didPullToRefresh(_ sender: UIRefreshControl) {
-        viewModel.invalidateTokenHolders()
-        configure()
-        sender.endRefreshing()
+    @objc private func pullToRefresh(_ sender: UIRefreshControl) {
+        _pullToRefresh.send(())
     }
 
-    func configure(viewModel value: NFTCollectionViewModel? = .none) {
-        if let viewModel = value {
-            self.viewModel = viewModel
-        }
-
+    private func bind(viewModel: NFTCollectionViewModel) {
         view.backgroundColor = viewModel.backgroundColor
-        title = viewModel.navigationTitle
-        updateNavigationRightBarButtons(tokenScriptFileStatusHandler: tokenScriptFileStatusHandler)
 
-        collectionInfoPageView.configure(viewModel: .init(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, wallet: session.account))
-        //FIXME: will be replaced later
-        tokenHoldersSubject.send(viewModel.tokenHolders)
+        updateNavigationRightBarButtons(tokenScriptFileStatusHandler: viewModel.tokenScriptFileStatusHandler)
 
-        if viewModel.openInUrl != nil {
+        let input = NFTCollectionViewModelInput(
+            appear: appear.eraseToAnyPublisher(),
+            pullToRefresh: _pullToRefresh.eraseToAnyPublisher())
+
+        let output = viewModel.transform(input: input)
+
+        output.viewState.sink { [weak self] state in
+            self?.title = state.navigationTitle
+            self?.buildBarButtons(from: state.actions)
+        }.store(in: &cancellable)
+
+        output.activities.sink { [weak activitiesPageView] viewModel in
+            activitiesPageView?.configure(viewModel: viewModel)
+        }.store(in: &cancellable)
+
+        output.pullToRefreshState.sink { [refreshControl] state in
+            switch state {
+            case .idle:
+                break
+            case .endLoading:
+                refreshControl.endRefreshing()
+            case .beginLoading:
+                refreshControl.beginRefreshing()
+            }
+        }.store(in: &cancellable)
+    }
+
+    //NOTE: there is only one possible action for now
+    private func buildBarButtons(from actions: [NFTCollectionViewModel.NonFungibleTokenAction]) {
+        if actions.isEmpty {
+            buttonsBar.configure(.empty)
+        } else {
             buttonsBar.configure(.secondary(buttons: 1))
             let button = buttonsBar.buttons[0]
             button.setTitle(R.string.localizable.openOnOpenSea(), for: .normal)
             button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
-        } else {
-            buttonsBar.configure(.empty)
         }
-    }
-
-    private func subscribeForActivities() {
-        activitiesService.start()
-        activitiesService.activitiesPublisher
-            .receive(on: RunLoop.main)
-            .sink { [weak activitiesPageView] activities in
-                activitiesPageView?.configure(viewModel: .init(activitiesViewModel: .init(activities: activities)))
-            }.store(in: &cancelable)
     }
 
     private func updateNavigationRightBarButtons(tokenScriptFileStatusHandler xmlHandler: XMLHandler) {
@@ -289,4 +285,3 @@ extension NFTCollectionViewController: NFTAssetsPageViewDelegate {
         delegate?.didSelectTokenHolder(in: self, didSelectTokenHolder: tokenHolder)
     }
 }
-

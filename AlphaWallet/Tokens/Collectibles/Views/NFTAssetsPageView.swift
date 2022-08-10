@@ -162,7 +162,14 @@ class NFTAssetsPageView: UIView, PageViewType {
 
     @objc func doneButtonTapped() {
         endEditing(true)
-    } 
+    }
+
+    func resetStatefulStateToReleaseObjectToAvoidMemoryLeak() {
+        // NOTE: Stateful lib set to object state machine that later causes ref cycle when applying it to view
+        // here we release all associated objects to release state machine
+        // this method callget get called while parent's view deinit get called
+        objc_removeAssociatedObjects(self)
+    }
 }
 
 extension NFTAssetsPageView: StatefulViewController {
