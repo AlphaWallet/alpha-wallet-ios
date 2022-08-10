@@ -15,6 +15,7 @@ class TokensCoordinatorTests: XCTestCase {
         sessions[.main] = WalletSession.make()
         let config: Config = .make()
         let tokenActionsService = FakeSwapTokenService()
+        let dep = WalletDataProcessingPipeline.make(wallet: .make(), server: .main)
 
         let coordinator = TokensCoordinator(
             navigationController: FakeNavigationController(),
@@ -31,10 +32,11 @@ class TokensCoordinatorTests: XCTestCase {
             coinTickersFetcher: CoinGeckoTickersFetcher.make(),
             activitiesService: FakeActivitiesService(),
             walletBalanceService: FakeMultiWalletBalanceService(),
-            tokenCollection: MultipleChainsTokenCollection.fake(),
-            importToken: FakeImportToken(),
+            tokenCollection: dep.pipeline,
+            importToken: dep.importToken,
             blockiesGenerator: .make(),
-            domainResolutionService: FakeDomainResolutionService()
+            domainResolutionService: FakeDomainResolutionService(),
+            tokensFilter: .make()
         )
         coordinator.start()
 
@@ -45,7 +47,7 @@ class TokensCoordinatorTests: XCTestCase {
 class FakeImportToken: ImportToken {
     convenience init() {
         let analytics = FakeAnalyticsService()
-        self.init(sessions: .init(.make()), wallet: .make(), tokensDataStore: FakeTokensDataStore(), assetDefinitionStore: .init(), analytics: analytics)
+        self.init(sessionProvider: FakeSessionsProvider(servers: [.main]), wallet: .make(), tokensDataStore: FakeTokensDataStore(), assetDefinitionStore: .init(), analytics: analytics)
     }
         //Adding a token may fail if we lose connectivity while fetching the contract details (e.g. name and balance). So we remove the contract from the hidden list (if it was there) so that the app has the chance to add it automatically upon auto detection at startup
     override func importToken(for contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool = false) -> Promise<Token> {

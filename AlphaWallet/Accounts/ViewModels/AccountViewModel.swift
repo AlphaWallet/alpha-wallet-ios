@@ -13,23 +13,15 @@ class AccountViewModel {
     private let current: Wallet?
 
     lazy var apprecation24hour: AnyPublisher<NSAttributedString, Never> = {
-        let initialApprecation24hour = apprecation24hourAttributedString(walletBalanceService.walletBalance(wallet: wallet))
-
         return walletBalanceService
-            .walletBalancePublisher(wallet: wallet)
+            .walletBalance(for: wallet)
             .compactMap { [weak self] in self?.apprecation24hourAttributedString($0) }
-            .receive(on: RunLoop.main)
-            .prepend(initialApprecation24hour)
             .eraseToAnyPublisher()
     }()
 
     lazy var balance: AnyPublisher<NSAttributedString, Never> = {
-        let initialBalance = balanceAttributedString(walletBalanceService.walletBalance(wallet: wallet).totalAmountString)
-
-        return walletBalanceService.walletBalancePublisher(wallet: wallet)
+        return walletBalanceService.walletBalance(for: wallet)
             .compactMap { [weak self] in self?.balanceAttributedString($0.totalAmountString) }
-            .receive(on: RunLoop.main)
-            .prepend(initialBalance)
             .eraseToAnyPublisher()
     }()
 

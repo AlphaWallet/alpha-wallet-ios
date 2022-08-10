@@ -171,4 +171,15 @@ extension EthTokenViewCellViewModel: Hashable {
             lhs.token.valueDecimal == rhs.token.valueDecimal &&
             lhs.token.balance.ticker == rhs.token.balance.ticker
     }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(isVisible)
+        hasher.combine(accessoryType)
+        hasher.combine(token.contractAddress)
+        hasher.combine(token.server)
+        hasher.combine(token.tokenScriptOverrides?.shortTitleInPluralForm)
+        hasher.combine(token.tokenScriptOverrides?.symbolInPluralForm)
+        hasher.combine(token.valueDecimal)
+        hasher.combine(token.balance.ticker)
+    }
 }

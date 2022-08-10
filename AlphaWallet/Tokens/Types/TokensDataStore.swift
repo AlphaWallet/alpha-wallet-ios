@@ -329,14 +329,10 @@ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
 
     func addEthToken(forServer server: RPCServer) {
         store.performSync { realm in
-            let tokenObjects = realm.objects(TokenObject.self)
-                .filter(MultipleChainsTokensDataStore.functional.nonEmptyContractTokenPredicate(server: server))
             let etherToken = MultipleChainsTokensDataStore.functional.etherTokenObject(forServer: server)
-
-            if !tokenObjects.contains(where: { $0 == etherToken }) {
-                try? realm.safeWrite {
-                    self.addTokenWithoutCommitWrite(tokenObject: etherToken, realm: realm)
-                }
+            guard realm.object(ofType: TokenObject.self, forPrimaryKey: etherToken.primaryKey) == nil else { return }
+            try? realm.safeWrite {
+                self.addTokenWithoutCommitWrite(tokenObject: etherToken, realm: realm)
             }
         }
     }

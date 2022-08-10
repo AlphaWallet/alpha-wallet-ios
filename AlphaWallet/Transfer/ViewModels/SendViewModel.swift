@@ -6,11 +6,12 @@ import BigInt
 
 struct SendViewModel {
     private let session: WalletSession
-
+    private let service: TokenViewModelState
     let transactionType: TransactionType
 
-    init(transactionType: TransactionType, session: WalletSession) {
+    init(transactionType: TransactionType, session: WalletSession, service: TokenViewModelState) {
         self.transactionType = transactionType
+        self.service = service
         self.session = session 
     }
 
@@ -52,13 +53,14 @@ struct SendViewModel {
     var selectCurrencyButtonHidden: Bool {
         switch transactionType {
         case .nativeCryptocurrency:
-            guard let ticker = session.tokenBalanceService.coinTicker(transactionType.addressAndRPCServer), ticker.price_usd > 0 else {
+            let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: transactionType.server)
+            guard let ticker = service.tokenViewModel(for: etherToken)?.balance.ticker, ticker.price_usd > 0 else {
                 return true
             }
             return false
         case .erc20Token, .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return true
-        }
+        } 
     }
 
     var currencyButtonHidden: Bool {
@@ -73,11 +75,12 @@ struct SendViewModel {
     var availableLabelText: String? {
         switch transactionType {
         case .nativeCryptocurrency:
-            return session.tokenBalanceService.ethBalanceViewModel
-                .flatMap { return R.string.localizable.sendAvailable($0.amountShort) }
+            let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: transactionType.server)
+            return service.tokenViewModel(for: etherToken)
+                .flatMap { return R.string.localizable.sendAvailable($0.balance.amountShort) }
         case .erc20Token(let token, _, _):
-            return session.tokenBalanceService.tokenBalance(token.addressAndRPCServer)
-                .flatMap { R.string.localizable.sendAvailable("\($0.amountShort) \(transactionType.symbol)") }
+            return service.tokenViewModel(for: token)
+                .flatMap { R.string.localizable.sendAvailable("\($0.balance.amountShort) \(transactionType.symbol)") }
         case .dapp, .erc721ForTicketToken, .erc721Token, .erc875Token, .erc875TokenOrder, .erc1155Token, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             break
         }
@@ -90,7 +93,7 @@ struct SendViewModel {
         case .nativeCryptocurrency:
             return false
         case .erc20Token(let token, _, _):
-            return session.tokenBalanceService.tokenBalance(token.addressAndRPCServer) == nil
+            return service.tokenViewModel(for: token)?.balance == nil
         case .dapp, .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .erc875TokenOrder, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             break
         }
@@ -109,13 +112,14 @@ struct SendViewModel {
     var allFundsFormattedValues: (allFundsFullValue: NSDecimalNumber?, allFundsShortValue: String)? {
         switch transactionType {
         case .nativeCryptocurrency:
-            guard let balance = session.tokenBalanceService.ethBalanceViewModel else { return nil }
+            let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: transactionType.server)
+            guard let balance = service.tokenViewModel(for: etherToken)?.balance else { return nil }
             let fullValue = EtherNumberFormatter.plain.string(from: balance.value, units: .ether).droppedTrailingZeros
             let shortValue = EtherNumberFormatter.shortPlain.string(from: balance.value, units: .ether).droppedTrailingZeros
 
             return (fullValue.optionalDecimalValue, shortValue)
         case .erc20Token(let token, _, _):
-            guard let balance = session.tokenBalanceService.tokenBalance(token.addressAndRPCServer) else { return nil }
+            guard let balance = service.tokenViewModel(for: token)?.balance else { return nil }
             let fullValue = EtherNumberFormatter.plain.string(from: balance.value, decimals: token.decimals).droppedTrailingZeros
             let shortValue = EtherNumberFormatter.shortPlain.string(from: balance.value, decimals: token.decimals).droppedTrailingZeros
 
@@ -151,11 +155,12 @@ struct SendViewModel {
 
         switch transactionType {
         case .nativeCryptocurrency:
-            if let viewModel = session.tokenBalanceService.ethBalanceViewModel, viewModel.value < value {
+            let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: transactionType.server)
+            if let balance = service.tokenViewModel(for: etherToken)?.balance, balance.value < value {
                 return nil
             }
         case .erc20Token(let token, _, _):
-            if let viewModel = session.tokenBalanceService.tokenBalance(token.addressAndRPCServer), viewModel.value < value {
+            if let balance = service.tokenViewModel(for: token)?.balance, balance.value < value {
                 return nil
             }
         case .dapp, .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .erc875TokenOrder, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:

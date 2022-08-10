@@ -34,7 +34,7 @@ class WalletApiService: NSObject, Coordinator {
         }
     }
 
-    private let sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>
+    private let serviceProvider: SessionsProvider
     private let navigationController: UINavigationController
     private let keystore: Keystore
     private let analytics: AnalyticsLogger
@@ -42,8 +42,8 @@ class WalletApiService: NSObject, Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: WalletApiServiceDelegate?
 
-    init(keystore: Keystore, navigationController: UINavigationController, analytics: AnalyticsLogger, sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>) {
-        self.sessionsSubject = sessionsSubject
+    init(keystore: Keystore, navigationController: UINavigationController, analytics: AnalyticsLogger, serviceProvider: SessionsProvider) {
+        self.serviceProvider = serviceProvider
         self.keystore = keystore
         self.navigationController = navigationController
         self.analytics = analytics
@@ -60,7 +60,7 @@ class WalletApiService: NSObject, Coordinator {
     }
 
     private var wallet: Wallet {
-        return sessionsSubject.value.anyValue.account
+        return serviceProvider.activeSessions.anyValue.account
     }
 
     private func isActiveWallet(address: AlphaWallet.Address) -> Bool {

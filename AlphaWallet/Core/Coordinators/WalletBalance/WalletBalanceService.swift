@@ -7,13 +7,7 @@
 
 import UIKit
 import BigInt
-import PromiseKit
 import Combine
-
-protocol CoinTickerProvider: AnyObject {
-    func coinTicker(_ addressAndRPCServer: AddressAndRPCServer) -> CoinTicker?
-    func fetchChartHistories(for token: Token, force: Bool, periods: [ChartHistoryPeriod]) -> AnyPublisher<[ChartHistory], Never>
-}
 
 protocol TokenBalanceProviderTests {
     func setNftBalanceTestsOnly(_ value: NonFungibleBalance, forToken token: Token, wallet: Wallet)
@@ -22,201 +16,82 @@ protocol TokenBalanceProviderTests {
     func addOrUpdateTokenTestsOnly(token: Token, wallet: Wallet)
 }
 
-protocol TokenBalanceProvider: AnyObject, TokenBalanceProviderTests {
-    func tokenBalance(_ key: AddressAndRPCServer, wallet: Wallet) -> BalanceViewModel?
-    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer, wallet: Wallet) -> AnyPublisher<BalanceViewModel?, Never>
-    func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, wallets: [Wallet])
+protocol WalletBalanceService {
+    var walletsSummary: AnyPublisher<WalletSummary, Never> { get }
+
+    func walletBalance(for wallet: Wallet) -> AnyPublisher<WalletBalance, Never>
+    func refreshBalance(updatePolicy: TokenBalanceFetcher.RefreshBalancePolicy, wallets: [Wallet])
 }
 
-protocol WalletBalanceService: TokenBalanceProvider, CoinTickerProvider {
-    var walletsSummaryPublisher: AnyPublisher<WalletSummary, Never> { get }
-
-    func walletBalancePublisher(wallet: Wallet) -> AnyPublisher<WalletBalance, Never>
-    func walletBalance(wallet: Wallet) -> WalletBalance
-}
-
-class MultiWalletBalanceService: NSObject, WalletBalanceService {
-    private let keystore: Keystore
-    private let config: Config
-    private let analytics: AnalyticsLogger
-    let assetDefinitionStore: AssetDefinitionStore
-    var coinTickersFetcher: CoinTickersFetcher
-    private var balanceFetchers: AtomicDictionary<Wallet, WalletBalanceFetcherType> = .init()
-    private lazy var walletsSummarySubject: CurrentValueSubject<WalletSummary, Never> = {
-        let balances = balanceFetchers.values.map { $0.value.balance }
-        let summary = WalletSummary(balances: balances)
-        return .init(summary)
-    }()
-    private let queue: DispatchQueue = DispatchQueue(label: "org.alphawallet.swift.walletBalance")
+class MultiWalletBalanceService: WalletBalanceService {
     private let walletAddressesStore: WalletAddressesStore
     private var cancelable = Set<AnyCancellable>()
-    private lazy var nftProvider: NFTProvider = AlphaWalletNFTProvider(analytics: analytics, queue: queue)
+    private let fetchers = CurrentValueSubject<[Wallet: WalletBalanceFetcherType], Never>([:])
+    private let dependencyContainer: WalletDependencyContainer
+    private let walletsSummarySubject = CurrentValueSubject<WalletSummary, Never>(WalletSummary(balances: []))
 
-    var walletsSummaryPublisher: AnyPublisher<WalletSummary, Never> {
+    var walletsSummary: AnyPublisher<WalletSummary, Never> {
         return walletsSummarySubject
-            .receive(on: RunLoop.main)
-            .prepend(walletsSummary)
             .removeDuplicates()
             .eraseToAnyPublisher()
     }
 
-    private var walletsSummary: WalletSummary {
-        let balances = balanceFetchers.values.map { $0.value.balance }
-        return WalletSummary(balances: balances)
-    }
-    private let store: LocalStore
-
-    init(store: LocalStore, keystore: Keystore, config: Config, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger, coinTickersFetcher: CoinTickersFetcher, walletAddressesStore: WalletAddressesStore) {
-        self.store = store
-        self.keystore = keystore
-        self.config = config
-        self.analytics = analytics
-        self.assetDefinitionStore = assetDefinitionStore
-        self.coinTickersFetcher = coinTickersFetcher
+    init(walletAddressesStore: WalletAddressesStore, dependencyContainer: WalletDependencyContainer) {
         self.walletAddressesStore = walletAddressesStore
-        super.init()
+        self.dependencyContainer = dependencyContainer
+    }
 
-        walletAddressesStore.walletsPublisher
-            .sink { [weak self] wallets in
-                assert(Thread.isMainThread)
-
-                guard let strongSelf = self else { return }
+    func start() {
+        walletAddressesStore
+            .walletsPublisher
+            .map { [dependencyContainer, weak self] wallets -> [Wallet: WalletBalanceFetcherType] in
+                guard let strongSelf = self else { return [:] }
+                var fetchers: [Wallet: WalletBalanceFetcherType] = [:]
 
                 for wallet in wallets {
-                    strongSelf.getOrCreateBalanceFetcher(for: wallet)
+                    if let fetcher = strongSelf.fetchers.value[wallet] {
+                        fetchers[wallet] = fetcher
+                    } else {
+                        let dep = dependencyContainer.makeDependencies(for: wallet)
+                        dep.sessionsProvider.start(wallet: wallet)
+                        dep.fetcher.start()
+                        dep.pipeline.start()
+
+                        fetchers[wallet] = dep.fetcher
+                    }
                 }
-                strongSelf.removeBalanceFetcher(wallets: wallets)
 
-                strongSelf.notifyWalletsSummary()
-            }.store(in: &cancelable)
-
-        subscribeForServerUpdates()
-    }
-
-    private func subscribeForServerUpdates() {
-        config.enabledServersPublisher
-            .receive(on: RunLoop.main)
-            .sink { [weak self] servers in
+                return fetchers
+            }.sink { [weak self, dependencyContainer] newFetchers in
                 guard let strongSelf = self else { return }
 
-                for wallet in strongSelf.walletAddressesStore.wallets {
-                    let fetcher = strongSelf.getOrCreateBalanceFetcher(for: wallet)
-                    fetcher.update(servers: servers)
+                let fetchersToDelete = strongSelf.fetchers.value.keys.filter({ !newFetchers.keys.contains($0) })
+                for wallet in fetchersToDelete {
+                    dependencyContainer.destroy(for: wallet)
                 }
+
+                strongSelf.fetchers.send(newFetchers)
             }.store(in: &cancelable)
-    }
 
-    private func removeBalanceFetcher(wallets: Set<Wallet>) {
-        //NOTE: we need to remove all balance fetcher for deleted wallets
-        let fetchersToDelete = balanceFetchers.values.filter { !wallets.contains($0.key) }
-        for value in fetchersToDelete {
-            balanceFetchers.removeValue(forKey: value.key)
-        }
-    }
-
-    func tokenBalance(_ key: AddressAndRPCServer, wallet: Wallet) -> BalanceViewModel? {
-        return getOrCreateBalanceFetcher(for: wallet)
-            .tokenBalance(key)
-    }
-
-    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer, wallet: Wallet) -> AnyPublisher<BalanceViewModel?, Never> {
-        return getOrCreateBalanceFetcher(for: wallet)
-            .tokenBalancePublisher(addressAndRPCServer)
-    }
-
-    @discardableResult private func getOrCreateBalanceFetcher(for wallet: Wallet) -> WalletBalanceFetcherType {
-        if let fether = balanceFetchers[wallet] {
-            return fether
-        } else {
-            let fether = createWalletBalanceFetcher(wallet: wallet)
-            fether.start()
-
-            balanceFetchers[wallet] = fether
-
-            return fether
-        }
-    }
-
-    func coinTicker(_ addressAndRPCServer: AddressAndRPCServer) -> CoinTicker? {
-        return coinTickersFetcher.ticker(for: addressAndRPCServer)
+        fetchers.map { $0.values }
+            .flatMapLatest { $0.map { $0.walletBalance }.combineLatest }
+            .map { WalletSummary(balances: $0) }
+            .assign(to: \.value, on: walletsSummarySubject)
+            .store(in: &cancelable)
     }
 
     ///Refreshes available wallets balances
-    func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, wallets: [Wallet]) {
+    func refreshBalance(updatePolicy: TokenBalanceFetcher.RefreshBalancePolicy, wallets: [Wallet]) {
         for wallet in wallets {
-            getOrCreateBalanceFetcher(for: wallet)
-                .refreshBalance(updatePolicy: updatePolicy)
+            guard let fetcher = fetchers.value[wallet] else { continue }
+            fetcher.refreshBalance(updatePolicy: updatePolicy)
         }
     }
 
-    func fetchChartHistories(for token: Token, force: Bool, periods: [ChartHistoryPeriod]) -> AnyPublisher<[ChartHistory], Never> {
-        return coinTickersFetcher.fetchChartHistories(for: .init(token: token), force: force, periods: periods)
-    }
-
-    /// NOTE: internal for test purposes
-    func createWalletBalanceFetcher(wallet: Wallet) -> WalletBalanceFetcherType {
-        let tokensDataStore: TokensDataStore = MultipleChainsTokensDataStore(store: store.getOrCreateStore(forWallet: wallet), servers: config.enabledServers)
-        let transactionsStorage = TransactionDataStore(store: store.getOrCreateStore(forWallet: wallet))
-        let fetcher = WalletBalanceFetcher(wallet: wallet, servers: config.enabledServers, tokensDataStore: tokensDataStore, transactionsStorage: transactionsStorage, nftProvider: nftProvider, config: config, assetDefinitionStore: assetDefinitionStore, analytics: analytics, queue: queue, coinTickersFetcher: coinTickersFetcher)
-        fetcher.delegate = self
-
-        return fetcher
-    }
-
-    func walletBalancePublisher(wallet: Wallet) -> AnyPublisher<WalletBalance, Never> {
-        return getOrCreateBalanceFetcher(for: wallet)
-            .walletBalancePublisher
-    }
-
-    func walletBalance(wallet: Wallet) -> WalletBalance {
-        return getOrCreateBalanceFetcher(for: wallet)
-            .walletBalance
-    }
-
-    private func notifyWalletsSummary() {
-        queue.async {
-            let balances = self.balanceFetchers.values.map { $0.value.balance }
-            self.walletsSummarySubject.value = WalletSummary(balances: balances)
-        }
-    }
-}
-
-extension MultiWalletBalanceService {
-    func triggerUpdateBalanceSubjectTestsOnly(wallet: Wallet) {
-        getOrCreateBalanceFetcher(for: wallet)
-            .triggerUpdateBalanceSubjectTestsOnly()
-    }
-
-    func setBalanceTestsOnly(_ value: BigInt, forToken token: Token, wallet: Wallet) {
-        getOrCreateBalanceFetcher(for: wallet)
-            .setBalanceTestsOnly(value, forToken: token)
-    }
-
-    func setNftBalanceTestsOnly(_ value: NonFungibleBalance, forToken token: Token, wallet: Wallet) {
-        getOrCreateBalanceFetcher(for: wallet)
-            .setNftBalanceTestsOnly(value, forToken: token)
-    }
-
-    func deleteTokenTestsOnly(token: Token, wallet: Wallet) {
-        getOrCreateBalanceFetcher(for: wallet)
-            .deleteTokenTestsOnly(token: token)
-    }
-
-    func addOrUpdateTokenTestsOnly(token: Token, wallet: Wallet) {
-        getOrCreateBalanceFetcher(for: wallet)
-            .addOrUpdateTokenTestsOnly(token: token)
-    }
-}
-
-extension MultiWalletBalanceService: WalletBalanceFetcherDelegate {
-
-    func didUpdate(in fetcher: WalletBalanceFetcherType) {
-        notifyWalletsSummary()
-    }
-}
-
-extension Wallet: Hashable {
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(address.eip55String)
+    func walletBalance(for wallet: Wallet) -> AnyPublisher<WalletBalance, Never> {
+        return Just(wallet).combineLatest(fetchers)
+            .compactMap { wallet, fetchers in fetchers[wallet] }
+            .flatMapLatest { $0.walletBalance }
+            .eraseToAnyPublisher()
     }
 }

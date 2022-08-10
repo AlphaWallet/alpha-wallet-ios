@@ -113,6 +113,78 @@ public struct FileStorage: StorageType {
     }
 }
 
+public class InMemoryStorage: StorageType {
+    public var fileExtension: String = "data"
+    private let serialQueue: DispatchQueue = DispatchQueue(label: "org.alphawallet.swift.file")
+    private var data: [URL: Data] = [:]
+    public var directoryUrl: URL = {
+        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+        return paths[0]
+    }()
+
+    public init() {
+
+    }
+
+    public func dataExists(forKey key: String) -> Bool {
+        let url = fileURL(with: key, fileExtension: fileExtension)
+        return data[url] != nil
+    }
+
+    public func data(forKey key: String) -> Data? {
+        let url = fileURL(with: key, fileExtension: fileExtension)
+        var data: Data?
+
+        dispatchPrecondition(condition: .notOnQueue(serialQueue))
+        serialQueue.sync {
+            data = self.data[url]
+        }
+
+        return data
+    }
+
+    public func setData(_ data: Data, forKey key: String) -> Bool {
+        var url = fileURL(with: key, fileExtension: fileExtension)
+        var result: Bool = false
+
+        dispatchPrecondition(condition: .notOnQueue(serialQueue))
+        serialQueue.sync {
+            self.data[url] = data
+        }
+
+        return result
+    }
+
+    public func deleteEntry(forKey key: String) -> Bool {
+        let url = fileURL(with: key, fileExtension: fileExtension)
+        var result: Bool = false
+
+        dispatchPrecondition(condition: .notOnQueue(serialQueue))
+        serialQueue.sync {
+            do {
+                try FileManager.default.removeItem(at: url)
+                result = true
+            } catch {
+                result = false
+            }
+        }
+
+        return result
+    }
+
+    private func fileURL(with key: String, fileExtension: String = "data") -> URL {
+        return directoryUrl.appendingPathComponent("\(key).\(fileExtension)", isDirectory: false)
+    }
+}
+
+public extension InMemoryStorage {
+    convenience init(fileExtension: String = "data", directoryUrl: URL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]) {
+        self.init()
+        self.fileExtension = fileExtension
+        self.directoryUrl = directoryUrl
+    }
+}
+
 public extension FileStorage {
     init(fileExtension: String = "data", directoryUrl: URL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]) {
         self.fileExtension = fileExtension

@@ -13,7 +13,7 @@ class TransactionCoordinator: NSObject, Coordinator {
     private let sessions: ServerDictionary<WalletSession>
     private var cancelable = Set<AnyCancellable>()
     private var transactionsService: TransactionsService
-
+    private let service: TokenViewModelState
     lazy var rootViewController: TransactionsViewController = {
         return makeTransactionsController()
     }()
@@ -26,8 +26,10 @@ class TransactionCoordinator: NSObject, Coordinator {
         analytics: AnalyticsLogger,
         sessions: ServerDictionary<WalletSession>,
         navigationController: UINavigationController = .withOverridenBarAppearence(),
-        transactionsService: TransactionsService
+        transactionsService: TransactionsService,
+        service: TokenViewModelState
     ) {
+        self.service = service
         self.analytics = analytics
         self.sessions = sessions
         self.navigationController = navigationController
@@ -65,7 +67,7 @@ class TransactionCoordinator: NSObject, Coordinator {
     }
 
     private func showTransaction(_ transactionRow: TransactionRow, on navigationController: UINavigationController) {
-        let controller = TransactionViewController(analytics: analytics, session: sessions[transactionRow.server], transactionRow: transactionRow, delegate: self)
+        let controller = TransactionViewController(analytics: analytics, session: sessions[transactionRow.server], transactionRow: transactionRow, service: service, delegate: self)
         controller.hidesBottomBarWhenPushed = true
         controller.navigationItem.largeTitleDisplayMode = .never
 

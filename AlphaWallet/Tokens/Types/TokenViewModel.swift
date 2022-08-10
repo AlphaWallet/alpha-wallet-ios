@@ -31,8 +31,10 @@ struct TokenScriptOverrides {
     let xmlHandler: XMLHandler
 }
 
+extension TokenViewModel: BalanceRepresentable { }
+
 extension TokenScriptOverrides {
-    init(token: Token, assetDefinitionStore: AssetDefinitionStore, sessions: ServerDictionary<WalletSession>, eventsDataStore: NonActivityEventsDataStore) {
+    init(token: TokenScriptSupportable, assetDefinitionStore: AssetDefinitionStore, wallet: Wallet, eventsDataStore: NonActivityEventsDataStore) {
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         self.symbolInPluralForm = token.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
         self.title = token.title(withAssetDefinitionStore: assetDefinitionStore)
@@ -42,8 +44,8 @@ extension TokenScriptOverrides {
             self.shortTitleInPluralForm = token.shortTitleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
             self.titleInPluralForm = token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
         case .erc875, .erc1155, .erc721, .erc721ForTickets:
-            self.shortTitleInPluralForm = token.shortTitleInPluralForm(withAssetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: sessions.anyValue.account)
-            self.titleInPluralForm = token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: sessions.anyValue.account) ?? token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
+            self.shortTitleInPluralForm = token.shortTitleInPluralForm(withAssetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: wallet)
+            self.titleInPluralForm = token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: wallet) ?? token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
         }
 
         self.xmlHandler = xmlHandler

@@ -28,13 +28,14 @@ class SelectTokenViewModel: SelectTokenViewModelType {
     private var cancelable = Set<AnyCancellable>()
     private var selectedToken: TokenViewModel?
     private var filteredTokens: [TokenViewModel] = []
-
+    private let tokensFilter: TokensFilter
     var headerBackgroundColor: UIColor = Colors.appBackground
     var navigationTitle: String = R.string.localizable.assetsSelectAssetTitle()
     var backgroundColor: UIColor = Colors.appBackground
 
-    init(tokenCollection: TokenCollection, filter: WalletFilter) {
+    init(tokenCollection: TokenCollection, tokensFilter: TokensFilter, filter: WalletFilter) {
         self.tokenCollection = tokenCollection
+        self.tokensFilter = tokensFilter
         self.filter = filter
     }
 
@@ -54,17 +55,17 @@ class SelectTokenViewModel: SelectTokenViewModelType {
 
         input.appear.merge(with: input.fetch).sink { [tokenCollection, loadingState] _ in
             loadingState.send(.beginLoading)
-            tokenCollection.fetch()
+            tokenCollection.refresh()
         }.store(in: &cancelable)
 
-        let tokens = tokenCollection.tokens
-            .map { [tokenCollection, filter] tokens -> [TokenViewModel] in
-                let displayedTokens = tokenCollection.tokensFilter.filterTokens(tokens: tokens, filter: filter)
-                return tokenCollection.tokensFilter.sortDisplayedTokens(tokens: displayedTokens)
+        let tokens = tokenCollection.tokenViewModels
+            .map { [tokensFilter, filter] tokens -> [TokenViewModel] in
+                let displayedTokens = tokensFilter.filterTokens(tokens: tokens, filter: filter)
+                return tokensFilter.sortDisplayedTokens(tokens: displayedTokens)
             }.handleEvents(receiveOutput: { tokens in
                 self.filteredTokens = tokens
             }).map { tokens -> [ViewModelType] in
-                return tokens.map { token in
+                return tokens.map { token -> SelectTokenViewModel.ViewModelType in
                     let accessoryType = self.accessoryType(for: token)
                     switch token.type {
                     case .nativeCryptocurrency:

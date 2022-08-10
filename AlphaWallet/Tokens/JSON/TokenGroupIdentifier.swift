@@ -109,8 +109,6 @@ extension TokenViewModel: TokenGroupIdentifiable {
     }
 }
 
-extension TokenFilterable {}
-
 typealias TokenGroupDictionary = [String: TokenGroup]
 
 enum TokenGroup: String {
@@ -155,4 +153,9 @@ class TokenGroupIdentifier: TokenGroupIdentifierProtocol {
         return decodedTokenEntries[token.tokenGroupKey] ?? .assets
     }
 
+}
+
+protocol TokenGroupIdentifieble {
+    var isCollectibles: Bool { get }
+    var tokenGroupKey: String { get }
 }

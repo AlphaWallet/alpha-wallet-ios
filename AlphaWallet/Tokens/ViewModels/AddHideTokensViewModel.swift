@@ -22,7 +22,6 @@ class AddHideTokensViewModel: ObservableObject {
     private let config: Config
     private var cancelable = Set<AnyCancellable>()
     private let tokenCollection: TokenCollection
-    private let assetDefinitionStore: AssetDefinitionStore
 
     var sortTokensParam: SortTokensParam = .byField(field: .name, direction: .ascending) {
         didSet { filterTokens() }
@@ -39,16 +38,17 @@ class AddHideTokensViewModel: ObservableObject {
     var numberOfSections: Int {
         sections.count
     }
+    private let tokensFilter: TokensFilter
 
-    init(tokenCollection: TokenCollection, importToken: ImportToken, config: Config, assetDefinitionStore: AssetDefinitionStore) {
-        self.assetDefinitionStore = assetDefinitionStore
+    init(tokenCollection: TokenCollection, tokensFilter: TokensFilter, importToken: ImportToken, config: Config) {
         self.tokenCollection = tokenCollection
         self.importToken = importToken
         self.config = config
+        self.tokensFilter = tokensFilter
     }
 
     func viewDidLoad() {
-        tokenCollection.tokens
+        tokenCollection.tokenViewModels
             .first() //NOTE: out of current logic we load db snapshot, and not handling updates in changeset
             .sink { [weak self] tokens in
                 self?.tokens = tokens
@@ -177,7 +177,7 @@ class AddHideTokensViewModel: ObservableObject {
 
         switch token {
         case .walletToken(let token):
-            let viewModel = WalletTokenViewCellViewModel(token: token, assetDefinitionStore: assetDefinitionStore, isVisible: isVisible)
+            let viewModel = WalletTokenViewCellViewModel(token: token, isVisible: isVisible)
             return .walletToken(viewModel)
         case .popularToken(let token):
             let viewModel = PopularTokenViewCellViewModel(token: token, isVisible: isVisible)
@@ -211,7 +211,7 @@ class AddHideTokensViewModel: ObservableObject {
         displayedTokens.removeAll()
         hiddenTokens.removeAll()
 
-        let filteredTokens: [TokenViewModel] = tokenCollection.tokensFilter.filterTokens(tokens: tokens, filter: .keyword(searchText ?? ""))
+        let filteredTokens: [TokenViewModel] = tokensFilter.filterTokens(tokens: tokens, filter: .keyword(searchText ?? ""))
         for token in filteredTokens {
             if token.shouldDisplay {
                 displayedTokens.append(token)
@@ -219,8 +219,8 @@ class AddHideTokensViewModel: ObservableObject {
                 hiddenTokens.append(token)
             }
         }
-        popularTokens = tokenCollection.tokensFilter.filterTokens(tokens: allPopularTokens, walletTokens: tokens, filter: .keyword(searchText ?? ""))
-        displayedTokens = tokenCollection.tokensFilter.sortDisplayedTokens(tokens: displayedTokens, sortTokensParam: sortTokensParam)
+        popularTokens = tokensFilter.filterTokens(tokens: allPopularTokens, walletTokens: tokens, filter: .keyword(searchText ?? ""))
+        displayedTokens = tokensFilter.sortDisplayedTokens(tokens: displayedTokens, sortTokensParam: sortTokensParam)
         sections = AddHideTokensViewModel.functional.availableSectionsToDisplay(displayedTokens: displayedTokens, hiddenTokens: hiddenTokens, popularTokens: popularTokens, isSearchActive: isSearchActive)
     }
 }

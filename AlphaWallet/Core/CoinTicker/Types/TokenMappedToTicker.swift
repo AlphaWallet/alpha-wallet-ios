@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct TokenMappedToTicker: Hashable, Codable {
+struct TokenMappedToTicker {
     let symbol: String
     let name: String
     let contractAddress: AlphaWallet.Address
@@ -41,7 +41,7 @@ struct TokenMappedToTicker: Hashable, Codable {
     }
 }
 
-extension TokenMappedToTicker {
+extension TokenMappedToTicker: Hashable, Codable {
 
     init(token: Token) {
         symbol = token.symbol

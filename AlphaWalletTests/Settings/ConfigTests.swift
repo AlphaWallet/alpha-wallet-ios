@@ -8,29 +8,8 @@ extension WalletConnectCoordinator {
 
     static func fake() -> WalletConnectCoordinator {
         let keystore = FakeEtherKeystore()
-        var sessions = ServerDictionary<WalletSession>()
-        let session = WalletSession.make()
-        sessions[session.server] = session
-        let sessionsSubject = CurrentValueSubject<ServerDictionary<WalletSession>, Never>(sessions)
-
-        return WalletConnectCoordinator(keystore: keystore, navigationController: .init(), analytics: FakeAnalyticsService(), domainResolutionService: FakeDomainResolutionService(), config: .make(), sessionsSubject: sessionsSubject, assetDefinitionStore: AssetDefinitionStore())
-    }
-}
-
-extension MultipleChainsTokenCollection {
-    static func fake() -> MultipleChainsTokenCollection {
-        let tokensDataStore = FakeTokensDataStore()
-        let config: Config = .make()
-        let actionsService = TokenActionsService()
-        let tokenGroupIdentifier: TokenGroupIdentifierProtocol = FakeTokenGroupIdentifier()
-        let coinTickersFetcher = CoinGeckoTickersFetcher.make()
-        let tokensFilter = TokensFilter(assetDefinitionStore: .init(), tokenActionsService: actionsService, coinTickersFetcher: coinTickersFetcher, tokenGroupIdentifier: tokenGroupIdentifier)
-
-        let eventsDataStore = FakeEventsDataStore()
-        let collection = MultipleChainsTokenCollection(tokensFilter: tokensFilter, tokensDataStore: tokensDataStore, assetDefinitionStore: .init(), eventsDataStore: eventsDataStore, sessions: .make(), config: config, coinTickersFetcher: coinTickersFetcher)
-        collection.start()
-
-        return collection
+        let sessionProvider: SessionsProvider = .make(wallet: .make(), servers: [.main])
+        return WalletConnectCoordinator(keystore: keystore, navigationController: .init(), analytics: FakeAnalyticsService(), domainResolutionService: FakeDomainResolutionService(), config: .make(), sessionProvider: sessionProvider, assetDefinitionStore: AssetDefinitionStore())
     }
 }
 
@@ -51,6 +30,7 @@ class ConfigTests: XCTestCase {
         let config: Config = .make()
         Config.setLocale(AppLocale.english)
         let tokenActionsService = FakeSwapTokenService()
+        let dep1 = WalletDataProcessingPipeline.make(wallet: .make(), server: .main)
 
         let coordinator_1 = TokensCoordinator(
             navigationController: FakeNavigationController(),
@@ -67,10 +47,11 @@ class ConfigTests: XCTestCase {
             coinTickersFetcher: CoinGeckoTickersFetcher.make(),
             activitiesService: FakeActivitiesService(),
             walletBalanceService: FakeMultiWalletBalanceService(),
-            tokenCollection: MultipleChainsTokenCollection.fake(),
-            importToken: FakeImportToken(),
+            tokenCollection: dep1.pipeline,
+            importToken: dep1.importToken,
             blockiesGenerator: .make(),
-            domainResolutionService: FakeDomainResolutionService()
+            domainResolutionService: FakeDomainResolutionService(),
+            tokensFilter: .make()
         )
 
         coordinator_1.start()
@@ -79,6 +60,7 @@ class ConfigTests: XCTestCase {
 
         Config.setLocale(AppLocale.simplifiedChinese)
 
+        let dep2 = WalletDataProcessingPipeline.make(wallet: .make(), server: .main)
         let coordinator_2 = TokensCoordinator(
             navigationController: FakeNavigationController(),
             sessions: sessions,
@@ -94,10 +76,11 @@ class ConfigTests: XCTestCase {
             coinTickersFetcher: CoinGeckoTickersFetcher.make(),
             activitiesService: FakeActivitiesService(),
             walletBalanceService: FakeMultiWalletBalanceService(),
-            tokenCollection: MultipleChainsTokenCollection.fake(),
-            importToken: FakeImportToken(),
+            tokenCollection: dep2.pipeline,
+            importToken: dep2.importToken,
             blockiesGenerator: .make(),
-            domainResolutionService: FakeDomainResolutionService()
+            domainResolutionService: FakeDomainResolutionService(),
+            tokensFilter: .make()
         )
 
         coordinator_2.start()

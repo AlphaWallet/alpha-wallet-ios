@@ -30,7 +30,7 @@ class TransferCollectiblesCoordinator: Coordinator {
     private let domainResolutionService: DomainResolutionServiceType
     private let filteredTokenHolders: [TokenHolder]
     private var transactionConfirmationResult: ConfirmResult? = .none
-
+    private let service: TokenViewModelState
     weak var delegate: TransferCollectiblesCoordinatorDelegate?
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -43,8 +43,10 @@ class TransferCollectiblesCoordinator: Coordinator {
             token: Token,
             assetDefinitionStore: AssetDefinitionStore,
             analytics: AnalyticsLogger,
-            domainResolutionService: DomainResolutionServiceType
+            domainResolutionService: DomainResolutionServiceType,
+            service: TokenViewModelState
     ) {
+        self.service = service
         self.filteredTokenHolders = filteredTokenHolders
         self.session = session
         self.keystore = keystore
@@ -114,7 +116,7 @@ extension TransferCollectiblesCoordinator: TransferTokenBatchCardsViaWalletAddre
             )
 
             let configuration: TransactionConfirmationViewModel.Configuration = .sendNftTransaction(confirmType: .signThenSend, tokenInstanceNames: tokenInstanceNames)
-            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore)
+            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, service: service)
             addCoordinator(coordinator)
             coordinator.delegate = self
             coordinator.start(fromSource: .sendNft)

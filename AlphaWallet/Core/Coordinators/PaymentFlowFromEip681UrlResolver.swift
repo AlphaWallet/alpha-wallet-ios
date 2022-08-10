@@ -5,15 +5,15 @@ import BigInt
 import PromiseKit
 
 class PaymentFlowFromEip681UrlResolver: Coordinator {
-    private let tokensDataStore: TokensDataStore
+    private let service: TokenProvidable & TokenAddable
     private let assetDefinitionStore: AssetDefinitionStore
     private let analytics: AnalyticsLogger
     private let config: Config
     private let account: Wallet
     var coordinators: [Coordinator] = []
 
-    init(tokensDataStore: TokensDataStore, account: Wallet, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger, config: Config) {
-        self.tokensDataStore = tokensDataStore
+    init(service: TokenProvidable & TokenAddable, account: Wallet, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger, config: Config) {
+        self.service = service
         self.account = account
         self.assetDefinitionStore = assetDefinitionStore
         self.analytics = analytics
@@ -37,7 +37,7 @@ class PaymentFlowFromEip681UrlResolver: Coordinator {
             return nil
         }
 
-        let tokensDataStore = self.tokensDataStore
+        let service = self.service
         let assetDefinitionStore = self.assetDefinitionStore
         let analytics = self.analytics
         let config = self.config
@@ -57,7 +57,7 @@ class PaymentFlowFromEip681UrlResolver: Coordinator {
                     let server = optionalServer ?? config.anyEnabledServer()
 
                     //NOTE: self is required here because object has delated before resolving state
-                    if let token = tokensDataStore.token(forContract: contract, server: server) {
+                    if let token = service.token(for: contract, server: server) {
                         let transactionType = Self.transactionType(token, recipient: recipient, amount: amount)
 
                         seal.fulfill((paymentFlow: .send(type: .transaction(transactionType)), server: server))
@@ -79,7 +79,7 @@ class PaymentFlowFromEip681UrlResolver: Coordinator {
                                         type: .erc20,
                                         balance: .balance(["0"])
                                 )
-                                let token = tokensDataStore.addCustom(tokens: [ercToken], shouldUpdateBalance: true)[0]
+                                let token = service.addCustom(tokens: [ercToken], shouldUpdateBalance: true)[0]
                                 let transactionType = Self.transactionType(token, recipient: recipient, amount: amount)
 
                                 seal.fulfill((paymentFlow: .send(type: .transaction(transactionType)), server: server))

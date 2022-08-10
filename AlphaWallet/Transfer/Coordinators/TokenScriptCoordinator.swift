@@ -30,9 +30,8 @@ class TokenScriptCoordinator: Coordinator {
     private let tokenHolder: TokenHolder
     private var transactionConfirmationResult: ConfirmResult? = .none
     private let action: TokenInstanceAction
-    private let eventsDataStore: NonActivityEventsDataStore
     private var cancelable = Set<AnyCancellable>()
-
+    private let service: TokenViewModelState
     weak var delegate: TokenScriptCoordinatorDelegate?
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -47,9 +46,9 @@ class TokenScriptCoordinator: Coordinator {
             analytics: AnalyticsLogger,
             domainResolutionService: DomainResolutionServiceType,
             action: TokenInstanceAction,
-            eventsDataStore: NonActivityEventsDataStore
+            service: TokenViewModelState
     ) {
-        self.eventsDataStore = eventsDataStore
+        self.service = service
         self.action = action
         self.tokenHolder = tokenHolder
         self.session = session
@@ -76,29 +75,11 @@ class TokenScriptCoordinator: Coordinator {
 
         return vc
     }
-
+    //FIXME: Move to view model
     private func subscribeForEthereumEventChanges() {
-        eventsDataStore
-            .recentEventsChangeset(for: token.contractAddress)
-            .filter({ changeset in
-                switch changeset {
-                case .update(let events, _, let insertions, let modifications):
-                    return !insertions.map { events[$0] }.isEmpty || !modifications.map { events[$0] }.isEmpty
-                case .initial, .error:
-                    return false
-                }
-            })
-            .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [weak self] _ in
-                self?.viewController.configure()
-            }).store(in: &cancelable)
-
-        assetDefinitionStore
-            .assetsSignatureOrBodyChange(for: token.contractAddress)
-            .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [weak self] _ in
-                self?.viewController.configure()
-            }).store(in: &cancelable)
+        service.tokenViewModelPublisher(for: token).sink { [weak self] _ in
+            self?.viewController.configure()
+        }.store(in: &cancelable)
     }
 }
 
@@ -125,7 +106,7 @@ extension TokenScriptCoordinator: TokenInstanceActionViewControllerDelegate {
 
         do {
             let data = try transactionFunction.makeUnConfirmedTransaction(withTokenObject: token, tokenId: tokenId, attributeAndValues: values, localRefs: localRefs, server: server, session: session)
-            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: data.0, configuration: .tokenScriptTransaction(confirmType: .signThenSend, contract: contract, functionCallMetaData: data.1), analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore)
+            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: data.0, configuration: .tokenScriptTransaction(confirmType: .signThenSend, contract: contract, functionCallMetaData: data.1), analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, service: service)
             coordinator.delegate = self
             addCoordinator(coordinator)
             coordinator.start(fromSource: .tokenScript)

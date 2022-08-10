@@ -19,7 +19,7 @@ class WalletConnectV2Provider: WalletConnectServer {
     private let config: Config = Config()
     //NOTE: Since the connection url doesn't we are getting in `func connect(url: AlphaWallet.WalletConnect.ConnectionUrl) throws` isn't the same of what we got in
     //`SessionProposal` we are not able to manage connection timeout. As well as we are not able to mach topics of urls. connection timeout isn't supported for now for v2.
-    private var sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>
+    private var serviceProvider: SessionsProvider
     private var cancelable = Set<AnyCancellable>()
     private let queue: DispatchQueue = .main
 
@@ -35,11 +35,11 @@ class WalletConnectV2Provider: WalletConnectServer {
     }()
 
     //NOTE: we support only single account session as WalletConnects request doesn't provide a wallets address to sign transaction or some other method, so we cant figure out wallet address to sign, so for now we use only active wallet session address
-    init(sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>) {
-        self.sessionsSubject = sessionsSubject
+    init(serviceProvider: SessionsProvider) {
+        self.serviceProvider = serviceProvider
 
         //NOTE: skip empty sessions event
-        sessionsSubject.filter { !$0.isEmpty }
+        serviceProvider.sessions.filter { !$0.isEmpty }
             .sink { [weak self] sessions in
                 self?.reloadSessions(sessions: sessions)
             }.store(in: &cancelable)
@@ -291,12 +291,12 @@ class WalletConnectV2Provider: WalletConnectServer {
 
         func accountForSupportedBlockchain(for blockchain: Blockchain) -> WalletConnectSign.Account? {
             guard let server = eip155URLCoder.decodeRPC(from: blockchain.absoluteString) else { return nil }
-            guard sessionsSubject.value.contains(where: { $0.value.server == server }) else { return nil }
+            guard serviceProvider.activeSessions.contains(where: { $0.value.server == server }) else { return nil }
 
             return WalletConnectSign.Account(blockchain.absoluteString + ":\(account)")
         }
 
-        let account = sessionsSubject.value.anyValue.account.address.eip55String
+        let account = serviceProvider.activeSessions.anyValue.account.address.eip55String
 
         var sessionNamespaces = [String: SessionNamespace]()
         for each in proposal.requiredNamespaces {

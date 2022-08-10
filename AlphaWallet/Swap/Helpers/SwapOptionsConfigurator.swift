@@ -98,9 +98,9 @@ final class SwapOptionsConfigurator {
             .eraseToAnyPublisher()
     }()
 
-    init(walletSessions: CurrentValueSubject<ServerDictionary<WalletSession>, Never>, swapPair: SwapPair, tokenCollection: TokenCollection, reachabilityManager: ReachabilityManagerProtocol, tokenSwapper: TokenSwapper) {
+    init(sessionProvider: SessionsProvider, swapPair: SwapPair, tokenCollection: TokenCollection, reachabilityManager: ReachabilityManagerProtocol, tokenSwapper: TokenSwapper) {
         self.tokenSwapper = tokenSwapper
-        self.sessions = walletSessions.value.map { $0.value }.sorted(by: { $0.server.displayOrderPriority < $1.server.displayOrderPriority })
+        self.sessions = sessionProvider.activeSessions.values.sorted(by: { $0.server.displayOrderPriority < $1.server.displayOrderPriority })
         self.server = swapPair.from.server
         self.swapPair = swapPair
         self.tokenCollection = tokenCollection
@@ -250,7 +250,7 @@ final class SwapOptionsConfigurator {
 
     private func supportedTokens(forServer server: RPCServer) throws -> [Token] {
         guard swapPairs(forServer: server) != nil else { throw TokenSwapper.TokenSwapperError.swapPairNotFound }
-        return tokenCollection.tokensDataStore.enabledTokens(for: [server])
+        return tokenCollection.tokens(for: [server])
     }
 
     private func firstSupportedFromToken(forServer server: RPCServer, tokens: [Token]) throws -> Token {

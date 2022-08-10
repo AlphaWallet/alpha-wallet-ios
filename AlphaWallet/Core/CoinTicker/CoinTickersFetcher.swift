@@ -8,7 +8,11 @@
 import Combine
 import Foundation
 
-protocol CoinTickersFetcher: AnyObject {
+protocol CoinTickersFetcherTests {
+    func addOrUpdateTestsOnly(ticker: CoinTicker?, for token: TokenMappedToTicker)
+}
+
+protocol CoinTickersFetcher: AnyObject, CoinTickersFetcherTests {
     var tickersDidUpdate: AnyPublisher<Void, Never> { get }
     var updateTickerId: AnyPublisher<(tickerId: TickerIdString, key: AddressAndRPCServer), Never> { get }
     

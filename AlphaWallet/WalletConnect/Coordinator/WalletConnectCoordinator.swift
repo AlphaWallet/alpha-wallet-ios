@@ -26,14 +26,14 @@ protocol WalletConnectCoordinatorDelegate: CanOpenURL, SendTransactionAndFiatOnR
 class WalletConnectCoordinator: NSObject, Coordinator {
 
     private lazy var walletConnectV2service: WalletConnectV2Provider = {
-        let walletConnectV2service = WalletConnectV2Provider(sessionsSubject: sessionsSubject)
+        let walletConnectV2service = WalletConnectV2Provider(serviceProvider: sessionProvider)
         walletConnectV2service.delegate = self
 
         return walletConnectV2service
     }()
 
     private lazy var walletConnectV1service: WalletConnectV1Provider = {
-        let walletConnectV1service = WalletConnectV1Provider(sessionsSubject: sessionsSubject)
+        let walletConnectV1service = WalletConnectV1Provider(serviceProvider: sessionProvider)
         walletConnectV1service.delegate = self
 
         return walletConnectV1service
@@ -55,9 +55,9 @@ class WalletConnectCoordinator: NSObject, Coordinator {
     private weak var connectionTimeoutViewController: WalletConnectConnectionTimeoutViewController?
     private weak var notificationAlertController: UIViewController?
     private weak var sessionsViewController: WalletConnectSessionsViewController?
-    private var sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>
+    private let sessionProvider: SessionsProvider
     private let assetDefinitionStore: AssetDefinitionStore
-
+    private var service: TokenViewModelState?
     weak var delegate: WalletConnectCoordinatorDelegate?
     var coordinators: [Coordinator] = []
 
@@ -65,8 +65,8 @@ class WalletConnectCoordinator: NSObject, Coordinator {
         provider.sessions
     }
 
-    init(keystore: Keystore, navigationController: UINavigationController, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, config: Config, sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>, assetDefinitionStore: AssetDefinitionStore) {
-        self.sessionsSubject = sessionsSubject
+    init(keystore: Keystore, navigationController: UINavigationController, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, config: Config, sessionProvider: SessionsProvider, assetDefinitionStore: AssetDefinitionStore) {
+        self.sessionProvider = sessionProvider
         self.config = config
         self.keystore = keystore
         self.navigationController = navigationController
@@ -75,6 +75,10 @@ class WalletConnectCoordinator: NSObject, Coordinator {
         self.assetDefinitionStore = assetDefinitionStore
         super.init()
         start()
+    }
+    //FIXME: think about better way
+    func configure(with service: TokenViewModelState?) {
+        self.service = service
     }
 
     //NOTE: we are using disconnection to notify dapp that we get disconnect, in other case dapp still stay connected
@@ -281,7 +285,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
     func server(_ server: WalletConnectServer, action: AlphaWallet.WalletConnect.Action, request: AlphaWallet.WalletConnect.Session.Request, session walletConnectSession: AlphaWallet.WalletConnect.Session) {
         infoLog("[WalletConnect] action: \(action)")
 
-        guard let walletSession = request.server.flatMap({ sessionsSubject.value[safe: $0] }) else {
+        guard let walletSession = request.server.flatMap({ sessionProvider.session(for: $0) }) else {
             try? server.respond(.init(error: .requestRejected), request: request)
             return
         }
@@ -352,7 +356,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         infoLog("[WalletConnect] switchChain: \(targetChain)")
         //NOTE: DappRequestSwitchExistingChainCoordinator requires current selected server, (from dapp impl) if we pass server that isn't currently selected it will ask to switch server 2 times, for this we return server that is already selected
         func firstEnabledRPCServer() -> RPCServer? {
-            let server = targetChain.server.flatMap { server in sessionsSubject.value[safe: server]?.server }
+            let server = targetChain.server.flatMap { server in sessionProvider.session(for: server)?.server }
 
             return server ?? walletConnectSession.servers.first
         }
@@ -392,10 +396,11 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
     private func executeTransaction(session: WalletSession, requester: DappRequesterViewModel, transaction: UnconfirmedTransaction, type: ConfirmType) -> Promise<AlphaWallet.WalletConnect.Response> {
 
         let configuration: TransactionConfirmationViewModel.Configuration = .walletConnect(confirmType: type, requester: requester)
+        guard let service = service else { return Promise<AlphaWallet.WalletConnect.Response> { _ in } }
 
         infoLog("[WalletConnect] executeTransaction: \(transaction) type: \(type)")
         return firstly {
-            TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, source: .walletConnect, delegate: self.delegate, keystore: keystore, assetDefinitionStore: assetDefinitionStore)
+            TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, source: .walletConnect, delegate: self.delegate, keystore: keystore, assetDefinitionStore: assetDefinitionStore, service: service)
         }.map { data -> AlphaWallet.WalletConnect.Response in
             switch data {
             case .signedTransaction(let data):

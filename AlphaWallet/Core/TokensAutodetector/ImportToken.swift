@@ -9,7 +9,17 @@ import Foundation
 import PromiseKit
 import Combine
 
-class ImportToken {
+protocol TokenImportable {
+    func importToken(token: ERCToken, shouldUpdateBalance: Bool) -> Token
+    func importToken(for contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool) -> Promise<Token>
+}
+
+protocol ContractDataFetchable {
+    func fetchTokenOrContract(for contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool) -> Promise<TokenOrContract>
+    func fetchContractData(for contract: AlphaWallet.Address, server: RPCServer, completion: @escaping (ContractData) -> Void)
+}
+
+class ImportToken: TokenImportable, ContractDataFetchable {
     private let defaultTokens: [(AlphaWallet.Address, RPCServer)] = [
         (Constants.uefaMainnet, Constants.uefaRpcServer),
     ]
@@ -19,7 +29,7 @@ class ImportToken {
         case nothingToImport
         case others
     }
-    private let sessions: CurrentValueSubject<ServerDictionary<WalletSession>, Never>
+    private let sessionProvider: SessionsProvider
     private let assetDefinitionStore: AssetDefinitionStore
     private let analytics: AnalyticsLogger
     private let tokenFetchers: AtomicDictionary<RPCServer, TokenFetcher> = .init()
@@ -28,8 +38,8 @@ class ImportToken {
 
     let wallet: Wallet
 
-    init(sessions: CurrentValueSubject<ServerDictionary<WalletSession>, Never>, wallet: Wallet, tokensDataStore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger) {
-        self.sessions = sessions
+    init(sessionProvider: SessionsProvider, wallet: Wallet, tokensDataStore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger) {
+        self.sessionProvider = sessionProvider
         self.tokensDataStore = tokensDataStore
         self.assetDefinitionStore = assetDefinitionStore
         self.analytics = analytics
@@ -42,7 +52,8 @@ class ImportToken {
         guard !isRunningTests() else { return }
 
         let defaultTokens = self.defaultTokens
-        sessions.filter { !$0.values.isEmpty }
+        //NOTE: initally when we set sessions, we want to import uefa tokens, for enabled chain
+        sessionProvider.sessions.filter { !$0.values.isEmpty }
             .first()
             .sink { _ in
                 for (address, server) in defaultTokens {
@@ -95,7 +106,7 @@ class ImportToken {
     }
 
     func fetchContractData(for contract: AlphaWallet.Address, server: RPCServer, completion: @escaping (ContractData) -> Void) {
-        guard let session = sessions.value[safe: server] else {
+        guard let session = sessionProvider.session(for: server) else {
             completion(.failed(networkReachable: true))
             return
         }
@@ -115,7 +126,7 @@ class ImportToken {
         if let fetcher = tokenFetchers[server] {
             return fetcher
         } else {
-            guard let session = sessions.value[safe: server] else { throw ImportTokenError.serverIsDisabled }
+            guard let session = sessionProvider.session(for: server) else { throw ImportTokenError.serverIsDisabled }
             let fetcher: TokenFetcher = SingleChainTokenFetcher(session: session, assetDefinitionStore: assetDefinitionStore, analytics: analytics)
             tokenFetchers[server] = fetcher
 

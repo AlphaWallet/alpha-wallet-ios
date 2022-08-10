@@ -16,11 +16,12 @@ protocol BalanceViewModelType {
     var value: BigInt { get }
     var balance: [TokenBalanceValue] { get }
 
-    var ticker: CoinTicker? { get set }
+    var ticker: CoinTicker? { get }
 }
 
 extension BalanceViewModelType {
     var isZero: Bool { value.isZero }
+    var valueDecimal: NSDecimalNumber? { amountFull.optionalDecimalValue }
 }
 
 struct BalanceViewModel: BalanceViewModelType {
@@ -34,7 +35,7 @@ struct BalanceViewModel: BalanceViewModelType {
     let value: BigInt
     let balance: [TokenBalanceValue]
 
-    var ticker: CoinTicker?
+    let ticker: CoinTicker?
 }
 
 extension BalanceViewModel: Hashable { }

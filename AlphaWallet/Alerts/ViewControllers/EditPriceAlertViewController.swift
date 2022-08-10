@@ -50,13 +50,14 @@ class EditPriceAlertViewController: UIViewController {
     private let session: WalletSession
     private let alertService: PriceAlertServiceType
     private var cancelable = Set<AnyCancellable>()
-
+    private let service: TokenViewModelState
     weak var delegate: EditPriceAlertViewControllerDelegate?
 
-    init(viewModel: EditPriceAlertViewModel, session: WalletSession, alertService: PriceAlertServiceType) {
+    init(viewModel: EditPriceAlertViewModel, session: WalletSession, service: TokenViewModelState, alertService: PriceAlertServiceType) {
         self.viewModel = viewModel
         self.session = session
         self.alertService = alertService
+        self.service = service
         super.init(nibName: nil, bundle: nil)
 
         let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
@@ -84,30 +85,15 @@ class EditPriceAlertViewController: UIViewController {
         amountTextField.cryptoToDollarRate = 1
         amountTextField.set(ethCost: viewModel.value, useFormatting: false)
 
-        switch viewModel.token.type {
-        case .nativeCryptocurrency:
-            session.tokenBalanceService
-                .etherToFiatRatePublisher
-                .receive(on: RunLoop.main)
-                .sink { [weak self] price in
-                    guard let strongSelf = self else { return }
+        service.tokenViewModelPublisher(for: viewModel.token)
+            .map { $0?.balance.ticker?.price_usd }
+            .receive(on: RunLoop.main)
+            .sink { [weak self] price in
+                guard let strongSelf = self else { return }
 
-                    strongSelf.viewModel.set(marketPrice: price)
-                    strongSelf.configure(viewModel: strongSelf.viewModel)
-                }.store(in: &cancelable)
-        case .erc20:
-            session.tokenBalanceService
-                .tokenBalancePublisher(viewModel.token.addressAndRPCServer)
-                .receive(on: RunLoop.main)
-                .sink { [weak self] viewModel in
-                    guard let strongSelf = self else { return }
-
-                    strongSelf.viewModel.set(marketPrice: viewModel?.ticker?.price_usd)
-                    strongSelf.configure(viewModel: strongSelf.viewModel)
-                }.store(in: &cancelable)
-        case .erc875, .erc721, .erc721ForTickets, .erc1155:
-            break
-        } 
+                strongSelf.viewModel.set(marketPrice: price)
+                strongSelf.configure(viewModel: strongSelf.viewModel)
+            }.store(in: &cancelable)
     }
 
     func configure(viewModel: EditPriceAlertViewModel) {

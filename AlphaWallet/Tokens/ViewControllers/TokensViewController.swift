@@ -488,10 +488,10 @@ extension TokensViewController {
         let previousFilter = viewModel.filter
         viewModel.set(filter: filter)
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [filterView] in
             //Important to update the segmented control (and hence add the segmented control back to the table) after they have been re-added to the table header through the table reload. Otherwise adding to the table header will break the animation for segmented control
             if let selection = selection, case let ControlSelection.selected(index) = selection {
-                self.filterView.setSelection(cellIndex: Int(index))
+                filterView.setSelection(cellIndex: Int(index))
             }
         }
         //Exit search if user tapped on the wallet filter. Careful to not trigger an infinite recursion between changing the filter by "category" and search keywords which are all based on filters

@@ -58,3 +58,9 @@ struct Wallet: Equatable, CustomStringConvertible {
         self.origin = origin
     }
 }
+
+extension Wallet: Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(address.eip55String)
+    }
+}

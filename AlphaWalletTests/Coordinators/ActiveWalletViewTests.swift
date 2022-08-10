@@ -4,31 +4,18 @@ import XCTest
 @testable import AlphaWallet
 import TrustKeystore
 
-class FakeUniversalLinkCoordinator: UniversalLinkService {
-    override func handleUniversalLink(url: URL, source: UrlSource) -> Bool { return false }
-    override func handlePendingUniversalLink(in coordinator: UrlSchemeResolver) {}
-    override func handleUniversalLinkInPasteboard() {}
-
-    static func make() -> FakeUniversalLinkCoordinator {
-        return .init(analytics: FakeAnalyticsService())
-    }
-}
-
-final class FakeNotificationService: NotificationService {
-    init() {
-        super.init(sources: [], walletBalanceService: FakeMultiWalletBalanceService())
-    }
-}
-
 class ActiveWalletViewTests: XCTestCase {
 
     func testShowTabBar() {
         let config: Config = .make()
         let wallet: Wallet = .make()
         let navigationController = FakeNavigationController()
+
         let fas = FakeAnalyticsService()
         let keystore = FakeEtherKeystore(wallets: [wallet])
         let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, analytics: fas, viewModel: .init(configuration: .changeWallets), walletBalanceService: FakeMultiWalletBalanceService(), blockiesGenerator: .make(), domainResolutionService: FakeDomainResolutionService())
+        let dep = WalletDataProcessingPipeline.make(wallet: wallet, server: .main)
+
         let coordinator = ActiveWalletCoordinator(
             navigationController: navigationController,
             walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
@@ -49,7 +36,11 @@ class ActiveWalletViewTests: XCTestCase {
             notificationService: FakeNotificationService(),
             blockiesGenerator: .make(),
             domainResolutionService: FakeDomainResolutionService(),
-            tokenSwapper: FakeTokenSwapper()
+            tokenSwapper: FakeTokenSwapper(),
+            sessionsProvider: dep.sessionsProvider,
+            tokenCollection: dep.pipeline,
+            importToken: dep.importToken,
+            tokensDataStore: dep.tokensDataStore
         )
 
         coordinator.start(animated: false)
@@ -89,6 +80,9 @@ class ActiveWalletViewTests: XCTestCase {
         let fas = FakeAnalyticsService()
         let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, analytics: fas, viewModel: .init(configuration: .changeWallets),
         walletBalanceService: FakeMultiWalletBalanceService(), blockiesGenerator: .make(), domainResolutionService: FakeDomainResolutionService())
+
+        let dep1 = WalletDataProcessingPipeline.make(wallet: account1, server: .main)
+
         let c1 = ActiveWalletCoordinator(
             navigationController: FakeNavigationController(),
             walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
@@ -109,12 +103,18 @@ class ActiveWalletViewTests: XCTestCase {
             notificationService: FakeNotificationService(),
             blockiesGenerator: .make(),
             domainResolutionService: FakeDomainResolutionService(),
-            tokenSwapper: FakeTokenSwapper()
+            tokenSwapper: FakeTokenSwapper(),
+            sessionsProvider: dep1.sessionsProvider,
+            tokenCollection: dep1.pipeline,
+            importToken: dep1.importToken,
+            tokensDataStore: dep1.tokensDataStore
         )
 
         c1.start(animated: false)
 
         XCTAssertEqual(c1.keystore.currentWallet, account1)
+
+        let dep2 = WalletDataProcessingPipeline.make(wallet: account2, server: .main)
 
         let c2 = ActiveWalletCoordinator(
             navigationController: FakeNavigationController(),
@@ -136,7 +136,11 @@ class ActiveWalletViewTests: XCTestCase {
             notificationService: FakeNotificationService(),
             blockiesGenerator: .make(),
             domainResolutionService: FakeDomainResolutionService(),
-            tokenSwapper: FakeTokenSwapper()
+            tokenSwapper: FakeTokenSwapper(),
+            sessionsProvider: dep2.sessionsProvider,
+            tokenCollection: dep2.pipeline,
+            importToken: dep2.importToken,
+            tokensDataStore: dep2.tokensDataStore
         )
 
         c1.start(animated: false)
@@ -151,6 +155,9 @@ class ActiveWalletViewTests: XCTestCase {
         let keystore = FakeEtherKeystore(wallets: [wallet])
         let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, analytics: fas, viewModel: .init(configuration: .changeWallets),
         walletBalanceService: FakeMultiWalletBalanceService(), blockiesGenerator: .make(), domainResolutionService: FakeDomainResolutionService())
+
+        let dep = WalletDataProcessingPipeline.make(wallet: wallet, server: .main)
+
         let coordinator = ActiveWalletCoordinator(
                 navigationController: FakeNavigationController(),
                 walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
@@ -171,7 +178,11 @@ class ActiveWalletViewTests: XCTestCase {
                 notificationService: FakeNotificationService(),
                 blockiesGenerator: .make(),
                 domainResolutionService: FakeDomainResolutionService(),
-                tokenSwapper: FakeTokenSwapper()
+                tokenSwapper: FakeTokenSwapper(),
+                sessionsProvider: dep.sessionsProvider,
+                tokenCollection: dep.pipeline,
+                importToken: dep.importToken,
+                tokensDataStore: dep.tokensDataStore
         )
         coordinator.start(animated: false)
         coordinator.showPaymentFlow(for: .send(type: .transaction(TransactionType.nativeCryptocurrency(Token(), destination: .none, amount: nil))), server: .main, navigationController: coordinator.navigationController)
@@ -187,6 +198,9 @@ class ActiveWalletViewTests: XCTestCase {
         let keystore = FakeEtherKeystore(wallets: [wallet])
         let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, analytics: fas, viewModel: .init(configuration: .changeWallets),
         walletBalanceService: FakeMultiWalletBalanceService(), blockiesGenerator: .make(), domainResolutionService: FakeDomainResolutionService())
+
+        let dep = WalletDataProcessingPipeline.make(wallet: wallet, server: .main)
+
         let coordinator = ActiveWalletCoordinator(
             navigationController: navigationController,
             walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
@@ -207,7 +221,11 @@ class ActiveWalletViewTests: XCTestCase {
             notificationService: FakeNotificationService(),
             blockiesGenerator: .make(),
             domainResolutionService: FakeDomainResolutionService(),
-            tokenSwapper: FakeTokenSwapper()
+            tokenSwapper: FakeTokenSwapper(),
+            sessionsProvider: dep.sessionsProvider,
+            tokenCollection: dep.pipeline,
+            importToken: dep.importToken,
+            tokensDataStore: dep.tokensDataStore
         )
         coordinator.start(animated: false)
         coordinator.showPaymentFlow(for: .request, server: .main, navigationController: coordinator.navigationController)
@@ -223,11 +241,14 @@ class ActiveWalletViewTests: XCTestCase {
         let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, analytics: fas, viewModel: .init(configuration: .changeWallets),
         walletBalanceService: FakeMultiWalletBalanceService(), blockiesGenerator: .make(), domainResolutionService: FakeDomainResolutionService())
 
+        let wallet: Wallet = .make()
+        let dep = WalletDataProcessingPipeline.make(wallet: wallet, server: .main)
+
         let coordinator = ActiveWalletCoordinator(
             navigationController: navigationController,
             walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
             localStore: FakeRealmLocalStore(),
-            wallet: .make(),
+            wallet: wallet,
             keystore: keystore,
             assetDefinitionStore: AssetDefinitionStore(),
             config: .make(),
@@ -243,7 +264,11 @@ class ActiveWalletViewTests: XCTestCase {
             notificationService: FakeNotificationService(),
             blockiesGenerator: .make(),
             domainResolutionService: FakeDomainResolutionService(),
-            tokenSwapper: FakeTokenSwapper()
+            tokenSwapper: FakeTokenSwapper(),
+            sessionsProvider: dep.sessionsProvider,
+            tokenCollection: dep.pipeline,
+            importToken: dep.importToken,
+            tokensDataStore: dep.tokensDataStore
         )
         coordinator.start(animated: false)
 
@@ -276,7 +301,11 @@ class ActiveWalletViewTests: XCTestCase {
             keystore.recentlyUsedWallet = wallet
             let navigationController = FakeNavigationController()
             let fas = FakeAnalyticsService()
+
             let ac: AccountsCoordinator = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, analytics: fas, viewModel: .init(configuration: .changeWallets), walletBalanceService: FakeMultiWalletBalanceService(), blockiesGenerator: .make(), domainResolutionService: FakeDomainResolutionService())
+
+            let dep = WalletDataProcessingPipeline.make(wallet: wallet, server: .main)
+
             let coordinator: ActiveWalletCoordinator = ActiveWalletCoordinator(
                     navigationController: navigationController,
                     walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
@@ -297,7 +326,11 @@ class ActiveWalletViewTests: XCTestCase {
                     notificationService: FakeNotificationService(),
                     blockiesGenerator: .make(),
                     domainResolutionService: FakeDomainResolutionService(),
-                    tokenSwapper: FakeTokenSwapper()
+                    tokenSwapper: FakeTokenSwapper(),
+                    sessionsProvider: dep.sessionsProvider,
+                    tokenCollection: dep.pipeline,
+                    importToken: dep.importToken,
+                    tokensDataStore: dep.tokensDataStore
             )
 
             coordinator.start(animated: false)

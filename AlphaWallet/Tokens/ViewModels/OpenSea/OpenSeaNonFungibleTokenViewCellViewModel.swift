@@ -46,4 +46,12 @@ extension OpenSeaNonFungibleTokenViewCellViewModel: Hashable {
             lhs.token.nonZeroBalance == rhs.token.nonZeroBalance &&
             lhs.token.tokenScriptOverrides?.titleInPluralForm == rhs.token.tokenScriptOverrides?.titleInPluralForm
     }
+    
+    //NOTE: We must make sure view models are queal and have same hash value, othervise diffable datasource will cause crash
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(token.contractAddress)
+        hasher.combine(token.server)
+        hasher.combine(token.tokenScriptOverrides?.titleInPluralForm)
+        hasher.combine(token.nonZeroBalance)
+    }
 }

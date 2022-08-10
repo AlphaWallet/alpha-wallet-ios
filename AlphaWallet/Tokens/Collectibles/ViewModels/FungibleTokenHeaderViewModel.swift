@@ -8,39 +8,32 @@
 import UIKit
 import Combine
 
+//TODO: Apply input output interface
 class FungibleTokenHeaderViewModel: NSObject {
     private let headerViewRefreshInterval: TimeInterval = 5.0
     private var headerRefreshTimer: Timer?
-    private let session: WalletSession
     private let transactionType: TransactionType
-    private let assetDefinitionStore: AssetDefinitionStore
     private var isShowingValueSubject: CurrentValueSubject<Bool, Never> = .init(true)
-    private lazy var balance: AnyPublisher<BalanceViewModel?, Never> = {
+    private lazy var tokenViewModel: AnyPublisher<TokenViewModel?, Never> = {
         switch transactionType {
         case .nativeCryptocurrency:
-            return session.tokenBalanceService
-                .etherBalance
-                .receive(on: RunLoop.main)
-                .prepend(session.tokenBalanceService.ethBalanceViewModel)
+            let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: transactionType.server)
+            return service.tokenViewModelPublisher(for: etherToken)
                 .eraseToAnyPublisher()
         case .erc20Token(let token, _, _):
-            return session.tokenBalanceService
-                .tokenBalancePublisher(token.addressAndRPCServer)
-                .receive(on: RunLoop.main)
-                .prepend(session.tokenBalanceService.tokenBalance(token.addressAndRPCServer))
+            return service.tokenViewModelPublisher(for: token)
                 .eraseToAnyPublisher()
         case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
-            return Just<BalanceViewModel?>(nil)
+            return Just<TokenViewModel?>(nil)
                 .eraseToAnyPublisher()
         }
     }()
+    private let service: TokenViewModelState
+    var server: RPCServer { return transactionType.tokenObject.server }
 
-    var server: RPCServer { return session.server }
-
-    init(session: WalletSession, transactionType: TransactionType, assetDefinitionStore: AssetDefinitionStore) {
-        self.session = session
+    init(transactionType: TransactionType, service: TokenViewModelState) {
         self.transactionType = transactionType
-        self.assetDefinitionStore = assetDefinitionStore
+        self.service = service
         super.init()
     }
 
@@ -75,15 +68,15 @@ class FungibleTokenHeaderViewModel: NSObject {
     }
 
     lazy var title: AnyPublisher<NSAttributedString, Never> = {
-        return balance.combineLatest(isShowingValueSubject, { balance, _ in return balance })
-            .map { [weak self] balance -> NSAttributedString in
-                guard let strongSelf = self, let balance = balance else { return .init(string: UiTweaks.noPriceMarker) }
+        return tokenViewModel.combineLatest(isShowingValueSubject, { balance, _ in return balance })
+            .map { [weak self] token -> NSAttributedString in
+                guard let strongSelf = self, let token = token else { return .init(string: UiTweaks.noPriceMarker) }
                 let value: String
                 switch strongSelf.transactionType {
                 case .nativeCryptocurrency:
-                    value = "\(balance.amountShort) \(balance.symbol)"
-                case .erc20Token(let token, _, _):
-                    value = "\(balance.amountShort) \(token.symbolInPluralForm(withAssetDefinitionStore: strongSelf.assetDefinitionStore))"
+                    value = "\(token.balance.amountShort) \(token.balance.symbol)"
+                case .erc20Token:
+                    value = "\(token.balance.amountShort) \(token.tokenScriptOverrides?.symbolInPluralForm ?? token.balance.symbol)"
                 case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
                     value = UiTweaks.noPriceMarker
                 }
@@ -92,7 +85,8 @@ class FungibleTokenHeaderViewModel: NSObject {
     }()
 
     lazy var value: AnyPublisher<NSAttributedString, Never> = {
-        return balance.combineLatest(isShowingValueSubject, { balance, _ in return balance })
+        return tokenViewModel.combineLatest(isShowingValueSubject, { balance, _ in return balance })
+            .map { $0?.balance }
             .map { [weak self] balance -> NSAttributedString in
                 guard let strongSelf = self, let balance = balance else { return .init(string: UiTweaks.noPriceMarker) }
                 return strongSelf.asValueAttributedString(for: balance) ?? .init(string: UiTweaks.noPriceMarker)
@@ -111,7 +105,7 @@ class FungibleTokenHeaderViewModel: NSObject {
     }
 
     private func asValueAttributedString(for balance: BalanceViewModel) -> NSAttributedString? {
-        if session.server.isTestnet {
+        if server.isTestnet {
             return testnetValueHintLabelAttributedString
         } else {
             switch transactionType {

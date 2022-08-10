@@ -12,7 +12,6 @@ class WalletSession: Equatable {
     let analytics: AnalyticsLogger
     let account: Wallet
     let server: RPCServer
-    let tokenBalanceService: TokenBalanceService
     let config: Config
     let chainState: ChainState
     lazy private (set) var tokenProvider: TokenProviderType = {
@@ -25,13 +24,12 @@ class WalletSession: Equatable {
         return DispatchQueue(label: "com.WalletSession.\(account.address.eip55String).\(server)")
     }()
 
-    init(account: Wallet, server: RPCServer, config: Config, tokenBalanceService: TokenBalanceService, analytics: AnalyticsLogger) {
+    init(account: Wallet, server: RPCServer, config: Config, analytics: AnalyticsLogger) {
         self.analytics = analytics
         self.account = account
         self.server = server
         self.config = config
         self.chainState = ChainState(config: config, server: server, analytics: analytics)
-        self.tokenBalanceService = tokenBalanceService
 
         if config.development.isAutoFetchingDisabled {
             //no-op
@@ -40,12 +38,12 @@ class WalletSession: Equatable {
         }
     }
 
-    func start() {
-        tokenBalanceService.start()
-    }
-
     func stop() {
         chainState.stop()
+    }
+
+    deinit {
+        print("XXX.\(self).deinit for server: \(server)")
     }
 }
 

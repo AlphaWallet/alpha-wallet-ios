@@ -62,8 +62,17 @@ class AppCoordinator: NSObject, Coordinator {
 
         return CoinGeckoTickersFetcher(networkProvider: networkProvider, storage: storage, tickerIdsFetcher: tickerIdsFetcher)
     }()
+    private lazy var nftProvider: NFTProvider = {
+        let queue: DispatchQueue = DispatchQueue(label: "org.alphawallet.swift.walletBalance")
+        return AlphaWalletNFTProvider(analytics: analytics, queue: queue)
+    }()
+    private lazy var dependencyProvider: WalletDependencyContainer = {
+        WalletComponentsFactory(analytics: analytics, nftProvider: nftProvider, assetDefinitionStore: assetDefinitionStore, store: localStore, coinTickersFetcher: coinTickersFetcher, config: config)
+    }()
     private lazy var walletBalanceService: WalletBalanceService = {
-        return MultiWalletBalanceService(store: localStore, keystore: keystore, config: config, assetDefinitionStore: assetDefinitionStore, analytics: analytics, coinTickersFetcher: coinTickersFetcher, walletAddressesStore: walletAddressesStore)
+        let service = MultiWalletBalanceService(walletAddressesStore: walletAddressesStore, dependencyContainer: dependencyProvider)
+        service.start()
+        return service
     }()
     private var pendingActiveWalletCoordinator: ActiveWalletCoordinator?
 
@@ -82,9 +91,7 @@ class AppCoordinator: NSObject, Coordinator {
 
         return coordinator
     }()
-
-    private lazy var tokenSwapper = TokenSwapper(reachabilityManager: ReachabilityManager(), sessions: sessionsSubject.eraseToAnyPublisher())
-
+    private lazy var tokenSwapper = TokenSwapper(reachabilityManager: ReachabilityManager(), sessionProvider: sessionProvider)
     private lazy var tokenActionsService: TokenActionsService = {
         let service = TokenActionsService()
         service.register(service: Ramp())
@@ -111,9 +118,8 @@ class AppCoordinator: NSObject, Coordinator {
         return service
     }()
 
-    private lazy var sessionsSubject = CurrentValueSubject<ServerDictionary<WalletSession>, Never>(.init())
     private lazy var walletConnectCoordinator: WalletConnectCoordinator = {
-        let coordinator = WalletConnectCoordinator(keystore: keystore, navigationController: navigationController, analytics: analytics, domainResolutionService: domainResolutionService, config: config, sessionsSubject: sessionsSubject, assetDefinitionStore: assetDefinitionStore)
+        let coordinator = WalletConnectCoordinator(keystore: keystore, navigationController: navigationController, analytics: analytics, domainResolutionService: domainResolutionService, config: config, sessionProvider: sessionProvider, assetDefinitionStore: assetDefinitionStore)
 
         return coordinator
     }()
@@ -126,7 +132,7 @@ class AppCoordinator: NSObject, Coordinator {
     lazy private var blockiesGenerator: BlockiesGenerator = BlockiesGenerator(openSea: openSea, storage: sharedEnsRecordsStorage)
     lazy private var domainResolutionService: DomainResolutionServiceType = DomainResolutionService(blockiesGenerator: blockiesGenerator, storage: sharedEnsRecordsStorage)
     private lazy var walletApiService: WalletApiService = {
-        let service = WalletApiService(keystore: keystore, navigationController: navigationController, analytics: analytics, sessionsSubject: sessionsSubject)
+        let service = WalletApiService(keystore: keystore, navigationController: navigationController, analytics: analytics, serviceProvider: sessionProvider)
         service.delegate = self
 
         return service
@@ -134,6 +140,8 @@ class AppCoordinator: NSObject, Coordinator {
     private lazy var notificationService: NotificationService = {
         return NotificationService(sources: [], walletBalanceService: walletBalanceService)
     }()
+
+    private lazy var sessionProvider = SessionsProvider(config: config, analytics: analytics)
 
     init(window: UIWindow, analytics: AnalyticsServiceType, keystore: Keystore, walletAddressesStore: WalletAddressesStore, navigationController: UINavigationController = .withOverridenBarAppearence()) throws {
         self.navigationController = navigationController
@@ -154,7 +162,6 @@ class AppCoordinator: NSObject, Coordinator {
     private func bindWalletAddressesStore() {
         walletAddressesStore
             .didRemoveWalletPublisher
-            .receive(on: RunLoop.main)
             .sink { [weak self] account in
                 guard let `self` = self else { return }
 
@@ -213,6 +220,10 @@ class AppCoordinator: NSObject, Coordinator {
             removeCoordinator(coordinator)
         }
 
+        let dep = dependencyProvider.makeDependencies(for: wallet)
+
+        walletConnectCoordinator.configure(with: dep.pipeline)
+
         let coordinator = ActiveWalletCoordinator(
                 navigationController: navigationController,
                 walletAddressesStore: walletAddressesStore,
@@ -231,11 +242,14 @@ class AppCoordinator: NSObject, Coordinator {
                 coinTickersFetcher: coinTickersFetcher,
                 tokenActionsService: tokenActionsService,
                 walletConnectCoordinator: walletConnectCoordinator,
-                sessionsSubject: sessionsSubject,
                 notificationService: notificationService,
                 blockiesGenerator: blockiesGenerator,
                 domainResolutionService: domainResolutionService,
-                tokenSwapper: tokenSwapper)
+                tokenSwapper: tokenSwapper,
+                sessionsProvider: dep.sessionsProvider,
+                tokenCollection: dep.pipeline,
+                importToken: dep.importToken,
+                tokensDataStore: dep.tokensDataStore)
 
         coordinator.delegate = self
 
@@ -243,6 +257,8 @@ class AppCoordinator: NSObject, Coordinator {
         addCoordinator(accountsCoordinator)
 
         coordinator.start(animated: animated)
+
+        sessionProvider.start(sessions: dep.sessionsProvider.sessions)
 
         return coordinator
     }
@@ -477,7 +493,7 @@ extension AppCoordinator: UniversalLinkServiceDelegate {
             coordinator.handleOpen(url: url)
         case .eip681(let url):
             let account = resolver.sessions.anyValue.account
-            let paymentFlowResolver = PaymentFlowFromEip681UrlResolver(tokensDataStore: resolver.tokensDataStore, account: account, assetDefinitionStore: assetDefinitionStore, analytics: analytics, config: config)
+            let paymentFlowResolver = PaymentFlowFromEip681UrlResolver(service: resolver.service, account: account, assetDefinitionStore: assetDefinitionStore, analytics: analytics, config: config)
             guard let promise = paymentFlowResolver.resolve(url: url) else { return }
             firstly {
                 promise
@@ -506,17 +522,15 @@ extension AppCoordinator: UniversalLinkServiceDelegate {
         case .magicLink(_, let server, let url):
             guard hasImportMagicLinkCoordinator == nil else { return }
 
-            if resolver.sessions[safe: server] != nil {
+            if let session = resolver.sessions[safe: server] {
                 let coordinator = ImportMagicLinkCoordinator(
                     analytics: analytics,
-                    sessions: resolver.sessions,
+                    session: session,
                     config: config,
-                    tokensDatastore: resolver.tokensDataStore,
                     assetDefinitionStore: assetDefinitionStore,
                     url: url,
-                    server: server,
-                    keystore: keystore
-                )
+                    keystore: keystore,
+                    service: resolver.service)
 
                 coordinator.delegate = self
                 let handled = coordinator.start(url: url)

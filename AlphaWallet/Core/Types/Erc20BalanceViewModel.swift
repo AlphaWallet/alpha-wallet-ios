@@ -10,8 +10,8 @@ import BigInt
 import AlphaWalletOpenSea
 
 protocol BalanceRepresentable {
-    var balance: [TokenBalanceValue] { get }
-    var value: BigInt { get }
+    var balanceNft: [TokenBalanceValue] { get }
+    var valueBI: BigInt { get }
     var type: TokenType { get }
     var decimals: Int { get }
     var symbol: String { get }
@@ -28,12 +28,12 @@ struct Erc20BalanceViewModel: BalanceViewModelType {
     }
 
     var balance: [TokenBalanceValue] { return [] }
-    var value: BigInt { token.value }
-    var amount: Double { return EtherNumberFormatter.plain.string(from: token.value).doubleValue }
+    var value: BigInt { token.valueBI }
+    var amount: Double { return EtherNumberFormatter.plain.string(from: token.valueBI).doubleValue }
 
     var amountString: String {
         guard !isZero else { return "0.00 \(token.symbol)" }
-        let balance = EtherNumberFormatter.plain.string(from: token.value, decimals: token.decimals).droppedTrailingZeros
+        let balance = EtherNumberFormatter.plain.string(from: token.valueBI, decimals: token.decimals).droppedTrailingZeros
         return "\(balance) \(token.symbol)"
     }
 
@@ -47,8 +47,8 @@ struct Erc20BalanceViewModel: BalanceViewModelType {
         return amount * currentRate.price
     }
 
-    var amountFull: String { return EtherNumberFormatter.plain.string(from: token.value, decimals: token.decimals).droppedTrailingZeros }
-    var amountShort: String { return EtherNumberFormatter.short.string(from: token.value, decimals: token.decimals).droppedTrailingZeros }
+    var amountFull: String { return EtherNumberFormatter.plain.string(from: token.valueBI, decimals: token.decimals).droppedTrailingZeros }
+    var amountShort: String { return EtherNumberFormatter.short.string(from: token.valueBI, decimals: token.decimals).droppedTrailingZeros }
     var symbol: String { return token.symbol }
 
     //NOTE: we suppose ticker.symbol is the same as token.symbol, for erc20 tokens

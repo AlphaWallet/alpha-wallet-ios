@@ -88,5 +88,14 @@ extension NonFungibleTokenViewCellViewModel: Hashable {
         return lhs.token == rhs.token &&
             lhs.token.tokenScriptOverrides?.shortTitleInPluralForm == rhs.token.tokenScriptOverrides?.shortTitleInPluralForm &&
             lhs.token.nonZeroBalance.count.toString() == rhs.token.nonZeroBalance.count.toString()
-    } 
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(isVisible)
+        hasher.combine(accessoryType)
+        hasher.combine(token.contractAddress)
+        hasher.combine(token.server)
+        hasher.combine(token.tokenScriptOverrides?.shortTitleInPluralForm)
+        hasher.combine(token.nonZeroBalance.count)
+    }
 }

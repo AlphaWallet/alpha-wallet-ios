@@ -1,5 +1,5 @@
 //
-//  PrivateBalanceFetcher.swift
+//  TokenBalanceFetcher.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 26.05.2021.
@@ -14,54 +14,57 @@ import PromiseKit
 import Result
 import SwiftyJSON
 
-protocol PrivateBalanceFetcherDelegate: AnyObject {
-    func didUpdateBalance(value operations: [AddOrUpdateTokenAction], in fetcher: PrivateBalanceFetcher)
+protocol TokenBalanceFetcherDelegate: AnyObject {
+    func didUpdateBalance(value operations: [AddOrUpdateTokenAction], in fetcher: TokenBalanceFetcher)
 }
 
-protocol PrivateBalanceFetcherType: AnyObject {
-    var server: RPCServer { get }
-    var etherToken: Token { get }
-    var delegate: PrivateBalanceFetcherDelegate? { get set }
+protocol TokenBalanceFetcherType: AnyObject {
+    //var etherToken: Token { get }
+    var delegate: TokenBalanceFetcherDelegate? { get set }
     var erc721TokenIdsFetcher: Erc721TokenIdsFetcher? { get set }
 
     func refreshBalance(for tokens: [Token])
+    func cancel()
 }
 
-class PrivateBalanceFetcher: PrivateBalanceFetcherType {
-    private let account: Wallet
+class TokenBalanceFetcher: TokenBalanceFetcherType {
     private let nftProvider: NFTProvider
     private let queue: DispatchQueue
-    private let config: Config
-    private let tokensDataStore: TokensDataStore
+    private let service: TokenProvidable & TokenAddable
     private let assetDefinitionStore: AssetDefinitionStore
     private let analytics: AnalyticsLogger
 
-    private lazy var nonErc1155BalanceFetcher = TokenProvider(account: account, server: server, analytics: analytics, queue: queue)
-    private lazy var nonFungibleJsonBalanceFetcher = NonFungibleJsonBalanceFetcher(server: server, tokensDataStore: tokensDataStore, queue: queue)
-    private lazy var erc1155TokenIdsFetcher = Erc1155TokenIdsFetcher(address: account.address, server: server, config: config, queue: queue)
-    private lazy var erc1155BalanceFetcher = Erc1155BalanceFetcher(address: account.address, server: server)
+    private lazy var nonErc1155BalanceFetcher: TokenProviderType = session.tokenProvider
+    private lazy var nonFungibleJsonBalanceFetcher = NonFungibleJsonBalanceFetcher(server: session.server, service: service, queue: queue)
+    private lazy var erc1155TokenIdsFetcher = Erc1155TokenIdsFetcher(address: session.account.address, server: session.server, config: session.config, queue: queue)
+    private lazy var erc1155BalanceFetcher = Erc1155BalanceFetcher(address: session.account.address, server: session.server)
     private lazy var erc1155JsonBalanceFetcher: NonFungibleErc1155JsonBalanceFetcher = {
-        return NonFungibleErc1155JsonBalanceFetcher(assetDefinitionStore: assetDefinitionStore, analytics: analytics, tokensDataStore: tokensDataStore, account: account, server: server, erc1155TokenIdsFetcher: erc1155TokenIdsFetcher, nonFungibleJsonBalanceFetcher: nonFungibleJsonBalanceFetcher, erc1155BalanceFetcher: erc1155BalanceFetcher, queue: queue)
+        return NonFungibleErc1155JsonBalanceFetcher(assetDefinitionStore: assetDefinitionStore, analytics: analytics, service: service, account: session.account, server: session.server, erc1155TokenIdsFetcher: erc1155TokenIdsFetcher, nonFungibleJsonBalanceFetcher: nonFungibleJsonBalanceFetcher, erc1155BalanceFetcher: erc1155BalanceFetcher, queue: queue)
     }()
+    private let session: WalletSession
+    private let etherToken: Token
 
-    let server: RPCServer
-    let etherToken: Token
-    weak var delegate: PrivateBalanceFetcherDelegate?
+    weak var delegate: TokenBalanceFetcherDelegate?
     weak var erc721TokenIdsFetcher: Erc721TokenIdsFetcher?
 
-    init(account: Wallet, nftProvider: NFTProvider, tokensDataStore: TokensDataStore, etherToken: Token, server: RPCServer, config: Config, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger, queue: DispatchQueue) {
+    init(session: WalletSession, nftProvider: NFTProvider, service: TokenProvidable & TokenAddable, etherToken: Token, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger, queue: DispatchQueue) {
+        self.session = session
         self.nftProvider = nftProvider
-        self.account = account
-        self.server = server
-        self.config = config
         self.queue = queue
         self.etherToken = etherToken
-        self.tokensDataStore = tokensDataStore
+        self.service = service
         self.assetDefinitionStore = assetDefinitionStore
         self.analytics = analytics
+
+        assert(etherToken.server == session.server)
+    }
+
+    deinit {
+        print("XXX.\(self).deinit for server: \(session.server)")
     }
 
     func refreshBalance(for tokens: [Token]) {
+        //print("XXX asked to reload balances for \(tokens.count) for wallet: \(session.account)")
         guard !isRunningTests() else { return }
 
         let etherTokens = tokens.filter { $0 == etherToken }
@@ -73,6 +76,10 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         refreshEtherTokens(tokens: etherTokens)
         refreshBalanceForNonErc721Or1155Tokens(tokens: notErc721Or1155Tokens)
         refreshBalanceForErc721Or1155Tokens(tokens: erc721Or1155Tokens)
+    }
+
+    func cancel() {
+        //implement request cancel here
     }
 
     private func notifyUpdateBalance(_ operations: [AddOrUpdateTokenAction]) {
@@ -87,6 +94,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     enum RefreshBalancePolicy {
         case eth
         case all
+        case tokens(tokens: [Token])
         case token(token: Token)
     }
 
@@ -94,7 +102,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     private func refreshEtherTokens(tokens: [Token]) {
         for etherToken in tokens {
             nonErc1155BalanceFetcher
-                .getEthBalance(for: account.address)
+                .getEthBalance(for: session.account.address)
                 .done(on: queue, { [weak self] balance in
                     self?.notifyUpdateBalance([.update(token: etherToken, action: .value(balance.value))])
                 }).cauterize()
@@ -130,7 +138,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         assert(!tokens.contains { !$0.isERC721Or1155AndNotForTickets })
 
         firstly {
-            nftProvider.nonFungible(wallet: account, server: server)
+            nftProvider.nonFungible(wallet: session.account, server: session.server)
         }.done(on: queue, { [weak self] response in
             guard let strongSelf = self else { return }
 
@@ -173,15 +181,15 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     private func updateNonOpenSeaErc721Balance(contract: AlphaWallet.Address, enjinTokens: EnjinTokenIdsToSemiFungibles) {
         guard let erc721TokenIdsFetcher = erc721TokenIdsFetcher else { return }
         firstly {
-            erc721TokenIdsFetcher.tokenIdsForErc721Token(contract: contract, forServer: server, inAccount: account.address)
+            erc721TokenIdsFetcher.tokenIdsForErc721Token(contract: contract, forServer: session.server, inAccount: session.account.address)
         }.then(on: queue, { [nonFungibleJsonBalanceFetcher] tokenIds -> Promise<[NonFungibleBalanceAndItsSource<JsonString>]> in
             let guarantees: [Guarantee<NonFungibleBalanceAndItsSource>] = tokenIds
                 .map { nonFungibleJsonBalanceFetcher.fetchNonFungibleJson(forTokenId: $0, tokenType: .erc721, address: contract, enjinTokens: enjinTokens) }
             return when(fulfilled: guarantees)
-        }).done(on: queue, { [weak self, weak tokensDataStore] jsons in
+        }).done(on: queue, { [weak self, service] jsons in
             guard let strongSelf = self else { return }
 
-            guard let token = tokensDataStore?.token(forContract: contract, server: strongSelf.server) else { return }
+            guard let token = service.token(for: contract, server: strongSelf.session.server) else { return }
 
             let listOfAssets = jsons.map { NonFungibleBalance.NftAssetRawValue(json: $0.value, source: $0.source) }
             strongSelf.notifyUpdateBalance([
@@ -212,7 +220,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
                 //Default to ERC721 because this is what we supported (from OpenSea) before adding ERC1155 support
                 tokenType = .erc721
             }
-            if let token = tokensDataStore.token(forContract: contract, server: server) {
+            if let token = service.token(for: contract, server: session.server) {
                 actions += [
                     .update(token: token, action: .type(tokenType)),
                     .update(token: token, action: .nonFungibleBalance(.assets(listOfAssets))),
@@ -223,7 +231,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
             } else {
                 let token = ERCToken(
                         contract: contract,
-                        server: server,
+                        server: session.server,
                         name: nonFungibles[0].value.contractName,
                         symbol: nonFungibles[0].value.symbol,
                         decimals: 0,
@@ -290,11 +298,11 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     }
 }
 
-extension PrivateBalanceFetcher {
+extension TokenBalanceFetcher {
     class functional {}
 }
 
-extension PrivateBalanceFetcher.functional {
+extension TokenBalanceFetcher.functional {
     static func fillErc1155NonFungiblesWithBalance<T: NonFungibleFromJson>(contractToNonFungibles: [AlphaWallet.Address: [NonFungibleBalanceAndItsSource<T>]], contractsAndBalances: [(contract: AlphaWallet.Address, balances: [BigInt: BigUInt])]) -> [AlphaWallet.Address: [NonFungibleBalanceAndItsSource<T>]] {
         let contractsAndBalances = Dictionary(uniqueKeysWithValues: contractsAndBalances)
         let contractToNonFungiblesWithUpdatedBalances: [AlphaWallet.Address: [NonFungibleBalanceAndItsSource<T>]] = Dictionary(uniqueKeysWithValues: contractToNonFungibles.map { contract, nonFungibles in

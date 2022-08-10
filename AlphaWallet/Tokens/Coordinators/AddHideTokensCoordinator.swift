@@ -14,26 +14,25 @@ class AddHideTokensCoordinator: Coordinator {
     private let domainResolutionService: DomainResolutionServiceType
     private let navigationController: UINavigationController
     private let importToken: ImportToken
-    private lazy var viewModel = AddHideTokensViewModel(tokenCollection: tokenCollection, importToken: importToken, config: config, assetDefinitionStore: assetDefinitionStore)
+    private lazy var viewModel = AddHideTokensViewModel(tokenCollection: tokenCollection, tokensFilter: tokensFilter, importToken: importToken, config: config)
     private lazy var rootViewController: AddHideTokensViewController = {
         return .init(viewModel: viewModel)
     }()
 
-    private let assetDefinitionStore: AssetDefinitionStore
     private let config: Config
     private let tokenCollection: TokenCollection
-
+    private let tokensFilter: TokensFilter
     var coordinators: [Coordinator] = []
     weak var delegate: AddHideTokensCoordinatorDelegate?
 
-    init(assetDefinitionStore: AssetDefinitionStore, tokenCollection: TokenCollection, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, navigationController: UINavigationController, config: Config, importToken: ImportToken) {
+    init(tokensFilter: TokensFilter, tokenCollection: TokenCollection, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, navigationController: UINavigationController, config: Config, importToken: ImportToken) {
         self.config = config
         self.tokenCollection = tokenCollection
         self.analytics = analytics
         self.domainResolutionService = domainResolutionService
         self.navigationController = navigationController
-        self.assetDefinitionStore = assetDefinitionStore
         self.importToken = importToken
+        self.tokensFilter = tokensFilter
     }
 
     func start() {
