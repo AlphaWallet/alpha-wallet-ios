@@ -9,8 +9,16 @@ protocol TokenIdentifiable {
     var server: RPCServer { get }
 }
 
-//NOTE: Changed to class to prevent update all ViewModel copies and apply updates only in one place.
-//TODO: Refactor with input and output for view model
+struct AddHideTokensViewModelInput {
+    let sortTokensParam: AnyPublisher<SortTokensParam, Never>
+    let searchText: AnyPublisher<String?, Never>
+    let isSearchActive: AnyPublisher<Bool, Never>
+}
+
+struct AddHideTokensViewModelOutput {
+    let viewState: AnyPublisher<Void, Never>
+}
+
 class AddHideTokensViewModel: ObservableObject {
     private var tokens: [TokenViewModel] = []
     private var allPopularTokens: [PopularToken] = []
@@ -22,15 +30,11 @@ class AddHideTokensViewModel: ObservableObject {
     private let config: Config
     private var cancelable = Set<AnyCancellable>()
     private let tokenCollection: TokenCollection
-
-    var sortTokensParam: SortTokensParam = .byField(field: .name, direction: .ascending) {
-        didSet { filterTokens() }
-    }
-    var searchText: String? {
-        didSet { filterTokens() }
-    }
-
-    var isSearchActive: Bool = false
+    private let addToken = PassthroughSubject<Token, Never>()
+    private (set) var sortTokensParam: SortTokensParam = .byField(field: .name, direction: .ascending)
+    private var searchText: String?
+    private var isSearchActive: Bool = false
+    
     var sections: [Section] = [.sortingFilters, .displayedTokens, .hiddenTokens, .popularTokens]
     var title: String = R.string.localizable.walletsAddHideTokensTitle()
     var backgroundColor: UIColor = GroupedTable.Color.background
@@ -47,22 +51,36 @@ class AddHideTokensViewModel: ObservableObject {
         self.tokensFilter = tokensFilter
     }
 
-    func viewDidLoad() {
+    func transform(input: AddHideTokensViewModelInput) -> AddHideTokensViewModelOutput {
+        input.isSearchActive.sink { [weak self] in
+            self?.isSearchActive = $0
+        }.store(in: &cancelable)
+
+        let whenTokensHasChange = PassthroughSubject<Void, Never>()
         tokenCollection.tokenViewModels
             .first() //NOTE: out of current logic we load db snapshot, and not handling updates in changeset
             .sink { [weak self] tokens in
                 self?.tokens = tokens
-                self?.filterTokens()
-                self?.objectWillChange.send()
+                whenTokensHasChange.send(())
             }.store(in: &cancelable)
 
         popularTokensCollection.fetchTokens(for: config.enabledServers)
             .done { [weak self] tokens in
                 self?.allPopularTokens = tokens
-                self?.filterTokens()
-                self?.objectWillChange.send()
+                whenTokensHasChange.send(())
             }.cauterize()
-    }
+
+        let searchText = input.searchText.handleEvents(receiveOutput: { [weak self] in self?.searchText = $0 })
+            .map { _ in }
+
+        let sortTokensParam = input.sortTokensParam.handleEvents(receiveOutput: { [weak self] in self?.sortTokensParam = $0 })
+            .map { _ in }
+
+        let viewState = Publishers.Merge4(whenTokensHasChange, searchText, sortTokensParam, addToken.map { _ in })
+            .handleEvents(receiveOutput: { [weak self] _ in self?.filterTokens() })
+
+        return .init(viewState: viewState.eraseToAnyPublisher())
+    } 
 
     func titleForSection(_ section: Int) -> String {
         sections[section].description
@@ -92,14 +110,13 @@ class AddHideTokensViewModel: ObservableObject {
         }
     }
 
-    func add(token: Token) {
-        let viewModel = TokenViewModel(token: token)
-        if !tokens.contains(viewModel) {
-            tokens.append(viewModel)
+    func add(token _token: Token) {
+        guard let token = tokenCollection.tokenViewModel(for: _token) else { return }
+        if !tokens.contains(token) {
+            tokens.append(token)
         }
 
-        filterTokens()
-        objectWillChange.send()
+        addToken.send(_token)
     }
 
     func markTokenAsDisplayed(at indexPath: IndexPath) -> ShowHideTokenResult {
@@ -107,9 +124,8 @@ class AddHideTokensViewModel: ObservableObject {
         case .displayedTokens, .availableNewTokens, .sortingFilters:
             break
         case .hiddenTokens:
-            let tokenViewModel = hiddenTokens.remove(at: indexPath.row)
-            guard let token = tokenCollection.token(for: tokenViewModel.contractAddress, server: tokenViewModel.server) else { return .value(nil) }
-            displayedTokens.append(tokenViewModel)
+            let token = hiddenTokens.remove(at: indexPath.row)
+            displayedTokens.append(token)
 
             if let sectionIndex = sections.index(of: .displayedTokens) {
                 tokenCollection.mark(token: token, isHidden: false)
@@ -120,9 +136,10 @@ class AddHideTokensViewModel: ObservableObject {
             let token = popularTokens[indexPath.row]
             let promise = importToken
                 .importToken(for: token.contractAddress, server: token.server, onlyIfThereIsABalance: false)
-                .then { [tokenCollection] token -> Promise<TokenWithIndexToInsert?> in
+                .then { [tokenCollection] _token -> Promise<TokenWithIndexToInsert?> in
+                    guard let token = tokenCollection.tokenViewModel(for: _token) else { return .init(error: PMKError.cancelled) }
                     self.popularTokens.remove(at: indexPath.row)
-                    self.displayedTokens.append(.init(token: token))
+                    self.displayedTokens.append(token)
 
                     if let sectionIndex = self.sections.index(of: .displayedTokens) {
                         tokenCollection.mark(token: token, isHidden: false)
@@ -142,9 +159,8 @@ class AddHideTokensViewModel: ObservableObject {
     func markTokenAsHidden(at indexPath: IndexPath) -> ShowHideTokenResult {
         switch sections[indexPath.section] {
         case .displayedTokens:
-            let viewModel = displayedTokens.remove(at: indexPath.row)
-            guard let token = tokenCollection.token(for: viewModel.contractAddress, server: viewModel.server) else { return .value(nil) }
-            hiddenTokens.insert(viewModel, at: 0)
+            let token = displayedTokens.remove(at: indexPath.row)
+            hiddenTokens.insert(token, at: 0)
 
             if let sectionIndex = sections.index(of: .hiddenTokens) {
                 tokenCollection.mark(token: token, isHidden: true)
@@ -259,7 +275,7 @@ extension AddHideTokensViewModel {
         case undefined
     }
 
-    typealias TokenWithIndexToInsert = (token: Token, indexPathToInsert: IndexPath)
+    typealias TokenWithIndexToInsert = (token: TokenViewModel, indexPathToInsert: IndexPath)
 
     enum ShowHideTokenResult {
         case value(TokenWithIndexToInsert?)
