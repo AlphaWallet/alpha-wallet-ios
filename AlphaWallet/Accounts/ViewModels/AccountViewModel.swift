@@ -9,9 +9,9 @@ class AccountViewModel {
     private let subscribeForBalanceUpdates: Bool
     private let walletBalanceService: WalletBalanceService
     private let analytics: AnalyticsLogger
-    private let wallet: Wallet
     private let current: Wallet?
 
+    let wallet: Wallet
     lazy var apprecation24hour: AnyPublisher<NSAttributedString, Never> = {
         return walletBalanceService
             .walletBalance(for: wallet)
@@ -74,6 +74,10 @@ class AccountViewModel {
 
     var backgroundColor: UIColor = Colors.appBackground
 
+    var canEditCell: Bool {
+        return !isSelected
+    }
+
     private func apprecation24hourAttributedString(_ balance: WalletBalance?) -> NSAttributedString {
         if subscribeForBalanceUpdates {
             let style = NSMutableParagraphStyle()
@@ -95,6 +99,7 @@ class AccountViewModel {
             .foregroundColor: Colors.black,
         ])
     }
+    
     private func addressOrEnsOrNameAttributedString(_ name: String) -> NSAttributedString {
         return .init(string: name, attributes: [
             .font: Fonts.regular(size: 12),

@@ -1,7 +1,6 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
-import PromiseKit
 import Combine
 
 protocol AccountsViewControllerDelegate: AnyObject {
@@ -17,12 +16,14 @@ class AccountsViewController: UIViewController {
         control.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
         return control
     }()
+    private let appear = PassthroughSubject<Void, Never>()
+    private let _pullToRefresh = PassthroughSubject<Void, Never>()
+    private let deleteWallet = PassthroughSubject<AccountsViewModel.WalletDeleteConfirmation, Never>()
+
     private let roundedBackground = RoundedBackground()
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.delegate = self
-        tableView.dataSource = self
         tableView.separatorStyle = .singleLine
         tableView.backgroundColor = viewModel.backgroundColor
         tableView.tableFooterView = UIView()
@@ -55,30 +56,65 @@ class AccountsViewController: UIViewController {
         super.viewDidLoad()
 
         bind(viewModel: viewModel)
+        tableView.delegate = self
+        tableView.dataSource = self
     } 
 
     private func bind(viewModel: AccountsViewModel) {
-        viewModel.objectWillChange
-            .receive(on: RunLoop.main)
-            .sink { [weak tableView] _ in
-                tableView?.reloadData()
-            }.store(in: &cancelable)
+        let input = AccountsViewModelInput(
+            appear: appear.eraseToAnyPublisher(),
+            pullToRefresh: _pullToRefresh.eraseToAnyPublisher(),
+            deleteWallet: deleteWallet.eraseToAnyPublisher())
 
-        viewModel.reloadBalancePublisher
-            .receive(on: RunLoop.main)
-            .sink { [weak refreshControl] state in
-                switch state {
-                case .fetching:
-                    refreshControl?.beginRefreshing()
-                case .done, .failure:
-                    refreshControl?.endRefreshing()
+        let output = viewModel.transform(input: input)
+
+        output.viewState.sink { [weak self, weak tableView] state in
+            self?.title = state.navigationTitle
+            tableView?.reloadData()
+        }.store(in: &cancelable)
+
+        output.reloadBalanceState.sink { [weak refreshControl] state in
+            switch state {
+            case .fetching:
+                refreshControl?.beginRefreshing()
+            case .done, .failure:
+                refreshControl?.endRefreshing()
+            }
+        }.store(in: &cancelable)
+
+        output.deleteWalletState.sink { [weak self] data in
+            guard let strongSelf = self else { return }
+            switch data.state {
+            case .willDelete:
+                strongSelf.navigationController?.displayLoading(text: R.string.localizable.deleting())
+            case .didDelete:
+                strongSelf.navigationController?.hideLoading()
+                strongSelf.delegate?.didDeleteAccount(account: data.wallet, in: strongSelf)
+            case .none:
+                break
+            }
+        }.store(in: &cancelable)
+
+        output.askDeleteWalletConfirmation.sink { [weak self, deleteWallet] wallet in
+            guard let strongSelf = self else { return }
+
+            strongSelf.confirm(title: R.string.localizable.accountsConfirmDeleteTitle(),
+                    message: R.string.localizable.accountsConfirmDeleteMessage(),
+                    okTitle: R.string.localizable.accountsConfirmDeleteOkTitle(),
+                    okStyle: .destructive) { result in
+                switch result {
+                case .success:
+                    deleteWallet.send(.init(wallet: wallet, deleteConfirmed: true))
+                case .failure:
+                    deleteWallet.send(.init(wallet: wallet, deleteConfirmed: false))
                 }
-            }.store(in: &cancelable)
+            }
+        }.store(in: &cancelable)
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        reload()
+        appear.send(())
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -91,59 +127,14 @@ class AccountsViewController: UIViewController {
         tableView.scrollToRow(at: indexPath, at: .top, animated: true)
     }
 
-    private func reload() {
-        viewModel.reload()
-        title = viewModel.title
-        tableView.reloadData()
-    }
-
-    private func confirmDelete(account: Wallet, complete: @escaping (Bool) -> Void) {
-        confirm(
-            title: R.string.localizable.accountsConfirmDeleteTitle(),
-            message: R.string.localizable.accountsConfirmDeleteMessage(),
-            okTitle: R.string.localizable.accountsConfirmDeleteOkTitle(),
-            okStyle: .destructive
-        ) { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-            case .success:
-                strongSelf.delete(account: account)
-                complete(true)
-            case .failure:
-                complete(false)
-            }
-        }
-    }
-
     @objc private func pullToRefresh(_ sender: UIRefreshControl) {
-        viewModel.reloadBalance()
-    }
-
-    private func delete(account: Wallet) {
-        navigationController?.displayLoading(text: R.string.localizable.deleting())
-        let result = viewModel.delete(account: account)
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
-            guard let strongSelf = self else { return }
-
-            strongSelf.navigationController?.hideLoading()
-
-            switch result {
-            case .success:
-                self?.reload()
-                strongSelf.delegate?.didDeleteAccount(account: account, in: strongSelf)
-            case .failure(let error):
-                strongSelf.displayError(error: error)
-            }
-        }
+        _pullToRefresh.send(())
     }
 
     required init?(coder aDecoder: NSCoder) {
         return nil
     }
 }
-
-// MARK: - TableView Data Source
 
 extension AccountsViewController: UITableViewDataSource {
 
@@ -189,7 +180,6 @@ extension AccountsViewController: UITableViewDataSource {
 }
 
 // MARK: - TableView Delegate
-
 extension AccountsViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
@@ -213,35 +203,7 @@ extension AccountsViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        var actions: [UIContextualAction] = []
-
-        let copyAction = UIContextualAction(style: .normal, title: R.string.localizable.copyAddress()) { _, _, complete in
-            guard let account = self.viewModel.account(for: indexPath) else { return }
-            UIPasteboard.general.string = account.address.eip55String
-            self.view.showCopiedToClipboard(title: R.string.localizable.copiedToClipboard())
-            complete(true)
-        }
-        copyAction.image = R.image.copy()?.withRenderingMode(.alwaysTemplate)
-        copyAction.backgroundColor = R.color.azure()
-
-        actions += [copyAction]
-
-        if viewModel.canDeleteWallet(at: indexPath) {
-            let deleteAction = UIContextualAction(style: .normal, title: R.string.localizable.accountsConfirmDeleteAction()) { _, _, complete in
-                guard let account = self.viewModel.account(for: indexPath) else { return }
-                self.confirmDelete(account: account, complete: complete)
-            }
-
-            deleteAction.image = R.image.close()?.withRenderingMode(.alwaysTemplate)
-            deleteAction.backgroundColor = R.color.danger()
-
-            actions += [deleteAction]
-        }
-
-        let configuration = UISwipeActionsConfiguration(actions: actions)
-        configuration.performsFirstActionWithFullSwipe = true
-
-        return configuration
+        return viewModel.trailingSwipeActionsConfiguration(for: indexPath)
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
