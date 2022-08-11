@@ -5,7 +5,7 @@ import UIKit
 
 protocol EditMyDappViewControllerDelegate: AnyObject {
     func didTapSave(dapp: Bookmark, withTitle title: String, url: String, inViewController viewController: EditMyDappViewController)
-    func didTapCancel(inViewController viewController: EditMyDappViewController)
+    func didClose(in viewController: EditMyDappViewController)
 }
 
 class EditMyDappViewController: UIViewController {
@@ -126,8 +126,6 @@ class EditMyDappViewController: UIViewController {
         let saveButton = buttonsBar.buttons[0]
         saveButton.addTarget(self, action: #selector(save), for: .touchUpInside)
         saveButton.setTitle(viewModel.saveButtonTitle, for: .normal)
-
-        navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(cancel))
     }
 
     override func viewDidLayoutSubviews() {
@@ -144,9 +142,11 @@ class EditMyDappViewController: UIViewController {
         let title = titleTextField.value.trimmed
         delegate?.didTapSave(dapp: dapp, withTitle: title, url: url, inViewController: self)
     }
+}
 
-    @objc private func cancel() {
-        delegate?.didTapCancel(inViewController: self)
+extension EditMyDappViewController: PopNotifiable {
+    func didPopViewController(animated: Bool) {
+        delegate?.didClose(in: self)
     }
 }
 
