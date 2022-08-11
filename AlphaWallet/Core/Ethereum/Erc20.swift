@@ -12,7 +12,7 @@ enum Erc20 {
 
         let abi = String(data: AlphaWallet.Ethereum.ABI.ERC20, encoding: .utf8)!
         return firstly {
-            callSmartContract(withServer: server, contract: tokenAddress, functionName: "allowance", abiString: abi, parameters: [owner.eip55String, spender.eip55String] as [AnyObject], timeout: Constants.fetchContractDataTimeout)
+            callSmartContract(withServer: server, contract: tokenAddress, functionName: "allowance", abiString: abi, parameters: [owner.eip55String, spender.eip55String] as [AnyObject])
         }.map { allowanceResult -> (Bool, BigUInt) in
             if let allowance = allowanceResult["0"] as? BigUInt {
                 let hasEnough = allowance >= amount

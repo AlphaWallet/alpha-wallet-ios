@@ -34,7 +34,7 @@ class ScriptUri {
     func get(forContract contract: AlphaWallet.Address) -> Promise<URL> {
         let functionName = "scriptURI"
         return firstly {
-            callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: abiString, timeout: Constants.fetchContractDataTimeout)
+            callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: abiString)
         }.map { urlStringResult in
             if let urlString = urlStringResult["0"] as? String {
                 if let url = URL(string: urlString) {

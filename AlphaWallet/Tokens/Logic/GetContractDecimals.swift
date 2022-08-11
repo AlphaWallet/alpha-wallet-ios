@@ -14,7 +14,7 @@ class GetContractDecimals {
 
     func getDecimals(for contract: AlphaWallet.Address) -> Promise<UInt8> {
         let functionName = "decimals"
-        return callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: web3swift.Web3.Utils.erc20ABI, timeout: Constants.fetchContractDataTimeout).map { dictionary -> UInt8 in
+        return callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: web3swift.Web3.Utils.erc20ABI).map { dictionary -> UInt8 in
             if let decimalsWithUnknownType = dictionary["0"] {
                 let string = String(describing: decimalsWithUnknownType)
                 if let decimals = UInt8(string) {

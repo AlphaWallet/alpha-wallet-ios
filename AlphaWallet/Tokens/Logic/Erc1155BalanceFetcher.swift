@@ -27,7 +27,7 @@ class Erc1155BalanceFetcher {
         let address = EthereumAddress(self.address.eip55String)!
         let addresses: [EthereumAddress] = [EthereumAddress](repeating: address, count: tokenIds.count)
         return firstly {
-            callSmartContract(withServer: server, contract: contract, functionName: "balanceOfBatch", abiString: AlphaWallet.Ethereum.ABI.erc1155String, parameters: [addresses, tokenIds] as [AnyObject], timeout: Constants.fetchContractDataTimeout)
+            callSmartContract(withServer: server, contract: contract, functionName: "balanceOfBatch", abiString: AlphaWallet.Ethereum.ABI.erc1155String, parameters: [addresses, tokenIds] as [AnyObject])
         }.map { result in
             if let balances = result["0"] as? [BigUInt], balances.count == tokenIds.count {
                 return Dictionary(uniqueKeysWithValues: zip(tokenIds, balances))
