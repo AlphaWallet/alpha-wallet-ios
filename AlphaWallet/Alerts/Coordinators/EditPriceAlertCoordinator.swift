@@ -35,19 +35,16 @@ class EditPriceAlertCoordinator: Coordinator {
         let viewController = EditPriceAlertViewController(viewModel: .init(configuration: configuration, token: token), session: session, tokensService: tokensService, alertService: alertService)
         viewController.delegate = self
         viewController.hidesBottomBarWhenPushed = true
-        viewController.navigationItem.leftBarButtonItem = .backBarButton(self, selector: #selector(backSelected))
 
         navigationController.pushViewController(viewController, animated: true)
-    }
-
-    @objc private func backSelected(_ sender: UIBarButtonItem) {
-        navigationController.popViewController(animated: true)
-
-        delegate?.didClose(in: self)
     }
 }
 
 extension EditPriceAlertCoordinator: EditPriceAlertViewControllerDelegate {
+
+    func didClose(in viewController: EditPriceAlertViewController) {
+        delegate?.didClose(in: self)
+    }
 
     func didUpdateAlert(in viewController: EditPriceAlertViewController) {
         navigationController.popViewController(animated: true)
