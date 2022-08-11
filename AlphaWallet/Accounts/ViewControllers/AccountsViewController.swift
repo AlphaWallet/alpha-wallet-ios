@@ -7,6 +7,7 @@ protocol AccountsViewControllerDelegate: AnyObject {
     func didSelectAccount(account: Wallet, in viewController: AccountsViewController)
     func didDeleteAccount(account: Wallet, in viewController: AccountsViewController)
     func didSelectInfoForAccount(account: Wallet, sender: UIView, in viewController: AccountsViewController)
+    func didClose(in viewController: AccountsViewController)
 }
 
 class AccountsViewController: UIViewController {
@@ -179,6 +180,11 @@ extension AccountsViewController: UITableViewDataSource {
     }
 }
 
+extension AccountsViewController: PopNotifiable {
+    func didPopViewController(animated: Bool) {
+        delegate?.didClose(in: self)
+    }
+}
 // MARK: - TableView Delegate
 extension AccountsViewController: UITableViewDelegate {
 
