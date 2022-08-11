@@ -135,10 +135,6 @@ class NFTCollectionViewController: UIViewController {
 
         keyboardChecker.viewWillDisappear()
         showNavigationBarTopSeparatorLine()
-        
-        if isMovingFromParent || isBeingDismissed {
-            delegate?.didClose(in: self)
-        }
     }
 
     override func viewDidLoad() {
@@ -227,6 +223,12 @@ class NFTCollectionViewController: UIViewController {
     @objc private func actionButtonTapped(sender: UIButton) {
         guard let url = viewModel.openInUrl else { return }
         delegate?.didPressOpenWebPage(url, in: self)
+    }
+}
+
+extension NFTCollectionViewController: PopNotifiable {
+    func didPopViewController(animated: Bool) {
+        delegate?.didClose(in: self)
     }
 }
 

@@ -103,10 +103,6 @@ class SwapTokensViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         checker.viewWillDisappear()
-        if isMovingFromParent || isBeingDismissed {
-            delegate?.didClose(in: self)
-            return
-        }
     }
 
     required init?(coder: NSCoder) {
@@ -234,6 +230,12 @@ class SwapTokensViewController: UIViewController {
     @objc private func swapTokensSelected(_ sender: UIButton) {
         view.endEditing(true)
         delegate?.swapSelected(in: self)
+    }
+}
+
+extension SwapTokensViewController: PopNotifiable {
+    func didPopViewController(animated: Bool) {
+        delegate?.didClose(in: self)
     }
 }
 

@@ -10,14 +10,19 @@ import UIKit
 import PromiseKit
 
 protocol WalletConnectSessionCoordinatorDelegate: AnyObject {
-    func didDismiss(in coordinator: WalletConnectSessionCoordinator)
+    func didClose(in coordinator: WalletConnectSessionCoordinator)
 }
 
 class WalletConnectSessionCoordinator: Coordinator {
     private let analytics: AnalyticsLogger
     private let navigationController: UINavigationController
     private let provider: WalletConnectServerProviderType
-    private var viewController: WalletConnectSessionViewController
+    private lazy var viewController: WalletConnectSessionViewController = {
+        let viewController = WalletConnectSessionViewController(viewModel: .init(provider: provider, session: session), provider: provider)
+        viewController.delegate = self
+
+        return viewController
+    }()
     private let session: AlphaWallet.WalletConnect.Session
 
     var coordinators: [Coordinator] = []
@@ -29,24 +34,18 @@ class WalletConnectSessionCoordinator: Coordinator {
         self.navigationController = navigationController
         self.provider = provider
         self.session = session
-
-        viewController = WalletConnectSessionViewController(viewModel: .init(provider: provider, session: session), provider: provider)
-        viewController.delegate = self
-        viewController.navigationItem.hidesBackButton = true
-        viewController.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(backButtonSelected))
     }
 
     func start() {
         navigationController.pushViewController(viewController, animated: true)
-    }
-
-    @objc private func backButtonSelected(_ sender: UIBarButtonItem) {
-        navigationController.popViewController(animated: true)
-        delegate?.didDismiss(in: self)
-    }
+    } 
 }
 
 extension WalletConnectSessionCoordinator: WalletConnectSessionViewControllerDelegate {
+
+    func didClose(in controller: WalletConnectSessionViewController) {
+        delegate?.didClose(in: self)
+    }
 
     private var serverChoices: [RPCServer] {
         ServersCoordinator.serversOrdered.filter { config.enabledServers.contains($0) }
@@ -80,6 +79,6 @@ extension WalletConnectSessionCoordinator: WalletConnectSessionViewControllerDel
 
         try? provider.disconnect(session.topicOrUrl)
         navigationController.popViewController(animated: true)
-        delegate?.didDismiss(in: self)
+        delegate?.didClose(in: self)
     }
 }

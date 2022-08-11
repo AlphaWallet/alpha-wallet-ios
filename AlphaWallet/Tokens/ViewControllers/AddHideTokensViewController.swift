@@ -98,11 +98,6 @@ class AddHideTokensViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         keyboardChecker.viewWillDisappear()
-
-        if isMovingFromParent || isBeingDismissed {
-            delegate?.didClose(in: self)
-            return
-        }
     }
 
     override func viewDidLayoutSubviews() {
@@ -135,6 +130,12 @@ class AddHideTokensViewController: UIViewController {
         startLoading(animated: false)
         tableView.reloadData()
         endLoading(animated: false)
+    }
+}
+
+extension AddHideTokensViewController: PopNotifiable {
+    func didPopViewController(animated: Bool) {
+        delegate?.didClose(in: self)
     }
 }
 

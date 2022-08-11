@@ -103,7 +103,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         tokensService: TokenViewModelState
     ) {
         self.tokensService = tokensService
-        self.navigationController = UINavigationController(navigationBarClass: DappBrowserNavigationBar.self, toolbarClass: nil)
+        self.navigationController = NavigationController(navigationBarClass: DappBrowserNavigationBar.self, toolbarClass: nil)
         self.sessions = sessions
         self.keystore = keystore
         self.config = config

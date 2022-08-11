@@ -12,7 +12,7 @@ protocol ScanQRCodeCoordinatorDelegate: AnyObject {
 
 final class ScanQRCodeCoordinator: NSObject, Coordinator {
     private let analytics: AnalyticsLogger
-    private lazy var navigationController = UINavigationController(rootViewController: qrcodeController)
+    private lazy var navigationController = NavigationController(rootViewController: qrcodeController)
     private lazy var reader = QRCodeReader(metadataObjectTypes: [AVMetadataObject.ObjectType.qr])
     private lazy var qrcodeController: QRCodeReaderViewController = {
         let shouldShowMyQRCodeButton = account != nil

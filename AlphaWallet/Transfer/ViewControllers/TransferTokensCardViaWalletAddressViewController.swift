@@ -152,13 +152,6 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
         return nil
     }
 
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        if isMovingFromParent || isBeingDismissed {
-            delegate?.didClose(in: self)
-        }
-    }
-
     @objc func nextButtonTapped() {
         targetAddressTextField.errorState = .none
 
@@ -217,6 +210,12 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
         if !isExternalKeyboard || !isEnteringEditModeWithExternalKeyboard {
             scrollView.contentInset.bottom = 0
         }
+    }
+}
+
+extension TransferTokensCardViaWalletAddressViewController: PopNotifiable {
+    func didPopViewController(animated: Bool) {
+        delegate?.didClose(in: self)
     }
 }
 

@@ -51,14 +51,11 @@ class ConsoleViewController: UIViewController {
         self.messages = messages
         tableView.reloadData()
     }
+}
 
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-
-        if isMovingFromParent || isBeingDismissed {
-            delegate?.didClose(in: self)
-            return
-        }
+extension ConsoleViewController: PopNotifiable {
+    func didPopViewController(animated: Bool) {
+        delegate?.didClose(in: self)
     }
 }
 

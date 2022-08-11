@@ -128,7 +128,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private let tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable
 
     init(
-            navigationController: UINavigationController = UINavigationController(),
+            navigationController: UINavigationController = NavigationController(),
             walletAddressesStore: WalletAddressesStore,
             store: RealmStore,
             wallet: Wallet,

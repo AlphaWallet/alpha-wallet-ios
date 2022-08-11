@@ -110,13 +110,6 @@ class SendViewController: UIViewController {
         activateAmountView()
     }
 
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        if isMovingFromParent || isBeingDismissed {
-            delegate?.didClose(in: self)
-        }
-    }
-
     @objc func closeKeyboard() {
         view.endEditing(true)
     }
@@ -336,6 +329,12 @@ class SendViewController: UIViewController {
         }
 
         configure(viewModel: .init(transactionType: transactionType, session: session, service: service), shouldConfigureBalance: shouldConfigureBalance)
+    }
+}
+
+extension SendViewController: PopNotifiable {
+    func didPopViewController(animated: Bool) {
+        delegate?.didClose(in: self)
     }
 }
 

@@ -103,7 +103,7 @@ extension AcceptProposalCoordinator: AcceptProposalViewControllerDelegate {
             addCoordinator(coordinator)
             coordinator.delegate = self
 
-            let navigationController = UINavigationController(rootViewController: coordinator.serversViewController)
+            let navigationController = NavigationController(rootViewController: coordinator.serversViewController)
             navigationController.makePresentationFullScreenForiOS13Migration()
             controller.navigationItem.leftBarButtonItem = .closeBarButton(self, selector: #selector(changeServersDidDismiss))
 

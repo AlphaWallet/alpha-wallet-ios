@@ -134,7 +134,7 @@ extension SignMessageCoordinator: SignatureConfirmationViewControllerDelegate {
     func controllerDidTapEdit(_ controller: SignatureConfirmationViewController, for section: Int) {
         let controller = SignatureConfirmationDetailsViewController(viewModel: controller.viewModel[section])
 
-        let navigationController = UINavigationController(rootViewController: controller)
+        let navigationController = NavigationController(rootViewController: controller)
         navigationController.makePresentationFullScreenForiOS13Migration()
         controller.navigationItem.leftBarButtonItem = .closeBarButton(self, selector: #selector(configureTransactionDidDismiss))
 

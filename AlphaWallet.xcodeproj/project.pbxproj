@@ -1028,6 +1028,7 @@
 		87927076284E4D0C006F5AE5 /* EnsLookupKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87927075284E4D0C006F5AE5 /* EnsLookupKey.swift */; };
 		8792707A284F3FEB006F5AE5 /* EnsRecordObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87927079284F3FEB006F5AE5 /* EnsRecordObject.swift */; };
 		8792707C284F40D1006F5AE5 /* FakeEnsRecordsStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8792707B284F40D1006F5AE5 /* FakeEnsRecordsStorage.swift */; };
+		87928E5528A50AFB0001FE67 /* NavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87928E5428A50AFB0001FE67 /* NavigationController.swift */; };
 		8795994526049EF8006722B2 /* ActivityStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8795994426049EF8006722B2 /* ActivityStateView.swift */; };
 		8795994726049F0F006722B2 /* ActivityStateViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8795994626049F0F006722B2 /* ActivityStateViewViewModel.swift */; };
 		8795994A2604A5B6006722B2 /* CoinTickersFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879599492604A5B6006722B2 /* CoinTickersFetcher.swift */; };
@@ -2318,6 +2319,7 @@
 		87927075284E4D0C006F5AE5 /* EnsLookupKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnsLookupKey.swift; sourceTree = "<group>"; };
 		87927079284F3FEB006F5AE5 /* EnsRecordObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnsRecordObject.swift; sourceTree = "<group>"; };
 		8792707B284F40D1006F5AE5 /* FakeEnsRecordsStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeEnsRecordsStorage.swift; sourceTree = "<group>"; };
+		87928E5428A50AFB0001FE67 /* NavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationController.swift; sourceTree = "<group>"; };
 		8795042F27088C2B0075EEC2 /* AlphaWalletSafariExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AlphaWalletSafariExtension.entitlements; sourceTree = "<group>"; };
 		8795994426049EF8006722B2 /* ActivityStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityStateView.swift; sourceTree = "<group>"; };
 		8795994626049F0F006722B2 /* ActivityStateViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityStateViewViewModel.swift; sourceTree = "<group>"; };
@@ -2919,6 +2921,7 @@
 				5E7C7C67C1FF0BFDDA82C61E /* TokenImageView.swift */,
 				5E7C7D111692DE8ED67D29B7 /* AlphaWalletAddress+UI.swift */,
 				8775728B282E8FDC00EAD907 /* SvgImageView.swift */,
+				87928E5428A50AFB0001FE67 /* NavigationController.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -6916,6 +6919,7 @@
 				8712A39026F476900009C376 /* EditPriceAlertCoordinator.swift in Sources */,
 				77E0E773201FAD06009B4B31 /* BrowserURLParser.swift in Sources */,
 				8728FFDB27428F87008E5524 /* NonFungibleRowView.swift in Sources */,
+				87928E5528A50AFB0001FE67 /* NavigationController.swift in Sources */,
 				29F1C863200375D2003780D8 /* Wallet.swift in Sources */,
 				8780FDAF27BF887700BBE9DD /* ActivitiesFilterStrategy.swift in Sources */,
 				29E6E06E1FE897EE0079265A /* BrowserViewController.swift in Sources */,

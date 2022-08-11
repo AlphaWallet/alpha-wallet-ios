@@ -88,14 +88,6 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
         showNavigationBarTopSeparatorLine()
     }
 
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        if isMovingFromParent || isBeingDismissed {
-            delegate?.didClose(for: account, inViewController: self)
-            return
-        }
-    }
-
     func configure() {
         view.backgroundColor = Colors.appBackground
 
@@ -115,5 +107,11 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
 
     @objc private func tappedExportButton() {
         delegate?.didTapBackupWallet(inViewController: self)
+    }
+}
+
+extension SeedPhraseBackupIntroductionViewController: PopNotifiable {
+    func didPopViewController(animated: Bool) {
+        delegate?.didClose(for: account, inViewController: self)
     }
 }

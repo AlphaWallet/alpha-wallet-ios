@@ -32,7 +32,7 @@ final class SwapOptionsCoordinator: Coordinator {
     } 
 
     func start() {
-        let navigationController = UINavigationController(rootViewController: rootViewController)
+        let navigationController = NavigationController(rootViewController: rootViewController)
         let panel = FloatingPanelController(isPanEnabled: false)
         panel.layout = FullScreenScrollableFloatingPanelLayout()
         panel.set(contentViewController: navigationController)

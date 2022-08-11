@@ -16,7 +16,7 @@ class TransactionInProgressCoordinator: Coordinator {
     private lazy var viewControllerToPresent: UINavigationController = {
         let controller = TransactionInProgressViewController(viewModel: .init())
         controller.delegate = self
-        let navigationController = UINavigationController(rootViewController: controller)
+        let navigationController = NavigationController(rootViewController: controller)
         navigationController.makePresentationFullScreenForiOS13Migration()
         return navigationController
     }()

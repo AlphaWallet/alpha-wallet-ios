@@ -520,7 +520,7 @@ class ImportMagicLinkCoordinator: Coordinator {
         guard let vc = importTokenViewController else { return }
         vc.delegate = self
         vc.configure(viewModel: .init(state: .validating, server: server))
-        let nc = UINavigationController(rootViewController: vc)
+        let nc = NavigationController(rootViewController: vc)
         nc.makePresentationFullScreenForiOS13Migration()
         viewController.present(nc, animated: true)
 	}

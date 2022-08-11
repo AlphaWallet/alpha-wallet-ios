@@ -5,7 +5,7 @@ import UIKit
 extension UINavigationController {
 
     static func withOverridenBarAppearence(appearence: UINavigationBarAppearance = .defaultAppearence) -> UINavigationController {
-        let instance = UINavigationController()
+        let instance = NavigationController()
         instance.navigationBar.compactAppearance = appearence
         instance.navigationBar.standardAppearance = appearence
         instance.navigationBar.scrollEdgeAppearance = appearence

@@ -175,15 +175,6 @@ class RequestViewController: UIViewController {
         ensContainerView.cornerRadius = ensContainerView.frame.size.height / 2
     }
 
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-
-        if isMovingFromParent || isBeingDismissed {
-            delegate?.didClose(in: self)
-            return
-        }
-    }
-
     private func configure() {
         copyEnsButton.setImage(R.image.copy(), for: .normal)
         copyAddressButton.setImage(R.image.copy(), for: .normal)
@@ -261,6 +252,12 @@ class RequestViewController: UIViewController {
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+}
+
+extension RequestViewController: PopNotifiable {
+    func didPopViewController(animated: Bool) {
+        delegate?.didClose(in: self)
     }
 }
 

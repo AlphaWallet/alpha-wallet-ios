@@ -118,13 +118,6 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        if isMovingFromParent || isBeingDismissed {
-            delegate?.didClose(in: self)
-        }
-    }
-
     func configure() {
         updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus)
 
@@ -249,5 +242,12 @@ extension TokenInstanceActionViewController: TokenInstanceWebViewDelegate {
 
     func reinject(tokenInstanceWebView: TokenInstanceWebView) {
         configure()
+    }
+}
+
+
+extension TokenInstanceActionViewController: PopNotifiable {
+    func didPopViewController(animated: Bool) {
+        delegate?.didClose(in: self)
     }
 }
