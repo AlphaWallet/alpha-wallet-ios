@@ -15,6 +15,8 @@ class GasSpeedView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 1
+        label.setContentHuggingPriority(.required, for: .horizontal)
+        label.setContentCompressionResistancePriority(.required, for: .horizontal)
 
         return label
     }()
@@ -72,9 +74,7 @@ class GasSpeedView: UIView {
         addSubview(stackView)
         addSubview(selectionImageView)
 
-        NSLayoutConstraint.activate([
-            estimatedTimeLabel.widthAnchor.constraint(equalToConstant: 100),
-
+        NSLayoutConstraint.activate([ 
             stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 0),
             stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30),
             stackView.topAnchor.constraint(equalTo: topAnchor, constant: 0),
@@ -106,4 +106,3 @@ class GasSpeedView: UIView {
         selectionImageView.image = viewModel.accessoryIcon
     }
 }
-

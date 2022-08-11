@@ -21,7 +21,6 @@ class TransactionConfiguratorTransactionsTests: XCTestCase {
 
         let configurator = TransactionConfigurator(
             session: .make(),
-            analytics: analytics,
             transaction: transaction,
             networkService: FakeNetworkService(),
             tokensService: WalletDataProcessingPipeline.make(wallet: .make(), server: .main).pipeline,
@@ -40,7 +39,6 @@ class TransactionConfiguratorTransactionsTests: XCTestCase {
 
         let configurator = TransactionConfigurator(
             session: .make(),
-            analytics: analytics,
             transaction: transaction,
             networkService: FakeNetworkService(),
             tokensService: WalletDataProcessingPipeline.make(wallet: .make(), server: .main).pipeline,
@@ -59,7 +57,6 @@ class TransactionConfiguratorTransactionsTests: XCTestCase {
 
         let configurator = TransactionConfigurator(
             session: .make(),
-            analytics: analytics,
             transaction: transaction,
             networkService: FakeNetworkService(),
             tokensService: WalletDataProcessingPipeline.make(wallet: .make(), server: .main).pipeline,

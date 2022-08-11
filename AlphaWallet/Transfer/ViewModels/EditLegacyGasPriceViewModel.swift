@@ -29,7 +29,6 @@ class EditLegacyGasPriceViewModel: EditGasPriceViewModel {
     private var cancellable = Set<AnyCancellable>()
     private let server: RPCServer
     @Published private var _gasPrice: FillableValue<BigUInt> = FillableValue<BigUInt>(value: BigUInt(), warnings: [], errors: [])
-    @Published private var gasPriceWarning: TransactionConfigurator.GasPriceWarning?
 
     var gasPrice: FillableValue<GasPrice> {
         _gasPrice.mapValue { GasPrice.legacy(gasPrice: $0) }

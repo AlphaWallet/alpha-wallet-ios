@@ -28,6 +28,17 @@ extension Loadable {
             return .failure(f)
         }
     }
+
+    public func map<T2>(_ block: (T) -> Loadable<T2, F>) -> Loadable<T2, F> {
+        switch self {
+        case .loading:
+            return .loading
+        case .done(let t):
+            return block(t)
+        case .failure(let f):
+            return .failure(f)
+        }
+    }
 }
 
 extension Loadable: Equatable where T: Equatable, F: Equatable {

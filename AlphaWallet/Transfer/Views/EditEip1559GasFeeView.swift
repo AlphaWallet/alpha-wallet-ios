@@ -26,6 +26,7 @@ class EditEip1559GasFeeView: UIView {
 
         return slider
     }()
+    private var cancellable = Set<AnyCancellable>()
 
     weak var delegate: EditGasPriceViewDelegate?
 
@@ -50,10 +51,15 @@ class EditEip1559GasFeeView: UIView {
 
     private func bind(viewModel: EditEip1559GasFeeViewModel) {
         let input = EditEip1559GasFeeViewModelInput()
-        let _ = viewModel.trasform(input: input)
+        let output = viewModel.trasform(input: input)
 
-        maxFeeHeaderView.configure(viewModel: .init(title: "Max Fee"))
-        maxPriorityFeeHeaderView.configure(viewModel: .init(title: "Max Priority Fee"))
+        output.maxFeeHeader
+            .sink { [weak self] in self?.maxFeeHeaderView.configure(viewModel: .init(title: $0)) }
+            .store(in: &cancellable)
+
+        output.maxPriorityFeeHeader
+            .sink { [weak self] in self?.maxPriorityFeeHeaderView.configure(viewModel: .init(title: $0)) }
+            .store(in: &cancellable)
     }
 
     required init?(coder: NSCoder) {

@@ -19,7 +19,7 @@ public final class LegacyGasPriceEstimator: NSObject, GasPriceEstimator {
 
         return .init(value)
     }()
-    private let estimatesSubject: CurrentValueSubject<GasEstimates, Never>
+    private let estimatesSubject: CurrentValueSubject<LegacyGasEstimates, Never>
     private let initialGasPrice: BigUInt?
     private var cancellable = Set<AnyCancellable>()
     private lazy var scheduler = Scheduler(provider: estimatesProvider, useCountdownTimer: true)
@@ -32,7 +32,7 @@ public final class LegacyGasPriceEstimator: NSObject, GasPriceEstimator {
     }
 
     public var estimatesPublisher: AnyPublisher<GasEstimates, Never> {
-        estimatesSubject.eraseToAnyPublisher()
+        estimatesSubject.map { $0 as GasEstimates }.eraseToAnyPublisher()
     }
 
     public var gasPricePublisher: AnyPublisher<FillableValue<GasPrice>, Never> {
@@ -60,7 +60,7 @@ public final class LegacyGasPriceEstimator: NSObject, GasPriceEstimator {
             networkService: networkService)
 
         let gasPrice = server.defaultLegacyGasPrice(usingGasPrice: initialGasPrice)
-        let estimates = GasEstimates(standard: gasPrice)
+        let estimates = LegacyGasEstimates(standard: gasPrice)
 
         estimatesSubject = .init(estimates)
 
@@ -97,10 +97,10 @@ public final class LegacyGasPriceEstimator: NSObject, GasPriceEstimator {
                             return
                         }
 
-                        strongSelf.handle(gasPrice: .estimated(estimate))
+                        strongSelf.handle(gasPrice: .estimated(estimate.max))
                     case .standard, .slow, .rapid, .fast:
                         guard let estimate = estimates[strongSelf.selectedGasSpeed] else { return }
-                        strongSelf.handle(gasPrice: .estimated(estimate))
+                        strongSelf.handle(gasPrice: .estimated(estimate.max))
                     }
                 case .failure(let error):
                     infoLog("[LegacyEstimator] failed to receive estimates: \(error)")
@@ -109,7 +109,7 @@ public final class LegacyGasPriceEstimator: NSObject, GasPriceEstimator {
             }.store(in: &cancellable)
     }
 
-    private func handle(estimates: GasEstimates) -> GasEstimates {
+    private func handle(estimates: LegacyGasEstimates) -> LegacyGasEstimates {
         var estimates = estimates
 
         if shouldUseEstimatedGasPrice(estimates.standard) {
@@ -173,7 +173,7 @@ public final class LegacyGasPriceEstimator: NSObject, GasPriceEstimator {
         }
 
         selectedGasSpeed = gasSpeed
-        handle(gasPrice: .defined(gasPrice))// or estimated, called when user manually changes
+        handle(gasPrice: .defined(gasPrice.max))// or estimated, called when user manually changes
     }
 
     public func set(gasCustomPrice: BigUInt) {
@@ -203,7 +203,7 @@ extension LegacyGasPriceEstimator {
                 .eraseToAnyPublisher()
         }
 
-        let publisher = PassthroughSubject<Result<GasEstimates, PromiseError>, Never>()
+        let publisher = PassthroughSubject<Result<LegacyGasEstimates, PromiseError>, Never>()
 
         init(interval: TimeInterval,
              blockchainProvider: BlockchainProvider,
@@ -214,7 +214,7 @@ extension LegacyGasPriceEstimator {
             self.blockchainProvider = blockchainProvider
         }
 
-        public func estimateGasPrice() -> AnyPublisher<GasEstimates, PromiseError> {
+        public func estimateGasPrice() -> AnyPublisher<LegacyGasEstimates, PromiseError> {
             if EtherscanGasPriceEstimator.supports(server: blockchainProvider.server) {
                 return estimateGasPriceForUsingEtherscanApi(server: blockchainProvider.server)
                     .catch { [blockchainProvider] _ in blockchainProvider.gasEstimates() }
@@ -222,14 +222,14 @@ extension LegacyGasPriceEstimator {
             } else {
                 switch blockchainProvider.server.serverWithEnhancedSupport {
                 case .xDai:
-                    return .just(.init(standard: GasPriceConfiguration.xDaiGasPrice))
+                    return .just(LegacyGasEstimates(standard: GasPriceConfiguration.xDaiGasPrice))
                 case .main, .polygon, .binance_smart_chain, .heco, .rinkeby, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, nil:
                     return blockchainProvider.gasEstimates()
                 }
             }
         }
 
-        private func estimateGasPriceForUsingEtherscanApi(server: RPCServer) -> AnyPublisher<GasEstimates, PromiseError> {
+        private func estimateGasPriceForUsingEtherscanApi(server: RPCServer) -> AnyPublisher<LegacyGasEstimates, PromiseError> {
             return etherscanGasPriceEstimator
                 .gasPriceEstimates(server: server)
                 .handleEvents(receiveOutput: { estimates in

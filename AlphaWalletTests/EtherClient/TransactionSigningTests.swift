@@ -17,8 +17,8 @@ class TransactionSigningTests: XCTestCase {
             gasPrice: .legacy(gasPrice: BigUInt("20000000000")),
             gasLimit: BigUInt("21000"),
             server: .main,
-            transactionType: .nativeCryptocurrency(MultipleChainsTokensDataStore.functional.etherToken(forServer: .main), destination: nil, amount: .notSet)
-        )
+            transactionType: .nativeCryptocurrency(MultipleChainsTokensDataStore.functional.etherToken(forServer: .main), destination: nil, amount: .notSet))
+
         let signer = EIP155Signer(server: .main)
         do {
             let hash = try signer.rlpEncodedHash(transaction: transaction)
@@ -64,8 +64,7 @@ class TransactionSigningTests: XCTestCase {
             gasPrice: .legacy(gasPrice: BigUInt(20000000000)),
             gasLimit: BigUInt(21000),
             server: .main,
-            transactionType: .nativeCryptocurrency(MultipleChainsTokensDataStore.functional.etherToken(forServer: .main), destination: nil, amount: .notSet)
-        )
+            transactionType: .nativeCryptocurrency(MultipleChainsTokensDataStore.functional.etherToken(forServer: .main), destination: nil, amount: .notSet))
 
         let server = RPCServer.main
         let signer = EIP155Signer(server: server)

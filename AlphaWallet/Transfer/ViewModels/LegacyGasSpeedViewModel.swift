@@ -9,31 +9,20 @@ import UIKit
 import BigInt
 import AlphaWalletFoundation
 
-struct UnavailableGasSpeedViewModel: GasSpeedViewModelType {
-    var gasSpeed: GasSpeed
-    var isHidden: Bool = true
-    var accessoryIcon: UIImage? { return nil }
-    var titleAttributedString: NSAttributedString? { return nil }
-    var detailsAttributedString: NSAttributedString? { return nil }
-    var gasPriceAttributedString: NSAttributedString? { return nil }
-    var estimatedTimeAttributedString: NSAttributedString? { return nil }
-}
-
 struct LegacyGasSpeedViewModel: GasSpeedViewModelType {
     let gasPrice: BigUInt
     let gasLimit: BigUInt
     let gasSpeed: GasSpeed
     let rate: CurrencyRate?
     let symbol: String
-    var title: String { gasSpeed.title }
     let isSelected: Bool
     let isHidden: Bool
     
     private var gasFeeString: String {
-        let fee = gasPrice * gasLimit
-        let feeString = EtherNumberFormatter.short.string(from: fee)
+        let fee = Decimal(bigUInt: gasPrice * gasLimit, units: .ether) ?? .zero
+        let feeString = NumberFormatter.shortCrypto.string(decimal: fee) ?? ""
         if let rate = rate {
-            let cryptoToDollarValue = StringFormatter().currency(with: Double(fee) * rate.value / Double(EthereumUnit.ether.rawValue), and: rate.currency.code)
+            let cryptoToDollarValue = StringFormatter().currency(with: fee.doubleValue * rate.value, and: rate.currency.code)
             return  "< ~\(feeString) \(symbol) (\(cryptoToDollarValue) \(rate.currency.code))"
         } else {
             return "< ~\(feeString) \(symbol)"
@@ -41,8 +30,8 @@ struct LegacyGasSpeedViewModel: GasSpeedViewModelType {
     }
 
     private var gasPriceString: String {
-        let price = gasPrice / BigUInt(EthereumUnit.gwei.rawValue)
-        return "\(R.string.localizable.configureTransactionHeaderGasPrice()): \(price) \(EthereumUnit.gwei.name)"
+        let price = Decimal(bigUInt: gasPrice, units: .gwei) ?? .zero
+        return "\(R.string.localizable.configureTransactionHeaderGasPrice()): \(String(price.doubleValue)) \(EthereumUnit.gwei.name)"
     }
 
     private var estimatedTime: String? {
@@ -59,17 +48,10 @@ struct LegacyGasSpeedViewModel: GasSpeedViewModelType {
     }
 
     var titleAttributedString: NSAttributedString? {
-        if isSelected {
-            return NSAttributedString(string: title, attributes: [
-                .foregroundColor: Configuration.Color.Semantic.defaultTitleText,
-                .font: Fonts.semibold(size: 17)
-            ])
-        } else {
-            return NSAttributedString(string: title, attributes: [
-                .foregroundColor: Configuration.Color.Semantic.defaultTitleText,
-                .font: Fonts.regular(size: 17)
-            ])
-        }
+        return NSAttributedString(string: gasSpeed.title, attributes: [
+            .foregroundColor: Configuration.Color.Semantic.defaultTitleText,
+            .font: isSelected ? Fonts.semibold(size: 17) : Fonts.regular(size: 17)
+        ])
     }
 
     var estimatedTimeAttributedString: NSAttributedString? {
@@ -93,5 +75,34 @@ struct LegacyGasSpeedViewModel: GasSpeedViewModelType {
             .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText,
             .font: Fonts.regular(size: 13)
         ])
+    }
+}
+
+struct UnavailableGasSpeedViewModel: GasSpeedViewModelType {
+    let gasSpeed: GasSpeed
+    let isSelected: Bool
+    let isHidden: Bool
+
+    var accessoryIcon: UIImage? {
+        return isSelected ? R.image.iconsCheckmark() : .none
+    }
+
+    var titleAttributedString: NSAttributedString? {
+        return NSAttributedString(string: gasSpeed.title, attributes: [
+            .foregroundColor: Configuration.Color.Semantic.defaultTitleText,
+            .font: isSelected ? Fonts.semibold(size: 17) : Fonts.regular(size: 17)
+        ])
+    }
+
+    var estimatedTimeAttributedString: NSAttributedString? {
+        return nil
+    }
+
+    var detailsAttributedString: NSAttributedString? {
+        return nil
+    }
+
+    var gasPriceAttributedString: NSAttributedString? {
+        return nil
     }
 }

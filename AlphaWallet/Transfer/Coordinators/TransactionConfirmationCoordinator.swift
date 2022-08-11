@@ -68,7 +68,6 @@ class TransactionConfirmationCoordinator: Coordinator {
 
         configurator = TransactionConfigurator(
             session: session,
-            analytics: analytics,
             transaction: transaction,
             networkService: networkService,
             tokensService: tokensService,

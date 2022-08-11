@@ -17,14 +17,14 @@ class EtherscanGasPriceEstimator {
         return server.etherscanGasPriceEstimatesURL != nil
     }
 
-    func gasPriceEstimates(server: RPCServer) -> AnyPublisher<GasEstimates, PromiseError> {
+    func gasPriceEstimates(server: RPCServer) -> AnyPublisher<LegacyGasEstimates, PromiseError> {
         return networkService
             .dataTaskPublisher(GetGasPriceEstimatesRequest(server: server))
             .receive(on: DispatchQueue.global())
             .tryMap { [decoder] in try decoder.decode(EtherscanPriceEstimatesResponse.self, from: $0.data) }
             .compactMap { EtherscanPriceEstimates.bridgeToGasPriceEstimates(for: $0.result) }
             .map { estimates in
-                GasEstimates(standard: BigUInt(estimates.standard), others: [
+                LegacyGasEstimates(standard: BigUInt(estimates.standard), others: [
                     GasSpeed.slow: BigUInt(estimates.slow),
                     GasSpeed.fast: BigUInt(estimates.fast),
                     GasSpeed.rapid: BigUInt(estimates.rapid)

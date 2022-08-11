@@ -613,6 +613,8 @@
 "configureTransaction.header.gasPrice" = "Tapahtumamaksu";
 "configureTransaction.header.gasLimit" = "Tapahtumamaksun yläraja";
 "configureTransaction.header.nextUpdateIn" = "Next update in:";
+"configureTransaction.header.maxFee" = "Max Fee";
+"configureTransaction.header.maxPriorityFee" = "Max Priority Fee";
 "sendTransaction.error.possibleBinanceTestnetTimeout" = "Aikaraja ylittyi. Yritä uudelleen.";
 "sendTransaction.error.rateLimited" = "Verkon kuormitus on liian suuri. Yritä myöhemmin uudelleen.";
 "sendTransaction.error.networkConnectionWasLost" = "Verkkoyhteys ei toimi. Yritä uudelleen.";
@@ -890,3 +892,11 @@
 "hardwareWallet.signatureObtained" = "Signature obtained";
 "hardwareWallet.publicKeyObtained" = "Public key obtained";
 "hardwareWallet.importedSeed" = "Imported seed";
+"eip1559.warning.priorityFeeTooHight" = "Priority Fee too hight";
+"eip1559.warning.priorityFeeTooLow" = "Priority Fee too low";
+"eip1559.warning.maxFeeTooHight" = "Max Fee too hight";
+"eip1559.warning.maxFeeTooLow" = "Max Fee too low";
+"eip1559.error.zeroMaxFee" = "Max Fee should be greater than zero";
+"eip1559.error.zeroPriorityFee" = "Priority Fee should be greater than zero";
+"eip1559.error.invalidPriorityFee" = "Priority Fee invalid";
+"eip1559.error.invalidMaxFee" = "Max Fee invalid";

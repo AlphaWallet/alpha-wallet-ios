@@ -9,7 +9,6 @@ import AlphaWalletLogger
 public class TransactionConfigurator {
     private let tokensService: TokensProcessingPipeline
     private let configuration: TransactionType.Configuration
-    private let analytics: AnalyticsLogger
     private let networkService: NetworkService
     private var cancellable = Set<AnyCancellable>()
 
@@ -59,7 +58,6 @@ public class TransactionConfigurator {
     }
 
     public init(session: WalletSession,
-                analytics: AnalyticsLogger,
                 transaction: UnconfirmedTransaction,
                 networkService: NetworkService,
                 tokensService: TokensProcessingPipeline,
@@ -68,13 +66,32 @@ public class TransactionConfigurator {
         self.configuration = configuration
         self.tokensService = tokensService
         self.session = session
-        self.analytics = analytics
         self.transaction = transaction
         self.networkService = networkService
-        self.gasPriceEstimator = LegacyGasPriceEstimator(
-            blockchainProvider: session.blockchainProvider,
-            networkService: networkService,
-            initialGasPrice: transaction.gasPrice?.max)
+
+        if session.blockchainProvider.server.supportsEip1559 && Features.default.isAvailable(.isEip1559Enabled) {
+            var initialMaxFeePerGas: BigUInt?
+            var initialMaxPriorityFeePerGas: BigUInt?
+            if case .eip1559(let maxFeePerGas, let maxPriorityFeePerGas) = transaction.gasPrice {
+                initialMaxFeePerGas = maxFeePerGas
+                initialMaxPriorityFeePerGas = maxPriorityFeePerGas
+            }
+
+            gasPriceEstimator = Eip1559GasPriceEstimator(
+                blockchainProvider: session.blockchainProvider,
+                initialMaxFeePerGas: initialMaxFeePerGas,
+                initialMaxPriorityFeePerGas: initialMaxPriorityFeePerGas)
+        } else {
+            var initialGasPrice: BigUInt?
+            if case .legacy(let gasPrice) = transaction.gasPrice {
+                initialGasPrice = gasPrice
+            }
+
+            self.gasPriceEstimator = LegacyGasPriceEstimator(
+                blockchainProvider: session.blockchainProvider,
+                networkService: networkService,
+                initialGasPrice: initialGasPrice)
+        }
 
         self.data = transaction.data
         self.gasLimit = TransactionConfigurator.defaultEstimatedGasLimit(transaction: transaction, server: session.server)

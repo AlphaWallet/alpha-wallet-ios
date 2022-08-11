@@ -22,8 +22,8 @@ struct SlidableTextFieldViewModelOutput {
 
 class SlidableTextFieldViewModel {
     @Published private var valueState: ValueState<Double>
-    private let defaultMinimumValue: Double
-    private let defaultMaximumValue: Double
+    private var defaultMinimumValue: Double
+    private var defaultMaximumValue: Double
     private var overriddenMaxValue: Double?
     private var maximumValue: Double { overriddenMaxValue ?? defaultMaximumValue }
     private let setValueSubject = PassthroughSubject<Double, Never>()
@@ -46,6 +46,12 @@ class SlidableTextFieldViewModel {
         self.defaultMaximumValue = maximumValue
 
         adjustUpperBound(value)
+    }
+
+    func set(range: ClosedRange<Double>) {
+        defaultMinimumValue = range.lowerBound
+        defaultMaximumValue = range.upperBound
+        set(value: value, changeBehaviour: .forceUpdate)
     }
 
     func set(value: Double, changeBehaviour: ChangeBehaviour = .updateWhileInitial) {

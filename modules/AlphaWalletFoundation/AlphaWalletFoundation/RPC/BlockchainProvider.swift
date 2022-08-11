@@ -26,10 +26,11 @@ public protocol BlockchainProvider {
     func nextNonce(wallet: AlphaWallet.Address) -> AnyPublisher<Int, SessionTaskError>
     func block(by blockNumber: BigUInt) -> AnyPublisher<Block, SessionTaskError>
     func eventLogs(contractAddress: AlphaWallet.Address, eventName: String, abiString: String, filter: EventFilter) -> AnyPublisher<[EventParserResultProtocol], SessionTaskError>
-    func gasEstimates() -> AnyPublisher<GasEstimates, PromiseError>
+    func gasEstimates() -> AnyPublisher<LegacyGasEstimates, PromiseError>
     func gasLimit(wallet: AlphaWallet.Address, value: BigUInt, toAddress: AlphaWallet.Address?, data: Data) -> AnyPublisher<BigUInt, SessionTaskError>
     func send(rawTransaction: String) -> AnyPublisher<String, SessionTaskError>
     func getChainId() -> AnyPublisher<Int, SessionTaskError>
+    func feeHistory(blockCount: Int, block: BlockParameter, rewardPercentile: [Int]) -> AnyPublisher<FeeHistory, SessionTaskError>
 }
 
 extension BlockchainProvider {
@@ -124,6 +125,13 @@ public final class RpcBlockchainProvider: BlockchainProvider {
         return APIKitSession.sendPublisher(request, server: server, analytics: analytics)
     }
 
+    public func feeHistory(blockCount: Int, block: BlockParameter, rewardPercentile: [Int]) -> AnyPublisher<FeeHistory, SessionTaskError> {
+        let payload = FeeHistoryRequest(blockCount: blockCount, lastBlock: block.rawValue, rewardPercentile: rewardPercentile)
+        let request = EtherServiceRequest(server: server, batch: BatchFactory().create(payload))
+
+        return APIKitSession.sendPublisher(request, server: server, analytics: analytics)
+    }
+
     public func eventLogs(contractAddress: AlphaWallet.Address, eventName: String, abiString: String, filter: EventFilter) -> AnyPublisher<[EventParserResultProtocol], SessionTaskError> {
         getEventLogs.getEventLogs(contractAddress: contractAddress, server: server, eventName: eventName, abiString: abiString, filter: filter)
             .publisher()
@@ -131,7 +139,7 @@ public final class RpcBlockchainProvider: BlockchainProvider {
             .eraseToAnyPublisher()
     }
 
-    public func gasEstimates() -> AnyPublisher<GasEstimates, PromiseError> {
+    public func gasEstimates() -> AnyPublisher<LegacyGasEstimates, PromiseError> {
         let request = EtherServiceRequest(server: server, batch: BatchFactory().create(GasPriceRequest()))
 
         return APIKitSession.sendPublisher(request, server: server, analytics: analytics)
@@ -140,16 +148,16 @@ public final class RpcBlockchainProvider: BlockchainProvider {
             }).map { [params] gasPrice in
                 if (gasPrice + GasPriceConfiguration.oneGwei) > params.maxPrice {
                     // Guard against really high prices
-                    return GasEstimates(standard: params.maxPrice)
+                    return LegacyGasEstimates(standard: params.maxPrice)
                 } else {
                     if params.canUserChangeGas && params.shouldAddBufferWhenEstimatingGasPrice, gasPrice > GasPriceConfiguration.oneGwei {
                         //Add an extra gwei because the estimate is sometimes too low. We mustn't do this if the gas price estimated is lower than 1gwei since chains like Arbitrum is cheap (0.1gwei as of 20230320)
-                        return GasEstimates(standard: gasPrice + GasPriceConfiguration.oneGwei)
+                        return LegacyGasEstimates(standard: gasPrice + GasPriceConfiguration.oneGwei)
                     } else {
-                        return GasEstimates(standard: gasPrice)
+                        return LegacyGasEstimates(standard: gasPrice)
                     }
                 }
-            }.catch { [params] _ -> AnyPublisher<GasEstimates, PromiseError> in .just(GasEstimates(standard: params.defaultPrice)) }
+            }.catch { [params] _ -> AnyPublisher<LegacyGasEstimates, PromiseError> in .just(LegacyGasEstimates(standard: params.defaultPrice)) }
             .eraseToAnyPublisher()
     }
 

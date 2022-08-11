@@ -13,6 +13,10 @@ public enum GasSpeed: Int, CaseIterable {
         //We intentionally do not include `.standard`
         [.rapid, .fast, .slow]
     }
+
+    static var sortedEip1559FastestFirst: [GasSpeed] {
+        [.rapid, .fast, .standard, .slow]
+    }
 }
 
 public enum TransactionConfiguratorError: LocalizedError {
@@ -51,7 +55,13 @@ public enum EstimatedValue<T> {
     }
 }
 
-public protocol Warning {}
+public protocol Warning {
+    var description: String { get }
+}
+
+public extension Warning {
+    var description: String { String(describing: self) }
+}
 
 public struct FillableValue<T> {
     public let value: T
