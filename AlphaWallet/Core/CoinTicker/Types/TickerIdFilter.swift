@@ -7,13 +7,12 @@
 
 import Foundation
 
-struct TickerIdFilter {
+class TickerIdFilter {
 
     //https://polygonscan.com/address/0x0000000000000000000000000000000000001010
     static private let polygonMaticContract = AlphaWallet.Address(string: "0x0000000000000000000000000000000000001010")!
-    let tickerIds: [TickerId]
 
-    func tickerId(forToken token: TokenMappedToTicker) -> TickerIdString? {
+    func tickerId(for token: TokenMappedToTicker, in tickerIds: [TickerId]) -> TickerIdString? {
         return tickerIds.first(where: { filterMathesInPlatforms(token: token, tickerId: $0) }).flatMap { $0.id }
     }
     
