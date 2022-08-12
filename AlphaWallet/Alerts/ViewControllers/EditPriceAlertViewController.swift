@@ -10,6 +10,7 @@ import Combine
 
 protocol EditPriceAlertViewControllerDelegate: class {
     func didUpdateAlert(in viewController: EditPriceAlertViewController)
+    func didClose(in viewController: EditPriceAlertViewController)
 }
 
 class EditPriceAlertViewController: UIViewController {
@@ -94,6 +95,14 @@ class EditPriceAlertViewController: UIViewController {
                 strongSelf.viewModel.set(marketPrice: price)
                 strongSelf.configure(viewModel: strongSelf.viewModel)
             }.store(in: &cancelable)
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        if isMovingFromParent || isBeingDismissed {
+            delegate?.didClose(in: self)
+        }
     }
 
     func configure(viewModel: EditPriceAlertViewModel) {
