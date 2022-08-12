@@ -37,14 +37,14 @@ extension DomainResolutionService: DomainResolutionServiceType {
         }
 
         return Just(value)
-            .receive(on: Config.backgroundQueue)
+            //We want to be sure it's on main
+            .receive(on: RunLoop.main)
             .setFailureType(to: SmartContractError.self)
             .flatMap { [getEnsAddressResolver] value in
                 getEnsAddressResolver.getENSAddressFromResolver(for: value)
             }.catch { [unstoppableDomainsV2Resolver] _ -> AnyPublisher<AlphaWallet.Address, PromiseError> in
                 unstoppableDomainsV2Resolver.resolveAddress(forName: value)
-            }.receive(on: RunLoop.main)
-            .eraseToAnyPublisher()
+            }.eraseToAnyPublisher()
     }
 
     func resolveEnsAndBlockie(address: AlphaWallet.Address) -> AnyPublisher<BlockieAndAddressOrEnsResolution, PromiseError> {
@@ -90,13 +90,13 @@ extension DomainResolutionService: DomainResolutionServiceType {
         }
 
         return Just(address)
-            .receive(on: Config.backgroundQueue)
+            //We want to be sure it's on main
+            .receive(on: RunLoop.main)
             .setFailureType(to: SmartContractError.self)
             .flatMap { [ensReverseLookupResolver] address in
                 ensReverseLookupResolver.getENSNameFromResolver(for: address)
             }.catch { [unstoppableDomainsV2Resolver] _ -> AnyPublisher<String, PromiseError> in
                 unstoppableDomainsV2Resolver.resolveDomain(address: address)
-            }.receive(on: RunLoop.main)
-            .eraseToAnyPublisher()
+            }.eraseToAnyPublisher()
     }
 }

@@ -99,6 +99,9 @@ class AddressTextField: UIControl {
             }
         }
         set {
+            //Guard against setting the value consecutively breaking UI state due to multiple resolution. This can happen when an EIP681 link is tapped in the browser to trigger a send fungible screen
+            guard textFieldText != newValue else { return }
+
             //Client code sometimes sets back the address. We only set (and thus clear the ENS name) if it doesn't match the resolved address
             guard ensAddressLabel.stringValue != newValue else { return }
             textFieldText = newValue
@@ -166,7 +169,7 @@ class AddressTextField: UIControl {
         notifications.addObserver(self,
             selector: #selector(textDidChangeNotification),
             name: UITextField.textDidChangeNotification, object: nil)
-    } 
+    }
 
     //NOTE: maybe it's not a good name, but reasons using this function to extract default layout in separate function to prevent copying code
     func defaultLayout() -> UIView {
