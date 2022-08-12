@@ -40,14 +40,14 @@ class WalletCoordinator: Coordinator {
         case .importWallet:
             let controller = ImportWalletViewController(keystore: keystore, analytics: analytics, domainResolutionService: domainResolutionService)
             controller.delegate = self
-            controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
+            controller.navigationItem.rightBarButtonItem = UIBarButtonItem.cancelBarButton(self, selector: #selector(dismiss))
             navigationController.viewControllers = [controller]
             importWalletViewController = controller
         case .watchWallet(let address):
             let controller = ImportWalletViewController(keystore: keystore, analytics: analytics, domainResolutionService: domainResolutionService)
             controller.delegate = self
             controller.watchAddressTextField.value = address?.eip55String ?? ""
-            controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
+            controller.navigationItem.rightBarButtonItem = UIBarButtonItem.cancelBarButton(self, selector: #selector(dismiss))
             controller.showWatchTab()
             navigationController.viewControllers = [controller]
             importWalletViewController = controller
