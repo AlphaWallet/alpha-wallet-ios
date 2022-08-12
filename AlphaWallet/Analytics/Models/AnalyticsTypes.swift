@@ -77,7 +77,7 @@ enum Analytics {
         case editCustomChain = "Edit Custom Chain"
         case subscribeToEmailNewsletter = "Subscribe Email Newsletter"
         case tapSafariExtensionRewrittenUrl = "Tap Safari Extension Rewritten URL"
-        case DeepLinkCancel = "DeepLink Cancel"
+        case deepLinkCancel = "DeepLink Cancel"
         case deeplinkVisited = "DeepLink Visit"
         case customUrlSchemeVisited = "Custom URL Scheme Visit"
         case deepLinkWalletApiCall = "Deep Link Wallet API Call"

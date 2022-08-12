@@ -164,7 +164,7 @@ class AcceptProposalViewModel: NSObject {
     }
 
     func logApproveCancelation() {
-        analytics.log(action: Analytics.Action.DeepLinkCancel)
+        analytics.log(action: Analytics.Action.deepLinkCancel)
     }
 }
 
