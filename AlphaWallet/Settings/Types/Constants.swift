@@ -250,10 +250,6 @@ public struct Constants {
         .byField(field: .value, direction: .descending)
     ]
 
-    static let fetchContractDataTimeout = TimeInterval(4)
-
-    static let refreshTokensThresholdSec: Int = 1
-
     static let googleServiceInfoPlistContent: String? = {
         R.file.googleServiceInfoPlist()?.path
     }()

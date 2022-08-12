@@ -14,7 +14,7 @@ class GetContractName {
 
     func getName(for contract: AlphaWallet.Address) -> Promise<String> {
         let functionName = "name"
-        return callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: web3swift.Web3.Utils.erc20ABI, timeout: Constants.fetchContractDataTimeout).map { nameResult -> String in
+        return callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: web3swift.Web3.Utils.erc20ABI).map { nameResult -> String in
             if let name = nameResult["0"] as? String {
                 return name
             } else {

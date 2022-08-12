@@ -17,17 +17,17 @@ protocol ENSDelegateImpl: ENSDelegate {
 }
 
 extension ENSDelegateImpl {
-    func callSmartContract(withChainId chainId: ChainId, contract: AlphaWallet.Address, functionName: String, abiString: String, parameters: [AnyObject], timeout: TimeInterval?) -> AnyPublisher<[String: Any], SmartContractError> {
+    func callSmartContract(withChainId chainId: ChainId, contract: AlphaWallet.Address, functionName: String, abiString: String, parameters: [AnyObject]) -> AnyPublisher<[String: Any], SmartContractError> {
         let server = RPCServer(chainID: chainId)
-        return globalCallSmartContract(server, contract, functionName, abiString, parameters, timeout, false, nil).publisher
+        return globalCallSmartContract(server, contract, functionName, abiString, parameters, false, nil).publisher
             .mapError { e in SmartContractError.embeded(e) }
             .share()
             .eraseToAnyPublisher()
     }
 
-    func getSmartContractCallData(withChainId chainId: ChainId, contract: AlphaWallet.Address, functionName: String, abiString: String, parameters: [AnyObject], timeout: TimeInterval?) -> Data? {
+    func getSmartContractCallData(withChainId chainId: ChainId, contract: AlphaWallet.Address, functionName: String, abiString: String, parameters: [AnyObject]) -> Data? {
         let server = RPCServer(chainID: chainId)
-        return globalGetSmartContractCallData(server, contract, functionName, abiString, parameters, timeout)
+        return globalGetSmartContractCallData(server, contract, functionName, abiString, parameters)
     }
 
     func getInterfaceSupported165(chainId: Int, hash: String, contract: AlphaWallet.Address) -> AnyPublisher<Bool, SmartContractError> {

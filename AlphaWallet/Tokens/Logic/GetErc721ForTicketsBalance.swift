@@ -15,7 +15,7 @@ class GetErc721ForTicketsBalance {
 
     func getERC721ForTicketsTokenBalance(for address: AlphaWallet.Address, contract: AlphaWallet.Address) -> Promise<[String]> {
         let function = GetERC721ForTicketsBalance()
-        return callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [address.eip55String] as [AnyObject], timeout: Constants.fetchContractDataTimeout, queue: queue).map(on: queue, { balanceResult in
+        return callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [address.eip55String] as [AnyObject], queue: queue).map(on: queue, { balanceResult in
             return GetErc721ForTicketsBalance.adapt(balanceResult["0"])
         })
     }
