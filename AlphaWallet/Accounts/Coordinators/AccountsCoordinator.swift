@@ -51,6 +51,9 @@ class AccountsCoordinator: Coordinator {
     private let walletBalanceService: WalletBalanceService
     private let blockiesGenerator: BlockiesGenerator
     private let domainResolutionService: DomainResolutionServiceType
+    private let viewModel: AccountsCoordinatorViewModel
+    private var cancelable = Set<AnyCancellable>()
+
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
 
@@ -59,13 +62,7 @@ class AccountsCoordinator: Coordinator {
         viewModel.allowsAccountDeletion = self.viewModel.configuration.allowsAccountDeletion
 
         let controller = AccountsViewController(viewModel: viewModel)
-        switch self.viewModel.configuration.hidesBackButton {
-        case true:
-            controller.navigationItem.hidesBackButton = true
-        case false:
-            controller.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(dismiss))
-        }
-
+        controller.navigationItem.hidesBackButton = self.viewModel.configuration.hidesBackButton
         controller.navigationItem.rightBarButtonItem = UIBarButtonItem.addButton(self, selector: #selector(addWallet))
         controller.delegate = self
         controller.hidesBottomBarWhenPushed = true
@@ -74,8 +71,6 @@ class AccountsCoordinator: Coordinator {
     }()
 
     weak var delegate: AccountsCoordinatorDelegate?
-    private let viewModel: AccountsCoordinatorViewModel
-    private var cancelable = Set<AnyCancellable>()
 
     init(
         config: Config,
@@ -100,10 +95,6 @@ class AccountsCoordinator: Coordinator {
     func start() {
         accountsViewController.navigationItem.largeTitleDisplayMode = .never
         navigationController.pushViewController(accountsViewController, animated: viewModel.animatedPresentation)
-    }
-
-    @objc private func dismiss() {
-        delegate?.didCancel(in: self)
     }
 
     @objc private func addWallet() {
@@ -162,11 +153,7 @@ class AccountsCoordinator: Coordinator {
                 actionTitle = R.string.localizable.walletsBackupKeystoreWalletAlertSheetTitle()
             }
             let backupKeystoreAction = UIAlertAction(title: actionTitle, style: .default) { [weak self] _ in
-                guard let strongSelf = self else { return }
-                let coordinator = BackupCoordinator(navigationController: strongSelf.navigationController, keystore: strongSelf.keystore, account: account, analytics: strongSelf.analytics)
-                coordinator.delegate = strongSelf
-                coordinator.start()
-                strongSelf.addCoordinator(coordinator)
+                self?.startBackup(for: account)
             }
             controller.addAction(backupKeystoreAction)
 
@@ -194,10 +181,9 @@ class AccountsCoordinator: Coordinator {
             }
             controller.addAction(renameAction)
 
-            let copyAction = UIAlertAction(title: R.string.localizable.copyAddress(), style: .default) { [weak self] _ in
-                guard let strongSelf = self else { return }
+            let copyAction = UIAlertAction(title: R.string.localizable.copyAddress(), style: .default) { [navigationController] _ in
                 UIPasteboard.general.string = account.address.eip55String
-                strongSelf.navigationController.view.showCopiedToClipboard(title: R.string.localizable.copiedToClipboard())
+                navigationController.view.showCopiedToClipboard(title: R.string.localizable.copiedToClipboard())
             }
             controller.addAction(copyAction)
             let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
@@ -205,6 +191,13 @@ class AccountsCoordinator: Coordinator {
 
             navigationController.present(controller, animated: true)
         }
+    }
+
+    private func startBackup(for account: Wallet) {
+        let coordinator = BackupCoordinator(navigationController: navigationController, keystore: keystore, account: account, analytics: analytics)
+        coordinator.delegate = self
+        coordinator.start()
+        addCoordinator(coordinator)
     }
 
     private func promptRenameWallet(_ account: Wallet) {
@@ -250,6 +243,10 @@ class AccountsCoordinator: Coordinator {
 }
 
 extension AccountsCoordinator: AccountsViewControllerDelegate {
+    func didClose(in viewController: AccountsViewController) {
+        delegate?.didCancel(in: self)
+    }
+
     func didSelectAccount(account: Wallet, in viewController: AccountsViewController) {
         delegate?.didSelectAccount(account: account, in: self)
     }
