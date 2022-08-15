@@ -22,6 +22,7 @@ protocol TokenEntriesProvider {
 class AlphaWalletRemoteTickerIdsFetcher: TickerIdsFetcher {
     private let provider: TokenEntriesProvider
     private let tickerIdsFetcher: CoinGeckoTickerIdsFetcher
+    private let queue = DispatchQueue(label: "org.alphawallet.swift.remoteTickerIdsFetcher")
 
     init(provider: TokenEntriesProvider, tickerIdsFetcher: CoinGeckoTickerIdsFetcher) {
         self.provider = provider
@@ -31,7 +32,7 @@ class AlphaWalletRemoteTickerIdsFetcher: TickerIdsFetcher {
     /// Returns already defined, stored associated with token ticker id
     func tickerId(for token: TokenMappedToTicker) -> AnyPublisher<TickerIdString?, Never> {
         return Just(token)
-            .receive(on: Config.backgroundQueue)
+            .receive(on: queue)
             .flatMap { [provider] _ in provider.tokenEntries().replaceError(with: []) }
             .flatMap { [weak self] entries -> AnyPublisher<TickerIdString?, Never> in
                 guard let strongSelf = self else { return .empty() }

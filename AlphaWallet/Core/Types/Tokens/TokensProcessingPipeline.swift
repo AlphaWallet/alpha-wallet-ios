@@ -38,6 +38,7 @@ class WalletDataProcessingPipeline: TokensProcessingPipeline {
     private let tokenViewModelsSubject = CurrentValueSubject<[TokenViewModel], Never>([])
     private let eventsDataStore: NonActivityEventsDataStore
     private let wallet: Wallet
+    private let queue = DispatchQueue(label: "org.alphawallet.swift.walletData.processingPipeline", qos: .utility)
 
     var tokenViewModels: AnyPublisher<[TokenViewModel], Never> {
         return tokenViewModelsSubject.eraseToAnyPublisher()
@@ -172,16 +173,16 @@ class WalletDataProcessingPipeline: TokensProcessingPipeline {
 
     private func preparePipeline() {
         let whenTickersChanged = coinTickersFetcher.tickersDidUpdate.dropFirst()
-            .receive(on: Config.backgroundQueue)
+            .receive(on: queue)
             .map { [tokensService] _ in tokensService.tokens }
 
         let whenSignatureOrBodyChanged = assetDefinitionStore.assetsSignatureOrBodyChange
-            .receive(on: Config.backgroundQueue)
+            .receive(on: queue)
             .map { [tokensService] _ in tokensService.tokens }
 
         let whenTokensHasChanged = tokensService.tokensPublisher
             .dropFirst()
-            .receive(on: Config.backgroundQueue)
+            .receive(on: queue)
 
         let whenCollectionHasChanged = Publishers.Merge3(whenTokensHasChanged, whenTickersChanged, whenSignatureOrBodyChanged)
             .map { $0.map { TokenViewModel(token: $0) } }
@@ -202,7 +203,7 @@ class WalletDataProcessingPipeline: TokensProcessingPipeline {
 
     private func startTickersHandling() {
         //NOTE: To don't block start method, and apply delay to fetch tickers, inital only
-        Publishers.Merge(Just(tokensService.tokens).delay(for: .seconds(2), scheduler: RunLoop.main), tokensService.newTokens)
+        Publishers.Merge(Just(tokensService.tokens).delay(for: .seconds(2), scheduler: queue), tokensService.newTokens)
             .removeDuplicates()
             .eraseToAnyPublisher()
             .sink { [coinTickersFetcher, tokensService] tokens in

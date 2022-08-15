@@ -54,7 +54,7 @@ class TransactionDataStore {
                 .sorted(byKeyPath: "date", ascending: false)
                 .changesetPublisher
                 .freeze()
-                .receive(on: Config.backgroundQueue)
+                .receive(on: DispatchQueue.global())
                 .map { change in
                     switch change {
                     case .initial(let transactions):
