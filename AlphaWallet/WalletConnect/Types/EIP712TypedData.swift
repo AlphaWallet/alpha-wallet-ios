@@ -60,6 +60,7 @@ extension EIP712TypedData {
 
     /// Recursively finds all the dependencies of a type
     func findDependencies(primaryType: String, dependencies: Set<String> = Set<String>()) -> Set<String> {
+        let primaryType = primaryType.dropTrailingSquareBrackets
         var found = dependencies
         guard !found.contains(primaryType),
             let primaryTypes = types[primaryType] else {
@@ -211,6 +212,16 @@ extension EIP712TypedData {
 
     private func typeHash(_ type: String) -> Data {
         return Crypto.hash(encodeType(primaryType: type))
+    }
+}
+
+fileprivate extension String {
+    var dropTrailingSquareBrackets: String {
+        if let i = index(of: "["), hasSuffix("]") {
+            return String(self[startIndex..<i])
+        } else {
+            return self
+        }
     }
 }
 
