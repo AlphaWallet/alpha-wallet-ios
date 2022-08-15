@@ -237,7 +237,7 @@ class WalletConnectCoordinator: NSObject, Coordinator {
 }
 
 extension WalletConnectCoordinator: WalletConnectSessionCoordinatorDelegate {
-    func didDismiss(in coordinator: WalletConnectSessionCoordinator) {
+    func didClose(in coordinator: WalletConnectSessionCoordinator) {
         removeCoordinator(coordinator)
     }
 }

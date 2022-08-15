@@ -206,7 +206,7 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
         let controller = ConfigureTransactionViewController(viewModel: .init(configurator: configurator, recoveryMode: recoveryMode, service: tokensService))
         controller.delegate = self
 
-        let navigationController = UINavigationController(rootViewController: controller)
+        let navigationController = NavigationController(rootViewController: controller)
         navigationController.makePresentationFullScreenForiOS13Migration()
         controller.navigationItem.leftBarButtonItem = .closeBarButton(self, selector: #selector(configureTransactionDidDismiss))
 

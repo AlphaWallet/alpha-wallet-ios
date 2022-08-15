@@ -104,13 +104,6 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
         return nil
     }
 
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        if isMovingFromParent || isBeingDismissed {
-            delegate?.didClose(in: self)
-        }
-    }
-
     private func generateSubviews(viewModel: TransferTokenBatchCardsViaWalletAddressViewControllerViewModel) {
         containerView.stackView.removeAllArrangedSubviews()
 
@@ -199,6 +192,12 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
 
         amountHeaderView.isHidden = viewModel.isAmountSelectionHidden
         selectTokenCardAmountView.isHidden = viewModel.isAmountSelectionHidden
+    }
+}
+
+extension TransferTokenBatchCardsViaWalletAddressViewController: PopNotifiable {
+    func didPopViewController(animated: Bool) {
+        delegate?.didClose(in: self)
     }
 }
 

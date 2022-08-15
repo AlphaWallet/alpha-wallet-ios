@@ -41,7 +41,7 @@ class SelectTokenCoordinator: Coordinator {
     private let tokenCollection: TokenCollection
     private let filter: WalletFilter
     private let tokensFilter: TokensFilter
-    lazy var navigationController = UINavigationController(rootViewController: rootViewController)
+    lazy var navigationController = NavigationController(rootViewController: rootViewController)
     var coordinators: [Coordinator] = []
     weak var delegate: SelectTokenCoordinatorDelegate?
 

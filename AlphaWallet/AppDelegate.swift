@@ -37,7 +37,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
             let analytics = AnalyticsService()
             let walletAddressesStore: WalletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: .standardOrForTests)
             let keystore: Keystore = try EtherKeystore(walletAddressesStore: walletAddressesStore, analytics: analytics)
-            let navigationController = UINavigationController()
+            let navigationController: UINavigationController = .withOverridenBarAppearence()
             navigationController.view.backgroundColor = Colors.appWhite
 
             appCoordinator = try AppCoordinator(window: window!, analytics: analytics, keystore: keystore, walletAddressesStore: walletAddressesStore, navigationController: navigationController)

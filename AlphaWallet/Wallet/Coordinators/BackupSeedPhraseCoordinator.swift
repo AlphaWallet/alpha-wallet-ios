@@ -49,7 +49,7 @@ class BackupSeedPhraseCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: BackupSeedPhraseCoordinatorDelegate?
 
-    init(navigationController: UINavigationController = UINavigationController(), keystore: Keystore, account: AlphaWallet.Address, analytics: AnalyticsLogger) {
+    init(navigationController: UINavigationController = NavigationController(), keystore: Keystore, account: AlphaWallet.Address, analytics: AnalyticsLogger) {
         self.navigationController = navigationController
         self.keystore = keystore
         self.account = account

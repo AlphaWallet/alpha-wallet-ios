@@ -92,10 +92,6 @@ class FungibleTokenViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         showNavigationBarTopSeparatorLine()
-
-        if isMovingFromParent || isBeingDismissed {
-            delegate?.didClose(in: self)
-        }
     }
 
     private func bind(viewModel: FungibleTokenViewModel) {
@@ -232,5 +228,11 @@ extension FungibleTokenViewController: ActivitiesPageViewDelegate {
 
     func didTap(transaction: TransactionInstance, in view: ActivitiesPageView) {
         delegate?.didTap(transaction: transaction, in: self)
+    }
+}
+
+extension FungibleTokenViewController: PopNotifiable {
+    func didPopViewController(animated: Bool) {
+        delegate?.didClose(in: self)
     }
 }

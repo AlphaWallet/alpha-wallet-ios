@@ -26,7 +26,7 @@ class ElevateWalletSecurityCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: ElevateWalletSecurityCoordinatorDelegate?
 
-    init(navigationController: UINavigationController = UINavigationController(), keystore: Keystore, account: Wallet) {
+    init(navigationController: UINavigationController = NavigationController(), keystore: Keystore, account: Wallet) {
         self.navigationController = navigationController
         self.keystore = keystore
         self.account = account

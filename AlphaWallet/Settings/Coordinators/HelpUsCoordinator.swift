@@ -60,7 +60,7 @@ class HelpUsCoordinator: Coordinator {
         controller.navigationItem.title = viewModel.title
         controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.done(), style: .done, target: self, action: #selector(dismiss))
         controller.delegate = self
-        let nav = UINavigationController(rootViewController: controller)
+        let nav = NavigationController(rootViewController: controller)
         nav.makePresentationFullScreenForiOS13Migration()
         hostViewController.present(nav, animated: true)
     }

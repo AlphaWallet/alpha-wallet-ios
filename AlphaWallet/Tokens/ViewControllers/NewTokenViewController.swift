@@ -197,14 +197,6 @@ class NewTokenViewController: UIViewController {
         }
     }
 
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-
-        if isMovingFromParent || isBeingDismissed {
-            delegate?.didClose(viewController: self)
-        }
-    }
-
     public func configure() {
         view.backgroundColor = viewModel.backgroundColor
         navigationItem.title = viewModel.title
@@ -432,6 +424,12 @@ class NewTokenViewController: UIViewController {
         changeServerButton.setTitle(title, for: .normal)
         //Needs to re-create navigationItem.rightBarButtonItem to update button width for new title's length
         navigationItem.rightBarButtonItem = .init(customView: changeServerButton)
+    }
+}
+
+extension NewTokenViewController: PopNotifiable {
+    func didPopViewController(animated: Bool) {
+        delegate?.didClose(viewController: self)
     }
 }
 

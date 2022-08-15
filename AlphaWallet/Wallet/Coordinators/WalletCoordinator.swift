@@ -21,7 +21,7 @@ class WalletCoordinator: Coordinator {
 
     init(
         config: Config,
-        navigationController: UINavigationController = UINavigationController(),
+        navigationController: UINavigationController = NavigationController(),
         keystore: Keystore,
         analytics: AnalyticsLogger,
         domainResolutionService: DomainResolutionServiceType

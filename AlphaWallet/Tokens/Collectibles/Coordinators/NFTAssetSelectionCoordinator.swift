@@ -33,7 +33,7 @@ class NFTAssetSelectionCoordinator: Coordinator {
         let viewController = NFTAssetSelectionViewController(viewModel: .init(token: token, tokenHolders: tokenHolders), tokenCardViewFactory: tokenCardViewFactory)
         viewController.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(doneButtonSelected))
         viewController.delegate = self
-        let navigationController = UINavigationController(rootViewController: viewController)
+        let navigationController = NavigationController(rootViewController: viewController)
         navigationController.makePresentationFullScreenForiOS13Migration()
         navigationController.hidesBottomBarWhenPushed = true
 

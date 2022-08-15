@@ -72,14 +72,6 @@ class ShowSeedPhraseIntroductionViewController: UIViewController {
         return nil
     }
 
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        if isMovingFromParent || isBeingDismissed {
-            delegate?.didClose(in: self)
-            return
-        }
-    }
-
     override func viewDidLoad() {
         super.viewDidLoad()
         configure()
@@ -105,5 +97,10 @@ class ShowSeedPhraseIntroductionViewController: UIViewController {
     @objc private func showSeedPhraseSelected() {
         delegate?.didShowSeedPhrase(in: self)
     }
+}
 
+extension ShowSeedPhraseIntroductionViewController: PopNotifiable {
+    func didPopViewController(animated: Bool) {
+        delegate?.didClose(in: self)
+    }
 }
