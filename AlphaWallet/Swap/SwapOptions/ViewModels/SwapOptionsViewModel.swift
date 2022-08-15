@@ -11,7 +11,7 @@ import Combine
 class SwapOptionsViewModel {
     private let configurator: SwapOptionsConfigurator
     private var cancelable = Set<AnyCancellable>()
-
+    private let queue = DispatchQueue(label: "org.alphawallet.swift.swapOptions.processingQueue", qos: .utility)
     private var anyError: AnyPublisher<TokenSwapper.TokenSwapperError, Never> {
         configurator.error
             .compactMap { $0 }
@@ -27,15 +27,14 @@ class SwapOptionsViewModel {
     var tansactionDeadalineViewModel: TransactionDeadlineTextFieldModel
     lazy var sessionsViewModels: AnyPublisher<[SelectNetworkViewModel], Never> = {
         return Publishers.CombineLatest(configurator.$sessions, configurator.$server)
-            .receive(on: Config.backgroundQueue)
+            .receive(on: queue)
             .map { [weak configurator] sessions, server in
                 guard let configurator = configurator else { return [] }
                 return sessions.map {
                     let isAvailableToSelect = configurator.isSupported(server: $0.server)
                     return SelectNetworkViewModel(session: $0, isSelected: $0.server == server, isAvailableToSelect: isAvailableToSelect)
                 }
-            }
-            .eraseToAnyPublisher()
+            }.eraseToAnyPublisher()
     }()
     var errorString: AnyPublisher<String, Never> {
         anyError
