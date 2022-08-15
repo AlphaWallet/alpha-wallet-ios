@@ -814,10 +814,8 @@ extension DappBrowserCoordinator: EditMyDappViewControllerDelegate {
         refreshDapps()
     }
 
-    func didTapCancel(inViewController viewController: EditMyDappViewController) {
+    func didClose(in viewController: EditMyDappViewController) {
         browserNavBar?.setBrowserBar(hidden: false)
-
-        navigationController.popViewController(animated: true)
     }
 }
 
