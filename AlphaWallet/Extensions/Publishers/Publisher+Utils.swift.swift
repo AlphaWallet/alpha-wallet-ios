@@ -34,7 +34,7 @@ extension Publisher {
         return Fail(error: error).eraseToAnyPublisher()
     }
 
-    func unwrap<T>() -> Publishers.CompactMap<Self, T> where Output == Optional<T> {
+    func unwrap<T>() -> Publishers.CompactMap<Self, T> where Output == T? {
         compactMap { $0 }
     }
 
