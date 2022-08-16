@@ -43,6 +43,8 @@ class AddressOrEnsNameLabel: UILabel {
         }
     }
 
+    private var cancelable: AnyCancellable?
+
     let loadingIndicator: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView(style: .medium)
         indicator.hidesWhenStopped = true
@@ -88,6 +90,13 @@ class AddressOrEnsNameLabel: UILabel {
     var addressFormat: AddressFormat = .truncateMiddle
     var shouldShowLoadingIndicator: Bool = false
 
+    var blockieImage: BlockiesImage? {
+        didSet {
+            blockieImageView.image = blockieImage
+            blockieImageView.isHidden = blockieImage == nil
+        }
+    }
+
     init(domainResolutionService: DomainResolutionServiceType) {
         self.domainResolutionService = domainResolutionService
         super.init(frame: .zero)
@@ -117,14 +126,6 @@ class AddressOrEnsNameLabel: UILabel {
         currentlyResolving = nil
     }
 
-    var blockieImage: BlockiesImage? {
-        didSet {
-            blockieImageView.image = blockieImage
-            blockieImageView.isHidden = blockieImage == nil
-        }
-    }
-
-    private var cancelable: AnyCancellable?
     func resolve(_ value: String) -> Promise<BlockieAndAddressOrEnsResolution> {
         let valueArg = value
 
