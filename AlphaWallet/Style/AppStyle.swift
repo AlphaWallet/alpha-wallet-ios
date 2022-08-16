@@ -4,11 +4,8 @@ import Foundation
 import UIKit
 
 func applyStyle() {
-    UIBarButtonItem.appearance(whenContainedInInstancesOf: [UIDocumentBrowserViewController.self]).tintColor = Colors.navigationButtonTintColor
+    UIBarButtonItem.appearance(whenContainedInInstancesOf: [UIDocumentBrowserViewController.self]).tintColor = Configuration.Color.Semantic.navigationbarButtonItemTint
     UIWindow.appearance().tintColor = Colors.appTint
-    UITabBar.appearance().tintColor = Colors.appTint
-    UITabBar.appearance().shadowImage = UIImage(color: Style.TabBar.Separator.color, size: CGSize(width: 0.25, height: 0.25))
-    UITabBar.appearance().backgroundImage = UIImage(color: Style.TabBar.Background.color)
 
     UINavigationBar.appearance().shadowImage = UIImage(color: Style.NavigationBar.Separator.color, size: CGSize(width: 0.25, height: 0.25))
     UINavigationBar.appearance().compactAppearance = UINavigationBarAppearance.defaultAppearence
@@ -17,8 +14,8 @@ func applyStyle() {
 
     //We could have set the backBarButtonItem with an empty title for every view controller. Using appearance here, while a hack is still more convenient though, since we don't have to do it for every view controller instance
     UIBarButtonItem.appearance().setBackButtonTitlePositionAdjustment(UIOffset(horizontal: -200, vertical: 0), for: .default)
-    UIBarButtonItem.appearance().tintColor = Colors.navigationButtonTintColor
-    UIBarButtonItem.appearance(whenContainedInInstancesOf: [UIToolbar.self]).tintColor = Colors.navigationButtonTintColor
+    UIBarButtonItem.appearance().tintColor = Configuration.Color.Semantic.navigationbarButtonItemTint
+    UIBarButtonItem.appearance(whenContainedInInstancesOf: [UIToolbar.self]).tintColor = Configuration.Color.Semantic.navigationbarButtonItemTint
 
     UIToolbar.appearance().tintColor = Colors.appTint
 
@@ -65,8 +62,9 @@ extension UITabBarAppearance {
     static var defaultAppearence: UITabBarAppearance {
         let tabBarAppearance = UITabBarAppearance()
 
-        tabBarAppearance.shadowImage = UIImage(color: Style.TabBar.Separator.color, size: CGSize(width: 0.25, height: 0.25))
-        tabBarAppearance.backgroundImage = UIImage(color: Style.TabBar.Background.color)
+        tabBarAppearance.backgroundColor = Configuration.Color.Semantic.tabBarBackground
+        tabBarAppearance.shadowColor = Configuration.Color.Semantic.tabBarSeparator
+
         let tabBarItemAppearance = UITabBarItemAppearance()
 
         tabBarItemAppearance.normal.titleTextAttributes = [.font: Style.TabBar.Font.normal, .foregroundColor: Style.TabBar.Color.normal]
@@ -82,7 +80,7 @@ extension UITabBarController {
     static func withOverridenBarAppearence(appearence tabBarAppearance: UITabBarAppearance = .defaultAppearence) -> UITabBarController {
         let tabBarController = UITabBarController()
         tabBarController.tabBar.isTranslucent = false
-        tabBarController.tabBar.tintColor = Style.TabBar.Background.tint
+        tabBarController.tabBar.tintColor = Configuration.Color.Semantic.tabBarTint
         tabBarController.tabBar.standardAppearance = tabBarAppearance
 
         if #available(iOS 15.0, *) {
@@ -108,7 +106,7 @@ struct Colors {
     static let appBackground = UIColor.white
     static let appTint = R.color.azure()!
     static let navigationTitleColor = UIColor.black
-    static let navigationButtonTintColor = R.color.mine()!
+    // static let navigationButtonTintColor = R.color.mine()!
     static let appWhite = UIColor.white
     static let appText = R.color.black()!
     static let appSubtitle = UIColor(red: 117, green: 117, blue: 117)
@@ -456,10 +454,10 @@ enum Style {
         }
     }
     enum ScrollableSegmentedControl {
-        static let configuration = ScrollableSegmentedControlConfiguration(lineConfiguration: ScrollableSegmentedControlHighlightableLineViewConfiguration(lineHeight: 1.0, highlightHeight: 3.0, lineColor: R.color.mercury()!, highLightColor: R.color.azure()!), isProportionalWidth: true, cellSpacing: 10.0, alignmentWhenNotScrollable: .filled, animationDuration: 0.25, animationCurve: .easeInOut)
+        static let configuration = ScrollableSegmentedControlConfiguration(lineConfiguration: ScrollableSegmentedControlHighlightableLineViewConfiguration(lineHeight: 1.0, highlightHeight: 3.0, lineColor: Configuration.Color.Semantic.scrollableSegmentedControlLineColor, highLightColor: Configuration.Color.Semantic.scrollableSegmentedControllerHighlightColor), isProportionalWidth: true, cellSpacing: 10.0, alignmentWhenNotScrollable: .filled, animationDuration: 0.25, animationCurve: .easeInOut)
     }
     enum ScrollableSegmentedControlCell {
-        static let configuration = ScrollableSegmentedControlCellConfiguration(backgroundColor: .white, highlightedTextColor: R.color.azure()!, nonHighlightedTextColor: R.color.dove()!, highlightedFont: Fonts.semibold(size: 15), nonHighlightedFont: Fonts.regular(size: 15), cellPadding: 8.0, textBottomPadding: 12.0)
+        static let configuration = ScrollableSegmentedControlCellConfiguration(backgroundColor: Configuration.Color.Semantic.scrollableSegmentedControllerBackground, highlightedTextColor: R.color.azure()!, nonHighlightedTextColor: Configuration.Color.Semantic.scrollableSegmentedControllerNonHighlightColor, highlightedFont: Fonts.semibold(size: 15), nonHighlightedFont: Fonts.regular(size: 15), cellPadding: 8.0, textBottomPadding: 12.0)
     }
     enum value {
         static let appreciated: UIColor = R.color.green()!

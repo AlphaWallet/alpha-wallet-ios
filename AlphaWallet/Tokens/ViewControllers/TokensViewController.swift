@@ -609,7 +609,7 @@ extension TokensViewController.functional {
 }
 
 extension UISearchBar {
-    static func configure(searchBar: UISearchBar, backgroundColor: UIColor = Colors.appBackground) {
+    static func configure(searchBar: UISearchBar, backgroundColor: UIColor = Configuration.Color.Semantic.searchbarBackground) {
         if let placeholderLabel = searchBar.firstSubview(ofType: UILabel.self) {
             placeholderLabel.textColor = Colors.lightGray
         }

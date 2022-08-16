@@ -37,7 +37,7 @@ extension ShowAddHideTokensViewModel {
     static func configuredForTestnet() -> ShowAddHideTokensViewModel {
         let titleAttributedString: NSAttributedString = .init(string: R.string.localizable.whereAreMyTokensTestnet(), attributes: [
            .font: Fonts.bold(size: 24),
-           .foregroundColor: Colors.black
+           .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
         ])
         return .init(addHideTokensTitle: R.string.localizable.whereAreMyTokensWhereAreMyTokens(), addHideTokensTintFont: Fonts.regular(size: 17), titleAttributedString: titleAttributedString)
     }

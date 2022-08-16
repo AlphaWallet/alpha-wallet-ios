@@ -48,7 +48,7 @@ struct NonFungibleTokenViewCellViewModel {
     }
 
     var contentsBackgroundColor: UIColor {
-        return Screen.TokenCard.Color.background
+        return Configuration.Color.Semantic.tableViewCellBackground
     }
 
     var contentsCornerRadius: CGFloat {
@@ -65,7 +65,7 @@ struct NonFungibleTokenViewCellViewModel {
     var tickersAmountAttributedString: NSAttributedString {
         return .init(string: "\(token.nonZeroBalance.count.toString()) \(token.symbol)", attributes: [
             .font: Screen.TokenCard.Font.subtitle,
-            .foregroundColor: Screen.TokenCard.Color.subtitle
+            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
         ])
     }
 

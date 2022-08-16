@@ -20,7 +20,7 @@ extension TokensViewController {
                     return
                 }
 
-                subview.backgroundColor = Colors.appWhite
+                subview.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
                 subview.translatesAutoresizingMaskIntoConstraints = false
                 contentView.addSubview(subview)
                 contentView.addSubview(bottomSeparator)
@@ -88,8 +88,8 @@ extension TokensViewController {
             bottomSeparator.isHidden = true
             topSeparator.isHidden = true
 
-            bottomSeparator.backgroundColor = GroupedTable.Color.cellSeparator
-            topSeparator.backgroundColor = GroupedTable.Color.cellSeparator
+            bottomSeparator.backgroundColor = Configuration.Color.Semantic.tableViewSeparator
+            topSeparator.backgroundColor = Configuration.Color.Semantic.tableViewSeparator
         }
 
         required init?(coder aDecoder: NSCoder) {
@@ -137,7 +137,7 @@ extension TokensViewController {
 
             super.init(frame: .zero)
             stackView.translatesAutoresizingMaskIntoConstraints = false
-            backgroundColor = Colors.appWhite
+            backgroundColor = .clear
             bottomSeparator.isHidden = isBottomSeparatorHidden
             topSeparator.isHidden = isTopSeparatorHidden
 
