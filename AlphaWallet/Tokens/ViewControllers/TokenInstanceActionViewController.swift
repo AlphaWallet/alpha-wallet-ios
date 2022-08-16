@@ -245,7 +245,6 @@ extension TokenInstanceActionViewController: TokenInstanceWebViewDelegate {
     }
 }
 
-
 extension TokenInstanceActionViewController: PopNotifiable {
     func didPopViewController(animated: Bool) {
         delegate?.didClose(in: self)

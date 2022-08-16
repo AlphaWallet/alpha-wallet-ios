@@ -3,6 +3,7 @@ import XCTest
 
 class EIP712TypedDataTests: XCTestCase {
     //Sample is verbatim from OpenSea
+// swiftlint:disable function_body_length
     func testPickUpStructNameFromArrayOfStructs() {
         let string = """
                      {
@@ -167,4 +168,5 @@ class EIP712TypedDataTests: XCTestCase {
         let dependencies = object.findDependencies(primaryType: "OrderComponents")
         XCTAssertEqual(dependencies, Set(["OrderComponents", "OfferItem", "ConsiderationItem"]))
     }
+// swiftlint:enable function_body_length
 }
