@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
   s.description      = <<-DESC
   Lightweight library representing the AlphaWallet Address functionality
                        DESC
-  s.homepage         = "https://github.com/AlphaWallet/alpha-wallet-ios/tree/master/modules/AlphaWalletCore"
+  s.homepage         = "https://github.com/AlphaWallet/alpha-wallet-ios/tree/master/modules/AlphaWalletAddress"
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'Vladyslav Shepitko' => 'vladyslav.shepitko@gmail.com' }
   s.ios.deployment_target = '13.0'
