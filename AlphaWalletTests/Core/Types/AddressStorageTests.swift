@@ -38,8 +38,7 @@ class AddressStorageTests: XCTestCase {
             register(addressStorage: storage)
 
             do {
-                let decodedTokenEntries = try JSONDecoder().decode([FakeTickerId].self, from: jsonData)
-                print(decodedTokenEntries.count)
+                _ = try JSONDecoder().decode([FakeTickerId].self, from: jsonData)
             } catch {
                 XCTFail()
             }
@@ -48,8 +47,7 @@ class AddressStorageTests: XCTestCase {
             register(addressStorage: storage2)
 
             do {
-                let decodedTokenEntries = try JSONDecoder().decode([FakeTickerId].self, from: jsonData)
-                print(decodedTokenEntries.count)
+                _ = try JSONDecoder().decode([FakeTickerId].self, from: jsonData)
             } catch {
                 XCTFail()
             }
@@ -66,16 +64,14 @@ class AddressStorageTests: XCTestCase {
             register(addressStorage: storage)
 
             do {
-                let decodedTokenEntries = try JSONDecoder().decode([FakeTickerId].self, from: jsonData)
-                print(decodedTokenEntries.count)
+                _ = try JSONDecoder().decode([FakeTickerId].self, from: jsonData)
             } catch { XCTFail() }
 
             let storage2 = FileAddressStorage(persistentStorage: filestorage)
             register(addressStorage: storage2)
 
             do {
-                let decodedTokenEntries = try JSONDecoder().decode([FakeTickerId].self, from: jsonData)
-                print(decodedTokenEntries.count)
+                _ = try JSONDecoder().decode([FakeTickerId].self, from: jsonData)
             } catch { XCTFail() }
         }
     }
