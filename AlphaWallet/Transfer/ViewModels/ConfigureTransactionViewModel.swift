@@ -37,15 +37,15 @@ struct ConfigureTransactionViewModel {
         }
     }
     var gasPriceWarning: TransactionConfigurator.GasPriceWarning? {
-        configurator.gasPriceWarning(forConfiguration: configurationToEdit.configuration)
+        return configurator.gasPriceWarning(forConfiguration: configurationToEdit.configuration)
     }
 
     var gasLimitWarning: TransactionConfigurator.GasLimitWarning? {
-        configurator.gasLimitWarning(forConfiguration: configurationToEdit.configuration)
+        return configurator.gasLimitWarning(forConfiguration: configurationToEdit.configuration)
     }
 
     var gasFeeWarning: TransactionConfigurator.GasFeeWarning? {
-        configurator.gasFeeWarning(forConfiguration: configurationToEdit.configuration)
+        return configurator.gasFeeWarning(forConfiguration: configurationToEdit.configuration)
     }
 
     var gasViewModel: GasViewModel {
@@ -107,24 +107,26 @@ struct ConfigureTransactionViewModel {
     var sections: [Section] {
         switch selectedConfigurationType {
         case .standard, .slow, .fast, .rapid:
-            return [.configurationTypes]
+            return [.configurations]
         case .custom:
-            return [.configurationTypes, .gasPrice, .gasLimit]
+            return [.configurations, .custom]
         }
     }
 
-    var gasLimitRows: [GasLimit.Row] {
+    var editableConfigurationViews: [ConfigureTransactionViewModel.ViewType] {
+        var views: [ConfigureTransactionViewModel.ViewType] = [
+            .header(string: gasPriceHeaderTitle), .field(.gasPrice),
+            .header(string: gasLimitHeaderTitle), .field(.gasLimit),
+            .field(.nonce)
+        ]
+
         if isDataInputHidden {
-            return [.gasLimit, .nonce, .totalFee]
-        } else {
-            return [.gasLimit, .nonce, .transactionData, .totalFee]
+            views += [.field(.transactionData)]
         }
-    }
 
-    enum Section: Int, CaseIterable {
-        case configurationTypes
-        case gasPrice
-        case gasLimit
+        views += [.field(.totalFee)]
+        
+        return views
     }
 
     var gasPriceHeaderTitle: String {
@@ -135,21 +137,12 @@ struct ConfigureTransactionViewModel {
         return R.string.localizable.configureTransactionHeaderGasLimit()
     }
 
-    enum GasLimit {
-        enum Row: Int, CaseIterable {
-            case gasLimit
-            case nonce
-            case transactionData
-            case totalFee
-        }
-    }
-
     init(configurator: TransactionConfigurator, recoveryMode: ConfigureTransactionViewModel.RecoveryMode, service: TokenViewModelState) {
         let configurations = configurator.configurations
         self.configurationTypes = ConfigureTransactionViewModel.sortedConfigurationTypes(fromConfigurations: configurations)
         self.configurator = configurator
         self.configurations = configurations
-        transactionType = configurator.transaction.transactionType
+        self.transactionType = configurator.transaction.transactionType
         self.recoveryMode = recoveryMode
         self.service = service
         switch recoveryMode {
@@ -188,12 +181,10 @@ struct ConfigureTransactionViewModel {
 
     func numberOfRowsInSections(in section: Int) -> Int {
         switch sections[section] {
-        case .configurationTypes:
+        case .configurations:
             return configurationTypes.count
-        case .gasPrice:
-            return 1
-        case .gasLimit:
-            return gasLimitRows.count
+        case .custom:
+            return editableConfigurationViews.count
         }
     }
 
@@ -205,4 +196,26 @@ struct ConfigureTransactionViewModel {
             }
         }.flatMap { $0 }
     }
+}
+
+extension ConfigureTransactionViewModel {
+
+    enum Section: Int, CaseIterable {
+        case configurations
+        case custom
+    }
+
+    enum FieldType {
+        case gasLimit
+        case gasPrice
+        case nonce
+        case transactionData
+        case totalFee
+    }
+
+    enum ViewType {
+        case header(string: String)
+        case field(FieldType)
+    }
+
 }

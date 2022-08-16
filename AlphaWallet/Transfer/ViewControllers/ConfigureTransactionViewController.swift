@@ -401,50 +401,23 @@ extension ConfigureTransactionViewController {
 
     private func generateViews(viewModel: ConfigureTransactionViewModel) {
         var views: [UIView] = []
-        var headers: Set<ConfigureTransactionViewModel.Section> = .init()
-
-        func createHeaderView(section: Int) -> UIView? {
-            if headers.contains(viewModel.sections[section]) {
-                return nil
-            } else {
-                headers.insert(viewModel.sections[section])
-            }
-
-            switch viewModel.sections[section] {
-            case .configurationTypes:
-                return nil
-            case .gasPrice:
-                let view: GasSpeedTableViewHeaderView = .init()
-                view.configure(viewModel: .init(title: viewModel.gasPriceHeaderTitle))
-
-                return view
-            case .gasLimit:
-                let view: GasSpeedTableViewHeaderView = .init()
-                view.configure(viewModel: .init(title: viewModel.gasLimitHeaderTitle))
-
-                return view
-            }
-        }
 
         func didSelectCell(indexPath: IndexPath) {
             switch viewModel.sections[indexPath.section] {
-            case .configurationTypes:
+            case .configurations:
                 self.viewModel.selectedConfigurationType = viewModel.configurationTypes[indexPath.row]
-            case .gasLimit, .gasPrice:
+            case .custom:
                 break
             }
 
             generateViews(viewModel: self.viewModel)
         }
+
         typealias ContainerView = TokensViewController.ContainerView<UIView>
         
         for indexPath in viewModel.indexPaths {
-            if let header = createHeaderView(section: indexPath.section) {
-                views += [ContainerView(subview: header, isBottomSeparatorHidden: false, isTopSeparatorHidden: true)]
-            }
-
             switch viewModel.sections[indexPath.section] {
-            case .configurationTypes:
+            case .configurations:
                 let subview: GasSpeedView = GasSpeedView()
                 switch viewModel.configurationTypes[indexPath.row] {
                 case .custom:
@@ -461,29 +434,37 @@ extension ConfigureTransactionViewController {
                 }
 
                 views += [ContainerView(subview: subview, isBottomSeparatorHidden: false, isTopSeparatorHidden: true)]
-            case .gasLimit:
-                switch viewModel.gasLimitRows[indexPath.row] {
-                case .gasLimit:
-                    editGasLimitView.configure(viewModel: viewModel.gasLimitSliderViewModel)
+            case .custom:
+                switch viewModel.editableConfigurationViews[indexPath.row] {
+                case .header(let string):
+                    let view: GasSpeedTableViewHeaderView = .init()
+                    view.configure(viewModel: .init(title: string))
 
-                    views += [ContainerView(subview: editGasLimitView, isBottomSeparatorHidden: false, isTopSeparatorHidden: true)]
-                case .nonce:
-                    editNonceView.configure(viewModel: viewModel.nonceViewModel)
+                    views += [view]
+                case .field(let fieldType):
+                    switch fieldType {
+                    case .gasPrice:
+                        editGasPriceView.configure(viewModel: viewModel.gasPriceSliderViewModel)
 
-                    views += [ContainerView(subview: editNonceView, isBottomSeparatorHidden: false, isTopSeparatorHidden: true)]
-                case .totalFee:
-                    editTotalFeeView.configure(viewModel: viewModel.totalFeeViewModel)
+                        views += [ContainerView(subview: editGasPriceView, isBottomSeparatorHidden: false, isTopSeparatorHidden: true)]
+                    case .gasLimit:
+                        editGasLimitView.configure(viewModel: viewModel.gasLimitSliderViewModel)
 
-                    views += [ContainerView(subview: editTotalFeeView, isBottomSeparatorHidden: false, isTopSeparatorHidden: true)]
-                case .transactionData:
-                    editDataView.configure(viewModel: viewModel.dataViewModel)
+                        views += [ContainerView(subview: editGasLimitView, isBottomSeparatorHidden: false, isTopSeparatorHidden: true)]
+                    case .nonce:
+                        editNonceView.configure(viewModel: viewModel.nonceViewModel)
 
-                    views += [ContainerView(subview: editDataView, isBottomSeparatorHidden: false, isTopSeparatorHidden: true)]
+                        views += [ContainerView(subview: editNonceView, isBottomSeparatorHidden: false, isTopSeparatorHidden: true)]
+                    case .totalFee:
+                        editTotalFeeView.configure(viewModel: viewModel.totalFeeViewModel)
+
+                        views += [ContainerView(subview: editTotalFeeView, isBottomSeparatorHidden: false, isTopSeparatorHidden: true)]
+                    case .transactionData:
+                        editDataView.configure(viewModel: viewModel.dataViewModel)
+
+                        views += [ContainerView(subview: editDataView, isBottomSeparatorHidden: false, isTopSeparatorHidden: true)]
+                    }
                 }
-            case .gasPrice:
-                editGasPriceView.configure(viewModel: viewModel.gasPriceSliderViewModel)
-
-                views += [ContainerView(subview: editGasPriceView, isBottomSeparatorHidden: false, isTopSeparatorHidden: true)]
             }
         }
 
