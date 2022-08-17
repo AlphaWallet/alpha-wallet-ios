@@ -338,7 +338,6 @@
 		5E7C726DE238609C1FB2E320 /* Constants+Credentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73883FBA3C4BAF889E97 /* Constants+Credentials.swift */; };
 		5E7C7270EA33CF6A99701454 /* GetWalletName.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C769E7A78811BDF9463A3 /* GetWalletName.swift */; };
 		5E7C7273B231AD10F5DD80B1 /* ActivitiesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7EEA3015F451B066D78D /* ActivitiesViewModel.swift */; };
-		5E7C728CDF33FBDBA47F71A6 /* MarketplaceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C794F8EBAEE5E8F2821C2 /* MarketplaceViewController.swift */; };
 		5E7C729D43F311810652B1D5 /* UIActivityViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78E5C8FAEA752B32626D /* UIActivityViewController.swift */; };
 		5E7C72A83542B1CB69E7B4B7 /* EnabledServersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B6A80324059B3EDA38C /* EnabledServersViewController.swift */; };
 		5E7C72AF95DCE8BC65490BCA /* StatusViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B82CC07F290B9CAA4E4 /* StatusViewController.swift */; };
@@ -1788,7 +1787,6 @@
 		5E7C791C60E8AAF3F4239375 /* SeedPhraseCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SeedPhraseCell.swift; sourceTree = "<group>"; };
 		5E7C793CDFA907BFDFECB6CB /* DappViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DappViewCell.swift; sourceTree = "<group>"; };
 		5E7C793E23E2364B73C4D813 /* WelcomeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WelcomeViewController.swift; sourceTree = "<group>"; };
-		5E7C794F8EBAEE5E8F2821C2 /* MarketplaceViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketplaceViewController.swift; sourceTree = "<group>"; };
 		5E7C7957AA1BC0B5BD6E98FF /* TransactionsFilterStrategy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionsFilterStrategy.swift; sourceTree = "<group>"; };
 		5E7C7962AE417E12F13FF58E /* SetSellTokensCardExpiryDateViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SetSellTokensCardExpiryDateViewController.swift; sourceTree = "<group>"; };
 		5E7C796C7DEA3C2A70861828 /* PromptBackupWalletViewViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromptBackupWalletViewViewModel.swift; sourceTree = "<group>"; };
@@ -2785,7 +2783,6 @@
 				76F1D1936604D6A022E9AE90 /* Market */,
 				76F1D47A29573DA8BD3E4979 /* Redeem */,
 				5E7C7ACB32FB112CD7D92977 /* AlphaWalletHelp */,
-				5E7C7C37B4E80BA2E0DC7FA4 /* Marketplace */,
 				5E7C71698FE1429F1AC0777D /* Sell */,
 				5E7C7CE9D3BEED5AA1FC1599 /* RPC */,
 				879702F527EE47380056CA71 /* Notifications */,
@@ -4133,14 +4130,6 @@
 			path = Gas;
 			sourceTree = "<group>";
 		};
-		5E7C7254740FFAE67AE9ECE6 /* ViewControllers */ = {
-			isa = PBXGroup;
-			children = (
-				5E7C794F8EBAEE5E8F2821C2 /* MarketplaceViewController.swift */,
-			);
-			path = ViewControllers;
-			sourceTree = "<group>";
-		};
 		5E7C72A3369125C89C869EE7 /* OpenSea */ = {
 			isa = PBXGroup;
 			children = (
@@ -4630,14 +4619,6 @@
 				872A98652862EC0C00196EA3 /* base64_image_example.txt */,
 			);
 			path = Helpers;
-			sourceTree = "<group>";
-		};
-		5E7C7C37B4E80BA2E0DC7FA4 /* Marketplace */ = {
-			isa = PBXGroup;
-			children = (
-				5E7C7254740FFAE67AE9ECE6 /* ViewControllers */,
-			);
-			path = Marketplace;
 			sourceTree = "<group>";
 		};
 		5E7C7CE9D3BEED5AA1FC1599 /* RPC */ = {
@@ -7127,7 +7108,6 @@
 				5E7C774B5332AC0DC19C5B1B /* EthTokenViewCellViewModel.swift in Sources */,
 				87F15AFB27F1EBAD00EB9787 /* SwapProvider.swift in Sources */,
 				5E7C75D46140FACBD12333BF /* EthTokenViewCell.swift in Sources */,
-				5E7C728CDF33FBDBA47F71A6 /* MarketplaceViewController.swift in Sources */,
 				5E7C7E04D4DDD7D8881A2AB1 /* ImportMagicLinkCoordinator.swift in Sources */,
 				8795994726049F0F006722B2 /* ActivityStateViewViewModel.swift in Sources */,
 				5E7C71A6B0BDF301747A49AE /* ScreenChecker.swift in Sources */,
