@@ -102,7 +102,7 @@ class NewTokenViewController: UIViewController {
 
         hidesBottomBarWhenPushed = true
 
-        changeServerButton.setTitleColor(Colors.navigationButtonTintColor, for: .normal)
+        changeServerButton.setTitleColor(Configuration.Color.Semantic.navigationbarButtonItemTint, for: .normal)
         changeServerButton.addTarget(self, action: #selector(changeServerAction), for: .touchUpInside)
         navigationItem.rightBarButtonItem = .init(customView: changeServerButton)
 

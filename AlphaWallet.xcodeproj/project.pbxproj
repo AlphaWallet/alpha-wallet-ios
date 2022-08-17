@@ -32,6 +32,7 @@
 		0251BE9527ED493A00B4F328 /* TokenGroupIdentifierTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0251BE9427ED493A00B4F328 /* TokenGroupIdentifierTest.swift */; };
 		0256B64127F73EBF008AF8CF /* StringValidatorRuleTestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0256B63F27F73EBF008AF8CF /* StringValidatorRuleTestCases.swift */; };
 		0256B64227F73EBF008AF8CF /* StringValidatorTestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0256B64027F73EBF008AF8CF /* StringValidatorTestCases.swift */; };
+		025DE32428A1FBEA00CBD665 /* UIImageAsset+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025DE32328A1FBEA00CBD665 /* UIImageAsset+Extension.swift */; };
 		025F5D162760C73300B2A3BC /* ExportJsonKeystorePasswordViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025F5D152760C73300B2A3BC /* ExportJsonKeystorePasswordViewModel.swift */; };
 		025F5D182760C74400B2A3BC /* ExportJsonKeystoreCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025F5D172760C74400B2A3BC /* ExportJsonKeystoreCoordinator.swift */; };
 		025F5D1B2760C75800B2A3BC /* ExportJsonKeystorePasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025F5D192760C75800B2A3BC /* ExportJsonKeystorePasswordViewController.swift */; };
@@ -1314,6 +1315,7 @@
 		0251BE9427ED493A00B4F328 /* TokenGroupIdentifierTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenGroupIdentifierTest.swift; sourceTree = "<group>"; };
 		0256B63F27F73EBF008AF8CF /* StringValidatorRuleTestCases.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringValidatorRuleTestCases.swift; sourceTree = "<group>"; };
 		0256B64027F73EBF008AF8CF /* StringValidatorTestCases.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringValidatorTestCases.swift; sourceTree = "<group>"; };
+		025DE32328A1FBEA00CBD665 /* UIImageAsset+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageAsset+Extension.swift"; sourceTree = "<group>"; };
 		025F5D152760C73300B2A3BC /* ExportJsonKeystorePasswordViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExportJsonKeystorePasswordViewModel.swift; sourceTree = "<group>"; };
 		025F5D172760C74400B2A3BC /* ExportJsonKeystoreCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExportJsonKeystoreCoordinator.swift; sourceTree = "<group>"; };
 		025F5D192760C75800B2A3BC /* ExportJsonKeystorePasswordViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExportJsonKeystorePasswordViewController.swift; sourceTree = "<group>"; };
@@ -3432,6 +3434,7 @@
 				87757287282E4B8100EAD907 /* UISearchBar+Extensions.swift */,
 				87757289282E4B9B00EAD907 /* UICollectionViewLayout+Extensions.swift */,
 				87E1A5F0283AB48100E98555 /* UIApplication+Extensions.swift */,
+				025DE32328A1FBEA00CBD665 /* UIImageAsset+Extension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -7323,6 +7326,7 @@
 				5E7C77D12D8DE42157790BDC /* DappsAutoCompletionCell.swift in Sources */,
 				5E7C7186B20660F2C1462AA9 /* DiscoverDappsViewControllerViewModel.swift in Sources */,
 				8765D6E7282BCC8000529F45 /* ReportUsersWalletAddresses.swift in Sources */,
+				025DE32428A1FBEA00CBD665 /* UIImageAsset+Extension.swift in Sources */,
 				874ED6A027DF519F001AB374 /* SwapOptionsConfigurator.swift in Sources */,
 				5E7C70861A499FF79B7DA903 /* DiscoverDappCell.swift in Sources */,
 				5E7C72B359B220D0CBA7DCF1 /* DappsAutoCompletionViewController.swift in Sources */,

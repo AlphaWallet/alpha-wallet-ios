@@ -50,7 +50,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
     private let changeServerButton = UIButton(type: .system)
     private let cancelEditingButton: UIButton = {
         let cancelEditingButton = UIButton(type: .system)
-        cancelEditingButton.setTitleColor(Colors.navigationButtonTintColor, for: .normal)
+        cancelEditingButton.setTitleColor(Configuration.Color.Semantic.navigationbarButtonItemTint, for: .normal)
         //compression and hugging priority required to make cancel button appear reliably yet not be too wide
         cancelEditingButton.setContentCompressionResistancePriority(.required, for: .horizontal)
         cancelEditingButton.setContentHuggingPriority(.defaultHigh, for: .horizontal)
@@ -65,7 +65,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
         closeButton.tintColor = Colors.black
         closeButton.isHidden = true
         closeButton.setTitle(R.string.localizable.done(), for: .normal)
-        closeButton.setTitleColor(Colors.navigationButtonTintColor, for: .normal)
+        closeButton.setTitleColor(Configuration.Color.Semantic.navigationbarButtonItemTint, for: .normal)
         closeButton.setContentCompressionResistancePriority(.required, for: .horizontal)
         closeButton.setContentHuggingPriority(.required, for: .horizontal)
 
@@ -218,7 +218,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
     }
 
     func configure(server: RPCServer) {
-        let color = Colors.navigationButtonTintColor
+        let color = Configuration.Color.Semantic.navigationbarButtonItemTint
         backButton.imageView?.tintColor = color
         forwardButton.imageView?.tintColor = color
         changeServerButton.tintColor = color

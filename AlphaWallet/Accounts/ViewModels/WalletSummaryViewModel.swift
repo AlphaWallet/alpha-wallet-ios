@@ -52,7 +52,7 @@ struct WalletSummaryViewModel {
     }
 
     var backgroundColor: UIColor {
-        return Colors.appWhite
+        return Configuration.Color.Semantic.defaultViewBackground
     }
 }
 
@@ -64,7 +64,7 @@ extension WalletSummaryViewModel {
 
             return [
                 .font: Fonts.bold(size: 36),
-                .foregroundColor: Colors.black,
+                .foregroundColor: Configuration.Color.Semantic.labelTextActive,
                 .paragraphStyle: style,
             ]
         }

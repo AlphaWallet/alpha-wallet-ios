@@ -105,7 +105,7 @@ final class TokensViewModel {
     }
 
     var backgroundColor: UIColor {
-        return Colors.appWhite
+        return Configuration.Color.Semantic.searchbarBackground
     }
 
     var shouldShowBackupPromptViewHolder: Bool {

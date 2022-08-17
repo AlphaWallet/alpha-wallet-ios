@@ -20,19 +20,19 @@ struct EthTokenViewCellViewModel {
     }
 
     var contentsBackgroundColor: UIColor {
-        return Screen.TokenCard.Color.background
+        return Configuration.Color.Semantic.tableViewCellBackground
     }
 
     var titleAttributedString: NSAttributedString {
         return NSAttributedString(string: token.tokenScriptOverrides?.shortTitleInPluralForm ?? "", attributes: [
-            .foregroundColor: Screen.TokenCard.Color.title,
+            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
             .font: Screen.TokenCard.Font.title
         ])
     }
 
     var cryptoValueAttributedString: NSAttributedString {
         return NSAttributedString(string: token.balance.amountShort + " " + (token.tokenScriptOverrides?.symbolInPluralForm ?? ""), attributes: [
-            .foregroundColor: Screen.TokenCard.Color.subtitle,
+            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText,
             .font: Screen.TokenCard.Font.subtitle
         ])
     }
@@ -103,7 +103,7 @@ struct EthTokenViewCellViewModel {
 
     var fiatValueAttributedString: NSAttributedString {
         return NSAttributedString(string: amountAccordingRPCServer ?? UiTweaks.noPriceMarker, attributes: [
-            .foregroundColor: Screen.TokenCard.Color.title,
+            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
             .font: Screen.TokenCard.Font.valueChangeValue
         ])
     }

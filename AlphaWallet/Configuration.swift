@@ -25,7 +25,10 @@ struct Configuration {
             static let defaultForegroundText = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.black()!, darkColor: R.color.white()!)
             }
-
+            static let defaultSubtitleText = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.dove()!, darkColor: R.color.dusty()!)
+            }
+            
             static let primaryButtonBackground = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.cod()!, darkColor: R.color.alabaster()!)
             }
@@ -100,6 +103,10 @@ struct Configuration {
                 return colorFrom(trait: trait, lightColor: R.color.mercury()!, darkColor: R.color.venus()!)
             }
 
+            static let tableViewSpecialBackground = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.solitude()!, darkColor: R.color.mine()!)
+            }
+            
             static let searchbarTint = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.mine()!, darkColor: R.color.white()!)
             }
@@ -114,6 +121,10 @@ struct Configuration {
 
             static let navigationbarPrimaryFont = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.black()!, darkColor: R.color.white()!)
+            }
+
+            static let navigationbarButtonItemTint = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.mine()!, darkColor: R.color.white()!)
             }
 
             static let popupBackground = UIColor { trait in
@@ -134,6 +145,42 @@ struct Configuration {
 
             static let popupSwipeIndicator = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.black()!.withAlphaComponent(0.2), darkColor: R.color.white()!.withAlphaComponent(0.2))
+            }
+
+            static let scrollableSegmentedControlLineColor = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.mercury()!, darkColor: R.color.venus()!)
+            }
+
+            static let scrollableSegmentedControllerHighlightColor = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.azure()!, darkColor: R.color.dodge()!)
+            }
+
+            static let scrollableSegmentedControllerBackground = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.cod()!)
+            }
+
+            static let scrollableSegmentedControllerNonHighlightColor = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.dove()!, darkColor: R.color.dusty()!)
+            }
+
+            static let searchbarBackground = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.cod()!)
+            }
+
+            static let tabBarBackground = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.cod()!)
+            }
+
+            static let tabBarTint = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.azure()!, darkColor: R.color.dodge()!)
+            }
+
+            static let tabBarSeparator = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.mercury()!, darkColor: R.color.venus()!)
+            }
+
+            static let collectionViewBackground = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.shark()!)
             }
         }
     }
