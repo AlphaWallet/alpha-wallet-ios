@@ -24,8 +24,15 @@ class ConfirmationHeaderView: UIView {
        return titleLabel
     }()
 
-    let iconImageView: RoundedImageView = {
-        let imageView = RoundedImageView(size: .init(width: 30, height: 30))
+    let iconImageView: ImageView = {
+        let imageView = ImageView()
+        imageView.contentMode = .scaleAspectFit
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            imageView.widthAnchor.constraint(equalToConstant: 30),
+            imageView.heightAnchor.constraint(equalToConstant: 30)
+        ])
 
         return imageView
     }()
