@@ -21,7 +21,7 @@ target 'AlphaWallet' do
   pod 'TrezorCrypto', :git=>'https://github.com/AlphaWallet/trezor-crypto-ios.git', :commit => '50c16ba5527e269bbc838e80aee5bac0fe304cc7'
   pod 'TrustKeystore', :git => 'https://github.com/AlphaWallet/latest-keystore-snapshot', :commit => 'c0bdc4f6ffc117b103e19d17b83109d4f5a0e764'
   pod 'SwiftyJSON', '5.0.0'
-  pod 'web3swift', :git => 'https://github.com/AlphaWallet/web3swift.git', :commit=> 'a84b1ca9ce76ea862356dcec5740305fcd7255cf'
+  pod 'web3swift', :git => 'https://github.com/AlphaWallet/web3swift.git', :commit=> '72d6514f6ac29a68abb7b9cbab5685799c18d77a'
   pod 'SAMKeychain'
   pod 'PromiseKit/CorePromise'
   pod 'PromiseKit/Alamofire'
