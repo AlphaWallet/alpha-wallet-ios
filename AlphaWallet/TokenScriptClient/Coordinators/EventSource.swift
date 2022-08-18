@@ -6,14 +6,14 @@ import PromiseKit
 import web3swift
 import Combine
 
-final class EventSourceCoordinator: NSObject {
+final class EventSource: NSObject {
     private var wallet: Wallet
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: NonActivityEventsDataStore
     private let config: Config
     private var isFetching = false
     private var rateLimitedUpdater: RateLimiter?
-    private let queue = DispatchQueue(label: "com.eventSourceCoordinator.updateQueue")
+    private let queue = DispatchQueue(label: "com.eventSource.updateQueue")
     private let enabledServers: [RPCServer]
     private var cancellable = Set<AnyCancellable>()
     private let tokensService: TokenProvidable
@@ -101,7 +101,7 @@ final class EventSourceCoordinator: NSObject {
         return getEventOriginsAndTokenIds(forToken: token)
             .flatMap { value in
                 value.tokenIds.map {
-                    EventSourceCoordinator.functional.fetchEvents(forTokenId: $0, token: token, eventOrigin: value.eventOrigin, wallet: wallet, eventsDataStore: eventsDataStore, queue: queue)
+                    EventSource.functional.fetchEvents(forTokenId: $0, token: token, eventOrigin: value.eventOrigin, wallet: wallet, eventsDataStore: eventsDataStore, queue: queue)
                 }
             }
     }
@@ -129,11 +129,11 @@ final class EventSourceCoordinator: NSObject {
     }
 }
 
-extension EventSourceCoordinator {
+extension EventSource {
     class functional {}
 }
 
-extension EventSourceCoordinator.functional {
+extension EventSource.functional {
 
     static func fetchEvents(forTokenId tokenId: TokenId, token: Token, eventOrigin: EventOrigin, wallet: Wallet, eventsDataStore: NonActivityEventsDataStore, queue: DispatchQueue) -> Promise<Void> {
         let (filterName, filterValue) = eventOrigin.eventFilter

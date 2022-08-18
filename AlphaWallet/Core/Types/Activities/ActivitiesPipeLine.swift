@@ -22,14 +22,14 @@ final class ActivitiesPipeLine: ActivitiesServiceType {
     lazy private var eventsActivityDataStore: EventsActivityDataStoreProtocol = {
         return EventsActivityDataStore(store: store)
     }()
-    private lazy var eventSourceCoordinatorForActivities: EventSourceCoordinatorForActivities? = {
+    private lazy var eventSourceForActivities: EventSourceForActivities? = {
         guard Features.default.isAvailable(.isActivityEnabled) else { return nil }
-        return EventSourceCoordinatorForActivities(wallet: wallet, config: config, tokensService: tokensService, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsActivityDataStore)
+        return EventSourceForActivities(wallet: wallet, config: config, tokensService: tokensService, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsActivityDataStore)
     }()
     private let tokensService: TokenProvidable
 
-    private lazy var eventSourceCoordinator: EventSourceCoordinator = {
-        EventSourceCoordinator(wallet: wallet, tokensService: tokensService, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, config: config)
+    private lazy var eventSource: EventSource = {
+        EventSource(wallet: wallet, tokensService: tokensService, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, config: config)
     }()
 
     private lazy var activitiesSubService: ActivitiesServiceType = {
@@ -56,8 +56,8 @@ final class ActivitiesPipeLine: ActivitiesServiceType {
 
     func start() {
         //NOTE: need to figure out creating xml handlers, object creating takes a lot of resources
-        eventSourceCoordinator.start()
-        eventSourceCoordinatorForActivities?.start()
+        eventSource.start()
+        eventSourceForActivities?.start()
 
         activitiesSubService.start()
     }

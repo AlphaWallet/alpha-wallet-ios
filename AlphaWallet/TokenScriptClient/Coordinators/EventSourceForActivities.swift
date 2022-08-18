@@ -7,7 +7,7 @@ import PromiseKit
 import web3swift
 import Combine
 
-final class EventSourceCoordinatorForActivities {
+final class EventSourceForActivities {
     private var wallet: Wallet
     private let config: Config
     private let tokensService: TokenProvidable
@@ -15,7 +15,7 @@ final class EventSourceCoordinatorForActivities {
     private let eventsDataStore: EventsActivityDataStoreProtocol
     private var isFetching = false
     private var rateLimitedUpdater: RateLimiter?
-    private let queue = DispatchQueue(label: "com.EventSourceCoordinatorForActivities.updateQueue")
+    private let queue = DispatchQueue(label: "com.EventSourceForActivities.updateQueue")
     private let enabledServers: [RPCServer]
     private var cancellable = Set<AnyCancellable>()
 
@@ -38,9 +38,8 @@ final class EventSourceCoordinatorForActivities {
     private func subscribeForTokenChanges() {
         tokensService.tokensPublisher(servers: enabledServers)
             .receive(on: queue)
-            .sink { [weak self] _ in
-                self?.fetchEthereumEvents()
-            }.store(in: &cancellable)
+            .sink { [weak self] _ in self?.fetchEthereumEvents() }
+            .store(in: &cancellable)
     }
 
     private func subscribeForTokenScriptFileChanges() {
@@ -89,7 +88,7 @@ final class EventSourceCoordinatorForActivities {
 
     private func fetchEvents(forToken token: Token) -> [Promise<Void>] {
         return getActivityCards(forToken: token)
-            .map { EventSourceCoordinatorForActivities.functional.fetchEvents(tokenContract: token.contractAddress, server: token.server, card: $0, eventsDataStore: eventsDataStore, queue: queue, wallet: wallet) }
+            .map { EventSourceForActivities.functional.fetchEvents(tokenContract: token.contractAddress, server: token.server, card: $0, eventsDataStore: eventsDataStore, queue: queue, wallet: wallet) }
     }
 
     private func fetchEthereumEvents() {
@@ -116,16 +115,16 @@ final class EventSourceCoordinatorForActivities {
     }
 }
 
-extension EventSourceCoordinatorForActivities {
+extension EventSourceForActivities {
     class functional {}
 }
 
-extension EventSourceCoordinatorForActivities.functional {
+extension EventSourceForActivities.functional {
     static func fetchEvents(tokenContract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, eventsDataStore: EventsActivityDataStoreProtocol, queue: DispatchQueue, wallet: Wallet) -> Promise<Void> {
 
         let eventOrigin = card.eventOrigin
         let (filterName, filterValue) = eventOrigin.eventFilter
-        typealias functional = EventSourceCoordinatorForActivities.functional
+        typealias functional = EventSourceForActivities.functional
         let filterParam = eventOrigin.parameters
             .filter { $0.isIndexed }
             .map { functional.formFilterFrom(fromParameter: $0, filterName: filterName, filterValue: filterValue, wallet: wallet) }
@@ -180,7 +179,7 @@ extension EventSourceCoordinatorForActivities.functional {
         guard let eventLog = event.eventLog else { return nil }
 
         let transactionId = eventLog.transactionHash.hexEncoded
-        let decodedResult = EventSourceCoordinator.functional.convertToJsonCompatible(dictionary: event.decodedResult)
+        let decodedResult = EventSource.functional.convertToJsonCompatible(dictionary: event.decodedResult)
         guard let json = decodedResult.jsonString else { return nil }
         //TODO when TokenScript schema allows it, support more than 1 filter
         let filterTextEquivalent = filterParam.compactMap({ $0?.textEquivalent }).first
@@ -193,7 +192,7 @@ extension EventSourceCoordinatorForActivities.functional {
         guard parameter.name == filterName else { return nil }
         guard let parameterType = SolidityType(rawValue: parameter.type) else { return nil }
         let optionalFilter: (filter: AssetAttributeValueUsableAsFunctionArguments, textEquivalent: String)?
-        if let implicitAttribute = EventSourceCoordinator.functional.convertToImplicitAttribute(string: filterValue) {
+        if let implicitAttribute = EventSource.functional.convertToImplicitAttribute(string: filterValue) {
             switch implicitAttribute {
             case .tokenId:
                 optionalFilter = nil
