@@ -4,7 +4,7 @@ import Foundation
 import JSONRPCKit
 
 struct GetTransactionRequest: JSONRPCKit.Request {
-    typealias Response = PendingTransaction
+    typealias Response = PendingTransaction?
 
     let hash: String
 
@@ -17,6 +17,10 @@ struct GetTransactionRequest: JSONRPCKit.Request {
     }
 
     func response(from resultObject: Any) throws -> Response {
+        if resultObject is NSNull {
+            debugLog("[RPC] Fetch transaction by hash: \(hash) is null")
+            return nil
+        }
         guard
             let dict = resultObject as? [String: AnyObject],
             let transaction = PendingTransaction.from(dict)

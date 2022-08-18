@@ -16,7 +16,7 @@ enum EthereumTransaction {
         return firstly {
             Session.send(EtherServiceRequest(server: server, batch: BatchFactory().create(request)), server: server, analytics: analytics)
         }.map { pendingTransaction in
-            if let blockNumber = Int(pendingTransaction.blockNumber), blockNumber > 0 {
+            if let pendingTransaction = pendingTransaction, let blockNumber = Int(pendingTransaction.blockNumber), blockNumber > 0 {
                 return true
             } else {
                 return false
