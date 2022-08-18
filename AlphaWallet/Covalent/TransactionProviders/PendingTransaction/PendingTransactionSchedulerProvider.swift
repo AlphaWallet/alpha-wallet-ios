@@ -30,12 +30,14 @@ final class PendingTransactionSchedulerProvider: SchedulerProvider {
         self.fetcher = fetcher
         self.fetchPendingTransactionsQueue = fetchPendingTransactionsQueue
         self.transaction = transaction
-    } 
+    }
 
     private func fetchPendingTransactionPublisher() -> AnyPublisher<Void, SchedulerError> {
         return fetcher.transaction(forServer: transaction.server, id: transaction.id)
             .subscribe(on: fetchPendingTransactionsQueue)
             .handleEvents(receiveOutput: { [weak self] pendingTransaction in
+                //We can't just delete the pending transaction because it might be valid, just that the RPC node doesn't know about it
+                guard let pendingTransaction = pendingTransaction else { return }
                 guard let blockNumber = Int(pendingTransaction.blockNumber), blockNumber > 0  else { return }
                 self?.didReceiveValue(pendingTransaction)
             }, receiveCompletion: { [weak self] result in

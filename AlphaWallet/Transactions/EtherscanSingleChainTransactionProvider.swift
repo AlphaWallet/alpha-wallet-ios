@@ -166,6 +166,8 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
         }.done(on: queue, { [weak self] pendingTransaction in
             guard let strongSelf = self else { return }
 
+            //We can't just delete the pending transaction because it might be valid, just that the RPC node doesn't know about it
+            guard let pendingTransaction = pendingTransaction else { return }
             if let blockNumber = Int(pendingTransaction.blockNumber), blockNumber > 0 {
                 strongSelf.update(state: .completed, for: transaction, withPendingTransaction: pendingTransaction)
                 strongSelf.addOrUpdate(transactions: [transaction])
