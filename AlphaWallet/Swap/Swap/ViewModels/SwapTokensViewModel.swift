@@ -185,7 +185,9 @@ class SwapTokensViewModel: NSObject {
     }
 
     private func balancePublisher(for token: Token, session: WalletSession) -> AnyPublisher<BalanceViewModel?, Never> {
-        return tokensService.tokenViewModelPublisher(for: token)
+        return Just(token)
+            .receive(on: RunLoop.main)
+            .flatMap { [tokensService] in tokensService.tokenViewModelPublisher(for: $0) }
             .map { $0?.balance }
             .eraseToAnyPublisher()
     }
