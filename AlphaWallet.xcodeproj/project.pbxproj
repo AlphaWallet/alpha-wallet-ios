@@ -794,6 +794,7 @@
 		8717DA3D273AB19E002D3D66 /* WalletConnectRequestConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8717DA3C273AB19E002D3D66 /* WalletConnectRequestConverter.swift */; };
 		8717DA40273AC5C7002D3D66 /* WalletConnectV1Provider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8717DA3F273AC5C7002D3D66 /* WalletConnectV1Provider.swift */; };
 		87182BA028991CBA004BBB32 /* ActivitiesPipeLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87182B9F28991CBA004BBB32 /* ActivitiesPipeLine.swift */; };
+		87186CFE28AE5E10006D3B82 /* GetGasLimit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87186CFD28AE5E10006D3B82 /* GetGasLimit.swift */; };
 		87186FD4283E51F100A977B4 /* RunLoopThread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87186FD3283E51F100A977B4 /* RunLoopThread.swift */; };
 		871CE2E727DF80AF00B1E1CF /* SelectableSlippageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871CE2E627DF80AF00B1E1CF /* SelectableSlippageView.swift */; };
 		871CE2E927DF80C800B1E1CF /* SelectableSlippageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871CE2E827DF80C800B1E1CF /* SelectableSlippageViewModel.swift */; };
@@ -2084,6 +2085,7 @@
 		8717DA3C273AB19E002D3D66 /* WalletConnectRequestConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectRequestConverter.swift; sourceTree = "<group>"; };
 		8717DA3F273AC5C7002D3D66 /* WalletConnectV1Provider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectV1Provider.swift; sourceTree = "<group>"; };
 		87182B9F28991CBA004BBB32 /* ActivitiesPipeLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivitiesPipeLine.swift; sourceTree = "<group>"; };
+		87186CFD28AE5E10006D3B82 /* GetGasLimit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetGasLimit.swift; sourceTree = "<group>"; };
 		87186FD3283E51F100A977B4 /* RunLoopThread.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunLoopThread.swift; sourceTree = "<group>"; };
 		871CE2E627DF80AF00B1E1CF /* SelectableSlippageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableSlippageView.swift; sourceTree = "<group>"; };
 		871CE2E827DF80C800B1E1CF /* SelectableSlippageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableSlippageViewModel.swift; sourceTree = "<group>"; };
@@ -3593,6 +3595,7 @@
 				8765D6C8282A3B2E00529F45 /* GasPriceWarning.swift */,
 				8765D6CA282A3B8000529F45 /* GasFeeWarning.swift */,
 				8765D6CC282A3B9400529F45 /* GasLimitWarning.swift */,
+				87186CFD28AE5E10006D3B82 /* GetGasLimit.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -7315,6 +7318,7 @@
 				76F1D24B6244EEA49F0FDE33 /* DiscoverDappsViewController.swift in Sources */,
 				76F1DBF9F5359160063625B2 /* BrowserHistoryViewController.swift in Sources */,
 				76F1D5DFFA5652DC16EF713D /* DappBrowserNavigationBar.swift in Sources */,
+				87186CFE28AE5E10006D3B82 /* GetGasLimit.swift in Sources */,
 				5E7C78265EECE083C3EB1845 /* DappsHomeViewControllerViewModel.swift in Sources */,
 				5E7C77D12D8DE42157790BDC /* DappsAutoCompletionCell.swift in Sources */,
 				5E7C7186B20660F2C1462AA9 /* DiscoverDappsViewControllerViewModel.swift in Sources */,

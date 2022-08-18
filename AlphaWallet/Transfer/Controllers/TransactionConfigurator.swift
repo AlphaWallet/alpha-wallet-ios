@@ -22,18 +22,8 @@ enum TransactionConfiguratorError: Error {
 }
 
 class TransactionConfigurator {
-
-    private var isGasLimitSpecifiedByTransaction: Bool {
-        transaction.gasLimit != nil
-    }
-
     let session: WalletSession
-    private let analytics: AnalyticsLogger
     weak var delegate: TransactionConfiguratorDelegate?
-
-    var transaction: UnconfirmedTransaction
-    var selectedConfigurationType: TransactionConfigurationType = .standard
-    var configurations: TransactionConfigurations
 
     var currentConfiguration: TransactionConfiguration {
         switch selectedConfigurationType {
@@ -83,6 +73,17 @@ class TransactionConfigurator {
         gasPriceWarning(forConfiguration: currentConfiguration)
     }
 
+    var transaction: UnconfirmedTransaction
+    var selectedConfigurationType: TransactionConfigurationType = .standard
+    var configurations: TransactionConfigurations
+
+    private var isGasLimitSpecifiedByTransaction: Bool {
+        transaction.gasLimit != nil
+    }
+    private let analytics: AnalyticsLogger
+    private lazy var gasPriceEstimator = GasPriceEstimator(analytics: analytics)
+    private lazy var gasLimitEstimator = GetGasLimit(account: session.account, server: session.server, analytics: analytics)
+
     init(session: WalletSession, analytics: AnalyticsLogger, transaction: UnconfirmedTransaction) throws {
         self.session = session
         self.analytics = analytics
@@ -98,25 +99,11 @@ class TransactionConfigurator {
     }
 
     private func estimateGasLimit() {
-        let transactionType: EstimateGasRequest.TransactionType
-        if let toAddress = toAddress {
-            transactionType = .normal(to: toAddress)
-        } else {
-            transactionType = .contractDeployment
-        }
-        let request = EstimateGasRequest(
-            from: session.account.address,
-            transactionType: transactionType,
-            value: value,
-            data: currentConfiguration.data
-        )
-
         firstly {
-            Session.send(EtherServiceRequest(server: session.server, batch: BatchFactory().create(request)), server: session.server, analytics: analytics)
-        }.done { gasLimit in
-            infoLog("Estimated gas limit with eth_estimateGas: \(gasLimit)")
+            gasLimitEstimator.getGasLimit(value: value, toAddress: toAddress, data: currentConfiguration.data)
+        }.done { limit in
+            infoLog("Estimated gas limit with eth_estimateGas: \(limit)")
             let gasLimit: BigInt = {
-                let limit = BigInt(gasLimit.drop0x, radix: 16) ?? BigInt()
                 if limit == GasLimitConfiguration.minGasLimit {
                     return limit
                 }
@@ -145,16 +132,15 @@ class TransactionConfigurator {
     }
 
     private func estimateGasPrice() {
-        let estimator = GasPriceEstimator(analytics: analytics)
         firstly {
-            estimator.estimateGasPrice(server: session.server)
-        }.done { estimates in
+            gasPriceEstimator.estimateGasPrice(server: session.server)
+        }.done { [gasPriceEstimator] estimates in
             let standard = estimates.standard
             var customConfig = self.configurations.custom
             customConfig.setEstimated(gasPrice: standard)
             var defaultConfig = self.configurations.standard
             defaultConfig.setEstimated(gasPrice: standard)
-            if estimator.shouldUseEstimatedGasPrice(standard, forTransaction: self.transaction) {
+            if gasPriceEstimator.shouldUseEstimatedGasPrice(standard, forTransaction: self.transaction) {
                 self.configurations.custom = customConfig
                 self.configurations.standard = defaultConfig
             }
