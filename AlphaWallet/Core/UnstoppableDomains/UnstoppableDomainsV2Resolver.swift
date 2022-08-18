@@ -10,6 +10,7 @@ import Combine
 import Alamofire
 import SwiftyJSON
 import AlphaWalletENS
+import AlphaWalletCore
 
 struct UnstoppableDomainsV2ApiError: Error {
     var localizedDescription: String

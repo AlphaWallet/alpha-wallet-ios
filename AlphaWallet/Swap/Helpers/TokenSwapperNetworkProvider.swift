@@ -10,6 +10,7 @@ import Combine
 import SwiftyJSON
 import Alamofire
 import BigInt
+import AlphaWalletCore
 
 protocol TokenSwapperNetworkProvider {
     func fetchSupportedChains() -> AnyPublisher<[RPCServer], PromiseError>

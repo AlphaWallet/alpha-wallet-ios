@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import AlphaWalletENS
+import AlphaWalletCore
 
 class DomainResolutionService {
     private let storage: EnsRecordsStorage

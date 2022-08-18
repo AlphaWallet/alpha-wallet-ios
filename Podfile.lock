@@ -11,6 +11,7 @@ PODS:
     - PromiseKit
   - AlphaWalletENS (1.0.0):
     - AlphaWalletAddress
+    - AlphaWalletCore
     - PromiseKit
     - Result
     - web3swift
@@ -292,7 +293,7 @@ SPEC CHECKSUMS:
   Alamofire-Synchronous: eedf1e6e961c3795a63c74990b3f7d9fbfac7e50
   AlphaWalletAddress: 62a69f5ccc7d6d17abf878c4274f4c3d5fdc97ba
   AlphaWalletCore: 451c8a4dfdba1d3b59a3ac47bf0dcabcf1f4c049
-  AlphaWalletENS: df3cb79a2def496f78b06a838d0a111528e473db
+  AlphaWalletENS: 867ea57fe2a7fdbc7c5dbf44ec58ea6ae7568cae
   AlphaWalletGoBack: 935efdbd98fa80039f2a350cde5b3a50cea46564
   AlphaWalletOpenSea: 246846069baa0c5b0a578a9b48aee387652f376c
   AlphaWalletWeb3Provider: 7ca1e1c1dc841dc1915f970daace48bf34931655

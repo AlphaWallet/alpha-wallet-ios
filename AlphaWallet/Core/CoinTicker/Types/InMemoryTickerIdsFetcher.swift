@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import CombineExt
+import AlphaWalletCore
 
 /// Provides tokens groups
 protocol TokenEntriesProvider {
