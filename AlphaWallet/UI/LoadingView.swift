@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 import StatefulViewController
 
-class LoadingView: UIView {
+final class LoadingView: UIView {
     private let imageView = UIImageView()
     private let insets: UIEdgeInsets
     private let viewModel = StateViewModel()
@@ -59,5 +59,17 @@ class LoadingView: UIView {
 extension LoadingView: StatefulPlaceholderView {
     func placeholderViewInsets() -> UIEdgeInsets {
         return insets
+    }
+}
+
+extension LoadingView {
+    static func tokenSelectionLoadingView() -> LoadingView {
+        let loadingView = LoadingView(insets: .init(top: Style.SearchBar.height, left: 0, bottom: 0, right: 0))
+        loadingView.backgroundColor = Colors.appBackground
+        loadingView.label.textColor = Colors.appGrayLabel
+        loadingView.loadingIndicator.color =  Colors.appGrayLabel
+        loadingView.label.font = Fonts.regular(size: 18)
+
+        return loadingView
     }
 }

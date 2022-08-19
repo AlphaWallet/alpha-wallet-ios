@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Combine
 
 protocol SelectTokenCoordinatorDelegate: AnyObject {
     func coordinator(_ coordinator: SelectTokenCoordinator, didSelectToken token: Token)
@@ -14,6 +15,9 @@ protocol SelectTokenCoordinatorDelegate: AnyObject {
 
 struct TokenTypeFilter: TokenFilterProtocol {
     let tokenTypes: [TokenType]
+    var objectWillChange: AnyPublisher<Void, Never> {
+        Empty<Void, Never>(completeImmediately: true).eraseToAnyPublisher()
+    }
 
     func filter(token: TokenFilterable) -> Bool {
         tokenTypes.contains(token.type)
@@ -21,6 +25,10 @@ struct TokenTypeFilter: TokenFilterProtocol {
 }
 
 struct NativeCryptoOrErc20TokenFilter: TokenFilterProtocol {
+    var objectWillChange: AnyPublisher<Void, Never> {
+        Empty<Void, Never>(completeImmediately: true).eraseToAnyPublisher()
+    }
+
     func filter(token: TokenFilterable) -> Bool {
         TokenTypeFilter(tokenTypes: [.erc20, .nativeCryptocurrency])
             .filter(token: token)

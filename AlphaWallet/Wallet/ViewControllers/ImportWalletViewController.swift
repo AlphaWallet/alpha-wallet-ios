@@ -65,7 +65,7 @@ class ImportWalletViewController: UIViewController {
         return textView
     }()
     private lazy var passwordTextField: TextField = {
-        let textField:TextField = .textField
+        let textField: TextField = .textField
         textField.label.translatesAutoresizingMaskIntoConstraints = false
         textField.delegate = self
         textField.translatesAutoresizingMaskIntoConstraints = false

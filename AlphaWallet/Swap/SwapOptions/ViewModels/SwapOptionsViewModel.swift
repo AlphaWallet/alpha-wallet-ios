@@ -8,6 +8,13 @@
 import Foundation
 import Combine
 
+struct SwapOptionsViewModelInput { }
+
+struct SwapOptionsViewModelOutput {
+    let sessions: AnyPublisher<[SelectNetworkViewModel], Never>
+    let errorString: AnyPublisher<String, Never>
+}
+
 class SwapOptionsViewModel {
     private let configurator: SwapOptionsConfigurator
     private var cancelable = Set<AnyCancellable>()
@@ -23,40 +30,38 @@ class SwapOptionsViewModel {
     var sessions: [WalletSession] {
         configurator.sessions
     }
-    var slippageViewModel: SlippageViewModel
-    var tansactionDeadalineViewModel: TransactionDeadlineTextFieldModel
-    lazy var sessionsViewModels: AnyPublisher<[SelectNetworkViewModel], Never> = {
-        return Publishers.CombineLatest(configurator.$sessions, configurator.$server)
-            .receive(on: queue)
-            .map { [weak configurator] sessions, server in
-                guard let configurator = configurator else { return [] }
-                return sessions.map {
-                    let isAvailableToSelect = configurator.isSupported(server: $0.server)
-                    return SelectNetworkViewModel(session: $0, isSelected: $0.server == server, isAvailableToSelect: isAvailableToSelect)
-                }
-            }.eraseToAnyPublisher()
-    }()
-    var errorString: AnyPublisher<String, Never> {
-        anyError
-            .map { $0.description }
-            .eraseToAnyPublisher()
-    }
-    
+    let slippageViewModel: SlippageViewModel
+
     init(configurator: SwapOptionsConfigurator) {
         self.configurator = configurator
         slippageViewModel = .init(selectedSlippage: configurator.slippage)
-        tansactionDeadalineViewModel = .init(value: configurator.transactionDeadline)
+    }
 
-        anyError.sink { [weak self] _ in
+    func transform(input: SwapOptionsViewModelInput) -> SwapOptionsViewModelOutput {
+        anyError.sink { [weak self, configurator] _ in
             self?.set(selectedServer: configurator.activeValidServer)
         }.store(in: &cancelable)
-    } 
+
+        let sessions = Publishers.CombineLatest(configurator.$sessions, configurator.$server)
+                .receive(on: queue)
+                .map { [weak configurator] sessions, server -> [SelectNetworkViewModel] in
+                    guard let configurator = configurator else { return [] }
+                    return sessions.map {
+                        let isAvailableToSelect = configurator.isAvailable(server: $0.server)
+                        return SelectNetworkViewModel(session: $0, isSelected: $0.server == server, isAvailableToSelect: isAvailableToSelect)
+                    }
+                }.receive(on: RunLoop.main)
+                .eraseToAnyPublisher()
+
+        let errorString = anyError
+            .map { $0.description }
+            .receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
+
+        return .init(sessions: sessions, errorString: errorString)
+    }
 
     func set(selectedServer server: RPCServer) {
         configurator.set(server: server)
-    }
-
-    func set(tansactionDeadaline: Double) {
-        configurator.set(transactionDeadline: tansactionDeadaline)
     }
 }

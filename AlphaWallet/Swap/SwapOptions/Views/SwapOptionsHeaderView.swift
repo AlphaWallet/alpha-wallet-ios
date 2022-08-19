@@ -25,6 +25,8 @@ class SwapOptionsHeaderView: UIView {
         button.heightAnchor.constraint(equalToConstant: 16).isActive = true
         button.widthAnchor.constraint(equalToConstant: 16).isActive = true
         button.setImage(R.image.iconsSystemQuestionMark(), for: .normal)
+        //NOTE: mark it as hidden for now
+        button.alpha = 0
 
         return button
     }()

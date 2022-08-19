@@ -14,8 +14,7 @@ struct SelectTokenViewModelInput {
 }
 
 struct SelectTokenViewModelOutput {
-    let viewModels: AnyPublisher<[SelectTokenViewModel.ViewModelType], Never>
-    let loadingState: AnyPublisher<SelectTokenViewModel.LoadingState, Never>
+    let viewState: AnyPublisher<SelectTokenViewModel.ViewState, Never>
 }
 
 final class SelectTokenViewModel {
@@ -25,7 +24,8 @@ final class SelectTokenViewModel {
     private var selectedToken: TokenViewModel?
     private var filteredTokens: [TokenViewModel] = []
     private let tokensFilter: TokensFilter
-    
+    private let whenFilterHasChanged: AnyPublisher<Void, Never>
+
     var headerBackgroundColor: UIColor = Colors.appBackground
     var navigationTitle: String = R.string.localizable.assetsSelectAssetTitle()
     var backgroundColor: UIColor = Colors.appBackground
@@ -34,64 +34,78 @@ final class SelectTokenViewModel {
         self.tokenCollection = tokenCollection
         self.tokensFilter = tokensFilter
         self.filter = filter
+
+        switch filter {
+        case .filter(let extendedFilter):
+            whenFilterHasChanged = extendedFilter.objectWillChange
+        case .all, .defi, .governance, .assets, .collectiblesOnly, .keyword:
+            whenFilterHasChanged = Empty<Void, Never>(completeImmediately: true).eraseToAnyPublisher()
+        }
     }
 
     func selectTokenViewModel(at indexPath: IndexPath) -> Token? {
-        let token = tokenViewModel(at: indexPath)
+        let token = filteredTokens[indexPath.row]
         selectedToken = token
 
         return tokenCollection.token(for: token.contractAddress, server: token.server)
     }
 
-    func numberOfItems() -> Int {
-        return filteredTokens.count
-    }
-
     func transform(input: SelectTokenViewModelInput) -> SelectTokenViewModelOutput {
-        let loadingState: PassthroughSubject<LoadingState, Never> = .init()
+        let _loadingState: CurrentValueSubject<LoadingState, Never> = .init(.idle)
 
-        input.appear.merge(with: input.fetch).sink { [tokenCollection, loadingState] _ in
-            loadingState.send(.beginLoading)
-            tokenCollection.refresh()
-        }.store(in: &cancelable)
+        let whenAppearOrFetchOrFilterHasChanged = input.appear.merge(with: input.fetch, whenFilterHasChanged)
+            .handleEvents(receiveOutput: { [_loadingState] in
+                _loadingState.send(.beginLoading)
+            }).flatMap { [tokenCollection] _ in tokenCollection.tokenViewModels.first() }
 
-        let tokens = tokenCollection.tokenViewModels
+        let viewModels = tokenCollection.tokenViewModels.merge(with: whenAppearOrFetchOrFilterHasChanged)
             .map { [tokensFilter, filter] tokens -> [TokenViewModel] in
                 let displayedTokens = tokensFilter.filterTokens(tokens: tokens, filter: filter)
                 return tokensFilter.sortDisplayedTokens(tokens: displayedTokens)
-            }.handleEvents(receiveOutput: { tokens in
-                self.filteredTokens = tokens
-            }).map { tokens -> [ViewModelType] in
-                return tokens.map { token -> SelectTokenViewModel.ViewModelType in
-                    let accessoryType = self.accessoryType(for: token)
-                    switch token.type {
-                    case .nativeCryptocurrency:
-                        let viewModel = EthTokenViewCellViewModel(token: token, accessoryType: accessoryType)
-                        return .nativeCryptocurrency(viewModel)
-                    case .erc20:
-                        let viewModel = FungibleTokenViewCellViewModel(token: token, accessoryType: accessoryType)
-                        return .fungible(viewModel)
-                    case .erc721, .erc721ForTickets, .erc875, .erc1155:
-                        let viewModel = NonFungibleTokenViewCellViewModel(token: token, accessoryType: accessoryType)
-                        return .nonFungible(viewModel)
-                    }
+            }.handleEvents(receiveOutput: { self.filteredTokens = $0 })
+            .map { self.buildViewModels(for: $0) }
+            .handleEvents(receiveOutput: { [_loadingState] _ in
+                switch _loadingState.value {
+                case .beginLoading:
+                    _loadingState.send(.endLoading)
+                case .endLoading, .idle:
+                    break
                 }
-            }.handleEvents(receiveOutput: { [loadingState] _ in
-                loadingState.send(.endLoading)
             }).removeDuplicates()
+            .eraseToAnyPublisher()
 
-        return .init(viewModels: tokens.eraseToAnyPublisher(),
-                     loadingState: loadingState.merge(with: Just(.idle)).eraseToAnyPublisher())
+        let loadingState = _loadingState
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+        
+        let viewState = Publishers.CombineLatest(viewModels, loadingState)
+            .map { SelectTokenViewModel.ViewState(views: $0.0, loadingState: $0.1) }
+            .eraseToAnyPublisher()
+
+        return .init(viewState: viewState)
+    }
+
+    private func buildViewModels(for tokens: [TokenViewModel]) -> [SelectTokenViewModel.ViewModelType] {
+        return tokens.map { token -> SelectTokenViewModel.ViewModelType in
+            let accessoryType = accessoryType(for: token)
+            switch token.type {
+            case .nativeCryptocurrency:
+                let viewModel = EthTokenViewCellViewModel(token: token, accessoryType: accessoryType)
+                return .nativeCryptocurrency(viewModel)
+            case .erc20:
+                let viewModel = FungibleTokenViewCellViewModel(token: token, accessoryType: accessoryType)
+                return .fungible(viewModel)
+            case .erc721, .erc721ForTickets, .erc875, .erc1155:
+                let viewModel = NonFungibleTokenViewCellViewModel(token: token, accessoryType: accessoryType)
+                return .nonFungible(viewModel)
+            }
+        }
     }
 
     private func accessoryType(for token: TokenViewModel) -> UITableViewCell.AccessoryType {
         guard let selectedToken = selectedToken else { return .none }
 
         return selectedToken == token ? .checkmark : .none
-    }
-
-    private func tokenViewModel(at indexPath: IndexPath) -> TokenViewModel {
-        return filteredTokens[indexPath.row]
     }
 }
 
@@ -110,6 +124,11 @@ extension SelectTokenViewModel {
         case idle
         case beginLoading
         case endLoading
+    }
+
+    struct ViewState {
+        let views: [SelectTokenViewModel.ViewModelType]
+        let loadingState: LoadingState
     }
 }
 

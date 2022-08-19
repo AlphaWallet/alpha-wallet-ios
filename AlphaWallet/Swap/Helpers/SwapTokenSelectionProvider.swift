@@ -6,10 +6,17 @@
 //
 
 import Foundation
+import Combine
 
 final class SwapTokenSelectionProvider: TokenFilterProtocol {
     private let configurator: SwapOptionsConfigurator
     private (set) var pendingTokenSelection: SwapTokens.TokenSelection? = .none
+
+    var objectWillChange: AnyPublisher<Void, Never> {
+        configurator.tokenSwapper.objectWillChange
+            .receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
+    }
 
     init(configurator: SwapOptionsConfigurator) {
         self.configurator = configurator
@@ -25,7 +32,7 @@ final class SwapTokenSelectionProvider: TokenFilterProtocol {
 
     func filter(token: TokenFilterable) -> Bool {
         guard
-            let swapPairs = configurator.swapPairs(forServer: configurator.server),
+            let swapPairs = configurator.swapPairs(for: configurator.server),
             let selection = pendingTokenSelection
         else { return false }
 

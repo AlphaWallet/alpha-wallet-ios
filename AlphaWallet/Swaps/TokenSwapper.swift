@@ -6,6 +6,17 @@ import Combine
 import AlphaWalletAddress
 import AlphaWalletCore
 
+struct SwapSupportState {
+    let server: RPCServer
+    let supportingType: SwapSupportingType
+}
+
+enum SwapSupportingType {
+    case supports
+    case notSupports
+    case failure(error: Error)
+}
+
 class TokenSwapper: ObservableObject {
     private var store: TokenSwapperStore = InMemoryTokenSwapperStore()
     private var pendingFetchSupportedServersPublisher: AnyPublisher<[RPCServer], PromiseError>?
@@ -13,7 +24,6 @@ class TokenSwapper: ObservableObject {
     private var cancelable = Set<AnyCancellable>()
     private var reloadSubject = PassthroughSubject<Void, Never>()
     private var loadingStateSubject: CurrentValueSubject<TokenSwapper.LoadingState, Never> = .init(.pending)
-
     private let reachabilityManager: ReachabilityManagerProtocol
     private let networkProvider: TokenSwapperNetworkProvider
 
@@ -37,73 +47,82 @@ class TokenSwapper: ObservableObject {
         reachabilityManager.networkBecomeReachablePublisher
             .combineLatest(sessions, reloadSubject)
             .receive(on: DispatchQueue.global(qos: .userInitiated))
-            .flatMapLatest { (_, sessions, _) in return self.fetchAllSupportedTokens(sessions: sessions) }
-            .sink { [weak self] _ in
-                self?.loadingStateSubject.send(.done)
+            .flatMap { (_, sessions, _) in return self.fetchAllSupportedTokens(sessions: sessions) }
+            .sink { [weak loadingStateSubject] swapSupportStates in
+                self.store.addOrUpdate(swapSupportStates: swapSupportStates)
+                loadingStateSubject?.send(.done)
             }.store(in: &cancelable)
 
         reload()
     }
 
     func reload() {
-        DispatchQueue.global(qos: .userInitiated).async {
-            self.reloadSubject.send(())
+        DispatchQueue.global(qos: .userInitiated).async { [reloadSubject] in
+            reloadSubject.send(())
         }
     }
 
-    func supports(forServer server: RPCServer) -> Bool {
-        return store.supports(forServer: server)
+    func supportState(for server: RPCServer) -> SwapSupportingType {
+        return store.supportState(for: server).supportingType
     }
 
-    func swapPairs(forServer server: RPCServer) -> SwapPairs? {
-        return store.swapPairs(forServer: server)
+    func swapPairs(for server: RPCServer) -> SwapPairs? {
+        return store.swapPairs(for: server)
     }
 
     func supports(contractAddress: AlphaWallet.Address, server: RPCServer) -> Bool {
-        guard let swapPaints = swapPairs(forServer: server) else { return false }
+        guard let swapPaints = swapPairs(for: server) else { return false }
         let tokenToSupport = SwappableToken(address: contractAddress, server: server)
         return swapPaints.fromTokens.contains(tokenToSupport)
     }
 
-    func fetchSupportedTokens(forServer server: RPCServer) -> AnyPublisher<RPCServer, Never> {
-        if store.containsSwapPairs(forServer: server) {
-            return Just(server).eraseToAnyPublisher()
+    func fetchSupportedTokens(for server: RPCServer) -> AnyPublisher<SwapSupportState, Never> {
+        if store.containsSwapPairs(for: server) {
+            return Just(server)
+                .map { SwapSupportState(server: $0, supportingType: .supports) }
+                .eraseToAnyPublisher()
         } else {
             return fetchSupportedChains()
-                .flatMap { _ -> AnyPublisher<SwapPairs, PromiseError> in
-                    if self.store.supports(forServer: server) {
-                        return self.networkProvider.fetchSupportedTokens(forServer: server)
+                .flatMap { [networkProvider] servers -> AnyPublisher<SwapPairs, PromiseError> in
+                    if servers.contains(server) {
+                        return networkProvider.fetchSupportedTokens(for: server)
                     } else {
                         return Empty().eraseToAnyPublisher()
                     }
-                }.handleEvents(receiveOutput: { swapPairs in
-                    self.store.addOrUpdate(swapPairs: swapPairs, forServer: server)
-                    self.objectWillChange.send()
-                }).map { _ in server }
-                .replaceError(with: server)
-                .replaceEmpty(with: server)
+                }.handleEvents(receiveOutput: { [objectWillChange] swapPairs in
+                    self.store.addOrUpdate(swapPairs: swapPairs, for: server)
+                    objectWillChange.send()
+                })
+                .map { _ in SwapSupportState(server: server, supportingType: .supports) }
+                .catch { [server] e -> AnyPublisher<SwapSupportState, Never> in
+                    infoLog("[Swap] Error while fetching supported tokens for chain: \(server). Error: \(e)")
+
+                    return Just(server)
+                        .map { SwapSupportState(server: $0, supportingType: .failure(error: e)) }
+                        .eraseToAnyPublisher()
+                }.replaceEmpty(with: .init(server: server, supportingType: .notSupports))
                 .eraseToAnyPublisher()
         }
     }
 
-    func fetchSwapQuote(fromToken: TokenToSwap, toToken: TokenToSwap, wallet: AlphaWallet.Address, slippage: Double, fromAmount: BigUInt) -> AnyPublisher<Result<SwapQuote, SwapError>, Never> {
+    func fetchSwapQuote(fromToken: TokenToSwap, toToken: TokenToSwap, wallet: AlphaWallet.Address, slippage: String, fromAmount: BigUInt) -> AnyPublisher<Result<SwapQuote, SwapError>, Never> {
         return networkProvider.fetchSwapQuote(fromToken: fromToken, toToken: toToken, wallet: wallet, slippage: slippage, fromAmount: fromAmount)
             .map { value -> Result<SwapQuote, SwapError> in return .success(value) }
-            .catch({ e -> AnyPublisher<Result<SwapQuote, SwapError>, Never> in
-                Just<Result<SwapQuote, SwapError>>(.failure(e)).eraseToAnyPublisher()
-            }).eraseToAnyPublisher()
+            .catch { e -> AnyPublisher<Result<SwapQuote, SwapError>, Never> in
+                infoLog("[Swap] Error while fetching swap quote for tokens. Error: \(e)")
+                return .just(.failure(e))
+            }.eraseToAnyPublisher()
     }
 
     func buildSwapTransaction(keystore: Keystore, unsignedTransaction: UnsignedSwapTransaction, fromToken: TokenToSwap, fromAmount: BigUInt, toToken: TokenToSwap, toAmount: BigUInt) -> (UnconfirmedTransaction, TransactionConfirmationViewModel.Configuration) {
         functional.buildSwapTransaction(keystore: keystore, unsignedTransaction: unsignedTransaction, fromToken: fromToken, fromAmount: fromAmount, toToken: toToken, toAmount: toAmount)
     }
 
-    private func fetchAllSupportedTokens(sessions: ServerDictionary<WalletSession>) -> AnyPublisher<Void, Never> {
+    private func fetchAllSupportedTokens(sessions: ServerDictionary<WalletSession>) -> AnyPublisher<[SwapSupportState], Never> {
         loadingStateSubject.send(.updating)
 
-        let publishers = sessions.values.map { fetchSupportedTokens(forServer: $0.server) }
+        let publishers = sessions.values.map { fetchSupportedTokens(for: $0.server) }
         return Publishers.MergeMany(publishers).collect()
-            .mapToVoid()
             .eraseToAnyPublisher()
     }
 
@@ -111,20 +130,21 @@ class TokenSwapper: ObservableObject {
         if let pendingPublisher = pendingFetchSupportedServersPublisher { return pendingPublisher }
 
         let publisher = networkProvider.fetchSupportedChains()
-            .handleEvents(receiveOutput: { servers in
+            .handleEvents(receiveOutput: { _ in
                 self.pendingFetchSupportedServersPublisher = nil
-                self.store.addOrUpdate(servers: servers)
+            }, receiveCompletion: { [objectWillChange] result in
+                if case .failure(let error) = result {
+                    infoLog("[Swap] Error while fetching supported chains. Error: \(error)")
+                }
 
-                self.objectWillChange.send()
-            })
-            .share()
+                objectWillChange.send()
+            }).share()
             .eraseToAnyPublisher()
 
         self.pendingFetchSupportedServersPublisher = publisher
 
         return publisher
     }
-
 }
 
 extension TokenSwapper {

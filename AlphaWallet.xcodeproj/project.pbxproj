@@ -1172,10 +1172,10 @@
 		87F15AED27F1EA6900EB9787 /* SwapDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F15AEC27F1EA6900EB9787 /* SwapDetailsViewModel.swift */; };
 		87F15AEF27F1EA8B00EB9787 /* FieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F15AEE27F1EA8B00EB9787 /* FieldView.swift */; };
 		87F15AF127F1EAAC00EB9787 /* FieldViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F15AF027F1EAAC00EB9787 /* FieldViewModel.swift */; };
-		87F15AF327F1EAE800EB9787 /* SwapFeesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F15AF227F1EAE800EB9787 /* SwapFeesView.swift */; };
-		87F15AF527F1EB2100EB9787 /* SwapFeesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F15AF427F1EB2100EB9787 /* SwapFeesViewModel.swift */; };
-		87F15AF727F1EB7D00EB9787 /* SwapFeeProviderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F15AF627F1EB7D00EB9787 /* SwapFeeProviderView.swift */; };
-		87F15AF927F1EB9900EB9787 /* SwapFeeProviderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F15AF827F1EB9900EB9787 /* SwapFeeProviderViewModel.swift */; };
+		87F15AF327F1EAE800EB9787 /* SwapStepsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F15AF227F1EAE800EB9787 /* SwapStepsView.swift */; };
+		87F15AF527F1EB2100EB9787 /* SwapStepsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F15AF427F1EB2100EB9787 /* SwapStepsViewModel.swift */; };
+		87F15AF727F1EB7D00EB9787 /* SwapStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F15AF627F1EB7D00EB9787 /* SwapStepView.swift */; };
+		87F15AF927F1EB9900EB9787 /* SwapStepViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F15AF827F1EB9900EB9787 /* SwapStepViewModel.swift */; };
 		87F15AFB27F1EBAD00EB9787 /* SwapProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F15AFA27F1EBAD00EB9787 /* SwapProvider.swift */; };
 		87F15AFD27F1EBCB00EB9787 /* TokenSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F15AFC27F1EBCB00EB9787 /* TokenSelection.swift */; };
 		87F15AFF27F2159600EB9787 /* SwapTokenSelectionProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F15AFE27F2159600EB9787 /* SwapTokenSelectionProvider.swift */; };
@@ -2459,10 +2459,10 @@
 		87F15AEC27F1EA6900EB9787 /* SwapDetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapDetailsViewModel.swift; sourceTree = "<group>"; };
 		87F15AEE27F1EA8B00EB9787 /* FieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldView.swift; sourceTree = "<group>"; };
 		87F15AF027F1EAAC00EB9787 /* FieldViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldViewModel.swift; sourceTree = "<group>"; };
-		87F15AF227F1EAE800EB9787 /* SwapFeesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapFeesView.swift; sourceTree = "<group>"; };
-		87F15AF427F1EB2100EB9787 /* SwapFeesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapFeesViewModel.swift; sourceTree = "<group>"; };
-		87F15AF627F1EB7D00EB9787 /* SwapFeeProviderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapFeeProviderView.swift; sourceTree = "<group>"; };
-		87F15AF827F1EB9900EB9787 /* SwapFeeProviderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapFeeProviderViewModel.swift; sourceTree = "<group>"; };
+		87F15AF227F1EAE800EB9787 /* SwapStepsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapStepsView.swift; sourceTree = "<group>"; };
+		87F15AF427F1EB2100EB9787 /* SwapStepsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapStepsViewModel.swift; sourceTree = "<group>"; };
+		87F15AF627F1EB7D00EB9787 /* SwapStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapStepView.swift; sourceTree = "<group>"; };
+		87F15AF827F1EB9900EB9787 /* SwapStepViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapStepViewModel.swift; sourceTree = "<group>"; };
 		87F15AFA27F1EBAD00EB9787 /* SwapProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapProvider.swift; sourceTree = "<group>"; };
 		87F15AFC27F1EBCB00EB9787 /* TokenSelection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenSelection.swift; sourceTree = "<group>"; };
 		87F15AFE27F2159600EB9787 /* SwapTokenSelectionProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapTokenSelectionProvider.swift; sourceTree = "<group>"; };
@@ -5455,8 +5455,8 @@
 				874ED68527D7C0A7001AB374 /* SwapTokensViewModel.swift */,
 				87F15AEC27F1EA6900EB9787 /* SwapDetailsViewModel.swift */,
 				87F15AF027F1EAAC00EB9787 /* FieldViewModel.swift */,
-				87F15AF427F1EB2100EB9787 /* SwapFeesViewModel.swift */,
-				87F15AF827F1EB9900EB9787 /* SwapFeeProviderViewModel.swift */,
+				87F15AF427F1EB2100EB9787 /* SwapStepsViewModel.swift */,
+				87F15AF827F1EB9900EB9787 /* SwapStepViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -5895,8 +5895,8 @@
 			children = (
 				87F15AEA27F1EA4E00EB9787 /* SwapDetailsView.swift */,
 				87F15AEE27F1EA8B00EB9787 /* FieldView.swift */,
-				87F15AF227F1EAE800EB9787 /* SwapFeesView.swift */,
-				87F15AF627F1EB7D00EB9787 /* SwapFeeProviderView.swift */,
+				87F15AF227F1EAE800EB9787 /* SwapStepsView.swift */,
+				87F15AF627F1EB7D00EB9787 /* SwapStepView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -6670,7 +6670,7 @@
 				8750F91924EE66D700E19DFF /* GasSpeedView.swift in Sources */,
 				87F15B1B27F4ACC000EB9787 /* CovalentApiUrlProvider.swift in Sources */,
 				295A59381F71C1B90092F0FC /* AccountsCoordinator.swift in Sources */,
-				87F15AF727F1EB7D00EB9787 /* SwapFeeProviderView.swift in Sources */,
+				87F15AF727F1EB7D00EB9787 /* SwapStepView.swift in Sources */,
 				879F185E26E74512000602F2 /* ButtonsBarBackgroundView.swift in Sources */,
 				87F15AFF27F2159600EB9787 /* SwapTokenSelectionProvider.swift in Sources */,
 				296421971F70C1F200EB363B /* ErrorView.swift in Sources */,
@@ -7253,7 +7253,7 @@
 				5E7C7A928412AF3E16CDA038 /* AmountTextField_v2.swift in Sources */,
 				8765D6D9282B7EA600529F45 /* SwapQuoteState.swift in Sources */,
 				5E7C7131E338A806132D989B /* DateEntryField.swift in Sources */,
-				87F15AF327F1EAE800EB9787 /* SwapFeesView.swift in Sources */,
+				87F15AF327F1EAE800EB9787 /* SwapStepsView.swift in Sources */,
 				5E7C7E7AEF01B9D170228342 /* TimeEntryField.swift in Sources */,
 				87DD0C42279979F900460260 /* EnterKeystorePasswordViewModel.swift in Sources */,
 				8703F66726135B330082EE25 /* ChartHistory.swift in Sources */,
@@ -7350,7 +7350,7 @@
 				5E7C751D847B47B2BA67F6B5 /* PaymentFlowFromEip681UrlResolver.swift in Sources */,
 				02E7B6782795352E00311218 /* Formatter.swift in Sources */,
 				5E7C76C8A983A91A82F646E5 /* TokenInstanceWebView.swift in Sources */,
-				87F15AF927F1EB9900EB9787 /* SwapFeeProviderViewModel.swift in Sources */,
+				87F15AF927F1EB9900EB9787 /* SwapStepViewModel.swift in Sources */,
 				874ED69027DB48FE001AB374 /* DappRequestHandler.swift in Sources */,
 				879702FC27EE47B60056CA71 /* LocalNotification.swift in Sources */,
 				5E7C742DDE5C63804A2C420D /* Collection+UIView.swift in Sources */,
@@ -7528,7 +7528,7 @@
 				02C91C822770143E00EB10FB /* AvailableRpcNetwork.swift in Sources */,
 				8499DAB3D06965FDC1E8FCAF /* IsInterfaceSupported165.swift in Sources */,
 				87BBF98D2563DD7600FF4846 /* WalletConnectSessionCoordinator.swift in Sources */,
-				87F15AF527F1EB2100EB9787 /* SwapFeesViewModel.swift in Sources */,
+				87F15AF527F1EB2100EB9787 /* SwapStepsViewModel.swift in Sources */,
 				5E7C726DE238609C1FB2E320 /* Constants+Credentials.swift in Sources */,
 				5E7C7F3CB1F280E6795A479C /* EventOrigin.swift in Sources */,
 				5E7C7A2DBFF7FB3B8B5DEB1B /* EventInstance.swift in Sources */,

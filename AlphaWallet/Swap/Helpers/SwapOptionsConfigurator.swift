@@ -19,24 +19,14 @@ final class SwapOptionsConfigurator {
     // to avoid this we use flag, for selected token validation. `if it contains in from tokens in SwapQuote`
     private var isInitialServerValidation: Bool = true
     private var errorSubject: PassthroughSubject<TokenSwapper.TokenSwapperError?, Never> = .init()
-
     private var cancelable = Set<AnyCancellable>()
-
     private let tokenCollection: TokenCollection
-
     private var fromAmountSubject: CurrentValueSubject<BigInt?, Never> = .init(nil)
-
     private var fetchSwapQuoteStateSubject: CurrentValueSubject<SwapQuoteState, Never> = .init(.pendingInput)
-
     @Published private(set) var sessions: [WalletSession]
-
     @Published private(set) var server: RPCServer
-
-    @Published private(set) var transactionDeadline: TransactionDeadline = .undefined
-
     @Published private(set) var swapPair: SwapPair
-
-    private (set) var lastTokensWithTheirSwapQuote: (swapQuote: SwapQuote, tokens: FromAndToTokens)?
+    private (set) var lastSwapQuote: SwapQuote?
 
     var fromAmount: BigUInt? {
         fromAmountSubject.value.flatMap({ BigUInt($0) })
@@ -46,7 +36,7 @@ final class SwapOptionsConfigurator {
         swapPair.from.server
     }
 
-    var swapQuoteState: AnyPublisher<SwapQuoteState, Never> {
+    var fetchSwapQuoteState: AnyPublisher<SwapQuoteState, Never> {
         fetchSwapQuoteStateSubject.removeDuplicates()
             .eraseToAnyPublisher()
     }
@@ -57,7 +47,7 @@ final class SwapOptionsConfigurator {
 
     var slippage: CurrentValueSubject<SwapSlippage, Never> = .init(.tenPercents)
 
-    lazy var fromAndToTokensPublisher: AnyPublisher<FromAndToTokens?, Never> = {
+    private (set) lazy var fromAndToTokensPublisher: AnyPublisher<FromAndToTokens?, Never> = {
         return $swapPair.map { $0.asFromAndToTokens }
             .removeDuplicates()
             .eraseToAnyPublisher()
@@ -69,28 +59,31 @@ final class SwapOptionsConfigurator {
 
     let tokenSwapper: TokenSwapper
 
-    lazy var validatedAmount: AnyPublisher<BigUInt, Never> = {
+    private (set) lazy var validatedAmount: AnyPublisher<BigUInt, Never> = {
         let hasFromAndToSwapTokens = fromAndToTokensPublisher
             .map { $0 != nil }
 
-        return fromAmountSubject.combineLatest(hasFromAndToSwapTokens) { hasValidEnteredAmount, hasSwapToken -> BigInt? in
-            return hasSwapToken ? hasValidEnteredAmount : nil
+        return fromAmountSubject.combineLatest(hasFromAndToSwapTokens) { amount, hasSwapToken -> BigInt? in
+            return hasSwapToken ? amount : nil
         }.compactMap { $0.flatMap { BigUInt($0) } }
         .removeDuplicates()
         .eraseToAnyPublisher()
     }()
 
-    lazy var swapQuote: AnyPublisher<SwapQuote?, Never> = {
+    private (set) lazy var swapQuote: AnyPublisher<SwapQuote?, Never> = {
         //NOTE: here we use debounce to reduce requests calls when user quickly switches beetwen tokens, or types amount to swap
         let amount = validatedAmount.debounce(for: .milliseconds(250), scheduler: RunLoop.main)
         let fromAndToTokens = fromAndToTokensPublisher.compactMap { $0 }
 
-        return Publishers.CombineLatest(amount, fromAndToTokens)
-            .compactMap { [weak self] (amount, tokens) -> AnyPublisher<SwapQuote?, Never>? in
+        let slippage = slippage.map { String($0.doubleValue).droppedTrailingZeros }
+            .eraseToAnyPublisher()
+
+        return Publishers.CombineLatest3(amount, fromAndToTokens, slippage)
+            .compactMap { [weak self] (amount, tokens, slippage) -> AnyPublisher<SwapQuote?, Never>? in
                 if amount == .zero {
                     return Just<SwapQuote?>(nil).eraseToAnyPublisher()
                 } else {
-                    return self?.fetchSwapQuote(tokens: tokens, amount: amount)
+                    return self?.fetchSwapQuote(tokens: tokens, amount: amount, slippage: slippage)
                 }
             }.switchToLatest()
             .share()
@@ -130,16 +123,12 @@ final class SwapOptionsConfigurator {
         swapPair = SwapPair(from: toToken, to: swapPair.from)
     }
 
-    func swapPairs(forServer server: RPCServer) -> SwapPairs? {
-        return tokenSwapper.swapPairs(forServer: server)
+    func swapPairs(for server: RPCServer) -> SwapPairs? {
+        return tokenSwapper.swapPairs(for: server)
     }
 
     func start() {
         tokenSwapper.reload()
-    }
-
-    func set(transactionDeadline: Double) {
-        self.transactionDeadline = .value(transactionDeadline)
     }
 
     func set(fromAmount amount: BigInt?) {
@@ -150,18 +139,23 @@ final class SwapOptionsConfigurator {
         self.server = server
     }
 
-    func isSupported(server: RPCServer) -> Bool {
-        return tokenSwapper.supports(forServer: server) && hasAnySuportedToken(forServer: server)
+    func isAvailable(server: RPCServer) -> Bool {
+        switch tokenSwapper.supportState(for: server) {
+        case .supports:
+            return hasAnySuportedToken(forServer: server)
+        case .notSupports, .failure:
+            return false
+        }
     }
 
     /// Fetches supported tokens for active server
     private func fetchSupportedTokensForSelectedServer() {
         $server.removeDuplicates()
-            .flatMapLatest { [tokenSwapper] in tokenSwapper.fetchSupportedTokens(forServer: $0) }
-            .sink { [weak self] server in
+            .flatMap { [tokenSwapper] in tokenSwapper.fetchSupportedTokens(for: $0) }
+            .sink { [weak self] state in
                 guard let strongSelf = self else { return }
 
-                strongSelf.validateSwapPair(forServer: server, isInitialServerValidation: strongSelf.isInitialServerValidation)
+                strongSelf.validateSwapPair(forServer: state.server, isInitialServerValidation: strongSelf.isInitialServerValidation)
                 strongSelf.isInitialServerValidation = false
             }.store(in: &cancelable)
     }
@@ -169,9 +163,8 @@ final class SwapOptionsConfigurator {
     /// Invalidates sessions when supportedTokens changed
     private func invalidateSessionsWhenSupportedTokensChanged() {
         tokenSwapper.objectWillChange
-            .sink { [weak self] _ in
-                self?.invalidateSessions()
-            }.store(in: &cancelable)
+            .sink { [weak self] _ in self?.invalidateSessions() }
+            .store(in: &cancelable)
     }
 
     private func invalidateSessions() {
@@ -188,7 +181,7 @@ final class SwapOptionsConfigurator {
                     return
                 }
 
-                guard let swapPairs = self?.tokenSwapper.swapPairs(forServer: newFromToken.server) else { return }
+                guard let swapPairs = self?.tokenSwapper.swapPairs(for: newFromToken.server) else { return }
                 let fromToken = SwappableToken(address: newFromToken.contractAddress, server: newFromToken.server)
                 let toTokens = swapPairs.getToTokens(forFromToken: fromToken)
 
@@ -200,31 +193,32 @@ final class SwapOptionsConfigurator {
             }.store(in: &cancelable)
     }
 
-    private func fetchSwapQuote(tokens: FromAndToTokens, amount: BigUInt) -> AnyPublisher<SwapQuote?, Never> {
+    private func fetchSwapQuote(tokens: FromAndToTokens, amount: BigUInt, slippage: String) -> AnyPublisher<SwapQuote?, Never> {
         let wallet = session.account.address
         fetchSwapQuoteStateSubject.send(.fetching)
 
         return Just(tokens)
-            .flatMapLatest { [tokenSwapper, slippage] tokens in tokenSwapper.fetchSwapQuote(fromToken: tokens.from, toToken: tokens.to, wallet: wallet, slippage: slippage.value.doubleValue, fromAmount: amount) }
-            .handleEvents(receiveOutput: { [weak fetchSwapQuoteStateSubject, weak errorSubject, weak self] result in
+            .flatMapLatest { [tokenSwapper] tokens in
+                tokenSwapper.fetchSwapQuote(fromToken: tokens.from, toToken: tokens.to, wallet: wallet, slippage: slippage, fromAmount: amount)
+            }.handleEvents(receiveOutput: { [weak fetchSwapQuoteStateSubject, weak errorSubject, weak self] result in
                 switch result {
                 case .success(let swapQuote):
-                    self?.set(tokensAndSwapQuote: (swapQuote: swapQuote, tokens: tokens))
+                    self?.set(swapQuote: swapQuote)
                     fetchSwapQuoteStateSubject?.send(.completed(error: nil))
                 case .failure(let error):
                     fetchSwapQuoteStateSubject?.send(.completed(error: error))
-                    errorSubject?.send(.swapPairNotFound)
+                    errorSubject?.send(.general(error: error))
                 }
-            }).map({ result -> SwapQuote? in
+            }).map { result -> SwapQuote? in
                 switch result {
                 case .success(let swapQuote): return swapQuote
                 case .failure: return nil
                 }
-            }).eraseToAnyPublisher()
+            }.eraseToAnyPublisher()
     }
 
-    private func set(tokensAndSwapQuote: (swapQuote: SwapQuote, tokens: FromAndToTokens)) {
-        lastTokensWithTheirSwapQuote = tokensAndSwapQuote
+    private func set(swapQuote: SwapQuote) {
+        lastSwapQuote = swapQuote
     }
 
     private func validateSwapPair(forServer server: RPCServer, isInitialServerValidation: Bool) {
@@ -249,12 +243,12 @@ final class SwapOptionsConfigurator {
     }
 
     private func supportedTokens(forServer server: RPCServer) throws -> [Token] {
-        guard swapPairs(forServer: server) != nil else { throw TokenSwapper.TokenSwapperError.swapPairNotFound }
+        guard swapPairs(for: server) != nil else { throw TokenSwapper.TokenSwapperError.swapPairNotFound }
         return tokenCollection.tokens(for: [server])
     }
 
     private func firstSupportedFromToken(forServer server: RPCServer, tokens: [Token]) throws -> Token {
-        guard let swapPairs = swapPairs(forServer: server) else { throw TokenSwapper.TokenSwapperError.swapPairNotFound }
+        guard let swapPairs = swapPairs(for: server) else { throw TokenSwapper.TokenSwapperError.swapPairNotFound }
 
         guard let token = tokens.first(where: {
             swapPairs.fromTokens.contains(SwappableToken(address: $0.contractAddress, server: $0.server))

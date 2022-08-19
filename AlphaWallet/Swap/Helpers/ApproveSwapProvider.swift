@@ -35,17 +35,17 @@ final class ApproveSwapProvider {
         self.analytics = analytics
     }
 
-    func approveSwap(value: (swapQuote: SwapQuote, tokens: FromAndToTokens), fromAmount: BigUInt) {
+    func approveSwap(swapQuote: SwapQuote, fromAmount: BigUInt) {
         delegate?.changeState(in: self, state: .checkingForEnoughAllowance)
 
-        Erc20.hasEnoughAllowance(server: configurator.server, tokenAddress: value.tokens.from.address, owner: configurator.session.account.address, spender: value.swapQuote.estimate.spender, amount: fromAmount)
-            .map { (value.swapQuote, $0.hasEnough, $0.shortOf) }
+        Erc20.hasEnoughAllowance(server: configurator.server, tokenAddress: swapQuote.action.fromToken.address, owner: configurator.session.account.address, spender: swapQuote.estimate.spender, amount: fromAmount)
+            .map { (swapQuote, $0.hasEnough, $0.shortOf) }
         .then { swapQuote, isApproved, shortOf -> Promise<SwapQuote> in
             if isApproved {
                 return Promise.value(swapQuote)
             } else {
                 self.delegate?.changeState(in: self, state: .waitingForUsersAllowanceApprove)
-                return self.promptApproval(unsignedSwapTransaction: swapQuote.unsignedSwapTransaction, token: value.tokens.from.address, server: self.configurator.server, owner: self.configurator.session.account.address, spender: swapQuote.estimate.spender, amount: shortOf).map { isApproved in
+                return self.promptApproval(unsignedSwapTransaction: swapQuote.unsignedSwapTransaction, token: swapQuote.action.fromToken.address, server: self.configurator.server, owner: self.configurator.session.account.address, spender: swapQuote.estimate.spender, amount: shortOf).map { isApproved in
                     if isApproved {
                         return swapQuote
                     } else {
@@ -56,7 +56,9 @@ final class ApproveSwapProvider {
         }.done { [weak self] swapQuote in
             guard let strongSelf = self else { return }
             strongSelf.delegate?.changeState(in: strongSelf, state: .waitingForUsersSwapApprove)
-            strongSelf.delegate?.promptToSwap(unsignedTransaction: swapQuote.unsignedSwapTransaction, fromToken: value.tokens.from, fromAmount: fromAmount, toToken: value.tokens.to, toAmount: swapQuote.estimate.toAmount, in: strongSelf)
+            let fromToken = TokenToSwap(tokenFromQuate: swapQuote.action.fromToken)
+            let toToken = TokenToSwap(tokenFromQuate: swapQuote.action.toToken)
+            strongSelf.delegate?.promptToSwap(unsignedTransaction: swapQuote.unsignedSwapTransaction, fromToken: fromToken, fromAmount: fromAmount, toToken: toToken, toAmount: swapQuote.estimate.toAmount, in: strongSelf)
         }.catch { error in
             infoLog("[Swap] Error while swapping. Error: \(error)")
             if let error = error as? SwapError {

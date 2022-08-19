@@ -17,12 +17,12 @@ final class FakeTokenSwapperNetworkProvider: TokenSwapperNetworkProvider {
             .eraseToAnyPublisher()
     }
 
-    func fetchSupportedTokens(forServer server: RPCServer) -> AnyPublisher<SwapPairs, PromiseError> {
+    func fetchSupportedTokens(for server: RPCServer) -> AnyPublisher<SwapPairs, PromiseError> {
         return Just<SwapPairs>(.init(connections: .init(connections: [])))
             .setFailureType(to: PromiseError.self)
             .eraseToAnyPublisher()
     }
-    func fetchSwapQuote(fromToken: TokenToSwap, toToken: TokenToSwap, wallet: AlphaWallet.Address, slippage: Double, fromAmount: BigUInt) -> AnyPublisher<SwapQuote, SwapError> {
+    func fetchSwapQuote(fromToken: TokenToSwap, toToken: TokenToSwap, wallet: AlphaWallet.Address, slippage: String, fromAmount: BigUInt) -> AnyPublisher<SwapQuote, SwapError> {
         return Fail(error: SwapError.unknownError)
             .eraseToAnyPublisher()
     }

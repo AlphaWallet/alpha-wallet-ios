@@ -1,6 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
+import Combine
 
 enum WalletFilter: Equatable {
 	case all
@@ -13,6 +14,8 @@ enum WalletFilter: Equatable {
 }
 
 protocol TokenFilterProtocol {
+    var objectWillChange: AnyPublisher<Void, Never> { get }
+    
     func filter(token: TokenFilterable) -> Bool
 }
 
