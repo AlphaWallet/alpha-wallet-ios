@@ -267,7 +267,7 @@ class TransactionConfirmationViewModel {
             viewModel.updateBalance(balanceViewModel)
         }
     }
-} 
+}
 
 extension TransactionConfirmationViewModel {
 
@@ -470,9 +470,11 @@ extension TransactionConfirmationViewModel {
                 switch section {
                 case .gas:
                     views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: _viewModel.canUserChangeGas)]
-                case .description, .network:
+                case .description:
                     let vm = TransactionRowDescriptionTableViewCellViewModel(title: section.title)
                     views += [.details(viewModel: vm)]
+                case .network:
+                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: false)]
                 }
             }
         case .cancelTransaction(let viewModel):
@@ -480,9 +482,11 @@ extension TransactionConfirmationViewModel {
                 switch section {
                 case .gas:
                     views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: _viewModel.canUserChangeGas)]
-                case .description, .network:
+                case .description:
                     let vm = TransactionRowDescriptionTableViewCellViewModel(title: section.title)
                     views += [.details(viewModel: vm)]
+                case .network:
+                    views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: false)]
                 }
             }
         case .swapTransaction(let viewModel):
