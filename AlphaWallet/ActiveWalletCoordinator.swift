@@ -2,7 +2,6 @@ import UIKit
 import BigInt
 import PromiseKit
 import RealmSwift
-import Result
 import Combine
 import AlphaWalletFoundation
 
@@ -1070,7 +1069,7 @@ extension ActiveWalletCoordinator: ActivitiesCoordinatorDelegate {
 }
 
 extension ActiveWalletCoordinator: ClaimOrderCoordinatorDelegate {
-    func coordinator(_ coordinator: ClaimPaidOrderCoordinator, didFailTransaction error: AnyError) {
+    func coordinator(_ coordinator: ClaimPaidOrderCoordinator, didFailTransaction error: Error) {
         claimOrderCoordinatorCompletionBlock?(false)
     }
 

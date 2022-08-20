@@ -24,7 +24,6 @@ Pod::Spec.new do |spec|
 
   spec.dependency 'AlphaWalletAddress'
   spec.dependency 'PromiseKit'
-  spec.dependency 'Result'
   spec.dependency 'web3swift'
   spec.dependency 'AlphaWalletCore'
 end

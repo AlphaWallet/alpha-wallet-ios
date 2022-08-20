@@ -20,7 +20,7 @@ Pod::Spec.new do |spec|
   spec.source           = { :git => 'git@github.com:AlphaWallet/alpha-wallet-ios.git', :tag => "#{spec.version}" }
   spec.source_files     = 'AlphaWalletFoundation/**/*.{h,m,swift}'
   spec.pod_target_xcconfig = { 'SWIFT_OPTIMIZATION_LEVEL' => '-Owholemodule' }
-
+  
   spec.dependency 'BigInt', '~> 3.1'
   spec.dependency 'JSONRPCKit', '~> 2.0.0'
   spec.dependency 'APIKit', '5.1.0'

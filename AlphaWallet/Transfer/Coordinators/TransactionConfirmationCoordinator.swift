@@ -8,12 +8,11 @@
 import UIKit
 import BigInt
 import PromiseKit
-import Result
 import AlphaWalletFoundation
 
 protocol TransactionConfirmationCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryptoDelegate {
     func didFinish(_ result: ConfirmResult, in coordinator: TransactionConfirmationCoordinator)
-    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError)
+    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: Error)
     func didClose(in coordinator: TransactionConfirmationCoordinator)
 }
 
@@ -186,7 +185,7 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
     }
 
     private func showError(_ error: Error) {
-        delegate?.coordinator(self, didFailTransaction: AnyError(error))
+        delegate?.coordinator(self, didFailTransaction: error)
     }
 
     func controllerDidTapEdit(_ controller: TransactionConfirmationViewController) {

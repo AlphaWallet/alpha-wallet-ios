@@ -7,7 +7,6 @@
 
 import UIKit
 import PromiseKit
-import Result
 import AlphaWalletFoundation
 
 protocol SendTransactionDelegate: class {
@@ -90,7 +89,7 @@ extension TransactionConfirmationCoordinatorBridgeToPromise: TransactionConfirma
         }
     }
 
-    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError) {
+    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: Error) {
         coordinator.close {
             self.seal.reject(error)
         }

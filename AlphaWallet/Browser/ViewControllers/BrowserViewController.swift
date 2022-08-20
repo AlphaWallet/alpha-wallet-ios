@@ -4,7 +4,6 @@ import Foundation
 import UIKit
 import WebKit
 import JavaScriptCore
-import Result
 import AlphaWalletFoundation
 
 protocol BrowserViewControllerDelegate: AnyObject {
@@ -149,7 +148,7 @@ final class BrowserViewController: UIViewController {
         webView.load(URLRequest(url: url))
     }
 
-    func notifyFinish(callbackID: Int, value: Result<DappCallback, DAppError>) {
+    func notifyFinish(callbackID: Int, value: Swift.Result<DappCallback, DAppError>) {
         let script: String = {
             switch value {
             case .success(let result):

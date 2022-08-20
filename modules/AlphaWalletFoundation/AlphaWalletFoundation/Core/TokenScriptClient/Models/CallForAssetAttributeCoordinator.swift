@@ -3,7 +3,6 @@
 import Foundation
 import BigInt
 import PromiseKit
-import Result
 import web3swift
 
 ///This class temporarily stores the promises used to make function calls. This is so we don't make the same function calls (over network) + arguments combination multiple times concurrently. Once the call completes, we remove it from the cache.
@@ -45,7 +44,7 @@ public class CallForAssetAttributeCoordinator {
             functionCall: AssetFunctionCall) -> Promise<AssetInternalValue> {
         return Promise<AssetInternalValue> { seal in
             guard let function = CallForAssetAttribute(functionName: functionCall.functionName, inputs: functionCall.inputs, output: functionCall.output) else {
-                seal.reject(AnyError(Web3Error(description: "Failed to create CallForAssetAttribute instance for function: \(functionCall.functionName)")))
+                seal.reject(Web3Error(description: "Failed to create CallForAssetAttribute instance for function: \(functionCall.functionName)"))
                 return
             }
             let contract = functionCall.contract
@@ -86,7 +85,7 @@ public class CallForAssetAttributeCoordinator {
                     }
                 }
             }.catch {
-                seal.reject(AnyError($0))
+                seal.reject($0)
             }
         }
     }

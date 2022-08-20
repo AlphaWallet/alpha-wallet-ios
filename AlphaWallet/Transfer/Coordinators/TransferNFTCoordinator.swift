@@ -2,7 +2,6 @@
 
 import UIKit
 import BigInt
-import Result
 import AlphaWalletFoundation
 
 protocol TransferNFTCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryptoDelegate {
@@ -137,7 +136,7 @@ extension TransferNFTCoordinator: ScanQRCodeCoordinatorDelegate {
 }
 
 extension TransferNFTCoordinator: TransactionConfirmationCoordinatorDelegate {
-    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError) {
+    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: Error) {
         UIApplication.shared
             .presentedViewController(or: navigationController)
             .displayError(message: error.prettyError)

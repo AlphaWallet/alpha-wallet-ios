@@ -5,7 +5,6 @@ import Foundation
 import APIKit
 import JSONRPCKit
 import PromiseKit
-import Result
 
 public class SendTransaction {
     private let keystore: Keystore

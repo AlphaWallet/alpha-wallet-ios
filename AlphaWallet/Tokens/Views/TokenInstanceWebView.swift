@@ -417,7 +417,7 @@ extension TokenInstanceWebView: Coordinator {
 
 //TODO this contains functions duplicated and modified from BrowserViewController. Clean this up. Or move it somewhere, to a coordinator?
 extension TokenInstanceWebView {
-    func notifyFinish(callbackID: Int, value: ResultResult<DappCallback, DAppError>.t) {
+    func notifyFinish(callbackID: Int, value: Swift.Result<DappCallback, DAppError>) {
         let script: String = {
             switch value {
             case .success(let result):

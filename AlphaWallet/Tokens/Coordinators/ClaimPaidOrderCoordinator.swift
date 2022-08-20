@@ -5,11 +5,10 @@
 
 import Foundation
 import BigInt
-import Result
 import AlphaWalletFoundation
 
-protocol ClaimOrderCoordinatorDelegate: CanOpenURL, BuyCryptoDelegate {
-    func coordinator(_ coordinator: ClaimPaidOrderCoordinator, didFailTransaction error: AnyError)
+protocol ClaimOrderCoordinatorDelegate: class, CanOpenURL, BuyCryptoDelegate {
+    func coordinator(_ coordinator: ClaimPaidOrderCoordinator, didFailTransaction error: Error)
     func didClose(in coordinator: ClaimPaidOrderCoordinator)
     func coordinator(_ coordinator: ClaimPaidOrderCoordinator, didCompleteTransaction result: ConfirmResult)
 }
@@ -101,7 +100,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
                              s: String,
                              contractAddress: AlphaWallet.Address,
                              recipient: AlphaWallet.Address,
-                             completion: @escaping (Swift.Result<Data, AnyError>) -> Void
+                             completion: @escaping (Result<Data, Error>) -> Void
         ) {
         if let tokenIds = signedOrder.order.tokenIds, !tokenIds.isEmpty {
             encodeSpawnableOrder(expiry: expiry, tokenIds: tokenIds, v: v, r: r, s: s, recipient: recipient) { result in
@@ -124,7 +123,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
                                    r: String,
                                    s: String,
                                    contractAddress: AlphaWallet.Address,
-                                   completion: @escaping (Swift.Result<Data, AnyError>) -> Void) {
+                                   completion: @escaping (Result<Data, Error>) -> Void) {
         do {
             let parameters: [Any] = [expiry, indices.map({ BigUInt($0) }), BigUInt(v), Data(_hex: r), Data(_hex: s)]
             let arrayType: ABIType
@@ -145,7 +144,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
             try encoder.encode(function: functionEncoder, arguments: parameters)
             completion(.success(encoder.data))
         } catch {
-            completion(.failure(AnyError(Web3Error(description: "malformed transaction"))))
+            completion(.failure(Web3Error(description: "malformed transaction")))
         }
     }
 
@@ -155,7 +154,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
                                       r: String,
                                       s: String,
                                       recipient: AlphaWallet.Address,
-                                      completion: @escaping (Swift.Result<Data, AnyError>) -> Void) {
+                                      completion: @escaping (Result<Data, Error>) -> Void) {
 
         do {
             let parameters: [Any] = [expiry, tokenIds, BigUInt(v), Data(_hex: r), Data(_hex: s), recipient]
@@ -171,7 +170,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
             try encoder.encode(function: functionEncoder, arguments: parameters)
             completion(.success(encoder.data))
         } catch {
-            completion(.failure(AnyError(Web3Error(description: "malformed transaction"))))
+            completion(.failure(Web3Error(description: "malformed transaction")))
         }
     }
 
@@ -181,7 +180,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
             r: String,
             s: String,
             recipient: AlphaWallet.Address,
-            completion: @escaping (Swift.Result<Data, AnyError>) -> Void
+            completion: @escaping (Result<Data, Error>) -> Void
     ) {
         do {
             let parameters: [Any] = [
@@ -206,13 +205,13 @@ class ClaimPaidOrderCoordinator: Coordinator {
             try encoder.encode(function: functionEncoder, arguments: parameters)
             completion(.success(encoder.data))
         } catch {
-            completion(.failure(AnyError(Web3Error(description: "malformed transaction"))))
+            completion(.failure(Web3Error(description: "malformed transaction")))
         }
     }
 }
 
 extension ClaimPaidOrderCoordinator: TransactionConfirmationCoordinatorDelegate {
-    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError) {
+    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: Error) {
         UIApplication.shared
             .presentedViewController(or: navigationController)
             .displayError(message: error.prettyError)

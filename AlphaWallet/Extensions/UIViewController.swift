@@ -4,7 +4,6 @@ import AVFoundation
 import class PromiseKit.Promise
 import Foundation
 import MBProgressHUD
-import Result
 import SafariServices
 import UIKit
 import AlphaWalletFoundation

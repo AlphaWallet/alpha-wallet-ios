@@ -2,7 +2,6 @@
 
 import Foundation
 import UIKit
-import Result
 import AlphaWalletFoundation
 
 protocol BackupCoordinatorDelegate: AnyObject {
@@ -31,7 +30,7 @@ class BackupCoordinator: Coordinator {
         export()
     }
 
-    private func finish(result: Result<Bool, AnyError>) {
+    private func finish(result: Result<Bool, Error>) {
         switch result {
         case .success:
             delegate?.didFinish(account: account.address, in: self)
@@ -40,7 +39,7 @@ class BackupCoordinator: Coordinator {
         }
     }
 
-    private func presentActivityViewController(for account: AlphaWallet.Address, newPassword: String, completion: @escaping (Result<Bool, AnyError>) -> Void) {
+    private func presentActivityViewController(for account: AlphaWallet.Address, newPassword: String, completion: @escaping (Result<Bool, Error>) -> Void) {
         navigationController.displayLoading(
             text: R.string.localizable.exportPresentBackupOptionsLabelTitle()
         )
@@ -51,14 +50,14 @@ class BackupCoordinator: Coordinator {
         }
     }
 
-    private func handleExport(result: Result<String, KeystoreError>, completion: @escaping (Result<Bool, AnyError>) -> Void) {
+    private func handleExport(result: Result<String, KeystoreError>, completion: @escaping (Result<Bool, Error>) -> Void) {
         switch result {
         case .success(let value):
             let url = URL(fileURLWithPath: NSTemporaryDirectory().appending("alphawallet_backup_\(account.address.eip55String).json"))
             do {
                 try value.data(using: .utf8)!.write(to: url)
             } catch {
-                completion(.failure(AnyError(error)))
+                completion(.failure(error))
                 return
             }
 

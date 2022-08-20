@@ -3,7 +3,6 @@
 import Foundation
 import UIKit
 import CryptoSwift
-import Result
 import AlphaWalletFoundation
 
 enum SignMessageType {
@@ -14,7 +13,7 @@ enum SignMessageType {
 }
 
 protocol SignMessageCoordinatorDelegate: AnyObject {
-    func coordinator(_ coordinator: SignMessageCoordinator, didSign result: ResultResult<Data, KeystoreError>.t)
+    func coordinator(_ coordinator: SignMessageCoordinator, didSign result: Swift.Result<Data, KeystoreError>)
     func didCancel(in coordinator: SignMessageCoordinator)
 }
 

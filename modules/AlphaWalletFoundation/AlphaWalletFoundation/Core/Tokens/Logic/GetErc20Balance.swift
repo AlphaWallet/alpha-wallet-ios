@@ -1,8 +1,7 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
 import Foundation
-import BigInt
-import Result
+import BigInt 
 import web3swift
 import PromiseKit
 

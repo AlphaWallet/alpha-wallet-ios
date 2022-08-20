@@ -3,7 +3,6 @@
 import BigInt
 import Foundation
 import UIKit
-import Result
 import Combine
 
 protocol TransactionConfirmationViewControllerDelegate: AnyObject {

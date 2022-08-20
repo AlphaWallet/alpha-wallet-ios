@@ -6,7 +6,6 @@
 import Foundation
 import BigInt
 import PromiseKit
-import Result
 
 public class GetErc721Balance {
     private let queue: DispatchQueue?

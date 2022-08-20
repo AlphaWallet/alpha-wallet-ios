@@ -2,7 +2,6 @@
 
 import Foundation
 import BigInt
-import Result
 import PromiseKit
 import web3swift
 
@@ -32,7 +31,7 @@ public class Erc1155BalanceFetcher {
             if let balances = result["0"] as? [BigUInt], balances.count == tokenIds.count {
                 return Dictionary(uniqueKeysWithValues: zip(tokenIds, balances))
             } else {
-                throw AnyError(ABIError.invalidArgumentType)
+                throw createABIError(.invalidArgumentType)
             }
         }
     }

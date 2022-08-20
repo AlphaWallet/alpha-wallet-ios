@@ -2,7 +2,6 @@
 
 import BigInt
 import Foundation
-import Result
 import KeychainSwift
 import CryptoSwift
 import TrustKeystore

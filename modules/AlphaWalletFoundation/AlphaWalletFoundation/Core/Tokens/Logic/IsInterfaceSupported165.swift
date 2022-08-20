@@ -4,7 +4,6 @@
 
 import Foundation
 import PromiseKit
-import Result
 
 public class IsInterfaceSupported165 {
     private let server: RPCServer
@@ -21,7 +20,7 @@ public class IsInterfaceSupported165 {
             if let supported = result["0"] as? Bool {
                 return supported
             } else {
-                throw AnyError(ABIError.invalidArgumentType)
+                throw createABIError(.invalidArgumentType)
             }
         }
     }

@@ -2,7 +2,6 @@ import Foundation
 import UIKit
 import BigInt
 import PromiseKit
-import Result
 import AlphaWalletFoundation
 
 protocol SendCoordinatorDelegate: CanOpenURL, BuyCryptoDelegate {
@@ -132,7 +131,7 @@ extension SendCoordinator: SendViewControllerDelegate {
 }
 
 extension SendCoordinator: TransactionConfirmationCoordinatorDelegate {
-    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError) {
+    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: Error) {
         UIApplication.shared
             .presentedViewController(or: navigationController)
             .displayError(message: error.prettyError)

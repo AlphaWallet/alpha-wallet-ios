@@ -7,7 +7,6 @@ import BigInt
 import JSONRPCKit
 import PromiseKit
 import RealmSwift
-import Result
 import AlphaWalletFoundation
 
 protocol DappBrowserCoordinatorDelegate: CanOpenURL, RequestAddCustomChainProvider, RequestSwitchChainProvider, BuyCryptoDelegate {
@@ -408,7 +407,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
 
 extension DappBrowserCoordinator: TransactionConfirmationCoordinatorDelegate {
 
-    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError) {
+    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: Error) {
         coordinator.close { [weak self] in
             guard let strongSelf = self else { return }
 
@@ -424,7 +423,7 @@ extension DappBrowserCoordinator: TransactionConfirmationCoordinatorDelegate {
         }
     }
 
-    func notifyFinish(callbackID: Int, value: AWResult<DappCallback, DAppError>) {
+    func notifyFinish(callbackID: Int, value: Swift.Result<DappCallback, DAppError>) {
         browserViewController.notifyFinish(callbackID: callbackID, value: value)
     }
 

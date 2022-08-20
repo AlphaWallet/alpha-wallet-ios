@@ -7,10 +7,7 @@
 
 import UIKit
 import BigInt
-import Result
 import AlphaWalletFoundation
-
-typealias AWResult = Result
 
 protocol TransferCollectiblesCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryptoDelegate {
     func didFinish(_ result: ConfirmResult, in coordinator: TransferCollectiblesCoordinator)
@@ -154,7 +151,7 @@ extension TransferCollectiblesCoordinator: ScanQRCodeCoordinatorDelegate {
 }
 
 extension TransferCollectiblesCoordinator: TransactionConfirmationCoordinatorDelegate {
-    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError) {
+    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: Error) {
         UIApplication.shared
             .presentedViewController(or: navigationController)
             .displayError(message: error.localizedDescription)

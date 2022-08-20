@@ -25,3 +25,24 @@ public class SignatureHelper {
         return signatureDecimalString
     }
 }
+
+extension Result {
+    /// Returns the value from `success` Results or `throw`s the error.
+    public func dematerialize() throws -> Success {
+        switch self {
+        case let .success(value):
+            return value
+        case let .failure(error):
+            throw error
+        }
+    }
+    
+    public var error: Failure? {
+        switch self {
+        case let .success:
+            return nil
+        case let .failure(error):
+            return error
+        }
+    }
+}
