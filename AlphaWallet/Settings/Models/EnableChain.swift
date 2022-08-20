@@ -1,13 +1,9 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
 import Foundation
-import APIKit
-import JSONRPCKit
-import PromiseKit
 
 protocol EnableChainDelegate: AnyObject {
     func notifyEnableChainQueuedSuccessfully(in enableChain: EnableChain)
-
 }
 
 class EnableChain {

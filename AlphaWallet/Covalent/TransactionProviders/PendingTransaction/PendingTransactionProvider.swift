@@ -17,7 +17,7 @@ final class PendingTransactionProvider {
     private let session: WalletSession
     private let transactionDataStore: TransactionDataStore
     private let tokensFromTransactionsFetcher: TokensFromTransactionsFetcher
-    private let fetcher: PendingTransactionFetcher
+    private let fetcher: GetPendingTransaction
     private var cancelable = Set<AnyCancellable>()
     private let queue = DispatchQueue(label: "com.PendingTransactionProvider.updateQueue")
     private let fetchPendingTransactionsQueue: OperationQueue = {
@@ -30,7 +30,7 @@ final class PendingTransactionProvider {
 
     private lazy var store: AtomicDictionary<String, SchedulerProtocol> = .init()
 
-    init(session: WalletSession, transactionDataStore: TransactionDataStore, tokensFromTransactionsFetcher: TokensFromTransactionsFetcher, fetcher: PendingTransactionFetcher) {
+    init(session: WalletSession, transactionDataStore: TransactionDataStore, tokensFromTransactionsFetcher: TokensFromTransactionsFetcher, fetcher: GetPendingTransaction) {
         self.session = session
         self.transactionDataStore = transactionDataStore
         self.tokensFromTransactionsFetcher = tokensFromTransactionsFetcher
@@ -84,7 +84,7 @@ final class PendingTransactionProvider {
         }
     }
 
-    private func didReceiveValue(transaction: TransactionInstance, pendingTransaction: PendingTransactionResponse) {
+    private func didReceiveValue(transaction: TransactionInstance, pendingTransaction: PendingTransaction) {
         transactionDataStore.update(state: .completed, for: transaction.primaryKey, withPendingTransaction: pendingTransaction)
         tokensFromTransactionsFetcher.extractNewTokens(from: [transaction])
 
@@ -126,7 +126,7 @@ final class PendingTransactionProvider {
 }
 
 extension PendingTransactionProvider: PendingTransactionSchedulerProviderDelegate {
-    func didReceiveResponse(_ response: Swift.Result<PendingTransactionResponse, Covalent.CovalentError>, in provider: PendingTransactionSchedulerProvider) {
+    func didReceiveResponse(_ response: Swift.Result<PendingTransaction, Covalent.CovalentError>, in provider: PendingTransactionSchedulerProvider) {
         switch response {
         case .success(let pendingTransaction):
             didReceiveValue(transaction: provider.transaction, pendingTransaction: pendingTransaction)

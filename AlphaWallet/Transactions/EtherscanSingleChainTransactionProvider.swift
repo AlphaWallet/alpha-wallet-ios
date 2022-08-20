@@ -25,7 +25,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
     private var isAutoDetectingErc721Transactions: Bool = false
     private var isFetchingLatestTransactions = false
     private let tokensService: TokenProvidable
-
+    private lazy var getPendingTransaction = GetPendingTransaction(server: session.server, analytics: analytics)
     weak var delegate: SingleChainTransactionProviderDelegate?
 
     required init(
@@ -159,10 +159,8 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
     }
 
     private func updatePendingTransaction(_ transaction: TransactionInstance) {
-        let request = GetTransactionRequest(hash: transaction.id)
-
         firstly {
-            Session.send(EtherServiceRequest(server: session.server, batch: BatchFactory().create(request)), server: session.server, analytics: analytics)
+            getPendingTransaction.getPendingTransaction(hash: transaction.id)
         }.done(on: queue, { [weak self] pendingTransaction in
             guard let strongSelf = self else { return }
 
