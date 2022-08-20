@@ -1,67 +1,37 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
-import PromiseKit
+import AlphaWalletCore
 
-class ChainState {
-
-    struct Keys {
-        static let latestBlock = "chainID"
-    }
-
+final class ChainState {
     private let server: RPCServer
     private let analytics: AnalyticsLogger
-    private lazy var blockNumberProvider = GetBlockNumber(server: server, analytics: analytics)
-    private var latestBlockKey: String {
-        return "\(server.chainID)-" + Keys.latestBlock
-    }
+    private lazy var provider: ChainStateSchedulerProvider = {
+        let provider = ChainStateSchedulerProvider(server: server, analytics: analytics)
+        provider.delegate = self
+
+        return provider
+    }()
+    private lazy var scheduler = Scheduler(provider: provider)
+    private var config: Config
 
     var latestBlock: Int {
-        get {
-            return defaults.integer(forKey: latestBlockKey)
-        }
-        set {
-            defaults.set(newValue, forKey: latestBlockKey)
-        }
+        get { return config.latestBlock(server: server) }
+        set { config.set(latestBlock: newValue, for: server) }
     }
-    let defaults: UserDefaults
-
-    var updateLatestBlock: Timer?
 
     init(config: Config, server: RPCServer, analytics: AnalyticsLogger) {
+        self.config = config
         self.server = server
         self.analytics = analytics
-        self.defaults = config.defaults
-        if config.development.isAutoFetchingDisabled {
-            //No-op
-        } else {
-            self.updateLatestBlock = Timer.scheduledTimer(withTimeInterval: 6, repeats: true) { [weak self] _ in
-                guard let strongSelf = self else { return }
-                strongSelf.fetch()
-            }
-        }
     }
 
     func start() {
-        fetch()
+        scheduler.start()
     }
 
     func stop() {
-        updateLatestBlock?.invalidate()
-        updateLatestBlock = nil
-    }
-
-    @objc func fetch() {
-        firstly {
-            blockNumberProvider.getBlockNumber()
-        }.done { [weak self] in
-            self?.latestBlock = $0
-        }.catch { error in
-            //We need to catch (and since we can make a good guess what it might be, capture it below) it instead of `.cauterize()` because the latter would log a scary message about malformed JSON in the console.
-            if case RpcNodeRetryableRequestError.possibleBinanceTestnetTimeout = error {
-                //TODO log
-            }
-        }
+        scheduler.cancel()
     }
 
     func confirmations(fromBlock: Int) -> Int? {
@@ -71,4 +41,35 @@ class ChainState {
         return max(0, block)
     }
 
+}
+
+extension ChainState: ChainStateSchedulerProviderDelegate {
+    func didReceive(result: Result<Int, PromiseError>) {
+        switch result {
+        case .success(let block):
+            latestBlock = block
+        case .failure(let error):
+            //We need to catch (and since we can make a good guess what it might be, capture it below) it instead of `.cauterize()` because the latter would log a scary message about malformed JSON in the console.
+            guard case .some(let error) = error else { return }
+            if case RpcNodeRetryableRequestError.possibleBinanceTestnetTimeout = error {
+                //TODO log
+            }
+        }
+    }
+}
+
+fileprivate extension Config {
+    private static func chainStateKey(server: RPCServer) -> String {
+        return "\(server.chainID)-" + "chainID"
+    }
+
+    func latestBlock(server: RPCServer) -> Int {
+        let latestBlockKey = Config.chainStateKey(server: server)
+        return defaults.integer(forKey: latestBlockKey)
+    }
+
+    func set(latestBlock: Int, for server: RPCServer) {
+        let latestBlockKey = Config.chainStateKey(server: server)
+        defaults.set(latestBlock, forKey: latestBlockKey)
+    }
 }
