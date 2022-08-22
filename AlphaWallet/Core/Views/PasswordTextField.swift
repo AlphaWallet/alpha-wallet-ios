@@ -18,7 +18,7 @@ class PasswordTextField: TextField {
         return button
     }()
 
-    override init(edgeInsets: UIEdgeInsets = DataEntry.Metric.textFieldInsets) {
+    override init(edgeInsets: UIEdgeInsets = DataEntry.Metric.TextField.Default.edgeInsets) {
         super.init(edgeInsets: edgeInsets)
 
         isSecureTextEntry = true

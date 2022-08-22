@@ -8,46 +8,46 @@
 import Foundation
 
 enum SwapSlippage: Equatable {
-    case dotOne
-    case dotFive
-    case one
+    case tenPercents
+    case fiftyPercents
+    case oneHundredPercents
     case custom(Double)
 
     var customValue: Double? {
         switch self {
-        case .dotOne, .dotFive, .one: return nil
+        case .tenPercents, .fiftyPercents, .oneHundredPercents: return nil
         case .custom(let double): return double
         }
     }
 
     var doubleValue: Double {
         switch self {
-        case .dotOne: return 0.1
-        case .dotFive: return 0.5
-        case .one: return 1.0
+        case .tenPercents: return 0.1
+        case .fiftyPercents: return 0.5
+        case .oneHundredPercents: return 1.0
         case .custom(let double): return double
         }
     }
 
     var title: String {
         switch self {
-        case .dotOne: return "0.1 %"
-        case .dotFive: return "0.5 %"
-        case .one: return "1.0 %"
+        case .tenPercents: return "10 %"
+        case .fiftyPercents: return "50 %"
+        case .oneHundredPercents: return "100 %"
         case .custom(let double): return "\(double) %"
         }
     }
 
     var shouldResignActiveTextFieldWhenOtherSelected: Bool {
         switch self {
-        case .dotOne, .dotFive, .one: return true
+        case .tenPercents, .fiftyPercents, .oneHundredPercents: return true
         case .custom: return false
         }
     }
 
     var viewType: SlippageViewModel.SwapSlippageViewType {
         switch self {
-        case .dotOne, .dotFive, .one: return .selectionButton
+        case .tenPercents, .fiftyPercents, .oneHundredPercents: return .selectionButton
         case .custom: return .editingTextField
         }
     }

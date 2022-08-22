@@ -18,7 +18,7 @@ class RenameWalletViewController: UIViewController {
     private let viewModel: RenameWalletViewModel
     private var cancelable = Set<AnyCancellable>()
     private lazy var nameTextField: TextField = {
-        let textField = TextField()
+        let textField: TextField = .textField
         textField.label.translatesAutoresizingMaskIntoConstraints = false
         textField.delegate = self
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -78,7 +78,6 @@ class RenameWalletViewController: UIViewController {
         super.viewDidLoad()
 
         buttonsBar.configure()
-        nameTextField.configureOnce()
         buttonsBar.buttons[0].addTarget(self, action: #selector(saveWalletNameSelected), for: .touchUpInside)
 
         bind(viewModel: viewModel)

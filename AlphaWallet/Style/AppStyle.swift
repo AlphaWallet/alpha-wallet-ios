@@ -221,8 +221,23 @@ enum DataEntry {
         static let borderThickness = CGFloat(1.0)
         static let cornerRadius = Metrics.CornerRadius.textbox
         static let shadowRadius = CGFloat(2.0)
-        static let textFieldInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         static let currencyIconInset = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
+
+        enum TextField {
+            static let borderThickness = CGFloat(1.0)
+
+            enum Default {
+                static let edgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
+                static let cornerRadius: CGFloat = Metrics.CornerRadius.textbox
+                static let textInset: CGSize = .zero
+            }
+            
+            enum Rounded {
+                static let edgeInsets = UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 5)
+                static let cornerRadius: CGFloat = 20.0
+                static let textInset: CGSize = CGSize(width: 5, height: 0)
+            }
+        }
 
         enum SendHeader {
             static let iconSide: CGFloat = 40

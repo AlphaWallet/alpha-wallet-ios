@@ -67,10 +67,10 @@ class NewTokenViewController: UIViewController {
         }
     }
     lazy private var addressTextField = AddressTextField(domainResolutionService: domainResolutionService)
-    private let symbolTextField = TextField()
-    private let decimalsTextField = TextField()
-    private let balanceTextField = TextField()
-    private let nameTextField = TextField()
+    private let symbolTextField: TextField = .textField
+    private let decimalsTextField: TextField = .textField
+    private let balanceTextField: TextField = .textField
+    private let nameTextField: TextField = .textField
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
     private let changeServerButton = UIButton()
     private var scrollViewBottomAnchorConstraint: NSLayoutConstraint!
@@ -206,10 +206,6 @@ class NewTokenViewController: UIViewController {
         addressTextField.label.text = viewModel.addressLabel
 
         addressTextField.configureOnce()
-        symbolTextField.configureOnce()
-        decimalsTextField.configureOnce()
-        balanceTextField.configureOnce()
-        nameTextField.configureOnce()
 
         symbolTextField.label.textAlignment = .left
         symbolTextField.label.text = viewModel.symbolLabel

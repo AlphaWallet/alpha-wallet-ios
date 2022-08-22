@@ -29,7 +29,7 @@ class SwapOptionsViewController: UIViewController {
     }()
 
     private lazy var slippageHeaderView: SwapOptionsHeaderView = {
-        let view = SwapOptionsHeaderView(viewModel: .init(title: "Slippage caused by transaction delay"))
+        let view = SwapOptionsHeaderView(viewModel: .init(title: "SLIPPAGE TOLERANCE"))
         return view
     }()
 

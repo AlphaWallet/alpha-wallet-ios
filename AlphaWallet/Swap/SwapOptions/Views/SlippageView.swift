@@ -10,8 +10,6 @@ import Combine
 
 class SlippageView: UIView {
 
-    private lazy var cancelable = Set<AnyCancellable>()
-
     private enum SlippageInputType {
         case selectableView(SelectableSlippageView, each: SwapSlippage)
         case editableView(EditableSlippageView)
@@ -23,32 +21,16 @@ class SlippageView: UIView {
             }
         }
     }
-
-    private lazy var slippageValueViews: [SlippageView.SlippageInputType] = viewModel
-        .initialSlippageValues
-        .map { each -> SlippageInputType in
-            switch each.viewType {
-            case .selectionButton:
-                let view = SelectableSlippageView()
-                view.widthAnchor.constraint(equalToConstant: 60).isActive = true
-
-                return .selectableView(view, each: each)
-            case .editingTextField:
-                let view = EditableSlippageView(viewModel: EditableSlippageViewModel(selectedSlippage: viewModel.selectedSlippage))
-
-                return .editableView(view)
-            }
-        }
-
+    private lazy var cancelable = Set<AnyCancellable>()
     private let viewModel: SlippageViewModel
+    private var slippageViews: [SlippageInputType] = []
+    private let stackView: UIStackView = [UIView]().asStackView(axis: .horizontal, spacing: 8)
 
     init(viewModel: SlippageViewModel) {
         self.viewModel = viewModel
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
 
-        let stackView = (slippageValueViews.map { $0.view } + [.spacerWidth(flexible: true)])
-            .asStackView(axis: .horizontal, spacing: 8)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stackView)
 
@@ -65,12 +47,13 @@ class SlippageView: UIView {
     }
 
     private func bind(viewModel: SlippageViewModel) {
-        viewModel
-            .availableSlippages
-            .receive(on: RunLoop.main)
-            .sink { viewModels in
+        let input = SlippageViewModelInput()
+        let output = viewModel.transform(input: input)
+
+        output.availableSlippages
+            .sink { [weak self] viewModels in
                 for index in viewModels.indices {
-                    switch self.slippageValueViews[index] {
+                    switch self?.slippageViews[index] {
                     case .selectableView(let button, _):
                         let viewModel = viewModels[index]
                         button.configure(viewModel: viewModel)
@@ -79,19 +62,34 @@ class SlippageView: UIView {
                 }
             }.store(in: &cancelable)
 
-        for each in slippageValueViews {
-            switch each {
-            case .selectableView(let view, let value):
-                view.actionButton.publisher(forEvent: .touchUpInside)
-                    .map { _ -> SwapSlippage in return value }
-                    .eraseToAnyPublisher()
-                    .receive(on: RunLoop.main)
-                    .sink(receiveValue: { value in
-                        viewModel.set(slippage: value)
-                    })
-                    .store(in: &cancelable)
-            case .editableView: break
-            }
+        let views = output.views.map { [self] views -> [SlippageInputType] in
+            views.map { each in self.buildView(for: each) }
+        }.handleEvents(receiveOutput: { [weak self] in self?.slippageViews = $0 })
+
+        views.sink { [stackView] viewTypes in
+            let views = viewTypes.map { $0.view } + [.spacerWidth(flexible: true)]
+
+            stackView.removeAllArrangedSubviews()
+            stackView.addArrangedSubviews(views)
+        }.store(in: &cancelable)
+    }
+
+    private func buildView(for each: SwapSlippage) -> SlippageInputType {
+        switch each.viewType {
+        case .selectionButton:
+            let view = SelectableSlippageView()
+            view.widthAnchor.constraint(equalToConstant: 60).isActive = true
+            view.actionButton.publisher(forEvent: .touchUpInside)
+                .map { _ -> SwapSlippage in return each }
+                .sink(receiveValue: { [weak viewModel] value in
+                    viewModel?.set(slippage: value)
+                }).store(in: &cancelable)
+
+            return .selectableView(view, each: each)
+        case .editingTextField:
+            let view = EditableSlippageView(viewModel: EditableSlippageViewModel(selectedSlippage: viewModel.selectedSlippage))
+
+            return .editableView(view)
         }
     }
 }

@@ -12,8 +12,8 @@ class EditMyDappViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
     private let screenTitleLabel = UILabel()
     private var imageHolder = ContainerViewWithShadow(aroundView: UIImageView())
-    private let titleTextField = TextField()
-    private let urlTextField = TextField()
+    private let titleTextField: TextField = .textField
+    private let urlTextField: TextField = .textField
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
     private var viewModel: EditMyDappViewControllerViewModel?
 
@@ -118,9 +118,6 @@ class EditMyDappViewController: UIViewController {
         urlTextField.label.textAlignment = viewModel.titleTextFieldTextAlignment
         urlTextField.returnKeyType = .done
         urlTextField.value = viewModel.urlTextFieldText
-
-        urlTextField.configureOnce()
-        titleTextField.configureOnce()
 
         buttonsBar.configure()
         let saveButton = buttonsBar.buttons[0]
