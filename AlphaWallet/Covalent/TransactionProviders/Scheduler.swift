@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import AlphaWalletCore
 
 protocol SchedulerProvider: AnyObject {
     var name: String { get }
@@ -17,6 +18,7 @@ protocol SchedulerProvider: AnyObject {
 enum SchedulerError: Error {
     case general
     case covalentError(Covalent.CovalentError)
+    case promiseError(PromiseError)
 }
 
 protocol SchedulerProtocol {
@@ -88,16 +90,12 @@ final class Scheduler: SchedulerProtocol {
         return timer.publisher
             .prepend(())
             .receive(on: queue)
-            .sink { [weak self] _ in
-                self?.onTimedCall()
-            }
+            .sink { [weak self] _ in self?.onTimedCall() }
     }
 
     private func runNewSchedulerCycle() -> AnyCancellable {
         return timer.publisher
             .receive(on: queue)
-            .sink { [weak self] _ in
-                self?.onTimedCall()
-            }
+            .sink { [weak self] _ in self?.onTimedCall() }
     }
 }

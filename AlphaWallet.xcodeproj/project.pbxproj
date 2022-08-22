@@ -1207,6 +1207,7 @@
 		87FBF2B328056AEE00616B7D /* ReportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FBF2B228056AEE00616B7D /* ReportService.swift */; };
 		87FBF2B528056B6F00616B7D /* FirebaseReportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FBF2B428056B6F00616B7D /* FirebaseReportService.swift */; };
 		87FBF2B728056B8E00616B7D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 87FBF2B628056B8E00616B7D /* GoogleService-Info.plist */; };
+		87FF1E5228B0FDD7009E2AE1 /* ChainStateSchedulerProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FF1E5128B0FDD7009E2AE1 /* ChainStateSchedulerProvider.swift */; };
 		87FF2E422567F0A3002350EB /* BlockieGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FF2E412567F0A3002350EB /* BlockieGenerator.swift */; };
 		87FF649927355FDD00D59E20 /* EnjinUserManagementInterceptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FF649827355FDD00D59E20 /* EnjinUserManagementInterceptor.swift */; };
 		87FFEF5127EE00CB0024FCEC /* TransactionNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FFEF5027EE00CB0024FCEC /* TransactionNotificationService.swift */; };
@@ -2492,6 +2493,7 @@
 		87FBF2B228056AEE00616B7D /* ReportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportService.swift; sourceTree = "<group>"; };
 		87FBF2B428056B6F00616B7D /* FirebaseReportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseReportService.swift; sourceTree = "<group>"; };
 		87FBF2B628056B8E00616B7D /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		87FF1E5128B0FDD7009E2AE1 /* ChainStateSchedulerProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainStateSchedulerProvider.swift; sourceTree = "<group>"; };
 		87FF2E412567F0A3002350EB /* BlockieGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockieGenerator.swift; sourceTree = "<group>"; };
 		87FF649827355FDD00D59E20 /* EnjinUserManagementInterceptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnjinUserManagementInterceptor.swift; sourceTree = "<group>"; };
 		87FFEF5027EE00CB0024FCEC /* TransactionNotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionNotificationService.swift; sourceTree = "<group>"; };
@@ -2938,6 +2940,7 @@
 				29F1C862200375D2003780D8 /* Wallet.swift */,
 				5E7C7FC30FF22C3EA71451BC /* EthTypedData.swift */,
 				5E7C7F649A54E4AD0BEA5220 /* Models */,
+				87FF1E5128B0FDD7009E2AE1 /* ChainStateSchedulerProvider.swift */,
 			);
 			path = EtherClient;
 			sourceTree = "<group>";
@@ -6705,6 +6708,7 @@
 				293E62711FA2F63500CB0A66 /* InitialWalletCreationCoordinator.swift in Sources */,
 				874527D9270B3A45008DB272 /* xDaiBridge.swift in Sources */,
 				8759C9E9279BD7B100FE361F /* DefaultsWalletAddressesStore.swift in Sources */,
+				87FF1E5228B0FDD7009E2AE1 /* ChainStateSchedulerProvider.swift in Sources */,
 				291D73C61F7F500D00A8AB56 /* TransactionItemState.swift in Sources */,
 				874ED68A27D9E4B4001AB374 /* AmountTextField_v2Pair.swift in Sources */,
 				29BE3FD21F707DC300F6BFC2 /* TransactionsService.swift in Sources */,

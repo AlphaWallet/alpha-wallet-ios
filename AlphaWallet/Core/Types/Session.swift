@@ -8,7 +8,7 @@ extension WalletSession {
     }
 }
 
-class WalletSession: Equatable {
+final class WalletSession: Equatable {
     let analytics: AnalyticsLogger
     let account: Wallet
     let server: RPCServer

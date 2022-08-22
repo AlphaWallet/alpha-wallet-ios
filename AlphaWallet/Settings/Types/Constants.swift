@@ -220,6 +220,10 @@ public struct Constants {
         static let pendingTransactionUpdateInterval: TimeInterval = 5
     }
 
+    enum ChainState {
+        static let getChainStateInterval: TimeInterval = 6
+    }
+
     enum WalletConnect {
         static let server = "AlphaWallet"
         static let websiteUrl = URL(string: Constants.website)!
