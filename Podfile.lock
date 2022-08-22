@@ -174,7 +174,7 @@ DEPENDENCIES:
   - TrustKeystore (from `https://github.com/AlphaWallet/latest-keystore-snapshot`, commit `c0bdc4f6ffc117b103e19d17b83109d4f5a0e764`)
   - TrustWalletCore (= 2.6.34)
   - WalletConnectSwift (from `https://github.com/AlphaWallet/WalletConnectSwift.git`, commit `b6556058331f619e15482b82d7c6ab57d9711399`)
-  - web3swift (from `https://github.com/AlphaWallet/web3swift.git`, commit `72d6514f6ac29a68abb7b9cbab5685799c18d77a`)
+  - web3swift (from `https://github.com/AlphaWallet/web3swift.git`, commit `add8d92ccda367c01d75dbec017eb9bf8619ba0e`)
   - xcbeautify
 
 SPEC REPOS:
@@ -256,7 +256,7 @@ EXTERNAL SOURCES:
     :commit: b6556058331f619e15482b82d7c6ab57d9711399
     :git: https://github.com/AlphaWallet/WalletConnectSwift.git
   web3swift:
-    :commit: 72d6514f6ac29a68abb7b9cbab5685799c18d77a
+    :commit: add8d92ccda367c01d75dbec017eb9bf8619ba0e
     :git: https://github.com/AlphaWallet/web3swift.git
 
 CHECKOUT OPTIONS:
@@ -285,7 +285,7 @@ CHECKOUT OPTIONS:
     :commit: b6556058331f619e15482b82d7c6ab57d9711399
     :git: https://github.com/AlphaWallet/WalletConnectSwift.git
   web3swift:
-    :commit: 72d6514f6ac29a68abb7b9cbab5685799c18d77a
+    :commit: add8d92ccda367c01d75dbec017eb9bf8619ba0e
     :git: https://github.com/AlphaWallet/web3swift.git
 
 SPEC CHECKSUMS:
@@ -344,6 +344,6 @@ SPEC CHECKSUMS:
   web3swift: 06118d4c4edc801444aaa995bbbddeda176b97ef
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: ae1728bb950319123cc28da1aeb8c1f511db4cad
+PODFILE CHECKSUM: 5a5cd6d70b75c19bb3cce660dadf0139169abd91
 
 COCOAPODS: 1.11.2
