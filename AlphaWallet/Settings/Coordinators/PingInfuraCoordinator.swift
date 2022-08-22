@@ -1,8 +1,6 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
 import UIKit
-import APIKit
-import JSONRPCKit
 import PromiseKit
 
 protocol PingInfuraCoordinatorDelegate: AnyObject {
@@ -13,6 +11,7 @@ protocol PingInfuraCoordinatorDelegate: AnyObject {
 class PingInfuraCoordinator: Coordinator {
     private let viewController: UIViewController
     private let analytics: AnalyticsLogger
+    private lazy var provider = GetBlockNumber(server: .main, analytics: analytics)
 
     var coordinators: [Coordinator] = []
     weak var delegate: PingInfuraCoordinatorDelegate?
@@ -40,10 +39,8 @@ class PingInfuraCoordinator: Coordinator {
     }
 
     private func pingInfura() {
-        let server = RPCServer.main
-        let request = EtherServiceRequest(server: server, batch: BatchFactory().create(BlockNumberRequest()))
         firstly {
-            Session.send(request, server: server, analytics: analytics)
+            provider.getBlockNumber()
         }.done { _ in
             UIAlertController.alert(
                     title: R.string.localizable.settingsPingInfuraSuccessful(),

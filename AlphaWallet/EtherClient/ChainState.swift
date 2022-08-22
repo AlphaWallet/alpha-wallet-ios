@@ -1,8 +1,6 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
-import JSONRPCKit
-import APIKit
 import PromiseKit
 
 class ChainState {
@@ -13,7 +11,7 @@ class ChainState {
 
     private let server: RPCServer
     private let analytics: AnalyticsLogger
-
+    private lazy var blockNumberProvider = GetBlockNumber(server: server, analytics: analytics)
     private var latestBlockKey: String {
         return "\(server.chainID)-" + Keys.latestBlock
     }
@@ -54,9 +52,8 @@ class ChainState {
     }
 
     @objc func fetch() {
-        let request = EtherServiceRequest(server: server, batch: BatchFactory().create(BlockNumberRequest()))
         firstly {
-            Session.send(request, server: server, analytics: analytics)
+            blockNumberProvider.getBlockNumber()
         }.done { [weak self] in
             self?.latestBlock = $0
         }.catch { error in

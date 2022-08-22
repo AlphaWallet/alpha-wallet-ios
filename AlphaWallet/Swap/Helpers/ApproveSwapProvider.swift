@@ -12,7 +12,7 @@ import Result
 
 protocol ApproveSwapProviderDelegate: class {
     func promptToSwap(unsignedTransaction: UnsignedSwapTransaction, fromToken: TokenToSwap, fromAmount: BigUInt, toToken: TokenToSwap, toAmount: BigUInt, in provider: ApproveSwapProvider)
-    func promptForErc20Approval(token: AlphaWallet.Address, server: RPCServer, owner: AlphaWallet.Address, spender: AlphaWallet.Address, amount: BigUInt, in provider: ApproveSwapProvider) -> Promise<EthereumTransaction.Id>
+    func promptForErc20Approval(token: AlphaWallet.Address, server: RPCServer, owner: AlphaWallet.Address, spender: AlphaWallet.Address, amount: BigUInt, in provider: ApproveSwapProvider) -> Promise<EthereumTransaction.Hash>
     func changeState(in approveSwapProvider: ApproveSwapProvider, state: ApproveSwapState)
     func didFailure(in approveSwapProvider: ApproveSwapProvider, error: Error)
 }
@@ -77,12 +77,14 @@ final class ApproveSwapProvider {
             return Promise(error: SwapError.unknownError)
         }
 
+        let provider = WaitTillTransactionCompleted(server: server, analytics: analytics)
+
         return firstly {
             delegate.promptForErc20Approval(token: token, server: server, owner: owner, spender: spender, amount: amount, in: self)
-        }.then { transactionId -> Promise<Bool> in
+        }.then { [provider] transactionId -> Promise<Bool> in
             self.delegate?.changeState(in: self, state: .waitTillApproveCompleted)
             return firstly {
-                EthereumTransaction.waitTillCompleted(transactionId: transactionId, server: server, analytics: self.analytics)
+                provider.waitTillCompleted(hash: transactionId)
             }.map {
                 return true
             }.recover { error -> Promise<Bool> in

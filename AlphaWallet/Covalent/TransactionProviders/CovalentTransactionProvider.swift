@@ -12,6 +12,7 @@ class CovalentSingleChainTransactionProvider: SingleChainTransactionProvider {
     private let transactionDataStore: TransactionDataStore
     private let session: WalletSession
     private let fetchLatestTransactionsQueue: OperationQueue
+    private let analytics: AnalyticsLogger
     private let tokensFromTransactionsFetcher: TokensFromTransactionsFetcher
     private lazy var oldestTransactionProvider: OldestTransactionProvider = {
         let scheduledFetchTransactionProvider = OldestTransactionSchedulerProvider(session: session, fetchLatestTransactionsQueue: fetchLatestTransactionsQueue)
@@ -23,7 +24,7 @@ class CovalentSingleChainTransactionProvider: SingleChainTransactionProvider {
     }()
 
     private lazy var pendingTransactionProvider: PendingTransactionProvider = {
-        let pendingTransactionFetcher = PendingTransactionFetcher()
+        let pendingTransactionFetcher = GetPendingTransaction(server: session.server, analytics: analytics)
         return PendingTransactionProvider(session: session, transactionDataStore: transactionDataStore, tokensFromTransactionsFetcher: tokensFromTransactionsFetcher, fetcher: pendingTransactionFetcher)
     }()
 
@@ -40,6 +41,7 @@ class CovalentSingleChainTransactionProvider: SingleChainTransactionProvider {
 
     required init(session: WalletSession, analytics: AnalyticsLogger, transactionDataStore: TransactionDataStore, tokensService: TokenProvidable, fetchLatestTransactionsQueue: OperationQueue, tokensFromTransactionsFetcher: TokensFromTransactionsFetcher) {
         self.session = session
+        self.analytics = analytics
         self.transactionDataStore = transactionDataStore
         self.fetchLatestTransactionsQueue = fetchLatestTransactionsQueue
         self.tokensFromTransactionsFetcher = tokensFromTransactionsFetcher

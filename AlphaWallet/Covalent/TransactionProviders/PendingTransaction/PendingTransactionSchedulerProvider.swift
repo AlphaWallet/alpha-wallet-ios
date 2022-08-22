@@ -10,7 +10,7 @@ import Combine
 import APIKit
 
 protocol PendingTransactionSchedulerProviderDelegate: AnyObject {
-    func didReceiveResponse(_ response: Swift.Result<PendingTransactionResponse, Covalent.CovalentError>, in provider: PendingTransactionSchedulerProvider)
+    func didReceiveResponse(_ response: Swift.Result<PendingTransaction, Covalent.CovalentError>, in provider: PendingTransactionSchedulerProvider)
 }
 
 final class PendingTransactionSchedulerProvider: SchedulerProvider {
@@ -21,19 +21,19 @@ final class PendingTransactionSchedulerProvider: SchedulerProvider {
     var operation: AnyPublisher<Void, SchedulerError> {
         return fetchPendingTransactionPublisher()
     }
-    private let fetcher: PendingTransactionFetcher
+    private let fetcher: GetPendingTransaction
     let transaction: TransactionInstance
 
     weak var delegate: PendingTransactionSchedulerProviderDelegate?
 
-    init(fetcher: PendingTransactionFetcher, transaction: TransactionInstance, fetchPendingTransactionsQueue: OperationQueue) {
+    init(fetcher: GetPendingTransaction, transaction: TransactionInstance, fetchPendingTransactionsQueue: OperationQueue) {
         self.fetcher = fetcher
         self.fetchPendingTransactionsQueue = fetchPendingTransactionsQueue
         self.transaction = transaction
     }
 
     private func fetchPendingTransactionPublisher() -> AnyPublisher<Void, SchedulerError> {
-        return fetcher.transaction(forServer: transaction.server, id: transaction.id)
+        return fetcher.getPendingTransaction(server: transaction.server, hash: transaction.id)
             .subscribe(on: fetchPendingTransactionsQueue)
             .handleEvents(receiveOutput: { [weak self] pendingTransaction in
                 //We can't just delete the pending transaction because it might be valid, just that the RPC node doesn't know about it
@@ -49,7 +49,7 @@ final class PendingTransactionSchedulerProvider: SchedulerProvider {
             .eraseToAnyPublisher()
     }
 
-    private func didReceiveValue(_ pendingTransaction: PendingTransactionResponse) {
+    private func didReceiveValue(_ pendingTransaction: PendingTransaction) {
         delegate?.didReceiveResponse(.success(pendingTransaction), in: self)
     }
 
