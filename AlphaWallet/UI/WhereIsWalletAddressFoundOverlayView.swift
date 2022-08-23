@@ -14,7 +14,7 @@ class WhereIsWalletAddressFoundOverlayView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        backgroundColor = .init(red: 0, green: 0, blue: 0, alpha: 0.3)
+        backgroundColor = Configuration.Color.Semantic.overlayBackground
 
         let blurEffect = UIBlurEffect(style: .regular)
         let blurView = UIVisualEffectView(effect: blurEffect)
@@ -115,16 +115,16 @@ private class Dialog: UIView {
     }
 
     func configure() {
-        backgroundColor = Colors.appWhite
+        backgroundColor = Configuration.Color.Semantic.dialogBackground
 
         titleLabel.font = Fonts.regular(size: 24)
-        titleLabel.textColor = .init(red: 33, green: 33, blue: 33)
+        titleLabel.textColor = Configuration.Color.Semantic.defaultForegroundText
         titleLabel.textAlignment = .center
         titleLabel.text = R.string.localizable.onboardingNewWalletBackupWalletTitle()
 
         descriptionLabel.numberOfLines = 0
         descriptionLabel.font = Fonts.regular(size: 18)
-        descriptionLabel.textColor = .init(red: 102, green: 102, blue: 102)
+        descriptionLabel.textColor = Configuration.Color.Semantic.defaultSubtitleText
         descriptionLabel.textAlignment = .center
         descriptionLabel.text = R.string.localizable.onboardingNewWalletBackupWalletDescription()
 

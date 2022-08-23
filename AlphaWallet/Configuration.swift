@@ -182,6 +182,14 @@ struct Configuration {
             static let collectionViewBackground = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.shark()!)
             }
+
+            static let overlayBackground = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.black()!.withAlphaComponent(0.3), darkColor: R.color.white()!.withAlphaComponent(0.3))
+            }
+
+            static let dialogBackground = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.black()!)
+            }
         }
     }
 }
