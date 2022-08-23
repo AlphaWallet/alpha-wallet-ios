@@ -29,13 +29,12 @@ class CheckTransactionStateViewController: ModalViewController {
     }()
 
     private lazy var textField: TextField = {
-        let tx = TextField()
-        tx.configureOnce()
-        tx.keyboardType = .emailAddress
-        tx.returnKeyType = .done
-        tx.delegate = self
+        let textField: TextField = .textField
+        textField.keyboardType = .emailAddress
+        textField.returnKeyType = .done
+        textField.delegate = self
 
-        return tx
+        return textField
     }()
 
     private lazy var serverView: TransactionConfirmationHeaderView = {

@@ -33,7 +33,7 @@ class SlidableTextField: UIView {
     }()
 
     lazy var textField: TextField = {
-        let textField = TextField()
+        let textField: TextField = .textField
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.keyboardType = .numberPad
         textField.delegate = self
@@ -64,7 +64,6 @@ class SlidableTextField: UIView {
             stackView.anchorsConstraint(to: self, edgeInsets: SlidableTextField.contentInsets)
         ])
 
-        textField.configureOnce()
         slider.addTarget(self, action: #selector(sliderValueChanged), for: .valueChanged)
     }
 

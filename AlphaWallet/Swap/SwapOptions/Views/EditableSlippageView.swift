@@ -8,51 +8,54 @@
 import UIKit
 import Combine
 
-class EditableSlippageView: UIControl {
+final class EditableSlippageView: UIControl {
 
-    lazy var textField: TextField = {
-        let textField = TextField()
-        textField.configureOnce()
+    private lazy var textField: TextField = {
+        let textField: TextField = .roundedTextField
         textField.keyboardType = .decimalPad
+        textField.textField.textAlignment = .center
 
         return textField
     }()
 
-    private lazy var cancelable = Set<AnyCancellable>()
+    private var cancelable = Set<AnyCancellable>()
+    private let viewModel: EditableSlippageViewModel
 
     init(viewModel: EditableSlippageViewModel) {
+        self.viewModel = viewModel
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
         let stachView = [textField.label, textField].asStackView(spacing: 5)
         stachView.translatesAutoresizingMaskIntoConstraints = false
 
         addSubview(stachView)
-
+        NSLayoutConstraint.deactivate([textField.heightConstraint])
         NSLayoutConstraint.activate([
             stachView.anchorsConstraint(to: self),
-            textField.widthAnchor.constraint(equalToConstant: 80)
+            textField.widthAnchor.constraint(equalToConstant: 70)
         ])
 
-        configure(viewModel: viewModel)
+        bind(viewModel: viewModel)
     }
 
     required init?(coder: NSCoder) {
         return nil
     }
 
-    func configure(viewModel: EditableSlippageViewModel) {
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        textField.textField.cornerRadius = DataEntry.Metric.TextField.Rounded.cornerRadius
+    }
+
+    private func bind(viewModel: EditableSlippageViewModel) {
         textField.label.attributedText = viewModel.titleAttributedString
         textField.placeholder = viewModel.placeholderString
         textField.textField.text = viewModel.text
 
-        viewModel.slippage(text: textField.textField.textPublisher)
-            .sink { slippage in
-                viewModel.set(slippage: slippage)
-            }.store(in: &cancelable)
+        let input = EditableSlippageViewModelInput(text: textField.textField.textPublisher)
+        let output = viewModel.transform(input: input)
 
-        viewModel
-            .shouldResignActive
-            .receive(on: RunLoop.main)
+        output.shouldResignActive
             .sink { [weak textField] _ in
                 guard let target = textField else { return }
                 target.resignFirstResponder()

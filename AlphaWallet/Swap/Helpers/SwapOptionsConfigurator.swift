@@ -55,7 +55,7 @@ final class SwapOptionsConfigurator {
         sessions.first(where: { $0.server == server })!
     }
 
-    var slippage: CurrentValueSubject<SwapSlippage, Never> = .init(.one)
+    var slippage: CurrentValueSubject<SwapSlippage, Never> = .init(.tenPercents)
 
     lazy var fromAndToTokensPublisher: AnyPublisher<FromAndToTokens?, Never> = {
         return $swapPair.map { $0.asFromAndToTokens }

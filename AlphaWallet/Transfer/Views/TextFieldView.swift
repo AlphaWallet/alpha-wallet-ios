@@ -17,7 +17,7 @@ class TextFieldView: UIView {
     }()
 
     lazy var textField: TextField = {
-        let textField = TextField()
+        let textField: TextField = .textField
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.keyboardType = .decimalPad
 
@@ -51,8 +51,6 @@ class TextFieldView: UIView {
         NSLayoutConstraint.activate([
             stackView.anchorsConstraint(to: self, edgeInsets: TextFieldView.contentInsets)
         ])
-
-        textField.configureOnce()
     }
 
     required init?(coder: NSCoder) {

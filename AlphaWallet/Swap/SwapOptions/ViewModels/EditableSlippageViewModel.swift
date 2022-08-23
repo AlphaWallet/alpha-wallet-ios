@@ -8,13 +8,18 @@
 import UIKit
 import Combine
 
-class EditableSlippageViewModel {
-    var selectedSlippage: CurrentValueSubject<SwapSlippage, Never>
+struct EditableSlippageViewModelInput {
+    let text: AnyPublisher<String?, Never>
+}
 
-    lazy var shouldResignActive: AnyPublisher<Void, Never> = selectedSlippage
-        .filter { $0.shouldResignActiveTextFieldWhenOtherSelected }
-        .map { _ -> Void in return () }
-        .eraseToAnyPublisher()
+struct EditableSlippageViewModelOutput {
+    let shouldResignActive: AnyPublisher<Void, Never>
+}
+
+class EditableSlippageViewModel {
+    private let selectedSlippage: CurrentValueSubject<SwapSlippage, Never>
+    private var cancelable = Set<AnyCancellable>()
+    private static let toPercentageUnits: Double = 100.0
 
     var titleAttributedString: NSAttributedString {
         return .init(string: "Custom: ", attributes: [
@@ -26,24 +31,29 @@ class EditableSlippageViewModel {
     var text: String? {
         return selectedSlippage.value
             .customValue
-            .flatMap { String($0) }
+            .flatMap { String($0 * EditableSlippageViewModel.toPercentageUnits).droppedTrailingZeros }
     }
 
-    var placeholderString: String { return "0.01%" }
-
-    func slippage(text: AnyPublisher<String?, Never>) -> AnyPublisher<SwapSlippage, Never> {
-        return text
-            .compactMap { $0.flatMap { Double($0) } }
-            .map { SwapSlippage.custom($0) }
-            .eraseToAnyPublisher()
-    }
+    var placeholderString: String { return "30%" }
 
     init(selectedSlippage: CurrentValueSubject<SwapSlippage, Never>) {
         self.selectedSlippage = selectedSlippage
     }
 
-    func set(slippage: SwapSlippage) {
-        selectedSlippage.value = slippage
+    func transform(input: EditableSlippageViewModelInput) -> EditableSlippageViewModelOutput {
+        input.text
+            .compactMap { $0.flatMap { Double($0) } }
+            .map { SwapSlippage.custom(min($0 / EditableSlippageViewModel.toPercentageUnits, 1)) }
+            .assign(to: \.value, on: selectedSlippage, ownership: .weak)
+            .store(in: &cancelable)
+
+        let shouldResignActive: AnyPublisher<Void, Never> = selectedSlippage
+            .filter { $0.shouldResignActiveTextFieldWhenOtherSelected }
+            .mapToVoid()
+            .receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
+
+        return .init(shouldResignActive: shouldResignActive)
     }
 
 }

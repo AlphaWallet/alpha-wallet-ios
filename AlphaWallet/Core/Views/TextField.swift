@@ -61,30 +61,18 @@ class TextField: UIControl {
     private var isConfigured = false
 
     var returnKeyType: UIReturnKeyType {
-        get {
-            return textField.returnKeyType
-        }
-        set {
-            textField.returnKeyType = newValue
-        }
+        get { return textField.returnKeyType }
+        set { textField.returnKeyType = newValue }
     }
 
     var keyboardType: UIKeyboardType {
-        get {
-            return textField.keyboardType
-        }
-        set {
-            textField.keyboardType = newValue
-        }
+        get { return textField.keyboardType }
+        set { textField.keyboardType = newValue }
     }
 
     public var isSecureTextEntry: Bool {
-        get {
-            return textField.isSecureTextEntry
-        }
-        set {
-            textField.isSecureTextEntry = newValue
-        }
+        get { return textField.isSecureTextEntry }
+        set { textField.isSecureTextEntry = newValue }
     }
 
     let label: UILabel = {
@@ -102,7 +90,7 @@ class TextField: UIControl {
     }()
 
     let textField: UITextField = {
-        let textField = UITextField()
+        let textField = _TextField()
         textField.translatesAutoresizingMaskIntoConstraints = false
 
         return textField
@@ -111,12 +99,8 @@ class TextField: UIControl {
     weak var delegate: TextFieldDelegate?
 
     var value: String {
-        get {
-            return textField.text ?? ""
-        }
-        set {
-            textField.text = newValue
-        }
+        get { return textField.text ?? "" }
+        set { textField.text = newValue }
     }
 
     var status: TextFieldErrorState = .none {
@@ -155,19 +139,20 @@ class TextField: UIControl {
     }
 
     var placeholder: String? {
-        get {
-            textField.placeholder
-        }
-        set {
-            textField.placeholder = newValue
-        }
+        get { textField.placeholder }
+        set { textField.placeholder = newValue }
     }
 
     private (set) lazy var heightConstraint: NSLayoutConstraint = {
         heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen ? 30 : 50)
     }()
 
-    init(edgeInsets: UIEdgeInsets = DataEntry.Metric.textFieldInsets) {
+    var textInset: CGSize {
+       get { return CGSize(width: (textField as! _TextField).insetX, height: (textField as! _TextField).insetY) }
+       set { (textField as! _TextField).insetX = newValue.width; (textField as! _TextField).insetY = newValue.height; }
+    }
+
+    init(edgeInsets: UIEdgeInsets = DataEntry.Metric.TextField.Default.edgeInsets) {
         super.init(frame: .zero)
 
         translatesAutoresizingMaskIntoConstraints = false
@@ -176,6 +161,7 @@ class TextField: UIControl {
         textField.delegate = self
         textField.leftViewMode = .always
         textField.rightViewMode = .always
+
         addSubview(textField)
 
         NSLayoutConstraint.activate([
@@ -257,5 +243,42 @@ extension TextField: UITextFieldDelegate {
 
     public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         return delegate?.shouldChangeCharacters(inRange: range, replacementString: string, for: self) ?? true
+    }
+}
+
+private class _TextField: UITextField {
+    var insetX: CGFloat = 0
+    var insetY: CGFloat = 0
+
+    override func textRect(forBounds bounds: CGRect) -> CGRect {
+        return bounds.insetBy(dx: insetX, dy: insetY)
+    }
+
+    override func editingRect(forBounds bounds: CGRect) -> CGRect {
+        return bounds.insetBy(dx: insetX, dy: insetY)
+    }
+
+    override func placeholderRect(forBounds: CGRect) -> CGRect {
+        return forBounds.insetBy(dx: insetX, dy: insetY)
+    }
+}
+
+extension TextField {
+    static var textField: TextField {
+        let textField = TextField(edgeInsets: DataEntry.Metric.TextField.Default.edgeInsets)
+        textField.configureOnce()
+        textField.cornerRadius = DataEntry.Metric.TextField.Default.cornerRadius
+        textField.textInset = DataEntry.Metric.TextField.Default.textInset
+
+        return textField
+    }
+
+    static var roundedTextField: TextField {
+        let textField = TextField(edgeInsets: DataEntry.Metric.TextField.Rounded.edgeInsets)
+        textField.configureOnce()
+        textField.cornerRadius = DataEntry.Metric.TextField.Rounded.cornerRadius
+        textField.textInset = DataEntry.Metric.TextField.Rounded.textInset
+
+        return textField
     }
 }

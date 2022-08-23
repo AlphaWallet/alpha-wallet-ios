@@ -8,20 +8,39 @@
 import Foundation
 import Combine
 
+struct SlippageViewModelInput { }
+
+struct SlippageViewModelOutput {
+    let views: AnyPublisher<[SwapSlippage], Never>
+    let availableSlippages: AnyPublisher<[SelectableSlippageViewModel], Never>
+}
+
 class SlippageViewModel {
-    private (set) var selectedSlippage: CurrentValueSubject<SwapSlippage, Never>
+    let selectedSlippage: CurrentValueSubject<SwapSlippage, Never>
 
     init(selectedSlippage: CurrentValueSubject<SwapSlippage, Never>) {
         self.selectedSlippage = selectedSlippage
     }
 
-    lazy var initialSlippageValues: [SwapSlippage] = [.dotOne, .dotFive, .one, .custom(0.0)]
-    lazy var availableSlippages: AnyPublisher<[SelectableSlippageViewModel], Never> = {
-        return Just(initialSlippageValues)
-            .combineLatest(selectedSlippage) { cases, selectedSlippage -> [SelectableSlippageViewModel] in
+    func transform(input: SlippageViewModelInput) -> SlippageViewModelOutput {
+        let views: AnyPublisher<[SwapSlippage], Never> = .just([.tenPercents, .fiftyPercents, .oneHundredPercents, .custom(0.0)])
+
+        let availableSlippages = views.combineLatest(selectedSlippage) { cases, selectedSlippage -> [SelectableSlippageViewModel] in
+                var cases = cases
+                switch selectedSlippage {
+                case .custom:
+                    if let index = cases.firstIndex(where: { slip in guard case .custom = slip else { return false }; return true; }) {
+                        cases[index] = selectedSlippage
+                    }
+                case .tenPercents, .fiftyPercents, .oneHundredPercents:
+                    break
+                }
                 return cases.map { .init(value: $0, isSelected: selectedSlippage == $0) }
-            }.eraseToAnyPublisher()
-    }()
+            }.receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
+
+        return .init(views: views, availableSlippages: availableSlippages)
+    }
 
     func set(slippage: SwapSlippage) {
         selectedSlippage.value = slippage
