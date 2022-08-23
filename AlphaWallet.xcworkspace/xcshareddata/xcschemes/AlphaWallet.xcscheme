@@ -89,6 +89,11 @@
             value = "$(SOURCE_ROOT)/AlphaWalletTests/Snapshots/FailureDiffs"
             isEnabled = "YES">
          </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "SOURCE_ROOT"
+            value = "$(SOURCE_ROOT)"
+            isEnabled = "YES">
+         </EnvironmentVariable>
       </EnvironmentVariables>
       <AdditionalOptions>
          <AdditionalOption
