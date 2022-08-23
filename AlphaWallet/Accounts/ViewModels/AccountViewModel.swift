@@ -72,7 +72,7 @@ class AccountViewModel {
         return wallet == current
     }
 
-    var backgroundColor: UIColor = Colors.appBackground
+    var backgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground
 
     var canEditCell: Bool {
         return !isSelected
@@ -85,7 +85,7 @@ class AccountViewModel {
 
             return .init(string: balance?.valuePercentageChangeValue ?? "-", attributes: [
                 .font: Fonts.regular(size: 20),
-                .foregroundColor: balance?.valuePercentageChangeColor ?? R.color.dove()!,
+                .foregroundColor: balance?.valuePercentageChangeColor ?? Configuration.Color.Semantic.defaultAttributedString,
                 .paragraphStyle: style
             ])
         } else {
@@ -96,14 +96,14 @@ class AccountViewModel {
     private func balanceAttributedString(_ value: String?) -> NSAttributedString {
         return .init(string: value ?? "--", attributes: [
             .font: Fonts.bold(size: 20),
-            .foregroundColor: Colors.black,
+            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
         ])
     }
     
     private func addressOrEnsOrNameAttributedString(_ name: String) -> NSAttributedString {
         return .init(string: name, attributes: [
             .font: Fonts.regular(size: 12),
-            .foregroundColor: R.color.dove()!
+            .foregroundColor: Configuration.Color.Semantic.defaultAttributedString
         ])
     }
 }

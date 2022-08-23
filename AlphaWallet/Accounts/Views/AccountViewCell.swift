@@ -12,7 +12,7 @@ class AccountViewCell: UITableViewCell {
         let indicator = UIView()
         indicator.layer.cornerRadius = Style.SelectionIndicator.width / 2.0
         indicator.borderWidth = 0.0
-        indicator.backgroundColor = Style.SelectionIndicator.color
+        indicator.backgroundColor = Configuration.Color.Semantic.indicator
         NSLayoutConstraint.activate([
             indicator.widthAnchor.constraint(equalToConstant: Style.SelectionIndicator.width),
             indicator.heightAnchor.constraint(equalToConstant: Style.SelectionIndicator.height)

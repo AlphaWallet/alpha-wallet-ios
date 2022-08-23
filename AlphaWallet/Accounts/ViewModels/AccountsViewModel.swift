@@ -64,7 +64,7 @@ final class AccountsViewModel {
         return configuration.navigationTitle
     }
 
-    var backgroundColor: UIColor = GroupedTable.Color.background
+    var backgroundColor: UIColor = Configuration.Color.Semantic.tableViewBackground
 
     init(keystore: Keystore, config: Config, configuration: AccountsCoordinatorViewModel.Configuration, analytics: AnalyticsLogger, walletBalanceService: WalletBalanceService, blockiesGenerator: BlockiesGenerator, domainResolutionService: DomainResolutionServiceType) {
         self.config = config
