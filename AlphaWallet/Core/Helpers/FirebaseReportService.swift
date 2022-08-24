@@ -48,7 +48,7 @@ extension Crashlytics {
 
     func trackActiveWallet(wallet: Wallet) {
         guard Features.default.isAvailable(.isFirebaseEnabled) else { return }
-        
+
         let keysAndValues: [String: Any] = [
             ReportKey.activeWalletAddress.rawValue: wallet.description,
          ] as [String: Any]
@@ -72,7 +72,7 @@ extension Crashlytics {
                         if !isRunningTests() {
                             logStoreLargeNonFungible(address: address, server: server, fileSize: fileSizeInMb, source: each.source)
                         } else {
-                            debugLog("[Crashlytics] log large Nft asset json for address: \(address), server: \(server), fileSize: \(fileSizeInMb)MB, source: \(each.source.description)")
+                            infoLog("[Crashlytics] log large Nft asset json for address: \(address), server: \(server), fileSize: \(fileSizeInMb)MB, source: \(each.source.description)")
                         }
                     }
 

@@ -44,7 +44,7 @@ class UnstoppableDomainsV2Resolver {
         return Just(name)
             .setFailureType(to: PromiseError.self)
             .flatMap { name -> AnyPublisher<AlphaWallet.Address, PromiseError> in
-                verboseLog("[UnstoppableDomains] resolving name: \(name)…")
+                infoLog("[UnstoppableDomains] resolving name: \(name)…")
                 return Alamofire
                     .request(url, method: .get, headers: ["Authorization": Constants.Credentials.unstoppableDomainsV2ApiKey])
                     .responseDataPublisher().tryMap { response -> AlphaWallet.Address in
@@ -54,7 +54,7 @@ class UnstoppableDomainsV2Resolver {
 
                         let value = try AddressResolution.Response(json: json)
                         if let owner = value.meta.owner {
-                            verboseLog("[UnstoppableDomains] resolved name: \(name) result: \(owner.eip55String)")
+                            infoLog("[UnstoppableDomains] resolved name: \(name) result: \(owner.eip55String)")
                             return owner
                         } else {
                             throw UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(baseURL) API isMainThread: \(Thread.isMainThread)")
@@ -83,7 +83,7 @@ class UnstoppableDomainsV2Resolver {
         return Just(address)
             .setFailureType(to: PromiseError.self)
             .flatMap { address -> AnyPublisher<String, PromiseError> in
-                verboseLog("[UnstoppableDomains] resolving address: \(address.eip55String)…")
+                infoLog("[UnstoppableDomains] resolving address: \(address.eip55String)…")
                 return Alamofire
                     .request(url, method: .get, headers: ["Authorization": Constants.Credentials.unstoppableDomainsV2ApiKey])
                     .responseDataPublisher().tryMap { response -> String in
@@ -93,7 +93,7 @@ class UnstoppableDomainsV2Resolver {
 
                         let value = try DomainResolution.Response(json: json)
                         if let record = value.data.first {
-                            verboseLog("[UnstoppableDomains] resolved address: \(address.eip55String) result: \(record.id)")
+                            infoLog("[UnstoppableDomains] resolved address: \(address.eip55String) result: \(record.id)")
                             return record.id
                         } else {
                             throw UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(baseURL) API isMainThread: \(Thread.isMainThread)")

@@ -101,7 +101,7 @@ extension DappAction {
     static func fromMessage(_ message: WKScriptMessage) -> DappOrWalletCommand? {
         let decoder = JSONDecoder()
         guard var body = message.body as? [String: AnyObject] else {
-            debugLog("[Browser] Invalid body in message: \(message.body)")
+            infoLog("[Browser] Invalid body in message: \(message.body)")
             return nil
         }
         if var object = body["object"] as? [String: AnyObject], object["gasLimit"] is [String: AnyObject] {
@@ -110,7 +110,7 @@ extension DappAction {
             body["object"] = object as AnyObject
         }
         guard let jsonString = body.jsonString else {
-            debugLog("[Browser] Invalid jsonString. body: \(body)")
+            infoLog("[Browser] Invalid jsonString. body: \(body)")
             return nil
         }
         let data = jsonString.data(using: .utf8)!

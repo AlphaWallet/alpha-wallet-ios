@@ -86,7 +86,7 @@ class WalletConnectV2Provider: WalletConnectServer {
 
     func connect(url: AlphaWallet.WalletConnect.ConnectionUrl) throws {
         guard case .v2(let uri) = url else { return }
-        debugLog("[RESPONDER] Pairing to: \(uri.absoluteString)")
+        infoLog("[RESPONDER] Pairing to: \(uri.absoluteString)")
         Task { try await client.pair(uri: uri.absoluteString) }
     }
 
@@ -161,14 +161,14 @@ class WalletConnectV2Provider: WalletConnectServer {
     }
 
     private func reject(request: WalletConnectSign.Request, error: AlphaWallet.WalletConnect.ResponseError) {
-        debugLog("[RESPONDER] WC: Did reject session proposal: \(request) with error: \(error.message)")
+        infoLog("[RESPONDER] WC: Did reject session proposal: \(request) with error: \(error.message)")
 
         let response = JSONRPCErrorResponse(id: request.id, error: .init(code: error.code, message: error.message))
         client.respond(topic: request.topic, response: .error(response))
     }
 
     private func didReceive(request: WalletConnectSign.Request) {
-        debugLog("[RESPONDER] WC: Did receive session request")
+        infoLog("[RESPONDER] WC: Did receive session request")
 
         //NOTE: guard check to avoid passing unacceptable rpc server,(when requested server is disabled)
         //FIXME: update with ability ask user for enabled disaled server
@@ -198,29 +198,29 @@ class WalletConnectV2Provider: WalletConnectServer {
     }
 
     private func didDelete(topic: String, reason: WalletConnectSign.Reason) {
-        debugLog("[RESPONDER] WC: Did receive session delete")
+        infoLog("[RESPONDER] WC: Did receive session delete")
         storage.remove(for: .topic(string: topic))
     }
 
     private func didUpgrade(topic: String, namespaces: [String: SessionNamespace]) {
-        debugLog("[RESPONDER] WC: Did receive session upgrate")
+        infoLog("[RESPONDER] WC: Did receive session upgrate")
 
         _ = try? storage.update(.topic(string: topic), namespaces: namespaces)
     }
 
     private func didSettle(session: WalletConnectSign.Session) {
 
-        debugLog("[RESPONDER] WC: Did settle session")
+        infoLog("[RESPONDER] WC: Did settle session")
         for each in client.getSessions() {
             storage.addOrUpdate(session: each)
         }
     }
 
     private func _didReceive(proposal: WalletConnectSign.Session.Proposal, completion: @escaping () -> Void) {
-        debugLog("[RESPONDER] WC: Did receive session proposal")
+        infoLog("[RESPONDER] WC: Did receive session proposal")
 
         func reject(proposal: WalletConnectSign.Session.Proposal) {
-            debugLog("[RESPONDER] WC: Did reject session proposal: \(proposal)")
+            infoLog("[RESPONDER] WC: Did reject session proposal: \(proposal)")
             client.reject(proposal: proposal, reason: .disapprovedChains)
             completion()
         }

@@ -73,7 +73,7 @@ class NonFungibleJsonBalanceFetcher {
         }.map(on: queue, { [tokensService] (data, _) -> NonFungibleBalanceAndItsSource in
             if let json = try? JSON(data: data) {
                 if let errorMessage = json["error"].string {
-                    verboseLog("Fetched token URI: \(originalUri.absoluteString) error: \(errorMessage)")
+                    warnLog("Fetched token URI: \(originalUri.absoluteString) error: \(errorMessage)")
                 }
                 if json["error"] == "Internal Server Error" {
                     throw Error()
@@ -105,11 +105,11 @@ class NonFungibleJsonBalanceFetcher {
                     }
                 }
             } else {
-                verboseLog("Fetched token URI: \(originalUri.absoluteString) failed")
+                warnLog("Fetched token URI: \(originalUri.absoluteString) failed")
                 throw Error()
             }
         }).recover { error -> Promise<NonFungibleBalanceAndItsSource> in
-            verboseLog("Fetching token URI: \(originalUri) error: \(error)")
+            warnLog("Fetching token URI: \(originalUri) error: \(error)")
             throw error
         }
     }

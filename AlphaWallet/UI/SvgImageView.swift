@@ -23,7 +23,7 @@ final class SvgImageView: WKWebView {
     private (set) var pageHasLoaded: Bool = false
     var rounding: ViewRounding = .none
 
-    init() { 
+    init() {
         //NOTE: set initial frame to avoid `[ViewportSizing] maximumViewportInset cannot be larger than frame`
         super.init(frame: .init(x: 0, y: 0, width: 40, height: 40), configuration: svgImageViewSharedConfiguration)
 
@@ -60,7 +60,7 @@ final class SvgImageView: WKWebView {
 
                     try? ImageCache.default.diskStorage.store(value: data, forKey: url.absoluteString)
                 } else {
-                    debugLog("[SvgImageView] suppose to a svg image, but failure")
+                    warnLog("[SvgImageView] suppose to a svg image, but failure")
                 }
             }
         }

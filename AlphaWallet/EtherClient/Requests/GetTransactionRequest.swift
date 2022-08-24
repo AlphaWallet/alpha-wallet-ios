@@ -18,7 +18,7 @@ struct GetTransactionRequest: JSONRPCKit.Request {
 
     func response(from resultObject: Any) throws -> Response {
         if resultObject is NSNull {
-            debugLog("[RPC] Fetch transaction by hash: \(hash) is null")
+            infoLog("[RPC] Fetch transaction by hash: \(hash) is null")
             return nil
         }
         guard

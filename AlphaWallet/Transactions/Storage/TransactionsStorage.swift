@@ -306,7 +306,7 @@ class TransactionDataStore {
             try data.write(to: url)
             verboseLog("Written transactions for \(server) to JSON to: \(url.absoluteString)")
         } catch {
-            verboseLog("Error writing transactions for \(server) to JSON: \(url.absoluteString) error: \(error)")
+            warnLog("Error writing transactions for \(server) to JSON: \(url.absoluteString) error: \(error)")
         }
     }
 }
