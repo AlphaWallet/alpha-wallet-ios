@@ -22,7 +22,7 @@ class NavigationController: UINavigationController {
         guard animated, let coordinator = transitionCoordinator else {
             DispatchQueue.main.async { [viewController] in
                 guard let viewController = viewController as? PushNotifiable else { return }
-                print("[NavigationController].pushViewController isCancelled: \(false), viewController: \(viewController)")
+                verboseLog("[NavigationController].pushViewController isCancelled: \(false), viewController: \(viewController)")
                 viewController.didPushViewController(animated: animated)
             }
             return
@@ -31,7 +31,7 @@ class NavigationController: UINavigationController {
         coordinator.animate(alongsideTransition: nil) { context in
             guard !context.isCancelled else { return }
             guard let viewController = viewController as? PushNotifiable else { return }
-            print("[NavigationController].pushViewController isCancelled: \(context.isCancelled), viewController: \(viewController)")
+            verboseLog("[NavigationController].pushViewController isCancelled: \(context.isCancelled), viewController: \(viewController)")
             viewController.didPushViewController(animated: animated)
         }
     }
@@ -42,7 +42,7 @@ class NavigationController: UINavigationController {
         guard animated, let coordinator = transitionCoordinator else {
             DispatchQueue.main.async {
                 guard let viewController = viewController as? PopNotifiable else { return }
-                print("[NavigationController].popViewController isCancelled: \(false), viewController: \(viewController)")
+                verboseLog("[NavigationController].popViewController isCancelled: \(false), viewController: \(viewController)")
                 viewController.didPopViewController(animated: animated)
             }
             return viewController
@@ -52,7 +52,7 @@ class NavigationController: UINavigationController {
             guard !context.isCancelled else { return }
 
             guard let viewController = viewController as? PopNotifiable else { return }
-            print("[NavigationController].popViewController isCancelled: \(context.isCancelled), viewController: \(viewController)")
+            verboseLog("[NavigationController].popViewController isCancelled: \(context.isCancelled), viewController: \(viewController)")
             viewController.didPopViewController(animated: animated)
         }
 

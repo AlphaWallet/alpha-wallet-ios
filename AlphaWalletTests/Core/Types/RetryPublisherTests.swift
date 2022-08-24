@@ -23,13 +23,12 @@ class RetryPublisherTests: XCTestCase {
         let simpleControlledPublisher = PassthroughSubject<String, Error>()
 
         let cancellable = simpleControlledPublisher
-            .print(debugDescription)
             .retry(1)
             .sink(receiveCompletion: { fini in
-                print(" ** .sink() received the completion:", String(describing: fini))
+                infoLog(" ** .sink() received the completion: \(String(describing: fini))")
             }, receiveValue: { stringValue in
                 XCTAssertNotNil(stringValue)
-                print(" ** .sink() received \(stringValue)")
+                infoLog(" ** .sink() received \(stringValue)")
             })
 
         let oneFish = "onefish"
@@ -56,14 +55,12 @@ class RetryPublisherTests: XCTestCase {
         let simpleControlledPublisher = CurrentValueSubject<String, Error>("initial value")
 
         let cancellable = simpleControlledPublisher
-            .print("(1)>")
             .retry(3)
-            .print("(2)>")
             .sink(receiveCompletion: { fini in
-                print(" ** .sink() received the completion:", String(describing: fini))
+                infoLog(" ** .sink() received the completion: \(String(describing: fini))")
             }, receiveValue: { stringValue in
                 XCTAssertNotNil(stringValue)
-                print(" ** .sink() received \(stringValue)")
+                infoLog(" ** .sink() received \(stringValue)")
             })
 
         let oneFish = "onefish"
@@ -94,14 +91,12 @@ class RetryPublisherTests: XCTestCase {
     func testRetryWithOneShotJustPublisher() {
         // setup
         let cancellable = Just<String>("yo")
-            .print("(1)>")
             .retry(3)
-            .print("(2)>")
             .sink(receiveCompletion: { fini in
-                print(" ** .sink() received the completion:", String(describing: fini))
+                infoLog(" ** .sink() received the completion: \(String(describing: fini))")
             }, receiveValue: { stringValue in
                 XCTAssertNotNil(stringValue)
-                print(" ** .sink() received \(stringValue)")
+                infoLog(" ** .sink() received \(stringValue)")
             })
         XCTAssertNotNil(cancellable)
         //        output:
@@ -121,14 +116,12 @@ class RetryPublisherTests: XCTestCase {
         // setup
 
         let cancellable = Fail(outputType: String.self, failure: TestFailureCondition.invalidServerResponse)
-            .print("(1)>")
             .retry(3)
-            .print("(2)>")
             .sink(receiveCompletion: { fini in
-                print(" ** .sink() received the completion:", String(describing: fini))
+                infoLog(" ** .sink() received the completion: \(String(describing: fini))")
             }, receiveValue: { stringValue in
                 XCTAssertNotNil(stringValue)
-                print(" ** .sink() received \(stringValue)")
+                infoLog(" ** .sink() received \(stringValue)")
             })
         XCTAssertNotNil(cancellable)
         //        output:
@@ -159,10 +152,10 @@ class RetryPublisherTests: XCTestCase {
         func instrumentedAsyncAPICall(sabotage: Bool, completion completionBlock: @escaping ((Bool, Error?) -> Void)) {
             DispatchQueue.global(qos: .background).async {
                 let delay = Int.random(in: 1 ... 3)
-                print(msTimeFormatter.string(from: Date()) + " * starting async call (waiting \(delay) seconds before returning) ")
+                infoLog(msTimeFormatter.string(from: Date()) + " * starting async call (waiting \(delay) seconds before returning) ")
                 asyncAPICallCount += 1
                 sleep(UInt32(delay))
-                print(msTimeFormatter.string(from: Date()) + " * completing async call ")
+                infoLog(msTimeFormatter.string(from: Date()) + " * completing async call ")
                 if sabotage {
                     completionBlock(false, TestFailureCondition.invalidServerResponse)
                 } else {
@@ -197,7 +190,7 @@ class RetryPublisherTests: XCTestCase {
         // This was his suggestion at an attempt to do better.
 
         let resultPublisher = upstreamPublisher.catch { _ -> AnyPublisher<String, Error> in
-            print(msTimeFormatter.string(from: Date()) + "delaying on error for ~3 seconds ")
+            infoLog(msTimeFormatter.string(from: Date()) + "delaying on error for ~3 seconds ")
             return Publishers.Delay(upstream: upstreamPublisher,
                                     interval: 3,
                                     tolerance: 1,
@@ -217,7 +210,7 @@ class RetryPublisherTests: XCTestCase {
         XCTAssertEqual(futureClosureHandlerCount, 0)
 
         let cancellable = resultPublisher.sink(receiveCompletion: { err in
-            print(msTimeFormatter.string(from: Date()) + ".sink() received the completion: ", String(describing: err))
+            infoLog(msTimeFormatter.string(from: Date()) + ".sink() received the completion: \(String(describing: err))")
 
             // The surprise here is that the underlying asynchronous API call is made not 3 times, but 6 times.
             // From the output in the test, which includes timestamps down to the ms to make it easier to see WHEN
@@ -228,7 +221,7 @@ class RetryPublisherTests: XCTestCase {
             // the original request is 1, and then the Publishers.Delay() initiated request with a retry(2) are the others
             expectation.fulfill()
         }, receiveValue: { value in
-            print(".sink() received value: ", value)
+            infoLog(".sink() received value: \(value)")
             XCTFail("no value should be returned")
         })
 
@@ -249,7 +242,7 @@ class RetryPublisherTests: XCTestCase {
         func instrumentedAsyncAPICall(sabotage: Bool, completion completionBlock: @escaping ((Bool, Error?) -> Void)) {
             DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + .seconds(Int.random(in: 1 ... 3))) {
                 asyncAPICallCount += 1
-                print(msTimeFormatter.string(from: Date()) + " * completing async call ")
+                infoLog(msTimeFormatter.string(from: Date()) + " * completing async call ")
                 if sabotage {
                     completionBlock(false, TestFailureCondition.invalidServerResponse)
                 } else {
@@ -288,7 +281,7 @@ class RetryPublisherTests: XCTestCase {
         XCTAssertEqual(futureClosureHandlerCount, 0)
 
         resultPublisher.sink(receiveCompletion: { err in
-            print(msTimeFormatter.string(from: Date()) + ".sink() received the completion: ", String(describing: err))
+            infoLog(msTimeFormatter.string(from: Date()) + ".sink() received the completion: \(String(describing: err))")
 
             // The surprise here is that the underlying asynchronous API call is made not 3 times, but 6 times.
             // From the output in the test, which includes timestamps down to the ms to make it easier to see WHEN
@@ -299,7 +292,7 @@ class RetryPublisherTests: XCTestCase {
             // the original request is 1, and then the Publishers.Delay() initiated request with a retry(2) are the others
             expectation.fulfill()
         }, receiveValue: { value in
-            print(".sink() received value: ", value)
+            infoLog(".sink() received value: \(value)")
             XCTFail("no value should be returned")
         }).store(in: &cancelable)
 
@@ -319,10 +312,10 @@ class RetryPublisherTests: XCTestCase {
         func instrumentedAsyncAPICall(sabotage: Bool, completion completionBlock: @escaping ((Bool, Error?) -> Void)) {
             DispatchQueue.global(qos: .background).async {
                 let delay = Int.random(in: 1 ... 3)
-                print(msTimeFormatter.string(from: Date()) + " * starting async call (waiting \(delay) seconds before returning) ")
+                infoLog(msTimeFormatter.string(from: Date()) + " * starting async call (waiting \(delay) seconds before returning) ")
                 asyncAPICallCount += 1
                 sleep(UInt32(delay))
-                print(msTimeFormatter.string(from: Date()) + " * completing async call ")
+                infoLog(msTimeFormatter.string(from: Date()) + " * completing async call ")
                 if sabotage {
                     completionBlock(false, TestFailureCondition.invalidServerResponse)
                 } else {
@@ -363,7 +356,7 @@ class RetryPublisherTests: XCTestCase {
         XCTAssertEqual(futureClosureHandlerCount, 0)
 
         resultPublisher.sink(receiveCompletion: { err in
-            print(msTimeFormatter.string(from: Date()) + ".sink() received the completion: ", String(describing: err))
+            infoLog(msTimeFormatter.string(from: Date()) + ".sink() received the completion: \(String(describing: err))")
 
             // The surprise here is that the underlying asynchronous API call is made not 3 times, but 6 times.
             // From the output in the test, which includes timestamps down to the ms to make it easier to see WHEN
@@ -374,7 +367,7 @@ class RetryPublisherTests: XCTestCase {
             // the original request is 1, and then the Publishers.Delay() initiated request with a retry(2) are the others
             expectation.fulfill()
         }, receiveValue: { value in
-            print(".sink() received value: ", value)
+            infoLog(".sink() received value: \(value)")
             XCTFail("no value should be returned")
         }).store(in: &cancelable)
 
@@ -394,10 +387,10 @@ class RetryPublisherTests: XCTestCase {
         func instrumentedAsyncAPICall(sabotage: Bool, completion completionBlock: @escaping ((Bool, Error?) -> Void)) {
             DispatchQueue.global(qos: .background).async {
                 let delay = Int.random(in: 1 ... 3)
-                print(msTimeFormatter.string(from: Date()) + " * starting async call (waiting \(delay) seconds before returning) ")
+                infoLog(msTimeFormatter.string(from: Date()) + " * starting async call (waiting \(delay) seconds before returning) ")
                 asyncAPICallCount += 1
                 sleep(UInt32(delay))
-                print(msTimeFormatter.string(from: Date()) + " * completing async call ")
+                infoLog(msTimeFormatter.string(from: Date()) + " * completing async call ")
                 if sabotage {
                     completionBlock(false, TestFailureCondition.invalidServerResponse)
                 } else {
@@ -436,7 +429,7 @@ class RetryPublisherTests: XCTestCase {
         XCTAssertEqual(futureClosureHandlerCount, 0)
 
         resultPublisher.sink(receiveCompletion: { err in
-            print(msTimeFormatter.string(from: Date()) + ".sink() received the completion: ", String(describing: err))
+            infoLog(msTimeFormatter.string(from: Date()) + ".sink() received the completion: \(String(describing: err))")
 
             // The surprise here is that the underlying asynchronous API call is made not 3 times, but 6 times.
             // From the output in the test, which includes timestamps down to the ms to make it easier to see WHEN
@@ -447,7 +440,7 @@ class RetryPublisherTests: XCTestCase {
             // the original request is 1, and then the Publishers.Delay() initiated request with a retry(2) are the others
             expectation.fulfill()
         }, receiveValue: { value in
-            print(".sink() received value: ", value)
+            infoLog(".sink() received value: \(value)")
             XCTFail("no value should be returned")
         }).store(in: &cancelable)
 
