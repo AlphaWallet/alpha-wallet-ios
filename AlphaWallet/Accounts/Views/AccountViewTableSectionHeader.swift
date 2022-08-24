@@ -49,15 +49,15 @@ class AccountViewTableSectionHeader: UIView {
     }
 
     func configure(type: AccountsViewModel.Section, shouldHide: Bool) {
-        backgroundColor = Style.Wallet.Header.backgroundColor
+        backgroundColor = Configuration.Color.Semantic.tableViewHeaderBackground
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.minimumLineHeight = 25
         paragraphStyle.maximumLineHeight = 25
         let attributes: [NSAttributedString.Key: Any] = [
             .font: Style.Wallet.Header.font as Any,
             .paragraphStyle: paragraphStyle,
-            .backgroundColor: Style.Wallet.Header.backgroundColor as Any,
-            .foregroundColor: Style.Wallet.Header.textColor as Any]
+            .backgroundColor: Configuration.Color.Semantic.defaultViewBackground,
+            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText]
         let attrString = NSAttributedString(string: type.title, attributes: attributes)
         label.attributedText = attrString
         label.isHidden = shouldHide

@@ -1,7 +1,27 @@
 {
   "images" : [
     {
+      "filename" : "icons-system-arrow-right-1.pdf",
+      "idiom" : "universal"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "light"
+        }
+      ],
       "filename" : "icons-system-arrow-right.pdf",
+      "idiom" : "universal"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "icons-system-arrow-right-dm.pdf",
       "idiom" : "universal"
     }
   ],
