@@ -69,7 +69,7 @@ class WalletConnectV1Provider: WalletConnectServer {
     }
 
     deinit {
-        debugLog("[WalletConnect] WalletConnectV1Provider.deinit")
+        verboseLog("[WalletConnect] WalletConnectV1Provider.deinit")
         server.unregister(handler: requestHandler)
     }
 
@@ -164,7 +164,7 @@ class WalletConnectV1Provider: WalletConnectServer {
 extension WalletConnectV1Provider: WalletConnectV1ServerRequestHandlerDelegate {
 
     func handler(_ handler: RequestHandlerToAvoidMemoryLeak, request: WalletConnectV1Request) {
-        debugLog("WalletConnect handler request: \(request.method) url: \(request.url.absoluteString)")
+        infoLog("WalletConnect handler request: \(request.method) url: \(request.url.absoluteString)")
 
         queue.async { [weak self] in
             guard let strongSelf = self else { return }
@@ -187,7 +187,7 @@ extension WalletConnectV1Provider: WalletConnectV1ServerRequestHandlerDelegate {
     }
 
     func handler(_ handler: RequestHandlerToAvoidMemoryLeak, canHandle request: WalletConnectV1Request) -> Bool {
-        debugLog("WalletConnect canHandle: \(request.method) url: \(request.url.absoluteString)")
+        infoLog("WalletConnect canHandle: \(request.method) url: \(request.url.absoluteString)")
         return true
     }
 }
@@ -199,7 +199,7 @@ extension WalletConnectV1Provider: ServerDelegate {
     }
 
     func server(_ server: Server, didFailToConnect url: WalletConnectV1URL) {
-        debugLog("WalletConnect didFailToConnect: \(url)")
+        infoLog("WalletConnect didFailToConnect: \(url)")
         queue.async {
             self.connectionTimeoutTimers[url] = nil
             self.removeSession(for: url)
@@ -263,14 +263,14 @@ extension WalletConnectV1Provider: ServerDelegate {
     }
 
     func server(_ server: Server, didUpdate session: Session) {
-        debugLog("WalletConnect didUpdate: \(session.url.absoluteString)")
+        infoLog("WalletConnect didUpdate: \(session.url.absoluteString)")
         queue.async {
             self.addOrUpdateSession(session: session)
         }
     }
 
     func server(_ server: Server, didConnect session: Session) {
-        debugLog("WalletConnect didConnect: \(session.url.absoluteString)")
+        infoLog("WalletConnect didConnect: \(session.url.absoluteString)")
         queue.async {
             let nativeSession: WalletConnectV1Session = self.addOrUpdateSession(session: session)
             if let delegate = self.delegate {

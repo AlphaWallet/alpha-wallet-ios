@@ -52,7 +52,7 @@ final class AutoDetectTransactedTokensOperation: Operation {
             guard !strongSelf.isCancelled else { return }
             strongSelf.delegate?.didDetect(tokensOrContracts: values)
         }.catch { error in
-            verboseLog("Error while detecting tokens wallet: \(self.session.account.address.eip55String) error: \(error)")
+            warnLog("Error while detecting tokens wallet: \(self.session.account.address.eip55String) error: \(error)")
         }
     }
 }

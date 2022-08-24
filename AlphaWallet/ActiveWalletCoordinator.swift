@@ -207,7 +207,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
 
     func start(animated: Bool) {
         donateWalletShortcut()
-        
+
         setupResourcesOnMultiChain()
         walletConnectCoordinator.delegate = self
         setupTabBarController()
@@ -485,7 +485,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         importToken.importToken(for: contract, server: server, onlyIfThereIsABalance: false)
             .done { _ in }
             .catch { error in
-                verboseLog("Error while adding imported token contract: \(contract.eip55String) server: \(server) wallet: \(self.wallet.address.eip55String) error: \(error)")
+                debugLog("Error while adding imported token contract: \(contract.eip55String) server: \(server) wallet: \(self.wallet.address.eip55String) error: \(error)")
             }
     }
 

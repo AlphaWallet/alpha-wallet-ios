@@ -15,11 +15,11 @@ struct WalletConnectRequestConverter {
         guard let rpcServer: RPCServer = request.server else {
             return .init(error: WalletConnectRequestConverter.sessionRequestRPCServerMissing)
         }
-        debugLog("WalletConnect convert request: \(request.method) url: \(request.description)")
+        infoLog("WalletConnect convert request: \(request.method) url: \(request.description)")
 
         let token = MultipleChainsTokensDataStore.functional.token(forServer: rpcServer)
         let data: AlphaWallet.WalletConnect.Request
-        do { 
+        do {
             data = try AlphaWallet.WalletConnect.Request(request: request)
         } catch let error {
             return .init(error: error)
@@ -109,6 +109,6 @@ extension AlphaWallet.WalletConnect.Request {
                 }
                 return try values[position].decode(to: type)
             }
-        } 
+        }
     }
 }

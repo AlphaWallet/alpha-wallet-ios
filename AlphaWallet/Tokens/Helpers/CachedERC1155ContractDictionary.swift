@@ -52,7 +52,7 @@ class CachedERC1155ContractDictionary {
             }
         } catch {
             // Do nothing
-            verboseLog("[CachedERC1155ContractDictionary] writeToFileUrl error: \(error)")
+            warnLog("[CachedERC1155ContractDictionary] writeToFileUrl error: \(error)")
         }
     }
 
@@ -63,9 +63,9 @@ class CachedERC1155ContractDictionary {
             let jsonData = try decoder.decode([AlphaWallet.Address: Bool].self, from: data)
             baseDictionary = jsonData
         } catch {
-            verboseLog("[CachedERC1155ContractDictionary] readFromFileUrl error: \(error)")
+            infoLog("[CachedERC1155ContractDictionary] readFromFileUrl error: \(error)")
             baseDictionary = [AlphaWallet.Address: Bool]()
         }
     }
-    
+
 }

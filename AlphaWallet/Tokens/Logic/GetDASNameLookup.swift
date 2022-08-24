@@ -31,14 +31,14 @@ public final class GetDASNameLookup {
 
     func resolve(rpcURL: URL, rpcHeaders: [String: String], value: String) -> Promise<AlphaWallet.Address> {
         guard GetDASNameLookup.isValid(value: value) else {
-            debugLog("[DAS] Invalid lookup: \(value)")
+            infoLog("[DAS] Invalid lookup: \(value)")
             return .init(error: DASNameLookupError.invalidInput)
         }
 
         let request = EtherServiceRequest(rpcURL: rpcURL, rpcHeaders: rpcHeaders, batch: BatchFactory().create(DASLookupRequest(value: value)))
-        debugLog("[DAS] Looking up value \(value)")
+        infoLog("[DAS] Looking up value \(value)…")
         return Session.send(request, server: server, analytics: analytics).map { response -> AlphaWallet.Address in
-            debugLog("[DAS] response for value: \(value) response : \(response)")
+            infoLog("[DAS] response for value: \(value) response : \(response)")
             if let record = response.records.first(where: { $0.key == GetDASNameLookup.ethAddressKey }), let address = AlphaWallet.Address(string: record.value) {
                 infoLog("[DAS] resolve value: \(value) to address: \(address)")
                 return address

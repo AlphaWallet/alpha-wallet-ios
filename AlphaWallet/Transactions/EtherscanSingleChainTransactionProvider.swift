@@ -377,5 +377,5 @@ func error(value e: Error, pref: String = "", function f: String = #function, rp
     description += rpcServer.flatMap { " server: \($0)" } ?? ""
     description += address.flatMap { " address: \($0.eip55String)" } ?? ""
     description += " \(e)"
-    errorLog(description, callerFunctionName: f)
+    warnLog(description, callerFunctionName: f)
 }

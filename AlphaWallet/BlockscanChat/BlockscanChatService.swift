@@ -44,7 +44,7 @@ class BlockscanChatService {
         }
     }
     deinit {
-        debugLog("[BlockscanChat] BlockscanChatService deinit")
+        verboseLog("[BlockscanChat] BlockscanChatService deinit")
         periodicRefreshTimer?.invalidate()
     }
 
