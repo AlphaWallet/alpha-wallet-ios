@@ -105,11 +105,13 @@ class NonFungibleJsonBalanceFetcher {
                     }
                 }
             } else {
-                warnLog("Fetched token URI: \(originalUri.absoluteString) failed")
+                //TODO lots of this so not using `warnLog()`. Check
+                verboseLog("Fetched token URI: \(originalUri.absoluteString) failed")
                 throw Error()
             }
         }).recover { error -> Promise<NonFungibleBalanceAndItsSource> in
-            warnLog("Fetching token URI: \(originalUri) error: \(error)")
+            //TODO lots of this so not using `warnLog()`. Check
+            verboseLog("Fetching token URI: \(originalUri) error: \(error)")
             throw error
         }
     }
