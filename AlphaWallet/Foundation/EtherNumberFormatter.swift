@@ -139,6 +139,10 @@ final class EtherNumberFormatter {
         }
     }
 
+    func string(from number: BigUInt, decimals: Int) -> String {
+        return string(from: BigInt(number), decimals: decimals)
+    }
+
     private func integerString(from: BigInt) -> String {
         var string = from.description
         let end = from.sign == .minus ? 1 : 0

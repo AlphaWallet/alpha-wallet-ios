@@ -57,9 +57,16 @@ class SwapTokensViewController: UIViewController {
         let view = ButtonsBarBackgroundView(buttonsBar: buttonsBar, edgeInsets: .zero, separatorHeight: 1.0)
         return view
     }()
+    private (set) var loadingIndicatorView: UIActivityIndicatorView = {
+        let view = UIActivityIndicatorView(style: .medium)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.hidesWhenStopped = true
+
+        return view
+    }()
 
     private var cancelable = Set<AnyCancellable>()
-    private var viewModel: SwapTokensViewModel
+    private let viewModel: SwapTokensViewModel
     private lazy var checker = KeyboardChecker(self, resetHeightDefaultValue: 0)
     private var footerBottomConstraint: NSLayoutConstraint!
 
@@ -72,16 +79,9 @@ class SwapTokensViewController: UIViewController {
         generageLayout()
     }
 
-    private (set) var loadingIndicatorView: UIActivityIndicatorView = {
-        let view = UIActivityIndicatorView(style: .medium)
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.hidesWhenStopped = true
-
-        return view
-    }()
-
     override func viewDidLoad() {
         super.viewDidLoad()
+
         buttonsBar.configure()
         let continueButton = buttonsBar.buttons[0]
         continueButton.setTitle(R.string.localizable.continue(), for: .normal)
@@ -91,7 +91,6 @@ class SwapTokensViewController: UIViewController {
         toAmountTextField.selectCurrencyButton.addTarget(self, action: #selector(chooseTokenSelected), for: .touchUpInside)
         fromAmountTextField.selectCurrencyButton.addTarget(self, action: #selector(chooseTokenSelected), for: .touchUpInside)
 
-        configure(viewModel: viewModel)
         bind(viewModel: viewModel)
     }
 
@@ -143,19 +142,22 @@ class SwapTokensViewController: UIViewController {
     } 
 
     private func bind(viewModel: SwapTokensViewModel) {
+        view.backgroundColor = viewModel.backgoundColor
+        containerView.scrollView.backgroundColor = viewModel.backgoundColor
+        title = viewModel.navigationTitle
+
+        fromTokenHeaderView.configure(viewModel: viewModel.fromHeaderViewModel)
+        toTokenHeaderView.configure(viewModel: viewModel.toHeaderViewModel)
+
         viewModel.anyErrorString
-            .receive(on: RunLoop.main)
-            .sink { [weak self] error in
-                self?.displayError(message: error)
-            }.store(in: &cancelable)
+            .sink { [weak self] in self?.displayError(message: $0) }
+            .store(in: &cancelable)
 
         viewModel.isContinueButtonEnabled(cryptoValue: fromAmountTextField.cryptoValue)
-            .receive(on: RunLoop.main)
             .assign(to: \.isEnabled, on: buttonsBar.buttons[0])
             .store(in: &cancelable)
 
         viewModel.isConfiguratorInUpdatingState
-            .receive(on: RunLoop.main)
             .sink { [weak loadingIndicatorView] isLoading in
                 if isLoading {
                     loadingIndicatorView?.startAnimating()
@@ -165,51 +167,31 @@ class SwapTokensViewController: UIViewController {
             }.store(in: &cancelable)
 
         viewModel.convertedValue
-            .receive(on: RunLoop.main)
             .sink { [weak toAmountTextField] eth in
-                toAmountTextField?.set(crypto: eth, useFormatting: true)
+                toAmountTextField?.set(crypto: eth, useFormatting: false)
             }.store(in: &cancelable)
 
         viewModel.amountValidation(cryptoValue: fromAmountTextField.cryptoValue)
-            .receive(on: RunLoop.main)
-            .sink { [weak fromAmountTextField] errorState in
-                fromAmountTextField?.viewModel.errorState = errorState
-            }.store(in: &cancelable)
+            .sink { [weak fromAmountTextField] in fromAmountTextField?.viewModel.errorState = $0 }
+            .store(in: &cancelable)
 
         viewModel.bigIntValue(cryptoValue: fromAmountTextField.cryptoValue)
-            .receive(on: RunLoop.main)
-            .sink { [weak viewModel] amount in
-                viewModel?.set(fromAmount: amount)
-            }.store(in: &cancelable)
+            .sink { [weak viewModel] in viewModel?.set(fromAmount: $0) }
+            .store(in: &cancelable)
 
         viewModel.tokens
-            .receive(on: RunLoop.main)
             .sink { [weak fromAmountTextField, weak toAmountTextField] tokens in
                 fromAmountTextField?.viewModel.set(token: tokens.from)
                 toAmountTextField?.viewModel.set(token: tokens.to)
             }.store(in: &cancelable)
 
         viewModel.fromTokenBalance
-            .receive(on: RunLoop.main)
-            .sink { [weak fromAmountTextField] balance in
-                fromAmountTextField?.statusLabel.text = balance
-            }.store(in: &cancelable)
+            .sink { [weak fromAmountTextField] in fromAmountTextField?.statusLabel.text = $0 }
+            .store(in: &cancelable)
 
         viewModel.toTokenBalance
-            .receive(on: RunLoop.main)
-            .sink { [weak toAmountTextField] balance in
-                toAmountTextField?.statusLabel.text = balance
-            }.store(in: &cancelable)
-    }
-
-    private func configure(viewModel: SwapTokensViewModel) {
-        self.viewModel = viewModel
-        view.backgroundColor = viewModel.backgoundColor
-        containerView.scrollView.backgroundColor = viewModel.backgoundColor
-        title = viewModel.navigationTitle
-
-        fromTokenHeaderView.configure(viewModel: viewModel.fromHeaderViewModel)
-        toTokenHeaderView.configure(viewModel: viewModel.toHeaderViewModel)
+            .sink { [weak toAmountTextField] in toAmountTextField?.statusLabel.text = $0 }
+            .store(in: &cancelable)
     }
 
     @objc private func chooseTokenSelected(_ sender: UIButton) {

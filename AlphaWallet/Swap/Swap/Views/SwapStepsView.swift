@@ -1,5 +1,5 @@
 //
-//  SwapFeesView.swift
+//  SwapStepsView.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 28.03.2022.
@@ -8,9 +8,8 @@
 import UIKit
 import Combine
 
-final class SwapFeesView: UIView {
-    private var viewModel: SwapFeesViewModel
-    private var views: [SwapFeeProviderView] = []
+final class SwapStepsView: UIView {
+    private var viewModel: SwapStepsViewModel
 
     private var swapLine: UIView = {
         let view = UIView()
@@ -21,10 +20,9 @@ final class SwapFeesView: UIView {
         return view
     }()
     private var stackView: UIStackView = [UIView]([]).asStackView(axis: .vertical)
-    private var swapLineConstraints: [NSLayoutConstraint] = []
     private var cancelable = Set<AnyCancellable>()
 
-    init(viewModel: SwapFeesViewModel) {
+    init(viewModel: SwapStepsViewModel) {
         self.viewModel = viewModel
         super.init(frame: .zero)
 
@@ -48,38 +46,28 @@ final class SwapFeesView: UIView {
         bind(viewModel: viewModel)
     }
 
-    private func bind(viewModel: SwapFeesViewModel) {
-        let views = viewModel.providersViewModels
-            .receive(on: RunLoop.main)
-            .map { $0.map { viewModel in SwapFeeProviderView(viewModel: viewModel) } }
-            .share()
-            .eraseToAnyPublisher()
-
-        let swapLineConstraints = views.map { [swapLine, stackView] views -> [NSLayoutConstraint] in
-            if views.isEmpty {
-                return []
-            } else {
-                return [
-                    swapLine.topAnchor.constraint(equalTo: views[0].centerYAnchor),
-                    swapLine.bottomAnchor.constraint(equalTo: views[views.count - 1].centerYAnchor),
-                    swapLine.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: 4.5)
-                ]
-            }
-        }.eraseToAnyPublisher()
-
-        views.sink { [stackView] views in
+    private func bind(viewModel: SwapStepsViewModel) {
+        viewModel.swapStepsViewModels
+        .map { $0.map { viewModel in SwapStepView(viewModel: viewModel) } }
+        .sink { [stackView] views in
             stackView.removeAllArrangedSubviews()
             stackView.addArrangedSubviews(views)
-        }.store(in: &cancelable)
 
-        swapLineConstraints.sink { [weak self] constraints in
-            guard let strongSelf = self else { return }
-            NSLayoutConstraint.deactivate(strongSelf.swapLineConstraints)
-
-            strongSelf.swapLineConstraints = constraints
-            NSLayoutConstraint.activate(constraints)
+            NSLayoutConstraint.activate(self.buildContraints(for: views))
         }.store(in: &cancelable)
-    } 
+    }
+
+    private func buildContraints(for views: [UIView]) -> [NSLayoutConstraint] {
+        if views.isEmpty {
+            return []
+        } else {
+            return [
+                swapLine.topAnchor.constraint(equalTo: views[0].centerYAnchor),
+                swapLine.bottomAnchor.constraint(equalTo: views[views.count - 1].centerYAnchor),
+                swapLine.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: 4.5)
+            ]
+        }
+    }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

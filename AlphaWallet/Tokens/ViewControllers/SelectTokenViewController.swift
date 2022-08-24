@@ -16,7 +16,6 @@ protocol SelectTokenViewControllerDelegate: AnyObject {
 class SelectTokenViewController: UIViewController {
     private let viewModel: SelectTokenViewModel
     private var cancellable = Set<AnyCancellable>()
-
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.register(FungibleTokenViewCell.self)
@@ -52,6 +51,7 @@ class SelectTokenViewController: UIViewController {
             stackView.anchorsConstraint(to: view)
         ])
 
+        loadingView = LoadingView.tokenSelectionLoadingView()
         emptyView = EmptyView.tokensEmptyView(completion: { [fetch] in
             fetch.send(())
         })
@@ -87,8 +87,8 @@ class SelectTokenViewController: UIViewController {
             fetch: fetch.eraseToAnyPublisher())
 
         let output = viewModel.transform(input: input)
-        output.loadingState.sink { [weak self] state in
-            switch state {
+        output.viewState.sink { [weak self] state in
+            switch state.loadingState {
             case .idle:
                 break
             case .beginLoading:
@@ -96,17 +96,14 @@ class SelectTokenViewController: UIViewController {
             case .endLoading:
                 self?.endLoading(animated: false)
             }
-        }.store(in: &cancellable)
-
-        output.viewModels.sink { [weak self] viewModel in
-            self?.applySnapshot(with: viewModel, animate: false)
+            self?.applySnapshot(with: state.views, animate: false)
         }.store(in: &cancellable)
     } 
 }
 
 extension SelectTokenViewController: StatefulViewController {
     func hasContent() -> Bool {
-        return viewModel.numberOfItems() > 0
+        return dataSource.snapshot().numberOfItems > 0
     }
 }
 

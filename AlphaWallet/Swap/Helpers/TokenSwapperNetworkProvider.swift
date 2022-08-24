@@ -14,8 +14,8 @@ import AlphaWalletCore
 
 protocol TokenSwapperNetworkProvider {
     func fetchSupportedChains() -> AnyPublisher<[RPCServer], PromiseError>
-    func fetchSupportedTokens(forServer server: RPCServer) -> AnyPublisher<SwapPairs, PromiseError>
-    func fetchSwapQuote(fromToken: TokenToSwap, toToken: TokenToSwap, wallet: AlphaWallet.Address, slippage: Double, fromAmount: BigUInt) -> AnyPublisher<SwapQuote, SwapError>
+    func fetchSupportedTokens(for server: RPCServer) -> AnyPublisher<SwapPairs, PromiseError>
+    func fetchSwapQuote(fromToken: TokenToSwap, toToken: TokenToSwap, wallet: AlphaWallet.Address, slippage: String, fromAmount: BigUInt) -> AnyPublisher<SwapQuote, SwapError>
 }
 
 final class LiQuestTokenSwapperNetworkProvider: TokenSwapperNetworkProvider {
@@ -34,7 +34,7 @@ final class LiQuestTokenSwapperNetworkProvider: TokenSwapperNetworkProvider {
             }.eraseToAnyPublisher()
     }
 
-    func fetchSupportedTokens(forServer server: RPCServer) -> AnyPublisher<SwapPairs, PromiseError> {
+    func fetchSupportedTokens(for server: RPCServer) -> AnyPublisher<SwapPairs, PromiseError> {
         let parameters: [String: Any] = [
             "fromChain": server.chainID,
             "toChain": server.chainID,
@@ -50,7 +50,7 @@ final class LiQuestTokenSwapperNetworkProvider: TokenSwapperNetworkProvider {
             }.eraseToAnyPublisher()
     }
 
-    func fetchSwapQuote(fromToken: TokenToSwap, toToken: TokenToSwap, wallet: AlphaWallet.Address, slippage: Double, fromAmount: BigUInt) -> AnyPublisher<SwapQuote, SwapError> {
+    func fetchSwapQuote(fromToken: TokenToSwap, toToken: TokenToSwap, wallet: AlphaWallet.Address, slippage: String, fromAmount: BigUInt) -> AnyPublisher<SwapQuote, SwapError> {
         let parameters: [String: Any] = [
             "fromChain": fromToken.server.chainID,
             "toChain": toToken.server.chainID,
@@ -59,10 +59,11 @@ final class LiQuestTokenSwapperNetworkProvider: TokenSwapperNetworkProvider {
             "fromAddress": wallet.eip55String,
             "fromAmount": String(fromAmount),
             //"order": "BEST_VALUE", this param doesn't work for now
-            "slippage": String(slippage),
+            "slippage": slippage,
             //"allowExchanges": "paraswap,openocean,0x,uniswap,sushiswap,quickswap,honeyswap,pancakeswap,spookyswap,viperswap,solarbeam,dodo",
             //"allowExchanges": "paraswap",
         ]
+
         return Alamofire.request(LiQuestTokenSwapperNetworkProvider.Url.fetchQuote, parameters: parameters)
             .responseJSONPublisher()
             .tryMap { rawJson, _ -> SwapQuote in

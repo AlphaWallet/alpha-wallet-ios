@@ -9,8 +9,8 @@ import UIKit
 
 class SelectNetworkViewModel {
     let session: WalletSession
-    var isSelected: Bool
-    var isAvailableToSelect: Bool
+    let isSelected: Bool
+    let isAvailableToSelect: Bool
     var networkImage: Subscribable<Image> { session.server.walletConnectIconImage }
 
     var selectionImage: UIImage? {

@@ -1,15 +1,22 @@
 //
-//  SwapProvider.swift
+//  SwapStepType.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 28.03.2022.
 //
 
 import Foundation
-import Combine
+import BigInt
 
-protocol SwapProvider {
-    var name: AnyPublisher<String, Never> { get }
-    var fee: AnyPublisher<String, Never> { get }
-    var info: AnyPublisher<String, Never> { get }
+struct SwapStep {
+    let tool: String
+    let subSteps: [SwapSubStep]
+}
+
+struct SwapSubStep {
+    let gasCost: SwapEstimate.GasCost
+    let type: String
+    let amount: BigUInt
+    let token: SwapQuote.Token
+    let tool: String
 }

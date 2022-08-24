@@ -13,7 +13,7 @@ final class SwapDetailsView: UIView {
     private lazy var totalFeeView = FieldView(edgeInsets: .init(top: 0, left: 20, bottom: 0, right: 20))
     private lazy var currentPriceView = FieldView(edgeInsets: .init(top: 0, left: 20, bottom: 0, right: 20))
     private lazy var minimumReceivedView = FieldView(edgeInsets: .init(top: 0, left: 20, bottom: 0, right: 20))
-    private lazy var swapFeesView = SwapFeesView(viewModel: viewModel.swapFeesViewModel)
+    private lazy var swapFeesView = SwapStepsView(viewModel: viewModel.swapStepsViewModel)
 
     private lazy var toggleFeesButton: UIButton = {
         let button = UIButton(type: .system)
@@ -58,13 +58,12 @@ final class SwapDetailsView: UIView {
         swapFeesView.isHidden = true
         backgroundColor = viewModel.backgoundColor
 
-        viewModel.swapFeesViewModel.hasProviders
+        viewModel.swapStepsViewModel.hasProviders
             .sink { [toggleFeesBackgroundView] hasProviders in
                 toggleFeesBackgroundView.isHidden = !hasProviders
             }.store(in: &cancelable)
 
         viewModel.isHidden
-            .receive(on: RunLoop.main)
             .sink(receiveValue: { [weak self] isHidden in
                 self?.isHidden = isHidden
             }).store(in: &cancelable)

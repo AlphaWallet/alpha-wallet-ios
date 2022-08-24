@@ -24,17 +24,8 @@ class SwapOptionsViewController: UIViewController {
         return SlippageView(viewModel: viewModel.slippageViewModel)
     }()
 
-    private lazy var transactionDeadlineTextField: TransactionDeadlineTextField = {
-        return TransactionDeadlineTextField(viewModel: viewModel.tansactionDeadalineViewModel)
-    }()
-
     private lazy var slippageHeaderView: SwapOptionsHeaderView = {
         let view = SwapOptionsHeaderView(viewModel: .init(title: "SLIPPAGE TOLERANCE"))
-        return view
-    }()
-
-    private lazy var transactionDeadlineHeaderView: SwapOptionsHeaderView = {
-        let view = SwapOptionsHeaderView(viewModel: .init(title: "Transaction Deadline"))
         return view
     }()
 
@@ -106,8 +97,8 @@ class SwapOptionsViewController: UIViewController {
     }
 
     private func bind(viewModel: SwapOptionsViewModel) {
-        viewModel.sessionsViewModels
-            .receive(on: RunLoop.main)
+        let output = viewModel.transform(input: .init())
+        output.sessions
             .sink { [weak self] viewModels in
                 for index in viewModels.indices {
                     guard let view = self?.walletSessionViews[safe: index] else { continue }
@@ -116,19 +107,12 @@ class SwapOptionsViewController: UIViewController {
             }.store(in: &cancelable)
 
         //TODO: need to resolve error displaying, uncommenting this string causes displaying an error when screen in loading for first time
-        // and for unavailable networks it shors error
-        //viewModel.errorString
+        // and for unavailable networks it shows error
+        //output.errorString
         //    .receive(on: RunLoop.main)
         //    .sink { [weak self] error in
         //        self?.displayError(message: error)
         //    }.store(in: &cancelable)
-
-        transactionDeadlineTextField 
-            .textPublisher
-            .compactMap { $0?.optionalDecimalValue?.doubleValue }
-            .sink { [weak viewModel] value in
-                viewModel?.set(tansactionDeadaline: value)
-            }.store(in: &cancelable)
     }
 
     private func generateSubviews(viewModel: SwapOptionsViewModel) {
@@ -157,10 +141,6 @@ class SwapOptionsViewController: UIViewController {
             slippageHeaderView.adjusted(),
             .spacer(height: 10),
             slippageView.adjusted(),
-            .spacer(height: 30),
-            transactionDeadlineHeaderView.adjusted(),
-            .spacer(height: 10),
-            transactionDeadlineTextField.adjusted(),
             .spacer(height: 30),
             networkHeaderView.adjusted(),
             .spacer(height: 10),

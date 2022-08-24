@@ -9,14 +9,14 @@ import UIKit
 import Combine
 
 final class FieldView: UIView {
-    lazy var titleLabel: UILabel = {
+    private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
 
         return label
     }()
 
-    lazy var valueLabel: UILabel = {
+    private lazy var valueLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
 
@@ -46,12 +46,18 @@ final class FieldView: UIView {
     } 
 
     func bind(viewModel: FieldViewModel) {
+        cancelable.cancellAll()
+
         titleLabel.attributedText = viewModel.titleAttributedString
         backgroundColor = viewModel.backgroundColor
         viewModel.valueAttributedString
-            .receive(on: RunLoop.main)
             .sink(receiveValue: { [weak valueLabel] attributedText in
                 valueLabel?.attributedText = attributedText
             }).store(in: &cancelable)
+
+        viewModel.isHidden
+            .sink { [weak self] isHidden in
+                self?.isHidden = isHidden
+            }.store(in: &cancelable)
     }
 }

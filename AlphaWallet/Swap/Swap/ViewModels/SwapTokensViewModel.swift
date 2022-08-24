@@ -38,14 +38,18 @@ class SwapTokensViewModel: NSObject {
     lazy var swapDetailsViewModel: SwapDetailsViewModel = .init(configurator: configurator)
 
     var convertedValue: AnyPublisher<String, Never> {
-        return configurator.swapQuote.map { swapQuote -> String in
-            return swapQuote.flatMap { EtherNumberFormatter.full.string(from: BigInt($0.estimate.toAmount)) } ?? ""
-        }.eraseToAnyPublisher()
+        configurator.tokensWithTheirSwapQuote
+            .map { data -> String in
+                guard let data = data else { return "" }
+                return EtherNumberFormatter.shortPlain.string(from: BigInt(data.swapQuote.estimate.toAmount), decimals: data.tokens.to.decimals)
+            }.receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
     }
 
     var anyErrorString: AnyPublisher<String, Never> {
         configurator.error
             .compactMap { $0?.description }
+            .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }
 
@@ -72,11 +76,12 @@ class SwapTokensViewModel: NSObject {
         return Publishers.CombineLatest3(hasValidSwapQuote, hasValidEnteredAmount, isInLoadingState)
             .map { $0.0 && $0.1 && !$0.2 }
             .removeDuplicates()
+            .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }
 
     var isConfiguratorInUpdatingState: AnyPublisher<Bool, Never> {
-        let isFetchingSwapQuote = configurator.swapQuoteState
+        let isFetchingSwapQuote = configurator.fetchSwapQuoteState
             .map { state -> Bool in state == .fetching }
 
         let isLoadingSwapOptions = configurator.tokenSwapper.loadingStatePublisher
@@ -84,6 +89,7 @@ class SwapTokensViewModel: NSObject {
 
         return Publishers.Merge(isFetchingSwapQuote, isLoadingSwapOptions)
             .removeDuplicates()
+            .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }
 
@@ -114,6 +120,7 @@ class SwapTokensViewModel: NSObject {
         return activeSession.combineLatest(swapPair)
             .flatMapLatest { self.balancePublisher(for: $0.1.from, session: $0.0) }
             .map { R.string.localizable.sendAvailable($0.flatMap { $0.amountShort } ?? "-") }
+            .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }
 
@@ -126,6 +133,7 @@ class SwapTokensViewModel: NSObject {
                     return Just(nil).eraseToAnyPublisher()
                 }
             }.map { $0.flatMap { R.string.localizable.sendAvailable($0.amountShort) } }
+            .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }
 
@@ -133,7 +141,8 @@ class SwapTokensViewModel: NSObject {
         return activeSession.combineLatest(swapPair)
             .map { _, swapPair -> (from: Token, to: Token?) in
                 return (swapPair.from, swapPair.to)
-            }.eraseToAnyPublisher()
+            }.receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
     }
 
     init(configurator: SwapOptionsConfigurator, tokensService: TokenViewModelState) {
@@ -163,7 +172,8 @@ class SwapTokensViewModel: NSObject {
         return Publishers.CombineLatest(cryptoValue, activeSession.combineLatest(swapPair))
             .map { cryptoValue, sessionAndSwapPair -> BigInt? in
                 return self.parseEnteredAmount(cryptoValue, token: sessionAndSwapPair.1.from)
-            }.eraseToAnyPublisher()
+            }.receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
     }
 
     func amountValidation(cryptoValue: AnyPublisher<String, Never>, useGreaterThanZeroValidation: Bool = true) -> AnyPublisher<AmountTextField_v2.ErrorState, Never> {
@@ -181,7 +191,8 @@ class SwapTokensViewModel: NSObject {
                 }
 
                 return balance.value >= value ? .none : .error
-            }.eraseToAnyPublisher()
+            }.receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
     }
 
     private func balancePublisher(for token: Token, session: WalletSession) -> AnyPublisher<BalanceViewModel?, Never> {

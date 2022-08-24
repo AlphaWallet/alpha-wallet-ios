@@ -26,18 +26,18 @@ class SlippageViewModel {
         let views: AnyPublisher<[SwapSlippage], Never> = .just([.tenPercents, .fiftyPercents, .oneHundredPercents, .custom(0.0)])
 
         let availableSlippages = views.combineLatest(selectedSlippage) { cases, selectedSlippage -> [SelectableSlippageViewModel] in
-                var cases = cases
-                switch selectedSlippage {
-                case .custom:
-                    if let index = cases.firstIndex(where: { slip in guard case .custom = slip else { return false }; return true; }) {
-                        cases[index] = selectedSlippage
-                    }
-                case .tenPercents, .fiftyPercents, .oneHundredPercents:
-                    break
+            var cases = cases
+            switch selectedSlippage {
+            case .custom:
+                if let index = cases.firstIndex(where: { slip in guard case .custom = slip else { return false }; return true; }) {
+                    cases[index] = selectedSlippage
                 }
-                return cases.map { .init(value: $0, isSelected: selectedSlippage == $0) }
-            }.receive(on: RunLoop.main)
-            .eraseToAnyPublisher()
+            case .tenPercents, .fiftyPercents, .oneHundredPercents:
+                break
+            }
+            return cases.map { .init(value: $0, isSelected: selectedSlippage == $0) }
+        }.receive(on: RunLoop.main)
+        .eraseToAnyPublisher()
 
         return .init(views: views, availableSlippages: availableSlippages)
     }
