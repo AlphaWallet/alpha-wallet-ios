@@ -46,6 +46,7 @@ extension Constants {
         static let mailChimpListSpecificKey = ""
         static let openseaKey = env("OPENSEAKEY") ?? "11ba1b4f0c4246aeb07b1f8e5a20525f"
         static let rampApiKey = "j5wr7oqktym7z69yyf84bb8a6cqb7qfu5ynmeyvn"
+        static let coinBaseAppId = ""
         static let enjinUserName = "vlad_shepitko@outlook.com"
         static let enjinUserPassword: String = "wf@qJPz75CL9Tw$"
         static let walletConnectProjectId = "8ba9ee138960775e5231b70cc5ef1c3a"

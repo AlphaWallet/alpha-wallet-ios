@@ -104,6 +104,13 @@ public struct Constants {
         "https://buy.ramp.network/?hostApiKey=\(Constants.Credentials.rampApiKey)&hostLogoUrl=https%3A%2F%2Falphawallet.com%2Fwp-content%2Fthemes%2Falphawallet%2Fimg%2Falphawallet-logo.svg&hostAppName=AlphaWallet&swapAsset=\(asset)"
     }
 
+    static func buyWithCoinBaseUrl(blockchain: String, wallet: Wallet) -> String? {
+        let key = Constants.Credentials.coinBaseAppId
+        guard !key.isEmpty else { return nil }
+        let base = "https://pay.coinbase.com/buy/select-asset?appId=\(key)"
+        return base + ("&destinationWallets=[{\"address\": \"\(wallet.address.eip55String)\",\"blockchains\":[\"\(blockchain)\"]}]".addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? "")
+    }
+
     static let highStandardEthereumMainnetGasThresholdGwei = BigInt(130)
     //DAS
     static let dasLookupURL = URL(string: "https://indexer.da.systems/")!

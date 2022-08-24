@@ -7,11 +7,10 @@ import Foundation
 import BigInt
 import Result
 
-protocol ClaimOrderCoordinatorDelegate: class, CanOpenURL {
+protocol ClaimOrderCoordinatorDelegate: CanOpenURL, BuyCryptoDelegate {
     func coordinator(_ coordinator: ClaimPaidOrderCoordinator, didFailTransaction error: AnyError)
     func didClose(in coordinator: ClaimPaidOrderCoordinator)
     func coordinator(_ coordinator: ClaimPaidOrderCoordinator, didCompleteTransaction result: ConfirmResult)
-    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: ClaimPaidOrderCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource)
 }
 
 class ClaimPaidOrderCoordinator: Coordinator {
@@ -237,8 +236,8 @@ extension ClaimPaidOrderCoordinator: TransactionConfirmationCoordinatorDelegate 
         removeCoordinator(coordinator)
     }
 
-    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TransactionConfirmationCoordinator, viewController: UIViewController) {
-        delegate?.openFiatOnRamp(wallet: wallet, server: server, inCoordinator: self, viewController: viewController, source: .transactionActionSheetInsufficientFunds)
+    func buyCrypto(wallet: Wallet, server: RPCServer, viewController: UIViewController, source: Analytics.BuyCryptoSource) {
+        delegate?.buyCrypto(wallet: wallet, server: server, viewController: viewController, source: .transactionActionSheetInsufficientFunds)
     }
 }
 

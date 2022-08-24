@@ -16,7 +16,9 @@ final class SwapTokenNativeProvider: SupportedTokenActionsProvider, TokenActionP
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }
-    var action: String { "Native Swap" }
+    let analyticsName: String = "Native Swap"
+    let analyticsNavigation: Analytics.Navigation = .fallback
+    let action: String = "Native Swap"
 
     init(tokenSwapper: TokenSwapper) {
         self.tokenSwapper = tokenSwapper

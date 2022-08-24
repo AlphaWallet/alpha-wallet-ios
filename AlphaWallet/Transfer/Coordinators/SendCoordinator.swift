@@ -4,11 +4,10 @@ import BigInt
 import PromiseKit
 import Result
 
-protocol SendCoordinatorDelegate: class, CanOpenURL {
+protocol SendCoordinatorDelegate: CanOpenURL, BuyCryptoDelegate {
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: SendCoordinator)
     func didFinish(_ result: ConfirmResult, in coordinator: SendCoordinator)
     func didCancel(in coordinator: SendCoordinator)
-    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: SendCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource)
 }
 
 class SendCoordinator: Coordinator {
@@ -162,8 +161,8 @@ extension SendCoordinator: TransactionConfirmationCoordinatorDelegate {
         removeCoordinator(coordinator)
     }
 
-    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TransactionConfirmationCoordinator, viewController: UIViewController) {
-        delegate?.openFiatOnRamp(wallet: wallet, server: server, inCoordinator: self, viewController: viewController, source: .transactionActionSheetInsufficientFunds)
+    func buyCrypto(wallet: Wallet, server: RPCServer, viewController: UIViewController, source: Analytics.BuyCryptoSource) {
+        delegate?.buyCrypto(wallet: wallet, server: server, viewController: viewController, source: .transactionActionSheetInsufficientFunds)
     }
 }
 

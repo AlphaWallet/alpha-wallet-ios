@@ -10,9 +10,8 @@ import BigInt
 import Result
 import Combine
 
-protocol TokenScriptCoordinatorDelegate: CanOpenURL, SendTransactionDelegate {
+protocol TokenScriptCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryptoDelegate {
     func didFinish(_ result: ConfirmResult, in coordinator: TokenScriptCoordinator)
-    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TokenScriptCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource)
     func didCancel(in coordinator: TokenScriptCoordinator)
 }
 
@@ -167,8 +166,8 @@ extension TokenScriptCoordinator: TransactionConfirmationCoordinatorDelegate {
         }
     }
 
-    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TransactionConfirmationCoordinator, viewController: UIViewController) {
-        delegate?.openFiatOnRamp(wallet: wallet, server: server, inCoordinator: self, viewController: viewController, source: .transactionActionSheetInsufficientFunds)
+    func buyCrypto(wallet: Wallet, server: RPCServer, viewController: UIViewController, source: Analytics.BuyCryptoSource) {
+        delegate?.buyCrypto(wallet: wallet, server: server, viewController: viewController, source: .transactionActionSheetInsufficientFunds)
     }
 }
 

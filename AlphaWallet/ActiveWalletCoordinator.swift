@@ -188,9 +188,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
 
         self.keystore.recentlyUsedWallet = wallet
         crashlytics.trackActiveWallet(wallet: wallet)
-        if let service = tokenActionsService.service(ofType: Ramp.self) as? Ramp {
-            service.configure(account: wallet)
-        }
 
         notificationService.register(source: transactionNotificationService)
         swapButton.addTarget(self, action: #selector(swapButtonSelected), for: .touchUpInside)
@@ -541,11 +538,33 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
             showPaymentFlow(for: .request, server: config.anyEnabledServer(), navigationController: navigationController)
         }
     }
+}
 
-    private func openFiatOnRamp(wallet: Wallet, server: RPCServer, inViewController viewController: UIViewController, source: Analytics.FiatOnRampSource) {
-        let coordinator = FiatOnRampCoordinator(wallet: wallet, server: server, viewController: viewController, source: source, analytics: analytics)
+extension ActiveWalletCoordinator: SelectServiceToBuyCryptoCoordinatorDelegate {
+    func selectBuyService(_ result: Swift.Result<Void, SelectBuyServiceError>, in coordinator: SelectServiceToBuyCryptoCoordinator) {
+        removeCoordinator(coordinator)
+
+        switch result {
+        case .success: break
+        case .failure(let error): show(error: error)
+        }
+    }
+
+    func didClose(in coordinator: SelectServiceToBuyCryptoCoordinator) {
+        removeCoordinator(coordinator)
+    }
+
+    func buyCrypto(wallet: Wallet, server: RPCServer, viewController: UIViewController, source: Analytics.BuyCryptoSource) {
+        let token = MultipleChainsTokensDataStore.functional.etherToken(forServer: server)
+        buyCrypto(wallet: wallet, token: token, viewController: viewController, source: source)
+    }
+
+    private func buyCrypto(wallet: Wallet, token: TokenActionsIdentifiable, viewController: UIViewController, source: Analytics.BuyCryptoSource) {
+        guard let buyTokenProvider = tokenActionsService.service(ofType: BuyTokenProvider.self) as? BuyTokenProvider else { return }
+        let coordinator = SelectServiceToBuyCryptoCoordinator(buyTokenProvider: buyTokenProvider, token: token, viewController: viewController, source: source, analytics: analytics)
         coordinator.delegate = self
-        coordinator.start()
+        coordinator.start(wallet: wallet)
+        addCoordinator(coordinator)
     }
 }
 
@@ -574,10 +593,6 @@ extension ActiveWalletCoordinator: WalletConnectCoordinatorDelegate {
 
     func universalScannerSelected(in coordinator: WalletConnectCoordinator) {
         tokensCoordinator?.launchUniversalScanner(fromSource: .walletScreen)
-    }
-
-    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TransactionConfirmationCoordinator, viewController: UIViewController) {
-        openFiatOnRamp(wallet: wallet, server: server, inViewController: viewController, source: .transactionActionSheetInsufficientFunds)
     }
 }
 
@@ -828,16 +843,14 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
 
     func didTapBridge(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in coordinator: TokensCoordinator) {
         guard let service = service as? BridgeTokenURLProviderType else { return }
-        guard let token = transactionType.swapServiceInputToken, let url = service.url(token: token) else { return }
+        guard let token = transactionType.swapServiceInputToken, let url = service.url(token: token, wallet: wallet) else { return }
 
         open(url: url, onServer: token.server)
     }
 
-    func didTapBuy(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in coordinator: TokensCoordinator) {
-        guard let service = service as? BuyTokenURLProviderType else { return }
-        guard let token = transactionType.swapServiceInputToken, let url = service.url(token: token) else { return }
-        logStartOnRamp(name: "Ramp")
-        open(for: url)
+    func didTapBuy(transactionType: TransactionType, service: TokenActionProvider, in coordinator: TokensCoordinator) {
+        guard let token = transactionType.swapServiceInputToken else { return }
+        buyCrypto(wallet: wallet, token: token, viewController: navigationController, source: .token)
     }
 
     private func open(for url: URL) {
@@ -880,10 +893,6 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
         handlePendingTransaction(transaction: transaction)
     }
 
-    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TokensCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource) {
-        openFiatOnRamp(wallet: wallet, server: server, inViewController: viewController, source: source)
-    }
-
     func didSentTransaction(transaction: SentTransaction, in coordinator: TokensCoordinator) {
         handlePendingTransaction(transaction: transaction)
     }
@@ -924,13 +933,6 @@ extension ActiveWalletCoordinator: PaymentCoordinatorDelegate {
 
         removeCoordinator(coordinator)
     }
-
-    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: PaymentCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource) {
-        openFiatOnRamp(wallet: wallet, server: server, inViewController: viewController, source: source)
-    }
-}
-
-extension ActiveWalletCoordinator: FiatOnRampCoordinatorDelegate {
 }
 
 extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
@@ -948,10 +950,6 @@ extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
 
     func restartToEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappBrowserCoordinator) {
         processRestartQueueAndRestartUI()
-    }
-
-    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: DappBrowserCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource) {
-        openFiatOnRamp(wallet: wallet, server: server, inViewController: viewController, source: source)
     }
 }
 
@@ -990,10 +988,6 @@ extension ActiveWalletCoordinator: ClaimOrderCoordinatorDelegate {
         claimOrderCoordinatorCompletionBlock = nil
         removeCoordinator(coordinator)
     }
-
-    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: ClaimPaidOrderCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource) {
-        openFiatOnRamp(wallet: wallet, server: server, inViewController: viewController, source: source)
-    }
 }
 
 // MARK: Analytics
@@ -1026,10 +1020,6 @@ extension ActiveWalletCoordinator {
     private func logExplorerUse(type: Analytics.ExplorerType) {
         analytics.log(navigation: Analytics.Navigation.explorer, properties: [Analytics.Properties.type.rawValue: type.rawValue])
     }
-
-    private func logStartOnRamp(name: String) {
-        FiatOnRampCoordinator.logStartOnRamp(name: name, source: .token, analytics: analytics)
-    }
 }
 
 extension ActiveWalletCoordinator: ReplaceTransactionCoordinatorDelegate {
@@ -1040,10 +1030,6 @@ extension ActiveWalletCoordinator: ReplaceTransactionCoordinatorDelegate {
     func didFinish(_ result: ConfirmResult, in coordinator: ReplaceTransactionCoordinator) {
         removeCoordinator(coordinator)
         askUserToRateAppOrSubscribeToNewsletter()
-    }
-
-    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: ReplaceTransactionCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource) {
-        openFiatOnRamp(wallet: wallet, server: server, inViewController: viewController, source: source)
     }
 }
 
@@ -1095,7 +1081,7 @@ extension ActiveWalletCoordinator: WalletPupupCoordinatorDelegate {
             let swapPair = SwapPair(from: token, to: nil)
             showPaymentFlow(for: .swap(pair: swapPair), server: server, navigationController: navigationController)
         case .buy:
-            openFiatOnRamp(wallet: wallet, server: server, inViewController: navigationController, source: .walletTab)
+            buyCrypto(wallet: wallet, server: server, viewController: navigationController, source: .walletTab)
         case .receive:
             showPaymentFlow(for: .request, server: server, navigationController: navigationController)
         case .send:

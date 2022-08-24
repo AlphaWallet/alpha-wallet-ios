@@ -10,7 +10,7 @@ import Combine
 
 final class xDaiBridge: SupportedTokenActionsProvider, BridgeTokenURLProviderType {
     var objectWillChange: AnyPublisher<Void, Never> {
-        return Empty<Void, Never>(completeImmediately: true).eraseToAnyPublisher()
+        return .empty()
     }
 
     private static let supportedServer: RPCServer = .xDai
@@ -35,16 +35,14 @@ final class xDaiBridge: SupportedTokenActionsProvider, BridgeTokenURLProviderTyp
     var action: String {
         return R.string.localizable.aWalletTokenXDaiBridgeButtonTitle()
     }
+    let analyticsNavigation: Analytics.Navigation = .onxDaiBridge
+    let analyticsName: String = "xDai Bridge"
 
-    var analyticsName: String {
-        "xDai Bridge"
-    }
-
-    func url(token: TokenActionsIdentifiable) -> URL? {
+    func url(token: TokenActionsIdentifiable, wallet: Wallet) -> URL? {
         return Constants.xDaiBridge
     }
 
     func start() {
         //no-op
-    }
+    } 
 }

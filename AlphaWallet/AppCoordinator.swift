@@ -93,7 +93,7 @@ class AppCoordinator: NSObject, Coordinator {
     private lazy var tokenSwapper = TokenSwapper(reachabilityManager: ReachabilityManager(), sessionProvider: sessionProvider)
     private lazy var tokenActionsService: TokenActionsService = {
         let service = TokenActionsService()
-        service.register(service: Ramp())
+        service.register(service: BuyTokenProvider(subProviders: [CoinBase(), Ramp()]))
         service.register(service: Oneinch())
 
         let honeySwapService = HoneySwap()

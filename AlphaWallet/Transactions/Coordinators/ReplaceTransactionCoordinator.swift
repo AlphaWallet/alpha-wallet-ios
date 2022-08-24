@@ -4,10 +4,9 @@ import UIKit
 import BigInt
 import Result
 
-protocol ReplaceTransactionCoordinatorDelegate: class, CanOpenURL {
+protocol ReplaceTransactionCoordinatorDelegate: CanOpenURL, BuyCryptoDelegate {
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: ReplaceTransactionCoordinator)
     func didFinish(_ result: ConfirmResult, in coordinator: ReplaceTransactionCoordinator)
-    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: ReplaceTransactionCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource)
 }
 
 class ReplaceTransactionCoordinator: Coordinator {
@@ -162,15 +161,15 @@ extension ReplaceTransactionCoordinator: TransactionConfirmationCoordinatorDeleg
         removeCoordinator(coordinator)
     }
 
-    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TransactionConfirmationCoordinator, viewController: UIViewController) {
-        let source: Analytics.FiatOnRampSource
+    func buyCrypto(wallet: Wallet, server: RPCServer, viewController: UIViewController, source: Analytics.BuyCryptoSource) {
+        let source: Analytics.BuyCryptoSource
         switch mode {
         case .speedup:
             source = .speedupTransactionInsufficientFunds
         case .cancel:
             source = .cancelTransactionInsufficientFunds
         }
-        delegate?.openFiatOnRamp(wallet: wallet, server: server, inCoordinator: self, viewController: viewController, source: source)
+        delegate?.buyCrypto(wallet: wallet, server: server, viewController: viewController, source: source)
     }
 }
 

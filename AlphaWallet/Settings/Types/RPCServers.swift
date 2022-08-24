@@ -986,6 +986,14 @@ enum RPCServer: Hashable, CaseIterable {
             return nil
         }
     }
+
+    var coinBasePlatform: String? {
+        switch self {
+        case .main: return "ethereum"
+        case .avalanche, .xDai, .classic, .fantom, .arbitrum, .polygon, .binance_smart_chain, .klaytnCypress, .klaytnBaobabTestnet, .poa, .kovan, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .ropsten, .rinkeby, .heco, .heco_testnet, .fantom_testnet, .avalanche_testnet, .mumbai_testnet, .custom, .optimistic, .optimisticKovan, .cronosTestnet, .palm, .palmTestnet, .arbitrumRinkeby, .phi, .ioTeX, .ioTeXTestnet:
+            return nil
+        }
+    }
 }
 // swiftlint:enable type_body_length
 

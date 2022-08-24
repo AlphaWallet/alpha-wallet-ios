@@ -12,7 +12,7 @@ typealias BridgeTokenURLProviderType = BuyTokenURLProviderType
 
 final class ArbitrumBridge: SupportedTokenActionsProvider, BridgeTokenURLProviderType {
     var objectWillChange: AnyPublisher<Void, Never> {
-        return Empty<Void, Never>(completeImmediately: true).eraseToAnyPublisher()
+        return .empty()
     }
 
     private static let supportedServer: RPCServer = .main
@@ -38,16 +38,14 @@ final class ArbitrumBridge: SupportedTokenActionsProvider, BridgeTokenURLProvide
     var action: String {
         return R.string.localizable.aWalletTokenArbitrumBridgeButtonTitle()
     }
+    let analyticsNavigation: Analytics.Navigation = .onArbitrumBridge
+    let analyticsName: String = "Arbitrum Bridge"
 
-    var analyticsName: String {
-        "Arbitrum Bridge"
-    }
-
-    func url(token: TokenActionsIdentifiable) -> URL? {
+    func url(token: TokenActionsIdentifiable, wallet: Wallet) -> URL? {
         return Constants.arbitrumBridge
     }
 
     func start() {
         //no-op
-    }
+    } 
 }

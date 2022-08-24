@@ -10,7 +10,7 @@ import Combine
 
 struct QuickSwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
     var objectWillChange: AnyPublisher<Void, Never> {
-        return Empty<Void, Never>(completeImmediately: true).eraseToAnyPublisher()
+        return .empty()
     }
 
     var action: String {
@@ -20,10 +20,8 @@ struct QuickSwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
     func rpcServer(forToken token: TokenActionsIdentifiable) -> RPCServer? {
         return .polygon
     }
-
-    var analyticsName: String {
-        "QuickSwap"
-    }
+    let analyticsNavigation: Analytics.Navigation = .onQuickSwap
+    let analyticsName: String = "QuickSwap"
 
     private static let baseURL = "https://quickswap.exchange/#"
 

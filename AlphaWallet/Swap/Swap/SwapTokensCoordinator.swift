@@ -12,11 +12,10 @@ import PromiseKit
 import BigInt
 import Result
 
-protocol SwapTokensCoordinatorDelegate: class, CanOpenURL {
+protocol SwapTokensCoordinatorDelegate: CanOpenURL, BuyCryptoDelegate {
     func didFinish(_ result: ConfirmResult, in coordinator: SwapTokensCoordinator)
     func didCancel(in coordinator: SwapTokensCoordinator)
     func didSendTransaction(_ transaction: SentTransaction, in coordinator: SwapTokensCoordinator)
-    func openFiatOnRamp(wallet: Wallet, server: RPCServer, coordinator: SwapTokensCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource)
 }
 
 final class SwapTokensCoordinator: Coordinator {
@@ -263,9 +262,9 @@ extension SwapTokensCoordinator: SendTransactionDelegate {
     }
 }
 
-extension SwapTokensCoordinator: FiatOnRampDelegate {
-    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TransactionConfirmationCoordinator, viewController: UIViewController) {
-        delegate?.openFiatOnRamp(wallet: wallet, server: server, coordinator: self, viewController: viewController, source: .transactionActionSheetInsufficientFunds)
+extension SwapTokensCoordinator: BuyCryptoDelegate {
+    func buyCrypto(wallet: Wallet, server: RPCServer, viewController: UIViewController, source: Analytics.BuyCryptoSource) {
+        delegate?.buyCrypto(wallet: wallet, server: server, viewController: viewController, source: .transactionActionSheetInsufficientFunds)
     }
 }
 

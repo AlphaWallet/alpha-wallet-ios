@@ -29,6 +29,14 @@ enum Analytics {
         case actionSheetForTransactionConfirmationFailed = "Screen: Txn Confirmation Failed"
         case scanQrCode = "Screen: QR Code Scanner"
         case onRamp = "Screen: Fiat On-Ramp"
+        case onCoinBase = "Screen: Fiat On-CoinBase"
+        case onUniswap = "Screen: Uniswap"
+        case onxDaiBridge = "Screen: xDai Bridge"
+        case onHoneyswap = "Screen: Honeyswap"
+        case onOneinch = "Screen: Oneinch"
+        case onArbitrumBridge = "Screen: Arbitrum Bridge"
+        case onQuickSwap = "Screen: QuickSwap"
+        case fallback = "Screen: <Fallback>"
         case tokenSwap = "Screen: Token Swap"
         case switchServers = "Screen: Switch Servers"
         case showDapps = "Screen: Dapps"
@@ -233,7 +241,7 @@ enum Analytics {
         case insufficientFunds
     }
 
-    enum FiatOnRampSource: String {
+    enum BuyCryptoSource: String {
         case token
         case transactionActionSheetInsufficientFunds
         case speedupTransactionInsufficientFunds
