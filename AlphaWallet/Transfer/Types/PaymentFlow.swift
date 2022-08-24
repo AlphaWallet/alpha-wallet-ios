@@ -16,6 +16,11 @@ enum PaymentFlowType {
     }
 }
 
+enum SwapTokenFlow {
+    case swapToken(token: Token)
+    case selectTokenToSwap
+}
+
 enum PaymentFlow {
     case swap(pair: SwapPair)
     case send(type: PaymentFlowType)
@@ -34,4 +39,14 @@ enum PaymentFlow {
             return nil
         }
     }
+}
+
+enum UncompletedPaymentFlow {
+    /// when user need to select token to send to recipient
+    case sendToRecipient(recipient: AddressOrEnsName)
+}
+
+enum SuggestedPaymentFlow {
+    case payment(type: PaymentFlow, server: RPCServer)
+    case other(value: UncompletedPaymentFlow)
 }

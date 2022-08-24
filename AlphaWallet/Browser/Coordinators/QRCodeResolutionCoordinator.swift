@@ -110,11 +110,11 @@ final class QRCodeResolutionCoordinator: Coordinator {
         self.analytics = analytics
     }
 
-    func start(fromSource source: Analytics.ScanQRCodeSource) {
+    func start(fromSource source: Analytics.ScanQRCodeSource, clipboardString: String? = nil) {
         scanQRCodeCoordinator.delegate = self
         addCoordinator(scanQRCodeCoordinator)
 
-        scanQRCodeCoordinator.start(fromSource: source)
+        scanQRCodeCoordinator.start(fromSource: source, clipboardString: clipboardString)
     }
 }
 
