@@ -263,19 +263,20 @@ class AddressTextField: UIControl {
         statusLabel.textColor = DataEntry.Color.textFieldStatus
         statusLabel.textAlignment = .left
 
-        textField.textColor = DataEntry.Color.text
+        textField.textColor = Configuration.Color.Semantic.defaultForegroundText
         textField.font = DataEntry.Font.textField
 
         textField.layer.borderWidth = DataEntry.Metric.borderThickness
-        textField.backgroundColor = DataEntry.Color.textFieldBackground
+        textField.backgroundColor = Configuration.Color.Semantic.textFieldBackground
         textField.layer.borderColor = errorState.textFieldBorderColor(whileEditing: isFirstResponder).cgColor
         errorState = .none
     }
 
     private func makeTargetAddressRightView() -> UIView {
+        let icon = R.image.qr_code_icon()!.withTintColor(Configuration.Color.Semantic.textFieldIcon, renderingMode: .alwaysTemplate)
         let scanQRCodeButton = Button(size: .normal, style: .system)
         scanQRCodeButton.translatesAutoresizingMaskIntoConstraints = false
-        scanQRCodeButton.setImage(R.image.qr_code_icon(), for: .normal)
+        scanQRCodeButton.setImage(icon, for: .normal)
         scanQRCodeButton.addTarget(self, action: #selector(openReader), for: .touchUpInside)
         scanQRCodeButton.setBackgroundColor(.clear, forState: .normal)
         //NOTE: Fix clipped shadow on textField (iPhone 5S)
@@ -333,7 +334,7 @@ extension AddressTextField: UITextFieldDelegate {
         let borderColor = errorState.textFieldBorderColor(whileEditing: false)
         let shouldDropShadow = errorState.textFieldShowShadow(whileEditing: false)
         textField.layer.borderColor = borderColor.cgColor
-        textField.backgroundColor = DataEntry.Color.textFieldBackground
+        textField.backgroundColor = Configuration.Color.Semantic.textFieldBackground
 
         textField.dropShadow(color: shouldDropShadow ? borderColor : .clear, radius: DataEntry.Metric.shadowRadius)
     }
@@ -341,7 +342,7 @@ extension AddressTextField: UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
         let borderColor = errorState.textFieldBorderColor(whileEditing: true)
         textField.layer.borderColor = borderColor.cgColor
-        textField.backgroundColor = Colors.appWhite
+        textField.backgroundColor = Configuration.Color.Semantic.textFieldBackground
 
         textField.dropShadow(color: borderColor, radius: DataEntry.Metric.shadowRadius)
     }

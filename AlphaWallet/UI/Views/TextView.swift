@@ -203,7 +203,7 @@ class TextView: UIControl {
         statusLabel.font = DataEntry.Font.textFieldStatus
         statusLabel.textColor = DataEntry.Color.textFieldStatus
 
-        textView.textColor = DataEntry.Color.text
+        textView.textColor = Configuration.Color.Semantic.defaultForegroundText
         textView.font = DataEntry.Font.text
         textView.layer.borderColor = DataEntry.Color.border.cgColor
         textView.layer.borderWidth = DataEntry.Metric.borderThickness
@@ -211,7 +211,7 @@ class TextView: UIControl {
 
         cornerRadius = DataEntry.Metric.cornerRadius
         layer.borderWidth = DataEntry.Metric.borderThickness
-        backgroundColor = DataEntry.Color.textFieldBackground
+        backgroundColor = Configuration.Color.Semantic.textViewBackground
         textView.backgroundColor = .clear
         layer.borderColor = errorState.textFieldBorderColor(whileEditing: isFirstResponder).cgColor
         errorState = .none
@@ -247,7 +247,7 @@ extension TextView: UITextViewDelegate {
     func textViewDidBeginEditing(_ textView: UITextView) {
         let borderColor = errorState.textFieldBorderColor(whileEditing: true)
         layer.borderColor = borderColor.cgColor
-        backgroundColor = Colors.appWhite
+        backgroundColor = Configuration.Color.Semantic.textViewBackground
 
         dropShadow(color: borderColor, radius: DataEntry.Metric.shadowRadius)
     }
@@ -256,7 +256,7 @@ extension TextView: UITextViewDelegate {
         let borderColor = errorState.textFieldBorderColor(whileEditing: false)
         let shouldDropShadow = errorState.textFieldShowShadow(whileEditing: false)
         layer.borderColor = borderColor.cgColor
-        backgroundColor = DataEntry.Color.textFieldBackground
+        backgroundColor = Configuration.Color.Semantic.textViewBackground
 
         dropShadow(color: shouldDropShadow ? borderColor : .clear, radius: DataEntry.Metric.shadowRadius)
     }

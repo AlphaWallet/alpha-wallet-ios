@@ -40,6 +40,7 @@ class ImportWalletViewController: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .right
+        label.textColor = Configuration.Color.Semantic.defaultSubtitleText
         return label
     }()
     private lazy var mnemonicTextView: TextView = {
@@ -83,7 +84,7 @@ class ImportWalletViewController: UIViewController {
             return button
         }()
         textField.textField.rightViewMode = .unlessEditing
-
+        textField.textField.textColor = Configuration.Color.Semantic.defaultForegroundText
         return textField
     }()
     private lazy var privateKeyTextView: TextView = {
@@ -139,6 +140,7 @@ class ImportWalletViewController: UIViewController {
         label.numberOfLines = 0
         label.isHidden = false
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = Configuration.Color.Semantic.defaultSubtitleText
         return label
     }()
     private var footerBottomConstraint: NSLayoutConstraint!

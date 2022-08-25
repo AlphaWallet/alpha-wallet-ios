@@ -51,7 +51,7 @@ class TextField: UIControl {
         func textFieldTextColor(whileEditing: Bool = false) -> UIColor {
             switch self {
             case .none:
-                return DataEntry.Color.text
+                return Configuration.Color.Semantic.textFieldBackground
             case .error:
                 return DataEntry.Color.textFieldError
             }
@@ -184,11 +184,11 @@ class TextField: UIControl {
         statusLabel.textColor = DataEntry.Color.textFieldStatus
         statusLabel.textAlignment = .left
 
-        textField.textColor = DataEntry.Color.text
+        textField.textColor = Configuration.Color.Semantic.defaultForegroundText
         textField.font = DataEntry.Font.textField
 
         layer.borderWidth = DataEntry.Metric.borderThickness
-        backgroundColor = DataEntry.Color.textFieldBackground
+        backgroundColor = Configuration.Color.Semantic.textFieldBackground
         layer.borderColor = status.textFieldBorderColor(whileEditing: isFirstResponder).cgColor
         status = .none
     }
@@ -222,7 +222,7 @@ extension TextField: UITextFieldDelegate {
         let borderColor = status.textFieldBorderColor(whileEditing: false)
         let shouldDropShadow = status.textFieldShowShadow(whileEditing: false)
         layer.borderColor = borderColor.cgColor
-        backgroundColor = DataEntry.Color.textFieldBackground
+        backgroundColor = Configuration.Color.Semantic.textFieldBackground
 
         dropShadow(color: shouldDropShadow ? borderColor : .clear, radius: DataEntry.Metric.shadowRadius)
     }
@@ -230,7 +230,7 @@ extension TextField: UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
         let borderColor = status.textFieldBorderColor(whileEditing: true)
         layer.borderColor = borderColor.cgColor
-        backgroundColor = Colors.appWhite
+        backgroundColor = Configuration.Color.Semantic.textFieldBackground
 
         dropShadow(color: borderColor, radius: DataEntry.Metric.shadowRadius)
         delegate?.didBeginEditing(in: self)

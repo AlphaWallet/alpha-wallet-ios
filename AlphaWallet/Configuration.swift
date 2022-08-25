@@ -198,6 +198,18 @@ struct Configuration {
             static let dialogBackground = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.black()!)
             }
+
+            static let textFieldIcon = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.alabaster()!, darkColor: R.color.venus()!)
+            }
+
+            static let textFieldBackground = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.alabaster()!, darkColor: R.color.venus()!)
+            }
+
+            static let textViewBackground = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.alabaster()!, darkColor: R.color.venus()!)
+            }
         }
     }
 }
