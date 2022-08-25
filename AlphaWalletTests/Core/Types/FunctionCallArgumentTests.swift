@@ -27,6 +27,16 @@ class FunctionCallArgumentTests: XCTestCase {
         XCTAssertEqual(value.description, "1")
     }
 
+    func testBoolValue() throws {
+        let dataTrue = true as AnyObject
+        let valueTrue = FunctionCall.Argument(type: .bool, anyValue: dataTrue)
+        XCTAssertEqual(valueTrue.description, "true")
+
+        let dataFalse = false as AnyObject
+        let valueFalse = FunctionCall.Argument(type: .bool, anyValue: dataFalse)
+        XCTAssertEqual(valueFalse.description, "false")
+    }
+
     func testArrayValue() throws {
         let data = [
             BigUInt("0") as AnyObject,
