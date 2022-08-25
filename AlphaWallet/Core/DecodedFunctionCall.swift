@@ -30,6 +30,9 @@ struct FunctionCall {
         private func toString(_ value: Any?) -> String {
             if let value = value as? AlphaWallet.Address {
                 return value.eip55String
+            //We special-case Bool otherwise it will be printed as "1" below
+            } else if type == .bool, let value = value as? Bool {
+                return value.description
             } else if let value = value as? CustomStringConvertible {
                 return value.description
             } else {
