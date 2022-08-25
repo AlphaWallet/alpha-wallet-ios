@@ -354,6 +354,7 @@
 		5E7C72EF748338DDBABB53F2 /* GetBlockTimestamp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C75BCE63C31EC8ED403A7 /* GetBlockTimestamp.swift */; };
 		5E7C73092E428F9519787284 /* Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C799E4784815CB0202820 /* Core.swift */; };
 		5E7C730C6AEF556AFB9A4B2C /* LocalesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7BF09AD68C113D58344C /* LocalesViewController.swift */; };
+		5E7C7313D76F07EFA349B35F /* ERC721.json in Resources */ = {isa = PBXBuildFile; fileRef = 5E7C726FE767E3CF943BA19C /* ERC721.json */; };
 		5E7C7317533D24B6A292F88D /* UIStackView+Array.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73ED9226646D562B5A3C /* UIStackView+Array.swift */; };
 		5E7C731D0F6128BE8885A2D3 /* ServersCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B8FD1E2BCC325DF4EE4 /* ServersCoordinator.swift */; };
 		5E7C732AA43385E80681B24F /* EmailList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B097096FC37B68A399B /* EmailList.swift */; };
@@ -1599,6 +1600,7 @@
 		5E7C7251DB61EB9468910C81 /* GetERC875Balance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetERC875Balance.swift; sourceTree = "<group>"; };
 		5E7C72571AB0FECB26FEB1B1 /* ClearDappBrowserCacheCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClearDappBrowserCacheCoordinator.swift; sourceTree = "<group>"; };
 		5E7C72655E6DC767D497D580 /* UserEntryOrigin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserEntryOrigin.swift; sourceTree = "<group>"; };
+		5E7C726FE767E3CF943BA19C /* ERC721.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ERC721.json; sourceTree = "<group>"; };
 		5E7C727024127717817CF436 /* AssetDefinitionBackingStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetDefinitionBackingStore.swift; sourceTree = "<group>"; };
 		5E7C727433F7B8E322B3C68A /* SetTransferTokensCardExpiryDateViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SetTransferTokensCardExpiryDateViewController.swift; sourceTree = "<group>"; };
 		5E7C727CF8549291E71C1640 /* Ether.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Ether.swift; sourceTree = "<group>"; };
@@ -5886,6 +5888,7 @@
 				87DB61C2264A9611009FBDDE /* ERC20.json */,
 				87713EAD264ABF2800B1B9CB /* DecodedFunctionCall+Decode.swift */,
 				5E7C77B85B39F8A7C1FB3B40 /* ERC1155.json */,
+				5E7C726FE767E3CF943BA19C /* ERC721.json */,
 			);
 			path = ABI;
 			sourceTree = "<group>";
@@ -6298,6 +6301,7 @@
 				5E7C706322B52C0D0CED8018 /* aETH.tsml in Resources */,
 				5E7C7CE29C74DF7FDDDB6A0D /* ERC721-TokenScript.tsml in Resources */,
 				5E7C7E1C2976FA57D53BC2CE /* ERC1155.json in Resources */,
+				5E7C7313D76F07EFA349B35F /* ERC721.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

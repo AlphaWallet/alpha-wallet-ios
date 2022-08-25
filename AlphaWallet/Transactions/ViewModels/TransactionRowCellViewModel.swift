@@ -43,6 +43,8 @@ struct TransactionRowCellViewModel {
                 return R.string.localizable.transactionCellTokenTransferTitle(operation.symbol ?? "")
             case .erc20TokenApprove:
                 return R.string.localizable.transactionCellTokenApproveTitle(operation.symbol ?? "")
+            case .erc721TokenApproveAll:
+                return R.string.localizable.transactionCellTokenApproveAllTitle(operation.symbol ?? "")
             case .unknown:
                 return nil
             }

@@ -222,6 +222,7 @@
 "transaction.cell.sent.title" = "送信しました";
 "transaction.cell.tokenTransfer.title" = "%@ を送信";
 "transaction.cell.tokenApprove.title" = "Approve %@";
+"transaction.cell.tokenApproveAll.title" = "Approve All %@";
 "Yesterday" = "昨日";
 "Deleting" = "削除";
 "Ethereum Address" = "Ethereum アドレス";

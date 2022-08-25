@@ -97,6 +97,8 @@ extension TokensFromTransactionsFetcher.functional {
                         tokenType = .erc20
                     case .erc721TokenTransfer:
                         tokenType = .erc721
+                    case .erc721TokenApproveAll:
+                        tokenType = .erc721
                     case .erc875TokenTransfer:
                         tokenType = .erc875
                     case .erc1155TokenTransfer:

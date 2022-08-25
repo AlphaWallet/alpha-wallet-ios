@@ -7,6 +7,7 @@ enum OperationType: String {
     case erc20TokenTransfer
     case erc20TokenApprove
     case erc721TokenTransfer
+    case erc721TokenApproveAll
     case erc875TokenTransfer
     case erc1155TokenTransfer
     case unknown
@@ -19,7 +20,7 @@ enum OperationType: String {
         switch self {
         case .nativeCurrencyTokenTransfer, .erc20TokenTransfer, .erc721TokenTransfer, .erc875TokenTransfer, .erc1155TokenTransfer:
             return true
-        case .erc20TokenApprove:
+        case .erc20TokenApprove, .erc721TokenApproveAll:
             return false
         case .unknown:
             return false
@@ -30,7 +31,7 @@ enum OperationType: String {
         switch self {
         case .nativeCurrencyTokenTransfer, .erc20TokenTransfer, .erc721TokenTransfer, .erc875TokenTransfer, .erc1155TokenTransfer:
             return true
-        case .erc20TokenApprove:
+        case .erc20TokenApprove, .erc721TokenApproveAll:
             return false
         case .unknown:
             return false

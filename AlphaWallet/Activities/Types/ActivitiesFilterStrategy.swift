@@ -66,6 +66,7 @@ extension ActivitiesFilterStrategy.functional {
     }
 
     static func predicateForERC20TokenTransactions(contract: AlphaWallet.Address) -> NSPredicate {
+        //TODO shouldn't we support other operation types?
         return predicateForTransactionsForCustomOperations(operationTypes: [.erc20TokenTransfer, .erc20TokenApprove], contract: contract)
     }
 

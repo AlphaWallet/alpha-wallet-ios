@@ -128,6 +128,9 @@ extension TransactionInstance {
                 return generateLocalizedOperation(value: value, contract: contract, to: recipient, functionCall: functionCall, server: session.server)
             case .erc20Approve(let spender, let value):
                 return generateLocalizedOperation(value: value, contract: contract, to: spender, functionCall: functionCall, server: session.server)
+            case .erc721ApproveAll(let spender, let value):
+                //TODO support ERC721 setApprovalForAll(). Can't support at the moment because different types for `value`
+                break
             case .nativeCryptoTransfer, .others:
                 break
             case .erc1155SafeTransfer, .erc1155SafeBatchTransfer:
@@ -146,6 +149,8 @@ extension TransactionInstance {
             return .erc20TokenApprove
         case (.erc20, .erc20Transfer):
             return .erc20TokenTransfer
+        case (.erc721, .erc721ApproveAll):
+            return .erc721TokenApproveAll
         case (.erc721, _):
             return .erc721TokenTransfer
         case (.erc721ForTickets, _):
