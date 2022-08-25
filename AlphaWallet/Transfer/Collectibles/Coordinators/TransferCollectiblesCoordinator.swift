@@ -11,9 +11,8 @@ import Result
 
 typealias AWResult = Result
 
-protocol TransferCollectiblesCoordinatorDelegate: CanOpenURL, SendTransactionDelegate {
+protocol TransferCollectiblesCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryptoDelegate {
     func didFinish(_ result: ConfirmResult, in coordinator: TransferCollectiblesCoordinator)
-    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TransferCollectiblesCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource)
     func didSelectTokenHolder(tokenHolder: TokenHolder, in coordinator: TransferCollectiblesCoordinator)
     func didCancel(in coordinator: TransferCollectiblesCoordinator)
 }
@@ -182,8 +181,8 @@ extension TransferCollectiblesCoordinator: TransactionConfirmationCoordinatorDel
         }
     }
 
-    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TransactionConfirmationCoordinator, viewController: UIViewController) {
-        delegate?.openFiatOnRamp(wallet: wallet, server: server, inCoordinator: self, viewController: viewController, source: .transactionActionSheetInsufficientFunds)
+    func buyCrypto(wallet: Wallet, server: RPCServer, viewController: UIViewController, source: Analytics.BuyCryptoSource) {
+        delegate?.buyCrypto(wallet: wallet, server: server, viewController: viewController, source: .transactionActionSheetInsufficientFunds)
     }
 }
 

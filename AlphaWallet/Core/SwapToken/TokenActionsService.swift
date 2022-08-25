@@ -17,6 +17,8 @@ protocol TokenActionsIdentifiable {
 }
 
 protocol SupportedTokenActionsProvider {
+    var analyticsNavigation: Analytics.Navigation { get }
+    var analyticsName: String { get }
     var objectWillChange: AnyPublisher<Void, Never> { get }
 
     func isSupport(token: TokenActionsIdentifiable) -> Bool
@@ -28,8 +30,7 @@ protocol TokenActionProvider {
     var action: String { get }
 }
 
-class TokenActionsService: SupportedTokenActionsProvider {
-
+class TokenActionsService: SupportedTokenActionsProvider, TokenActionServiceProvidable {
     @Published private var services: [SupportedTokenActionsProvider] = []
     private var cancelable = Set<Combine.AnyCancellable>()
 
@@ -39,6 +40,9 @@ class TokenActionsService: SupportedTokenActionsProvider {
             .mapToVoid()
             .eraseToAnyPublisher()
     }()
+
+    let analyticsName: String = "Token Actions"
+    let analyticsNavigation: Analytics.Navigation = .fallback
 
     func register(service: SupportedTokenActionsProvider) {
         services.append(service)

@@ -10,7 +10,7 @@ import Combine
 
 class HoneySwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
     var objectWillChange: AnyPublisher<Void, Never> {
-        return Empty<Void, Never>(completeImmediately: true).eraseToAnyPublisher()
+        return .empty()
     }
 
     var action: String {
@@ -20,10 +20,8 @@ class HoneySwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
     func rpcServer(forToken token: TokenActionsIdentifiable) -> RPCServer? {
         return .xDai
     }
-
-    var analyticsName: String {
-        "Honeyswap"
-    }
+    let analyticsNavigation: Analytics.Navigation = .onHoneyswap
+    let analyticsName: String = "Honeyswap"
 
     private static let baseURL = "https://app.honeyswap.org/#"
 
@@ -92,9 +90,7 @@ class HoneySwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
     }
 
     func actions(token: TokenActionsIdentifiable) -> [TokenInstanceAction] {
-        return [
-            .init(type: .swap(service: self))
-        ]
+        return [.init(type: .swap(service: self))]
     }
 
     func start() {

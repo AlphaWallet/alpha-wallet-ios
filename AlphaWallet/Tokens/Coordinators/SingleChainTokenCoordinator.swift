@@ -13,7 +13,7 @@ struct NoTokenError: LocalizedError {
 protocol SingleChainTokenCoordinatorDelegate: CanOpenURL, SendTransactionDelegate {
     func didTapSwap(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in coordinator: SingleChainTokenCoordinator)
     func didTapBridge(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in coordinator: SingleChainTokenCoordinator)
-    func didTapBuy(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in coordinator: SingleChainTokenCoordinator)
+    func didTapBuy(transactionType: TransactionType, service: TokenActionProvider, in coordinator: SingleChainTokenCoordinator)
     func didPress(for type: PaymentFlow, viewController: UIViewController, in coordinator: SingleChainTokenCoordinator)
     func didTap(transaction: TransactionInstance, viewController: UIViewController, in coordinator: SingleChainTokenCoordinator)
     func didTap(activity: Activity, viewController: UIViewController, in coordinator: SingleChainTokenCoordinator)
@@ -160,8 +160,8 @@ extension SingleChainTokenCoordinator: FungibleTokenViewControllerDelegate {
         delegate?.didTapBridge(forTransactionType: transactionType, service: service, in: self)
     }
 
-    func didTapBuy(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in viewController: FungibleTokenViewController) {
-        delegate?.didTapBuy(forTransactionType: transactionType, service: service, in: self)
+    func didTapBuy(transactionType: TransactionType, service: TokenActionProvider, in viewController: FungibleTokenViewController) {
+        delegate?.didTapBuy(transactionType: transactionType, service: service, in: self)
     }
 
     func didTapSend(forTransactionType transactionType: TransactionType, in viewController: FungibleTokenViewController) {

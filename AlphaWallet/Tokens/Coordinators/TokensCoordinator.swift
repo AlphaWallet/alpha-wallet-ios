@@ -4,17 +4,16 @@ import UIKit
 import AlphaWalletAddress
 import Combine
 
-protocol TokensCoordinatorDelegate: CanOpenURL, SendTransactionDelegate {
+protocol TokensCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryptoDelegate {
     func didTapSwap(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in coordinator: TokensCoordinator)
     func didTapBridge(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in coordinator: TokensCoordinator)
-    func didTapBuy(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in coordinator: TokensCoordinator)
+    func didTapBuy(transactionType: TransactionType, service: TokenActionProvider, in coordinator: TokensCoordinator)
     func didPress(for type: PaymentFlow, server: RPCServer, viewController: UIViewController?, in coordinator: TokensCoordinator)
     func didTap(transaction: TransactionInstance, viewController: UIViewController, in coordinator: TokensCoordinator)
     func didTap(activity: Activity, viewController: UIViewController, in coordinator: TokensCoordinator)
     func openConsole(inCoordinator coordinator: TokensCoordinator)
     func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: TokensCoordinator)
     func blockieSelected(in coordinator: TokensCoordinator)
-    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TokensCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource)
     func didSentTransaction(transaction: SentTransaction, in coordinator: TokensCoordinator)
 
     func whereAreMyTokensSelected(in coordinator: TokensCoordinator)
@@ -212,7 +211,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         if config.enabledServers.contains(.main) {
             let buyAction = UIAlertAction(title: R.string.localizable.buyCryptoTitle(), style: .default) { [weak self] _ in
                 guard let strongSelf = self else { return }
-                strongSelf.delegate?.openFiatOnRamp(wallet: strongSelf.wallet, server: .main, inCoordinator: strongSelf, viewController: strongSelf.tokensViewController, source: .walletTab)
+                strongSelf.delegate?.buyCrypto(wallet: strongSelf.wallet, server: .main, viewController: strongSelf.tokensViewController, source: .walletTab)
             }
             alertController.addAction(buyAction)
         }
@@ -490,8 +489,8 @@ extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
         delegate?.didTapBridge(forTransactionType: transactionType, service: service, in: self)
     }
 
-    func didTapBuy(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in coordinator: SingleChainTokenCoordinator) {
-        delegate?.didTapBuy(forTransactionType: transactionType, service: service, in: self)
+    func didTapBuy(transactionType: TransactionType, service: TokenActionProvider, in coordinator: SingleChainTokenCoordinator) {
+        delegate?.didTapBuy(transactionType: transactionType, service: service, in: self)
     }
 
     func didPress(for type: PaymentFlow, viewController: UIViewController, in coordinator: SingleChainTokenCoordinator) {
@@ -508,10 +507,6 @@ extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
 
     func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: SingleChainTokenCoordinator) {
         delegate?.didPostTokenScriptTransaction(transaction, in: self)
-    }
-
-    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: SingleChainTokenCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource) {
-        delegate?.openFiatOnRamp(wallet: wallet, server: server, inCoordinator: self, viewController: viewController, source: source)
     }
 }
 

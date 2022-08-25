@@ -8,46 +8,35 @@
 import Foundation
 import Combine
 
-class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType {
+final class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType {
     private var objectWillChangeSubject = PassthroughSubject<Void, Never>()
-    private var account: Wallet?
     private var assets: AtomicArray<Asset> = .init()
     private let queue: DispatchQueue = .global()
 
     var objectWillChange: AnyPublisher<Void, Never> {
         objectWillChangeSubject.eraseToAnyPublisher()
     }
+    let analyticsNavigation: Analytics.Navigation = .onRamp
+    let analyticsName: String = "Ramp"
 
     var action: String {
-        return R.string.localizable.aWalletTokenBuyTitle()
+        return R.string.localizable.aWalletTokenBuyOnRampTitle()
     }
 
-    init(account: Wallet? = nil) {
-        self.account = account
-    }
-
-    func configure(account: Wallet) {
-        self.account = account
-    }
-
-    func url(token: TokenActionsIdentifiable) -> URL? {
-        guard let account = account else { return nil }
-
+    func url(token: TokenActionsIdentifiable, wallet: Wallet) -> URL? {
         switch token.server {
         case .xDai:
-            return URL(string: "\(Constants.buyXDaiWitRampUrl)&userAddress=\(account.address.eip55String)")
+            return URL(string: "\(Constants.buyXDaiWitRampUrl)&userAddress=\(wallet.address.eip55String)")
         //TODO need to check if Ramp supports these? Or is it taken care of elsehwere
         case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet, .phi, .ioTeX, .ioTeXTestnet:
             return asset(for: token).flatMap {
-                return URL(string: "\(Constants.buyWitRampUrl(asset: $0.symbol))&userAddress=\(account.address.eip55String)")
+                return URL(string: "\(Constants.buyWitRampUrl(asset: $0.symbol))&userAddress=\(wallet.address.eip55String)")
             }
         }
     }
 
     func actions(token: TokenActionsIdentifiable) -> [TokenInstanceAction] {
-        return [
-            .init(type: .buy(service: self))
-        ]
+        return [.init(type: .buy(service: self))]
     }
 
     func isSupport(token: TokenActionsIdentifiable) -> Bool {
@@ -73,7 +62,7 @@ class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType {
         queue.async {
             self.fetchSupportedTokens()
         }
-    }
+    } 
 
     private func fetchSupportedTokens() {
         let provider = AlphaWalletProviderFactory.makeProvider()
@@ -92,23 +81,26 @@ class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType {
     }
 }
 
-private struct RampAssetsResponse: Codable {
+private struct RampAssetsResponse {
     let assets: [Asset]
 }
 
-private struct Asset: Codable {
+private struct Asset {
+    let symbol: String
+    let address: AlphaWallet.Address?
+    let name: String
+    let decimals: Int
+}
 
+extension RampAssetsResponse: Codable {}
+
+extension Asset: Codable {
     private enum CodingKeys: String, CodingKey {
         case symbol
         case address
         case name
         case decimals
     }
-
-    let symbol: String
-    let address: AlphaWallet.Address?
-    let name: String
-    let decimals: Int
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -123,4 +115,5 @@ private struct Asset: Codable {
         name = try container.decode(String.self, forKey: .name)
         decimals = try container.decode(Int.self, forKey: .decimals)
     }
+
 }

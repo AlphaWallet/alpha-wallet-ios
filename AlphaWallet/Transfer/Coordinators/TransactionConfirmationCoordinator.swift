@@ -21,7 +21,7 @@ enum ConfirmResult {
     case sentRawTransaction(id: String, original: String)
 }
 
-protocol TransactionConfirmationCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, FiatOnRampDelegate {
+protocol TransactionConfirmationCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryptoDelegate {
     func didFinish(_ result: ConfirmResult, in coordinator: TransactionConfirmationCoordinator)
     func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError)
     func didClose(in coordinator: TransactionConfirmationCoordinator)
@@ -91,7 +91,7 @@ class TransactionConfirmationCoordinator: Coordinator {
         analytics.log(action: Analytics.Action.rectifySendTransactionErrorInActionSheet, properties: [Analytics.Properties.type.rawValue: error.analyticsName])
         switch error {
         case .insufficientFunds:
-            delegate?.openFiatOnRamp(wallet: configurator.session.account, server: server, inCoordinator: self, viewController: rootViewController)
+            delegate?.buyCrypto(wallet: configurator.session.account, server: server, viewController: rootViewController, source: .transactionActionSheetInsufficientFunds)
         case .nonceTooLow:
             showConfigureTransactionViewController(configurator, recoveryMode: .invalidNonce)
         case .gasPriceTooLow:

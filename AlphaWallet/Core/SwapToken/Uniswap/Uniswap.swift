@@ -10,7 +10,7 @@ import Combine
 
 struct Uniswap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
     var objectWillChange: AnyPublisher<Void, Never> {
-        return Empty<Void, Never>(completeImmediately: true).eraseToAnyPublisher()
+        return .empty()
     }
 
     var action: String {
@@ -21,9 +21,8 @@ struct Uniswap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
         return .main
     }
 
-    var analyticsName: String {
-        "Uniswap"
-    }
+    let analyticsNavigation: Analytics.Navigation = .onUniswap
+    let analyticsName: String = "Uniswap"
 
     private static let baseURL = "https://app.uniswap.org/#"
 

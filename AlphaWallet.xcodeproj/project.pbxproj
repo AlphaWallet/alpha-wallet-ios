@@ -506,7 +506,6 @@
 		5E7C78772A59685C37CB99C2 /* ToolsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7AB8844E5D88BD6B2F2A /* ToolsViewController.swift */; };
 		5E7C787DED35E3A63E99F78F /* SpamTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C756B103348BA67AA0C1A /* SpamTokens.swift */; };
 		5E7C78897AA13FF2486A8DCC /* SwappableToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C749D84B50BA2FB0EAA8D /* SwappableToken.swift */; };
-		5E7C788C6ACB6E5AA24216A6 /* FiatOnRampCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7AF60DF9E7FBD2933C32 /* FiatOnRampCoordinator.swift */; };
 		5E7C788C8830A7CF05B9189A /* OpenSea.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7C0CFD047ED7C488FB45 /* OpenSea.swift */; };
 		5E7C7896E99049F4B124FDF5 /* OpenSeaNonFungibleTokenDisplayHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7A9876B43B1D9D17A9A9 /* OpenSeaNonFungibleTokenDisplayHelper.swift */; };
 		5E7C78A31A16600FBA5C9956 /* ScanQRCodeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7721E0E4D4EFDD35E196 /* ScanQRCodeCoordinator.swift */; };
@@ -776,6 +775,9 @@
 		8712A39026F476900009C376 /* EditPriceAlertCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8712A38F26F476900009C376 /* EditPriceAlertCoordinator.swift */; };
 		8712A39226F476EF0009C376 /* PriceAlertsPageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8712A39126F476EF0009C376 /* PriceAlertsPageViewModel.swift */; };
 		8712F337265BCAEF0043493B /* WalletSummaryTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8712F336265BCAEF0043493B /* WalletSummaryTableViewCell.swift */; };
+		8713400B28B509E200815F10 /* CoinBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8713400A28B509E200815F10 /* CoinBase.swift */; };
+		8713400D28B52DAB00815F10 /* SelectServiceToBuyCryptoCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8713400C28B52DAB00815F10 /* SelectServiceToBuyCryptoCoordinator.swift */; };
+		8713401128B6093900815F10 /* BuyCryptoUsingThirdPartyCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8713401028B6093900815F10 /* BuyCryptoUsingThirdPartyCoordinator.swift */; };
 		871442F927F73329008819D1 /* Scheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871442F827F73329008819D1 /* Scheduler.swift */; };
 		871442FB27F74159008819D1 /* NewlyAddedTransactionProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871442FA27F74159008819D1 /* NewlyAddedTransactionProvider.swift */; };
 		871442FD27FB1EE6008819D1 /* FunctionCallArgumentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871442FC27FB1EE6008819D1 /* FunctionCallArgumentTests.swift */; };
@@ -1819,7 +1821,6 @@
 		5E7C7AE608A39793F8BA3911 /* Eip681Parser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Eip681Parser.swift; sourceTree = "<group>"; };
 		5E7C7AE6FAE0DF969B4F52E9 /* ContactUsBannerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContactUsBannerView.swift; sourceTree = "<group>"; };
 		5E7C7AEDAAE638601C7122A5 /* DefaultActivityView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultActivityView.swift; sourceTree = "<group>"; };
-		5E7C7AF60DF9E7FBD2933C32 /* FiatOnRampCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FiatOnRampCoordinator.swift; sourceTree = "<group>"; };
 		5E7C7B06D3FBE83BBC00555F /* Optional.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Optional.swift; sourceTree = "<group>"; };
 		5E7C7B080E387A79058430B9 /* ConfirmSignMessageTableViewCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfirmSignMessageTableViewCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C7B089FD4C96810DD10FD /* HelpContentsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelpContentsViewController.swift; sourceTree = "<group>"; };
@@ -2066,6 +2067,9 @@
 		8712A38F26F476900009C376 /* EditPriceAlertCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPriceAlertCoordinator.swift; sourceTree = "<group>"; };
 		8712A39126F476EF0009C376 /* PriceAlertsPageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceAlertsPageViewModel.swift; sourceTree = "<group>"; };
 		8712F336265BCAEF0043493B /* WalletSummaryTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSummaryTableViewCell.swift; sourceTree = "<group>"; };
+		8713400A28B509E200815F10 /* CoinBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinBase.swift; sourceTree = "<group>"; };
+		8713400C28B52DAB00815F10 /* SelectServiceToBuyCryptoCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectServiceToBuyCryptoCoordinator.swift; sourceTree = "<group>"; };
+		8713401028B6093900815F10 /* BuyCryptoUsingThirdPartyCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuyCryptoUsingThirdPartyCoordinator.swift; sourceTree = "<group>"; };
 		871442F827F73329008819D1 /* Scheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scheduler.swift; sourceTree = "<group>"; };
 		871442FA27F74159008819D1 /* NewlyAddedTransactionProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewlyAddedTransactionProvider.swift; sourceTree = "<group>"; };
 		871442FC27FB1EE6008819D1 /* FunctionCallArgumentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunctionCallArgumentTests.swift; sourceTree = "<group>"; };
@@ -2790,7 +2794,7 @@
 				5E7C72373620D0B5825AA69C /* Gas */,
 				5E7C7651253551EB14A26F7C /* Donations */,
 				5E7C7F1CC5699A58ED5D4E74 /* WhatsNew */,
-				5E7C74F0A1BB877A6FE35F37 /* FiatOnRamp */,
+				5E7C74F0A1BB877A6FE35F37 /* BuyCrypto */,
 				5E7C76487E444E00B78BAA14 /* BlockscanChat */,
 				5E7C72AB43EC4939E6C7D46B /* Lists */,
 				5E7C72F803CD9A3A6A8D0839 /* Swaps */,
@@ -4207,12 +4211,13 @@
 			path = Analytics;
 			sourceTree = "<group>";
 		};
-		5E7C74F0A1BB877A6FE35F37 /* FiatOnRamp */ = {
+		5E7C74F0A1BB877A6FE35F37 /* BuyCrypto */ = {
 			isa = PBXGroup;
 			children = (
-				5E7C75962E846E6696B07C20 /* Coordinators */,
+				8713401028B6093900815F10 /* BuyCryptoUsingThirdPartyCoordinator.swift */,
+				8713400C28B52DAB00815F10 /* SelectServiceToBuyCryptoCoordinator.swift */,
 			);
-			path = FiatOnRamp;
+			path = BuyCrypto;
 			sourceTree = "<group>";
 		};
 		5E7C75019080D822E6BE9E92 /* ViewControllers */ = {
@@ -4265,14 +4270,6 @@
 				5E7C781F82F9E4903C460E33 /* ImportMagicTokenCardRowViewModel.swift */,
 			);
 			path = ViewModels;
-			sourceTree = "<group>";
-		};
-		5E7C75962E846E6696B07C20 /* Coordinators */ = {
-			isa = PBXGroup;
-			children = (
-				5E7C7AF60DF9E7FBD2933C32 /* FiatOnRampCoordinator.swift */,
-			);
-			path = Coordinators;
 			sourceTree = "<group>";
 		};
 		5E7C75F7FC107AE3CF396331 /* TokenScriptClient */ = {
@@ -5188,6 +5185,14 @@
 			path = ViewModels;
 			sourceTree = "<group>";
 		};
+		8713400928B509D400815F10 /* CoinBase */ = {
+			isa = PBXGroup;
+			children = (
+				8713400A28B509E200815F10 /* CoinBase.swift */,
+			);
+			path = CoinBase;
+			sourceTree = "<group>";
+		};
 		871442FE27FB2E05008819D1 /* PendingTransaction */ = {
 			isa = PBXGroup;
 			children = (
@@ -5478,6 +5483,7 @@
 		87584B4225EFAFB60070063B /* BuyToken */ = {
 			isa = PBXGroup;
 			children = (
+				8713400928B509D400815F10 /* CoinBase */,
 				87584B4525EFB07F0070063B /* Ramp */,
 				87584B4325EFAFEC0070063B /* BuyTokenService.swift */,
 			);
@@ -6776,6 +6782,7 @@
 				2923D9B11FDA49D8000CF3F8 /* Initializer.swift in Sources */,
 				294DFBAE1FE6F254004CEB56 /* TokenObject.swift in Sources */,
 				298542E81FBAD0B200CB5081 /* OperationType.swift in Sources */,
+				8713400D28B52DAB00815F10 /* SelectServiceToBuyCryptoCoordinator.swift in Sources */,
 				879702F727EE47430056CA71 /* LocalNotificationService.swift in Sources */,
 				29BE3FD01F7071A200F6BFC2 /* UIColor.swift in Sources */,
 				87B6526A256FBF36000EF927 /* TokenActionsService.swift in Sources */,
@@ -7016,6 +7023,7 @@
 				5E7C70BE9AE35408038E1971 /* HelpContentsViewController.swift in Sources */,
 				87BBF9902563DD7600FF4846 /* EIP712TypedData.swift in Sources */,
 				5E7C77E844D710D7AFBC58D4 /* RequestViewController.swift in Sources */,
+				8713400B28B509E200815F10 /* CoinBase.swift in Sources */,
 				5E7C701BFF4469B35A074EB9 /* RequestViewModel.swift in Sources */,
 				87F539FF2817E92300BD8017 /* NewlyAddedTransactionSchedulerProvider.swift in Sources */,
 				0233429B278489CC00492080 /* AddMultipleCustomRpcViewModel.swift in Sources */,
@@ -7585,6 +7593,7 @@
 				5E7C7AFF5433B2B8B3415C55 /* DefaultActivityCellViewModel.swift in Sources */,
 				879FD3A1273BF64900D9747D /* WalletConnectV2Provider.swift in Sources */,
 				5E7C7041A8A78E0EF84A94A2 /* ActivityViewCell.swift in Sources */,
+				8713401128B6093900815F10 /* BuyCryptoUsingThirdPartyCoordinator.swift in Sources */,
 				02645122277206C0009260DC /* TableViewSection.swift in Sources */,
 				876C80CD2673940B00B16595 /* SwitchView.swift in Sources */,
 				87741F212770C71E007F4604 /* WhereAreMyTokensCoordinator.swift in Sources */,
@@ -7672,7 +7681,6 @@
 				5E7C7CC1E06FFC3A5BEBF1EC /* WhatsNewViews.swift in Sources */,
 				5E7C71967C34DD3F207F8126 /* WhatsNewExperimentCoordinator.swift in Sources */,
 				5E7C7062A44AF416B110008A /* PingInfuraCoordinator.swift in Sources */,
-				5E7C788C6ACB6E5AA24216A6 /* FiatOnRampCoordinator.swift in Sources */,
 				5E7C7F62DA439F87F46D09C7 /* UnitConfiguration.swift in Sources */,
 				5E7C78772A59685C37CB99C2 /* ToolsViewController.swift in Sources */,
 				5E7C76AFBBACDD13BEF25DA9 /* ToolsViewModel.swift in Sources */,

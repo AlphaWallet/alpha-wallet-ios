@@ -9,12 +9,9 @@ import PromiseKit
 import RealmSwift
 import Result
 
-// swiftlint:disable class_delegate_protocol
-protocol DappBrowserCoordinatorDelegate: CanOpenURL, RequestAddCustomChainProvider, RequestSwitchChainProvider {
-// swiftlint:enable class_delegate_protocol
+protocol DappBrowserCoordinatorDelegate: CanOpenURL, RequestAddCustomChainProvider, RequestSwitchChainProvider, BuyCryptoDelegate {
     func didSentTransaction(transaction: SentTransaction, inCoordinator coordinator: DappBrowserCoordinator)
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: DappBrowserCoordinator)
-    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: DappBrowserCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource)
 }
 
 final class DappBrowserCoordinator: NSObject, Coordinator {
@@ -477,8 +474,8 @@ extension DappBrowserCoordinator: TransactionConfirmationCoordinatorDelegate {
         }
     }
 
-    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TransactionConfirmationCoordinator, viewController: UIViewController) {
-        delegate?.openFiatOnRamp(wallet: wallet, server: server, inCoordinator: self, viewController: viewController, source: .transactionActionSheetInsufficientFunds)
+    func buyCrypto(wallet: Wallet, server: RPCServer, viewController: UIViewController, source: Analytics.BuyCryptoSource) {
+        delegate?.buyCrypto(wallet: wallet, server: server, viewController: viewController, source: .transactionActionSheetInsufficientFunds)
     }
 }
 

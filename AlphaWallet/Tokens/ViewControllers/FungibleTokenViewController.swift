@@ -6,7 +6,7 @@ import Combine
 protocol FungibleTokenViewControllerDelegate: class, CanOpenURL {
     func didTapSwap(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in viewController: FungibleTokenViewController)
     func didTapBridge(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in viewController: FungibleTokenViewController)
-    func didTapBuy(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in viewController: FungibleTokenViewController)
+    func didTapBuy(transactionType: TransactionType, service: TokenActionProvider, in viewController: FungibleTokenViewController)
     func didTapSend(forTransactionType transactionType: TransactionType, in viewController: FungibleTokenViewController)
     func didTapReceive(forTransactionType transactionType: TransactionType, in viewController: FungibleTokenViewController)
     func didTap(transaction: TransactionInstance, in viewController: FungibleTokenViewController)
@@ -184,7 +184,7 @@ class FungibleTokenViewController: UIViewController {
             case .bridge(let service):
                 delegate?.didTapBridge(forTransactionType: viewModel.transactionType, service: service, in: self)
             case .buy(let service):
-                delegate?.didTapBuy(forTransactionType: viewModel.transactionType, service: service, in: self)
+                delegate?.didTapBuy(transactionType: viewModel.transactionType, service: service, in: self)
             }
             break
         }

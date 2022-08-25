@@ -13,11 +13,11 @@ protocol SendTransactionDelegate: class {
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: TransactionConfirmationCoordinator)
 }
 
-protocol FiatOnRampDelegate: class {
-    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TransactionConfirmationCoordinator, viewController: UIViewController)
+protocol BuyCryptoDelegate: class {
+    func buyCrypto(wallet: Wallet, server: RPCServer, viewController: UIViewController, source: Analytics.BuyCryptoSource)
 }
 
-typealias SendTransactionAndFiatOnRampDelegate = SendTransactionDelegate & FiatOnRampDelegate
+typealias SendTransactionAndFiatOnRampDelegate = SendTransactionDelegate & BuyCryptoDelegate
 
 private class TransactionConfirmationCoordinatorBridgeToPromise {
     private let analytics: AnalyticsLogger
@@ -99,8 +99,8 @@ extension TransactionConfirmationCoordinatorBridgeToPromise: TransactionConfirma
         seal.reject(DAppError.cancelled)
     }
 
-    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TransactionConfirmationCoordinator, viewController: UIViewController) {
-        delegate?.openFiatOnRamp(wallet: wallet, server: server, inCoordinator: coordinator, viewController: viewController)
+    func buyCrypto(wallet: Wallet, server: RPCServer, viewController: UIViewController, source: Analytics.BuyCryptoSource) {
+        delegate?.buyCrypto(wallet: wallet, server: server, viewController: viewController, source: source)
     }
 }
 
