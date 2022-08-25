@@ -15,7 +15,7 @@ struct Config {
         let shouldPretendIsRealWallet = false
         let isOpenSeaFetchingDisabled = false
         let isRunLoopThreadLoggingEnabled = false
-        let shouldReadClipboardForQRCode = true
+        let shouldReadClipboardForQRCode = false
     }
 
     let development = Development()
