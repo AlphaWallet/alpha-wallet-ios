@@ -53,10 +53,16 @@ final class ScanQRCodeCoordinator: NSObject, Coordinator {
         self.parentNavigationController = navigationController
     }
 
-    func start(fromSource source: Analytics.ScanQRCodeSource) {
+    func start(fromSource source: Analytics.ScanQRCodeSource, clipboardString: String? = nil) {
         logStartScan(source: source)
         navigationController.makePresentationFullScreenForiOS13Migration()
         parentNavigationController.present(navigationController, animated: true)
+
+        if let valueFromClipboard = clipboardString {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                self.reader(self.qrcodeController, didScanResult: valueFromClipboard)
+            }
+        }
     }
 
     @objc private func dismiss() {

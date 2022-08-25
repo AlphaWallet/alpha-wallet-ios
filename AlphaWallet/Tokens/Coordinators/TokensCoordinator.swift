@@ -5,10 +5,10 @@ import AlphaWalletAddress
 import Combine
 
 protocol TokensCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryptoDelegate {
-    func didTapSwap(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in coordinator: TokensCoordinator)
-    func didTapBridge(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in coordinator: TokensCoordinator)
+    func didTapSwap(swapTokenFlow: SwapTokenFlow, in coordinator: TokensCoordinator)
+    func didTapBridge(transactionType: TransactionType, service: TokenActionProvider, in coordinator: TokensCoordinator)
     func didTapBuy(transactionType: TransactionType, service: TokenActionProvider, in coordinator: TokensCoordinator)
-    func didPress(for type: PaymentFlow, server: RPCServer, viewController: UIViewController?, in coordinator: TokensCoordinator)
+    func didTap(suggestedPaymentFlow: SuggestedPaymentFlow, viewController: UIViewController?, in coordinator: TokensCoordinator)
     func didTap(transaction: TransactionInstance, viewController: UIViewController, in coordinator: TokensCoordinator)
     func didTap(activity: Activity, viewController: UIViewController, in coordinator: TokensCoordinator)
     func openConsole(inCoordinator coordinator: TokensCoordinator)
@@ -43,7 +43,6 @@ class TokensCoordinator: Coordinator {
         return controller
     }()
 
-    private var sendToAddress: AlphaWallet.Address? = .none
     private var singleChainTokenCoordinators: [SingleChainTokenCoordinator] {
         return coordinators.compactMap { $0 as? SingleChainTokenCoordinator }
     }
@@ -174,7 +173,15 @@ class TokensCoordinator: Coordinator {
         coordinator.delegate = self
 
         addCoordinator(coordinator)
-        coordinator.start(fromSource: source)
+
+        coordinator.start(fromSource: source, clipboardString: UIPasteboard.general.stringForQRCode)
+    }
+}
+
+extension UIPasteboard {
+    var stringForQRCode: String? {
+        guard Config().development.shouldReadClipboardForQRCode else { return nil }
+        return UIPasteboard.general.string ?? UIPasteboard.general.url?.absoluteString
     }
 }
 
@@ -195,6 +202,8 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         alertController.popoverPresentationController?.barButtonItem = sender
 
+        let server: RPCServer = sessions.anyValue.server
+
         let copyAddressAction = UIAlertAction(title: R.string.localizable.copyAddress(), style: .default) { [weak self] _ in
             guard let strongSelf = self else { return }
             UIPasteboard.general.string = strongSelf.wallet.address.eip55String
@@ -204,7 +213,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
 
         let showMyWalletAddressAction = UIAlertAction(title: R.string.localizable.settingsShowMyWalletTitle(), style: .default) { [weak self] _ in
             guard let strongSelf = self else { return }
-            strongSelf.delegate?.didPress(for: .request, server: strongSelf.config.anyEnabledServer(), viewController: .none, in: strongSelf)
+            strongSelf.delegate?.didTap(suggestedPaymentFlow: .payment(type: .request, server: server), viewController: .none, in: strongSelf)
         }
         alertController.addAction(showMyWalletAddressAction)
 
@@ -222,17 +231,13 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         }
         alertController.addAction(addHideTokensAction)
 
-        if Features.default.isAvailable(.isSwapEnabled) {
-            let swapAction = UIAlertAction(title: "Swap", style: .default) { [weak self] _ in
-                guard let strongSelf = self else { return }
-                guard let service = strongSelf.tokenActionsService.service(ofType: SwapTokenNativeProvider.self) as? SwapTokenNativeProvider else { return }
-                let transactionType: TransactionType = .prebuilt(strongSelf.config.anyEnabledServer())
+        let swapAction = UIAlertAction(title: "Swap", style: .default) { [weak self] _ in
+            guard let strongSelf = self else { return }
 
-                strongSelf.delegate?.didTapSwap(forTransactionType: transactionType, service: service, in: strongSelf)
-            }
-
-            alertController.addAction(swapAction)
+            strongSelf.delegate?.didTapSwap(swapTokenFlow: .selectTokenToSwap, in: strongSelf)
         }
+
+        alertController.addAction(swapAction)
 
         let renameThisWalletAction = UIAlertAction(title: R.string.localizable.tokensWalletRenameThisWallet(), style: .default) { [weak self] _ in
             guard let strongSelf = self else { return }
@@ -307,26 +312,6 @@ extension TokensCoordinator: RenameWalletViewControllerDelegate {
     }
 }
 
-extension TokensCoordinator: SelectTokenCoordinatorDelegate {
-
-    func coordinator(_ coordinator: SelectTokenCoordinator, didSelectToken token: Token) {
-        removeCoordinator(coordinator)
-        switch sendToAddress {
-        case .some(let address):
-            let paymentFlow = PaymentFlow.send(type: .transaction(.init(fungibleToken: token, recipient: .address(address), amount: nil)))
-
-            delegate?.didPress(for: paymentFlow, server: token.server, viewController: .none, in: self)
-        case .none:
-            break
-        }
-        sendToAddress = .none
-    }
-
-    func didCancel(in coordinator: SelectTokenCoordinator) {
-        removeCoordinator(coordinator)
-    }
-}
-
 extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
 
     func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveJSON json: String) {
@@ -348,9 +333,7 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
     func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveTransactionType transactionType: TransactionType, token: Token) {
         removeCoordinator(coordinator)
 
-        let paymentFlow = PaymentFlow.send(type: .transaction(transactionType))
-
-        delegate?.didPress(for: paymentFlow, server: token.server, viewController: .none, in: self)
+        delegate?.didTap(suggestedPaymentFlow: .payment(type: .send(type: .transaction(transactionType)), server: token.server), viewController: .none, in: self)
     }
 
     func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveAddress address: AlphaWallet.Address, action: ScanQRCodeAction) {
@@ -360,7 +343,7 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
         case .addCustomToken:
             handleAddCustomToken(address)
         case .sendToAddress:
-            handleSendToAddress(address)
+            delegate?.didTap(suggestedPaymentFlow: .other(value: .sendToRecipient(recipient: .address(address))), viewController: .none, in: self)
         case .watchWallet:
             handleWatchWallet(address)
         case .openInEtherscan:
@@ -376,20 +359,6 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
             importToken: importToken,
             initialState: .address(address),
             domainResolutionService: domainResolutionService)
-        coordinator.delegate = self
-        addCoordinator(coordinator)
-
-        coordinator.start()
-    }
-
-    private func handleSendToAddress(_ address: AlphaWallet.Address) {
-        sendToAddress = address
-
-        let coordinator = SelectTokenCoordinator(
-            tokenCollection: tokenCollection,
-            tokensFilter: tokensFilter,
-            navigationController: navigationController,
-            filter: .filter(NativeCryptoOrErc20TokenFilter()))
         coordinator.delegate = self
         addCoordinator(coordinator)
 
@@ -481,12 +450,12 @@ extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
         coordinatorToAdd.start()
     }
 
-    func didTapSwap(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in coordinator: SingleChainTokenCoordinator) {
-        delegate?.didTapSwap(forTransactionType: transactionType, service: service, in: self)
+    func didTapSwap(swapTokenFlow: SwapTokenFlow, in coordinator: SingleChainTokenCoordinator) {
+        delegate?.didTapSwap(swapTokenFlow: swapTokenFlow, in: self)
     }
 
-    func didTapBridge(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in coordinator: SingleChainTokenCoordinator) {
-        delegate?.didTapBridge(forTransactionType: transactionType, service: service, in: self)
+    func didTapBridge(transactionType: TransactionType, service: TokenActionProvider, in coordinator: SingleChainTokenCoordinator) {
+        delegate?.didTapBridge(transactionType: transactionType, service: service, in: self)
     }
 
     func didTapBuy(transactionType: TransactionType, service: TokenActionProvider, in coordinator: SingleChainTokenCoordinator) {
@@ -494,7 +463,7 @@ extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
     }
 
     func didPress(for type: PaymentFlow, viewController: UIViewController, in coordinator: SingleChainTokenCoordinator) {
-        delegate?.didPress(for: type, server: coordinator.session.server, viewController: viewController, in: self)
+        delegate?.didTap(suggestedPaymentFlow: .payment(type: type, server: coordinator.session.server), viewController: viewController, in: self)
     }
 
     func didTap(activity: Activity, viewController: UIViewController, in coordinator: SingleChainTokenCoordinator) {

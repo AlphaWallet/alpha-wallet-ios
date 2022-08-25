@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-struct QuickSwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
+class QuickSwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
     var objectWillChange: AnyPublisher<Void, Never> {
         return .empty()
     }

@@ -11,8 +11,8 @@ struct NoTokenError: LocalizedError {
 }
 
 protocol SingleChainTokenCoordinatorDelegate: CanOpenURL, SendTransactionDelegate {
-    func didTapSwap(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in coordinator: SingleChainTokenCoordinator)
-    func didTapBridge(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in coordinator: SingleChainTokenCoordinator)
+    func didTapSwap(swapTokenFlow: SwapTokenFlow, in coordinator: SingleChainTokenCoordinator)
+    func didTapBridge(transactionType: TransactionType, service: TokenActionProvider, in coordinator: SingleChainTokenCoordinator)
     func didTapBuy(transactionType: TransactionType, service: TokenActionProvider, in coordinator: SingleChainTokenCoordinator)
     func didPress(for type: PaymentFlow, viewController: UIViewController, in coordinator: SingleChainTokenCoordinator)
     func didTap(transaction: TransactionInstance, viewController: UIViewController, in coordinator: SingleChainTokenCoordinator)
@@ -152,12 +152,12 @@ extension SingleChainTokenCoordinator: FungibleTokenViewControllerDelegate {
         delegate?.didTapEditAlert(for: token, alert: alert, in: self)
     }
 
-    func didTapSwap(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in viewController: FungibleTokenViewController) {
-        delegate?.didTapSwap(forTransactionType: transactionType, service: service, in: self)
+    func didTapSwap(swapTokenFlow: SwapTokenFlow, in viewController: FungibleTokenViewController) {
+        delegate?.didTapSwap(swapTokenFlow: swapTokenFlow, in: self)
     }
 
-    func didTapBridge(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in viewController: FungibleTokenViewController) {
-        delegate?.didTapBridge(forTransactionType: transactionType, service: service, in: self)
+    func didTapBridge(transactionType: TransactionType, service: TokenActionProvider, in viewController: FungibleTokenViewController) {
+        delegate?.didTapBridge(transactionType: transactionType, service: service, in: self)
     }
 
     func didTapBuy(transactionType: TransactionType, service: TokenActionProvider, in viewController: FungibleTokenViewController) {

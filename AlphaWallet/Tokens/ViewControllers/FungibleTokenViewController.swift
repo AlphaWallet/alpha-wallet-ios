@@ -4,8 +4,8 @@ import UIKit
 import Combine
 
 protocol FungibleTokenViewControllerDelegate: class, CanOpenURL {
-    func didTapSwap(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in viewController: FungibleTokenViewController)
-    func didTapBridge(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in viewController: FungibleTokenViewController)
+    func didTapSwap(swapTokenFlow: SwapTokenFlow, in viewController: FungibleTokenViewController)
+    func didTapBridge(transactionType: TransactionType, service: TokenActionProvider, in viewController: FungibleTokenViewController)
     func didTapBuy(transactionType: TransactionType, service: TokenActionProvider, in viewController: FungibleTokenViewController)
     func didTapSend(forTransactionType transactionType: TransactionType, in viewController: FungibleTokenViewController)
     func didTapReceive(forTransactionType transactionType: TransactionType, in viewController: FungibleTokenViewController)
@@ -166,8 +166,8 @@ class FungibleTokenViewController: UIViewController {
         let actions = viewModel.actions
         for (action, button) in zip(actions, buttonsBar.buttons) where button == sender {
             switch action.type {
-            case .swap(let service):
-                delegate?.didTapSwap(forTransactionType: viewModel.transactionType, service: service, in: self)
+            case .swap:
+                delegate?.didTapSwap(swapTokenFlow: .swapToken(token: viewModel.transactionType.tokenObject), in: self)
             case .erc20Send:
                 delegate?.didTapSend(forTransactionType: viewModel.transactionType, in: self)
             case .erc20Receive:
@@ -182,7 +182,7 @@ class FungibleTokenViewController: UIViewController {
                     delegate?.didTap(action: action, transactionType: viewModel.transactionType, in: self)
                 }
             case .bridge(let service):
-                delegate?.didTapBridge(forTransactionType: viewModel.transactionType, service: service, in: self)
+                delegate?.didTapBridge(transactionType: viewModel.transactionType, service: service, in: self)
             case .buy(let service):
                 delegate?.didTapBuy(transactionType: viewModel.transactionType, service: service, in: self)
             }

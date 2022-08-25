@@ -29,6 +29,10 @@ extension Error {
         switch self {
         case let error as SelectBuyServiceError:
             return error.localizedDescription
+        case let error as ActiveWalletCoordinator.CoordinatorError:
+            return error.localizedDescription
+        case let error as SelectSwapServiceError:
+            return error.localizedDescription
         case let error as WalletApiService.WalletApiServiceError:
             return error.localizedDescription
         case let error as FunctionError:

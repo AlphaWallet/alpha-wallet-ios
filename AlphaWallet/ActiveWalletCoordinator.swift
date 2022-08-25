@@ -62,6 +62,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         coordinator.delegate = self
         return coordinator
     }()
+    private var pendingOperation: PendingOperation?
 
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -825,32 +826,62 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
         showActivity(activity, navigationController: navigationController)
     }
 
-    func didTapSwap(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in coordinator: TokensCoordinator) {
-        if let service = service as? SwapTokenViaUrlProvider {
-            logTappedSwap(service: service)
-            guard let token = transactionType.swapServiceInputToken, let url = service.url(token: token) else { return }
-
-            if let server = service.rpcServer(forToken: token) {
-                open(url: url, onServer: server)
-            } else {
-                open(for: url)
+    func didTapSwap(swapTokenFlow: SwapTokenFlow, in coordinator: TokensCoordinator) {
+        do {
+            switch swapTokenFlow {
+            case .swapToken(let token):
+                try swapToken(token: token)
+            case .selectTokenToSwap:
+                showTokenSelection(for: .swapToken)
             }
-        } else if let _ = service as? SwapTokenNativeProvider {
-            let swapPair = SwapPair(from: transactionType.tokenObject, to: nil)
-            showPaymentFlow(for: .swap(pair: swapPair), server: transactionType.server, navigationController: navigationController)
+        } catch {
+            show(error: error)
         }
     }
 
-    func didTapBridge(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in coordinator: TokensCoordinator) {
-        guard let service = service as? BridgeTokenURLProviderType else { return }
-        guard let token = transactionType.swapServiceInputToken, let url = service.url(token: token, wallet: wallet) else { return }
+    private func showTokenSelection(for operation: PendingOperation) {
+        self.pendingOperation = operation
 
-        open(url: url, onServer: token.server)
+        let coordinator = SelectTokenCoordinator(tokenCollection: tokenCollection, tokensFilter: tokensFilter, navigationController: navigationController, filter: .filter(NativeCryptoOrErc20TokenFilter()))
+        coordinator.delegate = self
+        addCoordinator(coordinator)
+
+        coordinator.start()
+    }
+
+    private func swapToken(token: Token) throws {
+        guard let swapTokenProvider = tokenActionsService.service(ofType: SwapTokenProvider.self) as? SwapTokenProvider else {
+            throw CoordinatorError.unavailableToResolveSwapActionProvider
+        }
+
+        let coordinator = SelectServiceToSwapCoordinator(swapTokenProvider: swapTokenProvider, token: token, viewController: navigationController)
+        coordinator.delegate = self
+        coordinator.start(wallet: wallet)
+        addCoordinator(coordinator)
+    }
+
+    func didTapBridge(transactionType: TransactionType, service: TokenActionProvider, in coordinator: TokensCoordinator) {
+        do {
+            guard let service = service as? BridgeTokenURLProviderType else {
+                throw CoordinatorError.unavailableToResolveBridgeActionProvider
+            }
+            guard let token = transactionType.swapServiceInputToken, let url = service.url(token: token, wallet: wallet) else {
+                throw CoordinatorError.bridgeNotSupported
+            }
+
+            open(url: url, onServer: token.server)
+        } catch {
+            show(error: error)
+        }
     }
 
     func didTapBuy(transactionType: TransactionType, service: TokenActionProvider, in coordinator: TokensCoordinator) {
-        guard let token = transactionType.swapServiceInputToken else { return }
-        buyCrypto(wallet: wallet, token: token, viewController: navigationController, source: .token)
+        do {
+            guard let token = transactionType.swapServiceInputToken else { throw CoordinatorError.buyNotSupported }
+            buyCrypto(wallet: wallet, token: token, viewController: navigationController, source: .token)
+        } catch {
+            show(error: error)
+        }
     }
 
     private func open(for url: URL) {
@@ -866,15 +897,23 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
         dappBrowserCoordinator.switch(toServer: server, url: url)
     }
 
-    func didPress(for type: PaymentFlow, server: RPCServer, viewController: UIViewController?, in coordinator: TokensCoordinator) {
+    func didTap(suggestedPaymentFlow: SuggestedPaymentFlow, viewController: UIViewController?, in coordinator: TokensCoordinator) {
         let navigationController: UINavigationController
         if let nvc = viewController?.navigationController {
             navigationController = nvc
         } else {
             navigationController = coordinator.navigationController
         }
-
-        showPaymentFlow(for: type, server: server, navigationController: navigationController)
+        
+        switch suggestedPaymentFlow {
+        case .payment(let type, let server):
+            showPaymentFlow(for: type, server: server, navigationController: navigationController)
+        case .other(let action):
+            switch action {
+            case .sendToRecipient(let recipient):
+                showTokenSelection(for: .sendToken(recipient: recipient))
+            }
+        }
     }
 
     func didTap(transaction: TransactionInstance, viewController: UIViewController, in coordinator: TokensCoordinator) {
@@ -900,6 +939,56 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
     func didSelectAccount(account: Wallet, in coordinator: TokensCoordinator) {
         guard self.wallet != account else { return }
         restartUI(withReason: .walletChange, account: account)
+    }
+}
+
+extension ActiveWalletCoordinator: SelectTokenCoordinatorDelegate {
+    func coordinator(_ coordinator: SelectTokenCoordinator, didSelectToken token: Token) {
+        removeCoordinator(coordinator)
+
+        do {
+            guard let operation = pendingOperation else { throw CoordinatorError.operationForTokenNotFound }
+
+            switch operation {
+            case .swapToken:
+                try swapToken(token: token)
+            case .sendToken(let recipient):
+                let paymentFlow = PaymentFlow.send(type: .transaction(.init(fungibleToken: token, recipient: recipient, amount: nil)))
+                showPaymentFlow(for: paymentFlow, server: token.server, navigationController: navigationController)
+            }
+        } catch {
+            show(error: error)
+        }
+    }
+
+    func didCancel(in coordinator: SelectTokenCoordinator) {
+        removeCoordinator(coordinator)
+    }
+}
+
+extension ActiveWalletCoordinator: SelectServiceToSwapCoordinatorDelegate {
+    func selectSwapService(_ result: Swift.Result<SwapTokenUsing, SelectSwapServiceError>, in coordinator: SelectServiceToSwapCoordinator) {
+        removeCoordinator(coordinator)
+
+        switch result {
+        case .success(let swapTokenUsing):
+            switch swapTokenUsing {
+            case .url(let url, let server):
+                if let server = server {
+                    open(url: url, onServer: server)
+                } else {
+                    open(for: url)
+                }
+            case .native(let swapPair):
+                showPaymentFlow(for: .swap(pair: swapPair), server: swapPair.from.server, navigationController: navigationController)
+            }
+        case .failure(let error):
+            show(error: error)
+        }
+    }
+
+    func didClose(in coordinator: SelectServiceToSwapCoordinator) {
+        removeCoordinator(coordinator)
     }
 }
 
@@ -1077,22 +1166,49 @@ extension ActiveWalletCoordinator: WalletPupupCoordinatorDelegate {
         let server = config.anyEnabledServer()
         switch action {
         case .swap:
-            let token = MultipleChainsTokensDataStore.functional.etherToken(forServer: server)
-            let swapPair = SwapPair(from: token, to: nil)
-            showPaymentFlow(for: .swap(pair: swapPair), server: server, navigationController: navigationController)
+            showTokenSelection(for: .swapToken)
         case .buy:
             buyCrypto(wallet: wallet, server: server, viewController: navigationController, source: .walletTab)
         case .receive:
             showPaymentFlow(for: .request, server: server, navigationController: navigationController)
         case .send:
-            let token = MultipleChainsTokensDataStore.functional.etherToken(forServer: server)
-            let transactionType = TransactionType(fungibleToken: token)
-            showPaymentFlow(for: .send(type: .transaction(transactionType)), server: server, navigationController: navigationController)
+            showTokenSelection(for: .sendToken(recipient: nil))
         }
     }
 
     func didClose(in coordinator: WalletPupupCoordinator) {
         removeCoordinator(coordinator)
+    }
+}
+
+extension ActiveWalletCoordinator {
+
+    enum PendingOperation {
+        case swapToken
+        case sendToken(recipient: AddressOrEnsName?)
+    }
+
+    enum CoordinatorError: LocalizedError {
+        case unavailableToResolveSwapActionProvider
+        case unavailableToResolveBridgeActionProvider
+        case bridgeNotSupported
+        case buyNotSupported
+        case operationForTokenNotFound
+
+        var localizedDescription: String {
+            switch self {
+            case .unavailableToResolveBridgeActionProvider:
+                return "Unavailable To Resolve BridgeActionProvider"
+            case .unavailableToResolveSwapActionProvider:
+                return "Unavailable To Resolve SwapActionProvider"
+            case .bridgeNotSupported:
+                return "Bridge Not Supported"
+            case .buyNotSupported:
+                return "Buy Not Supported"
+            case .operationForTokenNotFound:
+                return "Operation For Token Not Found"
+            }
+        }
     }
 }
 // swiftlint:enable file_length

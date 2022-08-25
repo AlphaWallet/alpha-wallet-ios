@@ -94,23 +94,21 @@ class AppCoordinator: NSObject, Coordinator {
     private lazy var tokenActionsService: TokenActionsService = {
         let service = TokenActionsService()
         service.register(service: BuyTokenProvider(subProviders: [CoinBase(), Ramp()]))
-        service.register(service: Oneinch())
 
         let honeySwapService = HoneySwap()
         honeySwapService.theme = navigationController.traitCollection.honeyswapTheme
-        service.register(service: honeySwapService)
 
-        //NOTE: Disable uniswap swap provider
-
-        //var uniswap = Uniswap()
-        //uniswap.theme = navigationController.traitCollection.uniswapTheme
-
-        //service.register(service: uniswap)
-
-        var quickSwap = QuickSwap()
+        let quickSwap = QuickSwap()
         quickSwap.theme = navigationController.traitCollection.uniswapTheme
-        service.register(service: SwapTokenNativeProvider(tokenSwapper: tokenSwapper))
-        service.register(service: quickSwap)
+        var availableSwapProviders: [SupportedTokenActionsProvider & TokenActionProvider] = [
+            honeySwapService,
+            quickSwap,
+            Oneinch(),
+            //uniswap
+        ]
+        availableSwapProviders += Features.default.isAvailable(.isSwapEnabled) ? [SwapTokenNativeProvider(tokenSwapper: tokenSwapper)] : []
+
+        service.register(service: SwapTokenProvider(subProviders: availableSwapProviders))
         service.register(service: ArbitrumBridge())
         service.register(service: xDaiBridge())
 

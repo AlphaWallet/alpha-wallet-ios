@@ -1159,6 +1159,8 @@
 		87E2555424F52E9500F025F7 /* GasSpeedTableViewHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87E2555324F52E9500F025F7 /* GasSpeedTableViewHeaderView.swift */; };
 		87E2555624F52EAA00F025F7 /* GasSpeedTableViewHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87E2555524F52EAA00F025F7 /* GasSpeedTableViewHeaderViewModel.swift */; };
 		87E2555824F52EBF00F025F7 /* GasSpeedTableViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87E2555724F52EBF00F025F7 /* GasSpeedTableViewCellViewModel.swift */; };
+		87E4D65128B6449E00E1A17E /* SwapTokenProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87E4D65028B6449E00E1A17E /* SwapTokenProvider.swift */; };
+		87E4D65328B645E600E1A17E /* SelectServiceToSwapCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87E4D65228B645E600E1A17E /* SelectServiceToSwapCoordinator.swift */; };
 		87E960DD28868D3600218E7E /* TickerIdsFetcherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87E960DC28868D3600218E7E /* TickerIdsFetcherTests.swift */; };
 		87EA6A722869A4F30007E47E /* tokens_2.json in Resources */ = {isa = PBXBuildFile; fileRef = 87EA6A712869851F0007E47E /* tokens_2.json */; };
 		87ED843B24C564B5001A3747 /* NewTokenCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED843A24C564B5001A3747 /* NewTokenCoordinator.swift */; };
@@ -2449,6 +2451,8 @@
 		87E2555324F52E9500F025F7 /* GasSpeedTableViewHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GasSpeedTableViewHeaderView.swift; sourceTree = "<group>"; };
 		87E2555524F52EAA00F025F7 /* GasSpeedTableViewHeaderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GasSpeedTableViewHeaderViewModel.swift; sourceTree = "<group>"; };
 		87E2555724F52EBF00F025F7 /* GasSpeedTableViewCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GasSpeedTableViewCellViewModel.swift; sourceTree = "<group>"; };
+		87E4D65028B6449E00E1A17E /* SwapTokenProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapTokenProvider.swift; sourceTree = "<group>"; };
+		87E4D65228B645E600E1A17E /* SelectServiceToSwapCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectServiceToSwapCoordinator.swift; sourceTree = "<group>"; };
 		87E960DC28868D3600218E7E /* TickerIdsFetcherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TickerIdsFetcherTests.swift; sourceTree = "<group>"; };
 		87EA6A712869851F0007E47E /* tokens_2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = tokens_2.json; sourceTree = "<group>"; };
 		87ED843A24C564B5001A3747 /* NewTokenCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTokenCoordinator.swift; sourceTree = "<group>"; };
@@ -5704,6 +5708,7 @@
 				874527D8270B3A45008DB272 /* xDaiBridge.swift */,
 				8765D6CE282A497900529F45 /* SwapTokenNativeProvider.swift */,
 				8765D6D0282A49D200529F45 /* SwapTokenViaUrlProvider.swift */,
+				87E4D65028B6449E00E1A17E /* SwapTokenProvider.swift */,
 			);
 			path = SwapToken;
 			sourceTree = "<group>";
@@ -5860,6 +5865,7 @@
 				871CE2F227E0D53200B1E1CF /* SwapOptions */,
 				874ED68027D79780001AB374 /* Swap */,
 				87D7D66327D7667500202861 /* WalletPupup */,
+				87E4D65228B645E600E1A17E /* SelectServiceToSwapCoordinator.swift */,
 			);
 			path = Swap;
 			sourceTree = "<group>";
@@ -7298,6 +7304,7 @@
 				87D1757A24ADAF07002130D2 /* BlockchainTagLabelViewModel.swift in Sources */,
 				87300E892851C9D8009DE4B3 /* AcceptWalletConnectSessionViewModel.swift in Sources */,
 				5E7C702C4B29AF2B8D61CCA4 /* DappsAutoCompletionViewControllerViewModel.swift in Sources */,
+				87E4D65328B645E600E1A17E /* SelectServiceToSwapCoordinator.swift in Sources */,
 				76F1DD3DF34BCCFE9BE3CEBB /* MyDappsViewControllerViewModel.swift in Sources */,
 				76F1D3B0E2CDBE82B764C0C7 /* MyDappCell.swift in Sources */,
 				5E7C79E9A6A3DFB7FA680752 /* DappViewCell.swift in Sources */,
@@ -7614,6 +7621,7 @@
 				5E7C7CD5C69451722BAB63E4 /* GetNextNonce.swift in Sources */,
 				871CE2F127DF87AE00B1E1CF /* TransactionDeadlineTextField.swift in Sources */,
 				5E7C7B1689D3E1D51788FE26 /* Session+PromiseKit.swift in Sources */,
+				87E4D65128B6449E00E1A17E /* SwapTokenProvider.swift in Sources */,
 				5E7C78C68AD1922796E6C88F /* WalletConnectSessionsViewController.swift in Sources */,
 				5E7C78C511CD388E882DBD83 /* WalletConnectSessionCell.swift in Sources */,
 				8757E5E025DE5A9D00812392 /* AcceptProposalViewController.swift in Sources */,

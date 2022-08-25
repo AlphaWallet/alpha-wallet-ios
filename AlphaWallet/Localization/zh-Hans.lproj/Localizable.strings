@@ -556,10 +556,11 @@
 "a.wallet.token.transaction.inProgress.title" = "Transaction in Progress";
 "a.wallet.token.transaction.inProgress.subtitle" = "The transaction is sent to the Ethereum\nblockchain. It might take few minutes\nto be confirmed by miners.";
 "a.wallet.token.transaction.inProgress.confirm" = "OK, great!";
-"a.wallet.token.erc20ExchangeOnUniswap.button.title" = "Swap";
-"a.wallet.token.erc20ExchangeOnQuickSwap.button.title" = "Swap";
-"a.wallet.token.erc20ExchangeOn1inch.button.title" = "Swap";
-"a.wallet.token.erc20ExchangeHoneyswap.button.title" = "Swap";
+"a.wallet.token.swap.button.title" = "Swap";
+"a.wallet.token.erc20ExchangeOnUniswap.button.title" = "Swap using Uniswap";
+"a.wallet.token.erc20ExchangeOnQuickSwap.button.title" = "Swap using QuickSwap";
+"a.wallet.token.erc20ExchangeOn1inch.button.title" = "Swap using 1inch";
+"a.wallet.token.erc20ExchangeHoneyswap.button.title" = "Swap using Honeyswap";
 "a.wallet.token.xDaiBridge.button.title" = "Convert to DAI";
 "a.wallet.token.arbitrumBridge.button.title" = "Convert to Arbitrum";
 "a.wallet.token.buy.xDai.title" = "Buy xDai";
