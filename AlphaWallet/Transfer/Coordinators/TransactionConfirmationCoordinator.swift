@@ -54,7 +54,7 @@ class TransactionConfirmationCoordinator: Coordinator {
     private let keystore: Keystore
     private let assetDefinitionStore: AssetDefinitionStore
     private let tokensService: TokenViewModelState
-    
+
     var coordinators: [Coordinator] = []
     weak var delegate: TransactionConfirmationCoordinatorDelegate?
 
@@ -400,6 +400,8 @@ fileprivate extension TransactionConfirmationCoordinator.functional {
                 return .erc20Approve
             case .erc20Transfer:
                 return .erc20Transfer
+            case .erc721ApproveAll:
+                return .erc721ApproveAll
             case .nativeCryptoTransfer:
                 return .nativeCryptoTransfer
             case .others:

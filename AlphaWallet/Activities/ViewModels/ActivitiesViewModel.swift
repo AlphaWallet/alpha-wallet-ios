@@ -273,6 +273,12 @@ extension ActivitiesViewModel.functional {
                 erc20TokenOperation = transactionRow.operation?.contractAddress.flatMap { service.token(for: $0, server: transactionRow.server) }.flatMap { TokenOperation.pendingErc20Approval($0) }
             case (.completed, .erc20TokenApprove):
                 erc20TokenOperation = transactionRow.operation?.contractAddress.flatMap { service.token(for: $0, server: transactionRow.server) }.flatMap { TokenOperation.completedErc20Approval($0) }
+            case (.pending, .erc721TokenApproveAll):
+                //TODO support ERC721 setApprovalForAll()
+                erc20TokenOperation = .none
+            case (.completed, .erc721TokenApproveAll):
+                //TODO support ERC721 setApprovalForAll()
+                erc20TokenOperation = .none
             case (.unknown, _), (.error, _), (.failed, _), (_, .unknown), (.completed, .none), (.pending, nil):
                 erc20TokenOperation = .none
             }

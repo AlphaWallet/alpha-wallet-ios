@@ -146,6 +146,9 @@ extension TransactionInstance {
                 return (operations: [LocalizedOperationObjectInstance(from: from.eip55String, to: spender.eip55String, contract: token.contractAddress, type: OperationType.erc20TokenApprove.rawValue, value: String(value), tokenId: "", symbol: token.symbol, name: token.name, decimals: token.decimals)], isErc20Interaction: true)
             case .erc20Transfer(let recipient, let value):
                 return (operations: [LocalizedOperationObjectInstance(from: from.eip55String, to: recipient.eip55String, contract: token.contractAddress, type: OperationType.erc20TokenTransfer.rawValue, value: String(value), tokenId: "", symbol: token.symbol, name: token.name, decimals: token.decimals)], isErc20Interaction: true)
+            //TODO support ERC721 setApprovalForAll()
+            case .erc721ApproveAll:
+                break
             case .nativeCryptoTransfer, .others, .erc1155SafeBatchTransfer, .erc1155SafeTransfer:
                 break
             }

@@ -1,7 +1,7 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
 import Foundation
-import BigInt 
+import BigInt
 
 struct Activity {
     enum NativeViewType {
@@ -15,6 +15,7 @@ struct Activity {
         case erc721Received
         case erc721OwnerApproved
         case erc721ApprovalObtained
+        //TODO support ERC721 setApprovalForAll()
         case none
     }
 

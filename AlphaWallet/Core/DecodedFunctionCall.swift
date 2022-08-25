@@ -50,6 +50,7 @@ struct DecodedFunctionCall {
         //NOTE: erc20
         case erc20Transfer(recipient: AlphaWallet.Address, value: BigUInt)
         case erc20Approve(spender: AlphaWallet.Address, value: BigUInt)
+        case erc721ApproveAll(spender: AlphaWallet.Address, value: Bool)
         //NOTE: native crypty
         case nativeCryptoTransfer(value: BigUInt)
         //NOTE: erc1155
@@ -59,8 +60,10 @@ struct DecodedFunctionCall {
         case others(name: String, arguments: [FunctionCall.Argument])
     }
 
+    //TODO why not make these vars in enum case above?
     static let erc20Transfer = (name: "transfer", interfaceHash: "a9059cbb", byteCount: 68)
     static let erc20Approve = (name: "approve", interfaceHash: "095ea7b3", byteCount: 68)
+    static let erc721ApproveAll = (name: "setApprovalForAll", interfaceHash: "a22cb465", byteCount: 68)
     static let erc1155SafeTransfer = (name: "safeTransferFrom", interfaceHash: "f242432a", byteCount: 68)
     static let erc1155SafeBatchTransfer = (name: "safeBatchTransferFrom", interfaceHash: "2eb2c2d6", byteCount: 68)
 
@@ -69,8 +72,13 @@ struct DecodedFunctionCall {
     let type: FunctionType
 
     init?(data: Data) {
-        guard let decoded = DecodedFunctionCall.decode(data: data, abi: AlphaWallet.Ethereum.ABI.ERC20) else { return nil }
-        self = decoded
+        if let decoded = DecodedFunctionCall.decode(data: data, abi: AlphaWallet.Ethereum.ABI.ERC20) {
+            self = decoded
+        } else if let decoded = DecodedFunctionCall.decode(data: data, abi: AlphaWallet.Ethereum.ABI.ERC721) {
+            self = decoded
+        } else {
+            return nil
+        }
     }
 
     init(name: String, arguments: [FunctionCall.Argument], type: FunctionType) {

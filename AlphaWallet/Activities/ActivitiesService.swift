@@ -457,10 +457,14 @@ fileprivate func == (activity: Activity, operation: LocalizedOperationObjectInst
             return activity.nativeViewType == .nativeCryptoSent || activity.nativeViewType == .nativeCryptoReceived
         case .erc20TokenTransfer:
             return (activity.nativeViewType == .erc20Sent || activity.nativeViewType == .erc20Received) && isSameAmount() && isSameFrom() && isSameTo()
+            //TODO name seems wrong since it's checking for ERC721 approvals too
         case .erc20TokenApprove:
             return activity.nativeViewType == .erc20OwnerApproved || activity.nativeViewType == .erc20ApprovalObtained || activity.nativeViewType == .erc721OwnerApproved || activity.nativeViewType == .erc721ApprovalObtained
         case .erc721TokenTransfer, .erc1155TokenTransfer:
             return (activity.nativeViewType == .erc721Sent || activity.nativeViewType == .erc721Received) && isSameAmount() && isSameFrom() && isSameTo()
+        case .erc721TokenApproveAll:
+            //TODO support ERC721 setApprovalForAll()
+            return false
         case .erc875TokenTransfer:
             return false
         case .unknown:

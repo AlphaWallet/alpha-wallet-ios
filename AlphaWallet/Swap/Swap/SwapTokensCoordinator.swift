@@ -274,6 +274,8 @@ extension SwapTokensCoordinator {
 }
 
 fileprivate extension SwapTokensCoordinator.functional {
+    //TODO support ERC721 setApprovalForAll()
+    //TODO unused?
     static func isTransactionErc20Approval(_ transaction: SentTransaction) -> Bool {
         let data = transaction.original.data
         if let function = DecodedFunctionCall(data: data) {
@@ -282,6 +284,8 @@ fileprivate extension SwapTokensCoordinator.functional {
                 return false
             case .erc20Approve:
                 return true
+            case .erc721ApproveAll:
+                return false
             }
         } else if data.isEmpty {
             return false

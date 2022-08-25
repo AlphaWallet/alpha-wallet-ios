@@ -18,6 +18,11 @@ extension AlphaWallet.Ethereum.ABI {
         return try! Data(contentsOf: url)
     }()
 
+    static let ERC721: Data = {
+        let url = R.file.erc721Json()!
+        return try! Data(contentsOf: url)
+    }()
+
     static let erc1155: Data = {
         let url = R.file.erc1155Json()!
         return try! Data(contentsOf: url)

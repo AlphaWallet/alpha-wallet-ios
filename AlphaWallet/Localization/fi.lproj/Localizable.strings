@@ -222,6 +222,7 @@
 "transaction.cell.sent.title" = "Lähetetty";
 "transaction.cell.tokenTransfer.title" = "Lähetä valuuttaa: %@";
 "transaction.cell.tokenApprove.title" = "Hyväksy %@";
+"transaction.cell.tokenApproveAll.title" = "Approve All %@";
 "Yesterday" = "Eilen";
 "Deleting" = "Poistaa";
 "Ethereum Address" = "Ethereum-osoite";

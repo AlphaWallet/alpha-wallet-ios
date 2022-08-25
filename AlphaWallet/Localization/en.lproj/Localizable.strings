@@ -222,6 +222,7 @@
 "transaction.cell.sent.title" = "Sent";
 "transaction.cell.tokenTransfer.title" = "Transfer %@";
 "transaction.cell.tokenApprove.title" = "Approve %@";
+"transaction.cell.tokenApproveAll.title" = "Approve All %@";
 "Yesterday" = "Yesterday";
 "Deleting" = "Deleting";
 "Ethereum Address" = "Ethereum Address";

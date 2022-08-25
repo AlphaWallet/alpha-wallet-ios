@@ -100,6 +100,8 @@ extension DecodedFunctionCall.FunctionType {
             self = .erc20Transfer(recipient: address, value: value)
         } else if name == DecodedFunctionCall.erc20Approve.name, let address: AlphaWallet.Address = arguments.get(type: .address, atIndex: 0), let value: BigUInt = arguments.get(type: .uint(bits: 256), atIndex: 1) {
             self = .erc20Approve(spender: address, value: value)
+        } else if name == DecodedFunctionCall.erc721ApproveAll.name, let address: AlphaWallet.Address = arguments.get(type: .address, atIndex: 0), let value: Bool = arguments.get(type: .bool, atIndex: 1) {
+            self = .erc721ApproveAll(spender: address, value: value)
         } else if name == DecodedFunctionCall.erc1155SafeTransfer.name, let address: AlphaWallet.Address = arguments.get(type: .address, atIndex: 0) {
             self = .erc1155SafeTransfer(spender: address)
         } else if name == DecodedFunctionCall.erc1155SafeBatchTransfer.name, let address: AlphaWallet.Address = arguments.get(type: .address, atIndex: 0) {
