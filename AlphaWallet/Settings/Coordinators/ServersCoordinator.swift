@@ -14,6 +14,7 @@ class ServersCoordinator: Coordinator {
         let all: [RPCServer] = [
             .main,
             .xDai,
+            .polygon,
             .classic,
             .poa,
             .ropsten,
@@ -32,7 +33,6 @@ class ServersCoordinator: Coordinator {
             .fantom_testnet,
             .avalanche,
             .avalanche_testnet,
-            .polygon,
             .mumbai_testnet,
             .optimistic,
             .optimisticKovan,
