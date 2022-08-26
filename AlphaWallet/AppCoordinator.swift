@@ -13,6 +13,8 @@ class AppCoordinator: NSObject, Coordinator {
     private let assetDefinitionStore = AssetDefinitionStore()
     private let window: UIWindow
     private var appTracker = AppTracker()
+    //TODO rename and replace type? Not Initializer but similar as of writing
+    private var services: [Initializer] = []
     private var assetDefinitionStoreCoordinator: AssetDefinitionStoreCoordinator? {
         return coordinators.first { $0 is AssetDefinitionStoreCoordinator } as? AssetDefinitionStoreCoordinator
     }
@@ -174,6 +176,7 @@ class AppCoordinator: NSObject, Coordinator {
 
     func start() {
         initializers()
+        runServices()
         appTracker.start()
         notificationService.registerForReceivingRemoteNotifications()
         applyStyle()
@@ -269,11 +272,17 @@ class AppCoordinator: NSObject, Coordinator {
             ConfigureApp(),
             CleanupWallets(keystore: keystore, walletAddressesStore: walletAddressesStore, config: config),
             SkipBackupFiles(legacyFileBasedKeystore: legacyFileBasedKeystore),
-            ReportUsersWalletAddresses(walletAddressesStore: walletAddressesStore),
             CleanupPasscode(keystore: keystore)
         ]
 
         initializers.forEach { $0.perform() }
+    }
+
+    private func runServices() {
+        services = [
+            ReportUsersWalletAddresses(walletAddressesStore: walletAddressesStore),
+        ]
+        services.forEach { $0.perform() }
     }
 
     @objc func reset() {
