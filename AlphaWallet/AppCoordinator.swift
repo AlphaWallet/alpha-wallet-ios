@@ -281,6 +281,7 @@ class AppCoordinator: NSObject, Coordinator {
     private func runServices() {
         services = [
             ReportUsersWalletAddresses(walletAddressesStore: walletAddressesStore),
+            ReportUsersActiveChains(config: config),
         ]
         services.forEach { $0.perform() }
     }

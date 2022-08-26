@@ -440,6 +440,7 @@
 		5E7C766B96C59C7893CF2CB4 /* EditedTransactionConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7F1F965C69B80A234F1F /* EditedTransactionConfiguration.swift */; };
 		5E7C76738DDAAD623C6FB4DC /* PromptBackupWalletAfterExceedingThresholdViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C77685B78D5372F6C7CB0 /* PromptBackupWalletAfterExceedingThresholdViewViewModel.swift */; };
 		5E7C767595F664FF33157ADF /* FunctionOrigin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C72FABB78B9E1655A06A2 /* FunctionOrigin.swift */; };
+		5E7C7677DFBE69EE91F7C69E /* ReportUsersActiveChains.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C71E0480214C4E6CD6189 /* ReportUsersActiveChains.swift */; };
 		5E7C767848E46E079557A039 /* SeedPhraseCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C717B39E95B653F384AA0 /* SeedPhraseCellViewModel.swift */; };
 		5E7C767C9166726E96ED4C07 /* DelegateContract.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C72DDBF109139E4C661D5 /* DelegateContract.swift */; };
 		5E7C768AA9654954A0DD87F0 /* OpenSeaNonFungibleTokenCardRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7D913DAA3322F1C7DD46 /* OpenSeaNonFungibleTokenCardRowViewModel.swift */; };
@@ -1592,6 +1593,7 @@
 		5E7C71ADDDAB65DEF4096A8D /* PromptViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromptViewController.swift; sourceTree = "<group>"; };
 		5E7C71C2C110B621EFDE336F /* TokensCardViewControllerTitleHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokensCardViewControllerTitleHeader.swift; sourceTree = "<group>"; };
 		5E7C71DB4EDD10EA665101C2 /* ActivityViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActivityViewCell.swift; sourceTree = "<group>"; };
+		5E7C71E0480214C4E6CD6189 /* ReportUsersActiveChains.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReportUsersActiveChains.swift; sourceTree = "<group>"; };
 		5E7C71E355BD14E975AF7491 /* TokensDataStoreTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokensDataStoreTest.swift; sourceTree = "<group>"; };
 		5E7C71E8E2D256BC461E9597 /* TokenScriptSelection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenScriptSelection.swift; sourceTree = "<group>"; };
 		5E7C71F2CAF30A270E966817 /* ScriptUri.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScriptUri.swift; sourceTree = "<group>"; };
@@ -3814,6 +3816,7 @@
 				8765D6E6282BCC8000529F45 /* ReportUsersWalletAddresses.swift */,
 				87300E9128573461009DE4B3 /* ConfigureImageStorage.swift */,
 				87094597285853B800E2746E /* CleanupPasscode.swift */,
+				5E7C71E0480214C4E6CD6189 /* ReportUsersActiveChains.swift */,
 			);
 			path = Initializers;
 			sourceTree = "<group>";
@@ -7714,6 +7717,7 @@
 				5E7C76484BE3E1F41ABA4A00 /* SwapEstimate.swift in Sources */,
 				5E7C762FC313F112981FAD35 /* DevelopmentForcedError.swift in Sources */,
 				5E7C7A709C0BF6C7716A6251 /* ScriptUri.swift in Sources */,
+				5E7C7677DFBE69EE91F7C69E /* ReportUsersActiveChains.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
