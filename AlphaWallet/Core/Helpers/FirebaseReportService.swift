@@ -31,7 +31,7 @@ enum ReportKey: String {
     case activeWalletAddress
 }
 
-let crashlytics = Crashlytics.crashlytics()
+let crashlytics: Crashlytics = Crashlytics.crashlytics()
 
 extension Crashlytics {
 
