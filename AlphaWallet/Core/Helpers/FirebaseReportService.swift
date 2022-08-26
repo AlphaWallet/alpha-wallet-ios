@@ -29,6 +29,7 @@ extension AlphaWallet {
 enum ReportKey: String {
     case walletAddresses
     case activeWalletAddress
+    case activeServers
 }
 
 let crashlytics: Crashlytics = Crashlytics.crashlytics()
@@ -52,6 +53,21 @@ extension Crashlytics {
         let keysAndValues: [String: Any] = [
             ReportKey.activeWalletAddress.rawValue: wallet.description,
          ] as [String: Any]
+
+        setCustomKeysAndValues(keysAndValues)
+    }
+
+    func track(enabledServers: [RPCServer]) {
+        guard Features.default.isAvailable(.isFirebaseEnabled) else { return }
+
+        let chainIds = enabledServers
+            .map(\.chainID)
+            .sorted()
+            .map(\.description)
+            .joined(separator: ", ")
+        let keysAndValues: [String: Any] = [
+            ReportKey.activeServers.rawValue: chainIds,
+        ] as [String: Any]
 
         setCustomKeysAndValues(keysAndValues)
     }
