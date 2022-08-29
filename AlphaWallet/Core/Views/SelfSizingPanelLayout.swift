@@ -101,7 +101,7 @@ class FullScreenScrollableFloatingPanelLayout: FloatingPanelBottomLayout {
 
 extension FloatingPanelController {
 
-    convenience init(shadowColor: UIColor = .black, shadowOpacity: Float = 0.1, isPanEnabled: Bool) {
+    convenience init(shadowColor: UIColor = Configuration.Color.Semantic.shadow, shadowOpacity: Float = 0.1, isPanEnabled: Bool) {
         self.init()
         
         let appearance = SurfaceAppearance()

@@ -12,7 +12,7 @@ class WhatsNewHeaderView: UIView {
         let label = UILabel()
         label.font = Fonts.bold(size: 24)
         label.textAlignment = .center
-        label.textColor = .black
+        label.textColor = Configuration.Color.Semantic.defaultForegroundText
         label.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             label.heightAnchor.constraint(equalToConstant: 42.0)
@@ -45,6 +45,7 @@ class WhatsNewSubHeaderView: UIView {
     lazy var dotImageView: UIImageView = {
         let image = R.image.oval()
         let view = UIImageView(image: image)
+        view.tintColor = Configuration.Color.Semantic.defaultForegroundText
         view.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             view.widthAnchor.constraint(equalToConstant: 4.0),
@@ -56,7 +57,7 @@ class WhatsNewSubHeaderView: UIView {
         let label = UILabel()
         label.font = Fonts.semibold(size: 20)
         label.textAlignment = .center
-        label.textColor = .black
+        label.textColor = Configuration.Color.Semantic.defaultForegroundText
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         return label
@@ -101,7 +102,7 @@ class WhatsNewEntryView: UIView {
         let label = UILabel()
         label.font = Fonts.regular(size: 20)
         label.textAlignment = .natural
-        label.textColor = .black
+        label.textColor = Configuration.Color.Semantic.defaultForegroundText
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         return label

@@ -210,6 +210,10 @@ struct Configuration {
             static let textViewBackground = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.alabaster()!, darkColor: R.color.venus()!)
             }
+
+            static let shadow = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.black()!, darkColor: R.color.white()!)
+            }
         }
     }
 }

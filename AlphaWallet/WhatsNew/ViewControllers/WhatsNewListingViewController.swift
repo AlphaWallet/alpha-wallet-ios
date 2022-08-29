@@ -50,5 +50,6 @@ class WhatsNewListingViewController: UIViewController {
         views += [.spacer(height: 30)]
 
         containerView.addArrangedSubviews(views)
+        view.backgroundColor = Configuration.Color.Semantic.dialogBackground
     }
 }
