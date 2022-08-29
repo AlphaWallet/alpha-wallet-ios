@@ -215,10 +215,13 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
                 tokensService.refreshBalance(updatePolicy: .tokens(tokens: tokens))
             }.store(in: &cancelable)
 
-        coinTickersFetcher.updateTickerId.sink { [tokensService] data in
-            guard let token = tokensService.token(for: data.key.address, server: data.key.server) else { return }
-            tokensService.update(token: token, value: .coinGeckoTickerId(data.tickerId))
-        }.store(in: &cancelable)
+        coinTickersFetcher.updateTickerIds
+            .map { [tokensService] data -> [AddOrUpdateTokenAction] in
+                let v = data.compactMap { i in tokensService.token(for: i.key.address, server: i.key.server).flatMap { ($0, i.tickerId) } }
+                return v.map { AddOrUpdateTokenAction.update(token: $0.0, action: .coinGeckoTickerId($0.1)) }
+            }.sink { [tokensService] actions in
+                tokensService.addOrUpdate(actions)
+            }.store(in: &cancelable)
     }
 
     private func applyTokenScriptOverrides(tokens: [TokenViewModel]) -> AnyPublisher<[TokenViewModel], Never> {

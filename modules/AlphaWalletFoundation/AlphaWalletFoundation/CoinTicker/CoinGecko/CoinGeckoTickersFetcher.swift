@@ -7,6 +7,7 @@
 
 import Combine
 import Foundation
+import AlphaWalletCore
 
 public final class CoinGeckoTickersFetcher: CoinTickersFetcher {
     private let pricesCacheLifetime: TimeInterval = 60 * 60
@@ -16,8 +17,6 @@ public final class CoinGeckoTickersFetcher: CoinTickersFetcher {
     private let tickerIdsFetcher: TickerIdsFetcher
     /// Cached fetch ticker prices operations
     private var promises: AtomicDictionary<TokenMappedToTicker, AnyCancellable> = .init()
-    /// Ticker last update dates
-    private var tickerUpdatesDates: AtomicDictionary<TokenMappedToTicker, Date> = .init()
     /// Resolving ticker ids operations
     private var tickerResolvers: AtomicDictionary<TokenMappedToTicker, AnyCancellable> = .init()
 
@@ -25,14 +24,19 @@ public final class CoinGeckoTickersFetcher: CoinTickersFetcher {
         return storage.tickersDidUpdate
     }
 
-    public var updateTickerId: AnyPublisher<(tickerId: TickerIdString, key: AddressAndRPCServer), Never> {
-        storage.updateTickerId
+    public var updateTickerIds: AnyPublisher<[(tickerId: TickerIdString, key: AddressAndRPCServer)], Never> {
+        storage.updateTickerIds
     }
 
     public init(networkProvider: CoinGeckoNetworkProviderType, storage: CoinTickersStorage & ChartHistoryStorage & TickerIdsStorage, tickerIdsFetcher: TickerIdsFetcher) {
         self.networkProvider = networkProvider
         self.tickerIdsFetcher = tickerIdsFetcher
         self.storage = storage
+
+        //NOTE: Remove old files with tickers, ids and price histories
+        ["tickers", "tickersIds", "history"].map {
+            FileStorage().fileURL(with: $0, fileExtension: "json")
+        }.forEach { try? FileManager.default.removeItem(at: $0) }
     }
 
     public func ticker(for addressAndPRCServer: AddressAndRPCServer) -> CoinTicker? {
@@ -70,13 +74,7 @@ public final class CoinGeckoTickersFetcher: CoinTickersFetcher {
                 for token in targetTokensToFetchTickers {
                     promises.removeValue(forKey: token)
                 }
-            }, receiveValue: { [storage, weak self] tickers in
-                storage.addOrUpdate(tickers: tickers)
-
-                for token in targetTokensToFetchTickers {
-                    self?.setLastTickerUpdateDate(date: Date(), for: token)
-                }
-            })
+            }, receiveValue: { [storage] in storage.addOrUpdate(tickers: $0) })
 
         for token in targetTokensToFetchTickers {
             promises[token] = operation
@@ -133,14 +131,11 @@ public final class CoinGeckoTickersFetcher: CoinTickersFetcher {
     }
 
     private func hasExpiredTickersLifeTimeSinceLastUpdate(for token: TokenMappedToTicker) -> Bool {
-        if let lastFetchingDate = tickerUpdatesDates[token], Date().timeIntervalSince(lastFetchingDate) <= pricesCacheLifetime {
+        let key = AddressAndRPCServer(address: token.contractAddress, server: token.server)
+        if let lastFetchingDate = storage.historyLastUpdatedAt(for: key), Date().timeIntervalSince(lastFetchingDate) <= pricesCacheLifetime {
             return false
         }
         return true
-    }
-
-    private func setLastTickerUpdateDate(date: Date, for token: TokenMappedToTicker) {
-        tickerUpdatesDates[token] = date
     }
 
     private func hasExpired(history mappedChartHistory: MappedChartHistory, for period: ChartHistoryPeriod) -> Bool {

@@ -108,7 +108,7 @@ public struct FileStorage: StorageType {
         return result
     }
 
-    private func fileURL(with key: String, fileExtension: String = "data") -> URL {
+    public func fileURL(with key: String, fileExtension: String = "data") -> URL {
         return directoryUrl.appendingPathComponent("\(key).\(fileExtension)", isDirectory: false)
     }
 }

@@ -3,6 +3,7 @@
 import Foundation
 import BigInt
 import AlphaWalletFoundation
+import UIKit
 
 struct ActivityViewModel {
     let activity: Activity

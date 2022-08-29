@@ -7,10 +7,11 @@
 
 import Combine
 import Foundation
+import AlphaWalletCore
 
 /// Ticker ids are havy objects, that don't change often, keep them cached and in separate fetcher to extract logic
 public class CoinGeckoTickerIdsFetcher: TickerIdsFetcher {
-    typealias TickerIdsPublisher = AnyPublisher<[TickerId], CoinGeckoNetworkProviderError>
+    typealias TickerIdsPublisher = AnyPublisher<Void, CoinGeckoNetworkProviderError>
 
     private let networkProvider: CoinGeckoNetworkProviderType
     private let spamTokens = SpamTokens()
@@ -18,7 +19,6 @@ public class CoinGeckoTickerIdsFetcher: TickerIdsFetcher {
     private var config: Config
     private let pricesCacheLifetime: TimeInterval = 604800 // one week
     private var fetchSupportedTickerIdsPublisher: TickerIdsPublisher?
-    private let tickerIdFilter = TickerIdFilter()
     private let queue = DispatchQueue(label: "org.alphawallet.swift.coinGeckoTicker.IdsFetcher")
 
     public init(networkProvider: CoinGeckoNetworkProviderType, storage: TickerIdsStorage & CoinTickersStorage, config: Config) {
@@ -31,10 +31,15 @@ public class CoinGeckoTickerIdsFetcher: TickerIdsFetcher {
     public func tickerId(for token: TokenMappedToTicker) -> AnyPublisher<TickerIdString?, Never> {
         return Just(token)
             .receive(on: queue)
-            .flatMap { [weak self, tickerIdFilter] token -> AnyPublisher<TickerIdString?, Never> in
+            .flatMap { [weak self, storage] token -> AnyPublisher<TickerIdString?, Never> in
                 guard let strongSelf = self else { return .empty() }
+
                 return strongSelf.fetchSupportedTickerIds()
-                    .map { tickerIdFilter.tickerId(for: token, in: $0) }
+                    .map { storage.tickerId(for: token)?.id }
+                    .handleEvents(receiveOutput: { tickerId in
+                        guard let tickerId = tickerId else { return }
+                        storage.addOrUpdate(tickerId: tickerId, for: token)
+                    })
                     .replaceError(with: nil)
                     .eraseToAnyPublisher()
             }.receive(on: RunLoop.main)
@@ -43,7 +48,7 @@ public class CoinGeckoTickerIdsFetcher: TickerIdsFetcher {
 
     private func fetchSupportedTickerIds() -> TickerIdsPublisher {
         if let lastFetchingDate = config.tickerIdsLastFetchedDate, Date().timeIntervalSince(lastFetchingDate) <= pricesCacheLifetime, storage.hasTickerIds() {
-            return .just(storage.tickerIds)
+            return .just(())
         } else {
             if let publisher = fetchSupportedTickerIdsPublisher {
                 return publisher
@@ -56,6 +61,7 @@ public class CoinGeckoTickerIdsFetcher: TickerIdsFetcher {
                     }, receiveCompletion: { [weak self] _ in
                         self?.fetchSupportedTickerIdsPublisher = .none
                     }).share()
+                    .mapToVoid()
                     .eraseToAnyPublisher()
 
                 fetchSupportedTickerIdsPublisher = publisher

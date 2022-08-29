@@ -6,6 +6,7 @@
 //
 
 import Combine
+import RealmSwift
 import AlphaWalletCore
 
 public typealias TickerIdString = String
@@ -13,6 +14,7 @@ public typealias TickerIdString = String
 public protocol CoinTickersStorage {
     var tickersDidUpdate: AnyPublisher<Void, Never> { get }
 
+    func historyLastUpdatedAt(for token: AddressAndRPCServer) -> Date?
     func ticker(for addressAndRPCServer: AddressAndRPCServer) -> CoinTicker?
     func addOrUpdate(tickers: [AssignedCoinTickerId: CoinTicker])
 }
@@ -23,133 +25,225 @@ public protocol ChartHistoryStorage {
 }
 
 public protocol TickerIdsStorage {
-    var tickerIds: [TickerId] { get }
-    var updateTickerId: AnyPublisher<(tickerId: TickerIdString, key: AddressAndRPCServer), Never> { get }
+    var updateTickerIds: AnyPublisher<[(tickerId: TickerIdString, key: AddressAndRPCServer)], Never> { get }
 
     func hasTickerIds() -> Bool
+    func tickerId(for token: TokenMappedToTicker) -> TickerId?
     func knownTickerId(for key: TokenMappedToTicker) -> TickerIdString?
     func addOrUpdate(tickerId: TickerIdString?, for key: TokenMappedToTicker)
     func addOrUpdate(tickerIds: [TickerId])
     func removeTickerIds()
 }
 
-public class CoinTickersFileStorage: NSObject {
-    private let historyStore: Storage<[AssignedCoinTickerId: [ChartHistoryPeriod: MappedChartHistory]]>
-    private let tickersStore: Storage<[AssignedCoinTickerId: CoinTicker]>
-    private let allTickersIdsStore: Storage<[TickerId]>
-    private let knownTickersIdsStore: Storage<[AddressAndRPCServer: TickerIdString]>
-    private let updateTickerIdSubject: PassthroughSubject<(tickerId: TickerIdString, key: AddressAndRPCServer), Never> = .init()
+extension RealmStore: TickerIdsStorage {
 
-    public init(config: Config, storage: StorageType) {
-        historyStore = .init(fileName: "history", storage: storage, defaultValue: [:])
-        allTickersIdsStore = .init(fileName: "tickersIds", storage: storage, defaultValue: [])
-        tickersStore = .init(fileName: "tickers", storage: storage, defaultValue: [:])
-        knownTickersIdsStore = .init(fileName: "knownTickersIds", storage: storage, defaultValue: [:])
-        super.init()
-        CoinTickersFileStorage.migrateTickerIdsFrom_v1To_v2(config: config, storage: self)
-        CoinTickersFileStorage.fixGnosisXdaiNativeTokenTicker(config: config, tickersStore: tickersStore)
-    }
+    func addOrUpdate(events: [EventActivityInstance]) {
+        guard !events.isEmpty else { return }
 
-}
-
-extension CoinTickersFileStorage {
-    static func migrateTickerIdsFrom_v1To_v2(config: Config, storage: TickerIdsStorage) {
-        guard !config.tickerIdsHasMigratedTo_v2 else { return }
-
-        var config = config
-        config.tickerIdsHasMigratedTo_v2 = true
-        config.tickerIdsLastFetchedDate = nil
-        storage.removeTickerIds()
-    }
-
-    //TODO remove after sometime once users no longer have this problem
-    static func fixGnosisXdaiNativeTokenTicker(config: Config, tickersStore: Storage<[AssignedCoinTickerId: CoinTicker]>) {
-        //Fix older code
-        if tickersStore.value.contains(where: { k, v in k == "gnosis" && v.symbol == "gno" }) {
-            tickersStore.removeAll()
-        } else {
-            //no-op
+        let eventsToSave = events.map { EventActivity(value: $0) }
+        performSync { realm in
+            try? realm.safeWrite {
+                realm.add(eventsToSave, update: .all)
+            }
         }
     }
-}
 
-extension Config {
-    static let migrationTo_v2Key = "migrationTo_v2Key"
-
-    var tickerIdsHasMigratedTo_v2: Bool {
-        get { return defaults.bool(forKey: Config.migrationTo_v2Key) }
-        set { defaults.set(newValue, forKey: Config.migrationTo_v2Key) }
-    }
-}
-
-extension CoinTickersFileStorage: CoinTickersStorage {
-
-    public var tickersDidUpdate: AnyPublisher<Void, Never> {
-        tickersStore.publisher
-            .mapToVoid()
-            .eraseToAnyPublisher()
-    }
-
-    public func ticker(for key: AddressAndRPCServer) -> CoinTicker? {
-        guard let tickerId = tickersStore.value.keys.first(where: { $0 == key }) else { return nil }
-        return tickersStore.value[tickerId]
-    }
-
-    public func addOrUpdate(tickers: [AssignedCoinTickerId: CoinTicker]) {
-        for each in tickers {
-            tickersStore.value[each.key] = each.value
+    public var updateTickerIds: AnyPublisher<[(tickerId: TickerIdString, key: AddressAndRPCServer)], Never> {
+        var publisher: AnyPublisher<[(tickerId: TickerIdString, key: AddressAndRPCServer)], Never>!
+        performSync { realm in
+            publisher = realm.objects(KnownTickerIdObject.self)
+                .changesetPublisher
+                .compactMap { changeset -> [AssignedCoinTickerId]? in
+                    switch changeset {
+                    case .error, .initial:
+                        return nil
+                    case .update(let values, let deletions, let insertions, let modifications):
+                        let objects = insertions.map { values[$0] } + modifications.map { values[$0] }
+                        return objects.map { AssignedCoinTickerId(tickerId: $0.tickerIdString, primaryToken: .init(address: $0.contractAddress, server: $0.server)) }
+                    }
+                }.map { $0.map { (tickerId: $0.tickerId, key: $0.primaryToken) } }
+                .eraseToAnyPublisher()
         }
-    }
-}
 
-extension CoinTickersFileStorage: ChartHistoryStorage {
-
-    public func addOrUpdateChartHistory(history result: ChartHistory, period: ChartHistoryPeriod, for tickerId: AssignedCoinTickerId) {
-        guard !result.prices.isEmpty else { return }
-        var newHistory = historyStore.value[tickerId] ?? [:]
-        newHistory[period] = .init(history: result, fetchDate: Date())
-        historyStore.value[tickerId] = newHistory
-    }
-
-    public func chartHistory(period: ChartHistoryPeriod, for tickerId: AssignedCoinTickerId) -> MappedChartHistory? {
-        return historyStore.value[tickerId]?[period]
-    }
-}
-
-extension CoinTickersFileStorage: TickerIdsStorage {
-
-    public var updateTickerId: AnyPublisher<(tickerId: TickerIdString, key: AddressAndRPCServer), Never> {
-        updateTickerIdSubject.eraseToAnyPublisher()
-    }
-
-    public var tickerIds: [TickerId] {
-        return allTickersIdsStore.value
+        return publisher
     }
 
     public func hasTickerIds() -> Bool {
-        return !allTickersIdsStore.value.isEmpty
+        var hasTickerIds: Bool = false
+        performSync { realm in
+            hasTickerIds = !realm.objects(TickerIdObject.self).isEmpty
+        }
+
+        return hasTickerIds
     }
 
     public func knownTickerId(for key: TokenMappedToTicker) -> TickerIdString? {
-        let key = AddressAndRPCServer(address: key.contractAddress, server: key.server)
-        return knownTickersIdsStore.value[key]
+        var tickerIdString: TickerIdString?
+        performSync { realm in
+            let primaryKey = ContractAddressObject.generatePrimaryKey(fromContract: key.contractAddress, server: key.server)
+            tickerIdString = realm.object(ofType: KnownTickerIdObject.self, forPrimaryKey: primaryKey)?.tickerIdString
+        }
+
+        return tickerIdString
     }
 
-    public func addOrUpdate(tickerId: TickerIdString?, for _key: TokenMappedToTicker) {
-        let key = AddressAndRPCServer(address: _key.contractAddress, server: _key.server)
+    public func addOrUpdate(tickerId: TickerIdString?, for key: TokenMappedToTicker) {
+        performSync { realm in
+            let primaryKey = ContractAddressObject.generatePrimaryKey(fromContract: key.contractAddress, server: key.server)
+            let storedTicker = realm.object(ofType: KnownTickerIdObject.self, forPrimaryKey: primaryKey)
+            if let tickerId = tickerId, let storedTickerId = storedTicker?.tickerIdString, tickerId == storedTickerId { return }
 
-        if let id = tickerId, _key.coinGeckoId != id { updateTickerIdSubject.send((tickerId: id, key: key)) }
+            try? realm.safeWrite {
+                if let tickerId = tickerId {
+                    if let value = storedTicker {
+                        value.tickerIdString = tickerId
+                    } else {
+                        let knownTickerId = KnownTickerIdObject(server: key.server, contractAddress: key.contractAddress, tickerIdString: tickerId)
+                        realm.add(knownTickerId, update: .all)
+                    }
+                } else {
+                    guard let _storedTicker = storedTicker else { return }
+                    realm.delete(_storedTicker)
+                }
+            }
+        }
+    }
 
-        guard knownTickersIdsStore.value[key] != tickerId else { return }
-
-        knownTickersIdsStore.value[key] = tickerId
+    public func tickerId(for token: TokenMappedToTicker) -> TickerId? {
+        var tickerId: TickerId?
+        performSync { realm in
+            let filter = TickerIdFilter()
+            tickerId = realm.objects(TickerIdObject.self)
+                .filter { filter.filterMathesInPlatforms(token: token, tickerId: $0) }
+                .first
+                .flatMap { TickerId(tickerIdObject: $0) }
+        }
+        return tickerId
     }
 
     public func addOrUpdate(tickerIds: [TickerId]) {
-        allTickersIdsStore.value = tickerIds
+        guard !tickerIds.isEmpty else { return }
+
+        let tickerIdsToSave = tickerIds.map { TickerIdObject(tickerId: $0) }
+        performSync { realm in
+            try? realm.safeWrite {
+                realm.add(tickerIdsToSave, update: .all)
+            }
+        }
     }
 
     public func removeTickerIds() {
-        allTickersIdsStore.removeAll()
+        performSync { realm in
+            try? realm.safeWrite {
+                realm.delete(realm.objects(TickerIdObject.self))
+            }
+        }
+    }
+}
+
+extension RealmStore: ChartHistoryStorage {
+
+    public func chartHistory(period: ChartHistoryPeriod, for tickerId: AssignedCoinTickerId) -> MappedChartHistory? {
+        var history: MappedChartHistory?
+        performSync { realm in
+            let primaryKey = ContractAddressObject.generatePrimaryKey(fromContract: tickerId.primaryToken.address, server: tickerId.primaryToken.server)
+            history = realm.object(ofType: AssignedCoinTickerIdObject.self, forPrimaryKey: primaryKey).flatMap { $0.chartHistory?[period] }
+        }
+
+        return history
+    }
+
+    private static func getOrCreateKnownTickerId(for tickerId: AssignedCoinTickerId, in realm: Realm) -> KnownTickerIdObject {
+        let primaryKey = ContractAddressObject.generatePrimaryKey(fromContract: tickerId.primaryToken.address, server: tickerId.primaryToken.server)
+        var knownTickerId: KnownTickerIdObject
+        if let _knownTickerId = realm.object(ofType: KnownTickerIdObject.self, forPrimaryKey: primaryKey) {
+            knownTickerId = _knownTickerId
+        } else {
+            let _knownTickerId = KnownTickerIdObject(key: tickerId)
+            realm.add(_knownTickerId, update: .all)
+            knownTickerId = _knownTickerId
+        }
+        return knownTickerId
+    }
+
+    public func addOrUpdateChartHistory(history: ChartHistory, period: ChartHistoryPeriod, for tickerId: AssignedCoinTickerId) {
+        performSync { realm in
+            try? realm.safeWrite {
+                let primaryKey = ContractAddressObject.generatePrimaryKey(fromContract: tickerId.primaryToken.address, server: tickerId.primaryToken.server)
+                let knownTickerId = Self.getOrCreateKnownTickerId(for: tickerId, in: realm)
+
+                if let assignedCoinTicker = realm.object(ofType: AssignedCoinTickerIdObject.self, forPrimaryKey: primaryKey) {
+                    var newHistory = assignedCoinTicker.chartHistory ?? [:]
+
+                    newHistory[period] = .init(history: history, fetchDate: Date())
+                    assignedCoinTicker.chartHistory = newHistory
+                    assignedCoinTicker.historyUpdatedAt = NSDate()
+                } else {
+                    var newHistory: [ChartHistoryPeriod: MappedChartHistory] = [:]
+                    newHistory[period] = .init(history: history, fetchDate: Date())
+
+                    let assignedCoinTicker = AssignedCoinTickerIdObject(tickerId: knownTickerId, ticker: nil, chartHistory: newHistory)
+                    realm.add(assignedCoinTicker, update: .all)
+                }
+            }
+        }
+    }
+}
+
+extension RealmStore: CoinTickersStorage {
+    public var tickersDidUpdate: AnyPublisher<Void, Never> {
+        var publisher: AnyPublisher<Void, Never>!
+        performSync { realm in
+            publisher = realm.objects(AssignedCoinTickerIdObject.self)
+                .changesetPublisher
+                .mapToVoid()
+                .eraseToAnyPublisher()
+        }
+
+        return publisher
+    }
+
+    public func historyLastUpdatedAt(for key: AddressAndRPCServer) -> Date? {
+        var updatedAt: Date?
+        performSync { realm in
+            let primaryKey = ContractAddressObject.generatePrimaryKey(fromContract: key.address, server: key.server)
+            updatedAt = realm.object(ofType: AssignedCoinTickerIdObject.self, forPrimaryKey: primaryKey)?.historyUpdatedAt as? Date
+        }
+
+        return updatedAt
+    }
+
+    public func ticker(for key: AddressAndRPCServer) -> CoinTicker? {
+        var ticker: CoinTicker?
+        performSync { realm in
+            let primaryKey = ContractAddressObject.generatePrimaryKey(fromContract: key.address, server: key.server)
+            ticker = realm.object(ofType: AssignedCoinTickerIdObject.self, forPrimaryKey: primaryKey)
+                .flatMap { $0.ticker.flatMap { CoinTicker(coinTickerObject: $0) } }
+        }
+
+        return ticker
+    }
+
+    public func addOrUpdate(tickers: [AssignedCoinTickerId: CoinTicker]) {
+        guard !tickers.isEmpty else { return }
+
+        performSync { realm in
+            try? realm.safeWrite {
+                for each in tickers {
+                    let primaryKey = ContractAddressObject.generatePrimaryKey(fromContract: each.key.primaryToken.address, server: each.key.primaryToken.server)
+                    let knownTickerId = Self.getOrCreateKnownTickerId(for: each.key, in: realm)
+
+                    let coinTicker = CoinTickerObject(coinTicker: each.value)
+                    realm.add(coinTicker, update: .all)
+
+                    if let assignedCoinTicker = realm.object(ofType: AssignedCoinTickerIdObject.self, forPrimaryKey: primaryKey) {
+                        assignedCoinTicker._ticker = coinTicker
+                    } else {
+                        let assignedCoinTicker = AssignedCoinTickerIdObject(tickerId: knownTickerId, ticker: coinTicker, chartHistory: nil)
+                        realm.add(assignedCoinTicker, update: .all)
+                    }
+                }
+            }
+        }
     }
 }
