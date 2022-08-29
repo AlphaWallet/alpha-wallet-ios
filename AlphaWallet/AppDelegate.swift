@@ -23,9 +23,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        applyStyle()
         window = UIWindow(frame: UIScreen.main.bounds)
-        //Necessary to make UIAlertController have the correct tint colors, despite already doing: `UIWindow.appearance().tintColor = Colors.appTint`
-        window?.tintColor = Colors.appTint
 
         do {
             if Features.default.isAvailable(.isFirebaseEnabled) {
