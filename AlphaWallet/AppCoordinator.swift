@@ -179,7 +179,6 @@ class AppCoordinator: NSObject, Coordinator {
         runServices()
         appTracker.start()
         notificationService.registerForReceivingRemoteNotifications()
-        applyStyle()
 
         setupAssetDefinitionStoreCoordinator()
         migrateToStoringRawPrivateKeysInKeychain()
