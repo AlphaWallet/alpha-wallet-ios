@@ -67,8 +67,11 @@ final class LiQuestTokenSwapperNetworkProvider: TokenSwapperNetworkProvider {
         return Alamofire.request(LiQuestTokenSwapperNetworkProvider.Url.fetchQuote, parameters: parameters)
             .responseJSONPublisher()
             .tryMap { rawJson, _ -> SwapQuote in
-                if let jsonData: Data = try? JSONSerialization.data(withJSONObject: rawJson), let swapQuote = try? JSONDecoder().decode(SwapQuote.self, from: jsonData) {
+                guard let data = try? JSONSerialization.data(withJSONObject: rawJson) else { throw SwapError.invalidJson }
+                if let swapQuote = try? JSONDecoder().decode(SwapQuote.self, from: data) {
                     return swapQuote
+                } else if let error = try? JSONDecoder().decode(SwapQuote.Error.self, from: data) {
+                    throw SwapError.unableToBuildSwapUnsignedTransaction(message: error.message)
                 } else {
                     throw SwapError.unableToBuildSwapUnsignedTransactionFromSwapProvider
                 }

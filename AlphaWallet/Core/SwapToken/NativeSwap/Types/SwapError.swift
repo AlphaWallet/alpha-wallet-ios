@@ -9,6 +9,8 @@ import Foundation
 
 enum SwapError: Error {
     case unableToBuildSwapUnsignedTransactionFromSwapProvider
+    case unableToBuildSwapUnsignedTransaction(message: String)
+    case invalidJson
     case userCancelledApproval
     case approveTransactionNotCompleted
     case tokenOrSwapQuoteNotFound
@@ -16,6 +18,8 @@ enum SwapError: Error {
 
     var localizedDescription: String {
         switch self {
+        case .unableToBuildSwapUnsignedTransaction(let message):
+            return "Unable To Build Swap Unsigned Transaction: \(message)"
         case .unableToBuildSwapUnsignedTransactionFromSwapProvider:
             return "Unable To Build Swap Unsigned Transaction From Swap Provider"
         case .userCancelledApproval:
@@ -26,6 +30,8 @@ enum SwapError: Error {
             return "Unknown Error"
         case .tokenOrSwapQuoteNotFound:
             return "Unable To Build Swap Unsigned Transaction, Token Or Swap Quote Not Found"
+        case .invalidJson:
+            return "Invalid Json"
         }
     }
 }
@@ -33,7 +39,12 @@ enum SwapError: Error {
 extension Error {
     var isUserCancelledError: Bool {
         guard let swapError = self as? SwapError else { return false }
-        return SwapError.userCancelledApproval == swapError
+        switch swapError {
+        case .userCancelledApproval:
+            return true
+        case .unableToBuildSwapUnsignedTransactionFromSwapProvider, .unableToBuildSwapUnsignedTransaction, .invalidJson, .approveTransactionNotCompleted, .tokenOrSwapQuoteNotFound, .unknownError:
+            return false
+        }
     }
 }
 

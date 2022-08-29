@@ -19,7 +19,6 @@ struct EditableSlippageViewModelOutput {
 class EditableSlippageViewModel {
     private let selectedSlippage: CurrentValueSubject<SwapSlippage, Never>
     private var cancelable = Set<AnyCancellable>()
-    private static let toPercentageUnits: Double = 100.0
 
     var titleAttributedString: NSAttributedString {
         return .init(string: "Custom: ", attributes: [
@@ -31,10 +30,10 @@ class EditableSlippageViewModel {
     var text: String? {
         return selectedSlippage.value
             .customValue
-            .flatMap { String($0 * EditableSlippageViewModel.toPercentageUnits).droppedTrailingZeros }
+            .flatMap { String($0 * SwapSlippage.toPercentageUnits).droppedTrailingZeros }
     }
 
-    var placeholderString: String { return "30%" }
+    var placeholderString: String { return "3%" }
 
     init(selectedSlippage: CurrentValueSubject<SwapSlippage, Never>) {
         self.selectedSlippage = selectedSlippage
@@ -43,7 +42,7 @@ class EditableSlippageViewModel {
     func transform(input: EditableSlippageViewModelInput) -> EditableSlippageViewModelOutput {
         input.text
             .compactMap { $0.flatMap { Double($0) } }
-            .map { SwapSlippage.custom(min($0 / EditableSlippageViewModel.toPercentageUnits, 1)) }
+            .map { SwapSlippage.custom(from: $0) }
             .assign(to: \.value, on: selectedSlippage, ownership: .weak)
             .store(in: &cancelable)
 

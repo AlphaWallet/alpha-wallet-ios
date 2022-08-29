@@ -61,12 +61,12 @@ final class ApproveSwapProvider {
             strongSelf.delegate?.promptToSwap(unsignedTransaction: swapQuote.unsignedSwapTransaction, fromToken: fromToken, fromAmount: fromAmount, toToken: toToken, toAmount: swapQuote.estimate.toAmount, in: strongSelf)
         }.catch { error in
             infoLog("[Swap] Error while swapping. Error: \(error)")
-            if let error = error as? SwapError {
-                switch error {
-                case .userCancelledApproval, .approveTransactionNotCompleted, .unableToBuildSwapUnsignedTransactionFromSwapProvider, .tokenOrSwapQuoteNotFound:
+            if let _error = error as? SwapError {
+                switch _error {
+                case .unableToBuildSwapUnsignedTransaction, .unableToBuildSwapUnsignedTransactionFromSwapProvider, .userCancelledApproval, .approveTransactionNotCompleted, .tokenOrSwapQuoteNotFound:
                     break
-                case .unknownError:
-                    self.delegate?.didFailure(in: self, error: error)
+                case .unknownError, .invalidJson:
+                    self.delegate?.didFailure(in: self, error: _error)
                 }
             } else {
                 self.delegate?.didFailure(in: self, error: error)
@@ -96,7 +96,7 @@ final class ApproveSwapProvider {
                     switch error {
                     case .userCancelledApproval:
                         return .value(false)
-                    case .unableToBuildSwapUnsignedTransactionFromSwapProvider, .approveTransactionNotCompleted, .unknownError, .tokenOrSwapQuoteNotFound:
+                    case .unableToBuildSwapUnsignedTransactionFromSwapProvider, .invalidJson, .unableToBuildSwapUnsignedTransaction, .approveTransactionNotCompleted, .unknownError, .tokenOrSwapQuoteNotFound:
                         throw error
                     }
                 }
