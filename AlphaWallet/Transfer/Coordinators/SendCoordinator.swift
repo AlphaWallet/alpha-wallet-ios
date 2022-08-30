@@ -110,7 +110,7 @@ extension SendCoordinator: SendViewControllerDelegate {
 
     func didPressConfirm(transaction: UnconfirmedTransaction, in viewController: SendViewController, amount: String, shortValue: String?) {
         do {
-            let configuration: TransactionConfirmationViewModel.Configuration = .sendFungiblesTransaction(
+            let configuration: TransactionType.Configuration = .sendFungiblesTransaction(
                 confirmType: .signThenSend,
                 amount: FungiblesTransactionAmount(value: amount, shortValue: shortValue, isAllFunds: viewController.isAllFunds))
 

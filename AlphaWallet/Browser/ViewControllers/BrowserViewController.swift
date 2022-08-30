@@ -15,8 +15,6 @@ protocol BrowserViewControllerDelegate: AnyObject {
 }
 
 final class BrowserViewController: UIViewController {
-    static let locationChangedEventName = "locationChanged"
-
     private let account: Wallet
     private let server: RPCServer
 
@@ -251,7 +249,7 @@ extension BrowserViewController: WKNavigationDelegate {
 extension BrowserViewController: WKScriptMessageHandler {
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         guard let command = DappAction.fromMessage(message) else {
-            if message.name == Self.locationChangedEventName {
+            if message.name == Browser.locationChangedEventName {
                 recordURL()
             }
             return

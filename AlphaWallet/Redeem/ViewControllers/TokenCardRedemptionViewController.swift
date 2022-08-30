@@ -118,7 +118,8 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
         }
         func _generateQr(account: AlphaWallet.Address) {
             do {
-                guard let decimalSignature = try SignatureHelper.signatureAsDecimal(for: redeemData.message, account: account, keystore: keystore) else { return }
+                let prompt = R.string.localizable.keystoreAccessKeySign()
+                guard let decimalSignature = try SignatureHelper.signatureAsDecimal(for: redeemData.message, account: account, keystore: keystore, prompt: prompt) else { return }
                 let qrCodeInfo = redeemData.qrCode + decimalSignature
                 imageView.image = qrCodeInfo.toQRCode()
             } catch {

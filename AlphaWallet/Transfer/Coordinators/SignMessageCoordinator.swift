@@ -90,17 +90,17 @@ class SignMessageCoordinator: Coordinator {
         switch type {
         case .message(let data):
             //This was previously `signMessage(_:for:). Changed it to `signPersonalMessage` because web3.js v1 (unlike v0.20.x) and probably other libraries expect so
-            result = keystore.signPersonalMessage(data, for: account)
+            result = keystore.signPersonalMessage(data, for: account, prompt: R.string.localizable.keystoreAccessKeySign())
         case .personalMessage(let data):
-            result = keystore.signPersonalMessage(data, for: account)
+            result = keystore.signPersonalMessage(data, for: account, prompt: R.string.localizable.keystoreAccessKeySign())
         case .typedMessage(let typedData):
             if typedData.isEmpty {
                 result = .failure(KeystoreError.failedToSignMessage)
             } else {
-                result = keystore.signTypedMessage(typedData, for: account)
+                result = keystore.signTypedMessage(typedData, for: account, prompt: R.string.localizable.keystoreAccessKeySign())
             }
         case .eip712v3And4(let data):
-            result = keystore.signEip712TypedData(data, for: account)
+            result = keystore.signEip712TypedData(data, for: account, prompt: R.string.localizable.keystoreAccessKeySign())
         }
 
         close(completion: {

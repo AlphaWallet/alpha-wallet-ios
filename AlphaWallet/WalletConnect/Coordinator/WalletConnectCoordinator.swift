@@ -252,25 +252,13 @@ private extension WalletType {
             if Config().development.shouldPretendIsRealWallet {
                 return .value(())
             } else {
-                return .init(error: WalletConnectCoordinator.RequestCanceledDueToWatchWalletError())
+                return .init(error: RequestCanceledDueToWatchWalletError())
             }
         }
     }
 }
 
 extension WalletConnectCoordinator: WalletConnectServerDelegate {
-    struct RequestCanceledDueToWatchWalletError: Error {
-        var localizedDescription: String {
-            return R.string.localizable.walletConnectFailureMustNotBeWatchedWallet()
-        }
-    }
-
-    struct DelayWalletConnectResponseError: Error {
-        var localizedDescription: String {
-            return "Request Rejected! Switch to non watched wallet"
-        }
-    }
-
     private func resetSessionsToRemoveLoadingIfNeeded() {
         if let viewController = sessionsViewController {
             viewController.viewModel.set(state: .sessions)
@@ -325,11 +313,11 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         }.ensure {
             JumpBackToPreviousApp.goBack(forWalletConnectAction: action)
         }.catch { error in
-            if error is WalletConnectCoordinator.RequestCanceledDueToWatchWalletError {
+            if error is RequestCanceledDueToWatchWalletError {
                 self.navigationController.displayError(error: error)
             }
 
-            if error is WalletConnectCoordinator.DelayWalletConnectResponseError {
+            if error is DelayWalletConnectResponseError {
                 //no-op
             } else {
                 try? server.respond(.init(error: .requestRejected), request: request)
@@ -395,7 +383,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
 
     private func executeTransaction(session: WalletSession, requester: DappRequesterViewModel, transaction: UnconfirmedTransaction, type: ConfirmType) -> Promise<AlphaWallet.WalletConnect.Response> {
 
-        let configuration: TransactionConfirmationViewModel.Configuration = .walletConnect(confirmType: type, requester: requester)
+        let configuration: TransactionType.Configuration = .walletConnect(confirmType: type, requester: requester)
         guard let tokensService = tokensService else { return Promise<AlphaWallet.WalletConnect.Response> { _ in } }
 
         infoLog("[WalletConnect] executeTransaction: \(transaction) type: \(type)")
@@ -487,8 +475,8 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
             showSignRawTransaction(title: R.string.localizable.walletConnectSendRawTransactionTitle(), message: rawTransaction)
         }.then { shouldSend -> Promise<ConfirmResult> in
             guard shouldSend else { return .init(error: DAppError.cancelled) }
-
-            let sender = SendTransaction(session: session, keystore: self.keystore, confirmType: .sign, config: self.config, analytics: self.analytics)
+            let prompt = R.string.localizable.keystoreAccessKeySign()
+            let sender = SendTransaction(session: session, keystore: self.keystore, confirmType: .sign, config: self.config, analytics: self.analytics, prompt: prompt)
             return sender.send(rawTransaction: rawTransaction)
         }.map { data in
             switch data {

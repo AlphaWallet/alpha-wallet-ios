@@ -45,12 +45,6 @@ final class WalletSession: Equatable {
 }
 
 extension WalletSession {
-    var capi10Account: CAIP10Account {
-        return CAIP10Account(blockchain: .init(server.eip155)!, address: account.address.eip55String)!
-    }
-}
-
-extension WalletSession {
     class functional {}
 }
 

@@ -15,11 +15,6 @@ protocol DappRequestSwitchCustomChainCoordinatorDelegate: AnyObject {
     func cleanup(coordinator: DappRequestSwitchCustomChainCoordinator)
 }
 
-enum SwitchCustomChainCallbackId {
-    case dapp(requestId: Int)
-    case walletConnect(request: AlphaWallet.WalletConnect.Session.Request)
-}
-
 class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
     private var addCustomChain: (chain: AddCustomChain, callbackId: SwitchCustomChainCallbackId)?
     private let config: Config
@@ -91,7 +86,7 @@ class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
 
     private func promptAndAddAndActivateServer(customChain: WalletAddEthereumChainObject, customChainId: Int, inViewController viewController: UIViewController, callbackID: SwitchCustomChainCallbackId) {
         func runAddCustomChain(isTestnet: Bool) {
-            let addCustomChain = AddCustomChain(customChain, analytics: analytics, isTestnet: isTestnet, restartQueue: restartQueue, url: currentUrl, operation: .add)
+            let addCustomChain = AddCustomChain(customChain, analytics: analytics, isTestnet: isTestnet, restartQueue: restartQueue, url: currentUrl, operation: .add, chainNameFallback: R.string.localizable.addCustomChainUnnamed())
             self.addCustomChain = (chain: addCustomChain, callbackId: callbackID)
             addCustomChain.delegate = self
             addCustomChain.run()
@@ -167,9 +162,10 @@ extension DappRequestSwitchCustomChainCoordinator: AddCustomChainDelegate {
         switch error {
         case .cancelled:
             dAppError = .cancelled
-        case .others(let message):
-            dAppError = .nodeError(message)
-            UIAlertController.alert(title: nil, message: message, alertButtonTitles: [R.string.localizable.oK()], alertButtonStyles: [.cancel], viewController: viewController)
+        case .missingBlockchainExplorerUrl, .invalidBlockchainExplorerUrl, .noRpcNodeUrl, .invalidChainId, .chainIdNotMatch, .unknown:
+            dAppError = .nodeError(error.localizedDescription)
+            UIAlertController.alert(title: nil, message: error.localizedDescription, alertButtonTitles: [R.string.localizable.oK()], alertButtonStyles: [.cancel], viewController: viewController)
+
         }
         delegate?.failed(withError: dAppError, withCallbackId: callbackId, inCoordinator: self)
     }

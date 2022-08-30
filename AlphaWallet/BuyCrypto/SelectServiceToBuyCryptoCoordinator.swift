@@ -8,7 +8,7 @@
 import UIKit
 
 protocol SelectServiceToBuyCryptoCoordinatorDelegate: AnyObject, CanOpenURL {
-    func selectBuyService(_ result: Result<Void, SelectBuyServiceError>, in coordinator: SelectServiceToBuyCryptoCoordinator)
+    func selectBuyService(_ result: Result<Void, BuyCryptoError>, in coordinator: SelectServiceToBuyCryptoCoordinator)
     func didClose(in coordinator: SelectServiceToBuyCryptoCoordinator)
 }
 
@@ -53,7 +53,7 @@ class SelectServiceToBuyCryptoCoordinator: Coordinator {
 
     private enum BuyCryptoUsingService {
         case service(BuyTokenURLProviderType & SupportedTokenActionsProvider)
-        case failure(error: SelectBuyServiceError)
+        case failure(error: BuyCryptoError)
         case canceled
     }
 
@@ -67,7 +67,7 @@ class SelectServiceToBuyCryptoCoordinator: Coordinator {
         }
 
         if actions.isEmpty {
-            completion(.failure(error: SelectBuyServiceError.buyNotSuppoted))
+            completion(.failure(error: BuyCryptoError.buyNotSuppoted))
         } else if actions.count == 1 {
             completion(.service(actions[0].service))
         } else {
@@ -93,16 +93,5 @@ extension SelectServiceToBuyCryptoCoordinator: BuyCryptoUsingThirdPartyCoordinat
 
     func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
         delegate?.didPressOpenWebPage(url, in: viewController)
-    }
-}
-
-enum SelectBuyServiceError: LocalizedError {
-    case buyNotSuppoted
-
-    var localizedDescription: String {
-        switch self {
-        case .buyNotSuppoted:
-            return "Buy Crypto Not Suppoted"
-        }
     }
 }

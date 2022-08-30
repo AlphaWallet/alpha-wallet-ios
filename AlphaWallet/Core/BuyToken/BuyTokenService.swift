@@ -27,7 +27,7 @@ final class BuyTokenProvider: SupportedTokenActionsProvider, BuyTokenURLProvider
     }
     let analyticsNavigation: Analytics.Navigation = .fallback
     let analyticsName: String = "Buy Crypto"
-    let action: String = R.string.localizable.aWalletTokenBuyTitle()
+    let action: String
     var services: [BuyTokenURLProviderType & SupportedTokenActionsProvider] { return subProviders }
 
     func isSupport(token: TokenActionsIdentifiable) -> Bool {
@@ -42,8 +42,9 @@ final class BuyTokenProvider: SupportedTokenActionsProvider, BuyTokenURLProvider
         return [.init(type: .buy(service: self))]
     }
 
-    init(subProviders: [BuyTokenURLProviderType & SupportedTokenActionsProvider]) {
+    init(subProviders: [BuyTokenURLProviderType & SupportedTokenActionsProvider], action: String) {
         self.subProviders = subProviders
+        self.action = action
     }
 
     func start() {

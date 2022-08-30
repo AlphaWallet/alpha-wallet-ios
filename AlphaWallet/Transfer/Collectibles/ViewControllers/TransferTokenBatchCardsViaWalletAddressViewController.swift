@@ -253,4 +253,3 @@ extension TransferTokenBatchCardsViaWalletAddressViewController: SelectTokenCard
         viewModel.updateSelectedAmount(view.viewModel.counter)
     }
 }
-

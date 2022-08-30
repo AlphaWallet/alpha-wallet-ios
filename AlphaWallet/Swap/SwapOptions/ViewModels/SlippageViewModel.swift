@@ -51,3 +51,12 @@ class SlippageViewModel {
         case editingTextField
     }
 }
+
+extension SwapSlippage {
+    var viewType: SlippageViewModel.SwapSlippageViewType {
+        switch self {
+        case .tenPercents, .fiftyPercents, .oneHundredPercents: return .selectionButton
+        case .custom: return .editingTextField
+        }
+    }
+}

@@ -43,7 +43,8 @@ class BackupCoordinator: Coordinator {
         navigationController.displayLoading(
             text: R.string.localizable.exportPresentBackupOptionsLabelTitle()
         )
-        keystore.exportRawPrivateKeyForNonHdWalletForBackup(forAccount: account, newPassword: newPassword) { [weak self] result in
+        let prompt = R.string.localizable.keystoreAccessKeyHdVerify()
+        keystore.exportRawPrivateKeyForNonHdWalletForBackup(forAccount: account, prompt: prompt, newPassword: newPassword) { [weak self] result in
             guard let strongSelf = self else { return }
             strongSelf.handleExport(result: result, completion: completion)
         }

@@ -25,3 +25,41 @@ struct PriceAlertsPageViewModel {
         alerts.remove(at: indexPath.row)
     }
 }
+
+extension AlertType {
+    var icon: UIImage? {
+        switch self {
+        case .price(let priceTarget, _):
+            switch priceTarget {
+            case .above:
+                return R.image.iconsSystemUp()
+            case .below:
+                return R.image.iconsSystemDown()
+            }
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .price(let priceTarget, let value):
+            let result = Formatter.fiat.string(from: value) ?? "-"
+            return "\(priceTarget.title) \(result)"
+        }
+    }
+}
+
+extension PriceAlert {
+    var description: String { return type.title }
+    var icon: UIImage? { return type.icon }
+    var title: String { return type.title }
+}
+
+extension PriceTarget {
+    var title: String {
+        switch self {
+        case .above: return R.string.localizable.priceAlertAbove()
+        case .below: return R.string.localizable.priceAlertBelow()
+        }
+    }
+}
+

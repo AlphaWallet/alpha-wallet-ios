@@ -241,3 +241,20 @@ extension NFTCollectionInfoPageViewModel {
         let viewTypes: [NFTCollectionInfoPageViewModel.ViewType]
     }
 }
+
+extension SocialNetworkUrlProvider {
+    static func resolveUrl(for user: String, urlProvider: SocialNetworkUrlProvider) -> URL? {
+        if let url = URL(string: user), user.isValidURL {
+            return url
+        }
+
+        guard let deepLink = urlProvider.deepLinkURL(user: user), UIApplication.shared.canOpenURL(deepLink) else {
+            if let url = urlProvider.remoteURL(user: user) {
+                return url
+            } else {
+                return URL(string: user)
+            }
+        }
+        return deepLink
+    }
+}

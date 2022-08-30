@@ -27,7 +27,7 @@ class FungibleTokenViewController: UIViewController {
         return view
     }()
     private lazy var activitiesPageView: ActivitiesPageView = {
-        return ActivitiesPageView(analytics: analytics, keystore: keystore, wallet: viewModel.wallet, viewModel: .init(activitiesViewModel: .init()), sessions: sessions, assetDefinitionStore: viewModel.assetDefinitionStore)
+        return ActivitiesPageView(analytics: analytics, keystore: keystore, wallet: viewModel.wallet, viewModel: .init(activitiesViewModel: .init(collection: .init())), sessions: sessions, assetDefinitionStore: viewModel.assetDefinitionStore)
     }()
     private lazy var alertsPageView: PriceAlertsPageView = {
         return PriceAlertsPageView(viewModel: .init(alerts: []))

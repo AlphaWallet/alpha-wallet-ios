@@ -50,7 +50,7 @@ class ActivitiesCoordinator: NSObject, Coordinator {
     }
 
     private func makeActivitiesViewController() -> ActivitiesViewController {
-        let viewModel = ActivitiesViewModel()
+        let viewModel = ActivitiesViewModel(collection: .init())
         let controller = ActivitiesViewController(analytics: analytics, keystore: keystore, wallet: wallet, viewModel: viewModel, sessions: sessions, assetDefinitionStore: assetDefinitionStore)
         controller.delegate = self
         
@@ -68,7 +68,7 @@ extension ActivitiesCoordinator: ActivitiesViewControllerDelegate {
         activitiesService.activitiesPublisher
             .receive(on: RunLoop.main)
             .sink { [weak rootViewController] activities in
-                rootViewController?.configure(viewModel: .init(activities: activities))
+                rootViewController?.configure(viewModel: .init(collection: .init(activities: activities)))
             }.store(in: &cancelable)
     }
 

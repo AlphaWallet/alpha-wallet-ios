@@ -11,10 +11,7 @@ protocol NewTokenViewControllerDelegate: AnyObject {
     func didClose(viewController: NewTokenViewController)
 }
 
-enum RPCServerOrAuto: Hashable {
-    case auto
-    case server(RPCServer)
-
+extension RPCServerOrAuto {
     var displayName: String {
         switch self {
         case .auto:

@@ -35,12 +35,13 @@ final class ArbitrumBridge: SupportedTokenActionsProvider, BridgeTokenURLProvide
         return ArbitrumBridge.supportedServer
     }
 
-    var action: String {
-        return R.string.localizable.aWalletTokenArbitrumBridgeButtonTitle()
-    }
+    let action: String
     let analyticsNavigation: Analytics.Navigation = .onArbitrumBridge
     let analyticsName: String = "Arbitrum Bridge"
 
+    init(action: String) {
+        self.action = action
+    }
     func url(token: TokenActionsIdentifiable, wallet: Wallet) -> URL? {
         return Constants.arbitrumBridge
     }

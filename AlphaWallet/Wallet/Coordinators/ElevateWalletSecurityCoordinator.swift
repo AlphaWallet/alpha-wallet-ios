@@ -48,7 +48,8 @@ class ElevateWalletSecurityCoordinator: Coordinator {
 
 extension ElevateWalletSecurityCoordinator: ElevateWalletSecurityViewControllerDelegate {
     func didTapLock(inViewController viewController: ElevateWalletSecurityViewController) {
-        let isSuccessful = keystore.elevateSecurity(forAccount: account.address)
+        let prompt = account.origin == .hd ? R.string.localizable.keystoreAccessKeyHdLock() : R.string.localizable.keystoreAccessKeyNonHdLock()
+        let isSuccessful = keystore.elevateSecurity(forAccount: account.address, prompt: prompt)
         if isSuccessful {
             delegate?.didLockWalletSuccessfully(forAccount: account.address, inCoordinator: self)
         } else {

@@ -7,17 +7,6 @@
 
 import Foundation
 
-enum SwitchChainRequestConfiguration {
-    case promptAndSwitchToExistingServerInBrowser(existingServer: RPCServer)
-    case promptAndAddAndActivateServer(customChain: WalletAddEthereumChainObject, customChainId: Int)
-    case promptAndActivateExistingServer(existingServer: RPCServer)
-}
-
-enum SwitchChainRequestResponse {
-    case action(Int)
-    case canceled
-}
-
 struct SwitchChainRequestViewModel {
     let title: String = R.string.localizable.switchChainRequestTitle()
     let configuration: SwitchChainRequestConfiguration

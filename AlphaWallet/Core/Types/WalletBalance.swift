@@ -5,7 +5,7 @@
 //  Created by Vladyslav Shepitko on 26.05.2021.
 //
 
-import UIKit
+import Foundation
 import BigInt
 
 struct WalletBalance: Equatable {
@@ -70,14 +70,10 @@ struct WalletBalance: Equatable {
             return "-"
         }
     }
-
-    var valuePercentageChangeColor: UIColor {
-        return BalanceHelper().valueChangeValueColor(from: changeDouble)
-    }
 }
 
 extension Balance: CustomStringConvertible {
-    var description: String {
+    public var description: String {
         return "value: \(EtherNumberFormatter.full.string(from: value))"
     }
 }

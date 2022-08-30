@@ -160,23 +160,3 @@ extension TokensViewController {
         }
     }
 }
-
-extension UIView {
-    func anchorSeparatorToTop(to superView: UIView) -> [NSLayoutConstraint] {
-        return [
-            centerXAnchor.constraint(equalTo: superView.centerXAnchor),
-            widthAnchor.constraint(equalTo: superView.widthAnchor),
-            heightAnchor.constraint(equalToConstant: GroupedTable.Metric.cellSeparatorHeight),
-            topAnchor.constraint(equalTo: superView.topAnchor)
-        ]
-    }
-
-    func anchorSeparatorToBottom(to superView: UIView) -> [NSLayoutConstraint] {
-        return [
-            centerXAnchor.constraint(equalTo: superView.centerXAnchor),
-            widthAnchor.constraint(equalTo: superView.widthAnchor),
-            heightAnchor.constraint(equalToConstant: GroupedTable.Metric.cellSeparatorHeight),
-            bottomAnchor.constraint(equalTo: superView.bottomAnchor)
-        ]
-    }
-}

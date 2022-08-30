@@ -379,6 +379,12 @@ extension PromptBackupCoordinator: PromptBackupWalletViewDelegate {
     }
 }
 
+extension PromptBackupCoordinator: NotificationSourceServiceDelegate {
+    func showCreateBackupAfterReceiveNativeCryptoCurrencyPrompt(in service: NotificationSourceService, etherReceivedUsedForBackupPrompt: BigInt) {
+        showCreateBackupAfterReceiveNativeCryptoCurrencyPrompt(nativeCryptoCurrency: etherReceivedUsedForBackupPrompt)
+    }
+}
+
 extension PromptBackupCoordinator: BackupCoordinatorDelegate {
     func didCancel(coordinator: BackupCoordinator) {
         removeCoordinator(coordinator)

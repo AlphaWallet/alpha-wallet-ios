@@ -171,17 +171,3 @@ extension SignatureConfirmationViewModel {
         }
     }
 }
-
-extension String {
-    var removingPrefixWhitespacesAndNewlines: String {
-        guard let index = firstIndex(where: { !CharacterSet(charactersIn: String($0)).isSubset(of: .whitespacesAndNewlines) }) else {
-            return self
-        }
-        return String(self[index...])
-    }
-
-    var removingWhitespacesAndNewlines: String {
-        let value = components(separatedBy: .whitespacesAndNewlines)
-        return value.joined()
-    }
-}

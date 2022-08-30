@@ -40,6 +40,17 @@ extension Logger {
     }
 }
 
+typealias EmailAttachment = (data: Data, mimeType: String, fileName: String)
+extension Logger {
+    static var logFilesAttachments: [EmailAttachment] {
+        return Self.logFileURLs.compactMap { url -> EmailAttachment? in
+            guard let data = try? Data(contentsOf: url), let mimeType = url.mimeType else { return nil }
+
+            return (data, mimeType, url.lastPathComponent)
+        }
+    }
+}
+
 class RemoteLogger {
     private let isActive: Bool
 

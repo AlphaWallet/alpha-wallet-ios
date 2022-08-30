@@ -6,7 +6,7 @@ import Combine
 class FakeActivitiesService: ActivitiesServiceType {
     var sessions: ServerDictionary<WalletSession> { .make() }
     
-    var activitiesPublisher: AnyPublisher<[ActivitiesViewModel.MappedToDateActivityOrTransaction], Never> {
+    var activitiesPublisher: AnyPublisher<[ActivityCollection.MappedToDateActivityOrTransaction], Never> {
         Just([])
             .eraseToAnyPublisher()
     }

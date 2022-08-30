@@ -8,7 +8,7 @@
 import UIKit
 
 protocol SelectServiceToSwapCoordinatorDelegate: AnyObject {
-    func selectSwapService(_ result: Result<SwapTokenUsing, SelectSwapServiceError>, in coordinator: SelectServiceToSwapCoordinator)
+    func selectSwapService(_ result: Result<SwapTokenUsing, SwapTokenError>, in coordinator: SelectServiceToSwapCoordinator)
     func didClose(in coordinator: SelectServiceToSwapCoordinator)
 }
 
@@ -35,13 +35,13 @@ class SelectServiceToSwapCoordinator: Coordinator {
                         let server = service.rpcServer(forToken: token)
                         self.delegate?.selectSwapService(.success(.url(url: url, server: server)), in: self)
                     } else {
-                        self.delegate?.selectSwapService(.failure(SelectSwapServiceError.swapNotSuppoted), in: self)
+                        self.delegate?.selectSwapService(.failure(SwapTokenError.swapNotSuppoted), in: self)
                     }
                 } else if let _ = service as? SwapTokenNativeProvider {
                     let swapPair = SwapPair(from: token, to: nil)
                     self.delegate?.selectSwapService(.success(.native(swapPair: swapPair)), in: self)
                 } else {
-                    self.delegate?.selectSwapService(.failure(SelectSwapServiceError.swapNotSuppoted), in: self)
+                    self.delegate?.selectSwapService(.failure(SwapTokenError.swapNotSuppoted), in: self)
                 }
             case .failure(let error):
                 self.delegate?.selectSwapService(.failure(error), in: self)
@@ -89,23 +89,7 @@ extension SelectServiceToSwapCoordinator {
 
     private enum SwapTokenUsingService {
         case service(SwapTokenActionProvider)
-        case failure(SelectSwapServiceError)
+        case failure(SwapTokenError)
         case canceled
-    }
-}
-
-enum SwapTokenUsing {
-    case url(url: URL, server: RPCServer?)
-    case native(swapPair: SwapPair)
-}
-
-enum SelectSwapServiceError: LocalizedError {
-    case swapNotSuppoted
-
-    var localizedDescription: String {
-        switch self {
-        case .swapNotSuppoted:
-            return "Swap Not Suppoted"
-        }
     }
 }

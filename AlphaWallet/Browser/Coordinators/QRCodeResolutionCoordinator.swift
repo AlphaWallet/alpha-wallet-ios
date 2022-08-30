@@ -22,68 +22,6 @@ protocol QRCodeResolutionCoordinatorDelegate: AnyObject {
     func didCancel(in coordinator: QRCodeResolutionCoordinator)
 }
 
-enum ScanQRCodeAction: CaseIterable {
-    case sendToAddress
-    case addCustomToken
-    case watchWallet
-    case openInEtherscan
-
-    var title: String {
-        switch self {
-        case .sendToAddress:
-            return R.string.localizable.qrCodeSendToAddressTitle()
-        case .addCustomToken:
-            return R.string.localizable.qrCodeAddCustomTokenTitle()
-        case .watchWallet:
-            return R.string.localizable.qrCodeWatchWalletTitle()
-        case .openInEtherscan:
-            return R.string.localizable.qrCodeOpenInEtherscanTitle()
-        }
-    }
-}
-
-enum ScanQRCodeResolution {
-    case value(value: QRCodeValue)
-    case walletConnect(AlphaWallet.WalletConnect.ConnectionUrl)
-    case other(String)
-    case url(URL)
-    case privateKey(String)
-    case seedPhase([String])
-    case json(String)
-
-    init(rawValue: String) {
-        let trimmedValue = rawValue.trimmed
-
-        if let value = QRCodeValueParser.from(string: trimmedValue) {
-            self = .value(value: value)
-        } else if let url = AlphaWallet.WalletConnect.ConnectionUrl(rawValue) {
-            self = .walletConnect(url)
-        } else if let url = URL(string: trimmedValue), trimmedValue.isValidURL {
-            self = .url(url)
-        } else {
-            if trimmedValue.isValidJSON {
-                self = .json(trimmedValue)
-            } else if trimmedValue.isPrivateKey {
-                self = .privateKey(trimmedValue)
-            } else {
-                let components = trimmedValue.components(separatedBy: " ")
-                if components.isEmpty || components.count == 1 {
-                    self = .other(trimmedValue)
-                } else {
-                    self = .seedPhase(components)
-                }
-            }
-        }
-    }
-}
-
-private enum CheckEIP681Error: Error {
-    case configurationInvalid
-    case contractInvalid
-    case parameterInvalid
-    case missingRpcServer
-}
-
 final class QRCodeResolutionCoordinator: Coordinator {
     enum Usage {
         case all(tokensService: TokenProvidable & TokenAddable, assetDefinitionStore: AssetDefinitionStore)
@@ -296,27 +234,17 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
     }
 }
 
-extension String {
-
-    var scientificAmountToBigInt: BigInt? {
-        let numberFormatter = Formatter.scientificAmount
-
-        let amountString = numberFormatter.number(from: self).flatMap { numberFormatter.string(from: $0) }
-        return amountString.flatMap { BigInt($0) }
-    }
-
-    var isValidJSON: Bool {
-        guard let jsonData = self.data(using: .utf8) else { return false }
-
-        return (try? JSONSerialization.jsonObject(with: jsonData)) != nil
-    }
-    static let detector = try! NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
-    var isValidURL: Bool {
-        if let match = String.detector.firstMatch(in: self, options: [], range: NSRange(location: 0, length: utf16.count)) {
-            // it is a link, if the match covers the whole string
-            return match.range.length == utf16.count
-        } else {
-            return false
+extension ScanQRCodeAction {
+    var title: String {
+        switch self {
+        case .sendToAddress:
+            return R.string.localizable.qrCodeSendToAddressTitle()
+        case .addCustomToken:
+            return R.string.localizable.qrCodeAddCustomTokenTitle()
+        case .watchWallet:
+            return R.string.localizable.qrCodeWatchWalletTitle()
+        case .openInEtherscan:
+            return R.string.localizable.qrCodeOpenInEtherscanTitle()
         }
     }
 }

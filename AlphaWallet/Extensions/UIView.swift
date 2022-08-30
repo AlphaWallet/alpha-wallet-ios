@@ -26,38 +26,6 @@ extension UIView {
       return .init()
     }
 
-    static var tokenSymbolBackgroundImageCache: AtomicDictionary<UIColor, UIImage> = .init()
-    static func tokenSymbolBackgroundImage(backgroundColor: UIColor, contractAddress: AlphaWallet.Address) -> UIImage {
-        if let cachedValue = tokenSymbolBackgroundImageCache[backgroundColor] {
-            return cachedValue
-        }
-        let size = CGSize(width: 40, height: 40)
-        let rect = CGRect(origin: .zero, size: size)
-        let renderer = UIGraphicsImageRenderer(size: size)
-        let image = renderer.image { ctx in
-            ctx.cgContext.setFillColor(backgroundColor.cgColor)
-            ctx.cgContext.addEllipse(in: rect)
-            ctx.cgContext.drawPath(using: .fill)
-        }
-        tokenSymbolBackgroundImageCache[backgroundColor] = image
-        return image
-    }
-    static func tokenSymbolBackgroundImage(backgroundColor: UIColor) -> UIImage {
-        if let cachedValue = tokenSymbolBackgroundImageCache[backgroundColor] {
-            return cachedValue
-        }
-        let size = CGSize(width: 40, height: 40)
-        let rect = CGRect(origin: .zero, size: size)
-        let renderer = UIGraphicsImageRenderer(size: size)
-        let image = renderer.image { ctx in
-            ctx.cgContext.setFillColor(backgroundColor.cgColor)
-            ctx.cgContext.addEllipse(in: rect)
-            ctx.cgContext.drawPath(using: .fill)
-        }
-        tokenSymbolBackgroundImageCache[backgroundColor] = image
-        return image
-    }
-
     func dropShadow(color: UIColor, opacity: Float = 0.5, offSet: CGSize = .zero, radius: CGFloat = 1, scale: Bool = true, shouldRasterize: Bool = true) {
         layer.masksToBounds = false
         layer.shadowColor = color.cgColor
@@ -180,5 +148,100 @@ extension UIView {
             }
         }
         return nil
+    }
+
+    func adjusted(adjusment: CGFloat = 15) -> UIView {
+        return [.spacerWidth(adjusment), self, .spacerWidth(adjusment)].asStackView()
+    }
+
+    func embededWithSeparator(top: CGFloat = 1, bottom: CGFloat = 1, color: UIColor = GroupedTable.Color.cellSeparator) -> UIView {
+        let stackView = [
+            .spacer(height: top, backgroundColor: color),
+            self,
+            .spacer(height: bottom, backgroundColor: color)
+        ].asStackView(axis: .vertical)
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+
+        return stackView
+    }
+}
+
+extension UIView {
+
+    var parentFloatingPanelController: FloatingPanelController? {
+        var nextResponder: UIResponder? = self
+        while nextResponder != nil {
+            guard let floatingPanelController = nextResponder as? FloatingPanelController else {
+                nextResponder = nextResponder?.next
+                continue
+            }
+
+            return floatingPanelController
+        }
+
+        return nil
+    }
+
+    static var statusBarFrame: CGRect {
+        return keyWindow?.windowScene?.statusBarManager?.statusBarFrame ?? .zero
+    }
+
+    static var keyWindow: UIWindow? {
+        return UIApplication.shared.windows.first(where: { $0.isKeyWindow })
+    }
+
+    static func applyBlur(blurStyle: UIBlurEffect.Style = .extraLight, alpha: CGFloat = 1.0) {
+        let blurEffect = UIBlurEffect(style: blurStyle)
+        let blurEffectView = UIVisualEffectView(effect: blurEffect)
+        blurEffectView.frame = UIScreen.main.bounds
+        blurEffectView.alpha = alpha
+        blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        blurEffectView.isUserInteractionEnabled = false
+
+        blurView = blurEffectView
+    }
+
+    static func removeBlur() {
+        blurView?.removeFromSuperview()
+    }
+
+    private(set) static var blurView: UIVisualEffectView? {
+        get {
+            UIWindow.keyWindow?.subviews.compactMap { $0 as? UIVisualEffectView }.last
+        }
+
+        set {
+            guard let blurView = newValue else { return }
+            UIWindow.keyWindow?.addSubview(blurView)
+        }
+    }
+}
+
+extension UIView {
+    static func tableHeaderFooterViewSeparatorView() -> UIView {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.heightAnchor.constraint(equalToConstant: 0.5).isActive = true
+        view.backgroundColor = Configuration.Color.Semantic.tableViewHeaderBackground
+
+        return view
+    }
+
+    func anchorSeparatorToTop(to superView: UIView) -> [NSLayoutConstraint] {
+        return [
+            centerXAnchor.constraint(equalTo: superView.centerXAnchor),
+            widthAnchor.constraint(equalTo: superView.widthAnchor),
+            heightAnchor.constraint(equalToConstant: GroupedTable.Metric.cellSeparatorHeight),
+            topAnchor.constraint(equalTo: superView.topAnchor)
+        ]
+    }
+
+    func anchorSeparatorToBottom(to superView: UIView) -> [NSLayoutConstraint] {
+        return [
+            centerXAnchor.constraint(equalTo: superView.centerXAnchor),
+            widthAnchor.constraint(equalTo: superView.widthAnchor),
+            heightAnchor.constraint(equalToConstant: GroupedTable.Metric.cellSeparatorHeight),
+            bottomAnchor.constraint(equalTo: superView.bottomAnchor)
+        ]
     }
 }

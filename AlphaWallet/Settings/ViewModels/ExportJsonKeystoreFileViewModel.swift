@@ -20,7 +20,8 @@ class ExportJsonKeystoreFileViewModel {
     func computeJsonKeystore(password: String) -> Promise<String> {
         return Promise { seal in
             if wallet.origin == .hd {
-                keystore.exportRawPrivateKeyFromHdWallet0thAddressForBackup(forAccount: wallet.address, newPassword: password) { result in
+                let prompt = R.string.localizable.keystoreAccessKeyNonHdBackup()
+                keystore.exportRawPrivateKeyFromHdWallet0thAddressForBackup(forAccount: wallet.address, prompt: prompt, newPassword: password) { result in
                     switch result {
                     case .success(let jsonString):
                         seal.fulfill(jsonString)
@@ -29,7 +30,8 @@ class ExportJsonKeystoreFileViewModel {
                     }
                 }
             } else {
-                keystore.exportRawPrivateKeyForNonHdWalletForBackup(forAccount: wallet.address, newPassword: password) { result in
+                let prompt = R.string.localizable.keystoreAccessKeyNonHdBackup()
+                keystore.exportRawPrivateKeyForNonHdWalletForBackup(forAccount: wallet.address, prompt: prompt, newPassword: password) { result in
                     switch result {
                     case .success(let jsonString):
                         seal.fulfill(jsonString)

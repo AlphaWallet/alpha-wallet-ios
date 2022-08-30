@@ -407,3 +407,13 @@ extension SettingsSection: Hashable {
         }
     }
 }
+
+extension BiometryAuthenticationType {
+    var title: String {
+        switch self {
+        case .faceID: return R.string.localizable.faceId()
+        case .touchID: return R.string.localizable.touchId()
+        case .none: return ""
+        }
+    }
+}

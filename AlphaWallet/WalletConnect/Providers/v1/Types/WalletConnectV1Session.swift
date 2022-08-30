@@ -19,7 +19,7 @@ struct WalletConnectV1Session: Codable {
     }
 
     init(session: WalletConnectSwift.Session, namespaces: [String: SessionNamespace]) {
-        self.topicOrUrl = .url(url: session.url)
+        self.topicOrUrl = .url(url: .init(url: session.url))
         self.session = session
         self.namespaces = namespaces
     }

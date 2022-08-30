@@ -19,7 +19,7 @@ class RpcNetworkTestCase: XCTestCase {
     }
 
     func testAvailableNetworks() throws {
-        guard let availableNetworks = RpcNetwork.functional.availableServersFromCompressedJSONFile() else {
+        guard let availableNetworks = RpcNetwork.functional.availableServersFromCompressedJSONFile(filePathUrl: R.file.chainsZip()) else {
             XCTFail()
             return
         }

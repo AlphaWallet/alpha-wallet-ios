@@ -8,7 +8,6 @@
 import Foundation
 import WalletConnectSign
 
-typealias WalletConnectV2URI = WalletConnectSign.WalletConnectURI
 typealias SessionNamespace = WalletConnectSign.SessionNamespace
 typealias Blockchain = WalletConnectSign.Blockchain
 typealias CAIP10Account = WalletConnectSign.Account
@@ -35,6 +34,12 @@ struct WalletConnectV2Session: Codable {
     mutating func update(namespaces _namespaces: [String: SessionNamespace]) {
         namespaces = _namespaces
     } 
+}
+
+extension WalletSession {
+    var capi10Account: CAIP10Account {
+        return CAIP10Account(blockchain: .init(server.eip155)!, address: account.address.eip55String)!
+    }
 }
 
 extension AlphaWallet.WalletConnect.Dapp {

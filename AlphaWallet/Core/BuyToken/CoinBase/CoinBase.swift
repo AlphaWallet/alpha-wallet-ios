@@ -15,9 +15,11 @@ final class CoinBase: SupportedTokenActionsProvider, BuyTokenURLProviderType {
 
     var analyticsName: String { "CoinBase" }
     let analyticsNavigation: Analytics.Navigation = .onCoinBase
-    var action: String {
-        return R.string.localizable.aWalletTokenBuyOnCoinBaseTitle()
-    } 
+    let action: String
+
+    init(action: String) {
+        self.action = action
+    }
 
     func url(token: TokenActionsIdentifiable, wallet: Wallet) -> URL? {
         guard let platform = token.server.coinBasePlatform else { return nil }

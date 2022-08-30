@@ -8,27 +8,6 @@ protocol AssetDefinitionStoreCoordinatorDelegate: AnyObject {
     func addedTokenScript(forContract contract: AlphaWallet.Address, forServer server: RPCServer, destinationFileInUse: Bool, filename: String)
 }
 
-struct SchemaCheckError: LocalizedError {
-    var msg: String
-    var errorDescription: String? {
-        return msg
-    }
-}
-
-enum OpenURLError: Error {
-    case unsupportedTokenScriptVersion
-    case copyTokenScriptURL(_ url: URL, _ destinationURL: URL, error: Error)
-
-    var localizedDescription: String {
-        switch self {
-        case .unsupportedTokenScriptVersion:
-            return R.string.localizable.tokenScriptNotSupportedSchemaError()
-        case .copyTokenScriptURL(let url, let destinationFileName, let error):
-            return R.string.localizable.tokenScriptMoveFileError(url.path, destinationFileName.path, error.localizedDescription)
-        }
-    }
-}
-
 class AssetDefinitionStoreCoordinator: Coordinator {
 
     private static var inboxDirectory: URL? {

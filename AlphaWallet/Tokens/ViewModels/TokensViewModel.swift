@@ -645,19 +645,7 @@ extension TokensViewModel.functional {
         }
 
         return results
-    }
-
-    //Remove tokens that look unwanted in the Wallet tab
-    static func filterAwaySpuriousTokens<T>(_ tokens: [T]) -> [T] where T: TokenFilterable {
-        return tokens.filter {
-            switch $0.type {
-            case .nativeCryptocurrency, .erc20, .erc875, .erc721, .erc721ForTickets:
-                return !($0.name.isEmpty && $0.symbol.isEmpty && $0.decimals == 0)
-            case .erc1155:
-                return true
-            }
-        }
-    }
+    } 
 }
 
 fileprivate extension IndexPath {

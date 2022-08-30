@@ -89,7 +89,7 @@ final class NFTCollectionViewModel {
 
         let activities = activitiesService.activitiesPublisher
             .receive(on: RunLoop.main)
-            .map { ActivityPageViewModel(activitiesViewModel: .init(activities: $0)) }
+            .map { ActivityPageViewModel(activitiesViewModel: .init(collection: .init(activities: $0))) }
             .eraseToAnyPublisher()
 
         return .init(viewState: viewState.eraseToAnyPublisher(), activities: activities, pullToRefreshState: fakePullToRefreshState)

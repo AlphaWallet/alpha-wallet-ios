@@ -93,3 +93,23 @@ fileprivate extension Wallet {
         return type == .real(address)
     }
 }
+
+extension SendPrivateTransactionsProvider {
+    var title: String {
+        switch self {
+        case .ethermine:
+            return R.string.localizable.sendPrivateTransactionsProviderEtheremine()
+        case .eden:
+            return R.string.localizable.sendPrivateTransactionsProviderEden()
+        }
+    }
+
+    var icon: UIImage {
+        switch self {
+        case .ethermine:
+            return R.image.iconsSettingsEthermine()!
+        case .eden:
+            return R.image.iconsSettingsEden()!
+        }
+    }
+}

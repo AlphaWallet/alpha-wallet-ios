@@ -82,7 +82,7 @@ func createTokenScriptFileStatusButton(withStatus status: TokenLevelTokenScriptD
     switch status {
     case .type0NoTokenScript:
         return button
-    case .type1GoodTokenScriptSignatureGoodOrOptional(let isDebugMode, _, let domain, let rawMessage):
+    case .type1GoodTokenScriptSignatureGoodOrOptional(let isDebugMode, _, let domain, let error):
         let message: String
         if let domain = domain {
             button.handler = { urlOpener in
@@ -91,9 +91,9 @@ func createTokenScriptFileStatusButton(withStatus status: TokenLevelTokenScriptD
                     URL(string: "http://\(domain)").flatMap { urlOpener.open(url: $0) }
                 }
             }
-            message = "\(rawMessage) by \(domain)"
+            message = "\(error.localizedDescription) by \(domain)"
         } else {
-            message = rawMessage
+            message = error.localizedDescription
         }
         if isDebugMode {
             title = "[DEBUG] \(message)"
@@ -102,7 +102,7 @@ func createTokenScriptFileStatusButton(withStatus status: TokenLevelTokenScriptD
         }
         image = R.image.verified()
         tintColor = Colors.appGreenContrastBackground
-    case .type2BadTokenScript(let isDebugMode, let message, let reason):
+    case .type2BadTokenScript(let isDebugMode, let error, let reason):
         switch reason {
         case .some(.oldTokenScriptVersion):
             //TODO have to reload from repo. But we don't have access to an AssetDefinitionStore for now
@@ -119,9 +119,9 @@ func createTokenScriptFileStatusButton(withStatus status: TokenLevelTokenScriptD
         }
 
         if isDebugMode {
-            title = "[DEBUG] \(message)"
+            title = "[DEBUG] \(error)"
         } else {
-            title = message
+            title = error.localizedDescription
         }
         image = R.image.unverified()
         tintColor = Colors.appRed
