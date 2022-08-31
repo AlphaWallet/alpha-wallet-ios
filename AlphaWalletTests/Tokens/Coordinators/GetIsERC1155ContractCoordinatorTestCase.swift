@@ -9,6 +9,7 @@
 import AlphaWalletAddress
 import PromiseKit
 import XCTest
+import AlphaWalletFoundation
 
 class IsErc1155ContractTestCase: XCTestCase {
 

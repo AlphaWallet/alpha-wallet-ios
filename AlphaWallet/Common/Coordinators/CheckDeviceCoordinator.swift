@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import AlphaWalletFoundation
 
 class CheckDeviceCoordinator: Coordinator {
     private let navigationController: UINavigationController

@@ -4,6 +4,7 @@
 
 import Foundation
 import UIKit
+import AlphaWalletFoundation
 
 protocol DiscoverDappsViewControllerDelegate: AnyObject {
     func didTap(dapp: Dapp, inViewController viewController: DiscoverDappsViewController)

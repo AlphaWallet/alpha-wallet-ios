@@ -2,6 +2,7 @@
 
 import UIKit
 import PromiseKit
+import AlphaWalletFoundation
 
 protocol PingInfuraCoordinatorDelegate: AnyObject {
     func didPing(in coordinator: PingInfuraCoordinator)

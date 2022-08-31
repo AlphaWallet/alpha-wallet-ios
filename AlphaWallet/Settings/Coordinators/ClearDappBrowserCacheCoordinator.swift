@@ -2,6 +2,7 @@
 
 import UIKit
 import WebKit
+import AlphaWalletFoundation
 
 protocol ClearDappBrowserCacheCoordinatorDelegate: AnyObject {
     func done(in coordinator: ClearDappBrowserCacheCoordinator)

@@ -2,6 +2,7 @@
 
 import UIKit
 import Combine
+import AlphaWalletFoundation
 
 protocol ActivitiesCoordinatorDelegate: AnyObject {
     func didPressTransaction(transaction: TransactionInstance, in viewController: ActivitiesViewController)

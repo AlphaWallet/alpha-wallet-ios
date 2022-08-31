@@ -2,6 +2,7 @@
 
 import CoreSpotlight
 import Foundation
+import AlphaWalletFoundation
 
 class WalletQrCodeDonation {
     //TODO maybe change to include wallet address

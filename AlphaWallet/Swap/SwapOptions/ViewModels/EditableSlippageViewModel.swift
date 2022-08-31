@@ -7,6 +7,7 @@
 
 import UIKit
 import Combine
+import AlphaWalletFoundation
 
 struct EditableSlippageViewModelInput {
     let text: AnyPublisher<String?, Never>

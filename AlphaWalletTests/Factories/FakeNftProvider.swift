@@ -7,6 +7,7 @@
 
 @testable import AlphaWallet
 import PromiseKit
+import AlphaWalletFoundation
 
 class FakeNftProvider: NFTProvider {
     func nonFungible(wallet: Wallet, server: RPCServer) -> Promise<NonFungiblesTokens> {

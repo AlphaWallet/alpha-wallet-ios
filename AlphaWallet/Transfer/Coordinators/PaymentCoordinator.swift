@@ -3,6 +3,7 @@
 import Foundation
 import UIKit
 import Combine
+import AlphaWalletFoundation
 
 protocol PaymentCoordinatorDelegate: CanOpenURL, BuyCryptoDelegate {
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: PaymentCoordinator)

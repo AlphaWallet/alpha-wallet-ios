@@ -7,6 +7,7 @@
 
 @testable import AlphaWallet
 import XCTest
+import AlphaWalletFoundation
 
 class FormattersTestCase: XCTestCase {
 

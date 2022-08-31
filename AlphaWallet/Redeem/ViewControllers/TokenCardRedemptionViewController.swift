@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 protocol TokenCardRedemptionViewControllerDelegate: class, CanOpenURL {
 }

@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 protocol RedeemTokenCardQuantitySelectionViewControllerDelegate: class, CanOpenURL {
     func didSelectQuantity(token: Token, tokenHolder: TokenHolder, in viewController: RedeemTokenCardQuantitySelectionViewController)

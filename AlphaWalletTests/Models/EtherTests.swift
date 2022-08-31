@@ -4,6 +4,7 @@ import Foundation
 @testable import AlphaWallet
 import XCTest
 import BigInt
+import AlphaWalletFoundation
 
 class EtherTests: XCTestCase {
     func testEtherRepresentationEnglishLocale() {

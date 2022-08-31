@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 // A TableViewSection represents a section from a tableview. The tableview delegate methods are passed from the delegate to the section so customization behaviour for different sections is easier.
 

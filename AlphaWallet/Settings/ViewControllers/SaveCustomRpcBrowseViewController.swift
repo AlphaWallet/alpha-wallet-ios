@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 protocol SaveCustomRpcBrowseViewControllerDataDelegate: AnyObject {
     func didFinish(in viewController: SaveCustomRpcBrowseViewController, customRpcArray: [CustomRPC])

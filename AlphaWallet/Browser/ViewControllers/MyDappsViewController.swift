@@ -5,6 +5,7 @@
 import Foundation
 import UIKit
 import StatefulViewController
+import AlphaWalletFoundation
 
 protocol MyDappsViewControllerDelegate: AnyObject {
     func didTapToEdit(dapp: Bookmark, inViewController viewController: MyDappsViewController)

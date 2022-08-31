@@ -7,6 +7,7 @@
 
 import Foundation
 import WalletConnectSign
+import AlphaWalletFoundation
 
 typealias SessionNamespace = WalletConnectSign.SessionNamespace
 typealias Blockchain = WalletConnectSign.Blockchain

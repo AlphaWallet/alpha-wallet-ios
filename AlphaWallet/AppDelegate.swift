@@ -5,6 +5,7 @@ import AWSCore
 import PromiseKit
 import UserNotifications
 import AlphaWalletAddress
+import AlphaWalletFoundation 
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {

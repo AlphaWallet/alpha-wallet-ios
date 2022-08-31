@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import AlphaWalletFoundation
 
 protocol DappViewCellDelegate: AnyObject {
     func didTapDelete(dapp: Bookmark, inCell cell: DappViewCell)

@@ -8,6 +8,7 @@ import JSONRPCKit
 import PromiseKit
 import RealmSwift
 import Result
+import AlphaWalletFoundation
 
 protocol DappBrowserCoordinatorDelegate: CanOpenURL, RequestAddCustomChainProvider, RequestSwitchChainProvider, BuyCryptoDelegate {
     func didSentTransaction(transaction: SentTransaction, inCoordinator coordinator: DappBrowserCoordinator)

@@ -8,6 +8,7 @@
 import Foundation
 import Social
 import MobileCoreServices
+import AlphaWalletFoundation
 
 protocol ItemProviderValueResolver {
     var supportedTypes: [NSItemProvider.ItemType] { get }

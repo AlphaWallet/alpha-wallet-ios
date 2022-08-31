@@ -7,6 +7,7 @@
 
 import UIKit
 import BigInt
+import AlphaWalletFoundation
 
 struct WalletTokenViewCellViewModel {
     private let token: TokenViewModel

@@ -7,6 +7,7 @@
 
 import UIKit
 import Combine
+import AlphaWalletFoundation
 
 struct SelectTokenViewModelInput {
     let appear: AnyPublisher<Void, Never>

@@ -8,6 +8,7 @@
 import UIKit
 import FloatingPanel
 import Combine
+import AlphaWalletFoundation
 
 protocol SwapOptionsCoordinatorDelegate: class {
     func didClose(in coordinator: SwapOptionsCoordinator)

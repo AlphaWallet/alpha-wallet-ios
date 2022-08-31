@@ -7,6 +7,7 @@
 
 import XCTest
 @testable import AlphaWallet
+import AlphaWalletFoundation
 
 class RpcNetworkTestCase: XCTestCase {
 

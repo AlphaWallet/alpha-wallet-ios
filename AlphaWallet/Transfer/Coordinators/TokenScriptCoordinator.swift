@@ -9,6 +9,7 @@ import UIKit
 import BigInt
 import Result
 import Combine
+import AlphaWalletFoundation
 
 protocol TokenScriptCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryptoDelegate {
     func didFinish(_ result: ConfirmResult, in coordinator: TokenScriptCoordinator)

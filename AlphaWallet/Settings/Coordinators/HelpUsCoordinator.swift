@@ -2,6 +2,7 @@
 import Foundation
 import UIKit
 import StoreKit
+import AlphaWalletFoundation
 
 class HelpUsCoordinator: Coordinator {
     private let hostViewController: UIViewController

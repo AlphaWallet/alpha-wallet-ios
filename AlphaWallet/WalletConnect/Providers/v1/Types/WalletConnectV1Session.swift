@@ -7,6 +7,7 @@
 
 import Foundation
 import WalletConnectSwift
+import AlphaWalletFoundation
 
 struct WalletConnectV1Session: Codable {
     let topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl

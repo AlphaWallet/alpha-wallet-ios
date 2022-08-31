@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 struct SelectableNFTAssetContainerViewModel {
     private let token: TokenScript.Token?

@@ -11,6 +11,7 @@ import Combine
 import APIKit
 import PromiseKit
 @testable import AlphaWallet
+import AlphaWalletFoundation
 
 extension Session {
     typealias SendPublisherExampleClosure = (_ callback: @escaping(SessionTaskError?) -> Void) -> Void

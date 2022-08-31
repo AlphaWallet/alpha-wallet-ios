@@ -8,6 +8,7 @@
 import UIKit
 import BigInt
 import Result
+import AlphaWalletFoundation
 
 typealias AWResult = Result
 

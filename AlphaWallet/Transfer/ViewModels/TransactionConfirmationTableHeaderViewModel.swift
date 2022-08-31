@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 struct TransactionConfirmationHeaderViewModel {
     enum Title {

@@ -7,6 +7,7 @@
 
 import UIKit
 import Combine
+import AlphaWalletFoundation
 
 protocol NonFungibleTokenViewControllerDelegate: class, CanOpenURL {
     func didPressRedeem(token: Token, tokenHolder: TokenHolder, in viewController: NFTAssetViewController)

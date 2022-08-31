@@ -7,6 +7,7 @@
 
 import UIKit
 import Combine
+import AlphaWalletFoundation
 
 struct FungibleTokenHeaderViewModelInput {
     let toggleValue: AnyPublisher<Void, Never>

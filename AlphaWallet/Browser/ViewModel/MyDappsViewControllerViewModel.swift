@@ -1,6 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
+import AlphaWalletFoundation
 
 struct MyDappsViewControllerViewModel {
     var bookmarksStore: BookmarksStore

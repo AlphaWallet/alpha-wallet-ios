@@ -7,6 +7,7 @@
 
 import Foundation
 import WalletConnectSwift  
+import AlphaWalletFoundation
 
 typealias WalletConnectV1Request = WalletConnectSwift.Request
 

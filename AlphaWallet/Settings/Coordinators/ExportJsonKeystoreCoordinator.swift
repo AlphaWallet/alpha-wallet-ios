@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import AlphaWalletFoundation
 
 @objc protocol ExportJsonKeystoreCoordinatorDelegate {
     func didComplete(coordinator: ExportJsonKeystoreCoordinator)

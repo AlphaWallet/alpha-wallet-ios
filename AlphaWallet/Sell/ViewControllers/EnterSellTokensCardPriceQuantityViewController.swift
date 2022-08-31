@@ -3,6 +3,7 @@
 import UIKit
 import BigInt
 import Combine
+import AlphaWalletFoundation
 
 protocol EnterSellTokensCardPriceQuantityViewControllerDelegate: class, CanOpenURL {
     func didEnterSellTokensPriceQuantity(token: Token, tokenHolder: TokenHolder, ethCost: Ether, in viewController: EnterSellTokensCardPriceQuantityViewController)

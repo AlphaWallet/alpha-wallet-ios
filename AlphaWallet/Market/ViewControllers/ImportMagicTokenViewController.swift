@@ -2,6 +2,7 @@
 
 import UIKit
 import Alamofire
+import AlphaWalletFoundation
 
 protocol ImportMagicTokenViewControllerDelegate: class, CanOpenURL {
     func didPressDone(in viewController: ImportMagicTokenViewController)

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 protocol EditPriceAlertCoordinatorDelegate: class {
     func didClose(in coordinator: EditPriceAlertCoordinator)

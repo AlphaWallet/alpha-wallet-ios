@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 class GasSpeedView: UIView {
     static let height: CGFloat = CGFloat(100)

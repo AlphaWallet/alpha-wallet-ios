@@ -4,6 +4,7 @@ import PromiseKit
 import RealmSwift
 import Result
 import Combine
+import AlphaWalletFoundation
 
 // swiftlint:disable file_length
 protocol ActiveWalletCoordinatorDelegate: AnyObject {

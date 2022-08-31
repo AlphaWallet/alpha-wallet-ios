@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 class SelectNetworkViewModel {
     let session: WalletSession

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 protocol ModalViewControllerDelegate: class {
     func didDismiss(_ controller: ModalViewController)

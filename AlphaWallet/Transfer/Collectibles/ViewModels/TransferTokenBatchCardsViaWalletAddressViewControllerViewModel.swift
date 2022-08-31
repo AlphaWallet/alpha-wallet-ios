@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 struct TransferTokenBatchCardsViaWalletAddressViewControllerViewModel {
     let token: Token
@@ -45,7 +46,7 @@ struct TransferTokenBatchCardsViaWalletAddressViewControllerViewModel {
 }
 
 extension Errors {
-    var errorDescription: String? {
+    public var errorDescription: String? {
         switch self {
         case .invalidAddress:
             return R.string.localizable.sendErrorInvalidAddress()
@@ -56,7 +57,7 @@ extension Errors {
 }
 
 extension RpcNodeRetryableRequestError {
-    var errorDescription: String? {
+    public var errorDescription: String? {
         switch self {
         case .possibleBinanceTestnetTimeout:
             //TODO "send transaction" in name?

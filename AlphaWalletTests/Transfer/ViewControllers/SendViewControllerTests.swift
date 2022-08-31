@@ -10,6 +10,7 @@ import UIKit
 import XCTest
 import BigInt
 import Combine
+import AlphaWalletFoundation
 
 class SendViewControllerTests: XCTestCase {
     private let token = Token(contract: Constants.nullAddress, server: .main, value: "0", type: .nativeCryptocurrency)

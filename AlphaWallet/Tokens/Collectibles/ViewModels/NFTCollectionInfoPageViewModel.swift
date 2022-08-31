@@ -7,8 +7,8 @@
 
 import UIKit
 import BigInt
-import AlphaWalletOpenSea
 import Combine
+import AlphaWalletFoundation
 
 enum NFTPreviewViewType {
     case tokenCardView

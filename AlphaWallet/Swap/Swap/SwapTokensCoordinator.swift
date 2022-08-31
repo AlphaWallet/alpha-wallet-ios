@@ -11,6 +11,7 @@ import FloatingPanel
 import PromiseKit
 import BigInt
 import Result
+import AlphaWalletFoundation
 
 protocol SwapTokensCoordinatorDelegate: CanOpenURL, BuyCryptoDelegate {
     func didFinish(_ result: ConfirmResult, in coordinator: SwapTokensCoordinator)

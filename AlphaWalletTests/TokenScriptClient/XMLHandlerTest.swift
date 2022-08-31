@@ -9,6 +9,7 @@ import Foundation
 import XCTest
 @testable import AlphaWallet
 import BigInt
+import AlphaWalletFoundation
 // swiftlint:disable type_body_length
 class XMLHandlerTest: XCTestCase {
     let tokenHex = "0x00000000000000000000000000000000fefe5ae99a3000000000000000010001".substring(from: 2)

@@ -6,6 +6,7 @@ import BigInt
 import PromiseKit
 import WebKit
 import Combine
+import AlphaWalletFoundation
 
 protocol TokenInstanceWebViewDelegate: AnyObject {
     //TODO not good. But quick and dirty to ship

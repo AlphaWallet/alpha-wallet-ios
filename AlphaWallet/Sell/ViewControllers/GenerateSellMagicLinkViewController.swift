@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import AlphaWalletFoundation
 
 protocol GenerateSellMagicLinkViewControllerDelegate: AnyObject {
     func didPressShare(in viewController: GenerateSellMagicLinkViewController, sender: UIView)

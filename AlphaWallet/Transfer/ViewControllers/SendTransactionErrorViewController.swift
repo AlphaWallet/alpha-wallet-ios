@@ -1,6 +1,7 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
 import UIKit
+import AlphaWalletFoundation
 
 protocol SendTransactionErrorViewControllerDelegate: AnyObject {
     func rectifyErrorButtonTapped(error: SendTransactionNotRetryableError, inController controller: SendTransactionErrorViewController)

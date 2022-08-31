@@ -7,6 +7,7 @@
 
 import UIKit
 import Combine
+import AlphaWalletFoundation
 
 protocol EditPriceAlertViewControllerDelegate: class {
     func didUpdateAlert(in viewController: EditPriceAlertViewController)

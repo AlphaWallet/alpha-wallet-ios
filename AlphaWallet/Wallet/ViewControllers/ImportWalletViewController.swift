@@ -1,7 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
-import WalletCore
+import AlphaWalletFoundation
 
 protocol ImportWalletViewControllerDelegate: AnyObject {
     func didImportAccount(account: Wallet, in viewController: ImportWalletViewController)
@@ -391,13 +391,18 @@ class ImportWalletViewController: UIViewController {
     ///Returns true only if valid
     private func validateMnemonic() -> Bool {
         mnemonicTextView.errorState = .none
-
-        if let validationError = MnemonicLengthValidator().isValid(value: mnemonicInputString) {
+        var msg: String
+        if Features.default.isAvailable(.is24SeedWordPhraseAllowed) {
+            msg = R.string.localizable.importWalletImportInvalidMnemonicCount24()
+        } else {
+            msg = R.string.localizable.importWalletImportInvalidMnemonicCount12()
+        }
+        if let validationError = MnemonicLengthValidator(message: msg).isValid(value: mnemonicInputString) {
             mnemonicTextView.errorState = .error(validationError.msg)
 
             return false
         }
-        if let validationError = MnemonicInWordListValidator().isValid(value: mnemonicInputString) {
+        if let validationError = MnemonicInWordListValidator(msg: R.string.localizable.importWalletImportInvalidMnemonic()).isValid(value: mnemonicInputString) {
             mnemonicTextView.errorState = .error(validationError.msg)
             return false
         }
@@ -421,7 +426,7 @@ class ImportWalletViewController: UIViewController {
     ///Returns true only if valid
     private func validatePrivateKey() -> Bool {
         privateKeyTextView.errorState = .none
-        if let validationError = PrivateKeyValidator().isValid(value: privateKeyTextView.value.trimmed) {
+        if let validationError = PrivateKeyValidator(msg: R.string.localizable.importWalletImportInvalidPrivateKey()).isValid(value: privateKeyTextView.value.trimmed) {
             privateKeyTextView.errorState = .error(validationError.msg)
             return false
         }
@@ -431,7 +436,7 @@ class ImportWalletViewController: UIViewController {
     ///Returns true only if valid
     private func validateWatch() -> Bool {
         watchAddressTextField.errorState = .none
-        if let validationError = EthereumAddressValidator().isValid(value: watchAddressTextField.value) {
+        if let validationError = EthereumAddressValidator(msg: R.string.localizable.importWalletImportInvalidAddress()).isValid(value: watchAddressTextField.value) {
             watchAddressTextField.errorState = .error(validationError.msg)
             return false
         }

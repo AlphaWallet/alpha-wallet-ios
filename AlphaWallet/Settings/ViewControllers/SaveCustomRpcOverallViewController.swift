@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 enum SaveCustomRpcOverallTab {
     case browse

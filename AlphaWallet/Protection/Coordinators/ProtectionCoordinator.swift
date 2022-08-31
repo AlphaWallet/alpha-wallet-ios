@@ -2,6 +2,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
+import AlphaWalletFoundation
 
 class ProtectionCoordinator: Coordinator {
 	private lazy var splashCoordinator: SplashCoordinator = {

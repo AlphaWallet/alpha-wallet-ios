@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import AlphaWalletFoundation
 
 protocol ConsoleCoordinatorDelegate: AnyObject {
     func didCancel(in coordinator: ConsoleCoordinator)

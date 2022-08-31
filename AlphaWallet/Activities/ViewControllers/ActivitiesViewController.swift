@@ -3,6 +3,7 @@
 import UIKit
 import BigInt
 import StatefulViewController
+import AlphaWalletFoundation
 
 protocol ActivitiesViewControllerDelegate: AnyObject {
     func didPressActivity(activity: Activity, in viewController: ActivitiesViewController)

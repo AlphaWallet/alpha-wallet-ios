@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import AlphaWalletFoundation
 
 protocol DappsAutoCompletionViewControllerDelegate: AnyObject {
     func didTap(dapp: Dapp, inViewController viewController: DappsAutoCompletionViewController)

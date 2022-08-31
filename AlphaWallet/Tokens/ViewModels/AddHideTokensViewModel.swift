@@ -3,6 +3,7 @@
 import Foundation
 import PromiseKit
 import Combine
+import AlphaWalletFoundation
 
 struct AddHideTokensViewModelInput {
     let sortTokensParam: AnyPublisher<SortTokensParam, Never>

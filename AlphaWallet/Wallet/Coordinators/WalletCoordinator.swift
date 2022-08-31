@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import AlphaWalletFoundation
 
 protocol WalletCoordinatorDelegate: AnyObject {
     func didFinish(with account: Wallet, in coordinator: WalletCoordinator)

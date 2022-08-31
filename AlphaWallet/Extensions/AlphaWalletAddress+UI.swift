@@ -1,6 +1,7 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
 import UIKit
+import AlphaWalletFoundation
 
 extension AlphaWallet.Address {
 

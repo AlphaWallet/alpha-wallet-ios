@@ -3,6 +3,7 @@
 import BigInt
 import Foundation
 import UIKit
+import AlphaWalletFoundation
 
 struct TransactionDetailsViewModel {
     private let transactionViewModel: TransactionViewModel

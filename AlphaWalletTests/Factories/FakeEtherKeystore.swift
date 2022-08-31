@@ -3,6 +3,7 @@
 import Foundation
 @testable import AlphaWallet
 import KeychainSwift
+import AlphaWalletFoundation
 
 final class FakeEtherKeystore: EtherKeystore {
     convenience init(wallets: [Wallet] = [], recentlyUsedWallet: Wallet? = nil) {

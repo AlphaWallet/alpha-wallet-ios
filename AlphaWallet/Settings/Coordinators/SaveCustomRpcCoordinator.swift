@@ -7,6 +7,7 @@
 
 import UIKit
 import PromiseKit
+import AlphaWalletFoundation
 
 protocol SaveCustomRpcCoordinatorDelegate: AnyObject {
     func didDismiss(in coordinator: SaveCustomRpcCoordinator)

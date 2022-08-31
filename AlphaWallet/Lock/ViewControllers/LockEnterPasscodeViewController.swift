@@ -3,6 +3,7 @@
 
 import UIKit
 import LocalAuthentication
+import AlphaWalletFoundation
 
 class LockEnterPasscodeViewController: LockPasscodeViewController {
 	private lazy var lockEnterPasscodeViewModel: LockEnterPasscodeViewModel? = {

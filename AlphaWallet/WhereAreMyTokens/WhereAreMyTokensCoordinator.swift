@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 protocol WhereAreMyTokensCoordinatorDelegate: class {
     func switchToMainnetSelected(in coordinator: WhereAreMyTokensCoordinator)

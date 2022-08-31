@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 struct TransactionDeadlineTextFieldModel {
     private let value: TransactionDeadline

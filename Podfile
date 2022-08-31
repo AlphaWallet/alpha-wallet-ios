@@ -40,6 +40,7 @@ target 'AlphaWallet' do
   pod 'AlphaWalletGoBack', :path => 'modules/AlphaWalletGoBack'
   pod 'AlphaWalletENS', :path => 'modules/AlphaWalletENS'
   pod 'AlphaWalletOpenSea', :path => 'modules/AlphaWalletOpenSea'
+  pod 'AlphaWalletFoundation', :path => 'modules/AlphaWalletFoundation'
   pod 'Apollo' 
   pod 'MailchimpSDK'
   pod 'xcbeautify'
@@ -50,6 +51,11 @@ target 'AlphaWallet' do
       inherit! :search_paths
       # Pods for testing
       pod 'iOSSnapshotTestCase', '6.2.0'
+  end
+
+  target 'AlphaWalletShare' do
+      inherit! :search_paths
+      # Pods for testing
   end
 
 end

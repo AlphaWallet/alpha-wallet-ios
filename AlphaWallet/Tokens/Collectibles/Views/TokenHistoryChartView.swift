@@ -8,6 +8,7 @@
 import UIKit
 import Charts
 import Combine
+import AlphaWalletFoundation
 
 class TokenHistoryChartView: UIView {
 

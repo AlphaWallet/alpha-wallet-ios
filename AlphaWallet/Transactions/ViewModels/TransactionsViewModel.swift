@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import AlphaWalletFoundation
 
 struct TransactionsViewModel {
     private static var formatter: DateFormatter {

@@ -8,6 +8,7 @@
 import UIKit
 import Combine
 import BigInt
+import AlphaWalletFoundation
 
 final class SwapDetailsViewModel {
     private var swapDetailsExpanded: Bool = false

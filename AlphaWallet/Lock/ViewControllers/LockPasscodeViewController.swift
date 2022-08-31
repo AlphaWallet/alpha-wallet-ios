@@ -2,6 +2,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
+import AlphaWalletFoundation
 
 class LockPasscodeViewController: UIViewController {
 	var willFinishWithResult: ((_ success: Bool) -> Void)?

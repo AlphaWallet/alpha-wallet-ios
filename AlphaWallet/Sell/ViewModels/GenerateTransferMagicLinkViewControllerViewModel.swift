@@ -1,6 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
+import AlphaWalletFoundation
 
 struct GenerateTransferMagicLinkViewControllerViewModel {
     private let tokenHolder: TokenHolder

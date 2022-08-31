@@ -7,6 +7,7 @@
 
 import UIKit
 import PromiseKit
+import AlphaWalletFoundation
 
 protocol ServerUnavailableCoordinatorDelegate: AnyObject {
     func didDismiss(in coordinator: ServerUnavailableCoordinator)

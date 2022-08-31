@@ -4,6 +4,7 @@
 import Foundation
 import Combine
 import AlphaWalletCore
+import AlphaWalletFoundation
 
 class FakeDomainResolutionService: DomainResolutionServiceType {
     func resolveAddress(string value: String) -> AnyPublisher<AlphaWallet.Address, PromiseError> {

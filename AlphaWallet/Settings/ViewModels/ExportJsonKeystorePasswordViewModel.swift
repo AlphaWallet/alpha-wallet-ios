@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AlphaWalletFoundation
 
 class ExportJsonKeystorePasswordViewModel {
     private let validator: StringValidator

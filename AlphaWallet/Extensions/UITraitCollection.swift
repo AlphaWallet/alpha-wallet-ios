@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 extension UITraitCollection {
     var uniswapTheme: Uniswap.Theme {

@@ -4,6 +4,7 @@
 
 import Foundation
 import UIKit
+import AlphaWalletFoundation
 
 protocol DappsHomeViewControllerDelegate: AnyObject {
     func didTapShowMyDappsViewController(inViewController viewController: DappsHomeViewController)

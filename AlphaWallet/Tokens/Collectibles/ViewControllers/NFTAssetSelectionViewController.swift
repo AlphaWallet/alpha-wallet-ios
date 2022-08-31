@@ -7,6 +7,7 @@
 
 import UIKit
 import StatefulViewController
+import AlphaWalletFoundation
 
 extension NFTAssetSelectionViewController {
     enum ToolbarAction: CaseIterable {

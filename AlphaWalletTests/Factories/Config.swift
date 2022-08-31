@@ -2,6 +2,7 @@
 
 import Foundation
 @testable import AlphaWallet
+import AlphaWalletFoundation
 
 extension Config {
     static func make(defaults: UserDefaults = .test, enabledServers: [RPCServer] = [.main]) -> Config {

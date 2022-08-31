@@ -2,6 +2,7 @@
 
 import UIKit
 import PromiseKit
+import AlphaWalletFoundation
 
 protocol OpenSeaNonFungibleTokenCardRowViewDelegate: AnyObject {
     func didTapURL(url: URL)

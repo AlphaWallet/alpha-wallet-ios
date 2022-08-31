@@ -3,6 +3,7 @@
 import BigInt
 @testable import AlphaWallet
 import XCTest
+import AlphaWalletFoundation
 
 class RLPTests: XCTestCase {
     func testStrings() {

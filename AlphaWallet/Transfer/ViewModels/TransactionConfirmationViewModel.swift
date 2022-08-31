@@ -3,6 +3,7 @@
 import Foundation
 import BigInt
 import Combine
+import AlphaWalletFoundation
 
 protocol CryptoToFiatRateUpdatable: class {
     var cryptoToDollarRate: Double? { get set }

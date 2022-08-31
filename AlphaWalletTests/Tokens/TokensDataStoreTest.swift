@@ -3,6 +3,7 @@
 import XCTest
 @testable import AlphaWallet
 import Foundation
+import AlphaWalletFoundation
 
 class TokensDataStoreTest: XCTestCase {
     private let storage = FakeTokensDataStore()

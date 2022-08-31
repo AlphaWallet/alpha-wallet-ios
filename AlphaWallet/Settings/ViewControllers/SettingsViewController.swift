@@ -2,6 +2,7 @@
 
 import UIKit
 import Combine
+import AlphaWalletFoundation
 
 protocol SettingsViewControllerDelegate: class, CanOpenURL {
     func settingsViewControllerAdvancedSettingsSelected(in controller: SettingsViewController)

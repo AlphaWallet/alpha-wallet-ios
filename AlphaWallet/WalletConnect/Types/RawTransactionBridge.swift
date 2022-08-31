@@ -7,6 +7,7 @@
 
 import Foundation
 import BigInt
+import AlphaWalletFoundation
 
 struct RawTransactionBridge: Decodable {
     private enum CodingKeys: String, CodingKey {

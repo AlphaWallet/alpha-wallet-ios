@@ -4,6 +4,7 @@ import UIKit
 import CoreImage
 import MBProgressHUD
 import Combine
+import AlphaWalletFoundation
 
 protocol RequestViewControllerDelegate: AnyObject {
     func didClose(in viewController: RequestViewController)

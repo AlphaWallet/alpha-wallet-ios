@@ -8,6 +8,7 @@
 import Foundation
 import XCTest
 @testable import AlphaWallet
+import AlphaWalletFoundation
 
 class FakeUniversalLinkCoordinator: UniversalLinkService {
     override func handleUniversalLink(url: URL, source: UrlSource) -> Bool { return false }

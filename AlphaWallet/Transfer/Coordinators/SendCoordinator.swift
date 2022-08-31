@@ -3,6 +3,7 @@ import UIKit
 import BigInt
 import PromiseKit
 import Result
+import AlphaWalletFoundation
 
 protocol SendCoordinatorDelegate: CanOpenURL, BuyCryptoDelegate {
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: SendCoordinator)

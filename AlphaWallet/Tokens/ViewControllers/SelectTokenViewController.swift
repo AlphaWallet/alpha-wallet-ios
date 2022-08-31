@@ -8,6 +8,7 @@
 import UIKit
 import StatefulViewController
 import Combine
+import AlphaWalletFoundation
 
 protocol SelectTokenViewControllerDelegate: AnyObject {
     func controller(_ controller: SelectTokenViewController, didSelectToken token: Token)

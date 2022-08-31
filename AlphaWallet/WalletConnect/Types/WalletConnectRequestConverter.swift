@@ -8,6 +8,7 @@
 import Foundation
 import PromiseKit
 import WalletConnectSwift
+import AlphaWalletFoundation
 
 struct WalletConnectRequestConverter {
 

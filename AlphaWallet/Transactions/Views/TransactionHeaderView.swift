@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import AlphaWalletFoundation
 
 class TransactionHeaderView: UIView {
     private let server: RPCServer

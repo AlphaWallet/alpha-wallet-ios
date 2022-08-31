@@ -8,6 +8,7 @@
 import UIKit
 import Combine
 import Charts
+import AlphaWalletFoundation
 
 class TokenHistoryChartViewModel {
     private var selectedHistoryIndexSubject: CurrentValueSubject<Int, Never> = .init(0)

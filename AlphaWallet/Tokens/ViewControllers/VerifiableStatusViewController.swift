@@ -2,6 +2,7 @@
 
 import UIKit
 import PromiseKit
+import AlphaWalletFoundation
 
 @objc protocol VerifiableStatusViewController: CanOpenURL2 {
     func showContractWebPage()

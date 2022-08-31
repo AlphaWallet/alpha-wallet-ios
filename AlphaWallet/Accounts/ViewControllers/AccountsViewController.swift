@@ -2,6 +2,7 @@
 
 import UIKit
 import Combine
+import AlphaWalletFoundation
 
 protocol AccountsViewControllerDelegate: AnyObject {
     func didSelectAccount(account: Wallet, in viewController: AccountsViewController)

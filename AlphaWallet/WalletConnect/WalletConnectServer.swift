@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import AlphaWalletFoundation
 
 enum WalletConnectError: Error {
     case callbackIdMissing

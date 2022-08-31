@@ -7,6 +7,7 @@
 
 import Foundation
 import PromiseKit
+import AlphaWalletFoundation
 
 class ExportJsonKeystoreFileViewModel {
     private let keystore: Keystore

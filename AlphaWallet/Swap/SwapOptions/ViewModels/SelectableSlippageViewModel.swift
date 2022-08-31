@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 struct SelectableSlippageViewModel {
     let value: SwapSlippage

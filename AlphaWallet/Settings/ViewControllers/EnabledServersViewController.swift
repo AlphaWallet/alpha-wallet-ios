@@ -1,6 +1,7 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
 import UIKit
+import AlphaWalletFoundation
 
 protocol EnabledServersViewControllerDelegate: AnyObject {
     func didEditSelectedServer(customRpc: CustomRPC, in viewController: EnabledServersViewController)

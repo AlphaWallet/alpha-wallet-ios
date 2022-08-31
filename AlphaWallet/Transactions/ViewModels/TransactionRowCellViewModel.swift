@@ -2,6 +2,7 @@
 
 import BigInt
 import Foundation
+import AlphaWalletFoundation
 
 struct TransactionRowCellViewModel {
     private let transactionRow: TransactionRow

@@ -8,6 +8,7 @@
 import Foundation
 import BigInt
 import PromiseKit
+import AlphaWalletFoundation
 
 protocol QRCodeResolutionCoordinatorDelegate: AnyObject {
     func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveAddress address: AlphaWallet.Address, action: ScanQRCodeAction)

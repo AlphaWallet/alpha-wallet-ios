@@ -4,6 +4,7 @@ import Foundation
 import UIKit
 import CryptoSwift
 import Result
+import AlphaWalletFoundation
 
 enum SignMessageType {
     case message(Data)

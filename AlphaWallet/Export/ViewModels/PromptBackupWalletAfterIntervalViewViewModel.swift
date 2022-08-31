@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import AlphaWalletFoundation
 
 struct PromptBackupWalletAfterIntervalViewViewModel: PromptBackupWalletViewModel {
     let walletAddress: AlphaWallet.Address

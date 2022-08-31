@@ -9,6 +9,7 @@ import Foundation
 import WalletConnectUtils
 import Combine
 import WalletConnectSign
+import AlphaWalletFoundation
 
 class WalletConnectV2Provider: WalletConnectServer {
 

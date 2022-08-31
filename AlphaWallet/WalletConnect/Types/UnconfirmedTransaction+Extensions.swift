@@ -7,6 +7,7 @@
 
 import Foundation
 import BigInt
+import AlphaWalletFoundation
 
 extension UnconfirmedTransaction {
     init(transactionType: TransactionType, bridge transaction: RawTransactionBridge) {

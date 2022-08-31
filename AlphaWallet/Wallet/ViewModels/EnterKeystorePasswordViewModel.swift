@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AlphaWalletFoundation
 
 class EnterKeystorePasswordViewModel {
     var validator: StringValidator = StringValidator(rules: [

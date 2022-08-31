@@ -7,6 +7,7 @@
 
 import UIKit
 import LocalAuthentication
+import AlphaWalletFoundation
 
 protocol ShowSeedPhraseCoordinatorDelegate: AnyObject {
     func didCancel(in coordinator: ShowSeedPhraseCoordinator)

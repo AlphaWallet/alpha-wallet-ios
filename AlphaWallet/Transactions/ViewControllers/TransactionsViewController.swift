@@ -2,6 +2,7 @@
 
 import UIKit 
 import StatefulViewController
+import AlphaWalletFoundation
 
 protocol TransactionsViewControllerDelegate: AnyObject {
     func didPressTransaction(transactionRow: TransactionRow, in viewController: TransactionsViewController)

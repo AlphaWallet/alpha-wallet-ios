@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import AlphaWalletFoundation
 
 struct SetTransferTokensCardExpiryDateViewControllerViewModel {
     let token: Token

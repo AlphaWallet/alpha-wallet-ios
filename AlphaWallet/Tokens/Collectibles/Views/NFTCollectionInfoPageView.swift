@@ -7,6 +7,7 @@
 
 import UIKit
 import Combine
+import AlphaWalletFoundation
 
 protocol NFTCollectionInfoPageViewDelegate: class {
     func didPressOpenWebPage(_ url: URL, in view: NFTCollectionInfoPageView)

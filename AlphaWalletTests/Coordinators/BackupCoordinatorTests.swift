@@ -2,6 +2,7 @@
 
 import XCTest
 @testable import AlphaWallet
+import AlphaWalletFoundation
 
 class BackupCoordinatorTests: XCTestCase {
     func testStartWithHdWallet() {

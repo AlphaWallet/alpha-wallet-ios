@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 struct SingleNFTAssetSelectionViewModel {
     var backgroundColor: UIColor = Colors.appTint

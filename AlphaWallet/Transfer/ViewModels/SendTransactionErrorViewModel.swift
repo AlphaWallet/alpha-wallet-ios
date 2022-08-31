@@ -1,6 +1,7 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
 import UIKit
+import AlphaWalletFoundation
 
 struct SendTransactionErrorViewModel {
     let server: RPCServer

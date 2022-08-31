@@ -6,6 +6,7 @@
 //
 
 import Foundation 
+import AlphaWalletFoundation
 
 extension WalletConnectV1Request: PositionedJSONRPC_2_0_RequestType { }
 

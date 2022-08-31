@@ -8,6 +8,7 @@
 import Foundation
 import XCTest
 @testable import AlphaWallet
+import AlphaWalletFoundation
 
 final class FakeSessionsProvider: SessionsProvider {
     init(servers: [RPCServer]) {

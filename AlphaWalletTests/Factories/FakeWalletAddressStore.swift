@@ -6,7 +6,7 @@
 //
 
 import XCTest
-
+import AlphaWalletFoundation
 @testable import AlphaWallet
 
 func fakeWalletAddressStore(wallets: [Wallet] = [], recentlyUsedWallet: Wallet? = nil) -> WalletAddressesStore {

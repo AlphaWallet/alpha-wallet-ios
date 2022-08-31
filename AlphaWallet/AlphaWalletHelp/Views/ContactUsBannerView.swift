@@ -2,6 +2,7 @@
 
 import UIKit
 import MessageUI
+import AlphaWalletFoundation
 
 protocol ContactUsBannerViewDelegate: AnyObject {
     func present(_ viewController: UIViewController, for view: ContactUsBannerView)

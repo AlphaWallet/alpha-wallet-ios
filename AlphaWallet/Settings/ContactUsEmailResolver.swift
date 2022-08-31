@@ -7,6 +7,7 @@
 
 import Foundation
 import MessageUI
+import AlphaWalletFoundation
 
 final class ContactUsEmailResolver: NSObject {
 

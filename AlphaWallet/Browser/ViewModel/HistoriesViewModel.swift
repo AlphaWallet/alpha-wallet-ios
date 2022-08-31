@@ -1,6 +1,7 @@
 // Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
+import AlphaWalletFoundation
 
 struct HistoriesViewModel {
     private let store: HistoryStore

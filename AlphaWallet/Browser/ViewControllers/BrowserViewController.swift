@@ -5,6 +5,7 @@ import UIKit
 import WebKit
 import JavaScriptCore
 import Result
+import AlphaWalletFoundation
 
 protocol BrowserViewControllerDelegate: AnyObject {
     func didCall(action: DappAction, callbackID: Int, inBrowserViewController viewController: BrowserViewController)

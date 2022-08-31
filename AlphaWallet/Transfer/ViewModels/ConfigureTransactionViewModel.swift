@@ -2,6 +2,7 @@
 
 import Foundation
 import BigInt
+import AlphaWalletFoundation
 
 struct ConfigureTransactionViewModel {
     enum RecoveryMode {

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AlphaWalletFoundation
 
 final class AcceptWalletConnectSessionViewModel: SectionProtocol {
     private let config: Config

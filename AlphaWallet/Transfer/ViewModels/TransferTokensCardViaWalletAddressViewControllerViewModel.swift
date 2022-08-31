@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import AlphaWalletFoundation
 
 struct TransferTokensCardViaWalletAddressViewControllerViewModel {
     let token: Token

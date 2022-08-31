@@ -3,6 +3,7 @@
 import UIKit
 import BigInt
 import Result
+import AlphaWalletFoundation
 
 protocol TransferNFTCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryptoDelegate {
     func didFinish(_ result: ConfirmResult, in coordinator: TransferNFTCoordinator)

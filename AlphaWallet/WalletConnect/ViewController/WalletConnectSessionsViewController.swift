@@ -4,6 +4,7 @@ import UIKit
 import StatefulViewController
 import AlphaWalletAddress
 import Combine
+import AlphaWalletFoundation
 
 protocol WalletConnectSessionsViewControllerDelegate: AnyObject {
     func didDisconnectSelected(session: AlphaWallet.WalletConnect.Session, in viewController: WalletConnectSessionsViewController)

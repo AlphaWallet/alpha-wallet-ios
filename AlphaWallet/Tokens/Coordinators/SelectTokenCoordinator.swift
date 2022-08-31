@@ -7,6 +7,7 @@
 
 import UIKit
 import Combine
+import AlphaWalletFoundation
 
 protocol SelectTokenCoordinatorDelegate: AnyObject {
     func coordinator(_ coordinator: SelectTokenCoordinator, didSelectToken token: Token)

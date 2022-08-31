@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 protocol SaveCustomRpcBrowseDataObserver: class {
     func dataHasChanged(rows: Int)

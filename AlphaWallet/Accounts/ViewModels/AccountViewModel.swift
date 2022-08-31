@@ -2,6 +2,7 @@
 
 import UIKit
 import Combine
+import AlphaWalletFoundation
 
 class AccountViewModel {
     private let getWalletName: GetWalletName

@@ -9,6 +9,7 @@
 import Foundation
 import BigInt
 import Combine
+import AlphaWalletFoundation
 
 struct NFTCollectionViewModelInput {
     let appear: AnyPublisher<Void, Never>

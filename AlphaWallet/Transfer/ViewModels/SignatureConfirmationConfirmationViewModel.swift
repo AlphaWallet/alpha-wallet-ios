@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 struct SignatureConfirmationViewModel {
 
@@ -94,7 +95,7 @@ extension SignatureConfirmationViewModel {
         var viewModels: [ViewType] {
             let header = R.string.localizable.signatureConfirmationMessageTitle()
             var values: [ViewType] = []
-            values = requester?.viewModels ?? []
+            values = (requester?.viewModels ?? []).compactMap { $0 as? SignatureConfirmationViewModel.ViewType }
 
             return values + [
                 .headerWithShowButton(.init(title: .normal(messagePrefix), headerName: header, configuration: .init(section: values.count)), availableToShowFullMessage)
@@ -128,7 +129,7 @@ extension SignatureConfirmationViewModel {
 
         var viewModels: [ViewType] {
             var values: [ViewType] = []
-            values = requester?.viewModels ?? []
+            values = (requester?.viewModels ?? []).compactMap { $0 as? SignatureConfirmationViewModel.ViewType }
 
             for sectionIndex in self.values.indices {
                 let data = self.values[sectionIndex]
@@ -156,7 +157,7 @@ extension SignatureConfirmationViewModel {
 
         var viewModels: [ViewType] {
             var values: [ViewType] = []
-            values = requester?.viewModels ?? []
+            values = (requester?.viewModels ?? []).compactMap { $0 as? SignatureConfirmationViewModel.ViewType }
             for (sectionIndex, typedMessage) in self.typedData.enumerated() {
                 let string = typedMessage.value.string
                 values += [

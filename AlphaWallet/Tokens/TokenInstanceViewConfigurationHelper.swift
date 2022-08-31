@@ -7,6 +7,7 @@
 
 import Foundation
 import AlphaWalletOpenSea
+import AlphaWalletFoundation
 
 final class TokenInstanceViewConfigurationHelper {
     private (set) var tokenId: TokenId

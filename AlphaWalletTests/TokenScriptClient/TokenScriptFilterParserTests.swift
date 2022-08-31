@@ -3,6 +3,7 @@
 import Foundation
 import XCTest
 @testable import AlphaWallet
+import AlphaWalletFoundation
 
 class TokenScriptFilterParserTests: XCTestCase {
     func testTokenizing() {

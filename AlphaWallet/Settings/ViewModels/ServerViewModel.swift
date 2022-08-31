@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import AlphaWalletFoundation
 
 protocol ServerTableViewCellViewModelType {
     var isTopSeparatorHidden: Bool { get }

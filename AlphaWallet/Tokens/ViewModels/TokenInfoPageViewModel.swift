@@ -2,6 +2,7 @@
 
 import UIKit
 import Combine
+import AlphaWalletFoundation
 
 struct TokenInfoPageViewModelInput {
     let appear: AnyPublisher<Void, Never>

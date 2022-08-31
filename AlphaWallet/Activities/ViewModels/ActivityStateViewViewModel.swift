@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 struct ActivityStateViewViewModel {
     var stateImage: UIImage? {
