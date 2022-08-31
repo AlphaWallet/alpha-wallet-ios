@@ -250,7 +250,7 @@ enum RPCServer: Hashable, CaseIterable {
     var etherscanApiRoot: URL? {
         let urlString: String? = {
             switch self {
-            case .main: return "https://api-cn.etherscan.com/api"
+            case .main: return "https://api.etherscan.io/api"
             case .kovan: return "https://api-kovan.etherscan.io/api"
             case .ropsten: return "https://api-ropsten.etherscan.io/api"
             case .rinkeby: return "https://api-rinkeby.etherscan.io/api"
