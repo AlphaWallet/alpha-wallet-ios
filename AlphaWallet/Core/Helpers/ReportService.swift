@@ -5,24 +5,14 @@
 //  Created by Vladyslav Shepitko on 03.02.2021.
 //
 
-import UIKit
+import Foundation
 
-protocol ReportService {
+public protocol ReportService {
     func configure()
 }
 
-class ReportProvider: NSObject {
+public final class ReportProvider: NSObject {
     private var services: [ReportService] = []
-
-    override init() {
-        super.init()
-
-        guard !isRunningTests() else { return }
-        guard isAlphaWallet() else { return }
-        if let service = AlphaWallet.FirebaseReportService() {
-            register(service)
-        }
-    }
 
     func register(_ service: ReportService) {
         services.append(service)
@@ -33,5 +23,23 @@ class ReportProvider: NSObject {
             service.configure()
         }
     }
+}
 
+public enum ReportKey: String {
+    case walletAddresses
+    case activeWalletAddress
+    case activeServers
+}
+
+public protocol CrashlyticsReporter {
+    func track(wallets: [Wallet])
+    func trackActiveWallet(wallet: Wallet)
+    func track(enabledServers: [RPCServer])
+    @discardableResult func logLargeNftJsonFiles(for actions: [AddOrUpdateTokenAction], fileSizeThreshold: Double) -> Bool
+}
+
+fileprivate (set) var crashlytics: CrashlyticsReporter!
+
+public func register(crashlytics object: CrashlyticsReporter) {
+    crashlytics = object
 }

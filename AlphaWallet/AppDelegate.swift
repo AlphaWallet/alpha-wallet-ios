@@ -18,7 +18,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     private lazy var protectionCoordinator: ProtectionCoordinator = {
         return ProtectionCoordinator()
     }()
-    private lazy var reportProvider = ReportProvider()
+    private lazy var reportProvider: ReportProvider = {
+        let provider = ReportProvider()
+        guard !isRunningTests() && isAlphaWallet() else { return provider }
+        if let service = AlphaWallet.FirebaseReportService() {
+            provider.register(service)
+        }
+        return provider
+    }()
     private let addressStorage = FileAddressStorage()
 
     func application(_ application: UIApplication,
@@ -32,14 +39,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
             }
 
             register(addressStorage: addressStorage)
-            //NOTE: we move AnalyticsService creation from AppCoordinator.init method to allow easily replace
+            register(crashlytics: AlphaWallet.FirebaseCrashlyticsReporter())
+
             let analytics = AnalyticsService()
             let walletAddressesStore: WalletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: .standardOrForTests)
-            let keystore: Keystore = try EtherKeystore(walletAddressesStore: walletAddressesStore, analytics: analytics)
+            var keystore: Keystore = try EtherKeystore(walletAddressesStore: walletAddressesStore, analytics: analytics)
+
             let navigationController: UINavigationController = .withOverridenBarAppearence()
             navigationController.view.backgroundColor = Colors.appWhite
 
             appCoordinator = try AppCoordinator(window: window!, analytics: analytics, keystore: keystore, walletAddressesStore: walletAddressesStore, navigationController: navigationController)
+            keystore.delegate = appCoordinator
             appCoordinator.start()
 
             if let shortcutItem = launchOptions?[UIApplication.LaunchOptionsKey.shortcutItem] as? UIApplicationShortcutItem, shortcutItem.type == Constants.launchShortcutKey {

@@ -5,7 +5,7 @@
 //  Created by Vladyslav Shepitko on 21.08.2020.
 //
 
-import UIKit
+import Foundation
 import Combine
 
 struct Uniswap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
@@ -13,9 +13,7 @@ struct Uniswap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
         return .empty()
     }
 
-    var action: String {
-        return R.string.localizable.aWalletTokenErc20ExchangeOnUniswapButtonTitle()
-    }
+    let action: String 
     
     func rpcServer(forToken token: TokenActionsIdentifiable) -> RPCServer? {
         return .main
@@ -114,16 +112,5 @@ struct Uniswap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
 
     func start() {
         //no-op
-    }
-}
-
-extension UITraitCollection {
-    var uniswapTheme: Uniswap.Theme {
-        switch userInterfaceStyle {
-        case .dark:
-            return .dark
-        case .light, .unspecified:
-            return .light
-        }
     }
 }

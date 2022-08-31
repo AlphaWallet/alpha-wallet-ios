@@ -8,12 +8,12 @@
 import Foundation
 
 /// Enum represents value sorting direction
-enum SortDirection: Int {
+public enum SortDirection: Int {
     case ascending
     case descending
 }
 
-extension Token {
+public extension Token {
     /// Helper enum represents fields available for sorting
     enum Field: Int {
         case name
@@ -22,9 +22,9 @@ extension Token {
 }
 
 /// Enum represents token objects sorting cases
-enum SortTokensParam: CaseIterable, Equatable {
+public enum SortTokensParam: CaseIterable, Equatable {
     case byField(field: Token.Field, direction: SortDirection)
     case mostUsed
 
-    static var allCases: [SortTokensParam] = Constants.defaultSortTokensParams
+    public static var allCases: [SortTokensParam] = Constants.defaultSortTokensParams
 }

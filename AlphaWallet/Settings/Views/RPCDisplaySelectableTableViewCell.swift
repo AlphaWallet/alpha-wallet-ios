@@ -91,7 +91,7 @@ class RPCDisplaySelectableTableViewCell: UITableViewCell {
         case .auto:
             chainIconView.image = R.image.launch_icon()!
         case .server(let server):
-            let imageSubscription = RPCServerImageFetcher.instance.image(server: server)
+            let imageSubscription = RPCServerImageFetcher.instance.image(server: server, iconImage: server.iconImage ?? R.image.tokenPlaceholderLarge()!)
             chainIconView.subscribable = imageSubscription
         }
     }

@@ -55,3 +55,32 @@ struct CheckTransactionStateViewModel {
     }
 
 }
+
+extension web3swift.Web3Error: LocalizedError {
+    public var errorDescription: String? {
+        switch self {
+        case .transactionSerializationError: return "Transaction Serialization Error"
+        case .connectionError: return "Connection Error"
+        case .dataError: return "Data Decode Error"
+        case .walletError: return "Wallet Error"
+        case .inputError(let e): return e
+        case .nodeError(let e): return e
+        case .processingError(let e): return e
+        case .keystoreError(let e): return e.localizedDescription
+        case .generalError(let e): return e.localizedDescription
+        case .unknownError: return "Unknown Error"
+        case .rateLimited: return "Rate limited"
+        }
+    }
+}
+extension UndefinedError {
+    public var localizedDescription: String {
+        R.string.localizable.undefinedError()
+    }
+}
+
+extension UnknownError {
+    public var localizedDescription: String {
+        R.string.localizable.unknownError()
+    }
+}

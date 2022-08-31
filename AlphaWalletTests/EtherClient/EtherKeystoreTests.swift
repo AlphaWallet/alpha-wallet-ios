@@ -87,7 +87,7 @@ class EtherKeystoreTests: XCTestCase {
         let result = keystore.createAccount()
         let account = try result.dematerialize().address
         let expectation = self.expectation(description: "completion block called")
-        keystore.exportSeedPhraseOfHdWallet(forAccount: account, context: .init(), reason: .backup) { result in
+        keystore.exportSeedPhraseOfHdWallet(forAccount: account, context: .init(), prompt: KeystoreExportReason.backup.description) { result in
             expectation.fulfill()
             guard let seedPhrase = try? result.dematerialize() else {
                 XCTFail("Failure to import wallet")
@@ -108,7 +108,7 @@ class EtherKeystoreTests: XCTestCase {
         XCTAssertEqual(keystore.wallets.count, 1)
 
         let expectation = self.expectation(description: "completion block called")
-        keystore.exportRawPrivateKeyForNonHdWalletForBackup(forAccount: wallet.address, newPassword: password) { result in
+        keystore.exportRawPrivateKeyForNonHdWalletForBackup(forAccount: wallet.address, prompt: R.string.localizable.keystoreAccessKeyNonHdBackup(), newPassword: password) { result in
             let v = try? result.dematerialize()
             XCTAssertNotNil(v)
 
@@ -172,7 +172,7 @@ class EtherKeystoreTests: XCTestCase {
                 XCTFail("Failure to import wallet")
                 return
             }
-            let signResult = keystore.signPersonalMessage("Some data".data(using: .utf8)!, for: wallet.address)
+            let signResult = keystore.signPersonalMessage("Some data".data(using: .utf8)!, for: wallet.address, prompt: R.string.localizable.keystoreAccessKeySign())
             guard let data = try? signResult.dematerialize() else {
                 XCTFail("Failure to import wallet")
                 return
@@ -202,7 +202,7 @@ class EtherKeystoreTests: XCTestCase {
                 XCTFail("Failure to import wallet")
                 return
             }
-            let signResult = keystore.signPersonalMessage("Some data".data(using: .utf8)!, for: wallet.address)
+            let signResult = keystore.signPersonalMessage("Some data".data(using: .utf8)!, for: wallet.address, prompt: R.string.localizable.keystoreAccessKeySign())
             guard let data = try? signResult.dematerialize() else {
                 XCTFail("Failure to import wallet")
                 return
@@ -221,7 +221,7 @@ class EtherKeystoreTests: XCTestCase {
                 XCTFail("Failure to import wallet")
                 return
             }
-            let signResult = keystore.signPersonalMessage("0x3f44c2dfea365f01c1ada3b7600db9e2999dfea9fe6c6017441eafcfbc06a543".data(using: .utf8)!, for: wallet.address)
+            let signResult = keystore.signPersonalMessage("0x3f44c2dfea365f01c1ada3b7600db9e2999dfea9fe6c6017441eafcfbc06a543".data(using: .utf8)!, for: wallet.address, prompt: R.string.localizable.keystoreAccessKeySign())
             guard let data = try? signResult.dematerialize() else {
                 XCTFail("Failure to import wallet")
                 return

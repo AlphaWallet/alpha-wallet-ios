@@ -95,24 +95,27 @@ class AppCoordinator: NSObject, Coordinator {
     private lazy var tokenSwapper = TokenSwapper(reachabilityManager: ReachabilityManager(), sessionProvider: sessionProvider)
     private lazy var tokenActionsService: TokenActionsService = {
         let service = TokenActionsService()
-        service.register(service: BuyTokenProvider(subProviders: [CoinBase(), Ramp()]))
+        service.register(service: BuyTokenProvider(subProviders: [
+            CoinBase(action: R.string.localizable.aWalletTokenBuyOnCoinBaseTitle()),
+            Ramp(action: R.string.localizable.aWalletTokenBuyOnRampTitle())
+        ], action: R.string.localizable.aWalletTokenBuyTitle()))
 
-        let honeySwapService = HoneySwap()
+        let honeySwapService = HoneySwap(action: R.string.localizable.aWalletTokenErc20ExchangeHoneyswapButtonTitle())
         honeySwapService.theme = navigationController.traitCollection.honeyswapTheme
 
-        let quickSwap = QuickSwap()
+        let quickSwap = QuickSwap(action: R.string.localizable.aWalletTokenErc20ExchangeOnQuickSwapButtonTitle())
         quickSwap.theme = navigationController.traitCollection.uniswapTheme
         var availableSwapProviders: [SupportedTokenActionsProvider & TokenActionProvider] = [
             honeySwapService,
             quickSwap,
-            Oneinch(),
+            Oneinch(action: R.string.localizable.aWalletTokenErc20ExchangeOn1inchButtonTitle()),
             //uniswap
         ]
         availableSwapProviders += Features.default.isAvailable(.isSwapEnabled) ? [SwapTokenNativeProvider(tokenSwapper: tokenSwapper)] : []
 
-        service.register(service: SwapTokenProvider(subProviders: availableSwapProviders))
-        service.register(service: ArbitrumBridge())
-        service.register(service: xDaiBridge())
+        service.register(service: SwapTokenProvider(subProviders: availableSwapProviders, action: R.string.localizable.aWalletTokenSwapButtonTitle()))
+        service.register(service: ArbitrumBridge(action: R.string.localizable.aWalletTokenArbitrumBridgeButtonTitle()))
+        service.register(service: xDaiBridge(action: R.string.localizable.aWalletTokenXDaiBridgeButtonTitle()))
 
         return service
     }()
@@ -130,14 +133,16 @@ class AppCoordinator: NSObject, Coordinator {
     }()
     lazy private var blockiesGenerator: BlockiesGenerator = BlockiesGenerator(openSea: openSea, storage: sharedEnsRecordsStorage)
     lazy private var domainResolutionService: DomainResolutionServiceType = DomainResolutionService(blockiesGenerator: blockiesGenerator, storage: sharedEnsRecordsStorage)
-    private lazy var walletApiService: WalletApiService = {
-        let service = WalletApiService(keystore: keystore, navigationController: navigationController, analytics: analytics, serviceProvider: sessionProvider)
-        service.delegate = self
+    private lazy var walletApiCoordinator: WalletApiCoordinator = {
+        let coordinator = WalletApiCoordinator(keystore: keystore, navigationController: navigationController, analytics: analytics, serviceProvider: sessionProvider)
+        coordinator.delegate = self
 
-        return service
+        return coordinator
     }()
     private lazy var notificationService: NotificationService = {
-        return NotificationService(sources: [], walletBalanceService: walletBalanceService)
+        let pushNotificationsService = UNUserNotificationsService()
+        let notificationService = LocalNotificationService()
+        return NotificationService(sources: [], walletBalanceService: walletBalanceService, notificationService: notificationService, pushNotificationsService: pushNotificationsService)
     }()
 
     private lazy var sessionProvider = SessionsProvider(config: config, analytics: analytics)
@@ -554,7 +559,7 @@ extension AppCoordinator: UniversalLinkServiceDelegate {
                 coordinator.start()
             }
         case .walletApi(let action):
-            walletApiService.handle(action: action)
+            walletApiCoordinator.handle(action: action)
         }
     }
 
@@ -569,8 +574,8 @@ extension AppCoordinator: ServerUnavailableCoordinatorDelegate {
     }
 }
 
-extension AppCoordinator: WalletApiServiceDelegate {
-    func didOpenUrl(in service: WalletApiService, redirectUrl: URL) {
+extension AppCoordinator: WalletApiCoordinatorDelegate {
+    func didOpenUrl(in service: WalletApiCoordinator, redirectUrl: URL) {
         if UIApplication.shared.canOpenURL(redirectUrl) {
             UIApplication.shared.open(redirectUrl)
         } else if let coordinator = activeWalletCoordinator {
@@ -621,3 +626,8 @@ extension AppCoordinator: AccountsCoordinatorDelegate {
     }
 }
 
+extension AppCoordinator: KeystoreDelegate {
+    func didImport(wallet: Wallet, in keystore: Keystore) {
+        PromptBackupCoordinator(keystore: keystore, wallet: wallet, config: config, analytics: analytics).markWalletAsImported()
+    }
+}

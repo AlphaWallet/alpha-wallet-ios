@@ -16,9 +16,7 @@ class Oneinch: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
     }
     private var objectWillChangeSubject = PassthroughSubject<Void, Never>()
 
-    var action: String {
-        return R.string.localizable.aWalletTokenErc20ExchangeOn1inchButtonTitle()
-    }
+    let action: String
     private var supportedServers: [RPCServer] {
         return [.main, .binance_smart_chain, .polygon, .optimistic, .arbitrum]
     }
@@ -75,6 +73,10 @@ class Oneinch: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
 
     private func token(address: AlphaWallet.Address) -> Oneinch.ERC20Token? {
         return availableTokens[address]
+    }
+
+    init(action: String) {
+        self.action = action
     }
 
     func start() {

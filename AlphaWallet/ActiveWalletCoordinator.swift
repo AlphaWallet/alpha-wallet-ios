@@ -77,7 +77,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private lazy var promptBackupCoordinator: PromptBackupCoordinator = {
         return PromptBackupCoordinator(keystore: keystore, wallet: wallet, config: config, analytics: analytics)
     }()
-
+    
     private (set) var swapButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(R.image.swap(), for: .normal)
@@ -120,7 +120,11 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         return handler
     }()
 
-    private lazy var transactionNotificationService = TransactionNotificationSourceService(transactionDataStore: transactionsDataStore, promptBackupCoordinator: promptBackupCoordinator, config: config)
+    private lazy var transactionNotificationService: NotificationSourceService = {
+        let service = TransactionNotificationSourceService(transactionDataStore: transactionsDataStore, config: config)
+        service.delegate = promptBackupCoordinator
+        return service
+    }()
     private let notificationService: NotificationService
     private let blockiesGenerator: BlockiesGenerator
     private let domainResolutionService: DomainResolutionServiceType
@@ -188,7 +192,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         blockscanChatService.delegate = self
 
         self.keystore.recentlyUsedWallet = wallet
-        crashlytics.trackActiveWallet(wallet: wallet)
+        crashlytics?.trackActiveWallet(wallet: wallet)
 
         notificationService.register(source: transactionNotificationService)
         swapButton.addTarget(self, action: #selector(swapButtonSelected), for: .touchUpInside)
@@ -542,7 +546,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
 }
 
 extension ActiveWalletCoordinator: SelectServiceToBuyCryptoCoordinatorDelegate {
-    func selectBuyService(_ result: Swift.Result<Void, SelectBuyServiceError>, in coordinator: SelectServiceToBuyCryptoCoordinator) {
+    func selectBuyService(_ result: Swift.Result<Void, BuyCryptoError>, in coordinator: SelectServiceToBuyCryptoCoordinator) {
         removeCoordinator(coordinator)
 
         switch result {
@@ -851,7 +855,7 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
 
     private func swapToken(token: Token) throws {
         guard let swapTokenProvider = tokenActionsService.service(ofType: SwapTokenProvider.self) as? SwapTokenProvider else {
-            throw CoordinatorError.unavailableToResolveSwapActionProvider
+            throw ActiveWalletError.unavailableToResolveSwapActionProvider
         }
 
         let coordinator = SelectServiceToSwapCoordinator(swapTokenProvider: swapTokenProvider, token: token, viewController: navigationController)
@@ -863,10 +867,10 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
     func didTapBridge(transactionType: TransactionType, service: TokenActionProvider, in coordinator: TokensCoordinator) {
         do {
             guard let service = service as? BridgeTokenURLProviderType else {
-                throw CoordinatorError.unavailableToResolveBridgeActionProvider
+                throw ActiveWalletError.unavailableToResolveBridgeActionProvider
             }
             guard let token = transactionType.swapServiceInputToken, let url = service.url(token: token, wallet: wallet) else {
-                throw CoordinatorError.bridgeNotSupported
+                throw ActiveWalletError.bridgeNotSupported
             }
 
             open(url: url, onServer: token.server)
@@ -877,7 +881,7 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
 
     func didTapBuy(transactionType: TransactionType, service: TokenActionProvider, in coordinator: TokensCoordinator) {
         do {
-            guard let token = transactionType.swapServiceInputToken else { throw CoordinatorError.buyNotSupported }
+            guard let token = transactionType.swapServiceInputToken else { throw ActiveWalletError.buyNotSupported }
             buyCrypto(wallet: wallet, token: token, viewController: navigationController, source: .token)
         } catch {
             show(error: error)
@@ -947,7 +951,7 @@ extension ActiveWalletCoordinator: SelectTokenCoordinatorDelegate {
         removeCoordinator(coordinator)
 
         do {
-            guard let operation = pendingOperation else { throw CoordinatorError.operationForTokenNotFound }
+            guard let operation = pendingOperation else { throw ActiveWalletError.operationForTokenNotFound }
 
             switch operation {
             case .swapToken:
@@ -967,7 +971,7 @@ extension ActiveWalletCoordinator: SelectTokenCoordinatorDelegate {
 }
 
 extension ActiveWalletCoordinator: SelectServiceToSwapCoordinatorDelegate {
-    func selectSwapService(_ result: Swift.Result<SwapTokenUsing, SelectSwapServiceError>, in coordinator: SelectServiceToSwapCoordinator) {
+    func selectSwapService(_ result: Swift.Result<SwapTokenUsing, SwapTokenError>, in coordinator: SelectServiceToSwapCoordinator) {
         removeCoordinator(coordinator)
 
         switch result {
@@ -1186,29 +1190,6 @@ extension ActiveWalletCoordinator {
     enum PendingOperation {
         case swapToken
         case sendToken(recipient: AddressOrEnsName?)
-    }
-
-    enum CoordinatorError: LocalizedError {
-        case unavailableToResolveSwapActionProvider
-        case unavailableToResolveBridgeActionProvider
-        case bridgeNotSupported
-        case buyNotSupported
-        case operationForTokenNotFound
-
-        var localizedDescription: String {
-            switch self {
-            case .unavailableToResolveBridgeActionProvider:
-                return "Unavailable To Resolve BridgeActionProvider"
-            case .unavailableToResolveSwapActionProvider:
-                return "Unavailable To Resolve SwapActionProvider"
-            case .bridgeNotSupported:
-                return "Bridge Not Supported"
-            case .buyNotSupported:
-                return "Buy Not Supported"
-            case .operationForTokenNotFound:
-                return "Operation For Token Not Found"
-            }
-        }
-    }
+    } 
 }
 // swiftlint:enable file_length

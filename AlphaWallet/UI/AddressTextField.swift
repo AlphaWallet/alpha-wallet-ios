@@ -414,3 +414,14 @@ extension String {
         return count >= minimumEnsNameLength && contains(".")
     }
 }
+
+extension SendInputErrors {
+    var errorDescription: String? {
+        switch self {
+        case .emptyClipBoard:
+            return R.string.localizable.sendErrorEmptyClipBoard()
+        case .wrongInput:
+            return R.string.localizable.sendErrorWrongInput()
+        }
+    }
+}

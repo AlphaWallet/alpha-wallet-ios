@@ -105,3 +105,16 @@ extension WalletSummaryViewModel {
         }
     }
 }
+
+extension BalanceHelper {
+    func valueChangeValueColor(from value: Double?) -> UIColor {
+        switch change24h(from: value) {
+        case .appreciate:
+            return Colors.appHighlightGreen
+        case .depreciate:
+            return Colors.apprecationRed
+        case .none:
+            return Colors.appGrayLabel
+        }
+    }
+}

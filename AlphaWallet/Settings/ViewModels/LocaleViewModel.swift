@@ -32,3 +32,25 @@ struct LocaleViewModel {
         return locale.displayName
     }
 }
+
+extension AppLocale {
+    var displayName: String {
+        //Only .system should be localized. The rest should each be in their own language
+        switch self {
+        case .system:
+            return R.string.localizable.settingsLanguageUseSystemTitle()
+        case .english:
+            return "English"
+        case .simplifiedChinese:
+            return "简体中文"
+        case .spanish:
+            return "Español"
+        case .korean:
+            return "한국어"
+        case .japanese:
+            return "日本語"
+        case .finnish:
+            return "Suomi"
+        }
+    }
+}

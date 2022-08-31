@@ -4,11 +4,6 @@ import Foundation
 import PromiseKit
 import Combine
 
-protocol TokenIdentifiable {
-    var contractAddress: AlphaWallet.Address { get }
-    var server: RPCServer { get }
-}
-
 struct AddHideTokensViewModelInput {
     let sortTokensParam: AnyPublisher<SortTokensParam, Never>
     let searchText: AnyPublisher<String?, Never>

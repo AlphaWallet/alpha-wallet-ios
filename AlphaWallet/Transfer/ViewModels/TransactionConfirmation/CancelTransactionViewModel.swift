@@ -68,3 +68,111 @@ extension TransactionConfirmationViewModel {
         }
     }
 }
+
+extension TransactionConfigurationType {
+    var title: String {
+        switch self {
+        case .standard:
+            return R.string.localizable.transactionConfigurationTypeAverage()
+        case .slow:
+            return R.string.localizable.transactionConfigurationTypeSlow()
+        case .fast:
+            return R.string.localizable.transactionConfigurationTypeFast()
+        case .rapid:
+            return R.string.localizable.transactionConfigurationTypeRapid()
+        case .custom:
+            return R.string.localizable.transactionConfigurationTypeCustom()
+        }
+    }
+
+    var estimatedProcessingTime: String {
+        switch self {
+        case .standard:
+            return R.string.localizable.transactionConfigurationTypeAverageTime()
+        case .slow:
+            return R.string.localizable.transactionConfigurationTypeSlowTime()
+        case .fast:
+            return R.string.localizable.transactionConfigurationTypeFastTime()
+        case .rapid:
+            return R.string.localizable.transactionConfigurationTypeRapidTime()
+        case .custom:
+            return ""
+        }
+    }
+}
+
+extension TransactionConfigurator.GasPriceWarning {
+    var shortTitle: String {
+        switch self {
+        case .tooHighCustomGasPrice, .networkCongested:
+            return R.string.localizable.transactionConfigurationGasPriceTooHighShort()
+        case .tooLowCustomGasPrice:
+            return R.string.localizable.transactionConfigurationGasPriceTooLowShort()
+        }
+    }
+
+    var longTitle: String {
+        switch self {
+        case .tooHighCustomGasPrice, .networkCongested:
+            return R.string.localizable.transactionConfigurationGasPriceTooHighLong()
+        case .tooLowCustomGasPrice:
+            return R.string.localizable.transactionConfigurationGasPriceTooLowLong()
+        }
+    }
+
+    var description: String {
+        switch self {
+        case .tooHighCustomGasPrice:
+            return R.string.localizable.transactionConfigurationGasPriceTooHighDescription()
+        case .networkCongested:
+            return R.string.localizable.transactionConfigurationGasPriceCongestedDescription()
+        case .tooLowCustomGasPrice:
+            return R.string.localizable.transactionConfigurationGasPriceTooLowDescription()
+        }
+    }
+}
+
+extension TransactionConfigurator.GasFeeWarning {
+    var description: String {
+        ConfigureTransactionError.gasFeeTooHigh.localizedDescription
+    }
+}
+
+extension ConfigureTransactionError {
+    var localizedDescription: String {
+        switch self {
+        case .gasLimitTooHigh:
+            return R.string.localizable.configureTransactionErrorGasLimitTooHigh(ConfigureTransaction.gasLimitMax)
+        case .gasFeeTooHigh:
+            return R.string.localizable.configureTransactionErrorGasFeeTooHigh(EtherNumberFormatter.short.string(from: BigInt(ConfigureTransaction.gasFeeMax)))
+        case .nonceNotPositiveNumber:
+            return R.string.localizable.configureTransactionErrorNonceNotPositiveNumber()
+        case .gasPriceTooLow:
+            return R.string.localizable.configureTransactionErrorGasPriceTooLow()
+        case .leaveNonceEmpty:
+            return R.string.localizable.configureTransactionErrorLeaveNonceEmpty()
+        }
+    }
+}
+
+extension AddCustomChainError {
+    var localizedDescription: String {
+        switch self {
+        case .cancelled:
+            //This is the default behavior, just keep it
+            return "\(self)"
+        case .missingBlockchainExplorerUrl:
+            return R.string.localizable.addCustomChainErrorNoBlockchainExplorerUrl()
+        case .invalidBlockchainExplorerUrl:
+            return R.string.localizable.addCustomChainErrorInvalidBlockchainExplorerUrl()
+        case .noRpcNodeUrl:
+            return R.string.localizable.addCustomChainErrorNoRpcNodeUrl()
+        case .invalidChainId(let chainId):
+            return R.string.localizable.addCustomChainErrorInvalidChainId(chainId)
+        case .chainIdNotMatch(let result, let chainId):
+            return R.string.localizable.addCustomChainErrorChainIdNotMatch(result, chainId)
+        case .unknown(let error):
+            return "\(R.string.localizable.addCustomChainErrorUnknown()) — \(error)"
+        }
+    }
+}

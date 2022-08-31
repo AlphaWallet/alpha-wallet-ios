@@ -156,3 +156,13 @@ struct ActivityViewModel {
         }
     }
 }
+
+extension HasTokenImage {
+
+    func icon(withSize size: GoogleContentSize) -> Subscribable<TokenImage> {
+        let name = symbol.nilIfEmpty ?? name
+        let colors = [R.color.radical()!, R.color.cerulean()!, R.color.emerald()!, R.color.indigo()!, R.color.azure()!, R.color.pumpkin()!]
+        let blockChainNameColor = server.blockChainNameColor
+        return TokenImageFetcher.instance.image(contractAddress: contractAddress, server: server, name: name, type: type, balance: firstNftAsset, size: size, contractDefinedImage: contractAddress.tokenImage, colors: colors, staticOverlayIcon: server.staticOverlayIcon, blockChainNameColor: blockChainNameColor)
+    }
+}

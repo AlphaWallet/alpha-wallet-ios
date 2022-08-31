@@ -149,19 +149,3 @@ class SwapOptionsViewController: UIViewController {
         containerView.stackView.addArrangedSubviews(subviews)
     }
 }
-
-extension UITextField {
-
-    var textPublisher: AnyPublisher<String?, Never> {
-        return Publishers
-            .Merge(publisher(forEvent: .editingDidBegin), publisher(forEvent: .editingChanged))
-            .map { _ -> String? in self.text }
-            .eraseToAnyPublisher()
-    }
-}
-
-extension UIView {
-    func adjusted(adjusment: CGFloat = 15) -> UIView {
-        return [.spacerWidth(adjusment), self, .spacerWidth(adjusment)].asStackView()
-    }
-}

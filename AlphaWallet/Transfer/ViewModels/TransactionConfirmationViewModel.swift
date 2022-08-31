@@ -31,7 +31,7 @@ class TransactionConfirmationViewModel {
     var backgroundColor: UIColor = UIColor.clear
     var footerBackgroundColor: UIColor = Colors.appWhite
 
-    init(configurator: TransactionConfigurator, configuration: TransactionConfirmationViewModel.Configuration, assetDefinitionStore: AssetDefinitionStore, domainResolutionService: DomainResolutionServiceType, tokensService: TokenViewModelState) {
+    init(configurator: TransactionConfigurator, configuration: TransactionType.Configuration, assetDefinitionStore: AssetDefinitionStore, domainResolutionService: DomainResolutionServiceType, tokensService: TokenViewModelState) {
         self.tokensService = tokensService
         let recipientOrContract = configurator.transaction.recipient ?? configurator.transaction.contract
         resolver = RecipientResolver(address: recipientOrContract, domainResolutionService: domainResolutionService)
@@ -281,29 +281,6 @@ extension TransactionConfirmationViewModel {
     enum Action {
         case show
         case hide
-    }
-
-    enum Configuration {
-        case tokenScriptTransaction(confirmType: ConfirmType, contract: AlphaWallet.Address, functionCallMetaData: DecodedFunctionCall)
-        case dappTransaction(confirmType: ConfirmType)
-        case walletConnect(confirmType: ConfirmType, requester: RequesterViewModel)
-        case sendFungiblesTransaction(confirmType: ConfirmType, amount: FungiblesTransactionAmount)
-        case sendNftTransaction(confirmType: ConfirmType, tokenInstanceNames: [TokenId: String])
-        case claimPaidErc875MagicLink(confirmType: ConfirmType, price: BigUInt, numberOfTokens: UInt)
-        case speedupTransaction
-        case cancelTransaction
-        case swapTransaction(fromToken: TokenToSwap, fromAmount: BigUInt, toToken: TokenToSwap, toAmount: BigUInt)
-        //TODO: generalize type name so it can be used for more types (some of the enum-cases above), if possible
-        case approve
-
-        var confirmType: ConfirmType {
-            switch self {
-            case .dappTransaction(let confirmType), .walletConnect(let confirmType, _), .sendFungiblesTransaction(let confirmType, _), .sendNftTransaction(let confirmType, _), .tokenScriptTransaction(let confirmType, _, _), .claimPaidErc875MagicLink(let confirmType, _, _):
-                return confirmType
-            case .speedupTransaction, .cancelTransaction, .swapTransaction, .approve:
-                return .signThenSend
-            }
-        }
     }
 
     enum ViewModelType {

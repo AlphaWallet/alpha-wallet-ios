@@ -70,14 +70,3 @@ class AccountViewTableSectionHeader: UIView {
         }
     }
 }
-
-extension UIView {
-    static func tableHeaderFooterViewSeparatorView() -> UIView {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.heightAnchor.constraint(equalToConstant: 0.5).isActive = true
-        view.backgroundColor = Configuration.Color.Semantic.tableViewHeaderBackground
-
-        return view
-    }
-}

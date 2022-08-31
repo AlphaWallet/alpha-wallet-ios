@@ -194,7 +194,7 @@ extension AddCustomChain {
 
         let customChain = WalletAddEthereumChainObject(nativeCurrency: .init(name: customRpc.nativeCryptoTokenName ?? R.string.localizable.addCustomChainUnnamed(), symbol: customRpc.symbol ?? "", decimals: defaultDecimals), blockExplorerUrls: explorerEndpoints, chainName: customRpc.chainName, chainId: String(customRpc.chainID), rpcUrls: [customRpc.rpcEndpoint])
 
-        self.init(customChain, analytics: analytics, isTestnet: customRpc.isTestnet, restartQueue: restartQueue, url: nil, operation: .add)
+        self.init(customChain, analytics: analytics, isTestnet: customRpc.isTestnet, restartQueue: restartQueue, url: nil, operation: .add, chainNameFallback: R.string.localizable.addCustomChainUnnamed())
     }
 
 }

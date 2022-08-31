@@ -2,6 +2,11 @@
 
 import Foundation
 
+enum TokenView {
+    case view
+    case viewIconified
+}
+
 ///Use this enum to "mark" where we handle non-fungible tokens backed by OpenSea differently instead of accessing the contract directly.
 ///If there is a TokenScript file available for the contract, it is assumed to be no longer "backed" by OpenSea
 ///If there are other special casing for tokens that doesn't fit this model, create another enum type (not case)

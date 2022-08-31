@@ -7,7 +7,7 @@
 
 import UIKit
 
-enum ImageOrWebImageUrl {
+public enum ImageOrWebImageUrl {
     case url(WebImageURL)
     case image(UIImage?)
 }

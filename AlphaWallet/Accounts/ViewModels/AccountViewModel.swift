@@ -107,3 +107,15 @@ class AccountViewModel {
         ])
     }
 }
+
+extension BlockiesImage {
+    static var defaulBlockieImage: BlockiesImage {
+        return .image(image: R.image.tokenPlaceholderLarge()!, isEnsAvatar: false)
+    }
+}
+
+extension WalletBalance {
+    var valuePercentageChangeColor: UIColor {
+        return BalanceHelper().valueChangeValueColor(from: changeDouble)
+    }
+}

@@ -9,16 +9,6 @@ import UIKit
 import Combine
 import BigInt
 
-extension SwapOptionsConfigurator {
-    var tokensWithTheirSwapQuote: AnyPublisher<(swapQuote: SwapQuote, tokens: FromAndToTokens)?, Never> {
-        return swapQuote.combineLatest(fromAndToTokensPublisher)
-            .map { (swapQuote, tokens) -> (swapQuote: SwapQuote, tokens: FromAndToTokens)? in
-                guard let swapQuote = swapQuote, let tokens = tokens, swapQuote.action.fromToken == tokens.from && swapQuote.action.toToken == tokens.to else { return nil }
-                return (swapQuote, tokens)
-            }.eraseToAnyPublisher()
-    }
-}
-
 final class SwapDetailsViewModel {
     private var swapDetailsExpanded: Bool = false
     private let etherFormatter: EtherNumberFormatter = .plain
@@ -103,4 +93,23 @@ final class SwapDetailsViewModel {
     func toggleExpanded() {
         swapDetailsExpanded.toggle()
     } 
+}
+
+extension TokenLevelTokenScriptDisplayStatus.SignatureValidationError {
+    var localizedDescription: String {
+        switch self {
+        case .tokenScriptType1SupportedNotCanonicalizedAndUnsigned:
+            return R.string.localizable.tokenScriptType1SupportedNotCanonicalizedAndUnsigned()
+        case .tokenScriptType1SupportedAndSigned:
+            return R.string.localizable.tokenScriptType1SupportedAndSigned()
+        case .tokenScriptType2InvalidSignature:
+            return R.string.localizable.tokenScriptType2InvalidSignature()
+        case .tokenScriptType2ConflictingFiles:
+            return R.string.localizable.tokenScriptType2ConflictingFiles()
+        case .tokenScriptType2OldSchemaVersion:
+            return R.string.localizable.tokenScriptType2OldSchemaVersion()
+        case .custom(let value):
+            return value
+        }
+    }
 }

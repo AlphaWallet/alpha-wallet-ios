@@ -2,12 +2,6 @@
 
 import Foundation
 
-//TODO separate file
-enum TokenView {
-    case view
-    case viewIconified
-}
-
 struct TokenCardRowViewModel: TokenCardRowViewModelProtocol {
     let tokenHolder: TokenHolder
     let tokenView: TokenView

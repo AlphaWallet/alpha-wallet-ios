@@ -114,7 +114,7 @@ extension TransferCollectiblesCoordinator: TransferTokenBatchCardsViaWalletAddre
                     tokenIdsAndValues: tokenIdsAndValues
             )
 
-            let configuration: TransactionConfirmationViewModel.Configuration = .sendNftTransaction(confirmType: .signThenSend, tokenInstanceNames: tokenInstanceNames)
+            let configuration: TransactionType.Configuration = .sendNftTransaction(confirmType: .signThenSend, tokenInstanceNames: tokenInstanceNames)
             let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
             addCoordinator(coordinator)
             coordinator.delegate = self

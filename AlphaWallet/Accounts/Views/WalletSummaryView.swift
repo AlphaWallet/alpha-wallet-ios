@@ -54,13 +54,3 @@ class WalletSummaryView: UIView, ReusableTableHeaderViewType {
         apprecation24HoursLabel.attributedText = viewModel.apprecation24HoursAttributedString
     }
 }
-
-extension Set where Element: AnyCancellable {
-    mutating func cancellAll() {
-        for each in self {
-            each.cancel()
-        }
-
-        removeAll()
-    }
-}

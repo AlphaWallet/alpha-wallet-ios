@@ -87,7 +87,7 @@ class WalletConnectV1Provider: WalletConnectServer {
         }
         connectionTimeoutTimers[wcUrl] = timer
 
-        try server.connect(to: wcUrl)
+        try server.connect(to: WCURL(wcUrl.absoluteString)!)
     }
 
     func session(for topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl) -> AlphaWallet.WalletConnect.Session? {
@@ -114,7 +114,7 @@ class WalletConnectV1Provider: WalletConnectServer {
         for each in sessions {
             guard let session = storage.value.first(where: { $0.topicOrUrl == each.session.topicOrUrl }) else { continue }
 
-            removeSession(for: session.session.url)
+            removeSession(for: .init(url: session.session.url))
 
             try server.disconnect(from: session.session)
         }
@@ -123,7 +123,7 @@ class WalletConnectV1Provider: WalletConnectServer {
     func disconnect(_ topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl) throws {
         guard let nativeSession = storage.value.first(where: { $0.topicOrUrl == topicOrUrl }) else { return }
         //NOTE: for some reasons completion handler doesn't get called, when we do disconnect, for this we remove session before do disconnect
-        removeSession(for: nativeSession.session.url)
+        removeSession(for: .init(url: nativeSession.session.url))
         try server.disconnect(from: nativeSession.session)
     }
 
@@ -169,7 +169,7 @@ extension WalletConnectV1Provider: WalletConnectV1ServerRequestHandlerDelegate {
         queue.async { [weak self] in
             guard let strongSelf = self else { return }
 
-            guard let session = strongSelf.storage.value.first(where: { $0.topicOrUrl == .url(url: request.url) }) else {
+            guard let session = strongSelf.storage.value.first(where: { $0.topicOrUrl == .url(url: .init(url: request.url)) }) else {
                 return strongSelf.server.send(.reject(request))
             }
 
@@ -193,12 +193,12 @@ extension WalletConnectV1Provider: WalletConnectV1ServerRequestHandlerDelegate {
 }
 
 extension WalletConnectV1Provider: ServerDelegate {
-
     private func removeSession(for url: WalletConnectV1URL) {
         storage.value.removeAll(where: { $0.topicOrUrl == .url(url: url) })
     }
 
-    func server(_ server: Server, didFailToConnect url: WalletConnectV1URL) {
+    func server(_ server: Server, didFailToConnect url: WCURL) {
+        let url = WalletConnectV1URL(url: url)
         infoLog("[WalletConnect1] didFailToConnect: \(url)")
         queue.async {
             self.connectionTimeoutTimers[url] = nil
@@ -208,7 +208,7 @@ extension WalletConnectV1Provider: ServerDelegate {
     }
 
     func server(_ server: Server, shouldStart session: Session, completion: @escaping (Session.WalletInfo) -> Void) {
-        connectionTimeoutTimers[session.url] = nil
+        connectionTimeoutTimers[.init(url: session.url)] = nil
         let wallets = Array(Set(serviceProvider.activeSessions.values.map { $0.account.address.eip55String }))
 
         queue.async {
@@ -281,7 +281,7 @@ extension WalletConnectV1Provider: ServerDelegate {
 
     func server(_ server: Server, didDisconnect session: Session) {
         queue.async {
-            self.removeSession(for: session.url)
+            self.removeSession(for: .init(url: session.url))
         }
     }
 }

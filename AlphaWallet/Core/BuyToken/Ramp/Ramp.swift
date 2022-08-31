@@ -19,9 +19,7 @@ final class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType {
     let analyticsNavigation: Analytics.Navigation = .onRamp
     let analyticsName: String = "Ramp"
 
-    var action: String {
-        return R.string.localizable.aWalletTokenBuyOnRampTitle()
-    }
+    let action: String
 
     func url(token: TokenActionsIdentifiable, wallet: Wallet) -> URL? {
         switch token.server {
@@ -33,6 +31,10 @@ final class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType {
                 return URL(string: "\(Constants.buyWitRampUrl(asset: $0.symbol))&userAddress=\(wallet.address.eip55String)")
             }
         }
+    }
+
+    init(action: String) {
+        self.action = action
     }
 
     func actions(token: TokenActionsIdentifiable) -> [TokenInstanceAction] {

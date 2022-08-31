@@ -164,13 +164,3 @@ extension NFTAssetsPageViewModel {
         let views: [TokenHolder]
     }
 }
-
-extension ActivityOrTransactionFilter: Equatable {
-    static func == (lhs: ActivityOrTransactionFilter, rhs: ActivityOrTransactionFilter) -> Bool {
-        switch (lhs, rhs) {
-        case (.keyword(let k1), .keyword(let k2)):
-            return k1 == k2
-        }
-    }
-
-}

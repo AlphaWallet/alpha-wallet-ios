@@ -10,17 +10,6 @@ import BigInt
 import PromiseKit
 import Result
 
-enum ConfirmType {
-    case sign
-    case signThenSend
-}
-
-enum ConfirmResult {
-    case signedTransaction(Data)
-    case sentTransaction(SentTransaction)
-    case sentRawTransaction(id: String, original: String)
-}
-
 protocol TransactionConfirmationCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryptoDelegate {
     func didFinish(_ result: ConfirmResult, in coordinator: TransactionConfirmationCoordinator)
     func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError)
@@ -28,7 +17,7 @@ protocol TransactionConfirmationCoordinatorDelegate: CanOpenURL, SendTransaction
 }
 
 class TransactionConfirmationCoordinator: Coordinator {
-    private let configuration: TransactionConfirmationViewModel.Configuration
+    private let configuration: TransactionType.Configuration
     private lazy var viewModel: TransactionConfirmationViewModel = .init(configurator: configurator, configuration: configuration, assetDefinitionStore: assetDefinitionStore, domainResolutionService: domainResolutionService, tokensService: tokensService)
     private lazy var rootViewController: TransactionConfirmationViewController = {
         let controller = TransactionConfirmationViewController(viewModel: viewModel)
@@ -58,7 +47,7 @@ class TransactionConfirmationCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: TransactionConfirmationCoordinatorDelegate?
 
-    init(presentingViewController: UIViewController, session: WalletSession, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationViewModel.Configuration, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, keystore: Keystore, assetDefinitionStore: AssetDefinitionStore, tokensService: TokenViewModelState) throws {
+    init(presentingViewController: UIViewController, session: WalletSession, transaction: UnconfirmedTransaction, configuration: TransactionType.Configuration, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, keystore: Keystore, assetDefinitionStore: AssetDefinitionStore, tokensService: TokenViewModelState) throws {
         configurator = try TransactionConfigurator(session: session, analytics: analytics, transaction: transaction)
         self.keystore = keystore
         self.assetDefinitionStore = assetDefinitionStore
@@ -154,7 +143,8 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
     }
 
     private func sendTransaction() -> Promise<ConfirmResult> {
-        let sender = SendTransaction(session: configurator.session, keystore: keystore, confirmType: configuration.confirmType, config: configurator.session.config, analytics: analytics)
+        let prompt = R.string.localizable.keystoreAccessKeySign()
+        let sender = SendTransaction(session: configurator.session, keystore: keystore, confirmType: configuration.confirmType, config: configurator.session.config, analytics: analytics, prompt: prompt)
         let transaction = configurator.formUnsignedTransaction()
         if configurator.session.config.development.shouldNotSendTransactions {
             return Promise(error: DevelopmentForcedError(message: "Did not send transaction because of development flag"))
@@ -380,7 +370,7 @@ extension TransactionConfirmationCoordinator {
 }
 
 fileprivate extension TransactionConfirmationCoordinator.functional {
-    static func isSwapTransaction(configuration: TransactionConfirmationViewModel.Configuration) -> Bool {
+    static func isSwapTransaction(configuration: TransactionType.Configuration) -> Bool {
         switch configuration {
         case .swapTransaction:
             return true
@@ -389,7 +379,7 @@ fileprivate extension TransactionConfirmationCoordinator.functional {
         }
     }
 
-    static func analyticsTransactionType(fromConfiguration configuration: TransactionConfirmationViewModel.Configuration, data: Data) -> Analytics.TransactionType {
+    static func analyticsTransactionType(fromConfiguration configuration: TransactionType.Configuration, data: Data) -> Analytics.TransactionType {
         if let functionCallMetaData = DecodedFunctionCall(data: data) {
             switch functionCallMetaData.type {
             case .erc1155SafeTransfer:

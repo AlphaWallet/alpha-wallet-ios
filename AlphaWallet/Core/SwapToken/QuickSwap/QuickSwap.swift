@@ -13,9 +13,7 @@ class QuickSwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
         return .empty()
     }
 
-    var action: String {
-        return R.string.localizable.aWalletTokenErc20ExchangeOnQuickSwapButtonTitle()
-    }
+    let action: String
 
     func rpcServer(forToken token: TokenActionsIdentifiable) -> RPCServer? {
         return .polygon
@@ -92,6 +90,10 @@ class QuickSwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
                 }
             }
         }
+    }
+
+    init(action: String) {
+        self.action = action
     }
 
     func actions(token: TokenActionsIdentifiable) -> [TokenInstanceAction] {

@@ -293,10 +293,3 @@ fileprivate extension SwapTokensCoordinator.functional {
         }
     }
 }
-
-extension Error {
-    var isUserCancelledError: Bool {
-        guard let swapError = self as? SwapError else { return false }
-        return SwapError.userCancelledApproval == swapError
-    }
-}

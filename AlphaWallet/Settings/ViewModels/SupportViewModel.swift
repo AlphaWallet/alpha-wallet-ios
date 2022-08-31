@@ -100,3 +100,44 @@ enum SupportRow {
         }
     }
 }
+
+extension URLServiceProvider {
+
+    var title: String {
+        switch self {
+        case .discord:
+            return R.string.localizable.urlDiscord()
+        case .telegramCustomer:
+            return R.string.localizable.urlTelegramCustomer()
+        case .twitter:
+            return R.string.localizable.urlTwitter()
+        case .reddit:
+            return R.string.localizable.urlReddit()
+        case .facebook:
+            return R.string.localizable.urlFacebook()
+        case .faq:
+            return R.string.localizable.urlFaq().uppercased()
+        case .github:
+            return R.string.localizable.urlGithub()
+        }
+    }
+
+    var image: UIImage? {
+        switch self {
+        case .discord:
+            return R.image.iconsSettingsDiscord()
+        case .telegramCustomer:
+            return R.image.settings_telegram()
+        case .twitter:
+            return R.image.settings_twitter()
+        case .reddit:
+            return R.image.settings_reddit()
+        case .facebook:
+            return R.image.settings_facebook()
+        case .faq:
+            return R.image.settings_faq()
+        case .github:
+            return R.image.iconsSettingsGithub()
+        }
+    }
+}

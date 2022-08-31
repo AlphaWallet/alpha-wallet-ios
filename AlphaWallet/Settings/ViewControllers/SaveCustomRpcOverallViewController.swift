@@ -292,3 +292,91 @@ extension SaveCustomRpcOverallViewController: HandleAddMultipleCustomRpcViewCont
     }
 
 }
+
+// MARK: - UITableViewDataSource
+
+extension SaveCustomRpcBrowseDataController: UITableViewDataSource {
+
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return tableViewSection.count
+    }
+
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        guard section < tableViewSection.count else { return 0 }
+        return tableViewSection[section].rows()
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard indexPath.section < tableViewSection.count else { return UITableViewCell() }
+        let cell: RPCDisplayTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+        let section = tableViewSection[indexPath.section]
+        let server = section.serverAt(row: indexPath.row)
+        let viewModel = ServerImageViewModel(server: .server(.custom(server)), selected: section.isMarked(chainID: server.chainID))
+        cell.configure(viewModel: viewModel)
+        return cell
+    }
+
+}
+
+// MARK: - UITableViewDelegate
+
+extension SaveCustomRpcBrowseDataController: UITableViewDelegate {
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard indexPath.section < tableViewSection.count else { return }
+        tableViewSection[indexPath.section].didSelect(row: indexPath.row)
+        tableView.reloadRows(at: [indexPath], with: .automatic)
+        configurationDelegate?.enableAddFunction(!selectedServers().isEmpty)
+    }
+
+    func tableView(_ tableView: UITableView, viewForHeaderInSection sectionIndex: Int) -> UIView? {
+        guard sectionIndex < tableViewSection.count else { return nil }
+        return tableViewSection[sectionIndex].headerView()
+    }
+
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        guard section < tableViewSection.count else { return 0 }
+        return tableViewSection[section].headerHeight()
+    }
+
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        0
+    }
+
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        nil
+    }
+
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        80.0
+    }
+
+}
+
+// MARK: - EnableServerHeaderViewDelegate
+
+extension SaveCustomRpcBrowseDataController: EnableServersHeaderViewDelegate {
+
+    func toggledTo(_ isEnabled: Bool, headerView: EnableServersHeaderView) {
+        switch (headerView.mode, isEnabled) {
+        case (.mainnet, true), (.testnet, false):
+            switchToMainnet()
+        case (.mainnet, false), (.testnet, true):
+            switchToTestnet()
+        }
+        dataObserver?.dataHasChanged(rows: currentRowCount)
+        configurationDelegate?.enableAddFunction(!selectedServers().isEmpty)
+    }
+
+    private func switchToMainnet() {
+        mainnetTableViewSection?.enableSection()
+        testnetTableViewSection?.disableSection()
+    }
+
+    private func switchToTestnet() {
+        testnetTableViewSection?.enableSection()
+        mainnetTableViewSection?.disableSection()
+    }
+
+}
+

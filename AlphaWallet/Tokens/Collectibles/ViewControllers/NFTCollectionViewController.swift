@@ -38,7 +38,7 @@ class NFTCollectionViewController: UIViewController {
     }()
 
     private lazy var activitiesPageView: ActivitiesPageView = {
-        let viewModel: ActivityPageViewModel = .init(activitiesViewModel: .init())
+        let viewModel: ActivityPageViewModel = .init(activitiesViewModel: .init(collection: .init()))
         let view = ActivitiesPageView(analytics: analytics, keystore: keystore, wallet: self.viewModel.wallet, viewModel: viewModel, sessions: sessions, assetDefinitionStore: assetDefinitionStore)
         view.delegate = self
 

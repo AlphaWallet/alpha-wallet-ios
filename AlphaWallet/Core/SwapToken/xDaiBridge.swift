@@ -32,14 +32,16 @@ final class xDaiBridge: SupportedTokenActionsProvider, BridgeTokenURLProviderTyp
         return xDaiBridge.supportedServer
     }
 
-    var action: String {
-        return R.string.localizable.aWalletTokenXDaiBridgeButtonTitle()
-    }
+    let action: String
     let analyticsNavigation: Analytics.Navigation = .onxDaiBridge
     let analyticsName: String = "xDai Bridge"
 
     func url(token: TokenActionsIdentifiable, wallet: Wallet) -> URL? {
         return Constants.xDaiBridge
+    }
+
+    init(action: String) {
+        self.action = action
     }
 
     func start() {

@@ -29,7 +29,8 @@ class OrderSigningTests: XCTestCase {
         for _ in 0...2015 {
             testOrdersList.append(testOrder1)
         }
-        let signOrders = OrderHandler(keystore: keystore)
+        let prompt = R.string.localizable.keystoreAccessKeySign()
+        let signOrders = OrderHandler(keystore: keystore, prompt: prompt)
         guard let signedOrders = try? signOrders.signOrders(orders: testOrdersList, account: account, tokenType: TokenType.erc875) else {
             XCTFail("Failure to sign an order")
             return

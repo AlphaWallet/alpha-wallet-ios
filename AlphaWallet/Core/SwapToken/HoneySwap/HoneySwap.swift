@@ -5,7 +5,7 @@
 //  Created by Vladyslav Shepitko on 19.02.2021.
 //
 
-import UIKit
+import Foundation
 import Combine
 
 class HoneySwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
@@ -13,9 +13,7 @@ class HoneySwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
         return .empty()
     }
 
-    var action: String {
-        return R.string.localizable.aWalletTokenErc20ExchangeHoneyswapButtonTitle()
-    }
+    let action: String
     //NOTE: While selection on action browser will be automatically switched to defined server `rpcServer`
     func rpcServer(forToken token: TokenActionsIdentifiable) -> RPCServer? {
         return .xDai
@@ -89,6 +87,10 @@ class HoneySwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
         }
     }
 
+    init(action: String) {
+        self.action = action
+    }
+
     func actions(token: TokenActionsIdentifiable) -> [TokenInstanceAction] {
         return [.init(type: .swap(service: self))]
     }
@@ -103,17 +105,6 @@ class HoneySwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
             return true
         case .main, .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .custom, .poa, .callisto, .classic, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet, .phi, .ioTeX, .ioTeXTestnet:
             return false
-        }
-    }
-}
-
-extension UITraitCollection {
-    var honeyswapTheme: HoneySwap.Theme {
-        switch userInterfaceStyle {
-        case .dark:
-            return .dark
-        case .light, .unspecified:
-            return .light
         }
     }
 }

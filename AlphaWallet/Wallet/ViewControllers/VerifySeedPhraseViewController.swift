@@ -203,7 +203,7 @@ class VerifySeedPhraseViewController: UIViewController {
         guard isTopViewController else { return }
         guard notDisplayingSeedPhrase else { return }
         guard let context = delegate?.contextToVerifySeedPhrase else { return }
-        keystore.exportSeedPhraseOfHdWallet(forAccount: account, context: context, reason: .prepareForVerification) { result in
+        keystore.exportSeedPhraseOfHdWallet(forAccount: account, context: context, prompt: KeystoreExportReason.prepareForVerification.description) { result in
             switch result {
             case .success(let words):
                 self.state = .editingSeedPhrase(words: words.split(separator: " ").map { String($0) }.shuffled())
@@ -261,7 +261,7 @@ class VerifySeedPhraseViewController: UIViewController {
 
     @objc func verify() {
         guard let context = delegate?.contextToVerifySeedPhrase else { return }
-        keystore.verifySeedPhraseOfHdWallet(seedPhraseTextView.text.lowercased().trimmed, forAccount: account, context: context) { result in
+        keystore.verifySeedPhraseOfHdWallet(seedPhraseTextView.text.lowercased().trimmed, forAccount: account, prompt: R.string.localizable.keystoreAccessKeyHdVerify(), context: context) { result in
             switch result {
             case .success(let isMatched):
                 //Safety precaution, we clear the seed phrase. The next screen may be the prompt to elevate security of wallet screen which the user can go back from

@@ -57,7 +57,7 @@ final class FungibleTokenViewModel {
             return xmlHandler.tokenScriptStatus
         } else {
             assertImpossibleCodePath()
-            return .value(.type2BadTokenScript(isDebugMode: false, message: "Unknown", reason: nil))
+            return .value(.type2BadTokenScript(isDebugMode: false, error: .custom("Unknown"), reason: nil))
         }
     }
 
@@ -176,7 +176,7 @@ final class FungibleTokenViewModel {
         activitiesService.start()
 
         let activities = activitiesService.activitiesPublisher
-            .map { ActivityPageViewModel(activitiesViewModel: .init(activities: $0)) }
+            .map { ActivityPageViewModel(activitiesViewModel: .init(collection: .init(activities: $0))) }
             .receive(on: RunLoop.main)
 
         let alerts = alertService.alertsPublisher(forStrategy: .token(token))

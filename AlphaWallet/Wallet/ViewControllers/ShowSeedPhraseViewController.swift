@@ -163,7 +163,7 @@ class ShowSeedPhraseViewController: UIViewController {
         guard isTopViewController else { return }
         guard notDisplayingSeedPhrase else { return }
         guard let context = delegate?.contextToShowSeedPhrase else { return }
-        keystore.exportSeedPhraseOfHdWallet(forAccount: account, context: context, reason: .backup) { result in
+        keystore.exportSeedPhraseOfHdWallet(forAccount: account, context: context, prompt: KeystoreExportReason.backup.description) { result in
             switch result {
             case .success(let words):
                 self.state = .displayingSeedPhrase(words: words.split(separator: " ").map { String($0) })
@@ -208,5 +208,19 @@ class ShowSeedPhraseViewController: UIViewController {
 
     func markDone() {
         state = .done
+    }
+}
+
+enum KeystoreExportReason: CustomStringConvertible {
+    case backup
+    case prepareForVerification
+
+    var description: String {
+        switch self {
+        case .backup:
+            return R.string.localizable.keystoreAccessKeyHdBackup()
+        case .prepareForVerification:
+            return R.string.localizable.keystoreAccessKeyHdPrepareToVerify()
+        }
     }
 }

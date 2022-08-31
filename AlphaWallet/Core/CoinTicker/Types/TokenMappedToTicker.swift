@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct TokenMappedToTicker {
+public struct TokenMappedToTicker {
     let symbol: String
     let name: String
     let contractAddress: AlphaWallet.Address
@@ -35,7 +35,7 @@ struct TokenMappedToTicker {
         }
     }
 
-    func hash(into hasher: inout Hasher) {
+    public func hash(into hasher: inout Hasher) {
         hasher.combine(contractAddress.eip55String)
         hasher.combine(server.chainID)
     }

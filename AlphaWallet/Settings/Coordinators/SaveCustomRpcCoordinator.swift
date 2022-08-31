@@ -13,20 +13,6 @@ protocol SaveCustomRpcCoordinatorDelegate: AnyObject {
     func restartToEdit(in coordinator: SaveCustomRpcCoordinator)
 }
 
-enum SaveOperationType {
-    case add
-    case edit(CustomRPC)
-
-    var customRpc: CustomRPC {
-        switch self {
-        case .add:
-            return CustomRPC.blank
-        case .edit(let customRpc):
-            return customRpc
-        }
-    }
-}
-
 typealias OverallProtocol = SaveCustomRpcHandleUrlFailure & HandleAddMultipleCustomRpcViewControllerResponse
 
 class SaveCustomRpcCoordinator: NSObject, Coordinator {
@@ -88,7 +74,7 @@ class SaveCustomRpcCoordinator: NSObject, Coordinator {
 
     private func computeRpcList() -> [CustomRPC] {
         let presentSet: Set = Set(RPCServer.availableServers.map { $0.chainID })
-        guard let available: [CustomRPC] = RpcNetwork.functional.availableServersFromCompressedJSONFile() else {
+        guard let available: [CustomRPC] = RpcNetwork.functional.availableServersFromCompressedJSONFile(filePathUrl: R.file.chainsZip()) else {
             return []
         }
         let remaining = available.drop { presentSet.contains($0.chainID) }
@@ -110,7 +96,7 @@ extension SaveCustomRpcCoordinator: SaveCustomRpcEntryViewControllerDataDelegate
         }
 
         let customChain = WalletAddEthereumChainObject(nativeCurrency: .init(name: customRpc.nativeCryptoTokenName ?? R.string.localizable.addCustomChainUnnamed(), symbol: customRpc.symbol ?? "", decimals: defaultDecimals), blockExplorerUrls: explorerEndpoints, chainName: customRpc.chainName, chainId: String(customRpc.chainID), rpcUrls: [customRpc.rpcEndpoint])
-        let saveCustomChain = AddCustomChain(customChain, analytics: analytics, isTestnet: customRpc.isTestnet, restartQueue: restartQueue, url: nil, operation: operation)
+        let saveCustomChain = AddCustomChain(customChain, analytics: analytics, isTestnet: customRpc.isTestnet, restartQueue: restartQueue, url: nil, operation: operation, chainNameFallback: R.string.localizable.addCustomChainUnnamed())
         saveCustomChain.delegate = self
         saveCustomChain.run()
     }
@@ -147,7 +133,7 @@ extension SaveCustomRpcCoordinator: AddCustomChainDelegate {
     }
 
     func notifyAddCustomChainFailed(error: AddCustomChainError, in addCustomChain: AddCustomChain) {
-        let alertController = UIAlertController.alertController(title: R.string.localizable.error(), message: error.message, style: .alert, in: navigationController)
+        let alertController = UIAlertController.alertController(title: R.string.localizable.error(), message: error.localizedDescription, style: .alert, in: navigationController)
         alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default, handler: nil))
         navigationController.present(alertController, animated: true, completion: nil)
     }
@@ -170,11 +156,5 @@ extension SaveCustomRpcCoordinator: AddMultipleCustomRpcViewControllerResponse {
         // This passes the data to the SaveCustomrRpcOverallViewController which will then relay to the SaveCustomRpcBrowseViewController which will then remove all added, failed, and duplicated customRPCs from display and reload the tableview and display an error message indicating how many failed to add.
         activeViewController?.handleAddMultipleCustomRpcFailure?(added: added, failed: failed, duplicates: duplicates, remaining: remaining)
     }
-
-}
-
-extension CustomRPC {
-
-    static let blank: CustomRPC = CustomRPC(chainID: 0, nativeCryptoTokenName: nil, chainName: "", symbol: nil, rpcEndpoint: "", explorerEndpoint: nil, etherscanCompatibleType: .unknown, isTestnet: false)
 
 }

@@ -1,6 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import UIKit
+import Combine
 
 var key: Void?
 
@@ -33,3 +34,14 @@ extension UITextField {
         return super.target(forAction: action, withSender: sender)
     }
 }
+
+extension UITextField {
+
+    var textPublisher: AnyPublisher<String?, Never> {
+        return Publishers
+            .Merge(publisher(forEvent: .editingDidBegin), publisher(forEvent: .editingChanged))
+            .map { _ -> String? in self.text }
+            .eraseToAnyPublisher()
+    }
+}
+

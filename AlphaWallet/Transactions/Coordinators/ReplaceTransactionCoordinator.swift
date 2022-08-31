@@ -68,7 +68,7 @@ class ReplaceTransactionCoordinator: Coordinator {
             return nil
         }
     }
-    private var transactionConfirmationConfiguration: TransactionConfirmationViewModel.Configuration {
+    private var transactionConfirmationConfiguration: TransactionType.Configuration {
         switch mode {
         case .speedup:
             return .speedupTransaction

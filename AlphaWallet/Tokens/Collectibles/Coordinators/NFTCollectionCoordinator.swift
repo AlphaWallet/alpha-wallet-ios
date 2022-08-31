@@ -242,7 +242,8 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
         )
         let orders = [order]
         let address = session.account.address
-        let signedOrders = try! OrderHandler(keystore: keystore).signOrders(orders: orders, account: address, tokenType: tokenHolder.tokenType)
+        let prompt = R.string.localizable.keystoreAccessKeySign()
+        let signedOrders = try! OrderHandler(keystore: keystore, prompt: prompt).signOrders(orders: orders, account: address, tokenType: tokenHolder.tokenType)
         return UniversalLinkHandler(server: server).createUniversalLink(signedOrder: signedOrders[0], tokenType: tokenHolder.tokenType)
     }
 
@@ -267,7 +268,8 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
         )
         let orders = [order]
         let address = session.account.address
-        let signedOrders = try! OrderHandler(keystore: keystore).signOrders(orders: orders, account: address, tokenType: tokenHolder.tokenType)
+        let prompt = R.string.localizable.keystoreAccessKeySign()
+        let signedOrders = try! OrderHandler(keystore: keystore, prompt: prompt).signOrders(orders: orders, account: address, tokenType: tokenHolder.tokenType)
         return UniversalLinkHandler(server: server).createUniversalLink(signedOrder: signedOrders[0], tokenType: tokenHolder.tokenType)
     }
 

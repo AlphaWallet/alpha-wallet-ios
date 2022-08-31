@@ -8,7 +8,7 @@
 import Combine
 import Foundation
 
-protocol CoinTickersFetcherTests {
+public protocol CoinTickersFetcherTests {
     func addOrUpdateTestsOnly(ticker: CoinTicker?, for token: TokenMappedToTicker)
 }
 

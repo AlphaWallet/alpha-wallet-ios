@@ -8,8 +8,9 @@
 import XCTest
 @testable import AlphaWallet
 
-final class FakeNotificationService: NotificationService {
-    init() {
-        super.init(sources: [], walletBalanceService: FakeMultiWalletBalanceService())
+extension NotificationService {
+    static func fake() -> NotificationService {
+        let notificationService = LocalNotificationService()
+        return NotificationService(sources: [], walletBalanceService: FakeMultiWalletBalanceService(), notificationService: notificationService, pushNotificationsService: UNUserNotificationsService())
     }
 }

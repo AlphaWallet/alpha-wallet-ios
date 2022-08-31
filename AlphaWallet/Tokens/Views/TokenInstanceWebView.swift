@@ -16,42 +16,6 @@ protocol TokenInstanceWebViewDelegate: AnyObject {
 
 class TokenInstanceWebView: UIView {
     var coordinators: [Coordinator] = []
-    enum SetProperties {
-        static let setActionProps = "setActionProps"
-        //Values ought to be typed. But it's just much easier to keep them as `Any` and convert them to the correct types when accessed (based on TokenScript syntax and XML tag). We don't know what those are here
-        typealias Properties = [String: Any]
-
-        case action(id: Int, changedProperties: Properties)
-
-        static func fromMessage(_ message: WKScriptMessage) -> SetProperties? {
-            guard message.name == SetProperties.setActionProps else { return nil }
-            guard let body = message.body as? [String: AnyObject] else { return nil }
-            guard let changedProperties = body["object"] as? SetProperties.Properties else { return nil }
-            guard let id = body["id"] as? Int else { return nil }
-            return .action(id: id, changedProperties: changedProperties)
-        }
-    }
-
-    enum BrowserMessageType {
-        case dappAction(DappCommand)
-        case setActionProps(SetProperties)
-
-        static func fromMessage(_ message: WKScriptMessage) -> BrowserMessageType? {
-            if let action = SetProperties.fromMessage(message) {
-                return .setActionProps(action)
-            } else if let command = DappAction.fromMessage(message) {
-                switch command {
-                case .eth(let command):
-                    return .dappAction(command)
-                case .walletAddEthereumChain:
-                    return nil
-                case .walletSwitchEthereumChain:
-                    return nil
-                }
-            }
-            return nil
-        }
-    }
 
     private let analytics: AnalyticsLogger
     //TODO see if we can be smarter about just subscribing to the attribute once. Note that this is not `Subscribable.subscribeOnce()`
@@ -70,7 +34,7 @@ class TokenInstanceWebView: UIView {
     private var lastInjectedJavaScript: String?
     //TODO remove once we refactor internals to include a TokenScriptContext
     private var lastTokenHolder: TokenHolder?
-    var actionProperties: TokenInstanceWebView.SetProperties.Properties = .init()
+    var actionProperties: TokenScript.SetProperties.Properties = .init()
     private var lastCardLevelAttributeValues: [AttributeId: AssetAttributeSyntaxValue]?
     private let keystore: Keystore
 
@@ -310,7 +274,7 @@ class TokenInstanceWebView: UIView {
 
 extension TokenInstanceWebView: WKScriptMessageHandler {
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        switch BrowserMessageType.fromMessage(message) {
+        switch Browser.MessageType.fromMessage(message) {
         case .some(.dappAction(let command)):
             handleCommandForDappAction(command)
         case .some(.setActionProps(.action(let id, let changedProperties))):
@@ -320,7 +284,7 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
         }
     }
 
-    private func handleSetActionProperties(id: Int, changedProperties: SetProperties.Properties) {
+    private func handleSetActionProperties(id: Int, changedProperties: TokenScript.SetProperties.Properties) {
         guard !changedProperties.isEmpty else { return }
         let oldProperties = actionProperties
 
@@ -473,43 +437,5 @@ extension TokenInstanceWebView {
             }
         }()
         webView.evaluateJavaScript(script, completionHandler: nil)
-    }
-}
-
-private func generateContainerCssId(forTokenId tokenId: TokenId) -> String {
-    return "token-card-\(tokenId)"
-}
-
-func wrapWithHtmlViewport(html: String, style: String, forTokenId tokenId: TokenId) -> String {
-    if html.isEmpty {
-        return ""
-    } else {
-        let containerCssId = generateContainerCssId(forTokenId: tokenId)
-        return """
-               <html>
-               <head>
-               <meta name="viewport" content="width=device-width, initial-scale=1,  maximum-scale=1, shrink-to-fit=no">
-               \(style)
-               </head>
-               <body>
-               <div id="\(containerCssId)" class="token-card">
-               \(html)
-               </div>
-               </body>
-               </html>
-               """
-    }
-}
-func wrapWithHtmlViewport(html: String, style: String, forTokenHolder tokenHolder: TokenHolder) -> String {
-    return wrapWithHtmlViewport(html: html, style: style, forTokenHolder: tokenHolder, forTokenId: tokenHolder.tokenIds[0])
-}
-
-func wrapWithHtmlViewport(html: String, style: String, forTokenHolder tokenHolder: TokenHolder, forTokenId: TokenId) -> String {
-    return wrapWithHtmlViewport(html: html, style: style, forTokenId: forTokenId)
-}
-
-extension String {
-    var hashForCachingHeight: Int {
-        return hashValue
     }
 }
