@@ -51,7 +51,7 @@ class TextField: UIControl {
         func textFieldTextColor(whileEditing: Bool = false) -> UIColor {
             switch self {
             case .none:
-                return Configuration.Color.Semantic.textFieldBackground
+                return Configuration.Color.Semantic.defaultForegroundText
             case .error:
                 return DataEntry.Color.textFieldError
             }
