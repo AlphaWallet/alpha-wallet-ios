@@ -47,6 +47,7 @@ class CoinTickersFileStorage: NSObject {
         knownTickersIdsStore = .init(fileName: "knownTickersIds", storage: storage, defaultValue: [:])
         super.init()
         CoinTickersFileStorage.migrateTickerIdsFrom_v1To_v2(config: config, storage: self)
+        CoinTickersFileStorage.fixGnosisXdaiNativeTokenTicker(config: config, tickersStore: tickersStore)
     }
 
 }
@@ -59,6 +60,16 @@ extension CoinTickersFileStorage {
         config.tickerIdsHasMigratedTo_v2 = true
         config.tickerIdsLastFetchedDate = nil
         storage.removeTickerIds()
+    }
+
+    //TODO remove after sometime once users no longer have this problem
+    static func fixGnosisXdaiNativeTokenTicker(config: Config, tickersStore: Storage<[AssignedCoinTickerId: CoinTicker]>) {
+        //Fix older code
+        if tickersStore.value.contains(where: { k, v in k == "gnosis" && v.symbol == "gno" }) {
+            tickersStore.removeAll()
+        } else {
+            //no-op
+        }
     }
 }
 
@@ -102,7 +113,7 @@ extension CoinTickersFileStorage: ChartHistoryStorage {
 
     func chartHistory(period: ChartHistoryPeriod, for tickerId: AssignedCoinTickerId) -> MappedChartHistory? {
         return historyStore.value[tickerId]?[period]
-    } 
+    }
 }
 
 extension CoinTickersFileStorage: TickerIdsStorage {

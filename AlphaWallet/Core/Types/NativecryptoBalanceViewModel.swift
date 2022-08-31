@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import BigInt 
+import BigInt
 
 struct NativecryptoBalanceViewModel: BalanceViewModelType {
     var ticker: CoinTicker?
@@ -42,12 +42,10 @@ struct NativecryptoBalanceViewModel: BalanceViewModelType {
 
     private func cryptoRate(forServer server: RPCServer) -> Rate? {
         guard let rate = ticker?.rate else { return nil }
-        
+
         let code = mapSymbolToCodeInRates(server)
         let symbol = server.symbol.lowercased()
         if let value = rate.rates.first(where: { $0.code == code }) {
-            return value
-        } else if let value = rate.rates.first(where: { $0.code == "gno" }), server == .xDai {
             return value
         } else if let value = rate.rates.first(where: { $0.code == symbol }) {
             return value

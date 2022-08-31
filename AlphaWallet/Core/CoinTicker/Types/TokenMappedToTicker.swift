@@ -27,7 +27,7 @@ struct TokenMappedToTicker {
         } else if server == .klaytnCypress && contractAddress == Constants.nativeCryptoAddressInDatabase {
             return "klay-token"
         } else if server == .xDai && contractAddress == Constants.nativeCryptoAddressInDatabase {
-            return "gnosis"
+            return "xdai"
         } else if server == .arbitrum && contractAddress == Constants.nativeCryptoAddressInDatabase {
             return "ethereum"
         } else {
@@ -49,7 +49,7 @@ extension TokenMappedToTicker: Hashable, Codable {
         contractAddress = token.contractAddress
         server = token.server
         coinGeckoId = token.info.coinGeckoId
-    } 
+    }
 }
 
 extension TokenMappedToTicker: Equatable {
