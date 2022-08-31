@@ -144,7 +144,7 @@ class TextField: UIControl {
     }
 
     private (set) lazy var heightConstraint: NSLayoutConstraint = {
-        heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen ? 30 : 50)
+        heightAnchor.constraint(equalToConstant: DataEntry.Metric.TextField.Default.height)
     }()
 
     var textInset: CGSize {
@@ -276,6 +276,7 @@ extension TextField {
     static var roundedTextField: TextField {
         let textField = TextField(edgeInsets: DataEntry.Metric.TextField.Rounded.edgeInsets)
         textField.configureOnce()
+        textField.heightConstraint.constant = DataEntry.Metric.TextField.Rounded.height
         textField.cornerRadius = DataEntry.Metric.TextField.Rounded.cornerRadius
         textField.textInset = DataEntry.Metric.TextField.Rounded.textInset
 

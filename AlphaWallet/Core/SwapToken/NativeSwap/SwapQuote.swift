@@ -25,6 +25,21 @@ struct SwapQuote {
         let priceUSD: String
         let symbol: String
     }
+
+    struct Error {
+        let message: String
+    }
+}
+
+extension SwapQuote.Error: Decodable {
+    private enum Keys: String, CodingKey {
+        case message
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: Keys.self)
+        message = try container.decode(String.self, forKey: .message)
+    }
 }
 
 extension SwapQuote: Decodable {

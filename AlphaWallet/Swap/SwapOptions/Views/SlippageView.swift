@@ -35,8 +35,7 @@ class SlippageView: UIView {
         addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            stackView.anchorsConstraint(to: self),
-            heightAnchor.constraint(equalToConstant: 40)
+            stackView.anchorsConstraint(to: self)
         ])
 
         bind(viewModel: viewModel)

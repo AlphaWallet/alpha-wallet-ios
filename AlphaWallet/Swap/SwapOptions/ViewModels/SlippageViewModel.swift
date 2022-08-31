@@ -23,7 +23,7 @@ class SlippageViewModel {
     }
 
     func transform(input: SlippageViewModelInput) -> SlippageViewModelOutput {
-        let views: AnyPublisher<[SwapSlippage], Never> = .just([.tenPercents, .fiftyPercents, .oneHundredPercents, .custom(0.0)])
+        let views: AnyPublisher<[SwapSlippage], Never> = .just(SwapSlippage.allCases)
 
         let availableSlippages = views.combineLatest(selectedSlippage) { cases, selectedSlippage -> [SelectableSlippageViewModel] in
             var cases = cases
@@ -32,7 +32,7 @@ class SlippageViewModel {
                 if let index = cases.firstIndex(where: { slip in guard case .custom = slip else { return false }; return true; }) {
                     cases[index] = selectedSlippage
                 }
-            case .tenPercents, .fiftyPercents, .oneHundredPercents:
+            case .onePercents, .fivePercents, .tenPercents:
                 break
             }
             return cases.map { .init(value: $0, isSelected: selectedSlippage == $0) }
@@ -55,7 +55,7 @@ class SlippageViewModel {
 extension SwapSlippage {
     var viewType: SlippageViewModel.SwapSlippageViewType {
         switch self {
-        case .tenPercents, .fiftyPercents, .oneHundredPercents: return .selectionButton
+        case .onePercents, .fivePercents, .tenPercents: return .selectionButton
         case .custom: return .editingTextField
         }
     }

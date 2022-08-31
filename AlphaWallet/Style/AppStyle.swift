@@ -230,11 +230,13 @@ enum DataEntry {
                 static let edgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
                 static let cornerRadius: CGFloat = Metrics.CornerRadius.textbox
                 static let textInset: CGSize = .zero
+                static let height: CGFloat = ScreenChecker().isNarrowScreen ? 30 : 50
             }
             
             enum Rounded {
                 static let edgeInsets = UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 5)
-                static let cornerRadius: CGFloat = 20.0
+                static let cornerRadius: CGFloat = height / 2
+                static let height: CGFloat = ScreenChecker().isNarrowScreen ? 30 : 40
                 static let textInset: CGSize = CGSize(width: 5, height: 0)
             }
         }

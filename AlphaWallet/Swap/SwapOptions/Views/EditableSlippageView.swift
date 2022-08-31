@@ -29,7 +29,6 @@ final class EditableSlippageView: UIControl {
         stachView.translatesAutoresizingMaskIntoConstraints = false
 
         addSubview(stachView)
-        NSLayoutConstraint.deactivate([textField.heightConstraint])
         NSLayoutConstraint.activate([
             stachView.anchorsConstraint(to: self),
             textField.widthAnchor.constraint(equalToConstant: 70)
