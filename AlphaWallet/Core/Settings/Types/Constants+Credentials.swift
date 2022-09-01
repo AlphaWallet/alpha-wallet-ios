@@ -17,12 +17,7 @@ extension Constants {
             }
             let lines = fileContents.components(separatedBy: .newlines)
             let keyValues: [(String, String)] = lines.compactMap { line -> (String, String)? in
-                let keyValue = line.components(separatedBy: "=")
-                if keyValue.count == 2 {
-                    return (keyValue[0], keyValue[1])
-                } else {
-                    return nil
-                }
+                Constants.Credentials.functional.extractKeyValueCredentials(line)
             }
             let dict = Dictionary(uniqueKeysWithValues: keyValues)
             debugLog("[Credentials] Loaded .credentials file found for development with key count: \(dict.count)")
@@ -55,5 +50,23 @@ extension Constants {
         static let covalentApiKey = env("COVALENTAPIKEY") ?? "ckey_7ee61be7f8364ba784f697510bd"
         //Without the "Basic " prefix
         static let klaytnRpcNodeKeyBasicAuth = env("KLAYTNRPCNODEKEYBASICAUTH") ?? ""
+    }
+}
+
+extension Constants.Credentials {
+    enum functional {}
+}
+
+extension Constants.Credentials.functional {
+    static func extractKeyValueCredentials(_ line: String) -> (key: String, value: String)? {
+        let keyValue = line.components(separatedBy: "=")
+        if keyValue.count == 2 {
+            return (keyValue[0], keyValue[1])
+        } else if keyValue.count > 2 {
+            //Needed to handle when = is in the API value, example Basic Auth
+            return (keyValue[0], keyValue[1..<keyValue.count].joined(separator: "="))
+        } else {
+            return nil
+        }
     }
 }
