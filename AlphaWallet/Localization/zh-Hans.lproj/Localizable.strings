@@ -417,7 +417,7 @@
 "accounts.delete.error.failedToExportPrivateKey" = "导出私钥失败";
 "accounts.delete.error.failedToExportSeed" = "导出钱包种子失败。如果您已迁移到新手机或者重置了设备，则需再次导入钱包";
 "Chain ID" = "链 ID";
-"Chain ID with prefix" = "链 ID: %i";
+"Chain ID with prefix" = "链 ID: %ld";
 "Endpoint" = "端点";
 "settings.preferences.button.title" = "启动时显示通证";
 "settings.preferences.title" = "偏好设置";

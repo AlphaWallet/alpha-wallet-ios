@@ -417,7 +417,7 @@
 "accounts.delete.error.failedToExportPrivateKey" = "Salaisen avaimen vienti epäonnistui";
 "accounts.delete.error.failedToExportSeed" = "Lompakon siemenluvun vienti epäonnistui. Jos olet vaihtanut puhelintasi tai palauttanut puhelimen asetukset varmuuskopiolta, lompakko pitää palauttaa tuomalla se erilliseltä varmuuskopiolta";
 "Chain ID" = "Ketjun tunniste (Chain ID)";
-"Chain ID with prefix" = "Chain ID: %i";
+"Chain ID with prefix" = "Chain ID: %ld";
 "Endpoint" = "Päätepiste (Endpoint)";
 "settings.preferences.button.title" = "Näytä rahakkeet käynnistyksen aikana";
 "settings.preferences.title" = "Asetukset";
