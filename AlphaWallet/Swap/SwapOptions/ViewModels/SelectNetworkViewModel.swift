@@ -27,7 +27,7 @@ class SelectNetworkViewModel {
     }
 
     var subTitleAttributedString: NSAttributedString {
-        NSAttributedString(string: "Chain ID: \(session.server.chainID)", attributes: [
+        NSAttributedString(string: R.string.localizable.chainIDWithPrefix(session.server.chainID), attributes: [
             .font: Fonts.regular(size: 15),
             .foregroundColor: R.color.dove()!
         ])
