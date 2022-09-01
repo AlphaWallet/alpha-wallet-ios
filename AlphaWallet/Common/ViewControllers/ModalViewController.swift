@@ -99,7 +99,7 @@ private class _ModalViewController: UIViewController {
     private lazy var backgroundView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        view.backgroundColor = Configuration.Color.Semantic.overlayBackground
         view.alpha = 0
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(closeButtonSelected))
