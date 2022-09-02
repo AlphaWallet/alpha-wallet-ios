@@ -78,7 +78,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private lazy var promptBackupCoordinator: PromptBackupCoordinator = {
         return PromptBackupCoordinator(keystore: keystore, wallet: wallet, config: config, analytics: analytics)
     }()
-    
+
     private (set) var swapButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(R.image.swap(), for: .normal)
@@ -911,7 +911,7 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
         } else {
             navigationController = coordinator.navigationController
         }
-        
+
         switch suggestedPaymentFlow {
         case .payment(let type, let server):
             showPaymentFlow(for: type, server: server, navigationController: navigationController)
@@ -1193,6 +1193,6 @@ extension ActiveWalletCoordinator {
     enum PendingOperation {
         case swapToken
         case sendToken(recipient: AddressOrEnsName?)
-    } 
+    }
 }
 // swiftlint:enable file_length
