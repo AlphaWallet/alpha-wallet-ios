@@ -1,9 +1,5 @@
 // Copyright SIX DAY LLC. All rights reserved.
 import UIKit
-import AWSSNS
-import AWSCore
-import PromiseKit
-import UserNotifications
 import AlphaWalletAddress
 import AlphaWalletFoundation 
 
@@ -11,10 +7,6 @@ import AlphaWalletFoundation
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
     var window: UIWindow?
     private var appCoordinator: AppCoordinator!
-    private let SNSPlatformApplicationArn = "arn:aws:sns:us-west-2:400248756644:app/APNS/AlphaWallet-iOS"
-    private let SNSPlatformApplicationArnSANDBOX = "arn:aws:sns:us-west-2:400248756644:app/APNS_SANDBOX/AlphaWallet-testing"
-    private let identityPoolId = "us-west-2:42f7f376-9a3f-412e-8c15-703b5d50b4e2"
-    private let SNSSecurityTopicEndpoint = "arn:aws:sns:us-west-2:400248756644:security"
     //This is separate coordinator for the protection of the sensitive information.
     private lazy var protectionCoordinator: ProtectionCoordinator = {
         return ProtectionCoordinator()
@@ -74,19 +66,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         completionHandler(true)
     }
 
-    private func cognitoRegistration() {
-        // Override point for customization after application launch.
-        /// Setup AWS Cognito credentials
-        // Initialize the Amazon Cognito credentials provider
-        let credentialsProvider = AWSCognitoCredentialsProvider(regionType: .USWest2,
-                identityPoolId: identityPoolId)
-        let configuration = AWSServiceConfiguration(region: .USWest2, credentialsProvider: credentialsProvider)
-        AWSServiceManager.default().defaultServiceConfiguration = configuration
-        let defaultServiceConfiguration = AWSServiceConfiguration(
-                region: AWSRegionType.USWest2, credentialsProvider: credentialsProvider)
-        AWSServiceManager.default().defaultServiceConfiguration = defaultServiceConfiguration
-    }
-
     func applicationWillResignActive(_ application: UIApplication) {
         protectionCoordinator.applicationWillResignActive()
     }
@@ -130,65 +109,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         }
         //TODO: if we handle other types of URLs, check if handled==false, then we pass the url to another handlers
         return handled
-    }
-
-    // Respond to amazon SNS registration
-    func application(_ application: UIApplication,
-                     didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        /// Attach the device token to the user defaults
-        var token = ""
-        for i in 0..<deviceToken.count {
-            let tokenInfo = String(format: "%02.2hhx", arguments: [deviceToken[i]])
-            token.append(tokenInfo)
-        }
-        UserDefaults.standardOrForTests.set(token, forKey: "deviceTokenForSNS")
-        /// Create a platform endpoint. In this case, the endpoint is a
-        /// device endpoint ARN
-        cognitoRegistration()
-        let sns = AWSSNS.default()
-        let request = AWSSNSCreatePlatformEndpointInput()
-        request?.token = token
-        #if DEBUG
-            request?.platformApplicationArn = SNSPlatformApplicationArnSANDBOX
-        #else
-            request?.platformApplicationArn = SNSPlatformApplicationArn
-        #endif
-
-        sns.createPlatformEndpoint(request!).continueWith(executor: AWSExecutor.mainThread(), block: { (task: AWSTask!) -> AnyObject? in
-            if task.error == nil {
-                let createEndpointResponse = task.result! as AWSSNSCreateEndpointResponse
-                if let endpointArnForSNS = createEndpointResponse.endpointArn {
-                    UserDefaults.standardOrForTests.set(endpointArnForSNS, forKey: "endpointArnForSNS")
-                    //every user should subscribe to the security topic
-                    self.subscribeToTopicSNS(token: token, topicEndpoint: self.SNSSecurityTopicEndpoint)
-//                    if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
-//                        //TODO subscribe to version topic when created
-//                    }
-                }
-            }
-            return nil
-        })
-    }
-
-    func subscribeToTopicSNS(token: String, topicEndpoint: String) {
-        let sns = AWSSNS.default()
-        guard let endpointRequest = AWSSNSCreatePlatformEndpointInput() else { return }
-        #if DEBUG
-            endpointRequest.platformApplicationArn = SNSPlatformApplicationArnSANDBOX
-        #else
-            endpointRequest.platformApplicationArn = SNSPlatformApplicationArn
-        #endif
-        endpointRequest.token = token
-
-        sns.createPlatformEndpoint(endpointRequest).continueWith { task in
-            guard let response: AWSSNSCreateEndpointResponse = task.result else { return nil }
-            guard let subscribeRequest = AWSSNSSubscribeInput() else { return nil }
-            subscribeRequest.endpoint = response.endpointArn
-            subscribeRequest.protocols = "application"
-            subscribeRequest.topicArn = topicEndpoint
-            return sns.subscribe(subscribeRequest)
-        }
-    }
+    } 
 
     //TODO Handle SNS errors
     func application(_ application: UIApplication,

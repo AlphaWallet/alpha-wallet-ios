@@ -60,9 +60,6 @@ PODS:
   - Apollo (0.50.0):
     - Apollo/Core (= 0.50.0)
   - Apollo/Core (0.50.0)
-  - AWSCore (2.18.0)
-  - AWSSNS (2.18.0):
-    - AWSCore (= 2.18.0)
   - BigInt (3.1.0):
     - SipHash (~> 1.2)
   - BlockiesSwift (0.1.2)
@@ -176,7 +173,6 @@ DEPENDENCIES:
   - AlphaWalletWeb3Provider (from `https://github.com/AlphaWallet/AlphaWallet-web3-provider`, commit `9a4496d02b7ddb2f6307fd0510d8d7c9fcef9870`)
   - APIKit (= 5.1.0)
   - Apollo
-  - AWSSNS (= 2.18.0)
   - BigInt (~> 3.1)
   - BlockiesSwift
   - Charts
@@ -217,8 +213,6 @@ SPEC REPOS:
     - Alamofire-Synchronous
     - APIKit
     - Apollo
-    - AWSCore
-    - AWSSNS
     - BigInt
     - BlockiesSwift
     - Charts
@@ -336,8 +330,6 @@ SPEC CHECKSUMS:
   AlphaWalletWeb3Provider: 7ca1e1c1dc841dc1915f970daace48bf34931655
   APIKit: 9e1a4069608bf0ae5238811e6cfc26928ad4d01e
   Apollo: 5e4476a3236bd576686085b7cd99655c788e4d74
-  AWSCore: e8cc7fd06efa211328942cc7c9f6dddbe889a115
-  AWSSNS: d3ed65985986d5393de2793259e457e466997b55
   BigInt: 76b5dfdfa3e2e478d4ffdf161aeede5502e2742f
   BlockiesSwift: 22d8d56dd187e6bfd16cb8c8fbd4fd4896c3e65d
   Charts: b1e3a1f5a1c9ba5394438ca3b91bd8c9076310af
@@ -381,6 +373,6 @@ SPEC CHECKSUMS:
   web3swift: 06118d4c4edc801444aaa995bbbddeda176b97ef
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: 610cfbb22b813a954ead70bc3a521986fcb4a0dd
+PODFILE CHECKSUM: a34befb5061fb57077153f0ea80d7aa3125b8ad5
 
 COCOAPODS: 1.11.2
