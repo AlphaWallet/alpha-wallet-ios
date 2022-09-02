@@ -1,7 +1,6 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
-import Result
 import PromiseKit
 
 public class IsErc875Contract {
@@ -17,7 +16,7 @@ public class IsErc875Contract {
             if let isERC875 = dictionary["0"] as? Bool {
                 return isERC875
             } else {
-                throw AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(function.name)()"))
+                throw createSmartContractCallError(forContract: contract, functionName: function.name)
             }
         }
     }

@@ -7,7 +7,6 @@
 
 import UIKit
 import BigInt
-import Result
 import Combine
 import AlphaWalletFoundation
 
@@ -139,7 +138,7 @@ extension TokenScriptCoordinator: StaticHTMLViewControllerDelegate {
 
 extension TokenScriptCoordinator: TransactionConfirmationCoordinatorDelegate {
 
-    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError) {
+    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: Error) {
         UIApplication.shared
             .presentedViewController(or: navigationController)
             .displayError(message: error.prettyError)

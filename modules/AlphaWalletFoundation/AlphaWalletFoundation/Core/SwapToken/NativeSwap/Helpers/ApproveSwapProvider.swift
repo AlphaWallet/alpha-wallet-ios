@@ -7,8 +7,7 @@
 
 import Foundation
 import PromiseKit
-import BigInt
-import Result
+import BigInt 
 
 public protocol ApproveSwapProviderDelegate: class {
     func promptToSwap(unsignedTransaction: UnsignedSwapTransaction, fromToken: TokenToSwap, fromAmount: BigUInt, toToken: TokenToSwap, toAmount: BigUInt, in provider: ApproveSwapProvider)

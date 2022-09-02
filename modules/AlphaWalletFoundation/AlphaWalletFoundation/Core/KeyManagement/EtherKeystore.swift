@@ -4,7 +4,6 @@ import Foundation
 import LocalAuthentication
 import BigInt
 import KeychainSwift
-import Result
 import WalletCore
 import web3swift
 

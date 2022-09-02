@@ -376,7 +376,7 @@ class ImportMagicLinkCoordinator: Coordinator {
         }
     }
 
-    static func ecrecover(signedOrder: SignedOrder, server: RPCServer) -> ResultResult<web3swift.EthereumAddress, web3swift.Web3Error>.t {
+    static func ecrecover(signedOrder: SignedOrder, server: RPCServer) -> Swift.Result<web3swift.EthereumAddress, web3swift.Web3Error> {
         //need to hash message here because the web3swift implementation adds prefix
         let messageHash = Data(bytes: signedOrder.message).sha3(.keccak256)
         //note: web3swift takes the v value as v - 27, so we need to manually convert this
@@ -387,11 +387,14 @@ class ImportMagicLinkCoordinator: Coordinator {
         let nodeURL = server.rpcURL
         let provider = Web3HttpProvider(nodeURL, headers: server.rpcHeaders, network: server.web3Network)!
         let web3Instance = web3swift.web3(provider: provider)
+        let personal = web3swift.web3.Personal(provider: web3Instance.provider, web3: web3Instance)
 
-        return web3swift.web3.Personal(provider: web3Instance.provider, web3: web3Instance).ecrecover(
-            hash: messageHash,
-            signature: Data(bytes: signature.hexToBytes)
-        )
+        switch personal.ecrecover(hash: messageHash, signature: Data(bytes: signature.hexToBytes)) {
+        case .success(let value):
+            return .success(value)
+        case .failure(let error):
+            return .failure(error)
+        }
     }
 
     private func handlePaidImports(signedOrder: SignedOrder) {

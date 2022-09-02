@@ -3,7 +3,6 @@
 
 import Foundation
 import UIKit
-import Result
 import class PromiseKit.Promise
 import AlphaWalletFoundation
 

@@ -3,7 +3,6 @@
 import Foundation
 import APIKit
 import JSONRPCKit
-import Result
 import web3swift
 
 public struct UndefinedError: LocalizedError { }
@@ -26,13 +25,6 @@ extension Error {
             return error.localizedDescription
         case let error as RequestCanceledDueToWatchWalletError:
             return error.localizedDescription
-        case let error as AnyError:
-            switch error.error {
-            case let error as APIKit.SessionTaskError:
-                return generatePrettyError(forSessionTaskError: error)
-            default:
-                return error.errorDescription ?? error.description
-            }
         case let error as LocalizedError:
             return error.errorDescription ?? UnknownError().localizedDescription
         case let error as NSError:

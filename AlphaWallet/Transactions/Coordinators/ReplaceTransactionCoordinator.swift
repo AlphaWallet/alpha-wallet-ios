@@ -2,7 +2,6 @@
 
 import UIKit
 import BigInt
-import Result
 import AlphaWalletFoundation
 
 protocol ReplaceTransactionCoordinatorDelegate: CanOpenURL, BuyCryptoDelegate {
@@ -133,7 +132,7 @@ class ReplaceTransactionCoordinator: Coordinator {
 }
 
 extension ReplaceTransactionCoordinator: TransactionConfirmationCoordinatorDelegate {
-    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError) {
+    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: Error) {
         UIApplication.shared
             .presentedViewController(or: presentingViewController)
             .displayError(message: error.prettyError)

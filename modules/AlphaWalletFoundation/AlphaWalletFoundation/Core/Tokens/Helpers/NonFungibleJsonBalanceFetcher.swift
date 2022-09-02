@@ -11,7 +11,6 @@ import AlphaWalletCore
 import AlphaWalletOpenSea
 import BigInt
 import PromiseKit
-import Result
 import SwiftyJSON
 
 //TODO: think about the name, remove queue later, replace with any publisher

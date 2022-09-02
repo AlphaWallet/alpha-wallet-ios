@@ -2,7 +2,6 @@
 
 import Foundation
 import LocalAuthentication
-import Result
 
 public protocol KeystoreDelegate: AnyObject {
     func didImport(wallet: Wallet, in keystore: Keystore)

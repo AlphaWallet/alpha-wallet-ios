@@ -8,7 +8,6 @@
 import AlphaWalletAddress
 import AlphaWalletCore
 import PromiseKit
-import Result
 import SwiftyJSON
 
 public typealias ChainId = Int
@@ -107,7 +106,7 @@ public class OpenSea {
     public func fetchAssetImageUrl(path: String, chainId: ChainId) -> Promise<URL> {
         let baseURL = getBaseURLForOpenSea(forChainId: chainId)
         guard let url = URL(string: "\(baseURL)api/v1/asset/\(path)") else {
-            return .init(error: AnyError(OpenSeaError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)")))
+            return .init(error: OpenSeaError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)"))
         }
 
         return firstly {
@@ -115,7 +114,7 @@ public class OpenSea {
         }.map { json -> URL in
             let image: String = json["image_url"].string ?? json["image_preview_url"].string ?? json["image_thumbnail_url"].string ?? json["image_original_url"].string ?? ""
             guard let url = URL(string: image) else {
-                throw AnyError(OpenSeaError(localizedDescription: "Error calling \(baseURL)"))
+                throw OpenSeaError(localizedDescription: "Error calling \(baseURL)")
             }
             return url
         }
@@ -124,7 +123,7 @@ public class OpenSea {
     public func collectionStats(slug: String, chainId: ChainId) -> Promise<Stats> {
         let baseURL = getBaseURLForOpenSea(forChainId: chainId)
         guard let url = URL(string: "\(baseURL)api/v1/collection/\(slug)/stats") else {
-            return .init(error: AnyError(OpenSeaError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)")))
+            return .init(error: OpenSeaError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)"))
         }
 
         //TODO Why is specifying .main queue needed?
@@ -138,7 +137,7 @@ public class OpenSea {
     private func fetchCollectionsPage(forOwner owner: AlphaWallet.Address, chainId: ChainId, offset: Int, sum: [CollectionKey: Collection] = [:]) -> Promise<Response<[CollectionKey: Collection]>> {
         let baseURL = getBaseURLForOpenSea(forChainId: chainId)
         guard let url = URL(string: "\(baseURL)api/v1/collections?asset_owner=\(owner.eip55String)&limit=300&offset=\(offset)") else {
-            return .init(error: AnyError(OpenSeaError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)")))
+            return .init(error: OpenSeaError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)"))
         }
 
         return firstly {
@@ -181,10 +180,10 @@ public class OpenSea {
                             if let json = try? JSON(data: data) {
                                 return (response, json)
                             } else {
-                                throw AnyError(OpenSeaError(localizedDescription: "Error calling \(url)"))
+                                throw OpenSeaError(localizedDescription: "Error calling \(url)")
                             }
                         } else {
-                            throw AnyError(OpenSeaError(localizedDescription: "Error calling \(url)"))
+                            throw OpenSeaError(localizedDescription: "Error calling \(url)")
                         }
                     }).recover { error -> Promise<(HTTPURLResponse, JSON)> in
                         if let error = error as? OpenSeaApiError {
@@ -219,7 +218,7 @@ public class OpenSea {
         let baseURL = getBaseURLForOpenSea(forChainId: chainId)
         //Careful to `order_by` with a valid value otherwise OpenSea will return 0 results
         guard let url = URL(string: "\(baseURL)api/v1/assets/?owner=\(owner.eip55String)&order_by=pk&order_direction=asc&limit=50&offset=\(offset)") else {
-            return .init(error: AnyError(OpenSeaError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)")))
+            return .init(error: OpenSeaError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)"))
         }
 
         return firstly {

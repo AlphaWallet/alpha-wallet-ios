@@ -5,7 +5,6 @@
 
 import Foundation
 import PromiseKit
-import Result
 import web3swift
 
 public class IsErc721Contract {
@@ -64,7 +63,7 @@ public class IsErc721Contract {
             } else if isCryptoKitty != nil, isNonCryptoKittyERC721 != nil, isNonCryptoKittyERC721WithOldInterfaceHash != nil {
                 return false
             } else {
-                throw AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(function.name)()"))
+                throw createSmartContractCallError(forContract: contract, functionName: function.name)
             }
         }
     }

@@ -1,7 +1,6 @@
 // Copyright © 2022 Stormbird PTE. LTD.
 
 import Foundation
-import Result
 import web3swift
 import PromiseKit
 
@@ -41,10 +40,10 @@ public class ScriptUri {
                     let url = url.rewrittenIfIpfs
                     return url
                 } else {
-                    throw AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))
+                    throw createSmartContractCallError(forContract: contract, functionName: functionName)
                 }
             } else {
-                throw AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))
+                throw createSmartContractCallError(forContract: contract, functionName: functionName)
             }
         }
     }

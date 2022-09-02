@@ -7,7 +7,6 @@
 
 import AlphaWalletCore
 import PromiseKit
-import Result
 import BigInt
 
 // NOTE: Think about the name, more fittable name is needed
@@ -139,7 +138,7 @@ public class TokenProvider: TokenProviderType {
                     .getERC721TokenBalance(for: account, contract: address)
             }.map(on: queue, { balance -> [String] in
                 if balance >= Int.max {
-                    throw AnyError(Web3Error(description: ""))
+                    throw Web3Error(description: "")
                 } else {
                     return [String](repeating: "0", count: Int(balance))
                 }

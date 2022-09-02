@@ -9,7 +9,6 @@ import UIKit
 import AlphaWalletGoBack
 import WalletConnectSwift
 import PromiseKit
-import Result
 import Combine
 import AlphaWalletFoundation
 
