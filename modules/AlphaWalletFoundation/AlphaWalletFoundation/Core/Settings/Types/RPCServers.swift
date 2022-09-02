@@ -12,6 +12,11 @@ extension RPCServer {
 
 // swiftlint:disable type_body_length
 public enum RPCServer: Hashable, CaseIterable {
+    enum RpcNodeBatchSupport {
+        case noBatching
+        case batch(Int)
+    }
+
     public static var customRpcs: [CustomRPC] = RPCServer.convertJsonToCustomRpcs(Config().customRpcServersJson) {
         didSet {
             if let data = try? JSONEncoder().encode(customRpcs), let json = String(data: data, encoding: .utf8) {
@@ -861,6 +866,17 @@ public enum RPCServer: Hashable, CaseIterable {
             return nil
         }
     }
+
+    private var rpcNodeBatchSupport: RpcNodeBatchSupport {
+        switch self {
+        case .klaytnCypress, .klaytnBaobabTestnet:
+            return .noBatching
+        case .xDai:
+            return .batch(6)
+        case .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .optimistic, .polygon, .mumbai_testnet, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .main, .kovan, .ropsten, .rinkeby, .poa, .classic, .callisto, .phi, .goerli, .artis_sigma1, .artis_tau1, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .optimisticKovan, .sokol, .custom, .palm, .palmTestnet, .ioTeX, .ioTeXTestnet:
+            return .batch(32)
+        }
+    }
 }
 // swiftlint:enable type_body_length
 
@@ -904,5 +920,16 @@ extension RPCServer {
         }
 
         return nil
+    }
+}
+
+extension RPCServer {
+    var web3SwiftRpcNodeBatchSupportPolicy: JSONRPCrequestDispatcher.DispatchPolicy {
+        switch rpcNodeBatchSupport {
+        case .noBatching:
+            return .NoBatching
+        case .batch(let size):
+            return .Batch(size)
+        }
     }
 }
