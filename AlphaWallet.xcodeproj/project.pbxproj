@@ -4352,7 +4352,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Don't run this during index builds\nif [ $ACTION = \"indexbuild\" ]; then exit 0; fi\n\nSCRIPT_PATH=\"${PODS_ROOT}/Apollo/scripts\"\nSCHEMA_PATH=\"${SRCROOT}/modules/AlphaWalletFoundation/AlphaWalletFoundation/Core/NFT/Enjin\"\n\ncd \"${SRCROOT}\"\n\"${SCRIPT_PATH}\"/run-bundled-codegen.sh codegen:generate --target=swift --includes=./**/*.graphql --localSchemaFile=\"${SCHEMA_PATH}/schema.json\" API.swift\n#Download graphql scheme \n#\"${SCRIPT_PATH}\"/run-bundled-codegen.sh schema:download --endpoint=\"https://cloud.enjin.io/graphql/default\" API.swift\n";
+			shellScript = "# Don't run this during index builds\nif [ $ACTION = \"indexbuild\" ]; then exit 0; fi\n\nSCRIPT_PATH=\"${PODS_ROOT}/Apollo/scripts\"\nSCHEMA_PATH=\"${SRCROOT}/modules/AlphaWalletFoundation/AlphaWalletFoundation/Core/NFT/Enjin\"\n\ncd \"${SCHEMA_PATH}\"\n\"${SCRIPT_PATH}\"/run-bundled-codegen.sh codegen:generate --target=swift --includes=./**/*.graphql --localSchemaFile=\"${SCHEMA_PATH}/schema.json\" API.swift\n#Download graphql scheme \n#\"${SCRIPT_PATH}\"/run-bundled-codegen.sh schema:download --endpoint=\"https://cloud.enjin.io/graphql/default\" API.swift\n";
 		};
 		87FBF2B828056D8600616B7D /* Upload debug symbols to Crashlytics */ = {
 			isa = PBXShellScriptBuildPhase;
