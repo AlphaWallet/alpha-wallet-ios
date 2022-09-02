@@ -1805,7 +1805,6 @@
 			isa = PBXGroup;
 			children = (
 				875CA8D328BDE42A0020FA48 /* Common */,
-				87FBF2B628056B8E00616B7D /* GoogleService-Info.plist */,
 				87B1ACDE28C0D6660072A5E2 /* Resources */,
 				87D7D66227D75AD400202861 /* Swap */,
 				87741F1B2770C3AD007F4604 /* WhereAreMyTokens */,
@@ -1829,6 +1828,7 @@
 				29D72A291F6A8D1500CE9209 /* AppCoordinator.swift */,
 				293E626E1FA2ED1400CB0A66 /* ActiveWalletCoordinator.swift */,
 				29850D241F6B27A800791A49 /* R.generated.swift */,
+				87FBF2B628056B8E00616B7D /* GoogleService-Info.plist */,
 				2912CD061F6A830700C6CBE3 /* Info.plist */,
 				29AD8A071F93E1F0008E10E7 /* AlphaWallet.entitlements */,
 				76F1D1936604D6A022E9AE90 /* Market */,

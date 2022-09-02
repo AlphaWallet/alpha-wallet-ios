@@ -13,8 +13,7 @@ public final class ScriptMessageProxy: NSObject, WKScriptMessageHandler {
         super.init()
     }
 
-    public func userContentController(_ userContentController: WKUserContentController,
-                               didReceive message: WKScriptMessage) {
+    public func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         delegate?.userContentController(
             userContentController, didReceive: message)
     }

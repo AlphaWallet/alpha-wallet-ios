@@ -227,12 +227,7 @@ extension AlphaWallet.WalletConnect.TopicOrUrl {
 
 extension Requester {
     init(walletConnectSession session: AlphaWallet.WalletConnect.Session, request: AlphaWallet.WalletConnect.Session.Request) {
-        name = session.dappName
-        shortName = session.dappNameShort
-        url = session.dappUrl
-        //NOTE: actually it should always have a value
-        server = request.server
-        iconUrl = session.dappIconUrl
+        self.init(shortName: session.dappName, name: session.dappNameShort, server: request.server, url: session.dappUrl, iconUrl: session.dappIconUrl)
     }
 }
 
