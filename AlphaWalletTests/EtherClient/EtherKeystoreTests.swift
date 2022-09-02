@@ -4,7 +4,6 @@ import XCTest
 import LocalAuthentication
 @testable import AlphaWallet
 import BigInt
-import KeychainSwift
 import AlphaWalletFoundation
 
 class EtherKeystoreTests: XCTestCase {
@@ -23,7 +22,7 @@ class EtherKeystoreTests: XCTestCase {
     }
 
     func testEmptyPassword() throws {
-        let keystore = try LegacyFileBasedKeystore(keystore: FakeEtherKeystore())
+        let keystore = try LegacyFileBasedKeystore(securedStorage: KeychainStorage.make(), keystore: FakeEtherKeystore())
         let password = keystore.getPassword(for: .make())
         XCTAssertNil(password)
     }
@@ -150,7 +149,7 @@ class EtherKeystoreTests: XCTestCase {
     func testConvertPrivateKeyToKeyStore() throws {
         let passphrase = "MyHardPassword!"
         let keystore = FakeEtherKeystore()
-        let result = (try! LegacyFileBasedKeystore(keystore: keystore)).convertPrivateKeyToKeystoreFile(privateKey: Data(hexString: TestKeyStore.testPrivateKey)!, passphrase: passphrase)
+        let result = (try! LegacyFileBasedKeystore(securedStorage: KeychainStorage.make(), keystore: keystore)).convertPrivateKeyToKeystoreFile(privateKey: Data(hexString: TestKeyStore.testPrivateKey)!, passphrase: passphrase)
         let dict = try result.dematerialize()
         keystore.importWallet(type: .keystore(string: dict.jsonString!, password: passphrase)) { result in
             guard let wallet = try? result.dematerialize() else {

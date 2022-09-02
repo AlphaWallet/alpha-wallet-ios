@@ -23,12 +23,11 @@ final class SettingsViewModel {
 
     private (set) var sections: [SettingsSection] = []
     private var assignedNameOrEns: String?
-    private let lock = Lock()
+    let lock: Lock
     private var config: Config
     private let keystore: Keystore
     private let analytics: AnalyticsLogger
     private let getWalletName: GetWalletName
-
     let animatingDifferences: Bool = false
     var title: String = R.string.localizable.aSettingsNavigationTitle()
     var backgroundColor: UIColor = GroupedTable.Color.background
@@ -43,11 +42,12 @@ final class SettingsViewModel {
         }
     }
 
-    init(account: Wallet, keystore: Keystore, config: Config, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType) {
+    init(account: Wallet, keystore: Keystore, lock: Lock, config: Config, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType) {
         self.account = account
         self.config = config
         self.keystore = keystore
         self.analytics = analytics
+        self.lock = lock
         self.getWalletName = GetWalletName(domainResolutionService: domainResolutionService)
     }
 

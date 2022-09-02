@@ -137,8 +137,7 @@ class SettingsViewController: UIViewController {
 
     private func askUserToSetPasscode(completion: ((Bool) -> Void)? = .none) {
         guard let navigationController = navigationController else { return }
-        let viewModel = LockCreatePasscodeViewModel()
-        let lock = LockCreatePasscodeCoordinator(navigationController: navigationController, model: viewModel)
+        let lock = LockCreatePasscodeCoordinator(navigationController: navigationController, lock: viewModel.lock)
         lock.start()
         lock.lockViewController.willFinishWithResult = { result in
             completion?(result)

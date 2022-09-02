@@ -669,6 +669,7 @@
 		87AE2736273D701A00E184D4 /* WalletConnectV2Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AE2735273D701A00E184D4 /* WalletConnectV2Types.swift */; };
 		87B1ACD928C0D45B0072A5E2 /* chains.zip in Resources */ = {isa = PBXBuildFile; fileRef = 87B1ACD828C0D45B0072A5E2 /* chains.zip */; };
 		87B1ACDB28C0D55D0072A5E2 /* tokens.json in Resources */ = {isa = PBXBuildFile; fileRef = 87B1ACDA28C0D55D0072A5E2 /* tokens.json */; };
+		87B1AD3728C1FE030072A5E2 /* KeychainStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87B1AD3628C1FE030072A5E2 /* KeychainStorage.swift */; };
 		87B651F7256D4BFE000EF927 /* ClaimPaidOrderCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87B651F6256D4BFE000EF927 /* ClaimPaidOrderCoordinator.swift */; };
 		87B93B0E2726A46500F6EA73 /* BrowserStorageSubscription.js in Resources */ = {isa = PBXBuildFile; fileRef = 87B93B0D2726A46500F6EA73 /* BrowserStorageSubscription.js */; };
 		87B93B0F2726C59D00F6EA73 /* content.js in Resources */ = {isa = PBXBuildFile; fileRef = 8703FC0A270366DA0062C416 /* content.js */; };
@@ -1506,6 +1507,7 @@
 		87AE2735273D701A00E184D4 /* WalletConnectV2Types.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectV2Types.swift; sourceTree = "<group>"; };
 		87B1ACD828C0D45B0072A5E2 /* chains.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = chains.zip; path = AlphaWallet/Resources/chains.zip; sourceTree = SOURCE_ROOT; };
 		87B1ACDA28C0D55D0072A5E2 /* tokens.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = tokens.json; path = AlphaWallet/Resources/tokens.json; sourceTree = SOURCE_ROOT; };
+		87B1AD3628C1FE030072A5E2 /* KeychainStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainStorage.swift; sourceTree = "<group>"; };
 		87B651F6256D4BFE000EF927 /* ClaimPaidOrderCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClaimPaidOrderCoordinator.swift; sourceTree = "<group>"; };
 		87B93B0D2726A46500F6EA73 /* BrowserStorageSubscription.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = BrowserStorageSubscription.js; sourceTree = "<group>"; };
 		87B93B122726C75900F6EA73 /* helpers.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = helpers.js; sourceTree = "<group>"; };
@@ -3769,6 +3771,7 @@
 				026340902850C7D50033E51B /* Configuration.swift */,
 				5E7C7D674F6B2415FB5552B0 /* CanOpenContractWebPage.swift */,
 				875CA8DF28BDEE3D0020FA48 /* SwitchCustomChainCallbackId.swift */,
+				87B1AD3628C1FE030072A5E2 /* KeychainStorage.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -4609,6 +4612,7 @@
 				87BC890E26B7EDC6005482F4 /* WalletSummaryView.swift in Sources */,
 				8750F91924EE66D700E19DFF /* GasSpeedView.swift in Sources */,
 				875CA90728BE4EA20020FA48 /* UIDevice.swift in Sources */,
+				87B1AD3728C1FE030072A5E2 /* KeychainStorage.swift in Sources */,
 				295A59381F71C1B90092F0FC /* AccountsCoordinator.swift in Sources */,
 				87F15AF727F1EB7D00EB9787 /* SwapStepView.swift in Sources */,
 				879F185E26E74512000602F2 /* ButtonsBarBackgroundView.swift in Sources */,

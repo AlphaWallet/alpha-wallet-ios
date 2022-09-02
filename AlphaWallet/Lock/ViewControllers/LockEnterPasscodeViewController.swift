@@ -2,46 +2,49 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
-import LocalAuthentication
 import AlphaWalletFoundation
 
 class LockEnterPasscodeViewController: LockPasscodeViewController {
-	private lazy var lockEnterPasscodeViewModel: LockEnterPasscodeViewModel? = {
-		return model as? LockEnterPasscodeViewModel
-	}()
-	private var context: LAContext!
-	private var canEvaluatePolicy: Bool {
-		return context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil)
-	}
+    private let lockEnterPasscodeViewModel: LockEnterPasscodeViewModel
 
 	var unlockWithResult: ((_ success: Bool, _ bioUnlock: Bool) -> Void)?
 
+    init(lockEnterPasscodeViewModel: LockEnterPasscodeViewModel) {
+        self.lockEnterPasscodeViewModel = lockEnterPasscodeViewModel
+        super.init(model: lockEnterPasscodeViewModel)
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        return nil
+    }
+
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		lockView.lockTitle.text = lockEnterPasscodeViewModel?.initialLabelText
+		lockView.lockTitle.text = lockEnterPasscodeViewModel.initialLabelText
 	}
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 		//If max attempt limit is reached we should validate if one minute gone.
-		if lock.isIncorrectMaxAttemptTimeSet {
-			lockView.lockTitle.text = lockEnterPasscodeViewModel?.tryAfterOneMinute
+        if lockEnterPasscodeViewModel.lock.isIncorrectMaxAttemptTimeSet {
+			lockView.lockTitle.text = lockEnterPasscodeViewModel.tryAfterOneMinute
 			maxAttemptTimerValidation()
 		}
 	}
 	func showBioMetricAuth() {
-		context = LAContext()
+        lockEnterPasscodeViewModel.invalidateContext()
 		touchValidation()
 	}
+    
 	override func enteredPasscode(_ passcode: String) {
 		super.enteredPasscode(passcode)
-		if lock.isPasscodeValid(passcode: passcode) {
-			lock.resetPasscodeAttemptHistory()
-			lock.removeIncorrectMaxAttemptTime()
-			lockView.lockTitle.text = lockEnterPasscodeViewModel?.initialLabelText
+        if lockEnterPasscodeViewModel.lock.isPasscodeValid(passcode: passcode) {
+            lockEnterPasscodeViewModel.lock.resetPasscodeAttemptHistory()
+            lockEnterPasscodeViewModel.lock.removeIncorrectMaxAttemptTime()
+			lockView.lockTitle.text = lockEnterPasscodeViewModel.initialLabelText
 			unlock(withResult: true, bioUnlock: false)
 		} else {
-			let numberOfAttempts = lock.numberOfAttempts
-			let passcodeAttemptLimit = model.passcodeAttemptLimit
+            let numberOfAttempts = lockEnterPasscodeViewModel.lock.numberOfAttempts
+			let passcodeAttemptLimit = lockEnterPasscodeViewModel.passcodeAttemptLimit
 			let text = R.string.localizable.lockEnterPasscodeViewModelIncorrectPasscode(passcodeAttemptLimit - numberOfAttempts)
 			lockView.lockTitle.text = text
 			lockView.shake()
@@ -49,21 +52,21 @@ class LockEnterPasscodeViewController: LockPasscodeViewController {
 				exceededLimit()
 				return
 			}
-			lock.recordIncorrectPasscodeAttempt()
+            lockEnterPasscodeViewModel.lock.recordIncorrectPasscodeAttempt()
 		}
 	}
 	private func exceededLimit() {
-		lockView.lockTitle.text = lockEnterPasscodeViewModel?.tryAfterOneMinute
-		lock.recordIncorrectMaxAttemptTime()
+		lockView.lockTitle.text = lockEnterPasscodeViewModel.tryAfterOneMinute
+        lockEnterPasscodeViewModel.lock.recordIncorrectMaxAttemptTime()
 		hideKeyboard()
 	}
 	private func maxAttemptTimerValidation() {
 		let now = Date()
-		let maxAttemptTimer = lock.recordedMaxAttemptTime
+        let maxAttemptTimer = lockEnterPasscodeViewModel.lock.recordedMaxAttemptTime
 		let interval = now.timeIntervalSince(maxAttemptTimer)
 		//if interval is greater or equal 60 seconds we give 1 attempt.
 		if interval >= 60 {
-			lockView.lockTitle.text = lockEnterPasscodeViewModel?.initialLabelText
+			lockView.lockTitle.text = lockEnterPasscodeViewModel.initialLabelText
 			showKeyboard()
 		}
 	}
@@ -75,21 +78,17 @@ class LockEnterPasscodeViewController: LockPasscodeViewController {
 	}
 
 	private func touchValidation() {
-		guard canEvaluatePolicy, let reason = lockEnterPasscodeViewModel?.loginReason else {
-			return
-		}
+        guard lockEnterPasscodeViewModel.canEvaluatePolicy else { return }
 		hideKeyboard()
-		context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { [weak self] success, _ in
-			DispatchQueue.main.async {
-				if success {
-					self?.lock.resetPasscodeAttemptHistory()
-					self?.lock.removeIncorrectMaxAttemptTime()
-					self?.lockView.lockTitle.text = self?.lockEnterPasscodeViewModel?.initialLabelText
-					self?.unlock(withResult: true, bioUnlock: true)
-				} else {
-					self?.showKeyboard()
-				}
-			}
+		lockEnterPasscodeViewModel.evaluatePolicy() { [weak self] success in
+            if success {
+                self?.lockEnterPasscodeViewModel.lock.resetPasscodeAttemptHistory()
+                self?.lockEnterPasscodeViewModel.lock.removeIncorrectMaxAttemptTime()
+                self?.lockView.lockTitle.text = self?.lockEnterPasscodeViewModel.initialLabelText
+                self?.unlock(withResult: true, bioUnlock: true)
+            } else {
+                self?.showKeyboard()
+            }
 		}
 	}
 }

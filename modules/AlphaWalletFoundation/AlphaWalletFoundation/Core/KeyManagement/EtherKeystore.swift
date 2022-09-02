@@ -3,7 +3,6 @@
 import Foundation
 import LocalAuthentication
 import BigInt
-import KeychainSwift
 import WalletCore
 import web3swift
 
@@ -22,6 +21,33 @@ extension UserDefaults {
             return .standard
         }
     }
+}
+
+public enum AccessOptions {
+    case accessibleWhenUnlocked
+    case accessibleWhenUnlockedThisDeviceOnly(userPresenceRequired: Bool)
+    case accessibleAfterFirstUnlock
+    case accessibleAfterFirstUnlockThisDeviceOnly
+    case accessibleAlways
+    case accessibleWhenPasscodeSetThisDeviceOnly
+    case accessibleAlwaysThisDeviceOnly
+}
+
+public protocol SecuredPasswordStorage {
+    func password(forService service: String, account: String) -> String?
+    func setPasword(_ pasword: String, forService service: String, account: String)
+    func deletePasword(forService service: String, account: String)
+}
+
+public protocol SecuredStorage {
+    var hasUserCancelledLastAccess: Bool { get }
+    var isDataNotFoundForLastAccess: Bool { get }
+
+    func set(_ value: String, forKey key: String, withAccess access: AccessOptions?) -> Bool
+    func set(_ value: Data, forKey key: String, withAccess access: AccessOptions?) -> Bool
+    func get(_ key: String, prompt: String?, withContext context: LAContext?) -> String?
+    func getData(_ key: String, prompt: String?, withContext context: LAContext?) -> Data?
+    func delete(_ key: String) -> Bool
 }
 
 // swiftlint:disable type_body_length
@@ -57,9 +83,9 @@ open class EtherKeystore: NSObject, Keystore {
     }
 
     private let emptyPassphrase = ""
-    private let keychain: KeychainSwift
-    private let defaultKeychainAccessUserPresenceRequired: KeychainSwiftAccessOptions = .accessibleWhenUnlockedThisDeviceOnly(userPresenceRequired: true)
-    private let defaultKeychainAccessUserPresenceNotRequired: KeychainSwiftAccessOptions = .accessibleWhenUnlockedThisDeviceOnly(userPresenceRequired: false)
+    private let keychain: SecuredStorage
+    private let defaultKeychainAccessUserPresenceRequired: AccessOptions = .accessibleWhenUnlockedThisDeviceOnly(userPresenceRequired: true)
+    private let defaultKeychainAccessUserPresenceNotRequired: AccessOptions = .accessibleWhenUnlockedThisDeviceOnly(userPresenceRequired: false)
     private var walletAddressesStore: WalletAddressesStore
     private var analytics: AnalyticsLogger
 
@@ -108,12 +134,8 @@ open class EtherKeystore: NSObject, Keystore {
 
     weak public var delegate: KeystoreDelegate?
 
-    public init(keychain: KeychainSwift = KeychainSwift(keyPrefix: Constants.keychainKeyPrefix), walletAddressesStore: WalletAddressesStore, analytics: AnalyticsLogger) throws {
-        if !UIApplication.shared.isProtectedDataAvailable {
-            throw EtherKeystoreError.protectionDisabled
-        }
+    public init(keychain: SecuredStorage, walletAddressesStore: WalletAddressesStore, analytics: AnalyticsLogger) {
         self.keychain = keychain
-        self.keychain.synchronizable = false
         self.analytics = analytics
         self.walletAddressesStore = walletAddressesStore
         super.init()
@@ -160,7 +182,7 @@ open class EtherKeystore: NSObject, Keystore {
     public func importWallet(type: ImportType) -> Result<Wallet, KeystoreError> {
         switch type {
         case .keystore(let json, let password):
-            guard let keystore = try? LegacyFileBasedKeystore(keystore: self) else {
+            guard let keystore = try? LegacyFileBasedKeystore(securedStorage: keychain, keystore: self) else {
                 return .failure(.failedToExportPrivateKey)
             }
             let result = keystore.getPrivateKeyFromKeystoreFile(json: json, password: password)
@@ -288,7 +310,7 @@ open class EtherKeystore: NSObject, Keystore {
             return
         }
         //Careful to not replace the if-let with a flatMap(). Because the value is a Result and it has flatMap() defined to "resolve" only when it's .success
-        if let result = (try? LegacyFileBasedKeystore(keystore: self))?.export(privateKey: key, newPassword: newPassword) {
+        if let result = (try? LegacyFileBasedKeystore(securedStorage: keychain, keystore: self))?.export(privateKey: key, newPassword: newPassword) {
             completion(result)
         } else {
             completion(.failure(.failedToExportPrivateKey))
@@ -312,7 +334,7 @@ open class EtherKeystore: NSObject, Keystore {
             return
         }
         //Careful to not replace the if-let with a flatMap(). Because the value is a Result and it has flatMap() defined to "resolve" only when it's .success
-        if let result = (try? LegacyFileBasedKeystore(keystore: self))?.export(privateKey: key, newPassword: newPassword) {
+        if let result = (try? LegacyFileBasedKeystore(securedStorage: keychain, keystore: self))?.export(privateKey: key, newPassword: newPassword) {
             completion(result)
         } else {
             completion(.failure(.failedToExportPrivateKey))
@@ -597,6 +619,7 @@ open class EtherKeystore: NSObject, Keystore {
             if let data = data {
                 return .key(data)
             } else {
+
                 if keychain.hasUserCancelledLastAccess {
                     return .userCancelled
                 } else if keychain.isDataNotFoundForLastAccess {
@@ -665,7 +688,7 @@ open class EtherKeystore: NSObject, Keystore {
     private func savePrivateKeyForNonHdWallet(_ privateKey: Data, forAccount account: AlphaWallet.Address, withUserPresence: Bool) -> Bool {
         let context = createContext()
         guard let cipherTextData = encryptPrivateKey(privateKey, forAccount: account, withUserPresence: withUserPresence, withContext: context) else { return false }
-        let access: KeychainSwiftAccessOptions
+        let access: AccessOptions
         let prefix: String
         if withUserPresence {
             access = defaultKeychainAccessUserPresenceRequired
@@ -680,7 +703,7 @@ open class EtherKeystore: NSObject, Keystore {
     private func saveSeedForHdWallet(_ seed: String, forAccount account: AlphaWallet.Address, withUserPresence: Bool) -> Bool {
         let context = createContext()
         guard let cipherTextData = seed.data(using: .utf8).flatMap({ self.encryptHdWalletSeed($0, forAccount: account, withUserPresence: withUserPresence, withContext: context) }) else { return false }
-        let access: KeychainSwiftAccessOptions
+        let access: AccessOptions
         let prefix: String
         if withUserPresence {
             access = defaultKeychainAccessUserPresenceRequired
@@ -806,13 +829,3 @@ open class EtherKeystore: NSObject, Keystore {
     }
 }
 // swiftlint:enable type_body_length
-
-extension KeychainSwift {
-    var hasUserCancelledLastAccess: Bool {
-        return lastResultCode == errSecUserCanceled
-    }
-
-    var isDataNotFoundForLastAccess: Bool {
-        return lastResultCode == errSecItemNotFound
-    }
-}

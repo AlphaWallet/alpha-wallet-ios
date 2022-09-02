@@ -6,28 +6,25 @@ import AlphaWalletFoundation
 
 class LockEnterPasscodeCoordinatorTest: XCTestCase {
     func testStart() {
-        let viewModel = LockEnterPasscodeViewModel()
-        let fakeLock = FakeLockProtocol()
-        let coordinator = LockEnterPasscodeCoordinator(model: viewModel, lock: fakeLock)
+        let fakeLock = FakeLock()
+        let coordinator = LockEnterPasscodeCoordinator(lock: fakeLock)
         XCTAssertTrue(coordinator.window.isHidden)
         coordinator.start()
         XCTAssertFalse(coordinator.window.isHidden)
         coordinator.stop()
     }
     func testStop() {
-        let viewModel = LockEnterPasscodeViewModel()
-        let fakeLock = FakeLockProtocol()
-        let coordinator = LockEnterPasscodeCoordinator(model: viewModel, lock: fakeLock)
+        let fakeLock = FakeLock()
+        let coordinator = LockEnterPasscodeCoordinator(lock: fakeLock)
         coordinator.start()
         XCTAssertFalse(coordinator.window.isHidden)
         coordinator.stop()
         XCTAssertTrue(coordinator.window.isHidden)
     }
     func testDisableLock() {
-        let viewModel = LockEnterPasscodeViewModel()
-        let fakeLock = FakeLockProtocol()
+        let fakeLock = FakeLock()
         fakeLock.passcodeSet = false 
-        let coordinator = LockEnterPasscodeCoordinator(model: viewModel, lock: fakeLock)
+        let coordinator = LockEnterPasscodeCoordinator(lock: fakeLock)
         XCTAssertTrue(coordinator.window.isHidden)
         coordinator.start()
         XCTAssertTrue(coordinator.window.isHidden)

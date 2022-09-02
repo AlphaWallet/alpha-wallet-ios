@@ -16,7 +16,7 @@ extension TokenScript {
 class AppCoordinator: NSObject, Coordinator {
     private let config = Config()
     private let legacyFileBasedKeystore: LegacyFileBasedKeystore
-    private let lock = Lock()
+    private lazy var lock: Lock = SecuredLock(securedStorage: securedStorage)
     private var keystore: Keystore
     private let assetDefinitionStore = AssetDefinitionStore(baseTokenScriptFiles: TokenScript.baseTokenScriptFiles)
     private let window: UIWindow
@@ -32,6 +32,10 @@ class AppCoordinator: NSObject, Coordinator {
     var promptBackupCoordinator: PromptBackupCoordinator? {
         return coordinators.compactMap { $0 as? PromptBackupCoordinator }.first
     }
+
+    private lazy var protectionCoordinator: ProtectionCoordinator = {
+        return ProtectionCoordinator(lock: lock)
+    }()
     private lazy var universalLinkService: UniversalLinkService = {
         let coordinator = UniversalLinkService(analytics: analytics)
         coordinator.delegate = self
@@ -154,14 +158,15 @@ class AppCoordinator: NSObject, Coordinator {
     }()
 
     private lazy var sessionProvider = SessionsProvider(config: config, analytics: analytics)
-
-    init(window: UIWindow, analytics: AnalyticsServiceType, keystore: Keystore, walletAddressesStore: WalletAddressesStore, navigationController: UINavigationController = .withOverridenBarAppearence()) throws {
+    private let securedStorage: SecuredPasswordStorage & SecuredStorage
+    init(window: UIWindow, analytics: AnalyticsServiceType, keystore: Keystore, walletAddressesStore: WalletAddressesStore, navigationController: UINavigationController = .withOverridenBarAppearence(), securedStorage: SecuredPasswordStorage & SecuredStorage) throws {
         self.navigationController = navigationController
         self.window = window
         self.analytics = analytics
         self.keystore = keystore
         self.walletAddressesStore = walletAddressesStore
-        self.legacyFileBasedKeystore = try LegacyFileBasedKeystore(keystore: keystore)
+        self.securedStorage = securedStorage
+        self.legacyFileBasedKeystore = try LegacyFileBasedKeystore(securedStorage: securedStorage, keystore: keystore)
 
         super.init()
         window.rootViewController = navigationController
@@ -188,6 +193,7 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     func start() {
+        protectionCoordinator.didFinishLaunchingWithOptions()
         initializers()
         runServices()
         appTracker.start()
@@ -206,6 +212,23 @@ class AppCoordinator: NSObject, Coordinator {
         }
 
         assetDefinitionStore.delegate = self
+    }
+
+    func applicationWillResignActive() {
+        protectionCoordinator.applicationWillResignActive()
+    }
+
+    func applicationDidBecomeActive() {
+        protectionCoordinator.applicationDidBecomeActive()
+        handleUniversalLinkInPasteboard()
+    }
+
+    func applicationDidEnterBackground() {
+        protectionCoordinator.applicationDidEnterBackground()
+    }
+
+    func applicationWillEnterForeground() {
+        protectionCoordinator.applicationWillEnterForeground()
     }
 
     private func setupSplashViewController(on navigationController: UINavigationController) {
@@ -264,7 +287,8 @@ class AppCoordinator: NSObject, Coordinator {
                 tokenCollection: dep.pipeline,
                 importToken: dep.importToken,
                 transactionsDataStore: dep.transactionsDataStore,
-                tokensService: dep.tokensService)
+                tokensService: dep.tokensService,
+                lock: lock)
 
         coordinator.delegate = self
 
@@ -284,7 +308,7 @@ class AppCoordinator: NSObject, Coordinator {
             ConfigureApp(),
             CleanupWallets(keystore: keystore, walletAddressesStore: walletAddressesStore, config: config),
             SkipBackupFiles(legacyFileBasedKeystore: legacyFileBasedKeystore),
-            CleanupPasscode(keystore: keystore)
+            CleanupPasscode(keystore: keystore, lock: lock)
         ]
 
         initializers.forEach { $0.perform() }
