@@ -4,7 +4,7 @@ import Foundation
 import BigInt
 import RealmSwift
 
-public class Transaction: Object {
+class Transaction: Object {
     @objc dynamic var primaryKey: String = ""
     @objc dynamic var chainId: Int = 0
     @objc dynamic var id: String = ""
@@ -92,16 +92,14 @@ public class Transaction: Object {
         self.localizedOperations = list
     }
 
-    public override static func primaryKey() -> String? {
+    override static func primaryKey() -> String? {
         return "primaryKey"
     }
 
     var state: TransactionState {
         return TransactionState(int: internalState)
     }
-}
 
-extension Transaction {
     var operation: LocalizedOperationObject? {
         return localizedOperations.first
     }
@@ -211,27 +209,6 @@ public struct TransactionInstance: Equatable {
         self.localizedOperations = localizedOperations
     }
 
-    public init(transaction: Transaction) {
-        self.primaryKey = transaction.primaryKey
-        self.id = transaction.id
-        self.chainId = transaction.server.chainID
-        self.blockNumber = transaction.blockNumber
-        self.transactionIndex = transaction.transactionIndex
-        self.from = transaction.from
-        self.to = transaction.to
-        self.value = transaction.value
-        self.gas = transaction.gas
-        self.gasPrice = transaction.gasPrice
-        self.gasUsed = transaction.gasUsed
-        self.nonce = transaction.nonce
-        self.date = transaction.date
-        self.internalState = transaction.state.rawValue
-        self.isERC20Interaction = transaction.isERC20Interaction
-        self.localizedOperations = transaction.localizedOperations.map {
-            LocalizedOperationObjectInstance(object: $0)
-        }
-    }
-
     public var state: TransactionState {
         return TransactionState(int: internalState)
     }
@@ -265,3 +242,25 @@ public struct TransactionInstance: Equatable {
 
 }
 
+extension TransactionInstance {
+    init(transaction: Transaction) {
+        self.primaryKey = transaction.primaryKey
+        self.id = transaction.id
+        self.chainId = transaction.server.chainID
+        self.blockNumber = transaction.blockNumber
+        self.transactionIndex = transaction.transactionIndex
+        self.from = transaction.from
+        self.to = transaction.to
+        self.value = transaction.value
+        self.gas = transaction.gas
+        self.gasPrice = transaction.gasPrice
+        self.gasUsed = transaction.gasUsed
+        self.nonce = transaction.nonce
+        self.date = transaction.date
+        self.internalState = transaction.state.rawValue
+        self.isERC20Interaction = transaction.isERC20Interaction
+        self.localizedOperations = transaction.localizedOperations.map {
+            LocalizedOperationObjectInstance(object: $0)
+        }
+    }
+}

@@ -3,7 +3,7 @@
 import Foundation
 import RealmSwift
 
-public class EventInstance: Object {
+class EventInstance: Object {
     static func generatePrimaryKey(fromContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String, blockNumber: Int, logIndex: Int, filter: String) -> String {
         "\(contract.eip55String)-\(tokenContract.eip55String)-\(server.chainID)-\(eventName)-\(blockNumber)-\(logIndex)-\(filter)"
     }

@@ -723,7 +723,7 @@ extension MultipleChainsTokensDataStore.functional {
         ])
     }
 
-    public static func etherTokenObject(forServer server: RPCServer) -> TokenObject {
+    static func etherTokenObject(forServer server: RPCServer) -> TokenObject {
         return TokenObject(
                 contract: Constants.nativeCryptoAddressInDatabase,
                 server: server,
@@ -763,7 +763,7 @@ extension MultipleChainsTokensDataStore.functional {
     }
 
     //TODO: Rename tokenObject(ercToken with createTokenObject(ercToken, more clear name
-    public static func createTokenObject(ercToken token: ERCToken, shouldUpdateBalance: Bool) -> TokenObject {
+    static func createTokenObject(ercToken token: ERCToken, shouldUpdateBalance: Bool) -> TokenObject {
         let newToken = TokenObject(
                 contract: token.contract,
                 server: token.server,
