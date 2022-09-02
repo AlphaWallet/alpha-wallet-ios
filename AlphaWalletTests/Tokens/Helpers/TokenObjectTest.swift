@@ -3,6 +3,7 @@
 import XCTest
 @testable import AlphaWallet
 import Foundation
+import AlphaWalletFoundation
 
 class TokenObjectTest: XCTestCase {
     func testCheckNonZeroBalance() {

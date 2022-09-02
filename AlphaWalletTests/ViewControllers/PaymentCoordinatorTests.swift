@@ -3,6 +3,7 @@
 import XCTest
 @testable import AlphaWallet
 import Combine
+import AlphaWalletFoundation
 
 extension TokensFilter {
     static func make() -> TokensFilter {

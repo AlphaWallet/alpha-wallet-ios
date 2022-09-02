@@ -4,13 +4,21 @@ import Combine
 import UIKit
 import PromiseKit
 import AlphaWalletCore
+import AlphaWalletFoundation
+
+extension TokenScript {
+    static let baseTokenScriptFiles: [TokenType: String] = [
+        .erc20: (try! String(contentsOf: R.file.erc20TokenScriptTsml()!)),
+        .erc721: (try! String(contentsOf: R.file.erc721TokenScriptTsml()!)),
+    ]
+}
 
 class AppCoordinator: NSObject, Coordinator {
     private let config = Config()
     private let legacyFileBasedKeystore: LegacyFileBasedKeystore
     private let lock = Lock()
     private var keystore: Keystore
-    private let assetDefinitionStore = AssetDefinitionStore()
+    private let assetDefinitionStore = AssetDefinitionStore(baseTokenScriptFiles: TokenScript.baseTokenScriptFiles)
     private let window: UIWindow
     private var appTracker = AppTracker()
     //TODO rename and replace type? Not Initializer but similar as of writing

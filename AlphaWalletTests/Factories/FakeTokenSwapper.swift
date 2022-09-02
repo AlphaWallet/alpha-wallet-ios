@@ -7,6 +7,7 @@
 
 @testable import AlphaWallet
 import Combine
+import AlphaWalletFoundation
 
 final class FakeReachabilityManager: ReachabilityManagerProtocol {
     var isReachable: Bool { return true }

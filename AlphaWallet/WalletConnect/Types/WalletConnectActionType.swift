@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AlphaWalletFoundation
 
 extension AlphaWallet.WalletConnect {
 

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 extension SignatureConfirmationDetailsViewModel {
     enum Configutation {

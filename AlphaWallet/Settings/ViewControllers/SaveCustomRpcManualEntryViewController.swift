@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 protocol SaveCustomRpcEntryViewControllerDataDelegate: AnyObject {
     func didFinish(in viewController: SaveCustomRpcManualEntryViewController, customRpc: CustomRPC)

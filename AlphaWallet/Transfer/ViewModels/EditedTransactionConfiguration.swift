@@ -2,6 +2,7 @@
 
 import Foundation
 import BigInt
+import AlphaWalletFoundation
 
 struct EditedTransactionConfiguration {
     private let formatter = EtherNumberFormatter.full

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 struct ActivitiesViewModel {
     var collection: ActivityCollection

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 protocol SelectServiceToBuyCryptoCoordinatorDelegate: AnyObject, CanOpenURL {
     func selectBuyService(_ result: Result<Void, BuyCryptoError>, in coordinator: SelectServiceToBuyCryptoCoordinator)

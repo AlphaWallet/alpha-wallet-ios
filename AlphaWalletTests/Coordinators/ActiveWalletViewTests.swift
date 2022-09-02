@@ -2,7 +2,7 @@
 
 import XCTest
 @testable import AlphaWallet
-import TrustKeystore
+import AlphaWalletFoundation
 
 class ActiveWalletViewTests: XCTestCase {
 

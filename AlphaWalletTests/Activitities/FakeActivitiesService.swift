@@ -2,6 +2,7 @@
 
 @testable import AlphaWallet
 import Combine
+import AlphaWalletFoundation
 
 class FakeActivitiesService: ActivitiesServiceType {
     var sessions: ServerDictionary<WalletSession> { .make() }

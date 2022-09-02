@@ -2,6 +2,7 @@
 
 import XCTest
 @testable import AlphaWallet
+import AlphaWalletFoundation
 
 class KeysTests: XCTestCase {
     //Keys *must* be 64 characters (i.e. 32 bytes) for this test

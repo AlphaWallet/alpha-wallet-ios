@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AlphaWalletFoundation
 
 extension WalletConnectV2URI: Hashable {
     public func hash(into hasher: inout Hasher) {

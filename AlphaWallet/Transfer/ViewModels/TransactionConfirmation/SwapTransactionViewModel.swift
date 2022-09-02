@@ -7,6 +7,7 @@
 
 import Foundation
 import BigInt
+import AlphaWalletFoundation
 
 extension TransactionConfirmationViewModel {
     class SwapTransactionViewModel: SectionProtocol, CryptoToFiatRateUpdatable, BalanceUpdatable {

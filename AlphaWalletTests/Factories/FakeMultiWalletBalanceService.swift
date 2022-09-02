@@ -4,7 +4,7 @@
 //
 //  Created by Vladyslav Shepitko on 11.05.2022.
 //
-
+import AlphaWalletFoundation
 @testable import AlphaWallet
 
 func fakeWalletAddressesStore(wallets: [Wallet] = [.make()]) -> WalletAddressesStore {

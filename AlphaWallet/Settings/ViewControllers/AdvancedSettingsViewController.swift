@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 protocol AdvancedSettingsViewControllerDelegate: AnyObject {
     func advancedSettingsViewControllerMoreSelected(in controller: AdvancedSettingsViewController)

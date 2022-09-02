@@ -7,6 +7,7 @@
 
 import UIKit
 import StatefulViewController
+import AlphaWalletFoundation
 
 protocol NFTAssetListViewControllerDelegate: class {
     func didSelectTokenCard(in viewController: NFTAssetListViewController, tokenId: TokenId)

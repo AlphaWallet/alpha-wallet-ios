@@ -1,6 +1,7 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
 import UIKit
+import AlphaWalletFoundation
 
 protocol KeystoreBackupIntroductionViewControllerDelegate: AnyObject {
     func didTapExport(inViewController viewController: KeystoreBackupIntroductionViewController)

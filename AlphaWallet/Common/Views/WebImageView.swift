@@ -3,6 +3,7 @@
 import UIKit
 import WebKit
 import Kingfisher
+import AlphaWalletFoundation
 
 final class FixedContentModeImageView: UIImageView {
     var fixedContentMode: UIView.ContentMode {

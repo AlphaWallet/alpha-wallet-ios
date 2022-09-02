@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 class BlockieImageView: UIView {
     private lazy var imageView: WebImageView = {

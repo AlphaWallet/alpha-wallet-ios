@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import AlphaWalletFoundation
 
 struct DappsAutoCompletionCellViewModel {
     let dapp: Dapp

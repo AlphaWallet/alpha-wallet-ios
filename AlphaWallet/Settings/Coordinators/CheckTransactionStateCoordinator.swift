@@ -8,6 +8,7 @@
 import Foundation
 import PromiseKit
 import web3swift
+import AlphaWalletFoundation
 
 protocol CheckTransactionStateCoordinatorDelegate: class {
     func didComplete(coordinator: CheckTransactionStateCoordinator)

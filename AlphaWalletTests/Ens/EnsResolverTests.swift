@@ -4,6 +4,7 @@ import Foundation
 @testable import AlphaWallet
 import XCTest
 import Combine
+import AlphaWalletFoundation
 
 class EnsResolverTests: XCTestCase {
     func testNameHash() {

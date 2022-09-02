@@ -2,6 +2,7 @@
 
 import Foundation
 @testable import AlphaWallet
+import AlphaWalletFoundation
 
 extension WalletSession {
     static func make(account: Wallet = .make(), server: RPCServer = .main, config: Config = .make(), analytics: AnalyticsLogger = FakeAnalyticsService()) -> WalletSession {

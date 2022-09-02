@@ -2,6 +2,7 @@
 
 import UIKit
 import PromiseKit
+import AlphaWalletFoundation
 
 protocol DappRequestSwitchCustomChainCoordinatorDelegate: AnyObject {
     func notifySuccessful(withCallbackId callbackId: SwitchCustomChainCallbackId, inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator)

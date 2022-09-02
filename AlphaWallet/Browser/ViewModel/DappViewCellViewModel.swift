@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import AlphaWalletFoundation
 
 class DappViewCellViewModel {
     let dapp: Bookmark

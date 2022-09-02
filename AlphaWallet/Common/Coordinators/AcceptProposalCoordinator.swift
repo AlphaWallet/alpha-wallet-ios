@@ -7,6 +7,7 @@
 
 import UIKit
 import PromiseKit
+import AlphaWalletFoundation
 
 protocol AcceptProposalCoordinatorDelegate: AnyObject {
     func coordinator(_ coordinator: AcceptProposalCoordinator, didComplete result: ProposalResult)

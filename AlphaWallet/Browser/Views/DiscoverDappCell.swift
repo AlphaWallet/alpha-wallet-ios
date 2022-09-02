@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import AlphaWalletFoundation
 
 protocol DiscoverDappCellDelegate: AnyObject {
     func onAdd(dapp: Dapp, inCell cell: DiscoverDappCell)

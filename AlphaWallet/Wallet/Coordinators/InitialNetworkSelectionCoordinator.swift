@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 protocol InitialNetworkSelectionCoordinatorDelegate: class {
     func didSelect(networks: [RPCServer], in coordinator: InitialNetworkSelectionCoordinator)

@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import CombineExt
+import AlphaWalletFoundation
 
 protocol WalletConnectServerProviderType: WalletConnectResponder {
     var sessions: AnyPublisher<[AlphaWallet.WalletConnect.Session], Never> { get }

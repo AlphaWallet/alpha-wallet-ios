@@ -2,6 +2,7 @@
 
 import UIKit
 @testable import AlphaWallet
+import AlphaWalletFoundation
 
 class FakeLockProtocol: LockInterface {
     var passcodeSet = true

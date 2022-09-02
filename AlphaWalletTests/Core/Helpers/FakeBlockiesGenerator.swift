@@ -2,6 +2,7 @@
 
 @testable import AlphaWallet
 import Foundation
+import AlphaWalletFoundation
 
 extension BlockiesGenerator {
     //TODO do we need to make a fake one instead?

@@ -7,6 +7,7 @@
 
 import Foundation
 @testable import AlphaWallet
+import AlphaWalletFoundation
 
 final class FakeEnsRecordsStorage: RealmStore {
     init() {

@@ -1,6 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
+import AlphaWalletFoundation
 
 protocol SetTransferTokensCardExpiryDateViewControllerDelegate: class, CanOpenURL {
     func didPressNext(tokenHolder: TokenHolder, linkExpiryDate: Date, in viewController: SetTransferTokensCardExpiryDateViewController)

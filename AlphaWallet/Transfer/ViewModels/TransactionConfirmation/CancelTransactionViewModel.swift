@@ -7,6 +7,7 @@
 
 import Foundation
 import BigInt
+import AlphaWalletFoundation
 
 extension TransactionConfirmationViewModel {
     class CancelTransactionViewModel: SectionProtocol, CryptoToFiatRateUpdatable, BalanceUpdatable {
@@ -70,7 +71,7 @@ extension TransactionConfirmationViewModel {
 }
 
 extension TransactionConfigurationType {
-    var title: String {
+    public var title: String {
         switch self {
         case .standard:
             return R.string.localizable.transactionConfigurationTypeAverage()
@@ -85,7 +86,7 @@ extension TransactionConfigurationType {
         }
     }
 
-    var estimatedProcessingTime: String {
+    public var estimatedProcessingTime: String {
         switch self {
         case .standard:
             return R.string.localizable.transactionConfigurationTypeAverageTime()
@@ -102,7 +103,7 @@ extension TransactionConfigurationType {
 }
 
 extension TransactionConfigurator.GasPriceWarning {
-    var shortTitle: String {
+    public var shortTitle: String {
         switch self {
         case .tooHighCustomGasPrice, .networkCongested:
             return R.string.localizable.transactionConfigurationGasPriceTooHighShort()

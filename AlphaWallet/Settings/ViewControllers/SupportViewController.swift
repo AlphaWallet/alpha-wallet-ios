@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 protocol SupportViewControllerDelegate: class, CanOpenURL {
 

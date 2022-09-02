@@ -2,6 +2,7 @@
 
 import UIKit
 import BigInt
+import AlphaWalletFoundation
 
 struct DefaultActivityCellViewModel {
     private var server: RPCServer {

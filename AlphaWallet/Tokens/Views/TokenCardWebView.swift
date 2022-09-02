@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import AlphaWalletFoundation
 
 class TokenCardWebView: UIView, TokenCardRowViewConfigurable, ViewRoundingSupportable, ViewLoadingCancelable {
     private let analytics: AnalyticsLogger

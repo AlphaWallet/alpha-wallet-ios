@@ -2,6 +2,7 @@
 
 import UIKit
 import Combine
+import AlphaWalletFoundation
 
 protocol ActivityViewControllerDelegate: AnyObject {
     func reinject(viewController: ActivityViewController)

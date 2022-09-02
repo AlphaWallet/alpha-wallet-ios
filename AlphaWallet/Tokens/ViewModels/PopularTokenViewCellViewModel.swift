@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 struct PopularTokenViewCellViewModel {
     private let token: PopularToken

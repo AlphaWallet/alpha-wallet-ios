@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 protocol NFTAssetSelectionCoordinatorDelegate: AnyObject {
     func didFinish(in coordinator: NFTAssetSelectionCoordinator)

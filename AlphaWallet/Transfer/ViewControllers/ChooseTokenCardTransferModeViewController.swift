@@ -1,6 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
+import AlphaWalletFoundation
 
 protocol ChooseTokenCardTransferModeViewControllerDelegate: class, CanOpenURL {
     func didChooseTransferViaMagicLink(token: Token, tokenHolder: TokenHolder, in viewController: ChooseTokenCardTransferModeViewController)

@@ -6,6 +6,7 @@
 //
 
 import PromiseKit
+import AlphaWalletFoundation
 
 private class AcceptProposalCoordinatorBridgeToPromise {
 

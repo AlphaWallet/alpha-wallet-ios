@@ -11,6 +11,7 @@ import SafariServices
 import MessageUI
 import BigInt
 import Combine
+import AlphaWalletFoundation
 
 protocol NFTCollectionCoordinatorDelegate: class, CanOpenURL {
     func didClose(in coordinator: NFTCollectionCoordinator)

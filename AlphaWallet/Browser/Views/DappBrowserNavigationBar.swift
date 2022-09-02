@@ -1,6 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
+import AlphaWalletFoundation
 
 protocol DappBrowserNavigationBarDelegate: AnyObject {
     func didTyped(text: String, inNavigationBar navigationBar: DappBrowserNavigationBar)

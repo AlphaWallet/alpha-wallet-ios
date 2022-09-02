@@ -10,6 +10,7 @@ import XCTest
 import AlphaWalletAddress
 import AlphaWalletCore
 @testable import AlphaWallet
+import AlphaWalletFoundation
 
 class RetryPublisherTests: XCTestCase {
     private var cancelable = Set<AnyCancellable>()

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 protocol SelectServiceToSwapCoordinatorDelegate: AnyObject {
     func selectSwapService(_ result: Result<SwapTokenUsing, SwapTokenError>, in coordinator: SelectServiceToSwapCoordinator)

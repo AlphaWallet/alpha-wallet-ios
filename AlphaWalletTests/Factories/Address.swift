@@ -2,6 +2,7 @@
 
 import Foundation
 @testable import AlphaWallet
+import AlphaWalletFoundation
 
 extension AlphaWallet.Address {
     static func make(address: String = "0x1000000000000000000000000000000000000000") -> AlphaWallet.Address {

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 protocol TransactionInProgressViewControllerDelegate: AnyObject {
     func didDismiss(in controller: TransactionInProgressViewController)

@@ -4,6 +4,7 @@ import XCTest
 @testable import AlphaWallet
 import PromiseKit
 import Combine
+import AlphaWalletFoundation
 
 extension ServerDictionary {
     static func make(server: RPCServer = .main) -> ServerDictionary<WalletSession> {

@@ -6,6 +6,7 @@ import BigInt
 import PromiseKit
 import web3swift
 import Combine
+import AlphaWalletFoundation
 
 protocol ImportMagicLinkCoordinatorDelegate: class, CanOpenURL {
 	func viewControllerForPresenting(in coordinator: ImportMagicLinkCoordinator) -> UIViewController?

@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import UIKit
+import AlphaWalletFoundation
 
 class WalletConnectSessionsDiffableDataSource: UITableViewDiffableDataSource<WalletConnectSessionsViewModel.Section, AlphaWallet.WalletConnect.Session> {}
 typealias WalletConnectSessionsSnapshot = NSDiffableDataSourceSnapshot<WalletConnectSessionsViewModel.Section, AlphaWallet.WalletConnect.Session>

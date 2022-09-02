@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 enum EdiPricetAlertViewModelConfiguration {
     case create

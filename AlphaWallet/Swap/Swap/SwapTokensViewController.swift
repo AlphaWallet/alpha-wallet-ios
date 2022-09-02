@@ -8,6 +8,7 @@
 import UIKit
 import Combine
 import BigInt
+import AlphaWalletFoundation
 
 protocol SwapTokensViewControllerDelegate: class {
     func swapSelected(in viewController: SwapTokensViewController)

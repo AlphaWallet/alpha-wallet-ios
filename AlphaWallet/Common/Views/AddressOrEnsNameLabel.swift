@@ -9,6 +9,7 @@ import UIKit
 import PromiseKit
 import CryptoSwift
 import Combine
+import AlphaWalletFoundation
 
 class AddressOrEnsNameLabel: UILabel {
 

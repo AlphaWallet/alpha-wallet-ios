@@ -2,6 +2,7 @@
 
 import Foundation
 @testable import AlphaWallet
+import AlphaWalletFoundation
 
 class FakeTransactionsStorage: TransactionDataStore {
     convenience init(wallet: Wallet = .init(address: Constants.nativeCryptoAddressInDatabase, origin: .hd)) {

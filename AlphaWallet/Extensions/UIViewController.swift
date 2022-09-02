@@ -7,6 +7,7 @@ import MBProgressHUD
 import Result
 import SafariServices
 import UIKit
+import AlphaWalletFoundation
 
 enum ConfirmationError: LocalizedError {
     case cancel

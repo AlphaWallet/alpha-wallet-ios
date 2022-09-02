@@ -5,6 +5,7 @@
 import Foundation
 import XCTest
 @testable import AlphaWallet
+import AlphaWalletFoundation
 import BigInt
 
 class ClaimOrderCoordinatorTests: XCTestCase {
@@ -20,7 +21,7 @@ class ClaimOrderCoordinatorTests: XCTestCase {
         indices.append(14)
         let expiry = BigUInt("0")!
 
-        let token = TokenObject(
+        let token = Token(
             contract: AlphaWallet.Address(string: "0xacDe9017473D7dC82ACFd0da601E4de291a7d6b0")!,
             server: .main,
             name: "MJ Comeback",

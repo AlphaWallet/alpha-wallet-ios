@@ -4,6 +4,7 @@ import UIKit
 import Result
 import SafariServices
 import MBProgressHUD
+import AlphaWalletFoundation
 
 protocol TransactionViewControllerDelegate: class, CanOpenURL {
 }

@@ -9,6 +9,7 @@ import XCTest
 import AlphaWalletAddress
 import AlphaWalletCore
 @testable import AlphaWallet
+import AlphaWalletFoundation
 
 private struct FakeTickerId: Codable {
     private enum CodingKeys: String, CodingKey {

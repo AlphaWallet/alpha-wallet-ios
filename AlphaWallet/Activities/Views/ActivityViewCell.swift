@@ -2,6 +2,7 @@
 
 import UIKit
 import BigInt
+import AlphaWalletFoundation
 
 class ActivityViewCell: UITableViewCell {
     private let background = UIView()

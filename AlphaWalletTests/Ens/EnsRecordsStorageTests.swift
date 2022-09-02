@@ -8,6 +8,7 @@
 import XCTest
 import Foundation
 @testable import AlphaWallet
+import AlphaWalletFoundation
 
 class EnsRecordsStorageTests: XCTestCase {
 

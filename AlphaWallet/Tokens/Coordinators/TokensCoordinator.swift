@@ -3,6 +3,7 @@
 import UIKit
 import AlphaWalletAddress
 import Combine
+import AlphaWalletFoundation
 
 protocol TokensCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryptoDelegate {
     func didTapSwap(swapTokenFlow: SwapTokenFlow, in coordinator: TokensCoordinator)

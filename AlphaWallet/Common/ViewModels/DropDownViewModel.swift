@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AlphaWalletFoundation
 
 protocol DropDownItemType: Equatable {
     var title: String { get }

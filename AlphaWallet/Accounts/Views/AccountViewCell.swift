@@ -2,6 +2,7 @@
 
 import UIKit
 import Combine
+import AlphaWalletFoundation
 
 class AccountViewCell: UITableViewCell {
     private let addressOrEnsName = UILabel()

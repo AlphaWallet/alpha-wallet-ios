@@ -3,6 +3,7 @@
 import Foundation
 import Combine 
 import UIKit
+import AlphaWalletFoundation
 
 struct AccountsViewModelInput {
     let appear: AnyPublisher<Void, Never>

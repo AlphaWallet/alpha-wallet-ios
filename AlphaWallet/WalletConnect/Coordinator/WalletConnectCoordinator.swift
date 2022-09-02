@@ -11,6 +11,7 @@ import WalletConnectSwift
 import PromiseKit
 import Result
 import Combine
+import AlphaWalletFoundation
 
 protocol RequestAddCustomChainProvider: NSObjectProtocol {
     func requestAddCustomChain(server: RPCServer, callbackId: SwitchCustomChainCallbackId, customChain: WalletAddEthereumChainObject)

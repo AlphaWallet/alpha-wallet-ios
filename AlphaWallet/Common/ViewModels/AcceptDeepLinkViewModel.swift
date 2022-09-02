@@ -7,6 +7,7 @@
 
 import Foundation
 import AlphaWalletAddress
+import AlphaWalletFoundation
 
 final class AcceptDeepLinkViewModel: SectionProtocol {
 

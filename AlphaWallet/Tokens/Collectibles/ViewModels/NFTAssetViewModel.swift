@@ -6,9 +6,9 @@
 //
 
 import UIKit
-import AlphaWalletOpenSea
 import BigInt
 import Combine
+import AlphaWalletFoundation
 
 struct AttributeCollectionViewModel {
     let traits: [NonFungibleTraitViewModel]
@@ -163,6 +163,7 @@ class NFTAssetViewModel {
 
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         let actionsFromTokenScript = xmlHandler.actions
+        infoLog("[TokenScript] actions names: \(actionsFromTokenScript.map(\.name))")
         if xmlHandler.hasAssetDefinition {
             return actionsFromTokenScript
         } else {
@@ -349,5 +350,29 @@ extension NFTAssetViewModel {
         let previewViewParams: NFTPreviewViewType.Params
         let previewViewContentBackgroundColor: UIColor
     }
+}
 
+extension TokenInstanceAction {
+    var name: String {
+        switch type {
+        case .erc20Send:
+            return R.string.localizable.send()
+        case .erc20Receive:
+            return R.string.localizable.receive()
+        case .nftRedeem:
+            return R.string.localizable.aWalletTokenRedeemButtonTitle()
+        case .nftSell:
+            return R.string.localizable.aWalletTokenSellButtonTitle()
+        case .nonFungibleTransfer:
+            return R.string.localizable.aWalletTokenTransferButtonTitle()
+        case .tokenScript(_, let title, _, _, _, _):
+            return title
+        case .swap(let service):
+            return service.action
+        case .buy(let service):
+            return service.action
+        case .bridge(let service):
+            return service.action
+        }
+    }
 }

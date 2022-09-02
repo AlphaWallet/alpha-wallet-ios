@@ -7,6 +7,7 @@
 
 import XCTest
 @testable import AlphaWallet
+import AlphaWalletFoundation
 
 extension NotificationService {
     static func fake() -> NotificationService {

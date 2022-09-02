@@ -4,6 +4,7 @@ import UIKit
 import StatefulViewController
 import PromiseKit
 import Combine
+import AlphaWalletFoundation
 
 protocol AddHideTokensViewControllerDelegate: AnyObject {
     func didPressAddToken(in viewController: UIViewController, with addressString: String)

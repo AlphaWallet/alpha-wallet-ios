@@ -1,6 +1,7 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
 import UIKit
+import AlphaWalletFoundation
 
 protocol SeedPhraseBackupIntroductionViewControllerDelegate: AnyObject {
     func didTapBackupWallet(inViewController viewController: SeedPhraseBackupIntroductionViewController)

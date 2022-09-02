@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import AlphaWalletFoundation
 
 struct RedeemTokenCardQuantitySelectionViewModel {
     let token: Token
@@ -40,3 +41,24 @@ struct RedeemTokenCardQuantitySelectionViewModel {
 		return R.string.localizable.aWalletTokenRedeemQuantityTitle(tokenTypeName.localizedUppercase)
     }
 }
+
+extension XMLHandler {
+    func getLabel() -> String {
+        let name = getLabel(fallback: R.string.localizable.tokenTitlecase())
+        if name == Constants.katNameFallback {
+            return R.string.localizable.katTitlecase()
+        } else {
+            return name
+        }
+    }
+
+    func getNameInPluralForm() -> String {
+        let name = getNameInPluralForm(fallback: R.string.localizable.tokensTitlecase())
+        if name == Constants.katNameFallback {
+            return R.string.localizable.katTitlecase()
+        } else {
+            return name
+        }
+    }
+}
+

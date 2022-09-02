@@ -8,6 +8,7 @@
 import Foundation
 import PromiseKit
 import web3swift
+import AlphaWalletFoundation
 
 extension TransactionState {
     init(status: TransactionReceipt.TXStatus) {

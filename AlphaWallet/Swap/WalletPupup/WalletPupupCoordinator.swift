@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 protocol WalletPupupCoordinatorDelegate: class {
     func didSelect(action: PupupAction, in coordinator: WalletPupupCoordinator)

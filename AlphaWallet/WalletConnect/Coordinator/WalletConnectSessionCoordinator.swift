@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 import PromiseKit
+import AlphaWalletFoundation
 
 protocol WalletConnectSessionCoordinatorDelegate: AnyObject {
     func didClose(in coordinator: WalletConnectSessionCoordinator)

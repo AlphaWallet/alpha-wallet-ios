@@ -9,6 +9,7 @@ import XCTest
 import Foundation
 import Combine
 @testable import AlphaWallet
+import AlphaWalletFoundation
 
 class FakeTickerIdsFetcher: TickerIdsFetcher {
     private let subject: AnyPublisher<TickerIdString?, Never>

@@ -9,6 +9,7 @@ import Foundation
 import Combine
 import WalletConnectSign
 import AlphaWalletCore
+import AlphaWalletFoundation
 
 class WalletConnectV2Storage {
     enum WalletConnectStorageError: Error {

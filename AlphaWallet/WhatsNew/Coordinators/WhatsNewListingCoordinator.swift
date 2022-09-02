@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 protocol WhatsNewListingCoordinatorDelegate: AnyObject {
     func didDismiss(in coordinator: WhatsNewListingCoordinator)

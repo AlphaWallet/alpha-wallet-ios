@@ -8,6 +8,7 @@
 import UIKit
 import PromiseKit
 import Result
+import AlphaWalletFoundation
 
 protocol SendTransactionDelegate: class {
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: TransactionConfirmationCoordinator)

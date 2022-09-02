@@ -3,6 +3,7 @@
 import BigInt
 @testable import AlphaWallet
 import XCTest
+import AlphaWalletFoundation
 
 class EtherNumberFormatterTests: XCTestCase {
     let fullFormatter = EtherNumberFormatter(locale: Locale(identifier: "en_US_POSIX"))

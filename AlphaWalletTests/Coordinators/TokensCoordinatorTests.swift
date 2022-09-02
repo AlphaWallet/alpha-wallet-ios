@@ -4,6 +4,7 @@ import XCTest
 @testable import AlphaWallet
 import Combine
 import PromiseKit
+import AlphaWalletFoundation
 
 final class FakeSwapTokenService: TokenActionsService {
 }

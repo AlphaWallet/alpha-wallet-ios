@@ -2,6 +2,7 @@
 
 import Foundation
 @testable import AlphaWallet
+import AlphaWalletFoundation
 
 extension Wallet {
     static func make(address: AlphaWallet.Address = .make(), origin: WalletOrigin = .hd) -> Wallet {

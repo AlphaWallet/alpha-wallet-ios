@@ -7,6 +7,7 @@
 
 import UIKit
 import PromiseKit
+import AlphaWalletFoundation
 
 @objc protocol AddMultipleCustomRpcViewControllerResponse: AnyObject {
     @objc func addMultipleCustomRpcCompleted()

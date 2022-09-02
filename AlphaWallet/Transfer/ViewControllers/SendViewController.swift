@@ -8,6 +8,7 @@ import PromiseKit
 import BigInt
 import MBProgressHUD
 import Combine
+import AlphaWalletFoundation
 
 protocol SendViewControllerDelegate: class, CanOpenURL {
     func didPressConfirm(transaction: UnconfirmedTransaction, in viewController: SendViewController, amount: String, shortValue: String?)

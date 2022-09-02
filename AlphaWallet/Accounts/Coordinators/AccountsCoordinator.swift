@@ -3,6 +3,7 @@
 import Foundation
 import UIKit
 import Combine
+import AlphaWalletFoundation
 
 protocol AccountsCoordinatorDelegate: AnyObject {
     func didCancel(in coordinator: AccountsCoordinator)

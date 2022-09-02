@@ -9,6 +9,7 @@
 import Foundation
 @testable import AlphaWallet
 import XCTest
+import AlphaWalletFoundation
 
 class EventsRestTest: XCTestCase {
 

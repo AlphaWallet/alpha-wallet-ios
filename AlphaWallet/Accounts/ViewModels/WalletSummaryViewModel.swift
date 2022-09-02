@@ -7,6 +7,7 @@
 
 import UIKit
 import Combine
+import AlphaWalletFoundation
 
 struct WalletSummaryViewModel {
     private let alignment: NSTextAlignment

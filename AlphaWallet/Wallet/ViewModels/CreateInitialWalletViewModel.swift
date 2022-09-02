@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import AlphaWalletFoundation
 
 struct CreateInitialViewModel {
     var backgroundColor: UIColor {

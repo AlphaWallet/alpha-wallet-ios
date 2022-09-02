@@ -2,6 +2,7 @@
 
 import UIKit
 import Combine
+import AlphaWalletFoundation
 
 protocol FungibleTokenViewControllerDelegate: class, CanOpenURL {
     func didTapSwap(swapTokenFlow: SwapTokenFlow, in viewController: FungibleTokenViewController)

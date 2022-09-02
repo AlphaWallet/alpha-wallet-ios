@@ -1,6 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
+import AlphaWalletFoundation
 
 // swiftlint:disable type_body_length
 enum OpenSeaNonFungibleTokenDisplayHelper: String {

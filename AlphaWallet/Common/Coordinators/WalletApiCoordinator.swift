@@ -8,6 +8,7 @@
 import UIKit
 import Combine
 import PromiseKit
+import AlphaWalletFoundation
 
 protocol WalletApiCoordinatorDelegate: AnyObject {
     func didOpenUrl(in service: WalletApiCoordinator, redirectUrl: URL)

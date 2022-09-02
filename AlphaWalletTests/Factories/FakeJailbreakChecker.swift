@@ -2,6 +2,7 @@
 
 import Foundation
 @testable import AlphaWallet
+import AlphaWalletFoundation
 
 class FakeJailbreakChecker: JailbreakChecker {
     let jailbroken: Bool

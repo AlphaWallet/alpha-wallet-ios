@@ -1,6 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import UIKit
+import AlphaWalletFoundation
 
 struct ImportWalletViewModel {
     //Must be computed because localization can be overridden by user dynamically

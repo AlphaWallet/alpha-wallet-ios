@@ -1,6 +1,7 @@
 // Copyright © 2022 Stormbird PTE. LTD.
 
 import UIKit
+import AlphaWalletFoundation
 
 protocol ToolsViewControllerDelegate: AnyObject {
     func toolsConsoleSelected(in controller: ToolsViewController)

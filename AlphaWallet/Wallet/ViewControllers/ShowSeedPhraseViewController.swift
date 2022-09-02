@@ -2,6 +2,7 @@
 
 import UIKit
 import LocalAuthentication
+import AlphaWalletFoundation
 
 protocol ShowSeedPhraseViewControllerDelegate: AnyObject {
     var contextToShowSeedPhrase: LAContext { get }

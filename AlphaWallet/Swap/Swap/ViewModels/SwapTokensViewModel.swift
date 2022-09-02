@@ -8,6 +8,7 @@
 import UIKit
 import Combine
 import BigInt
+import AlphaWalletFoundation
 
 class SwapTokensViewModel: NSObject {
     private var cancelable = Set<AnyCancellable>()

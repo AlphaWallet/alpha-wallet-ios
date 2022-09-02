@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import AlphaWalletFoundation
 
 struct AdvancedSettingsViewModel {
     var rows: [AdvancedSettingsRow]

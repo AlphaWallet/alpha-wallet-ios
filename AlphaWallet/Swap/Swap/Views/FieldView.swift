@@ -7,6 +7,7 @@
 
 import UIKit
 import Combine
+import AlphaWalletFoundation
 
 final class FieldView: UIView {
     private lazy var titleLabel: UILabel = {

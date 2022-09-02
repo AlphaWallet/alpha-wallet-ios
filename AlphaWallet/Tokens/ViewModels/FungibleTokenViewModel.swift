@@ -5,6 +5,7 @@ import UIKit
 import BigInt
 import PromiseKit
 import Combine
+import AlphaWalletFoundation
 
 struct FungibleTokenViewModelInput {
     let appear: AnyPublisher<Void, Never>
@@ -195,7 +196,7 @@ final class FungibleTokenViewModel {
         guard let token = validatedToken else { return [] }
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         let actionsFromTokenScript = xmlHandler.actions
-
+        infoLog("[TokenScript] actions names: \(actionsFromTokenScript.map(\.name))")
         if actionsFromTokenScript.isEmpty {
             switch token.type {
             case .erc875:

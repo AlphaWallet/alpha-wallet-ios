@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import AlphaWalletFoundation
 
 protocol PromptBackupWalletViewModel {
     var backgroundColor: UIColor { get }

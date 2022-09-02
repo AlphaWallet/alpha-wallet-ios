@@ -7,6 +7,7 @@
 
 import UIKit
 import Combine
+import AlphaWalletFoundation
 
 protocol TokenInfoPageViewDelegate: class {
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, in tokenInfoPageView: TokenInfoPageView)

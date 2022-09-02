@@ -3,6 +3,7 @@
 import XCTest
 @testable import AlphaWallet
 import BigInt
+import AlphaWalletFoundation
 
 class GasPriceConfigurationTests: XCTestCase {
 

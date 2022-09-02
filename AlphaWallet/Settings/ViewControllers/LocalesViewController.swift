@@ -1,6 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
+import AlphaWalletFoundation
 
 protocol LocalesViewControllerDelegate: AnyObject {
     func didSelect(locale: AppLocale, in viewController: LocalesViewController)

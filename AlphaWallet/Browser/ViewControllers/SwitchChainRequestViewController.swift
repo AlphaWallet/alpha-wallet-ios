@@ -7,6 +7,7 @@
 
 import UIKit
 import PromiseKit
+import AlphaWalletFoundation
 
 protocol SwitchChainRequestViewControllerDelegate: class {
     func didClose(in viewController: SwitchChainRequestViewController)

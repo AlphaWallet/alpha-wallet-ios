@@ -8,6 +8,7 @@
 import UIKit
 import Combine
 import StatefulViewController 
+import AlphaWalletFoundation
 
 extension NSNotification.Name {
     static let invalidateLayout = NSNotification.Name(rawValue: "InvalidateLayout")

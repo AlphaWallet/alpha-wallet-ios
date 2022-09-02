@@ -7,6 +7,7 @@
 
 import UIKit
 import Combine
+import AlphaWalletFoundation
 
 protocol WalletConnectSessionViewControllerDelegate: AnyObject {
     func controller(_ controller: WalletConnectSessionViewController, switchNetworkSelected sender: UIButton)

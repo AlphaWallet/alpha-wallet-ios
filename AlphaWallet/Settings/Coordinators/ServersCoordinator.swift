@@ -2,6 +2,7 @@
 
 import UIKit
 import PromiseKit
+import AlphaWalletFoundation
 
 protocol ServersCoordinatorDelegate: AnyObject {
     func didSelectServer(selection: ServerSelection, in coordinator: ServersCoordinator)

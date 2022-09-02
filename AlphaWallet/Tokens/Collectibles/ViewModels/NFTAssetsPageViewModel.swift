@@ -7,6 +7,7 @@
 
 import UIKit
 import Combine
+import AlphaWalletFoundation
 
 struct NFTAssetsPageViewModelInput {
     let appear: AnyPublisher<Void, Never>

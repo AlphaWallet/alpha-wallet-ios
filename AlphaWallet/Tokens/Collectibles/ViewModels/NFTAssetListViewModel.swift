@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 class NFTAssetListViewModel {
     let tokenHolder: TokenHolder

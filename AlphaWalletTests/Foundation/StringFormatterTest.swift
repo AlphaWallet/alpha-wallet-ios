@@ -2,6 +2,7 @@
 
 @testable import AlphaWallet
 import XCTest
+import AlphaWalletFoundation
 
 class StringFormatterTest: XCTestCase {
     let stringFormatter = StringFormatter()

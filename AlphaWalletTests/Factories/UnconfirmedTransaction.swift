@@ -3,6 +3,7 @@
 import Foundation
 @testable import AlphaWallet
 import BigInt
+import AlphaWalletFoundation
 
 extension UnconfirmedTransaction {
     static func make(

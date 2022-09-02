@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 protocol PriceAlertsPageViewDelegate: class {
     func editAlertSelected(in view: PriceAlertsPageView, alert: PriceAlert)

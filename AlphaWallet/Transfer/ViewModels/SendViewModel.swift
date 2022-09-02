@@ -3,6 +3,7 @@
 import Foundation
 import UIKit
 import BigInt
+import AlphaWalletFoundation
 
 struct SendViewModel {
     private let session: WalletSession

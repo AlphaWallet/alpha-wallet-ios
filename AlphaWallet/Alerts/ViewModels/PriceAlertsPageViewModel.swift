@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 struct PriceAlertsPageViewModel {
     var title: String { return R.string.localizable.priceAlertNavigationTitle() }

@@ -1,5 +1,6 @@
 import XCTest
 @testable import AlphaWallet
+import AlphaWalletFoundation
 
 class EIP712TypedDataTests: XCTestCase {
     //Sample is verbatim from OpenSea

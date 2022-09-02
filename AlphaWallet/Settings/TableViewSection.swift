@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 protocol TableViewSection: class {
     func addMarked(chainID: Int)

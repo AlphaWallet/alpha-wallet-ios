@@ -7,6 +7,7 @@
 
 import UIKit
 import StatefulViewController
+import AlphaWalletFoundation
 
 struct ActivityPageViewModel {
     var title: String {

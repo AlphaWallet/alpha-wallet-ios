@@ -2,6 +2,7 @@
 
 import UIKit 
 import Combine
+import AlphaWalletFoundation
 
 protocol TokensViewControllerDelegate: AnyObject {
     func viewWillAppear(in viewController: UIViewController)

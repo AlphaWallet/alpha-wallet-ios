@@ -7,6 +7,7 @@
 
 import UIKit
 import BigInt
+import AlphaWalletFoundation
 
 extension TransactionConfirmationViewModel {
     class TokenScriptTransactionViewModel: SectionProtocol, CryptoToFiatRateUpdatable, BalanceUpdatable {

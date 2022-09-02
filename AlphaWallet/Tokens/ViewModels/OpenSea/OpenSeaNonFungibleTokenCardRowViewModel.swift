@@ -2,6 +2,7 @@
 
 import UIKit
 import PromiseKit
+import AlphaWalletFoundation
 
 struct OpenSeaNonFungibleTokenCardRowViewModel {
     private let tokenHolder: TokenHolder

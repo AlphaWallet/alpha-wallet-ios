@@ -11,6 +11,7 @@ import AlphaWalletAddress
 import PromiseKit
 import Combine
 import AlphaWalletCore
+import AlphaWalletFoundation
 
 class WalletConnectV1Provider: WalletConnectServer {
     enum Keys {

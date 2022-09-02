@@ -7,6 +7,7 @@
 
 import UIKit
 import PromiseKit
+import AlphaWalletFoundation
 
 struct WalletConnectConnectionTimeoutViewModel {
     let title: String = R.string.localizable.walletConnectErrorConnectionTimeoutTitle()

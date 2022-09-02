@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 protocol SlidableTextFieldDelegate: AnyObject {
     func textField(_ textField: SlidableTextField, textDidChange value: Int)

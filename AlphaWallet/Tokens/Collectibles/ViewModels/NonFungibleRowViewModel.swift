@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 
 struct NonFungibleRowViewModel {
     private let tokenHolder: TokenHolder

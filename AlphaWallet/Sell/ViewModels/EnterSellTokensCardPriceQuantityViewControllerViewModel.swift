@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import AlphaWalletFoundation
 
 struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
     private let server: RPCServer

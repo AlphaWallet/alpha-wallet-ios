@@ -2,6 +2,7 @@
 
 import UIKit
 import BigInt
+import AlphaWalletFoundation
 
 protocol ConfigureTransactionViewControllerDelegate: AnyObject {
     func didSavedToUseDefaultConfigurationType(_ configurationType: TransactionConfigurationType, in viewController: ConfigureTransactionViewController)

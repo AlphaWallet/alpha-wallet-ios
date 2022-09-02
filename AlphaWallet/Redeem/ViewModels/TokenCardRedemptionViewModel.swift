@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import AlphaWalletFoundation
 
 struct TokenCardRedemptionViewModel {
     let token: Token

@@ -2,6 +2,7 @@
 
 import UIKit
 import LocalAuthentication
+import AlphaWalletFoundation
 
 protocol VerifySeedPhraseViewControllerDelegate: AnyObject {
     var contextToVerifySeedPhrase: LAContext { get }

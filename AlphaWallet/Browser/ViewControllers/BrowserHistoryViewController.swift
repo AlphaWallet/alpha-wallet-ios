@@ -5,6 +5,7 @@
 import Foundation
 import UIKit
 import StatefulViewController
+import AlphaWalletFoundation
 
 protocol BrowserHistoryViewControllerDelegate: AnyObject {
     func didSelect(history: History, inViewController controller: BrowserHistoryViewController)

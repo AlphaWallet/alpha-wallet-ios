@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import AlphaWalletFoundation
 
 protocol NewTokenViewControllerDelegate: AnyObject {
     func didAddToken(token: ERCToken, in viewController: NewTokenViewController)
