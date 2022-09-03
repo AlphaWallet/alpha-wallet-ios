@@ -1,10 +1,8 @@
 // Copyright DApps Platform Inc. All rights reserved.
 
 import UIKit
-import WebKit
-import APIKit
+import WebKit 
 import BigInt
-import JSONRPCKit
 import PromiseKit
 import RealmSwift
 import AlphaWalletFoundation
@@ -177,9 +175,9 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     private func ethCall(callbackID: Int, from: AlphaWallet.Address?, to: AlphaWallet.Address?, value: String?, data: String, server: RPCServer) {
-        let request = EthCallRequest(from: from, to: to, value: value, data: data)
+        let request = EthCall(server: server, analytics: analytics)
         firstly {
-            Session.send(EtherServiceRequest(server: server, batch: BatchFactory().create(request)), server: server, analytics: analytics)
+            request.ethCall(from: from, to: to, value: value, data: data)
         }.done { result in
             let callback = DappCallback(id: callbackID, value: .ethCall(result))
             self.browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
