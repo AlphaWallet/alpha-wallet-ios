@@ -44,7 +44,8 @@ class ServersCoordinator: Coordinator {
             .klaytnBaobabTestnet,
             .phi,
             //.ioTeX,
-            //.ioTeXTestnet
+            //.ioTeXTestnet,
+            .candle
         ] + RPCServer.customServers
         if Features.default.isAvailable(.isPalmEnabled) {
             return all + [.palm, .palmTestnet]

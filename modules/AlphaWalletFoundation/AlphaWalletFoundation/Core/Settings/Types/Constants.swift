@@ -47,6 +47,7 @@ public struct Constants {
     public static let phiMagicLinkHost = "phi.aw.app"
     public static let ioTeXMagicLinkHost = "ioTeX.aw.app"
     public static let ioTeXTestnetMagicLinkHost = "ioTeXTestnet.aw.app"
+    public static let candleMagicLinkHost = "candle.aw.app"
 
     public enum Currency {
         public static let usd = "USD"
