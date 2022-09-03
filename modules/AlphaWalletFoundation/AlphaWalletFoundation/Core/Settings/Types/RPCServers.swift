@@ -626,7 +626,7 @@ public enum RPCServer: Hashable, CaseIterable {
                 }
             case .ioTeX: return "https://babel-api.mainnet.iotex.io"
             case .ioTeXTestnet: return "https://babel-api.testnet.iotex.io"
-            case .candle: return ""
+            case .candle: return "https://rpc.cndlchain.com"
             }
         }()
         return URL(string: urlString)!
