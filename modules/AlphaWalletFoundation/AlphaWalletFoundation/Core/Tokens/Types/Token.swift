@@ -75,7 +75,13 @@ public struct Token: Equatable, Hashable {
         self.info = .init(uid: self.primaryKey)
     }
 
-    public init(tokenObject: TokenObject) {
+    public static func == (lhs: Token, rhs: Token) -> Bool {
+        return lhs.primaryKey == rhs.primaryKey
+    }
+}
+
+extension Token {
+    init(tokenObject: TokenObject) {
         name = tokenObject.name
         primaryKey = tokenObject.primaryKey
         server = tokenObject.server
@@ -87,10 +93,6 @@ public struct Token: Equatable, Hashable {
         value = tokenObject.valueBigInt
         balance = Array(tokenObject.balance.map { TokenBalanceValue(balance: $0) })
         info = .init(tokenInfoObject: tokenObject.info)
-    }
-
-    public static func == (lhs: Token, rhs: Token) -> Bool {
-        return lhs.primaryKey == rhs.primaryKey
     }
 }
 

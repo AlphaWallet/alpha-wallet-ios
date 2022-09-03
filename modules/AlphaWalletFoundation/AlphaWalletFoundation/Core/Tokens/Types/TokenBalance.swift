@@ -8,15 +8,14 @@ public struct TokenBalanceValue {
     let json: String
     let balance: String
     let nonFungibleBalance: NonFungibleFromJson?
+}
 
-    public init(balance: TokenBalance) {
+extension TokenBalanceValue: Hashable {
+    init(balance: TokenBalance) {
         self.json = balance.json
         self.balance = balance.balance
         self.nonFungibleBalance = balance.nonFungibleBalance
     }
-}
-
-extension TokenBalanceValue: Hashable {
 
     public func hash(into hasher: inout Hasher) {
         hasher.combine(json)
@@ -24,7 +23,7 @@ extension TokenBalanceValue: Hashable {
     }
 }
 
-public class TokenBalance: Object {
+class TokenBalance: Object {
     @objc dynamic var balance = "0" {
         didSet {
             _nonFungibleBalance = balance.data(using: .utf8).flatMap { nonFungible(fromJsonData: $0) }
@@ -52,7 +51,7 @@ public class TokenBalance: Object {
         }
     }
 
-    public override static func ignoredProperties() -> [String] {
+    override static func ignoredProperties() -> [String] {
         return ["openSeaNonFungible", "_openSeaNonFungible"]
     }
 }

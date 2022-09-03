@@ -4,7 +4,7 @@ import Foundation
 import RealmSwift
 import BigInt
 
-public class TokenObject: Object {
+class TokenObject: Object {
     static func generatePrimaryKey(fromContract contract: AlphaWallet.Address, server: RPCServer) -> String {
         return "\(contract.eip55String)-\(server.chainID)"
     }
@@ -91,15 +91,15 @@ public class TokenObject: Object {
         return BigInt(value) ?? BigInt()
     }
 
-    public override static func primaryKey() -> String? {
+    override static func primaryKey() -> String? {
         return "primaryKey"
     }
 
-    public override static func ignoredProperties() -> [String] {
+    override static func ignoredProperties() -> [String] {
         return ["type", "info"]
     }
 
-    public override func isEqual(_ object: Any?) -> Bool {
+    override func isEqual(_ object: Any?) -> Bool {
         guard let object = object as? TokenObject else { return false }
         //NOTE: to improve perfomance seems like we can use check for primary key instead of checking contracts
         return object.contractAddress.sameContract(as: contractAddress)
