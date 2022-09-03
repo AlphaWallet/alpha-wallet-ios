@@ -94,10 +94,12 @@ public func callSmartContract(withServer server: RPCServer, contract: AlphaWalle
                 seal.reject(Web3Error(description: "Error calling \(contract.eip55String).\(functionName)() with parameters: \(parameters)"))
                 return
             }
+            var web3Options = Web3Options()
+            web3Options.excludeZeroGasPrice = server.shouldExcludeZeroGasPrice
 
             //callPromise() creates a promise. It doesn't "call" a promise. Bad name
             firstly {
-                promiseCreator.callPromise(options: nil)
+                promiseCreator.callPromise(options: web3Options)
             }.done(on: queue ?? .main, { d in
                 seal.fulfill(d)
             }).catch(on: queue ?? .main, { e in
