@@ -4,35 +4,45 @@
 import UIKit
 
 class LockCreatePasscodeViewController: LockPasscodeViewController {
-	private lazy var lockCreatePasscodeViewModel: LockCreatePasscodeViewModel? = {
-		return model as? LockCreatePasscodeViewModel
-	}()
-	private var firstPasscode: String?
+	private let lockCreatePasscodeViewModel: LockCreatePasscodeViewModel
+
+    init(lockCreatePasscodeViewModel: LockCreatePasscodeViewModel) {
+        self.lockCreatePasscodeViewModel = lockCreatePasscodeViewModel
+        super.init(model: lockCreatePasscodeViewModel)
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		title = lockCreatePasscodeViewModel?.title
-		lockView.lockTitle.text = lockCreatePasscodeViewModel?.initialLabelText
+		title = lockCreatePasscodeViewModel.title
+		lockView.lockTitle.text = lockCreatePasscodeViewModel.initialLabelText
 	}
+
 	override func enteredPasscode(_ passcode: String) {
 		super.enteredPasscode(passcode)
-		if let first = firstPasscode {
+        if let first = lockCreatePasscodeViewModel.firstPasscode {
 			if passcode == first {
-				lock.setPasscode(passcode: passcode)
+                lockCreatePasscodeViewModel.lock.setPasscode(passcode: passcode)
 				finish(withResult: true, animated: true)
 			} else {
 				lockView.shake()
-				firstPasscode = nil
+                lockCreatePasscodeViewModel.set(firstPasscode: nil)
 				showFirstPasscodeView()
 			}
 		} else {
-			firstPasscode = passcode
+            lockCreatePasscodeViewModel.set(firstPasscode: passcode)
 			showConfirmPasscodeView()
 		}
 	}
+
 	private func showFirstPasscodeView() {
-		lockView.lockTitle.text = lockCreatePasscodeViewModel?.initialLabelText
+		lockView.lockTitle.text = lockCreatePasscodeViewModel.initialLabelText
 	}
+
 	private func showConfirmPasscodeView() {
-		lockView.lockTitle.text = lockCreatePasscodeViewModel?.confirmLabelText
+		lockView.lockTitle.text = lockCreatePasscodeViewModel.confirmLabelText
 	}
 }

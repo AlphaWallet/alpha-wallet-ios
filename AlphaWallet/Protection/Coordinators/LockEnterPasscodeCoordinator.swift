@@ -7,15 +7,16 @@ import AlphaWalletFoundation
 class LockEnterPasscodeCoordinator: Coordinator {
 	var coordinators: [Coordinator] = []
 	let window: UIWindow = UIWindow()
-	private let model: LockEnterPasscodeViewModel
-	private let lock: LockInterface
+    private let lock: Lock
 	private lazy var lockEnterPasscodeViewController: LockEnterPasscodeViewController = {
-		return LockEnterPasscodeViewController(model: model)
+        let viewModel = LockEnterPasscodeViewModel(lock: lock)
+		return LockEnterPasscodeViewController(lockEnterPasscodeViewModel: viewModel)
 	}()
-	init(model: LockEnterPasscodeViewModel, lock: LockInterface = Lock()) {
+
+    init(lock: Lock) {
+        self.lock = lock
 		self.window.windowLevel = UIWindow.Level.statusBar + 1.0
-		self.model = model
-		self.lock = lock
+
 		lockEnterPasscodeViewController.unlockWithResult = { [weak self] (state, bioUnlock) in
 			if state {
 				self?.stop()
@@ -23,7 +24,7 @@ class LockEnterPasscodeCoordinator: Coordinator {
 		}
 	}
 	func start() {
-		guard lock.isPasscodeSet else { return }
+        guard lock.isPasscodeSet else { return }
 		window.rootViewController = lockEnterPasscodeViewController
 		window.makeKeyAndVisible()
 	}
@@ -32,7 +33,7 @@ class LockEnterPasscodeCoordinator: Coordinator {
 	}
 
 	func showAuthentication() {
-		guard lock.isPasscodeSet else { return }
+        guard lock.isPasscodeSet else { return }
 		lockEnterPasscodeViewController.showKeyboard()
 		lockEnterPasscodeViewController.showBioMetricAuth()
 	}

@@ -8,11 +8,12 @@
 import Foundation
 
 public final class CleanupPasscode: Initializer {
-    private let lock = Lock()
+    private let lock: Lock// = Lock(securedStorage: SecuredPasswordStorage & SecuredStorage)
     private let keystore: Keystore
 
-    public init(keystore: Keystore) {
+    public init(keystore: Keystore, lock: Lock) {
         self.keystore = keystore
+        self.lock = lock
     }
 
     public func perform() {

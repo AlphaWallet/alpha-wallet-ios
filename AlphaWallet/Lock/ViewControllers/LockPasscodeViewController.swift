@@ -6,9 +6,9 @@ import AlphaWalletFoundation
 
 class LockPasscodeViewController: UIViewController {
 	var willFinishWithResult: ((_ success: Bool) -> Void)?
-	let model: LockViewModel
+	private let model: LockViewModel
 	var lockView: LockView!
-	let lock = Lock()
+
 	private var invisiblePasscodeField = UITextField()
 	private var shouldIgnoreTextFieldDelegateCalls = false
 	init(model: LockViewModel) {
@@ -25,7 +25,7 @@ class LockPasscodeViewController: UIViewController {
 	}
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
-		if !invisiblePasscodeField.isFirstResponder && !lock.isIncorrectMaxAttemptTimeSet {
+		if !invisiblePasscodeField.isFirstResponder && !model.isIncorrectMaxAttemptTimeSet {
 			invisiblePasscodeField.becomeFirstResponder()
 		}
 	}

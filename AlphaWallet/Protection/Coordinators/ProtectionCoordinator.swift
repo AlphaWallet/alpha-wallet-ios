@@ -10,14 +10,15 @@ class ProtectionCoordinator: Coordinator {
 	}()
 
 	private lazy var lockEnterPasscodeCoordinator: LockEnterPasscodeCoordinator = {
-		return LockEnterPasscodeCoordinator(model: LockEnterPasscodeViewModel())
+        return LockEnterPasscodeCoordinator(lock: lock)
 	}()
 
 	private let protectionWindow = UIWindow()
-
+    private let lock: Lock
 	var coordinators: [Coordinator] = []
 
-	init() {
+	init(lock: Lock) {
+        self.lock = lock
 		protectionWindow.windowLevel = UIWindow.Level.statusBar + 2.0
 	}
 

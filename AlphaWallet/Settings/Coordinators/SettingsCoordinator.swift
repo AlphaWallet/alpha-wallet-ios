@@ -35,6 +35,7 @@ class SettingsCoordinator: Coordinator {
 	private var account: Wallet {
 		return sessions.anyValue.account
 	}
+    private let lock: Lock
     weak private var advancedSettingsViewController: AdvancedSettingsViewController?
 
 	let navigationController: UINavigationController
@@ -42,7 +43,7 @@ class SettingsCoordinator: Coordinator {
 	var coordinators: [Coordinator] = []
 
 	lazy var rootViewController: SettingsViewController = {
-        let viewModel = SettingsViewModel(account: account, keystore: keystore, config: config, analytics: analytics, domainResolutionService: domainResolutionService)
+        let viewModel = SettingsViewModel(account: account, keystore: keystore, lock: lock, config: config, analytics: analytics, domainResolutionService: domainResolutionService)
 		let controller = SettingsViewController(viewModel: viewModel)
 		controller.delegate = self
 		return controller
@@ -60,10 +61,11 @@ class SettingsCoordinator: Coordinator {
         walletBalanceService: WalletBalanceService,
         blockscanChatService: BlockscanChatService,
         blockiesGenerator: BlockiesGenerator,
-        domainResolutionService: DomainResolutionServiceType
+        domainResolutionService: DomainResolutionServiceType,
+        lock: Lock
 	) {
 		self.navigationController = navigationController
-
+        self.lock = lock
         self.keystore = keystore
 		self.config = config
 		self.sessions = sessions

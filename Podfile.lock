@@ -30,7 +30,6 @@ PODS:
     - EthereumABI
     - JSONRPCKit (~> 2.0.0)
     - Kanna
-    - KeychainSwift
     - Kingfisher (~> 7.0)
     - MailchimpSDK
     - Mixpanel-swift
@@ -39,7 +38,6 @@ PODS:
     - PromiseKit/Alamofire
     - PromiseKit/CorePromise
     - RealmSwift (= 10.27.0)
-    - SAMKeychain
     - SwiftLint (= 0.40.3)
     - SwiftyJSON (= 5.0.0)
     - TrezorCrypto
@@ -322,7 +320,7 @@ SPEC CHECKSUMS:
   AlphaWalletAddress: 62a69f5ccc7d6d17abf878c4274f4c3d5fdc97ba
   AlphaWalletCore: 451c8a4dfdba1d3b59a3ac47bf0dcabcf1f4c049
   AlphaWalletENS: a93a871ad5d8a8c78cd87b60eb59fccf4b23e841
-  AlphaWalletFoundation: c23b1174b25afd91e7fd2ab92e1dd3fe087697b8
+  AlphaWalletFoundation: 3820457e487bed6aef79f8ee9319bff95307cd90
   AlphaWalletGoBack: 935efdbd98fa80039f2a350cde5b3a50cea46564
   AlphaWalletOpenSea: 11ccb06ae0200dadc2b3f7c3e223f407ac3a22b4
   AlphaWalletWeb3Provider: 7ca1e1c1dc841dc1915f970daace48bf34931655
