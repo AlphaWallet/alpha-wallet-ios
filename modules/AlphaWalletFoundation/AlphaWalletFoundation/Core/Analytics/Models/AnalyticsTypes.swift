@@ -34,6 +34,7 @@ public enum Analytics {
         case onxDaiBridge = "Screen: xDai Bridge"
         case onHoneyswap = "Screen: Honeyswap"
         case onOneinch = "Screen: Oneinch"
+        case onCarthage = "Screen: Carthage"
         case onArbitrumBridge = "Screen: Arbitrum Bridge"
         case onQuickSwap = "Screen: QuickSwap"
         case fallback = "Screen: <Fallback>"
