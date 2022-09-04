@@ -32,19 +32,6 @@ public struct EventInstanceValue {
         self._data = EventInstanceValue.convertJsonToDictionary(json)
     }
 
-    public init(event: EventInstance) {
-        self.primaryKey = event.primaryKey
-        self.contract = event.contract
-        self.tokenContract = event.tokenContract
-        self.chainId = event.chainId
-        self.eventName = event.eventName
-        self.blockNumber = event.blockNumber
-        self.logIndex = event.logIndex
-        self.filter = event.filter
-        self.json = event.json
-        self._data = event._data
-    }
-
     private static func convertJsonToDictionary(_ json: String) -> [String: AssetInternalValue] {
         let dict = json.data(using: .utf8).flatMap({ (try? JSONSerialization.jsonObject(with: $0, options: [])) as? [String: Any] }) ?? .init()
         return Dictionary(uniqueKeysWithValues: dict.compactMap { key, value -> (String, AssetInternalValue)? in
@@ -60,3 +47,17 @@ public struct EventInstanceValue {
     }
 }
 
+extension EventInstanceValue {
+    init(event: EventInstance) {
+        self.primaryKey = event.primaryKey
+        self.contract = event.contract
+        self.tokenContract = event.tokenContract
+        self.chainId = event.chainId
+        self.eventName = event.eventName
+        self.blockNumber = event.blockNumber
+        self.logIndex = event.logIndex
+        self.filter = event.filter
+        self.json = event.json
+        self._data = event._data
+    }
+}

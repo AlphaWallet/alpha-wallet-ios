@@ -7,10 +7,6 @@ import AlphaWalletFoundation
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
     var window: UIWindow?
     private var appCoordinator: AppCoordinator!
-    //This is separate coordinator for the protection of the sensitive information.
-    private lazy var protectionCoordinator: ProtectionCoordinator = {
-        return ProtectionCoordinator()
-    }()
     private lazy var reportProvider: ReportProvider = {
         let provider = ReportProvider()
         guard !isRunningTests() && isAlphaWallet() else { return provider }
@@ -36,12 +32,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 
             let analytics = AnalyticsService()
             let walletAddressesStore: WalletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: .standardOrForTests)
-            var keystore: Keystore = try EtherKeystore(walletAddressesStore: walletAddressesStore, analytics: analytics)
+            let securedStorage: SecuredStorage & SecuredPasswordStorage = try KeychainStorage()
+            var keystore: Keystore = EtherKeystore(keychain: securedStorage, walletAddressesStore: walletAddressesStore, analytics: analytics)
 
             let navigationController: UINavigationController = .withOverridenBarAppearence()
             navigationController.view.backgroundColor = Colors.appWhite
 
-            appCoordinator = try AppCoordinator(window: window!, analytics: analytics, keystore: keystore, walletAddressesStore: walletAddressesStore, navigationController: navigationController)
+            appCoordinator = try AppCoordinator(window: window!, analytics: analytics, keystore: keystore, walletAddressesStore: walletAddressesStore, navigationController: navigationController, securedStorage: securedStorage)
             keystore.delegate = appCoordinator
             appCoordinator.start()
 
@@ -54,7 +51,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         } catch {
 
         }
-        protectionCoordinator.didFinishLaunchingWithOptions()
 
         return true
     }
@@ -67,20 +63,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     }
 
     func applicationWillResignActive(_ application: UIApplication) {
-        protectionCoordinator.applicationWillResignActive()
+        appCoordinator.applicationWillResignActive()
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
-        protectionCoordinator.applicationDidBecomeActive()
-        appCoordinator.handleUniversalLinkInPasteboard()
+        appCoordinator.applicationDidBecomeActive()
     }
 
     func applicationDidEnterBackground(_ application: UIApplication) {
-        protectionCoordinator.applicationDidEnterBackground()
+        appCoordinator.applicationDidEnterBackground()
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
-        protectionCoordinator.applicationWillEnterForeground()
+        appCoordinator.applicationWillEnterForeground()
     }
 
     func application(_ application: UIApplication, shouldAllowExtensionPointIdentifier extensionPointIdentifier: UIApplication.ExtensionPointIdentifier) -> Bool {
@@ -111,9 +106,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         return handled
     } 
 
-    //TODO Handle SNS errors
-    func application(_ application: UIApplication,
-                     didFailToRegisterForRemoteNotificationsWithError error: Error) {
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
         //no op
     }
 

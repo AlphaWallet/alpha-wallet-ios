@@ -2,21 +2,17 @@
 
 import Foundation
 @testable import AlphaWallet
-import KeychainSwift
 import AlphaWalletFoundation
 
 final class FakeEtherKeystore: EtherKeystore {
     convenience init(wallets: [Wallet] = [], recentlyUsedWallet: Wallet? = nil) {
-        let uniqueString = NSUUID().uuidString
         let walletAddressesStore = fakeWalletAddressStore(wallets: wallets, recentlyUsedWallet: recentlyUsedWallet)
-
-        try! self.init(keychain: KeychainSwift(keyPrefix: "fake" + uniqueString), walletAddressesStore: walletAddressesStore, analytics: FakeAnalyticsService())
+        self.init(keychain: KeychainStorage.make(), walletAddressesStore: walletAddressesStore, analytics: FakeAnalyticsService())
         self.recentlyUsedWallet = recentlyUsedWallet
     }
 
     convenience init(walletAddressesStore: WalletAddressesStore) {
-        let uniqueString = NSUUID().uuidString
-        try! self.init(keychain: KeychainSwift(keyPrefix: "fake" + uniqueString), walletAddressesStore: walletAddressesStore, analytics: FakeAnalyticsService())
+        self.init(keychain: KeychainStorage.make(), walletAddressesStore: walletAddressesStore, analytics: FakeAnalyticsService())
         self.recentlyUsedWallet = recentlyUsedWallet
     }
 }

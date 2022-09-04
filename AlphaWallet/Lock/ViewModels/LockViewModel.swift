@@ -4,7 +4,12 @@ import Foundation
 import AlphaWalletFoundation
 
 class LockViewModel {
-    private let lock = Lock()
+    let lock: Lock
+    
+    init(lock: Lock) {
+        self.lock = lock
+    }
+    
     var charCount: Int {
         //This step is required for old clients to support 4 digit passcode.
         var count = 0
@@ -14,6 +19,9 @@ class LockViewModel {
             count = 6
         }
         return count
+    }
+    var isIncorrectMaxAttemptTimeSet: Bool {
+        lock.isIncorrectMaxAttemptTimeSet
     }
     var passcodeAttemptLimit: Int {
         //If max attempt limit is reached we should give only 1 attempt.

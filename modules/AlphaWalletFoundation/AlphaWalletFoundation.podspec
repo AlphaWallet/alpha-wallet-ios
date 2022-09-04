@@ -24,7 +24,7 @@ Pod::Spec.new do |spec|
   spec.dependency 'BigInt', '~> 3.1'
   spec.dependency 'JSONRPCKit', '~> 2.0.0'
   spec.dependency 'APIKit', '5.1.0'
-  spec.dependency 'KeychainSwift'
+#  spec.dependency 'KeychainSwift'
   spec.dependency 'SwiftLint', '0.40.3'
   spec.dependency 'RealmSwift', '10.27.0'
   spec.dependency 'Moya', '~> 10.0.1'
@@ -35,7 +35,7 @@ Pod::Spec.new do |spec|
   spec.dependency 'TrustKeystore'
   spec.dependency 'SwiftyJSON', '5.0.0'
   spec.dependency 'web3swift'
-  spec.dependency 'SAMKeychain'
+#  spec.dependency 'SAMKeychain'
   spec.dependency 'PromiseKit/CorePromise'
   spec.dependency 'PromiseKit/Alamofire'
   spec.dependency "Kanna"

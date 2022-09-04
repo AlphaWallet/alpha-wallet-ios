@@ -133,7 +133,8 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private let store: RealmStore
     private let tokenSwapper: TokenSwapper
     private let tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable
-
+    private let lock: Lock
+    
     init(
             navigationController: UINavigationController = NavigationController(),
             walletAddressesStore: WalletAddressesStore,
@@ -160,8 +161,10 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
             tokenCollection: TokenCollection,
             importToken: ImportToken,
             transactionsDataStore: TransactionDataStore,
-            tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable
+            tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable,
+            lock: Lock
     ) {
+        self.lock = lock
         self.tokensService = tokensService
         self.transactionsDataStore = transactionsDataStore
         self.importToken = importToken
@@ -372,8 +375,8 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
                 walletBalanceService: walletBalanceService,
                 blockscanChatService: blockscanChatService,
                 blockiesGenerator: blockiesGenerator,
-                domainResolutionService: domainResolutionService
-        )
+                domainResolutionService: domainResolutionService,
+                lock: lock)
         coordinator.rootViewController.tabBarItem = ActiveWalletViewModel.Tabs.settings.tabBarItem
         coordinator.navigationController.configureForLargeTitles()
         coordinator.delegate = self

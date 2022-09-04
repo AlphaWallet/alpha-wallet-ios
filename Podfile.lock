@@ -30,7 +30,6 @@ PODS:
     - EthereumABI
     - JSONRPCKit (~> 2.0.0)
     - Kanna
-    - KeychainSwift
     - Kingfisher (~> 7.0)
     - MailchimpSDK
     - Mixpanel-swift
@@ -39,7 +38,6 @@ PODS:
     - PromiseKit/Alamofire
     - PromiseKit/CorePromise
     - RealmSwift (= 10.27.0)
-    - SAMKeychain
     - SwiftLint (= 0.40.3)
     - SwiftyJSON (= 5.0.0)
     - TrezorCrypto
@@ -202,7 +200,7 @@ DEPENDENCIES:
   - TrustKeystore (from `https://github.com/AlphaWallet/latest-keystore-snapshot`, commit `c0bdc4f6ffc117b103e19d17b83109d4f5a0e764`)
   - TrustWalletCore (= 2.6.34)
   - WalletConnectSwift (from `https://github.com/AlphaWallet/WalletConnectSwift.git`, commit `b6556058331f619e15482b82d7c6ab57d9711399`)
-  - web3swift (from `https://github.com/AlphaWallet/web3swift.git`, commit `add8d92ccda367c01d75dbec017eb9bf8619ba0e`)
+  - web3swift (from `https://github.com/AlphaWallet/web3swift.git`, commit `6d7c01af26bcb75d8a02b6709b089e02ed99af98`)
   - xcbeautify
 
 SPEC REPOS:
@@ -284,7 +282,7 @@ EXTERNAL SOURCES:
     :commit: b6556058331f619e15482b82d7c6ab57d9711399
     :git: https://github.com/AlphaWallet/WalletConnectSwift.git
   web3swift:
-    :commit: add8d92ccda367c01d75dbec017eb9bf8619ba0e
+    :commit: 6d7c01af26bcb75d8a02b6709b089e02ed99af98
     :git: https://github.com/AlphaWallet/web3swift.git
 
 CHECKOUT OPTIONS:
@@ -313,7 +311,7 @@ CHECKOUT OPTIONS:
     :commit: b6556058331f619e15482b82d7c6ab57d9711399
     :git: https://github.com/AlphaWallet/WalletConnectSwift.git
   web3swift:
-    :commit: add8d92ccda367c01d75dbec017eb9bf8619ba0e
+    :commit: 6d7c01af26bcb75d8a02b6709b089e02ed99af98
     :git: https://github.com/AlphaWallet/web3swift.git
 
 SPEC CHECKSUMS:
@@ -322,7 +320,7 @@ SPEC CHECKSUMS:
   AlphaWalletAddress: 62a69f5ccc7d6d17abf878c4274f4c3d5fdc97ba
   AlphaWalletCore: 451c8a4dfdba1d3b59a3ac47bf0dcabcf1f4c049
   AlphaWalletENS: a93a871ad5d8a8c78cd87b60eb59fccf4b23e841
-  AlphaWalletFoundation: c23b1174b25afd91e7fd2ab92e1dd3fe087697b8
+  AlphaWalletFoundation: 3820457e487bed6aef79f8ee9319bff95307cd90
   AlphaWalletGoBack: 935efdbd98fa80039f2a350cde5b3a50cea46564
   AlphaWalletOpenSea: 11ccb06ae0200dadc2b3f7c3e223f407ac3a22b4
   AlphaWalletWeb3Provider: 7ca1e1c1dc841dc1915f970daace48bf34931655
@@ -371,6 +369,6 @@ SPEC CHECKSUMS:
   web3swift: 06118d4c4edc801444aaa995bbbddeda176b97ef
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: a34befb5061fb57077153f0ea80d7aa3125b8ad5
+PODFILE CHECKSUM: 1e631b96c01ba92ec16e5a70ab1469480bfa9585
 
 COCOAPODS: 1.11.2

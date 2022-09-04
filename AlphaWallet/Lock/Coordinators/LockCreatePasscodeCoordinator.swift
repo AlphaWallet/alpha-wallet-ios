@@ -5,15 +5,17 @@ import UIKit
 import AlphaWalletFoundation
 
 class LockCreatePasscodeCoordinator: Coordinator {
-    var coordinators: [Coordinator] = []
-    private let model: LockCreatePasscodeViewModel
+    private let lock: Lock
     private let navigationController: UINavigationController
     lazy var lockViewController: LockCreatePasscodeViewController = {
-        return LockCreatePasscodeViewController(model: model)
+        let viewModel = LockCreatePasscodeViewModel(lock: lock)
+        return LockCreatePasscodeViewController(lockCreatePasscodeViewModel: viewModel)
     }()
-    init(navigationController: UINavigationController, model: LockCreatePasscodeViewModel) {
+    var coordinators: [Coordinator] = []
+
+    init(navigationController: UINavigationController, lock: Lock) {
+        self.lock = lock
         self.navigationController = navigationController
-        self.model = model
     }
     func start() {
         lockViewController.navigationItem.largeTitleDisplayMode = .never

@@ -4,6 +4,13 @@ import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
 
+extension KeychainStorage {
+    static func make() -> KeychainStorage {
+        let uniqueString = NSUUID().uuidString
+        return try! .init(keyPrefix: "fake" + uniqueString)
+    }
+}
+
 class AppCoordinatorTests: XCTestCase {
 
     func testStart() {
@@ -12,7 +19,7 @@ class AppCoordinatorTests: XCTestCase {
                 window: UIWindow(),
                 analytics: FakeAnalyticsService(),
                 keystore: FakeEtherKeystore(),
-                walletAddressesStore: fakeWalletAddressesStore(wallets: [.make()]))
+                walletAddressesStore: fakeWalletAddressesStore(wallets: [.make()]), securedStorage: KeychainStorage.make())
 
             XCTAssertTrue(coordinator.navigationController.viewControllers[0].isSplashScreen)
             coordinator.start()
@@ -32,7 +39,7 @@ class AppCoordinatorTests: XCTestCase {
                     recentlyUsedWallet: .make()
                 ),
                 walletAddressesStore: fakeWalletAddressesStore(wallets: [.make()]),
-                navigationController: FakeNavigationController()
+                navigationController: FakeNavigationController(), securedStorage: KeychainStorage.make()
             )
 
             coordinator.start()
@@ -55,7 +62,7 @@ class AppCoordinatorTests: XCTestCase {
                     wallets: [.make()],
                     recentlyUsedWallet: .make()
                 ),
-                walletAddressesStore: fakeWalletAddressesStore(wallets: [.make()])
+                walletAddressesStore: fakeWalletAddressesStore(wallets: [.make()]), securedStorage: KeychainStorage.make()
             )
             coordinator.start()
             coordinator.reset()
@@ -76,7 +83,7 @@ class AppCoordinatorTests: XCTestCase {
                     recentlyUsedWallet: .make()
                 ),
                 walletAddressesStore: fakeWalletAddressesStore(wallets: [.make()]),
-                navigationController: FakeNavigationController()
+                navigationController: FakeNavigationController(), securedStorage: KeychainStorage.make()
             )
             coordinator.start()
             coordinator.showInitialWalletCoordinator()
@@ -97,7 +104,7 @@ class AppCoordinatorTests: XCTestCase {
                     recentlyUsedWallet: .make()
                 ),
                 walletAddressesStore: fakeWalletAddressesStore(wallets: [.make()]),
-                navigationController: FakeNavigationController()
+                navigationController: FakeNavigationController(), securedStorage: KeychainStorage.make()
             )
             coordinator.start()
 
@@ -120,7 +127,7 @@ class AppCoordinatorTests: XCTestCase {
                     wallets: [.make()],
                     recentlyUsedWallet: .make()
                 ),
-                walletAddressesStore: fakeWalletAddressesStore(wallets: [.make()])
+                walletAddressesStore: fakeWalletAddressesStore(wallets: [.make()]), securedStorage: KeychainStorage.make()
             )
 
             coordinator.start()
@@ -137,7 +144,7 @@ class AppCoordinatorTests: XCTestCase {
                 window: .init(),
                 analytics: FakeAnalyticsService(),
                 keystore: FakeEtherKeystore(),
-                walletAddressesStore: fakeWalletAddressesStore(wallets: [.make()]))
+                walletAddressesStore: fakeWalletAddressesStore(wallets: [.make()]), securedStorage: KeychainStorage.make())
 
             coordinator.start()
 

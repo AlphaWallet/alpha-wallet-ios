@@ -2,29 +2,25 @@
 
 import BigInt
 import Foundation
-import KeychainSwift
 import CryptoSwift
 import TrustKeystore
 
 public enum FileBasedKeystoreError: LocalizedError {
     case protectionDisabled
 }
+fileprivate typealias LegacyKeyStore = TrustKeystore.KeyStore
 
 public class LegacyFileBasedKeystore {
-    private let keychain: KeychainSwift
+    private let securedStorage: SecuredStorage
     private let datadir = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
-    private let keyStore: KeyStore
+    private let keyStore: LegacyKeyStore
     private let etherkeystore: Keystore
     let keystoreDirectory: URL
 
-    public init(keychain: KeychainSwift = KeychainSwift(keyPrefix: Constants.keychainKeyPrefix), keyStoreSubfolder: String = "/keystore", keystore: Keystore) throws {
-        if !UIApplication.shared.isProtectedDataAvailable {
-            throw FileBasedKeystoreError.protectionDisabled
-        }
+    public init(securedStorage: SecuredStorage, keyStoreSubfolder: String = "/keystore", keystore: Keystore) throws {
         self.keystoreDirectory = URL(fileURLWithPath: datadir + keyStoreSubfolder)
-        self.keychain = keychain
-        self.keychain.synchronizable = false
-        self.keyStore = try KeyStore(keydir: keystoreDirectory)
+        self.securedStorage = securedStorage
+        self.keyStore = try LegacyKeyStore(keydir: keystoreDirectory)
         self.etherkeystore = keystore
     }
 
@@ -78,7 +74,7 @@ public class LegacyFileBasedKeystore {
 
     public func getPassword(for account: AlphaWallet.Address) -> String? {
         //This has to be lowercased due to legacy reasons — it had been written to as lowercased() earlier
-        return keychain.get(account.eip55String.lowercased())
+        return securedStorage.get(account.eip55String.lowercased(), prompt: nil, withContext: nil)
     }
 
     public func getAccount(forAddress address: AlphaWallet.Address) -> Account? {
