@@ -46,6 +46,7 @@ extension RPCServer {
         case .klaytnBaobabTestnet: return "Klaytn Baobab"
         case .ioTeX: return "IoTeX Mainnet"
         case .ioTeXTestnet: return "IoTeX Testnet"
+        case .candle: return "Candle"
         }
     }
 
@@ -75,6 +76,7 @@ extension RPCServer {
         case .klaytnBaobabTestnet: return R.image.klaytnBaobab()
         case .ioTeX: return R.image.ioTeX()
         case .ioTeXTestnet: return R.image.ioTeXTestnet()
+        case .candle: return R.image.iconsTokensCandle()
         }
     }
 
@@ -111,6 +113,7 @@ extension RPCServer {
         case .klaytnBaobabTestnet: return .init(hex: "313557")
         case .ioTeX: return .init(hex: "00D4D5")
         case .ioTeXTestnet: return .init(hex: "00D4D5")
+        case .candle: return .init(red: 0, green: 46, blue: 171)
         }
     }
 
@@ -139,6 +142,7 @@ extension RPCServer {
         case .phi: return nil
         case .ioTeX: return R.image.ioTeX()
         case .ioTeXTestnet: return R.image.ioTeXTestnet()
+        case .candle: return R.image.iconsNetworkCandle()
         }
     }
 }
