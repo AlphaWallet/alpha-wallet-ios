@@ -22,7 +22,7 @@ class WellDoneViewController: UIViewController {
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         descriptionLabel.text = R.string.localizable.welldoneDescriptionLabelText()
         descriptionLabel.font = Label.Font.text
-        descriptionLabel.textColor = Colors.darkBlue
+        descriptionLabel.textColor = Configuration.Color.Semantic.defaultForegroundText
         descriptionLabel.numberOfLines = 0
         descriptionLabel.textAlignment = .center
 
@@ -41,7 +41,7 @@ class WellDoneViewController: UIViewController {
         ].asStackView(axis: .vertical, spacing: 10, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
-        view.backgroundColor = .white
+        view.backgroundColor = Configuration.Color.Semantic.dialogBackground
         view.addSubview(stackView)
 
         NSLayoutConstraint.activate([
