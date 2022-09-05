@@ -74,10 +74,13 @@ post_install do |installer|
     end
 
     if ['TrustKeystore'].include? target.name
-      target.build_configurations.each do |config|
-        config.build_settings['SWIFT_OPTIMIZATION_LEVEL'] = '-Owholemodule'
+      target.build_configurations
+        .reject {|e| e.debug?}
+        .each do |config|
+          config.build_settings['SWIFT_OPTIMIZATION_LEVEL'] = '-Owholemodule'
+        end
       end
-    end
+
     if ['Result', 'SwiftyXMLParser', 'JSONRPCKit'].include? target.name
       target.build_configurations.each do |config|
         config.build_settings['SWIFT_VERSION'] = '4.2'
@@ -87,5 +90,11 @@ post_install do |installer|
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0';
     end
+
+    target.build_configurations
+      .filter {|e| e.debug?}
+      .each do |config|
+        config.build_settings['SWIFT_OPTIMIZATION_LEVEL'] = '-Onone'
+      end
   end
 end
