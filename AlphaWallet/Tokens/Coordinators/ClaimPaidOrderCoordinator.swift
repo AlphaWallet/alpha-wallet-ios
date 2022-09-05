@@ -7,7 +7,7 @@ import Foundation
 import BigInt
 import AlphaWalletFoundation
 
-protocol ClaimOrderCoordinatorDelegate: class, CanOpenURL, BuyCryptoDelegate {
+protocol ClaimOrderCoordinatorDelegate: CanOpenURL, BuyCryptoDelegate {
     func coordinator(_ coordinator: ClaimPaidOrderCoordinator, didFailTransaction error: Error)
     func didClose(in coordinator: ClaimPaidOrderCoordinator)
     func coordinator(_ coordinator: ClaimPaidOrderCoordinator, didCompleteTransaction result: ConfirmResult)

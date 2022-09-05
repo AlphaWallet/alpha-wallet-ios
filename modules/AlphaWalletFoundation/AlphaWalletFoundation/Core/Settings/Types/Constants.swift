@@ -107,6 +107,7 @@ public struct Constants {
     }
 
     public static func buyWithCoinBaseUrl(blockchain: String, wallet: Wallet) -> String? {
+        guard Features.default.isAvailable(.isCoinbasePayEnabled) else { return nil }
         let key = Constants.Credentials.coinBaseAppId
         guard !key.isEmpty else { return nil }
         let base = "https://pay.coinbase.com/buy/select-asset?appId=\(key)"
