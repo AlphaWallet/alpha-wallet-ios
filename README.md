@@ -23,8 +23,8 @@ AlphaWallet and TokenScript have been used by tokenisation projects like FIFA an
     - [Updating GemFile or Podfile](#updating-gemfile-or-podfile)
     - [ Replace API Keys](#replace-api-keys)
 - [How to Contribute](#how-to-contribute)
-    - [Request or submit a feature](#request-or-submit-a-feature-3Apostbox3A)
-- [Spread the word](#spread-the-word-3Ahatched_chick3A)
+    - [Request or submit a feature](#request-or-submit-a-feature-postbox)
+- [Spread the word](#spread-the-word-hatched_chick)
 - [License](#license)
 
 ## About AlphaWallet - Features
