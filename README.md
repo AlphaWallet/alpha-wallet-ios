@@ -16,6 +16,17 @@ AlphaWallet and TokenScript have been used by tokenisation projects like FIFA an
 
 <a href='https://itunes.apple.com/us/app/alphawallet/id1358230430?ls=1&mt=8'><img alt='Get AlphaWallet Open Source Wallet on Apple Store' src='/resources/download-app-store-button.svg' height="60"/></a>
 
+# Table of Contents
+
+- [About AlphaWallet — Features](#about-alphawallet---features)
+- [Getting Started](#getting-started)
+    - [Updating GemFile or Podfile](#updating-gemfile-or-podfile)
+    - [ Replace API Keys](#replace-api-keys)
+- [How to Contribute](#how-to-contribute)
+    - [Request or submit a feature](#request-or-submit-a-feature-3Apostbox3A)
+- [Spread the word](#spread-the-word-3Ahatched_chick3A)
+- [License](#license)
+
 ## About AlphaWallet - Features
 
 Easy to use and secure open source Ethereum wallet for iOS and Android, with native ERC20, ERC721 and ERC875 support. AlphaWallet supports all Ethereum based networks: Ethereum, xDai, Ethereum Classic, Artis, POA, Ropsten, Goerli, Kovan, Rinkeby and Sokol.
@@ -55,7 +66,7 @@ We are committed to connecting businesses and consumers with the new digital eco
 
 We want to give businesses the whitelabel tools they need to develop their ethereum wallets, and join the tokenised economy.
 
-# Getting Started
+## Getting Started
 
 1. [Download Xcode](https://developer.apple.com/download/more/). Check [here](.xcode-version) for the Xcode we are building with.
 2. Clone this repository
