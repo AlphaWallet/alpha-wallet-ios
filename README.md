@@ -113,7 +113,7 @@ git update-index --no-assume-unchanged AlphaWallet/Settings/Types/Constants+Cred
 
 You can submit feedback and report bugs as Github issues. Please be sure to include your operating system, device, version number, and steps to reproduce reported bugs.
 
-All contibutions welcome.
+All contibutions welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ### Request or submit a feature :postbox:
 
