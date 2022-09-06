@@ -529,9 +529,9 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         walletConnectCoordinator.openSession(url: url)
     }
 
-    func processRestartQueueAndRestartUI() {
+    func processRestartQueueAndRestartUI(reason: RestartReason) {
         RestartQueueHandler(config: config).processRestartQueueBeforeRestart(restartQueue: restartQueue)
-        restartUI(withReason: .serverChange, account: wallet)
+        restartUI(withReason: reason, account: wallet)
     }
 
     private func restartUI(withReason reason: RestartReason, account: Wallet) {
@@ -681,7 +681,7 @@ extension ActiveWalletCoordinator: SettingsCoordinatorDelegate {
     }
 
     func restartToReloadServersQueued(in coordinator: SettingsCoordinator) {
-        processRestartQueueAndRestartUI()
+        processRestartQueueAndRestartUI(reason: .serverChange)
     }
 }
 
@@ -792,7 +792,7 @@ extension ActiveWalletCoordinator: WhereAreMyTokensCoordinatorDelegate {
 
     func switchToMainnetSelected(in coordinator: WhereAreMyTokensCoordinator) {
         restartQueue.add(.reloadServers(Constants.defaultEnabledServers))
-        processRestartQueueAndRestartUI()
+        processRestartQueueAndRestartUI(reason: .serverChange)
     }
 
     func didDismiss(in coordinator: WhereAreMyTokensCoordinator) {
@@ -1021,8 +1021,7 @@ extension ActiveWalletCoordinator: PaymentCoordinatorDelegate {
     //NOTE: askUserToRateAppOrSubscribeToNewsletter can't be called ringht in confirmation coordinator as after successfully sent transaction coordinator dismissed
     private func askUserToRateAppOrSubscribeToNewsletter() {
         let hostViewController = UIApplication.shared.presentedViewController(or: navigationController)
-
-        let coordinator = HelpUsCoordinator(hostViewController: hostViewController, appTracker: AppTracker(), analytics: analytics)
+        let coordinator = HelpUsCoordinator(hostViewController: hostViewController, appTracker: appTracker, analytics: analytics)
         coordinator.rateUsOrSubscribeToNewsletter()
     }
 
@@ -1043,11 +1042,11 @@ extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
     }
 
     func restartToAddEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappBrowserCoordinator) {
-        processRestartQueueAndRestartUI()
+        processRestartQueueAndRestartUI(reason: .serverChange)
     }
 
     func restartToEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappBrowserCoordinator) {
-        processRestartQueueAndRestartUI()
+        processRestartQueueAndRestartUI(reason: .serverChange)
     }
 }
 

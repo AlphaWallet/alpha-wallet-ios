@@ -9,7 +9,7 @@ import Foundation
 import AlphaWalletFoundation
 
 protocol DappRequestHandlerDelegate: class {
-    func processRestartQueueAndRestartUI()
+    func processRestartQueueAndRestartUI(reason: RestartReason)
 }
 
 extension ActiveWalletCoordinator {
@@ -26,8 +26,8 @@ extension ActiveWalletCoordinator {
             self.dappBrowserCoordinator = dappBrowserCoordinator
         }
 
-        private func processRestartQueueAndRestartUI() {
-            delegate?.processRestartQueueAndRestartUI()
+        private func processRestartQueueAndRestartUI(reason: RestartReason) {
+            delegate?.processRestartQueueAndRestartUI(reason: reason)
         }
     }
 }
@@ -59,7 +59,7 @@ extension ActiveWalletCoordinator.DappRequestHandler: DappRequestSwitchCustomCha
     }
 
     func restartToEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator) {
-        processRestartQueueAndRestartUI()
+        processRestartQueueAndRestartUI(reason: .serverChange)
         switch coordinator.callbackId {
         case .dapp:
             break
@@ -71,7 +71,7 @@ extension ActiveWalletCoordinator.DappRequestHandler: DappRequestSwitchCustomCha
     }
     
     func restartToAddEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator) {
-        processRestartQueueAndRestartUI()
+        processRestartQueueAndRestartUI(reason: .serverChange)
         switch coordinator.callbackId {
         case .dapp:
             break
@@ -146,7 +146,7 @@ extension ActiveWalletCoordinator.DappRequestHandler: DappRequestSwitchExistingC
     }
 
     func restartToEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappRequestSwitchExistingChainCoordinator) {
-        processRestartQueueAndRestartUI()
+        processRestartQueueAndRestartUI(reason: .serverChange)
         switch coordinator.callbackId {
         case .dapp:
             break
