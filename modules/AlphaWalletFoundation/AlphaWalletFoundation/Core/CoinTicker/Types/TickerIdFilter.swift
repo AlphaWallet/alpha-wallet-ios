@@ -29,7 +29,8 @@ public class TickerIdFilter {
             if Features.default.isAvailable(.isLoggingEnabledForTickerMatches) && result {
                 return result
             } else {
-                return result
+                //Force is so we no longer match by ignoring the platform, this produces false positives. Eg. https://candleexplorer.com/address/0x6Ee592139e9DD84587a32831A33a32202d1f0F12 would match USDC with price = $1 because name = "USDC" and symbol = "USDC", but anyone can create such a token on any chain
+                return false
             }
         }
 
