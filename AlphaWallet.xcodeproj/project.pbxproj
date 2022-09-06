@@ -671,6 +671,8 @@
 		87B1ACDB28C0D55D0072A5E2 /* tokens.json in Resources */ = {isa = PBXBuildFile; fileRef = 87B1ACDA28C0D55D0072A5E2 /* tokens.json */; };
 		87B1AD3728C1FE030072A5E2 /* KeychainStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87B1AD3628C1FE030072A5E2 /* KeychainStorage.swift */; };
 		87B1B5D928C73C170072A5E2 /* WalletConnectSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 87B1B5D828C73C170072A5E2 /* WalletConnectSwift */; };
+		87B1B5E928C78DCC0072A5E2 /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87B1B5E828C78DCC0072A5E2 /* AnalyticsService.swift */; };
+		87B1B5EB28C78DE90072A5E2 /* Mixpanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87B1B5EA28C78DE90072A5E2 /* Mixpanel.swift */; };
 		87B651F7256D4BFE000EF927 /* ClaimPaidOrderCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87B651F6256D4BFE000EF927 /* ClaimPaidOrderCoordinator.swift */; };
 		87B93B0E2726A46500F6EA73 /* BrowserStorageSubscription.js in Resources */ = {isa = PBXBuildFile; fileRef = 87B93B0D2726A46500F6EA73 /* BrowserStorageSubscription.js */; };
 		87B93B0F2726C59D00F6EA73 /* content.js in Resources */ = {isa = PBXBuildFile; fileRef = 8703FC0A270366DA0062C416 /* content.js */; };
@@ -1509,6 +1511,8 @@
 		87B1ACD828C0D45B0072A5E2 /* chains.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = chains.zip; path = AlphaWallet/Resources/chains.zip; sourceTree = SOURCE_ROOT; };
 		87B1ACDA28C0D55D0072A5E2 /* tokens.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = tokens.json; path = AlphaWallet/Resources/tokens.json; sourceTree = SOURCE_ROOT; };
 		87B1AD3628C1FE030072A5E2 /* KeychainStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainStorage.swift; sourceTree = "<group>"; };
+		87B1B5E828C78DCC0072A5E2 /* AnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
+		87B1B5EA28C78DE90072A5E2 /* Mixpanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mixpanel.swift; sourceTree = "<group>"; };
 		87B651F6256D4BFE000EF927 /* ClaimPaidOrderCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClaimPaidOrderCoordinator.swift; sourceTree = "<group>"; };
 		87B93B0D2726A46500F6EA73 /* BrowserStorageSubscription.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = BrowserStorageSubscription.js; sourceTree = "<group>"; };
 		87B93B122726C75900F6EA73 /* helpers.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = helpers.js; sourceTree = "<group>"; };
@@ -3786,6 +3790,8 @@
 				874ED68F27DB48FE001AB374 /* DappRequestHandler.swift */,
 				87FBF2B428056B6F00616B7D /* FirebaseReportService.swift */,
 				87D175EC24AF1565002130D2 /* KeyboardChecker.swift */,
+				87B1B5E828C78DCC0072A5E2 /* AnalyticsService.swift */,
+				87B1B5EA28C78DE90072A5E2 /* Mixpanel.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -4359,7 +4365,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Don't run this during index builds\nif [ $ACTION = \"indexbuild\" ]; then exit 0; fi\n\nSCRIPT_PATH=\"${PODS_ROOT}/Apollo/scripts\"\nSCHEMA_PATH=\"${SRCROOT}/modules/AlphaWalletFoundation/AlphaWalletFoundation/Core/NFT/Enjin\"\n\ncd \"${SCHEMA_PATH}\"\n\"${SCRIPT_PATH}\"/run-bundled-codegen.sh codegen:generate --target=swift --includes=./**/*.graphql --localSchemaFile=\"${SCHEMA_PATH}/schema.json\" API.swift\n#Download graphql scheme \n#\"${SCRIPT_PATH}\"/run-bundled-codegen.sh schema:download --endpoint=\"https://cloud.enjin.io/graphql/default\" API.swift\n";
+			shellScript = "# Don't run this during index builds\nif [ $ACTION = \"indexbuild\" ]; then exit 0; fi\n\nSCRIPT_PATH=\"${PODS_ROOT}/Apollo/scripts\"\nSCHEMA_PATH=\"${PODS_ROOT}/AlphaWalletFoundation/AlphaWalletFoundation/NFT/Enjin\"\ncd \"${SCHEMA_PATH}\"\n# use only when graphql files have changed, not available for pod, access denied error\n#\"${SCRIPT_PATH}\"/run-bundled-codegen.sh codegen:generate --target=swift --includes=./**/*.graphql --localSchemaFile=\"${SCHEMA_PATH}/schema.json\" API.swift\n#Download graphql scheme \n#\"${SCRIPT_PATH}\"/run-bundled-codegen.sh schema:download --endpoint=\"https://cloud.enjin.io/graphql/default\" API.swift\n";
 		};
 		87FBF2B828056D8600616B7D /* Upload debug symbols to Crashlytics */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -4793,6 +4799,7 @@
 				021746122763311D00BAF19C /* ExportJsonKeystoreFileViewModel.swift in Sources */,
 				874ED67527D79653001AB374 /* PupupAction.swift in Sources */,
 				5E7C72C8A15397C5A40BFE76 /* WhatIsEthereumInfoViewController.swift in Sources */,
+				87B1B5EB28C78DE90072A5E2 /* Mixpanel.swift in Sources */,
 				5E7C72B0A10A92E591696E48 /* ContactUsBannerView.swift in Sources */,
 				5E7C70BE9AE35408038E1971 /* HelpContentsViewController.swift in Sources */,
 				5E7C77E844D710D7AFBC58D4 /* RequestViewController.swift in Sources */,
@@ -5018,6 +5025,7 @@
 				878EE951255BEC20000210DE /* ItemType.swift in Sources */,
 				5E7C75862ABD367EF101DF9C /* SingleChainTokenCoordinator.swift in Sources */,
 				5E7C72A83542B1CB69E7B4B7 /* EnabledServersViewController.swift in Sources */,
+				87B1B5E928C78DCC0072A5E2 /* AnalyticsService.swift in Sources */,
 				5E7C79284D45EF4C5440E546 /* EnabledServersCoordinator.swift in Sources */,
 				5E7C745ECFCAE8B1A52B7FAC /* EnabledServersViewModel.swift in Sources */,
 				5E7C76C8A983A91A82F646E5 /* TokenInstanceWebView.swift in Sources */,

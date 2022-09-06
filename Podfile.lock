@@ -21,28 +21,27 @@ PODS:
     - AlphaWalletGoBack
     - AlphaWalletOpenSea
     - AlphaWalletWeb3Provider
-    - APIKit (= 5.1.0)
+    - APIKit
     - Apollo
-    - BigInt (~> 3.1)
+    - BigInt
     - BlockiesSwift
     - CombineExt
-    - CryptoSwift (~> 1.4)
+    - CryptoSwift
     - EthereumABI
-    - JSONRPCKit (~> 2.0.0)
+    - JSONRPCKit
     - Kanna
-    - Kingfisher (~> 7.0)
+    - Kingfisher
     - MailchimpSDK
-    - Mixpanel-swift
-    - Moya (~> 10.0.1)
+    - Moya
     - PaperTrailLumberjack/Swift
     - PromiseKit/Alamofire
     - PromiseKit/CorePromise
-    - RealmSwift (= 10.27.0)
-    - SwiftLint (= 0.40.3)
-    - SwiftyJSON (= 5.0.0)
+    - RealmSwift
+    - SwiftLint
+    - SwiftyJSON
     - TrezorCrypto
     - TrustKeystore
-    - TrustWalletCore (= 2.6.34)
+    - TrustWalletCore
     - web3swift
   - AlphaWalletGoBack (1.0.0)
   - AlphaWalletOpenSea (1.0.0):
@@ -67,7 +66,7 @@ PODS:
   - CocoaLumberjack/Core (3.7.0)
   - CocoaLumberjack/Swift (3.7.0):
     - CocoaLumberjack/Core
-  - CombineExt (1.6.1)
+  - CombineExt (1.8.0)
   - CryptoSwift (1.5.1)
   - EthereumABI (1.3.0):
     - BigInt (~> 3.1)
@@ -155,12 +154,12 @@ PODS:
   - xcbeautify (0.11.0)
 
 DEPENDENCIES:
-  - AlphaWalletAddress (from `modules/AlphaWalletAddress`)
-  - AlphaWalletCore (from `modules/AlphaWalletCore`)
-  - AlphaWalletENS (from `modules/AlphaWalletENS`)
-  - AlphaWalletFoundation (from `modules/AlphaWalletFoundation`)
-  - AlphaWalletGoBack (from `modules/AlphaWalletGoBack`)
-  - AlphaWalletOpenSea (from `modules/AlphaWalletOpenSea`)
+  - AlphaWalletAddress (from `https://github.com/AlphaWallet/AlphaWalletFoundation.git`, commit `8807643db7d709297ac185f2c5f13c7121c1817c`)
+  - AlphaWalletCore (from `https://github.com/AlphaWallet/AlphaWalletFoundation.git`, commit `8807643db7d709297ac185f2c5f13c7121c1817c`)
+  - AlphaWalletENS (from `https://github.com/AlphaWallet/AlphaWalletFoundation.git`, commit `8807643db7d709297ac185f2c5f13c7121c1817c`)
+  - AlphaWalletFoundation (from `https://github.com/AlphaWallet/AlphaWalletFoundation.git`, commit `8807643db7d709297ac185f2c5f13c7121c1817c`)
+  - AlphaWalletGoBack (from `https://github.com/AlphaWallet/AlphaWalletFoundation.git`, commit `8807643db7d709297ac185f2c5f13c7121c1817c`)
+  - AlphaWalletOpenSea (from `https://github.com/AlphaWallet/AlphaWalletFoundation.git`, commit `8807643db7d709297ac185f2c5f13c7121c1817c`)
   - AlphaWalletWeb3Provider (from `https://github.com/AlphaWallet/AlphaWallet-web3-provider`, commit `9a4496d02b7ddb2f6307fd0510d8d7c9fcef9870`)
   - APIKit (= 5.1.0)
   - Apollo
@@ -168,7 +167,7 @@ DEPENDENCIES:
   - BlockiesSwift
   - Charts
   - CocoaLumberjack (= 3.7.0)
-  - CombineExt
+  - CombineExt (= 1.8.0)
   - CryptoSwift (~> 1.4)
   - EthereumABI (from `https://github.com/AlphaWallet/EthereumABI.git`, commit `877b77e8e7cbc54ab0712d509b74fec21b79d1bb`)
   - FloatingPanel
@@ -239,17 +238,23 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   AlphaWalletAddress:
-    :path: modules/AlphaWalletAddress
+    :commit: 8807643db7d709297ac185f2c5f13c7121c1817c
+    :git: https://github.com/AlphaWallet/AlphaWalletFoundation.git
   AlphaWalletCore:
-    :path: modules/AlphaWalletCore
+    :commit: 8807643db7d709297ac185f2c5f13c7121c1817c
+    :git: https://github.com/AlphaWallet/AlphaWalletFoundation.git
   AlphaWalletENS:
-    :path: modules/AlphaWalletENS
+    :commit: 8807643db7d709297ac185f2c5f13c7121c1817c
+    :git: https://github.com/AlphaWallet/AlphaWalletFoundation.git
   AlphaWalletFoundation:
-    :path: modules/AlphaWalletFoundation
+    :commit: 8807643db7d709297ac185f2c5f13c7121c1817c
+    :git: https://github.com/AlphaWallet/AlphaWalletFoundation.git
   AlphaWalletGoBack:
-    :path: modules/AlphaWalletGoBack
+    :commit: 8807643db7d709297ac185f2c5f13c7121c1817c
+    :git: https://github.com/AlphaWallet/AlphaWalletFoundation.git
   AlphaWalletOpenSea:
-    :path: modules/AlphaWalletOpenSea
+    :commit: 8807643db7d709297ac185f2c5f13c7121c1817c
+    :git: https://github.com/AlphaWallet/AlphaWalletFoundation.git
   AlphaWalletWeb3Provider:
     :commit: 9a4496d02b7ddb2f6307fd0510d8d7c9fcef9870
     :git: https://github.com/AlphaWallet/AlphaWallet-web3-provider
@@ -276,6 +281,24 @@ EXTERNAL SOURCES:
     :git: https://github.com/AlphaWallet/web3swift.git
 
 CHECKOUT OPTIONS:
+  AlphaWalletAddress:
+    :commit: 8807643db7d709297ac185f2c5f13c7121c1817c
+    :git: https://github.com/AlphaWallet/AlphaWalletFoundation.git
+  AlphaWalletCore:
+    :commit: 8807643db7d709297ac185f2c5f13c7121c1817c
+    :git: https://github.com/AlphaWallet/AlphaWalletFoundation.git
+  AlphaWalletENS:
+    :commit: 8807643db7d709297ac185f2c5f13c7121c1817c
+    :git: https://github.com/AlphaWallet/AlphaWalletFoundation.git
+  AlphaWalletFoundation:
+    :commit: 8807643db7d709297ac185f2c5f13c7121c1817c
+    :git: https://github.com/AlphaWallet/AlphaWalletFoundation.git
+  AlphaWalletGoBack:
+    :commit: 8807643db7d709297ac185f2c5f13c7121c1817c
+    :git: https://github.com/AlphaWallet/AlphaWalletFoundation.git
+  AlphaWalletOpenSea:
+    :commit: 8807643db7d709297ac185f2c5f13c7121c1817c
+    :git: https://github.com/AlphaWallet/AlphaWalletFoundation.git
   AlphaWalletWeb3Provider:
     :commit: 9a4496d02b7ddb2f6307fd0510d8d7c9fcef9870
     :git: https://github.com/AlphaWallet/AlphaWallet-web3-provider
@@ -307,7 +330,7 @@ SPEC CHECKSUMS:
   AlphaWalletAddress: 62a69f5ccc7d6d17abf878c4274f4c3d5fdc97ba
   AlphaWalletCore: 451c8a4dfdba1d3b59a3ac47bf0dcabcf1f4c049
   AlphaWalletENS: a93a871ad5d8a8c78cd87b60eb59fccf4b23e841
-  AlphaWalletFoundation: 0a4febb19ae6231165d4a2d432161529de3a27be
+  AlphaWalletFoundation: 6377b37df8704bda082e199420fdfd0958357858
   AlphaWalletGoBack: 935efdbd98fa80039f2a350cde5b3a50cea46564
   AlphaWalletOpenSea: 11ccb06ae0200dadc2b3f7c3e223f407ac3a22b4
   AlphaWalletWeb3Provider: 7ca1e1c1dc841dc1915f970daace48bf34931655
@@ -318,7 +341,7 @@ SPEC CHECKSUMS:
   Charts: b1e3a1f5a1c9ba5394438ca3b91bd8c9076310af
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   CocoaLumberjack: e8955b9d337ac307103b0a34fd141c32f27e53c5
-  CombineExt: 57d5234da457f4dab303bac37929192cb4d9626f
+  CombineExt: c4daa97ef75754d8ef319bd79edeef82652f3eea
   CryptoSwift: c4f2debceb38bf44c80659afe009f71e23e4a082
   EthereumABI: c021720744d260b87def6aa45d94554d260cb5a9
   EthereumAddress: 39fe8e11cf04e4e9902b55ae653dbc4e0aee5f30
@@ -354,6 +377,6 @@ SPEC CHECKSUMS:
   web3swift: 06118d4c4edc801444aaa995bbbddeda176b97ef
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: b861336b56375f9503f4db359d57337321ff390c
+PODFILE CHECKSUM: d62c2d9a38d574f14fe077182e386d4b13abc371
 
 COCOAPODS: 1.11.2
