@@ -94,6 +94,7 @@ If you’d like to include TokenScript and extend your token functionalities, pl
 Submit a PR to the following file:
 https://github.com/AlphaWallet/alpha-wallet-ios/blob/master/AlphaWallet/Browser/ViewModel/Dapps.swift
 
+Unfortunately the app store forbade us from listing dapps, so this list is not currently used. It is still maintained in this repo, but in the meantime this will not be visible in the app. We hope to bring this back in the future.
 
 ### Replace API Keys
 
