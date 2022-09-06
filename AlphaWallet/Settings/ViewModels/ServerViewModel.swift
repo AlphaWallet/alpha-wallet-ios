@@ -15,6 +15,7 @@ protocol ServerTableViewCellViewModelType {
 }
 
 protocol ServerImageTableViewCellViewModelType {
+    var isAvailableToSelect: Bool { get }
     var backgroundColor: UIColor { get }
     var isSelected: Bool { get }
     var isTopSeparatorHidden: Bool { get }
@@ -64,15 +65,17 @@ struct ServerViewModel: ServerTableViewCellViewModelType {
     var selectionStyle: UITableViewCell.SelectionStyle = .default
 }
 
-struct ServerImageViewModel: ServerImageTableViewCellViewModelType {
+struct ServerImageViewModel: ServerImageTableViewCellViewModelType, Hashable {
 
     let isSelected: Bool
     let server: RPCServerOrAuto
     let isTopSeparatorHidden: Bool
-
-    init(server: RPCServerOrAuto, selected: Bool) {
+    let isAvailableToSelect: Bool
+    
+    init(server: RPCServerOrAuto, selected: Bool, isAvailableToSelect: Bool = true) {
         self.server = server
         self.isSelected = selected
+        self.isAvailableToSelect = isAvailableToSelect
         self.isTopSeparatorHidden = true
     }
 

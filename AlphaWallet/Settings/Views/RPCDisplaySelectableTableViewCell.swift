@@ -17,7 +17,14 @@ class RPCDisplaySelectableTableViewCell: UITableViewCell {
     private let accessoryImageView: UIImageView = UIImageView()
     private let infoView: ServerInformationView = ServerInformationView()
     private let topSeparator: UIView = UIView.spacer(backgroundColor: R.color.mike()!)
+    private lazy var unavailableToSelectView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .white.withAlphaComponent(0.4)
+        view.isHidden = false
 
+        return view
+    }()
     // MARK: - Initializers
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -38,6 +45,7 @@ class RPCDisplaySelectableTableViewCell: UITableViewCell {
         configureChainIconView(viewModel: viewModel)
         configureInfoView(viewModel: viewModel)
         configureAccessoryImageView(viewModel: viewModel)
+        unavailableToSelectView.isHidden = viewModel.isAvailableToSelect
     }
 
     // MARK: Private
@@ -52,6 +60,8 @@ class RPCDisplaySelectableTableViewCell: UITableViewCell {
         addSubview(chainIconView)
         addSubview(infoView)
         addSubview(accessoryImageView)
+        addSubview(unavailableToSelectView)
+        
         NSLayoutConstraint.activate([
             topSeparator.topAnchor.constraint(equalTo: contentView.topAnchor),
             topSeparator.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
@@ -77,7 +87,7 @@ class RPCDisplaySelectableTableViewCell: UITableViewCell {
             accessoryImageView.topAnchor.constraint(greaterThanOrEqualToSystemSpacingBelow: topAnchor, multiplier: 1.0),
             accessoryImageView.bottomAnchor.constraint(lessThanOrEqualToSystemSpacingBelow: bottomAnchor, multiplier: 1.0),
 
-            heightAnchor.constraint(equalToConstant: 80.0)
+            unavailableToSelectView.anchorsConstraint(to: self)
         ])
     }
 
