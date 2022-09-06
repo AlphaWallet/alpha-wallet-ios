@@ -670,6 +670,7 @@
 		87B1ACD928C0D45B0072A5E2 /* chains.zip in Resources */ = {isa = PBXBuildFile; fileRef = 87B1ACD828C0D45B0072A5E2 /* chains.zip */; };
 		87B1ACDB28C0D55D0072A5E2 /* tokens.json in Resources */ = {isa = PBXBuildFile; fileRef = 87B1ACDA28C0D55D0072A5E2 /* tokens.json */; };
 		87B1AD3728C1FE030072A5E2 /* KeychainStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87B1AD3628C1FE030072A5E2 /* KeychainStorage.swift */; };
+		87B1B5D928C73C170072A5E2 /* WalletConnectSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 87B1B5D828C73C170072A5E2 /* WalletConnectSwift */; };
 		87B651F7256D4BFE000EF927 /* ClaimPaidOrderCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87B651F6256D4BFE000EF927 /* ClaimPaidOrderCoordinator.swift */; };
 		87B93B0E2726A46500F6EA73 /* BrowserStorageSubscription.js in Resources */ = {isa = PBXBuildFile; fileRef = 87B93B0D2726A46500F6EA73 /* BrowserStorageSubscription.js */; };
 		87B93B0F2726C59D00F6EA73 /* content.js in Resources */ = {isa = PBXBuildFile; fileRef = 8703FC0A270366DA0062C416 /* content.js */; };
@@ -1650,6 +1651,7 @@
 			files = (
 				87FBF2B128056AC200616B7D /* FirebaseCrashlytics in Frameworks */,
 				2A669F5585899E890EF26C57 /* Pods_AlphaWallet.framework in Frameworks */,
+				87B1B5D928C73C170072A5E2 /* WalletConnectSwift in Frameworks */,
 				87BDF47028423DC30018DC68 /* WalletConnect in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4051,6 +4053,7 @@
 			packageProductDependencies = (
 				87FBF2B028056AC200616B7D /* FirebaseCrashlytics */,
 				87BDF46F28423DC30018DC68 /* WalletConnect */,
+				87B1B5D828C73C170072A5E2 /* WalletConnectSwift */,
 			);
 			productName = etherwallet;
 			productReference = 2912CCF51F6A830700C6CBE3 /* AlphaWallet.app */;
@@ -4180,6 +4183,7 @@
 			packageReferences = (
 				87FBF2AF28056AC200616B7D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				87BDF46E28423DC30018DC68 /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */,
+				87B1B5D728C73C170072A5E2 /* XCRemoteSwiftPackageReference "WalletConnectSwift" */,
 			);
 			productRefGroup = 2912CCF61F6A830700C6CBE3 /* Products */;
 			projectDirPath = "";
@@ -4420,14 +4424,12 @@
 				"${BUILT_PRODUCTS_DIR}/Result/Result.framework",
 				"${BUILT_PRODUCTS_DIR}/SAMKeychain/SAMKeychain.framework",
 				"${BUILT_PRODUCTS_DIR}/SipHash/SipHash.framework",
-				"${BUILT_PRODUCTS_DIR}/Starscream/Starscream.framework",
 				"${BUILT_PRODUCTS_DIR}/StatefulViewController/StatefulViewController.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftProtobuf/SwiftProtobuf.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
 				"${BUILT_PRODUCTS_DIR}/TrezorCrypto/TrezorCrypto.framework",
 				"${BUILT_PRODUCTS_DIR}/TrustKeystore/TrustKeystore.framework",
 				"${BUILT_PRODUCTS_DIR}/TrustWalletCore/WalletCore.framework",
-				"${BUILT_PRODUCTS_DIR}/WalletConnectSwift/WalletConnectSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/libsodium/libsodium.framework",
 				"${BUILT_PRODUCTS_DIR}/secp256k1_ios/secp256k1_ios.framework",
 				"${BUILT_PRODUCTS_DIR}/web3swift/web3swift.framework",
@@ -4471,14 +4473,12 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Result.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SAMKeychain.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SipHash.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Starscream.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/StatefulViewController.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftProtobuf.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyJSON.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/TrezorCrypto.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/TrustKeystore.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WalletCore.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WalletConnectSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/libsodium.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/secp256k1_ios.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/web3swift.framework",
@@ -5879,6 +5879,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		87B1B5D728C73C170072A5E2 /* XCRemoteSwiftPackageReference "WalletConnectSwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/AlphaWallet/WalletConnectSwift.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 		87BDF46E28423DC30018DC68 /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/WalletConnect/WalletConnectSwiftV2";
@@ -5898,6 +5906,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		87B1B5D828C73C170072A5E2 /* WalletConnectSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 87B1B5D728C73C170072A5E2 /* XCRemoteSwiftPackageReference "WalletConnectSwift" */;
+			productName = WalletConnectSwift;
+		};
 		87BDF46F28423DC30018DC68 /* WalletConnect */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 87BDF46E28423DC30018DC68 /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */;
