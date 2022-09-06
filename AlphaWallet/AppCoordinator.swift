@@ -121,6 +121,7 @@ class AppCoordinator: NSObject, Coordinator {
             honeySwapService,
             quickSwap,
             Oneinch(action: R.string.localizable.aWalletTokenErc20ExchangeOn1inchButtonTitle()),
+            Carthage(action: R.string.localizable.aWalletTokenErc20ExchangeCarthageButtonTitle()),
             //uniswap
         ]
         availableSwapProviders += Features.default.isAvailable(.isSwapEnabled) ? [SwapTokenNativeProvider(tokenSwapper: tokenSwapper)] : []

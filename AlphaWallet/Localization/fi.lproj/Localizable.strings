@@ -561,6 +561,7 @@
 "a.wallet.token.erc20ExchangeOnQuickSwap.button.title" = "Swap using QuickSwap";
 "a.wallet.token.erc20ExchangeOn1inch.button.title" = "Swap using 1inch";
 "a.wallet.token.erc20ExchangeHoneyswap.button.title" = "Swap using Honeyswap";
+"a.wallet.token.erc20ExchangeCarthage.button.title" = "Swap using Carthage";
 "a.wallet.token.xDaiBridge.button.title" = "Muunna valuutaksi DAI";
 "a.wallet.token.arbitrumBridge.button.title" = "Muunna valuutaksi Arbitrum";
 "a.wallet.token.buy.xDai.title" = "Osta xDai";
