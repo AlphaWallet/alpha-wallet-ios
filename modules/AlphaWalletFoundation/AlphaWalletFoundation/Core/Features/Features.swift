@@ -100,6 +100,7 @@ public enum FeaturesAvailable: String, CaseIterable, Codable {
     case isFirebaseEnabled
     case isSwapEnabled
     case isCoinbasePayEnabled
+    case isLoggingEnabledForTickerMatches
 
     public var defaultValue: Bool {
         switch self {
@@ -152,6 +153,8 @@ public enum FeaturesAvailable: String, CaseIterable, Codable {
         case .isSwapEnabled:
             return false
         case .isCoinbasePayEnabled:
+            return false
+        case .isLoggingEnabledForTickerMatches:
             return false
         }
     }

@@ -193,6 +193,12 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     func start() {
+        if Features.default.isAvailable(.isLoggingEnabledForTickerMatches) {
+            Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { _ in
+                infoLog("Ticker ID positive matching counts: \(TickerIdFilter.matchCounts)")
+            }
+        }
+
         protectionCoordinator.didFinishLaunchingWithOptions()
         initializers()
         runServices()
