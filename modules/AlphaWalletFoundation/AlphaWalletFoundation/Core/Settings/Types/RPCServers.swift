@@ -792,11 +792,13 @@ public enum RPCServer: Hashable, CaseIterable {
             return .blockNumber(fromBlockNumber + 99990)
         case .xDai:
             return .blockNumber(fromBlockNumber + 3000)
-        case .main, .kovan, .ropsten, .rinkeby, .poa, .classic, .callisto, .phi, .goerli, .artis_sigma1, .artis_tau1, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .candle, .optimisticKovan, .sokol, .custom, .palm, .palmTestnet:
+        case .main, .kovan, .ropsten, .rinkeby, .poa, .classic, .callisto, .phi, .goerli, .artis_sigma1, .artis_tau1, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .optimisticKovan, .sokol, .custom, .palm, .palmTestnet:
             return .latest
         case .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet:
             //These not allow range more than 10,000
             return .blockNumber(fromBlockNumber + 9999)
+        case .candle:
+            return .blockNumber(fromBlockNumber + 20000)
         }
     }
 
