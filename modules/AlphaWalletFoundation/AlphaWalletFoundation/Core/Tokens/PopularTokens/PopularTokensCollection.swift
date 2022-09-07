@@ -94,7 +94,7 @@ public class PopularTokensCollection: NSObject, PopularTokensCollectionType {
 }
 
 public class LocalPopularTokensCollection: NSObject, PopularTokensCollectionType {
-    private let tokensURL: URL = URL(fileURLWithPath: Bundle.main.path(forResource: "known_contract", ofType: "json")!)
+    lazy private var tokensURL: URL = URL(fileURLWithPath: Bundle(for: self.classForCoder).path(forResource: "known_contract", ofType: "json")!)
     private let queue = DispatchQueue.global()
     private static var tokens: [PopularToken]? = .none
 
