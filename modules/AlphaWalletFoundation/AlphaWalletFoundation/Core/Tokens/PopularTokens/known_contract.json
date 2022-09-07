@@ -30,6 +30,7 @@
     {"address": "0xf629cbd94d3791c9250152bd8dfbdf380e2a3b9c", "name": "ENJ", "isPopular": true, "network": 1},
     {"address": "0xd49ff13661451313ca1553fd6954bd1d9b6e02b9", "name": "ELEC", "isPopular": true, "network": 1},
     {"address": "0xbc647aad10114b89564c0a7aabe542bd0cf2c5af", "name": "IONC", "isPopular": true, "network": 1},
-    {"address": "0xc5bbae50781be1669306b9e001eff57a2957b09d", "name": "GTO", "isPopular": true, "network": 1}
+    {"address": "0xc5bbae50781be1669306b9e001eff57a2957b09d", "name": "GTO", "isPopular": true, "network": 1},
+    {"address": "0x9c58bacc331c9aa871afd802db6379a98e80cedb", "name": "GNO", "isPopular": true, "network": 100}
   ]
 }
