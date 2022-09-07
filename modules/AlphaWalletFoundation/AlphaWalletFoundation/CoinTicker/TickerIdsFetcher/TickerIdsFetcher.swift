@@ -11,6 +11,7 @@ import Combine
 public protocol TickerIdsFetcher: AnyObject {
     func tickerId(for token: TokenMappedToTicker) -> AnyPublisher<TickerIdString?, Never>
 }
+
 /// Returns first matching ticker id, perform searching in data source sequentially, wait until publisher being resolved and resolves next one
 public class TickerIdsFetcherImpl: TickerIdsFetcher {
     private let providers: [TickerIdsFetcher]
@@ -37,10 +38,10 @@ public class TickerIdsFetcherImpl: TickerIdsFetcher {
                 .flatMap { tickerId -> AnyPublisher<TickerIdString?, Never> in
                     guard let tickerId = tickerId else { return firstMatchingTickerId(publishers) }
                     return .just(tickerId)
-                }
-            .eraseToAnyPublisher()
+                }.eraseToAnyPublisher()
         }
 
         return firstMatchingTickerId(publishers)
+            .eraseToAnyPublisher()
     }
 }

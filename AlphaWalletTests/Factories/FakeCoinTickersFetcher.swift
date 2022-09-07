@@ -14,9 +14,7 @@ import AlphaWalletFoundation
 extension CoinGeckoTickersFetcher {
     static func make(config: Config = .make()) -> CoinTickersFetcher {
         let networkProvider: CoinGeckoNetworkProviderType = FakeCoinGeckoNetworkProvider()
-        let persistentStorage: StorageType = InMemoryStorage()
-
-        let storage: CoinTickersStorage & ChartHistoryStorage & TickerIdsStorage = CoinTickersFileStorage(config: config, storage: persistentStorage)
+        let storage: CoinTickersStorage & ChartHistoryStorage & TickerIdsStorage = RealmStore(realm: fakeRealm())
         let coinGeckoTickerIdsFetcher = CoinGeckoTickerIdsFetcher(networkProvider: networkProvider, storage: storage, config: config)
         let fileTokenEntriesProvider = FileTokenEntriesProvider(fileName: "tokens_2")
 

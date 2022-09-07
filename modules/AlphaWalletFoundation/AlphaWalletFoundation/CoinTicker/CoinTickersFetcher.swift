@@ -14,7 +14,7 @@ public protocol CoinTickersFetcherTests {
 
 public protocol CoinTickersFetcher: AnyObject, CoinTickersFetcherTests {
     var tickersDidUpdate: AnyPublisher<Void, Never> { get }
-    var updateTickerId: AnyPublisher<(tickerId: TickerIdString, key: AddressAndRPCServer), Never> { get }
+    var updateTickerIds: AnyPublisher<[(tickerId: TickerIdString, key: AddressAndRPCServer)], Never> { get }
     
     func ticker(for addressAndPRCServer: AddressAndRPCServer) -> CoinTicker?
     func fetchTickers(for tokens: [TokenMappedToTicker], force: Bool)

@@ -53,27 +53,25 @@ class AppCoordinator: NSObject, Coordinator {
     }
     private lazy var coinTickersFetcher: CoinTickersFetcher = {
         let networkProvider: CoinGeckoNetworkProviderType
-        let persistentStorage: StorageType
-
+        let persistentStorage: CoinTickersStorage & ChartHistoryStorage & TickerIdsStorage
         if isRunningTests() {
             networkProvider = FakeCoinGeckoNetworkProvider()
-            persistentStorage = try! FileStorage.forTestSuite(folder: "testSuiteForTickersStorage", fileExtension: "json")
+            persistentStorage = RealmStore(realm: fakeRealm(), name: "org.alphawallet.swift.realmStore.shared.wallet")
         } else {
             networkProvider = CoinGeckoNetworkProvider(provider: AlphaWalletProviderFactory.makeProvider())
-            persistentStorage = FileStorage(fileExtension: "json")
+            persistentStorage = RealmStore.shared
         }
 
-        let storage: CoinTickersStorage & ChartHistoryStorage & TickerIdsStorage = CoinTickersFileStorage(config: config, storage: persistentStorage)
-        let coinGeckoTickerIdsFetcher = CoinGeckoTickerIdsFetcher(networkProvider: networkProvider, storage: storage, config: config)
+        let coinGeckoTickerIdsFetcher = CoinGeckoTickerIdsFetcher(networkProvider: networkProvider, storage: persistentStorage, config: config)
         let fileTokenEntriesProvider = FileTokenEntriesProvider(fileName: "tokens_2")
 
         let tickerIdsFetcher: TickerIdsFetcher = TickerIdsFetcherImpl(providers: [
-            InMemoryTickerIdsFetcher(storage: storage),
+            InMemoryTickerIdsFetcher(storage: persistentStorage),
             coinGeckoTickerIdsFetcher,
             AlphaWalletRemoteTickerIdsFetcher(provider: fileTokenEntriesProvider, tickerIdsFetcher: coinGeckoTickerIdsFetcher)
         ])
 
-        return CoinGeckoTickersFetcher(networkProvider: networkProvider, storage: storage, tickerIdsFetcher: tickerIdsFetcher)
+        return CoinGeckoTickersFetcher(networkProvider: networkProvider, storage: persistentStorage, tickerIdsFetcher: tickerIdsFetcher)
     }()
     private lazy var nftProvider: NFTProvider = {
         let queue: DispatchQueue = DispatchQueue(label: "org.alphawallet.swift.walletBalance")

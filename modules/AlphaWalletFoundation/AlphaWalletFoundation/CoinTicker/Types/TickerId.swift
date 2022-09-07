@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BigInt
 
 public struct TickerId: Codable, Hashable {
     let id: String
@@ -20,6 +21,13 @@ extension TickerId {
         case symbol
         case name
         case platforms
+    }
+
+    init(tickerIdObject: TickerIdObject) {
+        self.id = tickerIdObject.id
+        self.symbol = tickerIdObject.symbol
+        self.name = tickerIdObject.name
+        self.platforms = tickerIdObject.platforms.map { AddressAndRPCServer(address: $0.contractAddress, server: $0.server) }
     }
 
     public init(from decoder: Decoder) throws {

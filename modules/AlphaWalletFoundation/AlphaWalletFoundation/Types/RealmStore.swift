@@ -84,7 +84,12 @@ extension Realm {
         configuration.objectTypes = [
             Bookmark.self,
             History.self,
-            EnsRecordObject.self
+            EnsRecordObject.self,
+            ContractAddressObject.self,
+            TickerIdObject.self,
+            KnownTickerIdObject.self,
+            CoinTickerObject.self,
+            AssignedCoinTickerIdObject.self
         ]
         
         let realm = try! Realm(configuration: configuration)
