@@ -1,9 +1,10 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
 import Foundation
+import AlphaWalletFoundation
 import Mixpanel
 
-public class MixpanelCoordinator {
+public class MixpanelService {
     private var mixpanelInstance: MixpanelInstance {
         Mixpanel.mainInstance()
     }
@@ -18,7 +19,7 @@ public class MixpanelCoordinator {
     }
 }
 
-extension MixpanelCoordinator: AnalyticsLogger {
+extension MixpanelService: AnalyticsLogger {
     public func log(navigation: AnalyticsNavigation, properties: [String: AnalyticsEventPropertyValue]?) {
         let props: Properties? = properties?.compactMapValues(convertParameterToSdkSpecificVersion)
         mixpanelInstance.track(event: navigation.rawValue, properties: props)

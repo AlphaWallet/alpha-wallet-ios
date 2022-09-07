@@ -669,6 +669,8 @@
 		87B1ACDB28C0D55D0072A5E2 /* tokens.json in Resources */ = {isa = PBXBuildFile; fileRef = 87B1ACDA28C0D55D0072A5E2 /* tokens.json */; };
 		87B1AD3728C1FE030072A5E2 /* KeychainStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87B1AD3628C1FE030072A5E2 /* KeychainStorage.swift */; };
 		87B1B5D928C73C170072A5E2 /* WalletConnectSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 87B1B5D828C73C170072A5E2 /* WalletConnectSwift */; };
+		87B1B5EE28C870D60072A5E2 /* MixpanelService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87B1B5EC28C870D60072A5E2 /* MixpanelService.swift */; };
+		87B1B5EF28C870D60072A5E2 /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87B1B5ED28C870D60072A5E2 /* AnalyticsService.swift */; };
 		87B651F7256D4BFE000EF927 /* ClaimPaidOrderCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87B651F6256D4BFE000EF927 /* ClaimPaidOrderCoordinator.swift */; };
 		87B93B0E2726A46500F6EA73 /* BrowserStorageSubscription.js in Resources */ = {isa = PBXBuildFile; fileRef = 87B93B0D2726A46500F6EA73 /* BrowserStorageSubscription.js */; };
 		87B93B0F2726C59D00F6EA73 /* content.js in Resources */ = {isa = PBXBuildFile; fileRef = 8703FC0A270366DA0062C416 /* content.js */; };
@@ -1505,6 +1507,8 @@
 		87B1ACD828C0D45B0072A5E2 /* chains.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = chains.zip; path = AlphaWallet/Resources/chains.zip; sourceTree = SOURCE_ROOT; };
 		87B1ACDA28C0D55D0072A5E2 /* tokens.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = tokens.json; path = AlphaWallet/Resources/tokens.json; sourceTree = SOURCE_ROOT; };
 		87B1AD3628C1FE030072A5E2 /* KeychainStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainStorage.swift; sourceTree = "<group>"; };
+		87B1B5EC28C870D60072A5E2 /* MixpanelService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MixpanelService.swift; sourceTree = "<group>"; };
+		87B1B5ED28C870D60072A5E2 /* AnalyticsService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
 		87B651F6256D4BFE000EF927 /* ClaimPaidOrderCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClaimPaidOrderCoordinator.swift; sourceTree = "<group>"; };
 		87B93B0D2726A46500F6EA73 /* BrowserStorageSubscription.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = BrowserStorageSubscription.js; sourceTree = "<group>"; };
 		87B93B122726C75900F6EA73 /* helpers.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = helpers.js; sourceTree = "<group>"; };
@@ -3775,6 +3779,7 @@
 		87B1ACDD28C0D5C50072A5E2 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				87B1B5F228C8715F0072A5E2 /* Analytics */,
 				5E7C7FC75FF544B1DF0B0D8B /* PushNotificationsService.swift */,
 				875CA90828BF2B720020FA48 /* LocalNotificationService.swift */,
 				874ED68F27DB48FE001AB374 /* DappRequestHandler.swift */,
@@ -3798,6 +3803,15 @@
 				87B1ACDA28C0D55D0072A5E2 /* tokens.json */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		87B1B5F228C8715F0072A5E2 /* Analytics */ = {
+			isa = PBXGroup;
+			children = (
+				87B1B5ED28C870D60072A5E2 /* AnalyticsService.swift */,
+				87B1B5EC28C870D60072A5E2 /* MixpanelService.swift */,
+			);
+			path = Analytics;
 			sourceTree = "<group>";
 		};
 		87BBF9682563DD7500FF4846 /* WalletConnect */ = {
@@ -4353,7 +4367,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Don't run this during index builds\nif [ $ACTION = \"indexbuild\" ]; then exit 0; fi\n\nSCRIPT_PATH=\"${PODS_ROOT}/Apollo/scripts\"\nSCHEMA_PATH=\"${SRCROOT}/modules/AlphaWalletFoundation/AlphaWalletFoundation/Core/NFT/Enjin\"\n\ncd \"${SCHEMA_PATH}\"\n\"${SCRIPT_PATH}\"/run-bundled-codegen.sh codegen:generate --target=swift --includes=./**/*.graphql --localSchemaFile=\"${SCHEMA_PATH}/schema.json\" API.swift\n#Download graphql scheme \n#\"${SCRIPT_PATH}\"/run-bundled-codegen.sh schema:download --endpoint=\"https://cloud.enjin.io/graphql/default\" API.swift\n";
+			shellScript = "# Don't run this during index builds\nif [ $ACTION = \"indexbuild\" ]; then exit 0; fi\n\nSCRIPT_PATH=\"${PODS_ROOT}/Apollo/scripts\"\nSCHEMA_PATH=\"${SRCROOT}/modules/AlphaWalletFoundation/AlphaWalletFoundation/NFT/Enjin\"\n\ncd \"${SCHEMA_PATH}\"\n\"${SCRIPT_PATH}\"/run-bundled-codegen.sh codegen:generate --target=swift --includes=./**/*.graphql --localSchemaFile=\"${SCHEMA_PATH}/schema.json\" API.swift\n#Download graphql scheme \n#\"${SCRIPT_PATH}\"/run-bundled-codegen.sh schema:download --endpoint=\"https://cloud.enjin.io/graphql/default\" API.swift\n";
 		};
 		87FBF2B828056D8600616B7D /* Upload debug symbols to Crashlytics */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -4937,6 +4951,7 @@
 				87F15AEB27F1EA4E00EB9787 /* SwapDetailsView.swift in Sources */,
 				5E7C772EC476993A170C840B /* GenerateSellMagicLinkViewController.swift in Sources */,
 				5E7C7AC88DB7EB58FDAF1B21 /* ConfirmSignMessageViewControllerViewModel.swift in Sources */,
+				87B1B5EF28C870D60072A5E2 /* AnalyticsService.swift in Sources */,
 				02334299278480CF00492080 /* AddMultipleCustomRpcModel.swift in Sources */,
 				87442BD827D615B500EA2209 /* CheckTransactionStateViewController.swift in Sources */,
 				5E7C7A67B6143DFB9B1CF02B /* ConfirmSignMessageTableViewCell.swift in Sources */,
@@ -5184,6 +5199,7 @@
 				5E7C75BA61A6F4D300D1DA3E /* WhatsNew.swift in Sources */,
 				5E7C73A66AD0CF28767CC142 /* WhatsNewListingCoordinator.swift in Sources */,
 				5E7C793EEF16E1689FE62543 /* WhatsNewListingViewController.swift in Sources */,
+				87B1B5EE28C870D60072A5E2 /* MixpanelService.swift in Sources */,
 				5E7C7FF312AB61DBEBD86C94 /* WhatsNewViewModels.swift in Sources */,
 				02F4E8B627715EA000D89C19 /* SaveCustomRpcOverallViewController.swift in Sources */,
 				5E7C7CC1E06FFC3A5BEBF1EC /* WhatsNewViews.swift in Sources */,

@@ -11,7 +11,7 @@ import AlphaWalletFoundation
 
 class MixpanelCoordinatorTests: XCTestCase {
     func testMixpanelSdkTypeConvertation() {
-        let coordinator = MixpanelCoordinator(withKey: "")
+        let coordinator = MixpanelService(withKey: "")
         let values: [AnalyticsEventPropertyValue] = [
             "Hello AlphaWallet",
             1,
