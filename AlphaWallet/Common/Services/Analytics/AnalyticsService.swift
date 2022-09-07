@@ -6,18 +6,10 @@
 //
 
 import Foundation
-import UIKit
-
-public protocol AnalyticsServiceType: AnalyticsLogger {
-    func applicationDidBecomeActive()
-    func application(continue userActivity: NSUserActivity)
-    func application(open url: URL, sourceApplication: String?, annotation: Any)
-    func application(open url: URL, options: [UIApplication.OpenURLOptionsKey: Any])
-    func application(didReceiveRemoteNotification userInfo: [AnyHashable: Any])
-}
+import AlphaWalletFoundation
 
 public final class AnalyticsService: NSObject, AnalyticsServiceType {
-    private var mixpanelService: MixpanelCoordinator?
+    private var mixpanelService: MixpanelService?
     private var config: Config
 
     public init(config: Config = .init()) {
@@ -28,7 +20,7 @@ public final class AnalyticsService: NSObject, AnalyticsServiceType {
             self.config.sendAnalyticsEnabled = Features.default.isAvailable(.isAnalyticsUIEnabled)
         }
         if Constants.Credentials.analyticsKey.nonEmpty && !Environment.isTestFlight {
-            mixpanelService = MixpanelCoordinator(withKey: Constants.Credentials.analyticsKey)
+            mixpanelService = MixpanelService(withKey: Constants.Credentials.analyticsKey)
         }
     }
 
