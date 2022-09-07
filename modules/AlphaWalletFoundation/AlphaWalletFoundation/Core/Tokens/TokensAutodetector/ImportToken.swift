@@ -22,6 +22,7 @@ public protocol ContractDataFetchable {
 open class ImportToken: TokenImportable, ContractDataFetchable {
     private let defaultTokens: [(AlphaWallet.Address, RPCServer)] = [
         (Constants.uefaMainnet, Constants.uefaRpcServer),
+        Constants.gnoGnosis,
     ]
 
     enum ImportTokenError: Error {

@@ -88,6 +88,8 @@ public struct Constants {
     public static let uefaMainnet = AlphaWallet.Address(string: "0x89D142Bef8605646881C68dcD48cDAF17FE597dC")!
     public static let uefaRpcServer = RPCServer.main
 
+    public static let gnoGnosis = (address: AlphaWallet.Address(string: "0x9c58bacc331c9aa871afd802db6379a98e80cedb")!, server: RPCServer.xDai)
+
     //UEFA 721 balances function hash
     public static let balances165Hash721Ticket = "0xc84aae17"
 
