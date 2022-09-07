@@ -7,12 +7,13 @@
 
 import Foundation
 import Combine
+import UIKit
 import AlphaWalletFoundation
 
 struct SwapOptionsViewModelInput { }
 
 struct SwapOptionsViewModelOutput {
-    let sessions: AnyPublisher<[SelectNetworkViewModel], Never>
+    let viewState: AnyPublisher<SwapOptionsViewModel.ViewState, Never>
     let errorString: AnyPublisher<String, Never>
 }
 
@@ -45,12 +46,18 @@ class SwapOptionsViewModel {
 
         let sessions = Publishers.CombineLatest(configurator.$sessions, configurator.$server)
                 .receive(on: queue)
-                .map { [weak configurator] sessions, server -> [SelectNetworkViewModel] in
+                .map { [weak configurator] sessions, server -> [ServerImageViewModel] in
                     guard let configurator = configurator else { return [] }
                     return sessions.map {
                         let isAvailableToSelect = configurator.isAvailable(server: $0.server)
-                        return SelectNetworkViewModel(session: $0, isSelected: $0.server == server, isAvailableToSelect: isAvailableToSelect)
+                        return ServerImageViewModel(server: .server($0.server), selected: $0.server == server, isAvailableToSelect: isAvailableToSelect)
                     }
+                }.map { sessions -> SwapOptionsViewModel.SessionsSnapshot in
+                    var snapshot = SwapOptionsViewModel.SessionsSnapshot()
+                    snapshot.appendSections([.sessions])
+                    snapshot.appendItems(sessions)
+
+                    return snapshot
                 }.receive(on: RunLoop.main)
                 .eraseToAnyPublisher()
 
@@ -59,10 +66,27 @@ class SwapOptionsViewModel {
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
 
-        return .init(sessions: sessions, errorString: errorString)
+        let viewState = sessions.map { SwapOptionsViewModel.ViewState(sessions: $0) }
+            .eraseToAnyPublisher()
+
+        return .init(viewState: viewState, errorString: errorString)
     }
 
     func set(selectedServer server: RPCServer) {
+        guard configurator.isAvailable(server: server) else { return }
         configurator.set(server: server)
+    }
+}
+
+extension SwapOptionsViewModel {
+    class SessionsDiffableDataSource: UITableViewDiffableDataSource<SwapOptionsViewModel.Section, ServerImageViewModel> {}
+    typealias SessionsSnapshot = NSDiffableDataSourceSnapshot<SwapOptionsViewModel.Section, ServerImageViewModel>
+
+    enum Section: Int, Hashable {
+        case sessions
+    }
+
+    struct ViewState {
+        let sessions: SessionsSnapshot
     }
 }

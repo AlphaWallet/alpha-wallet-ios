@@ -566,8 +566,6 @@
 		874ED69D27DF36D2001AB374 /* SlippageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874ED69C27DF36D2001AB374 /* SlippageViewModel.swift */; };
 		874ED6A227DF53E1001AB374 /* SwapOptionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874ED6A127DF53E1001AB374 /* SwapOptionsViewController.swift */; };
 		874ED6A427DF53FD001AB374 /* SwapOptionsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874ED6A327DF53FD001AB374 /* SwapOptionsViewModel.swift */; };
-		874ED6A627DF5411001AB374 /* SelectNetworkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874ED6A527DF5411001AB374 /* SelectNetworkView.swift */; };
-		874ED6A827DF5426001AB374 /* SelectNetworkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874ED6A727DF5426001AB374 /* SelectNetworkViewModel.swift */; };
 		87509A6026F8D63600D3EE85 /* ModalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87509A5F26F8D63600D3EE85 /* ModalViewController.swift */; };
 		87509A6226F8D67E00D3EE85 /* CollectUsersEmailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87509A6126F8D67E00D3EE85 /* CollectUsersEmailViewController.swift */; };
 		8750F91924EE66D700E19DFF /* GasSpeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8750F91824EE66D700E19DFF /* GasSpeedView.swift */; };
@@ -1403,8 +1401,6 @@
 		874ED69C27DF36D2001AB374 /* SlippageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlippageViewModel.swift; sourceTree = "<group>"; };
 		874ED6A127DF53E1001AB374 /* SwapOptionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapOptionsViewController.swift; sourceTree = "<group>"; };
 		874ED6A327DF53FD001AB374 /* SwapOptionsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapOptionsViewModel.swift; sourceTree = "<group>"; };
-		874ED6A527DF5411001AB374 /* SelectNetworkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectNetworkView.swift; sourceTree = "<group>"; };
-		874ED6A727DF5426001AB374 /* SelectNetworkViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectNetworkViewModel.swift; sourceTree = "<group>"; };
 		87509A5F26F8D63600D3EE85 /* ModalViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalViewController.swift; sourceTree = "<group>"; };
 		87509A6126F8D67E00D3EE85 /* CollectUsersEmailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectUsersEmailViewController.swift; sourceTree = "<group>"; };
 		8750F91824EE66D700E19DFF /* GasSpeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GasSpeedView.swift; sourceTree = "<group>"; };
@@ -3514,7 +3510,6 @@
 			children = (
 				874ED69C27DF36D2001AB374 /* SlippageViewModel.swift */,
 				874ED6A327DF53FD001AB374 /* SwapOptionsViewModel.swift */,
-				874ED6A727DF5426001AB374 /* SelectNetworkViewModel.swift */,
 				871CE2E827DF80C800B1E1CF /* SelectableSlippageViewModel.swift */,
 				871CE2EC27DF811900B1E1CF /* EditableSlippageViewModel.swift */,
 				871CE2EE27DF879C00B1E1CF /* TransactionDeadlineTextFieldModel.swift */,
@@ -3528,7 +3523,6 @@
 			children = (
 				874ED69427DF34C0001AB374 /* SwapOptionsHeaderView.swift */,
 				874ED69627DF3685001AB374 /* SlippageView.swift */,
-				874ED6A527DF5411001AB374 /* SelectNetworkView.swift */,
 				871CE2E627DF80AF00B1E1CF /* SelectableSlippageView.swift */,
 				871CE2EA27DF810100B1E1CF /* EditableSlippageView.swift */,
 				871CE2F027DF87AE00B1E1CF /* TransactionDeadlineTextField.swift */,
@@ -4852,7 +4846,6 @@
 				879F186026E74543000602F2 /* ToolButtonsBarView.swift in Sources */,
 				5E7C745C725F3F34037DCC68 /* SetTransferTokensCardExpiryDateViewControllerViewModel.swift in Sources */,
 				5E7C74B5796FB59C8427C7A0 /* GenerateTransferMagicLinkViewController.swift in Sources */,
-				874ED6A627DF5411001AB374 /* SelectNetworkView.swift in Sources */,
 				871CE2E727DF80AF00B1E1CF /* SelectableSlippageView.swift in Sources */,
 				5E7C76696EF7F27EC0788CDD /* GenerateTransferMagicLinkViewControllerViewModel.swift in Sources */,
 				5E7C75E5C64619ABFD246183 /* TransferTokensCardViaWalletAddressViewController.swift in Sources */,
@@ -4877,7 +4870,6 @@
 				C601B18924407D3B00C763D9 /* SettingViewHeader.swift in Sources */,
 				5E7C70AE62DBB193399C7F5E /* ServerViewCell.swift in Sources */,
 				5E7C7EB845B0EE96CC8DCF43 /* ServerViewModel.swift in Sources */,
-				874ED6A827DF5426001AB374 /* SelectNetworkViewModel.swift in Sources */,
 				5E7C745A423BD10CFDED9A81 /* ServersViewModel.swift in Sources */,
 				87757286282D486900EAD907 /* TokenCardWebViewModel.swift in Sources */,
 				5E7C7ECE164289A89734B4EF /* LocalesCoordinator.swift in Sources */,

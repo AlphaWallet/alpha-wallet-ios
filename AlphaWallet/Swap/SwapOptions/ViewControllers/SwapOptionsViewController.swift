@@ -13,12 +13,7 @@ protocol SwapOptionsViewControllerDelegate: AnyObject {
 }
 
 class SwapOptionsViewController: UIViewController {
-    private lazy var containerView: ScrollableStackView = {
-        let view = ScrollableStackView()
-        return view
-    }()
-
-    private var viewModel: SwapOptionsViewModel
+    private let viewModel: SwapOptionsViewModel
 
     private lazy var slippageView: SlippageView = {
         return SlippageView(viewModel: viewModel.slippageViewModel)
@@ -34,32 +29,54 @@ class SwapOptionsViewController: UIViewController {
         return view
     }()
 
+    private lazy var tableView: UITableView = {
+        let tableView = UITableView(frame: .zero, style: .grouped)
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.separatorStyle = .singleLine
+        tableView.backgroundColor = GroupedTable.Color.background
+        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
+        tableView.register(RPCDisplaySelectableTableViewCell.self)
+        tableView.isEditing = false
+        tableView.keyboardDismissMode = .onDrag
+
+        return tableView
+    }()
+
     private lazy var checker = KeyboardChecker(self, resetHeightDefaultValue: 0)
     private lazy var headerView = ConfirmationHeaderView(viewModel: .init(title: viewModel.navigationTitle))
     private var cancelable = Set<AnyCancellable>()
-    private var walletSessionViews: [SelectNetworkView] = []
+    private lazy var dataSource: SwapOptionsViewModel.SessionsDiffableDataSource = makeDataSource()
 
     weak var delegate: SwapOptionsViewControllerDelegate?
-    var scrollView: UIScrollView {
-        containerView.scrollView
-    }
-    
+
     init(viewModel: SwapOptionsViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
-        view.addSubview(containerView)
+        let stackView = [
+            headerView,
+            .spacer(height: 30),
+            slippageHeaderView.adjusted(),
+            .spacer(height: 10),
+            slippageView.adjusted(),
+            .spacer(height: 30),
+            networkHeaderView.adjusted(),
+            .spacer(height: 10),
+            tableView
+        ].asStackView(axis: .vertical)
+        stackView.translatesAutoresizingMaskIntoConstraints = false
 
-        let bottomConstraint = containerView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        view.addSubview(stackView)
+
+        let bottomConstraint = stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         NSLayoutConstraint.activate([
-            containerView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-            containerView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            containerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            stackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             bottomConstraint
         ])
 
         checker.constraints = [bottomConstraint]
-        generateSubviews(viewModel: viewModel)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -75,21 +92,14 @@ class SwapOptionsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        configureDataSource()
         headerView.configure(viewModel: .init(title: viewModel.navigationTitle))
         bind(viewModel: viewModel)
         headerView.closeButton.addTarget(self, action: #selector(closeDidSelect), for: .touchUpInside)
-
-        containerView.isUserInteractionEnabled = true
-        let tap = UITapGestureRecognizer(target: self, action: #selector(viewDidTap))
-        containerView.addGestureRecognizer(tap)
     } 
 
     required init?(coder: NSCoder) {
         return nil
-    }
-
-    @objc private func viewDidTap(_ sender: UITapGestureRecognizer) {
-        view.endEditing(true)
     }
 
     @objc private func closeDidSelect(_ sender: UIButton) {
@@ -98,12 +108,9 @@ class SwapOptionsViewController: UIViewController {
 
     private func bind(viewModel: SwapOptionsViewModel) {
         let output = viewModel.transform(input: .init())
-        output.sessions
-            .sink { [weak self] viewModels in
-                for index in viewModels.indices {
-                    guard let view = self?.walletSessionViews[safe: index] else { continue }
-                    view.configure(viewModel: viewModels[index])
-                }
+        output.viewState
+            .sink { [weak self] viewState in
+                self?.dataSource.apply(viewState.sessions, animatingDifferences: false)
             }.store(in: &cancelable)
 
         //TODO: need to resolve error displaying, uncommenting this string causes displaying an error when screen in loading for first time
@@ -114,38 +121,48 @@ class SwapOptionsViewController: UIViewController {
         //        self?.displayError(message: error)
         //    }.store(in: &cancelable)
     }
+}
 
-    private func generateSubviews(viewModel: SwapOptionsViewModel) {
-        containerView.stackView.removeAllArrangedSubviews()
-        var walletSessionViews: [UIView] = []
+extension SwapOptionsViewController {
+    private func makeDataSource() -> SwapOptionsViewModel.SessionsDiffableDataSource {
+        SwapOptionsViewModel.SessionsDiffableDataSource(tableView: tableView) { tableView, indexPath, viewModel -> RPCDisplaySelectableTableViewCell? in
+            let cell: RPCDisplaySelectableTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+            cell.configure(viewModel: viewModel)
 
-        for each in viewModel.sessions {
-            let view = SelectNetworkView(edgeInsets: .init(top: 10, left: 15, bottom: 10, right: 15))
-            UITapGestureRecognizer(addToView: view) {
-                viewModel.set(selectedServer: each.server)
-            }
-            self.walletSessionViews += [view]
-            walletSessionViews += [
-                .spacer(height: 1, backgroundColor: R.color.mercury()!),
-                view
-            ]
+            return cell
         }
+    }
 
-        walletSessionViews += [
-            .spacer(height: 1, backgroundColor: R.color.mercury()!)
-        ]
+    private func configureDataSource() {
+        tableView.delegate = self
+        tableView.dataSource = dataSource
+    }
+}
 
-        let subviews: [UIView] = [
-            headerView,
-            .spacer(height: 30),
-            slippageHeaderView.adjusted(),
-            .spacer(height: 10),
-            slippageView.adjusted(),
-            .spacer(height: 30),
-            networkHeaderView.adjusted(),
-            .spacer(height: 10),
-        ] + walletSessionViews
+extension SwapOptionsViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        let session = viewModel.sessions[indexPath.row]
+        viewModel.set(selectedServer: session.server)
+    }
 
-        containerView.stackView.addArrangedSubviews(subviews)
+    //Hide the header
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        .leastNormalMagnitude
+    }
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        nil
+    }
+
+    //Hide the footer
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        .leastNormalMagnitude
+    }
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        nil
+    }
+
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 80.0
     }
 }
