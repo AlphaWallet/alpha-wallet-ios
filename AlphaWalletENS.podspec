@@ -19,7 +19,7 @@ Pod::Spec.new do |spec|
   spec.swift_version    = '4.0'
   spec.platform         = :ios, "13.0"
   spec.source           = { :git => 'git@github.com:AlphaWallet/alpha-wallet-ios.git', :tag => "#{spec.version}" }
-  spec.source_files     = 'AlphaWalletENS/**/*.{h,m,swift}'
+  spec.source_files     = 'modules/AlphaWalletENS/AlphaWalletENS/**/*.{h,m,swift}'
   spec.pod_target_xcconfig = { 'SWIFT_OPTIMIZATION_LEVEL' => '-Owholemodule' }
 
   spec.dependency 'AlphaWalletAddress'
