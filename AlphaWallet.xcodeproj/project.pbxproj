@@ -299,6 +299,7 @@
 		5E7C786AD8E4877C36D3B14A /* TokenAdaptorTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C775FD95FE80B0F1CEA33 /* TokenAdaptorTest.swift */; };
 		5E7C786DB5B71302FF66CBAD /* SendTransactionErrorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7BB7DBFDF5A5E4F2DDC0 /* SendTransactionErrorViewModel.swift */; };
 		5E7C78772A59685C37CB99C2 /* ToolsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7AB8844E5D88BD6B2F2A /* ToolsViewController.swift */; };
+		5E7C787EB90D113DA76574DD /* FileTokenEntriesProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C71617E1F8BE91D4EA7F5 /* FileTokenEntriesProviderTests.swift */; };
 		5E7C7896E99049F4B124FDF5 /* OpenSeaNonFungibleTokenDisplayHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7A9876B43B1D9D17A9A9 /* OpenSeaNonFungibleTokenDisplayHelper.swift */; };
 		5E7C78A31A16600FBA5C9956 /* ScanQRCodeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7721E0E4D4EFDD35E196 /* ScanQRCodeCoordinator.swift */; };
 		5E7C78B576BC9A187445B002 /* DappRequestSwitchExistingChainCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C760A524D73F044CC2A4B /* DappRequestSwitchExistingChainCoordinator.swift */; };
@@ -1014,6 +1015,7 @@
 		5E7C710FD4CF798DEAC11F83 /* WhatsNewListingViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WhatsNewListingViewController.swift; sourceTree = "<group>"; };
 		5E7C712F42374C0B8DF8C64F /* BrowserHistoryCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrowserHistoryCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C715BBA7416942FDA8516 /* HistoriesViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HistoriesViewModel.swift; sourceTree = "<group>"; };
+		5E7C71617E1F8BE91D4EA7F5 /* FileTokenEntriesProviderTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileTokenEntriesProviderTests.swift; sourceTree = "<group>"; };
 		5E7C7168A1780F3411374365 /* Constants+CredentialsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Constants+CredentialsTests.swift"; sourceTree = "<group>"; };
 		5E7C716ABBF98AD0823CB4A0 /* URLTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = URLTests.swift; sourceTree = "<group>"; };
 		5E7C7171B802C0C2718EEED0 /* MyDappsViewControllerHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MyDappsViewControllerHeaderView.swift; sourceTree = "<group>"; };
@@ -2603,6 +2605,14 @@
 			path = ViewControllers;
 			sourceTree = "<group>";
 		};
+		5E7C700AB576FD1EA7DDF4A8 /* TickerIdsFetcher */ = {
+			isa = PBXGroup;
+			children = (
+				5E7C71617E1F8BE91D4EA7F5 /* FileTokenEntriesProviderTests.swift */,
+			);
+			path = TickerIdsFetcher;
+			sourceTree = "<group>";
+		};
 		5E7C70333A8A3616EDE068D7 /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
@@ -2701,6 +2711,14 @@
 				5E7C7B3439EA50B732FEA7E8 /* Types */,
 			);
 			path = Browser;
+			sourceTree = "<group>";
+		};
+		5E7C7219AA7DCFFA11F4139D /* CoinTicker */ = {
+			isa = PBXGroup;
+			children = (
+				5E7C700AB576FD1EA7DDF4A8 /* TickerIdsFetcher */,
+			);
+			path = CoinTicker;
 			sourceTree = "<group>";
 		};
 		5E7C72A3369125C89C869EE7 /* OpenSea */ = {
@@ -2964,6 +2982,7 @@
 			isa = PBXGroup;
 			children = (
 				5E7C7B8EB45ABD915B9BFF61 /* LocalPopularTokensCollectionTests.swift */,
+				5E7C7219AA7DCFFA11F4139D /* CoinTicker */,
 			);
 			path = AlphaWalletFoundation;
 			sourceTree = "<group>";
@@ -5354,6 +5373,7 @@
 				5E7C725EE65E35A84B599598 /* EIP712TypedDataTests.swift in Sources */,
 				5E7C7A80B5791BFCEB7E6862 /* Constants+CredentialsTests.swift in Sources */,
 				5E7C7414B782AD4A0392C186 /* LocalPopularTokensCollectionTests.swift in Sources */,
+				5E7C787EB90D113DA76574DD /* FileTokenEntriesProviderTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

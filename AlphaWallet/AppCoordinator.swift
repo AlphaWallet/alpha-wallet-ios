@@ -63,7 +63,7 @@ class AppCoordinator: NSObject, Coordinator {
         }
 
         let coinGeckoTickerIdsFetcher = CoinGeckoTickerIdsFetcher(networkProvider: networkProvider, storage: persistentStorage, config: config)
-        let fileTokenEntriesProvider = FileTokenEntriesProvider(fileName: "tokens_2")
+        let fileTokenEntriesProvider = FileTokenEntriesProvider()
 
         let tickerIdsFetcher: TickerIdsFetcher = TickerIdsFetcherImpl(providers: [
             InMemoryTickerIdsFetcher(storage: persistentStorage),
@@ -187,7 +187,7 @@ class AppCoordinator: NSObject, Coordinator {
                 TransactionsTracker.resetFetchingState(account: account, config: self.config)
                 Erc1155TokenIdsFetcher.deleteForWallet(account.address)
                 DatabaseMigration.removeRealmFiles(account: account)
-                self.legacyFileBasedKeystore.delete(wallet: account) 
+                self.legacyFileBasedKeystore.delete(wallet: account)
             }.store(in: &cancelable)
     }
 
