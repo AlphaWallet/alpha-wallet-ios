@@ -94,7 +94,13 @@ public class PopularTokensCollection: NSObject, PopularTokensCollectionType {
 }
 
 public class LocalPopularTokensCollection: NSObject, PopularTokensCollectionType {
-    lazy private var tokensURL: URL = URL(fileURLWithPath: Bundle(for: self.classForCoder).path(forResource: "known_contract", ofType: "json")!)
+    //Force unwraps protected by unit test — try removing to replace with dummy to see test fails
+    lazy private var tokensURL: URL = {
+        let resourceBundleUrl = Bundle(for: self.classForCoder).url(forResource: String(reflecting: self.classForCoder).components(separatedBy: ".").first!, withExtension: "bundle")!
+        let resourceBundle = Bundle(url: resourceBundleUrl)!
+        return resourceBundle.url(forResource: "known_contract", withExtension: "json")!
+    }()
+
     private let queue = DispatchQueue.global()
     private static var tokens: [PopularToken]? = .none
 

@@ -16,7 +16,7 @@ extension CoinGeckoTickersFetcher {
         let networkProvider: CoinGeckoNetworkProviderType = FakeCoinGeckoNetworkProvider()
         let storage: CoinTickersStorage & ChartHistoryStorage & TickerIdsStorage = RealmStore(realm: fakeRealm())
         let coinGeckoTickerIdsFetcher = CoinGeckoTickerIdsFetcher(networkProvider: networkProvider, storage: storage, config: config)
-        let fileTokenEntriesProvider = FileTokenEntriesProvider(fileName: "tokens_2")
+        let fileTokenEntriesProvider = FileTokenEntriesProvider()
 
         let tickerIdsFetcher: TickerIdsFetcher = TickerIdsFetcherImpl(providers: [
             InMemoryTickerIdsFetcher(storage: storage),
