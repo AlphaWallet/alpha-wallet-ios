@@ -31,7 +31,7 @@ public struct SignedOrder {
     public var order: Order
     public var message: [UInt8]
     public var signature: String
-    
+
     public init(order: Order, message: [UInt8], signature: String) {
         self.order = order
         self.message = message
@@ -69,7 +69,7 @@ extension Data {
 public class OrderHandler {
     private let keystore: Keystore
     private let prompt: String
-    
+
     public init(keystore: Keystore, prompt: String) {
         self.keystore = keystore
         self.prompt = prompt
@@ -111,7 +111,7 @@ public class OrderHandler {
 
     private func bulkSignOrders(messages: [Data], account: AlphaWallet.Address, orders: [Order]) throws -> [SignedOrder] {
         var signedOrders = [SignedOrder]()
-        let signatures = try keystore.signMessageBulk(messages, for: account, prompt: prompt).dematerialize()
+        let signatures = try keystore.signMessageBulk(messages, for: account, prompt: prompt).get()
         for i in 0..<signatures.count {
             let signedOrder = SignedOrder(
                     order: orders[i],
