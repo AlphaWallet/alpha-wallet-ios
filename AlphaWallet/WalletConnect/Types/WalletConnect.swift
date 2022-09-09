@@ -76,7 +76,8 @@ extension AlphaWallet.WalletConnect {
                 serverEditing = .disabled
                 servers = [server]
             } else {
-                servers = [.main]
+                //Better than always `.main` even when it's not enabled
+                servers = [Config().anyEnabledServer()]
                 serverEditing = .enabled
             }
             methods = []
