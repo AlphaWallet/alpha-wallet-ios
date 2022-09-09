@@ -12,7 +12,7 @@ import BigInt
 public class SignatureHelper {
     class func signatureAsHex(for message: String, account: AlphaWallet.Address, keystore: Keystore, prompt: String) throws -> String? {
         let signature = keystore.signMessageData(message.data(using: String.Encoding.utf8), for: account, prompt: prompt)
-        let signatureHex = try? signature.dematerialize().hex(options: .upperCase)
+        let signatureHex = try? signature.get().hex(options: .upperCase)
         guard let data = signatureHex else {
             return nil
         }
@@ -27,16 +27,6 @@ public class SignatureHelper {
 }
 
 extension Result {
-    /// Returns the value from `success` Results or `throw`s the error.
-    public func dematerialize() throws -> Success {
-        switch self {
-        case let .success(value):
-            return value
-        case let .failure(error):
-            throw error
-        }
-    }
-    
     public var error: Failure? {
         switch self {
         case let .success:
