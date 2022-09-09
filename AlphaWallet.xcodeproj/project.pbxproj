@@ -4567,7 +4567,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ \"${CONFIGURATION}\" = \"Release\" ]; then\n  if [ \"${PRODUCT_BUNDLE_IDENTIFIER}\" = \"com.stormbird.alphawallet\" ]; then\n    if grep -q 'static let infuraKey = \"3f22' \"modules/AlphaWalletFoundation/AlphaWalletFoundation/Core/Settings/Types/Constants+Credentials.swift\"; then\n        exit 0\n    else\n        exit 1\n    fi\n  fi\nfi\n";
+			shellScript = "FILE=modules/AlphaWalletFoundation/AlphaWalletFoundation/Settings/Types/Constants+Credentials.swift\nif test -f \"$FILE\"; then\n    #echo \"Found: $FILE\"\n    echo \"\"\nelse\n    echo \"Not found: $FILE\"\n    exit 1\nfi\n\nif [ \"${CONFIGURATION}\" = \"Release\" ]; then\n  if [ \"${PRODUCT_BUNDLE_IDENTIFIER}\" = \"com.stormbird.alphawallet\" ]; then\n    if grep -q 'static let infuraKey = \"3f22' \"$FILE\"; then\n        exit 0\n    else\n        exit 1\n    fi\n  fi\nfi\n";
 		};
 		C887FD5D280806C20030E4BA /* Check correct GoogleService-Info.plist (for Crashlytics) */ = {
 			isa = PBXShellScriptBuildPhase;
