@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import WalletConnectSwift  
+import WalletConnectSwift
 import AlphaWalletFoundation
 
 typealias WalletConnectV1Request = WalletConnectSwift.Request
@@ -50,7 +50,7 @@ extension AlphaWallet.WalletConnect.Session {
 }
 
 extension AlphaWallet.WalletConnect {
-    
+
     enum ServerEditingAvailability {
         case disabled
         case enabled
@@ -76,7 +76,8 @@ extension AlphaWallet.WalletConnect {
                 serverEditing = .disabled
                 servers = [server]
             } else {
-                servers = [.main]
+                //Better than always `.main` even when it's not enabled
+                servers = [Config().anyEnabledServer()]
                 serverEditing = .enabled
             }
             methods = []
