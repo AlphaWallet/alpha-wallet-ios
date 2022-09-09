@@ -98,16 +98,16 @@ Unfortunately the app store forbade us from listing dapps, so this list is not c
 
 ### Replace API Keys
 
-API keys are stored in the file `AlphaWallet/Settings/Types/Constants+Credentials.swift`. You can replace the keys for your own build. Tell git to ignore changes to that file by running:
+API keys are stored in the file `modules/AlphaWalletFoundation/AlphaWalletFoundation/Settings/Types/Constants+Credentials.swift`. You can replace the keys for your own build. Tell git to ignore changes to that file by running:
 
 ```
-git update-index --assume-unchanged AlphaWallet/Settings/Types/Constants+Credentials.swift
+git update-index --assume-unchanged modules/AlphaWalletFoundation/AlphaWalletFoundation/Settings/Types/Constants+Credentials.swift
 ```
 
 Undo this with:
 
 ```
-git update-index --no-assume-unchanged AlphaWallet/Settings/Types/Constants+Credentials.swift
+git update-index --no-assume-unchanged modules/AlphaWalletFoundation/AlphaWalletFoundation/Settings/Types/Constants+Credentials.swift
 ```
 
 ## How to Contribute
