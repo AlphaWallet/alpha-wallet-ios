@@ -417,7 +417,7 @@
 "accounts.delete.error.failedToExportPrivateKey" = "Error al exportar la clave privada";
 "accounts.delete.error.failedToExportSeed" = "Error al exportar la semilla del monedero. Si has migrado a un teléfono nuevo o has restaurado el dispositivo, tienes que volver a importar el monedero";
 "Chain ID" = "ID de cadena";
-"Chain ID with prefix" = "Chain ID: %i";
+"Chain ID with prefix" = "Chain ID: %ld";
 "Endpoint" = "Punto final";
 "settings.preferences.button.title" = "Mostrar tokens al iniciar";
 "settings.preferences.title" = "Preferencias";

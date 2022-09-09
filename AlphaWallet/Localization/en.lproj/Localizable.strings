@@ -417,7 +417,7 @@
 "accounts.delete.error.failedToExportPrivateKey" = "Failed to export private key";
 "accounts.delete.error.failedToExportSeed" = "Failed to export wallet seed. If you have migrated to a new phone or restored your device, you need to import your wallet again";
 "Chain ID" = "Chain ID";
-"Chain ID with prefix" = "Chain ID: %i";
+"Chain ID with prefix" = "Chain ID: %ld";
 "Endpoint" = "Endpoint";
 "settings.preferences.button.title" = "Show Tokens on Launch";
 "settings.preferences.title" = "Preferences";

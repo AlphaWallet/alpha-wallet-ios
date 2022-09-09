@@ -415,7 +415,7 @@
 "accounts.delete.error.failedToExportPrivateKey" = "秘密鍵をエクスポートできませんでした";
 "accounts.delete.error.failedToExportSeed" = "Failed to export wallet seed. If you have migrated to a new phone or restored your device, you need to import your wallet again";
 "Chain ID" = "チェーン ID";
-"Chain ID with prefix" = "Chain ID: %i";
+"Chain ID with prefix" = "Chain ID: %ld";
 "Endpoint" = "エンドポイント";
 "settings.preferences.button.title" = "起動時にトークンを表示";
 "settings.preferences.title" = "基本設定";
