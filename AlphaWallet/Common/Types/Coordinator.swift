@@ -7,17 +7,17 @@ public protocol Coordinator: AnyObject {
 }
 
 public extension Coordinator {
-    public func addCoordinator(_ coordinator: Coordinator) {
+    func addCoordinator(_ coordinator: Coordinator) {
         coordinators.append(coordinator)
     }
 
-    public func removeCoordinator(_ coordinator: Coordinator) {
+    func removeCoordinator(_ coordinator: Coordinator) {
         assert(coordinator !== self)
         guard coordinator !== self else { return }
         coordinators = coordinators.filter { $0 !== coordinator }
     }
 
-    public func removeAllCoordinators() {
+    func removeAllCoordinators() {
         coordinators.removeAll()
     }
 
