@@ -34,11 +34,7 @@ public struct TokenScriptOverrides {
     public let server: RPCServerOrAny?
 
     public let xmlHandler: XMLHandler
-}
 
-extension TokenViewModel: BalanceRepresentable { }
-
-extension TokenScriptOverrides {
     init(token: TokenScriptSupportable, assetDefinitionStore: AssetDefinitionStore, wallet: Wallet, eventsDataStore: NonActivityEventsDataStore) {
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         self.symbolInPluralForm = token.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
@@ -58,6 +54,8 @@ extension TokenScriptOverrides {
         self.server = xmlHandler.server
     }
 }
+
+extension TokenViewModel: BalanceRepresentable { }
 
 extension TokenScriptOverrides: Hashable {
     public static func == (lhs: TokenScriptOverrides, rhs: TokenScriptOverrides) -> Bool {
