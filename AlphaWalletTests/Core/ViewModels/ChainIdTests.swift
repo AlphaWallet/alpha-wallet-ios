@@ -2,6 +2,7 @@
 
 import XCTest
 @testable import AlphaWallet
+@testable import AlphaWalletFoundation
 
 class ChainIdTests: XCTestCase {
     func testLargeChainIdDisplay() {
