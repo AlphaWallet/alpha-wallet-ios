@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import CombineExt
 
 protocol NewlyAddedTransactionSchedulerProviderDelegate: AnyObject {
     func didReceiveResponse(_ response: Swift.Result<[TransactionInstance], Covalent.CovalentError>, in provider: NewlyAddedTransactionSchedulerProvider)

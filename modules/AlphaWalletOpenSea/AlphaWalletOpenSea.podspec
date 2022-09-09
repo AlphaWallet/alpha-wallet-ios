@@ -25,5 +25,6 @@ Pod::Spec.new do |spec|
   spec.dependency 'AlphaWalletAddress'
   spec.dependency 'AlphaWalletCore'
   spec.dependency 'PromiseKit'
-  spec.dependency 'SwiftyJSON'
+  spec.dependency 'SwiftyJSON', '5.0.0'
+
 end

@@ -8,6 +8,7 @@
 import Foundation
 import Combine 
 import BigInt
+import CombineExt
 
 public enum TransactionDeadline {
     case value(Double)

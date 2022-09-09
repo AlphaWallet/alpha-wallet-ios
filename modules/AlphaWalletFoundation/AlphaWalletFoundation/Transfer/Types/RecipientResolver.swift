@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import CombineExt
 
 public class RecipientResolver {
     public enum Row: Int, CaseIterable {

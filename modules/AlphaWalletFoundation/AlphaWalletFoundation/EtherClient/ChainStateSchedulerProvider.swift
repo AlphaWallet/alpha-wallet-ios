@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import AlphaWalletCore
+import CombineExt
 
 public protocol ChainStateSchedulerProviderDelegate: AnyObject {
     func didReceive(result: Result<Int, PromiseError>)

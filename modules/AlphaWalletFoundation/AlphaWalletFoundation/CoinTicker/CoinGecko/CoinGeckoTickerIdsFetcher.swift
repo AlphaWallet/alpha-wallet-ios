@@ -8,6 +8,7 @@
 import Combine
 import Foundation
 import AlphaWalletCore
+import CombineExt
 
 /// Ticker ids are havy objects, that don't change often, keep them cached and in separate fetcher to extract logic
 public class CoinGeckoTickerIdsFetcher: TickerIdsFetcher {

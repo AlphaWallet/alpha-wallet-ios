@@ -8,6 +8,7 @@
 import Foundation
 import CoreFoundation
 import Combine
+import CombineExt
 
 public protocol ActivitiesServiceType: class {
     var activitiesPublisher: AnyPublisher<[ActivityCollection.MappedToDateActivityOrTransaction], Never> { get }
