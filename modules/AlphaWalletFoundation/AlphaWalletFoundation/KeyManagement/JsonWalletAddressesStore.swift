@@ -11,7 +11,7 @@ import AlphaWalletCore
 
 public struct JsonWalletAddressesStore: WalletAddressesStore {
     private static let walletsFolderForTests = "testSuiteWalletsForWalletAddresses"
-    static func createStorage() -> StorageType {
+    public static func createStorage() -> StorageType {
         let directoryUrl: URL = {
             if isRunningTests() {
                 let cacheDirectoryUrl = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
@@ -132,7 +132,7 @@ public struct JsonWalletAddressesStore: WalletAddressesStore {
         }
     }
 
-    init(storage: StorageType = JsonWalletAddressesStore.createStorage()) {
+    public init(storage: StorageType = JsonWalletAddressesStore.createStorage()) {
         self.storage = storage
 
         if let value: WalletAddresses = storage.load(forKey: Keys.walletAddresses) {

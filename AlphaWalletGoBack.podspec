@@ -20,7 +20,7 @@ Pod::Spec.new do |s|
   s.swift_version    = '4.0'
   s.platform         = :ios, "12.0"
   s.source           = { :git => 'git@github.com:AlphaWallet/alpha-wallet-ios.git', :tag => "#{s.version}" }
-  s.source_files     = 'AlphaWalletGoBack/**/*.{h,m}'
+  s.source_files     = 'modules/AlphaWalletGoBack/AlphaWalletGoBack/**/*.{h,m}'
   s.pod_target_xcconfig = { 'SWIFT_OPTIMIZATION_LEVEL' => '-Owholemodule' }
 
   s.frameworks       = 'UIKit'

@@ -153,12 +153,12 @@ PODS:
   - xcbeautify (0.11.0)
 
 DEPENDENCIES:
-  - AlphaWalletAddress (from `modules/AlphaWalletAddress`)
-  - AlphaWalletCore (from `modules/AlphaWalletCore`)
-  - AlphaWalletENS (from `modules/AlphaWalletENS`)
-  - AlphaWalletFoundation (from `modules/AlphaWalletFoundation`)
-  - AlphaWalletGoBack (from `modules/AlphaWalletGoBack`)
-  - AlphaWalletOpenSea (from `modules/AlphaWalletOpenSea`)
+  - AlphaWalletAddress (from `.`)
+  - AlphaWalletCore (from `.`)
+  - AlphaWalletENS (from `.`)
+  - AlphaWalletFoundation (from `.`)
+  - AlphaWalletGoBack (from `.`)
+  - AlphaWalletOpenSea (from `.`)
   - AlphaWalletWeb3Provider (from `https://github.com/AlphaWallet/AlphaWallet-web3-provider`, commit `9a4496d02b7ddb2f6307fd0510d8d7c9fcef9870`)
   - APIKit (= 5.1.0)
   - Apollo
@@ -237,17 +237,17 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   AlphaWalletAddress:
-    :path: modules/AlphaWalletAddress
+    :path: "."
   AlphaWalletCore:
-    :path: modules/AlphaWalletCore
+    :path: "."
   AlphaWalletENS:
-    :path: modules/AlphaWalletENS
+    :path: "."
   AlphaWalletFoundation:
-    :path: modules/AlphaWalletFoundation
+    :path: "."
   AlphaWalletGoBack:
-    :path: modules/AlphaWalletGoBack
+    :path: "."
   AlphaWalletOpenSea:
-    :path: modules/AlphaWalletOpenSea
+    :path: "."
   AlphaWalletWeb3Provider:
     :commit: 9a4496d02b7ddb2f6307fd0510d8d7c9fcef9870
     :git: https://github.com/AlphaWallet/AlphaWallet-web3-provider
@@ -302,12 +302,12 @@ CHECKOUT OPTIONS:
 SPEC CHECKSUMS:
   Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
   Alamofire-Synchronous: eedf1e6e961c3795a63c74990b3f7d9fbfac7e50
-  AlphaWalletAddress: 62a69f5ccc7d6d17abf878c4274f4c3d5fdc97ba
-  AlphaWalletCore: 487e427a595d6b1de8927782104b84645635d4fa
-  AlphaWalletENS: a93a871ad5d8a8c78cd87b60eb59fccf4b23e841
-  AlphaWalletFoundation: 9c47c50dbc7d6666f30fb6ba87191007ce39e046
-  AlphaWalletGoBack: 935efdbd98fa80039f2a350cde5b3a50cea46564
-  AlphaWalletOpenSea: ae06b138f35ced3993ea9976ed522b4da79ba949
+  AlphaWalletAddress: 9dccc77a5ce4abe0e782e05c8ddde4ddbb7c11a7
+  AlphaWalletCore: 635739018555de844a020f8b9b7d49610b3de655
+  AlphaWalletENS: 609407f0a31b31f769d2ddeedf4048b67805254b
+  AlphaWalletFoundation: 4ca776c9be47cb8594e5f6c3eb6fcebd823ce109
+  AlphaWalletGoBack: 1d55b51e6cfd999740d3cfab09d9fa723ba85ff2
+  AlphaWalletOpenSea: 71e255612529b04ae4d66dca54bd181185593b1d
   AlphaWalletWeb3Provider: 7ca1e1c1dc841dc1915f970daace48bf34931655
   APIKit: 9e1a4069608bf0ae5238811e6cfc26928ad4d01e
   Apollo: 5e4476a3236bd576686085b7cd99655c788e4d74
@@ -352,6 +352,6 @@ SPEC CHECKSUMS:
   web3swift: 06118d4c4edc801444aaa995bbbddeda176b97ef
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: dfdd3a2f27da5b1e84a32463b72480aea5866dca
+PODFILE CHECKSUM: 93ffd4175cf4a75489495924069a5b1c6547fa32
 
 COCOAPODS: 1.11.2

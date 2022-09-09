@@ -18,8 +18,8 @@ Pod::Spec.new do |spec|
   spec.swift_version    = '4.2'
   spec.platform         = :ios, "13.0"
   spec.source           = { :git => 'git@github.com:AlphaWallet/alpha-wallet-ios.git', :tag => "#{spec.version}" }
-  spec.source_files     = 'AlphaWalletFoundation/**/*.{h,m,swift}'
-  spec.resource_bundles = {'AlphaWalletFoundation' => ['AlphaWalletFoundation/**/*.{graphql,json}'] }
+  spec.source_files     = 'modules/AlphaWalletFoundation/AlphaWalletFoundation/**/*.{h,m,swift}'
+  spec.resource_bundles = {'AlphaWalletFoundation' => ['modules/AlphaWalletFoundation/AlphaWalletFoundation/**/*.{graphql,json}'] }
   spec.pod_target_xcconfig = { 'SWIFT_OPTIMIZATION_LEVEL' => '-Owholemodule' }
   
   spec.dependency 'BigInt', '~> 3.1'
