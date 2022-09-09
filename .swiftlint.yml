@@ -32,7 +32,7 @@ excluded:
   - AlphaWallet/R.generated.swift
   - AlphaWalletSafariExtension/Resources
   - AlphaWallet/API.swift
-  - modules/AlphaWalletFoundation/AlphaWalletFoundation/Core/NFT/Enjin/API.swift
+  - modules/AlphaWalletFoundation/AlphaWalletFoundation/NFT/Enjin/API.swift
   - modules/*/Pods
 function_parameter_count:
   warning: 20
