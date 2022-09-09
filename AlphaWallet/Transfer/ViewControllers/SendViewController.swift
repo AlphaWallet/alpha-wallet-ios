@@ -193,7 +193,7 @@ class SendViewController: UIViewController {
             return
         }
         guard let recipient = AlphaWallet.Address(string: input) else {
-            targetAddressTextField.errorState = .error(Errors.invalidAddress.prettyError)
+            targetAddressTextField.errorState = .error(InputError.invalidAddress.prettyError)
             return
         }
 

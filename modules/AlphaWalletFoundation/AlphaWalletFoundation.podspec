@@ -28,8 +28,7 @@ Pod::Spec.new do |spec|
   spec.dependency 'SwiftLint', '0.40.3'
   spec.dependency 'RealmSwift', '10.27.0'
   spec.dependency 'Moya', '~> 10.0.1'
-  spec.dependency 'CryptoSwift', '~> 1.4'
-  spec.dependency 'Kingfisher', '~> 7.0'
+  spec.dependency 'CryptoSwift', '~> 1.4' 
   spec.dependency 'AlphaWalletWeb3Provider'
   spec.dependency 'TrezorCrypto'
   spec.dependency 'TrustKeystore'
@@ -48,7 +47,6 @@ Pod::Spec.new do |spec|
   spec.dependency 'AlphaWalletENS'
   spec.dependency 'AlphaWalletOpenSea'
   spec.dependency 'Apollo'
-  spec.dependency 'MailchimpSDK'
   spec.dependency 'CombineExt'
 
 end

@@ -25,7 +25,7 @@ extension Constants {
         }
 
         private static func env(_ name: String) -> String? {
-            if isDebug, let cachedDevelopmentCredentials = cachedDevelopmentCredentials {
+            if Environment.isDebug, let cachedDevelopmentCredentials = cachedDevelopmentCredentials {
                 return cachedDevelopmentCredentials[name]
             } else {
                 return ProcessInfo.processInfo.environment[name]

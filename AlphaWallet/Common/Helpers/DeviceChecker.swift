@@ -1,10 +1,11 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
+import AlphaWalletFoundation
 
-public class DeviceChecker: JailbreakChecker {
-    public init() {}
-    public var isJailbroken: Bool {
+class DeviceChecker: JailbreakChecker {
+    init() {}
+    var isJailbroken: Bool {
         if TARGET_IPHONE_SIMULATOR == 1 {
             return false
         }

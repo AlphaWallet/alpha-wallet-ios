@@ -30,8 +30,6 @@ PODS:
     - EthereumABI
     - JSONRPCKit (~> 2.0.0)
     - Kanna
-    - Kingfisher (~> 7.0)
-    - MailchimpSDK
     - Moya (~> 10.0.1)
     - PaperTrailLumberjack/Swift
     - PromiseKit/Alamofire
@@ -306,7 +304,7 @@ SPEC CHECKSUMS:
   AlphaWalletAddress: 62a69f5ccc7d6d17abf878c4274f4c3d5fdc97ba
   AlphaWalletCore: 451c8a4dfdba1d3b59a3ac47bf0dcabcf1f4c049
   AlphaWalletENS: a93a871ad5d8a8c78cd87b60eb59fccf4b23e841
-  AlphaWalletFoundation: 25f271d526c6a02fcaafcd0a5caaf41e9fd00edd
+  AlphaWalletFoundation: ea6503371307b8f7dff5202b34c7706bd7ac78b4
   AlphaWalletGoBack: 935efdbd98fa80039f2a350cde5b3a50cea46564
   AlphaWalletOpenSea: 11ccb06ae0200dadc2b3f7c3e223f407ac3a22b4
   AlphaWalletWeb3Provider: 7ca1e1c1dc841dc1915f970daace48bf34931655

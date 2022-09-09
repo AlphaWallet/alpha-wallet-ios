@@ -381,7 +381,7 @@ extension AddressTextField: UITextFieldDelegate {
         switch response.resolution {
         case .invalidInput:
             if whileTextWasPaste {
-                delegate?.displayError(error: Errors.invalidAddress, for: self)
+                delegate?.displayError(error: InputError.invalidAddress, for: self)
             }
         case .resolved(let resolved):
             //NOTE: case .resolved(_) determines that entered address value is valid thus errorState should be .none

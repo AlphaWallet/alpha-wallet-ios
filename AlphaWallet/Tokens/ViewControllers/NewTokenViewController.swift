@@ -337,7 +337,7 @@ class NewTokenViewController: UIViewController {
         var balance: [String] = viewModel.ERC875TokenBalance
 
         guard let address = AlphaWallet.Address(string: contract) else {
-            addressTextField.errorState = .error(Errors.invalidAddress.prettyError)
+            addressTextField.errorState = .error(InputError.invalidAddress.prettyError)
             return
         }
         addressTextField.errorState = .none

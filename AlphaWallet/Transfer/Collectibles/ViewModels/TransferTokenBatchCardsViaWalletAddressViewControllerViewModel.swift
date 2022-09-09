@@ -45,17 +45,6 @@ struct TransferTokenBatchCardsViaWalletAddressViewControllerViewModel {
     }
 }
 
-extension Errors {
-    public var errorDescription: String? {
-        switch self {
-        case .invalidAddress:
-            return R.string.localizable.sendErrorInvalidAddress()
-        case .invalidAmount:
-            return R.string.localizable.sendErrorInvalidAmount()
-        }
-    }
-}
-
 extension RpcNodeRetryableRequestError {
     public var errorDescription: String? {
         switch self {

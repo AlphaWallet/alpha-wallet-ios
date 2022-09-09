@@ -8,7 +8,7 @@
 import UIKit
 import PromiseKit
 
-public enum NotificationFeedbackType {
+enum NotificationFeedbackType {
     case success
     case warning
     case error
@@ -27,7 +27,7 @@ public enum NotificationFeedbackType {
 
 extension UINotificationFeedbackGenerator {
 
-    public static func show(feedbackType result: NotificationFeedbackType, completion: @escaping () -> Void = {}) {
+    static func show(feedbackType result: NotificationFeedbackType, completion: @escaping () -> Void = {}) {
         let feedbackGenerator = UINotificationFeedbackGenerator()
         feedbackGenerator.prepare()
 
@@ -37,7 +37,7 @@ extension UINotificationFeedbackGenerator {
         }
     }
     
-    public static func showFeedbackPromise<T>(value: T, feedbackType: NotificationFeedbackType) -> Promise<T> {
+    static func showFeedbackPromise<T>(value: T, feedbackType: NotificationFeedbackType) -> Promise<T> {
         return Promise { seal in
             UINotificationFeedbackGenerator.show(feedbackType: feedbackType) {
                 seal.fulfill(value)
