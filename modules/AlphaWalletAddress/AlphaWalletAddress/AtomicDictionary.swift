@@ -76,4 +76,14 @@ public class AtomicDictionary<Key: Hashable, Value> {
             self.cache.forEach(body)
         }
     }
-} 
+
+    public func contains(where closure: ((_ key: Key, _ value: Value) -> Bool)) -> Bool {
+        var value: Bool = false
+        dispatchPrecondition(condition: .notOnQueue(queue))
+        queue.sync { [unowned self] in
+            value = self.cache.contains(where: closure)
+        }
+
+        return value
+    }
+}
