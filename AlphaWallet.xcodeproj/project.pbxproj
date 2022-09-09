@@ -410,6 +410,7 @@
 		5E7C7F808D0B0B19ECEA6623 /* ETH.tsml in Resources */ = {isa = PBXBuildFile; fileRef = 5E7C768D3C3F400E0B88B575 /* ETH.tsml */; };
 		5E7C7F8271F730462D4E3D93 /* FakeBlockiesGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C737AF4E3BED49DD63CF4 /* FakeBlockiesGenerator.swift */; };
 		5E7C7F906FE07C75F357569B /* DAI.tsml in Resources */ = {isa = PBXBuildFile; fileRef = 5E7C75D9C3EA9FF978ECF8E5 /* DAI.tsml */; };
+		5E7C7FA36B12D00E131398CF /* TokenScriptOverrides+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74CB1950B1EC558685A4 /* TokenScriptOverrides+Extensions.swift */; };
 		5E7C7FC0770A411DB09F8C09 /* FungibleTokenViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7C077372C3F2A4349FA1 /* FungibleTokenViewCell.swift */; };
 		5E7C7FC3D8846843465B0F90 /* ServersCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78EFAF641C41F06C46BF /* ServersCoordinatorTests.swift */; };
 		5E7C7FC76A025AD91D57B960 /* HistoriesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C715BBA7416942FDA8516 /* HistoriesViewModel.swift */; };
@@ -1067,6 +1068,7 @@
 		5E7C74BE9900543A755CB76A /* DappsAutoCompletionCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DappsAutoCompletionCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C74BEC095303B66FB4B1E /* ProtectionCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProtectionCoordinator.swift; sourceTree = "<group>"; };
 		5E7C74C0C1803DD17FE9EBA7 /* ServersViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServersViewController.swift; sourceTree = "<group>"; };
+		5E7C74CB1950B1EC558685A4 /* TokenScriptOverrides+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "TokenScriptOverrides+Extensions.swift"; sourceTree = "<group>"; };
 		5E7C74D2C599646C65B95E2F /* DappsAutoCompletionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DappsAutoCompletionCell.swift; sourceTree = "<group>"; };
 		5E7C74DCC21272EC231A20E2 /* RequestViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RequestViewController.swift; sourceTree = "<group>"; };
 		5E7C75273010A92461EE5CD7 /* SendTransactionErrorViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendTransactionErrorViewController.swift; sourceTree = "<group>"; };
@@ -1992,6 +1994,7 @@
 				2977CAF21F7E0C3A009682A0 /* ViewModels */,
 				2977CAF11F7E0C33009682A0 /* ViewControllers */,
 				2977CAF01F7E0C2E009682A0 /* Views */,
+				5E7C74CB1950B1EC558685A4 /* TokenScriptOverrides+Extensions.swift */,
 			);
 			path = Tokens;
 			sourceTree = "<group>";
@@ -5242,6 +5245,7 @@
 				5E7C76AFBBACDD13BEF25DA9 /* ToolsViewModel.swift in Sources */,
 				5E7C78621C94C8AC509067AC /* ActiveWalletSessionView.swift in Sources */,
 				872A987328645F1D00196EA3 /* SendFungiblesTransactionViewModel.swift in Sources */,
+				5E7C7FA36B12D00E131398CF /* TokenScriptOverrides+Extensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

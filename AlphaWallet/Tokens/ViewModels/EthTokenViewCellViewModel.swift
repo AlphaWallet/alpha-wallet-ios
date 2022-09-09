@@ -7,9 +7,9 @@ import AlphaWalletFoundation
 
 struct EthTokenViewCellViewModel {
     private let token: TokenViewModel
-    private let isVisible: Bool 
+    private let isVisible: Bool
     let accessoryType: UITableViewCell.AccessoryType
-    
+
     init(token: TokenViewModel, isVisible: Bool = true, accessoryType: UITableViewCell.AccessoryType = .none) {
         self.token = token
         self.isVisible = isVisible
@@ -25,7 +25,7 @@ struct EthTokenViewCellViewModel {
     }
 
     var titleAttributedString: NSAttributedString {
-        return NSAttributedString(string: token.tokenScriptOverrides?.shortTitleInPluralForm ?? "", attributes: [
+        return NSAttributedString(string: token.tokenScriptOverrides?.safeShortTitleInPluralForm ?? "", attributes: [
             .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
             .font: Screen.TokenCard.Font.title
         ])
@@ -167,7 +167,7 @@ struct EthTokenViewCellViewModel {
 extension EthTokenViewCellViewModel: Hashable {
     static func == (lhs: EthTokenViewCellViewModel, rhs: EthTokenViewCellViewModel) -> Bool {
         return lhs.token == rhs.token &&
-            lhs.token.tokenScriptOverrides?.shortTitleInPluralForm == rhs.token.tokenScriptOverrides?.shortTitleInPluralForm &&
+            lhs.token.tokenScriptOverrides?.safeShortTitleInPluralForm == rhs.token.tokenScriptOverrides?.shortTitleInPluralForm &&
             lhs.token.tokenScriptOverrides?.symbolInPluralForm == rhs.token.tokenScriptOverrides?.symbolInPluralForm &&
             lhs.token.valueDecimal == rhs.token.valueDecimal &&
             lhs.token.balance.ticker == rhs.token.balance.ticker
@@ -178,7 +178,7 @@ extension EthTokenViewCellViewModel: Hashable {
         hasher.combine(accessoryType)
         hasher.combine(token.contractAddress)
         hasher.combine(token.server)
-        hasher.combine(token.tokenScriptOverrides?.shortTitleInPluralForm)
+        hasher.combine(token.tokenScriptOverrides?.safeShortTitleInPluralForm)
         hasher.combine(token.tokenScriptOverrides?.symbolInPluralForm)
         hasher.combine(token.valueDecimal)
         hasher.combine(token.balance.ticker)

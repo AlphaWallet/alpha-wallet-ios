@@ -23,7 +23,7 @@ struct FungibleTokenViewCellViewModel {
     }
 
     var titleAttributedString: NSAttributedString {
-        return NSAttributedString(string: token.tokenScriptOverrides?.shortTitleInPluralForm ?? "", attributes: [
+        return NSAttributedString(string: token.tokenScriptOverrides?.safeShortTitleInPluralForm ?? "", attributes: [
             .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
             .font: Screen.TokenCard.Font.title
         ])
@@ -134,7 +134,7 @@ struct FungibleTokenViewCellViewModel {
 extension FungibleTokenViewCellViewModel: Hashable {
     static func == (lhs: FungibleTokenViewCellViewModel, rhs: FungibleTokenViewCellViewModel) -> Bool {
         return lhs.token == rhs.token &&
-            lhs.token.tokenScriptOverrides?.shortTitleInPluralForm == rhs.token.tokenScriptOverrides?.shortTitleInPluralForm &&
+            lhs.token.tokenScriptOverrides?.safeShortTitleInPluralForm == rhs.token.tokenScriptOverrides?.shortTitleInPluralForm &&
             lhs.token.tokenScriptOverrides?.symbolInPluralForm == rhs.token.tokenScriptOverrides?.symbolInPluralForm &&
             lhs.token.valueDecimal == rhs.token.valueDecimal &&
             lhs.token.balance.ticker == rhs.token.balance.ticker
@@ -145,7 +145,7 @@ extension FungibleTokenViewCellViewModel: Hashable {
         hasher.combine(accessoryType)
         hasher.combine(token.contractAddress)
         hasher.combine(token.server)
-        hasher.combine(token.tokenScriptOverrides?.shortTitleInPluralForm)
+        hasher.combine(token.tokenScriptOverrides?.safeShortTitleInPluralForm)
         hasher.combine(token.tokenScriptOverrides?.symbolInPluralForm)
         hasher.combine(token.valueDecimal)
         hasher.combine(token.balance.ticker)

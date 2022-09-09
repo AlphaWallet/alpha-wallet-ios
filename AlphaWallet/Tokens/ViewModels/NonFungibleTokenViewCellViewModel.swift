@@ -57,7 +57,7 @@ struct NonFungibleTokenViewCellViewModel {
     }
 
     var titleAttributedString: NSAttributedString {
-        return .init(string: token.tokenScriptOverrides?.shortTitleInPluralForm ?? "-", attributes: [
+        return .init(string: token.tokenScriptOverrides?.safeShortTitleInPluralForm ?? "-", attributes: [
             .font: Screen.TokenCard.Font.title,
             .foregroundColor: Screen.TokenCard.Color.title
         ])
@@ -87,7 +87,7 @@ struct NonFungibleTokenViewCellViewModel {
 extension NonFungibleTokenViewCellViewModel: Hashable {
     static func == (lhs: NonFungibleTokenViewCellViewModel, rhs: NonFungibleTokenViewCellViewModel) -> Bool {
         return lhs.token == rhs.token &&
-            lhs.token.tokenScriptOverrides?.shortTitleInPluralForm == rhs.token.tokenScriptOverrides?.shortTitleInPluralForm &&
+            lhs.token.tokenScriptOverrides?.safeShortTitleInPluralForm == rhs.token.tokenScriptOverrides?.shortTitleInPluralForm &&
             lhs.token.nonZeroBalance.count.toString() == rhs.token.nonZeroBalance.count.toString()
     }
 
@@ -96,7 +96,7 @@ extension NonFungibleTokenViewCellViewModel: Hashable {
         hasher.combine(accessoryType)
         hasher.combine(token.contractAddress)
         hasher.combine(token.server)
-        hasher.combine(token.tokenScriptOverrides?.shortTitleInPluralForm)
+        hasher.combine(token.tokenScriptOverrides?.safeShortTitleInPluralForm)
         hasher.combine(token.nonZeroBalance.count)
     }
 }
