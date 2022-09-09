@@ -8,6 +8,7 @@
 import Combine
 import RealmSwift
 import AlphaWalletCore
+import CombineExt
 
 public typealias TickerIdString = String
 

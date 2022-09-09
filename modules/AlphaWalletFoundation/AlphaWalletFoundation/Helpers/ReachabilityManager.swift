@@ -7,6 +7,7 @@
 
 import Alamofire
 import Combine
+import CombineExt
 
 public protocol ReachabilityManagerProtocol {
     var isReachable: Bool { get }

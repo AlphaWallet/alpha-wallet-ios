@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import CombineExt
 
 public final class CombineTimer {
 

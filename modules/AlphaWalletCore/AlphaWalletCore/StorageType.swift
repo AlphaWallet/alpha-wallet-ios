@@ -5,7 +5,7 @@
 //  Created by Vladyslav Shepitko on 17.09.2021.
 //
 
-import UIKit
+import Foundation
 
 public protocol StorageType {
     @discardableResult func dataExists(forKey key: String) -> Bool

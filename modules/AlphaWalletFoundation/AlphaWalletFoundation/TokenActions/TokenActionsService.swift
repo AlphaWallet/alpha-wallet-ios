@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import CombineExt
 
 public protocol TokenActionsIdentifiable {
     var contractAddress: AlphaWallet.Address { get }

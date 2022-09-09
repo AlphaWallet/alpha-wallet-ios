@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import APIKit
+import CombineExt
 
 protocol PendingTransactionSchedulerProviderDelegate: AnyObject {
     func didReceiveResponse(_ response: Swift.Result<PendingTransaction, Covalent.CovalentError>, in provider: PendingTransactionSchedulerProvider)

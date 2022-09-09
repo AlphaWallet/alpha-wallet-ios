@@ -8,6 +8,7 @@ PODS:
     - TrustKeystore
     - web3swift
   - AlphaWalletCore (1.0.2):
+    - Alamofire
     - PromiseKit
   - AlphaWalletENS (1.0.0):
     - AlphaWalletAddress
@@ -25,7 +26,7 @@ PODS:
     - Apollo
     - BigInt (~> 3.1)
     - BlockiesSwift
-    - CombineExt
+    - CombineExt (= 1.8.0)
     - CryptoSwift (~> 1.4)
     - EthereumABI
     - JSONRPCKit (~> 2.0.0)
@@ -46,7 +47,7 @@ PODS:
     - AlphaWalletAddress
     - AlphaWalletCore
     - PromiseKit
-    - SwiftyJSON
+    - SwiftyJSON (= 5.0.0)
   - AlphaWalletWeb3Provider (0.3.0)
   - APIKit (5.1.0)
   - Apollo (0.50.0):
@@ -64,7 +65,7 @@ PODS:
   - CocoaLumberjack/Core (3.7.0)
   - CocoaLumberjack/Swift (3.7.0):
     - CocoaLumberjack/Core
-  - CombineExt (1.6.1)
+  - CombineExt (1.8.0)
   - CryptoSwift (1.5.1)
   - EthereumABI (1.3.0):
     - BigInt (~> 3.1)
@@ -165,7 +166,7 @@ DEPENDENCIES:
   - BlockiesSwift
   - Charts
   - CocoaLumberjack (= 3.7.0)
-  - CombineExt
+  - CombineExt (= 1.8.0)
   - CryptoSwift (~> 1.4)
   - EthereumABI (from `https://github.com/AlphaWallet/EthereumABI.git`, commit `877b77e8e7cbc54ab0712d509b74fec21b79d1bb`)
   - FloatingPanel
@@ -302,11 +303,11 @@ SPEC CHECKSUMS:
   Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
   Alamofire-Synchronous: eedf1e6e961c3795a63c74990b3f7d9fbfac7e50
   AlphaWalletAddress: 62a69f5ccc7d6d17abf878c4274f4c3d5fdc97ba
-  AlphaWalletCore: 451c8a4dfdba1d3b59a3ac47bf0dcabcf1f4c049
+  AlphaWalletCore: 487e427a595d6b1de8927782104b84645635d4fa
   AlphaWalletENS: a93a871ad5d8a8c78cd87b60eb59fccf4b23e841
-  AlphaWalletFoundation: ea6503371307b8f7dff5202b34c7706bd7ac78b4
+  AlphaWalletFoundation: 9c47c50dbc7d6666f30fb6ba87191007ce39e046
   AlphaWalletGoBack: 935efdbd98fa80039f2a350cde5b3a50cea46564
-  AlphaWalletOpenSea: 11ccb06ae0200dadc2b3f7c3e223f407ac3a22b4
+  AlphaWalletOpenSea: ae06b138f35ced3993ea9976ed522b4da79ba949
   AlphaWalletWeb3Provider: 7ca1e1c1dc841dc1915f970daace48bf34931655
   APIKit: 9e1a4069608bf0ae5238811e6cfc26928ad4d01e
   Apollo: 5e4476a3236bd576686085b7cd99655c788e4d74
@@ -315,7 +316,7 @@ SPEC CHECKSUMS:
   Charts: b1e3a1f5a1c9ba5394438ca3b91bd8c9076310af
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   CocoaLumberjack: e8955b9d337ac307103b0a34fd141c32f27e53c5
-  CombineExt: 57d5234da457f4dab303bac37929192cb4d9626f
+  CombineExt: c4daa97ef75754d8ef319bd79edeef82652f3eea
   CryptoSwift: c4f2debceb38bf44c80659afe009f71e23e4a082
   EthereumABI: c021720744d260b87def6aa45d94554d260cb5a9
   EthereumAddress: 39fe8e11cf04e4e9902b55ae653dbc4e0aee5f30
@@ -351,6 +352,6 @@ SPEC CHECKSUMS:
   web3swift: 06118d4c4edc801444aaa995bbbddeda176b97ef
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: b861336b56375f9503f4db359d57337321ff390c
+PODFILE CHECKSUM: dfdd3a2f27da5b1e84a32463b72480aea5866dca
 
 COCOAPODS: 1.11.2

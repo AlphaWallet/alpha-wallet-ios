@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import CombineExt
 
 public final class SwapTokenProvider: SupportedTokenActionsProvider, TokenActionProvider, TokenActionServiceProvidable {
     private let subProviders: [SupportedTokenActionsProvider & TokenActionProvider]

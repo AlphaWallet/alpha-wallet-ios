@@ -6,8 +6,7 @@
 //
 
 import Foundation
-import Combine
-import AlphaWalletCore
+import Combine 
 
 public class Storage<T: Codable> {
     private let fileName: String

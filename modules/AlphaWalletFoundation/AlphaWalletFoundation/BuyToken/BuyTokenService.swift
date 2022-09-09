@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import CombineExt
 
 public protocol BuyTokenURLProviderType: TokenActionProvider {
     func url(token: TokenActionsIdentifiable, wallet: Wallet) -> URL?
