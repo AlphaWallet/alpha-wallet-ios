@@ -8,8 +8,8 @@
 import UIKit
 
 extension UIImage {
-    public static var tokenSymbolBackgroundImageCache: AtomicDictionary<UIColor, UIImage> = .init()
-    public static func tokenSymbolBackgroundImage(backgroundColor: UIColor, contractAddress: AlphaWallet.Address) -> UIImage {
+    static var tokenSymbolBackgroundImageCache: AtomicDictionary<UIColor, UIImage> = .init()
+    static func tokenSymbolBackgroundImage(backgroundColor: UIColor, contractAddress: AlphaWallet.Address) -> UIImage {
         if let cachedValue = tokenSymbolBackgroundImageCache[backgroundColor] {
             return cachedValue
         }
@@ -25,7 +25,7 @@ extension UIImage {
         return image
     }
 
-    public static func tokenSymbolBackgroundImage(backgroundColor: UIColor) -> UIImage {
+    static func tokenSymbolBackgroundImage(backgroundColor: UIColor) -> UIImage {
         if let cachedValue = tokenSymbolBackgroundImageCache[backgroundColor] {
             return cachedValue
         }

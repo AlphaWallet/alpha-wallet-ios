@@ -2,6 +2,6 @@
 
 import Foundation
 
-public protocol JailbreakChecker {
+protocol JailbreakChecker {
     var isJailbroken: Bool { get }
 }

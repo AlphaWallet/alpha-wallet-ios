@@ -20,11 +20,3 @@ extension Bundle {
         return "\(versionNumber) (\(buildNumber))"
     }
 }
-
-public var isDebug: Bool {
-    #if DEBUG
-        return true
-    #else
-        return false
-    #endif
-}

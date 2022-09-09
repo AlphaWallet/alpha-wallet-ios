@@ -1,6 +1,7 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
 import Foundation
+import AlphaWalletFoundation
 
 #if targetEnvironment(simulator)
 //no-op
@@ -8,15 +9,15 @@ import Foundation
 import MailchimpSDK
 #endif
 
-public class EmailList {
+class EmailList {
     private let listSpecificKey: String
 
-    public init(listSpecificKey: String) {
+    init(listSpecificKey: String) {
         self.listSpecificKey = listSpecificKey
     }
 
     ///We skip email validation since MailChimp does it, and this is low volume
-    public func subscribe(email: String) {
+    func subscribe(email: String) {
         guard Features.default.isAvailable(.isPromptForEmailListSubscriptionEnabled) else { return }
         #if targetEnvironment(simulator)
         //no-op

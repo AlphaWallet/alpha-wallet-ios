@@ -4,7 +4,6 @@ import UIKit
 import PromiseKit
 import AlphaWalletCore
 import AlphaWalletOpenSea
-import Kingfisher
 
 public typealias GoogleContentSize = AlphaWalletCore.GoogleContentSize
 public typealias WebImageURL = AlphaWalletCore.WebImageURL
@@ -122,6 +121,12 @@ public class TokenImageFetcher {
         return TokenImageFetcher.programmaticallyGenerateIcon(for: contractAddress, type: type, server: server, symbol: name, colors: colors, staticOverlayIcon: staticOverlayIcon, blockChainNameColor: blockChainNameColor)
     }
 
+    private static var imageFetcher: ImageFetcher?
+
+    public static func register(imageFetcher obj: ImageFetcher?) {
+        imageFetcher = obj
+    }
+
     public func image(contractAddress: AlphaWallet.Address, server: RPCServer, name: String, type: TokenType, balance: NonFungibleFromJson?, size: GoogleContentSize, contractDefinedImage: UIImage?, colors: [UIColor], staticOverlayIcon: UIImage?, blockChainNameColor: UIColor, serverIconImage: UIImage?) -> Subscribable<TokenImage> {
         let subscribable: Subscribable<TokenImage>
         let key = "\(contractAddress.eip55String)-\(server.chainID)-\(size.rawValue)"
@@ -193,19 +198,14 @@ public class TokenImageFetcher {
             verboseLog("Loading token icon URL: \(urlString) error")
             return .init(error: AnyError())
         }
-        let resource = ImageResource(downloadURL: url, cacheKey: urlString)
 
-        return Promise { seal in
-            KingfisherManager.shared.retrieveImage(with: resource) { result in
-                switch result {
-                case .success(let response):
-                    seal.fulfill(response.image)
-                case .failure(let error):
-                    seal.reject(error)
-                }
-            }
-        }
+        guard let fetcher = imageFetcher else { return .init(error: AnyError()) }
+        return fetcher.retrieveImage(with: url)
     }
+}
+
+public protocol ImageFetcher: AnyObject {
+    func retrieveImage(with url: URL) -> Promise<UIImage>
 }
 
 class GithubAssetsURLResolver {

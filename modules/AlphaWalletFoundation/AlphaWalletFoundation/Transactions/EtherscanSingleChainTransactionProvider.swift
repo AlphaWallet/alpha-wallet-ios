@@ -220,7 +220,7 @@ public class EtherscanSingleChainTransactionProvider: SingleChainTransactionProv
             sortOrder = .desc
         }
 
-        let operation = FetchLatestTransactionsOperation(forSession: session, coordinator: self, startBlock: startBlock, sortOrder: sortOrder, queue: queue)
+        let operation = FetchLatestTransactionsOperation(forSession: session, provider: self, startBlock: startBlock, sortOrder: sortOrder, queue: queue)
         fetchLatestTransactionsQueue.addOperation(operation)
     }
 
@@ -263,11 +263,11 @@ public class EtherscanSingleChainTransactionProvider: SingleChainTransactionProv
     //This inner class reaches into the internals of its outer coordinator class to call some methods. It exists so we can wrap operations into an Operation class and feed it into a queue, so we don't put much logic into it
     class FetchLatestTransactionsOperation: Operation {
         private let session: WalletSession
-        weak private var coordinator: EtherscanSingleChainTransactionProvider?
+        weak private var provider: EtherscanSingleChainTransactionProvider?
         private let startBlock: Int
         private let sortOrder: AlphaWalletService.SortOrder
         override var isExecuting: Bool {
-            return coordinator?.isFetchingLatestTransactions ?? false
+            return provider?.isFetchingLatestTransactions ?? false
         }
         override var isFinished: Bool {
             return !isExecuting
@@ -277,9 +277,9 @@ public class EtherscanSingleChainTransactionProvider: SingleChainTransactionProv
         }
         private let queue: DispatchQueue
 
-        init(forSession session: WalletSession, coordinator: EtherscanSingleChainTransactionProvider, startBlock: Int, sortOrder: AlphaWalletService.SortOrder, queue: DispatchQueue) {
+        init(forSession session: WalletSession, provider: EtherscanSingleChainTransactionProvider, startBlock: Int, sortOrder: AlphaWalletService.SortOrder, queue: DispatchQueue) {
             self.session = session
-            self.coordinator = coordinator
+            self.provider = provider
             self.startBlock = startBlock
             self.sortOrder = sortOrder
             self.queue = queue
@@ -288,23 +288,23 @@ public class EtherscanSingleChainTransactionProvider: SingleChainTransactionProv
         }
 
         override func main() {
-            guard let coordinator = self.coordinator else { return }
+            guard let provider = self.provider else { return }
 
             firstly {
-                EtherscanSingleChainTransactionProvider.functional.fetchTransactions(startBlock: startBlock, sortOrder: sortOrder, session: coordinator.session, alphaWalletProvider: coordinator.alphaWalletProvider, tokensService: coordinator.tokensService, queue: coordinator.queue)
+                EtherscanSingleChainTransactionProvider.functional.fetchTransactions(startBlock: startBlock, sortOrder: sortOrder, session: provider.session, alphaWalletProvider: provider.alphaWalletProvider, tokensService: provider.tokensService, queue: provider.queue)
             }.done(on: queue, { [weak self] transactions in
                 guard let strongSelf = self else { return }
                 guard !strongSelf.isCancelled else { return }
-                coordinator.addOrUpdate(transactions: transactions)
+                provider.addOrUpdate(transactions: transactions)
             }).catch(on: queue, { e in
-                error(value: e, rpcServer: coordinator.session.server, address: self.session.account.address)
+                error(value: e, rpcServer: provider.session.server, address: self.session.account.address)
             }).finally(on: queue, { [weak self] in
                 guard let strongSelf = self else { return }
 
                 strongSelf.willChangeValue(forKey: "isExecuting")
                 strongSelf.willChangeValue(forKey: "isFinished")
 
-                coordinator.isFetchingLatestTransactions = false
+                provider.isFetchingLatestTransactions = false
 
                 strongSelf.didChangeValue(forKey: "isExecuting")
                 strongSelf.didChangeValue(forKey: "isFinished")

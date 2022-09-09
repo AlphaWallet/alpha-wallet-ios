@@ -178,9 +178,11 @@ extension SwapTokensCoordinator: ApproveSwapProviderDelegate {
     }
 
     func promptForErc20Approval(token: AlphaWallet.Address, server: RPCServer, owner: AlphaWallet.Address, spender: AlphaWallet.Address, amount: BigUInt, in provider: ApproveSwapProvider) -> Promise<EthereumTransaction.Hash> {
-        let (transaction, configuration) = Erc20.buildApproveTransaction(keystore: keystore, token: token, server: server, owner: owner, spender: spender, amount: amount)
-
         return firstly {
+            Promise.value(token)
+        }.map { token in
+            try Erc20.buildApproveTransaction(token: token, server: server, owner: owner, spender: spender, amount: amount)
+        }.then { [navigationController, keystore, analytics, assetDefinitionStore, configurator, tokenCollection, domainResolutionService] (transaction, configuration) in
             TransactionConfirmationCoordinator.promise(navigationController, session: configurator.session, coordinator: self, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, source: .swapApproval, delegate: self, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokenCollection)
         }.map { confirmationResult in
             switch confirmationResult {

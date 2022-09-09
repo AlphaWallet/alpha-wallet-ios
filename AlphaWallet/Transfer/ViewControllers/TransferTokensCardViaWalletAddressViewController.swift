@@ -159,7 +159,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
         if let address = AlphaWallet.Address(string: targetAddressTextField.value.trimmed) {
             delegate?.didEnterWalletAddress(tokenHolder: tokenHolder, to: address, paymentFlow: paymentFlow, in: self)
         } else {
-            targetAddressTextField.errorState = .error(Errors.invalidAddress.prettyError)
+            targetAddressTextField.errorState = .error(InputError.invalidAddress.prettyError)
         }
     }
 
@@ -246,7 +246,7 @@ extension TransferTokensCardViaWalletAddressViewController: AddressTextFieldDele
     }
 
     func displayError(error: Error, for textField: AddressTextField) {
-        targetAddressTextField.errorState = .error(Errors.invalidAddress.prettyError)
+        targetAddressTextField.errorState = .error(InputError.invalidAddress.prettyError)
     }
 
     func openQRCodeReader(for textField: AddressTextField) {
