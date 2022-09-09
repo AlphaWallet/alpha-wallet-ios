@@ -7,9 +7,9 @@ import AlphaWalletFoundation
 
 struct EthTokenViewCellViewModel {
     private let token: TokenViewModel
-    private let isVisible: Bool 
+    private let isVisible: Bool
     let accessoryType: UITableViewCell.AccessoryType
-    
+
     init(token: TokenViewModel, isVisible: Bool = true, accessoryType: UITableViewCell.AccessoryType = .none) {
         self.token = token
         self.isVisible = isVisible
