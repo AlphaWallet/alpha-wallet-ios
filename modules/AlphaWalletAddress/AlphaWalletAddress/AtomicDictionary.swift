@@ -69,4 +69,11 @@ public class AtomicDictionary<Key: Hashable, Value> {
 
         return elements
     }
+
+    public func forEach(body: ((key: Key, value: Value)) -> Void) {
+        dispatchPrecondition(condition: .notOnQueue(queue))
+        queue.sync { [unowned self] in
+            self.cache.forEach(body)
+        }
+    }
 } 
