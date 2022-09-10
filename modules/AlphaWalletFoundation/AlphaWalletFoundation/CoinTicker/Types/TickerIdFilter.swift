@@ -21,7 +21,7 @@ public class TickerIdFilter {
 
     private func filterMathesInPlatforms(token: TokenMappedToTicker, tickerId: TickerId) -> Bool {
         func isMatchingSymbolAndName(token: TokenMappedToTicker, tickerId: TickerId) -> Bool {
-            let result = tickerId.symbol.localizedLowercase == token.symbol.localizedLowercase && tickerId.name.localizedLowercase == token.name.localizedLowercase
+            let result = tickerId.symbol.compare(token.symbol, options: .caseInsensitive) == .orderedSame && tickerId.name.compare(token.name, options: .caseInsensitive) == .orderedSame
             if Features.default.isAvailable(.isLoggingEnabledForTickerMatches) && result {
                 Self.matchCounts["by symbol+name, ignoring platform", default: 0] += 1
             }
@@ -49,7 +49,7 @@ public class TickerIdFilter {
 
         if let contract = tickerId.platforms.first(where: { $0.server == token.server }) {
             if contract.address.sameContract(as: Constants.nullAddress) {
-                let result = tickerId.symbol.localizedLowercase == token.symbol.localizedLowercase
+                let result = tickerId.symbol.compare(token.symbol, options: .caseInsensitive) == .orderedSame
                 if Features.default.isAvailable(.isLoggingEnabledForTickerMatches) && result {
                     Self.matchCounts["by platform+symbol for 0x0", default: 0] += 1
                 }
@@ -74,7 +74,7 @@ public class TickerIdFilter {
 
     func filterMathesInPlatforms(token: TokenMappedToTicker, tickerId object: TickerIdObject) -> Bool {
         func isMatchingSymbolAndName(token: TokenMappedToTicker, tickerIdObject object: TickerIdObject) -> Bool {
-            object.symbol.localizedLowercase == token.symbol.localizedLowercase && object.name.localizedLowercase == token.name.localizedLowercase
+            return object.symbol.compare(token.symbol, options: .caseInsensitive) == .orderedSame && object.name.compare(token.name, options: .caseInsensitive) == .orderedSame
         }
 
         //We just filter out those that we don't think are supported by the API. One problem this helps to alleviate is in the API output, certain tickers have a non-empty platform yet the platform list might not be complete, eg. Ether on Ethereum mainnet:
@@ -92,7 +92,7 @@ public class TickerIdFilter {
 
         if let platform = object.platforms.first(where: { $0.server == token.server }) {
             if platform.contractAddress.sameContract(as: Constants.nullAddress) {
-                return object.symbol.localizedLowercase == token.symbol.localizedLowercase
+                return object.symbol.compare(token.symbol, options: .caseInsensitive) == .orderedSame
             } else if platform.contractAddress.sameContract(as: token.contractAddress) {
                 return true
             } else if token.server == .polygon && token.contractAddress == Constants.nativeCryptoAddressInDatabase && platform.contractAddress.sameContract(as: Self.polygonMaticContract) {
