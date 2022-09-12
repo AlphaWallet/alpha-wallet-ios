@@ -142,7 +142,7 @@ private class PrivateXMLHandler {
     fileprivate lazy var tokenType: TokenInterfaceType? = {
         var tokenType: TokenInterfaceType?
         threadSafe.performSync {
-            tokenType = self.tokenType
+            tokenType = self._tokenType
         }
         return tokenType
     }()
