@@ -57,12 +57,13 @@ public class TokenAdaptor {
     private let token: TokenScriptSupportable
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: NonActivityEventsDataStore
-    private lazy var xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
+    private let xmlHandler: XMLHandler
 
     public init(token: TokenScriptSupportable, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore) {
         self.token = token
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
+        self.xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
     }
 
     //`sourceFromEvents`: We'll usually source from events if available, except when we are actually using this func to create the filter to fetch the events

@@ -7,9 +7,10 @@ import PromiseKit
 public protocol AssetDefinitionStoreDelegate: AnyObject {
     func listOfBadTokenScriptFilesChanged(in: AssetDefinitionStore)
 }
-
+public typealias XMLFile = String
 public protocol BaseTokenScriptFilesProvider {
-    var baseTokenScriptFiles: [TokenType: String] { get }
+    func containsTokenScriptFile(for file: XMLFile) -> Bool
+    func baseTokenScriptFile(for tokenType: TokenType) -> XMLFile?
 }
 
 /// Manage access to and cache asset definition XML files
@@ -39,7 +40,7 @@ public class AssetDefinitionStore: NSObject {
     }()
     private var lastContractInPasteboard: String?
     private var backingStore: AssetDefinitionBackingStore
-    public let baseTokenScriptFiles: [TokenType: String]
+    private let _baseTokenScriptFiles: AtomicDictionary<TokenType, String> = .init()
     public weak var delegate: AssetDefinitionStoreDelegate?
     public var listOfBadTokenScriptFiles: [TokenScriptFileIndices.FileName] {
         return backingStore.badTokenScriptFileNames
@@ -126,7 +127,7 @@ public class AssetDefinitionStore: NSObject {
 
     public init(backingStore: AssetDefinitionBackingStore = AssetDefinitionDiskBackingStoreWithOverrides(), baseTokenScriptFiles: [TokenType: String] = [:]) {
         self.backingStore = backingStore
-        self.baseTokenScriptFiles = baseTokenScriptFiles
+        self._baseTokenScriptFiles.set(value: baseTokenScriptFiles)
         super.init()
         self.backingStore.delegate = self
     }
@@ -301,7 +302,15 @@ public class AssetDefinitionStore: NSObject {
     }
 }
 
-extension AssetDefinitionStore: BaseTokenScriptFilesProvider {}
+extension AssetDefinitionStore: BaseTokenScriptFilesProvider {
+    public func containsTokenScriptFile(for file: XMLFile) -> Bool {
+        return _baseTokenScriptFiles.contains(where: { $1 == file })
+    }
+
+    public func baseTokenScriptFile(for tokenType: TokenType) -> XMLFile? {
+        return _baseTokenScriptFiles[tokenType]
+    }
+}
 
 extension AssetDefinitionStore: AssetDefinitionBackingStoreDelegate {
     public func invalidateAssetDefinition(forContractAndServer contractAndServer: AddressAndOptionalRPCServer) {
