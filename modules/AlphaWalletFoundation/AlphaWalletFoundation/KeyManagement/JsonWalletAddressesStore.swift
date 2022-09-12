@@ -59,7 +59,7 @@ public struct JsonWalletAddressesStore: WalletAddressesStore {
             saveWalletCollectionToFile()
         }
     }
-    
+
     public var walletsPublisher: AnyPublisher<Set<Wallet>, Never> {
         walletsSubject.eraseToAnyPublisher()
     }
@@ -190,26 +190,22 @@ public struct JsonWalletAddressesStore: WalletAddressesStore {
 
 extension EtherKeystore {
     private static let rawJsonWalletStore = JsonWalletAddressesStore.createStorage()
-    
+
     public static func migratedWalletAddressesStore(userDefaults: UserDefaults) -> WalletAddressesStore {
-        if Features.default.isAvailable(.isJsonFileBasedStorageForWalletAddressesEnabled) {
-            //NOTE: its quite important to remove test wallets right before fetching, otherwise tests will fails, especially Keystore related
-            JsonWalletAddressesStore.removeWalletsFolderForTests()
+        //NOTE: its quite important to remove test wallets right before fetching, otherwise tests will fails, especially Keystore related
+        JsonWalletAddressesStore.removeWalletsFolderForTests()
 
-            let jsonWalletAddressesStore = JsonWalletAddressesStore(storage: rawJsonWalletStore)
-            if !jsonWalletAddressesStore.hasAnyStoredData {
+        let jsonWalletAddressesStore = JsonWalletAddressesStore(storage: rawJsonWalletStore)
+        if !jsonWalletAddressesStore.hasAnyStoredData {
 
-                let userDefaultsWalletAddressesStore = DefaultsWalletAddressesStore(userDefaults: userDefaults)
-                if jsonWalletAddressesStore.hasWallets && !userDefaultsWalletAddressesStore.hasWallets {
-                    return jsonWalletAddressesStore
-                } else {
-                    return userDefaultsWalletAddressesStore.migrate(to: jsonWalletAddressesStore)
-                }
-            } else {
+            let userDefaultsWalletAddressesStore = DefaultsWalletAddressesStore(userDefaults: userDefaults)
+            if jsonWalletAddressesStore.hasWallets && !userDefaultsWalletAddressesStore.hasWallets {
                 return jsonWalletAddressesStore
+            } else {
+                return userDefaultsWalletAddressesStore.migrate(to: jsonWalletAddressesStore)
             }
         } else {
-            return DefaultsWalletAddressesStore(userDefaults: userDefaults)
+            return jsonWalletAddressesStore
         }
     }
 }

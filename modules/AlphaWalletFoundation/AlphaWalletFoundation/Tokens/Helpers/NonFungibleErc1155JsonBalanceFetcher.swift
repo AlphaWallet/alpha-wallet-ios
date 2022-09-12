@@ -40,7 +40,6 @@ public class NonFungibleErc1155JsonBalanceFetcher {
     }
 
     public func fetchErc1155NonFungibleJsons(enjinTokens: EnjinTokenIdsToSemiFungibles) -> Promise<[AlphaWallet.Address: [NonFungibleBalanceAndItsSource<NonFungibleFromTokenUri>]]> {
-        guard Features.default.isAvailable(.isErc1155Enabled) else { return .init(error: PMKError.cancelled) }
         //Local copies so we don't access the wrong ones during async operation
 
         return firstly {

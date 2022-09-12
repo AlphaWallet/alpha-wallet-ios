@@ -1,7 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
-import UIKit 
+import UIKit
 import PromiseKit
 import BigInt
 import MBProgressHUD
@@ -41,7 +41,7 @@ class SendViewController: UIViewController {
         amountTextField.accessoryButtonTitle = .next
         amountTextField.errorState = .none
         amountTextField.isAlternativeAmountEnabled = false
-        amountTextField.allFundsAvailable = Features.default.isAvailable(.isSendAllFundsFungibleEnabled)
+        amountTextField.allFundsAvailable = true
         amountTextField.selectCurrencyButton.hasToken = true
         return amountTextField
     }()

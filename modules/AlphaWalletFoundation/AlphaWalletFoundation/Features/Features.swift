@@ -76,28 +76,21 @@ public class Features {
 
 public enum FeaturesAvailable: String, CaseIterable, Codable {
     case isActivityEnabled
-    case isSendAllFundsFungibleEnabled
     case isSpeedupAndCancelEnabled
     case isLanguageSwitcherDisabled
     case shouldLoadTokenScriptWithFailedSignatures
     case isRenameWalletEnabledWhileLongPress
     case shouldPrintCURLForOutgoingRequest
-    case isEip3085AddEthereumChainEnabled
-    case isEip3326SwitchEthereumChainEnabled
     case isPromptForEmailListSubscriptionEnabled
     case isAlertsEnabled
-    case isErc1155Enabled
     case isUsingPrivateNetwork
     case isUsingAppEnforcedTimeoutForMakingWalletConnectConnections
     case isAttachingLogFilesToSupportEmailEnabled
-    case isPalmEnabled
     case isExportJsonKeystoreEnabled
     case is24SeedWordPhraseAllowed
     case isAnalyticsUIEnabled
-    case isJsonFileBasedStorageForWalletAddressesEnabled
     case isBlockscanChatEnabled
     case isTokenScriptSignatureStatusEnabled
-    case isFirebaseEnabled
     case isSwapEnabled
     case isCoinbasePayEnabled
     case isLoggingEnabledForTickerMatches
@@ -105,8 +98,6 @@ public enum FeaturesAvailable: String, CaseIterable, Codable {
     public var defaultValue: Bool {
         switch self {
         case .isActivityEnabled:
-            return true
-        case .isSendAllFundsFungibleEnabled:
             return true
         case .isSpeedupAndCancelEnabled:
             return true
@@ -118,38 +109,26 @@ public enum FeaturesAvailable: String, CaseIterable, Codable {
             return true
         case .shouldPrintCURLForOutgoingRequest:
             return false
-        case .isEip3085AddEthereumChainEnabled:
-            return true
-        case .isEip3326SwitchEthereumChainEnabled:
-            return true
         case .isPromptForEmailListSubscriptionEnabled:
             return true
         case .isAlertsEnabled:
             return false
-        case .isErc1155Enabled:
-            return true
         case .isUsingPrivateNetwork:
             return true
         case .isUsingAppEnforcedTimeoutForMakingWalletConnectConnections:
             return true
         case .isAttachingLogFilesToSupportEmailEnabled:
             return false
-        case .isPalmEnabled:
-            return true
         case .isExportJsonKeystoreEnabled:
             return true
         case .is24SeedWordPhraseAllowed:
             return true
         case .isAnalyticsUIEnabled:
             return true
-        case .isJsonFileBasedStorageForWalletAddressesEnabled:
-            return true
         case .isBlockscanChatEnabled:
             return true
         case .isTokenScriptSignatureStatusEnabled:
             return false
-        case .isFirebaseEnabled:
-            return true
         case .isSwapEnabled:
             return false
         case .isCoinbasePayEnabled:
