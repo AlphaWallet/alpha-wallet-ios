@@ -425,11 +425,10 @@ public class ActivitiesService: NSObject, ActivitiesServiceType {
 
     //We can't run this in `activities` didSet {} because this will then be run unnecessarily, when we refresh each activity (we only want this to update when we refresh the entire activity list)
     private func updateActivitiesIndexLookup(with activities: [Activity]) {
-        var arrayIndex = -1
-        let newValue: [Int: (index: Int, activity: Activity)] = Dictionary(uniqueKeysWithValues: activities.map {
-            arrayIndex += 1
-            return ($0.id, (arrayIndex, $0))
-        })
+        var newValue: [Int: (index: Int, activity: Activity)] = [:]
+        for (index, each) in activities.enumerated() {
+            newValue[each.id] = (index, each)
+        }
         activitiesIndexLookup.set(value: newValue)
     }
 }
