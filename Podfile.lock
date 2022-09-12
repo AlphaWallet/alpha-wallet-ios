@@ -164,7 +164,7 @@ DEPENDENCIES:
   - Apollo
   - BigInt (~> 3.1)
   - BlockiesSwift
-  - Charts
+  - Charts (from `https://github.com/AlphaWallet/Charts.git`, commit `85ec4d0f62b97829274c4f628f4840036939de64`)
   - CocoaLumberjack (= 3.7.0)
   - CombineExt (= 1.8.0)
   - CryptoSwift (~> 1.4)
@@ -203,7 +203,6 @@ SPEC REPOS:
     - Apollo
     - BigInt
     - BlockiesSwift
-    - Charts
     - CocoaAsyncSocket
     - CocoaLumberjack
     - CombineExt
@@ -251,6 +250,9 @@ EXTERNAL SOURCES:
   AlphaWalletWeb3Provider:
     :commit: 9a4496d02b7ddb2f6307fd0510d8d7c9fcef9870
     :git: https://github.com/AlphaWallet/AlphaWallet-web3-provider
+  Charts:
+    :commit: 85ec4d0f62b97829274c4f628f4840036939de64
+    :git: https://github.com/AlphaWallet/Charts.git
   EthereumABI:
     :commit: 877b77e8e7cbc54ab0712d509b74fec21b79d1bb
     :git: https://github.com/AlphaWallet/EthereumABI.git
@@ -277,6 +279,9 @@ CHECKOUT OPTIONS:
   AlphaWalletWeb3Provider:
     :commit: 9a4496d02b7ddb2f6307fd0510d8d7c9fcef9870
     :git: https://github.com/AlphaWallet/AlphaWallet-web3-provider
+  Charts:
+    :commit: 85ec4d0f62b97829274c4f628f4840036939de64
+    :git: https://github.com/AlphaWallet/Charts.git
   EthereumABI:
     :commit: 877b77e8e7cbc54ab0712d509b74fec21b79d1bb
     :git: https://github.com/AlphaWallet/EthereumABI.git
@@ -352,6 +357,6 @@ SPEC CHECKSUMS:
   web3swift: 06118d4c4edc801444aaa995bbbddeda176b97ef
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: 93ffd4175cf4a75489495924069a5b1c6547fa32
+PODFILE CHECKSUM: f0a23b9a340a9dc67d8c9623eed6a172a7556a01
 
 COCOAPODS: 1.11.2
