@@ -305,19 +305,22 @@ private class PrivateXMLHandler {
         return fieldIdsAndNames
     }()
 
+    private lazy var _labelInSingularForm: String? = {
+        if contractAddress.sameContract(as: Constants.katContractAddress) {
+            return Constants.katNameFallback
+        }
+
+        if let labelStringElement = XMLHandler.getLabelStringElement(fromElement: tokenElement, xmlContext: xmlContext), let label = labelStringElement.text {
+            return label
+        } else {
+            return nil
+        }
+    }()
+
     lazy var labelInSingularForm: String? = {
         var labelInSingularForm: String?
         threadSafe.performSync {
-            if contractAddress.sameContract(as: Constants.katContractAddress) {
-                labelInSingularForm = Constants.katNameFallback
-                return
-            }
-
-            if let labelStringElement = XMLHandler.getLabelStringElement(fromElement: tokenElement, xmlContext: xmlContext), let label = labelStringElement.text {
-                labelInSingularForm = label
-            } else {
-                labelInSingularForm = nil
-            }
+            labelInSingularForm = _labelInSingularForm
         }
         return labelInSingularForm
     }()
@@ -333,7 +336,7 @@ private class PrivateXMLHandler {
             if  let nameElement = XMLHandler.getLabelElementForPluralForm(fromElement: tokenElement, xmlContext: xmlContext), let name = nameElement.text {
                 labelInPluralForm = name
             } else {
-                labelInPluralForm = labelInSingularForm
+                labelInPluralForm = _labelInSingularForm
             }
         }
         return labelInPluralForm
