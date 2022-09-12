@@ -13,7 +13,7 @@ public protocol WalletDependencyContainer {
 }
 
 public protocol WalletDependency {
-    var store: RealmStore { get }
+    var activitiesPipeLine: ActivitiesPipeLine { get }
     var transactionsDataStore: TransactionDataStore { get }
     var importToken: ImportToken { get }
     var tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable & TokensServiceTests { get }
@@ -32,7 +32,7 @@ public class WalletComponentsFactory: WalletDependencyContainer {
     private var walletDependencies: [Wallet: WalletDependency] = [:]
 
     public struct Dependencies: WalletDependency {
-        public let store: RealmStore
+        public let activitiesPipeLine: ActivitiesPipeLine
         public let transactionsDataStore: TransactionDataStore
         public let importToken: ImportToken
         public let tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable & TokensServiceTests
@@ -53,11 +53,10 @@ public class WalletComponentsFactory: WalletDependencyContainer {
     public func makeDependencies(for wallet: Wallet) -> WalletDependency {
         if let dep = walletDependencies[wallet] { return dep }
 
-        let store: RealmStore = .storage(for: wallet)
-        let tokensDataStore: TokensDataStore = MultipleChainsTokensDataStore(store: store, servers: config.enabledServers)
-        let eventsDataStore: NonActivityEventsDataStore = NonActivityMultiChainEventsDataStore(store: store)
-        let transactionsDataStore = TransactionDataStore(store: store)
-
+        let tokensDataStore: TokensDataStore = MultipleChainsTokensDataStore(store: .storage(for: wallet), servers: config.enabledServers)
+        let eventsDataStore: NonActivityEventsDataStore = NonActivityMultiChainEventsDataStore(store: .storage(for: wallet))
+        let transactionsDataStore: TransactionDataStore = TransactionDataStore(store: .storage(for: wallet))
+        let eventsActivityDataStore: EventsActivityDataStoreProtocol = EventsActivityDataStore(store: .storage(for: wallet))
         let sessionsProvider: SessionsProvider = .init(config: config, analytics: analytics)
 
         let importToken = ImportToken(sessionProvider: sessionsProvider, wallet: wallet, tokensDataStore: tokensDataStore, assetDefinitionStore: assetDefinitionStore, analytics: analytics)
@@ -66,8 +65,9 @@ public class WalletComponentsFactory: WalletDependencyContainer {
         let pipeline: TokensProcessingPipeline = WalletDataProcessingPipeline(wallet: wallet, tokensService: tokensService, coinTickersFetcher: coinTickersFetcher, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
 
         let fetcher = WalletBalanceFetcher(wallet: wallet, tokensService: pipeline)
+        let activitiesPipeLine = ActivitiesPipeLine(config: config, wallet: wallet, assetDefinitionStore: assetDefinitionStore, transactionDataStore: transactionsDataStore, tokensService: tokensService, sessionsProvider: sessionsProvider, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore)
 
-        let dependency: WalletDependency = Dependencies(store: store, transactionsDataStore: transactionsDataStore, importToken: importToken, tokensService: tokensService, pipeline: pipeline, fetcher: fetcher, sessionsProvider: sessionsProvider, eventsDataStore: eventsDataStore)
+        let dependency: WalletDependency = Dependencies(activitiesPipeLine: activitiesPipeLine, transactionsDataStore: transactionsDataStore, importToken: importToken, tokensService: tokensService, pipeline: pipeline, fetcher: fetcher, sessionsProvider: sessionsProvider, eventsDataStore: eventsDataStore)
 
         walletDependencies[wallet] = dependency
 

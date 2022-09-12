@@ -22,7 +22,8 @@ extension WalletDataProcessingPipeline {
     static func make(wallet: Wallet = .make(), server: RPCServer = .main) -> WalletDependency {
         let fas = FakeAnalyticsService()
         let sessionsProvider: SessionsProvider = .make(wallet: wallet, servers: [server])
-        let store: RealmStore = .fake(for: wallet)
+        let eventsActivityDataStore: EventsActivityDataStoreProtocol = EventsActivityDataStore(store: .fake(for: wallet))
+
         let tokensDataStore = FakeTokensDataStore(account: wallet, servers: [server])
         let importToken = ImportToken(sessionProvider: sessionsProvider, wallet: wallet, tokensDataStore: tokensDataStore, assetDefinitionStore: .init(), analytics: fas)
         let eventsDataStore = FakeEventsDataStore()
@@ -36,7 +37,9 @@ extension WalletDataProcessingPipeline {
 
         let fetcher = WalletBalanceFetcher(wallet: wallet, tokensService: pipeline)
 
-        let dep = FakeWalletDep(store: store, tokensDataStore: tokensDataStore, transactionsDataStore: transactionsDataStore, importToken: importToken, tokensService: tokensService, pipeline: pipeline, fetcher: fetcher, sessionsProvider: sessionsProvider)
+        let activitiesPipeLine = ActivitiesPipeLine(config: .make(), wallet: wallet, assetDefinitionStore: .init(), transactionDataStore: transactionsDataStore, tokensService: tokensService, sessionsProvider: sessionsProvider, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore)
+
+        let dep = FakeWalletDep(activitiesPipeLine: activitiesPipeLine, tokensDataStore: tokensDataStore, transactionsDataStore: transactionsDataStore, importToken: importToken, tokensService: tokensService, pipeline: pipeline, fetcher: fetcher, sessionsProvider: sessionsProvider)
         dep.sessionsProvider.start(wallet: wallet)
         dep.fetcher.start()
         dep.pipeline.start()
@@ -45,7 +48,7 @@ extension WalletDataProcessingPipeline {
     }
 
     struct FakeWalletDep: WalletDependency {
-        let store: RealmStore
+        let activitiesPipeLine: ActivitiesPipeLine
         let tokensDataStore: TokensDataStore
         let transactionsDataStore: TransactionDataStore
         let importToken: ImportToken
