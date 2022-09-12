@@ -19,8 +19,6 @@ public func fakeRealm(inMemoryIdentifier: String = "MyInMemoryRealm") -> Realm {
     return try! Realm(configuration: Realm.Configuration(inMemoryIdentifier: "\(inMemoryIdentifier)-\(uuid)"))
 }
 
-fileprivate let queueForRealmStore = DispatchQueue(label: "org.alphawallet.swift.realm.store", qos: .background)
-
 open class RealmStore {
     public static func threadName(for wallet: Wallet) -> String {
         return "org.alphawallet.swift.realmStore.\(wallet.address).wallet"
@@ -34,6 +32,7 @@ open class RealmStore {
 
         return realm
     }()
+    fileprivate let queueForRealmStore = DispatchQueue(label: "org.alphawallet.swift.realm.store", qos: .background)
 
     public init(realm: Realm, name: String = "org.alphawallet.swift.realmStore") {
         self.mainThreadRealm = realm
@@ -63,7 +62,7 @@ open class RealmStore {
 extension RealmStore {
     public static var shared: RealmStore = RealmStore(realm: Realm.shared())
 
-    public static func storage(for wallet: Wallet) -> RealmStore {
+    public class func storage(for wallet: Wallet) -> RealmStore {
         RealmStore(realm: .realm(for: wallet), name: RealmStore.threadName(for: wallet))
     } 
 }
