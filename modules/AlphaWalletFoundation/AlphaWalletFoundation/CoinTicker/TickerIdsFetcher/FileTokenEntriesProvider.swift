@@ -10,7 +10,6 @@ import Combine
 import CombineExt
 import AlphaWalletCore
 
-fileprivate let threadSafeForTokenEntries = ThreadSafe(label: "org.alphawallet.swift.tokenEntries")
 public final class FileTokenEntriesProvider: TokenEntriesProvider {
     private let absoluteFilename: String
     private var cachedTokenEntries: [TokenEntry] = []
@@ -35,24 +34,19 @@ public final class FileTokenEntriesProvider: TokenEntriesProvider {
 
     public func tokenEntries() -> AnyPublisher<[TokenEntry], PromiseError> {
         if cachedTokenEntries.isEmpty {
-            var publisher: AnyPublisher<[TokenEntry], PromiseError>!
-            threadSafeForTokenEntries.performSync {
+            do {
+                guard let jsonData = try String(contentsOfFile: absoluteFilename).data(using: .utf8) else { throw TokenJsonReader.error.fileIsNotUtf8 }
                 do {
-                    guard let jsonData = try String(contentsOfFile: absoluteFilename).data(using: .utf8) else { throw TokenJsonReader.error.fileIsNotUtf8 }
-                    do {
-                        cachedTokenEntries = try JSONDecoder().decode([TokenEntry].self, from: jsonData)
-                        publisher = .just(cachedTokenEntries)
-                    } catch DecodingError.dataCorrupted {
-                        throw TokenJsonReader.error.fileCannotBeDecoded
-                    } catch {
-                        throw TokenJsonReader.error.unknown(error)
-                    }
+                    cachedTokenEntries = try JSONDecoder().decode([TokenEntry].self, from: jsonData)
+                    return .just(cachedTokenEntries)
+                } catch DecodingError.dataCorrupted {
+                    throw TokenJsonReader.error.fileCannotBeDecoded
                 } catch {
-                    publisher = .fail(.some(error: error))
+                    throw TokenJsonReader.error.unknown(error)
                 }
+            } catch {
+                return .fail(.some(error: error))
             }
-
-            return publisher
         } else {
             return .just(cachedTokenEntries)
         }

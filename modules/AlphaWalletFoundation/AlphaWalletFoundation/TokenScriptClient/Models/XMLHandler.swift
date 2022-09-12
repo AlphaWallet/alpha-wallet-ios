@@ -135,10 +135,14 @@ private class PrivateXMLHandler {
         return XMLHandler.getHoldingContractElement(fromRoot: xml, xmlContext: xmlContext)
     }()
 
+    private lazy var _tokenType: TokenInterfaceType? = {
+        return holdingContractElement?["interface"].flatMap { TokenInterfaceType(rawValue: $0) }
+    }()
+
     fileprivate lazy var tokenType: TokenInterfaceType? = {
         var tokenType: TokenInterfaceType?
         threadSafe.performSync {
-            tokenType = holdingContractElement?["interface"].flatMap { TokenInterfaceType(rawValue: $0) }
+            tokenType = self.tokenType
         }
         return tokenType
     }()
@@ -225,7 +229,7 @@ private class PrivateXMLHandler {
                 if let baseTokenType = baseTokenType, Features.default.isAvailable(.isActivityEnabled) {
                     results.append(contentsOf: defaultActions(forTokenType: baseTokenType))
                 } else {
-                    tokenType.flatMap { results.append(contentsOf: defaultActions(forTokenType: $0)) }
+                    _tokenType.flatMap { results.append(contentsOf: defaultActions(forTokenType: $0)) }
                 }
             } else {
                 //TODO "erc20Send" name is not good for cryptocurrency
