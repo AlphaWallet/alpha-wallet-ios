@@ -46,7 +46,7 @@ public enum AssetAttributeSyntax: String {
         let convertedSubscribable = Subscribable<AssetInternalValue>(nil)
         subscribable.subscribe { value in
             guard let value = value else { return }
-            convertedSubscribable.value = self.coerceNonSubscribableToSyntax(value)
+            convertedSubscribable.send(self.coerceNonSubscribableToSyntax(value))
         }
         return .subscribable(convertedSubscribable)
     }
