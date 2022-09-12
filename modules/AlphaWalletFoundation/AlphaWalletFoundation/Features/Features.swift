@@ -11,7 +11,7 @@ public class Features {
     private var isMutationAvailable: Bool {
         return (Environment.isTestFlight || Environment.isDebug)
     }
-    private var featuresDictionary: [FeaturesAvailable: Bool] = [FeaturesAvailable: Bool]()
+    private var featuresDictionary: AtomicDictionary<FeaturesAvailable, Bool> = .init()
 
     public init?(fileName: String = "Features.json") {
         do {
@@ -30,16 +30,16 @@ public class Features {
             let decoder = JSONDecoder()
             let data = try Data(contentsOf: fileUrl)
             let jsonData = try decoder.decode([FeaturesAvailable: Bool].self, from: data)
-            featuresDictionary = jsonData
+            featuresDictionary.set(value: jsonData)
         } catch {
             verboseLog("[Features] readFromFileUrl error: \(error)")
-            featuresDictionary = [FeaturesAvailable: Bool]()
+            featuresDictionary.set(value: [:])
         }
     }
 
     private func writeToFileUrl() {
         do {
-            let data = try encoder.encode(featuresDictionary)
+            let data = try encoder.encode(featuresDictionary.values)
             if let jsonString = String(data: data, encoding: .utf8) {
                 try jsonString.write(to: fileUrl, atomically: true, encoding: .utf8)
             }
