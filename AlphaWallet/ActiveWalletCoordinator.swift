@@ -28,7 +28,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private let transactionsDataStore: TransactionDataStore
     private var claimOrderCoordinatorCompletionBlock: ((Bool) -> Void)?
     private let blockscanChatService: BlockscanChatService
-    private lazy var activitiesPipeLine = ActivitiesPipeLine(config: config, wallet: wallet, store: store, assetDefinitionStore: assetDefinitionStore, transactionDataStore: transactionsDataStore, tokensService: tokensService, sessionsProvider: sessionsProvider)
+    private let activitiesPipeLine: ActivitiesPipeLine
     private let sessionsProvider: SessionsProvider
     private let importToken: ImportToken
     private lazy var tokensFilter: TokensFilter = {
@@ -130,7 +130,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private let notificationService: NotificationService
     private let blockiesGenerator: BlockiesGenerator
     private let domainResolutionService: DomainResolutionServiceType
-    private let store: RealmStore
     private let tokenSwapper: TokenSwapper
     private let tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable
     private let lock: Lock
@@ -138,7 +137,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     init(
             navigationController: UINavigationController = NavigationController(),
             walletAddressesStore: WalletAddressesStore,
-            store: RealmStore,
+            activitiesPipeLine: ActivitiesPipeLine,
             wallet: Wallet,
             keystore: Keystore,
             assetDefinitionStore: AssetDefinitionStore,
@@ -169,7 +168,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         self.transactionsDataStore = transactionsDataStore
         self.importToken = importToken
         self.tokenCollection = tokenCollection
-        self.store = store
+        self.activitiesPipeLine = activitiesPipeLine
         self.tokenSwapper = tokenSwapper
         self.sessionsProvider = sessionsProvider
         self.walletConnectCoordinator = walletConnectCoordinator

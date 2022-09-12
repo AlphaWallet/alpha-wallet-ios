@@ -19,7 +19,7 @@ class ActiveWalletViewTests: XCTestCase {
         let coordinator = ActiveWalletCoordinator(
             navigationController: navigationController,
             walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
-            store: .fake(for: wallet),
+            activitiesPipeLine: dep.activitiesPipeLine,
             wallet: wallet,
             keystore: keystore,
             assetDefinitionStore: AssetDefinitionStore(),
@@ -87,7 +87,7 @@ class ActiveWalletViewTests: XCTestCase {
         let c1 = ActiveWalletCoordinator(
             navigationController: FakeNavigationController(),
             walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
-            store: .fake(for: account1),
+            activitiesPipeLine: dep1.activitiesPipeLine,
             wallet: account1,
             keystore: keystore,
             assetDefinitionStore: AssetDefinitionStore(),
@@ -121,7 +121,7 @@ class ActiveWalletViewTests: XCTestCase {
         let c2 = ActiveWalletCoordinator(
             navigationController: FakeNavigationController(),
             walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
-            store: .fake(for: account2),
+            activitiesPipeLine: dep2.activitiesPipeLine,
             wallet: account2,
             keystore: keystore,
             assetDefinitionStore: AssetDefinitionStore(),
@@ -164,7 +164,7 @@ class ActiveWalletViewTests: XCTestCase {
         let coordinator = ActiveWalletCoordinator(
                 navigationController: FakeNavigationController(),
                 walletAddressesStore: fakeWalletAddressesStore(wallets: [.make()]),
-                store: .fake(for: wallet),
+                activitiesPipeLine: dep.activitiesPipeLine,
                 wallet: wallet,
                 keystore: keystore,
                 assetDefinitionStore: AssetDefinitionStore(),
@@ -208,7 +208,7 @@ class ActiveWalletViewTests: XCTestCase {
         let coordinator = ActiveWalletCoordinator(
             navigationController: navigationController,
             walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
-            store: .fake(for: wallet),
+            activitiesPipeLine: dep.activitiesPipeLine,
             wallet: wallet,
             keystore: keystore,
             assetDefinitionStore: AssetDefinitionStore(),
@@ -252,7 +252,7 @@ class ActiveWalletViewTests: XCTestCase {
         let coordinator = ActiveWalletCoordinator(
             navigationController: navigationController,
             walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
-            store: .fake(for: wallet),
+            activitiesPipeLine: dep.activitiesPipeLine,
             wallet: wallet,
             keystore: keystore,
             assetDefinitionStore: AssetDefinitionStore(),
@@ -315,7 +315,7 @@ class ActiveWalletViewTests: XCTestCase {
             let coordinator: ActiveWalletCoordinator = ActiveWalletCoordinator(
                     navigationController: navigationController,
                     walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
-                    store: .fake(for: wallet),
+                    activitiesPipeLine: dep.activitiesPipeLine,
                     wallet: wallet,
                     keystore: keystore,
                     assetDefinitionStore: AssetDefinitionStore(),

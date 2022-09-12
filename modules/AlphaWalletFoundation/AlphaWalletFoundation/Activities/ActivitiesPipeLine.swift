@@ -11,17 +11,12 @@ import Combine
 public final class ActivitiesPipeLine: ActivitiesServiceType {
     private let config: Config
     private let wallet: Wallet
-    private let store: RealmStore
     private let assetDefinitionStore: AssetDefinitionStore
     private let sessionsProvider: SessionsProvider
     private let transactionDataStore: TransactionDataStore
 
-    lazy private var eventsDataStore: NonActivityEventsDataStore = {
-        return NonActivityMultiChainEventsDataStore(store: store)
-    }()
-    lazy private var eventsActivityDataStore: EventsActivityDataStoreProtocol = {
-        return EventsActivityDataStore(store: store)
-    }()
+    private let eventsDataStore: NonActivityEventsDataStore
+    private let eventsActivityDataStore: EventsActivityDataStoreProtocol
     private lazy var eventSourceForActivities: EventSourceForActivities? = {
         guard Features.default.isAvailable(.isActivityEnabled) else { return nil }
         return EventSourceForActivities(wallet: wallet, config: config, tokensService: tokensService, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsActivityDataStore)
@@ -44,11 +39,12 @@ public final class ActivitiesPipeLine: ActivitiesServiceType {
         activitiesSubService.didUpdateActivityPublisher
     }
 
-    public init(config: Config, wallet: Wallet, store: RealmStore, assetDefinitionStore: AssetDefinitionStore, transactionDataStore: TransactionDataStore, tokensService: TokenProvidable, sessionsProvider: SessionsProvider) {
+    public init(config: Config, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, transactionDataStore: TransactionDataStore, tokensService: TokenProvidable, sessionsProvider: SessionsProvider, eventsActivityDataStore: EventsActivityDataStoreProtocol, eventsDataStore: NonActivityEventsDataStore) {
+        self.eventsActivityDataStore = eventsActivityDataStore
+        self.eventsDataStore = eventsDataStore
         self.tokensService = tokensService
         self.config = config
         self.wallet = wallet
-        self.store = store
         self.assetDefinitionStore = assetDefinitionStore
         self.transactionDataStore = transactionDataStore
         self.sessionsProvider = sessionsProvider

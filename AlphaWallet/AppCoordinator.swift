@@ -269,7 +269,7 @@ class AppCoordinator: NSObject, Coordinator {
         let coordinator = ActiveWalletCoordinator(
                 navigationController: navigationController,
                 walletAddressesStore: walletAddressesStore,
-                store: dep.store,
+                activitiesPipeLine: dep.activitiesPipeLine,
                 wallet: wallet,
                 keystore: keystore,
                 assetDefinitionStore: assetDefinitionStore,
