@@ -27,7 +27,7 @@ class SwapTokensViewController: UIViewController {
         amountTextField.viewModel.accessoryButtonTitle = .next
         amountTextField.viewModel.errorState = .none
         amountTextField.isAlternativeAmountEnabled = true
-        amountTextField.allFundsAvailable = Features.default.isAvailable(.isSendAllFundsFungibleEnabled)
+        amountTextField.allFundsAvailable = true
 
         return amountTextField
     }()
@@ -140,7 +140,7 @@ class SwapTokensViewController: UIViewController {
         ])
 
         checker.constraints = [footerBottomConstraint]
-    } 
+    }
 
     private func bind(viewModel: SwapTokensViewModel) {
         view.backgroundColor = viewModel.backgoundColor
@@ -164,7 +164,7 @@ class SwapTokensViewController: UIViewController {
                     loadingIndicatorView?.startAnimating()
                 } else {
                     loadingIndicatorView?.stopAnimating()
-                } 
+                }
             }.store(in: &cancelable)
 
         viewModel.convertedValue
@@ -223,7 +223,7 @@ extension SwapTokensViewController: PopNotifiable {
 }
 
 extension SwapTokensViewController: AmountTextField_v2Delegate {
-    
+
     func changeAmount(in textField: AmountTextField_v2) {
         //no-op
     }

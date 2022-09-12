@@ -1,7 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 import UIKit
 import AlphaWalletAddress
-import AlphaWalletFoundation 
+import AlphaWalletFoundation
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
@@ -23,10 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         window = UIWindow(frame: UIScreen.main.bounds)
 
         do {
-            if Features.default.isAvailable(.isFirebaseEnabled) {
-                reportProvider.start()
-            }
-
+            reportProvider.start()
             register(addressStorage: addressStorage)
             register(crashlytics: AlphaWallet.FirebaseCrashlyticsReporter())
 
@@ -104,7 +101,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         }
         //TODO: if we handle other types of URLs, check if handled==false, then we pass the url to another handlers
         return handled
-    } 
+    }
 
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
         //no op

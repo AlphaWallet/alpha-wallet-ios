@@ -29,8 +29,6 @@ extension AlphaWallet {
         private let crashlytics: Crashlytics = Crashlytics.crashlytics()
 
         func track(wallets: [Wallet]) {
-            guard Features.default.isAvailable(.isFirebaseEnabled) else { return }
-
             let wallets = wallets.map { $0.description }.joined(separator: ", ")
             let keysAndValues: [String: Any] = [
                 ReportKey.walletAddresses.rawValue: wallets,
@@ -40,8 +38,6 @@ extension AlphaWallet {
         }
 
         func trackActiveWallet(wallet: Wallet) {
-            guard Features.default.isAvailable(.isFirebaseEnabled) else { return }
-
             let keysAndValues: [String: Any] = [
                 ReportKey.activeWalletAddress.rawValue: wallet.description,
              ] as [String: Any]
@@ -50,8 +46,6 @@ extension AlphaWallet {
         }
 
         func track(enabledServers: [RPCServer]) {
-            guard Features.default.isAvailable(.isFirebaseEnabled) else { return }
-
             let chainIds = enabledServers
                 .map(\.chainID)
                 .sorted()
