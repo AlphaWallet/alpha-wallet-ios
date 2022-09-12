@@ -5,7 +5,7 @@ import UIKit
 import AlphaWalletFoundation
 
 protocol EditMyDappViewControllerDelegate: AnyObject {
-    func didTapSave(dapp: Bookmark, withTitle title: String, url: String, inViewController viewController: EditMyDappViewController)
+    func didTapSave(bookmark: Bookmark, title: String, url: String, in viewController: EditMyDappViewController)
     func didClose(in viewController: EditMyDappViewController)
 }
 
@@ -138,7 +138,7 @@ class EditMyDappViewController: UIViewController {
         let url = urlTextField.value.trimmed
         guard !url.isEmpty else { return }
         let title = titleTextField.value.trimmed
-        delegate?.didTapSave(dapp: dapp, withTitle: title, url: url, inViewController: self)
+        delegate?.didTapSave(bookmark: dapp, title: title, url: url, in: self)
     }
 }
 

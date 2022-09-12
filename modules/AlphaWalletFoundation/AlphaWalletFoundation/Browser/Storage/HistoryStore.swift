@@ -11,7 +11,7 @@ public final class  HistoryStore {
             .sorted(byKeyPath: "createdAt", ascending: false)
     }
 
-    public init(realm: Realm) {
+    public init(realm: Realm = .shared()) {
         self.realm = realm
     }
 

@@ -1,7 +1,6 @@
 import UIKit
 import BigInt
 import PromiseKit
-import RealmSwift
 import Combine
 import AlphaWalletFoundation
 
@@ -354,7 +353,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     }
 
     private func createBrowserCoordinator(sessions: ServerDictionary<WalletSession>, browserOnly: Bool) -> DappBrowserCoordinator {
-        let coordinator = DappBrowserCoordinator(sessions: sessions, keystore: keystore, config: config, sharedRealm: Realm.shared(), browserOnly: browserOnly, restartQueue: restartQueue, analytics: analytics, domainResolutionService: domainResolutionService, assetDefinitionStore: assetDefinitionStore, tokensService: tokenCollection)
+        let coordinator = DappBrowserCoordinator(sessions: sessions, keystore: keystore, config: config, browserOnly: browserOnly, restartQueue: restartQueue, analytics: analytics, domainResolutionService: domainResolutionService, assetDefinitionStore: assetDefinitionStore, tokensService: tokenCollection, bookmarksStore: BookmarksStore(), historyStore: HistoryStore())
         coordinator.delegate = self
         coordinator.start()
         coordinator.rootViewController.tabBarItem = ActiveWalletViewModel.Tabs.browser.tabBarItem
