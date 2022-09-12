@@ -25,7 +25,7 @@ public struct AssetAttributeMapping {
         subscribableKey.subscribe { value in
             guard let value = value else { return }
             guard let keyString = self.convertKeyToString(value) else { return }
-            mappedSubscribable.value = XMLHandler.getMappingOptionValue(fromMappingElement: self.mapping, xmlContext: self.xmlContext, withKey: keyString).flatMap { .string($0) }
+            mappedSubscribable.send(XMLHandler.getMappingOptionValue(fromMappingElement: self.mapping, xmlContext: self.xmlContext, withKey: keyString).flatMap { .string($0) })
         }
         return .subscribable(mappedSubscribable)
     }

@@ -24,22 +24,7 @@ open class Subscribable<T>: Hashable {
     private var _subscribers: AtomicDictionary<SubscribableKey, Subscription> = .init()
     private var _oneTimeSubscribers: AtomicArray<(T) -> Void> = .init()
     open var value: T? {
-        get {
-            return _value
-        }
-        set {
-            _value = newValue
-            _subscribers.forEach { (_, f) in
-                f.callback(newValue)
-            }
-
-            if let value = value {
-                for f in _oneTimeSubscribers.array {
-                    f(value)
-                }
-                _oneTimeSubscribers.set(array: [])
-            }
-        }
+        return _value
     }
 
     private let uuid = UUID()
@@ -50,6 +35,20 @@ open class Subscribable<T>: Hashable {
 
     private struct Subscription {
         let callback: (T?) -> Void
+    }
+
+    public func send(_ newValue: T?) {
+        _value = newValue
+        _subscribers.forEach { (_, f) in
+            f.callback(newValue)
+        }
+
+        if let value = value {
+            for f in _oneTimeSubscribers.array {
+                f(value)
+            }
+            _oneTimeSubscribers.set(array: [])
+        }
     }
 
     @discardableResult open func subscribe(_ subscribe: @escaping (T?) -> Void) -> SubscribableKey {

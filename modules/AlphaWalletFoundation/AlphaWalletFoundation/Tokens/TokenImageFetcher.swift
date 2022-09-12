@@ -42,7 +42,7 @@ public class RPCServerImageFetcher {
             let sub = Subscribable<Image>(nil)
             Self.subscribables[server.chainID] = sub
 
-            sub.value = iconImage
+            sub.send(iconImage)
 
             return sub
         }
@@ -143,12 +143,12 @@ public class TokenImageFetcher {
 
         let generatedImage = getDefaultOrGenerateIcon(server: server, contractAddress: contractAddress, type: type, name: name, tokenImage: contractDefinedImage, colors: colors, staticOverlayIcon: staticOverlayIcon, blockChainNameColor: blockChainNameColor, serverIconImage: serverIconImage)
         if contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
-            subscribable.value = generatedImage
+            subscribable.send(generatedImage)
             return subscribable
         }
 
         if subscribable.value == nil {
-            subscribable.value = generatedImage
+            subscribable.send(generatedImage)
         }
 
         if let image = generatedImage, image.isFinal {
@@ -171,9 +171,9 @@ public class TokenImageFetcher {
                     return (image: .image(image), symbol: "", isFinal: false, overlayServerIcon: staticOverlayIcon)
                 }
         }.done { value in
-            subscribable.value = value
+            subscribable.send(value)
         }.catch { _ in
-            subscribable.value = generatedImage
+            subscribable.send(generatedImage)
         }
 
         return subscribable

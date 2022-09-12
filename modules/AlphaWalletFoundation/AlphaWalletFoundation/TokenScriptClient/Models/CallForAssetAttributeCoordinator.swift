@@ -17,7 +17,7 @@ public class CallForAssetAttributeCoordinator {
         let subscribable = Subscribable<AssetInternalValue>(nil)
         if let promise = promiseCache[functionCall] {
             promise.done { result in
-                subscribable.value = result
+                subscribable.send(result)
             }.cauterize()
             return subscribable
         }
@@ -28,7 +28,7 @@ public class CallForAssetAttributeCoordinator {
         //TODO need to throttle smart contract function calls?
         promise.done { [weak self] result in
             guard let strongSelf = self else { return }
-            subscribable.value = result
+            subscribable.send(result)
             strongSelf.promiseCache.removeValue(forKey: functionCall)
         }.catch { [weak self] _ in
             guard let strongSelf = self else { return }

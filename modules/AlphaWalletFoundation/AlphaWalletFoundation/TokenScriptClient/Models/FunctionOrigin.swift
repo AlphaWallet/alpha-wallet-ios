@@ -170,9 +170,9 @@ public struct FunctionOrigin {
         subscribable.subscribe { value in
             guard let value = value else { return }
             if let bitmask = self.bitmask {
-                resultSubscribable.value = self.castReturnValue(value: value, bitmask: bitmask)
+                resultSubscribable.send(self.castReturnValue(value: value, bitmask: bitmask))
             } else {
-                resultSubscribable.value = value
+                resultSubscribable.send(value)
             }
         }
         return .subscribable(resultSubscribable)
