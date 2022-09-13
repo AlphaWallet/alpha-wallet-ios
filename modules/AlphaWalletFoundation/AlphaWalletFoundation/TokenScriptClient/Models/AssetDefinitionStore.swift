@@ -41,6 +41,11 @@ public class AssetDefinitionStore: NSObject {
     private var lastContractInPasteboard: String?
     private var backingStore: AssetDefinitionBackingStore
     private let _baseTokenScriptFiles: AtomicDictionary<TokenType, String> = .init()
+    private let xmlHandlers: AtomicDictionary<AlphaWallet.Address, PrivateXMLHandler> = .init()
+    private let baseXmlHandlers: AtomicDictionary<String, PrivateXMLHandler> = .init()
+    private var signatureChangeSubject: PassthroughSubject<AlphaWallet.Address, Never> = .init()
+    private var bodyChangeSubject: PassthroughSubject<AlphaWallet.Address, Never> = .init()
+
     public weak var delegate: AssetDefinitionStoreDelegate?
     public var listOfBadTokenScriptFiles: [TokenScriptFileIndices.FileName] {
         return backingStore.badTokenScriptFileNames
@@ -52,8 +57,6 @@ public class AssetDefinitionStore: NSObject {
     public var contractsWithTokenScriptFileFromOfficialRepo: [AlphaWallet.Address] {
         return backingStore.contractsWithTokenScriptFileFromOfficialRepo
     }
-    private var signatureChangeSubject: PassthroughSubject<AlphaWallet.Address, Never> = .init()
-    private var bodyChangeSubject: PassthroughSubject<AlphaWallet.Address, Never> = .init()
 
     public var signatureChange: AnyPublisher<AlphaWallet.Address, Never> {
         signatureChangeSubject.eraseToAnyPublisher()
@@ -123,13 +126,28 @@ public class AssetDefinitionStore: NSObject {
                </style>
                """
     }
-    private var cancelable = Set<AnyCancellable>()
 
     public init(backingStore: AssetDefinitionBackingStore = AssetDefinitionDiskBackingStoreWithOverrides(), baseTokenScriptFiles: [TokenType: String] = [:]) {
         self.backingStore = backingStore
         self._baseTokenScriptFiles.set(value: baseTokenScriptFiles)
         super.init()
         self.backingStore.delegate = self
+    }
+
+    func getXmlHandler(for key: AlphaWallet.Address) -> PrivateXMLHandler? {
+        return xmlHandlers[key]
+    }
+
+    func set(xmlHandler: PrivateXMLHandler?, for key: AlphaWallet.Address) {
+        xmlHandlers[key] = xmlHandler
+    }
+
+    func getBaseXmlHandler(for key: String) -> PrivateXMLHandler? {
+        baseXmlHandlers[key]
+    }
+
+    func setBaseXmlHandler(for key: String, baseXmlHandler: PrivateXMLHandler?) {
+        baseXmlHandlers[key] = baseXmlHandler
     }
 
     public func hasConflict(forContract contract: AlphaWallet.Address) -> Bool {
@@ -214,7 +232,7 @@ public class AssetDefinitionStore: NSObject {
                         }
                     } else {
                         strongSelf.cacheXml(xml, forContract: contract)
-                        XMLHandler.invalidate(forContract: contract)
+                        strongSelf.invalidate(forContract: contract)
                         completionHandler?(.updated)
                         strongSelf.triggerBodyChangedSubscribers(forContract: contract)
                         strongSelf.triggerSignatureChangedSubscribers(forContract: contract)
@@ -297,7 +315,7 @@ public class AssetDefinitionStore: NSObject {
     }
 
     public func contractDeleted(_ contract: AlphaWallet.Address) {
-        XMLHandler.invalidate(forContract: contract)
+        invalidate(forContract: contract)
         backingStore.deleteFileDownloadedFromOfficialRepoFor(contract: contract)
     }
 }
@@ -314,7 +332,7 @@ extension AssetDefinitionStore: BaseTokenScriptFilesProvider {
 
 extension AssetDefinitionStore: AssetDefinitionBackingStoreDelegate {
     public func invalidateAssetDefinition(forContractAndServer contractAndServer: AddressAndOptionalRPCServer) {
-        XMLHandler.invalidate(forContract: contractAndServer.address)
+        invalidate(forContract: contractAndServer.address)
         triggerBodyChangedSubscribers(forContract: contractAndServer.address)
         triggerSignatureChangedSubscribers(forContract: contractAndServer.address)
         //TODO check why we are fetching here. Current func gets called when on-disk changed too?
@@ -326,6 +344,12 @@ extension AssetDefinitionStore: AssetDefinitionBackingStoreDelegate {
         DispatchQueue.main.async {
             self.delegate?.listOfBadTokenScriptFilesChanged(in: self)
         }
+    }
+}
+
+extension AssetDefinitionStore {
+    func invalidate(forContract contract: AlphaWallet.Address) {
+        xmlHandlers[contract] = nil
     }
 }
 

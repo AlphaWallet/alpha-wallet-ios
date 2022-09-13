@@ -14,10 +14,6 @@ import AlphaWalletFoundation
 class XMLHandlerTest: XCTestCase {
     let tokenHex = "0x00000000000000000000000000000000fefe5ae99a3000000000000000010001".substring(from: 2)
 
-    override func tearDown() {
-        XMLHandler.invalidateAllContracts()
-    }
-
     func testParser() {
         let assetDefinitionStore = AssetDefinitionStore()
         let token = XMLHandler(contract: Constants.nullAddress, tokenType: .erc20, assetDefinitionStore: assetDefinitionStore).getToken(

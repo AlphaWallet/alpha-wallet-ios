@@ -106,7 +106,7 @@ public enum TokenLevelTokenScriptDisplayStatus {
 
 //  Interface to extract data from non fungible token
 // swiftlint:disable type_body_length
-private class PrivateXMLHandler {
+class PrivateXMLHandler {
     private static let emptyXMLString = "<tbml:token xmlns:tbml=\"http://attestation.id/ns/tbml\"></tbml:token>"
     private static let emptyXML = try! Kanna.XML(xml: emptyXMLString, encoding: .utf8)
     fileprivate static let tokenScriptNamespace = TokenScript.supportedTokenScriptNamespace
@@ -761,8 +761,6 @@ final class ThreadSafe {
 /// This class delegates all the functionality to a singleton of the actual XML parser. 1 for each contract. So we just parse the XML file 1 time only for each contract
 public class XMLHandler {
     public static var assetAttributeProvider = CallForAssetAttributeProvider()
-    fileprivate static var xmlHandlers: AtomicDictionary<AlphaWallet.Address, PrivateXMLHandler> = .init()
-    fileprivate static var baseXmlHandlers: AtomicDictionary<String, PrivateXMLHandler> = .init()
     private let privateXMLHandler: PrivateXMLHandler
     private let baseXMLHandler: PrivateXMLHandler?
 
@@ -924,11 +922,11 @@ public class XMLHandler {
     private init(contract: AlphaWallet.Address, optionalTokenType tokenType: TokenType?, assetDefinitionStore: AssetDefinitionStore) {
         var privateXMLHandler: PrivateXMLHandler
         var baseXMLHandler: PrivateXMLHandler?
-        if let handler = XMLHandler.xmlHandlers[contract] {
+        if let handler = assetDefinitionStore.getXmlHandler(for: contract) {
             privateXMLHandler = handler
         } else {
             privateXMLHandler = PrivateXMLHandler(contract: contract, assetDefinitionStore: assetDefinitionStore)
-            XMLHandler.xmlHandlers[contract] = privateXMLHandler
+            assetDefinitionStore.set(xmlHandler: privateXMLHandler, for: contract)
         }
 
         if Features.default.isAvailable(.isActivityEnabled), let tokenType = tokenType {
@@ -941,12 +939,12 @@ public class XMLHandler {
 
             //Key cannot be just `contract`, because the type can change (from the overriding TokenScript file)
             let key = "\(contract.eip55String)-\(tokenTypeForBaseXml.rawValue)"
-            if let handler = XMLHandler.baseXmlHandlers[key] {
+            if let handler = assetDefinitionStore.getBaseXmlHandler(for: key) {
                 baseXMLHandler = handler
             } else {
                 if let xml = assetDefinitionStore.baseTokenScriptFile(for: tokenTypeForBaseXml) {
                     baseXMLHandler = PrivateXMLHandler(contract: contract, baseXml: xml, baseTokenType: tokenTypeForBaseXml, assetDefinitionStore: assetDefinitionStore)
-                    XMLHandler.baseXmlHandlers[key] = baseXMLHandler
+                    assetDefinitionStore.setBaseXmlHandler(for: key, baseXmlHandler: baseXMLHandler)
                 } else {
                     baseXMLHandler = nil
                 }
@@ -1017,15 +1015,6 @@ public class XMLHandler {
 
         return attributes
     }
-
-    static func invalidate(forContract contract: AlphaWallet.Address) {
-        xmlHandlers[contract] = nil
-    }
-
-    public static func invalidateAllContracts() {
-        xmlHandlers.removeAll()
-    }
-
 }
 
 extension XMLHandler {
