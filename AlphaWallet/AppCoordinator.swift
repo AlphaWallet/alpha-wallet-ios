@@ -44,7 +44,7 @@ class AppCoordinator: NSObject, Coordinator {
     }()
 
     private let analytics: AnalyticsServiceType
-    lazy private var openSea: OpenSea = OpenSea(analytics: analytics, queue: .global())
+
     private let restartQueue = RestartTaskQueue()
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -52,10 +52,7 @@ class AppCoordinator: NSObject, Coordinator {
         return coordinators.first { $0 is ActiveWalletCoordinator } as? ActiveWalletCoordinator
     }
     private lazy var coinTickersFetcher: CoinTickersFetcher = CoinGeckoTickersFetcher()
-    private lazy var nftProvider: NFTProvider = {
-        let queue: DispatchQueue = DispatchQueue(label: "org.alphawallet.swift.walletBalance")
-        return AlphaWalletNFTProvider(analytics: analytics, queue: queue)
-    }()
+    private lazy var nftProvider: NFTProvider = AlphaWalletNFTProvider(analytics: analytics)
     private lazy var dependencyProvider: WalletDependencyContainer = {
         WalletComponentsFactory(analytics: analytics, nftProvider: nftProvider, assetDefinitionStore: assetDefinitionStore, coinTickersFetcher: coinTickersFetcher, config: config)
     }()
@@ -121,7 +118,7 @@ class AppCoordinator: NSObject, Coordinator {
         let storage: EnsRecordsStorage = RealmStore.shared
         return storage
     }()
-    lazy private var blockiesGenerator: BlockiesGenerator = BlockiesGenerator(openSea: openSea, storage: sharedEnsRecordsStorage)
+    lazy private var blockiesGenerator: BlockiesGenerator = BlockiesGenerator(assetImageProvider: nftProvider, storage: sharedEnsRecordsStorage)
     lazy private var domainResolutionService: DomainResolutionServiceType = DomainResolutionService(blockiesGenerator: blockiesGenerator, storage: sharedEnsRecordsStorage)
     private lazy var walletApiCoordinator: WalletApiCoordinator = {
         let coordinator = WalletApiCoordinator(keystore: keystore, navigationController: navigationController, analytics: analytics, serviceProvider: sessionProvider)
@@ -255,7 +252,7 @@ class AppCoordinator: NSObject, Coordinator {
                 config: config,
                 appTracker: appTracker,
                 analytics: analytics,
-                openSea: openSea,
+                nftProvider: nftProvider,
                 restartQueue: restartQueue,
                 universalLinkCoordinator: universalLinkService,
                 accountsCoordinator: accountsCoordinator,
