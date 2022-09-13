@@ -4,7 +4,6 @@ import UIKit
 import WebKit 
 import BigInt
 import PromiseKit
-import RealmSwift
 import AlphaWalletFoundation
 
 protocol DappBrowserCoordinatorDelegate: CanOpenURL, RequestAddCustomChainProvider, RequestSwitchChainProvider, BuyCryptoDelegate {
@@ -26,19 +25,11 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     private lazy var browserViewController: BrowserViewController = createBrowserViewController()
-
-    private let sharedRealm: Realm
     private let browserOnly: Bool
     private let restartQueue: RestartTaskQueue
     private let tokensService: TokenViewModelState
-    private lazy var bookmarksStore: BookmarksStore = {
-        return BookmarksStore(realm: sharedRealm)
-    }()
-
-    private lazy var historyStore: HistoryStore = {
-        return HistoryStore(realm: sharedRealm)
-    }()
-
+    private let bookmarksStore: BookmarksStore
+    private let historyStore: HistoryStore
     private var urlParser: BrowserURLParser {
         return BrowserURLParser()
     }
@@ -89,20 +80,22 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         sessions: ServerDictionary<WalletSession>,
         keystore: Keystore,
         config: Config,
-        sharedRealm: Realm,
         browserOnly: Bool,
         restartQueue: RestartTaskQueue,
         analytics: AnalyticsLogger,
         domainResolutionService: DomainResolutionServiceType,
         assetDefinitionStore: AssetDefinitionStore,
-        tokensService: TokenViewModelState
+        tokensService: TokenViewModelState,
+        bookmarksStore: BookmarksStore,
+        historyStore: HistoryStore
     ) {
         self.tokensService = tokensService
         self.navigationController = NavigationController(navigationBarClass: DappBrowserNavigationBar.self, toolbarClass: nil)
         self.sessions = sessions
         self.keystore = keystore
         self.config = config
-        self.sharedRealm = sharedRealm
+        self.bookmarksStore = bookmarksStore
+        self.historyStore = historyStore
         self.browserOnly = browserOnly
         self.restartQueue = restartQueue
         self.analytics = analytics
@@ -798,11 +791,8 @@ extension DappBrowserCoordinator: DappBrowserNavigationBarDelegate {
 }
 
 extension DappBrowserCoordinator: EditMyDappViewControllerDelegate {
-    func didTapSave(dapp: Bookmark, withTitle title: String, url: String, inViewController viewController: EditMyDappViewController) {
-        try? sharedRealm.write {
-            dapp.title = title
-            dapp.url = url
-        }
+    func didTapSave(bookmark: Bookmark, title: String, url: String, in viewController: EditMyDappViewController) {
+        bookmarksStore.update(bookmark: bookmark, title: title, url: url)
         browserNavBar?.setBrowserBar(hidden: false)
 
         navigationController.popViewController(animated: true)

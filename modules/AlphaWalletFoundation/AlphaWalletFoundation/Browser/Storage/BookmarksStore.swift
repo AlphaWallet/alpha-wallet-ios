@@ -10,7 +10,7 @@ public final class BookmarksStore {
     }
     private let realm: Realm
 
-    public init(realm: Realm) {
+    public init(realm: Realm = .shared()) {
         self.realm = realm
     }
 
@@ -31,6 +31,13 @@ public final class BookmarksStore {
             }
         }
         return originals
+    }
+
+    public func update(bookmark: Bookmark, title: String, url: String) {
+        try? realm.write {
+            bookmark.title = title
+            bookmark.url = url
+        }
     }
 
     public func add(bookmarks: [Bookmark]) {
