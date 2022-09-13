@@ -904,7 +904,7 @@ class XMLHandlerTest: XCTestCase {
         let contractAddress = AlphaWallet.Address(string: "0xA66A3F08068174e8F005112A8b2c7A507a822335")!
         let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore())
 
-        XMLHandler.callForAssetAttributeCoordinator = CallForAssetAttributeCoordinator()
+        XMLHandler.assetAttributeProvider = CallForAssetAttributeProvider()
 
         store[contractAddress] = xml
         let xmlHandler = XMLHandler(contract: contractAddress, tokenType: .erc20, assetDefinitionStore: store)

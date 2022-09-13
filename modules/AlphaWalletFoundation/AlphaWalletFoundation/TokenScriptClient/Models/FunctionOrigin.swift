@@ -153,7 +153,7 @@ public struct FunctionOrigin {
         self.bitShift = bitShift
     }
 
-    public func extractValue(withTokenId tokenId: TokenId, account: Wallet, server: RPCServer, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator) -> AssetInternalValue? {
+    public func extractValue(withTokenId tokenId: TokenId, account: Wallet, server: RPCServer, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], assetAttributeProvider: CallForAssetAttributeProvider) -> AssetInternalValue? {
         guard let functionName = functionType.functionName else { return nil }
         guard let subscribable = callSmartContractFunction(
                 forAttributeId: attributeId,
@@ -165,7 +165,7 @@ public struct FunctionOrigin {
                 originContract: originContractOrRecipientAddress,
                 functionName: functionName,
                 output: functionType.output,
-                callForAssetAttributeCoordinator: callForAssetAttributeCoordinator) else { return nil }
+                assetAttributeProvider: assetAttributeProvider) else { return nil }
         let resultSubscribable = Subscribable<AssetInternalValue>(nil)
         subscribable.subscribe { value in
             guard let value = value else { return }
@@ -344,7 +344,7 @@ public struct FunctionOrigin {
             originContract: AlphaWallet.Address,
             functionName: String,
             output: AssetFunctionCall.ReturnType,
-            callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator
+            assetAttributeProvider: CallForAssetAttributeProvider
     ) -> Subscribable<AssetInternalValue>? {
         assert(functionType.isCall)
         guard let arguments = formArguments(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, account: account) else { return nil }
@@ -356,6 +356,6 @@ public struct FunctionOrigin {
             return Subscribable<AssetInternalValue>(nil)
         }
 
-        return callForAssetAttributeCoordinator.getValue(forAttributeId: attributeId, tokenId: tokenId, functionCall: functionCall)
+        return assetAttributeProvider.getValue(forAttributeId: attributeId, tokenId: tokenId, functionCall: functionCall)
     }
 }

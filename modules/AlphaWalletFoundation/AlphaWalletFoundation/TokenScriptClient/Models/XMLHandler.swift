@@ -760,7 +760,7 @@ final class ThreadSafe {
 
 /// This class delegates all the functionality to a singleton of the actual XML parser. 1 for each contract. So we just parse the XML file 1 time only for each contract
 public class XMLHandler {
-    public static var callForAssetAttributeCoordinator = CallForAssetAttributeCoordinator()
+    public static var assetAttributeProvider = CallForAssetAttributeProvider()
     fileprivate static var xmlHandlers: AtomicDictionary<AlphaWallet.Address, PrivateXMLHandler> = .init()
     fileprivate static var baseXmlHandlers: AtomicDictionary<String, PrivateXMLHandler> = .init()
     private let privateXMLHandler: PrivateXMLHandler
