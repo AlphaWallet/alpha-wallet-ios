@@ -620,6 +620,7 @@
 		87713EB2264BAB4700B1B9CB /* TokenInfoPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87713EB1264BAB4700B1B9CB /* TokenInfoPageView.swift */; };
 		87713EB4264BAB5A00B1B9CB /* ActivityPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87713EB3264BAB5A00B1B9CB /* ActivityPageView.swift */; };
 		87713EB6264BAB6E00B1B9CB /* PriceAlertsPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87713EB5264BAB6E00B1B9CB /* PriceAlertsPageView.swift */; };
+		8772D76C28D085AC00615803 /* ReportProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8772D76B28D085AC00615803 /* ReportProvider.swift */; };
 		87741F1827709073007F4604 /* TestnetTokenInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87741F1727709073007F4604 /* TestnetTokenInfoView.swift */; };
 		87741F212770C71E007F4604 /* WhereAreMyTokensCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87741F202770C71E007F4604 /* WhereAreMyTokensCoordinator.swift */; };
 		87741FC527747C5C007F4604 /* TokenInstanceViewConfigurationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87741FC427747C5C007F4604 /* TokenInstanceViewConfigurationHelper.swift */; };
@@ -1474,6 +1475,7 @@
 		87713EB1264BAB4700B1B9CB /* TokenInfoPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenInfoPageView.swift; sourceTree = "<group>"; };
 		87713EB3264BAB5A00B1B9CB /* ActivityPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityPageView.swift; sourceTree = "<group>"; };
 		87713EB5264BAB6E00B1B9CB /* PriceAlertsPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceAlertsPageView.swift; sourceTree = "<group>"; };
+		8772D76B28D085AC00615803 /* ReportProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportProvider.swift; sourceTree = "<group>"; };
 		87741F1727709073007F4604 /* TestnetTokenInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestnetTokenInfoView.swift; sourceTree = "<group>"; };
 		87741F202770C71E007F4604 /* WhereAreMyTokensCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhereAreMyTokensCoordinator.swift; sourceTree = "<group>"; };
 		87741FC427747C5C007F4604 /* TokenInstanceViewConfigurationHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenInstanceViewConfigurationHelper.swift; sourceTree = "<group>"; };
@@ -3909,6 +3911,7 @@
 				87B1B63A28CB12EE0072A5E2 /* FeedbackGenerator.swift */,
 				87B1B63B28CB12EE0072A5E2 /* EmailList.swift */,
 				87B1B64528CB19BD0072A5E2 /* KingfisherImageFetcher.swift */,
+				8772D76B28D085AC00615803 /* ReportProvider.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -4913,6 +4916,7 @@
 				874ED67527D79653001AB374 /* PupupAction.swift in Sources */,
 				5E7C72C8A15397C5A40BFE76 /* WhatIsEthereumInfoViewController.swift in Sources */,
 				5E7C72B0A10A92E591696E48 /* ContactUsBannerView.swift in Sources */,
+				8772D76C28D085AC00615803 /* ReportProvider.swift in Sources */,
 				5E7C70BE9AE35408038E1971 /* HelpContentsViewController.swift in Sources */,
 				5E7C77E844D710D7AFBC58D4 /* RequestViewController.swift in Sources */,
 				5E7C701BFF4469B35A074EB9 /* RequestViewModel.swift in Sources */,

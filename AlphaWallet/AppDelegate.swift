@@ -4,13 +4,13 @@ import AlphaWalletAddress
 import AlphaWalletFoundation
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     private var appCoordinator: AppCoordinator!
     private lazy var reportProvider: ReportProvider = {
         let provider = ReportProvider()
         guard !isRunningTests() && isAlphaWallet() else { return provider }
-        if let service = AlphaWallet.FirebaseReportService() {
+        if let service = AlphaWallet.FirebaseReportService(contents: R.file.googleServiceInfoPlist()?.path) {
             provider.register(service)
         }
         return provider

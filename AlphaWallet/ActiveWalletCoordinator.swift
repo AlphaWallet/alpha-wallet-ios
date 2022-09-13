@@ -1,5 +1,4 @@
 import UIKit
-import BigInt
 import PromiseKit
 import Combine
 import AlphaWalletFoundation
@@ -195,7 +194,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         blockscanChatService.delegate = self
 
         self.keystore.recentlyUsedWallet = wallet
-        crashlytics?.trackActiveWallet(wallet: wallet)
+        crashlytics.trackActiveWallet(wallet: wallet)
 
         notificationService.register(source: transactionNotificationService)
         swapButton.addTarget(self, action: #selector(swapButtonSelected), for: .touchUpInside)

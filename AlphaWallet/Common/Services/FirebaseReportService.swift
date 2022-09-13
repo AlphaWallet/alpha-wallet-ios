@@ -12,7 +12,7 @@ extension AlphaWallet {
     final class FirebaseReportService: ReportService {
         private let options: FirebaseOptions
         // NOTE: failable initializer allow us easily configure with different plist files for different configurations of project
-        init?(contents: String? = Constants.googleServiceInfoPlistContent) {
+        init?(contents: String?) {
             guard let contents = contents, let options = FirebaseOptions(contentsOfFile: contents) else {
                 return nil
             }
@@ -120,10 +120,4 @@ extension AlphaWallet {
             crashlytics.record(error: error)
         }
     }
-}
-
-extension Constants {
-    public static let googleServiceInfoPlistContent: String? = {
-        R.file.googleServiceInfoPlist()?.path
-    }()
 }

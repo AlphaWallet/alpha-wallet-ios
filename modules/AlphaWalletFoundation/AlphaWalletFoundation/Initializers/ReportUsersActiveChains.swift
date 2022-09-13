@@ -17,7 +17,7 @@ public final class ReportUsersActiveChains: Initializer {
             .delay(for: .seconds(2), scheduler: RunLoop.main)
             .removeDuplicates()
             .sink { servers in
-                crashlytics?.track(enabledServers: servers)
+                crashlytics.track(enabledServers: servers)
             }.store(in: &cancelable)
     }
 }
