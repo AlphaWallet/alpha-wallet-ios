@@ -28,6 +28,29 @@ public final class CoinGeckoTickersFetcher: CoinTickersFetcher {
         storage.updateTickerIds
     }
 
+    public convenience init() {
+        let networkProvider: CoinGeckoNetworkProviderType
+        let persistentStorage: CoinTickersStorage & ChartHistoryStorage & TickerIdsStorage
+        if isRunningTests() {
+            networkProvider = FakeCoinGeckoNetworkProvider()
+            persistentStorage = RealmStore(realm: fakeRealm(), name: "org.alphawallet.swift.realmStore.shared.wallet")
+        } else {
+            networkProvider = CoinGeckoNetworkProvider(provider: AlphaWalletProviderFactory.makeProvider())
+            persistentStorage = RealmStore.shared
+        }
+
+        let coinGeckoTickerIdsFetcher = CoinGeckoTickerIdsFetcher(networkProvider: networkProvider, storage: persistentStorage, config: Config())
+        let fileTokenEntriesProvider = FileTokenEntriesProvider()
+
+        let tickerIdsFetcher: TickerIdsFetcher = TickerIdsFetcherImpl(providers: [
+            InMemoryTickerIdsFetcher(storage: persistentStorage),
+            coinGeckoTickerIdsFetcher,
+            AlphaWalletRemoteTickerIdsFetcher(provider: fileTokenEntriesProvider, tickerIdsFetcher: coinGeckoTickerIdsFetcher)
+        ])
+
+        self.init(networkProvider: networkProvider, storage: persistentStorage, tickerIdsFetcher: tickerIdsFetcher)
+    }
+
     public init(networkProvider: CoinGeckoNetworkProviderType, storage: CoinTickersStorage & ChartHistoryStorage & TickerIdsStorage, tickerIdsFetcher: TickerIdsFetcher) {
         self.networkProvider = networkProvider
         self.tickerIdsFetcher = tickerIdsFetcher

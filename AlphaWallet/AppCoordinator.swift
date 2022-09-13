@@ -51,28 +51,7 @@ class AppCoordinator: NSObject, Coordinator {
     var activeWalletCoordinator: ActiveWalletCoordinator? {
         return coordinators.first { $0 is ActiveWalletCoordinator } as? ActiveWalletCoordinator
     }
-    private lazy var coinTickersFetcher: CoinTickersFetcher = {
-        let networkProvider: CoinGeckoNetworkProviderType
-        let persistentStorage: CoinTickersStorage & ChartHistoryStorage & TickerIdsStorage
-        if isRunningTests() {
-            networkProvider = FakeCoinGeckoNetworkProvider()
-            persistentStorage = RealmStore(realm: fakeRealm(), name: "org.alphawallet.swift.realmStore.shared.wallet")
-        } else {
-            networkProvider = CoinGeckoNetworkProvider(provider: AlphaWalletProviderFactory.makeProvider())
-            persistentStorage = RealmStore.shared
-        }
-
-        let coinGeckoTickerIdsFetcher = CoinGeckoTickerIdsFetcher(networkProvider: networkProvider, storage: persistentStorage, config: config)
-        let fileTokenEntriesProvider = FileTokenEntriesProvider()
-
-        let tickerIdsFetcher: TickerIdsFetcher = TickerIdsFetcherImpl(providers: [
-            InMemoryTickerIdsFetcher(storage: persistentStorage),
-            coinGeckoTickerIdsFetcher,
-            AlphaWalletRemoteTickerIdsFetcher(provider: fileTokenEntriesProvider, tickerIdsFetcher: coinGeckoTickerIdsFetcher)
-        ])
-
-        return CoinGeckoTickersFetcher(networkProvider: networkProvider, storage: persistentStorage, tickerIdsFetcher: tickerIdsFetcher)
-    }()
+    private lazy var coinTickersFetcher: CoinTickersFetcher = CoinGeckoTickersFetcher()
     private lazy var nftProvider: NFTProvider = {
         let queue: DispatchQueue = DispatchQueue(label: "org.alphawallet.swift.walletBalance")
         return AlphaWalletNFTProvider(analytics: analytics, queue: queue)
