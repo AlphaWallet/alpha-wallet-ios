@@ -1,7 +1,6 @@
 // Copyright © 2022 Stormbird PTE. LTD.
 
-import Foundation
-import web3swift
+import Foundation 
 import PromiseKit
 
 public class ScriptUri {
