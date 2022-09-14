@@ -11,6 +11,7 @@ import BigInt
 import APIKit
 import JSONRPCKit
 
+public typealias APIKitSession = APIKit.Session
 public typealias SessionTaskError = APIKit.SessionTaskError
 public typealias JSONRPCError = JSONRPCKit.JSONRPCError
 
@@ -29,7 +30,7 @@ public final class GetGasPrice {
         let defaultPrice: BigInt = GasPriceConfiguration.defaultPrice(forServer: server)
 
         return firstly {
-            Session.send(request, server: server, analytics: analytics)
+            APIKitSession.send(request, server: server, analytics: analytics)
         }.get { [server] estimate in
             infoLog("Estimated gas price with RPC node server: \(server) estimate: \(estimate)")
         }.map { [server] in
@@ -65,6 +66,6 @@ public final class EthCall {
 
     public func ethCall(from: AlphaWallet.Address?, to: AlphaWallet.Address?, value: String?, data: String) -> Promise<String> {
         let request = EthCallRequest(from: from, to: to, value: value, data: data)
-        return Session.send(EtherServiceRequest(server: server, batch: BatchFactory().create(request)), server: server, analytics: analytics)
+        return APIKitSession.send(EtherServiceRequest(server: server, batch: BatchFactory().create(request)), server: server, analytics: analytics)
     }
 }

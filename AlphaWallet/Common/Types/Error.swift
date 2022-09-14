@@ -1,7 +1,6 @@
 // Copyright © 2022 Stormbird PTE. LTD.
 
 import Foundation
-import APIKit
 import AlphaWalletFoundation
 
 extension KeystoreError {
@@ -78,7 +77,7 @@ extension Error {
             return error.errorDescription ?? UnknownError().localizedDescription
         case let error as NSError:
             return error.localizedDescription
-        case let error as APIKit.SessionTaskError:
+        case let error as SessionTaskError:
             return generatePrettyError(forSessionTaskError: error)
         default:
             return UndefinedError().localizedDescription
@@ -88,7 +87,7 @@ extension Error {
     public var code: Int { return (self as NSError).code }
     public var domain: String { return (self as NSError).domain }
 
-    private func generatePrettyError(forSessionTaskError error: APIKit.SessionTaskError) -> String {
+    private func generatePrettyError(forSessionTaskError error: SessionTaskError) -> String {
         switch error {
         case .connectionError(let error):
             return error.localizedDescription

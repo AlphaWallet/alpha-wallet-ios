@@ -21,6 +21,6 @@ public final class GetBlockNumber {
 
     public func getBlockNumber() -> Promise<Int> {
         let request = EtherServiceRequest(server: server, batch: BatchFactory().create(BlockNumberRequest()))
-        return Session.send(request, server: server, analytics: analytics)
+        return APIKitSession.send(request, server: server, analytics: analytics)
     }
 }

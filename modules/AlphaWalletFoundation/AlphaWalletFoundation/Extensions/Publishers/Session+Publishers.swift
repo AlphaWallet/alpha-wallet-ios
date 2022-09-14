@@ -10,7 +10,7 @@ import APIKit
 import JSONRPCKit
 import Combine
 
-extension Session {
+extension APIKitSession {
 
     class func sendPublisher<Request: APIKit.Request>(_ request: Request, server: RPCServer, callbackQueue: CallbackQueue? = nil) -> AnyPublisher<Request.Response, SessionTaskError> {
         sendImplPublisher(request, server: server, callbackQueue: callbackQueue)
@@ -25,7 +25,7 @@ extension Session {
         var sessionTask: SessionTask?
         let publisher = Deferred {
             Future<Request.Response, SessionTaskError> { seal in
-                sessionTask = Session.send(request, callbackQueue: callbackQueue) { result in
+                sessionTask = APIKitSession.send(request, callbackQueue: callbackQueue) { result in
                     switch result {
                     case .success(let result):
                         seal(.success(result))

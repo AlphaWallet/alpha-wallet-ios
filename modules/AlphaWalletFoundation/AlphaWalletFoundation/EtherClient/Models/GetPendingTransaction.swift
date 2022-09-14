@@ -22,7 +22,7 @@ public final class GetPendingTransaction {
 
     public func getPendingTransaction(hash: String) -> Promise<PendingTransaction?> {
         let request = GetTransactionRequest(hash: hash)
-        return Session.send(EtherServiceRequest(server: server, batch: BatchFactory().create(request)), server: server, analytics: analytics)
+        return APIKitSession.send(EtherServiceRequest(server: server, batch: BatchFactory().create(request)), server: server, analytics: analytics)
     }
 
     //TODO log `Analytics.WebApiErrors.rpcNodeRateLimited` when appropriate too

@@ -36,7 +36,7 @@ public class SendTransaction {
         let request = EtherServiceRequest(rpcURL: rpcURL, rpcHeaders: rpcHeaders, batch: BatchFactory().create(rawRequest))
 
         return firstly {
-            Session.send(request, server: session.server, analytics: analytics)
+            APIKitSession.send(request, server: session.server, analytics: analytics)
         }.recover { error -> Promise<SendRawTransactionRequest.Response> in
             self.logSelectSendError(error)
             throw error
@@ -102,7 +102,7 @@ public class SendTransaction {
         let request = EtherServiceRequest(rpcURL: rpcURL, rpcHeaders: rpcHeaders, batch: BatchFactory().create(rawTransaction))
 
         return firstly {
-            Session.send(request, server: session.server, analytics: analytics)
+            APIKitSession.send(request, server: session.server, analytics: analytics)
         }.recover { error -> Promise<SendRawTransactionRequest.Response> in
             self.logSelectSendError(error)
             throw error
