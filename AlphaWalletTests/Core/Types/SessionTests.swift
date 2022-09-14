@@ -8,12 +8,11 @@
 import XCTest
 import Foundation
 import Combine
-import APIKit
 import PromiseKit
 @testable import AlphaWallet
 import AlphaWalletFoundation
 
-extension Session {
+extension APIKitSession {
     typealias SendPublisherExampleClosure = (_ callback: @escaping(SessionTaskError?) -> Void) -> Void
 
     class func sendPublisherTestsOnly(closure: @escaping SendPublisherExampleClosure) -> AnyPublisher<Void, SessionTaskError> {
@@ -50,14 +49,14 @@ class SessionTests: XCTestCase {
         var callbackCallCounter: Int = 0
         let callCompletionExpectation = self.expectation(description: "expect to call callback closure after few retries")
 
-        let testExampleClosure: Session.SendPublisherExampleClosure = { closure in
+        let testExampleClosure: APIKitSession.SendPublisherExampleClosure = { closure in
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 closure(.requestError(RpcNodeRetryableRequestError.networkConnectionWasLost))
             }
             callbackCallCounter += 1
         }
 
-        Session.sendPublisherTestsOnly(closure: testExampleClosure)
+        APIKitSession.sendPublisherTestsOnly(closure: testExampleClosure)
             .retry(times: 2, when: {
                 guard case SessionTaskError.requestError(let e) = $0 else { return false }
                 return e is RpcNodeRetryableRequestError
@@ -76,13 +75,13 @@ class SessionTests: XCTestCase {
         var retryCallbackCallCounter: Int = 0
         let failureExpectation = self.expectation(description: "expect to call callback closure after when call canceled")
 
-        let testExampleClosure: Session.SendPublisherExampleClosure = { closure in
+        let testExampleClosure: APIKitSession.SendPublisherExampleClosure = { closure in
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 closure(.requestError(RpcNodeRetryableRequestError.networkConnectionWasLost))
             }
         }
 
-        let publisher = Session.sendPublisherTestsOnly(closure: testExampleClosure)
+        let publisher = APIKitSession.sendPublisherTestsOnly(closure: testExampleClosure)
         let cancelable = publisher
             .retry(times: 2, when: {
                 retryCallbackCallCounter += 1

@@ -37,7 +37,7 @@ public final class GetDASNameLookup {
 
         let request = EtherServiceRequest(rpcURL: rpcURL, rpcHeaders: rpcHeaders, batch: BatchFactory().create(DASLookupRequest(value: value)))
         infoLog("[DAS] Looking up value \(value)…")
-        return Session.send(request, server: server, analytics: analytics).map { response -> AlphaWallet.Address in
+        return APIKitSession.send(request, server: server, analytics: analytics).map { response -> AlphaWallet.Address in
             infoLog("[DAS] response for value: \(value) response : \(response)")
             if let record = response.records.first(where: { $0.key == GetDASNameLookup.ethAddressKey }), let address = AlphaWallet.Address(string: record.value) {
                 infoLog("[DAS] resolve value: \(value) to address: \(address)")

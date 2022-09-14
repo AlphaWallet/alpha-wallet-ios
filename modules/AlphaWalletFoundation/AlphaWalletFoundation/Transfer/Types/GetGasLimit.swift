@@ -33,7 +33,7 @@ public final class GetGasLimit {
         let request = EstimateGasRequest(from: account.address, transactionType: transactionType, value: value, data: data)
 
         return firstly {
-            Session.send(EtherServiceRequest(server: server, batch: BatchFactory().create(request)), server: server, analytics: analytics)
+            APIKitSession.send(EtherServiceRequest(server: server, batch: BatchFactory().create(request)), server: server, analytics: analytics)
         }.map { gasLimit -> BigInt in
             infoLog("Estimated gas limit with eth_estimateGas: \(gasLimit)")
             return BigInt(gasLimit.drop0x, radix: 16) ?? BigInt()

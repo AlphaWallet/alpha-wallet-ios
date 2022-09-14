@@ -18,6 +18,6 @@ open class GetNativeCryptoCurrencyBalance {
 
     public func getBalance(for address: AlphaWallet.Address) -> Promise<Balance> {
         let request = EtherServiceRequest(server: server, batch: BatchFactory().create(BalanceRequest(address: address)))
-        return Session.send(request, server: server, analytics: analytics, callbackQueue: queue.flatMap { .dispatchQueue($0) })
+        return APIKitSession.send(request, server: server, analytics: analytics, callbackQueue: queue.flatMap { .dispatchQueue($0) })
     }
 }

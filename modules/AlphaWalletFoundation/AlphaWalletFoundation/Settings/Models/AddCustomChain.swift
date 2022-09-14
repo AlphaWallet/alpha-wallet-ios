@@ -172,7 +172,7 @@ extension AddCustomChain.functional {
         let server = RPCServer.custom(customRpc)
         let request = EthChainIdRequest()
         return firstly {
-            Session.send(EtherServiceRequest(server: server, batch: BatchFactory().create(request)), server: server, analytics: analytics)
+            APIKitSession.send(EtherServiceRequest(server: server, batch: BatchFactory().create(request)), server: server, analytics: analytics)
         }.map { result in
             if let retrievedChainId = Int(chainId0xString: result), retrievedChainId == chainId {
                 return (chainId: chainId, rpcUrl: rpcUrl)

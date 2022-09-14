@@ -5,11 +5,11 @@ import APIKit
 import JSONRPCKit
 import PromiseKit
 
-extension Session {
+extension APIKitSession {
 
     private class func sendImpl<Request: APIKit.Request>(_ request: Request, server: RPCServer, analytics: AnalyticsLogger, callbackQueue: CallbackQueue? = nil) -> Promise<Request.Response> {
         let (promise, seal) = Promise<Request.Response>.pending()
-        Session.send(request, callbackQueue: callbackQueue) { result in
+        APIKitSession.send(request, callbackQueue: callbackQueue) { result in
             switch result {
             case .success(let result):
                 seal.fulfill(result)

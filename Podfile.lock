@@ -23,9 +23,10 @@ PODS:
     - AlphaWalletOpenSea
     - AlphaWalletWeb3Provider
     - APIKit (= 5.1.0)
-    - Apollo
+    - Apollo (= 0.53.0)
     - BigInt (~> 3.1)
     - BlockiesSwift
+    - CocoaLumberjack (= 3.7.0)
     - CombineExt (= 1.8.0)
     - CryptoSwift (~> 1.4)
     - EthereumABI
@@ -51,9 +52,9 @@ PODS:
     - SwiftyJSON (= 5.0.0)
   - AlphaWalletWeb3Provider (0.3.0)
   - APIKit (5.1.0)
-  - Apollo (0.50.0):
-    - Apollo/Core (= 0.50.0)
-  - Apollo/Core (0.50.0)
+  - Apollo (0.53.0):
+    - Apollo/Core (= 0.53.0)
+  - Apollo/Core (0.53.0)
   - BigInt (3.1.0):
     - SipHash (~> 1.2)
   - BlockiesSwift (0.1.2)
@@ -161,38 +162,25 @@ DEPENDENCIES:
   - AlphaWalletGoBack (from `.`)
   - AlphaWalletOpenSea (from `.`)
   - AlphaWalletWeb3Provider (from `https://github.com/AlphaWallet/AlphaWallet-web3-provider`, commit `9a4496d02b7ddb2f6307fd0510d8d7c9fcef9870`)
-  - APIKit (= 5.1.0)
-  - Apollo
   - BigInt (~> 3.1)
-  - BlockiesSwift
   - Charts (from `https://github.com/AlphaWallet/Charts.git`, commit `85ec4d0f62b97829274c4f628f4840036939de64`)
-  - CocoaLumberjack (= 3.7.0)
-  - CombineExt (= 1.8.0)
-  - CryptoSwift (~> 1.4)
   - EthereumABI (from `https://github.com/AlphaWallet/EthereumABI.git`, commit `877b77e8e7cbc54ab0712d509b74fec21b79d1bb`)
   - FloatingPanel
   - iOSSnapshotTestCase (= 6.2.0)
-  - JSONRPCKit (~> 2.0.0)
   - Kanna (from `https://github.com/tid-kijyun/Kanna.git`, commit `06a04bc28783ccbb40efba355dee845a024033e8`)
   - KeychainSwift (from `https://github.com/AlphaWallet/keychain-swift.git`, commit `b797d40a9d08ec509db4335140cf2259b226e6a2`)
   - Kingfisher (~> 7.0)
   - MailchimpSDK
   - MBProgressHUD
   - Mixpanel-swift (~> 3.1)
-  - Moya (~> 10.0.1)
-  - PaperTrailLumberjack/Swift
-  - PromiseKit/Alamofire
   - PromiseKit/CorePromise
   - QRCodeReaderViewController (from `https://github.com/AlphaWallet/QRCodeReaderViewController.git`, commit `30d1a2a7d167d0d207ae0ae3a4d81bcf473d7a65`)
   - R.swift
-  - RealmSwift (= 10.27.0)
   - SAMKeychain
   - StatefulViewController
   - SwiftLint (= 0.40.3)
-  - SwiftyJSON (= 5.0.0)
   - TrezorCrypto (from `https://github.com/AlphaWallet/trezor-crypto-ios.git`, commit `50c16ba5527e269bbc838e80aee5bac0fe304cc7`)
   - TrustKeystore (from `https://github.com/AlphaWallet/latest-keystore-snapshot`, commit `c0bdc4f6ffc117b103e19d17b83109d4f5a0e764`)
-  - TrustWalletCore (= 2.6.34)
   - web3swift (from `https://github.com/AlphaWallet/web3swift.git`, commit `6d7c01af26bcb75d8a02b6709b089e02ed99af98`)
   - xcbeautify
 
@@ -311,12 +299,12 @@ SPEC CHECKSUMS:
   AlphaWalletAddress: 9dccc77a5ce4abe0e782e05c8ddde4ddbb7c11a7
   AlphaWalletCore: 635739018555de844a020f8b9b7d49610b3de655
   AlphaWalletENS: 609407f0a31b31f769d2ddeedf4048b67805254b
-  AlphaWalletFoundation: 9582accce4c83fd63a483f791fb10f5afd45ab4c
+  AlphaWalletFoundation: 0acf16dd6f463e57682f54cae57f0aa36a904db4
   AlphaWalletGoBack: 1d55b51e6cfd999740d3cfab09d9fa723ba85ff2
   AlphaWalletOpenSea: 71e255612529b04ae4d66dca54bd181185593b1d
   AlphaWalletWeb3Provider: 7ca1e1c1dc841dc1915f970daace48bf34931655
   APIKit: 9e1a4069608bf0ae5238811e6cfc26928ad4d01e
-  Apollo: 5e4476a3236bd576686085b7cd99655c788e4d74
+  Apollo: 204819ea82022fbc59ad05056820df867f19bd02
   BigInt: 76b5dfdfa3e2e478d4ffdf161aeede5502e2742f
   BlockiesSwift: 22d8d56dd187e6bfd16cb8c8fbd4fd4896c3e65d
   Charts: b1e3a1f5a1c9ba5394438ca3b91bd8c9076310af
@@ -358,6 +346,6 @@ SPEC CHECKSUMS:
   web3swift: 06118d4c4edc801444aaa995bbbddeda176b97ef
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: f0a23b9a340a9dc67d8c9623eed6a172a7556a01
+PODFILE CHECKSUM: 9b1131f1f787b474087e3824d74bc9c8b4eedf2d
 
 COCOAPODS: 1.11.2
