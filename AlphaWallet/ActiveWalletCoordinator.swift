@@ -351,8 +351,8 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         return coordinator
     }
 
-    private func createBrowserCoordinator(sessions: ServerDictionary<WalletSession>, browserOnly: Bool) -> DappBrowserCoordinator {
-        let coordinator = DappBrowserCoordinator(sessions: sessions, keystore: keystore, config: config, browserOnly: browserOnly, restartQueue: restartQueue, analytics: analytics, domainResolutionService: domainResolutionService, assetDefinitionStore: assetDefinitionStore, tokensService: tokenCollection, bookmarksStore: BookmarksStore(), historyStore: HistoryStore())
+    private func createBrowserCoordinator(browserOnly: Bool) -> DappBrowserCoordinator {
+        let coordinator = DappBrowserCoordinator(sessionsProvider: sessionsProvider, keystore: keystore, config: config, browserOnly: browserOnly, analytics: analytics, domainResolutionService: domainResolutionService, assetDefinitionStore: assetDefinitionStore, tokensService: tokenCollection, bookmarksStore: BookmarksStore(), historyStore: HistoryStore(), wallet: wallet)
         coordinator.delegate = self
         coordinator.start()
         coordinator.rootViewController.tabBarItem = ActiveWalletViewModel.Tabs.browser.tabBarItem
@@ -402,7 +402,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
             viewControllers.append(swapDummyViewController)
         }
 
-        let browserCoordinator = createBrowserCoordinator(sessions: sessionsProvider.activeSessions, browserOnly: false)
+        let browserCoordinator = createBrowserCoordinator(browserOnly: false)
         viewControllers.append(browserCoordinator.navigationController)
 
         let settingsCoordinator = createSettingsCoordinator(keystore: keystore, promptBackupCoordinator: promptBackupCoordinator)
@@ -606,7 +606,7 @@ extension ActiveWalletCoordinator: WalletConnectCoordinatorDelegate {
 extension ActiveWalletCoordinator: CanOpenURL {
     private func open(url: URL, in viewController: UIViewController) {
         //TODO duplication of code to set up a BrowserCoordinator when creating the application's tabbar
-        let browserCoordinator = createBrowserCoordinator(sessions: sessionsProvider.activeSessions, browserOnly: true)
+        let browserCoordinator = createBrowserCoordinator(browserOnly: true)
         let controller = browserCoordinator.navigationController
         browserCoordinator.open(url: url, animated: false)
         controller.makePresentationFullScreenForiOS13Migration()

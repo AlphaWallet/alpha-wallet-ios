@@ -1,8 +1,7 @@
 // Copyright DApps Platform Inc. All rights reserved.
 
 import UIKit
-import WebKit 
-import BigInt
+import WebKit
 import PromiseKit
 import AlphaWalletFoundation
 
@@ -12,10 +11,7 @@ protocol DappBrowserCoordinatorDelegate: CanOpenURL, RequestAddCustomChainProvid
 }
 
 final class DappBrowserCoordinator: NSObject, Coordinator {
-    private var session: WalletSession {
-        return sessions[server]
-    }
-    private let sessions: ServerDictionary<WalletSession>
+    private let sessionsProvider: SessionsProvider
     private let keystore: Keystore
     private var config: Config
     private let analytics: AnalyticsLogger
@@ -23,10 +19,9 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     private var browserNavBar: DappBrowserNavigationBar? {
         return navigationController.navigationBar as? DappBrowserNavigationBar
     }
-
+    private let wallet: Wallet
     private lazy var browserViewController: BrowserViewController = createBrowserViewController()
     private let browserOnly: Bool
-    private let restartQueue: RestartTaskQueue
     private let tokensService: TokenViewModelState
     private let bookmarksStore: BookmarksStore
     private let historyStore: HistoryStore
@@ -76,28 +71,28 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
 
     weak var delegate: DappBrowserCoordinatorDelegate?
 
-   init(
-        sessions: ServerDictionary<WalletSession>,
+    init(
+        sessionsProvider: SessionsProvider,
         keystore: Keystore,
         config: Config,
         browserOnly: Bool,
-        restartQueue: RestartTaskQueue,
         analytics: AnalyticsLogger,
         domainResolutionService: DomainResolutionServiceType,
         assetDefinitionStore: AssetDefinitionStore,
         tokensService: TokenViewModelState,
         bookmarksStore: BookmarksStore,
-        historyStore: HistoryStore
+        historyStore: HistoryStore,
+        wallet: Wallet
     ) {
+        self.wallet = wallet
         self.tokensService = tokensService
         self.navigationController = NavigationController(navigationBarClass: DappBrowserNavigationBar.self, toolbarClass: nil)
-        self.sessions = sessions
+        self.sessionsProvider = sessionsProvider
         self.keystore = keystore
         self.config = config
         self.bookmarksStore = bookmarksStore
         self.historyStore = historyStore
         self.browserOnly = browserOnly
-        self.restartQueue = restartQueue
         self.analytics = analytics
         self.domainResolutionService = domainResolutionService
         self.assetDefinitionStore = assetDefinitionStore
@@ -139,7 +134,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     private func createBrowserViewController() -> BrowserViewController {
-        let browserViewController = BrowserViewController(account: session.account, server: server)
+        let browserViewController = BrowserViewController(account: wallet, server: server)
         browserViewController.delegate = self
         browserViewController.webView.uiDelegate = self
 
@@ -156,6 +151,8 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     private func executeTransaction(account: AlphaWallet.Address, action: DappAction, callbackID: Int, transaction: UnconfirmedTransaction, type: ConfirmType, server: RPCServer) {
         pendingTransaction = .data(callbackID: callbackID)
         do {
+            guard let session = sessionsProvider.session(for: server) else { throw DappBrowserError.serverUnavailable }
+
             let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: .dappTransaction(confirmType: type), analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
             coordinator.delegate = self
             addCoordinator(coordinator)
@@ -350,7 +347,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     private func scanQrCode() {
         guard navigationController.ensureHasDeviceAuthorization() else { return }
 
-        let coordinator = ScanQRCodeCoordinator(analytics: analytics, navigationController: navigationController, account: session.account, domainResolutionService: domainResolutionService)
+        let coordinator = ScanQRCodeCoordinator(analytics: analytics, navigationController: navigationController, account: wallet, domainResolutionService: domainResolutionService)
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start(fromSource: .browserScreen)
@@ -506,7 +503,7 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
             }
         }
 
-        switch session.account.type {
+        switch wallet.type {
         case .real(let account):
             return performDappAction(account: account)
         case .watch(let account):
@@ -893,5 +890,15 @@ extension DappBrowserCoordinator {
 
     private func logEnterUrl() {
         analytics.log(action: Analytics.Action.enterUrl)
+    }
+}
+
+extension DappBrowserCoordinator {
+    enum DappBrowserError: Error, LocalizedError {
+        case serverUnavailable
+
+        var localizedDescription: String {
+            return "RPC Server Unavailable"
+        }
     }
 }
