@@ -37,6 +37,7 @@ PODS:
     - PromiseKit/CorePromise
     - RealmSwift (= 10.27.0)
     - SwiftLint (= 0.40.3)
+    - SwiftProtobuf (~> 1.18.0)
     - SwiftyJSON (= 5.0.0)
     - TrezorCrypto
     - TrustKeystore
@@ -310,7 +311,7 @@ SPEC CHECKSUMS:
   AlphaWalletAddress: 9dccc77a5ce4abe0e782e05c8ddde4ddbb7c11a7
   AlphaWalletCore: 635739018555de844a020f8b9b7d49610b3de655
   AlphaWalletENS: 609407f0a31b31f769d2ddeedf4048b67805254b
-  AlphaWalletFoundation: 4ca776c9be47cb8594e5f6c3eb6fcebd823ce109
+  AlphaWalletFoundation: 9582accce4c83fd63a483f791fb10f5afd45ab4c
   AlphaWalletGoBack: 1d55b51e6cfd999740d3cfab09d9fa723ba85ff2
   AlphaWalletOpenSea: 71e255612529b04ae4d66dca54bd181185593b1d
   AlphaWalletWeb3Provider: 7ca1e1c1dc841dc1915f970daace48bf34931655
