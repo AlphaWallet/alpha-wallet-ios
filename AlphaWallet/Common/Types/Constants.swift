@@ -44,3 +44,9 @@ extension Constants {
 
     static let dappsBrowserURL = "http://aw.app"
 }
+
+extension Constants.Credentials {
+    static let analyticsKey = ""
+    static let mailChimpListSpecificKey = ""
+    static let walletConnectProjectId = "8ba9ee138960775e5231b70cc5ef1c3a"
+}

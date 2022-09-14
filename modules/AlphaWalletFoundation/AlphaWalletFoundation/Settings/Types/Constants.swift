@@ -81,17 +81,20 @@ public struct Constants {
     //xDai dapps
     static let xDaiBridge = URL(string: "https://bridge.xdaichain.com/")!
     static let arbitrumBridge = URL(string: "https://bridge.arbitrum.io/")!
-    static let buyXDaiWitRampUrl = "https://buy.ramp.network/?hostApiKey=\(Constants.Credentials.rampApiKey)&hostLogoUrl=https%3A%2F%2Falphawallet.com%2Fwp-content%2Fthemes%2Falphawallet%2Fimg%2Falphawallet-logo.svg&hostAppName=AlphaWallet&swapAsset=xDai"
+    static var buyXDaiWitRampUrl: String? {
+        guard Constants.Credentials.rampApiKey.nonEmpty else { return nil }
+        return "https://buy.ramp.network/?hostApiKey=\(Constants.Credentials.rampApiKey)&hostLogoUrl=https%3A%2F%2Falphawallet.com%2Fwp-content%2Fthemes%2Falphawallet%2Fimg%2Falphawallet-logo.svg&hostAppName=AlphaWallet&swapAsset=xDai"
+    }
 
-    static func buyWitRampUrl(asset: String) -> String {
-        "https://buy.ramp.network/?hostApiKey=\(Constants.Credentials.rampApiKey)&hostLogoUrl=https%3A%2F%2Falphawallet.com%2Fwp-content%2Fthemes%2Falphawallet%2Fimg%2Falphawallet-logo.svg&hostAppName=AlphaWallet&swapAsset=\(asset)"
+    static func buyWitRampUrl(asset: String) -> String? {
+        guard Constants.Credentials.rampApiKey.nonEmpty else { return nil }
+        return "https://buy.ramp.network/?hostApiKey=\(Constants.Credentials.rampApiKey)&hostLogoUrl=https%3A%2F%2Falphawallet.com%2Fwp-content%2Fthemes%2Falphawallet%2Fimg%2Falphawallet-logo.svg&hostAppName=AlphaWallet&swapAsset=\(asset)"
     }
 
     static func buyWithCoinBaseUrl(blockchain: String, wallet: Wallet) -> String? {
         guard Features.default.isAvailable(.isCoinbasePayEnabled) else { return nil }
-        let key = Constants.Credentials.coinBaseAppId
-        guard !key.isEmpty else { return nil }
-        let base = "https://pay.coinbase.com/buy/select-asset?appId=\(key)"
+        guard Constants.Credentials.coinBaseAppId.nonEmpty else { return nil }
+        let base = "https://pay.coinbase.com/buy/select-asset?appId=\(Constants.Credentials.coinBaseAppId)"
         return base + ("&destinationWallets=[{\"address\": \"\(wallet.address.eip55String)\",\"blockchains\":[\"\(blockchain)\"]}]".addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? "")
     }
 
