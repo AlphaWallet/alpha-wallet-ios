@@ -10,27 +10,27 @@ extension KeystoreError {
         case .failedToDeleteAccount:
             return R.string.localizable.accountsDeleteErrorFailedToDeleteAccount()
         case .failedToDecryptKey:
-            return R.string.localizable.accountsDeleteErrorFailedToDecryptKey()
+            return R.string.localizable.accountsErrorFailedToDecryptKey()
         case .failedToImport(let error):
             return error.localizedDescription
         case .duplicateAccount:
-            return R.string.localizable.accountsDeleteErrorDuplicateAccount()
+            return R.string.localizable.accountsErrorDuplicateAccount()
         case .failedToSignTransaction:
-            return R.string.localizable.accountsDeleteErrorFailedToSignTransaction()
+            return R.string.localizable.accountsErrorFailedToSignTransaction()
         case .failedToCreateWallet:
-            return R.string.localizable.accountsDeleteErrorFailedToCreateWallet()
+            return R.string.localizable.accountsErrorFailedToCreateWallet()
         case .failedToImportPrivateKey:
-            return R.string.localizable.accountsDeleteErrorFailedToImportPrivateKey()
+            return R.string.localizable.accountsErrorFailedToImportPrivateKey()
         case .failedToParseJSON:
-            return R.string.localizable.accountsDeleteErrorFailedToParseJSON()
+            return R.string.localizable.accountsErrorFailedToParseJSON()
         case .accountNotFound:
-            return R.string.localizable.accountsDeleteErrorAccountNotFound()
+            return R.string.localizable.accountsErrorAccountNotFound()
         case .failedToSignMessage:
-            return R.string.localizable.accountsDeleteErrorFailedToSignMessage()
+            return R.string.localizable.accountsErrorFailedToSignMessage()
         case .failedToExportPrivateKey:
-            return R.string.localizable.accountsDeleteErrorFailedToExportPrivateKey()
+            return R.string.localizable.accountsErrorFailedToExportPrivateKey()
         case .failedToExportSeed:
-            return R.string.localizable.accountsDeleteErrorFailedToExportSeed()
+            return R.string.localizable.accountsErrorFailedToExportSeed()
         case .accountMayNeedImportingAgainOrEnablePasscode:
             return R.string.localizable.keystoreAccessKeyNeedImportOrPasscode()
         case .userCancelled:
