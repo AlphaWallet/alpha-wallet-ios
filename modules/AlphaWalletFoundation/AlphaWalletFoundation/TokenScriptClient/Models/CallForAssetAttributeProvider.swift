@@ -6,16 +6,18 @@ import PromiseKit
 import web3swift
 
 ///This class temporarily stores the promises used to make function calls. This is so we don't make the same function calls (over network) + arguments combination multiple times concurrently. Once the call completes, we remove it from the cache.
-public class CallForAssetAttributeCoordinator {
-    private var promiseCache: AtomicDictionary<AssetFunctionCall, Promise<AssetInternalValue>> = .init()
+public class CallForAssetAttributeProvider {
+    private var inflightPromises: AtomicDictionary<AssetFunctionCall, Promise<AssetInternalValue>> = .init()
+
     public init() { }
+
     public func getValue(
             forAttributeId attributeId: AttributeId,
             tokenId: TokenId,
             functionCall: AssetFunctionCall
     ) -> Subscribable<AssetInternalValue> {
         let subscribable = Subscribable<AssetInternalValue>(nil)
-        if let promise = promiseCache[functionCall] {
+        if let promise = inflightPromises[functionCall] {
             promise.done { result in
                 subscribable.send(result)
             }.cauterize()
@@ -23,16 +25,16 @@ public class CallForAssetAttributeCoordinator {
         }
 
         let promise = makeRpcPromise(forAttributeId: attributeId, tokenId: tokenId, functionCall: functionCall)
-        promiseCache[functionCall] = promise
+        inflightPromises[functionCall] = promise
 
         //TODO need to throttle smart contract function calls?
         promise.done { [weak self] result in
             guard let strongSelf = self else { return }
             subscribable.send(result)
-            strongSelf.promiseCache.removeValue(forKey: functionCall)
+            strongSelf.inflightPromises.removeValue(forKey: functionCall)
         }.catch { [weak self] _ in
             guard let strongSelf = self else { return }
-            strongSelf.promiseCache.removeValue(forKey: functionCall)
+            strongSelf.inflightPromises.removeValue(forKey: functionCall)
         }
 
         return subscribable
@@ -47,10 +49,9 @@ public class CallForAssetAttributeCoordinator {
                 seal.reject(Web3Error(description: "Failed to create CallForAssetAttribute instance for function: \(functionCall.functionName)"))
                 return
             }
-            let contract = functionCall.contract
 
             //Fine to store a strong reference to self here because it's still useful to cache the function call result
-            callSmartContract(withServer: functionCall.server, contract: contract, functionName: functionCall.functionName, abiString: "[\(function.abi)]", parameters: functionCall.arguments, shouldDelayIfCached: true).done { dictionary in
+            callSmartContract(withServer: functionCall.server, contract: functionCall.contract, functionName: functionCall.functionName, abiString: "[\(function.abi)]", parameters: functionCall.arguments, shouldDelayIfCached: true).done { dictionary in
                 if let value = dictionary["0"] {
                     switch functionCall.output.type {
                     case .address:
