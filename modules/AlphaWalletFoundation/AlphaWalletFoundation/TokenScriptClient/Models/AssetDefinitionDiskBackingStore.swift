@@ -292,7 +292,7 @@ public class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
         //TODO clear the cache more intelligently rather than purge it entirely. It might be hard or impossible to know which other contracts are affected
         tokenScriptFileIndices.signatureVerificationTypes = .init()
         for each in Array(Set(contractsAndServers)) {
-            XMLHandler.invalidate(forContract: each.address)
+            delegate?.invalidateAssetDefinition(forContractAndServer: .init(address: each.address, server: nil))
             changeHandler(each)
         }
     }

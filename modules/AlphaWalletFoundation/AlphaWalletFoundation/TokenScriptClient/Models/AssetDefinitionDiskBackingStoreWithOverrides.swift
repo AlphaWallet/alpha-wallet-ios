@@ -121,7 +121,7 @@ public class AssetDefinitionDiskBackingStoreWithOverrides: AssetDefinitionBackin
 
 extension AssetDefinitionDiskBackingStoreWithOverrides: AssetDefinitionBackingStoreDelegate {
     public func invalidateAssetDefinition(forContractAndServer contractAndServer: AddressAndOptionalRPCServer) {
-        //do nothing
+        delegate?.invalidateAssetDefinition(forContractAndServer: contractAndServer)
     }
 
     public func badTokenScriptFilesChanged(in: AssetDefinitionBackingStore) {
