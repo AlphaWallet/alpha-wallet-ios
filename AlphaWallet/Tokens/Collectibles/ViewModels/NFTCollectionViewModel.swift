@@ -26,7 +26,7 @@ final class NFTCollectionViewModel {
     private var cancelable = Set<AnyCancellable>()
     private let assetDefinitionStore: AssetDefinitionStore
     private let tokensService: TokenViewModelState & TokenHolderState
-    private let openSea: OpenSea
+    private let nftProvider: NFTProvider
     private (set) var openInUrl: URL?
     private (set) lazy var tokenScriptFileStatusHandler: XMLHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
     
@@ -37,12 +37,12 @@ final class NFTCollectionViewModel {
     let backgroundColor: UIColor = Colors.appBackground
     let wallet: Wallet
 
-    private (set) lazy var infoPageViewModel = NFTCollectionInfoPageViewModel(token: token, assetDefinitionStore: assetDefinitionStore, tokenHolders: tokenHolders.value, wallet: wallet, _tokenHolders: tokenHolders.eraseToAnyPublisher(), openSea: openSea)
+    private (set) lazy var infoPageViewModel = NFTCollectionInfoPageViewModel(token: token, assetDefinitionStore: assetDefinitionStore, tokenHolders: tokenHolders.value, wallet: wallet, _tokenHolders: tokenHolders.eraseToAnyPublisher(), nftProvider: nftProvider)
     private (set) lazy var nftAssetsPageViewModel = NFTAssetsPageViewModel(token: token, assetDefinitionStore: assetDefinitionStore, tokenHolders: tokenHolders.eraseToAnyPublisher(), selection: .list)
 
-    init(token: Token, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, tokensService: TokenViewModelState & TokenHolderState, activitiesService: ActivitiesServiceType, openSea: OpenSea) {
+    init(token: Token, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, tokensService: TokenViewModelState & TokenHolderState, activitiesService: ActivitiesServiceType, nftProvider: NFTProvider) {
         self.activitiesService = activitiesService
-        self.openSea = openSea
+        self.nftProvider = nftProvider
         self.tokensService = tokensService
         self.token = token
         self.wallet = wallet

@@ -30,7 +30,7 @@ class TokensCoordinator: Coordinator {
     private let assetDefinitionStore: AssetDefinitionStore
     private let promptBackupCoordinator: PromptBackupCoordinator
     private let analytics: AnalyticsLogger
-    private let openSea: OpenSea
+    private let nftProvider: NFTProvider
     private let tokenActionsService: TokenActionsService
     private let tokensFilter: TokensFilter
     private let activitiesService: ActivitiesServiceType
@@ -75,7 +75,7 @@ class TokensCoordinator: Coordinator {
             assetDefinitionStore: AssetDefinitionStore,
             promptBackupCoordinator: PromptBackupCoordinator,
             analytics: AnalyticsLogger,
-            openSea: OpenSea,
+            nftProvider: NFTProvider,
             tokenActionsService: TokenActionsService,
             walletConnectCoordinator: WalletConnectCoordinator,
             coinTickersFetcher: CoinTickersFetcher,
@@ -97,7 +97,7 @@ class TokensCoordinator: Coordinator {
         self.assetDefinitionStore = assetDefinitionStore
         self.promptBackupCoordinator = promptBackupCoordinator
         self.analytics = analytics
-        self.openSea = openSea
+        self.nftProvider = nftProvider
         self.tokenActionsService = tokenActionsService
         self.walletConnectCoordinator = walletConnectCoordinator
         self.coinTickersFetcher = coinTickersFetcher
@@ -149,7 +149,7 @@ class TokensCoordinator: Coordinator {
 
     private func setupSingleChainTokenCoordinators() {
         for session in sessions.values {
-            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, assetDefinitionStore: assetDefinitionStore, analytics: analytics, openSea: openSea, tokenActionsProvider: tokenActionsService, coinTickersFetcher: coinTickersFetcher, activitiesService: activitiesService, alertService: alertService, tokensService: tokenCollection, sessions: sessions)
+            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, assetDefinitionStore: assetDefinitionStore, analytics: analytics, nftProvider: nftProvider, tokenActionsProvider: tokenActionsService, coinTickersFetcher: coinTickersFetcher, activitiesService: activitiesService, alertService: alertService, tokensService: tokenCollection, sessions: sessions)
 
             coordinator.delegate = self
             addCoordinator(coordinator)

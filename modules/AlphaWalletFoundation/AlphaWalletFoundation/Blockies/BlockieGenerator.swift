@@ -12,6 +12,10 @@ import Combine
 import AlphaWalletENS
 import AlphaWalletCore
 
+public protocol NftAssetImageProvider: AnyObject {
+    func assetImageUrl(for url: Eip155URL) -> AnyPublisher<URL, PromiseError>
+}
+
 public class BlockiesGenerator {
     private enum BlockieSize {
         case sized(size: Int, scale: Int)
@@ -38,10 +42,10 @@ public class BlockiesGenerator {
     private var sizeLessCache: [AlphaWallet.Address: BlockiesImage] = [:]
     private let storage: EnsRecordsStorage
     private lazy var ensTextRecordFetcher = GetEnsTextRecord(server: .forResolvingEns, storage: storage)
-    private let openSea: OpenSea
+    private let assetImageProvider: NftAssetImageProvider
 
-    public init(openSea: OpenSea, storage: EnsRecordsStorage) {
-        self.openSea = openSea
+    public init(assetImageProvider: NftAssetImageProvider, storage: EnsRecordsStorage) {
+        self.assetImageProvider = assetImageProvider
         self.storage = storage
     }
 
@@ -93,7 +97,7 @@ public class BlockiesGenerator {
     }
 
     private func getImageFromOpenSea(for url: Eip155URL, rawUrl: String, nameOrAddress: String) -> AnyPublisher<BlockiesImage, SmartContractError> {
-        return openSea.fetchAssetImageUrl(for: url, server: .main).publisher
+        return assetImageProvider.assetImageUrl(for: url)
             .mapError { SmartContractError.embeded($0) }
             //NOTE: cache fetched open sea image url and rewrite ens avatar with new image
             .handleEvents(receiveOutput: { [storage] url in

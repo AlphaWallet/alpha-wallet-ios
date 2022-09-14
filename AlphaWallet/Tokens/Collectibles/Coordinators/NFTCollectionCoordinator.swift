@@ -27,7 +27,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
     private let sessions: ServerDictionary<WalletSession>
     private let assetDefinitionStore: AssetDefinitionStore
     private let analytics: AnalyticsLogger
-    private let openSea: OpenSea
+    private let nftProvider: NFTProvider
     private let activitiesService: ActivitiesServiceType
     private var cancelable = Set<AnyCancellable>()
     private let tokensService: TokenViewModelState & TokenHolderState
@@ -36,7 +36,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
     lazy var rootViewController: NFTCollectionViewController = {
-        let viewModel = NFTCollectionViewModel(token: token, wallet: session.account, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService, activitiesService: activitiesService, openSea: openSea)
+        let viewModel = NFTCollectionViewModel(token: token, wallet: session.account, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService, activitiesService: activitiesService, nftProvider: nftProvider)
         let controller = NFTCollectionViewController(keystore: keystore, session: session, assetDefinition: assetDefinitionStore, analytics: analytics, viewModel: viewModel, sessions: sessions)
         controller.hidesBottomBarWhenPushed = true
         controller.delegate = self
@@ -51,7 +51,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
             token: Token,
             assetDefinitionStore: AssetDefinitionStore,
             analytics: AnalyticsLogger,
-            openSea: OpenSea,
+            nftProvider: NFTProvider,
             activitiesService: ActivitiesServiceType,
             tokensService: TokenViewModelState & TokenHolderState,
             sessions: ServerDictionary<WalletSession>
@@ -65,7 +65,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
         self.token = token
         self.assetDefinitionStore = assetDefinitionStore
         self.analytics = analytics
-        self.openSea = openSea
+        self.nftProvider = nftProvider
         navigationController.navigationBar.isTranslucent = false
     }
 
@@ -387,7 +387,7 @@ extension NFTCollectionCoordinator: NFTCollectionViewControllerDelegate {
     }
 
     private func createNFTAssetViewController(tokenHolder: TokenHolder, tokenId: TokenId, mode: TokenInstanceViewMode = .interactive) -> UIViewController {
-        let viewModel = NFTAssetViewModel(tokenId: tokenId, token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore, mode: mode, openSea: openSea, session: session, service: tokensService)
+        let viewModel = NFTAssetViewModel(tokenId: tokenId, token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore, mode: mode, nftProvider: nftProvider, session: session, service: tokensService)
         let vc = NFTAssetViewController(analytics: analytics, session: session, assetDefinitionStore: assetDefinitionStore, keystore: keystore, viewModel: viewModel)
         vc.delegate = self
         vc.navigationItem.largeTitleDisplayMode = .never

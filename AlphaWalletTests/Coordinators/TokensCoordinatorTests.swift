@@ -26,7 +26,7 @@ class TokensCoordinatorTests: XCTestCase {
             assetDefinitionStore: AssetDefinitionStore(),
             promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeEtherKeystore(), wallet: .make(), config: config, analytics: FakeAnalyticsService()),
             analytics: FakeAnalyticsService(),
-            openSea: OpenSea(analytics: FakeAnalyticsService(), queue: .global()),
+            nftProvider: FakeNftProvider(),
             tokenActionsService: tokenActionsService,
             walletConnectCoordinator: .fake(),
             coinTickersFetcher: CoinGeckoTickersFetcher.make(),

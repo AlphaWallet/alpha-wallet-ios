@@ -38,7 +38,7 @@ final class NFTCollectionInfoPageViewModel {
     private let assetDefinitionStore: AssetDefinitionStore
     private var viewTypes: [NFTCollectionInfoPageViewModel.ViewType] = []
     private let _tokenHolders: AnyPublisher<[TokenHolder], Never>
-    private let openSea: OpenSea
+    private let nftProvider: NFTProvider
     
     var tabTitle: String { return R.string.localizable.tokenTabInfo() }
     let token: Token
@@ -76,8 +76,8 @@ final class NFTCollectionInfoPageViewModel {
 
     var previewViewContentBackgroundColor: UIColor { return Colors.appBackground }
 
-    init(token: Token, assetDefinitionStore: AssetDefinitionStore, tokenHolders: [TokenHolder], wallet: Wallet, _tokenHolders: AnyPublisher<[TokenHolder], Never>, openSea: OpenSea) {
-        self.openSea = openSea
+    init(token: Token, assetDefinitionStore: AssetDefinitionStore, tokenHolders: [TokenHolder], wallet: Wallet, _tokenHolders: AnyPublisher<[TokenHolder], Never>, nftProvider: NFTProvider) {
+        self.nftProvider = nftProvider
         self._tokenHolders = _tokenHolders
         self.assetDefinitionStore = assetDefinitionStore
         self.token = token
@@ -100,7 +100,7 @@ final class NFTCollectionInfoPageViewModel {
         let whenOpenSeaStatsHasChanged = PassthroughSubject<Void, Never>()
 
         if let openSeaSlug = tokenHolder.values.slug, openSeaSlug.trimmed.nonEmpty {
-            openSea.collectionStats(slug: openSeaSlug, server: token.server).done { [tokenHolderHelper] overiddenOpenSeaStats in
+            nftProvider.collectionStats(slug: openSeaSlug, server: token.server).done { [tokenHolderHelper] overiddenOpenSeaStats in
                 tokenHolderHelper.overiddenOpenSeaStats = overiddenOpenSeaStats
                 whenOpenSeaStatsHasChanged.send(())
             }.cauterize()

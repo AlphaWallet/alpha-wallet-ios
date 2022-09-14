@@ -30,7 +30,7 @@ struct NFTAssetViewModelOutput {
 class NFTAssetViewModel {
     private let displayHelper: OpenSeaNonFungibleTokenDisplayHelper
     private let tokenHolderHelper: TokenInstanceViewConfigurationHelper
-    private let openSea: OpenSea
+    private let nftProvider: NFTProvider
     private let session: WalletSession
     private let mode: TokenInstanceViewMode
     private let service: TokenViewModelState & TokenHolderState
@@ -93,9 +93,9 @@ class NFTAssetViewModel {
         }
     }
 
-    init(tokenId: TokenId, token: Token, tokenHolder: TokenHolder, assetDefinitionStore: AssetDefinitionStore, mode: TokenInstanceViewMode, openSea: OpenSea, session: WalletSession, service: TokenViewModelState & TokenHolderState) {
+    init(tokenId: TokenId, token: Token, tokenHolder: TokenHolder, assetDefinitionStore: AssetDefinitionStore, mode: TokenInstanceViewMode, nftProvider: NFTProvider, session: WalletSession, service: TokenViewModelState & TokenHolderState) {
         self.service = service
-        self.openSea = openSea
+        self.nftProvider = nftProvider
         self.session = session
         self.tokenId = tokenId
         self.mode = mode
@@ -110,7 +110,7 @@ class NFTAssetViewModel {
     func transform(input: NFTAssetViewModelInput) -> NFTAssetViewModelOutput {
         let whenOpenSeaStatsHasChanged = PassthroughSubject<Void, Never>()
         if let openSeaSlug = tokenHolder.values.slug, openSeaSlug.trimmed.nonEmpty {
-            openSea.collectionStats(slug: openSeaSlug, server: token.server).done { [weak self] stats in
+            nftProvider.collectionStats(slug: openSeaSlug, server: token.server).done { [weak self] stats in
                 self?.configure(overiddenOpenSeaStats: stats)
                 whenOpenSeaStatsHasChanged.send(())
             }.cauterize()

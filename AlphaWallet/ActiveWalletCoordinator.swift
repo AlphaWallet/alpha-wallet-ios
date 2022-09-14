@@ -20,7 +20,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private let assetDefinitionStore: AssetDefinitionStore
     private let appTracker: AppTracker
     private let analytics: AnalyticsLogger
-    private let openSea: OpenSea
+    private let nftProvider: NFTProvider
     private let restartQueue: RestartTaskQueue
     private let coinTickersFetcher: CoinTickersFetcher
     private let transactionsDataStore: TransactionDataStore
@@ -33,7 +33,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         let tokenGroupIdentifier: TokenGroupIdentifierProtocol = TokenGroupIdentifier.identifier(fromFileName: "tokens")!
         return TokensFilter(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: coinTickersFetcher, tokenGroupIdentifier: tokenGroupIdentifier)
     }()
-    //FIXME: Rename to pipeline, as what it actually does
+    
     private let tokenCollection: TokenCollection
 
     private var transactionCoordinator: TransactionCoordinator? {
@@ -142,7 +142,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
             config: Config,
             appTracker: AppTracker = AppTracker(),
             analytics: AnalyticsLogger,
-            openSea: OpenSea,
+            nftProvider: NFTProvider,
             restartQueue: RestartTaskQueue,
             universalLinkCoordinator: UniversalLinkService,
             accountsCoordinator: AccountsCoordinator,
@@ -176,7 +176,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         self.config = config
         self.appTracker = appTracker
         self.analytics = analytics
-        self.openSea = openSea
+        self.nftProvider = nftProvider
         self.restartQueue = restartQueue
         self.assetDefinitionStore = assetDefinitionStore
         self.universalLinkService = universalLinkCoordinator
@@ -300,7 +300,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
                 assetDefinitionStore: assetDefinitionStore,
                 promptBackupCoordinator: promptBackupCoordinator,
                 analytics: analytics,
-                openSea: openSea,
+                nftProvider: nftProvider,
                 tokenActionsService: tokenActionsService,
                 walletConnectCoordinator: walletConnectCoordinator,
                 coinTickersFetcher: coinTickersFetcher,

@@ -6,26 +6,34 @@
 //
 
 import Foundation
+import AlphaWalletCore
 import AlphaWalletOpenSea
 import PromiseKit
+import Combine
 
 public typealias NonFungiblesTokens = (openSea: OpenSeaAddressesToNonFungibles, enjin: EnjinTokenIdsToSemiFungibles)
 
-public protocol NFTProvider: AnyObject {
+public protocol NFTProvider: NftAssetImageProvider {
+    func collectionStats(slug: String, server: RPCServer) -> Promise<Stats>
     func nonFungible(wallet: Wallet, server: RPCServer) -> Promise<NonFungiblesTokens>
 }
 
 public final class AlphaWalletNFTProvider: NFTProvider {
-
-    private let analytics: AnalyticsLogger
-    private lazy var openSea = OpenSea(analytics: analytics, queue: queue)
-    private lazy var enjin = Enjin(queue: queue)
-    private var cachedPromises: AtomicDictionary<AddressAndRPCServer, Promise<NonFungiblesTokens>> = .init()
+    private let openSea: OpenSea
+    private let enjin: Enjin
+    private var inflightPromises: AtomicDictionary<AddressAndRPCServer, Promise<NonFungiblesTokens>> = .init()
     //TODO when we remove `queue`, it's also a good time to look at using a shared copy of `OpenSea` from `AppCoordinator`
     private let queue: DispatchQueue
 
-    public init(analytics: AnalyticsLogger, queue: DispatchQueue) {
-        self.analytics = analytics
+    public init(analytics: AnalyticsLogger) {
+        queue = DispatchQueue(label: "org.alphawallet.swift.nftProvider")
+        enjin = Enjin(queue: queue)
+        openSea = OpenSea(analytics: analytics, queue: queue)
+    }
+
+    public init(openSea: OpenSea, enjin: Enjin, queue: DispatchQueue) {
+        self.openSea = openSea
+        self.enjin = enjin
         self.queue = queue
     }
 
@@ -50,10 +58,18 @@ public final class AlphaWalletNFTProvider: NFTProvider {
         return openSea.nonFungible(wallet: account, server: server)
     }
 
+    public func assetImageUrl(for url: Eip155URL) -> AnyPublisher<URL, PromiseError> {
+        openSea.fetchAssetImageUrl(for: url, server: .main).publisher
+    }
+
+    public func collectionStats(slug: String, server: RPCServer) -> Promise<Stats> {
+        openSea.collectionStats(slug: slug, server: server)
+    }
+
     public func nonFungible(wallet: Wallet, server: RPCServer) -> Promise<NonFungiblesTokens> {
         let key = AddressAndRPCServer(address: wallet.address, server: server)
 
-        if let promise = cachedPromises[key] {
+        if let promise = inflightPromises[key] {
             return promise
         } else {
             let tokensFromOpenSeaPromise = getOpenSeaNonFungible(account: wallet, server: server)
@@ -64,10 +80,10 @@ public final class AlphaWalletNFTProvider: NFTProvider {
             }.map(on: queue, { (contractToOpenSeaNonFungibles, enjinTokens) -> NonFungiblesTokens in
                 return (contractToOpenSeaNonFungibles, enjinTokens)
             }).ensure(on: queue, {
-                self.cachedPromises[key] = .none
+                self.inflightPromises[key] = .none
             })
 
-            cachedPromises[key] = promise
+            inflightPromises[key] = promise
 
             return promise
         }

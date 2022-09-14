@@ -7,9 +7,20 @@
 
 @testable import AlphaWallet
 import PromiseKit
+import AlphaWalletCore
 import AlphaWalletFoundation
+import Combine
 
-class FakeNftProvider: NFTProvider {
+final class FakeNftProvider: NFTProvider, NftAssetImageProvider {
+    func assetImageUrl(for url: Eip155URL) -> AnyPublisher<URL, PromiseError> {
+        return .fail(PromiseError.some(error: ProviderError()))
+    }
+
+    struct ProviderError: Error {}
+
+    func collectionStats(slug: String, server: RPCServer) -> Promise<Stats> {
+        return .init(error: ProviderError())
+    }
     func nonFungible(wallet: Wallet, server: RPCServer) -> Promise<NonFungiblesTokens> {
         return .value((openSea: [:], enjin: [:]))
     }
