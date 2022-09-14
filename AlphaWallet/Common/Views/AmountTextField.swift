@@ -77,14 +77,14 @@ class AmountTextField: UIControl {
         }
     }
 
-    enum Currency {
+    enum CryptoOrFiat {
         case cryptoCurrency(Token)
         case usd
     }
 
     struct Pair {
-        var left: Currency
-        var right: Currency
+        var left: CryptoOrFiat
+        var right: CryptoOrFiat
 
         mutating func swap() {
             let currentLeft = left
@@ -98,7 +98,7 @@ class AmountTextField: UIControl {
             case .cryptoCurrency(let tokenObject):
                 return tokenObject.symbol
             case .usd:
-                return Constants.Currency.usd
+                return Currency.USD.rawValue
             }
         }
 
@@ -170,7 +170,7 @@ class AmountTextField: UIControl {
     //NOTE: Raw values for eth and fiat values. To prevent recalculation we store entered eth and calculated dollarCostRawValue values and vice versa.
     private (set) var ethCostRawValue: NSDecimalNumber?
     private var dollarCostRawValue: NSDecimalNumber?
-    private let cryptoCurrency: Currency
+    private let cryptoCurrency: CryptoOrFiat
     private var currentPair: Pair
 
     var value: String? {
@@ -278,14 +278,14 @@ class AmountTextField: UIControl {
 
         switch currentPair.left {
         case .cryptoCurrency:
-            return StringFormatter().currency(with: amount, and: Constants.Currency.usd, usesGroupingSeparator: usesGroupingSeparator)
+            return StringFormatter().currency(with: amount, and: Currency.USD.rawValue, usesGroupingSeparator: usesGroupingSeparator)
         case .usd:
             return StringFormatter().alternateAmount(value: amount, usesGroupingSeparator: usesGroupingSeparator)
         }
     }
 
     ///Recalculates raw value (eth, or usd) depends on selected currency `currencyToOverride ?? currentPair.left` based on cryptoToDollarRate
-    private func recalculate(amountValue: NSDecimalNumber?, for currencyToOverride: Currency? = nil) {
+    private func recalculate(amountValue: NSDecimalNumber?, for currencyToOverride: CryptoOrFiat? = nil) {
         guard let cryptoToDollarRate = cryptoToDollarRate else {
             return
         }
@@ -447,7 +447,7 @@ class AmountTextField: UIControl {
         } else {
             switch currentPair.left {
             case .cryptoCurrency:
-                alternativeAmountLabel.text = "~ \(amount) \(Constants.Currency.usd)"
+                alternativeAmountLabel.text = "~ \(amount) \(Currency.USD.rawValue)"
             case .usd:
                 switch currentPair.right {
                 case .cryptoCurrency(let tokenObject):

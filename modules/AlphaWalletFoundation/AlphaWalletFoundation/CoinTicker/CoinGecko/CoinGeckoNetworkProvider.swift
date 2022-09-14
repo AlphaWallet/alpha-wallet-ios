@@ -74,7 +74,7 @@ public class CoinGeckoNetworkProvider: CoinGeckoNetworkProviderType {
     }
 
     public func fetchChartHistory(for period: ChartHistoryPeriod, tickerId: String) -> AnyPublisher<ChartHistory, CoinGeckoNetworkProviderError> {
-        provider.publisher(.priceHistoryOfToken(id: tickerId, currency: Constants.Currency.usd, days: period.rawValue), callbackQueue: .global())
+        provider.publisher(.priceHistoryOfToken(id: tickerId, currency: Currency.USD.rawValue, days: period.rawValue), callbackQueue: .global())
             .retry(times: 3)
             .tryMap { try ChartHistory(json: try JSON(data: $0.data)) }
             .mapError { CoinGeckoNetworkProviderError.underlying($0) }
@@ -83,7 +83,7 @@ public class CoinGeckoNetworkProvider: CoinGeckoNetworkProviderType {
     }
 
     private func fetchPricesPage(for tickerIds: String, page: Int, shouldRetry: Bool) -> AnyPublisher<[CoinTicker], CoinGeckoNetworkProviderError> {
-        return provider.publisher(.pricesOfTokens(ids: tickerIds, currency: Constants.Currency.usd, page: page), callbackQueue: .global())
+        return provider.publisher(.pricesOfTokens(ids: tickerIds, currency: Currency.USD.rawValue, page: page), callbackQueue: .global())
             .retry(times: 3)
             .tryMap { [decoder] in try $0.map([CoinTicker].self, using: decoder) }
             .mapError { CoinGeckoNetworkProviderError.underlying($0) }

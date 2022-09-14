@@ -2,56 +2,46 @@
 
 import Foundation
 import BigInt
-import web3swift
-import Combine
 
 public struct Constants {
-    public static let keychainKeyPrefix = "alphawallet"
-    public static let xdaiDropPrefix = Data(bytes:
-        [0x58, 0x44, 0x41, 0x49, 0x44, 0x52, 0x4F, 0x50]
-    ).hex()
+    static let mainnetMagicLinkHost = "aw.app"
+    static let legacyMagicLinkHost = "app.awallet.io"
+    static let classicMagicLinkHost = "classic.aw.app"
+    static let callistoMagicLinkHost = "callisto.aw.app"
+    static let kovanMagicLinkHost = "kovan.aw.app"
+    static let ropstenMagicLinkHost = "ropsten.aw.app"
+    static let rinkebyMagicLinkHost = "rinkeby.aw.app"
+    static let poaMagicLinkHost = "poa.aw.app"
+    static let sokolMagicLinkHost = "sokol.aw.app"
+    static let xDaiMagicLinkHost = "xdai.aw.app"
+    static let goerliMagicLinkHost = "goerli.aw.app"
+    static let artisSigma1MagicLinkHost = "artis_sigma1.aw.app"
+    static let artisTau1MagicLinkHost = "artis_tau1.aw.app"
+    static let binanceMagicLinkHost = "binance.aw.app"
+    static let binanceTestMagicLinkHost = "test-binance.aw.app"
+    static let hecoMagicLinkHost = "heco.aw.app"
+    static let hecoTestMagicLinkHost = "test-heco.aw.app"
+    static let customMagicLinkHost = "custom.aw.app"
+    static let fantomMagicLinkHost = "fantom.aw.app"
+    static let fantomTestMagicLinkHost = "test-fantom.aw.app"
+    static let avalancheMagicLinkHost = "avalanche.aw.app"
+    static let avalancheTestMagicLinkHost = "test-avalanche.aw.app"
+    static let maticMagicLinkHost = "polygon.aw.app"
+    static let mumbaiTestMagicLinkHost = "test-polygon.aw.app"
+    static let optimisticMagicLinkHost = "optimistic.aw.app"
+    static let optimisticTestMagicLinkHost = "optimistic-kovan.aw.app"
+    static let cronosTestMagicLinkHost = "test-cronos.aw.app"
+    static let arbitrumMagicLinkHost = "arbitrum.aw.app"
+    static let arbitrumRinkebyMagicLinkHost = "arbitrum-rinkeby.aw.app"
+    static let palmMagicLinkHost = "palm.aw.app"
+    static let palmTestnetMagicLinkHost = "palmTestnet.aw.app"
+    static let klaytnCypressMagicLinkHost = "klaytnCypress.aw.app"
+    static let klaytnBaobabTestnetMagicLinkHost = "klaytnBaobabTestnet.aw.app"
+    static let phiMagicLinkHost = "phi.aw.app"
+    static let ioTeXMagicLinkHost = "ioTeX.aw.app"
+    static let ioTeXTestnetMagicLinkHost = "ioTeXTestnet.aw.app"
+    static let candleMagicLinkHost = "candle.aw.app"
 
-    public static let mainnetMagicLinkHost = "aw.app"
-    public static let legacyMagicLinkHost = "app.awallet.io"
-    public static let classicMagicLinkHost = "classic.aw.app"
-    public static let callistoMagicLinkHost = "callisto.aw.app"
-    public static let kovanMagicLinkHost = "kovan.aw.app"
-    public static let ropstenMagicLinkHost = "ropsten.aw.app"
-    public static let rinkebyMagicLinkHost = "rinkeby.aw.app"
-    public static let poaMagicLinkHost = "poa.aw.app"
-    public static let sokolMagicLinkHost = "sokol.aw.app"
-    public static let xDaiMagicLinkHost = "xdai.aw.app"
-    public static let goerliMagicLinkHost = "goerli.aw.app"
-    public static let artisSigma1MagicLinkHost = "artis_sigma1.aw.app"
-    public static let artisTau1MagicLinkHost = "artis_tau1.aw.app"
-    public static let binanceMagicLinkHost = "binance.aw.app"
-    public static let binanceTestMagicLinkHost = "test-binance.aw.app"
-    public static let hecoMagicLinkHost = "heco.aw.app"
-    public static let hecoTestMagicLinkHost = "test-heco.aw.app"
-    public static let customMagicLinkHost = "custom.aw.app"
-    public static let fantomMagicLinkHost = "fantom.aw.app"
-    public static let fantomTestMagicLinkHost = "test-fantom.aw.app"
-    public static let avalancheMagicLinkHost = "avalanche.aw.app"
-    public static let avalancheTestMagicLinkHost = "test-avalanche.aw.app"
-    public static let maticMagicLinkHost = "polygon.aw.app"
-    public static let mumbaiTestMagicLinkHost = "test-polygon.aw.app"
-    public static let optimisticMagicLinkHost = "optimistic.aw.app"
-    public static let optimisticTestMagicLinkHost = "optimistic-kovan.aw.app"
-    public static let cronosTestMagicLinkHost = "test-cronos.aw.app"
-    public static let arbitrumMagicLinkHost = "arbitrum.aw.app"
-    public static let arbitrumRinkebyMagicLinkHost = "arbitrum-rinkeby.aw.app"
-    public static let palmMagicLinkHost = "palm.aw.app"
-    public static let palmTestnetMagicLinkHost = "palmTestnet.aw.app"
-    public static let klaytnCypressMagicLinkHost = "klaytnCypress.aw.app"
-    public static let klaytnBaobabTestnetMagicLinkHost = "klaytnBaobabTestnet.aw.app"
-    public static let phiMagicLinkHost = "phi.aw.app"
-    public static let ioTeXMagicLinkHost = "ioTeX.aw.app"
-    public static let ioTeXTestnetMagicLinkHost = "ioTeXTestnet.aw.app"
-    public static let candleMagicLinkHost = "candle.aw.app"
-
-    public enum Currency {
-        public static let usd = "USD"
-    }
     // Magic link networks
     public static let legacyMagicLinkPrefix = "https://app.awallet.io/"
 
@@ -62,17 +52,6 @@ public struct Constants {
     public static let paymentServerClaimedToken = "https://paymaster.stormbird.sg/api/checkIfSignatureIsUsed"
     public static let currencyDropServer = "https://paymaster.stormbird.sg/api/claimFreeCurrency"
 
-    // social
-    public static let iconUrl: URL = URL(string: "https://avatars.githubusercontent.com/u/36216689?s=88&v=4")!
-    public static let website = "https://alphawallet.com/"
-    public static let twitterUsername = "AlphaWallet"
-    public static let redditGroupName = "r/AlphaWallet/"
-    public static let facebookUsername = "AlphaWallet"
-
-    // support
-    public static let supportEmail = "feedback+ios@alphawallet.com"
-    public static let dappsBrowserURL = "http://aw.app"
-
     //Ethereum null variables
     public static let nullTokenId = "0x0000000000000000000000000000000000000000000000000000000000000000"
     public static let nullTokenIdBigUInt = BigUInt(0)
@@ -82,57 +61,55 @@ public struct Constants {
 
     // FIFA hardcoded FIFA token address
     public static let ticketContractAddress = AlphaWallet.Address(string: "0xA66A3F08068174e8F005112A8b2c7A507a822335")!
-    public static let ticketContractAddressRopsten = AlphaWallet.Address(string: "0xD8e5F58DE3933E1E35f9c65eb72cb188674624F3")!
+    static let ticketContractAddressRopsten = AlphaWallet.Address(string: "0xD8e5F58DE3933E1E35f9c65eb72cb188674624F3")!
 
     // UEFA hardcoded addresses
-    public static let uefaMainnet = AlphaWallet.Address(string: "0x89D142Bef8605646881C68dcD48cDAF17FE597dC")!
-    public static let uefaRpcServer = RPCServer.main
+    static let uefaMainnet = AlphaWallet.Address(string: "0x89D142Bef8605646881C68dcD48cDAF17FE597dC")!
+    static let uefaRpcServer = RPCServer.main
 
-    public static let gnoGnosis = (address: AlphaWallet.Address(string: "0x9c58bacc331c9aa871afd802db6379a98e80cedb")!, server: RPCServer.xDai)
+    static let gnoGnosis = (address: AlphaWallet.Address(string: "0x9c58bacc331c9aa871afd802db6379a98e80cedb")!, server: RPCServer.xDai)
 
     //UEFA 721 balances function hash
-    public static let balances165Hash721Ticket = "0xc84aae17"
+    static let balances165Hash721Ticket = "0xc84aae17"
 
-    public static let unstoppableDomainsV2API = "https://unstoppabledomains.g.alchemy.com"
-    public static let unstoppableDomainsRecordKeys = ["crypto.MATIC.version.MATIC.address", "crypto.ETH.address", "crypto.MATIC.version.ERC20.address"]
+    static let unstoppableDomainsV2API = "https://unstoppabledomains.g.alchemy.com"
+    static let unstoppableDomainsRecordKeys = ["crypto.MATIC.version.MATIC.address", "crypto.ETH.address", "crypto.MATIC.version.ERC20.address"]
     //Using "kat" instead of "cryptokitties" to avoid being mistakenly detected by app review as supporting CryptoKitties
-    public static let katContractAddress = "0x06012c8cf97bead5deae237070f9587f8e7a266d"
+    static let katContractAddress = "0x06012c8cf97bead5deae237070f9587f8e7a266d"
     public static let katNameFallback = "AlphaWallet.katNameFallback"
 
     //xDai dapps
-    public static let xDaiBridge = URL(string: "https://bridge.xdaichain.com/")!
-    public static let arbitrumBridge = URL(string: "https://bridge.arbitrum.io/")!
-    public static let buyXDaiWitRampUrl = "https://buy.ramp.network/?hostApiKey=\(Constants.Credentials.rampApiKey)&hostLogoUrl=https%3A%2F%2Falphawallet.com%2Fwp-content%2Fthemes%2Falphawallet%2Fimg%2Falphawallet-logo.svg&hostAppName=AlphaWallet&swapAsset=xDai"
-
-    public static func buyWitRampUrl(asset: String) -> String {
-        "https://buy.ramp.network/?hostApiKey=\(Constants.Credentials.rampApiKey)&hostLogoUrl=https%3A%2F%2Falphawallet.com%2Fwp-content%2Fthemes%2Falphawallet%2Fimg%2Falphawallet-logo.svg&hostAppName=AlphaWallet&swapAsset=\(asset)"
+    static let xDaiBridge = URL(string: "https://bridge.xdaichain.com/")!
+    static let arbitrumBridge = URL(string: "https://bridge.arbitrum.io/")!
+    static var buyXDaiWitRampUrl: String? {
+        guard Constants.Credentials.rampApiKey.nonEmpty else { return nil }
+        return "https://buy.ramp.network/?hostApiKey=\(Constants.Credentials.rampApiKey)&hostLogoUrl=https%3A%2F%2Falphawallet.com%2Fwp-content%2Fthemes%2Falphawallet%2Fimg%2Falphawallet-logo.svg&hostAppName=AlphaWallet&swapAsset=xDai"
     }
 
-    public static func buyWithCoinBaseUrl(blockchain: String, wallet: Wallet) -> String? {
+    static func buyWitRampUrl(asset: String) -> String? {
+        guard Constants.Credentials.rampApiKey.nonEmpty else { return nil }
+        return "https://buy.ramp.network/?hostApiKey=\(Constants.Credentials.rampApiKey)&hostLogoUrl=https%3A%2F%2Falphawallet.com%2Fwp-content%2Fthemes%2Falphawallet%2Fimg%2Falphawallet-logo.svg&hostAppName=AlphaWallet&swapAsset=\(asset)"
+    }
+
+    static func buyWithCoinBaseUrl(blockchain: String, wallet: Wallet) -> String? {
         guard Features.default.isAvailable(.isCoinbasePayEnabled) else { return nil }
-        let key = Constants.Credentials.coinBaseAppId
-        guard !key.isEmpty else { return nil }
-        let base = "https://pay.coinbase.com/buy/select-asset?appId=\(key)"
+        guard Constants.Credentials.coinBaseAppId.nonEmpty else { return nil }
+        let base = "https://pay.coinbase.com/buy/select-asset?appId=\(Constants.Credentials.coinBaseAppId)"
         return base + ("&destinationWallets=[{\"address\": \"\(wallet.address.eip55String)\",\"blockchains\":[\"\(blockchain)\"]}]".addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? "")
     }
 
-    public static let highStandardEthereumMainnetGasThresholdGwei = BigInt(130)
-    //DAS
-    public static let dasLookupURL = URL(string: "https://indexer.da.systems/")!
+    static let highStandardEthereumMainnetGasThresholdGwei = BigInt(130)
 
-    //Misc
-    public static let etherReceivedNotificationIdentifier = "etherReceivedNotificationIdentifier"
-    public static let alertReceivedNotificationIdentifier = "alertReceivedNotificationIdentifier"
-    public static let legacy875Addresses = [AlphaWallet.Address(string: "0x830e1650a87a754e37ca7ed76b700395a7c61614")!,
+    static let legacy875Addresses = [AlphaWallet.Address(string: "0x830e1650a87a754e37ca7ed76b700395a7c61614")!,
                                             AlphaWallet.Address(string: "0xa66a3f08068174e8f005112a8b2c7a507a822335")!]
-    public static let legacy721Addresses = [
+    static let legacy721Addresses = [
         AlphaWallet.Address(string: "0x06012c8cf97bead5deae237070f9587f8e7a266d")!,
         AlphaWallet.Address(string: "0xabc7e6c01237e8eef355bba2bf925a730b714d5f")!,
         AlphaWallet.Address(string: "0x71c118b00759b0851785642541ceb0f4ceea0bd5")!,
         AlphaWallet.Address(string: "0x7fdcd2a1e52f10c28cb7732f46393e297ecadda1")!
     ]
 
-    public static let ethDenverXDaiPartnerContracts = [
+    static let ethDenverXDaiPartnerContracts = [
         (name: "DEN", contract: AlphaWallet.Address(string: "0x6a814843de5967cf94d7720ce15cba8b0da81967")!),
         (name: "BURN", contract: AlphaWallet.Address(string: "0x94819805310cf736198df0de856b0ff5584f0903")!),
         (name: "BURN", contract: AlphaWallet.Address(string: "0xdec31651bec1fbbff392aa7de956d6ee4559498b")!),
@@ -143,7 +120,7 @@ public struct Constants {
         (name: "ETHD2019", contract: AlphaWallet.Address(string: "0xa16b70E8fAd839E62aBBa2d962E4ca5a28aF9e76")!)
     ]
 
-    public static let partnerContracts = [
+    static let partnerContracts = [
         (name: "DAI", contract: AlphaWallet.Address(string: "0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359")!),
         (name: "GUSD", contract: AlphaWallet.Address(string: "0x056Fd409E1d7A124BD7017459dFEa2F387b6d5Cd")!),
         (name: "PAX", contract: AlphaWallet.Address(string: "0x8e870d67f660d95d5be530380d0ec0bd388289e1")!),
@@ -180,84 +157,71 @@ public struct Constants {
         (name: "fSNX", contract: AlphaWallet.Address(string: "0x8B2ef6d7d4Cc334D003398007722FdF8ca3f5E55")!),
     ]
 
-    public static let rinkebyPartnerContracts = [
+    static let rinkebyPartnerContracts = [
         (name: "HKS", contract: AlphaWallet.Address(string: "0x75cB2Cc380d1387a79eE64b1b7C9Fa051139a319")!),
     ]
 
-    public static let ensContractOnMainnet = AlphaWallet.Address.ethereumAddress(eip55String: "0x57f1887a8BF19b14fC0dF6Fd9B2acc9Af147eA85")
+    static let ensContractOnMainnet = AlphaWallet.Address.ethereumAddress(eip55String: "0x57f1887a8BF19b14fC0dF6Fd9B2acc9Af147eA85")
 
     public static let defaultEnabledServers: [RPCServer] = [.main, .xDai, .polygon]
     public static let defaultEnabledTestnetServers: [RPCServer] = [.goerli]
 
-    public static let tokenScriptUrlSchemeForResources = "tokenscript-resource:///"
-
-    //validator API
-    public static let tokenScriptValidatorAPI = "https://aw.app/api/v1/verifyXMLDSig"
-
-    public static let launchShortcutKey = "com.stormbird.alphawallet.qrScanner"
-
-    public enum Enjin {
-        public static let apiUrl = URL(string: "https://cloud.enjin.io/graphql/default")!
-        //TODO: add support Kovan
-        //static let apiUrl = URL(string: "https://kovan.cloud.enjin.io/graphql/default")!
+    enum TokenScript {
+        static let urlSchemeForResources = "tokenscript-resource:///"
+        static let validatorAPI = "https://aw.app/api/v1/verifyXMLDSig"
     }
 
-    public enum BlockscanChat {
-        public static let blockscanChatWebUrl = URL(string: "https://chat.blockscan.com/login")!
-        public static let unreadCountEndpoint = URL(string: "https://blockscan-chat-proxy.herokuapp.com/blockscanchat/unreadcount")!
+    enum Enjin {
+        static let apiUrl = URL(string: "https://cloud.enjin.io/graphql/default")!
     }
 
-    public enum Coingecko {
-        public static let baseUrl = URL(string: "https://api.coingecko.com")!
+    enum BlockscanChat {
+        static let blockscanChatWebUrl = URL(string: "https://chat.blockscan.com/login")!
+        static let unreadCountEndpoint = URL(string: "https://blockscan-chat-proxy.herokuapp.com/blockscanchat/unreadcount")!
     }
 
-    public enum OneInch {
-        public static let exchangeUrl = URL(string: "https://api.1inch.exchange")!
+    enum Coingecko {
+        static let baseUrl = URL(string: "https://api.coingecko.com")!
     }
 
-    public enum HoneySwap {
-        public static let exchangeUrl = URL(string: "https://tokens.honeyswap.org/")!
+    enum OneInch {
+        static let exchangeUrl = URL(string: "https://api.1inch.exchange")!
     }
 
-    public enum Ramp {
-        public static let exchangeUrl = URL(string: "https://api-instant.ramp.network")!
+    enum HoneySwap {
+        static let exchangeUrl = URL(string: "https://tokens.honeyswap.org/")!
     }
 
-    public enum Covalent {
-        public static let apiBaseUrl = URL(string: "https://api.covalenthq.com")!
-        public static let newlyAddedTransactionUpdateInterval: TimeInterval = 15
-        public static let newlyAddedTransactionsPerPage = 100
-        public static let oldestTransactionUpdateInterval: TimeInterval = 25
-        public static let oldestAddedTransactionsPerPage = 500
-        public static let pendingTransactionUpdateInterval: TimeInterval = 5
+    enum Ramp {
+        static let exchangeUrl = URL(string: "https://api-instant.ramp.network")!
     }
 
-    public enum ChainState {
-        public static let getChainStateInterval: TimeInterval = 6
+    enum Covalent {
+        static let apiBaseUrl = URL(string: "https://api.covalenthq.com")!
+        static let newlyAddedTransactionUpdateInterval: TimeInterval = 15
+        static let newlyAddedTransactionsPerPage = 100
+        static let oldestTransactionUpdateInterval: TimeInterval = 25
+        static let oldestAddedTransactionsPerPage = 500
+        static let pendingTransactionUpdateInterval: TimeInterval = 5
     }
 
-    public enum WalletConnect {
-        public static let server = "AlphaWallet"
-        public static let websiteUrl = URL(string: Constants.website)!
-        public static let icons = [
-            "https://gblobscdn.gitbook.com/spaces%2F-LJJeCjcLrr53DcT1Ml7%2Favatar.png?alt=media"
-        ]
-        public static let connectionTimeout: TimeInterval = 10
+    enum ChainState {
+        static let getChainStateInterval: TimeInterval = 6
     }
 
-    public enum Ens {
-        public static let recordExpiration: TimeInterval = -(2 * 24 * 60 * 60)
+    enum Ens {
+        static let recordExpiration: TimeInterval = -(2 * 24 * 60 * 60)
     }
 
-    public enum Image {
-        public static let numberOfCharactersOfSymbolToShowInIcon = 4
+    enum Image {
+        static let numberOfCharactersOfSymbolToShowInIcon = 4
     }
 
     //CurrencyFormatter
-    public static let formatterFractionDigits = 2
+    static let formatterFractionDigits = 2
 
     //EtherNumberFormatter
-    public static let etherFormatterFractionDigits = 4
+    static let etherFormatterFractionDigits = 4
 
     public static let defaultSortTokensParams: [SortTokensParam] =  [
         .byField(field: .name, direction: .ascending),
@@ -265,11 +229,4 @@ public struct Constants {
         .byField(field: .value, direction: .ascending),
         .byField(field: .value, direction: .descending)
     ]
-
-    public enum AmountTextField {
-        public static let allowedCharacters: String = {
-            let decimalSeparator = Config.locale.decimalSeparator ?? ""
-            return "0123456789" + decimalSeparator + EtherNumberFormatter.decimalPoint
-        }()
-    }
 }

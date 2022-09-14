@@ -621,6 +621,8 @@
 		87713EB4264BAB5A00B1B9CB /* ActivityPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87713EB3264BAB5A00B1B9CB /* ActivityPageView.swift */; };
 		87713EB6264BAB6E00B1B9CB /* PriceAlertsPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87713EB5264BAB6E00B1B9CB /* PriceAlertsPageView.swift */; };
 		8772D76C28D085AC00615803 /* ReportProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8772D76B28D085AC00615803 /* ReportProvider.swift */; };
+		8772D77028D1EFB300615803 /* ServiceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8772D76F28D1EFB200615803 /* ServiceProvider.swift */; };
+		8772D77228D1F03600615803 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8772D77128D1F03600615803 /* Constants.swift */; };
 		87741F1827709073007F4604 /* TestnetTokenInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87741F1727709073007F4604 /* TestnetTokenInfoView.swift */; };
 		87741F212770C71E007F4604 /* WhereAreMyTokensCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87741F202770C71E007F4604 /* WhereAreMyTokensCoordinator.swift */; };
 		87741FC527747C5C007F4604 /* TokenInstanceViewConfigurationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87741FC427747C5C007F4604 /* TokenInstanceViewConfigurationHelper.swift */; };
@@ -1476,6 +1478,8 @@
 		87713EB3264BAB5A00B1B9CB /* ActivityPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityPageView.swift; sourceTree = "<group>"; };
 		87713EB5264BAB6E00B1B9CB /* PriceAlertsPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceAlertsPageView.swift; sourceTree = "<group>"; };
 		8772D76B28D085AC00615803 /* ReportProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportProvider.swift; sourceTree = "<group>"; };
+		8772D76F28D1EFB200615803 /* ServiceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceProvider.swift; sourceTree = "<group>"; };
+		8772D77128D1F03600615803 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		87741F1727709073007F4604 /* TestnetTokenInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestnetTokenInfoView.swift; sourceTree = "<group>"; };
 		87741F202770C71E007F4604 /* WhereAreMyTokensCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhereAreMyTokensCoordinator.swift; sourceTree = "<group>"; };
 		87741FC427747C5C007F4604 /* TokenInstanceViewConfigurationHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenInstanceViewConfigurationHelper.swift; sourceTree = "<group>"; };
@@ -3851,6 +3855,7 @@
 		87B1ACDC28C0D5A70072A5E2 /* Types */ = {
 			isa = PBXGroup;
 			children = (
+				8772D76F28D1EFB200615803 /* ServiceProvider.swift */,
 				875E257C28CB1DEC001976F8 /* Coordinator.swift */,
 				875E257D28CB1DEC001976F8 /* CoordinatorThatEnds.swift */,
 				875E257A28CB1C8D001976F8 /* InputError.swift */,
@@ -3860,6 +3865,7 @@
 				875CA8DF28BDEE3D0020FA48 /* SwitchCustomChainCallbackId.swift */,
 				87B1AD3628C1FE030072A5E2 /* KeychainStorage.swift */,
 				5E7C7504B9B8C2B31F952B68 /* Error.swift */,
+				8772D77128D1F03600615803 /* Constants.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -4724,6 +4730,7 @@
 				87B1B63F28CB12EE0072A5E2 /* EmailList.swift in Sources */,
 				87509A6226F8D67E00D3EE85 /* CollectUsersEmailViewController.swift in Sources */,
 				77872D25202505B70032D687 /* EnterKeystorePasswordViewController.swift in Sources */,
+				8772D77028D1EFB300615803 /* ServiceProvider.swift in Sources */,
 				290B2B5F1F9177860053C83E /* UIImage.swift in Sources */,
 				8703F687261461E50082EE25 /* RenameWalletViewModel.swift in Sources */,
 				8775728C282E8FDC00EAD907 /* SvgImageView.swift in Sources */,
@@ -5092,6 +5099,7 @@
 				5E7C78265EECE083C3EB1845 /* DappsHomeViewControllerViewModel.swift in Sources */,
 				5E7C77D12D8DE42157790BDC /* DappsAutoCompletionCell.swift in Sources */,
 				5E7C7186B20660F2C1462AA9 /* DiscoverDappsViewControllerViewModel.swift in Sources */,
+				8772D77228D1F03600615803 /* Constants.swift in Sources */,
 				025DE32428A1FBEA00CBD665 /* UIImageAsset+Extension.swift in Sources */,
 				5E7C70861A499FF79B7DA903 /* DiscoverDappCell.swift in Sources */,
 				5E7C72B359B220D0CBA7DCF1 /* DappsAutoCompletionViewController.swift in Sources */,

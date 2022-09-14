@@ -102,7 +102,7 @@ extension TransactionConfirmationViewModel {
             switch transactionType {
             case .nativeCryptocurrency(let token, _, _):
                 if let cryptoToDollarRate = cryptoToDollarRate {
-                    let cryptoToDollarSymbol = Constants.Currency.usd
+                    let cryptoToDollarSymbol = Currency.USD.rawValue
                     let double = amount.value.optionalDecimalValue ?? 0
                     let value = double.multiplying(by: NSDecimalNumber(value: cryptoToDollarRate))
                     let cryptoToDollarValue = StringFormatter().currency(with: value, and: cryptoToDollarSymbol)
@@ -125,7 +125,7 @@ extension TransactionConfirmationViewModel {
         var gasFee: String {
             let fee: BigInt = configurator.currentConfiguration.gasPrice * configurator.currentConfiguration.gasLimit
             let feeString = EtherNumberFormatter.short.string(from: fee)
-            let cryptoToDollarSymbol = Constants.Currency.usd
+            let cryptoToDollarSymbol = Currency.USD.rawValue
             if let cryptoToDollarRate = cryptoToDollarRate {
                 let cryptoToDollarValue = StringFormatter().currency(with: Double(fee) * cryptoToDollarRate / Double(EthereumUnit.ether.rawValue), and: cryptoToDollarSymbol)
                 return "< ~\(feeString) \(session.server.symbol) (\(cryptoToDollarValue) \(cryptoToDollarSymbol))"

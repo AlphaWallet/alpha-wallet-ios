@@ -19,8 +19,8 @@ public struct Formatter {
 
     public static let usd: NumberFormatter = {
         let formatter = basicCurrencyFormatter()
-        formatter.positiveFormat = ",###.# " + Constants.Currency.usd
-        formatter.negativeFormat = "-,###.# " + Constants.Currency.usd
+        formatter.positiveFormat = ",###.# " + Currency.USD.rawValue
+        formatter.negativeFormat = "-,###.# " + Currency.USD.rawValue
         formatter.minimumFractionDigits = Constants.formatterFractionDigits
         formatter.maximumFractionDigits = Constants.formatterFractionDigits
         return formatter

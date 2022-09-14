@@ -20,7 +20,7 @@ struct GasSpeedViewModel {
     private var gasFeeString: String {
         let fee = configuration.gasPrice * configuration.gasLimit
         let feeString = EtherNumberFormatter.short.string(from: fee)
-        let cryptoToDollarSymbol = Constants.Currency.usd
+        let cryptoToDollarSymbol = Currency.USD.rawValue
         if let cryptoToDollarRate = cryptoToDollarRate {
             let cryptoToDollarValue = StringFormatter().currency(with: Double(fee) * cryptoToDollarRate / Double(EthereumUnit.ether.rawValue), and: cryptoToDollarSymbol)
             return  "< ~\(feeString) \(symbol) (\(cryptoToDollarValue) \(cryptoToDollarSymbol))"

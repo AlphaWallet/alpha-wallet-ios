@@ -69,7 +69,7 @@ public class RemoteLogger {
         isActive = true
         let paperTrailLogger: RMPaperTrailLogger = RMPaperTrailLogger.sharedInstance()!
         paperTrailLogger.host = Constants.Credentials.paperTrail.host
-        paperTrailLogger.port = Constants.Credentials.paperTrail.port
+        paperTrailLogger.port = UInt(Constants.Credentials.paperTrail.port)
         logger.add(paperTrailLogger)
     }
 

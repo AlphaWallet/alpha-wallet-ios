@@ -3,29 +3,24 @@
 import Foundation
 import RealmSwift
 
-public final class  HistoryStore {
+public final class HistoryStore {
     private let realm: Realm
 
     public var histories: Results<History> {
         return realm.objects(History.self)
             .sorted(byKeyPath: "createdAt", ascending: false)
     }
+    let ignoreUrls: Set<String>
 
-    public init(realm: Realm = .shared()) {
+    public init(realm: Realm = .shared(), ignoreUrls: Set<String>) {
         self.realm = realm
+        self.ignoreUrls = ignoreUrls
     }
-
-    public  lazy var ignoreSet: Set<String> = {
-        let set = Set<String>([
-            Constants.dappsBrowserURL,
-        ])
-        return set
-    }()
 
     public func record(url: URL, title: String) {
         let history = History(url: url.absoluteString, title: title)
 
-        guard !ignoreSet.contains(history.url) else {
+        guard !ignoreUrls.contains(history.url) else {
             return
         }
 

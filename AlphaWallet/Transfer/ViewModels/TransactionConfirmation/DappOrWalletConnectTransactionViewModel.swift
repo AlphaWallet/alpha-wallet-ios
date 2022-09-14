@@ -55,7 +55,7 @@ extension TransactionConfirmationViewModel {
         private var requester: RequesterViewModel?
         private let assetDefinitionStore: AssetDefinitionStore
         private var formattedAmountValue: String {
-            let cryptoToDollarSymbol = Constants.Currency.usd
+            let cryptoToDollarSymbol = Currency.USD.rawValue
             let amount = Double(configurator.transaction.value) / Double(EthereumUnit.ether.rawValue)
             let amountString = EtherNumberFormatter.full.string(from: configurator.transaction.value)
             let symbol = configurator.session.server.symbol

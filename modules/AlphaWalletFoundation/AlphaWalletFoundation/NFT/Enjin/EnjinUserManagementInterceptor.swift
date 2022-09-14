@@ -41,15 +41,16 @@ private class EnjinUserManager {
 
     enum EnjinUserManagerError: Error {
         case fetchAccessTokenFailure
+        case credentialsNotFound
     }
 
     var accessToken: AccessToken? { config.accessToken }
 
-    private let email: String = Constants.Credentials.enjinUserName
-    private let password: String = Constants.Credentials.enjinUserPassword
-
     func enjinAuthorize() -> Promise<AccessToken> {
-        enjinAuthorize(email: email, password: password)
+        guard Constants.Credentials.enjinUserName.nonEmpty && Constants.Credentials.enjinUserPassword.nonEmpty else {
+            return .init(error: EnjinUserManagerError.credentialsNotFound)
+        }
+        return enjinAuthorize(email: Constants.Credentials.enjinUserName, password: Constants.Credentials.enjinUserPassword)
     }
 
     private func enjinAuthorize(email: String, password: String) -> Promise<AccessToken> {
