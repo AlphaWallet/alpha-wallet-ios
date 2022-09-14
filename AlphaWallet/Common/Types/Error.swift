@@ -44,6 +44,7 @@ public struct UnknownError: LocalizedError { }
 
 extension Error {
     public var prettyError: String {
+        //TODO figure out how we can remove this switch-cases. Too fragile
         switch self {
         case let error as BuyCryptoError:
             return error.localizedDescription
@@ -61,6 +62,18 @@ extension Error {
             return error.localizedDescription
         case let error as KeystoreError:
             return error.errorDescription ?? UnknownError().localizedDescription
+        case let error as SendInputErrors:
+            return error.errorDescription ?? UnknownError().localizedDescription
+        case let error as RpcNodeRetryableRequestError:
+            return error.errorDescription ?? UnknownError().localizedDescription
+        case let error as DelayWalletConnectResponseError :
+            return error.localizedDescription
+        case let error as OpenURLError:
+            return error.localizedDescription
+        case let error as ConfigureTransactionError:
+            return error.localizedDescription
+        case let error as AddCustomChainError:
+            return error.localizedDescription
         case let error as LocalizedError:
             return error.errorDescription ?? UnknownError().localizedDescription
         case let error as NSError:
