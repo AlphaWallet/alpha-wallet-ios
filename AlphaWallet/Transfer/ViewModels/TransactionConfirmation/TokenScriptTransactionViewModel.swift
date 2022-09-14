@@ -42,7 +42,7 @@ extension TransactionConfirmationViewModel {
         }
         private let session: WalletSession
         private var formattedAmountValue: String {
-            let cryptoToDollarSymbol = Constants.Currency.usd
+            let cryptoToDollarSymbol = Currency.USD.rawValue
             let amount = Double(configurator.transaction.value) / Double(EthereumUnit.ether.rawValue)
             let amountString = EtherNumberFormatter.short.string(from: configurator.transaction.value)
             let symbol = configurator.session.server.symbol

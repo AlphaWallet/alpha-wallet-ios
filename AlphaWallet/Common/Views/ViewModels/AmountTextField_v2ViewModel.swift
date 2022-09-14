@@ -45,7 +45,7 @@ class AmountTextField_v2ViewModel: NSObject, ObservableObject {
                 } else {
                     switch self.currentPair.value?.left {
                     case .cryptoCurrency:
-                        return "~ \(amount) \(Constants.Currency.usd)"
+                        return "~ \(amount) \(Currency.USD.rawValue)"
                     case .fiatCurrency:
                         switch self.currentPair.value?.right {
                         case .cryptoCurrency(let tokenObject):
@@ -183,7 +183,7 @@ class AmountTextField_v2ViewModel: NSObject, ObservableObject {
 
         switch pair.left {
         case .cryptoCurrency:
-            return StringFormatter().currency(with: amount, and: Constants.Currency.usd, usesGroupingSeparator: usesGroupingSeparator)
+            return StringFormatter().currency(with: amount, and: Currency.USD.rawValue, usesGroupingSeparator: usesGroupingSeparator)
         case .fiatCurrency:
             return StringFormatter().alternateAmount(value: amount, usesGroupingSeparator: usesGroupingSeparator)
         }

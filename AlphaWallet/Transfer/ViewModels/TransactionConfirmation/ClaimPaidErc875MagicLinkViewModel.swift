@@ -77,7 +77,7 @@ extension TransactionConfirmationViewModel {
                     return .init(title: .normal(configurationTitle), headerName: headerName, configuration: configuration)
                 }
             case .amount:
-                let cryptoToDollarSymbol = Constants.Currency.usd
+                let cryptoToDollarSymbol = Currency.USD.rawValue
                 let nativeCryptoSymbol = configurator.session.server.symbol
                 let formattedAmountValue: String
                 let nativeCryptoPrice = EtherNumberFormatter.short.string(from: BigInt(price))

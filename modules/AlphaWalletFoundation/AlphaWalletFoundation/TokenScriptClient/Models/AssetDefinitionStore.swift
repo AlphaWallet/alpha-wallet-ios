@@ -101,22 +101,22 @@ public class AssetDefinitionStore: NSObject {
                <style type="text/css">
                @font-face {
                font-family: 'SourceSansPro';
-               src: url('\(Constants.tokenScriptUrlSchemeForResources)SourceSansPro-Light.otf') format('opentype');
+               src: url('\(Constants.TokenScript.urlSchemeForResources)SourceSansPro-Light.otf') format('opentype');
                font-weight: lighter;
                }
                @font-face {
                font-family: 'SourceSansPro';
-               src: url('\(Constants.tokenScriptUrlSchemeForResources)SourceSansPro-Regular.otf') format('opentype');
+               src: url('\(Constants.TokenScript.urlSchemeForResources)SourceSansPro-Regular.otf') format('opentype');
                font-weight: normal;
                }
                @font-face {
                font-family: 'SourceSansPro';
-               src: url('\(Constants.tokenScriptUrlSchemeForResources)SourceSansPro-Semibold.otf') format('opentype');
+               src: url('\(Constants.TokenScript.urlSchemeForResources)SourceSansPro-Semibold.otf') format('opentype');
                font-weight: bolder;
                }
                @font-face {
                font-family: 'SourceSansPro';
-               src: url('\(Constants.tokenScriptUrlSchemeForResources)SourceSansPro-Bold.otf') format('opentype');
+               src: url('\(Constants.TokenScript.urlSchemeForResources)SourceSansPro-Bold.otf') format('opentype');
                font-weight: bold;
                }
                .token-card {

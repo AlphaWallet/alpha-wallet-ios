@@ -49,7 +49,7 @@ public class TokenScriptSignatureVerifier {
             completion(.failed)
             return
         }
-        let url = URL(string: Constants.tokenScriptValidatorAPI)!
+        let url = URL(string: Constants.TokenScript.validatorAPI)!
         let headers = [
             "cache-control": "no-cache",
             "content-type": "application/x-www-form-urlencoded"
