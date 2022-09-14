@@ -382,11 +382,13 @@
 "a.claim.token.prompt" = "インポート リンク?";
 "a.claim.token.success.title" = "チケットが送信され、残高が間もなく更新されます";
 "a.claim.token.failed.title" = "無効なチケットのリンク";
+"a.claim.token.failed.serverDown" = "a.claim.token.failed.serverDown";
 "a.claim.token.invalidLink.tryAgain" = "無効なリンクです。もう一度試してください";
 "a.claim.token.noConnectivity.tryAgain" = "インターネットに接続していません。もう一度試してください";
 "a.claim.token.linkExpired" = "Link has expired";
 "a.claim.token.linkAlreadyRedeemed" = "Link has already been redeemed";
 "a.claim.token.failed.notEnoughEth.title" = "このチケットをインポートするのに十分な ETH がありません";
+"a.claim.token.failed.notEnoughXDAI.title" = "a.claim.token.failed.notEnoughXDAI.title";
 "a.claim.token.validating.title" = "処理しています...";
 "a.claim.token.promptImport.title" = "インポート?";
 "a.claim.token.inProgress.title" = "チケットをインポートしています...";
@@ -471,11 +473,9 @@
 "blockchain.palm" = "Palm";
 "blockchain.palm.Testnet" = "Palm (Testnet)";
 "blockchain.phi" = "PHI";
-"a.claim.token.failed.notEnoughXDAI.title" = "a.claim.token.failed.notEnoughXDAI.title";
 "photos" = "Browse";
 "light" = "Light";
 "qrCode.title" = "Point your camera on QR code";
-"a.claim.token.failed.serverDown" = "a.claim.token.failed.serverDown";
 "tokenScript.notSupportedSchema.error" = "Please upgrade AlphaWallet to support this TokenScript file";
 "tokenScript.moveFile.error" = "Error moving asset definition file from %@ to: %@: %@";
 "TokenScript.verifying" = "Verifying...";
