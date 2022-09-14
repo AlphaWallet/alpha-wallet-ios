@@ -2,8 +2,7 @@
 
 import Foundation
 import BigInt
-import PromiseKit
-import web3swift
+import PromiseKit 
 
 public class GetBlockTimestamp {
     private static var blockTimestampCache = AtomicDictionary<RPCServer, [BigUInt: Promise<Date>]>()
@@ -19,7 +18,7 @@ public class GetBlockTimestamp {
         }
 
         let promise: Promise<Date> = firstly {
-            web3swift.web3.Eth(provider: web3.provider, web3: web3).getBlockByNumberPromise(blockNumber)
+            Web3.Eth(provider: web3.provider, web3: web3).getBlockByNumberPromise(blockNumber)
         }.map(on: web3.requestDispatcher.queue, { $0.timestamp })
 
         cacheForServer[blockNumber] = promise

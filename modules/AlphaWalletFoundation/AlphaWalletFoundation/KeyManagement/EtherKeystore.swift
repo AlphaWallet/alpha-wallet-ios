@@ -3,8 +3,7 @@
 import Foundation
 import LocalAuthentication
 import BigInt
-import WalletCore
-import web3swift
+import WalletCore 
 
 public enum EtherKeystoreError: LocalizedError {
     case protectionDisabled

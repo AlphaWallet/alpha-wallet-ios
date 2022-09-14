@@ -4,8 +4,7 @@
 //
 
 import Foundation
-import PromiseKit
-import web3swift
+import PromiseKit 
 
 public class IsErc721Contract {
     private let server: RPCServer
