@@ -408,7 +408,6 @@
 "accounts.delete.error.failedToDecryptKey" = "No ha sido posible descifrar la clave con la frase de contraseña proporcionada";
 "accounts.delete.error.duplicateAccount" = "Ya has añadido esta dirección a los monederos";
 "accounts.delete.error.failedToSignTransaction" = "Error al firmar la transacción";
-"accounts.delete.error.failedToUpdatePassword" = "Error al actualizar la contraseña";
 "accounts.delete.error.failedToCreateWallet" = "Error al crear el monedero";
 "accounts.delete.error.failedToImportPrivateKey" = "Error al importar la clave privada";
 "accounts.delete.error.failedToParseJSON" = "Error al analizar la clave JSON";

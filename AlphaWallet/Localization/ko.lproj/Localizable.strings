@@ -405,7 +405,6 @@
 "accounts.delete.error.failedToDecryptKey" = "제공된 암호로 키를 해독하지 못했습니다";
 "accounts.delete.error.duplicateAccount" = "이 주소를 이미 지갑에 추가하였습니다";
 "accounts.delete.error.failedToSignTransaction" = "거래에 서명하지 못했습니다";
-"accounts.delete.error.failedToUpdatePassword" = "비밀번호를 업데이트하지 못했습니다";
 "accounts.delete.error.failedToCreateWallet" = "지갑을 생성하지 못했습니다";
 "accounts.delete.error.failedToImportPrivateKey" = "개인 키를 가져오지 못했습니다";
 "accounts.delete.error.failedToParseJSON" = "키 JSON을 구문 분석하지 못했습니다";

@@ -408,7 +408,6 @@
 "accounts.delete.error.failedToDecryptKey" = "Could not decrypt key with given passphrase";
 "accounts.delete.error.duplicateAccount" = "You already added this address to wallets";
 "accounts.delete.error.failedToSignTransaction" = "Failed to sign transaction";
-"accounts.delete.error.failedToUpdatePassword" = "Failed to update password";
 "accounts.delete.error.failedToCreateWallet" = "Failed to create wallet";
 "accounts.delete.error.failedToImportPrivateKey" = "Failed to import private key";
 "accounts.delete.error.failedToParseJSON" = "Failed to parse key JSON";

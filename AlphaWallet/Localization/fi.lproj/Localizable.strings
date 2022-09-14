@@ -408,7 +408,6 @@
 "accounts.delete.error.failedToDecryptKey" = "Annettu salasana ei toimi. Avaimen salauksen purku epäonnistui.";
 "accounts.delete.error.duplicateAccount" = "Tämä osoite on jo lompakossa";
 "accounts.delete.error.failedToSignTransaction" = "Transaktion allekirjoitus epäonnistui";
-"accounts.delete.error.failedToUpdatePassword" = "Salasanan päivitys epäonnistui";
 "accounts.delete.error.failedToCreateWallet" = "Lompakon luonti epäonnistui";
 "accounts.delete.error.failedToImportPrivateKey" = "Salaisen avaimen tuonti epäonnistui";
 "accounts.delete.error.failedToParseJSON" = "Avaimen luku JSON-tiedostosta epäonnistui";

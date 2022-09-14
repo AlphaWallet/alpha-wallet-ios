@@ -406,7 +406,6 @@
 "accounts.delete.error.failedToDecryptKey" = "指定されたパスフレーズを使用して鍵を解読できませんでした";
 "accounts.delete.error.duplicateAccount" = "このアドレスはすでにウォレットに追加されています";
 "accounts.delete.error.failedToSignTransaction" = "トランザクションの署名に失敗しました";
-"accounts.delete.error.failedToUpdatePassword" = "パスワードを更新できませんでした";
 "accounts.delete.error.failedToCreateWallet" = "ウォレットを作成できませんでした";
 "accounts.delete.error.failedToImportPrivateKey" = "秘密鍵をインポートできませんでした";
 "accounts.delete.error.failedToParseJSON" = "鍵 JSON を解析できませんでした";

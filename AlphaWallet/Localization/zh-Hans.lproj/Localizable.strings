@@ -408,7 +408,6 @@
 "accounts.delete.error.failedToDecryptKey" = "无法使用所提供的密码短语解密密钥";
 "accounts.delete.error.duplicateAccount" = "您已将此地址添加至钱包中";
 "accounts.delete.error.failedToSignTransaction" = "签署交易失败";
-"accounts.delete.error.failedToUpdatePassword" = "更新密码失败";
 "accounts.delete.error.failedToCreateWallet" = "创建钱包失败";
 "accounts.delete.error.failedToImportPrivateKey" = "导入私钥失败";
 "accounts.delete.error.failedToParseJSON" = "解析密钥 JSON 失败";
