@@ -15,7 +15,7 @@ struct PromptBackupWalletAfterReceivingNativeCryptoCurrencyViewViewModel: Prompt
 
     var title: String {
         let formatter = EtherNumberFormatter.short
-        let amount = formatter.string(from: nativeCryptoCurrency, decimals: 18)
+        let amount = formatter.string(from: nativeCryptoCurrency)
         return R.string.localizable.backupPromptAfterReceivingEtherTitle(amount)
     }
 
