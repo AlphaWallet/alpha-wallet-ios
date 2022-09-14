@@ -132,7 +132,7 @@ public enum FeaturesAvailable: String, CaseIterable, Codable {
         case .isSwapEnabled:
             return false
         case .isCoinbasePayEnabled:
-            return false
+            return true
         case .isLoggingEnabledForTickerMatches:
             return false
         }
