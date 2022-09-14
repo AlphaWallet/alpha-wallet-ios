@@ -7,30 +7,6 @@
 
 import Foundation
 
-public protocol ReportService {
-    func configure()
-}
-
-public final class ReportProvider: NSObject {
-    private var services: [ReportService] = []
-
-    public func register(_ service: ReportService) {
-        services.append(service)
-    }
-
-    public func start() {
-        services.forEach { service in
-            service.configure()
-        }
-    }
-}
-
-public enum ReportKey: String {
-    case walletAddresses
-    case activeWalletAddress
-    case activeServers
-}
-
 public protocol CrashlyticsReporter {
     func track(wallets: [Wallet])
     func trackActiveWallet(wallet: Wallet)
@@ -38,8 +14,26 @@ public protocol CrashlyticsReporter {
     @discardableResult func logLargeNftJsonFiles(for actions: [AddOrUpdateTokenAction], fileSizeThreshold: Double) -> Bool
 }
 
-public fileprivate (set) var crashlytics: CrashlyticsReporter!
+public fileprivate (set) var crashlytics: CrashlyticsReporter = NoOpCrashlyticsReporter()
 
 public func register(crashlytics object: CrashlyticsReporter) {
     crashlytics = object
+}
+
+private final class NoOpCrashlyticsReporter: CrashlyticsReporter {
+    func track(wallets: [Wallet]) {
+
+    }
+
+    func trackActiveWallet(wallet: Wallet) {
+
+    }
+
+    func track(enabledServers: [RPCServer]) {
+
+    }
+
+    @discardableResult func logLargeNftJsonFiles(for actions: [AddOrUpdateTokenAction], fileSizeThreshold: Double) -> Bool {
+        return false
+    }
 }
