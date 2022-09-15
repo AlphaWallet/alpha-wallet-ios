@@ -10,9 +10,8 @@ import Combine
 
 public class Carthage: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
     public var objectWillChange: AnyPublisher<Void, Never> {
-        objectWillChangeSubject.eraseToAnyPublisher()
+        .empty()
     }
-    private var objectWillChangeSubject = PassthroughSubject<Void, Never>()
 
     public let action: String
     private var supportedServers: [RPCServer] {
