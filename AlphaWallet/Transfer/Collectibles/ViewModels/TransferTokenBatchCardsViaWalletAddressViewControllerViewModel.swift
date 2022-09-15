@@ -18,7 +18,7 @@ struct TransferTokenBatchCardsViaWalletAddressViewControllerViewModel {
         tokenHolders[0].selectedCount(tokenId: tokenHolders[0].tokenId) ?? 0
     }
     lazy var selectionViewModel: SelectTokenCardAmountViewModel = .init(availableAmount: availableAmountInt, selectedAmount: selectedAmount)
-    
+
     var navigationTitle: String {
         R.string.localizable.send()
     }
@@ -68,8 +68,8 @@ extension RpcNodeRetryableRequestError {
 extension SwapTokenError {
     var localizedDescription: String {
         switch self {
-        case .swapNotSuppoted:
-            return "Swap Not Suppoted"
+        case .swapNotSupported:
+            return "Swap Not Supported"
         }
     }
 }
@@ -77,8 +77,8 @@ extension SwapTokenError {
 extension BuyCryptoError {
     var localizedDescription: String {
         switch self {
-        case .buyNotSuppoted:
-            return "Buy Crypto Not Suppoted"
+        case .buyNotSupported:
+            return "Buy Crypto Not Supported"
         }
     }
 }
