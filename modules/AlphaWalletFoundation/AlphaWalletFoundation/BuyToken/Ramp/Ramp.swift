@@ -7,18 +7,21 @@
 
 import Foundation
 import Combine
+import Alamofire
+import AlphaWalletCore
 
 public final class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType {
     private var objectWillChangeSubject = PassthroughSubject<Void, Never>()
-    private var assets: AtomicArray<Asset> = .init()
-    private let queue: DispatchQueue = .global()
+    private var assets: [Asset] = []
+    private let decoder = JSONDecoder()
+    private let queue: DispatchQueue = .init(label: "org.alphawallet.swift.Ramp")
+    private var cancelable = Set<AnyCancellable>()
 
     public var objectWillChange: AnyPublisher<Void, Never> {
-        objectWillChangeSubject.eraseToAnyPublisher()
+        objectWillChangeSubject.receive(on: RunLoop.main).eraseToAnyPublisher()
     }
     public let analyticsNavigation: Analytics.Navigation = .onRamp
     public let analyticsName: String = "Ramp"
-
     public let action: String
 
     public func url(token: TokenActionsIdentifiable, wallet: Wallet) -> URL? {
@@ -51,25 +54,38 @@ public final class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType 
     }
 
     public func start() {
-        queue.async {
-            self.fetchSupportedTokens()
-        }
+        let request = RampRequest()
+        Just(request)
+            .receive(on: queue)
+            .setFailureType(to: PromiseError.self)
+            .flatMap { request -> AnyPublisher<[Asset], PromiseError> in
+                self.retrieveAssets(request)
+            }.sink { [objectWillChangeSubject] result in
+                objectWillChangeSubject.send(())
+
+                guard case .failure(let error) = result else { return }
+                RemoteLogger.instance.logRpcOrOtherWebError("Ramp error | \(error)", url: request.urlRequest?.url?.absoluteString ?? "")
+            } receiveValue: {
+                self.assets = $0
+            }.store(in: &cancelable)
     }
 
-    private func fetchSupportedTokens() {
-        let provider = AlphaWalletProviderFactory.makeProvider()
+    private func retrieveAssets(_ request: RampRequest) -> AnyPublisher<[Asset], PromiseError> {
+        return Alamofire.request(request)
+            .responseDataPublisher(queue: queue)
+            .tryMap { [decoder] in try decoder.decode(RampAssetsResponse.self, from: $0.data).assets }
+            .mapError { PromiseError.some(error: $0) }
+            .eraseToAnyPublisher()
+    }
+}
 
-        provider.request(.rampAssets, callbackQueue: queue)
-            .map(on: queue, { response -> [Asset] in
-                try JSONDecoder().decode(RampAssetsResponse.self, from: response.data).assets
-            }).done(on: queue, { response in
-                self.assets.set(array: response)
-                self.objectWillChangeSubject.send(())
-            }).catch(on: queue, { error in
-                let service = AlphaWalletService.rampAssets
-                let url = service.baseURL.appendingPathComponent(service.path)
-                RemoteLogger.instance.logRpcOrOtherWebError("Ramp error | \(error)", url: url.absoluteString)
-            })
+private struct RampRequest: URLRequestConvertible {
+
+    func asURLRequest() throws -> URLRequest {
+        guard var components = URLComponents(url: Constants.Ramp.exchangeUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
+        components.path = "/api/host-api/assets"
+        let url = try components.asURL()
+        return try URLRequest(url: url, method: .get)
     }
 }
 

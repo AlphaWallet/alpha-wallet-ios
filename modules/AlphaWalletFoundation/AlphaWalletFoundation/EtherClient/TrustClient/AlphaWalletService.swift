@@ -9,7 +9,6 @@ public enum AlphaWalletService {
     case getTransactions(server: RPCServer, address: AlphaWallet.Address, startBlock: Int, endBlock: Int, sortOrder: SortOrder)
     case oneInchTokens
     case honeySwapTokens
-    case rampAssets
     case priceHistoryOfToken(id: String, currency: String, days: Int)
 
     public enum SortOrder: String {
@@ -36,8 +35,6 @@ extension AlphaWalletService: TargetType {
             return Constants.OneInch.exchangeUrl
         case .honeySwapTokens:
             return Constants.HoneySwap.exchangeUrl
-        case .rampAssets:
-            return Constants.Ramp.exchangeUrl
         case .priceHistoryOfToken:
             return Constants.Coingecko.baseUrl
         }
@@ -51,8 +48,6 @@ extension AlphaWalletService: TargetType {
             return "/v3.0/1/tokens"
         case .honeySwapTokens:
             return ""
-        case .rampAssets:
-            return "/api/host-api/assets"
         case .tokensThatHasPrices:
             return "/api/v3/coins/list"
         case .pricesOfTokens:
@@ -68,7 +63,6 @@ extension AlphaWalletService: TargetType {
         case .pricesOfTokens: return .get
         case .oneInchTokens: return .get
         case .honeySwapTokens: return .get
-        case .rampAssets: return .get
         case .tokensThatHasPrices: return .get
         case .priceHistoryOfToken: return .get
         }
@@ -100,7 +94,7 @@ extension AlphaWalletService: TargetType {
                 //Max according to https://www.coingecko.com/en/api
                 "per_page": 250,
             ], encoding: URLEncoding())
-        case .oneInchTokens, .honeySwapTokens, .rampAssets:
+        case .oneInchTokens, .honeySwapTokens:
             return .requestPlain
         case .tokensThatHasPrices:
             return .requestParameters(parameters: ["include_platform": "true"], encoding: URLEncoding())
@@ -130,7 +124,7 @@ extension AlphaWalletService: TargetType {
                 "client": Bundle.main.bundleIdentifier ?? "",
                 "client-build": Bundle.main.buildNumber ?? "",
             ]
-        case .oneInchTokens, .honeySwapTokens, .rampAssets:
+        case .oneInchTokens, .honeySwapTokens:
             return nil
         }
     }
