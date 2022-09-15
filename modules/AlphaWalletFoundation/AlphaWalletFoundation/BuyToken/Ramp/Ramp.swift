@@ -22,15 +22,10 @@ public final class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType 
     public let action: String
 
     public func url(token: TokenActionsIdentifiable, wallet: Wallet) -> URL? {
-        switch token.server {
-        case .xDai:
-            return URL(string: "\(Constants.buyXDaiWitRampUrl)&userAddress=\(wallet.address.eip55String)")
-        //TODO need to check if Ramp supports these? Or is it taken care of elsehwere
-        case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .candle, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet, .phi, .ioTeX, .ioTeXTestnet:
-            return asset(for: token).flatMap {
-                return URL(string: "\(Constants.buyWitRampUrl(asset: $0.symbol))&userAddress=\(wallet.address.eip55String)")
-            }
-        }
+        let symbol = asset(for: token)?.symbol
+        return symbol
+            .flatMap { Constants.buyWithRampUrl(asset: $0, wallet: wallet) }
+            .flatMap { URL(string: $0) }
     }
 
     public init(action: String) {
@@ -42,12 +37,7 @@ public final class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType 
     }
 
     public func isSupport(token: TokenActionsIdentifiable) -> Bool {
-        switch token.server {
-        case .xDai:
-            return true
-        case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .candle, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet, .phi, .ioTeX, .ioTeXTestnet:
-            return asset(for: token) != nil
-        }
+        return asset(for: token) != nil
     }
 
     private func asset(for token: TokenActionsIdentifiable) -> Asset? {
@@ -64,7 +54,7 @@ public final class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType 
         queue.async {
             self.fetchSupportedTokens()
         }
-    } 
+    }
 
     private func fetchSupportedTokens() {
         let provider = AlphaWalletProviderFactory.makeProvider()
