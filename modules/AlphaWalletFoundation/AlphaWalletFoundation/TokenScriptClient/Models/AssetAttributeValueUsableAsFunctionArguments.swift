@@ -2,8 +2,7 @@
 
 import Foundation
 import BigInt
-import TrustKeystore
-import web3swift
+import TrustKeystore 
 
 public enum AssetAttributeValueUsableAsFunctionArguments {
     case address(AlphaWallet.Address)
@@ -56,7 +55,7 @@ public enum AssetAttributeValueUsableAsFunctionArguments {
         }
     }
 
-    public func coerceToArgumentTypeForEventFilter(_ parameterType: SolidityType) -> EventFilterable? {
+    public func coerceToArgumentTypeForEventFilter(_ parameterType: SolidityType) -> Web3.EventFilterable? {
         guard let value = coerce(toArgumentType: parameterType, forFunctionType: .eventFiltering) else { return nil }
         //Need to perform an intermediate cast to BigInt, Data, etc before returning (and hence "casting" as `EventFilterable`)
         switch value {
@@ -68,7 +67,7 @@ public enum AssetAttributeValueUsableAsFunctionArguments {
             return data
         case let string as String:
             return string
-        case let address as EthereumAddress:
+        case let address as Web3.EthereumAddress:
             return address
         default:
             return nil
@@ -84,7 +83,7 @@ public enum AssetAttributeValueUsableAsFunctionArguments {
             case .functionTransaction, .paymentTransaction:
                 return Address(address: address) as AnyObject
             case .eventFiltering:
-                return EthereumAddress(address: address) as AnyObject
+                return Web3.EthereumAddress(address: address) as AnyObject
             }
         case .string(let string):
             switch functionType {
@@ -95,7 +94,7 @@ public enum AssetAttributeValueUsableAsFunctionArguments {
                 //Not use .init(string:) so that addresses like "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" can go through
                 return Address(uncheckedAgainstNullAddress: string) as AnyObject
             case .eventFiltering:
-                return EthereumAddress(string) as AnyObject
+                return Web3.EthereumAddress(string) as AnyObject
             }
         case .int, .uint, .generalisedTime, .bool, .bytes:
             return nil

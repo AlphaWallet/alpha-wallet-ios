@@ -2,8 +2,7 @@
 
 import Foundation
 import BigInt
-import PromiseKit
-import web3swift
+import PromiseKit 
 import Combine
 
 public final class EventSource: NSObject {
@@ -144,16 +143,16 @@ extension EventSource.functional {
 
         let oldEvent = eventsDataStore
             .getLastMatchingEventSortedByBlockNumber(for: eventOrigin.contract, tokenContract: token.contractAddress, server: token.server, eventName: eventOrigin.eventName)
-        let fromBlock: EventFilter.Block
+        let fromBlock: Web3.EventFilter.Block
         if let newestEvent = oldEvent {
             fromBlock = .blockNumber(UInt64(newestEvent.blockNumber + 1))
         } else {
             fromBlock = .blockNumber(0)
         }
-        let addresses = [EthereumAddress(address: eventOrigin.contract)]
+        let addresses = [Web3.EthereumAddress(address: eventOrigin.contract)]
         let parameterFilters = filterParam.map { $0?.filter }
 
-        let eventFilter = EventFilter(fromBlock: fromBlock, toBlock: .latest, addresses: addresses, parameterFilters: parameterFilters)
+        let eventFilter = Web3.EventFilter(fromBlock: fromBlock, toBlock: .latest, addresses: addresses, parameterFilters: parameterFilters)
 
         return getEventLogs(withServer: token.server, contract: eventOrigin.contract, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter, queue: queue)
         .done(on: queue, { result -> Void in
@@ -175,7 +174,7 @@ extension EventSource.functional {
         return AssetImplicitAttributes(rawValue: value)
     }
 
-    private static func convertEventToDatabaseObject(_ event: EventParserResultProtocol, filterParam: [(filter: [EventFilterable], textEquivalent: String)?], eventOrigin: EventOrigin, contractAddress: AlphaWallet.Address, server: RPCServer) -> EventInstanceValue? {
+    private static func convertEventToDatabaseObject(_ event: Web3.EventParserResultProtocol, filterParam: [(filter: [Web3.EventFilterable], textEquivalent: String)?], eventOrigin: EventOrigin, contractAddress: AlphaWallet.Address, server: RPCServer) -> EventInstanceValue? {
         guard let blockNumber = event.eventLog?.blockNumber else { return nil }
         guard let logIndex = event.eventLog?.logIndex else { return nil }
         let decodedResult = Self.convertToJsonCompatible(dictionary: event.decodedResult)
@@ -187,7 +186,7 @@ extension EventSource.functional {
         return EventInstanceValue(contract: eventOrigin.contract, tokenContract: contractAddress, server: server, eventName: eventOrigin.eventName, blockNumber: Int(blockNumber), logIndex: Int(logIndex), filter: filterText, json: json)
     }
 
-    private static func formFilterFrom(fromParameter parameter: EventParameter, tokenId: TokenId, filterName: String, filterValue: String, wallet: Wallet) -> (filter: [EventFilterable], textEquivalent: String)? {
+    private static func formFilterFrom(fromParameter parameter: EventParameter, tokenId: TokenId, filterName: String, filterValue: String, wallet: Wallet) -> (filter: [Web3.EventFilterable], textEquivalent: String)? {
         guard parameter.name == filterName else { return nil }
         guard let parameterType = SolidityType(rawValue: parameter.type) else { return nil }
         let optionalFilter: (filter: AssetAttributeValueUsableAsFunctionArguments, textEquivalent: String)?
@@ -212,7 +211,7 @@ extension EventSource.functional {
     static func convertToJsonCompatible(dictionary: [String: Any]) -> [String: Any] {
         Dictionary(uniqueKeysWithValues: dictionary.compactMap { key, value -> (String, Any)? in
             switch value {
-            case let address as EthereumAddress:
+            case let address as Web3.EthereumAddress:
                 return (key, address.address)
             case let data as Data:
                 return (key, data.hexEncoded)

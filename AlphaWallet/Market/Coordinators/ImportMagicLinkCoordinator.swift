@@ -4,7 +4,6 @@ import Foundation
 import Alamofire
 import BigInt
 import PromiseKit
-import web3swift
 import Combine
 import AlphaWalletFoundation
 
@@ -317,8 +316,7 @@ class ImportMagicLinkCoordinator: Coordinator {
             return true
         }
 
-        let recoveredSigner = Self.ecrecover(signedOrder: signedOrder, server: server)
-        switch recoveredSigner {
+        switch Self.ecrecover(signedOrder: signedOrder) {
         case .success(let ethereumAddress):
             let recoverAddress = AlphaWallet.Address(address: ethereumAddress)
             if signedOrder.order.nativeCurrencyDrop {
@@ -376,7 +374,7 @@ class ImportMagicLinkCoordinator: Coordinator {
         }
     }
 
-    static func ecrecover(signedOrder: SignedOrder, server: RPCServer) -> Swift.Result<web3swift.EthereumAddress, web3swift.Web3Error> {
+    static func ecrecover(signedOrder: SignedOrder) -> Swift.Result<Web3.EthereumAddress, Web3.Web3Error> {
         //need to hash message here because the web3swift implementation adds prefix
         let messageHash = Data(bytes: signedOrder.message).sha3(.keccak256)
         //note: web3swift takes the v value as v - 27, so we need to manually convert this
@@ -384,12 +382,8 @@ class ImportMagicLinkCoordinator: Coordinator {
         let vInt = Int(vValue, radix: 16)! - 27
         let vString = "0" + String(vInt)
         let signature = "0x" + signedOrder.signature.drop0x.substring(to: 128) + vString
-        let nodeURL = server.rpcURL
-        let provider = Web3HttpProvider(nodeURL, headers: server.rpcHeaders, network: server.web3Network)!
-        let web3Instance = web3swift.web3(provider: provider)
-        let personal = web3swift.web3.Personal(provider: web3Instance.provider, web3: web3Instance)
 
-        switch personal.ecrecover(hash: messageHash, signature: Data(bytes: signature.hexToBytes)) {
+        switch Web3.Utils.ecrecover(hash: messageHash, signature: Data(bytes: signature.hexToBytes)) {
         case .success(let value):
             return .success(value)
         case .failure(let error):

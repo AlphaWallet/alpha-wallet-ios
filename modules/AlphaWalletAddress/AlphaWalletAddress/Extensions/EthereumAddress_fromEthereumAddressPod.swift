@@ -6,8 +6,7 @@
 
 import EthereumAddress
 
-typealias EthereumAddress_fromEthereumAddressPod = EthereumAddress
-
+public typealias EthereumAddress_fromEthereumAddressPod = EthereumAddress
 extension EthereumAddress: CustomStringConvertible {
     public var description: String {
         address

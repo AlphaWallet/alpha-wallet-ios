@@ -12,8 +12,16 @@ import BigInt
 fileprivate typealias web3swiftWeb3 = web3swift.Web3
 
 public enum Web3 {
+    public typealias Web3Error = web3swift.Web3Error
     public typealias EthereumAddress = web3swift.EthereumAddress
     public typealias Eth = web3swift.web3.Eth
+    public typealias EventFilterable = web3swift.EventFilterable
+    public typealias EventParserResultProtocol = web3swift.EventParserResultProtocol
+    public typealias EventFilter = web3swift.EventFilter
+    public typealias TransactionReceipt = web3swift.TransactionReceipt
+    public typealias Networks = web3swift.Networks
+    public typealias RPCNodeHTTPHeaders = web3swift.RPCNodeHTTPHeaders
+    public typealias JSONRPCrequestDispatcher = web3swift.JSONRPCrequestDispatcher
     
     public enum Utils {
         static var erc20ABI = web3swiftWeb3.Utils.erc20ABI
@@ -21,7 +29,16 @@ public enum Web3 {
         public static func calcualteContractAddress(from: EthereumAddress, nonce: BigUInt) -> EthereumAddress? {
             return web3swiftWeb3.Utils.calcualteContractAddress(from: from, nonce: nonce)
         }
-        
+
+        static public func ecrecover(hash: Data, signature: Data) -> Swift.Result<EthereumAddress, Web3.Web3Error> {
+            switch web3swiftWeb3.Utils.hashECRecover(hash: hash, signature: signature) {
+            case .some(let value):
+                return .success(value)
+            case .none:
+                return .failure(Web3.Web3Error.walletError)
+            }
+        }
+
         /*
              guard let wallet = keystore.currentWallet else { fatalError() }
              guard let message = "Hello AlphaWallet".data(using: .utf8) else { fatalError() }
@@ -34,7 +51,7 @@ public enum Web3 {
                  print(error)
              }
          */
-        public static func ecrecover(message: Data, signature: Data) -> Swift.Result<EthereumAddress, web3swift.Web3Error> {
+        public static func ecrecover(message: Data, signature: Data) -> Swift.Result<EthereumAddress, Web3.Web3Error> {
             //need to hash message here because the web3swift implementation adds prefix
             let messageHash = message.sha3(.keccak256)
             let signatureString = signature.hexString.add0x
@@ -48,7 +65,7 @@ public enum Web3 {
             case .some(let value):
                 return .success(value)
             case .none:
-                return .failure(web3swift.Web3Error.walletError)
+                return .failure(Web3.Web3Error.walletError)
             }
         }
 

@@ -2,14 +2,6 @@
 
 import Foundation
 import BigInt
-import web3swift
-
-typealias EthereumAddress_fromWeb3SwiftPod = EthereumAddress
-extension EthereumAddress_fromWeb3SwiftPod: CustomStringConvertible {
-    public var description: String {
-        return address
-    }
-}
 
 public struct FunctionCall {
     public struct Argument: CustomStringConvertible {

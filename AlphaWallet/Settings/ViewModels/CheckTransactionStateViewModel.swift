@@ -7,21 +7,7 @@
 
 import Foundation
 import PromiseKit
-import web3swift
 import AlphaWalletFoundation
-
-extension TransactionState {
-    init(status: TransactionReceipt.TXStatus) {
-        switch status {
-        case .ok:
-            self = .completed
-        case .failed:
-            self = .failed
-        case .notYetProcessed:
-            self = .pending
-        }
-    }
-}
 
 struct CheckTransactionStateViewModel {
     private let serverSelection: ServerSelection
@@ -57,7 +43,7 @@ struct CheckTransactionStateViewModel {
 
 }
 
-extension web3swift.Web3Error: LocalizedError {
+extension Web3.Web3Error: LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .transactionSerializationError: return "Transaction Serialization Error"

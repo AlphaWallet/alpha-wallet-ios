@@ -7,23 +7,10 @@
 
 import Foundation
 import PromiseKit
-import web3swift
 import AlphaWalletFoundation
 
 protocol CheckTransactionStateCoordinatorDelegate: class {
     func didComplete(coordinator: CheckTransactionStateCoordinator)
-}
-
-final class TransactionStateFetcher {
-    func fetchTransactionsState(server: RPCServer, transactionHash: String) -> Promise <TransactionState> {
-        guard let web3 = try? getCachedWeb3(forServer: server, timeout: 6) else {
-            return .init(error: PMKError.cancelled)
-        }
-
-        return web3swift.web3.Eth(provider: web3.provider, web3: web3)
-            .getTransactionReceiptPromise(transactionHash)
-            .map { TransactionState(status: $0.status) }
-    }
 }
 
 class CheckTransactionStateCoordinator: Coordinator {
@@ -73,8 +60,8 @@ extension CheckTransactionStateCoordinator: SelectTransactionHashViewControllerD
 
         rootViewController.set(isActionButtonEnable: false)
 
-        TransactionStateFetcher()
-            .fetchTransactionsState(server: server, transactionHash: transactionHash)
+        GetTransactionState()
+            .getTransactionsState(server: server, hash: transactionHash)
             .done { state in
                 self.displayErrorMessage(R.string.localizable.checkTransactionStateComplete(state.description))
             }.catch { error in
