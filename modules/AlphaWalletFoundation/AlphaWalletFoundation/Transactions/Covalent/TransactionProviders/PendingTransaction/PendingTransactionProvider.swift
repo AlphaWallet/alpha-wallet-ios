@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import APIKit
 import BigInt
 import JSONRPCKit
 import PromiseKit

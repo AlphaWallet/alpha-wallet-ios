@@ -35,7 +35,7 @@ public final class CoinGeckoTickersFetcher: CoinTickersFetcher {
             networkProvider = FakeCoinGeckoNetworkProvider()
             persistentStorage = RealmStore(realm: fakeRealm(), name: "org.alphawallet.swift.realmStore.shared.wallet")
         } else {
-            networkProvider = CoinGeckoNetworkProvider(provider: AlphaWalletProviderFactory.makeProvider())
+            networkProvider = CoinGeckoNetworkProvider()
             persistentStorage = RealmStore.shared
         }
 

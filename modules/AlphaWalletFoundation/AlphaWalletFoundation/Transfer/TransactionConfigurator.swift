@@ -1,9 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
-import APIKit
 import BigInt
-import JSONRPCKit
 import PromiseKit
 
 public protocol TransactionConfiguratorDelegate: AnyObject {
