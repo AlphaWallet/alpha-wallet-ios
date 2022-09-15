@@ -7,7 +7,6 @@ public enum AlphaWalletService {
     case tokensThatHasPrices
     case pricesOfTokens(ids: String, currency: String, page: Int)
     case getTransactions(server: RPCServer, address: AlphaWallet.Address, startBlock: Int, endBlock: Int, sortOrder: SortOrder)
-    case oneInchTokens
     case honeySwapTokens
     case priceHistoryOfToken(id: String, currency: String, days: Int)
 
@@ -31,8 +30,6 @@ extension AlphaWalletService: TargetType {
                 //HACK: we intentionally return an invalid, but non-nil URL because that's what the function needs to return. Keeps the code simple, yet still harmless
                 return URL(string: "x")!
             }
-        case .oneInchTokens:
-            return Constants.OneInch.exchangeUrl
         case .honeySwapTokens:
             return Constants.HoneySwap.exchangeUrl
         case .priceHistoryOfToken:
@@ -44,8 +41,6 @@ extension AlphaWalletService: TargetType {
         switch self {
         case .getTransactions:
             return ""
-        case .oneInchTokens:
-            return "/v3.0/1/tokens"
         case .honeySwapTokens:
             return ""
         case .tokensThatHasPrices:
@@ -61,7 +56,6 @@ extension AlphaWalletService: TargetType {
         switch self {
         case .getTransactions: return .get
         case .pricesOfTokens: return .get
-        case .oneInchTokens: return .get
         case .honeySwapTokens: return .get
         case .tokensThatHasPrices: return .get
         case .priceHistoryOfToken: return .get
@@ -94,7 +88,7 @@ extension AlphaWalletService: TargetType {
                 //Max according to https://www.coingecko.com/en/api
                 "per_page": 250,
             ], encoding: URLEncoding())
-        case .oneInchTokens, .honeySwapTokens:
+        case .honeySwapTokens:
             return .requestPlain
         case .tokensThatHasPrices:
             return .requestParameters(parameters: ["include_platform": "true"], encoding: URLEncoding())
@@ -124,7 +118,7 @@ extension AlphaWalletService: TargetType {
                 "client": Bundle.main.bundleIdentifier ?? "",
                 "client-build": Bundle.main.buildNumber ?? "",
             ]
-        case .oneInchTokens, .honeySwapTokens:
+        case .honeySwapTokens:
             return nil
         }
     }
