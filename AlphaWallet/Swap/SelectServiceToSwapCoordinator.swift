@@ -36,13 +36,13 @@ class SelectServiceToSwapCoordinator: Coordinator {
                         let server = service.rpcServer(forToken: token)
                         self.delegate?.selectSwapService(.success(.url(url: url, server: server)), in: self)
                     } else {
-                        self.delegate?.selectSwapService(.failure(SwapTokenError.swapNotSuppoted), in: self)
+                        self.delegate?.selectSwapService(.failure(SwapTokenError.swapNotSupported), in: self)
                     }
                 } else if let _ = service as? SwapTokenNativeProvider {
                     let swapPair = SwapPair(from: token, to: nil)
                     self.delegate?.selectSwapService(.success(.native(swapPair: swapPair)), in: self)
                 } else {
-                    self.delegate?.selectSwapService(.failure(SwapTokenError.swapNotSuppoted), in: self)
+                    self.delegate?.selectSwapService(.failure(SwapTokenError.swapNotSupported), in: self)
                 }
             case .failure(let error):
                 self.delegate?.selectSwapService(.failure(error), in: self)
@@ -62,7 +62,7 @@ class SelectServiceToSwapCoordinator: Coordinator {
         }
 
         if actions.isEmpty {
-            completion(.failure(.swapNotSuppoted))
+            completion(.failure(.swapNotSupported))
             return
         } else if actions.count == 1 {
             completion(.service(actions[0].service))

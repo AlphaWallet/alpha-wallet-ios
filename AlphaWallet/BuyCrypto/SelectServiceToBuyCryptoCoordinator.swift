@@ -68,7 +68,7 @@ class SelectServiceToBuyCryptoCoordinator: Coordinator {
         }
 
         if actions.isEmpty {
-            completion(.failure(error: BuyCryptoError.buyNotSuppoted))
+            completion(.failure(error: BuyCryptoError.buyNotSupported))
         } else if actions.count == 1 {
             completion(.service(actions[0].service))
         } else {

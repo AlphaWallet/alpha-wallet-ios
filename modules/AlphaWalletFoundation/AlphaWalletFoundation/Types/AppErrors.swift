@@ -8,11 +8,11 @@
 import Foundation
 
 public enum SwapTokenError: LocalizedError {
-    case swapNotSuppoted
+    case swapNotSupported
 }
 
 public enum BuyCryptoError: LocalizedError {
-    case buyNotSuppoted
+    case buyNotSupported
 }
 
 public enum ActiveWalletError: LocalizedError {
