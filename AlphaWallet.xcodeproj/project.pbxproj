@@ -4307,7 +4307,7 @@
 			packageReferences = (
 				87FBF2AF28056AC200616B7D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				87BDF46E28423DC30018DC68 /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */,
-				87B1B5D728C73C170072A5E2 /* XCRemoteSwiftPackageReference "WalletConnectSwift" */,
+				87B1B5D728C73C170072A5E2 /* XCRemoteSwiftPackageReference "WalletConnectSwift.git" */,
 			);
 			productRefGroup = 2912CCF61F6A830700C6CBE3 /* Products */;
 			projectDirPath = "";
@@ -4538,7 +4538,6 @@
 				"${BUILT_PRODUCTS_DIR}/Kingfisher/Kingfisher.framework",
 				"${BUILT_PRODUCTS_DIR}/MBProgressHUD/MBProgressHUD.framework",
 				"${BUILT_PRODUCTS_DIR}/Mixpanel-swift/Mixpanel.framework",
-				"${BUILT_PRODUCTS_DIR}/Moya/Moya.framework",
 				"${BUILT_PRODUCTS_DIR}/PaperTrailLumberjack/PaperTrailLumberjack.framework",
 				"${BUILT_PRODUCTS_DIR}/PromiseKit/PromiseKit.framework",
 				"${BUILT_PRODUCTS_DIR}/QRCodeReaderViewController/QRCodeReaderViewController.framework",
@@ -4587,7 +4586,6 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Kingfisher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MBProgressHUD.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Mixpanel.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Moya.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PaperTrailLumberjack.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PromiseKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/QRCodeReaderViewController.framework",
@@ -6023,7 +6021,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		87B1B5D728C73C170072A5E2 /* XCRemoteSwiftPackageReference "WalletConnectSwift" */ = {
+		87B1B5D728C73C170072A5E2 /* XCRemoteSwiftPackageReference "WalletConnectSwift.git" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/AlphaWallet/WalletConnectSwift.git";
 			requirement = {
@@ -6052,7 +6050,7 @@
 /* Begin XCSwiftPackageProductDependency section */
 		87B1B5D828C73C170072A5E2 /* WalletConnectSwift */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 87B1B5D728C73C170072A5E2 /* XCRemoteSwiftPackageReference "WalletConnectSwift" */;
+			package = 87B1B5D728C73C170072A5E2 /* XCRemoteSwiftPackageReference "WalletConnectSwift.git" */;
 			productName = WalletConnectSwift;
 		};
 		87BDF46F28423DC30018DC68 /* WalletConnect */ = {

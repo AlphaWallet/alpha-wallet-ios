@@ -6,9 +6,9 @@
 //
 
 import Foundation
-import Moya
 import Combine
 import SwiftyJSON
+import Alamofire
 
 public enum CoinGeckoNetworkProviderError: Error {
     case underlying(Error)
@@ -36,17 +36,13 @@ public class FakeCoinGeckoNetworkProvider: CoinGeckoNetworkProviderType {
 }
 
 public class CoinGeckoNetworkProvider: CoinGeckoNetworkProviderType {
-    private let provider: MoyaProvider<AlphaWalletService>
     private let decoder = JSONDecoder()
 
-    public init(provider: MoyaProvider<AlphaWalletService>) {
-        self.provider = provider
-    }
-
     public func fetchSupportedTickerIds() -> AnyPublisher<[TickerId], CoinGeckoNetworkProviderError> {
-        provider.publisher(.tokensThatHasPrices, callbackQueue: .global())
+        Alamofire.request(TokensThatHasPricesRequest())
+            .responseDataPublisher()
             .retry(times: 3)
-            .tryMap { [decoder] in try $0.map([TickerId].self, using: decoder) }
+            .tryMap { [decoder] in try decoder.decode([TickerId].self, from: $0.data) }
             .mapError { CoinGeckoNetworkProviderError.underlying($0) }
             .share()
             .eraseToAnyPublisher()
@@ -74,7 +70,8 @@ public class CoinGeckoNetworkProvider: CoinGeckoNetworkProviderType {
     }
 
     public func fetchChartHistory(for period: ChartHistoryPeriod, tickerId: String) -> AnyPublisher<ChartHistory, CoinGeckoNetworkProviderError> {
-        provider.publisher(.priceHistoryOfToken(id: tickerId, currency: Currency.USD.rawValue, days: period.rawValue), callbackQueue: .global())
+        return Alamofire.request(PriceHistoryOfTokenRequest.init(id: tickerId, currency: Currency.USD.rawValue, days: period.rawValue))
+            .responseDataPublisher()
             .retry(times: 3)
             .tryMap { try ChartHistory(json: try JSON(data: $0.data)) }
             .mapError { CoinGeckoNetworkProviderError.underlying($0) }
@@ -83,9 +80,10 @@ public class CoinGeckoNetworkProvider: CoinGeckoNetworkProviderType {
     }
 
     private func fetchPricesPage(for tickerIds: String, page: Int, shouldRetry: Bool) -> AnyPublisher<[CoinTicker], CoinGeckoNetworkProviderError> {
-        return provider.publisher(.pricesOfTokens(ids: tickerIds, currency: Currency.USD.rawValue, page: page), callbackQueue: .global())
+        return Alamofire.request(PricesOfTokensRequest(ids: tickerIds, currency: Currency.USD.rawValue, page: page))
+            .responseDataPublisher()
             .retry(times: 3)
-            .tryMap { [decoder] in try $0.map([CoinTicker].self, using: decoder) }
+            .tryMap { [decoder] in try decoder.decode([CoinTicker].self, from: $0.data) }
             .mapError { CoinGeckoNetworkProviderError.underlying($0) }
             .eraseToAnyPublisher()
     }

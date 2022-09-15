@@ -32,7 +32,6 @@ PODS:
     - EthereumABI
     - JSONRPCKit (~> 2.0.0)
     - Kanna
-    - Moya (~> 10.0.1)
     - PaperTrailLumberjack/Swift
     - PromiseKit/Alamofire
     - PromiseKit/CorePromise
@@ -92,11 +91,6 @@ PODS:
   - Mixpanel-swift (3.2.0):
     - Mixpanel-swift/Complete (= 3.2.0)
   - Mixpanel-swift/Complete (3.2.0)
-  - Moya (10.0.2):
-    - Moya/Core (= 10.0.2)
-  - Moya/Core (10.0.2):
-    - Alamofire (~> 4.1)
-    - Result (~> 3.0)
   - PaperTrailLumberjack/Core (0.1.9):
     - CocoaAsyncSocket (~> 7.6)
     - CocoaLumberjack (~> 3.4)
@@ -205,7 +199,6 @@ SPEC REPOS:
     - MailchimpSDK
     - MBProgressHUD
     - Mixpanel-swift
-    - Moya
     - PaperTrailLumberjack
     - PromiseKit
     - R.swift
@@ -299,7 +292,7 @@ SPEC CHECKSUMS:
   AlphaWalletAddress: 9dccc77a5ce4abe0e782e05c8ddde4ddbb7c11a7
   AlphaWalletCore: 635739018555de844a020f8b9b7d49610b3de655
   AlphaWalletENS: 609407f0a31b31f769d2ddeedf4048b67805254b
-  AlphaWalletFoundation: 0acf16dd6f463e57682f54cae57f0aa36a904db4
+  AlphaWalletFoundation: ec57930c40fc9e37a6357ef4a1c589ab78e0044f
   AlphaWalletGoBack: 1d55b51e6cfd999740d3cfab09d9fa723ba85ff2
   AlphaWalletOpenSea: 71e255612529b04ae4d66dca54bd181185593b1d
   AlphaWalletWeb3Provider: 7ca1e1c1dc841dc1915f970daace48bf34931655
@@ -324,7 +317,6 @@ SPEC CHECKSUMS:
   MailchimpSDK: 794fd7cb1095e55c764d8a699eb11fb61849ed76
   MBProgressHUD: 3ee5efcc380f6a79a7cc9b363dd669c5e1ae7406
   Mixpanel-swift: 7c0b15c3ea96a997a989737612a3e62e72c1c561
-  Moya: 2b0531a9fef318e0bc484030c3db1e6f279ccb66
   PaperTrailLumberjack: 449587968d5aeb3eab2d4de041ffc61ee2d49f25
   PromiseKit: 32c36425387e9cfc7f1206f27bfd906d0b53c0d6
   QRCodeReaderViewController: e8f27d035b3e72b1d4b1c61ff66458287e3be0ff

@@ -1,10 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
-import APIKit
 import BigInt
-import JSONRPCKit
-import Moya
 import PromiseKit
 
 public class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
@@ -18,7 +15,6 @@ public class EtherscanSingleChainTransactionProvider: SingleChainTransactionProv
     private lazy var transactionsTracker: TransactionsTracker = {
         return TransactionsTracker(sessionID: session.sessionID)
     }()
-    private let alphaWalletProvider = AlphaWalletProviderFactory.makeProvider()
     private let tokensFromTransactionsFetcher: TokensFromTransactionsFetcher
     private var isAutoDetectingERC20Transactions: Bool = false
     private var isAutoDetectingErc721Transactions: Bool = false
@@ -95,7 +91,7 @@ public class EtherscanSingleChainTransactionProvider: SingleChainTransactionProv
             guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
 
             let (result, minBlockNumber, maxBlockNumber) = functional.extractBoundingBlockNumbers(fromTransactions: result)
-            return functional.backFillTransactionGroup(result, startBlock: minBlockNumber, endBlock: maxBlockNumber, session: strongSelf.session, alphaWalletProvider: strongSelf.alphaWalletProvider, tokensService: strongSelf.tokensService, queue: strongSelf.queue).map { ($0, maxBlockNumber) }
+            return functional.backFillTransactionGroup(result, startBlock: minBlockNumber, endBlock: maxBlockNumber, session: strongSelf.session, tokensService: strongSelf.tokensService, queue: strongSelf.queue).map { ($0, maxBlockNumber) }
         }).done(on: queue, { [weak self] backFilledTransactions, maxBlockNumber in
             guard let strongSelf = self else { return }
             //Just to be sure, we don't want any kind of strange errors to clear our progress by resetting blockNumber = 0
@@ -123,7 +119,7 @@ public class EtherscanSingleChainTransactionProvider: SingleChainTransactionProv
         }.then(on: queue, { [weak self] result -> Promise<([TransactionInstance], Int)> in
             guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
             let (result, minBlockNumber, maxBlockNumber) = functional.extractBoundingBlockNumbers(fromTransactions: result)
-            return functional.backFillTransactionGroup(result, startBlock: minBlockNumber, endBlock: maxBlockNumber, session: strongSelf.session, alphaWalletProvider: strongSelf.alphaWalletProvider, tokensService: strongSelf.tokensService, queue: strongSelf.queue).map { ($0, maxBlockNumber) }
+            return functional.backFillTransactionGroup(result, startBlock: minBlockNumber, endBlock: maxBlockNumber, session: strongSelf.session, tokensService: strongSelf.tokensService, queue: strongSelf.queue).map { ($0, maxBlockNumber) }
         }).done(on: queue, { [weak self] backFilledTransactions, maxBlockNumber in
             guard let strongSelf = self else { return }
             //Just to be sure, we don't want any kind of strange errors to clear our progress by resetting blockNumber = 0
@@ -210,7 +206,7 @@ public class EtherscanSingleChainTransactionProvider: SingleChainTransactionProv
         isFetchingLatestTransactions = true
 
         let startBlock: Int
-        let sortOrder: AlphaWalletService.SortOrder
+        let sortOrder: GetTransactions.SortOrder
 
         if let newestCachedTransaction = transactionDataStore.transactionObjectsThatDoNotComeFromEventLogs(forServer: session.server) {
             startBlock = newestCachedTransaction.blockNumber + 1
@@ -227,7 +223,7 @@ public class EtherscanSingleChainTransactionProvider: SingleChainTransactionProv
     private func fetchOlderTransactions() {
         guard let oldestCachedTransaction = transactionDataStore.lastTransaction(forServer: session.server, withTransactionState: .completed) else { return }
 
-        let promise = functional.fetchTransactions(startBlock: 1, endBlock: oldestCachedTransaction.blockNumber - 1, sortOrder: .desc, session: session, alphaWalletProvider: alphaWalletProvider, tokensService: tokensService, queue: queue)
+        let promise = functional.fetchTransactions(startBlock: 1, endBlock: oldestCachedTransaction.blockNumber - 1, sortOrder: .desc, session: session, tokensService: tokensService, queue: queue)
         promise.done(on: queue, { [weak self] transactions in
             guard let strongSelf = self else { return }
 
@@ -265,7 +261,7 @@ public class EtherscanSingleChainTransactionProvider: SingleChainTransactionProv
         private let session: WalletSession
         weak private var provider: EtherscanSingleChainTransactionProvider?
         private let startBlock: Int
-        private let sortOrder: AlphaWalletService.SortOrder
+        private let sortOrder: GetTransactions.SortOrder
         override var isExecuting: Bool {
             return provider?.isFetchingLatestTransactions ?? false
         }
@@ -277,7 +273,7 @@ public class EtherscanSingleChainTransactionProvider: SingleChainTransactionProv
         }
         private let queue: DispatchQueue
 
-        init(forSession session: WalletSession, provider: EtherscanSingleChainTransactionProvider, startBlock: Int, sortOrder: AlphaWalletService.SortOrder, queue: DispatchQueue) {
+        init(forSession session: WalletSession, provider: EtherscanSingleChainTransactionProvider, startBlock: Int, sortOrder: GetTransactions.SortOrder, queue: DispatchQueue) {
             self.session = session
             self.provider = provider
             self.startBlock = startBlock
@@ -291,7 +287,7 @@ public class EtherscanSingleChainTransactionProvider: SingleChainTransactionProv
             guard let provider = self.provider else { return }
 
             firstly {
-                EtherscanSingleChainTransactionProvider.functional.fetchTransactions(startBlock: startBlock, sortOrder: sortOrder, session: provider.session, alphaWalletProvider: provider.alphaWalletProvider, tokensService: provider.tokensService, queue: provider.queue)
+                EtherscanSingleChainTransactionProvider.functional.fetchTransactions(startBlock: startBlock, sortOrder: sortOrder, session: provider.session, tokensService: provider.tokensService, queue: provider.queue)
             }.done(on: queue, { [weak self] transactions in
                 guard let strongSelf = self else { return }
                 guard !strongSelf.isCancelled else { return }
@@ -327,32 +323,24 @@ extension EtherscanSingleChainTransactionProvider.functional {
         }
     }
 
-    static func fetchTransactions(startBlock: Int, endBlock: Int = 999_999_999, sortOrder: AlphaWalletService.SortOrder, session: WalletSession, alphaWalletProvider: MoyaProvider<AlphaWalletService>, tokensService: TokenProvidable, queue: DispatchQueue) -> Promise<[TransactionInstance]> {
-        let target: AlphaWalletService = .getTransactions(server: session.server, address: session.account.address, startBlock: startBlock, endBlock: endBlock, sortOrder: sortOrder)
+    static func fetchTransactions(startBlock: Int, endBlock: Int = 999_999_999, sortOrder: GetTransactions.SortOrder, session: WalletSession, tokensService: TokenProvidable, queue: DispatchQueue) -> Promise<[TransactionInstance]> {
         return firstly {
-            alphaWalletProvider.request(target)
-        }.then(on: queue) { response -> Promise<[TransactionInstance]> in
-            if response.statusCode == 404 {
-                //Clearer than a JSON deserialization error when it's a 404
-                enum E: Error {
-                    case statusCode404
-                }
-                throw E.statusCode404
+            Alamofire.request(GetTransactions(server: session.server, address: session.account.address, startBlock: startBlock, endBlock: endBlock, sortOrder: sortOrder)).responseData()
+        }.then(on: queue) { result -> Promise<[TransactionInstance]> in
+            if result.response.response?.statusCode == 404 {
+                throw URLError(URLError.Code(rawValue: 404)) // Clearer than a JSON deserialization error when it's a 404
             }
-            let promises = try response.map(ArrayResponse<RawTransaction>.self).result.map {
+            let promises = try JSONDecoder().decode(ArrayResponse<RawTransaction>.self, from: result.data).result.map {
                 TransactionInstance.from(transaction: $0, tokensService: tokensService, session: session)
             }
-
-            return when(fulfilled: promises).compactMap(on: queue) {
-                $0.compactMap { $0 }
-            }
+            return when(fulfilled: promises).compactMap(on: queue) { $0.compactMap { $0 } }
         }
     }
 
-    static func backFillTransactionGroup(_ transactionsToFill: [TransactionInstance], startBlock: Int, endBlock: Int, session: WalletSession, alphaWalletProvider: MoyaProvider<AlphaWalletService>, tokensService: TokenProvidable, queue: DispatchQueue) -> Promise<[TransactionInstance]> {
+    static func backFillTransactionGroup(_ transactionsToFill: [TransactionInstance], startBlock: Int, endBlock: Int, session: WalletSession, tokensService: TokenProvidable, queue: DispatchQueue) -> Promise<[TransactionInstance]> {
         guard !transactionsToFill.isEmpty else { return .value([]) }
         return firstly {
-            fetchTransactions(startBlock: startBlock, endBlock: endBlock, sortOrder: .asc, session: session, alphaWalletProvider: alphaWalletProvider, tokensService: tokensService, queue: queue)
+            fetchTransactions(startBlock: startBlock, endBlock: endBlock, sortOrder: .asc, session: session, tokensService: tokensService, queue: queue)
         }.map(on: queue) { fillerTransactions -> [TransactionInstance] in
             var results: [TransactionInstance] = .init()
             for each in transactionsToFill {
