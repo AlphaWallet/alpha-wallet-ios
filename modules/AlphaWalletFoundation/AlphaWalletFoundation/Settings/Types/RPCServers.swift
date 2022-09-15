@@ -187,7 +187,7 @@ public enum RPCServer: Hashable, CaseIterable {
         customRpc != nil
     }
 
-    public var etherscanURLForGeneralTransactionHistory: URL? {
+    var etherscanURLForGeneralTransactionHistory: URL? {
         switch self {
         case .main, .ropsten, .rinkeby, .kovan, .poa, .classic, .goerli, .xDai, .artis_sigma1, .artis_tau1, .candle, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .sokol, .callisto, .optimistic, .optimisticKovan, .cronosTestnet, .custom, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet:
             return etherscanApiRoot?.appendingQueryString("module=account&action=txlist")
@@ -206,14 +206,14 @@ public enum RPCServer: Hashable, CaseIterable {
 
     ///etherscan-compatible erc20 transaction event APIs
     ///The fetch ERC20 transactions endpoint from Etherscan returns only ERC20 token transactions but the Blockscout version also includes ERC721 transactions too (so it's likely other types that it can detect will be returned too); thus we should check the token type rather than assume that they are all ERC20
-    public var etherscanURLForTokenTransactionHistory: URL? {
+    var etherscanURLForTokenTransactionHistory: URL? {
         switch etherscanCompatibleType {
         case .etherscan, .blockscout: return etherscanApiRoot?.appendingQueryString("module=account&action=tokentx")
         case .unknown: return nil
         }
     }
 
-    public var etherscanWebpageRoot: URL? {
+    var etherscanWebpageRoot: URL? {
         let urlString: String? = {
             switch self {
             case .main: return "https://cn.etherscan.com"
@@ -255,7 +255,7 @@ public enum RPCServer: Hashable, CaseIterable {
         return urlString.flatMap { URL(string: $0) }
     }
 
-    public var etherscanApiRoot: URL? {
+    var etherscanApiRoot: URL? {
         let urlString: String? = {
             switch self {
             case .main: return "https://api-cn.etherscan.com/api"
@@ -306,7 +306,7 @@ public enum RPCServer: Hashable, CaseIterable {
     }
 
     //If Etherscan, action=tokentx for ERC20 and action=tokennfttx for ERC721. If Blockscout-compatible, action=tokentx includes both ERC20 and ERC721. tokennfttx is not supported.
-    public var etherscanURLForERC721TransactionHistory: URL? {
+    var etherscanURLForERC721TransactionHistory: URL? {
         switch etherscanCompatibleType {
         case .etherscan: return etherscanApiRoot?.appendingQueryString("module=account&action=tokennfttx")
         case .blockscout: return etherscanApiRoot?.appendingQueryString("module=account&action=tokentx")
@@ -329,7 +329,7 @@ public enum RPCServer: Hashable, CaseIterable {
         }
     }
 
-    public var etherscanApiKey: String? {
+    var etherscanApiKey: String? {
         switch self {
         case .main, .kovan, .ropsten, .rinkeby, .goerli, .optimistic, .optimisticKovan, .arbitrum, .arbitrumRinkeby: return Constants.Credentials.etherscanKey
         case .binance_smart_chain: return Constants.Credentials.binanceSmartChainExplorerApiKey //Key not needed for testnet (empirically)
@@ -342,7 +342,7 @@ public enum RPCServer: Hashable, CaseIterable {
     }
 
     //Some chains like Optimistic have the native token share the same balance as a distinct ERC20 token. On such chains, we must not show both of them at the same time
-    public var erc20AddressForNativeToken: AlphaWallet.Address? {
+    var erc20AddressForNativeToken: AlphaWallet.Address? {
         switch self {
         case .optimistic, .optimisticKovan: return AlphaWallet.Address(string: "0x4200000000000000000000000000000000000006")!
         case .main, .ropsten, .rinkeby, .kovan, .goerli, .fantom, .heco, .heco_testnet, .binance_smart_chain, .binance_smart_chain_testnet, .polygon, .poa, .sokol, .classic, .xDai, .phi, .artis_sigma1, .artis_tau1, .mumbai_testnet, .callisto, .cronosTestnet, .fantom_testnet, .avalanche, .avalanche_testnet, .candle, .custom, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet: return nil
@@ -359,7 +359,7 @@ public enum RPCServer: Hashable, CaseIterable {
         }
     }
 
-    public var shouldAddBufferWhenEstimatingGasPrice: Bool {
+    var shouldAddBufferWhenEstimatingGasPrice: Bool {
         switch self {
         case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .candle, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet:
             return true
@@ -369,7 +369,7 @@ public enum RPCServer: Hashable, CaseIterable {
         }
     }
 
-    public func getEtherscanURLForGeneralTransactionHistory(for address: AlphaWallet.Address, startBlock: Int?) -> URL? {
+    func getEtherscanURLForGeneralTransactionHistory(for address: AlphaWallet.Address, startBlock: Int?) -> URL? {
          etherscanURLForGeneralTransactionHistory.flatMap {
              let apiKeyParameter: String
              if let apiKey = etherscanApiKey {
@@ -386,7 +386,7 @@ public enum RPCServer: Hashable, CaseIterable {
          }
     }
 
-    public func getEtherscanURLForTokenTransactionHistory(for address: AlphaWallet.Address, startBlock: Int?) -> URL? {
+    func getEtherscanURLForTokenTransactionHistory(for address: AlphaWallet.Address, startBlock: Int?) -> URL? {
         etherscanURLForTokenTransactionHistory.flatMap {
             let apiKeyParameter: String
             if let apiKey = etherscanApiKey {
@@ -403,7 +403,7 @@ public enum RPCServer: Hashable, CaseIterable {
         }
     }
 
-    public func getEtherscanURLForERC721TransactionHistory(for address: AlphaWallet.Address, startBlock: Int?) -> URL? {
+    func getEtherscanURLForERC721TransactionHistory(for address: AlphaWallet.Address, startBlock: Int?) -> URL? {
         etherscanURLForERC721TransactionHistory.flatMap {
             let apiKeyParameter: String
             if let apiKey = etherscanApiKey {
@@ -449,7 +449,7 @@ public enum RPCServer: Hashable, CaseIterable {
         }
     }
 
-    public var priceID: AlphaWallet.Address {
+    var priceID: AlphaWallet.Address {
         switch self {
         case .main, .ropsten, .rinkeby, .kovan, .sokol, .custom, .xDai, .phi, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .candle, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet:
             return AlphaWallet.Address(string: "0x000000000000000000000000000000000000003c")!
@@ -649,7 +649,7 @@ public enum RPCServer: Hashable, CaseIterable {
         }
     }
 
-    public var transactionInfoEndpoints: URL? {
+    var transactionInfoEndpoints: URL? {
         switch self {
         case .main, .kovan, .ropsten, .rinkeby, .phi, .goerli, .classic, .poa, .xDai, .sokol, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .fantom, .candle, .polygon, .mumbai_testnet, .heco, .heco_testnet, .callisto, .optimistic, .optimisticKovan, .cronosTestnet, .custom, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet:
             return etherscanApiRoot
@@ -659,14 +659,14 @@ public enum RPCServer: Hashable, CaseIterable {
         }
     }
 
-    public var networkRequestsQueuePriority: Operation.QueuePriority {
+    var networkRequestsQueuePriority: Operation.QueuePriority {
         switch self {
         case .main, .polygon, .klaytnCypress, .klaytnBaobabTestnet: return .normal
         case .xDai, .kovan, .ropsten, .rinkeby, .poa, .phi, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .candle, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .ioTeX, .ioTeXTestnet: return .low
         }
     }
 
-    public var transactionProviderType: SingleChainTransactionProvider.Type {
+    var transactionProviderType: SingleChainTransactionProvider.Type {
         switch self {
         case .main, .classic, .callisto, .kovan, .ropsten, .custom, .rinkeby, .poa, .sokol, .goerli, .xDai, .phi, .artis_sigma1, .binance_smart_chain, .binance_smart_chain_testnet, .artis_tau1, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .candle, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet:
             return EtherscanSingleChainTransactionProvider.self
@@ -770,7 +770,7 @@ public enum RPCServer: Hashable, CaseIterable {
         }
     }
 
-    public func makeMaximumToBlockForEvents(fromBlockNumber: UInt64) -> EventFilter.Block {
+    func makeMaximumToBlockForEvents(fromBlockNumber: UInt64) -> EventFilter.Block {
         switch self {
         case .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet:
             //These do not allow range more than 5000
@@ -853,7 +853,7 @@ public enum RPCServer: Hashable, CaseIterable {
         }
     }
 
-    public var coinGeckoPlatform: String? {
+    var coinGeckoPlatform: String? {
         switch self {
         case .main: return "ethereum"
         case .classic: return "ethereum-classic"
@@ -869,7 +869,7 @@ public enum RPCServer: Hashable, CaseIterable {
         }
     }
 
-    public var coinBasePlatform: String? {
+    var coinBasePlatform: String? {
         switch self {
         case .main: return "ethereum"
         case .avalanche, .xDai, .classic, .fantom, .arbitrum, .candle, .polygon, .binance_smart_chain, .klaytnCypress, .klaytnBaobabTestnet, .poa, .kovan, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .ropsten, .rinkeby, .heco, .heco_testnet, .fantom_testnet, .avalanche_testnet, .mumbai_testnet, .custom, .optimistic, .optimisticKovan, .cronosTestnet, .palm, .palmTestnet, .arbitrumRinkeby, .phi, .ioTeX, .ioTeXTestnet:
@@ -940,9 +940,7 @@ extension RPCServer {
 
         return nil
     }
-}
 
-extension RPCServer {
     var web3SwiftRpcNodeBatchSupportPolicy: JSONRPCrequestDispatcher.DispatchPolicy {
         switch rpcNodeBatchSupport {
         case .noBatching:
