@@ -7,7 +7,6 @@ public enum AlphaWalletService {
     case tokensThatHasPrices
     case pricesOfTokens(ids: String, currency: String, page: Int)
     case getTransactions(server: RPCServer, address: AlphaWallet.Address, startBlock: Int, endBlock: Int, sortOrder: SortOrder)
-    case honeySwapTokens
     case priceHistoryOfToken(id: String, currency: String, days: Int)
 
     public enum SortOrder: String {
@@ -30,8 +29,6 @@ extension AlphaWalletService: TargetType {
                 //HACK: we intentionally return an invalid, but non-nil URL because that's what the function needs to return. Keeps the code simple, yet still harmless
                 return URL(string: "x")!
             }
-        case .honeySwapTokens:
-            return Constants.HoneySwap.exchangeUrl
         case .priceHistoryOfToken:
             return Constants.Coingecko.baseUrl
         }
@@ -40,8 +37,6 @@ extension AlphaWalletService: TargetType {
     public var path: String {
         switch self {
         case .getTransactions:
-            return ""
-        case .honeySwapTokens:
             return ""
         case .tokensThatHasPrices:
             return "/api/v3/coins/list"
@@ -56,7 +51,6 @@ extension AlphaWalletService: TargetType {
         switch self {
         case .getTransactions: return .get
         case .pricesOfTokens: return .get
-        case .honeySwapTokens: return .get
         case .tokensThatHasPrices: return .get
         case .priceHistoryOfToken: return .get
         }
@@ -88,8 +82,6 @@ extension AlphaWalletService: TargetType {
                 //Max according to https://www.coingecko.com/en/api
                 "per_page": 250,
             ], encoding: URLEncoding())
-        case .honeySwapTokens:
-            return .requestPlain
         case .tokensThatHasPrices:
             return .requestParameters(parameters: ["include_platform": "true"], encoding: URLEncoding())
         case .priceHistoryOfToken(_, let currency, let days):
@@ -118,8 +110,6 @@ extension AlphaWalletService: TargetType {
                 "client": Bundle.main.bundleIdentifier ?? "",
                 "client-build": Bundle.main.buildNumber ?? "",
             ]
-        case .honeySwapTokens:
-            return nil
         }
     }
 }
