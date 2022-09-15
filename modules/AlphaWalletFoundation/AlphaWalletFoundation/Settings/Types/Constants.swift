@@ -82,7 +82,7 @@ public struct Constants {
     static let xDaiBridge = URL(string: "https://bridge.xdaichain.com/")!
     static let arbitrumBridge = URL(string: "https://bridge.arbitrum.io/")!
 
-    static func buyWitRampUrl(asset: String, wallet: Wallet) -> String? {
+    static func buyWithRampUrl(asset: String, wallet: Wallet) -> String? {
         guard Constants.Credentials.rampApiKey.nonEmpty else { return nil }
         return "https://buy.ramp.network/?hostApiKey=\(Constants.Credentials.rampApiKey)&hostLogoUrl=https%3A%2F%2Falphawallet.com%2Fwp-content%2Fthemes%2Falphawallet%2Fimg%2Falphawallet-logo.svg&hostAppName=AlphaWallet&swapAsset=\(asset)&userAddress=\(wallet.address.eip55String)"
     }

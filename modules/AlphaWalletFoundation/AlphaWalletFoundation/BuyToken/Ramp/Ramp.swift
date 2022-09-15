@@ -24,7 +24,7 @@ public final class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType 
     public func url(token: TokenActionsIdentifiable, wallet: Wallet) -> URL? {
         let symbol = asset(for: token)?.symbol
         return symbol
-            .flatMap { Constants.buyWitRampUrl(asset: $0, wallet: wallet) }
+            .flatMap { Constants.buyWithRampUrl(asset: $0, wallet: wallet) }
             .flatMap { URL(string: $0) }
     }
 
