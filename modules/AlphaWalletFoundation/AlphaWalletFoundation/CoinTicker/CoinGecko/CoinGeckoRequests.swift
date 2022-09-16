@@ -9,7 +9,7 @@ import Foundation
 import Alamofire
 
 extension CoinGeckoNetworkProvider {
-    private static var allHTTPHeaderFields: [String : String]? = [
+    private static var allHTTPHeaderFields: [String: String]? = [
         "Content-type": "application/json",
         "client": Bundle.main.bundleIdentifier ?? "",
         "client-build": Bundle.main.buildNumber ?? "",

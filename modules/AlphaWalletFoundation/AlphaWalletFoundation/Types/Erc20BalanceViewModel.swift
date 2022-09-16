@@ -55,7 +55,7 @@ public struct Erc20BalanceViewModel: BalanceViewModelType {
     private func cryptoRate() -> Rate? {
         guard let ticker = ticker else { return nil }
         let symbol = ticker.symbol.lowercased()
-        if let value = ticker.rate.rates.first(where: { $0.code == symbol }) {
+        if let value = ticker.rate.rates.first(where: { $0.code.caseInsensitiveCompare(symbol) == .orderedSame }) {
             return value
         } else {
             return nil

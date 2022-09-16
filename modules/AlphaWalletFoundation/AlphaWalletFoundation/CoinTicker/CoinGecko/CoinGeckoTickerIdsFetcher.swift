@@ -1,5 +1,5 @@
 //
-//  CoinGeckoTickerIdsFetcher.swift
+//  SupportedTickerIdsFetcher.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 24.05.2022.
@@ -10,22 +10,32 @@ import Foundation
 import AlphaWalletCore
 import CombineExt
 
-/// Ticker ids are havy objects, that don't change often, keep them cached and in separate fetcher to extract logic
-public class CoinGeckoTickerIdsFetcher: TickerIdsFetcher {
-    typealias TickerIdsPublisher = AnyPublisher<Void, CoinGeckoNetworkProviderError>
+public protocol TickerIdsFetcherConfig {
+    var tickerIdsLastFetchedDate: Date? { get set }
+}
 
-    private let networkProvider: CoinGeckoNetworkProviderType
+/// Ticker ids are havy objects, that don't change often, keep them cached and in separate fetcher to extract logic
+public final class SupportedTickerIdsFetcher: TickerIdsFetcher {
+    typealias TickerIdsPublisher = AnyPublisher<Void, CoinTickerNetworkProviderError>
+
+    private let networkProvider: CoinTickerNetworkProviderType
     private let spamTokens = SpamTokens()
     private let storage: TickerIdsStorage & CoinTickersStorage
-    private var config: Config
-    private let pricesCacheLifetime: TimeInterval = 604800 // one week
+    private var config: TickerIdsFetcherConfig
+    private let pricesCacheLifetime: TimeInterval
     private var fetchSupportedTickerIdsPublisher: TickerIdsPublisher?
     private let queue = DispatchQueue(label: "org.alphawallet.swift.coinGeckoTicker.IdsFetcher")
 
-    public init(networkProvider: CoinGeckoNetworkProviderType, storage: TickerIdsStorage & CoinTickersStorage, config: Config) {
+    /// Init method
+    /// - pricesCacheLifetime - default value 604800, one week
+    /// - networkProvider
+    /// - storage
+    /// - config
+    public init(networkProvider: CoinTickerNetworkProviderType, storage: TickerIdsStorage & CoinTickersStorage, config: TickerIdsFetcherConfig, pricesCacheLifetime: TimeInterval = 604800) {
         self.networkProvider = networkProvider
         self.storage = storage
         self.config = config
+        self.pricesCacheLifetime = pricesCacheLifetime
     }
 
     /// Searching for ticker id very havy operation, and takes to mutch time, we use cacing in `knownTickerIds` to store all know ticker ids
@@ -73,10 +83,10 @@ public class CoinGeckoTickerIdsFetcher: TickerIdsFetcher {
     }
 }
 
-extension Config {
+extension Config: TickerIdsFetcherConfig {
     static let tickerIdsLastFetchedDateKey = "tickerIdsLastFetchedDateKey"
 
-    var tickerIdsLastFetchedDate: Date? {
+    public var tickerIdsLastFetchedDate: Date? {
         get {
             guard let timeinterval = defaults.value(forKey: Config.tickerIdsLastFetchedDateKey) as? TimeInterval else { return nil }
             return Date(timeIntervalSince1970: timeinterval)

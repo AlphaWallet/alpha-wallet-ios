@@ -10,50 +10,41 @@ import Combine
 import SwiftyJSON
 import Alamofire
 
-public enum CoinGeckoNetworkProviderError: Error {
-    case underlying(Error)
-}
-
-public protocol CoinGeckoNetworkProviderType {
-    func fetchSupportedTickerIds() -> AnyPublisher<[TickerId], CoinGeckoNetworkProviderError>
-    func fetchTickers(for tickerIds: String) -> AnyPublisher<[CoinTicker], CoinGeckoNetworkProviderError>
-    func fetchChartHistory(for period: ChartHistoryPeriod, tickerId: String) -> AnyPublisher<ChartHistory, CoinGeckoNetworkProviderError>
-}
-
-public class FakeCoinGeckoNetworkProvider: CoinGeckoNetworkProviderType {
+public class FakeCoinGeckoNetworkProvider: CoinTickerNetworkProviderType {
     public init() {}
-    public func fetchSupportedTickerIds() -> AnyPublisher<[TickerId], CoinGeckoNetworkProviderError> {
+    public func fetchSupportedTickerIds() -> AnyPublisher<[TickerId], CoinTickerNetworkProviderError> {
         Empty(completeImmediately: true).eraseToAnyPublisher()
     }
 
-    public func fetchTickers(for tickerIds: String) -> AnyPublisher<[CoinTicker], CoinGeckoNetworkProviderError> {
+    public func fetchTickers(for tickerIds: [String], currency: String) -> AnyPublisher<[CoinTicker], CoinTickerNetworkProviderError> {
         Empty(completeImmediately: true).eraseToAnyPublisher()
     }
 
-    public func fetchChartHistory(for period: ChartHistoryPeriod, tickerId: String) -> AnyPublisher<ChartHistory, CoinGeckoNetworkProviderError> {
+    public func fetchChartHistory(for period: ChartHistoryPeriod, tickerId: String, currency: String) -> AnyPublisher<ChartHistory, CoinTickerNetworkProviderError> {
         Empty(completeImmediately: true).eraseToAnyPublisher()
     }
 }
 
-public class CoinGeckoNetworkProvider: CoinGeckoNetworkProviderType {
+public class CoinGeckoNetworkProvider: CoinTickerNetworkProviderType {
     private let decoder = JSONDecoder()
 
-    public func fetchSupportedTickerIds() -> AnyPublisher<[TickerId], CoinGeckoNetworkProviderError> {
+    public func fetchSupportedTickerIds() -> AnyPublisher<[TickerId], CoinTickerNetworkProviderError> {
         Alamofire.request(TokensThatHasPricesRequest())
             .responseDataPublisher()
             .retry(times: 3)
             .tryMap { [decoder] in try decoder.decode([TickerId].self, from: $0.data) }
-            .mapError { CoinGeckoNetworkProviderError.underlying($0) }
+            .mapError { CoinTickerNetworkProviderError.underlying($0) }
             .share()
             .eraseToAnyPublisher()
     }
 
-    public func fetchTickers(for tickerIds: String) -> AnyPublisher<[CoinTicker], CoinGeckoNetworkProviderError> {
+    public func fetchTickers(for tickerIds: [TickerIdString], currency: String) -> AnyPublisher<[CoinTicker], CoinTickerNetworkProviderError> {
+        let ids = Set(tickerIds).joined(separator: ",")
         var page = 1
         var allResults: [CoinTicker] = .init()
-        func fetchPageImpl() -> AnyPublisher<[CoinTicker], CoinGeckoNetworkProviderError> {
-            fetchPricesPage(for: tickerIds, page: page, shouldRetry: true)
-                .flatMap { results -> AnyPublisher<[CoinTicker], CoinGeckoNetworkProviderError> in
+        func fetchPageImpl() -> AnyPublisher<[CoinTicker], CoinTickerNetworkProviderError> {
+            fetchPricesPage(for: ids, page: page, shouldRetry: true, currency: currency)
+                .flatMap { results -> AnyPublisher<[CoinTicker], CoinTickerNetworkProviderError> in
                     if results.isEmpty {
                         return .just(allResults)
                     } else {
@@ -69,22 +60,22 @@ public class CoinGeckoNetworkProvider: CoinGeckoNetworkProviderType {
             .eraseToAnyPublisher()
     }
 
-    public func fetchChartHistory(for period: ChartHistoryPeriod, tickerId: String) -> AnyPublisher<ChartHistory, CoinGeckoNetworkProviderError> {
-        return Alamofire.request(PriceHistoryOfTokenRequest.init(id: tickerId, currency: Currency.USD.rawValue, days: period.rawValue))
+    public func fetchChartHistory(for period: ChartHistoryPeriod, tickerId: String, currency: String) -> AnyPublisher<ChartHistory, CoinTickerNetworkProviderError> {
+        return Alamofire.request(PriceHistoryOfTokenRequest.init(id: tickerId, currency: currency, days: period.rawValue))
             .responseDataPublisher()
             .retry(times: 3)
             .tryMap { try ChartHistory(json: try JSON(data: $0.data)) }
-            .mapError { CoinGeckoNetworkProviderError.underlying($0) }
+            .mapError { CoinTickerNetworkProviderError.underlying($0) }
             .share()
             .eraseToAnyPublisher()
     }
 
-    private func fetchPricesPage(for tickerIds: String, page: Int, shouldRetry: Bool) -> AnyPublisher<[CoinTicker], CoinGeckoNetworkProviderError> {
-        return Alamofire.request(PricesOfTokensRequest(ids: tickerIds, currency: Currency.USD.rawValue, page: page))
+    private func fetchPricesPage(for tickerIds: String, page: Int, shouldRetry: Bool, currency: String) -> AnyPublisher<[CoinTicker], CoinTickerNetworkProviderError> {
+        return Alamofire.request(PricesOfTokensRequest(ids: tickerIds, currency: currency, page: page))
             .responseDataPublisher()
             .retry(times: 3)
             .tryMap { [decoder] in try decoder.decode([CoinTicker].self, from: $0.data) }
-            .mapError { CoinGeckoNetworkProviderError.underlying($0) }
+            .mapError { CoinTickerNetworkProviderError.underlying($0) }
             .eraseToAnyPublisher()
     }
 }

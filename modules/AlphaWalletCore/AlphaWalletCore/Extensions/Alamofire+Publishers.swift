@@ -11,6 +11,14 @@ import Alamofire
 
 public enum PromiseError: Error {
     case some(error: Error)
+
+    public init(error: Error) {
+        if let e = error as? PromiseError {
+            self = e
+        } else {
+            self = .some(error: error)
+        }
+    }
 }
 
 public struct DataResponse {

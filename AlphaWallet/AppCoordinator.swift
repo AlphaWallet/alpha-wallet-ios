@@ -51,7 +51,7 @@ class AppCoordinator: NSObject, Coordinator {
     var activeWalletCoordinator: ActiveWalletCoordinator? {
         return coordinators.first { $0 is ActiveWalletCoordinator } as? ActiveWalletCoordinator
     }
-    private lazy var coinTickersFetcher: CoinTickersFetcher = CoinGeckoTickersFetcher()
+    private lazy var coinTickersFetcher: CoinTickersFetcher = CoinTickersFetcherImpl()
     private lazy var nftProvider: NFTProvider = AlphaWalletNFTProvider(analytics: analytics)
     private lazy var dependencyProvider: WalletDependencyContainer = {
         WalletComponentsFactory(analytics: analytics, nftProvider: nftProvider, assetDefinitionStore: assetDefinitionStore, coinTickersFetcher: coinTickersFetcher, config: config)
