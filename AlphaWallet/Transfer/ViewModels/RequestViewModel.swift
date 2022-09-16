@@ -40,7 +40,7 @@ struct RequestViewModel {
 	}
 
 	var labelColor: UIColor? {
-		return R.color.mine()
+        return Configuration.Color.Semantic.labelTextActive
 	}
 
 	var addressFont: UIFont {

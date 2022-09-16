@@ -30,16 +30,16 @@ final class DappBrowserNavigationBar: UINavigationBar {
     private let stackView = UIStackView()
     private let moreButton: UIButton = {
         let moreButton = UIButton(type: .system)
-        moreButton.tintColor = Colors.black
+        moreButton.tintColor = Configuration.Color.Semantic.navigationbarPrimaryFont
         moreButton.adjustsImageWhenHighlighted = true
         moreButton.setImage(R.image.toolbarMenu(), for: .normal)
-        moreButton.backgroundColor = Colors.appWhite
+        moreButton.backgroundColor = Configuration.Color.Semantic.navigationbarBackgroundColor
         return moreButton
     }()
 
     private let homeButton: UIButton = {
         let homeButton = UIButton(type: .system)
-        homeButton.tintColor = Colors.black
+        homeButton.tintColor = Configuration.Color.Semantic.navigationbarPrimaryFont
         homeButton.adjustsImageWhenHighlighted = true
         homeButton.setImage(R.image.iconsSystemHome(), for: .normal)
 
@@ -63,7 +63,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
     }()
     private let closeButton: UIButton = {
         let closeButton = UIButton(type: .system)
-        closeButton.tintColor = Colors.black
+        closeButton.tintColor = Configuration.Color.Semantic.navigationbarPrimaryFont
         closeButton.isHidden = true
         closeButton.setTitle(R.string.localizable.done(), for: .normal)
         closeButton.setTitleColor(Configuration.Color.Semantic.navigationbarButtonItemTint, for: .normal)
@@ -98,7 +98,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
     private let domainNameLabel = UILabel()
     private let backButton: UIButton = {
         let backButton = UIButton(type: .system)
-        backButton.tintColor = Colors.black
+        backButton.tintColor = Configuration.Color.Semantic.navigationbarPrimaryFont
         backButton.adjustsImageWhenHighlighted = true
         backButton.setImage(R.image.toolbarBack(), for: .normal)
 
@@ -106,7 +106,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
     }()
     private let forwardButton: UIButton = {
         let forwardButton = UIButton(type: .system)
-        forwardButton.tintColor = Colors.black
+        forwardButton.tintColor = Configuration.Color.Semantic.navigationbarPrimaryFont
         forwardButton.adjustsImageWhenHighlighted = true
         forwardButton.setImage(R.image.toolbarForward(), for: .normal)
 
