@@ -1,7 +1,6 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
-import web3swift
+import Foundation 
 import BigInt
 
 extension RPCServer {
@@ -516,7 +515,7 @@ public enum RPCServer: Hashable, CaseIterable {
         return 18
     }
 
-    public var web3Network: Networks {
+    public var web3Network: Web3.Networks {
         switch self {
         case .main: return .Mainnet
         case .kovan: return .Kovan
@@ -632,7 +631,7 @@ public enum RPCServer: Hashable, CaseIterable {
         return URL(string: urlString)!
     }
 
-    public var rpcHeaders: RPCNodeHTTPHeaders {
+    public var rpcHeaders: Web3.RPCNodeHTTPHeaders {
         switch self {
         case .klaytnCypress, .klaytnBaobabTestnet:
             let basicAuth = Constants.Credentials.klaytnRpcNodeKeyBasicAuth
@@ -770,7 +769,7 @@ public enum RPCServer: Hashable, CaseIterable {
         }
     }
 
-    func makeMaximumToBlockForEvents(fromBlockNumber: UInt64) -> EventFilter.Block {
+    func makeMaximumToBlockForEvents(fromBlockNumber: UInt64) -> Web3.EventFilter.Block {
         switch self {
         case .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet:
             //These do not allow range more than 5000
@@ -941,7 +940,7 @@ extension RPCServer {
         return nil
     }
 
-    var web3SwiftRpcNodeBatchSupportPolicy: JSONRPCrequestDispatcher.DispatchPolicy {
+    var web3SwiftRpcNodeBatchSupportPolicy: Web3.JSONRPCrequestDispatcher.DispatchPolicy {
         switch rpcNodeBatchSupport {
         case .noBatching:
             return .NoBatching

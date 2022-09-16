@@ -2,8 +2,7 @@
 
 import Foundation
 import BigInt
-import PromiseKit
-import web3swift
+import PromiseKit 
 
 ///Fetching ERC1155 tokens in 2 steps:
 ///
@@ -23,8 +22,8 @@ public class Erc1155BalanceFetcher {
     public func fetch(contract: AlphaWallet.Address, tokenIds: Set<BigInt>) -> Promise<[BigInt: BigUInt]> {
         //tokenIds must be unique (hence arg is a Set) so `Dictionary(uniqueKeysWithValues:)` wouldn't crash
         let tokenIds = Array(tokenIds)
-        let address = EthereumAddress(self.address.eip55String)!
-        let addresses: [EthereumAddress] = [EthereumAddress](repeating: address, count: tokenIds.count)
+        let address = Web3.EthereumAddress(self.address.eip55String)!
+        let addresses: [Web3.EthereumAddress] = [Web3.EthereumAddress](repeating: address, count: tokenIds.count)
         return firstly {
             callSmartContract(withServer: server, contract: contract, functionName: "balanceOfBatch", abiString: AlphaWallet.Ethereum.ABI.erc1155String, parameters: [addresses, tokenIds] as [AnyObject])
         }.map { result in

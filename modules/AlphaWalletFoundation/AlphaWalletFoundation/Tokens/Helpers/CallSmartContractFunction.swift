@@ -103,7 +103,7 @@ public func callSmartContract(withServer server: RPCServer, contract: AlphaWalle
             }.done(on: queue ?? .main, { d in
                 seal.fulfill(d)
             }).catch(on: queue ?? .main, { e in
-                if let e  = e as? web3swift.Web3Error {
+                if let e = e as? web3swift.Web3Error {
                     switch e {
                     case .rateLimited:
                         warnLog("[API] Rate limited by RPC node server: \(server)")

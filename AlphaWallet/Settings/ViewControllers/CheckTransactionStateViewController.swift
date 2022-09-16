@@ -7,7 +7,6 @@
 
 import Foundation
 import PromiseKit
-import web3swift
 
 protocol SelectTransactionHashViewControllerDelegate: class {
     func didClose(in viewController: CheckTransactionStateViewController)

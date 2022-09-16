@@ -2,8 +2,7 @@
 
 import Foundation
 import BigInt
-import PromiseKit
-import web3swift
+import PromiseKit 
 
 ///This class temporarily stores the promises used to make function calls. This is so we don't make the same function calls (over network) + arguments combination multiple times concurrently. Once the call completes, we remove it from the cache.
 public class CallForAssetAttributeProvider {
@@ -55,7 +54,7 @@ public class CallForAssetAttributeProvider {
                 if let value = dictionary["0"] {
                     switch functionCall.output.type {
                     case .address:
-                        if let value = value as? EthereumAddress {
+                        if let value = value as? Web3.EthereumAddress {
                             let result = AlphaWallet.Address(address: value)
                             seal.fulfill(.address(result))
                         }
