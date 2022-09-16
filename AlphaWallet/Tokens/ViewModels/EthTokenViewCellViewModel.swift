@@ -150,7 +150,7 @@ struct EthTokenViewCellViewModel {
 
     var apprecationViewModel: ApprecationViewModel {
         let backgroundColor: UIColor = {
-            if apprecation24hoursAttributedString.string.isEmpty {
+            if apprecation24hoursAttributedString.string.trimmed.isEmpty {
                 return .clear
             } else {
                 return apprecation24hoursBackgroundColor
