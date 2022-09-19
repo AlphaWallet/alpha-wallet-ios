@@ -427,8 +427,6 @@ extension TransactionConfirmationViewModel {
                         let isSubviewsHidden = viewModel.isSubviewsHidden(section: sectionIndex, row: index)
                         return .view(viewModel: vm, isHidden: isSubviewsHidden)
                     }
-
-                    views += [.separator(height: 20)]
                     views += tokenIdsAndValuesViews
                 case .network:
                     views += [.header(viewModel: viewModel.headerViewModel(section: sectionIndex), isEditEnabled: false)]
