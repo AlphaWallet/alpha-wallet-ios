@@ -80,7 +80,6 @@ class ServersViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configure(viewModel: viewModel)
-        navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(dismissViewControler))
     }
 
     func configure(viewModel: ServersViewModel) {
@@ -88,16 +87,18 @@ class ServersViewController: UIViewController {
         navigationItem.title = viewModel.title
     }
 
-    @objc private func dismissViewControler() {
+    required init?(coder aDecoder: NSCoder) {
+        return nil
+    }
+}
+
+extension ServersViewController: PopNotifiable {
+    func didPopViewController(animated: Bool) {
         if viewModel.multipleSessionSelectionEnabled && viewModel.serversHaveChanged {
             delegate?.didSelectServer(selection: .multipleServers(servers: viewModel.selectedServers), in: self)
         } else {
             delegate?.didClose(in: self)
         }
-    }
-
-    required init?(coder aDecoder: NSCoder) {
-        return nil
     }
 }
 

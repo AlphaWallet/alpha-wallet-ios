@@ -74,10 +74,6 @@ extension UIBarButtonItem {
         return .init(image: R.image.close(), style: .plain, target: target, action: selector)
     }
 
-    static func backBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
-        return .init(image: R.image.backWhite(), style: .plain, target: target, action: selector)
-    }
-
     static func addButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
         return .init(image: R.image.iconsSystemPlus(), style: .plain, target: target, action: selector)
     }
@@ -104,13 +100,6 @@ extension UIBarButtonItem {
 
     static func settingsBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
         return .init(image: R.image.tab_settings(), style: .plain, target: target, action: selector)
-    }
-
-    static func backBarButton(selectionClosure: @escaping (UIBarButtonItem) -> Void) -> UIBarButtonItem {
-        let barButton = UIBarButtonItem(image: R.image.backWhite(), style: .plain, target: nil, action: nil)
-        barButton.selectionClosure = selectionClosure
-
-        return barButton
     }
 
     private struct AssociatedObject {

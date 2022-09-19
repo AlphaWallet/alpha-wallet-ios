@@ -20,7 +20,7 @@ class EnabledServersCoordinator: Coordinator {
     private let analytics: AnalyticsLogger
 
     private lazy var enabledServersViewController: EnabledServersViewController = {
-        let viewModel = EnabledServersViewModel(servers: serverChoices, selectedServers: selectedServers, mode: selectedServers.contains(where: { $0.isTestnet }) ? .testnet : .mainnet )
+        let viewModel = EnabledServersViewModel(servers: serverChoices, selectedServers: selectedServers, mode: selectedServers.contains(where: { $0.isTestnet }) ? .testnet : .mainnet)
         let controller = EnabledServersViewController(viewModel: viewModel, restartQueue: restartQueue)
         controller.delegate = self
         controller.hidesBottomBarWhenPushed = true
