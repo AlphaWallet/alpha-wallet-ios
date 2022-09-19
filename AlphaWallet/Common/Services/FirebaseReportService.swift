@@ -9,10 +9,13 @@ import Firebase
 import AlphaWalletFoundation
 
 extension AlphaWallet {
-    final class FirebaseReportService: ReportService {
+    final class FirebaseCrashlyticsReporter: CrashlyticsReporter {
+        private let crashlytics: Crashlytics = Crashlytics.crashlytics()
         private let options: FirebaseOptions
+
         // NOTE: failable initializer allow us easily configure with different plist files for different configurations of project
         init?(contents: String?) {
+            guard !isRunningTests() && isAlphaWallet() else { return nil }
             guard let contents = contents, let options = FirebaseOptions(contentsOfFile: contents) else {
                 return nil
             }
@@ -23,10 +26,6 @@ extension AlphaWallet {
         func configure() {
             FirebaseApp.configure(options: options)
         }
-    }
-
-    final class FirebaseCrashlyticsReporter: CrashlyticsReporter {
-        private let crashlytics: Crashlytics = Crashlytics.crashlytics()
 
         func track(wallets: [Wallet]) {
             let wallets = wallets.map { $0.description }.joined(separator: ", ")
@@ -119,5 +118,11 @@ extension AlphaWallet {
 
             crashlytics.record(error: error)
         }
+    }
+
+    enum ReportKey: String {
+        case walletAddresses
+        case activeWalletAddress
+        case activeServers
     }
 }

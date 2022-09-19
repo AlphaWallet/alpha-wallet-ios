@@ -620,7 +620,6 @@
 		87713EB2264BAB4700B1B9CB /* TokenInfoPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87713EB1264BAB4700B1B9CB /* TokenInfoPageView.swift */; };
 		87713EB4264BAB5A00B1B9CB /* ActivityPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87713EB3264BAB5A00B1B9CB /* ActivityPageView.swift */; };
 		87713EB6264BAB6E00B1B9CB /* PriceAlertsPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87713EB5264BAB6E00B1B9CB /* PriceAlertsPageView.swift */; };
-		8772D76C28D085AC00615803 /* ReportProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8772D76B28D085AC00615803 /* ReportProvider.swift */; };
 		8772D77028D1EFB300615803 /* ServiceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8772D76F28D1EFB200615803 /* ServiceProvider.swift */; };
 		8772D77228D1F03600615803 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8772D77128D1F03600615803 /* Constants.swift */; };
 		87741F1827709073007F4604 /* TestnetTokenInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87741F1727709073007F4604 /* TestnetTokenInfoView.swift */; };
@@ -1477,7 +1476,6 @@
 		87713EB1264BAB4700B1B9CB /* TokenInfoPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenInfoPageView.swift; sourceTree = "<group>"; };
 		87713EB3264BAB5A00B1B9CB /* ActivityPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityPageView.swift; sourceTree = "<group>"; };
 		87713EB5264BAB6E00B1B9CB /* PriceAlertsPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceAlertsPageView.swift; sourceTree = "<group>"; };
-		8772D76B28D085AC00615803 /* ReportProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportProvider.swift; sourceTree = "<group>"; };
 		8772D76F28D1EFB200615803 /* ServiceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceProvider.swift; sourceTree = "<group>"; };
 		8772D77128D1F03600615803 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		87741F1727709073007F4604 /* TestnetTokenInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestnetTokenInfoView.swift; sourceTree = "<group>"; };
@@ -3917,7 +3915,6 @@
 				87B1B63A28CB12EE0072A5E2 /* FeedbackGenerator.swift */,
 				87B1B63B28CB12EE0072A5E2 /* EmailList.swift */,
 				87B1B64528CB19BD0072A5E2 /* KingfisherImageFetcher.swift */,
-				8772D76B28D085AC00615803 /* ReportProvider.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -4307,7 +4304,7 @@
 			packageReferences = (
 				87FBF2AF28056AC200616B7D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				87BDF46E28423DC30018DC68 /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */,
-				87B1B5D728C73C170072A5E2 /* XCRemoteSwiftPackageReference "WalletConnectSwift.git" */,
+				87B1B5D728C73C170072A5E2 /* XCRemoteSwiftPackageReference "WalletConnectSwift" */,
 			);
 			productRefGroup = 2912CCF61F6A830700C6CBE3 /* Products */;
 			projectDirPath = "";
@@ -4921,7 +4918,6 @@
 				874ED67527D79653001AB374 /* PupupAction.swift in Sources */,
 				5E7C72C8A15397C5A40BFE76 /* WhatIsEthereumInfoViewController.swift in Sources */,
 				5E7C72B0A10A92E591696E48 /* ContactUsBannerView.swift in Sources */,
-				8772D76C28D085AC00615803 /* ReportProvider.swift in Sources */,
 				5E7C70BE9AE35408038E1971 /* HelpContentsViewController.swift in Sources */,
 				5E7C77E844D710D7AFBC58D4 /* RequestViewController.swift in Sources */,
 				5E7C701BFF4469B35A074EB9 /* RequestViewModel.swift in Sources */,
@@ -6021,7 +6017,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		87B1B5D728C73C170072A5E2 /* XCRemoteSwiftPackageReference "WalletConnectSwift.git" */ = {
+		87B1B5D728C73C170072A5E2 /* XCRemoteSwiftPackageReference "WalletConnectSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/AlphaWallet/WalletConnectSwift.git";
 			requirement = {
@@ -6050,7 +6046,7 @@
 /* Begin XCSwiftPackageProductDependency section */
 		87B1B5D828C73C170072A5E2 /* WalletConnectSwift */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 87B1B5D728C73C170072A5E2 /* XCRemoteSwiftPackageReference "WalletConnectSwift.git" */;
+			package = 87B1B5D728C73C170072A5E2 /* XCRemoteSwiftPackageReference "WalletConnectSwift" */;
 			productName = WalletConnectSwift;
 		};
 		87BDF46F28423DC30018DC68 /* WalletConnect */ = {
