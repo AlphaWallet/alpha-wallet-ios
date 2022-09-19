@@ -29,7 +29,7 @@ final class FakeMultiWalletBalanceService: MultiWalletBalanceService {
         self.servers = servers
         self.wallet = wallet
 
-        let tickersFetcher = CoinGeckoTickersFetcher.make()
+        let tickersFetcher = CoinTickersFetcherImpl.make()
         let walletAddressesStore = fakeWalletAddressesStore(wallets: [wallet])
 
         let fas = FakeAnalyticsService()

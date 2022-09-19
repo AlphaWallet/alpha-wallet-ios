@@ -16,7 +16,7 @@ public protocol TickerIdsFetcherConfig {
 
 /// Ticker ids are havy objects, that don't change often, keep them cached and in separate fetcher to extract logic
 public final class SupportedTickerIdsFetcher: TickerIdsFetcher {
-    typealias TickerIdsPublisher = AnyPublisher<Void, CoinTickerNetworkProviderError>
+    typealias TickerIdsPublisher = AnyPublisher<Void, PromiseError>
 
     private let networkProvider: CoinTickerNetworkProviderType
     private let spamTokens = SpamTokens()

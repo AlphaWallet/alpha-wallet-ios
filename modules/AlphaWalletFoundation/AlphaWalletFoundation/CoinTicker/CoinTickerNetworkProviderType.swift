@@ -7,13 +7,10 @@
 
 import Foundation
 import Combine
-
-public enum CoinTickerNetworkProviderError: Error {
-    case underlying(Error)
-}
+import AlphaWalletCore
 
 public protocol CoinTickerNetworkProviderType {
-    func fetchSupportedTickerIds() -> AnyPublisher<[TickerId], CoinTickerNetworkProviderError>
-    func fetchTickers(for tickerIds: [TickerIdString], currency: String) -> AnyPublisher<[CoinTicker], CoinTickerNetworkProviderError>
-    func fetchChartHistory(for period: ChartHistoryPeriod, tickerId: String, currency: String) -> AnyPublisher<ChartHistory, CoinTickerNetworkProviderError>
+    func fetchSupportedTickerIds() -> AnyPublisher<[TickerId], PromiseError>
+    func fetchTickers(for tickerIds: [TickerIdString], currency: String) -> AnyPublisher<[CoinTicker], PromiseError>
+    func fetchChartHistory(for period: ChartHistoryPeriod, tickerId: String, currency: String) -> AnyPublisher<ChartHistory, PromiseError>
 }

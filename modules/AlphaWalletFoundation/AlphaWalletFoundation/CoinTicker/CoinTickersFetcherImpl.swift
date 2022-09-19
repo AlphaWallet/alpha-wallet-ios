@@ -80,12 +80,12 @@ public final class CoinTickersFetcherImpl: CoinTickersFetcher {
             mappedToProvidersTypeTokens[type] = tokens
         }
 
-        func nameFor(provider: CoinTickersFetcherProvider) -> String {
+        func providerName(_ provider: CoinTickersFetcherProvider) -> String {
             return String(describing: provider).components(separatedBy: ".").last!
         }
 
         return mappedToProvidersTypeTokens.compactMap { mapped -> ElementsMappedToProvider<T>? in
-            guard let provider = providers.first(where: { nameFor(provider: $0) == mapped.key }) else { return nil }
+            guard let provider = providers.first(where: { providerName($0) == mapped.key }) else { return nil }
             return ElementsMappedToProvider(provider: provider, elements: mapped.value)
         }
     }
@@ -131,7 +131,7 @@ extension CoinTickerServiceIdentifieble {
         switch server {
         case .main, .classic, .callisto, .kovan, .ropsten, .custom, .rinkeby, .poa, .sokol, .goerli, .xDai, .artis_sigma1, .binance_smart_chain, .binance_smart_chain_testnet, .artis_tau1, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .candle, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet:
             return CoinGeckoTickersFetcher.self
-        case .phi:
+        case .phi, .phi2:
             return PhiCoinTickersFetcher.self
         }
     }

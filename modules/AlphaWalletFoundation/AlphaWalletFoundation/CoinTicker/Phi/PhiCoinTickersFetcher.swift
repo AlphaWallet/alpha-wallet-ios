@@ -29,7 +29,7 @@ public final class PhiCoinTickersFetcher: BaseCoinTickersFetcher, CoinTickersFet
     private class PhiTickerIdsFetcher: TickerIdsFetcher {
         /// Returns already defined, stored associated with token ticker id
         public func tickerId(for token: TokenMappedToTicker) -> AnyPublisher<TickerIdString?, Never> {
-            guard token.server == .phi && token.contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) else { return .just(nil) }
+            guard (token.server == .phi || token.server == .phi2) && token.contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) else { return .just(nil) }
             return .just("WPHI")
         }
     }

@@ -11,22 +11,21 @@ import Combine
 import AlphaWalletCore
 import SwiftyJSON
 
-final class PhiNetworkProvider: CoinTickerNetworkProviderType {
-    private static let baseUrl = URL(string: "https://price.phi.network")!
+struct PhiNetworkProvider: CoinTickerNetworkProviderType {
 
-    func fetchSupportedTickerIds() -> AnyPublisher<[TickerId], CoinTickerNetworkProviderError> {
+    func fetchSupportedTickerIds() -> AnyPublisher<[TickerId], PromiseError> {
         return .empty()
     }
 
-    public func fetchTickers(for tickerIds: [TickerIdString], currency: String) -> AnyPublisher<[CoinTicker], CoinTickerNetworkProviderError> {
+    public func fetchTickers(for tickerIds: [TickerIdString], currency: String) -> AnyPublisher<[CoinTicker], PromiseError> {
         let publishers = Set(tickerIds).map { coinTicker(tickerId: $0, currency: currency).replaceError(with: nil) }
         return Publishers.MergeMany(publishers).collect()
-            .setFailureType(to: CoinTickerNetworkProviderError.self)
+            .setFailureType(to: PromiseError.self)
             .map { $0.compactMap { $0 } }
             .eraseToAnyPublisher()
     }
 
-    func fetchChartHistory(for period: ChartHistoryPeriod, tickerId: String, currency: String) -> AnyPublisher<ChartHistory, CoinTickerNetworkProviderError> {
+    func fetchChartHistory(for period: ChartHistoryPeriod, tickerId: String, currency: String) -> AnyPublisher<ChartHistory, PromiseError> {
         return .empty()
     }
 
@@ -39,12 +38,14 @@ final class PhiNetworkProvider: CoinTickerNetworkProviderType {
             .share() 
             .eraseToAnyPublisher()
     }
+}
 
+extension PhiNetworkProvider {
     private struct CoinTickerRequest: URLRequestConvertible {
         let tickerId: String
 
         func asURLRequest() throws -> URLRequest {
-            guard var components = URLComponents(url: PhiNetworkProvider.baseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
+            guard var components = URLComponents(url: Constants.Phi.baseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
             components.path = "/api/ticker"
 
             return try URLEncoding().encode(URLRequest(url: components.asURL(), method: .get), with: ["filter": "\(tickerId)"])

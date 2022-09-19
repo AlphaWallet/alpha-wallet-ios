@@ -16,7 +16,7 @@ public class BaseCoinTickersFetcher {
     private let networkProvider: CoinTickerNetworkProviderType
     private let tickerIdsFetcher: TickerIdsFetcher
     /// Cached fetch ticker prices operations
-    private var promises: AtomicDictionary<TokenMappedToTicker, AnyCancellable> = .init()
+    private var inlightPromises: AtomicDictionary<TokenMappedToTicker, AnyCancellable> = .init()
     /// Resolving ticker ids operations
     private var tickerResolvers: AtomicDictionary<TokenMappedToTicker, AnyCancellable> = .init()
 
@@ -30,9 +30,10 @@ public class BaseCoinTickersFetcher {
             FileStorage().fileURL(with: $0, fileExtension: "json")
         }.forEach { try? FileManager.default.removeItem(at: $0) }
     }
+    
     public func cancel() {
-        promises.values.values.forEach { $0.cancel() }
-        promises.removeAll()
+        inlightPromises.values.values.forEach { $0.cancel() }
+        inlightPromises.removeAll()
     }
 
     public func addOrUpdateTestsOnly(ticker: CoinTicker?, for token: TokenMappedToTicker) {
@@ -46,7 +47,7 @@ public class BaseCoinTickersFetcher {
 
     public func fetchTickers(for tokens: [TokenMappedToTicker], force: Bool = false) {
         let targetTokensToFetchTickers = tokens.filter {
-            if promises[$0] != nil {
+            if inlightPromises[$0] != nil {
                 return false
             } else {
                return force || hasExpiredTickersLifeTimeSinceLastUpdate(for: $0)
@@ -57,14 +58,14 @@ public class BaseCoinTickersFetcher {
 
         //NOTE: use shared loading tickers operation for batch of tokens
         let operation = fetchBatchOfTickers(for: targetTokensToFetchTickers, currency: Currency.USD.rawValue)
-            .sink(receiveCompletion: { [promises] _ in
+            .sink(receiveCompletion: { [inlightPromises] _ in
                 for token in targetTokensToFetchTickers {
-                    promises.removeValue(forKey: token)
+                    inlightPromises.removeValue(forKey: token)
                 }
             }, receiveValue: { [storage] in storage.addOrUpdate(tickers: $0) })
 
         for token in targetTokensToFetchTickers {
-            promises[token] = operation
+            inlightPromises[token] = operation
         }
     }
 
@@ -142,14 +143,14 @@ public class BaseCoinTickersFetcher {
         }
     }
 
-    private func fetchBatchOfTickers(for tokens: [TokenMappedToTicker], currency: String) -> AnyPublisher<[AssignedCoinTickerId: CoinTicker], CoinTickerNetworkProviderError> {
+    private func fetchBatchOfTickers(for tokens: [TokenMappedToTicker], currency: String) -> AnyPublisher<[AssignedCoinTickerId: CoinTicker], PromiseError> {
         let publishers = tokens.map { token in
             tickerIdsFetcher.tickerId(for: token).map { $0.flatMap { AssignedCoinTickerId(tickerId: $0, token: token) } }
         }
 
         return Publishers.MergeMany(publishers).collect()
-            .setFailureType(to: CoinTickerNetworkProviderError.self)
-            .flatMap { [networkProvider] tickerIds -> AnyPublisher<[AssignedCoinTickerId: CoinTicker], CoinTickerNetworkProviderError> in
+            .setFailureType(to: PromiseError.self)
+            .flatMap { [networkProvider] tickerIds -> AnyPublisher<[AssignedCoinTickerId: CoinTicker], PromiseError> in
                 let tickerIds = tickerIds.compactMap { $0 }
                 let ids = tickerIds.compactMap { $0.tickerId }
                 return networkProvider.fetchTickers(for: ids, currency: currency).map { tickers in
