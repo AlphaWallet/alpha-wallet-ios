@@ -103,9 +103,7 @@ final class AccountsViewModel {
         //NOTE: Make state hashable, to apply diffable data source
         let viewState = Publishers.CombineLatest(sections, walletsSummary)
             .map { self.buildViewModels(sections: $0, summary: $1) }
-            .handleEvents(receiveOutput: { viewModels in
-                self.viewModels = viewModels
-            })
+            .handleEvents(receiveOutput: { self.viewModels = $0 })
             .map { [configuration] sections in AccountsViewModel.ViewState(navigationTitle: configuration.navigationTitle, sections: sections) }
             .eraseToAnyPublisher()
 
@@ -114,12 +112,6 @@ final class AccountsViewModel {
             reloadBalanceState: reloadBalanceSubject.eraseToAnyPublisher(),
             deleteWalletState: deleteWallet.eraseToAnyPublisher(),
             askDeleteWalletConfirmation: askDeleteWalletConfirmation.eraseToAnyPublisher())
-    }
-
-    func set(name: String, for wallet: Wallet) {
-        //TODO: pass ref
-        FileWalletStorage().addOrUpdate(name: name, for: wallet.address)
-        reloadSubject.send(())
     }
 
     func trailingSwipeActionsConfiguration(for indexPath: IndexPath) -> UISwipeActionsConfiguration? {
@@ -151,22 +143,6 @@ final class AccountsViewModel {
         configuration.performsFirstActionWithFullSwipe = true
 
         return configuration
-    }
-
-    func assignedNameOrEns(for wallet: Wallet) -> AnyPublisher<String?, Never> {
-        return getWalletName.assignedNameOrEns(for: wallet.address)
-    }
-
-    func resolvedEns(for wallet: Wallet) -> AnyPublisher<String?, Never> {
-        domainResolutionService.resolveEns(address: wallet.address)
-            .map { ens -> EnsName? in return ens }
-            .replaceError(with: nil)
-            .eraseToAnyPublisher()
-    }
-
-    func assignedName(for wallet: Wallet) -> AnyPublisher<String?, Never> {
-        let walletName = FileWalletStorage().name(for: wallet.address)
-        return .just(walletName)
     }
 
     func account(for indexPath: IndexPath) -> Wallet? {

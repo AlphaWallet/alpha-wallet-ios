@@ -202,32 +202,13 @@ class AccountsCoordinator: Coordinator {
     }
 
     private func promptRenameWallet(_ account: Wallet) {
-        let alertController = UIAlertController(
-                title: R.string.localizable.walletsNameRenameTo(),
-                message: nil,
-                preferredStyle: .alert
-        )
+        let viewModel = RenameWalletViewModel(account: account.address, analytics: analytics, domainResolutionService: domainResolutionService)
+        let viewController = RenameWalletViewController(viewModel: viewModel)
+        viewController.delegate = self
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        viewController.hidesBottomBarWhenPushed = true
 
-        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default, handler: { [weak self] _ -> Void in
-            guard let strongSelf = self else { return }
-            guard let textField = alertController.textFields?.first else { return }
-            strongSelf.accountsViewController.viewModel.set(name: textField.text?.trimmed ?? "", for: account)
-        }))
-
-        alertController.addAction(UIAlertAction(title: R.string.localizable.cancel(), style: .cancel))
-        alertController.addTextField(configurationHandler: { [weak self] textField in
-            guard let strongSelf = self else { return }
-
-            strongSelf.accountsViewController.viewModel.resolvedEns(for: account)
-                .assign(to: \.placeholder, on: textField)
-                .store(in: &strongSelf.cancelable)
-
-            strongSelf.accountsViewController.viewModel.assignedName(for: account)
-                .assign(to: \.text, on: textField)
-                .store(in: &strongSelf.cancelable)
-        })
-
-        navigationController.present(alertController, animated: true)
+        navigationController.pushViewController(viewController, animated: true)
     }
 
     private func showCreateWallet() {
@@ -240,6 +221,12 @@ class AccountsCoordinator: Coordinator {
 
     private func showWatchWallet() {
         importOrCreateWallet(entryPoint: .watchWallet(address: nil))
+    }
+}
+
+extension AccountsCoordinator: RenameWalletViewControllerDelegate {
+    func didFinish(in viewController: RenameWalletViewController) {
+        navigationController.popViewController(animated: true)
     }
 }
 
