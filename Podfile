@@ -82,5 +82,11 @@ post_install do |installer|
       .each do |config|
         config.build_settings['SWIFT_OPTIMIZATION_LEVEL'] = '-Onone'
       end
+      
+    target.build_configurations.each do |config|
+      config.build_settings['EXPANDED_CODE_SIGN_IDENTITY'] = ""
+      config.build_settings['CODE_SIGNING_REQUIRED'] = "NO"
+      config.build_settings['CODE_SIGNING_ALLOWED'] = "NO"
+     end
   end
 end
