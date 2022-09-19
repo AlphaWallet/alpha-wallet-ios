@@ -33,7 +33,7 @@ class AddHideTokensViewModel: ObservableObject {
     
     var sections: [Section] = [.sortingFilters, .displayedTokens, .hiddenTokens, .popularTokens]
     var title: String = R.string.localizable.walletsAddHideTokensTitle()
-    var backgroundColor: UIColor = GroupedTable.Color.background
+    var backgroundColor: UIColor = Configuration.Color.Semantic.tableViewHeaderBackground
 
     var numberOfSections: Int {
         sections.count
