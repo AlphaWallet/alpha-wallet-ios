@@ -49,8 +49,6 @@ extension Publishers {
         let scheduler: S
 
         public func receive<S>(subscriber: S) where S: Subscriber, Failure == S.Failure, Output == S.Input {
-            guard attempt > 0 else { return upstream.receive(subscriber: subscriber) }
-
             let conditions = behavior.calculateConditions(attempt)
 
             upstream.catch { (error: P.Failure) -> AnyPublisher<Output, Failure> in

@@ -7,12 +7,14 @@
 
 import Foundation
 
+struct OneinchError: Error {}
+
 extension Oneinch {
     struct AssetsResponse: Decodable {
         let tokens: [String: Asset]
     }
 
-    struct Asset {
+    public struct Asset {
         let symbol: String
         let name: String
         let address: AlphaWallet.Address
@@ -32,7 +34,7 @@ extension Oneinch.Asset: Decodable {
         case decimals
     }
 
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: Keys.self)
 
         let addressValue = try container.decode(String.self, forKey: .address)

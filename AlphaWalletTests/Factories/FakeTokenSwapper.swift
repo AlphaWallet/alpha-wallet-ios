@@ -10,19 +10,23 @@ import Combine
 import AlphaWalletFoundation
 
 final class FakeReachabilityManager: ReachabilityManagerProtocol {
-    var isReachable: Bool { return true }
+    private let subject: CurrentValueSubject<Bool, Never>
 
-    var isReachablePublisher: AnyPublisher<Bool, Never> {
-        return Just<Bool>(true).eraseToAnyPublisher()
+    var isReachable: Bool { subject.value }
+    var isReachablePublisher: AnyPublisher<Bool, Never> { subject.eraseToAnyPublisher() }
+    var networkBecomeReachablePublisher: AnyPublisher<Void, Never> { subject.mapToVoid().eraseToAnyPublisher() }
+
+    init(_ value: Bool) {
+        subject = .init(value)
     }
 
-    var networkBecomeReachablePublisher: AnyPublisher<Void, Never> {
-        return Just<Void>(()).eraseToAnyPublisher()
+    func set(isReachable value: Bool) {
+        subject.value = value
     }
 }
 
 final class FakeTokenSwapper: TokenSwapper {
     convenience init(sessionProvider: SessionsProvider = .make(wallet: .make(), servers: [.main])) {
-        self.init(reachabilityManager: FakeReachabilityManager(), sessionProvider: sessionProvider, networkProvider: FakeTokenSwapperNetworkProvider())
+        self.init(reachabilityManager: FakeReachabilityManager(true), sessionProvider: sessionProvider, networkProvider: FakeTokenSwapperNetworkProvider())
     }
 }
