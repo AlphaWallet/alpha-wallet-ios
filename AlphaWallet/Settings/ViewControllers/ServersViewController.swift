@@ -50,7 +50,8 @@ class ServersViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = GroupedTable.Color.background
+        tableView.separatorColor = Configuration.Color.Semantic.tableViewSeparator
+        tableView.backgroundColor = Configuration.Color.Semantic.tableViewBackground
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.register(RPCDisplaySelectableTableViewCell.self)
 
@@ -64,7 +65,7 @@ class ServersViewController: UIViewController {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
-        roundedBackground.backgroundColor = GroupedTable.Color.background
+        roundedBackground.backgroundColor = Configuration.Color.Semantic.tableViewBackground
         
         view.addSubview(roundedBackground)
         roundedBackground.addSubview(tableView)

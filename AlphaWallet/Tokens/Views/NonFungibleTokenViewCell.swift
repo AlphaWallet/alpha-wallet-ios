@@ -52,7 +52,7 @@ class NonFungibleTokenViewCell: UITableViewCell {
 
         background.backgroundColor = viewModel.contentsBackgroundColor
 
-        contentView.backgroundColor = GroupedTable.Color.background
+        contentView.backgroundColor = Configuration.Color.Semantic.tableViewBackground
 
         titleLabel.attributedText = viewModel.titleAttributedString
         titleLabel.baselineAdjustment = .alignCenters

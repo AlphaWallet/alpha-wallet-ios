@@ -615,10 +615,10 @@ extension UISearchBar {
             placeholderLabel.textColor = Colors.lightGray
         }
         if let textField = searchBar.firstSubview(ofType: UITextField.self) {
-            textField.textColor = Colors.appText
+            textField.textColor = Configuration.Color.Semantic.defaultForegroundText
             if let imageView = textField.leftView as? UIImageView {
                 imageView.image = imageView.image?.withRenderingMode(.alwaysTemplate)
-                imageView.tintColor = Colors.appText
+                imageView.tintColor = Configuration.Color.Semantic.defaultForegroundText
             }
         }
         //Hack to hide the horizontal separator below the search bar

@@ -26,16 +26,16 @@ struct WalletTokenViewCellViewModel {
     }
 
     var backgroundColor: UIColor {
-        return Screen.TokenCard.Color.background
+        return Configuration.Color.Semantic.tableViewCellBackground
     }
 
     var contentsBackgroundColor: UIColor {
-        return Screen.TokenCard.Color.background
+        return Configuration.Color.Semantic.tableViewCellBackground
     }
 
     var titleAttributedString: NSAttributedString {
         return NSAttributedString(string: token.tokenScriptOverrides?.titleInPluralForm ?? "", attributes: [
-            .foregroundColor: Screen.TokenCard.Color.title,
+            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
             .font: Screen.TokenCard.Font.title
         ])
     }
