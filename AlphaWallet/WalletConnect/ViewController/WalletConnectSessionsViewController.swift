@@ -65,7 +65,6 @@ class WalletConnectSessionsViewController: UIViewController {
             spinner.centerYAnchor.constraint(equalTo: tableView.centerYAnchor)
         ] + roundedBackground.createConstraintsWithContainer(view: view))
 
-        navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(closeButtonSelected))
         navigationItem.rightBarButtonItem = UIBarButtonItem.qrCodeBarButton(self, selector: #selector(qrCodeButtonSelected))
 
         emptyView = EmptyView.walletSessionEmptyView(completion: { [weak self] in
@@ -123,15 +122,17 @@ class WalletConnectSessionsViewController: UIViewController {
     @objc private func qrCodeButtonSelected(_ sender: UIBarButtonItem) {
         delegate?.qrCodeSelected(in: self)
     }
-
-    @objc private func closeButtonSelected(_ sender: UIBarButtonItem) {
-        delegate?.didClose(in: self)
-    }
 }
 
 extension WalletConnectSessionsViewController: StatefulViewController {
     func hasContent() -> Bool {
         return viewModel.hasAnyContent(dataSource)
+    }
+}
+
+extension WalletConnectSessionsViewController: PopNotifiable {
+    func didPopViewController(animated: Bool) {
+        delegate?.didClose(in: self)
     }
 }
 
