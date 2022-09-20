@@ -11,21 +11,18 @@ import AlphaWalletFoundation
 extension AlphaWallet {
     final class FirebaseCrashlyticsReporter: CrashlyticsReporter {
         private let crashlytics: Crashlytics = Crashlytics.crashlytics()
-        private let options: FirebaseOptions
 
-        // NOTE: failable initializer allow us easily configure with different plist files for different configurations of project
-        init?(contents: String?) {
-            guard !isRunningTests() && isAlphaWallet() else { return nil }
-            guard let contents = contents, let options = FirebaseOptions(contentsOfFile: contents) else {
-                return nil
+        //NOTE: to avoid warning `The default Firebase app has not yet been configured. FirebaseApp.configure()`, moving code to init method have no affect
+        static var instance: FirebaseCrashlyticsReporter = {
+            if let options = R.file.googleServiceInfoPlist().flatMap({ FirebaseOptions(contentsOfFile: $0.path) }) {
+                if !isRunningTests() && isAlphaWallet() {
+                    FirebaseApp.configure(options: options)
+                }
             }
+            return FirebaseCrashlyticsReporter()
+        }()
 
-            self.options = options
-        }
-
-        func configure() {
-            FirebaseApp.configure(options: options)
-        }
+        private init() { }
 
         func track(wallets: [Wallet]) {
             let wallets = wallets.map { $0.description }.joined(separator: ", ")

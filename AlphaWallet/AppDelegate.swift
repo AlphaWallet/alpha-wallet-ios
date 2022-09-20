@@ -1,7 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 import UIKit
 import AlphaWalletAddress
-import AlphaWalletFoundation
+import AlphaWalletFoundation 
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -9,14 +9,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private var appCoordinator: AppCoordinator!
     private let addressStorage = FileAddressStorage()
 
-    func application(_ application: UIApplication,
-                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        crashlytics.register(AlphaWallet.FirebaseCrashlyticsReporter.instance)
+
         applyStyle()
         window = UIWindow(frame: UIScreen.main.bounds)
 
         do {
             register(addressStorage: addressStorage)
-            crashlytics.register(AlphaWallet.FirebaseCrashlyticsReporter(contents: R.file.googleServiceInfoPlist()?.path))
 
             let analytics = AnalyticsService()
             let walletAddressesStore: WalletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: .standardOrForTests)
@@ -78,9 +78,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return handleUniversalLink(url: url, source: .customUrlScheme)
     }
 
-    func application(_ application: UIApplication,
-                     continue userActivity: NSUserActivity,
-                     restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
+    func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
         let hasHandledIntent = appCoordinator.handleIntent(userActivity: userActivity)
         if hasHandledIntent {
             return true
