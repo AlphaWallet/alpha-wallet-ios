@@ -8,7 +8,6 @@
 import Foundation
 
 public protocol CrashlyticsReporter: AnyObject {
-    func configure()
     func track(wallets: [Wallet])
     func trackActiveWallet(wallet: Wallet)
     func track(enabledServers: [RPCServer])
@@ -22,8 +21,7 @@ public final class CrashlyticsService: NSObject, CrashlyticsReporter {
 
     public override init() { }
 
-    public func register(_ service: CrashlyticsReporter?) {
-        guard let service = service else { return }
+    public func register(_ service: CrashlyticsReporter) {
         services.append(service)
     }
 
@@ -41,10 +39,6 @@ public final class CrashlyticsService: NSObject, CrashlyticsReporter {
 
     public func logLargeNftJsonFiles(for actions: [AddOrUpdateTokenAction], fileSizeThreshold: Double) -> Bool {
         return services.contains(where: { $0.logLargeNftJsonFiles(for: actions, fileSizeThreshold: fileSizeThreshold) })
-    }
-
-    public func configure() {
-        services.forEach { $0.configure() }
     }
 }
 
