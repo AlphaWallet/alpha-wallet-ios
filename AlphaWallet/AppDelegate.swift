@@ -7,14 +7,6 @@ import AlphaWalletFoundation
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     private var appCoordinator: AppCoordinator!
-    private lazy var reportProvider: ReportProvider = {
-        let provider = ReportProvider()
-        guard !isRunningTests() && isAlphaWallet() else { return provider }
-        if let service = AlphaWallet.FirebaseReportService(contents: R.file.googleServiceInfoPlist()?.path) {
-            provider.register(service)
-        }
-        return provider
-    }()
     private let addressStorage = FileAddressStorage()
 
     func application(_ application: UIApplication,
@@ -23,9 +15,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window = UIWindow(frame: UIScreen.main.bounds)
 
         do {
-            reportProvider.start()
             register(addressStorage: addressStorage)
-            register(crashlytics: AlphaWallet.FirebaseCrashlyticsReporter())
+            crashlytics.register(AlphaWallet.FirebaseCrashlyticsReporter(contents: R.file.googleServiceInfoPlist()?.path))
 
             let analytics = AnalyticsService()
             let walletAddressesStore: WalletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: .standardOrForTests)
