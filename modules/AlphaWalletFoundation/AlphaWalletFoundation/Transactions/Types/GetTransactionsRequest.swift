@@ -9,6 +9,9 @@ import Foundation
 import Alamofire
 
 struct GetTransactions: URLRequestConvertible {
+    struct NoBlockchainExplorerApi: Error {
+    }
+
     let server: RPCServer
     let address: AlphaWallet.Address
     let startBlock: Int
@@ -21,7 +24,7 @@ struct GetTransactions: URLRequestConvertible {
     }
 
     func asURLRequest() throws -> URLRequest {
-        guard let url = server.transactionInfoEndpoints else { throw URLError(.badURL) }
+        guard let url = server.transactionInfoEndpoints else { throw NoBlockchainExplorerApi() }
 
         var parameters: [String: Any] = [
             "module": "account",

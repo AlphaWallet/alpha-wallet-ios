@@ -293,7 +293,11 @@ public class EtherscanSingleChainTransactionProvider: SingleChainTransactionProv
                 guard !strongSelf.isCancelled else { return }
                 provider.addOrUpdate(transactions: transactions)
             }).catch(on: queue, { e in
-                error(value: e, rpcServer: provider.session.server, address: self.session.account.address)
+                if e is GetTransactions.NoBlockchainExplorerApi {
+                    //no-op, since this is expected for some chains
+                } else {
+                    error(value: e, rpcServer: provider.session.server, address: self.session.account.address)
+                }
             }).finally(on: queue, { [weak self] in
                 guard let strongSelf = self else { return }
 
