@@ -29,7 +29,6 @@ public enum Analytics {
         case actionSheetForTransactionConfirmationFailed = "Screen: Txn Confirmation Failed"
         case scanQrCode = "Screen: QR Code Scanner"
         case onRamp = "Screen: Fiat On-Ramp"
-        case onCoinBase = "Screen: Fiat On-CoinBase"
         case onUniswap = "Screen: Uniswap"
         case onxDaiBridge = "Screen: xDai Bridge"
         case onHoneyswap = "Screen: Honeyswap"

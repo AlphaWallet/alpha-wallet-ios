@@ -13,8 +13,8 @@ public final class CoinBase: SupportedTokenActionsProvider, BuyTokenURLProviderT
         return .empty()
     }
 
-    public var analyticsName: String { "CoinBase" }
-    public let analyticsNavigation: Analytics.Navigation = .onCoinBase
+    public var analyticsName: String { "Coinbase" }
+    public let analyticsNavigation: Analytics.Navigation = .onRamp
     public let action: String
 
     public init(action: String) {
