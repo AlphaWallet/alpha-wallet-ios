@@ -36,5 +36,5 @@ public final class CoinBase: SupportedTokenActionsProvider, BuyTokenURLProviderT
 
     public func start() {
         //no-op
-    } 
+    }
 }
