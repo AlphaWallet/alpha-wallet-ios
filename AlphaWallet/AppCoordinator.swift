@@ -82,7 +82,7 @@ class AppCoordinator: NSObject, Coordinator {
     private lazy var tokenActionsService: TokenActionsService = {
         let service = TokenActionsService()
         service.register(service: BuyTokenProvider(subProviders: [
-            CoinBase(action: R.string.localizable.aWalletTokenBuyOnCoinbaseTitle()),
+            Coinbase(action: R.string.localizable.aWalletTokenBuyOnCoinbaseTitle()),
             Ramp(action: R.string.localizable.aWalletTokenBuyOnRampTitle())
         ], action: R.string.localizable.aWalletTokenBuyTitle()))
 

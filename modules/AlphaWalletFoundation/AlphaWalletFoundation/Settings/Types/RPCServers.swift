@@ -1,6 +1,6 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation 
+import Foundation
 import BigInt
 
 extension RPCServer {
@@ -868,7 +868,7 @@ public enum RPCServer: Hashable, CaseIterable {
         }
     }
 
-    var coinBasePlatform: String? {
+    var coinbasePlatform: String? {
         switch self {
         case .main: return "ethereum"
         case .avalanche, .xDai, .classic, .fantom, .arbitrum, .candle, .polygon, .binance_smart_chain, .klaytnCypress, .klaytnBaobabTestnet, .poa, .kovan, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .ropsten, .rinkeby, .heco, .heco_testnet, .fantom_testnet, .avalanche_testnet, .mumbai_testnet, .custom, .optimistic, .optimisticKovan, .cronosTestnet, .palm, .palmTestnet, .arbitrumRinkeby, .phi, .ioTeX, .ioTeXTestnet:
