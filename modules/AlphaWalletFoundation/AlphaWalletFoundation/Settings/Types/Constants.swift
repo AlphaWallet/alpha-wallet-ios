@@ -87,10 +87,10 @@ public struct Constants {
         return "https://buy.ramp.network/?hostApiKey=\(Constants.Credentials.rampApiKey)&hostLogoUrl=https%3A%2F%2Falphawallet.com%2Fwp-content%2Fthemes%2Falphawallet%2Fimg%2Falphawallet-logo.svg&hostAppName=AlphaWallet&swapAsset=\(asset)&userAddress=\(wallet.address.eip55String)"
     }
 
-    static func buyWithCoinBaseUrl(blockchain: String, wallet: Wallet) -> String? {
+    static func buyWithCoinbaseUrl(blockchain: String, wallet: Wallet) -> String? {
         guard Features.default.isAvailable(.isCoinbasePayEnabled) else { return nil }
-        guard Constants.Credentials.coinBaseAppId.nonEmpty else { return nil }
-        let base = "https://pay.coinbase.com/buy/select-asset?appId=\(Constants.Credentials.coinBaseAppId)"
+        guard Constants.Credentials.coinbaseAppId.nonEmpty else { return nil }
+        let base = "https://pay.coinbase.com/buy/select-asset?appId=\(Constants.Credentials.coinbaseAppId)"
         return base + ("&destinationWallets=[{\"address\": \"\(wallet.address.eip55String)\",\"blockchains\":[\"\(blockchain)\"]}]".addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? "")
     }
 

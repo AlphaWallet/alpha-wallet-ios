@@ -567,7 +567,7 @@
 "buyCrypto.title" = "Buy Crypto";
 "a.wallet.token.buy.title" = "Buy";
 "a.wallet.token.buyOnRamp.title" = "Buy with Ramp";
-"a.wallet.token.buyOnCoinBase.title" = "Buy with CoinBase Pay";
+"a.wallet.token.buyOnCoinbase.title" = "Buy with Coinbase Pay";
 "qrCode.myqrCode.title" = "My QR Code";
 "qrCode.sendToAddress.title" = "Send to this Address";
 "qrCode.watchWallet.title" = "Watch Wallet";

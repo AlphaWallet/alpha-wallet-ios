@@ -567,7 +567,7 @@
 "buyCrypto.title" = "Osta kryptovaluuttoja";
 "a.wallet.token.buy.title" = "Osta";
 "a.wallet.token.buyOnRamp.title" = "Buy with Ramp";
-"a.wallet.token.buyOnCoinBase.title" = "Buy with CoinBase Pay";
+"a.wallet.token.buyOnCoinbase.title" = "Buy with Coinbase Pay";
 "qrCode.myqrCode.title" = "Tämän lompakon QR-koodi";
 "qrCode.sendToAddress.title" = "Lähteä tähän osoitteeseen";
 "qrCode.watchWallet.title" = "Seurattava lompakko";

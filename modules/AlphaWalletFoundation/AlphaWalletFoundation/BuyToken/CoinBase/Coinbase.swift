@@ -1,5 +1,5 @@
 //
-//  CoinBase.swift
+//  Coinbase.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 23.08.2022.
@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-public final class CoinBase: SupportedTokenActionsProvider, BuyTokenURLProviderType {
+public final class Coinbase: SupportedTokenActionsProvider, BuyTokenURLProviderType {
     public var objectWillChange: AnyPublisher<Void, Never> {
         return .empty()
     }
@@ -22,8 +22,8 @@ public final class CoinBase: SupportedTokenActionsProvider, BuyTokenURLProviderT
     }
 
     public func url(token: TokenActionsIdentifiable, wallet: Wallet) -> URL? {
-        guard let platform = token.server.coinBasePlatform else { return nil }
-        return Constants.buyWithCoinBaseUrl(blockchain: platform, wallet: wallet).flatMap { URL(string: $0) }
+        guard let platform = token.server.coinbasePlatform else { return nil }
+        return Constants.buyWithCoinbaseUrl(blockchain: platform, wallet: wallet).flatMap { URL(string: $0) }
     }
 
     public func actions(token: TokenActionsIdentifiable) -> [TokenInstanceAction] {
@@ -31,7 +31,7 @@ public final class CoinBase: SupportedTokenActionsProvider, BuyTokenURLProviderT
     }
 
     public func isSupport(token: TokenActionsIdentifiable) -> Bool {
-        return token.server.coinBasePlatform != nil
+        return token.server.coinbasePlatform != nil
     }
 
     public func start() {
