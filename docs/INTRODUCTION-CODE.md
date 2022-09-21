@@ -58,3 +58,8 @@ Tip: Add support for a new chain
 1. Open `RPCServer`
 2. Add a new case to the enum
 3. Build and fix the errors. Do not use `switch-default:`
+
+Tip: Modify chains that are enabled by default
+---
+1. Open `Constants.swift`
+2. Modify `defaultEnabledServers`
