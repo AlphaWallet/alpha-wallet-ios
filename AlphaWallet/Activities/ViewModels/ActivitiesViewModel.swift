@@ -12,15 +12,19 @@ struct ActivitiesViewModel {
     var collection: ActivityCollection
 
     var backgroundColor: UIColor {
-        Colors.appWhite
+        Configuration.Color.Semantic.tableViewBackground
+    }
+
+    var separatorColor: UIColor {
+        Configuration.Color.Semantic.tableViewSeparator
     }
 
     var headerBackgroundColor: UIColor {
-        GroupedTable.Color.background
+        Configuration.Color.Semantic.tableViewHeaderBackground
     }
 
     var headerTitleTextColor: UIColor {
-        GroupedTable.Color.title
+        Configuration.Color.Semantic.defaultForegroundText
     }
 
     var headerTitleFont: UIFont {

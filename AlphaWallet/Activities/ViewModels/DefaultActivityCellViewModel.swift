@@ -17,18 +17,18 @@ struct DefaultActivityCellViewModel {
 
     var contentsBackgroundColor: UIColor {
         if activityStateViewViewModel.isInPendingState {
-            return R.color.azure_sending()!
+            return Configuration.Color.Semantic.sendingState
         } else {
-            return .white
+            return Configuration.Color.Semantic.tableViewCellBackground
         }
     }
 
     var backgroundColor: UIColor {
-        Colors.appBackground
+        Configuration.Color.Semantic.tableViewCellBackground
     }
 
     var titleTextColor: UIColor {
-        R.color.black()!
+        Configuration.Color.Semantic.defaultForegroundText
     }
 
     var title: NSAttributedString {
@@ -159,11 +159,11 @@ struct DefaultActivityCellViewModel {
 
         switch activity.state {
         case .pending:
-            return NSAttributedString(string: string, attributes: [.font: Fonts.semibold(size: 17), .foregroundColor: R.color.black()!])
+            return NSAttributedString(string: string, attributes: [.font: Fonts.semibold(size: 17), .foregroundColor: Configuration.Color.Semantic.defaultForegroundText])
         case .completed:
-            return NSAttributedString(string: string, attributes: [.font: Fonts.semibold(size: 17), .foregroundColor: R.color.black()!])
+            return NSAttributedString(string: string, attributes: [.font: Fonts.semibold(size: 17), .foregroundColor: Configuration.Color.Semantic.defaultForegroundText])
         case .failed:
-            return NSAttributedString(string: string, attributes: [.font: Fonts.semibold(size: 17), .foregroundColor: R.color.silver()!, .strikethroughStyle: NSUnderlineStyle.single.rawValue])
+            return NSAttributedString(string: string, attributes: [.font: Fonts.semibold(size: 17), .foregroundColor: Configuration.Color.Semantic.textViewFailed, .strikethroughStyle: NSUnderlineStyle.single.rawValue])
         }
     }
 
@@ -172,7 +172,7 @@ struct DefaultActivityCellViewModel {
     }
 
     var timestampColor: UIColor {
-        R.color.dove()!
+        Configuration.Color.Semantic.defaultSubtitleText
     }
     private static let formatter: DateFormatter = Date.formatter(with: "dd MMM yyyy h:mm:ss a")
     var timestamp: String {

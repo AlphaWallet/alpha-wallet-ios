@@ -13,15 +13,16 @@ protocol TokenHistoryPeriodSelectorViewDelegate: class {
 
 struct TokenHistoryPeriodSelectorViewModel {
     var titles: [String]
-    var selectedStateBackgroundColor: UIColor = Colors.darkGray
-    var normalStateBackgroundColor: UIColor = .white
+    let selectedStateBackgroundColor: UIColor = Configuration.Color.Semantic.periodButtonSelectedBackground
+    let normalStateBackgroundColor: UIColor = Configuration.Color.Semantic.periodButtonNormalBackground
 
-    var selectedStateTextColor: UIColor = .white
-    var normalStateTextColor: UIColor = Colors.darkGray
+    let selectedStateTextColor: UIColor = Configuration.Color.Semantic.periodButtonSelectedText
+    let normalStateTextColor: UIColor = Configuration.Color.Semantic.periodButtonNormalText
 }
 
 class TokenHistoryPeriodSelectorView: UIView {
     private let controls: [UIButton]
+    private var backgrounds: [ButtonBackgroundView] = [ButtonBackgroundView]()
 
     var selectedIndex: ControlSelection {
         if let index = controls.firstIndex(where: { $0.isSelected }) {
@@ -35,32 +36,35 @@ class TokenHistoryPeriodSelectorView: UIView {
 
     init(viewModel: TokenHistoryPeriodSelectorViewModel) {
         controls = viewModel.titles.enumerated().map { value -> UIButton in
-            let button = UIButton(type: .system)
+            let button = UIButton(type: .custom)
+            button.translatesAutoresizingMaskIntoConstraints = false
             button.setTitle(value.element, for: .normal)
             button.tag = value.offset
-
             button.setTitleColor(viewModel.selectedStateTextColor, for: .selected)
-            button.setTitleColor(viewModel.selectedStateTextColor, for: .highlighted)
             button.setTitleColor(viewModel.normalStateTextColor, for: .normal)
-
-            button.setBackgroundColor(viewModel.selectedStateBackgroundColor, forState: .selected)
-            button.setBackgroundColor(viewModel.selectedStateBackgroundColor, forState: .highlighted)
-            button.setBackgroundColor(viewModel.normalStateBackgroundColor, forState: .normal)
-
+            button.tintColor = .clear
+            button.adjustsImageWhenHighlighted = false
             button.layer.cornerRadius = 5
             button.clipsToBounds = true
-
+            button.isHighlighted = false
+            button.isSelected = false
             return button
         }
 
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
 
-        controls.forEach { button in
+        let views = controls.map { button -> UIView in
+            let view = ButtonBackgroundView(viewModel: viewModel, button: button)
+            view.translatesAutoresizingMaskIntoConstraints = false
+            backgrounds.append(view)
             button.addTarget(self, action: #selector(controlSelected), for: .touchUpInside)
+            view.addSubview(button)
+            NSLayoutConstraint.activate(
+                view.anchorsConstraint(to: button)
+            )
+            return view as UIView
         }
-
-        let views = controls.map { $0 as UIView }
         let stackView = views.asStackView(axis: .horizontal, distribution: .fillEqually, spacing: 10)
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -83,7 +87,6 @@ class TokenHistoryPeriodSelectorView: UIView {
 
     @objc private func controlSelected(_ sender: UIButton) {
         updateControlsSelectionState(selection: sender)
-
         delegate?.view(self, didChangeSelection: selectedIndex)
     }
 
@@ -91,5 +94,55 @@ class TokenHistoryPeriodSelectorView: UIView {
         for control in controls {
             control.isSelected = control == selection
         }
+        for background in backgrounds {
+            background.setState(via: selection)
+        }
     }
+}
+
+fileprivate class ButtonBackgroundView: UIView {
+    private enum ButtonState {
+        case selected
+        case normal
+    }
+    private var state: ButtonState = .normal {
+        didSet {
+            if state != oldValue {
+                updateBackground()
+            }
+        }
+    }
+    private let viewModel: TokenHistoryPeriodSelectorViewModel
+    private let button: UIButton
+
+    init(viewModel: TokenHistoryPeriodSelectorViewModel, button: UIButton) {
+        self.viewModel = viewModel
+        self.button = button
+        super.init(frame: .zero)
+        updateBackground()
+        translatesAutoresizingMaskIntoConstraints = false
+        layer.cornerRadius = 5
+    }
+
+    required init?(coder: NSCoder) {
+        return nil
+    }
+
+    private func updateBackground() {
+        switch state {
+        case .selected:
+            backgroundColor = viewModel.selectedStateBackgroundColor
+        case .normal:
+            backgroundColor = viewModel.normalStateBackgroundColor
+        }
+    }
+
+    func setState(via button: UIButton) {
+        if self.button == button {
+            state = .selected
+        } else {
+            state = .normal
+        }
+    }
+
 }

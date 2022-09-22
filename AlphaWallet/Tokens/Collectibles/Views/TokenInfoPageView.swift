@@ -49,7 +49,7 @@ class TokenInfoPageView: ScrollableStackView, PageViewType {
             switch each {
             case .testnet:
                 stackView.addArrangedSubview(UIView.spacer(height: 40))
-                stackView.addArrangedSubview(UIView.spacer(backgroundColor: R.color.mike()!))
+                stackView.addArrangedSubview(UIView.spacer(backgroundColor: Configuration.Color.Semantic.tableViewSeparator))
 
                 let view = TestnetTokenInfoView()
                 view.configure(viewModel: .init())
@@ -59,7 +59,7 @@ class TokenInfoPageView: ScrollableStackView, PageViewType {
                 stackView.addArrangedSubview(chartView)
 
                 stackView.addArrangedSubview(UIView.spacer(height: 10))
-                stackView.addArrangedSubview(UIView.spacer(backgroundColor: R.color.mike()!))
+                stackView.addArrangedSubview(UIView.spacer(backgroundColor: Configuration.Color.Semantic.tableViewSeparator))
                 stackView.addArrangedSubview(UIView.spacer(height: 10))
             case .field(let viewModel):
                 let indexPath = IndexPath(row: 0, section: 0)

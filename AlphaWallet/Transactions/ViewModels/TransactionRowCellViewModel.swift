@@ -55,7 +55,7 @@ struct TransactionRowCellViewModel {
     }
 
     var titleTextColor: UIColor {
-        return Colors.appText
+        return Configuration.Color.Semantic.defaultForegroundText
     }
 
     var title: String {
@@ -105,9 +105,9 @@ struct TransactionRowCellViewModel {
     var contentsBackgroundColor: UIColor {
         switch transactionRow.state {
         case .completed, .error, .unknown, .failed:
-            return .white
+            return Configuration.Color.Semantic.defaultViewBackground
         case .pending:
-            return Colors.veryLightOrange
+            return Configuration.Color.Semantic.pendingState
         }
     }
 
