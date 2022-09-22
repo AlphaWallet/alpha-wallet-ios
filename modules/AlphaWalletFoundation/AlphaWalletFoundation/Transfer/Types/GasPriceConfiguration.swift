@@ -1,5 +1,4 @@
 // Copyright © 2021 Stormbird PTE. LTD.
-// This struct sets the price for each unit of gas
 
 import Foundation
 import BigInt
