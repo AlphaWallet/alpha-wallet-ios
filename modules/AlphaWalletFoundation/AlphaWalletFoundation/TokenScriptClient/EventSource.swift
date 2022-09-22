@@ -2,7 +2,7 @@
 
 import Foundation
 import BigInt
-import PromiseKit 
+import PromiseKit
 import Combine
 
 public final class EventSource: NSObject {
@@ -162,7 +162,7 @@ extension EventSource.functional {
 
             eventsDataStore.addOrUpdate(events: events)
         }).recover(on: queue, { e in
-            error(value: e, rpcServer: token.server, address: token.contractAddress)
+            logError(e, rpcServer: token.server, address: token.contractAddress)
         })
     }
 

@@ -211,7 +211,7 @@ public class TokenProvider: TokenProviderType {
                 break
             }
         }.catch({ e in
-            error(value: e, pref: "isErc721Promise", address: address)
+            logError(e, pref: "isErc721Promise", address: address)
         })
 
         firstly {
@@ -223,7 +223,7 @@ public class TokenProvider: TokenProviderType {
                 //no-op
             }
         }.catch({ e in
-            error(value: e, pref: "isErc875Promise", address: address)
+            logError(e, pref: "isErc875Promise", address: address)
         })
 
         firstly {
@@ -235,7 +235,7 @@ public class TokenProvider: TokenProviderType {
                 //no-op
             }
         }.catch({ e in
-            error(value: e, pref: "isErc1155Promise", address: address)
+            logError(e, pref: "isErc1155Promise", address: address)
         })
 
         firstly {
@@ -247,7 +247,7 @@ public class TokenProvider: TokenProviderType {
                 //no-op
             }
         }.catch({ e in
-            error(value: e, pref: "isErc20Promise", address: address)
+            logError(e, pref: "isErc20Promise", address: address)
         })
     }
 }

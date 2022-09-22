@@ -100,7 +100,7 @@ public class EtherscanSingleChainTransactionProvider: SingleChainTransactionProv
             }
             strongSelf.addOrUpdate(transactions: backFilledTransactions)
         }).catch({ e in
-            error(value: e, function: #function, rpcServer: server, address: wallet)
+            logError(e, function: #function, rpcServer: server, address: wallet)
         })
         .finally { [weak self] in
             self?.isAutoDetectingERC20Transactions = false
@@ -128,7 +128,7 @@ public class EtherscanSingleChainTransactionProvider: SingleChainTransactionProv
             }
             strongSelf.addOrUpdate(transactions: backFilledTransactions)
         }).catch({ e in
-            error(value: e, rpcServer: server, address: wallet)
+            logError(e, rpcServer: server, address: wallet)
         })
         .finally { [weak self] in
             self?.isAutoDetectingErc721Transactions = false
@@ -296,7 +296,7 @@ public class EtherscanSingleChainTransactionProvider: SingleChainTransactionProv
                 if e is GetTransactions.NoBlockchainExplorerApi {
                     //no-op, since this is expected for some chains
                 } else {
-                    error(value: e, rpcServer: provider.session.server, address: self.session.account.address)
+                    logError(e, rpcServer: provider.session.server, address: self.session.account.address)
                 }
             }).finally(on: queue, { [weak self] in
                 guard let strongSelf = self else { return }
@@ -361,12 +361,4 @@ extension EtherscanSingleChainTransactionProvider.functional {
             return results
         }
     }
-}
-
-func error(value e: Error, pref: String = "", function f: String = #function, rpcServer: RPCServer? = nil, address: AlphaWallet.Address? = nil) {
-    var description = pref
-    description += rpcServer.flatMap { " server: \($0)" } ?? ""
-    description += address.flatMap { " address: \($0.eip55String)" } ?? ""
-    description += " \(e)"
-    warnLog(description, callerFunctionName: f)
 }
