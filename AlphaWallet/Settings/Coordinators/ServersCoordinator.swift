@@ -43,6 +43,7 @@ class ServersCoordinator: Coordinator {
             .klaytnCypress,
             .klaytnBaobabTestnet,
             .phi,
+            //Need to update Covalent.NetworkProvider.isSupport() if we enable .ioTeX and/or .ioTeXTestnet
             //.ioTeX,
             //.ioTeXTestnet,
             .candle,
