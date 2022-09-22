@@ -3,7 +3,7 @@
 import Foundation
 import AlphaWalletCore
 import BigInt
-import PromiseKit 
+import PromiseKit
 import Combine
 
 public final class EventSourceForActivities {
@@ -31,7 +31,7 @@ public final class EventSourceForActivities {
         guard !config.development.isAutoFetchingDisabled else { return }
 
         subscribeForTokenChanges()
-        subscribeForTokenScriptFileChanges() 
+        subscribeForTokenScriptFileChanges()
     }
 
     private func subscribeForTokenChanges() {
@@ -170,7 +170,7 @@ extension EventSourceForActivities.functional {
         }).map(on: queue, { events -> Void in
             eventsDataStore.addOrUpdate(events: events)
         }).recover(on: queue, { e in
-            error(value: e, rpcServer: server, address: tokenContract)
+            logError(e, rpcServer: server, address: tokenContract)
         })
     }
 

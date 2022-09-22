@@ -125,7 +125,7 @@ public class TransactionConfigurator {
             self.delegate?.gasLimitEstimateUpdated(to: gasLimit, in: self)
         }.catch { e in
             infoLog("Error estimating gas limit: \(e)")
-            error(value: e, rpcServer: self.session.server)
+            logError(e, rpcServer: self.session.server)
         }
     }
 
@@ -153,7 +153,7 @@ public class TransactionConfigurator {
 
             self.delegate?.gasPriceEstimateUpdated(to: standard, in: self)
         }.catch({ e in
-            error(value: e, rpcServer: self.session.server)
+            logError(e, rpcServer: self.session.server)
         })
     }
 

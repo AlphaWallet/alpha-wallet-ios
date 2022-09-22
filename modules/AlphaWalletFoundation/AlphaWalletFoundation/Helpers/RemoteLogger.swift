@@ -129,3 +129,12 @@ public final class DDLogger: Logger {
         DDLogError(message, ddlog: logger)
     }
 }
+
+//TODO have to reconcile with the other logging functions above. Why and how is this different from the rest?
+func logError(_ e: Error, pref: String = "", function f: String = #function, rpcServer: RPCServer? = nil, address: AlphaWallet.Address? = nil) {
+    var description = pref
+    description += rpcServer.flatMap { " server: \($0)" } ?? ""
+    description += address.flatMap { " address: \($0.eip55String)" } ?? ""
+    description += " \(e)"
+    warnLog(description, callerFunctionName: f)
+}
