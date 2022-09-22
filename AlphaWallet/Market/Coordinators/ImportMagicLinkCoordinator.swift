@@ -410,10 +410,10 @@ class ImportMagicLinkCoordinator: Coordinator {
 
     private func notEnoughEthForPaidImport(signedOrder: SignedOrder) {
         let errorMessage: String
-        switch server {
+        switch server.serverWithEnhancedSupport {
         case .xDai:
             errorMessage = R.string.localizable.aClaimTokenFailedNotEnoughXDAITitle()
-        case .classic, .main, .poa, .callisto, .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet, .phi, .ioTeX, .ioTeXTestnet, .candle:
+        case .main, .candle, .polygon, .binance_smart_chain, .heco, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, .rinkeby, nil:
             errorMessage = R.string.localizable.aClaimTokenFailedNotEnoughEthTitle()
         }
         let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: server)

@@ -33,10 +33,10 @@ fileprivate extension RPCServer {
         } else {
             apiKeyParameter = ""
         }
-        switch self {
+        switch self.serverWithEnhancedSupport {
         case .main, .binance_smart_chain, .heco, .polygon:
             return etherscanApiRoot?.appendingQueryString("\("module=gastracker&action=gasoracle")\(apiKeyParameter)")
-        case .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .callisto, .poa, .sokol, .classic, .xDai, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .mumbai_testnet, .cronosTestnet, .custom, .arbitrum, .arbitrumRinkeby, .kovan, .ropsten, .rinkeby, .goerli, .optimistic, .optimisticKovan, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet, .phi, .ioTeX, .ioTeXTestnet, .candle:
+        case .xDai, .candle, .rinkeby, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, nil:
             return nil
         }
     }

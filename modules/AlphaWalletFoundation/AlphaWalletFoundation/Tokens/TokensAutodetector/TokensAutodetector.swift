@@ -61,7 +61,7 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
     public func start() {
         //TODO we don't auto detect tokens if we are running tests. Maybe better to move this into app delegate's application(_:didFinishLaunchingWithOptions:)
         guard !isRunningTests() else { return }
-        
+
         //Since this is called at launch, we don't want it to block launching
         queue.async { [weak self] in
             self?.autoDetectTransactedTokens()
@@ -134,14 +134,14 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
     //TODO consolidate with adding `Constants.uefaMainnet` which is done elsewhere
     private func autoDetectPartnerTokens() {
         guard !session.config.development.isAutoFetchingDisabled else { return }
-        switch session.server {
+        switch session.server.serverWithEnhancedSupport {
         case .main:
             autoDetectMainnetPartnerTokens()
         case .xDai:
             autoDetectXDaiPartnerTokens()
         case .rinkeby:
             autoDetectRinkebyPartnerTokens()
-        case .kovan, .ropsten, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .binance_smart_chain, .binance_smart_chain_testnet, .artis_tau1, .custom, .heco_testnet, .heco, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .candle, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet, .phi, .ioTeX, .ioTeXTestnet:
+        case .candle, .polygon, .binance_smart_chain, .heco, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, nil:
             break
         }
     }
@@ -241,7 +241,7 @@ extension SingleChainTokensAutodetector: AutoDetectTokensOperationDelegate {
                 return false
             }
         }
-        
+
         tokensOrContractsDetectedSubject.send(tokensOrContracts)
     }
 

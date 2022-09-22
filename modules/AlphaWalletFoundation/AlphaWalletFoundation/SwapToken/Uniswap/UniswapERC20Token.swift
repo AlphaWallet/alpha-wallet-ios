@@ -16,10 +16,10 @@ struct UniswapERC20Token {
 extension UniswapERC20Token {
 
     static func isSupport(token: TokenActionsIdentifiable) -> Bool {
-        switch token.server {
+        switch token.server.serverWithEnhancedSupport {
         case .main:
             return availableTokens.contains(where: { $0.contract.sameContract(as: token.contractAddress) })
-        case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .custom, .poa, .callisto, .xDai, .classic, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .candle, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet, .phi, .ioTeX, .ioTeXTestnet:
+        case .xDai, .candle, .polygon, .binance_smart_chain, .heco, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, .rinkeby, nil:
             return false
         }
     }

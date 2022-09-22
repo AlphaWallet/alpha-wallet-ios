@@ -100,10 +100,10 @@ public class HoneySwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
     }
 
     public func isSupport(token: TokenActionsIdentifiable) -> Bool {
-        switch token.server {
+        switch token.server.serverWithEnhancedSupport {
         case .xDai:
             return true
-        case .main, .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .custom, .poa, .callisto, .classic, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .candle, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet, .phi, .ioTeX, .ioTeXTestnet:
+        case .main, .candle, .polygon, .binance_smart_chain, .heco, .rinkeby, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, nil:
             return false
         }
     }
