@@ -36,39 +36,29 @@ extension Publishers {
             }.receive(subscriber: subscriber)
         }
     }
-
-    public struct RetryDelay<P: Publisher, S: Combine.Scheduler>: Publisher {
-        public typealias Output = P.Output
-        public typealias Failure = P.Failure
-
-        let attempt: UInt
-        let upstream: P
-        let behavior: RetryBehavior<S>
-        let shouldRetry: RetryPredicate?
-        let tolerance: S.SchedulerTimeType.Stride?
-        let scheduler: S
-
-        public func receive<S>(subscriber: S) where S: Subscriber, Failure == S.Failure, Output == S.Input {
-            let conditions = behavior.calculateConditions(attempt)
-
-            upstream.catch { (error: P.Failure) -> AnyPublisher<Output, Failure> in
-                guard attempt <= conditions.maxRetries else { return .fail(error) }
-
-                if let shouldRetry = shouldRetry, !shouldRetry(error) { return .fail(error) }
-
-                let upstream = RetryDelay(attempt: attempt + 1, upstream: upstream, behavior: behavior, shouldRetry: shouldRetry, tolerance: tolerance, scheduler: scheduler)
-
-                guard conditions.delay != .zero else { return upstream.eraseToAnyPublisher() }
-
-                return Publishers.Delay(upstream: upstream, interval: conditions.delay, tolerance: tolerance ?? 0, scheduler: scheduler)
-                    .eraseToAnyPublisher()
-            }.receive(subscriber: subscriber)
-        }
-    }
 }
 
 extension Publisher {
+    private func retry<S: Combine.Scheduler>(_ currentAttempt: UInt, behavior: RetryBehavior<S>, shouldRetry: RetryPredicate? = nil, tolerance: S.SchedulerTimeType.Stride? = nil, scheduler: S, options: S.SchedulerOptions? = nil) -> AnyPublisher<Output, Failure> {
+        let conditions = behavior.calculateConditions(currentAttempt)
+        
+        return self.catch { error -> AnyPublisher<Output, Failure> in
+            guard currentAttempt <= conditions.maxRetries else { return .fail(error) }
 
+            if let shouldRetry = shouldRetry, !shouldRetry(error) { return .fail(error) }
+
+            guard conditions.delay != .zero else {
+                return self.retry(currentAttempt + 1, behavior: behavior, shouldRetry: shouldRetry, tolerance: tolerance, scheduler: scheduler, options: options).eraseToAnyPublisher()
+            }
+
+            return Just(())
+                .delay(for: conditions.delay, tolerance: tolerance, scheduler: scheduler, options: options)
+                .setFailureType(to: Failure.self)
+                .flatMap { self.retry(currentAttempt + 1, behavior: behavior, shouldRetry: shouldRetry, tolerance: tolerance, scheduler: scheduler, options: options) }
+                .eraseToAnyPublisher()
+        }.eraseToAnyPublisher()
+    }
+    
     public func retry<T: Combine.Scheduler>(_ retries: Int, delay: T.SchedulerTimeType.Stride, scheduler: T) -> AnyPublisher<Output, Failure> {
         self.catch { _ -> AnyPublisher<Output, Failure> in
             return Just(())
@@ -94,8 +84,8 @@ extension Publisher {
        - parameter options: Options relevant to the scheduler’s behavior.
        - returns: A publisher that attempts to recreate its subscription to a failed upstream publisher.
        */
-    public func retry<S: Combine.Scheduler>(_ behavior: RetryBehavior<S>, shouldRetry: RetryPredicate? = nil, tolerance: S.SchedulerTimeType.Stride? = nil, scheduler: S, options: S.SchedulerOptions? = nil) -> Publishers.RetryDelay<Self, S> {
-        Publishers.RetryDelay(attempt: 1, upstream: self, behavior: behavior, shouldRetry: shouldRetry, tolerance: tolerance, scheduler: scheduler)
+    public func retry<S: Combine.Scheduler>(_ behavior: RetryBehavior<S>, shouldRetry: RetryPredicate? = nil, tolerance: S.SchedulerTimeType.Stride? = nil, scheduler: S, options: S.SchedulerOptions? = nil) -> AnyPublisher<Output, Failure> {
+        return retry(1, behavior: behavior, shouldRetry: shouldRetry, tolerance: tolerance, scheduler: scheduler, options: options)
     }
 
 }

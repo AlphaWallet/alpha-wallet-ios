@@ -12,16 +12,15 @@ import AlphaWalletFoundation
 final class FakeReachabilityManager: ReachabilityManagerProtocol {
     private let subject: CurrentValueSubject<Bool, Never>
 
-    var isReachable: Bool { subject.value }
+    var isReachable: Bool {
+        get { subject.value }
+        set { subject.value = newValue }
+    }
     var isReachablePublisher: AnyPublisher<Bool, Never> { subject.eraseToAnyPublisher() }
     var networkBecomeReachablePublisher: AnyPublisher<Void, Never> { subject.mapToVoid().eraseToAnyPublisher() }
 
     init(_ value: Bool) {
         subject = .init(value)
-    }
-
-    func set(isReachable value: Bool) {
-        subject.value = value
     }
 }
 
