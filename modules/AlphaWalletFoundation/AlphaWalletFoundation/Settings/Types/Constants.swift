@@ -72,7 +72,7 @@ public struct Constants {
     //UEFA 721 balances function hash
     static let balances165Hash721Ticket = "0xc84aae17"
 
-    static let unstoppableDomainsV2API = "https://unstoppabledomains.g.alchemy.com"
+    static let unstoppableDomainsV2API = URL(string: "https://resolve.unstoppabledomains.com")!
     static let unstoppableDomainsRecordKeys = ["crypto.MATIC.version.MATIC.address", "crypto.ETH.address", "crypto.MATIC.version.ERC20.address"]
     //Using "kat" instead of "cryptokitties" to avoid being mistakenly detected by app review as supporting CryptoKitties
     static let katContractAddress = "0x06012c8cf97bead5deae237070f9587f8e7a266d"
