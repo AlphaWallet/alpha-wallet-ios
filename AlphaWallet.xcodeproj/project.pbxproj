@@ -497,6 +497,8 @@
 		871E684324E56A4200F220A7 /* TransactionConfirmationHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871E684224E56A4200F220A7 /* TransactionConfirmationHeaderView.swift */; };
 		871E684524E56A6000F220A7 /* TransactionConfirmationTableHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871E684424E56A6000F220A7 /* TransactionConfirmationTableHeaderViewModel.swift */; };
 		871E684B24E574F100F220A7 /* ActivityIndicatorControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871E684824E574F000F220A7 /* ActivityIndicatorControl.swift */; };
+		8722323E28D84913001A9BCC /* RampTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8722323D28D84913001A9BCC /* RampTests.swift */; };
+		8722324428D8603F001A9BCC /* OneinchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8722324328D8603F001A9BCC /* OneinchTests.swift */; };
 		8722F86B25F79A2E00293D89 /* UIResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8722F86A25F79A2E00293D89 /* UIResponder.swift */; };
 		8722F86D25F79A4700293D89 /* UITableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8722F86C25F79A4700293D89 /* UITableViewCell.swift */; };
 		87242E4225F2749500F0E89D /* SendViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87242E4125F2749500F0E89D /* SendViewControllerTests.swift */; };
@@ -1353,6 +1355,8 @@
 		871E684224E56A4200F220A7 /* TransactionConfirmationHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionConfirmationHeaderView.swift; sourceTree = "<group>"; };
 		871E684424E56A6000F220A7 /* TransactionConfirmationTableHeaderViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionConfirmationTableHeaderViewModel.swift; sourceTree = "<group>"; };
 		871E684824E574F000F220A7 /* ActivityIndicatorControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActivityIndicatorControl.swift; sourceTree = "<group>"; };
+		8722323D28D84913001A9BCC /* RampTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RampTests.swift; sourceTree = "<group>"; };
+		8722324328D8603F001A9BCC /* OneinchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneinchTests.swift; sourceTree = "<group>"; };
 		8722F86A25F79A2E00293D89 /* UIResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIResponder.swift; sourceTree = "<group>"; };
 		8722F86C25F79A4700293D89 /* UITableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITableViewCell.swift; sourceTree = "<group>"; };
 		87242E4125F2749500F0E89D /* SendViewControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendViewControllerTests.swift; sourceTree = "<group>"; };
@@ -3026,8 +3030,10 @@
 		5E7C798AA138C77CE365F26D /* AlphaWalletFoundation */ = {
 			isa = PBXGroup;
 			children = (
+				8722323C28D848FF001A9BCC /* Ramp */,
 				5E7C7B8EB45ABD915B9BFF61 /* LocalPopularTokensCollectionTests.swift */,
 				5E7C7219AA7DCFFA11F4139D /* CoinTicker */,
+				8722324528D8607F001A9BCC /* Oneinch */,
 			);
 			path = AlphaWalletFoundation;
 			sourceTree = "<group>";
@@ -3624,6 +3630,22 @@
 				874ED68D27DA1BA7001AB374 /* SwapOptionsCoordinator.swift */,
 			);
 			path = Coordinator;
+			sourceTree = "<group>";
+		};
+		8722323C28D848FF001A9BCC /* Ramp */ = {
+			isa = PBXGroup;
+			children = (
+				8722323D28D84913001A9BCC /* RampTests.swift */,
+			);
+			path = Ramp;
+			sourceTree = "<group>";
+		};
+		8722324528D8607F001A9BCC /* Oneinch */ = {
+			isa = PBXGroup;
+			children = (
+				8722324328D8603F001A9BCC /* OneinchTests.swift */,
+			);
+			path = Oneinch;
 			sourceTree = "<group>";
 		};
 		872A986F28645ED300196EA3 /* TransactionConfirmation */ = {
@@ -5422,6 +5444,7 @@
 				442FC8E82231273273B95D85 /* FakeClaimOrderCoordinator.swift in Sources */,
 				442FCBA4A5E39A4C4B16426A /* EventsRestTest.swift in Sources */,
 				76F1DC92CDEB695115DBC47C /* UniversalLinkHandlerTests.swift in Sources */,
+				8722323E28D84913001A9BCC /* RampTests.swift in Sources */,
 				5E7C786AD8E4877C36D3B14A /* TokenAdaptorTest.swift in Sources */,
 				87E960DD28868D3600218E7E /* TickerIdsFetcherTests.swift in Sources */,
 				87242E4225F2749500F0E89D /* SendViewControllerTests.swift in Sources */,
@@ -5453,6 +5476,7 @@
 				02D255782807E5B900B97A05 /* CachedERC1155ContractDictionaryTestCase.swift in Sources */,
 				5E7C7B89694C62A14CBE8105 /* FakeEventsDataStore.swift in Sources */,
 				5E7C7E5C76318C0E802F377F /* TokenScriptFilterParserTests.swift in Sources */,
+				8722324428D8603F001A9BCC /* OneinchTests.swift in Sources */,
 				5E7C7ADB4D80243679028A6D /* IntExtensionsTests.swift in Sources */,
 				5E7C7A7FFA16D3505F94BB9E /* FakeActivitiesService.swift in Sources */,
 				5E7C775BE0C1CF2B2FCAEA4B /* DecodedFunctionCall+DecodeTests.swift in Sources */,
