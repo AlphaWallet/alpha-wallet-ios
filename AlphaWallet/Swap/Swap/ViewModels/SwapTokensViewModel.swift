@@ -10,49 +10,28 @@ import Combine
 import BigInt
 import AlphaWalletFoundation
 
-class SwapTokensViewModel: NSObject {
+struct SwapTokensViewModelInput {
+    let cryptoValue: AnyPublisher<String, Never>
+    let allFunds: AnyPublisher<Void, Never>
+    let togglePair: AnyPublisher<Void, Never>
+}
+
+struct SwapTokensViewModelOutput {
+    let anyErrorString: AnyPublisher<String, Never>
+    let isContinueButtonEnabled: AnyPublisher<Bool, Never>
+    let isConfiguratorInUpdatingState: AnyPublisher<Bool, Never>
+    let convertedValue: AnyPublisher<String, Never>
+    let fromTokenBalance: AnyPublisher<String, Never>
+    let toTokenBalance: AnyPublisher<String?, Never>
+    let tokens: AnyPublisher<(from: Token, to: Token?), Never>
+    let amountValidation: AnyPublisher<AmountTextField_v2.ErrorState, Never>
+    let allFunds: AnyPublisher<(allFundsFullValue: NSDecimalNumber?, allFundsShortValue: String), Never>
+}
+
+final class SwapTokensViewModel: NSObject {
     private var cancelable = Set<AnyCancellable>()
     private let configurator: SwapOptionsConfigurator
     private let tokensService: TokenViewModelState
-    var backgoundColor: UIColor = R.color.alabaster()!
-
-    var footerBackgroundColor: UIColor = Colors.appWhite
-    
-    let fromHeaderViewModel = SendViewSectionHeaderViewModel(
-        text: "From".uppercased(),
-        showTopSeparatorLine: false,
-        showBottomSeparatorLine: false,
-        backgroundColor: Colors.appBackground
-    )
-
-    let toHeaderViewModel = SendViewSectionHeaderViewModel(
-        text: "To".uppercased(),
-        showTopSeparatorLine: false,
-        showBottomSeparatorLine: false,
-        backgroundColor: Colors.appBackground
-    )
-
-    var navigationTitle: String = "Swap"
-
-    let swapPair: CurrentValueSubject<SwapPair, Never>
-
-    lazy var swapDetailsViewModel: SwapDetailsViewModel = .init(configurator: configurator)
-
-    var convertedValue: AnyPublisher<String, Never> {
-        configurator.tokensWithTheirSwapQuote
-            .map { data -> String in
-                guard let data = data else { return "" }
-                return EtherNumberFormatter.shortPlain.string(from: BigInt(data.swapQuote.estimate.toAmount), decimals: data.tokens.to.decimals)
-            }.receive(on: RunLoop.main)
-            .eraseToAnyPublisher()
-    }
-
-    var anyErrorString: AnyPublisher<String, Never> {
-        configurator.error
-            .compactMap { $0?.description }
-            .receive(on: RunLoop.main)
-            .eraseToAnyPublisher()
-    }
 
     lazy private (set) var activeSession: AnyPublisher<WalletSession, Never> = {
         return configurator.$server.combineLatest(configurator.$sessions) { server, sessions -> WalletSession? in
@@ -64,24 +43,7 @@ class SwapTokensViewModel: NSObject {
         .eraseToAnyPublisher()
     }()
 
-    func isContinueButtonEnabled(cryptoValue: AnyPublisher<String, Never>) -> AnyPublisher<Bool, Never> {
-        let hasValidEnteredAmount = amountValidation(cryptoValue: cryptoValue)
-            .map { $0 == .none }
-            .removeDuplicates()
-
-        let hasValidSwapQuote = configurator.swapQuote
-            .map { $0 != nil }
-
-        let isInLoadingState = isConfiguratorInUpdatingState
-
-        return Publishers.CombineLatest3(hasValidSwapQuote, hasValidEnteredAmount, isInLoadingState)
-            .map { $0.0 && $0.1 && !$0.2 }
-            .removeDuplicates()
-            .receive(on: RunLoop.main)
-            .eraseToAnyPublisher()
-    }
-
-    var isConfiguratorInUpdatingState: AnyPublisher<Bool, Never> {
+    private var isConfiguratorInUpdatingState: AnyPublisher<Bool, Never> {
         let isFetchingSwapQuote = configurator.fetchSwapQuoteState
             .map { state -> Bool in state == .fetching }
 
@@ -90,11 +52,29 @@ class SwapTokensViewModel: NSObject {
 
         return Publishers.Merge(isFetchingSwapQuote, isLoadingSwapOptions)
             .removeDuplicates()
-            .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }
 
-    var allFundsFormattedValues: (allFundsFullValue: NSDecimalNumber?, allFundsShortValue: String)? {
+    private var fromTokenBalance: AnyPublisher<String, Never> {
+        return activeSession.combineLatest(swapPair)
+            .flatMapLatest { self.balancePublisher(for: $0.1.from, session: $0.0) }
+            .map { R.string.localizable.sendAvailable($0.flatMap { $0.amountShort } ?? "-") }
+            .eraseToAnyPublisher()
+    }
+
+    private var toTokenBalance: AnyPublisher<String?, Never> {
+        return activeSession.combineLatest(swapPair)
+            .flatMap { value -> AnyPublisher<BalanceViewModel?, Never> in
+                if let publisher = value.1.to.flatMap({ self.balancePublisher(for: $0, session: value.0) }) {
+                    return publisher
+                } else {
+                    return Just(nil).eraseToAnyPublisher()
+                }
+            }.map { $0.flatMap { R.string.localizable.sendAvailable($0.amountShort) } }
+            .eraseToAnyPublisher()
+    }
+
+    private var allFundsFormattedValues: (allFundsFullValue: NSDecimalNumber?, allFundsShortValue: String)? {
         let token = configurator.swapPair.from
         switch token.type {
         case .nativeCryptocurrency:
@@ -117,34 +97,33 @@ class SwapTokensViewModel: NSObject {
         }
     }
 
-    var fromTokenBalance: AnyPublisher<String, Never> {
-        return activeSession.combineLatest(swapPair)
-            .flatMapLatest { self.balancePublisher(for: $0.1.from, session: $0.0) }
-            .map { R.string.localizable.sendAvailable($0.flatMap { $0.amountShort } ?? "-") }
-            .receive(on: RunLoop.main)
-            .eraseToAnyPublisher()
-    }
-
-    var toTokenBalance: AnyPublisher<String?, Never> {
-        return activeSession.combineLatest(swapPair)
-            .flatMap { value -> AnyPublisher<BalanceViewModel?, Never> in
-                if let publisher = value.1.to.flatMap({ self.balancePublisher(for: $0, session: value.0) }) {
-                    return publisher
-                } else {
-                    return Just(nil).eraseToAnyPublisher()
-                }
-            }.map { $0.flatMap { R.string.localizable.sendAvailable($0.amountShort) } }
-            .receive(on: RunLoop.main)
-            .eraseToAnyPublisher()
-    }
-
     var tokens: AnyPublisher<(from: Token, to: Token?), Never> {
         return activeSession.combineLatest(swapPair)
-            .map { _, swapPair -> (from: Token, to: Token?) in
-                return (swapPair.from, swapPair.to)
-            }.receive(on: RunLoop.main)
+            .map { _, swapPair -> (from: Token, to: Token?) in return (swapPair.from, swapPair.to) }
             .eraseToAnyPublisher()
     }
+
+    var backgoundColor: UIColor = R.color.alabaster()!
+
+    var footerBackgroundColor: UIColor = Colors.appWhite
+
+    let fromHeaderViewModel = SendViewSectionHeaderViewModel(
+        text: "From".uppercased(),
+        showTopSeparatorLine: false,
+        showBottomSeparatorLine: false,
+        backgroundColor: Colors.appBackground)
+
+    let toHeaderViewModel = SendViewSectionHeaderViewModel(
+        text: "To".uppercased(),
+        showTopSeparatorLine: false,
+        showBottomSeparatorLine: false,
+        backgroundColor: Colors.appBackground)
+
+    var navigationTitle: String = "Swap"
+
+    let swapPair: CurrentValueSubject<SwapPair, Never>
+
+    lazy var quoteDetailsViewModel: SwapQuoteDetailsViewModel = .init(configurator: configurator)
 
     init(configurator: SwapOptionsConfigurator, tokensService: TokenViewModelState) {
         self.configurator = configurator
@@ -159,25 +138,57 @@ class SwapTokensViewModel: NSObject {
             .multicast(subject: swapPair)
             .connect()
             .store(in: &cancelable)
-    } 
-
-    func set(fromAmount amount: BigInt?) {
-        configurator.set(fromAmount: amount)
     }
 
-    func togglePair() {
-        configurator.togglePair()
+    func transform(input: SwapTokensViewModelInput) -> SwapTokensViewModelOutput {
+        bigIntValue(cryptoValue: input.cryptoValue)
+            .sink { [configurator] in configurator.set(fromAmount: $0) }
+            .store(in: &cancelable)
+
+        input.togglePair.sink { [configurator] _ in configurator.togglePair() }
+            .store(in: &cancelable)
+
+        let isContinueButtonEnabled = isContinueButtonEnabled(cryptoValue: input.cryptoValue)
+        let amountValidation = amountValidation(cryptoValue: input.cryptoValue)
+
+        let convertedValue = configurator.tokensWithTheirSwapQuote
+            .map { data -> String in
+                guard let data = data else { return "" }
+                return EtherNumberFormatter.shortPlain.string(from: BigInt(data.swapQuote.estimate.toAmount), decimals: data.tokens.to.decimals)
+            }
+
+        let anyErrorString = configurator.error
+            .compactMap { $0?.description }
+
+        let allFunds = input.allFunds.compactMap { _ in self.allFundsFormattedValues }
+
+        return .init(anyErrorString: anyErrorString.eraseToAnyPublisher(), isContinueButtonEnabled: isContinueButtonEnabled, isConfiguratorInUpdatingState: isConfiguratorInUpdatingState, convertedValue: convertedValue.eraseToAnyPublisher(), fromTokenBalance: fromTokenBalance, toTokenBalance: toTokenBalance, tokens: tokens, amountValidation: amountValidation, allFunds: allFunds.eraseToAnyPublisher())
     }
 
-    func bigIntValue(cryptoValue: AnyPublisher<String, Never>) -> AnyPublisher<BigInt?, Never> {
-        return Publishers.CombineLatest(cryptoValue, activeSession.combineLatest(swapPair))
-            .map { cryptoValue, sessionAndSwapPair -> BigInt? in
-                return self.parseEnteredAmount(cryptoValue, token: sessionAndSwapPair.1.from)
-            }.receive(on: RunLoop.main)
+    private func isContinueButtonEnabled(cryptoValue: AnyPublisher<String, Never>) -> AnyPublisher<Bool, Never> {
+        let hasValidEnteredAmount = amountValidation(cryptoValue: cryptoValue)
+            .map { $0 == .none }
+            .removeDuplicates()
+
+        let hasValidSwapQuote = configurator.swapQuote
+            .map { $0 != nil }
+
+        let isInLoadingState = isConfiguratorInUpdatingState
+
+        return Publishers.CombineLatest3(hasValidSwapQuote, hasValidEnteredAmount, isInLoadingState)
+            .map { $0.0 && $0.1 && !$0.2 }
+            .removeDuplicates()
             .eraseToAnyPublisher()
     }
 
-    func amountValidation(cryptoValue: AnyPublisher<String, Never>, useGreaterThanZeroValidation: Bool = true) -> AnyPublisher<AmountTextField_v2.ErrorState, Never> {
+    private func bigIntValue(cryptoValue: AnyPublisher<String, Never>) -> AnyPublisher<BigInt?, Never> {
+        return Publishers.CombineLatest(cryptoValue, activeSession.combineLatest(swapPair))
+            .map { cryptoValue, sessionAndSwapPair -> BigInt? in
+                return self.parseEnteredAmount(cryptoValue, token: sessionAndSwapPair.1.from)
+            }.eraseToAnyPublisher()
+    }
+
+    private func amountValidation(cryptoValue: AnyPublisher<String, Never>, useGreaterThanZeroValidation: Bool = true) -> AnyPublisher<AmountTextField_v2.ErrorState, Never> {
         return Publishers.CombineLatest(cryptoValue, activeSession.combineLatest(swapPair))
             .map { cryptoValue, sessionAndSwapPair -> AmountTextField_v2.ErrorState in
                 let token = sessionAndSwapPair.1.from
@@ -192,13 +203,11 @@ class SwapTokensViewModel: NSObject {
                 }
 
                 return balance.value >= value ? .none : .error
-            }.receive(on: RunLoop.main)
-            .eraseToAnyPublisher()
+            }.eraseToAnyPublisher()
     }
 
     private func balancePublisher(for token: Token, session: WalletSession) -> AnyPublisher<BalanceViewModel?, Never> {
         return Just(token)
-            .receive(on: RunLoop.main)
             .flatMap { [tokensService] in tokensService.tokenViewModelPublisher(for: $0) }
             .map { $0?.balance }
             .eraseToAnyPublisher()

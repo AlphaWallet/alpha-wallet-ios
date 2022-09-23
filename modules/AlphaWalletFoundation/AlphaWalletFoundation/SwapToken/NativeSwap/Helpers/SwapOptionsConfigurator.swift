@@ -27,10 +27,11 @@ public final class SwapOptionsConfigurator {
     @Published public private(set) var sessions: [WalletSession]
     @Published public private(set) var server: RPCServer
     @Published public private(set) var swapPair: SwapPair
-    public private (set) var lastSwapQuote: SwapQuote?
-
+    public var lastSwapQuote: SwapQuote? {
+        tokenSwapper.storage.swapQuote
+    }
     public var fromAmount: BigUInt? {
-        fromAmountSubject.value.flatMap({ BigUInt($0) })
+        fromAmountSubject.value.flatMap { BigUInt($0) }
     }
 
     public var activeValidServer: RPCServer {
@@ -75,16 +76,16 @@ public final class SwapOptionsConfigurator {
         //NOTE: here we use debounce to reduce requests calls when user quickly switches beetwen tokens, or types amount to swap
         let amount = validatedAmount.debounce(for: .milliseconds(250), scheduler: RunLoop.main)
         let fromAndToTokens = fromAndToTokensPublisher.compactMap { $0 }
-
         let slippage = slippage.map { String($0.doubleValue).droppedTrailingZeros }
-            .eraseToAnyPublisher()
+        let exchanges = tokenSwapper.storage.selectedTools.map { $0.map { $0.key }.filter { $0.nonEmpty } }
+        let swapParams = Publishers.CombineLatest4(fromAndToTokens, amount, slippage, exchanges)
 
-        return Publishers.CombineLatest3(amount, fromAndToTokens, slippage)
-            .compactMap { [weak self] (amount, tokens, slippage) -> AnyPublisher<SwapQuote?, Never>? in
-                if amount == .zero {
+        return Publishers.CombineLatest(swapParams, tokenSwapper.storage.prefferedExchange)
+            .compactMap { [weak self] (params, prefferedExchange) -> AnyPublisher<SwapQuote?, Never>? in
+                if params.1 == .zero {
                     return Just<SwapQuote?>(nil).eraseToAnyPublisher()
                 } else {
-                    return self?.fetchSwapQuote(tokens: tokens, amount: amount, slippage: slippage)
+                    return self?.fetchSwapQuote(tokens: params.0, amount: params.1, slippage: params.2, exchanges: params.3, prefferedExchange: prefferedExchange)
                 }
             }.switchToLatest()
             .share()
@@ -194,32 +195,31 @@ public final class SwapOptionsConfigurator {
             }.store(in: &cancelable)
     }
 
-    private func fetchSwapQuote(tokens: FromAndToTokens, amount: BigUInt, slippage: String) -> AnyPublisher<SwapQuote?, Never> {
+    /// Fetches swap quote for selected swap parameters, skips fetching swap routes for predefined `prefferedExchange`
+    private func fetchSwapQuote(tokens: FromAndToTokens, amount: BigUInt, slippage: String, exchanges: [String], prefferedExchange: String?) -> AnyPublisher<SwapQuote?, Never> {
         let wallet = session.account.address
         fetchSwapQuoteStateSubject.send(.fetching)
 
         return Just(tokens)
-            .flatMapLatest { [tokenSwapper] tokens in
-                tokenSwapper.fetchSwapQuote(fromToken: tokens.from, toToken: tokens.to, wallet: wallet, slippage: slippage, fromAmount: amount)
-            }.handleEvents(receiveOutput: { [weak fetchSwapQuoteStateSubject, weak errorSubject, weak self] result in
+            .flatMapLatest { [tokenSwapper] tokens -> AnyPublisher<String?, Never> in
+                if let exchange = prefferedExchange {
+                    return .just(exchange)
+                } else {
+                    return tokenSwapper.fetchSwapRoute(fromToken: tokens.from, toToken: tokens.to, slippage: slippage, fromAmount: amount, exchanges: exchanges)
+                }
+            }.flatMapLatest { [tokenSwapper] exchange -> AnyPublisher<Result<SwapQuote, SwapError>, Never> in
+                guard let exchange = exchange else { return .just(.failure(.tokenOrSwapQuoteNotFound)) }
+                return tokenSwapper.fetchSwapQuote(fromToken: tokens.from, toToken: tokens.to, wallet: wallet, slippage: slippage, fromAmount: amount, exchange: exchange)
+            }.handleEvents(receiveOutput: { [weak fetchSwapQuoteStateSubject, weak errorSubject] result in
                 switch result {
                 case .success(let swapQuote):
-                    self?.set(swapQuote: swapQuote)
                     fetchSwapQuoteStateSubject?.send(.completed(error: nil))
                 case .failure(let error):
                     fetchSwapQuoteStateSubject?.send(.completed(error: error))
                     errorSubject?.send(.general(error: error))
                 }
-            }).map { result -> SwapQuote? in
-                switch result {
-                case .success(let swapQuote): return swapQuote
-                case .failure: return nil
-                }
-            }.eraseToAnyPublisher()
-    }
-
-    private func set(swapQuote: SwapQuote) {
-        lastSwapQuote = swapQuote
+            }).map { try? $0.get() }
+            .eraseToAnyPublisher()
     }
 
     private func validateSwapPair(forServer server: RPCServer, isInitialServerValidation: Bool) {
@@ -269,9 +269,10 @@ public final class SwapOptionsConfigurator {
 public extension SwapOptionsConfigurator {
     var tokensWithTheirSwapQuote: AnyPublisher<(swapQuote: SwapQuote, tokens: FromAndToTokens)?, Never> {
         return swapQuote.combineLatest(fromAndToTokensPublisher)
-            .map { (swapQuote, tokens) -> (swapQuote: SwapQuote, tokens: FromAndToTokens)? in
-                guard let swapQuote = swapQuote, let tokens = tokens, swapQuote.action.fromToken == tokens.from && swapQuote.action.toToken == tokens.to else { return nil }
+            .map { (swapRoutes, tokens) -> (swapRoutes: SwapQuote, tokens: FromAndToTokens)? in
+                guard let swapQuote = swapRoutes, let tokens = tokens, swapQuote.action.fromToken == tokens.from && swapQuote.action.toToken == tokens.to else { return nil }
                 return (swapQuote, tokens)
             }.eraseToAnyPublisher()
+        return .just(nil)
     }
 }

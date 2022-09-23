@@ -47,7 +47,8 @@ final class SwapStepsView: UIView {
     }
 
     private func bind(viewModel: SwapStepsViewModel) {
-        viewModel.swapStepsViewModels
+        let output = viewModel.transform(input: .init())
+        output.swapStepsViewModels
         .map { $0.map { viewModel in SwapStepView(viewModel: viewModel) } }
         .sink { [stackView] views in
             stackView.removeAllArrangedSubviews()

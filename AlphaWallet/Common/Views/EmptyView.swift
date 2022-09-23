@@ -206,4 +206,18 @@ extension EmptyView {
             .configure(spacing: 30)
             .configure(insets: .init(top: Style.SearchBar.height, left: 0, bottom: 0, right: 0))
     }
+
+    static func swapToolsEmptyView() -> EmptyView {
+        EmptyView()
+            .configure(image: R.image.activities_empty_list())
+            .configure(title: "Swap Tools Not Found")
+            .configure(spacing: 30)
+            .configure(insets: .zero)
+    }
+
+    static func selectedSwapToolsEmptyView() -> EmptyView {
+        EmptyView()
+            .configure(title: "No Selected Swap Tools")
+            .configure(insets: .zero)
+    }
 }

@@ -43,7 +43,6 @@ final class SwapTokensCoordinator: Coordinator {
     private let keystore: Keystore
     private let analytics: AnalyticsLogger
     private let domainResolutionService: DomainResolutionServiceType
-    private var cancelable = Set<AnyCancellable>()
     private var transactionConfirmationResult: ConfirmResult? = .none
     private let tokensFilter: TokensFilter
     var coordinators: [Coordinator] = []
@@ -119,6 +118,13 @@ extension SwapTokensCoordinator: SelectTokenCoordinatorDelegate {
 }
 
 extension SwapTokensCoordinator: SwapTokensViewControllerDelegate {
+    func changeSwapRouteSelected(in viewController: SwapTokensViewController) {
+        let viewModel = SelectSwapRouteViewModel(storage: configurator.tokenSwapper.storage)
+        let viewController = SelectSwapRouteViewController(viewModel: viewModel)
+
+        navigationController.pushViewController(viewController, animated: true)
+    }
+
     func chooseTokenSelected(in viewController: SwapTokensViewController, selection: SwapTokens.TokenSelection) {
         tokenSelectionProvider.set(pendingTokenSelection: selection)
         showSelectToken()

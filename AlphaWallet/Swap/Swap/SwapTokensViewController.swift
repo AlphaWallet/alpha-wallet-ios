@@ -12,6 +12,7 @@ import AlphaWalletFoundation
 
 protocol SwapTokensViewControllerDelegate: class {
     func swapSelected(in viewController: SwapTokensViewController)
+    func changeSwapRouteSelected(in viewController: SwapTokensViewController)
     func chooseTokenSelected(in viewController: SwapTokensViewController, selection: SwapTokens.TokenSelection)
     func didClose(in viewController: SwapTokensViewController)
 }
@@ -42,7 +43,12 @@ class SwapTokensViewController: UIViewController {
 
         return amountTextField
     }()
-    private lazy var feesDetailsView = SwapDetailsView(viewModel: viewModel.swapDetailsViewModel)
+    private lazy var quoteDetailsView: SwapQuoteDetailsView = {
+        let view = SwapQuoteDetailsView(viewModel: viewModel.quoteDetailsViewModel)
+        view.delegate = self
+
+        return view
+    }()
     private lazy var togglePairButton: UIButton = {
         let imageView = UIButton(type: .system)
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -65,7 +71,6 @@ class SwapTokensViewController: UIViewController {
 
         return view
     }()
-
     private var cancelable = Set<AnyCancellable>()
     private let viewModel: SwapTokensViewModel
     private lazy var checker = KeyboardChecker(self, resetHeightDefaultValue: 0)
@@ -87,8 +92,6 @@ class SwapTokensViewController: UIViewController {
         let continueButton = buttonsBar.buttons[0]
         continueButton.setTitle(R.string.localizable.continue(), for: .normal)
         continueButton.addTarget(self, action: #selector(swapTokensSelected), for: .touchUpInside)
-        togglePairButton.addTarget(self, action: #selector(toggleSwapPairSelected), for: .touchUpInside)
-        fromAmountTextField.allFundsButton.addTarget(self, action: #selector(allFundsSelected), for: .touchUpInside)
         toAmountTextField.selectCurrencyButton.addTarget(self, action: #selector(chooseTokenSelected), for: .touchUpInside)
         fromAmountTextField.selectCurrencyButton.addTarget(self, action: #selector(chooseTokenSelected), for: .touchUpInside)
 
@@ -117,7 +120,7 @@ class SwapTokensViewController: UIViewController {
             toTokenHeaderView,
             toAmountTextField.defaultLayout(edgeInsets: .init(top: 0, left: 16, bottom: 0, right: 16)),
             .spacer(height: 1, backgroundColor: R.color.mercury()!),
-            feesDetailsView
+            quoteDetailsView
         ])
 
         view.addSubview(footerBar)
@@ -133,7 +136,6 @@ class SwapTokensViewController: UIViewController {
             containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             containerView.topAnchor.constraint(equalTo: view.topAnchor),
             containerView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
-
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             footerBottomConstraint,
@@ -150,15 +152,20 @@ class SwapTokensViewController: UIViewController {
         fromTokenHeaderView.configure(viewModel: viewModel.fromHeaderViewModel)
         toTokenHeaderView.configure(viewModel: viewModel.toHeaderViewModel)
 
-        viewModel.anyErrorString
+        let allFunds = fromAmountTextField.allFundsButton.publisher(forEvent: .touchUpInside).eraseToAnyPublisher()
+        let togglePair = togglePairButton.publisher(forEvent: .touchUpInside).eraseToAnyPublisher()
+        let input = SwapTokensViewModelInput(cryptoValue: fromAmountTextField.cryptoValue, allFunds: allFunds, togglePair: togglePair)
+        let output = viewModel.transform(input: input)
+
+        output.anyErrorString
             .sink { [weak self] in self?.displayError(message: $0) }
             .store(in: &cancelable)
 
-        viewModel.isContinueButtonEnabled(cryptoValue: fromAmountTextField.cryptoValue)
+        output.isContinueButtonEnabled
             .assign(to: \.isEnabled, on: buttonsBar.buttons[0])
             .store(in: &cancelable)
 
-        viewModel.isConfiguratorInUpdatingState
+        output.isConfiguratorInUpdatingState
             .sink { [weak loadingIndicatorView] isLoading in
                 if isLoading {
                     loadingIndicatorView?.startAnimating()
@@ -167,31 +174,29 @@ class SwapTokensViewController: UIViewController {
                 }
             }.store(in: &cancelable)
 
-        viewModel.convertedValue
-            .sink { [weak toAmountTextField] eth in
-                toAmountTextField?.set(crypto: eth, useFormatting: false)
-            }.store(in: &cancelable)
+        output.convertedValue
+            .sink { [weak toAmountTextField] in toAmountTextField?.set(crypto: $0, useFormatting: false) }
+            .store(in: &cancelable)
 
-        viewModel.amountValidation(cryptoValue: fromAmountTextField.cryptoValue)
+        output.amountValidation
             .sink { [weak fromAmountTextField] in fromAmountTextField?.viewModel.errorState = $0 }
             .store(in: &cancelable)
 
-        viewModel.bigIntValue(cryptoValue: fromAmountTextField.cryptoValue)
-            .sink { [weak viewModel] in viewModel?.set(fromAmount: $0) }
-            .store(in: &cancelable)
-
-        viewModel.tokens
+        output.tokens
             .sink { [weak fromAmountTextField, weak toAmountTextField] tokens in
                 fromAmountTextField?.viewModel.set(token: tokens.from)
                 toAmountTextField?.viewModel.set(token: tokens.to)
             }.store(in: &cancelable)
 
-        viewModel.fromTokenBalance
+        output.fromTokenBalance
             .sink { [weak fromAmountTextField] in fromAmountTextField?.statusLabel.text = $0 }
             .store(in: &cancelable)
 
-        viewModel.toTokenBalance
+        output.toTokenBalance
             .sink { [weak toAmountTextField] in toAmountTextField?.statusLabel.text = $0 }
+            .store(in: &cancelable)
+
+        output.allFunds.sink { [weak fromAmountTextField] in fromAmountTextField?.set(crypto: $0.allFundsFullValue.localizedString, shortCrypto: $0.allFundsShortValue, useFormatting: false) }
             .store(in: &cancelable)
     }
 
@@ -200,19 +205,15 @@ class SwapTokensViewController: UIViewController {
         delegate?.chooseTokenSelected(in: self, selection: isFromActionButton ? .from : .to)
     }
 
-    @objc private func allFundsSelected(_ sender: UIButton) {
-        guard let crypto = viewModel.allFundsFormattedValues else { return }
-
-        fromAmountTextField.set(crypto: crypto.allFundsFullValue.localizedString, shortCrypto: crypto.allFundsShortValue, useFormatting: false)
-    }
-
-    @objc private func toggleSwapPairSelected(_ sender: UIButton) {
-        viewModel.togglePair()
-    }
-
     @objc private func swapTokensSelected(_ sender: UIButton) {
         view.endEditing(true)
         delegate?.swapSelected(in: self)
+    }
+}
+
+extension SwapTokensViewController: SwapQuoteDetailsViewDelegate {
+    func changeSwapRouteSelected(in view: SwapQuoteDetailsView) {
+        delegate?.changeSwapRouteSelected(in: self)
     }
 }
 
