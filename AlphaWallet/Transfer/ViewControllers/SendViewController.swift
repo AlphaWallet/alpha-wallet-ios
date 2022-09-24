@@ -141,7 +141,7 @@ class SendViewController: UIViewController {
             if let amount = amount {
                 amountTextField.ethCost = EtherNumberFormatter.plain.string(from: amount, units: .ether)
             }
-
+            etherToFiatRateCancelable?.cancel()
             etherToFiatRateCancelable = service.tokenViewModelPublisher(for: transactionType.tokenObject)
                 .compactMap { $0?.balance.ticker.flatMap { NSDecimalNumber(value: $0.price_usd) } }
                 .receive(on: RunLoop.main)
@@ -222,11 +222,10 @@ class SendViewController: UIViewController {
 
     private func configureBalanceViewModel() {
         etherBalanceCancelable?.cancel()
-        etherToFiatRateCancelable?.cancel()
 
         switch transactionType {
         case .nativeCryptocurrency(_, let recipient, let amount):
-            etherToFiatRateCancelable = service.tokenViewModelPublisher(for: transactionType.tokenObject)
+            etherBalanceCancelable = service.tokenViewModelPublisher(for: transactionType.tokenObject)
                 .sink { [weak self] _ in
                     guard let celf = self else { return }
                     guard celf.service.token(for: celf.viewModel.transactionType.contract, server: celf.session.server) != nil else { return }
