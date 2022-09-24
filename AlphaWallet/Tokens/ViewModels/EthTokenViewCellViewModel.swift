@@ -59,11 +59,7 @@ struct EthTokenViewCellViewModel {
 
     private var apprecation24hoursAttributedString: NSAttributedString {
         let valuePercentageChangeValue: String = {
-            let change24h = EthCurrencyHelper(ticker: token.balance.ticker)
-                .change24h
-                .formatted(plusSign: "")
-            
-            switch change24h {
+            switch EthCurrencyHelper(ticker: token.balance.ticker).change24h.string {
             case .some(let value):
                 return value
             case .none:

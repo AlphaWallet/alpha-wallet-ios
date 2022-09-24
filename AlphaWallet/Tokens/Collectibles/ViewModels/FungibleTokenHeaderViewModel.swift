@@ -178,10 +178,7 @@ final class FungibleTokenHeaderViewModel {
     }
 
     private func valuePercentageChangeValueFor(balance: BalanceViewModel) -> String? {
-        return EthCurrencyHelper(ticker: balance.ticker)
-            .change24h
-            .formatted(plusSign: "")
-            .flatMap { "(\($0))" }
+        return EthCurrencyHelper(ticker: balance.ticker).change24h.string.flatMap { "(\($0))" }
     }
 
     private func marketPriceValueFor(balance: BalanceViewModel) -> String? {
