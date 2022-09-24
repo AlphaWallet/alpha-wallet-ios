@@ -20,7 +20,7 @@ extension RPCServer {
     var blockChainName: String {
         switch self {
         case .xDai: return R.string.localizable.blockchainXDAI()
-        case .phi: return R.string.localizable.blockchainPhi()
+        case .phi, .phi2: return R.string.localizable.blockchainPhi()
         case .artis_sigma1: return R.string.localizable.blockchainARTISSigma1()
         case .artis_tau1: return R.string.localizable.blockchainARTISTau1()
         case .binance_smart_chain: return R.string.localizable.blockchainBinance()
@@ -54,7 +54,7 @@ extension RPCServer {
         switch self {
         case .main: return R.image.eth()
         case .xDai: return R.image.xDai()
-        case .phi: return R.image.phi()
+        case .phi, .phi2: return R.image.phi()
         case .poa: return R.image.tokenPoa()
         case .classic: return R.image.tokenEtc()
         case .callisto: return R.image.tokenCallisto()
@@ -92,7 +92,7 @@ extension RPCServer {
         case .sokol: return .init(red: 107, green: 53, blue: 162)
         case .goerli: return .init(red: 187, green: 174, blue: 154)
         case .xDai: return .init(red: 253, green: 176, blue: 61)
-        case .phi: return .init(red: 203, green: 126, blue: 31)
+        case .phi, .phi2: return .init(red: 203, green: 126, blue: 31)
         case .artis_sigma1: return .init(red: 83, green: 162, blue: 113)
         case .artis_tau1: return .init(red: 255, green: 117, blue: 153)
         case .binance_smart_chain, .binance_smart_chain_testnet: return .init(red: 255, green: 211, blue: 0)
@@ -139,7 +139,7 @@ extension RPCServer {
         case .palm, .palmTestnet: return R.image.iconsTokensPalm()
         case .klaytnCypress: return R.image.klaytnIcon()
         case .klaytnBaobabTestnet: return R.image.klaytnIcon()
-        case .phi: return nil
+        case .phi, .phi2: return nil
         case .ioTeX: return R.image.ioTeX()
         case .ioTeXTestnet: return R.image.ioTeXTestnet()
         case .candle: return R.image.iconsNetworkCandle()
