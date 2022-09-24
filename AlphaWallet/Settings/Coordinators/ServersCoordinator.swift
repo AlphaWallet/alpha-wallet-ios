@@ -42,6 +42,7 @@ class ServersCoordinator: Coordinator {
             .arbitrumRinkeby,
             .klaytnCypress,
             .klaytnBaobabTestnet,
+            .phi2,
             .phi,
             //Need to update Covalent.NetworkProvider.isSupport() if we enable .ioTeX and/or .ioTeXTestnet
             //.ioTeX,
