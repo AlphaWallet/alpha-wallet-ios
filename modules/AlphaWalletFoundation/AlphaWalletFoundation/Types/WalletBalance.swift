@@ -61,9 +61,7 @@ public struct WalletBalance: Equatable {
     }
     
     public var valuePercentageChangeValue: String {
-        EthCurrencyHelper(ticker: nil)
-            .change24h(from: changePercentage)
-            .formatted() ?? "-"
+        EthCurrencyHelper(ticker: nil).change24h(from: changePercentage).string ?? "-"
     }
 }
 

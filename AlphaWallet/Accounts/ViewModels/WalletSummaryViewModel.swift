@@ -82,14 +82,10 @@ extension WalletSummaryViewModel {
         }
 
         static func todaysApprecationColorAndStringValuePair(summary: WalletSummary?) -> (String, UIColor) {
-            let valueChange = summary.flatMap { $0.changeDouble.flatMap { Formatter.priceChange.string(from: $0) } } ?? "-"
+            let priceChange = summary.flatMap { $0.changeDouble.flatMap { Formatter.priceChange.string(from: $0) } } ?? "-"
+            let percentageChange = EthCurrencyHelper(ticker: nil).change24h(from: summary?.changePercentage).string.flatMap { "(\($0))" } ?? "-"
 
-            let percentageChangeValue = EthCurrencyHelper(ticker: nil)
-                .change24h(from: summary?.changePercentage)
-                .formatted()
-                .flatMap { "(\($0))" } ?? "-"
-
-            let value = R.string.localizable.walletSummaryToday(valueChange + " " + percentageChangeValue)
+            let value = R.string.localizable.walletSummaryToday(priceChange + " " + percentageChange)
             return (value, EthCurrencyHelper(ticker: nil).valueChangeValueColor(from: summary?.changePercentage))
         }
     }

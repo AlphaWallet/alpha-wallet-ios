@@ -68,10 +68,10 @@ public struct EthCurrencyHelper {
 }
 
 extension EthCurrencyHelper.Change24h {
-    public func formatted(plusSign: String = "+") -> String? {
+    public var string: String? {
         switch self {
         case .appreciate(let percentageChange24h):
-            return "\(plusSign)\(Formatter.priceChange.string(from: percentageChange24h) ?? "")%"
+            return "\(Formatter.priceChange.string(from: percentageChange24h) ?? "")%"
         case .depreciate(let percentageChange24h):
             return "\(Formatter.priceChange.string(from: percentageChange24h) ?? "")%"
         case .none:

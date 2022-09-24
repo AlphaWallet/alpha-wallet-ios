@@ -57,11 +57,7 @@ struct FungibleTokenViewCellViewModel {
 
     private var apprecation24hoursAttributedString: NSAttributedString {
         let apprecation24hours: String = {
-            let change24h = EthCurrencyHelper(ticker: token.balance.ticker)
-                .change24h
-                .formatted(plusSign: "")
-                .flatMap({ "(\($0))" })
-
+            let change24h = EthCurrencyHelper(ticker: token.balance.ticker).change24h.string.flatMap({ "(\($0))" })
             switch change24h {
             case .some(let value):
                 return value
