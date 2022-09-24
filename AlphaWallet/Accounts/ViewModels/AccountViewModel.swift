@@ -117,6 +117,6 @@ extension BlockiesImage {
 
 extension WalletBalance {
     var valuePercentageChangeColor: UIColor {
-        return BalanceHelper().valueChangeValueColor(from: changeDouble)
+        return EthCurrencyHelper(ticker: nil).valueChangeValueColor(from: changeDouble)
     }
 }

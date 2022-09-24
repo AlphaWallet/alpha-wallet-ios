@@ -499,6 +499,7 @@
 		871E684B24E574F100F220A7 /* ActivityIndicatorControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871E684824E574F000F220A7 /* ActivityIndicatorControl.swift */; };
 		8722323E28D84913001A9BCC /* RampTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8722323D28D84913001A9BCC /* RampTests.swift */; };
 		8722324428D8603F001A9BCC /* OneinchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8722324328D8603F001A9BCC /* OneinchTests.swift */; };
+		8722324928D8A778001A9BCC /* UiTweaks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8722324828D8A778001A9BCC /* UiTweaks.swift */; };
 		8722F86B25F79A2E00293D89 /* UIResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8722F86A25F79A2E00293D89 /* UIResponder.swift */; };
 		8722F86D25F79A4700293D89 /* UITableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8722F86C25F79A4700293D89 /* UITableViewCell.swift */; };
 		87242E4225F2749500F0E89D /* SendViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87242E4125F2749500F0E89D /* SendViewControllerTests.swift */; };
@@ -1357,6 +1358,7 @@
 		871E684824E574F000F220A7 /* ActivityIndicatorControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActivityIndicatorControl.swift; sourceTree = "<group>"; };
 		8722323D28D84913001A9BCC /* RampTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RampTests.swift; sourceTree = "<group>"; };
 		8722324328D8603F001A9BCC /* OneinchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneinchTests.swift; sourceTree = "<group>"; };
+		8722324828D8A778001A9BCC /* UiTweaks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UiTweaks.swift; sourceTree = "<group>"; };
 		8722F86A25F79A2E00293D89 /* UIResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIResponder.swift; sourceTree = "<group>"; };
 		8722F86C25F79A4700293D89 /* UITableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITableViewCell.swift; sourceTree = "<group>"; };
 		87242E4125F2749500F0E89D /* SendViewControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendViewControllerTests.swift; sourceTree = "<group>"; };
@@ -2022,6 +2024,7 @@
 		296106C01F7640240006164B /* Tokens */ = {
 			isa = PBXGroup;
 			children = (
+				8722324828D8A778001A9BCC /* UiTweaks.swift */,
 				5E7C7A9876B43B1D9D17A9A9 /* OpenSeaNonFungibleTokenDisplayHelper.swift */,
 				87741FC427747C5C007F4604 /* TokenInstanceViewConfigurationHelper.swift */,
 				8728FFE22742906A008E5524 /* TokenCardTableViewCellFactory.swift */,
@@ -5024,6 +5027,7 @@
 				5E7C70AE62DBB193399C7F5E /* ServerViewCell.swift in Sources */,
 				5E7C7EB845B0EE96CC8DCF43 /* ServerViewModel.swift in Sources */,
 				5E7C745A423BD10CFDED9A81 /* ServersViewModel.swift in Sources */,
+				8722324928D8A778001A9BCC /* UiTweaks.swift in Sources */,
 				87757286282D486900EAD907 /* TokenCardWebViewModel.swift in Sources */,
 				5E7C7ECE164289A89734B4EF /* LocalesCoordinator.swift in Sources */,
 				87281AEE2885219A0066E31E /* TableViewDiffableDataSource.swift in Sources */,

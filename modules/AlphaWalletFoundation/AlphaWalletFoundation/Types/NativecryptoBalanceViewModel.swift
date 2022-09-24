@@ -42,12 +42,10 @@ public struct NativecryptoBalanceViewModel: BalanceViewModelType {
 
     private func cryptoRate(forServer server: RPCServer) -> Rate? {
         guard let rate = ticker?.rate else { return nil }
-
         let code = mapSymbolToCodeInRates(server)
-        let symbol = server.symbol.lowercased()
-        if let value = rate.rates.first(where: { $0.code == code }) {
+        if let value = rate.rates.first(where: { $0.code.caseInsensitiveCompare(code) == .orderedSame }) {
             return value
-        } else if let value = rate.rates.first(where: { $0.code == symbol }) {
+        } else if let value = rate.rates.first(where: { $0.code.caseInsensitiveCompare(server.symbol) == .orderedSame }) {
             return value
         } else {
             return nil
@@ -56,7 +54,7 @@ public struct NativecryptoBalanceViewModel: BalanceViewModelType {
 
     private func mapSymbolToCodeInRates(_ server: RPCServer) -> String {
         let symbol = server.symbol.lowercased()
-        let mapping = ["xdai": "dai", "aeth": "eth"]
+        let mapping = ["xdai": "dai", "aeth": "eth", "phi": "wphi"]
 
         return mapping[symbol] ?? symbol
     }

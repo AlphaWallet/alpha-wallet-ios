@@ -17,10 +17,10 @@ import AlphaWalletCore
 /// - Returns first matching ticker id
 public class AlphaWalletRemoteTickerIdsFetcher: TickerIdsFetcher {
     private let provider: TokenEntriesProvider
-    private let tickerIdsFetcher: CoinGeckoTickerIdsFetcher
+    private let tickerIdsFetcher: SupportedTickerIdsFetcher
     private let queue = DispatchQueue(label: "org.alphawallet.swift.remoteTickerIdsFetcher")
 
-    public init(provider: TokenEntriesProvider, tickerIdsFetcher: CoinGeckoTickerIdsFetcher) {
+    public init(provider: TokenEntriesProvider, tickerIdsFetcher: SupportedTickerIdsFetcher) {
         self.provider = provider
         self.tickerIdsFetcher = tickerIdsFetcher
     }

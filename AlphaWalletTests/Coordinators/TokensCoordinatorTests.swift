@@ -29,7 +29,7 @@ class TokensCoordinatorTests: XCTestCase {
             nftProvider: FakeNftProvider(),
             tokenActionsService: tokenActionsService,
             walletConnectCoordinator: .fake(),
-            coinTickersFetcher: CoinGeckoTickersFetcher.make(),
+            coinTickersFetcher: CoinTickersFetcherImpl.make(),
             activitiesService: FakeActivitiesService(),
             walletBalanceService: FakeMultiWalletBalanceService(),
             tokenCollection: dep.pipeline,

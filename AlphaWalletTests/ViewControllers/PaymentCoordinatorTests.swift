@@ -8,7 +8,7 @@ import AlphaWalletFoundation
 extension TokensFilter {
     static func make() -> TokensFilter {
         let actionsService = TokenActionsService()
-        return TokensFilter(assetDefinitionStore: .init(), tokenActionsService: actionsService, coinTickersFetcher: CoinGeckoTickersFetcher.make(), tokenGroupIdentifier: FakeTokenGroupIdentifier())
+        return TokensFilter(assetDefinitionStore: .init(), tokenActionsService: actionsService, coinTickersFetcher: CoinTickersFetcherImpl.make(), tokenGroupIdentifier: FakeTokenGroupIdentifier())
     }
 }
 
@@ -29,7 +29,7 @@ extension WalletDataProcessingPipeline {
         let eventsDataStore = FakeEventsDataStore()
         let transactionsDataStore = FakeTransactionsStorage()
         let nftProvider = FakeNftProvider()
-        let coinTickersFetcher = CoinGeckoTickersFetcher.make()
+        let coinTickersFetcher = CoinTickersFetcherImpl.make()
 
         let tokensService = AlphaWalletTokensService(sessionsProvider: sessionsProvider, tokensDataStore: tokensDataStore, analytics: fas, importToken: importToken, transactionsStorage: transactionsDataStore, nftProvider: nftProvider, assetDefinitionStore: .init())
 

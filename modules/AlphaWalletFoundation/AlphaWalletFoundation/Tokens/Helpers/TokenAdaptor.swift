@@ -1,5 +1,5 @@
 //
-//  BalanceHelper.swift
+//  TokenAdaptor.swift
 //  Alpha-Wallet
 //
 //  Created by Oguzhan Gungor on 2/25/18.

@@ -82,32 +82,20 @@ extension WalletSummaryViewModel {
         }
 
         static func todaysApprecationColorAndStringValuePair(summary: WalletSummary?) -> (String, UIColor) {
-            let valueChangeValue: String = {
-                if let value = summary?.changeDouble {
-                    return Formatter.priceChange.string(from: value) ?? "-"
-                } else {
-                    return "-"
-                }
-            }()
+            let valueChange = summary.flatMap { $0.changeDouble.flatMap { Formatter.priceChange.string(from: $0) } } ?? "-"
 
-            var valuePercentageChangeValue: String {
-                switch BalanceHelper().change24h(from: summary?.changePercentage) {
-                case .appreciate(let percentageChange24h):
-                    return "(+\(percentageChange24h)%)"
-                case .depreciate(let percentageChange24h):
-                    return "(\(percentageChange24h)%)"
-                case .none:
-                    return "-"
-                }
-            }
+            let percentageChangeValue = EthCurrencyHelper(ticker: nil)
+                .change24h(from: summary?.changePercentage)
+                .formatted()
+                .flatMap { "(\($0))" } ?? "-"
 
-            let value = R.string.localizable.walletSummaryToday(valueChangeValue + " " + valuePercentageChangeValue)
-            return (value, BalanceHelper().valueChangeValueColor(from: summary?.changePercentage))
+            let value = R.string.localizable.walletSummaryToday(valueChange + " " + percentageChangeValue)
+            return (value, EthCurrencyHelper(ticker: nil).valueChangeValueColor(from: summary?.changePercentage))
         }
     }
 }
 
-extension BalanceHelper {
+extension EthCurrencyHelper {
     func valueChangeValueColor(from value: Double?) -> UIColor {
         switch change24h(from: value) {
         case .appreciate:

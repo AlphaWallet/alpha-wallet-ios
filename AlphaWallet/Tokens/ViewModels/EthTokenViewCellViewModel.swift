@@ -59,11 +59,13 @@ struct EthTokenViewCellViewModel {
 
     private var apprecation24hoursAttributedString: NSAttributedString {
         let valuePercentageChangeValue: String = {
-            switch EthCurrencyHelper(ticker: token.balance.ticker).change24h {
-            case .appreciate(let percentageChange24h):
-                return "\(percentageChange24h)%"
-            case .depreciate(let percentageChange24h):
-                return "\(percentageChange24h)%"
+            let change24h = EthCurrencyHelper(ticker: token.balance.ticker)
+                .change24h
+                .formatted(plusSign: "")
+            
+            switch change24h {
+            case .some(let value):
+                return value
             case .none:
                 if priceChangeUSDValue == UiTweaks.noPriceMarker {
                     return UiTweaks.noPriceMarker

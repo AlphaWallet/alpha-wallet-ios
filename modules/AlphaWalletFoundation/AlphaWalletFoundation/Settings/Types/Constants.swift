@@ -213,6 +213,10 @@ public struct Constants {
         static let numberOfCharactersOfSymbolToShowInIcon = 4
     }
 
+    enum Phi {
+        static let baseUrl = URL(string: "https://price.phi.network")!
+    }
+
     //CurrencyFormatter
     static let formatterFractionDigits = 2
 
