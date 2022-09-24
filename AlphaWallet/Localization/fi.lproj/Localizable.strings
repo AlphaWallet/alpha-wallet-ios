@@ -664,7 +664,7 @@
 "settings.wallet.rename" = "Nimeä lompakko";
 "settings.blockscanChat" = "Blockscan Chat";
 "wallet.rename.save" = "Tallenna";
-"wallet.rename.enterNameTitle" = "Uusi nimi (min. 5 merkkiä pitkä)";
+"wallet.rename.enterNameTitle" = "Uusi nimi";
 "wallets.hideToken.error.AddTokenFailure" = "Rahakkeen lisääminen epäonnistui";
 "addCustomChain.unnamed" = "Nimetön";
 "addCustomChain.error.invalidChainId" = "Ketjun tunniste (Chain ID) on virheellinen: %@";
