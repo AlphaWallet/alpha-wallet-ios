@@ -16,9 +16,10 @@ struct UnstoppableDomainsV2ApiError: Error {
     var localizedDescription: String
 }
 
-class UnstoppableDomainsV2Resolver {
+final class UnstoppableDomainsV2Resolver {
     private let server: RPCServer
     private let storage: EnsRecordsStorage
+    private let networkProvider: UnstoppableDomainsV2NetworkProvider = .init()
 
     init(server: RPCServer, storage: EnsRecordsStorage) {
         self.server = server
@@ -34,36 +35,15 @@ class UnstoppableDomainsV2Resolver {
             return .just(value)
         }
 
-        let baseURL = Constants.unstoppableDomainsV2API
-        guard let url = URL(string: "\(baseURL)/domains/\(name)") else {
-            let error = UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(baseURL) API isMainThread: \(Thread.isMainThread)")
-
-            return .fail(.some(error: error))
-        }
-
         return Just(name)
             .setFailureType(to: PromiseError.self)
-            .flatMap { name -> AnyPublisher<AlphaWallet.Address, PromiseError> in
+            .flatMap { [networkProvider] name -> AnyPublisher<AlphaWallet.Address, PromiseError> in
                 infoLog("[UnstoppableDomains] resolving name: \(name)…")
-                return Alamofire
-                    .request(url, method: .get, headers: ["Authorization": Constants.Credentials.unstoppableDomainsV2ApiKey])
-                    .responseDataPublisher().tryMap { response -> AlphaWallet.Address in
-                        guard let data = response.response.data, let json = try? JSON(data: data) else {
-                            throw UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(baseURL) API isMainThread: \(Thread.isMainThread)")
-                        }
-
-                        let value = try AddressResolution.Response(json: json)
-                        if let owner = value.meta.owner {
-                            infoLog("[UnstoppableDomains] resolved name: \(name) result: \(owner.eip55String)")
-                            return owner
-                        } else {
-                            throw UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(baseURL) API isMainThread: \(Thread.isMainThread)")
-                        }
-                    }.handleEvents(receiveOutput: { address in
+                return networkProvider.resolveAddress(forName: name)
+                    .handleEvents(receiveOutput: { address in
                         let key = EnsLookupKey(nameOrAddress: name, server: self.server)
                         self.storage.addOrUpdate(record: .init(key: key, value: .address(address)))
-                    }).mapError { PromiseError.some(error: $0) }
-                    .share()
+                    }).share()
                     .eraseToAnyPublisher()
             }.eraseToAnyPublisher()
     }
@@ -73,36 +53,15 @@ class UnstoppableDomainsV2Resolver {
             return .just(value)
         }
 
-        let baseURL = Constants.unstoppableDomainsV2API
-        guard let url = URL(string: "\(baseURL)/domains/?owners=\(address.eip55String)&sortBy=id&sortDirection=DESC&perPage=50") else {
-            let error = UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(baseURL) API isMainThread: \(Thread.isMainThread)")
-
-            return .fail(.some(error: error))
-        }
-
         return Just(address)
             .setFailureType(to: PromiseError.self)
-            .flatMap { address -> AnyPublisher<String, PromiseError> in
+            .flatMap { [networkProvider] address -> AnyPublisher<String, PromiseError> in
                 infoLog("[UnstoppableDomains] resolving address: \(address.eip55String)…")
-                return Alamofire
-                    .request(url, method: .get, headers: ["Authorization": Constants.Credentials.unstoppableDomainsV2ApiKey])
-                    .responseDataPublisher().tryMap { response -> String in
-                        guard let data = response.response.data, let json = try? JSON(data: data) else {
-                            throw UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(baseURL) API isMainThread: \(Thread.isMainThread)")
-                        }
-
-                        let value = try DomainResolution.Response(json: json)
-                        if let record = value.data.first {
-                            infoLog("[UnstoppableDomains] resolved address: \(address.eip55String) result: \(record.id)")
-                            return record.id
-                        } else {
-                            throw UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(baseURL) API isMainThread: \(Thread.isMainThread)")
-                        }
-                    }.handleEvents(receiveOutput: { domain in
+                return networkProvider.resolveDomain(address: address)
+                    .handleEvents(receiveOutput: { domain in
                         let key = EnsLookupKey(nameOrAddress: address.eip55String, server: self.server)
                         self.storage.addOrUpdate(record: .init(key: key, value: .ens(domain)))
-                    }).mapError { PromiseError.some(error: $0) }
-                    .share()
+                    }).share()
                     .eraseToAnyPublisher()
             }.eraseToAnyPublisher()
     }
