@@ -113,7 +113,7 @@ final class FungibleTokenViewModel {
         self.tokenActionsProvider = tokenActionsProvider
         self.coinTickersFetcher = coinTickersFetcher
         self.tokensService = tokensService
-    } 
+    }
 
     func tokenScriptWarningMessage(for action: TokenInstanceAction) -> TokenScriptWarningMessage? {
         if let tokenHolder = tokenHolder, let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: wallet.address, fungibleBalance: fungibleBalance) {
@@ -219,10 +219,10 @@ final class FungibleTokenViewModel {
                     .init(type: .erc20Send),
                     .init(type: .erc20Receive)
                 ]
-                switch token.server {
+                switch token.server.serverWithEnhancedSupport {
                 case .xDai:
                     return [.init(type: .erc20Send), .init(type: .erc20Receive)] + tokenActionsProvider.actions(token: token)
-                case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet, .phi, .ioTeX, .ioTeXTestnet, .candle:
+                case .main, .candle, .polygon, .binance_smart_chain, .heco, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, .rinkeby, nil:
                     return actions + tokenActionsProvider.actions(token: token)
                 }
             }

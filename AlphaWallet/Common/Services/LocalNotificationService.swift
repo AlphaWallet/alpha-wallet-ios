@@ -22,10 +22,10 @@ class LocalNotificationService: ScheduledNotificationService {
         let notificationCenter = UNUserNotificationCenter.current()
         let content = UNMutableNotificationContent()
         //TODO support other mainnets too
-        switch server {
+        switch server.serverWithEnhancedSupport {
         case .main, .xDai:
             content.body = R.string.localizable.transactionsReceivedEther(amount, server.symbol)
-        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .candle, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet, .phi, .ioTeX, .ioTeXTestnet:
+        case .candle, .polygon, .binance_smart_chain, .heco, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, .rinkeby, nil:
             content.body = R.string.localizable.transactionsReceivedEther("\(amount) (\(server.name))", server.symbol)
         }
 

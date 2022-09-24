@@ -852,6 +852,34 @@ public enum RPCServer: Hashable, CaseIterable {
         }
     }
 
+    //Implementation: Almost every chain should return nil here
+    public var serverWithEnhancedSupport: RPCServerWithEnhancedSupport? {
+        switch self {
+        case .main:
+            return .main
+        case .xDai:
+            return .xDai
+        case .candle:
+            return .candle
+        case .polygon:
+            return .polygon
+        case .binance_smart_chain:
+            return .binance_smart_chain
+        case .heco:
+            return .heco
+        case .rinkeby:
+            return .rinkeby
+        case .arbitrum:
+            return .arbitrum
+        case .klaytnCypress:
+            return .klaytnCypress
+        case .klaytnBaobabTestnet:
+            return .klaytnBaobabTestnet
+        case .main, .kovan, .ropsten, .sokol, .goerli, .artis_sigma1, .artis_tau1, .custom, .poa, .callisto, .xDai, .classic, .binance_smart_chain_testnet, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .palm, .palmTestnet, .arbitrumRinkeby, .phi, .ioTeX, .ioTeXTestnet:
+            return nil
+        }
+    }
+
     var coinGeckoPlatform: String? {
         switch self {
         case .main: return "ethereum"
