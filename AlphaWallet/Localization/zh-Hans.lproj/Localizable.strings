@@ -664,7 +664,7 @@
 "settings.wallet.rename" = "Name this Wallet";
 "settings.blockscanChat" = "Blockscan Chat";
 "wallet.rename.save" = "Save Name";
-"wallet.rename.enterNameTitle" = "Enter Name (min. 5 characters)";
+"wallet.rename.enterNameTitle" = "Enter Name";
 "wallets.hideToken.error.AddTokenFailure" = "Add token failure";
 "addCustomChain.unnamed" = "Unnamed";
 "addCustomChain.error.invalidChainId" = "Invalid chain ID provided: %@";
