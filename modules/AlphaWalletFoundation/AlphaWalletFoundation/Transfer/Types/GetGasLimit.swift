@@ -22,7 +22,7 @@ public final class GetGasLimit {
         self.analytics = analytics
     }
 
-    public func getGasLimit(value: BigInt, toAddress: AlphaWallet.Address?, data: Data) -> Promise<BigInt> {
+    public func getGasLimit(value: BigInt, toAddress: AlphaWallet.Address?, data: Data) -> Promise<(BigInt, Bool)> {
         let transactionType: EstimateGasRequest.TransactionType
         if let toAddress = toAddress {
             transactionType = .normal(to: toAddress)
@@ -34,9 +34,9 @@ public final class GetGasLimit {
 
         return firstly {
             APIKitSession.send(EtherServiceRequest(server: server, batch: BatchFactory().create(request)), server: server, analytics: analytics)
-        }.map { gasLimit -> BigInt in
+        }.map { gasLimit -> (BigInt, Bool) in
             infoLog("Estimated gas limit with eth_estimateGas: \(gasLimit)")
-            return BigInt(gasLimit.drop0x, radix: 16) ?? BigInt()
+            return (BigInt(gasLimit.drop0x, radix: 16) ?? BigInt(), request.canCapGasLimit)
         }
     }
 }

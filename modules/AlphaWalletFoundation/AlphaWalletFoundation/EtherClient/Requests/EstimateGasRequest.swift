@@ -45,6 +45,15 @@ struct EstimateGasRequest: JSONRPCKit.Request {
         return results
     }
 
+    var canCapGasLimit: Bool {
+        switch transactionType {
+        case .normal:
+            return true
+        case .contractDeployment:
+            return false
+        }
+    }
+
     func response(from resultObject: Any) throws -> Response {
         if let response = resultObject as? Response {
             return response

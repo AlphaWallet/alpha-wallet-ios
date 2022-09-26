@@ -99,13 +99,17 @@ public class TransactionConfigurator {
     private func estimateGasLimit() {
         firstly {
             gasLimitEstimator.getGasLimit(value: value, toAddress: toAddress, data: currentConfiguration.data)
-        }.done { limit in
-            infoLog("Estimated gas limit with eth_estimateGas: \(limit)")
+        }.done { limit, canCapGasLimit in
+            infoLog("Estimated gas limit with eth_estimateGas: \(limit) canCapGasLimit: \(canCapGasLimit)")
             let gasLimit: BigInt = {
                 if limit == GasLimitConfiguration.minGasLimit {
                     return limit
                 }
-                return min(limit + (limit * 20 / 100), self.maxGasLimit)
+                if canCapGasLimit {
+                    return min(limit + (limit * 20 / 100), self.maxGasLimit)
+                } else {
+                    return limit + (limit * 20 / 100)
+                }
             }()
             infoLog("Using gas limit: \(gasLimit)")
             var customConfig = self.configurations.custom
