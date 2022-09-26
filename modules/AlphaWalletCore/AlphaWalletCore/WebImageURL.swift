@@ -153,9 +153,9 @@ fileprivate extension WebImageURL.functional {
             let path = url.absoluteString.replacingOccurrences(of: "ipfs://", with: "")
             let urlString: String = {
                 if path.hasPrefix("ipfs/") {
-                    return "https://ipfs.io/\(path)"
+                    return "https://alphawallet.infura-ipfs.io/\(path)"
                 } else {
-                    return "https://ipfs.io/ipfs/\(path)"
+                    return "https://alphawallet.infura-ipfs.io/ipfs/\(path)"
                 }
             }()
             return URL(string: urlString)
