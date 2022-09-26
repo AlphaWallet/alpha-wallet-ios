@@ -59,14 +59,14 @@ struct NonFungibleTokenViewCellViewModel {
     var titleAttributedString: NSAttributedString {
         return .init(string: token.tokenScriptOverrides?.safeShortTitleInPluralForm ?? "-", attributes: [
             .font: Screen.TokenCard.Font.title,
-            .foregroundColor: Screen.TokenCard.Color.title
+            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
         ])
     }
 
     var tickersAmountAttributedString: NSAttributedString {
         return .init(string: "\(token.nonZeroBalance.count.toString()) \(token.symbol)", attributes: [
             .font: Screen.TokenCard.Font.subtitle,
-            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
+            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText
         ])
     }
 

@@ -52,7 +52,7 @@ final class DropDownView<T: DropDownItemType>: UIView, ReusableTableHeaderViewTy
         pickerView.translatesAutoresizingMaskIntoConstraints = false
         pickerView.delegate = self
         pickerView.dataSource = self
-
+        pickerView.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         return pickerView
     }()
 
@@ -64,7 +64,7 @@ final class DropDownView<T: DropDownItemType>: UIView, ReusableTableHeaderViewTy
         button.imageView?.contentMode = .scaleAspectFit
         button.semanticContentAttribute = .forceRightToLeft
         button.heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
-        
+        button.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         return button
     }()
 

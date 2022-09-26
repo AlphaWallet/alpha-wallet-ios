@@ -22,16 +22,16 @@ struct PopularTokenViewCellViewModel {
     }
 
     var backgroundColor: UIColor {
-        return Screen.TokenCard.Color.background
+        return Configuration.Color.Semantic.tableViewBackground
     }
 
     var contentsBackgroundColor: UIColor {
-        return Screen.TokenCard.Color.background
+        return Configuration.Color.Semantic.tableViewBackground
     }
 
     var titleAttributedString: NSAttributedString {
         return NSAttributedString(string: title, attributes: [
-            .foregroundColor: Screen.TokenCard.Color.title,
+            .foregroundColor: Configuration.Color.Semantic.tableViewCellPrimaryFont,
             .font: Screen.TokenCard.Font.title
         ])
     }

@@ -26,14 +26,14 @@ private class AddHideTokenSectionHeaderView: UIView {
     private let topSeparator: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = R.color.mercury()
+        view.backgroundColor = Configuration.Color.Semantic.tableViewSeparator
         return view
     }()
 
     private let bottomSperator: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = R.color.mercury()
+        view.backgroundColor = Configuration.Color.Semantic.tableViewSeparator
         return view
     }()
 

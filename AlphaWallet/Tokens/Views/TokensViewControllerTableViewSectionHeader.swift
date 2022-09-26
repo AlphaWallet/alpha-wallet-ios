@@ -141,8 +141,8 @@ extension TokensViewController {
             bottomSeparator.isHidden = isBottomSeparatorHidden
             topSeparator.isHidden = isTopSeparatorHidden
 
-            bottomSeparator.backgroundColor = GroupedTable.Color.cellSeparator
-            topSeparator.backgroundColor = GroupedTable.Color.cellSeparator
+            bottomSeparator.backgroundColor = Configuration.Color.Semantic.tableViewSeparator
+            topSeparator.backgroundColor = Configuration.Color.Semantic.tableViewSeparator
 
             addSubview(stackView)
 
