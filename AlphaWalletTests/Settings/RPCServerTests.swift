@@ -24,12 +24,6 @@ class RPCServerTests: XCTestCase {
         XCTAssertEqual(.ropsten, server)
     }
 
-    func testInitByNameCorrect() {
-        for each in RPCServer.availableServers {
-            XCTAssertEqual(RPCServer(name: each.name), each)
-        }
-    }
-
     func testInitByChainIdCorrect() {
         for each in RPCServer.availableServers {
             XCTAssertEqual(RPCServer(chainID: each.chainID), each)
