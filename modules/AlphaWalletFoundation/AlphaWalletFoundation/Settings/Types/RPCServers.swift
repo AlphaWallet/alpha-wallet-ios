@@ -682,11 +682,6 @@ public enum RPCServer: Hashable, CaseIterable {
         }
     }
 
-    public init(name: String) {
-        //TODO defaulting to .main is bad
-        self = Self.availableServers.first { $0.name == name } ?? .main
-    }
-
     public init(chainID: Int) {
         //TODO defaulting to .main is bad
         self = Self.availableServers.first { $0.chainID == chainID } ?? .main
