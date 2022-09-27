@@ -125,4 +125,8 @@ extension TokenViewModel: Hashable {
     public func override(tokenScriptOverrides: TokenScriptOverrides) -> TokenViewModel {
         return .init(contractAddress: contractAddress, symbol: symbol, decimals: decimals, server: server, type: type, name: name, shouldDisplay: shouldDisplay, balance: balance, tokenScriptOverrides: tokenScriptOverrides)
     }
+
+    public func override(shouldDisplay: Bool) -> TokenViewModel {
+        return .init(contractAddress: contractAddress, symbol: symbol, decimals: decimals, server: server, type: type, name: name, shouldDisplay: shouldDisplay, balance: balance, tokenScriptOverrides: tokenScriptOverrides)
+    }
 }
