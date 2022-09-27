@@ -110,6 +110,7 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
 
     private func configureActionButtons(with actions: [TokenInstanceAction]) {
         buttonsBar.configure(.combined(buttons: actions.count))
+        buttonsBar.viewController = self
 
         for (action, button) in zip(actions, buttonsBar.buttons) {
             button.setTitle(action.name, for: .normal)
