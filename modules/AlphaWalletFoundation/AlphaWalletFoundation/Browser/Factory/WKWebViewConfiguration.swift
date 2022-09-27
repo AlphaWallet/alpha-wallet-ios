@@ -77,7 +77,7 @@ extension WKWebViewConfiguration {
                //Space is needed here because it is sometimes cut off by websites. 
                
                const addressHex = "\(address.eip55String)"
-               const rpcURL = "\(server.rpcURL.absoluteString)"
+               const rpcURL = "\(server.web3InjectedRpcURL.absoluteString)"
                const chainID = "\(server.chainID)"
 
                function executeCallback (id, error, value) {
