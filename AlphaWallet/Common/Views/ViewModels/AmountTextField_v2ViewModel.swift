@@ -10,7 +10,20 @@ import UIKit
 import Combine
 import AlphaWalletFoundation
 
-final class AmountTextField_v2ViewModel: NSObject {
+struct AmountTextField_v2ViewModelInput {
+    let togglePair: AnyPublisher<Void, Never>
+}
+
+struct AmountTextField_v2ViewModelOutput {
+    let etherAmountToSend: AnyPublisher<String?, Never>
+    let alternativeAmount: AnyPublisher<String?, Never>
+    let currentPair: AnyPublisher<AmountTextField_v2.Pair?, Never>
+    let accessoryButtonTitle: AnyPublisher<AmountTextField_v2.AccessoryButtonTitle, Never>
+    let errorState: AnyPublisher<AmountTextField_v2.ErrorState, Never>
+    let text: AnyPublisher<String?, Never>
+}
+
+final class AmountTextField_v2ViewModel {
     //NOTE: Raw values for eth and fiat values. To prevent recalculation we store entered eth and calculated dollarCostRawValue values and vice versa.
     private var cryptoRawValue: NSDecimalNumber?
     private var fiatRawValue: NSDecimalNumber?
@@ -32,16 +45,7 @@ final class AmountTextField_v2ViewModel: NSObject {
         }
     }
 
-    private var cryptoValueOrPairChanged: AnyPublisher<((crypto: String, shortCrypto: String?, useFormatting: Bool), AmountTextField_v2.Pair?), Never> {
-        return Publishers.CombineLatest(cryptoValueChanged, currentPair)
-            .share()
-            .eraseToAnyPublisher()
-    }
-
-    @Published var errorState: AmountTextField_v2.ErrorState = .none
-    @Published var accessoryButtonTitle: AmountTextField_v2.AccessoryButtonTitle = .done
-    let fallbackValue: String = "0"
-    var alternativeAmount: AnyPublisher<String?, Never> {
+    private var alternativeAmount: AnyPublisher<String?, Never> {
         return cryptoValueOrPairChanged.map { _, _ in return self.alternativeAmountRawValue }
             .removeDuplicates()
             .map { value -> String? in
@@ -66,25 +70,17 @@ final class AmountTextField_v2ViewModel: NSObject {
                     }
                 }
             }.filter { $0 != nil }
+            .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }
 
-    var cryptoValueChanged: AnyPublisher<(crypto: String, shortCrypto: String?, useFormatting: Bool), Never> {
-        cryptoValueChangedSubject.map { event -> (crypto: String, shortCrypto: String?, useFormatting: Bool) in
-            switch event {
-            case .manually(let crypto, let shortCrypto, let useFormatting):
-                let valueToSet = crypto.optionalDecimalValue
-                self.cryptoRawValue = valueToSet
-                self.recalculate(amountValue: valueToSet, for: self.cryptoCurrency.value)
-
-                return (crypto: crypto, shortCrypto: shortCrypto, useFormatting: useFormatting)
-            case .whenTextChanged(let crypto, let shortCrypto, let useFormatting):
-                return (crypto: crypto, shortCrypto: shortCrypto, useFormatting: useFormatting)
-            }
-        }.eraseToAnyPublisher()
+    private var cryptoValueOrPairChanged: AnyPublisher<((crypto: String, shortCrypto: String?, useFormatting: Bool), AmountTextField_v2.Pair?), Never> {
+        return Publishers.CombineLatest(cryptoValueChanged, currentPair)
+            .share()
+            .eraseToAnyPublisher()
     }
 
-    var etherAmountToSend: AnyPublisher<String?, Never> {
+    private var etherAmountToSend: AnyPublisher<String?, Never> {
         return cryptoValueOrPairChanged
             .map { values, currentPair -> String? in
                 switch currentPair?.left {
@@ -102,10 +98,70 @@ final class AmountTextField_v2ViewModel: NSObject {
                     return nil
                 }
             }.removeDuplicates()
+            .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }
-    
+
+    @Published var errorState: AmountTextField_v2.ErrorState = .none
+    @Published var accessoryButtonTitle: AmountTextField_v2.AccessoryButtonTitle = .done
+    let fallbackValue: String = "0"
+
+    var cryptoValueChanged: AnyPublisher<(crypto: String, shortCrypto: String?, useFormatting: Bool), Never> {
+        cryptoValueChangedSubject.map { event -> (crypto: String, shortCrypto: String?, useFormatting: Bool) in
+            switch event {
+            case .manually(let crypto, let shortCrypto, let useFormatting):
+                let valueToSet = crypto.optionalDecimalValue
+                self.cryptoRawValue = valueToSet
+                self.recalculate(amountValue: valueToSet, for: self.cryptoCurrency.value)
+
+                return (crypto: crypto, shortCrypto: shortCrypto, useFormatting: useFormatting)
+            case .whenTextChanged(let crypto, let shortCrypto, let useFormatting):
+                return (crypto: crypto, shortCrypto: shortCrypto, useFormatting: useFormatting)
+            }
+        }.eraseToAnyPublisher()
+    }
+
     let debugName: String
+
+    init(token: Token?, debugName: String) {
+        self.debugName = debugName
+        cryptoCurrency.value = token.flatMap { .cryptoCurrency($0) }
+        currentPair.value = token.flatMap { AmountTextField_v2.Pair(left: .cryptoCurrency($0), right: .fiatCurrency(.USD)) }
+    }
+
+    func transform(input: AmountTextField_v2ViewModelInput) -> AmountTextField_v2ViewModelOutput {
+        cryptoToFiatRate.removeDuplicates()
+            .combineLatest(currentPair) { _, pair -> AmountTextField_v2.Pair? in return pair }
+            .compactMap { $0 }
+            .sink { [weak self] pair in
+                guard let strongSelf = self else { return }
+
+                switch pair.left {
+                case .cryptoCurrency:
+                    strongSelf.recalculate(amountValue: strongSelf.cryptoRawValue)
+                case .fiatCurrency:
+                    strongSelf.recalculate(amountValue: strongSelf.fiatRawValue)
+                }
+            }.store(in: &cancelable)
+
+        let currentPair = currentPair
+            .receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
+
+        let accessoryButtonTitle = $accessoryButtonTitle
+            .receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
+
+        let errorState = $errorState
+            .receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
+
+        let text = toggleFiatAndCryptoPair(trigger: input.togglePair)
+            .receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
+
+        return .init(etherAmountToSend: etherAmountToSend, alternativeAmount: alternativeAmount, currentPair: currentPair, accessoryButtonTitle: accessoryButtonTitle, errorState: errorState, text: text)
+    }
 
     func set(token: Token?) {
         cryptoCurrency.value = token.flatMap { .cryptoCurrency($0) }
@@ -136,38 +192,6 @@ final class AmountTextField_v2ViewModel: NSObject {
         }
     }
 
-    init(token: Token?, debugName: String) {
-        self.debugName = debugName
-        cryptoCurrency.value = token.flatMap { .cryptoCurrency($0) }
-        currentPair.value = token.flatMap { AmountTextField_v2.Pair(left: .cryptoCurrency($0), right: .fiatCurrency(.USD)) }
-
-        super.init()
-
-        cryptoToFiatRate.removeDuplicates()
-            .combineLatest(currentPair) { _, pair -> AmountTextField_v2.Pair? in return pair }
-            .compactMap { $0 }
-            .sink { [weak self] pair in
-                guard let `self` = self else { return }
-
-                switch pair.left {
-                case .cryptoCurrency:
-                    self.recalculate(amountValue: self.cryptoRawValue)
-                case .fiatCurrency:
-                    self.recalculate(amountValue: self.fiatRawValue)
-                }
-            }.store(in: &cancelable)
-    }
-
-    func toggleFiatAndCryptoPair(trigger: AnyPublisher<Void, Never>) -> AnyPublisher<String?, Never> {
-        return trigger.filter { _ in self.cryptoToFiatRate.value != nil }
-            .map { _ -> String? in
-                let oldAlternateAmount = self.formatValueToDisplayValue(self.alternativeAmountRawValue)
-                self.toggleFiatAndCryptoPair()
-
-                return oldAlternateAmount
-            }.eraseToAnyPublisher()
-    } 
-
     func toggleFiatAndCryptoPair() {
         currentPair.value?.swap()
     }
@@ -183,30 +207,6 @@ final class AmountTextField_v2ViewModel: NSObject {
             return StringFormatter().currency(with: amount, and: Currency.USD.rawValue, usesGroupingSeparator: usesGroupingSeparator)
         case .fiatCurrency:
             return StringFormatter().alternateAmount(value: amount, usesGroupingSeparator: usesGroupingSeparator)
-        }
-    }
-
-    ///Recalculates raw value (eth, or usd) depends on selected currency `currencyToOverride ?? currentPair.left` based on cryptoToDollarRate
-    private func recalculate(amountValue: NSDecimalNumber?, for currencyToOverride: AmountTextField_v2.FiatOrCrypto? = nil) {
-        guard let cryptoToDollarRate = cryptoToFiatRate.value else {
-            return
-        }
-
-        switch currencyToOverride ?? currentPair.value?.left {
-        case .cryptoCurrency:
-            if let amount = amountValue {
-                fiatRawValue = amount.multiplying(by: cryptoToDollarRate)
-            } else {
-                fiatRawValue = nil
-            }
-        case .fiatCurrency:
-            if let amount = amountValue {
-                cryptoRawValue = amount.dividing(by: cryptoToDollarRate)
-            } else {
-                cryptoRawValue = nil
-            }
-        case .none:
-            break
         }
     }
 
@@ -231,6 +231,40 @@ final class AmountTextField_v2ViewModel: NSObject {
 
         let crypto = self.crypto(for: crypto)
         cryptoValueChangedSubject.send(.whenTextChanged(crypto: crypto, shortCrypto: nil, useFormatting: false))
+    }
+
+    private func toggleFiatAndCryptoPair(trigger: AnyPublisher<Void, Never>) -> AnyPublisher<String?, Never> {
+        return trigger.filter { _ in self.cryptoToFiatRate.value != nil }
+            .map { _ -> String? in
+                let oldAlternateAmount = self.formatValueToDisplayValue(self.alternativeAmountRawValue)
+                self.toggleFiatAndCryptoPair()
+
+                return oldAlternateAmount
+            }.eraseToAnyPublisher()
+    }
+
+    ///Recalculates raw value (eth, or usd) depends on selected currency `currencyToOverride ?? currentPair.left` based on cryptoToDollarRate
+    private func recalculate(amountValue: NSDecimalNumber?, for currencyToOverride: AmountTextField_v2.FiatOrCrypto? = nil) {
+        guard let cryptoToDollarRate = cryptoToFiatRate.value else {
+            return
+        }
+
+        switch currencyToOverride ?? currentPair.value?.left {
+        case .cryptoCurrency:
+            if let amount = amountValue {
+                fiatRawValue = amount.multiplying(by: cryptoToDollarRate)
+            } else {
+                fiatRawValue = nil
+            }
+        case .fiatCurrency:
+            if let amount = amountValue {
+                cryptoRawValue = amount.dividing(by: cryptoToDollarRate)
+            } else {
+                cryptoRawValue = nil
+            }
+        case .none:
+            break
+        }
     }
 
     enum CryptoValueChangeEvent {

@@ -61,10 +61,6 @@ class AmountTextField_v2: UIControl {
         return label
     }()
 
-    var value: String? {
-        return textField.text
-    }
-
     private (set) lazy var cryptoValue: AnyPublisher<String, Never> = {
         return viewModel.cryptoValueChanged
             .map { $0.crypto }
@@ -107,8 +103,12 @@ class AmountTextField_v2: UIControl {
     weak var delegate: AmountTextField_v2Delegate?
     let viewModel: AmountTextField_v2ViewModel
 
-    init(token: Token?, debugName: String = "", buttonType: AmountTextField_v2.AccessoryButtonTitle = .done) {
-        viewModel = .init(token: token, debugName: debugName)
+    convenience init(token: Token?, debugName: String = "", buttonType: AmountTextField_v2.AccessoryButtonTitle = .done) {
+        self.init(viewModel: .init(token: token, debugName: debugName))
+    }
+
+    init(viewModel: AmountTextField_v2ViewModel, buttonType: AmountTextField_v2.AccessoryButtonTitle = .done) {
+        self.viewModel = viewModel
         super.init(frame: .zero)
 
         translatesAutoresizingMaskIntoConstraints = false
@@ -161,8 +161,14 @@ class AmountTextField_v2: UIControl {
     }
 
     private func bind(viewModel: AmountTextField_v2ViewModel) {
-        viewModel.$errorState
-            .receive(on: RunLoop.main)
+        let togglePair = selectCurrencyButton
+            .publisher(forEvent: .touchUpInside)
+            .eraseToAnyPublisher()
+
+        let input = AmountTextField_v2ViewModelInput(togglePair: togglePair)
+        let output = viewModel.transform(input: input)
+
+        output.errorState
             .sink { [weak statusLabel, weak textField] errorState in
                 statusLabel?.textColor = errorState.statusLabelTextColor
                 statusLabel?.font = errorState.statusLabelFont
@@ -173,18 +179,16 @@ class AmountTextField_v2: UIControl {
                 ])
             }.store(in: &cancelable)
 
-        viewModel.$accessoryButtonTitle
-            .receive(on: RunLoop.main)
-            .sink { [weak inputAccessoryButton] accessoryButtonTitle in
-                inputAccessoryButton?.setTitle(accessoryButtonTitle.buttonTitle, for: .normal)
+        output.accessoryButtonTitle
+            .sink { [weak inputAccessoryButton] in
+                inputAccessoryButton?.setTitle($0.buttonTitle, for: .normal)
             }.store(in: &cancelable)
 
-        viewModel.currentPair
-            .receive(on: RunLoop.main)
-            .sink { [weak selectCurrencyButton, weak self] currentPair in
+        output.currentPair
+            .sink { [weak selectCurrencyButton, weak self] in
                 guard let `self` = self else { return }
                 
-                if let pair = currentPair {
+                if let pair = $0 {
                     selectCurrencyButton?.hasToken = true
                     selectCurrencyButton?.text = pair.symbol
                     selectCurrencyButton?.tokenIcon = pair.icon
@@ -195,24 +199,15 @@ class AmountTextField_v2: UIControl {
                 self.delegate?.changeType(in: self)
             }.store(in: &cancelable)
 
-        viewModel.alternativeAmount
-            .receive(on: RunLoop.main)
+        output.alternativeAmount
             .assign(to: \.text, on: alternativeAmountLabel)
             .store(in: &cancelable)
 
-        viewModel.etherAmountToSend
-            .receive(on: RunLoop.main)
+        output.etherAmountToSend
             .assign(to: \.text, on: textField)
             .store(in: &cancelable)
 
-        let togglePair = selectCurrencyButton
-            .publisher(forEvent: .touchUpInside)
-            .map { _ in return () }
-            .eraseToAnyPublisher()
-
-        viewModel
-            .toggleFiatAndCryptoPair(trigger: togglePair)
-            .receive(on: RunLoop.main)
+        output.text
             .assign(to: \.text, on: textField)
             .store(in: &cancelable)
     }
