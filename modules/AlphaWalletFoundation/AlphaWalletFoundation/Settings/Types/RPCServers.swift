@@ -637,6 +637,19 @@ public enum RPCServer: Hashable, CaseIterable {
         return URL(string: urlString)!
     }
 
+    //Main reason for this is we can't use KAS nodes for Klaytn mainnet and testnet as we can't/didn't also inject the Basic Auth
+    //TODO fix it so Klaytn KAS Basic Auth is injected to web3 browser. Their public node are always rate limited
+    var web3InjectedRpcURL: URL {
+        switch serverWithEnhancedSupport! {
+        case .main, .xDai, .candle, .polygon, .binance_smart_chain, .heco, .rinkeby, .arbitrum, nil:
+            return rpcURL
+        case .klaytnCypress:
+            return URL(string: "https://public-node-api.klaytnapi.com/v1/cypress")!
+        case .klaytnBaobabTestnet:
+            return URL(string: "https://api.baobab.klaytn.net:8651")!
+        }
+    }
+
     public var rpcHeaders: Web3.RPCNodeHTTPHeaders {
         switch self {
         case .klaytnCypress, .klaytnBaobabTestnet:
