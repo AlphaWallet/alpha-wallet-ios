@@ -68,7 +68,7 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    } 
+    }
 
     //NOTE: Blank out the title before pushing the send screen because longer (not even very long ones) titles will overlay the Send screen's back button
     override func viewWillAppear(_ animated: Bool) {
