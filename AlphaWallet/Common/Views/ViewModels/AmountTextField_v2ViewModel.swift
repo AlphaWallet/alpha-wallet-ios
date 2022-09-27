@@ -10,20 +10,19 @@ import UIKit
 import Combine
 import AlphaWalletFoundation
 
-class AmountTextField_v2ViewModel: NSObject, ObservableObject {
+final class AmountTextField_v2ViewModel: NSObject {
     //NOTE: Raw values for eth and fiat values. To prevent recalculation we store entered eth and calculated dollarCostRawValue values and vice versa.
-    private (set) var cryptoRawValue: NSDecimalNumber?
-    private (set) var fiatRawValue: NSDecimalNumber?
-    private (set) var cryptoToDollarRate = CurrentValueSubject<NSDecimalNumber?, Never>(nil)
+    private var cryptoRawValue: NSDecimalNumber?
+    private var fiatRawValue: NSDecimalNumber?
+    private (set) var cryptoToFiatRate = CurrentValueSubject<NSDecimalNumber?, Never>(nil)
     private (set) var cryptoCurrency = CurrentValueSubject<AmountTextField_v2.FiatOrCrypto?, Never>(nil)
     private (set) var currentPair = CurrentValueSubject<AmountTextField_v2.Pair?, Never>(nil)
     private var cryptoValueChangedSubject = PassthroughSubject<CryptoValueChangeEvent, Never>()
-
-    @Published var errorState: AmountTextField_v2.ErrorState = .none
-    @Published var accessoryButtonTitle: AmountTextField_v2.AccessoryButtonTitle = .done
+    private var cancelable = Set<AnyCancellable>()
+    private var isAllFunds: Bool = false
 
     ///Returns raw (calculated) value based on selected currency
-    private var _alternativeAmount: NSDecimalNumber? {
+    private var alternativeAmountRawValue: NSDecimalNumber? {
         guard let pair = currentPair.value else { return nil }
         switch pair.left {
         case .cryptoCurrency:
@@ -33,8 +32,17 @@ class AmountTextField_v2ViewModel: NSObject, ObservableObject {
         }
     }
 
+    private var cryptoValueOrPairChanged: AnyPublisher<((crypto: String, shortCrypto: String?, useFormatting: Bool), AmountTextField_v2.Pair?), Never> {
+        return Publishers.CombineLatest(cryptoValueChanged, currentPair)
+            .share()
+            .eraseToAnyPublisher()
+    }
+
+    @Published var errorState: AmountTextField_v2.ErrorState = .none
+    @Published var accessoryButtonTitle: AmountTextField_v2.AccessoryButtonTitle = .done
+    let fallbackValue: String = "0"
     var alternativeAmount: AnyPublisher<String?, Never> {
-        return cryptoValueOrPairChanged.map { _, _ in return self._alternativeAmount }
+        return cryptoValueOrPairChanged.map { _, _ in return self.alternativeAmountRawValue }
             .removeDuplicates()
             .map { value -> String? in
                 let amount = self.formatValueToDisplayValue(value, usesGroupingSeparator: true)
@@ -76,12 +84,6 @@ class AmountTextField_v2ViewModel: NSObject, ObservableObject {
         }.eraseToAnyPublisher()
     }
 
-    private var cryptoValueOrPairChanged: AnyPublisher<((crypto: String, shortCrypto: String?, useFormatting: Bool), AmountTextField_v2.Pair?), Never> {
-        return Publishers.CombineLatest(cryptoValueChanged, currentPair)
-            .share()
-            .eraseToAnyPublisher()
-    }
-
     var etherAmountToSend: AnyPublisher<String?, Never> {
         return cryptoValueOrPairChanged
             .map { values, currentPair -> String? in
@@ -104,9 +106,6 @@ class AmountTextField_v2ViewModel: NSObject, ObservableObject {
     }
     
     let debugName: String
-    private var cancelable = Set<AnyCancellable>()
-
-    var isAllFunds: Bool = false
 
     func set(token: Token?) {
         cryptoCurrency.value = token.flatMap { .cryptoCurrency($0) }
@@ -137,8 +136,6 @@ class AmountTextField_v2ViewModel: NSObject, ObservableObject {
         }
     }
 
-    let fallbackValue: String = "0"
-
     init(token: Token?, debugName: String) {
         self.debugName = debugName
         cryptoCurrency.value = token.flatMap { .cryptoCurrency($0) }
@@ -146,7 +143,7 @@ class AmountTextField_v2ViewModel: NSObject, ObservableObject {
 
         super.init()
 
-        cryptoToDollarRate.removeDuplicates()
+        cryptoToFiatRate.removeDuplicates()
             .combineLatest(currentPair) { _, pair -> AmountTextField_v2.Pair? in return pair }
             .compactMap { $0 }
             .sink { [weak self] pair in
@@ -162,9 +159,9 @@ class AmountTextField_v2ViewModel: NSObject, ObservableObject {
     }
 
     func toggleFiatAndCryptoPair(trigger: AnyPublisher<Void, Never>) -> AnyPublisher<String?, Never> {
-        return trigger.filter { _ in self.cryptoToDollarRate.value != nil }
+        return trigger.filter { _ in self.cryptoToFiatRate.value != nil }
             .map { _ -> String? in
-                let oldAlternateAmount = self.formatValueToDisplayValue(self._alternativeAmount)
+                let oldAlternateAmount = self.formatValueToDisplayValue(self.alternativeAmountRawValue)
                 self.toggleFiatAndCryptoPair()
 
                 return oldAlternateAmount
@@ -191,7 +188,7 @@ class AmountTextField_v2ViewModel: NSObject, ObservableObject {
 
     ///Recalculates raw value (eth, or usd) depends on selected currency `currencyToOverride ?? currentPair.left` based on cryptoToDollarRate
     private func recalculate(amountValue: NSDecimalNumber?, for currencyToOverride: AmountTextField_v2.FiatOrCrypto? = nil) {
-        guard let cryptoToDollarRate = cryptoToDollarRate.value else {
+        guard let cryptoToDollarRate = cryptoToFiatRate.value else {
             return
         }
 

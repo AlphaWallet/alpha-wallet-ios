@@ -23,13 +23,13 @@ class EditPriceAlertViewController: UIViewController {
         return view
     }()
 
-    private lazy var amountTextField: AmountTextField = {
-        let view = AmountTextField(tokenObject: viewModel.token)
+    private lazy var amountTextField: AmountTextField_v2 = {
+        let view = AmountTextField_v2(token: viewModel.token)
         view.translatesAutoresizingMaskIntoConstraints = false
         view.delegate = self
-        view.accessoryButtonTitle = .next
-        view.errorState = .none
-        view.togglePair()
+        view.viewModel.accessoryButtonTitle = .next
+        view.viewModel.errorState = .none
+        view.viewModel.toggleFiatAndCryptoPair()
 
         view.isAlternativeAmountEnabled = false
         view.allFundsAvailable = false
@@ -48,18 +48,14 @@ class EditPriceAlertViewController: UIViewController {
         return view
     }()
 
-    private var viewModel: EditPriceAlertViewModel
-    private let session: WalletSession
-    private let alertService: PriceAlertServiceType
+    private let viewModel: EditPriceAlertViewModel
+    private let appear = PassthroughSubject<Void, Never>()
     private var cancelable = Set<AnyCancellable>()
-    private let tokensService: TokenViewModelState
+
     weak var delegate: EditPriceAlertViewControllerDelegate?
 
-    init(viewModel: EditPriceAlertViewModel, session: WalletSession, tokensService: TokenViewModelState, alertService: PriceAlertServiceType) {
+    init(viewModel: EditPriceAlertViewModel) {
         self.viewModel = viewModel
-        self.session = session
-        self.alertService = alertService
-        self.tokensService = tokensService
         super.init(nibName: nil, bundle: nil)
 
         let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
@@ -76,45 +72,55 @@ class EditPriceAlertViewController: UIViewController {
         ])
 
         generateSubviews(viewModel: viewModel)
+    }
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
         buttonsBar.configure()
         buttonsBar.buttons[0].setTitle(viewModel.setAlertTitle, for: .normal)
-        buttonsBar.buttons[0].addTarget(self, action: #selector(saveAlertSelected), for: .touchUpInside)
 
-        configure(viewModel: viewModel)
-
-        //NOTE: we want to enter only fiat value, as `amountTextField` accepts eth we have to convert it with 1 to 1 rate
-        amountTextField.cryptoToDollarRate = 1
-        amountTextField.set(ethCost: viewModel.value, useFormatting: false)
-
-        tokensService.tokenViewModelPublisher(for: viewModel.token)
-            .map { $0?.balance.ticker?.price_usd }
-            .receive(on: RunLoop.main)
-            .sink { [weak self] price in
-                guard let strongSelf = self else { return }
-
-                strongSelf.viewModel.set(marketPrice: price)
-                strongSelf.configure(viewModel: strongSelf.viewModel)
-            }.store(in: &cancelable)
+        bind(viewModel: viewModel)
     }
 
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-
-        if isMovingFromParent || isBeingDismissed {
-            delegate?.didClose(in: self)
-        }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        appear.send(())
     }
 
-    func configure(viewModel: EditPriceAlertViewModel) {
-        self.viewModel = viewModel
+    private func bind(viewModel: EditPriceAlertViewModel) {
         view.backgroundColor = viewModel.backgroundColor
         title = viewModel.navigationTitle
 
         containerView.configure(viewModel: .init(backgroundColor: viewModel.backgroundColor))
 
-        amountTextField.statusLabel.text = viewModel.marketPriceString
-        buttonsBar.buttons[0].isEnabled = viewModel.isEditingAvailable
+        let save = buttonsBar.buttons[0].publisher(forEvent: .touchUpInside).eraseToAnyPublisher()
+
+        let input = EditPriceAlertViewModelInput(appear: appear.eraseToAnyPublisher(), save: save, cryptoValue: amountTextField.cryptoValue)
+        let output = viewModel.transform(input: input)
+
+        output.cryptoToFiatRate
+            .assign(to: \.value, on: amountTextField.viewModel.cryptoToFiatRate, ownership: .weak)
+            .store(in: &cancelable)
+
+        output.cryptoInitial
+            .sink { [weak amountTextField] in amountTextField?.set(crypto: $0, useFormatting: false) }
+            .store(in: &cancelable)
+
+        output.marketPrice
+            .sink { [weak amountTextField] in amountTextField?.statusLabel.text = $0 }
+            .store(in: &cancelable)
+
+        output.isEnabled
+            .sink { [weak buttonsBar] in buttonsBar?.buttons[0].isEnabled = $0 }
+            .store(in: &cancelable)
+
+        output.createOrUpdatePriceAlert
+            .sink {
+                switch $0 {
+                case .success: self.delegate?.didUpdateAlert(in: self)
+                case .failure: break
+                }
+            }.store(in: &cancelable)
     }
 
     private func generateSubviews(viewModel: EditPriceAlertViewModel) {
@@ -129,35 +135,27 @@ class EditPriceAlertViewController: UIViewController {
         containerView.stackView.addArrangedSubviews(subViews)
     }
 
-    @objc private func saveAlertSelected(_ sender: UIButton) {
-        guard let value = amountTextField.value.flatMap({ Formatter.default.number(from: $0) }), let marketPrice = viewModel.marketPrice else { return }
-
-        switch viewModel.configuration {
-        case .create:
-            let alert: PriceAlert = .init(type: .init(value: value.doubleValue, marketPrice: marketPrice), token: viewModel.token, isEnabled: true)
-            alertService.add(alert: alert)
-        case .edit(let alert):
-            alertService.update(alert: alert, update: .value(value: value.doubleValue, marketPrice: marketPrice))
-        }
-
-        delegate?.didUpdateAlert(in: self)
-    }
-
     required init?(coder: NSCoder) {
         return nil
     }
 }
 
-extension EditPriceAlertViewController: AmountTextFieldDelegate {
-    func changeAmount(in textField: AmountTextField) {
+extension EditPriceAlertViewController: PopNotifiable {
+    func didPopViewController(animated: Bool) {
+        delegate?.didClose(in: self)
+    }
+}
+
+extension EditPriceAlertViewController: AmountTextField_v2Delegate {
+    func changeAmount(in textField: AmountTextField_v2) {
         // no-op
     }
 
-    func changeType(in textField: AmountTextField) {
+    func changeType(in textField: AmountTextField_v2) {
         // no-op
     }
 
-    func shouldReturn(in textField: AmountTextField) -> Bool {
+    func shouldReturn(in textField: AmountTextField_v2) -> Bool {
         return true
     }
 }

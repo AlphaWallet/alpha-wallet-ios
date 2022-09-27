@@ -15,7 +15,7 @@ protocol EditPriceAlertCoordinatorDelegate: class {
 
 class EditPriceAlertCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
-    private let configuration: EdiPricetAlertViewModelConfiguration
+    private let configuration: EditPriceAlertViewModel.Configuration
     private let navigationController: UINavigationController
     private let token: Token
     private let session: WalletSession
@@ -23,7 +23,7 @@ class EditPriceAlertCoordinator: Coordinator {
     private let tokensService: TokenViewModelState
     weak var delegate: EditPriceAlertCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, configuration: EdiPricetAlertViewModelConfiguration, token: Token, session: WalletSession, tokensService: TokenViewModelState, alertService: PriceAlertServiceType) {
+    init(navigationController: UINavigationController, configuration: EditPriceAlertViewModel.Configuration, token: Token, session: WalletSession, tokensService: TokenViewModelState, alertService: PriceAlertServiceType) {
         self.configuration = configuration
         self.navigationController = navigationController
         self.token = token
@@ -33,7 +33,8 @@ class EditPriceAlertCoordinator: Coordinator {
     }
 
     func start() {
-        let viewController = EditPriceAlertViewController(viewModel: .init(configuration: configuration, token: token), session: session, tokensService: tokensService, alertService: alertService)
+        let viewModel = EditPriceAlertViewModel(configuration: configuration, token: token, tokensService: tokensService, alertService: alertService)
+        let viewController = EditPriceAlertViewController(viewModel: viewModel)
         viewController.delegate = self
         viewController.hidesBottomBarWhenPushed = true
 
