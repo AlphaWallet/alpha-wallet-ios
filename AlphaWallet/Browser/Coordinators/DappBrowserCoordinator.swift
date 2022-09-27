@@ -408,6 +408,11 @@ extension DappBrowserCoordinator: TransactionConfirmationCoordinatorDelegate {
 
             strongSelf.removeCoordinator(coordinator)
             strongSelf.navigationController.dismiss(animated: true)
+
+            UIApplication.shared
+                .presentedViewController(or: strongSelf.navigationController)
+                .displayError(message: error.prettyError)
+
         }
     }
 
