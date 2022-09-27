@@ -139,6 +139,10 @@ public class AlphaWalletTokensService: TokensService {
 
     public func add(tokenUpdates updates: [TokenUpdate]) {
         tokensDataStore.add(tokenUpdates: updates)
+
+        //TODO should we do this for `addOrUpdate(tokensOrContracts:)` too?
+        let tokens: [Token] = updates.flatMap { tokensDataStore.token(forContract: $0.address, server: $0.server) }
+        refreshBalance(updatePolicy: .tokens(tokens: tokens))
     }
 
     public func addOrUpdate(tokensOrContracts: [TokenOrContract]) -> [Token] {
