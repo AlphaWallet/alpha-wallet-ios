@@ -6,9 +6,9 @@ import RealmSwift
 public struct RealmConfiguration {
     private static let walletsFolderForTests = "testSuiteWalletsForRealm"
 
-    public static func configuration(for account: Wallet) -> Realm.Configuration {
+    public static func configuration(for address: AlphaWallet.Address) -> Realm.Configuration {
         var config = realmConfiguration()
-        config.fileURL = defaultRealmFolderUrl.appendingPathComponent("\(account.address.eip55String.lowercased()).realm")
+        config.fileURL = defaultRealmFolderUrl.appendingPathComponent("\(address.eip55String.lowercased()).realm")
         addProtectionKeyNone(for: config)
 
         return config

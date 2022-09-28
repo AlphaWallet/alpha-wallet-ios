@@ -154,16 +154,14 @@ class AppCoordinator: NSObject, Coordinator {
     private func bindWalletAddressesStore() {
         walletAddressesStore
             .didRemoveWalletPublisher
-            .sink { [weak self] account in
-                guard let `self` = self else { return }
-
+            .sink { [config, analytics, keystore, legacyFileBasedKeystore] account in
                 //TODO: pass ref
                 FileWalletStorage().addOrUpdate(name: nil, for: account.address)
-                PromptBackupCoordinator(keystore: self.keystore, wallet: account, config: self.config, analytics: self.analytics).deleteWallet()
-                TransactionsTracker.resetFetchingState(account: account, config: self.config)
+                PromptBackupCoordinator(keystore: keystore, wallet: account, config: config, analytics: analytics).deleteWallet()
+                TransactionsTracker.resetFetchingState(account: account, config: config)
                 Erc1155TokenIdsFetcher.deleteForWallet(account.address)
-                DatabaseMigration.removeRealmFiles(account: account)
-                self.legacyFileBasedKeystore.delete(wallet: account)
+                DatabaseMigration.addToDeleteList(address: account.address)
+                legacyFileBasedKeystore.delete(wallet: account)
             }.store(in: &cancelable)
     }
 
@@ -173,7 +171,7 @@ class AppCoordinator: NSObject, Coordinator {
                 infoLog("Ticker ID positive matching counts: \(TickerIdFilter.matchCounts)")
             }
         }
-
+        DatabaseMigration.dropDeletedRealmFiles(excluding: walletAddressesStore.wallets)
         protectionCoordinator.didFinishLaunchingWithOptions()
         initializers()
         runServices()
