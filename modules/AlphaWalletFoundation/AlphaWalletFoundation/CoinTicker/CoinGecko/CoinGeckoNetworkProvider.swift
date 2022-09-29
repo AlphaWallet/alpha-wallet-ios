@@ -44,7 +44,7 @@ public class CoinGeckoNetworkProvider: CoinTickerNetworkProviderType {
         var page = 1
         var allResults: [CoinTicker] = .init()
         func fetchPageImpl() -> AnyPublisher<[CoinTicker], PromiseError> {
-            fetchPricesPage(for: ids, page: page, shouldRetry: true, currency: currency)
+            fetchPricesPage(for: ids, page: page, currency: currency)
                 .flatMap { results -> AnyPublisher<[CoinTicker], PromiseError> in
                     if results.isEmpty {
                         return .just(allResults)
@@ -71,7 +71,7 @@ public class CoinGeckoNetworkProvider: CoinTickerNetworkProviderType {
             .eraseToAnyPublisher()
     }
 
-    private func fetchPricesPage(for tickerIds: String, page: Int, shouldRetry: Bool, currency: String) -> AnyPublisher<[CoinTicker], PromiseError> {
+    private func fetchPricesPage(for tickerIds: String, page: Int, currency: String) -> AnyPublisher<[CoinTicker], PromiseError> {
         return Alamofire.request(PricesOfTokensRequest(ids: tickerIds, currency: currency, page: page))
             .responseDataPublisher()
             .retry(times: 3)

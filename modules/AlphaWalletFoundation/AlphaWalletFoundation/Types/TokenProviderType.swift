@@ -42,7 +42,7 @@ public class TokenProvider: TokenProviderType {
         let queue = queue
 
         return firstly {
-            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData) {
+            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {
                 GetNativeCryptoCurrencyBalance(forServer: server, analytics: self.analytics, queue: queue)
                     .getBalance(for: address)
             }
@@ -52,7 +52,7 @@ public class TokenProvider: TokenProviderType {
     public func getContractName(for address: AlphaWallet.Address) -> Promise<String> {
         let server = server
         return firstly {
-            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData) {
+            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {
                 GetContractName(forServer: server)
                     .getName(for: address)
             }
@@ -62,7 +62,7 @@ public class TokenProvider: TokenProviderType {
     public func getContractSymbol(for address: AlphaWallet.Address) -> Promise<String> {
         let server = server
         return firstly {
-            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData) {
+            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {
                 GetContractSymbol(forServer: server)
                     .getSymbol(for: address)
             }
@@ -72,7 +72,7 @@ public class TokenProvider: TokenProviderType {
     public func getDecimals(for address: AlphaWallet.Address) -> Promise<UInt8> {
         let server = server
         return firstly {
-            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData) {
+            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {
                 GetContractDecimals(forServer: server)
                     .getDecimals(for: address)
             }
@@ -93,7 +93,7 @@ public class TokenProvider: TokenProviderType {
         let queue = queue
 
         return firstly {
-            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData) {
+            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {
                 GetErc20Balance(forServer: server, queue: queue)
                     .getBalance(for: account, contract: address)
             }
@@ -106,7 +106,7 @@ public class TokenProvider: TokenProviderType {
         let queue = queue
 
         return firstly {
-            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData) {
+            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {
                 GetErc875Balance(forServer: server, queue: queue)
                     .getERC875TokenBalance(for: account, contract: address)
             }
@@ -120,7 +120,7 @@ public class TokenProvider: TokenProviderType {
         let queue = queue
 
         return firstly {
-            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData) {
+            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {
                 GetErc721ForTicketsBalance(forServer: server, queue: queue)
                     .getERC721ForTicketsTokenBalance(for: account, contract: address)
             }
@@ -133,7 +133,7 @@ public class TokenProvider: TokenProviderType {
         let queue = queue
 
         return firstly {
-            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData) {
+            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {
                 GetErc721Balance(forServer: server, queue: queue)
                     .getERC721TokenBalance(for: account, contract: address)
             }.map(on: queue, { balance -> [String] in
@@ -144,6 +144,10 @@ public class TokenProvider: TokenProviderType {
                 }
             })
         }
+    }
+
+    fileprivate static func shouldRetry(error: Error) -> Bool {
+        return true
     }
 
     private func getTokenType(for address: AlphaWallet.Address, completion: @escaping (TokenType) -> Void) {
@@ -157,7 +161,9 @@ public class TokenProvider: TokenProviderType {
         let server = server
 
         let isErc875Promise = firstly {
-            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData) {
+            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {
+                //Function hash is "0x4f452b9a". This might cause many "execution reverted" RPC errors
+                //TODO rewrite flow so we reduce checks for this as it causes too many "execution reverted" RPC errors and looks scary when we look in Charles proxy. Maybe check for ERC20 (via EIP165) as well as ERC721 in parallel first, then fallback to this ERC875 check
                 IsErc875Contract(forServer: server)
                     .getIsERC875Contract(for: address)
             }.recover { _ -> Promise<Bool> in
@@ -166,12 +172,12 @@ public class TokenProvider: TokenProviderType {
         }
 
         let isErc721Promise = firstly {
-            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData) {
+            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {
                 IsErc721Contract(forServer: server).getIsERC721Contract(for: address)
             }
         }.then { isERC721 -> Promise<Erc721Type> in
             if isERC721 {
-                return attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData) {
+                return attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {
                     IsErc721ForTicketsContract(forServer: server)
                         .getIsERC721ForTicketContract(for: address)
                 }.map { isERC721ForTickets -> Erc721Type in
@@ -191,7 +197,7 @@ public class TokenProvider: TokenProviderType {
         }
 
         let isErc1155Promise = firstly {
-            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData) {
+            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {
                 self.isERC1155ContractDetector
                     .getIsERC1155Contract(for: address)
             }.recover { _ -> Promise<Bool> in

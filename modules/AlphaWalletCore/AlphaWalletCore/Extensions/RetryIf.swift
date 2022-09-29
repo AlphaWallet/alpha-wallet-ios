@@ -39,22 +39,22 @@ extension Publishers {
 }
 
 extension Publisher {
-    private func retry<S: Combine.Scheduler>(_ currentAttempt: UInt, behavior: RetryBehavior<S>, shouldRetry: RetryPredicate? = nil, tolerance: S.SchedulerTimeType.Stride? = nil, scheduler: S, options: S.SchedulerOptions? = nil) -> AnyPublisher<Output, Failure> {
+    private func retry<S: Combine.Scheduler>(_ currentAttempt: UInt, behavior: RetryBehavior<S>, shouldOnlyRetryIf: RetryPredicate? = nil, tolerance: S.SchedulerTimeType.Stride? = nil, scheduler: S, options: S.SchedulerOptions? = nil) -> AnyPublisher<Output, Failure> {
         let conditions = behavior.calculateConditions(currentAttempt)
         
         return self.catch { error -> AnyPublisher<Output, Failure> in
             guard currentAttempt <= conditions.maxRetries else { return .fail(error) }
 
-            if let shouldRetry = shouldRetry, !shouldRetry(error) { return .fail(error) }
+            if let shouldOnlyRetryIf = shouldOnlyRetryIf, !shouldOnlyRetryIf(error) { return .fail(error) }
 
             guard conditions.delay != .zero else {
-                return self.retry(currentAttempt + 1, behavior: behavior, shouldRetry: shouldRetry, tolerance: tolerance, scheduler: scheduler, options: options).eraseToAnyPublisher()
+                return self.retry(currentAttempt + 1, behavior: behavior, shouldOnlyRetryIf: shouldOnlyRetryIf, tolerance: tolerance, scheduler: scheduler, options: options).eraseToAnyPublisher()
             }
 
             return Just(())
                 .delay(for: conditions.delay, tolerance: tolerance, scheduler: scheduler, options: options)
                 .setFailureType(to: Failure.self)
-                .flatMap { self.retry(currentAttempt + 1, behavior: behavior, shouldRetry: shouldRetry, tolerance: tolerance, scheduler: scheduler, options: options) }
+                .flatMap { self.retry(currentAttempt + 1, behavior: behavior, shouldOnlyRetryIf: shouldOnlyRetryIf, tolerance: tolerance, scheduler: scheduler, options: options) }
                 .eraseToAnyPublisher()
         }.eraseToAnyPublisher()
     }
@@ -77,15 +77,15 @@ extension Publisher {
     /**
        Retries the failed upstream publisher using the given retry behavior.
        - parameter behavior: The retry behavior that will be used in case of an error.
-       - parameter shouldRetry: An optional custom closure which uses the downstream error to determine
+       - parameter shouldOnlyRetryIf: An optional custom closure which uses the downstream error to determine
        if the publisher should retry.
        - parameter tolerance: The allowed tolerance in firing delayed events.
        - parameter scheduler: The scheduler that will be used for delaying the retry.
        - parameter options: Options relevant to the scheduler’s behavior.
        - returns: A publisher that attempts to recreate its subscription to a failed upstream publisher.
        */
-    public func retry<S: Combine.Scheduler>(_ behavior: RetryBehavior<S>, shouldRetry: RetryPredicate? = nil, tolerance: S.SchedulerTimeType.Stride? = nil, scheduler: S, options: S.SchedulerOptions? = nil) -> AnyPublisher<Output, Failure> {
-        return retry(1, behavior: behavior, shouldRetry: shouldRetry, tolerance: tolerance, scheduler: scheduler, options: options)
+    public func retry<S: Combine.Scheduler>(_ behavior: RetryBehavior<S>, shouldOnlyRetryIf: RetryPredicate? = nil, tolerance: S.SchedulerTimeType.Stride? = nil, scheduler: S, options: S.SchedulerOptions? = nil) -> AnyPublisher<Output, Failure> {
+        return retry(1, behavior: behavior, shouldOnlyRetryIf: shouldOnlyRetryIf, tolerance: tolerance, scheduler: scheduler, options: options)
     }
 
 }
