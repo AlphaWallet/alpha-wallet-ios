@@ -6,7 +6,7 @@ import RealmSwift
 public class DatabaseMigration: Initializer {
     let account: Wallet
 
-    lazy var config: Realm.Configuration = RealmConfiguration.configuration(for: account)
+    lazy var config: Realm.Configuration = RealmConfiguration.configuration(for: account.address)
 
     public init(account: Wallet) {
         self.account = account
@@ -122,16 +122,31 @@ public class DatabaseMigration: Initializer {
     }
 }
 
-extension DatabaseMigration {
+import AlphaWalletCore
 
-    public static func removeRealmFiles(account: Wallet) {
-        for each in realmFilesUrls(account: account) {
-            try? FileManager.default.removeItem(at: each)
+extension DatabaseMigration {
+    //e.g https://stackoverflow.com/questions/45683173/realm-crash-when-invalidating-while-updating
+    private static let walletsToDeleted = Storage<[AlphaWallet.Address]>(fileName: "deleted_wallets", defaultValue: [])
+
+    public static func addToDeleteList(address: AlphaWallet.Address) {
+        walletsToDeleted.value = Array(Set(walletsToDeleted.value + [address]))
+    }
+
+    public static func dropDeletedRealmFiles(excluding wallets: [Wallet]) {
+        let walletsToDelete = walletsToDeleted.value.filter { address in !wallets.contains(where: { address == $0.address }) }
+        for address in walletsToDelete {
+            let config = RealmConfiguration.configuration(for: address)
+
+            for each in realmFilesUrls(config: config) {
+                try? FileManager.default.removeItem(at: each)
+            }
         }
+
+        walletsToDeleted.value = []
     }
 
     public static func realmFilesUrls(account: Wallet) -> [URL] {
-        let config = RealmConfiguration.configuration(for: account)
+        let config = RealmConfiguration.configuration(for: account.address)
         return realmFilesUrls(config: config)
     }
 
@@ -162,7 +177,7 @@ extension DatabaseMigration {
     //NOTE: This function is using to make sure that wallets in user defaults will be removed after restoring backup from iCloud. Realm files don't backup to iCloud but user defaults does backed up.
     public static func removeWalletsIfRealmFilesMissed(keystore: Keystore) {
         for wallet in keystore.wallets {
-            let config = RealmConfiguration.configuration(for: wallet)
+            let config = RealmConfiguration.configuration(for: wallet.address)
 
             guard let path = config.fileURL else { continue }
 
