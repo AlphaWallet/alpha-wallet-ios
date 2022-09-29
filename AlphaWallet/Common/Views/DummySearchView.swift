@@ -43,3 +43,7 @@ class DummySearchView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 }
+
+extension DummySearchView: ReusableTableHeaderViewType {
+    
+}
