@@ -784,32 +784,40 @@ public enum RPCServer: Hashable, CaseIterable {
         }
     }
 
-    func makeMaximumToBlockForEvents(fromBlockNumber: UInt64) -> Web3.EventFilter.Block {
+    private var maximumBlockRangeForEvents: UInt64? {
         switch self {
         case .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet:
             //These do not allow range more than 5000
-            return .blockNumber(fromBlockNumber + 4990)
+            return 4990
         case .optimistic:
             //These not allow range more than 10000
-            return .blockNumber(fromBlockNumber + 9999)
+            return 9999
         case .polygon:
             //These not allow range more than 3500
-            return .blockNumber(fromBlockNumber + 3499)
+            return 3499
         case .mumbai_testnet:
             //These not allow range more than 3500
-            return .blockNumber(fromBlockNumber + 3499)
+            return 3499
         case .cronosTestnet, .arbitrum, .arbitrumRinkeby:
             //These not allow range more than 100000
-            return .blockNumber(fromBlockNumber + 99990)
+            return 99990
         case .xDai:
-            return .blockNumber(fromBlockNumber + 3000)
+            return 3000
         case .main, .kovan, .ropsten, .rinkeby, .poa, .classic, .callisto, .phi, .phi2, .goerli, .artis_sigma1, .artis_tau1, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .optimisticKovan, .sokol, .custom, .palm, .palmTestnet:
-            return .latest
+            return nil
         case .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet:
             //These not allow range more than 10,000
-            return .blockNumber(fromBlockNumber + 9999)
+            return 9999
         case .candle:
-            return .blockNumber(fromBlockNumber + 20000)
+            return 20000
+        }
+    }
+
+    func makeMaximumToBlockForEvents(fromBlockNumber: UInt64) -> Web3.EventFilter.Block {
+        if let maxRange = maximumBlockRangeForEvents {
+            return .blockNumber(fromBlockNumber + maxRange)
+        } else {
+            return .latest
         }
     }
 
