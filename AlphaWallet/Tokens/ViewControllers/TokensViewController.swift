@@ -12,7 +12,7 @@ protocol TokensViewControllerDelegate: AnyObject {
     func whereAreMyTokensSelected(in viewController: UIViewController)
 }
 
-class TokensViewController: UIViewController {
+final class TokensViewController: UIViewController {
     private var cancellable = Set<AnyCancellable>()
     private let appear = PassthroughSubject<Void, Never>()
     private let _pullToRefresh = PassthroughSubject<Void, Never>()
@@ -31,7 +31,10 @@ class TokensViewController: UIViewController {
         view.isHidden = true
         return view
     }()
-    private var emptyTableViewHeightConstraint: NSLayoutConstraint?
+    private lazy var emptyTableViewHeightConstraint: NSLayoutConstraint = {
+        return emptyTableView.centerYAnchor.constraint(equalTo: tableView.centerYAnchor, constant: 0)
+    }()
+
     private let tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.register(FungibleTokenViewCell.self)
@@ -44,9 +47,11 @@ class TokensViewController: UIViewController {
         tableView.registerHeaderFooterView(GeneralTableViewSectionHeader<AddHideTokensView>.self)
         tableView.registerHeaderFooterView(ActiveWalletSessionView.self)
         tableView.registerHeaderFooterView(GeneralTableViewSectionHeader<WalletSummaryView>.self)
+        tableView.registerHeaderFooterView(GeneralTableViewSectionHeader<DummySearchView>.self)
         tableView.estimatedRowHeight = DataEntry.Metric.TableView.estimatedRowHeight
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.separatorInset = .zero
+        tableView.contentInsetAdjustmentBehavior = .never
 
         tableView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -57,7 +62,13 @@ class TokensViewController: UIViewController {
         return control
     }()
     private (set) lazy var blockieImageView: BlockieImageView = BlockieImageView(viewSize: .init(width: 44, height: 44), imageSize: .init(width: 24, height: 24))
-    private let searchController: UISearchController
+    private lazy var searchController: UISearchController = {
+        let searchController = UISearchController(searchResultsController: nil)
+        searchController.delegate = self
+        searchController.hidesNavigationBarDuringPresentation = false
+
+        return searchController
+    }()
     private lazy var consoleButton: UIButton = {
         let consoleButton = tableViewHeader.consoleButton
         consoleButton.titleLabel?.font = Fonts.regular(size: 22)
@@ -76,8 +87,16 @@ class TokensViewController: UIViewController {
         return TableViewHeader(consoleButton: UIButton(type: .system), promptBackupWalletViewHolder: UIView())
     }()
     private var isSearchBarConfigured = false
-    private var bottomConstraint: NSLayoutConstraint!
-    private lazy var keyboardChecker = KeyboardChecker(self, resetHeightDefaultValue: 0, ignoreBottomSafeArea: true)
+    private lazy var bottomConstraint: NSLayoutConstraint = {
+        return tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+    }()
+
+    private lazy var keyboardChecker: KeyboardChecker = {
+        let keyboardChecker = KeyboardChecker(self, resetHeightDefaultValue: 0, ignoreBottomSafeArea: true)
+        keyboardChecker.constraints = [bottomConstraint]
+
+        return keyboardChecker
+    }()
 
     private lazy var whereAreMyTokensView: AddHideTokensView = {
         let view = AddHideTokensView()
@@ -128,46 +147,30 @@ class TokensViewController: UIViewController {
         }
     }
     private var walletSummaryView = WalletSummaryView(edgeInsets: .init(top: 10, left: 0, bottom: 0, right: 0), spacing: 0)
-    private lazy var searchBarHeader: TokensViewController.ContainerView<DummySearchView> = {
-        let searchBar = DummySearchView(closure: { [weak self] in
+    private lazy var searchBarHeader: DummySearchView = {
+        let searchBarHeader = DummySearchView(closure: { [weak self] in
             self?.enterSearchMode()
         })
 
-        let header: TokensViewController.ContainerView<DummySearchView> = .init(subview: searchBar)
-        header.useSeparatorLine = false
-
-        return header
+        return searchBarHeader
     }()
     private lazy var dataSource = makeDataSource()
 
     init(viewModel: TokensViewModel) {
         self.viewModel = viewModel
 
-        searchController = UISearchController(searchResultsController: nil)
-
         super.init(nibName: nil, bundle: nil)
 
-        searchController.delegate = self
-        searchController.hidesNavigationBarDuringPresentation = false
-
         view.addSubview(tableView)
-
-        bottomConstraint = tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        keyboardChecker.constraints = [bottomConstraint]
+        tableView.addSubview(emptyTableView)
 
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            bottomConstraint
-        ])
-
-        tableView.addSubview(emptyTableView)
-        let heightConstraint = emptyTableView.centerYAnchor.constraint(equalTo: tableView.centerYAnchor, constant: 0)
-        emptyTableViewHeightConstraint = heightConstraint
-        NSLayoutConstraint.activate([
+            bottomConstraint,
             emptyTableView.centerXAnchor.constraint(equalTo: tableView.centerXAnchor),
-            heightConstraint
+            emptyTableViewHeightConstraint
         ])
     }
 
@@ -200,6 +203,7 @@ class TokensViewController: UIViewController {
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+
         keyboardChecker.viewWillDisappear()
         showNavigationBarTopSeparatorLine()
     }
@@ -349,7 +353,11 @@ extension TokensViewController: UITableViewDelegate {
 
             return header
         case .search:
-            return searchBarHeader
+            let header: TokensViewController.GeneralTableViewSectionHeader<DummySearchView> = tableView.dequeueReusableHeaderFooterView()
+            header.useSeparatorLine = false
+            header.subview = searchBarHeader
+
+            return header
         case .tokens, .collectiblePairs:
             return nil
         }
@@ -392,9 +400,9 @@ extension TokensViewController {
         let isEmpty = rows == 0
         if isEmpty {
             if let height = tableHeight() {
-                emptyTableViewHeightConstraint?.constant = height/2.0
+                emptyTableViewHeightConstraint.constant = height / 2.0
             } else {
-                emptyTableViewHeightConstraint?.constant = 0
+                emptyTableViewHeightConstraint.constant = 0
             }
             emptyTableView.title = viewModel.emptyTokensTitle
         }
