@@ -1,5 +1,5 @@
 //
-//  SwapDetailsViewModel.swift
+//  SwapQuoteDetailsViewModel.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 28.03.2022.
@@ -10,21 +10,30 @@ import Combine
 import BigInt
 import AlphaWalletFoundation
 
-final class SwapDetailsViewModel {
-    private var swapDetailsExpanded: Bool = false
+struct SwapQuoteDetailsViewModelInput {
+
+}
+
+struct SwapQuoteDetailsViewModelOutput {
+    let isHidden: AnyPublisher<Bool, Never>
+}
+
+final class SwapQuoteDetailsViewModel {
     private let etherFormatter: EtherNumberFormatter = .plain
-    private (set) lazy var totalFeeViewModel = FieldViewModel(title: "Gas Cost", value: gasCostString)
-    private (set) lazy var currentPriceViewModel = FieldViewModel(title: "Current Price", value: currentPriceString)
-    private (set) lazy var minimumReceivedViewModel = FieldViewModel(title: "Minimum Received", value: minimumReceivedString)
+    private (set) lazy var exchangeViewModel = SwapQuoteFieldViewModel(title: "Exchange", value: exchangeString)
+    private (set) lazy var totalFeeViewModel = SwapQuoteFieldViewModel(title: "Gas Cost", value: gasCostString)
+    private (set) lazy var currentPriceViewModel = SwapQuoteFieldViewModel(title: "Current Price", value: currentPriceString)
+    private (set) lazy var minimumReceivedViewModel = SwapQuoteFieldViewModel(title: "Minimum Received", value: minimumReceivedString)
     private (set) lazy var swapStepsViewModel = SwapStepsViewModel(swapSteps: swapSteps)
+
     var backgoundColor: UIColor = R.color.alabaster()!
 
-    var isHidden: AnyPublisher<Bool, Never> {
-        configurator.tokensWithTheirSwapQuote
+    func transform(input: SwapQuoteDetailsViewModelInput) -> SwapQuoteDetailsViewModelOutput {
+        let isHidden = configurator.tokensWithTheirSwapQuote
             .map { $0 == nil }
             .removeDuplicates()
-            .receive(on: RunLoop.main)
-            .eraseToAnyPublisher()
+
+        return .init(isHidden: isHidden.eraseToAnyPublisher())
     }
 
     private lazy var swapSteps: AnyPublisher<[SwapStep], Never> = {
@@ -32,11 +41,12 @@ final class SwapDetailsViewModel {
             .map { data -> [SwapStep] in
                 guard let pair = data.1 else { return [] }
                 return pair.swapQuote.steps.map { step in
-                    let subSteps = step.estimate.gasCosts.map { SwapSubStep(gasCost: $0, type: step.type, amount: pair.swapQuote.estimate.toAmount, token: pair.swapQuote.action.toToken, tool: step.tool) }
+                    let subSteps = step.estimate.gasCosts.map {
+                        SwapSubStep(gasCost: $0, type: step.type, amount: pair.swapQuote.estimate.toAmount, token: pair.swapQuote.action.toToken, tool: step.tool)
+                    }
                     return SwapStep(tool: pair.swapQuote.type, subSteps: subSteps)
                 }
-            }.receive(on: RunLoop.main)
-            .eraseToAnyPublisher()
+            }.eraseToAnyPublisher()
     }()
 
     private lazy var minimumReceivedString: AnyPublisher<String, Never> = {
@@ -46,6 +56,13 @@ final class SwapDetailsViewModel {
                 let amount = EtherNumberFormatter.short.string(from: data.swapQuote.estimate.toAmountMin, decimals: data.tokens.to.decimals)
                 return "\(amount) \(data.tokens.to.symbol)"
             }.removeDuplicates()
+            .eraseToAnyPublisher()
+    }()
+
+    private lazy var exchangeString: AnyPublisher<String, Never> = {
+        Publishers.CombineLatest(configurator.validatedAmount, configurator.tokensWithTheirSwapQuote)
+            .map { $0.1?.swapQuote.tool ?? "-" }
+            .removeDuplicates()
             .eraseToAnyPublisher()
     }()
 
@@ -90,10 +107,6 @@ final class SwapDetailsViewModel {
     init(configurator: SwapOptionsConfigurator) {
         self.configurator = configurator
     }
-
-    func toggleExpanded() {
-        swapDetailsExpanded.toggle()
-    } 
 }
 
 extension TokenLevelTokenScriptDisplayStatus.SignatureValidationError {

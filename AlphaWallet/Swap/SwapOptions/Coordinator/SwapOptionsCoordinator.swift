@@ -37,10 +37,9 @@ final class SwapOptionsCoordinator: Coordinator {
         let panel = FloatingPanelController(isPanEnabled: false)
         panel.layout = FullScreenScrollableFloatingPanelLayout()
         panel.set(contentViewController: navigationController)
-
+        panel.surfaceView.contentPadding = .init(top: 20, left: 0, bottom: 0, right: 0)
         panel.shouldDismissOnBackdrop = true
         panel.delegate = self
-        panel.set(contentViewController: rootViewController)
 
         self.navigationController.present(panel, animated: true)
     }
@@ -53,6 +52,13 @@ extension SwapOptionsCoordinator: FloatingPanelControllerDelegate {
 }
 
 extension SwapOptionsCoordinator: SwapOptionsViewControllerDelegate {
+    func choseSwapToolSelected(in controller: SwapOptionsViewController) {
+        guard let navigationController = controller.navigationController else { return }
+
+        let viewModel = SelectSwapToolViewModel(storage: configurator.tokenSwapper.storage)
+        let viewController = SelectSwapToolViewController(viewModel: viewModel)
+        navigationController.pushViewController(viewController, animated: true)
+    }
 
     func didClose(in controller: SwapOptionsViewController) {
         navigationController.dismiss(animated: true)

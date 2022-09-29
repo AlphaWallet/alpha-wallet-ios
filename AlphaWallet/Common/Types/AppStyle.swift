@@ -285,6 +285,10 @@ enum DataEntry {
             //NOTE: top/bottom insets value to allow shadow displaying
             static let insets: UIEdgeInsets = .init(top: shadowRadius, left: shadowRadius, bottom: shadowRadius, right: shadowRadius)
         }
+
+        enum ImageView {
+            static let serverIconSize = CGSize(width: 20, height: 20)
+        }
     }
 
     enum Font {

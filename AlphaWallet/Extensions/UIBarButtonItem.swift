@@ -66,8 +66,15 @@ extension UIBarButtonItem {
         return .init(title: R.string.localizable.aWalletTokenSelectTokens(), style: .plain, target: target, action: selector)
     }
 
-    static func cancelBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
+    static func cancelBarButton(_ target: AnyObject?, selector: Selector?) -> UIBarButtonItem {
         return .init(barButtonSystemItem: .cancel, target: target, action: selector)
+    }
+
+    static func closeBarButton(_ closure: ((UIBarButtonItem) -> Void)?) -> UIBarButtonItem {
+        let button = UIBarButtonItem.cancelBarButton(nil, selector: nil)
+        button.selectionClosure = closure
+
+        return button
     }
 
     static func closeBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
@@ -92,6 +99,20 @@ extension UIBarButtonItem {
 
     static func addBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
         return .init(image: R.image.add_hide_tokens(), style: .plain, target: target, action: selector)
+    }
+
+    static func logoBarButton(image: UIImage? = R.image.awLogoSmall()) -> UIBarButtonItem {
+        let imageView = ImageView()
+        imageView.image = image
+        imageView.contentMode = .scaleAspectFit
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activate([
+            imageView.widthAnchor.constraint(equalToConstant: 30),
+            imageView.heightAnchor.constraint(equalToConstant: 30)
+        ])
+
+        return .init(customView: imageView)
     }
 
     static func saveBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {

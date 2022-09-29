@@ -1,5 +1,5 @@
 //
-//  FieldView.swift
+//  SwapQuoteFieldView.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 28.03.2022.
@@ -9,7 +9,7 @@ import UIKit
 import Combine
 import AlphaWalletFoundation
 
-final class FieldView: UIView {
+final class SwapQuoteFieldView: UIView {
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -24,8 +24,10 @@ final class FieldView: UIView {
         return label
     }()
     private var cancelable = Set<AnyCancellable>()
+    private let viewModel: SwapQuoteFieldViewModel
 
-    init(edgeInsets: UIEdgeInsets) {
+    init(edgeInsets: UIEdgeInsets, viewModel: SwapQuoteFieldViewModel) {
+        self.viewModel = viewModel
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints =  false
 
@@ -40,25 +42,27 @@ final class FieldView: UIView {
             valueLabel.trailingAnchor.constraint(equalTo: stackview.trailingAnchor),
             heightAnchor.constraint(greaterThanOrEqualToConstant: 60)
         ])
+
+        bind(viewModel: viewModel)
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     } 
 
-    func bind(viewModel: FieldViewModel) {
+    private func bind(viewModel: SwapQuoteFieldViewModel) {
         cancelable.cancellAll()
 
         titleLabel.attributedText = viewModel.titleAttributedString
         backgroundColor = viewModel.backgroundColor
-        viewModel.valueAttributedString
-            .sink(receiveValue: { [weak valueLabel] attributedText in
-                valueLabel?.attributedText = attributedText
-            }).store(in: &cancelable)
 
-        viewModel.isHidden
-            .sink { [weak self] isHidden in
-                self?.isHidden = isHidden
-            }.store(in: &cancelable)
+        let output = viewModel.transform(input: .init())
+        output.value
+            .sink { [weak valueLabel] in valueLabel?.attributedText = $0 }
+            .store(in: &cancelable)
+
+        output.isHidden
+            .sink { [weak self] in self?.isHidden = $0 }
+            .store(in: &cancelable)
     }
 }

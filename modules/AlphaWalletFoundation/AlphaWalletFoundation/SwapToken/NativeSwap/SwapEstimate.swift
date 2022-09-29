@@ -58,8 +58,8 @@ extension SwapEstimate: Decodable {
         toAmount = try BigUInt(toAmountString) ?? { throw ParsingError(fieldName: .toAmount) }()
         let toAmountMinString = try container.decode(String.self, forKey: .toAmountMin)
         toAmountMin = try BigUInt(toAmountMinString) ?? { throw ParsingError(fieldName: .toAmountMin) }()
-        feeCosts = try container.decode([SwapEstimate.FeeCost].self, forKey: .feeCosts)
-        gasCosts = try container.decode([SwapEstimate.GasCost].self, forKey: .gasCosts)
+        feeCosts = try container.decode([SwapEstimate.FeeCost].self, forKey: .feeCosts, defaultValue: [])
+        gasCosts = try container.decode([SwapEstimate.GasCost].self, forKey: .gasCosts, defaultValue: [])
     }
 }
 

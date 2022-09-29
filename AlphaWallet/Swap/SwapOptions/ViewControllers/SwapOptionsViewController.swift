@@ -6,9 +6,12 @@
 //
 
 import UIKit
+import AlphaWalletFoundation
 import Combine
+import StatefulViewController
 
 protocol SwapOptionsViewControllerDelegate: AnyObject {
+    func choseSwapToolSelected(in controller: SwapOptionsViewController)
     func didClose(in controller: SwapOptionsViewController)
 }
 
@@ -29,6 +32,14 @@ class SwapOptionsViewController: UIViewController {
         return view
     }()
 
+    private lazy var swapToolsHeaderView: SwapOptionsHeaderView = {
+        let view = SwapOptionsHeaderView(viewModel: .init(title: "Preffered Exchanges"))
+        let button = view.enableTapAction(title: R.string.localizable.editButtonTitle())
+        button.addTarget(self, action: #selector(choseSwapToolSelected), for: .touchUpInside)
+
+        return view
+    }()
+
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -41,11 +52,13 @@ class SwapOptionsViewController: UIViewController {
 
         return tableView
     }()
-
+    private lazy var swapToolsView: SelectedSwapToolsCollectionView = {
+        return SelectedSwapToolsCollectionView(viewModel: viewModel.selectedSwapToolsViewModel, appear: appear.eraseToAnyPublisher())
+    }()
     private lazy var checker = KeyboardChecker(self, resetHeightDefaultValue: 0)
-    private lazy var headerView = ConfirmationHeaderView(viewModel: .init(title: viewModel.navigationTitle))
     private var cancelable = Set<AnyCancellable>()
     private lazy var dataSource: SwapOptionsViewModel.SessionsDiffableDataSource = makeDataSource()
+    private let appear = PassthroughSubject<Void, Never>()
 
     weak var delegate: SwapOptionsViewControllerDelegate?
 
@@ -54,12 +67,15 @@ class SwapOptionsViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
 
         let stackView = [
-            headerView,
-            .spacer(height: 30),
+            .spacer(height: 20),
             slippageHeaderView.adjusted(),
             .spacer(height: 10),
             slippageView.adjusted(),
             .spacer(height: 30),
+            swapToolsHeaderView.adjusted(),
+            .spacer(height: 10),
+            swapToolsView.adjusted(),
+            .spacer(height: 10),
             networkHeaderView.adjusted(),
             .spacer(height: 10),
             tableView
@@ -82,6 +98,7 @@ class SwapOptionsViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         checker.viewWillAppear()
+        appear.send(())
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -93,13 +110,18 @@ class SwapOptionsViewController: UIViewController {
         super.viewDidLoad()
 
         configureDataSource()
-        headerView.configure(viewModel: .init(title: viewModel.navigationTitle))
+        navigationItem.title = viewModel.navigationTitle
+        navigationItem.leftBarButtonItem = UIBarButtonItem.logoBarButton()
+        navigationItem.rightBarButtonItem = UIBarButtonItem.closeBarButton(self, selector: #selector(closeDidSelect))
         bind(viewModel: viewModel)
-        headerView.closeButton.addTarget(self, action: #selector(closeDidSelect), for: .touchUpInside)
     } 
 
     required init?(coder: NSCoder) {
         return nil
+    }
+
+    @objc private func choseSwapToolSelected(_ sender: UIButton) {
+        self.delegate?.choseSwapToolSelected(in: self)
     }
 
     @objc private func closeDidSelect(_ sender: UIButton) {
@@ -109,8 +131,8 @@ class SwapOptionsViewController: UIViewController {
     private func bind(viewModel: SwapOptionsViewModel) {
         let output = viewModel.transform(input: .init())
         output.viewState
-            .sink { [weak self] viewState in
-                self?.dataSource.apply(viewState.sessions, animatingDifferences: false)
+            .sink { [weak dataSource] viewState in
+                dataSource?.apply(viewState.sessions, animatingDifferences: false)
             }.store(in: &cancelable)
 
         //TODO: need to resolve error displaying, uncommenting this string causes displaying an error when screen in loading for first time

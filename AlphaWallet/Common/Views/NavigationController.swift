@@ -12,7 +12,8 @@ protocol PushNotifiable {
     func didPushViewController(animated: Bool)
 }
 
-protocol PopNotifiable {
+@objc protocol PopNotifiable {
+    @objc optional func willPopViewController(animated: Bool)
     func didPopViewController(animated: Bool)
 }
 
@@ -39,6 +40,10 @@ class NavigationController: UINavigationController {
 
     override func popViewController(animated: Bool) -> UIViewController? {
         let viewController = super.popViewController(animated: animated)
+
+        if let viewController = viewController as? PopNotifiable {
+            viewController.willPopViewController?(animated: animated)
+        }
 
         guard animated, let coordinator = transitionCoordinator else {
             DispatchQueue.main.async {

@@ -33,6 +33,9 @@ class SwapOptionsViewModel {
         configurator.sessions
     }
     let slippageViewModel: SlippageViewModel
+    lazy var selectedSwapToolsViewModel: SelectedSwapToolsCollectionViewModel = {
+        SelectedSwapToolsCollectionViewModel(storage: configurator.tokenSwapper.storage)
+    }()
 
     init(configurator: SwapOptionsConfigurator) {
         self.configurator = configurator
