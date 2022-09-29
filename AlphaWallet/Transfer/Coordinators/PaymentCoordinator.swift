@@ -191,6 +191,9 @@ extension PaymentCoordinator: SwapTokensCoordinatorDelegate {
 }
 
 extension PaymentCoordinator: TransferNFTCoordinatorDelegate {
+    func didSelectTokenHolder(tokenHolder: AlphaWalletFoundation.TokenHolder, in coordinator: TransferNFTCoordinator) {
+        delegate?.didSelectTokenHolder(tokenHolder: tokenHolder, in: self)
+    }
 
     func didFinish(_ result: ConfirmResult, in coordinator: TransferNFTCoordinator) {
         delegate?.didFinish(result, in: self)

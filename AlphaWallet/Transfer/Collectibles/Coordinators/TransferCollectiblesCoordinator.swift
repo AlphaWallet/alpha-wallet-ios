@@ -16,7 +16,7 @@ protocol TransferCollectiblesCoordinatorDelegate: CanOpenURL, SendTransactionDel
 }
 
 class TransferCollectiblesCoordinator: Coordinator {
-    private lazy var sendViewController: TransferTokenBatchCardsViaWalletAddressViewController = {
+    private lazy var sendViewController: SendSemiFungibleTokenViewController = {
         return makeTransferTokensCardViaWalletAddressViewController(token: token, tokenHolders: filteredTokenHolders)
     }()
     private let keystore: Keystore
@@ -60,20 +60,19 @@ class TransferCollectiblesCoordinator: Coordinator {
         navigationController.pushViewController(sendViewController, animated: true)
     }
 
-    private func makeTransferTokensCardViaWalletAddressViewController(token: Token, tokenHolders: [TokenHolder]) -> TransferTokenBatchCardsViaWalletAddressViewController {
-        let viewModel = TransferTokenBatchCardsViaWalletAddressViewControllerViewModel(token: token, tokenHolders: tokenHolders)
+    private func makeTransferTokensCardViaWalletAddressViewController(token: Token, tokenHolders: [TokenHolder]) -> SendSemiFungibleTokenViewController {
+        let viewModel = SendSemiFungibleTokenViewModel(token: token, tokenHolders: tokenHolders)
         let tokenCardViewFactory: TokenCardViewFactory = {
             TokenCardViewFactory(token: token, assetDefinitionStore: assetDefinitionStore, analytics: analytics, keystore: keystore, wallet: session.account)
         }()
-        let controller = TransferTokenBatchCardsViaWalletAddressViewController(token: token, viewModel: viewModel, tokenCardViewFactory: tokenCardViewFactory, domainResolutionService: domainResolutionService)
-        controller.configure()
+        let controller = SendSemiFungibleTokenViewController(viewModel: viewModel, tokenCardViewFactory: tokenCardViewFactory, domainResolutionService: domainResolutionService)
         controller.delegate = self
 
         return controller
     }
 }
 
-extension TransferCollectiblesCoordinator: TransferTokenBatchCardsViaWalletAddressViewControllerDelegate {
+extension TransferCollectiblesCoordinator: SendSemiFungibleTokenViewControllerDelegate {
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
         delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
     }
@@ -86,11 +85,11 @@ extension TransferCollectiblesCoordinator: TransferTokenBatchCardsViaWalletAddre
         delegate?.didPressOpenWebPage(url, in: viewController)
     }
 
-    func didSelectTokenHolder(tokenHolder: TokenHolder, in viewController: TransferTokenBatchCardsViaWalletAddressViewController) {
+    func didSelectTokenHolder(tokenHolder: TokenHolder, in viewController: SendSemiFungibleTokenViewController) {
         delegate?.didSelectTokenHolder(tokenHolder: tokenHolder, in: self)
     }
 
-    func didEnterWalletAddress(tokenHolders: [TokenHolder], to recipient: AlphaWallet.Address, in viewController: TransferTokenBatchCardsViaWalletAddressViewController) {
+    func didEnterWalletAddress(tokenHolders: [TokenHolder], to recipient: AlphaWallet.Address, in viewController: SendSemiFungibleTokenViewController) {
         do {
             //NOTE: we have to make sure that token holders have the same contract address!
             guard let firstTokenHolder = tokenHolders.first else { throw TransactionConfiguratorError.impossibleToBuildConfiguration }
@@ -109,8 +108,7 @@ extension TransferCollectiblesCoordinator: TransferTokenBatchCardsViaWalletAddre
                     recipient: recipient,
                     contract: firstTokenHolder.contractAddress,
                     data: nil,
-                    tokenIdsAndValues: tokenIdsAndValues
-            )
+                    tokenIdsAndValues: tokenIdsAndValues)
 
             let configuration: TransactionType.Configuration = .sendNftTransaction(confirmType: .signThenSend, tokenInstanceNames: tokenInstanceNames)
             let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
@@ -124,7 +122,7 @@ extension TransferCollectiblesCoordinator: TransferTokenBatchCardsViaWalletAddre
         }
     }
 
-    func openQRCode(in controller: TransferTokenBatchCardsViaWalletAddressViewController) {
+    func openQRCode(in controller: SendSemiFungibleTokenViewController) {
         guard navigationController.ensureHasDeviceAuthorization() else { return }
 
         let coordinator = ScanQRCodeCoordinator(analytics: analytics, navigationController: navigationController, account: session.account, domainResolutionService: domainResolutionService)
@@ -133,7 +131,7 @@ extension TransferCollectiblesCoordinator: TransferTokenBatchCardsViaWalletAddre
         coordinator.start(fromSource: .addressTextField)
     }
 
-    func didClose(in viewController: TransferTokenBatchCardsViaWalletAddressViewController) {
+    func didClose(in viewController: SendSemiFungibleTokenViewController) {
         delegate?.didCancel(in: self)
     }
 }

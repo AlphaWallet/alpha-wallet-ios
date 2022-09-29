@@ -1,5 +1,5 @@
 //
-//  TransferTokenBatchCardsViaWalletAddressViewController.swift
+//  SendSemiFungibleTokenViewController.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 07.09.2021.
@@ -8,16 +8,14 @@
 import UIKit
 import AlphaWalletFoundation
 
-protocol TransferTokenBatchCardsViaWalletAddressViewControllerDelegate: class, CanOpenURL {
-    func didEnterWalletAddress(tokenHolders: [TokenHolder], to recipient: AlphaWallet.Address, in viewController: TransferTokenBatchCardsViaWalletAddressViewController)
-    func openQRCode(in controller: TransferTokenBatchCardsViaWalletAddressViewController)
-    func didSelectTokenHolder(tokenHolder: TokenHolder, in viewController: TransferTokenBatchCardsViaWalletAddressViewController)
-    func didClose(in viewController: TransferTokenBatchCardsViaWalletAddressViewController)
+protocol SendSemiFungibleTokenViewControllerDelegate: class, CanOpenURL {
+    func didEnterWalletAddress(tokenHolders: [TokenHolder], to recipient: AlphaWallet.Address, in viewController: SendSemiFungibleTokenViewController)
+    func openQRCode(in controller: SendSemiFungibleTokenViewController)
+    func didSelectTokenHolder(tokenHolder: TokenHolder, in viewController: SendSemiFungibleTokenViewController)
+    func didClose(in viewController: SendSemiFungibleTokenViewController)
 }
 
-//TODO: support ERC1155 fungibles (where decimals is provided and > 0)
-class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, TokenVerifiableStatusViewController {
-    private let token: Token
+final class SendSemiFungibleTokenViewController: UIViewController, TokenVerifiableStatusViewController {
     private lazy var targetAddressTextField: AddressTextField = {
         let textField = AddressTextField(domainResolutionService: domainResolutionService)
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -29,21 +27,22 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
 
     private lazy var recipientHeaderView: SendViewSectionHeader = {
         let view = SendViewSectionHeader()
-        view.configure(viewModel: .init(text: R.string.localizable.sendRecipient().uppercased(), showTopSeparatorLine: false))
+        view.configure(viewModel: viewModel.recipientHeaderViewModel)
 
         return view
     }()
 
     private lazy var amountHeaderView: SendViewSectionHeader = {
         let view = SendViewSectionHeader()
-        view.configure(viewModel: .init(text: R.string.localizable.sendAmount().uppercased()))
+        view.configure(viewModel: viewModel.amountHeaderViewModel)
 
         return view
     }()
 
-    private lazy var selectedTokenCardsHeaderView: SendViewSectionHeader = {
+    private lazy var assetsHeaderView: SendViewSectionHeader = {
         let view = SendViewSectionHeader()
-        view.configure(viewModel: .init(text: R.string.localizable.semifungiblesSelectedTokens()))
+        view.configure(viewModel: viewModel.assetsHeaderViewModel)
+
         return view
     }()
 
@@ -55,28 +54,27 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
     }()
 
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
-    private var viewModel: TransferTokenBatchCardsViaWalletAddressViewControllerViewModel
+    private let viewModel: SendSemiFungibleTokenViewModel
     private let tokenCardViewFactory: TokenCardViewFactory
     private let domainResolutionService: DomainResolutionServiceType
 
     var contract: AlphaWallet.Address {
-        return token.contractAddress
+        return viewModel.token.contractAddress
     }
     var server: RPCServer {
-        return token.server
+        return viewModel.token.server
     }
     var assetDefinitionStore: AssetDefinitionStore {
         tokenCardViewFactory.assetDefinitionStore
     }
-    weak var delegate: TransferTokenBatchCardsViaWalletAddressViewControllerDelegate?
+    weak var delegate: SendSemiFungibleTokenViewControllerDelegate?
 
     lazy var containerView: ScrollableStackView = {
         let view = ScrollableStackView()
         return view
     }()
 
-    init(token: Token, viewModel: TransferTokenBatchCardsViaWalletAddressViewControllerViewModel, tokenCardViewFactory: TokenCardViewFactory, domainResolutionService: DomainResolutionServiceType) {
-        self.token = token
+    init(viewModel: SendSemiFungibleTokenViewModel, tokenCardViewFactory: TokenCardViewFactory, domainResolutionService: DomainResolutionServiceType) {
         self.viewModel = viewModel
         self.tokenCardViewFactory = tokenCardViewFactory
         self.domainResolutionService = domainResolutionService
@@ -105,7 +103,17 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
         return nil
     }
 
-    private func generateSubviews(viewModel: TransferTokenBatchCardsViaWalletAddressViewControllerViewModel) {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        bind(viewModel: viewModel)
+        buttonsBar.configure()
+        let nextButton = buttonsBar.buttons[0]
+        nextButton.setTitle(R.string.localizable.confirmPaymentConfirmButtonTitle(), for: .normal)
+        nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
+    }
+
+    private func generateSubviews(viewModel: SendSemiFungibleTokenViewModel) {
         containerView.stackView.removeAllArrangedSubviews()
 
         let subViews: [UIView] = [
@@ -113,13 +121,13 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
             targetAddressTextField.defaultLayout(edgeInsets: .init(top: 16, left: 16, bottom: 16, right: 16)),
             amountHeaderView,
             selectTokenCardAmountView,
-            selectedTokenCardsHeaderView
+            assetsHeaderView
         ] + generateViewsForSelectedTokenHolders(viewModel: viewModel)
 
         containerView.stackView.addArrangedSubviews(subViews)
     }
 
-    private func generateViewsForSelectedTokenHolders(viewModel: TransferTokenBatchCardsViaWalletAddressViewControllerViewModel) -> [UIView] {
+    private func generateViewsForSelectedTokenHolders(viewModel: SendSemiFungibleTokenViewModel) -> [UIView] {
         var subviews: [UIView] = []
         for (index, each) in viewModel.tokenHolders.enumerated() {
             subviews += [
@@ -171,38 +179,27 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
         }
     }
 
-    func configure(viewModel newViewModel: TransferTokenBatchCardsViaWalletAddressViewControllerViewModel? = nil) {
-        if let newViewModel = newViewModel {
-            viewModel = newViewModel
-        }
-
+    private func bind(viewModel: SendSemiFungibleTokenViewModel) {
         title = viewModel.navigationTitle
         updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus)
 
         view.backgroundColor = viewModel.backgroundColor
-
-        targetAddressTextField.label.attributedText = viewModel.targetAddressAttributedString
         targetAddressTextField.configureOnce()
 
         selectTokenCardAmountView.configure(viewModel: viewModel.selectionViewModel)
-
-        buttonsBar.configure()
-        let nextButton = buttonsBar.buttons[0]
-        nextButton.setTitle(R.string.localizable.confirmPaymentConfirmButtonTitle(), for: .normal)
-        nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
 
         amountHeaderView.isHidden = viewModel.isAmountSelectionHidden
         selectTokenCardAmountView.isHidden = viewModel.isAmountSelectionHidden
     }
 }
 
-extension TransferTokenBatchCardsViaWalletAddressViewController: PopNotifiable {
+extension SendSemiFungibleTokenViewController: PopNotifiable {
     func didPopViewController(animated: Bool) {
         delegate?.didClose(in: self)
     }
 }
 
-extension TransferTokenBatchCardsViaWalletAddressViewController: VerifiableStatusViewController {
+extension SendSemiFungibleTokenViewController: VerifiableStatusViewController {
     func showInfo() {
         //no-op
     }
@@ -216,7 +213,7 @@ extension TransferTokenBatchCardsViaWalletAddressViewController: VerifiableStatu
     }
 }
 
-extension TransferTokenBatchCardsViaWalletAddressViewController: AddressTextFieldDelegate {
+extension SendSemiFungibleTokenViewController: AddressTextFieldDelegate {
 
     func didScanQRCode(_ result: String) {
         switch QRCodeValueParser.from(string: result) {
@@ -249,7 +246,7 @@ extension TransferTokenBatchCardsViaWalletAddressViewController: AddressTextFiel
     }
 }
 
-extension TransferTokenBatchCardsViaWalletAddressViewController: SelectTokenCardAmountViewDelegate {
+extension SendSemiFungibleTokenViewController: SelectTokenCardAmountViewDelegate {
     func valueDidChange(in view: SelectTokenCardAmountView) {
         viewModel.updateSelectedAmount(view.viewModel.counter)
     }

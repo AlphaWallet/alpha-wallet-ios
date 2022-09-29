@@ -5,14 +5,21 @@ import BigInt
 import AlphaWalletFoundation
 
 protocol TransferNFTCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryptoDelegate {
+    func didSelectTokenHolder(tokenHolder: TokenHolder, in coordinator: TransferNFTCoordinator)
     func didFinish(_ result: ConfirmResult, in coordinator: TransferNFTCoordinator)
     func didCancel(in coordinator: TransferNFTCoordinator)
 }
 
 class TransferNFTCoordinator: Coordinator {
-    private lazy var sendViewController: TransferTokensCardViaWalletAddressViewController = {
-        return makeTransferTokensCardViaWalletAddressViewController(token: token, for: tokenHolder, paymentFlow: .send(type: .transaction(transactionType)))
+    private lazy var sendViewController: SendSemiFungibleTokenViewController = {
+        let tokenCardViewFactory: TokenCardViewFactory = .init(token: token, assetDefinitionStore: assetDefinitionStore, analytics: analytics, keystore: keystore, wallet: session.account)
+        let viewModel = SendSemiFungibleTokenViewModel(token: token, tokenHolders: [tokenHolder])
+        let controller = SendSemiFungibleTokenViewController(viewModel: viewModel, tokenCardViewFactory: tokenCardViewFactory, domainResolutionService: domainResolutionService)
+        controller.delegate = self
+
+        return controller
     }()
+
     private let keystore: Keystore
     private let token: Token
     private let session: WalletSession
@@ -23,6 +30,7 @@ class TransferNFTCoordinator: Coordinator {
     private var transactionConfirmationResult: ConfirmResult? = .none
     private let transactionType: TransactionType
     private let tokensService: TokenViewModelState
+
     weak var delegate: TransferNFTCoordinatorDelegate?
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -56,50 +64,14 @@ class TransferNFTCoordinator: Coordinator {
         sendViewController.navigationItem.largeTitleDisplayMode = .never
         navigationController.pushViewController(sendViewController, animated: true)
     }
-
-    private func makeTransferTokensCardViaWalletAddressViewController(token: Token, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> TransferTokensCardViaWalletAddressViewController {
-        let viewModel = TransferTokensCardViaWalletAddressViewControllerViewModel(token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
-        let controller = TransferTokensCardViaWalletAddressViewController(analytics: analytics, domainResolutionService: domainResolutionService, token: token, tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, keystore: keystore, session: session)
-        controller.configure()
-        controller.delegate = self
-        return controller
-    }
 }
 
-extension TransferNFTCoordinator: TransferTokensCardViaWalletAddressViewControllerDelegate {
-    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
-        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
-    }
-
-    func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
-        delegate?.didPressViewContractWebPage(url, in: viewController)
-    }
-
-    func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
-        delegate?.didPressOpenWebPage(url, in: viewController)
-    }
-
-    func openQRCode(in controller: TransferTokensCardViaWalletAddressViewController) {
-        guard navigationController.ensureHasDeviceAuthorization() else { return }
-
-        let coordinator = ScanQRCodeCoordinator(analytics: analytics, navigationController: navigationController, account: session.account, domainResolutionService: domainResolutionService)
-        coordinator.delegate = self
-        addCoordinator(coordinator)
-        coordinator.start(fromSource: .addressTextField)
-    }
-
-    func didEnterWalletAddress(tokenHolder: TokenHolder, to recipient: AlphaWallet.Address, paymentFlow: PaymentFlow, in viewController: TransferTokensCardViaWalletAddressViewController) {
+extension TransferNFTCoordinator: SendSemiFungibleTokenViewControllerDelegate {
+    func didEnterWalletAddress(tokenHolders: [AlphaWalletFoundation.TokenHolder], to recipient: AlphaWalletFoundation.AlphaWallet.Address, in viewController: SendSemiFungibleTokenViewController) {
         do {
+            guard let tokenHolder = tokenHolders.first else { throw TransactionConfiguratorError.impossibleToBuildConfiguration }
             guard let token = tokenHolder.tokens.first else { throw TransactionConfiguratorError.impossibleToBuildConfiguration }
-            let transaction = UnconfirmedTransaction(
-                    transactionType: transactionType,
-                    value: BigInt(0),
-                    recipient: recipient,
-                    contract: tokenHolder.contractAddress,
-                    data: nil,
-                    tokenId: token.id,
-                    indices: tokenHolder.indices
-            )
+            let transaction = UnconfirmedTransaction(transactionType: transactionType, value: BigInt(0), recipient: recipient, contract: tokenHolder.contractAddress, data: nil, tokenId: token.id, indices: tokenHolder.indices)
 
             let tokenInstanceNames = tokenHolder.valuesAll.compactMapValues { $0.nameStringValue }
             let configuration: TransactionType.Configuration = .sendNftTransaction(confirmType: .signThenSend, tokenInstanceNames: tokenInstanceNames)
@@ -114,11 +86,32 @@ extension TransferNFTCoordinator: TransferTokensCardViaWalletAddressViewControll
         }
     }
 
-    func didPressViewInfo(in viewController: TransferTokensCardViaWalletAddressViewController) {
-        //showViewEthereumInfo(in: viewController)
+    func didSelectTokenHolder(tokenHolder: AlphaWalletFoundation.TokenHolder, in viewController: SendSemiFungibleTokenViewController) {
+        delegate?.didSelectTokenHolder(tokenHolder: tokenHolder, in: self)
     }
 
-    func didClose(in viewController: TransferTokensCardViaWalletAddressViewController) {
+    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
+    }
+
+    func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(url, in: viewController)
+    }
+
+    func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressOpenWebPage(url, in: viewController)
+    }
+
+    func openQRCode(in controller: SendSemiFungibleTokenViewController) {
+        guard navigationController.ensureHasDeviceAuthorization() else { return }
+
+        let coordinator = ScanQRCodeCoordinator(analytics: analytics, navigationController: navigationController, account: session.account, domainResolutionService: domainResolutionService)
+        coordinator.delegate = self
+        addCoordinator(coordinator)
+        coordinator.start(fromSource: .addressTextField)
+    }
+
+    func didClose(in viewController: SendSemiFungibleTokenViewController) {
         delegate?.didCancel(in: self)
     }
 }
