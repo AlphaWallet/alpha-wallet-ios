@@ -14,7 +14,7 @@ class NFTAssetListViewModel {
 
     var headerBackgroundColor: UIColor = Colors.appWhite
 
-    var navigationTitle: String {
+    var title: String {
         return tokenHolder.name
     }
 

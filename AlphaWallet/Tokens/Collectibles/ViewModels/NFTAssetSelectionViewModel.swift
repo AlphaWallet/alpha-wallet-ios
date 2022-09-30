@@ -38,7 +38,7 @@ class NFTAssetSelectionViewModel {
     var headerBackgroundColor: UIColor = Colors.appWhite
     let actions: [NFTAssetSelectionViewController.ToolbarAction] = [.clear, .selectAll, .send]
 
-    var navigationTitle: String {
+    var title: String {
         if tokenSelectionCount > 0 {
             return R.string.localizable.semifungiblesSelectedTokens2(String(tokenSelectionCount))
         } else {

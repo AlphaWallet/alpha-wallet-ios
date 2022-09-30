@@ -34,7 +34,7 @@ struct AccountsCoordinatorViewModel {
             return true
         }
 
-        var navigationTitle: String {
+        var title: String {
             switch self {
             case .changeWallets:
                 return R.string.localizable.walletNavigationTitle()

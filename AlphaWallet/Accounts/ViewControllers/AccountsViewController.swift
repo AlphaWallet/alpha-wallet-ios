@@ -71,7 +71,7 @@ class AccountsViewController: UIViewController {
         let output = viewModel.transform(input: input)
 
         output.viewState.sink { [weak self, weak tableView] state in
-            self?.title = state.navigationTitle
+            self?.title = state.title
             tableView?.reloadData()
         }.store(in: &cancelable)
 

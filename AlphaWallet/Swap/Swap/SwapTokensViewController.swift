@@ -147,7 +147,7 @@ class SwapTokensViewController: UIViewController {
     private func bind(viewModel: SwapTokensViewModel) {
         view.backgroundColor = viewModel.backgoundColor
         containerView.scrollView.backgroundColor = viewModel.backgoundColor
-        title = viewModel.navigationTitle
+        title = viewModel.title
 
         fromTokenHeaderView.configure(viewModel: viewModel.fromHeaderViewModel)
         toTokenHeaderView.configure(viewModel: viewModel.toHeaderViewModel)

@@ -37,7 +37,7 @@ final class AcceptWalletConnectSessionViewModel: SectionProtocol {
         self.serversToConnect = serversToConnect
     }
 
-    var navigationTitle: String {
+    var title: String {
         return R.string.localizable.walletConnectConnectionTitle()
     } 
 

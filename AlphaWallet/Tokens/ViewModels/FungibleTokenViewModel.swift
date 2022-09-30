@@ -167,7 +167,7 @@ final class FungibleTokenViewModel {
             .compactMap { [weak self] _ in self?.buildTokenActions() }
             .handleEvents(receiveOutput: { [weak self] in self?.actions = $0 })
 
-        let navigationTitle = tokenViewModel.compactMap { $0?.tokenScriptOverrides?.titleInPluralForm }
+        let title = tokenViewModel.compactMap { $0?.tokenScriptOverrides?.titleInPluralForm }
 
         input.appear.receive(on: RunLoop.main)
             .sink { [weak self] _ in
@@ -184,8 +184,8 @@ final class FungibleTokenViewModel {
             .map { PriceAlertsPageViewModel(alerts: $0) }
             .receive(on: RunLoop.main)
 
-        let viewState = Publishers.CombineLatest(actions, navigationTitle)
-            .map { actions, navigationTitle in FungibleTokenViewModel.ViewState(navigationTitle: navigationTitle, actions: actions) }
+        let viewState = Publishers.CombineLatest(actions, title)
+            .map { actions, title in FungibleTokenViewModel.ViewState(title: title, actions: actions) }
 
         return .init(viewState: viewState.eraseToAnyPublisher(),
                     activities: activities.eraseToAnyPublisher(),
@@ -283,7 +283,7 @@ extension FungibleTokenViewModel {
     }
 
     struct ViewState {
-        let navigationTitle: String
+        let title: String
         let actions: [TokenInstanceAction]
     }
 

@@ -15,7 +15,7 @@ class EnterKeystorePasswordViewModel {
     ])
     var buttonTitle: String = R.string.localizable.save()
 
-    var navigationTitle: String {
+    var title: String {
         //Have to use the short version otherwise the next screen's back button might be distorted
         return R.string.localizable.enterPasswordNavigationTitleShorter()
     }

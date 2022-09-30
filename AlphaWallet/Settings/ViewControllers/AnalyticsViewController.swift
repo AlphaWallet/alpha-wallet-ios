@@ -72,7 +72,7 @@ class AnalyticsViewController: UIViewController {
 
     func configure(viewModel: AnalyticsViewModel) {
         view.backgroundColor = viewModel.backgroundColor
-        navigationItem.title = viewModel.navigationTitle
+        navigationItem.title = viewModel.title
         imageView.image = viewModel.image
         descriptionLabel.attributedText = viewModel.attributedDescriptionString
         switchView.configure(viewModel: viewModel.switchViewModel)

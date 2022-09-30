@@ -53,7 +53,7 @@ class EnterKeystorePasswordViewController: UIViewController {
     private func configure(viewModel: EnterKeystorePasswordViewModel) {
         self.viewModel = viewModel
 
-        navigationItem.title = viewModel.navigationTitle
+        navigationItem.title = viewModel.title
         passwordView.configure(viewModel: viewModel)
         passwordView.addButtonTarget(self, action: #selector(savePasswordSelected))
         passwordView.passwordTextField.delegate = self

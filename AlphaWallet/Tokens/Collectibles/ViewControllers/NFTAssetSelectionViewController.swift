@@ -131,7 +131,7 @@ class NFTAssetSelectionViewController: UIViewController {
 
     private func configure(viewModel: NFTAssetSelectionViewModel) {
         self.viewModel = viewModel
-        title = viewModel.navigationTitle
+        title = viewModel.title
         view.backgroundColor = viewModel.backgroundColor
         tableView.backgroundColor = viewModel.backgroundColor
 

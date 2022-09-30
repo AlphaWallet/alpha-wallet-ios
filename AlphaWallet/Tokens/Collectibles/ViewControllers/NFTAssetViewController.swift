@@ -72,7 +72,7 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
 
     //NOTE: Blank out the title before pushing the send screen because longer (not even very long ones) titles will overlay the Send screen's back button
     override func viewWillAppear(_ animated: Bool) {
-        title = viewModel.navigationTitle
+        title = viewModel.title
         super.viewWillAppear(animated)
         hideNavigationBarTopSeparatorLine()
         appear.send(())
@@ -94,13 +94,13 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
         view.backgroundColor = viewModel.backgroundColor
         containerView.backgroundColor = viewModel.backgroundColor
         updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus)
-        title = viewModel.navigationTitle
+        title = viewModel.title
 
         let input = NFTAssetViewModelInput(appear: appear.eraseToAnyPublisher())
         let output = viewModel.transform(input: input)
 
         output.state.sink { [weak self, weak previewView] state in
-            self?.title = state.navigationTitle
+            self?.title = state.title
             previewView?.configure(params: state.previewViewParams)
             previewView?.contentBackgroundColor = state.previewViewContentBackgroundColor
             self?.generateSubviews(for: state.viewTypes)

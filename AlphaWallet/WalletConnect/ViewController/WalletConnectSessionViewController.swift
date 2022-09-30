@@ -148,7 +148,7 @@ class WalletConnectSessionViewController: UIViewController {
     func configure(viewModel: WalletConnectSessionDetailsViewModel) {
         self.viewModel = viewModel
 
-        title = viewModel.navigationTitle
+        title = viewModel.title
 
         statusRow.configure(viewModel: viewModel.statusRowViewModel)
         dappNameRow.configure(viewModel: viewModel.dappNameRowViewModel)

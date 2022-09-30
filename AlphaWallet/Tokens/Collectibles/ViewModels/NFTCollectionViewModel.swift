@@ -81,11 +81,11 @@ final class NFTCollectionViewModel {
             }.handleEvents(receiveOutput: { [weak self] in self?.openInUrl = $0 })
             .map { $0 == nil ? [] : [NonFungibleTokenAction.openInUrl] }
 
-        let navigationTitle = tokenViewModel.compactMap { $0?.tokenScriptOverrides?.titleInPluralForm }
+        let title = tokenViewModel.compactMap { $0?.tokenScriptOverrides?.titleInPluralForm }
 
-        let viewState = Publishers.CombineLatest3(navigationTitle, tokenHolders, actions)
-            .map { navigationTitle, tokenHolders, actions in
-                NFTCollectionViewModel.ViewState(navigationTitle: navigationTitle, actions: actions, tokenHolders: tokenHolders)
+        let viewState = Publishers.CombineLatest3(title, tokenHolders, actions)
+            .map { title, tokenHolders, actions in
+                NFTCollectionViewModel.ViewState(title: title, actions: actions, tokenHolders: tokenHolders)
             }
 
         let activities = activitiesService.activitiesPublisher
@@ -115,7 +115,7 @@ final class NFTCollectionViewModel {
 
 extension NFTCollectionViewModel {
     struct ViewState {
-        let navigationTitle: String
+        let title: String
         let actions: [NonFungibleTokenAction]
         let tokenHolders: [TokenHolder]
     }

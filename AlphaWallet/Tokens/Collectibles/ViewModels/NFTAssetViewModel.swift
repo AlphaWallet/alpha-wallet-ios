@@ -142,7 +142,7 @@ class NFTAssetViewModel {
             .compactMap { [weak self] _ -> NFTAssetViewModel.ViewState? in
                 guard let strongSelf = self else { return nil }
                 strongSelf.viewTypes = strongSelf.buildViewTypes(for: strongSelf.tokenHolderHelper)
-                return NFTAssetViewModel.ViewState(navigationTitle: strongSelf.navigationTitle, actions: strongSelf.actions, viewTypes: strongSelf.viewTypes, previewViewParams: strongSelf.previewViewParams, previewViewContentBackgroundColor: strongSelf.previewViewContentBackgroundColor)
+                return NFTAssetViewModel.ViewState(title: strongSelf.title, actions: strongSelf.actions, viewTypes: strongSelf.viewTypes, previewViewParams: strongSelf.previewViewParams, previewViewContentBackgroundColor: strongSelf.previewViewContentBackgroundColor)
             }.eraseToAnyPublisher()
 
         return .init(state: viewState)
@@ -291,7 +291,7 @@ class NFTAssetViewModel {
         return configurations
     }
 
-    var navigationTitle: String {
+    var title: String {
         let tokenId = tokenHolder.values.tokenIdStringValue ?? ""
         if let name = tokenHolder.values.nameStringValue.nilIfEmpty {
             return name
@@ -344,7 +344,7 @@ extension NFTAssetViewModel {
     }
 
     struct ViewState {
-        let navigationTitle: String
+        let title: String
         let actions: [TokenInstanceAction]
         let viewTypes: [NFTAssetViewModel.ViewType]
         let previewViewParams: NFTPreviewViewType.Params

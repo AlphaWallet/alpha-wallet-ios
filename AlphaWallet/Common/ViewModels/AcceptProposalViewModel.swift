@@ -24,12 +24,12 @@ class AcceptProposalViewModel: NSObject {
 
     let proposalType: ProposalType
 
-    var navigationTitle: String {
+    var title: String {
         switch proposalType {
         case .walletConnect(let viewModel):
-            return viewModel.navigationTitle
+            return viewModel.title
         case .deepLink(let viewModel):
-            return viewModel.navigationTitle
+            return viewModel.title
         }
     }
 

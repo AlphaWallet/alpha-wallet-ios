@@ -89,7 +89,7 @@ class EditPriceAlertViewController: UIViewController {
 
     private func bind(viewModel: EditPriceAlertViewModel) {
         view.backgroundColor = viewModel.backgroundColor
-        title = viewModel.navigationTitle
+        title = viewModel.title
 
         containerView.configure(viewModel: .init(backgroundColor: viewModel.backgroundColor))
 

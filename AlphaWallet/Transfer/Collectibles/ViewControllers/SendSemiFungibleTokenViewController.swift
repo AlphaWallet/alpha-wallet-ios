@@ -180,7 +180,7 @@ final class SendSemiFungibleTokenViewController: UIViewController, TokenVerifiab
     }
 
     private func bind(viewModel: SendSemiFungibleTokenViewModel) {
-        title = viewModel.navigationTitle
+        title = viewModel.title
         updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus)
 
         view.backgroundColor = viewModel.backgroundColor

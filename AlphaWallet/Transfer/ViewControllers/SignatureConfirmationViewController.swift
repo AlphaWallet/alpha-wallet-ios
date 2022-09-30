@@ -15,7 +15,7 @@ protocol SignatureConfirmationViewControllerDelegate: AnyObject {
 }
 
 class SignatureConfirmationViewController: UIViewController {
-    private lazy var headerView = ConfirmationHeaderView(viewModel: .init(title: viewModel.navigationTitle))
+    private lazy var headerView = ConfirmationHeaderView(viewModel: .init(title: viewModel.title))
     private let buttonsBar = HorizontalButtonsBar(configuration: .empty)
     let viewModel: SignatureConfirmationViewModel
 

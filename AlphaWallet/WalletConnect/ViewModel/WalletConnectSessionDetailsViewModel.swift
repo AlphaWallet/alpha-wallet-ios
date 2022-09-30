@@ -15,7 +15,7 @@ struct WalletConnectSessionDetailsViewModel {
         provider.isConnected(session.topicOrUrl)
     }
 
-    var navigationTitle: String {
+    var title: String {
         return R.string.localizable.walletConnectTitle()
     }
 
