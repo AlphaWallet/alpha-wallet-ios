@@ -56,7 +56,7 @@ class NFTAssetsPageView: UIView, PageViewType {
     private var cancelable = Set<AnyCancellable>()
 
     var title: String {
-        viewModel.navigationTitle
+        viewModel.title
     }
     let viewModel: NFTAssetsPageViewModel
     weak var delegate: NFTAssetsPageViewDelegate?

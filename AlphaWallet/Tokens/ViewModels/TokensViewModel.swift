@@ -204,7 +204,7 @@ final class TokensViewModel {
             .map { WalletSummary(balances: [$0]) }
             .eraseToAnyPublisher()
 
-        let navigationTitle = input.appear.flatMap { [unowned self, walletNameFetcher, wallet] _ -> AnyPublisher<String, Never> in
+        let title = input.appear.flatMap { [unowned self, walletNameFetcher, wallet] _ -> AnyPublisher<String, Never> in
             walletNameFetcher.assignedNameOrEns(for: wallet.address)
                 .map { $0 ?? self.walletDefaultTitle }
                 .prepend(self.walletDefaultTitle)
@@ -239,9 +239,9 @@ final class TokensViewModel {
             }
         }.eraseToAnyPublisher()
 
-        let viewState = Publishers.CombineLatest4(sectionViewModelsSubject, walletSummary, blockieImage, navigationTitle)
-            .map { sections, summary, blockiesImage, navigationTitle in
-                return TokensViewModel.ViewState(navigationTitle: navigationTitle, summary: summary, blockiesImage: blockiesImage, isConsoleButtonHidden: self.listOfBadTokenScriptFiles.isEmpty, sections: sections)
+        let viewState = Publishers.CombineLatest4(sectionViewModelsSubject, walletSummary, blockieImage, title)
+            .map { sections, summary, blockiesImage, title in
+                return TokensViewModel.ViewState(title: title, summary: summary, blockiesImage: blockiesImage, isConsoleButtonHidden: self.listOfBadTokenScriptFiles.isEmpty, sections: sections)
             }.removeDuplicates()
             .eraseToAnyPublisher()
 
@@ -571,7 +571,7 @@ extension TokensViewModel {
     }
 
     struct ViewState {
-        let navigationTitle: String
+        let title: String
         let summary: WalletSummary
         let blockiesImage: BlockiesImage
         let isConsoleButtonHidden: Bool

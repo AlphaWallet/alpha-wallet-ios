@@ -104,7 +104,7 @@ class FungibleTokenViewController: UIViewController {
 
         let output = viewModel.transform(input: input)
         output.viewState.sink { [weak self] state in
-            self?.title = state.navigationTitle
+            self?.title = state.title
             self?.configureActionButtons(with: state.actions)
         }.store(in: &cancelable)
 

@@ -119,7 +119,7 @@ final class SwapTokensViewModel: NSObject {
         showBottomSeparatorLine: false,
         backgroundColor: Colors.appBackground)
 
-    var navigationTitle: String = "Swap"
+    var title: String = "Swap"
 
     let swapPair: CurrentValueSubject<SwapPair, Never>
 

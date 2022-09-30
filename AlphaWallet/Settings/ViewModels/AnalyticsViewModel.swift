@@ -9,7 +9,7 @@ import UIKit
 
 struct AnalyticsViewModel {
     var image: UIImage? = R.image.iconsIllustrationsAnalytics()
-    var navigationTitle: String = R.string.localizable.analyticsNavigationTitle()
+    var title: String = R.string.localizable.analyticsNavigationTitle()
     var isSendAnalyticsEnabled: Bool = true
     var attributedDescriptionString: NSAttributedString {
         let style = NSMutableParagraphStyle()

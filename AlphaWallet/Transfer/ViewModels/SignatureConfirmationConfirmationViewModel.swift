@@ -36,7 +36,7 @@ struct SignatureConfirmationViewModel {
         return requester?.iconUrl
     } 
 
-    var navigationTitle: String = R.string.localizable.signatureConfirmationTitle()
+    var title: String = R.string.localizable.signatureConfirmationTitle()
     var confirmationButtonTitle: String = R.string.localizable.confirmPaymentSignButtonTitle()
     var cancelationButtonTitle: String = R.string.localizable.cancel()
     var backgroundColor: UIColor = UIColor.clear

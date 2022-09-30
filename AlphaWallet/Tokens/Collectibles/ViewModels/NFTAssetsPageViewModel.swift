@@ -24,7 +24,7 @@ final class NFTAssetsPageViewModel {
         case assets
     }
     
-    var navigationTitle: String {
+    var title: String {
         return R.string.localizable.semifungiblesAssetsTitle()
     }
 

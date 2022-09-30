@@ -61,8 +61,8 @@ final class AccountsViewModel {
         return keystore.hasWallets
     }
 
-    var navigationTitle: String {
-        return configuration.navigationTitle
+    var title: String {
+        return configuration.title
     }
 
     var backgroundColor: UIColor = Configuration.Color.Semantic.tableViewBackground
@@ -104,7 +104,7 @@ final class AccountsViewModel {
         let viewState = Publishers.CombineLatest(sections, walletsSummary)
             .map { self.buildViewModels(sections: $0, summary: $1) }
             .handleEvents(receiveOutput: { self.viewModels = $0 })
-            .map { [configuration] sections in AccountsViewModel.ViewState(navigationTitle: configuration.navigationTitle, sections: sections) }
+            .map { [configuration] sections in AccountsViewModel.ViewState(title: configuration.title, sections: sections) }
             .eraseToAnyPublisher()
 
         return .init(
@@ -342,7 +342,7 @@ extension AccountsViewModel {
     }
 
     struct ViewState {
-        let navigationTitle: String
+        let title: String
         let sections: [AccountsViewModel.SectionViewModel]
     }
 

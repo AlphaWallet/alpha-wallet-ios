@@ -31,7 +31,7 @@ class SelectTokenViewController: UIViewController {
     }()
     private lazy var dataSource = makeDataSource()
     private (set) lazy var headerView: ConfirmationHeaderView = {
-        let view = ConfirmationHeaderView(viewModel: .init(title: viewModel.navigationTitle))
+        let view = ConfirmationHeaderView(viewModel: .init(title: viewModel.title))
         view.isHidden = true
 
         return view
@@ -79,7 +79,7 @@ class SelectTokenViewController: UIViewController {
     }
 
     private func bind(viewModel: SelectTokenViewModel) {
-        title = viewModel.navigationTitle
+        title = viewModel.title
         view.backgroundColor = viewModel.backgroundColor
         tableView.backgroundColor = viewModel.backgroundColor
 

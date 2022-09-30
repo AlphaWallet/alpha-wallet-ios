@@ -28,7 +28,7 @@ class TransactionConfirmationViewModel {
     private var timerToReenableConfirmButton: Timer?
     private let type: ViewModelType
     private let tokensService: TokenViewModelState
-    var title: String = R.string.localizable.confirmPaymentConfirmButtonTitle()
+
     var backgroundColor: UIColor = UIColor.clear
     var footerBackgroundColor: UIColor = Colors.appWhite
 
@@ -200,7 +200,7 @@ class TransactionConfirmationViewModel {
         }
     }
 
-    var navigationTitle: String {
+    var title: String {
         switch type {
         case .sendFungiblesTransaction, .sendNftTransaction:
             return R.string.localizable.tokenTransactionTransferConfirmationTitle()

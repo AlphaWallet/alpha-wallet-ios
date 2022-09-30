@@ -19,7 +19,7 @@ class TransactionConfirmationViewController: UIViewController {
         case done(withError: Bool)
     }
 
-    private lazy var headerView = ConfirmationHeaderView(viewModel: .init(title: viewModel.navigationTitle))
+    private lazy var headerView = ConfirmationHeaderView(viewModel: .init(title: viewModel.title))
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
     private let viewModel: TransactionConfirmationViewModel
     private let separatorLine: UIView = {

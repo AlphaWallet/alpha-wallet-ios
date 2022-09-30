@@ -28,7 +28,7 @@ class SwapOptionsViewModel {
             .eraseToAnyPublisher()
     }
 
-    var navigationTitle: String = "Settings"
+    var title: String = "Settings"
     var sessions: [WalletSession] {
         configurator.sessions
     }

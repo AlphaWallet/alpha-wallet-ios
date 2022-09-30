@@ -32,7 +32,7 @@ final class EditPriceAlertViewModel {
     private var cancelable = Set<AnyCancellable>()
 
     var backgroundColor: UIColor = Colors.appWhite
-    var navigationTitle: String { configuration.navigationTitle }
+    var title: String { configuration.title }
     var headerTitle: String = R.string.localizable.priceAlertEnterTargetPrice().uppercased()
     var setAlertTitle: String = R.string.localizable.priceAlertSet()
     let token: Token
@@ -104,7 +104,7 @@ extension EditPriceAlertViewModel {
         case create
         case edit(PriceAlert)
 
-        var navigationTitle: String {
+        var title: String {
             switch self {
             case .create:
                 return R.string.localizable.priceAlertSetNewAlert()

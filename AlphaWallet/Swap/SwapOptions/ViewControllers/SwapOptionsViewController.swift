@@ -110,7 +110,7 @@ class SwapOptionsViewController: UIViewController {
         super.viewDidLoad()
 
         configureDataSource()
-        navigationItem.title = viewModel.navigationTitle
+        navigationItem.title = viewModel.title
         navigationItem.leftBarButtonItem = UIBarButtonItem.logoBarButton()
         navigationItem.rightBarButtonItem = UIBarButtonItem.closeBarButton(self, selector: #selector(closeDidSelect))
         bind(viewModel: viewModel)

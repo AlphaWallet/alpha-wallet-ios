@@ -76,7 +76,7 @@ class NFTAssetListViewController: UIViewController {
     }
 
     private func configure(viewModel: NFTAssetListViewModel) {
-        title = viewModel.navigationTitle
+        title = viewModel.title
         view.backgroundColor = viewModel.backgroundColor
         tableView.backgroundColor = viewModel.backgroundColor
     }

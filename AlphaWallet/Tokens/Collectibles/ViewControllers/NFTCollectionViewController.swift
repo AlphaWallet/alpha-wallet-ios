@@ -161,7 +161,7 @@ class NFTCollectionViewController: UIViewController {
         let output = viewModel.transform(input: input)
 
         output.viewState.sink { [weak self] state in
-            self?.title = state.navigationTitle
+            self?.title = state.title
             self?.buildBarButtons(from: state.actions)
         }.store(in: &cancellable)
 

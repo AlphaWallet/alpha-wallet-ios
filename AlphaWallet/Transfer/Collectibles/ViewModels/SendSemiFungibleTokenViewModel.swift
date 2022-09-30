@@ -19,7 +19,7 @@ final class SendSemiFungibleTokenViewModel {
         return .init(availableAmount: availableAmountInt, selectedAmount: selectedAmount)
     }()
 
-    let navigationTitle: String = R.string.localizable.send()
+    let title: String = R.string.localizable.send()
 
     var assetsHeaderViewModel: SendViewSectionHeaderViewModel {
         let title: String

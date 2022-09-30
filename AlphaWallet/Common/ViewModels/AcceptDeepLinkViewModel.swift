@@ -22,7 +22,7 @@ final class AcceptDeepLinkViewModel: SectionProtocol {
         self.address = address
     }
 
-    var navigationTitle: String {
+    var title: String {
         return R.string.localizable.acceptDeepLinkNavigationTitle()
     }
 
