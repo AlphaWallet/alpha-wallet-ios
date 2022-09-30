@@ -13,24 +13,11 @@ struct SettingViewHeaderViewModel {
     var titleTextFont: UIFont
     var showTopSeparator: Bool = true
 
-    var titleTextColor: UIColor {
-        return R.color.dove()!
-    }
-
-    var detailsTextColor: UIColor {
-        return R.color.dove()!
-    }
-    var detailsTextFont: UIFont {
-        return Fonts.regular(size: 13)
-    }
-
-    var backgroundColor: UIColor {
-        return R.color.alabaster()!
-    }
-
-    var separatorColor: UIColor {
-        return R.color.mercury()!
-    }
+    var titleTextColor: UIColor = Configuration.Color.Semantic.tableViewCellPrimaryFont
+    var detailsTextColor: UIColor = Configuration.Color.Semantic.tableViewCellPrimaryFont
+    var detailsTextFont: UIFont = Fonts.regular(size: 13)
+    var backgroundColor: UIColor = Configuration.Color.Semantic.tableViewHeaderBackground
+    var separatorColor: UIColor = Configuration.Color.Semantic.tableViewSeparator
 }
 
 extension SettingViewHeaderViewModel {

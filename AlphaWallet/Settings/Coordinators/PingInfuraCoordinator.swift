@@ -17,7 +17,7 @@ class PingInfuraCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: PingInfuraCoordinatorDelegate?
 
-    init(inViewController viewController: UIViewController, analytics: AnalyticsLogger) {
+    init(viewController: UIViewController, analytics: AnalyticsLogger) {
         self.viewController = viewController
         self.analytics = analytics
     }

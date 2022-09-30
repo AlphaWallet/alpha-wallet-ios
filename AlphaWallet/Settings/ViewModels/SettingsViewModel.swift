@@ -20,19 +20,11 @@ struct SettingsViewModelOutput {
 
 final class SettingsViewModel {
     private let account: Wallet
-
-    private (set) var sections: [SettingsSection] = []
     private var assignedNameOrEns: String?
-    let lock: Lock
     private var config: Config
     private let keystore: Keystore
     private let analytics: AnalyticsLogger
     private let getWalletName: GetWalletName
-    let animatingDifferences: Bool = false
-    var title: String = R.string.localizable.aSettingsNavigationTitle()
-    var backgroundColor: UIColor = GroupedTable.Color.background
-    var largeTitleDisplayMode: UINavigationItem.LargeTitleDisplayMode = .automatic
-
     private var passcodeTitle: String {
         switch BiometryAuthenticationType.current {
         case .faceID, .touchID:
@@ -41,6 +33,13 @@ final class SettingsViewModel {
             return R.string.localizable.settingsBiometricsDisabledLabelTitle()
         }
     }
+
+    private (set) var sections: [SettingsSection] = []
+    let animatingDifferences: Bool = false
+    var title: String = R.string.localizable.aSettingsNavigationTitle()
+    var backgroundColor: UIColor = Configuration.Color.Semantic.tableViewBackground
+    var largeTitleDisplayMode: UINavigationItem.LargeTitleDisplayMode = .automatic
+    let lock: Lock
 
     init(account: Wallet, keystore: Keystore, lock: Lock, config: Config, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType) {
         self.account = account
@@ -85,12 +84,12 @@ final class SettingsViewModel {
                 return nil
             }
         }.eraseToAnyPublisher()
+
         //NOTE: Refresh wallet name or ens when view will appear called, cancel prev. one if in loading proc.
         let assignedNameOrEns = input.appear
             .flatMapLatest { [ account, getWalletName] _ in getWalletName.assignedNameOrEns(for: account.address) }
-            .handleEvents(receiveOutput: { nameOrEns in
-                self.assignedNameOrEns = nameOrEns
-            }).prepend(nil)
+            .handleEvents(receiveOutput: { self.assignedNameOrEns = $0 })
+            .prepend(nil)
             .removeDuplicates()
             .mapToVoid()
 

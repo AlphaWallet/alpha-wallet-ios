@@ -5,16 +5,16 @@ import Combine
 import AlphaWalletFoundation
 
 protocol SettingsViewControllerDelegate: class, CanOpenURL {
-    func settingsViewControllerAdvancedSettingsSelected(in controller: SettingsViewController)
-    func settingsViewControllerChangeWalletSelected(in controller: SettingsViewController)
-    func settingsViewControllerMyWalletAddressSelected(in controller: SettingsViewController)
-    func settingsViewControllerBackupWalletSelected(in controller: SettingsViewController)
-    func settingsViewControllerShowSeedPhraseSelected(in controller: SettingsViewController)
-    func settingsViewControllerWalletConnectSelected(in controller: SettingsViewController)
-    func settingsViewControllerNameWalletSelected(in controller: SettingsViewController)
-    func settingsViewControllerBlockscanChatSelected(in controller: SettingsViewController)
-    func settingsViewControllerActiveNetworksSelected(in controller: SettingsViewController)
-    func settingsViewControllerHelpSelected(in controller: SettingsViewController)
+    func advancedSettingsSelected(in controller: SettingsViewController)
+    func changeWalletSelected(in controller: SettingsViewController)
+    func myWalletAddressSelected(in controller: SettingsViewController)
+    func backupWalletSelected(in controller: SettingsViewController)
+    func showSeedPhraseSelected(in controller: SettingsViewController)
+    func walletConnectSelected(in controller: SettingsViewController)
+    func nameWalletSelected(in controller: SettingsViewController)
+    func blockscanChatSelected(in controller: SettingsViewController)
+    func activeNetworksSelected(in controller: SettingsViewController)
+    func helpSelected(in controller: SettingsViewController)
 }
 
 class SettingsViewController: UIViewController {
@@ -27,6 +27,7 @@ class SettingsViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.estimatedRowHeight = Metrics.anArbitraryRowHeightSoAutoSizingCellsWorkIniOS10
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
+        tableView.separatorColor = Configuration.Color.Semantic.tableViewSeparator
 
         return tableView
     }()
@@ -36,7 +37,7 @@ class SettingsViewController: UIViewController {
     private let blockscanChatUnreadCount = PassthroughSubject<Int?, Never>()
     private let didSetPasscode = PassthroughSubject<Bool, Never>()
     private var cancellable = Set<AnyCancellable>()
-    let viewModel: SettingsViewModel
+    private let viewModel: SettingsViewModel
 
     weak var delegate: SettingsViewControllerDelegate?
     var promptBackupWalletView: UIView? {
@@ -65,7 +66,7 @@ class SettingsViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
 
         view.addSubview(tableView)
-
+        
         NSLayoutConstraint.activate([
             tableView.anchorsConstraint(to: view)
         ])
@@ -89,8 +90,6 @@ class SettingsViewController: UIViewController {
     }
 
     private func bind(viewModel: SettingsViewModel) {
-        cancellable.cancellAll()
-
         navigationItem.largeTitleDisplayMode = viewModel.largeTitleDisplayMode
         title = viewModel.title
         view.backgroundColor = viewModel.backgroundColor
@@ -100,24 +99,25 @@ class SettingsViewController: UIViewController {
             appear: appear.eraseToAnyPublisher(),
             toggleSelection: toggleSelection.eraseToAnyPublisher(),
             didSetPasscode: didSetPasscode.eraseToAnyPublisher(),
-            blockscanChatUnreadCount: blockscanChatUnreadCount.eraseToAnyPublisher()
-        )
+            blockscanChatUnreadCount: blockscanChatUnreadCount.eraseToAnyPublisher())
 
         let output = viewModel.transform(input: input)
 
-        output.viewModels.sink { [weak self, viewModel] viewModels in
-            self?.update(with: viewModels, animate: viewModel.animatingDifferences)
-        }.store(in: &cancellable)
+        output.viewModels
+            .sink { [weak self, viewModel] viewModels in
+                self?.update(with: viewModels, animate: viewModel.animatingDifferences)
+            }.store(in: &cancellable)
 
-        output.badgeValue.sink { [tabBarItem] badgeValue in
-            tabBarItem?.badgeValue = badgeValue
-        }.store(in: &cancellable)
+        output.badgeValue
+            .sink { [tabBarItem] in tabBarItem?.badgeValue = $0 }
+            .store(in: &cancellable)
 
-        output.askToSetPasscode.sink { [weak self, didSetPasscode] _ in
-            self?.askUserToSetPasscode { value in
-                didSetPasscode.send(value)
-            }
-        }.store(in: &cancellable)
+        output.askToSetPasscode
+            .sink { [weak self, didSetPasscode] _ in
+                self?.askUserToSetPasscode { value in
+                    didSetPasscode.send(value)
+                }
+            }.store(in: &cancellable)
     }
 
     func configure(blockscanChatUnreadCount: Int?) {
@@ -233,31 +233,31 @@ extension SettingsViewController: UITableViewDelegate {
         case .wallet(let rows):
             switch rows[indexPath.row] {
             case .backup:
-                delegate?.settingsViewControllerBackupWalletSelected(in: self)
+                delegate?.backupWalletSelected(in: self)
             case .changeWallet:
-                delegate?.settingsViewControllerChangeWalletSelected(in: self)
+                delegate?.changeWalletSelected(in: self)
             case .showMyWallet:
-                delegate?.settingsViewControllerMyWalletAddressSelected(in: self)
+                delegate?.myWalletAddressSelected(in: self)
             case .showSeedPhrase:
-                delegate?.settingsViewControllerShowSeedPhraseSelected(in: self)
+                delegate?.showSeedPhraseSelected(in: self)
             case .walletConnect:
-                delegate?.settingsViewControllerWalletConnectSelected(in: self)
+                delegate?.walletConnectSelected(in: self)
             case .nameWallet:
-                delegate?.settingsViewControllerNameWalletSelected(in: self)
+                delegate?.nameWalletSelected(in: self)
             case .blockscanChat:
-                delegate?.settingsViewControllerBlockscanChatSelected(in: self)
+                delegate?.blockscanChatSelected(in: self)
             }
         case .system(let rows):
             switch rows[indexPath.row] {
             case .advanced:
-                delegate?.settingsViewControllerAdvancedSettingsSelected(in: self)
+                delegate?.advancedSettingsSelected(in: self)
             case .notifications, .passcode:
                 break
             case .selectActiveNetworks:
-                delegate?.settingsViewControllerActiveNetworksSelected(in: self)
+                delegate?.activeNetworksSelected(in: self)
             }
         case .help:
-            delegate?.settingsViewControllerHelpSelected(in: self)
+            delegate?.helpSelected(in: self)
         case .tokenStandard:
             self.delegate?.didPressOpenWebPage(TokenScript.tokenScriptSite, in: self)
         case .version:
