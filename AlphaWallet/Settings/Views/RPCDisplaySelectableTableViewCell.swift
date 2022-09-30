@@ -13,8 +13,36 @@ class RPCDisplaySelectableTableViewCell: UITableViewCell {
     // MARK: - Properties
 
     // MARK: Private
-    private let chainIconView: ImageView = ImageView()
-    private let accessoryImageView: UIImageView = UIImageView()
+    private let chainIconView: ImageView = {
+        let imageView = ImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFit
+
+        NSLayoutConstraint.activate([
+            imageView.widthAnchor.constraint(equalToConstant: 40.0),
+            imageView.heightAnchor.constraint(equalToConstant: 40.0),
+        ])
+
+        return imageView
+    }()
+    private let accessoryImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            imageView.widthAnchor.constraint(equalToConstant: 30.0),
+            imageView.heightAnchor.constraint(equalToConstant: 30.0),
+        ])
+        return imageView
+    }()
+    private let warningImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            imageView.widthAnchor.constraint(equalToConstant: 25.0),
+            imageView.heightAnchor.constraint(equalToConstant: 25.0),
+        ])
+        return imageView
+    }()
     private let infoView: ServerInformationView = ServerInformationView()
     private let topSeparator: UIView = UIView.spacer(backgroundColor: R.color.mike()!)
     private lazy var unavailableToSelectView: UIView = {
@@ -44,48 +72,44 @@ class RPCDisplaySelectableTableViewCell: UITableViewCell {
         configureView(viewModel: viewModel)
         configureChainIconView(viewModel: viewModel)
         configureInfoView(viewModel: viewModel)
-        configureAccessoryImageView(viewModel: viewModel)
+        accessoryImageView.image = viewModel.accessoryImage
         unavailableToSelectView.isHidden = viewModel.isAvailableToSelect
+        warningImageView.image = viewModel.warningImage
+        warningImageView.isHidden = viewModel.warningImage == nil
     }
 
     // MARK: Private
 
     private func constructView() {
-        topSeparator.translatesAutoresizingMaskIntoConstraints = false
-        chainIconView.translatesAutoresizingMaskIntoConstraints = false
-        infoView.translatesAutoresizingMaskIntoConstraints = false
-        accessoryImageView.translatesAutoresizingMaskIntoConstraints = false
-        chainIconView.contentMode = .scaleAspectFit
         addSubview(topSeparator)
         addSubview(chainIconView)
         addSubview(infoView)
-        addSubview(accessoryImageView)
         addSubview(unavailableToSelectView)
-        
+
+        let accessoryStackView = [warningImageView, accessoryImageView].asStackView(axis: .horizontal, spacing: 10, alignment: .center)
+        accessoryStackView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(accessoryStackView)
+
         NSLayoutConstraint.activate([
             topSeparator.topAnchor.constraint(equalTo: contentView.topAnchor),
             topSeparator.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             topSeparator.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
 
-            chainIconView.widthAnchor.constraint(equalToConstant: 40.0),
-            chainIconView.heightAnchor.constraint(equalToConstant: 40.0),
             chainIconView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16.0),
             chainIconView.centerYAnchor.constraint(equalTo: centerYAnchor),
             chainIconView.topAnchor.constraint(greaterThanOrEqualToSystemSpacingBelow: topAnchor, multiplier: 1.0),
             chainIconView.bottomAnchor.constraint(lessThanOrEqualToSystemSpacingBelow: bottomAnchor, multiplier: 1.0),
 
             infoView.leadingAnchor.constraint(equalTo: chainIconView.trailingAnchor, constant: 16.0),
-            infoView.trailingAnchor.constraint(equalTo: accessoryImageView.leadingAnchor),
+            infoView.trailingAnchor.constraint(equalTo: accessoryStackView.leadingAnchor),
             infoView.centerYAnchor.constraint(equalTo: centerYAnchor),
             infoView.topAnchor.constraint(greaterThanOrEqualToSystemSpacingBelow: topAnchor, multiplier: 1.0),
             infoView.bottomAnchor.constraint(lessThanOrEqualToSystemSpacingBelow: bottomAnchor, multiplier: 1.0),
 
-            accessoryImageView.widthAnchor.constraint(equalToConstant: 30.0),
-            accessoryImageView.heightAnchor.constraint(equalToConstant: 30.0),
-            accessoryImageView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20.0),
-            accessoryImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
-            accessoryImageView.topAnchor.constraint(greaterThanOrEqualToSystemSpacingBelow: topAnchor, multiplier: 1.0),
-            accessoryImageView.bottomAnchor.constraint(lessThanOrEqualToSystemSpacingBelow: bottomAnchor, multiplier: 1.0),
+            accessoryStackView.centerYAnchor.constraint(equalTo: centerYAnchor),
+            accessoryStackView.topAnchor.constraint(greaterThanOrEqualToSystemSpacingBelow: topAnchor, multiplier: 1.0),
+            accessoryStackView.bottomAnchor.constraint(lessThanOrEqualToSystemSpacingBelow: bottomAnchor, multiplier: 1.0),
+            accessoryStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20.0),
 
             unavailableToSelectView.anchorsConstraint(to: self)
         ])
@@ -102,20 +126,13 @@ class RPCDisplaySelectableTableViewCell: UITableViewCell {
         case .auto:
             chainIconView.image = R.image.launch_icon()!
         case .server(let server):
-            let imageSubscription = RPCServerImageFetcher.instance.image(server: server, iconImage: server.iconImage ?? R.image.tokenPlaceholderLarge()!)
-            chainIconView.subscribable = imageSubscription
+            chainIconView.subscribable = server.walletConnectIconImage
         }
     }
 
     private func configureInfoView(viewModel: ServerImageTableViewCellViewModelType) {
         infoView.configure(viewModel: viewModel)
     }
-
-    private func configureAccessoryImageView(viewModel: ServerImageTableViewCellViewModelType) {
-        let image = viewModel.isSelected ? R.image.iconsSystemCheckboxOn() : R.image.iconsSystemCheckboxOff()
-        accessoryImageView.image = image
-    }
-    
 }
 
 // MARK: - private class
@@ -132,6 +149,7 @@ private class ServerInformationView: UIView {
 
     init() {
         super.init(frame: .zero)
+        translatesAutoresizingMaskIntoConstraints = false
         constructView()
     }
 

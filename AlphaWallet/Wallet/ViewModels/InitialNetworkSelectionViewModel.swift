@@ -68,8 +68,8 @@ extension InitialNetworkSelectionViewModel: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: RPCDisplaySelectableTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         let server = model.server(for: indexPath)
-        let cellViewModel = ServerImageViewModel(server: .server(server), selected: model.isSelected(server: server))
-        cell.configure(viewModel: cellViewModel)
+        let viewModel = ServerImageViewModel(server: .server(server), isSelected: model.isSelected(server: server))
+        cell.configure(viewModel: viewModel)
         return cell
     }
 

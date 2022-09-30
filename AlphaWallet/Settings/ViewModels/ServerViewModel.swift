@@ -15,9 +15,10 @@ protocol ServerTableViewCellViewModelType {
 }
 
 protocol ServerImageTableViewCellViewModelType {
+    var warningImage: UIImage? { get }
     var isAvailableToSelect: Bool { get }
     var backgroundColor: UIColor { get }
-    var isSelected: Bool { get }
+    var accessoryImage: UIImage? { get }
     var isTopSeparatorHidden: Bool { get }
     var primaryFont: UIFont { get }
     var primaryText: String { get }
@@ -30,59 +31,28 @@ protocol ServerImageTableViewCellViewModelType {
     var serverColor: UIColor { get }
 }
 
-struct ServerViewModel: ServerTableViewCellViewModelType {
-    private let server: RPCServerOrAuto
-    private let isSelected: Bool
-    let isTopSeparatorHidden: Bool
-
-    init(server: RPCServerOrAuto, selected: Bool) {
-        self.server = server
-        self.isSelected = selected
-        self.isTopSeparatorHidden = true
-    }
-
-    init(server: RPCServer, selected: Bool) {
-        self.server = .server(server)
-        self.isSelected = selected
-        self.isTopSeparatorHidden = true
-    }
-
-    var accessoryType: UITableViewCell.AccessoryType {
-        if isSelected {
-            return LocaleViewCell.selectionAccessoryType.selected
-        } else {
-            return LocaleViewCell.selectionAccessoryType.unselected
-        }
-    }
-
-    var backgroundColor: UIColor = Colors.appBackground
-
-    var serverFont: UIFont = Fonts.regular(size: 17)
-    var serverColor: UIColor = Colors.black
-    var serverName: String {
-        return server.displayName
-    }
-    var selectionStyle: UITableViewCell.SelectionStyle = .default
-}
-
 struct ServerImageViewModel: ServerImageTableViewCellViewModelType, Hashable {
 
     let isSelected: Bool
     let server: RPCServerOrAuto
     let isTopSeparatorHidden: Bool
     let isAvailableToSelect: Bool
-    
-    init(server: RPCServerOrAuto, selected: Bool, isAvailableToSelect: Bool = true) {
+    let warningImage: UIImage?
+
+    init(server: RPCServerOrAuto, isSelected: Bool, isAvailableToSelect: Bool = true, warningImage: UIImage? = nil) {
         self.server = server
-        self.isSelected = selected
+        self.isSelected = isSelected
         self.isAvailableToSelect = isAvailableToSelect
         self.isTopSeparatorHidden = true
+        self.warningImage = warningImage
     }
 
     var backgroundColor: UIColor = Configuration.Color.Semantic.tableViewBackground
     var serverColor: UIColor = Configuration.Color.Semantic.tableViewCellPrimaryFont
     var selectionStyle: UITableViewCell.SelectionStyle = .default
-
+    var accessoryImage: UIImage? {
+        isSelected ? R.image.iconsSystemCheckboxOn() : R.image.iconsSystemCheckboxOff()
+    }
     var primaryText: String {
         return server.displayName
     }

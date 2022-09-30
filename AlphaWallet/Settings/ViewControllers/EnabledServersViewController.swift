@@ -9,11 +9,6 @@ protocol EnabledServersViewControllerDelegate: AnyObject {
 }
 
 class EnabledServersViewController: UIViewController {
-    enum Section {
-        case testnet
-        case mainnet
-    }
-
     private let roundedBackground = RoundedBackground()
     private let headers = (mainnet: EnableServersHeaderView(), testnet: EnableServersHeaderView())
     private lazy var tableView: UITableView = {
@@ -21,7 +16,7 @@ class EnabledServersViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = GroupedTable.Color.background
+        tableView.backgroundColor = Configuration.Color.Semantic.searchbarBackground
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.register(RPCDisplaySelectableTableViewCell.self)
         tableView.dataSource = self
@@ -29,25 +24,15 @@ class EnabledServersViewController: UIViewController {
 
         return tableView
     }()
-    private let restartQueue: RestartTaskQueue
-    private let sections: [Section] = [.mainnet, .testnet]
-    private var serversSelectedInPreviousMode: [RPCServer]?
-    private var sectionIndices: IndexSet {
-        IndexSet(integersIn: Range(uncheckedBounds: (lower: 0, sections.count)))
-    }
-    private let config: Config = Config()
+    private var viewModel: EnabledServersViewModel
 
-    var viewModel: EnabledServersViewModel
     weak var delegate: EnabledServersViewControllerDelegate?
 
-    init(viewModel: EnabledServersViewModel, restartQueue: RestartTaskQueue) {
+    init(viewModel: EnabledServersViewModel) {
         self.viewModel = viewModel
-        self.restartQueue = restartQueue
         super.init(nibName: nil, bundle: nil)
 
-        roundedBackground.backgroundColor = GroupedTable.Color.background
-
-        roundedBackground.translatesAutoresizingMaskIntoConstraints = false
+        roundedBackground.backgroundColor = Configuration.Color.Semantic.tableViewBackground
         view.addSubview(roundedBackground)
         roundedBackground.addSubview(tableView)
 
@@ -64,41 +49,13 @@ class EnabledServersViewController: UIViewController {
         configure(viewModel: viewModel)
     }
 
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        if isMovingFromParent {
-            done()
-        } else {
-            //no-op
-        }
-    }
-
-    func configure(viewModel: EnabledServersViewModel) {
+    private func configure(viewModel: EnabledServersViewModel) {
         self.viewModel = viewModel
         title = viewModel.title
     }
 
     required init?(coder aDecoder: NSCoder) {
         return nil
-    }
-
-    @objc private func done() {
-        guard pushReloadServersIfNeeded() else { return }
-        delegate?.notifyReloadServersQueued(in: self)
-    }
-
-    @discardableResult func pushReloadServersIfNeeded() -> Bool {
-        let servers = viewModel.selectedServers
-        //Defensive. Shouldn't allow no server to be selected
-        guard !servers.isEmpty else { return false }
-
-        let isUnchanged = Set(config.enabledServers) == Set(servers)
-        if isUnchanged {
-            //no-op
-        } else {
-            restartQueue.add(.reloadServers(servers))
-        }
-        return !isUnchanged
     }
 
     private func confirmDelete(server: RPCServer) {
@@ -118,32 +75,29 @@ class EnabledServersViewController: UIViewController {
     }
 
     private func markForDeletion(server: RPCServer) {
-        guard let customRpc = server.customRpc else { return }
-        pushReloadServersIfNeeded()
-        restartQueue.add(.removeServer(customRpc))
+        guard viewModel.markForDeletion(server: server) else { return }
 
         delegate?.notifyReloadServersQueued(in: self)
+    }
+
+    func pushReloadServersIfNeeded() {
+        viewModel.pushReloadServersIfNeeded()
     }
 }
 
 extension EnabledServersViewController: UITableViewDelegate, UITableViewDataSource {
 
     func numberOfSections(in tableView: UITableView) -> Int {
-        sections.count
+        viewModel.sections.count
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        switch sections[section] {
-        case .testnet:
-            return viewModel.serverCount(forMode: .testnet)
-        case .mainnet:
-            return viewModel.serverCount(forMode: .mainnet)
-        }
+        viewModel.numberOfRowsInSection(section)
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let headerView: EnableServersHeaderView
-        switch sections[section] {
+        switch viewModel.sections[section] {
         case .testnet:
             headerView = headers.testnet
             headerView.configure(mode: .testnet, isEnabled: viewModel.mode == .testnet)
@@ -173,24 +127,14 @@ extension EnabledServersViewController: UITableViewDelegate, UITableViewDataSour
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: RPCDisplaySelectableTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-        let server = viewModel.server(for: indexPath)
-        let cellViewModel = ServerImageViewModel(server: .server(server), selected: viewModel.isServerSelected(server))
-        cell.configure(viewModel: cellViewModel)
+        cell.configure(viewModel: viewModel.serverViewModel(indexPath: indexPath))
 
         return cell
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-
-        let server = viewModel.server(for: indexPath)
-        let servers: [RPCServer]
-        if viewModel.selectedServers.contains(server) {
-            servers = viewModel.selectedServers - [server]
-        } else {
-            servers = viewModel.selectedServers + [server]
-        }
-        configure(viewModel: .init(servers: viewModel.servers, selectedServers: servers, mode: viewModel.mode))
+        viewModel.selectServer(indexPath: indexPath)
         tableView.reloadData()
         //Even if no servers is selected, we don't attempt to disable the back button here since calling code will take care of ignore the change server "request" when there are no servers selected. We don't want to disable the back button because users can't cancel the operation
     }
@@ -223,15 +167,9 @@ extension EnabledServersViewController: EnableServersHeaderViewDelegate {
     func toggledTo(_ newValue: Bool, headerView: EnableServersHeaderView) {
         switch (headerView.mode, newValue) {
         case (.mainnet, true), (.testnet, false):
-            if let serversSelectedInPreviousMode = serversSelectedInPreviousMode {
-                self.serversSelectedInPreviousMode = viewModel.selectedServers
-                configure(viewModel: .init(servers: viewModel.servers, selectedServers: serversSelectedInPreviousMode, mode: .mainnet))
-            } else {
-                serversSelectedInPreviousMode = viewModel.selectedServers
-                configure(viewModel: .init(servers: viewModel.servers, selectedServers: Constants.defaultEnabledServers, mode: .mainnet))
-            }
+            viewModel.switchMode(to: .mainnet)
             tableView.reloadData()
-            tableView.reloadSections(sectionIndices, with: .automatic)
+            tableView.reloadSections(viewModel.sectionIndices, with: .automatic)
         case (.mainnet, false), (.testnet, true):
             let prompt = PromptViewController()
             prompt.configure(viewModel: .init(title: R.string.localizable.settingsEnabledNetworksPromptEnableTestnetTitle(), description: R.string.localizable.settingsEnabledNetworksPromptEnableTestnetDescription(), buttonTitle: R.string.localizable.settingsEnabledNetworksPromptEnableTestnetButtonTitle()))
@@ -242,15 +180,16 @@ extension EnabledServersViewController: EnableServersHeaderViewDelegate {
     }
 }
 
+extension EnabledServersViewController: PopNotifiable {
+    func didPopViewController(animated: Bool) {
+        guard viewModel.pushReloadServersIfNeeded() else { return }
+        delegate?.notifyReloadServersQueued(in: self)
+    }
+}
+
 extension EnabledServersViewController: PromptViewControllerDelegate {
     func actionButtonTapped(inController controller: PromptViewController) {
-        if let serversSelectedInPreviousMode = serversSelectedInPreviousMode {
-            self.serversSelectedInPreviousMode = viewModel.selectedServers
-            configure(viewModel: .init(servers: viewModel.servers, selectedServers: serversSelectedInPreviousMode, mode: .testnet))
-        } else {
-            serversSelectedInPreviousMode = viewModel.selectedServers
-            configure(viewModel: .init(servers: viewModel.servers, selectedServers: Constants.defaultEnabledTestnetServers, mode: .testnet))
-        }
+        viewModel.switchMode(to: .testnet)
         //Animation breaks section headers. No idea why. So don't animate
         tableView.reloadData()
     }

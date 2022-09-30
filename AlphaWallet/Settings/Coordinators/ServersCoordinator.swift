@@ -18,11 +18,7 @@ class ServersCoordinator: Coordinator {
             .polygon,
             .classic,
             .poa,
-            .ropsten,
             .goerli,
-            .kovan,
-            .rinkeby,
-            .sokol,
             .binance_smart_chain,
             .binance_smart_chain_testnet,
             .callisto,
@@ -50,6 +46,10 @@ class ServersCoordinator: Coordinator {
             .candle,
             .palm,
             .palmTestnet,
+            .ropsten,
+            .kovan,
+            .rinkeby,
+            .sokol
         ] + RPCServer.customServers
     }
 
