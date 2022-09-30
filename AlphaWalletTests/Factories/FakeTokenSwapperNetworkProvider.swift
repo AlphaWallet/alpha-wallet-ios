@@ -12,19 +12,26 @@ import AlphaWalletCore
 import AlphaWalletFoundation
 
 final class FakeTokenSwapperNetworkProvider: TokenSwapperNetworkProvider {
+    func fetchSupportedTools() -> AnyPublisher<[SwapTool], SwapError> {
+        return .fail(SwapError.unknownError)
+    }
+
+    func fetchSwapRoutes(fromToken: TokenToSwap, toToken: TokenToSwap, slippage: String, fromAmount: BigUInt, exchanges: [String]) -> AnyPublisher<[SwapRoute], SwapError> {
+        return .fail(SwapError.unknownError)
+    }
+
+    func fetchSwapQuote(fromToken: TokenToSwap, toToken: TokenToSwap, wallet: AlphaWallet.Address, slippage: String, fromAmount: BigUInt, exchange: String) -> AnyPublisher<SwapQuote, SwapError> {
+        return .fail(SwapError.unknownError)
+    }
+
     func fetchSupportedChains() -> AnyPublisher<[RPCServer], PromiseError> {
-        return Just<[RPCServer]>([])
-            .setFailureType(to: PromiseError.self)
-            .eraseToAnyPublisher()
+        return .fail(PromiseError.some(error: SwapError.unknownError))
     }
 
     func fetchSupportedTokens(for server: RPCServer) -> AnyPublisher<SwapPairs, PromiseError> {
-        return Just<SwapPairs>(.init(connections: .init(connections: [])))
-            .setFailureType(to: PromiseError.self)
-            .eraseToAnyPublisher()
+        return .fail(PromiseError.some(error: SwapError.unknownError))
     }
     func fetchSwapQuote(fromToken: TokenToSwap, toToken: TokenToSwap, wallet: AlphaWallet.Address, slippage: String, fromAmount: BigUInt) -> AnyPublisher<SwapQuote, SwapError> {
-        return Fail(error: SwapError.unknownError)
-            .eraseToAnyPublisher()
+        return .fail(SwapError.unknownError)
     }
 }
