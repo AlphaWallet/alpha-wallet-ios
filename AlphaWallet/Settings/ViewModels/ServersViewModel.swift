@@ -4,6 +4,41 @@ import Foundation
 import UIKit
 import AlphaWalletFoundation
 
+enum ServerSelection {
+    case server(server: RPCServerOrAuto)
+    case multipleServers(servers: [RPCServerOrAuto])
+
+    var asServersOrAnyArray: [RPCServerOrAuto] {
+        switch self {
+        case .multipleServers:
+            return []
+        case .server(let server):
+            return [server]
+        }
+    }
+
+    var asServersArray: [RPCServer] {
+        switch self {
+        case .server(let server):
+            return [server.server]
+        case .multipleServers(let servers):
+            //NOTE: is shouldn't happend, but for case when there several .auto casess
+            return Array(Set(servers.map { $0.server }))
+        }
+    }
+}
+
+extension RPCServerOrAuto {
+    var server: RPCServer {
+        switch self {
+        case .server(let value):
+            return value
+        case .auto:
+            return Config().anyEnabledServer()
+        }
+    }
+}
+
 struct ServersViewModel {
     private var initiallySelectedServers: [RPCServerOrAuto]
     private (set) var selectedServers: [RPCServerOrAuto]
@@ -44,6 +79,14 @@ struct ServersViewModel {
 
     func server(for indexPath: IndexPath) -> RPCServerOrAuto {
         return servers[indexPath.row]
+    }
+
+    func viewModel(for indexPath: IndexPath) -> ServerImageViewModel {
+        let rpcServerOrAuto = server(for: indexPath)
+        var viewModel = ServerImageViewModel(server: rpcServerOrAuto, isSelected: isServerSelected(rpcServerOrAuto))
+        viewModel.selectionStyle = .none
+
+        return viewModel
     }
 
     mutating func selectServer(server: RPCServerOrAuto) {

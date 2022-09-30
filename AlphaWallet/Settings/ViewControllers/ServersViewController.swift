@@ -3,41 +3,6 @@
 import UIKit
 import AlphaWalletFoundation
 
-enum ServerSelection {
-    case server(server: RPCServerOrAuto)
-    case multipleServers(servers: [RPCServerOrAuto])
-
-    var asServersOrAnyArray: [RPCServerOrAuto] {
-        switch self {
-        case .multipleServers:
-            return []
-        case .server(let server):
-            return [server]
-        }
-    }
-
-    var asServersArray: [RPCServer] {
-        switch self {
-        case .server(let server):
-            return [server.server]
-        case .multipleServers(let servers):
-            //NOTE: is shouldn't happend, but for case when there several .auto casess
-            return Array(Set(servers.map { $0.server }))
-        }
-    }
-}
-
-extension RPCServerOrAuto {
-    var server: RPCServer {
-        switch self {
-        case .server(let value):
-            return value
-        case .auto:
-            return Config().anyEnabledServer()
-        }
-    }
-}
-
 protocol ServersViewControllerDelegate: AnyObject {
     func didClose(in viewController: ServersViewController)
     func didSelectServer(selection: ServerSelection, in viewController: ServersViewController)
@@ -83,7 +48,7 @@ class ServersViewController: UIViewController {
         configure(viewModel: viewModel)
     }
 
-    func configure(viewModel: ServersViewModel) {
+    private func configure(viewModel: ServersViewModel) {
         self.viewModel = viewModel
         navigationItem.title = viewModel.title
     }
@@ -111,10 +76,7 @@ extension ServersViewController: UITableViewDelegate, UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: RPCDisplaySelectableTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-        cell.selectionStyle = .none
-        let rpcServerOrAuto = viewModel.server(for: indexPath)
-        let cellViewModel = ServerImageViewModel(server: rpcServerOrAuto, selected: viewModel.isServerSelected(rpcServerOrAuto))
-        cell.configure(viewModel: cellViewModel)
+        cell.configure(viewModel: viewModel.viewModel(for: indexPath))
 
         return cell
     }
@@ -156,9 +118,7 @@ extension ServersViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        guard viewModel.displayWarningFooter else {
-            return nil
-        }
+        guard viewModel.displayWarningFooter else { return nil }
 
         let footer = UIView()
         let label = UILabel()

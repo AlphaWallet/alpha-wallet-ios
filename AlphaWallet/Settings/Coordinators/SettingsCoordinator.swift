@@ -13,41 +13,41 @@ enum RestartReason {
 
 protocol SettingsCoordinatorDelegate: class, CanOpenURL {
     func didRestart(with account: Wallet, in coordinator: SettingsCoordinator, reason: RestartReason)
-	func didCancel(in coordinator: SettingsCoordinator)
-	func didPressShowWallet(in coordinator: SettingsCoordinator)
-	func assetDefinitionsOverrideViewController(for: SettingsCoordinator) -> UIViewController?
+    func didCancel(in coordinator: SettingsCoordinator)
+    func didPressShowWallet(in coordinator: SettingsCoordinator)
+    func assetDefinitionsOverrideViewController(for: SettingsCoordinator) -> UIViewController?
     func showConsole(in coordinator: SettingsCoordinator)
     func restartToReloadServersQueued(in coordinator: SettingsCoordinator)
 }
 
 class SettingsCoordinator: Coordinator {
-	private let keystore: Keystore
-	private var config: Config
-	private let sessions: ServerDictionary<WalletSession>
+    private let keystore: Keystore
+    private var config: Config
+    private let sessions: ServerDictionary<WalletSession>
     private let restartQueue: RestartTaskQueue
     private let promptBackupCoordinator: PromptBackupCoordinator
-	private let analytics: AnalyticsLogger
+    private let analytics: AnalyticsLogger
     private let walletConnectCoordinator: WalletConnectCoordinator
     private let walletBalanceService: WalletBalanceService
     private let blockscanChatService: BlockscanChatService
     private let blockiesGenerator: BlockiesGenerator
     private let domainResolutionService: DomainResolutionServiceType
-	private var account: Wallet {
-		return sessions.anyValue.account
-	}
+    private var account: Wallet {
+        return sessions.anyValue.account
+    }
     private let lock: Lock
     weak private var advancedSettingsViewController: AdvancedSettingsViewController?
 
-	let navigationController: UINavigationController
-	weak var delegate: SettingsCoordinatorDelegate?
-	var coordinators: [Coordinator] = []
+    let navigationController: UINavigationController
+    weak var delegate: SettingsCoordinatorDelegate?
+    var coordinators: [Coordinator] = []
 
-	lazy var rootViewController: SettingsViewController = {
+    lazy var rootViewController: SettingsViewController = {
         let viewModel = SettingsViewModel(account: account, keystore: keystore, lock: lock, config: config, analytics: analytics, domainResolutionService: domainResolutionService)
-		let controller = SettingsViewController(viewModel: viewModel)
-		controller.delegate = self
-		return controller
-	}()
+        let controller = SettingsViewController(viewModel: viewModel)
+        controller.delegate = self
+        return controller
+    }()
 
     init(
         navigationController: UINavigationController = .withOverridenBarAppearence(),
@@ -63,30 +63,30 @@ class SettingsCoordinator: Coordinator {
         blockiesGenerator: BlockiesGenerator,
         domainResolutionService: DomainResolutionServiceType,
         lock: Lock
-	) {
-		self.navigationController = navigationController
+    ) {
+        self.navigationController = navigationController
         self.lock = lock
         self.keystore = keystore
-		self.config = config
-		self.sessions = sessions
+        self.config = config
+        self.sessions = sessions
         self.restartQueue = restartQueue
         self.promptBackupCoordinator = promptBackupCoordinator
-		self.analytics = analytics
+        self.analytics = analytics
         self.walletConnectCoordinator = walletConnectCoordinator
         self.walletBalanceService = walletBalanceService
         self.blockscanChatService = blockscanChatService
         self.blockiesGenerator = blockiesGenerator
         self.domainResolutionService = domainResolutionService
-		promptBackupCoordinator.subtlePromptDelegate = self
-	}
+        promptBackupCoordinator.subtlePromptDelegate = self
+    }
 
-	func start() {
-		navigationController.viewControllers = [rootViewController]
-	}
+    func start() {
+        navigationController.viewControllers = [rootViewController]
+    }
 
     func restart(for wallet: Wallet, reason: RestartReason) {
-		delegate?.didRestart(with: wallet, in: self, reason: reason)
-	}
+        delegate?.didRestart(with: wallet, in: self, reason: reason)
+    }
 
     private func showTools(in controller: AdvancedSettingsViewController) {
         let controller = ToolsViewController(config: config)
@@ -155,15 +155,14 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
 
     func settingsViewControllerChangeWalletSelected(in controller: SettingsViewController) {
         let coordinator = AccountsCoordinator(
-                config: config,
-                navigationController: navigationController,
-                keystore: keystore,
-				analytics: analytics,
-                viewModel: .init(configuration: .changeWallets, animatedPresentation: true),
-                walletBalanceService: walletBalanceService,
-                blockiesGenerator: blockiesGenerator,
-                domainResolutionService: domainResolutionService
-        )
+            config: config,
+            navigationController: navigationController,
+            keystore: keystore,
+            analytics: analytics,
+            viewModel: .init(configuration: .changeWallets, animatedPresentation: true),
+            walletBalanceService: walletBalanceService,
+            blockiesGenerator: blockiesGenerator,
+            domainResolutionService: domainResolutionService)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -176,12 +175,7 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
     func settingsViewControllerBackupWalletSelected(in controller: SettingsViewController) {
         switch account.type {
         case .real:
-            let coordinator = BackupCoordinator(
-                    navigationController: navigationController,
-                    keystore: keystore,
-                    account: account,
-					analytics: analytics
-            )
+            let coordinator = BackupCoordinator(navigationController: navigationController, keystore: keystore, account: account, analytics: analytics)
             coordinator.delegate = self
             coordinator.start()
             addCoordinator(coordinator)
@@ -191,7 +185,7 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
     }
 
     func settingsViewControllerActiveNetworksSelected(in controller: SettingsViewController) {
-        let coordinator = EnabledServersCoordinator(navigationController: navigationController, selectedServers: config.enabledServers, restartQueue: restartQueue, analytics: analytics)
+        let coordinator = EnabledServersCoordinator(navigationController: navigationController, selectedServers: config.enabledServers, restartQueue: restartQueue, analytics: analytics, config: config)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -213,17 +207,17 @@ extension SettingsCoordinator: ShowSeedPhraseCoordinatorDelegate {
 }
 
 extension SettingsCoordinator: CanOpenURL {
-	func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
-		delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
-	}
+    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
+    }
 
-	func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
-		delegate?.didPressViewContractWebPage(url, in: viewController)
-	}
+    func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(url, in: viewController)
+    }
 
-	func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
-		delegate?.didPressOpenWebPage(url, in: viewController)
-	}
+    func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressOpenWebPage(url, in: viewController)
+    }
 }
 
 extension SettingsCoordinator: AccountsCoordinatorDelegate {
@@ -233,20 +227,20 @@ extension SettingsCoordinator: AccountsCoordinatorDelegate {
         promptBackupCoordinator.showHideCurrentPrompt()
     }
 
-	func didAddAccount(account: Wallet, in coordinator: AccountsCoordinator) {
+    func didAddAccount(account: Wallet, in coordinator: AccountsCoordinator) {
         //no-op
-	}
+    }
 
-	func didDeleteAccount(account: Wallet, in coordinator: AccountsCoordinator) {
+    func didDeleteAccount(account: Wallet, in coordinator: AccountsCoordinator) {
         guard !coordinator.accountsViewController.viewModel.hasWallets else { return }
         coordinator.navigationController.popViewController(animated: true)
-		delegate?.didCancel(in: self)
-	}
+        delegate?.didCancel(in: self)
+    }
 
-	func didCancel(in coordinator: AccountsCoordinator) {
-		coordinator.navigationController.popViewController(animated: true)
-		removeCoordinator(coordinator)
-	}
+    func didCancel(in coordinator: AccountsCoordinator) {
+        coordinator.navigationController.popViewController(animated: true)
+        removeCoordinator(coordinator)
+    }
 
     func didSelectAccount(account: Wallet, in coordinator: AccountsCoordinator) {
         coordinator.navigationController.popViewController(animated: true)
@@ -261,10 +255,10 @@ extension SettingsCoordinator: AccountsCoordinatorDelegate {
 
 extension SettingsCoordinator: LocalesCoordinatorDelegate {
     func didSelect(locale: AppLocale, in coordinator: LocalesCoordinator) {
-		coordinator.localesViewController.navigationController?.popViewController(animated: true)
-		removeCoordinator(coordinator)
+        coordinator.localesViewController.navigationController?.popViewController(animated: true)
+        removeCoordinator(coordinator)
         restart(for: account, reason: .changeLocalization)
-	}
+    }
 }
 
 extension SettingsCoordinator: EnabledServersCoordinatorDelegate {
@@ -277,25 +271,25 @@ extension SettingsCoordinator: EnabledServersCoordinatorDelegate {
 }
 
 extension SettingsCoordinator: PromptBackupCoordinatorSubtlePromptDelegate {
-	var viewControllerToShowBackupLaterAlert: UIViewController {
-		return rootViewController
-	}
+    var viewControllerToShowBackupLaterAlert: UIViewController {
+        return rootViewController
+    }
 
-	func updatePrompt(inCoordinator coordinator: PromptBackupCoordinator) {
-		rootViewController.promptBackupWalletView = coordinator.subtlePromptView
-	}
+    func updatePrompt(inCoordinator coordinator: PromptBackupCoordinator) {
+        rootViewController.promptBackupWalletView = coordinator.subtlePromptView
+    }
 }
 
 extension SettingsCoordinator: BackupCoordinatorDelegate {
-	func didCancel(coordinator: BackupCoordinator) {
-		removeCoordinator(coordinator)
-	}
+    func didCancel(coordinator: BackupCoordinator) {
+        removeCoordinator(coordinator)
+    }
 
-	func didFinish(account: AlphaWallet.Address, in coordinator: BackupCoordinator) {
-		promptBackupCoordinator.markBackupDone()
-		promptBackupCoordinator.showHideCurrentPrompt()
-		removeCoordinator(coordinator)
-	}
+    func didFinish(account: AlphaWallet.Address, in coordinator: BackupCoordinator) {
+        promptBackupCoordinator.markBackupDone()
+        promptBackupCoordinator.showHideCurrentPrompt()
+        removeCoordinator(coordinator)
+    }
 }
 
 extension SettingsCoordinator: AdvancedSettingsViewControllerDelegate {

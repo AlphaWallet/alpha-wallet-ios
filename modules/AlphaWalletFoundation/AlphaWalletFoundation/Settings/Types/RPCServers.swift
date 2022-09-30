@@ -80,6 +80,15 @@ public enum RPCServer: Hashable, CaseIterable {
         .main
     }
 
+    public var isDeprecated: Bool {
+        switch self {
+        case .xDai, .phi, .phi2, .classic, .main, .poa, .callisto, .binance_smart_chain, .artis_sigma1, .heco, .fantom, .avalanche, .candle, .polygon, .optimistic, .arbitrum, .palm, .klaytnCypress, .ioTeX, .goerli, .artis_tau1, .binance_smart_chain_testnet, .heco_testnet, .fantom_testnet, .avalanche_testnet, .mumbai_testnet, .optimisticKovan, .cronosTestnet, .palmTestnet, .arbitrumRinkeby, .klaytnBaobabTestnet, .ioTeXTestnet, .custom:
+            return false
+        case .kovan, .ropsten, .rinkeby, .sokol: //NOTE: maybe Arbitrum Kovan, Optimistic Rinkeby too
+            return true
+        }
+    }
+
     public var chainID: Int {
         switch self {
         case .main: return 1

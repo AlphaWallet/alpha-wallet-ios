@@ -312,7 +312,7 @@ extension SaveCustomRpcBrowseDataController: UITableViewDataSource {
         let cell: RPCDisplayTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         let section = tableViewSection[indexPath.section]
         let server = section.serverAt(row: indexPath.row)
-        let viewModel = ServerImageViewModel(server: .server(.custom(server)), selected: section.isMarked(chainID: server.chainID))
+        let viewModel = ServerImageViewModel(server: .server(.custom(server)), isSelected: section.isMarked(chainID: server.chainID))
         cell.configure(viewModel: viewModel)
         return cell
     }

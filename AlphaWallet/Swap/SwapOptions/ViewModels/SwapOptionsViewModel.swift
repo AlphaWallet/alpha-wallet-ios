@@ -53,7 +53,7 @@ class SwapOptionsViewModel {
                     guard let configurator = configurator else { return [] }
                     return sessions.map {
                         let isAvailableToSelect = configurator.isAvailable(server: $0.server)
-                        return ServerImageViewModel(server: .server($0.server), selected: $0.server == server, isAvailableToSelect: isAvailableToSelect)
+                        return ServerImageViewModel(server: .server($0.server), isSelected: $0.server == server, isAvailableToSelect: isAvailableToSelect)
                     }
                 }.map { sessions -> SwapOptionsViewModel.SessionsSnapshot in
                     var snapshot = SwapOptionsViewModel.SessionsSnapshot()
