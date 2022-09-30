@@ -12,13 +12,8 @@ struct SwitchTableViewCellViewModel {
     let icon: UIImage
     let value: Bool
 
-    var titleFont: UIFont {
-        return Fonts.regular(size: 17)
-    }
-
-    var titleTextColor: UIColor {
-        return Colors.black
-    }
+    var titleFont: UIFont = Fonts.regular(size: 17)
+    var titleTextColor: UIColor = Configuration.Color.Semantic.tableViewCellPrimaryFont
 }
 
 extension SwitchTableViewCellViewModel: Hashable {

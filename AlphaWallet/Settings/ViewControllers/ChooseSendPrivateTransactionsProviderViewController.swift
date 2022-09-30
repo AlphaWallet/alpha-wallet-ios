@@ -4,49 +4,47 @@ import UIKit
 import AlphaWalletFoundation
 
 protocol ChooseSendPrivateTransactionsProviderViewControllerDelegate: AnyObject {
-    func privateTransactionProviderSelected(provider: SendPrivateTransactionsProvider?, inController viewController: ChooseSendPrivateTransactionsProviderViewController)
+    func privateTransactionProviderSelected(provider: SendPrivateTransactionsProvider?, in viewController: ChooseSendPrivateTransactionsProviderViewController)
 }
 
 class ChooseSendPrivateTransactionsProviderViewController: UIViewController {
-    private lazy var viewModel = ChooseSendPrivateTransactionsProviderViewModel()
+    private let viewModel: ChooseSendPrivateTransactionsProviderViewModel
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.register(SettingTableViewCell.self)
         tableView.register(SelectionTableViewCell.self)
         tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = GroupedTable.Color.background
+        tableView.separatorColor = Configuration.Color.Semantic.tableViewSeparator
+        tableView.backgroundColor = Configuration.Color.Semantic.tableViewBackground
         tableView.dataSource = self
         tableView.delegate = self
         tableView.translatesAutoresizingMaskIntoConstraints = false
 
         return tableView
     }()
-    private let roundedBackground = RoundedBackground()
-    private var config: Config
+
     weak var delegate: ChooseSendPrivateTransactionsProviderViewControllerDelegate?
 
-    init(config: Config) {
-        self.config = config
+    init(viewModel: ChooseSendPrivateTransactionsProviderViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
-        roundedBackground.backgroundColor = GroupedTable.Color.background
-
-        view.addSubview(roundedBackground)
-        roundedBackground.addSubview(tableView)
+        view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
-            tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-        ] + roundedBackground.createConstraintsWithContainer(view: view))
+            tableView.anchorsConstraint(to: view)
+        ])
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = R.string.localizable.settingsChooseSendPrivateTransactionsProviderButtonTitle()
-        navigationItem.largeTitleDisplayMode = .never
+        bind(viewModel: viewModel)
+    }
+
+    private func bind(viewModel: ChooseSendPrivateTransactionsProviderViewModel) {
+        title = viewModel.title
+        navigationItem.largeTitleDisplayMode = viewModel.largeTitleDisplayMode
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -60,9 +58,9 @@ extension ChooseSendPrivateTransactionsProviderViewController: UITableViewDataSo
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let row = viewModel.rows[indexPath.row]
         let cell: SelectionTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-        cell.configure(viewModel: .init(titleText: row.title, icon: row.icon, value: config.sendPrivateTransactionsProvider == row))
+        cell.configure(viewModel: viewModel.viewModel(for: indexPath))
+        
         return cell
     }
 }
@@ -90,15 +88,8 @@ extension ChooseSendPrivateTransactionsProviderViewController: UITableViewDelega
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let provider = viewModel.rows[indexPath.row]
-        let chosenProvider: SendPrivateTransactionsProvider?
-        if provider == config.sendPrivateTransactionsProvider {
-            chosenProvider = nil
-        } else {
-            chosenProvider = provider
-        }
-        config.sendPrivateTransactionsProvider = chosenProvider
+        let chosenProvider = viewModel.selectProvider(at: indexPath)
         tableView.reloadData()
-        delegate?.privateTransactionProviderSelected(provider: chosenProvider, inController: self)
+        delegate?.privateTransactionProviderSelected(provider: chosenProvider, in: self)
     }
 }

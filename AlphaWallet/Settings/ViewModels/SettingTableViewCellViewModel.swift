@@ -18,21 +18,10 @@ struct SettingTableViewCellViewModel {
         return subTitleText == nil
     }
 
-    var titleFont: UIFont {
-        return Fonts.regular(size: 17)
-    }
-
-    var titleTextColor: UIColor {
-        return Colors.black
-    }
-
-    var subTitleFont: UIFont {
-        return Fonts.regular(size: 12)
-    }
-
-    var subTitleTextColor: UIColor {
-        return R.color.dove()!
-    }
+    var titleFont: UIFont = Fonts.regular(size: 17)
+    var titleTextColor: UIColor = Configuration.Color.Semantic.tableViewCellPrimaryFont
+    var subTitleFont: UIFont = Fonts.regular(size: 12)
+    var subTitleTextColor: UIColor = Configuration.Color.Semantic.tableViewCellSecondaryFont
 }
 
 extension SettingTableViewCellViewModel: Hashable {

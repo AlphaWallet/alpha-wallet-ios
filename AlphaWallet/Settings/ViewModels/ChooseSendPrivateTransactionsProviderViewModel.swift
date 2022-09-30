@@ -3,7 +3,15 @@
 import Foundation
 import AlphaWalletFoundation
 
-struct ChooseSendPrivateTransactionsProviderViewModel {
+class ChooseSendPrivateTransactionsProviderViewModel {
+    private var config: Config
+    let title: String = R.string.localizable.settingsChooseSendPrivateTransactionsProviderButtonTitle()
+    let largeTitleDisplayMode: UINavigationItem.LargeTitleDisplayMode = .never
+
+    init(config: Config) {
+        self.config = config
+    }
+
     var rows: [SendPrivateTransactionsProvider] = [
         .ethermine,
         .eden,
@@ -11,5 +19,23 @@ struct ChooseSendPrivateTransactionsProviderViewModel {
 
     var numberOfRows: Int {
         rows.count
+    }
+
+    func viewModel(for indexPath: IndexPath) -> SwitchTableViewCellViewModel {
+        let row = rows[indexPath.row]
+        return .init(titleText: row.title, icon: row.icon, value: config.sendPrivateTransactionsProvider == row)
+    }
+
+    func selectProvider(at indexPath: IndexPath) -> SendPrivateTransactionsProvider? {
+        let provider = rows[indexPath.row]
+        let chosenProvider: SendPrivateTransactionsProvider?
+        if provider == config.sendPrivateTransactionsProvider {
+            chosenProvider = nil
+        } else {
+            chosenProvider = provider
+        }
+        config.sendPrivateTransactionsProvider = chosenProvider
+        
+        return chosenProvider
     }
 }

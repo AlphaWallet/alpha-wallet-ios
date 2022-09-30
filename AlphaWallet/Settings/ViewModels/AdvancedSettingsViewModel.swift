@@ -12,7 +12,16 @@ import AlphaWalletFoundation
 struct AdvancedSettingsViewModel {
     var rows: [AdvancedSettingsRow]
 
-    init(wallet: Wallet) {
+    let wallet: Wallet
+    let config: Config
+
+    let title: String = R.string.localizable.aAdvancedSettingsNavigationTitle()
+    let largeTitleDisplayMode: UINavigationItem.LargeTitleDisplayMode  = .never
+    
+    init(wallet: Wallet, config: Config) {
+        self.wallet = wallet
+        self.config = config
+        
         let canExportToJSONKeystore = Features.default.isAvailable(.isExportJsonKeystoreEnabled) && wallet.isReal()
         self.rows = [
             .clearBrowserCache,
@@ -26,7 +35,18 @@ struct AdvancedSettingsViewModel {
         ].compactMap { $0 }
     }
 
-    func numberOfRows() -> Int {
+    func viewModel(for indexPath: IndexPath) -> SettingTableViewCellViewModel {
+        let row = rows[indexPath.row]
+        switch row {
+        case .analytics, .changeCurrency, .changeLanguage, .clearBrowserCache, .tools, .tokenScript, .exportJSONKeystore, .features:
+            return .init(titleText: row.title, subTitleText: nil, icon: row.icon)
+        case .usePrivateNetwork:
+            let provider = config.sendPrivateTransactionsProvider
+            return .init(titleText: row.title, subTitleText: provider?.title, icon: provider?.icon ?? row.icon)
+        }
+    }
+
+    var numberOfRows: Int {
         return rows.count
     }
 }

@@ -9,92 +9,77 @@ import UIKit
 import AlphaWalletFoundation
 
 protocol AdvancedSettingsViewControllerDelegate: AnyObject {
-    func advancedSettingsViewControllerMoreSelected(in controller: AdvancedSettingsViewController)
-    func advancedSettingsViewControllerClearBrowserCacheSelected(in controller: AdvancedSettingsViewController)
-    func advancedSettingsViewControllerTokenScriptSelected(in controller: AdvancedSettingsViewController)
-    func advancedSettingsViewControllerChangeLanguageSelected(in controller: AdvancedSettingsViewController)
-    func advancedSettingsViewControllerChangeCurrencySelected(in controller: AdvancedSettingsViewController)
-    func advancedSettingsViewControllerAnalyticsSelected(in controller: AdvancedSettingsViewController)
-    func advancedSettingsViewControllerUsePrivateNetworkSelected(in controller: AdvancedSettingsViewController)
-    func advancedSettingsViewControllerExportJSONKeystoreSelected(in controller: AdvancedSettingsViewController)
-    func advancedSettingsViewControllerFeaturesSelected(in controller: AdvancedSettingsViewController)
+    func moreSelected(in controller: AdvancedSettingsViewController)
+    func clearBrowserCacheSelected(in controller: AdvancedSettingsViewController)
+    func tokenScriptSelected(in controller: AdvancedSettingsViewController)
+    func changeLanguageSelected(in controller: AdvancedSettingsViewController)
+    func changeCurrencySelected(in controller: AdvancedSettingsViewController)
+    func analyticsSelected(in controller: AdvancedSettingsViewController)
+    func usePrivateNetworkSelected(in controller: AdvancedSettingsViewController)
+    func exportJSONKeystoreSelected(in controller: AdvancedSettingsViewController)
+    func featuresSelected(in controller: AdvancedSettingsViewController)
 }
 
 class AdvancedSettingsViewController: UIViewController {
-
-    private lazy var viewModel: AdvancedSettingsViewModel = AdvancedSettingsViewModel(wallet: wallet)
+    private let viewModel: AdvancedSettingsViewModel
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.register(SettingTableViewCell.self)
         tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = GroupedTable.Color.background
+        tableView.separatorColor = Configuration.Color.Semantic.tableViewSeparator
+        tableView.backgroundColor = Configuration.Color.Semantic.tableViewBackground
         tableView.dataSource = self
         tableView.delegate = self
         tableView.translatesAutoresizingMaskIntoConstraints = false
 
         return tableView
     }()
-    private let roundedBackground = RoundedBackground()
-    private var config: Config
-    private let wallet: Wallet
+
     weak var delegate: AdvancedSettingsViewControllerDelegate?
 
-    init(wallet: Wallet, config: Config) {
-        self.config = config
-        self.wallet = wallet
+    init(viewModel: AdvancedSettingsViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
-        roundedBackground.backgroundColor = GroupedTable.Color.background
-
-        view.addSubview(roundedBackground)
-        roundedBackground.addSubview(tableView)
+        view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
-            tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-        ] + roundedBackground.createConstraintsWithContainer(view: view))
+            tableView.anchorsConstraint(to: view)
+        ])
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        bind(viewModel: viewModel)
+    }
 
-        title = R.string.localizable.aAdvancedSettingsNavigationTitle()
-        navigationItem.largeTitleDisplayMode = .never
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        tableView.reloadData()
     }
 
     required init?(coder aDecoder: NSCoder) {
         return nil
     }
 
-    func configure() {
-        tableView.reloadData()
+    private func bind(viewModel: AdvancedSettingsViewModel) {
+        title = viewModel.title
+        navigationItem.largeTitleDisplayMode = viewModel.largeTitleDisplayMode
     }
 }
 
 extension AdvancedSettingsViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.numberOfRows()
+        return viewModel.numberOfRows
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let row = viewModel.rows[indexPath.row]
-        switch row {
-        case .analytics, .changeCurrency, .changeLanguage, .clearBrowserCache, .tools, .tokenScript, .exportJSONKeystore, .features:
-            let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(viewModel: .init(titleText: row.title, subTitleText: nil, icon: row.icon))
-            return cell
-        case .usePrivateNetwork:
-            let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-            let provider = config.sendPrivateTransactionsProvider
-            let subtitle: String? = provider?.title
-            let icon: UIImage? = provider?.icon ?? row.icon
-            cell.configure(viewModel: .init(titleText: row.title, subTitleText: subtitle, icon: icon))
-            return cell
-        }
+        let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+        cell.configure(viewModel: viewModel.viewModel(for: indexPath))
+
+        return cell
     }
 }
 
@@ -123,23 +108,23 @@ extension AdvancedSettingsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch viewModel.rows[indexPath.row] {
         case .tools:
-            delegate?.advancedSettingsViewControllerMoreSelected(in: self)
+            delegate?.moreSelected(in: self)
         case .clearBrowserCache:
-            delegate?.advancedSettingsViewControllerClearBrowserCacheSelected(in: self)
+            delegate?.clearBrowserCacheSelected(in: self)
         case .tokenScript:
-            delegate?.advancedSettingsViewControllerTokenScriptSelected(in: self)
+            delegate?.tokenScriptSelected(in: self)
         case .changeLanguage:
-            delegate?.advancedSettingsViewControllerChangeLanguageSelected(in: self)
+            delegate?.changeLanguageSelected(in: self)
         case .changeCurrency:
-            delegate?.advancedSettingsViewControllerChangeCurrencySelected(in: self)
+            delegate?.changeCurrencySelected(in: self)
         case .analytics:
-            delegate?.advancedSettingsViewControllerAnalyticsSelected(in: self)
+            delegate?.analyticsSelected(in: self)
         case .usePrivateNetwork:
-            delegate?.advancedSettingsViewControllerUsePrivateNetworkSelected(in: self)
+            delegate?.usePrivateNetworkSelected(in: self)
         case .exportJSONKeystore:
-            delegate?.advancedSettingsViewControllerExportJSONKeystoreSelected(in: self)
+            delegate?.exportJSONKeystoreSelected(in: self)
         case .features:
-            delegate?.advancedSettingsViewControllerFeaturesSelected(in: self)
+            delegate?.featuresSelected(in: self)
         }
     }
 }
