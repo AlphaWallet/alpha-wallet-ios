@@ -3,10 +3,6 @@
 import UIKit
 import AlphaWalletFoundation
 
-protocol ChooseSendPrivateTransactionsProviderViewControllerDelegate: AnyObject {
-    func privateTransactionProviderSelected(provider: SendPrivateTransactionsProvider?, in viewController: ChooseSendPrivateTransactionsProviderViewController)
-}
-
 class ChooseSendPrivateTransactionsProviderViewController: UIViewController {
     private let viewModel: ChooseSendPrivateTransactionsProviderViewModel
     private lazy var tableView: UITableView = {
@@ -23,8 +19,6 @@ class ChooseSendPrivateTransactionsProviderViewController: UIViewController {
 
         return tableView
     }()
-
-    weak var delegate: ChooseSendPrivateTransactionsProviderViewControllerDelegate?
 
     init(viewModel: ChooseSendPrivateTransactionsProviderViewModel) {
         self.viewModel = viewModel
@@ -88,8 +82,7 @@ extension ChooseSendPrivateTransactionsProviderViewController: UITableViewDelega
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let chosenProvider = viewModel.selectProvider(at: indexPath)
-        tableView.reloadData()
-        delegate?.privateTransactionProviderSelected(provider: chosenProvider, in: self)
+        viewModel.selectProvider(at: indexPath)
+        tableView.reloadRows(at: [indexPath], with: .none)
     }
 }

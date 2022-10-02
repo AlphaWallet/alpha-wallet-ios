@@ -26,7 +26,7 @@ class ChooseSendPrivateTransactionsProviderViewModel {
         return .init(titleText: row.title, icon: row.icon, value: config.sendPrivateTransactionsProvider == row)
     }
 
-    func selectProvider(at indexPath: IndexPath) -> SendPrivateTransactionsProvider? {
+    func selectProvider(at indexPath: IndexPath) {
         let provider = rows[indexPath.row]
         let chosenProvider: SendPrivateTransactionsProvider?
         if provider == config.sendPrivateTransactionsProvider {
@@ -35,7 +35,5 @@ class ChooseSendPrivateTransactionsProviderViewModel {
             chosenProvider = provider
         }
         config.sendPrivateTransactionsProvider = chosenProvider
-        
-        return chosenProvider
     }
 }

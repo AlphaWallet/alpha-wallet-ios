@@ -16,7 +16,7 @@ class ClearDappBrowserCacheCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: ClearDappBrowserCacheCoordinatorDelegate?
 
-    init(inViewController viewController: UIViewController, analytics: AnalyticsLogger) {
+    init(viewController: UIViewController, analytics: AnalyticsLogger) {
         self.viewController = viewController
         self.analytics = analytics
     }

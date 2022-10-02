@@ -26,17 +26,15 @@ class AnalyticsViewController: UIViewController {
         return label
     }()
 
-    private var viewModel: AnalyticsViewModel
+    private let viewModel: AnalyticsViewModel
     private lazy var containerView: ScrollableStackView = {
         let view = ScrollableStackView(viewModel: .init(backgroundColor: viewModel.backgroundColor))
         return view
     }()
     private lazy var switchView = SwitchView(edgeInsets: .init(top: 0, left: Metrics.Analytics.edgeInsets.left, bottom: 0, right: Metrics.Analytics.edgeInsets.right), height: 60)
-    private var config: Config
 
-    init(viewModel: AnalyticsViewModel, config: Config) {
+    init(viewModel: AnalyticsViewModel) {
         self.viewModel = viewModel
-        self.config = config
         super.init(nibName: nil, bundle: nil)
 
         view.addSubview(containerView)
@@ -70,7 +68,7 @@ class AnalyticsViewController: UIViewController {
         configure(viewModel: viewModel)
     }
 
-    func configure(viewModel: AnalyticsViewModel) {
+    private func configure(viewModel: AnalyticsViewModel) {
         view.backgroundColor = viewModel.backgroundColor
         navigationItem.title = viewModel.title
         imageView.image = viewModel.image
@@ -81,6 +79,6 @@ class AnalyticsViewController: UIViewController {
 
 extension AnalyticsViewController: SwitchViewDelegate {
     func toggledTo(_ newValue: Bool, headerView: SwitchView) {
-        config.sendAnalyticsEnabled = newValue
+        viewModel.set(sendAnalyticsEnabled: newValue)
     }
 }

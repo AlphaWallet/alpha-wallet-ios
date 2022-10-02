@@ -4,59 +4,58 @@ import UIKit
 import AlphaWalletFoundation
 
 protocol ToolsViewControllerDelegate: AnyObject {
-    func toolsConsoleSelected(in controller: ToolsViewController)
-    func toolsPingInfuraSelected(in controller: ToolsViewController)
-    func toolsCheckTransactionStateSelected(in controller: ToolsViewController)
+    func consoleSelected(in controller: ToolsViewController)
+    func pingInfuraSelected(in controller: ToolsViewController)
+    func checkTransactionStateSelected(in controller: ToolsViewController)
 }
 
 class ToolsViewController: UIViewController {
-    private lazy var viewModel: ToolsViewModel = ToolsViewModel()
+    private let viewModel: ToolsViewModel
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.register(SettingTableViewCell.self)
         tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = GroupedTable.Color.background
+        tableView.separatorColor = Configuration.Color.Semantic.tableViewSeparator
+        tableView.backgroundColor = Configuration.Color.Semantic.tableViewBackground
         tableView.dataSource = self
         tableView.delegate = self
         tableView.translatesAutoresizingMaskIntoConstraints = false
 
         return tableView
     }()
-    private let roundedBackground = RoundedBackground()
-    private var config: Config
+    
     weak var delegate: ToolsViewControllerDelegate?
 
-    init(config: Config) {
-        self.config = config
+    init(viewModel: ToolsViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
-        roundedBackground.backgroundColor = GroupedTable.Color.background
-
-        view.addSubview(roundedBackground)
-        roundedBackground.addSubview(tableView)
+        view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
-            tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-        ] + roundedBackground.createConstraintsWithContainer(view: view))
+            tableView.anchorsConstraint(to: view)
+        ])
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        title = R.string.localizable.aSettingsTools()
-        navigationItem.largeTitleDisplayMode = .never
+        configure(viewModel: viewModel)
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        tableView.reloadData()
     }
 
     required init?(coder aDecoder: NSCoder) {
         return nil
     }
 
-    func configure() {
-        tableView.reloadData()
+    private func configure(viewModel: ToolsViewModel) {
+        title = viewModel.title
+        navigationItem.largeTitleDisplayMode = viewModel.largeTitleDisplayMode
     }
 }
 
@@ -66,9 +65,9 @@ extension ToolsViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let row = viewModel.rows[indexPath.row]
         let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-        cell.configure(viewModel: .init(titleText: row.title, subTitleText: nil, icon: row.icon))
+        cell.configure(viewModel: viewModel.viewModel(for: indexPath))
+
         return cell
     }
 }
@@ -95,13 +94,13 @@ extension ToolsViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        switch viewModel.rows[indexPath.row] {
+        switch viewModel.row(for: indexPath) {
         case .console:
-            delegate?.toolsConsoleSelected(in: self)
+            delegate?.consoleSelected(in: self)
         case .pingInfura:
-            delegate?.toolsPingInfuraSelected(in: self)
+            delegate?.pingInfuraSelected(in: self)
         case .checkTransactionState:
-            delegate?.toolsCheckTransactionStateSelected(in: self)
+            delegate?.checkTransactionStateSelected(in: self)
         }
     }
 }

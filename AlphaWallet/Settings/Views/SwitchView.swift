@@ -12,8 +12,8 @@ protocol SwitchViewDelegate: AnyObject {
 }
 
 struct SwitchViewViewModel {
-    var backgroundColor = Colors.appWhite
-    var textColor = R.color.black()
+    var backgroundColor = Configuration.Color.Semantic.defaultViewBackground
+    var textColor = Configuration.Color.Semantic.tableViewCellPrimaryFont
     var font = Fonts.regular(size: 17)
 
     var text: String
