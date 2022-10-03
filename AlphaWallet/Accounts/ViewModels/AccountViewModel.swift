@@ -75,6 +75,7 @@ class AccountViewModel {
 
     var backgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground
 
+    //Name might not be intention revealing anymore. Refer to callers for why
     var canEditCell: Bool {
         return !isSelected
     }
@@ -100,7 +101,7 @@ class AccountViewModel {
             .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
         ])
     }
-    
+
     private func addressOrEnsOrNameAttributedString(_ name: String) -> NSAttributedString {
         return .init(string: name, attributes: [
             .font: Fonts.regular(size: 12),
