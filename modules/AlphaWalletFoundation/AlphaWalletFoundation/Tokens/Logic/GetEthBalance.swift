@@ -5,7 +5,7 @@ import JSONRPCKit
 import APIKit
 import PromiseKit
 
-open class GetNativeCryptoCurrencyBalance {
+open class GetEthBalance {
     private let server: RPCServer
     private let analytics: AnalyticsLogger
     private let queue: DispatchQueue?

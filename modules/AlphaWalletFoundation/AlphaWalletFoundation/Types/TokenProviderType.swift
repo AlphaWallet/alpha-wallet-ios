@@ -29,6 +29,7 @@ public class TokenProvider: TokenProviderType {
     private let analytics: AnalyticsLogger
     private let queue: DispatchQueue?
     private lazy var isERC1155ContractDetector = IsErc1155Contract(forServer: server)
+    private lazy var getEthBalance = GetEthBalance(forServer: server, analytics: analytics, queue: queue)
 
     public init(account: Wallet, server: RPCServer, analytics: AnalyticsLogger, queue: DispatchQueue? = .none) {
         self.account = account
@@ -38,17 +39,10 @@ public class TokenProvider: TokenProviderType {
     }
 
     public func getEthBalance(for address: AlphaWallet.Address) -> Promise<Balance> {
-        let server = server
-        let queue = queue
-
-        return firstly {
-            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {
-                GetNativeCryptoCurrencyBalance(forServer: server, analytics: self.analytics, queue: queue)
-                    .getBalance(for: address)
-            }
-        }
+        //NOTE: retrying is performing via APIKit.session request
+        return getEthBalance.getBalance(for: address)
     }
-
+    
     public func getContractName(for address: AlphaWallet.Address) -> Promise<String> {
         let server = server
         return firstly {
