@@ -611,7 +611,13 @@ extension AppCoordinator: AccountsCoordinatorDelegate {
     }
 
     func didDeleteAccount(account: Wallet, in coordinator: AccountsCoordinator) {
-        //no-op
+        if keystore.wallets.isEmpty {
+            //TODO not good to reach in and `hideLoading()` here
+            coordinator.navigationController.hideLoading()
+            showInitialWalletCoordinator()
+        } else {
+            //no-op
+        }
     }
 
     func didCancel(in coordinator: AccountsCoordinator) {

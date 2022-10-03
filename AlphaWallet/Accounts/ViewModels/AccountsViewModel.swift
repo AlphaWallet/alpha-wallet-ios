@@ -1,7 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
-import Combine 
+import Combine
 import UIKit
 import AlphaWalletFoundation
 
@@ -138,7 +138,7 @@ final class AccountsViewModel {
 
             actions += [deleteAction]
         }
-        
+
         let configuration = UISwipeActionsConfiguration(actions: actions)
         configuration.performsFirstActionWithFullSwipe = true
 
@@ -247,10 +247,11 @@ final class AccountsViewModel {
 
     private func canDeleteWallet(at indexPath: IndexPath) -> Bool {
         guard allowsAccountDeletion else { return false }
-
+        let numberOfWallets: Int = viewModels.reduce(0) { $0 + $1.numberOfWallets }
         switch viewModels[indexPath.section].views[indexPath.row] {
         case .wallet(let viewModel):
-            return viewModel.canEditCell
+            //We allow user to delete the last wallet. App store review wants users to be able to remove wallets
+            return numberOfWallets == 1 || viewModel.canEditCell
         case .summary, .undefined:
             return false
         }
@@ -307,6 +308,19 @@ extension AccountsViewModel {
     struct SectionViewModel {
         let section: Section
         let views: [ViewModelType]
+
+        var numberOfWallets: Int {
+            var results = 0
+            for each in views {
+                switch each {
+                case .wallet:
+                    results += 1
+                case .summary, .undefined:
+                    break
+                }
+            }
+            return results
+        }
     }
 
     enum Section: Int, CaseIterable {
