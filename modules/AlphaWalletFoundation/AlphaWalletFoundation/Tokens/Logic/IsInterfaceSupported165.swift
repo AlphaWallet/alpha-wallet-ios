@@ -17,11 +17,10 @@ public class IsInterfaceSupported165 {
         return firstly {
             callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [hash] as [AnyObject])
         }.map { result in
-            if let supported = result["0"] as? Bool {
-                return supported
-            } else {
-                throw createABIError(.invalidArgumentType)
+            guard let supported = result["0"] as? Bool else {
+                throw CastError(actualValue: result["0"], expectedType: Bool.self)
             }
+            return supported
         }
     }
 }

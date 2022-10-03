@@ -49,7 +49,7 @@ public class IsErc721Contract {
         //Slower than theoretically possible because we wait for every promise to be resolved. In theory we can stop when any promise is fulfilled with true. But code is much less elegant
         return firstly {
             when(resolved: cryptoKittyPromise, nonCryptoKittyERC721Promise, nonCryptoKittyERC721WithOldInterfaceHashPromise)
-        }.map { _ -> Bool in
+        }.map { data -> Bool in
             let isCryptoKitty = cryptoKittyPromise.value?["0"] as? Bool
             let isNonCryptoKittyERC721 = nonCryptoKittyERC721Promise.value?["0"] as? Bool
             let isNonCryptoKittyERC721WithOldInterfaceHash = nonCryptoKittyERC721WithOldInterfaceHashPromise.value?["0"] as? Bool
@@ -62,7 +62,7 @@ public class IsErc721Contract {
             } else if isCryptoKitty != nil, isNonCryptoKittyERC721 != nil, isNonCryptoKittyERC721WithOldInterfaceHash != nil {
                 return false
             } else {
-                throw createSmartContractCallError(forContract: contract, functionName: function.name)
+                throw CastError(actualValue: data, expectedType: Bool.self)
             }
         }
     }

@@ -13,11 +13,10 @@ public class GetContractSymbol {
     public func getSymbol(for contract: AlphaWallet.Address) -> Promise<String> {
         let functionName = "symbol"
         return callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: Web3.Utils.erc20ABI).map { symbolsResult -> String in
-            if let symbol = symbolsResult["0"] as? String {
-                return symbol
-            } else {
-                throw createSmartContractCallError(forContract: contract, functionName: functionName)
+            guard let symbol = symbolsResult["0"] as? String else {
+                throw CastError(actualValue: symbolsResult["0"], expectedType: String.self)
             }
+            return symbol
         }
     }
 }
