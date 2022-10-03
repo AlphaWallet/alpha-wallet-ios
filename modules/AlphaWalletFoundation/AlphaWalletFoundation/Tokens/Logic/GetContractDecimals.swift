@@ -13,16 +13,11 @@ public class GetContractDecimals {
     public func getDecimals(for contract: AlphaWallet.Address) -> Promise<UInt8> {
         let functionName = "decimals"
         return callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: Web3.Utils.erc20ABI).map { dictionary -> UInt8 in
-            if let decimalsWithUnknownType = dictionary["0"] {
-                let string = String(describing: decimalsWithUnknownType)
-                if let decimals = UInt8(string) {
-                    return decimals
-                } else {
-                    throw createSmartContractCallError(forContract: contract, functionName: functionName)
-                }
-            } else {
-                throw createSmartContractCallError(forContract: contract, functionName: functionName)
+            guard let decimalsOfUnknownType = dictionary["0"], let decimals = UInt8(String(describing: decimalsOfUnknownType)) else {
+                throw CastError(actualValue: dictionary["0"], expectedType: UInt8.self)
             }
+
+            return decimals
         }
     }
 }

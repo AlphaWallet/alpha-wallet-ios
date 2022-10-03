@@ -157,11 +157,3 @@ public func getEventLogs(
             return .init(error: error)
         }
 }
-
-func createSmartContractCallError(forContract contract: AlphaWallet.Address, functionName: String) -> Error {
-    Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()")
-}
-
-func createABIError(_ erorr: ABIError) -> Error {
-    erorr
-}

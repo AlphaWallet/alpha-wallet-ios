@@ -12,12 +12,12 @@ public class IsErc875Contract {
 
     public func getIsERC875Contract(for contract: AlphaWallet.Address) -> Promise<Bool> {
         let function = GetIsERC875()
-        return callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi).map { dictionary -> Bool in
-            if let isERC875 = dictionary["0"] as? Bool {
+        return callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi)
+            .map { dictionary -> Bool in
+                guard let isERC875 = dictionary["0"] as? Bool else {
+                    throw CastError(actualValue: dictionary["0"], expectedType: Bool.self)
+                }
                 return isERC875
-            } else {
-                throw createSmartContractCallError(forContract: contract, functionName: function.name)
             }
-        }
     }
 }

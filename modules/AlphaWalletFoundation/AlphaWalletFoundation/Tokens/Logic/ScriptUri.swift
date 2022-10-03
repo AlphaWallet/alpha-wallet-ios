@@ -34,16 +34,10 @@ public class ScriptUri {
         return firstly {
             callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: abiString)
         }.map { urlStringResult in
-            if let urlString = urlStringResult["0"] as? String {
-                if let url = URL(string: urlString) {
-                    let url = url.rewrittenIfIpfs
-                    return url
-                } else {
-                    throw createSmartContractCallError(forContract: contract, functionName: functionName)
-                }
-            } else {
-                throw createSmartContractCallError(forContract: contract, functionName: functionName)
+            guard let urlString = urlStringResult["0"] as? String, let url = URL(string: urlString) else {
+                throw CastError(actualValue: urlStringResult["0"], expectedType: URL.self)
             }
+            return url.rewrittenIfIpfs
         }
     }
 }

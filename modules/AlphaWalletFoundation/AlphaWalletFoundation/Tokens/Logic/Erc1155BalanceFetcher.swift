@@ -27,11 +27,10 @@ public class Erc1155BalanceFetcher {
         return firstly {
             callSmartContract(withServer: server, contract: contract, functionName: "balanceOfBatch", abiString: AlphaWallet.Ethereum.ABI.erc1155String, parameters: [addresses, tokenIds] as [AnyObject])
         }.map { result in
-            if let balances = result["0"] as? [BigUInt], balances.count == tokenIds.count {
-                return Dictionary(uniqueKeysWithValues: zip(tokenIds, balances))
-            } else {
-                throw createABIError(.invalidArgumentType)
+            guard let balances = result["0"] as? [BigUInt], balances.count == tokenIds.count else {
+                throw CastError(actualValue: result["0"], expectedType: [BigUInt].self)
             }
+            return Dictionary(uniqueKeysWithValues: zip(tokenIds, balances))
         }
     }
 }
