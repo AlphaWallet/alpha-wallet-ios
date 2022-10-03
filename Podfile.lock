@@ -1,26 +1,25 @@
 PODS:
   - Alamofire (4.9.1)
-  - Alamofire-Synchronous (4.0.0):
-    - Alamofire (~> 4.0)
   - AlphaWalletAddress (1.0.2):
     - AlphaWalletCore
+    - AlphaWalletWeb3
     - EthereumAddress
     - TrustKeystore
-    - web3swift
   - AlphaWalletCore (1.0.2):
     - Alamofire
     - PromiseKit
   - AlphaWalletENS (1.0.0):
     - AlphaWalletAddress
     - AlphaWalletCore
+    - AlphaWalletWeb3
     - PromiseKit
-    - web3swift
   - AlphaWalletFoundation (1.0.0):
     - AlphaWalletAddress
     - AlphaWalletCore
     - AlphaWalletENS
     - AlphaWalletGoBack
     - AlphaWalletOpenSea
+    - AlphaWalletWeb3
     - AlphaWalletWeb3Provider
     - APIKit (= 5.1.0)
     - Apollo (= 0.53.0)
@@ -42,13 +41,17 @@ PODS:
     - TrezorCrypto
     - TrustKeystore
     - TrustWalletCore (= 2.6.34)
-    - web3swift
   - AlphaWalletGoBack (1.0.0)
   - AlphaWalletOpenSea (1.0.0):
     - AlphaWalletAddress
     - AlphaWalletCore
     - PromiseKit
     - SwiftyJSON (= 5.0.0)
+  - AlphaWalletWeb3 (0.0.1):
+    - BigInt
+    - CryptoSwift
+    - PromiseKit (~> 6.3.0)
+    - secp256k1_ios (~> 0.1.3)
   - AlphaWalletWeb3Provider (0.3.0)
   - APIKit (5.1.0)
   - Apollo (0.53.0):
@@ -85,7 +88,6 @@ PODS:
   - Kanna (5.0.0)
   - KeychainSwift (10.0.0)
   - Kingfisher (7.2.1)
-  - libsodium (1.0.12)
   - MailchimpSDK (2.0.4)
   - MBProgressHUD (1.2.0)
   - Mixpanel-swift (3.2.0):
@@ -137,15 +139,6 @@ PODS:
     - TrustWalletCore/Types
   - TrustWalletCore/Types (2.6.34):
     - SwiftProtobuf
-  - web3swift (0.9.0):
-    - Alamofire (~> 4.7)
-    - Alamofire-Synchronous (~> 4.0)
-    - BigInt (~> 3.0)
-    - CryptoSwift (~> 1.0)
-    - libsodium (~> 1.0.12)
-    - PromiseKit (~> 6.3.0)
-    - Result (~> 3.1)
-    - secp256k1_ios (~> 0.1.3)
   - xcbeautify (0.11.0)
 
 DEPENDENCIES:
@@ -155,6 +148,7 @@ DEPENDENCIES:
   - AlphaWalletFoundation (from `.`)
   - AlphaWalletGoBack (from `.`)
   - AlphaWalletOpenSea (from `.`)
+  - AlphaWalletWeb3 (from `.`)
   - AlphaWalletWeb3Provider (from `https://github.com/AlphaWallet/AlphaWallet-web3-provider`, commit `9a4496d02b7ddb2f6307fd0510d8d7c9fcef9870`)
   - BigInt (~> 3.1)
   - Charts (from `https://github.com/AlphaWallet/Charts.git`, commit `85ec4d0f62b97829274c4f628f4840036939de64`)
@@ -175,13 +169,11 @@ DEPENDENCIES:
   - SwiftLint (= 0.40.3)
   - TrezorCrypto (from `https://github.com/AlphaWallet/trezor-crypto-ios.git`, commit `50c16ba5527e269bbc838e80aee5bac0fe304cc7`)
   - TrustKeystore (from `https://github.com/AlphaWallet/latest-keystore-snapshot`, commit `c0bdc4f6ffc117b103e19d17b83109d4f5a0e764`)
-  - web3swift (from `https://github.com/AlphaWallet/web3swift.git`, commit `6d7c01af26bcb75d8a02b6709b089e02ed99af98`)
   - xcbeautify
 
 SPEC REPOS:
   trunk:
     - Alamofire
-    - Alamofire-Synchronous
     - APIKit
     - Apollo
     - BigInt
@@ -195,7 +187,6 @@ SPEC REPOS:
     - iOSSnapshotTestCase
     - JSONRPCKit
     - Kingfisher
-    - libsodium
     - MailchimpSDK
     - MBProgressHUD
     - Mixpanel-swift
@@ -229,6 +220,8 @@ EXTERNAL SOURCES:
     :path: "."
   AlphaWalletOpenSea:
     :path: "."
+  AlphaWalletWeb3:
+    :path: "."
   AlphaWalletWeb3Provider:
     :commit: 9a4496d02b7ddb2f6307fd0510d8d7c9fcef9870
     :git: https://github.com/AlphaWallet/AlphaWallet-web3-provider
@@ -253,9 +246,6 @@ EXTERNAL SOURCES:
   TrustKeystore:
     :commit: c0bdc4f6ffc117b103e19d17b83109d4f5a0e764
     :git: https://github.com/AlphaWallet/latest-keystore-snapshot
-  web3swift:
-    :commit: 6d7c01af26bcb75d8a02b6709b089e02ed99af98
-    :git: https://github.com/AlphaWallet/web3swift.git
 
 CHECKOUT OPTIONS:
   AlphaWalletWeb3Provider:
@@ -282,19 +272,16 @@ CHECKOUT OPTIONS:
   TrustKeystore:
     :commit: c0bdc4f6ffc117b103e19d17b83109d4f5a0e764
     :git: https://github.com/AlphaWallet/latest-keystore-snapshot
-  web3swift:
-    :commit: 6d7c01af26bcb75d8a02b6709b089e02ed99af98
-    :git: https://github.com/AlphaWallet/web3swift.git
 
 SPEC CHECKSUMS:
   Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
-  Alamofire-Synchronous: eedf1e6e961c3795a63c74990b3f7d9fbfac7e50
-  AlphaWalletAddress: 9dccc77a5ce4abe0e782e05c8ddde4ddbb7c11a7
+  AlphaWalletAddress: 72c3fc97248fc0cdc50d137faaa295bc9610c7ec
   AlphaWalletCore: 635739018555de844a020f8b9b7d49610b3de655
-  AlphaWalletENS: 609407f0a31b31f769d2ddeedf4048b67805254b
-  AlphaWalletFoundation: ec57930c40fc9e37a6357ef4a1c589ab78e0044f
+  AlphaWalletENS: 33e4fd3d46929938c271190fe7804811c1e9dc8f
+  AlphaWalletFoundation: 8251d9a334f219b89530659b0baadc0b92552a9b
   AlphaWalletGoBack: 1d55b51e6cfd999740d3cfab09d9fa723ba85ff2
   AlphaWalletOpenSea: 71e255612529b04ae4d66dca54bd181185593b1d
+  AlphaWalletWeb3: 86d0be33c612d75685a5797ef4492e42c295f1a5
   AlphaWalletWeb3Provider: 7ca1e1c1dc841dc1915f970daace48bf34931655
   APIKit: 9e1a4069608bf0ae5238811e6cfc26928ad4d01e
   Apollo: 204819ea82022fbc59ad05056820df867f19bd02
@@ -313,7 +300,6 @@ SPEC CHECKSUMS:
   Kanna: a32875df62975f8f4b871e933b4ea1a5c3b8be0f
   KeychainSwift: c0d1b0c2901b9873f07f0e560fde92929069e863
   Kingfisher: 7c084bebf7d548c623ad41bcf765fb200efed369
-  libsodium: 9a8faa5ef2fa0d2d57bd7f7d79bf8fb7c1a9f0ea
   MailchimpSDK: 794fd7cb1095e55c764d8a699eb11fb61849ed76
   MBProgressHUD: 3ee5efcc380f6a79a7cc9b363dd669c5e1ae7406
   Mixpanel-swift: 7c0b15c3ea96a997a989737612a3e62e72c1c561
@@ -335,9 +321,8 @@ SPEC CHECKSUMS:
   TrezorCrypto: bfeea47a052dca2c77d4a39e1e183865e52de14d
   TrustKeystore: 3d8b4571c66648fb985015c96b3185440bb837fe
   TrustWalletCore: a92d85baa15932279cce925559e93695558cafdd
-  web3swift: 06118d4c4edc801444aaa995bbbddeda176b97ef
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: d3188a390f1c01e435198612679241ab04e93759
+PODFILE CHECKSUM: 6cb9ad60a47bfeda81717db008a3a752788806e1
 
 COCOAPODS: 1.11.3

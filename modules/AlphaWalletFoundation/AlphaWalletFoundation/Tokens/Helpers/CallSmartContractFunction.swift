@@ -2,55 +2,53 @@
 
 import Foundation
 import PromiseKit
-import web3swift
+import AlphaWalletWeb3
+import BigInt
 
-//TODO time to wrap `callSmartContract` with a class
+extension Web3 {
+    private static var web3s = AtomicDictionary<RPCServer, [TimeInterval: Web3]>()
 
-//TODO wrap callSmartContract() and cache into a type
-// swiftlint:disable private_over_fileprivate
-fileprivate var smartContractCallsCache = AtomicDictionary<String, (promise: Promise<[String: Any]>, timestamp: Date)>()
-fileprivate var web3s = AtomicDictionary<RPCServer, [TimeInterval: web3]>()
-// swiftlint:enable private_over_fileprivate
+    private static let web3Queue: OperationQueue = {
+        let queue = OperationQueue()
+        queue.maxConcurrentOperationCount = 32
+        queue.underlyingQueue = DispatchQueue.global(qos: .userInteractive)
 
-private let web3Queue: OperationQueue = {
-    let queue = OperationQueue()
-    queue.maxConcurrentOperationCount = 32
-    queue.underlyingQueue = DispatchQueue.global(qos: .userInteractive)
+        return queue
+    }()
 
-    return queue
-}()
+    private static func createWeb3(webProvider: Web3HttpProvider, forServer server: RPCServer) -> Web3 {
+        let requestDispatcher = JSONRPCrequestDispatcher(provider: webProvider, queue: web3Queue.underlyingQueue!, policy: server.web3SwiftRpcNodeBatchSupportPolicy)
+        return Web3(provider: webProvider, chainID: BigUInt(server.chainID), queue: web3Queue, requestDispatcher: requestDispatcher)
+    }
 
-private func createWeb3(webProvider: Web3HttpProvider, forServer server: RPCServer) -> web3 {
-    let requestDispatcher = JSONRPCrequestDispatcher(provider: webProvider, queue: web3Queue.underlyingQueue!, policy: server.web3SwiftRpcNodeBatchSupportPolicy)
-    return web3swift.web3(provider: webProvider, queue: web3Queue, requestDispatcher: requestDispatcher)
-}
-
-public func getCachedWeb3(forServer server: RPCServer, timeout: TimeInterval) throws -> web3 {
-    if let result = web3s[server]?[timeout] {
-        return result
-    } else {
-        let rpcHeaders = server.rpcHeaders
-        guard let webProvider = Web3HttpProvider(server.rpcURL, headers: rpcHeaders, network: server.web3Network) else {
-            throw Web3Error(description: "Error creating web provider for: \(server.rpcURL) + \(server.web3Network)")
-        }
-        let configuration = webProvider.session.configuration
-        configuration.timeoutIntervalForRequest = timeout
-        configuration.timeoutIntervalForResource = timeout
-        let session = URLSession(configuration: configuration)
-        webProvider.session = session
-
-        let result = createWeb3(webProvider: webProvider, forServer: server)
-        if var timeoutsAndWeb3s = web3s[server] {
-            timeoutsAndWeb3s[timeout] = result
-            web3s[server] = timeoutsAndWeb3s
+    public static func instance(for server: RPCServer, timeout: TimeInterval) throws -> Web3 {
+        if let result = web3s[server]?[timeout] {
+            return result
         } else {
-            let timeoutsAndWeb3s: [TimeInterval: web3] = [timeout: result]
-            web3s[server] = timeoutsAndWeb3s
+            let rpcHeaders = server.rpcHeaders
+            guard let webProvider = Web3HttpProvider(server.rpcURL, headers: rpcHeaders) else {
+                throw Web3Error(description: "Error creating web provider for: \(server.rpcURL) + \(server.chainID)")
+            }
+            let configuration = webProvider.session.configuration
+            configuration.timeoutIntervalForRequest = timeout
+            configuration.timeoutIntervalForResource = timeout
+            let session = URLSession(configuration: configuration)
+            webProvider.session = session
+
+            let result = createWeb3(webProvider: webProvider, forServer: server)
+            if var timeoutsAndWeb3s = web3s[server] {
+                timeoutsAndWeb3s[timeout] = result
+                web3s[server] = timeoutsAndWeb3s
+            } else {
+                let timeoutsAndWeb3s: [TimeInterval: Web3] = [timeout: result]
+                web3s[server] = timeoutsAndWeb3s
+            }
+            return result
         }
-        return result
     }
 }
 
+fileprivate var smartContractCallsCache = AtomicDictionary<String, (promise: Promise<[String: Any]>, timestamp: Date)>()
 private let callSmartContractQueue = DispatchQueue(label: "com.callSmartContractQueue.updateQueue")
 //`shouldDelayIfCached` is a hack for TokenScript views
 //TODO should trap 429 from RPC node
@@ -79,14 +77,14 @@ public func callSmartContract(withServer server: RPCServer, contract: AlphaWalle
 
     let result: Promise<[String: Any]> = Promise { seal in
         callSmartContractQueue.async {
-            guard let web3 = try? getCachedWeb3(forServer: server, timeout: timeout) else {
-                seal.reject(Web3Error(description: "Error creating web3 for: \(server.rpcURL) + \(server.web3Network)"))
+            guard let web3 = try? Web3.instance(for: server, timeout: timeout) else {
+                seal.reject(Web3Error(description: "Error creating web3 for: \(server.rpcURL) + \(server.chainID)"))
                 return
             }
 
             let contractAddress = EthereumAddress(address: contract)
 
-            guard let contractInstance = web3swift.web3.web3contract(web3: web3, abiString: abiString, at: contractAddress, options: web3.options) else {
+            guard let contractInstance = Web3.Contract(web3: web3, abiString: abiString, at: contractAddress, options: nil) else {
                 seal.reject(Web3Error(description: "Error creating web3swift contract instance to call \(functionName)()"))
                 return
             }
@@ -103,11 +101,11 @@ public func callSmartContract(withServer server: RPCServer, contract: AlphaWalle
             }.done(on: queue ?? .main, { d in
                 seal.fulfill(d)
             }).catch(on: queue ?? .main, { e in
-                if let e = e as? web3swift.Web3Error {
+                if let e = e as? AlphaWalletWeb3.Web3Error {
                     switch e {
                     case .rateLimited:
                         warnLog("[API] Rate limited by RPC node server: \(server)")
-                    case .transactionSerializationError, .connectionError, .dataError, .walletError, .inputError, .nodeError, .processingError, .keystoreError, .generalError, .unknownError:
+                    case .connectionError, .inputError, .nodeError, .generalError, .responseError:
                         //no-op. We only want to log rate limit errors above
                         break
                     }
@@ -123,35 +121,35 @@ public func callSmartContract(withServer server: RPCServer, contract: AlphaWalle
     return result
 }
 
-public func getSmartContractCallData(withServer server: RPCServer, contract: AlphaWallet.Address, functionName: String, abiString: String, parameters: [AnyObject] = []) -> Data? {
+public func getSmartContractCallData(withServer server: RPCServer, contract contractAddress: AlphaWallet.Address, functionName: String, abiString: String, parameters: [AnyObject] = []) -> Data? {
     //TODO should be extracted. Duplicated
     let timeout: TimeInterval = 60
-    guard let web3 = try? getCachedWeb3(forServer: server, timeout: timeout) else { return nil }
-    let contractAddress = EthereumAddress(address: contract)
-    guard let contractInstance = web3swift.web3.web3contract(web3: web3, abiString: abiString, at: contractAddress, options: web3.options) else { return nil }
-    guard let promiseCreator = contractInstance.method(functionName, parameters: parameters, options: nil) else { return nil }
+    guard let web3 = try? Web3.instance(for: server, timeout: timeout) else { return nil }
+    let contractAddress = EthereumAddress(address: contractAddress)
+    guard let contract = Web3.Contract(web3: web3, abiString: abiString, at: contractAddress, options: web3.options) else { return nil }
+    guard let promiseCreator = contract.method(functionName, parameters: parameters, options: nil) else { return nil }
     return promiseCreator.transaction.data
 }
 
 public func getEventLogs(
         withServer server: RPCServer,
-        contract: AlphaWallet.Address,
+        contract contractAddress: AlphaWallet.Address,
         eventName: String,
         abiString: String,
         filter: EventFilter,
         queue: DispatchQueue
 ) -> Promise<[EventParserResultProtocol]> {
-    let contractAddress = EthereumAddress(address: contract)
+    let contractAddress = EthereumAddress(address: contractAddress)
 
-    guard let web3 = try? getCachedWeb3(forServer: server, timeout: 60) else {
-        return Promise(error: Web3Error(description: "Error creating web3 for: \(server.rpcURL) + \(server.web3Network)"))
+    guard let web3 = try? Web3.instance(for: server, timeout: 60) else {
+        return Promise(error: Web3Error(description: "Error creating web3 for: \(server.rpcURL) + \(server.chainID)"))
     }
 
-    guard let contractInstance = web3swift.web3.web3contract(web3: web3, abiString: abiString, at: contractAddress, options: web3.options) else {
+    guard let contract = Web3.Contract(web3: web3, abiString: abiString, at: contractAddress, options: web3.options) else {
         return Promise(error: Web3Error(description: "Error creating web3swift contract instance to call \(eventName)()"))
     }
 
-    return contractInstance.getIndexedEventsPromise(eventName: eventName, filter: filter)
+    return contract.getIndexedEventsPromise(eventName: eventName, filter: filter)
         .recover { error -> Promise<[EventParserResultProtocol]> in
             warnLog("[eth_getLogs] failure for server: \(server) with error: \(error)")
             return .init(error: error)

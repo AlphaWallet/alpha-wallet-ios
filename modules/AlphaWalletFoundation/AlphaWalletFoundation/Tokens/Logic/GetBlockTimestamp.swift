@@ -3,6 +3,7 @@
 import Foundation
 import BigInt
 import PromiseKit 
+import AlphaWalletWeb3
 
 public class GetBlockTimestamp {
     private static var blockTimestampCache = AtomicDictionary<RPCServer, [BigUInt: Promise<Date>]>()
@@ -13,13 +14,13 @@ public class GetBlockTimestamp {
             return datePromise
         }
 
-        guard let web3 = try? getCachedWeb3(forServer: server, timeout: 6) else {
-            return Promise(error: Web3Error(description: "Error creating web3 for: \(server.rpcURL) + \(server.web3Network)"))
+        guard let web3 = try? Web3.instance(for: server, timeout: 6) else {
+            return Promise(error: Web3Error(description: "Error creating web3 for: \(server.rpcURL) + \(server.chainID)"))
         }
 
         let promise: Promise<Date> = firstly {
-            Web3.Eth(provider: web3.provider, web3: web3).getBlockByNumberPromise(blockNumber)
-        }.map(on: web3.requestDispatcher.queue, { $0.timestamp })
+            Web3.Eth(web3: web3).getBlockByNumberPromise(blockNumber)
+        }.map(on: web3.queue, { $0.timestamp })
 
         cacheForServer[blockNumber] = promise
         Self.blockTimestampCache[server] = cacheForServer

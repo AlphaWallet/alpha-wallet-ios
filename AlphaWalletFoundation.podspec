@@ -32,7 +32,7 @@ Pod::Spec.new do |spec|
   spec.dependency 'TrezorCrypto'
   spec.dependency 'TrustKeystore'
   spec.dependency 'SwiftyJSON', '5.0.0'
-  spec.dependency 'web3swift' 
+  spec.dependency 'AlphaWalletWeb3' 
   spec.dependency 'PromiseKit/CorePromise'
   spec.dependency 'PromiseKit/Alamofire'
   spec.dependency 'Kanna'

@@ -5,7 +5,7 @@ import TrustKeystore
 
 extension AlphaWallet.Address {
     //TODO multiple versions of init() that accept address types from other libraries goes here. Anymore?
-    public init(address: EthereumAddress_fromWeb3SwiftPod) {
+    public init(address: EthereumAddress_fromWeb3) {
         self = .ethereumAddress(eip55String: address.address)
     }
 
@@ -18,19 +18,19 @@ extension AlphaWallet.Address {
             self = address
         } else if let address = possibleAddress as? EthereumAddress_fromEthereumAddressPod {
             self = .ethereumAddress(eip55String: address.address)
-        } else if let address = possibleAddress as? EthereumAddress_fromWeb3SwiftPod {
+        } else if let address = possibleAddress as? EthereumAddress_fromWeb3 {
             self = .ethereumAddress(eip55String: address.address)
         } else {
             return nil
         }
     }
 
-    public func sameContract(as contract: EthereumAddress_fromWeb3SwiftPod) -> Bool {
+    public func sameContract(as contract: EthereumAddress_fromWeb3) -> Bool {
         return eip55String == contract.address
     }
 }
 
-extension EthereumAddress_fromWeb3SwiftPod {
+extension EthereumAddress_fromWeb3 {
     public init(address: AlphaWallet.Address) {
         //EthereumAddress(Data) is much faster than EthereumAddress(String). This is significant because we can make a few hundred calls
 //        let data = Data.fromHex(address.eip55String)!

@@ -8,7 +8,7 @@
 import Foundation
 import AlphaWalletAddress
 import AlphaWalletCore
-import web3swift
+import AlphaWalletWeb3
 import Combine
 
 public typealias ChainId = Int

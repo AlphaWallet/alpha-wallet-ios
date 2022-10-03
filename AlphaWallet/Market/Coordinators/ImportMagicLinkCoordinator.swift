@@ -6,6 +6,7 @@ import BigInt
 import PromiseKit
 import Combine
 import AlphaWalletFoundation
+import AlphaWalletWeb3
 
 protocol ImportMagicLinkCoordinatorDelegate: class, CanOpenURL {
 	func viewControllerForPresenting(in coordinator: ImportMagicLinkCoordinator) -> UIViewController?
@@ -316,24 +317,20 @@ class ImportMagicLinkCoordinator: Coordinator {
             return true
         }
 
-        switch Self.ecrecover(signedOrder: signedOrder) {
-        case .success(let ethereumAddress):
-            let recoverAddress = AlphaWallet.Address(address: ethereumAddress)
-            if signedOrder.order.nativeCurrencyDrop {
-                handleNativeCurrencyDrop(signedOrder: signedOrder)
-            } else if signedOrder.order.spawnable, let tokens = signedOrder.order.tokenIds {
-                handleSpawnableLink(signedOrder: signedOrder, tokens: tokens)
-            } else {
-                handleNormalLinks(
-                        signedOrder: signedOrder,
-                        recoverAddress: recoverAddress,
-                        contractAsAddress: signedOrder.order.contractAddress
-                )
-            }
-        case .failure:
+        guard let ethereumAddress = Web3.Utils.ecrecover(signedOrder: signedOrder) else {
             showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
             return false
         }
+
+        let recoverAddress = AlphaWallet.Address(address: ethereumAddress)
+        if signedOrder.order.nativeCurrencyDrop {
+            handleNativeCurrencyDrop(signedOrder: signedOrder)
+        } else if signedOrder.order.spawnable, let tokens = signedOrder.order.tokenIds {
+            handleSpawnableLink(signedOrder: signedOrder, tokens: tokens)
+        } else {
+            handleNormalLinks(signedOrder: signedOrder, recoverAddress: recoverAddress, contractAsAddress: signedOrder.order.contractAddress)
+        }
+
         return true
     }
 
@@ -371,23 +368,6 @@ class ImportMagicLinkCoordinator: Coordinator {
             } else {
                 completionHandler(false)
             }
-        }
-    }
-
-    static func ecrecover(signedOrder: SignedOrder) -> Swift.Result<Web3.EthereumAddress, Web3.Web3Error> {
-        //need to hash message here because the web3swift implementation adds prefix
-        let messageHash = Data(bytes: signedOrder.message).sha3(.keccak256)
-        //note: web3swift takes the v value as v - 27, so we need to manually convert this
-        let vValue = signedOrder.signature.drop0x.substring(from: 128)
-        let vInt = Int(vValue, radix: 16)! - 27
-        let vString = "0" + String(vInt)
-        let signature = "0x" + signedOrder.signature.drop0x.substring(to: 128) + vString
-
-        switch Web3.Utils.ecrecover(hash: messageHash, signature: Data(bytes: signature.hexToBytes)) {
-        case .success(let value):
-            return .success(value)
-        case .failure(let error):
-            return .failure(error)
         }
     }
 

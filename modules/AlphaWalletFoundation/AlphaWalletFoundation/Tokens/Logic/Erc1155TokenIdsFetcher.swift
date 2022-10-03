@@ -3,6 +3,7 @@
 import Foundation
 import BigInt
 import PromiseKit 
+import AlphaWalletWeb3
 
 public struct Erc1155TokenIds: Codable {
     public typealias ContractsAndTokenIds = [AlphaWallet.Address: Set<BigUInt>]
@@ -135,13 +136,13 @@ extension Erc1155TokenIdsFetcher.functional {
     //This is only for development purposes to keep the PromiseKit `Resolver`(s) from being deallocated when they aren't resolved so PromiseKit don't show a warning and create noise and confusion
     private static var fetchEventsPromiseKitResolversKeptForDevelopmentFeatureFlagOnly: [Resolver<[Erc1155TransferEvent]>] = .init()
 
-    static func fetchEvents(config: Config, forAddress address: AlphaWallet.Address, server: RPCServer, fromBlock: Web3.EventFilter.Block, toBlock: Web3.EventFilter.Block, queue: DispatchQueue) -> Promise<Erc1155TokenIds> {
-        let recipientAddress = Web3.EthereumAddress(address.eip55String)!
-        let nullFilter: [Web3.EventFilterable]? = nil
+    static func fetchEvents(config: Config, forAddress address: AlphaWallet.Address, server: RPCServer, fromBlock: EventFilter.Block, toBlock: EventFilter.Block, queue: DispatchQueue) -> Promise<Erc1155TokenIds> {
+        let recipientAddress = EthereumAddress(address.eip55String)!
+        let nullFilter: [EventFilterable]? = nil
         let singleTransferEventName = "TransferSingle"
         let batchTransferEventName = "TransferBatch"
-        let sendParameterFilters: [[Web3.EventFilterable]?] = [nullFilter, [recipientAddress], nullFilter]
-        let receiveParameterFilters: [[Web3.EventFilterable]?] = [nullFilter, nullFilter, [recipientAddress]]
+        let sendParameterFilters: [[EventFilterable]?] = [nullFilter, [recipientAddress], nullFilter]
+        let receiveParameterFilters: [[EventFilterable]?] = [nullFilter, nullFilter, [recipientAddress]]
         let sendSinglePromise = fetchEvents(config: config, server: server, transferType: .send, eventName: singleTransferEventName, parameterFilters: sendParameterFilters, fromBlock: fromBlock, toBlock: toBlock, queue: queue)
         let receiveSinglePromise = fetchEvents(config: config, server: server, transferType: .receive, eventName: singleTransferEventName, parameterFilters: receiveParameterFilters, fromBlock: fromBlock, toBlock: toBlock, queue: queue)
         let sendBulkPromise = fetchEvents(config: config, server: server, transferType: .send, eventName: batchTransferEventName, parameterFilters: sendParameterFilters, fromBlock: fromBlock, toBlock: toBlock, queue: queue)
@@ -173,7 +174,7 @@ extension Erc1155TokenIdsFetcher.functional {
         })
     }
 
-    fileprivate static func fetchEvents(config: Config, server: RPCServer, transferType: Erc1155TransferEvent.TransferType, eventName: String, parameterFilters: [[Web3.EventFilterable]?], fromBlock: Web3.EventFilter.Block, toBlock: Web3.EventFilter.Block, queue: DispatchQueue) -> Promise<[Erc1155TransferEvent]> {
+    fileprivate static func fetchEvents(config: Config, server: RPCServer, transferType: Erc1155TransferEvent.TransferType, eventName: String, parameterFilters: [[EventFilterable]?], fromBlock: EventFilter.Block, toBlock: EventFilter.Block, queue: DispatchQueue) -> Promise<[Erc1155TransferEvent]> {
         if config.development.isAutoFetchingDisabled {
             return Promise<[Erc1155TransferEvent]> { seal in
                 fetchEventsPromiseKitResolversKeptForDevelopmentFeatureFlagOnly.append(seal)
@@ -182,7 +183,7 @@ extension Erc1155TokenIdsFetcher.functional {
 
         //We just need any contract for the Swift API to get events, it's not actually used
         let dummyContract = Constants.nullAddress
-        let eventFilter = Web3.EventFilter(fromBlock: fromBlock, toBlock: toBlock, addresses: nil, parameterFilters: parameterFilters)
+        let eventFilter = EventFilter(fromBlock: fromBlock, toBlock: toBlock, addresses: nil, parameterFilters: parameterFilters)
         return firstly {
             getEventLogs(withServer: server, contract: dummyContract, eventName: eventName, abiString: AlphaWallet.Ethereum.ABI.erc1155String, filter: eventFilter, queue: queue)
         }.map(on: queue, { events -> [Erc1155TransferEvent] in
@@ -196,8 +197,8 @@ extension Erc1155TokenIdsFetcher.functional {
             })
             let results: [Erc1155TransferEvent] = sortedEvents.flatMap { each -> [Erc1155TransferEvent] in
                 let contract = AlphaWallet.Address(address: each.eventLog!.address)
-                guard let from = ((each.decodedResult["_from"] as? Web3.EthereumAddress).flatMap({ AlphaWallet.Address(address: $0) })) else { return [] }
-                guard let to = ((each.decodedResult["_to"] as? Web3.EthereumAddress).flatMap({ AlphaWallet.Address(address: $0) })) else { return [] }
+                guard let from = ((each.decodedResult["_from"] as? EthereumAddress).flatMap({ AlphaWallet.Address(address: $0) })) else { return [] }
+                guard let to = ((each.decodedResult["_to"] as? EthereumAddress).flatMap({ AlphaWallet.Address(address: $0) })) else { return [] }
                 let blockNumber = each.eventLog!.blockNumber
                 let transactionIndex = each.eventLog!.transactionIndex
                 let logIndex = each.eventLog!.logIndex

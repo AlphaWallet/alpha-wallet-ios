@@ -3,6 +3,7 @@
 import Foundation
 import BigInt
 import PromiseKit
+import AlphaWalletWeb3
 
 public class GetErc20Balance {
     private let server: RPCServer
