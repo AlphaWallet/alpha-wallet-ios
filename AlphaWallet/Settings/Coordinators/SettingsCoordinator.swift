@@ -88,7 +88,8 @@ class SettingsCoordinator: Coordinator {
     }
 
     private func showTools(in controller: AdvancedSettingsViewController) {
-        let controller = ToolsViewController(config: config)
+        let viewModel = ToolsViewModel(config: config)
+        let controller = ToolsViewController(viewModel: viewModel)
         controller.delegate = self
         controller.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(controller, animated: true)
@@ -297,7 +298,7 @@ extension SettingsCoordinator: AdvancedSettingsViewControllerDelegate {
     }
 
     func clearBrowserCacheSelected(in controller: AdvancedSettingsViewController) {
-        let coordinator = ClearDappBrowserCacheCoordinator(inViewController: rootViewController, analytics: analytics)
+        let coordinator = ClearDappBrowserCacheCoordinator(viewController: rootViewController, analytics: analytics)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -324,14 +325,15 @@ extension SettingsCoordinator: AdvancedSettingsViewControllerDelegate {
     }
 
     func analyticsSelected(in controller: AdvancedSettingsViewController) {
-        let controller = AnalyticsViewController(viewModel: .init(isSendAnalyticsEnabled: config.isSendAnalyticsEnabled), config: config)
+        let viewModel = AnalyticsViewModel(config: config)
+        let controller = AnalyticsViewController(viewModel: viewModel)
         navigationController.pushViewController(controller, animated: true)
     }
 
     func usePrivateNetworkSelected(in controller: AdvancedSettingsViewController) {
         let viewModel = ChooseSendPrivateTransactionsProviderViewModel(config: config)
         let controller = ChooseSendPrivateTransactionsProviderViewController(viewModel: viewModel)
-        controller.delegate = self
+
         navigationController.pushViewController(controller, animated: true)
     }
 
@@ -348,12 +350,6 @@ extension SettingsCoordinator: AdvancedSettingsViewControllerDelegate {
         navigationController.pushViewController(controller, animated: true)
     }
 
-}
-
-extension SettingsCoordinator: ChooseSendPrivateTransactionsProviderViewControllerDelegate {
-    func privateTransactionProviderSelected(provider: SendPrivateTransactionsProvider?, in viewController: ChooseSendPrivateTransactionsProviderViewController) {
-        //no-op
-    }
 }
 
 extension SettingsCoordinator: PingInfuraCoordinatorDelegate {
@@ -389,18 +385,18 @@ extension SettingsCoordinator: ClearDappBrowserCacheCoordinatorDelegate {
 }
 
 extension SettingsCoordinator: ToolsViewControllerDelegate {
-    func toolsCheckTransactionStateSelected(in controller: ToolsViewController) {
+    func checkTransactionStateSelected(in controller: ToolsViewController) {
         let coordinator = CheckTransactionStateCoordinator(navigationController: navigationController, config: config)
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start()
     }
 
-    func toolsConsoleSelected(in controller: ToolsViewController) {
+    func consoleSelected(in controller: ToolsViewController) {
         delegate?.showConsole(in: self)
     }
 
-    func toolsPingInfuraSelected(in controller: ToolsViewController) {
+    func pingInfuraSelected(in controller: ToolsViewController) {
         let coordinator = PingInfuraCoordinator(viewController: controller, analytics: analytics)
         coordinator.delegate = self
         coordinator.start()
