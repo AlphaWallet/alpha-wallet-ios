@@ -60,7 +60,7 @@ class AccountsViewController: UIViewController {
         bind(viewModel: viewModel)
         tableView.delegate = self
         tableView.dataSource = self
-    } 
+    }
 
     private func bind(viewModel: AccountsViewModel) {
         let input = AccountsViewModelInput(
