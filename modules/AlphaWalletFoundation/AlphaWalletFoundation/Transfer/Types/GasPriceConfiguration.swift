@@ -8,7 +8,7 @@ public struct GasPriceConfiguration {
     public static let minPrice: BigInt = EtherNumberFormatter.full.number(from: "1", units: UnitConfiguration.gasPriceUnit)!
     public static let oneGwei: BigInt = EtherNumberFormatter.full.number(from: "1", units: UnitConfiguration.gasPriceUnit)!
     public static let maxPrice: BigInt = EtherNumberFormatter.full.number(from: "700", units: UnitConfiguration.gasPriceUnit)!
-    public static let xDaiGasPrice: BigInt = EtherNumberFormatter.full.number(from: "1", units: UnitConfiguration.gasPriceUnit)!
+    public static let xDaiGasPrice: BigInt = EtherNumberFormatter.full.number(from: "2", units: UnitConfiguration.gasPriceUnit)!
     public static let klaytnMaxPrice: BigInt = EtherNumberFormatter.full.number(from: "750", units: UnitConfiguration.gasPriceUnit)!
 }
 
