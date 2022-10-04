@@ -308,7 +308,7 @@ extension TransactionConfirmationCoordinator {
 
     //TODO log a finite list of error types
     private func logActionSheetForTransactionConfirmationFailed() {
-        analytics.log(navigation: Analytics.Navigation.actionSheetForTransactionConfirmationFailed)
+        analytics.log(navigation: Analytics.Navigation.actionSheetForTransactionConfirmationFailed, properties: [Analytics.Properties.chain.rawValue: server.chainID])
     }
 
     private func logStartActionSheetForTransactionConfirmation(source: Analytics.TransactionConfirmationSource) {
