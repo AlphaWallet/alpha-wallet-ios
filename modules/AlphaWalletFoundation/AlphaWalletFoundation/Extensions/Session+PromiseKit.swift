@@ -85,7 +85,7 @@ extension APIKitSession {
                         return SendTransactionNotRetryableError.executionReverted(message: message)
                     } else if message.lowercased().hasPrefix("nonce too low") || message.lowercased().hasPrefix("nonce is too low") {
                         return SendTransactionNotRetryableError.nonceTooLow(message: message)
-                    } else if message.lowercased().hasPrefix("transaction underpriced") {
+                    } else if message.lowercased().hasPrefix("transaction underpriced") || message.lowercased().hasPrefix("feetoolow") {
                         return SendTransactionNotRetryableError.gasPriceTooLow(message: message)
                     } else if message.lowercased().hasPrefix("intrinsic gas too low") || message.lowercased().hasPrefix("Transaction gas is too low") {
                         return SendTransactionNotRetryableError.gasLimitTooLow(message: message)
