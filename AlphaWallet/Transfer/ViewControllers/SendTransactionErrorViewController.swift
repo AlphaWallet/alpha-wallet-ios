@@ -87,7 +87,7 @@ class SendTransactionErrorViewController: UIViewController {
             switch viewModel.error {
             case .insufficientFunds:
                 analytics.log(navigation: Analytics.Navigation.openHelpUrl, properties: [Analytics.Properties.type.rawValue: Analytics.HelpUrl.insufficientFunds.rawValue])
-            case .nonceTooLow, .gasPriceTooLow, .gasLimitTooLow, .gasLimitTooHigh, .possibleChainIdMismatch, .executionReverted:
+            case .nonceTooLow, .gasPriceTooLow, .gasLimitTooLow, .gasLimitTooHigh, .possibleChainIdMismatch, .executionReverted, .unknown:
                 break
             }
             delegate?.linkTapped(url, forError: error, inController: self)
