@@ -7,6 +7,7 @@
 
 import UIKit
 import AlphaWalletFoundation
+import Combine
 
 class KeyboardChecker: NSObject {
 
@@ -55,9 +56,8 @@ class KeyboardChecker: NSObject {
     }
 
     @objc private func keyboardWillShow(_ notification: Notification) {
-        guard let change = notification.keyboardInfo, let view = viewController?.view else {
-            return
-        }
+        guard let view = viewController?.view else { return }
+        let change = KeyboardState(with: notification)
 
         let keyboardEndFrame = view.convert(change.endFrame, to: view.window)
         let yKeyboardFrameOffset = keyboardEndFrame.origin.y - change.endFrame.origin.y
@@ -89,9 +89,8 @@ class KeyboardChecker: NSObject {
     }
 
     @objc private func keyboardWillHide(_ notification: Notification) {
-        guard let change = notification.keyboardInfo, let view = viewController?.view else {
-            return
-        }
+        guard let view = viewController?.view else { return }
+        let change = KeyboardState(with: notification)
 
         let keyboardBeginFrame = view.convert(change.beginFrame, to: view.window)
         let keyboardEndFrame = view.convert(change.endFrame, to: view.window)
@@ -119,29 +118,61 @@ class KeyboardChecker: NSObject {
 
         })
     }
+
+    private static let keyboardNotifications: [NSNotification.Name] = [
+        UIResponder.keyboardWillShowNotification,
+        UIResponder.keyboardDidShowNotification,
+        UIResponder.keyboardWillChangeFrameNotification,
+        UIResponder.keyboardDidChangeFrameNotification,
+        UIResponder.keyboardWillHideNotification,
+        UIResponder.keyboardDidHideNotification
+    ]
+
+    var publisher: AnyPublisher<KeyboardChecker.KeyboardState, Never> {
+        let nc = NotificationCenter.default
+        return Publishers.MergeMany(KeyboardChecker.keyboardNotifications.map { nc.publisher(for: $0) })
+            .map { KeyboardState(with: $0) }
+            .eraseToAnyPublisher()
+    }
 }
 
-extension Notification {
+extension KeyboardChecker {
+    enum KeyboardTransitionState {
+        case frameChange, willShow, didShow, willHide, didHide
+    }
 
-    struct Info {
+    struct KeyboardState {
+        private static let frameEnd = UIResponder.keyboardFrameEndUserInfoKey
+        private static let animEnd = UIResponder.keyboardAnimationDurationUserInfoKey
+        private static let frameBegin = UIResponder.keyboardFrameBeginUserInfoKey
+        private static let animationCurve = UIResponder.keyboardAnimationCurveUserInfoKey
+
+        var state: KeyboardTransitionState = .frameChange
+        var isVisible = false
         let beginFrame: CGRect
         let endFrame: CGRect
         let duration: Double
         let curve: UIView.AnimationOptions
 
-        init?(_ notification: Notification) {
-            guard let info = notification.userInfo else {
-                return nil
+        init(with note: Notification) {
+            switch note.name {
+            case UIResponder.keyboardWillShowNotification:
+                state = .willShow
+            case UIResponder.keyboardDidShowNotification:
+                state = .didShow
+                isVisible = true
+            case UIResponder.keyboardWillHideNotification:
+                state = .willHide
+            case UIResponder.keyboardDidHideNotification:
+                state = .didHide
+            default:
+                break
             }
 
-            beginFrame = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
-            endFrame = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue
-            duration = (info[UIResponder.keyboardAnimationDurationUserInfoKey] as! NSNumber).doubleValue
-            curve = UIView.AnimationOptions(rawValue: UInt((info[UIResponder.keyboardAnimationCurveUserInfoKey] as! NSNumber).intValue))
+            beginFrame = (note.userInfo?[KeyboardState.frameBegin] as! NSValue).cgRectValue
+            endFrame = (note.userInfo?[KeyboardState.frameEnd] as! NSValue).cgRectValue
+            duration = (note.userInfo?[KeyboardState.animEnd] as! NSNumber).doubleValue
+            curve = UIView.AnimationOptions(rawValue: UInt((note.userInfo?[KeyboardState.animationCurve] as! NSNumber).intValue))
         }
-    }
-
-    var keyboardInfo: Info? {
-        return Info(self)
     }
 }

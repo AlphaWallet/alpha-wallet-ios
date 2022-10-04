@@ -16,11 +16,10 @@ class ButtonsBarBackgroundView: UIView {
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
-    private var observation: NSKeyValueObservation?
     private let edgeInsets: UIEdgeInsets
 
     var height: CGFloat {
-        self.buttonsBar.height + edgeInsets.top + edgeInsets.bottom + UIApplication.shared.bottomSafeAreaHeight
+        self.buttonsBar.height + edgeInsets.top + edgeInsets.bottom/* + UIApplication.shared.bottomSafeAreaHeight*/
     }
 
     init(buttonsBar: ButtonsBarViewType, edgeInsets: UIEdgeInsets = DataEntry.Metric.ButtonsBar.insets, separatorHeight: CGFloat = DataEntry.Metric.ButtonsBar.separatorHeight) {
