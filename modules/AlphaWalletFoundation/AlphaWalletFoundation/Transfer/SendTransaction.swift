@@ -118,7 +118,7 @@ public class SendTransaction {
         switch error {
         case .nonceTooLow:
             analytics.log(error: Analytics.Error.sendTransactionNonceTooLow)
-        case .insufficientFunds, .gasPriceTooLow, .gasLimitTooLow, .gasLimitTooHigh, .possibleChainIdMismatch, .executionReverted:
+        case .insufficientFunds, .gasPriceTooLow, .gasLimitTooLow, .gasLimitTooHigh, .possibleChainIdMismatch, .executionReverted, .unknown:
             break
         }
     }

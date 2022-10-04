@@ -23,6 +23,8 @@ struct SendTransactionErrorViewModel {
             return message
         case .executionReverted(let message):
             return message
+        case .unknown:
+            return R.string.localizable.unknownError()
         }
     }
 
@@ -42,6 +44,8 @@ struct SendTransactionErrorViewModel {
             return R.string.localizable.tokenTransactionConfirmationErrorDescriptionPossibleChainIdMismatchError()
         case .executionReverted:
             return R.string.localizable.tokenTransactionConfirmationErrorDescriptionExecutionRevertedError()
+        case .unknown(_, let message):
+            return message
         }
     }
 
@@ -68,6 +72,9 @@ struct SendTransactionErrorViewModel {
         case .possibleChainIdMismatch:
             return nil
         case .executionReverted:
+            return nil
+        case .unknown:
+            //TODO probably to ask user to contact support
             return nil
         }
     }
@@ -105,6 +112,8 @@ extension SendTransactionNotRetryableError {
         case .possibleChainIdMismatch:
             return nil
         case .executionReverted:
+            return nil
+        case .unknown:
             return nil
         }
     }

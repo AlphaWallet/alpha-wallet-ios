@@ -10,6 +10,7 @@ public enum SendTransactionNotRetryableError: Error {
     case gasLimitTooHigh(message: String)
     case possibleChainIdMismatch(message: String)
     case executionReverted(message: String)
+    case unknown(code: Int, message: String)
 }
 
 public enum RpcNodeRetryableRequestError: LocalizedError {

@@ -98,6 +98,7 @@ extension APIKitSession {
                         return SendTransactionNotRetryableError.insufficientFunds(message: message)
                     } else {
                         RemoteLogger.instance.logRpcOrOtherWebError("JSONRPCError.responseError | code: \(code) | message: \(message)", url: baseUrl.absoluteString)
+                        return SendTransactionNotRetryableError.unknown(code: code, message: message)
                     }
                 case .responseNotFound(_, let object):
                     RemoteLogger.instance.logRpcOrOtherWebError("JSONRPCError.responseNotFound | object: \(object)", url: baseUrl.absoluteString)

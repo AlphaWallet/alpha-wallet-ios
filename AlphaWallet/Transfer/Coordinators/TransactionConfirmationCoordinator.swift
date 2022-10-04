@@ -93,6 +93,8 @@ class TransactionConfirmationCoordinator: Coordinator {
             break
         case .executionReverted:
             break
+        case .unknown:
+            break
         }
     }
 }
@@ -361,6 +363,8 @@ extension SendTransactionNotRetryableError {
             return "possibleChainIdMismatch"
         case .executionReverted:
             return "executionReverted"
+        case .unknown(_, let message):
+            return "unknown error: \(message)"
         }
     }
 }
