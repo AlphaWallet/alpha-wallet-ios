@@ -44,7 +44,6 @@ public final class GasPriceEstimator {
     public func estimateDefaultGasPrice(server: RPCServer, transaction: UnconfirmedTransaction) -> BigInt {
         switch server.serverWithEnhancedSupport {
         case .xDai:
-            //xdai transactions are always 1 gwei in gasPrice
             return GasPriceConfiguration.xDaiGasPrice
         case .main, .candle, .polygon, .binance_smart_chain, .heco, .rinkeby, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, nil:
             let maxPrice: BigInt = GasPriceConfiguration.maxPrice(forServer: server)
@@ -73,7 +72,7 @@ public final class GasPriceEstimator {
     }
 
     private func estimateGasPriceForXDai() -> Promise<GasEstimates> {
-        //xDAI node returns a much higher gas price than necessary so if it is xDAI simply return 1 Gwei
+        //xDAI node returns a much higher gas price than necessary so if it is xDAI simply return the fixed amount
         .value(.init(standard: GasPriceConfiguration.xDaiGasPrice))
     }
 
