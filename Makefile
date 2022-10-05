@@ -19,7 +19,8 @@ target:
 	@echo "bootstrap          : install bundle followed by install all."
 	@echo "test14             : run tests for iOS 14.5."
 	@echo "test15             : run tests for iOS 15.2."
-	@echo "test               : run the tests for latest iOS (15.2)."
+	@echo "test16             : run tests for iOS 16.0."
+	@echo "test               : run the tests for latest iOS."
 	@echo "clean              : remove all the pods and gems."
 	@echo "update_chains_file : update the chains.zip file in the project."
 
@@ -91,14 +92,17 @@ setup_path:
 install_bundle:
 	@$(gem_cmd) install --install-dir=$(vendor_path) $(bundle_gem)
 
+test16:
+	@xcodebuild -disableAutomaticPackageResolution -workspace AlphaWallet.xcworkspace -scheme AlphaWallet -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 14,OS=16.0' test | $(beautify_cmd)
+
 test15:
-	@xcodebuild -disableAutomaticPackageResolution -workspace AlphaWallet.xcworkspace -scheme AlphaWallet -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 12,OS=15.4' test | $(beautify_cmd)
+	@xcodebuild -disableAutomaticPackageResolution -workspace AlphaWallet.xcworkspace -scheme AlphaWallet -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 13,OS=15.2' test | $(beautify_cmd)
 
 test14:
 	@xcodebuild -disableAutomaticPackageResolution -workspace AlphaWallet.xcworkspace -scheme AlphaWallet -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 12,OS=14.5' test | $(beautify_cmd)
 
 test_latest:
-	@xcodebuild -disableAutomaticPackageResolution -workspace AlphaWallet.xcworkspace -scheme AlphaWallet -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 12,OS=latest' test | $(beautify_cmd)
+	@xcodebuild -disableAutomaticPackageResolution -workspace AlphaWallet.xcworkspace -scheme AlphaWallet -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 13,OS=latest' test | $(beautify_cmd)
 
 test: test_latest
 
