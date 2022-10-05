@@ -47,6 +47,8 @@ extension RPCServer {
         case .ioTeX: return "IoTeX Mainnet"
         case .ioTeXTestnet: return "IoTeX Testnet"
         case .candle: return "Candle"
+        case .optimismGoerli: return "Optimism Goerli"
+        case .arbitrumGoerli: return "Arbitrum Goerli"
         }
     }
 
@@ -77,6 +79,8 @@ extension RPCServer {
         case .ioTeX: return R.image.ioTeX()
         case .ioTeXTestnet: return R.image.ioTeXTestnet()
         case .candle: return R.image.iconsTokensCandle()
+        case .optimismGoerli: return nil
+        case .arbitrumGoerli: return nil
         }
     }
 
@@ -114,6 +118,8 @@ extension RPCServer {
         case .ioTeX: return .init(hex: "00D4D5")
         case .ioTeXTestnet: return .init(hex: "00D4D5")
         case .candle: return .init(red: 0, green: 46, blue: 171)
+        case .optimismGoerli: return .red
+        case .arbitrumGoerli: return .red
         }
     }
 
@@ -143,6 +149,8 @@ extension RPCServer {
         case .ioTeX: return R.image.ioTeX()
         case .ioTeXTestnet: return R.image.ioTeXTestnet()
         case .candle: return R.image.iconsNetworkCandle()
+        case .optimismGoerli: return nil
+        case .arbitrumGoerli: return nil
         }
     }
 }
