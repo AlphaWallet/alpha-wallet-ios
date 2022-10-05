@@ -69,11 +69,11 @@ struct SelectableSwapRouteTableViewCellViewModel: Hashable {
         self.exchange = swapRoute.steps.first.flatMap { "Swap via \($0.tool)" } ?? "-"
         self.amount = SelectableSwapRouteTableViewCellViewModel.formatter.string(from: swapRoute.toAmount, decimals: swapRoute.toToken.decimals)
         self.fees = swapRoute.steps.map { step -> [String] in
-            let gasCosts = step.estimate.gasCosts.map { gasCost in
+            let gasCosts = step.estimate.gasCosts.map { gasCost -> String in
                 let toAmount = SelectableSwapRouteTableViewCellViewModel.formatter.string(from: gasCost.amount, decimals: gasCost.token.decimals)
                 return "Gas Fee:" + " " + "\(toAmount) \(gasCost.token.symbol)"
             }
-            let fees = step.estimate.feeCosts.map { feeCost in
+            let fees = step.estimate.feeCosts.map { feeCost -> String in
                 let toAmount = SelectableSwapRouteTableViewCellViewModel.formatter.string(from: feeCost.amount, decimals: feeCost.token.decimals)
                 return "\(feeCost.name):" + " " + "\(toAmount) \(feeCost.token.symbol)"
             }
