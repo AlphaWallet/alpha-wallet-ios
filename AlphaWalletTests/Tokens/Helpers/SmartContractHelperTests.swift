@@ -3,7 +3,7 @@
 import XCTest
 @testable import AlphaWallet
 import Foundation
-import web3swift
+import AlphaWalletWeb3
 import PromiseKit
 
 class SmartContractHelperTests: XCTestCase {

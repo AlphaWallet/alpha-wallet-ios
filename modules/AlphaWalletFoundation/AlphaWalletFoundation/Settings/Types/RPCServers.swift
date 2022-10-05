@@ -2,6 +2,7 @@
 
 import Foundation
 import BigInt
+import AlphaWalletWeb3
 
 extension RPCServer {
     public static func custom(chainId: Int) -> RPCServer {
@@ -529,17 +530,6 @@ public enum RPCServer: Hashable, CaseIterable {
         return 18
     }
 
-    public var web3Network: Web3.Networks {
-        switch self {
-        case .main: return .Mainnet
-        case .kovan: return .Kovan
-        case .ropsten: return .Ropsten
-        case .rinkeby: return .Rinkeby
-        case .poa, .sokol, .classic, .callisto, .xDai, .phi, .phi2, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .custom, .avalanche_testnet, .candle, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet:
-            return .Custom(networkID: BigUInt(chainID))
-        }
-    }
-
     public var magicLinkPrefix: URL {
         let urlString = "https://\(magicLinkHost)/"
         return URL(string: urlString)!
@@ -659,7 +649,7 @@ public enum RPCServer: Hashable, CaseIterable {
         }
     }
 
-    public var rpcHeaders: Web3.RPCNodeHTTPHeaders {
+    public var rpcHeaders: RPCNodeHTTPHeaders {
         switch self {
         case .klaytnCypress, .klaytnBaobabTestnet:
             let basicAuth = Constants.Credentials.klaytnRpcNodeKeyBasicAuth
@@ -822,7 +812,7 @@ public enum RPCServer: Hashable, CaseIterable {
         }
     }
 
-    func makeMaximumToBlockForEvents(fromBlockNumber: UInt64) -> Web3.EventFilter.Block {
+    func makeMaximumToBlockForEvents(fromBlockNumber: UInt64) -> EventFilter.Block {
         if let maxRange = maximumBlockRangeForEvents {
             return .blockNumber(fromBlockNumber + maxRange)
         } else {
@@ -1001,7 +991,7 @@ extension RPCServer {
         return nil
     }
 
-    var web3SwiftRpcNodeBatchSupportPolicy: Web3.JSONRPCrequestDispatcher.DispatchPolicy {
+    var web3SwiftRpcNodeBatchSupportPolicy: JSONRPCrequestDispatcher.DispatchPolicy {
         switch rpcNodeBatchSupport {
         case .noBatching:
             return .NoBatching

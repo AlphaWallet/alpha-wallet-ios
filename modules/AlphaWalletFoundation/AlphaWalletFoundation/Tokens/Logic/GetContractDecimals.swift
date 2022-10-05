@@ -2,6 +2,7 @@
 
 import Foundation
 import PromiseKit
+import AlphaWalletWeb3
 
 public class GetContractDecimals {
     private let server: RPCServer

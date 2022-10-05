@@ -16,11 +16,18 @@ public class GetErc721Balance {
         self.queue = queue
     }
 
-    public func getERC721TokenBalance(for address: AlphaWallet.Address, contract: AlphaWallet.Address) -> Promise<BigUInt> {
+    public func getERC721TokenBalance(for address: AlphaWallet.Address, contract: AlphaWallet.Address) -> Promise<[String]> {
         let function = GetERC721Balance()
-        return callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [address.eip55String] as [AnyObject], queue: queue).map(on: queue, { balanceResult -> BigUInt in
+        return callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [address.eip55String] as [AnyObject], queue: queue)
+            .map(on: queue, { balanceResult -> BigUInt in
                 let balance = GetErc721Balance.adapt(balanceResult["0"] as Any)
                 return balance
+            }).map(on: queue, { balance -> [String] in
+                if balance >= Int.max {
+                    throw Web3Error(description: "")
+                } else {
+                    return [String](repeating: "0", count: Int(balance))
+                }
             })
     }
 

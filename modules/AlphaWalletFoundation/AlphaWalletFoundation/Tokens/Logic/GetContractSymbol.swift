@@ -2,6 +2,7 @@
 
 import Foundation
 import PromiseKit
+import AlphaWalletWeb3
 
 public class GetContractSymbol {
     private let server: RPCServer

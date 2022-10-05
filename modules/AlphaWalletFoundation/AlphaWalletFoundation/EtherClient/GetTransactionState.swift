@@ -7,23 +7,24 @@
 
 import Foundation
 import PromiseKit
+import AlphaWalletWeb3
 
 public final class GetTransactionState {
     public init() { }
 
     public func getTransactionsState(server: RPCServer, hash: String) -> Promise<TransactionState> {
-        guard let web3 = try? getCachedWeb3(forServer: server, timeout: 6) else {
+        guard let web3 = try? Web3.instance(for: server, timeout: 6) else {
             return .init(error: PMKError.cancelled)
         }
 
-        return Web3.Eth(provider: web3.provider, web3: web3)
+        return Web3.Eth(web3: web3)
             .getTransactionReceiptPromise(hash)
             .map { TransactionState(status: $0.status) }
     }
 }
 
 extension TransactionState {
-    init(status: Web3.TransactionReceipt.TXStatus) {
+    init(status: TransactionReceipt.TXStatus) {
         switch status {
         case .ok:
             self = .completed

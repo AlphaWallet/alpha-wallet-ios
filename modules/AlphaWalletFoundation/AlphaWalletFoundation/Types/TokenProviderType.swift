@@ -130,13 +130,7 @@ public class TokenProvider: TokenProviderType {
             attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {
                 GetErc721Balance(forServer: server, queue: queue)
                     .getERC721TokenBalance(for: account, contract: address)
-            }.map(on: queue, { balance -> [String] in
-                if balance >= Int.max {
-                    throw Web3Error(description: "")
-                } else {
-                    return [String](repeating: "0", count: Int(balance))
-                }
-            })
+            }
         }
     }
 
