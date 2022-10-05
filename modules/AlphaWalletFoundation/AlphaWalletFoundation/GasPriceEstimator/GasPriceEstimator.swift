@@ -49,7 +49,8 @@ public final class GasPriceEstimator {
             let maxPrice: BigInt = GasPriceConfiguration.maxPrice(forServer: server)
             let defaultPrice: BigInt = GasPriceConfiguration.defaultPrice(forServer: server)
             if let gasPrice = transaction.gasPrice, gasPrice > 0 {
-                return min(max(gasPrice, GasPriceConfiguration.minPrice), maxPrice)
+                //We don't compare to `GasPriceConfiguration.minPrice` because if the transaction already has a price (from speedup/cancel or dapp), we should use it
+                return min(gasPrice, maxPrice)
             } else {
                 let defaultGasPrice = min(max(transaction.gasPrice ?? defaultPrice, GasPriceConfiguration.minPrice), maxPrice)
                 return defaultGasPrice
