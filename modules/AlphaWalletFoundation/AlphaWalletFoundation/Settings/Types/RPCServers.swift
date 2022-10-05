@@ -783,7 +783,7 @@ public enum RPCServer: Hashable, CaseIterable {
         }
     }
 
-    private var maximumBlockRangeForEvents: UInt64? {
+    var maximumBlockRangeForEvents: UInt64? {
         switch self {
         case .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet:
             //These do not allow range more than 5000
