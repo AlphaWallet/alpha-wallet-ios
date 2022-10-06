@@ -149,7 +149,7 @@ extension EventSourceForActivities.functional {
         let toBlock = server.makeMaximumToBlockForEvents(fromBlockNumber: fromBlock.1)
         let eventFilter = EventFilter(fromBlock: fromBlock.0, toBlock: toBlock, addresses: addresses, parameterFilters: parameterFilters)
 
-        return getEventLogs(withServer: server, contract: eventOrigin.contract, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter, queue: queue)
+        return getEventLogs(withServer: server, contract: eventOrigin.contract, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter)
         .then(on: queue, { events -> Promise<[EventActivityInstance]> in
             let promises = events.compactMap { event -> Promise<EventActivityInstance?> in
                 guard let blockNumber = event.eventLog?.blockNumber else {

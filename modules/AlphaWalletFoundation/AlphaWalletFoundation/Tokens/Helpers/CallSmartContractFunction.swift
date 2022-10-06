@@ -131,14 +131,7 @@ public func getSmartContractCallData(withServer server: RPCServer, contract cont
     return promiseCreator.transaction.data
 }
 
-public func getEventLogs(
-        withServer server: RPCServer,
-        contract contractAddress: AlphaWallet.Address,
-        eventName: String,
-        abiString: String,
-        filter: EventFilter,
-        queue: DispatchQueue
-) -> Promise<[EventParserResultProtocol]> {
+public func getEventLogs(withServer server: RPCServer, contract contractAddress: AlphaWallet.Address, eventName: String, abiString: String, filter: EventFilter) -> Promise<[EventParserResultProtocol]> {
     let contractAddress = EthereumAddress(address: contractAddress)
 
     guard let web3 = try? Web3.instance(for: server, timeout: 60) else {
