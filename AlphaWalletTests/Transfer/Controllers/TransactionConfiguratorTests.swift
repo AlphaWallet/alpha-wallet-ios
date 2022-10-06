@@ -15,7 +15,7 @@ class TransactionConfiguratorTests: XCTestCase {
 
     func testMinGasPrice() throws {
         let analytics = FakeAnalyticsService()
-        let configurator = try TransactionConfigurator(session: .make(), analytics: analytics, transaction: .make(gasPrice: BigInt(1)))
+        let configurator = try TransactionConfigurator(session: .make(), analytics: analytics, transaction: .make(gasPrice: BigInt(1000000000)))
         XCTAssertEqual(GasPriceConfiguration.minPrice, configurator.currentConfiguration.gasPrice)
     }
 

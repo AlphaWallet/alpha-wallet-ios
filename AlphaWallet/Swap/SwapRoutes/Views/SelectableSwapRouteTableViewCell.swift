@@ -95,7 +95,7 @@ final class SelectableSwapRouteTableViewCell: UITableViewCell {
         tagTextLabel.attributedText = viewModel.tagAttributedString
 
         bottomStackView.removeAllArrangedSubviews()
-        let subViews = viewModel.feesAttributedStrings.map { fee in
+        let subViews: [UIView] = viewModel.feesAttributedStrings.map { fee in
             let label = UILabel()
             label.attributedText = fee
 
