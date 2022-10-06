@@ -7,7 +7,7 @@
 
 import UIKit
 
-class DummySearchView: UIView {
+final class DummySearchView: UIView {
 
     private let searchBar: UISearchBar = {
         let searchBar: UISearchBar = UISearchBar(frame: .init(x: 0, y: 0, width: 100, height: 50))

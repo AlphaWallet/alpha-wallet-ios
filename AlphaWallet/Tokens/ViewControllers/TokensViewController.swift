@@ -2,7 +2,7 @@
 
 import UIKit 
 import Combine
-import AlphaWalletFoundation
+import AlphaWalletFoundation 
 
 protocol TokensViewControllerDelegate: AnyObject {
     func viewWillAppear(in viewController: UIViewController)
@@ -10,6 +10,7 @@ protocol TokensViewControllerDelegate: AnyObject {
     func didTapOpenConsole(in viewController: UIViewController)
     func walletConnectSelected(in viewController: UIViewController)
     func whereAreMyTokensSelected(in viewController: UIViewController)
+    func buyCryptoSelected(in viewController: UIViewController)
 }
 
 final class TokensViewController: UIViewController {
@@ -107,9 +108,7 @@ final class TokensViewController: UIViewController {
     }()
 
     private var isConsoleButtonHidden: Bool {
-        get {
-            return consoleButton.isHidden
-        }
+        get { consoleButton.isHidden }
         set {
             guard newValue != isConsoleButtonHidden else { return }
             consoleButton.isHidden = newValue
@@ -118,9 +117,7 @@ final class TokensViewController: UIViewController {
     }
     
     private var isPromptBackupWalletViewHolderHidden: Bool {
-        get {
-            return promptBackupWalletViewHolder.isHidden
-        }
+        get { promptBackupWalletViewHolder.isHidden }
         set {
             guard newValue != isPromptBackupWalletViewHolderHidden else { return }
             promptBackupWalletViewHolder.isHidden = newValue
@@ -155,6 +152,8 @@ final class TokensViewController: UIViewController {
         return searchBarHeader
     }()
     private lazy var dataSource = makeDataSource()
+    private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
+    private lazy var footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
 
     init(viewModel: TokensViewModel) {
         self.viewModel = viewModel
@@ -163,6 +162,7 @@ final class TokensViewController: UIViewController {
 
         view.addSubview(tableView)
         tableView.addSubview(emptyTableView)
+        view.addSubview(footerBar)
 
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -170,8 +170,12 @@ final class TokensViewController: UIViewController {
             tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
             bottomConstraint,
             emptyTableView.centerXAnchor.constraint(equalTo: tableView.centerXAnchor),
-            emptyTableViewHeightConstraint
+            emptyTableViewHeightConstraint,
+            footerBar.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            footerBar.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
+
     }
 
     override func viewDidLoad() {
@@ -185,6 +189,9 @@ final class TokensViewController: UIViewController {
         consoleButton.addTarget(self, action: #selector(openConsole), for: .touchUpInside)
         refreshControl.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
 
+        buttonsBar.configure(.primary(buttons: 1))
+        buttonsBar.buttons[0].addTarget(self, action: #selector(buyCryptoSelected), for: .touchUpInside)
+
         bind(viewModel: viewModel)
     }
 
@@ -193,7 +200,6 @@ final class TokensViewController: UIViewController {
 
         navigationController?.applyTintAdjustment()
         hidesBottomBarWhenPushed = false
-
         appear.send(())
         fixNavigationBarAndStatusBarBackgroundColorForiOS13Dot1()
         keyboardChecker.viewWillAppear()
@@ -201,10 +207,13 @@ final class TokensViewController: UIViewController {
         hideNavigationBarTopSeparatorLine()
     }
 
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        keyboardChecker.viewWillDisappear()
+    }
+
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-
-        keyboardChecker.viewWillDisappear()
         showNavigationBarTopSeparatorLine()
     }
 
@@ -214,6 +223,10 @@ final class TokensViewController: UIViewController {
 
     @objc func openConsole() {
         delegate?.didTapOpenConsole(in: self)
+    }
+
+    @objc func buyCryptoSelected(_ sender: UIButton) {
+        delegate?.buyCryptoSelected(in: self)
     }
 
     override func viewDidLayoutSubviews() {
@@ -234,11 +247,14 @@ final class TokensViewController: UIViewController {
         view.backgroundColor = viewModel.backgroundColor
         tableView.backgroundColor = viewModel.backgroundColor
         title = viewModel.walletDefaultTitle
-        
+
+        buttonsBar.buttons[0].setTitle(viewModel.buyCryptoTitle, for: .normal)
+
         let input = TokensViewModelInput(
             appear: appear.eraseToAnyPublisher(),
             pullToRefresh: _pullToRefresh.eraseToAnyPublisher(),
-            selection: selection.eraseToAnyPublisher())
+            selection: selection.eraseToAnyPublisher(),
+            keyboard: keyboardChecker.publisher)
 
         let output = viewModel.transform(input: input)
 
@@ -255,7 +271,7 @@ final class TokensViewController: UIViewController {
 
             navigationItem.title = state.title
             self?.isConsoleButtonHidden = state.isConsoleButtonHidden
-
+            self?.footerBar.isHidden = state.isFooterHidden
             self?.applySnapshot(with: state.sections, animate: false)
         }.store(in: &cancellable)
 
@@ -283,6 +299,18 @@ final class TokensViewController: UIViewController {
             guard let strongSelf = self else { return }
             strongSelf.delegate?.didSelect(token: token, in: strongSelf)
         }.store(in: &cancellable)
+
+        output.applyTableInset
+            .map { [footerBar] hasInset -> UIEdgeInsets in
+                switch hasInset {
+                case .some(let noNeedInInset): return noNeedInInset ? UIEdgeInsets.zero : UIEdgeInsets(top: 0, left: 0, bottom: footerBar.height, right: 0)
+                case .none: return UIEdgeInsets.zero
+                }
+            }.removeDuplicates()
+            .sink { [tableView] in
+                tableView.contentInset = $0
+                tableView.scrollIndicatorInsets = $0
+            }.store(in: &cancellable)
     }
 
     private func adjustTableViewHeaderHeightToFitContents() {

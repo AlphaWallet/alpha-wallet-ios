@@ -9,6 +9,7 @@ struct TokensViewModelInput {
     let appear: AnyPublisher<Void, Never>
     let pullToRefresh: AnyPublisher<Void, Never>
     let selection: AnyPublisher<TokensViewModel.SelectionSource, Never>
+    let keyboard: AnyPublisher<KeyboardChecker.KeyboardState, Never>
 }
 
 struct TokensViewModelOutput {
@@ -16,6 +17,7 @@ struct TokensViewModelOutput {
     let selection: AnyPublisher<Token, Never>
     let pullToRefreshState: AnyPublisher<TokensViewModel.PullToRefreshState, Never>
     let deletion: AnyPublisher<[IndexPath], Never>
+    let applyTableInset: AnyPublisher<TokensViewModel.KeyboardInset, Never>
 }
 
 //Must be a class, and not a struct, otherwise changing `filter` will silently create a copy of TokensViewModel when user taps to change the filter in the UI and break filtering
@@ -103,6 +105,10 @@ final class TokensViewModel {
 
     var walletDefaultTitle: String {
         return R.string.localizable.walletTokensTabbarItemTitle()
+    }
+
+    var buyCryptoTitle: String {
+        return R.string.localizable.buyCryptoTitle()
     }
 
     var backgroundColor: UIColor {
@@ -240,16 +246,29 @@ final class TokensViewModel {
         }.eraseToAnyPublisher()
 
         let viewState = Publishers.CombineLatest4(sectionViewModelsSubject, walletSummary, blockieImage, title)
-            .map { sections, summary, blockiesImage, title in
-                return TokensViewModel.ViewState(title: title, summary: summary, blockiesImage: blockiesImage, isConsoleButtonHidden: self.listOfBadTokenScriptFiles.isEmpty, sections: sections)
+            .map { sections, summary, blockiesImage, title -> TokensViewModel.ViewState in
+                let isConsoleButtonHidden = self.listOfBadTokenScriptFiles.isEmpty
+
+                return TokensViewModel.ViewState(title: title, summary: summary, blockiesImage: blockiesImage, isConsoleButtonHidden: isConsoleButtonHidden, isFooterHidden: self.isFooterHidden, sections: sections)
             }.removeDuplicates()
+            .eraseToAnyPublisher()
+
+        let applyTableInset = input.keyboard
+            .map { $0.isVisible }
+            .prepend(false)
+            .map { self.isFooterHidden ? KeyboardInset.none : KeyboardInset.some($0) }
             .eraseToAnyPublisher()
 
         return .init(
             viewState: viewState,
             selection: selection,
             pullToRefreshState: fakePullToRefreshState,
-            deletion: deletionSubject.eraseToAnyPublisher())
+            deletion: deletionSubject.eraseToAnyPublisher(),
+            applyTableInset: applyTableInset)
+    }
+
+    private var isFooterHidden: Bool {
+        !config.enabledServers.contains(.main)
     }
 
     func set(isSearchActive: Bool) {
@@ -570,11 +589,17 @@ extension TokensViewModel {
         case endLoading
     }
 
+    enum KeyboardInset {
+        case some(Bool)
+        case none
+    }
+
     struct ViewState {
         let title: String
         let summary: WalletSummary
         let blockiesImage: BlockiesImage
         let isConsoleButtonHidden: Bool
+        let isFooterHidden: Bool
         let sections: [TokensViewModel.SectionViewModel]
     }
 }
