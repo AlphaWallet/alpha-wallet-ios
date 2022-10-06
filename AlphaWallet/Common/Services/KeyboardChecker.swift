@@ -18,7 +18,7 @@ class KeyboardChecker: NSObject {
     //NOTE: for views with input view 'date picker', we need to ignore bottom safe area
     private let ignoreBottomSafeArea: Bool
     private let buttonsBarHeight: CGFloat
-    
+
     init(_ viewController: UIViewController, resetHeightDefaultValue: CGFloat = -UIApplication.shared.bottomSafeAreaHeight, ignoreBottomSafeArea: Bool = false, buttonsBarHeight: CGFloat = 0) {
         self.viewController = viewController
         self.resetHeightDefaultValue = resetHeightDefaultValue
@@ -32,11 +32,17 @@ class KeyboardChecker: NSObject {
     }
 
     @objc func viewWillAppear() {
+        removeObservers()
+
         notificationCenter.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
 
     @objc func viewWillDisappear() {
+        removeObservers()
+    }
+
+    private func removeObservers() {
         notificationCenter.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
         notificationCenter.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
     }
@@ -94,13 +100,12 @@ class KeyboardChecker: NSObject {
 
         let keyboardBeginFrame = view.convert(change.beginFrame, to: view.window)
         let keyboardEndFrame = view.convert(change.endFrame, to: view.window)
+        let yKeyboardFrameOffset = keyboardEndFrame.origin.y - change.endFrame.origin.y
 
         //NOTE: we need to determine if keyboard hiding now or not. because there is cases when when we change keyboard, (software/external), and keyboardWillHide called all the time, and we dont know what height should set.
-        if keyboardBeginFrame.height <= keyboardEndFrame.height {
+        if keyboardBeginFrame.height <= keyboardEndFrame.height || yKeyboardFrameOffset == 0 {
             updateContraints(value: resetHeightDefaultValue)
         } else {
-            let keyboardEndFrame = view.convert(change.endFrame, to: view.window)
-            let yKeyboardFrameOffset = keyboardEndFrame.origin.y - change.endFrame.origin.y
             let diff = keyboardEndFrame.height - yKeyboardFrameOffset
 
             if diff < 0 {
