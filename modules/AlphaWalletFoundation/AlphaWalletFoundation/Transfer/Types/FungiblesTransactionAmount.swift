@@ -9,8 +9,8 @@ import Foundation
 
 public struct FungiblesTransactionAmount {
     public var value: String
-    public var shortValue: String?
-    public var isAllFunds: Bool = false
+    public let shortValue: String?
+    public let isAllFunds: Bool
 
     public init(value: String, shortValue: String?, isAllFunds: Bool) {
         self.value = value

@@ -24,7 +24,7 @@ struct SwapTokensViewModelOutput {
     let fromTokenBalance: AnyPublisher<String, Never>
     let toTokenBalance: AnyPublisher<String?, Never>
     let tokens: AnyPublisher<(from: Token, to: Token?), Never>
-    let amountValidation: AnyPublisher<AmountTextField_v2.ErrorState, Never>
+    let amountValidation: AnyPublisher<AmountTextField.ErrorState, Never>
     let allFunds: AnyPublisher<(allFundsFullValue: NSDecimalNumber?, allFundsShortValue: String), Never>
 }
 
@@ -188,9 +188,9 @@ final class SwapTokensViewModel: NSObject {
             }.eraseToAnyPublisher()
     }
 
-    private func amountValidation(cryptoValue: AnyPublisher<String, Never>, useGreaterThanZeroValidation: Bool = true) -> AnyPublisher<AmountTextField_v2.ErrorState, Never> {
+    private func amountValidation(cryptoValue: AnyPublisher<String, Never>, useGreaterThanZeroValidation: Bool = true) -> AnyPublisher<AmountTextField.ErrorState, Never> {
         return Publishers.CombineLatest(cryptoValue, activeSession.combineLatest(swapPair))
-            .map { cryptoValue, sessionAndSwapPair -> AmountTextField_v2.ErrorState in
+            .map { cryptoValue, sessionAndSwapPair -> AmountTextField.ErrorState in
                 let token = sessionAndSwapPair.1.from
                 guard let balance: BalanceViewModel = self.balance(for: token, session: sessionAndSwapPair.0) else {
                     return .error

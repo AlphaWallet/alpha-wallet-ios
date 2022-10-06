@@ -23,8 +23,8 @@ class EditPriceAlertViewController: UIViewController {
         return view
     }()
 
-    private lazy var amountTextField: AmountTextField_v2 = {
-        let view = AmountTextField_v2(token: viewModel.token)
+    private lazy var amountTextField: AmountTextField = {
+        let view = AmountTextField(token: viewModel.token)
         view.translatesAutoresizingMaskIntoConstraints = false
         view.delegate = self
         view.viewModel.accessoryButtonTitle = .next
@@ -95,7 +95,7 @@ class EditPriceAlertViewController: UIViewController {
 
         let save = buttonsBar.buttons[0].publisher(forEvent: .touchUpInside).eraseToAnyPublisher()
 
-        let input = EditPriceAlertViewModelInput(appear: appear.eraseToAnyPublisher(), save: save, cryptoValue: amountTextField.cryptoValue)
+        let input = EditPriceAlertViewModelInput(appear: appear.eraseToAnyPublisher(), save: save, cryptoValue: amountTextField.cryptoValuePublisher)
         let output = viewModel.transform(input: input)
 
         output.cryptoToFiatRate
@@ -146,16 +146,16 @@ extension EditPriceAlertViewController: PopNotifiable {
     }
 }
 
-extension EditPriceAlertViewController: AmountTextField_v2Delegate {
-    func changeAmount(in textField: AmountTextField_v2) {
+extension EditPriceAlertViewController: AmountTextFieldDelegate {
+    func changeAmount(in textField: AmountTextField) {
         // no-op
     }
 
-    func changeType(in textField: AmountTextField_v2) {
+    func changeType(in textField: AmountTextField) {
         // no-op
     }
 
-    func shouldReturn(in textField: AmountTextField_v2) -> Bool {
+    func shouldReturn(in textField: AmountTextField) -> Bool {
         return true
     }
 }

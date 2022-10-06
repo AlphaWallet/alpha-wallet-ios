@@ -4,25 +4,27 @@ import Foundation
 import UIKit
 import BigInt
 import AlphaWalletFoundation
+import Combine
 
 struct SendViewModel {
-    private let session: WalletSession
-    private let service: TokenViewModelState
+    let session: WalletSession
+    let tokensService: TokenProvidable & TokenAddable & TokenBalanceRefreshable & TokenViewModelState
     let transactionType: TransactionType
 
-    init(transactionType: TransactionType, session: WalletSession, service: TokenViewModelState) {
+    init(transactionType: TransactionType, session: WalletSession, tokensService: TokenProvidable & TokenAddable & TokenBalanceRefreshable & TokenViewModelState) {
         self.transactionType = transactionType
-        self.service = service
+        self.tokensService = tokensService
         self.session = session 
     }
+    
+    var cryptoToFiatRate: AnyPublisher<NSDecimalNumber?, Never> {
+        tokensService.tokenViewModelPublisher(for: transactionType.tokenObject)
+            .compactMap { $0?.balance.ticker.flatMap { NSDecimalNumber(value: $0.price_usd) } }
+            .eraseToAnyPublisher()
+    }
 
-    let amountViewModel = SendViewSectionHeaderViewModel(
-        text: R.string.localizable.sendAmount().uppercased(),
-        showTopSeparatorLine: true
-    )
-    let recipientViewModel = SendViewSectionHeaderViewModel(
-        text: R.string.localizable.sendRecipient().uppercased()
-    )
+    let amountViewModel = SendViewSectionHeaderViewModel(text: R.string.localizable.sendAmount().uppercased(), showTopSeparatorLine: true)
+    let recipientViewModel = SendViewSectionHeaderViewModel(text: R.string.localizable.sendRecipient().uppercased())
 
     var destinationAddress: AlphaWallet.Address {
         return transactionType.contract
@@ -32,34 +34,15 @@ struct SendViewModel {
         return Colors.appBackground
     }
 
-    var textFieldsLabelTextColor: UIColor {
-        return Colors.appGrayLabel
-    }
-    var textFieldsLabelFont: UIFont {
-        return Fonts.regular(size: 10)
-    }
-
-    var recipientLabelFont: UIFont {
-        return Fonts.regular(size: 13)
-    }
-
-    var recepientLabelTextColor: UIColor {
-        return R.color.dove()!
-    }
-
-    var recipientsAddress: String {
-        return R.string.localizable.sendRecipientsAddress()
-    }
-
     var selectCurrencyButtonHidden: Bool {
         switch transactionType {
-        case .nativeCryptocurrency:
+        case .nativeCryptocurrency, .erc20Token:
             let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: transactionType.server)
-            guard let ticker = service.tokenViewModel(for: etherToken)?.balance.ticker, ticker.price_usd > 0 else {
+            guard let ticker = tokensService.tokenViewModel(for: etherToken)?.balance.ticker, ticker.price_usd > 0 else {
                 return true
             }
             return false
-        case .erc20Token, .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return true
         } 
     }
@@ -77,10 +60,10 @@ struct SendViewModel {
         switch transactionType {
         case .nativeCryptocurrency:
             let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: transactionType.server)
-            return service.tokenViewModel(for: etherToken)
+            return tokensService.tokenViewModel(for: etherToken)
                 .flatMap { return R.string.localizable.sendAvailable($0.balance.amountShort) }
         case .erc20Token(let token, _, _):
-            return service.tokenViewModel(for: token)
+            return tokensService.tokenViewModel(for: token)
                 .flatMap { R.string.localizable.sendAvailable("\($0.balance.amountShort) \(transactionType.symbol)") }
         case .dapp, .erc721ForTicketToken, .erc721Token, .erc875Token, .erc875TokenOrder, .erc1155Token, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             break
@@ -94,7 +77,7 @@ struct SendViewModel {
         case .nativeCryptocurrency:
             return false
         case .erc20Token(let token, _, _):
-            return service.tokenViewModel(for: token)?.balance == nil
+            return tokensService.tokenViewModel(for: token)?.balance == nil
         case .dapp, .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .erc875TokenOrder, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             break
         }
@@ -114,13 +97,13 @@ struct SendViewModel {
         switch transactionType {
         case .nativeCryptocurrency:
             let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: transactionType.server)
-            guard let balance = service.tokenViewModel(for: etherToken)?.balance else { return nil }
+            guard let balance = tokensService.tokenViewModel(for: etherToken)?.balance else { return nil }
             let fullValue = EtherNumberFormatter.plain.string(from: balance.value, units: .ether).droppedTrailingZeros
             let shortValue = EtherNumberFormatter.shortPlain.string(from: balance.value, units: .ether).droppedTrailingZeros
 
             return (fullValue.optionalDecimalValue, shortValue)
         case .erc20Token(let token, _, _):
-            guard let balance = service.tokenViewModel(for: token)?.balance else { return nil }
+            guard let balance = tokensService.tokenViewModel(for: token)?.balance else { return nil }
             let fullValue = EtherNumberFormatter.plain.string(from: balance.value, decimals: token.decimals).droppedTrailingZeros
             let shortValue = EtherNumberFormatter.shortPlain.string(from: balance.value, decimals: token.decimals).droppedTrailingZeros
 
@@ -157,11 +140,11 @@ struct SendViewModel {
         switch transactionType {
         case .nativeCryptocurrency:
             let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: transactionType.server)
-            if let balance = service.tokenViewModel(for: etherToken)?.balance, balance.value < value {
+            if let balance = tokensService.tokenViewModel(for: etherToken)?.balance, balance.value < value {
                 return nil
             }
         case .erc20Token(let token, _, _):
-            if let balance = service.tokenViewModel(for: token)?.balance, balance.value < value {
+            if let balance = tokensService.tokenViewModel(for: token)?.balance, balance.value < value {
                 return nil
             }
         case .dapp, .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .erc875TokenOrder, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:

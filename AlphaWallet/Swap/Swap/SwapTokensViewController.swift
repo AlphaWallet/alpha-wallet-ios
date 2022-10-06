@@ -21,8 +21,8 @@ class SwapTokensViewController: UIViewController {
     private let fromTokenHeaderView = SendViewSectionHeader()
     private let toTokenHeaderView = SendViewSectionHeader()
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
-    private lazy var fromAmountTextField: AmountTextField_v2 = {
-        let amountTextField = AmountTextField_v2(token: viewModel.swapPair.value.from, debugName: "from")
+    private lazy var fromAmountTextField: AmountTextField = {
+        let amountTextField = AmountTextField(token: viewModel.swapPair.value.from, debugName: "from")
         amountTextField.translatesAutoresizingMaskIntoConstraints = false
         amountTextField.delegate = self
         amountTextField.viewModel.accessoryButtonTitle = .next
@@ -32,8 +32,8 @@ class SwapTokensViewController: UIViewController {
 
         return amountTextField
     }()
-    private lazy var toAmountTextField: AmountTextField_v2 = {
-        let amountTextField = AmountTextField_v2(token: viewModel.swapPair.value.to, debugName: "to")
+    private lazy var toAmountTextField: AmountTextField = {
+        let amountTextField = AmountTextField(token: viewModel.swapPair.value.to, debugName: "to")
         amountTextField.translatesAutoresizingMaskIntoConstraints = false
         amountTextField.viewModel.accessoryButtonTitle = .next
         amountTextField.viewModel.errorState = .none
@@ -154,7 +154,7 @@ class SwapTokensViewController: UIViewController {
 
         let allFunds = fromAmountTextField.allFundsButton.publisher(forEvent: .touchUpInside).eraseToAnyPublisher()
         let togglePair = togglePairButton.publisher(forEvent: .touchUpInside).eraseToAnyPublisher()
-        let input = SwapTokensViewModelInput(cryptoValue: fromAmountTextField.cryptoValue, allFunds: allFunds, togglePair: togglePair)
+        let input = SwapTokensViewModelInput(cryptoValue: fromAmountTextField.cryptoValuePublisher, allFunds: allFunds, togglePair: togglePair)
         let output = viewModel.transform(input: input)
 
         output.anyErrorString
@@ -223,17 +223,17 @@ extension SwapTokensViewController: PopNotifiable {
     }
 }
 
-extension SwapTokensViewController: AmountTextField_v2Delegate {
+extension SwapTokensViewController: AmountTextFieldDelegate {
 
-    func changeAmount(in textField: AmountTextField_v2) {
+    func changeAmount(in textField: AmountTextField) {
         //no-op
     }
 
-    func changeType(in textField: AmountTextField_v2) {
+    func changeType(in textField: AmountTextField) {
         //no-op
     }
 
-    func shouldReturn(in textField: AmountTextField_v2) -> Bool {
+    func shouldReturn(in textField: AmountTextField) -> Bool {
         textField.resignFirstResponder()
         return false
     }

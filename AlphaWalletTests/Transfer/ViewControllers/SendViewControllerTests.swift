@@ -151,17 +151,9 @@ class SendViewControllerTests: XCTestCase {
     }
 
     private func createSendViewControllerAndSetLocale(locale: AppLocale, transactionType: TransactionType) -> SendViewController {
-
         Config.setLocale(locale)
-
-        let vc = SendViewController(session: dep.sessionsProvider.session(for: .main)!,
-                                    service: dep.pipeline,
-                                    transactionType: nativeCryptocurrencyTransactionType,
-                                    domainResolutionService: FakeDomainResolutionService())
-
-        vc.configure(viewModel: .init(transactionType: transactionType, session: dep.sessionsProvider.session(for: .main)!, service: dep.pipeline))
-
-        return vc
+        let viewModel = SendViewModel(transactionType: transactionType, session: dep.sessionsProvider.session(for: .main)!, tokensService: dep.pipeline)
+        return SendViewController(viewModel: viewModel, domainResolutionService: FakeDomainResolutionService())
     }
 }
 
