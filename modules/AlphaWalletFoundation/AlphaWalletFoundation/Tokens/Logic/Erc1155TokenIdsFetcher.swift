@@ -2,7 +2,7 @@
 
 import Foundation
 import BigInt
-import PromiseKit 
+import PromiseKit
 import AlphaWalletWeb3
 
 public struct Erc1155TokenIds: Codable {
@@ -185,7 +185,7 @@ extension Erc1155TokenIdsFetcher.functional {
         let dummyContract = Constants.nullAddress
         let eventFilter = EventFilter(fromBlock: fromBlock, toBlock: toBlock, addresses: nil, parameterFilters: parameterFilters)
         return firstly {
-            getEventLogs(withServer: server, contract: dummyContract, eventName: eventName, abiString: AlphaWallet.Ethereum.ABI.erc1155String, filter: eventFilter, queue: queue)
+            getEventLogs(withServer: server, contract: dummyContract, eventName: eventName, abiString: AlphaWallet.Ethereum.ABI.erc1155String, filter: eventFilter)
         }.map(on: queue, { events -> [Erc1155TransferEvent] in
             let events = events.filter { $0.eventLog != nil }
             let sortedEvents = events.sorted(by: { a, b in
