@@ -10,17 +10,19 @@ import Foundation
 import BigInt
 
 public protocol ContractProtocol {
-    var address: EthereumAddress? {get set}
-    var options: Web3Options? {get set}
-    var allMethods: [String] {get}
-    var allEvents: [String] {get}
-    func deploy(bytecode:Data, parameters: [AnyObject], extraData: Data, options: Web3Options?) -> EthereumTransaction?
-    func method(_ method:String, parameters: [AnyObject], extraData: Data, options: Web3Options?) -> EthereumTransaction?
-    init?(_ abiString: String, at: EthereumAddress?)
-    func decodeReturnData(_ method:String, data: Data) -> [String:Any]?
-    func decodeInputData(_ method:String, data: Data) -> [String:Any]?
-    func decodeInputData(_ data: Data) -> [String:Any]?
-    func parseEvent(_ eventLog: EventLog) -> (eventName:String?, eventData:[String:Any]?)
+    var address: EthereumAddress? { get set }
+    var options: Web3Options? { get set }
+    var allMethods: [String] { get }
+    var allEvents: [String] { get }
+
+    init?(abi: String, address: EthereumAddress?)
+
+    func deploy(bytecode: Data, parameters: [AnyObject], extraData: Data, options: Web3Options?) -> EthereumTransaction?
+    func method(_ method: String, parameters: [AnyObject], extraData: Data, options: Web3Options?) -> EthereumTransaction?
+    func decodeReturnData(_ method: String, data: Data) -> [String: Any]?
+    func decodeInputData(_ method: String, data: Data) -> [String: Any]?
+    func decodeInputData(_ data: Data) -> [String: Any]?
+    func parseEvent(_ eventLog: EventLog) -> (eventName: String?, eventData: [String: Any]?)
     func testBloomForEventPrecence(eventName: String, bloom: EthereumBloomFilter) -> Bool?
 }
 
@@ -47,7 +49,6 @@ extension String: EventFilterable {
 extension EthereumAddress: EventFilterable {
 }
 
-
 public struct EventFilter {
     public enum Block {
         case latest
@@ -70,9 +71,7 @@ public struct EventFilter {
         
     }
     
-    public init(fromBlock: Block?, toBlock: Block?,
-                addresses: [EthereumAddress]? = nil,
-                parameterFilters: [[EventFilterable]?]? = nil) {
+    public init(fromBlock: Block?, toBlock: Block?, addresses: [EthereumAddress]? = nil, parameterFilters: [[EventFilterable]?]? = nil) {
         self.fromBlock = fromBlock
         self.toBlock = toBlock
         self.addresses = addresses
@@ -86,22 +85,14 @@ public struct EventFilter {
     
     public func rpcPreEncode() -> EventFilterParameters {
         var encoding = EventFilterParameters()
-        if self.fromBlock != nil {
-            encoding.fromBlock = self.fromBlock!.encoded
+        if let fromBlock = fromBlock {
+            encoding.fromBlock = fromBlock.encoded
         }
-        if self.toBlock != nil {
-            encoding.toBlock = self.toBlock!.encoded
+        if let toBlock = toBlock {
+            encoding.toBlock = toBlock.encoded
         }
-        if self.addresses != nil {
-            if self.addresses!.count == 1 {
-                encoding.address = [self.addresses![0].address]
-            } else {
-                var encodedAddresses = [String?]()
-                for addr in self.addresses! {
-                    encodedAddresses.append(addr.address)
-                }
-                encoding.address = encodedAddresses
-            }
+        if let addresses = addresses {
+            encoding.address = addresses.map { $0.address }
         }
         return encoding
     }

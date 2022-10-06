@@ -13,12 +13,12 @@ public struct Counter {
     public static var counter = UInt64(1)
     public static var lockQueue = DispatchQueue(label: "counterQueue")
     public static func increment() -> UInt64 {
-        var c:UInt64 = 0
+        var counter: UInt64 = 0
         lockQueue.sync {
-            c = Counter.counter
-            Counter.counter = Counter.counter + 1
+            counter = Counter.counter
+            Counter.counter += 1
         }
-        return c
+        return counter
     }
 }
 
@@ -77,10 +77,10 @@ public struct JSONRPCresponse: Decodable {
     public var message: String?
     
     enum JSONRPCresponseKeys: String, CodingKey {
-        case id = "id"
-        case jsonrpc = "jsonrpc"
-        case result = "result"
-        case error = "error"
+        case id
+        case jsonrpc
+        case result
+        case error
     }
     
     public init(id: Int, jsonrpc: String, result: Any?, error: ErrorMessage?) {
@@ -122,7 +122,7 @@ public struct JSONRPCresponse: Decodable {
         if let errorMessage = try? container.decode(ErrorMessage.self, forKey: .error) {
             self.init(id: id, jsonrpc: jsonrpc, result: nil, error: errorMessage)
         } else {
-            var result: Any? = nil
+            var result: Any?
             if let rawValue = try? container.decodeIfPresent(String.self, forKey: .result) {
                 result = rawValue
             } else if let rawValue = try? container.decodeIfPresent(Int.self, forKey: .result) {
@@ -163,72 +163,72 @@ public struct JSONRPCresponse: Decodable {
     public func getValue<T>() -> T? {
         let slf = T.self
         if slf == BigUInt.self {
-            guard let string = self.result as? String else {return nil}
-            guard let value = BigUInt(string.stripHexPrefix(), radix: 16) else {return nil}
+            guard let string = self.result as? String else { return nil }
+            guard let value = BigUInt(string.stripHexPrefix(), radix: 16) else { return nil }
             return value as? T
         } else if slf == BigInt.self {
-            guard let string = self.result as? String else {return nil}
-            guard let value = BigInt(string.stripHexPrefix(), radix: 16) else {return nil}
+            guard let string = self.result as? String else { return nil }
+            guard let value = BigInt(string.stripHexPrefix(), radix: 16) else { return nil }
             return value as? T
         } else if slf == Data.self {
-            guard let string = self.result as? String else {return nil}
-            guard let value = Data.fromHex(string) else {return nil}
+            guard let string = self.result as? String else { return nil }
+            guard let value = Data.fromHex(string) else { return nil }
             return value as? T
         } else if slf == EthereumAddress.self {
-            guard let string = self.result as? String else {return nil}
-            guard let value = EthereumAddress(string, ignoreChecksum: true) else {return nil}
+            guard let string = self.result as? String else { return nil }
+            guard let value = EthereumAddress(string, ignoreChecksum: true) else { return nil }
             return value as? T
         }
 //        else if slf == String.self {
-//            guard let value = self.result as? T else {return nil}
+//            guard let value = self.result as? T else { return nil }
 //            return value
 //        } else if slf == Int.self {
-//            guard let value = self.result as? T else {return nil}
+//            guard let value = self.result as? T else { return nil }
 //            return value
 //        }
         else if slf == [BigUInt].self {
-            guard let string = self.result as? [String] else {return nil}
+            guard let string = self.result as? [String] else { return nil }
             let values = string.compactMap { (str) -> BigUInt? in
                 return BigUInt(str.stripHexPrefix(), radix: 16)
             }
             return values as? T
         } else if slf == [BigInt].self {
-            guard let string = self.result as? [String] else {return nil}
+            guard let string = self.result as? [String] else { return nil }
             let values = string.compactMap { (str) -> BigInt? in
                 return BigInt(str.stripHexPrefix(), radix: 16)
             }
             return values as? T
         } else if slf == [Data].self {
-            guard let string = self.result as? [String] else {return nil}
+            guard let string = self.result as? [String] else { return nil }
             let values = string.compactMap { (str) -> Data? in
                 return Data.fromHex(str)
             }
             return values as? T
         } else if slf == [EthereumAddress].self {
-            guard let string = self.result as? [String] else {return nil}
+            guard let string = self.result as? [String] else { return nil }
             let values = string.compactMap { (str) -> EthereumAddress? in
                 return EthereumAddress(str, ignoreChecksum: true)
             }
             return values as? T
         }
 //        else if slf == [String].self {
-//            guard let value = self.result as? T else {return nil}
+//            guard let value = self.result as? T else { return nil }
 //            return value
 //        } else if slf == [Int].self {
-//            guard let value = self.result as? T else {return nil}
+//            guard let value = self.result as? T else { return nil }
 //            return value
 //        } else if slf == [String: String].self{
-//            guard let value = self.result as? T else {return nil}
+//            guard let value = self.result as? T else { return nil }
 //            return value
 //        }
 //        else if slf == [String: AnyObject].self{
-//            guard let value = self.result as? T else {return nil}
+//            guard let value = self.result as? T else { return nil }
 //            return value
 //        } else if slf == [String: Any].self{
-//            guard let value = self.result as? T else {return nil}
+//            guard let value = self.result as? T else { return nil }
 //            return value
 //        }
-        guard let value = self.result as? T else {return nil}
+        guard let value = self.result as? T else { return nil }
         return value
     }
 }
@@ -251,9 +251,9 @@ public struct TransactionParameters: Codable {
     public var to: String?
     public var value: String? = "0x0"
     
-    public init(from _from:String?, to _to:String?) {
-        from = _from
-        to = _to
+    public init(from: String?, to: String?) {
+        self.from = from
+        self.to = to
     }
 }
 

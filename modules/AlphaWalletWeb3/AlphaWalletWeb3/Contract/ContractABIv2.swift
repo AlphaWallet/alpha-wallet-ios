@@ -9,18 +9,14 @@
 import Foundation
 import BigInt
 
-public struct ContractV2:ContractProtocol {
+public struct ContractV2: ContractProtocol {
     
     public var allEvents: [String] {
-        return events.keys.compactMap({ (s) -> String in
-            return s
-        })
+        return events.keys.compactMap { $0 }
     }
     
     public var allMethods: [String] {
-        return methods.keys.compactMap({ (s) -> String in
-            return s
-        })
+        return methods.keys.compactMap { $0 }
     }
     
     public struct EventFilter {
@@ -28,14 +24,15 @@ public struct ContractV2:ContractProtocol {
         public var parameterValues: [AnyObject]
     }
     
-    public var address: EthereumAddress? = nil
-    var _abi: [ABIv2.Element]
+    public var address: EthereumAddress?
+    var abi: [ABIv2.Element]
+
     public var methods: [String: ABIv2.Element] {
-        var toReturn = [String: ABIv2.Element]()
-        for m in self._abi {
+        var toReturn: [String: ABIv2.Element] = [:]
+        for m in self.abi {
             switch m {
             case .function(let function):
-                guard let name = function.name else {continue}
+                guard let name = function.name else { continue }
                 toReturn[name] = m
             default:
                 continue
@@ -45,30 +42,28 @@ public struct ContractV2:ContractProtocol {
     }
     
     public var constructor: ABIv2.Element? {
-        var toReturn : ABIv2.Element? = nil
-        for m in self._abi {
+        var toReturn: ABIv2.Element?
+        for element in self.abi {
             if toReturn != nil {
                 break
             }
-            switch m {
-            case .constructor(_):
-                toReturn = m
-                break
+            switch element {
+            case .constructor:
+                toReturn = element
             default:
                 continue
             }
         }
         if toReturn == nil {
-            let defaultConstructor = ABIv2.Element.constructor(ABIv2.Element.Constructor.init(inputs: [], constant: false, payable: false))
-            return defaultConstructor
+            return ABIv2.Element.constructor(ABIv2.Element.Constructor.init(inputs: [], constant: false, payable: false))
         }
         return toReturn
     }
     
     public var events: [String: ABIv2.Element.Event] {
-        var toReturn = [String: ABIv2.Element.Event]()
-        for m in self._abi {
-            switch m {
+        var toReturn: [String: ABIv2.Element.Event] = [:]
+        for element in self.abi {
+            switch element {
             case .event(let event):
                 let name = event.name
                 toReturn[name] = event
@@ -81,34 +76,28 @@ public struct ContractV2:ContractProtocol {
     
     public var options: Web3Options? = Web3Options.defaultOptions()
     
-    public init?(_ abiString: String, at: EthereumAddress? = nil) {
+    public init?(abi: String, address: EthereumAddress? = nil) {
         do {
-            let jsonData = abiString.data(using: .utf8)
-            let abi = try JSONDecoder().decode([ABIv2.Record].self, from: jsonData!)
-            let abiNative = try abi.map({ (record) -> ABIv2.Element in
-                return try record.parse()
-            })
-            _abi = abiNative
-            if at != nil {
-                self.address = at
-            }
-        }
-        catch{
+            guard let json = abi.data(using: .utf8) else { return nil }
+
+            self.abi = try JSONDecoder().decode([ABIv2.Record].self, from: json).map { try $0.parse() }
+            self.address = address
+        } catch {
             print(error)
             return nil
         }
     }
     
     public init(abi: [ABIv2.Element]) {
-        _abi = abi
+        self.abi = abi
     }
     
     public init(abi: [ABIv2.Element], at: EthereumAddress) {
-        _abi = abi
-        address = at
+        self.abi = abi
+        self.address = at
     }
     
-    public func deploy(bytecode:Data, parameters: [AnyObject] = [AnyObject](), extraData: Data = Data(), options: Web3Options?) -> EthereumTransaction? {
+    public func deploy(bytecode: Data, parameters: [AnyObject] = [], extraData: Data = Data(), options: Web3Options?) -> EthereumTransaction? {
         let to: EthereumAddress = EthereumAddress.contractDeploymentAddress()
         let mergedOptions = Web3Options.merge(self.options, with: options)
         var gasLimit: BigUInt
@@ -125,14 +114,14 @@ public struct ContractV2:ContractProtocol {
             return nil
         }
         
-        var value:BigUInt
+        var value: BigUInt
         if let valueInOptions = mergedOptions?.value {
             value = valueInOptions
         } else {
             value = BigUInt(0)
         }
-        guard let constructor = self.constructor else {return nil}
-        guard let encodedData = constructor.encodeParameters(parameters) else {return nil}
+        guard let constructor = self.constructor else { return nil }
+        guard let encodedData = constructor.encodeParameters(parameters) else { return nil }
         var data = bytecode
         if encodedData != Data() {
             data.append(encodedData)
@@ -143,15 +132,14 @@ public struct ContractV2:ContractProtocol {
         return EthereumTransaction(gasPrice: gasPrice, gasLimit: gasLimit, to: to, value: value, data: data)
     }
     
-    
-    public func method(_ method:String = "fallback", parameters: [AnyObject] = [AnyObject](), extraData: Data = Data(), options: Web3Options?) -> EthereumTransaction? {
+    public func method(_ method: String = "fallback", parameters: [AnyObject] = [], extraData: Data = Data(), options: Web3Options?) -> EthereumTransaction? {
         var to: EthereumAddress
         let mergedOptions = Web3Options.merge(self.options, with: options)
         if let address = address {
             to = address
         } else if let toAddress = mergedOptions?.to, toAddress.isValid {
             to = toAddress
-        } else  {
+        } else {
             return nil
         }
         
@@ -177,8 +165,7 @@ public struct ContractV2:ContractProtocol {
         }
         
         if method == "fallback" {
-            let transaction = EthereumTransaction(gasPrice: gasPrice, gasLimit: gasLimit, to: to, value: value, data: extraData)
-            return transaction
+            return EthereumTransaction(gasPrice: gasPrice, gasLimit: gasLimit, to: to, value: value, data: extraData)
         }
         let foundMethod = self.methods.filter { $0.key == method }
         guard foundMethod.count == 1 else { return nil }
@@ -188,22 +175,19 @@ public struct ContractV2:ContractProtocol {
         return EthereumTransaction(gasPrice: gasPrice, gasLimit: gasLimit, to: to, value: value, data: data)
     }
     
-    public func parseEvent(_ eventLog: EventLog) -> (eventName:String?, eventData:[String:Any]?) {
+    public func parseEvent(_ eventLog: EventLog) -> (eventName: String?, eventData: [String: Any]?) {
         for (eName, ev) in self.events {
-            if (!ev.anonymous) {
+            if !ev.anonymous {
                 if eventLog.topics[0] != ev.topic {
                     continue
-                }
-                else {
-                    let parsed = ev.decodeReturnedLogs(eventLog)
-                    if parsed != nil {
-                        return (eName, parsed!)
+                } else {
+                    if let parsed = ev.decodeReturnedLogs(eventLog) {
+                        return (eName, parsed)
                     }
                 }
             } else {
-                let parsed = ev.decodeReturnedLogs(eventLog)
-                if parsed != nil {
-                    return (eName, parsed!)
+                if let parsed = ev.decodeReturnedLogs(eventLog) {
+                    return (eName, parsed)
                 }
             }
         }
@@ -211,42 +195,39 @@ public struct ContractV2:ContractProtocol {
     }
     
     public func testBloomForEventPrecence(eventName: String, bloom: EthereumBloomFilter) -> Bool? {
-        guard let event = events[eventName] else {return nil}
+        guard let event = events[eventName] else { return nil }
         if event.anonymous {
             return true
         }
-        let eventOfSuchTypeIsPresent = bloom.test(topic: event.topic)
-        return eventOfSuchTypeIsPresent
+        return bloom.test(topic: event.topic)
     }
     
-    public func decodeReturnData(_ method:String, data: Data) -> [String:Any]? {
-        if method == "fallback" {
-            return [String:Any]()
-        }
-        guard let function = methods[method] else {return nil}
-        guard case .function(_) = function else {return nil}
+    public func decodeReturnData(_ method: String, data: Data) -> [String: Any]? {
+        guard method != "fallback" else { return [:] }
+
+        guard let function = methods[method] else { return nil }
+        guard case .function = function else { return nil }
         return function.decodeReturnData(data)
     }
     
-    public func decodeInputData(_ method: String, data: Data) -> [String : Any]? {
-        if method == "fallback" {
-            return nil
-        }
-        guard let function = methods[method] else {return nil}
+    public func decodeInputData(_ method: String, data: Data) -> [String: Any]? {
+        guard method != "fallback" else { return nil }
+
+        guard let function = methods[method] else { return nil }
         switch function {
-        case .function(_):
+        case .function:
             return function.decodeInputData(data)
-        case .constructor(_):
+        case .constructor:
             return function.decodeInputData(data)
         default:
             return nil
         }
     }
     
-    public func decodeInputData(_ data: Data) -> [String:Any]? {
-        guard data.count % 32 == 4 else {return nil}
+    public func decodeInputData(_ data: Data) -> [String: Any]? {
+        guard data.count % 32 == 4 else { return nil }
         let methodSignature = data[0..<4]
-        let foundFunction = self._abi.filter { (m) -> Bool in
+        let foundFunction = self.abi.filter { (m) -> Bool in
             switch m {
             case .function(let function):
                 return function.methodEncoding == methodSignature
@@ -254,10 +235,8 @@ public struct ContractV2:ContractProtocol {
                 return false
             }
         }
-        guard foundFunction.count == 1 else {
-            return nil
-        }
-        let function = foundFunction[0]
-        return function.decodeInputData(Data(data[4 ..< data.count]))
+        guard foundFunction.count == 1 else { return nil }
+
+        return foundFunction[0].decodeInputData(Data(data[4 ..< data.count]))
     }
 }

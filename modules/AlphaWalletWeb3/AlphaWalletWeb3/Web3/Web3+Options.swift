@@ -14,17 +14,17 @@ public protocol Web3OptionsInheritable {
 }
 
 public struct Web3Options {
-    public var to: EthereumAddress? = nil
-    public var from: EthereumAddress? = nil
-    public var gasLimit: BigUInt? = nil
-    public var gasPrice: BigUInt? = nil
-    public var value: BigUInt? = nil
+    public var to: EthereumAddress?
+    public var from: EthereumAddress?
+    public var gasLimit: BigUInt?
+    public var gasPrice: BigUInt?
+    public var value: BigUInt?
     public var excludeZeroGasPrice: Bool = false
 
     public init() {
     }
     
-    public static func defaultOptions() -> Web3Options{
+    public static func defaultOptions() -> Web3Options {
         var options = Web3Options()
 //        options.gasLimit = BigUInt("90000", radix: 10)!
 //        options.gasPrice = BigUInt("5000000000", radix:10)!
@@ -46,33 +46,33 @@ public struct Web3Options {
             options.value = valueBiguint
         }
         if let fromString = json["from"] as? String {
-            guard let addressFrom = EthereumAddress(fromString) else {return nil}
+            guard let addressFrom = EthereumAddress(fromString) else { return nil }
             options.from = addressFrom
         }
         return options
     }
     
-    public static func merge(_ options:Web3Options?, with other:Web3Options?) -> Web3Options? {
-        if (other == nil && options == nil) {
+    public static func merge(_ options: Web3Options?, with other: Web3Options?) -> Web3Options? {
+        if other == nil && options == nil {
             return Web3Options.defaultOptions()
         }
         var newOptions = Web3Options.defaultOptions()
-        if (other?.to != nil) {
+        if other?.to != nil {
             newOptions.to = other?.to
         } else {
             newOptions.to = options?.to
         }
-        if (other?.from != nil) {
+        if other?.from != nil {
             newOptions.from = other?.from
         } else {
             newOptions.from = options?.from
         }
-        if (other?.gasLimit != nil) {
+        if other?.gasLimit != nil {
             newOptions.gasLimit = other?.gasLimit
         } else {
             newOptions.gasLimit = options?.gasLimit
         }
-        if (other?.gasPrice != nil) {
+        if other?.gasPrice != nil {
             newOptions.gasPrice = other?.gasPrice
         } else {
             newOptions.gasPrice = options?.gasPrice
@@ -80,7 +80,7 @@ public struct Web3Options {
         if let other = other {
             newOptions.excludeZeroGasPrice = other.excludeZeroGasPrice
         }
-        if (other?.value != nil) {
+        if other?.value != nil {
             newOptions.value = other?.value
         } else {
             newOptions.value = options?.value
@@ -89,7 +89,7 @@ public struct Web3Options {
     }
     
     public static func smartMergeGasLimit(originalOptions: Web3Options?, extraOptions: Web3Options?, gasEstimage: BigUInt) -> BigUInt? {
-        guard let mergedOptions = Web3Options.merge(originalOptions, with: extraOptions) else {return nil} //just require any non-nils
+        guard let mergedOptions = Web3Options.merge(originalOptions, with: extraOptions) else { return nil } //just require any non-nils
         if mergedOptions.gasLimit == nil {
             return gasEstimage // for user's convenience we just use an estimate
 //            return nil // there is no opinion from user, so we can not proceed

@@ -55,11 +55,11 @@ public class Web3HttpProvider: Web3RequestProvider {
 
     private static func dataTask<T: Encodable>(for request: T, providerURL: URL, headers: RPCNodeHTTPHeaders, using decoder: JSONEncoder = JSONEncoder(), queue: DispatchQueue = .main, session: URLSession) -> Promise<Swift.Result<Data, Web3Error>> {
         let promise = Promise<Swift.Result<Data, Web3Error>>.pending()
-        var task: URLSessionTask? = nil
+        var task: URLSessionTask?
         queue.async {
             do {
                 let urlRequest = try Web3HttpProvider.urlRequest(for: request, providerURL: providerURL, headers: headers)
-                task = session.dataTask(with: urlRequest){ (data, response, error) in
+                task = session.dataTask(with: urlRequest) { (data, response, error) in
                     let result: Swift.Result<Data, Web3Error>
 
                     switch (data, response, error) {
@@ -69,7 +69,7 @@ public class Web3HttpProvider: Web3RequestProvider {
                         if urlResponse.statusCode == 429 {
                             result = .failure(.rateLimited)
                         } else {
-                            if data.count == 0 {
+                            if data.isEmpty {
                                 result = .failure(Web3Error.responseError(URLError(.zeroByteResource)))
                             } else {
                                 result = .success(data)

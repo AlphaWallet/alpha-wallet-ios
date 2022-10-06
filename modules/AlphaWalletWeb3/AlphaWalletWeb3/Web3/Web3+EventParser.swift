@@ -19,7 +19,7 @@ extension Web3.Contract {
         private let web3: Web3
 
         public init? (web3 web3Instance: Web3, eventName: String, contract: ContractProtocol, filter: EventFilter? = nil) {
-            guard let _ = contract.allEvents.index(of: eventName) else {return nil}
+            guard let _ = contract.allEvents.index(of: eventName) else { return nil }
             self.eventName = eventName
             self.web3 = web3Instance
             self.contract = contract
@@ -95,9 +95,9 @@ extension Web3.Contract.EventParser {
     public func parseTransactionByHashPromise(_ hash: Data) -> Promise<[EventParserResultProtocol]> {
         let queue = self.web3.queue
         let eth = Web3.Eth(web3: self.web3)
-        return eth.getTransactionReceiptPromise(hash).map(on:queue) {receipt throws -> [EventParserResultProtocol] in
+        return eth.getTransactionReceiptPromise(hash).map(on: queue) { receipt throws -> [EventParserResultProtocol] in
             guard let results = parseReceiptForLogs(receipt: receipt, contract: self.contract, eventName: self.eventName, filter: self.filter) else {
-                    throw Web3Error.inputError("Failed to parse receipt for events")
+                throw Web3Error.inputError("Failed to parse receipt for events")
             }
             return results
         }
@@ -130,7 +130,7 @@ extension Web3.Contract.EventParser {
             }
             if self.contract.address != nil {
                 let addressPresent = block.logsBloom?.test(topic: self.contract.address!.addressData)
-                if (addressPresent != true) {
+                if addressPresent != true {
                     let returnPromise = Promise<[EventParserResultProtocol]>.pending()
                     queue.async {
                         returnPromise.resolver.fulfill([EventParserResultProtocol]())
@@ -141,7 +141,7 @@ extension Web3.Contract.EventParser {
             guard let eventOfSuchTypeIsPresent = self.contract.testBloomForEventPrecence(eventName: self.eventName, bloom: bloom) else {
                 throw Web3Error.inputError("Error processing bloom for events")
             }
-            if (!eventOfSuchTypeIsPresent) {
+            if !eventOfSuchTypeIsPresent {
                 let returnPromise = Promise<[EventParserResultProtocol]>.pending()
                 queue.async {
                     returnPromise.resolver.fulfill([EventParserResultProtocol]())
@@ -150,7 +150,7 @@ extension Web3.Contract.EventParser {
             }
             return Promise { seal in
                 
-                var pendingEvents : [Promise<[EventParserResultProtocol]>] = [Promise<[EventParserResultProtocol]>]()
+                var pendingEvents: [Promise<[EventParserResultProtocol]>] = []
                 for transaction in block.transactions {
                     switch transaction {
                     case .null:
@@ -168,7 +168,7 @@ extension Web3.Contract.EventParser {
                         pendingEvents.append(subresultPromise)
                     }
                 }
-                when(resolved: pendingEvents).done(on: queue){ (results:[Result<[EventParserResultProtocol]>]) throws in
+                when(resolved: pendingEvents).done(on: queue) { (results: [Result<[EventParserResultProtocol]>]) throws in
                     var allResults = [EventParserResultProtocol]()
                     for res in results {
                         guard case .fulfilled(let subresult) = res else {
@@ -177,7 +177,7 @@ extension Web3.Contract.EventParser {
                         allResults.append(contentsOf: subresult)
                     }
                     seal.fulfill(allResults)
-                }.catch(on:queue) {err in
+                }.catch(on: queue) {err in
                     seal.reject(err)
                 }
             }
@@ -203,14 +203,14 @@ extension Web3.Contract {
                 throw Web3Error.inputError("Failed to encode topic for request")
             }
 
-            if eventName != nil {
-                guard let _ = rawContract.events[eventName!] else {
+            if let eventName = eventName {
+                guard rawContract.events[eventName] != nil else {
                     throw Web3Error.inputError("No such event in a contract")
                 }
             }
 
             let request = JSONRPCrequest(method: .getLogs, params: JSONRPCparams(params: [preEncoding]))
-            let fetchLogsPromise = self.web3.dispatch(request).map(on: queue) {response throws -> [EventParserResult] in
+            let fetchLogsPromise = self.web3.dispatch(request).map(on: queue) { response throws -> [EventParserResult] in
                 guard let value: [EventLog] = response.getValue() else {
                     if response.error != nil {
                         throw Web3Error.nodeError(response.error!.message)
@@ -220,11 +220,11 @@ extension Web3.Contract {
                 let allLogs = value
                 let decodedLogs = allLogs.compactMap({ (log) -> EventParserResult? in
                     let (n, d) = self.contract.parseEvent(log)
-                    guard let evName = n, let evData = d else {return nil}
+                    guard let evName = n, let evData = d else { return nil }
                     var res = EventParserResult(eventName: evName, transactionReceipt: nil, contractAddress: log.address, decodedResult: evData)
                     res.eventLog = log
                     return res
-                }).filter{ (res:EventParserResult?) -> Bool in
+                }).filter { (res: EventParserResult?) -> Bool in
                     if eventName != nil {
                         if res != nil && res?.eventName == eventName && res!.eventLog != nil {
                             return true
@@ -238,13 +238,13 @@ extension Web3.Contract {
                 }
                 return decodedLogs
             }
-            if (!joinWithReceipts) {
-                return fetchLogsPromise.mapValues(on: queue) {res -> EventParserResultProtocol in
+            if !joinWithReceipts {
+                return fetchLogsPromise.mapValues(on: queue) { res -> EventParserResultProtocol in
                     return res as EventParserResultProtocol
                 }
             }
             let eth = Web3.Eth(web3: self.web3)
-            return fetchLogsPromise.thenMap(on:queue) { singleEvent in
+            return fetchLogsPromise.thenMap(on: queue) { singleEvent in
                 return eth.getTransactionReceiptPromise(singleEvent.eventLog!.transactionHash).map(on: queue) { receipt in
                     var joinedEvent = singleEvent
                     joinedEvent.transactionReceipt = receipt

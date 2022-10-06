@@ -10,17 +10,21 @@ import Foundation
 import BigInt
 import CryptoSwift
 
-public struct EthereumBloomFilter{
+public struct EthereumBloomFilter {
     public var bytes = Data(repeatElement(UInt8(0), count: 256))
+
     public init?(_ biguint: BigUInt) {
-        guard let data = biguint.serialize().setLengthLeft(256) else {return nil}
+        guard let data = biguint.serialize().setLengthLeft(256) else { return nil }
         bytes = data
     }
-    public init() {}
+
+    public init() { }
+
     public init(_ data: Data) {
         let padding = Data(repeatElement(UInt8(0), count: 256 - data.count))
         bytes = padding + data
     }
+    
     public func asBigUInt() -> BigUInt {
         return BigUInt(self.bytes)
     }
@@ -75,13 +79,13 @@ extension EthereumBloomFilter {
         return self.test(topic: topic.serialize())
     }
     
-    public static func bloomLookup(_ bloom: EthereumBloomFilter, topic:Data) -> Bool {
+    public static func bloomLookup(_ bloom: EthereumBloomFilter, topic: Data) -> Bool {
         let bin = bloom.asBigUInt()
         let comparison = bloom9(topic)
         return bin & comparison == comparison
     }
     
-    public static func bloomLookup(_ bloom: EthereumBloomFilter, topic:BigUInt) -> Bool {
+    public static func bloomLookup(_ bloom: EthereumBloomFilter, topic: BigUInt) -> Bool {
         return EthereumBloomFilter.bloomLookup(bloom, topic: topic.serialize())
     }
     
@@ -101,8 +105,8 @@ extension EthereumBloomFilter {
         return EthereumBloomFilter.bloomLookup(self, topic: topic)
     }
     
-    mutating func setBytes(_ data: Data)  {
-        if (self.bytes.count < data.count) {
+    mutating func setBytes(_ data: Data) {
+        if self.bytes.count < data.count {
             fatalError("bloom bytes are too big")
         }
         self.bytes = self.bytes[0 ..< data.count] + data

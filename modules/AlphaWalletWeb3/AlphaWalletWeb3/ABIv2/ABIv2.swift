@@ -9,21 +9,21 @@
 import Foundation
 
 protocol ABIv2ElementPropertiesProtocol {
-    var isStatic: Bool {get}
-    var isArray: Bool {get}
-    var isTuple: Bool {get}
-    var arraySize: ABIv2.Element.ArraySize {get}
-    var subtype: ABIv2.Element.ParameterType? {get}
-    var memoryUsage: UInt64 {get}
-    var emptyValue: Any {get}
+    var isStatic: Bool { get }
+    var isArray: Bool { get }
+    var isTuple: Bool { get }
+    var arraySize: ABIv2.Element.ArraySize { get }
+    var subtype: ABIv2.Element.ParameterType? { get }
+    var memoryUsage: UInt64 { get }
+    var emptyValue: Any { get }
 }
 
 protocol ABIv2Encoding {
-    var abiRepresentation: String {get}
+    var abiRepresentation: String { get }
 }
 
 protocol ABIv2Validation {
-    var isValid: Bool {get}
+    var isValid: Bool { get }
 }
 
 public struct ABIv2 {

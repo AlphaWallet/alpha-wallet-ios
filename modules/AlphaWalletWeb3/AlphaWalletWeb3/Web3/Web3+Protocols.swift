@@ -11,11 +11,11 @@ import BigInt
 import PromiseKit
 
 public protocol EventParserResultProtocol {
-    var eventName: String {get}
-    var decodedResult: [String:Any] {get}
-    var contractAddress: EthereumAddress {get}
-    var transactionReceipt: TransactionReceipt? {get}
-    var eventLog: EventLog? {get}
+    var eventName: String { get }
+    var decodedResult: [String: Any] { get }
+    var contractAddress: EthereumAddress { get }
+    var transactionReceipt: TransactionReceipt? { get }
+    var eventLog: EventLog? { get }
 }
 
 public protocol EventParserProtocol {

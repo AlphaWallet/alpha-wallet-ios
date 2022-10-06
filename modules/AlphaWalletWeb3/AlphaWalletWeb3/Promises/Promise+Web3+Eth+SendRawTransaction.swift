@@ -19,8 +19,7 @@ extension Web3.Eth {
         return sendRawTransactionPromise(deserializedTX)
     }
 
-    func sendRawTransactionPromise(_ transaction: EthereumTransaction) -> Promise<TransactionSendingResult>{
-        print(transaction)
+    func sendRawTransactionPromise(_ transaction: EthereumTransaction) -> Promise<TransactionSendingResult> {
         do {
             guard let request = EthereumTransaction.createRawTransaction(transaction: transaction) else {
                 throw Web3Error.inputError("Transaction is invalid")

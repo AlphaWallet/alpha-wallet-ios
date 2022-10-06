@@ -49,7 +49,7 @@ class CcipRead {
         let url = urls.removeFirst()
         return firstly {
             _fetchCcipJsonRpcCallbackPayloadHexString(url: url)
-        }.recover { error -> Promise<String> in
+        }.recover { _ -> Promise<String> in
             return self.fetchCcipJsonRpcCallbackPayloadHexString(urls: urls)
         }
     }
@@ -84,7 +84,7 @@ class CcipRead {
 
         let session = URLSession(configuration: .default)
         return Promise { seal in
-            let dataTask = session.dataTask(with: request) { data, response, error in
+            let dataTask = session.dataTask(with: request) { data, _, error in
                 if let error = error {
                     seal.reject(error)
                 } else if let data = data {

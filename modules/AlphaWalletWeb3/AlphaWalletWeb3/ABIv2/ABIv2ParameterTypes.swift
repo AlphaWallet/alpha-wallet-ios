@@ -31,16 +31,16 @@ extension ABIv2.Element {
             case .dynamicBytes:
                 return false
             case .array(type: let type, length: let length):
-                if (length == 0) {
+                if length == 0 {
                     return false
                 }
-                if (!type.isStatic) {
+                if !type.isStatic {
                     return false
                 }
                 return true
             case .tuple(types: let types):
                 for t in types {
-                    if (!t.isStatic) {
+                    if !t.isStatic {
                         return false
                     }
                 }
@@ -93,9 +93,9 @@ extension ABIv2.Element {
                 if !self.isStatic {
                     return 32
                 }
-                var sum: UInt64 = 0;
+                var sum: UInt64 = 0
                 for t in types {
-                    sum = sum + t.memoryUsage
+                    sum += t.memoryUsage
                 }
                 return sum
             default:
@@ -132,7 +132,7 @@ extension ABIv2.Element {
         var arraySize: ABIv2.Element.ArraySize {
             switch self {
             case .array(type: _, length: let length):
-                if (length == 0) {
+                if length == 0 {
                     return ArraySize.dynamicSize
                 }
                 return ArraySize.staticSize(length)
@@ -141,12 +141,10 @@ extension ABIv2.Element {
             }
         }
     }
-    
-    
 }
 
 extension ABIv2.Element.ParameterType: Equatable {
-    public static func ==(lhs: ABIv2.Element.ParameterType, rhs: ABIv2.Element.ParameterType) -> Bool {
+    public static func == (lhs: ABIv2.Element.ParameterType, rhs: ABIv2.Element.ParameterType) -> Bool {
         switch (lhs, rhs) {
         case let (.uint(length1), .uint(length2)):
             return length1 == length2
@@ -197,7 +195,6 @@ extension ABIv2.Element.Event {
     }
 }
 
-
 extension ABIv2.Element.ParameterType: ABIv2Encoding {
     public var abiRepresentation: String {
         switch self {
@@ -216,13 +213,12 @@ extension ABIv2.Element.ParameterType: ABIv2Encoding {
         case .function:
             return "function"
         case .array(type: let type, length: let length):
-            if (length == 0) {
-                return  "\(type.abiRepresentation)[]"
+            if length == 0 {
+                return "\(type.abiRepresentation)[]"
             }
             return "\(type.abiRepresentation)[\(length)]"
         case .tuple(types: let types):
-            let typesRepresentation = types.map({return $0.abiRepresentation})
-            let typesJoined = typesRepresentation.joined(separator: ",")
+            let typesJoined = types.map { $0.abiRepresentation }.joined(separator: ",")
             return "tuple(\(typesJoined))"
         case .string:
             return "string"
@@ -241,7 +237,7 @@ extension ABIv2.Element.ParameterType: ABIv2Validation {
             return type.isValid
         case .tuple(types: let types):
             for t in types {
-                if (!t.isValid) {
+                if !t.isValid {
                     return false
                 }
             }
