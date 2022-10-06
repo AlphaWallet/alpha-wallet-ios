@@ -9,13 +9,13 @@
 import Foundation
 
 extension Dictionary where Value: Equatable {
-    func containsValue(value : Value) -> Bool {
+    func containsValue(value: Value) -> Bool {
         return self.contains { $0.1 == value }
     }
 }
 
 extension Dictionary where Key == String, Value: Equatable {
-    func keyForValue(value : Value) -> String? {
+    func keyForValue(value: Value) -> String? {
         for key in self.keys {
             if self[key] == value {
                 return key

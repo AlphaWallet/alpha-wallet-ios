@@ -13,7 +13,7 @@ class LocalPopularTokensCollectionTests: XCTestCase {
         }.done { results in
             XCTAssertFalse(results.isEmpty)
             expectation.fulfill()
-        }
+        }.cauterize()
         waitForExpectations(timeout: 0.1)
     }
 }

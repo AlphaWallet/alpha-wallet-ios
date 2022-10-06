@@ -999,4 +999,4 @@ extension RPCServer {
             return .Batch(size)
         }
     }
-}
+} 

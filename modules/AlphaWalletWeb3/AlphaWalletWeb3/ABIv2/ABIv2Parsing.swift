@@ -27,7 +27,6 @@ extension ABIv2 {
         static var arrayEatingRegex = "^(\\[([1-9][0-9]*)?\\])?.*$"
     }
 
-
     fileprivate enum ElementType: String {
         case function
         case constructor
@@ -39,8 +38,7 @@ extension ABIv2 {
 
 extension ABIv2.Record {
     public func parse() throws -> ABIv2.Element {
-        let typeString = self.type != nil ? self.type! : "function"
-        guard let type = ABIv2.ElementType(rawValue: typeString) else {
+        guard let type = ABIv2.ElementType(rawValue: type ?? "function") else {
             throw ABIv2.ParsingError.elementTypeInvalid
         }
         return try parseToElement(from: self, type: type)
@@ -50,140 +48,86 @@ extension ABIv2.Record {
 fileprivate func parseToElement(from abiRecord: ABIv2.Record, type: ABIv2.ElementType) throws -> ABIv2.Element {
     switch type {
     case .function:
-        let function = try parseFunction(abiRecord: abiRecord)
-        return ABIv2.Element.function(function)
+        return ABIv2.Element.function(try parseFunction(abiRecord: abiRecord))
     case .constructor:
-        let constructor = try parseConstructor(abiRecord: abiRecord)
-        return ABIv2.Element.constructor(constructor)
+        return ABIv2.Element.constructor(try parseConstructor(abiRecord: abiRecord))
     case .fallback:
-        let fallback = try parseFallback(abiRecord: abiRecord)
-        return ABIv2.Element.fallback(fallback)
+        return ABIv2.Element.fallback(try parseFallback(abiRecord: abiRecord))
     case .event:
-        let event = try parseEvent(abiRecord: abiRecord)
-        return ABIv2.Element.event(event)
+        return ABIv2.Element.event(try parseEvent(abiRecord: abiRecord))
     }
-
 }
 
-fileprivate func parseFunction(abiRecord:ABIv2.Record) throws -> ABIv2.Element.Function {
-    let inputs = try abiRecord.inputs?.map({ (input:ABIv2.Input) throws -> ABIv2.Element.InOut in
-        let nativeInput = try input.parse()
-        return nativeInput
-    })
-    let abiInputs = inputs != nil ? inputs! : [ABIv2.Element.InOut]()
-    let outputs = try abiRecord.outputs?.map({ (output:ABIv2.Output) throws -> ABIv2.Element.InOut in
-        let nativeOutput = try output.parse()
-        return nativeOutput
-    })
-    let abiOutputs = outputs != nil ? outputs! : [ABIv2.Element.InOut]()
-    let name = abiRecord.name != nil ? abiRecord.name! : ""
-    let payable = abiRecord.stateMutability != nil ?
-        (abiRecord.stateMutability == "payable" || abiRecord.payable!) : false
-    let constant = (abiRecord.constant == true || abiRecord.stateMutability == "view" || abiRecord.stateMutability == "pure")
-    let functionElement = ABIv2.Element.Function(name: name, inputs: abiInputs, outputs: abiOutputs, constant: constant, payable: payable)
-    return functionElement
+fileprivate func parseFunction(abiRecord: ABIv2.Record) throws -> ABIv2.Element.Function {
+    let inputs = try abiRecord.inputs?.map { try $0.parse() } ?? []
+    let outputs = try abiRecord.outputs?.map { try $0.parse() } ?? []
+
+    let payable = abiRecord.stateMutability != nil ? (abiRecord.stateMutability == "payable" || abiRecord.payable ?? false) : false
+    let constant = ((abiRecord.constant ?? false) || abiRecord.stateMutability == "view" || abiRecord.stateMutability == "pure")
+
+    return ABIv2.Element.Function(name: abiRecord.name ?? "", inputs: inputs, outputs: outputs, constant: constant, payable: payable)
 }
 
-fileprivate func parseFallback(abiRecord:ABIv2.Record) throws -> ABIv2.Element.Fallback {
-    let payable = (abiRecord.stateMutability == "payable" || abiRecord.payable!)
-    var constant = abiRecord.constant == true
-    if (abiRecord.stateMutability == "view" || abiRecord.stateMutability == "pure") {
-        constant = true
-    }
-    let functionElement = ABIv2.Element.Fallback(constant: constant, payable: payable)
-    return functionElement
+fileprivate func parseFallback(abiRecord: ABIv2.Record) throws -> ABIv2.Element.Fallback {
+    let payable = abiRecord.stateMutability == "payable" || abiRecord.payable ?? false
+    let constant = (abiRecord.constant ?? false) || abiRecord.stateMutability == "view" || abiRecord.stateMutability == "pure"
+
+    return ABIv2.Element.Fallback(constant: constant, payable: payable)
 }
 
-fileprivate func parseConstructor(abiRecord:ABIv2.Record) throws -> ABIv2.Element.Constructor {
-    let inputs = try abiRecord.inputs?.map({ (input:ABIv2.Input) throws -> ABIv2.Element.InOut in
-        let nativeInput = try input.parse()
-        return nativeInput
-    })
-    let abiInputs = inputs != nil ? inputs! : [ABIv2.Element.InOut]()
-    var payable = false
-    if (abiRecord.payable != nil) {
-        payable = abiRecord.payable!
-    }
-    if (abiRecord.stateMutability == "payable") {
-        payable = true
-    }
-    let constant = false
-    let functionElement = ABIv2.Element.Constructor(inputs: abiInputs, constant: constant, payable: payable)
-    return functionElement
+fileprivate func parseConstructor(abiRecord: ABIv2.Record) throws -> ABIv2.Element.Constructor {
+    let inputs = try abiRecord.inputs?.map { try $0.parse() } ?? []
+
+    let payable = (abiRecord.payable ?? false) || abiRecord.stateMutability == "payable"
+    return ABIv2.Element.Constructor(inputs: inputs, constant: false, payable: payable)
 }
 
-fileprivate func parseEvent(abiRecord:ABIv2.Record) throws -> ABIv2.Element.Event {
-    let inputs = try abiRecord.inputs?.map({ (input:ABIv2.Input) throws -> ABIv2.Element.Event.Input in
-        let nativeInput = try input.parseForEvent()
-        return nativeInput
-    })
-    let abiInputs = inputs != nil ? inputs! : [ABIv2.Element.Event.Input]()
-    let name = abiRecord.name != nil ? abiRecord.name! : ""
-    let anonymous = abiRecord.anonymous != nil ? abiRecord.anonymous! : false
-    let functionElement = ABIv2.Element.Event(name: name, inputs: abiInputs, anonymous: anonymous)
-    return functionElement
+fileprivate func parseEvent(abiRecord: ABIv2.Record) throws -> ABIv2.Element.Event {
+    let inputs = try abiRecord.inputs?.map { try $0.parseForEvent() } ?? []
+
+    return ABIv2.Element.Event(name: abiRecord.name ?? "", inputs: inputs, anonymous: abiRecord.anonymous ?? false)
 }
 
 extension ABIv2.Input {
     func parse() throws -> ABIv2.Element.InOut {
-        let name = self.name != nil ? self.name! : ""
-        let parameterType = try ABIv2TypeParser.parseTypeString(self.type)
-        if case .tuple(types: _) = parameterType {
-            let components = try self.components?.compactMap({ (inp: ABIv2.Input) throws -> ABIv2.Element.ParameterType in
-                let input = try inp.parse()
-                return input.type
-            })
-            let type = ABIv2.Element.ParameterType.tuple(types: components!)
-            let nativeInput = ABIv2.Element.InOut(name: name, type: type)
-            return nativeInput
-        }
-        else {
-            let nativeInput = ABIv2.Element.InOut(name: name, type: parameterType)
-            return nativeInput
+        let parameterType = try ABIv2TypeParser.parseTypeString(type)
+        if case .tuple = parameterType {
+            let components = try components?.compactMap { return try $0.parse().type } ?? []
+            let type = ABIv2.Element.ParameterType.tuple(types: components)
+
+            return ABIv2.Element.InOut(name: name ?? "", type: type)
+        } else {
+            return ABIv2.Element.InOut(name: name ?? "", type: parameterType)
         }
     }
     
-    func parseForEvent() throws -> ABIv2.Element.Event.Input{
-        let name = self.name != nil ? self.name! : ""
-        let parameterType = try ABIv2TypeParser.parseTypeString(self.type)
-        let indexed = self.indexed == true
-        return ABIv2.Element.Event.Input(name:name, type: parameterType, indexed: indexed)
+    func parseForEvent() throws -> ABIv2.Element.Event.Input {
+        let parameterType = try ABIv2TypeParser.parseTypeString(type)
+        return ABIv2.Element.Event.Input(name: name ?? "", type: parameterType, indexed: indexed ?? false)
     }
 }
 
 extension ABIv2.Output {
     func parse() throws -> ABIv2.Element.InOut {
-        let name = self.name != nil ? self.name! : ""
-        let parameterType = try ABIv2TypeParser.parseTypeString(self.type)
+        let parameterType = try ABIv2TypeParser.parseTypeString(type)
         switch parameterType {
         case .tuple(types: _):
-            let components = try self.components?.compactMap({ (inp: ABIv2.Output) throws -> ABIv2.Element.ParameterType in
-                let input = try inp.parse()
-                return input.type
-            })
-            let type = ABIv2.Element.ParameterType.tuple(types: components!)
-            let nativeInput = ABIv2.Element.InOut(name: name, type: type)
-            return nativeInput
+            let components = try components?.compactMap { try $0.parse().type } ?? []
+            let type = ABIv2.Element.ParameterType.tuple(types: components)
+            return ABIv2.Element.InOut(name: name ?? "", type: type)
         case .array(type: let subtype, length: let length):
             switch subtype {
             case .tuple(types: _):
-                let components = try self.components?.compactMap({ (inp: ABIv2.Output) throws -> ABIv2.Element.ParameterType in
-                    let input = try inp.parse()
-                    return input.type
-                })
-                let nestedSubtype = ABIv2.Element.ParameterType.tuple(types: components!)
+                let components = try self.components?.compactMap { try $0.parse().type } ?? []
+                let nestedSubtype = ABIv2.Element.ParameterType.tuple(types: components)
                 let properType = ABIv2.Element.ParameterType.array(type: nestedSubtype, length: length)
-                let nativeInput = ABIv2.Element.InOut(name: name, type: properType)
-                return nativeInput
+
+                return ABIv2.Element.InOut(name: name ?? "", type: properType)
             default:
-                let nativeInput = ABIv2.Element.InOut(name: name, type: parameterType)
-                return nativeInput
+                return ABIv2.Element.InOut(name: name ?? "", type: parameterType)
             }
         default:
-            let nativeInput = ABIv2.Element.InOut(name: name, type: parameterType)
-            return nativeInput
+            return ABIv2.Element.InOut(name: name ?? "", type: parameterType)
         }
     }
 }
-
-

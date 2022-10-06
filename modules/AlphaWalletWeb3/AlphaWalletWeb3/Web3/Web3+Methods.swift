@@ -31,35 +31,33 @@ public enum JSONRPCmethod: Encodable {
     case custom(String, params: Int)
     
     public var requiredNumOfParameters: Int {
-        get {
-            switch self {
-            case .call:
-                return 2
-            case .getTransactionCount:
-                return 2
-            case .getBalance:
-                return 2
-            case .getStorageAt:
-                return 2
-            case .getCode:
-                return 2
-            case .getBlockByHash:
-                return 2
-            case .getBlockByNumber:
-                return 2
-            case .gasPrice:
-                return 0
-            case .blockNumber:
-                return 0
-            case .getNetwork:
-                return 0
-            case .getAccounts:
-                return 0
-            case .custom(_, let params):
-                return params
-            default:
-                return 1
-            }
+        switch self {
+        case .call:
+            return 2
+        case .getTransactionCount:
+            return 2
+        case .getBalance:
+            return 2
+        case .getStorageAt:
+            return 2
+        case .getCode:
+            return 2
+        case .getBlockByHash:
+            return 2
+        case .getBlockByNumber:
+            return 2
+        case .gasPrice:
+            return 0
+        case .blockNumber:
+            return 0
+        case .getNetwork:
+            return 0
+        case .getAccounts:
+            return 0
+        case .custom(_, let params):
+            return params
+        default:
+            return 1
         }
     }
 

@@ -67,7 +67,7 @@ extension String {
         return Data(byteArray)
     }
     
-    func hasHexPrefix() -> Bool {
+    var hasHexPrefix: Bool {
         return self.hasPrefix("0x")
     }
     
@@ -88,11 +88,11 @@ extension String {
     
     func stripLeadingZeroes() -> String? {
         let hex = self.addHexPrefix()
-        guard let matcher = try? NSRegularExpression(pattern: "^(?<prefix>0x)0*(?<end>[0-9a-fA-F]*)$", options: NSRegularExpression.Options.dotMatchesLineSeparators) else {return nil}
+        guard let matcher = try? NSRegularExpression(pattern: "^(?<prefix>0x)0*(?<end>[0-9a-fA-F]*)$", options: NSRegularExpression.Options.dotMatchesLineSeparators) else { return nil }
         let match = matcher.captureGroups(string: hex, options: NSRegularExpression.MatchingOptions.anchored)
-        guard let prefix = match["prefix"] else {return nil}
-        guard let end = match["end"] else {return nil}
-        if (end != "") {
+        guard let prefix = match["prefix"] else { return nil }
+        guard let end = match["end"] else { return nil }
+        if !end.isEmpty {
             return prefix + end
         }
         return "0x0"
@@ -101,7 +101,7 @@ extension String {
     func matchingStrings(regex: String) -> [[String]] {
         guard let regex = try? NSRegularExpression(pattern: regex, options: []) else { return [] }
         let nsString = self as NSString
-        let results  = regex.matches(in: self, options: [], range: NSMakeRange(0, nsString.length))
+        let results = regex.matches(in: self, options: [], range: NSRange(location: 0, length: nsString.length))
         return results.map { result in
             (0..<result.numberOfRanges).map { result.range(at: $0).location != NSNotFound
                 ? nsString.substring(with: result.range(at: $0))
@@ -121,18 +121,14 @@ extension String {
     }
     
     var asciiValue: Int {
-        get {
-            let s = self.unicodeScalars
-            return Int(s[s.startIndex].value)
-        }
+        let s = self.unicodeScalars
+        return Int(s[s.startIndex].value)
     }
 }
 
 extension Character {
     var asciiValue: Int {
-        get {
-            let s = String(self).unicodeScalars
-            return Int(s[s.startIndex].value)
-        }
+        let s = String(self).unicodeScalars
+        return Int(s[s.startIndex].value)
     }
 }

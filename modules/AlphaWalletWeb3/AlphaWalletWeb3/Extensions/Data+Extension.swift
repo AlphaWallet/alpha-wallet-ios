@@ -21,9 +21,9 @@ public extension Data {
         }
     }
     
-    public func constantTimeComparisonTo(_ other:Data?) -> Bool {
-        guard let rhs = other else {return false}
-        guard self.count == rhs.count else {return false}
+    public func constantTimeComparisonTo(_ other: Data?) -> Bool {
+        guard let rhs = other else { return false }
+        guard self.count == rhs.count else { return false }
         var difference = UInt8(0x00)
         for i in 0..<self.count { // compare full length
             difference |= self[i] ^ rhs[i] //constant time
@@ -34,8 +34,7 @@ public extension Data {
     public static func randomBytes(length: Int) -> Data? {
         for _ in 0...1024 {
             var data = Data(repeating: 0, count: length)
-            let result = data.withUnsafeMutableBytes {
-                (mutableBytes: UnsafeMutablePointer<UInt8>) -> Int32 in
+            let result = data.withUnsafeMutableBytes { mutableBytes -> Int32 in
                 SecRandomCopyBytes(kSecRandomDefault, 32, mutableBytes)
             }
             if result == errSecSuccess {
@@ -47,24 +46,24 @@ public extension Data {
     
     public static func fromHex(_ hex: String) -> Data? {
         let string = hex.lowercased().stripHexPrefix()
-        let array = Array<UInt8>(hex: string)
-        if (array.count == 0) {
-            if (hex == "0x" || hex == "") {
+        let array = Array(hex: string)
+        if array.isEmpty {
+            if hex == "0x" || hex == "" {
                 return Data()
             } else {
                 return nil
             }
         }
+
         return Data(array)
     }
     
-    
-    func bitsInRange(_ startingBit:Int, _ length:Int) -> UInt64? { //return max of 8 bytes for simplicity, non-public
-        if startingBit + length / 8 > self.count, length > 64, startingBit > 0, length >= 1 {return nil}
+    func bitsInRange(_ startingBit: Int, _ length: Int) -> UInt64? { //return max of 8 bytes for simplicity, non-public
+        if startingBit + length / 8 > self.count, length > 64, startingBit > 0, length >= 1 { return nil }
         let bytes = self[(startingBit/8) ..< (startingBit+length+7)/8]
         let padding = Data(repeating: 0, count: 8 - bytes.count)
         let padded = bytes + padding
-        guard padded.count == 8 else {return nil}
+        guard padded.count == 8 else { return nil }
         var uintRepresentation = UInt64(bigEndian: padded.withUnsafeBytes { $0.pointee })
         uintRepresentation = uintRepresentation << (startingBit % 8)
         uintRepresentation = uintRepresentation >> UInt64(64 - length)

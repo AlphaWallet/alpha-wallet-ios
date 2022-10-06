@@ -43,11 +43,11 @@ protocol AbiValidating {
 }
 
 protocol ABIElementPropertiesProtocol {
-    var isArray: Bool {get}
-    var arraySize: ABIElement.ArraySize {get}
-    var subtype: ABIElement.ParameterType? {get}
-    var memoryUsage: UInt64 {get}
-    var emptyValue: Any {get}
+    var isArray: Bool { get }
+    var arraySize: ABIElement.ArraySize { get }
+    var subtype: ABIElement.ParameterType? { get }
+    var memoryUsage: UInt64 { get }
+    var emptyValue: Any { get }
 }
 
 public enum ABIElement {
@@ -109,7 +109,7 @@ public enum ABIElement {
         case staticABIType(StaticType)
         
         /// Denotes any type that has a fixed length.
-        public enum StaticType:ABIElementPropertiesProtocol {
+        public enum StaticType: ABIElementPropertiesProtocol {
             var isArray: Bool {
                 switch self {
                 case .array(_, length: _):
@@ -257,7 +257,7 @@ public enum ABIElement {
 
 // MARK: - DynamicType Equatable
 extension ABIElement.ParameterType.DynamicType: Equatable {
-    public static func ==(lhs: ABIElement.ParameterType.DynamicType, rhs: ABIElement.ParameterType.DynamicType) -> Bool {
+    public static func == (lhs: ABIElement.ParameterType.DynamicType, rhs: ABIElement.ParameterType.DynamicType) -> Bool {
         switch (lhs, rhs) {
         case (.bytes, .bytes):
             return true
@@ -275,7 +275,7 @@ extension ABIElement.ParameterType.DynamicType: Equatable {
 
 // MARK: - ParameterType Equatable
 extension ABIElement.ParameterType: Equatable {
-    public static func ==(lhs: ABIElement.ParameterType, rhs: ABIElement.ParameterType) -> Bool {
+    public static func == (lhs: ABIElement.ParameterType, rhs: ABIElement.ParameterType) -> Bool {
         switch (lhs, rhs) {
         case (.dynamicABIType(let value1), .dynamicABIType(let value2)):
             return value1 == value2
@@ -289,7 +289,7 @@ extension ABIElement.ParameterType: Equatable {
 
 // MARK: - StaticType Equatable
 extension ABIElement.ParameterType.StaticType: Equatable {
-    public static func ==(lhs: ABIElement.ParameterType.StaticType, rhs: ABIElement.ParameterType.StaticType) -> Bool {
+    public static func == (lhs: ABIElement.ParameterType.StaticType, rhs: ABIElement.ParameterType.StaticType) -> Bool {
         switch (lhs, rhs) {
         case let (.uint(length1), .uint(length2)):
             return length1 == length2
@@ -376,7 +376,6 @@ extension ABIElement.Event {
 protocol AbiEncoding {
     var abiRepresentation: String { get }
 }
-
 
 extension ABIElement.ParameterType: AbiEncoding {
     public var abiRepresentation: String {
