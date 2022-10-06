@@ -27,9 +27,9 @@ final class SelectTokenViewModel {
     private let tokensFilter: TokensFilter
     private let whenFilterHasChanged: AnyPublisher<Void, Never>
 
-    var headerBackgroundColor: UIColor = Colors.appBackground
+    var headerBackgroundColor: UIColor = Configuration.Color.Semantic.tableViewHeaderBackground
     var title: String = R.string.localizable.assetsSelectAssetTitle()
-    var backgroundColor: UIColor = Colors.appBackground
+    var backgroundColor: UIColor = Configuration.Color.Semantic.tableViewBackground
 
     init(tokenCollection: TokenCollection, tokensFilter: TokensFilter, filter: WalletFilter) {
         self.tokenCollection = tokenCollection
