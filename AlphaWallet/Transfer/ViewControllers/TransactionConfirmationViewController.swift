@@ -25,7 +25,7 @@ class TransactionConfirmationViewController: UIViewController {
     private let separatorLine: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = R.color.mercury()
+        view.backgroundColor = Configuration.Color.Semantic.popupSeparator
         return view
     }()
     private let loadingIndicatorView = ActivityIndicatorControl()

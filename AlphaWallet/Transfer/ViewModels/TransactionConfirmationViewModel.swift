@@ -30,7 +30,7 @@ class TransactionConfirmationViewModel {
     private let tokensService: TokenViewModelState
 
     var backgroundColor: UIColor = UIColor.clear
-    var footerBackgroundColor: UIColor = Colors.appWhite
+    var footerBackgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground
 
     init(configurator: TransactionConfigurator, configuration: TransactionType.Configuration, assetDefinitionStore: AssetDefinitionStore, domainResolutionService: DomainResolutionServiceType, tokensService: TokenViewModelState) {
         self.tokensService = tokensService

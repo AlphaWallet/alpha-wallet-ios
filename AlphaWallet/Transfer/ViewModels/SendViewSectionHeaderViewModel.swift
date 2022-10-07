@@ -12,8 +12,8 @@ struct SendViewSectionHeaderViewModel {
     var showTopSeparatorLine: Bool = true
     var showBottomSeparatorLine: Bool = true
     var font: UIFont = Fonts.semibold(size: 15)
-    var textColor: UIColor = R.color.dove()!
-    var backgroundColor: UIColor = R.color.alabaster()!
-    var separatorBackgroundColor: UIColor = R.color.mike()!
+    var textColor: UIColor = Configuration.Color.Semantic.defaultSubtitleText
+    var backgroundColor: UIColor = Configuration.Color.Semantic.tableViewHeaderBackground
+    var separatorBackgroundColor: UIColor = Configuration.Color.Semantic.tableViewSeparator
 }
 
