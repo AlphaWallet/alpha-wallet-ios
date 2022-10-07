@@ -6,14 +6,17 @@ import PromiseKit
 
 class LocalPopularTokensCollectionTests: XCTestCase {
     //Loading JSON file from resource without static type checking is too fragile. Test to check
+    private let collection = LocalPopularTokensCollection()
+
     func testLoadLocalJsonFile() {
         let expectation = self.expectation(description: "Wait for promise")
         firstly {
-            LocalPopularTokensCollection().fetchTokens(for: [.main])
+            collection.fetchTokens(for: [.main])
         }.done { results in
             XCTAssertFalse(results.isEmpty)
             expectation.fulfill()
         }.cauterize()
-        waitForExpectations(timeout: 0.1)
+
+        waitForExpectations(timeout: 1)
     }
 }
