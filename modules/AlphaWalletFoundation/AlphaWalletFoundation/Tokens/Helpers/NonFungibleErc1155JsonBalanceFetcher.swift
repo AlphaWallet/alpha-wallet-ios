@@ -40,17 +40,14 @@ public class NonFungibleErc1155JsonBalanceFetcher {
     }
 
     public func fetchErc1155NonFungibleJsons(enjinTokens: EnjinTokenIdsToSemiFungibles) -> Promise<[AlphaWallet.Address: [NonFungibleBalanceAndItsSource<NonFungibleFromTokenUri>]]> {
-        //Local copies so we don't access the wrong ones during async operation
-
         return firstly {
             erc1155TokenIdsFetcher.detectContractsAndTokenIds()
-        }.then(on: queue, { contractsAndTokenIds in
+        }.then(on: queue, { contractsAndTokenIds -> Promise<Erc1155TokenIds.ContractsAndTokenIds> in
             self.addUnknownErc1155ContractsToDatabase(contractsAndTokenIds: contractsAndTokenIds.tokens)
         }).then(on: queue, { contractsAndTokenIds -> Promise<(contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds, tokenIdMetaDatas: [TokenIdMetaData])> in
-                self._fetchErc1155NonFungibleJsons(contractsAndTokenIds: contractsAndTokenIds, enjinTokens: enjinTokens)
-                    .map { (contractsAndTokenIds: contractsAndTokenIds, tokenIdMetaDatas: $0) }
+            self._fetchErc1155NonFungibleJsons(contractsAndTokenIds: contractsAndTokenIds, enjinTokens: enjinTokens)
+                .map { (contractsAndTokenIds: contractsAndTokenIds, tokenIdMetaDatas: $0) }
         }).then(on: queue, { [erc1155BalanceFetcher, queue] (contractsAndTokenIds, tokenIdMetaDatas) -> Promise<[AlphaWallet.Address: [NonFungibleBalanceAndItsSource<NonFungibleFromTokenUri>]]> in
-
             let contractsToTokenIds: [AlphaWallet.Address: [BigInt]] = contractsAndTokenIds
                 .mapValues { tokenIds -> [BigInt] in tokenIds.compactMap { BigInt($0) } }
 
@@ -77,6 +74,7 @@ public class NonFungibleErc1155JsonBalanceFetcher {
                 return contractToOpenSeaNonFungiblesWithUpdatedBalances
             })
         })
+
         //TODO: log error remotely
     }
 

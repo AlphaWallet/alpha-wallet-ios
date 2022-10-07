@@ -321,6 +321,7 @@
 		5E7C79DC5BDC391C983B6CAC /* ChainIdTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78DB6F47344EBBC2567F /* ChainIdTests.swift */; };
 		5E7C79E9A6A3DFB7FA680752 /* DappViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C793CDFA907BFDFECB6CB /* DappViewCell.swift */; };
 		5E7C79EB8A6EC89F6F033268 /* CreateInitialWalletViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74A5B5B9D8AD0BD913C1 /* CreateInitialWalletViewController.swift */; };
+		5E7C7A0D678C2CE065CC8BB1 /* Erc1155TokenIdsFetcherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C719EC2B8B381C56F8440 /* Erc1155TokenIdsFetcherTests.swift */; };
 		5E7C7A4384A8E3F22D3F8249 /* SetSellTokensCardExpiryDateViewControllerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C700CD3E43689E88FBE9B /* SetSellTokensCardExpiryDateViewControllerViewModel.swift */; };
 		5E7C7A4700C79350AA486E09 /* SeedPhraseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C791C60E8AAF3F4239375 /* SeedPhraseCell.swift */; };
 		5E7C7A496E69849D06DF2731 /* AssetDefinitionStoreCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7D58E7A5DE05425623D2 /* AssetDefinitionStoreCoordinator.swift */; };
@@ -1053,6 +1054,7 @@
 		5E7C7171B802C0C2718EEED0 /* MyDappsViewControllerHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MyDappsViewControllerHeaderView.swift; sourceTree = "<group>"; };
 		5E7C7177F1DDDDDDE020CB4D /* ChooseSendPrivateTransactionsProviderViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChooseSendPrivateTransactionsProviderViewController.swift; sourceTree = "<group>"; };
 		5E7C717B39E95B653F384AA0 /* SeedPhraseCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SeedPhraseCellViewModel.swift; sourceTree = "<group>"; };
+		5E7C719EC2B8B381C56F8440 /* Erc1155TokenIdsFetcherTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Erc1155TokenIdsFetcherTests.swift; sourceTree = "<group>"; };
 		5E7C71A8BE594C1D126AB309 /* FakeEventsDataStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FakeEventsDataStore.swift; sourceTree = "<group>"; };
 		5E7C71ADDDAB65DEF4096A8D /* PromptViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromptViewController.swift; sourceTree = "<group>"; };
 		5E7C71C2C110B621EFDE336F /* TokensCardViewControllerTitleHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokensCardViewControllerTitleHeader.swift; sourceTree = "<group>"; };
@@ -2796,6 +2798,14 @@
 			path = OpenSea;
 			sourceTree = "<group>";
 		};
+		5E7C733DEBED923B8D281682 /* Tokens */ = {
+			isa = PBXGroup;
+			children = (
+				5E7C7CC82D5F600655CF9FA7 /* Logic */,
+			);
+			path = Tokens;
+			sourceTree = "<group>";
+		};
 		5E7C73525655EA2FFC74E66B /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
@@ -3057,6 +3067,7 @@
 				5E7C7B8EB45ABD915B9BFF61 /* LocalPopularTokensCollectionTests.swift */,
 				5E7C7219AA7DCFFA11F4139D /* CoinTicker */,
 				8722324528D8607F001A9BCC /* Oneinch */,
+				5E7C733DEBED923B8D281682 /* Tokens */,
 			);
 			path = AlphaWalletFoundation;
 			sourceTree = "<group>";
@@ -3157,6 +3168,14 @@
 				872A98652862EC0C00196EA3 /* base64_image_example.txt */,
 			);
 			path = Helpers;
+			sourceTree = "<group>";
+		};
+		5E7C7CC82D5F600655CF9FA7 /* Logic */ = {
+			isa = PBXGroup;
+			children = (
+				5E7C719EC2B8B381C56F8440 /* Erc1155TokenIdsFetcherTests.swift */,
+			);
+			path = Logic;
 			sourceTree = "<group>";
 		};
 		5E7C7D3F20599F40EC05F8DF /* Views */ = {
@@ -5604,6 +5623,7 @@
 				5E7C787EB90D113DA76574DD /* FileTokenEntriesProviderTests.swift in Sources */,
 				5E7C79DC5BDC391C983B6CAC /* ChainIdTests.swift in Sources */,
 				5E7C74B9BD63DEFE074BB80D /* ErrorTests.swift in Sources */,
+				5E7C7A0D678C2CE065CC8BB1 /* Erc1155TokenIdsFetcherTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
