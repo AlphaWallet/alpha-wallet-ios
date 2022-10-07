@@ -8,7 +8,7 @@
 import UIKit
 import AlphaWalletFoundation
 
-extension AmountTextField_v2 {
+extension AmountTextField {
     enum AccessoryButtonTitle {
         case done
         case next
@@ -88,6 +88,17 @@ extension AmountTextField_v2 {
             switch left {
             case .cryptoCurrency(let token): return token.symbol
             case .fiatCurrency: return Currency.USD.rawValue
+            }
+        }
+
+        var fiat: Currency {
+            switch (left, right) {
+            case (_, .fiatCurrency(let currency)):
+                return currency
+            case (.fiatCurrency(let currency), _):
+                return currency
+            case (_, _):
+                return .USD
             }
         }
 

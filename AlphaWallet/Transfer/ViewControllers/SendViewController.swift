@@ -20,7 +20,6 @@ class SendViewController: UIViewController {
     private let amountHeader = SendViewSectionHeader()
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
     private var viewModel: SendViewModel
-    private let session: WalletSession
     //We use weak link to make sure that token alert will be deallocated by close button tapping.
     //We storing link to make sure that only one alert is displaying on the screen.
     private weak var invalidTokenAlert: UIViewController?
@@ -35,14 +34,15 @@ class SendViewController: UIViewController {
     }()
 
     lazy var amountTextField: AmountTextField = {
-        let amountTextField = AmountTextField(tokenObject: transactionType.tokenObject, buttonType: .next)
+        let amountTextField = AmountTextField(token: transactionType.tokenObject, buttonType: .next)
         amountTextField.translatesAutoresizingMaskIntoConstraints = false
         amountTextField.delegate = self
-        amountTextField.accessoryButtonTitle = .next
-        amountTextField.errorState = .none
+        amountTextField.viewModel.accessoryButtonTitle = .next
+        amountTextField.viewModel.errorState = .none
         amountTextField.isAlternativeAmountEnabled = false
         amountTextField.allFundsAvailable = true
         amountTextField.selectCurrencyButton.hasToken = true
+
         return amountTextField
     }()
     weak var delegate: SendViewControllerDelegate?
@@ -52,23 +52,17 @@ class SendViewController: UIViewController {
     }
 
     private let domainResolutionService: DomainResolutionServiceType
-    @objc private (set) dynamic var isAllFunds: Bool = false
-    private var observation: NSKeyValueObservation!
-    private var etherToFiatRateCancelable: AnyCancellable?
-    private var etherBalanceCancelable: AnyCancellable?
+    private var cryptoToFiatRateCancelable: AnyCancellable?
+    private var fungibleBalanceCancelable: AnyCancellable?
 
     private lazy var containerView: ScrollableStackView = {
         let view = ScrollableStackView()
         return view
     }()
 
-    private let service: TokenProvidable & TokenAddable & TokenBalanceRefreshable & TokenViewModelState
-
-    init(session: WalletSession, service: TokenProvidable & TokenAddable & TokenBalanceRefreshable & TokenViewModelState, transactionType: TransactionType, domainResolutionService: DomainResolutionServiceType) {
-        self.session = session
-        self.service = service
+    init(viewModel: SendViewModel, domainResolutionService: DomainResolutionServiceType) {
         self.domainResolutionService = domainResolutionService
-        self.viewModel = .init(transactionType: transactionType, session: session, service: service)
+        self.viewModel = viewModel
 
         super.init(nibName: nil, bundle: nil)
 
@@ -96,24 +90,21 @@ class SendViewController: UIViewController {
 
             footerBar.anchorsConstraint(to: view),
         ])
-
-        observation = observe(\.isAllFunds, options: [.initial, .new]) { [weak self] _, _ in
-            guard let strongSelf = self else { return }
-
-            strongSelf.amountTextField.isAllFunds = strongSelf.isAllFunds
-        }
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         activateAmountView()
+
+        buttonsBar.configure()
+        buttonsBar.buttons[0].setTitle(R.string.localizable.send(), for: .normal)
+        buttonsBar.buttons[0].addTarget(self, action: #selector(send), for: .touchUpInside)
+
+        amountTextField.allFundsButton.addTarget(self, action: #selector(allFundsSelected), for: .touchUpInside)
+        configure(viewModel: viewModel)
     }
 
-    @objc func closeKeyboard() {
-        view.endEditing(true)
-    }
-
-    func configure(viewModel: SendViewModel, shouldConfigureBalance: Bool = true) {
+    private func configure(viewModel: SendViewModel, shouldConfigureBalance: Bool = true) {
         self.viewModel = viewModel
         //Avoids infinite recursion
         if shouldConfigureBalance {
@@ -133,42 +124,32 @@ class SendViewController: UIViewController {
         amountTextField.statusLabel.text = viewModel.availableLabelText
         amountTextField.availableTextHidden = viewModel.availableTextHidden
 
+        cryptoToFiatRateCancelable?.cancel()
+
         switch transactionType {
         case .nativeCryptocurrency(_, let recipient, let amount):
             if let recipient = recipient {
                 targetAddressTextField.value = recipient.stringValue
             }
             if let amount = amount {
-                amountTextField.ethCost = EtherNumberFormatter.plain.string(from: amount, units: .ether)
+                amountTextField.set(crypto: EtherNumberFormatter.plain.string(from: amount, units: .ether), useFormatting: true)
             }
-            etherToFiatRateCancelable?.cancel()
-            etherToFiatRateCancelable = service.tokenViewModelPublisher(for: transactionType.tokenObject)
-                .compactMap { $0?.balance.ticker.flatMap { NSDecimalNumber(value: $0.price_usd) } }
-                .receive(on: RunLoop.main)
-                .sink { [weak amountTextField] price in
-                    amountTextField?.cryptoToDollarRate = price
-                }
+            cryptoToFiatRateCancelable = viewModel.cryptoToFiatRate
+                .assign(to: \.value, on: amountTextField.viewModel.cryptoToFiatRate, ownership: .weak)
         case .erc20Token(_, let recipient, let amount):
-            etherToFiatRateCancelable?.cancel()
-            amountTextField.cryptoToDollarRate = nil
-
             if let recipient = recipient {
                 targetAddressTextField.value = recipient.stringValue
             }
             if let amount = amount {
-                amountTextField.ethCost = amount
+                amountTextField.set(crypto: amount, useFormatting: true)
             }
+
+            cryptoToFiatRateCancelable = viewModel.cryptoToFiatRate
+                .assign(to: \.value, on: amountTextField.viewModel.cryptoToFiatRate, ownership: .weak)
         case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
-            etherToFiatRateCancelable?.cancel()
-            amountTextField.cryptoToDollarRate = nil
+            amountTextField.viewModel.cryptoToFiatRate.value = nil
         }
 
-        buttonsBar.configure()
-        let nextButton = buttonsBar.buttons[0]
-        nextButton.setTitle(R.string.localizable.send(), for: .normal)
-        nextButton.addTarget(self, action: #selector(send), for: .touchUpInside)
-
-        amountTextField.allFundsButton.addTarget(self, action: #selector(allFundsSelected), for: .touchUpInside)
         updateNavigationTitle()
     }
 
@@ -177,19 +158,19 @@ class SendViewController: UIViewController {
     }
 
     @objc func allFundsSelected() {
-        guard let ethCost = viewModel.allFundsFormattedValues else { return }
-        isAllFunds = true
+        guard let crypto = viewModel.allFundsFormattedValues else { return }
 
-        amountTextField.set(ethCost: ethCost.allFundsFullValue, shortEthCost: ethCost.allFundsShortValue, useFormatting: false)
+        amountTextField.viewModel.isAllFunds = true
+        amountTextField.set(crypto: crypto.allFundsFullValue.localizedString, shortCrypto: crypto.allFundsShortValue, useFormatting: false)
     }
 
     @objc private func send() {
         let input = targetAddressTextField.value.trimmed
         targetAddressTextField.errorState = .none
-        amountTextField.errorState = .none
+        amountTextField.viewModel.errorState = .none
 
-        guard let value = viewModel.validatedAmount(value: amountTextField.ethCost, checkIfGreaterThanZero: viewModel.checkIfGreaterThanZero) else {
-            amountTextField.errorState = .error
+        guard let value = viewModel.validatedAmount(value: amountTextField.cryptoValue, checkIfGreaterThanZero: viewModel.checkIfGreaterThanZero) else {
+            amountTextField.viewModel.errorState = .error
             return
         }
         guard let recipient = AlphaWallet.Address(string: input) else {
@@ -197,19 +178,13 @@ class SendViewController: UIViewController {
             return
         }
 
-        let transaction = UnconfirmedTransaction(
-                transactionType: transactionType,
-                value: value,
-                recipient: recipient,
-                contract: transactionType.contractForFungibleSend,
-                data: nil
-        )
+        let transaction = UnconfirmedTransaction(transactionType: transactionType, value: value, recipient: recipient, contract: transactionType.contractForFungibleSend, data: nil)
 
-        delegate?.didPressConfirm(transaction: transaction, in: self, amount: amountTextField.ethCost, shortValue: shortValueForAllFunds)
+        delegate?.didPressConfirm(transaction: transaction, in: self, amount: amountTextField.cryptoValue, shortValue: shortValueForAllFunds)
     }
 
     var shortValueForAllFunds: String? {
-        return isAllFunds ? viewModel.allFundsFormattedValues?.allFundsShortValue : .none
+        return amountTextField.viewModel.isAllFunds ? viewModel.allFundsFormattedValues?.allFundsShortValue : .none
     }
 
     func activateAmountView() {
@@ -221,20 +196,27 @@ class SendViewController: UIViewController {
     }
 
     private func configureBalanceViewModel() {
-        etherBalanceCancelable?.cancel()
+        fungibleBalanceCancelable?.cancel()
 
         switch transactionType {
         case .nativeCryptocurrency(_, let recipient, let amount):
-            etherBalanceCancelable = service.tokenViewModelPublisher(for: transactionType.tokenObject)
+            fungibleBalanceCancelable = viewModel.tokensService.tokenViewModelPublisher(for: transactionType.tokenObject)
                 .sink { [weak self] _ in
                     guard let celf = self else { return }
-                    guard celf.service.token(for: celf.viewModel.transactionType.contract, server: celf.session.server) != nil else { return }
+                    //NOTE: Why do we need this check?
+                    guard celf.viewModel.tokensService.token(for: celf.viewModel.transactionType.contract, server: celf.viewModel.session.server) != nil else { return }
                     celf.configureFor(contract: celf.viewModel.transactionType.contract, recipient: recipient, amount: amount, shouldConfigureBalance: false)
                 }
-            service.refreshBalance(updatePolicy: .token(token: transactionType.tokenObject))
+            viewModel.tokensService.refreshBalance(updatePolicy: .token(token: transactionType.tokenObject))
         case .erc20Token(let token, let recipient, let amount):
-            let amount = amount.flatMap { EtherNumberFormatter.plain.number(from: $0, decimals: token.decimals) }
-            configureFor(contract: viewModel.transactionType.contract, recipient: recipient, amount: amount, shouldConfigureBalance: false)
+            fungibleBalanceCancelable = viewModel.tokensService.tokenViewModelPublisher(for: transactionType.tokenObject)
+                .sink { [weak self] _ in
+                    guard let celf = self else { return }
+                    guard celf.viewModel.tokensService.token(for: celf.viewModel.transactionType.contract, server: celf.viewModel.session.server) != nil else { return }
+                    let amount = amount.flatMap { EtherNumberFormatter.plain.number(from: $0, decimals: token.decimals) }
+                    celf.configureFor(contract: celf.viewModel.transactionType.contract, recipient: recipient, amount: amount, shouldConfigureBalance: false)
+                }
+            viewModel.tokensService.refreshBalance(updatePolicy: .token(token: transactionType.tokenObject))
         case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             break
         }
@@ -244,8 +226,8 @@ class SendViewController: UIViewController {
         guard let result = QRCodeValueParser.from(string: result) else { return }
         switch result {
         case .address(let recipient):
-            guard let token = service.token(for: viewModel.transactionType.contract, server: session.server) else { return }
-            let amountAsIntWithDecimals = EtherNumberFormatter.plain.number(from: amountTextField.ethCost, decimals: token.decimals)
+            guard let token = viewModel.tokensService.token(for: viewModel.transactionType.contract, server: viewModel.session.server) else { return }
+            let amountAsIntWithDecimals = EtherNumberFormatter.plain.number(from: amountTextField.cryptoValue, decimals: token.decimals)
             configureFor(contract: transactionType.contract, recipient: .address(recipient), amount: amountAsIntWithDecimals)
             activateAmountView()
         case .eip681(let protocolName, let address, let functionName, let params):
@@ -256,12 +238,7 @@ class SendViewController: UIViewController {
     private func showInvalidToken() {
         guard invalidTokenAlert == nil else { return }
 
-        invalidTokenAlert = UIAlertController.alert(
-            message: R.string.localizable.sendInvalidToken(),
-            alertButtonTitles: [R.string.localizable.oK()],
-            alertButtonStyles: [.cancel],
-            viewController: self
-        )
+        invalidTokenAlert = UIAlertController.alert(message: R.string.localizable.sendInvalidToken(), alertButtonTitles: [R.string.localizable.oK()], alertButtonStyles: [.cancel], viewController: self)
     }
 
     private func checkAndFillEIP681Details(protocolName: String, address: AddressOrEnsName, functionName: String?, params: [String: String]) {
@@ -271,10 +248,10 @@ class SendViewController: UIViewController {
             let amount = self.viewModel.convertMaybeScientificAmountToBigInt(maybeScientificAmountString)
             //For user-safety and simpler implementation, we ignore the link if it is for a different chain
             if let server = optionalServer {
-                guard self.session.server == server else { return }
+                guard self.viewModel.session.server == server else { return }
             }
 
-            if self.service.token(for: contract, server: self.session.server) != nil {
+            if self.viewModel.tokensService.token(for: contract, server: self.viewModel.session.server) != nil {
                 //For user-safety and simpler implementation, we ignore the link if it is for a different chain
                 self.configureFor(contract: contract, recipient: recipient, amount: amount)
                 self.activateAmountView()
@@ -289,14 +266,14 @@ class SendViewController: UIViewController {
                         //TODO update fetching to retrieve balance too so we can display the correct balance in the view controller
                         let token = ERCToken(
                                 contract: contract,
-                                server: self.session.server,
+                                server: self.viewModel.session.server,
                                 name: name,
                                 symbol: symbol,
                                 decimals: Int(decimals),
                                 type: .erc20,
                                 balance: .balance(["0"])
                         )
-                        self.service.addCustom(tokens: [token], shouldUpdateBalance: true)
+                        self.viewModel.tokensService.addCustom(tokens: [token], shouldUpdateBalance: true)
                         self.configureFor(contract: contract, recipient: recipient, amount: amount)
                         self.activateAmountView()
                     case .delegateTokenComplete:
@@ -310,7 +287,7 @@ class SendViewController: UIViewController {
     }
 
     private func configureFor(contract: AlphaWallet.Address, recipient: AddressOrEnsName?, amount: BigInt?, shouldConfigureBalance: Bool = true) {
-        guard let token = service.token(for: contract, server: self.session.server) else { return }
+        guard let token = viewModel.tokensService.token(for: contract, server: viewModel.session.server) else { return }
         let amount = amount.flatMap { EtherNumberFormatter.plain.string(from: $0, decimals: token.decimals) }
         let transactionType: TransactionType
         if let amount = amount, amount != "0" {
@@ -326,7 +303,7 @@ class SendViewController: UIViewController {
             }
         }
 
-        configure(viewModel: .init(transactionType: transactionType, session: session, service: service), shouldConfigureBalance: shouldConfigureBalance)
+        configure(viewModel: .init(transactionType: transactionType, session: viewModel.session, tokensService: viewModel.tokensService), shouldConfigureBalance: shouldConfigureBalance)
     }
 }
 
@@ -344,15 +321,15 @@ extension SendViewController: AmountTextFieldDelegate {
     }
 
     func changeAmount(in textField: AmountTextField) {
-        textField.errorState = .none
+        textField.viewModel.errorState = .none
         textField.statusLabel.text = viewModel.availableLabelText
         textField.availableTextHidden = viewModel.availableTextHidden
 
-        guard viewModel.validatedAmount(value: textField.ethCost, checkIfGreaterThanZero: false) != nil else {
-            textField.errorState = .error
+        guard viewModel.validatedAmount(value: textField.cryptoValue, checkIfGreaterThanZero: false) != nil else {
+            textField.viewModel.errorState = .error
             return
         }
-        resetAllFundsIfNeeded(ethCostRawValue: textField.ethCostRawValue)
+        resetAllFundsIfNeeded(ethCostRawValue: textField.viewModel.cryptoRawValue)
     }
 
     func changeType(in textField: AmountTextField) {
@@ -364,7 +341,7 @@ extension SendViewController: AmountTextFieldDelegate {
         if let allFunds = viewModel.allFundsFormattedValues, allFunds.allFundsFullValue.localizedString.nonEmpty {
             guard let value = allFunds.allFundsFullValue, ethCostRawValue != value else { return }
 
-            isAllFunds = false
+            amountTextField.viewModel.isAllFunds = false
         } else {
             //no op
         }
