@@ -20,6 +20,15 @@ public class AssetDefinitionStore: NSObject {
         case updated
         case unmodified
         case error
+
+        var isError: Bool {
+            switch self {
+            case .error:
+                return true
+            case .cached, .updated, .unmodified:
+                return false
+            }
+        }
     }
 
     private var httpHeaders: HTTPHeaders = {
@@ -199,9 +208,23 @@ public class AssetDefinitionStore: NSObject {
         }
         firstly {
             urlToFetch(contract: contract, server: server)
-        }.done { url in
-            guard let url = url else { return }
-            self.fetchXML(forContract: contract, server: server, withUrl: url, useCacheAndFetch: useCacheAndFetch, completionHandler: completionHandler)
+        }.done { result in
+            guard let (url, isScriptUri) = result else { return }
+            self.fetchXML(forContract: contract, server: server, withUrl: url, useCacheAndFetch: useCacheAndFetch) { result in
+                //Try a bit harder if the TokenScript was specified via EIP-5169 (`scriptURI()`)
+                //TODO probably better to convert completionHandler to Promise so we can retry more elegantly
+                if isScriptUri && result.isError {
+                    self.fetchXML(forContract: contract, server: server, withUrl: url, useCacheAndFetch: useCacheAndFetch) { result in
+                        if isScriptUri && result.isError {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                                self.fetchXML(forContract: contract, server: server, withUrl: url, useCacheAndFetch: useCacheAndFetch, completionHandler: completionHandler)
+                            }
+                        }
+                    }
+                } else {
+                    completionHandler?(result)
+                }
+            }
         }.catch { error in
             //no-op
             warnLog("[TokenScript] unexpected error while fetching TokenScript file for contract: \(contract.eip55String) error: \(error)")
@@ -266,17 +289,18 @@ public class AssetDefinitionStore: NSObject {
         fetchXML(forContract: address, server: nil)
     }
 
-    private func urlToFetch(contract: AlphaWallet.Address, server: RPCServer?) -> Promise<URL?> {
+    private func urlToFetch(contract: AlphaWallet.Address, server: RPCServer?) -> Promise<(url: URL, isScriptUri: Bool)?> {
         if let server = server {
-            return firstly {
+            return firstly { () -> Promise<(url: URL, isScriptUri: Bool)?> in
                 Self.functional.urlToFetchFromScriptUri(contract: contract, server: server)
-            }.map {
-                $0
-            }.recover { _ -> Promise<URL?> in
+                    .map { ($0, true) }
+            }.recover { _ -> Promise<(url: URL, isScriptUri: Bool)?> in
                 Self.functional.urlToFetchFromTokenScriptRepo(contract: contract)
+                    .map { $0.flatMap { ($0, false) } }
             }
         } else {
             return Self.functional.urlToFetchFromTokenScriptRepo(contract: contract)
+                .map { $0.flatMap { ($0, false) } }
         }
     }
 
