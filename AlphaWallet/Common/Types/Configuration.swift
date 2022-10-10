@@ -97,6 +97,12 @@ struct Configuration {
             static let tableViewCellSecondaryFont = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.dove()!, darkColor: R.color.dusty()!)
             }
+            static let placeholderText = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.dusty()!, darkColor: R.color.porcelain()!)
+            }
+            static let tableViewAccessory = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.black()!, darkColor: R.color.white()!)
+            }
             static let tableViewAccessoryBackground = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.alabaster()!, darkColor: R.color.venus()!)
             }

@@ -8,6 +8,8 @@
 import UIKit
 import AlphaWalletFoundation
 
+fileprivate typealias CFG = Configuration
+
 protocol TransactionConfirmationHeaderViewDelegate: AnyObject {
     func headerView(_ header: TransactionConfirmationHeaderView, shouldHideChildren section: Int, index: Int) -> Bool
     func headerView(_ header: TransactionConfirmationHeaderView, shouldShowChildren section: Int, index: Int) -> Bool
@@ -61,7 +63,7 @@ class TransactionConfirmationHeaderView: UIView {
     private let chevronImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.tintColor = R.color.black()
+        imageView.tintColor = CFG.Color.Semantic.tableViewAccessory
         imageView.contentMode = .scaleAspectFit
 
         return imageView
@@ -89,7 +91,7 @@ class TransactionConfirmationHeaderView: UIView {
 
         let separatorLine = UIView()
         separatorLine.translatesAutoresizingMaskIntoConstraints = false
-        separatorLine.backgroundColor = R.color.mercury()
+        separatorLine.backgroundColor = CFG.Color.Semantic.popupSeparator
 
         let titleRow = [titleIconImageView, titleLabel].asStackView(axis: .horizontal, spacing: 6, alignment: .center)
 

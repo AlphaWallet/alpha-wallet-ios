@@ -15,7 +15,7 @@ class TransactionConfirmationRowInfoView: UIView {
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.font = Fonts.regular(size: ScreenChecker().isNarrowScreen ? 16 : 18)
         titleLabel.textAlignment = .left
-        titleLabel.textColor = Colors.darkGray
+        titleLabel.textColor = Configuration.Color.Semantic.defaultSubtitleText
 
         return titleLabel
     }()
@@ -24,7 +24,7 @@ class TransactionConfirmationRowInfoView: UIView {
         let subTitleLabel = UILabel(frame: .zero)
         subTitleLabel.translatesAutoresizingMaskIntoConstraints = false
         subTitleLabel.textAlignment = .left
-        subTitleLabel.textColor = Colors.black
+        subTitleLabel.textColor = Configuration.Color.Semantic.defaultForegroundText
         subTitleLabel.font = Fonts.regular(size: ScreenChecker().isNarrowScreen ? 13 : 15)
         subTitleLabel.numberOfLines = 0
 

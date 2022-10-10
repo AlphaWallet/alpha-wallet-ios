@@ -16,7 +16,7 @@ final class AmountTextField: UIControl {
     private lazy var alternativeAmountLabelContainer: UIView = [alternativeAmountLabel].asStackView(axis: .horizontal)
     let inputAccessoryButton: UIButton = {
         let button = UIButton()
-        button.setTitleColor(R.color.black(), for: .normal)
+        button.setTitleColor(Configuration.Color.Semantic.defaultForegroundText, for: .normal)
         return button
     }()
 
@@ -25,7 +25,7 @@ final class AmountTextField: UIControl {
     private(set) lazy var textField: UITextField = {
         let textField = UITextField()
         textField.attributedPlaceholder = NSAttributedString(string: "0", attributes: [
-            .font: DataEntry.Font.amountTextField, .foregroundColor: DataEntry.Color.placeholder
+            .font: DataEntry.Font.amountTextField, .foregroundColor: Configuration.Color.Semantic.placeholderText
         ])
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.adjustsFontSizeToFitWidth = true
@@ -33,7 +33,7 @@ final class AmountTextField: UIControl {
         textField.keyboardType = .decimalPad
         textField.leftViewMode = .always
         textField.inputAccessoryView = UIToolbar.doneToolbarButton(#selector(closeKeyboard), self)
-        textField.textColor = R.color.black()!
+        textField.textColor = Configuration.Color.Semantic.defaultForegroundText
         textField.font = DataEntry.Font.amountTextField
         textField.textAlignment = .right
 
@@ -144,7 +144,7 @@ final class AmountTextField: UIControl {
         notifyAmountDidChange()
     }
 
-    func defaultLayout(edgeInsets: UIEdgeInsets = .zero, backgroundColor: UIColor = Colors.appBackground) -> UIView {
+    func defaultLayout(edgeInsets: UIEdgeInsets = .zero, backgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground) -> UIView {
         let col1 = [
             //NOTE: remove spacers when refactor send token screen, there is to many lines related to constraints
             //remove spacers for inner containers like: statusLabelContainer, alternativeAmountLabelContainer
