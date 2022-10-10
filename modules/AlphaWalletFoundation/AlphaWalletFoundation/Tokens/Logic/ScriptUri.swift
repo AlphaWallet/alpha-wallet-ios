@@ -1,8 +1,9 @@
 // Copyright © 2022 Stormbird PTE. LTD.
 
-import Foundation 
+import Foundation
 import PromiseKit
 
+//EIP-5169 https://github.com/ethereum/EIPs/pull/5169
 public class ScriptUri {
     private let server: RPCServer
     private let abiString = """
