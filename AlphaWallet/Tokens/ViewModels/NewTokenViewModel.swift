@@ -7,18 +7,18 @@ struct NewTokenViewModel {
         return R.string.localizable.tokensNewtokenNavigationTitle()
     }
 
-    var ERC875TokenBalance: [String] = []
+    var erc875TokenBalance: [String] = []
 
-    var ERC875TokenBalanceAmount: Int {
+    var erc875TokenBalanceAmount: Int {
         var balance = 0
-        if !ERC875TokenBalance.isEmpty {
-            for _ in 0...ERC875TokenBalance.count - 1 {
+        if !erc875TokenBalance.isEmpty {
+            for _ in 0...erc875TokenBalance.count - 1 {
                 balance += 1
             }
         }
-        return balance 
+        return balance
     }
-    
+
     var backgroundColor: UIColor {
         return Colors.appBackground
     }
