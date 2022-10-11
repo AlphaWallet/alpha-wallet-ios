@@ -36,7 +36,7 @@ extension ActiveWalletViewModel {
             case .settings:
                 return String(describing: SettingsViewController.self)
             case .browser:
-                return String(describing: DappsHomeViewController.self)
+                return String(describing: BrowserHomeViewController.self)
             case .swap:
                 return String(describing: UIViewController.self)
             }

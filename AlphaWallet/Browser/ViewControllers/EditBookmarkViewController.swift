@@ -3,31 +3,61 @@
 import Foundation
 import UIKit
 import AlphaWalletFoundation
+import Combine
 
-protocol EditMyDappViewControllerDelegate: AnyObject {
-    func didTapSave(bookmark: Bookmark, title: String, url: String, in viewController: EditMyDappViewController)
-    func didClose(in viewController: EditMyDappViewController)
+protocol EditBookmarkViewControllerDelegate: AnyObject {
+    func didSave(in viewController: EditBookmarkViewController)
+    func didClose(in viewController: EditBookmarkViewController)
 }
 
-class EditMyDappViewController: UIViewController {
+class EditBookmarkViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
-    private let screenTitleLabel = UILabel()
-    private var imageHolder = ContainerViewWithShadow(aroundView: UIImageView())
-    private let titleTextField: TextField = .textField
-    private let urlTextField: TextField = .textField
+    private lazy var screenTitleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = viewModel.screenTitle
+        label.textAlignment = .center
+        label.font = viewModel.screenFont
+
+        return label
+    }()
+    private lazy var iconImageView: UIImageView = {
+        let iconImageView = UIImageView()
+        iconImageView.translatesAutoresizingMaskIntoConstraints = false
+        iconImageView.backgroundColor = viewModel.imageBackgroundColor
+        iconImageView.contentMode = .scaleAspectFill
+        iconImageView.clipsToBounds = true
+
+        return iconImageView
+    }()
+    private lazy var imageHolder = ContainerViewWithShadow(aroundView: iconImageView)
+    private lazy var titleTextField: TextField = {
+        let textField = TextField.textField
+        textField.delegate = self
+        textField.label.text = viewModel.titleText
+        textField.returnKeyType = .next
+
+        return textField
+    }()
+    private lazy var urlTextField: TextField = {
+        let textField = TextField.textField
+        textField.delegate = self
+        textField.label.text = viewModel.urlText
+        textField.returnKeyType = .done
+
+        return textField
+    }()
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
-    private var viewModel: EditMyDappViewControllerViewModel?
+    private let viewModel: EditBookmarkViewModel
 
-    weak var delegate: EditMyDappViewControllerDelegate?
+    weak var delegate: EditBookmarkViewControllerDelegate?
 
-    init() {
+    init(viewModel: EditBookmarkViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
-
-        titleTextField.delegate = self
-        urlTextField.delegate = self
 
         let stackView = [
             UIView.spacer(height: 34),
@@ -44,8 +74,8 @@ class EditMyDappViewController: UIViewController {
             urlTextField.label,
             UIView.spacer(height: 7),
             urlTextField
-
         ].asStackView(axis: .vertical, alignment: .center)
+
         stackView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(stackView)
 
@@ -92,63 +122,56 @@ class EditMyDappViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(viewModel: EditMyDappViewControllerViewModel) {
-        self.viewModel = viewModel
+    override func viewDidLoad() {
+        super.viewDidLoad()
 
-        view.backgroundColor = viewModel.backgroundColor
-
-        imageHolder.configureShadow(color: viewModel.imageShadowColor, offset: viewModel.imageShadowOffset, opacity: viewModel.imageShadowOpacity, radius: viewModel.imageShadowRadius, cornerRadius: imageHolder.frame.size.width / 2)
-
-        let iconImageView = imageHolder.childView
-        iconImageView.backgroundColor = viewModel.imageBackgroundColor
-        iconImageView.contentMode = .scaleAspectFill
-        iconImageView.clipsToBounds = true
-        iconImageView.kf.setImage(with: viewModel.imageUrl, placeholder: viewModel.imagePlaceholder)
-
-        screenTitleLabel.text = viewModel.screenTitle
-        screenTitleLabel.textAlignment = .center
-        screenTitleLabel.font = viewModel.screenFont
-
-        titleTextField.label.textAlignment = viewModel.titleTextFieldTextAlignment
-        titleTextField.label.text = viewModel.titleText
-
-        titleTextField.returnKeyType = .next
-        titleTextField.value = viewModel.titleTextFieldText
-
-        urlTextField.label.text = viewModel.urlText
-        urlTextField.label.textAlignment = viewModel.titleTextFieldTextAlignment
-        urlTextField.returnKeyType = .done
-        urlTextField.value = viewModel.urlTextFieldText
+        bind(viewModel: viewModel)
 
         buttonsBar.configure()
         let saveButton = buttonsBar.buttons[0]
-        saveButton.addTarget(self, action: #selector(save), for: .touchUpInside)
         saveButton.setTitle(viewModel.saveButtonTitle, for: .normal)
+    }
+
+    private var cancelable = Set<AnyCancellable>()
+    private let deleteBookmark = PassthroughSubject<IndexPath, Never>()
+
+    private func bind(viewModel: EditBookmarkViewModel) {
+        view.backgroundColor = viewModel.backgroundColor
+
+        let save = buttonsBar.buttons[0]
+            .publisher(forEvent: .touchUpInside)
+            .map { [urlTextField, titleTextField] _ in
+                return (title: titleTextField.value.trimmed, url: urlTextField.value.trimmed)
+            }.eraseToAnyPublisher()
+
+        let input = EditBookmarkViewModelInput(save: save)
+        let output = viewModel.transform(input: input)
+        
+        output.viwState.sink { [imageHolder, iconImageView, titleTextField, urlTextField] viewState in
+            iconImageView.kf.setImage(with: viewState.imageUrl, placeholder: viewModel.imagePlaceholder)
+            titleTextField.value = viewState.title
+            urlTextField.value = viewState.url
+            imageHolder.configureShadow(color: viewModel.imageShadowColor, offset: viewModel.imageShadowOffset, opacity: viewModel.imageShadowOpacity, radius: viewModel.imageShadowRadius, cornerRadius: imageHolder.frame.size.width / 2)
+        }.store(in: &cancelable)
+
+        output.didSave
+            .sink { _ in self.delegate?.didSave(in: self) }
+            .store(in: &cancelable)
     }
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        if let viewModel = viewModel {
-            imageHolder.configureShadow(color: viewModel.imageShadowColor, offset: viewModel.imageShadowOffset, opacity: viewModel.imageShadowOpacity, radius: viewModel.imageShadowRadius, cornerRadius: imageHolder.frame.size.width / 2)
-        }
-    }
-
-    @objc private func save() {
-        guard let dapp = viewModel?.dapp else { return }
-        let url = urlTextField.value.trimmed
-        guard !url.isEmpty else { return }
-        let title = titleTextField.value.trimmed
-        delegate?.didTapSave(bookmark: dapp, title: title, url: url, in: self)
+        imageHolder.configureShadow(color: viewModel.imageShadowColor, offset: viewModel.imageShadowOffset, opacity: viewModel.imageShadowOpacity, radius: viewModel.imageShadowRadius, cornerRadius: imageHolder.frame.size.width / 2)
     }
 }
 
-extension EditMyDappViewController: PopNotifiable {
+extension EditBookmarkViewController: PopNotifiable {
     func didPopViewController(animated: Bool) {
         delegate?.didClose(in: self)
     }
 }
 
-extension EditMyDappViewController: TextFieldDelegate {
+extension EditBookmarkViewController: TextFieldDelegate {
 
     func shouldReturn(in textField: TextField) -> Bool {
         switch textField {
@@ -163,10 +186,10 @@ extension EditMyDappViewController: TextFieldDelegate {
     }
 
     func doneButtonTapped(for textField: TextField) {
-
+        //no-op
     }
 
     func nextButtonTapped(for textField: TextField) {
-
+        //no-op
     }
 }

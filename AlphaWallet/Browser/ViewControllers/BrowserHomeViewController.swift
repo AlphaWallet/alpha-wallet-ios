@@ -5,17 +5,17 @@
 import Foundation
 import UIKit
 import AlphaWalletFoundation
+import Combine
 
-protocol DappsHomeViewControllerDelegate: AnyObject {
-    func didTapShowMyDappsViewController(inViewController viewController: DappsHomeViewController)
-    func didTapShowBrowserHistoryViewController(inViewController viewController: DappsHomeViewController)
-    func didTap(dapp: Bookmark, inViewController viewController: DappsHomeViewController)
-    func delete(dapp: Bookmark, inViewController viewController: DappsHomeViewController)
-    func viewControllerWillAppear(_ viewController: DappsHomeViewController)
-    func dismissKeyboard(inViewController viewController: DappsHomeViewController)
+protocol BrowserHomeViewControllerDelegate: AnyObject {
+    func didTapShowMyDappsViewController(in viewController: BrowserHomeViewController)
+    func didTapShowBrowserHistoryViewController(in viewController: BrowserHomeViewController)
+    func didTap(bookmark: Bookmark, in viewController: BrowserHomeViewController)
+    func viewControllerWillAppear(in viewController: BrowserHomeViewController)
+    func dismissKeyboard(in viewController: BrowserHomeViewController)
 }
 
-class DappsHomeViewController: UIViewController {
+class BrowserHomeViewController: UIViewController {
     private var isEditingDapps = false {
         didSet {
             dismissKeyboard()
@@ -43,15 +43,15 @@ class DappsHomeViewController: UIViewController {
                 timerToCheckIfStillEditing?.invalidate()
                 timerToCheckIfStillEditing = nil
             }
-            dappsCollectionView.reloadData()
+            collectionView.reloadData()
         }
     }
     private var timerToCheckIfStillEditing: Timer?
-    private var viewModel: DappsHomeViewControllerViewModel
+    private let viewModel: BrowserHomeViewModel
     private var browserNavBar: DappBrowserNavigationBar? {
         return navigationController?.navigationBar as? DappBrowserNavigationBar
     }
-    lazy private var dappsCollectionView = { () -> UICollectionView in
+    lazy private var collectionView = { () -> UICollectionView in
         let layout = UICollectionViewFlowLayout()
         let fixedGutter = CGFloat(24)
         let availableWidth = UIScreen.main.bounds.size.width - (2 * fixedGutter)
@@ -76,23 +76,22 @@ class DappsHomeViewController: UIViewController {
 
         return collectionView
     }()
-    private let bookmarksStore: BookmarksStore
-    weak var delegate: DappsHomeViewControllerDelegate?
 
-    init(bookmarksStore: BookmarksStore) {
-        self.bookmarksStore = bookmarksStore
-        self.viewModel = .init(bookmarksStore: bookmarksStore)
+    private lazy var dataSource = makeDataSource()
+    private var cancelable = Set<AnyCancellable>()
+    private let deleteBookmark = PassthroughSubject<IndexPath, Never>()
+
+    weak var delegate: BrowserHomeViewControllerDelegate?
+
+    init(viewModel: BrowserHomeViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
-        dappsCollectionView.dataSource = self
-        dappsCollectionView.delegate = self
-        view.addSubview(dappsCollectionView)
+        view.addSubview(collectionView)
 
         NSLayoutConstraint.activate([
-            dappsCollectionView.anchorsConstraint(to: view)
+            collectionView.anchorsConstraint(to: view)
         ])
-        configure(viewModel: viewModel)
-
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
@@ -101,110 +100,119 @@ class DappsHomeViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        bind(viewModel: viewModel)
+        collectionView.delegate = self
+    }
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        delegate?.viewControllerWillAppear(self)
+        delegate?.viewControllerWillAppear(in: self)
     }
 
     @objc private func keyboardWillShow(notification: NSNotification) {
         if let keyboardEndFrame = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue, let _ = notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue {
-            dappsCollectionView.contentInset.bottom = keyboardEndFrame.size.height
+            collectionView.contentInset.bottom = keyboardEndFrame.size.height
         }
     }
 
     @objc private func keyboardWillHide(notification: NSNotification) {
         if let _ = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue, let _ = notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue {
-            dappsCollectionView.contentInset.bottom = 0
+            collectionView.contentInset.bottom = 0
         }
     }
 
-    func configure(viewModel: DappsHomeViewControllerViewModel) {
-        self.viewModel = viewModel
+    private func bind(viewModel: BrowserHomeViewModel) {
         view.backgroundColor = viewModel.backgroundColor
-        dappsCollectionView.backgroundColor = viewModel.backgroundColor
+        collectionView.backgroundColor = viewModel.backgroundColor
 
-        dappsCollectionView.reloadData()
+        let input = DappsHomeViewViewModelInput(deleteBookmark: deleteBookmark.eraseToAnyPublisher())
+        let output = viewModel.transform(input: input)
+
+        output.viewState
+            .sink { [dataSource] viewState in
+                dataSource.apply(viewState.snapshot, animatingDifferences: false)
+            }.store(in: &cancelable)
     }
 
     @objc private func showMyDappsViewController() {
         dismissKeyboard()
-        delegate?.didTapShowMyDappsViewController(inViewController: self)
+        delegate?.didTapShowMyDappsViewController(in: self)
     }
 
     @objc private func showBrowserHistoryViewController() {
         dismissKeyboard()
-        delegate?.didTapShowBrowserHistoryViewController(inViewController: self)
+        delegate?.didTapShowBrowserHistoryViewController(in: self)
     }
 
     private func dismissKeyboard() {
-        delegate?.dismissKeyboard(inViewController: self)
+        delegate?.dismissKeyboard(in: self)
     }
 }
 
-extension DappsHomeViewController: UICollectionViewDataSource {
-    public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return viewModel.dappsCount
-    }
-
-    public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let dapp = viewModel.dapp(atIndex: indexPath.item)
-        let cell: DappViewCell = collectionView.dequeueReusableCell(for: indexPath)
-        cell.delegate = self
-        cell.configure(viewModel: .init(dapp: dapp))
-        cell.isEditing = isEditingDapps
-        return cell
-    }
-
-    public func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let headerView: DappsHomeViewControllerHeaderView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, for: indexPath)
-        headerView.delegate = self
-        headerView.configure(viewModel: .init(isEditing: isEditingDapps))
-        headerView.myDappsButton.addTarget(self, action: #selector(showMyDappsViewController), for: .touchUpInside)
-        headerView.historyButton.addTarget(self, action: #selector(showBrowserHistoryViewController), for: .touchUpInside)
-        return headerView
-    }
-}
-
-extension DappsHomeViewController: UICollectionViewDelegateFlowLayout {
+extension BrowserHomeViewController: UICollectionViewDelegateFlowLayout {
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        dappsCollectionView.deselectItem(at: indexPath, animated: true)
+        collectionView.deselectItem(at: indexPath, animated: true)
         dismissKeyboard()
-        let dapp = viewModel.dapp(atIndex: indexPath.item)
-        delegate?.didTap(dapp: dapp, inViewController: self)
+        let bookmark = viewModel.bookmark(at: indexPath.item)
+        delegate?.didTap(bookmark: bookmark, in: self)
     }
 
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         let headerView = DappsHomeViewControllerHeaderView()
         headerView.configure()
-        let size = headerView.systemLayoutSizeFitting(.init(width: collectionView.frame.size.width, height: 1000))
-        return size
+        return headerView.systemLayoutSizeFitting(.init(width: collectionView.frame.size.width, height: 1000))
     }
 }
 
-extension DappsHomeViewController: DappViewCellDelegate {
-    func didTapDelete(dapp: Bookmark, inCell cell: DappViewCell) {
-        confirm(
-                title: R.string.localizable.dappBrowserClearMyDapps(),
-                message: dapp.title,
-                okTitle: R.string.localizable.removeButtonTitle(),
-                okStyle: .destructive
-        ) { [weak self] result in
+fileprivate extension BrowserHomeViewController {
+    typealias DataSource = UICollectionViewDiffableDataSource<BrowserHomeViewModel.Section, DappViewCellViewModel>
+    func makeDataSource() -> DataSource {
+        let dataSource = DataSource(collectionView: collectionView, cellProvider: { collectionView, indexPath, viewModel in
+            let cell: DappViewCell = collectionView.dequeueReusableCell(for: indexPath)
+            cell.delegate = self
+            cell.configure(viewModel: viewModel)
+            cell.isEditing = self.isEditingDapps
+
+            return cell
+        })
+        dataSource.supplementaryViewProvider = { collectionView, elementKind, indexPath in
+            let headerView: DappsHomeViewControllerHeaderView = collectionView.dequeueReusableSupplementaryView(ofKind: elementKind, for: indexPath)
+            headerView.delegate = self
+            headerView.configure(viewModel: .init(isEditing: self.isEditingDapps))
+            headerView.myDappsButton.addTarget(self, action: #selector(self.showMyDappsViewController), for: .touchUpInside)
+            headerView.historyButton.addTarget(self, action: #selector(self.showBrowserHistoryViewController), for: .touchUpInside)
+
+            return headerView
+        }
+
+        return dataSource
+    }
+}
+
+extension BrowserHomeViewController: DappViewCellDelegate {
+    func didTapDelete(in cell: DappViewCell) {
+        guard let indexPath = cell.indexPath else { return }
+        let bookmark = viewModel.bookmark(at: indexPath.row)
+
+        confirm(title: R.string.localizable.dappBrowserClearMyDapps(), message: bookmark.title, okTitle: R.string.localizable.removeButtonTitle(), okStyle: .destructive) { [deleteBookmark] result in
             switch result {
             case .success:
-                guard let strongSelf = self else { return }
-                strongSelf.delegate?.delete(dapp: dapp, inViewController: strongSelf)
+                deleteBookmark.send(indexPath)
             case .failure:
                 break
             }
         }
     }
 
-    func didLongPressed(dapp: Bookmark, onCell cell: DappViewCell) {
+    func didLongPressed(in cell: DappViewCell) {
         isEditingDapps = true
     }
 }
 
-extension DappsHomeViewController: DappsHomeViewControllerHeaderViewDelegate {
+extension BrowserHomeViewController: DappsHomeViewControllerHeaderViewDelegate {
     func didExitEditMode(inHeaderView: DappsHomeViewControllerHeaderView) {
         isEditingDapps = false
     }

@@ -9,7 +9,7 @@ protocol DappsHomeViewControllerHeaderViewDelegate: AnyObject {
 
 class DappsHomeViewControllerHeaderView: UICollectionReusableView {
     private let stackView = [].asStackView(axis: .vertical, contentHuggingPriority: .required, alignment: .center)
-    private let headerView = DappsHomeHeaderView()
+    private let headerView = BrowserHomeHeaderView()
     private let exitEditingModeButton = UIButton(type: .system)
 
     weak var delegate: DappsHomeViewControllerHeaderViewDelegate?

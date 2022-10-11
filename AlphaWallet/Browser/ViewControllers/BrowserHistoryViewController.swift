@@ -36,7 +36,7 @@ final class BrowserHistoryViewController: UIViewController {
         view.addSubview(tableView)
         emptyView = {
             let emptyView = DappsHomeEmptyView()
-            let headerViewModel = DappsHomeHeaderViewViewModel(title: R.string.localizable.dappBrowserBrowserHistory())
+            let headerViewModel = BrowserHomeHeaderViewModel(title: R.string.localizable.dappBrowserBrowserHistory())
             emptyView.configure(viewModel: .init(headerViewViewModel: headerViewModel, title: R.string.localizable.browserNoHistoryLabelTitle()))
             return emptyView
         }()
@@ -85,7 +85,7 @@ final class BrowserHistoryViewController: UIViewController {
     }
 
     private func resizeTableViewHeader() {
-        let headerViewModel = DappsHomeHeaderViewViewModel(title: R.string.localizable.dappBrowserBrowserHistory())
+        let headerViewModel = BrowserHomeHeaderViewModel(title: R.string.localizable.dappBrowserBrowserHistory())
         headerView.delegate = self
         headerView.configure(viewModel: headerViewModel)
         let fittingSize = headerView.systemLayoutSizeFitting(.init(width: tableView.frame.size.width, height: 1000))
