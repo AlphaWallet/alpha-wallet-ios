@@ -41,7 +41,7 @@ final class FungibleTokenHeaderViewModel {
 
     var server: RPCServer { return transactionType.tokenObject.server }
     var backgroundColor: UIColor {
-        return Screen.TokenCard.Color.background
+        return Configuration.Color.Semantic.defaultViewBackground
     }
     var iconImage: Subscribable<TokenImage> {
         transactionType.tokenObject.icon(withSize: .s300)
@@ -119,7 +119,7 @@ final class FungibleTokenHeaderViewModel {
     private var testnetValueHintLabelAttributedString: NSAttributedString {
         return NSAttributedString(string: R.string.localizable.tokenValueTestnetWarning(), attributes: [
             .font: Screen.TokenCard.Font.placeholderLabel,
-            .foregroundColor: R.color.dove()!
+            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText
         ])
     }
 
@@ -150,7 +150,7 @@ final class FungibleTokenHeaderViewModel {
         }()
         return NSAttributedString(string: string, attributes: [
             .font: Screen.TokenCard.Font.placeholderLabel,
-            .foregroundColor: R.color.dove()!
+            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText
         ])
     }
 
@@ -165,7 +165,7 @@ final class FungibleTokenHeaderViewModel {
 
         let mutableAttributedString = NSMutableAttributedString(string: string, attributes: [
             .font: Screen.TokenCard.Font.placeholderLabel,
-            .foregroundColor: R.color.dove()!
+            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText
         ])
 
         let range = NSRange(valuePercentageChangeRange, in: string)
@@ -192,7 +192,7 @@ final class FungibleTokenHeaderViewModel {
     private func asTitleAttributedString(_ title: String) -> NSAttributedString {
         return NSAttributedString(string: title, attributes: [
             .font: Fonts.regular(size: ScreenChecker().isNarrowScreen ? 26 : 36),
-            .foregroundColor: Colors.black
+            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
         ])
     }
 

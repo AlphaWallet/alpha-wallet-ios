@@ -81,6 +81,19 @@ struct Configuration {
                 return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.dusty()!)
             }
 
+            static let periodButtonSelectedText = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.cod()!)
+            }
+            static let periodButtonSelectedBackground = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: .darkGray, darkColor: .lightGray)
+            }
+            static let periodButtonNormalText = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.cod()!, darkColor: R.color.white()!)
+            }
+            static let periodButtonNormalBackground = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.cod()!)
+            }
+
             static let labelTextActive = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.mine()!, darkColor: R.color.white()!)
             }
@@ -219,6 +232,18 @@ struct Configuration {
 
             static let shadow = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.black()!, darkColor: R.color.white()!)
+            }
+
+            static let sendingState = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.solitude()!, darkColor: R.color.bali()!)
+            }
+
+            static let pendingState = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.cheese()!, darkColor: R.color.ocean()!)
+            }
+            
+            static let textViewFailed = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.silver()!, darkColor: R.color.porcelain()!)
             }
         }
     }

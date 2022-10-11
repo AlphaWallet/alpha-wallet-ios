@@ -19,7 +19,7 @@ struct TokenAttributeViewModel: Equatable {
     private let title: String?
     let value: String?
     var attributedValue: NSAttributedString?
-    var separatorColor: UIColor = R.color.mercury()!
+    var separatorColor: UIColor = Configuration.Color.Semantic.tableViewSeparator
     var isSeparatorHidden: Bool = false
     var valueLabelNumberOfLines: Int = 0
 
@@ -42,19 +42,19 @@ struct TokenAttributeViewModel: Equatable {
     }
 
     static func defaultTitleAttributedString(_ value: String, alignment: NSTextAlignment = .left, lineBreakMode: NSLineBreakMode = .byTruncatingTail) -> NSAttributedString {
-        attributedString(value, alignment: alignment, font: Fonts.regular(size: 15), foregroundColor: R.color.dove()!, lineBreakMode: lineBreakMode)
+        attributedString(value, alignment: alignment, font: Fonts.regular(size: 15), foregroundColor: Configuration.Color.Semantic.defaultSubtitleText, lineBreakMode: lineBreakMode)
     }
 
     static func defaultValueAttributedString(_ value: String, alignment: NSTextAlignment = .right, lineBreakMode: NSLineBreakMode = .byTruncatingTail) -> NSAttributedString {
-        attributedString(value, alignment: alignment, font: Fonts.regular(size: 17), foregroundColor: Colors.black, lineBreakMode: lineBreakMode)
+        attributedString(value, alignment: alignment, font: Fonts.regular(size: 17), foregroundColor: Configuration.Color.Semantic.defaultForegroundText, lineBreakMode: lineBreakMode)
     }
 
     static func urlValueAttributedString(_ value: String, alignment: NSTextAlignment = .right, lineBreakMode: NSLineBreakMode = .byTruncatingTail) -> NSAttributedString {
-        attributedString(value, alignment: alignment, font: Fonts.semibold(size: 17), foregroundColor: Colors.appTint, lineBreakMode: lineBreakMode)
+        attributedString(value, alignment: alignment, font: Fonts.semibold(size: 17), foregroundColor: Configuration.Color.Semantic.defaultAttributedString, lineBreakMode: lineBreakMode)
     }
 
     static func boldValueAttributedString(_ value: String, alignment: NSTextAlignment = .right, lineBreakMode: NSLineBreakMode = .byTruncatingTail) -> NSAttributedString {
-        attributedString(value, alignment: alignment, font: Screen.TokenCard.Font.valueChangeValue, foregroundColor: Colors.black, lineBreakMode: lineBreakMode)
+        attributedString(value, alignment: alignment, font: Screen.TokenCard.Font.valueChangeValue, foregroundColor: Configuration.Color.Semantic.defaultForegroundText, lineBreakMode: lineBreakMode)
     }
 
     static func attributedString(_ value: String, alignment: NSTextAlignment, font: UIFont, foregroundColor: UIColor, lineBreakMode: NSLineBreakMode) -> NSAttributedString {

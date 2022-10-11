@@ -44,6 +44,7 @@ class ActivitiesView: UIView {
         tableView.dataSource = self
         tableView.separatorStyle = .singleLine
         tableView.backgroundColor = viewModel.backgroundColor
+        tableView.separatorColor = viewModel.separatorColor
         tableView.estimatedRowHeight = Metrics.anArbitraryRowHeightSoAutoSizingCellsWorkIniOS10
 
         addSubview(tableView)
