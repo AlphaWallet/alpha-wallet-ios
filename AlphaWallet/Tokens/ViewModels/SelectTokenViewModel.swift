@@ -79,7 +79,7 @@ final class SelectTokenViewModel {
             .eraseToAnyPublisher()
         
         let viewState = Publishers.CombineLatest(snapshot, loadingState)
-            .map { SelectTokenViewModel.ViewState(snapshot: $0.0, loadingState: $0.1) }
+            .map { SelectTokenViewModel.ViewState(snapshot: $0.0, loadingState: $0.1, title: self.title) }
             .eraseToAnyPublisher()
 
         return .init(viewState: viewState)
@@ -131,6 +131,7 @@ extension SelectTokenViewModel {
     struct ViewState {
         let snapshot: Snapshot
         let loadingState: LoadingState
+        let title: String
     }
 }
 

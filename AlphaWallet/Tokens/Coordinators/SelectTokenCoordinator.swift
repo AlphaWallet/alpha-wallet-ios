@@ -65,13 +65,6 @@ class SelectTokenCoordinator: Coordinator {
         rootViewController.delegate = self
     }
 
-    func configureForSelectionSwapToken() {
-        rootViewController.headerView.isHidden = false
-        rootViewController.navigationItem.rightBarButtonItem = nil
-        rootViewController.navigationItem.title = nil
-        rootViewController.headerView.closeButton.addTarget(self, action: #selector(closeDidSelect), for: .touchUpInside)
-    }
-
     func start() {
         navigationController.makePresentationFullScreenForiOS13Migration()
         parentsNavigationController.present(navigationController, animated: true)
