@@ -647,13 +647,6 @@ extension DappBrowserCoordinator: DappsHomeViewControllerDelegate {
         showBrowserHistory()
     }
 
-    func didTapShowDiscoverDappsViewController(inViewController viewController: DappsHomeViewController) {
-        let viewController = DiscoverDappsViewController(bookmarksStore: bookmarksStore)
-        viewController.configure(viewModel: .init())
-        viewController.delegate = self
-        pushOntoNavigationController(viewController: viewController, animated: true)
-    }
-
     func didTap(dapp: Bookmark, inViewController viewController: DappsHomeViewController) {
         openDappInBrowser(dapp)
     }
@@ -667,24 +660,6 @@ extension DappBrowserCoordinator: DappsHomeViewControllerDelegate {
     }
 
     func dismissKeyboard(inViewController viewController: DappsHomeViewController) {
-        browserNavBar?.cancelEditing()
-    }
-}
-
-extension DappBrowserCoordinator: DiscoverDappsViewControllerDelegate {
-    func didTap(dapp: Dapp, inViewController viewController: DiscoverDappsViewController) {
-        openDappInBrowser(dapp)
-    }
-
-    func didAdd(dapp: Dapp, inViewController viewController: DiscoverDappsViewController) {
-        refreshDapps()
-    }
-
-    func didRemove(dapp: Dapp, inViewController viewController: DiscoverDappsViewController) {
-        refreshDapps()
-    }
-
-    func dismissKeyboard(inViewController viewController: DiscoverDappsViewController) {
         browserNavBar?.cancelEditing()
     }
 }
@@ -726,16 +701,6 @@ extension DappBrowserCoordinator: MyDappsViewControllerDelegate {
     }
 }
 
-extension DappBrowserCoordinator: DappsAutoCompletionViewControllerDelegate {
-    func didTap(dapp: Dapp, inViewController viewController: DappsAutoCompletionViewController) {
-        openDappInBrowser(dapp)
-    }
-
-    func dismissKeyboard(inViewController viewController: DappsAutoCompletionViewController) {
-        browserNavBar?.cancelEditing()
-    }
-}
-
 extension DappBrowserCoordinator: DappBrowserNavigationBarDelegate {
 
     func didTapHome(sender: UIView, inNavigationBar navigationBar: DappBrowserNavigationBar) {
@@ -752,9 +717,7 @@ extension DappBrowserCoordinator: DappBrowserNavigationBarDelegate {
             browserViewController.webView.goBack()
         } else if !(browserNavBar?.isBrowserOnly ?? false) {
             navigationController.popViewController(animated: true)
-            if let viewController = navigationController.topViewController as? DappsAutoCompletionViewController {
-                browserNavBar?.display(string: viewController.text)
-            } else if navigationController.topViewController is DappsHomeViewController {
+            if navigationController.topViewController is DappsHomeViewController {
                 browserNavBar?.clearDisplay()
             }
         }
@@ -780,9 +743,7 @@ extension DappBrowserCoordinator: DappBrowserNavigationBarDelegate {
     }
 
     func didTyped(text: String, inNavigationBar navigationBar: DappBrowserNavigationBar) {
-        if navigationController.topViewController as? DappsAutoCompletionViewController != nil && text.trimmed.isEmpty {
-            navigationController.popViewController(animated: false)
-        }
+        //no-op
     }
 
     func didEnter(text: String, inNavigationBar navigationBar: DappBrowserNavigationBar) {
