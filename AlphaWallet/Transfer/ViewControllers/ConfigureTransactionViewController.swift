@@ -198,7 +198,7 @@ class ConfigureTransactionViewController: UIViewController {
         label.textAlignment = .center
         label.numberOfLines = 0
         label.font = Fonts.regular(size: 15)
-        label.textColor = R.color.dove()
+        label.textColor = Configuration.Color.Semantic.defaultSubtitleText
         label.text = R.string.localizable.transactionConfirmationFeeFooterText()
 
         footer.translatesAutoresizingMaskIntoConstraints = false

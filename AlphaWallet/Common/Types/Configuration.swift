@@ -28,7 +28,12 @@ struct Configuration {
             static let defaultSubtitleText = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.dove()!, darkColor: R.color.dusty()!)
             }
-
+            static let defaultTitleText = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: .black, darkColor: .white)
+            }
+            static let defaultHeadlineText = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.mine()!, darkColor: R.color.white()!)
+            }
             static let indicator = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.azure()!, darkColor: R.color.dodge()!)
             }
