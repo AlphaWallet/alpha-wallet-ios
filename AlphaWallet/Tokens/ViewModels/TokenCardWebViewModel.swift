@@ -15,7 +15,7 @@ struct TokenCardWebViewModel {
     let assetDefinitionStore: AssetDefinitionStore
     var contentsBackgroundColor: UIColor = Colors.appWhite
 
-    var tokenScriptHtml: (html: String, hash: Int) {
+    var tokenScriptHtml: String {
         let xmlHandler = XMLHandler(contract: tokenHolder.contractAddress, tokenType: tokenHolder.tokenType, assetDefinitionStore: assetDefinitionStore)
         let html: String
         let style: String
@@ -25,12 +25,12 @@ struct TokenCardWebViewModel {
         case .viewIconified:
             (html, style) = xmlHandler.tokenViewIconifiedHtml
         }
-        let hash = html.hashForCachingHeight
-        return (html: wrapWithHtmlViewport(html: html, style: style, forTokenHolder: tokenHolder), hash: hash)
+
+        return wrapWithHtmlViewport(html: html, style: style, forTokenHolder: tokenHolder)
     }
 
     var hasTokenScriptHtml: Bool {
         //TODO improve performance? Because it is generated again when used
-        return !tokenScriptHtml.html.isEmpty
+        return !tokenScriptHtml.isEmpty
     }
 }

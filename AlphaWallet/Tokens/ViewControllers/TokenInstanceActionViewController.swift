@@ -26,7 +26,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
         webView.isWebViewInteractionEnabled = true
         webView.delegate = self
         webView.isStandalone = true
-        webView.isAction = true
+
         return webView
     }()
 
@@ -129,8 +129,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
         button.setTitle(R.string.localizable.confirmPaymentConfirmButtonTitle(), for: .normal)
         button.addTarget(self, action: #selector(proceed), for: .touchUpInside)
 
-        let (html: html, hash: hash) = action.viewHtml(forTokenHolder: tokenHolder, tokenId: tokenHolder.tokenIds[0])
-        tokenScriptRendererView.loadHtml(html, hash: hash)
+        tokenScriptRendererView.loadHtml(action.viewHtml(forTokenHolder: tokenHolder, tokenId: tokenHolder.tokenIds[0]))
 
         //TODO this will only contain values that has been resolved and might not refresh properly when the values are 1st resolved or updated
         //TODO rename this. Not actually `existingAttributeValues`, but token attributes

@@ -124,17 +124,16 @@ struct ImportMagicTokenCardRowViewModel: TokenCardRowViewModelProtocol {
         }
     }
 
-    var tokenScriptHtml: (html: String, hash: Int) {
-        guard let tokenHolder = importMagicTokenViewControllerViewModel.tokenHolder else { return (html: "", hash: 0) }
+    var tokenScriptHtml: String {
+        guard let tokenHolder = importMagicTokenViewControllerViewModel.tokenHolder else { return "" }
         let xmlHandler = XMLHandler(contract: tokenHolder.contractAddress, tokenType: tokenHolder.tokenType, assetDefinitionStore: assetDefinitionStore)
         let (html: html, style: style) = xmlHandler.tokenViewIconifiedHtml
-        //Just an easy way to generate a hash for style + HTML
-        let hash = "\(style)\(html)".hashForCachingHeight
-        return (html: wrapWithHtmlViewport(html: html, style: style, forTokenHolder: tokenHolder), hash: hash)
+
+        return wrapWithHtmlViewport(html: html, style: style, forTokenHolder: tokenHolder)
     }
 
     var hasTokenScriptHtml: Bool {
         //TODO improve performance? Because it is generated again when used
-        return !tokenScriptHtml.html.isEmpty
+        return !tokenScriptHtml.isEmpty
     }
 }

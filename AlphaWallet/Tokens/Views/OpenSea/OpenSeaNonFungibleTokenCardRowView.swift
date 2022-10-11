@@ -120,17 +120,6 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
             }
         }
     }
-    var additionalHeightToCompensateForAutoLayout: CGFloat {
-        guard let attributedText = descriptionLabel.attributedText else { return 0 }
-        let rect = attributedText.boundingRect(with: .init(width: descriptionLabelWidth, height: 1000), options: .usesLineFragmentOrigin, context: nil)
-        let size = rect.size
-        //Hackish: Add a bit of allowance. Otherwise it's good for CryptoKitties, but there's no enough space for Chibi Fighters' title
-        if size.height > 0 {
-            return size.height + 10
-        } else {
-            return 0
-        }
-    }
     //Just to adhere to protocol
     var areDetailsVisible = false
 

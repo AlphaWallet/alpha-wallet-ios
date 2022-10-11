@@ -24,7 +24,6 @@ class TokenCardWebView: UIView, TokenCardRowViewConfigurable, ViewRoundingSuppor
     }()
 
     var rounding: ViewRounding = .none
-    var additionalHeightToCompensateForAutoLayout: CGFloat { return 0 }
     var isStandalone: Bool {
         get { return tokenScriptRendererView.isStandalone }
         set { tokenScriptRendererView.isStandalone = newValue }
@@ -60,8 +59,7 @@ class TokenCardWebView: UIView, TokenCardRowViewConfigurable, ViewRoundingSuppor
         backgroundColor = viewModel.contentsBackgroundColor
         if viewModel.hasTokenScriptHtml {
             tokenScriptRendererView.isHidden = false
-            let (html: html, hash: hash) = viewModel.tokenScriptHtml
-            tokenScriptRendererView.loadHtml(html, hash: hash)
+            tokenScriptRendererView.loadHtml(viewModel.tokenScriptHtml)
             tokenScriptRendererView.update(withTokenHolder: viewModel.tokenHolder, isFungible: false)
         } else {
             tokenScriptRendererView.isHidden = true

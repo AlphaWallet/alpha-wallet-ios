@@ -66,14 +66,12 @@ public struct Activity {
         self.rowType = rowType
     }
 
-    public var viewHtml: (html: String, hash: Int) {
-        let hash = "\(view.style)\(view.html)".hashForCachingHeight
-        return (html: wrapWithHtmlViewport(html: view.html, style: view.style, forTokenId: .init(id)), hash: hash)
+    public var viewHtml: String {
+        return wrapWithHtmlViewport(html: view.html, style: view.style, forTokenId: .init(id))
     }
 
-    public var itemViewHtml: (html: String, hash: Int) {
-        let hash = "\(itemView.style)\(itemView.html)".hashForCachingHeight
-        return (html: wrapWithHtmlViewport(html: itemView.html, style: itemView.style, forTokenId: .init(id)), hash: hash)
+    public var itemViewHtml: String {
+        return wrapWithHtmlViewport(html: itemView.html, style: itemView.style, forTokenId: .init(id))
     }
 
     public var nativeViewType: NativeViewType {

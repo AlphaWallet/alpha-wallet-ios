@@ -24,7 +24,7 @@ class ImageView: UIImageView {
     }
 }
 
-class TokenImageView: UIView, ViewRoundingSupportable, ViewLoadingCancelable {
+final class TokenImageView: UIView, ViewRoundingSupportable, ViewLoadingCancelable {
     private var subscriptionKey: Subscribable<TokenImage>.SubscribableKey?
     private let symbolLabel: UILabel = {
         let label = UILabel()

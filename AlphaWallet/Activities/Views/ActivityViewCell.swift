@@ -70,8 +70,7 @@ class ActivityViewCell: UITableViewCell {
 
         backgroundColor = viewModel.backgroundColor
 
-        let (html: html, hash: hash) = viewModel.activity.itemViewHtml
-        tokenScriptRendererView.loadHtml(html, hash: hash)
+        tokenScriptRendererView.loadHtml(viewModel.activity.itemViewHtml)
 
         let tokenAttributes = viewModel.activity.values.token
         let cardAttributes = viewModel.activity.values.card

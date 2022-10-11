@@ -71,8 +71,6 @@ final class WebImageView: UIView, ContentBackgroundSupportable {
         return imageView
     }()
 
-    private var pendingLoadWebViewOperation: BlockOperation?
-
     override var contentMode: UIView.ContentMode {
         didSet { imageView.fixedContentMode = contentMode }
     }

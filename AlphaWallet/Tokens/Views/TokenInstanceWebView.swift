@@ -22,22 +22,19 @@ class TokenInstanceWebView: UIView {
     //TODO see if we can be smarter about just subscribing to the attribute once. Note that this is not `Subscribable.subscribeOnce()`
     private let wallet: Wallet
     private let assetDefinitionStore: AssetDefinitionStore
-    private var hashOfCurrentHtml: Int?
-    private var hashOfLoadedHtml: Int?
     lazy private var heightConstraint = heightAnchor.constraint(equalToConstant: 100)
     lazy private var webView: WKWebView = {
         let webViewConfig = WKWebViewConfiguration.make(forType: .tokenScriptRenderer, address: wallet.address, in: ScriptMessageProxy(delegate: self))
         webViewConfig.websiteDataStore = .default()
         return .init(frame: .init(x: 0, y: 0, width: 40, height: 40), configuration: webViewConfig)
     }()
-    //Used to track asynchronous calls are called for correctly
-    private var loadId: Int?
     private var lastInjectedJavaScript: String?
     //TODO remove once we refactor internals to include a TokenScriptContext
     private var lastTokenHolder: TokenHolder?
-    var actionProperties: TokenScript.SetProperties.Properties = .init()
+    private var actionProperties: TokenScript.SetProperties.Properties = .init()
     private var lastCardLevelAttributeValues: [AttributeId: AssetAttributeSyntaxValue]?
     private let keystore: Keystore
+    private var cancelable = Set<AnyCancellable>()
 
     var server: RPCServer
     var isWebViewInteractionEnabled: Bool = false {
@@ -52,8 +49,6 @@ class TokenInstanceWebView: UIView {
     //TODO improve further. It's not reliable enough
     var isStandalone = false
 
-    var isAction = false
-
     var localRefs: [AttributeId: AssetInternalValue] {
         var results: [AttributeId: AssetInternalValue] = .init()
         for (key, value) in actionProperties {
@@ -65,7 +60,6 @@ class TokenInstanceWebView: UIView {
         }
         return results
     }
-    private var cancelable = Set<AnyCancellable>()
 
     init(analytics: AnalyticsLogger, server: RPCServer, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore) {
         self.analytics = analytics
@@ -82,14 +76,12 @@ class TokenInstanceWebView: UIView {
         webView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(webView)
 
-        let scrollView = webView.scrollView
-
-        scrollView
+        webView.scrollView
             .publisher(for: \.contentSize, options: [.new, .initial])
             .removeDuplicates()
-            .sink { [weak self] _ in
-                self?.heightConstraint.constant = scrollView.contentSize.height
-            }.store(in: &cancelable)
+            .map { $0.height }
+            .assign(to: \.constant, on: heightConstraint, ownership: .weak)
+            .store(in: &cancelable)
 
         NSLayoutConstraint.activate([
             webView.anchorsConstraint(to: self),
@@ -266,10 +258,8 @@ class TokenInstanceWebView: UIView {
         }
     }
 
-    func loadHtml(_ html: String, hash: Int) {
-        hashOfCurrentHtml = hash
+    func loadHtml(_ html: String) {
         webView.loadHTMLString(html, baseURL: nil)
-        hashOfLoadedHtml = hashOfCurrentHtml
     }
 }
 
@@ -339,10 +329,8 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
 
         func _sign(action: DappAction, command: DappCommand, account: AlphaWallet.Address) {
             switch action {
-            case .signPersonalMessage(let hexMessage):
-                let msg = convertMessageToHex(msg: hexMessage)
-                let callbackID = command.id
-                signMessage(with: .personalMessage(Data(_hex: msg)), account: account, callbackID: callbackID)
+            case .signPersonalMessage(let message):
+                signMessage(with: .personalMessage(message.toHexData), account: account, callbackID: command.id)
             case .signTransaction, .sendTransaction, .signMessage, .signTypedMessage, .unknown, .sendRawTransaction, .signTypedMessageV3, .ethCall, .walletAddEthereumChain, .walletSwitchEthereumChain:
                 break
             }
@@ -381,16 +369,6 @@ extension TokenInstanceWebView: WKUIDelegate {
 
 //TODO this contains functions duplicated and modified from DappBrowserCoordinator. Clean this up. Or move it somewhere, to a coordinator?
 extension TokenInstanceWebView: Coordinator {
-    
-    //allow the message to be passed in as a pure string, if it is then we convert it to hex
-    private func convertMessageToHex(msg: String) -> String {
-        if msg.hasPrefix("0x") {
-            return msg
-        } else {
-            return msg.hex
-        }
-    }
-
     func signMessage(with type: SignMessageType, account: AlphaWallet.Address, callbackID: Int) {
         guard let navigationController = delegate?.navigationControllerFor(tokenInstanceWebView: self) else { return }
         firstly {
