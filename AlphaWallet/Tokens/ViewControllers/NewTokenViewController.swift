@@ -250,8 +250,8 @@ class NewTokenViewController: UIViewController {
     public func updateBalanceValue(_ balance: [String], tokenType: TokenType) {
         //TODO this happens to work for CryptoKitty now because of how isNonZeroBalance() is implemented. But should fix
         let filteredTokens = balance.filter { isNonZeroBalance($0, tokenType: tokenType) }
-        viewModel.ERC875TokenBalance = filteredTokens
-        balanceTextField.value = viewModel.ERC875TokenBalanceAmount.description
+        viewModel.erc875TokenBalance = filteredTokens
+        balanceTextField.value = viewModel.erc875TokenBalanceAmount.description
     }
 
     public func updateForm(forTokenType tokenType: TokenType) {
@@ -334,7 +334,7 @@ class NewTokenViewController: UIViewController {
         let decimals = Int(decimalsTextField.value) ?? 0
         guard let tokenType = self.tokenType else { return }
         //TODO looks wrong to mention ERC875TokenBalance specifically
-        var balance: [String] = viewModel.ERC875TokenBalance
+        var balance: [String] = viewModel.erc875TokenBalance
 
         guard let address = AlphaWallet.Address(string: contract) else {
             addressTextField.errorState = .error(InputError.invalidAddress.prettyError)
