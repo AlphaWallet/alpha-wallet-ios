@@ -4,14 +4,14 @@ import UIKit
 import AlphaWalletFoundation
 
 protocol DappBrowserNavigationBarDelegate: AnyObject {
-    func didTyped(text: String, inNavigationBar navigationBar: DappBrowserNavigationBar)
-    func didEnter(text: String, inNavigationBar navigationBar: DappBrowserNavigationBar)
-    func didTapChangeServer(inNavigationBar navigationBar: DappBrowserNavigationBar)
-    func didTapBack(inNavigationBar navigationBar: DappBrowserNavigationBar)
-    func didTapForward(inNavigationBar navigationBar: DappBrowserNavigationBar)
-    func didTapMore(sender: UIView, inNavigationBar navigationBar: DappBrowserNavigationBar)
-    func didTapClose(inNavigationBar navigationBar: DappBrowserNavigationBar)
-    func didTapHome(sender: UIView, inNavigationBar navigationBar: DappBrowserNavigationBar)
+    func didTyped(text: String, in navigationBar: DappBrowserNavigationBar)
+    func didEnter(text: String, in navigationBar: DappBrowserNavigationBar)
+    func didTapChangeServer(in navigationBar: DappBrowserNavigationBar)
+    func didTapBack(in navigationBar: DappBrowserNavigationBar)
+    func didTapForward(in navigationBar: DappBrowserNavigationBar)
+    func didTapMore(sender: UIView, in navigationBar: DappBrowserNavigationBar)
+    func didTapClose(in navigationBar: DappBrowserNavigationBar)
+    func didTapHome(sender: UIView, in navigationBar: DappBrowserNavigationBar)
 }
 
 private enum State {
@@ -101,7 +101,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
         backButton.tintColor = Configuration.Color.Semantic.navigationbarPrimaryFont
         backButton.adjustsImageWhenHighlighted = true
         backButton.setImage(R.image.toolbarBack(), for: .normal)
-
+        
         return backButton
     }()
     private let forwardButton: UIButton = {
@@ -239,32 +239,32 @@ final class DappBrowserNavigationBar: UINavigationBar {
 
     @objc private func goBackAction() {
         cancelEditing()
-        navigationBarDelegate?.didTapBack(inNavigationBar: self)
+        navigationBarDelegate?.didTapBack(in: self)
     }
 
     @objc private func goForwardAction() {
         cancelEditing()
-        navigationBarDelegate?.didTapForward(inNavigationBar: self)
+        navigationBarDelegate?.didTapForward(in: self)
     }
 
     @objc private func moreAction(_ sender: UIView) {
         cancelEditing()
-        navigationBarDelegate?.didTapMore(sender: sender, inNavigationBar: self)
+        navigationBarDelegate?.didTapMore(sender: sender, in: self)
     }
 
     @objc private func homeAction(_ sender: UIView) {
         cancelEditing()
-        navigationBarDelegate?.didTapHome(sender: sender, inNavigationBar: self)
+        navigationBarDelegate?.didTapHome(sender: sender, in: self)
     }
 
     @objc private func changeServerAction(_ sender: UIView) {
         cancelEditing()
-        navigationBarDelegate?.didTapChangeServer(inNavigationBar: self)
+        navigationBarDelegate?.didTapChangeServer(in: self)
     }
 
     @objc private func closeAction(_ sender: UIView) {
         cancelEditing()
-        navigationBarDelegate?.didTapClose(inNavigationBar: self)
+        navigationBarDelegate?.didTapClose(in: self)
     }
 
     //TODO this might get triggered immediately if we use a physical keyboard. Verify
@@ -340,11 +340,11 @@ extension DappBrowserNavigationBar: UITextFieldDelegate {
     }
 
     private func queue(typedText text: String) {
-        navigationBarDelegate?.didTyped(text: text, inNavigationBar: self)
+        navigationBarDelegate?.didTyped(text: text, in: self)
     }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        navigationBarDelegate?.didEnter(text: textField.text ?? "", inNavigationBar: self)
+        navigationBarDelegate?.didEnter(text: textField.text ?? "", in: self)
         textField.resignFirstResponder()
         return true
     }
