@@ -14,7 +14,6 @@ protocol RenameWalletViewControllerDelegate: AnyObject {
 }
 
 class RenameWalletViewController: UIViewController {
-
     private let viewModel: RenameWalletViewModel
     private var cancelable = Set<AnyCancellable>()
     private lazy var nameTextField: TextField = {
@@ -33,6 +32,9 @@ class RenameWalletViewController: UIViewController {
     private var footerBottomConstraint: NSLayoutConstraint!
     private lazy var keyboardChecker = KeyboardChecker(self)
     private let roundedBackground = RoundedBackground()
+    private let name = PassthroughSubject<String, Never>()
+    private let appear = PassthroughSubject<Void, Never>()
+
     weak var delegate: RenameWalletViewControllerDelegate?
 
     init(viewModel: RenameWalletViewModel) {
@@ -93,6 +95,7 @@ class RenameWalletViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         keyboardChecker.viewWillAppear()
+        appear.send(())
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -105,21 +108,22 @@ class RenameWalletViewController: UIViewController {
     }
 
     private func bind(viewModel: RenameWalletViewModel) {
-        navigationItem.title = viewModel.title
         nameTextField.label.text = viewModel.walletNameTitle
         buttonsBar.buttons[0].setTitle(viewModel.saveWalletNameTitle, for: .normal)
 
-        viewModel.resolvedEns
-            .assign(to: \.placeholder, on: nameTextField.textField)
-            .store(in: &cancelable)
+        let input = RenameWalletViewModelInput(appear: appear.eraseToAnyPublisher(), name: name.eraseToAnyPublisher())
+        let output = viewModel.transform(input: input)
 
-        viewModel.assignedName
-            .assign(to: \.text, on: nameTextField.textField)
-            .store(in: &cancelable)
+        output.viewState
+            .sink { [nameTextField, navigationItem] viewState in
+                nameTextField.textField.placeholder = viewState.placeholder
+                nameTextField.textField.text = viewState.text
+                navigationItem.title = viewState.title
+            }.store(in: &cancelable)
     }
 
     @objc private func saveWalletNameSelected(_ sender: UIButton) {
-        viewModel.set(walletName: nameTextField.value)
+        name.send(nameTextField.value)
 
         delegate?.didFinish(in: self)
     }
