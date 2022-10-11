@@ -212,7 +212,7 @@ class GithubAssetsURLResolver {
     static let file = "logo.png"
 
     enum Source: String {
-        case alphaWallet = "https://raw.githubusercontent.com/AlphaWallet/iconassets/lowercased/"
+        case alphaWallet = "https://raw.githubusercontent.com/AlphaWallet/iconassets/master/"
         case thirdParty = "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/"
 
         func url(forContract contract: AlphaWallet.Address) -> String {
