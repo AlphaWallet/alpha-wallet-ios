@@ -3,7 +3,7 @@
 import Foundation
 import UIKit
 
-struct DappsHomeHeaderViewViewModel {
+struct BrowserHomeHeaderViewModel {
     var title: String
 
     var backgroundColor: UIColor {

@@ -8,7 +8,7 @@ protocol BrowserHistoryViewControllerHeaderViewDelegate: AnyObject {
 }
 
 class BrowserHistoryViewControllerHeaderView: UIView {
-    private let header = DappsHomeHeaderView()
+    private let header = BrowserHomeHeaderView()
     private let clearButton = UIButton(type: .system)
 
     weak var delegate: BrowserHistoryViewControllerHeaderViewDelegate?
@@ -38,7 +38,7 @@ class BrowserHistoryViewControllerHeaderView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(viewModel: DappsHomeHeaderViewViewModel) {
+    func configure(viewModel: BrowserHomeHeaderViewModel) {
         backgroundColor = viewModel.backgroundColor
         header.configure(viewModel: viewModel)
 

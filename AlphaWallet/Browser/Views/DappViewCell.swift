@@ -5,8 +5,8 @@ import UIKit
 import AlphaWalletFoundation
 
 protocol DappViewCellDelegate: AnyObject {
-    func didTapDelete(dapp: Bookmark, inCell cell: DappViewCell)
-    func didLongPressed(dapp: Bookmark, onCell cell: DappViewCell)
+    func didTapDelete(in cell: DappViewCell)
+    func didLongPressed(in cell: DappViewCell)
 }
 
 //Because of how we implemented shadows parallax doesn't work anymore. Fix it again by adding another wrapper around imageHolder? Maybe shadow should just be implemented with a sublayer
@@ -14,7 +14,6 @@ class DappViewCell: UICollectionViewCell {
     private let marginAroundImage = CGFloat(7)
     private let jiggleAnimationKey = "jiggle"
     private var viewModel: DappViewCellViewModel?
-    private var currentDisplayedImageUrl: URL?
     private let background = UIView()
     private var imageHolder = ContainerViewWithShadow(aroundView: UIImageView())
     private let titleLabel = UILabel()
@@ -133,12 +132,10 @@ class DappViewCell: UICollectionViewCell {
     }
 
     @objc func deleteDapp() {
-        guard let dapp = viewModel?.dapp else { return }
-        delegate?.didTapDelete(dapp: dapp, inCell: self)
+        delegate?.didTapDelete(in: self)
     }
 
     @objc private func longPressedDappCell() {
-        guard let dapp = viewModel?.dapp else { return }
-        delegate?.didLongPressed(dapp: dapp, onCell: self)
+        delegate?.didLongPressed(in: self)
     }
 }

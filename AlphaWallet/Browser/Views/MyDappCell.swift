@@ -5,7 +5,6 @@ import UIKit
 
 class MyDappCell: UITableViewCell {
     private var iconImageViewHolder = ContainerViewWithShadow(aroundView: UIImageView())
-    private var viewModel: MyDappCellViewModel?
     private let titleLabel = UILabel()
     private let urlLabel = UILabel()
 
@@ -35,8 +34,6 @@ class MyDappCell: UITableViewCell {
     }
 
     func configure(viewModel: MyDappCellViewModel) {
-        self.viewModel = viewModel
-
         titleLabel.font = viewModel.nameFont
         titleLabel.textColor = viewModel.nameColor
         titleLabel.text = viewModel.name

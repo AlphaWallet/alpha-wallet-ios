@@ -63,9 +63,11 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     var coordinators: [Coordinator] = []
     let navigationController: UINavigationController
 
-    lazy var rootViewController: DappsHomeViewController = {
-        let vc = DappsHomeViewController(bookmarksStore: bookmarksStore)
+    lazy var rootViewController: BrowserHomeViewController = {
+        let viewModel = BrowserHomeViewModel(bookmarksStore: bookmarksStore)
+        let vc = BrowserHomeViewController(viewModel: viewModel)
         vc.delegate = self
+
         return vc
     }()
 
@@ -126,10 +128,11 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         return controller
     }
 
-    private func createMyDappsViewController() -> MyDappsViewController {
-        let viewController = MyDappsViewController(bookmarksStore: bookmarksStore)
-        viewController.configure(viewModel: .init(bookmarksStore: bookmarksStore))
+    private func createMyDappsViewController() -> BookmarksViewController {
+        let viewModel = BookmarksViewViewModel(bookmarksStore: bookmarksStore)
+        let viewController = BookmarksViewController(viewModel: viewModel)
         viewController.delegate = self
+
         return viewController
     }
 
@@ -306,8 +309,8 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         open(url: url, animated: false)
     }
 
-    private func openDappInBrowser(_ dapp: Bookmark) {
-        guard let url = URL(string: dapp.url) else { return }
+    private func openDappInBrowser(_ bookmark: Bookmark) {
+        guard let url = URL(string: bookmark.url) else { return }
         open(url: url, animated: false)
     }
 
@@ -317,26 +320,11 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         navigationController.pushViewController(viewController, animated: animated)
     }
 
-    private func deleteDappFromMyDapp(_ dapp: Bookmark) {
-        bookmarksStore.delete(bookmarks: [dapp])
-        refreshDapps()
-    }
-
-    //TODO can we animate changes better?
-    func refreshDapps() {
-        rootViewController.configure(viewModel: .init(bookmarksStore: bookmarksStore))
-        for each in navigationController.viewControllers {
-            guard let vc = each as? MyDappsViewController else { continue }
-            vc.configure(viewModel: .init(bookmarksStore: bookmarksStore))
-        }
-    }
-
     private func addCurrentPageAsBookmark() {
         logAddDapp()
         if let url = currentUrl?.absoluteString, let title = browserViewController.webView.title {
             let bookmark = Bookmark(url: url, title: title)
             bookmarksStore.add(bookmarks: [bookmark])
-            refreshDapps()
 
             UINotificationFeedbackGenerator.show(feedbackType: .success)
         } else {
@@ -412,7 +400,6 @@ extension DappBrowserCoordinator: TransactionConfirmationCoordinatorDelegate {
             UIApplication.shared
                 .presentedViewController(or: strongSelf.navigationController)
                 .displayError(message: error.prettyError)
-
         }
     }
 
@@ -623,7 +610,7 @@ extension DappBrowserCoordinator: WKUIDelegate {
     }
 }
 
-extension DappBrowserCoordinator: DappsHomeViewControllerDelegate {
+extension DappBrowserCoordinator: BrowserHomeViewControllerDelegate {
 
     private func showMyDapps() {
         logShowDapps()
@@ -639,65 +626,52 @@ extension DappBrowserCoordinator: DappsHomeViewControllerDelegate {
         navigationController.removeViewControllerOfSameType(except: viewController)
     }
 
-    func didTapShowMyDappsViewController(inViewController viewController: DappsHomeViewController) {
+    func didTapShowMyDappsViewController(in viewController: BrowserHomeViewController) {
         showMyDapps()
     }
 
-    func didTapShowBrowserHistoryViewController(inViewController viewController: DappsHomeViewController) {
+    func didTapShowBrowserHistoryViewController(in viewController: BrowserHomeViewController) {
         showBrowserHistory()
     }
 
-    func didTap(dapp: Bookmark, inViewController viewController: DappsHomeViewController) {
-        openDappInBrowser(dapp)
+    func didTap(bookmark: Bookmark, in viewController: BrowserHomeViewController) {
+        openDappInBrowser(bookmark)
     }
 
-    func delete(dapp: Bookmark, inViewController viewController: DappsHomeViewController) {
-        deleteDappFromMyDapp(dapp)
-    }
-
-    func viewControllerWillAppear(_ viewController: DappsHomeViewController) {
+    func viewControllerWillAppear(in viewController: BrowserHomeViewController) {
         browserNavBar?.enableButtons()
     }
 
-    func dismissKeyboard(inViewController viewController: DappsHomeViewController) {
+    func dismissKeyboard(in viewController: BrowserHomeViewController) {
         browserNavBar?.cancelEditing()
     }
 }
 
-extension DappBrowserCoordinator: MyDappsViewControllerDelegate {
+extension DappBrowserCoordinator: BookmarksViewControllerDelegate {
 
-    private func createEditMyDappViewController(dapp: Bookmark) -> EditMyDappViewController {
-        let viewController = EditMyDappViewController()
+    private func createEditBookmarkViewController(bookmark: Bookmark) -> EditBookmarkViewController {
+        let viewModel = EditBookmarkViewModel(bookmark: bookmark, bookmarksStore: bookmarksStore)
+        let viewController = EditBookmarkViewController(viewModel: viewModel)
         viewController.delegate = self
-        viewController.configure(viewModel: .init(dapp: dapp))
         viewController.hidesBottomBarWhenPushed = true
 
         return viewController
     }
 
-    func didTapToEdit(dapp: Bookmark, inViewController viewController: MyDappsViewController) {
-        let viewController = createEditMyDappViewController(dapp: dapp)
+    func didTapToEdit(bookmark: Bookmark, in viewController: BookmarksViewController) {
+        let viewController = createEditBookmarkViewController(bookmark: bookmark)
 
         browserNavBar?.setBrowserBar(hidden: true)
 
         navigationController.pushViewController(viewController, animated: true)
     }
 
-    func didTapToSelect(dapp: Bookmark, inViewController viewController: MyDappsViewController) {
-        openDappInBrowser(dapp)
+    func didTapToSelect(bookmark: Bookmark, in viewController: BookmarksViewController) {
+        openDappInBrowser(bookmark)
     }
 
-    func delete(dapp: Bookmark, inViewController viewController: MyDappsViewController) {
-        deleteDappFromMyDapp(dapp)
-        viewController.configure(viewModel: .init(bookmarksStore: bookmarksStore))
-    }
-
-    func dismissKeyboard(inViewController viewController: MyDappsViewController) {
+    func dismissKeyboard(in viewController: BookmarksViewController) {
         browserNavBar?.cancelEditing()
-    }
-
-    func didReorderDapps(inViewController viewController: MyDappsViewController) {
-        refreshDapps()
     }
 }
 
@@ -717,7 +691,7 @@ extension DappBrowserCoordinator: DappBrowserNavigationBarDelegate {
             browserViewController.webView.goBack()
         } else if !(browserNavBar?.isBrowserOnly ?? false) {
             navigationController.popViewController(animated: true)
-            if navigationController.topViewController is DappsHomeViewController {
+            if navigationController.topViewController is BrowserHomeViewController {
                 browserNavBar?.clearDisplay()
             }
         }
@@ -753,16 +727,15 @@ extension DappBrowserCoordinator: DappBrowserNavigationBarDelegate {
     }
 }
 
-extension DappBrowserCoordinator: EditMyDappViewControllerDelegate {
-    func didTapSave(bookmark: Bookmark, title: String, url: String, in viewController: EditMyDappViewController) {
-        bookmarksStore.update(bookmark: bookmark, title: title, url: url)
+extension DappBrowserCoordinator: EditBookmarkViewControllerDelegate {
+
+    func didSave(in viewController: EditBookmarkViewController) {
         browserNavBar?.setBrowserBar(hidden: false)
 
         navigationController.popViewController(animated: true)
-        refreshDapps()
     }
 
-    func didClose(in viewController: EditMyDappViewController) {
+    func didClose(in viewController: EditBookmarkViewController) {
         browserNavBar?.setBrowserBar(hidden: false)
     }
 }

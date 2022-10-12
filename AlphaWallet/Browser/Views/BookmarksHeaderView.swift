@@ -3,13 +3,13 @@
 import Foundation
 import UIKit
 
-protocol MyDappsViewControllerHeaderViewDelegate: AnyObject {
-    func didEnterEditMode(inHeaderView headerView: MyDappsViewControllerHeaderView)
-    func didExitEditMode(inHeaderView headerView: MyDappsViewControllerHeaderView)
+protocol BookmarksHeaderViewDelegate: AnyObject {
+    func didEnterEditMode(inHeaderView headerView: BookmarksHeaderView)
+    func didExitEditMode(inHeaderView headerView: BookmarksHeaderView)
 }
 
-class MyDappsViewControllerHeaderView: UIView {
-    private let header = DappsHomeHeaderView()
+class BookmarksHeaderView: UIView {
+    private let header = BrowserHomeHeaderView()
     private let toggleEditModeButton = UIButton(type: .system)
     private var isEditing = false {
         didSet {
@@ -22,9 +22,9 @@ class MyDappsViewControllerHeaderView: UIView {
             }
         }
     }
-    private var viewModel: DappsHomeHeaderViewViewModel?
+    private var viewModel: BrowserHomeHeaderViewModel?
 
-    weak var delegate: MyDappsViewControllerHeaderViewDelegate?
+    weak var delegate: BookmarksHeaderViewDelegate?
 
     init() {
         super.init(frame: .zero)
@@ -51,7 +51,7 @@ class MyDappsViewControllerHeaderView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(viewModel: DappsHomeHeaderViewViewModel) {
+    func configure(viewModel: BrowserHomeHeaderViewModel) {
         self.viewModel = viewModel
 
         backgroundColor = viewModel.backgroundColor

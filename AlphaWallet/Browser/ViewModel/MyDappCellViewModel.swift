@@ -4,27 +4,23 @@ import Foundation
 import UIKit
 import AlphaWalletFoundation
 
-struct MyDappCellViewModel {
-    let dapp: Bookmark
+struct MyDappCellViewModel: Hashable {
+    let imageUrl: URL?
+    let name: String
+    let domainName: String
 
-    var backgroundColor: UIColor {
-        return Colors.appWhite
-    }
-
-    var imageUrl: URL? {
-        return Favicon.get(for: URL(string: dapp.url))
+    init(dapp: Bookmark) {
+        self.domainName = URL(string: dapp.url)?.host ?? ""
+        self.name = dapp.title
+        self.imageUrl = Favicon.get(for: URL(string: dapp.url))
     }
 
     var fallbackImage: UIImage? {
         return R.image.iconsTokensPlaceholder()
     }
 
-    var name: String {
-        return dapp.title
-    }
-
-    var domainName: String {
-        return URL(string: dapp.url)?.host ?? ""
+    var backgroundColor: UIColor {
+        return Colors.appWhite
     }
 
     var nameFont: UIFont {

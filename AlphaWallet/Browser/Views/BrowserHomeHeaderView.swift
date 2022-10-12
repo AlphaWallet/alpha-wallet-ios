@@ -3,7 +3,7 @@
 import Foundation
 import UIKit
 
-class DappsHomeHeaderView: UIView {
+class BrowserHomeHeaderView: UIView {
     private let stackView = [].asStackView(axis: .vertical, contentHuggingPriority: .required, alignment: .center)
     private let logoImage = UIImageView()
     private let titleLabel = UILabel()
@@ -34,7 +34,7 @@ class DappsHomeHeaderView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(viewModel: DappsHomeHeaderViewViewModel) {
+    func configure(viewModel: BrowserHomeHeaderViewModel) {
         backgroundColor = viewModel.backgroundColor
 
         logoImage.contentMode = .scaleAspectFit
