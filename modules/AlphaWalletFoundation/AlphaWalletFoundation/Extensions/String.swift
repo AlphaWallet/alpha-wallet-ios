@@ -267,12 +267,6 @@ extension String {
     }
 }
 
-extension String {
-    public var hashForCachingHeight: Int {
-        return hashValue
-    }
-}
-
 extension Character {
     public var toString: String {
         return String(self)

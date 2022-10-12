@@ -121,17 +121,12 @@ class NFTAssetViewModel {
             .compactMap { [weak self, token] updatedTokenHolders -> (tokenHolder: TokenHolder, tokenId: TokenId)? in
                 switch token.type {
                 case .erc721, .erc875, .erc721ForTickets:
-                    if let tokenHolder = self?.firstMatchingTokenHolder(from: updatedTokenHolders) {
-                        return (tokenHolder, tokenHolder.tokenId)
-                    }
+                    return self?.firstMatchingTokenHolder(from: updatedTokenHolders).flatMap { ($0, $0.tokenId) }
                 case .erc1155:
-                    if let selection = self?.isMatchingTokenHolder(from: updatedTokenHolders) {
-                        return selection
-                    }
+                    return self?.isMatchingTokenHolder(from: updatedTokenHolders)
                 case .nativeCryptocurrency, .erc20:
-                    break
+                    return nil
                 }
-                return nil
             }.handleEvents(receiveOutput: { [weak self] in
                 self?.tokenId = $0.tokenId
                 self?.tokenHolder = $0.tokenHolder

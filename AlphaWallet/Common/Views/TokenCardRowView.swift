@@ -76,9 +76,6 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 			detailsRowStack?.isHidden = !areDetailsVisible
 		}
 	}
-	var additionalHeightToCompensateForAutoLayout: CGFloat {
-		return 0
-	}
 	var isStandalone: Bool {
 		get {
 			return tokenScriptRendererView.isStandalone
@@ -281,8 +278,7 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 			canDetailsBeVisible = false
 			nativelyRenderedAttributeViews.hideAll()
 			tokenScriptRendererView.isHidden = false
-			let (html: html, hash: hash) = viewModel.tokenScriptHtml
-			tokenScriptRendererView.loadHtml(html, hash: hash)
+			tokenScriptRendererView.loadHtml(viewModel.tokenScriptHtml)
 			//TODO not good to explicitly check for different types. Easy to miss
 			if let viewModel = viewModel as? TokenCardRowViewModel {
 				tokenScriptRendererView.update(withTokenHolder: viewModel.tokenHolder, isFungible: false)
@@ -292,7 +288,6 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 		} else {
 			nativelyRenderedAttributeViews.showAll()
 			//TODO we can't change it here. Because it is set (correctly) earlier. Fix this inconsistency
-//			canDetailsBeVisible = true
 			tokenScriptRendererView.isHidden = true
 		}
 
