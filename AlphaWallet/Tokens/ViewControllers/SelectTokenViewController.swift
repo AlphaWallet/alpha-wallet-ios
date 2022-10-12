@@ -38,6 +38,7 @@ class SelectTokenViewController: UIViewController {
     }()
     private let appear = PassthroughSubject<Void, Never>()
     private let fetch = PassthroughSubject<Void, Never>()
+
     weak var delegate: SelectTokenViewControllerDelegate?
 
     init(viewModel: SelectTokenViewModel) {
@@ -88,7 +89,8 @@ class SelectTokenViewController: UIViewController {
             fetch: fetch.eraseToAnyPublisher())
 
         let output = viewModel.transform(input: input)
-        output.viewState.sink { [weak self] state in
+        output.viewState.sink { [weak self, dataSource] state in
+            dataSource.apply(state.snapshot, animatingDifferences: false)
             switch state.loadingState {
             case .idle:
                 break
@@ -97,7 +99,6 @@ class SelectTokenViewController: UIViewController {
             case .endLoading:
                 self?.endLoading(animated: false)
             }
-            self?.applySnapshot(with: state.views, animate: false)
         }.store(in: &cancellable)
     } 
 }
@@ -157,13 +158,5 @@ fileprivate extension SelectTokenViewController {
                 return cell
             }
         })
-    }
-
-    private func applySnapshot(with viewModels: [SelectTokenViewModel.ViewModelType], animate: Bool = true) {
-        var snapshot = NSDiffableDataSourceSnapshot<SelectTokenViewModel.Section, SelectTokenViewModel.ViewModelType>()
-        snapshot.appendSections([.tokens])
-        snapshot.appendItems(viewModels, toSection: .tokens)
-
-        dataSource.apply(snapshot, animatingDifferences: animate)
     }
 }
