@@ -3,9 +3,6 @@
 import UIKit
 import AlphaWalletFoundation
 
-private struct NoContractDetailsDetected: Error {
-}
-
 protocol AddHideTokensCoordinatorDelegate: AnyObject {
     func didClose(in coordinator: AddHideTokensCoordinator)
 }
@@ -39,7 +36,7 @@ class AddHideTokensCoordinator: Coordinator {
     func start() {
         rootViewController.delegate = self
         navigationController.pushViewController(rootViewController, animated: true)
-    } 
+    }
 }
 
 extension AddHideTokensCoordinator: NewTokenCoordinatorDelegate {
