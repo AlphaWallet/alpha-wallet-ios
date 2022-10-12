@@ -3,9 +3,6 @@
 import Foundation
 
 extension Int {
-    public func toBool() -> Bool {
-        return (self as NSNumber).boolValue
-    }
 
     public func toString() -> String {
         return String(self)
