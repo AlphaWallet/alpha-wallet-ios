@@ -9,7 +9,6 @@ import AlphaWalletFoundation
 protocol DappsHomeViewControllerDelegate: AnyObject {
     func didTapShowMyDappsViewController(inViewController viewController: DappsHomeViewController)
     func didTapShowBrowserHistoryViewController(inViewController viewController: DappsHomeViewController)
-    func didTapShowDiscoverDappsViewController(inViewController viewController: DappsHomeViewController)
     func didTap(dapp: Bookmark, inViewController viewController: DappsHomeViewController)
     func delete(dapp: Bookmark, inViewController viewController: DappsHomeViewController)
     func viewControllerWillAppear(_ viewController: DappsHomeViewController)
@@ -69,7 +68,13 @@ class DappsHomeViewController: UIViewController {
         layout.itemSize = itemSize
         layout.minimumInteritemSpacing = 0
         layout.sectionInset = .init(top: 0, left: additionalGutter + fixedGutter, bottom: 0, right: additionalGutter + fixedGutter)
-        return UICollectionView(frame: .zero, collectionViewLayout: layout)
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.alwaysBounceVertical = true
+        collectionView.registerSupplementaryView(DappsHomeViewControllerHeaderView.self, of: UICollectionView.elementKindSectionHeader)
+        collectionView.register(DappViewCell.self)
+
+        return collectionView
     }()
     private let bookmarksStore: BookmarksStore
     weak var delegate: DappsHomeViewControllerDelegate?
@@ -79,10 +84,6 @@ class DappsHomeViewController: UIViewController {
         self.viewModel = .init(bookmarksStore: bookmarksStore)
         super.init(nibName: nil, bundle: nil)
 
-        dappsCollectionView.translatesAutoresizingMaskIntoConstraints = false
-        dappsCollectionView.alwaysBounceVertical = true
-        dappsCollectionView.registerSupplementaryView(DappsHomeViewControllerHeaderView.self, of: UICollectionView.elementKindSectionHeader)
-        dappsCollectionView.register(DappViewCell.self)
         dappsCollectionView.dataSource = self
         dappsCollectionView.delegate = self
         view.addSubview(dappsCollectionView)
