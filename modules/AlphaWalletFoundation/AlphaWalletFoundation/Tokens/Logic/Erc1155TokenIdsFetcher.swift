@@ -101,9 +101,9 @@ public class Erc1155TokenIdsFetcher {
             functional.fetchTokenIdsWithLatestEvents(config: config, address: address, server: server, tokenIds: tokenIds, currentBlockNumber: currentBlockNumber)
         }.then { (tokenIds: Erc1155TokenIds) -> Promise<Erc1155TokenIds> in
             functional.fetchTokenIdsByCatchingUpOlderEvents(config: config, address: address, server: server, tokenIds: tokenIds)
-        }.then(on: .main, { tokenIds  -> Promise<Erc1155TokenIds> in
+        }.then { tokenIds -> Promise<Erc1155TokenIds> in
             Erc1155TokenIdsFetcher.writeJson(contractsAndTokenIds: tokenIds, address: address, server: server).map { tokenIds }
-        }).ensure {
+        }.ensure {
             self.inFlightPromise = nil
         }
         inFlightPromise = promise
@@ -113,6 +113,14 @@ public class Erc1155TokenIdsFetcher {
     public func knownErc1155Contracts() -> Set<AlphaWallet.Address>? {
         guard let contractsAndTokenIds = readJson() else { return nil }
         return Set(contractsAndTokenIds.tokens.keys)
+    }
+
+    public func filterAwayErc1155Tokens(contracts: [AlphaWallet.Address]) -> [AlphaWallet.Address] {
+        if let erc1155Contracts = knownErc1155Contracts() {
+            return contracts.filter { !erc1155Contracts.contains($0) }
+        } else {
+            return contracts
+        }
     }
 
     // MARK: Serialization

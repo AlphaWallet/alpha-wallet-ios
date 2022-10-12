@@ -24,7 +24,6 @@ public class AlphaWalletTokensService: TokensService {
         queue.maxConcurrentOperationCount = 1
         return queue
     }()
-    private let queue = DispatchQueue(label: "org.alphawallet.swift.tokensService", qos: .utility)
     private let sessionsProvider: SessionsProvider
     private let analytics: AnalyticsLogger
     private let importToken: ImportToken
@@ -123,7 +122,7 @@ public class AlphaWalletTokensService: TokensService {
 
     private func makeTokenSource(session: WalletSession) -> TokenSourceProvider {
         let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: session.server)
-        let balanceFetcher = TokenBalanceFetcher(session: session, nftProvider: nftProvider, tokensService: self, etherToken: etherToken, assetDefinitionStore: assetDefinitionStore, analytics: analytics, queue: queue)
+        let balanceFetcher = TokenBalanceFetcher(session: session, nftProvider: nftProvider, tokensService: self, etherToken: etherToken, assetDefinitionStore: assetDefinitionStore, analytics: analytics, importToken: importToken)
         balanceFetcher.erc721TokenIdsFetcher = transactionsStorage
         
         return ClientSideTokenSourceProvider(session: session, autoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, autoDetectTokensQueue: autoDetectTokensQueue, importToken: importToken, tokensDataStore: tokensDataStore, balanceFetcher: balanceFetcher)
