@@ -322,7 +322,7 @@ extension Erc1155TokenIdsFetcher.functional {
         }
     }
 
-    static func makeBlockRangeForEvents(toBlockNumber to: UInt64, maximumWindow: UInt64?, excludingRanges: Erc1155TokenIds.BlockNumbersProcessed) -> (UInt64, UInt64) {
+    static func makeBlockRangeForEvents(toBlockNumber to: UInt64, maximumWindow: UInt64?, excludingRanges: Erc1155TokenIds.BlockNumbersProcessed) -> (UInt64, UInt64)? {
         if let range = excludingRanges.last {
             if range.upperBound == to {
                 return (to, to)
@@ -335,9 +335,13 @@ extension Erc1155TokenIdsFetcher.functional {
                     }
                 }()
                 return (from, to)
+            } else {
+                //That `toBlockNumber` is always <= excludingRanges since we are looking for new events
+                return nil
             }
         }
-        if let maximumWindow = maximumWindow {
+
+        if let maximumWindow = maximumWindow, to >= maximumWindow {
             return (to - maximumWindow + 1, to)
         } else {
             return (0, to)
@@ -372,7 +376,7 @@ extension Erc1155TokenIdsFetcher.functional {
     static func fetchTokenIdsWithLatestEvents(config: Config, address: AlphaWallet.Address, server: RPCServer, tokenIds: Erc1155TokenIds, currentBlockNumber: Int) -> Promise<Erc1155TokenIds> {
         let maximumBlockRangeWindow: UInt64? = server.maximumBlockRangeForEvents
         //We must not use `.latest` because there is a chance it is slightly later than what we use to compute the block range for events
-        let (fromBlockNumber, toBlockNumber) = makeBlockRangeForEvents(toBlockNumber: UInt64(currentBlockNumber), maximumWindow: maximumBlockRangeWindow, excludingRanges: tokenIds.blockNumbersProcessed)
+        guard let (fromBlockNumber, toBlockNumber) = makeBlockRangeForEvents(toBlockNumber: UInt64(currentBlockNumber), maximumWindow: maximumBlockRangeWindow, excludingRanges: tokenIds.blockNumbersProcessed) else { return .init(error: PMKError.cancelled) }
         return fetchTokenIdsWithEvents(config: config, address: address, server: server, fromBlockNumber: fromBlockNumber, toBlockNumber: toBlockNumber, previousTokenIds: tokenIds)
     }
 
