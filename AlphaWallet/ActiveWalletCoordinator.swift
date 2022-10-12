@@ -693,13 +693,9 @@ extension ActiveWalletCoordinator: UrlSchemeResolver {
     }
 
     func openURLInBrowser(url: URL) {
-        openURLInBrowser(url: url, forceReload: false)
-    }
-
-    func openURLInBrowser(url: URL, forceReload: Bool) {
         guard let dappBrowserCoordinator = dappBrowserCoordinator else { return }
         showTab(.browser)
-        dappBrowserCoordinator.open(url: url, animated: true, forceReload: forceReload)
+        dappBrowserCoordinator.open(url: url, animated: true)
     }
 }
 
@@ -893,7 +889,7 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
     private func open(for url: URL) {
         guard let dappBrowserCoordinator = dappBrowserCoordinator else { return }
         showTab(.browser)
-        dappBrowserCoordinator.open(url: url, animated: true, forceReload: true)
+        dappBrowserCoordinator.open(url: url, animated: true)
     }
 
     private func open(url: URL, onServer server: RPCServer) {

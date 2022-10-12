@@ -184,7 +184,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         }
     }
 
-    func open(url: URL, animated: Bool = true, forceReload: Bool = false) {
+    func open(url: URL, animated: Bool = true) {
         //If users tap on the verified button in the import MagicLink UI, we don't want to treat it as a MagicLink to import and show the UI again. Just open in browser. This check means when we tap MagicLinks in browserOnly mode, the import UI doesn't show up; which is probably acceptable
         if !browserOnly && isMagicLink(url) {
             delegate?.handleUniversalLink(url, forCoordinator: self)
@@ -226,11 +226,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     private func makeMoreAlertSheet(sender: UIView) -> UIAlertController {
-        let alertController = UIAlertController(
-            title: nil,
-            message: nil,
-            preferredStyle: .actionSheet
-        )
+        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         alertController.popoverPresentationController?.sourceView = sender
         alertController.popoverPresentationController?.sourceRect = sender.centerRect
 
@@ -351,25 +347,21 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         browserNavBar?.setBrowserBar(hidden: true)
     }
 
-    private func withCurrentUrl(handler: (URL?) -> Void) {
-        handler(browserNavBar?.url)
-    }
-
-    func isMagicLink(_ url: URL) -> Bool {
+    private func isMagicLink(_ url: URL) -> Bool {
         return RPCServer.availableServers.contains { $0.magicLinkHost == url.host }
     }
 
     func `switch`(toServer server: RPCServer, url: URL? = nil) {
         self.server = server
-        withCurrentUrl { previousUrl in
-            //TODO extract method? Clean up
-            browserNavBar?.clearDisplay()
-            browserNavBar?.configure(server: server)
-            start()
 
-            guard let url = url ?? previousUrl else { return }
-            open(url: url, animated: false)
-        }
+        let previousUrl = browserNavBar?.url
+        //TODO extract method? Clean up
+        browserNavBar?.clearDisplay()
+        browserNavBar?.configure(server: server)
+        start()
+
+        guard let url = url ?? previousUrl else { return }
+        open(url: url, animated: false)
     }
 
     private func addCustomChain(callbackID: Int, customChain: WalletAddEthereumChainObject, inViewController viewController: UIViewController) {
@@ -567,7 +559,7 @@ extension DappBrowserCoordinator: WKUIDelegate {
         alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default, handler: { _ in
             completionHandler()
         }))
-        navigationController.present(alertController, animated: true, completion: nil)
+        navigationController.present(alertController, animated: true)
     }
 
     func webView(_ webView: WKWebView, runJavaScriptConfirmPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (Bool) -> Void) {
@@ -583,7 +575,7 @@ extension DappBrowserCoordinator: WKUIDelegate {
         alertController.addAction(UIAlertAction(title: R.string.localizable.cancel(), style: .default, handler: { _ in
             completionHandler(false)
         }))
-        navigationController.present(alertController, animated: true, completion: nil)
+        navigationController.present(alertController, animated: true)
     }
 
     func webView(_ webView: WKWebView, runJavaScriptTextInputPanelWithPrompt prompt: String, defaultText: String?, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (String?) -> Void) {
@@ -606,7 +598,7 @@ extension DappBrowserCoordinator: WKUIDelegate {
         alertController.addAction(UIAlertAction(title: R.string.localizable.cancel(), style: .default, handler: { _ in
             completionHandler(nil)
         }))
-        navigationController.present(alertController, animated: true, completion: nil)
+        navigationController.present(alertController, animated: true)
     }
 }
 
@@ -677,16 +669,16 @@ extension DappBrowserCoordinator: BookmarksViewControllerDelegate {
 
 extension DappBrowserCoordinator: DappBrowserNavigationBarDelegate {
 
-    func didTapHome(sender: UIView, inNavigationBar navigationBar: DappBrowserNavigationBar) {
+    func didTapHome(sender: UIView, in navigationBar: DappBrowserNavigationBar) {
         if let url = config.homePageURL {
-            open(url: url, animated: true, forceReload: true)
+            open(url: url, animated: true)
         } else {
             browserNavBar?.clearDisplay()
             navigationController.popToRootViewController(animated: true)
         }
     }
 
-    func didTapBack(inNavigationBar navigationBar: DappBrowserNavigationBar) {
+    func didTapBack(in navigationBar: DappBrowserNavigationBar) {
         if let browserVC = navigationController.topViewController as? BrowserViewController, browserVC.webView.canGoBack {
             browserViewController.webView.goBack()
         } else if !(browserNavBar?.isBrowserOnly ?? false) {
@@ -697,30 +689,30 @@ extension DappBrowserCoordinator: DappBrowserNavigationBarDelegate {
         }
     }
 
-    func didTapForward(inNavigationBar navigationBar: DappBrowserNavigationBar) {
+    func didTapForward(in navigationBar: DappBrowserNavigationBar) {
         guard let browserVC = navigationController.topViewController as? BrowserViewController, browserVC.webView.canGoForward else { return }
         browserViewController.webView.goForward()
     }
 
-    func didTapMore(sender: UIView, inNavigationBar navigationBar: DappBrowserNavigationBar) {
+    func didTapMore(sender: UIView, in navigationBar: DappBrowserNavigationBar) {
         logTapMore()
         let alertController = makeMoreAlertSheet(sender: sender)
         navigationController.present(alertController, animated: true)
     }
 
-    func didTapClose(inNavigationBar navigationBar: DappBrowserNavigationBar) {
+    func didTapClose(in navigationBar: DappBrowserNavigationBar) {
         dismiss()
     }
 
-    func didTapChangeServer(inNavigationBar navigationBar: DappBrowserNavigationBar) {
+    func didTapChangeServer(in navigationBar: DappBrowserNavigationBar) {
         showServers()
     }
 
-    func didTyped(text: String, inNavigationBar navigationBar: DappBrowserNavigationBar) {
+    func didTyped(text: String, in navigationBar: DappBrowserNavigationBar) {
         //no-op
     }
 
-    func didEnter(text: String, inNavigationBar navigationBar: DappBrowserNavigationBar) {
+    func didEnter(text: String, in navigationBar: DappBrowserNavigationBar) {
         logEnterUrl()
         guard let url = urlParser.url(from: text.trimmed) else { return }
         open(url: url, animated: false)
