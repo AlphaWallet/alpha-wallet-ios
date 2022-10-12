@@ -8,11 +8,11 @@
 import Apollo
 import PromiseKit
 
-typealias AccessToken = String
+fileprivate typealias AccessToken = String
 extension Config {
     fileprivate static let accessTokenKey = "AccessTokenKey"
 
-    var accessToken: AccessToken? {
+    fileprivate var accessToken: AccessToken? {
         get {
             defaults.value(forKey: Self.accessTokenKey) as? AccessToken
         }
@@ -26,17 +26,20 @@ extension Config {
 }
 
 private class EnjinUserManager {
-    static let shared = EnjinUserManager()
+    private let store: ApolloStore
+    private let client: URLSessionClient
 
-    private init() {
+    init(store: ApolloStore, client: URLSessionClient) {
+        self.store = store
+        self.client = client
     }
 
     private var config = Config()
-    private let graphqlClient: ApolloClient = {
-        let provider = InterceptorProviderForAuthorization(client: EnjinNetworkProvider.client, store: EnjinNetworkProvider.store)
+    private lazy var graphqlClient: ApolloClient = {
+        let provider = InterceptorProviderForAuthorization(client: client, store: store)
         let transport = RequestChainNetworkTransport(interceptorProvider: provider, endpointURL: Constants.Enjin.apiUrl)
 
-        return ApolloClient(networkTransport: transport, store: EnjinNetworkProvider.store)
+        return ApolloClient(networkTransport: transport, store: store)
     }()
 
     enum EnjinUserManagerError: Error {
@@ -54,7 +57,7 @@ private class EnjinUserManager {
     }
 
     private func enjinAuthorize(email: String, password: String) -> Promise<AccessToken> {
-        return Enjin.functional.authorize(graphqlClient: graphqlClient, email: email, password: password).map { oauth -> AccessToken in
+        return EnjinUserManager.functional.authorize(graphqlClient: graphqlClient, email: email, password: password).map { oauth -> AccessToken in
             if let accessToken = oauth.accessTokens?.compactMap({ $0 }).first {
                 return accessToken
             } else {
@@ -82,12 +85,12 @@ private class EnjinUserManager {
         open override func interceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloInterceptor] {
             return [
                 MaxRetryInterceptor(),
-                CacheReadInterceptor(store: self.store),
-                NetworkFetchInterceptor(client: self.client),
+                CacheReadInterceptor(store: store),
+                NetworkFetchInterceptor(client: client),
                 ResponseCodeInterceptor(),
-                FallbackJSONResponseParsingInterceptor(cacheKeyForObject: self.store.cacheKeyForObject),
+                FallbackJSONResponseParsingInterceptor(cacheKeyForObject: store.cacheKeyForObject),
                 AutomaticPersistedQueryInterceptor(),
-                CacheWriteInterceptor(store: self.store),
+                CacheWriteInterceptor(store: store),
             ]
         }
     }
@@ -174,14 +177,19 @@ struct FallbackJSONResponseParsingInterceptor: ApolloInterceptor {
 
 }
 
-class EnjinUserManagementInterceptor: ApolloInterceptor {
+final class EnjinUserManagementInterceptor: ApolloInterceptor {
 
     enum UserError: Error {
         case noUserLoggedIn
     }
 
-    private static var pending: [() -> Void] = []
-    private static var promise: Promise<AccessToken>?
+    private let userManager: EnjinUserManager
+    private var pending: AtomicArray<() -> Void> = .init()
+    private var inFlightPromise: Promise<AccessToken>?
+
+    init(store: ApolloStore, client: URLSessionClient) {
+        self.userManager = EnjinUserManager(store: store, client: client)
+    }
 
     func interceptAsync<Operation: GraphQLOperation>(chain: RequestChain, request: HTTPRequest<Operation>, response: HTTPResponse<Operation>?, completion: @escaping (Swift.Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
 
@@ -191,31 +199,31 @@ class EnjinUserManagementInterceptor: ApolloInterceptor {
             chain.proceedAsync(request: request, response: response, completion: completion)
         }
 
-        let performAuthorizeEnjinUser: () -> Void = {
-            let promise = EnjinUserManager.shared.enjinAuthorize()
-            promise.done { accessToken in
-                addTokenAndProceed(accessToken, to: request, chain: chain, response: response, completion: completion)
-            }.catch { error in
-                chain.handleErrorAsync(error, request: request, response: response, completion: completion)
-            }.finally {
-                Self.pending.forEach { action in action() }
-                Self.pending.removeAll()
+        let authorizeEnjinUser: () -> Void = { [userManager] in
+            let performAuthorizeEnjinUser: () -> Void = { [userManager] in
+                let promise = userManager.enjinAuthorize()
+                promise.done { accessToken in
+                    addTokenAndProceed(accessToken, to: request, chain: chain, response: response, completion: completion)
+                }.catch { error in
+                    chain.handleErrorAsync(error, request: request, response: response, completion: completion)
+                }.finally {
+                    self.pending.forEach { action in action() }
+                    self.pending.removeAll()
+                }
+
+                self.inFlightPromise = promise
             }
 
-            Self.promise = promise
-        }
-
-        let authorizeEnjinUser: () -> Void = {
-            if let promise = Self.promise {
+            if let promise = self.inFlightPromise {
                 if let accessToken = promise.value {
                     addTokenAndProceed(accessToken, to: request, chain: chain, response: response, completion: completion)
                 } else if promise.isPending {
                     //NOTE: wait until access token resolved
                     let block: () -> Void = {
-                        guard let accessToken = EnjinUserManager.shared.accessToken else { return }
+                        guard let accessToken = userManager.accessToken else { return }
                         addTokenAndProceed(accessToken, to: request, chain: chain, response: response, completion: completion)
                     }
-                    Self.pending.append(block)
+                    self.pending.append(block)
                 } else {
                     performAuthorizeEnjinUser()
                 }
@@ -244,11 +252,58 @@ class EnjinUserManagementInterceptor: ApolloInterceptor {
             }
         }
 
-        guard let token = EnjinUserManager.shared.accessToken else {
+        guard let token = userManager.accessToken else {
             authorizeEnjinUser()
             return
         }
 
         addTokenAndProceed(token, to: request, chain: chain, response: response, completion: overridenCompletion)
+    }
+}
+
+extension EnjinUserManager {
+    enum functional { }
+}
+
+extension EnjinUserManager.functional {
+
+    private struct EnjinOauthFallbackDecoder {
+        func decode(from body: JSONObject) -> EnjinOauthQuery.Data.EnjinOauth? {
+            guard let data = body["data"] as? [String: Any], let authData = data["EnjinOauth"] as? [String: Any] else { return nil }
+            guard let name = authData["name"] as? String else { return nil }
+            guard let tokensJsons = authData["accessTokens"] as? [[String: Any]] else { return nil }
+
+            let tokens = tokensJsons.compactMap { json in
+                return json["accessToken"] as? String
+            }
+            guard !tokens.isEmpty else { return nil }
+            return EnjinOauthQuery.Data.EnjinOauth.init(name: name, accessTokens: tokens)
+        }
+    }
+
+    fileprivate static func authorize(graphqlClient: ApolloClient, email: String, password: String) -> Promise<EnjinOauthQuery.Data.EnjinOauth> {
+        return Promise<EnjinOauthQuery.Data.EnjinOauth> { seal in
+            graphqlClient.fetch(query: EnjinOauthQuery(email: email, password: password)) { response in
+                switch response {
+                case .failure(let error):
+                    switch error as? FallbackJSONResponseParsingInterceptor.JSONResponseParsingError {
+                    case .caseToAvoidAuthDecodingError(let body):
+                        guard let data = EnjinOauthFallbackDecoder().decode(from: body) else {
+                            return seal.reject(error)
+                        }
+                        seal.fulfill(data)
+                    case .couldNotParseToJSON, .noResponseToParse, .none:
+                        seal.reject(error)
+                    }
+                case .success(let graphQLResult):
+                    guard let data = graphQLResult.data?.enjinOauth else {
+                        let error = EnjinError(localizedDescription: "Enjin authorization failure")
+                        return seal.reject(error)
+                    }
+
+                    seal.fulfill(data)
+                }
+            }
+        }
     }
 }

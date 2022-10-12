@@ -135,19 +135,17 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
         }.done(on: queue, { [weak self] response in
             guard let strongSelf = self else { return }
 
-            let enjinTokens = response.enjin
-
             let erc721Or1155ContractsFoundInOpenSea = Array(response.openSea.keys).map { $0 }
             let erc721Or1155ContractsNotFoundInOpenSea = tokens.map { $0.contractAddress } - erc721Or1155ContractsFoundInOpenSea
 
-            strongSelf.updateNonOpenSeaNonFungiblesBalance(contracts: erc721Or1155ContractsNotFoundInOpenSea, enjinTokens: enjinTokens)
+            strongSelf.updateNonOpenSeaNonFungiblesBalance(contracts: erc721Or1155ContractsNotFoundInOpenSea, enjinTokens: response.enjin)
             let contractToOpenSeaNonFungibles = response.openSea.mapValues { openSeaJsons in
                 return openSeaJsons.map { each -> NonFungibleBalanceAndItsSource<OpenSeaNonFungible> in
                     return .init(tokenId: each.tokenId, value: each, source: .nativeProvider(.openSea))
                 }
             }
-            strongSelf.updateOpenSeaErc721Tokens(contractToOpenSeaNonFungibles: contractToOpenSeaNonFungibles, enjinTokens: enjinTokens)
-            strongSelf.updateOpenSeaErc1155Tokens(contractToOpenSeaNonFungibles: contractToOpenSeaNonFungibles, enjinTokens: enjinTokens)
+            strongSelf.updateOpenSeaErc721Tokens(contractToOpenSeaNonFungibles: contractToOpenSeaNonFungibles, enjinTokens: response.enjin)
+            strongSelf.updateOpenSeaErc1155Tokens(contractToOpenSeaNonFungibles: contractToOpenSeaNonFungibles, enjinTokens: response.enjin)
         }).cauterize()
     }
 

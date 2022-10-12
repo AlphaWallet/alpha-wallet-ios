@@ -7,21 +7,19 @@
 
 import Foundation
 import AlphaWalletCore
-import AlphaWalletOpenSea
 import Apollo
 import PromiseKit
 
 final class EnjinNetworkProvider {
-    static let client = URLSessionClient()
-    static let cache = InMemoryNormalizedCache()
-    static var store = ApolloStore(cache: cache)
     private let queue: DispatchQueue
 
     private lazy var graphqlClient: ApolloClient = {
-        let provider = NetworkInterceptorProvider(store: EnjinNetworkProvider.store, client: EnjinNetworkProvider.client)
+        let cache = InMemoryNormalizedCache()
+        let store = ApolloStore(cache: cache)
+        let provider = NetworkInterceptorProvider(store: store, client: URLSessionClient())
         let transport = RequestChainNetworkTransport(interceptorProvider: provider, endpointURL: Constants.Enjin.apiUrl)
 
-        return ApolloClient(networkTransport: transport, store: EnjinNetworkProvider.store)
+        return ApolloClient(networkTransport: transport, store: store)
     }()
 
     init(queue: DispatchQueue) {
@@ -90,54 +88,6 @@ final class EnjinNetworkProvider {
             return [owner: tokens]
         }
     }
-
-}
-
-extension Enjin {
-    enum functional { }
-}
-
-extension Enjin.functional {
-
-    private struct EnjinOauthFallbackDecoder {
-        func decode(from body: JSONObject) -> EnjinOauthQuery.Data.EnjinOauth? {
-            guard let data = body["data"] as? [String: Any], let authData = data["EnjinOauth"] as? [String: Any] else { return nil }
-            guard let name = authData["name"] as? String else { return nil }
-            guard let tokensJsons = authData["accessTokens"] as? [[String: Any]] else { return nil }
-
-            let tokens = tokensJsons.compactMap { json in
-                return json["accessToken"] as? String
-            }
-            guard !tokens.isEmpty else { return nil }
-            return EnjinOauthQuery.Data.EnjinOauth.init(name: name, accessTokens: tokens)
-        }
-    }
-
-    static func authorize(graphqlClient: ApolloClient, email: String, password: String) -> Promise<EnjinOauthQuery.Data.EnjinOauth> {
-        return Promise<EnjinOauthQuery.Data.EnjinOauth> { seal in
-            graphqlClient.fetch(query: EnjinOauthQuery(email: email, password: password)) { response in
-                switch response {
-                case .failure(let error):
-                    switch error as? FallbackJSONResponseParsingInterceptor.JSONResponseParsingError {
-                    case .caseToAvoidAuthDecodingError(let body):
-                        guard let data = EnjinOauthFallbackDecoder().decode(from: body) else {
-                            return seal.reject(error)
-                        }
-                        seal.fulfill(data)
-                    case .couldNotParseToJSON, .noResponseToParse, .none:
-                        seal.reject(error)
-                    }
-                case .success(let graphQLResult):
-                    guard let data = graphQLResult.data?.enjinOauth else {
-                        let error = OpenSeaError(localizedDescription: "Enjin authorization failure")
-                        return seal.reject(error)
-                    }
-
-                    seal.fulfill(data)
-                }
-            }
-        }
-    }
 }
 
 final private class NetworkInterceptorProvider: InterceptorProvider {
@@ -145,23 +95,24 @@ final private class NetworkInterceptorProvider: InterceptorProvider {
     // will be handed to different interceptors.
     private let store: ApolloStore
     private let client: URLSessionClient
-    private let enjinUserManagementInterceptor = EnjinUserManagementInterceptor()
+    private let enjinUserManagementInterceptor: EnjinUserManagementInterceptor
 
     init(store: ApolloStore, client: URLSessionClient) {
         self.store = store
         self.client = client
+        self.enjinUserManagementInterceptor = EnjinUserManagementInterceptor(store: store, client: client)
     }
 
     func interceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloInterceptor] {
         return [
             MaxRetryInterceptor(),
-            CacheReadInterceptor(store: self.store),
+            CacheReadInterceptor(store: store),
             enjinUserManagementInterceptor,
-            NetworkFetchInterceptor(client: self.client),
+            NetworkFetchInterceptor(client: client),
             ResponseCodeInterceptor(),
-            JSONResponseParsingInterceptor(cacheKeyForObject: self.store.cacheKeyForObject),
+            JSONResponseParsingInterceptor(cacheKeyForObject: store.cacheKeyForObject),
             AutomaticPersistedQueryInterceptor(),
-            CacheWriteInterceptor(store: self.store)
+            CacheWriteInterceptor(store: store)
         ]
     }
 }

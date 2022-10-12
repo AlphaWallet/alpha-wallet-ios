@@ -31,12 +31,6 @@ public final class AlphaWalletNFTProvider: NFTProvider {
         openSea = OpenSea(analytics: analytics, queue: queue)
     }
 
-    public init(openSea: OpenSea, enjin: Enjin, queue: DispatchQueue) {
-        self.openSea = openSea
-        self.enjin = enjin
-        self.queue = queue
-    }
-
     // NOTE: Its important to return value for promise and not an error. As we are using `when(fulfilled: ...)`. There is force unwrap inside the `when(fulfilled` function
     private func getEnjinSemiFungible(account: Wallet, server: RPCServer) -> Promise<EnjinTokenIdsToSemiFungibles> {
         return enjin.semiFungible(wallet: account, server: server)
