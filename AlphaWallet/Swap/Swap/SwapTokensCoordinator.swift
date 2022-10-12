@@ -73,17 +73,18 @@ final class SwapTokensCoordinator: Coordinator {
 
     private func showSelectToken() {
         let coordinator = SelectTokenCoordinator(tokenCollection: tokenCollection, tokensFilter: tokensFilter, navigationController: navigationController, filter: .filter(tokenSelectionProvider))
-        coordinator.configureForSelectionSwapToken()
+        coordinator.rootViewController.navigationItem.leftBarButtonItem = UIBarButtonItem.logoBarButton()
         coordinator.delegate = self
         addCoordinator(coordinator)
 
         let panel = FloatingPanelController(isPanEnabled: false)
         panel.layout = FullScreenScrollableFloatingPanelLayout()
-        panel.set(contentViewController: coordinator.rootViewController)
+        panel.set(contentViewController: coordinator.navigationController)
+        panel.surfaceView.contentPadding = .init(top: 20, left: 0, bottom: 0, right: 0)
         panel.shouldDismissOnBackdrop = true
         panel.delegate = self
 
-        navigationController.present(panel, animated: true)
+        self.navigationController.present(panel, animated: true)
     }
 }
 
@@ -91,7 +92,8 @@ extension SwapTokensCoordinator: FloatingPanelControllerDelegate {
 
     func floatingPanelDidRemove(_ fpc: FloatingPanelController) {
         guard let coordinator = coordinators.compactMap({ $0 as? SelectTokenCoordinator }).first else { return }
-        coordinator.close()
+
+        removeCoordinator(coordinator)
     }
 }
 
