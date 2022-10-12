@@ -290,9 +290,9 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
             case .sendTransaction(let transaction):
                 return self.executeTransaction(session: walletSession, requester: requester, transaction: transaction, type: .signThenSend)
             case .signMessage(let hexMessage):
-                return self.signMessage(with: .message(hexMessage.toHexData), account: account, requester: requester)
+                return self.signMessage(with: .message(hexMessage.asSignableMessageData), account: account, requester: requester)
             case .signPersonalMessage(let hexMessage):
-                return self.signMessage(with: .personalMessage(hexMessage.toHexData), account: account, requester: requester)
+                return self.signMessage(with: .personalMessage(hexMessage.asSignableMessageData), account: account, requester: requester)
             case .signTypedMessageV3(let typedData):
                 return self.signMessage(with: .eip712v3And4(typedData), account: account, requester: requester)
             case .typedMessage(let typedData):

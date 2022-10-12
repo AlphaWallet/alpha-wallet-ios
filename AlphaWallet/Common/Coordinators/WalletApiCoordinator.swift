@@ -91,7 +91,7 @@ class WalletApiCoordinator: NSObject, Coordinator {
             let requester = DeepLinkRequesterViewModel(requester: Requester(shortName: metadata.name, name: metadata.name, server: nil, url: metadata.appUrl, iconUrl: metadata.iconUrl))
 
             firstly {
-                signPersonalMessage(with: .personalMessage(message.toHexData), account: address, requester: requester)
+                signPersonalMessage(with: .personalMessage(message.asSignableMessageData), account: address, requester: requester)
             }.done { data in
                 guard let redirectUrl = responseBuilder.buildSignPersonalMessageResponse(redirectUrl: redirectUrl, with: .success(data)) else { return }
 

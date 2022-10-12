@@ -466,9 +466,9 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
             case .sendTransaction(let unconfirmedTransaction):
                 executeTransaction(account: account, action: action, callbackID: callbackID, transaction: unconfirmedTransaction, type: .signThenSend, server: server)
             case .signMessage(let hexMessage):
-                signMessage(with: .message(hexMessage.toHexData), account: account, callbackID: callbackID)
+                signMessage(with: .message(hexMessage.asSignableMessageData), account: account, callbackID: callbackID)
             case .signPersonalMessage(let hexMessage):
-                signMessage(with: .personalMessage(hexMessage.toHexData), account: account, callbackID: callbackID)
+                signMessage(with: .personalMessage(hexMessage.asSignableMessageData), account: account, callbackID: callbackID)
             case .signTypedMessage(let typedData):
                 signMessage(with: .typedMessage(typedData), account: account, callbackID: callbackID)
             case .signTypedMessageV3(let typedData):
