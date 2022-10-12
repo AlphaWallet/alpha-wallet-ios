@@ -56,7 +56,7 @@ install_gems: check_bundle setup_path
 	fi
 
 install_pods: check_gems
-	@$(bundle_cmd) exec pod install --repo-update; \
+	@$(bundle_cmd) exec pod install; \
 	if [ $$? -eq 0 ]; then \
 		echo "All pods installed."; \
 	else \
