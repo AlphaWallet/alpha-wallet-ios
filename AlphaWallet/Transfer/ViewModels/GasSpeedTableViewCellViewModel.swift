@@ -50,12 +50,12 @@ struct GasSpeedViewModel {
     var titleAttributedString: NSAttributedString? {
         if isSelected {
             return NSAttributedString(string: title, attributes: [
-                .foregroundColor: Colors.black,
+                .foregroundColor: Configuration.Color.Semantic.defaultTitleText,
                 .font: Fonts.semibold(size: 17)
             ])
         } else {
             return NSAttributedString(string: title, attributes: [
-                .foregroundColor: Colors.black,
+                .foregroundColor: Configuration.Color.Semantic.defaultTitleText,
                 .font: Fonts.regular(size: 17)
             ])
         }
@@ -65,21 +65,21 @@ struct GasSpeedViewModel {
         guard let estimatedTime = estimatedTime else { return nil }
 
         return NSAttributedString(string: estimatedTime, attributes: [
-            .foregroundColor: R.color.mine()!,
+            .foregroundColor: Configuration.Color.Semantic.defaultHeadlineText,
             .font: Fonts.regular(size: 15)
         ])
     }
 
     var detailsAttributedString: NSAttributedString? {
         return NSAttributedString(string: gasFeeString, attributes: [
-            .foregroundColor: R.color.dove()!,
+            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText,
             .font: Fonts.regular(size: 15)
         ])
     }
 
     var gasPriceAttributedString: NSAttributedString? {
         NSAttributedString(string: gasPriceString, attributes: [
-            .foregroundColor: R.color.dove()!,
+            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText,
             .font: Fonts.regular(size: 13)
         ])
     }

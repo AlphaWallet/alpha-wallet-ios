@@ -54,7 +54,7 @@ struct ConfigureTransactionViewModel {
     }
 
     var backgroundColor: UIColor {
-        return R.color.alabaster()!
+        return Configuration.Color.Semantic.defaultViewBackground
     }
 
     var title: String {
