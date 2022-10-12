@@ -277,20 +277,24 @@ class NewTokenViewController: UIViewController {
             addressTextField.errorState = .none
         }
 
-        if nameTextField.value.trimmed.isEmpty {
+        if let tokenType = tokenType, !tokenType.shouldHaveNameAndSymbol {
+            nameTextField.status = .none
+        } else if !nameTextField.value.trimmed.isEmpty {
+            nameTextField.status = .none
+        } else {
             let error = ValidationError(msg: R.string.localizable.warningFieldRequired())
             nameTextField.status = .error(error.prettyError)
             isValid = false
-        } else {
-            nameTextField.status = .none
         }
 
-        if symbolTextField.value.trimmed.isEmpty {
+        if let tokenType = tokenType, !tokenType.shouldHaveNameAndSymbol {
+            symbolTextField.status = .none
+        } else if !symbolTextField.value.trimmed.isEmpty {
+            symbolTextField.status = .none
+        } else {
             let error = ValidationError(msg: R.string.localizable.warningFieldRequired())
             symbolTextField.status = .error(error.prettyError)
             isValid = false
-        } else {
-            symbolTextField.status = .none
         }
 
         if let tokenType = tokenType {
