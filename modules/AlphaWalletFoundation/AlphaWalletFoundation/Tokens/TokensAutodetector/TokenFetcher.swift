@@ -41,17 +41,9 @@ public class SingleChainTokenFetcher: NSObject, TokenFetcher {
                             seal.fulfill(.none)
                             break
                         }
-                        let token = ERCToken(
-                                contract: contract,
-                                server: server,
-                                name: name,
-                                symbol: symbol,
-                                decimals: 0,
-                                type: tokenType,
-                                balance: balance
-                        )
+                        let ercToken = ERCToken(contract: contract, server: server, name: name, symbol: symbol, decimals: 0, type: tokenType, balance: balance)
 
-                        seal.fulfill(.ercToken(token))
+                        seal.fulfill(.ercToken(ercToken))
                     case .fungibleTokenComplete(let name, let symbol, let decimals):
                         seal.fulfill(.fungibleTokenComplete(name: name, symbol: symbol, decimals: decimals, contract: contract, server: server, onlyIfThereIsABalance: onlyIfThereIsABalance))
                     case .delegateTokenComplete:
