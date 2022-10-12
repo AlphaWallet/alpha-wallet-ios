@@ -32,9 +32,9 @@ class EditBookmarkViewModel {
             }).mapToVoid()
             .eraseToAnyPublisher()
 
-        let viewState = bookmark.map {
-            let imageUrl = Favicon.get(for: URL(string: $0.url))
-            return EditBookmarkViewModel.ViewState(title: $0.title, url: $0.url, imageUrl: imageUrl)
+        let viewState = bookmark.map { b -> ViewState in
+            let imageUrl = Favicon.get(for: URL(string: b.url))
+            return EditBookmarkViewModel.ViewState(title: b.title, url: b.url, imageUrl: imageUrl)
         }.eraseToAnyPublisher()
 
         return .init(viwState: viewState, didSave: didSave)
