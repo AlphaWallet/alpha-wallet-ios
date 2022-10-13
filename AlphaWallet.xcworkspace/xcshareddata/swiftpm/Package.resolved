@@ -140,8 +140,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/AlphaWallet/WalletConnectSwift.git",
       "state" : {
-        "branch" : "master",
-        "revision" : "e0bbfd16d5c54a7aa7e316956d765399c6332fa2"
+        "branch" : "alphaWallet",
+        "revision" : "cb8dfc428ec70499a585c43e33a5e5c695b135a2"
       }
     },
     {
