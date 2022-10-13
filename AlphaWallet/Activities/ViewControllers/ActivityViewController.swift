@@ -162,7 +162,7 @@ class ActivityViewController: UIViewController {
         titleLabel.textAlignment = .center
         subTitleLabel.textAlignment = .center
 
-        separator.backgroundColor = GroupedTable.Color.cellSeparator
+        separator.backgroundColor = Configuration.Color.Semantic.tableViewSeparator
 
         switch viewModel.activity.nativeViewType {
         case .erc20Received, .erc20Sent, .erc20OwnerApproved, .erc20ApprovalObtained, .erc721Sent, .erc721Received, .erc721OwnerApproved, .erc721ApprovalObtained, .nativeCryptoSent, .nativeCryptoReceived:
