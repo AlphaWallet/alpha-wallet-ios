@@ -630,6 +630,7 @@
 		87713EB4264BAB5A00B1B9CB /* ActivityPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87713EB3264BAB5A00B1B9CB /* ActivityPageView.swift */; };
 		87713EB6264BAB6E00B1B9CB /* PriceAlertsPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87713EB5264BAB6E00B1B9CB /* PriceAlertsPageView.swift */; };
 		877239CB28F7DCE00062DC14 /* GoogleService-InfoTests.plist in Resources */ = {isa = PBXBuildFile; fileRef = 877239CA28F7DCE00062DC14 /* GoogleService-InfoTests.plist */; };
+		877239CE28F806820062DC14 /* WalletConnectSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 877239CD28F806820062DC14 /* WalletConnectSwift */; };
 		8772D77028D1EFB300615803 /* ServiceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8772D76F28D1EFB200615803 /* ServiceProvider.swift */; };
 		8772D77228D1F03600615803 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8772D77128D1F03600615803 /* Constants.swift */; };
 		87741F1827709073007F4604 /* TestnetTokenInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87741F1727709073007F4604 /* TestnetTokenInfoView.swift */; };
@@ -690,7 +691,6 @@
 		87B1ACD928C0D45B0072A5E2 /* chains.zip in Resources */ = {isa = PBXBuildFile; fileRef = 87B1ACD828C0D45B0072A5E2 /* chains.zip */; };
 		87B1ACDB28C0D55D0072A5E2 /* tokens.json in Resources */ = {isa = PBXBuildFile; fileRef = 87B1ACDA28C0D55D0072A5E2 /* tokens.json */; };
 		87B1AD3728C1FE030072A5E2 /* KeychainStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87B1AD3628C1FE030072A5E2 /* KeychainStorage.swift */; };
-		87B1B5D928C73C170072A5E2 /* WalletConnectSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 87B1B5D828C73C170072A5E2 /* WalletConnectSwift */; };
 		87B1B5EE28C870D60072A5E2 /* MixpanelService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87B1B5EC28C870D60072A5E2 /* MixpanelService.swift */; };
 		87B1B5EF28C870D60072A5E2 /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87B1B5ED28C870D60072A5E2 /* AnalyticsService.swift */; };
 		87B1B63C28CB12EE0072A5E2 /* DeviceChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87B1B63828CB12EE0072A5E2 /* DeviceChecker.swift */; };
@@ -1709,7 +1709,7 @@
 			files = (
 				87FBF2B128056AC200616B7D /* FirebaseCrashlytics in Frameworks */,
 				2A669F5585899E890EF26C57 /* Pods_AlphaWallet.framework in Frameworks */,
-				87B1B5D928C73C170072A5E2 /* WalletConnectSwift in Frameworks */,
+				877239CE28F806820062DC14 /* WalletConnectSwift in Frameworks */,
 				87BDF47028423DC30018DC68 /* WalletConnect in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4300,7 +4300,7 @@
 			packageProductDependencies = (
 				87FBF2B028056AC200616B7D /* FirebaseCrashlytics */,
 				87BDF46F28423DC30018DC68 /* WalletConnect */,
-				87B1B5D828C73C170072A5E2 /* WalletConnectSwift */,
+				877239CD28F806820062DC14 /* WalletConnectSwift */,
 			);
 			productName = etherwallet;
 			productReference = 2912CCF51F6A830700C6CBE3 /* AlphaWallet.app */;
@@ -4430,7 +4430,7 @@
 			packageReferences = (
 				87FBF2AF28056AC200616B7D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				87BDF46E28423DC30018DC68 /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */,
-				87B1B5D728C73C170072A5E2 /* XCRemoteSwiftPackageReference "WalletConnectSwift" */,
+				877239CC28F806820062DC14 /* XCRemoteSwiftPackageReference "WalletConnectSwift" */,
 			);
 			productRefGroup = 2912CCF61F6A830700C6CBE3 /* Products */;
 			projectDirPath = "";
@@ -6149,11 +6149,11 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		87B1B5D728C73C170072A5E2 /* XCRemoteSwiftPackageReference "WalletConnectSwift" */ = {
+		877239CC28F806820062DC14 /* XCRemoteSwiftPackageReference "WalletConnectSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/AlphaWallet/WalletConnectSwift.git";
 			requirement = {
-				branch = master;
+				branch = alphaWallet;
 				kind = branch;
 			};
 		};
@@ -6176,9 +6176,9 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		87B1B5D828C73C170072A5E2 /* WalletConnectSwift */ = {
+		877239CD28F806820062DC14 /* WalletConnectSwift */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 87B1B5D728C73C170072A5E2 /* XCRemoteSwiftPackageReference "WalletConnectSwift" */;
+			package = 877239CC28F806820062DC14 /* XCRemoteSwiftPackageReference "WalletConnectSwift" */;
 			productName = WalletConnectSwift;
 		};
 		87BDF46F28423DC30018DC68 /* WalletConnect */ = {
