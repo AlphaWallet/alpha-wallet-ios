@@ -44,74 +44,92 @@ public class ContractDataDetector {
         assetDefinitionStore.fetchXML(forContract: address, server: nil)
 
         firstly {
+            tokenTypePromise
+        }.done { tokenType in
+            self.processTokenType(tokenType)
+            self.processName(tokenType: tokenType)
+            self.processSymbol(tokenType: tokenType)
+        }.cauterize()
+    }
+
+    private func processTokenType(_ tokenType: TokenType) {
+        switch tokenType {
+        case .erc875:
+        tokenProvider.getERC875Balance(for: address).done { balance in
+                self.nonFungibleBalanceSeal.fulfill(.erc875(balance))
+                self.completionOfPartialData(.balance(balance: .erc875(balance), tokenType: .erc875))
+        }.catch { error in
+            self.nonFungibleBalanceSeal.reject(error)
+            self.decimalsSeal.fulfill(0)
+            self.callCompletionFailed()
+        }
+        case .erc721:
+            tokenProvider.getERC721Balance(for: address).done { balance in
+                self.nonFungibleBalanceSeal.fulfill(.balance(balance))
+                self.decimalsSeal.fulfill(0)
+                self.completionOfPartialData(.balance(balance: .balance(balance), tokenType: .erc721))
+            }.catch { error in
+                self.nonFungibleBalanceSeal.reject(error)
+                self.decimalsSeal.fulfill(0)
+                self.callCompletionFailed()
+            }
+        case .erc721ForTickets:
+            tokenProvider.getERC721ForTicketsBalance(for: address).done { balance in
+                self.nonFungibleBalanceSeal.fulfill(.erc721ForTickets(balance))
+                self.decimalsSeal.fulfill(0)
+                self.completionOfPartialData(.balance(balance: .erc721ForTickets(balance), tokenType: .erc721ForTickets))
+            }.catch { error in
+                self.nonFungibleBalanceSeal.reject(error)
+                self.callCompletionFailed()
+            }
+        case .erc1155:
+            let balance: [String] = .init()
+            self.nonFungibleBalanceSeal.fulfill(.balance(balance))
+            self.decimalsSeal.fulfill(0)
+            self.completionOfPartialData(.balance(balance: .balance(balance), tokenType: .erc1155))
+        case .erc20:
+            tokenProvider.getDecimals(for: address).done { decimal in
+                self.decimalsSeal.fulfill(decimal)
+                self.completionOfPartialData(.decimals(decimal))
+            }.catch { error in
+                self.decimalsSeal.reject(error)
+                self.callCompletionFailed()
+            }
+        case .nativeCryptocurrency:
+            break
+        }
+    }
+
+    private func processName(tokenType: TokenType) {
+        firstly {
             namePromise
         }.done { name in
             self.completionOfPartialData(.name(name))
         }.catch { _ in
-            self.callCompletionFailed()
-            //We consider name and symbol and empty string because NFTs (ERC721 and ERC1155) don't have to implement `name` and `symbol`. Eg. ENS/721 (0x57f1887a8BF19b14fC0dF6Fd9B2acc9Af147eA85) and Enjin/1155 (0xfaafdc07907ff5120a76b34b731b278c38d6043c)
+            if tokenType.shouldHaveNameAndSymbol {
+                self.callCompletionFailed()
+            } else {
+                //We consider name and symbol and empty string because NFTs (ERC721 and ERC1155) don't have to implement `name` and `symbol`. Eg. ENS/721 (0x57f1887a8BF19b14fC0dF6Fd9B2acc9Af147eA85) and Enjin/1155 (0xfaafdc07907ff5120a76b34b731b278c38d6043c)
+                //no-op
+            }
             self.completionOfPartialData(.name(""))
         }
+    }
 
+    private func processSymbol(tokenType: TokenType) {
         firstly {
             symbolPromise
         }.done { symbol in
             self.completionOfPartialData(.symbol(symbol))
         }.catch { _ in
-            self.callCompletionFailed()
-            //We consider name and symbol and empty string because NFTs (ERC721 and ERC1155) don't have to implement `name` and `symbol`. Eg. ENS/721 (0x57f1887a8BF19b14fC0dF6Fd9B2acc9Af147eA85) and Enjin/1155 (0xfaafdc07907ff5120a76b34b731b278c38d6043c)
+            if tokenType.shouldHaveNameAndSymbol {
+                self.callCompletionFailed()
+            } else {
+                //We consider name and symbol and empty string because NFTs (ERC721 and ERC1155) don't have to implement `name` and `symbol`. Eg. ENS/721 (0x57f1887a8BF19b14fC0dF6Fd9B2acc9Af147eA85) and Enjin/1155 (0xfaafdc07907ff5120a76b34b731b278c38d6043c)
+                //no-op
+            }
             self.completionOfPartialData(.symbol(""))
         }
-
-        firstly {
-            tokenTypePromise
-        }.done { tokenType in
-            switch tokenType {
-            case .erc875:
-                self.tokenProvider.getERC875Balance(for: self.address).done { balance in
-                    self.nonFungibleBalanceSeal.fulfill(.erc875(balance))
-                    self.completionOfPartialData(.balance(balance: .erc875(balance), tokenType: .erc875))
-                }.catch { error in
-                    self.nonFungibleBalanceSeal.reject(error)
-                    self.decimalsSeal.fulfill(0)
-                    self.callCompletionFailed()
-                }
-            case .erc721:
-                self.tokenProvider.getERC721Balance(for: self.address).done { balance in
-                    self.nonFungibleBalanceSeal.fulfill(.balance(balance))
-                    self.decimalsSeal.fulfill(0)
-                    self.completionOfPartialData(.balance(balance: .balance(balance), tokenType: .erc721))
-                }.catch { error in
-                    self.nonFungibleBalanceSeal.reject(error)
-                    self.decimalsSeal.fulfill(0)
-                    self.callCompletionFailed()
-                }
-            case .erc721ForTickets:
-                self.tokenProvider.getERC721ForTicketsBalance(for: self.address).done { balance in
-                    self.nonFungibleBalanceSeal.fulfill(.erc721ForTickets(balance))
-                    self.decimalsSeal.fulfill(0)
-                    self.completionOfPartialData(.balance(balance: .erc721ForTickets(balance), tokenType: .erc721ForTickets))
-                }.catch { error in
-                    self.nonFungibleBalanceSeal.reject(error)
-                    self.callCompletionFailed()
-                }
-            case .erc1155:
-                let balance: [String] = .init()
-                self.nonFungibleBalanceSeal.fulfill(.balance(balance))
-                self.decimalsSeal.fulfill(0)
-                self.completionOfPartialData(.balance(balance: .balance(balance), tokenType: .erc1155))
-            case .erc20:
-                self.tokenProvider.getDecimals(for: self.address).done { decimal in
-                    self.decimalsSeal.fulfill(decimal)
-                    self.completionOfPartialData(.decimals(decimal))
-                }.catch { error in
-                    self.decimalsSeal.reject(error)
-                    self.callCompletionFailed()
-                }
-            case .nativeCryptocurrency:
-                break
-            }
-        }.cauterize()
     }
 
     private func completionOfPartialData(_ data: ContractData) {
@@ -120,9 +138,7 @@ public class ContractDataDetector {
     }
 
     private func callCompletionFailed() {
-        guard !failed else {
-            return
-        }
+        guard !failed else { return }
         failed = true
         //TODO maybe better to share an instance of the reachability manager
         completion?(.failed(networkReachable: NetworkReachabilityManager()?.isReachable))
@@ -163,6 +179,17 @@ public class ContractDataDetector {
             } else {
                 completion?(.fungibleTokenComplete(name: name, symbol: symbol, decimals: decimals))
             }
+        }
+    }
+}
+
+public extension TokenType {
+    public var shouldHaveNameAndSymbol: Bool {
+        switch self {
+        case .nativeCryptocurrency, .erc20, .erc875:
+            return true
+        case .erc721, .erc721ForTickets, .erc1155:
+            return false
         }
     }
 }
