@@ -87,7 +87,7 @@ class TokenInstanceWebView: UIView {
             webView.anchorsConstraint(to: self),
             heightConstraint,
         ])
-        
+
         translatesAutoresizingMaskIntoConstraints = false
     }
 
@@ -330,7 +330,7 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
         func _sign(action: DappAction, command: DappCommand, account: AlphaWallet.Address) {
             switch action {
             case .signPersonalMessage(let message):
-                signMessage(with: .personalMessage(message.toHexData), account: account, callbackID: command.id)
+                signMessage(with: .personalMessage(message.asSignableMessageData), account: account, callbackID: command.id)
             case .signTransaction, .sendTransaction, .signMessage, .signTypedMessage, .unknown, .sendRawTransaction, .signTypedMessageV3, .ethCall, .walletAddEthereumChain, .walletSwitchEthereumChain:
                 break
             }

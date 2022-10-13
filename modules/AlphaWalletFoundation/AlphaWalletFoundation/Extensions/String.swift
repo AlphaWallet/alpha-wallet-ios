@@ -4,18 +4,6 @@ import UIKit
 import BigInt
 
 extension String {
-
-    //NOTE: as minimum chunck is as min time it will be executed, during testing we found that optimal chunck size is 100, but seems it could be optimized more, execution time (0.2 seconds), pretty good and doesn't block UI
-    public var toHexData: Data {
-        if self.hasPrefix("0x") {
-            return Data(_hex: self, chunkSize: 100)
-        } else {
-            return Data(_hex: self.hex, chunkSize: 100)
-        }
-    }
-}
-
-extension String {
     public var hex: String {
         guard let data = self.data(using: .utf8) else {
             return String()

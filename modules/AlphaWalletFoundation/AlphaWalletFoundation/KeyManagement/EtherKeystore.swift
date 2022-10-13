@@ -3,11 +3,29 @@
 import Foundation
 import LocalAuthentication
 import BigInt
-import WalletCore 
+import WalletCore
 import AlphaWalletWeb3
 
 public enum EtherKeystoreError: LocalizedError {
     case protectionDisabled
+}
+
+public enum SignMessageType {
+    case message(Data)
+    case personalMessage(Data)
+    case typedMessage([EthTypedData])
+    case eip712v3And4(EIP712TypedData)
+}
+
+extension String {
+    //NOTE: as minimum chunck is as min time it will be executed, during testing we found that optimal chunck size is 100, but seems it could be optimized more, execution time (0.2 seconds), pretty good and doesn't block UI
+    public var asSignableMessageData: Data {
+        if self.hasPrefix("0x") {
+            return Data(_hex: self, chunkSize: 100)
+        } else {
+            return Data(_hex: self.hex, chunkSize: 100)
+        }
+    }
 }
 
 extension UserDefaults {

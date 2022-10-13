@@ -4,13 +4,6 @@ import Foundation
 import UIKit
 import AlphaWalletFoundation
 
-enum SignMessageType {
-    case message(Data)
-    case personalMessage(Data)
-    case typedMessage([EthTypedData])
-    case eip712v3And4(EIP712TypedData)
-}
-
 protocol SignMessageCoordinatorDelegate: AnyObject {
     func coordinator(_ coordinator: SignMessageCoordinator, didSign result: Swift.Result<Data, KeystoreError>)
     func didCancel(in coordinator: SignMessageCoordinator)
@@ -34,7 +27,7 @@ class SignMessageCoordinator: Coordinator {
 
     var coordinators: [Coordinator] = []
     weak var delegate: SignMessageCoordinatorDelegate?
-    
+
     init(analytics: AnalyticsLogger, navigationController: UINavigationController, keystore: Keystore, account: AlphaWallet.Address, message: SignMessageType, source: Analytics.SignMessageRequestSource, requester: RequesterViewModel?) {
         self.analytics = analytics
         self.navigationController = navigationController
@@ -82,7 +75,7 @@ class SignMessageCoordinator: Coordinator {
 
     func close(completion: @escaping () -> Void) {
         navigationController.dismiss(animated: true, completion: completion)
-    } 
+    }
 
     private func signMessage(with type: SignMessageType) {
         let result: Result<Data, KeystoreError>
