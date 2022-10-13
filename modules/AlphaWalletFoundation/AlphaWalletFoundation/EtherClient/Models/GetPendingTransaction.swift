@@ -28,9 +28,7 @@ public final class GetPendingTransaction {
     //TODO log `Analytics.WebApiErrors.rpcNodeRateLimited` when appropriate too
     public func getPendingTransaction(server: RPCServer, hash: String) -> AnyPublisher<PendingTransaction?, SessionTaskError> {
         let request = GetTransactionRequest(hash: hash)
-
-        return Session
-            .sendPublisher(EtherServiceRequest(server: server, batch: BatchFactory().create(request)), server: server)
-            .eraseToAnyPublisher()
+        
+        return Session.sendPublisher(EtherServiceRequest(server: server, batch: BatchFactory().create(request)), server: server, analytics: analytics)
     }
 }
