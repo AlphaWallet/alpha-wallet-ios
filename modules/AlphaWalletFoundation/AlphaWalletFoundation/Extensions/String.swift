@@ -9,9 +9,7 @@ extension String {
             return String()
         }
 
-        return data.map {
-            String(format: "%02x", $0)
-        }.joined()
+        return data.map { String(format: "%02x", $0) }.joined()
     }
 
     public var hexEncoded: String {
@@ -21,7 +19,7 @@ extension String {
         return data.hexEncoded
     }
 
-    public var isHexEncoded: Bool {
+    var isHexEncoded: Bool {
         guard starts(with: "0x") else {
             return false
         }
@@ -38,17 +36,6 @@ extension String {
 
     public var trimmed: String {
         return trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-    }
-
-    public var asDictionary: [String: Any]? {
-        if let data = self.data(using: .utf8) {
-            do {
-                return try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-            } catch {
-                return [:]
-            }
-        }
-        return [:]
     }
 
     public var has0xPrefix: Bool {
@@ -84,25 +71,16 @@ extension String {
     }
 
     public func toInt() -> Int? {
-        return Int(self) ?? nil
-    }
-
-    public func toBool() -> Bool {
-        return (toInt()?.toBool())!
+        return Int(self)
     }
 
     public func toQRCode() -> UIImage? {
-        let data = self.data(using: String.Encoding.ascii)
-        return data?.toQRCode()
+        return data(using: String.Encoding.ascii)?.toQRCode()
     }
 
     public func isNumeric() -> Bool {
         let numberCharacters = CharacterSet.decimalDigits.inverted
         return !isEmpty && rangeOfCharacter(from: numberCharacters) == nil
-    }
-
-    public func isNotNumeric() -> Bool {
-        return !isNumeric()
     }
 }
 
