@@ -72,6 +72,7 @@ class SendCoordinator: Coordinator {
         }
         controller.delegate = self
         controller.navigationItem.largeTitleDisplayMode = .never
+        controller.hidesBottomBarWhenPushed = true
 
         return controller
     } 
