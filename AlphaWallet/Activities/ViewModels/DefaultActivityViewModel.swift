@@ -16,11 +16,11 @@ struct DefaultActivityViewModel {
     let activity: Activity
 
     var contentsBackgroundColor: UIColor {
-        .white
+        Configuration.Color.Semantic.defaultViewBackground
     }
 
     var backgroundColor: UIColor {
-        Colors.appBackground
+        Configuration.Color.Semantic.defaultViewBackground
     }
 
     var amount: NSAttributedString {
@@ -66,9 +66,9 @@ struct DefaultActivityViewModel {
 
         switch activity.state {
         case .pending:
-            return NSAttributedString(string: string, attributes: [.font: Fonts.regular(size: 28), .foregroundColor: R.color.black()!])
+            return NSAttributedString(string: string, attributes: [.font: Fonts.regular(size: 28), .foregroundColor: Configuration.Color.Semantic.defaultForegroundText])
         case .completed:
-            return NSAttributedString(string: string, attributes: [.font: Fonts.regular(size: 28), .foregroundColor: R.color.black()!])
+            return NSAttributedString(string: string, attributes: [.font: Fonts.regular(size: 28), .foregroundColor: Configuration.Color.Semantic.defaultForegroundText])
         case .failed:
             return NSAttributedString(string: string, attributes: [.font: Fonts.regular(size: 28), .foregroundColor: R.color.silver()!, .strikethroughStyle: NSUnderlineStyle.single.rawValue])
         }

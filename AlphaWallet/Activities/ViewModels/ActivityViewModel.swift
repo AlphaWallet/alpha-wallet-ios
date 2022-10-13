@@ -17,11 +17,11 @@ struct ActivityViewModel {
     }
 
     var backgroundColor: UIColor {
-        Screen.TokenCard.Color.background
+        Configuration.Color.Semantic.defaultViewBackground
     }
 
     var titleTextColor: UIColor {
-        R.color.black()!
+        Configuration.Color.Semantic.defaultTitleText
     }
 
     var titleFont: UIFont {
@@ -99,7 +99,7 @@ struct ActivityViewModel {
     }
 
     var subTitleTextColor: UIColor {
-        R.color.dove()!
+        Configuration.Color.Semantic.defaultSubtitleText
     }
 
     var subTitleFont: UIFont {
@@ -111,7 +111,7 @@ struct ActivityViewModel {
     }
 
     var timestampColor: UIColor {
-        R.color.dove()!
+        Configuration.Color.Semantic.defaultSubtitleText
     }
 
     var timestamp: String {
