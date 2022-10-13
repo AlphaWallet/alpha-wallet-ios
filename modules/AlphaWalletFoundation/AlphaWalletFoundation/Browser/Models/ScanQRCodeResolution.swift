@@ -54,4 +54,6 @@ public enum CheckEIP681Error: Error {
     case contractInvalid
     case parameterInvalid
     case missingRpcServer
+    case tokenTypeNotSupported
+    case notEIP681
 }

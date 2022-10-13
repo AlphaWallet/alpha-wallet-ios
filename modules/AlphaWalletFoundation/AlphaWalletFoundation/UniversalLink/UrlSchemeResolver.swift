@@ -18,6 +18,7 @@ public enum UrlSource {
 public protocol UrlSchemeResolver: AnyObject {
     var service: TokenViewModelState & TokenProvidable & TokenAddable { get }
     var sessions: ServerDictionary<WalletSession> { get }
+    var importToken: ImportToken { get }
     var presentationNavigationController: UINavigationController { get }
 
     func openURLInBrowser(url: URL)

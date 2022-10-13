@@ -433,11 +433,10 @@ extension NewTokenViewController: PopNotifiable {
 
 extension NewTokenViewController: AddressTextFieldDelegate {
     func didScanQRCode(_ result: String) {
-        guard let result = QRCodeValueParser.from(string: result) else { return }
-        switch result {
+        switch QRCodeValueParser.from(string: result) {
         case .address(let address):
             updateContractValue(value: address.eip55String)
-        case .eip681:
+        case .eip681, .none:
             break
         }
     }

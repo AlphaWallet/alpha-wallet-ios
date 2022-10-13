@@ -25,7 +25,7 @@ protocol QRCodeResolutionCoordinatorDelegate: AnyObject {
 
 final class QRCodeResolutionCoordinator: Coordinator {
     enum Usage {
-        case all(tokensService: TokenProvidable & TokenAddable, assetDefinitionStore: AssetDefinitionStore)
+        case all(tokensService: TokenProvidable, importToken: ImportToken)
         case importWalletOnly
     }
 
@@ -37,16 +37,14 @@ final class QRCodeResolutionCoordinator: Coordinator {
     }
     private let scanQRCodeCoordinator: ScanQRCodeCoordinator
     private let account: Wallet
-    private let analytics: AnalyticsLogger
     var coordinators: [Coordinator] = []
     weak var delegate: QRCodeResolutionCoordinatorDelegate?
 
-    init(config: Config, coordinator: ScanQRCodeCoordinator, usage: Usage, account: Wallet, analytics: AnalyticsLogger) {
+    init(config: Config, coordinator: ScanQRCodeCoordinator, usage: Usage, account: Wallet) {
         self.config = config
         self.usage = usage
         self.scanQRCodeCoordinator = coordinator
         self.account = account
-        self.analytics = analytics
     }
 
     func start(fromSource source: Analytics.ScanQRCodeSource, clipboardString: String? = nil) {
@@ -72,8 +70,8 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
 
     private func availableActions(forContract contract: AlphaWallet.Address) -> [ScanQRCodeAction] {
         switch usage {
-        case .all(let service, _):
-            let isTokenFound = service.token(for: contract, server: .main) != nil
+        case .all(let tokensService, _):
+            let isTokenFound = tokensService.token(for: contract, server: .main) != nil
             if isTokenFound {
                 return [.sendToAddress, .watchWallet, .openInEtherscan]
             } else {
@@ -103,14 +101,19 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
                         self.skipResolvedCodes = false
                     })
                 }
-            case .eip681(let protocolName, let address, let function, let params):
-                let data = CheckEIP681Params(protocolName: protocolName, address: address, functionName: function, params: params)
+            case .eip681(let protocolName, let address, let functionName, let params):
                 switch usage {
-                case .all(let tokensService, let assetDefinitionStore):
+                case .all(_, let importToken):
+                    let resolver = Eip681UrlResolver(config: config, importToken: importToken, missingRPCServerStrategy: .fallbackToFirstMatching)
                     firstly {
-                        checkEIP681(data, tokensService: tokensService, assetDefinitionStore: assetDefinitionStore)
+                        resolver.resolve(protocolName: protocolName, address: address, functionName: functionName, params: params)
                     }.done { result in
-                        delegate.coordinator(self, didResolveTransactionType: result.transactionType, token: result.token)
+                        switch result {
+                        case .transaction(let transactionType, let token):
+                            delegate.coordinator(self, didResolveTransactionType: transactionType, token: token)
+                        case .address:
+                            break // Not possible here
+                        }
                     }.cauterize()
                 case .importWalletOnly:
                     break
@@ -173,65 +176,6 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
         controller.addAction(cancelAction)
 
         navigationController.present(controller, animated: true)
-    }
-
-    private struct CheckEIP681Params {
-        let protocolName: String
-        let address: AddressOrEnsName
-        let functionName: String?
-        let params: [String: String]
-    }
-
-    private func checkEIP681(_ params: CheckEIP681Params, tokensService: TokenProvidable & TokenAddable, assetDefinitionStore: AssetDefinitionStore) -> Promise<(transactionType: TransactionType, token: Token)> {
-        let analytics = self.analytics
-        return Eip681Parser(protocolName: params.protocolName, address: params.address, functionName: params.functionName, params: params.params).parse().then { result -> Promise<(transactionType: TransactionType, token: Token)> in
-            guard let (contract: contract, customServer, recipient, maybeScientificAmountString) = result.parameters else { return .init(error: CheckEIP681Error.parameterInvalid) }
-            guard let server = self.serverFromEip681LinkOrDefault(customServer) else { return .init(error: CheckEIP681Error.missingRpcServer) }
-            if let token = tokensService.token(for: contract, server: server) {
-                let amount = maybeScientificAmountString.scientificAmountToBigInt.flatMap {
-                    EtherNumberFormatter.full.string(from: $0, decimals: token.decimals)
-                }
-                let transactionType = TransactionType(fungibleToken: token, recipient: recipient, amount: amount)
-                return .value((transactionType, token))
-            } else {
-                return Promise { resolver in
-                    ContractDataDetector(address: contract, account: self.account, server: server, assetDefinitionStore: assetDefinitionStore, analytics: analytics).fetch { result in
-                        switch result {
-                        case .name, .symbol, .balance, .decimals, .nonFungibleTokenComplete, .delegateTokenComplete, .failed:
-                            resolver.reject(CheckEIP681Error.contractInvalid)
-                        case .fungibleTokenComplete(let name, let symbol, let decimals):
-                            let token = tokensService.addCustom(tokens: [.init(
-                                contract: contract,
-                                server: server,
-                                name: name,
-                                symbol: symbol,
-                                decimals: Int(decimals),
-                                type: .erc20,
-                                balance: .balance(["0"])
-                            )], shouldUpdateBalance: true)[0]
-                            guard let token = tokensService.token(for: token.contractAddress, server: token.server) else { return }
-                            let amount = maybeScientificAmountString.scientificAmountToBigInt.flatMap {
-                                EtherNumberFormatter.full.string(from: $0, decimals: token.decimals)
-                            }
-                            let transactionType = TransactionType(fungibleToken: token, recipient: recipient, amount: amount)
-
-                            resolver.fulfill((transactionType, token))
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private func serverFromEip681LinkOrDefault(_ serverInLink: RPCServer?) -> RPCServer? {
-        if let serverInLink = serverInLink {
-            return serverInLink
-        }
-        if config.enabledServers.count == 1 {
-            //Specs https://eips.ethereum.org/EIPS/eip-681 says we should fallback to the current chainId, but since we support multiple chains at the same time, we only fallback if there is exactly 1 enabled network
-            return config.enabledServers.first!
-        }
-        return nil
     }
 }
 

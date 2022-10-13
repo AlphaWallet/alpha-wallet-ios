@@ -84,17 +84,21 @@ open class ImportToken: TokenImportable, ContractDataFetchable {
 
     //Adding a token may fail if we lose connectivity while fetching the contract details (e.g. name and balance). So we remove the contract from the hidden list (if it was there) so that the app has the chance to add it automatically upon auto detection at startup
     open func importToken(for contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool = false) -> Promise<Token> {
-        firstly {
-            fetchTokenOrContract(for: contract, server: server, onlyIfThereIsABalance: onlyIfThereIsABalance)
-        }.map { [tokensDataStore] operation -> Token in
-            switch operation {
-            case .none:
-                throw ImportTokenError.nothingToImport
-            case .ercToken, .token, .delegateContracts, .deletedContracts, .fungibleTokenComplete:
-                if let token = tokensDataStore.addOrUpdate(tokensOrContracts: [operation]).first {
-                    return token
-                } else {
-                    throw ImportTokenError.others
+        if let token = tokensDataStore.token(forContract: contract, server: server) {
+            return .value(token)
+        } else {
+            return firstly {
+                fetchTokenOrContract(for: contract, server: server, onlyIfThereIsABalance: onlyIfThereIsABalance)
+            }.map { [tokensDataStore] operation -> Token in
+                switch operation {
+                case .none:
+                    throw ImportTokenError.nothingToImport
+                case .ercToken, .token, .delegateContracts, .deletedContracts, .fungibleTokenComplete:
+                    if let token = tokensDataStore.addOrUpdate(tokensOrContracts: [operation]).first {
+                        return token
+                    } else {
+                        throw ImportTokenError.others
+                    }
                 }
             }
         }

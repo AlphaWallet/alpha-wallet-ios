@@ -44,7 +44,7 @@ class TokensCoordinatorTests: XCTestCase {
     }
 }
 
-class FakeImportToken: ImportToken {
+final class FakeImportToken: ImportToken {
     convenience init() {
         let analytics = FakeAnalyticsService()
         self.init(sessionProvider: FakeSessionsProvider(servers: [.main]), wallet: .make(), tokensDataStore: FakeTokensDataStore(), assetDefinitionStore: .init(), analytics: analytics)

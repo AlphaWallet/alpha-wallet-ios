@@ -517,13 +517,16 @@ extension AppCoordinator: UniversalLinkServiceDelegate {
             guard let coordinator = assetDefinitionStoreCoordinator else { return }
             coordinator.handleOpen(url: url)
         case .eip681(let url):
-            let account = resolver.sessions.anyValue.account
-            let paymentFlowResolver = PaymentFlowFromEip681UrlResolver(tokensService: resolver.service, account: account, assetDefinitionStore: assetDefinitionStore, analytics: analytics, config: config)
-            guard let promise = paymentFlowResolver.resolve(url: url) else { return }
+            let paymentFlowResolver = Eip681UrlResolver(config: config, importToken: resolver.importToken, missingRPCServerStrategy: .fallbackToAnyMatching)
             firstly {
-                promise
-            }.done { (paymentFlow: PaymentFlow, server: RPCServer) in
-                resolver.showPaymentFlow(for: paymentFlow, server: server, navigationController: resolver.presentationNavigationController)
+                paymentFlowResolver.resolve(url: url)
+            }.done { result in
+                switch result {
+                case .address:
+                    break //Add handling address, maybe same action when scan qr code
+                case .transaction(let transactionType, let token):
+                    resolver.showPaymentFlow(for: .send(type: .transaction(transactionType)), server: token.server, navigationController: resolver.presentationNavigationController)
+                }
             }.cauterize()
         case .walletConnect(let url, let source):
             switch source {
