@@ -19,6 +19,7 @@ class SendCoordinator: Coordinator {
     private let analytics: AnalyticsLogger
     private let domainResolutionService: DomainResolutionServiceType
     private var transactionConfirmationResult: ConfirmResult? = .none
+    private let importToken: ImportToken
 
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -36,8 +37,10 @@ class SendCoordinator: Coordinator {
             tokensService: TokenProvidable & TokenAddable & TokenViewModelState & TokenBalanceRefreshable,
             assetDefinitionStore: AssetDefinitionStore,
             analytics: AnalyticsLogger,
-            domainResolutionService: DomainResolutionServiceType
+            domainResolutionService: DomainResolutionServiceType,
+            importToken: ImportToken
     ) {
+        self.importToken = importToken
         self.transactionType = transactionType
         self.navigationController = navigationController
         self.session = session
@@ -53,7 +56,7 @@ class SendCoordinator: Coordinator {
     }
     
     private func makeSendViewController() -> SendViewController {
-        let viewModel = SendViewModel(transactionType: transactionType, session: session, tokensService: tokensService)
+        let viewModel = SendViewModel(transactionType: transactionType, session: session, tokensService: tokensService, importToken: importToken)
         let controller = SendViewController(viewModel: viewModel, domainResolutionService: domainResolutionService)
 
         switch transactionType {

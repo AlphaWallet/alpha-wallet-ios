@@ -19,6 +19,13 @@ public enum PromiseError: Error {
             self = .some(error: error)
         }
     }
+    
+    public var embedded: Error {
+        switch self {
+        case .some(let error):
+            return error
+        }
+    }
 }
 
 public struct DataResponse {

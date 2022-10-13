@@ -164,7 +164,7 @@ class AddressTextField: UIControl {
 
         NSLayoutConstraint.activate([
             textField.anchorsConstraint(to: self, edgeInsets: edgeInsets),
-            heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen ? 30 : 50),
+            heightAnchor.constraint(equalToConstant: ScreenChecker.size(big: 50, medium: 50, small: 35)),
         ])
 
         notifications.addObserver(self,
@@ -291,7 +291,7 @@ class AddressTextField: UIControl {
         //As of iOS 13, we need to constrain the width of `rightView`
         let rightViewFittingSize = targetAddressRightView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
         NSLayoutConstraint.activate([
-            targetAddressRightView.heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen ? 30 : 50),
+            targetAddressRightView.heightAnchor.constraint(equalToConstant: ScreenChecker.size(big: 50, medium: 50, small: 35)),
             targetAddressRightView.widthAnchor.constraint(equalToConstant: rightViewFittingSize.width),
         ])
         targetAddressRightView.translatesAutoresizingMaskIntoConstraints = false

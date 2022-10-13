@@ -3,6 +3,7 @@
 import Foundation
 import BigInt
 import PromiseKit
+import Combine
 
 public final class Eip681UrlResolver {
     public enum Resolution {
@@ -24,6 +25,13 @@ public final class Eip681UrlResolver {
         self.importToken = importToken
         self.config = config
         self.missingRPCServerStrategy = missingRPCServerStrategy
+    }
+
+    @discardableResult public func resolvePublisher(url: URL) -> AnyPublisher<Eip681UrlResolver.Resolution, CheckEIP681Error> {
+        return resolve(url: url).publisher
+            .receive(on: RunLoop.main)
+            .mapError { return $0.embedded as? CheckEIP681Error ?? .embeded(error: $0.embedded) }
+            .eraseToAnyPublisher()
     }
 
     @discardableResult public func resolve(url: URL) -> Promise<Eip681UrlResolver.Resolution> {

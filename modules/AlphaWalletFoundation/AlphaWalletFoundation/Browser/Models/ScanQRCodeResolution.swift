@@ -56,4 +56,5 @@ public enum CheckEIP681Error: Error {
     case missingRpcServer
     case tokenTypeNotSupported
     case notEIP681
+    case embeded(error: Error)
 }
