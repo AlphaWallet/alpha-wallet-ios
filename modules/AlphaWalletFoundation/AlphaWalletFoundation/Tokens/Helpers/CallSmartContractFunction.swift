@@ -5,6 +5,42 @@ import PromiseKit
 import AlphaWalletWeb3
 import BigInt
 
+extension RPCServer {
+    public var rpcHeaders: RPCNodeHTTPHeaders {
+        switch self {
+        case .klaytnCypress, .klaytnBaobabTestnet:
+            let basicAuth = Constants.Credentials.klaytnRpcNodeKeyBasicAuth
+            if basicAuth.isEmpty {
+                return .init()
+            } else {
+                return [
+                    "Authorization": "Basic \(basicAuth)",
+                    "x-chain-id": "\(chainID)",
+                ]
+            }
+        case .main, .classic, .callisto, .kovan, .ropsten, .rinkeby, .poa, .sokol, .goerli, .xDai, .phi, .phi2, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .candle, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .ioTeX, .ioTeXTestnet, .optimismGoerli, .arbitrumGoerli:
+            return .init()
+        }
+    }
+
+    func makeMaximumToBlockForEvents(fromBlockNumber: UInt64) -> EventFilter.Block {
+        if let maxRange = maximumBlockRangeForEvents {
+            return .blockNumber(fromBlockNumber + maxRange)
+        } else {
+            return .latest
+        }
+    }
+
+    var web3SwiftRpcNodeBatchSupportPolicy: JSONRPCrequestDispatcher.DispatchPolicy {
+        switch rpcNodeBatchSupport {
+        case .noBatching:
+            return .NoBatching
+        case .batch(let size):
+            return .Batch(size)
+        }
+    }
+}
+
 extension Web3 {
     private static var web3s = AtomicDictionary<RPCServer, [TimeInterval: Web3]>()
 

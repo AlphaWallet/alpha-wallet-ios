@@ -31,6 +31,8 @@ class ServersCoordinator: Coordinator {
             .avalanche,
             .avalanche_testnet,
             .mumbai_testnet,
+            .optimismGoerli,
+            .arbitrumGoerli,
             .optimistic,
             .optimisticKovan,
             .cronosTestnet,
