@@ -26,6 +26,7 @@ public class IsErc1155Contract {
         return firstly {
             IsInterfaceSupported165(forServer: server).getInterfaceSupported165(hash: ERC165Hash.official, contract: contract)
         }.get { result in
+            verboseLog("[TokenType] getIsERC1155Contract contract: \(contract.eip55String) chain: \(self.server) = \(result)")
             self.cache?.setContract(for: contract, result)
         }
     }
