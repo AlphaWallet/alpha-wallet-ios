@@ -10,7 +10,7 @@ import Foundation
 public class CachedERC1155ContractDictionary {
     private let fileUrl: URL
     private var baseDictionary: [AlphaWallet.Address: Bool] = [AlphaWallet.Address: Bool]()
-    private var encoder: JSONEncoder
+    private let encoder: JSONEncoder
 
     public init?(fileName: String) {
         do {
