@@ -123,6 +123,7 @@ extension NewTokenCoordinator: NewTokenViewControllerDelegate {
                     serversFailed += 1
                     if serversFailed == servers.count {
                         //So that we can enable the Done button
+                        verboseLog("[TokenType] fallback contract: \(address.eip55String) server: \(each) to token type: erc20")
                         viewController.updateForm(forTokenType: .erc20)
                     }
                 }
@@ -144,15 +145,19 @@ extension NewTokenCoordinator: NewTokenViewControllerDelegate {
                     viewController.updateNameValue(name)
                     viewController.updateSymbolValue(symbol)
                     viewController.updateBalanceValue(balance.rawValue, tokenType: tokenType)
+                    verboseLog("[TokenType] contract: \(address.eip55String) server: \(server) to token type: nonFungibleTokenComplete")
                     seal.fulfill(tokenType)
                 case .fungibleTokenComplete(let name, let symbol, let decimals):
                     viewController.updateNameValue(name)
                     viewController.updateSymbolValue(symbol)
                     viewController.updateDecimalsValue(decimals)
+                    verboseLog("[TokenType] contract: \(address.eip55String) server: \(server) to token type: fungibleTokenComplete")
                     seal.fulfill(.erc20)
                 case .delegateTokenComplete:
+                    verboseLog("[TokenType] contract: \(address.eip55String) server: \(server) to token type: delegateTokenComplete")
                     seal.reject(NoContractDetailsDetected())
                 case .failed:
+                    verboseLog("[TokenType] contract: \(address.eip55String) server: \(server) failed")
                     seal.reject(NoContractDetailsDetected())
                 }
             }
