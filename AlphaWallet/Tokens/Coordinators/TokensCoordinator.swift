@@ -170,7 +170,7 @@ class TokensCoordinator: Coordinator {
 
     func launchUniversalScanner(fromSource source: Analytics.ScanQRCodeSource) {
         let scanQRCodeCoordinator = ScanQRCodeCoordinator(analytics: analytics, navigationController: navigationController, account: wallet, domainResolutionService: domainResolutionService)
-        let coordinator = QRCodeResolutionCoordinator(config: config, coordinator: scanQRCodeCoordinator, usage: .all(tokensService: tokenCollection, assetDefinitionStore: assetDefinitionStore), account: wallet, analytics: analytics)
+        let coordinator = QRCodeResolutionCoordinator(config: config, coordinator: scanQRCodeCoordinator, usage: .all(tokensService: tokenCollection, importToken: importToken), account: wallet)
         coordinator.delegate = self
 
         addCoordinator(coordinator)

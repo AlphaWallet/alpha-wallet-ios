@@ -132,7 +132,7 @@ extension WalletCoordinator: ImportWalletViewControllerDelegate {
     func openQRCode(in controller: ImportWalletViewController) {
         guard let wallet = keystore.currentWallet, navigationController.ensureHasDeviceAuthorization() else { return }
         let scanQRCodeCoordinator = ScanQRCodeCoordinator(analytics: analytics, navigationController: navigationController, account: wallet, domainResolutionService: domainResolutionService)
-        let coordinator = QRCodeResolutionCoordinator(config: config, coordinator: scanQRCodeCoordinator, usage: .importWalletOnly, account: wallet, analytics: analytics)
+        let coordinator = QRCodeResolutionCoordinator(config: config, coordinator: scanQRCodeCoordinator, usage: .importWalletOnly, account: wallet)
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start(fromSource: .importWalletScreen)
@@ -155,22 +155,18 @@ extension WalletCoordinator: QRCodeResolutionCoordinatorDelegate {
 
     func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveTransactionType transactionType: TransactionType, token: Token) {
         removeCoordinator(coordinator)
-        //no op
     }
 
     func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveWalletConnectURL url: AlphaWallet.WalletConnect.ConnectionUrl) {
         removeCoordinator(coordinator)
-        //no op
     }
 
     func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveString value: String) {
         removeCoordinator(coordinator)
-        //no op
     }
 
     func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveURL url: URL) {
         removeCoordinator(coordinator)
-        //no op
     }
 
     func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveJSON json: String) {
