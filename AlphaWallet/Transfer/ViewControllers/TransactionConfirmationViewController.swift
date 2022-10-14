@@ -164,9 +164,8 @@ class TransactionConfirmationViewController: UIViewController {
         button.addTarget(self, action: #selector(confirmButtonTapped), for: .touchUpInside)
 
         viewModel.views
-            .sink { [weak self] views in
-                self?.generateSubviews(for: views)
-            }.store(in: &cancelable)
+            .sink { [weak self] in self?.generateSubviews(for: $0) }
+            .store(in: &cancelable)
     }
 
     @objc func confirmButtonTapped(_ sender: UIButton) {

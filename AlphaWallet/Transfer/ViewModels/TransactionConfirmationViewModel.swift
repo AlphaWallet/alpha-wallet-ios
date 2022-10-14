@@ -22,7 +22,7 @@ class TransactionConfirmationViewModel {
     }()
     private let configurationHasChangedSubject = PassthroughSubject<Void, Never>()
     private let reloadViewSubject = PassthroughSubject<Void, Never>()
-    private let resolver: RecipientResolver
+    private let recipientResolver: RecipientResolver
     private let configurator: TransactionConfigurator
     private (set) var canBeConfirmed = true
     private var timerToReenableConfirmButton: Timer?
@@ -35,7 +35,7 @@ class TransactionConfirmationViewModel {
     init(configurator: TransactionConfigurator, configuration: TransactionType.Configuration, assetDefinitionStore: AssetDefinitionStore, domainResolutionService: DomainResolutionServiceType, tokensService: TokenViewModelState) {
         self.tokensService = tokensService
         let recipientOrContract = configurator.transaction.recipient ?? configurator.transaction.contract
-        resolver = RecipientResolver(address: recipientOrContract, domainResolutionService: domainResolutionService)
+        recipientResolver = RecipientResolver(address: recipientOrContract, domainResolutionService: domainResolutionService)
         self.configurator = configurator
         session = configurator.session
 
@@ -43,15 +43,13 @@ class TransactionConfirmationViewModel {
         case .tokenScriptTransaction(_, let contract, let functionCallMetaData):
             type = .tokenScriptTransaction(.init(address: contract, configurator: configurator, functionCallMetaData: functionCallMetaData))
         case .dappTransaction:
-            type = .dappOrWalletConnectTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: resolver, requester: nil))
+            type = .dappOrWalletConnectTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: recipientResolver, requester: nil))
         case .walletConnect(_, let requester):
-            type = .dappOrWalletConnectTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: resolver, requester: requester))
+            type = .dappOrWalletConnectTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: recipientResolver, requester: requester))
         case .sendFungiblesTransaction(_, let amount):
-            let resolver = RecipientResolver(address: configurator.transaction.recipient, domainResolutionService: domainResolutionService)
-            type = .sendFungiblesTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: resolver, amount: amount))
+            type = .sendFungiblesTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: recipientResolver, amount: amount))
         case .sendNftTransaction(_, let tokenInstanceNames):
-            let resolver = RecipientResolver(address: configurator.transaction.recipient, domainResolutionService: domainResolutionService)
-            type = .sendNftTransaction(.init(configurator: configurator, recipientResolver: resolver, tokenInstanceNames: tokenInstanceNames))
+            type = .sendNftTransaction(.init(configurator: configurator, recipientResolver: recipientResolver, tokenInstanceNames: tokenInstanceNames))
         case .claimPaidErc875MagicLink(_, let price, let numberOfTokens):
             type = .claimPaidErc875MagicLink(.init(configurator: configurator, price: price, numberOfTokens: numberOfTokens))
         case .speedupTransaction:
@@ -62,12 +60,12 @@ class TransactionConfirmationViewModel {
             type = .swapTransaction(.init(configurator: configurator, fromToken: fromToken, fromAmount: fromAmount, toToken: toToken, toAmount: toAmount))
         case .approve:
             //TODO rename `.dappOrWalletConnectTransaction` so it's more general?
-            type = .dappOrWalletConnectTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: resolver, requester: nil))
+            type = .dappOrWalletConnectTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: recipientResolver, requester: nil))
         }
     }
 
     private lazy var resolvedRecipient: AnyPublisher<Void, Never> = {
-        return resolver.resolveRecipient()
+        return recipientResolver.resolveRecipient()
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }()
@@ -113,15 +111,11 @@ class TransactionConfirmationViewModel {
             .mapToVoid()
             .eraseToAnyPublisher()
 
-        let recipientUpdated = resolvedRecipient
-            .mapToVoid()
-            .eraseToAnyPublisher()
-
         let forceViewReload = reloadViewSubject.eraseToAnyPublisher()
 
         let initial = Just<Void>(()).eraseToAnyPublisher()
 
-        return Publishers.Merge4(initial, balanceUpdated, recipientUpdated, forceViewReload)
+        return Publishers.Merge4(initial, balanceUpdated, resolvedRecipient, forceViewReload)
             .map { _ in TransactionConfirmationViewModel.generateViews(for: self) }
             .eraseToAnyPublisher()
     }()
