@@ -1,44 +1,56 @@
 //
-//  NonFungibleJsonBalanceFetcher.swift
+//  JsonFromTokenUri.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 20.07.2022.
 //
 
 import Foundation
-import Combine
 import AlphaWalletCore
 import AlphaWalletOpenSea
-import BigInt
 import PromiseKit
 import SwiftyJSON
 
-//TODO: think about the name, remove queue later, replace with any publisher
-public class NonFungibleJsonBalanceFetcher {
+final class JsonFromTokenUri {
     private let tokensService: TokenProvidable
     //Unlike `SessionManager.default`, this doesn't add default HTTP headers. It looks like POAP token URLs (e.g. https://api.poap.xyz/metadata/2503/278569) don't like them and return `406` in the JSON. It's strangely not responsible when curling, but only when running in the app
     private var sessionManagerWithDefaultHttpHeaders: SessionManager = {
         let configuration = URLSessionConfiguration.default
         return SessionManager(configuration: configuration)
     }()
-    private lazy var nonFungibleContract = NonFungibleContract(server: server, queue: queue)
+    private lazy var getTokenUri = NonFungibleContract(server: server, queue: queue)
     private let server: RPCServer
-    private let queue: DispatchQueue
+    private var inFlightPromises: [String: Promise<NonFungibleBalanceAndItsSource<JsonString>>] = [:]
+    private let queue = DispatchQueue(label: "org.alphawallet.swift.jsonFromTokenUri")
 
-    public init(server: RPCServer, tokensService: TokenProvidable, queue: DispatchQueue) {
+    public init(server: RPCServer, tokensService: TokenProvidable) {
         self.server = server
         self.tokensService = tokensService
-        self.queue = queue
     }
 
-    //Misnomer, we call this "nonFungible", but this includes ERC1155 which can contain (semi-)fungibles, but there's no better name
-    public func fetchNonFungibleJson(forTokenId tokenId: String, tokenType: TokenType, address: AlphaWallet.Address, enjinTokens: EnjinTokenIdsToSemiFungibles) -> Guarantee<NonFungibleBalanceAndItsSource<JsonString>> {
-        firstly {
-            nonFungibleContract.getTokenUri(for: tokenId, contract: address)
-        }.then(on: queue, {
-            self.fetchTokenJson(forTokenId: tokenId, tokenType: tokenType, uri: $0, address: address, enjinTokens: enjinTokens)
-        }).recover(on: queue, { _ in
-            return self.generateTokenJsonFallback(forTokenId: tokenId, tokenType: tokenType, address: address)
+    func fetchJsonFromTokenUri(forTokenId tokenId: String, tokenType: TokenType, address: AlphaWallet.Address, enjinToken: GetEnjinTokenQuery.Data.EnjinToken?) -> Promise<NonFungibleBalanceAndItsSource<JsonString>> {
+        return firstly {
+            .value(tokenId)
+        }.then(on: queue, { [queue, getTokenUri] tokenId in
+            let key = "\(tokenId).\(address.eip55String).\(tokenType.rawValue)"
+
+            if let promise = self.inFlightPromises[key] {
+                return promise
+            } else {
+                let promise = firstly {
+                    getTokenUri.getTokenUri(for: tokenId, contract: address)
+                }.then(on: queue, {
+                    self.fetchTokenJson(forTokenId: tokenId, tokenType: tokenType, uri: $0, address: address, enjinToken: enjinToken)
+                }).recover(on: queue, { _ in
+                    return self.generateTokenJsonFallback(forTokenId: tokenId, tokenType: tokenType, address: address)
+                }).ensure(on: queue, {
+                    self.inFlightPromises[key] = .none
+                })
+
+                self.inFlightPromises[key] = promise
+
+                return promise
+            }
         })
     }
 
@@ -59,17 +71,19 @@ public class NonFungibleJsonBalanceFetcher {
         return .value(.init(tokenId: tokenId, value: json, source: .fallback))
     }
 
-    private func fetchTokenJson(forTokenId tokenId: String, tokenType: TokenType, uri originalUri: URL, address: AlphaWallet.Address, enjinTokens: EnjinTokenIdsToSemiFungibles) -> Promise<NonFungibleBalanceAndItsSource<JsonString>> {
+    private func fetchTokenJson(forTokenId tokenId: String, tokenType: TokenType, uri originalUri: URL, address: AlphaWallet.Address, enjinToken: GetEnjinTokenQuery.Data.EnjinToken?) -> Promise<NonFungibleBalanceAndItsSource<JsonString>> {
         struct Error: Swift.Error {
         }
         let uri = originalUri.rewrittenIfIpfs
         //TODO check this doesn't print duplicates, including unnecessary fetches
         verboseLog("Fetching token URI: \(originalUri.absoluteString)… with: \(uri.absoluteString)")
-        let server = server
+
+        //Must not use `SessionManager.default.request` or `Alamofire.request` which uses the former. See comment in var
+        let request = sessionManagerWithDefaultHttpHeaders.request(uri, method: .get)
+
         return firstly {
-            //Must not use `SessionManager.default.request` or `Alamofire.request` which uses the former. See comment in var
-            sessionManagerWithDefaultHttpHeaders.request(uri, method: .get).responseData(queue: queue)
-        }.map(on: queue, { [tokensService] (data, _) -> NonFungibleBalanceAndItsSource in
+            request.responseData(queue: queue)
+        }.map(on: queue, { [tokensService, server] (data, _) -> NonFungibleBalanceAndItsSource in
             if let json = try? JSON(data: data) {
                 if let errorMessage = json["error"].string {
                     warnLog("Fetched token URI: \(originalUri.absoluteString) error: \(errorMessage)")
@@ -92,8 +106,8 @@ public class NonFungibleJsonBalanceFetcher {
                         //POAP tokens (https://blockscout.com/xdai/mainnet/address/0x22C1f6050E56d2876009903609a2cC3fEf83B415/transactions), eg. https://api.poap.xyz/metadata/2503/278569, use `home_url` as the key for what they should use `external_url` for and they use `external_url` to point back to the token URI
                         jsonDictionary["externalLink"] = JSON(jsonDictionary["home_url"].string ?? jsonDictionary["external_url"].string ?? "")
                     }
-                    let tokenIdSubstituted = TokenIdConverter.toTokenIdSubstituted(string: tokenId)
-                    if let enjinToken = enjinTokens[tokenIdSubstituted] {
+
+                    if let enjinToken = enjinToken {
                         jsonDictionary.update(enjinToken: enjinToken)
                     }
 

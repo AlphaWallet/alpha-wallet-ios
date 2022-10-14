@@ -4,18 +4,18 @@ import Foundation
 import BigInt
 import PromiseKit
 
-public class NonFungibleContract {
+class NonFungibleContract {
     private let server: RPCServer
     private let queue: DispatchQueue
 
-    public init(server: RPCServer, queue: DispatchQueue) {
+    init(server: RPCServer, queue: DispatchQueue) {
         self.server = server
         self.queue = queue
     }
 
-    public func getTokenUri(for tokenId: String, contract: AlphaWallet.Address) -> Promise<URL> {
+    func getTokenUri(for tokenId: String, contract: AlphaWallet.Address) -> Promise<URL> {
         firstly {
-            getTokenUriImpl(for: tokenId, contract: contract)
+            self.getTokenUriImpl(for: tokenId, contract: contract)
         }.recover { _ in
             self.getUri(for: tokenId, contract: contract)
         }
@@ -26,8 +26,7 @@ public class NonFungibleContract {
         return firstly {
             callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [tokenId] as [AnyObject], queue: queue)
         }.map(on: queue, { uriResult -> URL in
-            let string = ((uriResult["0"] as? String) ?? "").stringWithTokenIdSubstituted(tokenId)
-            if let url = URL(string: string) {
+            if let string = uriResult["0"] as? String, let url = URL(string: string.stringWithTokenIdSubstituted(tokenId)) {
                 return url
             } else {
                 throw Web3Error(description: "Error extracting tokenUri uri for contract \(contract.eip55String) tokenId: \(tokenId) string: \(uriResult)")
@@ -40,8 +39,7 @@ public class NonFungibleContract {
         return firstly {
             callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [tokenId] as [AnyObject], queue: queue)
         }.map(on: queue, { uriResult -> URL in
-            let string = ((uriResult["0"] as? String) ?? "").stringWithTokenIdSubstituted(tokenId)
-            if let url = URL(string: string) {
+            if let string = uriResult["0"] as? String, let url = URL(string: string.stringWithTokenIdSubstituted(tokenId)) {
                 return url
             } else {
                 throw Web3Error(description: "Error extracting token uri for contract \(contract.eip55String) tokenId: \(tokenId) string: \(uriResult)")

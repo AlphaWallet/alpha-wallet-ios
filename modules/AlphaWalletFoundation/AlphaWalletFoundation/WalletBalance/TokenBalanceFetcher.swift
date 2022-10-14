@@ -33,11 +33,11 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
     private let analytics: AnalyticsLogger
 
     private lazy var nonErc1155BalanceFetcher: TokenProviderType = session.tokenProvider
-    private lazy var nonFungibleJsonBalanceFetcher = NonFungibleJsonBalanceFetcher(server: session.server, tokensService: tokensService, queue: queue)
+    private lazy var jsonFromTokenUri = JsonFromTokenUri(server: session.server, tokensService: tokensService)
     private lazy var erc1155TokenIdsFetcher = Erc1155TokenIdsFetcher(analytics: analytics, session: session, server: session.server, config: session.config)
     private lazy var erc1155BalanceFetcher = Erc1155BalanceFetcher(address: session.account.address, server: session.server)
     private lazy var erc1155JsonBalanceFetcher: NonFungibleErc1155JsonBalanceFetcher = {
-        return NonFungibleErc1155JsonBalanceFetcher(assetDefinitionStore: assetDefinitionStore, analytics: analytics, tokensService: tokensService, session: session, erc1155TokenIdsFetcher: erc1155TokenIdsFetcher, nonFungibleJsonBalanceFetcher: nonFungibleJsonBalanceFetcher, erc1155BalanceFetcher: erc1155BalanceFetcher, queue: queue, importToken: importToken)
+        return NonFungibleErc1155JsonBalanceFetcher(tokensService: tokensService, session: session, erc1155TokenIdsFetcher: erc1155TokenIdsFetcher, jsonFromTokenUri: jsonFromTokenUri, erc1155BalanceFetcher: erc1155BalanceFetcher, queue: queue, importToken: importToken)
     }()
     private let session: WalletSession
     private let etherToken: Token
@@ -165,9 +165,12 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
         guard let erc721TokenIdsFetcher = erc721TokenIdsFetcher else { return }
         firstly {
             erc721TokenIdsFetcher.tokenIdsForErc721Token(contract: contract, forServer: session.server, inAccount: session.account.address)
-        }.then(on: queue, { [nonFungibleJsonBalanceFetcher] tokenIds -> Promise<[NonFungibleBalanceAndItsSource<JsonString>]> in
-            let guarantees: [Guarantee<NonFungibleBalanceAndItsSource>] = tokenIds
-                .map { nonFungibleJsonBalanceFetcher.fetchNonFungibleJson(forTokenId: $0, tokenType: .erc721, address: contract, enjinTokens: enjinTokens) }
+        }.then(on: queue, { [jsonFromTokenUri] tokenIds -> Promise<[NonFungibleBalanceAndItsSource<JsonString>]> in
+            let guarantees: [Promise<NonFungibleBalanceAndItsSource>] = tokenIds
+                .map {
+                    let enjinToken = enjinTokens[TokenIdConverter.toTokenIdSubstituted(string: $0)]
+                    return jsonFromTokenUri.fetchJsonFromTokenUri(forTokenId: $0, tokenType: .erc721, address: contract, enjinToken: enjinToken)
+                }
             return when(fulfilled: guarantees)
         }).done(on: queue, { [weak self, tokensService] jsons in
             guard let strongSelf = self else { return }

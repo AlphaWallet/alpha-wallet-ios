@@ -14,32 +14,28 @@ import PromiseKit
 import SwiftyJSON
 
 //TODO: think about the name, remove queue later, replace with any publisher
-public class NonFungibleErc1155JsonBalanceFetcher {
+class NonFungibleErc1155JsonBalanceFetcher {
     typealias TokenIdMetaData = (contract: AlphaWallet.Address, tokenId: BigUInt, jsonAndItsSource: NonFungibleBalanceAndItsSource<JsonString>)
 
-    private let nonFungibleJsonBalanceFetcher: NonFungibleJsonBalanceFetcher
+    private let jsonFromTokenUri: JsonFromTokenUri
     private let erc1155TokenIdsFetcher: Erc1155TokenIdsFetcher
     private let erc1155BalanceFetcher: Erc1155BalanceFetcher
     private let queue: DispatchQueue
     private let session: WalletSession
     private let tokensService: TokenProvidable & TokenAddable
-    private let analytics: AnalyticsLogger
-    private let assetDefinitionStore: AssetDefinitionStore
     private let importToken: ImportToken
 
-    public init(assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger, tokensService: TokenProvidable & TokenAddable, session: WalletSession, erc1155TokenIdsFetcher: Erc1155TokenIdsFetcher, nonFungibleJsonBalanceFetcher: NonFungibleJsonBalanceFetcher, erc1155BalanceFetcher: Erc1155BalanceFetcher, queue: DispatchQueue, importToken: ImportToken) {
-        self.assetDefinitionStore = assetDefinitionStore
+    init(tokensService: TokenProvidable & TokenAddable, session: WalletSession, erc1155TokenIdsFetcher: Erc1155TokenIdsFetcher, jsonFromTokenUri: JsonFromTokenUri, erc1155BalanceFetcher: Erc1155BalanceFetcher, queue: DispatchQueue, importToken: ImportToken) {
         self.session = session
         self.erc1155TokenIdsFetcher = erc1155TokenIdsFetcher
         self.queue = queue
         self.tokensService = tokensService
-        self.nonFungibleJsonBalanceFetcher = nonFungibleJsonBalanceFetcher
-        self.analytics = analytics
+        self.jsonFromTokenUri = jsonFromTokenUri
         self.erc1155BalanceFetcher = erc1155BalanceFetcher
         self.importToken = importToken
     }
 
-    public func fetchErc1155NonFungibleJsons(enjinTokens: EnjinTokenIdsToSemiFungibles) -> Promise<[AlphaWallet.Address: [NonFungibleBalanceAndItsSource<NonFungibleFromTokenUri>]]> {
+    func fetchErc1155NonFungibleJsons(enjinTokens: EnjinTokenIdsToSemiFungibles) -> Promise<[AlphaWallet.Address: [NonFungibleBalanceAndItsSource<NonFungibleFromTokenUri>]]> {
         return firstly {
             erc1155TokenIdsFetcher.detectContractsAndTokenIds()
         }.then(on: queue, { contractsAndTokenIds -> Promise<Erc1155TokenIds.ContractsAndTokenIds> in
@@ -79,14 +75,16 @@ public class NonFungibleErc1155JsonBalanceFetcher {
     }
 
     private func _fetchErc1155NonFungibleJsons(contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds, enjinTokens: EnjinTokenIdsToSemiFungibles) -> Promise<[TokenIdMetaData]> {
-        var allGuarantees: [Guarantee<TokenIdMetaData>] = .init()
+        var allGuarantees: [Promise<TokenIdMetaData>] = .init()
         for (contract, tokenIds) in contractsAndTokenIds {
-            let guarantees = tokenIds.map { tokenId -> Guarantee<TokenIdMetaData> in
-                nonFungibleJsonBalanceFetcher.fetchNonFungibleJson(forTokenId: String(tokenId), tokenType: .erc1155, address: contract, enjinTokens: enjinTokens)
+            let guarantees = tokenIds.map { tokenId -> Promise<TokenIdMetaData> in
+                let enjinToken = enjinTokens[TokenIdConverter.toTokenIdSubstituted(string: String(tokenId))]
+                return jsonFromTokenUri.fetchJsonFromTokenUri(forTokenId: String(tokenId), tokenType: .erc1155, address: contract, enjinToken: enjinToken)
                     .map(on: queue, { jsonAndItsUri -> TokenIdMetaData in
                         return (contract: contract, tokenId: tokenId, jsonAndItsSource: jsonAndItsUri)
                     })
             }
+
             allGuarantees.append(contentsOf: guarantees)
         }
         return when(fulfilled: allGuarantees)
