@@ -27,6 +27,7 @@ target 'AlphaWallet' do
   pod 'AlphaWalletENS', :path => '.'
   pod 'AlphaWalletOpenSea', :path => '.'
   pod 'AlphaWalletFoundation', :path => '.'
+  pod 'AlphaWalletTrackAPICalls', :path => '.'
   pod 'AlphaWalletWeb3', :path => '.'
   pod 'MailchimpSDK'
   pod 'xcbeautify'
