@@ -88,7 +88,7 @@ public enum RPCServer: Hashable, CaseIterable {
             return false
         case .kovan, .ropsten, .rinkeby, .sokol: //NOTE: maybe Arbitrum Kovan, Optimistic Rinkeby too
             return true
-            420}
+        }
     }
 
     public var chainID: Int {
