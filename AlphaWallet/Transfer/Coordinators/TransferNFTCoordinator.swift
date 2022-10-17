@@ -16,6 +16,8 @@ class TransferNFTCoordinator: Coordinator {
         let viewModel = SendSemiFungibleTokenViewModel(token: token, tokenHolders: [tokenHolder])
         let controller = SendSemiFungibleTokenViewController(viewModel: viewModel, tokenCardViewFactory: tokenCardViewFactory, domainResolutionService: domainResolutionService)
         controller.delegate = self
+        controller.navigationItem.largeTitleDisplayMode = .never
+        controller.hidesBottomBarWhenPushed = true
 
         return controller
     }()
@@ -61,7 +63,6 @@ class TransferNFTCoordinator: Coordinator {
     }
 
     func start() {
-        sendViewController.navigationItem.largeTitleDisplayMode = .never
         navigationController.pushViewController(sendViewController, animated: true)
     }
 }
