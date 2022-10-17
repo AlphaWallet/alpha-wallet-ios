@@ -39,17 +39,12 @@ public class RecipientResolver {
         return domainResolutionService.resolveEns(address: address)
             .map { ens -> EnsName? in return ens }
             .replaceError(with: nil)
-            .handleEvents(receiveOutput: { [weak self] ensName in
-                self?.ensName = ensName
-            }).mapToVoid()
+            .handleEvents(receiveOutput: { [weak self] in self?.ensName = $0 })
+            .mapToVoid()
             .eraseToAnyPublisher()
     }
 
     public var value: String? {
-        if let ensName = ensName, let address = address {
-            return String(format: "%@ | %@", ensName, address.truncateMiddle)
-        } else {
-            return ensName ?? address?.truncateMiddle
-        }
+        return address?.eip55String
     }
 }
