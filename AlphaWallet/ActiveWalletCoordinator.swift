@@ -102,7 +102,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private let accountsCoordinator: AccountsCoordinator
 
     var presentationNavigationController: UINavigationController {
-        if let nc = tabBarController.viewControllers?.first as? UINavigationController {
+        if let nc = UIApplication.shared.presentedViewController(or: navigationController) as? UINavigationController {
             if let nc = nc.presentedViewController as? UINavigationController {
                 return nc
             } else {
