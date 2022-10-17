@@ -27,7 +27,7 @@ class ImportMagicLinkCoordinator: Coordinator {
     private let config: Config
 	private var importTokenViewController: ImportMagicTokenViewController?
     private var hasCompleted = false
-    private var getERC875TokenBalanceCoordinator: GetErc875Balance?
+    private lazy var getERC875TokenBalance = GetErc875Balance(forServer: server)
     //TODO better to make sure tokenHolder is non-optional. But be careful that ImportMagicTokenViewController also handles when viewModel always has a TokenHolder. Needs good defaults in TokenHolder that can be displayed
     private var tokenHolder: TokenHolder?
     private var count: Decimal?
@@ -265,8 +265,7 @@ class ImportMagicLinkCoordinator: Coordinator {
     }
 
     private func handleNormalLinks(signedOrder: SignedOrder, recoverAddress: AlphaWallet.Address, contractAsAddress: AlphaWallet.Address) {
-        getERC875TokenBalanceCoordinator = GetErc875Balance(forServer: server)
-        getERC875TokenBalanceCoordinator?.getERC875TokenBalance(for: recoverAddress, contract: contractAsAddress).done({ [weak self] balance in
+        getERC875TokenBalance.getErc875TokenBalance(for: recoverAddress, contract: contractAsAddress).done({ [weak self] balance in
             guard let strongSelf = self else { return }
             let filteredTokens: [String] = strongSelf.checkERC875TokensAreAvailable(
                     indices: signedOrder.order.indices,

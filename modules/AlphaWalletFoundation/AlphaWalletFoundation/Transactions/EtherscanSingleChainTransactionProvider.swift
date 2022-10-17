@@ -20,6 +20,7 @@ public class EtherscanSingleChainTransactionProvider: SingleChainTransactionProv
     private var isAutoDetectingErc721Transactions: Bool = false
     private var isFetchingLatestTransactions = false
     private let tokensService: TokenProvidable
+    private let getContractInteractions = GetContractInteractions()
     private lazy var getPendingTransaction = GetPendingTransaction(server: session.server, analytics: analytics)
     weak public var delegate: SingleChainTransactionProviderDelegate?
 
@@ -85,8 +86,7 @@ public class EtherscanSingleChainTransactionProvider: SingleChainTransactionProv
         let wallet = session.account.address
         let startBlock = Config.getLastFetchedErc20InteractionBlockNumber(session.server, wallet: wallet).flatMap { $0 + 1 }
         firstly {
-            GetContractInteractions(queue: queue)
-                .getErc20Interactions(walletAddress: wallet, server: server, startBlock: startBlock)
+            getContractInteractions.getErc20Interactions(walletAddress: wallet, server: server, startBlock: startBlock)
         }.then(on: queue, { [weak self] result -> Promise<([TransactionInstance], Int)> in
             guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
 
@@ -114,8 +114,7 @@ public class EtherscanSingleChainTransactionProvider: SingleChainTransactionProv
         let wallet = session.account.address
         let startBlock = Config.getLastFetchedErc721InteractionBlockNumber(session.server, wallet: wallet).flatMap { $0 + 1 }
         firstly {
-            GetContractInteractions(queue: queue)
-                .getErc721Interactions(walletAddress: wallet, server: server, startBlock: startBlock)
+            getContractInteractions.getErc721Interactions(walletAddress: wallet, server: server, startBlock: startBlock)
         }.then(on: queue, { [weak self] result -> Promise<([TransactionInstance], Int)> in
             guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
             let (result, minBlockNumber, maxBlockNumber) = functional.extractBoundingBlockNumbers(fromTransactions: result)

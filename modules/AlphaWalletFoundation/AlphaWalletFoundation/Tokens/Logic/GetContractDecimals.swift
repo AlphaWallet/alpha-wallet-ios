@@ -3,22 +3,44 @@
 import Foundation
 import PromiseKit
 import AlphaWalletWeb3
+import AlphaWalletCore
 
-public class GetContractDecimals {
+final class GetContractDecimals {
     private let server: RPCServer
+    private var inFlightPromises: [String: Promise<Int>] = [:]
+    private let queue = DispatchQueue(label: "org.alphawallet.swift.getContractDecimals")
 
-    public init(forServer server: RPCServer) {
+    init(forServer server: RPCServer) {
         self.server = server
     }
+    
+    func getDecimals(for contract: AlphaWallet.Address) -> Promise<Int> {
+        firstly {
+            .value(contract)
+        }.then(on: queue, { [weak self, queue, server] contract -> Promise<Int> in
+            let key = contract.eip55String
+            
+            if let promise = self?.inFlightPromises[key] {
+                return promise
+            } else {
+                let functionName = "decimals"
+                let promise = attempt(maximumRetryCount: 2, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {
+                    callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: Web3.Utils.erc20ABI)
+                        .map(on: queue, { dictionary -> Int in
+                            guard let decimalsOfUnknownType = dictionary["0"], let decimals = Int(String(describing: decimalsOfUnknownType)) else {
+                                throw CastError(actualValue: dictionary["0"], expectedType: Int.self)
+                            }
 
-    public func getDecimals(for contract: AlphaWallet.Address) -> Promise<Int> {
-        let functionName = "decimals"
-        return callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: Web3.Utils.erc20ABI).map { dictionary -> Int in
-            guard let decimalsOfUnknownType = dictionary["0"], let decimals = Int(String(describing: decimalsOfUnknownType)) else {
-                throw CastError(actualValue: dictionary["0"], expectedType: Int.self)
+                            return decimals
+                        })
+                }.ensure(on: queue, {
+                    self?.inFlightPromises[key] = .none
+                })
+
+                self?.inFlightPromises[key] = promise
+
+                return promise
             }
-
-            return decimals
-        }
+        })
     }
 }

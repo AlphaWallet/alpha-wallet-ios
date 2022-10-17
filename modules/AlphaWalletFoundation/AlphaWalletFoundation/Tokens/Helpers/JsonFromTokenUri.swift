@@ -33,7 +33,7 @@ final class JsonFromTokenUri {
             .value(tokenId)
         }.then(on: queue, { [queue, getTokenUri] tokenId -> Promise<NonFungibleBalanceAndItsSource<JsonString>> in
             let key = "\(tokenId).\(address.eip55String).\(tokenType.rawValue)"
-
+            
             if let promise = self.inFlightPromises[key] {
                 return promise
             } else {

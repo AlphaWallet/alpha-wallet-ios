@@ -2,20 +2,40 @@
 
 import Foundation
 import PromiseKit
+import AlphaWalletCore
 
 public class GetErc875Balance {
-    private let queue: DispatchQueue?
+    private let queue = DispatchQueue(label: "org.alphawallet.swift.getErc875Balance")
+    private var inFlightPromises: [String: Promise<[String]>] = [:]
     private let server: RPCServer
 
-    public init(forServer server: RPCServer, queue: DispatchQueue? = nil) {
+    public init(forServer server: RPCServer) {
         self.server = server
-        self.queue = queue
     }
 
-    public func getERC875TokenBalance(for address: AlphaWallet.Address, contract: AlphaWallet.Address) -> Promise<[String]> {
-        let function = GetERC875Balance()
-        return callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [address.eip55String] as [AnyObject]).map(on: queue, { balanceResult -> [String] in
-            return GetErc875Balance.adapt(balanceResult["0"])
+    public func getErc875TokenBalance(for address: AlphaWallet.Address, contract: AlphaWallet.Address) -> Promise<[String]> {
+        firstly {
+            .value(contract)
+        }.then(on: queue, { [weak self, queue, server] contract -> Promise<[String]> in
+            let key = "\(address.eip55String)-\(contract.eip55String)"
+            
+            if let promise = self?.inFlightPromises[key] {
+                return promise
+            } else {
+                let function = GetERC875Balance()
+                let promise = attempt(maximumRetryCount: 2, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {
+                    callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [address.eip55String] as [AnyObject])
+                        .map(on: queue, { balanceResult -> [String] in
+                            return GetErc875Balance.adapt(balanceResult["0"])
+                        })
+                }.ensure(on: queue, {
+                    self?.inFlightPromises[key] = .none
+                })
+
+                self?.inFlightPromises[key] = promise
+
+                return promise
+            }
         })
     }
 
