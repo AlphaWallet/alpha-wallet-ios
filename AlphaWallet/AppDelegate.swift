@@ -1,7 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 import UIKit
 import AlphaWalletAddress
-import AlphaWalletFoundation 
+import AlphaWalletFoundation
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {

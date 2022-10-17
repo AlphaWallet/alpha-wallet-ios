@@ -47,6 +47,7 @@ PODS:
     - AlphaWalletCore
     - PromiseKit
     - SwiftyJSON (= 5.0.0)
+  - AlphaWalletTrackAPICalls (1.0.0)
   - AlphaWalletWeb3 (0.0.1):
     - BigInt
     - CryptoSwift
@@ -148,6 +149,7 @@ DEPENDENCIES:
   - AlphaWalletFoundation (from `.`)
   - AlphaWalletGoBack (from `.`)
   - AlphaWalletOpenSea (from `.`)
+  - AlphaWalletTrackAPICalls (from `.`)
   - AlphaWalletWeb3 (from `.`)
   - AlphaWalletWeb3Provider (from `https://github.com/AlphaWallet/AlphaWallet-web3-provider`, commit `9a4496d02b7ddb2f6307fd0510d8d7c9fcef9870`)
   - BigInt (~> 3.1)
@@ -220,6 +222,8 @@ EXTERNAL SOURCES:
     :path: "."
   AlphaWalletOpenSea:
     :path: "."
+  AlphaWalletTrackAPICalls:
+    :path: "."
   AlphaWalletWeb3:
     :path: "."
   AlphaWalletWeb3Provider:
@@ -281,6 +285,7 @@ SPEC CHECKSUMS:
   AlphaWalletFoundation: 8251d9a334f219b89530659b0baadc0b92552a9b
   AlphaWalletGoBack: 1d55b51e6cfd999740d3cfab09d9fa723ba85ff2
   AlphaWalletOpenSea: 71e255612529b04ae4d66dca54bd181185593b1d
+  AlphaWalletTrackAPICalls: 1e5d1f0a1858bd4d383aa412677a642be7d21e17
   AlphaWalletWeb3: 86d0be33c612d75685a5797ef4492e42c295f1a5
   AlphaWalletWeb3Provider: 7ca1e1c1dc841dc1915f970daace48bf34931655
   APIKit: 9e1a4069608bf0ae5238811e6cfc26928ad4d01e
@@ -323,6 +328,6 @@ SPEC CHECKSUMS:
   TrustWalletCore: a92d85baa15932279cce925559e93695558cafdd
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: 6cb9ad60a47bfeda81717db008a3a752788806e1
+PODFILE CHECKSUM: c4183e373b5193db637d4e89857271582bbf138e
 
 COCOAPODS: 1.11.3
