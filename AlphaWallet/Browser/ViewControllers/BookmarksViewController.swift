@@ -14,7 +14,7 @@ protocol BookmarksViewControllerDelegate: AnyObject {
     func dismissKeyboard(in viewController: BookmarksViewController)
 }
 
-class BookmarksViewController: UIViewController {
+final class BookmarksViewController: UIViewController {
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.register(MyDappCell.self)
@@ -25,7 +25,7 @@ class BookmarksViewController: UIViewController {
 
         return tableView
     }()
-    lazy private var headerView = BookmarksHeaderView()
+    private lazy var headerView = BookmarksHeaderView()
     private let viewModel: BookmarksViewViewModel
     private lazy var dataSource = makeDataSource()
     private var cancelable = Set<AnyCancellable>()

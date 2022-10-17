@@ -12,12 +12,23 @@ protocol PushNotifiable {
     func didPushViewController(animated: Bool)
 }
 
+@objc protocol PopInteractable {
+    func shouldBePopped() -> Bool
+}
+
 @objc protocol PopNotifiable {
     @objc optional func willPopViewController(animated: Bool)
     func didPopViewController(animated: Bool)
 }
 
-class NavigationController: UINavigationController {
+final class NavigationController: UINavigationController, UIGestureRecognizerDelegate {
+    private var isPopActionInterractive: Bool = false
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        interactivePopGestureRecognizer?.delegate = self
+    }
+
     override func pushViewController(_ viewController: UIViewController, animated: Bool) {
         super.pushViewController(viewController, animated: animated)
 
@@ -39,8 +50,11 @@ class NavigationController: UINavigationController {
     }
 
     override func popViewController(animated: Bool) -> UIViewController? {
-        let viewController = super.popViewController(animated: animated)
+        let isPopActionInterractive = self.isPopActionInterractive
+        self.isPopActionInterractive = false
 
+        let viewController = super.popViewController(animated: animated)
+        
         if let viewController = viewController as? PopNotifiable {
             viewController.willPopViewController?(animated: animated)
         }
@@ -51,17 +65,39 @@ class NavigationController: UINavigationController {
                 verboseLog("[NavigationController].popViewController isCancelled: \(false), viewController: \(viewController)")
                 viewController.didPopViewController(animated: animated)
             }
+
             return viewController
         }
 
-        coordinator.animate(alongsideTransition: nil) { context in
-            guard !context.isCancelled else { return }
+        if isPopActionInterractive {
+            coordinator.animate(alongsideTransition: nil) { context in
+                guard !context.isCancelled else { return }
 
-            guard let viewController = viewController as? PopNotifiable else { return }
-            verboseLog("[NavigationController].popViewController isCancelled: \(context.isCancelled), viewController: \(viewController)")
-            viewController.didPopViewController(animated: animated)
+                guard let viewController = viewController as? PopNotifiable else { return }
+                verboseLog("[NavigationController].popViewController isCancelled: \(context.isCancelled), viewController: \(viewController)")
+                viewController.didPopViewController(animated: animated)
+            }
+        } else {
+            if let viewController = viewController as? PopNotifiable {
+                verboseLog("[NavigationController].popViewController, viewController: \(viewController)")
+                viewController.didPopViewController(animated: animated)
+            }
+
+            coordinator.animate(alongsideTransition: nil) { _ in
+                //no-op
+            }
         }
 
         return viewController
+    }
+
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        isPopActionInterractive = true
+
+        if let canPreventPop = topViewController as? PopInteractable {
+            return !canPreventPop.shouldBePopped()
+        }
+
+        return true
     }
 }

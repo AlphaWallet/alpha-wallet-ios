@@ -12,6 +12,11 @@ protocol PaymentCoordinatorDelegate: CanOpenURL, BuyCryptoDelegate {
     func didSelectTokenHolder(tokenHolder: TokenHolder, in coordinator: PaymentCoordinator)
 }
 
+protocol NavigationBarPresentable {
+    func willPush()
+    func willPop()
+}
+
 class PaymentCoordinator: Coordinator {
     private var session: WalletSession {
         return sessionProvider.session(for: server)!
@@ -110,8 +115,12 @@ class PaymentCoordinator: Coordinator {
     }
 
     func start() {
+        if let navigationBar = navigationController.navigationBar as? NavigationBarPresentable {
+            navigationBar.willPush()
+        }
+
         if shouldRestoreNavigationBarIsHiddenState {
-            self.navigationController.setNavigationBarHidden(false, animated: false)
+            navigationController.setNavigationBarHidden(false, animated: false)
         }
 
         func _startPaymentFlow(transactionType: PaymentFlowType) {
@@ -163,6 +172,10 @@ class PaymentCoordinator: Coordinator {
     }
 
     func dismiss(animated: Bool) {
+        if let navigationBar = navigationController.navigationBar as? NavigationBarPresentable {
+            navigationBar.willPop()
+        }
+
         if shouldRestoreNavigationBarIsHiddenState {
             navigationController.setNavigationBarHidden(true, animated: false)
         }

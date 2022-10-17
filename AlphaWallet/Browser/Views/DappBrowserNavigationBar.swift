@@ -323,6 +323,17 @@ final class DappBrowserNavigationBar: UINavigationBar {
     }
 }
 
+extension DappBrowserNavigationBar: NavigationBarPresentable {
+    func willPush() {
+        setBrowserBar(hidden: true)
+    }
+
+    func willPop() {
+        setBrowserBar(hidden: false)
+    }
+
+}
+
 extension DappBrowserNavigationBar: UITextFieldDelegate {
 
     func textFieldDidEndEditing(_ textField: UITextField) {
