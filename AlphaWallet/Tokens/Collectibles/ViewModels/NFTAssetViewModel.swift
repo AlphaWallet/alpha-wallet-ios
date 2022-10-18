@@ -40,7 +40,7 @@ class NFTAssetViewModel {
     private (set) var tokenId: TokenId
     private (set) var tokenHolder: TokenHolder
     let assetDefinitionStore: AssetDefinitionStore
-    var backgroundColor: UIColor = Colors.appBackground
+    var backgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground
     var transferTransactionType: TransactionType {
         tokenHolder.select(with: .allFor(tokenId: tokenHolder.tokenId))
         return TransactionType(nonFungibleToken: token, tokenHolders: [tokenHolder])
@@ -74,7 +74,7 @@ class NFTAssetViewModel {
 
     var previewViewContentBackgroundColor: UIColor {
         if displayHelper.imageHasBackgroundColor {
-            return Colors.appBackground
+            return Configuration.Color.Semantic.defaultViewBackground
         } else {
             if let color = tokenHolder.values.backgroundColorStringValue.nilIfEmpty {
                 return UIColor(hex: color)
