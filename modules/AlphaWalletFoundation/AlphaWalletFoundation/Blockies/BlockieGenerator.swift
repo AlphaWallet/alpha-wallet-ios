@@ -22,24 +22,12 @@ public class BlockiesGenerator {
         case none
     }
 
-    private struct BlockieKey: Hashable {
-        let address: AlphaWallet.Address
-        let size: Int
-        let scale: Int
-
-        func hash(into hasher: inout Hasher) {
-            hasher.combine(address.eip55String)
-            hasher.combine(size)
-            hasher.combine(scale)
-        }
-    }
-
     private let queue = DispatchQueue(label: "org.alphawallet.swift.blockies.generator")
 
     /// Address related icons cache with image size and scale
-    private var cache: [BlockieKey: BlockiesImage] = [:]
+    private var cache: [String: BlockiesImage] = [:]
     /// Address related icons cache without image size. Cache is using for determine images without sizes and scales, fetched out from OpenSea
-    private var sizeLessCache: [AlphaWallet.Address: BlockiesImage] = [:]
+    private var sizeLessCache: [String: BlockiesImage] = [:]
     private let storage: EnsRecordsStorage
     private lazy var ensTextRecordFetcher = GetEnsTextRecord(server: .forResolvingEns, storage: storage)
     private let assetImageProvider: NftAssetImageProvider
@@ -116,20 +104,20 @@ public class BlockiesGenerator {
     private func cacheBlockie(address: AlphaWallet.Address, blockie: BlockiesImage, size: BlockieSize) {
         switch size {
         case .sized(let size, let scale):
-            let key = BlockieKey(address: address, size: size, scale: scale)
+            let key = "\(address.eip55String)-\(size)-\(scale)"
             cache[key] = blockie
         case .none:
-            sizeLessCache[address] = blockie
+            sizeLessCache[address.eip55String] = blockie
         }
     }
 
     private func cachedBlockie(address: AlphaWallet.Address, size: BlockieSize) -> BlockiesImage? {
         switch size {
         case .sized(let size, let scale):
-            let key = BlockieKey(address: address, size: size, scale: scale)
-            return cache[key] ?? sizeLessCache[address]
+            let key = "\(address.eip55String)-\(size)-\(scale)"
+            return cache[key] ?? sizeLessCache[address.eip55String]
         case .none:
-            return sizeLessCache[address]
+            return sizeLessCache[address.eip55String]
         }
     }
 
