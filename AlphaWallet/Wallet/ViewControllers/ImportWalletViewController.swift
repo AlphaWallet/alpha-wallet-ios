@@ -336,8 +336,7 @@ class ImportWalletViewController: UIViewController {
         mnemonicCountLabel.textColor = DataEntry.Color.label
         mnemonicCountLabel.text = "\(mnemonicInput.count)"
 
-        mnemonicSuggestionsCollectionView.backgroundColor = .white
-        mnemonicSuggestionsCollectionView.backgroundColor = R.color.mike()
+        mnemonicSuggestionsCollectionView.backgroundColor = viewModel.backgroundColor
         mnemonicSuggestionsCollectionView.showsHorizontalScrollIndicator = false
         mnemonicSuggestionsCollectionView.delegate = self
         mnemonicSuggestionsCollectionView.dataSource = self
