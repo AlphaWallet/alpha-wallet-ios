@@ -174,7 +174,7 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
         return contractsToDetect.map { $0.contract } - alreadyAddedContracts - deletedContracts - hiddenContracts
     }
 
-    private func fetchCreateErc875OrErc20Token(forContract contract: AlphaWallet.Address, forServer server: RPCServer) -> Promise<TokenOrContract> {
+    private func fetchErc875OrErc20Token(contract: AlphaWallet.Address, forServer server: RPCServer) -> Promise<TokenOrContract> {
         let account = session.account.address
         return session.tokenProvider.getTokenType(for: contract)
             .then(on: queue, { [importToken, erc875BalanceFetcher, erc20BalanceFetcher, queue] tokenType -> Promise<TokenOrContract> in
@@ -224,7 +224,7 @@ extension SingleChainTokensAutodetector: AutoDetectTokensOperationDelegate {
     func autoDetectTokensImpl(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)], server: RPCServer) -> Promise<[TokenOrContract]> {
         let promises = contractsToAutodetectTokens(withContracts: contractsToDetect, forServer: server)
             .map { each -> Promise<TokenOrContract> in
-                return fetchCreateErc875OrErc20Token(forContract: each, forServer: server)
+                return fetchErc875OrErc20Token(contract: each, forServer: server)
             }
 
         return when(resolved: promises).map(on: queue, { results in
