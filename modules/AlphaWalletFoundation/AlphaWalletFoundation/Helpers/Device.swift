@@ -371,7 +371,8 @@ extension AlphaWallet.Device {
             return .pad
         } else if versionCode.starts(with: "iPod") {
             return .pod
-        } else if versionCode == "i386" || versionCode == "x86_64" || versionCode == "arm64" {
+        } else if TARGET_OS_SIMULATOR != 0 {
+            //Original check was: `versionCode == "i386" || versionCode == "x86_64" || versionCode == "arm64"`. But we want this to have no false-negatives since wrongly identifying as simulator can cause certain functionality to be unlocked for production/appstore users
             return .simulator
         }
         return .unknown
