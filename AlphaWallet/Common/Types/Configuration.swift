@@ -25,6 +25,9 @@ struct Configuration {
             static let defaultForegroundText = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.black()!, darkColor: R.color.white()!)
             }
+            static let defaultInverseText = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.black()!)
+            }
             static let defaultSubtitleText = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.dove()!, darkColor: R.color.dusty()!)
             }
@@ -138,7 +141,10 @@ struct Configuration {
             static let tableViewSpecialBackground = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.solitude()!, darkColor: R.color.mine()!)
             }
-            
+
+            static let collectionViewCellBackground = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.cod()!)
+            }
             static let searchbarTint = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.mine()!, darkColor: R.color.white()!)
             }

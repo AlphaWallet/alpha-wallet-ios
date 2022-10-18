@@ -8,7 +8,7 @@
 import UIKit
 
 struct ContainerCollectionViewCellViewModel {
-    var backgroundColor: UIColor = GroupedTable.Color.background
+    var backgroundColor: UIColor = Configuration.Color.Semantic.collectionViewCellBackground
 }
 
 typealias TokenCardConfigurableView = UIView & TokenCardRowViewLayoutConfigurableProtocol
@@ -42,7 +42,7 @@ class ContainerCollectionViewCell: UICollectionViewCell {
     static func configureSeparatorLines(selection: GridOrListSelectionState, _ element: ContainerCollectionViewCell) {
         switch selection {
         case .list:
-            element.cellSeparators.bottom.backgroundColor = R.color.mercury()
+            element.cellSeparators.bottom.backgroundColor = Configuration.Color.Semantic.tableViewSeparator
         case .grid:
             element.cellSeparators.bottom.backgroundColor = .clear
         }
