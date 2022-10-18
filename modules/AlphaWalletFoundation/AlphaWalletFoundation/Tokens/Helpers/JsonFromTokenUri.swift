@@ -31,7 +31,7 @@ final class JsonFromTokenUri {
     func fetchJsonFromTokenUri(forTokenId tokenId: String, tokenType: TokenType, address: AlphaWallet.Address, enjinToken: GetEnjinTokenQuery.Data.EnjinToken?) -> Promise<NonFungibleBalanceAndItsSource<JsonString>> {
         return firstly {
             .value(tokenId)
-        }.then(on: queue, { [queue, getTokenUri] tokenId in
+        }.then(on: queue, { [queue, getTokenUri] tokenId -> Promise<NonFungibleBalanceAndItsSource<JsonString>> in
             let key = "\(tokenId).\(address.eip55String).\(tokenType.rawValue)"
 
             if let promise = self.inFlightPromises[key] {
