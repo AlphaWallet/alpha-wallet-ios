@@ -167,6 +167,11 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     func start() {
+        //Want to start as soon as possible
+        if AlphaWallet.Device.isSimulator {
+            TrackApiCalls.shared.start()
+        }
+
         if Features.default.isAvailable(.isLoggingEnabledForTickerMatches) {
             Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { _ in
                 infoLog("Ticker ID positive matching counts: \(TickerIdFilter.matchCounts)")
