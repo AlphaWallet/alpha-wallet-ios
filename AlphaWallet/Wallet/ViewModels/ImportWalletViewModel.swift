@@ -8,7 +8,7 @@ struct ImportWalletViewModel {
     static var segmentedControlTitles: [String] { ImportWalletTab.orderedTabs.map { $0.title } }
 
     var backgroundColor: UIColor {
-        return Colors.appBackground
+        return Configuration.Color.Semantic.defaultViewBackground
     }
 
     var title: String {
