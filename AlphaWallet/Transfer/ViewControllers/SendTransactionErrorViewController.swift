@@ -4,16 +4,14 @@ import UIKit
 import AlphaWalletFoundation
 
 protocol SendTransactionErrorViewControllerDelegate: AnyObject {
-    func rectifyErrorButtonTapped(error: SendTransactionNotRetryableError, inController controller: SendTransactionErrorViewController)
-    func linkTapped(_ url: URL, forError error: SendTransactionNotRetryableError, inController controller: SendTransactionErrorViewController)
-    func controllerDismiss(_ controller: SendTransactionErrorViewController)
+    func rectifyErrorButtonTapped(error: SendTransactionNotRetryableError, in viewController: SendTransactionErrorViewController)
+    func linkTapped(_ url: URL, forError error: SendTransactionNotRetryableError, in viewController: SendTransactionErrorViewController)
+    func didClose(in viewController: SendTransactionErrorViewController)
 }
 
 class SendTransactionErrorViewController: UIViewController {
-    private let server: RPCServer
     private let analytics: AnalyticsLogger
-    private let error: SendTransactionNotRetryableError
-    private lazy var viewModel = SendTransactionErrorViewModel(server: server, error: error)
+    private let viewModel: SendTransactionErrorViewModel
     private lazy var headerView = ConfirmationHeaderView(viewModel: .init(title: "", isMinimalMode: true))
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
 
@@ -42,44 +40,43 @@ class SendTransactionErrorViewController: UIViewController {
         return b
     }()
 
-    private let stackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .vertical
-        stackView.spacing = 0
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-
-        return stackView
-    }()
-
     private lazy var footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
 
     weak var delegate: SendTransactionErrorViewControllerDelegate?
 
-    init(server: RPCServer, analytics: AnalyticsLogger, error: SendTransactionNotRetryableError) {
-        self.server = server
+    init(analytics: AnalyticsLogger, viewModel: SendTransactionErrorViewModel) {
         self.analytics = analytics
-        self.error = error
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
+
+        let stackView = [
+            headerView,
+            [.spacerWidth(15), titleLabel, .spacerWidth(15)].asStackView(axis: .horizontal),
+            .spacer(height: 20),
+            [.spacerWidth(15), descriptionLabel, .spacerWidth(15)].asStackView(axis: .horizontal),
+            .spacer(height: 20),
+            linkButton,
+            footerBar
+        ].asStackView(axis: .vertical, spacing: 0)
+        stackView.translatesAutoresizingMaskIntoConstraints = false
 
         view.addSubview(stackView)
 
         NSLayoutConstraint.activate([
             stackView.anchorsConstraint(to: view)
         ])
-
-        generateSubviews()
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         configure()
 
-        headerView.closeButton.addTarget(self, action: #selector(dismissViewController), for: .touchUpInside)
+        headerView.closeButton.addTarget(self, action: #selector(closeButtonSelected), for: .touchUpInside)
         linkButton.addTarget(self, action: #selector(linkButtonTapped), for: .touchUpInside)
     }
 
-    @objc private func dismissViewController() {
-        delegate?.controllerDismiss(self)
+    @objc private func closeButtonSelected() {
+        delegate?.didClose(in: self)
     }
 
     @objc private func linkButtonTapped() {
@@ -90,7 +87,7 @@ class SendTransactionErrorViewController: UIViewController {
             case .nonceTooLow, .gasPriceTooLow, .gasLimitTooLow, .gasLimitTooHigh, .possibleChainIdMismatch, .executionReverted, .unknown:
                 break
             }
-            delegate?.linkTapped(url, forError: error, inController: self)
+            delegate?.linkTapped(url, forError: viewModel.error, in: self)
         } else {
             assertImpossibleCodePath(message: "Should only show link button if there's a URl")
         }
@@ -100,7 +97,6 @@ class SendTransactionErrorViewController: UIViewController {
         view.backgroundColor = viewModel.backgroundColor
 
         titleLabel.text = viewModel.title
-
         descriptionLabel.text = viewModel.description
 
         if let linkTitle = viewModel.linkTitle {
@@ -116,35 +112,17 @@ class SendTransactionErrorViewController: UIViewController {
             button.shrinkBorderColor = Colors.loadingIndicatorBorder
             button.setTitle(rectifyErrorTitle, for: .normal)
             button.addTarget(self, action: #selector(rectifyErrorButtonTapped), for: .touchUpInside)
-            buttonsBar.isHidden = false
+            footerBar.isHidden = false
         } else {
-            buttonsBar.isHidden = true
+            footerBar.isHidden = true
         }
     }
 
     @objc private func rectifyErrorButtonTapped() {
-        delegate?.rectifyErrorButtonTapped(error: error, inController: self)
+        delegate?.rectifyErrorButtonTapped(error: viewModel.error, in: self)
     }
 
     required init?(coder aDecoder: NSCoder) {
         return nil
-    }
-}
-
-extension SendTransactionErrorViewController {
-    private func generateSubviews() {
-        stackView.removeAllArrangedSubviews()
-        
-        let views: [UIView] = [
-            headerView,
-            [.spacerWidth(15), titleLabel, .spacerWidth(15)].asStackView(axis: .horizontal),
-            .spacer(height: 20),
-            [.spacerWidth(15), descriptionLabel, .spacerWidth(15)].asStackView(axis: .horizontal),
-            .spacer(height: 20),
-            linkButton,
-            footerBar
-        ]
-
-        stackView.addArrangedSubviews(views)
     }
 }
