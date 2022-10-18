@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import BlockiesSwift 
+import BlockiesSwift
 import UIKit.UIImage
 import Combine
 import AlphaWalletENS
@@ -27,7 +27,7 @@ public class BlockiesGenerator {
     /// Address related icons cache with image size and scale
     private var cache: [String: BlockiesImage] = [:]
     /// Address related icons cache without image size. Cache is using for determine images without sizes and scales, fetched out from OpenSea
-    private var sizeLessCache: [String: BlockiesImage] = [:]
+    private var sizelessCache: [String: BlockiesImage] = [:]
     private let storage: EnsRecordsStorage
     private lazy var ensTextRecordFetcher = GetEnsTextRecord(server: .forResolvingEns, storage: storage)
     private let assetImageProvider: NftAssetImageProvider
@@ -107,7 +107,7 @@ public class BlockiesGenerator {
             let key = "\(address.eip55String)-\(size)-\(scale)"
             cache[key] = blockie
         case .none:
-            sizeLessCache[address.eip55String] = blockie
+            sizelessCache[address.eip55String] = blockie
         }
     }
 
@@ -115,9 +115,9 @@ public class BlockiesGenerator {
         switch size {
         case .sized(let size, let scale):
             let key = "\(address.eip55String)-\(size)-\(scale)"
-            return cache[key] ?? sizeLessCache[address.eip55String]
+            return cache[key] ?? sizelessCache[address.eip55String]
         case .none:
-            return sizeLessCache[address.eip55String]
+            return sizelessCache[address.eip55String]
         }
     }
 
