@@ -167,9 +167,9 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
             erc721TokenIdsFetcher.tokenIdsForErc721Token(contract: contract, forServer: session.server, inAccount: session.account.address)
         }.then(on: queue, { [jsonFromTokenUri] tokenIds -> Promise<[NonFungibleBalanceAndItsSource<JsonString>]> in
             let guarantees: [Promise<NonFungibleBalanceAndItsSource>] = tokenIds
-                .map {
-                    let enjinToken = enjinTokens[TokenIdConverter.toTokenIdSubstituted(string: $0)]
-                    return jsonFromTokenUri.fetchJsonFromTokenUri(forTokenId: $0, tokenType: .erc721, address: contract, enjinToken: enjinToken)
+                .map { eachTokenId -> Promise<NonFungibleBalanceAndItsSource<JsonString>> in
+                    let enjinToken = enjinTokens[TokenIdConverter.toTokenIdSubstituted(string: eachTokenId)]
+                    return jsonFromTokenUri.fetchJsonFromTokenUri(forTokenId: eachTokenId, tokenType: .erc721, address: contract, enjinToken: enjinToken)
                 }
             return when(fulfilled: guarantees)
         }).done(on: queue, { [weak self, tokensService] jsons in
