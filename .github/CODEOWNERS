@@ -1,3 +1,11 @@
-/modules/AlphaWalletFoundation/AlphaWalletFoundation/Initializers/ @hboon @oa-s
+# Key management
 /modules/AlphaWalletFoundation/AlphaWalletFoundation/KeyManagement/ @hboon @oa-s
+
+# Dapp browser related
+BrowserViewController.swift @hboon @oa-s
+WKWebViewConfiguration.swift @hboon @oa-s
+
+# Others
+
+/modules/AlphaWalletFoundation/AlphaWalletFoundation/Initializers/ @hboon @oa-s
 /modules/AlphaWalletFoundation/AlphaWalletFoundation/Settings/Types/Constants+Credentials.swift @hboon @oa-s
