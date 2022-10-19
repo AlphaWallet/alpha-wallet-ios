@@ -125,6 +125,7 @@ extension DappAction {
         } else if let command = try? decoder.decode(SwitchChainCommand.self, from: data) {
             return .walletSwitchEthereumChain(command)
         } else {
+            infoLog("[Browser] failed to parse dapp command with JSON: \(jsonString)")
             return nil
         }
     }
