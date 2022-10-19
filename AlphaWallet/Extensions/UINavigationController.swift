@@ -25,7 +25,7 @@ extension UINavigationController {
         //2. Without the former, we need to clear `isTranslucent` in order for view controllers that do not embed scroll views to clip off content at the top (unless we offset ourselves).
         //3. And when we clear `isTranslucent`, we need to set the navigationController's background ourselves, otherwise when pushing a view controller, the navigationController will show as black
         navigationBar.isTranslucent = false
-        view.backgroundColor = Colors.appBackground
+        view.backgroundColor = Configuration.Color.Semantic.navigationbarBackgroundColor
     }
     
     //Remove after iOS 11.2 will patch this bug.
