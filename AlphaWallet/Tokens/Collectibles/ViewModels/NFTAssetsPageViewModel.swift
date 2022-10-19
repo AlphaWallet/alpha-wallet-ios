@@ -29,7 +29,7 @@ final class NFTAssetsPageViewModel {
     }
 
     var backgroundColor: UIColor {
-        Colors.appBackground
+        Configuration.Color.Semantic.defaultViewBackground
     }
 
     private let selectionSubject: CurrentValueSubject<GridOrListSelectionState, Never>

@@ -56,7 +56,7 @@ class NonFungibleRowView: TokenCardViewType {
         ]
 
         clipsToBounds = true
-        borderColor = R.color.mercury()
+        borderColor = Configuration.Color.Semantic.tableViewSeparator
         configureLayout(layout: layout)
     }
 
