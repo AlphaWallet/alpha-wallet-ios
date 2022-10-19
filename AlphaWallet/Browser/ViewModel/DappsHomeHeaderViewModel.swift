@@ -7,7 +7,7 @@ struct BrowserHomeHeaderViewModel {
     var title: String
 
     var backgroundColor: UIColor {
-        return Colors.appWhite
+        return Configuration.Color.Semantic.defaultViewBackground
     }
 
     var logo: UIImage? {

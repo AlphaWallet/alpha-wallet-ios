@@ -8,7 +8,7 @@ struct BrowserHistoryCellViewModel {
     let history: History
 
     var backgroundColor: UIColor {
-        return Colors.appWhite
+        return Configuration.Color.Semantic.defaultViewBackground
     }
 
     var imageUrl: URL? {
@@ -44,7 +44,7 @@ struct BrowserHistoryCellViewModel {
     }
 
     var imageViewShadowColor: UIColor {
-        return Metrics.DappsHome.Icon.shadowColor
+        return Configuration.Color.Semantic.shadow
     }
 
     var imageViewShadowOffset: CGSize {
