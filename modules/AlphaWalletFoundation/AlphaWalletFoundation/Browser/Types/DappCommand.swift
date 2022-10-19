@@ -8,6 +8,17 @@ public struct DappCommand: Decodable {
     public let object: [String: DappCommandObjectValue]
 }
 
+//The optional values help us to filter out those that don't parse. Eg. we don't expect that key-value pair — maybe the dapp might include those for testing, or maybe we don't make use them yet
+public struct DappCommandWithOptionalObjectValues: Decodable {
+    public let name: Method
+    public let id: Int
+    public let object: [String: DappCommandObjectValue?]
+
+    public var toCommand: DappCommand {
+        return DappCommand(name: name, id: id, object: object.compactMapValues { $0 })
+    }
+}
+
 public struct AddCustomChainCommand: Decodable {
     //Single case enum just useful for validation
     public enum Method: String, Decodable {
