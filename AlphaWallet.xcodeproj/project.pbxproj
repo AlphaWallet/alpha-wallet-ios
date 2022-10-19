@@ -370,6 +370,7 @@
 		5E7C7D28171AB1C7FF5379A7 /* OpenSeaNonFungibleTokenViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C703366F010BFEF6B06C6 /* OpenSeaNonFungibleTokenViewCell.swift */; };
 		5E7C7D5843B705ACD26E9090 /* AssetDefinitionDiskBackingStoreWithOverridesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C79EF9D2C12F396364B92 /* AssetDefinitionDiskBackingStoreWithOverridesTests.swift */; };
 		5E7C7D7A68C7780C293301F7 /* HDWalletTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C75DE215F0AAEF284948F /* HDWalletTest.swift */; };
+		5E7C7D7F197980329CFB502D /* DappCommandTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C75FF98048AC1BA905580 /* DappCommandTests.swift */; };
 		5E7C7D8173CB1089D622DA38 /* HelpViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7646352F10C96B5FC6F6 /* HelpViewCell.swift */; };
 		5E7C7DB7B431837C0D7031B1 /* ChooseSendPrivateTransactionsProviderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73BF5CE15E6D7AFC3F0C /* ChooseSendPrivateTransactionsProviderViewModel.swift */; };
 		5E7C7DC485AD4401A3F6D071 /* FungibleTokenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7EC53B2B5DFAAC7965EC /* FungibleTokenViewController.swift */; };
@@ -1116,6 +1117,7 @@
 		5E7C75E7D995ABE0E6B7AD55 /* DappButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DappButton.swift; sourceTree = "<group>"; };
 		5E7C75F0DB84DB0F5449D6C1 /* WalletConnectSessionsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletConnectSessionsViewController.swift; sourceTree = "<group>"; };
 		5E7C75F846C598287230CFAB /* WhatsNewViews.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WhatsNewViews.swift; sourceTree = "<group>"; };
+		5E7C75FF98048AC1BA905580 /* DappCommandTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DappCommandTests.swift; sourceTree = "<group>"; };
 		5E7C76052512831B707659CA /* WhereIsWalletAddressFoundOverlayView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WhereIsWalletAddressFoundOverlayView.swift; sourceTree = "<group>"; };
 		5E7C760A524D73F044CC2A4B /* DappRequestSwitchExistingChainCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DappRequestSwitchExistingChainCoordinator.swift; sourceTree = "<group>"; };
 		5E7C760CC5A9E144BDB5451D /* ActivityCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActivityCellViewModel.swift; sourceTree = "<group>"; };
@@ -3003,6 +3005,14 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		5E7C78095E4361EDA4CC72B1 /* Types */ = {
+			isa = PBXGroup;
+			children = (
+				5E7C75FF98048AC1BA905580 /* DappCommandTests.swift */,
+			);
+			path = Types;
+			sourceTree = "<group>";
+		};
 		5E7C7878E9E27F0CA05DFF03 /* Coordinators */ = {
 			isa = PBXGroup;
 			children = (
@@ -3057,6 +3067,7 @@
 				5E7C7219AA7DCFFA11F4139D /* CoinTicker */,
 				8722324528D8607F001A9BCC /* Oneinch */,
 				5E7C733DEBED923B8D281682 /* Tokens */,
+				5E7C7D5C0666C0010B6343C8 /* Browser */,
 			);
 			path = AlphaWalletFoundation;
 			sourceTree = "<group>";
@@ -3189,6 +3200,14 @@
 				0235A794280D470000E65C61 /* RPCDisplaySelectableTableViewCell.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		5E7C7D5C0666C0010B6343C8 /* Browser */ = {
+			isa = PBXGroup;
+			children = (
+				5E7C78095E4361EDA4CC72B1 /* Types */,
+			);
+			path = Browser;
 			sourceTree = "<group>";
 		};
 		5E7C7DB349EEDBC8AE9AD500 /* Helpers */ = {
@@ -4430,7 +4449,7 @@
 			packageReferences = (
 				87FBF2AF28056AC200616B7D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				87BDF46E28423DC30018DC68 /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */,
-				877239CC28F806820062DC14 /* XCRemoteSwiftPackageReference "WalletConnectSwift.git" */,
+				877239CC28F806820062DC14 /* XCRemoteSwiftPackageReference "WalletConnectSwift" */,
 			);
 			productRefGroup = 2912CCF61F6A830700C6CBE3 /* Products */;
 			projectDirPath = "";
@@ -5606,6 +5625,7 @@
 				5E7C79DC5BDC391C983B6CAC /* ChainIdTests.swift in Sources */,
 				5E7C74B9BD63DEFE074BB80D /* ErrorTests.swift in Sources */,
 				5E7C7A0D678C2CE065CC8BB1 /* Erc1155TokenIdsFetcherTests.swift in Sources */,
+				5E7C7D7F197980329CFB502D /* DappCommandTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6151,7 +6171,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		877239CC28F806820062DC14 /* XCRemoteSwiftPackageReference "WalletConnectSwift.git" */ = {
+		877239CC28F806820062DC14 /* XCRemoteSwiftPackageReference "WalletConnectSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/AlphaWallet/WalletConnectSwift.git";
 			requirement = {
@@ -6180,7 +6200,7 @@
 /* Begin XCSwiftPackageProductDependency section */
 		877239CD28F806820062DC14 /* WalletConnectSwift */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 877239CC28F806820062DC14 /* XCRemoteSwiftPackageReference "WalletConnectSwift.git" */;
+			package = 877239CC28F806820062DC14 /* XCRemoteSwiftPackageReference "WalletConnectSwift" */;
 			productName = WalletConnectSwift;
 		};
 		87BDF46F28423DC30018DC68 /* WalletConnect */ = {

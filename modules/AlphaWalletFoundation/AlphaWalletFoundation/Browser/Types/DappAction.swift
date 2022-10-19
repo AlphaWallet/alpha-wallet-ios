@@ -114,7 +114,11 @@ extension DappAction {
             return nil
         }
         let data = jsonString.data(using: .utf8)!
+        //We try the stricter form (DappCommand) first before using the one that is more forgiving
         if let command = try? decoder.decode(DappCommand.self, from: data) {
+            return .eth(command)
+        } else if let commandWithOptionalObjectValues = try? decoder.decode(DappCommandWithOptionalObjectValues.self, from: data) {
+            let command = commandWithOptionalObjectValues.toCommand
             return .eth(command)
         } else if let command = try? decoder.decode(AddCustomChainCommand.self, from: data) {
             return .walletAddEthereumChain(command)
