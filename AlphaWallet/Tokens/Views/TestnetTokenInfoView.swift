@@ -16,7 +16,7 @@ struct TestnetTokenInfoViewModel {
 
         return .init(string: R.string.localizable.tokenTestnetWarning(), attributes: [
             .font: Fonts.regular(size: 17),
-            .foregroundColor: R.color.dove()!,
+            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText,
             .paragraphStyle: style
         ])
     }
