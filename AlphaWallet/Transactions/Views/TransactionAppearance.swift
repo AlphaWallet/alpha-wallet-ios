@@ -10,13 +10,13 @@ struct TransactionAppearance {
         titleLabel.text = title
         titleLabel.font = Fonts.regular(size: 18)
         titleLabel.textAlignment = .left
-        titleLabel.textColor = Colors.darkGray
+        titleLabel.textColor = Configuration.Color.Semantic.alternativeText
 
         let subTitleLabel = UILabel(frame: .zero)
         subTitleLabel.translatesAutoresizingMaskIntoConstraints = false
         subTitleLabel.text = subTitle
         subTitleLabel.textAlignment = .left
-        subTitleLabel.textColor = Colors.black
+        subTitleLabel.textColor = Configuration.Color.Semantic.defaultForegroundText
         subTitleLabel.font = Fonts.regular(size: 15)
         subTitleLabel.numberOfLines = 0
 

@@ -37,7 +37,7 @@ struct TransactionDetailsViewModel {
     }
 
     var backgroundColor: UIColor {
-        return Screen.TokenCard.Color.background
+        return Configuration.Color.Semantic.defaultViewBackground
     }
 
     var createdAt: String {
