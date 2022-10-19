@@ -35,7 +35,7 @@ public protocol TokensDataStore: NSObjectProtocol {
 }
 
 extension TokensDataStore {
-    
+
     @discardableResult func updateToken(addressAndRpcServer: AddressAndRPCServer, action: TokenUpdateAction) -> Bool? {
         let primaryKey = TokenObject.generatePrimaryKey(fromContract: addressAndRpcServer.address, server: addressAndRpcServer.server)
         return updateToken(primaryKey: primaryKey, action: action)
@@ -72,7 +72,7 @@ public enum TokenOrContract {
     case delegateContracts([AddressAndRPCServer])
     case deletedContracts([AddressAndRPCServer])
     /// We re-use the existing balance value to avoid the `Wallets` tab showing that token (if it already exist) as `balance = 0` momentarily
-    case fungibleTokenComplete(name: String, symbol: String, decimals: UInt8, contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool)
+    case fungibleTokenComplete(name: String, symbol: String, decimals: Int, contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool)
     case none
 
     var addressAndRPCServer: AddressAndRPCServer? {
@@ -142,7 +142,7 @@ public enum NonFungibleBalance {
     public struct NftAssetRawValue {
         public let json: JsonString
         public var source: Source = .undefined
-        
+
         public init(json: JsonString, source: Source) {
             self.json = json
             self.source = source
