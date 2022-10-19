@@ -40,12 +40,7 @@ public class TrackApiCalls: URLProtocol {
     }
 
     public override func startLoading() {
-        if let domainName = request.url?.host {
-            DispatchQueue.main.async {
-                let old = Self.counts[domainName] ?? 0
-                Self.counts[domainName] = old + 1
-            }
-        }
+        //no-op
     }
 
     public override func stopLoading() {
@@ -53,15 +48,25 @@ public class TrackApiCalls: URLProtocol {
     }
 
     public override class func canInit(with task: URLSessionTask) -> Bool {
-        return true
+        clock(url: task.originalRequest?.url)
+        return false
     }
 
     public override class func canInit(with request: URLRequest) -> Bool {
-        return true
+        clock(url: request.url)
+        return false
     }
 
     public override class func canonicalRequest(for request: URLRequest) -> URLRequest {
         return request
+    }
+
+    private static func clock(url: URL?) {
+        guard let domainName = url?.host else { return }
+        DispatchQueue.main.async {
+            let old = Self.counts[domainName] ?? 0
+            Self.counts[domainName] = old + 1
+        }
     }
 }
 
