@@ -13,7 +13,7 @@ import BigInt
 public protocol TokenProviderType: class {
     func getContractName(for address: AlphaWallet.Address) -> Promise<String>
     func getContractSymbol(for address: AlphaWallet.Address) -> Promise<String>
-    func getDecimals(for address: AlphaWallet.Address) -> Promise<UInt8>
+    func getDecimals(for address: AlphaWallet.Address) -> Promise<Int>
     func getTokenType(for address: AlphaWallet.Address) -> Promise<TokenType>
     func getEthBalance(for address: AlphaWallet.Address) -> Promise<Balance>
     func getERC20Balance(for address: AlphaWallet.Address) -> Promise<BigInt>
@@ -42,7 +42,7 @@ public class TokenProvider: TokenProviderType {
         //NOTE: retrying is performing via APIKit.session request
         return getEthBalance.getBalance(for: address)
     }
-    
+
     public func getContractName(for address: AlphaWallet.Address) -> Promise<String> {
         let server = server
         return firstly {
@@ -63,7 +63,7 @@ public class TokenProvider: TokenProviderType {
         }
     }
 
-    public func getDecimals(for address: AlphaWallet.Address) -> Promise<UInt8> {
+    public func getDecimals(for address: AlphaWallet.Address) -> Promise<Int> {
         let server = server
         return firstly {
             attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {

@@ -242,7 +242,7 @@ class NewTokenViewController: UIViewController {
         nameTextField.value = name
     }
 
-    public func updateDecimalsValue(_ decimals: UInt8) {
+    public func updateDecimalsValue(_ decimals: Int) {
         decimalsTextField.value = String(decimals)
     }
 

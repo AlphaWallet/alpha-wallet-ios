@@ -112,7 +112,7 @@ extension TransactionInstance {
                     when(fulfilled: getContractName, getContractSymbol, getDecimals, getTokenType)
                 }.then(on: session.queue, { name, symbol, decimals, tokenType -> Promise<[LocalizedOperationObjectInstance]> in
                     let operationType = mapTokenTypeToTransferOperationType(tokenType, functionCall: functionCall)
-                    let result = LocalizedOperationObjectInstance(from: transaction.from, to: recipient.eip55String, contract: contract, type: operationType.rawValue, value: String(value), tokenId: "", symbol: symbol, name: name, decimals: Int(decimals))
+                    let result = LocalizedOperationObjectInstance(from: transaction.from, to: recipient.eip55String, contract: contract, type: operationType.rawValue, value: String(value), tokenId: "", symbol: symbol, name: name, decimals: decimals)
                     return .value([result])
                 }).recover(on: session.queue, { _ -> Promise<[LocalizedOperationObjectInstance]> in
                     //NOTE: Return an empty array when failure to fetch contracts data, instead of failing whole TransactionInstance creating
