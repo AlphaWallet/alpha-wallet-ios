@@ -4,7 +4,6 @@ language: objective-c
 osx_image: xcode13.3
 cache:
   bundler: true
-  cocoapods: true
 branches:
   only:
     - master
