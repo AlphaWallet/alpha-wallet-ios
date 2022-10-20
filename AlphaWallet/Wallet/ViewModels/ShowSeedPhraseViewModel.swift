@@ -13,7 +13,7 @@ struct ShowSeedPhraseViewModel {
     var buttonTitle: String = R.string.localizable.walletsShowSeedPhraseTestSeedPhrase()
     
     var subtitleColor: UIColor {
-        return Screen.Backup.subtitleColor
+        return Configuration.Color.Semantic.defaultSubtitleText
     }
 
     var subtitleFont: UIFont {
