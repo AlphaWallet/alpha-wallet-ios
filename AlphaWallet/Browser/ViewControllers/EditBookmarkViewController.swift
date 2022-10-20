@@ -113,7 +113,7 @@ class EditBookmarkViewController: UIViewController {
             //We don't use createConstraintsWithContainer() because the top rounded corners need to be lower
             roundedBackground.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             roundedBackground.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            roundedBackground.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            roundedBackground.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0),
             roundedBackground.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: marginToHideBottomRoundedCorners),
         ])
     }

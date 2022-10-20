@@ -57,7 +57,9 @@ final class DappBrowserNavigationBar: UINavigationBar {
         cancelEditingButton.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         cancelEditingButton.isHidden = true
         cancelEditingButton.clipsToBounds = true
-        cancelEditingButton.backgroundColor = Colors.appWhite
+        cancelEditingButton.backgroundColor = .clear
+        cancelEditingButton.setTitleColor(Configuration.Color.Semantic.defaultForegroundText, for: .highlighted)
+        cancelEditingButton.setTitleColor(Configuration.Color.Semantic.defaultForegroundText, for: .normal)
 
         return cancelEditingButton
     }()
@@ -86,9 +88,8 @@ final class DappBrowserNavigationBar: UINavigationBar {
         textField.placeholder = R.string.localizable.browserUrlTextfieldPlaceholder()
         textField.keyboardType = .webSearch
         textField.borderStyle = .none
-        textField.backgroundColor = .white
+        textField.backgroundColor = Configuration.Color.Semantic.textFieldBackground
         textField.layer.borderWidth = DataEntry.Metric.borderThickness
-        textField.backgroundColor = DataEntry.Color.searchTextFieldBackground
         textField.layer.borderColor = UIColor.clear.cgColor
         textField.cornerRadius = DataEntry.Metric.cornerRadius
 
@@ -338,13 +339,13 @@ extension DappBrowserNavigationBar: UITextFieldDelegate {
 
     func textFieldDidEndEditing(_ textField: UITextField) {
         textField.layer.borderColor = UIColor.clear.cgColor
-        textField.backgroundColor = DataEntry.Color.searchTextFieldBackground
+        textField.backgroundColor = Configuration.Color.Semantic.textFieldBackground
 
         textField.dropShadow(color: .clear, radius: DataEntry.Metric.shadowRadius)
     }
 
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        textField.backgroundColor = Colors.appWhite
+        textField.backgroundColor = Configuration.Color.Semantic.textFieldBackground
         textField.layer.borderColor = DataEntry.Color.textFieldShadowWhileEditing.cgColor
 
         textField.dropShadow(color: DataEntry.Color.textFieldShadowWhileEditing, radius: DataEntry.Metric.shadowRadius)

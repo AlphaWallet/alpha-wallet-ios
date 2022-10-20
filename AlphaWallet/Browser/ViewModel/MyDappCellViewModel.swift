@@ -20,7 +20,7 @@ struct MyDappCellViewModel: Hashable {
     }
 
     var backgroundColor: UIColor {
-        return Colors.appWhite
+        return Configuration.Color.Semantic.defaultViewBackground
     }
 
     var nameFont: UIFont {
@@ -60,7 +60,7 @@ struct MyDappCellViewModel: Hashable {
     }
 
     var imageViewShadowColor: UIColor {
-        return Metrics.DappsHome.Icon.shadowColor
+        return Configuration.Color.Semantic.shadow
     }
 
     var imageViewShadowOffset: CGSize {

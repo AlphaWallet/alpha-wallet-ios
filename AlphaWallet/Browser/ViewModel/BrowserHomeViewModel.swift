@@ -27,7 +27,7 @@ class BrowserHomeViewModel {
     }
 
     var backgroundColor: UIColor {
-        return Colors.appWhite
+        return Configuration.Color.Semantic.defaultViewBackground
     }
 
     func transform(input: DappsHomeViewViewModelInput) -> DappsHomeViewViewModelOutput {

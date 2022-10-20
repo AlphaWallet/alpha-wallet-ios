@@ -7,7 +7,7 @@ struct DappsHomeViewControllerHeaderViewViewModel {
     let isEditing: Bool
 
     var backgroundColor: UIColor {
-        return Colors.appWhite
+        return Configuration.Color.Semantic.defaultViewBackground
     }
 
     var title: String {

@@ -82,7 +82,7 @@ final class BookmarksViewController: UIViewController {
     }
 
     private func bind(viewModel: BookmarksViewViewModel) {
-        tableView.backgroundColor = Colors.appWhite
+        tableView.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
 
         resizeTableViewHeader()
 
