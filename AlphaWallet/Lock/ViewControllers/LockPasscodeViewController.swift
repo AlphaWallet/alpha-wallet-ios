@@ -18,7 +18,7 @@ class LockPasscodeViewController: UIViewController {
 	override func viewDidLoad() {
 		self.navigationItem.hidesBackButton = true
 		NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
-		self.view.backgroundColor = Colors.appBackground
+        self.view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
 		self.configureInvisiblePasscodeField()
 		self.configureNavigationItems()
 		self.configureLockView()
