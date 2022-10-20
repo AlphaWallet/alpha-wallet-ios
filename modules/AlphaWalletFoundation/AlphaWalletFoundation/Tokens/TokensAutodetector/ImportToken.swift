@@ -93,7 +93,7 @@ open class ImportToken: TokenImportable, ContractDataFetchable {
                 switch operation {
                 case .none:
                     throw ImportTokenError.nothingToImport
-                case .ercToken, .token, .delegateContracts, .deletedContracts, .fungibleTokenComplete:
+                case .nonFungibleToken, .token, .delegateContracts, .deletedContracts, .fungibleTokenComplete:
                     if let token = tokensDataStore.addOrUpdate(tokensOrContracts: [operation]).first {
                         return token
                     } else {
