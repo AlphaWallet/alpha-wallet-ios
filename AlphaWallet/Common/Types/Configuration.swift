@@ -40,6 +40,9 @@ struct Configuration {
             static let indicator = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.azure()!, darkColor: R.color.dodge()!)
             }
+            static let alternativeText = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: .darkGray, darkColor: .lightGray)
+            }
 
             static let defaultAttributedString = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.azure()!, darkColor: R.color.dodge()!)
