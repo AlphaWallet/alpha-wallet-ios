@@ -67,7 +67,7 @@ extension TokensDataStore {
 }
 
 public enum TokenOrContract {
-    case ercToken(ERCToken)
+    case nonFungibleToken(ERCToken)
     case token(Token)
     case delegateContracts([AddressAndRPCServer])
     case deletedContracts([AddressAndRPCServer])
@@ -77,7 +77,7 @@ public enum TokenOrContract {
 
     var addressAndRPCServer: AddressAndRPCServer? {
         switch self {
-        case .ercToken(let eRCToken):
+        case .nonFungibleToken(let eRCToken):
             return .init(address: eRCToken.contract, server: eRCToken.server)
         case .token(let token):
             return .init(address: token.contractAddress, server: token.server)
@@ -415,7 +415,7 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
                         let delegateContract = values.map { DelegateContract(contractAddress: $0.address, server: $0.server) }
 
                         realm.add(delegateContract, update: .all)
-                    case .ercToken(let token):
+                    case .nonFungibleToken(let token):
                         let tokenObject = MultipleChainsTokensDataStore.functional.createTokenObject(ercToken: token, shouldUpdateBalance: token.type.shouldUpdateBalanceWhenDetected)
                         self.addTokenWithoutCommitWrite(tokenObject: tokenObject, realm: realm)
                     case .token(let token):

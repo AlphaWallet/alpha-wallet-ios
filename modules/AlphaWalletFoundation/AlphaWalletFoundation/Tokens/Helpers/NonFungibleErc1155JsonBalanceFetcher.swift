@@ -109,7 +109,7 @@ class NonFungibleErc1155JsonBalanceFetcher {
                 switch each {
                 case .fulfilled(let tokenOrContract):
                     switch tokenOrContract {
-                    case .ercToken(let token): return token
+                    case .nonFungibleToken(let token): return token
                     case .token, .delegateContracts, .deletedContracts, .fungibleTokenComplete, .none: return nil
                     }
                 case .rejected: return nil
