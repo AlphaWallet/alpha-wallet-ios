@@ -8,8 +8,24 @@
 import UIKit
 import AlphaWalletFoundation
 
-class NFTPreviewView: UIView, ConfigurableNFTPreviewView, ViewRoundingSupportable, ContentBackgroundSupportable, ViewLoadingCancelable {
-    private var previewView: UIView & ConfigurableNFTPreviewView & ViewRoundingSupportable & ContentBackgroundSupportable & ViewLoadingCancelable
+typealias NFTPreviewViewRepresentable = UIView & NFTPreviewConfigurable & ViewRoundingSupportable & ContentBackgroundSupportable & ViewLoadingCancelable
+
+enum NFTPreviewViewType {
+    case tokenCardView
+    case imageView
+
+    enum Params {
+        case image(iconImage: Subscribable<TokenImage>)
+        case tokenScriptWebView(tokenHolder: TokenHolder, tokenId: TokenId)
+    }
+}
+
+protocol NFTPreviewConfigurable {
+    func configure(params: NFTPreviewViewType.Params)
+}
+
+final class NFTPreviewView: NFTPreviewViewRepresentable {
+    private var previewView: NFTPreviewViewRepresentable
 
     var rounding: ViewRounding = .none {
         didSet { previewView.rounding = rounding }
@@ -71,7 +87,7 @@ class NFTPreviewView: UIView, ConfigurableNFTPreviewView, ViewRoundingSupportabl
     }
 }
 
-extension TokenImageView: ConfigurableNFTPreviewView, ContentBackgroundSupportable {
+extension TokenImageView: NFTPreviewConfigurable, ContentBackgroundSupportable {
     var contentBackgroundColor: UIColor? {
         get { return imageView.contentBackgroundColor }
         set { imageView.contentBackgroundColor = newValue }
@@ -83,7 +99,7 @@ extension TokenImageView: ConfigurableNFTPreviewView, ContentBackgroundSupportab
     }
 }
 
-extension TokenCardWebView: ConfigurableNFTPreviewView, ContentBackgroundSupportable {
+extension TokenCardWebView: NFTPreviewConfigurable, ContentBackgroundSupportable {
     var contentBackgroundColor: UIColor? {
         get { return backgroundColor }
         set { backgroundColor = newValue }

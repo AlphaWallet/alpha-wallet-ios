@@ -19,27 +19,28 @@ protocol NonFungibleTokenViewControllerDelegate: class, CanOpenURL {
 }
 
 class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewController {
-    private let previewView: NFTPreviewView
+    private var previewView: NFTPreviewViewRepresentable
     private let buttonsBar = HorizontalButtonsBar(configuration: .combined(buttons: 3))
     private lazy var containerView: ScrollableStackView = ScrollableStackView()
     private lazy var attributesStackView = GridStackView(viewModel: .init(edgeInsets: .init(top: 0, left: 16, bottom: 15, right: 16)))
     private var cancelable = Set<AnyCancellable>()
     private let appear = PassthroughSubject<Void, Never>()
 
-    let viewModel: NFTAssetViewModel
+    private let viewModel: NFTAssetViewModel
     var server: RPCServer {
         return viewModel.token.server
     }
     var contract: AlphaWallet.Address {
         return viewModel.token.contractAddress
     }
-    let assetDefinitionStore: AssetDefinitionStore
+    var assetDefinitionStore: AssetDefinitionStore {
+        return viewModel.assetDefinitionStore
+    }
     weak var delegate: NonFungibleTokenViewControllerDelegate?
 
-    init(analytics: AnalyticsLogger, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore, viewModel: NFTAssetViewModel) {
-        self.assetDefinitionStore = assetDefinitionStore
+    init(viewModel: NFTAssetViewModel, tokenCardViewFactory: TokenCardViewFactory) {
         self.viewModel = viewModel
-        self.previewView = .init(type: viewModel.previewViewType, keystore: keystore, session: session, assetDefinitionStore: assetDefinitionStore, analytics: analytics, edgeInsets: viewModel.previewEdgeInsets)
+        self.previewView = tokenCardViewFactory.createPreview(of: viewModel.previewViewType, session: viewModel.session, edgeInsets: viewModel.previewEdgeInsets)
         self.previewView.rounding = .custom(20)
         self.previewView.contentMode = .scaleAspectFill
         super.init(nibName: nil, bundle: nil)

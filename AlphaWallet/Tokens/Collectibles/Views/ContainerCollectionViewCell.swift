@@ -11,7 +11,7 @@ struct ContainerCollectionViewCellViewModel {
     var backgroundColor: UIColor = Configuration.Color.Semantic.collectionViewCellBackground
 }
 
-typealias TokenCardConfigurableView = UIView & TokenCardRowViewLayoutConfigurableProtocol
+typealias TokenCardConfigurableView = UIView & TokenCardRowViewLayoutConfigurable
 class ContainerCollectionViewCell: UICollectionViewCell {
     private let background = UIView()
     private let cellSeparators = (top: UIView(), bottom: UIView())

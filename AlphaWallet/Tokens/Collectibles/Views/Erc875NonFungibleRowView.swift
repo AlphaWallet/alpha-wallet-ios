@@ -8,7 +8,7 @@
 import UIKit
 import AlphaWalletFoundation
 
-class Erc875NonFungibleRowView: TokenCardViewType {
+class Erc875NonFungibleRowView: TokenCardViewRepresentable {
     private let titleLabel = UILabel()
     private let descriptionLabel = UILabel()
 

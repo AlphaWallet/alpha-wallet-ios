@@ -10,22 +10,6 @@ import BigInt
 import Combine
 import AlphaWalletFoundation
 
-enum NFTPreviewViewType {
-    case tokenCardView
-    case imageView
-}
-
-extension NFTPreviewViewType {
-    enum Params {
-        case image(iconImage: Subscribable<TokenImage>)
-        case tokenScriptWebView(tokenHolder: TokenHolder, tokenId: TokenId)
-    }
-}
-
-protocol ConfigurableNFTPreviewView {
-    func configure(params: NFTPreviewViewType.Params)
-}
-
 struct NFTCollectionInfoPageViewModelInput {
 }
 
@@ -34,27 +18,18 @@ struct NFTCollectionInfoPageViewModelOutput {
 }
 
 final class NFTCollectionInfoPageViewModel {
-    private var tokenHolderHelper: TokenInstanceViewConfigurationHelper
-    private let assetDefinitionStore: AssetDefinitionStore
+    private let tokenHolderHelper: TokenInstanceViewConfigurationHelper
     private var viewTypes: [NFTCollectionInfoPageViewModel.ViewType] = []
-    private let _tokenHolders: AnyPublisher<[TokenHolder], Never>
+    private let tokenHolders: AnyPublisher<[TokenHolder], Never>
     private let nftProvider: NFTProvider
-    
+    private var tokenHolder: TokenHolder
+    private var tokenId: TokenId
+
     var tabTitle: String { return R.string.localizable.tokenTabInfo() }
     let token: Token
     var contractAddress: AlphaWallet.Address { token.contractAddress }
     var tokenImagePlaceholder: UIImage? { return R.image.tokenPlaceholderLarge() }
-    var tokenHolder: TokenHolder
-    var tokenId: TokenId
-
-    var previewViewType: NFTPreviewViewType {
-        switch OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
-        case .backedByOpenSea:
-            return .imageView
-        case .notBackedByOpenSea:
-            return .tokenCardView
-        }
-    }
+    let previewViewType: NFTPreviewViewType
 
     var previewViewParams: NFTPreviewViewType.Params {
         switch previewViewType {
@@ -76,15 +51,13 @@ final class NFTCollectionInfoPageViewModel {
 
     var previewViewContentBackgroundColor: UIColor { return Colors.appBackground }
 
-    init(token: Token, assetDefinitionStore: AssetDefinitionStore, tokenHolders: [TokenHolder], wallet: Wallet, _tokenHolders: AnyPublisher<[TokenHolder], Never>, nftProvider: NFTProvider) {
+    init(token: Token, previewViewType: NFTPreviewViewType, tokenHolder: TokenHolder, tokenId: TokenId, tokenHolders: AnyPublisher<[TokenHolder], Never>, nftProvider: NFTProvider) {
+        self.previewViewType = previewViewType
         self.nftProvider = nftProvider
-        self._tokenHolders = _tokenHolders
-        self.assetDefinitionStore = assetDefinitionStore
+        self.tokenHolders = tokenHolders
         self.token = token
-
-        tokenHolder = tokenHolders[0]
-        tokenId = tokenHolder.tokenIds[0]
-
+        self.tokenHolder = tokenHolder
+        self.tokenId = tokenId
         self.tokenHolderHelper = TokenInstanceViewConfigurationHelper(tokenId: tokenId, tokenHolder: tokenHolder)
     }
 
@@ -106,7 +79,7 @@ final class NFTCollectionInfoPageViewModel {
             }.cauterize()
         }
 
-        let tokenHolder = _tokenHolders.compactMap { $0.first }
+        let tokenHolder = tokenHolders.compactMap { $0.first }
 
         let whenTokehHolderHasChanged = tokenHolder.map { tokenHolder -> (tokenHolder: TokenHolder, tokenId: TokenId) in
             return (tokenHolder: tokenHolder, tokenId: tokenHolder.tokenId)
@@ -121,7 +94,7 @@ final class NFTCollectionInfoPageViewModel {
             .handleEvents(receiveOutput: { [weak self] in self?.viewTypes = $0 })
 
         let viewState = viewTypes.map {
-            NFTCollectionInfoPageViewModel.ViewState(previewViewType: self.previewViewType, previewViewParams: self.previewViewParams, previewViewContentBackgroundColor: self.previewViewContentBackgroundColor, viewTypes: $0)
+            NFTCollectionInfoPageViewModel.ViewState(previewViewParams: self.previewViewParams, previewViewContentBackgroundColor: self.previewViewContentBackgroundColor, viewTypes: $0)
         }
 
         return .init(viewState: viewState.eraseToAnyPublisher())
@@ -235,7 +208,6 @@ extension NFTCollectionInfoPageViewModel {
     }
 
     struct ViewState {
-        let previewViewType: NFTPreviewViewType
         let previewViewParams: NFTPreviewViewType.Params
         let previewViewContentBackgroundColor: UIColor
         let viewTypes: [NFTCollectionInfoPageViewModel.ViewType]

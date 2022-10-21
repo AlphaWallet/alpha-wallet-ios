@@ -107,7 +107,7 @@ extension NFTAssetListViewController: UITableViewDataSource {
         cell.contentView.backgroundColor = viewModel.backgroundColor
         cell.accessoryType = .disclosureIndicator
 
-        let subview = tokenCardViewFactory.create(for: selection.tokenHolder, layout: .list)
+        let subview = tokenCardViewFactory.createTokenCardView(for: selection.tokenHolder, layout: .list)
         subview.configure(tokenHolder: tokenHolder, tokenId: tokenHolder.tokenId)
         cell.configure(subview: subview)
 

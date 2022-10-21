@@ -197,7 +197,7 @@ extension NFTAssetSelectionViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let selection = viewModel.tokenHolderSelection(indexPath: indexPath)
         let cell: SelectableNFTAssetTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-        let subview = tokenCardViewFactory.create(for: selection.tokenHolder, layout: .list, listEdgeInsets: .init(top: 5, left: 0, bottom: 5, right: 0))
+        let subview = tokenCardViewFactory.createTokenCardView(for: selection.tokenHolder, layout: .list, listEdgeInsets: .init(top: 5, left: 0, bottom: 5, right: 0))
 
         cell.prapare(with: subview)
         cell.configure(viewModel: .init(tokenHolder: selection.tokenHolder, tokenId: selection.tokenId))

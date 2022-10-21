@@ -189,14 +189,12 @@ extension NFTAssetsPageView: UICollectionViewDelegate {
 }
 extension NFTAssetsPageView {
     func makeDataSource() -> UICollectionViewDiffableDataSource<NFTAssetsPageViewModel.AssetsSection, TokenHolder> {
-        TokenHoldersDataSource(collectionView: collectionView) { [weak self] cv, indexPath, tokenHolder -> ContainerCollectionViewCell? in
-            guard let strongSelf = self else { return nil }
-
+        TokenHoldersDataSource(collectionView: collectionView) { [viewModel, tokenCardViewFactory] cv, indexPath, tokenHolder -> ContainerCollectionViewCell? in
             let cell: ContainerCollectionViewCell = cv.dequeueReusableCell(for: indexPath)
-            ContainerCollectionViewCell.configureSeparatorLines(selection: strongSelf.viewModel.selection, cell)
+            ContainerCollectionViewCell.configureSeparatorLines(selection: viewModel.selection, cell)
             cell.containerEdgeInsets = .zero
 
-            let subview: TokenCardViewType = strongSelf.tokenCardViewFactory.create(for: tokenHolder, layout: strongSelf.viewModel.selection, gridEdgeInsets: .zero)
+            let subview: TokenCardViewRepresentable = tokenCardViewFactory.createTokenCardView(for: tokenHolder, layout: viewModel.selection, gridEdgeInsets: .zero)
             subview.configure(tokenHolder: tokenHolder, tokenId: tokenHolder.tokenId)
 
             cell.configure(subview: subview)

@@ -8,7 +8,7 @@
 import UIKit
 import AlphaWalletFoundation
 
-protocol TokenCardRowViewLayoutConfigurableProtocol {
+protocol TokenCardRowViewLayoutConfigurable {
     func configureLayout(layout: GridOrListSelectionState)
 }
 
@@ -16,9 +16,9 @@ protocol TokenCardRowViewConfigurable {
     func configure(tokenHolder: TokenHolder, tokenId: TokenId)
 }
 
-typealias TokenCardViewType = UIView & TokenCardRowViewConfigurable & SelectionPositioningView & TokenCardRowViewLayoutConfigurableProtocol
+typealias TokenCardViewRepresentable = UIView & TokenCardRowViewConfigurable & SelectionPositioningView & TokenCardRowViewLayoutConfigurable
 
-class TokenCardViewFactory {
+final class TokenCardViewFactory {
     private let token: Token
     private let analytics: AnalyticsLogger
     private let keystore: Keystore
@@ -34,8 +34,12 @@ class TokenCardViewFactory {
         self.wallet = wallet
     }
 
-    func create(for tokenHolder: TokenHolder, layout: GridOrListSelectionState, gridEdgeInsets: UIEdgeInsets = .zero, listEdgeInsets: UIEdgeInsets = .init(top: 0, left: 16, bottom: 0, right: 16)) -> TokenCardViewType {
-        var rowView: TokenCardViewType
+    func createPreview(of type: NFTPreviewViewType, session: WalletSession, edgeInsets: UIEdgeInsets = .zero) -> NFTPreviewViewRepresentable {
+        return NFTPreviewView(type: type, keystore: keystore, session: session, assetDefinitionStore: assetDefinitionStore, analytics: analytics, edgeInsets: edgeInsets)
+    }
+
+    func createTokenCardView(for tokenHolder: TokenHolder, layout: GridOrListSelectionState, gridEdgeInsets: UIEdgeInsets = .zero, listEdgeInsets: UIEdgeInsets = .init(top: 0, left: 16, bottom: 0, right: 16)) -> TokenCardViewRepresentable {
+        var rowView: TokenCardViewRepresentable
 
         let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified)
 
