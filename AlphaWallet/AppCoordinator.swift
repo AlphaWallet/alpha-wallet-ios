@@ -3,6 +3,7 @@
 import Combine
 import UIKit
 import PromiseKit
+import AlphaWalletAddress
 import AlphaWalletCore
 import AlphaWalletFoundation
 import AlphaWalletTrackAPICalls
@@ -135,7 +136,32 @@ class AppCoordinator: NSObject, Coordinator {
 
     private lazy var sessionProvider = SessionsProvider(config: config, analytics: analytics)
     private let securedStorage: SecuredPasswordStorage & SecuredStorage
-    init(window: UIWindow, analytics: AnalyticsServiceType, keystore: Keystore, walletAddressesStore: WalletAddressesStore, navigationController: UINavigationController = .withOverridenBarAppearence(), securedStorage: SecuredPasswordStorage & SecuredStorage) throws {
+    private let addressStorage: FileAddressStorage
+
+    //Unfortunate to have to have a factory method and not be able to use an initializer (because we can't override `init()` to throw)
+    static func create() throws -> AppCoordinator {
+        crashlytics.register(AlphaWallet.FirebaseCrashlyticsReporter.instance)
+        applyStyle()
+
+        let window = UIWindow(frame: UIScreen.main.bounds)
+        let analytics = AnalyticsService()
+        let walletAddressesStore: WalletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: .standardOrForTests)
+        let securedStorage: SecuredStorage & SecuredPasswordStorage = try KeychainStorage()
+        let keystore: Keystore = EtherKeystore(keychain: securedStorage, walletAddressesStore: walletAddressesStore, analytics: analytics)
+
+        let navigationController: UINavigationController = .withOverridenBarAppearence()
+        navigationController.view.backgroundColor = Colors.appWhite
+
+        let result = try AppCoordinator(window: window, analytics: analytics, keystore: keystore, walletAddressesStore: walletAddressesStore, navigationController: navigationController, securedStorage: securedStorage)
+        result.keystore.delegate = result
+        return result
+    }
+
+    init(window: UIWindow, analytics: AnalyticsServiceType, keystore: Keystore, walletAddressesStore: WalletAddressesStore, navigationController: UINavigationController, securedStorage: SecuredPasswordStorage & SecuredStorage) throws {
+        let addressStorage = FileAddressStorage()
+        register(addressStorage: addressStorage)
+
+        self.addressStorage = addressStorage
         self.navigationController = navigationController
         self.window = window
         self.analytics = analytics
@@ -166,7 +192,7 @@ class AppCoordinator: NSObject, Coordinator {
             }.store(in: &cancelable)
     }
 
-    func start() {
+    func start(launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) {
         //Want to start as soon as possible
         if AlphaWallet.Device.isSimulator {
             TrackApiCalls.shared.start()
@@ -197,6 +223,20 @@ class AppCoordinator: NSObject, Coordinator {
         }
 
         assetDefinitionStore.delegate = self
+
+        if let shortcutItem = launchOptions?[UIApplication.LaunchOptionsKey.shortcutItem] as? UIApplicationShortcutItem, shortcutItem.type == Constants.launchShortcutKey {
+            //Delay needed to work because app is launching..
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.launchUniversalScanner()
+            }
+        }
+    }
+
+    func applicationPerformActionFor(_ shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
+        if shortcutItem.type == Constants.launchShortcutKey {
+            launchUniversalScanner()
+        }
+        completionHandler(true)
     }
 
     func applicationWillResignActive() {
@@ -214,6 +254,31 @@ class AppCoordinator: NSObject, Coordinator {
 
     func applicationWillEnterForeground() {
         protectionCoordinator.applicationWillEnterForeground()
+    }
+
+    func applicationShouldAllowExtensionPointIdentifier(_ extensionPointIdentifier: UIApplication.ExtensionPointIdentifier) -> Bool {
+        if extensionPointIdentifier == .keyboard {
+            return false
+        }
+        return true
+    }
+
+    func applicationOpenUrl(_ url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+        return handleUniversalLink(url: url, source: .customUrlScheme)
+    }
+
+    func applicationContinueUserActivity(_ userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
+        let hasHandledIntent = handleIntent(userActivity: userActivity)
+        if hasHandledIntent {
+            return true
+        }
+
+        var handled = false
+        if let url = userActivity.webpageURL {
+            handled = handleUniversalLink(url: url, source: .deeplink)
+        }
+        //TODO: if we handle other types of URLs, check if handled==false, then we pass the url to another handlers
+        return handled
     }
 
     private func setupSplashViewController(on navigationController: UINavigationController) {
@@ -347,7 +412,7 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     /// Return true if handled
-    @discardableResult func handleUniversalLink(url: URL, source: UrlSource) -> Bool {
+    @discardableResult private func handleUniversalLink(url: URL, source: UrlSource) -> Bool {
         createInitialWalletIfMissing()
         showActiveWalletIfNeeded()
 
@@ -375,7 +440,7 @@ class AppCoordinator: NSObject, Coordinator {
         activeWalletCoordinator?.didPressOpenWebPage(url, in: viewController)
     }
 
-    func handleIntent(userActivity: NSUserActivity) -> Bool {
+    private func handleIntent(userActivity: NSUserActivity) -> Bool {
         if let type = userActivity.userInfo?[WalletQrCodeDonation.userInfoType.key] as? String, type == WalletQrCodeDonation.userInfoType.value {
             analytics.log(navigation: Analytics.Navigation.openShortcut, properties: [
                 Analytics.Properties.type.rawValue: Analytics.ShortcutType.walletQrCode.rawValue
