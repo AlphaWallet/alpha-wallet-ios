@@ -31,11 +31,10 @@ class NFTAssetViewModel {
     private let displayHelper: OpenSeaNonFungibleTokenDisplayHelper
     private let tokenHolderHelper: TokenInstanceViewConfigurationHelper
     private let nftProvider: NFTProvider
-    private let session: WalletSession
     private let mode: TokenInstanceViewMode
     private let service: TokenViewModelState & TokenHolderState
     private (set) var viewTypes: [NFTAssetViewModel.ViewType] = []
-
+    let session: WalletSession
     let token: Token
     private (set) var tokenId: TokenId
     private (set) var tokenHolder: TokenHolder

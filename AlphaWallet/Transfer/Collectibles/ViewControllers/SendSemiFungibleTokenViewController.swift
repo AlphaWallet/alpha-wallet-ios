@@ -140,7 +140,7 @@ final class SendSemiFungibleTokenViewController: UIViewController, TokenVerifiab
     }
 
     private func generateViewFor(tokenHolder: TokenHolder, index: Int) -> UIView {
-        let subview = tokenCardViewFactory.create(for: tokenHolder, layout: .list, listEdgeInsets: .init(top: 16, left: 20, bottom: 16, right: 16))
+        let subview = tokenCardViewFactory.createTokenCardView(for: tokenHolder, layout: .list, listEdgeInsets: .init(top: 16, left: 20, bottom: 16, right: 16))
 
         configureToAllowSelection(subview, tokenHolder: tokenHolder, index: index)
         configure(subview: subview, tokenId: tokenHolder.tokenId, tokenHolder: tokenHolder)

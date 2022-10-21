@@ -32,7 +32,7 @@ class NFTCollectionViewController: UIViewController {
     }()
 
     private lazy var collectionInfoPageView: NFTCollectionInfoPageView = {
-        let view = NFTCollectionInfoPageView(viewModel: viewModel.infoPageViewModel, keystore: keystore, session: session, assetDefinitionStore: assetDefinitionStore, analytics: analytics)
+        let view = NFTCollectionInfoPageView(viewModel: viewModel.infoPageViewModel, session: session, tokenCardViewFactory: tokenCardViewFactory)
         view.delegate = self
 
         return view
@@ -49,8 +49,6 @@ class NFTCollectionViewController: UIViewController {
     private let _pullToRefresh = PassthroughSubject<Void, Never>()
 
     private lazy var nftAssetsPageView: NFTAssetsPageView = {
-        let tokenCardViewFactory = TokenCardViewFactory(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, analytics: analytics, keystore: keystore, wallet: viewModel.wallet)
-
         let view = NFTAssetsPageView(tokenCardViewFactory: tokenCardViewFactory, viewModel: viewModel.nftAssetsPageViewModel)
         view.delegate = self
         view.searchBar.delegate = self
@@ -64,11 +62,13 @@ class NFTCollectionViewController: UIViewController {
     }()
     private let keystore: Keystore
     private var cancellable = Set<AnyCancellable>()
+    private let tokenCardViewFactory: TokenCardViewFactory
 
     let viewModel: NFTCollectionViewModel
     weak var delegate: NFTCollectionViewControllerDelegate?
 
-    init(keystore: Keystore, session: WalletSession, assetDefinition: AssetDefinitionStore, analytics: AnalyticsLogger, viewModel: NFTCollectionViewModel, sessions: ServerDictionary<WalletSession>) {
+    init(keystore: Keystore, session: WalletSession, assetDefinition: AssetDefinitionStore, analytics: AnalyticsLogger, viewModel: NFTCollectionViewModel, sessions: ServerDictionary<WalletSession>, tokenCardViewFactory: TokenCardViewFactory) {
+        self.tokenCardViewFactory = tokenCardViewFactory
         self.viewModel = viewModel
         self.sessions = sessions
         self.session = session

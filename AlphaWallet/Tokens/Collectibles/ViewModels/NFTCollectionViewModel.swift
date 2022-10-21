@@ -37,7 +37,21 @@ final class NFTCollectionViewModel {
     let backgroundColor: UIColor = Colors.appBackground
     let wallet: Wallet
 
-    private (set) lazy var infoPageViewModel = NFTCollectionInfoPageViewModel(token: token, assetDefinitionStore: assetDefinitionStore, tokenHolders: tokenHolders.value, wallet: wallet, _tokenHolders: tokenHolders.eraseToAnyPublisher(), nftProvider: nftProvider)
+    private var previewViewType: NFTPreviewViewType {
+        switch OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
+        case .backedByOpenSea:
+            return .imageView
+        case .notBackedByOpenSea:
+            return .tokenCardView
+        }
+    }
+
+    private (set) lazy var infoPageViewModel: NFTCollectionInfoPageViewModel = {
+        let tokenHolder = tokenHolders.value[0]
+        let tokenId = tokenHolder.tokenIds[0]
+        return NFTCollectionInfoPageViewModel(token: token, previewViewType: previewViewType, tokenHolder: tokenHolder, tokenId: tokenId, tokenHolders: tokenHolders.eraseToAnyPublisher(), nftProvider: nftProvider)
+    }()
+
     private (set) lazy var nftAssetsPageViewModel = NFTAssetsPageViewModel(token: token, assetDefinitionStore: assetDefinitionStore, tokenHolders: tokenHolders.eraseToAnyPublisher(), selection: .list)
 
     init(token: Token, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, tokensService: TokenViewModelState & TokenHolderState, activitiesService: ActivitiesServiceType, nftProvider: NFTProvider) {
@@ -66,7 +80,8 @@ final class NFTCollectionViewModel {
         let whenPullToRefresh = loadingHasEnded.map { [token] _ in token }
             .compactMap { [tokensService] in tokensService.tokenHolders(for: $0) }
 
-        let whenViewModelHasChanged = tokenViewModel.dropFirst().compactMap { [tokensService] in $0.flatMap { tokensService.tokenHolders(for: $0) } }
+        let whenViewModelHasChanged = tokenViewModel.dropFirst()
+            .compactMap { [tokensService] in $0.flatMap { tokensService.tokenHolders(for: $0) } }
 
         Publishers.Merge(whenViewModelHasChanged, whenPullToRefresh)
             .assign(to: \.value, on: tokenHolders)
