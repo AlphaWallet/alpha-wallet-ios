@@ -233,7 +233,7 @@ struct Configuration {
             }
 
             static let textFieldIcon = UIColor { trait in
-                return colorFrom(trait: trait, lightColor: R.color.alabaster()!, darkColor: R.color.venus()!)
+                return colorFrom(trait: trait, lightColor: R.color.venus()!, darkColor: R.color.alabaster()!)
             }
 
             static let textFieldBackground = UIColor { trait in

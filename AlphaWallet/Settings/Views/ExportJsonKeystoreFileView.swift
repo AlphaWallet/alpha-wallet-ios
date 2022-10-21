@@ -12,9 +12,9 @@ class ExportJsonKeystoreFileView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.adjustsFontForContentSizeCategory = true
-        label.backgroundColor = R.color.white()!
+        label.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         label.font = UIFontMetrics(forTextStyle: .subheadline).scaledFont(for: Fonts.regular(size: 13.0))
-        label.textColor = R.color.dove()!
+        label.textColor = Configuration.Color.Semantic.defaultSubtitleText
         label.text = R.string.localizable.settingsAdvancedExportJSONKeystoreFileLabel()
         label.heightAnchor.constraint(equalToConstant: 22.0).isActive = true
         return label
@@ -23,10 +23,10 @@ class ExportJsonKeystoreFileView: UIView {
         let textView = UITextView()
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.adjustsFontForContentSizeCategory = true
-        textView.backgroundColor = R.color.alabaster()!
+        textView.backgroundColor = Configuration.Color.Semantic.textFieldBackground
         textView.font = UIFontMetrics(forTextStyle: .body).scaledFont(for: Fonts.regular(size: 17.0))
-        textView.textColor = R.color.mine()!
-        textView.borderColor = R.color.silver()
+        textView.textColor = Configuration.Color.Semantic.defaultHeadlineText
+        textView.borderColor = Configuration.Color.Semantic.indicator
         textView.cornerRadius = 5.0
         textView.borderWidth = 1.0
         textView.isEditable = false
@@ -75,9 +75,9 @@ class ExportJsonKeystoreFileView: UIView {
     }
 
     private func configureView() {
-        backgroundColor = R.color.white()!
+        backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         let footerBar = configureButtonsBar()
-        footerBar.backgroundColor = R.color.white()
+        footerBar.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         addSubview(label)
         addSubview(textView)
         addSubview(footerBar)

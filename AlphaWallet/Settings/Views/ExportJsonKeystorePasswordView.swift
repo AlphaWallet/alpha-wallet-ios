@@ -12,9 +12,9 @@ class ExportJsonKeystorePasswordView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.adjustsFontForContentSizeCategory = true
-        label.backgroundColor = R.color.white()!
+        label.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         label.font = UIFontMetrics(forTextStyle: .subheadline).scaledFont(for: Fonts.regular(size: 13.0))
-        label.textColor = R.color.dove()!
+        label.textColor = Configuration.Color.Semantic.defaultSubtitleText
         label.text = R.string.localizable.settingsAdvancedExportJSONKeystorePasswordLabel()
         label.heightAnchor.constraint(equalToConstant: 22.0).isActive = true
         return label
@@ -23,16 +23,16 @@ class ExportJsonKeystorePasswordView: UIView {
         let textField: UITextField = UITextField()
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.adjustsFontForContentSizeCategory = true
-        textField.backgroundColor = R.color.white()!
+        textField.backgroundColor = Configuration.Color.Semantic.textFieldBackground
         textField.font = UIFontMetrics(forTextStyle: .body).scaledFont(for: Fonts.regular(size: 17.0))
-        textField.textColor = R.color.mine()!
+        textField.textColor = Configuration.Color.Semantic.defaultHeadlineText
         textField.borderStyle = .roundedRect
         textField.isSecureTextEntry = true
         textField.placeholder = R.string.localizable.enterPasswordPasswordTextFieldPlaceholder()
         textField.autocorrectionType = .no
         textField.spellCheckingType = .no
         _ = textField.heightAnchor.constraint(equalToConstant: 50.0).isActive = true
-        textField.borderColor = R.color.azure()
+        textField.borderColor = Configuration.Color.Semantic.indicator
         textField.borderWidth = 1.0
         textField.layer.cornerRadius = 5.0
         textField.returnKeyType = .done
@@ -76,11 +76,11 @@ class ExportJsonKeystorePasswordView: UIView {
     }
 
     private func configureView() {
-        backgroundColor = R.color.white()!
+        backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         configureTapToDismissKeyboard()
         configurePasswordTextField()
         let footerBar = configureButtonsBar()
-        footerBar.backgroundColor = R.color.white()
+        footerBar.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         addSubview(label)
         addSubview(passwordTextField)
         addSubview(footerBar)
@@ -108,7 +108,7 @@ class ExportJsonKeystorePasswordView: UIView {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.frame = CGRect(x: 0.0, y: 0.0, width: 24.0, height: 24.0)
         button.setImage(R.image.togglePassword(), for: .normal)
-        button.tintColor = .init(red: 111, green: 111, blue: 111)
+        button.tintColor = Configuration.Color.Semantic.textFieldIcon
         button.addTarget(self, action: #selector(toggleMaskPassword), for: .touchUpInside)
         buttonFrame.addSubview(button)
         NSLayoutConstraint.activate([
@@ -134,9 +134,9 @@ class ExportJsonKeystorePasswordView: UIView {
         passwordTextField.isSecureTextEntry = !passwordTextField.isSecureTextEntry
         guard let button = passwordTextField.rightView as? UIButton else { return }
         if passwordTextField.isSecureTextEntry {
-            button.tintColor = Colors.navigationTitleColor
+            button.tintColor = Configuration.Color.Semantic.defaultForegroundText
         } else {
-            button.tintColor = .init(red: 111, green: 111, blue: 111)
+            button.tintColor = Configuration.Color.Semantic.defaultSubtitleText
         }
     }
 
