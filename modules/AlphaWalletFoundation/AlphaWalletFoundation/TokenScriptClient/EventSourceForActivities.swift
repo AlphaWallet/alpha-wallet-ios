@@ -7,7 +7,7 @@ import PromiseKit
 import Combine
 import AlphaWalletWeb3
 
-public final class EventSourceForActivities {
+final class EventSourceForActivities {
     private var wallet: Wallet
     private let config: Config
     private let tokensService: TokenProvidable
@@ -18,8 +18,10 @@ public final class EventSourceForActivities {
     private let queue = DispatchQueue(label: "com.EventSourceForActivities.updateQueue")
     private let enabledServers: [RPCServer]
     private var cancellable = Set<AnyCancellable>()
+    private let getEventLogs: GetEventLogs
 
-    public init(wallet: Wallet, config: Config, tokensService: TokenProvidable, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsActivityDataStoreProtocol) {
+    init(wallet: Wallet, config: Config, tokensService: TokenProvidable, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsActivityDataStoreProtocol, getEventLogs: GetEventLogs) {
+        self.getEventLogs = getEventLogs
         self.wallet = wallet
         self.config = config
         self.tokensService = tokensService
@@ -28,7 +30,7 @@ public final class EventSourceForActivities {
         self.enabledServers = config.enabledServers
     }
 
-    public func start() {
+    func start() {
         guard !config.development.isAutoFetchingDisabled else { return }
 
         subscribeForTokenChanges()
@@ -88,7 +90,7 @@ public final class EventSourceForActivities {
 
     private func fetchEvents(forToken token: Token) -> [Promise<Void>] {
         return getActivityCards(forToken: token)
-            .map { EventSourceForActivities.functional.fetchEvents(tokenContract: token.contractAddress, server: token.server, card: $0, eventsDataStore: eventsDataStore, queue: queue, wallet: wallet) }
+            .map { EventSourceForActivities.functional.fetchEvents(getEventLogs: getEventLogs, tokenContract: token.contractAddress, server: token.server, card: $0, eventsDataStore: eventsDataStore, queue: queue, wallet: wallet) }
     }
 
     private func fetchEthereumEvents() {
@@ -120,7 +122,7 @@ extension EventSourceForActivities {
 }
 
 extension EventSourceForActivities.functional {
-    static func fetchEvents(tokenContract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, eventsDataStore: EventsActivityDataStoreProtocol, queue: DispatchQueue, wallet: Wallet) -> Promise<Void> {
+    static func fetchEvents(getEventLogs: GetEventLogs, tokenContract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, eventsDataStore: EventsActivityDataStoreProtocol, queue: DispatchQueue, wallet: Wallet) -> Promise<Void> {
 
         let eventOrigin = card.eventOrigin
         let (filterName, filterValue) = eventOrigin.eventFilter
@@ -149,30 +151,31 @@ extension EventSourceForActivities.functional {
         let toBlock = server.makeMaximumToBlockForEvents(fromBlockNumber: fromBlock.1)
         let eventFilter = EventFilter(fromBlock: fromBlock.0, toBlock: toBlock, addresses: addresses, parameterFilters: parameterFilters)
 
-        return getEventLogs(withServer: server, contract: eventOrigin.contract, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter)
-        .then(on: queue, { events -> Promise<[EventActivityInstance]> in
-            let promises = events.compactMap { event -> Promise<EventActivityInstance?> in
-                guard let blockNumber = event.eventLog?.blockNumber else {
-                    return .value(nil)
+        return getEventLogs
+            .getEventLogs(contractAddress: eventOrigin.contract, server: server, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter)
+            .then(on: queue, { events -> Promise<[EventActivityInstance]> in
+                let promises = events.compactMap { event -> Promise<EventActivityInstance?> in
+                    guard let blockNumber = event.eventLog?.blockNumber else {
+                        return .value(nil)
+                    }
+
+                    return GetBlockTimestamp()
+                        .getBlockTimestamp(blockNumber, onServer: server)
+                        .map(on: queue, { date in
+                            Self.convertEventToDatabaseObject(event, date: date, filterParam: filterParam, eventOrigin: eventOrigin, tokenContract: tokenContract, server: server)
+                        }).recover(on: queue, { _ -> Promise<EventActivityInstance?> in
+                            return .value(nil)
+                        })
                 }
 
-                return GetBlockTimestamp()
-                    .getBlockTimestamp(blockNumber, onServer: server)
-                    .map(on: queue, { date in
-                        Self.convertEventToDatabaseObject(event, date: date, filterParam: filterParam, eventOrigin: eventOrigin, tokenContract: tokenContract, server: server)
-                    }).recover(on: queue, { _ -> Promise<EventActivityInstance?> in
-                        return .value(nil)
-                    })
-            }
-
-            return when(resolved: promises).map(on: queue, { values -> [EventActivityInstance] in
-                values.compactMap { $0.optionalValue }.compactMap { $0 }
+                return when(resolved: promises).map(on: queue, { values -> [EventActivityInstance] in
+                    values.compactMap { $0.optionalValue }.compactMap { $0 }
+                })
+            }).map(on: queue, { events -> Void in
+                eventsDataStore.addOrUpdate(events: events)
+            }).recover(on: queue, { e in
+                logError(e, rpcServer: server, address: tokenContract)
             })
-        }).map(on: queue, { events -> Void in
-            eventsDataStore.addOrUpdate(events: events)
-        }).recover(on: queue, { e in
-            logError(e, rpcServer: server, address: tokenContract)
-        })
     }
 
     private static func convertEventToDatabaseObject(_ event: EventParserResultProtocol, date: Date, filterParam: [(filter: [EventFilterable], textEquivalent: String)?], eventOrigin: EventOrigin, tokenContract: AlphaWallet.Address, server: RPCServer) -> EventActivityInstance? {

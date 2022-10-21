@@ -5,12 +5,12 @@ import BigInt
 import PromiseKit
 import AlphaWalletWeb3
 
-public struct Erc1155TokenIds: Codable {
-    public typealias ContractsAndTokenIds = [AlphaWallet.Address: Set<BigUInt>]
-    public typealias BlockNumbersProcessed = [Range<UInt64>]
+struct Erc1155TokenIds: Codable {
+    typealias ContractsAndTokenIds = [AlphaWallet.Address: Set<BigUInt>]
+    typealias BlockNumbersProcessed = [Range<UInt64>]
 
-    public let tokens: ContractsAndTokenIds
-    public let blockNumbersProcessed: BlockNumbersProcessed
+    let tokens: ContractsAndTokenIds
+    let blockNumbersProcessed: BlockNumbersProcessed
 
     init(tokens: ContractsAndTokenIds, blockNumbersProcessed: BlockNumbersProcessed) {
         self.tokens = tokens
@@ -70,6 +70,7 @@ public class Erc1155TokenIdsFetcher {
     private let server: RPCServer
     private let config: Config
     private var inFlightPromise: Promise<Erc1155TokenIds>?
+    private lazy var getEventLogs = GetEventLogs()
 
     public init(analytics: AnalyticsLogger, session: WalletSession, server: RPCServer, config: Config) {
         self.analytics = analytics
@@ -83,7 +84,7 @@ public class Erc1155TokenIdsFetcher {
 
     //TODO debounce? Don't need too often? Or can be done from callers. Seems better to do it here
     //TODO Future PR to fix is so the lookups are combined if possible? Because it is sometimes 1 lookup for [0x0, token1], then [0x0] and another [token1]. While blocking it if inflight will work, we can actually coalesce the lookups by debouncing depending on how close they are (they can be just 1-4 seconds apart for Polygon)
-    public func detectContractsAndTokenIds() -> Promise<Erc1155TokenIds> {
+    func detectContractsAndTokenIds() -> Promise<Erc1155TokenIds> {
         if let inFlightPromise = inFlightPromise {
             return inFlightPromise
         }
@@ -97,10 +98,10 @@ public class Erc1155TokenIdsFetcher {
         }.map { blockNumber -> (Erc1155TokenIds, Int) in
             let tokenIds: Erc1155TokenIds = self.readJson() ?? .init()
             return (tokenIds, blockNumber)
-        }.then { (tokenIds: Erc1155TokenIds, currentBlockNumber: Int) -> Promise<Erc1155TokenIds> in
-            functional.fetchTokenIdsWithLatestEvents(config: config, address: address, server: server, tokenIds: tokenIds, currentBlockNumber: currentBlockNumber)
-        }.then { (tokenIds: Erc1155TokenIds) -> Promise<Erc1155TokenIds> in
-            functional.fetchTokenIdsByCatchingUpOlderEvents(config: config, address: address, server: server, tokenIds: tokenIds)
+        }.then { [getEventLogs] (tokenIds: Erc1155TokenIds, currentBlockNumber: Int) -> Promise<Erc1155TokenIds> in
+            functional.fetchTokenIdsWithLatestEvents(config: config, address: address, server: server, getEventLogs: getEventLogs, tokenIds: tokenIds, currentBlockNumber: currentBlockNumber)
+        }.then { [getEventLogs] (tokenIds: Erc1155TokenIds) -> Promise<Erc1155TokenIds> in
+            functional.fetchTokenIdsByCatchingUpOlderEvents(config: config, address: address, server: server, getEventLogs: getEventLogs, tokenIds: tokenIds)
         }.then { tokenIds -> Promise<Erc1155TokenIds> in
             Erc1155TokenIdsFetcher.writeJson(contractsAndTokenIds: tokenIds, address: address, server: server).map { tokenIds }
         }.ensure {
@@ -183,17 +184,17 @@ extension Erc1155TokenIdsFetcher.functional {
 
     private static let queue: DispatchQueue = .global(qos: .utility)
 
-    private static func fetchEvents(config: Config, forAddress address: AlphaWallet.Address, server: RPCServer, fromBlock: EventFilter.Block, toBlock: EventFilter.Block) -> Promise<Erc1155TokenIds.ContractsAndTokenIds> {
+    private static func fetchEvents(config: Config, server: RPCServer, forAddress address: AlphaWallet.Address, getEventLogs: GetEventLogs, fromBlock: EventFilter.Block, toBlock: EventFilter.Block) -> Promise<Erc1155TokenIds.ContractsAndTokenIds> {
         let recipientAddress = EthereumAddress(address.eip55String)!
         let nullFilter: [EventFilterable]? = nil
         let singleTransferEventName = "TransferSingle"
         let batchTransferEventName = "TransferBatch"
         let sendParameterFilters: [[EventFilterable]?] = [nullFilter, [recipientAddress], nullFilter]
         let receiveParameterFilters: [[EventFilterable]?] = [nullFilter, nullFilter, [recipientAddress]]
-        let sendSinglePromise = fetchEvents(config: config, server: server, transferType: .send, eventName: singleTransferEventName, parameterFilters: sendParameterFilters, fromBlock: fromBlock, toBlock: toBlock)
-        let receiveSinglePromise = fetchEvents(config: config, server: server, transferType: .receive, eventName: singleTransferEventName, parameterFilters: receiveParameterFilters, fromBlock: fromBlock, toBlock: toBlock)
-        let sendBulkPromise = fetchEvents(config: config, server: server, transferType: .send, eventName: batchTransferEventName, parameterFilters: sendParameterFilters, fromBlock: fromBlock, toBlock: toBlock)
-        let receiveBulkPromise = fetchEvents(config: config, server: server, transferType: .receive, eventName: batchTransferEventName, parameterFilters: receiveParameterFilters, fromBlock: fromBlock, toBlock: toBlock)
+        let sendSinglePromise = fetchEvents(config: config, server: server, getEventLogs: getEventLogs, transferType: .send, eventName: singleTransferEventName, parameterFilters: sendParameterFilters, fromBlock: fromBlock, toBlock: toBlock)
+        let receiveSinglePromise = fetchEvents(config: config, server: server, getEventLogs: getEventLogs, transferType: .receive, eventName: singleTransferEventName, parameterFilters: receiveParameterFilters, fromBlock: fromBlock, toBlock: toBlock)
+        let sendBulkPromise = fetchEvents(config: config, server: server, getEventLogs: getEventLogs, transferType: .send, eventName: batchTransferEventName, parameterFilters: sendParameterFilters, fromBlock: fromBlock, toBlock: toBlock)
+        let receiveBulkPromise = fetchEvents(config: config, server: server, getEventLogs: getEventLogs, transferType: .receive, eventName: batchTransferEventName, parameterFilters: receiveParameterFilters, fromBlock: fromBlock, toBlock: toBlock)
         return firstly {
             when(fulfilled: sendSinglePromise, receiveSinglePromise, sendBulkPromise, receiveBulkPromise)
         }.map(on: queue, { a, b, c, d -> Erc1155TokenIds.ContractsAndTokenIds in
@@ -221,7 +222,7 @@ extension Erc1155TokenIdsFetcher.functional {
         })
     }
 
-    fileprivate static func fetchEvents(config: Config, server: RPCServer, transferType: Erc1155TransferEvent.TransferType, eventName: String, parameterFilters: [[EventFilterable]?], fromBlock: EventFilter.Block, toBlock: EventFilter.Block) -> Promise<[Erc1155TransferEvent]> {
+    fileprivate static func fetchEvents(config: Config, server: RPCServer, getEventLogs: GetEventLogs, transferType: Erc1155TransferEvent.TransferType, eventName: String, parameterFilters: [[EventFilterable]?], fromBlock: EventFilter.Block, toBlock: EventFilter.Block) -> Promise<[Erc1155TransferEvent]> {
         if config.development.isAutoFetchingDisabled {
             return Promise<[Erc1155TransferEvent]> { seal in
                 fetchEventsPromiseKitResolversKeptForDevelopmentFeatureFlagOnly.append(seal)
@@ -231,8 +232,9 @@ extension Erc1155TokenIdsFetcher.functional {
         //We just need any contract for the Swift API to get events, it's not actually used
         let dummyContract = Constants.nullAddress
         let eventFilter = EventFilter(fromBlock: fromBlock, toBlock: toBlock, addresses: nil, parameterFilters: parameterFilters)
+
         return firstly {
-            getEventLogs(withServer: server, contract: dummyContract, eventName: eventName, abiString: AlphaWallet.Ethereum.ABI.erc1155String, filter: eventFilter)
+            getEventLogs.getEventLogs(contractAddress: dummyContract, server: server, eventName: eventName, abiString: AlphaWallet.Ethereum.ABI.erc1155String, filter: eventFilter)
         }.map(on: queue, { events -> [Erc1155TransferEvent] in
             let events = events.filter { $0.eventLog != nil }
             let sortedEvents = events.sorted(by: { a, b in
@@ -279,16 +281,15 @@ extension Erc1155TokenIdsFetcher.functional {
         return updatedTokenIds
     }
 
-    private static func fetchTokenIdsWithEvents(config: Config, address: AlphaWallet.Address, server: RPCServer, fromBlockNumber: UInt64, toBlockNumber: UInt64, previousTokenIds: Erc1155TokenIds) -> Promise<Erc1155TokenIds> {
+    private static func fetchTokenIdsWithEvents(config: Config, server: RPCServer, address: AlphaWallet.Address, getEventLogs: GetEventLogs, fromBlockNumber: UInt64, toBlockNumber: UInt64, previousTokenIds: Erc1155TokenIds) -> Promise<Erc1155TokenIds> {
         let fromBlock = EventFilter.Block.blockNumber(fromBlockNumber)
         let toBlock = EventFilter.Block.blockNumber(toBlockNumber)
         return firstly {
-            fetchEvents(config: config, forAddress: address, server: server, fromBlock: fromBlock, toBlock: toBlock)
+            fetchEvents(config: config, server: server, forAddress: address, getEventLogs: getEventLogs, fromBlock: fromBlock, toBlock: toBlock)
         }.map { fetched -> Erc1155TokenIds in
             let updatedTokens = computeUpdatedTokenIds(address: address, fromPreviousRead: previousTokenIds.tokens, newlyFetched: fetched)
             let updatedBlockNumbersProcessed = combinedBlockNumbersProcessed(old: previousTokenIds.blockNumbersProcessed, newEntry: (fromBlockNumber, toBlockNumber))
-            let contractsAndTokenIds = Erc1155TokenIds(tokens: updatedTokens, blockNumbersProcessed: updatedBlockNumbersProcessed)
-            return contractsAndTokenIds
+            return Erc1155TokenIds(tokens: updatedTokens, blockNumbersProcessed: updatedBlockNumbersProcessed)
         }
     }
 
@@ -373,19 +374,19 @@ extension Erc1155TokenIdsFetcher.functional {
         }
     }
 
-    static func fetchTokenIdsWithLatestEvents(config: Config, address: AlphaWallet.Address, server: RPCServer, tokenIds: Erc1155TokenIds, currentBlockNumber: Int) -> Promise<Erc1155TokenIds> {
+    static func fetchTokenIdsWithLatestEvents(config: Config, address: AlphaWallet.Address, server: RPCServer, getEventLogs: GetEventLogs, tokenIds: Erc1155TokenIds, currentBlockNumber: Int) -> Promise<Erc1155TokenIds> {
         let maximumBlockRangeWindow: UInt64? = server.maximumBlockRangeForEvents
         //We must not use `.latest` because there is a chance it is slightly later than what we use to compute the block range for events
         guard let (fromBlockNumber, toBlockNumber) = makeBlockRangeForEvents(toBlockNumber: UInt64(currentBlockNumber), maximumWindow: maximumBlockRangeWindow, excludingRanges: tokenIds.blockNumbersProcessed) else { return .init(error: PMKError.cancelled) }
-        return fetchTokenIdsWithEvents(config: config, address: address, server: server, fromBlockNumber: fromBlockNumber, toBlockNumber: toBlockNumber, previousTokenIds: tokenIds)
+        return fetchTokenIdsWithEvents(config: config, server: server, address: address, getEventLogs: getEventLogs, fromBlockNumber: fromBlockNumber, toBlockNumber: toBlockNumber, previousTokenIds: tokenIds)
     }
 
-    static func fetchTokenIdsByCatchingUpOlderEvents(config: Config, address: AlphaWallet.Address, server: RPCServer, tokenIds: Erc1155TokenIds) -> Promise<Erc1155TokenIds> {
+    static func fetchTokenIdsByCatchingUpOlderEvents(config: Config, address: AlphaWallet.Address, server: RPCServer, getEventLogs: GetEventLogs, tokenIds: Erc1155TokenIds) -> Promise<Erc1155TokenIds> {
         let maximumBlockRangeWindow: UInt64? = server.maximumBlockRangeForEvents
         //We must not use `.latest` because there is a chance it is slightly later than what we use to compute the block range for events
         if let range = makeBlockRangeToCatchUpForOlderEvents(maximumWindow: maximumBlockRangeWindow, excludingRanges: tokenIds.blockNumbersProcessed) {
             let (fromBlockNumber, toBlockNumber) = range
-            return fetchTokenIdsWithEvents(config: config, address: address, server: server, fromBlockNumber: fromBlockNumber, toBlockNumber: toBlockNumber, previousTokenIds: tokenIds)
+            return fetchTokenIdsWithEvents(config: config, server: server, address: address, getEventLogs: getEventLogs, fromBlockNumber: fromBlockNumber, toBlockNumber: toBlockNumber, previousTokenIds: tokenIds)
         } else {
             return .value(tokenIds)
         }
