@@ -110,6 +110,7 @@ extension ActivitiesViewController: UISearchResultsUpdating {
 
     private func processSearchWithKeywords() {
         activitiesView.applySearch(keyword: searchController.searchBar.text)
+        activitiesView.endLoading()
     }
 
 }
