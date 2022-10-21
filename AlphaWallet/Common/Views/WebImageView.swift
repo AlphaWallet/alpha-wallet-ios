@@ -29,15 +29,9 @@ final class FixedContentModeImageView: UIImageView {
         contentMode = fixedContentMode
         layer.masksToBounds = true
         clipsToBounds = true
+        backgroundColor = Configuration.Color.Semantic.defaultViewBackground
 
-        switch rounding {
-        case .none:
-            cornerRadius = 0
-        case .circle:
-            cornerRadius = bounds.width / 2
-        case .custom(let radius):
-            cornerRadius = radius
-        }
+        cornerRadius = rounding.cornerRadius(view: self)
     }
 }
 

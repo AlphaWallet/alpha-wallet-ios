@@ -49,7 +49,7 @@ final class NFTCollectionInfoPageViewModel {
         }
     }
 
-    var previewViewContentBackgroundColor: UIColor { return Colors.appBackground }
+    var previewViewContentBackgroundColor: UIColor { return Configuration.Color.Semantic.defaultViewBackground }
 
     init(token: Token, previewViewType: NFTPreviewViewType, tokenHolder: TokenHolder, tokenId: TokenId, tokenHolders: AnyPublisher<[TokenHolder], Never>, nftProvider: NFTProvider) {
         self.previewViewType = previewViewType
