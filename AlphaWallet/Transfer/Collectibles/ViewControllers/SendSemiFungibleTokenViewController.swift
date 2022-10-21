@@ -47,7 +47,7 @@ final class SendSemiFungibleTokenViewController: UIViewController, TokenVerifiab
     }()
 
     private lazy var selectTokenCardAmountView: SelectTokenCardAmountView = {
-        let view = SelectTokenCardAmountView(viewModel: .init(availableAmount: 0, selectedAmount: 0))
+        let view = SelectTokenCardAmountView(viewModel: viewModel.selectionViewModel)
         view.delegate = self
 
         return view
@@ -69,7 +69,7 @@ final class SendSemiFungibleTokenViewController: UIViewController, TokenVerifiab
     }
     weak var delegate: SendSemiFungibleTokenViewControllerDelegate?
 
-    lazy var containerView: ScrollableStackView = {
+    private lazy var containerView: ScrollableStackView = {
         let view = ScrollableStackView()
         return view
     }()

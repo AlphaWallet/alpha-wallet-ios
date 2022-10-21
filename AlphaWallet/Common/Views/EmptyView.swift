@@ -207,6 +207,13 @@ extension EmptyView {
             .configure(insets: .init(top: Style.SearchBar.height, left: 0, bottom: 0, right: 0))
     }
 
+    static func nftAssetsEmptyView() -> EmptyView {
+        EmptyView(placement: FilterTokensHoldersEmptyViewDefaultPlacement(verticalOffset: -20))
+            .configure(image: R.image.iconsIllustrationsSearchResults())
+            .configure(title: "Nft Assets Not Found")
+            .configure(spacing: 30)
+    }
+
     static func swapToolsEmptyView() -> EmptyView {
         EmptyView()
             .configure(image: R.image.activities_empty_list())

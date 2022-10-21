@@ -998,7 +998,7 @@ extension ActiveWalletCoordinator: PaymentCoordinatorDelegate {
     func didSelectTokenHolder(tokenHolder: TokenHolder, in coordinator: PaymentCoordinator) {
         guard let coordinator = coordinatorOfType(type: NFTCollectionCoordinator.self) else { return }
 
-        coordinator.showNFTAsset(tokenHolder: tokenHolder, mode: .preview)
+        coordinator.showNftAsset(tokenHolder: tokenHolder, mode: .preview)
     }
 
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: PaymentCoordinator) {

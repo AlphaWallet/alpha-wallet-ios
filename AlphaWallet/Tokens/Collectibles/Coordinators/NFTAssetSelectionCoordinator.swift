@@ -14,13 +14,13 @@ protocol NFTAssetSelectionCoordinatorDelegate: AnyObject {
 }
 
 class NFTAssetSelectionCoordinator: Coordinator {
-
     private let parentsNavigationController: UINavigationController
-    var coordinators: [Coordinator] = []
-    weak var delegate: NFTAssetSelectionCoordinatorDelegate?
     private let token: Token
     private let tokenHolders: [TokenHolder]
     private let tokenCardViewFactory: TokenCardViewFactory
+
+    var coordinators: [Coordinator] = []
+    weak var delegate: NFTAssetSelectionCoordinatorDelegate?
 
     //NOTE: `filter: WalletFilter` parameter allow us to filter tokens we needed
     init(navigationController: UINavigationController, token: Token, tokenHolders: [TokenHolder], tokenCardViewFactory: TokenCardViewFactory) {

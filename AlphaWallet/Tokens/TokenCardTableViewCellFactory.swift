@@ -9,7 +9,7 @@ import UIKit
 import AlphaWalletFoundation
 
 protocol TokenCardRowViewLayoutConfigurable {
-    func configureLayout(layout: GridOrListSelectionState)
+    func configureLayout(layout: GridOrListLayout)
 }
 
 protocol TokenCardRowViewConfigurable {
@@ -38,7 +38,7 @@ final class TokenCardViewFactory {
         return NFTPreviewView(type: type, keystore: keystore, session: session, assetDefinitionStore: assetDefinitionStore, analytics: analytics, edgeInsets: edgeInsets)
     }
 
-    func createTokenCardView(for tokenHolder: TokenHolder, layout: GridOrListSelectionState, gridEdgeInsets: UIEdgeInsets = .zero, listEdgeInsets: UIEdgeInsets = .init(top: 0, left: 16, bottom: 0, right: 16)) -> TokenCardViewRepresentable {
+    func createTokenCardView(for tokenHolder: TokenHolder, layout: GridOrListLayout, gridEdgeInsets: UIEdgeInsets = .zero, listEdgeInsets: UIEdgeInsets = .init(top: 0, left: 16, bottom: 0, right: 16)) -> TokenCardViewRepresentable {
         var rowView: TokenCardViewRepresentable
 
         let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified)
