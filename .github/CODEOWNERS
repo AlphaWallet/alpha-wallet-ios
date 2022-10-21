@@ -1,5 +1,11 @@
 # Key management
 /modules/AlphaWalletFoundation/AlphaWalletFoundation/KeyManagement/ @hboon @oa-s
+HDWallet+Extension.swift @hboon @oa-s
+
+# Key backup
+BackupSeedPhraseCoordinator.swift @hboon @oa-s
+ShowSeedPhraseViewController.swift @hboon @oa-s
+ShowSeedPhraseViewModel.swift @hboon @oa-s
 
 # Dapp browser related
 BrowserViewController.swift @hboon @oa-s
