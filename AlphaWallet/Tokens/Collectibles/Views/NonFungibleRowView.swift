@@ -40,7 +40,7 @@ class NonFungibleRowView: TokenCardViewRepresentable {
     private var gridEdgeInsets: UIEdgeInsets
     private var listEdgeInsets: UIEdgeInsets
 
-    init(layout: GridOrListSelectionState, gridEdgeInsets: UIEdgeInsets = .zero, listEdgeInsets: UIEdgeInsets = .init(top: 0, left: 16, bottom: 0, right: 16)) {
+    init(layout: GridOrListLayout, gridEdgeInsets: UIEdgeInsets = .zero, listEdgeInsets: UIEdgeInsets = .init(top: 0, left: 16, bottom: 0, right: 16)) {
         self.gridEdgeInsets = gridEdgeInsets
         self.listEdgeInsets = listEdgeInsets
         super.init(frame: .zero)
@@ -60,7 +60,7 @@ class NonFungibleRowView: TokenCardViewRepresentable {
         configureLayout(layout: layout)
     }
 
-    func configureLayout(layout: GridOrListSelectionState) {
+    func configureLayout(layout: GridOrListLayout) {
         for each in subviews { each.removeFromSuperview() }
         NSLayoutConstraint.deactivate(_constraints)
 

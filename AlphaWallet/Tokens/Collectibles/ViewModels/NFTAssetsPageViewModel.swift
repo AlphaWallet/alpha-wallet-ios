@@ -14,29 +14,20 @@ struct NFTAssetsPageViewModelInput {
 }
 
 struct NFTAssetsPageViewModelOutput {
-    let selection: AnyPublisher<GridOrListSelectionState, Never>
+    let layout: AnyPublisher<GridOrListLayout, Never>
     let viewState: AnyPublisher<NFTAssetsPageViewModel.ViewState, Never>
 }
 
 final class NFTAssetsPageViewModel {
-
-    enum AssetsSection: Int, Hashable, CaseIterable {
-        case assets
-    }
-    
-    var title: String {
-        return R.string.localizable.semifungiblesAssetsTitle()
-    }
-
-    var backgroundColor: UIColor {
-        Configuration.Color.Semantic.defaultViewBackground
-    }
-
-    private let selectionSubject: CurrentValueSubject<GridOrListSelectionState, Never>
-    var selection: GridOrListSelectionState { selectionSubject.value }
+    private let layoutSubject: CurrentValueSubject<GridOrListLayout, Never>
     private let token: Token
     private let assetDefinitionStore: AssetDefinitionStore
     private let searchFilterSubject = CurrentValueSubject<ActivityOrTransactionFilter, Never>(.keyword(nil))
+    private let tokenHolders: AnyPublisher<[TokenHolder], Never>
+
+    var layout: GridOrListLayout { layoutSubject.value }
+    var title: String { R.string.localizable.semifungiblesAssetsTitle() }
+    var backgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground
 
     var spacingForGridLayout: CGFloat {
         switch token.type {
@@ -95,17 +86,15 @@ final class NFTAssetsPageViewModel {
         }
     }
 
-    private let tokenHolders: AnyPublisher<[TokenHolder], Never>
-
-    init(token: Token, assetDefinitionStore: AssetDefinitionStore, tokenHolders: AnyPublisher<[TokenHolder], Never>, selection: GridOrListSelectionState) {
+    init(token: Token, assetDefinitionStore: AssetDefinitionStore, tokenHolders: AnyPublisher<[TokenHolder], Never>, layout: GridOrListLayout) {
         self.tokenHolders = tokenHolders
-        self.selectionSubject = .init(selection)
+        self.layoutSubject = .init(layout)
         self.assetDefinitionStore = assetDefinitionStore
         self.token = token
     }
 
-    func set(selection: GridOrListSelectionState) {
-        selectionSubject.send(selection)
+    func set(layout: GridOrListLayout) {
+        layoutSubject.send(layout)
     }
 
     func set(searchFilter: ActivityOrTransactionFilter) {
@@ -114,18 +103,30 @@ final class NFTAssetsPageViewModel {
 
     func transform(input: NFTAssetsPageViewModelInput) -> NFTAssetsPageViewModelOutput {
         let filterWhenAppear = input.appear.map { [searchFilterSubject] _ in searchFilterSubject.value }
+        let filter = Publishers.Merge(searchFilterSubject, filterWhenAppear)
 
-        let sections = Publishers.CombineLatest(tokenHolders, filterWhenAppear.merge(with: searchFilterSubject))
-            .compactMap { [weak self] tokenHolders, filter in self?.filter(filter, tokenHolders: tokenHolders) }
+        let assets = Publishers.CombineLatest(tokenHolders, filter)
+            .map { self.filter($1, tokenHolders: $0) }
             .map { [SectionViewModel(section: .assets, views: $0)] }
 
-        let viewState = sections
-            .map { sections in NFTAssetsPageViewModel.ViewState(animatingDifferences: true, sections: sections) }
+        let viewState = assets
+            .map { self.buildSnapshot(for: $0) }
+            .map { NFTAssetsPageViewModel.ViewState(animatingDifferences: true, snapshot: $0) }
             .eraseToAnyPublisher()
 
-        let selection = selectionSubject.removeDuplicates().eraseToAnyPublisher()
+        let layout = layoutSubject.removeDuplicates().eraseToAnyPublisher()
 
-        return .init(selection: selection, viewState: viewState)
+        return .init(layout: layout, viewState: viewState)
+    }
+
+    private func buildSnapshot(for viewModels: [NFTAssetsPageViewModel.SectionViewModel]) -> NFTAssetsPageViewModel.Snapshot {
+        var snapshot = NSDiffableDataSourceSnapshot<NFTAssetsPageViewModel.Section, TokenHolder>()
+        let sections = viewModels.map { $0.section }
+        snapshot.appendSections(sections)
+        for each in viewModels {
+            snapshot.appendItems(each.views, toSection: each.section)
+        }
+        return snapshot
     }
 
     private func title(for tokenHolder: TokenHolder) -> String {
@@ -155,13 +156,19 @@ final class NFTAssetsPageViewModel {
 }
 
 extension NFTAssetsPageViewModel {
+    typealias Snapshot = NSDiffableDataSourceSnapshot<NFTAssetsPageViewModel.Section, TokenHolder>
+
     struct ViewState {
         let animatingDifferences: Bool
-        let sections: [SectionViewModel]
+        let snapshot: NFTAssetsPageViewModel.Snapshot
     }
 
     struct SectionViewModel {
-        let section: NFTAssetsPageViewModel.AssetsSection
+        let section: NFTAssetsPageViewModel.Section
         let views: [TokenHolder]
+    }
+
+    enum Section: Int, Hashable, CaseIterable {
+        case assets
     }
 }

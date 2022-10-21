@@ -360,14 +360,14 @@ extension NFTCollectionCoordinator: NFTCollectionViewControllerDelegate {
     }
 
     func didSelectTokenHolder(in viewController: NFTCollectionViewController, didSelectTokenHolder tokenHolder: TokenHolder) {
-        showNFTAsset(tokenHolder: tokenHolder, navigationController: viewController.navigationController)
+        showNftAsset(tokenHolder: tokenHolder, navigationController: viewController.navigationController)
     }
 
-    func showNFTAsset(tokenHolder: TokenHolder, mode: TokenInstanceViewMode = .interactive) {
-        showNFTAsset(tokenHolder: tokenHolder, mode: mode, navigationController: navigationController)
+    func showNftAsset(tokenHolder: TokenHolder, mode: TokenInstanceViewMode = .interactive) {
+        showNftAsset(tokenHolder: tokenHolder, mode: mode, navigationController: navigationController)
     }
 
-    private func showNFTAsset(tokenHolder: TokenHolder, mode: TokenInstanceViewMode = .interactive, navigationController: UINavigationController?) {
+    private func showNftAsset(tokenHolder: TokenHolder, mode: TokenInstanceViewMode = .interactive, navigationController: UINavigationController?) {
         let vc: UIViewController
         switch tokenHolder.type {
         case .collectible:
@@ -421,12 +421,9 @@ extension NFTCollectionCoordinator: NFTCollectionViewControllerDelegate {
 }
 
 extension NFTCollectionCoordinator: NFTAssetListViewControllerDelegate {
-    func selectTokenCardsSelected(in viewController: NFTAssetListViewController) {
-        showTokenCardSelection(tokenHolders: [viewController.tokenHolder])
-    }
 
-    func didSelectTokenCard(in viewController: NFTAssetListViewController, tokenId: TokenId) {
-        let vc = createNFTAssetViewController(tokenHolder: viewController.tokenHolder, tokenId: tokenId)
+    func didSelectTokenCard(in viewController: NFTAssetListViewController, tokenHolder: AlphaWalletFoundation.TokenHolder, tokenId: AlphaWalletFoundation.TokenId) {
+        let vc = createNFTAssetViewController(tokenHolder: tokenHolder, tokenId: tokenId)
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
 }

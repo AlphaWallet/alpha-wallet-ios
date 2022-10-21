@@ -143,8 +143,8 @@ class NFTAssetViewModel {
     }
 
     private func configure(overiddenOpenSeaStats: Stats?) {
-        self.tokenHolderHelper.overridenFloorPrice = overiddenOpenSeaStats?.floorPrice
-        self.tokenHolderHelper.overridenItemsCount = overiddenOpenSeaStats?.itemsCount
+        tokenHolderHelper.overridenFloorPrice = overiddenOpenSeaStats?.floorPrice
+        tokenHolderHelper.overridenItemsCount = overiddenOpenSeaStats?.itemsCount
     }
 
     var actions: [TokenInstanceAction] {

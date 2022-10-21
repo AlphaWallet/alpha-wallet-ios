@@ -78,8 +78,6 @@ class NFTCollectionViewController: UIViewController {
 
         super.init(nibName: nil, bundle: nil)
 
-        hidesBottomBarWhenPushed = true
-
         let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar)
         let pageWithFooter = PageViewWithFooter(pageView: collectionInfoPageView, footerBar: footerBar)
         let pages: [PageViewType] = [pageWithFooter, nftAssetsPageView, activitiesPageView]
@@ -89,9 +87,10 @@ class NFTCollectionViewController: UIViewController {
         view.addSubview(containerView)
         NSLayoutConstraint.activate([containerView.anchorsConstraint(to: view)])
 
-        navigationItem.largeTitleDisplayMode = .never
-
         keyboardChecker.constraints = containerView.bottomAnchorConstraints
+        navigationItem.largeTitleDisplayMode = .never
+        hidesBottomBarWhenPushed = true
+
         configure(nftAssetsPageView: nftAssetsPageView, viewModel: viewModel)
     }
 
@@ -102,8 +101,8 @@ class NFTCollectionViewController: UIViewController {
         case .assetSelection(let isEnabled):
             nftAssetsPageView.rightBarButtonItem = UIBarButtonItem.selectBarButton(self, selector: #selector(assetSelectionSelected))
             nftAssetsPageView.rightBarButtonItem?.isEnabled = isEnabled
-        case .assetsDisplayType(let selection):
-            let buttonItem = UIBarButtonItem.switchGridToListViewBarButton(selection: selection, self, selector: #selector(assetsDisplayTypeSelected))
+        case .assetsDisplayType(let layout):
+            let buttonItem = UIBarButtonItem.switchGridToListViewBarButton(gridOrListLayout: layout, self, selector: #selector(assetsDisplayTypeSelected))
 
             nftAssetsPageView.rightBarButtonItem = buttonItem
         }
@@ -250,8 +249,7 @@ extension NFTCollectionViewController: PagesContainerViewDelegate {
     }
 
     @objc private func assetsDisplayTypeSelected(_ sender: UIBarButtonItem) {
-        let selection = nftAssetsPageView.viewModel.selection
-        nftAssetsPageView.viewModel.set(selection: sender.selection ?? selection)
+        nftAssetsPageView.viewModel.set(layout: sender.gridOrListLayout ?? nftAssetsPageView.viewModel.layout)
         sender.toggleSelection()
     }
 }

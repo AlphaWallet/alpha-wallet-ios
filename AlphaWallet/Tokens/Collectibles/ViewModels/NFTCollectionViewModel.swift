@@ -52,7 +52,7 @@ final class NFTCollectionViewModel {
         return NFTCollectionInfoPageViewModel(token: token, previewViewType: previewViewType, tokenHolder: tokenHolder, tokenId: tokenId, tokenHolders: tokenHolders.eraseToAnyPublisher(), nftProvider: nftProvider)
     }()
 
-    private (set) lazy var nftAssetsPageViewModel = NFTAssetsPageViewModel(token: token, assetDefinitionStore: assetDefinitionStore, tokenHolders: tokenHolders.eraseToAnyPublisher(), selection: .list)
+    private (set) lazy var nftAssetsPageViewModel = NFTAssetsPageViewModel(token: token, assetDefinitionStore: assetDefinitionStore, tokenHolders: tokenHolders.eraseToAnyPublisher(), layout: .list)
 
     init(token: Token, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, tokensService: TokenViewModelState & TokenHolderState, activitiesService: ActivitiesServiceType, nftProvider: NFTProvider) {
         self.activitiesService = activitiesService
@@ -89,7 +89,7 @@ final class NFTCollectionViewModel {
 
         let actions = tokenHolders.compactMap { $0.first }
             .map {
-                return $0.values.collectionValue.flatMap { collection -> URL? in
+                $0.values.collectionValue.flatMap { collection -> URL? in
                     guard collection.slug.trimmed.nonEmpty else { return nil }
                     return URL(string: "https://opensea.io/collection/\(collection.slug)")
                 }
@@ -101,14 +101,14 @@ final class NFTCollectionViewModel {
         let viewState = Publishers.CombineLatest3(title, tokenHolders, actions)
             .map { title, tokenHolders, actions in
                 NFTCollectionViewModel.ViewState(title: title, actions: actions, tokenHolders: tokenHolders)
-            }
+            }.eraseToAnyPublisher()
 
         let activities = activitiesService.activitiesPublisher
             .receive(on: RunLoop.main)
             .map { ActivityPageViewModel(activitiesViewModel: .init(collection: .init(activities: $0))) }
             .eraseToAnyPublisher()
 
-        return .init(viewState: viewState.eraseToAnyPublisher(), activities: activities, pullToRefreshState: fakePullToRefreshState)
+        return .init(viewState: viewState, activities: activities, pullToRefreshState: fakePullToRefreshState)
     }
 
     var rightBarButtonItem: NFTCollectionViewModel.RightBarButtonItem {
@@ -121,7 +121,7 @@ final class NFTCollectionViewModel {
                 return .assetSelection(isEnabled: Config().development.shouldPretendIsRealWallet)
             }
         case .erc721, .erc721ForTickets, .erc875:
-            return .assetsDisplayType(selection: nftAssetsPageViewModel.selection.inverted)
+            return .assetsDisplayType(layout: nftAssetsPageViewModel.layout.inverted)
         case .erc20, .nativeCryptocurrency:
             return .none
         }
@@ -141,7 +141,7 @@ extension NFTCollectionViewModel {
 
     enum RightBarButtonItem {
         case assetSelection(isEnabled: Bool)
-        case assetsDisplayType(selection: GridOrListSelectionState)
+        case assetsDisplayType(layout: GridOrListLayout)
         case none
     }
 }

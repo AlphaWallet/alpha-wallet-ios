@@ -36,7 +36,7 @@ class NFTAssetSelectionViewModel {
         }
     }
     var headerBackgroundColor: UIColor = Colors.appWhite
-    let actions: [NFTAssetSelectionViewController.ToolbarAction] = [.clear, .selectAll, .send]
+    let actions: [NFTAssetSelectionViewModel.ToolbarAction] = [.clear, .selectAll, .send]
 
     var title: String {
         if tokenSelectionCount > 0 {
@@ -46,11 +46,11 @@ class NFTAssetSelectionViewModel {
         }
     }
 
-    var backgroundColor: UIColor = GroupedTable.Color.background
+    var backgroundColor: UIColor = Configuration.Color.Semantic.tableViewBackground
 
     var isSearchActive: Bool = false
 
-    func isActionEnabled(_ action: NFTAssetSelectionViewController.ToolbarAction) -> Bool {
+    func isActionEnabled(_ action: NFTAssetSelectionViewModel.ToolbarAction) -> Bool {
         switch action {
         case .clear, .selectAll:
             return true
@@ -58,6 +58,7 @@ class NFTAssetSelectionViewModel {
             return tokenHolders.contains(where: { $0.totalSelectedCount > 0 })
         }
     }
+
     var numberOfSections: Int {
         filteredTokenHolders.count
     }
@@ -98,9 +99,7 @@ class NFTAssetSelectionViewModel {
     }
 
     func selectAllTokens() -> [IndexPath] {
-        filteredTokenHolders.enumerated().flatMap { pair -> [IndexPath] in
-            selectAllTokens(for: pair.offset)
-        }
+        filteredTokenHolders.enumerated().flatMap { selectAllTokens(for: $0.offset) }
     }
 
     func unselectAll() -> [IndexPath] {
@@ -135,6 +134,33 @@ class NFTAssetSelectionViewModel {
 
 extension NFTAssetSelectionViewModel {
     class functional { }
+
+    enum ToolbarAction: CaseIterable {
+        var isEnabled: Bool {
+            return true
+        }
+
+        case clear
+        case selectAll
+        case sell
+        case deal
+        case send
+
+        var title: String {
+            switch self {
+            case .clear:
+                return R.string.localizable.semifungiblesToolbarClear()
+            case .selectAll:
+                return R.string.localizable.semifungiblesToolbarSelectAll()
+            case .sell:
+                return R.string.localizable.semifungiblesToolbarSell()
+            case .deal:
+                return R.string.localizable.semifungiblesToolbarDeal()
+            case .send:
+                return R.string.localizable.semifungiblesToolbarSend()
+            }
+        }
+    }
 }
 
 extension NFTAssetSelectionViewModel.functional {
@@ -147,7 +173,7 @@ extension NFTAssetSelectionViewModel.functional {
             keyword = keyword.lowercased()
 
             return tokenHolders.compactMap { tokenHolder -> TokenHolderWithItsTokenIds? in
-                let subTokens = tokenHolder.tokens.filter({ $0.name.lowercased().contains(keyword) })
+                let subTokens = tokenHolder.tokens.filter { $0.name.lowercased().contains(keyword) }
                 if subTokens.isEmpty {
                     if tokenHolder.name.contains(keyword) {
                         return TokenHolderWithItsTokenIds(tokenHolder: tokenHolder, tokensIds: [])

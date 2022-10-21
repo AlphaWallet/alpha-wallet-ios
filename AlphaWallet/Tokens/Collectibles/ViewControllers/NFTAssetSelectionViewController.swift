@@ -8,42 +8,20 @@
 import UIKit
 import StatefulViewController
 import AlphaWalletFoundation
+import Combine
 
-extension NFTAssetSelectionViewController {
-    enum ToolbarAction: CaseIterable {
-        var isEnabled: Bool {
-            return true
-        }
-
-        case clear
-        case selectAll
-        case sell
-        case deal
-        case send
-        
-        var title: String {
-            switch self {
-            case .clear:
-                return R.string.localizable.semifungiblesToolbarClear()
-            case .selectAll:
-                return R.string.localizable.semifungiblesToolbarSelectAll()
-            case .sell:
-                return R.string.localizable.semifungiblesToolbarSell()
-            case .deal:
-                return R.string.localizable.semifungiblesToolbarDeal()
-            case .send:
-                return R.string.localizable.semifungiblesToolbarSend()
-            }
-        }
-    }
-}
 protocol NFTAssetSelectionViewControllerDelegate: class {
     func didTapSend(in viewController: NFTAssetSelectionViewController, token: Token, tokenHolders: [TokenHolder])
 }
 
 class NFTAssetSelectionViewController: UIViewController {
     private var viewModel: NFTAssetSelectionViewModel
-    private let searchController: UISearchController
+    private lazy var searchController: UISearchController = {
+        let searchController = UISearchController(searchResultsController: nil)
+        searchController.delegate = self
+
+        return searchController
+    }()
     private var isSearchBarConfigured = false
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
@@ -52,7 +30,6 @@ class NFTAssetSelectionViewController: UIViewController {
         tableView.dataSource = self
         tableView.estimatedRowHeight = 100
         tableView.delegate = self
-        tableView.dataSource = self
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.separatorInset = .zero
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -61,46 +38,47 @@ class NFTAssetSelectionViewController: UIViewController {
 
         return tableView
     }()
-    private var bottomConstraint: NSLayoutConstraint!
-    private var specialKeyboardBottomInset: CGFloat {
-        return footerBar.height
-    }
-    private lazy var keyboardChecker = KeyboardChecker(self, resetHeightDefaultValue: 0, buttonsBarHeight: specialKeyboardBottomInset)
+    private lazy var bottomConstraint: NSLayoutConstraint = {
+        return tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+    }()
+    private lazy var keyboardChecker: KeyboardChecker = {
+        let keyboardChecker = KeyboardChecker(self, resetHeightDefaultValue: 0, ignoreBottomSafeArea: true)
+        keyboardChecker.constraints = [bottomConstraint]
+        return keyboardChecker
+    }()
     private let toolbar = ToolButtonsBarView()
-    private let roundedBackground = RoundedBackground()
-    private lazy var footerBar = ButtonsBarBackgroundView(buttonsBar: toolbar, edgeInsets: .init(top: 0, left: 0, bottom: 40, right: 0))
+
+    private lazy var footerBar = ButtonsBarBackgroundView(buttonsBar: toolbar)
     private let tokenCardViewFactory: TokenCardViewFactory
+    private var cancellable = Set<AnyCancellable>()
+
     weak var delegate: NFTAssetSelectionViewControllerDelegate?
 
     init(viewModel: NFTAssetSelectionViewModel, tokenCardViewFactory: TokenCardViewFactory) {
         self.tokenCardViewFactory = tokenCardViewFactory
         self.viewModel = viewModel
-        searchController = UISearchController(searchResultsController: nil)
         super.init(nibName: nil, bundle: nil)
-        hidesBottomBarWhenPushed = true
-        searchController.delegate = self
-        roundedBackground.translatesAutoresizingMaskIntoConstraints = false
 
-        view.addSubview(roundedBackground)
-
-        roundedBackground.addSubview(tableView)
-        roundedBackground.addSubview(footerBar)
-
-        bottomConstraint = tableView.bottomAnchor.constraint(equalTo: footerBar.topAnchor)
-        keyboardChecker.constraints = [bottomConstraint]
+        view.addSubview(tableView)
+        view.addSubview(footerBar)
 
         NSLayoutConstraint.activate([
             footerBar.anchorsConstraint(to: view),
 
-            tableView.topAnchor.constraint(equalTo: roundedBackground.safeAreaLayoutGuide.topAnchor),
-            tableView.leadingAnchor.constraint(equalTo: roundedBackground.safeAreaLayoutGuide.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: roundedBackground.safeAreaLayoutGuide.trailingAnchor),
+            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
             bottomConstraint
-        ] + roundedBackground.createConstraintsWithContainer(view: view))
+        ])
 
         configure(viewModel: viewModel)
 
         toolbar.viewController = self
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        bind(viewModel: viewModel)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -127,6 +105,18 @@ class NFTAssetSelectionViewController: UIViewController {
         startLoading(animated: false)
         tableView.reloadData()
         endLoading(animated: false)
+    }
+
+    private func bind(viewModel: NFTAssetSelectionViewModel) {
+        keyboardChecker.publisher
+            .map { $0.isVisible }
+            .prepend(false)
+            .map { [footerBar] in $0 ? UIEdgeInsets.zero : UIEdgeInsets(top: 0, left: 0, bottom: footerBar.height, right: 0) }
+            .removeDuplicates()
+            .sink { [tableView] in
+                tableView.contentInset = $0
+                tableView.scrollIndicatorInsets = $0
+            }.store(in: &cancellable)
     }
 
     private func configure(viewModel: NFTAssetSelectionViewModel) {

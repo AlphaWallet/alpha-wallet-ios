@@ -7,7 +7,7 @@
 
 import UIKit
 
-enum GridOrListSelectionState: Int {
+enum GridOrListLayout: Int {
     case grid
     case list
 
@@ -20,7 +20,7 @@ enum GridOrListSelectionState: Int {
         }
     }
 
-    var inverted: GridOrListSelectionState {
+    var inverted: GridOrListLayout {
         switch self {
         case .list:
             return .grid
@@ -42,18 +42,18 @@ enum GridOrListSelectionState: Int {
 extension UIBarButtonItem {
 
     func toggleSelection() {
-        guard var selection = selection else { return }
-        selection.toggle()
+        guard var gridOrListLayout = gridOrListLayout else { return }
+        gridOrListLayout.toggle()
 
-        self.selection = selection
-        image = self.selection?.image
+        self.gridOrListLayout = gridOrListLayout
+        image = self.gridOrListLayout?.image
     }
 
-    static func switchGridToListViewBarButton(selection: GridOrListSelectionState = .grid, _ target: AnyObject, selector: Selector) -> UIBarButtonItem {
+    static func switchGridToListViewBarButton(gridOrListLayout: GridOrListLayout = .grid, _ target: AnyObject, selector: Selector) -> UIBarButtonItem {
         let sender = UIBarButtonItem(image: nil, style: .plain, target: target, action: selector)
-        sender.selection = selection
+        sender.gridOrListLayout = gridOrListLayout
 
-        sender.image = sender.selection?.image
+        sender.image = sender.gridOrListLayout?.image
         sender.selectionClosure = { [weak target] sender in
             guard let target = target else { return }
             target.performSelector(onMainThread: selector, with: sender, waitUntilDone: false)
@@ -139,9 +139,9 @@ extension UIBarButtonItem {
         }
     }
 
-    var selection: GridOrListSelectionState? {
+    var gridOrListLayout: GridOrListLayout? {
         get {
-            return objc_getAssociatedObject(self, &AssociatedObject.selectionState) as? GridOrListSelectionState
+            return objc_getAssociatedObject(self, &AssociatedObject.selectionState) as? GridOrListLayout
         }
         set {
             objc_setAssociatedObject(self, &AssociatedObject.selectionState, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
