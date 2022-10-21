@@ -79,7 +79,7 @@ class ShowSeedPhraseIntroductionViewController: UIViewController {
     }
 
     private func configure() {
-        view.backgroundColor = Colors.appBackground
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
 
         subtitleLabel.numberOfLines = 0
         subtitleLabel.attributedText = viewModel.attributedSubtitle
