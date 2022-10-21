@@ -20,7 +20,7 @@ class SupportViewController: UIViewController {
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.register(SettingTableViewCell.self)
         tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = GroupedTable.Color.background
+        tableView.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         tableView.dataSource = self
         tableView.delegate = self
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -35,7 +35,7 @@ class SupportViewController: UIViewController {
         self.analytics = analytics
         super.init(nibName: nil, bundle: nil)
 
-        roundedBackground.backgroundColor = GroupedTable.Color.background
+        roundedBackground.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
 
         view.addSubview(roundedBackground)
         roundedBackground.addSubview(tableView)
@@ -68,7 +68,7 @@ extension SupportViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         cell.configure(viewModel: viewModel.cellViewModel(indexPath: indexPath))
-
+        cell.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         return cell
     }
 }
