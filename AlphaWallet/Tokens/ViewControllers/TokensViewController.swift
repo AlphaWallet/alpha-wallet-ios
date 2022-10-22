@@ -258,47 +258,48 @@ final class TokensViewController: UIViewController {
 
         let output = viewModel.transform(input: input)
 
-        dataSource.numberOfRowsInSection.sink { [weak self, viewModel] section in
-            guard viewModel.sections[section] == .tokens || viewModel.sections[section] == .collectiblePairs else { return }
-            self?.handleTokensCountChange(rows: viewModel.numberOfItems(for: section))
-        }.store(in: &cancellable)
+        dataSource.numberOfRowsInSection
+            .sink { [weak self, viewModel] section in
+                guard viewModel.sections[section] == .tokens || viewModel.sections[section] == .collectiblePairs else { return }
+                self?.handleTokensCountChange(rows: viewModel.numberOfItems(for: section))
+            }.store(in: &cancellable)
 
-        output.viewState.sink { [weak self, weak walletSummaryView, blockieImageView, navigationItem] state in
-            self?.showOrHideBackupWalletViewHolder()
-            
-            walletSummaryView?.configure(viewModel: .init(walletSummary: state.summary, config: viewModel.config, alignment: .center))
-            blockieImageView.setBlockieImage(image: state.blockiesImage)
+        output.viewState
+            .sink { [weak self, weak walletSummaryView, blockieImageView, navigationItem] state in
+                self?.showOrHideBackupWalletViewHolder()
 
-            navigationItem.title = state.title
-            self?.isConsoleButtonHidden = state.isConsoleButtonHidden
-            self?.footerBar.isHidden = state.isFooterHidden
-            self?.applySnapshot(with: state.sections, animate: false)
-        }.store(in: &cancellable)
+                walletSummaryView?.configure(viewModel: .init(walletSummary: state.summary, config: viewModel.config, alignment: .center))
+                blockieImageView.setBlockieImage(image: state.blockiesImage)
 
-        output.deletion.sink { [dataSource] indexPaths in
-            var snapshot = dataSource.snapshot()
+                navigationItem.title = state.title
+                self?.isConsoleButtonHidden = state.isConsoleButtonHidden
+                self?.footerBar.isHidden = state.isFooterHidden
+                self?.applySnapshot(with: state.sections, animate: false)
+            }.store(in: &cancellable)
 
-            let ids = indexPaths.compactMap { dataSource.itemIdentifier(for: $0) }
-            snapshot.deleteItems(ids)
+        output.deletion
+            .sink { [dataSource] indexPaths in
+                var snapshot = dataSource.snapshot()
 
-            dataSource.apply(snapshot, animatingDifferences: true)
-        }.store(in: &cancellable)
+                let ids = indexPaths.compactMap { dataSource.itemIdentifier(for: $0) }
+                snapshot.deleteItems(ids)
 
-        output.pullToRefreshState.sink { [refreshControl] state in
-            switch state {
-            case .idle:
-                break
-            case .endLoading:
-                refreshControl.endRefreshing()
-            case .beginLoading:
-                refreshControl.beginRefreshing()
-            }
-        }.store(in: &cancellable)
+                dataSource.apply(snapshot, animatingDifferences: true)
+            }.store(in: &cancellable)
 
-        output.selection.sink { [weak self] token in
-            guard let strongSelf = self else { return }
-            strongSelf.delegate?.didSelect(token: token, in: strongSelf)
-        }.store(in: &cancellable)
+        output.pullToRefreshState
+            .sink { [refreshControl] state in
+                switch state {
+                case .endLoading: refreshControl.endRefreshing()
+                case .beginLoading: refreshControl.beginRefreshing()
+                }
+            }.store(in: &cancellable)
+
+        output.selection
+            .sink { [weak self] token in
+                guard let strongSelf = self else { return }
+                strongSelf.delegate?.didSelect(token: token, in: strongSelf)
+            }.store(in: &cancellable)
 
         output.applyTableInset
             .map { [footerBar] hasInset -> UIEdgeInsets in

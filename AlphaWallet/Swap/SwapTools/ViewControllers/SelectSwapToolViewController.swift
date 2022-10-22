@@ -69,7 +69,7 @@ final class SelectSwapToolViewController: UIViewController {
         output.viewState
             .sink { [weak self] state in
                 self?.navigationItem.title = state.title
-                self?.dataSource.apply(state.tools, animatingDifferences: false)
+                self?.dataSource.apply(state.snapshot, animatingDifferences: false)
                 self?.endLoading()
             }.store(in: &cancelable)
     }

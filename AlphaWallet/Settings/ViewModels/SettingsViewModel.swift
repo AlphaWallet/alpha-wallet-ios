@@ -13,8 +13,7 @@ struct SettingsViewModelInput {
 }
 
 struct SettingsViewModelOutput {
-    let viewModels: AnyPublisher<[SettingsViewModel.SectionViewModel], Never>
-    let badgeValue: AnyPublisher<String?, Never>
+    let viewState: AnyPublisher<SettingsViewModel.ViewState, Never>
     let askToSetPasscode: AnyPublisher<Void, Never>
 }
 
@@ -98,8 +97,8 @@ final class SettingsViewModel {
 
         let reload = Publishers.Merge4(Just<Void>(()), input.appear, didSetPasscode, assignedNameOrEns)
 
-        let viewModels = Publishers.CombineLatest(reload, blockscanChatUnreadCount)
-            .map { [unowned self, account, keystore] _, blockscanChatUnreadCount -> [SettingsViewModel.SectionViewModel] in
+        let snapshot = Publishers.CombineLatest(reload, blockscanChatUnreadCount)
+            .map { [account, keystore] _, blockscanChatUnreadCount -> [SettingsViewModel.SectionViewModel] in
                 let sections = SettingsViewModel.functional.computeSections(account: account, keystore: keystore, blockscanChatUnreadCount: blockscanChatUnreadCount)
                 return sections.indices.map { sectionIndex -> SettingsViewModel.SectionViewModel in
                     var views: [ViewType] = []
@@ -116,9 +115,8 @@ final class SettingsViewModel {
 
                     return .init(section: sections[sectionIndex], views: views)
                 }
-            }.handleEvents(receiveOutput: { [unowned self] viewModels in
-                self.sections = viewModels.map { $0.section }
-            }).eraseToAnyPublisher()
+            }.handleEvents(receiveOutput: { self.sections = $0.map { $0.section } })
+            .map { self.buildSnapshot(for: $0) }
 
         let badgeValue = blockscanChatUnreadCount
             .map { value -> String? in
@@ -127,9 +125,24 @@ final class SettingsViewModel {
                 } else {
                     return nil
                 }
-            }.removeDuplicates().eraseToAnyPublisher()
+            }.removeDuplicates()
 
-        return .init(viewModels: viewModels, badgeValue: badgeValue, askToSetPasscode: askToSetPasscode)
+        let viewState = Publishers.CombineLatest(snapshot, badgeValue)
+            .map { SettingsViewModel.ViewState(snapshot: $0, badge: $1) }
+            .eraseToAnyPublisher()
+
+        return .init(viewState: viewState, askToSetPasscode: askToSetPasscode)
+    }
+
+    private func buildSnapshot(for viewModels: [SettingsViewModel.SectionViewModel]) -> SettingsViewModel.Snapshot {
+        var snapshot = NSDiffableDataSourceSnapshot<SettingsSection, SettingsViewModel.ViewType>()
+        let sections = viewModels.map { $0.section }
+        snapshot.appendSections(sections)
+        for each in viewModels {
+            snapshot.appendItems(each.views, toSection: each.section)
+        }
+
+        return snapshot
     }
 
     private func addressReplacedWithENSOrWalletName(_ ensOrWalletName: String? = nil) -> String {
@@ -183,6 +196,13 @@ extension SettingsViewModel {
         case cell(SettingTableViewCellViewModel)
         case undefined
     }
+
+    struct ViewState {
+        let snapshot: SettingsViewModel.Snapshot
+        let badge: String?
+    }
+
+    typealias Snapshot = NSDiffableDataSourceSnapshot<SettingsSection, SettingsViewModel.ViewType>
 }
 
 extension SettingsViewModel.SectionViewModel: Equatable {

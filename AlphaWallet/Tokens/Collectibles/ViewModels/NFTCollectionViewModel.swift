@@ -19,7 +19,7 @@ struct NFTCollectionViewModelInput {
 struct NFTCollectionViewModelOutput {
     let viewState: AnyPublisher<NFTCollectionViewModel.ViewState, Never>
     let activities: AnyPublisher<ActivityPageViewModel, Never>
-    let pullToRefreshState: AnyPublisher<TokensViewModel.PullToRefreshState, Never>
+    let pullToRefreshState: AnyPublisher<TokensViewModel.RefreshControlState, Never>
 }
 
 final class NFTCollectionViewModel {
@@ -75,7 +75,13 @@ final class NFTCollectionViewModel {
 
         let fakePullToRefreshState = Just<TokensViewModel.PullToRefreshState>(TokensViewModel.PullToRefreshState.idle)
             .merge(with: beginLoading, loadingHasEnded)
-            .eraseToAnyPublisher()
+            .compactMap { state -> TokensViewModel.RefreshControlState? in
+                switch state {
+                case .idle: return nil
+                case .endLoading: return .endLoading
+                case .beginLoading: return .beginLoading
+                }
+            }.eraseToAnyPublisher()
 
         let whenPullToRefresh = loadingHasEnded.map { [token] _ in token }
             .compactMap { [tokensService] in tokensService.tokenHolders(for: $0) }

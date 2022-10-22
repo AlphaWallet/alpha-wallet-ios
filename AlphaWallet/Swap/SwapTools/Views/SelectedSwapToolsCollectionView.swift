@@ -67,7 +67,7 @@ final class SelectedSwapToolsCollectionView: UIView {
 
         output.viewState
             .sink { [weak self] in
-                self?.dataSource.apply($0.tools, animatingDifferences: false)
+                self?.dataSource.apply($0.snapshot, animatingDifferences: false)
                 self?.collectionView.flashScrollIndicators()
                 self?.endLoading()
             }.store(in: &cancelable)
