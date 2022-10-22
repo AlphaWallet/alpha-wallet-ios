@@ -25,18 +25,7 @@ enum ViewRounding {
     case circle
     case custom(CGFloat)
 
-    func cornerRadius(view: UIView) -> Radius {
-        switch self {
-        case .none:
-            return .point(0)
-        case .circle:
-            return .heightFraction(0.5)// view.bounds.width / 2
-        case .custom(let cGFloat):
-            return .point(cGFloat * 10)
-        }
-    }
-
-    func cornerRadius2(view: UIView) -> CGFloat {
+    func cornerRadius(view: UIView) -> CGFloat {
         switch self {
         case .none:
             return 0

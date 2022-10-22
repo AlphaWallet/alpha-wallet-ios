@@ -22,7 +22,9 @@ private let svgImageViewSharedConfiguration: WKWebViewConfiguration = {
 final class SvgImageView: WKWebView {
     private var pendingLoadWebViewOperation: BlockOperation?
     private (set) var pageHasLoaded: Bool = false
-    var rounding: ViewRounding = .none
+    var rounding: ViewRounding = .none {
+        didSet { layoutSubviews() }
+    }
 
     init() {
         //NOTE: set initial frame to avoid `[ViewportSizing] maximumViewportInset cannot be larger than frame`
@@ -34,6 +36,10 @@ final class SvgImageView: WKWebView {
         contentMode = .scaleAspectFit
         clipsToBounds = true
         navigationDelegate = self
+
+        isOpaque = false
+        backgroundColor = Configuration.Color.Semantic.defaultViewBackground
+        scrollView.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
     }
 
     func setImage(url: URL, completion: @escaping () -> Void) {
@@ -70,14 +76,7 @@ final class SvgImageView: WKWebView {
     override func layoutSubviews() {
         super.layoutSubviews()
 
-        switch rounding {
-        case .none:
-            cornerRadius = 0
-        case .circle:
-            cornerRadius = bounds.width / 2
-        case .custom(let radius):
-            cornerRadius = radius
-        }
+        cornerRadius = rounding.cornerRadius(view: self)
     }
 
     required init?(coder: NSCoder) {
@@ -131,11 +130,11 @@ extension SvgImageView {
                         height: inherit;
                         max-width: 100%;
                         max-height: 100%;
-                        border-radius: \(Int(rounding.cornerRadius2(view: self)))px;
+                        border-radius: \(Int(rounding.cornerRadius(view: self)))px;
                     }
 
                     div > * {
-                        border-radius: \(Int(rounding.cornerRadius2(view: self)))px;
+                        border-radius: \(Int(rounding.cornerRadius(view: self)))px;
                     }
                 </style>
             </head>
