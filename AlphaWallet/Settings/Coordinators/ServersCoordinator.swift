@@ -35,6 +35,7 @@ class ServersCoordinator: Coordinator {
             .arbitrumGoerli,
             .optimistic,
             .optimisticKovan,
+            .cronosMainnet,
             .cronosTestnet,
             .arbitrum,
             .arbitrumRinkeby,
