@@ -14,14 +14,12 @@ public class LegacyFileBasedKeystore {
     private let securedStorage: SecuredStorage
     private let datadir = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
     private let keyStore: LegacyKeyStore
-    private let etherkeystore: Keystore
     let keystoreDirectory: URL
 
-    public init(securedStorage: SecuredStorage, keyStoreSubfolder: String = "/keystore", keystore: Keystore) throws {
+    public init(securedStorage: SecuredStorage, keyStoreSubfolder: String = "/keystore") throws {
         self.keystoreDirectory = URL(fileURLWithPath: datadir + keyStoreSubfolder)
         self.securedStorage = securedStorage
         self.keyStore = try LegacyKeyStore(keydir: keystoreDirectory)
-        self.etherkeystore = keystore
     }
 
     public func getPrivateKeyFromKeystoreFile(json: String, password: String) -> Result<Data, KeystoreError> {
@@ -86,19 +84,20 @@ public class LegacyFileBasedKeystore {
             let key = try KeystoreKey(password: passphrase, key: privateKey)
             let data = try JSONEncoder().encode(key)
             let dict = try JSONSerialization.jsonObject(with: data, options: []) as! [String: Any]
+
             return .success(dict)
         } catch {
             return .failure(KeystoreError.failedToImportPrivateKey)
         }
     }
 
-    public func migrateKeystoreFilesToRawPrivateKeysInKeychain() {
+    public func migrateKeystoreFilesToRawPrivateKeysInKeychain(using etherkeystore: Keystore) {
         guard !etherkeystore.hasMigratedFromKeystoreFiles else { return }
 
         for each in keyStore.accounts {
             switch exportPrivateKey(account: AlphaWallet.Address(address: each.address)) {
             case .success(let privateKey):
-                etherkeystore.importWallet(type: .privateKey(privateKey: privateKey), completion: { _ in })
+                etherkeystore.importWallet(type: .privateKey(privateKey: privateKey))
             case .failure:
                 break
             }

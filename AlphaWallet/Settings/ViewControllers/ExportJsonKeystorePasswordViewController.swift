@@ -6,25 +6,55 @@
 //
 
 import UIKit
+import Combine
 
 @objc protocol ExportJsonKeystorePasswordDelegate {
-    func didRequestExportKeystore(with password: String)
-    func didDismissPasswordController()
+    func exportKeystoreButtonSelected(with password: String, in viewController: ExportJsonKeystorePasswordViewController)
+    func didCancel(in viewController: ExportJsonKeystorePasswordViewController)
 }
 
 class ExportJsonKeystorePasswordViewController: UIViewController {
-    private let buttonTitle: String
-    private var viewModel: ExportJsonKeystorePasswordViewModel
-    private lazy var keyboardChecker = KeyboardChecker(self, resetHeightDefaultValue: 0, ignoreBottomSafeArea: true)
-    private var passwordView: ExportJsonKeystorePasswordView {
-        return view as! ExportJsonKeystorePasswordView
-    }
-    weak var passwordDelegate: ExportJsonKeystorePasswordDelegate?
+    private let viewModel: ExportJsonKeystorePasswordViewModel
+    private lazy var passwordTextField: TextField = {
+        let textField = TextField.password
+        textField.delegate = self
+        textField.inputAccessoryButtonType = .done
+        textField.label.text = R.string.localizable.settingsAdvancedExportJSONKeystorePasswordLabel()
+        textField.placeholder = R.string.localizable.enterPasswordPasswordTextFieldPlaceholder()
 
-    init(viewModel: ExportJsonKeystorePasswordViewModel, buttonTitle: String) {
+        return textField
+    }()
+    private var exportJsonButton: UIButton { buttonsBar.buttons[0] }
+    private let text = PassthroughSubject<String?, Never>()
+    private var cancelable = Set<AnyCancellable>()
+
+    private lazy var buttonsBar: HorizontalButtonsBar = {
+        let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
+        buttonsBar.configure()
+
+        return buttonsBar
+    }()
+
+    weak var delegate: ExportJsonKeystorePasswordDelegate?
+
+    init(viewModel: ExportJsonKeystorePasswordViewModel) {
         self.viewModel = viewModel
-        self.buttonTitle = buttonTitle
+
         super.init(nibName: nil, bundle: nil)
+
+        let edgeInsets = UIEdgeInsets(top: 16.0, left: 0.0, bottom: 16.0, right: 0.0)
+        let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, edgeInsets: edgeInsets, separatorHeight: 1.0)
+        let textFieldLayout = passwordTextField.defaultLayout()
+        view.addSubview(textFieldLayout)
+        view.addSubview(footerBar)
+
+        NSLayoutConstraint.activate([
+            textFieldLayout.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: ScreenChecker.size(big: 34, medium: 34, small: 24)),
+            textFieldLayout.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16.0),
+            textFieldLayout.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16.0),
+
+            footerBar.anchorsConstraint(to: view)
+        ])
     }
 
     required init?(coder: NSCoder) {
@@ -33,85 +63,61 @@ class ExportJsonKeystorePasswordViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        configureController()
-        passwordView.disableButton()
-    }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        keyboardChecker.viewWillAppear()
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        keyboardChecker.viewWillDisappear()
-    }
-
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        if !isStillInNavigationStack() {
-            passwordDelegate?.didDismissPasswordController()
-        }
+        
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
+        bind(viewModel: viewModel)
     }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        DispatchQueue.main.async {
-            self.passwordView.passwordTextField.becomeFirstResponder()
+        DispatchQueue.main.async { [passwordTextField] in
+            passwordTextField.becomeFirstResponder()
         }
     }
 
-    override func loadView() {
-        view = ExportJsonKeystorePasswordView()
-    }
+    private func bind(viewModel: ExportJsonKeystorePasswordViewModel) {
 
-    private func configureController() {
-        navigationItem.title = R.string.localizable.settingsAdvancedExportJSONKeystorePasswordTitle()
-        passwordView.setButton(title: buttonTitle)
-        passwordView.addExportButtonTarget(self, action: #selector(requestExportAction(_:)))
-        passwordView.passwordTextField.delegate = self
-        keyboardChecker.constraints = [passwordView.bottomConstraint]
-    }
+        let input = ExportJsonKeystorePasswordViewModelInput(
+            text: text.eraseToAnyPublisher(),
+            exportJson: exportJsonButton.publisher(forEvent: .touchUpInside).eraseToAnyPublisher())
 
-    @objc func requestExportAction(_ sender: UIButton?) {
-        guard let password = passwordView.passwordTextField.text else { return }
-        switch viewModel.validate(password: password) {
-        case .success:
-            navigationItem.backButtonTitle = ""
-            passwordDelegate?.didRequestExportKeystore(with: password)
-        case .failure:
-            break
-        }
+        let output = viewModel.transform(input: input)
+        output.viewState
+            .sink { [exportJsonButton, navigationItem] viewState in
+                exportJsonButton.setTitle(viewState.buttonTitle, for: .normal)
+                exportJsonButton.isEnabled = viewState.exportJsonButtonEnabled
+                navigationItem.title = viewState.title
+            }.store(in: &cancelable)
+
+        output.validatedPassword
+            .sink { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.delegate?.exportKeystoreButtonSelected(with: $0, in: strongSelf)
+            }.store(in: &cancelable)
     }
 }
 
-extension ExportJsonKeystorePasswordViewController: UITextFieldDelegate {
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        guard var currentPasswordString = textField.text, let stringRange = Range(range, in: currentPasswordString) else { return true }
-        let originalPasswordString = currentPasswordString
-        currentPasswordString.replaceSubrange(stringRange, with: string)
-        let validPassword = !viewModel.containsIllegalCharacters(password: currentPasswordString)
-        if validPassword {
-            setButtonState(for: currentPasswordString)
-            return true
-        } else {
-            setButtonState(for: originalPasswordString)
-            return false
-        }
+extension ExportJsonKeystorePasswordViewController: PopNotifiable {
+    func didPopViewController(animated: Bool) {
+        delegate?.didCancel(in: self)
+    }
+}
+
+extension ExportJsonKeystorePasswordViewController: TextFieldDelegate {
+
+    func doneButtonTapped(for textField: TextField) {
+        view.endEditing(true)
     }
 
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+    func shouldReturn(in textField: TextField) -> Bool {
         textField.resignFirstResponder()
         return false
     }
 
-    func setButtonState(for passwordString: String) {
-        let state = viewModel.validate(password: passwordString)
-        switch state {
-        case .success:
-            passwordView.enableButton()
-        case .failure:
-            passwordView.disableButton()
-        }
+    func shouldChangeCharacters(inRange range: NSRange, replacementString string: String, for textField: TextField) -> Bool {
+        let result = viewModel.shouldChangeCharacters(text: textField.value, replacementString: string, in: range)
+        text.send(result.text)
+
+        return result.shouldChangeCharacters
     }
 }

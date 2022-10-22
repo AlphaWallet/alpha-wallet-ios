@@ -479,15 +479,14 @@ class ImportWalletViewController: UIViewController {
         }()
         guard let importType = importTypeOptional else { return }
 
-        keystore.importWallet(type: importType) { [weak self] result in
-            guard let strongSelf = self else { return }
-            strongSelf.hideLoading(animated: false)
-            switch result {
-            case .success(let account):
-                strongSelf.didImport(account: account)
-            case .failure(let error):
-                strongSelf.displayError(error: error)
-            }
+        let result = keystore.importWallet(type: importType)
+        hideLoading(animated: false)
+        
+        switch result {
+        case .success(let account):
+            didImport(account: account)
+        case .failure(let error):
+            displayError(error: error)
         }
     }
 

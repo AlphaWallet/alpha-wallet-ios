@@ -17,9 +17,10 @@ class ExportJsonKeystoreFileView: UIView {
         label.textColor = R.color.dove()!
         label.text = R.string.localizable.settingsAdvancedExportJSONKeystoreFileLabel()
         label.heightAnchor.constraint(equalToConstant: 22.0).isActive = true
+
         return label
     }()
-    private lazy var textView: UITextView = {
+    lazy var textView: UITextView = {
         let textView = UITextView()
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.adjustsFontForContentSizeCategory = true
@@ -34,9 +35,15 @@ class ExportJsonKeystoreFileView: UIView {
         textView.isSelectable = true
         textView.spellCheckingType = .no
         textView.autocorrectionType = .no
+
         return textView
     }()
-    private lazy var buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
+    private (set) lazy var buttonsBar: HorizontalButtonsBar = {
+        let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
+        buttonsBar.configure()
+
+        return buttonsBar
+    }()
 
     convenience init() {
         self.init(frame: .zero)
@@ -45,39 +52,18 @@ class ExportJsonKeystoreFileView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureView()
-        disableButton()
     }
 
     required init?(coder: NSCoder) {
         return nil
     }
 
-    func addPasswordButtonTarget(_ target: Any?, action: Selector) {
-        let button = buttonsBar.buttons[0]
-        button.removeTarget(target, action: action, for: .touchUpInside)
-        button.addTarget(target, action: action, for: .touchUpInside)
-    }
-
-    func set(content: String) {
-        textView.text = content
-    }
-
-    func setButton(title: String) {
-        buttonsBar.buttons[0].setTitle(title, for: .normal)
-    }
-
-    func disableButton() {
-        buttonsBar.buttons[0].isEnabled = false
-    }
-
-    func enableButton() {
-        buttonsBar.buttons[0].isEnabled = true
-    }
-
     private func configureView() {
-        backgroundColor = R.color.white()!
-        let footerBar = configureButtonsBar()
-        footerBar.backgroundColor = R.color.white()
+        backgroundColor = Configuration.Color.Semantic.defaultViewBackground
+        let edgeInsets = UIEdgeInsets(top: 16.0, left: 0.0, bottom: 16.0, right: 0.0)
+        let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, edgeInsets: edgeInsets, separatorHeight: 1.0)
+        footerBar.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
+
         addSubview(label)
         addSubview(textView)
         addSubview(footerBar)
@@ -95,12 +81,5 @@ class ExportJsonKeystoreFileView: UIView {
             footerBar.trailingAnchor.constraint(equalTo: trailingAnchor),
             footerBar.bottomAnchor.constraint(equalTo: self.bottomAnchor),
         ])
-    }
-
-    private func configureButtonsBar() -> ButtonsBarBackgroundView {
-        buttonsBar.configure()
-        let edgeInsets = UIEdgeInsets(top: 16.0, left: 0.0, bottom: 16.0, right: 0.0)
-        let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, edgeInsets: edgeInsets, separatorHeight: 1.0)
-        return footerBar
     }
 }

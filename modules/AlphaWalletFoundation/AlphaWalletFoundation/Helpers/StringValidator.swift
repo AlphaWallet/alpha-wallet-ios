@@ -7,7 +7,7 @@
 
 import Foundation
 
-public typealias StringValidatorResult = Result<Void, StringValidator.Errors>
+public typealias StringValidatorResult = Swift.Result<Void, StringValidator.Errors>
 
 public class StringValidator {
     public enum Errors: Error {

@@ -6,29 +6,51 @@
 //
 
 import UIKit
-import PromiseKit
+import Combine
 
 @objc protocol ExportJsonKeystoreFileDelegate {
-    func didExport(jsonData: String, in viewController: UIViewController)
-    func didFinish()
-    func didDismissFileController()
+    func didExport(fileUrl: URL, in viewController: UIViewController)
 }
 
 class ExportJsonKeystoreFileViewController: UIViewController {
-    private let buttonTitle: String
-    private let password: String
     private let viewModel: ExportJsonKeystoreFileViewModel
-    private var exportedData: String = ""
-    private var fileView: ExportJsonKeystoreFileView {
-        return view as! ExportJsonKeystoreFileView
-    }
-    weak var fileDelegate: ExportJsonKeystoreFileDelegate?
 
-    init(viewModel: ExportJsonKeystoreFileViewModel, buttonTitle: String, password: String) {
+    private lazy var textView: TextView = {
+        let textView = TextView.nonEditableTextView
+        textView.label.text = R.string.localizable.settingsAdvancedExportJSONKeystoreFileLabel()
+
+        return textView
+    }()
+    private lazy var buttonsBar: HorizontalButtonsBar = {
+        let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
+        buttonsBar.configure()
+
+        return buttonsBar
+    }()
+    private let willAppear = PassthroughSubject<Void, Never>()
+    private var cancelable = Set<AnyCancellable>()
+    private var exportButton: UIButton { buttonsBar.buttons[0] }
+
+    weak var delegate: ExportJsonKeystoreFileDelegate?
+
+    init(viewModel: ExportJsonKeystoreFileViewModel) {
         self.viewModel = viewModel
-        self.buttonTitle = buttonTitle
-        self.password = password
         super.init(nibName: nil, bundle: nil)
+
+        let edgeInsets = UIEdgeInsets(top: 16.0, left: 0.0, bottom: 16.0, right: 0.0)
+        let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, edgeInsets: edgeInsets, separatorHeight: 1.0)
+
+        let textViewLayout = textView.defaultLayout()
+        view.addSubview(textViewLayout)
+        view.addSubview(footerBar)
+
+        NSLayoutConstraint.activate([
+            textViewLayout.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: ScreenChecker.size(big: 34, medium: 34, small: 24)),
+            textViewLayout.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16.0),
+            textViewLayout.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16.0),
+
+            footerBar.anchorsConstraint(to: view)
+        ])
     }
 
     required init?(coder: NSCoder) {
@@ -37,54 +59,47 @@ class ExportJsonKeystoreFileViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        configureController()
-        DispatchQueue.main.async {
-            self.configureContent()
-        }
+
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
+        bind(viewModel: viewModel)
     }
 
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        if !isStillInNavigationStack() {
-            fileDelegate?.didDismissFileController()
-        }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        willAppear.send(())
     }
 
-    override func loadView() {
-        view = ExportJsonKeystoreFileView()
-    }
+    private func bind(viewModel: ExportJsonKeystoreFileViewModel) {
 
-    private func configureController() {
-        navigationItem.title = R.string.localizable.settingsAdvancedExportJSONKeystoreFileTitle()
-        let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(requestDoneAction(_:)))
-        navigationItem.rightBarButtonItems = [doneButton]
-        fileView.setButton(title: buttonTitle)
-        fileView.addPasswordButtonTarget(self, action: #selector(requestExportAction(_:)))
-    }
+        let input = ExportJsonKeystoreFileViewModelInput(
+            willAppear: willAppear.eraseToAnyPublisher(),
+            export: exportButton.publisher(forEvent: .touchUpInside).eraseToAnyPublisher())
 
-    private func configureContent() {
-        fileView.disableButton()
-        firstly {
-            viewModel.computeJsonKeystore(password: password)
-        }.done { jsonData in
-            self.exportedData = jsonData
-            self.fileView.set(content: jsonData)
-            self.fileView.enableButton()
-        }.catch { error in
-            guard let navigationController = self.navigationController else { return }
-            firstly {
-                navigationController.displayErrorPromise(message: error.prettyError)
-            }.done {
-                navigationController.popViewController(animated: true)
-            }.cauterize()
-        }
-    }
+        let output = viewModel.transform(input: input)
+        output.error
+            .sink { [weak self] in self?.displayError(message: $0) }
+            .store(in: &cancelable)
 
-    @objc func requestExportAction(_ sender: UIButton?) {
-         fileDelegate?.didExport(jsonData: exportedData, in: self)
-    }
+        output.viewState
+            .sink { [navigationItem, exportButton, textView] viewState in
+                navigationItem.title = viewState.title
+                exportButton.setTitle(viewState.buttonTitle, for: .normal)
+                exportButton.isEnabled = viewState.isActionButtonEnabled
+                textView.value = viewState.exportedJsonString
+            }.store(in: &cancelable)
 
-    @objc func requestDoneAction(_ sender: UIBarButtonItem) {
-        fileDelegate?.didFinish()
+        output.fileUrl
+            .sink { [weak self] url in
+                guard let strongSelf = self else { return }
+                strongSelf.delegate?.didExport(fileUrl: url, in: strongSelf)
+            }.store(in: &cancelable)
+
+        output.loadingState
+            .sink { [weak self] state in
+                switch state {
+                case .beginLoading: self?.displayLoading()
+                case .endLoading: self?.hideLoading()
+                }
+            }.store(in: &cancelable)
     }
 }

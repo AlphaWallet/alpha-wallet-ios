@@ -230,7 +230,7 @@ enum DataEntry {
                 static let edgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
                 static let cornerRadius: CGFloat = Metrics.CornerRadius.textbox
                 static let textInset: CGSize = .zero
-                static let height: CGFloat = ScreenChecker().isNarrowScreen ? 30 : 50
+                static let height: CGFloat = ScreenChecker.size(big: 50, medium: 50, small: 38)
                 static let spaceFromTitleToTextField: CGFloat = 4
             }
             

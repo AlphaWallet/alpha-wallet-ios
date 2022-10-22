@@ -17,6 +17,9 @@ extension TextFieldDelegate {
     func didBeginEditing(in textField: TextField) {
         return
     }
+
+    func doneButtonTapped(for textField: TextField) { }
+    func nextButtonTapped(for textField: TextField) { }
 }
 
 class TextField: UIControl {
@@ -193,6 +196,29 @@ class TextField: UIControl {
         status = .none
     }
 
+    func defaultLayout(edgeInsets: UIEdgeInsets = .zero) -> UIView {
+        let stackView = [
+            label,
+            .spacer(height: DataEntry.Metric.TextField.Default.spaceFromTitleToTextField),
+            //NOTE: adding shadow inset as edgeInsets might be .zero, and the sized shadow will be clipped
+            [.spacerWidth(DataEntry.Metric.shadowRadius), self, .spacerWidth(DataEntry.Metric.shadowRadius)].asStackView(axis: .horizontal),
+            .spacer(height: DataEntry.Metric.TextField.Default.spaceFromTitleToTextField),
+            statusLabel,
+        ].asStackView(axis: .vertical)
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+
+        let view = UIView()
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(stackView)
+
+        NSLayoutConstraint.activate([
+            stackView.anchorsConstraint(to: view, edgeInsets: edgeInsets),
+        ])
+
+        return view
+     }
+
     required init?(coder aDecoder: NSCoder) {
         return nil
     }
@@ -281,5 +307,39 @@ extension TextField {
         textField.textInset = DataEntry.Metric.TextField.Rounded.textInset
 
         return textField
+    }
+
+    static var password: TextField {
+        let textField: TextField = .textField
+        textField.textField.autocorrectionType = .no
+        textField.textField.autocapitalizationType = .none
+        textField.returnKeyType = .done
+        textField.inputAccessoryButtonType = .done
+        textField.textField.clearButtonMode = .whileEditing
+        textField.textField.rightView = {
+            let button = UIButton(type: .system)
+            button.frame = .init(x: 0, y: 0, width: 30, height: 30)
+            button.setImage(R.image.togglePassword(), for: .normal)
+            button.tintColor = .init(red: 111, green: 111, blue: 111)
+            button.addTarget(textField, action: #selector(toggleMaskPassword), for: .touchUpInside)
+
+            return button
+        }()
+        textField.textField.rightViewMode = .unlessEditing
+        textField.isSecureTextEntry = true
+
+        return textField
+    }
+}
+
+fileprivate extension TextField {
+
+    @objc private func toggleMaskPassword(_ sender: UIButton) {
+        isSecureTextEntry.toggle()
+        if isSecureTextEntry {
+            sender.tintColor = Colors.navigationTitleColor
+        } else {
+            sender.tintColor = .init(red: 111, green: 111, blue: 111)
+        }
     }
 }

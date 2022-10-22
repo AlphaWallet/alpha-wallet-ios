@@ -3,6 +3,7 @@
 import Foundation
 import UIKit
 import AlphaWalletFoundation
+import Combine
 
 protocol BackupCoordinatorDelegate: AnyObject {
     func didCancel(coordinator: BackupCoordinator)
@@ -13,6 +14,7 @@ class BackupCoordinator: Coordinator {
     private let keystore: Keystore
     private let account: Wallet
     private let analytics: AnalyticsLogger
+    private var cancelable = Set<AnyCancellable>()
 
     let navigationController: UINavigationController
     weak var delegate: BackupCoordinatorDelegate?
@@ -40,14 +42,14 @@ class BackupCoordinator: Coordinator {
     }
 
     private func presentActivityViewController(for account: AlphaWallet.Address, newPassword: String, completion: @escaping (Result<Bool, Error>) -> Void) {
-        navigationController.displayLoading(
-            text: R.string.localizable.exportPresentBackupOptionsLabelTitle()
-        )
+        navigationController.displayLoading(text: R.string.localizable.exportPresentBackupOptionsLabelTitle())
+
         let prompt = R.string.localizable.keystoreAccessKeyHdVerify()
-        keystore.exportRawPrivateKeyForNonHdWalletForBackup(forAccount: account, prompt: prompt, newPassword: newPassword) { [weak self] result in
-            guard let strongSelf = self else { return }
-            strongSelf.handleExport(result: result, completion: completion)
-        }
+        keystore.exportRawPrivateKeyForNonHdWalletForBackup(forAccount: account, prompt: prompt, newPassword: newPassword)
+            .sink { [weak self] result in
+                guard let strongSelf = self else { return }
+                strongSelf.handleExport(result: result, completion: completion)
+            }.store(in: &cancelable)
     }
 
     private func handleExport(result: Result<String, KeystoreError>, completion: @escaping (Result<Bool, Error>) -> Void) {
