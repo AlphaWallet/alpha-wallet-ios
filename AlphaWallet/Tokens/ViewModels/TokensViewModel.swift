@@ -15,7 +15,7 @@ struct TokensViewModelInput {
 struct TokensViewModelOutput {
     let viewState: AnyPublisher<TokensViewModel.ViewState, Never>
     let selection: AnyPublisher<Token, Never>
-    let pullToRefreshState: AnyPublisher<TokensViewModel.PullToRefreshState, Never>
+    let pullToRefreshState: AnyPublisher<TokensViewModel.RefreshControlState, Never>
     let deletion: AnyPublisher<[IndexPath], Never>
     let applyTableInset: AnyPublisher<TokensViewModel.KeyboardInset, Never>
 }
@@ -179,14 +179,20 @@ final class TokensViewModel {
 
         let refreshTokens: AnyPublisher<Void, Never> = Publishers.Merge(input.appear, input.pullToRefresh).eraseToAnyPublisher()
 
-        //NOTE: when we make db snapshot data mignt not changed, so table view refresh control will never ended, as we do `viewModelsSubject.removeDuplicates()`
+            //NOTE: when we make db snapshot data mignt not changed, so table view refresh control will never ended, as we do `viewModelsSubject.removeDuplicates()`
         let beginLoading = input.pullToRefresh.map { _ in PullToRefreshState.beginLoading }
         let loadingHasEnded = beginLoading.delay(for: .seconds(2), scheduler: RunLoop.main)
             .map { _ in PullToRefreshState.endLoading }
 
         let fakePullToRefreshState = Just<PullToRefreshState>(PullToRefreshState.idle)
             .merge(with: beginLoading, loadingHasEnded)
-            .eraseToAnyPublisher()
+            .compactMap { state -> TokensViewModel.RefreshControlState? in
+                switch state {
+                case .idle: return nil
+                case .endLoading: return .endLoading
+                case .beginLoading: return .beginLoading
+                }
+            }.eraseToAnyPublisher()
 
         refreshTokens.receive(on: RunLoop.main)
             .sink { [tokenCollection] _ in
@@ -200,10 +206,11 @@ final class TokensViewModel {
                 self?.reloadData()
             }.store(in: &cancellable)
 
-        tokenCollection.tokenViewModels.sink { [weak self] tokens in
-            self?.tokens = tokens
-            self?.reloadData()
-        }.store(in: &cancellable)
+        tokenCollection.tokenViewModels
+            .sink { [weak self] tokens in
+                self?.tokens = tokens
+                self?.reloadData()
+            }.store(in: &cancellable)
 
         let walletSummary = walletBalanceService
             .walletBalance(for: wallet)
@@ -217,9 +224,10 @@ final class TokensViewModel {
                 .eraseToAnyPublisher()
         }.eraseToAnyPublisher()
 
-        let blockieImage = input.appear.flatMap { [blockiesGenerator, wallet] _ in
-            blockiesGenerator.getBlockieOrEnsAvatarImage(address: wallet.address, fallbackImage: BlockiesImage.defaulBlockieImage)
-        }.eraseToAnyPublisher()
+        let blockieImage = input.appear
+            .flatMap { [blockiesGenerator, wallet] _ in
+                blockiesGenerator.getBlockieOrEnsAvatarImage(address: wallet.address, fallbackImage: BlockiesImage.defaulBlockieImage)
+            }.eraseToAnyPublisher()
 
         let selection = input.selection.compactMap { [unowned self, tokenCollection] source -> Token? in
             switch source {
@@ -508,7 +516,7 @@ extension TokensViewModel {
         case success(indexPaths: [IndexPath])
         case failure
     }
-
+    
     enum TokenOrRpcServer {
         case token(TokenViewModel)
         case rpcServer(RPCServer)
@@ -585,6 +593,11 @@ extension TokensViewModel {
 
     enum PullToRefreshState {
         case idle
+        case beginLoading
+        case endLoading
+    }
+
+    enum RefreshControlState {
         case beginLoading
         case endLoading
     }

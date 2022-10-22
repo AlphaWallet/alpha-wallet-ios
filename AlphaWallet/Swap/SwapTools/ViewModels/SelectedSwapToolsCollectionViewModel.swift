@@ -33,14 +33,14 @@ class SelectedSwapToolsCollectionViewModel {
 
         let viewState = Publishers.Merge(appear, storage.selectedTools)
             .removeDuplicates()
-            .map { tools -> ToolsSnapshot in
+            .map { tools -> Snapshot in
                 let viewModels = tools.map { SwapToolCollectionViewCellViewModel(name: $0.name) }
-                var snapshot = ToolsSnapshot()
+                var snapshot = Snapshot()
                 snapshot.appendSections(SelectedSwapToolsCollectionViewModel.Section.allCases)
                 snapshot.appendItems(viewModels)
 
                 return snapshot
-            }.map { SelectedSwapToolsCollectionViewModel.ViewState(tools: $0) }
+            }.map { SelectedSwapToolsCollectionViewModel.ViewState(snapshot: $0) }
 
         return .init(viewState: viewState.eraseToAnyPublisher())
     }
@@ -48,13 +48,13 @@ class SelectedSwapToolsCollectionViewModel {
 
 extension SelectedSwapToolsCollectionViewModel {
     class ToolsDiffableDataSource: UICollectionViewDiffableDataSource<SelectedSwapToolsCollectionViewModel.Section, SwapToolCollectionViewCellViewModel> {}
-    typealias ToolsSnapshot = NSDiffableDataSourceSnapshot<SelectedSwapToolsCollectionViewModel.Section, SwapToolCollectionViewCellViewModel>
+    typealias Snapshot = NSDiffableDataSourceSnapshot<SelectedSwapToolsCollectionViewModel.Section, SwapToolCollectionViewCellViewModel>
 
     enum Section: Int, Hashable, CaseIterable {
         case tools
     }
 
     struct ViewState {
-        let tools: ToolsSnapshot
+        let snapshot: Snapshot
     }
 }

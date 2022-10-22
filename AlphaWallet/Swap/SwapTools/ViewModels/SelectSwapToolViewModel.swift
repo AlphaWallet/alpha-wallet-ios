@@ -59,13 +59,13 @@ final class SelectSwapToolViewModel {
                 return toolsAndSelection.0.map { swapTool in
                     return SelectableSwapToolTableViewCellViewModel(swapTool: swapTool, isSelected: self.isSelected(swapTool))
                 }
-            }.map { viewModels -> ToolsSnapshot in
-                var snapshot = ToolsSnapshot()
+            }.map { viewModels -> Snapshot in
+                var snapshot = Snapshot()
                 snapshot.appendSections(SelectSwapToolViewModel.Section.allCases)
                 snapshot.appendItems(viewModels)
 
                 return snapshot
-            }.map { SelectSwapToolViewModel.ViewState(title: "Preffered Exchanges".uppercased(), tools: $0) }
+            }.map { SelectSwapToolViewModel.ViewState(title: "Preffered Exchanges".uppercased(), snapshot: $0) }
 
         return .init(viewState: viewState.eraseToAnyPublisher())
     }
@@ -106,7 +106,7 @@ final class SelectSwapToolViewModel {
 
 extension SelectSwapToolViewModel {
     class ToolsDiffableDataSource: UITableViewDiffableDataSource<SelectSwapToolViewModel.Section, SelectableSwapToolTableViewCellViewModel> {}
-    typealias ToolsSnapshot = NSDiffableDataSourceSnapshot<SelectSwapToolViewModel.Section, SelectableSwapToolTableViewCellViewModel>
+    typealias Snapshot = NSDiffableDataSourceSnapshot<SelectSwapToolViewModel.Section, SelectableSwapToolTableViewCellViewModel>
 
     enum Section: Int, Hashable, CaseIterable {
         case tools
@@ -128,6 +128,6 @@ extension SelectSwapToolViewModel {
 
     struct ViewState {
         let title: String
-        let tools: ToolsSnapshot
+        let snapshot: Snapshot
     }
 }

@@ -103,14 +103,11 @@ class SettingsViewController: UIViewController {
 
         let output = viewModel.transform(input: input)
 
-        output.viewModels
-            .sink { [weak self, viewModel] viewModels in
-                self?.update(with: viewModels, animate: viewModel.animatingDifferences)
+        output.viewState
+            .sink { [dataSource, viewModel, tabBarItem] viewState in
+                dataSource.apply(viewState.snapshot, animatingDifferences: viewModel.animatingDifferences)
+                tabBarItem?.badgeValue = viewState.badge
             }.store(in: &cancellable)
-
-        output.badgeValue
-            .sink { [tabBarItem] in tabBarItem?.badgeValue = $0 }
-            .store(in: &cancellable)
 
         output.askToSetPasscode
             .sink { [weak self, didSetPasscode] _ in
@@ -195,17 +192,6 @@ fileprivate extension SettingsViewController {
                 return cell
             }
         })
-    }
-
-    private func update(with viewModels: [SettingsViewModel.SectionViewModel], animate: Bool = true) {
-        var snapshot = NSDiffableDataSourceSnapshot<SettingsSection, SettingsViewModel.ViewType>()
-        let sections = viewModels.map { $0.section }
-        snapshot.appendSections(sections)
-        for each in viewModels {
-            snapshot.appendItems(each.views, toSection: each.section)
-        }
-
-        dataSource.apply(snapshot, animatingDifferences: animate)
     }
 }
 

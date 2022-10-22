@@ -54,9 +54,7 @@ class NFTAssetsPageView: UIView, PageViewType {
     private let appear = PassthroughSubject<Void, Never>()
     private var cancelable = Set<AnyCancellable>()
 
-    var title: String {
-        viewModel.title
-    }
+    var title: String { viewModel.title }
     let viewModel: NFTAssetsPageViewModel
     weak var delegate: NFTAssetsPageViewDelegate?
     var rightBarButtonItem: UIBarButtonItem?
@@ -116,9 +114,9 @@ class NFTAssetsPageView: UIView, PageViewType {
             self?.endLoading(animated: false)
         }.store(in: &cancelable)
 
-        output.layout.sink { [weak self] layout in
-            self?.configureLayout(layout: layout)
-        }.store(in: &cancelable)
+        output.layout
+            .sink { [weak self] in self?.configureLayout(layout: $0) }
+            .store(in: &cancelable)
     }
 
     private func configureLayout(layout: GridOrListLayout) {

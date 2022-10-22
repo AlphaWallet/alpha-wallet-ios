@@ -159,25 +159,25 @@ class NFTCollectionViewController: UIViewController {
 
         let output = viewModel.transform(input: input)
 
-        output.viewState.sink { [weak self] state in
-            self?.title = state.title
-            self?.buildBarButtons(from: state.actions)
-        }.store(in: &cancellable)
+        output.viewState
+            .sink { [weak self] state in
+                self?.title = state.title
+                self?.buildBarButtons(from: state.actions)
+            }.store(in: &cancellable)
 
-        output.activities.sink { [weak activitiesPageView] viewModel in
-            activitiesPageView?.configure(viewModel: viewModel)
-        }.store(in: &cancellable)
+        output.activities
+            .sink { [weak activitiesPageView] in activitiesPageView?.configure(viewModel: $0) }
+            .store(in: &cancellable)
 
-        output.pullToRefreshState.sink { [refreshControl] state in
-            switch state {
-            case .idle:
-                break
-            case .endLoading:
-                refreshControl.endRefreshing()
-            case .beginLoading:
-                refreshControl.beginRefreshing()
-            }
-        }.store(in: &cancellable)
+        output.pullToRefreshState
+            .sink { [refreshControl] state in
+                switch state {
+                case .endLoading:
+                    refreshControl.endRefreshing()
+                case .beginLoading:
+                    refreshControl.beginRefreshing()
+                }
+            }.store(in: &cancellable)
     }
 
     //NOTE: there is only one possible action for now

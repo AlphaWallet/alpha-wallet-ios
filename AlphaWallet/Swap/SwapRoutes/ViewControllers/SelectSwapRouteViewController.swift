@@ -73,7 +73,7 @@ final class SelectSwapRouteViewController: UIViewController {
         output.viewState
             .sink { [weak self] state in
                 self?.navigationItem.title = state.title
-                self?.dataSource.apply(state.routes, animatingDifferences: false)
+                self?.dataSource.apply(state.snapshot, animatingDifferences: false)
                 self?.endLoading()
             }.store(in: &cancelable)
     }

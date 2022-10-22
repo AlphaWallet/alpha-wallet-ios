@@ -43,13 +43,13 @@ final class SelectSwapRouteViewModel {
         let viewState = Publishers.CombineLatest(swapRoutes, selection)
             .map { routes -> [SelectableSwapRouteTableViewCellViewModel] in
                 return routes.0.map { return .init(swapRoute: $0, isSelected: self.isSelected($0)) }
-            }.map { viewModels -> RoutesSnapshot in
-                var snapshot = RoutesSnapshot()
+            }.map { viewModels -> Snapshot in
+                var snapshot = Snapshot()
                 snapshot.appendSections(SelectSwapRouteViewModel.Section.allCases)
                 snapshot.appendItems(viewModels)
 
                 return snapshot
-            }.map { SelectSwapRouteViewModel.ViewState(title: "Select Route".uppercased(), routes: $0) }
+            }.map { SelectSwapRouteViewModel.ViewState(title: "Select Route".uppercased(), snapshot: $0) }
 
         return .init(viewState: viewState.eraseToAnyPublisher())
     }
@@ -66,7 +66,7 @@ final class SelectSwapRouteViewModel {
 
 extension SelectSwapRouteViewModel {
     class RoutesDiffableDataSource: UITableViewDiffableDataSource<SelectSwapRouteViewModel.Section, SelectableSwapRouteTableViewCellViewModel> {}
-    typealias RoutesSnapshot = NSDiffableDataSourceSnapshot<SelectSwapRouteViewModel.Section, SelectableSwapRouteTableViewCellViewModel>
+    typealias Snapshot = NSDiffableDataSourceSnapshot<SelectSwapRouteViewModel.Section, SelectableSwapRouteTableViewCellViewModel>
 
     enum Section: Int, Hashable, CaseIterable {
         case routes
@@ -74,6 +74,6 @@ extension SelectSwapRouteViewModel {
 
     struct ViewState {
         let title: String
-        let routes: RoutesSnapshot
+        let snapshot: Snapshot
     }
 }
