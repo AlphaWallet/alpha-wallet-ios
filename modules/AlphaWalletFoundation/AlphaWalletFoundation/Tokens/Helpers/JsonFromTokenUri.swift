@@ -18,7 +18,7 @@ final class JsonFromTokenUri {
         let configuration = URLSessionConfiguration.default
         return SessionManager(configuration: configuration)
     }()
-    private lazy var getTokenUri = NonFungibleContract(server: server, queue: queue)
+    private lazy var getTokenUri = NonFungibleContract(server: server)
     private let server: RPCServer
     private var inFlightPromises: [String: Promise<NonFungibleBalanceAndItsSource<JsonString>>] = [:]
     private let queue = DispatchQueue(label: "org.alphawallet.swift.jsonFromTokenUri")
@@ -38,7 +38,7 @@ final class JsonFromTokenUri {
                 return promise
             } else {
                 let promise = firstly {
-                    getTokenUri.getTokenUri(for: tokenId, contract: address)
+                    getTokenUri.getUriOrTokenUri(for: tokenId, contract: address)
                 }.then(on: queue, {
                     self.fetchTokenJson(forTokenId: tokenId, tokenType: tokenType, uri: $0, address: address, enjinToken: enjinToken)
                 }).recover(on: queue, { _ in

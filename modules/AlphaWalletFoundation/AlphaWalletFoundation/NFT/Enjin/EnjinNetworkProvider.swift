@@ -11,7 +11,6 @@ import Apollo
 import PromiseKit
 
 final class EnjinNetworkProvider {
-    private let queue: DispatchQueue
 
     private lazy var graphqlClient: ApolloClient = {
         let cache = InMemoryNormalizedCache()
@@ -22,15 +21,25 @@ final class EnjinNetworkProvider {
         return ApolloClient(networkTransport: transport, store: store)
     }()
 
-    init(queue: DispatchQueue) {
-        self.queue = queue
-    }
-
     typealias GetEnjinBalancesResponse = (balances: Enjin.MappedEnjinBalances, owner: AlphaWallet.Address)
 
-    func getEnjinBalances(forOwner owner: AlphaWallet.Address, offset: Int, sum: Enjin.MappedEnjinBalances = [:], limit: Int = 50, completion: @escaping (Swift.Result<GetEnjinBalancesResponse, EnjinError>) -> Void) {
+    func getEnjinBalances(forOwner owner: AlphaWallet.Address, offset: Int, sum: Enjin.MappedEnjinBalances = [:], limit: Int = 50) -> Promise<[AlphaWallet.Address: [GetEnjinBalancesQuery.Data.EnjinBalance]]> {
+        return Promise<[AlphaWallet.Address: [GetEnjinBalancesQuery.Data.EnjinBalance]]> { seal in
+            let offset = 1
+            getEnjinBalances(forOwner: owner, offset: offset) { result in
+                switch result {
+                case .success(let result):
+                    seal.fulfill(result.balances)
+                case .failure(let error):
+                    seal.reject(error)
+                }
+            }
+        }
+    }
 
-        graphqlClient.fetch(query: GetEnjinBalancesQuery(ethAddress: owner.eip55String, page: offset, limit: limit), queue: queue) { response in
+    private func getEnjinBalances(forOwner owner: AlphaWallet.Address, offset: Int, sum: Enjin.MappedEnjinBalances = [:], limit: Int = 50, completion: @escaping (Swift.Result<GetEnjinBalancesResponse, EnjinError>) -> Void) {
+
+        graphqlClient.fetch(query: GetEnjinBalancesQuery(ethAddress: owner.eip55String, page: offset, limit: limit), queue: .global()) { response in
             switch response {
             case .failure(let error):
                 completion(.failure(EnjinError(localizedDescription: "Error calling Engin API: \(String(describing: error))")))
@@ -67,7 +76,7 @@ final class EnjinNetworkProvider {
 
         let promises = ids.map { tokenId in
             return Promise<GetEnjinTokenQuery.Data.EnjinToken> { seal in
-                graphqlClient.fetch(query: GetEnjinTokenQuery(id: tokenId), queue: queue) { response in
+                graphqlClient.fetch(query: GetEnjinTokenQuery(id: tokenId), queue: .global()) { response in
                     switch response {
                     case .failure(let error):
                         seal.reject(error)

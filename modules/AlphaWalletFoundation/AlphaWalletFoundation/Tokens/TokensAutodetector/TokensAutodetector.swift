@@ -115,7 +115,7 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
 
         return firstly {
             autoDetectTransactedContractsImpl(wallet: wallet, erc20: erc20, server: server)
-        }.then(on: queue, { [weak self, importToken] detectedContracts -> Promise<[TokenOrContract]> in
+        }.then(on: queue, { [weak self, importToken, queue] detectedContracts -> Promise<[TokenOrContract]> in
             guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
 
             let promises = strongSelf.contractsForTransactedTokens(detectedContracts: detectedContracts, forServer: server)
@@ -123,7 +123,7 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
                     importToken.fetchTokenOrContract(for: contract, server: server, onlyIfThereIsABalance: false)
                 }
 
-            return when(resolved: promises).map(on: strongSelf.queue, { values -> [TokenOrContract] in
+            return when(resolved: promises).map(on: queue, { values -> [TokenOrContract] in
                 return values.compactMap { $0.optionalValue }
             })
         })

@@ -10,12 +10,14 @@ public typealias Stats = AlphaWalletOpenSea.Stats
 public final class OpenSea {
     private let analytics: AnalyticsLogger
     private let storage: Storage<[AddressAndRPCServer: OpenSeaAddressesToNonFungibles]> = .init(fileName: "OpenSea", defaultValue: [:])
-    private let queue: DispatchQueue
-    private lazy var networkProvider: OpenSeaNetworkProvider = OpenSeaNetworkProvider(analytics: analytics, queue: queue)
+    private let queue = DispatchQueue(label: "org.alphawallet.swift.openSea")
+    private lazy var networkProvider: OpenSeaNetworkProvider = OpenSeaNetworkProvider(analytics: analytics)
+    private var inFlightPromises: [String: Promise<OpenSeaAddressesToNonFungibles>] = [:]
+    private var inFlightFetchImageUrlPromises: [String: Promise<URL>] = [:]
+    private var inFlightFetchStatsPromises: [String: Promise<Stats>] = [:]
 
-    public init(analytics: AnalyticsLogger, queue: DispatchQueue) {
+    public init(analytics: AnalyticsLogger) {
         self.analytics = analytics
-        self.queue = queue
     }
 
     public static func isServerSupported(_ server: RPCServer) -> Bool {
@@ -24,7 +26,6 @@ public final class OpenSea {
             return true
         case .xDai, .candle, .polygon, .binance_smart_chain, .heco, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, nil:
             return false
-
         }
     }
 
@@ -39,31 +40,81 @@ public final class OpenSea {
     }
 
     private func fetchFromLocalAndRemotePromise(key: AddressAndRPCServer) -> Promise<OpenSeaAddressesToNonFungibles> {
-        return networkProvider
-            .fetchAssetsPromise(address: key.address, server: key.server)
-            .map(on: queue, { [weak storage] result in
-                if result.hasError {
-                    let merged = (storage?.value[key] ?? [:])
-                        .merging(result.result) { Array(Set($0 + $1)) }
+        firstly {
+            .value(key)
+        }.then(on: queue, { [weak self, queue, networkProvider, weak storage] key -> Promise<OpenSeaAddressesToNonFungibles> in
+            let promiseKey = "\(key.address)-\(key.server)"
+            if let promise = self?.inFlightPromises[promiseKey] {
+                return promise
+            } else {
+                let promise = networkProvider
+                    .fetchAssetsPromise(address: key.address, server: key.server)
+                    .map(on: queue, { result -> OpenSeaAddressesToNonFungibles in
+                        if result.hasError {
+                            let merged = (storage?.value[key] ?? [:])
+                                .merging(result.result) { Array(Set($0 + $1)) }
 
-                    if merged.isEmpty {
-                        //no-op
-                    } else {
-                        storage?.value[key] = merged
-                    }
-                } else {
-                    storage?.value[key] = result.result
-                }
+                            if merged.isEmpty {
+                                //no-op
+                            } else {
+                                storage?.value[key] = merged
+                            }
+                        } else {
+                            storage?.value[key] = result.result
+                        }
 
-                return storage?.value[key] ?? result.result
-            })
+                        return storage?.value[key] ?? result.result
+                    }).ensure(on: queue, {
+                        self?.inFlightPromises[promiseKey] = .none
+                    })
+
+                self?.inFlightPromises[promiseKey] = promise
+
+                return promise
+            }
+        })
     }
 
     public func fetchAssetImageUrl(for value: Eip155URL, server: RPCServer) -> Promise<URL> {
-        networkProvider.fetchAssetImageUrl(for: value, server: server)
+        firstly {
+            .value(value)
+        }.then(on: queue, { [weak self, queue, networkProvider] value -> Promise<URL> in
+            let key = "\(value.description)-\(server)"
+            if let promise = self?.inFlightFetchImageUrlPromises[key] {
+                return promise
+            } else {
+                let promise = networkProvider
+                    .fetchAssetImageUrl(for: value, server: server)
+                    .ensure(on: queue, {
+                        self?.inFlightFetchImageUrlPromises[key] = .none
+                    })
+
+                self?.inFlightFetchImageUrlPromises[key] = promise
+
+                return promise
+            }
+        })
     }
 
     public func collectionStats(slug: String, server: RPCServer) -> Promise<Stats> {
-        networkProvider.collectionStats(slug: slug, server: server)
+        firstly {
+            .value(slug)
+        }.then(on: queue, { [weak self, queue, networkProvider] slug -> Promise<Stats> in
+            let key = "\(slug)-\(server)"
+            if let promise = self?.inFlightFetchStatsPromises[key] {
+                return promise
+            } else {
+                let promise = networkProvider
+                    .collectionStats(slug: slug, server: server)
+                    .ensure(on: queue, {
+                        self?.inFlightFetchStatsPromises[key] = .none
+                    })
+
+                self?.inFlightFetchStatsPromises[key] = promise
+
+                return promise
+            }
+        })
+
     }
 }
