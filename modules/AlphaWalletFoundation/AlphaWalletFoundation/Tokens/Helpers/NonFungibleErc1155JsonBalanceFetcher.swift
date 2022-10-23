@@ -13,6 +13,10 @@ import BigInt
 import PromiseKit
 import SwiftyJSON
 
+protocol NonFungibleErc1155JsonBalanceFetcherDelegate: AnyObject {
+    func addTokens(tokensToAdd: [ERCToken]) -> Promise<Void>
+}
+
 //TODO: think about the name, remove queue later, replace with any publisher
 class NonFungibleErc1155JsonBalanceFetcher {
     typealias TokenIdMetaData = (contract: AlphaWallet.Address, tokenId: BigUInt, jsonAndItsSource: NonFungibleBalanceAndItsSource<JsonString>)
@@ -20,15 +24,16 @@ class NonFungibleErc1155JsonBalanceFetcher {
     private let jsonFromTokenUri: JsonFromTokenUri
     private let erc1155TokenIdsFetcher: Erc1155TokenIdsFetcher
     private let erc1155BalanceFetcher: Erc1155BalanceFetcher
-    private let queue: DispatchQueue
-    private let session: WalletSession
-    private let tokensService: TokenProvidable & TokenAddable
-    private let importToken: ImportToken
+    private let queue = DispatchQueue(label: "org.alphawallet.swift.nonFungibleErc1155JsonBalanceFetcher")
 
-    init(tokensService: TokenProvidable & TokenAddable, session: WalletSession, erc1155TokenIdsFetcher: Erc1155TokenIdsFetcher, jsonFromTokenUri: JsonFromTokenUri, erc1155BalanceFetcher: Erc1155BalanceFetcher, queue: DispatchQueue, importToken: ImportToken) {
+    private let session: WalletSession
+    private let tokensService: TokenProvidable
+    private let importToken: ImportToken
+    weak var delegate: NonFungibleErc1155JsonBalanceFetcherDelegate?
+
+    init(tokensService: TokenProvidable, session: WalletSession, erc1155TokenIdsFetcher: Erc1155TokenIdsFetcher, jsonFromTokenUri: JsonFromTokenUri, erc1155BalanceFetcher: Erc1155BalanceFetcher, importToken: ImportToken) {
         self.session = session
         self.erc1155TokenIdsFetcher = erc1155TokenIdsFetcher
-        self.queue = queue
         self.tokensService = tokensService
         self.jsonFromTokenUri = jsonFromTokenUri
         self.erc1155BalanceFetcher = erc1155BalanceFetcher
@@ -93,10 +98,10 @@ class NonFungibleErc1155JsonBalanceFetcher {
     private func addUnknownErc1155ContractsToDatabase(contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds) -> Promise<Erc1155TokenIds.ContractsAndTokenIds> {
         return firstly {
             fetchUnknownErc1155ContractsDetails(contractsAndTokenIds: contractsAndTokenIds)
-        }.map(on: queue, { [tokensService] tokensToAdd in
-            tokensService.addCustom(tokens: tokensToAdd, shouldUpdateBalance: false)
-
-            return contractsAndTokenIds
+        }.then(on: queue, { [queue] tokensToAdd -> Promise<Erc1155TokenIds.ContractsAndTokenIds> in
+            guard let delegate = self.delegate else { return .init(error: PMKError.cancelled) }
+            return delegate.addTokens(tokensToAdd: tokensToAdd)
+                .map(on: queue, { _ in contractsAndTokenIds })
         })
     }
 

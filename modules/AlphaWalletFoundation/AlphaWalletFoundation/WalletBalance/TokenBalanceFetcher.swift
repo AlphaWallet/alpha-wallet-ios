@@ -37,7 +37,10 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
     private lazy var erc1155TokenIdsFetcher = Erc1155TokenIdsFetcher(analytics: analytics, session: session, server: session.server, config: session.config)
     private lazy var erc1155BalanceFetcher = Erc1155BalanceFetcher(address: session.account.address, server: session.server)
     private lazy var erc1155JsonBalanceFetcher: NonFungibleErc1155JsonBalanceFetcher = {
-        return NonFungibleErc1155JsonBalanceFetcher(tokensService: tokensService, session: session, erc1155TokenIdsFetcher: erc1155TokenIdsFetcher, jsonFromTokenUri: jsonFromTokenUri, erc1155BalanceFetcher: erc1155BalanceFetcher, queue: queue, importToken: importToken)
+        let fetcher = NonFungibleErc1155JsonBalanceFetcher(tokensService: tokensService, session: session, erc1155TokenIdsFetcher: erc1155TokenIdsFetcher, jsonFromTokenUri: jsonFromTokenUri, erc1155BalanceFetcher: erc1155BalanceFetcher, importToken: importToken)
+        fetcher.delegate = self
+
+        return fetcher
     }()
     private let session: WalletSession
     private let etherToken: Token
@@ -272,6 +275,17 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
         }.done(on: queue, { [weak self] ops in
             self?.notifyUpdateBalance(ops)
         }).cauterize()
+    }
+}
+
+extension TokenBalanceFetcher: NonFungibleErc1155JsonBalanceFetcherDelegate {
+    func addTokens(tokensToAdd: [ERCToken]) -> PromiseKit.Promise<Void> {
+        firstly {
+            .value(tokensToAdd)
+        }.map(on: queue, { [tokensService] tokensToAdd in
+            tokensService.addCustom(tokens: tokensToAdd, shouldUpdateBalance: false)
+            return ()
+        })
     }
 }
 
