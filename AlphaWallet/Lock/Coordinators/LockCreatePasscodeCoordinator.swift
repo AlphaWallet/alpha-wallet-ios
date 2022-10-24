@@ -11,16 +11,20 @@ class LockCreatePasscodeCoordinator: Coordinator {
         let viewModel = LockCreatePasscodeViewModel(lock: lock)
         return LockCreatePasscodeViewController(lockCreatePasscodeViewModel: viewModel)
     }()
+
     var coordinators: [Coordinator] = []
 
     init(navigationController: UINavigationController, lock: Lock) {
         self.lock = lock
         self.navigationController = navigationController
     }
+
     func start() {
         lockViewController.navigationItem.largeTitleDisplayMode = .never
+        lockViewController.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(lockViewController, animated: true)
     }
+
     func stop() {
         navigationController.popViewController(animated: true)
     }
