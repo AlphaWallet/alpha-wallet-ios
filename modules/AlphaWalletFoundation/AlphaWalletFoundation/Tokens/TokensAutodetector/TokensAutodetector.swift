@@ -36,7 +36,7 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
     private let detectedTokens: DetectedContractsProvideble
     private let tokensOrContractsDetectedSubject = PassthroughSubject<[TokenOrContract], Never>()
     private let getContractInteractions = GetContractInteractions()
-    
+
     public var tokensOrContractsDetected: AnyPublisher<[TokenOrContract], Never> {
         tokensOrContractsDetectedSubject.eraseToAnyPublisher()
     }
@@ -97,7 +97,7 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
 
         return firstly {
             getContractInteractions.getContractList(walletAddress: wallet, server: server, startBlock: startBlock, erc20: erc20)
-        }.map(on: queue) { contracts, maxBlockNumber -> [AlphaWallet.Address] in
+        }.map(on: queue, { contracts, maxBlockNumber -> [AlphaWallet.Address] in
             if let maxBlockNumber = maxBlockNumber {
                 if erc20 {
                     Config.setLastFetchedAutoDetectedTransactedTokenErc20BlockNumber(maxBlockNumber, server: server, wallet: wallet)
@@ -107,7 +107,7 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
             }
 
             return contracts
-        }
+        })
     }
 
     private func autoDetectTransactedTokensImpl(wallet: AlphaWallet.Address, erc20: Bool) -> Promise<[TokenOrContract]> {
@@ -119,13 +119,10 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
             guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
 
             let promises = strongSelf.contractsForTransactedTokens(detectedContracts: detectedContracts, forServer: server)
-                .compactMap { contract -> Promise<TokenOrContract> in
-                    importToken.fetchTokenOrContract(for: contract, server: server, onlyIfThereIsABalance: false)
-                }
+                .map { importToken.fetchTokenOrContract(for: $0, server: server, onlyIfThereIsABalance: false) }
 
-            return when(resolved: promises).map(on: queue, { values -> [TokenOrContract] in
-                return values.compactMap { $0.optionalValue }
-            })
+            return when(resolved: promises)
+                .map(on: queue, { $0.compactMap { $0.optionalValue } })
         })
     }
 
@@ -145,18 +142,18 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
     }
 
     private func autoDetectMainnetPartnerTokens() {
-        autoDetectTokens(withContracts: Constants.partnerContracts)
+        autoDetectTokens(contractsToDetect: Constants.partnerContracts)
     }
 
     private func autoDetectXDaiPartnerTokens() {
-        autoDetectTokens(withContracts: Constants.ethDenverXDaiPartnerContracts)
+        autoDetectTokens(contractsToDetect: Constants.ethDenverXDaiPartnerContracts)
     }
 
     private func autoDetectRinkebyPartnerTokens() {
-        autoDetectTokens(withContracts: Constants.rinkebyPartnerContracts)
+        autoDetectTokens(contractsToDetect: Constants.rinkebyPartnerContracts)
     }
 
-    private func autoDetectTokens(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)]) {
+    private func autoDetectTokens(contractsToDetect: [(name: String, contract: AlphaWallet.Address)]) {
         guard !isAutoDetectingTokens else { return }
 
         isAutoDetectingTokens = true
@@ -164,45 +161,12 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
         autoDetectTokensQueue.addOperation(operation)
     }
 
-    private func contractsToAutodetectTokens(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)], forServer server: RPCServer) -> [AlphaWallet.Address] {
+    private func contractsToAutodetectTokens(contractsToDetect: [(name: String, contract: AlphaWallet.Address)], server: RPCServer) -> [AlphaWallet.Address] {
         let alreadyAddedContracts = detectedTokens.alreadyAddedContracts(for: server)
         let deletedContracts = detectedTokens.deletedContracts(for: server)
         let hiddenContracts = detectedTokens.hiddenContracts(for: server)
 
         return contractsToDetect.map { $0.contract } - alreadyAddedContracts - deletedContracts - hiddenContracts
-    }
-
-    private func fetchErc875OrErc20Token(contract contract: AlphaWallet.Address, forServer server: RPCServer) -> Promise<TokenOrContract> {
-        return session.tokenProvider
-            .getTokenType(for: contract)
-            .then(on: queue, { [importToken, queue, session] tokenType -> Promise<TokenOrContract> in
-                switch tokenType {
-                case .erc875:
-                    //TODO long and very similar code below. Extract function
-                    return session.tokenProvider.getErc875Balance(for: contract).then(on: queue, { balance -> Promise<TokenOrContract> in
-                        if balance.isEmpty {
-                            return .value(.none)
-                        } else {
-                            return importToken.fetchTokenOrContract(for: contract, server: server, onlyIfThereIsABalance: false)
-                        }
-                    }).recover(on: queue, { _ -> Guarantee<TokenOrContract> in
-                        return .value(.none)
-                    })
-                case .erc20:
-                    return session.tokenProvider.getErc20Balance(for: contract).then(on: queue, { balance -> Promise<TokenOrContract> in
-                        if balance > 0 {
-                            return importToken.fetchTokenOrContract(for: contract, server: server, onlyIfThereIsABalance: false)
-                        } else {
-                            return .value(.none)
-                        }
-                    }).recover(on: queue, { _ -> Guarantee<TokenOrContract> in
-                        return .value(.none)
-                    })
-                case .erc721, .erc721ForTickets, .erc1155, .nativeCryptocurrency:
-                    //Handled in TokenBalanceFetcher.refreshBalanceForErc721Or1155Tokens()
-                    return .value(.none)
-                }
-            })
     }
 }
 
@@ -220,10 +184,8 @@ extension SingleChainTokensAutodetector: AutoDetectTransactedTokensOperationDele
 extension SingleChainTokensAutodetector: AutoDetectTokensOperationDelegate {
 
     func autoDetectTokensImpl(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)], server: RPCServer) -> Promise<[TokenOrContract]> {
-        let promises = contractsToAutodetectTokens(withContracts: contractsToDetect, forServer: server)
-            .map { each -> Promise<TokenOrContract> in
-                return fetchErc875OrErc20Token(contract: each, forServer: server)
-            }
+        let promises = contractsToAutodetectTokens(contractsToDetect: contractsToDetect, server: server)
+            .map { importToken.fetchErc875OrErc20Token(for: $0, server: server) }
 
         return when(resolved: promises).map(on: queue, { results in
             return results.compactMap { $0.optionalValue }

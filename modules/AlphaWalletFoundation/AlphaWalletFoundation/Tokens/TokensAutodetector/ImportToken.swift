@@ -16,26 +16,28 @@ public protocol TokenImportable {
 
 public protocol ContractDataFetchable {
     func fetchTokenOrContract(for contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool) -> Promise<TokenOrContract>
+    func fetchErc875OrErc20Token(for contract: AlphaWallet.Address, server: RPCServer) -> Promise<TokenOrContract>
     func fetchContractData(for contract: AlphaWallet.Address, server: RPCServer, completion: @escaping (ContractData) -> Void)
 }
 
 open class ImportToken: TokenImportable, ContractDataFetchable {
-    private let defaultTokens: [(AlphaWallet.Address, RPCServer)] = [
-        (Constants.uefaMainnet, Constants.uefaRpcServer),
-        Constants.gnoGnosis,
-    ]
-
     enum ImportTokenError: Error {
         case serverIsDisabled
         case nothingToImport
         case others
     }
+
+    private let defaultTokens: [(AlphaWallet.Address, RPCServer)] = [
+        (Constants.uefaMainnet, Constants.uefaRpcServer),
+        Constants.gnoGnosis,
+    ]
     private let sessionProvider: SessionsProvider
     private let assetDefinitionStore: AssetDefinitionStore
     private let analytics: AnalyticsLogger
     private let tokenFetchers: AtomicDictionary<RPCServer, TokenFetcher> = .init()
     private let tokensDataStore: TokensDataStore
     private var cancelable = Set<AnyCancellable>()
+    private let queue = DispatchQueue(label: "org.alphawallet.swift.importToken")
 
     public let wallet: Wallet
 
@@ -104,6 +106,45 @@ open class ImportToken: TokenImportable, ContractDataFetchable {
         }
     }
 
+    public func fetchErc875OrErc20Token(for contract: AlphaWallet.Address, server: RPCServer) -> Promise<TokenOrContract> {
+        guard let session = sessionProvider.session(for: server) else {
+            return .init(error: ImportTokenError.serverIsDisabled)
+        }
+
+        return session.tokenProvider
+            .getTokenType(for: contract)
+            .then(on: queue, { [queue, session] tokenType -> Promise<TokenOrContract> in
+                switch tokenType {
+                case .erc875:
+                    //TODO long and very similar code below. Extract function
+                    return session.tokenProvider.getErc875Balance(for: contract)
+                        .then(on: queue, { balance -> Promise<TokenOrContract> in
+                            if balance.isEmpty {
+                                return .value(.none)
+                            } else {
+                                return self.fetchTokenOrContract(for: contract, server: server, onlyIfThereIsABalance: false)
+                            }
+                        }).recover(on: queue, { _ -> Guarantee<TokenOrContract> in
+                            return .value(.none)
+                        })
+                case .erc20:
+                    return session.tokenProvider.getErc20Balance(for: contract)
+                        .then(on: queue, { balance -> Promise<TokenOrContract> in
+                            if balance > 0 {
+                                return self.fetchTokenOrContract(for: contract, server: server, onlyIfThereIsABalance: false)
+                            } else {
+                                return .value(.none)
+                            }
+                        }).recover(on: queue, { _ -> Guarantee<TokenOrContract> in
+                            return .value(.none)
+                        })
+                case .erc721, .erc721ForTickets, .erc1155, .nativeCryptocurrency:
+                    //Handled in TokenBalanceFetcher.refreshBalanceForErc721Or1155Tokens()
+                    return .value(.none)
+                }
+            })
+    }
+
     open func importToken(token: ERCToken, shouldUpdateBalance: Bool = true) -> Token {
         let token = tokensDataStore.addCustom(tokens: [token], shouldUpdateBalance: shouldUpdateBalance)
 
@@ -138,5 +179,4 @@ open class ImportToken: TokenImportable, ContractDataFetchable {
             return fetcher
         }
     }
-
 }
