@@ -15,7 +15,7 @@ A "proxy" server-client protocol that in theory allows dapps that support it to 
 
 ## WalletConnect v2
 
-Coming soon. There is onging work on iOS to implement their beta SDK.
+Coming soon. There is ongoing work on iOS to implement their beta SDK.
 
 ## Accessing nodes and data
 
