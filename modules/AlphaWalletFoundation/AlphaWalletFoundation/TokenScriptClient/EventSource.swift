@@ -6,7 +6,7 @@ import PromiseKit
 import Combine
 import AlphaWalletWeb3
 
-public final class EventSource: NSObject {
+final class EventSource: NSObject {
     private var wallet: Wallet
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: NonActivityEventsDataStore
@@ -17,8 +17,10 @@ public final class EventSource: NSObject {
     private let enabledServers: [RPCServer]
     private var cancellable = Set<AnyCancellable>()
     private let tokensService: TokenProvidable
+    private let getEventLogs: GetEventLogs
 
-    public init(wallet: Wallet, tokensService: TokenProvidable, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, config: Config) {
+    init(wallet: Wallet, tokensService: TokenProvidable, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, config: Config, getEventLogs: GetEventLogs) {
+        self.getEventLogs = getEventLogs
         self.wallet = wallet
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
@@ -28,7 +30,7 @@ public final class EventSource: NSObject {
         super.init()
     }
 
-    public func start() {
+    func start() {
         guard !config.development.isAutoFetchingDisabled else { return }
 
         subscribeForTokenChanges()
@@ -101,7 +103,7 @@ public final class EventSource: NSObject {
         return getEventOriginsAndTokenIds(forToken: token)
             .flatMap { value in
                 value.tokenIds.map {
-                    EventSource.functional.fetchEvents(forTokenId: $0, token: token, eventOrigin: value.eventOrigin, wallet: wallet, eventsDataStore: eventsDataStore, queue: queue)
+                    EventSource.functional.fetchEvents(getEventLogs: getEventLogs, tokenId: $0, token: token, eventOrigin: value.eventOrigin, wallet: wallet, eventsDataStore: eventsDataStore, queue: queue)
                 }
             }
     }
@@ -135,7 +137,7 @@ extension EventSource {
 
 extension EventSource.functional {
 
-    static func fetchEvents(forTokenId tokenId: TokenId, token: Token, eventOrigin: EventOrigin, wallet: Wallet, eventsDataStore: NonActivityEventsDataStore, queue: DispatchQueue) -> Promise<Void> {
+    static func fetchEvents(getEventLogs: GetEventLogs, tokenId: TokenId, token: Token, eventOrigin: EventOrigin, wallet: Wallet, eventsDataStore: NonActivityEventsDataStore, queue: DispatchQueue) -> Promise<Void> {
         let (filterName, filterValue) = eventOrigin.eventFilter
         let filterParam = eventOrigin
             .parameters
@@ -155,16 +157,16 @@ extension EventSource.functional {
 
         let eventFilter = EventFilter(fromBlock: fromBlock, toBlock: .latest, addresses: addresses, parameterFilters: parameterFilters)
 
-        return getEventLogs(withServer: token.server, contract: eventOrigin.contract, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter)
-        .done(on: queue, { result -> Void in
-            let events = result.compactMap {
-                Self.convertEventToDatabaseObject($0, filterParam: filterParam, eventOrigin: eventOrigin, contractAddress: token.contractAddress, server: token.server)
-            }
+        return getEventLogs.getEventLogs(contractAddress: eventOrigin.contract, server: token.server, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter)
+            .map(on: queue, { result -> Void in
+                let events = result.compactMap {
+                    Self.convertEventToDatabaseObject($0, filterParam: filterParam, eventOrigin: eventOrigin, contractAddress: token.contractAddress, server: token.server)
+                }
 
-            eventsDataStore.addOrUpdate(events: events)
-        }).recover(on: queue, { e in
-            logError(e, rpcServer: token.server, address: token.contractAddress)
-        })
+                eventsDataStore.addOrUpdate(events: events)
+            }).recover(on: queue, { e in
+                logError(e, rpcServer: token.server, address: token.contractAddress)
+            })
     }
 
     static func convertToImplicitAttribute(string: String) -> AssetImplicitAttributes? {
