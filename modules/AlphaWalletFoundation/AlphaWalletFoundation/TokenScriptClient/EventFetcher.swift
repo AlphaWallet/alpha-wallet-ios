@@ -24,7 +24,7 @@ final class EventFetcher {
     func fetchEvents(tokenId: TokenId, token: Token, eventOrigin: EventOrigin, oldEvent: EventInstanceValue?) -> Promise<[EventInstanceValue]> {
         firstly {
             .value(tokenId)
-        }.then(on: queue, { [getEventLogs, queue, wallet] tokenId in
+        }.then(on: queue, { [getEventLogs, queue, wallet] tokenId -> Promise<[EventInstanceValue]> in
             let (filterName, filterValue) = eventOrigin.eventFilter
             let filterParam = eventOrigin
                 .parameters

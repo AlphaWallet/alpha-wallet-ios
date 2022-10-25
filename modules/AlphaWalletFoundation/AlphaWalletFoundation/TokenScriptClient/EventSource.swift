@@ -98,10 +98,10 @@ final class EventSource: NSObject {
     private func fetchEventsByTokenId(for token: Token) -> Promise<Void> {
         let promises = getEventOriginsAndTokenIds(forToken: token)
             .flatMap { value in
-                value.tokenIds.map {
+                value.tokenIds.map { tokenId -> Promise<Void> in
                     let eventOrigin = value.eventOrigin
                     let oldEvent = eventsDataStore.getLastMatchingEventSortedByBlockNumber(for: eventOrigin.contract, tokenContract: token.contractAddress, server: token.server, eventName: eventOrigin.eventName)
-                    return eventFetcher.fetchEvents(tokenId: $0, token: token, eventOrigin: eventOrigin, oldEvent: oldEvent)
+                    return eventFetcher.fetchEvents(tokenId: tokenId, token: token, eventOrigin: eventOrigin, oldEvent: oldEvent)
                         .map(on: queue, { [eventsDataStore] events in
                             eventsDataStore.addOrUpdate(events: events)
                         })
