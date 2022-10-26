@@ -4,7 +4,7 @@ import Foundation
 import BigInt
 import PromiseKit
 
-public class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
+class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
     private let transactionDataStore: TransactionDataStore
     private let session: WalletSession
     private let analytics: AnalyticsLogger
@@ -21,10 +21,11 @@ public class EtherscanSingleChainTransactionProvider: SingleChainTransactionProv
     private var isFetchingLatestTransactions = false
     private let tokensService: TokenProvidable
     private let getContractInteractions = GetContractInteractions()
+    private lazy var localizedOperationFetcher = LocalizedOperationFetcher(tokensService: tokensService, session: session)
     private lazy var getPendingTransaction = GetPendingTransaction(server: session.server, analytics: analytics)
     weak public var delegate: SingleChainTransactionProviderDelegate?
 
-    public required init(
+    required init(
         session: WalletSession,
         analytics: AnalyticsLogger,
         transactionDataStore: TransactionDataStore,
@@ -40,7 +41,7 @@ public class EtherscanSingleChainTransactionProvider: SingleChainTransactionProv
         self.tokensFromTransactionsFetcher = tokensFromTransactionsFetcher
     }
 
-    public func start() {
+    func start() {
         runScheduledTimers()
         if transactionsTracker.fetchingState != .done {
             fetchOlderTransactions()
@@ -49,14 +50,14 @@ public class EtherscanSingleChainTransactionProvider: SingleChainTransactionProv
         }
     }
 
-    public func stopTimers() {
+    func stopTimers() {
         timer?.invalidate()
         timer = nil
         updateTransactionsTimer?.invalidate()
         updateTransactionsTimer = nil
     }
 
-    public func runScheduledTimers() {
+    func runScheduledTimers() {
         guard timer == nil, updateTransactionsTimer == nil else {
             return
         }
@@ -87,11 +88,9 @@ public class EtherscanSingleChainTransactionProvider: SingleChainTransactionProv
         let startBlock = Config.getLastFetchedErc20InteractionBlockNumber(session.server, wallet: wallet).flatMap { $0 + 1 }
         firstly {
             getContractInteractions.getErc20Interactions(walletAddress: wallet, server: server, startBlock: startBlock)
-        }.then(on: queue, { [weak self] result -> Promise<([TransactionInstance], Int)> in
-            guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
-
-            let (result, minBlockNumber, maxBlockNumber) = functional.extractBoundingBlockNumbers(fromTransactions: result)
-            return functional.backFillTransactionGroup(result, startBlock: minBlockNumber, endBlock: maxBlockNumber, session: strongSelf.session, tokensService: strongSelf.tokensService, queue: strongSelf.queue).map { ($0, maxBlockNumber) }
+        }.then(on: queue, { [localizedOperationFetcher] transactions -> Promise<([TransactionInstance], Int)> in
+            let (result, minBlockNumber, maxBlockNumber) = functional.extractBoundingBlockNumbers(fromTransactions: transactions)
+            return functional.backFillTransactionGroup(result, startBlock: minBlockNumber, endBlock: maxBlockNumber, fetcher: localizedOperationFetcher).map { ($0, maxBlockNumber) }
         }).done(on: queue, { [weak self] backFilledTransactions, maxBlockNumber in
             guard let strongSelf = self else { return }
             //Just to be sure, we don't want any kind of strange errors to clear our progress by resetting blockNumber = 0
@@ -101,10 +100,9 @@ public class EtherscanSingleChainTransactionProvider: SingleChainTransactionProv
             strongSelf.addOrUpdate(transactions: backFilledTransactions)
         }).catch({ e in
             logError(e, function: #function, rpcServer: server, address: wallet)
-        })
-        .finally { [weak self] in
+        }).finally({ [weak self] in
             self?.isAutoDetectingERC20Transactions = false
-        }
+        })
     }
 
     private func autoDetectErc721Transactions() {
@@ -115,10 +113,9 @@ public class EtherscanSingleChainTransactionProvider: SingleChainTransactionProv
         let startBlock = Config.getLastFetchedErc721InteractionBlockNumber(session.server, wallet: wallet).flatMap { $0 + 1 }
         firstly {
             getContractInteractions.getErc721Interactions(walletAddress: wallet, server: server, startBlock: startBlock)
-        }.then(on: queue, { [weak self] result -> Promise<([TransactionInstance], Int)> in
-            guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
-            let (result, minBlockNumber, maxBlockNumber) = functional.extractBoundingBlockNumbers(fromTransactions: result)
-            return functional.backFillTransactionGroup(result, startBlock: minBlockNumber, endBlock: maxBlockNumber, session: strongSelf.session, tokensService: strongSelf.tokensService, queue: strongSelf.queue).map { ($0, maxBlockNumber) }
+        }.then(on: queue, { [localizedOperationFetcher] transactions -> Promise<([TransactionInstance], Int)> in
+            let (result, minBlockNumber, maxBlockNumber) = functional.extractBoundingBlockNumbers(fromTransactions: transactions)
+            return functional.backFillTransactionGroup(result, startBlock: minBlockNumber, endBlock: maxBlockNumber, fetcher: localizedOperationFetcher).map { ($0, maxBlockNumber) }
         }).done(on: queue, { [weak self] backFilledTransactions, maxBlockNumber in
             guard let strongSelf = self else { return }
             //Just to be sure, we don't want any kind of strange errors to clear our progress by resetting blockNumber = 0
@@ -128,13 +125,12 @@ public class EtherscanSingleChainTransactionProvider: SingleChainTransactionProv
             strongSelf.addOrUpdate(transactions: backFilledTransactions)
         }).catch({ e in
             logError(e, rpcServer: server, address: wallet)
-        })
-        .finally { [weak self] in
+        }).finally({ [weak self] in
             self?.isAutoDetectingErc721Transactions = false
-        }
+        })
     }
 
-    public func fetch() {
+    func fetch() {
         fetchLatestTransactions()
         fetchPendingTransactions()
     }
@@ -215,14 +211,14 @@ public class EtherscanSingleChainTransactionProvider: SingleChainTransactionProv
             sortOrder = .desc
         }
 
-        let operation = FetchLatestTransactionsOperation(forSession: session, provider: self, startBlock: startBlock, sortOrder: sortOrder, queue: queue)
+        let operation = FetchLatestTransactionsOperation(provider: self, startBlock: startBlock, sortOrder: sortOrder)
         fetchLatestTransactionsQueue.addOperation(operation)
     }
 
     private func fetchOlderTransactions() {
         guard let oldestCachedTransaction = transactionDataStore.lastTransaction(forServer: session.server, withTransactionState: .completed) else { return }
 
-        let promise = functional.fetchTransactions(startBlock: 1, endBlock: oldestCachedTransaction.blockNumber - 1, sortOrder: .desc, session: session, tokensService: tokensService, queue: queue)
+        let promise = functional.fetchTransactions(startBlock: 1, endBlock: oldestCachedTransaction.blockNumber - 1, sortOrder: .desc, fetcher: localizedOperationFetcher)
         promise.done(on: queue, { [weak self] transactions in
             guard let strongSelf = self else { return }
 
@@ -257,7 +253,6 @@ public class EtherscanSingleChainTransactionProvider: SingleChainTransactionProv
 
     //This inner class reaches into the internals of its outer coordinator class to call some methods. It exists so we can wrap operations into an Operation class and feed it into a queue, so we don't put much logic into it
     class FetchLatestTransactionsOperation: Operation {
-        private let session: WalletSession
         weak private var provider: EtherscanSingleChainTransactionProvider?
         private let startBlock: Int
         private let sortOrder: GetTransactions.SortOrder
@@ -270,34 +265,31 @@ public class EtherscanSingleChainTransactionProvider: SingleChainTransactionProv
         override var isAsynchronous: Bool {
             return true
         }
-        private let queue: DispatchQueue
 
-        init(forSession session: WalletSession, provider: EtherscanSingleChainTransactionProvider, startBlock: Int, sortOrder: GetTransactions.SortOrder, queue: DispatchQueue) {
-            self.session = session
+        init(provider: EtherscanSingleChainTransactionProvider, startBlock: Int, sortOrder: GetTransactions.SortOrder) {
             self.provider = provider
             self.startBlock = startBlock
             self.sortOrder = sortOrder
-            self.queue = queue
             super.init()
-            self.queuePriority = session.server.networkRequestsQueuePriority
+            self.queuePriority = provider.localizedOperationFetcher.server.networkRequestsQueuePriority
         }
 
         override func main() {
             guard let provider = self.provider else { return }
 
             firstly {
-                EtherscanSingleChainTransactionProvider.functional.fetchTransactions(startBlock: startBlock, sortOrder: sortOrder, session: provider.session, tokensService: provider.tokensService, queue: provider.queue)
-            }.done(on: queue, { [weak self] transactions in
+                EtherscanSingleChainTransactionProvider.functional.fetchTransactions(startBlock: startBlock, sortOrder: sortOrder, fetcher: provider.localizedOperationFetcher)
+            }.done(on: provider.queue, { [weak self] transactions in
                 guard let strongSelf = self else { return }
                 guard !strongSelf.isCancelled else { return }
                 provider.addOrUpdate(transactions: transactions)
-            }).catch(on: queue, { e in
+            }).catch(on: provider.queue, { e in
                 if e is GetTransactions.NoBlockchainExplorerApi {
                     //no-op, since this is expected for some chains
                 } else {
-                    logError(e, rpcServer: provider.session.server, address: self.session.account.address)
+                    logError(e, rpcServer: provider.session.server, address: provider.localizedOperationFetcher.account.address)
                 }
-            }).finally(on: queue, { [weak self] in
+            }).finally(on: provider.queue, { [weak self] in
                 guard let strongSelf = self else { return }
 
                 strongSelf.willChangeValue(forKey: "isExecuting")
@@ -326,25 +318,26 @@ extension EtherscanSingleChainTransactionProvider.functional {
         }
     }
 
-    static func fetchTransactions(startBlock: Int, endBlock: Int = 999_999_999, sortOrder: GetTransactions.SortOrder, session: WalletSession, tokensService: TokenProvidable, queue: DispatchQueue) -> Promise<[TransactionInstance]> {
+    static func fetchTransactions(startBlock: Int, endBlock: Int = 999_999_999, sortOrder: GetTransactions.SortOrder, fetcher: LocalizedOperationFetcher) -> Promise<[TransactionInstance]> {
         return firstly {
-            Alamofire.request(GetTransactions(server: session.server, address: session.account.address, startBlock: startBlock, endBlock: endBlock, sortOrder: sortOrder)).responseData()
-        }.then(on: queue) { result -> Promise<[TransactionInstance]> in
+            Alamofire.request(GetTransactions(server: fetcher.server, address: fetcher.account.address, startBlock: startBlock, endBlock: endBlock, sortOrder: sortOrder)).responseData()
+        }.then(on: .global()) { result -> Promise<[TransactionInstance]> in
             if result.response.response?.statusCode == 404 {
                 throw URLError(URLError.Code(rawValue: 404)) // Clearer than a JSON deserialization error when it's a 404
             }
-            let promises = try JSONDecoder().decode(ArrayResponse<RawTransaction>.self, from: result.data).result.map {
-                TransactionInstance.from(transaction: $0, tokensService: tokensService, session: session)
-            }
-            return when(fulfilled: promises).compactMap(on: queue) { $0.compactMap { $0 } }
+
+            let promises = try JSONDecoder().decode(ArrayResponse<RawTransaction>.self, from: result.data)
+                .result.map { TransactionInstance.from(transaction: $0, fetcher: fetcher) }
+
+            return when(fulfilled: promises).compactMap(on: .global()) { $0.compactMap { $0 } }
         }
     }
 
-    static func backFillTransactionGroup(_ transactionsToFill: [TransactionInstance], startBlock: Int, endBlock: Int, session: WalletSession, tokensService: TokenProvidable, queue: DispatchQueue) -> Promise<[TransactionInstance]> {
+    static func backFillTransactionGroup(_ transactionsToFill: [TransactionInstance], startBlock: Int, endBlock: Int, fetcher: LocalizedOperationFetcher) -> Promise<[TransactionInstance]> {
         guard !transactionsToFill.isEmpty else { return .value([]) }
         return firstly {
-            fetchTransactions(startBlock: startBlock, endBlock: endBlock, sortOrder: .asc, session: session, tokensService: tokensService, queue: queue)
-        }.map(on: queue) { fillerTransactions -> [TransactionInstance] in
+            fetchTransactions(startBlock: startBlock, endBlock: endBlock, sortOrder: .asc, fetcher: fetcher)
+        }.map(on: .global()) { fillerTransactions -> [TransactionInstance] in
             var results: [TransactionInstance] = .init()
             for each in transactionsToFill {
                 //ERC20 transactions are expected to have operations because of the API we use to retrieve them from

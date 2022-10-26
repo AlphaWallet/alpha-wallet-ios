@@ -20,9 +20,6 @@ public final class WalletSession: Equatable {
     public var sessionID: String {
         return WalletSession.functional.sessionID(account: account, server: server)
     }
-    public lazy private (set) var queue: DispatchQueue = {
-        return DispatchQueue(label: "com.WalletSession.\(account.address.eip55String).\(server)")
-    }()
 
     public init(account: Wallet, server: RPCServer, config: Config, analytics: AnalyticsLogger) {
         self.analytics = analytics

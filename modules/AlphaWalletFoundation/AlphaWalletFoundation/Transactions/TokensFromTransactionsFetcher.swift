@@ -25,7 +25,7 @@ public final class TokensFromTransactionsFetcher {
 
     func extractNewTokens(from transactions: [TransactionInstance]) {
         guard !transactions.isEmpty else { return }
-        self.filterTransactionsToPullContractsFrom(transactions)
+        filterTransactionsToPullContractsFrom(transactions)
             .done { [weak self] transactionsToPullContractsFrom, contractsAndTokenTypes in
                 guard !transactionsToPullContractsFrom.isEmpty else { return }
                 self?.addTokensFromUpdates(transactionsToPullContractsFrom: transactionsToPullContractsFrom, contractsAndTokenTypes: contractsAndTokenTypes)
@@ -65,10 +65,10 @@ public final class TokensFromTransactionsFetcher {
         let tokenTypePromises = contracts.map { session.tokenProvider.getTokenType(for: $0) }
 
         return when(fulfilled: tokenTypePromises)
-            .map(on: session.queue, { tokenTypes in
+            .map { tokenTypes in
                 let contractsToTokenTypes = Dictionary(uniqueKeysWithValues: zip(contracts, tokenTypes))
                 return (transactions: filteredTransactions, contractTypes: contractsToTokenTypes)
-            })
+            }
     }
 }
 
