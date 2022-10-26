@@ -22,48 +22,61 @@ public class IsErc721Contract {
         //Using "kat" instead of "cryptokitties" to avoid being mistakenly detected by app review as supporting CryptoKitties
         static let onlyKat = "0x9a20483d"
     }
-    private let queue: DispatchQueue
 
-    public init(forServer server: RPCServer, queue: DispatchQueue = .global()) {
+    private var inFlightPromises: [String: Promise<Bool>] = [:]
+    private let queue = DispatchQueue(label: "org.alphawallet.swift.isErc721Contract")
+
+    public init(forServer server: RPCServer) {
         self.server = server
-        self.queue = queue
     }
 
     func getIsERC721Contract(for contract: AlphaWallet.Address) -> Promise<Bool> {
-        let server = self.server
-        if contract.sameContract(as: DoesNotSupportERC165Querying.bitizen) {
-            return .value(true)
-        }
-        if contract.sameContract(as: DoesNotSupportERC165Querying.cryptoSaga) {
-            return .value(true)
-        }
-
-        let function = GetInterfaceSupported165Encode()
-
-        let cryptoKittyPromise = callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [ERC165Hash.onlyKat] as [AnyObject])
-
-        let nonCryptoKittyERC721Promise = callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [ERC165Hash.official] as [AnyObject])
-
-        let nonCryptoKittyERC721WithOldInterfaceHashPromise = callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [ERC165Hash.old] as [AnyObject])
-
-        //Slower than theoretically possible because we wait for every promise to be resolved. In theory we can stop when any promise is fulfilled with true. But code is much less elegant
-        return firstly {
-            when(resolved: cryptoKittyPromise, nonCryptoKittyERC721Promise, nonCryptoKittyERC721WithOldInterfaceHashPromise)
-        }.map { data -> Bool in
-            let isCryptoKitty = cryptoKittyPromise.value?["0"] as? Bool
-            let isNonCryptoKittyERC721 = nonCryptoKittyERC721Promise.value?["0"] as? Bool
-            let isNonCryptoKittyERC721WithOldInterfaceHash = nonCryptoKittyERC721WithOldInterfaceHashPromise.value?["0"] as? Bool
-            if let isCryptoKitty = isCryptoKitty, isCryptoKitty {
-                return true
-            } else if let isNonCryptoKittyERC721 = isNonCryptoKittyERC721, isNonCryptoKittyERC721 {
-                return true
-            } else if let isNonCryptoKittyERC721WithOldInterfaceHash = isNonCryptoKittyERC721WithOldInterfaceHash, isNonCryptoKittyERC721WithOldInterfaceHash {
-                return true
-            } else if isCryptoKitty != nil, isNonCryptoKittyERC721 != nil, isNonCryptoKittyERC721WithOldInterfaceHash != nil {
-                return false
+        firstly {
+            .value(server)
+        }.then(on: queue, { [weak self, queue] server -> Promise<Bool> in
+            let key = "\(contract.eip55String)-\(server.chainID)"
+            if let promise = self?.inFlightPromises[key] {
+                return promise
             } else {
-                throw CastError(actualValue: data, expectedType: Bool.self)
+                if contract.sameContract(as: DoesNotSupportERC165Querying.bitizen) || contract.sameContract(as: DoesNotSupportERC165Querying.cryptoSaga) {
+                    return .value(true)
+                }
+
+                let function = GetInterfaceSupported165Encode()
+
+                let cryptoKittyPromise = callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [ERC165Hash.onlyKat] as [AnyObject])
+
+                let nonCryptoKittyERC721Promise = callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [ERC165Hash.official] as [AnyObject])
+
+                let nonCryptoKittyERC721WithOldInterfaceHashPromise = callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [ERC165Hash.old] as [AnyObject])
+
+                //Slower than theoretically possible because we wait for every promise to be resolved. In theory we can stop when any promise is fulfilled with true. But code is much less elegant
+                let promise = firstly {
+                    when(resolved: cryptoKittyPromise, nonCryptoKittyERC721Promise, nonCryptoKittyERC721WithOldInterfaceHashPromise)
+                }.map(on: queue, { data -> Bool in
+                    let isCryptoKitty = cryptoKittyPromise.value?["0"] as? Bool
+                    let isNonCryptoKittyERC721 = nonCryptoKittyERC721Promise.value?["0"] as? Bool
+                    let isNonCryptoKittyERC721WithOldInterfaceHash = nonCryptoKittyERC721WithOldInterfaceHashPromise.value?["0"] as? Bool
+                    if let isCryptoKitty = isCryptoKitty, isCryptoKitty {
+                        return true
+                    } else if let isNonCryptoKittyERC721 = isNonCryptoKittyERC721, isNonCryptoKittyERC721 {
+                        return true
+                    } else if let isNonCryptoKittyERC721WithOldInterfaceHash = isNonCryptoKittyERC721WithOldInterfaceHash, isNonCryptoKittyERC721WithOldInterfaceHash {
+                        return true
+                    } else if isCryptoKitty != nil, isNonCryptoKittyERC721 != nil, isNonCryptoKittyERC721WithOldInterfaceHash != nil {
+                        return false
+                    } else {
+                        throw CastError(actualValue: data, expectedType: Bool.self)
+                    }
+                }).ensure(on: queue, {
+                    self?.inFlightPromises[key] = .none
+                })
+
+                self?.inFlightPromises[key] = promise
+
+                return promise
             }
-        }
+        })
+
     }
 }
