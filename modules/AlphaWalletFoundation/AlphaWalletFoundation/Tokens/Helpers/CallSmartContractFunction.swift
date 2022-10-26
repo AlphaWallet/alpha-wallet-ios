@@ -174,7 +174,7 @@ final class GetEventLogs {
     func getEventLogs(contractAddress: AlphaWallet.Address, server: RPCServer, eventName: String, abiString: String, filter: EventFilter) -> Promise<[EventParserResultProtocol]> {
         firstly {
             .value(contractAddress)
-        }.then(on: queue, { [weak self, queue] contractAddress in
+        }.then(on: queue, { [weak self, queue] contractAddress -> Promise<[EventParserResultProtocol]> in
             let key = "\(contractAddress.eip55String)-\(server.chainID)-\(eventName)-\(abiString)-\(try JSONEncoder().encode(filter.rpcPreEncode()).hashValue)"
 
             if let promise = self?.inFlightPromises[key] {

@@ -79,10 +79,10 @@ final class EventSourceForActivities {
     }
 
     private func fetchEvents(for token: Token) -> Promise<Void> {
-        let promises = getActivityCards(forToken: token).map {
-            let eventOrigin = $0.eventOrigin
+        let promises = getActivityCards(forToken: token).map { card -> Promise<Void> in
+            let eventOrigin = card.eventOrigin
             let oldEvent = eventsDataStore.getLastMatchingEventSortedByBlockNumber(for: eventOrigin.contract, tokenContract: token.contractAddress, server: token.server, eventName: eventOrigin.eventName)
-            return fetcher.fetchEvents(token: token, card: $0, oldEvent: oldEvent)
+            return fetcher.fetchEvents(token: token, card: card, oldEvent: oldEvent)
                 .map(on: queue, { [eventsDataStore] events in
                     eventsDataStore.addOrUpdate(events: events)
                 })
