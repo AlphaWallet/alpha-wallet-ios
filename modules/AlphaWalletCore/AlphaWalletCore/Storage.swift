@@ -8,7 +8,7 @@
 import Foundation
 import Combine 
 
-public class Storage<T: Codable> {
+open class Storage<T: Codable> {
     private let fileName: String
     private lazy var valueSubject: CurrentValueSubject<T, Never> = .init(storage.load(forKey: fileName, defaultValue: defaultValue))
     private let storage: StorageType

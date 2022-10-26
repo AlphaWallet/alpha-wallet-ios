@@ -3,21 +3,43 @@
 import Foundation
 import PromiseKit
 import AlphaWalletWeb3
+import AlphaWalletCore
 
-public class GetContractName {
+final class GetContractName {
     private let server: RPCServer
+    private var inFlightPromises: [String: Promise<String>] = [:]
+    private let queue = DispatchQueue(label: "org.alphawallet.swift.getContractName")
 
-    public init(forServer server: RPCServer) {
+    init(forServer server: RPCServer) {
         self.server = server
     }
 
-    public func getName(for contract: AlphaWallet.Address) -> Promise<String> {
-        let functionName = "name"
-        return callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: Web3.Utils.erc20ABI).map { nameResult -> String in
-            guard let name = nameResult["0"] as? String else {
-                throw CastError(actualValue: nameResult["0"], expectedType: String.self)
+    func getName(for contract: AlphaWallet.Address) -> Promise<String> {
+        firstly {
+            .value(contract)
+        }.then(on: queue, { [weak self, queue, server] contract -> Promise<String> in
+            let key = contract.eip55String
+            
+            if let promise = self?.inFlightPromises[key] {
+                return promise
+            } else {
+                let functionName = "name"
+                let promise = attempt(maximumRetryCount: 2, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {
+                    callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: Web3.Utils.erc20ABI)
+                        .map(on: queue, { nameResult -> String in
+                            guard let name = nameResult["0"] as? String else {
+                                throw CastError(actualValue: nameResult["0"], expectedType: String.self)
+                            }
+                            return name
+                        })
+                }.ensure(on: queue, {
+                    self?.inFlightPromises[key] = .none
+                })
+
+                self?.inFlightPromises[key] = promise
+
+                return promise
             }
-            return name
-        }
+        })
     }
 }

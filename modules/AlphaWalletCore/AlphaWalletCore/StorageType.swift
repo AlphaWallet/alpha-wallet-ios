@@ -43,15 +43,15 @@ public extension StorageType {
 }
 
 public struct FileStorage: StorageType {
-    public var fileExtension: String = "data"
+    public var fileExtension: String
     private let serialQueue: DispatchQueue = DispatchQueue(label: "org.alphawallet.swift.file")
     public var directoryUrl: URL = {
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         return paths[0]
     }()
 
-    public init() {
-
+    public init(fileExtension: String = "data") {
+        self.fileExtension = fileExtension
     }
 
     public func dataExists(forKey key: String) -> Bool {

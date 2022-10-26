@@ -11,22 +11,30 @@ import SwiftyJSON
 public class GetContractInteractions {
     struct E: Error {}
 
-    private let queue: DispatchQueue
-
-    public init(queue: DispatchQueue) {
-        self.queue = queue
-    }
+    private let queue: DispatchQueue = .global(qos: .utility)
 
     public func getErc20Interactions(walletAddress: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil) -> Promise<[TransactionInstance]> {
-        return functional.getErc20Interactions(walletAddress: walletAddress, server: server, startBlock: startBlock, queue: queue)
+        firstly {
+            .value(walletAddress)
+        }.then(on: queue, { [queue] walletAddress in
+            return functional.getErc20Interactions(walletAddress: walletAddress, server: server, startBlock: startBlock, queue: queue)
+        })
     }
 
     public func getErc721Interactions(walletAddress: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil) -> Promise<[TransactionInstance]> {
-        return functional.getErc721Interactions(walletAddress: walletAddress, server: server, startBlock: startBlock, queue: queue)
+        firstly {
+            .value(walletAddress)
+        }.then(on: queue, { [queue] walletAddress in
+            return functional.getErc721Interactions(walletAddress: walletAddress, server: server, startBlock: startBlock, queue: queue)
+        })
     }
 
     public func getContractList(walletAddress: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil, erc20: Bool) -> Promise<([AlphaWallet.Address], Int?)> {
-        return functional.getContractList(walletAddress: walletAddress, server: server, startBlock: startBlock, erc20: erc20, queue: queue)
+        firstly {
+            .value(walletAddress)
+        }.then(on: queue, { [queue] walletAddress in
+            return functional.getContractList(walletAddress: walletAddress, server: server, startBlock: startBlock, erc20: erc20, queue: queue)
+        })
     }
 }
 
@@ -70,8 +78,7 @@ extension GetContractInteractions.functional {
                         tokenId: transactionJson["tokenID"].stringValue,
                         symbol: transactionJson["tokenSymbol"].stringValue,
                         name: transactionJson["tokenName"].stringValue,
-                        decimals: transactionJson["tokenDecimal"].intValue
-                )
+                        decimals: transactionJson["tokenDecimal"].intValue)
 
                 return TransactionInstance(
                         id: transactionJson["hash"].stringValue,
@@ -90,8 +97,7 @@ extension GetContractInteractions.functional {
                         localizedOperations: [localizedTokenObj],
                         //The API only returns successful transactions
                         state: .completed,
-                        isErc20Interaction: true
-                )
+                        isErc20Interaction: true)
             }
             return mergeTransactionOperationsIntoSingleTransaction(transactions)
         }
@@ -133,8 +139,7 @@ extension GetContractInteractions.functional {
                         tokenId: transactionJson["tokenID"].stringValue,
                         symbol: transactionJson["tokenSymbol"].stringValue,
                         name: transactionJson["tokenName"].stringValue,
-                        decimals: transactionJson["tokenDecimal"].intValue
-                )
+                        decimals: transactionJson["tokenDecimal"].intValue)
 
                 return TransactionInstance(
                         id: transactionJson["hash"].stringValue,
@@ -153,9 +158,9 @@ extension GetContractInteractions.functional {
                         localizedOperations: [localizedTokenObj],
                         //The API only returns successful transactions
                         state: .completed,
-                        isErc20Interaction: true
-                )
+                        isErc20Interaction: true)
             }
+            
             return mergeTransactionOperationsIntoSingleTransaction(transactions)
         }
     }

@@ -6,29 +6,46 @@
 import Foundation
 import BigInt
 import PromiseKit
+import AlphaWalletCore
 
-public class GetErc721Balance {
-    private let queue: DispatchQueue?
+final class GetErc721Balance {
+    private let queue = DispatchQueue(label: "org.alphawallet.swift.getErc721Balance")
+    private var inFlightPromises: [String: Promise<[String]>] = [:]
     private let server: RPCServer
 
-    public init(forServer server: RPCServer, queue: DispatchQueue? = nil) {
+    init(forServer server: RPCServer) {
         self.server = server
-        self.queue = queue
     }
 
-    public func getERC721TokenBalance(for address: AlphaWallet.Address, contract: AlphaWallet.Address) -> Promise<[String]> {
-        let function = GetERC721Balance()
-        return callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [address.eip55String] as [AnyObject], queue: queue)
-            .map(on: queue, { balanceResult -> BigUInt in
-                let balance = GetErc721Balance.adapt(balanceResult["0"] as Any)
-                return balance
-            }).map(on: queue, { balance -> [String] in
-                if balance >= Int.max {
-                    throw Web3Error(description: "")
-                } else {
-                    return [String](repeating: "0", count: Int(balance))
-                }
-            })
+    func getERC721TokenBalance(for address: AlphaWallet.Address, contract: AlphaWallet.Address) -> Promise<[String]> {
+        firstly {
+            .value(contract)
+        }.then(on: queue, { [weak self, queue, server] contract -> Promise<[String]> in
+            let key = "\(address.eip55String)-\(contract.eip55String)"
+            
+            if let promise = self?.inFlightPromises[key] {
+                return promise
+            } else {
+                let function = GetERC721Balance()
+                let promise = attempt(maximumRetryCount: 2, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {
+                    callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [address.eip55String] as [AnyObject])
+                        .map(on: queue, { balanceResult -> [String] in
+                            let balance = GetErc721Balance.adapt(balanceResult["0"] as Any)
+                            if balance >= Int.max {
+                                throw Web3Error(description: "")
+                            } else {
+                                return [String](repeating: "0", count: Int(balance))
+                            }
+                        })
+                }.ensure(on: queue, {
+                    self?.inFlightPromises[key] = .none
+                })
+
+                self?.inFlightPromises[key] = promise
+
+                return promise
+            }
+        })
     }
 
     private static func adapt(_ value: Any) -> BigUInt {

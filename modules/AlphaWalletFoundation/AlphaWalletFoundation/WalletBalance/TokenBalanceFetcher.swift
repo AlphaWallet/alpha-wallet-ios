@@ -108,19 +108,19 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
             break
         case .erc20:
             nonErc1155BalanceFetcher
-                .getERC20Balance(for: token.contractAddress)
+                .getErc20Balance(for: token.contractAddress)
                 .done(on: queue, { [weak self] value in
                     self?.notifyUpdateBalance([.update(token: token, action: .value(value))])
                 }).cauterize()
         case .erc875:
             nonErc1155BalanceFetcher
-                .getERC875Balance(for: token.contractAddress)
+                .getErc875Balance(for: token.contractAddress)
                 .done(on: queue, { [weak self] balance in
                     self?.notifyUpdateBalance([.update(token: token, action: .nonFungibleBalance(.erc875(balance)))])
                 }).cauterize()
         case .erc721ForTickets:
             nonErc1155BalanceFetcher
-                .getERC721ForTicketsBalance(for: token.contractAddress)
+                .getErc721ForTicketsBalance(for: token.contractAddress)
                 .done(on: queue, { [weak self] balance in
                     self?.notifyUpdateBalance([.update(token: token, action: .nonFungibleBalance(.erc721ForTickets(balance)))])
                 }).cauterize()
@@ -240,9 +240,7 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
         var erc1155ContractToOpenSeaNonFungibles = contractToOpenSeaNonFungibles.filter { $0.value.randomElement()?.value.tokenType == .erc1155 }
 
         func _buildErc1155Updater(contractToOpenSeaNonFungibles: [AlphaWallet.Address: [NonFungibleBalanceAndItsSource<OpenSeaNonFungible>]]) -> Promise<[AddOrUpdateTokenAction]> {
-            let contractsToTokenIds: [AlphaWallet.Address: [BigInt]] = contractToOpenSeaNonFungibles.mapValues { openSeaNonFungibles -> [BigInt] in
-                openSeaNonFungibles.compactMap { BigInt($0.tokenId) }
-            }
+            let contractsToTokenIds: [AlphaWallet.Address: [BigInt]] = contractToOpenSeaNonFungibles.mapValues { $0.compactMap { BigInt($0.tokenId) } }
             //OpenSea API output doesn't include the balance ("value") for each tokenId, it seems. So we have to fetch them:
             let promises = contractsToTokenIds.map { contract, tokenIds in
                 erc1155BalanceFetcher

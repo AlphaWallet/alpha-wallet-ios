@@ -34,10 +34,9 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
     private let queue: DispatchQueue = DispatchQueue(label: "org.alphawallet.swift.tokensAutoDetection")
     private let importToken: ImportToken
     private let detectedTokens: DetectedContractsProvideble
-    private lazy var erc875BalanceFetcher = GetErc875Balance(forServer: session.server, queue: queue)
-    private lazy var erc20BalanceFetcher = GetErc20Balance(forServer: session.server, queue: queue)
     private let tokensOrContractsDetectedSubject = PassthroughSubject<[TokenOrContract], Never>()
-
+    private let getContractInteractions = GetContractInteractions()
+    
     public var tokensOrContractsDetected: AnyPublisher<[TokenOrContract], Never> {
         tokensOrContractsDetectedSubject.eraseToAnyPublisher()
     }
@@ -97,8 +96,7 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
         }
 
         return firstly {
-            GetContractInteractions(queue: queue)
-                .getContractList(walletAddress: wallet, server: server, startBlock: startBlock, erc20: erc20)
+            getContractInteractions.getContractList(walletAddress: wallet, server: server, startBlock: startBlock, erc20: erc20)
         }.map(on: queue) { contracts, maxBlockNumber -> [AlphaWallet.Address] in
             if let maxBlockNumber = maxBlockNumber {
                 if erc20 {
@@ -174,14 +172,14 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
         return contractsToDetect.map { $0.contract } - alreadyAddedContracts - deletedContracts - hiddenContracts
     }
 
-    private func fetchErc875OrErc20Token(contract: AlphaWallet.Address, forServer server: RPCServer) -> Promise<TokenOrContract> {
-        let account = session.account.address
-        return session.tokenProvider.getTokenType(for: contract)
-            .then(on: queue, { [importToken, erc875BalanceFetcher, erc20BalanceFetcher, queue] tokenType -> Promise<TokenOrContract> in
+    private func fetchErc875OrErc20Token(contract contract: AlphaWallet.Address, forServer server: RPCServer) -> Promise<TokenOrContract> {
+        return session.tokenProvider
+            .getTokenType(for: contract)
+            .then(on: queue, { [importToken, queue, session] tokenType -> Promise<TokenOrContract> in
                 switch tokenType {
                 case .erc875:
                     //TODO long and very similar code below. Extract function
-                    return erc875BalanceFetcher.getERC875TokenBalance(for: account, contract: contract).then(on: queue, { balance -> Promise<TokenOrContract> in
+                    return session.tokenProvider.getErc875Balance(for: contract).then(on: queue, { balance -> Promise<TokenOrContract> in
                         if balance.isEmpty {
                             return .value(.none)
                         } else {
@@ -191,7 +189,7 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
                         return .value(.none)
                     })
                 case .erc20:
-                    return erc20BalanceFetcher.getBalance(for: account, contract: contract).then(on: queue, { balance -> Promise<TokenOrContract> in
+                    return session.tokenProvider.getErc20Balance(for: contract).then(on: queue, { balance -> Promise<TokenOrContract> in
                         if balance > 0 {
                             return importToken.fetchTokenOrContract(for: contract, server: server, onlyIfThereIsABalance: false)
                         } else {
