@@ -14,9 +14,9 @@ final class OpenSeaNetworkProvider {
     //TODO should pass in instead
     private let config: Config = Config()
 
-    init(analytics: AnalyticsLogger, queue: DispatchQueue) {
+    init(analytics: AnalyticsLogger) {
         self.analytics = analytics
-        self.openSea = AlphaWalletOpenSea.OpenSea(apiKeys: Self.openSeaApiKeys(), queue: queue)
+        self.openSea = AlphaWalletOpenSea.OpenSea(apiKeys: Self.openSeaApiKeys())
         openSea.delegate = self
     }
 

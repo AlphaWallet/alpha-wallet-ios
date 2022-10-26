@@ -23,12 +23,11 @@ public final class AlphaWalletNFTProvider: NFTProvider {
     private let enjin: Enjin
     private var inflightPromises: AtomicDictionary<AddressAndRPCServer, Promise<NonFungiblesTokens>> = .init()
     //TODO when we remove `queue`, it's also a good time to look at using a shared copy of `OpenSea` from `AppCoordinator`
-    private let queue: DispatchQueue
+    private let queue = DispatchQueue(label: "org.alphawallet.swift.nftProvider")
 
     public init(analytics: AnalyticsLogger) {
-        queue = DispatchQueue(label: "org.alphawallet.swift.nftProvider")
-        enjin = Enjin(queue: queue)
-        openSea = OpenSea(analytics: analytics, queue: queue)
+        enjin = Enjin()
+        openSea = OpenSea(analytics: analytics)
     }
 
     // NOTE: Its important to return value for promise and not an error. As we are using `when(fulfilled: ...)`. There is force unwrap inside the `when(fulfilled` function

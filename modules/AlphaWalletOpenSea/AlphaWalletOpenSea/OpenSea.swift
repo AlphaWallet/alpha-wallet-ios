@@ -28,9 +28,6 @@ public class OpenSea {
     //Important to be static so it's for *all* OpenSea calls
     private static let callCounter = CallCounter()
 
-    //TODO why is this needed? Make it always respond on main instead
-    private let queue: DispatchQueue
-
     private let sessionManagerWithDefaultHttpHeaders: SessionManager = {
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = 30
@@ -43,9 +40,8 @@ public class OpenSea {
 
     weak public var delegate: OpenSeaDelegate?
 
-    public init(apiKeys: [ChainId: String], queue: DispatchQueue) {
+    public init(apiKeys: [ChainId: String]) {
         self.apiKeys = apiKeys
-        self.queue = queue
     }
 
     public func fetchAssetsPromise(address owner: AlphaWallet.Address, chainId: ChainId, excludeContracts: [(AlphaWallet.Address, ChainId)]) -> Promise<Response<OpenSeaAddressesToNonFungibles>> {
@@ -63,29 +59,28 @@ public class OpenSea {
         let collectionsPromise = fetchCollectionsPage(forOwner: owner, chainId: chainId, offset: offset)
 
         return when(resolved: [assetsPromise.asVoid(), collectionsPromise.asVoid()])
-                .map(on: queue, { _ -> Response<OpenSeaAddressesToNonFungibles> in
-                    let assets = assetsPromise.result?.optionalValue ?? .init(hasError: true, result: [:])
-                    let collections = collectionsPromise.result?.optionalValue ?? .init(hasError: true, result: [:])
+            .map(on: .global(), { _ -> Response<OpenSeaAddressesToNonFungibles> in
+                let assets = assetsPromise.result?.optionalValue ?? .init(hasError: true, result: [:])
+                let collections = collectionsPromise.result?.optionalValue ?? .init(hasError: true, result: [:])
 
-                    var result: [AlphaWallet.Address: [OpenSeaNonFungible]] = [:]
-                    for each in assets.result {
-                        let updatedElements = each.value.map { openSeaNonFungible -> OpenSeaNonFungible in
-                            var openSeaNonFungible = openSeaNonFungible
-                            let collection = findCollection(address: each.key, asset: openSeaNonFungible, collections: collections.result)
-                            openSeaNonFungible.collection = collection
+                var result: [AlphaWallet.Address: [OpenSeaNonFungible]] = [:]
+                for each in assets.result {
+                    let updatedElements = each.value.map { openSeaNonFungible -> OpenSeaNonFungible in
+                        var openSeaNonFungible = openSeaNonFungible
+                        let collection = findCollection(address: each.key, asset: openSeaNonFungible, collections: collections.result)
+                        openSeaNonFungible.collection = collection
 
-                            return openSeaNonFungible
-                        }
-
-                        result[each.key] = updatedElements
+                        return openSeaNonFungible
                     }
-                    let hasError = assets.hasError || collections.hasError
 
-                    return .init(hasError: hasError, result: result)
-                })
-                .recover({ _ -> Promise<Response<OpenSeaAddressesToNonFungibles>> in
-                    return .value(.init(hasError: true, result: [:]))
-                })
+                    result[each.key] = updatedElements
+                }
+                let hasError = assets.hasError || collections.hasError
+
+                return .init(hasError: hasError, result: result)
+            }).recover({ _ -> Promise<Response<OpenSeaAddressesToNonFungibles>> in
+                return .value(.init(hasError: true, result: [:]))
+            })
     }
 
     private func getBaseURLForOpenSea(forChainId chainId: ChainId) -> String {
@@ -141,8 +136,8 @@ public class OpenSea {
         }
 
         return firstly {
-            performRequestWithRetry(chainId: chainId, url: url, queue: queue)
-        }.then(on: queue, { [weak self] json -> Promise<Response<[CollectionKey: Collection]>> in
+            performRequestWithRetry(chainId: chainId, url: url, queue: .global())
+        }.then(on: .global(), { [weak self] json -> Promise<Response<[CollectionKey: Collection]>> in
             guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
             let results = OpenSeaCollectionDecoder.decode(json: json, results: sum)
             let fetchedCount = json.arrayValue.count
@@ -222,7 +217,7 @@ public class OpenSea {
         }
 
         return firstly {
-            performRequestWithRetry(chainId: chainId, url: url, queue: queue)
+            performRequestWithRetry(chainId: chainId, url: url, queue: .global())
         }.then({ [weak self] json -> Promise<Response<OpenSeaAddressesToNonFungibles>> in
             guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
             let results = OpenSeaAssetDecoder.decode(json: json, assets: assets)

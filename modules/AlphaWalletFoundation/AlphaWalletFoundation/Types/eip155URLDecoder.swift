@@ -7,7 +7,22 @@
 
 import Foundation 
 
-public typealias Eip155URL = (tokenType: TokenInterfaceType?, server: RPCServer?, path: String)
+public struct Eip155URL {
+    let tokenType: TokenInterfaceType?
+    let server: RPCServer?
+    let path: String
+}
+
+extension Eip155URL: CustomStringConvertible {
+    public var description: String {
+        return [
+            tokenType?.rawValue ?? "",
+            server.flatMap { String($0.chainID) } ?? "",
+            path
+        ].joined(separator: "-")
+    }
+}
+
 public struct eip155URLCoder {
     static let key = "eip155"
 
@@ -19,7 +34,7 @@ public struct eip155URLCoder {
         guard chainAndTokenTypeComponents.count == 2 else { return .none }
         let server = chainAndTokenTypeComponents[0].optionalDecimalValue.flatMap({ RPCServer(chainID: $0.intValue) })
 
-        return (tokenType: TokenInterfaceType(rawValue: chainAndTokenTypeComponents[1]), server: server, path: components[2])
+        return .init(tokenType: TokenInterfaceType(rawValue: chainAndTokenTypeComponents[1]), server: server, path: components[2])
     }
 
     public static func decodeRPC(from string: String) -> RPCServer? {

@@ -4,28 +4,26 @@ import Foundation
 import BigInt
 import PromiseKit
 
-class NonFungibleContract {
+final class NonFungibleContract {
     private let server: RPCServer
-    private let queue: DispatchQueue
 
-    init(server: RPCServer, queue: DispatchQueue) {
+    init(server: RPCServer) {
         self.server = server
-        self.queue = queue
     }
 
-    func getTokenUri(for tokenId: String, contract: AlphaWallet.Address) -> Promise<URL> {
+    func getUriOrTokenUri(for tokenId: String, contract: AlphaWallet.Address) -> Promise<URL> {
         firstly {
-            self.getTokenUriImpl(for: tokenId, contract: contract)
+            self.getTokenUri(for: tokenId, contract: contract)
         }.recover { _ in
             self.getUri(for: tokenId, contract: contract)
         }
     }
 
-    private func getTokenUriImpl(for tokenId: String, contract: AlphaWallet.Address) -> Promise<URL> {
+    private func getTokenUri(for tokenId: String, contract: AlphaWallet.Address) -> Promise<URL> {
         let function = GetTokenUri()
         return firstly {
-            callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [tokenId] as [AnyObject], queue: queue)
-        }.map(on: queue, { uriResult -> URL in
+            callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [tokenId] as [AnyObject], queue: .global())
+        }.map(on: .global(), { uriResult -> URL in
             if let string = uriResult["0"] as? String, let url = URL(string: string.stringWithTokenIdSubstituted(tokenId)) {
                 return url
             } else {
@@ -37,8 +35,8 @@ class NonFungibleContract {
     private func getUri(for tokenId: String, contract: AlphaWallet.Address) -> Promise<URL> {
         let function = GetUri()
         return firstly {
-            callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [tokenId] as [AnyObject], queue: queue)
-        }.map(on: queue, { uriResult -> URL in
+            callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [tokenId] as [AnyObject], queue: .global())
+        }.map(on: .global(), { uriResult -> URL in
             if let string = uriResult["0"] as? String, let url = URL(string: string.stringWithTokenIdSubstituted(tokenId)) {
                 return url
             } else {
