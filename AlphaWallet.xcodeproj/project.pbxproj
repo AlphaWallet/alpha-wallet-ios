@@ -1882,7 +1882,7 @@
 				29E6E0681FE897BB0079265A /* Browser */,
 				290B2B511F8F4F840053C83E /* Localization */,
 				291ED0901F6FA5C800E7E93A /* Transfer */,
-				2996F14E1F6CA802005C33AE /* Export */,
+				2996F14E1F6CA802005C33AE /* Backup */,
 				2996F1441F6C9875005C33AE /* Settings */,
 				023286DE277D78E9007D33C5 /* AddMultipleCustomRpc */,
 				291F52BD1F6C873600B369AB /* Accounts */,
@@ -2345,14 +2345,14 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
-		2996F14E1F6CA802005C33AE /* Export */ = {
+		2996F14E1F6CA802005C33AE /* Backup */ = {
 			isa = PBXGroup;
 			children = (
 				299B5E391FD141A40051361C /* ViewModels */,
 				2977CAE11F7E0B17009682A0 /* Coordinators */,
 				5E7C7E72DDB6CFF11FF96AA6 /* Views */,
 			);
-			path = Export;
+			path = Backup;
 			sourceTree = "<group>";
 		};
 		299B5E351FCBCDE10051361C /* Transfer */ = {
