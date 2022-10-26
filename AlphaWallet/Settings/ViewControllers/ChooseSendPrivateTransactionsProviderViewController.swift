@@ -2,6 +2,7 @@
 
 import UIKit
 import AlphaWalletFoundation
+import Combine
 
 class ChooseSendPrivateTransactionsProviderViewController: UIViewController {
     private let viewModel: ChooseSendPrivateTransactionsProviderViewModel
@@ -13,12 +14,17 @@ class ChooseSendPrivateTransactionsProviderViewController: UIViewController {
         tableView.separatorStyle = .singleLine
         tableView.separatorColor = Configuration.Color.Semantic.tableViewSeparator
         tableView.backgroundColor = Configuration.Color.Semantic.tableViewBackground
-        tableView.dataSource = self
+
         tableView.delegate = self
         tableView.translatesAutoresizingMaskIntoConstraints = false
 
         return tableView
     }()
+    private lazy var dataSource: ChooseSendPrivateTransactionsProviderViewModel.DataSource = makeDataSource()
+    private let appear = PassthroughSubject<Void, Never>()
+    private let disappear = PassthroughSubject<Void, Never>()
+    private let selection = PassthroughSubject<IndexPath, Never>()
+    private var cancelable = Set<AnyCancellable>()
 
     init(viewModel: ChooseSendPrivateTransactionsProviderViewModel) {
         self.viewModel = viewModel
@@ -36,9 +42,21 @@ class ChooseSendPrivateTransactionsProviderViewController: UIViewController {
         bind(viewModel: viewModel)
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        appear.send(())
+    }
+
     private func bind(viewModel: ChooseSendPrivateTransactionsProviderViewModel) {
-        title = viewModel.title
-        navigationItem.largeTitleDisplayMode = viewModel.largeTitleDisplayMode
+        let input = ChooseSendPrivateTransactionsProviderViewModelInput(appear: appear.eraseToAnyPublisher(), selection: selection.eraseToAnyPublisher())
+
+        let output = viewModel.transform(input: input)
+        output.viewState
+            .sink { [dataSource, navigationItem] state in
+                navigationItem.title = state.title
+                navigationItem.largeTitleDisplayMode = state.largeTitleDisplayMode
+                dataSource.apply(state.snapshot, animatingDifferences: false)
+            }.store(in: &cancelable)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -46,16 +64,14 @@ class ChooseSendPrivateTransactionsProviderViewController: UIViewController {
     }
 }
 
-extension ChooseSendPrivateTransactionsProviderViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.numberOfRows
-    }
+extension ChooseSendPrivateTransactionsProviderViewController {
+    private func makeDataSource() -> ChooseSendPrivateTransactionsProviderViewModel.DataSource {
+        ChooseSendPrivateTransactionsProviderViewModel.DataSource(tableView: tableView) { tableView, indexPath, viewModel -> SelectionTableViewCell in
+            let cell: SelectionTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+            cell.configure(viewModel: viewModel)
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell: SelectionTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-        cell.configure(viewModel: viewModel.viewModel(for: indexPath))
-        
-        return cell
+            return cell
+        }
     }
 }
 
@@ -76,13 +92,14 @@ extension ChooseSendPrivateTransactionsProviderViewController: UITableViewDelega
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         .leastNormalMagnitude
     }
+
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         nil
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        viewModel.selectProvider(at: indexPath)
-        tableView.reloadRows(at: [indexPath], with: .none)
+
+        selection.send(indexPath)
     }
 }
