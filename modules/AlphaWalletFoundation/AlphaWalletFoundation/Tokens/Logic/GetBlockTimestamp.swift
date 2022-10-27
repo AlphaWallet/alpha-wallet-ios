@@ -4,28 +4,46 @@ import Foundation
 import BigInt
 import PromiseKit 
 import AlphaWalletWeb3
+import AlphaWalletCore
 
-public class GetBlockTimestamp {
-    private static var blockTimestampCache = AtomicDictionary<RPCServer, [BigUInt: Promise<Date>]>()
+final class GetBlockTimestamp {
+    private let fileName: String
+    private let queue = DispatchQueue(label: "org.alphawallet.swift.getBlockTimestamp")
+    private lazy var storage: Storage<[String: Date]> = .init(fileName: fileName, storage: FileStorage(fileExtension: "json"), defaultValue: [:])
+    private var inFlightPromises: [String: Promise<Date>] = [:]
 
-    public func getBlockTimestamp(_ blockNumber: BigUInt, onServer server: RPCServer) -> Promise<Date> {
-        var cacheForServer = Self.blockTimestampCache[server] ?? .init()
-        if let datePromise = cacheForServer[blockNumber] {
-            return datePromise
-        }
+    init(fileName: String = "blockTimestampStorage") {
+        self.fileName = fileName
+    }
 
-        guard let web3 = try? Web3.instance(for: server, timeout: 6) else {
-            return Promise(error: Web3Error(description: "Error creating web3 for: \(server.rpcURL) + \(server.chainID)"))
-        }
+    func getBlockTimestamp(for blockNumber: BigUInt, server: RPCServer) -> Promise<Date> {
+        firstly {
+            .value(blockNumber)
+        }.then(on: queue, { [weak self, queue, storage] blockNumber -> Promise<Date> in
+            let key = "\(blockNumber)-\(server)"
+            if let value = storage.value[key] {
+                return .value(value)
+            }
 
-        let promise: Promise<Date> = firstly {
-            Web3.Eth(web3: web3).getBlockByNumberPromise(blockNumber)
-        }.map(on: web3.queue, { $0.timestamp })
+            if let promise = self?.inFlightPromises[key] {
+                return promise
+            } else {
+                let eth = Web3.Eth(web3: try Web3.instance(for: server, timeout: 6))
+                let promise: Promise<Date> = firstly {
+                    eth.getBlockByNumberPromise(blockNumber)
+                }.map(on: queue, {
+                    $0.timestamp
+                }).ensure(on: queue, {
+                    self?.inFlightPromises[key] = .none
+                }).get(on: queue, { date in
+                    storage.value[key] = date
+                })
 
-        cacheForServer[blockNumber] = promise
-        Self.blockTimestampCache[server] = cacheForServer
+                self?.inFlightPromises[key] = promise
 
-        return promise
+                return promise
+            }
+        })
     }
 }
 

@@ -59,7 +59,7 @@ final class EventForActivitiesFetcher {
                         }
 
                         return getBlockTimestamp
-                            .getBlockTimestamp(blockNumber, onServer: token.server)
+                            .getBlockTimestamp(for: blockNumber, server: token.server)
                             .map(on: queue, { date in
                                 EventSourceForActivities.functional.convertEventToDatabaseObject(event, date: date, filterParam: filterParam, eventOrigin: eventOrigin, tokenContract: token.contractAddress, server: token.server)
                             }).recover(on: queue, { _ -> Promise<EventActivityInstance?> in
