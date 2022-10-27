@@ -11,11 +11,7 @@ public class CallForAssetAttributeProvider {
 
     public init() { }
 
-    public func getValue(
-            forAttributeId attributeId: AttributeId,
-            tokenId: TokenId,
-            functionCall: AssetFunctionCall
-    ) -> Subscribable<AssetInternalValue> {
+    public func getValue(forAttributeId attributeId: AttributeId, functionCall: AssetFunctionCall) -> Subscribable<AssetInternalValue> {
         let subscribable = Subscribable<AssetInternalValue>(nil)
         if let promise = inflightPromises[functionCall] {
             promise.done { result in
@@ -24,7 +20,7 @@ public class CallForAssetAttributeProvider {
             return subscribable
         }
 
-        let promise = makeRpcPromise(forAttributeId: attributeId, tokenId: tokenId, functionCall: functionCall)
+        let promise = makeRpcPromise(forAttributeId: attributeId, functionCall: functionCall)
         inflightPromises[functionCall] = promise
 
         //TODO need to throttle smart contract function calls?
@@ -40,10 +36,7 @@ public class CallForAssetAttributeProvider {
         return subscribable
     }
 
-    private func makeRpcPromise(
-            forAttributeId attributeId: AttributeId?,
-            tokenId: TokenId,
-            functionCall: AssetFunctionCall) -> Promise<AssetInternalValue> {
+    private func makeRpcPromise(forAttributeId attributeId: AttributeId?, functionCall: AssetFunctionCall) -> Promise<AssetInternalValue> {
         return Promise<AssetInternalValue> { seal in
             guard let function = CallForAssetAttribute(functionName: functionCall.functionName, inputs: functionCall.inputs, output: functionCall.output) else {
                 seal.reject(Web3Error(description: "Failed to create CallForAssetAttribute instance for function: \(functionCall.functionName)"))

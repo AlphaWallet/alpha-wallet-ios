@@ -356,6 +356,6 @@ public struct FunctionOrigin {
             return Subscribable<AssetInternalValue>(nil)
         }
 
-        return assetAttributeProvider.getValue(forAttributeId: attributeId, tokenId: tokenId, functionCall: functionCall)
+        return assetAttributeProvider.getValue(forAttributeId: attributeId, functionCall: functionCall)
     }
 }
