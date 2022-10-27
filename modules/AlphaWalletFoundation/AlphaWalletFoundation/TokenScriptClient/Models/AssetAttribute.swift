@@ -134,7 +134,7 @@ public struct AssetAttribute {
         }
     }
 
-    public func value(from tokenIdOrEvent: TokenIdOrEvent, inWallet account: Wallet, server: RPCServer, assetAttributeProvider: CallForAssetAttributeProvider, userEntryValues: [AttributeId: String], tokenLevelNonSubscribableAttributesAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue]) -> AssetAttributeSyntaxValue {
+    func value(from tokenIdOrEvent: TokenIdOrEvent, inWallet account: Wallet, server: RPCServer, assetAttributeProvider: CallForAssetAttributeProvider, userEntryValues: [AttributeId: String], tokenLevelNonSubscribableAttributesAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue]) -> AssetAttributeSyntaxValue {
         let valueFromOriginOptional: AssetInternalValue?
         valueFromOriginOptional = origin.extractValue(fromTokenIdOrEvent: tokenIdOrEvent, inWallet: account, server: server, assetAttributeProvider: assetAttributeProvider, userEntryValues: userEntryValues, tokenLevelNonSubscribableAttributesAndValues: tokenLevelNonSubscribableAttributesAndValues, localRefs: localRefs)
         guard let valueFromOrigin = valueFromOriginOptional else { return .init(defaultValueWithSyntax: syntax) }
