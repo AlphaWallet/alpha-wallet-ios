@@ -76,15 +76,14 @@ public struct ContractV2: ContractProtocol {
     
     public var options: Web3Options? = Web3Options.defaultOptions()
     
-    public init?(abi: String, address: EthereumAddress? = nil) {
+    public init(abi: String, address: EthereumAddress? = nil) throws {
         do {
-            guard let json = abi.data(using: .utf8) else { return nil }
+            guard let json = abi.data(using: .utf8) else { throw Web3.ContractError.abiError(.abiInvalid) }
 
             self.abi = try JSONDecoder().decode([ABIv2.Record].self, from: json).map { try $0.parse() }
             self.address = address
         } catch {
-            print(error)
-            return nil
+            throw Web3.ContractError.abiError(.abiInvalid)
         }
     }
     
@@ -97,21 +96,21 @@ public struct ContractV2: ContractProtocol {
         self.address = at
     }
     
-    public func deploy(bytecode: Data, parameters: [AnyObject] = [], extraData: Data = Data(), options: Web3Options?) -> EthereumTransaction? {
+    public func deploy(bytecode: Data, parameters: [AnyObject] = [], extraData: Data = Data(), options: Web3Options?) throws -> EthereumTransaction {
         let to: EthereumAddress = EthereumAddress.contractDeploymentAddress()
         let mergedOptions = Web3Options.merge(self.options, with: options)
         var gasLimit: BigUInt
         if let gasInOptions = mergedOptions?.gasLimit {
             gasLimit = gasInOptions
         } else {
-            return nil
+            throw Web3.ContractError.gasLimitNotFound
         }
         
         var gasPrice: BigUInt
         if let gasPriceInOptions = mergedOptions?.gasPrice {
             gasPrice = gasPriceInOptions
         } else {
-            return nil
+            throw Web3.ContractError.gasPriceNotFound
         }
         
         var value: BigUInt
@@ -120,8 +119,8 @@ public struct ContractV2: ContractProtocol {
         } else {
             value = BigUInt(0)
         }
-        guard let constructor = self.constructor else { return nil }
-        guard let encodedData = constructor.encodeParameters(parameters) else { return nil }
+        guard let constructor = self.constructor else { throw Web3.ContractError.abiError(.constructorNotFound) }
+        guard let encodedData = constructor.encodeParameters(parameters) else { throw Web3.ContractError.abiError(.encodeParamFailure(parameters)) }
         var data = bytecode
         if encodedData != Data() {
             data.append(encodedData)
@@ -132,7 +131,7 @@ public struct ContractV2: ContractProtocol {
         return EthereumTransaction(gasPrice: gasPrice, gasLimit: gasLimit, to: to, value: value, data: data)
     }
     
-    public func method(_ method: String = "fallback", parameters: [AnyObject] = [], extraData: Data = Data(), options: Web3Options?) -> EthereumTransaction? {
+    public func method(_ method: String = "fallback", parameters: [AnyObject] = [], extraData: Data = Data(), options: Web3Options?) throws -> EthereumTransaction {
         var to: EthereumAddress
         let mergedOptions = Web3Options.merge(self.options, with: options)
         if let address = address {
@@ -140,21 +139,21 @@ public struct ContractV2: ContractProtocol {
         } else if let toAddress = mergedOptions?.to, toAddress.isValid {
             to = toAddress
         } else {
-            return nil
+            throw Web3.ContractError.toNotFound
         }
         
         var gasLimit: BigUInt
         if let gasInOptions = mergedOptions?.gasLimit {
             gasLimit = gasInOptions
         } else {
-            return nil
+            throw Web3.ContractError.gasLimitNotFound
         }
         
         var gasPrice: BigUInt
         if let gasPriceInOptions = mergedOptions?.gasPrice {
             gasPrice = gasPriceInOptions
         } else {
-            return nil
+            throw Web3.ContractError.gasPriceNotFound
         }
         
         var value: BigUInt
@@ -166,13 +165,12 @@ public struct ContractV2: ContractProtocol {
         
         if method == "fallback" {
             return EthereumTransaction(gasPrice: gasPrice, gasLimit: gasLimit, to: to, value: value, data: extraData)
-        }
-        let foundMethod = self.methods.filter { $0.key == method }
-        guard foundMethod.count == 1 else { return nil }
-        let abiMethod = foundMethod[method]
-        guard let data = abiMethod?.encodeParameters(parameters) else { return nil }
+        } else {
+            guard let abiElement = methods[method] else { throw Web3.ContractError.abiError(.methodNotFound(method)) }
+            guard let data = abiElement.encodeParameters(parameters) else { throw Web3.ContractError.abiError(.encodeParamFailure(parameters)) }
 
-        return EthereumTransaction(gasPrice: gasPrice, gasLimit: gasLimit, to: to, value: value, data: data)
+            return EthereumTransaction(gasPrice: gasPrice, gasLimit: gasLimit, to: to, value: value, data: data)
+        }
     }
     
     public func parseEvent(_ eventLog: EventLog) -> (eventName: String?, eventData: [String: Any]?) {
