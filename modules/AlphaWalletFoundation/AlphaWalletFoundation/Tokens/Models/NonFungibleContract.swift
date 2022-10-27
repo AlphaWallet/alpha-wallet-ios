@@ -22,7 +22,7 @@ final class NonFungibleContract {
     private func getTokenUri(for tokenId: String, contract: AlphaWallet.Address) -> Promise<URL> {
         let function = GetTokenUri()
         return firstly {
-            callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [tokenId] as [AnyObject], queue: .global())
+            callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [tokenId] as [AnyObject])
         }.map(on: .global(), { uriResult -> URL in
             if let string = uriResult["0"] as? String, let url = URL(string: string.stringWithTokenIdSubstituted(tokenId)) {
                 return url
@@ -35,7 +35,7 @@ final class NonFungibleContract {
     private func getUri(for tokenId: String, contract: AlphaWallet.Address) -> Promise<URL> {
         let function = GetUri()
         return firstly {
-            callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [tokenId] as [AnyObject], queue: .global())
+            callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [tokenId] as [AnyObject])
         }.map(on: .global(), { uriResult -> URL in
             if let string = uriResult["0"] as? String, let url = URL(string: string.stringWithTokenIdSubstituted(tokenId)) {
                 return url

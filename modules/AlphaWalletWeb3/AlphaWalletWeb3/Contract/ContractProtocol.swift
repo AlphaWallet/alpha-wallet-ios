@@ -15,10 +15,10 @@ public protocol ContractProtocol {
     var allMethods: [String] { get }
     var allEvents: [String] { get }
 
-    init?(abi: String, address: EthereumAddress?)
+    init(abi: String, address: EthereumAddress?) throws
 
-    func deploy(bytecode: Data, parameters: [AnyObject], extraData: Data, options: Web3Options?) -> EthereumTransaction?
-    func method(_ method: String, parameters: [AnyObject], extraData: Data, options: Web3Options?) -> EthereumTransaction?
+    func deploy(bytecode: Data, parameters: [AnyObject], extraData: Data, options: Web3Options?) throws -> EthereumTransaction
+    func method(_ method: String, parameters: [AnyObject], extraData: Data, options: Web3Options?) throws -> EthereumTransaction
     func decodeReturnData(_ method: String, data: Data) -> [String: Any]?
     func decodeInputData(_ method: String, data: Data) -> [String: Any]?
     func decodeInputData(_ data: Data) -> [String: Any]?

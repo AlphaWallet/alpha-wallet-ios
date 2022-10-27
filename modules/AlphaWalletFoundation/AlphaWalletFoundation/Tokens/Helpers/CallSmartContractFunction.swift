@@ -88,83 +88,45 @@ fileprivate var smartContractCallsCache = AtomicDictionary<String, (promise: Pro
 private let callSmartContractQueue = DispatchQueue(label: "com.callSmartContractQueue.updateQueue")
 //`shouldDelayIfCached` is a hack for TokenScript views
 //TODO should trap 429 from RPC node
-public func callSmartContract(withServer server: RPCServer, contract contractAddress: AlphaWallet.Address, functionName: String, abiString: String, parameters: [AnyObject] = [], shouldDelayIfCached: Bool = false, queue: DispatchQueue? = nil) -> Promise<[String: Any]> {
-    let timeout: TimeInterval = 60
-    //We must include the ABI string in the key because the order of elements in a dictionary when serialized in the string is not ordered. Parameters (which is ordered) should ensure it's the same function
-    let cacheKey = "\(contractAddress).\(functionName) \(parameters) \(server.chainID)"
-    let ttlForCache: TimeInterval = 10
-    let now = Date()
-    if let (cachedPromise, cacheTimestamp) = smartContractCallsCache[cacheKey] {
-        let diff = now.timeIntervalSince(cacheTimestamp)
-        if diff < ttlForCache {
+public func callSmartContract(withServer server: RPCServer, contract contractAddress: AlphaWallet.Address, functionName: String, abiString: String, parameters: [AnyObject] = [], shouldDelayIfCached: Bool = false) -> Promise<[String: Any]> {
+    firstly {
+        .value(server)
+    }.then(on: callSmartContractQueue, { [callSmartContractQueue] server -> Promise<[String: Any]> in
+        let cacheKey = "\(contractAddress).\(functionName) \(parameters) \(server.chainID)"
+        let ttlForCache: TimeInterval = 10
+        let now = Date()
+
+        if let (cachedPromise, cacheTimestamp) = smartContractCallsCache[cacheKey], now.timeIntervalSince(cacheTimestamp) < ttlForCache {
             //HACK: We can't return the cachedPromise directly and immediately because if we use the value as a TokenScript attribute in a TokenScript view, timing issues will cause the webview to not load properly or for the injection with updates to fail
-            return Promise { seal in
-                let delay: Double = shouldDelayIfCached ? 0.7 : 0
-                callSmartContractQueue.asyncAfter(deadline: .now() + delay) {
-                    cachedPromise.done(on: .main) {
-                        seal.fulfill($0)
-                    }.catch(on: .main) {
-                        seal.reject($0)
-                    }
-                }
-            }
-        }
-    }
+            return after(seconds: shouldDelayIfCached ? 0.7 : 0).then(on: callSmartContractQueue, { _ -> Promise<[String: Any]> in return cachedPromise })
+        } else {
+            let web3 = try Web3.instance(for: server, timeout: 60)
+            let contract = try Web3.Contract(web3: web3, abiString: abiString, at: EthereumAddress(address: contractAddress))
+            let promiseCreator = try contract.method(functionName, parameters: parameters)
 
-    let result: Promise<[String: Any]> = Promise { seal in
-        callSmartContractQueue.async {
-            guard let web3 = try? Web3.instance(for: server, timeout: timeout) else {
-                seal.reject(Web3Error(description: "Error creating web3 for: \(server.rpcURL) + \(server.chainID)"))
-                return
-            }
-
-            let contractAddress = EthereumAddress(address: contractAddress)
-
-            guard let contract = Web3.Contract(web3: web3, abiString: abiString, at: contractAddress, options: nil) else {
-                seal.reject(Web3Error(description: "Error creating web3swift contract instance to call \(functionName)()"))
-                return
-            }
-            guard let promiseCreator = contract.method(functionName, parameters: parameters, options: nil) else {
-                seal.reject(Web3Error(description: "Error calling \(contractAddress.address).\(functionName)() with parameters: \(parameters)"))
-                return
-            }
             var web3Options = Web3Options()
             web3Options.excludeZeroGasPrice = server.shouldExcludeZeroGasPrice
 
-            //callPromise() creates a promise. It doesn't "call" a promise. Bad name
-            firstly {
-                promiseCreator.callPromise(options: web3Options)
-            }.done(on: queue ?? .main, { d in
-                seal.fulfill(d)
-            }).catch(on: queue ?? .main, { e in
-                if let e = e as? AlphaWalletWeb3.Web3Error {
-                    switch e {
-                    case .rateLimited:
-                        warnLog("[API] Rate limited by RPC node server: \(server)")
-                    case .connectionError, .inputError, .nodeError, .generalError, .responseError:
-                        //no-op. We only want to log rate limit errors above
-                        break
-                    }
-                } else {
-                    //no-op
-                }
-                seal.reject(e)
-            })
-        }
-    }
-    
-    smartContractCallsCache[cacheKey] = (result, now)
+            let promise: Promise<[String: Any]> = promiseCreator.callPromise(options: web3Options)
+                .recover(on: callSmartContractQueue, { error -> Promise<[String: Any]> in
+                        //NOTE: We only want to log rate limit errors above
+                    guard case AlphaWalletWeb3.Web3Error.rateLimited = error else { throw error }
+                    warnLog("[API] Rate limited by RPC node server: \(server)")
 
-    return result
+                    throw error
+                })
+
+            smartContractCallsCache[cacheKey] = (promise, now)
+
+            return promise
+        }
+    })
 }
 
 public func getSmartContractCallData(withServer server: RPCServer, contract contractAddress: AlphaWallet.Address, functionName: String, abiString: String, parameters: [AnyObject] = []) -> Data? {
-    //TODO should be extracted. Duplicated
-    let timeout: TimeInterval = 60
-    guard let web3 = try? Web3.instance(for: server, timeout: timeout) else { return nil }
-    let contractAddress = EthereumAddress(address: contractAddress)
-    guard let contract = Web3.Contract(web3: web3, abiString: abiString, at: contractAddress, options: web3.options) else { return nil }
-    guard let promiseCreator = contract.method(functionName, parameters: parameters, options: nil) else { return nil }
+    guard let web3 = try? Web3.instance(for: server, timeout: 60) else { return nil }
+    guard let contract = try? Web3.Contract(web3: web3, abiString: abiString, at: EthereumAddress(address: contractAddress), options: web3.options) else { return nil }
+    guard let promiseCreator = try? contract.method(functionName, parameters: parameters, options: nil) else { return nil }
     return promiseCreator.transaction.data
 }
 
@@ -181,27 +143,20 @@ final class GetEventLogs {
             if let promise = self?.inFlightPromises[key] {
                 return promise
             } else {
-                let contractAddress = EthereumAddress(address: contractAddress)
+                let web3 = try Web3.instance(for: server, timeout: 60)
+                let contract = try Web3.Contract(web3: web3, abiString: abiString, at: EthereumAddress(address: contractAddress), options: web3.options)
 
-                guard let web3 = try? Web3.instance(for: server, timeout: 60) else {
-                    throw Web3Error(description: "Error creating web3 for: \(server.rpcURL) + \(server.chainID)")
-                }
-
-                guard let contract = Web3.Contract(web3: web3, abiString: abiString, at: contractAddress, options: web3.options) else {
-                    throw Web3Error(description: "Error creating web3swift contract instance to call \(eventName)()")
-                }
-
-                let promise = contract.getIndexedEventsPromise(eventName: eventName, filter: filter)
-                    .recover { error -> Promise<[EventParserResultProtocol]> in
-                        warnLog("[eth_getLogs] failure for server: \(server) with error: \(error)")
-                        return .init(error: error)
-                    }.ensure(on: queue, {
-                        self?.inFlightPromises[key] = .none
-                    })
+                let promise = contract
+                    .getIndexedEventsPromise(eventName: eventName, filter: filter)
+                    .ensure(on: queue, { self?.inFlightPromises[key] = .none })
 
                 self?.inFlightPromises[key] = promise
+
                 return promise
             }
+        }).recover(on: queue, { error -> Promise<[EventParserResultProtocol]> in
+            warnLog("[eth_getLogs] failure for server: \(server) with error: \(error)")
+            throw error
         })
     }
 }
