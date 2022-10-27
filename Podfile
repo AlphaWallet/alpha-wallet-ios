@@ -32,6 +32,7 @@ target 'AlphaWallet' do
   pod 'MailchimpSDK'
   pod 'xcbeautify'
   pod 'FloatingPanel'
+  pod 'SwiftFormat/CLI', '~> 0.49'
   
   target 'AlphaWalletTests' do
       inherit! :search_paths
