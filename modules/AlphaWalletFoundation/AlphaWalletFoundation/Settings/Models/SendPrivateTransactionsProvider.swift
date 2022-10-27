@@ -2,7 +2,7 @@
 
 import Foundation
 
-public enum SendPrivateTransactionsProvider: String {
+public enum SendPrivateTransactionsProvider: String, CaseIterable {
     case ethermine
     case eden
 
