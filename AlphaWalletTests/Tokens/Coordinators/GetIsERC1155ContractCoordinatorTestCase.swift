@@ -28,11 +28,11 @@ import AlphaWalletFoundation
 //        // Put teardown code here. This method is called after the invocation of each test method in the class.
 //    }
 //
-//    func testgetIsERC1155Contract() throws {
+//    func testgetIsErc1155Contract() throws {
 //        let coordinator = IsErc1155Contract(forServer: .main, cacheName: fileName)
 //        let expectation = expectation(description: "Waiting for server response")
 //        firstly {
-//            coordinator.getIsERC1155Contract(for: address1)
+//            coordinator.getIsErc1155Contract(for: address1)
 //        }.done { returnValue in
 //            self.result = returnValue
 //        }.ensure {

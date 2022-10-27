@@ -492,7 +492,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
 
     private func getTransactionCount(session: WalletSession) -> Promise<AlphaWallet.WalletConnect.Response> {
         return firstly {
-            GetNextNonce(server: session.server, wallet: session.account.address, analytics: analytics).promise()
+            GetNextNonce(server: session.server, wallet: session.account.address, analytics: analytics).getNextNonce()
         }.map {
             if let data = Data(fromHexEncodedString: String(format: "%02X", $0)) {
                 return .value(data)

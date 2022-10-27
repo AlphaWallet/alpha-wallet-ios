@@ -54,7 +54,7 @@ class NonFungibleErc1155JsonBalanceFetcher {
 
             let promises = contractsToTokenIds.map { contract, tokenIds in
                 erc1155BalanceFetcher
-                    .fetch(contract: contract, tokenIds: Set(tokenIds))
+                    .getErc1155Balance(contract: contract, tokenIds: Set(tokenIds))
                     .map { (contract: contract, balances: $0 ) }
             }
 

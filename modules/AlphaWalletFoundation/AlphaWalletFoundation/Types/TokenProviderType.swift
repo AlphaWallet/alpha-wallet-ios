@@ -35,7 +35,7 @@ public class TokenProvider: TokenProviderType {
     private lazy var getErc875Balance = GetErc875Balance(forServer: server)
     private lazy var getErc721ForTicketsBalance = GetErc721ForTicketsBalance(forServer: server)
     private lazy var getErc721Balance = GetErc721Balance(forServer: server)
-    private lazy var getTokenType = GetTokenType(forServer: server, analytics: analytics)
+    private lazy var getTokenType = GetTokenType(forServer: server)
 
     public init(account: Wallet, server: RPCServer, analytics: AnalyticsLogger) {
         self.account = account
@@ -65,7 +65,7 @@ public class TokenProvider: TokenProviderType {
     }
 
     public func getErc20Balance(for address: AlphaWallet.Address) -> Promise<BigInt> {
-        getErc20Balance.getBalance(for: account.address, contract: address)
+        getErc20Balance.getErc20Balance(for: account.address, contract: address)
     }
 
     public func getErc875Balance(for address: AlphaWallet.Address) -> Promise<[String]> {

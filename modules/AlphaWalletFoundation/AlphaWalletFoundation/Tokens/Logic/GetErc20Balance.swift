@@ -15,7 +15,7 @@ final class GetErc20Balance {
         self.server = server
     }
 
-    func getBalance(for address: AlphaWallet.Address, contract: AlphaWallet.Address) -> Promise<BigInt> {
+    func getErc20Balance(for address: AlphaWallet.Address, contract: AlphaWallet.Address) -> Promise<BigInt> {
         firstly {
             .value(contract)
         }.then(on: queue, { [weak self, queue, server] contract -> Promise<BigInt> in
