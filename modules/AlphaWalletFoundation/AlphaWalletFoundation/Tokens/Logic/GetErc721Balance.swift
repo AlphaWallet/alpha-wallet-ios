@@ -32,7 +32,7 @@ final class GetErc721Balance {
                         .map(on: queue, { balanceResult -> [String] in
                             let balance = GetErc721Balance.adapt(balanceResult["0"] as Any)
                             if balance >= Int.max {
-                                throw Web3Error(description: "")
+                                throw CastError(actualValue: balanceResult["0"], expectedType: Int.self)
                             } else {
                                 return [String](repeating: "0", count: Int(balance))
                             }
