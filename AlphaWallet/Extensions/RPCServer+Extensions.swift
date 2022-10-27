@@ -36,6 +36,7 @@ extension RPCServer {
         case .mumbai_testnet: return R.string.localizable.blockchainMumbai()
         case .optimistic: return R.string.localizable.blockchainOptimistic()
         case .optimisticKovan: return R.string.localizable.blockchainOptimisticKovan()
+        case .cronosMainnet: return R.string.localizable.blockchainCronosMainnet()
         case .cronosTestnet: return R.string.localizable.blockchainCronosTestnet()
         case .custom(let custom): return custom.chainName
         case .arbitrum: return R.string.localizable.blockchainArbitrum()
@@ -62,6 +63,7 @@ extension RPCServer {
         case .callisto: return R.image.tokenCallisto()
         case .artis_sigma1: return R.image.tokenArtis()
         case .binance_smart_chain: return R.image.tokenBnb()
+        case .cronosMainnet: return R.image.cronos()
         case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_tau1, .binance_smart_chain_testnet, .cronosTestnet, .custom: return nil
         case .heco: return R.image.hthecoMainnet()
         case .heco_testnet: return R.image.hthecoTestnet()
@@ -108,6 +110,7 @@ extension RPCServer {
         case .polygon, .mumbai_testnet: return .init(red: 130, green: 71, blue: 229)
         case .optimistic: return .red
         case .optimisticKovan: return .red
+        case .cronosMainnet: return .init(hex: "#002D74")
         case .cronosTestnet: return .red
         case .arbitrum: return .red
         case .arbitrumRinkeby: return .red
@@ -134,6 +137,7 @@ extension RPCServer {
         case .binance_smart_chain: return R.image.iconsNetworkBsc()
         case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_tau1, .binance_smart_chain_testnet, .cronosTestnet, .custom: return nil
         case .heco, .heco_testnet: return R.image.iconsNetworkHeco()
+        case .cronosMainnet: return R.image.iconsNetworkCronos()
         case .fantom, .fantom_testnet: return R.image.iconsNetworkFantom()
         case .avalanche, .avalanche_testnet: return R.image.iconsNetworkAvalanche()
         case .polygon: return R.image.iconsNetworkPolygon()
