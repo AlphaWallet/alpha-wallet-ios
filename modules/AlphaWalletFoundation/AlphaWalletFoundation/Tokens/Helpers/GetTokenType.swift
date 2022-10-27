@@ -11,14 +11,13 @@ import BigInt
 
 final class GetTokenType {
     private let server: RPCServer
-    private let analytics: AnalyticsLogger
     private var inFlightPromises: [String: Promise<TokenType>] = [:]
     private let queue = DispatchQueue(label: "org.alphawallet.swift.getTokenType")
-    private lazy var isERC1155Contract = IsErc1155Contract(forServer: server)
+    private lazy var isErc1155Contract = IsErc1155Contract(forServer: server)
+    private lazy var isErc875Contract = IsErc875Contract(forServer: server)
 
-    public init(forServer server: RPCServer, analytics: AnalyticsLogger) {
+    public init(forServer server: RPCServer) {
         self.server = server
-        self.analytics = analytics
     }
 
     public func getTokenType(for address: AlphaWallet.Address) -> Promise<TokenType> {
@@ -51,28 +50,25 @@ final class GetTokenType {
         }
 
         let numberOfTimesToRetryFetchContractData = 2
-        let server = server
-
         let isErc875Promise = firstly {
-            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {
+            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) { [isErc875Contract] in
                 //Function hash is "0x4f452b9a". This might cause many "execution reverted" RPC errors
                 //TODO rewrite flow so we reduce checks for this as it causes too many "execution reverted" RPC errors and looks scary when we look in Charles proxy. Maybe check for ERC20 (via EIP165) as well as ERC721 in parallel first, then fallback to this ERC875 check
-                IsErc875Contract(forServer: server)
-                    .getIsERC875Contract(for: address)
+                isErc875Contract.getIsERC875Contract(for: address)
             }.recover { _ -> Promise<Bool> in
                 return .value(false)
             }
         }
 
         let isErc721Promise = firstly {
-            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {
+            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) { [server] in
                 IsErc721Contract(forServer: server).getIsERC721Contract(for: address)
             }
-        }.then { isERC721 -> Promise<Erc721Type> in
+        }.then { [server] isERC721 -> Promise<Erc721Type> in
             if isERC721 {
                 return attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {
                     IsErc721ForTicketsContract(forServer: server)
-                        .getIsERC721ForTicketContract(for: address)
+                        .getIsErc721ForTicketContract(for: address)
                 }.map { isERC721ForTickets -> Erc721Type in
                     if isERC721ForTickets {
                         return .erc721ForTickets
@@ -90,9 +86,8 @@ final class GetTokenType {
         }
 
         let isErc1155Promise = firstly {
-            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {
-                self.isERC1155Contract
-                    .getIsERC1155Contract(for: address)
+            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) { [isErc1155Contract] in
+                isErc1155Contract.getIsErc1155Contract(for: address)
             }.recover { _ -> Promise<Bool> in
                 return .value(false)
             }

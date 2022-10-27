@@ -22,7 +22,7 @@ final class Erc1155BalanceFetcher {
         self.server = server
     }
 
-    func fetch(contract: AlphaWallet.Address, tokenIds: Set<BigInt>) -> Promise<[BigInt: BigUInt]> {
+    func getErc1155Balance(contract: AlphaWallet.Address, tokenIds: Set<BigInt>) -> Promise<[BigInt: BigUInt]> {
         firstly {
             .value(contract)
         }.then(on: queue, { [weak self, queue, address, server] contract -> Promise<[BigInt: BigUInt]> in

@@ -18,7 +18,7 @@ public class IsErc1155Contract {
         self.server = server
     }
 
-    public func getIsERC1155Contract(for contract: AlphaWallet.Address) -> Promise<Bool> {
+    public func getIsErc1155Contract(for contract: AlphaWallet.Address) -> Promise<Bool> {
         return resolver.getInterfaceSupported165(hash: ERC165Hash.official, contract: contract)
     }
 }

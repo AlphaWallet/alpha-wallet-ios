@@ -25,7 +25,7 @@ public class GetNextNonce {
         self.analytics = analytics
     }
 
-    public func promise() -> Promise<Int> {
+    public func getNextNonce() -> Promise<Int> {
         let request = EtherServiceRequest(rpcURL: rpcURL, rpcHeaders: rpcHeaders, batch: BatchFactory().create(GetTransactionCountRequest(address: wallet, state: "pending")))
         return APIKitSession.send(request, server: server, analytics: analytics)
     }
