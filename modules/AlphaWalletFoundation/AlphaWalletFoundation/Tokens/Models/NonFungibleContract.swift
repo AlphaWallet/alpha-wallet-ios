@@ -27,7 +27,7 @@ final class NonFungibleContract {
             if let string = uriResult["0"] as? String, let url = URL(string: string.stringWithTokenIdSubstituted(tokenId)) {
                 return url
             } else {
-                throw Web3Error(description: "Error extracting tokenUri uri for contract \(contract.eip55String) tokenId: \(tokenId) string: \(uriResult)")
+                throw CastError(actualValue: uriResult["0"], expectedType: URL.self)
             }
         })
     }
@@ -40,7 +40,7 @@ final class NonFungibleContract {
             if let string = uriResult["0"] as? String, let url = URL(string: string.stringWithTokenIdSubstituted(tokenId)) {
                 return url
             } else {
-                throw Web3Error(description: "Error extracting token uri for contract \(contract.eip55String) tokenId: \(tokenId) string: \(uriResult)")
+                throw CastError(actualValue: uriResult["0"], expectedType: URL.self)
             }
         })
     }
