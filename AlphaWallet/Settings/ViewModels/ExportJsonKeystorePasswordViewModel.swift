@@ -14,7 +14,6 @@ class ExportJsonKeystorePasswordViewModel {
     init() {
         self.validator = StringValidator(rules: [
             .lengthMoreThanOrEqualTo(6),
-            .canOnlyContain(CharacterSet.alphanumerics)
         ])
     }
 
