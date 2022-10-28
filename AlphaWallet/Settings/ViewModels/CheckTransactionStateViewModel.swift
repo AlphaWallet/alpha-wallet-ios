@@ -44,6 +44,18 @@ struct CheckTransactionStateViewModel {
 
 }
 
+extension TransactionState {
+    var description: String {
+        switch self {
+        case .completed: return R.string.localizable.transactionStateCompleted()
+        case .pending: return R.string.localizable.transactionStatePending()
+        case .error: return R.string.localizable.transactionStateError()
+        case .failed: return R.string.localizable.transactionStateFailed()
+        case .unknown: return R.string.localizable.transactionStateUnknown()
+        }
+    }
+}
+
 extension AlphaWalletWeb3.Web3Error: LocalizedError {
     public var errorDescription: String? {
         switch self {

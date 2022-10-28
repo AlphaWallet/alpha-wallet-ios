@@ -69,7 +69,7 @@ extension WalletConnectSessionCoordinator: ServersCoordinatorDelegate {
         try? provider.update(session.topicOrUrl, servers: servers)
     }
 
-    func didSelectDismiss(in coordinator: ServersCoordinator) {
+    func didClose(in coordinator: ServersCoordinator) {
         removeCoordinator(coordinator)
         analytics.log(action: Analytics.Action.cancelsSwitchServer, properties: [
             Analytics.Properties.source.rawValue: "walletConnect"
