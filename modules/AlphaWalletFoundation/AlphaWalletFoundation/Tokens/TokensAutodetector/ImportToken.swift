@@ -17,6 +17,7 @@ public protocol TokenImportable {
 public protocol ContractDataFetchable {
     func fetchTokenOrContract(for contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool) -> Promise<TokenOrContract>
     func fetchErc875OrErc20Token(for contract: AlphaWallet.Address, server: RPCServer) -> Promise<TokenOrContract>
+    //FIXME: looks like this method can be removed from protocol and updated with `fetchTokenOrContract`
     func fetchContractData(for contract: AlphaWallet.Address, server: RPCServer, completion: @escaping (ContractData) -> Void)
 }
 
@@ -34,10 +35,10 @@ open class ImportToken: TokenImportable, ContractDataFetchable {
     private let sessionProvider: SessionsProvider
     private let assetDefinitionStore: AssetDefinitionStore
     private let analytics: AnalyticsLogger
-    private let tokenFetchers: AtomicDictionary<RPCServer, TokenFetcher> = .init()
     private let tokensDataStore: TokensDataStore
     private var cancelable = Set<AnyCancellable>()
     private let queue = DispatchQueue(label: "org.alphawallet.swift.importToken")
+    private var inFlightPromises: [String: Promise<TokenOrContract>] = [:]
 
     public let wallet: Wallet
 
@@ -56,7 +57,8 @@ open class ImportToken: TokenImportable, ContractDataFetchable {
 
         let defaultTokens = self.defaultTokens
         //NOTE: initally when we set sessions, we want to import uefa tokens, for enabled chain
-        sessionProvider.sessions.filter { !$0.values.isEmpty }
+        sessionProvider.sessions
+            .filter { !$0.values.isEmpty }
             .first()
             .sink { _ in
                 for (address, server) in defaultTokens {
@@ -107,42 +109,44 @@ open class ImportToken: TokenImportable, ContractDataFetchable {
     }
 
     public func fetchErc875OrErc20Token(for contract: AlphaWallet.Address, server: RPCServer) -> Promise<TokenOrContract> {
-        guard let session = sessionProvider.session(for: server) else {
-            return .init(error: ImportTokenError.serverIsDisabled)
-        }
+        firstly {
+            .value(server)
+        }.then(on: queue, { [queue, sessionProvider] tokenType -> Promise<TokenOrContract> in
+            guard let session = sessionProvider.session(for: server) else { return .init(error: ImportTokenError.serverIsDisabled) }
 
-        return session.tokenProvider
-            .getTokenType(for: contract)
-            .then(on: queue, { [queue, session] tokenType -> Promise<TokenOrContract> in
-                switch tokenType {
-                case .erc875:
-                    //TODO long and very similar code below. Extract function
-                    return session.tokenProvider.getErc875Balance(for: contract)
-                        .then(on: queue, { balance -> Promise<TokenOrContract> in
-                            if balance.isEmpty {
+            return session.tokenProvider
+                .getTokenType(for: contract)
+                .then(on: queue, { [queue, session] tokenType -> Promise<TokenOrContract> in
+                    switch tokenType {
+                    case .erc875:
+                        //TODO long and very similar code below. Extract function
+                        return session.tokenProvider.getErc875Balance(for: contract)
+                            .then(on: queue, { balance -> Promise<TokenOrContract> in
+                                if balance.isEmpty {
+                                    return .value(.none)
+                                } else {
+                                    return self.fetchTokenOrContract(for: contract, server: server, onlyIfThereIsABalance: false)
+                                }
+                            }).recover(on: queue, { _ -> Guarantee<TokenOrContract> in
                                 return .value(.none)
-                            } else {
-                                return self.fetchTokenOrContract(for: contract, server: server, onlyIfThereIsABalance: false)
-                            }
-                        }).recover(on: queue, { _ -> Guarantee<TokenOrContract> in
-                            return .value(.none)
-                        })
-                case .erc20:
-                    return session.tokenProvider.getErc20Balance(for: contract)
-                        .then(on: queue, { balance -> Promise<TokenOrContract> in
-                            if balance > 0 {
-                                return self.fetchTokenOrContract(for: contract, server: server, onlyIfThereIsABalance: false)
-                            } else {
+                            })
+                    case .erc20:
+                        return session.tokenProvider.getErc20Balance(for: contract)
+                            .then(on: queue, { balance -> Promise<TokenOrContract> in
+                                if balance > 0 {
+                                    return self.fetchTokenOrContract(for: contract, server: server, onlyIfThereIsABalance: false)
+                                } else {
+                                    return .value(.none)
+                                }
+                            }).recover(on: queue, { _ -> Guarantee<TokenOrContract> in
                                 return .value(.none)
-                            }
-                        }).recover(on: queue, { _ -> Guarantee<TokenOrContract> in
-                            return .value(.none)
-                        })
-                case .erc721, .erc721ForTickets, .erc1155, .nativeCryptocurrency:
-                    //Handled in TokenBalanceFetcher.refreshBalanceForErc721Or1155Tokens()
-                    return .value(.none)
-                }
-            })
+                            })
+                    case .erc721, .erc721ForTickets, .erc1155, .nativeCryptocurrency:
+                        //Handled in TokenBalanceFetcher.refreshBalanceForErc721Or1155Tokens()
+                        return .value(.none)
+                    }
+                })
+        })
     }
 
     open func importToken(token: ERCToken, shouldUpdateBalance: Bool = true) -> Token {
@@ -153,7 +157,7 @@ open class ImportToken: TokenImportable, ContractDataFetchable {
 
     open func fetchContractData(for contract: AlphaWallet.Address, server: RPCServer, completion: @escaping (ContractData) -> Void) {
         guard let session = sessionProvider.session(for: server) else {
-            completion(.failed(networkReachable: true))
+            completion(.failed(networkReachable: false))
             return
         }
 
@@ -162,21 +166,47 @@ open class ImportToken: TokenImportable, ContractDataFetchable {
     }
 
     open func fetchTokenOrContract(for contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool = false) -> Promise<TokenOrContract> {
-        firstly { () -> Promise<TokenOrContract> in
-            let fetcher = try getOrCreateTokenFetcher(for: server)
-            return fetcher.fetchTokenOrContract(for: contract, onlyIfThereIsABalance: onlyIfThereIsABalance)
-        }
-    }
+        firstly {
+            .value(contract)
+        }.then(on: queue, { [queue] contract -> Promise<TokenOrContract> in
+            let key = "\(contract.hashValue)-\(onlyIfThereIsABalance)-\(server)"
 
-    private func getOrCreateTokenFetcher(for server: RPCServer) throws -> TokenFetcher {
-        if let fetcher = tokenFetchers[server] {
-            return fetcher
-        } else {
-            guard let session = sessionProvider.session(for: server) else { throw ImportTokenError.serverIsDisabled }
-            let fetcher: TokenFetcher = SingleChainTokenFetcher(session: session, assetDefinitionStore: assetDefinitionStore, analytics: analytics)
-            tokenFetchers[server] = fetcher
+            if let promise = self.inFlightPromises[key] {
+                return promise
+            } else {
+                let promise = Promise<TokenOrContract> { seal in
+                    self.fetchContractData(for: contract, server: server) { data in
+                        switch data {
+                        case .name, .symbol, .balance, .decimals:
+                            break
+                        case .nonFungibleTokenComplete(let name, let symbol, let balance, let tokenType):
+                            guard !onlyIfThereIsABalance || (onlyIfThereIsABalance && !balance.isEmpty) else {
+                                seal.fulfill(.none)
+                                break
+                            }
+                            let ercToken = ERCToken(contract: contract, server: server, name: name, symbol: symbol, decimals: 0, type: tokenType, balance: balance)
 
-            return fetcher
-        }
+                            seal.fulfill(.nonFungibleToken(ercToken))
+                        case .fungibleTokenComplete(let name, let symbol, let decimals):
+                            seal.fulfill(.fungibleTokenComplete(name: name, symbol: symbol, decimals: decimals, contract: contract, server: server, onlyIfThereIsABalance: onlyIfThereIsABalance))
+                        case .delegateTokenComplete:
+                            seal.fulfill(.delegateContracts([AddressAndRPCServer(address: contract, server: server)]))
+                        case .failed(let networkReachable):
+                            if let networkReachable = networkReachable, networkReachable {
+                                seal.fulfill(.deletedContracts([AddressAndRPCServer(address: contract, server: server)]))
+                            } else {
+                                seal.fulfill(.none)
+                            }
+                        }
+                    }
+                }.ensure(on: queue, {
+                    self.inFlightPromises[key] = nil
+                })
+
+                self.inFlightPromises[key] = promise
+
+                return promise
+            }
+        })
     }
 }
