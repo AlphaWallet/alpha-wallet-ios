@@ -537,9 +537,6 @@ extension WalletConnectCoordinator: WalletConnectSessionsViewControllerDelegate 
         infoLog("[WalletConnect] didClose")
         //NOTE: even if we haven't sessions view controller pushed to navigation stack, we need to make sure that root NavigationBar will be hidden
         navigationController.setNavigationBarHidden(true, animated: false)
-
-        guard let navigationController = viewController.navigationController else { return }
-        navigationController.popViewController(animated: true)
     }
 
     func didDisconnectSelected(session: AlphaWallet.WalletConnect.Session, in viewController: WalletConnectSessionsViewController) {
