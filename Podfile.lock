@@ -126,6 +126,7 @@ PODS:
   - secp256k1_ios (0.1.3)
   - SipHash (1.2.2)
   - StatefulViewController (3.0)
+  - SwiftFormat/CLI (0.50.3)
   - SwiftLint (0.40.3)
   - SwiftProtobuf (1.18.0)
   - SwiftyJSON (5.0.0)
@@ -168,6 +169,7 @@ DEPENDENCIES:
   - R.swift
   - SAMKeychain
   - StatefulViewController
+  - SwiftFormat/CLI (~> 0.49)
   - SwiftLint (= 0.40.3)
   - TrezorCrypto (from `https://github.com/AlphaWallet/trezor-crypto-ios.git`, commit `50c16ba5527e269bbc838e80aee5bac0fe304cc7`)
   - TrustKeystore (from `https://github.com/AlphaWallet/latest-keystore-snapshot`, commit `c0bdc4f6ffc117b103e19d17b83109d4f5a0e764`)
@@ -203,6 +205,7 @@ SPEC REPOS:
     - secp256k1_ios
     - SipHash
     - StatefulViewController
+    - SwiftFormat
     - SwiftLint
     - SwiftProtobuf
     - SwiftyJSON
@@ -320,6 +323,7 @@ SPEC CHECKSUMS:
   secp256k1_ios: ac9ef04e761f43c58012b28548afa91493761f17
   SipHash: fad90a4683e420c52ef28063063dbbce248ea6d4
   StatefulViewController: 4803bf900d44de26074344998e10e041113b5931
+  SwiftFormat: 61cda3819dc3a7d69795ce0430e1e1d53c4a4fb2
   SwiftLint: dfd554ff0dff17288ee574814ccdd5cea85d76f7
   SwiftProtobuf: c3c12645230d9b09c72267e0de89468c5543bd86
   SwiftyJSON: 36413e04c44ee145039d332b4f4e2d3e8d6c4db7
@@ -328,6 +332,6 @@ SPEC CHECKSUMS:
   TrustWalletCore: a92d85baa15932279cce925559e93695558cafdd
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: c4183e373b5193db637d4e89857271582bbf138e
+PODFILE CHECKSUM: b527af775f28dc3a2207db0692c4a97f878195f0
 
 COCOAPODS: 1.11.3
