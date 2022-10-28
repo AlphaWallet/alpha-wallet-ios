@@ -7,48 +7,100 @@
 
 import UIKit
 import AlphaWalletFoundation
+import Combine
 
-struct WalletConnectSessionDetailsViewModel {
+struct WalletConnectSessionDetailsViewModelInput {
+    let disconnect: AnyPublisher<Void, Never>
+}
 
+struct WalletConnectSessionDetailsViewModelOutput {
+    let close: AnyPublisher<Void, Never>
+    let viewState: AnyPublisher<WalletConnectSessionDetailsViewModel.ViewState, Never>
+}
+
+class WalletConnectSessionDetailsViewModel {
+    private let session: AlphaWallet.WalletConnect.Session
     private let provider: WalletConnectServerProviderType
-    private var isOnline: Bool {
-        provider.isConnected(session.topicOrUrl)
+    private var cancellable = Set<AnyCancellable>()
+    private let analytics: AnalyticsLogger
+    private let config: Config = Config()
+    let title: String = R.string.localizable.walletConnectTitle()
+    let walletImageIcon: UIImage? = R.image.walletConnectIcon()
+    let dissconnectButtonText: String = R.string.localizable.walletConnectSessionDisconnect()
+    let switchNetworkButtonText: String = R.string.localizable.walletConnectSessionSwitchNetwork()
+
+    private var rpcServers: [RPCServer] { session.servers }
+    var methods: [String] { session.methods }
+
+    private var serverChoices: [RPCServer] {
+        ServersCoordinator.serversOrdered.filter { config.enabledServers.contains($0) }
     }
 
-    var title: String {
-        return R.string.localizable.walletConnectTitle()
+    var serversViewModel: ServersViewModel {
+        let selectedServers: [RPCServerOrAuto] = rpcServers.map { return .server($0) }
+        let servers = serverChoices.filter { config.enabledServers.contains($0) } .compactMap { RPCServerOrAuto.server($0) }
+        var viewModel = ServersViewModel(servers: servers, selectedServers: selectedServers, displayWarningFooter: false)
+        viewModel.multipleSessionSelectionEnabled = session.multipleServersSelection == .enabled
+
+        return viewModel
     }
 
-    var walletImageIcon: UIImage? {
-        return R.image.walletConnectIcon()
+    init(provider: WalletConnectServerProviderType, session: AlphaWallet.WalletConnect.Session, analytics: AnalyticsLogger) {
+        self.provider = provider
+        self.analytics = analytics
+        self.session = session
     }
 
-    var sessionIconURL: URL? {
-        session.dappIconUrl
+    func transform(input: WalletConnectSessionDetailsViewModelInput) -> WalletConnectSessionDetailsViewModelOutput {
+        let close = input.disconnect
+            .map { _ in return self.session }
+            .handleEvents(receiveOutput: { [analytics, provider] session in
+                analytics.log(action: Analytics.Action.walletConnectDisconnect)
+
+                try? provider.disconnect(session.topicOrUrl)
+            }).mapToVoid()
+            .eraseToAnyPublisher()
+
+        let session = Publishers.Merge(Just(session), provider.sessions.receive(on: RunLoop.main).map { _ in self.session })
+
+        let viewState = session
+            .map { [provider] in
+                let statusRowViewModel = self.statusRowViewModel(session: $0)
+                let dappNameRowViewModel = self.dappNameRowViewModel(session: $0)
+                let chainRowViewModel = self.chainRowViewModel(session: $0)
+                let methodsRowViewModel = self.methodsRowViewModel(session: $0)
+                let isConnected = provider.isConnected($0.topicOrUrl)
+                let dappNameAttributedString = self.dappNameAttributedString(session: $0)
+                let dappUrlRowViewModel = self.dappUrlRowViewModel(session: $0)
+
+                return WalletConnectSessionDetailsViewModel.ViewState(title: R.string.localizable.walletConnectTitle(), sessionIconURL: $0.dappIconUrl, statusRowViewModel: statusRowViewModel, dappNameRowViewModel: dappNameRowViewModel, dappUrlRowViewModel: dappUrlRowViewModel, chainRowViewModel: chainRowViewModel, methodsRowViewModel: methodsRowViewModel, isDisconnectEnabled: isConnected, isSwitchServerEnabled: isConnected, dappNameAttributedString: dappNameAttributedString)
+            }.eraseToAnyPublisher()
+
+        return .init(close: close, viewState: viewState)
     }
 
-    var statusRowViewModel: WallerConnectRawViewModel {
+    private func statusRowViewModel(session: AlphaWallet.WalletConnect.Session) -> WallerConnectRawViewModel {
         return .init(
             text: R.string.localizable.walletConnectStatusPlaceholder(),
-            details: isOnline ? R.string.localizable.walletConnectStatusOnline() : R.string.localizable.walletConnectStatusOffline(),
+            details: provider.isConnected(session.topicOrUrl) ? R.string.localizable.walletConnectStatusOnline() : R.string.localizable.walletConnectStatusOffline(),
             detailsLabelFont: Fonts.semibold(size: 17),
-            detailsLabelTextColor: isOnline ? R.color.green()! : R.color.danger()!,
+            detailsLabelTextColor: provider.isConnected(session.topicOrUrl) ? R.color.green()! : R.color.danger()!,
             hideSeparatorOptions: .none
         )
     }
 
-    var dappNameRowViewModel: WallerConnectRawViewModel {
+    private func dappNameRowViewModel(session: AlphaWallet.WalletConnect.Session) -> WallerConnectRawViewModel {
         return .init(text: R.string.localizable.walletConnectDappName(), details: session.dappName, hideSeparatorOptions: .top)
     }
 
-    var dappNameAttributedString: NSAttributedString {
+    private func dappNameAttributedString(session: AlphaWallet.WalletConnect.Session) -> NSAttributedString {
         return .init(string: session.dappNameShort, attributes: [
             .font: Fonts.regular(size: ScreenChecker().isNarrowScreen ? 26 : 36),
             .foregroundColor: Colors.black
         ])
     }
 
-    var dappUrlRowViewModel: WallerConnectRawViewModel {
+    private func dappUrlRowViewModel(session: AlphaWallet.WalletConnect.Session) -> WallerConnectRawViewModel {
         return .init(
             text: R.string.localizable.walletConnectSessionConnectedURL(),
             details: session.dappUrl.absoluteString,
@@ -56,44 +108,28 @@ struct WalletConnectSessionDetailsViewModel {
         )
     }
 
-    var chainRowViewModel: WallerConnectRawViewModel {
-        let servers = rpcServers.map { $0.name }.joined(separator: ", ")
+    private func chainRowViewModel(session: AlphaWallet.WalletConnect.Session) -> WallerConnectRawViewModel {
+        let servers = session.servers.map { $0.name }.joined(separator: ", ")
         return .init(text: R.string.localizable.settingsNetworkButtonTitle(), details: servers, hideSeparatorOptions: .top)
     }
 
-    var methodsRowViewModel: WallerConnectRawViewModel {
-        let servers = methods.joined(separator: ", ")
+    private func methodsRowViewModel(session: AlphaWallet.WalletConnect.Session) -> WallerConnectRawViewModel {
+        let servers = session.methods.joined(separator: ", ")
         return .init(text: R.string.localizable.walletConnectConnectionMethodsTitle(), details: servers, hideSeparatorOptions: .top)
-    }
-
-    var dissconnectButtonText: String {
-        return R.string.localizable.walletConnectSessionDisconnect()
-    }
-
-    var switchNetworkButtonText: String {
-        return R.string.localizable.walletConnectSessionSwitchNetwork()
-    }
-
-    var isDisconnectAvailable: Bool {
-        return isOnline
-    }
-
-    var isSwitchServerEnabled: Bool {
-        isDisconnectAvailable
-    }
-
-    private let session: AlphaWallet.WalletConnect.Session
-    var topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl {
-        session.topicOrUrl
-    }
-    let rpcServers: [RPCServer]
-    let methods: [String]
-
-    init(provider: WalletConnectServerProviderType, session: AlphaWallet.WalletConnect.Session) {
-        self.provider = provider
-        self.session = session
-        self.rpcServers = session.servers
-        self.methods = session.methods
     }
 }
 
+extension WalletConnectSessionDetailsViewModel {
+    struct ViewState {
+        let title: String
+        let sessionIconURL: URL?
+        let statusRowViewModel: WallerConnectRawViewModel
+        let dappNameRowViewModel: WallerConnectRawViewModel
+        let dappUrlRowViewModel: WallerConnectRawViewModel
+        let chainRowViewModel: WallerConnectRawViewModel
+        let methodsRowViewModel: WallerConnectRawViewModel
+        let isDisconnectEnabled: Bool
+        let isSwitchServerEnabled: Bool
+        let dappNameAttributedString: NSAttributedString
+    }
+}

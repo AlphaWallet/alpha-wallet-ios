@@ -23,6 +23,7 @@ class WalletConnectSessionsViewController: UIViewController {
         tableView.separatorInset = .zero
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.backgroundColor = GroupedTable.Color.background
+        tableView.delegate = self
 
         return tableView
     }()
@@ -37,7 +38,7 @@ class WalletConnectSessionsViewController: UIViewController {
         return view
     }()
     private var cancelable = Set<AnyCancellable>()
-    private lazy var dataSource = WalletConnectSessionsDiffableDataSource(tableView: tableView, cellProvider: { tableView, indexPath, session in
+    private lazy var dataSource = WalletConnectSessionsViewModel.DataSource(tableView: tableView, cellProvider: { tableView, indexPath, session in
         let cell: WalletConnectSessionCell = tableView.dequeueReusableCell(for: indexPath)
 
         let viewModel = WalletConnectSessionCellViewModel(session: session)
@@ -73,11 +74,6 @@ class WalletConnectSessionsViewController: UIViewController {
         })
     }
 
-    private func configureDataSource() {
-        tableView.delegate = self
-        tableView.dataSource = dataSource
-    }
-
     required init?(coder aDecoder: NSCoder) {
         return nil
     }
@@ -92,29 +88,24 @@ class WalletConnectSessionsViewController: UIViewController {
             spinner.bringSubviewToFront(host)
         }
 
-        configureDataSource()
-        configure(viewModel: viewModel)
+        bind(viewModel: viewModel)
     }
 
-    func configure(viewModel: WalletConnectSessionsViewModel) {
-        title = viewModel.natigationTitle
+    private func bind(viewModel: WalletConnectSessionsViewModel) {
+        let input = WalletConnectSessionsViewModelInput()
+        let output = viewModel.transform(input: input)
 
-        viewModel.stateSubject
-            .receive(on: RunLoop.main)
-            .sink { [weak self] state in
-                self?.endLoading()
-
-                switch state {
+        output.viewState
+            .sink { [weak self, spinner, navigationItem] viewState in
+                navigationItem.title = viewState.title
+                self?.dataSource.apply(viewState.snapshot, animatingDifferences: false)
+                switch viewState.state {
                 case .waitingForSessionConnection:
-                    self?.spinner.startAnimating()
+                    spinner.startAnimating()
                 case .sessions:
-                    self?.spinner.stopAnimating()
+                    spinner.stopAnimating()
                 }
-            }.store(in: &cancelable)
 
-        viewModel.sessionsSnapshot
-            .sink { [weak self] snapshot in
-                self?.dataSource.apply(snapshot, animatingDifferences: false)
                 self?.endLoading()
             }.store(in: &cancelable)
     }
