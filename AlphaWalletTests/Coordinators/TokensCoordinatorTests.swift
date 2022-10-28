@@ -54,7 +54,7 @@ final class FakeImportToken: ImportToken {
         return .init(error: PMKError.badInput)
     }
 
-    override func importToken(token: ERCToken, shouldUpdateBalance: Bool = true) -> Token {
+    override func importToken(token: ErcToken, shouldUpdateBalance: Bool = true) -> Token {
         return Token()
     }
 

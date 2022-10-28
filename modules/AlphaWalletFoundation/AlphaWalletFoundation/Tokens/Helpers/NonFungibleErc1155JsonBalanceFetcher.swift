@@ -14,7 +14,7 @@ import PromiseKit
 import SwiftyJSON
 
 protocol NonFungibleErc1155JsonBalanceFetcherDelegate: AnyObject {
-    func addTokens(tokensToAdd: [ERCToken]) -> Promise<Void>
+    func addTokens(tokensToAdd: [ErcToken]) -> Promise<Void>
 }
 
 //TODO: think about the name, remove queue later, replace with any publisher
@@ -105,19 +105,27 @@ class NonFungibleErc1155JsonBalanceFetcher {
         })
     }
 
-    private func fetchUnknownErc1155ContractsDetails(contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds) -> Promise<[ERCToken]> {
+    private func fetchUnknownErc1155ContractsDetails(contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds) -> Promise<[ErcToken]> {
         let contractsToAdd: [AlphaWallet.Address] = contractsAndTokenIds.keys.filter { tokensService.token(for: $0, server: session.server) == nil }
         let promises = contractsToAdd.map { importToken.fetchTokenOrContract(for: $0, server: session.server) }
 
-        return when(resolved: promises).map(on: queue, { result -> [ERCToken] in
-            result.compactMap { each -> ERCToken? in
+        return when(resolved: promises).map(on: queue, { result -> [ErcToken] in
+            result.compactMap { each -> ErcToken? in
                 switch each {
                 case .fulfilled(let tokenOrContract):
                     switch tokenOrContract {
-                    case .nonFungibleToken(let token): return token
-                    case .token, .delegateContracts, .deletedContracts, .fungibleTokenComplete, .none: return nil
+                    case .ercToken(let token):
+                        switch token.type {
+                        case .erc1155, .erc721:
+                            return token
+                        case .erc875, .nativeCryptocurrency, .erc20, .erc721ForTickets:
+                            return nil
+                        }
+                    case .delegateContracts, .deletedContracts:
+                        return nil
                     }
-                case .rejected: return nil
+                case .rejected:
+                    return nil
                 }
             }
         })

@@ -233,7 +233,7 @@ class RetryPublisherTests: XCTestCase {
 
         let resultPublisher = upstreamPublisher.retry(.custom(retries: 2, delayCalculator: { _ in
             return TimeInterval(Int.random(in: 5 ... 8))
-        }), scheduler: DispatchQueue.global())
+        }), scheduler: DispatchQueue.global(qos: .userInitiated))
 
         XCTAssertEqual(asyncAPICallCount, 0)
         XCTAssertEqual(futureClosureHandlerCount, 0)
@@ -248,7 +248,7 @@ class RetryPublisherTests: XCTestCase {
             XCTFail("no value should be returned")
         }).store(in: &cancelable)
 
-        wait(for: [expectation], timeout: 50.0)
+        wait(for: [expectation], timeout: 500.0)
     }
 
     func testRetryWithoutDelay() {

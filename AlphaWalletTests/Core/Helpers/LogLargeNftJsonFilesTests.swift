@@ -19,10 +19,10 @@ class LogLargeNftJsonFilesTests: XCTestCase {
 
         let uri = URL(string: "https://www.google.com/")!
         let asset_1 = NonFungibleBalance.NftAssetRawValue(json: largeImage, source: .uri(uri))
-        XCTAssertTrue(crashlytics.logLargeNftJsonFiles(for: [.update(token: token, action: .nonFungibleBalance(.assets([asset_1])))], fileSizeThreshold: 0.5))
+        XCTAssertTrue(crashlytics.logLargeNftJsonFiles(for: [.update(token: token, field: .nonFungibleBalance(.assets([asset_1])))], fileSizeThreshold: 0.5))
 
         let asset_2 = NonFungibleBalance.NftAssetRawValue(json: "", source: .uri(uri))
-        XCTAssertFalse(crashlytics.logLargeNftJsonFiles(for: [.update(token: token, action: .nonFungibleBalance(.assets([asset_2])))], fileSizeThreshold: 0.5))
+        XCTAssertFalse(crashlytics.logLargeNftJsonFiles(for: [.update(token: token, field: .nonFungibleBalance(.assets([asset_2])))], fileSizeThreshold: 0.5))
     }
 }
 // swiftlint:enable all

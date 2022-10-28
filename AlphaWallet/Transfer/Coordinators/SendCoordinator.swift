@@ -122,10 +122,6 @@ extension SendCoordinator: SendViewControllerDelegate {
                 .displayError(message: error.prettyError)
         }
     }
-
-    func lookup(contract: AlphaWallet.Address, in viewController: SendViewController, completion: @escaping (ContractData) -> Void) {
-        ContractDataDetector(address: contract, session: session, assetDefinitionStore: assetDefinitionStore, analytics: analytics).fetch(completion: completion)
-    }
 }
 
 extension SendCoordinator: TransactionConfirmationCoordinatorDelegate {

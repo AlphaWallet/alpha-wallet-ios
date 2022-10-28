@@ -143,7 +143,7 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
         tokensService.token(for: contract, server: server)
     }
 
-    public func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [Token] {
+    public func addCustom(tokens: [ErcToken], shouldUpdateBalance: Bool) -> [Token] {
         tokensService.addCustom(tokens: tokens, shouldUpdateBalance: shouldUpdateBalance)
     }
 
@@ -155,8 +155,8 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
         tokensService.addOrUpdate(tokensOrContracts: tokensOrContracts)
     }
 
-    public func addOrUpdate(_ actions: [AddOrUpdateTokenAction]) -> Bool? {
-        tokensService.addOrUpdate(actions)
+    public func addOrUpdate(with actions: [AddOrUpdateTokenAction]) -> Bool? {
+        tokensService.addOrUpdate(with: actions)
     }
 
     public func tokenPublisher(for contract: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<Token?, Never> {
@@ -218,9 +218,9 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
         coinTickersFetcher.updateTickerIds
             .map { [tokensService] data -> [AddOrUpdateTokenAction] in
                 let v = data.compactMap { i in tokensService.token(for: i.key.address, server: i.key.server).flatMap { ($0, i.tickerId) } }
-                return v.map { AddOrUpdateTokenAction.update(token: $0.0, action: .coinGeckoTickerId($0.1)) }
+                return v.map { AddOrUpdateTokenAction.update(token: $0.0, field: .coinGeckoTickerId($0.1)) }
             }.sink { [tokensService] actions in
-                tokensService.addOrUpdate(actions)
+                tokensService.addOrUpdate(with: actions)
             }.store(in: &cancelable)
     }
 
