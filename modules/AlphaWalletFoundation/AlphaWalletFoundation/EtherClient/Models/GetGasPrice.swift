@@ -33,21 +33,17 @@ public final class GetGasPrice {
             APIKitSession.send(request, server: server, analytics: analytics)
         }.get { [server] estimate in
             infoLog("Estimated gas price with RPC node server: \(server) estimate: \(estimate)")
-        }.map { [server] in
-            if let gasPrice = BigInt($0.drop0x, radix: 16) {
-                if (gasPrice + GasPriceConfiguration.oneGwei) > maxPrice {
-                    // Guard against really high prices
-                    return GasEstimates(standard: maxPrice)
-                } else {
-                    if server.canUserChangeGas && server.shouldAddBufferWhenEstimatingGasPrice {
-                        //Add an extra gwei because the estimate is sometimes too low
-                        return GasEstimates(standard: gasPrice + GasPriceConfiguration.oneGwei)
-                    } else {
-                        return GasEstimates(standard: gasPrice)
-                    }
-                }
+        }.map { [server] gasPrice in
+            if (gasPrice + GasPriceConfiguration.oneGwei) > maxPrice {
+                // Guard against really high prices
+                return GasEstimates(standard: maxPrice)
             } else {
-                return GasEstimates(standard: defaultPrice)
+                if server.canUserChangeGas && server.shouldAddBufferWhenEstimatingGasPrice {
+                    //Add an extra gwei because the estimate is sometimes too low
+                    return GasEstimates(standard: gasPrice + GasPriceConfiguration.oneGwei)
+                } else {
+                    return GasEstimates(standard: gasPrice)
+                }
             }
         }.recover { _ -> Promise<GasEstimates> in
             .value(GasEstimates(standard: defaultPrice))
