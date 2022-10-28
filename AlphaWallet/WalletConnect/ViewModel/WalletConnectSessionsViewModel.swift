@@ -10,10 +10,60 @@ import Combine
 import UIKit
 import AlphaWalletFoundation
 
-class WalletConnectSessionsDiffableDataSource: UITableViewDiffableDataSource<WalletConnectSessionsViewModel.Section, AlphaWallet.WalletConnect.Session> {}
-typealias WalletConnectSessionsSnapshot = NSDiffableDataSourceSnapshot<WalletConnectSessionsViewModel.Section, AlphaWallet.WalletConnect.Session>
+struct WalletConnectSessionsViewModelInput {
+
+}
+
+struct WalletConnectSessionsViewModelIOutput {
+    let viewState: AnyPublisher<WalletConnectSessionsViewModel.ViewState, Never>
+}
 
 class WalletConnectSessionsViewModel {
+    private let provider: WalletConnectServerProviderType
+    private var cancelable = Set<AnyCancellable>()
+    private let stateSubject: CurrentValueSubject<State, Never>
+
+    init(provider: WalletConnectServerProviderType, state: State = .sessions) {
+        self.provider = provider
+        self.stateSubject = .init(state)
+    }
+
+    func transform(input: WalletConnectSessionsViewModelInput) -> WalletConnectSessionsViewModelIOutput {
+        let snapshot = provider.sessions
+            .map {
+                var snapshot = NSDiffableDataSourceSnapshot<WalletConnectSessionsViewModel.Section, AlphaWallet.WalletConnect.Session>()
+                snapshot.appendSections([.sessions])
+                snapshot.appendItems($0)
+
+                return snapshot
+            }
+
+        let viewState = Publishers.CombineLatest(stateSubject, snapshot)
+            .map { ViewState(title: R.string.localizable.walletConnectTitle(), state: $0, snapshot: $1) }
+            .receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
+
+        return .init(viewState: viewState)
+    }
+
+    func set(state: State) {
+        stateSubject.send(state)
+    }
+
+    func hasAnyContent(_ dataSource: WalletConnectSessionsViewModel.DataSource) -> Bool {
+        switch stateSubject.value {
+        case .sessions:
+            return dataSource.snapshot().numberOfItems != 0
+        case .waitingForSessionConnection:
+            return true
+        }
+    }
+}
+
+extension WalletConnectSessionsViewModel {
+    class DataSource: UITableViewDiffableDataSource<WalletConnectSessionsViewModel.Section, AlphaWallet.WalletConnect.Session> {}
+    typealias Snapshot = NSDiffableDataSourceSnapshot<WalletConnectSessionsViewModel.Section, AlphaWallet.WalletConnect.Session>
+
     enum State {
         case sessions
         case waitingForSessionConnection
@@ -23,36 +73,9 @@ class WalletConnectSessionsViewModel {
         case sessions
     }
 
-    private let provider: WalletConnectServerProviderType
-    private var cancelable = Set<AnyCancellable>()
-    var state: State { stateSubject.value }
-    let stateSubject: CurrentValueSubject<State, Never>
-    var natigationTitle: String = R.string.localizable.walletConnectTitle()
-    var sessionsSnapshot: AnyPublisher<WalletConnectSessionsSnapshot, Never> {
-        provider.sessions.map {
-            var snapshot = NSDiffableDataSourceSnapshot<WalletConnectSessionsViewModel.Section, AlphaWallet.WalletConnect.Session>()
-            snapshot.appendSections([.sessions])
-            snapshot.appendItems($0)
-
-            return snapshot
-        }.eraseToAnyPublisher()
-    }
-
-    init(provider: WalletConnectServerProviderType, state: State = .sessions) {
-        self.provider = provider
-        self.stateSubject = .init(state)
-    }
-
-    func set(state: State) {
-        stateSubject.send(state)
-    }
-
-    func hasAnyContent(_ dataSource: WalletConnectSessionsDiffableDataSource) -> Bool {
-        switch state {
-        case .sessions:
-            return dataSource.snapshot().numberOfItems != 0
-        case .waitingForSessionConnection:
-            return true
-        }
+    struct ViewState {
+        let title: String
+        let state: WalletConnectSessionsViewModel.State
+        let snapshot: WalletConnectSessionsViewModel.Snapshot
     }
 }
