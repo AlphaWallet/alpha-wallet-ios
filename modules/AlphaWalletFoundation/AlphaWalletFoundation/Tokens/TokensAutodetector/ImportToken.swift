@@ -157,7 +157,7 @@ open class ImportToken: TokenImportable, ContractDataFetchable {
             return
         }
 
-        let detector = ContractDataDetector(address: contract, account: session.account, server: session.server, assetDefinitionStore: assetDefinitionStore, analytics: analytics)
+        let detector = ContractDataDetector(address: contract, session: session, assetDefinitionStore: assetDefinitionStore, analytics: analytics)
         detector.fetch(completion: completion)
     }
 

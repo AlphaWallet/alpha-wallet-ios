@@ -35,7 +35,7 @@ public class SingleChainTokenFetcher: NSObject, TokenFetcher {
                 return promise
             } else {
                 let server = session.server
-                let detector = ContractDataDetector(address: contract, account: session.account, server: server, assetDefinitionStore: assetDefinitionStore, analytics: analytics)
+                let detector = ContractDataDetector(address: contract, session: session, assetDefinitionStore: assetDefinitionStore, analytics: analytics)
                 let promise = Promise<TokenOrContract> { seal in
                     detector.fetch { data in
                         switch data {

@@ -440,12 +440,9 @@ class ImportMagicLinkCoordinator: Coordinator {
         }
         return filteredTokens
     }
-    private lazy var tokenProvider: TokenProviderType = {
-        return TokenProvider(account: wallet, server: server, analytics: analytics)
-    }()
 
     private func makeTokenHolder(_ bytes32Tokens: [String], _ contractAddress: AlphaWallet.Address) {
-        assetDefinitionStore.fetchXML(forContract: contractAddress, server: server, useCacheAndFetch: true) { [weak self] _ in
+        assetDefinitionStore.fetchXML(forContract: contractAddress, server: server, useCacheAndFetch: true) { [weak self, session] _ in
             guard let strongSelf = self else { return }
 
             func makeTokenHolder(name: String, symbol: String, type: TokenType? = nil) {
@@ -460,9 +457,9 @@ class ImportMagicLinkCoordinator: Coordinator {
                 let localizedTokenTypeName = R.string.localizable.tokensTitlecase()
                 makeTokenHolder(name: localizedTokenTypeName, symbol: "")
 
-                let getContractName = strongSelf.tokenProvider.getContractName(for: contractAddress)
-                let getContractSymbol = strongSelf.tokenProvider.getContractSymbol(for: contractAddress)
-                let getTokenType = strongSelf.tokenProvider.getTokenType(for: contractAddress)
+                let getContractName = session.tokenProvider.getContractName(for: contractAddress)
+                let getContractSymbol = session.tokenProvider.getContractSymbol(for: contractAddress)
+                let getTokenType = session.tokenProvider.getTokenType(for: contractAddress)
                 firstly {
                     when(fulfilled: getContractName, getContractSymbol, getTokenType)
                 }.done { name, symbol, type in
