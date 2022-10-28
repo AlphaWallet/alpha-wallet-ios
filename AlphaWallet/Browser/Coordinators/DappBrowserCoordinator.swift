@@ -766,10 +766,8 @@ extension DappBrowserCoordinator: ServersCoordinatorDelegate {
         }
     }
 
-    func didSelectDismiss(in coordinator: ServersCoordinator) {
+    func didClose(in coordinator: ServersCoordinator) {
         browserNavBar?.setBrowserBar(hidden: false)
-
-        coordinator.navigationController.popViewController(animated: true)
 
         removeCoordinator(coordinator)
     }

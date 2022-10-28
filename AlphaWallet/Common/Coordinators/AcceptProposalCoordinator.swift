@@ -55,7 +55,7 @@ class AcceptProposalCoordinator: Coordinator {
     }
 
     func close(completion: @escaping () -> Void) {
-        navigationController.dismiss(animated: true, completion: completion)
+        hostViewController.dismiss(animated: true, completion: completion)
     }
 }
 
@@ -82,7 +82,7 @@ extension AcceptProposalCoordinator: ServersCoordinatorDelegate {
         rootViewController.reloadView()
     }
 
-    func didSelectDismiss(in coordinator: ServersCoordinator) {
+    func didClose(in coordinator: ServersCoordinator) {
         removeCoordinator(coordinator)
         serversViewController?.navigationController?.dismiss(animated: true)
         viewModel.logCancelServerSelection()
@@ -106,7 +106,7 @@ extension AcceptProposalCoordinator: AcceptProposalViewControllerDelegate {
 
             let navigationController = NavigationController(rootViewController: coordinator.serversViewController)
             navigationController.makePresentationFullScreenForiOS13Migration()
-            controller.navigationItem.leftBarButtonItem = .closeBarButton(self, selector: #selector(changeServersDidDismiss))
+            coordinator.serversViewController.navigationItem.leftBarButtonItem = .closeBarButton(self, selector: #selector(changeServersDidDismiss))
 
             self.serversViewController = coordinator.serversViewController
 

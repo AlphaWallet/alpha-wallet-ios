@@ -85,8 +85,7 @@ extension NewTokenCoordinator: ServersCoordinatorDelegate {
         removeCoordinator(coordinator)
     }
 
-    func didSelectDismiss(in coordinator: ServersCoordinator) {
-        coordinator.navigationController.popViewController(animated: true)
+    func didClose(in coordinator: ServersCoordinator) {
         removeCoordinator(coordinator)
     }
 }

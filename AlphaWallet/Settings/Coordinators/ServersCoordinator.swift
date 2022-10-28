@@ -6,7 +6,7 @@ import AlphaWalletFoundation
 
 protocol ServersCoordinatorDelegate: AnyObject {
     func didSelectServer(selection: ServerSelection, in coordinator: ServersCoordinator)
-    func didSelectDismiss(in coordinator: ServersCoordinator)
+    func didClose(in coordinator: ServersCoordinator)
 }
 
 class ServersCoordinator: Coordinator {
@@ -110,6 +110,6 @@ extension ServersCoordinator: ServersViewControllerDelegate {
     }
 
     func didClose(in viewController: ServersViewController) {
-        delegate?.didSelectDismiss(in: self)
+        delegate?.didClose(in: self)
     }
 }
