@@ -16,6 +16,7 @@ protocol CheckTransactionStateCoordinatorDelegate: class {
 class CheckTransactionStateCoordinator: Coordinator {
     private let navigationController: UINavigationController
     private let config: Config
+    private let analytics: AnalyticsLogger
     private var serverSelection: ServerSelection = .server(server: .server(.main))
     private lazy var rootViewController: CheckTransactionStateViewController = {
         let viewModel = CheckTransactionStateViewModel(serverSelection: serverSelection)
@@ -29,8 +30,9 @@ class CheckTransactionStateCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: CheckTransactionStateCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, config: Config) {
+    init(navigationController: UINavigationController, config: Config, analytics: AnalyticsLogger) {
         self.navigationController = navigationController
+        self.analytics = analytics
         self.config = config
     }
 
@@ -60,8 +62,8 @@ extension CheckTransactionStateCoordinator: SelectTransactionHashViewControllerD
 
         rootViewController.set(isActionButtonEnable: false)
 
-        GetTransactionState()
-            .getTransactionsState(server: server, hash: transactionHash)
+        GetTransactionState(server: server, analytics: analytics)
+            .getTransactionsState(hash: transactionHash)
             .done { state in
                 self.displayErrorMessage(R.string.localizable.checkTransactionStateComplete(state.description))
             }.catch { error in

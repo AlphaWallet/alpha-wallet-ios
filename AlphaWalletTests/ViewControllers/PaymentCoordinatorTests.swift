@@ -37,7 +37,7 @@ extension WalletDataProcessingPipeline {
 
         let fetcher = WalletBalanceFetcher(wallet: wallet, tokensService: pipeline)
 
-        let activitiesPipeLine = ActivitiesPipeLine(config: .make(), wallet: wallet, assetDefinitionStore: .init(), transactionDataStore: transactionsDataStore, tokensService: tokensService, sessionsProvider: sessionsProvider, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore)
+        let activitiesPipeLine = ActivitiesPipeLine(config: .make(), wallet: wallet, assetDefinitionStore: .init(), transactionDataStore: transactionsDataStore, tokensService: tokensService, sessionsProvider: sessionsProvider, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore, analytics: fas)
 
         let dep = FakeWalletDep(activitiesPipeLine: activitiesPipeLine, tokensDataStore: tokensDataStore, transactionsDataStore: transactionsDataStore, importToken: importToken, tokensService: tokensService, pipeline: pipeline, fetcher: fetcher, sessionsProvider: sessionsProvider)
         dep.sessionsProvider.start(wallet: wallet)

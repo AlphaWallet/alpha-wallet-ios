@@ -3,7 +3,7 @@
 import Foundation
 import JSONRPCKit
 
-struct EthChainIdRequest: JSONRPCKit.Request {
+struct ChainIdRequest: JSONRPCKit.Request {
     typealias Response = String
     var method: String {
         return "eth_chainId"

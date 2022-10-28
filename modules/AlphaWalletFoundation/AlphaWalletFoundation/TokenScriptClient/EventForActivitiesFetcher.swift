@@ -16,11 +16,13 @@ final class EventForActivitiesFetcher {
     private let getEventLogs: GetEventLogs
     private let queue: DispatchQueue = .global()
     private let wallet: Wallet
-    private let getBlockTimestamp = GetBlockTimestamp()
+    private let analytics: AnalyticsLogger
+    private lazy var getBlockTimestamp = GetBlockTimestamp(analytics: analytics)
 
-    init(getEventLogs: GetEventLogs, wallet: Wallet) {
+    init(getEventLogs: GetEventLogs, wallet: Wallet, analytics: AnalyticsLogger) {
         self.getEventLogs = getEventLogs
         self.wallet = wallet
+        self.analytics = analytics
     }
 
     func fetchEvents(token: Token, card: TokenScriptCard, oldEvent: EventActivityInstance?) -> Promise<[EventActivityInstance]> {
