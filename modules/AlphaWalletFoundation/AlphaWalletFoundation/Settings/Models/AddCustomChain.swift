@@ -170,7 +170,7 @@ extension AddCustomChain.functional {
         //Whether the explorer API endpoint is Etherscan or blockscout or testnet or not doesn't matter here
         let customRpc = CustomRPC(customChain: customChain, chainId: chainId, rpcUrl: rpcUrl, etherscanCompatibleType: .unknown, isTestnet: false, chainNameFallback: chainNameFallback)
         let server = RPCServer.custom(customRpc)
-        let request = EthChainIdRequest()
+        let request = ChainIdRequest()
         return firstly {
             APIKitSession.send(EtherServiceRequest(server: server, batch: BatchFactory().create(request)), server: server, analytics: analytics)
         }.map { result in

@@ -8,19 +8,27 @@
 import Foundation
 import PromiseKit
 import AlphaWalletWeb3
+import JSONRPCKit
+import APIKit
 
 public final class GetTransactionState {
-    public init() { }
+    private let server: RPCServer
+    private let analytics: AnalyticsLogger
 
-    public func getTransactionsState(server: RPCServer, hash: String) -> Promise<TransactionState> {
-        guard let web3 = try? Web3.instance(for: server, timeout: 6) else {
-            return .init(error: PMKError.cancelled)
-        }
-
-        return Web3.Eth(web3: web3)
-            .getTransactionReceiptPromise(hash)
-            .map { TransactionState(status: $0.status) }
+    public init(server: RPCServer, analytics: AnalyticsLogger) {
+        self.server = server
+        self.analytics = analytics
     }
+
+    public func getTransactionsState(hash: String) -> Promise<TransactionState> {
+        let request = EtherServiceRequest(server: server, batch: BatchFactory().create(TransactionReceiptRequest(hash: hash)))
+        let promise = firstly {
+            APIKitSession.send(request, server: server, analytics: analytics)
+        }.map { TransactionState(status: $0.status) }
+
+        return promise
+    }
+
 }
 
 extension TransactionState {
