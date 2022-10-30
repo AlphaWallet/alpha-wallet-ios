@@ -11,5 +11,9 @@ class LockCreatePasscodeViewModel: LockViewModel {
 
     func set(firstPasscode: String?) {
         self.firstPasscode = firstPasscode
-    } 
+    }
+
+    func set(passcode: String) {
+        lock.setPasscode(passcode: passcode)
+    }
 }

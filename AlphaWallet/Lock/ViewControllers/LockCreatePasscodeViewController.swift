@@ -3,8 +3,15 @@
 
 import UIKit
 
+protocol LockCreatePasscodeViewControllerDelegate: NSObjectProtocol {
+    func didSetPassword(in viewController: LockCreatePasscodeViewController)
+    func didClose(in viewController: LockCreatePasscodeViewController)
+}
+
 class LockCreatePasscodeViewController: LockPasscodeViewController {
     private let viewModel: LockCreatePasscodeViewModel
+
+    weak var delegate: LockCreatePasscodeViewControllerDelegate?
 
     init(lockCreatePasscodeViewModel: LockCreatePasscodeViewModel) {
         self.viewModel = lockCreatePasscodeViewModel
@@ -17,16 +24,19 @@ class LockCreatePasscodeViewController: LockPasscodeViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
         title = viewModel.title
         lockView.lockTitle.text = viewModel.initialLabelText
     }
 
     override func enteredPasscode(_ passcode: String) {
         super.enteredPasscode(passcode)
+
         if let first = viewModel.firstPasscode {
             if passcode == first {
-                viewModel.lock.setPasscode(passcode: passcode)
-                finish(withResult: true, animated: true)
+                viewModel.set(passcode: passcode)
+                hideKeyboard()
+                delegate?.didSetPassword(in: self)
             } else {
                 lockView.shake()
                 viewModel.set(firstPasscode: nil)
@@ -44,5 +54,11 @@ class LockCreatePasscodeViewController: LockPasscodeViewController {
 
     private func showConfirmPasscodeView() {
         lockView.lockTitle.text = viewModel.confirmLabelText
+    }
+}
+
+extension LockCreatePasscodeViewController: PopNotifiable {
+    func didPopViewController(animated: Bool) {
+        delegate?.didClose(in: self)
     }
 }

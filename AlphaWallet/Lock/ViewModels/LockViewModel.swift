@@ -5,7 +5,8 @@ import AlphaWalletFoundation
 
 class LockViewModel {
     let lock: Lock
-    
+    var shouldIgnoreTextFieldDelegateCalls = false
+
     init(lock: Lock) {
         self.lock = lock
     }

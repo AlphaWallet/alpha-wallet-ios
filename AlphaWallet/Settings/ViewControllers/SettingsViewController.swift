@@ -14,6 +14,7 @@ protocol SettingsViewControllerDelegate: class, CanOpenURL {
     func nameWalletSelected(in controller: SettingsViewController)
     func blockscanChatSelected(in controller: SettingsViewController)
     func activeNetworksSelected(in controller: SettingsViewController)
+    func createPasswordSelected(in controller: SettingsViewController)
     func helpSelected(in controller: SettingsViewController)
 }
 
@@ -28,6 +29,7 @@ class SettingsViewController: UIViewController {
         tableView.estimatedRowHeight = Metrics.anArbitraryRowHeightSoAutoSizingCellsWorkIniOS10
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.separatorColor = Configuration.Color.Semantic.tableViewSeparator
+        tableView.delegate = self
 
         return tableView
     }()
@@ -35,10 +37,9 @@ class SettingsViewController: UIViewController {
     private let appear = PassthroughSubject<Void, Never>()
     private let toggleSelection = PassthroughSubject<(indexPath: IndexPath, isOn: Bool), Never>()
     private let blockscanChatUnreadCount = PassthroughSubject<Int?, Never>()
-    private let didSetPasscode = PassthroughSubject<Bool, Never>()
     private var cancellable = Set<AnyCancellable>()
-    private let viewModel: SettingsViewModel
 
+    let viewModel: SettingsViewModel
     weak var delegate: SettingsViewControllerDelegate?
     var promptBackupWalletView: UIView? {
         didSet {
@@ -74,8 +75,6 @@ class SettingsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        tableView.dataSource = dataSource
-        tableView.delegate = self
 
         if promptBackupWalletView == nil {
             hidePromptBackupWalletView()
@@ -84,8 +83,8 @@ class SettingsViewController: UIViewController {
         bind(viewModel: viewModel)
     }
 
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         appear.send(())
     }
 
@@ -98,7 +97,6 @@ class SettingsViewController: UIViewController {
         let input = SettingsViewModelInput(
             appear: appear.eraseToAnyPublisher(),
             toggleSelection: toggleSelection.eraseToAnyPublisher(),
-            didSetPasscode: didSetPasscode.eraseToAnyPublisher(),
             blockscanChatUnreadCount: blockscanChatUnreadCount.eraseToAnyPublisher())
 
         let output = viewModel.transform(input: input)
@@ -110,15 +108,12 @@ class SettingsViewController: UIViewController {
             }.store(in: &cancellable)
 
         output.askToSetPasscode
-            .sink { [weak self, didSetPasscode] _ in
-                self?.askUserToSetPasscode { value in
-                    didSetPasscode.send(value)
-                }
-            }.store(in: &cancellable)
+            .sink { _ in self.delegate?.createPasswordSelected(in: self) }
+            .store(in: &cancellable)
     }
 
-    func configure(blockscanChatUnreadCount: Int?) {
-        self.blockscanChatUnreadCount.send(blockscanChatUnreadCount)
+    func configure(blockscanChatUnreadCount value: Int?) {
+        blockscanChatUnreadCount.send(value)
     }
 
     private func showPromptBackupWalletViewAsTableHeaderView() {
@@ -130,16 +125,6 @@ class SettingsViewController: UIViewController {
 
     private func hidePromptBackupWalletView() {
         tableView.tableHeaderView = nil
-    }
-
-    private func askUserToSetPasscode(completion: ((Bool) -> Void)? = .none) {
-        guard let navigationController = navigationController else { return }
-        let lock = LockCreatePasscodeCoordinator(navigationController: navigationController, lock: viewModel.lock)
-        lock.start()
-        lock.lockViewController.willFinishWithResult = { result in
-            completion?(result)
-            lock.stop()
-        }
     }
 
     required init?(coder aDecoder: NSCoder) {

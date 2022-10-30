@@ -4,15 +4,25 @@
 import UIKit
 import AlphaWalletFoundation
 
-class LockCreatePasscodeCoordinator: Coordinator {
+protocol LockCreatePasscodeCoordinatorDelegate: AnyObject {
+    func didClose(in coordinator: LockCreatePasscodeCoordinator)
+}
+
+class LockCreatePasscodeCoordinator: NSObject, Coordinator {
     private let lock: Lock
     private let navigationController: UINavigationController
-    lazy var lockViewController: LockCreatePasscodeViewController = {
+    private lazy var lockViewController: LockCreatePasscodeViewController = {
         let viewModel = LockCreatePasscodeViewModel(lock: lock)
-        return LockCreatePasscodeViewController(lockCreatePasscodeViewModel: viewModel)
+        let viewController = LockCreatePasscodeViewController(lockCreatePasscodeViewModel: viewModel)
+        viewController.delegate = self
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        viewController.hidesBottomBarWhenPushed = true
+
+        return viewController
     }()
 
     var coordinators: [Coordinator] = []
+    weak var delegate: LockCreatePasscodeCoordinatorDelegate?
 
     init(navigationController: UINavigationController, lock: Lock) {
         self.lock = lock
@@ -20,12 +30,20 @@ class LockCreatePasscodeCoordinator: Coordinator {
     }
 
     func start() {
-        lockViewController.navigationItem.largeTitleDisplayMode = .never
-        lockViewController.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(lockViewController, animated: true)
     }
 
-    func stop() {
+    func stopTestOnly() {
         navigationController.popViewController(animated: true)
+    }
+}
+
+extension LockCreatePasscodeCoordinator: LockCreatePasscodeViewControllerDelegate {
+    func didSetPassword(in viewController: LockCreatePasscodeViewController) {
+        navigationController.popViewController(animated: true)
+    }
+
+    func didClose(in viewController: LockCreatePasscodeViewController) {
+        delegate?.didClose(in: self)
     }
 }
