@@ -69,7 +69,7 @@ class TransactionViewController: UIViewController {
         scrollView.addSubview(stackView)
 
         if viewModel.shareAvailable {
-            navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(share(_:)))
+            navigationItem.rightBarButtonItem = UIBarButtonItem.actionBarButton(self, selector: #selector(shareButtonSelected))
         }
 
         let footerBar = UIView()
@@ -160,7 +160,7 @@ class TransactionViewController: UIViewController {
         delegate?.didPressOpenWebPage(url, in: self)
     }
 
-    @objc func share(_ sender: UIBarButtonItem) {
+    @objc func shareButtonSelected(_ sender: UIBarButtonItem) {
         guard let item = viewModel.shareItem else { return }
         let activityViewController = UIActivityViewController(
             activityItems: [

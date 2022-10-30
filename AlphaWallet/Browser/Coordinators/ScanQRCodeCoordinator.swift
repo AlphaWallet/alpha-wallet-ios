@@ -35,7 +35,7 @@ final class ScanQRCodeCoordinator: NSObject, Coordinator {
         )
         controller.delegate = self
         controller.title = R.string.localizable.browserScanQRCodeTitle()
-        controller.navigationItem.leftBarButtonItem = UIBarButtonItem.cancelBarButton(self, selector: #selector(dismiss))
+        controller.navigationItem.rightBarButtonItem = UIBarButtonItem.cancelBarButton(self, selector: #selector(dismissButtonSelected))
         controller.delegate = self
 
         return controller
@@ -66,7 +66,7 @@ final class ScanQRCodeCoordinator: NSObject, Coordinator {
         }
     }
 
-    @objc private func dismiss() {
+    @objc private func dismissButtonSelected() {
         stopScannerAndDismiss {
             self.analytics.log(action: Analytics.Action.cancelScanQrCode)
             self.delegate?.didCancel(in: self)
