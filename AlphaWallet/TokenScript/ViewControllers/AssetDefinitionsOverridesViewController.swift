@@ -12,6 +12,11 @@ class AssetDefinitionsOverridesViewController: UIViewController {
     private let tableView = UITableView(frame: .zero, style: .grouped)
     private let fileExtension: String
     private var overriddenURLs: [URL] = []
+    private lazy var emptyView: UIView = {
+        let emptyView = EmptyTableView(title: R.string.localizable.tokenscriptOverridesEmpty(), image: R.image.iconsIllustrationsSearchResults()!, heightAdjustment: 0.0)
+        emptyView.isHidden = true
+        return emptyView
+    }()
     weak var delegate: AssetDefinitionsOverridesViewControllerDelegate?
 
     init(fileExtension: String) {
@@ -25,7 +30,7 @@ class AssetDefinitionsOverridesViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = GroupedTable.Color.background
+        tableView.backgroundColor = Configuration.Color.Semantic.tableViewBackground
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
 
         view.addSubview(tableView)
@@ -33,6 +38,7 @@ class AssetDefinitionsOverridesViewController: UIViewController {
         NSLayoutConstraint.activate([
             tableView.anchorsConstraint(to: view),
         ])
+        configureEmptyView()
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -43,6 +49,15 @@ class AssetDefinitionsOverridesViewController: UIViewController {
         self.overriddenURLs = urls
         tableView.reloadData()
     }
+
+    private func configureEmptyView() {
+        tableView.addSubview(emptyView)
+        NSLayoutConstraint.activate([
+            emptyView.centerXAnchor.constraint(equalTo: tableView.centerXAnchor),
+            emptyView.centerYAnchor.constraint(equalTo: tableView.centerYAnchor),
+        ])
+    }
+
 }
 
 extension AssetDefinitionsOverridesViewController: UITableViewDelegate {
@@ -65,7 +80,9 @@ extension AssetDefinitionsOverridesViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return overriddenURLs.count
+        let rows = overriddenURLs.count
+        handleEmptyTableAction(rows)
+        return rows
     }
 
     //Hide the header
@@ -83,4 +100,11 @@ extension AssetDefinitionsOverridesViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         nil
     }
+
+    private func handleEmptyTableAction(_ rows: Int) {
+        let newViewHiddenState = rows != 0
+        guard emptyView.isHidden != newViewHiddenState else { return }
+        emptyView.isHidden = newViewHiddenState
+    }
+
 }
