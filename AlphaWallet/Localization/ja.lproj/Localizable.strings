@@ -862,3 +862,4 @@
 "accept.deepLink.field.url.title" = "URL";
 "accept.deepLink.field.note.title" = "Note";
 "accept.walletConnect.field.methods.title" = "Methods";
+"tokenscript.overrides.empty" = "There are no TokenScript overrides";
