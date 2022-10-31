@@ -44,11 +44,11 @@ class RPCDisplaySelectableTableViewCell: UITableViewCell {
         return imageView
     }()
     private let infoView: ServerInformationView = ServerInformationView()
-    private let topSeparator: UIView = UIView.spacer(backgroundColor: R.color.mike()!)
+    private let topSeparator: UIView = UIView.spacer(backgroundColor: Configuration.Color.Semantic.tableViewSeparator)
     private lazy var unavailableToSelectView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .white.withAlphaComponent(0.4)
+        view.backgroundColor = (Configuration.Color.Semantic.defaultViewBackground).withAlphaComponent(0.4)
         view.isHidden = false
 
         return view
