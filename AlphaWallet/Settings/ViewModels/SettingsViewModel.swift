@@ -8,7 +8,6 @@ import AlphaWalletFoundation
 struct SettingsViewModelInput {
     let appear: AnyPublisher<Void, Never>
     let toggleSelection: AnyPublisher<(indexPath: IndexPath, isOn: Bool), Never>
-    let didSetPasscode: AnyPublisher<Bool, Never>
     let blockscanChatUnreadCount: AnyPublisher<Int?, Never>
 }
 
@@ -65,39 +64,14 @@ final class SettingsViewModel {
     }
 
     func transform(input: SettingsViewModelInput) -> SettingsViewModelOutput {
-        let askToSetPasscode = input.toggleSelection.compactMap { [unowned self, lock] event -> Void? in
-            switch self.sections[event.indexPath.section] {
-            case .system(let rows):
-                switch rows[event.indexPath.row] {
-                case .passcode:
-                    if event.isOn {
-                        return ()
-                    } else {
-                        lock.deletePasscode()
-                        return nil
-                    }
-                case .notifications, .selectActiveNetworks, .advanced:
-                    return nil
-                }
-            case .help, .tokenStandard, .version, .wallet:
-                return nil
-            }
-        }.eraseToAnyPublisher()
+        let askToSetPasscode = self.askToSetPasscodeOrDeleteExisted(trigger: input.toggleSelection)
 
         //NOTE: Refresh wallet name or ens when view will appear called, cancel prev. one if in loading proc.
-        let assignedNameOrEns = input.appear
-            .flatMapLatest { [ account, getWalletName] _ in getWalletName.assignedNameOrEns(for: account.address) }
-            .handleEvents(receiveOutput: { self.assignedNameOrEns = $0 })
-            .prepend(nil)
-            .removeDuplicates()
-            .mapToVoid()
-
+        let assignedNameOrEns = self.assignedNameOrEns(appear: input.appear)
         let blockscanChatUnreadCount = Publishers.Merge(Just<Int?>(nil), input.blockscanChatUnreadCount)
-        let didSetPasscode = input.didSetPasscode.mapToVoid()
+        let reload = Publishers.Merge3(Just<Void>(()), input.appear, assignedNameOrEns)
 
-        let reload = Publishers.Merge4(Just<Void>(()), input.appear, didSetPasscode, assignedNameOrEns)
-
-        let snapshot = Publishers.CombineLatest(reload, blockscanChatUnreadCount)
+        let sections = Publishers.CombineLatest(reload, blockscanChatUnreadCount)
             .map { [account, keystore] _, blockscanChatUnreadCount -> [SettingsViewModel.SectionViewModel] in
                 let sections = SettingsViewModel.functional.computeSections(account: account, keystore: keystore, blockscanChatUnreadCount: blockscanChatUnreadCount)
                 return sections.indices.map { sectionIndex -> SettingsViewModel.SectionViewModel in
@@ -116,9 +90,8 @@ final class SettingsViewModel {
                     return .init(section: sections[sectionIndex], views: views)
                 }
             }.handleEvents(receiveOutput: { self.sections = $0.map { $0.section } })
-            .map { self.buildSnapshot(for: $0) }
 
-        let badgeValue = blockscanChatUnreadCount
+        let badge = blockscanChatUnreadCount
             .map { value -> String? in
                 if let unreadCount = value, unreadCount > 0 {
                     return String(unreadCount)
@@ -127,11 +100,44 @@ final class SettingsViewModel {
                 }
             }.removeDuplicates()
 
-        let viewState = Publishers.CombineLatest(snapshot, badgeValue)
-            .map { SettingsViewModel.ViewState(snapshot: $0, badge: $1) }
-            .eraseToAnyPublisher()
+        let viewState = Publishers.CombineLatest(sections, badge)
+            .map { sections, badge -> SettingsViewModel.ViewState in
+                let snapshot = self.buildSnapshot(for: sections)
+                return SettingsViewModel.ViewState(snapshot: snapshot, badge: badge)
+            }.eraseToAnyPublisher()
 
         return .init(viewState: viewState, askToSetPasscode: askToSetPasscode)
+    }
+
+    /// Delates existed passcode if false received, sends void event when need to set a new passcode
+    private func askToSetPasscodeOrDeleteExisted(trigger: AnyPublisher<(indexPath: IndexPath, isOn: Bool), Never>) -> AnyPublisher<Void, Never> {
+        return trigger.compactMap { event -> Bool? in
+            switch self.sections[event.indexPath.section] {
+            case .system(let rows):
+                switch rows[event.indexPath.row] {
+                case .passcode: return event.isOn
+                case .notifications, .selectActiveNetworks, .advanced: return nil
+                }
+            case .help, .tokenStandard, .version, .wallet: return nil
+            }
+        }.compactMap { [lock] isOn -> Void? in
+            if isOn {
+                return ()
+            } else {
+                lock.deletePasscode()
+                return nil
+            }
+        }.eraseToAnyPublisher()
+    }
+
+    private func assignedNameOrEns(appear: AnyPublisher<Void, Never>) -> AnyPublisher<Void, Never> {
+        return appear
+            .flatMapLatest { [ account, getWalletName] _ in getWalletName.assignedNameOrEns(for: account.address) }
+            .handleEvents(receiveOutput: { self.assignedNameOrEns = $0 })
+            .prepend(nil)
+            .removeDuplicates()
+            .mapToVoid()
+            .eraseToAnyPublisher()
     }
 
     private func buildSnapshot(for viewModels: [SettingsViewModel.SectionViewModel]) -> SettingsViewModel.Snapshot {
@@ -145,7 +151,7 @@ final class SettingsViewModel {
         return snapshot
     }
 
-    private func addressReplacedWithENSOrWalletName(_ ensOrWalletName: String? = nil) -> String {
+    private func addressReplacedWithEnsOrWalletName(_ ensOrWalletName: String? = nil) -> String {
         if let ensOrWalletName = ensOrWalletName {
             return "\(ensOrWalletName) | \(account.address.truncateMiddle)"
         } else {
@@ -169,7 +175,7 @@ final class SettingsViewModel {
             let row = rows[indexPath.row]
             switch row {
             case .changeWallet:
-                return .cell(.init(titleText: row.title, subTitleText: addressReplacedWithENSOrWalletName(assignedNameOrEns), icon: row.icon))
+                return .cell(.init(titleText: row.title, subTitleText: addressReplacedWithEnsOrWalletName(assignedNameOrEns), icon: row.icon))
             case .backup:
                 let walletSecurityLevel = PromptBackupCoordinator(keystore: keystore, wallet: account, config: .init(), analytics: analytics).securityLevel
                 let accessoryView = walletSecurityLevel.flatMap { WalletSecurityLevelIndicator(level: $0) }

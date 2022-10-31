@@ -64,16 +64,16 @@ class WalletConnectSessionDetailsViewModel {
         let session = Publishers.Merge(Just(session), provider.sessions.receive(on: RunLoop.main).map { _ in self.session })
 
         let viewState = session
-            .map { [provider] in
-                let statusRowViewModel = self.statusRowViewModel(session: $0)
-                let dappNameRowViewModel = self.dappNameRowViewModel(session: $0)
-                let chainRowViewModel = self.chainRowViewModel(session: $0)
-                let methodsRowViewModel = self.methodsRowViewModel(session: $0)
-                let isConnected = provider.isConnected($0.topicOrUrl)
-                let dappNameAttributedString = self.dappNameAttributedString(session: $0)
-                let dappUrlRowViewModel = self.dappUrlRowViewModel(session: $0)
+            .map { [provider] session -> WalletConnectSessionDetailsViewModel.ViewState in
+                let statusRowViewModel = self.statusRowViewModel(session: session)
+                let dappNameRowViewModel = self.dappNameRowViewModel(session: session)
+                let chainRowViewModel = self.chainRowViewModel(session: session)
+                let methodsRowViewModel = self.methodsRowViewModel(session: session)
+                let isConnected = provider.isConnected(session.topicOrUrl)
+                let dappNameAttributedString = self.dappNameAttributedString(session: session)
+                let dappUrlRowViewModel = self.dappUrlRowViewModel(session: session)
 
-                return WalletConnectSessionDetailsViewModel.ViewState(title: R.string.localizable.walletConnectTitle(), sessionIconURL: $0.dappIconUrl, statusRowViewModel: statusRowViewModel, dappNameRowViewModel: dappNameRowViewModel, dappUrlRowViewModel: dappUrlRowViewModel, chainRowViewModel: chainRowViewModel, methodsRowViewModel: methodsRowViewModel, isDisconnectEnabled: isConnected, isSwitchServerEnabled: isConnected, dappNameAttributedString: dappNameAttributedString)
+                return WalletConnectSessionDetailsViewModel.ViewState(title: R.string.localizable.walletConnectTitle(), sessionIconURL: session.dappIconUrl, statusRowViewModel: statusRowViewModel, dappNameRowViewModel: dappNameRowViewModel, dappUrlRowViewModel: dappUrlRowViewModel, chainRowViewModel: chainRowViewModel, methodsRowViewModel: methodsRowViewModel, isDisconnectEnabled: isConnected, isSwitchServerEnabled: isConnected, dappNameAttributedString: dappNameAttributedString)
             }.eraseToAnyPublisher()
 
         return .init(close: close, viewState: viewState)

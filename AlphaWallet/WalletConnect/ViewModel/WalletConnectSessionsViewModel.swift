@@ -30,17 +30,18 @@ class WalletConnectSessionsViewModel {
 
     func transform(input: WalletConnectSessionsViewModelInput) -> WalletConnectSessionsViewModelIOutput {
         let snapshot = provider.sessions
-            .map {
-                var snapshot = NSDiffableDataSourceSnapshot<WalletConnectSessionsViewModel.Section, AlphaWallet.WalletConnect.Session>()
+            .map { sessions -> Snapshot in
+                var snapshot = Snapshot()
                 snapshot.appendSections([.sessions])
-                snapshot.appendItems($0)
+                snapshot.appendItems(sessions)
 
                 return snapshot
             }
 
         let viewState = Publishers.CombineLatest(stateSubject, snapshot)
-            .map { ViewState(title: R.string.localizable.walletConnectTitle(), state: $0, snapshot: $1) }
-            .receive(on: RunLoop.main)
+            .map { state, snapshot -> ViewState in
+                ViewState(title: R.string.localizable.walletConnectTitle(), state: state, snapshot: snapshot)
+            }.receive(on: RunLoop.main)
             .eraseToAnyPublisher()
 
         return .init(viewState: viewState)

@@ -111,7 +111,20 @@ extension SettingsCoordinator: RenameWalletViewControllerDelegate {
     }
 }
 
+extension SettingsCoordinator: LockCreatePasscodeCoordinatorDelegate {
+    func didClose(in coordinator: LockCreatePasscodeCoordinator) {
+        removeCoordinator(coordinator)
+    }
+}
+
 extension SettingsCoordinator: SettingsViewControllerDelegate {
+    
+    func createPasswordSelected(in controller: SettingsViewController) {
+        let coordinator = LockCreatePasscodeCoordinator(navigationController: navigationController, lock: rootViewController.viewModel.lock)
+        addCoordinator(coordinator)
+        coordinator.delegate = self
+        coordinator.start()
+    }
 
     func nameWalletSelected(in controller: SettingsViewController) {
         let viewModel = RenameWalletViewModel(account: account.address, analytics: analytics, domainResolutionService: domainResolutionService)
