@@ -11,10 +11,11 @@ import AlphaWalletFoundation
 
 struct RenameWalletViewModelInput {
     let appear: AnyPublisher<Void, Never>
-    let name: AnyPublisher<String, Never>
+    let saveWalletName: AnyPublisher<String, Never>
 }
 
 struct RenameWalletViewModelOutput {
+    let walletNameSaved: AnyPublisher<Void, Never>
     let viewState: AnyPublisher<RenameWalletViewModel.ViewState, Never>
 }
 
@@ -22,11 +23,11 @@ final class RenameWalletViewModel {
     private let account: AlphaWallet.Address
     private let analytics: AnalyticsLogger
     private let domainResolutionService: DomainResolutionServiceType
-    private var cancelable = Set<AnyCancellable>()
 
     let title: String = R.string.localizable.settingsWalletRename()
     let saveWalletNameTitle: String = R.string.localizable.walletRenameSave()
     let walletNameTitle: String = R.string.localizable.walletRenameEnterNameTitle()
+    let backgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground
 
     init(account: AlphaWallet.Address, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType) {
         self.account = account
@@ -35,21 +36,23 @@ final class RenameWalletViewModel {
     }
 
     func transform(input: RenameWalletViewModelInput) -> RenameWalletViewModelOutput {
-        input.name
-            .sink { self.set(walletName: $0) }
-            .store(in: &cancelable)
+        let walletNameSaved = input.saveWalletName
+            .handleEvents(receiveOutput: { self.set(walletName: $0) })
+            .mapToVoid()
+            .eraseToAnyPublisher()
 
         let assignedName = input.appear.map { _ in FileWalletStorage().name(for: self.account) }
 
         let resolvedEns = domainResolutionService.resolveEns(address: account)
             .map { ens -> EnsName? in return ens }
             .replaceError(with: nil)
+            .prepend(nil)
 
         let viewState = Publishers.CombineLatest(assignedName, resolvedEns)
             .map { RenameWalletViewModel.ViewState(text: $0.0, placeholder: $0.1, title: self.title) }
             .eraseToAnyPublisher()
 
-        return .init(viewState: viewState)
+        return .init(walletNameSaved: walletNameSaved, viewState: viewState)
     }
 
     private func set(walletName: String) {

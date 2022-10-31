@@ -232,6 +232,7 @@ enum DataEntry {
                 static let cornerRadius: CGFloat = Metrics.CornerRadius.textbox
                 static let textInset: CGSize = .zero
                 static let height: CGFloat = ScreenChecker().isNarrowScreen ? 30 : 50
+                static let spaceFromTitleToTextField: CGFloat = 4
             }
             
             enum Rounded {

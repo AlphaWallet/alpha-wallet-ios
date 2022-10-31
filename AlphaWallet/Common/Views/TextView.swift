@@ -162,7 +162,7 @@ class TextView: UIControl {
         addressControlsContainer.addSubview(addressControlsStackView)
 
         let stackView = [
-            label, .spacer(height: 4), self, .spacer(height: 4), [
+            label, .spacer(height: DataEntry.Metric.TextField.Default.spaceFromTitleToTextField), self, .spacer(height: 4), [
                 statusContainerView,
                 addressControlsContainer
             ].asStackView(axis: .horizontal),

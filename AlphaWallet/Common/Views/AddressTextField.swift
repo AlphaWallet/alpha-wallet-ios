@@ -211,7 +211,7 @@ class AddressTextField: UIControl {
         let stackView = [
             .spacer(height: edgeInsets.top),
             label,
-            .spacer(height: 4),
+            .spacer(height: DataEntry.Metric.TextField.Default.spaceFromTitleToTextField),
             defaultLayout(),
             .spacer(height: edgeInsets.bottom),
         ].asStackView(axis: .vertical)
