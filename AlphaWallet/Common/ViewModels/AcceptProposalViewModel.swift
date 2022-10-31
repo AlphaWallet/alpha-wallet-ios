@@ -87,12 +87,12 @@ class AcceptProposalViewModel: NSObject {
         }
     }
 
-    func showHideSection(_ section: Int) -> TransactionConfirmationViewModel.Action {
+    func expandOrCollapseAction(for section: Int) -> TransactionConfirmationViewModel.ExpandOrCollapseAction {
         switch proposalType {
         case .walletConnect(let viewModel):
-            return viewModel.showHideSection(section)
+            return viewModel.expandOrCollapseAction(for: section)
         case .deepLink(let viewModel):
-            return viewModel.showHideSection(section)
+            return viewModel.expandOrCollapseAction(for: section)
         }
     }
 

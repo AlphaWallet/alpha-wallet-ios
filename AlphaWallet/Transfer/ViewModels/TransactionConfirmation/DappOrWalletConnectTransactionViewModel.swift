@@ -10,7 +10,7 @@ import BigInt
 import AlphaWalletFoundation
 
 extension TransactionConfirmationViewModel {
-    class DappOrWalletConnectTransactionViewModel: SectionProtocol, CryptoToFiatRateUpdatable, BalanceUpdatable {
+    class DappOrWalletConnectTransactionViewModel: ExpandableSection, CryptoToFiatRateUpdatable, BalanceUpdatable {
         enum Section {
             case balance
             case gas

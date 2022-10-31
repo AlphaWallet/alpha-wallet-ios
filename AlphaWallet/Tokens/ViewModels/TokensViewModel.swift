@@ -26,7 +26,7 @@ final class TokensViewModel {
     private let tokenCollection: TokenCollection
     private let walletConnectCoordinator: WalletConnectCoordinator
     private let walletBalanceService: WalletBalanceService
-    //Must be computed because localization can be overridden by user dynamically
+        //Must be computed because localization can be overridden by user dynamically
     static var segmentedControlTitles: [String] { WalletFilter.orderedTabs.map { $0.title } }
     private var cancellable = Set<AnyCancellable>()
     private let tokensFilter: TokensFilter
@@ -37,7 +37,7 @@ final class TokensViewModel {
     private (set) var sections: [Section] = []
     private var tokenListSection: Section = .tokens
     private var listOfBadTokenScriptFiles: [TokenScriptFileIndices.FileName] = .init()
-    //TODO: Replace with usage single array of data, instead of using filteredTokens, and collectiblePairs
+        //TODO: Replace with usage single array of data, instead of using filteredTokens, and collectiblePairs
     private var filteredTokens: [TokenOrRpcServer] = []
     private var collectiblePairs: [CollectiblePairs] {
         let tokens = filteredTokens.compactMap { $0.token }
@@ -66,7 +66,7 @@ final class TokensViewModel {
         return (cells: cells, configuration: controlConfiguration)
     }
 
-    //NOTE: For case with empty tokens list we want
+        //NOTE: For case with empty tokens list we want
     func isBottomSeparatorLineHiddenForTestnetHeader(section: Int) -> Bool {
         switch sections[section] {
         case .walletSummary, .filters, .activeWalletSession, .search, .tokens, .collectiblePairs:
@@ -116,7 +116,7 @@ final class TokensViewModel {
     }
 
     var shouldShowBackupPromptViewHolder: Bool {
-        //TODO show the prompt in both ASSETS and COLLECTIBLES tab too
+            //TODO show the prompt in both ASSETS and COLLECTIBLES tab too
         switch filter {
         case .all, .keyword:
             return true
@@ -217,41 +217,20 @@ final class TokensViewModel {
             .map { WalletSummary(balances: [$0]) }
             .eraseToAnyPublisher()
 
-        let title = input.appear.flatMap { [unowned self, walletNameFetcher, wallet] _ -> AnyPublisher<String, Never> in
-            walletNameFetcher.assignedNameOrEns(for: wallet.address)
-                .map { $0 ?? self.walletDefaultTitle }
-                .prepend(self.walletDefaultTitle)
-                .eraseToAnyPublisher()
-        }.eraseToAnyPublisher()
+        let title = input.appear
+            .flatMap { [unowned self, walletNameFetcher, wallet] _ -> AnyPublisher<String, Never> in
+                walletNameFetcher.assignedNameOrEns(for: wallet.address)
+                    .map { $0 ?? self.walletDefaultTitle }
+                    .prepend(self.walletDefaultTitle)
+                    .eraseToAnyPublisher()
+            }.eraseToAnyPublisher()
 
         let blockieImage = input.appear
             .flatMap { [blockiesGenerator, wallet] _ in
                 blockiesGenerator.getBlockieOrEnsAvatarImage(address: wallet.address, fallbackImage: BlockiesImage.defaulBlockieImage)
             }.eraseToAnyPublisher()
 
-        let selection = input.selection.compactMap { [unowned self, tokenCollection] source -> Token? in
-            switch source {
-            case .gridItem(let indexPath, let isLeftCardSelected):
-                switch self.sections[indexPath.section] {
-                case .collectiblePairs:
-                    let pair = collectiblePairs[indexPath.row]
-                    guard let viewModel: TokenViewModel = isLeftCardSelected ? pair.left : pair.right else { return nil }
-                    guard let token = tokenCollection.token(for: viewModel.contractAddress, server: viewModel.server) else { return nil }
-                    return token
-                case .tokens, .testnetTokens, .activeWalletSession, .filters, .search, .walletSummary:
-                    return nil
-                }
-            case .cell(let indexPath):
-                let tokenOrServer = self.tokenOrServer(at: indexPath)
-                switch (self.sections[indexPath.section], tokenOrServer) {
-                case (.tokens, .token(let viewModel)):
-                    guard let token: Token = tokenCollection.token(for: viewModel.contractAddress, server: viewModel.server) else { return nil }
-                    return token
-                case (_, _):
-                    return nil
-                }
-            }
-        }.eraseToAnyPublisher()
+        let selection = selection(trigger: input.selection)
 
         let viewState = Publishers.CombineLatest4(sectionViewModelsSubject, walletSummary, blockieImage, title)
             .map { sections, summary, blockiesImage, title -> TokensViewModel.ViewState in
@@ -261,11 +240,7 @@ final class TokensViewModel {
             }.removeDuplicates()
             .eraseToAnyPublisher()
 
-        let applyTableInset = input.keyboard
-            .map { $0.isVisible }
-            .prepend(false)
-            .map { self.isFooterHidden ? KeyboardInset.none : KeyboardInset.some($0) }
-            .eraseToAnyPublisher()
+        let applyTableInset = applyTableInset(keyboard: input.keyboard)
 
         return .init(
             viewState: viewState,
@@ -274,6 +249,40 @@ final class TokensViewModel {
             deletion: deletionSubject.eraseToAnyPublisher(),
             applyTableInset: applyTableInset)
     }
+
+    private func applyTableInset(keyboard: AnyPublisher<KeyboardChecker.KeyboardState, Never>) -> AnyPublisher<KeyboardInset, Never> {
+        keyboard
+            .map { $0.isVisible }
+            .prepend(false)
+            .map { self.isFooterHidden ? KeyboardInset.none : KeyboardInset.some($0) }
+            .eraseToAnyPublisher()
+    }
+
+    private func selection(trigger: AnyPublisher<TokensViewModel.SelectionSource, Never>) -> AnyPublisher<Token, Never> {
+        trigger.compactMap { [unowned self, tokenCollection] source -> Token? in
+            switch source {
+            case .gridItem(let indexPath, let isLeftCardSelected):
+                switch self.sections[indexPath.section] {
+                case .collectiblePairs:
+                    let pair = collectiblePairs[indexPath.row]
+                    guard let viewModel: TokenViewModel = isLeftCardSelected ? pair.left : pair.right else { return nil }
+
+                    return tokenCollection.token(for: viewModel.contractAddress, server: viewModel.server)
+                case .tokens, .testnetTokens, .activeWalletSession, .filters, .search, .walletSummary:
+                    return nil
+                }
+            case .cell(let indexPath):
+                let tokenOrServer = self.tokenOrServer(at: indexPath)
+                switch (self.sections[indexPath.section], tokenOrServer) {
+                case (.tokens, .token(let viewModel)):
+                    return tokenCollection.token(for: viewModel.contractAddress, server: viewModel.server)
+                case (_, _):
+                    return nil
+                }
+            }
+        }.eraseToAnyPublisher()
+    }
+
 
     private var isFooterHidden: Bool {
         !config.enabledServers.contains(.main)

@@ -10,7 +10,9 @@ import Combine
 import UIKit
 import AlphaWalletFoundation
 
-struct SwapOptionsViewModelInput { }
+struct SwapOptionsViewModelInput {
+    let selection: AnyPublisher<IndexPath, Never>
+}
 
 struct SwapOptionsViewModelOutput {
     let viewState: AnyPublisher<SwapOptionsViewModel.ViewState, Never>
@@ -28,10 +30,6 @@ class SwapOptionsViewModel {
             .eraseToAnyPublisher()
     }
 
-    var title: String = "Settings"
-    var sessions: [WalletSession] {
-        configurator.sessions
-    }
     let slippageViewModel: SlippageViewModel
     lazy var selectedSwapToolsViewModel: SelectedSwapToolsCollectionViewModel = {
         SelectedSwapToolsCollectionViewModel(storage: configurator.tokenSwapper.storage)
@@ -46,6 +44,13 @@ class SwapOptionsViewModel {
         anyError.sink { [weak self, configurator] _ in
             self?.set(selectedServer: configurator.activeValidServer)
         }.store(in: &cancelable)
+
+        input.selection
+            .sink { [configurator] indexPath in
+                let server = configurator.sessions[indexPath.row].server
+                guard configurator.isAvailable(server: server) else { return }
+                configurator.set(server: server)
+            }.store(in: &cancelable)
 
         let sessions = Publishers.CombineLatest(configurator.$sessions, configurator.$server)
                 .receive(on: queue)
@@ -69,7 +74,7 @@ class SwapOptionsViewModel {
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
 
-        let viewState = sessions.map { SwapOptionsViewModel.ViewState(sessions: $0) }
+        let viewState = sessions.map { SwapOptionsViewModel.ViewState(title: "Settings", sessions: $0) }
             .eraseToAnyPublisher()
 
         return .init(viewState: viewState, errorString: errorString)
@@ -82,7 +87,7 @@ class SwapOptionsViewModel {
 }
 
 extension SwapOptionsViewModel {
-    class SessionsDiffableDataSource: UITableViewDiffableDataSource<SwapOptionsViewModel.Section, ServerImageViewModel> {}
+    class DataSource: UITableViewDiffableDataSource<SwapOptionsViewModel.Section, ServerImageViewModel> {}
     typealias SessionsSnapshot = NSDiffableDataSourceSnapshot<SwapOptionsViewModel.Section, ServerImageViewModel>
 
     enum Section: Int, Hashable {
@@ -90,6 +95,7 @@ extension SwapOptionsViewModel {
     }
 
     struct ViewState {
+        let title: String
         let sessions: SessionsSnapshot
     }
 }

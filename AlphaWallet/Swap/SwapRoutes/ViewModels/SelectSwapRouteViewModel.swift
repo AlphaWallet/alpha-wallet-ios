@@ -65,7 +65,7 @@ final class SelectSwapRouteViewModel {
 }
 
 extension SelectSwapRouteViewModel {
-    class RoutesDiffableDataSource: UITableViewDiffableDataSource<SelectSwapRouteViewModel.Section, SelectableSwapRouteTableViewCellViewModel> {}
+    class DataSource: UITableViewDiffableDataSource<SelectSwapRouteViewModel.Section, SelectableSwapRouteTableViewCellViewModel> {}
     typealias Snapshot = NSDiffableDataSourceSnapshot<SelectSwapRouteViewModel.Section, SelectableSwapRouteTableViewCellViewModel>
 
     enum Section: Int, Hashable, CaseIterable {

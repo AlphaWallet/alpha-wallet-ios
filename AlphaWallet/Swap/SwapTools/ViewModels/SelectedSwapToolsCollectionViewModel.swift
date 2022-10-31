@@ -47,7 +47,7 @@ class SelectedSwapToolsCollectionViewModel {
 }
 
 extension SelectedSwapToolsCollectionViewModel {
-    class ToolsDiffableDataSource: UICollectionViewDiffableDataSource<SelectedSwapToolsCollectionViewModel.Section, SwapToolCollectionViewCellViewModel> {}
+    class DataSource: UICollectionViewDiffableDataSource<SelectedSwapToolsCollectionViewModel.Section, SwapToolCollectionViewCellViewModel> {}
     typealias Snapshot = NSDiffableDataSourceSnapshot<SelectedSwapToolsCollectionViewModel.Section, SwapToolCollectionViewCellViewModel>
 
     enum Section: Int, Hashable, CaseIterable {

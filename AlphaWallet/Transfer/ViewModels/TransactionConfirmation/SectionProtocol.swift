@@ -1,5 +1,5 @@
 //
-//  SectionProtocol.swift
+//  ExpandableSection.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 23.06.2022.
@@ -7,22 +7,22 @@
 
 import UIKit
 
-protocol SectionProtocol: AnyObject {
+protocol ExpandableSection: AnyObject {
     var openedSections: Set<Int> { get set }
 
-    func showHideSection(_ section: Int) -> TransactionConfirmationViewModel.Action
+    func expandOrCollapseAction(for section: Int) -> TransactionConfirmationViewModel.ExpandOrCollapseAction
 }
 
-extension SectionProtocol {
-    func showHideSection(_ section: Int) -> TransactionConfirmationViewModel.Action {
+extension ExpandableSection {
+    func expandOrCollapseAction(for section: Int) -> TransactionConfirmationViewModel.ExpandOrCollapseAction {
         if !openedSections.contains(section) {
             openedSections.insert(section)
 
-            return .show
+            return .expand
         } else {
             openedSections.remove(section)
 
-            return .hide
+            return .collapse
         }
     }
 }

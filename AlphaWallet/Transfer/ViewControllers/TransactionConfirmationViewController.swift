@@ -13,12 +13,6 @@ protocol TransactionConfirmationViewControllerDelegate: AnyObject {
 }
 
 class TransactionConfirmationViewController: UIViewController {
-    enum State {
-        case ready
-        case pending
-        case done(withError: Bool)
-    }
-
     private lazy var headerView = ConfirmationHeaderView(viewModel: .init(title: viewModel.title))
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
     private let viewModel: TransactionConfirmationViewModel
@@ -89,7 +83,7 @@ class TransactionConfirmationViewController: UIViewController {
         headerView.closeButton.addTarget(self, action: #selector(closeButtonSelected), for: .touchUpInside)
 
         let scrollView = containerView.scrollView
-
+        //NOTE: remove this, looks like not needed anymore, handled with `FloatingPanelController`
         scrollView
             .publisher(for: \.contentSize, options: [.new, .initial])
             .sink { [weak self] _ in
@@ -113,10 +107,10 @@ class TransactionConfirmationViewController: UIViewController {
         super.viewDidLoad()
 
         set(state: .ready)
-        bind(for: viewModel)
+        bind(viewModel: viewModel)
     }
 
-    func set(state: State, completion: (() -> Void)? = nil) {
+    func set(state: TransactionConfirmationViewModel.State, completion: (() -> Void)? = nil) {
         let confirmationButton = buttonsBar.buttons[0]
         switch state {
         case .ready:
@@ -150,25 +144,27 @@ class TransactionConfirmationViewController: UIViewController {
         delegate?.didClose(in: self)
     }
 
-    private func bind(for viewModel: TransactionConfirmationViewModel) {
+    private func bind(viewModel: TransactionConfirmationViewModel) {
         containerView.scrollView.backgroundColor = viewModel.backgroundColor
         view.backgroundColor = viewModel.backgroundColor
-        navigationItem.title = viewModel.title
-
         separatorLine.isHidden = !viewModel.hasSeparatorAboveConfirmButton
 
         buttonsBar.configure()
         let button = buttonsBar.buttons[0]
         button.shrinkBorderColor = Colors.loadingIndicatorBorder
         button.setTitle(viewModel.confirmationButtonTitle, for: .normal)
-        button.addTarget(self, action: #selector(confirmButtonTapped), for: .touchUpInside)
+        button.addTarget(self, action: #selector(confirmButtonSelected), for: .touchUpInside)
 
-        viewModel.views
-            .sink { [weak self] in self?.generateSubviews(for: $0) }
-            .store(in: &cancelable)
+        let input = TransactionConfirmationViewModelInput(send: button.publisher(forEvent: .touchUpInside).eraseToAnyPublisher())
+        let output = viewModel.transform(input: input)
+        output.viewState
+            .sink { [weak self, headerView] viewState in
+                headerView.configure(viewModel: .init(title: viewState.title))
+                self?.generateSubviews(for: viewState.views)
+            }.store(in: &cancelable)
     }
 
-    @objc func confirmButtonTapped(_ sender: UIButton) {
+    @objc func confirmButtonSelected(_ sender: UIButton) {
         guard viewModel.canBeConfirmed else { return }
         delegate?.controller(self, continueButtonTapped: sender)
     }
@@ -227,11 +223,9 @@ extension TransactionConfirmationViewController: TransactionConfirmationHeaderVi
     }
 
     func headerView(_ header: TransactionConfirmationHeaderView, openStateChanged section: Int) {
-        switch viewModel.showHideSection(section) {
-        case .show:
-            header.expand()
-        case .hide:
-            header.collapse()
+        switch viewModel.expandOrCollapseAction(for: section) {
+        case .expand: header.expand()
+        case .collapse: header.collapse()
         }
 
         UIView.animate(withDuration: 0.35) {

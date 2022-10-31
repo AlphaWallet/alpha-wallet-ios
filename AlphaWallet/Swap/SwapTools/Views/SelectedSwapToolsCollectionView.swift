@@ -23,7 +23,7 @@ final class SelectedSwapToolsCollectionView: UIView {
 
         return collectionView
     }()
-    private lazy var dataSource: SelectedSwapToolsCollectionViewModel.ToolsDiffableDataSource = makeDataSource()
+    private lazy var dataSource: SelectedSwapToolsCollectionViewModel.DataSource = makeDataSource()
     private var cancelable = Set<AnyCancellable>()
     private static let fallbackHeight: CGFloat = 60
     lazy private var collectionViewHeightConstraint = collectionView.heightAnchor.constraint(equalToConstant: SelectedSwapToolsCollectionView.fallbackHeight)
@@ -81,8 +81,8 @@ extension SelectedSwapToolsCollectionView: StatefulViewController {
 }
 
 extension SelectedSwapToolsCollectionView {
-    private func makeDataSource() -> SelectedSwapToolsCollectionViewModel.ToolsDiffableDataSource {
-        SelectedSwapToolsCollectionViewModel.ToolsDiffableDataSource(collectionView: collectionView) { collectionView, indexPath, viewModel -> SwapToolCollectionViewCell in
+    private func makeDataSource() -> SelectedSwapToolsCollectionViewModel.DataSource {
+        SelectedSwapToolsCollectionViewModel.DataSource(collectionView: collectionView) { collectionView, indexPath, viewModel -> SwapToolCollectionViewCell in
             let cell: SwapToolCollectionViewCell = collectionView.dequeueReusableCell(for: indexPath)
             cell.configure(viewModel: viewModel)
 

@@ -105,7 +105,7 @@ final class SelectSwapToolViewModel {
 }
 
 extension SelectSwapToolViewModel {
-    class ToolsDiffableDataSource: UITableViewDiffableDataSource<SelectSwapToolViewModel.Section, SelectableSwapToolTableViewCellViewModel> {}
+    class DataSource: UITableViewDiffableDataSource<SelectSwapToolViewModel.Section, SelectableSwapToolTableViewCellViewModel> {}
     typealias Snapshot = NSDiffableDataSourceSnapshot<SelectSwapToolViewModel.Section, SelectableSwapToolTableViewCellViewModel>
 
     enum Section: Int, Hashable, CaseIterable {
