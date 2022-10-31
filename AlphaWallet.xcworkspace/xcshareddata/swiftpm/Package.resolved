@@ -143,15 +143,6 @@
         "branch" : "alphaWallet",
         "revision" : "cb8dfc428ec70499a585c43e33a5e5c695b135a2"
       }
-    },
-    {
-      "identity" : "walletconnectswiftv2",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/WalletConnect/WalletConnectSwiftV2",
-      "state" : {
-        "branch" : "main",
-        "revision" : "7ec5c06e5a67371398cda219a0cc9282c6541465"
-      }
     }
   ],
   "version" : 2

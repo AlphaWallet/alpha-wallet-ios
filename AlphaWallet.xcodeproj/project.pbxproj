@@ -490,6 +490,7 @@
 		8722F86B25F79A2E00293D89 /* UIResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8722F86A25F79A2E00293D89 /* UIResponder.swift */; };
 		8722F86D25F79A4700293D89 /* UITableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8722F86C25F79A4700293D89 /* UITableViewCell.swift */; };
 		87242E4225F2749500F0E89D /* SendViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87242E4125F2749500F0E89D /* SendViewControllerTests.swift */; };
+		87243921290FE74200FF3058 /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = 87243920290FE74200FF3058 /* Starscream */; };
 		8727149A282175EB00901B3E /* NFTAssetListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87271499282175EB00901B3E /* NFTAssetListViewModel.swift */; };
 		8727149C2822489300901B3E /* ContainerCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8727149B2822489200901B3E /* ContainerCollectionViewCell.swift */; };
 		87281AEE2885219A0066E31E /* TableViewDiffableDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87281AED2885219A0066E31E /* TableViewDiffableDataSource.swift */; };
@@ -732,7 +733,6 @@
 		87BC89B826B82288005482F4 /* UIBarButtonItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87BC89B726B82287005482F4 /* UIBarButtonItem.swift */; };
 		87BCB98029361C5600C6BA67 /* AssetDefinitionsOverridesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87BCB97F29361C5600C6BA67 /* AssetDefinitionsOverridesViewModel.swift */; };
 		87BCB98629362A8100C6BA67 /* FakeTokenScriptOverridesFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87BCB98529362A8100C6BA67 /* FakeTokenScriptOverridesFileManager.swift */; };
-		87BDF47028423DC30018DC68 /* WalletConnect in Frameworks */ = {isa = PBXBuildFile; productRef = 87BDF46F28423DC30018DC68 /* WalletConnect */; };
 		87C10A6525ED1105008E9B1B /* SignatureConfirmationDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87C10A6425ED1105008E9B1B /* SignatureConfirmationDetailsViewController.swift */; };
 		87C237DC26DE5303003CA387 /* UIToolbar+Custom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87C237DB26DE5303003CA387 /* UIToolbar+Custom.swift */; };
 		87C237DE26DE5389003CA387 /* SelectAssetAmountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87C237DD26DE5389003CA387 /* SelectAssetAmountView.swift */; };
@@ -1734,7 +1734,7 @@
 				87FBF2B128056AC200616B7D /* FirebaseCrashlytics in Frameworks */,
 				2A669F5585899E890EF26C57 /* Pods_AlphaWallet.framework in Frameworks */,
 				877239CE28F806820062DC14 /* WalletConnectSwift in Frameworks */,
-				87BDF47028423DC30018DC68 /* WalletConnect in Frameworks */,
+				87243921290FE74200FF3058 /* Starscream in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4392,8 +4392,8 @@
 			name = AlphaWallet;
 			packageProductDependencies = (
 				87FBF2B028056AC200616B7D /* FirebaseCrashlytics */,
-				87BDF46F28423DC30018DC68 /* WalletConnect */,
 				877239CD28F806820062DC14 /* WalletConnectSwift */,
+				87243920290FE74200FF3058 /* Starscream */,
 			);
 			productName = etherwallet;
 			productReference = 2912CCF51F6A830700C6CBE3 /* AlphaWallet.app */;
@@ -4522,8 +4522,8 @@
 			mainGroup = 2912CCEC1F6A830700C6CBE3;
 			packageReferences = (
 				87FBF2AF28056AC200616B7D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
-				87BDF46E28423DC30018DC68 /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */,
-				877239CC28F806820062DC14 /* XCRemoteSwiftPackageReference "WalletConnectSwift" */,
+				877239CC28F806820062DC14 /* XCRemoteSwiftPackageReference "WalletConnectSwift.git" */,
+				8724391F290FE74200FF3058 /* XCRemoteSwiftPackageReference "Starscream" */,
 			);
 			productRefGroup = 2912CCF61F6A830700C6CBE3 /* Products */;
 			projectDirPath = "";
@@ -4799,6 +4799,7 @@
 				"${BUILT_PRODUCTS_DIR}/TrezorCrypto/TrezorCrypto.framework",
 				"${BUILT_PRODUCTS_DIR}/TrustKeystore/TrustKeystore.framework",
 				"${BUILT_PRODUCTS_DIR}/TrustWalletCore/WalletCore.framework",
+				"${BUILT_PRODUCTS_DIR}/WalletConnectSwiftV2/WalletConnectSwiftV2.framework",
 				"${BUILT_PRODUCTS_DIR}/secp256k1_ios/secp256k1_ios.framework",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/MailchimpSDK/MailchimpSDK.framework/MailchimpSDK",
 			);
@@ -4848,6 +4849,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/TrezorCrypto.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/TrustKeystore.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WalletCore.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WalletConnectSwiftV2.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/secp256k1_ios.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MailchimpSDK.framework",
 			);
@@ -6288,19 +6290,20 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		877239CC28F806820062DC14 /* XCRemoteSwiftPackageReference "WalletConnectSwift" */ = {
+		8724391F290FE74200FF3058 /* XCRemoteSwiftPackageReference "Starscream" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/daltoniam/Starscream";
+			requirement = {
+				kind = versionRange;
+				maximumVersion = 4.0.0;
+				minimumVersion = 3.0.0;
+			};
+		};
+		877239CC28F806820062DC14 /* XCRemoteSwiftPackageReference "WalletConnectSwift.git" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/AlphaWallet/WalletConnectSwift.git";
 			requirement = {
 				branch = alphaWallet;
-				kind = branch;
-			};
-		};
-		87BDF46E28423DC30018DC68 /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/WalletConnect/WalletConnectSwiftV2";
-			requirement = {
-				branch = main;
 				kind = branch;
 			};
 		};
@@ -6315,15 +6318,15 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		87243920290FE74200FF3058 /* Starscream */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8724391F290FE74200FF3058 /* XCRemoteSwiftPackageReference "Starscream" */;
+			productName = Starscream;
+		};
 		877239CD28F806820062DC14 /* WalletConnectSwift */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 877239CC28F806820062DC14 /* XCRemoteSwiftPackageReference "WalletConnectSwift" */;
+			package = 877239CC28F806820062DC14 /* XCRemoteSwiftPackageReference "WalletConnectSwift.git" */;
 			productName = WalletConnectSwift;
-		};
-		87BDF46F28423DC30018DC68 /* WalletConnect */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 87BDF46E28423DC30018DC68 /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */;
-			productName = WalletConnect;
 		};
 		87FBF2B028056AC200616B7D /* FirebaseCrashlytics */ = {
 			isa = XCSwiftPackageProductDependency;

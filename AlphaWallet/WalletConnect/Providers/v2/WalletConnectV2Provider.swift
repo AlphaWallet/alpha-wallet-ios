@@ -6,15 +6,23 @@
 //
 
 import Foundation
-import WalletConnectUtils
 import Combine
-import WalletConnectSign
+import WalletConnectSwiftV2
 import AlphaWalletFoundation
+import Starscream
 
-class WalletConnectV2Provider: WalletConnectServer {
+extension WebSocket: WebSocketConnecting { }
 
-    private var currentProposal: WalletConnectSign.Session.Proposal?
-    private var pendingProposals: [WalletConnectSign.Session.Proposal] = []
+struct SocketFactory: WebSocketFactory {
+    func create(with url: URL) -> WebSocketConnecting {
+        return WebSocket(url: url)
+    }
+}
+
+final class WalletConnectV2Provider: WalletConnectServer {
+
+    private var currentProposal: WalletConnectSwiftV2.Session.Proposal?
+    private var pendingProposals: [WalletConnectSwiftV2.Session.Proposal] = []
     private let metadata = AppMetadata(name: Constants.WalletConnect.server, description: "", url: Constants.WalletConnect.websiteUrl.absoluteString, icons: Constants.WalletConnect.icons)
     private let storage = WalletConnectV2Storage()
     private let config: Config = Config()
@@ -30,9 +38,10 @@ class WalletConnectV2Provider: WalletConnectServer {
             .map { $0.map { AlphaWallet.WalletConnect.Session(multiServerSession: $0) } }
             .eraseToAnyPublisher()
     }()
-    private lazy var client: Sign = {
-        Sign.configure(Sign.Config(metadata: metadata, projectId: Constants.Credentials.walletConnectProjectId))
-        return .instance
+    private lazy var client: SignClient = {
+        Networking.configure(projectId: Constants.Credentials.walletConnectProjectId, socketFactory: SocketFactory())
+        Pair.configure(metadata: metadata)
+        return Sign.instance
     }()
 
     //NOTE: we support only single account session as WalletConnects request doesn't provide a wallets address to sign transaction or some other method, so we cant figure out wallet address to sign, so for now we use only active wallet session address
@@ -40,40 +49,35 @@ class WalletConnectV2Provider: WalletConnectServer {
         self.serviceProvider = serviceProvider
 
         //NOTE: skip empty sessions event
-        serviceProvider.sessions.filter { !$0.isEmpty }
-            .sink { [weak self] sessions in
-                self?.reloadSessions(sessions: sessions)
-            }.store(in: &cancelable)
+        serviceProvider.sessions
+            .filter { !$0.isEmpty }
+            .sink { self.reloadSessions(sessions: $0) }
+            .store(in: &cancelable)
 
         client.sessionProposalPublisher
             .receive(on: queue)
-            .sink { proposal in
-                self.didReceive(proposal: proposal)
-            }.store(in: &cancelable)
+            .sink { self.didReceive(proposal: $0) }
+            .store(in: &cancelable)
 
         client.sessionRequestPublisher
             .receive(on: queue)
-            .sink { request in
-                self.didReceive(request: request)
-            }.store(in: &cancelable)
+            .sink { self.didReceive(request: $0) }
+            .store(in: &cancelable)
 
         client.sessionDeletePublisher
             .receive(on: queue)
-            .sink { request in
-                self.didDelete(topic: request.0, reason: request.1)
-            }.store(in: &cancelable)
+            .sink { self.didDelete(topic: $0.0, reason: $0.1) }
+            .store(in: &cancelable)
 
         client.sessionSettlePublisher
             .receive(on: queue)
-            .sink { session in
-                self.didSettle(session: session)
-            }.store(in: &cancelable)
+            .sink { self.didSettle(session: $0) }
+            .store(in: &cancelable)
 
         client.sessionUpdatePublisher
             .receive(on: queue)
-            .sink { data in
-                self.didUpgrade(topic: data.sessionTopic, namespaces: data.namespaces)
-            }.store(in: &cancelable)
+            .sink { self.didUpgrade(topic: $0.sessionTopic, namespaces: $0.namespaces) }
+            .store(in: &cancelable)
     }
 
     private func reloadSessions(sessions: ServerDictionary<WalletSession>) {
@@ -86,9 +90,10 @@ class WalletConnectV2Provider: WalletConnectServer {
     }
 
     func connect(url: AlphaWallet.WalletConnect.ConnectionUrl) throws {
-        guard case .v2(let uri) = url else { return }
+        guard case .v2(let uri) = url, let uri = WalletConnectURI(string: uri.absoluteString) else { return }
         infoLog("[WalletConnect2] Pairing to: \(uri.absoluteString)")
-        Task { try await client.pair(uri: uri.absoluteString) }
+
+        Task(priority: .high) { try await Pair.instance.pair(uri: uri) }
     }
 
     func update(_ topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl, servers: [RPCServer]) throws {
@@ -115,7 +120,7 @@ class WalletConnectV2Provider: WalletConnectServer {
             if Set(each.session.servers) == Set(each.serversToDisconnect) {
                 storage.remove(for: topicOrUrl)
 
-                Task { try await client.disconnect(topic: topicOrUrl.description, reason: .init(code: 0, message: "disconnect")) }
+                Task { try await client.disconnect(topic: topicOrUrl.description) }
             } else {
                 let leftServers = each.session.servers.filter { !each.serversToDisconnect.contains($0) }
                 let session = try storage.update(topicOrUrl, servers: leftServers)
@@ -129,28 +134,25 @@ class WalletConnectV2Provider: WalletConnectServer {
         guard storage.contains(topicOrUrl) else { return }
 
         storage.remove(for: topicOrUrl)
-        Task { try await client.disconnect(topic: topicOrUrl.description, reason: .init(code: 0, message: "disconnect")) }
+        Task { try await client.disconnect(topic: topicOrUrl.description) }
     }
 
     func isConnected(_ topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl) -> Bool {
-        return Sign.instance.getSessions().contains(where: { $0.topic == topicOrUrl.description })
+        return client.getSessions().contains(where: { $0.topic == topicOrUrl.description })
     }
 
     func respond(_ response: AlphaWallet.WalletConnect.Response, request: AlphaWallet.WalletConnect.Session.Request) throws {
         guard case .v2(let request) = request else { return }
         switch response {
         case .value(let value):
-            let payload = JSONRPCResponse<AnyCodable>(id: request.id, result: .init(value?.hexEncoded))
-
-            client.respond(topic: request.topic, response: .response(payload))
+            guard let value = value else { return }
+            Task { try await client.respond(topic: request.topic, requestId: request.id, response: .response(.init(value.hexEncoded))) }
         case .error(let code, let message):
-            let response = JSONRPCErrorResponse(id: request.id, error: .init(code: code, message: message))
-
-            client.respond(topic: request.topic, response: .error(response))
+            Task { try await client.respond(topic: request.topic, requestId: request.id, response: .error(.init(code: code, message: message))) }
         }
     }
 
-    private func didReceive(proposal: WalletConnectSign.Session.Proposal) {
+    private func didReceive(proposal: WalletConnectSwiftV2.Session.Proposal) {
         guard currentProposal == nil else {
             return pendingProposals.append(proposal)
         }
@@ -161,14 +163,13 @@ class WalletConnectV2Provider: WalletConnectServer {
         })
     }
 
-    private func reject(request: WalletConnectSign.Request, error: AlphaWallet.WalletConnect.ResponseError) {
+    private func reject(request: WalletConnectSwiftV2.Request, error: AlphaWallet.WalletConnect.ResponseError) {
         infoLog("[WalletConnect2] WC: Did reject session proposal: \(request) with error: \(error.message)")
 
-        let response = JSONRPCErrorResponse(id: request.id, error: .init(code: error.code, message: error.message))
-        client.respond(topic: request.topic, response: .error(response))
+        Task { try await client.respond(topic: request.topic, requestId: request.id, response: .error(.init(code: error.code, message: error.message))) }
     }
 
-    private func didReceive(request: WalletConnectSign.Request) {
+    private func didReceive(request: WalletConnectSwiftV2.Request) {
         infoLog("[WalletConnect2] WC: Did receive session request")
 
         //NOTE: guard check to avoid passing unacceptable rpc server,(when requested server is disabled)
@@ -177,7 +178,7 @@ class WalletConnectV2Provider: WalletConnectServer {
             return reject(request: request, error: .internalError)
         }
 
-        DispatchQueue.main.async { [weak self] in
+        queue.async { [weak self] in
             guard let strongSelf = self else { return }
 
             guard let session = try? strongSelf.storage.session(for: .topic(string: request.topic)) else {
@@ -198,7 +199,7 @@ class WalletConnectV2Provider: WalletConnectServer {
         }
     }
 
-    private func didDelete(topic: String, reason: WalletConnectSign.Reason) {
+    private func didDelete(topic: String, reason: WalletConnectSwiftV2.Reason) {
         infoLog("[WalletConnect2] WC: Did receive session delete")
         storage.remove(for: .topic(string: topic))
     }
@@ -209,7 +210,7 @@ class WalletConnectV2Provider: WalletConnectServer {
         _ = try? storage.update(.topic(string: topic), namespaces: namespaces)
     }
 
-    private func didSettle(session: WalletConnectSign.Session) {
+    private func didSettle(session: WalletConnectSwiftV2.Session) {
 
         infoLog("[WalletConnect2] WC: Did settle session")
         for each in client.getSessions() {
@@ -217,13 +218,17 @@ class WalletConnectV2Provider: WalletConnectServer {
         }
     }
 
-    private func _didReceive(proposal: WalletConnectSign.Session.Proposal, completion: @escaping () -> Void) {
+    private func _didReceive(proposal: WalletConnectSwiftV2.Session.Proposal, completion: @escaping () -> Void) {
         infoLog("[WalletConnect2] WC: Did receive session proposal")
 
-        func reject(proposal: WalletConnectSign.Session.Proposal) {
+        func reject(proposal: WalletConnectSwiftV2.Session.Proposal) {
             infoLog("[WalletConnect2] WC: Did reject session proposal: \(proposal)")
-            client.reject(proposal: proposal, reason: .disapprovedChains)
-            completion()
+            Task {
+                try await client.reject(proposalId: proposal.id, reason: .userRejectedChains)
+                DispatchQueue.main.async {
+                    completion()
+                }
+            }
         }
 
         DispatchQueue.main.async { [weak self] in
@@ -245,12 +250,14 @@ class WalletConnectV2Provider: WalletConnectServer {
                             return
                         }
 
-                        let sessionNamespaces = try strongSelf.validateProposalForSupportingBlockchains(proposal)
-
-                        try strongSelf.client.approve(proposalId: proposal.id, namespaces: sessionNamespaces)
-                        strongSelf.currentProposal = .none
-
-                        completion()
+                        Task {
+                            let namespaces = try strongSelf.validateProposalForSupportingBlockchains(proposal)
+                            try await strongSelf.client.approve(proposalId: proposal.id, namespaces: namespaces)
+                            strongSelf.currentProposal = .none
+                            DispatchQueue.main.async {
+                                completion()
+                            }
+                        }
                     } catch {
                         delegate.server(strongSelf, didFail: error)
                         //NOTE: for now we dont throw any error, just rejecting connection proposal
@@ -268,7 +275,7 @@ class WalletConnectV2Provider: WalletConnectServer {
     }
 
     //NOTE: Throws an error in case when `sessionProposal` contains mainnets as well as testnets
-    private static func validateProposalForMixedMainnetOrTestnet(_ proposal: WalletConnectSign.Session.Proposal) throws {
+    private static func validateProposalForMixedMainnetOrTestnet(_ proposal: WalletConnectSwiftV2.Session.Proposal) throws {
         struct MixedMainnetsOrTestnetsError: Error {}
         for namespace in proposal.requiredNamespaces.values {
             let blockchains = Set(namespace.chains.map { $0.absoluteString })
@@ -287,14 +294,14 @@ class WalletConnectV2Provider: WalletConnectServer {
         }
     }
 
-    private func validateProposalForSupportingBlockchains(_ proposal: WalletConnectSign.Session.Proposal) throws -> [String: SessionNamespace] {
+    private func validateProposalForSupportingBlockchains(_ proposal: WalletConnectSwiftV2.Session.Proposal) throws -> [String: SessionNamespace] {
         struct BlockchainValidationError: Error {}
 
-        func accountForSupportedBlockchain(for blockchain: Blockchain) -> WalletConnectSign.Account? {
+        func accountForSupportedBlockchain(for blockchain: Blockchain) -> WalletConnectSwiftV2.Account? {
             guard let server = eip155URLCoder.decodeRPC(from: blockchain.absoluteString) else { return nil }
             guard serviceProvider.activeSessions.contains(where: { $0.value.server == server }) else { return nil }
 
-            return WalletConnectSign.Account(blockchain.absoluteString + ":\(account)")
+            return WalletConnectSwiftV2.Account(blockchain.absoluteString + ":\(account)")
         }
 
         let account = serviceProvider.activeSessions.anyValue.account.address.eip55String
@@ -329,7 +336,7 @@ class WalletConnectV2Provider: WalletConnectServer {
 
 fileprivate extension AlphaWallet.WalletConnect.Proposal {
 
-    init(proposal: WalletConnectSign.Session.Proposal) {
+    init(proposal: WalletConnectSwiftV2.Session.Proposal) {
         name = proposal.proposer.name
         dappUrl = URL(string: proposal.proposer.url)!
         description = proposal.proposer.description
