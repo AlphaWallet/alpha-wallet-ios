@@ -59,14 +59,14 @@ class HelpUsCoordinator: Coordinator {
     private func wellDone() {
         let controller = WellDoneViewController()
         controller.navigationItem.title = viewModel.title
-        controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.done(), style: .done, target: self, action: #selector(dismiss))
+        controller.navigationItem.leftBarButtonItem = UIBarButtonItem.doneBarButton(self, selector: #selector(dismissButtonSelected))
         controller.delegate = self
         let nav = NavigationController(rootViewController: controller)
         nav.makePresentationFullScreenForiOS13Migration()
         hostViewController.present(nav, animated: true)
     }
 
-    @objc private func dismiss() {
+    @objc private func dismissButtonSelected() {
         hostViewController.dismiss(animated: true, completion: nil)
     }
 

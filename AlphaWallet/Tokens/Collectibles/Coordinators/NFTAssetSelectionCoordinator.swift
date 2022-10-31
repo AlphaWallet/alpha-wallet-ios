@@ -32,7 +32,7 @@ class NFTAssetSelectionCoordinator: Coordinator {
 
     func start() {
         let viewController = NFTAssetSelectionViewController(viewModel: .init(token: token, tokenHolders: tokenHolders), tokenCardViewFactory: tokenCardViewFactory)
-        viewController.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(doneButtonSelected))
+        viewController.navigationItem.leftBarButtonItem = UIBarButtonItem.doneBarButton(self, selector: #selector(doneButtonSelected))
         viewController.delegate = self
         let navigationController = NavigationController(rootViewController: viewController)
         navigationController.makePresentationFullScreenForiOS13Migration()

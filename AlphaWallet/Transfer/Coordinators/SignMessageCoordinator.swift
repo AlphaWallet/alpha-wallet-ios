@@ -128,7 +128,7 @@ extension SignMessageCoordinator: SignatureConfirmationViewControllerDelegate {
 
         let navigationController = NavigationController(rootViewController: controller)
         navigationController.makePresentationFullScreenForiOS13Migration()
-        controller.navigationItem.leftBarButtonItem = .closeBarButton(self, selector: #selector(configureTransactionDidDismiss))
+        controller.navigationItem.rightBarButtonItem = .closeBarButton(self, selector: #selector(configureTransactionDidDismiss))
 
         hostViewController.present(navigationController, animated: true)
         signatureConfirmationDetailsViewController = controller

@@ -70,11 +70,12 @@ extension UIBarButtonItem {
         return .init(barButtonSystemItem: .cancel, target: target, action: selector)
     }
 
-    static func closeBarButton(_ closure: ((UIBarButtonItem) -> Void)?) -> UIBarButtonItem {
-        let button = UIBarButtonItem.cancelBarButton(nil, selector: nil)
-        button.selectionClosure = closure
+    static func actionBarButton(_ target: AnyObject?, selector: Selector?) -> UIBarButtonItem {
+        return .init(barButtonSystemItem: .action, target: target, action: selector)
+    }
 
-        return button
+    static func doneBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
+        return .init(title: R.string.localizable.done(), style: .done, target: target, action: selector)
     }
 
     static func closeBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
