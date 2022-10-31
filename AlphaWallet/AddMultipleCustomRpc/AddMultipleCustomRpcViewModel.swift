@@ -16,9 +16,7 @@ struct AddMultipleCustomRpcViewModel {
     var progressString: String {
         "\(model.addedCustomRpc.count + model.failedCustomRpc.count + model.duplicateCustomRpc.count)/\(totalCustomRpc)"
     }
-    var progress: Float {
-        Float((model.addedCustomRpc.count + model.failedCustomRpc.count + model.duplicateCustomRpc.count)/totalCustomRpc)
-    }
+
     var hasError: Bool {
         if model.failedCustomRpc.isEmpty, model.duplicateCustomRpc.isEmpty, model.remainingCustomRpc.isEmpty {
             return false

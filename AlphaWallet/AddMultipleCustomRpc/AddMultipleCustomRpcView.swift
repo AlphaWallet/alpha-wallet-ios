@@ -14,7 +14,6 @@ class AddMultipleCustomRpcView: UIView {
 
     var chainNameString: String = ""
     var progressString: String = ""
-    var progress: Float = 0.0
 
     // MARK: - User Interface Elements
 
@@ -41,12 +40,6 @@ class AddMultipleCustomRpcView: UIView {
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
-    }()
-
-    private lazy var progressIndicatorView: UIProgressView = {
-        let view = UIProgressView(progressViewStyle: .default)
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
     }()
 
     private lazy var progressLabel: UILabel = {
@@ -148,7 +141,6 @@ class AddMultipleCustomRpcView: UIView {
     func update() {
         networkNameLabel.text = chainNameString
         progressLabel.text = progressString
-        progressIndicatorView.setProgress(progress, animated: true)
     }
 
 }
