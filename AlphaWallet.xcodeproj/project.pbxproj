@@ -554,6 +554,8 @@
 		87442BD827D615B500EA2209 /* CheckTransactionStateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87442BD727D615B500EA2209 /* CheckTransactionStateViewController.swift */; };
 		8747FD6128A22E350076C7B5 /* RetryPublisherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8747FD6028A22E350076C7B5 /* RetryPublisherTests.swift */; };
 		874AF0832603405F00D613A5 /* LoadingIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874AF0822603405F00D613A5 /* LoadingIndicatorView.swift */; };
+		874B7DB42910F203000E1A57 /* RoundedEnsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874B7DB32910F203000E1A57 /* RoundedEnsView.swift */; };
+		874B7DB62910F219000E1A57 /* RoundedEnsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874B7DB52910F219000E1A57 /* RoundedEnsViewModel.swift */; };
 		874C6D8125E3FF2300AD8380 /* ConfirmationHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874C6D8025E3FF2300AD8380 /* ConfirmationHeaderView.swift */; };
 		874C6D8325E3FF3B00AD8380 /* ConfirmationHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874C6D8225E3FF3B00AD8380 /* ConfirmationHeaderViewModel.swift */; };
 		874D099025EE32EF00A58EF2 /* SignatureConfirmationDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874D098F25EE32EF00A58EF2 /* SignatureConfirmationDetailsViewModel.swift */; };
@@ -1421,6 +1423,8 @@
 		87442BD727D615B500EA2209 /* CheckTransactionStateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckTransactionStateViewController.swift; sourceTree = "<group>"; };
 		8747FD6028A22E350076C7B5 /* RetryPublisherTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RetryPublisherTests.swift; sourceTree = "<group>"; };
 		874AF0822603405F00D613A5 /* LoadingIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingIndicatorView.swift; sourceTree = "<group>"; };
+		874B7DB32910F203000E1A57 /* RoundedEnsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedEnsView.swift; sourceTree = "<group>"; };
+		874B7DB52910F219000E1A57 /* RoundedEnsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedEnsViewModel.swift; sourceTree = "<group>"; };
 		874C6D8025E3FF2300AD8380 /* ConfirmationHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmationHeaderView.swift; sourceTree = "<group>"; };
 		874C6D8225E3FF3B00AD8380 /* ConfirmationHeaderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmationHeaderViewModel.swift; sourceTree = "<group>"; };
 		874D098F25EE32EF00A58EF2 /* SignatureConfirmationDetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignatureConfirmationDetailsViewModel.swift; sourceTree = "<group>"; };
@@ -2911,6 +2915,7 @@
 				87584FAD27EC64FA006A7CD1 /* SelfSizingPanelLayout.swift */,
 				87281AED2885219A0066E31E /* TableViewDiffableDataSource.swift */,
 				87281AEF288521CB0066E31E /* DummySearchView.swift */,
+				874B7DB32910F203000E1A57 /* RoundedEnsView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -3140,6 +3145,7 @@
 				5E7C7C12E88EB0B73AA1E562 /* TokenCardRowViewModelProtocol.swift */,
 				874ED68927D9E4B4001AB374 /* AmountTextFieldPair.swift */,
 				874ED68B27D9E4D1001AB374 /* AmountTextFieldViewModel.swift */,
+				874B7DB52910F219000E1A57 /* RoundedEnsViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -5024,6 +5030,7 @@
 				290B2B611F9179880053C83E /* AccountViewModel.swift in Sources */,
 				29F114F61FA8147300114A29 /* RequestCoordinator.swift in Sources */,
 				8739BB8F26CCF2F70045CFED /* ActivitiesView.swift in Sources */,
+				874B7DB62910F219000E1A57 /* RoundedEnsViewModel.swift in Sources */,
 				293112101FC4ADCB00966EEA /* ActiveWalletViewModel.swift in Sources */,
 				875CA8F928BE403A0020FA48 /* RPCServer+Extensions.swift in Sources */,
 				87BBF9972563DD7600FF4846 /* TransactionInProgressCoordinatorBridgeToPromise.swift in Sources */,
@@ -5167,6 +5174,7 @@
 				C601B18924407D3B00C763D9 /* SettingViewHeader.swift in Sources */,
 				5E7C70AE62DBB193399C7F5E /* ServerViewCell.swift in Sources */,
 				5E7C7EB845B0EE96CC8DCF43 /* ServerViewModel.swift in Sources */,
+				874B7DB42910F203000E1A57 /* RoundedEnsView.swift in Sources */,
 				5E7C745A423BD10CFDED9A81 /* ServersViewModel.swift in Sources */,
 				8722324928D8A778001A9BCC /* UiTweaks.swift in Sources */,
 				87757286282D486900EAD907 /* TokenCardWebViewModel.swift in Sources */,

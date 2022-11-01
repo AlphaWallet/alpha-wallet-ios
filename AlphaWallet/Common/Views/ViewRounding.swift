@@ -30,7 +30,7 @@ enum ViewRounding {
         case .none:
             return 0
         case .circle:
-            return view.bounds.width / 2
+            return view.bounds.height / 2
         case .custom(let cGFloat):
             return cGFloat
         }

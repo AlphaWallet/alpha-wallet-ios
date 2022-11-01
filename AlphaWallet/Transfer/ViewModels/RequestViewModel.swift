@@ -3,59 +3,87 @@
 import Foundation
 import UIKit
 import AlphaWalletFoundation
+import Combine
 
-struct RequestViewModel {
-	private let account: Wallet
+struct RequestViewModelInput {
+    let copyEns: AnyPublisher<Void, Never>
+    let copyAddress: AnyPublisher<Void, Never>
+}
 
-	init(account: Wallet) {
-		self.account = account
-	}
+struct RequestViewModelOutput {
+    let copiedToClipboard: AnyPublisher<String, Never>
+    let viewState: AnyPublisher<RequestViewModel.ViewState, Never>
+}
 
-	var myAddressText: String {
-		return account.address.eip55String
-	}
+class RequestViewModel {
+    private let account: Wallet
+    private let domainResolutionService: DomainResolutionServiceType
 
-	var myAddress: AlphaWallet.Address {
-		return account.address
-	}
+    let backgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground
 
-	var copyWalletText: String {
-		return R.string.localizable.requestCopyWalletButtonTitle()
-	}
+    var instructionAttributedString: NSAttributedString {
+        NSAttributedString(string: R.string.localizable.aWalletAddressScanInstructions(), attributes: [
+            .font: Fonts.regular(size: 17),
+            .foregroundColor: Configuration.Color.Semantic.labelTextActive
+        ])
+    }
+    
+    init(account: Wallet, domainResolutionService: DomainResolutionServiceType) {
+        self.account = account
+        self.domainResolutionService = domainResolutionService
+    }
 
-	var addressCopiedText: String {
-		return R.string.localizable.requestAddressCopiedTitle()
-	}
+    func transform(input: RequestViewModelInput) -> RequestViewModelOutput {
+        let ensName = resolveEns()
+        let viewState = Publishers.CombineLatest(generateQrCode(), resolveEns())
+            .map { [account] qrCode, ensName -> RequestViewModel.ViewState in
+                let address = account.address.eip55String
+                return .init(title: R.string.localizable.aSettingsContentsMyWalletAddress(), ensName: ensName, address: address, qrCode: qrCode)
+            }.eraseToAnyPublisher()
 
-	var backgroundColor: UIColor {
-		return Colors.appBackground
-	}
+        let copiedEnsName = input.copyEns
+            .withLatestFrom(ensName)
+            .compactMap { $0 }
 
-	var addressLabelColor: UIColor {
-		return .black
-	}
+        let copiedAddress = input.copyAddress
+            .map { [account] _ in account.address.eip55String }
 
-	var copyButtonsFont: UIFont {
-		return Fonts.semibold(size: 17)
-	}
+        let copiedToClipboard = Publishers.Merge(copiedEnsName, copiedAddress)
+            .handleEvents(receiveOutput: { UIPasteboard.general.string = $0 })
+            .map { _ in R.string.localizable.requestAddressCopiedTitle() }
+            .eraseToAnyPublisher()
 
-	var labelColor: UIColor? {
-        return Configuration.Color.Semantic.labelTextActive
-	}
+        return .init(copiedToClipboard: copiedToClipboard, viewState: viewState)
+    }
 
-	var addressFont: UIFont {
-		return Fonts.semibold(size: 17)
-	}
+    private func resolveEns() -> AnyPublisher<String?, Never> {
+        domainResolutionService.resolveEns(address: account.address)
+            .map { ens -> EnsName? in return ens }
+            .replaceError(with: nil)
+            .prepend(nil)
+            .eraseToAnyPublisher()
+    }
 
-	var addressBackgroundColor: UIColor {
-		return UIColor(red: 237, green: 237, blue: 237)
-	}
+    private func generateQrCode() -> AnyPublisher<UIImage?, Never> {
+        // EIP67 format not being used much yet, use hex value for now
+        // let string = "ethereum:\(account.address.address)?value=\(value)"
+        let qrCode: PassthroughSubject<UIImage?, Never> = .init()
+        DispatchQueue.global(qos: .userInteractive).async { [account] in
+            let image = account.address.eip55String.toQRCode()
+            DispatchQueue.main.async {
+                qrCode.send(image)
+            }
+        }
 
-	var instructionFont: UIFont {
-		return Fonts.regular(size: 17)
-	}
+        return Publishers.Merge(Just(nil), qrCode).eraseToAnyPublisher()
+    }
+}
 
-	var instructionText: String {
-		return R.string.localizable.aWalletAddressScanInstructions()
-	}
+extension RequestViewModel {
+    struct ViewState {
+        let title: String
+        let ensName: String?
+        let address: String
+        let qrCode: UIImage?
+    }
 }

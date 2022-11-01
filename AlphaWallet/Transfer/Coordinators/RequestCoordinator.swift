@@ -13,8 +13,8 @@ class RequestCoordinator: Coordinator {
     private let domainResolutionService: DomainResolutionServiceType
 
     private lazy var requestViewController: RequestViewController = {
-        let viewModel: RequestViewModel = .init(account: account)
-        let controller = RequestViewController(viewModel: viewModel, domainResolutionService: domainResolutionService)
+        let viewModel = RequestViewModel(account: account, domainResolutionService: domainResolutionService)
+        let controller = RequestViewController(viewModel: viewModel)
         controller.navigationItem.largeTitleDisplayMode = .never
         controller.hidesBottomBarWhenPushed = true
         controller.delegate = self
@@ -34,7 +34,8 @@ class RequestCoordinator: Coordinator {
 
     func start() {
         navigationController.pushViewController(requestViewController, animated: true)
-    } 
+    }
+
 }
 
 extension RequestCoordinator: RequestViewControllerDelegate {
