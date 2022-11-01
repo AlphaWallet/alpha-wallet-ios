@@ -24,9 +24,8 @@ final class GetErc20Balance {
             if let promise = self?.inFlightPromises[key] {
                 return promise
             } else {
-                let functionName = "balanceOf"
                 let promise = attempt(maximumRetryCount: 2, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {
-                    callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: Web3.Utils.erc20ABI, parameters: [address.eip55String] as [AnyObject])
+                    callSmartContract(withServer: server, contract: contract, functionName: "balanceOf", abiString: Web3.Utils.erc20ABI, parameters: [address.eip55String] as [AnyObject])
                         .map(on: queue, { balanceResult -> BigInt in
                             guard let balanceOfUnknownType = balanceResult["0"], let balance = BigInt(String(describing: balanceOfUnknownType)) else {
                                 throw CastError(actualValue: balanceResult["0"], expectedType: BigInt.self)

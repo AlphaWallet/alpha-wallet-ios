@@ -23,9 +23,8 @@ final class GetContractName {
             if let promise = self?.inFlightPromises[key] {
                 return promise
             } else {
-                let functionName = "name"
                 let promise = attempt(maximumRetryCount: 2, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {
-                    callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: Web3.Utils.erc20ABI)
+                    callSmartContract(withServer: server, contract: contract, functionName: "name", abiString: Web3.Utils.erc20ABI)
                         .map(on: queue, { nameResult -> String in
                             guard let name = nameResult["0"] as? String else {
                                 throw CastError(actualValue: nameResult["0"], expectedType: String.self)

@@ -23,9 +23,8 @@ final class GetContractDecimals {
             if let promise = self?.inFlightPromises[key] {
                 return promise
             } else {
-                let functionName = "decimals"
                 let promise = attempt(maximumRetryCount: 2, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {
-                    callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: Web3.Utils.erc20ABI)
+                    callSmartContract(withServer: server, contract: contract, functionName: "decimals", abiString: Web3.Utils.erc20ABI)
                         .map(on: queue, { dictionary -> Int in
                             guard let decimalsOfUnknownType = dictionary["0"], let decimals = Int(String(describing: decimalsOfUnknownType)) else {
                                 throw CastError(actualValue: dictionary["0"], expectedType: Int.self)
