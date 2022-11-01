@@ -59,11 +59,11 @@ class EditBookmarkViewController: UIViewController {
             imageHolder,
             UIView.spacer(height: ScreenChecker.size(big: 28, medium: 28, small: 20)),
             titleTextField.label,
-            UIView.spacer(height: 7),
+            UIView.spacer(height: DataEntry.Metric.TextField.Default.spaceFromTitleToTextField),
             titleTextField,
             UIView.spacer(height: 18),
             urlTextField.label,
-            UIView.spacer(height: 7),
+            UIView.spacer(height: DataEntry.Metric.TextField.Default.spaceFromTitleToTextField),
             urlTextField
         ].asStackView(axis: .vertical, alignment: .center)
 

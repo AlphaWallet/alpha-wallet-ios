@@ -28,10 +28,14 @@ class RenameWalletViewController: UIViewController {
 
         return textField
     }()
-    private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
+    private let buttonsBar: HorizontalButtonsBar = {
+        let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
+        buttonsBar.configure()
+
+        return buttonsBar
+    }()
     private var footerBottomConstraint: NSLayoutConstraint!
     private lazy var keyboardChecker = KeyboardChecker(self)
-    private let roundedBackground = RoundedBackground()
     private let name = PassthroughSubject<String, Never>()
     private let appear = PassthroughSubject<Void, Never>()
 
@@ -58,34 +62,25 @@ class RenameWalletViewController: UIViewController {
 
         stackview.translatesAutoresizingMaskIntoConstraints = false
 
-        roundedBackground.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(roundedBackground)
-
-        roundedBackground.addSubview(stackview)
-        roundedBackground.addSubview(footerBar)
+        view.addSubview(stackview)
+        view.addSubview(footerBar)
 
         NSLayoutConstraint.activate([
-            stackview.topAnchor.constraint(equalTo: roundedBackground.safeAreaLayoutGuide.topAnchor, constant: 20),
-            stackview.leadingAnchor.constraint(equalTo: roundedBackground.safeAreaLayoutGuide.leadingAnchor, constant: 20),
-            stackview.trailingAnchor.constraint(equalTo: roundedBackground.safeAreaLayoutGuide.trailingAnchor, constant: -20),
+            stackview.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            stackview.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
+            stackview.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
             stackview.bottomAnchor.constraint(lessThanOrEqualTo: footerBar.topAnchor),
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             footerBottomConstraint,
-        ] + roundedBackground.createConstraintsWithContainer(view: view))
+        ])
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        buttonsBar.configure()
-        buttonsBar.buttons[0].addTarget(self, action: #selector(saveWalletNameSelected), for: .touchUpInside)
-
         bind(viewModel: viewModel)
-
-        let tap = UITapGestureRecognizer(target: self, action: #selector(tapSelected))
-        roundedBackground.addGestureRecognizer(tap)
     }
 
     @objc private func tapSelected(_ sender: UITapGestureRecognizer) {
@@ -108,10 +103,15 @@ class RenameWalletViewController: UIViewController {
     }
 
     private func bind(viewModel: RenameWalletViewModel) {
+        view.backgroundColor = viewModel.backgroundColor
         nameTextField.label.text = viewModel.walletNameTitle
         buttonsBar.buttons[0].setTitle(viewModel.saveWalletNameTitle, for: .normal)
 
-        let input = RenameWalletViewModelInput(appear: appear.eraseToAnyPublisher(), name: name.eraseToAnyPublisher())
+        let saveWalletName = buttonsBar.buttons[0].publisher(forEvent: .touchUpInside)
+            .map { [nameTextField] _ in nameTextField.value }
+            .eraseToAnyPublisher()
+
+        let input = RenameWalletViewModelInput(appear: appear.eraseToAnyPublisher(), saveWalletName: saveWalletName)
         let output = viewModel.transform(input: input)
 
         output.viewState
@@ -120,12 +120,14 @@ class RenameWalletViewController: UIViewController {
                 nameTextField.textField.text = viewState.text
                 navigationItem.title = viewState.title
             }.store(in: &cancelable)
-    }
 
-    @objc private func saveWalletNameSelected(_ sender: UIButton) {
-        name.send(nameTextField.value)
+        output.walletNameSaved
+            .sink { _ in self.delegate?.didFinish(in: self) }
+            .store(in: &cancelable)
 
-        delegate?.didFinish(in: self)
+        view.publisher(for: UITapGestureRecognizer())
+            .sink { [weak self] _ in self?.view.endEditing(true) }
+            .store(in: &cancelable)
     }
 }
 

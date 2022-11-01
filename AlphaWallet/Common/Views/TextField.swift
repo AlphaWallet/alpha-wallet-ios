@@ -151,7 +151,7 @@ class TextField: UIControl {
        get { return CGSize(width: (textField as! _TextField).insetX, height: (textField as! _TextField).insetY) }
        set { (textField as! _TextField).insetX = newValue.width; (textField as! _TextField).insetY = newValue.height; }
     }
-
+    
     init(edgeInsets: UIEdgeInsets = DataEntry.Metric.TextField.Default.edgeInsets) {
         super.init(frame: .zero)
 
