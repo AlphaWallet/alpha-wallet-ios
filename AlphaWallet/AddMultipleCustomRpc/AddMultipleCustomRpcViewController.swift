@@ -129,7 +129,6 @@ class AddMultipleCustomRpcViewController: UIViewController {
     private func updateProgressView() {
         progressView.chainNameString = currentCustomRpc?.chainName ?? "…"
         progressView.progressString = viewModel.progressString
-        progressView.progress = viewModel.progress
         progressView.update()
     }
 
