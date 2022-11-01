@@ -193,11 +193,9 @@ extension AcceptProposalViewController: TransactionConfirmationHeaderViewDelegat
     }
 
     func headerView(_ header: TransactionConfirmationHeaderView, openStateChanged section: Int) {
-        switch viewModel.showHideSection(section) {
-        case .show:
-            header.expand()
-        case .hide:
-            header.collapse()
+        switch viewModel.expandOrCollapseAction(for: section) {
+        case .expand: header.expand()
+        case .collapse: header.collapse()
         }
 
         UIView.animate(withDuration: 0.35) {

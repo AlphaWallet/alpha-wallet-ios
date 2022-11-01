@@ -13,8 +13,15 @@ protocol BalanceUpdatable: class {
     func updateBalance(_ balanceViewModel: BalanceViewModel?)
 }
 
+struct TransactionConfirmationViewModelInput {
+    let send: AnyPublisher<Void, Never>
+}
+
+struct TransactionConfirmationViewModelOutput {
+    let viewState: AnyPublisher<TransactionConfirmationViewModel.ViewState, Never>
+}
+
 class TransactionConfirmationViewModel {
-    private let session: WalletSession
     private lazy var token: AnyPublisher<Token, Never> = {
         let token = configurator.transaction.transactionType.tokenObject
         return Just(token)
@@ -37,7 +44,6 @@ class TransactionConfirmationViewModel {
         let recipientOrContract = configurator.transaction.recipient ?? configurator.transaction.contract
         recipientResolver = RecipientResolver(address: recipientOrContract, domainResolutionService: domainResolutionService)
         self.configurator = configurator
-        session = configurator.session
 
         switch configuration {
         case .tokenScriptTransaction(_, let contract, let functionCallMetaData):
@@ -78,46 +84,26 @@ class TransactionConfirmationViewModel {
                 case .nativeCryptocurrency:
                     let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: token.server)
                     return tokensService.tokenViewModel(for: etherToken)
-                case .erc20:
-                    return tokensService.tokenViewModel(for: token)
-                case .erc1155, .erc721, .erc875, .erc721ForTickets:
+                case .erc20, .erc1155, .erc721, .erc875, .erc721ForTickets:
                     return tokensService.tokenViewModel(for: token)
                 }
             }.map { $0?.balance }
-            .eraseToAnyPublisher()
 
         let tokenBalance = token.flatMap { [tokensService] token -> AnyPublisher<TokenViewModel?, Never> in
             switch token.type {
             case .nativeCryptocurrency:
                 let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: token.server)
                 return tokensService.tokenViewModelPublisher(for: etherToken)
-            case .erc20:
-                return tokensService.tokenViewModelPublisher(for: token)
-            case .erc1155, .erc721, .erc875, .erc721ForTickets:
+            case .erc20, .erc1155, .erc721, .erc875, .erc721ForTickets:
                 return tokensService.tokenViewModelPublisher(for: token)
             }
         }.map { $0?.balance }
-        .eraseToAnyPublisher()
 
         return Publishers.Merge(tokenBalance, forceTriggerUpdateBalance)
             .handleEvents(receiveOutput: { [weak self] balance in
                 self?.cryptoToFiatRateUpdatable.cryptoToDollarRate = balance?.ticker?.price_usd
                 self?.updateBalance(balance)
             }).eraseToAnyPublisher()
-    }()
-
-    lazy var views: AnyPublisher<[ViewType], Never> = {
-        let balanceUpdated = tokenBalance
-            .mapToVoid()
-            .eraseToAnyPublisher()
-
-        let forceViewReload = reloadViewSubject.eraseToAnyPublisher()
-
-        let initial = Just<Void>(()).eraseToAnyPublisher()
-
-        return Publishers.Merge4(initial, balanceUpdated, resolvedRecipient, forceViewReload)
-            .map { _ in TransactionConfirmationViewModel.generateViews(for: self) }
-            .eraseToAnyPublisher()
     }()
 
     var canUserChangeGas: Bool {
@@ -136,6 +122,16 @@ class TransactionConfirmationViewModel {
     func reloadViewWithGasChanges() {
         reloadViewSubject.send(())
         disableConfirmButtonForShortTime()
+    }
+
+    func transform(input: TransactionConfirmationViewModelInput) -> TransactionConfirmationViewModelOutput {
+        let views = Publishers.Merge4(Just<Void>(()), tokenBalance.mapToVoid(), resolvedRecipient, reloadViewSubject)
+            .map { _ in self.generateViews(for: self) }
+
+        let viewState = views.map { TransactionConfirmationViewModel.ViewState(title: self.title, views: $0) }
+            .eraseToAnyPublisher()
+
+        return .init(viewState: viewState)
     }
 
     func shouldShowChildren(for section: Int, index: Int) -> Bool {
@@ -173,24 +169,24 @@ class TransactionConfirmationViewModel {
         }
     }
 
-    func showHideSection(_ section: Int) -> Action {
+    func expandOrCollapseAction(for section: Int) -> ExpandOrCollapseAction {
         switch type {
         case .dappOrWalletConnectTransaction(let viewModel):
-            return viewModel.showHideSection(section)
+            return viewModel.expandOrCollapseAction(for: section)
         case .tokenScriptTransaction(let viewModel):
-            return viewModel.showHideSection(section)
+            return viewModel.expandOrCollapseAction(for: section)
         case .sendFungiblesTransaction(let viewModel):
-            return viewModel.showHideSection(section)
+            return viewModel.expandOrCollapseAction(for: section)
         case .sendNftTransaction(let viewModel):
-            return viewModel.showHideSection(section)
+            return viewModel.expandOrCollapseAction(for: section)
         case .claimPaidErc875MagicLink(let viewModel):
-            return viewModel.showHideSection(section)
+            return viewModel.expandOrCollapseAction(for: section)
         case .speedupTransaction(let viewModel):
-            return viewModel.showHideSection(section)
+            return viewModel.expandOrCollapseAction(for: section)
         case .cancelTransaction(let viewModel):
-            return viewModel.showHideSection(section)
+            return viewModel.expandOrCollapseAction(for: section)
         case .swapTransaction(let viewModel):
-            return viewModel.showHideSection(section)
+            return viewModel.expandOrCollapseAction(for: section)
         }
     }
 
@@ -265,6 +261,10 @@ class TransactionConfirmationViewModel {
 }
 
 extension TransactionConfirmationViewModel {
+    struct ViewState {
+        let title: String
+        let views: [ViewType]
+    }
 
     enum ViewType {
         case separator(height: CGFloat)
@@ -273,9 +273,15 @@ extension TransactionConfirmationViewModel {
         case header(viewModel: TransactionConfirmationHeaderViewModel, isEditEnabled: Bool)
     }
 
-    enum Action {
-        case show
-        case hide
+    enum State {
+        case ready
+        case pending
+        case done(withError: Bool)
+    }
+
+    enum ExpandOrCollapseAction {
+        case expand
+        case collapse
     }
 
     enum ViewModelType {
@@ -311,7 +317,7 @@ extension TransactionConfirmationViewModel {
     }
 
     // swiftlint:disable function_body_length
-    private static func generateViews(for _viewModel: TransactionConfirmationViewModel) -> [ViewType] {
+    private func generateViews(for _viewModel: TransactionConfirmationViewModel) -> [ViewType] {
         var views: [ViewType] = []
 
         switch _viewModel.type {

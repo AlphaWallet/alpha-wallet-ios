@@ -49,6 +49,7 @@ class SwapOptionsViewController: UIViewController {
         tableView.register(RPCDisplaySelectableTableViewCell.self)
         tableView.isEditing = false
         tableView.keyboardDismissMode = .onDrag
+        tableView.delegate = self
 
         return tableView
     }()
@@ -57,8 +58,9 @@ class SwapOptionsViewController: UIViewController {
     }()
     private lazy var checker = KeyboardChecker(self, resetHeightDefaultValue: 0)
     private var cancelable = Set<AnyCancellable>()
-    private lazy var dataSource: SwapOptionsViewModel.SessionsDiffableDataSource = makeDataSource()
+    private lazy var dataSource: SwapOptionsViewModel.DataSource = makeDataSource()
     private let appear = PassthroughSubject<Void, Never>()
+    private let selection = PassthroughSubject<IndexPath, Never>()
 
     weak var delegate: SwapOptionsViewControllerDelegate?
 
@@ -109,8 +111,6 @@ class SwapOptionsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        configureDataSource()
-        navigationItem.title = viewModel.title
         navigationItem.leftBarButtonItem = UIBarButtonItem.logoBarButton()
         navigationItem.rightBarButtonItem = UIBarButtonItem.closeBarButton(self, selector: #selector(closeDidSelect))
         bind(viewModel: viewModel)
@@ -121,7 +121,7 @@ class SwapOptionsViewController: UIViewController {
     }
 
     @objc private func choseSwapToolSelected(_ sender: UIButton) {
-        self.delegate?.choseSwapToolSelected(in: self)
+        delegate?.choseSwapToolSelected(in: self)
     }
 
     @objc private func closeDidSelect(_ sender: UIButton) {
@@ -129,9 +129,10 @@ class SwapOptionsViewController: UIViewController {
     }
 
     private func bind(viewModel: SwapOptionsViewModel) {
-        let output = viewModel.transform(input: .init())
+        let output = viewModel.transform(input: .init(selection: selection.eraseToAnyPublisher()))
         output.viewState
-            .sink { [weak dataSource] viewState in
+            .sink { [weak dataSource, navigationItem] viewState in
+                navigationItem.title = viewState.title
                 dataSource?.apply(viewState.sessions, animatingDifferences: false)
             }.store(in: &cancelable)
 
@@ -146,26 +147,20 @@ class SwapOptionsViewController: UIViewController {
 }
 
 extension SwapOptionsViewController {
-    private func makeDataSource() -> SwapOptionsViewModel.SessionsDiffableDataSource {
-        SwapOptionsViewModel.SessionsDiffableDataSource(tableView: tableView) { tableView, indexPath, viewModel -> RPCDisplaySelectableTableViewCell? in
+    private func makeDataSource() -> SwapOptionsViewModel.DataSource {
+        SwapOptionsViewModel.DataSource(tableView: tableView) { tableView, indexPath, viewModel -> RPCDisplaySelectableTableViewCell? in
             let cell: RPCDisplaySelectableTableViewCell = tableView.dequeueReusableCell(for: indexPath)
             cell.configure(viewModel: viewModel)
 
             return cell
         }
     }
-
-    private func configureDataSource() {
-        tableView.delegate = self
-        tableView.dataSource = dataSource
-    }
 }
 
 extension SwapOptionsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let session = viewModel.sessions[indexPath.row]
-        viewModel.set(selectedServer: session.server)
+        selection.send(indexPath)
     }
 
     //Hide the header

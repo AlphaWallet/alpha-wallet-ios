@@ -24,7 +24,7 @@ final class SelectSwapRouteViewController: UIViewController {
 
         return tableView
     }()
-    private lazy var dataSource: SelectSwapRouteViewModel.RoutesDiffableDataSource = makeDataSource()
+    private lazy var dataSource: SelectSwapRouteViewModel.DataSource = makeDataSource()
     private let appear = PassthroughSubject<Void, Never>()
     private let selection = PassthroughSubject<IndexPath, Never>()
     private var cancelable = Set<AnyCancellable>()
@@ -65,15 +65,13 @@ final class SelectSwapRouteViewController: UIViewController {
             .handleEvents(receiveOutput: { [weak self] _ in self?.startLoading() })
             .eraseToAnyPublisher()
 
-        let input = SelectSwapRouteViewModelInput(
-            appear: appear,
-            selection: selection.eraseToAnyPublisher())
+        let input = SelectSwapRouteViewModelInput(appear: appear, selection: selection.eraseToAnyPublisher())
 
         let output = viewModel.transform(input: input)
         output.viewState
-            .sink { [weak self] state in
-                self?.navigationItem.title = state.title
-                self?.dataSource.apply(state.snapshot, animatingDifferences: false)
+            .sink { [weak self, navigationItem, dataSource] state in
+                navigationItem.title = state.title
+                dataSource.apply(state.snapshot, animatingDifferences: false)
                 self?.endLoading()
             }.store(in: &cancelable)
     }
@@ -105,8 +103,8 @@ extension SelectSwapRouteViewController: UITableViewDelegate {
 }
 
 extension SelectSwapRouteViewController {
-    private func makeDataSource() -> SelectSwapRouteViewModel.RoutesDiffableDataSource {
-        SelectSwapRouteViewModel.RoutesDiffableDataSource(tableView: tableView) { tableView, indexPath, viewModel -> SelectableSwapRouteTableViewCell in
+    private func makeDataSource() -> SelectSwapRouteViewModel.DataSource {
+        SelectSwapRouteViewModel.DataSource(tableView: tableView) { tableView, indexPath, viewModel -> SelectableSwapRouteTableViewCell in
             let cell: SelectableSwapRouteTableViewCell = tableView.dequeueReusableCell(for: indexPath)
             cell.configure(viewModel: viewModel)
 

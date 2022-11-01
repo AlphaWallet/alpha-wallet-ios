@@ -10,7 +10,7 @@ import BigInt
 import AlphaWalletFoundation
 
 extension TransactionConfirmationViewModel {
-    class SendFungiblesTransactionViewModel: SectionProtocol, CryptoToFiatRateUpdatable {
+    class SendFungiblesTransactionViewModel: ExpandableSection, CryptoToFiatRateUpdatable {
         enum Section: Int, CaseIterable {
             case balance
             case network

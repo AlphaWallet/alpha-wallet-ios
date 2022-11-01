@@ -9,7 +9,7 @@ import Foundation
 import AlphaWalletAddress
 import AlphaWalletFoundation
 
-final class AcceptDeepLinkViewModel: SectionProtocol {
+final class AcceptDeepLinkViewModel: ExpandableSection {
 
     private let metadata: DeepLink.Metadata
     private let address: AlphaWallet.Address

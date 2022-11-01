@@ -8,7 +8,7 @@
 import Foundation
 import AlphaWalletFoundation
 
-final class AcceptWalletConnectSessionViewModel: SectionProtocol {
+final class AcceptWalletConnectSessionViewModel: ExpandableSection {
     private let config: Config
     private let proposal: AlphaWallet.WalletConnect.Proposal
     private (set) var serversToConnect: [RPCServer]
