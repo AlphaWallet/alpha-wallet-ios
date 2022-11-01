@@ -6,12 +6,12 @@ import AlphaWalletFoundation
 import Combine
 
 struct EditBookmarkViewModelInput {
-    let save: AnyPublisher<(title: String, url: String), Never>
+    let saveSelected: AnyPublisher<(title: String, url: String), Never>
 }
 
 struct EditBookmarkViewModelOutput {
-    let viwState: AnyPublisher<EditBookmarkViewModel.ViewState, Never>
-    let didSave: AnyPublisher<Void, Never>
+    let viewState: AnyPublisher<EditBookmarkViewModel.ViewState, Never>
+    let bookmarkSaved: AnyPublisher<Void, Never>
 }
 
 class EditBookmarkViewModel {
@@ -25,24 +25,22 @@ class EditBookmarkViewModel {
 
     func transform(input: EditBookmarkViewModelInput) -> EditBookmarkViewModelOutput {
         let bookmark = Just(bookmark)
-        let didSave = input.save
+        let bookmarkSaved = input.saveSelected
             .handleEvents(receiveOutput: { [bookmarksStore] data in
                 guard data.url.nonEmpty else { return }
                 bookmarksStore.update(bookmark: self.bookmark, title: data.title, url: data.url)
             }).mapToVoid()
             .eraseToAnyPublisher()
 
-        let viewState = bookmark.map { b -> ViewState in
-            let imageUrl = Favicon.get(for: URL(string: b.url))
-            return EditBookmarkViewModel.ViewState(title: b.title, url: b.url, imageUrl: imageUrl)
+        let viewState = bookmark.map { bookmark -> ViewState in
+            let imageUrl = Favicon.get(for: URL(string: bookmark.url))
+            return EditBookmarkViewModel.ViewState(title: bookmark.title, url: bookmark.url, imageUrl: imageUrl)
         }.eraseToAnyPublisher()
 
-        return .init(viwState: viewState, didSave: didSave)
+        return .init(viewState: viewState, bookmarkSaved: bookmarkSaved)
     }
 
-    var backgroundColor: UIColor {
-        return Colors.appBackground
-    }
+    let backgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground
 
     var imageShadowColor: UIColor {
         return Metrics.DappsHome.Icon.shadowColor
@@ -68,16 +66,8 @@ class EditBookmarkViewModel {
         return R.image.launch_icon()!
     }
 
-//    var imageUrl: URL? {
-//        return Favicon.get(for: URL(string: dapp.url))
-//    }
-
     var screenTitle: String {
         return R.string.localizable.dappBrowserMyDappsEdit()
-    }
-
-    var screenFont: UIFont {
-        return Fonts.semibold(size: 20)
     }
 
     var titleText: String {
