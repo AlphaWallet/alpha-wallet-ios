@@ -15,7 +15,7 @@ protocol TransactionConfirmationViewControllerDelegate: AnyObject {
 class TransactionConfirmationViewController: UIViewController {
     private lazy var headerView = ConfirmationHeaderView(viewModel: .init(title: viewModel.title))
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
-    private let viewModel: TransactionConfirmationViewModel
+    let viewModel: TransactionConfirmationViewModel
     private let separatorLine: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
