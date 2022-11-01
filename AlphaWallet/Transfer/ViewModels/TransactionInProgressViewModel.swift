@@ -17,7 +17,7 @@ struct TransactionInProgressViewModel {
         return NSAttributedString(string: R.string.localizable.aWalletTokenTransactionInProgressTitle(), attributes: [
             .paragraphStyle: style,
             .font: Fonts.regular(size: 28),
-            .foregroundColor: Colors.black
+            .foregroundColor: Configuration.Color.Semantic.defaultTitleText
         ])
     }
 
@@ -30,7 +30,7 @@ struct TransactionInProgressViewModel {
         return NSMutableAttributedString(string: x, attributes: [
             .paragraphStyle: style,
             .font: Fonts.regular(size: 17),
-            .foregroundColor: R.color.mine()!
+            .foregroundColor: Configuration.Color.Semantic.defaultHeadlineText
         ])
     }
 
@@ -43,7 +43,7 @@ struct TransactionInProgressViewModel {
     }
 
     var backgroundColor: UIColor {
-        return Colors.appBackground
+        return Configuration.Color.Semantic.defaultViewBackground
     }
 }
 
