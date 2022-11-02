@@ -23,6 +23,7 @@ public final class ChainStateSchedulerProvider: SchedulerProvider {
     var name: String { "ChainStateSchedulerProvider" }
     var operation: AnyPublisher<Void, SchedulerError> {
         blockNumberProvider.getBlockNumber().publisher
+            .receive(on: RunLoop.main)
             .handleEvents(receiveOutput: { [weak self] response in
                 self?.didReceiveValue(response: response)
             }, receiveCompletion: { [weak self] result in

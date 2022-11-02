@@ -2,6 +2,7 @@
 
 import Foundation
 import AlphaWalletCore
+import Combine
 
 public final class ChainState {
     private let server: RPCServer
@@ -17,8 +18,17 @@ public final class ChainState {
 
     public var latestBlock: Int {
         get { return config.latestBlock(server: server) }
-        set { config.set(latestBlock: newValue, for: server) }
+        set {
+            config.set(latestBlock: newValue, for: server)
+            latestBlockSubject.send(newValue)
+        }
     }
+
+    public var latestBlockPublisher: AnyPublisher<Int, Never> {
+        latestBlockSubject.eraseToAnyPublisher()
+    }
+
+    private lazy var latestBlockSubject: CurrentValueSubject<Int, Never> = .init(latestBlock)
 
     public init(config: Config, server: RPCServer, analytics: AnalyticsLogger) {
         self.config = config

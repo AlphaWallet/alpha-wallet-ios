@@ -11,21 +11,12 @@ struct TransactionRowCellViewModel {
     private let transactionRowViewModel: TransactionRowViewModel
     private let server: RPCServer
 
-    init(
-            transactionRow: TransactionRow,
-            chainState: ChainState,
-            wallet: Wallet,
-            server: RPCServer
-    ) {
+    init(transactionRow: TransactionRow, chainState: ChainState, wallet: Wallet, server: RPCServer) {
         self.transactionRow = transactionRow
         self.chainState = chainState
         self.wallet = wallet
         self.server = server
-        self.transactionRowViewModel = TransactionRowViewModel(
-            transactionRow: transactionRow,
-            chainState: chainState,
-            wallet: wallet
-        )
+        self.transactionRowViewModel = TransactionRowViewModel(transactionRow: transactionRow, chainState: chainState, wallet: wallet)
     }
 
     private var operationTitle: String? {
@@ -127,22 +118,18 @@ struct TransactionRowCellViewModel {
         } else {
             amount = transactionRowViewModel.amountWithSign(for: value.amount) + " " + value.symbol
         }
-        return NSAttributedString(
-                string: amount,
-                attributes: [
-                    .font: Fonts.regular(size: 25),
-                    .foregroundColor: transactionRowViewModel.amountTextColor,
-                ]
-        )
+
+        return NSAttributedString(string: amount, attributes: [
+                .font: Fonts.regular(size: 25),
+                .foregroundColor: transactionRowViewModel.amountTextColor,
+            ])
     }
 
     var statusImage: UIImage? {
         switch transactionRow.state {
         case .error, .unknown, .failed: return R.image.transaction_error()
-        case .completed:
-            return nil
-        case .pending:
-            return R.image.transaction_pending()
+        case .completed: return nil
+        case .pending: return R.image.transaction_pending()
         }
     }
 

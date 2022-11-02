@@ -278,8 +278,7 @@ enum DataEntry {
                 top: ScreenChecker.size(big: 20, medium: 20, small: 15),
                 left: 0,
                 bottom: ScreenChecker.size(big: 20, medium: 20, small: 15),
-                right: 0
-            )
+                right: 0)
             static let separatorHeight: CGFloat = 1.0
         }
 

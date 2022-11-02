@@ -4,33 +4,160 @@ import Foundation
 import UIKit
 import AlphaWalletFoundation
 
+struct TransactionHeaderViewModel {
+    private let transactionViewModel: TransactionViewModel
+    private let tokensService: TokenViewModelState
+
+    var server: RPCServer { transactionViewModel.server }
+    var amount: NSAttributedString {
+        NSAttributedString(string: transactionViewModel.fullAmountAttributedString.string, attributes: [
+            .font: Fonts.semibold(size: 20) as Any,
+            .foregroundColor: Configuration.Color.Semantic.defaultHeadlineText,
+        ])
+    }
+
+    init(transactionViewModel: TransactionViewModel, tokensService: TokenViewModelState) {
+        self.transactionViewModel = transactionViewModel
+        self.tokensService = tokensService
+    }
+
+    private var operation: LocalizedOperationObjectInstance? {
+        switch transactionViewModel.transactionRow {
+        case .standalone(let transaction): return transaction.operation
+        case .group: return nil
+        case .item(_, let op): return op
+        }
+    }
+
+    private var operationTitle: String? {
+        if let operation = operation {
+            switch operation.operationType {
+            case .nativeCurrencyTokenTransfer, .erc20TokenTransfer, .erc721TokenTransfer, .erc875TokenTransfer, .erc1155TokenTransfer:
+                return R.string.localizable.transactionCellTokenTransferTitle(operation.symbol ?? "")
+            case .erc20TokenApprove:
+                return R.string.localizable.transactionCellTokenApproveTitle(operation.symbol ?? "")
+            case .erc721TokenApproveAll:
+                return R.string.localizable.transactionCellTokenApproveAllTitle(operation.symbol ?? "")
+            case .unknown:
+                return nil
+            }
+        } else {
+            return nil
+        }
+    }
+
+    var titleTextColor: UIColor {
+        return Configuration.Color.Semantic.defaultForegroundText
+    }
+
+    var title: String {
+        if let operationTitle = operationTitle {
+            return operationTitle
+        }
+
+        switch transactionViewModel.transactionRow.state {
+        case .completed:
+            switch transactionViewModel.direction {
+            case .incoming: return R.string.localizable.transactionCellReceivedTitle()
+            case .outgoing: return R.string.localizable.transactionCellSentTitle()
+            }
+        case .error: return R.string.localizable.transactionCellErrorTitle()
+        case .failed: return R.string.localizable.transactionCellFailedTitle()
+        case .unknown: return R.string.localizable.transactionCellUnknownTitle()
+        case .pending: return R.string.localizable.transactionCellPendingTitle()
+        }
+    }
+
+    var subTitle: String {
+        switch transactionViewModel.direction {
+        case .incoming: return "\(transactionViewModel.transactionRow.from)"
+        case .outgoing: return "\(transactionViewModel.transactionRow.to)"
+        }
+    }
+
+    var subscribable: Subscribable<TokenImage>? {
+        let server = transactionViewModel.transactionRow.server
+
+        guard let operation = operation, let contractAddress = operation.contractAddress else {
+            let token = MultipleChainsTokensDataStore.functional.etherToken(forServer: server)
+            return token.icon(withSize: .s300)
+        }
+        return tokensService.tokenViewModel(for: contractAddress, server: server)?.icon(withSize: .s300)
+    }
+
+}
+
 class TransactionHeaderView: UIView {
-    private let server: RPCServer
-    private let amountLabel = UILabel()
-    private let blockchainLabel = UILabel()
 
-    init(server: RPCServer) {
-        self.server = server
+    private let titleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .center
+        label.font = Fonts.semibold(size: 17)
+        label.textColor = Configuration.Color.Semantic.defaultHeadlineText
+
+        return label
+    }()
+
+    private let toLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .center
+        label.isHidden = true
+
+        return label
+    }()
+
+    private let dateLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .center
+        label.isHidden = true
+
+        return label
+    }()
+
+    private var tokenIconImageView: TokenImageView = {
+        let imageView = TokenImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.isUserInteractionEnabled = false
+        imageView.rounding = .circle
+        imageView.isChainOverlayHidden = true
+        imageView.contentMode = .scaleAspectFit
+
+        return imageView
+    }()
+
+    private let line: UIView = .spacer(height: 1, backgroundColor: R.color.mercury()!)
+
+    init() {
         super.init(frame: .zero)
-
-        amountLabel.translatesAutoresizingMaskIntoConstraints = false
-        amountLabel.textAlignment = .center
-
+        translatesAutoresizingMaskIntoConstraints = false
+        
         let stackView = [
-            blockchainLabel,
-            amountLabel,
+            dateLabel,
+            .spacer(height: 10),
+            tokenIconImageView,
+            .spacer(height: 10),
+            titleLabel,
+            .spacer(height: 10),
+            toLabel
         ].asStackView(axis: .vertical, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stackView)
+        addSubview(line)
 
         let margin = CGFloat(15)
         NSLayoutConstraint.activate([
-            blockchainLabel.heightAnchor.constraint(equalToConstant: Screen.TokenCard.Metric.blockChainTagHeight),
-
+            tokenIconImageView.sized(.init(width: 64, height: 64)),
             stackView.topAnchor.constraint(equalTo: topAnchor, constant: margin),
             stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -margin),
             stackView.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -margin),
             stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: margin),
+
+            line.trailingAnchor.constraint(equalTo: trailingAnchor),
+            line.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor),
+            line.leadingAnchor.constraint(equalTo: leadingAnchor)
         ])
     }
 
@@ -38,14 +165,10 @@ class TransactionHeaderView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(amount: NSAttributedString) {
-        amountLabel.attributedText = amount
-
-        blockchainLabel.textAlignment = .center
-        blockchainLabel.cornerRadius = 7
-        blockchainLabel.backgroundColor = server.blockChainNameColor
-        blockchainLabel.textColor = Screen.TokenCard.Color.blockChainName
-        blockchainLabel.font = Screen.TokenCard.Font.blockChainName
-        blockchainLabel.text = " \(server.name)     "
+    func configure(viewModel: TransactionHeaderViewModel) {
+        titleLabel.text = viewModel.title
+        titleLabel.textColor = viewModel.titleTextColor
+        toLabel.text = viewModel.subTitle
+        tokenIconImageView.subscribable = viewModel.subscribable
     }
 }

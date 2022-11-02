@@ -32,8 +32,11 @@
 "transaction.to.label.title" = "수취인";
 "transaction.time.label.title" = "거래 시간";
 "transaction.id.label.title" = "거래 번호";
+"transaction.id" = "Transaction ID";
 "transaction.blockNumber.label.title" = "블록 번호";
 "transaction.nonce.label.title" = "Nonce";
+"transaction.amount.label.title" = "Amount";
+"transaction.network.label.title" = "Network";
 "confirmPayment.confirm.button.title" = "확인";
 "confirmPayment.sign.button.title" = "Sign";
 "confirmPayment.reject.button.title" = "Reject";
@@ -61,7 +64,8 @@
 "OK" = "확인";
 "Password" = "비밀번호";
 "Refresh" = "새로 고침";
-"request.addressCopied.title" = "주소가 복사되었습니다";
+"copiedToClipboard.title" = "%@ copied";
+"address" = "Address";
 "request.copyWallet.button.title" = "지갑 주소 복사";
 "Retry" = "다시 시도";
 "Send" = "보내기";

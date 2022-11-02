@@ -50,7 +50,7 @@ class RequestViewModel {
 
         let copiedToClipboard = Publishers.Merge(copiedEnsName, copiedAddress)
             .handleEvents(receiveOutput: { UIPasteboard.general.string = $0 })
-            .map { _ in R.string.localizable.requestAddressCopiedTitle() }
+            .map { _ in R.string.localizable.copiedToClipboardTitle(R.string.localizable.address()) }
             .eraseToAnyPublisher()
 
         return .init(copiedToClipboard: copiedToClipboard, viewState: viewState)

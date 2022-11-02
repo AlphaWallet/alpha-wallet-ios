@@ -117,6 +117,12 @@ public class TransactionsService {
         }
     }
 
+    public func transactionPublisher(for transactionId: String, server: RPCServer) -> AnyPublisher<TransactionInstance?, Never> {
+        transactionDataStore.transactionPublisher(for: transactionId, server: server)
+            .replaceError(with: nil)
+            .eraseToAnyPublisher()
+    }
+
     public func transaction(withTransactionId transactionId: String, forServer server: RPCServer) -> TransactionInstance? {
         transactionDataStore.transaction(withTransactionId: transactionId, forServer: server)
     }

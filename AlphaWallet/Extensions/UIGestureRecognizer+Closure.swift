@@ -14,6 +14,20 @@ extension UIGestureRecognizer {
     }
 }
 
+extension UIView {
+    func removeGesture(_ target: UIGestureRecognizer) {
+        guard let target = GestureTarget.existingTarget(inTargetView: self) else { return }
+
+        target.containers.removeAll(where: { $0.gesture == target })
+    }
+
+    func removeAllGestures() {
+        guard let target = GestureTarget.existingTarget(inTargetView: self) else { return }
+
+        target.containers.removeAll()
+    }
+}
+
 private class GestureTarget: UIView {
     class ClosureContainer {
         weak var gesture: UIGestureRecognizer?

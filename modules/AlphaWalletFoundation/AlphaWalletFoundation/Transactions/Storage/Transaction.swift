@@ -113,7 +113,7 @@ extension TransactionInstance {
 
     static func from(from: AlphaWallet.Address, transaction: SentTransaction, token: Token?) -> TransactionInstance {
         let (operations: operations, isErc20Interaction: isErc20Interaction) = decodeOperations(
-            fromData: transaction.original.data,
+            data: transaction.original.data,
             from: transaction.original.account,
             token: token)
 
@@ -137,7 +137,7 @@ extension TransactionInstance {
     }
 
     //TODO add support for more types of pending transactions
-    fileprivate static func decodeOperations(fromData data: Data, from: AlphaWallet.Address, token: Token?) -> (operations: [LocalizedOperationObjectInstance], isErc20Interaction: Bool) {
+    fileprivate static func decodeOperations(data: Data, from: AlphaWallet.Address, token: Token?) -> (operations: [LocalizedOperationObjectInstance], isErc20Interaction: Bool) {
         if let functionCallMetaData = DecodedFunctionCall(data: data), let token = token {
             switch functionCallMetaData.type {
             case .erc20Approve(let spender, let value):

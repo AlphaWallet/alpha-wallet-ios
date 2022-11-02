@@ -70,6 +70,41 @@ open class TransactionDataStore {
         return publisher
     }
 
+    public func transactionPublisher(for transactionId: String, server: RPCServer) -> AnyPublisher<TransactionInstance?, DataStoreError> {
+        let predicate = TransactionDataStore
+            .functional
+            .transactionPredicate(withTransactionId: transactionId, server: server)
+
+        let publisher: CurrentValueSubject<TransactionInstance?, DataStoreError> = .init(nil)
+        var notificationToken: NotificationToken?
+
+        store.performSync { realm in
+            guard let transaction = realm.objects(Transaction.self).filter(predicate).sorted(byKeyPath: "date", ascending: false).first else {
+                publisher.send(completion: .failure(DataStoreError.objectNotFound))
+                return
+            }
+
+            publisher.send(TransactionInstance(transaction: transaction))
+
+            notificationToken = transaction.observe { change in
+                switch change {
+                case .change(let object, _):
+                    guard let token = object as? Transaction else { return }
+                    publisher.send(TransactionInstance(transaction: transaction))
+                case .deleted:
+                    publisher.send(completion: .failure(.objectDeleted))
+                case .error(let e):
+                    publisher.send(completion: .failure(.general(error: e)))
+                }
+            }
+        }
+
+        return publisher
+            .handleEvents(receiveCancel: {
+                notificationToken?.invalidate()
+            }).eraseToAnyPublisher()
+    }
+
     public func transactions(forFilter filter: TransactionsFilterStrategy, servers: [RPCServer], oldestBlockNumber: Int? = nil) -> [TransactionInstance] {
         //NOTE: Allow pending transactions othewise it willn't appear as activity
         let isPendingTransction = NSPredicate(format: "blockNumber == 0")
@@ -234,7 +269,12 @@ open class TransactionDataStore {
 
             let transactionsToCommit = transactionsToReturn.map { Transaction(object: $0) }
             try? realm.safeWrite {
-                realm.add(transactionsToCommit, update: .all)
+                for each in transactionsToCommit {
+                    if let tx = realm.object(ofType: Transaction.self, forPrimaryKey: each.primaryKey) {
+                        realm.delete(tx.localizedOperations)
+                    }
+                    realm.add(each, update: .all)
+                }
             }
         }
         return transactionsToReturn
@@ -258,25 +298,19 @@ open class TransactionDataStore {
     @discardableResult public func add(transactions: [TransactionInstance]) -> [TransactionInstance] {
         guard !transactions.isEmpty else { return [] }
 
-        let transactionsToAdd = transactions.map { Transaction(object: $0) }
+        let transactionsToCommit = transactions.map { Transaction(object: $0) }
         store.performSync { realm in
             try? realm.safeWrite {
-                realm.add(transactionsToAdd, update: .all)
+                for each in transactionsToCommit {
+                    if let tx = realm.object(ofType: Transaction.self, forPrimaryKey: each.primaryKey) {
+                        realm.delete(tx.localizedOperations)
+                    }
+                    realm.add(each, update: .all)
+                }
             }
         }
 
         return transactions
-    }
-
-    public func delete(_ transactions: [TransactionInstance]) {
-        guard !transactions.isEmpty else { return }
-
-        store.performSync { realm in
-            try? realm.safeWrite {
-                let transactionsToDelete = transactions.compactMap { realm.object(ofType: Transaction.self, forPrimaryKey: $0.primaryKey) }
-                realm.delete(transactionsToDelete)
-            }
-        }
     }
 
     public func removeTransactions(for states: [TransactionState], servers: [RPCServer]) {
