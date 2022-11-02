@@ -152,7 +152,7 @@ class SendViewControllerTests: XCTestCase {
 
     private func createSendViewControllerAndSetLocale(locale: AppLocale, transactionType: TransactionType) -> SendViewController {
         Config.setLocale(locale)
-        let viewModel = SendViewModel(transactionType: transactionType, session: dep.sessionsProvider.session(for: .main)!, tokensService: dep.pipeline)
+        let viewModel = SendViewModel(transactionType: transactionType, session: dep.sessionsProvider.session(for: .main)!, tokensService: dep.pipeline, importToken: dep.importToken)
         return SendViewController(viewModel: viewModel, domainResolutionService: FakeDomainResolutionService())
     }
 }

@@ -25,14 +25,3 @@ public class SignatureHelper {
         return signatureDecimalString
     }
 }
-
-extension Result {
-    public var error: Failure? {
-        switch self {
-        case let .success:
-            return nil
-        case let .failure(error):
-            return error
-        }
-    }
-}

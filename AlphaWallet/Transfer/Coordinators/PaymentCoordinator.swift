@@ -33,6 +33,8 @@ class PaymentCoordinator: Coordinator {
     private let reachabilityManager: ReachabilityManagerProtocol
     private let domainResolutionService: DomainResolutionServiceType
     private let tokensFilter: TokensFilter
+    private let importToken: ImportToken
+
     let flow: PaymentFlow
     weak var delegate: PaymentCoordinatorDelegate?
     var coordinators: [Coordinator] = []
@@ -50,8 +52,10 @@ class PaymentCoordinator: Coordinator {
             reachabilityManager: ReachabilityManagerProtocol = ReachabilityManager(),
             domainResolutionService: DomainResolutionServiceType,
             tokenSwapper: TokenSwapper,
-            tokensFilter: TokensFilter
+            tokensFilter: TokensFilter,
+            importToken: ImportToken
     ) {
+        self.importToken = importToken
         self.tokensFilter = tokensFilter
         self.tokenSwapper = tokenSwapper
         self.reachabilityManager = reachabilityManager
@@ -78,8 +82,9 @@ class PaymentCoordinator: Coordinator {
             tokensService: tokenCollection,
             assetDefinitionStore: assetDefinitionStore,
             analytics: analytics,
-            domainResolutionService: domainResolutionService
-        )
+            domainResolutionService: domainResolutionService,
+            importToken: importToken)
+
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)

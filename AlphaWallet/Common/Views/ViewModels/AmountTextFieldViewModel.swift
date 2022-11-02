@@ -23,6 +23,11 @@ struct AmountTextFieldViewModelOutput {
 }
 
 final class AmountTextFieldViewModel {
+    static let allowedCharacters: String = {
+        let decimalSeparator = Config.locale.decimalSeparator ?? ""
+        return "0123456789" + decimalSeparator + EtherNumberFormatter.decimalPoint
+    }()
+
     //NOTE: Raw values for eth and fiat values. To prevent recalculation we store entered eth and calculated dollarCostRawValue values and vice versa.
     private (set) var cryptoRawValue: NSDecimalNumber?
     private (set) var fiatRawValue: NSDecimalNumber?
@@ -145,8 +150,7 @@ final class AmountTextFieldViewModel {
                 case .none:
                     return nil
                 }
-            }.removeDuplicates()
-            .eraseToAnyPublisher()
+            }.eraseToAnyPublisher()
 
         let text = Publishers.Merge(cryptoAmountToSend, toggleFiatAndCryptoPair(trigger: input.togglePair))
             .eraseToAnyPublisher()

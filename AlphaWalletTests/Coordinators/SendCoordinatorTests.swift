@@ -15,8 +15,8 @@ class SendCoordinatorTests: XCTestCase {
             tokensService: WalletDataProcessingPipeline.make().pipeline,
             assetDefinitionStore: AssetDefinitionStore(),
             analytics: FakeAnalyticsService(),
-            domainResolutionService: FakeDomainResolutionService()
-        )
+            domainResolutionService: FakeDomainResolutionService(),
+            importToken: FakeImportToken())
 
         coordinator.start()
 
@@ -33,8 +33,8 @@ class SendCoordinatorTests: XCTestCase {
             tokensService: WalletDataProcessingPipeline.make().pipeline,
             assetDefinitionStore: AssetDefinitionStore(),
             analytics: FakeAnalyticsService(),
-            domainResolutionService: FakeDomainResolutionService()
-        )
+            domainResolutionService: FakeDomainResolutionService(),
+            importToken: FakeImportToken())
         coordinator.start()
 
         XCTAssertEqual(address.eip55String, coordinator.sendViewController.targetAddressTextField.value)

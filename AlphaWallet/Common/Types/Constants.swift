@@ -9,13 +9,6 @@ import Foundation
 import AlphaWalletFoundation
 
 extension Constants {
-    enum AmountTextField {
-        static let allowedCharacters: String = {
-            let decimalSeparator = Config.locale.decimalSeparator ?? ""
-            return "0123456789" + decimalSeparator + EtherNumberFormatter.decimalPoint
-        }()
-    }
-
     //Misc
     static let etherReceivedNotificationIdentifier = "etherReceivedNotificationIdentifier"
 

@@ -145,7 +145,8 @@ final class SwapTokensViewModel: NSObject {
             .sink { [configurator] in configurator.set(fromAmount: $0) }
             .store(in: &cancelable)
 
-        input.togglePair.sink { [configurator] _ in configurator.togglePair() }
+        input.togglePair
+            .sink { [configurator] _ in configurator.togglePair() }
             .store(in: &cancelable)
 
         let isContinueButtonEnabled = isContinueButtonEnabled(cryptoValue: input.cryptoValue)
@@ -155,14 +156,17 @@ final class SwapTokensViewModel: NSObject {
             .map { data -> String in
                 guard let data = data else { return "" }
                 return EtherNumberFormatter.shortPlain.string(from: BigInt(data.swapQuote.estimate.toAmount), decimals: data.tokens.to.decimals)
-            }
+            }.eraseToAnyPublisher()
 
         let anyErrorString = configurator.error
             .compactMap { $0?.description }
+            .eraseToAnyPublisher()
 
-        let allFunds = input.allFunds.compactMap { _ in self.allFundsFormattedValues }
+        let allFunds = input.allFunds
+            .compactMap { _ in self.allFundsFormattedValues }
+            .eraseToAnyPublisher()
 
-        return .init(anyErrorString: anyErrorString.eraseToAnyPublisher(), isContinueButtonEnabled: isContinueButtonEnabled, isConfiguratorInUpdatingState: isConfiguratorInUpdatingState, convertedValue: convertedValue.eraseToAnyPublisher(), fromTokenBalance: fromTokenBalance, toTokenBalance: toTokenBalance, tokens: tokens, amountValidation: amountValidation, allFunds: allFunds.eraseToAnyPublisher())
+        return .init(anyErrorString: anyErrorString, isContinueButtonEnabled: isContinueButtonEnabled, isConfiguratorInUpdatingState: isConfiguratorInUpdatingState, convertedValue: convertedValue, fromTokenBalance: fromTokenBalance, toTokenBalance: toTokenBalance, tokens: tokens, amountValidation: amountValidation, allFunds: allFunds)
     }
 
     private func isContinueButtonEnabled(cryptoValue: AnyPublisher<String, Never>) -> AnyPublisher<Bool, Never> {

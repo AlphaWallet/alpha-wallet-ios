@@ -89,8 +89,8 @@ class PaymentCoordinatorTests: XCTestCase {
             tokenCollection: dep.pipeline,
             domainResolutionService: FakeDomainResolutionService(),
             tokenSwapper: FakeTokenSwapper(),
-            tokensFilter: .make()
-        )
+            tokensFilter: .make(),
+            importToken: dep.importToken)
         coordinator.start()
 
         XCTAssertEqual(1, coordinator.coordinators.count)
@@ -113,8 +113,8 @@ class PaymentCoordinatorTests: XCTestCase {
             tokenCollection: dep.pipeline,
             domainResolutionService: FakeDomainResolutionService(),
             tokenSwapper: FakeTokenSwapper(),
-            tokensFilter: .make()
-        )
+            tokensFilter: .make(),
+            importToken: dep.importToken)
 
         coordinator.start()
 
