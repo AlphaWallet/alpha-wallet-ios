@@ -6,8 +6,6 @@
 //
 
 import Foundation
-import APIKit
-import JSONRPCKit
 import PromiseKit
 import AlphaWalletCore
 

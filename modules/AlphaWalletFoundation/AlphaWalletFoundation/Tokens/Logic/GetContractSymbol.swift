@@ -23,9 +23,8 @@ final class GetContractSymbol {
             if let promise = self?.inFlightPromises[key] {
                 return promise
             } else {
-                let functionName = "symbol"
                 let promise = attempt(maximumRetryCount: 2, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {
-                    callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: Web3.Utils.erc20ABI)
+                    callSmartContract(withServer: server, contract: contract, functionName: "symbol", abiString: Web3.Utils.erc20ABI)
                         .map(on: queue, { symbolsResult -> String in
                             guard let symbol = symbolsResult["0"] as? String else {
                                 throw CastError(actualValue: symbolsResult["0"], expectedType: String.self)
