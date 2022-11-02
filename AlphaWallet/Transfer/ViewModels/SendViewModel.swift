@@ -127,7 +127,6 @@ final class SendViewModel {
             .eraseToAnyPublisher()
 
         let recipientErrorState = isRecipientValid(inputsValidationError: inputsValidationError)
-            .print("xxx.recipientErrorState")
             .map { $0 ? TextField.TextFieldErrorState.none : TextField.TextFieldErrorState.error(InputError.invalidAddress.prettyError) }
             .eraseToAnyPublisher()
 
