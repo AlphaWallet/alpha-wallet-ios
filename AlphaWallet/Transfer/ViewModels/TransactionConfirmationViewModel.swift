@@ -22,11 +22,6 @@ struct TransactionConfirmationViewModelOutput {
 }
 
 class TransactionConfirmationViewModel {
-    private lazy var token: AnyPublisher<Token, Never> = {
-        let token = configurator.transaction.transactionType.tokenObject
-        return Just(token)
-            .eraseToAnyPublisher()
-    }()
     private let configurationHasChangedSubject = PassthroughSubject<Void, Never>()
     private let reloadViewSubject = PassthroughSubject<Void, Never>()
     private let recipientResolver: RecipientResolver
@@ -77,9 +72,11 @@ class TransactionConfirmationViewModel {
     }()
 
     private lazy var tokenBalance: AnyPublisher<BalanceViewModel?, Never> = {
+        //NOTE: isn't really correctly to handle this case, need to update it
         let forceTriggerUpdateBalance = configurationHasChangedSubject
-            .flatMap { _ in self.token }
-            .map { [tokensService] token -> TokenViewModel? in
+            .flatMap { [configurator] _ -> AnyPublisher<Token, Never> in
+                return .just(configurator.transaction.transactionType.tokenObject)
+            }.map { [tokensService] token -> TokenViewModel? in
                 switch token.type {
                 case .nativeCryptocurrency:
                     let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: token.server)
@@ -89,15 +86,16 @@ class TransactionConfirmationViewModel {
                 }
             }.map { $0?.balance }
 
-        let tokenBalance = token.flatMap { [tokensService] token -> AnyPublisher<TokenViewModel?, Never> in
-            switch token.type {
-            case .nativeCryptocurrency:
-                let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: token.server)
-                return tokensService.tokenViewModelPublisher(for: etherToken)
-            case .erc20, .erc1155, .erc721, .erc875, .erc721ForTickets:
-                return tokensService.tokenViewModelPublisher(for: token)
-            }
-        }.map { $0?.balance }
+        let tokenBalance = Just(configurator.transaction.transactionType.tokenObject)
+            .flatMap { [tokensService] token -> AnyPublisher<TokenViewModel?, Never> in
+                switch token.type {
+                case .nativeCryptocurrency:
+                    let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: token.server)
+                    return tokensService.tokenViewModelPublisher(for: etherToken)
+                case .erc20, .erc1155, .erc721, .erc875, .erc721ForTickets:
+                    return tokensService.tokenViewModelPublisher(for: token)
+                }
+            }.map { $0?.balance }
 
         return Publishers.Merge(tokenBalance, forceTriggerUpdateBalance)
             .handleEvents(receiveOutput: { [weak self] balance in
