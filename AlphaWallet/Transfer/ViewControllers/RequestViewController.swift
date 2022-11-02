@@ -65,7 +65,7 @@ class RequestViewController: UIViewController {
         NSLayoutConstraint.activate([
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 15),
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -15),
-            stackView.topAnchor.constraint(equalTo: view.topAnchor),
+            stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             stackView.bottomAnchor.constraint(lessThanOrEqualTo: view.safeAreaLayoutGuide.bottomAnchor),
         ])
     }
