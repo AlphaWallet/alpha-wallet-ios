@@ -3,39 +3,33 @@
 import UIKit 
 import StatefulViewController
 import AlphaWalletFoundation
+import Combine
 
 protocol TransactionsViewControllerDelegate: AnyObject {
     func didPressTransaction(transactionRow: TransactionRow, in viewController: TransactionsViewController)
 }
 
 class TransactionsViewController: UIViewController {
-    private var viewModel: TransactionsViewModel
+    private let viewModel: TransactionsViewModel
     private lazy var tableView: UITableView = {
         let tableView = UITableView.grouped
-        tableView.register(TransactionViewCell.self)
+        tableView.register(TransactionTableViewCell.self)
+        tableView.registerHeaderFooterView(TransactionSectionHeaderView.self)
         tableView.delegate = self
-        tableView.dataSource = self
-        tableView.estimatedRowHeight = Metrics.anArbitraryRowHeightSoAutoSizingCellsWorkIniOS10
+        tableView.refreshControl = refreshControl
 
         return tableView
     }()
     private let refreshControl = UIRefreshControl()
-    private let dataCoordinator: TransactionsService
-    private let sessions: ServerDictionary<WalletSession>
+    private lazy var dataSource = makeDataSource()
+    private let willAppear = PassthroughSubject<Void, Never>()
+    private var cancellable = Set<AnyCancellable>()
 
     weak var delegate: TransactionsViewControllerDelegate?
 
-    init(
-        dataCoordinator: TransactionsService,
-        sessions: ServerDictionary<WalletSession>,
-        viewModel: TransactionsViewModel
-    ) {
-        self.dataCoordinator = dataCoordinator
-        self.sessions = sessions
+    init(viewModel: TransactionsViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
-
-        title = R.string.localizable.transactionsTabbarItemTitle()
 
         view.addSubview(tableView)
 
@@ -43,24 +37,6 @@ class TransactionsViewController: UIViewController {
             tableView.anchorsIgnoringBottomSafeArea(to: view),
         ])
 
-        dataCoordinator.start()
-
-        tableView.refreshControl = refreshControl
-        refreshControl.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
-        tableView.addSubview(refreshControl)
-
-        errorView = ErrorView(onRetry: { [weak self] in
-            self?.startLoading()
-            self?.dataCoordinator.fetch()
-        })
-        loadingView = LoadingView()
-        //TODO move into StateViewModel once this change is global
-        if let loadingView = loadingView as? LoadingView {
-            loadingView.backgroundColor = Colors.appGrayLabel
-            loadingView.label.textColor = Colors.appWhite
-            loadingView.loadingIndicator.color = Colors.appWhite
-            loadingView.label.font = Fonts.regular(size: 18)
-        }
         emptyView = EmptyView.transactionsEmptyView()
     }
 
@@ -68,101 +44,79 @@ class TransactionsViewController: UIViewController {
         super.viewDidLoad()
 
         view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
+        bind(viewModel: viewModel)
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        fetch()
+        willAppear.send(())
     }
 
-    @objc func pullToRefresh() {
-        refreshControl.beginRefreshing()
-        fetch()
-    }
+    private func bind(viewModel: TransactionsViewModel) {
+        let input = TransactionsViewModelInput(
+            willAppear: willAppear.eraseToAnyPublisher(),
+            pullToRefresh: refreshControl.publisher(forEvent: .valueChanged).eraseToAnyPublisher())
 
-    func fetch() {
-        startLoading()
-        dataCoordinator.fetch()
-    }
+        let output = viewModel.transform(input: input)
 
-    func configure(viewModel: TransactionsViewModel) {
-        self.viewModel = viewModel
-        
-        self.endLoading()
-        self.reloadTableViewAndEndRefreshing()
+        output.viewState
+            .sink { [weak self, dataSource, navigationItem] viewState in
+                navigationItem.title = viewState.title
+                dataSource.apply(viewState.snapshot, animatingDifferences: viewState.animatingDifferences)
+                self?.endLoading()
+            }.store(in: &cancellable)
+
+        output.pullToRefreshState
+            .sink { [refreshControl] state in
+                switch state {
+                case .endLoading: refreshControl.endRefreshing()
+                case .beginLoading: refreshControl.beginRefreshing()
+                }
+            }.store(in: &cancellable)
     }
 
     required init?(coder aDecoder: NSCoder) {
         return nil
     }
-
-    fileprivate func headerView(for section: Int) -> UIView {
-        let container = UIView()
-        container.backgroundColor = viewModel.headerBackgroundColor
-        let title = UILabel()
-        title.text = viewModel.titleForHeader(in: section)
-        title.sizeToFit()
-        title.textColor = viewModel.headerTitleTextColor
-        title.font = viewModel.headerTitleFont
-        container.addSubview(title)
-        title.translatesAutoresizingMaskIntoConstraints = false
-
-        NSLayoutConstraint.activate([
-            title.anchorsConstraint(to: container, edgeInsets: .init(top: 18, left: 20, bottom: 16, right: 0))
-        ])
-        return container
-    }
 }
 
 extension TransactionsViewController: StatefulViewController {
     func hasContent() -> Bool {
-        return viewModel.numberOfSections > 0
+        return dataSource.snapshot().numberOfItems > 0
     }
 }
 
 extension TransactionsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true )
-        delegate?.didPressTransaction(transactionRow: viewModel.item(for: indexPath.row, section: indexPath.section), in: self)
+        tableView.deselectRow(at: indexPath, animated: true)
+
+        delegate?.didPressTransaction(transactionRow: dataSource.item(at: indexPath), in: self)
     }
 
-    private func reloadTableViewAndEndRefreshing() {
-        tableView.reloadData()
-
-        if refreshControl.isRefreshing {
-            refreshControl.endRefreshing()
-        }
-    }
-}
-
-extension TransactionsViewController: UITableViewDataSource {
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return viewModel.numberOfSections
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let transactionRow = viewModel.item(for: indexPath.row, section: indexPath.section)
-        let cell: TransactionViewCell = tableView.dequeueReusableCell(for: indexPath)
-        let session = sessions[transactionRow.server]
-        let viewModel: TransactionRowCellViewModel = .init(transactionRow: transactionRow, chainState: session.chainState, wallet: session.account, server: transactionRow.server)
-        cell.configure(viewModel: viewModel)
-
-        return cell
-    }
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.numberOfItems(for: section)
-    }
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return headerView(for: section)
-    }
-    func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
+        let headerView: TransactionSectionHeaderView = tableView.dequeueReusableHeaderFooterView()
+        headerView.configure(title: dataSource.snapshot().sectionIdentifiers[section])
+
+        return headerView
     }
 
     //Hide the footer
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         .leastNormalMagnitude
     }
+
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         nil
+    }
+}
+
+extension TransactionsViewController {
+    private func makeDataSource() -> TransactionsViewModel.DataSource {
+        TransactionsViewModel.DataSource(tableView: tableView) { [viewModel] tableView, indexPath, transactionRow -> TransactionTableViewCell in
+            let cell: TransactionTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+            cell.configure(viewModel: viewModel.buildCellViewModel(for: transactionRow))
+
+            return cell
+        }
     }
 }

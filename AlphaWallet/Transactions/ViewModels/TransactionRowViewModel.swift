@@ -12,15 +12,7 @@ struct TransactionRowViewModel {
     private let shortFormatter = EtherNumberFormatter.short
     private let fullFormatter = EtherNumberFormatter.full
 
-    private var server: RPCServer {
-        return transactionRow.server
-    }
-
-    init(
-            transactionRow: TransactionRow,
-            chainState: ChainState,
-            wallet: Wallet
-    ) {
+    init(transactionRow: TransactionRow, chainState: ChainState, wallet: Wallet) {
         self.transactionRow = transactionRow
         self.chainState = chainState
         self.wallet = wallet
@@ -57,21 +49,15 @@ struct TransactionRowViewModel {
         return amountAttributedString(for: fullValue)
     }
 
-    func amountAttributedString(for value: TransactionValue) -> NSAttributedString {
-        let amount = NSAttributedString(
-            string: amountWithSign(for: value.amount),
-            attributes: [
-                .font: Fonts.regular(size: 24) as Any,
-                .foregroundColor: amountTextColor,
-            ]
-        )
+    private func amountAttributedString(for value: TransactionValue) -> NSAttributedString {
+        let amount = NSAttributedString(string: amountWithSign(for: value.amount), attributes: [
+            .font: Fonts.regular(size: 24) as Any,
+            .foregroundColor: amountTextColor,
+        ])
 
-        let currency = NSAttributedString(
-            string: " " + value.symbol,
-            attributes: [
-                .font: Fonts.regular(size: 16) as Any
-            ]
-        )
+        let currency = NSAttributedString(string: " " + value.symbol, attributes: [
+            .font: Fonts.regular(size: 16) as Any
+        ])
 
         return amount + currency
     }
@@ -87,21 +73,14 @@ struct TransactionRowViewModel {
     private func transactionValue(for formatter: EtherNumberFormatter) -> TransactionValue {
         if let operation = transactionRow.operation, let symbol = operation.symbol {
             if operation.operationType == .erc721TokenTransfer || operation.operationType == .erc875TokenTransfer {
-                return TransactionValue(
-                        amount: operation.value,
-                        symbol: symbol
-                )
+                return TransactionValue(amount: operation.value, symbol: symbol)
             } else {
-                return TransactionValue(
-                        amount: formatter.string(from: BigInt(operation.value) ?? BigInt(), decimals: operation.decimals),
-                        symbol: symbol
-                )
+                let amount = formatter.string(from: BigInt(operation.value) ?? BigInt(), decimals: operation.decimals)
+                return TransactionValue(amount: amount, symbol: symbol)
             }
         } else {
-            return TransactionValue(
-                    amount: formatter.string(from: BigInt(transactionRow.value) ?? BigInt()),
-                    symbol: server.symbol
-            )
+            let amount = formatter.string(from: BigInt(transactionRow.value) ?? BigInt())
+            return TransactionValue(amount: amount, symbol: transactionRow.server.symbol)
         }
     }
 }

@@ -32,7 +32,7 @@ public final class TransactionNotificationSourceService: NotificationSourceServi
         let predicate = transactionsPredicate(wallet: wallet)
 
         transactionDataStore
-            .transactionsChangeset(forFilter: .predicate(predicate), servers: config.enabledServers)
+            .transactionsChangeset(filter: .predicate(predicate), servers: config.enabledServers)
             .map { changeset -> ServerDictionary<[TransactionInstance]> in
                 switch changeset {
                 case .initial(let transactions):

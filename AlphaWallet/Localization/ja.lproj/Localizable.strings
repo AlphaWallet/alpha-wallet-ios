@@ -51,6 +51,7 @@
 "Empty" = "空";
 "emptyView.noTokens.label.title" = "まだトークンを受け取っていません!";
 "emptyView.noMessages.label.title" = "There is nothing logged";
+"emptyView.noTransactions.label.title" = "You haven't received any transactions yet!";
 "errorView.description.label.title" = "エラーが発生しました... もう一度試してください。";
 "export.backup.button.title" = "ウォレットをバックアップ";
 "export.controlYourMoney.label.title" = "あなたのお金を制御するのはあなただけなので、このアプリが削除された場合に備え、バックアップ キーストアを保存する必要があります。";

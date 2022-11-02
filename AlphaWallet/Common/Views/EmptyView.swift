@@ -150,7 +150,7 @@ final class FilterTokensHoldersEmptyViewDefaultPlacement: EmptyViewPlacement {
 extension EmptyView {
     static func tokensEmptyView(completion: @escaping () -> Void) -> EmptyView {
         EmptyView()
-            .configure(image: R.image.no_transactions_mascot())
+            .configure(image: R.image.empty_list())
             .configure(title: R.string.localizable.emptyViewNoTokensLabelTitle())
             .configure(buttonTitle: R.string.localizable.refresh(), width: 240, buttonSelectionClosure: completion)
             .configure(spacing: 30)
@@ -168,23 +168,23 @@ extension EmptyView {
 
     static func transactionsEmptyView() -> EmptyView {
         EmptyView()
-            .configure(image: R.image.no_transactions_mascot())
-            .configure(title: R.string.localizable.emptyViewNoTokensLabelTitle())
-            .configure(spacing: 30)
+            .configure(image: R.image.activities_empty_list())
+            .configure(title: R.string.localizable.emptyViewNoTransactionsLabelTitle())
+            .configure(spacing: 24)
             .configure(insets: .zero)
     }
 
     static func consoleEmptyView() -> EmptyView {
         EmptyView()
-            .configure(image: R.image.no_transactions_mascot())
+            .configure(image: R.image.activities_empty_list())
             .configure(title: R.string.localizable.emptyViewNoMessagesLabelTitle())
-            .configure(spacing: 30)
+            .configure(spacing: 24)
             .configure(insets: .zero)
     }
 
     static func tokenscriptOverridesEmptyView() -> EmptyView {
         EmptyView()
-            .configure(image: R.image.iconsIllustrationsSearchResults())
+            .configure(image: R.image.alerts_empty_list())
             .configure(title: R.string.localizable.tokenscriptOverridesEmpty())
             .configure(spacing: 30)
             .configure(insets: .zero)
@@ -199,8 +199,8 @@ extension EmptyView {
     }
 
     static func priceAlertsEmptyView() -> EmptyView {
-        EmptyView(placement: FilterTokensHoldersEmptyViewDefaultPlacement(verticalOffset: -DataEntry.Metric.Tokens.Filter.height))
-            .configure(image: R.image.iconsIllustrationsAlert2())
+        EmptyView()
+            .configure(image: R.image.alerts_empty_list())
             .configure(title: "Alerts will appear here")
             .configure(spacing: 0)
             .configure(insets: .init(top: DataEntry.Metric.Tokens.Filter.height, left: 0, bottom: 0, right: 0))
@@ -208,7 +208,7 @@ extension EmptyView {
 
     static func filterTokensEmptyView(completion: @escaping () -> Void) -> EmptyView {
         EmptyView(placement: FilterTokensEmptyViewDefaultPlacement())
-            .configure(image: R.image.iconsIllustrationsSearchResults())
+            .configure(image: R.image.empty_list())
             .configure(title: R.string.localizable.seachTokenNoresultsTitle())
             .configure(buttonTitle: R.string.localizable.addCustomTokenTitle(), width: 240, buttonSelectionClosure: completion)
             .configure(spacing: 30)
@@ -217,7 +217,7 @@ extension EmptyView {
 
     static func filterTokenHoldersEmptyView() -> EmptyView {
         EmptyView(placement: FilterTokensHoldersEmptyViewDefaultPlacement(verticalOffset: -20))
-            .configure(image: R.image.iconsIllustrationsSearchResults())
+            .configure(image: R.image.empty_list())
             .configure(title: R.string.localizable.seachTokenNoresultsTitle())
             .configure(spacing: 30)
             .configure(insets: .init(top: Style.SearchBar.height, left: 0, bottom: 0, right: 0))
@@ -225,7 +225,7 @@ extension EmptyView {
 
     static func nftAssetsEmptyView() -> EmptyView {
         EmptyView(placement: FilterTokensHoldersEmptyViewDefaultPlacement(verticalOffset: -20))
-            .configure(image: R.image.iconsIllustrationsSearchResults())
+            .configure(image: R.image.empty_list())
             .configure(title: "Nft Assets Not Found")
             .configure(spacing: 30)
     }

@@ -84,7 +84,7 @@ public class ActivitiesService: NSObject, ActivitiesServiceType {
 
     public func start() {
         let transactionsChangeset = transactionDataStore
-            .transactionsChangeset(forFilter: transactionsFilterStrategy, servers: config.enabledServers)
+            .transactionsChangeset(filter: transactionsFilterStrategy, servers: config.enabledServers)
             .mapToVoid()
             .eraseToAnyPublisher()
 

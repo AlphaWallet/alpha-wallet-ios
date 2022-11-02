@@ -60,7 +60,7 @@ class InitialNetworkSelectionView: UIView {
     }()
 
     private let emptyTableView: EmptyTableView = {
-        let view = EmptyTableView(title: R.string.localizable.emptyTableViewSearchTitle(), image: R.image.iconsIllustrationsSearchResults()!, heightAdjustment: 100)
+        let view = EmptyTableView(title: R.string.localizable.emptyTableViewSearchTitle(), image: R.image.empty_list()!, heightAdjustment: 100)
         view.translatesAutoresizingMaskIntoConstraints = false
         view.isHidden = true
         return view

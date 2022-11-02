@@ -36,8 +36,9 @@ final class TokensViewController: UIViewController {
         return emptyTableView.centerYAnchor.constraint(equalTo: tableView.centerYAnchor, constant: 0)
     }()
 
-    private let tableView: UITableView = {
+    private lazy var tableView: UITableView = {
         let tableView = UITableView.grouped
+
         tableView.register(FungibleTokenViewCell.self)
         tableView.register(EthTokenViewCell.self)
         tableView.register(NonFungibleTokenViewCell.self)
@@ -52,6 +53,7 @@ final class TokensViewController: UIViewController {
         tableView.estimatedRowHeight = DataEntry.Metric.TableView.estimatedRowHeight
         tableView.separatorInset = .zero
         tableView.contentInsetAdjustmentBehavior = .never
+        tableView.refreshControl = refreshControl
 
         return tableView
     }()
@@ -181,7 +183,6 @@ final class TokensViewController: UIViewController {
 
         tableView.delegate = self
 
-        tableView.addSubview(refreshControl)
         filterView.addTarget(self, action: #selector(didTapSegment), for: .touchUpInside)
         consoleButton.addTarget(self, action: #selector(openConsole), for: .touchUpInside)
         refreshControl.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)

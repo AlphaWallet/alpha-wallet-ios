@@ -36,8 +36,8 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
 
     private let tokenCollection: TokenCollection
 
-    private var transactionCoordinator: TransactionCoordinator? {
-        return coordinators.compactMap { $0 as? TransactionCoordinator }.first
+    private var transactionCoordinator: TransactionsCoordinator? {
+        return coordinators.compactMap { $0 as? TransactionsCoordinator }.first
     }
     private var tokensCoordinator: TokensCoordinator? {
         return coordinators.compactMap { $0 as? TokensCoordinator }.first
@@ -340,7 +340,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         return coordinator
     }
 
-    private func createTransactionCoordinator(transactionDataStore: TransactionDataStore) -> TransactionCoordinator {
+    private func createTransactionCoordinator(transactionDataStore: TransactionDataStore) -> TransactionsCoordinator {
         let transactionsService = TransactionsService(
             sessions: sessionsProvider.activeSessions,
             transactionDataStore: transactionDataStore,
@@ -348,7 +348,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
             tokensService: tokensService)
 
         transactionsService.delegate = self
-        let coordinator = TransactionCoordinator(
+        let coordinator = TransactionsCoordinator(
                 analytics: analytics,
                 sessions: sessionsProvider.activeSessions,
                 transactionsService: transactionsService,
@@ -653,7 +653,7 @@ extension ActiveWalletCoordinator: CanOpenURL {
     }
 }
 
-extension ActiveWalletCoordinator: TransactionCoordinatorDelegate {
+extension ActiveWalletCoordinator: TransactionsCoordinatorDelegate {
 }
 
 extension ActiveWalletCoordinator: ConsoleCoordinatorDelegate {

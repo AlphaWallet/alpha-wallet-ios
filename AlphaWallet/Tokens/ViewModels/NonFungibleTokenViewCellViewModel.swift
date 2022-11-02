@@ -16,34 +16,6 @@ struct NonFungibleTokenViewCellViewModel {
         self.accessoryType = accessoryType
     }
 
-    var blockChainNameFont: UIFont {
-        return Screen.TokenCard.Font.blockChainName
-    }
-
-    var blockChainNameColor: UIColor {
-        return Screen.TokenCard.Color.blockChainName
-    }
-
-    var blockChainNameBackgroundColor: UIColor {
-        return token.server.blockChainNameColor
-    }
-
-    var blockChainTag: String {
-        return "  \(token.server.name)     "
-    }
-
-    var blockChainNameTextAlignment: NSTextAlignment {
-        return .center
-    }
-
-    var blockChainNameCornerRadius: CGFloat {
-        return Screen.TokenCard.Metric.blockChainTagCornerRadius
-    }
-
-    var blockChainName: String {
-        return token.server.blockChainName
-    }
-
     var backgroundColor: UIColor {
         return Screen.TokenCard.Color.background
     }

@@ -51,6 +51,7 @@
 "Empty" = "Empty";
 "emptyView.noTokens.label.title" = "You haven't received any tokens yet!";
 "emptyView.noMessages.label.title" = "There is nothing logged";
+"emptyView.noTransactions.label.title" = "You haven't received any transactions yet!";
 "errorView.description.label.title" = "Something went wrong... Try again.";
 "export.backup.button.title" = "Backup Wallet";
 "export.controlYourMoney.label.title" = "Since only you control your money, you'll need to save your backup keystore in case this app is deleted.";

@@ -3,18 +3,94 @@
 import Foundation
 import UIKit
 import AlphaWalletFoundation
+import Combine
 
-struct TransactionsViewModel {
+struct TransactionsViewModelInput {
+    let willAppear: AnyPublisher<Void, Never>
+    let pullToRefresh: AnyPublisher<Void, Never>
+}
+
+struct TransactionsViewModelOutput {
+    let viewState: AnyPublisher<TransactionsViewModel.ViewState, Never>
+    let pullToRefreshState: AnyPublisher<TokensViewModel.RefreshControlState, Never>
+}
+
+class TransactionsViewModel {
+    private let transactionsService: TransactionsService
+    private let sessions: ServerDictionary<WalletSession>
+
+    init(transactionsService: TransactionsService, sessions: ServerDictionary<WalletSession>) {
+        self.transactionsService = transactionsService
+        self.sessions = sessions
+    }
+
+    func transform(input: TransactionsViewModelInput) -> TransactionsViewModelOutput {
+        let beginLoading = input.pullToRefresh.map { _ in TokensViewModel.PullToRefreshState.beginLoading }
+        let loadingHasEnded = beginLoading.delay(for: .seconds(2), scheduler: RunLoop.main)
+            .map { _ in TokensViewModel.PullToRefreshState.endLoading }
+
+        let fakePullToRefreshState = Just<TokensViewModel.PullToRefreshState>(TokensViewModel.PullToRefreshState.idle)
+            .merge(with: beginLoading, loadingHasEnded)
+            .compactMap { state -> TokensViewModel.RefreshControlState? in
+                switch state {
+                case .idle: return nil
+                case .endLoading: return .endLoading
+                case .beginLoading: return .beginLoading
+                }
+            }.eraseToAnyPublisher()
+
+        let snapshot = transactionsService
+            .transactionsChangeset
+            .map { TransactionsViewModel.functional.buildSectionViewModels(for: $0) }
+            .receive(on: DispatchQueue.main)
+            .prepend([])
+            .map { TransactionsViewModel.functional.buildSnapshot(for: $0) }
+
+        let viewState = snapshot
+            .map { TransactionsViewModel.ViewState(snapshot: $0) }
+            .eraseToAnyPublisher()
+
+        return .init(viewState: viewState, pullToRefreshState: fakePullToRefreshState)
+    }
+
+    func buildCellViewModel(for transactionRow: TransactionRow) -> TransactionRowCellViewModel {
+        let session = sessions[transactionRow.server]
+        return .init(transactionRow: transactionRow, chainState: session.chainState, wallet: session.account)
+    }
+}
+
+extension TransactionsViewModel {
+    class DataSource: UITableViewDiffableDataSource<TransactionsViewModel.Section, TransactionRow> {}
+    typealias Snapshot = NSDiffableDataSourceSnapshot<TransactionsViewModel.Section, TransactionRow>
+    typealias Section = String
+    class functional {}
+
+    typealias SectionViewModel = (date: String, transactionRows: [TransactionRow])
+
+    struct ViewState {
+        let title: String = R.string.localizable.transactionsTabbarItemTitle()
+        let animatingDifferences: Bool = false
+        let snapshot: Snapshot
+    }
+}
+
+extension TransactionsViewModel.functional {
     private static var formatter: DateFormatter {
         return Date.formatter(with: "dd MMM yyyy")
     }
-    private var items: [(date: String, transactionRows: [TransactionRow])] = []
 
-    init(transactions: [(date: String, transactionRows: [TransactionRow])] = []) {
-        self.items = transactions
+    fileprivate static func buildSnapshot(for viewModels: [TransactionsViewModel.SectionViewModel]) -> TransactionsViewModel.Snapshot {
+        var snapshot = NSDiffableDataSourceSnapshot<TransactionsViewModel.Section, TransactionRow>()
+        let sections = viewModels.map { dateString(for: $0.date) }
+        snapshot.appendSections(sections)
+        for each in viewModels {
+            snapshot.appendItems(each.transactionRows, toSection: dateString(for: each.date))
+        }
+
+        return snapshot
     }
 
-    static func mapTransactions(transactions: [TransactionInstance]) -> [(date: String, transactionRows: [TransactionRow])] {
+    fileprivate static func buildSectionViewModels(for transactions: [TransactionInstance]) -> [TransactionsViewModel.SectionViewModel] {
         //Uses NSMutableArray instead of Swift array for performance. Really slow when dealing with 10k events, which is hardly a big wallet
         var newItems: [String: NSMutableArray] = [:]
         for transaction in transactions {
@@ -26,8 +102,8 @@ struct TransactionsViewModel {
         let tuple = newItems.map { each in
             (date: each.key, transactions: (each.value as? [TransactionInstance] ?? []).sorted { $0.date > $1.date })
         }
-        let collapsedTransactions: [(date: String, transactions: [TransactionInstance])] = tuple.sorted { (object1, object2) -> Bool in
-            guard let d1 = formatter.date(from: object1.date), let d2 = formatter.date(from: object2.date) else {
+        let collapsedTransactions: [(date: String, transactions: [TransactionInstance])] = tuple.sorted { (o1, o2) -> Bool in
+            guard let d1 = formatter.date(from: o1.date), let d2 = formatter.date(from: o2.date) else {
                 return false
             }
             return d1 > d2
@@ -45,48 +121,21 @@ struct TransactionsViewModel {
                     items.append(contentsOf: each.localizedOperations.map { .item(transaction: each, operation: $0) })
                 }
             }
+
             return (date: date, transactionRows: items)
         }
     }
 
-    var backgroundColor: UIColor {
-        return Colors.appWhite
-    }
+    fileprivate static func dateString(for value: String) -> String {
+        guard let date = formatter.date(from: value) else { return .init() }
 
-    var headerBackgroundColor: UIColor {
-        return GroupedTable.Color.background
-    }
-
-    var headerTitleTextColor: UIColor {
-        return GroupedTable.Color.title
-    }
-
-    var headerTitleFont: UIFont {
-        return Fonts.tableHeader
-    }
-
-    var numberOfSections: Int {
-        return items.count
-    }
-
-    func numberOfItems(for section: Int) -> Int {
-        return items[section].transactionRows.count
-    }
-
-    func item(for row: Int, section: Int) -> TransactionRow {
-        return items[section].transactionRows[row]
-    }
-
-    func titleForHeader(in section: Int) -> String {
-        let value = items[section].date
-        guard let date = Self.formatter.date(from: value) else { return .init() }
-        
         if NSCalendar.current.isDateInToday(date) {
             return R.string.localizable.today().localizedUppercase
         }
         if NSCalendar.current.isDateInYesterday(date) {
             return R.string.localizable.yesterday().localizedUppercase
         }
+
         return value.localizedUppercase
     }
 }

@@ -12,6 +12,12 @@ class BlockchainTagLabel: UIView {
     private let label: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .center
+        label.textColor = Screen.TokenCard.Color.blockChainName
+        label.font = Screen.TokenCard.Font.blockChainName
+        label.setContentCompressionResistancePriority(.required, for: .horizontal)
+        label.setContentHuggingPriority(.required, for: .horizontal)
+        
         return label
     }()
     private var heightConstraint: NSLayoutConstraint!
@@ -32,19 +38,21 @@ class BlockchainTagLabel: UIView {
         return nil
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        layer.cornerRadius = Screen.TokenCard.Metric.blockChainTagCornerRadius
+    }
+
     func configure(viewModel: BlockchainTagLabelViewModel) {
-        backgroundColor = viewModel.blockChainNameBackgroundColor
-        layer.cornerRadius = viewModel.blockChainNameCornerRadius
-        isHidden = viewModel.blockChainNameLabelHidden
+        backgroundColor = viewModel.backgroundColor
+        isHidden = viewModel.isHidden
+
         if isHidden {
             NSLayoutConstraint.deactivate([heightConstraint])
         } else {
             NSLayoutConstraint.activate([heightConstraint])
         }
 
-        label.textAlignment = viewModel.blockChainNameTextAlignment
-        label.textColor = viewModel.blockChainNameColor
-        label.font = viewModel.blockChainNameFont
         label.text = viewModel.blockChainTag
     }
 }

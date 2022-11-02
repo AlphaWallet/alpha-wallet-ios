@@ -182,18 +182,3 @@ extension TransactionDetailsViewModel {
         let moreButtonTitle: String
     }
 }
-
-extension TransactionRow: Equatable {
-    public static func == (_ lhs: TransactionRow, _ rhs: TransactionRow) -> Bool {
-        switch (lhs, rhs) {
-        case (.standalone(let t1), .standalone(let t2)):
-            return t1 == t2
-        case (.group(let t1), .group(let t2)):
-            return t1 == t2
-        case (.item(let t1, let op1), .item(let t2, let op2)):
-            return t1 == t2 && op1 == op2
-        default:
-            return false
-        }
-    }
-}
