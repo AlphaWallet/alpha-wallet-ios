@@ -249,7 +249,7 @@ struct Configuration {
             }
 
             static let sendingState = UIColor { trait in
-                return colorFrom(trait: trait, lightColor: R.color.solitude()!, darkColor: R.color.bali()!)
+                return colorFrom(trait: trait, lightColor: R.color.solitude()!, darkColor: R.color.luckyPoint()!)
             }
 
             static let pendingState = UIColor { trait in
