@@ -29,30 +29,30 @@ private struct FakeTickerId: Codable {
 class AddressStorageTests: XCTestCase {
 
     func testInMemoryAddressStorage() throws {
-        return; //NOTE: disable this test as it takes too mutch time for execution
-
-        guard let bundlePath = Bundle(for: AddressStorageTests.self).path(forResource: "tikersForTest", ofType: "json") else { XCTFail(); return }
-        guard let jsonData = try String(contentsOfFile: bundlePath).data(using: .utf8) else { XCTFail(); return }
-
-        self.measure {
-            let storage = InMemoryAddressStorage()
-            register(addressStorage: storage)
-
-            do {
-                _ = try JSONDecoder().decode([FakeTickerId].self, from: jsonData)
-            } catch {
-                XCTFail()
-            }
-
-            let storage2 = InMemoryAddressStorage()
-            register(addressStorage: storage2)
-
-            do {
-                _ = try JSONDecoder().decode([FakeTickerId].self, from: jsonData)
-            } catch {
-                XCTFail()
-            }
-        }
+//        return; //NOTE: disable this test as it takes too mutch time for execution
+//
+//        guard let bundlePath = Bundle(for: AddressStorageTests.self).path(forResource: "tikersForTest", ofType: "json") else { XCTFail() }
+//        guard let jsonData = try String(contentsOfFile: bundlePath).data(using: .utf8) else { XCTFail(); return }
+//
+//        self.measure {
+//            let storage = InMemoryAddressStorage()
+//            register(addressStorage: storage)
+//
+//            do {
+//                _ = try JSONDecoder().decode([FakeTickerId].self, from: jsonData)
+//            } catch {
+//                XCTFail()
+//            }
+//
+//            let storage2 = InMemoryAddressStorage()
+//            register(addressStorage: storage2)
+//
+//            do {
+//                _ = try JSONDecoder().decode([FakeTickerId].self, from: jsonData)
+//            } catch {
+//                XCTFail()
+//            }
+//        }
     }
 
     func testInFileAddressStorage() throws {

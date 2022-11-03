@@ -20,15 +20,15 @@ class CcipRead {
     private let extraData: String
 
     init?(web3: Web3, options: Web3Options, onBlock: String, fromDataString dataString: String?) {
-        if let dataString = dataString, let (urls, sender, callbackSelector, callData, extraData) = Self.extractCcipRead(fromDataString: dataString) {
+        if let dataString = dataString, let ccipRead = Self.extractCcipRead(fromDataString: dataString) {
             self.web3 = web3
             self.options = options
             self.onBlock = onBlock
-            self.urls = urls
-            self.sender = sender
-            self.callbackSelector = callbackSelector
-            self.callData = callData
-            self.extraData = extraData
+            self.urls = ccipRead.urls
+            self.sender = ccipRead.sender
+            self.callbackSelector = ccipRead.callbackSelector
+            self.callData = ccipRead.callData
+            self.extraData = ccipRead.extraData
         } else {
             return nil
         }
@@ -114,15 +114,15 @@ class CcipRead {
     }
 
     //Must not convert `urls` to `[URL]` since URLs can't contain "{sender}" and "{data}"
-    private static func extractCcipRead(fromDataString dataString: String?) -> (urls: [String], sender: EthereumAddress, callbackSelector: String, callData: String, extraData: String)? {
+    private static func extractCcipRead(fromDataString dataString: String?) -> Ccip<EthereumAddress>? {
         guard let dataString = dataString?.addHexPrefix() else { return nil }
         //OffchainLookup(address sender, string[] urls, bytes callData, bytes4 callbackFunction, bytes extraData)
         let hashInterfaceForOffChainLookup = "0x556f1830"
         //count - 2 to exclude "0x"
         if dataString.hasPrefix(hashInterfaceForOffChainLookup), (dataString.count - 2) / 2 % 32 == 4 {
-            let (urls, sender, callbackSelector, callData, extraData) = _extractCcipRead(dataString: dataString)
-            if let sender = EthereumAddress(sender.addHexPrefix(), ignoreChecksum: true) {
-                return (urls, sender, callbackSelector, callData, extraData)
+            let ccipRead = _extractCcipRead(dataString: dataString)
+            if let sender = EthereumAddress(ccipRead.sender.addHexPrefix(), ignoreChecksum: true) {
+                return .init(urls: ccipRead.urls, sender: sender, callbackSelector: ccipRead.callbackSelector, callData: ccipRead.callData, extraData: ccipRead.extraData)
             } else {
                 return nil
             }
@@ -131,7 +131,15 @@ class CcipRead {
         }
     }
 
-    private static func _extractCcipRead(dataString: String) -> (urls: [String], sender: String, callbackSelector: String, callData: String, extraData: String) {
+    private struct Ccip<T> {
+        let urls: [String]
+        let sender: T
+        let callbackSelector: String
+        let callData: String
+        let extraData: String
+    }
+
+    private static func _extractCcipRead(dataString: String) -> Ccip<String> {
         let dataString: String = {
             //8 characters for 4 bytes interface hash and +2 for "0x"
             let result = String(dataString.dropFirst(8 + 2))
@@ -180,7 +188,7 @@ class CcipRead {
 
         let extraData = parseBytes(data: dataString, start: 128*2)
 
-        return (urls.compactMap { $0 }, sender, callbackSelector, callData, extraData)
+        return .init(urls: urls.compactMap { $0 }, sender: sender, callbackSelector: callbackSelector, callData: callData, extraData: extraData)
     }
 
     private static func buildCcipJsonRpcCallbackPayloadHexString(callbackSelector: String, ccipGatewayCallResult ccipGatewayCallResultRaw: String, extraData: String) -> String {

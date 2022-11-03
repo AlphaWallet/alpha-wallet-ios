@@ -283,7 +283,6 @@ final class TokensViewModel {
         }.eraseToAnyPublisher()
     }
 
-
     private var isFooterHidden: Bool {
         !config.enabledServers.contains(.main)
     }
