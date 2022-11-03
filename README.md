@@ -87,6 +87,15 @@ After the Podfile is updated, run `make install_pods` to update the pods in the 
 
 ### Add your token to AlphaWallet
 
+if you want to add your token you can use one of functions of `ImportToken` class. It allows used to import your own `erc` token
+```
+func importToken(token: ERCToken, shouldUpdateBalance: Bool = true) -> Token
+```
+or import token by resolving contract fields `name, symbol, decimals ...` by passing Contract Address and RPCServer.
+```
+func importToken(for contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool = false) -> Promise<Token>
+```
+
 If you’d like to include TokenScript and extend your token functionalities, please refer to [TokenScript](https://github.com/AlphaWallet/TokenScript).
 
 ### Add dApp to the “Discover dApps” section in the browser
@@ -176,7 +185,6 @@ Thank you to all the contributors! You are awesome.
     <td align="center"><a href="http://www.lucastoledo.co"><img src="https://avatars3.githubusercontent.com/u/17125002?v=4" width="100px;" alt=""/><br /><sub><b>Lucas Toledo</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=hellolucas" title="Code">💻</a></td>
   </tr>
   <tr>
-    <td align="center"><a href="https://github.com/vladi8556"><img src="https://avatars0.githubusercontent.com/u/14859488?v=4" width="100px;" alt=""/><br /><sub><b>vladi8556</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=vladi8556" title="Code">💻</a></td>
     <td align="center"><a href="http://vmiroshnikov.com/"><img src="https://avatars3.githubusercontent.com/u/902950?v=4" width="100px;" alt=""/><br /><sub><b>Victor Miroshnikov</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=superduper" title="Code">💻</a></td>
     <td align="center"><a href="https://swolfe.me/"><img src="https://avatars0.githubusercontent.com/u/7443178?v=4" width="100px;" alt=""/><br /><sub><b>Steven Wolfe</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=s32x" title="Code">💻</a></td>
     <td align="center"><a href="https://multisender.app/"><img src="https://avatars0.githubusercontent.com/u/9360827?v=4" width="100px;" alt=""/><br /><sub><b>Roman Storm</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=rstormsf" title="Code">💻</a></td>
