@@ -20,10 +20,13 @@ class AddHideTokensCoordinator: Coordinator {
     private let config: Config
     private let tokenCollection: TokenCollection
     private let tokensFilter: TokensFilter
+    private let wallet: Wallet
+
     var coordinators: [Coordinator] = []
     weak var delegate: AddHideTokensCoordinatorDelegate?
 
-    init(tokensFilter: TokensFilter, tokenCollection: TokenCollection, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, navigationController: UINavigationController, config: Config, importToken: ImportToken) {
+    init(tokensFilter: TokensFilter, wallet: Wallet, tokenCollection: TokenCollection, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, navigationController: UINavigationController, config: Config, importToken: ImportToken) {
+        self.wallet = wallet
         self.config = config
         self.tokenCollection = tokenCollection
         self.analytics = analytics
@@ -63,6 +66,7 @@ extension AddHideTokensCoordinator: AddHideTokensViewControllerDelegate {
         }
         let coordinator = NewTokenCoordinator(
             analytics: analytics,
+            wallet: wallet,
             navigationController: navigationController,
             config: config,
             importToken: importToken,

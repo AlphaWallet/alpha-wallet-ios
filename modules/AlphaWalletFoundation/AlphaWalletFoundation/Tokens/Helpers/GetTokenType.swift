@@ -42,6 +42,7 @@ final class GetTokenType {
         })
     }
 
+    /// `getTokenType` doesn't return .nativeCryptoCurrency type, fallback to erc20. Maybe need to throw an error?
     private func getTokenType(for address: AlphaWallet.Address, completion: @escaping (TokenType) -> Void) {
         enum Erc721Type {
             case erc721

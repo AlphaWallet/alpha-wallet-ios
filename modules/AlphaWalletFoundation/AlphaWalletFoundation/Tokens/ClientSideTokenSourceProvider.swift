@@ -11,7 +11,8 @@ import Combine
 public class ClientSideTokenSourceProvider: TokenSourceProvider {
     private lazy var tokensAutodetector: TokensAutodetector = {
         let detectedContractsProvider = DetectedContractsProvider(tokensDataStore: tokensDataStore)
-        let autodetector = SingleChainTokensAutodetector(session: session, detectedTokens: detectedContractsProvider, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, importToken: importToken)
+        let contractToImportStorage = ContractToImportFileStorage(server: session.server)
+        let autodetector = SingleChainTokensAutodetector(session: session, contractToImportStorage: contractToImportStorage, detectedTokens: detectedContractsProvider, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, importToken: importToken)
         return autodetector
     }()
 

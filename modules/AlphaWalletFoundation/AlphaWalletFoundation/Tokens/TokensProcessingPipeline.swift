@@ -143,19 +143,11 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
         tokensService.token(for: contract, server: server)
     }
 
-    public func addCustom(tokens: [ErcToken], shouldUpdateBalance: Bool) -> [Token] {
-        tokensService.addCustom(tokens: tokens, shouldUpdateBalance: shouldUpdateBalance)
-    }
-
-    public func add(tokenUpdates updates: [TokenUpdate]) {
-        tokensService.add(tokenUpdates: updates)
-    }
-
     public func addOrUpdate(tokensOrContracts: [TokenOrContract]) -> [Token] {
         tokensService.addOrUpdate(tokensOrContracts: tokensOrContracts)
     }
 
-    public func addOrUpdate(with actions: [AddOrUpdateTokenAction]) -> Bool? {
+    public func addOrUpdate(with actions: [AddOrUpdateTokenAction]) -> [Token] {
         tokensService.addOrUpdate(with: actions)
     }
 

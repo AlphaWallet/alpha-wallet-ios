@@ -258,7 +258,6 @@ extension TokensCoordinator: TokensViewControllerDelegate {
 
     private func didPressRenameThisWallet() {
         let viewModel = RenameWalletViewModel(account: wallet.address, analytics: analytics, domainResolutionService: domainResolutionService)
-
         let viewController = RenameWalletViewController(viewModel: viewModel)
         viewController.delegate = self
         viewController.navigationItem.largeTitleDisplayMode = .never
@@ -270,6 +269,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     private func didPressAddHideTokens() {
         let coordinator: AddHideTokensCoordinator = .init(
             tokensFilter: tokensFilter,
+            wallet: wallet,
             tokenCollection: tokenCollection,
             analytics: analytics,
             domainResolutionService: domainResolutionService,
@@ -347,6 +347,7 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
     private func handleAddCustomToken(_ address: AlphaWallet.Address) {
         let coordinator = NewTokenCoordinator(
             analytics: analytics,
+            wallet: wallet,
             navigationController: navigationController,
             config: config,
             importToken: importToken,

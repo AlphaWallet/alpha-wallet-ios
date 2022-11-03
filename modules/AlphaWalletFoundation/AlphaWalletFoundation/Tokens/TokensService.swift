@@ -18,10 +18,8 @@ public protocol TokenProvidable {
 }
 
 public protocol TokenAddable {
-    func add(tokenUpdates updates: [TokenUpdate])
-    @discardableResult func addCustom(tokens: [ErcToken], shouldUpdateBalance: Bool) -> [Token]
     @discardableResult func addOrUpdate(tokensOrContracts: [TokenOrContract]) -> [Token]
-    @discardableResult func addOrUpdate(with actions: [AddOrUpdateTokenAction]) -> Bool?
+    @discardableResult func addOrUpdate(with actions: [AddOrUpdateTokenAction]) -> [Token]
 }
 
 public protocol TokenAutoDetectable {

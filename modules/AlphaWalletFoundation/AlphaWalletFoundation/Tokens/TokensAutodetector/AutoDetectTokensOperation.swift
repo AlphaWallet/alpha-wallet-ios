@@ -12,11 +12,11 @@ protocol AutoDetectTokensOperationDelegate: class {
     var isAutoDetectingTokens: Bool { get set }
 
     func didDetect(tokensOrContracts: [TokenOrContract])
-    func autoDetectTokensImpl(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)], server: RPCServer) -> Promise<[TokenOrContract]>
+    func autoDetectTokensImpl(withContracts contractsToDetect: [ContractToImport]) -> Promise<[TokenOrContract]>
 }
 
 final class AutoDetectTokensOperation: Operation {
-    private let tokens: [(name: String, contract: AlphaWallet.Address)]
+    private let tokens: [ContractToImport]
 
     weak private var delegate: AutoDetectTokensOperationDelegate?
     override var isExecuting: Bool {
@@ -30,7 +30,7 @@ final class AutoDetectTokensOperation: Operation {
     }
     private let session: WalletSession
 
-    init(session: WalletSession, delegate: AutoDetectTokensOperationDelegate, tokens: [(name: String, contract: AlphaWallet.Address)]) {
+    init(session: WalletSession, delegate: AutoDetectTokensOperationDelegate, tokens: [ContractToImport]) {
         self.delegate = delegate
         self.session = session
         self.tokens = tokens
@@ -41,7 +41,7 @@ final class AutoDetectTokensOperation: Operation {
     override func main() {
         guard let strongDelegate = delegate else { return }
 
-        strongDelegate.autoDetectTokensImpl(withContracts: tokens, server: session.server).done { [weak self] values in
+        strongDelegate.autoDetectTokensImpl(withContracts: tokens).done { [weak self] values in
             guard let strongSelf = self else { return }
 
             strongSelf.willChangeValue(forKey: "isExecuting")

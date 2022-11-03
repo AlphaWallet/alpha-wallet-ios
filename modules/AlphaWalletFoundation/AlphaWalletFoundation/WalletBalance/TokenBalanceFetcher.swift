@@ -283,7 +283,8 @@ extension TokenBalanceFetcher: NonFungibleErc1155JsonBalanceFetcherDelegate {
         firstly {
             .value(tokensToAdd)
         }.map(on: queue, { [tokensService] tokensToAdd in
-            tokensService.addCustom(tokens: tokensToAdd, shouldUpdateBalance: false)
+            let actions = tokensToAdd.map { AddOrUpdateTokenAction.add(ercToken: $0, shouldUpdateBalance: $0.type.shouldUpdateBalanceWhenDetected) }
+            tokensService.addOrUpdate(with: actions)
             return ()
         })
     }

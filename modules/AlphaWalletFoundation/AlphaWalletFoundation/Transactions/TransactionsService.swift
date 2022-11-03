@@ -139,8 +139,10 @@ public class TransactionsService {
 
 extension TransactionsService: TokensFromTransactionsFetcherDelegate {
 
-    public func didExtractTokens(in fetcher: TokensFromTransactionsFetcher, contractsAndServers: [AddressAndRPCServer], tokenUpdates: [TokenUpdate]) {
-        tokensService.add(tokenUpdates: tokenUpdates)
+    public func didExtractTokens(in fetcher: TokensFromTransactionsFetcher, contractsAndServers: [AddressAndRPCServer], ercTokens: [ErcToken]) {
+        let actions = ercTokens.map { AddOrUpdateTokenAction.add(ercToken: $0, shouldUpdateBalance: true) }
+        tokensService.addOrUpdate(with: actions)
+
         delegate?.didExtractNewContracts(in: self, contractsAndServers: contractsAndServers)
     }
 }

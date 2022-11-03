@@ -1,0 +1,432 @@
+[
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359"
+    },
+    "name": "DAI",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0x056Fd409E1d7A124BD7017459dFEa2F387b6d5Cd"
+    },
+    "name": "GUSD",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0x8E870D67F660D95d5be530380D0eC0bd388289E1"
+    },
+    "name": "PAX",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0x8dd5fbCe2F6a956C3022bA3663759011Dd51e73E"
+    },
+    "name": "TUSD",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+    },
+    "name": "USDC",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0x98F2ab72198f2e64527bdb28931F60c0F77Ac2FC"
+    },
+    "name": "USDO",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0xA66A3F08068174e8F005112A8b2c7A507a822335"
+    },
+    "name": "SHANKAI",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0x5993233d88B4424D9c12e468A39736D5948c2835"
+    },
+    "name": "fETH",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0x3CE92b88DEAec1037335E614Eb6409C95edcAC76"
+    },
+    "name": "fHBTC",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0x93B9B852FcD2f964Faa7E50EC1374e016260718c"
+    },
+    "name": "fWBTC",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0x51da0A7340874674C488b67200D007E422667650"
+    },
+    "name": "fUSDT",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0xfDD543Ed2701dEB2a172Df4876E60918E28Ba217"
+    },
+    "name": "fUSDC",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0x556be90ea81e8abceEc2737cf6AE0a6cfEe58b40"
+    },
+    "name": "fBUSD",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0x52d61a0AA88170b6EbDEA25Be1561E5665e6481B"
+    },
+    "name": "fHUSD",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0xfF5cDA31926CA2Ed79533D6B95Fc6ADbDE0f1015"
+    },
+    "name": "fDAI",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0x84ff569ee2E8b9A2C22E79af431fD248fb41D87b"
+    },
+    "name": "fFOR",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0x92563b3b8c92B22e37aC956a2B19c40988D25933"
+    },
+    "name": "fBNB",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0x39527B067B04D43c627FB741848ef2c3f8ead3FE"
+    },
+    "name": "fHT",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0x4316AAa55ab3BD3a7ee3fbC83580521801210225"
+    },
+    "name": "fOKB",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0x66142B3c234C054bA91374732C10cEA0f72390fE"
+    },
+    "name": "fyUSD",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0x161190d29cC015EaEFD6c4ad0AA7519B6b75b9c0"
+    },
+    "name": "fQC",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0xd136b32330E539aa9411c4e8968eB26b35c5917B"
+    },
+    "name": "fyWETH",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0x4Ffc92ddD9439c93fc79dD5560e06026A445037D"
+    },
+    "name": "fYFII",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0xbd3df917A7E69fBa3e1d912577Be7eCC01bE1d12"
+    },
+    "name": "fNEST",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0x0486B8d96789C6938361Ab776D6b27b6FC03C471"
+    },
+    "name": "fARPA",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0x8a06bbA4219C3f1Ca705318f5848E62f3beF33d0"
+    },
+    "name": "fYFI",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0x9FC5d71FC9b14630a2f198F188450D26Fa5788f7"
+    },
+    "name": "fMKR",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0x29B22BeFe0F5362986152a5430d03B446b8e27fB"
+    },
+    "name": "fLINK",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0xDb694CB2B58F66C5E79fF272dF37ECb46Dc31ADD"
+    },
+    "name": "fUNI",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0x6c2e2cEc8De4A6a071065D4BD5c496636570fDC2"
+    },
+    "name": "fLRC",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0x45b4E177B17e2d50dB6D547015A6f9723FF9c1a0"
+    },
+    "name": "fLEND",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0x8B2ef6d7d4Cc334D003398007722FdF8ca3f5E55"
+    },
+    "name": "fSNX",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": false,
+    "contract": {
+      "ethereumAddress": "0x89D142Bef8605646881C68dcD48cDAF17FE597dC"
+    },
+    "name": "uefa",
+    "server": {
+      "chainId": 1
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0x6A814843dE5967cf94D7720cE15cba8b0dA81967"
+    },
+    "name": "DEN",
+    "server": {
+      "chainId": 100
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0x94819805310cF736198DF0De856b0ff5584f0903"
+    },
+    "name": "BURN",
+    "server": {
+      "chainId": 100
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0xDec31651Bec1fBbFF392aa7DE956d6EE4559498b"
+    },
+    "name": "BURN",
+    "server": {
+      "chainId": 100
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0xA95D505E6933cB790ED3431805871EfE4E6BbafD"
+    },
+    "name": "BURN",
+    "server": {
+      "chainId": 100
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0xBDc3DF563a3959A373916b724c683d69BA4097f7"
+    },
+    "name": "DEN",
+    "server": {
+      "chainId": 100
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0x6e251Ee9cadF0145baBFd3b64664A9D7F941Fcc3"
+    },
+    "name": "DEN",
+    "server": {
+      "chainId": 100
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0x3E50BF6703Fc132A94E4BAfF068db2055655f11B"
+    },
+    "name": "BUFF",
+    "server": {
+      "chainId": 100
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0xa16b70E8fAd839E62aBBa2d962E4ca5a28aF9e76"
+    },
+    "name": "ETHD2019",
+    "server": {
+      "chainId": 100
+    }
+  },
+  {
+    "onlyIfThereIsABalance": false,
+    "contract": {
+      "ethereumAddress": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb"
+    },
+    "name": "GNO",
+    "server": {
+      "chainId": 100
+    }
+  },
+  {
+    "onlyIfThereIsABalance": true,
+    "contract": {
+      "ethereumAddress": "0x75cB2Cc380d1387a79eE64b1b7C9Fa051139a319"
+    },
+    "name": "HKS",
+    "server": {
+      "chainId": 4
+    }
+  }
+]

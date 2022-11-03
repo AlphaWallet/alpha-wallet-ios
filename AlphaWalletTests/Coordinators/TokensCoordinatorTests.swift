@@ -47,14 +47,14 @@ class TokensCoordinatorTests: XCTestCase {
 final class FakeImportToken: ImportToken {
     convenience init() {
         let analytics = FakeAnalyticsService()
-        self.init(sessionProvider: FakeSessionsProvider(servers: [.main]), wallet: .make(), tokensDataStore: FakeTokensDataStore(), assetDefinitionStore: .init(), analytics: analytics)
+        self.init(sessionProvider: FakeSessionsProvider(servers: [.main]), tokensDataStore: FakeTokensDataStore(), assetDefinitionStore: .init(), analytics: analytics)
     }
         //Adding a token may fail if we lose connectivity while fetching the contract details (e.g. name and balance). So we remove the contract from the hidden list (if it was there) so that the app has the chance to add it automatically upon auto detection at startup
     override func importToken(for contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool = false) -> Promise<Token> {
         return .init(error: PMKError.badInput)
     }
 
-    override func importToken(token: ErcToken, shouldUpdateBalance: Bool = true) -> Token {
+    override func importToken(ercToken token: ErcToken, shouldUpdateBalance: Bool = true) -> Token {
         return Token()
     }
 
