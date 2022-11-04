@@ -47,6 +47,7 @@
 "Copy" = "Copiar";
 "Empty" = "Vacío";
 "emptyView.noTokens.label.title" = "¡Todavía no has recibido ningún token!";
+"emptyView.noMessages.label.title" = "There is nothing logged";
 "errorView.description.label.title" = "Ha habido un problema... Inténtalo de nuevo.";
 "export.backup.button.title" = "Copia de seguridad del monedero";
 "export.controlYourMoney.label.title" = "Como solo tú controlas tu dinero, tendrás que guardar la copia de seguridad del almacén de claves por si se elimina esta aplicación.";

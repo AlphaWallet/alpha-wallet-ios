@@ -223,7 +223,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         startPromptBackup()
 
         fetchXMLAssetDefinitions()
-        listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles + assetDefinitionStore.conflictingTokenScriptFileNames.all)
 
         RestartQueueHandler(config: config).processRestartQueueAfterRestart(provider: self, restartQueue: restartQueue)
 
@@ -517,10 +516,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         } else {
             return navigationController
         }
-    }
-
-    func listOfBadTokenScriptFilesChanged(fileNames: [TokenScriptFileIndices.FileName]) {
-        tokensCoordinator?.listOfBadTokenScriptFilesChanged(fileNames: fileNames)
     }
 
     func openWalletConnectSession(url: AlphaWallet.WalletConnect.ConnectionUrl) {

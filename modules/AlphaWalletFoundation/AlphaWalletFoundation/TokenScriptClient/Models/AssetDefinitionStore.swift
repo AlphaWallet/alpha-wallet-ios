@@ -4,9 +4,6 @@ import Alamofire
 import Combine
 import PromiseKit
 
-public protocol AssetDefinitionStoreDelegate: AnyObject {
-    func listOfBadTokenScriptFilesChanged(in: AssetDefinitionStore)
-}
 public typealias XMLFile = String
 public protocol BaseTokenScriptFilesProvider {
     func containsTokenScriptFile(for file: XMLFile) -> Bool
@@ -54,11 +51,12 @@ public class AssetDefinitionStore: NSObject {
     private let baseXmlHandlers: AtomicDictionary<String, PrivateXMLHandler> = .init()
     private var signatureChangeSubject: PassthroughSubject<AlphaWallet.Address, Never> = .init()
     private var bodyChangeSubject: PassthroughSubject<AlphaWallet.Address, Never> = .init()
+    private var listOfBadTokenScriptFilesSubject: CurrentValueSubject<[TokenScriptFileIndices.FileName], Never> = .init([])
 
-    public weak var delegate: AssetDefinitionStoreDelegate?
-    public var listOfBadTokenScriptFiles: [TokenScriptFileIndices.FileName] {
-        return backingStore.badTokenScriptFileNames
+    public var listOfBadTokenScriptFiles: AnyPublisher<[TokenScriptFileIndices.FileName], Never> {
+        listOfBadTokenScriptFilesSubject.eraseToAnyPublisher()
     }
+
     public var conflictingTokenScriptFileNames: (official: [TokenScriptFileIndices.FileName], overrides: [TokenScriptFileIndices.FileName], all: [TokenScriptFileIndices.FileName]) {
         return backingStore.conflictingTokenScriptFileNames
     }
@@ -141,6 +139,8 @@ public class AssetDefinitionStore: NSObject {
         self._baseTokenScriptFiles.set(value: baseTokenScriptFiles)
         super.init()
         self.backingStore.delegate = self
+
+        listOfBadTokenScriptFilesSubject.value = backingStore.badTokenScriptFileNames + backingStore.conflictingTokenScriptFileNames.all
     }
 
     func getXmlHandler(for key: AlphaWallet.Address) -> PrivateXMLHandler? {
@@ -365,8 +365,8 @@ extension AssetDefinitionStore: AssetDefinitionBackingStoreDelegate {
 
     public func badTokenScriptFilesChanged(in: AssetDefinitionBackingStore) {
         //Careful to not fire immediately because even though we are on the main thread; while we are modifying the indices, we can't read from it or there'll be a crash
-        DispatchQueue.main.async {
-            self.delegate?.listOfBadTokenScriptFilesChanged(in: self)
+        DispatchQueue.main.async { [backingStore, listOfBadTokenScriptFilesSubject] in
+            listOfBadTokenScriptFilesSubject.value = backingStore.badTokenScriptFileNames + backingStore.conflictingTokenScriptFileNames.all
         }
     }
 }

@@ -2,54 +2,89 @@
 
 import Foundation
 import UIKit
+import AlphaWalletFoundation
+import Combine
+import StatefulViewController
 
 protocol ConsoleViewControllerDelegate: AnyObject {
     func didClose(in viewController: ConsoleViewController)
 }
 
-//TODO reload when the list of files (and hence list of messages change)
 class ConsoleViewController: UIViewController {
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.register(UITableViewCell.self)
-        tableView.delegate = self
-        tableView.dataSource = self
         tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = GroupedTable.Color.background
+        tableView.backgroundColor = Configuration.Color.Semantic.tableViewBackground
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
+        tableView.delegate = self
 
         return tableView
     }()
-    private let roundedBackground = RoundedBackground()
-    private var messages = [String]()
+    private let viewModel: ConsoleViewModel
+    private var cancelable = Set<AnyCancellable>()
+    private lazy var dataSource: ConsoleViewModel.DataSource = makeDataSource()
+    private let appear = PassthroughSubject<Void, Never>()
+
     weak var delegate: ConsoleViewControllerDelegate?
 
-    init() {
+    init(viewModel: ConsoleViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
-        title = R.string.localizable.aConsoleTitle()
-
-        roundedBackground.backgroundColor = GroupedTable.Color.background
-
-        view.addSubview(roundedBackground)
-        roundedBackground.addSubview(tableView)
-
+        view.backgroundColor = Configuration.Color.Semantic.tableViewBackground
+        view.addSubview(tableView)
         NSLayoutConstraint.activate([
-            tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
-            tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-        ] + roundedBackground.createConstraintsWithContainer(view: view))
+            tableView.anchorsConstraint(to: view)
+        ])
+        
+        emptyView = EmptyView.consoleEmptyView()
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        bind(viewModel: viewModel)
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        appear.send(())
     }
 
     required init?(coder aDecoder: NSCoder) {
         return nil
     }
 
-    func configure(messages: [String]) {
-        self.messages = messages
-        tableView.reloadData()
+    private func bind(viewModel: ConsoleViewModel) {
+        let input = ConsoleViewModelInput(appear: appear.eraseToAnyPublisher())
+        let output = viewModel.transform(input: input)
+
+        output.viewState
+            .sink { [dataSource, navigationItem, weak self] viewState in
+                navigationItem.title = viewState.title
+                dataSource.apply(viewState.snapshot, animatingDifferences: viewState.animatingDifferences)
+                self?.endLoading(animated: false)
+            }.store(in: &cancelable)
+    }
+}
+
+extension ConsoleViewController: StatefulViewController {
+    func hasContent() -> Bool {
+        return dataSource.snapshot().numberOfItems > 0
+    }
+}
+
+fileprivate extension ConsoleViewController {
+    func makeDataSource() -> ConsoleViewModel.DataSource {
+        return ConsoleViewModel.DataSource(tableView: tableView, cellProvider: { tableView, indexPath, message in
+            let cell: UITableViewCell = tableView.dequeueReusableCell(for: indexPath)
+            cell.textLabel?.numberOfLines = 0
+            cell.textLabel?.text = message
+
+            return cell
+        })
     }
 }
 
@@ -60,12 +95,6 @@ extension ConsoleViewController: PopNotifiable {
 }
 
 extension ConsoleViewController: UITableViewDelegate {
-    public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-    }
-}
-
-extension ConsoleViewController: UITableViewDataSource {
     //Hide the header
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         .leastNormalMagnitude
@@ -80,15 +109,5 @@ extension ConsoleViewController: UITableViewDataSource {
     }
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         nil
-    }
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell: UITableViewCell = tableView.dequeueReusableCell(for: indexPath)
-        cell.textLabel?.numberOfLines = 0
-        cell.textLabel?.text = messages[indexPath.row]
-        return cell
-    }
-
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return messages.count
     }
 }

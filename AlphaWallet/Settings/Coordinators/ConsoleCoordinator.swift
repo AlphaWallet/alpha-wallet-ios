@@ -11,21 +11,16 @@ protocol ConsoleCoordinatorDelegate: AnyObject {
 class ConsoleCoordinator: Coordinator {
     private let assetDefinitionStore: AssetDefinitionStore
     private let navigationController: UINavigationController
+    private lazy var rootViewController: ConsoleViewController = {
+        let viewModel = ConsoleViewModel(assetDefinitionStore: assetDefinitionStore)
+        let viewController = ConsoleViewController(viewModel: viewModel)
+        viewController.delegate = self
+
+        return viewController
+    }()
+
     var coordinators: [Coordinator] = []
     weak var delegate: ConsoleCoordinatorDelegate?
-
-    private lazy var consoleViewController: ConsoleViewController = {
-        let vc = ConsoleViewController()
-        vc.hidesBottomBarWhenPushed = true
-        //TODO console just show the list of files at the moment
-        let bad = assetDefinitionStore.listOfBadTokenScriptFiles.map { "\($0) is invalid" }
-        let conflictsInOfficialSource = assetDefinitionStore.conflictingTokenScriptFileNames.official.map { "[Repo] \($0) has a conflict" }
-        let conflictsInOverrides = assetDefinitionStore.conflictingTokenScriptFileNames.overrides.map { "[Overrides] \($0) has a conflict" }
-        let conflicts = conflictsInOfficialSource + conflictsInOverrides
-        vc.configure(messages: bad + conflicts)
-        vc.delegate = self
-        return vc
-    }()
 
     init(assetDefinitionStore: AssetDefinitionStore, navigationController: UINavigationController) {
         self.assetDefinitionStore = assetDefinitionStore
@@ -33,12 +28,10 @@ class ConsoleCoordinator: Coordinator {
     }
 
     func start() {
-        consoleViewController.navigationItem.largeTitleDisplayMode = .never
-        navigationController.pushViewController(consoleViewController, animated: true)
-    }
-
-    @objc private func dismissConsole(_ sender: UIBarButtonItem) {
-        didClose(in: consoleViewController)
+        rootViewController.hidesBottomBarWhenPushed = true
+        rootViewController.navigationItem.largeTitleDisplayMode = .never
+        
+        navigationController.pushViewController(rootViewController, animated: true)
     }
 }
 
