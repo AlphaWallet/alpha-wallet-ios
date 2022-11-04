@@ -15,7 +15,7 @@ class TokensDataStoreTest: XCTestCase {
     )
 
     override func setUp() {
-        storage.addOrUpdate(tokensOrContracts: [.token(token)])
+        storage.addOrUpdate(with: [.init(token)])
     }
 
     //We make a call to update token in datastore to store the updated balance after an async call to fetch the balance over the web. Token in the datastore might have been deleted when the web call is completed. Make sure this doesn't crash

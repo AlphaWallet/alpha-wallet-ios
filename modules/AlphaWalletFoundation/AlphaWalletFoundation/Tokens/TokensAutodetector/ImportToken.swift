@@ -10,7 +10,7 @@ import PromiseKit
 import Combine
 
 public protocol TokenImportable {
-    func importToken(token: ERCToken, shouldUpdateBalance: Bool) -> Token
+    func importToken(token: ErcToken, shouldUpdateBalance: Bool) -> Token
     func importToken(for contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool) -> Promise<Token>
 }
 
@@ -24,8 +24,9 @@ public protocol ContractDataFetchable {
 open class ImportToken: TokenImportable, ContractDataFetchable {
     enum ImportTokenError: Error {
         case serverIsDisabled
-        case nothingToImport
-        case others
+        case zeroBalanceDetected
+        case `internal`(error: Error)
+        case notContractOrFailed(TokenOrContract)
     }
 
     private let defaultTokens: [(AlphaWallet.Address, RPCServer)] = [
@@ -39,6 +40,7 @@ open class ImportToken: TokenImportable, ContractDataFetchable {
     private var cancelable = Set<AnyCancellable>()
     private let queue = DispatchQueue(label: "org.alphawallet.swift.importToken")
     private var inFlightPromises: [String: Promise<TokenOrContract>] = [:]
+    private let reachability = ReachabilityManager()
 
     public let wallet: Wallet
 
@@ -72,10 +74,12 @@ open class ImportToken: TokenImportable, ContractDataFetchable {
                             case .serverIsDisabled:
                                 //no-op. Since we didn't check if chain is enabled, we just let it be. But if there are other enum-cases, we don't want to eat the errors, we should re-throw those
                                 break
-                            case .nothingToImport:
+                            case .zeroBalanceDetected:
                                 //no-op. We don't import it, possibly because balance is 0
                                 break
-                            case .others:
+                            case .notContractOrFailed:
+                                throw error
+                            case .internal(let error):
                                 throw error
                             }
                         } else {
@@ -93,16 +97,11 @@ open class ImportToken: TokenImportable, ContractDataFetchable {
         } else {
             return firstly {
                 fetchTokenOrContract(for: contract, server: server, onlyIfThereIsABalance: onlyIfThereIsABalance)
-            }.map { [tokensDataStore] operation -> Token in
-                switch operation {
-                case .none:
-                    throw ImportTokenError.nothingToImport
-                case .nonFungibleToken, .token, .delegateContracts, .deletedContracts, .fungibleTokenComplete:
-                    if let token = tokensDataStore.addOrUpdate(tokensOrContracts: [operation]).first {
-                        return token
-                    } else {
-                        throw ImportTokenError.others
-                    }
+            }.map { [tokensDataStore] tokenOrContract -> Token in
+                if let token = tokensDataStore.addOrUpdate(tokensOrContracts: [tokenOrContract]).first {
+                    return token
+                } else {
+                    throw ImportTokenError.notContractOrFailed(tokenOrContract)
                 }
             }
         }
@@ -123,12 +122,10 @@ open class ImportToken: TokenImportable, ContractDataFetchable {
                         return session.tokenProvider.getErc875Balance(for: contract)
                             .then(on: queue, { balance -> Promise<TokenOrContract> in
                                 if balance.isEmpty {
-                                    return .value(.none)
+                                    return .init(error: ImportTokenError.zeroBalanceDetected)
                                 } else {
                                     return self.fetchTokenOrContract(for: contract, server: server, onlyIfThereIsABalance: false)
                                 }
-                            }).recover(on: queue, { _ -> Guarantee<TokenOrContract> in
-                                return .value(.none)
                             })
                     case .erc20:
                         return session.tokenProvider.getErc20Balance(for: contract)
@@ -136,39 +133,36 @@ open class ImportToken: TokenImportable, ContractDataFetchable {
                                 if balance > 0 {
                                     return self.fetchTokenOrContract(for: contract, server: server, onlyIfThereIsABalance: false)
                                 } else {
-                                    return .value(.none)
+                                    return .init(error: ImportTokenError.zeroBalanceDetected)
                                 }
-                            }).recover(on: queue, { _ -> Guarantee<TokenOrContract> in
-                                return .value(.none)
                             })
                     case .erc721, .erc721ForTickets, .erc1155, .nativeCryptocurrency:
                         //Handled in TokenBalanceFetcher.refreshBalanceForErc721Or1155Tokens()
-                        return .value(.none)
+                        return .init(error: ImportTokenError.zeroBalanceDetected)
                     }
                 })
         })
     }
 
-    open func importToken(token: ERCToken, shouldUpdateBalance: Bool = true) -> Token {
+    open func importToken(token: ErcToken, shouldUpdateBalance: Bool = true) -> Token {
         let token = tokensDataStore.addCustom(tokens: [token], shouldUpdateBalance: shouldUpdateBalance)
 
         return token[0]
     }
 
     open func fetchContractData(for contract: AlphaWallet.Address, server: RPCServer, completion: @escaping (ContractData) -> Void) {
-        guard let session = sessionProvider.session(for: server) else {
-            completion(.failed(networkReachable: false))
-            return
+        if let session = sessionProvider.session(for: server) {
+            let detector = ContractDataDetector(address: contract, session: session, assetDefinitionStore: assetDefinitionStore, analytics: analytics, reachability: reachability)
+            detector.fetch(completion: completion)
+        } else {
+            completion(.failed(networkReachable: reachability.isReachable, error: ImportTokenError.serverIsDisabled))
         }
-
-        let detector = ContractDataDetector(address: contract, session: session, assetDefinitionStore: assetDefinitionStore, analytics: analytics)
-        detector.fetch(completion: completion)
     }
 
     open func fetchTokenOrContract(for contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool = false) -> Promise<TokenOrContract> {
         firstly {
             .value(contract)
-        }.then(on: queue, { [queue] contract -> Promise<TokenOrContract> in
+        }.then(on: queue, { [queue, tokensDataStore] contract -> Promise<TokenOrContract> in
             let key = "\(contract.hashValue)-\(onlyIfThereIsABalance)-\(server)"
 
             if let promise = self.inFlightPromises[key] {
@@ -181,21 +175,30 @@ open class ImportToken: TokenImportable, ContractDataFetchable {
                             break
                         case .nonFungibleTokenComplete(let name, let symbol, let balance, let tokenType):
                             guard !onlyIfThereIsABalance || (onlyIfThereIsABalance && !balance.isEmpty) else {
-                                seal.fulfill(.none)
-                                break
+                                seal.reject(ImportTokenError.zeroBalanceDetected)
+                                return
                             }
-                            let ercToken = ERCToken(contract: contract, server: server, name: name, symbol: symbol, decimals: 0, type: tokenType, balance: balance)
+                            let ercToken = ErcToken(contract: contract, server: server, name: name, symbol: symbol, decimals: 0, type: tokenType, value: "0", balance: balance)
 
-                            seal.fulfill(.nonFungibleToken(ercToken))
-                        case .fungibleTokenComplete(let name, let symbol, let decimals):
-                            seal.fulfill(.fungibleTokenComplete(name: name, symbol: symbol, decimals: decimals, contract: contract, server: server, onlyIfThereIsABalance: onlyIfThereIsABalance))
+                            seal.fulfill(.ercToken(ercToken))
+                        case .fungibleTokenComplete(let name, let symbol, let decimals, let tokenType):
+                            let existedToken = tokensDataStore.token(forContract: contract, server: server)
+                            let value = existedToken?.value ?? "0"
+                            guard !onlyIfThereIsABalance || (onlyIfThereIsABalance && !(value != "0")) else {
+                                seal.reject(ImportTokenError.zeroBalanceDetected)
+                                return
+                            }
+
+                            let ercToken = ErcToken(contract: contract, server: server, name: name, symbol: symbol, decimals: decimals, type: tokenType, value: value, balance: .balance(["0"]))
+                            seal.fulfill(.ercToken(ercToken))
                         case .delegateTokenComplete:
                             seal.fulfill(.delegateContracts([AddressAndRPCServer(address: contract, server: server)]))
-                        case .failed(let networkReachable):
-                            if let networkReachable = networkReachable, networkReachable {
+                        case .failed(let networkReachable, let error):
+                            //TODO: maybe its need to handle some cases of error here?
+                            if networkReachable {
                                 seal.fulfill(.deletedContracts([AddressAndRPCServer(address: contract, server: server)]))
                             } else {
-                                seal.fulfill(.none)
+                                seal.reject(ImportTokenError.internal(error: error))
                             }
                         }
                     }

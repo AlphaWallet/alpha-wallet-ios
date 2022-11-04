@@ -132,7 +132,7 @@ public class AlphaWalletTokensService: TokensService {
         stop()
     }
 
-    public func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [Token] {
+    public func addCustom(tokens: [ErcToken], shouldUpdateBalance: Bool) -> [Token] {
         tokensDataStore.addCustom(tokens: tokens, shouldUpdateBalance: shouldUpdateBalance)
     }
 
@@ -148,11 +148,11 @@ public class AlphaWalletTokensService: TokensService {
         tokensDataStore.addOrUpdate(tokensOrContracts: tokensOrContracts)
     }
 
-    public func addOrUpdate(_ actions: [AddOrUpdateTokenAction]) -> Bool? {
-        tokensDataStore.addOrUpdate(actions)
+    public func addOrUpdate(with actions: [AddOrUpdateTokenAction]) -> Bool? {
+        tokensDataStore.addOrUpdate(with: actions)
     }
 
-    public func updateToken(primaryKey: String, action: TokenUpdateAction) -> Bool? {
+    public func updateToken(primaryKey: String, action: TokenFieldUpdate) -> Bool? {
         tokensDataStore.updateToken(primaryKey: primaryKey, action: action)
     }
 
@@ -184,7 +184,7 @@ public class AlphaWalletTokensService: TokensService {
             .eraseToAnyPublisher()
     }
 
-    public func update(token: TokenIdentifiable, value: TokenUpdateAction) {
+    public func update(token: TokenIdentifiable, value: TokenFieldUpdate) {
         let primaryKey = TokenObject.generatePrimaryKey(fromContract: token.contractAddress, server: token.server)
         tokensDataStore.updateToken(primaryKey: primaryKey, action: value)
     }
@@ -212,7 +212,7 @@ extension AlphaWalletTokensService: TokensServiceTests {
     }
 
     public func addOrUpdateTokenTestsOnly(token: Token) {
-        tokensDataStore.addOrUpdate(tokensOrContracts: [.token(token)])
+        tokensDataStore.addOrUpdate(with: [.init(token)])
     }
 
     public func deleteTokenTestsOnly(token: Token) {

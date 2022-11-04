@@ -96,7 +96,7 @@ extension NewTokenCoordinator: NewTokenViewControllerDelegate {
         delegate?.didClose(in: self)
     }
 
-    func didAddToken(token: ERCToken, in viewController: NewTokenViewController) {
+    func didAddToken(token: ErcToken, in viewController: NewTokenViewController) {
         let token = importToken.importToken(token: token)
 
         delegate?.coordinator(self, didAddToken: token)
@@ -146,12 +146,12 @@ extension NewTokenCoordinator: NewTokenViewControllerDelegate {
                     viewController.updateBalanceValue(balance.rawValue, tokenType: tokenType)
                     verboseLog("[TokenType] contract: \(address.eip55String) server: \(server) to token type: nonFungibleTokenComplete")
                     seal.fulfill(tokenType)
-                case .fungibleTokenComplete(let name, let symbol, let decimals):
+                case .fungibleTokenComplete(let name, let symbol, let decimals, let tokenType):
                     viewController.updateNameValue(name)
                     viewController.updateSymbolValue(symbol)
                     viewController.updateDecimalsValue(decimals)
                     verboseLog("[TokenType] contract: \(address.eip55String) server: \(server) to token type: fungibleTokenComplete")
-                    seal.fulfill(.erc20)
+                    seal.fulfill(tokenType)
                 case .delegateTokenComplete:
                     verboseLog("[TokenType] contract: \(address.eip55String) server: \(server) to token type: delegateTokenComplete")
                     seal.reject(NoContractDetailsDetected())

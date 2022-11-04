@@ -28,15 +28,15 @@ public protocol TokensDataStore: NSObjectProtocol {
     func deleteTestsOnly(tokens: [Token])
     func tokenBalancesTestsOnly() -> [TokenBalanceValue]
     func add(tokenUpdates updates: [TokenUpdate])
-    @discardableResult func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [Token]
-    @discardableResult func updateToken(primaryKey: String, action: TokenUpdateAction) -> Bool?
+    @discardableResult func addCustom(tokens: [ErcToken], shouldUpdateBalance: Bool) -> [Token]
+    @discardableResult func updateToken(primaryKey: String, action: TokenFieldUpdate) -> Bool?
     @discardableResult func addOrUpdate(tokensOrContracts: [TokenOrContract]) -> [Token]
-    @discardableResult func addOrUpdate(_ actions: [AddOrUpdateTokenAction]) -> Bool?
+    @discardableResult func addOrUpdate(with actions: [AddOrUpdateTokenAction]) -> Bool?
 }
 
 extension TokensDataStore {
 
-    @discardableResult func updateToken(addressAndRpcServer: AddressAndRPCServer, action: TokenUpdateAction) -> Bool? {
+    @discardableResult func updateToken(addressAndRpcServer: AddressAndRPCServer, action: TokenFieldUpdate) -> Bool? {
         let primaryKey = TokenObject.generatePrimaryKey(fromContract: addressAndRpcServer.address, server: addressAndRpcServer.server)
         return updateToken(primaryKey: primaryKey, action: action)
     }
@@ -67,31 +67,25 @@ extension TokensDataStore {
 }
 
 public enum TokenOrContract {
-    case nonFungibleToken(ERCToken)
-    case token(Token)
+    /// ercToken - tokens meta data
+    case ercToken(ErcToken)
+    /// delegateContracts - partially detect contract data and its rpc server
     case delegateContracts([AddressAndRPCServer])
+    /// deletedContracts - failed to detect contact and its rpc server
     case deletedContracts([AddressAndRPCServer])
-    /// We re-use the existing balance value to avoid the `Wallets` tab showing that token (if it already exist) as `balance = 0` momentarily
-    case fungibleTokenComplete(name: String, symbol: String, decimals: Int, contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool)
-    case none
-
-    var addressAndRPCServer: AddressAndRPCServer? {
-        switch self {
-        case .nonFungibleToken(let eRCToken):
-            return .init(address: eRCToken.contract, server: eRCToken.server)
-        case .token(let token):
-            return .init(address: token.contractAddress, server: token.server)
-        case .delegateContracts, .deletedContracts, .none:
-            return nil
-        case .fungibleTokenComplete(_, _, _, let contract, let server, _):
-            return .init(address: contract, server: server)
-        }
-    }
 }
 
 public enum AddOrUpdateTokenAction {
-    case add(ERCToken, shouldUpdateBalance: Bool)
-    case update(token: Token, action: TokenUpdateAction)
+    /// - ercToken - erc meta information for token creating
+    /// - shouldUpdateBalance - should be non fungible/ semifungible balance unpdated
+    case add(ercToken: ErcToken, shouldUpdateBalance: Bool)
+    /// - action - update some of tokens fields, nil for create a new token or update if its already exists
+    /// - token - token to update
+    case update(token: Token, field: TokenFieldUpdate?)
+
+    public init(_ token: Token) {
+        self = .update(token: token, field: nil)
+    }
 }
 
 //TODO: Rename with more better name
@@ -182,7 +176,7 @@ public enum NonFungibleBalance {
     }
 }
 
-public enum TokenUpdateAction {
+public enum TokenFieldUpdate {
     case value(BigInt)
     case isDisabled(Bool)
     case nonFungibleBalance(NonFungibleBalance)
@@ -385,12 +379,12 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
             .first
     }
 
-    @discardableResult public func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [Token] {
+    @discardableResult public func addCustom(tokens: [ErcToken], shouldUpdateBalance: Bool) -> [Token] {
         guard !tokens.isEmpty else { return [] }
 
         var tokensToReturn: [Token] = []
         store.performSync { realm in
-            let newTokens = tokens.compactMap { MultipleChainsTokensDataStore.functional.createTokenObject(ercToken: $0, shouldUpdateBalance: shouldUpdateBalance) }
+            let newTokens = tokens.compactMap { TokenObject(ercToken: $0, shouldUpdateBalance: shouldUpdateBalance) }
             try? realm.safeWrite {
                 //TODO: save existed sort index and displaying state
                 for token in newTokens {
@@ -406,6 +400,7 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
 
     @discardableResult public func addOrUpdate(tokensOrContracts: [TokenOrContract]) -> [Token] {
         guard !tokensOrContracts.isEmpty else { return [] }
+        var tokens: [Token] = []
 
         store.performSync { realm in
             try? realm.safeWrite {
@@ -415,44 +410,22 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
                         let delegateContract = values.map { DelegateContract(contractAddress: $0.address, server: $0.server) }
 
                         realm.add(delegateContract, update: .all)
-                    case .nonFungibleToken(let token):
-                        let tokenObject = MultipleChainsTokensDataStore.functional.createTokenObject(ercToken: token, shouldUpdateBalance: token.type.shouldUpdateBalanceWhenDetected)
-                        self.addTokenWithoutCommitWrite(tokenObject: tokenObject, realm: realm)
-                    case .token(let token):
-                        let tokenObject = TokenObject(token: token)
-                        self.addTokenWithoutCommitWrite(tokenObject: tokenObject, realm: realm)
+                    case .ercToken(let ercToken):
+                        let newTokenObject = TokenObject(ercToken: ercToken, shouldUpdateBalance: ercToken.type.shouldUpdateBalanceWhenDetected)
+                        self.addTokenWithoutCommitWrite(tokenObject: newTokenObject, realm: realm)
+
+                        if let tokenObject = self.tokenObject(forContract: ercToken.contract, server: ercToken.server, realm: realm) {
+                            tokens += [Token(tokenObject: tokenObject)]
+                        }
                     case .deletedContracts(let values):
                         let deadContracts = values.map { DelegateContract(contractAddress: $0.address, server: $0.server) }
                         realm.add(deadContracts, update: .all)
-                    case .fungibleTokenComplete(let name, let symbol, let decimals, let contract, let server, let onlyIfThereIsABalance):
-                        let existedTokenObject = self.tokenObject(forContract: contract, server: server, realm: realm)
-
-                        let value = existedTokenObject?.value ?? "0"
-                        guard !onlyIfThereIsABalance || (onlyIfThereIsABalance && !(value != "0")) else {
-                            continue
-                        }
-                        let tokenObject = TokenObject(
-                                contract: contract,
-                                server: server,
-                                name: name,
-                                symbol: symbol,
-                                decimals: Int(decimals),
-                                value: value,
-                                type: .erc20
-                        )
-                        self.addTokenWithoutCommitWrite(tokenObject: tokenObject, realm: realm)
-                    case .none:
-                        break
                     }
                 }
             }
         }
 
-        let tokenObjects = tokensOrContracts
-            .compactMap { $0.addressAndRPCServer }
-            .compactMap { token(forContract: $0.address, server: $0.server) }
-
-        return tokenObjects
+        return tokens
     }
 
     public func add(hiddenContracts: [AddressAndRPCServer]) {
@@ -485,7 +458,7 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
         }
     }
 
-    @discardableResult public func addOrUpdate(_ actions: [AddOrUpdateTokenAction]) -> Bool? {
+    @discardableResult public func addOrUpdate(with actions: [AddOrUpdateTokenAction]) -> Bool? {
         guard !actions.isEmpty else { return nil }
 
         var result: Bool?
@@ -495,11 +468,17 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
                     var value: Bool?
                     switch each {
                     case .add(let token, let shouldUpdateBalance):
-                        let newToken = MultipleChainsTokensDataStore.functional.createTokenObject(ercToken: token, shouldUpdateBalance: shouldUpdateBalance)
-                        self.addTokenWithoutCommitWrite(tokenObject: newToken, realm: realm)
+                        let tokenObject = TokenObject(ercToken: token, shouldUpdateBalance: shouldUpdateBalance)
+                        self.addTokenWithoutCommitWrite(tokenObject: tokenObject, realm: realm)
                         value = true
-                    case .update(let tokenObject, let action):
-                        value = self.updateTokenWithoutCommitWrite(primaryKey: tokenObject.primaryKey, action: action, realm: realm)
+                    case .update(let token, let action):
+                        if let action = action {
+                            value = self.updateTokenWithoutCommitWrite(primaryKey: token.primaryKey, action: action, realm: realm)
+                        } else {
+                            let tokenObject = TokenObject(token: token)
+                            self.addTokenWithoutCommitWrite(tokenObject: tokenObject, realm: realm)
+                            value = true
+                        }
                     }
 
                     if result == nil {
@@ -511,7 +490,7 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
         return result
     }
 
-    @discardableResult public func updateToken(primaryKey: String, action: TokenUpdateAction) -> Bool? {
+    @discardableResult public func updateToken(primaryKey: String, action: TokenFieldUpdate) -> Bool? {
         var result: Bool?
         store.performSync { realm in
             try? realm.safeWrite {
@@ -532,7 +511,7 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
         realm.add(tokenObject, update: .all)
     }
 
-    @discardableResult private func updateTokenWithoutCommitWrite(primaryKey: String, action: TokenUpdateAction, realm: Realm) -> Bool? {
+    @discardableResult private func updateTokenWithoutCommitWrite(primaryKey: String, action: TokenFieldUpdate, realm: Realm) -> Bool? {
         guard let tokenObject = realm.object(ofType: TokenObject.self, forPrimaryKey: primaryKey) else { return nil }
 
         var result: Bool = false
@@ -620,6 +599,19 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
         return realm
             .objects(TokenObject.self)
             .filter(predicate)
+    }
+}
+
+extension TokenObject {
+
+    convenience init(ercToken token: ErcToken, shouldUpdateBalance: Bool) {
+        self.init(contract: token.contract, server: token.server, name: token.name, symbol: token.symbol, decimals: token.decimals, value: token.value.description, isCustom: true, type: token.type)
+
+        if shouldUpdateBalance {
+            token.balance.rawValue.forEach { balance in
+                self.balance.append(TokenBalance(balance: balance))
+            }
+        }
     }
 }
 
@@ -760,27 +752,6 @@ extension MultipleChainsTokensDataStore.functional {
                 isCustom: false,
                 type: .nativeCryptocurrency
         )
-    }
-
-    //TODO: Rename tokenObject(ercToken with createTokenObject(ercToken, more clear name
-    static func createTokenObject(ercToken token: ERCToken, shouldUpdateBalance: Bool) -> TokenObject {
-        let newToken = TokenObject(
-                contract: token.contract,
-                server: token.server,
-                name: token.name,
-                symbol: token.symbol,
-                decimals: token.decimals,
-                value: "0",
-                isCustom: true,
-                type: token.type
-        )
-        if shouldUpdateBalance {
-            token.balance.rawValue.forEach { balance in
-                newToken.balance.append(TokenBalance(balance: balance))
-            }
-        }
-
-        return newToken
     }
 
     public static func erc20AddressForNativeTokenFilter(servers: [RPCServer], tokens: [Token]) -> [Token] {

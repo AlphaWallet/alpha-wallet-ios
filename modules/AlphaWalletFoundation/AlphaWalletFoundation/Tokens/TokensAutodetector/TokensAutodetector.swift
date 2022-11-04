@@ -193,15 +193,6 @@ extension SingleChainTokensAutodetector: AutoDetectTokensOperationDelegate {
     }
 
     public func didDetect(tokensOrContracts: [TokenOrContract]) {
-        let tokensOrContracts = tokensOrContracts.filter { tokenOrContract in
-            switch tokenOrContract {
-            case .delegateContracts, .deletedContracts, .nonFungibleToken, .token, .fungibleTokenComplete:
-                return true
-            case .none:
-                return false
-            }
-        }
-
         tokensOrContractsDetectedSubject.send(tokensOrContracts)
     }
 
