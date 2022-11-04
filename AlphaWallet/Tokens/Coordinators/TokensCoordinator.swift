@@ -318,42 +318,40 @@ extension TokensCoordinator: RenameWalletViewControllerDelegate {
 }
 
 extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
-
-    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveJSON json: String) {
-        removeCoordinator(coordinator)
-    }
-
-    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveSeedPhase seedPhase: [String]) {
-        removeCoordinator(coordinator)
-    }
-
-    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolvePrivateKey privateKey: String) {
-        removeCoordinator(coordinator)
-    }
-
     func didCancel(in coordinator: QRCodeResolutionCoordinator) {
         removeCoordinator(coordinator)
     }
 
-    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveTransactionType transactionType: TransactionType, token: Token) {
-        removeCoordinator(coordinator)
-
-        delegate?.didTap(suggestedPaymentFlow: .payment(type: .send(type: .transaction(transactionType)), server: token.server), viewController: .none, in: self)
-    }
-
-    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveAddress address: AlphaWallet.Address, action: ScanQRCodeAction) {
-        removeCoordinator(coordinator)
-
-        switch action {
-        case .addCustomToken:
-            handleAddCustomToken(address)
-        case .sendToAddress:
-            delegate?.didTap(suggestedPaymentFlow: .other(value: .sendToRecipient(recipient: .address(address))), viewController: .none, in: self)
-        case .watchWallet:
-            handleWatchWallet(address)
-        case .openInEtherscan:
-            delegate?.didPressViewContractWebPage(forContract: address, server: config.anyEnabledServer(), in: tokensViewController)
+    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolve qrCodeResolution: QrCodeResolution) {
+        switch qrCodeResolution {
+        case .walletConnectUrl(let url):
+            walletConnectCoordinator.openSession(url: url)
+        case .transactionType(let transactionType, let token):
+            delegate?.didTap(suggestedPaymentFlow: .payment(type: .send(type: .transaction(transactionType)), server: token.server), viewController: .none, in: self)
+        case .address(let address, let action):
+            switch action {
+            case .addCustomToken:
+                handleAddCustomToken(address)
+            case .sendToAddress:
+                delegate?.didTap(suggestedPaymentFlow: .other(value: .sendToRecipient(recipient: .address(address))), viewController: .none, in: self)
+            case .watchWallet:
+                handleImportOrWatchWallet(.watchWallet(address: address))
+            case .openInEtherscan:
+                delegate?.didPressViewContractWebPage(forContract: address, server: config.anyEnabledServer(), in: tokensViewController)
+            }
+        case .url(let url):
+            delegate?.didPressOpenWebPage(url, in: tokensViewController)
+        case .string:
+            break
+        case .json(let json):
+            handleImportOrWatchWallet(.importWallet(params: .json(json: json)))
+        case .seedPhase(let seedPhase):
+            handleImportOrWatchWallet(.importWallet(params: .seedPhase(seedPhase: seedPhase)))
+        case .privateKey(let privateKey):
+            handleImportOrWatchWallet(.importWallet(params: .privateKey(privateKey: privateKey)))
         }
+
+        removeCoordinator(coordinator)
     }
 
     private func handleAddCustomToken(_ address: AlphaWallet.Address) {
@@ -370,31 +368,16 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
         coordinator.start()
     }
 
-    private func handleWatchWallet(_ address: AlphaWallet.Address) {
+    private func handleImportOrWatchWallet(_ entryPoint: WalletEntryPoint) {
         let walletCoordinator = WalletCoordinator(config: config, keystore: keystore, analytics: analytics, domainResolutionService: domainResolutionService)
         walletCoordinator.delegate = self
 
         addCoordinator(walletCoordinator)
 
-        walletCoordinator.start(.watchWallet(address: address))
+        walletCoordinator.start(entryPoint)
         walletCoordinator.navigationController.makePresentationFullScreenForiOS13Migration()
 
         navigationController.present(walletCoordinator.navigationController, animated: true)
-    }
-
-    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveURL url: URL) {
-        removeCoordinator(coordinator)
-
-        delegate?.didPressOpenWebPage(url, in: tokensViewController)
-    }
-
-    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveWalletConnectURL url: AlphaWallet.WalletConnect.ConnectionUrl) {
-        removeCoordinator(coordinator)
-        walletConnectCoordinator.openSession(url: url)
-    }
-
-    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveString value: String) {
-        removeCoordinator(coordinator)
     }
 }
 

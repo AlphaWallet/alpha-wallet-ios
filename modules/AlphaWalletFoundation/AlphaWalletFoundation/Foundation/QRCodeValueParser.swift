@@ -2,7 +2,7 @@
 
 import Foundation
 
-public enum QRCodeValue {
+public enum AddressOrEip681 {
     case address(AlphaWallet.Address)
     ///Strictly speaking, EIP 681 should be like this:
     ///  ethereum:pay-0xfb6916095ca1df60bb79Ce92ce3ea74c37c5d359?value=2.014e18
@@ -10,8 +10,8 @@ public enum QRCodeValue {
     case eip681(protocolName: String, address: AddressOrEnsName, functionName: String?, params: [String: String])
 }
 
-public struct QRCodeValueParser {
-    public static func from(string: String) -> QRCodeValue? {
+public struct AddressOrEip681Parser {
+    public static func from(string: String) -> AddressOrEip681? {
         let string = string.trimmed
         let parts = string.components(separatedBy: ":")
         if parts.count == 1, let address = parts.first.flatMap({ AlphaWallet.Address(string: $0) }) {
@@ -22,7 +22,7 @@ public struct QRCodeValueParser {
         let secondHalf = parts[1]
         let uncheckedParamParts = Array(secondHalf.components(separatedBy: "?")[1...])
         let paramParts = uncheckedParamParts.isEmpty ? [] : Array(uncheckedParamParts[0].components(separatedBy: "&"))
-        var params = QRCodeValueParser.parseParamsFromParamParts(paramParts: paramParts)
+        var params = AddressOrEip681Parser.parseParamsFromParamParts(paramParts: paramParts)
         if let chainId = secondHalf.slice(from: "@", to: "/") {
             params["chainId"] = chainId
         } else if let chainId = secondHalf.slice(from: "@", to: "?") {
