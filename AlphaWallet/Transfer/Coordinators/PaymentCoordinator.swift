@@ -90,7 +90,7 @@ class PaymentCoordinator: Coordinator {
         addCoordinator(coordinator)
     }
 
-    private func startWithSendCollectiblesCoordinator(token: Token, transferType: Erc1155TokenTransactionType, tokenHolders: [TokenHolder]) {
+    private func startWithSendCollectiblesCoordinator(token: Token, tokenHolders: [TokenHolder]) {
         let coordinator = TransferCollectiblesCoordinator(session: session, navigationController: navigationController, keystore: keystore, filteredTokenHolders: tokenHolders, token: token, assetDefinitionStore: assetDefinitionStore, analytics: analytics, domainResolutionService: domainResolutionService, tokensService: tokenCollection)
         coordinator.delegate = self
         coordinator.start()
@@ -132,8 +132,8 @@ class PaymentCoordinator: Coordinator {
             switch transactionType {
             case .transaction(let transactionType):
                 switch transactionType {
-                case .erc1155Token(let token, let transferType, let tokenHolders):
-                    startWithSendCollectiblesCoordinator(token: token, transferType: transferType, tokenHolders: tokenHolders)
+                case .erc1155Token(let token, let tokenHolders):
+                    startWithSendCollectiblesCoordinator(token: token, tokenHolders: tokenHolders)
                 case .nativeCryptocurrency, .erc20Token, .dapp, .claimPaidErc875MagicLink, .tokenScript, .prebuilt:
                     startWithSendCoordinator(transactionType: transactionType)
                 case .erc875Token(let token, let tokenHolders), .erc721Token(let token, let tokenHolders):

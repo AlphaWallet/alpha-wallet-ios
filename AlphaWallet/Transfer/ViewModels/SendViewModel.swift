@@ -192,7 +192,7 @@ final class SendViewModel {
     }
 
     private func transactionToConfirm(send: AnyPublisher<Void, Never>) -> AnyPublisher<Result<UnconfirmedTransaction, InputsValidationError>, Never> {
-        send.withLatestFrom(tokenViewModel)
+        return send.withLatestFrom(tokenViewModel)
             .map { [transactionType] tokenViewModel -> Result<UnconfirmedTransaction, InputsValidationError> in
                 guard let recipient = self.recipient else {
                     return .failure(InputsValidationError.recipientInvalid)
@@ -200,7 +200,21 @@ final class SendViewModel {
                 guard let value = self.validatedCryptoValue(self.cryptoValue, tokenViewModel: tokenViewModel, checkIfGreaterThanZero: self.checkIfGreaterThanZero) else {
                     return .failure(InputsValidationError.cryptoValueInvalid)
                 }
-                let transaction = UnconfirmedTransaction(transactionType: transactionType, value: value, recipient: recipient, contract: transactionType.contractForFungibleSend, data: nil)
+
+                let data: Data
+                var contract: AlphaWallet.Address?
+
+                switch transactionType {
+                case .nativeCryptocurrency, .dapp, .claimPaidErc875MagicLink, .tokenScript, .prebuilt:
+                    data = Data()
+                case .erc20Token(let token, _, _):
+                    contract = token.contractAddress
+                    data = (try? Erc20Transfer(recipient: token.contractAddress, value: BigUInt(value)).encodedABI()) ?? Data()
+                case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token:
+                    fatalError()
+                }
+
+                let transaction = UnconfirmedTransaction(transactionType: transactionType, value: value, recipient: recipient, contract: contract, data: data)
 
                 return .success(transaction)
             }.share()
