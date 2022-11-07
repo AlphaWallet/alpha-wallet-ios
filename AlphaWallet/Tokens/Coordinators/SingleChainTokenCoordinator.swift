@@ -188,7 +188,7 @@ extension SingleChainTokenCoordinator: FungibleTokenViewControllerDelegate {
         switch transactionType {
         case .erc20Token(let erc20Token, _, _):
             token = erc20Token
-        case .dapp, .erc721Token, .erc875Token, .erc875TokenOrder, .erc721ForTicketToken, .erc1155Token, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+        case .dapp, .erc721Token, .erc875Token, .erc721ForTicketToken, .erc1155Token, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return
         case .nativeCryptocurrency:
             token = MultipleChainsTokensDataStore.functional.etherToken(forServer: server)

@@ -27,7 +27,7 @@ final class FungibleTokenViewModel {
             return MultipleChainsTokensDataStore.functional.etherToken(forServer: session.server)
         case .erc20Token(let token, _, _):
             return token
-        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+        case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return nil
         }
     }
@@ -69,7 +69,7 @@ final class FungibleTokenViewModel {
             return tokensService.tokenViewModel(for: token)?.balance.value
         case .erc20Token(let token, _, _):
             return tokensService.tokenViewModel(for: token)?.balance.value
-        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+        case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return nil
         }
     }
@@ -81,7 +81,7 @@ final class FungibleTokenViewModel {
             return tokensService.tokenViewModel(for: token)?.balance.ticker != nil
         case .erc20Token(let token, _, _):
             return tokensService.tokenViewModel(for: token)?.balance.ticker != nil
-        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+        case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return false
         }
     }
@@ -255,7 +255,7 @@ final class FungibleTokenViewModel {
             tokensService.refreshBalance(updatePolicy: .eth)
         case .erc20Token(let token, _, _):
             tokensService.refreshBalance(updatePolicy: .token(token: token))
-        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+        case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             break
         }
     }

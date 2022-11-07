@@ -127,7 +127,7 @@ extension TransactionConfirmationViewModel {
                     }
 
                     return .init(title: .normal(viewModels.first ?? "-"), headerName: headerName, configuration: configuration)
-                case .nativeCryptocurrency, .erc20Token, .erc721Token, .claimPaidErc875MagicLink, .erc875Token, .erc875TokenOrder, .erc721ForTicketToken, .dapp, .tokenScript, .prebuilt:
+                case .nativeCryptocurrency, .erc20Token, .erc721Token, .claimPaidErc875MagicLink, .erc875Token, .erc721ForTicketToken, .dapp, .tokenScript, .prebuilt:
                     //This is really just for ERC721, but the type system…
                     let tokenId = configurator.transaction.tokenId.flatMap({ String($0) })
                     let title: String
