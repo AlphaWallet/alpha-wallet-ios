@@ -54,42 +54,24 @@ class ClaimPaidOrderCoordinator: Coordinator {
         let r = "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64)))
         let s = "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
 
-        encodeOrder(
-                signedOrder: signedOrder,
-                expiry: signedOrder.order.expiry,
-                v: v,
-                r: r,
-                s: s,
-                contractAddress: signedOrder.order.contractAddress,
-                recipient: session.account.address
-        ) { result in
-            let strongSelf = self
-            switch result {
-            case .success(let payload):
-                do {
-                    let transaction = UnconfirmedTransaction(
-                            transactionType: .claimPaidErc875MagicLink(strongSelf.token),
-                            value: BigInt(strongSelf.signedOrder.order.price),
-                            recipient: nil,
-                            contract: strongSelf.signedOrder.order.contractAddress,
-                            data: payload,
-                            gasLimit: nil,
-                            gasPrice: nil,
-                            nonce: nil
-                    )
+        let result = encodeOrder(signedOrder: signedOrder, expiry: signedOrder.order.expiry, v: v, r: r, s: s, contractAddress: signedOrder.order.contractAddress, recipient: session.account.address)
 
-                    let coordinator = try TransactionConfirmationCoordinator(presentingViewController: strongSelf.navigationController, session: strongSelf.session, transaction: transaction, configuration: .claimPaidErc875MagicLink(confirmType: .signThenSend, price: strongSelf.signedOrder.order.price, numberOfTokens: strongSelf.numberOfTokens), analytics: strongSelf.analytics, domainResolutionService: strongSelf.domainResolutionService, keystore: strongSelf.keystore, assetDefinitionStore: strongSelf.assetDefinitionStore, tokensService: strongSelf.tokensService)
-                    coordinator.delegate = self
-                    strongSelf.addCoordinator(coordinator)
-                    coordinator.start(fromSource: .claimPaidMagicLink)
-                } catch {
-                    UIApplication.shared
-                        .presentedViewController(or: strongSelf.navigationController)
-                        .displayError(message: error.prettyError)
-                }
-            case .failure:
-                break
+        switch result {
+        case .success(let payload):
+            do {
+                let transaction = UnconfirmedTransaction(transactionType: .claimPaidErc875MagicLink(token), value: BigInt(signedOrder.order.price), recipient: nil, contract: signedOrder.order.contractAddress, data: payload)
+
+                let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: .claimPaidErc875MagicLink(confirmType: .signThenSend, price: signedOrder.order.price, numberOfTokens: numberOfTokens), analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
+                coordinator.delegate = self
+                addCoordinator(coordinator)
+                coordinator.start(fromSource: .claimPaidMagicLink)
+            } catch {
+                UIApplication.shared
+                    .presentedViewController(or: navigationController)
+                    .displayError(message: error.prettyError)
             }
+        case .failure:
+            break
         }
     }
 
@@ -99,21 +81,13 @@ class ClaimPaidOrderCoordinator: Coordinator {
                              r: String,
                              s: String,
                              contractAddress: AlphaWallet.Address,
-                             recipient: AlphaWallet.Address,
-                             completion: @escaping (Result<Data, Error>) -> Void
-        ) {
+                             recipient: AlphaWallet.Address) -> Result<Data, Error> {
         if let tokenIds = signedOrder.order.tokenIds, !tokenIds.isEmpty {
-            encodeSpawnableOrder(expiry: expiry, tokenIds: tokenIds, v: v, r: r, s: s, recipient: recipient) { result in
-                completion(result)
-            }
+            return encodeSpawnableOrder(expiry: expiry, tokenIds: tokenIds, v: v, r: r, s: s, recipient: recipient)
         } else if signedOrder.order.nativeCurrencyDrop {
-            encodeNativeCurrencyOrder(signedOrder: signedOrder, v: v, r: r, s: s, recipient: recipient) { result in
-                completion(result)
-            }
+            return encodeNativeCurrencyOrder(signedOrder: signedOrder, v: v, r: r, s: s, recipient: recipient)
         } else {
-            encodeNormalOrder(expiry: expiry, indices: signedOrder.order.indices, v: v, r: r, s: s, contractAddress: contractAddress) { result in
-                completion(result)
-            }
+            return encodeNormalOrder(expiry: expiry, indices: signedOrder.order.indices, v: v, r: r, s: s, contractAddress: contractAddress)
         }
     }
 
@@ -122,8 +96,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
                                    v: UInt8,
                                    r: String,
                                    s: String,
-                                   contractAddress: AlphaWallet.Address,
-                                   completion: @escaping (Result<Data, Error>) -> Void) {
+                                   contractAddress: AlphaWallet.Address) -> Result<Data, Error> {
         do {
             let parameters: [Any] = [expiry, indices.map({ BigUInt($0) }), BigUInt(v), Data(_hex: r), Data(_hex: s)]
             let arrayType: ABIType
@@ -142,9 +115,9 @@ class ClaimPaidOrderCoordinator: Coordinator {
             ])
             let encoder = ABIEncoder()
             try encoder.encode(function: functionEncoder, arguments: parameters)
-            completion(.success(encoder.data))
+            return .success(encoder.data)
         } catch {
-            completion(.failure(Web3Error(description: "malformed transaction")))
+            return .failure(Web3Error(description: "malformed transaction"))
         }
     }
 
@@ -153,8 +126,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
                                       v: UInt8,
                                       r: String,
                                       s: String,
-                                      recipient: AlphaWallet.Address,
-                                      completion: @escaping (Result<Data, Error>) -> Void) {
+                                      recipient: AlphaWallet.Address) -> Result<Data, Error> {
 
         do {
             let parameters: [Any] = [expiry, tokenIds, BigUInt(v), Data(_hex: r), Data(_hex: s), recipient]
@@ -168,9 +140,10 @@ class ClaimPaidOrderCoordinator: Coordinator {
             ])
             let encoder = ABIEncoder()
             try encoder.encode(function: functionEncoder, arguments: parameters)
-            completion(.success(encoder.data))
+
+            return .success(encoder.data)
         } catch {
-            completion(.failure(Web3Error(description: "malformed transaction")))
+            return .failure(Web3Error(description: "malformed transaction"))
         }
     }
 
@@ -179,9 +152,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
             v: UInt8,
             r: String,
             s: String,
-            recipient: AlphaWallet.Address,
-            completion: @escaping (Result<Data, Error>) -> Void
-    ) {
+            recipient: AlphaWallet.Address) -> Result<Data, Error> {
         do {
             let parameters: [Any] = [
                 signedOrder.order.nonce,
@@ -203,9 +174,9 @@ class ClaimPaidOrderCoordinator: Coordinator {
             ])
             let encoder = ABIEncoder()
             try encoder.encode(function: functionEncoder, arguments: parameters)
-            completion(.success(encoder.data))
+            return .success(encoder.data)
         } catch {
-            completion(.failure(Web3Error(description: "malformed transaction")))
+            return .failure(Web3Error(description: "malformed transaction"))
         }
     }
 }
