@@ -8,36 +8,36 @@
 import Foundation
 import PromiseKit
 
-public protocol AutoDetectTransactedTokensOperationDelegate: class {
+protocol AutoDetectTransactedTokensOperationDelegate: class {
     var isAutoDetectingTransactedTokens: Bool { get set }
 
     func didDetect(tokensOrContracts: [TokenOrContract])
     func autoDetectTransactedErc20AndNonErc20Tokens(wallet: AlphaWallet.Address) -> Promise<[TokenOrContract]>
 }
 
-public final class AutoDetectTransactedTokensOperation: Operation {
+final class AutoDetectTransactedTokensOperation: Operation {
 
     weak private var delegate: AutoDetectTransactedTokensOperationDelegate?
-    public override var isExecuting: Bool {
+    override var isExecuting: Bool {
         return delegate?.isAutoDetectingTransactedTokens ?? false
     }
-    public override var isFinished: Bool {
+    override var isFinished: Bool {
         return !isExecuting
     }
-    public override var isAsynchronous: Bool {
+    override var isAsynchronous: Bool {
         return true
     }
 
     private let session: WalletSession
 
-    public init(session: WalletSession, delegate: AutoDetectTransactedTokensOperationDelegate) {
+    init(session: WalletSession, delegate: AutoDetectTransactedTokensOperationDelegate) {
         self.delegate = delegate
         self.session = session
         super.init()
         self.queuePriority = session.server.networkRequestsQueuePriority
     }
 
-    public override func main() {
+    override func main() {
         guard let delegate = delegate else { return }
 
         delegate.autoDetectTransactedErc20AndNonErc20Tokens(wallet: session.account.address).done { [weak self] values in
