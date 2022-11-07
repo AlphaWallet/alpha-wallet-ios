@@ -10,16 +10,19 @@ import BigInt
 import PromiseKit
 import AlphaWalletFoundation
 
-protocol QRCodeResolutionCoordinatorDelegate: AnyObject {
-    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveAddress address: AlphaWallet.Address, action: ScanQRCodeAction)
-    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveTransactionType transactionType: TransactionType, token: Token)
-    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveWalletConnectURL url: AlphaWallet.WalletConnect.ConnectionUrl)
-    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveString value: String)
-    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveURL url: URL)
-    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveJSON json: String)
-    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveSeedPhase seedPhase: [String])
-    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolvePrivateKey privateKey: String)
+enum QrCodeResolution {
+    case address(address: AlphaWallet.Address, action: ScanQRCodeAction)
+    case transactionType(transactionType: TransactionType, token: Token)
+    case walletConnectUrl(url: AlphaWallet.WalletConnect.ConnectionUrl)
+    case string(value: String)
+    case url(url: URL)
+    case json(json: String)
+    case seedPhase(seedPhase: [String])
+    case privateKey(privateKey: String)
+}
 
+protocol QRCodeResolutionCoordinatorDelegate: AnyObject {
+    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolve qrCodeResolution: QrCodeResolution)
     func didCancel(in coordinator: QRCodeResolutionCoordinator)
 }
 
@@ -82,21 +85,21 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
         }
     }
 
-    private func resolveScanResult(_ rawValue: String) {
+    private func resolveScanResult(_ string: String) {
         guard let delegate = delegate else { return }
-        let resolved = ScanQRCodeResolution(rawValue: rawValue)
-        infoLog("[QR Code] resolved: \(resolved)")
+        let qrCodeValue = QrCodeValue(string: string)
+        infoLog("[QR Code] resolved: \(qrCodeValue)")
 
-        switch resolved {
-        case .value(let value):
+        switch qrCodeValue {
+        case .addressOrEip681(let value):
             switch value {
             case .address(let contract):
                 let actions = availableActions(forContract: contract)
                 if actions.count == 1 {
-                    delegate.coordinator(self, didResolveAddress: contract, action: actions[0])
+                    delegate.coordinator(self, didResolve: .address(address: contract, action: actions[0]))
                 } else {
                     showDidScanWalletAddress(for: actions, completion: { action in
-                        delegate.coordinator(self, didResolveAddress: contract, action: action)
+                        delegate.coordinator(self, didResolve: .address(address: contract, action: action))
                     }, cancelCompletion: {
                         self.skipResolvedCodes = false
                     })
@@ -110,7 +113,7 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
                     }.done { result in
                         switch result {
                         case .transaction(let transactionType, let token):
-                            delegate.coordinator(self, didResolveTransactionType: transactionType, token: token)
+                            delegate.coordinator(self, didResolve: .transactionType(transactionType: transactionType, token: token))
                         case .address:
                             break // Not possible here
                         }
@@ -119,23 +122,23 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
                     break
                 }
             }
-        case .other(let value):
-            delegate.coordinator(self, didResolveString: value)
+        case .string(let value):
+            delegate.coordinator(self, didResolve: .string(value: value))
         case .walletConnect(let url):
-            delegate.coordinator(self, didResolveWalletConnectURL: url)
+            delegate.coordinator(self, didResolve: .walletConnectUrl(url: url))
         case .url(let url):
             showOpenURL(completion: {
-                delegate.coordinator(self, didResolveURL: url)
+                delegate.coordinator(self, didResolve: .url(url: url))
             }, cancelCompletion: {
                 //NOTE: we need to reset flag to false to make sure that next detected QR code will be handled
                 self.skipResolvedCodes = false
             })
         case .json(let value):
-            delegate.coordinator(self, didResolveJSON: value)
+            delegate.coordinator(self, didResolve: .json(json: value))
         case .privateKey(let value):
-            delegate.coordinator(self, didResolvePrivateKey: value)
+            delegate.coordinator(self, didResolve: .privateKey(privateKey: value))
         case .seedPhase(let value):
-            delegate.coordinator(self, didResolveSeedPhase: value)
+            delegate.coordinator(self, didResolve: .seedPhase(seedPhase: value))
         }
     }
 

@@ -123,7 +123,7 @@ extension ScanQRCodeCoordinator {
     }
 
     private func convertToAnalyticsResultType(value: String!) -> Analytics.ScanQRCodeResultType {
-        if let resultType = QRCodeValueParser.from(string: value) {
+        if let resultType = AddressOrEip681Parser.from(string: value) {
             switch resultType {
             case .address:
                 return .address
@@ -132,11 +132,11 @@ extension ScanQRCodeCoordinator {
             }
         }
 
-        switch ScanQRCodeResolution(rawValue: value) {
-        case .value:
-            return .value
-        case .other:
-            return .other
+        switch QrCodeValue(string: value) {
+        case .addressOrEip681:
+            return .addressOrEip681
+        case .string:
+            return .string
         case .walletConnect:
             return .walletConnect
         case .url:

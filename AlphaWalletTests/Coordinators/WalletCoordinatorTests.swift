@@ -15,7 +15,7 @@ class WalletCoordinatorTests: XCTestCase {
             domainResolutionService: FakeDomainResolutionService()
         )
 
-        coordinator.start(.importWallet)
+        coordinator.start(.importWallet(params: nil))
 
         XCTAssertTrue(coordinator.navigationController.viewControllers[0] is ImportWalletViewController)
     }

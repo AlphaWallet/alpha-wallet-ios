@@ -35,7 +35,7 @@ public final class Eip681UrlResolver {
     }
 
     @discardableResult public func resolve(url: URL) -> Promise<Eip681UrlResolver.Resolution> {
-        switch QRCodeValueParser.from(string: url.absoluteString) {
+        switch AddressOrEip681Parser.from(string: url.absoluteString) {
         case .address(let address):
             return .value(.address(address))
         case .eip681(let protocolName, let address, let functionName, let params):

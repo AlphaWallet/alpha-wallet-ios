@@ -163,8 +163,8 @@ extension DeepLink.functional {
     //E.g. https://aw.app/ethereum:0x89205a3a3b2a69de6dbf7f01ed13b2108b2c43e7/transfer?address=0x8e23ee67d1332ad560396262c48ffbb01f93d052&uint256=1
     public static func extractEip681UrlMaybeEmbedded(in url: URL, supportedServers: [RPCServer]) -> URL? {
         let rawEip681Url: URL? = {
-            guard let scheme = url.scheme, scheme == Eip681Parser.scheme, QRCodeValueParser.from(string: url.absoluteString) != nil else { return nil }
-            switch QRCodeValueParser.from(string: url.absoluteString) {
+            guard let scheme = url.scheme, scheme == Eip681Parser.scheme, AddressOrEip681Parser.from(string: url.absoluteString) != nil else { return nil }
+            switch AddressOrEip681Parser.from(string: url.absoluteString) {
             case .none, .address:
                 return nil
             case .eip681:
@@ -177,7 +177,7 @@ extension DeepLink.functional {
                 return nil
             }
             let eip681Url = result.path
-            switch QRCodeValueParser.from(string: eip681Url) {
+            switch AddressOrEip681Parser.from(string: eip681Url) {
             case .address, .none:
                 return nil
             case .eip681:

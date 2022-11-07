@@ -6,14 +6,14 @@ import AlphaWalletFoundation
 
 class QRCodeValueParserTests: XCTestCase {
     func testEmptyString() {
-        let result = QRCodeValueParser.from(string: "")
+        let result = AddressOrEip681Parser.from(string: "")
 
         XCTAssertNil(result)
     }
 
     func testJustAddressString() {
         let input = "0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c"
-        guard let result = QRCodeValueParser.from(string: input) else { return XCTFail("Can't parse address-only") }
+        guard let result = AddressOrEip681Parser.from(string: input) else { return XCTFail("Can't parse address-only") }
         switch result {
         case .address(let address):
             XCTAssertTrue(address.sameContract(as: input))
@@ -24,12 +24,12 @@ class QRCodeValueParserTests: XCTestCase {
 
     func testInvalidJustAddressStringWithEip681Prefix() {
         let input = "pay-0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c"
-        XCTAssertNil(QRCodeValueParser.from(string: input))
+        XCTAssertNil(AddressOrEip681Parser.from(string: input))
     }
 
     func testJustAddressString2() {
         let input = "0x6973dbabeb06dd60f1c50ed688fe11e742bc123e"
-        guard let result = QRCodeValueParser.from(string: input) else { return XCTFail("Can't parse address-only") }
+        guard let result = AddressOrEip681Parser.from(string: input) else { return XCTFail("Can't parse address-only") }
         switch result {
         case .address(let address):
             XCTAssertTrue(address.sameContract(as: input))
@@ -39,7 +39,7 @@ class QRCodeValueParserTests: XCTestCase {
     }
 
     func testProtocolAndAddress() {
-        guard let result = QRCodeValueParser.from(string: "ethereum:0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c") else { return XCTFail("Can't parse EIP 681") }
+        guard let result = AddressOrEip681Parser.from(string: "ethereum:0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c") else { return XCTFail("Can't parse EIP 681") }
         switch result {
         case .address:
             XCTFail("Can't parse EIP 681")
@@ -49,7 +49,7 @@ class QRCodeValueParserTests: XCTestCase {
     }
 
     func testEthereumAddress() {
-        guard let result = QRCodeValueParser.from(string: "ethereum:0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c") else { return XCTFail("Can't parse EIP 681") }
+        guard let result = AddressOrEip681Parser.from(string: "ethereum:0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c") else { return XCTFail("Can't parse EIP 681") }
         switch result {
         case .address:
             XCTFail("Can't parse EIP 681")
@@ -59,7 +59,7 @@ class QRCodeValueParserTests: XCTestCase {
     }
 
     func testEthereumAddressWithValue() {
-        guard let result = QRCodeValueParser.from(string: "ethereum:0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c?value=1") else { return XCTFail("Can't parse EIP 681") }
+        guard let result = AddressOrEip681Parser.from(string: "ethereum:0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c?value=1") else { return XCTFail("Can't parse EIP 681") }
         switch result {
         case .address:
             XCTFail("Can't parse EIP 681")
@@ -69,7 +69,7 @@ class QRCodeValueParserTests: XCTestCase {
     }
 
     func testExtractChain() {
-        guard let result = QRCodeValueParser.from(string: "ethereum:0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c@3?value=1") else { return XCTFail("Can't parse EIP 681") }
+        guard let result = AddressOrEip681Parser.from(string: "ethereum:0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c@3?value=1") else { return XCTFail("Can't parse EIP 681") }
         switch result {
         case .address:
             XCTFail("Can't parse EIP 681")
@@ -79,7 +79,7 @@ class QRCodeValueParserTests: XCTestCase {
     }
 
     func testOMGAddress() {
-        guard let result = QRCodeValueParser.from(string: "omg:0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c") else { return XCTFail("Can't parse EIP 681") }
+        guard let result = AddressOrEip681Parser.from(string: "omg:0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c") else { return XCTFail("Can't parse EIP 681") }
         switch result {
         case .address:
             XCTFail("Can't parse EIP 681")
@@ -90,7 +90,7 @@ class QRCodeValueParserTests: XCTestCase {
     }
 
     func testBancorAddress() {
-        guard let result = QRCodeValueParser.from(string: "bancor:0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c") else { return XCTFail("Can't parse EIP 681") }
+        guard let result = AddressOrEip681Parser.from(string: "bancor:0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c") else { return XCTFail("Can't parse EIP 681") }
         switch result {
         case .address:
             XCTFail("Can't parse EIP 681")
@@ -101,7 +101,7 @@ class QRCodeValueParserTests: XCTestCase {
     }
 
     func testParseData() {
-        guard let result = QRCodeValueParser.from(string: "ethereum:0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c?data=0x123") else { return XCTFail("Can't parse EIP 681") }
+        guard let result = AddressOrEip681Parser.from(string: "ethereum:0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c?data=0x123") else { return XCTFail("Can't parse EIP 681") }
         switch result {
         case .address:
             XCTFail("Can't parse EIP 681")
@@ -113,7 +113,7 @@ class QRCodeValueParserTests: XCTestCase {
     }
     
     func testParseMultipleValues() {
-        guard let result = QRCodeValueParser.from(string: "ethereum:0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c?data=0x123&amount=1.0") else { return XCTFail("Can't parse EIP 681") }
+        guard let result = AddressOrEip681Parser.from(string: "ethereum:0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c?data=0x123&amount=1.0") else { return XCTFail("Can't parse EIP 681") }
         switch result {
         case .address:
             XCTFail("Can't parse EIP 681")
@@ -126,7 +126,7 @@ class QRCodeValueParserTests: XCTestCase {
     }
 
     func testParseNativeCryptoSend() {
-        guard let qrCodeValue = QRCodeValueParser.from(string: "ethereum:0xfb6916095ca1df60bb79Ce92ce3ea74c37c5d359?value=2.014e18") else { return XCTFail("Can't parse EIP 681") }
+        guard let qrCodeValue = AddressOrEip681Parser.from(string: "ethereum:0xfb6916095ca1df60bb79Ce92ce3ea74c37c5d359?value=2.014e18") else { return XCTFail("Can't parse EIP 681") }
         let expectation = self.expectation(description: "Promise resolves")
         switch qrCodeValue {
         case .address:
@@ -148,7 +148,7 @@ class QRCodeValueParserTests: XCTestCase {
     }
 
     func testParseNativeCryptoSendWithScientificNotation() {
-        guard let qrCodeValue = QRCodeValueParser.from(string: "ethereum:0xfb6916095ca1df60bb79Ce92ce3ea74c37c5d359?value=2.014e18") else { return XCTFail("Can't parse EIP 681") }
+        guard let qrCodeValue = AddressOrEip681Parser.from(string: "ethereum:0xfb6916095ca1df60bb79Ce92ce3ea74c37c5d359?value=2.014e18") else { return XCTFail("Can't parse EIP 681") }
         let expectation = self.expectation(description: "Promise resolves")
         switch qrCodeValue {
         case .address:
@@ -170,7 +170,7 @@ class QRCodeValueParserTests: XCTestCase {
     }
 
     func testParseErc20Send() {
-        guard let qrCodeValue = QRCodeValueParser.from(string: "ethereum:0x744d70fdbe2ba4cf95131626614a1763df805b9e/transfer?address=0x3d597789ea16054a084ac84ce87f50df9198f415&uint256=314e17") else { return XCTFail("Can't parse EIP 681") }
+        guard let qrCodeValue = AddressOrEip681Parser.from(string: "ethereum:0x744d70fdbe2ba4cf95131626614a1763df805b9e/transfer?address=0x3d597789ea16054a084ac84ce87f50df9198f415&uint256=314e17") else { return XCTFail("Can't parse EIP 681") }
         let expectation = self.expectation(description: "Promise resolves")
         switch qrCodeValue {
         case .address:
@@ -193,7 +193,7 @@ class QRCodeValueParserTests: XCTestCase {
     }
 
     func testParseErc20SendWithoutRecipient() {
-        guard let qrCodeValue = QRCodeValueParser.from(string: "ethereum:0x60fa213f48cd0d83b54380108ccd03a6993247e0/transfer?uint256=1.5e18") else { return XCTFail("Can't parse EIP 681") }
+        guard let qrCodeValue = AddressOrEip681Parser.from(string: "ethereum:0x60fa213f48cd0d83b54380108ccd03a6993247e0/transfer?uint256=1.5e18") else { return XCTFail("Can't parse EIP 681") }
         let expectation = self.expectation(description: "Promise resolves")
         switch qrCodeValue {
         case .address:
@@ -216,7 +216,7 @@ class QRCodeValueParserTests: XCTestCase {
     }
 
     func testParseNativeCryptoSendWithoutValue() {
-        guard let qrCodeValue = QRCodeValueParser.from(string: "ethereum:0xfb6916095ca1df60bb79Ce92ce3ea74c37c5d359") else { return XCTFail("Can't parse EIP 681") }
+        guard let qrCodeValue = AddressOrEip681Parser.from(string: "ethereum:0xfb6916095ca1df60bb79Ce92ce3ea74c37c5d359") else { return XCTFail("Can't parse EIP 681") }
         let expectation = self.expectation(description: "Promise resolves")
         switch qrCodeValue {
         case .address:
@@ -238,7 +238,7 @@ class QRCodeValueParserTests: XCTestCase {
     }
 
     func testParseErc20SendWithoutAmount() {
-        guard let qrCodeValue = QRCodeValueParser.from(string: "ethereum:0x744d70fdbe2ba4cf95131626614a1763df805b9e/transfer?address=0x3d597789ea16054a084ac84ce87f50df9198f415") else { return XCTFail("Can't parse EIP 681") }
+        guard let qrCodeValue = AddressOrEip681Parser.from(string: "ethereum:0x744d70fdbe2ba4cf95131626614a1763df805b9e/transfer?address=0x3d597789ea16054a084ac84ce87f50df9198f415") else { return XCTFail("Can't parse EIP 681") }
         let expectation = self.expectation(description: "Promise resolves")
         switch qrCodeValue {
         case .address:
@@ -261,7 +261,7 @@ class QRCodeValueParserTests: XCTestCase {
     }
 
     func testParseInvalidNativeCryptoSend() {
-        guard let qrCodeValue = QRCodeValueParser.from(string: "ethereum:0xfb6916095ca1df60bb79Ce92ce3ea74c37c5d359/foo?value=2.014e18") else { return XCTFail("Can't parse EIP 681") }
+        guard let qrCodeValue = AddressOrEip681Parser.from(string: "ethereum:0xfb6916095ca1df60bb79Ce92ce3ea74c37c5d359/foo?value=2.014e18") else { return XCTFail("Can't parse EIP 681") }
         let expectation = self.expectation(description: "Promise resolves")
         switch qrCodeValue {
         case .address:
@@ -281,7 +281,7 @@ class QRCodeValueParserTests: XCTestCase {
     }
 
     func testParseNativeCryptoSendWithoutValueWithEnsName() {
-        guard let qrCodeValue = QRCodeValueParser.from(string: "ethereum:foo.eth") else { return XCTFail("Can't parse EIP 681") }
+        guard let qrCodeValue = AddressOrEip681Parser.from(string: "ethereum:foo.eth") else { return XCTFail("Can't parse EIP 681") }
         let expectation = self.expectation(description: "Promise resolves")
         switch qrCodeValue {
         case .address:

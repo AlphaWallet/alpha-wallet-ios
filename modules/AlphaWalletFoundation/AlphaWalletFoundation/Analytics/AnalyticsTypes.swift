@@ -162,9 +162,9 @@ public enum Analytics {
     }
 
     public enum ScanQRCodeResultType: String {
-        case value
+        case addressOrEip681
         case walletConnect
-        case other
+        case string
         case url
         case privateKey
         case seedPhase
