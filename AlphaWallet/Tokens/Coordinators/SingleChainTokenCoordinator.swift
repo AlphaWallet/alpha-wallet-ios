@@ -72,13 +72,11 @@ class SingleChainTokenCoordinator: Coordinator {
         return session.server == server
     }
 
-    func showTokenList(for type: PaymentFlow, token: Token, navigationController: UINavigationController) {
+    func show(nonFungibleToken token: Token, transactionType: TransactionType, navigationController: UINavigationController) {
         guard !token.nonZeroBalance.isEmpty else {
             navigationController.displayError(error: NoTokenError())
             return
         }
-
-        guard let transactionType = type.transactionType else { return }
 
         let activitiesFilterStrategy = transactionType.activitiesFilterStrategy
         let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: TransactionDataStore.functional.transactionsFilter(for: activitiesFilterStrategy, token: transactionType.tokenObject))

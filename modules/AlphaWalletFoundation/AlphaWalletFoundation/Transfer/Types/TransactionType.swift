@@ -9,11 +9,8 @@ public enum Erc1155TokenTransactionType {
 public enum TransactionType {
     public init(nonFungibleToken token: Token, tokenHolders: [TokenHolder]) {
         switch token.type {
-        case .nativeCryptocurrency:
-            self = .nativeCryptocurrency(token, destination: nil, amount: nil)
-        case .erc20:
-            //TODO why is this inconsistent with `.nativeCryptocurrency` which uses an integer value (i.e. taking into account decimals) instead
-            self = .erc20Token(token, destination: nil, amount: nil)
+        case .nativeCryptocurrency, .erc20:
+            fatalError()
         case .erc875:
             self = .erc875Token(token, tokenHolders: tokenHolders)
         case .erc721:
@@ -22,7 +19,7 @@ public enum TransactionType {
         case .erc721ForTickets:
             self = .erc721ForTicketToken(token, tokenHolders: tokenHolders)
         case .erc1155:
-            self = .erc1155Token(token, transferType: .singleTransfer, tokenHolders: tokenHolders)
+            self = .erc1155Token(token, tokenHolders: tokenHolders)
         }
     }
 
@@ -34,44 +31,24 @@ public enum TransactionType {
         case .erc20:
             //TODO why is this inconsistent with `.nativeCryptocurrency` which uses an integer value (i.e. taking into account decimals) instead
             self = .erc20Token(token, destination: recipient, amount: amount)
-        case .erc875:
-            self = .erc875Token(token, tokenHolders: [])
-        case .erc721:
-            //NOTE: here we got only one token, using array to avoid optional
-            self = .erc721Token(token, tokenHolders: [])
-        case .erc721ForTickets:
-            self = .erc721ForTicketToken(token, tokenHolders: [])
-        case .erc1155:
-            self = .erc1155Token(token, transferType: .singleTransfer, tokenHolders: [])
+        case .erc875, .erc721, .erc721ForTickets, .erc1155:
+            //NOTE: better to throw error than use incorrect state
+            fatalError()
         }
     }
 
     case nativeCryptocurrency(Token, destination: AddressOrEnsName?, amount: BigInt?)
+    //TODO: replace string with BigInt
     case erc20Token(Token, destination: AddressOrEnsName?, amount: String?)
     case erc875Token(Token, tokenHolders: [TokenHolder])
     case erc721Token(Token, tokenHolders: [TokenHolder])
     case erc721ForTicketToken(Token, tokenHolders: [TokenHolder])
-    case erc1155Token(Token, transferType: Erc1155TokenTransactionType, tokenHolders: [TokenHolder])
+    case erc1155Token(Token, tokenHolders: [TokenHolder])
     case dapp(Token, DAppRequester)
     case claimPaidErc875MagicLink(Token)
     case tokenScript(Token)
     //TODO replace some of those above with this?
     case prebuilt(RPCServer)
-
-    public var contractForFungibleSend: AlphaWallet.Address? {
-        switch self {
-        case .nativeCryptocurrency:
-            return nil
-        case .erc20Token(let token, _, _):
-            return token.contractAddress
-        case .dapp, .tokenScript, .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .claimPaidErc875MagicLink, .prebuilt:
-            return nil
-        }
-    }
-
-    public var addressAndRPCServer: AddressAndRPCServer {
-        AddressAndRPCServer(address: tokenObject.contractAddress, server: server)
-    }
 }
 
 extension TransactionType {
@@ -90,7 +67,7 @@ extension TransactionType {
             return token.symbol
         case .erc721ForTicketToken(let token, _):
             return token.symbol
-        case .erc1155Token(let token, _, _):
+        case .erc1155Token(let token, _):
             return token.symbol
         case .claimPaidErc875MagicLink(let token):
             return token.symbol
@@ -114,7 +91,7 @@ extension TransactionType {
             return token
         case .erc721ForTicketToken(let token, _):
             return token
-        case .erc1155Token(let token, _, _):
+        case .erc1155Token(let token, _):
             return token
         case .claimPaidErc875MagicLink(let token):
             return token
@@ -138,7 +115,7 @@ extension TransactionType {
             return token.server
         case .erc721ForTicketToken(let token, _):
             return token.server
-        case .erc1155Token(let token, _, _):
+        case .erc1155Token(let token, _):
             return token.server
         case .claimPaidErc875MagicLink(let token):
             return token.server
@@ -159,7 +136,7 @@ extension TransactionType {
             return token.contractAddress
         case .erc721ForTicketToken(let token, _):
             return token.contractAddress
-        case .erc1155Token(let token, _, _):
+        case .erc1155Token(let token, _):
             return token.contractAddress
         case .dapp(let token, _), .tokenScript(let token), .claimPaidErc875MagicLink(let token):
             return token.contractAddress
@@ -176,7 +153,7 @@ extension TransactionType {
         case dappTransaction(confirmType: ConfirmType)
         case walletConnect(confirmType: ConfirmType, requester: RequesterViewModel)
         case sendFungiblesTransaction(confirmType: ConfirmType, amount: FungiblesTransactionAmount)
-        case sendNftTransaction(confirmType: ConfirmType, tokenInstanceNames: [TokenId: String])
+        case sendNftTransaction(confirmType: ConfirmType)
         case claimPaidErc875MagicLink(confirmType: ConfirmType, price: BigUInt, numberOfTokens: UInt)
         case speedupTransaction
         case cancelTransaction
@@ -186,7 +163,7 @@ extension TransactionType {
 
         public var confirmType: ConfirmType {
             switch self {
-            case .dappTransaction(let confirmType), .walletConnect(let confirmType, _), .sendFungiblesTransaction(let confirmType, _), .sendNftTransaction(let confirmType, _), .tokenScriptTransaction(let confirmType, _, _), .claimPaidErc875MagicLink(let confirmType, _, _):
+            case .dappTransaction(let confirmType), .walletConnect(let confirmType, _), .sendFungiblesTransaction(let confirmType, _), .sendNftTransaction(let confirmType), .tokenScriptTransaction(let confirmType, _, _), .claimPaidErc875MagicLink(let confirmType, _, _):
                 return confirmType
             case .speedupTransaction, .cancelTransaction, .swapTransaction, .approve:
                 return .signThenSend
