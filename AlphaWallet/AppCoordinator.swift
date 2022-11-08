@@ -53,6 +53,7 @@ class AppCoordinator: NSObject, Coordinator {
     var activeWalletCoordinator: ActiveWalletCoordinator? {
         return coordinators.first { $0 is ActiveWalletCoordinator } as? ActiveWalletCoordinator
     }
+    private let currencyService = CurrencyService()
     private lazy var coinTickersFetcher: CoinTickersFetcher = CoinTickersFetcherImpl()
     private lazy var nftProvider: NFTProvider = AlphaWalletNFTProvider(analytics: analytics)
     private lazy var dependencyProvider: WalletDependencyContainer = {
@@ -335,7 +336,8 @@ class AppCoordinator: NSObject, Coordinator {
                 importToken: dep.importToken,
                 transactionsDataStore: dep.transactionsDataStore,
                 tokensService: dep.tokensService,
-                lock: lock)
+                lock: lock,
+                currencyService: currencyService)
 
         coordinator.delegate = self
 
@@ -665,7 +667,7 @@ extension AppCoordinator: AccountsCoordinatorDelegate {
 
     private func disconnectWalletConnectSessionsSelectively(for reason: RestartReason, walletConnectCoordinator: WalletConnectCoordinator) {
         switch reason {
-        case .changeLocalization, .walletChange:
+        case .changeLocalization, .walletChange, .currencyChange:
             break //no op
         case .serverChange:
             walletConnectCoordinator.disconnect(sessionsToDisconnect: .allExcept(config.enabledServers))

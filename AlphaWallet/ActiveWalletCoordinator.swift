@@ -29,6 +29,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private let activitiesPipeLine: ActivitiesPipeLine
     private let sessionsProvider: SessionsProvider
     internal let importToken: ImportToken
+    private let currencyService: CurrencyService
     private lazy var tokensFilter: TokensFilter = {
         let tokenGroupIdentifier: TokenGroupIdentifierProtocol = TokenGroupIdentifier.identifier(fromFileName: "tokens")!
         return TokensFilter(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: coinTickersFetcher, tokenGroupIdentifier: tokenGroupIdentifier)
@@ -159,8 +160,10 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
             importToken: ImportToken,
             transactionsDataStore: TransactionDataStore,
             tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable,
-            lock: Lock
+            lock: Lock,
+            currencyService: CurrencyService
     ) {
+        self.currencyService = currencyService
         self.lock = lock
         self.tokensService = tokensService
         self.transactionsDataStore = transactionsDataStore
@@ -373,7 +376,8 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
                 blockscanChatService: blockscanChatService,
                 blockiesGenerator: blockiesGenerator,
                 domainResolutionService: domainResolutionService,
-                lock: lock)
+                lock: lock,
+                currencyService: currencyService)
         coordinator.rootViewController.tabBarItem = ActiveWalletViewModel.Tabs.settings.tabBarItem
         coordinator.navigationController.configureForLargeTitles()
         coordinator.delegate = self

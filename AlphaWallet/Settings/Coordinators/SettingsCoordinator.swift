@@ -9,6 +9,7 @@ enum RestartReason {
     case walletChange
     case changeLocalization
     case serverChange
+    case currencyChange
 }
 
 protocol SettingsCoordinatorDelegate: class, CanOpenURL {
@@ -36,6 +37,7 @@ class SettingsCoordinator: Coordinator {
         return sessions.anyValue.account
     }
     private let lock: Lock
+    private let currencyService: CurrencyService
 
     let navigationController: UINavigationController
     weak var delegate: SettingsCoordinatorDelegate?
@@ -63,7 +65,8 @@ class SettingsCoordinator: Coordinator {
         blockscanChatService: BlockscanChatService,
         blockiesGenerator: BlockiesGenerator,
         domainResolutionService: DomainResolutionServiceType,
-        lock: Lock
+        lock: Lock,
+        currencyService: CurrencyService
     ) {
         self.navigationController = navigationController
         self.lock = lock
@@ -78,6 +81,7 @@ class SettingsCoordinator: Coordinator {
         self.blockscanChatService = blockscanChatService
         self.blockiesGenerator = blockiesGenerator
         self.domainResolutionService = domainResolutionService
+        self.currencyService = currencyService
         promptBackupCoordinator.subtlePromptDelegate = self
     }
 
@@ -184,9 +188,9 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
         guard case .real = account.type else { return }
 
         let coordinator = BackupCoordinator(navigationController: navigationController, keystore: keystore, account: account, analytics: analytics)
-        addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start()
+        addCoordinator(coordinator)
     }
 
     func activeNetworksSelected(in controller: SettingsViewController) {
@@ -334,7 +338,10 @@ extension SettingsCoordinator: AdvancedSettingsViewControllerDelegate {
     }
 
     func changeCurrencySelected(in controller: AdvancedSettingsViewController) {
-
+        let coordinator = ChangeCurrencyCoordinator(navigationController: navigationController, currencyService: currencyService)
+        coordinator.delegate = self
+        addCoordinator(coordinator)
+        coordinator.start()
     }
 
     func analyticsSelected(in controller: AdvancedSettingsViewController) {
@@ -364,6 +371,17 @@ extension SettingsCoordinator: AdvancedSettingsViewControllerDelegate {
         navigationController.pushViewController(controller, animated: true)
     }
 
+}
+
+extension SettingsCoordinator: ChangeCurrencyCoordinatorDelegate {
+    func didChangeCurrency(in coordinator: ChangeCurrencyCoordinator, currency: AlphaWalletFoundation.Currency) {
+        removeCoordinator(coordinator)
+        restart(for: account, reason: .currencyChange)
+    }
+
+    func didClose(in coordinator: ChangeCurrencyCoordinator) {
+        removeCoordinator(coordinator)
+    }
 }
 
 extension SettingsCoordinator: PingInfuraCoordinatorDelegate {

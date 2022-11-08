@@ -22,7 +22,7 @@ class AdvancedSettingsViewModel {
     private let wallet: Wallet
     private let config: Config
     private (set) var rows: [AdvancedSettingsViewModel.AdvancedSettingsRow] = []
-    
+    private let features: Features = .default
     let largeTitleDisplayMode: UINavigationItem.LargeTitleDisplayMode = .never
     
     init(wallet: Wallet, config: Config) {
@@ -32,7 +32,7 @@ class AdvancedSettingsViewModel {
 
     func transform(input: AdvancedSettingsViewModelInput) -> AdvancedSettingsViewModelOutput {
         let viewState = input.willAppear
-            .map { [wallet] _ in AdvancedSettingsViewModel.functional.computeSections(wallet: wallet) }
+            .map { [wallet, features] _ in AdvancedSettingsViewModel.functional.computeSections(wallet: wallet, features: features) }
             .handleEvents(receiveOutput: { self.rows = $0 })
             .map { $0.map { self.buildCellViewModel(for: $0) } }
             .map { AdvancedSettingsViewModel.SectionViewModel(section: .rows, views: $0) }
@@ -100,14 +100,15 @@ extension AdvancedSettingsViewModel {
 }
 
 extension AdvancedSettingsViewModel.functional {
-    fileprivate static func computeSections(wallet: Wallet) -> [AdvancedSettingsViewModel.AdvancedSettingsRow] {
-        let canExportToJSONKeystore = Features.default.isAvailable(.isExportJsonKeystoreEnabled) && wallet.isReal()
+    fileprivate static func computeSections(wallet: Wallet, features: Features) -> [AdvancedSettingsViewModel.AdvancedSettingsRow] {
+        let canExportToJSONKeystore = features.isAvailable(.isExportJsonKeystoreEnabled) && wallet.isReal()
         return [
             .clearBrowserCache,
             .tokenScript,
-            Features.default.isAvailable(.isUsingPrivateNetwork) ? .usePrivateNetwork : nil,
-            Features.default.isAvailable(.isAnalyticsUIEnabled) ? .analytics : nil,
-            Features.default.isAvailable(.isLanguageSwitcherDisabled) ? nil : .changeLanguage,
+            features.isAvailable(.isUsingPrivateNetwork) ? .usePrivateNetwork : nil,
+            features.isAvailable(.isAnalyticsUIEnabled) ? .analytics : nil,
+            features.isAvailable(.isLanguageSwitcherEnabled) ? .changeLanguage: nil,
+            features.isAvailable(.isChangeCurrencyEnabled) ? .changeCurrency : nil,
             canExportToJSONKeystore ? .exportJSONKeystore : nil,
             .tools,
             (Environment.isDebug || Environment.isTestFlight) ? .features : nil,
