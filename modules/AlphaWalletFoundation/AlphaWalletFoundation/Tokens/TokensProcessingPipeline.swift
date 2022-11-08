@@ -249,11 +249,11 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
         let balance: BalanceViewModel
         switch token.type {
         case .nativeCryptocurrency:
-            balance = .init(balance: NativecryptoBalanceViewModel(token: token, ticker: ticker))
+            balance = .init(balance: NativecryptoBalanceViewModel(balance: token, ticker: ticker))
         case .erc20:
-            balance = .init(balance: Erc20BalanceViewModel(token: token, ticker: ticker))
+            balance = .init(balance: Erc20BalanceViewModel(balance: token, ticker: ticker))
         case .erc875, .erc721, .erc721ForTickets, .erc1155:
-            balance = .init(balance: NFTBalanceViewModel(token: token, ticker: ticker))
+            balance = .init(balance: NFTBalanceViewModel(balance: token, ticker: ticker))
         }
 
         return token.override(balance: balance)

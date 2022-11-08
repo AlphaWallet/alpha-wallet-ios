@@ -12,6 +12,7 @@ class CoinTickerObject: Object {
     @objc dynamic var id: String = ""
     @objc dynamic var symbol: String = ""
     @objc dynamic var image: String = ""
+    @objc dynamic var currency: String = ""
     @objc dynamic var price_usd: Double = 0
     @objc dynamic var percent_change_24h: Double = 0
     var market_cap = RealmProperty<Double?>()
@@ -29,6 +30,7 @@ class CoinTickerObject: Object {
 
     convenience init(coinTicker: CoinTicker) {
         self.init()
+        self.currency = coinTicker.currency
         self.id = coinTicker.id
         self.symbol = coinTicker.symbol
         self.image = coinTicker.image

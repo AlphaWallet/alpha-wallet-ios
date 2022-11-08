@@ -5,7 +5,7 @@ import BigInt
 import AlphaWalletCore
 import AlphaWalletOpenSea
 
-public protocol BalanceViewModelType {
+protocol BalanceViewModelType {
     var currencyAmount: String? { get }
     var amountFull: String { get }
     var amountShort: String { get }
@@ -20,8 +20,8 @@ public protocol BalanceViewModelType {
 }
 
 extension BalanceViewModelType {
-    public var isZero: Bool { value.isZero }
-    public var valueDecimal: NSDecimalNumber? { amountFull.optionalDecimalValue }
+    var isZero: Bool { value.isZero }
+    var valueDecimal: NSDecimalNumber? { amountFull.optionalDecimalValue }
 }
 
 public struct BalanceViewModel: BalanceViewModelType {

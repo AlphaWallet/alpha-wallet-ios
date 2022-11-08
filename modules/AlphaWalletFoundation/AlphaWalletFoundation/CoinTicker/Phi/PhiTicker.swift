@@ -19,6 +19,7 @@ struct PhiTicker {
     let total_volume_24h: Double
     let volume_change_24h: Double
     let percent_volume_change_24h: String
+    let currency: String
 }
 
 extension PhiTicker {
@@ -27,6 +28,7 @@ extension PhiTicker {
     init?(json: JSON, tickerId: String, currency: String) {
         guard let id = json["data"][tickerId]["id"].string else { return nil }
         self.id = id
+        self.currency = currency
         symbol = json["data"][tickerId]["symbol"].stringValue
         let fiatQuote = json["data"]["quotes"][currency]
         price = fiatQuote["price"].doubleValue
@@ -60,5 +62,6 @@ extension CoinTicker {
         self.max_supply = nil
         self.ath = nil
         self.ath_change_percentage = nil
+        self.currency = phiTicker.currency
     }
 }
