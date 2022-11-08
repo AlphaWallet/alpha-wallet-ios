@@ -255,7 +255,10 @@ struct Configuration {
             static let pendingState = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.cheese()!, darkColor: R.color.ocean()!)
             }
-            
+            static let roundButtonBackground = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.mike()!, darkColor: R.color.mine()!)
+            }
+
             static let textViewFailed = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.silver()!, darkColor: R.color.porcelain()!)
             }
