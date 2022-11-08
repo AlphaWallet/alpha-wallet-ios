@@ -21,7 +21,6 @@ func applyStyle() {
     UIToolbar.appearance().tintColor = Colors.appTint
 
     //Background (not needed in iOS 12.1 on simulator)
-    UISearchBar.appearance().backgroundColor = Colors.appBackground
     //Cancel button
     UISearchBar.appearance().tintColor = Configuration.Color.Semantic.searchbarTint
     //Cursor color
