@@ -49,7 +49,6 @@ public enum TransactionType {
     case nativeCryptocurrency(Token, destination: AddressOrEnsName?, amount: BigInt?)
     case erc20Token(Token, destination: AddressOrEnsName?, amount: String?)
     case erc875Token(Token, tokenHolders: [TokenHolder])
-    case erc875TokenOrder(Token, tokenHolders: [TokenHolder])
     case erc721Token(Token, tokenHolders: [TokenHolder])
     case erc721ForTicketToken(Token, tokenHolders: [TokenHolder])
     case erc1155Token(Token, transferType: Erc1155TokenTransactionType, tokenHolders: [TokenHolder])
@@ -65,7 +64,7 @@ public enum TransactionType {
             return nil
         case .erc20Token(let token, _, _):
             return token.contractAddress
-        case .dapp, .tokenScript, .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .claimPaidErc875MagicLink, .prebuilt:
+        case .dapp, .tokenScript, .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .claimPaidErc875MagicLink, .prebuilt:
             return nil
         }
     }
@@ -86,8 +85,6 @@ extension TransactionType {
         case .erc20Token(let token, _, _):
             return token.symbol
         case .erc875Token(let token, _):
-            return token.symbol
-        case .erc875TokenOrder(let token, _):
             return token.symbol
         case .erc721Token(let token, _):
             return token.symbol
@@ -113,8 +110,6 @@ extension TransactionType {
             return token
         case .erc875Token(let token, _):
             return token
-        case .erc875TokenOrder(let token, _):
-            return token
         case .erc721Token(let token, _):
             return token
         case .erc721ForTicketToken(let token, _):
@@ -139,8 +134,6 @@ extension TransactionType {
             return token.server
         case .erc875Token(let token, _):
             return token.server
-        case .erc875TokenOrder(let token, _):
-            return token.server
         case .erc721Token(let token, _):
             return token.server
         case .erc721ForTicketToken(let token, _):
@@ -161,8 +154,6 @@ extension TransactionType {
         case .erc20Token(let token, _, _):
             return token.contractAddress
         case .erc875Token(let token, _):
-            return token.contractAddress
-        case .erc875TokenOrder(let token, _):
             return token.contractAddress
         case .erc721Token(let token, _):
             return token.contractAddress

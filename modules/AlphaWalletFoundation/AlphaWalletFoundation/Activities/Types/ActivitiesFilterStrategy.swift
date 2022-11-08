@@ -40,7 +40,7 @@ extension TransactionType {
             return .nativeCryptocurrency(primaryKey: token.primaryKey)
         case .erc20Token(let tokenObject, _, _):
             return .contract(contract: tokenObject.contractAddress)
-        case .erc875Token(let token, _), .erc875TokenOrder(let token, _):
+        case .erc875Token(let token, _):
             return .contract(contract: token.contractAddress)
         case .erc721Token(let token, _), .erc721ForTicketToken(let token, _), .erc1155Token(let token, _, _):
             return .operationTypes(operationTypes: [], contract: token.contractAddress)

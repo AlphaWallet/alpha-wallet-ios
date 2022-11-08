@@ -33,7 +33,7 @@ final class TokenInfoPageViewModel {
             return service.tokenViewModelPublisher(for: token)
                 .map { $0?.balance.ticker }
                 .eraseToAnyPublisher()
-        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+        case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return Just<CoinTicker?>(nil)
                 .eraseToAnyPublisher()
         }

@@ -31,7 +31,7 @@ final class FungibleTokenHeaderViewModel {
         case .erc20Token(let token, _, _):
             return service.tokenViewModelPublisher(for: token)
                 .eraseToAnyPublisher()
-        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+        case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return Just<TokenViewModel?>(nil)
                 .eraseToAnyPublisher()
         }
@@ -78,7 +78,7 @@ final class FungibleTokenHeaderViewModel {
                 value = "\(token.balance.amountShort) \(token.balance.symbol)"
             case .erc20Token:
                 value = "\(token.balance.amountShort) \(token.tokenScriptOverrides?.symbolInPluralForm ?? token.balance.symbol)"
-            case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+            case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
                 value = UiTweaks.noPriceMarker
             }
 
@@ -134,7 +134,7 @@ final class FungibleTokenHeaderViewModel {
                 } else {
                     return marketPriceAttributedStringFor(balance: balance)
                 }
-            case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+            case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
                 return nil
             }
         }

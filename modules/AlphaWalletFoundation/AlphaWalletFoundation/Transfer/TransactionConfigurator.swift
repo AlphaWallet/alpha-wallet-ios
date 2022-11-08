@@ -46,7 +46,7 @@ public class TransactionConfigurator {
         switch transaction.transactionType {
         case .nativeCryptocurrency:
             return transaction.recipient
-        case .dapp, .erc20Token, .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+        case .dapp, .erc20Token, .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return transaction.contract
         }
     }
@@ -57,7 +57,6 @@ public class TransactionConfigurator {
         case .nativeCryptocurrency, .dapp: return transaction.value
         case .erc20Token: return 0
         case .erc875Token: return 0
-        case .erc875TokenOrder: return transaction.value
         case .erc721Token: return 0
         case .erc721ForTicketToken: return 0
         case .erc1155Token: return 0
@@ -239,37 +238,6 @@ public class TransactionConfigurator {
                     arrayType = ABIType.uint(bits: 256)
                 }
                 let functionEncoder = Function(name: "transfer", parameters: [.address, .dynamicArray(arrayType)])
-                let encoder = ABIEncoder()
-                try encoder.encode(function: functionEncoder, arguments: parameters)
-                let gasLimit = transaction.gasLimit ?? maxGasLimit
-
-                return createConfiguration(server: server, analytics: analytics, transaction: transaction, gasLimit: gasLimit, data: encoder.data)
-            case .erc875TokenOrder(let token, _):
-                guard let expiry = transaction.expiry, let indices = transaction.indices, let v = transaction.v, let r = transaction.r, let s = transaction.s else {
-                    throw TransactionConfiguratorError.impossibleToBuildConfiguration
-                }
-                let parameters: [Any] = [
-                    expiry,
-                    indices.map({ BigUInt($0) }),
-                    BigUInt(v),
-                    Data(_hex: r),
-                    Data(_hex: s)
-                ]
-
-                let arrayType: ABIType
-                if token.contractAddress.isLegacy875Contract {
-                    arrayType = ABIType.uint(bits: 16)
-                } else {
-                    arrayType = ABIType.uint(bits: 256)
-                }
-
-                let functionEncoder = Function(name: "trade", parameters: [
-                    .uint(bits: 256),
-                    .dynamicArray(arrayType),
-                    .uint(bits: 8),
-                    .bytes(32),
-                    .bytes(32)
-                ])
                 let encoder = ABIEncoder()
                 try encoder.encode(function: functionEncoder, arguments: parameters)
                 let gasLimit = transaction.gasLimit ?? maxGasLimit

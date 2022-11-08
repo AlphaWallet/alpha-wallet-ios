@@ -26,7 +26,7 @@ struct SendViewModelOutput {
     let confirmTransaction: AnyPublisher<UnconfirmedTransaction, Never>
 }
 
-/// suppots next transaction types: .nativeCryptocurrency, .erc20Token, .dapp, .claimPaidErc875MagicLink, .tokenScript, .erc875TokenOrder, .prebuilt
+/// suppots next transaction types: .nativeCryptocurrency, .erc20Token, .dapp, .claimPaidErc875MagicLink, .tokenScript, .prebuilt
 final class SendViewModel {
     private let importToken: ImportToken
     private lazy var eip681UrlResolver = Eip681UrlResolver(config: session.config, importToken: importToken, missingRPCServerStrategy: .fallbackToPreffered(session.server))
@@ -58,7 +58,7 @@ final class SendViewModel {
         .eraseToAnyPublisher()
     }()
 
-    /// Supports cases: `.nativeCryptocurrency, .erc20Token, .dapp, .claimPaidErc875MagicLink, .tokenScript, .erc875TokenOrder, .prebuilt`
+    /// Supports cases: `.nativeCryptocurrency, .erc20Token, .dapp, .claimPaidErc875MagicLink, .tokenScript, .prebuilt`
     private var token: Token? {
         switch transactionType {
         case .nativeCryptocurrency:
@@ -66,7 +66,7 @@ final class SendViewModel {
             return tokensService.token(for: transactionType.contract, server: session.server)
         case .erc20Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return transactionType.tokenObject
-        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token:
+        case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token:
             return nil
         }
     }
@@ -180,7 +180,7 @@ final class SendViewModel {
                 let amount = amount.flatMap { EtherNumberFormatter.plain.number(from: $0, decimals: token.decimals) }
                 return self.makeTransactionType(token: token, recipient: recipient, amount: amount)
             //NOTE: do we need to repeat `case .erc20Token(_, let recipient, let amount)` for cases `.dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt`?
-            case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+            case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
                 return nil
             }
         }.eraseToAnyPublisher()
@@ -232,7 +232,7 @@ final class SendViewModel {
                 return amount.flatMap { EtherNumberFormatter.plain.string(from: $0, units: .ether) }
             case .erc20Token(_, _, let amount):
                 return amount
-            case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+            case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
                 return nil
             }
         }()
@@ -246,7 +246,7 @@ final class SendViewModel {
             return RecipientTextFieldState(recipient: recipient.flatMap { $0.stringValue })
         case .erc20Token(_, let recipient, _):
             return RecipientTextFieldState(recipient: recipient.flatMap { $0.stringValue })
-        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+        case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return RecipientTextFieldState(recipient: nil)
         }
     }
@@ -256,7 +256,7 @@ final class SendViewModel {
             switch transactionType {
             case .nativeCryptocurrency, .erc20Token:
                 return false
-            case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+            case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
                 return true
             }
         }()
@@ -268,7 +268,7 @@ final class SendViewModel {
                     return true
                 }
                 return false
-            case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+            case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
                 return true
             }
         }()
@@ -285,7 +285,7 @@ final class SendViewModel {
         case .erc20Token(let token, _, _):
             return tokensService.tokenViewModel(for: token)
                 .flatMap { R.string.localizable.sendAvailable("\($0.balance.amountShort) \(transactionType.symbol)") }
-        case .dapp, .erc721ForTicketToken, .erc721Token, .erc875Token, .erc875TokenOrder, .erc1155Token, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+        case .dapp, .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return nil
         }
     }
@@ -296,7 +296,7 @@ final class SendViewModel {
             return false
         case .erc20Token(let token, _, _):
             return tokensService.tokenViewModel(for: token)?.balance == nil
-        case .dapp, .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .erc875TokenOrder, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+        case .dapp, .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return true
         }
     }
@@ -305,7 +305,7 @@ final class SendViewModel {
         switch transactionType {
         case .nativeCryptocurrency, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return false
-        case .erc20Token, .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token:
+        case .erc20Token, .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token:
             return true
         }
     }
@@ -325,7 +325,7 @@ final class SendViewModel {
             let shortValue = EtherNumberFormatter.shortPlain.string(from: balance.value, decimals: token.decimals).droppedTrailingZeros
 
             return (fullValue.optionalDecimalValue, shortValue)
-        case .dapp, .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .erc875TokenOrder, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+        case .dapp, .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return nil
         }
     }
@@ -378,7 +378,7 @@ final class SendViewModel {
         switch transactionType {
         case .nativeCryptocurrency, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return EtherNumberFormatter.full.number(from: amountString, units: .ether)
-        case .erc20Token, .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token:
+        case .erc20Token, .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token:
             return EtherNumberFormatter.full.number(from: amountString, decimals: transactionType.tokenObject.decimals)
         }
     }
@@ -397,7 +397,7 @@ final class SendViewModel {
             if let balance = tokenViewModel?.balance, balance.value < value {
                 return nil
             }
-        case .dapp, .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .erc875TokenOrder, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+        case .dapp, .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             break
         }
 
@@ -440,7 +440,7 @@ final class SendViewModel {
                 newTransactionType = TransactionType(fungibleToken: token, recipient: recipient, amount: amount.flatMap { EtherNumberFormatter().string(from: $0, units: .ether) })
             case .erc20Token(_, _, let amount):
                 newTransactionType = TransactionType(fungibleToken: token, recipient: recipient, amount: amount)
-            case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+            case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
                 newTransactionType = TransactionType(fungibleToken: token, recipient: recipient, amount: nil)
             }
         }
