@@ -3,7 +3,6 @@
 import Foundation
 import LocalAuthentication
 import BigInt
-import WalletCore
 import AlphaWalletWeb3
 
 public enum EtherKeystoreError: LocalizedError {
