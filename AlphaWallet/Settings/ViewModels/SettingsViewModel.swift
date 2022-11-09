@@ -7,7 +7,7 @@ import AlphaWalletFoundation
 
 struct SettingsViewModelInput {
     let appear: AnyPublisher<Void, Never>
-    let toggleSelection: AnyPublisher<(indexPath: IndexPath, isOn: Bool), Never>
+    let appProtectionSelection: AnyPublisher<(indexPath: IndexPath, isOn: Bool), Never>
     let blockscanChatUnreadCount: AnyPublisher<Int?, Never>
 }
 
@@ -64,7 +64,7 @@ final class SettingsViewModel {
     }
 
     func transform(input: SettingsViewModelInput) -> SettingsViewModelOutput {
-        let askToSetPasscode = self.askToSetPasscodeOrDeleteExisted(trigger: input.toggleSelection)
+        let askToSetPasscode = self.askToSetPasscodeOrDeleteExisted(trigger: input.appProtectionSelection)
 
         //NOTE: Refresh wallet name or ens when view will appear called, cancel prev. one if in loading proc.
         let assignedNameOrEns = self.assignedNameOrEns(appear: input.appear)

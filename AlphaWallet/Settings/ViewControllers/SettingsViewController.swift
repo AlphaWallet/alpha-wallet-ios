@@ -35,7 +35,7 @@ class SettingsViewController: UIViewController {
     }()
     private lazy var dataSource = makeDataSource()
     private let appear = PassthroughSubject<Void, Never>()
-    private let toggleSelection = PassthroughSubject<(indexPath: IndexPath, isOn: Bool), Never>()
+    private let appProtectionSelection = PassthroughSubject<(indexPath: IndexPath, isOn: Bool), Never>()
     private let blockscanChatUnreadCount = PassthroughSubject<Int?, Never>()
     private var cancellable = Set<AnyCancellable>()
 
@@ -67,7 +67,7 @@ class SettingsViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
 
         view.addSubview(tableView)
-        
+
         NSLayoutConstraint.activate([
             tableView.anchorsConstraint(to: view)
         ])
@@ -96,7 +96,7 @@ class SettingsViewController: UIViewController {
 
         let input = SettingsViewModelInput(
             appear: appear.eraseToAnyPublisher(),
-            toggleSelection: toggleSelection.eraseToAnyPublisher(),
+            appProtectionSelection: appProtectionSelection.eraseToAnyPublisher(),
             blockscanChatUnreadCount: blockscanChatUnreadCount.eraseToAnyPublisher())
 
         let output = viewModel.transform(input: input)
@@ -152,7 +152,7 @@ extension SettingsViewController: SwitchTableViewCellDelegate {
     func cell(_ cell: SwitchTableViewCell, switchStateChanged isOn: Bool) {
         guard let indexPath = cell.indexPath else { return }
 
-        toggleSelection.send((indexPath, isOn))
+        appProtectionSelection.send((indexPath, isOn))
     }
 }
 
