@@ -99,6 +99,11 @@ final class SendViewModel {
             .assign(to: \.cryptoValueString, on: self, ownership: .weak)
             .store(in: &cancelable)
 
+        transactionTypeSubject
+            .print("xxx.transactionType")
+            .sink { _ in }
+            .store(in: &cancelable)
+
         bigIntValue(cryptoValue: input.cryptoValue)
             .assign(to: \.cryptoValue, on: self, ownership: .weak)
             .store(in: &cancelable)
@@ -177,7 +182,7 @@ final class SendViewModel {
             case .nativeCryptocurrency(_, let recipient, let amount):
                 return self.makeTransactionType(token: token, recipient: recipient, amount: amount)
             case .erc20Token(_, let recipient, let amount):
-                let amount = amount.flatMap { EtherNumberFormatter.plain.number(from: $0, decimals: token.decimals) }
+                //let amount = amount.flatMap { EtherNumberFormatter.plain.number(from: $0, decimals: token.decimals) }
                 return self.makeTransactionType(token: token, recipient: recipient, amount: amount)
             //NOTE: do we need to repeat `case .erc20Token(_, let recipient, let amount)` for cases `.dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt`?
             case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
@@ -238,20 +243,25 @@ final class SendViewModel {
         return Publishers.Merge(whenScannedQrCode, Just(()))
             .eraseToAnyPublisher()
     }
+    //NOTE: Use formating entered value except initial state, it brakes small values, like `0.0001` its become `0`
+    private var shouldUseFormatting: Bool = false
 
     private func amountTextFieldState(for transactionType: TransactionType, cryptoToFiatRate: NSDecimalNumber?) -> AmountTextFieldState {
-        let transactedAmount: String? = {
-            switch transactionType {
-            case .nativeCryptocurrency(_, _, let amount):
-                return amount.flatMap { EtherNumberFormatter.plain.string(from: $0, units: .ether) }
-            case .erc20Token(_, _, let amount):
-                return amount
-            case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
-                return nil
-            }
-        }()
+        let useFormatting = shouldUseFormatting
+        shouldUseFormatting = true
 
-        return AmountTextFieldState(amount: transactedAmount, cryptoToFiatRate: cryptoToFiatRate)
+        let transactedAmount: String?
+
+        switch transactionType {
+        case .nativeCryptocurrency(_, _, let amount):
+            transactedAmount = amount.flatMap { EtherNumberFormatter.plain.string(from: $0, units: .ether) }
+        case .erc20Token(let token, _, let amount):
+            transactedAmount = amount.flatMap { EtherNumberFormatter.plain.string(from: $0, decimals: token.decimals) }
+        case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+            transactedAmount = nil
+        }
+
+        return AmountTextFieldState(amount: transactedAmount, cryptoToFiatRate: cryptoToFiatRate, useFormatting: useFormatting)
     }
 
     private func recipientTextFieldState(for transactionType: TransactionType) -> RecipientTextFieldState {
@@ -452,8 +462,8 @@ final class SendViewModel {
             switch transactionType {
             case .nativeCryptocurrency(_, _, let amount):
                 newTransactionType = TransactionType(fungibleToken: token, recipient: recipient, amount: amount.flatMap { EtherNumberFormatter().string(from: $0, units: .ether) })
-            case .erc20Token(_, _, let amount):
-                newTransactionType = TransactionType(fungibleToken: token, recipient: recipient, amount: amount)
+            case .erc20Token(let token, _, let amount):
+                newTransactionType = TransactionType(fungibleToken: token, recipient: recipient, amount: amount.flatMap { EtherNumberFormatter().string(from: $0, decimals: token.decimals) })
             case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
                 newTransactionType = TransactionType(fungibleToken: token, recipient: recipient, amount: nil)
             }
@@ -492,6 +502,7 @@ extension SendViewModel {
     struct AmountTextFieldState {
         let amount: String?
         let cryptoToFiatRate: NSDecimalNumber?
+        let useFormatting: Bool
     }
 
     struct RecipientTextFieldState {

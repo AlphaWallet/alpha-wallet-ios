@@ -11,7 +11,7 @@ public struct Config {
         ///Useful to reduce network calls
         public let isAutoFetchingDisabled = false
         ///Should only be used to allow users to take paths where the current wallet is real, not watched, e.g sign buttons are enabled. Some of those actions will fail, understandably. Should not display a watch wallet as if it is a real wallet though
-        public let shouldPretendIsRealWallet = false
+        public let shouldPretendIsRealWallet = true
         public let isOpenSeaFetchingDisabled = false
         public let isRunLoopThreadLoggingEnabled = false
         public let shouldReadClipboardForQRCode = false

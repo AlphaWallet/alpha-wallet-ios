@@ -59,20 +59,25 @@ class SendCoordinator: Coordinator {
         let viewModel = SendViewModel(transactionType: transactionType, session: session, tokensService: tokensService, importToken: importToken)
         let controller = SendViewController(viewModel: viewModel, domainResolutionService: domainResolutionService)
 
-        switch transactionType {
-        case .nativeCryptocurrency(_, let destination, let amount):
-            controller.targetAddressTextField.value = destination?.stringValue ?? ""
-            if let amount = amount {
-                controller.amountTextField.set(crypto: EtherNumberFormatter.full.string(from: amount, units: .ether), useFormatting: true)
-            } else {
-                //do nothing, especially not set it to a default BigInt() / 0
-            }
-        case .erc20Token(_, let destination, let amount):
-            controller.targetAddressTextField.value = destination?.stringValue ?? ""
-            controller.amountTextField.set(crypto: amount ?? "", useFormatting: true)
-        case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
-            break
-        }
+//        switch transactionType {
+//        case .nativeCryptocurrency(_, let destination, let amount):
+//            controller.targetAddressTextField.value = destination?.stringValue ?? ""
+//            if let amount = amount {
+//                controller.amountTextField.set(crypto: EtherNumberFormatter.full.string(from: amount, units: .ether), useFormatting: true)
+//            } else {
+//                //do nothing, especially not set it to a default BigInt() / 0
+//            }
+//        case .erc20Token(let token, let destination, let amount):
+//            controller.targetAddressTextField.value = destination?.stringValue ?? ""
+////            controller.amountTextField.set(crypto: amount ?? "", useFormatting: true)
+//            if let amount = amount {
+//                controller.amountTextField.set(crypto: "1.2"/*EtherNumberFormatter.full.string(from: amount, decimals: token.decimals)*/, useFormatting: true)
+//            } else {
+//                //do nothing, especially not set it to a default BigInt() / 0
+//            }
+//        case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+//            break
+//        }
         controller.delegate = self
         controller.navigationItem.largeTitleDisplayMode = .never
         controller.hidesBottomBarWhenPushed = true

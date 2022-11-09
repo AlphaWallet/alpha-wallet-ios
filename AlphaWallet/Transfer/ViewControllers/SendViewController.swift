@@ -143,7 +143,7 @@ class SendViewController: UIViewController {
                 amountTextField.availableTextHidden = viewState.amountStatusLabelState.isHidden
 
                 if let amount = viewState.amountTextFieldState.amount {
-                    amountTextField.set(crypto: amount, useFormatting: true)
+                    amountTextField.set(crypto: amount, useFormatting: viewState.amountTextFieldState.useFormatting)
                 }
 
                 if let recipient = viewState.recipientTextFieldState.recipient {

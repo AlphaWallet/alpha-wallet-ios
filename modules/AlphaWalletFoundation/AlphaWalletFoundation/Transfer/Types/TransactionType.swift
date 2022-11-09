@@ -30,6 +30,7 @@ public enum TransactionType {
             self = .nativeCryptocurrency(token, destination: recipient, amount: amount)
         case .erc20:
             //TODO why is this inconsistent with `.nativeCryptocurrency` which uses an integer value (i.e. taking into account decimals) instead
+            let amount = amount.flatMap { EtherNumberFormatter().number(from: $0, decimals: token.decimals) }
             self = .erc20Token(token, destination: recipient, amount: amount)
         case .erc875, .erc721, .erc721ForTickets, .erc1155:
             //NOTE: better to throw error than use incorrect state
@@ -39,7 +40,7 @@ public enum TransactionType {
 
     case nativeCryptocurrency(Token, destination: AddressOrEnsName?, amount: BigInt?)
     //TODO: replace string with BigInt
-    case erc20Token(Token, destination: AddressOrEnsName?, amount: String?)
+    case erc20Token(Token, destination: AddressOrEnsName?, amount: BigInt?)
     case erc875Token(Token, tokenHolders: [TokenHolder])
     case erc721Token(Token, tokenHolders: [TokenHolder])
     case erc721ForTicketToken(Token, tokenHolders: [TokenHolder])

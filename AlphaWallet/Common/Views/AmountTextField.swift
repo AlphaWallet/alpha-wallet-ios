@@ -216,6 +216,7 @@ final class AmountTextField: UIControl {
             .store(in: &cancelable)
 
         output.text
+            .print("xxx.text")
             .assign(to: \.text, on: textField)
             .store(in: &cancelable)
     }

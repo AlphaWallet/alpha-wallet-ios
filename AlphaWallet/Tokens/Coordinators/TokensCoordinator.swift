@@ -4,6 +4,7 @@ import UIKit
 import AlphaWalletAddress
 import Combine
 import AlphaWalletFoundation
+import BigInt
 
 protocol TokensCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryptoDelegate {
     func didTapSwap(swapTokenFlow: SwapTokenFlow, in coordinator: TokensCoordinator)
@@ -289,11 +290,12 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         //TODO: Remove transaction type from send screen, we have to build it when `continue` button selected, and not earlier. steps below seems incorrect
         // .erc875, .erc721ForTickets: do we actually need to use same transaction type?
         guard let coordinator = singleChainTokenCoordinator(forServer: token.server) else { return }
+        
         switch token.type {
         case .nativeCryptocurrency:
-            coordinator.show(fungibleToken: token, transactionType: .nativeCryptocurrency(token, destination: .none, amount: nil), navigationController: navigationController)
+            coordinator.show(fungibleToken: token, transactionType: .nativeCryptocurrency(token, destination: .none, amount: BigInt("100000000000000")), navigationController: navigationController)
         case .erc20:
-            coordinator.show(fungibleToken: token, transactionType: .erc20Token(token, destination: nil, amount: nil), navigationController: navigationController)
+            coordinator.show(fungibleToken: token, transactionType: .erc20Token(token, destination: nil, amount: BigInt("100000")), navigationController: navigationController)
         case .erc721:
             coordinator.show(nonFungibleToken: token, transactionType: .erc721Token(token, tokenHolders: []), navigationController: navigationController)
         case .erc875, .erc721ForTickets:
