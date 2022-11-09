@@ -92,19 +92,23 @@ open class ImportToken: TokenImportable, ContractDataFetchable {
 
     //Adding a token may fail if we lose connectivity while fetching the contract details (e.g. name and balance). So we remove the contract from the hidden list (if it was there) so that the app has the chance to add it automatically upon auto detection at startup
     open func importToken(for contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool = false) -> Promise<Token> {
-        if let token = tokensDataStore.token(forContract: contract, server: server) {
-            return .value(token)
-        } else {
-            return firstly {
-                fetchTokenOrContract(for: contract, server: server, onlyIfThereIsABalance: onlyIfThereIsABalance)
-            }.map { [tokensDataStore] tokenOrContract -> Token in
-                if let token = tokensDataStore.addOrUpdate(tokensOrContracts: [tokenOrContract]).first {
-                    return token
-                } else {
-                    throw ImportTokenError.notContractOrFailed(tokenOrContract)
-                }
+        firstly {
+            .value(server)
+        }.then(on: queue, { [queue, tokensDataStore] tokenType -> Promise<Token> in
+            if let token = tokensDataStore.token(forContract: contract, server: server) {
+                return .value(token)
+            } else {
+                return firstly {
+                    self.fetchTokenOrContract(for: contract, server: server, onlyIfThereIsABalance: onlyIfThereIsABalance)
+                }.map(on: queue, { [tokensDataStore] tokenOrContract -> Token in
+                    if let token = tokensDataStore.addOrUpdate(tokensOrContracts: [tokenOrContract]).first {
+                        return token
+                    } else {
+                        throw ImportTokenError.notContractOrFailed(tokenOrContract)
+                    }
+                })
             }
-        }
+        })
     }
 
     public func fetchErc875OrErc20Token(for contract: AlphaWallet.Address, server: RPCServer) -> Promise<TokenOrContract> {
