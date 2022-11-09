@@ -222,8 +222,6 @@ class AppCoordinator: NSObject, Coordinator {
             showInitialWalletCoordinator()
         }
 
-        assetDefinitionStore.delegate = self
-
         if let shortcutItem = launchOptions?[UIApplication.LaunchOptionsKey.shortcutItem] as? UIApplicationShortcutItem, shortcutItem.type == Constants.launchShortcutKey {
             //Delay needed to work because app is launching..
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -567,12 +565,6 @@ extension AppCoordinator: AssetDefinitionStoreCoordinatorDelegate {
         if !destinationFileInUse {
             activeWalletCoordinator?.show(openedURL: filename)
         }
-    }
-}
-
-extension AppCoordinator: AssetDefinitionStoreDelegate {
-    func listOfBadTokenScriptFilesChanged(in: AssetDefinitionStore ) {
-        activeWalletCoordinator?.listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles + assetDefinitionStore.conflictingTokenScriptFileNames.all)
     }
 }
 

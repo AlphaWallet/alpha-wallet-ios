@@ -174,6 +174,14 @@ extension EmptyView {
             .configure(insets: .zero)
     }
 
+    static func consoleEmptyView() -> EmptyView {
+        EmptyView()
+            .configure(image: R.image.no_transactions_mascot())
+            .configure(title: R.string.localizable.emptyViewNoMessagesLabelTitle())
+            .configure(spacing: 30)
+            .configure(insets: .zero)
+    }
+
     static func activitiesEmptyView() -> EmptyView {
         EmptyView()
             .configure(image: R.image.activities_empty_list())

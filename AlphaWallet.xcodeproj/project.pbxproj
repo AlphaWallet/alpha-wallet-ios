@@ -661,6 +661,7 @@
 		878EE952255BEC20000210DE /* ItemType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 878EE950255BEC20000210DE /* ItemType.swift */; };
 		8792707C284F40D1006F5AE5 /* FakeEnsRecordsStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8792707B284F40D1006F5AE5 /* FakeEnsRecordsStorage.swift */; };
 		87928E5528A50AFB0001FE67 /* NavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87928E5428A50AFB0001FE67 /* NavigationController.swift */; };
+		8793A492291A4E8600BCF849 /* ConsoleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8793A491291A4E8600BCF849 /* ConsoleViewModel.swift */; };
 		8795994526049EF8006722B2 /* ActivityStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8795994426049EF8006722B2 /* ActivityStateView.swift */; };
 		8795994726049F0F006722B2 /* ActivityStateViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8795994626049F0F006722B2 /* ActivityStateViewViewModel.swift */; };
 		8797362524E6C20C0042BBCC /* TransactionConfirmationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8797362424E6C20C0042BBCC /* TransactionConfirmationCoordinator.swift */; };
@@ -1530,6 +1531,7 @@
 		878EE950255BEC20000210DE /* ItemType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemType.swift; sourceTree = "<group>"; };
 		8792707B284F40D1006F5AE5 /* FakeEnsRecordsStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeEnsRecordsStorage.swift; sourceTree = "<group>"; };
 		87928E5428A50AFB0001FE67 /* NavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationController.swift; sourceTree = "<group>"; };
+		8793A491291A4E8600BCF849 /* ConsoleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleViewModel.swift; sourceTree = "<group>"; };
 		8795042F27088C2B0075EEC2 /* AlphaWalletSafariExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AlphaWalletSafariExtension.entitlements; sourceTree = "<group>"; };
 		8795994426049EF8006722B2 /* ActivityStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityStateView.swift; sourceTree = "<group>"; };
 		8795994626049F0F006722B2 /* ActivityStateViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityStateViewViewModel.swift; sourceTree = "<group>"; };
@@ -2282,6 +2284,7 @@
 				87D6E5DC2790320500B9DEE3 /* AnalyticsViewModel.swift */,
 				5E7C7F970B01399530F62569 /* ToolsViewModel.swift */,
 				87D7D66027D654A000202861 /* CheckTransactionStateViewModel.swift */,
+				8793A491291A4E8600BCF849 /* ConsoleViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -5384,6 +5387,7 @@
 				5E7C79EB8A6EC89F6F033268 /* CreateInitialWalletViewController.swift in Sources */,
 				5E7C7B4C7DECBF4834B1E6A4 /* CreateInitialWalletViewModel.swift in Sources */,
 				5E7C71769464FDBDE6803A91 /* PromptBackupCoordinator.swift in Sources */,
+				8793A492291A4E8600BCF849 /* ConsoleViewModel.swift in Sources */,
 				5E7C72311A412C022AA20F51 /* PromptBackupWalletView.swift in Sources */,
 				5E7C7F1623D246AD32378D29 /* PromptBackupWalletViewViewModel.swift in Sources */,
 				87E1A5EB283787AB00E98555 /* FungibleTokenHeaderViewModel.swift in Sources */,

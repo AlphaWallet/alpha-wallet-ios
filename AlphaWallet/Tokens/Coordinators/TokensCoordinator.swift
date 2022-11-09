@@ -36,7 +36,7 @@ class TokensCoordinator: Coordinator {
     private let activitiesService: ActivitiesServiceType
     //NOTE: private (set) - `For test purposes only`
     private (set) lazy var tokensViewController: TokensViewController = {
-        let viewModel = TokensViewModel(wallet: wallet, tokenCollection: tokenCollection, tokensFilter: tokensFilter, walletConnectCoordinator: walletConnectCoordinator, walletBalanceService: walletBalanceService, config: config, domainResolutionService: domainResolutionService, blockiesGenerator: blockiesGenerator)
+        let viewModel = TokensViewModel(wallet: wallet, tokenCollection: tokenCollection, tokensFilter: tokensFilter, walletConnectCoordinator: walletConnectCoordinator, walletBalanceService: walletBalanceService, config: config, domainResolutionService: domainResolutionService, blockiesGenerator: blockiesGenerator, assetDefinitionStore: assetDefinitionStore)
         let controller = TokensViewController(viewModel: viewModel)
 
         controller.delegate = self
@@ -162,10 +162,6 @@ class TokensCoordinator: Coordinator {
 
     private func singleChainTokenCoordinator(forServer server: RPCServer) -> SingleChainTokenCoordinator? {
         return singleChainTokenCoordinators.first { $0.isServer(server) }
-    }
-
-    func listOfBadTokenScriptFilesChanged(fileNames: [TokenScriptFileIndices.FileName]) {
-        tokensViewController.viewModel.set(listOfBadTokenScriptFiles: fileNames)
     }
 
     func launchUniversalScanner(fromSource source: Analytics.ScanQRCodeSource) {

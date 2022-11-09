@@ -47,6 +47,7 @@
 "Copy" = "복사";
 "Empty" = "비어 있음";
 "emptyView.noTokens.label.title" = "아직 받은 토큰이 없습니다!";
+"emptyView.noMessages.label.title" = "There is nothing logged";
 "errorView.description.label.title" = "무언가 잘못되었습니다... 다시 시도하십시오.";
 "export.backup.button.title" = "지갑 백업";
 "export.controlYourMoney.label.title" = "고객님의 돈은 고객님 본인만 통제할 수 있으므로 이 앱이 삭제될 경우에 대비하여 백업 키스토어를 저장해 놓아야 합니다.";

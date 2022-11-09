@@ -36,7 +36,6 @@ final class TokensViewModel {
     private (set) var walletConnectSessions: Int = 0
     private (set) var sections: [Section] = []
     private var tokenListSection: Section = .tokens
-    private var listOfBadTokenScriptFiles: [TokenScriptFileIndices.FileName] = .init()
         //TODO: Replace with usage single array of data, instead of using filteredTokens, and collectiblePairs
     private var filteredTokens: [TokenOrRpcServer] = []
     private var collectiblePairs: [CollectiblePairs] {
@@ -54,7 +53,8 @@ final class TokensViewModel {
     private let sectionViewModelsSubject = PassthroughSubject<[TokensViewModel.SectionViewModel], Never>()
     private let deletionSubject = PassthroughSubject<[IndexPath], Never>()
     private let wallet: Wallet
-
+    private let assetDefinitionStore: AssetDefinitionStore
+    
     let config: Config
     let largeTitleDisplayMode: UINavigationItem.LargeTitleDisplayMode = .never
     var filterViewModel: (cells: [ScrollableSegmentedControlCell], configuration: ScrollableSegmentedControlConfiguration) {
@@ -129,11 +129,6 @@ final class TokensViewModel {
         return !collectiblePairs.isEmpty
     }
 
-    func set(listOfBadTokenScriptFiles: [TokenScriptFileIndices.FileName]) {
-        self.listOfBadTokenScriptFiles = listOfBadTokenScriptFiles
-        reloadData()
-    }
-
     func heightForHeaderInSection(for section: Int) -> CGFloat {
         switch sections[section] {
         case .walletSummary:
@@ -163,7 +158,7 @@ final class TokensViewModel {
         }
     }
     
-    init(wallet: Wallet, tokenCollection: TokenCollection, tokensFilter: TokensFilter, walletConnectCoordinator: WalletConnectCoordinator, walletBalanceService: WalletBalanceService, config: Config, domainResolutionService: DomainResolutionServiceType, blockiesGenerator: BlockiesGenerator) {
+    init(wallet: Wallet, tokenCollection: TokenCollection, tokensFilter: TokensFilter, walletConnectCoordinator: WalletConnectCoordinator, walletBalanceService: WalletBalanceService, config: Config, domainResolutionService: DomainResolutionServiceType, blockiesGenerator: BlockiesGenerator, assetDefinitionStore: AssetDefinitionStore) {
         self.wallet = wallet
         self.tokenCollection = tokenCollection
         self.tokensFilter = tokensFilter
@@ -172,6 +167,7 @@ final class TokensViewModel {
         self.config = config
         self.domainResolutionService = domainResolutionService
         self.blockiesGenerator = blockiesGenerator
+        self.assetDefinitionStore = assetDefinitionStore
     }
 
     func transform(input: TokensViewModelInput) -> TokensViewModelOutput {
@@ -232,11 +228,12 @@ final class TokensViewModel {
 
         let selection = selection(trigger: input.selection)
 
-        let viewState = Publishers.CombineLatest4(sectionViewModelsSubject, walletSummary, blockieImage, title)
-            .map { sections, summary, blockiesImage, title -> TokensViewModel.ViewState in
-                let isConsoleButtonHidden = self.listOfBadTokenScriptFiles.isEmpty
+        let titleWithListOfBadTokenScriptFiles = Publishers.CombineLatest(title, assetDefinitionStore.listOfBadTokenScriptFiles)
+        let viewState = Publishers.CombineLatest4(sectionViewModelsSubject, walletSummary, blockieImage, titleWithListOfBadTokenScriptFiles)
+            .map { sections, summary, blockiesImage, data -> TokensViewModel.ViewState in
+                let isConsoleButtonHidden = data.1.isEmpty
 
-                return TokensViewModel.ViewState(title: title, summary: summary, blockiesImage: blockiesImage, isConsoleButtonHidden: isConsoleButtonHidden, isFooterHidden: self.isFooterHidden, sections: sections)
+                return TokensViewModel.ViewState(title: data.0, summary: summary, blockiesImage: blockiesImage, isConsoleButtonHidden: isConsoleButtonHidden, isFooterHidden: self.isFooterHidden, sections: sections)
             }.removeDuplicates()
             .eraseToAnyPublisher()
 
