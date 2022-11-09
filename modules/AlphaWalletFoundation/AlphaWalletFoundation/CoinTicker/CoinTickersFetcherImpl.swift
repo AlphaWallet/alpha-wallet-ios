@@ -20,6 +20,14 @@ public final class CoinTickersFetcherImpl: CoinTickersFetcher {
     private var providers: AtomicArray<CoinTickersFetcherProvider> = .init()
     private let storage: CoinTickersStorage & ChartHistoryStorage & TickerIdsStorage
 
+    public var tickersDidUpdate: AnyPublisher<Void, Never> {
+        return storage.tickersDidUpdate
+    }
+
+    public var updateTickerIds: AnyPublisher<[(tickerId: TickerIdString, key: AddressAndRPCServer)], Never> {
+        storage.updateTickerIds
+    }
+
     public init(providers: [CoinTickersFetcherProvider], storage: CoinTickersStorage & ChartHistoryStorage & TickerIdsStorage) {
         self.providers.set(array: providers)
         self.storage = storage
@@ -38,31 +46,36 @@ public final class CoinTickersFetcherImpl: CoinTickersFetcher {
             PhiCoinTickersFetcher(storage: storage)
         ], storage: storage)
     }
-    
-    public var tickersDidUpdate: AnyPublisher<Void, Never> {
-        return storage.tickersDidUpdate
-    }
-
-    public var updateTickerIds: AnyPublisher<[(tickerId: TickerIdString, key: AddressAndRPCServer)], Never> {
-        storage.updateTickerIds
-    }
 
     public func ticker(for addressAndPRCServer: AddressAndRPCServer) -> CoinTicker? {
         return storage.ticker(for: addressAndPRCServer)
     }
 
-    public func addOrUpdateTestsOnly(ticker: CoinTicker?, for token: TokenMappedToTicker) {
-        let tickers: [AssignedCoinTickerId: CoinTicker] = ticker.flatMap { ticker in
-            let tickerId = AssignedCoinTickerId(tickerId: "tickerId-\(token.contractAddress)-\(token.server.chainID)", token: token)
-            return [tickerId: ticker]
-        } ?? [:]
+    public func fetchTickers(for tokens: [TokenMappedToTicker], force: Bool) {
+        for each in elementsMappedToProvider(for: tokens) {
+            guard !each.elements.isEmpty else { continue }
 
-        storage.addOrUpdate(tickers: tickers)
+            each.provider.fetchTickers(for: each.elements, force: force)
+        }
     }
 
-    private struct ElementsMappedToProvider<T: CoinTickerServiceIdentifieble> {
-        let provider: CoinTickersFetcherProvider
-        let elements: [T]
+    public func resolveTikerIds(for tokens: [TokenMappedToTicker]) {
+        for each in elementsMappedToProvider(for: tokens) {
+            guard !each.elements.isEmpty else { continue }
+
+            each.provider.resolveTikerIds(for: each.elements)
+        }
+    }
+
+    public func fetchChartHistories(for token: TokenMappedToTicker, force: Bool, periods: [ChartHistoryPeriod]) -> AnyPublisher<[ChartHistory], Never> {
+        guard let publisher = elementMappedToProvider(for: token)
+            .flatMap({ $0.provider.fetchChartHistories(for: token, force: force, periods: periods) }) else { return .empty() }
+
+        return publisher
+    }
+
+    public func cancel() {
+        providers.forEach { $0.cancel() }
     }
 
     private func elementMappedToProvider<T: CoinTickerServiceIdentifieble>(for element: T) -> ElementsMappedToProvider<T>? {
@@ -90,29 +103,21 @@ public final class CoinTickersFetcherImpl: CoinTickersFetcher {
         }
     }
 
-    public func fetchTickers(for tokens: [TokenMappedToTicker], force: Bool) {
-        for each in elementsMappedToProvider(for: tokens) {
-            guard !each.elements.isEmpty else { continue }
-            each.provider.fetchTickers(for: each.elements, force: force)
-        }
+    private struct ElementsMappedToProvider<T: CoinTickerServiceIdentifieble> {
+        let provider: CoinTickersFetcherProvider
+        let elements: [T]
     }
 
-    public func resolveTikerIds(for tokens: [TokenMappedToTicker]) {
-        for each in elementsMappedToProvider(for: tokens) {
-            guard !each.elements.isEmpty else { continue }
-            each.provider.resolveTikerIds(for: each.elements)
-        }
-    }
+}
 
-    public func fetchChartHistories(for token: TokenMappedToTicker, force: Bool, periods: [ChartHistoryPeriod]) -> AnyPublisher<[ChartHistory], Never> {
-        guard let publisher = elementMappedToProvider(for: token)
-            .flatMap({ $0.provider.fetchChartHistories(for: token, force: force, periods: periods) }) else { return .empty() }
+extension CoinTickersFetcherImpl {
+    public func addOrUpdateTestsOnly(ticker: CoinTicker?, for token: TokenMappedToTicker) {
+        let tickers: [AssignedCoinTickerId: CoinTicker] = ticker.flatMap { ticker in
+            let tickerId = AssignedCoinTickerId(tickerId: "tickerId-\(token.contractAddress)-\(token.server.chainID)", token: token)
+            return [tickerId: ticker]
+        } ?? [:]
 
-        return publisher
-    }
-
-    public func cancel() {
-        providers.forEach { $0.cancel() }
+        storage.addOrUpdate(tickers: tickers)
     }
 }
 

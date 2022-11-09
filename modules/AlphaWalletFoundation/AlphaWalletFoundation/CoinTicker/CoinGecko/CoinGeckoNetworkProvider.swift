@@ -76,6 +76,7 @@ public class CoinGeckoNetworkProvider: CoinTickerNetworkProviderType {
             .responseDataPublisher()
             .retry(times: 3)
             .tryMap { [decoder] in try decoder.decode([CoinTicker].self, from: $0.data) }
+            .map { $0.map { $0.override(currency: currency) } }//NOTE: we re not able to set currency in init method, using `override(currency: )` instead
             .mapError { PromiseError.some(error: $0) }
             .eraseToAnyPublisher()
     }

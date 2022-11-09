@@ -7,28 +7,26 @@ import AlphaWalletFoundation
 struct GasViewModel {
     private let fee: BigInt
     private let symbol: String
-    private let currencyRate: CurrencyRate?
+    private let coinTicker: CoinTicker?
     private let formatter: EtherNumberFormatter
 
-    init(
-        fee: BigInt,
-        symbol: String,
-        currencyRate: CurrencyRate? = nil,
-        formatter: EtherNumberFormatter = .full
-    ) {
+    init(fee: BigInt, symbol: String, coinTicker: CoinTicker? = nil, formatter: EtherNumberFormatter = .full) {
         self.fee = fee
         self.symbol = symbol
-        self.currencyRate = currencyRate
+        self.coinTicker = coinTicker
         self.formatter = formatter
     }
 
     var feeText: String {
         let gasFee = formatter.string(from: fee)
         var text = "\(gasFee.description) \(symbol)"
+        
+        guard let coinTicker = coinTicker else { return text }
 
-        if let feeInCurrency = currencyRate?.estimate(fee: gasFee, with: symbol) {
-            text += " (\(feeInCurrency))"
+        if let fee = gasFee.optionalDecimalValue, let feeInFiat = Formatter.currency.string(from: coinTicker.price_usd * fee.doubleValue) {
+            return text + " (\(feeInFiat))"
+        } else {
+            return text
         }
-        return text
     }
 }

@@ -109,11 +109,11 @@ extension TokenViewModel: Hashable {
 
         switch token.type {
         case .nativeCryptocurrency:
-            self.balance = .init(balance: NativecryptoBalanceViewModel(token: token, ticker: nil))
+            self.balance = .init(balance: NativecryptoBalanceViewModel(balance: token, ticker: nil))
         case .erc20:
-            self.balance = .init(balance: Erc20BalanceViewModel(token: token, ticker: nil))
+            self.balance = .init(balance: Erc20BalanceViewModel(balance: token, ticker: nil))
         case .erc875, .erc721, .erc721ForTickets, .erc1155:
-            self.balance = .init(balance: NFTBalanceViewModel(token: token, ticker: nil))
+            self.balance = .init(balance: NFTBalanceViewModel(balance: token, ticker: nil))
         }
         self.tokenScriptOverrides = nil
     }

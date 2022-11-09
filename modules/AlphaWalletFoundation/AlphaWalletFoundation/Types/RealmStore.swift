@@ -90,7 +90,19 @@ extension Realm {
             CoinTickerObject.self,
             AssignedCoinTickerIdObject.self
         ]
-        
+
+        configuration.schemaVersion = 1
+        configuration.migrationBlock = { migration, oldSchemaVersion in
+            if oldSchemaVersion < 1 {
+                migration.enumerateObjects(ofType: CoinTickerObject.className()) { oldObject, newObject in
+                    guard let oldObject = oldObject else { return }
+                    guard let newObject = newObject else { return }
+                    
+                    newObject["currency"] = Currency.USD.rawValue
+                }
+            }
+        }
+
         let realm = try! Realm(configuration: configuration)
 
         return realm

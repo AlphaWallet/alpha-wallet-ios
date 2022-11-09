@@ -9,7 +9,7 @@ import Foundation
 import BigInt
 import AlphaWalletOpenSea
 
-public protocol BalanceRepresentable {
+protocol BalanceRepresentable {
     var balanceNft: [TokenBalanceValue] { get }
     var valueBI: BigInt { get }
     var type: TokenType { get }
@@ -18,48 +18,36 @@ public protocol BalanceRepresentable {
     var server: RPCServer { get }
 }
 
-public struct Erc20BalanceViewModel: BalanceViewModelType {
-    private let token: BalanceRepresentable
-    public var ticker: CoinTicker?
+struct Erc20BalanceViewModel: BalanceViewModelType {
+    private let _balance: BalanceRepresentable
+    var ticker: CoinTicker?
 
-    init(token: BalanceRepresentable, ticker: CoinTicker?) {
-        self.token = token
+    init(balance: BalanceRepresentable, ticker: CoinTicker?) {
+        self._balance = balance
         self.ticker = ticker
     }
 
-    public var balance: [TokenBalanceValue] { return [] }
-    public var value: BigInt { token.valueBI }
-    public var amount: Double { return EtherNumberFormatter.plain.string(from: token.valueBI).doubleValue }
+    var balance: [TokenBalanceValue] { return [] }
+    var value: BigInt { _balance.valueBI }
+    var amount: Double { return EtherNumberFormatter.plain.string(from: _balance.valueBI).doubleValue }
 
-    public var amountString: String {
-        guard !isZero else { return "0.00 \(token.symbol)" }
-        let balance = EtherNumberFormatter.plain.string(from: token.valueBI, decimals: token.decimals).droppedTrailingZeros
-        return "\(balance) \(token.symbol)"
+    var amountString: String {
+        guard !isZero else { return "0.00 \(_balance.symbol)" }
+        let value = EtherNumberFormatter.plain.string(from: _balance.valueBI, decimals: _balance.decimals).droppedTrailingZeros
+        return "\(value) \(_balance.symbol)"
     }
 
-    public var currencyAmount: String? {
+    var currencyAmount: String? {
         guard let totalAmount = currencyAmountWithoutSymbol else { return nil }
         return Formatter.usd.string(from: totalAmount)
     }
 
-    public var currencyAmountWithoutSymbol: Double? {
-        guard let currentRate = cryptoRate() else { return nil }
-        return amount * currentRate.price
-    }
-
-    public var amountFull: String { return EtherNumberFormatter.plain.string(from: token.valueBI, decimals: token.decimals).droppedTrailingZeros }
-    public var amountShort: String { return EtherNumberFormatter.short.string(from: token.valueBI, decimals: token.decimals).droppedTrailingZeros }
-    public var symbol: String { return token.symbol }
-
-    //NOTE: we suppose ticker.symbol is the same as token.symbol, for erc20 tokens
-    private func cryptoRate() -> Rate? {
+    var currencyAmountWithoutSymbol: Double? {
         guard let ticker = ticker else { return nil }
-        let symbol = ticker.symbol.lowercased()
-        if let value = ticker.rate.rates.first(where: { $0.code.caseInsensitiveCompare(symbol) == .orderedSame }) {
-            return value
-        } else {
-            return nil
-        }
+        return amount * ticker.price_usd
     }
 
+    var amountFull: String { return EtherNumberFormatter.plain.string(from: _balance.valueBI, decimals: _balance.decimals).droppedTrailingZeros }
+    var amountShort: String { return EtherNumberFormatter.short.string(from: _balance.valueBI, decimals: _balance.decimals).droppedTrailingZeros }
+    var symbol: String { return _balance.symbol }
 }

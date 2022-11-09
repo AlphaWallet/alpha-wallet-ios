@@ -72,6 +72,6 @@ public enum Currency: String {
     ]
 
     public init(value: String) {
-        self =  Currency(rawValue: value) ?? .USD
+        self = Currency(rawValue: value) ?? .USD
     }
 }

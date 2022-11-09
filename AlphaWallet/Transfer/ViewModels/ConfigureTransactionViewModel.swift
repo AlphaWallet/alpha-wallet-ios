@@ -19,9 +19,9 @@ struct ConfigureTransactionViewModel {
     private var server: RPCServer {
         configurator.session.server
     }
-    private var currencyRate: CurrencyRate? {
+    private var coinTicker: CoinTicker? {
         let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: configurator.session.server)
-        return service.tokenViewModel(for: etherToken)?.balance.ticker?.rate
+        return service.tokenViewModel(for: etherToken)?.balance.ticker
     }
 
     var recoveryMode: RecoveryMode
@@ -50,7 +50,7 @@ struct ConfigureTransactionViewModel {
     }
 
     var gasViewModel: GasViewModel {
-        return GasViewModel(fee: totalFee, symbol: server.symbol, currencyRate: currencyRate, formatter: fullFormatter)
+        return GasViewModel(fee: totalFee, symbol: server.symbol, coinTicker: coinTicker, formatter: fullFormatter)
     }
 
     var backgroundColor: UIColor {

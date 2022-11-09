@@ -8,30 +8,31 @@
 import Foundation
 import BigInt 
 
-public struct NFTBalanceViewModel: BalanceViewModelType {
-    public var ticker: CoinTicker?
-    private let token: BalanceRepresentable
+struct NFTBalanceViewModel: BalanceViewModelType {
+    private let _balance: BalanceRepresentable
 
-    init(token: BalanceRepresentable, ticker: CoinTicker?) {
-        self.token = token
+    var ticker: CoinTicker?
+
+    init(balance: BalanceRepresentable, ticker: CoinTicker?) {
+        self._balance = balance
         self.ticker = ticker
     }
 
-    public var balance: [TokenBalanceValue] {
-        return token.balanceNft
+    var balance: [TokenBalanceValue] {
+        return _balance.balanceNft
     }
 
-    public var value: BigInt { return token.valueBI }
-    public var amount: Double { return Double(nonZeroBalance) }
-    var amountString: String { return "\(nonZeroBalance) \(token.symbol)" }
-    public var currencyAmount: String? { return nil }
-    public var currencyAmountWithoutSymbol: Double? { return nil }
-    public var amountFull: String { return "\(nonZeroBalance)" }
-    public var amountShort: String { return "\(nonZeroBalance)" }
-    public var symbol: String { return token.symbol }
+    var value: BigInt { return _balance.valueBI }
+    var amount: Double { return Double(nonZeroBalance) }
+    var amountString: String { return "\(nonZeroBalance) \(_balance.symbol)" }
+    var currencyAmount: String? { return nil }
+    var currencyAmountWithoutSymbol: Double? { return nil }
+    var amountFull: String { return "\(nonZeroBalance)" }
+    var amountShort: String { return "\(nonZeroBalance)" }
+    var symbol: String { return _balance.symbol }
 
     private var nonZeroBalance: Int {
-        let actualBalance = Array(token.balanceNft.filter { isNonZeroBalance($0.balance, tokenType: token.type) })
+        let actualBalance = Array(_balance.balanceNft.filter { isNonZeroBalance($0.balance, tokenType: _balance.type) })
         return actualBalance.count
     }
 }

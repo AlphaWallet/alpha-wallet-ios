@@ -10,7 +10,7 @@ struct TransactionDetailsViewModel {
     private let transactionRow: TransactionRow
     private let chainState: ChainState
     private let fullFormatter = EtherNumberFormatter.full
-    private let currencyRate: CurrencyRate?
+    private let coinTicker: CoinTicker?
 
     private var server: RPCServer {
         return transactionRow.server
@@ -20,11 +20,11 @@ struct TransactionDetailsViewModel {
             transactionRow: TransactionRow,
             chainState: ChainState,
             wallet: Wallet,
-            currencyRate: CurrencyRate?
+            coinTicker: CoinTicker?
     ) {
         self.transactionRow = transactionRow
         self.chainState = chainState
-        self.currencyRate = currencyRate
+        self.coinTicker = coinTicker
         self.transactionViewModel = TransactionViewModel(
             transactionRow: transactionRow,
             chainState: chainState,
@@ -118,7 +118,7 @@ struct TransactionDetailsViewModel {
             }
         }()
 
-        return GasViewModel(fee: gasFee, symbol: server.symbol, currencyRate: currencyRate, formatter: fullFormatter)
+        return GasViewModel(fee: gasFee, symbol: server.symbol, coinTicker: coinTicker, formatter: fullFormatter)
     }
 
     var gasFee: String {
