@@ -365,8 +365,8 @@ extension AssetDefinitionStore: AssetDefinitionBackingStoreDelegate {
 
     public func badTokenScriptFilesChanged(in: AssetDefinitionBackingStore) {
         //Careful to not fire immediately because even though we are on the main thread; while we are modifying the indices, we can't read from it or there'll be a crash
-        DispatchQueue.main.async { [backingStore, listOfBadTokenScriptFilesSubject] in
-            listOfBadTokenScriptFilesSubject.value = backingStore.badTokenScriptFileNames + backingStore.conflictingTokenScriptFileNames.all
+        DispatchQueue.main.async {
+            self.listOfBadTokenScriptFilesSubject.value = self.backingStore.badTokenScriptFileNames + self.backingStore.conflictingTokenScriptFileNames.all
         }
     }
 }
