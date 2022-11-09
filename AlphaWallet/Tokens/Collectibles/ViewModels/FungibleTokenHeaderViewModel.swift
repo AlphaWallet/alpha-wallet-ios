@@ -20,39 +20,23 @@ struct FungibleTokenHeaderViewModelOutput {
 final class FungibleTokenHeaderViewModel {
     private let headerViewRefreshInterval: TimeInterval = 5.0
     private var headerRefreshTimer: Timer?
-    private let transactionType: TransactionType
+    private let token: Token
     private var isShowingValueSubject: CurrentValueSubject<Bool, Never> = .init(true)
-    private lazy var tokenViewModel: AnyPublisher<TokenViewModel?, Never> = {
-        switch transactionType {
-        case .nativeCryptocurrency:
-            let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: transactionType.server)
-            return service.tokenViewModelPublisher(for: etherToken)
-                .eraseToAnyPublisher()
-        case .erc20Token(let token, _, _):
-            return service.tokenViewModelPublisher(for: token)
-                .eraseToAnyPublisher()
-        case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
-            return Just<TokenViewModel?>(nil)
-                .eraseToAnyPublisher()
-        }
-    }()
-    private let service: TokenViewModelState
+    private let tokensService: TokenViewModelState
     private var cancelable = Set<AnyCancellable>()
 
-    var server: RPCServer { return transactionType.tokenObject.server }
-    var backgroundColor: UIColor {
-        return Configuration.Color.Semantic.defaultViewBackground
-    }
+    let backgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground
     var iconImage: Subscribable<TokenImage> {
-        transactionType.tokenObject.icon(withSize: .s300)
-    }
-    var blockChainTagViewModel: BlockchainTagLabelViewModel {
-        return .init(server: transactionType.tokenObject.server)
+        token.icon(withSize: .s300)
     }
 
-    init(transactionType: TransactionType, service: TokenViewModelState) {
-        self.transactionType = transactionType
-        self.service = service
+    var blockChainTagViewModel: BlockchainTagLabelViewModel {
+        return .init(server: token.server)
+    }
+
+    init(token: Token, tokensService: TokenViewModelState) {
+        self.token = token
+        self.tokensService = tokensService
     }
 
     deinit {
@@ -62,40 +46,21 @@ final class FungibleTokenHeaderViewModel {
     func transform(input: FungibleTokenHeaderViewModelInput) -> FungibleTokenHeaderViewModelOutput {
         runRefreshHeaderTimer()
 
-        input.toggleValue.sink { [weak self] in
-            self?.tiggleIsShowingValue()
-            self?.invalidateRefreshHeaderTimer()
-            self?.runRefreshHeaderTimer()
-        }.store(in: &cancelable)
+        input.toggleValue
+            .filter { [token] _ in !token.server.isTestnet }
+            .sink { [weak self] in
+                self?.tiggleIsShowingValue()
+                self?.invalidateRefreshHeaderTimer()
+                self?.runRefreshHeaderTimer()
+            }.store(in: &cancelable)
 
-        let tokenViewModel = tokenViewModel.combineLatest(isShowingValueSubject, { balance, _ in return balance })
-
-        let title = tokenViewModel.map { [weak self] token -> NSAttributedString in
-            guard let strongSelf = self, let token = token else { return .init(string: UiTweaks.noPriceMarker) }
-            let value: String
-            switch strongSelf.transactionType {
-            case .nativeCryptocurrency:
-                value = "\(token.balance.amountShort) \(token.balance.symbol)"
-            case .erc20Token:
-                value = "\(token.balance.amountShort) \(token.tokenScriptOverrides?.symbolInPluralForm ?? token.balance.symbol)"
-            case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
-                value = UiTweaks.noPriceMarker
-            }
-
-            return strongSelf.asTitleAttributedString(value)
-        }
-        
-        let value = tokenViewModel.map { $0?.balance }
-            .map { [weak self] balance -> NSAttributedString in
-                guard let strongSelf = self, let balance = balance else { return .init(string: UiTweaks.noPriceMarker) }
-                return strongSelf.asValueAttributedString(for: balance) ?? .init(string: UiTweaks.noPriceMarker)
-            }
-
-        let viewState = Publishers.CombineLatest(title, value)
-            .map { title, value in FungibleTokenHeaderViewModel.ViewState(title: title, value: value) }
+        let viewState = tokensService.tokenViewModelPublisher(for: token)
+            .combineLatest(isShowingValueSubject, { tokenViewModel, _ in return tokenViewModel })
+            .map { FungibleTokenHeaderViewModel.ViewState(title: self.buildTitle(for: $0), value: self.buildValue(for: $0)) }
             .removeDuplicates()
+            .eraseToAnyPublisher()
 
-        return .init(viewState: viewState.eraseToAnyPublisher())
+        return .init(viewState: viewState)
     }
 
     private func runRefreshHeaderTimer() {
@@ -116,45 +81,76 @@ final class FungibleTokenHeaderViewModel {
         isShowingValueSubject.value.toggle()
     }
 
-    private var testnetValueHintLabelAttributedString: NSAttributedString {
-        return NSAttributedString(string: R.string.localizable.tokenValueTestnetWarning(), attributes: [
-            .font: Screen.TokenCard.Font.placeholderLabel,
-            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText
-        ])
+    private func buildValue(for tokenViewModel: TokenViewModel?) -> NSAttributedString {
+        guard let tokenViewModel = tokenViewModel else { return .init(string: UiTweaks.noPriceMarker) }
+        return asValueAttributedString(for: tokenViewModel.balance) ?? .init(string: UiTweaks.noPriceMarker)
+    }
+
+    private func buildTitle(for tokenViewModel: TokenViewModel?) -> NSAttributedString {
+        guard let tokenViewModel = tokenViewModel else { return .init(string: UiTweaks.noPriceMarker) }
+        let value: String
+        switch tokenViewModel.type {
+        case .nativeCryptocurrency:
+            value = "\(tokenViewModel.balance.amountShort) \(tokenViewModel.balance.symbol)"
+        case .erc20:
+            value = "\(tokenViewModel.balance.amountShort) \(tokenViewModel.tokenScriptOverrides?.symbolInPluralForm ?? tokenViewModel.balance.symbol)"
+        case .erc1155, .erc721, .erc721ForTickets, .erc875:
+            value = UiTweaks.noPriceMarker
+        }
+
+        return FungibleTokenHeaderViewModel.functional.asTitleAttributedString(value)
     }
 
     private func asValueAttributedString(for balance: BalanceViewModel) -> NSAttributedString? {
-        if server.isTestnet {
-            return testnetValueHintLabelAttributedString
+        if token.server.isTestnet {
+            return FungibleTokenHeaderViewModel.functional.testnetValueHintLabelAttributedString
         } else {
-            switch transactionType {
-            case .nativeCryptocurrency, .erc20Token:
+            switch token.type {
+            case .nativeCryptocurrency, .erc20:
                 if isShowingValueSubject.value {
-                    return tokenValueAttributedStringFor(balance: balance)
+                    return FungibleTokenHeaderViewModel.functional.tokenValueAttributedStringFor(balance: balance)
                 } else {
-                    return marketPriceAttributedStringFor(balance: balance)
+                    return FungibleTokenHeaderViewModel.functional.marketPriceAttributedStringFor(balance: balance)
                 }
-            case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+            case .erc1155, .erc721, .erc721ForTickets, .erc875:
                 return nil
             }
         }
     }
+}
 
-    private func tokenValueAttributedStringFor(balance: BalanceViewModel) -> NSAttributedString? {
-        let string: String = {
-            if let currencyAmount = balance.currencyAmount {
-                return R.string.localizable.aWalletTokenValue(currencyAmount)
-            } else {
-                return UiTweaks.noPriceMarker
-            }
-        }()
+extension FungibleTokenHeaderViewModel {
+    struct functional {}
+    struct ViewState {
+        let title: NSAttributedString
+        let value: NSAttributedString
+    }
+}
+
+extension FungibleTokenHeaderViewModel.functional {
+    static func tokenValueAttributedStringFor(balance: BalanceViewModel) -> NSAttributedString? {
+        let string = balance.currencyAmount.flatMap { R.string.localizable.aWalletTokenValue($0) } ?? UiTweaks.noPriceMarker
         return NSAttributedString(string: string, attributes: [
             .font: Screen.TokenCard.Font.placeholderLabel,
             .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText
         ])
     }
 
-    private func marketPriceAttributedStringFor(balance: BalanceViewModel) -> NSAttributedString? {
+    static var testnetValueHintLabelAttributedString: NSAttributedString {
+        return NSAttributedString(string: R.string.localizable.tokenValueTestnetWarning(), attributes: [
+            .font: Screen.TokenCard.Font.placeholderLabel,
+            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText
+        ])
+    }
+
+    static func asTitleAttributedString(_ title: String) -> NSAttributedString {
+        return NSAttributedString(string: title, attributes: [
+            .font: Fonts.regular(size: ScreenChecker().isNarrowScreen ? 26 : 36),
+            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
+        ])
+    }
+
+    static func marketPriceAttributedStringFor(balance: BalanceViewModel) -> NSAttributedString? {
         guard let marketPrice = marketPriceValueFor(balance: balance), let valuePercentageChange = valuePercentageChangeValueFor(balance: balance) else {
             return nil
         }
@@ -177,31 +173,16 @@ final class FungibleTokenHeaderViewModel {
         return mutableAttributedString
     }
 
-    private func valuePercentageChangeValueFor(balance: BalanceViewModel) -> String? {
+    private static func valuePercentageChangeValueFor(balance: BalanceViewModel) -> String? {
         return EthCurrencyHelper(ticker: balance.ticker).change24h.string.flatMap { "(\($0))" }
     }
 
-    private func marketPriceValueFor(balance: BalanceViewModel) -> String? {
+    private static func marketPriceValueFor(balance: BalanceViewModel) -> String? {
         if let value = EthCurrencyHelper(ticker: balance.ticker).marketPrice {
             return Formatter.usd.string(from: value)
         } else {
             return nil
         }
-    }
-
-    private func asTitleAttributedString(_ title: String) -> NSAttributedString {
-        return NSAttributedString(string: title, attributes: [
-            .font: Fonts.regular(size: ScreenChecker().isNarrowScreen ? 26 : 36),
-            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
-        ])
-    }
-
-}
-
-extension FungibleTokenHeaderViewModel {
-    struct ViewState {
-        let title: NSAttributedString
-        let value: NSAttributedString
     }
 }
 

@@ -79,10 +79,11 @@ class FungibleTokenHeaderView: UIView {
 
         let input = FungibleTokenHeaderViewModelInput(toggleValue: toggleValue.eraseToAnyPublisher())
         let output = viewModel.transform(input: input)
-        output.viewState.sink { [weak titleLabel, weak valueLabel] state in
-            titleLabel?.attributedText = state.title
-            valueLabel?.attributedText = state.value
-        }.store(in: &cancelable)
+        output.viewState
+            .sink { [weak titleLabel, weak valueLabel] state in
+                titleLabel?.attributedText = state.title
+                valueLabel?.attributedText = state.value
+            }.store(in: &cancelable)
     }
 
     @objc private func showContractWebPage() {
@@ -90,8 +91,6 @@ class FungibleTokenHeaderView: UIView {
     }
 
     @objc private func showHideMarketSelected(_ sender: UITapGestureRecognizer) {
-        guard !viewModel.server.isTestnet else { return }
-
         toggleValue.send(())
     }
 }

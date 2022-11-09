@@ -6,13 +6,13 @@ import AlphaWalletFoundation
 
 protocol FungibleTokenViewControllerDelegate: class, CanOpenURL {
     func didTapSwap(swapTokenFlow: SwapTokenFlow, in viewController: FungibleTokenViewController)
-    func didTapBridge(transactionType: TransactionType, service: TokenActionProvider, in viewController: FungibleTokenViewController)
-    func didTapBuy(transactionType: TransactionType, service: TokenActionProvider, in viewController: FungibleTokenViewController)
-    func didTapSend(forTransactionType transactionType: TransactionType, in viewController: FungibleTokenViewController)
-    func didTapReceive(forTransactionType transactionType: TransactionType, in viewController: FungibleTokenViewController)
+    func didTapBridge(for token: Token, service: TokenActionProvider, in viewController: FungibleTokenViewController)
+    func didTapBuy(for token: Token, service: TokenActionProvider, in viewController: FungibleTokenViewController)
+    func didTapSend(for token: Token, in viewController: FungibleTokenViewController)
+    func didTapReceive(for token: Token, in viewController: FungibleTokenViewController)
     func didTap(transaction: TransactionInstance, in viewController: FungibleTokenViewController)
     func didTap(activity: Activity, in viewController: FungibleTokenViewController)
-    func didTap(action: TokenInstanceAction, transactionType: TransactionType, in viewController: FungibleTokenViewController)
+    func didTap(action: TokenInstanceAction, token: Token, in viewController: FungibleTokenViewController)
     func didTapAddAlert(for token: Token, in viewController: FungibleTokenViewController)
     func didTapEditAlert(for token: Token, alert: PriceAlert, in viewController: FungibleTokenViewController)
     func didClose(in viewController: FungibleTokenViewController)
@@ -38,6 +38,8 @@ class FungibleTokenViewController: UIViewController {
     private let keystore: Keystore
     private var cancelable = Set<AnyCancellable>()
     private let appear = PassthroughSubject<Void, Never>()
+    private let updateAlert = PassthroughSubject<(value: Bool, indexPath: IndexPath), Never>()
+    private let removeAlert = PassthroughSubject<IndexPath, Never>()
     private let sessions: ServerDictionary<WalletSession>
     weak var delegate: FungibleTokenViewControllerDelegate?
 
@@ -100,21 +102,23 @@ class FungibleTokenViewController: UIViewController {
 
         updateNavigationRightBarButtons(tokenScriptFileStatusHandler: viewModel.tokenScriptFileStatusHandler)
 
-        let input = FungibleTokenViewModelInput(appear: appear.eraseToAnyPublisher())
+        let input = FungibleTokenViewModelInput(appear: appear.eraseToAnyPublisher(),
+                                            updateAlert: updateAlert.eraseToAnyPublisher(),
+                                            removeAlert: removeAlert.eraseToAnyPublisher())
 
         let output = viewModel.transform(input: input)
-        output.viewState.sink { [weak self] state in
-            self?.title = state.title
+        output.viewState.sink { [weak self, navigationItem] state in
+            navigationItem.title = state.title
             self?.configureActionButtons(with: state.actions)
         }.store(in: &cancelable)
 
-        output.activities.sink { [weak activitiesPageView] viewModel in
-            activitiesPageView?.configure(viewModel: viewModel)
-        }.store(in: &cancelable)
+        output.activities
+            .sink { [weak activitiesPageView] in activitiesPageView?.configure(viewModel: $0) }
+            .store(in: &cancelable)
 
-        output.alerts.sink { [weak alertsPageView] viewModel in
-            alertsPageView?.configure(viewModel: viewModel)
-        }.store(in: &cancelable)
+        output.alerts
+            .sink { [weak alertsPageView] in alertsPageView?.configure(viewModel: $0) }
+            .store(in: &cancelable)
     }
 
     private func configureActionButtons(with actions: [TokenInstanceAction]) {
@@ -168,11 +172,11 @@ class FungibleTokenViewController: UIViewController {
         for (action, button) in zip(actions, buttonsBar.buttons) where button == sender {
             switch action.type {
             case .swap:
-                delegate?.didTapSwap(swapTokenFlow: .swapToken(token: viewModel.transactionType.tokenObject), in: self)
+                delegate?.didTapSwap(swapTokenFlow: .swapToken(token: viewModel.token), in: self)
             case .erc20Send:
-                delegate?.didTapSend(forTransactionType: viewModel.transactionType, in: self)
+                delegate?.didTapSend(for: viewModel.token, in: self)
             case .erc20Receive:
-                delegate?.didTapReceive(forTransactionType: viewModel.transactionType, in: self)
+                delegate?.didTapReceive(for: viewModel.token, in: self)
             case .nftRedeem, .nftSell, .nonFungibleTransfer:
                 break
             case .tokenScript:
@@ -180,12 +184,12 @@ class FungibleTokenViewController: UIViewController {
                     guard case .warning(let denialMessage) = message else { return }
                     UIAlertController.alert(message: denialMessage, alertButtonTitles: [R.string.localizable.oK()], alertButtonStyles: [.default], viewController: self)
                 } else {
-                    delegate?.didTap(action: action, transactionType: viewModel.transactionType, in: self)
+                    delegate?.didTap(action: action, token: viewModel.token, in: self)
                 }
             case .bridge(let service):
-                delegate?.didTapBridge(transactionType: viewModel.transactionType, service: service, in: self)
+                delegate?.didTapBridge(for: viewModel.token, service: service, in: self)
             case .buy(let service):
-                delegate?.didTapBuy(transactionType: viewModel.transactionType, service: service, in: self)
+                delegate?.didTapBuy(for: viewModel.token, service: service, in: self)
             }
             break
         }
@@ -214,11 +218,11 @@ extension FungibleTokenViewController: PriceAlertsPageViewDelegate {
     }
 
     func removeAlert(in view: PriceAlertsPageView, indexPath: IndexPath) {
-        viewModel.removeAlert(at: indexPath)
+        removeAlert.send(indexPath)
     }
 
     func updateAlert(in view: PriceAlertsPageView, value: Bool, indexPath: IndexPath) {
-        viewModel.updateAlert(value: value, at: indexPath)
+        updateAlert.send((value: value, indexPath: indexPath))
     }
 }
 
