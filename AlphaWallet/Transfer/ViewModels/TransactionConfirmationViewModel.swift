@@ -49,8 +49,8 @@ class TransactionConfirmationViewModel {
             type = .dappOrWalletConnectTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: recipientResolver, requester: requester))
         case .sendFungiblesTransaction(_, let amount):
             type = .sendFungiblesTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: recipientResolver, amount: amount))
-        case .sendNftTransaction(_, let tokenInstanceNames):
-            type = .sendNftTransaction(.init(configurator: configurator, recipientResolver: recipientResolver, tokenInstanceNames: tokenInstanceNames))
+        case .sendNftTransaction:
+            type = .sendNftTransaction(.init(configurator: configurator, recipientResolver: recipientResolver))
         case .claimPaidErc875MagicLink(_, let price, let numberOfTokens):
             type = .claimPaidErc875MagicLink(.init(configurator: configurator, price: price, numberOfTokens: numberOfTokens))
         case .speedupTransaction:

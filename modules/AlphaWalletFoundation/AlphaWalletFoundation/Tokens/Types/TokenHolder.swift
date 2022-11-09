@@ -12,7 +12,12 @@ import BigInt
 
 public struct TokenSelection: Equatable, Hashable {
     public let tokenId: TokenId
-    public let value: Int
+    public let value: BigUInt
+
+    public init(tokenId: TokenId, value: BigUInt) {
+        self.tokenId = tokenId
+        self.value = value
+    }
 
     public static func == (lhs: Self, rhs: Self) -> Bool {
         return lhs.tokenId == rhs.tokenId
@@ -42,16 +47,16 @@ extension TokenHolder {
     }
 
     public var totalSelectedCount: Int {
-        var sum: Int = 0
+        var sum: BigUInt = 0
         for each in selections {
             sum += each.value
         }
 
-        return sum
+        return Int(sum)
     }
 
     public func selectedCount(tokenId: TokenId) -> Int? {
-        selections.first(where: { $0.tokenId == tokenId }).flatMap { $0.value }
+        selections.first(where: { $0.tokenId == tokenId }).flatMap { Int($0.value) }
     }
 
     public func select(with strategy: TokenHolderSelectionStrategy) {
@@ -63,7 +68,7 @@ extension TokenHolder {
             selections = tokens.compactMap {
                 //TODO need to make sure the available `amount` is set previously  so we can use it here
                 if let value = $0.value {
-                    return TokenSelection(tokenId: $0.id, value: value)
+                    return TokenSelection(tokenId: $0.id, value: BigUInt(value))
                 } else {
                     return nil
                 }
@@ -72,13 +77,13 @@ extension TokenHolder {
             guard tokens.contains(where: { $0.id == tokenId }) else { return }
             if let index = selections.firstIndex(where: { $0.tokenId == tokenId }) {
                 if newAmount > 0 {
-                    selections[index] = TokenSelection(tokenId: tokenId, value: newAmount)
+                    selections[index] = TokenSelection(tokenId: tokenId, value: BigUInt(newAmount))
                 } else {
                     selections.remove(at: index)
                 }
             } else {
                 guard newAmount > 0 else { return }
-                selections.append(TokenSelection(tokenId: tokenId, value: newAmount))
+                selections.append(TokenSelection(tokenId: tokenId, value: BigUInt(newAmount)))
             }
         }
     }
@@ -92,7 +97,7 @@ extension TokenHolder {
             unselect(with: .token(tokenId: tokenId, amount: token.value ?? 0))
         case .token(let tokenId, let amount):
             if let index = selections.firstIndex(where: { $0.tokenId == tokenId }) {
-                selections[index] = TokenSelection(tokenId: tokenId, value: amount)
+                selections[index] = TokenSelection(tokenId: tokenId, value: BigUInt(amount))
             } else {
                 // no-op
             }

@@ -22,7 +22,6 @@ extension UnconfirmedTransaction {
             recipient: recipient,
             contract: to,
             data: data,
-            tokenId: nil,
             gasLimit: gasLimit,
             gasPrice: gasPrice,
             nonce: nonce

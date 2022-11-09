@@ -27,6 +27,8 @@ public enum ApproveSwapState {
 public final class ApproveSwapProvider {
     private let configurator: SwapOptionsConfigurator
     private let analytics: AnalyticsLogger
+    private lazy var getErc20Allowance = GetErc20Allowance(server: configurator.server)
+    
     public weak var delegate: ApproveSwapProviderDelegate?
 
     public init(configurator: SwapOptionsConfigurator, analytics: AnalyticsLogger) {
@@ -37,7 +39,7 @@ public final class ApproveSwapProvider {
     public func approveSwap(swapQuote: SwapQuote, fromAmount: BigUInt) {
         delegate?.changeState(in: self, state: .checkingForEnoughAllowance)
 
-        Erc20.hasEnoughAllowance(server: configurator.server, tokenAddress: swapQuote.action.fromToken.address, owner: configurator.session.account.address, spender: swapQuote.estimate.spender, amount: fromAmount)
+        getErc20Allowance.hasEnoughAllowance(tokenAddress: swapQuote.action.fromToken.address, owner: configurator.session.account.address, spender: swapQuote.estimate.spender, amount: fromAmount)
             .map { (swapQuote, $0.hasEnough, $0.shortOf) }
         .then { swapQuote, isApproved, shortOf -> Promise<SwapQuote> in
             if isApproved {

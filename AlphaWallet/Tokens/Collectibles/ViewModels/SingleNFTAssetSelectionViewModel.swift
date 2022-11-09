@@ -12,7 +12,7 @@ struct SingleNFTAssetSelectionViewModel {
     var backgroundColor: UIColor = Colors.appTint
 
     var selectedAmount: Int? {
-        tokenHolder.selectedCount(tokenId: tokenId)
+        tokenHolder.selectedCount(tokenId: tokenId).flatMap { String($0) }.flatMap { Int($0) }
     }
 
     var isSelected: Bool {

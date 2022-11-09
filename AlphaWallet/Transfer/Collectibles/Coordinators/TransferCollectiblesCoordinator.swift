@@ -94,23 +94,19 @@ extension TransferCollectiblesCoordinator: SendSemiFungibleTokenViewControllerDe
             //NOTE: we have to make sure that token holders have the same contract address!
             guard let firstTokenHolder = tokenHolders.first else { throw TransactionConfiguratorError.impossibleToBuildConfiguration }
 
-            let tokenIdsAndValues: [UnconfirmedTransaction.TokenIdAndValue] = tokenHolders
+            let tokenIdsAndValues: [TokenSelection] = tokenHolders
                 .flatMap { $0.selections }
-                .compactMap { .init(tokenId: $0.tokenId, value: BigUInt($0.value)) }
 
-            let tokenInstanceNames = tokenHolders
-                .valuesAll
-                .compactMapValues { $0.nameStringValue }
+            let data: Data
+            if tokenIdsAndValues.count == 1 {
+                data = (try? Erc1155SafeTransferFrom(recipient: recipient, account: session.account.address, tokenIdAndValue: tokenIdsAndValues[0]).encodedABI()) ?? Data()
+            } else {
+                data = (try? Erc1155SafeBatchTransferFrom(recipient: recipient, account: session.account.address, tokenIdsAndValues: tokenIdsAndValues).encodedABI())  ?? Data()
+            }
+            let transactionType: TransactionType = .init(nonFungibleToken: token, tokenHolders: tokenHolders)
+            let transaction = UnconfirmedTransaction(transactionType: transactionType, value: BigInt(0), recipient: recipient, contract: firstTokenHolder.contractAddress, data: data)
 
-            let transaction = UnconfirmedTransaction(
-                transactionType: .erc1155Token(token, transferType: tokenIdsAndValues.erc1155TokenTransactionType, tokenHolders: tokenHolders),
-                    value: BigInt(0),
-                    recipient: recipient,
-                    contract: firstTokenHolder.contractAddress,
-                    data: nil,
-                    tokenIdsAndValues: tokenIdsAndValues)
-
-            let configuration: TransactionType.Configuration = .sendNftTransaction(confirmType: .signThenSend, tokenInstanceNames: tokenInstanceNames)
+            let configuration: TransactionType.Configuration = .sendNftTransaction(confirmType: .signThenSend)
             let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
             addCoordinator(coordinator)
             coordinator.delegate = self

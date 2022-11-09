@@ -72,13 +72,28 @@ extension TransferNFTCoordinator: SendSemiFungibleTokenViewControllerDelegate {
         do {
             guard let tokenHolder = tokenHolders.first else { throw TransactionConfiguratorError.impossibleToBuildConfiguration }
             guard let token = tokenHolder.tokens.first else { throw TransactionConfiguratorError.impossibleToBuildConfiguration }
-            let transaction = UnconfirmedTransaction(transactionType: transactionType, value: BigInt(0), recipient: recipient, contract: tokenHolder.contractAddress, data: nil, tokenId: token.id, indices: tokenHolder.indices)
 
-            let tokenInstanceNames = tokenHolder.valuesAll.compactMapValues { $0.nameStringValue }
-            let configuration: TransactionType.Configuration = .sendNftTransaction(confirmType: .signThenSend, tokenInstanceNames: tokenInstanceNames)
+            let data: Data
+            switch transactionType {
+            case .erc875Token(let token, _):
+                data = (try? Erc875Transfer(contractAddress: token.contractAddress, recipient: recipient, indices: tokenHolder.indices).encodedABI()) ?? Data()
+            case .erc721Token, .erc721ForTicketToken:
+                if tokenHolder.contractAddress.isLegacy721Contract {
+                    data = (try? Erc721TransferFrom(recipient: recipient, tokenId: token.id).encodedABI())  ?? Data()
+                } else {
+                    data = (try? Erc721SafeTransferFrom(recipient: recipient, account: session.account.address, tokenId: token.id).encodedABI()) ?? Data()
+                }
+            case .nativeCryptocurrency, .erc20Token, .erc1155Token, .dapp, .claimPaidErc875MagicLink, .tokenScript, .prebuilt:
+                fatalError("Impossible Code Path")
+            }
+
+            let transaction = UnconfirmedTransaction(transactionType: transactionType, value: BigInt(0), recipient: recipient, contract: tokenHolder.contractAddress, data: data)
+
+            let configuration: TransactionType.Configuration = .sendNftTransaction(confirmType: .signThenSend)
             let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
             addCoordinator(coordinator)
             coordinator.delegate = self
+
             coordinator.start(fromSource: .sendNft)
         } catch {
             UIApplication.shared

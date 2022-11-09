@@ -49,135 +49,41 @@ class ClaimPaidOrderCoordinator: Coordinator {
     }
 
     func start() {
+        do {
+            let data = try encodeOrder(signedOrder: signedOrder, recipient: session.account.address)
+
+            let transaction = UnconfirmedTransaction(transactionType: .claimPaidErc875MagicLink(token), value: BigInt(signedOrder.order.price), recipient: nil, contract: signedOrder.order.contractAddress, data: data)
+
+            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: .claimPaidErc875MagicLink(confirmType: .signThenSend, price: signedOrder.order.price, numberOfTokens: numberOfTokens), analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
+            coordinator.delegate = self
+            addCoordinator(coordinator)
+            coordinator.start(fromSource: .claimPaidMagicLink)
+        } catch {
+            UIApplication.shared
+                .presentedViewController(or: navigationController)
+                .displayError(message: error.prettyError)
+        }
+    }
+
+    private func encodeOrder(signedOrder: SignedOrder, recipient: AlphaWallet.Address) throws -> Data {
         let signature = signedOrder.signature.substring(from: 2)
         let v = UInt8(signature.substring(from: 128), radix: 16)!
         let r = "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64)))
         let s = "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
+        let expiry = signedOrder.order.expiry
 
-        let result = encodeOrder(signedOrder: signedOrder, expiry: signedOrder.order.expiry, v: v, r: r, s: s, contractAddress: signedOrder.order.contractAddress, recipient: session.account.address)
-
-        switch result {
-        case .success(let payload):
-            do {
-                let transaction = UnconfirmedTransaction(transactionType: .claimPaidErc875MagicLink(token), value: BigInt(signedOrder.order.price), recipient: nil, contract: signedOrder.order.contractAddress, data: payload)
-
-                let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: .claimPaidErc875MagicLink(confirmType: .signThenSend, price: signedOrder.order.price, numberOfTokens: numberOfTokens), analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
-                coordinator.delegate = self
-                addCoordinator(coordinator)
-                coordinator.start(fromSource: .claimPaidMagicLink)
-            } catch {
-                UIApplication.shared
-                    .presentedViewController(or: navigationController)
-                    .displayError(message: error.prettyError)
-            }
-        case .failure:
-            break
-        }
-    }
-
-    private func encodeOrder(signedOrder: SignedOrder,
-                             expiry: BigUInt,
-                             v: UInt8,
-                             r: String,
-                             s: String,
-                             contractAddress: AlphaWallet.Address,
-                             recipient: AlphaWallet.Address) -> Result<Data, Error> {
+        let method: ContractMethod
         if let tokenIds = signedOrder.order.tokenIds, !tokenIds.isEmpty {
-            return encodeSpawnableOrder(expiry: expiry, tokenIds: tokenIds, v: v, r: r, s: s, recipient: recipient)
+            method = Erc875SpawnPassTo(expiry: expiry, tokenIds: tokenIds, v: v, r: r, s: s, recipient: recipient)
         } else if signedOrder.order.nativeCurrencyDrop {
-            return encodeNativeCurrencyOrder(signedOrder: signedOrder, v: v, r: r, s: s, recipient: recipient)
+            method = Erc875DropCurrency(signedOrder: signedOrder, v: v, r: r, s: s, recipient: recipient)
         } else {
-            return encodeNormalOrder(expiry: expiry, indices: signedOrder.order.indices, v: v, r: r, s: s, contractAddress: contractAddress)
+            let contractAddress = signedOrder.order.contractAddress
+            let indices = signedOrder.order.indices
+            method = Erc875Trade(contractAddress: contractAddress, v: v, r: r, s: s, expiry: expiry, indices: indices)
         }
-    }
 
-    private func encodeNormalOrder(expiry: BigUInt,
-                                   indices: [UInt16],
-                                   v: UInt8,
-                                   r: String,
-                                   s: String,
-                                   contractAddress: AlphaWallet.Address) -> Result<Data, Error> {
-        do {
-            let parameters: [Any] = [expiry, indices.map({ BigUInt($0) }), BigUInt(v), Data(_hex: r), Data(_hex: s)]
-            let arrayType: ABIType
-            if contractAddress.isLegacy875Contract {
-                arrayType = ABIType.uint(bits: 16)
-            } else {
-                arrayType = ABIType.uint(bits: 256)
-            }
-            //trade(uint256,uint16[],uint8,bytes32,bytes32)
-            let functionEncoder = Function(name: "trade", parameters: [
-                .uint(bits: 256),
-                .dynamicArray(arrayType),
-                .uint(bits: 8),
-                .bytes(32),
-                .bytes(32)
-            ])
-            let encoder = ABIEncoder()
-            try encoder.encode(function: functionEncoder, arguments: parameters)
-            return .success(encoder.data)
-        } catch {
-            return .failure(Web3Error(description: "malformed transaction"))
-        }
-    }
-
-    private func encodeSpawnableOrder(expiry: BigUInt,
-                                      tokenIds: [BigUInt],
-                                      v: UInt8,
-                                      r: String,
-                                      s: String,
-                                      recipient: AlphaWallet.Address) -> Result<Data, Error> {
-
-        do {
-            let parameters: [Any] = [expiry, tokenIds, BigUInt(v), Data(_hex: r), Data(_hex: s), recipient]
-            let functionEncoder = Function(name: "spawnPassTo", parameters: [
-                .uint(bits: 256),
-                .dynamicArray(.uint(bits: 256)),
-                .uint(bits: 8),
-                .bytes(32),
-                .bytes(32),
-                .address
-            ])
-            let encoder = ABIEncoder()
-            try encoder.encode(function: functionEncoder, arguments: parameters)
-
-            return .success(encoder.data)
-        } catch {
-            return .failure(Web3Error(description: "malformed transaction"))
-        }
-    }
-
-    private func encodeNativeCurrencyOrder(
-            signedOrder: SignedOrder,
-            v: UInt8,
-            r: String,
-            s: String,
-            recipient: AlphaWallet.Address) -> Result<Data, Error> {
-        do {
-            let parameters: [Any] = [
-                signedOrder.order.nonce,
-                signedOrder.order.expiry,
-                signedOrder.order.count,
-                BigUInt(v),
-                Data(_hex: r),
-                Data(_hex: s),
-                recipient
-            ]
-            let functionEncoder = Function(name: "dropCurrency", parameters: [
-                .uint(bits: 256),
-                .uint(bits: 256),
-                .uint(bits: 256),
-                .uint(bits: 8),
-                .bytes(32),
-                .bytes(32),
-                .address
-            ])
-            let encoder = ABIEncoder()
-            try encoder.encode(function: functionEncoder, arguments: parameters)
-            return .success(encoder.data)
-        } catch {
-            return .failure(Web3Error(description: "malformed transaction"))
-        }
+        return try method.encodedABI()
     }
 }
 

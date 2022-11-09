@@ -442,7 +442,7 @@ extension NFTCollectionCoordinator: NFTAssetSelectionCoordinatorDelegate {
 
         let filteredTokenHolders = tokenHolders.filter { $0.totalSelectedCount > 0 }
         guard let vc = navigationController.visibleViewController else { return }
-        let transactionType: TransactionType = .erc1155Token(token, transferType: .singleTransfer, tokenHolders: filteredTokenHolders)
+        let transactionType: TransactionType = .init(nonFungibleToken: token, tokenHolders: filteredTokenHolders)
         delegate?.didPress(for: .send(type: .transaction(transactionType)), inViewController: vc, in: self)
     }
 
@@ -460,9 +460,9 @@ extension NFTCollectionCoordinator: NonFungibleTokenViewControllerDelegate {
         case .erc875, .erc721ForTickets:
             showEnterQuantityViewControllerForTransfer(token: token, for: tokenHolder, forPaymentFlow: paymentFlow, in: viewController)
         case .nativeCryptocurrency, .erc20:
-            break
+            assertImpossibleCodePath()
         case .erc1155:
-            let transactionType: TransactionType = .erc1155Token(token, transferType: .singleTransfer, tokenHolders: [tokenHolder])
+            let transactionType: TransactionType = .init(nonFungibleToken: token, tokenHolders: [tokenHolder])
             delegate?.didPress(for: .send(type: .transaction(transactionType)), inViewController: viewController, in: self)
         }
     }
@@ -605,11 +605,5 @@ extension Collection where Element == TokenHolder {
             valuesAll.merge(each.valuesAll) { (current, _) in current }
         }
         return valuesAll
-    }
-}
-
-extension Collection where Element == UnconfirmedTransaction.TokenIdAndValue {
-    var erc1155TokenTransactionType: Erc1155TokenTransactionType {
-        return count > 1 ? .batchTransfer : .singleTransfer
     }
 }
