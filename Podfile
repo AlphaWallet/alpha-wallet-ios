@@ -20,7 +20,7 @@ target 'AlphaWallet' do
   pod 'Kanna', :git => 'https://github.com/tid-kijyun/Kanna.git', :commit => '06a04bc28783ccbb40efba355dee845a024033e8'
   pod 'Mixpanel-swift', '~> 3.1'
   pod 'EthereumABI', :git => 'https://github.com/AlphaWallet/EthereumABI.git', :commit => '877b77e8e7cbc54ab0712d509b74fec21b79d1bb'
-  pod 'Charts', :git => 'https://github.com/AlphaWallet/Charts.git', :commit => '85ec4d0f62b97829274c4f628f4840036939de64'
+  pod 'Charts'
   pod 'AlphaWalletAddress', :path => '.'
   pod 'AlphaWalletCore', :path => '.'
   pod 'AlphaWalletGoBack', :path => '.'
