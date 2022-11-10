@@ -83,7 +83,7 @@ class ConfigureTransactionViewController: UIViewController {
 
         navigationItem.title = viewModel.title
         containerView.configure(viewModel: .init(backgroundColor: viewModel.backgroundColor))
-        navigationItem.rightBarButtonItem = UIBarButtonItem.saveBarButton(self, selector: #selector(saveButtonSelected))
+        navigationItem.leftBarButtonItem = UIBarButtonItem.saveBarButton(self, selector: #selector(saveButtonSelected))
 
         view.addSubview(backgroundView)
         view.addSubview(containerView)
