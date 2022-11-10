@@ -33,7 +33,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         let tokenGroupIdentifier: TokenGroupIdentifierProtocol = TokenGroupIdentifier.identifier(fromFileName: "tokens")!
         return TokensFilter(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: coinTickersFetcher, tokenGroupIdentifier: tokenGroupIdentifier)
     }()
-    
+
     private let tokenCollection: TokenCollection
 
     private var transactionCoordinator: TransactionCoordinator? {
@@ -131,7 +131,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private let tokenSwapper: TokenSwapper
     private let tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable
     private let lock: Lock
-    
+
     init(
             navigationController: UINavigationController = NavigationController(),
             walletAddressesStore: WalletAddressesStore,
@@ -395,7 +395,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         } else {
             viewControllers.append(transactionCoordinator.navigationController)
         }
-        if Features.default.isAvailable(.isSwapEnabled) {
+        if Environment.isDebug && Features.default.isAvailable(.isSwapEnabled) {
             let swapDummyViewController = UIViewController()
             swapDummyViewController.tabBarItem = ActiveWalletViewModel.Tabs.swap.tabBarItem
             viewControllers.append(swapDummyViewController)
