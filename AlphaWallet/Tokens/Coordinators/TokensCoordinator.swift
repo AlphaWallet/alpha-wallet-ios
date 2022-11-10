@@ -282,20 +282,12 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     }
 
     func showSingleChainToken(token: Token, in navigationController: UINavigationController) {
-        //TODO: Remove transaction type from send screen, we have to build it when `continue` button selected, and not earlier. steps below seems incorrect
-        // .erc875, .erc721ForTickets: do we actually need to use same transaction type?
         guard let coordinator = singleChainTokenCoordinator(forServer: token.server) else { return }
         switch token.type {
-        case .nativeCryptocurrency:
-            coordinator.show(fungibleToken: token, transactionType: .nativeCryptocurrency(token, destination: .none, amount: nil), navigationController: navigationController)
-        case .erc20:
-            coordinator.show(fungibleToken: token, transactionType: .erc20Token(token, destination: nil, amount: nil), navigationController: navigationController)
-        case .erc721:
-            coordinator.show(nonFungibleToken: token, transactionType: .erc721Token(token, tokenHolders: []), navigationController: navigationController)
-        case .erc875, .erc721ForTickets:
-            coordinator.show(nonFungibleToken: token, transactionType: .erc875Token(token, tokenHolders: []), navigationController: navigationController)
-        case .erc1155:
-            coordinator.show(nonFungibleToken: token, transactionType: .erc1155Token(token, tokenHolders: []), navigationController: navigationController)
+        case .nativeCryptocurrency, .erc20:
+            coordinator.show(fungibleToken: token, navigationController: navigationController)
+        case .erc721, .erc875, .erc721ForTickets, .erc1155:
+            coordinator.show(nonFungibleToken: token, navigationController: navigationController)
         }
     }
 

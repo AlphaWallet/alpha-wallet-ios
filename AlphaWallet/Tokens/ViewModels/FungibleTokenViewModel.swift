@@ -9,6 +9,8 @@ import AlphaWalletFoundation
 
 struct FungibleTokenViewModelInput {
     let appear: AnyPublisher<Void, Never>
+    let updateAlert: AnyPublisher<(value: Bool, indexPath: IndexPath), Never>
+    let removeAlert: AnyPublisher<IndexPath, Never>
 }
 
 struct FungibleTokenViewModelOutput {
@@ -20,94 +22,38 @@ struct FungibleTokenViewModelOutput {
 final class FungibleTokenViewModel {
     private var cancelable = Set<AnyCancellable>()
     private let coinTickersFetcher: CoinTickersFetcher
-    private var validatedToken: Token? {
-        switch transactionType {
-        case .nativeCryptocurrency:
-            //TODO might as well just make .nativeCryptocurrency hold the TokenObject instance too
-            return MultipleChainsTokensDataStore.functional.etherToken(forServer: session.server)
-        case .erc20Token(let token, _, _):
-            return token
-        case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
-            return nil
-        }
-    }
     private let tokenActionsProvider: SupportedTokenActionsProvider
     private let tokensService: TokenViewModelState & TokenBalanceRefreshable
     private let activitiesService: ActivitiesServiceType
     private let alertService: PriceAlertServiceType
-    private lazy var tokenHolder: TokenHolder? = {
-        return validatedToken.flatMap { $0.getTokenHolder(assetDefinitionStore: assetDefinitionStore, forWallet: session.account) }
-    }()
+    private lazy var tokenHolder: TokenHolder = token.getTokenHolder(assetDefinitionStore: assetDefinitionStore, forWallet: session.account)
+    private (set) var actions: [TokenInstanceAction] = []
 
-    let transactionType: TransactionType
     let session: WalletSession
     let assetDefinitionStore: AssetDefinitionStore
     var wallet: Wallet { session.account }
-
-    lazy var tokenScriptFileStatusHandler = XMLHandler(token: transactionType.tokenObject, assetDefinitionStore: assetDefinitionStore)
-
-    var token: Token {
-        return transactionType.tokenObject
-    }
-
-    private (set) var actions: [TokenInstanceAction] = []
+    lazy var tokenScriptFileStatusHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
+    let token: Token
 
     var tokenScriptStatus: Promise<TokenLevelTokenScriptDisplayStatus> {
-        if let token = validatedToken {
-            let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
-            return xmlHandler.tokenScriptStatus
-        } else {
-            assertImpossibleCodePath()
-            return .value(.type2BadTokenScript(isDebugMode: false, error: .custom("Unknown"), reason: nil))
-        }
-    }
-
-    private var fungibleBalance: BigInt? {
-        switch transactionType {
-        case .nativeCryptocurrency:
-            let token: Token = MultipleChainsTokensDataStore.functional.token(forServer: transactionType.server)
-            return tokensService.tokenViewModel(for: token)?.balance.value
-        case .erc20Token(let token, _, _):
-            return tokensService.tokenViewModel(for: token)?.balance.value
-        case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
-            return nil
-        }
+        let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
+        return xmlHandler.tokenScriptStatus
     }
 
     var hasCoinTicker: Bool {
-        switch transactionType {
-        case .nativeCryptocurrency:
-            let token: Token = MultipleChainsTokensDataStore.functional.token(forServer: transactionType.server)
-            return tokensService.tokenViewModel(for: token)?.balance.ticker != nil
-        case .erc20Token(let token, _, _):
-            return tokensService.tokenViewModel(for: token)?.balance.ticker != nil
-        case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
-            return false
-        }
+        return tokensService.tokenViewModel(for: token)?.balance.ticker != nil
     }
 
-    lazy var tokenInfoPageViewModel = TokenInfoPageViewModel(transactionType: transactionType, coinTickersFetcher: coinTickersFetcher, service: tokensService)
+    lazy var tokenInfoPageViewModel = TokenInfoPageViewModel(token: token, coinTickersFetcher: coinTickersFetcher, tokensService: tokensService)
 
-    var destinationAddress: AlphaWallet.Address {
-        return transactionType.contract
-    }
+    let backgroundColor: UIColor = Colors.appBackground
+    let sendButtonTitle: String = R.string.localizable.send()
+    let receiveButtonTitle: String = R.string.localizable.receive()
 
-    var backgroundColor: UIColor {
-        return Colors.appBackground
-    }
-
-    var sendButtonTitle: String {
-        return R.string.localizable.send()
-    }
-
-    var receiveButtonTitle: String {
-        return R.string.localizable.receive()
-    }
-
-    init(activitiesService: ActivitiesServiceType, alertService: PriceAlertServiceType, transactionType: TransactionType, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, tokenActionsProvider: SupportedTokenActionsProvider, coinTickersFetcher: CoinTickersFetcher, tokensService: TokenViewModelState & TokenBalanceRefreshable) {
+    init(activitiesService: ActivitiesServiceType, alertService: PriceAlertServiceType, token: Token, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, tokenActionsProvider: SupportedTokenActionsProvider, coinTickersFetcher: CoinTickersFetcher, tokensService: TokenViewModelState & TokenBalanceRefreshable) {
         self.activitiesService = activitiesService
         self.alertService = alertService
-        self.transactionType = transactionType
+        self.token = token
         self.session = session
         self.assetDefinitionStore = assetDefinitionStore
         self.tokenActionsProvider = tokenActionsProvider
@@ -116,7 +62,8 @@ final class FungibleTokenViewModel {
     }
 
     func tokenScriptWarningMessage(for action: TokenInstanceAction) -> TokenScriptWarningMessage? {
-        if let tokenHolder = tokenHolder, let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: wallet.address, fungibleBalance: fungibleBalance) {
+        let fungibleBalance = tokensService.tokenViewModel(for: token)?.balance.value
+        if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: wallet.address, fungibleBalance: fungibleBalance) {
             if let denialMessage = selection.denial {
                 return .warning(string: denialMessage)
             } else {
@@ -130,7 +77,8 @@ final class FungibleTokenViewModel {
 
     func buttonState(for action: TokenInstanceAction) -> ActionButtonState {
         func _configButton(action: TokenInstanceAction) -> ActionButtonState {
-            if let tokenHolder = tokenHolder, let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: wallet.address, fungibleBalance: fungibleBalance) {
+            let fungibleBalance = tokensService.tokenViewModel(for: token)?.balance.value
+            if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: wallet.address, fungibleBalance: fungibleBalance) {
                 if selection.denial == nil {
                     return .isDisplayed(false)
                 }
@@ -151,7 +99,21 @@ final class FungibleTokenViewModel {
     }
 
     func transform(input: FungibleTokenViewModelInput) -> FungibleTokenViewModelOutput {
-        let whenTokenHolderHasChanged: AnyPublisher<TokenViewModel?, Never> = (tokenHolder?.objectWillChange.eraseToAnyPublisher() ?? .empty())
+        input.appear.receive(on: RunLoop.main)
+            .sink { [tokensService, token] _ in tokensService.refreshBalance(updatePolicy: .token(token: token)) }
+            .store(in: &cancelable)
+
+        input.removeAlert
+            .sink { [alertService] in alertService.remove(indexPath: $0) }
+            .store(in: &cancelable)
+
+        input.updateAlert
+            .sink { [alertService] in alertService.update(indexPath: $0.indexPath, update: .enabled($0.value)) }
+            .store(in: &cancelable)
+
+        activitiesService.start()
+        
+        let whenTokenHolderHasChanged = tokenHolder.objectWillChange
             .map { [tokensService, token] _ in tokensService.tokenViewModel(for: token) }
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
@@ -161,20 +123,13 @@ final class FungibleTokenViewModel {
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
 
-        let tokenViewModel = tokensService.tokenViewModelPublisher(for: token).eraseToAnyPublisher()
+        let tokenViewModel = tokensService.tokenViewModelPublisher(for: token)
 
         let actions = Publishers.MergeMany(tokenViewModel, whenTokenHolderHasChanged, whenTokenActionsHasChanged)
-            .compactMap { [weak self] _ in self?.buildTokenActions() }
-            .handleEvents(receiveOutput: { [weak self] in self?.actions = $0 })
+            .compactMap { _ in self.buildTokenActions() }
+            .handleEvents(receiveOutput: { self.actions = $0 })
 
         let title = tokenViewModel.compactMap { $0?.tokenScriptOverrides?.titleInPluralForm }
-
-        input.appear.receive(on: RunLoop.main)
-            .sink { [weak self] _ in
-                self?.refreshBalance()
-            }.store(in: &cancelable)
-
-        activitiesService.start()
 
         let activities = activitiesService.activitiesPublisher
             .map { ActivityPageViewModel(activitiesViewModel: .init(collection: .init(activities: $0))) }
@@ -193,43 +148,25 @@ final class FungibleTokenViewModel {
     }
 
     private func buildTokenActions() -> [TokenInstanceAction] {
-        guard let token = validatedToken else { return [] }
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         let actionsFromTokenScript = xmlHandler.actions
         infoLog("[TokenScript] actions names: \(actionsFromTokenScript.map(\.name))")
         if actionsFromTokenScript.isEmpty {
             switch token.type {
-            case .erc875:
+            case .erc875, .erc721, .erc721ForTickets, .erc1155:
                 return []
-            case .erc721:
-                return []
-            case .erc721ForTickets:
-                return []
-            case .erc1155:
-                return []
-            case .erc20:
+            case .erc20, .nativeCryptocurrency:
                 let actions: [TokenInstanceAction] = [
                     .init(type: .erc20Send),
                     .init(type: .erc20Receive)
                 ]
 
                 return actions + tokenActionsProvider.actions(token: token)
-            case .nativeCryptocurrency:
-                let actions: [TokenInstanceAction] = [
-                    .init(type: .erc20Send),
-                    .init(type: .erc20Receive)
-                ]
-                switch token.server.serverWithEnhancedSupport {
-                case .xDai:
-                    return [.init(type: .erc20Send), .init(type: .erc20Receive)] + tokenActionsProvider.actions(token: token)
-                case .main, .candle, .polygon, .binance_smart_chain, .heco, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, .rinkeby, nil:
-                    return actions + tokenActionsProvider.actions(token: token)
-                }
             }
         } else {
             switch token.type {
             case .erc875, .erc721, .erc721ForTickets, .erc1155:
-                return actionsFromTokenScript
+                return []
             case .erc20:
                 return actionsFromTokenScript + tokenActionsProvider.actions(token: token)
             case .nativeCryptocurrency:
@@ -247,25 +184,6 @@ final class FungibleTokenViewModel {
                 }
             }
         }
-    }
-
-    private func refreshBalance() {
-        switch transactionType {
-        case .nativeCryptocurrency:
-            tokensService.refreshBalance(updatePolicy: .eth)
-        case .erc20Token(let token, _, _):
-            tokensService.refreshBalance(updatePolicy: .token(token: token))
-        case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
-            break
-        }
-    }
-
-    func removeAlert(at indexPath: IndexPath) {
-        alertService.remove(indexPath: indexPath)
-    }
-
-    func updateAlert(value: Bool, at indexPath: IndexPath) {
-        alertService.update(indexPath: indexPath, update: .enabled(value))
     }
 }
 

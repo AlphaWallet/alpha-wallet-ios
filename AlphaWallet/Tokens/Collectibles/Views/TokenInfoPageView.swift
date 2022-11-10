@@ -100,6 +100,6 @@ extension TokenInfoPageView: TokenAttributeViewDelegate {
 extension TokenInfoPageView: FungibleTokenHeaderViewDelegate {
 
     func didPressViewContractWebPage(inHeaderView: FungibleTokenHeaderView) {
-        delegate?.didPressViewContractWebPage(forContract: viewModel.transactionType.contract, in: self)
+        delegate?.didPressViewContractWebPage(forContract: viewModel.token.contractAddress, in: self)
     }
 }

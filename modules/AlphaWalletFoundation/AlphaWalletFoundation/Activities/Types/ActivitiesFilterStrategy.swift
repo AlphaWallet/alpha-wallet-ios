@@ -32,20 +32,15 @@ public extension TransactionState {
         NSPredicate(format: "\(field) = \(value.rawValue)")
     }
 }
-
-extension TransactionType {
+extension Token {
     public var activitiesFilterStrategy: ActivitiesFilterStrategy {
-        switch self {
-        case .nativeCryptocurrency(let token, _, _):
-            return .nativeCryptocurrency(primaryKey: token.primaryKey)
-        case .erc20Token(let tokenObject, _, _):
-            return .contract(contract: tokenObject.contractAddress)
-        case .erc875Token(let token, _):
-            return .contract(contract: token.contractAddress)
-        case .erc721Token(let token, _), .erc721ForTicketToken(let token, _), .erc1155Token(let token, _):
-            return .operationTypes(operationTypes: [], contract: token.contractAddress)
-        case .dapp, .claimPaidErc875MagicLink, .tokenScript, .prebuilt:
-            return .none
+        switch self.type {
+        case .nativeCryptocurrency:
+            return .nativeCryptocurrency(primaryKey: primaryKey)
+        case .erc20, .erc875:
+            return .contract(contract: contractAddress)
+        case .erc721ForTickets, .erc721, .erc1155:
+            return .operationTypes(operationTypes: [], contract: contractAddress)
         }
     }
 }

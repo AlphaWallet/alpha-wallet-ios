@@ -72,14 +72,14 @@ class SingleChainTokenCoordinator: Coordinator {
         return session.server == server
     }
 
-    func show(nonFungibleToken token: Token, transactionType: TransactionType, navigationController: UINavigationController) {
+    func show(nonFungibleToken token: Token, navigationController: UINavigationController) {
         guard !token.nonZeroBalance.isEmpty else {
             navigationController.displayError(error: NoTokenError())
             return
         }
 
-        let activitiesFilterStrategy = transactionType.activitiesFilterStrategy
-        let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: TransactionDataStore.functional.transactionsFilter(for: activitiesFilterStrategy, token: transactionType.tokenObject))
+        let activitiesFilterStrategy = token.activitiesFilterStrategy
+        let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: TransactionDataStore.functional.transactionsFilter(for: activitiesFilterStrategy, token: token))
 
         let coordinator = NFTCollectionCoordinator(
                 session: session,
@@ -98,11 +98,11 @@ class SingleChainTokenCoordinator: Coordinator {
         coordinator.start()
     }
 
-    func show(fungibleToken token: Token, transactionType: TransactionType, navigationController: UINavigationController) {
+    func show(fungibleToken token: Token, navigationController: UINavigationController) {
         //NOTE: create half mutable copy of `activitiesService` to configure it for fetching activities for specific token
-        let activitiesFilterStrategy = transactionType.activitiesFilterStrategy
-        let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: TransactionDataStore.functional.transactionsFilter(for: activitiesFilterStrategy, token: transactionType.tokenObject))
-        let viewModel = FungibleTokenViewModel(activitiesService: activitiesService, alertService: alertService, transactionType: transactionType, session: session, assetDefinitionStore: assetDefinitionStore, tokenActionsProvider: tokenActionsProvider, coinTickersFetcher: coinTickersFetcher, tokensService: tokensService)
+        let activitiesFilterStrategy = token.activitiesFilterStrategy
+        let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: TransactionDataStore.functional.transactionsFilter(for: activitiesFilterStrategy, token: token))
+        let viewModel = FungibleTokenViewModel(activitiesService: activitiesService, alertService: alertService, token: token, session: session, assetDefinitionStore: assetDefinitionStore, tokenActionsProvider: tokenActionsProvider, coinTickersFetcher: coinTickersFetcher, tokensService: tokensService)
         let viewController = FungibleTokenViewController(keystore: keystore, analytics: analytics, viewModel: viewModel, activitiesService: activitiesService, sessions: sessions)
         viewController.delegate = self
 
@@ -155,19 +155,19 @@ extension SingleChainTokenCoordinator: FungibleTokenViewControllerDelegate {
         delegate?.didTapSwap(swapTokenFlow: swapTokenFlow, in: self)
     }
 
-    func didTapBridge(transactionType: TransactionType, service: TokenActionProvider, in viewController: FungibleTokenViewController) {
-        delegate?.didTapBridge(transactionType: transactionType, service: service, in: self)
+    func didTapBridge(for token: Token, service: TokenActionProvider, in viewController: FungibleTokenViewController) {
+        delegate?.didTapBridge(transactionType: .init(fungibleToken: token), service: service, in: self)
     }
 
-    func didTapBuy(transactionType: TransactionType, service: TokenActionProvider, in viewController: FungibleTokenViewController) {
-        delegate?.didTapBuy(transactionType: transactionType, service: service, in: self)
+    func didTapBuy(for token: Token, service: TokenActionProvider, in viewController: FungibleTokenViewController) {
+        delegate?.didTapBuy(transactionType: .init(fungibleToken: token), service: service, in: self)
     }
 
-    func didTapSend(forTransactionType transactionType: TransactionType, in viewController: FungibleTokenViewController) {
-        delegate?.didPress(for: .send(type: .transaction(transactionType)), viewController: viewController, in: self)
+    func didTapSend(for token: Token, in viewController: FungibleTokenViewController) {
+        delegate?.didPress(for: .send(type: .transaction(.init(fungibleToken: token))), viewController: viewController, in: self)
     }
 
-    func didTapReceive(forTransactionType transactionType: TransactionType, in viewController: FungibleTokenViewController) {
+    func didTapReceive(for token: Token, in viewController: FungibleTokenViewController) {
         delegate?.didPress(for: .request, viewController: viewController, in: self)
     }
 
@@ -179,27 +179,10 @@ extension SingleChainTokenCoordinator: FungibleTokenViewControllerDelegate {
         delegate?.didTap(transaction: transaction, viewController: viewController, in: self)
     }
 
-    func didTap(action: TokenInstanceAction, transactionType: TransactionType, in viewController: FungibleTokenViewController) {
+    func didTap(action: TokenInstanceAction, token: Token, in viewController: FungibleTokenViewController) {
         guard let navigationController = viewController.navigationController else { return }
 
-        let token: Token
-        switch transactionType {
-        case .erc20Token(let erc20Token, _, _):
-            token = erc20Token
-        case .dapp, .erc721Token, .erc875Token, .erc721ForTicketToken, .erc1155Token, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
-            return
-        case .nativeCryptocurrency:
-            token = MultipleChainsTokensDataStore.functional.etherToken(forServer: server)
-            showTokenInstanceActionView(forAction: action, fungibleTokenObject: token, navigationController: navigationController)
-            return
-        }
-        switch action.type {
-        case .tokenScript:
-            showTokenInstanceActionView(forAction: action, fungibleTokenObject: token, navigationController: navigationController)
-        case .erc20Send, .erc20Receive, .nftRedeem, .nftSell, .nonFungibleTransfer, .swap, .buy, .bridge:
-            //Couldn't have reached here
-            break
-        }
+        showTokenInstanceActionView(forAction: action, fungibleTokenObject: token, navigationController: navigationController)
     }
 }
 
