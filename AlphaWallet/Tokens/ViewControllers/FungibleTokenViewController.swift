@@ -107,10 +107,11 @@ class FungibleTokenViewController: UIViewController {
                                             removeAlert: removeAlert.eraseToAnyPublisher())
 
         let output = viewModel.transform(input: input)
-        output.viewState.sink { [weak self, navigationItem] state in
-            navigationItem.title = state.title
-            self?.configureActionButtons(with: state.actions)
-        }.store(in: &cancelable)
+        output.viewState
+            .sink { [weak self, navigationItem] state in
+                navigationItem.title = state.title
+                self?.configureActionButtons(with: state.actions)
+            }.store(in: &cancelable)
 
         output.activities
             .sink { [weak activitiesPageView] in activitiesPageView?.configure(viewModel: $0) }
@@ -181,8 +182,8 @@ class FungibleTokenViewController: UIViewController {
                 break
             case .tokenScript:
                 if let message = viewModel.tokenScriptWarningMessage(for: action) {
-                    guard case .warning(let denialMessage) = message else { return }
-                    UIAlertController.alert(message: denialMessage, alertButtonTitles: [R.string.localizable.oK()], alertButtonStyles: [.default], viewController: self)
+                    guard case .warning(let string) = message else { return }
+                    show(message: string)
                 } else {
                     delegate?.didTap(action: action, token: viewModel.token, in: self)
                 }
@@ -193,6 +194,10 @@ class FungibleTokenViewController: UIViewController {
             }
             break
         }
+    }
+
+    private func show(message: String) {
+        UIAlertController.alert(message: message, alertButtonTitles: [R.string.localizable.oK()], alertButtonStyles: [.default], viewController: self)
     }
 }
 
