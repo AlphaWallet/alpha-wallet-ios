@@ -31,13 +31,11 @@ final class SettingsViewModel {
             return R.string.localizable.settingsBiometricsDisabledLabelTitle()
         }
     }
-
+    private let lock: Lock
     private (set) var sections: [SettingsSection] = []
-    let animatingDifferences: Bool = false
-    var title: String = R.string.localizable.aSettingsNavigationTitle()
+
     var backgroundColor: UIColor = Configuration.Color.Semantic.tableViewBackground
     var largeTitleDisplayMode: UINavigationItem.LargeTitleDisplayMode = .automatic
-    let lock: Lock
 
     init(account: Wallet, keystore: Keystore, lock: Lock, config: Config, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType) {
         self.account = account
@@ -159,7 +157,7 @@ final class SettingsViewModel {
         }
     }
 
-    private func view(for indexPath: IndexPath, sections: [SettingsSection]) -> ViewType {
+    private func view(for indexPath: IndexPath, sections: [SettingsViewModel.SettingsSection]) -> ViewType {
         switch sections[indexPath.section] {
         case .system(let rows):
             let row = rows[indexPath.row]
@@ -190,10 +188,13 @@ final class SettingsViewModel {
 }
 
 extension SettingsViewModel {
+    typealias Snapshot = NSDiffableDataSourceSnapshot<SettingsViewModel.SettingsSection, SettingsViewModel.ViewType>
+    typealias DataSource = UITableViewDiffableDataSource<SettingsViewModel.SettingsSection, SettingsViewModel.ViewType>
+
     enum functional {}
 
     struct SectionViewModel {
-        let section: SettingsSection
+        let section: SettingsViewModel.SettingsSection
         let views: [SettingsViewModel.ViewType]
     }
 
@@ -204,11 +205,36 @@ extension SettingsViewModel {
     }
 
     struct ViewState {
+        let animatingDifferences: Bool = false
+        let title: String = R.string.localizable.aSettingsNavigationTitle()
         let snapshot: SettingsViewModel.Snapshot
         let badge: String?
     }
 
-    typealias Snapshot = NSDiffableDataSourceSnapshot<SettingsSection, SettingsViewModel.ViewType>
+    enum SettingsWalletRow {
+        case showMyWallet
+        case changeWallet
+        case backup
+        case showSeedPhrase
+        case walletConnect
+        case nameWallet
+        case blockscanChat(blockscanChatUnreadCount: Int?)
+    }
+
+    enum SettingsSystemRow: CaseIterable {
+        case notifications
+        case passcode
+        case selectActiveNetworks
+        case advanced
+    }
+
+    enum SettingsSection {
+        case wallet(rows: [SettingsWalletRow])
+        case system(rows: [SettingsSystemRow])
+        case help
+        case version(value: String)
+        case tokenStandard(value: String)
+    }
 }
 
 extension SettingsViewModel.SectionViewModel: Equatable {
@@ -233,8 +259,8 @@ extension SettingsViewModel.ViewType: Hashable {
 }
 
 extension SettingsViewModel.functional {
-    fileprivate static func computeSections(account: Wallet, keystore: Keystore, blockscanChatUnreadCount: Int?) -> [SettingsSection] {
-        let walletRows: [SettingsWalletRow]
+    fileprivate static func computeSections(account: Wallet, keystore: Keystore, blockscanChatUnreadCount: Int?) -> [SettingsViewModel.SettingsSection] {
+        let walletRows: [SettingsViewModel.SettingsWalletRow]
         if account.allowBackup {
             if account.origin == .hd {
                 walletRows = [.showMyWallet, .changeWallet, .backup, .showSeedPhrase, .nameWallet, .walletConnect, .blockscanChat(blockscanChatUnreadCount: blockscanChatUnreadCount)]
@@ -244,7 +270,7 @@ extension SettingsViewModel.functional {
         } else {
             walletRows = [.showMyWallet, .changeWallet, .nameWallet, .walletConnect, .blockscanChat(blockscanChatUnreadCount: blockscanChatUnreadCount)]
         }
-        let systemRows: [SettingsSystemRow] = [.passcode, .selectActiveNetworks, .advanced]
+        let systemRows: [SettingsViewModel.SettingsSystemRow] = [.passcode, .selectActiveNetworks, .advanced]
         return [
             .wallet(rows: walletRows),
             .system(rows: systemRows),
@@ -255,15 +281,7 @@ extension SettingsViewModel.functional {
     }
 }
 
-enum SettingsWalletRow {
-    case showMyWallet
-    case changeWallet
-    case backup
-    case showSeedPhrase
-    case walletConnect
-    case nameWallet
-    case blockscanChat(blockscanChatUnreadCount: Int?)
-
+extension SettingsViewModel.SettingsWalletRow {
     var title: String {
         switch self {
         case .showMyWallet:
@@ -307,8 +325,8 @@ enum SettingsWalletRow {
     }
 }
 
-extension SettingsWalletRow: Hashable {
-    static func == (lhs: SettingsWalletRow, rhs: SettingsWalletRow) -> Bool {
+extension SettingsViewModel.SettingsWalletRow: Hashable {
+    static func == (lhs: SettingsViewModel.SettingsWalletRow, rhs: SettingsViewModel.SettingsWalletRow) -> Bool {
         switch (lhs, rhs) {
         case (.showMyWallet, .showMyWallet):
             return true
@@ -342,12 +360,7 @@ extension SettingsWalletRow: Hashable {
     }
 }
 
-enum SettingsSystemRow: CaseIterable {
-    case notifications
-    case passcode
-    case selectActiveNetworks
-    case advanced
-
+extension SettingsViewModel.SettingsSystemRow {
     var title: String {
         switch self {
         case .notifications:
@@ -375,13 +388,7 @@ enum SettingsSystemRow: CaseIterable {
     }
 }
 
-enum SettingsSection {
-    case wallet(rows: [SettingsWalletRow])
-    case system(rows: [SettingsSystemRow])
-    case help
-    case version(value: String)
-    case tokenStandard(value: String)
-
+extension SettingsViewModel.SettingsSection {
     var title: String {
         switch self {
         case .wallet:
@@ -411,8 +418,8 @@ enum SettingsSection {
     }
 }
 
-extension SettingsSection: Hashable {
-    static func == (lhs: SettingsSection, rhs: SettingsSection) -> Bool {
+extension SettingsViewModel.SettingsSection: Hashable {
+    static func == (lhs: SettingsViewModel.SettingsSection, rhs: SettingsViewModel.SettingsSection) -> Bool {
         switch (lhs, rhs) {
         case (.help, .help):
             return true

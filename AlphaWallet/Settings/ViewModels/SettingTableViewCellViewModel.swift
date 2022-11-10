@@ -25,12 +25,12 @@ struct SettingTableViewCellViewModel {
 }
 
 extension SettingTableViewCellViewModel: Hashable {
-    init(settingsSystemRow row: SettingsSystemRow) {
+    init(settingsSystemRow row: SettingsViewModel.SettingsSystemRow) {
         titleText = row.title
         icon = row.icon
     }
 
-    init(settingsWalletRow row: SettingsWalletRow) {
+    init(settingsWalletRow row: SettingsViewModel.SettingsWalletRow) {
         titleText = row.title
         icon = row.icon
     }
