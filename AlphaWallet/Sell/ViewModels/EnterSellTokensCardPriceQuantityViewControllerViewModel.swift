@@ -8,7 +8,7 @@ struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
     private let server: RPCServer
     private let assetDefinitionStore: AssetDefinitionStore
 
-    lazy var ethToken: Token = MultipleChainsTokensDataStore.functional.token(forServer: server)
+    lazy var ethToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: server)
     let token: Token
     let tokenHolder: TokenHolder
     var ethCost: Ether = .zero

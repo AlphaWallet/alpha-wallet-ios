@@ -481,16 +481,6 @@ public enum RPCServer: Hashable, CaseIterable {
         }
     }
 
-    var priceID: AlphaWallet.Address {
-        switch self {
-        case .main, .ropsten, .rinkeby, .kovan, .sokol, .custom, .xDai, .phi, .phi2, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .candle, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet, .optimismGoerli, .arbitrumGoerli, .cronosMainnet:
-            return AlphaWallet.Address(string: "0x000000000000000000000000000000000000003c")!
-        case .poa: return AlphaWallet.Address(string: "0x00000000000000000000000000000000000000AC")!
-        case .classic: return AlphaWallet.Address(string: "0x000000000000000000000000000000000000003D")!
-        case .callisto: return AlphaWallet.Address(string: "0x0000000000000000000000000000000000000334")!
-        }
-    }
-
     public var symbol: String {
         switch self {
         case .main: return "ETH"
