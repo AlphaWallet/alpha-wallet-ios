@@ -130,7 +130,7 @@ public enum FeaturesAvailable: String, CaseIterable, Codable {
         case .isTokenScriptSignatureStatusEnabled:
             return false
         case .isSwapEnabled:
-            return false
+            return true
         case .isCoinbasePayEnabled:
             return true
         case .isLoggingEnabledForTickerMatches:
