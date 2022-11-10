@@ -268,15 +268,15 @@ public extension AlphaWallet.Device {
         case phone11Pro
         case phone11ProMax
         case phoneSE2
-        case iPhone12mini
-        case iPhone12
-        case iPhone12Pro
-        case iPhone12ProMax
+        case phone12mini
+        case phone12
+        case phone12Pro
+        case phone12ProMax
         case phoneSE3
-        case iPhone13mini
-        case iPhone13
-        case iPhone13Pro
-        case iPhone13ProMax
+        case phone13mini
+        case phone13
+        case phone13Pro
+        case phone13ProMax
         case phone14
         case phone14Plus
         case phone14Pro
@@ -340,11 +340,11 @@ public extension AlphaWallet.Device {
             case .phone11Pro: return .inches_5_8
             case .phone11ProMax: return .inches_6_5
             case .phoneSE2, .phoneSE3: return .inches_4_7
-            case .iPhone12mini, .iPhone12, .iPhone12Pro: return .inches_6_1
-            case .iPhone12ProMax, .phone14Plus, .phone14ProMax: return .inches_6_7
-            case .iPhone13mini: return .inches_5_4
-            case .iPhone13, .iPhone13Pro, .phone14, .phone14Pro: return .inches_6_1
-            case .iPhone13ProMax: return .inches_6_7
+            case .phone12mini, .phone12, .phone12Pro: return .inches_6_1
+            case .phone12ProMax, .phone14Plus, .phone14ProMax: return .inches_6_7
+            case .phone13mini: return .inches_5_4
+            case .phone13, .phone13Pro, .phone14, .phone14Pro: return .inches_6_1
+            case .phone13ProMax: return .inches_6_7
             case .padMini, .padMini2, .padMini3, .padMini4, .padMini5: return .inches_7_9
             case .pad1, .pad2, .pad3, .pad4, .pad5, .pad6, .padAir, .padAir2, .padPro9_7: return .inches_9_7
             case .pad7, .pad8, .pad9: return .inches_10_2
@@ -448,14 +448,14 @@ extension AlphaWallet.Device {
         case "iPhone12,3": return .phone11Pro
         case "iPhone12,5": return .phone11ProMax
         case "iPhone12,8": return .phoneSE2
-        case "iPhone13,1": return .iPhone12mini
-        case "iPhone13,2": return .iPhone12
-        case "iPhone13,3": return .iPhone12Pro
-        case "iPhone13,4": return .iPhone12ProMax
-        case "iPhone14,4": return .iPhone12mini
-        case "iPhone14,5": return .iPhone13
-        case "iPhone14,2": return .iPhone13Pro
-        case "iPhone14,3": return .iPhone12ProMax
+        case "iPhone13,1": return .phone12mini
+        case "iPhone13,2": return .phone12
+        case "iPhone13,3": return .phone12Pro
+        case "iPhone13,4": return .phone12ProMax
+        case "iPhone14,4": return .phone12mini
+        case "iPhone14,5": return .phone13
+        case "iPhone14,2": return .phone13Pro
+        case "iPhone14,3": return .phone12ProMax
         case "iPhone14,6": return .phoneSE3
         case "iPhone14,7": return .phone14
         case "iPhone14,8": return .phone14Plus
@@ -582,14 +582,14 @@ extension AlphaWallet.Device.Version {
         case .podTouch7: return "7th Gen iPod"
         case .simulator: return "Simulator"
         case .unknown: return "Unknown"
-        case .iPhone12mini: return "iPhone 12 Mini"
-        case .iPhone12: return "iPhone 12"
-        case .iPhone12Pro: return "iPhone 12 Pro"
-        case .iPhone12ProMax: return "iPhone 12 Pro Max"
-        case .iPhone13mini: return "iPhone 13 Mini"
-        case .iPhone13: return "iPhone 13"
-        case .iPhone13Pro: return "iPhone 13 Pro"
-        case .iPhone13ProMax: return "iPhone 13 Pro Max"
+        case .phone12mini: return "iPhone 12 Mini"
+        case .phone12: return "iPhone 12"
+        case .phone12Pro: return "iPhone 12 Pro"
+        case .phone12ProMax: return "iPhone 12 Pro Max"
+        case .phone13mini: return "iPhone 13 Mini"
+        case .phone13: return "iPhone 13"
+        case .phone13Pro: return "iPhone 13 Pro"
+        case .phone13ProMax: return "iPhone 13 Pro Max"
         case .padPro12_9_5th: return "iPad Pro 5 12.9"
         case .phone14: return "iPhone 14"
         case .phone14Plus: return "iPhone 14 Plus"
@@ -758,7 +758,7 @@ extension AlphaWallet.Device {
         case 736: return .inches_5_5
         case 812:
             switch version {
-            case .iPhone12mini, .iPhone13mini: return .inches_5_4
+            case .phone12mini, .phone13mini: return .inches_5_4
             default: return .inches_5_8
             }
         case 844, 852: return .inches_6_1
