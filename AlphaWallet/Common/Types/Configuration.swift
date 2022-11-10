@@ -145,6 +145,10 @@ struct Configuration {
                 return colorFrom(trait: trait, lightColor: R.color.solitude()!, darkColor: R.color.mine()!)
             }
 
+            static let refreshControl = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: .black, darkColor: .white)
+            }
+            
             static let collectionViewCellBackground = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.cod()!)
             }
