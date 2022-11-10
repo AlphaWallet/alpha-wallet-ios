@@ -256,7 +256,7 @@ extension BrowserViewController: WKScriptMessageHandler {
         }
         infoLog("[Browser] dapp command: \(command)")
         let requester = DAppRequester(title: webView.title, url: webView.url)
-        let token = MultipleChainsTokensDataStore.functional.token(forServer: server)
+        let token = MultipleChainsTokensDataStore.functional.etherToken(forServer: server)
         let action = DappAction.fromCommand(command, server: server, transactionType: .dapp(token, requester))
 
         infoLog("[Browser] dapp action: \(action)")

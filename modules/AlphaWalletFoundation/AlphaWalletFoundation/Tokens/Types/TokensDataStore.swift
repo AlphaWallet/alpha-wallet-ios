@@ -328,7 +328,7 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
 
     public func addEthToken(forServer server: RPCServer) {
         store.performSync { realm in
-            let etherToken = MultipleChainsTokensDataStore.functional.etherTokenObject(forServer: server)
+            let etherToken = TokenObject(token: MultipleChainsTokensDataStore.functional.etherToken(forServer: server))
             guard realm.object(ofType: TokenObject.self, forPrimaryKey: etherToken.primaryKey) == nil else { return }
             try? realm.safeWrite {
                 self.addTokenWithoutCommitWrite(tokenObject: etherToken, realm: realm)
@@ -715,19 +715,6 @@ extension MultipleChainsTokensDataStore.functional {
         ])
     }
 
-    static func etherTokenObject(forServer server: RPCServer) -> TokenObject {
-        return TokenObject(
-                contract: Constants.nativeCryptoAddressInDatabase,
-                server: server,
-                name: server.name,
-                symbol: server.symbol,
-                decimals: server.decimals,
-                value: "0",
-                isCustom: false,
-                type: .nativeCryptocurrency
-        )
-    }
-
     public static func etherToken(forServer server: RPCServer) -> Token {
         return Token(
                 contract: Constants.nativeCryptoAddressInDatabase,
@@ -736,20 +723,6 @@ extension MultipleChainsTokensDataStore.functional {
                 symbol: server.symbol,
                 decimals: server.decimals,
                 value: .zero,
-                type: .nativeCryptocurrency
-        )
-    }
-
-    //TODO might be best to remove ethToken(for:) and just use token(for:) if possible, but careful with the contract value returned for .ether
-    public static func token(forServer server: RPCServer) -> Token {
-        return Token(
-                contract: server.priceID,
-                server: server,
-                name: server.name,
-                symbol: server.symbol,
-                decimals: server.decimals,
-                value: "0",
-                isCustom: false,
                 type: .nativeCryptocurrency
         )
     }
