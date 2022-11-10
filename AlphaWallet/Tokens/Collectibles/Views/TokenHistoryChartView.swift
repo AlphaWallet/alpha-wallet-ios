@@ -12,7 +12,7 @@ import AlphaWalletFoundation
 
 class TokenHistoryChartView: UIView {
 
-    private class YMinMaxOnlyAxisValueFormatter: IAxisValueFormatter {
+    private class YMinMaxOnlyAxisValueFormatter: AxisValueFormatter {
         //NOTE: helper index for determining right label position
         private var index: Int = 0
         private let formatter = Formatter.fiat
@@ -46,7 +46,7 @@ class TokenHistoryChartView: UIView {
         chartView.drawGridBackgroundEnabled = false
         chartView.drawBordersEnabled = false
 
-        chartView.chartDescription?.enabled = false
+        chartView.chartDescription.enabled = false
 
         chartView.pinchZoomEnabled = false
         chartView.dragEnabled = true
@@ -112,11 +112,11 @@ class TokenHistoryChartView: UIView {
 
         bind(viewModel: viewModel)
         periodSelectorView.set(selectedIndex: viewModel.selectedHistoryIndex)
-    } 
+    }
 
     required init?(coder: NSCoder) {
         return nil
-    } 
+    }
 
     private func bind(viewModel: TokenHistoryChartViewModel) {
         viewModel.lineChartDataSet

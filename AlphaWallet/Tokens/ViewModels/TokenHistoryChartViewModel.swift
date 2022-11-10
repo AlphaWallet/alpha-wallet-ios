@@ -54,14 +54,14 @@ class TokenHistoryChartViewModel {
     init(chartHistories: AnyPublisher<[ChartHistory], Never>, coinTicker: AnyPublisher<CoinTicker?, Never>) {
         self.chartHistories = chartHistories
         self.coinTicker = coinTicker
-    } 
+    }
 
     func set(selectedHistoryIndex: Int) {
         self.selectedHistoryIndexSubject.send(selectedHistoryIndex)
     }
 
     var setGradientFill: Fill? {
-        return Fill.fillWithCGColor(UIColor.clear.cgColor)
+        return ColorFill(color: UIColor.clear)
     }
 
     private func chartSetColorForTicker(ticker: CoinTicker?) -> UIColor {
