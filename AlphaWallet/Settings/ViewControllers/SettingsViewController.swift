@@ -38,8 +38,8 @@ class SettingsViewController: UIViewController {
     private let appProtectionSelection = PassthroughSubject<(indexPath: IndexPath, isOn: Bool), Never>()
     private let blockscanChatUnreadCount = PassthroughSubject<Int?, Never>()
     private var cancellable = Set<AnyCancellable>()
+    private let viewModel: SettingsViewModel
 
-    let viewModel: SettingsViewModel
     weak var delegate: SettingsViewControllerDelegate?
     var promptBackupWalletView: UIView? {
         didSet {
@@ -90,7 +90,6 @@ class SettingsViewController: UIViewController {
 
     private func bind(viewModel: SettingsViewModel) {
         navigationItem.largeTitleDisplayMode = viewModel.largeTitleDisplayMode
-        title = viewModel.title
         view.backgroundColor = viewModel.backgroundColor
         tableView.backgroundColor = viewModel.backgroundColor
 
@@ -102,8 +101,9 @@ class SettingsViewController: UIViewController {
         let output = viewModel.transform(input: input)
 
         output.viewState
-            .sink { [dataSource, viewModel, tabBarItem] viewState in
-                dataSource.apply(viewState.snapshot, animatingDifferences: viewModel.animatingDifferences)
+            .sink { [dataSource, tabBarItem, navigationItem] viewState in
+                navigationItem.title = viewState.title
+                dataSource.apply(viewState.snapshot, animatingDifferences: viewState.animatingDifferences)
                 tabBarItem?.badgeValue = viewState.badge
             }.store(in: &cancellable)
 
@@ -157,8 +157,8 @@ extension SettingsViewController: SwitchTableViewCellDelegate {
 }
 
 fileprivate extension SettingsViewController {
-    func makeDataSource() -> UITableViewDiffableDataSource<SettingsSection, SettingsViewModel.ViewType> {
-        return UITableViewDiffableDataSource(tableView: tableView, cellProvider: { tableView, indexPath, viewModel in
+    func makeDataSource() -> SettingsViewModel.DataSource {
+        return SettingsViewModel.DataSource(tableView: tableView, cellProvider: { tableView, indexPath, viewModel in
             switch viewModel {
             case .cell(let vm):
                 let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)

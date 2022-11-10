@@ -120,7 +120,7 @@ extension SettingsCoordinator: LockCreatePasscodeCoordinatorDelegate {
 extension SettingsCoordinator: SettingsViewControllerDelegate {
     
     func createPasswordSelected(in controller: SettingsViewController) {
-        let coordinator = LockCreatePasscodeCoordinator(navigationController: navigationController, lock: rootViewController.viewModel.lock)
+        let coordinator = LockCreatePasscodeCoordinator(navigationController: navigationController, lock: lock)
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start()
@@ -128,7 +128,6 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
 
     func nameWalletSelected(in controller: SettingsViewController) {
         let viewModel = RenameWalletViewModel(account: account.address, analytics: analytics, domainResolutionService: domainResolutionService)
-
         let viewController = RenameWalletViewController(viewModel: viewModel)
         viewController.delegate = self
         viewController.navigationItem.largeTitleDisplayMode = .never
@@ -146,15 +145,12 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
     }
 
     func showSeedPhraseSelected(in controller: SettingsViewController) {
-        switch account.type {
-        case .real(let account):
-            let coordinator = ShowSeedPhraseCoordinator(navigationController: navigationController, keystore: keystore, account: account)
-            coordinator.delegate = self
-            coordinator.start()
-            addCoordinator(coordinator)
-        case .watch:
-            break
-        }
+        guard case .real(let account) = account.type else { return }
+
+        let coordinator = ShowSeedPhraseCoordinator(navigationController: navigationController, keystore: keystore, account: account)
+        addCoordinator(coordinator)
+        coordinator.delegate = self
+        coordinator.start()
     }
 
     func helpSelected(in controller: SettingsViewController) {
@@ -186,15 +182,12 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
     }
 
     func backupWalletSelected(in controller: SettingsViewController) {
-        switch account.type {
-        case .real:
-            let coordinator = BackupCoordinator(navigationController: navigationController, keystore: keystore, account: account, analytics: analytics)
-            coordinator.delegate = self
-            coordinator.start()
-            addCoordinator(coordinator)
-        case .watch:
-            break
-        }
+        guard case .real = account.type else { return }
+
+        let coordinator = BackupCoordinator(navigationController: navigationController, keystore: keystore, account: account, analytics: analytics)
+        addCoordinator(coordinator)
+        coordinator.delegate = self
+        coordinator.start()
     }
 
     func activeNetworksSelected(in controller: SettingsViewController) {

@@ -21,7 +21,7 @@ struct SettingViewHeaderViewModel {
 }
 
 extension SettingViewHeaderViewModel {
-    init(section: SettingsSection) {
+    init(section: SettingsViewModel.SettingsSection) {
         titleText = section.title
         switch section {
         case .tokenStandard(let value), .version(let value):
