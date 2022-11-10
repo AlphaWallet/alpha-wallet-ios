@@ -31,25 +31,27 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
     private let autoDetectTransactedTokensQueue: OperationQueue
     private let autoDetectTokensQueue: OperationQueue
     private let session: WalletSession
-    private let queue: DispatchQueue = DispatchQueue(label: "org.alphawallet.swift.tokensAutoDetection")
+    private let queue = DispatchQueue(label: "org.alphawallet.swift.tokensAutoDetection")
     private let importToken: ImportToken
     private let detectedTokens: DetectedContractsProvideble
     private let tokensOrContractsDetectedSubject = PassthroughSubject<[TokenOrContract], Never>()
     private let getContractInteractions = GetContractInteractions()
-
+    private let contractToImportStorage: ContractToImportStorage
     public var tokensOrContractsDetected: AnyPublisher<[TokenOrContract], Never> {
         tokensOrContractsDetectedSubject.eraseToAnyPublisher()
     }
-    public var isAutoDetectingTransactedTokens = false
+    var isAutoDetectingTransactedTokens = false
     var isAutoDetectingTokens = false
 
     init(
             session: WalletSession,
+            contractToImportStorage: ContractToImportStorage,
             detectedTokens: DetectedContractsProvideble,
             withAutoDetectTransactedTokensQueue autoDetectTransactedTokensQueue: OperationQueue,
             withAutoDetectTokensQueue autoDetectTokensQueue: OperationQueue,
             importToken: ImportToken
     ) {
+        self.contractToImportStorage = contractToImportStorage
         self.importToken = importToken
         self.session = session
         self.detectedTokens = detectedTokens
@@ -126,47 +128,22 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
         })
     }
 
-    //TODO consolidate with adding `Constants.uefaMainnet` which is done elsewhere
     private func autoDetectPartnerTokens() {
-        guard !session.config.development.isAutoFetchingDisabled else { return }
-        switch session.server.serverWithEnhancedSupport {
-        case .main:
-            autoDetectMainnetPartnerTokens()
-        case .xDai:
-            autoDetectXDaiPartnerTokens()
-        case .rinkeby:
-            autoDetectRinkebyPartnerTokens()
-        case .candle, .polygon, .binance_smart_chain, .heco, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, nil:
-            break
-        }
-    }
-
-    private func autoDetectMainnetPartnerTokens() {
-        autoDetectTokens(contractsToDetect: Constants.partnerContracts)
-    }
-
-    private func autoDetectXDaiPartnerTokens() {
-        autoDetectTokens(contractsToDetect: Constants.ethDenverXDaiPartnerContracts)
-    }
-
-    private func autoDetectRinkebyPartnerTokens() {
-        autoDetectTokens(contractsToDetect: Constants.rinkebyPartnerContracts)
-    }
-
-    private func autoDetectTokens(contractsToDetect: [(name: String, contract: AlphaWallet.Address)]) {
+        guard !isRunningTests() else { return }
+        guard !session.config.development.isAutoFetchingDisabled, !contractToImportStorage.contractsToDetect.isEmpty else { return }
         guard !isAutoDetectingTokens else { return }
-
         isAutoDetectingTokens = true
-        let operation = AutoDetectTokensOperation(session: session, delegate: self, tokens: contractsToDetect)
+
+        let operation = AutoDetectTokensOperation(session: session, delegate: self, tokens: contractToImportStorage.contractsToDetect)
         autoDetectTokensQueue.addOperation(operation)
     }
 
-    private func contractsToAutodetectTokens(contractsToDetect: [(name: String, contract: AlphaWallet.Address)], server: RPCServer) -> [AlphaWallet.Address] {
-        let alreadyAddedContracts = detectedTokens.alreadyAddedContracts(for: server)
-        let deletedContracts = detectedTokens.deletedContracts(for: server)
-        let hiddenContracts = detectedTokens.hiddenContracts(for: server)
-
-        return contractsToDetect.map { $0.contract } - alreadyAddedContracts - deletedContracts - hiddenContracts
+    private func contractsToAutodetectTokens(contractsToDetect: [ContractToImport]) -> [ContractToImport] {
+        return contractsToDetect.filter {
+            !detectedTokens.alreadyAddedContracts(for: $0.server).contains($0.contract) &&
+            !detectedTokens.deletedContracts(for: $0.server).contains($0.contract) &&
+            !detectedTokens.hiddenContracts(for: $0.server).contains($0.contract)
+        }
     }
 }
 
@@ -183,9 +160,9 @@ extension SingleChainTokensAutodetector: AutoDetectTransactedTokensOperationDele
 
 extension SingleChainTokensAutodetector: AutoDetectTokensOperationDelegate {
 
-    func autoDetectTokensImpl(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)], server: RPCServer) -> Promise<[TokenOrContract]> {
-        let promises = contractsToAutodetectTokens(contractsToDetect: contractsToDetect, server: server)
-            .map { importToken.fetchErc875OrErc20Token(for: $0, server: server) }
+    func autoDetectTokensImpl(withContracts contractsToDetect: [ContractToImport]) -> Promise<[TokenOrContract]> {
+        let promises = contractsToAutodetectTokens(contractsToDetect: contractsToDetect)
+            .map { importToken.fetchTokenOrContract(for: $0.contract, server: $0.server, onlyIfThereIsABalance: $0.onlyIfThereIsABalance) }
 
         return when(resolved: promises).map(on: queue, { results in
             return results.compactMap { $0.optionalValue }
@@ -195,5 +172,4 @@ extension SingleChainTokensAutodetector: AutoDetectTokensOperationDelegate {
     public func didDetect(tokensOrContracts: [TokenOrContract]) {
         tokensOrContractsDetectedSubject.send(tokensOrContracts)
     }
-
 }

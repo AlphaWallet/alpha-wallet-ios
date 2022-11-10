@@ -132,23 +132,11 @@ public class AlphaWalletTokensService: TokensService {
         stop()
     }
 
-    public func addCustom(tokens: [ErcToken], shouldUpdateBalance: Bool) -> [Token] {
-        tokensDataStore.addCustom(tokens: tokens, shouldUpdateBalance: shouldUpdateBalance)
-    }
-
-    public func add(tokenUpdates updates: [TokenUpdate]) {
-        tokensDataStore.add(tokenUpdates: updates)
-
-        //TODO should we do this for `addOrUpdate(tokensOrContracts:)` too?
-        let tokens: [Token] = updates.flatMap { tokensDataStore.token(forContract: $0.address, server: $0.server) }
-        refreshBalance(updatePolicy: .tokens(tokens: tokens))
-    }
-
     public func addOrUpdate(tokensOrContracts: [TokenOrContract]) -> [Token] {
         tokensDataStore.addOrUpdate(tokensOrContracts: tokensOrContracts)
     }
 
-    public func addOrUpdate(with actions: [AddOrUpdateTokenAction]) -> Bool? {
+    public func addOrUpdate(with actions: [AddOrUpdateTokenAction]) -> [Token] {
         tokensDataStore.addOrUpdate(with: actions)
     }
 

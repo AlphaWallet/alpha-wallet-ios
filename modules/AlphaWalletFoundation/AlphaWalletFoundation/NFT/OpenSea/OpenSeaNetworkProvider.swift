@@ -24,7 +24,7 @@ final class OpenSeaNetworkProvider {
         //OK and safer to return a promise that never resolves so we don't mangle with real OpenSea data we stored previously, since this is for development only
         guard !config.development.isOpenSeaFetchingDisabled else { return Promise { _ in } }
         //Ignore UEFA from OpenSea, otherwise the token type would be saved wrongly as `.erc721` instead of `.erc721ForTickets`
-        let excludeContracts: [(AlphaWallet.Address, ChainId)] = [(Constants.uefaMainnet, RPCServer.main.chainID)]
+        let excludeContracts: [(AlphaWallet.Address, ChainId)] = [(Constants.uefaMainnet.0, Constants.uefaMainnet.1.chainID)]
         return openSea.fetchAssetsPromise(address: owner, chainId: server.chainID, excludeContracts: excludeContracts)
     }
 

@@ -17,6 +17,14 @@ class LocalPopularTokensCollectionTests: XCTestCase {
             expectation.fulfill()
         }.cauterize()
 
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: 10)
+    }
+}
+
+class ContractToImportFileStorageTests: XCTestCase {
+
+    func testLoadLocalJsonFile() {
+        let collection = ContractToImportFileStorage(server: .main)
+        XCTAssertFalse(collection.contractsToDetect.isEmpty)
     }
 }

@@ -662,6 +662,7 @@
 		8792707C284F40D1006F5AE5 /* FakeEnsRecordsStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8792707B284F40D1006F5AE5 /* FakeEnsRecordsStorage.swift */; };
 		87928E5528A50AFB0001FE67 /* NavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87928E5428A50AFB0001FE67 /* NavigationController.swift */; };
 		8793A492291A4E8600BCF849 /* ConsoleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8793A491291A4E8600BCF849 /* ConsoleViewModel.swift */; };
+		8793A4772919081400BCF849 /* tokensToImport.json in Resources */ = {isa = PBXBuildFile; fileRef = 8793A4762919081400BCF849 /* tokensToImport.json */; };
 		8795994526049EF8006722B2 /* ActivityStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8795994426049EF8006722B2 /* ActivityStateView.swift */; };
 		8795994726049F0F006722B2 /* ActivityStateViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8795994626049F0F006722B2 /* ActivityStateViewViewModel.swift */; };
 		8797362524E6C20C0042BBCC /* TransactionConfirmationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8797362424E6C20C0042BBCC /* TransactionConfirmationCoordinator.swift */; };
@@ -1532,6 +1533,7 @@
 		8792707B284F40D1006F5AE5 /* FakeEnsRecordsStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeEnsRecordsStorage.swift; sourceTree = "<group>"; };
 		87928E5428A50AFB0001FE67 /* NavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationController.swift; sourceTree = "<group>"; };
 		8793A491291A4E8600BCF849 /* ConsoleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleViewModel.swift; sourceTree = "<group>"; };
+		8793A4762919081400BCF849 /* tokensToImport.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = tokensToImport.json; sourceTree = "<group>"; };
 		8795042F27088C2B0075EEC2 /* AlphaWalletSafariExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AlphaWalletSafariExtension.entitlements; sourceTree = "<group>"; };
 		8795994426049EF8006722B2 /* ActivityStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityStateView.swift; sourceTree = "<group>"; };
 		8795994626049F0F006722B2 /* ActivityStateViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityStateViewViewModel.swift; sourceTree = "<group>"; };
@@ -4046,6 +4048,7 @@
 				C80DC77C22AB7FAD009CFA1C /* TokenScriptFiles */,
 				87B1ACD828C0D45B0072A5E2 /* chains.zip */,
 				87B1ACDA28C0D55D0072A5E2 /* tokens.json */,
+				8793A4762919081400BCF849 /* tokensToImport.json */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -4499,6 +4502,7 @@
 				C868C536205409160059672B /* redeemInfo.html in Resources */,
 				C876FF7A204A79D300B7D0EA /* SIL Open Font License.txt in Resources */,
 				C880330C2054371500D73D6F /* non_asset_catalog_redemption_location.png in Resources */,
+				8793A4772919081400BCF849 /* tokensToImport.json in Resources */,
 				87B93B0F2726C59D00F6EA73 /* content.js in Resources */,
 				C876FF79204A79D300B7D0EA /* README.md in Resources */,
 				C880331F20551DF800D73D6F /* howDoITransferETHIntoMyWalletInfo.html in Resources */,

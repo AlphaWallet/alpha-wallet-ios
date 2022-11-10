@@ -92,41 +92,26 @@ class NonFungibleErc1155JsonBalanceFetcher {
 
             allGuarantees.append(contentsOf: guarantees)
         }
-        return when(fulfilled: allGuarantees)
+        
+        return firstly {
+            when(fulfilled: allGuarantees)
+        }
     }
 
     private func addUnknownErc1155ContractsToDatabase(contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds) -> Promise<Erc1155TokenIds.ContractsAndTokenIds> {
         return firstly {
-            fetchUnknownErc1155ContractsDetails(contractsAndTokenIds: contractsAndTokenIds)
-        }.then(on: queue, { [queue] tokensToAdd -> Promise<Erc1155TokenIds.ContractsAndTokenIds> in
-            guard let delegate = self.delegate else { return .init(error: PMKError.cancelled) }
-            return delegate.addTokens(tokensToAdd: tokensToAdd)
-                .map(on: queue, { _ in contractsAndTokenIds })
-        })
+            importUnknownErc1155Contracts(contractsAndTokenIds: contractsAndTokenIds)
+        }
     }
 
-    private func fetchUnknownErc1155ContractsDetails(contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds) -> Promise<[ErcToken]> {
-        let contractsToAdd: [AlphaWallet.Address] = contractsAndTokenIds.keys.filter { tokensService.token(for: $0, server: session.server) == nil }
-        let promises = contractsToAdd.map { importToken.fetchTokenOrContract(for: $0, server: session.server) }
-
-        return when(resolved: promises).map(on: queue, { result -> [ErcToken] in
-            result.compactMap { each -> ErcToken? in
-                switch each {
-                case .fulfilled(let tokenOrContract):
-                    switch tokenOrContract {
-                    case .ercToken(let token):
-                        switch token.type {
-                        case .erc1155, .erc721:
-                            return token
-                        case .erc875, .nativeCryptocurrency, .erc20, .erc721ForTickets:
-                            return nil
-                        }
-                    case .delegateContracts, .deletedContracts:
-                        return nil
-                    }
-                case .rejected:
-                    return nil
-                }
+    private func importUnknownErc1155Contracts(contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds) -> Promise<Erc1155TokenIds.ContractsAndTokenIds> {
+        let promises = contractsAndTokenIds.keys.map { importToken.importToken(for: $0, server: session.server, onlyIfThereIsABalance: false) }
+        return firstly {
+            when(resolved: promises)
+        }.map(on: queue, { [session] results -> Erc1155TokenIds.ContractsAndTokenIds in
+            let tokens = results.compactMap { $0.optionalValue }
+            return contractsAndTokenIds.filter { value in
+                tokens.contains(where: { $0.contractAddress == value.key && $0.server == session.server })
             }
         })
     }

@@ -21,6 +21,6 @@ extension AlphaWallet.Address {
     }
 
     public var isUEFATicketContract: Bool {
-        return sameContract(as: Constants.uefaMainnet)
+        return sameContract(as: Constants.uefaMainnet.0)
     }
 }

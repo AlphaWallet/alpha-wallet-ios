@@ -25,7 +25,7 @@ extension WalletDataProcessingPipeline {
         let eventsActivityDataStore: EventsActivityDataStoreProtocol = EventsActivityDataStore(store: .fake(for: wallet))
 
         let tokensDataStore = FakeTokensDataStore(account: wallet, servers: [server])
-        let importToken = ImportToken(sessionProvider: sessionsProvider, wallet: wallet, tokensDataStore: tokensDataStore, assetDefinitionStore: .init(), analytics: fas)
+        let importToken = ImportToken(sessionProvider: sessionsProvider, tokensDataStore: tokensDataStore, assetDefinitionStore: .init(), analytics: fas)
         let eventsDataStore = FakeEventsDataStore()
         let transactionsDataStore = FakeTransactionsStorage()
         let nftProvider = FakeNftProvider()

@@ -5,7 +5,7 @@ import UIKit
 import AlphaWalletFoundation
 
 protocol NewTokenViewControllerDelegate: AnyObject {
-    func didAddToken(token: ErcToken, in viewController: NewTokenViewController)
+    func didAddToken(ercToken: ErcToken, in viewController: NewTokenViewController)
     func didAddAddress(address: AlphaWallet.Address, in viewController: NewTokenViewController)
     func didTapChangeServer(in viewController: NewTokenViewController)
     func openQRCode(in controller: NewTokenViewController)
@@ -350,18 +350,9 @@ class NewTokenViewController: UIViewController {
             balance.append("0")
         }
 
-        let ercToken = ErcToken(
-            contract: address,
-            server: server,
-            name: name,
-            symbol: symbol,
-            decimals: decimals,
-            type: tokenType,
-            value: .zero,
-            balance: .erc875(balance)
-        )
+        let ercToken = ErcToken(contract: address, server: server, name: name, symbol: symbol, decimals: decimals, type: tokenType, value: .zero, balance: .erc875(balance))
 
-        delegate?.didAddToken(token: ercToken, in: self)
+        delegate?.didAddToken(ercToken: ercToken, in: self)
     }
 
     @objc private func changeServerAction(_ sender: UIView) {
