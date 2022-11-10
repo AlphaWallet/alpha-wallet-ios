@@ -7,6 +7,7 @@
 
 import UIKit
 import AlphaWalletFoundation
+import Combine
 
 protocol AdvancedSettingsViewControllerDelegate: AnyObject {
     func moreSelected(in controller: AdvancedSettingsViewController)
@@ -29,12 +30,14 @@ class AdvancedSettingsViewController: UIViewController {
         tableView.separatorStyle = .singleLine
         tableView.separatorColor = Configuration.Color.Semantic.tableViewSeparator
         tableView.backgroundColor = Configuration.Color.Semantic.tableViewBackground
-        tableView.dataSource = self
         tableView.delegate = self
         tableView.translatesAutoresizingMaskIntoConstraints = false
 
         return tableView
     }()
+    private let appear = PassthroughSubject<Void, Never>()
+    private var cancellable = Set<AnyCancellable>()
+    private lazy var dataSource = makeDataSource()
 
     weak var delegate: AdvancedSettingsViewControllerDelegate?
 
@@ -56,7 +59,7 @@ class AdvancedSettingsViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        tableView.reloadData()
+        appear.send(())
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -64,22 +67,27 @@ class AdvancedSettingsViewController: UIViewController {
     }
 
     private func bind(viewModel: AdvancedSettingsViewModel) {
-        title = viewModel.title
         navigationItem.largeTitleDisplayMode = viewModel.largeTitleDisplayMode
+
+        let input = AdvancedSettingsViewModelInput(appear: appear.eraseToAnyPublisher())
+        let output = viewModel.transform(input: input)
+
+        output.viewState
+            .sink { [dataSource, navigationItem] viewState in
+                navigationItem.title = viewState.title
+                dataSource.apply(viewState.snapshot, animatingDifferences: viewState.animatingDifferences)
+            }.store(in: &cancellable)
     }
 }
 
-extension AdvancedSettingsViewController: UITableViewDataSource {
+fileprivate extension AdvancedSettingsViewController {
+    func makeDataSource() -> AdvancedSettingsViewModel.DataSource {
+        return AdvancedSettingsViewModel.DataSource(tableView: tableView, cellProvider: { tableView, indexPath, viewModel in
+            let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+            cell.configure(viewModel: viewModel)
 
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.numberOfRows
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-        cell.configure(viewModel: viewModel.viewModel(for: indexPath))
-
-        return cell
+            return cell
+        })
     }
 }
 

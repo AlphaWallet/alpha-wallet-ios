@@ -8,22 +8,101 @@
 import Foundation
 import UIKit
 import AlphaWalletFoundation
+import Combine
 
-struct AdvancedSettingsViewModel {
-    var rows: [AdvancedSettingsRow]
+struct AdvancedSettingsViewModelInput {
+    let appear: AnyPublisher<Void, Never>
+}
 
-    let wallet: Wallet
-    let config: Config
+struct AdvancedSettingsViewModelOutput {
+    let viewState: AnyPublisher<AdvancedSettingsViewModel.ViewState, Never>
+}
 
-    let title: String = R.string.localizable.aAdvancedSettingsNavigationTitle()
-    let largeTitleDisplayMode: UINavigationItem.LargeTitleDisplayMode  = .never
+class AdvancedSettingsViewModel {
+    private let wallet: Wallet
+    private let config: Config
+    private (set) var rows: [AdvancedSettingsViewModel.AdvancedSettingsRow] = []
+    
+    let largeTitleDisplayMode: UINavigationItem.LargeTitleDisplayMode = .never
     
     init(wallet: Wallet, config: Config) {
         self.wallet = wallet
         self.config = config
-        
+    }
+
+    func transform(input: AdvancedSettingsViewModelInput) -> AdvancedSettingsViewModelOutput {
+        let viewState = input.appear
+            .map { [wallet] _ in AdvancedSettingsViewModel.functional.computeSections(wallet: wallet) }
+            .handleEvents(receiveOutput: { self.rows = $0 })
+            .map { $0.map { self.buildCellViewModel(for: $0) } }
+            .map { AdvancedSettingsViewModel.SectionViewModel(section: .rows, views: $0) }
+            .map { self.buildSnapshot(for: [$0]) }
+            .map { ViewState(snapshot: $0) }
+            .eraseToAnyPublisher()
+
+        return .init(viewState: viewState)
+    }
+
+    private func buildCellViewModel(for row: AdvancedSettingsViewModel.AdvancedSettingsRow) -> SettingTableViewCellViewModel {
+        switch row {
+        case .analytics, .changeCurrency, .changeLanguage, .clearBrowserCache, .tools, .tokenScript, .exportJSONKeystore, .features:
+            return .init(titleText: row.title, subTitleText: nil, icon: row.icon)
+        case .usePrivateNetwork:
+            let provider = config.sendPrivateTransactionsProvider
+            return .init(titleText: row.title, subTitleText: provider?.title, icon: provider?.icon ?? row.icon)
+        }
+    }
+
+    private func buildSnapshot(for viewModels: [AdvancedSettingsViewModel.SectionViewModel]) -> AdvancedSettingsViewModel.Snapshot {
+        var snapshot = AdvancedSettingsViewModel.Snapshot()
+        let sections = viewModels.map { $0.section }
+        snapshot.appendSections(sections)
+        for each in viewModels {
+            snapshot.appendItems(each.views, toSection: each.section)
+        }
+
+        return snapshot
+    }
+}
+
+extension AdvancedSettingsViewModel {
+    class DataSource: UITableViewDiffableDataSource<AdvancedSettingsViewModel.Section, SettingTableViewCellViewModel> {}
+    typealias Snapshot = NSDiffableDataSourceSnapshot<AdvancedSettingsViewModel.Section, SettingTableViewCellViewModel>
+
+    enum functional {}
+    
+    enum Section: Int, Hashable, CaseIterable {
+        case rows
+    }
+
+    struct SectionViewModel {
+        let section: AdvancedSettingsViewModel.Section
+        let views: [SettingTableViewCellViewModel]
+    }
+
+    struct ViewState {
+        let title: String = R.string.localizable.aAdvancedSettingsNavigationTitle()
+        let animatingDifferences: Bool = false
+        let snapshot: AdvancedSettingsViewModel.Snapshot
+    }
+
+    enum AdvancedSettingsRow: CaseIterable {
+        case tools
+        case clearBrowserCache
+        case tokenScript
+        case changeLanguage
+        case changeCurrency
+        case analytics
+        case usePrivateNetwork
+        case exportJSONKeystore
+        case features
+    }
+}
+
+extension AdvancedSettingsViewModel.functional {
+    fileprivate static func computeSections(wallet: Wallet) -> [AdvancedSettingsViewModel.AdvancedSettingsRow] {
         let canExportToJSONKeystore = Features.default.isAvailable(.isExportJsonKeystoreEnabled) && wallet.isReal()
-        self.rows = [
+        return [
             .clearBrowserCache,
             .tokenScript,
             Features.default.isAvailable(.isUsingPrivateNetwork) ? .usePrivateNetwork : nil,
@@ -34,34 +113,10 @@ struct AdvancedSettingsViewModel {
             (Environment.isDebug || Environment.isTestFlight) ? .features : nil,
         ].compactMap { $0 }
     }
-
-    func viewModel(for indexPath: IndexPath) -> SettingTableViewCellViewModel {
-        let row = rows[indexPath.row]
-        switch row {
-        case .analytics, .changeCurrency, .changeLanguage, .clearBrowserCache, .tools, .tokenScript, .exportJSONKeystore, .features:
-            return .init(titleText: row.title, subTitleText: nil, icon: row.icon)
-        case .usePrivateNetwork:
-            let provider = config.sendPrivateTransactionsProvider
-            return .init(titleText: row.title, subTitleText: provider?.title, icon: provider?.icon ?? row.icon)
-        }
-    }
-
-    var numberOfRows: Int {
-        return rows.count
-    }
 }
 
-enum AdvancedSettingsRow: CaseIterable {
-    case tools
-    case clearBrowserCache
-    case tokenScript
-    case changeLanguage
-    case changeCurrency
-    case analytics
-    case usePrivateNetwork
-    case exportJSONKeystore
-    case features
-    
+fileprivate extension AdvancedSettingsViewModel.AdvancedSettingsRow {
+
     var title: String {
         switch self {
         case .tools:
