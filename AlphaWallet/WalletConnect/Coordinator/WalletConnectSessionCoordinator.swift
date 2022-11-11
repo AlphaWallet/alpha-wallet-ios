@@ -28,7 +28,7 @@ class WalletConnectSessionCoordinator: Coordinator {
 
     var coordinators: [Coordinator] = []
     weak var delegate: WalletConnectSessionCoordinatorDelegate?
-    
+
     init(analytics: AnalyticsLogger, navigationController: UINavigationController, provider: WalletConnectServerProviderType, session: AlphaWallet.WalletConnect.Session) {
         self.analytics = analytics
         self.navigationController = navigationController
@@ -38,7 +38,7 @@ class WalletConnectSessionCoordinator: Coordinator {
 
     func start() {
         navigationController.pushViewController(viewController, animated: true)
-    } 
+    }
 }
 
 extension WalletConnectSessionCoordinator: WalletConnectSessionViewControllerDelegate {
