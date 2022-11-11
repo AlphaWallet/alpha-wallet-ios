@@ -13,6 +13,7 @@ struct SendViewModelInput {
     let allFunds: AnyPublisher<Void, Never>
     let send: AnyPublisher<Void, Never>
     let recipient: AnyPublisher<String, Never>
+    let didAppear: AnyPublisher<Void, Never>
 }
 
 struct SendViewModelOutput {
@@ -144,7 +145,7 @@ final class SendViewModel {
                 }
             }).share()
 
-        let activateAmountInput = activateAmountInput(scanQrCode: scanQrCode.eraseToAnyPublisher())
+        let activateAmountInput = activateAmountInput(scanQrCode: scanQrCode.eraseToAnyPublisher(), didAppear: input.didAppear)
 
         let scanQrCodeError = scanQrCode
             .compactMap { SendViewModel.mapScanQrCodeError($0) }
@@ -229,13 +230,13 @@ final class SendViewModel {
         return false
     }
 
-    private func activateAmountInput(scanQrCode: AnyPublisher<Result<TransactionType, CheckEIP681Error>, Never>) -> AnyPublisher<Void, Never> {
+    private func activateAmountInput(scanQrCode: AnyPublisher<Result<TransactionType, CheckEIP681Error>, Never>, didAppear: AnyPublisher<Void, Never>) -> AnyPublisher<Void, Never> {
         let whenScannedQrCode = scanQrCode
             .filter { $0.isSuccess }
             .mapToVoid()
             .eraseToAnyPublisher()
 
-        return Publishers.Merge(whenScannedQrCode, Just(()))
+        return Publishers.Merge(whenScannedQrCode, didAppear)
             .eraseToAnyPublisher()
     }
 

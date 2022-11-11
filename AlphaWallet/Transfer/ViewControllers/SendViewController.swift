@@ -21,6 +21,7 @@ class SendViewController: UIViewController {
     private let domainResolutionService: DomainResolutionServiceType
     private var cancelable = Set<AnyCancellable>()
     private let qrCode = PassthroughSubject<String, Never>()
+    private let didAppear = PassthroughSubject<Void, Never>()
     private var sendButton: UIButton { buttonsBar.buttons[0] }
     private lazy var containerView: ScrollableStackView = {
         let view = ScrollableStackView()
@@ -90,17 +91,28 @@ class SendViewController: UIViewController {
         bind(viewModel: viewModel)
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        didAppear.send(())
+    }
+
     func allFundsSelected() {
         amountTextField.allFundsButton.sendActions(for: .touchUpInside)
     }
 
     private func bind(viewModel: SendViewModel) {
-        let allFunds = amountTextField.allFundsButton.publisher(forEvent: .touchUpInside).eraseToAnyPublisher()
         let send = sendButton.publisher(forEvent: .touchUpInside).eraseToAnyPublisher()
         let recipient = send.map { [targetAddressTextField] _ in return targetAddressTextField.value.trimmed }
             .eraseToAnyPublisher()
 
-        let input = SendViewModelInput(cryptoValue: amountTextField.cryptoValuePublisher, qrCode: qrCode.eraseToAnyPublisher(), allFunds: allFunds, send: send, recipient: recipient)
+        let input = SendViewModelInput(
+            cryptoValue: amountTextField.cryptoValuePublisher,
+            qrCode: qrCode.eraseToAnyPublisher(),
+            allFunds: amountTextField.allFundsButton.publisher(forEvent: .touchUpInside).eraseToAnyPublisher(),
+            send: send,
+            recipient: recipient,
+            didAppear: didAppear.eraseToAnyPublisher())
+
         let output = viewModel.transform(input: input)
 
         output.scanQrCodeError
