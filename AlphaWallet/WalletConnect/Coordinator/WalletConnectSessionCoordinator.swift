@@ -28,7 +28,7 @@ class WalletConnectSessionCoordinator: Coordinator {
 
     var coordinators: [Coordinator] = []
     weak var delegate: WalletConnectSessionCoordinatorDelegate?
-    
+
     init(analytics: AnalyticsLogger, navigationController: UINavigationController, provider: WalletConnectServerProviderType, session: AlphaWallet.WalletConnect.Session) {
         self.analytics = analytics
         self.navigationController = navigationController
@@ -38,7 +38,7 @@ class WalletConnectSessionCoordinator: Coordinator {
 
     func start() {
         navigationController.pushViewController(viewController, animated: true)
-    } 
+    }
 }
 
 extension WalletConnectSessionCoordinator: WalletConnectSessionViewControllerDelegate {
@@ -60,7 +60,12 @@ extension WalletConnectSessionCoordinator: WalletConnectSessionViewControllerDel
 extension WalletConnectSessionCoordinator: ServersCoordinatorDelegate {
 
     func didSelectServer(selection: ServerSelection, in coordinator: ServersCoordinator) {
-        removeCoordinator(coordinator)
+        //TODO improve this? Maybe pop to a known view controller controlled by `self` instead
+        coordinator.navigationController.popViewController(animated: false) { [weak self] in
+            coordinator.navigationController.popViewController(animated: true) { [weak self] in
+                self?.removeCoordinator(coordinator)
+            }
+        }
 
         let servers = selection.asServersArray
         analytics.log(action: Analytics.Action.switchedServer, properties: [
