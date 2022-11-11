@@ -24,8 +24,11 @@ class ScrollableStackView: UIView {
 
     lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
+        scrollView.showsVerticalScrollIndicator = false
+        scrollView.showsHorizontalScrollIndicator = false
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(stackView)
+        
         return scrollView
     }()
 

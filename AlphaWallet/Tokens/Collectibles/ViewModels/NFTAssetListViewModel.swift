@@ -10,7 +10,7 @@ import AlphaWalletFoundation
 import Combine
 
 struct NFTAssetListViewModelInput {
-    let appear: AnyPublisher<Void, Never>
+    let willAppear: AnyPublisher<Void, Never>
 }
 
 struct NFTAssetListViewModelOutput {
@@ -20,19 +20,17 @@ struct NFTAssetListViewModelOutput {
 final class NFTAssetListViewModel {
     private var filteredTokenHolders: [TokenHolderWithItsTokenIds] = []
     private var containerViewState: ContainerViewState {
-        return .init(backgroundColor: backgroundColor, accessoryType: .none, selectionStyle: .none)
+        return .init(accessoryType: .none, selectionStyle: .none)
     }
 
     let tokenHolder: TokenHolder
-    var headerBackgroundColor: UIColor = Colors.appWhite
-    var backgroundColor: UIColor = GroupedTable.Color.background
 
     init(tokenHolder: TokenHolder) {
         self.tokenHolder = tokenHolder
     }
 
     func transform(input: NFTAssetListViewModelInput) -> NFTAssetListViewModelOutput {
-        let tokenHolder = input.appear
+        let tokenHolder = input.willAppear
             .map { _ in return self.tokenHolder }
             .share(replay: 1)
 
@@ -76,11 +74,12 @@ final class NFTAssetListViewModel {
 }
 
 extension NFTAssetListViewModel {
+    typealias DataSource = TableViewDiffableDataSource<NFTAssetListViewModel.Section, NFTAssetListViewModel.AssetViewState>
+    typealias Stapshot = NSDiffableDataSourceSnapshot<NFTAssetListViewModel.Section, NFTAssetListViewModel.AssetViewState>
+
     enum Section: String {
         case assets
     }
-
-    typealias Stapshot = NSDiffableDataSourceSnapshot<NFTAssetListViewModel.Section, NFTAssetListViewModel.AssetViewState>
 
     struct AssetViewState: Hashable {
         let tokenHolder: TokenHolder
@@ -90,7 +89,6 @@ extension NFTAssetListViewModel {
     }
 
     struct ContainerViewState: Hashable {
-        let backgroundColor: UIColor
         let accessoryType: UITableViewCell.AccessoryType
         let selectionStyle: UITableViewCell.SelectionStyle
     }
@@ -103,5 +101,6 @@ extension NFTAssetListViewModel {
     struct ViewState {
         let snapshot: Stapshot
         let title: String
+        let animatingDifferences: Bool = false
     }
 }

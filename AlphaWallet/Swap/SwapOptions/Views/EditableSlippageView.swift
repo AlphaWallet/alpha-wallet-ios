@@ -14,6 +14,7 @@ final class EditableSlippageView: UIControl {
         let textField: TextField = .roundedTextField
         textField.keyboardType = .decimalPad
         textField.textField.textAlignment = .center
+        textField.inputAccessoryButtonType = .done
 
         return textField
     }()
@@ -31,7 +32,7 @@ final class EditableSlippageView: UIControl {
         addSubview(stachView)
         NSLayoutConstraint.activate([
             stachView.anchorsConstraint(to: self),
-            textField.widthAnchor.constraint(equalToConstant: 70)
+            textField.widthAnchor.constraint(equalToConstant: ScreenChecker.size(big: 70, medium: 70, small: 60))
         ])
 
         bind(viewModel: viewModel)
@@ -59,5 +60,17 @@ final class EditableSlippageView: UIControl {
                 guard let target = textField else { return }
                 target.resignFirstResponder()
             }.store(in: &cancelable)
+    }
+}
+
+extension EditableSlippageView: TextFieldDelegate {
+
+    func doneButtonTapped(for textField: TextField) {
+        textField.endEditing(true)
+    }
+
+    func shouldReturn(in textField: TextField) -> Bool {
+        textField.resignFirstResponder()
+        return false
     }
 }

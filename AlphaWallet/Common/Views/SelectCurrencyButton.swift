@@ -145,7 +145,7 @@ fileprivate class HasNoTokenView: UIControl {
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 15),
 
-            widthAnchor.constraint(greaterThanOrEqualToConstant: ScreenChecker.size(big: 150, medium: 150, small: 70)),
+            widthAnchor.constraint(greaterThanOrEqualToConstant: ScreenChecker.size(big: 150, medium: 150, small: 140)),
             heightAnchor.constraint(equalToConstant: 40),
 
             chevronImageView.centerYAnchor.constraint(equalTo: centerYAnchor),

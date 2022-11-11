@@ -19,10 +19,6 @@ struct NewTokenViewModel {
         return balance
     }
 
-    var backgroundColor: UIColor {
-        return Colors.appBackground
-    }
-
     var choiceLabelColor: UIColor {
         return Colors.appGrayLabel
     }

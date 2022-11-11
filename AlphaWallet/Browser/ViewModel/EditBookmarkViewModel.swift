@@ -34,13 +34,11 @@ class EditBookmarkViewModel {
 
         let viewState = bookmark.map { bookmark -> ViewState in
             let imageUrl = Favicon.get(for: URL(string: bookmark.url))
-            return EditBookmarkViewModel.ViewState(title: bookmark.title, url: bookmark.url, imageUrl: imageUrl)
+            return EditBookmarkViewModel.ViewState(bookmarkTitle: bookmark.title, bookmarkUrl: bookmark.url, imageUrl: imageUrl)
         }.eraseToAnyPublisher()
 
         return .init(viewState: viewState, bookmarkSaved: bookmarkSaved)
     }
-
-    let backgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground
 
     var imageShadowColor: UIColor {
         return Metrics.DappsHome.Icon.shadowColor
@@ -66,10 +64,6 @@ class EditBookmarkViewModel {
         return R.image.launch_icon()!
     }
 
-    var screenTitle: String {
-        return R.string.localizable.dappBrowserMyDappsEdit()
-    }
-
     var titleText: String {
         return R.string.localizable.dappBrowserMyDappsEditTitleLabel()
     }
@@ -78,16 +72,14 @@ class EditBookmarkViewModel {
         return R.string.localizable.dappBrowserMyDappsEditUrlLabel()
     }
 
-    var saveButtonTitle: String {
-        return R.string.localizable.save()
-    }
 }
 
 extension EditBookmarkViewModel {
 
     struct ViewState {
-        let title: String
-        let url: String
+        let title: String = R.string.localizable.dappBrowserMyDappsEdit()
+        let bookmarkTitle: String
+        let bookmarkUrl: String
         let imageUrl: URL?
     }
 }

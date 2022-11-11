@@ -36,6 +36,7 @@ class EnabledServersViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         configure(viewModel: viewModel)
     }

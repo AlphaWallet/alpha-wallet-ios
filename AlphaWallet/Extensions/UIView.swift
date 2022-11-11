@@ -85,7 +85,7 @@ extension UIView {
     func anchorsConstraint(to view: UIView, margin: CGFloat) -> [NSLayoutConstraint] {
         return anchorsConstraint(to: view, edgeInsets: .init(top: margin, left: margin, bottom: margin, right: margin))
     }
-
+    
     static func spacer(height: CGFloat = 1, backgroundColor: UIColor = .clear, flexible: Bool = false) -> UIView {
         let view = UIView(frame: .zero)
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -173,9 +173,11 @@ extension UIView {
 
         return stackView
     }
+}
 
-    static var separator: UIView {
-        return .spacer(height: 1, backgroundColor: Configuration.Color.Semantic.tableViewSeparator)
+extension UIView {
+    static func separator(height: CGFloat = 1) -> UIView {
+        return spacer(height: height, backgroundColor: Configuration.Color.Semantic.tableViewSeparator)
     }
 }
 

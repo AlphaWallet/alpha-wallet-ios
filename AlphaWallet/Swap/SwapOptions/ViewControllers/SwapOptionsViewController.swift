@@ -41,7 +41,11 @@ class SwapOptionsViewController: UIViewController {
     }()
 
     private lazy var tableView: UITableView = {
-        let tableView = UITableView.grouped
+        let tableView = SelfSizingTableView(frame: .zero, style: .grouped)
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.separatorStyle = .singleLine
+        tableView.backgroundColor = Configuration.Color.Semantic.tableViewBackground
+        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.register(RPCDisplaySelectableTableViewCell.self)
         tableView.isEditing = false
         tableView.keyboardDismissMode = .onDrag
@@ -50,13 +54,18 @@ class SwapOptionsViewController: UIViewController {
         return tableView
     }()
     private lazy var swapToolsView: SelectedSwapToolsCollectionView = {
-        return SelectedSwapToolsCollectionView(viewModel: viewModel.selectedSwapToolsViewModel, appear: appear.eraseToAnyPublisher())
+        return SelectedSwapToolsCollectionView(viewModel: viewModel.selectedSwapToolsViewModel, willAppear: willAppear.eraseToAnyPublisher())
     }()
-    private lazy var checker = KeyboardChecker(self, resetHeightDefaultValue: 0)
     private var cancelable = Set<AnyCancellable>()
     private lazy var dataSource: SwapOptionsViewModel.DataSource = makeDataSource()
-    private let appear = PassthroughSubject<Void, Never>()
+    private let willAppear = PassthroughSubject<Void, Never>()
     private let selection = PassthroughSubject<IndexPath, Never>()
+    private let containerView: ScrollableStackView = {
+        let view = ScrollableStackView()
+        view.stackView.spacing = 0
+
+        return view
+    }()
 
     weak var delegate: SwapOptionsViewControllerDelegate?
 
@@ -64,7 +73,7 @@ class SwapOptionsViewController: UIViewController {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
-        let stackView = [
+        containerView.stackView.addArrangedSubviews([
             .spacer(height: 20),
             slippageHeaderView.adjusted(),
             .spacer(height: 10),
@@ -77,31 +86,22 @@ class SwapOptionsViewController: UIViewController {
             networkHeaderView.adjusted(),
             .spacer(height: 10),
             tableView
-        ].asStackView(axis: .vertical)
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-
-        view.addSubview(stackView)
-
-        let bottomConstraint = stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        NSLayoutConstraint.activate([
-            stackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            bottomConstraint
         ])
 
-        checker.constraints = [bottomConstraint]
+        view.addSubview(containerView)
+
+        let bottomConstraint = containerView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        NSLayoutConstraint.activate([
+            containerView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            containerView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            containerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            bottomConstraint
+        ])
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        checker.viewWillAppear()
-        appear.send(())
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        checker.viewWillDisappear()
+        willAppear.send(())
     }
 
     override func viewDidLoad() {
@@ -109,6 +109,7 @@ class SwapOptionsViewController: UIViewController {
 
         navigationItem.leftBarButtonItem = UIBarButtonItem.logoBarButton()
         navigationItem.rightBarButtonItem = UIBarButtonItem.closeBarButton(self, selector: #selector(closeDidSelect))
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         bind(viewModel: viewModel)
     } 
 
@@ -177,5 +178,20 @@ extension SwapOptionsViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 80.0
+    }
+}
+
+
+class SelfSizingTableView: UITableView {
+    override var contentSize: CGSize {
+        didSet {
+            invalidateIntrinsicContentSize()
+            setNeedsLayout()
+        }
+    }
+
+    override var intrinsicContentSize: CGSize {
+        let height = min(.infinity, contentSize.height)
+        return CGSize(width: contentSize.width, height: height)
     }
 }

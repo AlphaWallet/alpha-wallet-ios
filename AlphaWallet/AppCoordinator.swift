@@ -211,7 +211,6 @@ class AppCoordinator: NSObject, Coordinator {
         runServices()
         appTracker.start()
         notificationService.registerForReceivingRemoteNotifications()
-
         setupAssetDefinitionStoreCoordinator()
         migrateToStoringRawPrivateKeysInKeychain()
         tokenActionsService.start()
@@ -358,7 +357,8 @@ class AppCoordinator: NSObject, Coordinator {
             ConfigureApp(),
             CleanupWallets(keystore: keystore, walletAddressesStore: walletAddressesStore, config: config),
             SkipBackupFiles(legacyFileBasedKeystore: legacyFileBasedKeystore),
-            CleanupPasscode(keystore: keystore, lock: lock)
+            CleanupPasscode(keystore: keystore, lock: lock),
+            KeyboardInitializer()
         ]
 
         initializers.forEach { $0.perform() }

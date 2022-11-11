@@ -44,19 +44,15 @@ class EnterPasswordCoordinator: CoordinatorThatEnds {
                 .flatMap { navigationController.viewControllers[$0 - 1] }
                 .flatMap { navigationController.popToViewController($0, animated: animated) }
     }
-
-    func createEnterPasswordController() -> EnterKeystorePasswordViewController {
-        let controller = EnterKeystorePasswordViewController(viewModel: EnterKeystorePasswordViewModel())
-        controller.delegate = self
-        return controller
-    }
 }
 
 extension EnterPasswordCoordinator: KeystoreBackupIntroductionViewControllerDelegate {
     func didTapExport(inViewController viewController: KeystoreBackupIntroductionViewController) {
-        let vc = createEnterPasswordController()
-        vc.navigationItem.largeTitleDisplayMode = .never
-        navigationController.pushViewController(vc, animated: true)
+        let controller = EnterKeystorePasswordViewController(viewModel: EnterKeystorePasswordViewModel())
+        controller.delegate = self
+        controller.navigationItem.largeTitleDisplayMode = .never
+
+        navigationController.pushViewController(controller, animated: true)
     }
 }
 

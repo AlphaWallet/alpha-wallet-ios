@@ -51,7 +51,7 @@ class BrowserHomeViewController: UIViewController {
     private var browserNavBar: DappBrowserNavigationBar? {
         return navigationController?.navigationBar as? DappBrowserNavigationBar
     }
-    lazy private var collectionView = { () -> UICollectionView in
+    lazy private var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         let fixedGutter = CGFloat(24)
         let availableWidth = UIScreen.main.bounds.size.width - (2 * fixedGutter)
@@ -73,6 +73,8 @@ class BrowserHomeViewController: UIViewController {
         collectionView.alwaysBounceVertical = true
         collectionView.registerSupplementaryView(DappsHomeViewControllerHeaderView.self, of: UICollectionView.elementKindSectionHeader)
         collectionView.register(DappViewCell.self)
+        collectionView.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
+        collectionView.delegate = self
 
         return collectionView
     }()
@@ -103,8 +105,8 @@ class BrowserHomeViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         bind(viewModel: viewModel)
-        collectionView.delegate = self
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -125,9 +127,6 @@ class BrowserHomeViewController: UIViewController {
     }
 
     private func bind(viewModel: BrowserHomeViewModel) {
-        view.backgroundColor = viewModel.backgroundColor
-        collectionView.backgroundColor = viewModel.backgroundColor
-
         let input = DappsHomeViewViewModelInput(deleteBookmark: deleteBookmark.eraseToAnyPublisher())
         let output = viewModel.transform(input: input)
 

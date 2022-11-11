@@ -33,7 +33,8 @@ target 'AlphaWallet' do
   pod 'xcbeautify'
   pod 'FloatingPanel'
   pod 'SwiftFormat/CLI', '~> 0.49'
-  
+  pod 'IQKeyboardManager'
+
   target 'AlphaWalletTests' do
       inherit! :search_paths
       # Pods for testing
