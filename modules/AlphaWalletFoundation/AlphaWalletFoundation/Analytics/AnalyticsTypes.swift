@@ -149,6 +149,7 @@ public enum Analytics {
         case watchedWalletsCount
         case dynamicTypeSetting
         case hasEnsAvatar
+        case isAppPasscodeOrBiometricProtectionEnabled
     }
 
     public enum ScanQRCodeSource: String {

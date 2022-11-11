@@ -118,7 +118,8 @@ final class SettingsViewModel {
                 }
             case .help, .tokenStandard, .version, .wallet: return nil
             }
-        }.compactMap { [lock] isOn -> Void? in
+        }.compactMap { [lock, analytics] isOn -> Void? in
+            analytics.setUser(property: Analytics.UserProperties.isAppPasscodeOrBiometricProtectionEnabled, value: isOn)
             if isOn {
                 return ()
             } else {
@@ -130,7 +131,7 @@ final class SettingsViewModel {
 
     private func assignedNameOrEns(appear: AnyPublisher<Void, Never>) -> AnyPublisher<Void, Never> {
         return appear
-            .flatMapLatest { [ account, getWalletName] _ in getWalletName.assignedNameOrEns(for: account.address) }
+            .flatMapLatest { [account, getWalletName] _ in getWalletName.assignedNameOrEns(for: account.address) }
             .handleEvents(receiveOutput: { self.assignedNameOrEns = $0 })
             .prepend(nil)
             .removeDuplicates()
