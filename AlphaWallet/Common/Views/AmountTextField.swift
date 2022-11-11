@@ -5,21 +5,25 @@ import Combine
 import AlphaWalletFoundation
 
 protocol AmountTextFieldDelegate: AnyObject {
+    func shouldReturn(in textField: AmountTextField) -> Bool
+
     func changeAmount(in textField: AmountTextField)
     func changeType(in textField: AmountTextField)
-    func shouldReturn(in textField: AmountTextField) -> Bool
+    func doneButtonTapped(for textField: AmountTextField)
+    func nextButtonTapped(for textField: AmountTextField)
+}
+
+extension AmountTextFieldDelegate {
+    func changeAmount(in textField: AmountTextField) { }
+    func changeType(in textField: AmountTextField) { }
+    func doneButtonTapped(for textField: AmountTextField) { }
+    func nextButtonTapped(for textField: AmountTextField) { }
 }
 
 final class AmountTextField: UIControl {
     private lazy var statusLabelContainer: UIView = [statusLabel].asStackView(axis: .horizontal)
     private lazy var allFundsContainer: UIView = [allFundsButton].asStackView(axis: .horizontal)
     private lazy var alternativeAmountLabelContainer: UIView = [alternativeAmountLabel].asStackView(axis: .horizontal)
-    let inputAccessoryButton: UIButton = {
-        let button = UIButton()
-        button.setTitleColor(Configuration.Color.Semantic.defaultForegroundText, for: .normal)
-        return button
-    }()
-
     private var cancelable = Set<AnyCancellable>()
 
     private(set) lazy var textField: UITextField = {
@@ -28,11 +32,9 @@ final class AmountTextField: UIControl {
             .font: DataEntry.Font.amountTextField, .foregroundColor: Configuration.Color.Semantic.placeholderText
         ])
         textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.adjustsFontSizeToFitWidth = true
         textField.delegate = self
         textField.keyboardType = .decimalPad
         textField.leftViewMode = .always
-        textField.inputAccessoryView = UIToolbar.doneToolbarButton(#selector(closeKeyboard), self)
         textField.textColor = Configuration.Color.Semantic.defaultForegroundText
         textField.font = DataEntry.Font.amountTextField
         textField.textAlignment = .right
@@ -112,10 +114,23 @@ final class AmountTextField: UIControl {
         set { allFundsContainer.isHidden = !newValue }
     }
 
+    var inputAccessoryButtonType = TextField.InputAccessoryButtonType.none {
+        didSet {
+            switch inputAccessoryButtonType {
+            case .done:
+                textField.inputAccessoryView = UIToolbar.doneToolbarButton(#selector(doneButtonTapped), self)
+            case .next:
+                textField.inputAccessoryView = UIToolbar.nextToolbarButton(#selector(nextButtonTapped), self)
+            case .none:
+                textField.inputAccessoryView = nil
+            }
+        }
+    }
+
     weak var delegate: AmountTextFieldDelegate?
     let viewModel: AmountTextFieldViewModel
 
-    convenience init(token: Token?, debugName: String = "", buttonType: AmountTextField.AccessoryButtonTitle = .done) {
+    convenience init(token: Token?, debugName: String = "") {
         self.init(viewModel: .init(token: token, debugName: debugName))
     }
 
@@ -133,9 +148,6 @@ final class AmountTextField: UIControl {
             stackView.anchorsConstraint(to: self),
         ])
 
-        updateInputAccessoryView(buttonType: buttonType)
-
-        inputAccessoryButton.addTarget(self, action: #selector(closeKeyboard), for: .touchUpInside)
         bind(viewModel: viewModel)
     }
 
@@ -144,7 +156,7 @@ final class AmountTextField: UIControl {
         notifyAmountDidChange()
     }
 
-    func defaultLayout(edgeInsets: UIEdgeInsets = .zero, backgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground) -> UIView {
+    func defaultLayout(edgeInsets: UIEdgeInsets = .zero) -> UIView {
         let col1 = [
             //NOTE: remove spacers when refactor send token screen, there is to many lines related to constraints
             //remove spacers for inner containers like: statusLabelContainer, alternativeAmountLabelContainer
@@ -156,7 +168,7 @@ final class AmountTextField: UIControl {
         ].asStackView(axis: .vertical)
 
         let view = UIView()
-        view.backgroundColor = backgroundColor
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         view.translatesAutoresizingMaskIntoConstraints = false
 
         let stackView = col1
@@ -191,11 +203,6 @@ final class AmountTextField: UIControl {
                 ])
             }.store(in: &cancelable)
 
-        output.accessoryButtonTitle
-            .sink { [weak inputAccessoryButton] in
-                inputAccessoryButton?.setTitle($0.buttonTitle, for: .normal)
-            }.store(in: &cancelable)
-
         output.currentPair
             .sink { [weak selectCurrencyButton, weak self] in
                 guard let `self` = self else { return }
@@ -219,15 +226,6 @@ final class AmountTextField: UIControl {
             .assign(to: \.text, on: textField)
             .store(in: &cancelable)
     }
-
-    private func updateInputAccessoryView(buttonType: AmountTextField.AccessoryButtonTitle) {
-        switch buttonType {
-        case .done:
-            textField.inputAccessoryView = UIToolbar.doneToolbarButton(#selector(closeKeyboard), self)
-        case .next:
-            textField.inputAccessoryView = UIToolbar.nextToolbarButton(#selector(closeKeyboard), self)
-        }
-    }
     
     @discardableResult override func becomeFirstResponder() -> Bool {
         super.becomeFirstResponder()
@@ -243,15 +241,12 @@ final class AmountTextField: UIControl {
         return nil
     }
 
-    @objc private func closeKeyboard() {
-        guard let delegate = delegate else {
-            endEditing(true)
-            return
-        }
+    @objc func doneButtonTapped() {
+        delegate?.doneButtonTapped(for: self)
+    }
 
-        if delegate.shouldReturn(in: self) {
-            endEditing(true)
-        }
+    @objc func nextButtonTapped() {
+        delegate?.nextButtonTapped(for: self)
     }
 
     ///We have to allow the text field the chance to update, so we have to use asyncAfter..

@@ -11,7 +11,7 @@ protocol ConfigureTransactionViewControllerDelegate: AnyObject {
 
 class ConfigureTransactionViewController: UIViewController {
 
-    private lazy var editGasLimitView: SlidableTextField = {
+    private lazy var gasLimitTextField: SlidableTextField = {
         let editGasLimitView = SlidableTextField()
         editGasLimitView.delegate = self
         editGasLimitView.textField.inputAccessoryButtonType = .next
@@ -19,31 +19,33 @@ class ConfigureTransactionViewController: UIViewController {
         return editGasLimitView
     }()
 
-    private lazy var editNonceView: TextFieldView = {
-        let editNonceView = TextFieldView()
-        editNonceView.textField.delegate = self
-        editNonceView.textField.inputAccessoryButtonType = .next
+    private lazy var nonceTextField: TextField = {
+        let textField = TextField.textField
+        textField.delegate = self
+        textField.keyboardType = .decimalPad
 
-        return editNonceView
+        return textField
     }()
 
-    private lazy var editTotalFeeView: TextFieldView = {
-        let editTotalFeeView = TextFieldView()
-        editTotalFeeView.textField.delegate = self
-        editTotalFeeView.textField.inputAccessoryButtonType = .next
+    private lazy var totalFeeTextField: TextField = {
+        let textField = TextField.textField
+        textField.delegate = self
+        textField.inputAccessoryButtonType = .none
+        textField.keyboardType = .decimalPad
 
-        return editTotalFeeView
+        return textField
     }()
 
-    private lazy var editDataView: TextFieldView = {
-        let editDataView = TextFieldView()
-        editDataView.textField.delegate = self
-        editDataView.textField.inputAccessoryButtonType = .done
+    private lazy var dataTextField: TextField = {
+        let textField = TextField.textField
+        textField.delegate = self
+        textField.inputAccessoryButtonType = .done
+        textField.keyboardType = .decimalPad
 
-        return editDataView
+        return textField
     }()
 
-    private lazy var editGasPriceView: SlidableTextField = {
+    private lazy var gasPriceTextField: SlidableTextField = {
         let editGasPriceView = SlidableTextField()
         editGasPriceView.delegate = self
         editGasPriceView.textField.inputAccessoryButtonType = .next
@@ -55,7 +57,6 @@ class ConfigureTransactionViewController: UIViewController {
     private var lastSavedConfiguration: TransactionConfiguration
     weak var delegate: ConfigureTransactionViewControllerDelegate?
 
-    private lazy var keyboardChecker = KeyboardChecker(self)
     private lazy var containerView: ScrollableStackView = {
         return ScrollableStackView()
     }()
@@ -66,13 +67,11 @@ class ConfigureTransactionViewController: UIViewController {
         return view
     }()
     private weak var customGasSpeedView: GasSpeedView?
-    private lazy var bottomConstraint: NSLayoutConstraint = {
-        containerView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-    }()
-    //NOTE: needed to make background view colored as navigation view transparent
-    private lazy var backgroundView: RoundedBackground = {
-        let view = RoundedBackground()
-        return view
+
+    private let contentInsets: UIEdgeInsets = {
+        let bottomInset: CGFloat = ScreenChecker().isNarrowScreen ? 16 : 20
+
+        return .init(top: 5, left: 16, bottom: bottomInset, right: 16)
     }()
 
     init(viewModel: ConfigureTransactionViewModel) {
@@ -85,12 +84,12 @@ class ConfigureTransactionViewController: UIViewController {
         containerView.configure(viewModel: .init(backgroundColor: viewModel.backgroundColor))
         navigationItem.leftBarButtonItem = UIBarButtonItem.saveBarButton(self, selector: #selector(saveButtonSelected))
 
-        view.addSubview(backgroundView)
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         view.addSubview(containerView)
 
-        keyboardChecker.constraints = [bottomConstraint]
+        let  bottomConstraint = containerView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
 
-        NSLayoutConstraint.activate(backgroundView.anchorsConstraint(to: view) + [
+        NSLayoutConstraint.activate([
             containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             containerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -105,17 +104,6 @@ class ConfigureTransactionViewController: UIViewController {
         return nil
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        keyboardChecker.viewWillAppear()
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        keyboardChecker.viewWillDisappear()
-        navigationController?.interactivePopGestureRecognizer?.isEnabled = true
-    }
-
     override func viewDidLoad() {
         super.viewDidLoad()
         recalculateTotalFeeForCustomGas()
@@ -124,7 +112,7 @@ class ConfigureTransactionViewController: UIViewController {
     private func handleRecovery() {
         switch viewModel.recoveryMode {
         case .invalidNonce:
-            editNonceView.textField.status = .error(ConfigureTransactionError.leaveNonceEmpty.localizedDescription)
+            nonceTextField.status = .error(ConfigureTransactionError.leaveNonceEmpty.localizedDescription)
         case .none:
             break
         }
@@ -264,7 +252,7 @@ class ConfigureTransactionViewController: UIViewController {
     }
 
     private func recalculateTotalFeeForCustomGas() {
-        editTotalFeeView.value = viewModel.gasViewModel.feeText
+        totalFeeTextField.value = viewModel.gasViewModel.feeText
 
         if let view = customGasSpeedView {
             view.configure(viewModel: viewModel.gasSpeedViewModel(configurationType: .custom))
@@ -278,25 +266,25 @@ class ConfigureTransactionViewController: UIViewController {
 
     private func showGasPriceWarning() {
         if viewModel.gasPriceWarning == nil {
-            editGasPriceView.textField.status = .none
+            gasPriceTextField.textField.status = .none
         } else {
-            editGasPriceView.textField.status = .error("")
+            gasPriceTextField.textField.status = .error("")
         }
     }
 
     private func showGasLimitWarning() {
         if let warning = viewModel.gasLimitWarning {
-            editGasLimitView.textField.status = .error(warning.description)
+            gasLimitTextField.textField.status = .error(warning.description)
         } else {
-            editGasLimitView.textField.status = .none
+            gasLimitTextField.textField.status = .none
         }
     }
 
     private func showGasFeeWarning() {
         if let warning = viewModel.gasFeeWarning {
-            editTotalFeeView.textField.status = .error(warning.description)
+            totalFeeTextField.status = .error(warning.description)
         } else {
-            editTotalFeeView.textField.status = .none
+            totalFeeTextField.status = .none
         }
     }
 
@@ -308,37 +296,37 @@ class ConfigureTransactionViewController: UIViewController {
             var canSave: Bool = true
 
             if viewModel.configurationToEdit.isGasPriceValid {
-                editGasPriceView.textField.status = .none
+                gasPriceTextField.textField.status = .none
             } else {
                 canSave = false
-                editGasPriceView.textField.status = .error(ConfigureTransactionError.gasPriceTooLow.localizedDescription)
+                gasPriceTextField.textField.status = .error(ConfigureTransactionError.gasPriceTooLow.localizedDescription)
             }
 
             if viewModel.configurationToEdit.isGasLimitValid {
-                editGasLimitView.textField.status = .none
+                gasLimitTextField.textField.status = .none
             } else {
                 canSave = false
-                editGasLimitView.textField.status = .error(ConfigureTransactionError.gasLimitTooHigh.localizedDescription)
+                gasLimitTextField.textField.status = .error(ConfigureTransactionError.gasLimitTooHigh.localizedDescription)
             }
 
             if viewModel.configurationToEdit.isTotalFeeValid {
-                editTotalFeeView.textField.status = .none
+                totalFeeTextField.status = .none
             } else {
                 canSave = false
-                editTotalFeeView.textField.status = .error(ConfigureTransactionError.gasFeeTooHigh.localizedDescription)
+                totalFeeTextField.status = .error(ConfigureTransactionError.gasFeeTooHigh.localizedDescription)
             }
 
             if viewModel.configurationToEdit.isNonceValid {
-                editNonceView.textField.status = .none
+                nonceTextField.status = .none
             } else {
                 canSave = false
-                editNonceView.textField.status = .error(ConfigureTransactionError.nonceNotPositiveNumber.localizedDescription)
+                nonceTextField.status = .error(ConfigureTransactionError.nonceNotPositiveNumber.localizedDescription)
             }
 
             if viewModel.gasPriceWarning == nil {
-                editGasPriceView.textField.status = .none
+                gasPriceTextField.textField.status = .none
             } else {
-                editGasPriceView.textField.status = .error("")
+                gasPriceTextField.textField.status = .error("")
             }
 
             guard canSave else {
@@ -370,27 +358,45 @@ class ConfigureTransactionViewController: UIViewController {
 }
 
 extension ConfigureTransactionViewController: SlidableTextFieldDelegate {
+    func shouldReturn(in textField: SlidableTextField) -> Bool {
+        return true
+    }
+
+    func doneButtonTapped(for textField: SlidableTextField) {
+        view.endEditing(true)
+    }
+
+    func nextButtonTapped(for textField: SlidableTextField) {
+        switch textField {
+        case gasPriceTextField:
+            gasLimitTextField.becomeFirstResponder()
+        case gasLimitTextField:
+            nonceTextField.becomeFirstResponder()
+        default:
+            break
+        }
+    }
 
     func textField(_ textField: SlidableTextField, textDidChange value: Int) {
-        if textField == editGasLimitView {
+        if textField == gasLimitTextField {
             viewModel.configurationToEdit.gasLimitRawValue = value
             viewModel.configurationToEdit.updateMaxGasLimitIfNeeded(value)
 
-            editGasLimitView.configureSliderRange(viewModel: viewModel.gasLimitSliderViewModel)
-        } else if textField == editGasPriceView {
+            gasLimitTextField.configureSliderRange(viewModel: viewModel.gasLimitSliderViewModel)
+        } else if textField == gasPriceTextField {
             viewModel.configurationToEdit.updateMaxGasPriceIfNeeded(value)
             viewModel.configurationToEdit.gasPriceRawValue = value
 
-            editGasPriceView.configureSliderRange(viewModel: viewModel.gasPriceSliderViewModel)
+            gasPriceTextField.configureSliderRange(viewModel: viewModel.gasPriceSliderViewModel)
         }
 
         recalculateTotalFeeForCustomGas()
     }
 
     func textField(_ textField: SlidableTextField, valueDidChange value: Int) {
-        if textField == editGasLimitView {
+        if textField == gasLimitTextField {
             viewModel.configurationToEdit.gasLimitRawValue = value
-        } else if textField == editGasPriceView {
+        } else if textField == gasPriceTextField {
             viewModel.configurationToEdit.gasPriceRawValue = value
         }
 
@@ -434,7 +440,7 @@ extension ConfigureTransactionViewController {
                     didSelectCell(indexPath: indexPath)
                 }
 
-                views += [ContainerView(subview: subview, isBottomSeparatorHidden: false, isTopSeparatorHidden: true)]
+                views += [subview, UIView.separator()]
             case .custom:
                 switch viewModel.editableConfigurationViews[indexPath.row] {
                 case .header(let string):
@@ -445,25 +451,26 @@ extension ConfigureTransactionViewController {
                 case .field(let fieldType):
                     switch fieldType {
                     case .gasPrice:
-                        editGasPriceView.configure(viewModel: viewModel.gasPriceSliderViewModel)
+                        gasPriceTextField.configure(viewModel: viewModel.gasPriceSliderViewModel)
 
-                        views += [ContainerView(subview: editGasPriceView, isBottomSeparatorHidden: false, isTopSeparatorHidden: true)]
+                        views += [gasPriceTextField, UIView.separator()]
                     case .gasLimit:
-                        editGasLimitView.configure(viewModel: viewModel.gasLimitSliderViewModel)
+                        gasLimitTextField.configure(viewModel: viewModel.gasLimitSliderViewModel)
 
-                        views += [ContainerView(subview: editGasLimitView, isBottomSeparatorHidden: false, isTopSeparatorHidden: true)]
+                        views += [gasLimitTextField, UIView.separator()]
                     case .nonce:
-                        editNonceView.configure(viewModel: viewModel.nonceViewModel)
+                        nonceTextField.configure(viewModel: viewModel.nonceViewModel)
+                        nonceTextField.inputAccessoryButtonType = viewModel.isDataInputHidden ? .done : .next
 
-                        views += [ContainerView(subview: editNonceView, isBottomSeparatorHidden: false, isTopSeparatorHidden: true)]
+                        views += [nonceTextField.defaultLayout(edgeInsets: contentInsets), UIView.separator()]
                     case .totalFee:
-                        editTotalFeeView.configure(viewModel: viewModel.totalFeeViewModel)
+                        totalFeeTextField.configure(viewModel: viewModel.totalFeeViewModel)
 
-                        views += [ContainerView(subview: editTotalFeeView, isBottomSeparatorHidden: false, isTopSeparatorHidden: true)]
+                        views += [totalFeeTextField.defaultLayout(edgeInsets: contentInsets), UIView.separator()]
                     case .transactionData:
-                        editDataView.configure(viewModel: viewModel.dataViewModel)
+                        dataTextField.configure(viewModel: viewModel.dataViewModel)
 
-                        views += [ContainerView(subview: editDataView, isBottomSeparatorHidden: false, isTopSeparatorHidden: true)]
+                        views += [dataTextField.defaultLayout(edgeInsets: contentInsets), UIView.separator()]
                     }
                 }
             }
@@ -488,21 +495,21 @@ extension ConfigureTransactionViewController: TextFieldDelegate {
     }
 
     func nextButtonTapped(for textField: TextField) {
-        if textField == editGasPriceView.textField {
-            editGasLimitView.textField.becomeFirstResponder()
-        } else if textField == editGasLimitView.textField {
-            editNonceView.textField.becomeFirstResponder()
-        } else if textField == editNonceView.textField {
-            editDataView.textField.becomeFirstResponder()
+        if textField == gasPriceTextField {
+            gasLimitTextField.becomeFirstResponder()
+        } else if textField == gasLimitTextField {
+            nonceTextField.becomeFirstResponder()
+        } else if textField == nonceTextField {
+            dataTextField.becomeFirstResponder()
         }
     }
 
     func shouldChangeCharacters(inRange range: NSRange, replacementString string: String, for textField: TextField) -> Bool {
         let value = (textField.value as NSString).replacingCharacters(in: range, with: string)
 
-        if textField == editDataView.textField {
+        if textField == dataTextField.textField {
             viewModel.configurationToEdit.dataRawValue = value
-        } else if textField == editNonceView.textField {
+        } else if textField == nonceTextField.textField {
             viewModel.configurationToEdit.nonceRawValue = Int(value)
         }
 

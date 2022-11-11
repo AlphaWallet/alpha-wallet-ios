@@ -9,28 +9,49 @@ protocol AddressTextFieldDelegate: AnyObject {
     func didPaste(in textField: AddressTextField)
     func shouldReturn(in textField: AddressTextField) -> Bool
     func didChange(to string: String, in textField: AddressTextField)
+    func doneButtonTapped(for textField: AddressTextField)
+    func nextButtonTapped(for textField: AddressTextField)
 }
 
-class AddressTextField: UIControl {
+extension AddressTextFieldDelegate {
+    func doneButtonTapped(for textField: AddressTextField) {
+
+    }
+
+    func nextButtonTapped(for textField: AddressTextField) {
+
+    }
+}
+
+final class AddressTextField: UIControl {
     private let domainResolutionService: DomainResolutionServiceType
     private let notifications = NotificationCenter.default
-    private var isConfigured = false
-    private let textField = UITextField()
+
+    private lazy var textField: UITextField = {
+        let textField = UITextField()
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        textField.delegate = self
+        textField.leftViewMode = .always
+        textField.rightViewMode = .always
+        textField.layer.cornerRadius = DataEntry.Metric.TextField.Default.cornerRadius
+        textField.leftView = .spacerWidth(16)
+        textField.rightView = makeTargetAddressRightView()
+        textField.layer.borderColor = DataEntry.Color.border.cgColor
+        textField.layer.borderWidth = DataEntry.Metric.borderThickness
+        textField.placeholder = R.string.localizable.addressEnsLabelMessage()
+        textField.autocapitalizationType = .none
+        textField.autocorrectionType = .no
+        textField.textColor = Configuration.Color.Semantic.defaultForegroundText
+        textField.font = DataEntry.Font.textField
+        
+        return textField
+    }()
     lazy private var ensAddressLabel: AddressOrEnsNameLabel = {
         let label = AddressOrEnsNameLabel(domainResolutionService: domainResolutionService)
         label.addressFormat = .truncateMiddle
         label.shouldShowLoadingIndicator = true
 
         return label
-    }()
-
-    lazy var ensAddressView: UIStackView = {
-        return [
-            ensAddressLabel.loadingIndicator,
-            ensAddressLabel.blockieImageView,
-            ensAddressLabel,
-            statusLabel
-        ].asStackView(axis: .horizontal, spacing: 5, alignment: .center)
     }()
 
     private var textFieldText: String {
@@ -45,7 +66,7 @@ class AddressTextField: UIControl {
         }
     }
 
-    var pasteButton: Button = {
+    private (set) var pasteButton: Button = {
         let button = Button(size: .normal, style: .borderless)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(R.string.localizable.sendPasteButtonTitle(), for: .normal)
@@ -62,7 +83,7 @@ class AddressTextField: UIControl {
         return button
     }()
 
-    var clearButton: Button = {
+    private var clearButton: Button = {
         let button = Button(size: .normal, style: .borderless)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(R.string.localizable.clearButtonTitle(), for: .normal)
@@ -79,7 +100,16 @@ class AddressTextField: UIControl {
         return button
     }()
 
-    let label = UILabel()
+    let label: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = DataEntry.Font.textFieldTitle
+        label.textColor = DataEntry.Color.label
+        label.textAlignment = .left
+        label.numberOfLines = 0
+
+        return label
+    }()
 
     let statusLabel: UILabel = {
         let label = UILabel()
@@ -87,6 +117,9 @@ class AddressTextField: UIControl {
         label.numberOfLines = 0
         label.setContentHuggingPriority(.required, for: .horizontal)
         label.setContentCompressionResistancePriority(.required, for: .horizontal)
+        label.font = DataEntry.Font.textFieldStatus
+        label.textColor = DataEntry.Color.textFieldStatus
+        label.textAlignment = .left
 
         return label
     }()
@@ -112,12 +145,8 @@ class AddressTextField: UIControl {
     }
 
     var returnKeyType: UIReturnKeyType {
-        get {
-            return textField.returnKeyType
-        }
-        set {
-            textField.returnKeyType = newValue
-        }
+        get { return textField.returnKeyType }
+        set { textField.returnKeyType = newValue }
     }
 
     var errorState: TextField.TextFieldErrorState = .none {
@@ -140,43 +169,53 @@ class AddressTextField: UIControl {
         }
     }
 
+    var inputAccessoryButtonType = TextField.InputAccessoryButtonType.none {
+        didSet {
+            switch inputAccessoryButtonType {
+            case .done:
+                textField.inputAccessoryView = UIToolbar.doneToolbarButton(#selector(doneButtonTapped), self)
+            case .next:
+                textField.inputAccessoryView = UIToolbar.nextToolbarButton(#selector(nextButtonTapped), self)
+            case .none:
+                textField.inputAccessoryView = nil
+            }
+        }
+    }
+
     weak var delegate: AddressTextFieldDelegate?
 
     init(domainResolutionService: DomainResolutionServiceType, edgeInsets: UIEdgeInsets = DataEntry.Metric.AddressTextField.insets) {
         self.domainResolutionService = domainResolutionService
         super.init(frame: .zero)
-        pasteButton.addTarget(self, action: #selector(pasteAction), for: .touchUpInside)
-        clearButton.addTarget(self, action: #selector(clearAction), for: .touchUpInside)
+        translatesAutoresizingMaskIntoConstraints = false
 
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.delegate = self
-        textField.leftViewMode = .always
-        textField.rightViewMode = .always
+        pasteButton.addTarget(self, action: #selector(pasteButtonSelected), for: .touchUpInside)
+        clearButton.addTarget(self, action: #selector(clearButtonSelected), for: .touchUpInside)
+
         addSubview(textField)
-
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 0
-        label.textColor = DataEntry.Color.label
-        label.font = DataEntry.Font.label
-        label.textAlignment = .center
 
         updateClearAndPasteButtons(textFieldText)
 
         NSLayoutConstraint.activate([
+            //NOTE: edgeInsets to make shadow non clipped, why?
             textField.anchorsConstraint(to: self, edgeInsets: edgeInsets),
-            heightAnchor.constraint(equalToConstant: ScreenChecker.size(big: 50, medium: 50, small: 35)),
+            heightAnchor.constraint(equalToConstant: DataEntry.Metric.TextField.Default.height),
         ])
 
-        notifications.addObserver(self,
-            selector: #selector(textDidChangeNotification),
-            name: UITextField.textDidChangeNotification, object: nil)
+        notifications.addObserver(self, selector: #selector(textDidChangeNotification), name: UITextField.textDidChangeNotification, object: nil)
+
+        cornerRadius = DataEntry.Metric.TextField.Default.cornerRadius
+        textField.layer.borderWidth = DataEntry.Metric.borderThickness
+        textField.backgroundColor = Configuration.Color.Semantic.textFieldBackground
+        textField.layer.borderColor = errorState.textFieldBorderColor(whileEditing: isFirstResponder).cgColor
+        errorState = .none
     }
 
     //NOTE: maybe it's not a good name, but reasons using this function to extract default layout in separate function to prevent copying code
-    func defaultLayout() -> UIView {
-        let addressControlsContainer = UIView()
-        addressControlsContainer.translatesAutoresizingMaskIntoConstraints = false
-        addressControlsContainer.backgroundColor = .clear
+    private func defaultLayout() -> UIView {
+        let controlsContainer = UIView()
+        controlsContainer.translatesAutoresizingMaskIntoConstraints = false
+        controlsContainer.backgroundColor = .clear
 
         let addressControlsStackView = [
             pasteButton,
@@ -184,24 +223,29 @@ class AddressTextField: UIControl {
         ].asStackView(axis: .horizontal)
         addressControlsStackView.translatesAutoresizingMaskIntoConstraints = false
 
-        addressControlsContainer.addSubview(addressControlsStackView)
+        controlsContainer.addSubview(addressControlsStackView)
+
+        let ensAddressView = [
+            ensAddressLabel.loadingIndicator,
+            ensAddressLabel.blockieImageView,
+            ensAddressLabel,
+            statusLabel
+        ].asStackView(axis: .horizontal, spacing: 5, alignment: .center)
 
         let stackView = [
-            self, .spacer(height: 4), [
-                ensAddressView,
-                .spacerWidth(4, flexible: true),
-                addressControlsContainer
-            ].asStackView(axis: .horizontal, alignment: .center),
+            self,
+            .spacer(height: DataEntry.Metric.TextField.Default.spaceFromTextFieldToStatusLabel),
+            [ensAddressView, .spacerWidth(4, flexible: true), controlsContainer].asStackView(axis: .horizontal, alignment: .center),
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            addressControlsStackView.trailingAnchor.constraint(equalTo: addressControlsContainer.trailingAnchor),
-            addressControlsStackView.topAnchor.constraint(equalTo: addressControlsContainer.topAnchor),
-            addressControlsStackView.bottomAnchor.constraint(equalTo: addressControlsContainer.bottomAnchor),
-            addressControlsStackView.leadingAnchor.constraint(greaterThanOrEqualTo: addressControlsContainer.leadingAnchor),
-            addressControlsContainer.heightAnchor.constraint(equalToConstant: 30),
-            addressControlsContainer.widthAnchor.constraint(greaterThanOrEqualToConstant: 50)
+            addressControlsStackView.trailingAnchor.constraint(equalTo: controlsContainer.trailingAnchor),
+            addressControlsStackView.topAnchor.constraint(equalTo: controlsContainer.topAnchor),
+            addressControlsStackView.bottomAnchor.constraint(equalTo: controlsContainer.bottomAnchor),
+            addressControlsStackView.leadingAnchor.constraint(greaterThanOrEqualTo: controlsContainer.leadingAnchor),
+            controlsContainer.heightAnchor.constraint(equalToConstant: DataEntry.Metric.TextField.Default.controlsContainerHeight),
+            controlsContainer.widthAnchor.constraint(greaterThanOrEqualToConstant: 50)
         ])
 
         return stackView
@@ -209,14 +253,23 @@ class AddressTextField: UIControl {
 
     func defaultLayout(edgeInsets: UIEdgeInsets) -> UIView {
         let stackView = [
-            .spacer(height: edgeInsets.top),
             label,
             .spacer(height: DataEntry.Metric.TextField.Default.spaceFromTitleToTextField),
             defaultLayout(),
-            .spacer(height: edgeInsets.bottom),
         ].asStackView(axis: .vertical)
 
-        return [.spacerWidth(edgeInsets.left), stackView, .spacerWidth(edgeInsets.right)].asStackView(axis: .horizontal)
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+
+        let view = UIView()
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(stackView)
+
+        NSLayoutConstraint.activate([
+            stackView.anchorsConstraint(to: view, edgeInsets: edgeInsets),
+        ])
+
+        return view
     }
 
     @objc private func textDidChangeNotification(_ notification: Notification) {
@@ -241,44 +294,12 @@ class AddressTextField: UIControl {
         return textField.becomeFirstResponder()
     }
 
-    func configureOnce() {
-        guard !isConfigured else { return }
-        isConfigured = true
-
-        cornerRadius = DataEntry.Metric.cornerRadius
-
-        label.font = DataEntry.Font.textFieldTitle
-        label.textColor = DataEntry.Color.label
-        label.textAlignment = .left
-
-        textField.layer.cornerRadius = DataEntry.Metric.cornerRadius
-        textField.leftView = .spacerWidth(16)
-        textField.rightView = makeTargetAddressRightView()
-        textField.layer.borderColor = DataEntry.Color.border.cgColor
-        textField.layer.borderWidth = DataEntry.Metric.borderThickness
-        textField.placeholder = R.string.localizable.addressEnsLabelMessage()
-        textField.autocapitalizationType = .none
-        textField.autocorrectionType = .no
-
-        statusLabel.font = DataEntry.Font.textFieldStatus
-        statusLabel.textColor = DataEntry.Color.textFieldStatus
-        statusLabel.textAlignment = .left
-
-        textField.textColor = Configuration.Color.Semantic.defaultForegroundText
-        textField.font = DataEntry.Font.textField
-
-        textField.layer.borderWidth = DataEntry.Metric.borderThickness
-        textField.backgroundColor = Configuration.Color.Semantic.textFieldBackground
-        textField.layer.borderColor = errorState.textFieldBorderColor(whileEditing: isFirstResponder).cgColor
-        errorState = .none
-    }
-
     private func makeTargetAddressRightView() -> UIView {
         let icon = R.image.qr_code_icon()!.withTintColor(Configuration.Color.Semantic.textFieldIcon, renderingMode: .alwaysTemplate)
         let scanQRCodeButton = Button(size: .normal, style: .system)
         scanQRCodeButton.translatesAutoresizingMaskIntoConstraints = false
         scanQRCodeButton.setImage(icon, for: .normal)
-        scanQRCodeButton.addTarget(self, action: #selector(openReader), for: .touchUpInside)
+        scanQRCodeButton.addTarget(self, action: #selector(openReaderButtonSelected), for: .touchUpInside)
         scanQRCodeButton.setBackgroundColor(.clear, forState: .normal)
         //NOTE: Fix clipped shadow on textField (iPhone 5S)
         scanQRCodeButton.clipsToBounds = false
@@ -299,13 +320,13 @@ class AddressTextField: UIControl {
         return targetAddressRightView
     }
 
-    @objc func clearAction() {
+    @objc private func clearButtonSelected(_ sender: UIButton) {
         ensAddressLabel.clear()
         textFieldText = String()
         errorState = .none
     }
 
-    @objc func pasteAction() {
+    @objc private func pasteButtonSelected(_ sender: UIButton) {
         if let value = UIPasteboard.general.string?.trimmed {
             textFieldText = value
 
@@ -319,13 +340,21 @@ class AddressTextField: UIControl {
         }
     }
 
-    @objc func openReader() {
+    @objc func openReaderButtonSelected() {
         delegate?.openQRCodeReader(for: self)
     }
 
     @discardableResult override func resignFirstResponder() -> Bool {
         super.resignFirstResponder()
         return textField.resignFirstResponder()
+    }
+
+    @objc func doneButtonTapped() {
+        delegate?.doneButtonTapped(for: self)
+    }
+
+    @objc func nextButtonTapped() {
+        delegate?.nextButtonTapped(for: self)
     }
 }
 

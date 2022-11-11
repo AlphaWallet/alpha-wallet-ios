@@ -25,7 +25,7 @@ class SwapTokensViewController: UIViewController {
         let amountTextField = AmountTextField(token: viewModel.swapPair.value.from, debugName: "from")
         amountTextField.translatesAutoresizingMaskIntoConstraints = false
         amountTextField.delegate = self
-        amountTextField.viewModel.accessoryButtonTitle = .next
+        amountTextField.inputAccessoryButtonType = .done
         amountTextField.viewModel.errorState = .none
         amountTextField.isAlternativeAmountEnabled = true
         amountTextField.allFundsAvailable = true
@@ -35,7 +35,7 @@ class SwapTokensViewController: UIViewController {
     private lazy var toAmountTextField: AmountTextField = {
         let amountTextField = AmountTextField(token: viewModel.swapPair.value.to, debugName: "to")
         amountTextField.translatesAutoresizingMaskIntoConstraints = false
-        amountTextField.viewModel.accessoryButtonTitle = .next
+        amountTextField.inputAccessoryButtonType = .none
         amountTextField.viewModel.errorState = .none
         amountTextField.isAlternativeAmountEnabled = true
         amountTextField.allFundsAvailable = false
@@ -224,15 +224,10 @@ extension SwapTokensViewController: PopNotifiable {
 }
 
 extension SwapTokensViewController: AmountTextFieldDelegate {
-
-    func changeAmount(in textField: AmountTextField) {
-        //no-op
+    func doneButtonTapped(for textField: AmountTextField) {
+        view.endEditing(true)
     }
-
-    func changeType(in textField: AmountTextField) {
-        //no-op
-    }
-
+    
     func shouldReturn(in textField: AmountTextField) -> Bool {
         textField.resignFirstResponder()
         return false

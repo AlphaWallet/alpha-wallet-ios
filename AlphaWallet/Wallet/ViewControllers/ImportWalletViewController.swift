@@ -10,22 +10,21 @@ protocol ImportWalletViewControllerDelegate: AnyObject {
 
 // swiftlint:disable type_body_length
 class ImportWalletViewController: UIViewController {
-    struct ValidationError: LocalizedError {
-        var msg: String
-        var errorDescription: String? {
-            return msg
-        }
-    }
-
     private static let mnemonicSuggestionsBarHeight: CGFloat = ScreenChecker().isNarrowScreen ? 40 : 60
 
     private let keystore: Keystore
     private let analytics: AnalyticsLogger
     private let domainResolutionService: DomainResolutionServiceType
     private let viewModel = ImportWalletViewModel()
-    //We don't actually use the rounded corner here, but it's a useful "content" view here
-    private let roundedBackground = RoundedBackground()
-    private let scrollView = UIScrollView()
+
+    private lazy var containerView: ScrollableStackView = {
+        let containerView = ScrollableStackView()
+        containerView.stackView.axis = .vertical
+        containerView.scrollView.showsVerticalScrollIndicator = false
+
+        return containerView
+    }()
+
     private let tabBar: ScrollableSegmentedControl = {
         let cellConfiguration = Style.ScrollableSegmentedControlCell.configuration
         let controlConfiguration = Style.ScrollableSegmentedControl.configuration
@@ -34,45 +33,49 @@ class ImportWalletViewController: UIViewController {
         }
         let control = ScrollableSegmentedControl(cells: cells, configuration: controlConfiguration)
         control.setSelection(cellIndex: 0)
+
         return control
     }()
+
     private let mnemonicCountLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .right
+        label.font = DataEntry.Font.label
         label.textColor = Configuration.Color.Semantic.defaultSubtitleText
+
         return label
     }()
+
     private lazy var mnemonicTextView: TextView = {
         let textView = TextView()
-        textView.label.translatesAutoresizingMaskIntoConstraints = false
         textView.delegate = self
-        textView.translatesAutoresizingMaskIntoConstraints = false
+        textView.inputAccessoryButtonType = .done
         textView.returnKeyType = .done
         textView.textView.autocorrectionType = .no
         textView.textView.autocapitalizationType = .none
 
         return textView
     }()
+
     private lazy var keystoreJSONTextView: TextView = {
         let textView = TextView()
-        textView.label.translatesAutoresizingMaskIntoConstraints = false
         textView.delegate = self
-        textView.translatesAutoresizingMaskIntoConstraints = false
+        textView.inputAccessoryButtonType = .next
         textView.returnKeyType = .next
         textView.textView.autocorrectionType = .no
         textView.textView.autocapitalizationType = .none
 
         return textView
     }()
+
     private lazy var passwordTextField: TextField = {
         let textField: TextField = .textField
-        textField.label.translatesAutoresizingMaskIntoConstraints = false
         textField.delegate = self
-        textField.translatesAutoresizingMaskIntoConstraints = false
         textField.textField.autocorrectionType = .no
         textField.textField.autocapitalizationType = .none
         textField.returnKeyType = .done
+        textField.inputAccessoryButtonType = .done
         textField.isSecureTextEntry = false
         textField.textField.clearButtonMode = .whileEditing
         textField.textField.rightView = {
@@ -85,55 +88,49 @@ class ImportWalletViewController: UIViewController {
         }()
         textField.textField.rightViewMode = .unlessEditing
         textField.textField.textColor = Configuration.Color.Semantic.defaultForegroundText
+        
         return textField
     }()
     private lazy var privateKeyTextView: TextView = {
         let textView = TextView()
-        textView.label.translatesAutoresizingMaskIntoConstraints = false
         textView.delegate = self
-        textView.translatesAutoresizingMaskIntoConstraints = false
+        textView.inputAccessoryButtonType = .done
         textView.returnKeyType = .done
         textView.textView.autocorrectionType = .no
         textView.textView.autocapitalizationType = .none
+
         return textView
     }()
     lazy var watchAddressTextField: AddressTextField = {
         let textField = AddressTextField(domainResolutionService: domainResolutionService)
-        textField.translatesAutoresizingMaskIntoConstraints = false
+        textField.inputAccessoryButtonType = .done
         textField.delegate = self
         textField.returnKeyType = .done
+
         return textField
     }()
 
-    private lazy var mnemonicControlsStackView: UIStackView = {
+    private lazy var mnemonicControlsLayout: UIStackView = {
         let row2 = [mnemonicTextView.statusLabel, mnemonicCountLabel].asStackView()
         row2.translatesAutoresizingMaskIntoConstraints = false
         let mnemonicControlsStackView = [
             mnemonicTextView.label,
-            .spacer(height: 4),
-            mnemonicTextView,
-            .spacer(height: 4),
+            .spacer(height: DataEntry.Metric.TextField.Default.spaceFromTextFieldToStatusLabel),
+            [.spacerWidth(DataEntry.Metric.shadowRadius), mnemonicTextView, .spacerWidth(DataEntry.Metric.shadowRadius)].asStackView(axis: .horizontal),
+            .spacer(height: DataEntry.Metric.TextField.Default.spaceFromTextFieldToStatusLabel),
             row2
         ].asStackView(axis: .vertical, distribution: .fill)
         mnemonicControlsStackView.translatesAutoresizingMaskIntoConstraints = false
 
         return mnemonicControlsStackView
     }()
-    private lazy var keystoreJSONControlsStackView: UIStackView = [
+    private lazy var keystoreJSONControlsLayout: UIStackView = [
         keystoreJSONTextView.defaultLayout(),
-        .spacer(height: 10),
-        passwordTextField.label,
-        .spacer(height: 4),
-        passwordTextField,
-        .spacer(height: 4),
-        passwordTextField.statusLabel
+        passwordTextField.defaultLayout(),
     ].asStackView(axis: .vertical)
 
-    private lazy var privateKeyControlsStackView: UIView = privateKeyTextView.defaultLayout()
-
-    private lazy var watchControlsStackView: UIView = {
-        watchAddressTextField.defaultLayout(edgeInsets: .zero)
-    }()
+    private lazy var privateKeyControlsLayout: UIView = privateKeyTextView.defaultLayout()
+    private lazy var watchControlsLayout: UIView = watchAddressTextField.defaultLayout(edgeInsets: .zero)
 
     private lazy var importSeedDescriptionLabel: UILabel = {
         let label = UILabel()
@@ -143,22 +140,25 @@ class ImportWalletViewController: UIViewController {
         label.textColor = Configuration.Color.Semantic.defaultSubtitleText
         return label
     }()
-    private var footerBottomConstraint: NSLayoutConstraint!
-    private lazy var keyboardChecker = KeyboardChecker(self)
+
     private var mnemonicSuggestions: [String] = .init() {
         didSet {
             mnemonicSuggestionsCollectionView.reloadData()
         }
     }
 
-    private let mnemonicSuggestionsCollectionView: UICollectionView = {
+    private lazy var mnemonicSuggestionsCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.estimatedItemSize = CGSize(width: 140, height: ScreenChecker().isNarrowScreen ? 30 : 40)
         layout.scrollDirection = .horizontal
 
-        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        let frame: CGRect = .init(x: 0, y: 0, width: 0, height: ImportWalletViewController.mnemonicSuggestionsBarHeight)
+        let cv = UICollectionView(frame: frame, collectionViewLayout: layout)
         cv.contentInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
         cv.register(SeedPhraseSuggestionViewCell.self)
+        cv.backgroundColor = viewModel.backgroundColor
+        cv.showsHorizontalScrollIndicator = false
+        cv.delegate = self
 
         return cv
     }()
@@ -181,6 +181,22 @@ class ImportWalletViewController: UIViewController {
         return buttonsBar.buttons[1]
     }
 
+    private lazy var footerBar: UIView = {
+        let footerBar = UIView()
+        footerBar.translatesAutoresizingMaskIntoConstraints = false
+        footerBar.backgroundColor = .clear
+        footerBar.addSubview(buttonsBar)
+
+        NSLayoutConstraint.activate([
+            buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
+            buttonsBar.bottomAnchor.constraint(equalTo: footerBar.bottomAnchor),
+            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor, constant: 20),
+            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor, constant: -20),
+        ])
+
+        return footerBar
+    }()
+
     weak var delegate: ImportWalletViewControllerDelegate?
 
     init(keystore: Keystore, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType) {
@@ -190,93 +206,54 @@ class ImportWalletViewController: UIViewController {
 
         super.init(nibName: nil, bundle: nil)
 
-        title = viewModel.title
-        roundedBackground.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(roundedBackground)
+        navigationItem.title = viewModel.title
 
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        roundedBackground.addSubview(scrollView)
-
-        tabBar.addTarget(self, action: #selector(didTapSegment(_:)), for: .touchUpInside)
-        tabBar.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(tabBar)
-
-        let stackView = [
-            tabBar,
+        containerView.stackView.addArrangedSubviews([
             .spacer(height: ScreenChecker().isNarrowScreen ? 10 : 30),
-            mnemonicControlsStackView,
-            keystoreJSONControlsStackView,
-            privateKeyControlsStackView,
-            watchControlsStackView,
-        ].asStackView(axis: .vertical)
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.addSubview(stackView)
+            mnemonicControlsLayout,
+            keystoreJSONControlsLayout,
+            privateKeyControlsLayout,
+            watchControlsLayout,
+        ])
 
         // importKeystoreJsonFromCloudButton.isHidden = true
         buttonsBar.hideButtonInStack(button: importKeystoreJsonFromCloudButton)
-        roundedBackground.addSubview(importSeedDescriptionLabel)
 
-        mnemonicSuggestionsCollectionView.frame = .init(x: 0, y: 0, width: 0, height: ImportWalletViewController.mnemonicSuggestionsBarHeight)
+        view.addSubview(tabBar)
+        view.addSubview(containerView)
+        view.addSubview(importSeedDescriptionLabel)
+        view.addSubview(footerBar)
 
-        let footerBar = UIView()
-        footerBar.translatesAutoresizingMaskIntoConstraints = false
-        footerBar.backgroundColor = .clear
-        roundedBackground.addSubview(footerBar)
+        let heightThatFitsPrivateKeyNicely = ScreenChecker.size(big: 100, medium: 100, small: 80)
 
-        footerBar.addSubview(buttonsBar)
+        let bottomConstraint = footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        bottomConstraint.constant = -UIApplication.shared.bottomSafeAreaHeight
 
-        let xMargin = CGFloat(16)
-        let heightThatFitsPrivateKeyNicely = CGFloat(ScreenChecker().isNarrowScreen ? 80 : 100)
-
-        footerBottomConstraint = footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        footerBottomConstraint.constant = -UIApplication.shared.bottomSafeAreaHeight
-        keyboardChecker.constraints = [footerBottomConstraint]
-
-        let labelButtonInset: CGFloat = ScreenChecker().isNarrowScreen ? 10 : 20
+        let labelButtonInset: CGFloat = ScreenChecker.size(big: 20, medium: 20, small: 10)
 
         NSLayoutConstraint.activate([
             mnemonicTextView.heightAnchor.constraint(equalToConstant: heightThatFitsPrivateKeyNicely),
             keystoreJSONTextView.heightAnchor.constraint(equalToConstant: heightThatFitsPrivateKeyNicely),
             privateKeyTextView.heightAnchor.constraint(equalToConstant: heightThatFitsPrivateKeyNicely),
 
-            tabBar.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
-            tabBar.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
-            tabBar.heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen ? 38 : 44),
-
-            mnemonicControlsStackView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: xMargin),
-            mnemonicControlsStackView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -xMargin),
-
-            keystoreJSONControlsStackView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: xMargin),
-            keystoreJSONControlsStackView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -xMargin),
-            privateKeyControlsStackView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: xMargin),
-            privateKeyControlsStackView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -xMargin),
-            watchControlsStackView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: xMargin),
-            watchControlsStackView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -xMargin),
-
-            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            tabBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            tabBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tabBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tabBar.heightAnchor.constraint(equalToConstant: DataEntry.Metric.TabBar.height),
 
             importSeedDescriptionLabel.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor, constant: 30),
             importSeedDescriptionLabel.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor, constant: -30),
             importSeedDescriptionLabel.bottomAnchor.constraint(equalTo: footerBar.topAnchor, constant: -labelButtonInset),
 
-            buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
-            buttonsBar.bottomAnchor.constraint(equalTo: footerBar.bottomAnchor),
-            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor, constant: 20),
-            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor, constant: -20),
+            containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: DataEntry.Metric.Container.xMargin),
+            containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -DataEntry.Metric.Container.xMargin),
+            containerView.topAnchor.constraint(equalTo: tabBar.bottomAnchor),
+            containerView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBottomConstraint,
-
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
-
-        ] + roundedBackground.createConstraintsWithContainer(view: view))
+            bottomConstraint,
+        ])
 
         configure()
         showMnemonicControlsOnly()
@@ -291,16 +268,16 @@ class ImportWalletViewController: UIViewController {
         }
     }
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        tabBar.addTarget(self, action: #selector(didTapSegment), for: .touchUpInside)
+    }
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         //Because we want the filter to look like it's a part of the navigation bar
         navigationController?.navigationBar.shadowImage = UIImage()
-        keyboardChecker.viewWillAppear()
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        keyboardChecker.viewWillDisappear()
     }
 
     @objc func didTapSegment(_ control: ScrollableSegmentedControl) {
@@ -326,32 +303,18 @@ class ImportWalletViewController: UIViewController {
         showCorrectTab()
     }
 
-    func configure() {
+    private func configure() {
         view.backgroundColor = viewModel.backgroundColor
 
-        mnemonicTextView.configureOnce()
         mnemonicTextView.label.text = viewModel.mnemonicLabel
-
-        mnemonicCountLabel.font = DataEntry.Font.label
-        mnemonicCountLabel.textColor = DataEntry.Color.label
         mnemonicCountLabel.text = "\(mnemonicInput.count)"
 
-        mnemonicSuggestionsCollectionView.backgroundColor = viewModel.backgroundColor
-        mnemonicSuggestionsCollectionView.showsHorizontalScrollIndicator = false
-        mnemonicSuggestionsCollectionView.delegate = self
         mnemonicSuggestionsCollectionView.dataSource = self
 
-        keystoreJSONTextView.configureOnce()
         keystoreJSONTextView.label.text = viewModel.keystoreJSONLabel
-
-        passwordTextField.configureOnce()
         passwordTextField.label.text = viewModel.passwordLabel
-
-        privateKeyTextView.configureOnce()
         privateKeyTextView.label.text = viewModel.privateKeyLabel
-
         watchAddressTextField.label.text = viewModel.watchAddressLabel
-        watchAddressTextField.configureOnce()
 
         importKeystoreJsonFromCloudButton.addTarget(self, action: #selector(importOptions), for: .touchUpInside)
         importKeystoreJsonFromCloudButton.setTitle(R.string.localizable.importWalletImportFromCloudTitle(), for: .normal)
@@ -563,10 +526,10 @@ class ImportWalletViewController: UIViewController {
     }
 
     private func showMnemonicControlsOnly() {
-        mnemonicControlsStackView.isHidden = false
-        keystoreJSONControlsStackView.isHidden = true
-        privateKeyControlsStackView.isHidden = true
-        watchControlsStackView.isHidden = true
+        mnemonicControlsLayout.isHidden = false
+        keystoreJSONControlsLayout.isHidden = true
+        privateKeyControlsLayout.isHidden = true
+        watchControlsLayout.isHidden = true
         configureImportButtonTitle(R.string.localizable.importWalletImportButtonTitle())
         // importKeystoreJsonFromCloudButton.isHidden = true
         buttonsBar.hideButtonInStack(button: importKeystoreJsonFromCloudButton)
@@ -577,10 +540,10 @@ class ImportWalletViewController: UIViewController {
     }
 
     private func showKeystoreControlsOnly() {
-        mnemonicControlsStackView.isHidden = true
-        keystoreJSONControlsStackView.isHidden = false
-        privateKeyControlsStackView.isHidden = true
-        watchControlsStackView.isHidden = true
+        mnemonicControlsLayout.isHidden = true
+        keystoreJSONControlsLayout.isHidden = false
+        privateKeyControlsLayout.isHidden = true
+        watchControlsLayout.isHidden = true
         configureImportButtonTitle(R.string.localizable.importWalletImportButtonTitle())
         // importKeystoreJsonFromCloudButton.isHidden = false
         buttonsBar.showButtonInStack(button: importKeystoreJsonFromCloudButton, position: 1)
@@ -591,10 +554,10 @@ class ImportWalletViewController: UIViewController {
     }
 
     private func showPrivateKeyControlsOnly() {
-        mnemonicControlsStackView.isHidden = true
-        keystoreJSONControlsStackView.isHidden = true
-        privateKeyControlsStackView.isHidden = false
-        watchControlsStackView.isHidden = true
+        mnemonicControlsLayout.isHidden = true
+        keystoreJSONControlsLayout.isHidden = true
+        privateKeyControlsLayout.isHidden = false
+        watchControlsLayout.isHidden = true
         configureImportButtonTitle(R.string.localizable.importWalletImportButtonTitle())
         // importKeystoreJsonFromCloudButton.isHidden = true
         buttonsBar.hideButtonInStack(button: importKeystoreJsonFromCloudButton)
@@ -605,10 +568,10 @@ class ImportWalletViewController: UIViewController {
     }
 
     private func showWatchControlsOnly() {
-        mnemonicControlsStackView.isHidden = true
-        keystoreJSONControlsStackView.isHidden = true
-        privateKeyControlsStackView.isHidden = true
-        watchControlsStackView.isHidden = false
+        mnemonicControlsLayout.isHidden = true
+        keystoreJSONControlsLayout.isHidden = true
+        privateKeyControlsLayout.isHidden = true
+        watchControlsLayout.isHidden = false
         configureImportButtonTitle(R.string.localizable.walletWatchButtonTitle())
         // importKeystoreJsonFromCloudButton.isHidden = true
         buttonsBar.hideButtonInStack(button: importKeystoreJsonFromCloudButton)
@@ -718,6 +681,10 @@ extension ImportWalletViewController: TextViewDelegate {
 }
 
 extension ImportWalletViewController: AddressTextFieldDelegate {
+    func doneButtonTapped(for textField: AddressTextField) {
+        view.endEditing(true)
+    }
+
     func displayError(error: Error, for textField: AddressTextField) {
         textField.errorState = .error(error.prettyError)
     }

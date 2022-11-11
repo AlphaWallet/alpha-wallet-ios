@@ -24,22 +24,21 @@ class EditPriceAlertViewController: UIViewController {
     }()
 
     private lazy var amountTextField: AmountTextField = {
-        let view = AmountTextField(token: viewModel.token)
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.delegate = self
-        view.viewModel.accessoryButtonTitle = .next
-        view.viewModel.errorState = .none
-        view.viewModel.toggleFiatAndCryptoPair()
+        let textField = AmountTextField(token: viewModel.token)
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        textField.delegate = self
+        textField.inputAccessoryButtonType = .done
+        textField.viewModel.errorState = .none
+        textField.viewModel.toggleFiatAndCryptoPair()
+        textField.isAlternativeAmountEnabled = false
+        textField.allFundsAvailable = false
+        textField.selectCurrencyButton.isHidden = false
+        textField.selectCurrencyButton.expandIconHidden = true
+        textField.statusLabel.text = nil
+        textField.availableTextHidden = false
+        textField.selectCurrencyButton.hasToken = true
 
-        view.isAlternativeAmountEnabled = false
-        view.allFundsAvailable = false
-        view.selectCurrencyButton.isHidden = false
-        view.selectCurrencyButton.expandIconHidden = true
-        view.statusLabel.text = nil
-        view.availableTextHidden = false
-        view.selectCurrencyButton.hasToken = true
-
-        return view
+        return textField
     }()
 
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
@@ -58,20 +57,23 @@ class EditPriceAlertViewController: UIViewController {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
+        containerView.stackView.addArrangedSubviews([
+            headerView,
+            amountTextField.defaultLayout(edgeInsets: .init(top: 16, left: 16, bottom: 0, right: 16))
+        ])
+
         let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
         view.addSubview(footerBar)
         view.addSubview(containerView)
 
         NSLayoutConstraint.activate([
-            containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            containerView.topAnchor.constraint(equalTo: view.topAnchor),
+            containerView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            containerView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            containerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             containerView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
 
             footerBar.anchorsConstraint(to: view),
         ])
-
-        generateSubviews(viewModel: viewModel)
     }
 
     override func viewDidLoad() {
@@ -89,7 +91,7 @@ class EditPriceAlertViewController: UIViewController {
 
     private func bind(viewModel: EditPriceAlertViewModel) {
         view.backgroundColor = viewModel.backgroundColor
-        title = viewModel.title
+        navigationItem.title = viewModel.title
 
         containerView.configure(viewModel: .init(backgroundColor: viewModel.backgroundColor))
 
@@ -123,18 +125,6 @@ class EditPriceAlertViewController: UIViewController {
             }.store(in: &cancelable)
     }
 
-    private func generateSubviews(viewModel: EditPriceAlertViewModel) {
-        containerView.stackView.removeAllArrangedSubviews()
-
-        let subViews: [UIView] = [
-            headerView,
-            .spacer(height: 34),
-            amountTextField.defaultLayout(edgeInsets: .init(top: 0, left: 16, bottom: 0, right: 16))
-        ] 
-
-        containerView.stackView.addArrangedSubviews(subViews)
-    }
-
     required init?(coder: NSCoder) {
         return nil
     }
@@ -147,14 +137,10 @@ extension EditPriceAlertViewController: PopNotifiable {
 }
 
 extension EditPriceAlertViewController: AmountTextFieldDelegate {
-    func changeAmount(in textField: AmountTextField) {
-        // no-op
+    func doneButtonTapped(for textField: AmountTextField) {
+        view.endEditing(true)
     }
-
-    func changeType(in textField: AmountTextField) {
-        // no-op
-    }
-
+    
     func shouldReturn(in textField: AmountTextField) -> Bool {
         return true
     }

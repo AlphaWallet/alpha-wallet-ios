@@ -124,7 +124,6 @@ private class EnterKeystorePasswordView: UIView {
 
     lazy var passwordTextField: PasswordTextField = {
         let textField = PasswordTextField()
-        textField.configureOnce()
         textField.placeholder = R.string.localizable.enterPasswordPasswordTextFieldPlaceholder()
 
         return textField

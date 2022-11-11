@@ -18,8 +18,8 @@ protocol SendSemiFungibleTokenViewControllerDelegate: class, CanOpenURL {
 final class SendSemiFungibleTokenViewController: UIViewController, TokenVerifiableStatusViewController {
     private lazy var targetAddressTextField: AddressTextField = {
         let textField = AddressTextField(domainResolutionService: domainResolutionService)
-        textField.translatesAutoresizingMaskIntoConstraints = false
         textField.delegate = self
+        textField.inputAccessoryButtonType = .done
         textField.returnKeyType = .done
 
         return textField
@@ -83,20 +83,26 @@ final class SendSemiFungibleTokenViewController: UIViewController, TokenVerifiab
 
         updateNavigationRightBarButtons(withTokenScriptFileStatus: nil)
 
+        containerView.stackView.addArrangedSubviews([
+            recipientHeaderView,
+            targetAddressTextField.defaultLayout(edgeInsets: .init(top: 16, left: 16, bottom: 16, right: 16)),
+            amountHeaderView,
+            selectTokenCardAmountView,
+            assetsHeaderView
+        ] + generateViewsForSelectedTokenHolders(viewModel: viewModel))
+
         let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar)
         view.addSubview(footerBar)
         view.addSubview(containerView)
 
         NSLayoutConstraint.activate([
-            containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            containerView.topAnchor.constraint(equalTo: view.topAnchor),
+            containerView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            containerView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            containerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             containerView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
 
             footerBar.anchorsConstraint(to: view),
         ])
-
-        generateSubviews(viewModel: viewModel)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -108,25 +114,12 @@ final class SendSemiFungibleTokenViewController: UIViewController, TokenVerifiab
 
         bind(viewModel: viewModel)
         buttonsBar.configure()
-        let nextButton = buttonsBar.buttons[0]
-        nextButton.setTitle(R.string.localizable.confirmPaymentConfirmButtonTitle(), for: .normal)
-        nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
+
+        let continueButton = buttonsBar.buttons[0]
+        continueButton.setTitle(R.string.localizable.confirmPaymentConfirmButtonTitle(), for: .normal)
+        continueButton.addTarget(self, action: #selector(continueButtonSelected), for: .touchUpInside)
     }
-
-    private func generateSubviews(viewModel: SendSemiFungibleTokenViewModel) {
-        containerView.stackView.removeAllArrangedSubviews()
-
-        let subViews: [UIView] = [
-            recipientHeaderView,
-            targetAddressTextField.defaultLayout(edgeInsets: .init(top: 16, left: 16, bottom: 16, right: 16)),
-            amountHeaderView,
-            selectTokenCardAmountView,
-            assetsHeaderView
-        ] + generateViewsForSelectedTokenHolders(viewModel: viewModel)
-
-        containerView.stackView.addArrangedSubviews(subViews)
-    }
-
+    
     private func generateViewsForSelectedTokenHolders(viewModel: SendSemiFungibleTokenViewModel) -> [UIView] {
         var subviews: [UIView] = []
         for (index, each) in viewModel.tokenHolders.enumerated() {
@@ -169,7 +162,7 @@ final class SendSemiFungibleTokenViewController: UIViewController, TokenVerifiab
         }
     }
 
-    @objc func nextButtonTapped() {
+    @objc private func continueButtonSelected(_ sender: UIButton) {
         targetAddressTextField.errorState = .none
 
         if let address = AlphaWallet.Address(string: targetAddressTextField.value.trimmed) {
@@ -184,7 +177,6 @@ final class SendSemiFungibleTokenViewController: UIViewController, TokenVerifiab
         updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus)
 
         view.backgroundColor = viewModel.backgroundColor
-        targetAddressTextField.configureOnce()
 
         selectTokenCardAmountView.configure(viewModel: viewModel.selectionViewModel)
 
@@ -214,6 +206,9 @@ extension SendSemiFungibleTokenViewController: VerifiableStatusViewController {
 }
 
 extension SendSemiFungibleTokenViewController: AddressTextFieldDelegate {
+    func doneButtonTapped(for textField: AddressTextField) {
+        view.endEditing(true)
+    }
 
     func didScanQRCode(_ result: String) {
         switch AddressOrEip681Parser.from(string: result) {

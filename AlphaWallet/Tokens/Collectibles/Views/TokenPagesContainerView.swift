@@ -28,7 +28,7 @@ class PagesContainerView: RoundedBackground {
         let control = ScrollableSegmentedControl(cells: cells, configuration: controlConfiguration)
         control.setSelection(cellIndex: selectedIndex)
         control.translatesAutoresizingMaskIntoConstraints = false
-        control.addTarget(self, action: #selector(didTapSegment(_:)), for: .touchUpInside)
+        control.addTarget(self, action: #selector(didTapSegment), for: .touchUpInside)
         return control
     }()
 
@@ -83,7 +83,7 @@ class PagesContainerView: RoundedBackground {
         ]
 
         NSLayoutConstraint.activate([
-            tabBar.heightAnchor.constraint(equalToConstant: 50),
+            tabBar.heightAnchor.constraint(equalToConstant: DataEntry.Metric.TabBar.height),
             tabBar.leadingAnchor.constraint(equalTo: leadingAnchor),
             tabBar.trailingAnchor.constraint(equalTo: trailingAnchor),
             tabBar.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),

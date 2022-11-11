@@ -46,46 +46,83 @@ enum NewTokenInitialState {
     }
 }
 
-extension Array where Element: UIView {
-    func makeEach(isHidden: Bool) {
-        for each in self {
-            each.isHidden = isHidden
-        }
-    }
-}
-
 class NewTokenViewController: UIViewController {
-    private let roundedBackground = RoundedBackground()
-    private let scrollView = UIScrollView()
-    private let footerBar = UIView()
     private var viewModel = NewTokenViewModel()
     private var tokenType: TokenType? = nil {
         didSet {
             updateSaveButtonBasedOnTokenTypeDetected()
         }
     }
-    lazy private var addressTextField = AddressTextField(domainResolutionService: domainResolutionService)
-    private let symbolTextField: TextField = .textField
-    private let decimalsTextField: TextField = .textField
-    private let balanceTextField: TextField = .textField
-    private let nameTextField: TextField = .textField
+    private lazy var addressTextField: AddressTextField = {
+        let textField = AddressTextField(domainResolutionService: domainResolutionService)
+        textField.returnKeyType = .next
+        textField.inputAccessoryButtonType = .next
+        textField.delegate = self
+
+        return textField
+    }()
+    private lazy var symbolTextField: TextField = {
+        let textField = TextField.textField
+        textField.inputAccessoryButtonType = .next
+        textField.returnKeyType = .next
+        textField.delegate = self
+
+        return textField
+    }()
+    private lazy var decimalsTextField: TextField = {
+        let textField = TextField.textField
+        textField.inputAccessoryButtonType = .next
+        textField.keyboardType = .decimalPad
+        textField.returnKeyType = .next
+        textField.delegate = self
+
+        return textField
+    }()
+    private lazy var balanceTextField: TextField = {
+        let textField = TextField.textField
+        textField.inputAccessoryButtonType = .next
+        textField.keyboardType = .numbersAndPunctuation
+        textField.delegate = self
+
+        return textField
+    }()
+    private lazy var nameTextField: TextField = {
+        let textField = TextField.textField
+        textField.inputAccessoryButtonType = .done
+        textField.returnKeyType = .done
+        textField.delegate = self
+
+        return textField
+    }()
+
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
-    private let changeServerButton = UIButton()
-    private var scrollViewBottomAnchorConstraint: NSLayoutConstraint!
+    private let changeServerButton: UIButton = {
+        let button = UIButton()
+        button.setTitleColor(Configuration.Color.Semantic.navigationbarButtonItemTint, for: .normal)
+
+        return button
+    }()
     private var shouldFireDetectionWhenAppear: Bool
     private let domainResolutionService: DomainResolutionServiceType
+    private lazy var balanceTextFieldLayout = balanceTextField.defaultLayout()
+    private lazy var decimalsTextFieldLayout: UIView = {
+        let view = decimalsTextField.defaultLayout()
+        view.isHidden = true
+
+        return view
+    }()
 
     var server: RPCServerOrAuto
     weak var delegate: NewTokenViewControllerDelegate?
-    private lazy var balanceViews = TextField.layoutSubviews(for: balanceTextField)
-    private lazy var decimalsViews = TextField.layoutSubviews(for: decimalsTextField)
 
-    private lazy var addressViews: [UIView] = [
-        addressTextField.label,
-        .spacer(height: 4),
-        addressTextField.defaultLayout(),
-        .spacer(height: 4),
-    ]
+    private lazy var containerView: ScrollableStackView = {
+        let containerView = ScrollableStackView()
+        containerView.stackView.spacing = ScreenChecker.size(big: 24, medium: 24, small: 20)
+        containerView.stackView.axis = .vertical
+        containerView.scrollView.showsVerticalScrollIndicator = false
+
+        return containerView
+    }()
 
     init(server: RPCServerOrAuto, domainResolutionService: DomainResolutionServiceType, initialState: NewTokenInitialState) {
         self.server = server
@@ -99,90 +136,49 @@ class NewTokenViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
 
         hidesBottomBarWhenPushed = true
-
-        changeServerButton.setTitleColor(Configuration.Color.Semantic.navigationbarButtonItemTint, for: .normal)
-        changeServerButton.addTarget(self, action: #selector(changeServerAction), for: .touchUpInside)
         navigationItem.rightBarButtonItem = .init(customView: changeServerButton)
 
-        roundedBackground.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(roundedBackground)
-
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        roundedBackground.addSubview(scrollView)
-
-        addressTextField.delegate = self
-        addressTextField.returnKeyType = .next
         addressTextField.value = initialState.addressStringValue
-
-        symbolTextField.delegate = self
-        symbolTextField.returnKeyType = .next
-
-        decimalsTextField.delegate = self
-        decimalsTextField.inputAccessoryButtonType = .next
-        decimalsTextField.keyboardType = .decimalPad
-        decimalsTextField.returnKeyType = .next
-
-        balanceTextField.delegate = self
-        balanceTextField.inputAccessoryButtonType = .next
-        balanceTextField.keyboardType = .numbersAndPunctuation
-        balanceViews.makeEach(isHidden: true)
-
-        nameTextField.delegate = self
-        nameTextField.returnKeyType = .done
-
-        let stackView = (
-            [.spacer(height: 30)] +
-            addressViews +
-            TextField.layoutSubviews(for: symbolTextField) +
-            decimalsViews +
-            balanceViews +
-            TextField.layoutSubviews(for: nameTextField)
-        ).asStackView(axis: .vertical)
-
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.addSubview(stackView)
+        containerView.stackView.addArrangedSubviews([
+            .spacer(height: 0), //NOTE: 0 for applying insets of stack view
+            addressTextField.defaultLayout(edgeInsets: .zero),
+            symbolTextField.defaultLayout(),
+            decimalsTextFieldLayout,
+            balanceTextFieldLayout,
+            nameTextField.defaultLayout()
+        ])
 
         buttonsBar.buttons[0].isEnabled = true
 
-        footerBar.translatesAutoresizingMaskIntoConstraints = false
-        footerBar.backgroundColor = .clear
-        roundedBackground.addSubview(footerBar)
+        let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar)
 
-        footerBar.addSubview(buttonsBar)
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
+        
+        view.addSubview(footerBar)
+        view.addSubview(containerView)
 
-        let xMargin  = CGFloat(16)
-        scrollViewBottomAnchorConstraint = scrollView.bottomAnchor.constraint(equalTo: footerBar.topAnchor, constant: 0)
+        let bottomConstraint = footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        bottomConstraint.constant = -UIApplication.shared.bottomSafeAreaHeight
+
         NSLayoutConstraint.activate([
-
-            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: xMargin),
-            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -xMargin),
-            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-
-            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
-            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
-            buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
-            buttonsBar.heightAnchor.constraint(equalToConstant: HorizontalButtonsBar.buttonsHeight),
+            containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: DataEntry.Metric.Container.xMargin),
+            containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -DataEntry.Metric.Container.xMargin),
+            containerView.topAnchor.constraint(equalTo: view.topAnchor),
+            containerView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -HorizontalButtonsBar.buttonsHeight - HorizontalButtonsBar.marginAtBottomScreen),
-            footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
-            scrollViewBottomAnchorConstraint,
-
-        ] + roundedBackground.createConstraintsWithContainer(view: view))
-
-        configure()
-
-        resizeViewToAccommodateKeyboard()
+            bottomConstraint,
+        ])
     }
 
     required init?(coder aDecoder: NSCoder) {
         return nil
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        configure()
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -202,24 +198,14 @@ class NewTokenViewController: UIViewController {
         updateChangeServer(title: server.name)
 
         addressTextField.label.text = viewModel.addressLabel
-
-        addressTextField.configureOnce()
-
-        symbolTextField.label.textAlignment = .left
         symbolTextField.label.text = viewModel.symbolLabel
-
-        decimalsTextField.label.textAlignment = .left
         decimalsTextField.label.text = viewModel.decimalsLabel
-
-        balanceTextField.label.textAlignment = .left
         balanceTextField.label.text = viewModel.balanceLabel
-
-        nameTextField.label.textAlignment = .left
         nameTextField.label.text = viewModel.nameLabel
 
         buttonsBar.configure()
         let saveButton = buttonsBar.buttons[0]
-        saveButton.addTarget(self, action: #selector(addToken), for: .touchUpInside)
+        saveButton.addTarget(self, action: #selector(addTokenButtonSelected), for: .touchUpInside)
         saveButton.setTitle(R.string.localizable.done(), for: .normal)
     }
 
@@ -258,11 +244,11 @@ class NewTokenViewController: UIViewController {
         self.tokenType = tokenType
         switch tokenType {
         case .nativeCryptocurrency, .erc20:
-            decimalsViews.makeEach(isHidden: false)
-            balanceViews.makeEach(isHidden: true)
+            decimalsTextFieldLayout.isHidden = false
+            balanceTextFieldLayout.isHidden = true
         case .erc721, .erc875, .erc721ForTickets, .erc1155:
-            decimalsViews.makeEach(isHidden: true)
-            balanceViews.makeEach(isHidden: false)
+            decimalsTextFieldLayout.isHidden = true
+            balanceTextFieldLayout.isHidden = false
         }
     }
 
@@ -270,8 +256,7 @@ class NewTokenViewController: UIViewController {
         var isValid: Bool = true
 
         if addressTextField.value.trimmed.isEmpty {
-            let error = ValidationError(msg: R.string.localizable.warningFieldRequired())
-            addressTextField.errorState = .error(error.prettyError)
+            addressTextField.errorState = .error(R.string.localizable.warningFieldRequired())
             isValid = false
         } else {
             addressTextField.errorState = .none
@@ -282,8 +267,7 @@ class NewTokenViewController: UIViewController {
         } else if !nameTextField.value.trimmed.isEmpty {
             nameTextField.status = .none
         } else {
-            let error = ValidationError(msg: R.string.localizable.warningFieldRequired())
-            nameTextField.status = .error(error.prettyError)
+            nameTextField.status = .error(R.string.localizable.warningFieldRequired())
             isValid = false
         }
 
@@ -292,8 +276,7 @@ class NewTokenViewController: UIViewController {
         } else if !symbolTextField.value.trimmed.isEmpty {
             symbolTextField.status = .none
         } else {
-            let error = ValidationError(msg: R.string.localizable.warningFieldRequired())
-            symbolTextField.status = .error(error.prettyError)
+            symbolTextField.status = .error(R.string.localizable.warningFieldRequired())
             isValid = false
         }
 
@@ -304,14 +287,12 @@ class NewTokenViewController: UIViewController {
             switch tokenType {
             case .nativeCryptocurrency, .erc20:
                 if decimalsTextField.value.trimmed.isEmpty {
-                    let error = ValidationError(msg: R.string.localizable.warningFieldRequired())
-                    decimalsTextField.status = .error(error.prettyError)
+                    decimalsTextField.status = .error(R.string.localizable.warningFieldRequired())
                     isValid = false
                 }
             case .erc721, .erc875, .erc721ForTickets, .erc1155:
                 if balanceTextField.value.trimmed.isEmpty {
-                    let error = ValidationError(msg: R.string.localizable.warningFieldRequired())
-                    balanceTextField.status = .error(error.prettyError)
+                    balanceTextField.status = .error(R.string.localizable.warningFieldRequired())
                     isValid = false
                 }
             }
@@ -322,7 +303,7 @@ class NewTokenViewController: UIViewController {
         return isValid
     }
 
-    @objc func addToken() {
+    @objc private func addTokenButtonSelected(_ sender: UIButton) {
         guard validate() else { return }
         let server: RPCServer
         switch self.server {
@@ -366,43 +347,6 @@ class NewTokenViewController: UIViewController {
         delegate?.didAddAddress(address: address, in: self)
     }
 
-    struct ValidationError: LocalizedError {
-        var msg: String
-        var errorDescription: String? {
-            return msg
-        }
-    }
-
-    @objc func keyboardWillShow(_ notification: Notification) {
-        if let userInfo = notification.userInfo {
-            if let keyboardSize = (userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue, let duration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval {
-                UIView.animate(withDuration: duration, animations: { [weak self] () -> Void in
-                    guard let strongSelf = self else { return }
-                    strongSelf.scrollViewBottomAnchorConstraint.constant = strongSelf.footerBar.bounds.size.height - keyboardSize.height
-                })
-            }
-        }
-    }
-
-    @objc func keyboardWillHide(_ notification: Notification) {
-        if let userInfo = notification.userInfo {
-            if let duration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval {
-                UIView.animate(withDuration: duration, animations: { [weak self] () -> Void in
-                    self?.scrollViewBottomAnchorConstraint.constant = 0
-                })
-            }
-        }
-    }
-
-    private func resizeViewToAccommodateKeyboard() {
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            return
-        }
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
-    }
-
     func redetectToken() {
         let contract = addressTextField.value.trimmed
         if let contract = AlphaWallet.Address(string: contract) {
@@ -424,6 +368,10 @@ extension NewTokenViewController: PopNotifiable {
 }
 
 extension NewTokenViewController: AddressTextFieldDelegate {
+    func nextButtonTapped(for textField: AddressTextField) {
+        symbolTextField.becomeFirstResponder()
+    }
+
     func didScanQRCode(_ result: String) {
         switch AddressOrEip681Parser.from(string: result) {
         case .address(let address):
@@ -448,7 +396,7 @@ extension NewTokenViewController: AddressTextFieldDelegate {
     }
 
     func shouldReturn(in textField: AddressTextField) -> Bool {
-        _ = symbolTextField.becomeFirstResponder()
+        symbolTextField.becomeFirstResponder()
         return true
     }
 
@@ -476,23 +424,17 @@ extension NewTokenViewController: TextFieldDelegate {
     private func moveFocusToTextField(after textField: TextField) {
         switch textField {
         case symbolTextField:
-            if decimalsTextField.isHidden {
-                _ = balanceTextField.becomeFirstResponder()
+            if decimalsTextFieldLayout.isHidden {
+                balanceTextField.becomeFirstResponder()
             } else {
-                _ = decimalsTextField.becomeFirstResponder()
+                decimalsTextField.becomeFirstResponder()
             }
         case decimalsTextField, balanceTextField:
-            _ = nameTextField.becomeFirstResponder()
+            nameTextField.becomeFirstResponder()
         case nameTextField:
             view.endEditing(true)
         default:
             break
         }
-    }
-}
-
-extension TextField {
-    static func layoutSubviews(for textField: TextField) -> [UIView] {
-        [textField.label, .spacer(height: 4), textField, .spacer(height: 4), textField.statusLabel, .spacer(height: 24)]
     }
 }

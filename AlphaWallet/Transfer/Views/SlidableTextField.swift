@@ -11,18 +11,18 @@ import AlphaWalletFoundation
 protocol SlidableTextFieldDelegate: AnyObject {
     func textField(_ textField: SlidableTextField, textDidChange value: Int)
     func textField(_ textField: SlidableTextField, valueDidChange value: Int)
-    func shouldReturn(in textField: TextField) -> Bool
-    func doneButtonTapped(for textField: TextField)
-    func nextButtonTapped(for textField: TextField)
+    func shouldReturn(in textField: SlidableTextField) -> Bool
+    func doneButtonTapped(for textField: SlidableTextField)
+    func nextButtonTapped(for textField: SlidableTextField)
 }
 
 class SlidableTextField: UIView {
 
-    static let contentInsets: UIEdgeInsets = {
-        let topBottomInset: CGFloat = ScreenChecker().isNarrowScreen ? 10 : 20
-        let sideInset: CGFloat = ScreenChecker().isNarrowScreen ? 8 : 16
-
-        return .init(top: sideInset, left: topBottomInset, bottom: sideInset, right: topBottomInset)
+    private static let contentInsets: UIEdgeInsets = {
+        let sideInset: CGFloat = ScreenChecker().isNarrowScreen ? 16 : 20
+        let topBottomInset: CGFloat = 16
+        
+        return .init(top: 0, left: sideInset, bottom: topBottomInset, right: sideInset)
     }()
 
     private lazy var slider: UISlider = {
@@ -45,6 +45,27 @@ class SlidableTextField: UIView {
     var value: Int {
         return Int(slider.value)
     }
+
+    var returnKeyType: UIReturnKeyType {
+        get { return textField.returnKeyType }
+        set { textField.returnKeyType = newValue }
+    }
+
+    var keyboardType: UIKeyboardType {
+        get { return textField.keyboardType }
+        set { textField.keyboardType = newValue }
+    }
+
+    var isSecureTextEntry: Bool {
+        get { return textField.isSecureTextEntry }
+        set { textField.isSecureTextEntry = newValue }
+    }
+
+    var status: TextField.TextFieldErrorState {
+        get { return textField.status }
+        set { textField.status = newValue }
+    }
+
     weak var delegate: SlidableTextFieldDelegate?
 
     init() {
@@ -84,6 +105,10 @@ class SlidableTextField: UIView {
         textField.value = String(viewModel.value)
     }
 
+    @discardableResult override func becomeFirstResponder() -> Bool {
+        return textField.becomeFirstResponder()
+    }
+
     @objc private func sliderValueChanged(_ sender: UISlider) {
         textField.value = String(Int(sender.value))
         notifyValueDidChange(value: value)
@@ -97,15 +122,15 @@ class SlidableTextField: UIView {
 extension SlidableTextField: TextFieldDelegate {
 
     func shouldReturn(in textField: TextField) -> Bool {
-        return delegate?.shouldReturn(in: textField) ?? true
+        return delegate?.shouldReturn(in: self) ?? true
     }
 
     func doneButtonTapped(for textField: TextField) {
-        delegate?.doneButtonTapped(for: textField)
+        delegate?.doneButtonTapped(for: self)
     }
 
     func nextButtonTapped(for textField: TextField) {
-        delegate?.nextButtonTapped(for: textField)
+        delegate?.nextButtonTapped(for: self)
     }
 
     func shouldChangeCharacters(inRange range: NSRange, replacementString string: String, for textField: TextField) -> Bool {

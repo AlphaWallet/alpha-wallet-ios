@@ -85,6 +85,7 @@ PODS:
   - iOSSnapshotTestCase/Core (6.2.0)
   - iOSSnapshotTestCase/SwiftSupport (6.2.0):
     - iOSSnapshotTestCase/Core
+  - IQKeyboardManager (6.5.10)
   - JSONRPCKit (2.0.3):
     - Result (~> 3.0)
   - Kanna (5.0.0)
@@ -160,6 +161,7 @@ DEPENDENCIES:
   - EthereumABI (from `https://github.com/AlphaWallet/EthereumABI.git`, commit `877b77e8e7cbc54ab0712d509b74fec21b79d1bb`)
   - FloatingPanel
   - iOSSnapshotTestCase (= 6.2.0)
+  - IQKeyboardManager
   - Kanna (from `https://github.com/tid-kijyun/Kanna.git`, commit `06a04bc28783ccbb40efba355dee845a024033e8`)
   - KeychainSwift (from `https://github.com/AlphaWallet/keychain-swift.git`, commit `b797d40a9d08ec509db4335140cf2259b226e6a2`)
   - Kingfisher (~> 7.0)
@@ -192,6 +194,7 @@ SPEC REPOS:
     - EthereumAddress
     - FloatingPanel
     - iOSSnapshotTestCase
+    - IQKeyboardManager
     - JSONRPCKit
     - Kingfisher
     - MailchimpSDK
@@ -302,6 +305,7 @@ SPEC CHECKSUMS:
   EthereumAddress: 39fe8e11cf04e4e9902b55ae653dbc4e0aee5f30
   FloatingPanel: 935712d7a8076630135fbbd47f717700913efef9
   iOSSnapshotTestCase: 9ab44cb5aa62b84d31847f40680112e15ec579a6
+  IQKeyboardManager: 45a1fa55c1a5b02c61ac0fd7fd5b62bb4ad20d97
   JSONRPCKit: b2991f2f242d72022083f9d869140dabd26d65c7
   Kanna: a32875df62975f8f4b871e933b4ea1a5c3b8be0f
   KeychainSwift: c0d1b0c2901b9873f07f0e560fde92929069e863
@@ -331,6 +335,6 @@ SPEC CHECKSUMS:
   TrustWalletCore: a92d85baa15932279cce925559e93695558cafdd
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: 70644902b70ae4a49b6894222db66f62c222cfc0
+PODFILE CHECKSUM: 6ec5e88fe9824189115133717f95449632099625
 
 COCOAPODS: 1.11.3

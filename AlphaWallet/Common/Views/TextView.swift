@@ -11,43 +11,100 @@ protocol TextViewDelegate: AnyObject {
 }
 
 extension TextViewDelegate {
-    func didChange(inTextView textView: TextView) {
-        //do nothing
-    }
+    func didChange(inTextView textView: TextView) { }
+
+    func doneButtonTapped(for textView: TextView) { }
+
+    func nextButtonTapped(for textView: TextView) { }
 }
 
 class TextView: UIControl {
-    enum InputAccessoryButtonType {
-        case done
-        case next
-        case none
-    }
+    private let notifications = NotificationCenter.default
+    private lazy var statusLabelContainerView: UIView = [statusLabel].asStackView(axis: .horizontal, spacing: 5, alignment: .leading)
+    private lazy var clearAndPasteContainerView: UIView = {
+        let clearAndPastControlsContainer = UIView()
+        clearAndPastControlsContainer.translatesAutoresizingMaskIntoConstraints = false
+        clearAndPastControlsContainer.backgroundColor = .clear
+
+        return clearAndPastControlsContainer
+    }()
+
+    private var pasteButton: Button = {
+        let button = Button(size: .normal, style: .borderless)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle(R.string.localizable.sendPasteButtonTitle(), for: .normal)
+        button.titleLabel?.font = DataEntry.Font.accessory
+        button.setTitleColor(DataEntry.Color.icon, for: .normal)
+        button.setBackgroundColor(.clear, forState: .normal)
+        button.contentHorizontalAlignment = .right
+        button.heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
+        button.contentEdgeInsets = .zero
+
+        return button
+    }()
+
+    private var clearButton: Button = {
+        let button = Button(size: .normal, style: .borderless)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle(R.string.localizable.clearButtonTitle(), for: .normal)
+        button.titleLabel?.font = DataEntry.Font.accessory
+        button.setTitleColor(DataEntry.Color.icon, for: .normal)
+        button.setBackgroundColor(.clear, forState: .normal)
+        button.contentHorizontalAlignment = .right
+        button.heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
+        button.contentEdgeInsets = .zero
+
+        return button
+    }()
 
     let statusLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = DataEntry.Font.textFieldStatus
+        label.textColor = DataEntry.Color.textFieldStatus
 
         return label
     }()
-    let textView = UITextView()
-    let label = UILabel()
+
+    lazy var textView: UITextView = {
+        let textView = UITextView()
+        textView.translatesAutoresizingMaskIntoConstraints = false
+        textView.delegate = self
+        textView.textContainerInset = .init(top: 10, left: 12, bottom: 10, right: 12)
+        textView.textColor = Configuration.Color.Semantic.defaultForegroundText
+        textView.font = DataEntry.Font.text
+        textView.layer.borderColor = DataEntry.Color.border.cgColor
+        textView.layer.borderWidth = DataEntry.Metric.borderThickness
+        textView.layer.cornerRadius = DataEntry.Metric.cornerRadius
+        textView.backgroundColor = .clear
+
+        return textView
+    }()
+
+    let label: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = DataEntry.Font.textFieldTitle
+        label.textColor = DataEntry.Color.label
+
+        return label
+    }()
+
     var value: String {
-        get {
-            return textView.text ?? ""
-        }
+        get { return textView.text ?? "" }
         set {
             textView.text = newValue
-            let notification = Notification(name: UITextView.textDidChangeNotification, object: textView)
-            notifications.post(notification)
+            notifications.post(Notification(name: UITextView.textDidChangeNotification, object: textView))
         }
     }
-    var inputAccessoryButtonType = InputAccessoryButtonType.none {
+    
+    var inputAccessoryButtonType = TextField.InputAccessoryButtonType.none {
         didSet {
             switch inputAccessoryButtonType {
             case .done:
                 textView.inputAccessoryView = UIToolbar.doneToolbarButton(#selector(doneButtonTapped), self)
             case .next:
-                textView.inputAccessoryView = UIToolbar.doneToolbarButton(#selector(nextButtonTapped), self)
+                textView.inputAccessoryView = UIToolbar.nextToolbarButton(#selector(nextButtonTapped), self)
             case .none:
                 textView.inputAccessoryView = nil
             }
@@ -55,12 +112,8 @@ class TextView: UIControl {
     }
 
     var returnKeyType: UIReturnKeyType {
-        get {
-            return textView.returnKeyType
-        }
-        set {
-            textView.returnKeyType = newValue
-        }
+        get { return textView.returnKeyType }
+        set { textView.returnKeyType = newValue }
     }
 
     var errorState: TextField.TextFieldErrorState = .none {
@@ -83,47 +136,24 @@ class TextView: UIControl {
         }
     }
 
-    var pasteButton: Button = {
-        let button = Button(size: .normal, style: .borderless)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(R.string.localizable.sendPasteButtonTitle(), for: .normal)
-        button.titleLabel?.font = DataEntry.Font.accessory
-        button.setTitleColor(DataEntry.Color.icon, for: .normal)
-        button.setBackgroundColor(.clear, forState: .normal)
-        button.contentHorizontalAlignment = .right
-        button.heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
-        button.contentEdgeInsets = .zero
+    var isClearAndPasteHidden: Bool {
+        get { return clearAndPasteContainerView.isHidden }
+        set { clearAndPasteContainerView.isHidden = newValue }
+    }
 
-        return button
-    }()
+    var isStatusLabelHidden: Bool {
+        get { return statusLabelContainerView.isHidden }
+        set { statusLabelContainerView.isHidden = newValue }
+    }
 
-    var clearButton: Button = {
-        let button = Button(size: .normal, style: .borderless)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(R.string.localizable.clearButtonTitle(), for: .normal)
-        button.titleLabel?.font = DataEntry.Font.accessory
-        button.setTitleColor(DataEntry.Color.icon, for: .normal)
-        button.setBackgroundColor(.clear, forState: .normal)
-        button.contentHorizontalAlignment = .right
-        button.heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
-        button.contentEdgeInsets = .zero
-
-        return button
-    }()
-
-    private var isConfigured = false
     weak var delegate: TextViewDelegate?
-    private let notifications = NotificationCenter.default
 
     init() {
         super.init(frame: .zero)
-        pasteButton.addTarget(self, action: #selector(pasteAction), for: .touchUpInside)
-        clearButton.addTarget(self, action: #selector(clearAction), for: .touchUpInside)
-        translatesAutoresizingMaskIntoConstraints = false
 
-        textView.translatesAutoresizingMaskIntoConstraints = false
-        textView.delegate = self
-        textView.textContainerInset = .init(top: 10, left: 12, bottom: 10, right: 12)
+        pasteButton.addTarget(self, action: #selector(pasteButtonSelected), for: .touchUpInside)
+        clearButton.addTarget(self, action: #selector(clearButtonSelected), for: .touchUpInside)
+        translatesAutoresizingMaskIntoConstraints = false
 
         updateClearAndPasteButtons(value)
 
@@ -133,51 +163,60 @@ class TextView: UIControl {
             textView.anchorsConstraint(to: self),
         ])
 
-        notifications.addObserver(self,
-                                  selector: #selector(textDidChangeNotification),
-                                  name: UITextView.textDidChangeNotification, object: nil)
+        notifications.addObserver(self, selector: #selector(textDidChangeNotification), name: UITextView.textDidChangeNotification, object: nil)
+
+        cornerRadius = DataEntry.Metric.cornerRadius
+        layer.borderWidth = DataEntry.Metric.borderThickness
+        backgroundColor = Configuration.Color.Semantic.textViewBackground
+        layer.borderColor = errorState.textFieldBorderColor(whileEditing: isFirstResponder).cgColor
+        errorState = .none
     }
 
-    @objc func clearAction() {
+    @objc func clearButtonSelected(_ sender: UIButton) {
         value = String()
         errorState = .none
     }
 
-    var statusContainerView: UIStackView {
-        return [statusLabel].asStackView(axis: .horizontal, spacing: 5, alignment: .leading)
-    }
-
     //NOTE: maybe it's not a good name, but reasons using this function to extract default layout in separate function to prevent copying code
-    func defaultLayout() -> UIView {
-        let addressControlsContainer = UIView()
-        addressControlsContainer.translatesAutoresizingMaskIntoConstraints = false
-        addressControlsContainer.backgroundColor = .clear
-
+    func defaultLayout(edgeInsets: UIEdgeInsets = .zero) -> UIView {
         let addressControlsStackView = [
             pasteButton,
             clearButton
         ].asStackView(axis: .horizontal)
         addressControlsStackView.translatesAutoresizingMaskIntoConstraints = false
 
-        addressControlsContainer.addSubview(addressControlsStackView)
+        clearAndPasteContainerView.addSubview(addressControlsStackView)
 
         let stackView = [
-            label, .spacer(height: DataEntry.Metric.TextField.Default.spaceFromTitleToTextField), self, .spacer(height: 4), [
-                statusContainerView,
-                addressControlsContainer
-            ].asStackView(axis: .horizontal),
+            label,
+            .spacer(height: DataEntry.Metric.TextField.Default.spaceFromTitleToTextField),
+            [.spacerWidth(DataEntry.Metric.shadowRadius), self, .spacerWidth(DataEntry.Metric.shadowRadius)].asStackView(axis: .horizontal),
+            .spacer(height: DataEntry.Metric.TextField.Default.spaceFromTitleToTextField),
+            [statusLabelContainerView, clearAndPasteContainerView].asStackView(axis: .horizontal),
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            addressControlsStackView.trailingAnchor.constraint(equalTo: addressControlsContainer.trailingAnchor),
-            addressControlsStackView.topAnchor.constraint(equalTo: addressControlsContainer.topAnchor),
-            addressControlsStackView.bottomAnchor.constraint(equalTo: addressControlsContainer.bottomAnchor),
-            addressControlsStackView.leadingAnchor.constraint(greaterThanOrEqualTo: addressControlsContainer.leadingAnchor),
-            addressControlsContainer.heightAnchor.constraint(equalToConstant: 30),
+            addressControlsStackView.trailingAnchor.constraint(equalTo: clearAndPasteContainerView.trailingAnchor),
+            addressControlsStackView.topAnchor.constraint(equalTo: clearAndPasteContainerView.topAnchor),
+            addressControlsStackView.bottomAnchor.constraint(equalTo: clearAndPasteContainerView.bottomAnchor),
+            addressControlsStackView.leadingAnchor.constraint(greaterThanOrEqualTo: clearAndPasteContainerView.leadingAnchor),
+            clearAndPasteContainerView.heightAnchor.constraint(equalToConstant: 30),
         ])
 
-        return stackView
+        let view = UIView()
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
+        view.translatesAutoresizingMaskIntoConstraints = false
+
+        view.addSubview(stackView)
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activate([
+            view.heightAnchor.constraint(equalTo: stackView.heightAnchor),
+            stackView.anchorsConstraint(to: view, edgeInsets: edgeInsets)
+        ])
+
+        return view
     }
 
     @objc private func textDidChangeNotification(_ notification: Notification) {
@@ -193,31 +232,7 @@ class TextView: UIControl {
         pasteButton.isHidden = !text.isEmpty
     }
 
-    func configureOnce() {
-        guard !isConfigured else { return }
-        isConfigured = true
-
-        label.font = DataEntry.Font.textFieldTitle
-        label.textColor = DataEntry.Color.label
-
-        statusLabel.font = DataEntry.Font.textFieldStatus
-        statusLabel.textColor = DataEntry.Color.textFieldStatus
-
-        textView.textColor = Configuration.Color.Semantic.defaultForegroundText
-        textView.font = DataEntry.Font.text
-        textView.layer.borderColor = DataEntry.Color.border.cgColor
-        textView.layer.borderWidth = DataEntry.Metric.borderThickness
-        textView.layer.cornerRadius = DataEntry.Metric.cornerRadius
-
-        cornerRadius = DataEntry.Metric.cornerRadius
-        layer.borderWidth = DataEntry.Metric.borderThickness
-        backgroundColor = Configuration.Color.Semantic.textViewBackground
-        textView.backgroundColor = .clear
-        layer.borderColor = errorState.textFieldBorderColor(whileEditing: isFirstResponder).cgColor
-        errorState = .none
-    }
-
-    @objc func pasteAction() {
+    @objc private func pasteButtonSelected(_ sender: UIButton) {
         if let pastedText = UIPasteboard.general.string?.trimmed {
             value = pastedText
             delegate?.didPaste(in: self)
@@ -233,11 +248,11 @@ class TextView: UIControl {
         return textView.becomeFirstResponder()
     }
 
-    @objc func doneButtonTapped() {
+    @objc private func doneButtonTapped() {
         delegate?.doneButtonTapped(for: self)
     }
 
-    @objc func nextButtonTapped() {
+    @objc private func nextButtonTapped() {
         delegate?.nextButtonTapped(for: self)
     }
 }

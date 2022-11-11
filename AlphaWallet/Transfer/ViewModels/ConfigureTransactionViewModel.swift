@@ -86,20 +86,20 @@ struct ConfigureTransactionViewModel {
         )
     }
 
-    var nonceViewModel: TextFieldViewViewModel {
+    var nonceViewModel: TextFieldViewModel {
         let placeholder = R.string.localizable.configureTransactionNonceLabelTitle()
         let value = configurationToEdit.nonceRawValue.flatMap { String($0) }
 
         return .init(placeholder: placeholder, value: value ?? "", keyboardType: .numberPad)
     }
 
-    var dataViewModel: TextFieldViewViewModel {
+    var dataViewModel: TextFieldViewModel {
         let placeholder = R.string.localizable.configureTransactionDataLabelTitle()
 
         return .init(placeholder: placeholder, value: configurationToEdit.dataRawValue)
     }
 
-    var totalFeeViewModel: TextFieldViewViewModel {
+    var totalFeeViewModel: TextFieldViewModel {
         let placeholder = R.string.localizable.configureTransactionTotalNetworkFeeLabelTitle()
 
         return .init(placeholder: placeholder, value: gasViewModel.feeText, allowEditing: false)
@@ -121,7 +121,7 @@ struct ConfigureTransactionViewModel {
             .field(.nonce)
         ]
 
-        if isDataInputHidden {
+        if !isDataInputHidden {
             views += [.field(.transactionData)]
         }
 
