@@ -131,7 +131,7 @@ class TextField: UIControl {
             case .done:
                 textField.inputAccessoryView = UIToolbar.doneToolbarButton(#selector(doneButtonTapped), self)
             case .next:
-                textField.inputAccessoryView = UIToolbar.doneToolbarButton(#selector(nextButtonTapped), self)
+                textField.inputAccessoryView = UIToolbar.nextToolbarButton(#selector(nextButtonTapped), self)
             case .none:
                 textField.inputAccessoryView = nil
             }
