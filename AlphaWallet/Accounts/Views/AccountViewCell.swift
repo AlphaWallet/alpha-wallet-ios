@@ -1,7 +1,6 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
-import Combine
 import AlphaWalletFoundation
 
 class AccountViewCell: UITableViewCell {
@@ -23,14 +22,13 @@ class AccountViewCell: UITableViewCell {
         return indicator
     }()
 
-    private var cancelable = Set<AnyCancellable>()
-
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         separatorInset = .zero
         selectionStyle = .none
         isUserInteractionEnabled = true
         addressOrEnsName.lineBreakMode = .byTruncatingMiddle
+        backgroundColor = Configuration.Color.Semantic.defaultViewBackground
 
         let leftStackView = [
             [balanceLabel, apprecation24hourLabel].asStackView(spacing: 10),
@@ -57,36 +55,13 @@ class AccountViewCell: UITableViewCell {
         return nil
     }
 
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        cancelable.cancellAll()
-    }
-
-    func bind(viewModel: AccountViewModel) {
-        cancelable.cancellAll()
-
-        backgroundColor = viewModel.backgroundColor
+    func configure(viewModel: AccountViewModel) {
         accessoryView = Style.AccessoryView.chevron
         selectedIndicator.isHidden = !viewModel.isSelected
 
-        viewModel.addressOrEnsName
-            .sink { [weak addressOrEnsName] value in
-                addressOrEnsName?.attributedText = value
-            }.store(in: &cancelable)
-
-        viewModel.blockieImage
-            .sink { [weak blockieImageView] image in
-                blockieImageView?.setBlockieImage(image: image)
-            }.store(in: &cancelable)
-
-        viewModel.balance
-            .sink { [weak balanceLabel] value in
-                balanceLabel?.attributedText = value
-            }.store(in: &cancelable)
-
-        viewModel.apprecation24hour
-            .sink { [weak apprecation24hourLabel] value in
-                apprecation24hourLabel?.attributedText = value
-            }.store(in: &cancelable)
+        addressOrEnsName.attributedText = viewModel.addressOrEnsName
+        blockieImageView.setBlockieImage(image: viewModel.blockieImage)
+        balanceLabel.attributedText = viewModel.balance
+        apprecation24hourLabel.attributedText = viewModel.apprecation24hour
     }
 }

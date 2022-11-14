@@ -55,10 +55,6 @@ open class MultiWalletBalanceService: WalletBalanceService {
                         fetchers[wallet] = fetcher
                     } else {
                         let dep = dependencyContainer.makeDependencies(for: wallet)
-                        dep.sessionsProvider.start(wallet: wallet)
-                        dep.fetcher.start()
-                        dep.pipeline.start()
-
                         fetchers[wallet] = dep.fetcher
                     }
                 }

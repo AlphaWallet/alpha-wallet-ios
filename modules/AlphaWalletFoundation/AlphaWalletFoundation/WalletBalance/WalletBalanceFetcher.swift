@@ -28,11 +28,12 @@ public class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     private var timer: Timer?
     private let wallet: Wallet
     private var cancelable = Set<AnyCancellable>()
-    private lazy var walletBalanceSubject: CurrentValueSubject<WalletBalance, Never> = .init(.init(wallet: wallet, tokens: []))
     private let tokensService: TokenViewModelState & TokenBalanceRefreshable
 
     public var walletBalance: AnyPublisher<WalletBalance, Never> {
-        return walletBalanceSubject
+        return tokensService.tokenViewModels
+            .map { [wallet] in WalletBalance(wallet: wallet, tokens: $0) }
+            .removeDuplicates()
             .eraseToAnyPublisher()
     }
 
@@ -43,14 +44,6 @@ public class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     }
 
     public func start() {
-        cancelable.cancellAll()
-
-        tokensService.tokenViewModels
-            .map { [wallet] in WalletBalance(wallet: wallet, tokens: $0) }
-            .removeDuplicates()
-            .assign(to: \.value, on: walletBalanceSubject)
-            .store(in: &cancelable)
-
         guard !isRunningTests() else { return }
 
         timer = Timer.scheduledTimer(withTimeInterval: Self.updateBalanceInterval, repeats: true) { [weak self] _ in

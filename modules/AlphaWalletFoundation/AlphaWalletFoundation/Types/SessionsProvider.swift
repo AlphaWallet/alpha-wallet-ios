@@ -39,9 +39,8 @@ open class SessionsProvider {
     }
 
     public func start(wallet: Wallet) {
-        cancelable.cancellAll()
-
-        Just(config.enabledServers).merge(with: config.enabledServersPublisher)
+        Just(config.enabledServers)
+            .merge(with: config.enabledServersPublisher)//subscribe for servers changing so not active providers can handle changes too
             .removeDuplicates()
             .combineLatest(Just(wallet))
             .map { [config, analytics, sessionsSubject] servers, wallet -> ServerDictionary<WalletSession>in
@@ -55,7 +54,6 @@ open class SessionsProvider {
                         sessions[server] = session
                     }
                 }
-                
                 return sessions
             }.assign(to: \.value, on: sessionsSubject, ownership: .weak)
             .store(in: &cancelable)

@@ -41,7 +41,32 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
     private let queue = DispatchQueue(label: "org.alphawallet.swift.walletData.processingPipeline", qos: .utility)
 
     public var tokenViewModels: AnyPublisher<[TokenViewModel], Never> {
-        return tokenViewModelsSubject.eraseToAnyPublisher()
+        let whenTickersChanged = coinTickersFetcher.tickersDidUpdate.dropFirst()
+            .receive(on: queue)
+            .map { [tokensService] _ in tokensService.tokens }
+
+        let whenSignatureOrBodyChanged = assetDefinitionStore.assetsSignatureOrBodyChange
+            .receive(on: queue)
+            .map { [tokensService] _ in tokensService.tokens }
+
+        let whenTokensHasChanged = tokensService.tokensPublisher
+            .dropFirst()
+            .receive(on: queue)
+
+        let whenCollectionHasChanged = Publishers.Merge3(whenTokensHasChanged, whenTickersChanged, whenSignatureOrBodyChanged)
+            .map { $0.map { TokenViewModel(token: $0) } }
+            .flatMapLatest { [weak self] in self?.applyTickers(tokens: $0) ?? .empty() }
+            .flatMapLatest { [weak self] in self?.applyTokenScriptOverrides(tokens: $0) ?? .empty() }
+            .removeAllDuplicates(by: { return $0.hashValue == $1.hashValue })
+            .receive(on: RunLoop.main)
+
+        let initialSnapshot = Just(tokensService.tokens)
+            .map { $0.map { TokenViewModel(token: $0) } }
+            .flatMapLatest { [weak self] in self?.applyTickers(tokens: $0) ?? .empty() }
+            .flatMapLatest { [weak self] in self?.applyTokenScriptOverrides(tokens: $0) ?? .empty() }
+
+        return Publishers.Merge(whenCollectionHasChanged, initialSnapshot)
+            .eraseToAnyPublisher()
     }
 
     public init(wallet: Wallet, tokensService: TokensService, coinTickersFetcher: CoinTickersFetcher, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore) {
@@ -63,12 +88,10 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
     public func refresh() {
         tokensService.refresh()
     }
-    
+
     public func start() {
-        cancelable.cancellAll()
         tokensService.start()
         startTickersHandling()
-        preparePipeline()
     }
 
     deinit {
@@ -161,36 +184,6 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
 
     public func addOrUpdateTestsOnly(ticker: CoinTicker?, for token: TokenMappedToTicker) {
         coinTickersFetcher.addOrUpdateTestsOnly(ticker: ticker, for: token)
-    }
-
-    private func preparePipeline() {
-        let whenTickersChanged = coinTickersFetcher.tickersDidUpdate.dropFirst()
-            .receive(on: queue)
-            .map { [tokensService] _ in tokensService.tokens }
-
-        let whenSignatureOrBodyChanged = assetDefinitionStore.assetsSignatureOrBodyChange
-            .receive(on: queue)
-            .map { [tokensService] _ in tokensService.tokens }
-
-        let whenTokensHasChanged = tokensService.tokensPublisher
-            .dropFirst()
-            .receive(on: queue)
-
-        let whenCollectionHasChanged = Publishers.Merge3(whenTokensHasChanged, whenTickersChanged, whenSignatureOrBodyChanged)
-            .map { $0.map { TokenViewModel(token: $0) } }
-            .flatMapLatest { [weak self] in self?.applyTickers(tokens: $0) ?? .empty() }
-            .flatMapLatest { [weak self] in self?.applyTokenScriptOverrides(tokens: $0) ?? .empty() }
-            .removeAllDuplicates(by: { return $0.hashValue == $1.hashValue })
-            .receive(on: RunLoop.main)
-
-        let initialSnapshot = Just(tokensService.tokens)
-            .map { $0.map { TokenViewModel(token: $0) } }
-            .flatMapLatest { [weak self] in self?.applyTickers(tokens: $0) ?? .empty() }
-            .flatMapLatest { [weak self] in self?.applyTokenScriptOverrides(tokens: $0) ?? .empty() }
-
-        Publishers.Merge(whenCollectionHasChanged, initialSnapshot)
-            .assign(to: \.value, on: tokenViewModelsSubject, ownership: .weak)
-            .store(in: &cancelable)
     }
 
     private func startTickersHandling() {
