@@ -25,7 +25,7 @@ class WalletConnectSessionCoordinator: Coordinator {
         return viewController
     }()
     private let session: AlphaWallet.WalletConnect.Session
-
+    
     var coordinators: [Coordinator] = []
     weak var delegate: WalletConnectSessionCoordinatorDelegate?
 
@@ -60,18 +60,13 @@ extension WalletConnectSessionCoordinator: WalletConnectSessionViewControllerDel
 extension WalletConnectSessionCoordinator: ServersCoordinatorDelegate {
 
     func didSelectServer(selection: ServerSelection, in coordinator: ServersCoordinator) {
-        //TODO improve this? Maybe pop to a known view controller controlled by `self` instead
-        coordinator.navigationController.popViewController(animated: false) { [weak self] in
-            coordinator.navigationController.popViewController(animated: true) { [weak self] in
-                self?.removeCoordinator(coordinator)
-            }
-        }
-
         let servers = selection.asServersArray
         analytics.log(action: Analytics.Action.switchedServer, properties: [
             Analytics.Properties.source.rawValue: "walletConnect"
         ])
         try? provider.update(session.topicOrUrl, servers: servers)
+
+        navigationController.popViewController(animated: true)
     }
 
     func didClose(in coordinator: ServersCoordinator) {

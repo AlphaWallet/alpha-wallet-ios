@@ -14,22 +14,18 @@ struct WalletConnectSessionDetailsViewModelInput {
 }
 
 struct WalletConnectSessionDetailsViewModelOutput {
-    let close: AnyPublisher<Void, Never>
+    let didDisconnect: AnyPublisher<Void, Never>
     let viewState: AnyPublisher<WalletConnectSessionDetailsViewModel.ViewState, Never>
 }
 
 class WalletConnectSessionDetailsViewModel {
-    private let session: AlphaWallet.WalletConnect.Session
+    @Published private var session: AlphaWallet.WalletConnect.Session
     private let provider: WalletConnectServerProviderType
     private var cancellable = Set<AnyCancellable>()
     private let analytics: AnalyticsLogger
     private let config: Config = Config()
-    let title: String = R.string.localizable.walletConnectTitle()
-    let walletImageIcon: UIImage? = R.image.walletConnectIcon()
-    let dissconnectButtonText: String = R.string.localizable.walletConnectSessionDisconnect()
-    let switchNetworkButtonText: String = R.string.localizable.walletConnectSessionSwitchNetwork()
-
     private var rpcServers: [RPCServer] { session.servers }
+
     var methods: [String] { session.methods }
 
     private var serverChoices: [RPCServer] {
@@ -52,7 +48,14 @@ class WalletConnectSessionDetailsViewModel {
     }
 
     func transform(input: WalletConnectSessionDetailsViewModelInput) -> WalletConnectSessionDetailsViewModelOutput {
-        let close = input.disconnect
+        provider.sessions
+            .receive(on: RunLoop.main)
+            .compactMap { [session] sessions in sessions.first(where: { $0.topicOrUrl == session.topicOrUrl }) }
+            .handleEvents(receiveOutput: { self.session = $0 })
+            .assign(to: \.session, on: self)
+            .store(in: &cancellable)
+
+        let didDisconnect = input.disconnect
             .map { _ in return self.session }
             .handleEvents(receiveOutput: { [analytics, provider] session in
                 analytics.log(action: Analytics.Action.walletConnectDisconnect)
@@ -61,9 +64,7 @@ class WalletConnectSessionDetailsViewModel {
             }).mapToVoid()
             .eraseToAnyPublisher()
 
-        let session = Publishers.Merge(Just(session), provider.sessions.receive(on: RunLoop.main).map { _ in self.session })
-
-        let viewState = session
+        let viewState = $session
             .map { [provider] session -> WalletConnectSessionDetailsViewModel.ViewState in
                 let statusRowViewModel = self.statusRowViewModel(session: session)
                 let dappNameRowViewModel = self.dappNameRowViewModel(session: session)
@@ -73,13 +74,13 @@ class WalletConnectSessionDetailsViewModel {
                 let dappNameAttributedString = self.dappNameAttributedString(session: session)
                 let dappUrlRowViewModel = self.dappUrlRowViewModel(session: session)
 
-                return WalletConnectSessionDetailsViewModel.ViewState(title: R.string.localizable.walletConnectTitle(), sessionIconURL: session.dappIconUrl, statusRowViewModel: statusRowViewModel, dappNameRowViewModel: dappNameRowViewModel, dappUrlRowViewModel: dappUrlRowViewModel, chainRowViewModel: chainRowViewModel, methodsRowViewModel: methodsRowViewModel, isDisconnectEnabled: isConnected, isSwitchServerEnabled: isConnected, dappNameAttributedString: dappNameAttributedString)
+                return WalletConnectSessionDetailsViewModel.ViewState(sessionIconURL: session.dappIconUrl, statusRowViewModel: statusRowViewModel, dappNameRowViewModel: dappNameRowViewModel, dappUrlRowViewModel: dappUrlRowViewModel, chainRowViewModel: chainRowViewModel, methodsRowViewModel: methodsRowViewModel, isDisconnectEnabled: isConnected, isSwitchServerEnabled: isConnected, dappNameAttributedString: dappNameAttributedString)
             }.eraseToAnyPublisher()
 
-        return .init(close: close, viewState: viewState)
+        return .init(didDisconnect: didDisconnect, viewState: viewState)
     }
 
-    private func statusRowViewModel(session: AlphaWallet.WalletConnect.Session) -> WallerConnectRawViewModel {
+    private func statusRowViewModel(session: AlphaWallet.WalletConnect.Session) -> WallerConnectRowViewModel {
         return .init(
             text: R.string.localizable.walletConnectStatusPlaceholder(),
             details: provider.isConnected(session.topicOrUrl) ? R.string.localizable.walletConnectStatusOnline() : R.string.localizable.walletConnectStatusOffline(),
@@ -89,7 +90,7 @@ class WalletConnectSessionDetailsViewModel {
         )
     }
 
-    private func dappNameRowViewModel(session: AlphaWallet.WalletConnect.Session) -> WallerConnectRawViewModel {
+    private func dappNameRowViewModel(session: AlphaWallet.WalletConnect.Session) -> WallerConnectRowViewModel {
         return .init(text: R.string.localizable.walletConnectDappName(), details: session.dappName, hideSeparatorOptions: .top)
     }
 
@@ -100,7 +101,7 @@ class WalletConnectSessionDetailsViewModel {
         ])
     }
 
-    private func dappUrlRowViewModel(session: AlphaWallet.WalletConnect.Session) -> WallerConnectRawViewModel {
+    private func dappUrlRowViewModel(session: AlphaWallet.WalletConnect.Session) -> WallerConnectRowViewModel {
         return .init(
             text: R.string.localizable.walletConnectSessionConnectedURL(),
             details: session.dappUrl.absoluteString,
@@ -108,12 +109,12 @@ class WalletConnectSessionDetailsViewModel {
         )
     }
 
-    private func chainRowViewModel(session: AlphaWallet.WalletConnect.Session) -> WallerConnectRawViewModel {
+    private func chainRowViewModel(session: AlphaWallet.WalletConnect.Session) -> WallerConnectRowViewModel {
         let servers = session.servers.map { $0.name }.joined(separator: ", ")
         return .init(text: R.string.localizable.settingsNetworkButtonTitle(), details: servers, hideSeparatorOptions: .top)
     }
 
-    private func methodsRowViewModel(session: AlphaWallet.WalletConnect.Session) -> WallerConnectRawViewModel {
+    private func methodsRowViewModel(session: AlphaWallet.WalletConnect.Session) -> WallerConnectRowViewModel {
         let servers = session.methods.joined(separator: ", ")
         return .init(text: R.string.localizable.walletConnectConnectionMethodsTitle(), details: servers, hideSeparatorOptions: .top)
     }
@@ -121,13 +122,16 @@ class WalletConnectSessionDetailsViewModel {
 
 extension WalletConnectSessionDetailsViewModel {
     struct ViewState {
-        let title: String
+        let dissconnectButtonText: String = R.string.localizable.walletConnectSessionDisconnect()
+        let changeNetworksButtonText: String = R.string.localizable.walletConnectSessionSwitchNetwork()
+        let title: String = R.string.localizable.walletConnectTitle()
+        let walletImageIcon: UIImage? = R.image.walletConnectIcon()
         let sessionIconURL: URL?
-        let statusRowViewModel: WallerConnectRawViewModel
-        let dappNameRowViewModel: WallerConnectRawViewModel
-        let dappUrlRowViewModel: WallerConnectRawViewModel
-        let chainRowViewModel: WallerConnectRawViewModel
-        let methodsRowViewModel: WallerConnectRawViewModel
+        let statusRowViewModel: WallerConnectRowViewModel
+        let dappNameRowViewModel: WallerConnectRowViewModel
+        let dappUrlRowViewModel: WallerConnectRowViewModel
+        let chainRowViewModel: WallerConnectRowViewModel
+        let methodsRowViewModel: WallerConnectRowViewModel
         let isDisconnectEnabled: Bool
         let isSwitchServerEnabled: Bool
         let dappNameAttributedString: NSAttributedString
