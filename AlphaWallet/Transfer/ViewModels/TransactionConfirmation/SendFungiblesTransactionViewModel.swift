@@ -43,6 +43,7 @@ extension TransactionConfirmationViewModel {
             configurator.selectedConfigurationType.title
         }
         private let recipientResolver: RecipientResolver
+        private let decimalParser = DecimalParser()
 
         var cryptoToDollarRate: Double?
         var ensName: String? { recipientResolver.ensName }
@@ -106,7 +107,7 @@ extension TransactionConfirmationViewModel {
             case .nativeCryptocurrency(let token, _, _):
                 if let cryptoToDollarRate = cryptoToDollarRate {
                     let cryptoToDollarSymbol = Currency.USD.rawValue
-                    let double = amount.value.optionalDecimalValue ?? 0
+                    let double = decimalParser.parseAnyDecimal(from: amount.value) ?? 0
                     let value = double.multiplying(by: NSDecimalNumber(value: cryptoToDollarRate))
                     let cryptoToDollarValue = StringFormatter().currency(with: value, and: cryptoToDollarSymbol)
 

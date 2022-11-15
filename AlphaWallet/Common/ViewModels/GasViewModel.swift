@@ -9,6 +9,7 @@ struct GasViewModel {
     private let symbol: String
     private let coinTicker: CoinTicker?
     private let formatter: EtherNumberFormatter
+    private let decimalParser = DecimalParser()
 
     init(fee: BigInt, symbol: String, coinTicker: CoinTicker? = nil, formatter: EtherNumberFormatter = .full) {
         self.fee = fee
@@ -23,7 +24,7 @@ struct GasViewModel {
         
         guard let coinTicker = coinTicker else { return text }
 
-        if let fee = gasFee.optionalDecimalValue, let feeInFiat = Formatter.currency.string(from: coinTicker.price_usd * fee.doubleValue) {
+        if let fee = decimalParser.parseAnyDecimal(from: gasFee), let feeInFiat = Formatter.currency.string(from: coinTicker.price_usd * fee.doubleValue) {
             return text + " (\(feeInFiat))"
         } else {
             return text

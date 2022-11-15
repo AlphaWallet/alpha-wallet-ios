@@ -38,6 +38,7 @@ final class SendViewModel {
     private var cryptoValueString: String = ""
     private var cryptoValue: BigInt?
     private var recipient: AlphaWallet.Address?
+    private let decimalParser = DecimalParser()
 
     /// Returns token publisher for only supported transaction types
     private lazy var validToken: AnyPublisher<Token?, Never> = {
@@ -332,13 +333,13 @@ final class SendViewModel {
             let fullValue = EtherNumberFormatter.plain.string(from: balance.value, units: .ether).droppedTrailingZeros
             let shortValue = EtherNumberFormatter.shortPlain.string(from: balance.value, units: .ether).droppedTrailingZeros
 
-            return (fullValue.optionalDecimalValue, shortValue)
+            return (decimalParser.parseAnyDecimal(from: fullValue), shortValue)
         case .erc20Token(let token, _, _):
             guard let balance = tokensService.tokenViewModel(for: token)?.balance else { return nil }
             let fullValue = EtherNumberFormatter.plain.string(from: balance.value, decimals: token.decimals).droppedTrailingZeros
             let shortValue = EtherNumberFormatter.shortPlain.string(from: balance.value, decimals: token.decimals).droppedTrailingZeros
 
-            return (fullValue.optionalDecimalValue, shortValue)
+            return (decimalParser.parseAnyDecimal(from: fullValue), shortValue)
         case .dapp, .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return nil
         }

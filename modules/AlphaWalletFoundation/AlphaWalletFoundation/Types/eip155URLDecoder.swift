@@ -25,6 +25,7 @@ extension Eip155URL: CustomStringConvertible {
 
 public struct eip155URLCoder {
     static let key = "eip155"
+    private static let decimalParser = DecimalParser()
 
     /// Decoding function for urls like `eip155:1/erc721:0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6/2430`
     public static func decode(from string: String) -> Eip155URL? {
@@ -32,7 +33,7 @@ public struct eip155URLCoder {
         guard components.count >= 3, components[0].contains(eip155URLCoder.key) else { return .none }
         let chainAndTokenTypeComponents = components[1].components(separatedBy: "/")
         guard chainAndTokenTypeComponents.count == 2 else { return .none }
-        let server = chainAndTokenTypeComponents[0].optionalDecimalValue.flatMap({ RPCServer(chainID: $0.intValue) })
+        let server = decimalParser.parseAnyDecimal(from: chainAndTokenTypeComponents[0]).flatMap({ RPCServer(chainID: $0.intValue) })
 
         return .init(tokenType: TokenInterfaceType(rawValue: chainAndTokenTypeComponents[1]), server: server, path: components[2])
     }
@@ -40,7 +41,7 @@ public struct eip155URLCoder {
     public static func decodeRPC(from string: String) -> RPCServer? {
         let components = string.components(separatedBy: ":")
         guard components.count >= 2, components[0].contains(eip155URLCoder.key) else { return .none }
-        return components[1].optionalDecimalValue.flatMap({ RPCServer(chainID: $0.intValue) })
+        return decimalParser.parseAnyDecimal(from: components[1]).flatMap({ RPCServer(chainID: $0.intValue) })
     }
 
     ///"eip155:42:0x9E7aAF819E8f227B766E71FAc2DD018A36a0969A"

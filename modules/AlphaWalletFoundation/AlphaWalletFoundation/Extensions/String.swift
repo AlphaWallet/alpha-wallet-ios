@@ -243,14 +243,7 @@ extension String {
 
     ///Allow to convert locale based decimal number to its Double value supports strings like `123,123.12`
     public var optionalDecimalValue: NSDecimalNumber? {
-        if let value = EtherNumberFormatter.plain.decimal(from: self) {
-            return value
-        //NOTE: for case when formatter configured with `,` decimal separator, but EtherNumberFormatter.plain.decimal returns value with `.` separator
-        } else if let asDoubleValue = Double(self) {
-            return NSDecimalNumber(value: asDoubleValue)
-        } else {
-            return .none
-        }
+        DecimalParser().parseAnyDecimal(from: self)
     }
 
     public var droppedTrailingZeros: String {
@@ -290,15 +283,35 @@ extension NSDecimalNumber {
     }
 }
 
-extension EtherNumberFormatter {
+public class DecimalParser {
 
-    /// returns NSDecimalNumber? value from `value` formatted with `EtherNumberFormatter`s selected locale
-    public func decimal(from value: String) -> NSDecimalNumber? {
-        let value = NSDecimalNumber(string: value, locale: locale)
-        if value == .notANumber {
-            return .none
-        } else {
-            return value
+    private let formatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.usesGroupingSeparator = false
+        return formatter
+    }()
+
+    public init() { }
+}
+
+extension DecimalParser {
+
+    public func parseAnyDecimal(from string: String?) -> NSDecimalNumber? {
+        if let string = string {
+            for localeIdentifier in Locale.availableIdentifiers {
+                formatter.locale = Locale(identifier: localeIdentifier)
+                if formatter.number(from: "0\(string)") == nil {
+                    continue
+                }
+
+                let string = string.replacingOccurrences(of: formatter.decimalSeparator, with: ".")
+                if let decimal = Decimal(string: string) {
+                    return NSDecimalNumber(decimal: decimal)
+                }
+            }
         }
+        return nil
     }
+
 }

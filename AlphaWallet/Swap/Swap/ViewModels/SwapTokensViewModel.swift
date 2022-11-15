@@ -32,6 +32,7 @@ final class SwapTokensViewModel: NSObject {
     private var cancelable = Set<AnyCancellable>()
     private let configurator: SwapOptionsConfigurator
     private let tokensService: TokenViewModelState
+    private let decimalParser = DecimalParser()
 
     lazy private (set) var activeSession: AnyPublisher<WalletSession, Never> = {
         return configurator.$server.combineLatest(configurator.$sessions) { server, sessions -> WalletSession? in
@@ -84,13 +85,13 @@ final class SwapTokensViewModel: NSObject {
             let fullValue = EtherNumberFormatter.plain.string(from: balance.value, units: .ether).droppedTrailingZeros
             let shortValue = EtherNumberFormatter.shortPlain.string(from: balance.value, units: .ether).droppedTrailingZeros
 
-            return (fullValue.optionalDecimalValue, shortValue)
+            return (decimalParser.parseAnyDecimal(from: fullValue), shortValue)
         case .erc20:
             guard let balance = tokensService.tokenViewModel(for: token).flatMap({ $0.balance }) else { return nil }
             let fullValue = EtherNumberFormatter.plain.string(from: balance.value, decimals: token.decimals).droppedTrailingZeros
             let shortValue = EtherNumberFormatter.shortPlain.string(from: balance.value, decimals: token.decimals).droppedTrailingZeros
 
-            return (fullValue.optionalDecimalValue, shortValue)
+            return (decimalParser.parseAnyDecimal(from: fullValue), shortValue)
 
         case .erc1155, .erc721, .erc875, .erc721ForTickets:
             return nil

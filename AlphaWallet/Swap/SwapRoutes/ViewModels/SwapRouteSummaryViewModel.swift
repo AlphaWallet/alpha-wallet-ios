@@ -20,7 +20,7 @@ struct SwapRouteSummaryViewModelOutput {
 final class SwapRouteSummaryViewModel {
     private let etherFormatter: EtherNumberFormatter = .plain
     private let route: AnyPublisher<SwapRoute?, Never>
-
+    private let decimalParser = DecimalParser()
     let backgroundColor: UIColor = Colors.appBackground
 
     init(route: AnyPublisher<SwapRoute?, Never>) {
@@ -56,8 +56,8 @@ final class SwapRouteSummaryViewModel {
             let fromAmount = etherFormatter.string(from: route.fromAmount, decimals: route.fromToken.decimals)
 
             guard
-                let toAmount = toAmount.optionalDecimalValue?.doubleValue,
-                let fromAmount = fromAmount.optionalDecimalValue?.doubleValue
+                let toAmount = decimalParser.parseAnyDecimal(from: toAmount)?.doubleValue,
+                let fromAmount = decimalParser.parseAnyDecimal(from: fromAmount)?.doubleValue
             else { return "-" }
 
             let rate: Double? = {

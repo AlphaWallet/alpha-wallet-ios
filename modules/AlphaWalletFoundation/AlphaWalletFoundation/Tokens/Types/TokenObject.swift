@@ -79,10 +79,6 @@ class TokenObject: Object {
         self._info = TokenInfoObject(uid: token.primaryKey)
     }
 
-    var optionalDecimalValue: NSDecimalNumber? {
-        return EtherNumberFormatter.plain.string(from: valueBigInt, decimals: decimals).optionalDecimalValue
-    }
-
     var contractAddress: AlphaWallet.Address {
         return AlphaWallet.Address(uncheckedAgainstNullAddress: contract)!
     }

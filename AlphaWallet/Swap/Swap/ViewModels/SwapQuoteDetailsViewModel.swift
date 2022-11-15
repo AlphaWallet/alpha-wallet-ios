@@ -25,6 +25,7 @@ final class SwapQuoteDetailsViewModel {
     private (set) lazy var currentPriceViewModel = SwapQuoteFieldViewModel(title: "Current Price", value: currentPriceString)
     private (set) lazy var minimumReceivedViewModel = SwapQuoteFieldViewModel(title: "Minimum Received", value: minimumReceivedString)
     private (set) lazy var swapStepsViewModel = SwapStepsViewModel(swapSteps: swapSteps)
+    private let decimalParser = DecimalParser()
 
     var backgoundColor: UIColor = R.color.alabaster()!
 
@@ -80,15 +81,15 @@ final class SwapQuoteDetailsViewModel {
 
     private lazy var currentPriceString: AnyPublisher<String, Never> = {
         Publishers.CombineLatest(configurator.validatedAmount, configurator.tokensWithTheirSwapQuote)
-            .map { [etherFormatter] data -> String in
+            .map { [etherFormatter, decimalParser] data -> String in
                 guard let pair = data.1 else { return "" }
 
                 let toAmount = etherFormatter.string(from: pair.swapQuote.estimate.toAmount, decimals: pair.tokens.to.decimals)
                 let fromAmount = etherFormatter.string(from: data.0, decimals: pair.tokens.from.decimals)
 
                 guard
-                    let toAmount = toAmount.optionalDecimalValue?.doubleValue,
-                    let fromAmount = fromAmount.optionalDecimalValue?.doubleValue
+                    let toAmount = decimalParser.parseAnyDecimal(from: toAmount)?.doubleValue,
+                    let fromAmount = decimalParser.parseAnyDecimal(from: fromAmount)?.doubleValue
                 else { return "-" }
 
                 let rate: Double? = {
