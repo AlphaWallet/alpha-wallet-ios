@@ -284,6 +284,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         logEnabledChains()
         logWallets()
         logDynamicTypeSetting()
+        logIsAppPasscodeOrBiometricProtectionEnabled()
         promptBackupCoordinator.start()
 
         universalLinkService.handlePendingUniversalLink(in: self)
@@ -1097,6 +1098,11 @@ extension ActiveWalletCoordinator {
     private func logDynamicTypeSetting() {
         let setting = UIApplication.shared.preferredContentSizeCategory.rawValue
         analytics.setUser(property: Analytics.UserProperties.dynamicTypeSetting, value: setting)
+    }
+
+    private func logIsAppPasscodeOrBiometricProtectionEnabled() {
+        let isOn = lock.isPasscodeSet
+        analytics.setUser(property: Analytics.UserProperties.isAppPasscodeOrBiometricProtectionEnabled, value: isOn)
     }
 
     private func logTappedSwap(service: SwapTokenViaUrlProvider) {
