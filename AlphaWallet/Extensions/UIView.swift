@@ -164,6 +164,10 @@ extension UIView {
 
         return stackView
     }
+
+    static var separator: UIView {
+        return .spacer(height: 1, backgroundColor: Configuration.Color.Semantic.tableViewSeparator)
+    }
 }
 
 extension UIView {

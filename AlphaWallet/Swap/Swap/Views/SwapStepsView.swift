@@ -28,7 +28,7 @@ final class SwapStepsView: UIView {
 
         translatesAutoresizingMaskIntoConstraints = false
 
-        let bottomLine: UIView = .spacer(height: 1, backgroundColor: R.color.mercury()!)
+        let bottomLine: UIView = UIView.separator
         let edgeInsets = UIEdgeInsets(top: 15, left: 25, bottom: 15, right: 25)
         stackView.translatesAutoresizingMaskIntoConstraints =  false
 

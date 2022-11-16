@@ -222,6 +222,7 @@ enum DataEntry {
         static let cornerRadius = Metrics.CornerRadius.textbox
         static let shadowRadius = CGFloat(2.0)
         static let currencyIconInset = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
+        static let sideInset = ScreenChecker.size(big: 20, medium: 20, small: 16)
 
         enum TextField {
             static let borderThickness = CGFloat(1.0)
@@ -273,6 +274,16 @@ enum DataEntry {
         enum ButtonsBar {
             static let insets: UIEdgeInsets = .init(top: 20, left: 0, bottom: 20, right: 0)
             static let separatorHeight: CGFloat = 1.0
+        }
+
+        enum Cell {
+            static let insets: UIEdgeInsets = .init(
+                top: ScreenChecker.size(big: 20, medium: 20, small: 18),
+                left: 15,
+                bottom: ScreenChecker.size(big: 20, medium: 20, small: 18),
+                right: 15)
+
+            static let imageSize = CGSize(width: 40, height: 40)
         }
 
         enum TransactionConfirmation {

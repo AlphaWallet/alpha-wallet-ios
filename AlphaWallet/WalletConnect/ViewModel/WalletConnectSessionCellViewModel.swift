@@ -7,9 +7,7 @@ struct WalletConnectSessionCellViewModel {
     let session: AlphaWallet.WalletConnect.Session
     var servers: [RPCServer] { session.servers }
 
-    var backgroundColor: UIColor {
-        Colors.appBackground
-    }
+    let backgroundColor: UIColor = Configuration.Color.Semantic.tableViewBackground
 
     var serverIconImages: [Subscribable<Image>] {
         servers.map { $0.walletConnectIconImage }
@@ -19,14 +17,14 @@ struct WalletConnectSessionCellViewModel {
         let servers = servers.map { $0.name }.joined(separator: ", ")
         return .init(string: "\(session.dappName) (\(servers))", attributes: [
             .font: Fonts.regular(size: 20),
-            .foregroundColor: Colors.black
+            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
         ])
     }
 
     var sessionURLAttributedString: NSAttributedString {
         return .init(string: session.dappUrl.absoluteString, attributes: [
             .font: Fonts.regular(size: 12),
-            .foregroundColor: R.color.dove()!
+            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText
         ])
     }
 

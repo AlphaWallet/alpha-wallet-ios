@@ -44,11 +44,11 @@ class WalletConnectSessionViewController: UIViewController {
         return view
     }()
 
-    private let statusRow = WalletConnectRowView()
-    private let dappNameRow = WalletConnectRowView()
-    private let dappUrlRow = WalletConnectRowView()
-    private let chainRow = WalletConnectRowView()
-    private let methodsRow = WalletConnectRowView()
+    private let statusFieldView = WalletConnectSessionFieldView.textLabelView(title: R.string.localizable.walletConnectStatusPlaceholder())
+    private let dappNameFieldView = WalletConnectSessionFieldView.textLabelView(title: R.string.localizable.walletConnectDappName())
+    private let dappUrlFieldView = WalletConnectSessionFieldView.textLabelView(title: R.string.localizable.walletConnectSessionConnectedURL())
+    private let networkFieldView = WalletConnectSessionFieldView.textLabelView(title: R.string.localizable.settingsNetworkButtonTitle())
+    private let methodsFieldView = WalletConnectSessionFieldView.textLabelView(title: R.string.localizable.walletConnectConnectionMethodsTitle())
     private let buttonsBar: HorizontalButtonsBar = {
         let buttonsBar = HorizontalButtonsBar(configuration: .combined(buttons: 2))
         buttonsBar.configure()
@@ -56,11 +56,12 @@ class WalletConnectSessionViewController: UIViewController {
     }()
     private lazy var containerView: ScrollableStackView = {
         let view = ScrollableStackView()
+        view.stackView.spacing = 20
         return view
     }()
     private var cancelable = Set<AnyCancellable>()
     private var disconnectButton: UIButton { buttonsBar.buttons[0] }
-    private var changeNetworksButton: UIButton { buttonsBar.buttons[0] }
+    private var changeNetworksButton: UIButton { buttonsBar.buttons[1] }
 
     let viewModel: WalletConnectSessionDetailsViewModel
     weak var delegate: WalletConnectSessionViewControllerDelegate?
@@ -72,18 +73,19 @@ class WalletConnectSessionViewController: UIViewController {
 
         var subviews: [UIView] = [
             imageContainerView,
-            statusRow,
-            dappNameRow,
-            dappUrlRow,
-            chainRow
+            UIView.separator,
+            statusFieldView,
+            dappNameFieldView,
+            dappUrlFieldView,
+            networkFieldView
         ]
         if !viewModel.methods.isEmpty {
-            subviews += [methodsRow]
+            subviews += [methodsFieldView]
         }
 
         containerView.stackView.addArrangedSubviews(subviews)
 
-        let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
+        let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar)
         view.addSubview(footerBar)
         view.addSubview(containerView)
 
@@ -126,11 +128,11 @@ class WalletConnectSessionViewController: UIViewController {
         output.viewState
             .sink { [weak self] viewState in
                 self?.navigationItem.title = viewState.title
-                self?.statusRow.configure(viewModel: viewState.statusRowViewModel)
-                self?.dappNameRow.configure(viewModel: viewState.dappNameRowViewModel)
-                self?.dappUrlRow.configure(viewModel: viewState.dappUrlRowViewModel)
-                self?.chainRow.configure(viewModel: viewState.chainRowViewModel)
-                self?.methodsRow.configure(viewModel: viewState.methodsRowViewModel)
+                self?.statusFieldView.configure(attributedValueText: viewState.statusFieldAttributedString)
+                self?.dappNameFieldView.configure(attributedValueText: viewState.dappNameFieldAttributedString)
+                self?.dappUrlFieldView.configure(attributedValueText: viewState.dappUrlFieldAttributedString)
+                self?.networkFieldView.configure(attributedValueText: viewState.chainFieldAttributedString)
+                self?.methodsFieldView.configure(attributedValueText: viewState.methodsFieldAttributedString)
                 self?.imageView.setImage(url: viewState.sessionIconURL, placeholder: viewState.walletImageIcon)
                 self?.iconTitleLabel.attributedText = viewState.dappNameAttributedString
 

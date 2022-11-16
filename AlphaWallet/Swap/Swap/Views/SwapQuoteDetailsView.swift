@@ -52,14 +52,14 @@ final class SwapQuoteDetailsView: UIView {
 
         let stackview = [
             quoteHeaderView.adjusted(adjusment: 20),
-            .spacer(height: 1, backgroundColor: R.color.mercury()!),
+            UIView.separator,
             exchangeView,
-            .spacer(height: 1, backgroundColor: R.color.mercury()!),
+            UIView.separator,
             [totalFeeView, toggleFeesBackgroundView].asStackView(),
-            .spacer(height: 1, backgroundColor: R.color.mercury()!),
+            UIView.separator,
             swapFeesView,
             currentPriceView,
-            .spacer(height: 1, backgroundColor: R.color.mercury()!),
+            UIView.separator,
             minimumReceivedView
         ].asStackView(axis: .vertical)
         stackview.translatesAutoresizingMaskIntoConstraints =  false
