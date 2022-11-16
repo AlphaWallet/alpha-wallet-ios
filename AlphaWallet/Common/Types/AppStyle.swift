@@ -26,7 +26,7 @@ func applyStyle() {
     //Cursor color
     UITextField.appearance(whenContainedInInstancesOf: [UISearchBar.self]).tintColor = Configuration.Color.Semantic.searchbarTint
 
-    UIRefreshControl.appearance().tintColor = Colors.navigationTitleColor
+    UIRefreshControl.appearance().tintColor = Configuration.Color.Semantic.refreshControl
 
     UISwitch.appearance().onTintColor = Colors.appTint
 
