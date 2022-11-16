@@ -23,7 +23,7 @@ struct ActiveWalletSessionViewModel {
 
         return .init(string: "WalletConnect", attributes: [
             .paragraphStyle: style,
-            .font: Fonts.regular(size: ScreenChecker().isNarrowScreen ? 18 : 20) as Any,
+            .font: Fonts.regular(size: ScreenChecker.size(big: 20, medium: 20, small: 18)),
             .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
         ])
     }
@@ -39,46 +39,8 @@ struct ActiveWalletSessionViewModel {
         }
         return .init(string: title, attributes: [
             .paragraphStyle: style,
-            .font: Fonts.regular(size: ScreenChecker().isNarrowScreen ? 14 : 16) as Any,
+            .font: Fonts.regular(size: ScreenChecker.size(big: 16, medium: 16, small: 14)),
             .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText
-        ])
-    }
-}
-
-enum SeparatorViewPlacement: Int {
-    case top
-    case bottom
-}
-
-class SeparatorView: UIView {
-
-    init() {
-        super.init(frame: .zero)
-
-        backgroundColor = R.color.mercury()
-        translatesAutoresizingMaskIntoConstraints = false
-    }
-
-    required init?(coder: NSCoder) {
-        return nil
-    }
-
-    func add(to view: UIView, _ placement: SeparatorViewPlacement) {
-        view.addSubview(self)
-
-        let anchor: NSLayoutConstraint
-        switch placement {
-        case .bottom:
-            anchor = bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        case .top:
-            anchor = topAnchor.constraint(equalTo: view.topAnchor)
-        }
-
-        NSLayoutConstraint.activate([
-            leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            heightAnchor.constraint(equalToConstant: 0.7),
-            anchor
         ])
     }
 }
@@ -93,7 +55,6 @@ class ActiveWalletSessionView: UITableViewHeaderFooterView {
         return imageView
     }()
     private let background = UIView()
-    private let separators = (top: SeparatorView(), bottom: SeparatorView())
 
     weak var delegate: ActiveWalletSessionViewDelegate?
 
@@ -116,8 +77,6 @@ class ActiveWalletSessionView: UITableViewHeaderFooterView {
             stackView.anchorsConstraint(to: background, edgeInsets: .init(top: 16, left: 20, bottom: 16, right: 16)).map { $0.set(priority: .defaultHigh) },
             background.anchorsConstraint(to: contentView)
         ])
-
-        separators.top.add(to: background, .top)
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(viewTapped))
         contentView.isUserInteractionEnabled = true

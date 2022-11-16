@@ -10,5 +10,4 @@ import UIKit
 struct WalletPupupViewModel {
     var actions: [PupupAction] = [.swap, .send, .receive, .buy]
     var backbroundColor: UIColor = Colors.appBackground
-    var viewsSeparatorColor: UIColor = R.color.mercury()!
 }

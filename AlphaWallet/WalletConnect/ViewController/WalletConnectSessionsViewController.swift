@@ -22,14 +22,13 @@ class WalletConnectSessionsViewController: UIViewController {
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.separatorInset = .zero
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.backgroundColor = GroupedTable.Color.background
+        tableView.backgroundColor = Configuration.Color.Semantic.tableViewBackground
+        tableView.separatorColor = Configuration.Color.Semantic.tableViewSeparator
         tableView.delegate = self
 
         return tableView
     }()
 
-    private let roundedBackground = RoundedBackground()
-    
     private lazy var spinner: UIActivityIndicatorView = {
         let view = UIActivityIndicatorView(style: .medium)
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -54,17 +53,14 @@ class WalletConnectSessionsViewController: UIViewController {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
-        roundedBackground.backgroundColor = GroupedTable.Color.background
-
-        view.addSubview(roundedBackground)
-        roundedBackground.addSubview(tableView)
-        roundedBackground.addSubview(spinner)
+        view.addSubview(tableView)
+        view.addSubview(spinner)
 
         NSLayoutConstraint.activate([
-            tableView.anchorsConstraintSafeArea(to: roundedBackground),
+            tableView.anchorsConstraintSafeArea(to: view),
             spinner.centerXAnchor.constraint(equalTo: tableView.centerXAnchor),
             spinner.centerYAnchor.constraint(equalTo: tableView.centerYAnchor)
-        ] + roundedBackground.createConstraintsWithContainer(view: view))
+        ])
 
         navigationItem.rightBarButtonItem = UIBarButtonItem.qrCodeBarButton(self, selector: #selector(qrCodeButtonSelected))
 
@@ -83,6 +79,7 @@ class WalletConnectSessionsViewController: UIViewController {
 
         navigationItem.largeTitleDisplayMode = .never
         hidesBottomBarWhenPushed = true
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
 
         if let host = emptyView {
             spinner.bringSubviewToFront(host)

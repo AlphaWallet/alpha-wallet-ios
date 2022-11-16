@@ -59,7 +59,7 @@ class SwapTokensViewController: UIViewController {
         return imageView
     }()
     private lazy var containerView: ScrollableStackView = ScrollableStackView()
-    private let line: UIView = .spacer(height: 1, backgroundColor: R.color.mercury()!)
+    private let line: UIView = .separator
     private lazy var footerBar: ButtonsBarBackgroundView = {
         let view = ButtonsBarBackgroundView(buttonsBar: buttonsBar, edgeInsets: .zero, separatorHeight: 1.0)
         return view
@@ -119,7 +119,7 @@ class SwapTokensViewController: UIViewController {
             line,
             toTokenHeaderView,
             toAmountTextField.defaultLayout(edgeInsets: .init(top: 0, left: 16, bottom: 0, right: 16)),
-            .spacer(height: 1, backgroundColor: R.color.mercury()!),
+            UIView.separator,
             quoteDetailsView
         ])
 

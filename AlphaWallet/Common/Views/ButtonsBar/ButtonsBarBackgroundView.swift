@@ -12,7 +12,7 @@ class ButtonsBarBackgroundView: UIView {
     private let buttonsBar: ButtonsBarViewType
     private let separatorLine: UIView = {
         let view = UIView()
-        view.backgroundColor = R.color.mike()
+        view.backgroundColor = Configuration.Color.Semantic.tableViewSeparator
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
