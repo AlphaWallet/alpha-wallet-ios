@@ -10,17 +10,18 @@ import UIKit
 import AlphaWalletFoundation
 
 @objc protocol ExportJsonKeystoreCoordinatorDelegate {
-    func didComplete(coordinator: ExportJsonKeystoreCoordinator)
+    func didComplete(in coordinator: ExportJsonKeystoreCoordinator)
+    func didCancel(in coordinator: ExportJsonKeystoreCoordinator)
 }
 
 class ExportJsonKeystoreCoordinator: NSObject, Coordinator {
-
-    var coordinators: [Coordinator] = []
-    weak var delegate: ExportJsonKeystoreCoordinatorDelegate?
-    private var keystore: Keystore
+    private let keystore: Keystore
     private var navigationController: UINavigationController
     private weak var initialViewController: UIViewController?
     private let wallet: Wallet
+
+    var coordinators: [Coordinator] = []
+    weak var delegate: ExportJsonKeystoreCoordinatorDelegate?
 
     init(keystore: Keystore, wallet: Wallet, navigationController: UINavigationController) {
         self.wallet = wallet
@@ -30,67 +31,52 @@ class ExportJsonKeystoreCoordinator: NSObject, Coordinator {
     }
 
     func start() {
-        startPasswordViewController(buttonTitle: R.string.localizable.settingsAdvancedExportJSONKeystorePasswordPasswordButtonPassword())
-    }
+        let viewModel = ExportJsonKeystorePasswordViewModel()
+        let controller = ExportJsonKeystorePasswordViewController(viewModel: viewModel)
+        controller.delegate = self
 
-    private func startFileViewController(buttonTitle: String, password: String) {
-        let controller = ExportJsonKeystoreFileViewController(viewModel: ExportJsonKeystoreFileViewModel(keystore: keystore, wallet: wallet), buttonTitle: buttonTitle, password: password)
-        controller.fileDelegate = self
-        navigationController.pushViewController(controller, animated: true)
-    }
-
-    private func startPasswordViewController(buttonTitle: String) {
-        let controller = ExportJsonKeystorePasswordViewController(viewModel: ExportJsonKeystorePasswordViewModel(), buttonTitle: buttonTitle)
-        controller.passwordDelegate = self
         navigationController.pushViewController(controller, animated: true)
     }
 
     private func popViewControllers() {
-        if let controller = initialViewController {
-            navigationController.popToViewController(controller, animated: true)
-        }
+        guard let controller = initialViewController else { return }
+        navigationController.popToViewController(controller, animated: true)
     }
 }
 
 extension ExportJsonKeystoreCoordinator: ExportJsonKeystoreFileDelegate {
-    func didExport(jsonData: String, in viewController: UIViewController) {
-        exportJsonKeystore(jsonData: jsonData, in: viewController)
-    }
-    
-    func didDismissFileController() {
-    }
-    
-    func didFinish() {
-        self.popViewControllers()
-        delegate?.didComplete(coordinator: self)
-    }
-
-    private func exportJsonKeystore(jsonData: String, in viewController: UIViewController) {
-        let fileName = "alphawallet_keystore_export_\(UUID().uuidString).json"
-        let fileUrl = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
-        do {
-            try jsonData.data(using: .utf8)!.write(to: fileUrl)
-        } catch {
-            navigationController.displayError(error: error)
-            return
-        }
+    func didExport(fileUrl: URL, in viewController: UIViewController) {
         let activityViewController = UIActivityViewController(activityItems: [fileUrl], applicationActivities: nil)
-        activityViewController.completionWithItemsHandler = {_, _, _, activityError in
-            if let error = activityError {
-                self.navigationController.displayError(error: error)
-            }
+        activityViewController.completionWithItemsHandler = { [navigationController] _, _, _, error in
+            guard let error = error else { return }
+            navigationController.displayError(error: error)
         }
         activityViewController.popoverPresentationController?.sourceView = viewController.view
         activityViewController.popoverPresentationController?.sourceRect = navigationController.view.centerRect
+
         navigationController.present(activityViewController, animated: true)
     }
 }
 
 extension ExportJsonKeystoreCoordinator: ExportJsonKeystorePasswordDelegate {
-    func didRequestExportKeystore(with password: String) {
-        startFileViewController(buttonTitle: R.string.localizable.settingsAdvancedExportJSONKeystoreFilePasswordButtonPassword(), password: password)
+
+    func exportKeystoreButtonSelected(with password: String, in viewController: ExportJsonKeystorePasswordViewController) {
+        let viewModel = ExportJsonKeystoreFileViewModel(keystore: keystore, wallet: wallet, password: password)
+        let controller = ExportJsonKeystoreFileViewController(viewModel: viewModel)
+        controller.navigationItem.rightBarButtonItems = [
+            UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(doneButtonSelected))
+        ]
+        controller.delegate = self
+
+        navigationController.pushViewController(controller, animated: true)
     }
 
-    func didDismissPasswordController() {
+    func didCancel(in viewController: ExportJsonKeystorePasswordViewController) {
+        delegate?.didCancel(in: self)
+    }
+
+    @objc private func doneButtonSelected(_ sender: UIBarButtonItem) {
+        popViewControllers()
+        delegate?.didComplete(in: self)
     }
 }

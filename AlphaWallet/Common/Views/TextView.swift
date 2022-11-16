@@ -11,17 +11,13 @@ protocol TextViewDelegate: AnyObject {
 }
 
 extension TextViewDelegate {
-    func didChange(inTextView textView: TextView) {
-        //do nothing
-    }
+    func didChange(inTextView textView: TextView) { }
+    func doneButtonTapped(for textView: TextView) { }
+    func nextButtonTapped(for textView: TextView) { }
 }
 
 class TextView: UIControl {
-    enum InputAccessoryButtonType {
-        case done
-        case next
-        case none
-    }
+    private let notifications = NotificationCenter.default
 
     let statusLabel: UILabel = {
         let label = UILabel()
@@ -29,38 +25,51 @@ class TextView: UIControl {
 
         return label
     }()
-    let textView = UITextView()
+    lazy var textView: UITextView = {
+        let textView = UITextView()
+        textView.translatesAutoresizingMaskIntoConstraints = false
+        textView.delegate = self
+        textView.textContainerInset = .init(top: 10, left: 12, bottom: 10, right: 12)
+
+        return textView
+    }()
+
     let label = UILabel()
     var value: String {
-        get {
-            return textView.text ?? ""
-        }
+        get { return textView.text ?? "" }
         set {
             textView.text = newValue
             let notification = Notification(name: UITextView.textDidChangeNotification, object: textView)
             notifications.post(notification)
         }
     }
-    var inputAccessoryButtonType = InputAccessoryButtonType.none {
+    
+    var inputAccessoryButtonType = TextField.InputAccessoryButtonType.none {
         didSet {
             switch inputAccessoryButtonType {
             case .done:
-                textView.inputAccessoryView = UIToolbar.doneToolbarButton(#selector(doneButtonTapped), self)
+                textView.inputAccessoryView = UIToolbar.doneToolbarButton(#selector(doneButtonSelected), self)
             case .next:
-                textView.inputAccessoryView = UIToolbar.doneToolbarButton(#selector(nextButtonTapped), self)
+                textView.inputAccessoryView = UIToolbar.doneToolbarButton(#selector(nextButtonSelected), self)
             case .none:
                 textView.inputAccessoryView = nil
             }
         }
     }
 
+    var pasteAndClearHidden: Bool {
+        get { addressControlsContainer.isHidden }
+        set { addressControlsContainer.isHidden = newValue }
+    }
+
+    var statusHidden: Bool {
+        get { statusContainerView.isHidden }
+        set { statusContainerView.isHidden = newValue }
+    }
+
     var returnKeyType: UIReturnKeyType {
-        get {
-            return textView.returnKeyType
-        }
-        set {
-            textView.returnKeyType = newValue
-        }
+        get { return textView.returnKeyType }
+        set { textView.returnKeyType = newValue }
     }
 
     var errorState: TextField.TextFieldErrorState = .none {
@@ -83,7 +92,7 @@ class TextView: UIControl {
         }
     }
 
-    var pasteButton: Button = {
+    private var pasteButton: Button = {
         let button = Button(size: .normal, style: .borderless)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(R.string.localizable.sendPasteButtonTitle(), for: .normal)
@@ -97,7 +106,7 @@ class TextView: UIControl {
         return button
     }()
 
-    var clearButton: Button = {
+    private var clearButton: Button = {
         let button = Button(size: .normal, style: .borderless)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(R.string.localizable.clearButtonTitle(), for: .normal)
@@ -111,44 +120,11 @@ class TextView: UIControl {
         return button
     }()
 
-    private var isConfigured = false
-    weak var delegate: TextViewDelegate?
-    private let notifications = NotificationCenter.default
-
-    init() {
-        super.init(frame: .zero)
-        pasteButton.addTarget(self, action: #selector(pasteAction), for: .touchUpInside)
-        clearButton.addTarget(self, action: #selector(clearAction), for: .touchUpInside)
-        translatesAutoresizingMaskIntoConstraints = false
-
-        textView.translatesAutoresizingMaskIntoConstraints = false
-        textView.delegate = self
-        textView.textContainerInset = .init(top: 10, left: 12, bottom: 10, right: 12)
-
-        updateClearAndPasteButtons(value)
-
-        addSubview(textView)
-
-        NSLayoutConstraint.activate([
-            textView.anchorsConstraint(to: self),
-        ])
-
-        notifications.addObserver(self,
-                                  selector: #selector(textDidChangeNotification),
-                                  name: UITextView.textDidChangeNotification, object: nil)
-    }
-
-    @objc func clearAction() {
-        value = String()
-        errorState = .none
-    }
-
-    var statusContainerView: UIStackView {
+    private var statusContainerView: UIStackView {
         return [statusLabel].asStackView(axis: .horizontal, spacing: 5, alignment: .leading)
     }
 
-    //NOTE: maybe it's not a good name, but reasons using this function to extract default layout in separate function to prevent copying code
-    func defaultLayout() -> UIView {
+    private lazy var addressControlsContainer: UIView = {
         let addressControlsContainer = UIView()
         addressControlsContainer.translatesAutoresizingMaskIntoConstraints = false
         addressControlsContainer.backgroundColor = .clear
@@ -161,14 +137,6 @@ class TextView: UIControl {
 
         addressControlsContainer.addSubview(addressControlsStackView)
 
-        let stackView = [
-            label, .spacer(height: DataEntry.Metric.TextField.Default.spaceFromTitleToTextField), self, .spacer(height: 4), [
-                statusContainerView,
-                addressControlsContainer
-            ].asStackView(axis: .horizontal),
-        ].asStackView(axis: .vertical)
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-
         NSLayoutConstraint.activate([
             addressControlsStackView.trailingAnchor.constraint(equalTo: addressControlsContainer.trailingAnchor),
             addressControlsStackView.topAnchor.constraint(equalTo: addressControlsContainer.topAnchor),
@@ -176,6 +144,46 @@ class TextView: UIControl {
             addressControlsStackView.leadingAnchor.constraint(greaterThanOrEqualTo: addressControlsContainer.leadingAnchor),
             addressControlsContainer.heightAnchor.constraint(equalToConstant: 30),
         ])
+
+        return addressControlsContainer
+    }()
+
+    private var isConfigured = false
+
+    weak var delegate: TextViewDelegate?
+
+    init() {
+        super.init(frame: .zero)
+        pasteButton.addTarget(self, action: #selector(pasteButtonSelected), for: .touchUpInside)
+        clearButton.addTarget(self, action: #selector(clearButtonSelected), for: .touchUpInside)
+        translatesAutoresizingMaskIntoConstraints = false
+
+        updateClearAndPasteButtons(value)
+
+        addSubview(textView)
+
+        NSLayoutConstraint.activate([
+            textView.anchorsConstraint(to: self),
+        ])
+
+        notifications.addObserver(self, selector: #selector(textDidChangeNotification), name: UITextView.textDidChangeNotification, object: nil)
+    }
+
+    @objc private func clearButtonSelected(_ sender: UIButton) {
+        value = String()
+        errorState = .none
+    }
+
+    //NOTE: maybe it's not a good name, but reasons using this function to extract default layout in separate function to prevent copying code
+    func defaultLayout() -> UIView {
+        let stackView = [
+            label,
+            .spacer(height: DataEntry.Metric.TextField.Default.spaceFromTitleToTextField),
+            self,
+            .spacer(height: DataEntry.Metric.TextField.Default.spaceFromTitleToTextField),
+            [statusContainerView, addressControlsContainer].asStackView(axis: .horizontal),
+        ].asStackView(axis: .vertical)
+        stackView.translatesAutoresizingMaskIntoConstraints = false
 
         return stackView
     }
@@ -217,11 +225,10 @@ class TextView: UIControl {
         errorState = .none
     }
 
-    @objc func pasteAction() {
-        if let pastedText = UIPasteboard.general.string?.trimmed {
-            value = pastedText
-            delegate?.didPaste(in: self)
-        }
+    @objc private func pasteButtonSelected(_ sender: UIButton) {
+        guard let pastedText = UIPasteboard.general.string?.trimmed else { return }
+        value = pastedText
+        delegate?.didPaste(in: self)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -233,11 +240,16 @@ class TextView: UIControl {
         return textView.becomeFirstResponder()
     }
 
-    @objc func doneButtonTapped() {
+    override func resignFirstResponder() -> Bool {
+        super.becomeFirstResponder()
+        return textView.resignFirstResponder()
+    }
+
+    @objc private func doneButtonSelected() {
         delegate?.doneButtonTapped(for: self)
     }
 
-    @objc func nextButtonTapped() {
+    @objc private func nextButtonSelected() {
         delegate?.nextButtonTapped(for: self)
     }
 }
@@ -269,8 +281,26 @@ extension TextView: UITextViewDelegate {
             return true
         }
     }
+}
 
-    public func textViewDidChange(_ textView: UITextView) {
-        delegate?.didChange(inTextView: self)
+extension TextView {
+    static var defaultTextView: TextView {
+        let textView = TextView()
+        textView.configureOnce()
+
+        return textView
+    }
+
+    static var nonEditableTextView: TextView {
+        let textView = TextView.defaultTextView
+        textView.textView.isEditable = false
+        textView.textView.isScrollEnabled = false
+        textView.textView.isSelectable = true
+        textView.textView.spellCheckingType = .no
+        textView.textView.autocorrectionType = .no
+        textView.pasteAndClearHidden = true
+        textView.statusHidden = true
+
+        return textView
     }
 }

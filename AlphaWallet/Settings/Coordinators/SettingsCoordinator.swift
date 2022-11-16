@@ -375,7 +375,11 @@ extension SettingsCoordinator: CheckTransactionStateCoordinatorDelegate {
 }
 
 extension SettingsCoordinator: ExportJsonKeystoreCoordinatorDelegate {
-    func didComplete(coordinator: ExportJsonKeystoreCoordinator) {
+    func didCancel(in coordinator: ExportJsonKeystoreCoordinator) {
+        removeCoordinator(coordinator)
+    }
+
+    func didComplete(in coordinator: ExportJsonKeystoreCoordinator) {
         removeCoordinator(coordinator)
     }
 }

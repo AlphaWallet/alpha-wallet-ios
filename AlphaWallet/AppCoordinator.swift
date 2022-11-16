@@ -147,17 +147,19 @@ class AppCoordinator: NSObject, Coordinator {
         let analytics = AnalyticsService()
         let walletAddressesStore: WalletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: .standardOrForTests)
         let securedStorage: SecuredStorage & SecuredPasswordStorage = try KeychainStorage()
-        let keystore: Keystore = EtherKeystore(keychain: securedStorage, walletAddressesStore: walletAddressesStore, analytics: analytics)
+        let legacyFileBasedKeystore = try LegacyFileBasedKeystore(securedStorage: securedStorage)
+        let keystore: Keystore = EtherKeystore(keychain: securedStorage, walletAddressesStore: walletAddressesStore, analytics: analytics, legacyFileBasedKeystore: legacyFileBasedKeystore)
 
         let navigationController: UINavigationController = .withOverridenBarAppearence()
         navigationController.view.backgroundColor = Colors.appWhite
 
-        let result = try AppCoordinator(window: window, analytics: analytics, keystore: keystore, walletAddressesStore: walletAddressesStore, navigationController: navigationController, securedStorage: securedStorage)
-        result.keystore.delegate = result
-        return result
+        let coordinator = AppCoordinator(window: window, analytics: analytics, keystore: keystore, walletAddressesStore: walletAddressesStore, navigationController: navigationController, securedStorage: securedStorage, legacyFileBasedKeystore: legacyFileBasedKeystore)
+        coordinator.keystore.delegate = coordinator
+        
+        return coordinator
     }
 
-    init(window: UIWindow, analytics: AnalyticsServiceType, keystore: Keystore, walletAddressesStore: WalletAddressesStore, navigationController: UINavigationController, securedStorage: SecuredPasswordStorage & SecuredStorage) throws {
+    init(window: UIWindow, analytics: AnalyticsServiceType, keystore: Keystore, walletAddressesStore: WalletAddressesStore, navigationController: UINavigationController, securedStorage: SecuredPasswordStorage & SecuredStorage, legacyFileBasedKeystore: LegacyFileBasedKeystore) {
         let addressStorage = FileAddressStorage()
         register(addressStorage: addressStorage)
 
@@ -168,7 +170,7 @@ class AppCoordinator: NSObject, Coordinator {
         self.keystore = keystore
         self.walletAddressesStore = walletAddressesStore
         self.securedStorage = securedStorage
-        self.legacyFileBasedKeystore = try LegacyFileBasedKeystore(securedStorage: securedStorage, keystore: keystore)
+        self.legacyFileBasedKeystore = legacyFileBasedKeystore
 
         super.init()
         window.rootViewController = navigationController
@@ -287,7 +289,7 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     private func migrateToStoringRawPrivateKeysInKeychain() {
-        legacyFileBasedKeystore.migrateKeystoreFilesToRawPrivateKeysInKeychain()
+        legacyFileBasedKeystore.migrateKeystoreFilesToRawPrivateKeysInKeychain(using: keystore)
     }
 
     private func setupAssetDefinitionStoreCoordinator() {

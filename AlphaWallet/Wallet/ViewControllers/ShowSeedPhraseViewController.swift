@@ -3,6 +3,7 @@
 import UIKit
 import LocalAuthentication
 import AlphaWalletFoundation
+import Combine
 
 protocol ShowSeedPhraseViewControllerDelegate: AnyObject {
     var contextToShowSeedPhrase: LAContext { get }
@@ -20,6 +21,7 @@ class ShowSeedPhraseViewController: UIViewController {
         case errorDisplaySeedPhrase(KeystoreError)
         case done
     }
+    private var cancelable = Set<AnyCancellable>()
 
     private var viewModel: ShowSeedPhraseViewModel {
         didSet {
@@ -164,15 +166,16 @@ class ShowSeedPhraseViewController: UIViewController {
         guard isTopViewController else { return }
         guard notDisplayingSeedPhrase else { return }
         guard let context = delegate?.contextToShowSeedPhrase else { return }
-        keystore.exportSeedPhraseOfHdWallet(forAccount: account, context: context, prompt: KeystoreExportReason.backup.description) { result in
-            switch result {
-            case .success(let words):
-                self.state = .displayingSeedPhrase(words: words.split(separator: " ").map { String($0) })
-            case .failure(let error):
-                self.state = .errorDisplaySeedPhrase(error)
-                self.delegate?.biometricsFailed(for: self.account, inViewController: self)
-            }
-        }
+        keystore.exportSeedPhraseOfHdWallet(forAccount: account, context: context, prompt: KeystoreExportReason.backup.description)
+            .sink { result in
+                switch result {
+                case .success(let words):
+                    self.state = .displayingSeedPhrase(words: words.split(separator: " ").map { String($0) })
+                case .failure(let error):
+                    self.state = .errorDisplaySeedPhrase(error)
+                    self.delegate?.biometricsFailed(for: self.account, inViewController: self)
+                }
+            }.store(in: &cancelable)
     }
 
     func configure() {

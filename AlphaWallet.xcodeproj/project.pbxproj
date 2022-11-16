@@ -34,7 +34,6 @@
 		025F5D1B2760C75800B2A3BC /* ExportJsonKeystorePasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025F5D192760C75800B2A3BC /* ExportJsonKeystorePasswordViewController.swift */; };
 		025F5D1C2760C75800B2A3BC /* ExportJsonKeystoreFileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025F5D1A2760C75800B2A3BC /* ExportJsonKeystoreFileViewController.swift */; };
 		025F5D1F2760C76A00B2A3BC /* ExportJsonKeystoreFileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025F5D1D2760C76A00B2A3BC /* ExportJsonKeystoreFileView.swift */; };
-		025F5D202760C76A00B2A3BC /* ExportJsonKeystorePasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025F5D1E2760C76A00B2A3BC /* ExportJsonKeystorePasswordView.swift */; };
 		026340912850C7D50033E51B /* Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 026340902850C7D50033E51B /* Configuration.swift */; };
 		02645122277206C0009260DC /* TableViewSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02645121277206C0009260DC /* TableViewSection.swift */; };
 		02645124277217D9009260DC /* CustomRpcTableViewSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02645123277217D9009260DC /* CustomRpcTableViewSection.swift */; };
@@ -661,8 +660,8 @@
 		878EE952255BEC20000210DE /* ItemType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 878EE950255BEC20000210DE /* ItemType.swift */; };
 		8792707C284F40D1006F5AE5 /* FakeEnsRecordsStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8792707B284F40D1006F5AE5 /* FakeEnsRecordsStorage.swift */; };
 		87928E5528A50AFB0001FE67 /* NavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87928E5428A50AFB0001FE67 /* NavigationController.swift */; };
-		8793A492291A4E8600BCF849 /* ConsoleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8793A491291A4E8600BCF849 /* ConsoleViewModel.swift */; };
 		8793A4772919081400BCF849 /* tokensToImport.json in Resources */ = {isa = PBXBuildFile; fileRef = 8793A4762919081400BCF849 /* tokensToImport.json */; };
+		8793A492291A4E8600BCF849 /* ConsoleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8793A491291A4E8600BCF849 /* ConsoleViewModel.swift */; };
 		8795994526049EF8006722B2 /* ActivityStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8795994426049EF8006722B2 /* ActivityStateView.swift */; };
 		8795994726049F0F006722B2 /* ActivityStateViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8795994626049F0F006722B2 /* ActivityStateViewViewModel.swift */; };
 		8797362524E6C20C0042BBCC /* TransactionConfirmationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8797362424E6C20C0042BBCC /* TransactionConfirmationCoordinator.swift */; };
@@ -895,7 +894,6 @@
 		025F5D192760C75800B2A3BC /* ExportJsonKeystorePasswordViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExportJsonKeystorePasswordViewController.swift; sourceTree = "<group>"; };
 		025F5D1A2760C75800B2A3BC /* ExportJsonKeystoreFileViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExportJsonKeystoreFileViewController.swift; sourceTree = "<group>"; };
 		025F5D1D2760C76A00B2A3BC /* ExportJsonKeystoreFileView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExportJsonKeystoreFileView.swift; sourceTree = "<group>"; };
-		025F5D1E2760C76A00B2A3BC /* ExportJsonKeystorePasswordView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExportJsonKeystorePasswordView.swift; sourceTree = "<group>"; };
 		026340902850C7D50033E51B /* Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Configuration.swift; sourceTree = "<group>"; };
 		02645121277206C0009260DC /* TableViewSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewSection.swift; sourceTree = "<group>"; };
 		02645123277217D9009260DC /* CustomRpcTableViewSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomRpcTableViewSection.swift; sourceTree = "<group>"; };
@@ -1532,8 +1530,8 @@
 		878EE950255BEC20000210DE /* ItemType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemType.swift; sourceTree = "<group>"; };
 		8792707B284F40D1006F5AE5 /* FakeEnsRecordsStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeEnsRecordsStorage.swift; sourceTree = "<group>"; };
 		87928E5428A50AFB0001FE67 /* NavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationController.swift; sourceTree = "<group>"; };
-		8793A491291A4E8600BCF849 /* ConsoleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleViewModel.swift; sourceTree = "<group>"; };
 		8793A4762919081400BCF849 /* tokensToImport.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = tokensToImport.json; sourceTree = "<group>"; };
+		8793A491291A4E8600BCF849 /* ConsoleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleViewModel.swift; sourceTree = "<group>"; };
 		8795042F27088C2B0075EEC2 /* AlphaWalletSafariExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AlphaWalletSafariExtension.entitlements; sourceTree = "<group>"; };
 		8795994426049EF8006722B2 /* ActivityStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityStateView.swift; sourceTree = "<group>"; };
 		8795994626049F0F006722B2 /* ActivityStateViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityStateViewViewModel.swift; sourceTree = "<group>"; };
@@ -3203,7 +3201,6 @@
 				876C80CC2673940B00B16595 /* SwitchView.swift */,
 				5E7C73BFE30E0D43E97806EF /* SelectionTableViewCell.swift */,
 				025F5D1D2760C76A00B2A3BC /* ExportJsonKeystoreFileView.swift */,
-				025F5D1E2760C76A00B2A3BC /* ExportJsonKeystorePasswordView.swift */,
 				02F4E8B727715EC100D89C19 /* SaveCustomRpcOverallView.swift */,
 				02F4E8BF27717A5200D89C19 /* SaveCustomRpcBrowseView.swift */,
 				02D8BF8C277D572600EEE8E9 /* SaveCustomRpcManualEntryView.swift */,
@@ -4462,7 +4459,7 @@
 			packageReferences = (
 				87FBF2AF28056AC200616B7D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				87BDF46E28423DC30018DC68 /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */,
-				877239CC28F806820062DC14 /* XCRemoteSwiftPackageReference "WalletConnectSwift.git" */,
+				877239CC28F806820062DC14 /* XCRemoteSwiftPackageReference "WalletConnectSwift" */,
 			);
 			productRefGroup = 2912CCF61F6A830700C6CBE3 /* Products */;
 			projectDirPath = "";
@@ -4953,7 +4950,6 @@
 				2996F14D1F6CA743005C33AE /* UIViewController.swift in Sources */,
 				875CA92428BF8B9E0020FA48 /* DeepLinkRequesterViewModel.swift in Sources */,
 				87E2555824F52EBF00F025F7 /* GasSpeedTableViewCellViewModel.swift in Sources */,
-				025F5D202760C76A00B2A3BC /* ExportJsonKeystorePasswordView.swift in Sources */,
 				296421991F70C1F900EB363B /* EmptyView.swift in Sources */,
 				73C41C71201B46AD00243C6C /* LockEnterPasscodeViewModel.swift in Sources */,
 				874ED67727D79666001AB374 /* WalletPupupViewModel.swift in Sources */,
@@ -6208,7 +6204,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		877239CC28F806820062DC14 /* XCRemoteSwiftPackageReference "WalletConnectSwift.git" */ = {
+		877239CC28F806820062DC14 /* XCRemoteSwiftPackageReference "WalletConnectSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/AlphaWallet/WalletConnectSwift.git";
 			requirement = {
@@ -6237,7 +6233,7 @@
 /* Begin XCSwiftPackageProductDependency section */
 		877239CD28F806820062DC14 /* WalletConnectSwift */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 877239CC28F806820062DC14 /* XCRemoteSwiftPackageReference "WalletConnectSwift.git" */;
+			package = 877239CC28F806820062DC14 /* XCRemoteSwiftPackageReference "WalletConnectSwift" */;
 			productName = WalletConnectSwift;
 		};
 		87BDF46F28423DC30018DC68 /* WalletConnect */ = {
