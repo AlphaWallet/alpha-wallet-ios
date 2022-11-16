@@ -16,7 +16,6 @@ protocol WalletConnectSessionViewControllerDelegate: AnyObject {
 
 class WalletConnectSessionViewController: UIViewController {
 
-    let viewModel: WalletConnectSessionDetailsViewModel
     private let imageView: RoundedImageView = {
         let imageView = RoundedImageView(size: .init(width: 40, height: 40))
         return imageView
@@ -39,7 +38,7 @@ class WalletConnectSessionViewController: UIViewController {
             stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             stackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            view.heightAnchor.constraint(equalToConstant: 200)
+            view.heightAnchor.constraint(equalToConstant: ScreenChecker.size(big: 200, medium: 200, small: 150))
         ])
 
         return view
@@ -50,9 +49,27 @@ class WalletConnectSessionViewController: UIViewController {
     private let dappUrlRow = WalletConnectRowView()
     private let chainRow = WalletConnectRowView()
     private let methodsRow = WalletConnectRowView()
-    private let buttonsBar = HorizontalButtonsBar(configuration: .empty)
+    private let buttonsBar: HorizontalButtonsBar = {
+        let buttonsBar = HorizontalButtonsBar(configuration: .combined(buttons: 2))
+        buttonsBar.configure()
+        return buttonsBar
+    }()
     private lazy var containerView: ScrollableStackView = {
         let view = ScrollableStackView()
+        return view
+    }()
+    private var cancelable = Set<AnyCancellable>()
+    private var disconnectButton: UIButton { buttonsBar.buttons[0] }
+    private var changeNetworksButton: UIButton { buttonsBar.buttons[0] }
+
+    let viewModel: WalletConnectSessionDetailsViewModel
+    weak var delegate: WalletConnectSessionViewControllerDelegate?
+
+    init(viewModel: WalletConnectSessionDetailsViewModel) {
+        self.viewModel = viewModel
+
+        super.init(nibName: nil, bundle: nil)
+
         var subviews: [UIView] = [
             imageContainerView,
             statusRow,
@@ -64,29 +81,16 @@ class WalletConnectSessionViewController: UIViewController {
             subviews += [methodsRow]
         }
 
-        view.stackView.addArrangedSubviews(subviews)
-
-        return view
-    }()
-    private var cancelable = Set<AnyCancellable>()
-
-    weak var delegate: WalletConnectSessionViewControllerDelegate?
-
-    init(viewModel: WalletConnectSessionDetailsViewModel) {
-        self.viewModel = viewModel
-
-        super.init(nibName: nil, bundle: nil)
-        hidesBottomBarWhenPushed = true
-        view.backgroundColor = Colors.appBackground
+        containerView.stackView.addArrangedSubviews(subviews)
 
         let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
         view.addSubview(footerBar)
         view.addSubview(containerView)
 
         NSLayoutConstraint.activate([
-            containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            containerView.topAnchor.constraint(equalTo: view.topAnchor),
+            containerView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            containerView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            containerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             containerView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
 
             footerBar.anchorsConstraint(to: view),
@@ -100,14 +104,9 @@ class WalletConnectSessionViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        buttonsBar.configure(.combined(buttons: 2))
-
-        let button0 = buttonsBar.buttons[0]
-        button0.setTitle(viewModel.dissconnectButtonText, for: .normal)
-
-        let button1 = buttonsBar.buttons[1]
-        button1.setTitle(viewModel.switchNetworkButtonText, for: .normal)
-        button1.addTarget(self, action: #selector(switchNetworkButtonSelected), for: .touchUpInside)
+        hidesBottomBarWhenPushed = true
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
+        changeNetworksButton.addTarget(self, action: #selector(switchNetworkButtonSelected), for: .touchUpInside)
 
         bind(viewModel: viewModel)
     }
@@ -125,25 +124,24 @@ class WalletConnectSessionViewController: UIViewController {
         let output = viewModel.transform(input: input)
 
         output.viewState
-            .sink { [navigationItem, statusRow, dappNameRow, dappUrlRow, chainRow, methodsRow, imageView, iconTitleLabel, buttonsBar] viewState in
-                navigationItem.title = viewState.title
-                statusRow.configure(viewModel: viewState.statusRowViewModel)
-                dappNameRow.configure(viewModel: viewState.dappNameRowViewModel)
-                dappUrlRow.configure(viewModel: viewState.dappUrlRowViewModel)
-                chainRow.configure(viewModel: viewState.chainRowViewModel)
-                methodsRow.configure(viewModel: viewState.methodsRowViewModel)
-                imageView.setImage(url: viewState.sessionIconURL, placeholder: viewModel.walletImageIcon)
-                iconTitleLabel.attributedText = viewState.dappNameAttributedString
+            .sink { [weak self] viewState in
+                self?.navigationItem.title = viewState.title
+                self?.statusRow.configure(viewModel: viewState.statusRowViewModel)
+                self?.dappNameRow.configure(viewModel: viewState.dappNameRowViewModel)
+                self?.dappUrlRow.configure(viewModel: viewState.dappUrlRowViewModel)
+                self?.chainRow.configure(viewModel: viewState.chainRowViewModel)
+                self?.methodsRow.configure(viewModel: viewState.methodsRowViewModel)
+                self?.imageView.setImage(url: viewState.sessionIconURL, placeholder: viewState.walletImageIcon)
+                self?.iconTitleLabel.attributedText = viewState.dappNameAttributedString
 
-                let button0 = buttonsBar.buttons[0]
-                button0.isEnabled = viewState.isDisconnectEnabled
+                self?.disconnectButton.isEnabled = viewState.isDisconnectEnabled
+                self?.disconnectButton.setTitle(viewState.dissconnectButtonText, for: .normal)
 
-                let button1 = buttonsBar.buttons[1]
-                button1.isEnabled = viewState.isSwitchServerEnabled
-
+                self?.changeNetworksButton.setTitle(viewState.changeNetworksButtonText, for: .normal)
+                self?.changeNetworksButton.isEnabled = viewState.isSwitchServerEnabled
             }.store(in: &cancelable)
 
-        output.close
+        output.didDisconnect
             .compactMap { _ in self.navigationController }
             .sink { $0.popViewController(animated: true) }
             .store(in: &cancelable)

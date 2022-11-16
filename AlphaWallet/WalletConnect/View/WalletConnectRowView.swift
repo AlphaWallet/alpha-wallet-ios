@@ -47,7 +47,7 @@ class WalletConnectRowView: UIView {
         addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            heightAnchor.constraint(equalToConstant: 60),
+            heightAnchor.constraint(equalToConstant: ScreenChecker.size(big: 60, medium: 60, small: 50)),
             textLabel.widthAnchor.constraint(equalToConstant: 100),
             topSeparatorLine.heightAnchor.constraint(equalToConstant: 1),
             bottomSeparatorLine.heightAnchor.constraint(equalToConstant: 1),
@@ -59,7 +59,7 @@ class WalletConnectRowView: UIView {
         return nil
     }
 
-    func configure(viewModel: WallerConnectRawViewModel) {
+    func configure(viewModel: WallerConnectRowViewModel) {
         textLabel.text = viewModel.text
         textLabel.font = viewModel.textLabelFont
         textLabel.textColor = viewModel.textLabelTextColor
