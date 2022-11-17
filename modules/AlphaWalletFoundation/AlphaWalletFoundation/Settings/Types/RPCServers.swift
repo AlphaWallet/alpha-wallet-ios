@@ -738,8 +738,6 @@ public enum RPCServer: Hashable, CaseIterable {
             .sokol,
             .classic,
             .xDai,
-            .phi2,
-            .phi,
             .goerli,
             .artis_sigma1,
             .artis_tau1,
