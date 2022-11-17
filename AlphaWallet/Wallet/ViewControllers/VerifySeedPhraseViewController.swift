@@ -266,16 +266,16 @@ class VerifySeedPhraseViewController: UIViewController {
         guard let context = delegate?.contextToVerifySeedPhrase else { return }
         keystore.verifySeedPhraseOfHdWallet(seedPhraseTextView.text.lowercased().trimmed, forAccount: account, prompt: R.string.localizable.keystoreAccessKeyHdVerify(), context: context)
             .sink { result in
-            switch result {
-            case .success(let isMatched):
-                //Safety precaution, we clear the seed phrase. The next screen may be the prompt to elevate security of wallet screen which the user can go back from
-                self.clearChosenSeedPhrases()
-                self.updateStateWithVerificationResult(isMatched)
-            case .failure(let error):
-                self.reflectError(error)
-                self.delegate?.biometricsFailed(for: self.account, inViewController: self)
-            }
-        }.store(in: &cancelable)
+                switch result {
+                case .success(let isMatched):
+                    //Safety precaution, we clear the seed phrase. The next screen may be the prompt to elevate security of wallet screen which the user can go back from
+                    self.clearChosenSeedPhrases()
+                    self.updateStateWithVerificationResult(isMatched)
+                case .failure(let error):
+                    self.reflectError(error)
+                    self.delegate?.biometricsFailed(for: self.account, inViewController: self)
+                }
+            }.store(in: &cancelable)
     }
 
     private func updateStateWithVerificationResult(_ isMatched: Bool) {
