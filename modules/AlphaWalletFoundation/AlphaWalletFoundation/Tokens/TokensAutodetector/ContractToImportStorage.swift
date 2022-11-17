@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 //TODO: Update with priority field for being able to order operation
 struct ContractToImport: Codable {
     let name: String
