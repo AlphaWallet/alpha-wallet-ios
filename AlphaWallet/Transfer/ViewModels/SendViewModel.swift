@@ -210,7 +210,7 @@ final class SendViewModel {
                     data = Data()
                 case .erc20Token(let token, _, _):
                     contract = token.contractAddress
-                    data = (try? Erc20Transfer(recipient: token.contractAddress, value: BigUInt(value)).encodedABI()) ?? Data()
+                    data = (try? Erc20Transfer(recipient: recipient, value: BigUInt(value)).encodedABI()) ?? Data()
                 case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token:
                     fatalError("Impossible Code Path")
                 }
