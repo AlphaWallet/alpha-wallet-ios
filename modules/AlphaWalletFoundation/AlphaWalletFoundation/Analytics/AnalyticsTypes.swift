@@ -133,7 +133,7 @@ public enum Analytics {
         case scheme
     }
 
-    public enum EmbeddedDeepLinkType: String, AnalyticsUserProperty {
+    public enum EmbeddedDeepLinkType: String {
         case eip681
         case walletConnect
         case others
