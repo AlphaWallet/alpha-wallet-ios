@@ -1,7 +1,7 @@
 // Copyright Stormbird PTE. LTD.
 
 import Foundation
-import ObjectiveC 
+import ObjectiveC
 import Combine
 
 public struct Config {
