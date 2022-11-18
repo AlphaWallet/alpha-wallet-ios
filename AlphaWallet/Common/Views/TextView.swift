@@ -43,7 +43,7 @@ class TextView: UIControl {
             notifications.post(notification)
         }
     }
-    
+
     var inputAccessoryButtonType = TextField.InputAccessoryButtonType.none {
         didSet {
             switch inputAccessoryButtonType {
@@ -280,6 +280,10 @@ extension TextView: UITextViewDelegate {
         } else {
             return true
         }
+    }
+
+    func textViewDidChange(_ textView: UITextView) {
+        delegate?.didChange(inTextView: self)
     }
 }
 
