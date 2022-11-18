@@ -66,7 +66,7 @@ class SettingsViewController: UIViewController {
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.anchorsConstraintSafeArea(to: view)
+            tableView.anchorsIgnoringBottomSafeArea(to: view)
         ])
     }
 
@@ -77,7 +77,6 @@ class SettingsViewController: UIViewController {
             hidePromptBackupWalletView()
         }
 
-        navigationItem.largeTitleDisplayMode = .always
         view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
 
         bind(viewModel: viewModel)

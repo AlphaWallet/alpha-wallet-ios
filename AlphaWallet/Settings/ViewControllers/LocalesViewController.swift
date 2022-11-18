@@ -8,8 +8,13 @@ protocol LocalesViewControllerDelegate: AnyObject {
 }
 
 class LocalesViewController: UIViewController {
-    private let roundedBackground = RoundedBackground()
-    private let tableView = UITableView(frame: .zero, style: .grouped)
+    private lazy var tableView: UITableView = {
+        let tableView = UITableView.grouped
+        tableView.delegate = self
+        tableView.register(LocaleViewCell.self)
+
+        return tableView
+    }()
     private var viewModel: LocalesViewModel?
 
     weak var delegate: LocalesViewControllerDelegate?
@@ -17,25 +22,17 @@ class LocalesViewController: UIViewController {
     init() {
         super.init(nibName: nil, bundle: nil)
 
-        roundedBackground.backgroundColor = GroupedTable.Color.background
-
-        roundedBackground.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(roundedBackground)
-
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.delegate = self
-        tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = GroupedTable.Color.background
-        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
-        tableView.register(LocaleViewCell.self)
-        roundedBackground.addSubview(tableView)
+        view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
-            tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-        ] + roundedBackground.createConstraintsWithContainer(view: view))
+            tableView.anchorsIgnoringBottomSafeArea(to: view)
+        ])
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
     }
 
     func configure(viewModel: LocalesViewModel) {

@@ -16,18 +16,15 @@ protocol NFTAssetListViewControllerDelegate: AnyObject {
 
 class NFTAssetListViewController: UIViewController {
     private lazy var tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .grouped)
+        let tableView = UITableView.grouped
         tableView.register(ContainerTableViewCell.self)
         tableView.estimatedRowHeight = 100
         tableView.delegate = self
-        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.separatorInset = .zero
-        tableView.translatesAutoresizingMaskIntoConstraints = false
 
         return tableView
     }()
     private let tokenCardViewFactory: TokenCardViewFactory
-    private let roundedBackground = RoundedBackground()
     private var cancelable = Set<AnyCancellable>()
     private lazy var dataSource = makeDataSource()
     private let appear = PassthroughSubject<Void, Never>()
@@ -40,19 +37,12 @@ class NFTAssetListViewController: UIViewController {
         self.viewModel = viewModel
 
         super.init(nibName: nil, bundle: nil)
-        hidesBottomBarWhenPushed = true
-        roundedBackground.translatesAutoresizingMaskIntoConstraints = false
-
-        view.addSubview(roundedBackground)
-
-        roundedBackground.addSubview(tableView)
+        
+        view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
-            tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: roundedBackground.bottomAnchor)
-        ] + roundedBackground.createConstraintsWithContainer(view: view))
+            tableView.anchorsIgnoringBottomSafeArea(to: view)
+        ])
 
         emptyView = EmptyView.nftAssetsEmptyView()
     }

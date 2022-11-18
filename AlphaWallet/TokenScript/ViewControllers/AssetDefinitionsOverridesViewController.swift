@@ -9,7 +9,14 @@ protocol AssetDefinitionsOverridesViewControllerDelegate: AnyObject {
 }
 
 class AssetDefinitionsOverridesViewController: UIViewController {
-    private let tableView = UITableView(frame: .zero, style: .grouped)
+    private lazy var tableView: UITableView = {
+        let tableView = UITableView.grouped
+        tableView.register(AssetDefinitionsOverridesViewCell.self)
+        tableView.delegate = self
+        tableView.dataSource = self
+
+        return tableView
+    }()
     private let fileExtension: String
     private var overriddenURLs: [URL] = []
     private lazy var emptyView: UIView = {
@@ -23,39 +30,29 @@ class AssetDefinitionsOverridesViewController: UIViewController {
         self.fileExtension = fileExtension
         super.init(nibName: nil, bundle: nil)
 
-        view.backgroundColor = GroupedTable.Color.background
-
-        tableView.register(AssetDefinitionsOverridesViewCell.self)
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.delegate = self
-        tableView.dataSource = self
-        tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = Configuration.Color.Semantic.tableViewBackground
-        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
-
         view.addSubview(tableView)
+        tableView.addSubview(emptyView)
 
         NSLayoutConstraint.activate([
-            tableView.anchorsConstraint(to: view),
+            tableView.anchorsIgnoringBottomSafeArea(to: view),
+            emptyView.centerXAnchor.constraint(equalTo: tableView.centerXAnchor),
+            emptyView.centerYAnchor.constraint(equalTo: tableView.centerYAnchor),
         ])
-        configureEmptyView()
     }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
+    }
+
     func configure(overriddenURLs urls: [URL]) {
         self.overriddenURLs = urls
         tableView.reloadData()
-    }
-
-    private func configureEmptyView() {
-        tableView.addSubview(emptyView)
-        NSLayoutConstraint.activate([
-            emptyView.centerXAnchor.constraint(equalTo: tableView.centerXAnchor),
-            emptyView.centerYAnchor.constraint(equalTo: tableView.centerYAnchor),
-        ])
     }
 
 }

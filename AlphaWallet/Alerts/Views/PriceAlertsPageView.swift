@@ -23,15 +23,10 @@ class PriceAlertsPageView: UIView, PageViewType {
     private var viewModel: PriceAlertsPageViewModel
 
     private lazy var tableView: UITableView = {
-        var tableView = UITableView()
+        var tableView = UITableView.grouped
         tableView.register(PriceAlertTableViewCell.self)
-        tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = viewModel.backgroundColor
-        tableView.estimatedRowHeight = Metrics.anArbitraryRowHeightSoAutoSizingCellsWorkIniOS10
-        tableView.tableFooterView = .tableFooterToRemoveEmptyCellSeparators()
 
         return tableView
     }()

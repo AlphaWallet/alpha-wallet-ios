@@ -41,11 +41,7 @@ class SwapOptionsViewController: UIViewController {
     }()
 
     private lazy var tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .grouped)
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = GroupedTable.Color.background
-        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
+        let tableView = UITableView.grouped
         tableView.register(RPCDisplaySelectableTableViewCell.self)
         tableView.isEditing = false
         tableView.keyboardDismissMode = .onDrag

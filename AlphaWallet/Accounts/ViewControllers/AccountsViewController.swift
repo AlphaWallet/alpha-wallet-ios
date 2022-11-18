@@ -22,13 +22,8 @@ class AccountsViewController: UIViewController {
     private let _pullToRefresh = PassthroughSubject<Void, Never>()
     private let deleteWallet = PassthroughSubject<AccountsViewModel.WalletDeleteConfirmation, Never>()
 
-    private let roundedBackground = RoundedBackground()
     private lazy var tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .grouped)
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = viewModel.backgroundColor
-        tableView.tableFooterView = UIView()
+        let tableView = UITableView.grouped
         tableView.rowHeight = UITableView.automaticDimension
         tableView.register(AccountViewCell.self)
         tableView.register(WalletSummaryTableViewCell.self)
@@ -43,20 +38,17 @@ class AccountsViewController: UIViewController {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
-        roundedBackground.backgroundColor = viewModel.backgroundColor
-        roundedBackground.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(roundedBackground)
-        roundedBackground.addSubview(tableView)
+        view.addSubview(tableView)
 
-        NSLayoutConstraint.activate(
-            tableView.anchorsConstraintSafeArea(to: roundedBackground) +
-            roundedBackground.createConstraintsWithContainer(view: view)
-        )
+        NSLayoutConstraint.activate([
+            tableView.anchorsIgnoringBottomSafeArea(to: view)
+        ])
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         bind(viewModel: viewModel)
         tableView.delegate = self
         tableView.dataSource = self

@@ -78,5 +78,6 @@ extension WalletConnectSessionsViewModel {
         let title: String
         let state: WalletConnectSessionsViewModel.State
         let snapshot: WalletConnectSessionsViewModel.Snapshot
+        let animatingDifferences: Bool = false
     }
 }

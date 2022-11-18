@@ -61,12 +61,6 @@ final class AccountsViewModel {
         return keystore.hasWallets
     }
 
-    var title: String {
-        return configuration.title
-    }
-
-    var backgroundColor: UIColor = Configuration.Color.Semantic.tableViewBackground
-
     init(keystore: Keystore, config: Config, configuration: AccountsCoordinatorViewModel.Configuration, analytics: AnalyticsLogger, walletBalanceService: WalletBalanceService, blockiesGenerator: BlockiesGenerator, domainResolutionService: DomainResolutionServiceType) {
         self.config = config
         self.keystore = keystore

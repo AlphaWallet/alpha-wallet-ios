@@ -37,7 +37,7 @@ final class TokensViewController: UIViewController {
     }()
 
     private let tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .grouped)
+        let tableView = UITableView.grouped
         tableView.register(FungibleTokenViewCell.self)
         tableView.register(EthTokenViewCell.self)
         tableView.register(NonFungibleTokenViewCell.self)
@@ -50,11 +50,8 @@ final class TokensViewController: UIViewController {
         tableView.registerHeaderFooterView(GeneralTableViewSectionHeader<WalletSummaryView>.self)
         tableView.registerHeaderFooterView(GeneralTableViewSectionHeader<DummySearchView>.self)
         tableView.estimatedRowHeight = DataEntry.Metric.TableView.estimatedRowHeight
-        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.separatorInset = .zero
         tableView.contentInsetAdjustmentBehavior = .never
-
-        tableView.translatesAutoresizingMaskIntoConstraints = false
 
         return tableView
     }()

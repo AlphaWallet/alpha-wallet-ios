@@ -45,6 +45,8 @@ class SettingsCoordinator: Coordinator {
         let viewModel = SettingsViewModel(account: account, keystore: keystore, lock: lock, config: config, analytics: analytics, domainResolutionService: domainResolutionService)
         let controller = SettingsViewController(viewModel: viewModel)
         controller.delegate = self
+        controller.navigationItem.largeTitleDisplayMode = .always
+        
         return controller
     }()
 
@@ -92,6 +94,8 @@ class SettingsCoordinator: Coordinator {
         let controller = ToolsViewController(viewModel: viewModel)
         controller.delegate = self
         controller.hidesBottomBarWhenPushed = true
+        controller.navigationItem.largeTitleDisplayMode = .never
+        
         navigationController.pushViewController(controller, animated: true)
     }
 
@@ -342,6 +346,7 @@ extension SettingsCoordinator: AdvancedSettingsViewControllerDelegate {
     func usePrivateNetworkSelected(in controller: AdvancedSettingsViewController) {
         let viewModel = ChooseSendPrivateTransactionsProviderViewModel(config: config)
         let controller = ChooseSendPrivateTransactionsProviderViewController(viewModel: viewModel)
+        controller.navigationItem.largeTitleDisplayMode = .never
 
         navigationController.pushViewController(controller, animated: true)
     }

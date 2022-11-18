@@ -14,7 +14,13 @@ class AddHideTokensCoordinator: Coordinator {
     private let importToken: ImportToken
     private lazy var viewModel = AddHideTokensViewModel(tokenCollection: tokenCollection, tokensFilter: tokensFilter, importToken: importToken, config: config)
     private lazy var rootViewController: AddHideTokensViewController = {
-        return .init(viewModel: viewModel)
+        let viewController = AddHideTokensViewController(viewModel: viewModel)
+        viewController.hidesBottomBarWhenPushed = true
+        viewController.delegate = self
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        viewController.navigationItem.rightBarButtonItem = UIBarButtonItem.addButton(self, selector: #selector(addTokenButtonSelected))
+
+        return viewController
     }()
 
     private let config: Config
@@ -37,8 +43,11 @@ class AddHideTokensCoordinator: Coordinator {
     }
 
     func start() {
-        rootViewController.delegate = self
         navigationController.pushViewController(rootViewController, animated: true)
+    }
+
+    @objc private func addTokenButtonSelected(_ sender: UIBarButtonItem) {
+        didPressAddToken(in: rootViewController, with: "")
     }
 }
 

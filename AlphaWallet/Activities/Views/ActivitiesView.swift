@@ -18,7 +18,18 @@ protocol ActivitiesViewDelegate: class {
 class ActivitiesView: UIView {
     private var viewModel: ActivitiesViewModel
     private let sessions: ServerDictionary<WalletSession>
-    private let tableView = UITableView(frame: .zero, style: .grouped)
+    private lazy var tableView: UITableView = {
+        let tableView = UITableView.grouped
+        tableView.register(ActivityViewCell.self)
+        tableView.register(DefaultActivityItemViewCell.self)
+        tableView.register(TransactionViewCell.self)
+        tableView.register(GroupActivityViewCell.self)
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.estimatedRowHeight = Metrics.anArbitraryRowHeightSoAutoSizingCellsWorkIniOS10
+
+        return tableView
+    }()
     private let keystore: Keystore
     private let wallet: Wallet
     private let analytics: AnalyticsLogger
@@ -35,22 +46,10 @@ class ActivitiesView: UIView {
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
 
-        tableView.register(ActivityViewCell.self)
-        tableView.register(DefaultActivityItemViewCell.self)
-        tableView.register(TransactionViewCell.self)
-        tableView.register(GroupActivityViewCell.self)
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.delegate = self
-        tableView.dataSource = self
-        tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = viewModel.backgroundColor
-        tableView.separatorColor = viewModel.separatorColor
-        tableView.estimatedRowHeight = Metrics.anArbitraryRowHeightSoAutoSizingCellsWorkIniOS10
-
         addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.anchorsConstraint(to: self)
+            tableView.anchorsIgnoringBottomSafeArea(to: self)
         ])
 
         emptyView = EmptyView.activitiesEmptyView()

@@ -18,28 +18,24 @@ class ServersViewController: UIViewController {
         return tableView
     }()
     private var viewModel: ServersViewModel
-    private let roundedBackground = RoundedBackground()
+
     weak var delegate: ServersViewControllerDelegate?
 
     init(viewModel: ServersViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
-        roundedBackground.backgroundColor = Configuration.Color.Semantic.tableViewBackground
-        
-        view.addSubview(roundedBackground)
-        roundedBackground.addSubview(tableView)
+        view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
-            tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-        ] + roundedBackground.createConstraintsWithContainer(view: view))
+            tableView.anchorsIgnoringBottomSafeArea(to: view)
+        ])
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         configure(viewModel: viewModel)
     }
 
@@ -101,7 +97,7 @@ extension ServersViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        .leastNormalMagnitude
+        .leastNonzeroMagnitude
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {

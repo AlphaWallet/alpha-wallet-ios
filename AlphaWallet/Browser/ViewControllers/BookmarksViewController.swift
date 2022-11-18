@@ -16,12 +16,12 @@ protocol BookmarksViewControllerDelegate: AnyObject {
 
 final class BookmarksViewController: UIViewController {
     private lazy var tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .grouped)
+        let tableView = UITableView.grouped
         tableView.register(MyDappCell.self)
-        tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.tableHeaderView = headerView
         tableView.separatorStyle = .none
         tableView.allowsSelectionDuringEditing = true
+        tableView.delegate = self
 
         return tableView
     }()
@@ -47,10 +47,11 @@ final class BookmarksViewController: UIViewController {
             emptyView.configure(viewModel: viewModel.emptyViewModel)
             return emptyView
         }()
+
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.anchorsConstraint(to: view)
+            tableView.anchorsIgnoringBottomSafeArea(to: view)
         ])
 
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -60,7 +61,8 @@ final class BookmarksViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        tableView.delegate = self
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
+        resizeTableViewHeader()
 
         bind(viewModel: viewModel)
     }
@@ -82,16 +84,15 @@ final class BookmarksViewController: UIViewController {
     }
 
     private func bind(viewModel: BookmarksViewViewModel) {
-        tableView.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
+        let input = BookmarksViewModelInput(
+            deleteBookmark: deleteBookmark.eraseToAnyPublisher(),
+            reorderBookmarks: reorderBookmarks.eraseToAnyPublisher())
 
-        resizeTableViewHeader()
-
-        let input = BookmarksViewModelInput(deleteBookmark: deleteBookmark.eraseToAnyPublisher(), reorderBookmarks: reorderBookmarks.eraseToAnyPublisher())
         let output = viewModel.transform(input: input)
 
         output.viewState
             .sink { [dataSource, weak self] viewState in
-                dataSource.apply(viewState.snapshot, animatingDifferences: false)
+                dataSource.apply(viewState.snapshot, animatingDifferences: viewState.animatingDifferences)
                 self?.endLoading()
             }.store(in: &cancelable)
     }
@@ -139,10 +140,8 @@ extension BookmarksViewController {
 }
 
 fileprivate extension BookmarksViewController {
-    typealias DataSource = UITableViewDiffableDataSource<BookmarksViewViewModel.Section, MyDappCellViewModel>
-
-    func makeDataSource() -> DataSource {
-        return DataSource(tableView: tableView, cellProvider: { tableView, indexPath, viewModel in
+    private func makeDataSource() -> BookmarksViewViewModel.DataSource {
+        return BookmarksViewViewModel.DataSource(tableView: tableView, cellProvider: { tableView, indexPath, viewModel in
             let cell: MyDappCell = tableView.dequeueReusableCell(for: indexPath)
             cell.configure(viewModel: viewModel)
 

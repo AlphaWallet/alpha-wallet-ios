@@ -10,7 +10,15 @@ protocol TransactionsViewControllerDelegate: AnyObject {
 
 class TransactionsViewController: UIViewController {
     private var viewModel: TransactionsViewModel
-    private let tableView = UITableView(frame: .zero, style: .grouped)
+    private lazy var tableView: UITableView = {
+        let tableView = UITableView.grouped
+        tableView.register(TransactionViewCell.self)
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.estimatedRowHeight = Metrics.anArbitraryRowHeightSoAutoSizingCellsWorkIniOS10
+
+        return tableView
+    }()
     private let refreshControl = UIRefreshControl()
     private let dataCoordinator: TransactionsService
     private let sessions: ServerDictionary<WalletSession>
@@ -29,19 +37,10 @@ class TransactionsViewController: UIViewController {
 
         title = R.string.localizable.transactionsTabbarItemTitle()
 
-        view.backgroundColor = self.viewModel.backgroundColor
-
-        tableView.register(TransactionViewCell.self)
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.delegate = self
-        tableView.dataSource = self
-        tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = viewModel.backgroundColor
-        tableView.estimatedRowHeight = Metrics.anArbitraryRowHeightSoAutoSizingCellsWorkIniOS10
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.anchorsConstraint(to: view),
+            tableView.anchorsIgnoringBottomSafeArea(to: view),
         ])
 
         dataCoordinator.start()
@@ -63,6 +62,12 @@ class TransactionsViewController: UIViewController {
             loadingView.label.font = Fonts.regular(size: 18)
         }
         emptyView = EmptyView.transactionsEmptyView()
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
     }
 
     override func viewWillAppear(_ animated: Bool) {

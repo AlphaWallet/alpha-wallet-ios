@@ -34,7 +34,7 @@ final class AddHideTokensViewModel {
 
     var sections: [Section] = [.sortingFilters, .displayedTokens, .hiddenTokens, .popularTokens]
     var title: String = R.string.localizable.walletsAddHideTokensTitle()
-    var backgroundColor: UIColor = Configuration.Color.Semantic.tableViewHeaderBackground
+//    var backgroundColor: UIColor = Configuration.Color.Semantic.tableViewHeaderBackground
 
     var numberOfSections: Int {
         sections.count
