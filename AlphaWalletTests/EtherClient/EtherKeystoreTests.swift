@@ -67,7 +67,7 @@ class EtherKeystoreTests: XCTestCase {
     func testImportFailInvalidPassword() {
         let keystore = FakeEtherKeystore()
         let result = keystore.importWallet(type: .keystore(string: TestKeyStore.keystore, password: "invalidPassword"))
-        XCTAssertNoThrow(try result.get())
+        XCTAssertThrowsError(try result.get())
 
         XCTAssertEqual(0, keystore.wallets.count)
     }
@@ -108,7 +108,7 @@ class EtherKeystoreTests: XCTestCase {
                 expectation.fulfill()
             }.store(in: &cancelable)
 
-        wait(for: [expectation], timeout: 10)
+        wait(for: [expectation], timeout: 20)
     }
 
     func testRecentlyUsedAccount() throws {
