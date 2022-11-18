@@ -631,7 +631,7 @@
 "transactionConfirmation.Row.title.wallet" = "Wallet Address";
 "transactionConfirmation.Send.Section.Gas.title" = "Gas";
 "transactionConfirmation.Send.Section.Balance.title" = "Balance";
-"transactionConfirmation.Send.Section.Balance.new.title" = "(New: %@ %@)";
+"transactionConfirmation.Send.Section.Balance.new.title" = "(New: %@)";
 "transactionConfirmation.Send.Section.Amount.title" = "Amount";
 "transactionConfirmation.Send.Section.Recipient.title" = "Recipient";
 "transactionConfirmation.Send.Section.TokenId.title" = "Token";

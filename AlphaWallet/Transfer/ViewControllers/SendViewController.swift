@@ -5,7 +5,7 @@ import Combine
 import AlphaWalletFoundation
 
 protocol SendViewControllerDelegate: class, CanOpenURL {
-    func didPressConfirm(transaction: UnconfirmedTransaction, in viewController: SendViewController, amount: String, shortValue: String?)
+    func didPressConfirm(transaction: UnconfirmedTransaction, in viewController: SendViewController)
     func openQRCode(in viewController: SendViewController)
     func didClose(in viewController: SendViewController)
 }
@@ -13,8 +13,15 @@ protocol SendViewControllerDelegate: class, CanOpenURL {
 class SendViewController: UIViewController {
     private let recipientHeader = SendViewSectionHeader()
     private let amountHeader = SendViewSectionHeader()
-    private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
-    private let viewModel: SendViewModel
+    private let buttonsBar: HorizontalButtonsBar = {
+        let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
+        buttonsBar.configure()
+        buttonsBar.buttons[0].setTitle(R.string.localizable.send(), for: .normal)
+
+        return buttonsBar
+    }()
+    //NOTE: Internal, for tests
+    let viewModel: SendViewModel
     //We use weak link to make sure that token alert will be deallocated by close button tapping.
     //We storing link to make sure that only one alert is displaying on the screen.
     private weak var invalidTokenAlert: UIViewController?
@@ -42,7 +49,7 @@ class SendViewController: UIViewController {
         amountTextField.delegate = self
         amountTextField.inputAccessoryButtonType = .next
         amountTextField.viewModel.errorState = .none
-        amountTextField.isAlternativeAmountEnabled = false
+        amountTextField.isAlternativeAmountEnabled = true
         amountTextField.allFundsAvailable = true
         amountTextField.selectCurrencyButton.hasToken = true
 
@@ -67,7 +74,7 @@ class SendViewController: UIViewController {
         ])
 
         let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
-        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
+
         view.addSubview(footerBar)
         view.addSubview(containerView)
 
@@ -84,10 +91,10 @@ class SendViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        buttonsBar.configure()
-        sendButton.setTitle(R.string.localizable.send(), for: .normal)
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
+        amountHeader.configure(viewModel: viewModel.amountViewModel)
+        recipientHeader.configure(viewModel: viewModel.recipientViewModel)
 
-        configure(viewModel: viewModel)
         bind(viewModel: viewModel)
     }
 
@@ -106,7 +113,7 @@ class SendViewController: UIViewController {
             .eraseToAnyPublisher()
 
         let input = SendViewModelInput(
-            cryptoValue: amountTextField.cryptoValuePublisher,
+            amountToSend: amountTextField.cryptoValuePublisher,
             qrCode: qrCode.eraseToAnyPublisher(),
             allFunds: amountTextField.allFundsButton.publisher(forEvent: .touchUpInside).eraseToAnyPublisher(),
             send: send,
@@ -128,12 +135,14 @@ class SendViewController: UIViewController {
             .store(in: &cancelable)
 
         output.confirmTransaction
-            .sink { [amountTextField] in
-                self.delegate?.didPressConfirm(transaction: $0, in: self, amount: amountTextField.cryptoValue, shortValue: self.shortValueForAllFunds)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.delegate?.didPressConfirm(transaction: $0, in: strongSelf)
             }.store(in: &cancelable)
 
-        output.allFundsAmount
-            .sink { [weak amountTextField] in amountTextField?.set(crypto: $0.crypto, shortCrypto: $0.shortCrypto, useFormatting: false) }
+        output.amountTextFieldState
+            .sink { [weak amountTextField] in amountTextField?.set(amount: $0.amount) }
             .store(in: &cancelable)
 
         output.cryptoErrorState
@@ -148,32 +157,16 @@ class SendViewController: UIViewController {
             .sink { [navigationItem, amountTextField, targetAddressTextField] viewState in
                 navigationItem.title = viewState.title
 
-                amountTextField.selectCurrencyButton.isHidden = viewState.selectCurrencyButtonState.isHidden
                 amountTextField.selectCurrencyButton.expandIconHidden = viewState.selectCurrencyButtonState.expandIconHidden
 
                 amountTextField.statusLabel.text = viewState.amountStatusLabelState.text
                 amountTextField.availableTextHidden = viewState.amountStatusLabelState.isHidden
 
-                if let amount = viewState.amountTextFieldState.amount {
-                    amountTextField.set(crypto: amount, useFormatting: true)
-                }
-
                 if let recipient = viewState.recipientTextFieldState.recipient {
                     targetAddressTextField.value = recipient
                 }
-                amountTextField.viewModel.cryptoToFiatRate.value = viewState.amountTextFieldState.cryptoToFiatRate
+                amountTextField.viewModel.cryptoToFiatRate.value = viewState.rate
             }.store(in: &cancelable)
-    }
-
-    private func configure(viewModel: SendViewModel) {
-        view.backgroundColor = viewModel.backgroundColor
-
-        amountHeader.configure(viewModel: viewModel.amountViewModel)
-        recipientHeader.configure(viewModel: viewModel.recipientViewModel)
-    }
-
-    var shortValueForAllFunds: String? {
-        return viewModel.shortValueForAllFunds
     }
 
     private func activateAmountView() {
@@ -214,14 +207,6 @@ extension SendViewController: AmountTextFieldDelegate {
     func shouldReturn(in textField: AmountTextField) -> Bool {
         targetAddressTextField.becomeFirstResponder()
         return false
-    }
-
-    func changeAmount(in textField: AmountTextField) {
-        //no-op
-    }
-
-    func changeType(in textField: AmountTextField) {
-        //no-op
     }
 }
 

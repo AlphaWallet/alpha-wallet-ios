@@ -42,7 +42,7 @@ class TransactionConfiguratorTransactionsTests: XCTestCase {
         let token = Token(contract: address, server: .main, value: "0", type: .nativeCryptocurrency)
         let analytics = FakeAnalyticsService()
 
-        let transaction = UnconfirmedTransaction(transactionType: .nativeCryptocurrency(token, destination: nil, amount: nil), value: BigUInt(0), recipient: address, contract: nil, data: nil)
+        let transaction = UnconfirmedTransaction(transactionType: .nativeCryptocurrency(token, destination: nil, amount: .notSet), value: BigUInt(0), recipient: address, contract: nil, data: nil)
 
         let configurator = TransactionConfigurator(session: .make(), analytics: analytics, transaction: transaction)
 

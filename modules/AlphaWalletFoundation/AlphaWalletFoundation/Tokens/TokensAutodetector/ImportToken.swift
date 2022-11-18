@@ -15,12 +15,43 @@ public protocol TokenImportable {
     func importToken(for contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool) -> Promise<Token>
 }
 
-public protocol ContractDataFetchable {
+public protocol TokenOrContractFetchable: ContractDataFetchable {
     func fetchTokenOrContract(for contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool) -> Promise<TokenOrContract>
+}
+
+//NOTE: actually its internal, public for tests
+public protocol ContractDataFetchable {
     func fetchContractData(for contract: AlphaWallet.Address, server: RPCServer, completion: @escaping (ContractData) -> Void)
 }
 
-open class ImportToken: TokenImportable, ContractDataFetchable {
+public final class ContractDataFetcher: ContractDataFetchable {
+    enum FetcherError: Error {
+        case serverIsDisabled
+    }
+
+    private let assetDefinitionStore: AssetDefinitionStore
+    private let analytics: AnalyticsLogger
+    private let reachability: ReachabilityManagerProtocol
+    private let sessionProvider: SessionsProvider
+
+    public init(sessionProvider: SessionsProvider, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger, reachability: ReachabilityManagerProtocol) {
+        self.assetDefinitionStore = assetDefinitionStore
+        self.sessionProvider = sessionProvider
+        self.analytics = analytics
+        self.reachability = reachability
+    }
+
+    public func fetchContractData(for contract: AlphaWallet.Address, server: RPCServer, completion: @escaping (ContractData) -> Void) {
+        if let session = sessionProvider.session(for: server) {
+            let detector = ContractDataDetector(address: contract, session: session, assetDefinitionStore: assetDefinitionStore, analytics: analytics, reachability: reachability)
+            detector.fetch(completion: completion)
+        } else {
+            completion(.failed(networkReachable: reachability.isReachable, error: FetcherError.serverIsDisabled))
+        }
+    }
+}
+
+final public class ImportToken: TokenImportable, TokenOrContractFetchable {
     enum ImportTokenError: Error {
         case serverIsDisabled
         case zeroBalanceDetected
@@ -28,24 +59,20 @@ open class ImportToken: TokenImportable, ContractDataFetchable {
         case notContractOrFailed(TokenOrContract)
     }
 
-    private let sessionProvider: SessionsProvider
-    private let assetDefinitionStore: AssetDefinitionStore
-    private let analytics: AnalyticsLogger
+    private let contractDataFetcher: ContractDataFetchable
     private let tokensDataStore: TokensDataStore
     private var cancelable = Set<AnyCancellable>()
     private let queue = DispatchQueue(label: "org.alphawallet.swift.importToken")
     private var inFlightPromises: [String: Promise<TokenOrContract>] = [:]
     private let reachability = ReachabilityManager()
 
-    public init(sessionProvider: SessionsProvider, tokensDataStore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger) {
-        self.sessionProvider = sessionProvider
+    public init(tokensDataStore: TokensDataStore, contractDataFetcher: ContractDataFetchable) {
         self.tokensDataStore = tokensDataStore
-        self.assetDefinitionStore = assetDefinitionStore
-        self.analytics = analytics
+        self.contractDataFetcher = contractDataFetcher
     }
 
     //Adding a token may fail if we lose connectivity while fetching the contract details (e.g. name and balance). So we remove the contract from the hidden list (if it was there) so that the app has the chance to add it automatically upon auto detection at startup
-    open func importToken(for contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool = false) -> Promise<Token> {
+    public func importToken(for contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool = false) -> Promise<Token> {
         firstly {
             .value(server)
         }.then(on: queue, { [queue, tokensDataStore] server -> Promise<Token> in
@@ -65,22 +92,17 @@ open class ImportToken: TokenImportable, ContractDataFetchable {
         })
     }
 
-    open func importToken(ercToken: ErcToken, shouldUpdateBalance: Bool = true) -> Token {
+    public func importToken(ercToken: ErcToken, shouldUpdateBalance: Bool = true) -> Token {
         let tokens = tokensDataStore.addOrUpdate(with: [.add(ercToken: ercToken, shouldUpdateBalance: shouldUpdateBalance)])
 
         return tokens[0]
     }
 
-    open func fetchContractData(for contract: AlphaWallet.Address, server: RPCServer, completion: @escaping (ContractData) -> Void) {
-        if let session = sessionProvider.session(for: server) {
-            let detector = ContractDataDetector(address: contract, session: session, assetDefinitionStore: assetDefinitionStore, analytics: analytics, reachability: reachability)
-            detector.fetch(completion: completion)
-        } else {
-            completion(.failed(networkReachable: reachability.isReachable, error: ImportTokenError.serverIsDisabled))
-        }
+    public func fetchContractData(for contract: AlphaWallet.Address, server: RPCServer, completion: @escaping (ContractData) -> Void) {
+        contractDataFetcher.fetchContractData(for: contract, server: server, completion: completion)
     }
 
-    open func fetchTokenOrContract(for contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool = false) -> Promise<TokenOrContract> {
+    public func fetchTokenOrContract(for contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool = false) -> Promise<TokenOrContract> {
         firstly {
             .value(contract)
         }.then(on: queue, { [queue] contract -> Promise<TokenOrContract> in

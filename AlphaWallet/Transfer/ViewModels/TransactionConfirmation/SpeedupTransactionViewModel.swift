@@ -10,7 +10,7 @@ import BigInt
 import AlphaWalletFoundation
 
 extension TransactionConfirmationViewModel {
-    class SpeedupTransactionViewModel: ExpandableSection, CryptoToFiatRateUpdatable, BalanceUpdatable {
+    class SpeedupTransactionViewModel: ExpandableSection, RateUpdatable, BalanceUpdatable {
         enum Section {
             case gas
             case network
@@ -34,7 +34,7 @@ extension TransactionConfirmationViewModel {
             return configurator.selectedConfigurationType.title
         }
         let session: WalletSession
-        var cryptoToDollarRate: Double?
+        var rate: CurrencyRate?
         var openedSections = Set<Int>()
 
         var sections: [Section] {
@@ -55,7 +55,7 @@ extension TransactionConfirmationViewModel {
             let headerName = sections[section].title
             switch sections[section] {
             case .gas:
-                let gasFee = gasFeeString(for: configurator, cryptoToDollarRate: cryptoToDollarRate)
+                let gasFee = gasFeeString(for: configurator, rate: rate)
                 if let warning = configurator.gasPriceWarning {
                     return .init(title: .warning(warning.shortTitle), headerName: headerName, details: gasFee, configuration: configuration)
                 } else {

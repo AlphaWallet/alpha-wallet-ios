@@ -13,7 +13,7 @@ public struct WalletBalance {
     public let wallet: Wallet
     public let totalAmountDouble: Double?
     public let changeDouble: Double?
-    public var etherBalance: NSDecimalNumber? {
+    public var etherBalance: Decimal? {
         etherToken?.valueDecimal
     }
 
@@ -83,11 +83,11 @@ extension WalletBalance.functional {
     public static func createChangeDouble(tokens: [TokenViewModel]) -> Double? {
         var totalChange: Double?
         for token in tokens {
-            guard let value = token.balance.valueDecimal, let ticker = token.balance.ticker else { continue }
+            guard let ticker = token.balance.ticker else { continue }
             if totalChange == nil { totalChange = 0.0 }
 
             if var totalChangePrev = totalChange {
-                let balance = value.doubleValue * ticker.price_usd
+                let balance = token.balance.valueDecimal.doubleValue * ticker.price_usd
                 totalChangePrev += balance * ticker.percent_change_24h
 
                 totalChange = totalChangePrev

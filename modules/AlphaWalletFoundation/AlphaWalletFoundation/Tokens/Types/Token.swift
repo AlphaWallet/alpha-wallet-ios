@@ -35,11 +35,6 @@ public struct Token: Equatable, Hashable {
         }
     }
 
-    public var valueDecimal: NSDecimalNumber? {
-        let value = EtherNumberFormatter.plain.string(from: value, decimals: decimals)
-        return value.optionalDecimalValue
-    }
-
     public var nonZeroBalance: [TokenBalanceValue] {
         return Array(balance.filter { isNonZeroBalance($0.balance, tokenType: self.type) })
     }

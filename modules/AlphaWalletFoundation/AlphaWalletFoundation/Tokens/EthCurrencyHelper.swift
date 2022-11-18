@@ -20,7 +20,7 @@ public struct EthCurrencyHelper {
         return ticker?.price_usd
     }
 
-    public func valueChanged24h(value: NSDecimalNumber?) -> Double? {
+    public func valueChanged24h(value: Decimal?) -> Double? {
         guard let fiatValue = fiatValue(value: value), let ticker = ticker else { return .none }
 
         return fiatValue * ticker.percent_change_24h / 100
@@ -40,7 +40,7 @@ public struct EthCurrencyHelper {
         }
     }
 
-    public func fiatValue(value: NSDecimalNumber?) -> Double? {
+    public func fiatValue(value: Decimal?) -> Double? {
         guard let value = value, let ticker = ticker else { return .none }
 
         return value.doubleValue * ticker.price_usd

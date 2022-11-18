@@ -5,8 +5,8 @@ import BigInt
 import Combine
 import AlphaWalletFoundation
 
-protocol CryptoToFiatRateUpdatable: class {
-    var cryptoToDollarRate: Double? { get set }
+protocol RateUpdatable: class {
+    var rate: CurrencyRate? { get set }
 }
 
 protocol BalanceUpdatable: class {
@@ -14,7 +14,7 @@ protocol BalanceUpdatable: class {
 }
 
 struct TransactionConfirmationViewModelInput {
-    let send: AnyPublisher<Void, Never>
+
 }
 
 struct TransactionConfirmationViewModelOutput {
@@ -47,8 +47,8 @@ class TransactionConfirmationViewModel {
             type = .dappOrWalletConnectTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: recipientResolver, requester: nil))
         case .walletConnect(_, let requester):
             type = .dappOrWalletConnectTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: recipientResolver, requester: requester))
-        case .sendFungiblesTransaction(_, let amount):
-            type = .sendFungiblesTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: recipientResolver, amount: amount))
+        case .sendFungiblesTransaction:
+            type = .sendFungiblesTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: recipientResolver))
         case .sendNftTransaction:
             type = .sendNftTransaction(.init(configurator: configurator, recipientResolver: recipientResolver))
         case .claimPaidErc875MagicLink(_, let price, let numberOfTokens):
@@ -99,7 +99,7 @@ class TransactionConfirmationViewModel {
 
         return Publishers.Merge(tokenBalance, forceTriggerUpdateBalance)
             .handleEvents(receiveOutput: { [weak self] balance in
-                self?.cryptoToFiatRateUpdatable.cryptoToDollarRate = balance?.ticker?.price_usd
+                self?.rateUpdatable.rate = balance?.ticker.flatMap { CurrencyRate(currency: Currency(rawValue: $0.currency) ?? .USD, value: $0.price_usd) }
                 self?.updateBalance(balance)
             }).eraseToAnyPublisher()
     }()
@@ -154,7 +154,7 @@ class TransactionConfirmationViewModel {
         }
     }
 
-    var cryptoToFiatRateUpdatable: CryptoToFiatRateUpdatable {
+    var rateUpdatable: RateUpdatable {
         switch type {
         case .dappOrWalletConnectTransaction(let viewModel): return viewModel
         case .tokenScriptTransaction(let viewModel): return viewModel
@@ -293,18 +293,17 @@ extension TransactionConfirmationViewModel {
         case swapTransaction(SwapTransactionViewModel)
     }
 
-    static func gasFeeString(for configurator: TransactionConfigurator, cryptoToDollarRate: Double?) -> String {
-        let fee = configurator.currentConfiguration.gasPrice * configurator.currentConfiguration.gasLimit
+    static func gasFeeString(for configurator: TransactionConfigurator, rate: CurrencyRate?) -> String {
+        let configuration = configurator.currentConfiguration
+        let fee = Decimal(bigUInt: configuration.gasPrice * configuration.gasLimit, decimals: configurator.session.server.decimals) ?? .zero
         let estimatedProcessingTime = configurator.selectedConfigurationType.estimatedProcessingTime
-        let symbol = configurator.session.server.symbol
-        let feeString = EtherNumberFormatter.short.string(from: fee)
-        let cryptoToDollarSymbol = Currency.USD.rawValue
+        let feeString = Formatter.shortCrypto.string(from: fee) ?? "-"
         let costs: String
-        if let cryptoToDollarRate = cryptoToDollarRate {
-            let cryptoToDollarValue = StringFormatter().currency(with: Double(fee) * cryptoToDollarRate / Double(EthereumUnit.ether.rawValue), and: cryptoToDollarSymbol)
-            costs =  "< ~\(feeString) \(symbol) (\(cryptoToDollarValue) \(cryptoToDollarSymbol))"
+        if let rate = rate {
+            let amountInFiat = Formatter.fiat.string(from: fee.doubleValue * rate.value) ?? "-"
+            costs =  "< ~\(feeString) \(configurator.session.server.symbol) (\(amountInFiat) \(rate.currency.code))"
         } else {
-            costs = "< ~\(feeString) \(symbol)"
+            costs = "< ~\(feeString) \(configurator.session.server.symbol)"
         }
 
         if estimatedProcessingTime.isEmpty {

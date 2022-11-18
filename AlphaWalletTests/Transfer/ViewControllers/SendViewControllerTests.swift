@@ -13,9 +13,9 @@ import Combine
 import AlphaWalletFoundation
 
 class SendViewControllerTests: XCTestCase {
-    private let token = Token(contract: Constants.nullAddress, server: .main, value: "0", type: .nativeCryptocurrency)
+    private let token = Token(contract: Constants.nullAddress, server: .main, decimals: 18, value: "0", type: .nativeCryptocurrency)
     private lazy var nativeCryptocurrencyTransactionType: TransactionType = {
-        return .nativeCryptocurrency(token, destination: nil, amount: nil)
+        return .nativeCryptocurrency(token, destination: nil, amount: .notSet)
     }()
     private let dep = WalletDataProcessingPipeline.make(wallet: .make(), server: .main)
 
@@ -45,8 +45,7 @@ class SendViewControllerTests: XCTestCase {
         vc.allFundsSelected()
 
         XCTAssertEqual(vc.amountTextField.value, "10000")
-        XCTAssertNotNil(vc.shortValueForAllFunds)
-        XCTAssertTrue((vc.shortValueForAllFunds ?? "").nonEmpty)
+        XCTAssertTrue(vc.viewModel.amountToSend == .allFunds)
 
         Config.setLocale(AppLocale.system)
     }
@@ -61,8 +60,21 @@ class SendViewControllerTests: XCTestCase {
         vc.allFundsSelected()
 
         XCTAssertEqual(vc.amountTextField.value, "0.00001")
-        XCTAssertNotNil(vc.shortValueForAllFunds)
-        XCTAssertTrue((vc.shortValueForAllFunds ?? "").nonEmpty)
+        XCTAssertTrue(vc.viewModel.amountToSend == .allFunds)
+
+        Config.setLocale(AppLocale.system)
+    }
+
+    func testERC20IntialAllFunds() {
+        let token = Token(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "2000000020224719101120", type: .erc20)
+        dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
+        let vc = createSendViewControllerAndSetLocale(locale: .spanish, transactionType: .erc20Token(token, destination: .none, amount: .amount(0.002)))
+        dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2000000020224719101120")), for: token)
+        XCTAssertEqual(vc.amountTextField.value, "0,002")
+
+        XCTAssertTrue(vc.viewModel.amountToSend == .amount(0.002))
+        vc.allFundsSelected()
+        XCTAssertTrue(vc.viewModel.amountToSend == .allFunds)
 
         Config.setLocale(AppLocale.system)
     }
@@ -70,18 +82,19 @@ class SendViewControllerTests: XCTestCase {
     func testERC20AllFunds() {
         let token = Token(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "2000000020224719101120", type: .erc20)
         dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
-        let vc = createSendViewControllerAndSetLocale(locale: .spanish, transactionType: .erc20Token(token, destination: .none, amount: nil))
+        let vc = createSendViewControllerAndSetLocale(locale: .spanish, transactionType: .erc20Token(token, destination: .none, amount: .notSet))
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2000000020224719101120")), for: token)
         XCTAssertEqual(vc.amountTextField.value, "")
         vc.allFundsSelected()
 
         XCTAssertEqual(vc.amountTextField.value, "2000")
-        XCTAssertNotNil(vc.shortValueForAllFunds)
-        XCTAssertTrue((vc.shortValueForAllFunds ?? "").nonEmpty)
+        XCTAssertTrue(vc.viewModel.amountToSend == .allFunds)
 
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: .zero), for: token)
         vc.allFundsSelected()
+
         XCTAssertEqual(vc.amountTextField.value, "0")
+        XCTAssertTrue(vc.viewModel.amountToSend == .allFunds)
 
         Config.setLocale(AppLocale.system)
     }
@@ -89,14 +102,12 @@ class SendViewControllerTests: XCTestCase {
     func testERC20AllFundsSpanish() {
         let token = Token(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "0", type: .erc20)
         dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
-        let vc = createSendViewControllerAndSetLocale(locale: .spanish, transactionType: .erc20Token(token, destination: .none, amount: nil))
+        let vc = createSendViewControllerAndSetLocale(locale: .spanish, transactionType: .erc20Token(token, destination: .none, amount: .notSet))
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), for: token)
         XCTAssertEqual(vc.amountTextField.value, "")
 
         vc.allFundsSelected()
         XCTAssertEqual(vc.amountTextField.value, "0,002")
-        XCTAssertNotNil(vc.shortValueForAllFunds)
-        XCTAssertTrue((vc.shortValueForAllFunds ?? "").nonEmpty)
 
         Config.setLocale(AppLocale.system)
     }
@@ -123,15 +134,13 @@ class SendViewControllerTests: XCTestCase {
     func testERC20AllFundsEnglish() {
         let token = Token(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "0", type: .erc20)
         dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
-        let vc = createSendViewControllerAndSetLocale(locale: .english, transactionType: .erc20Token(token, destination: .none, amount: nil))
+        let vc = createSendViewControllerAndSetLocale(locale: .english, transactionType: .erc20Token(token, destination: .none, amount: .notSet))
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), for: token)
 
         XCTAssertEqual(vc.amountTextField.value, "")
 
         vc.allFundsSelected()
         XCTAssertEqual(vc.amountTextField.value, "0.002")
-        XCTAssertNotNil(vc.shortValueForAllFunds)
-        XCTAssertTrue((vc.shortValueForAllFunds ?? "").nonEmpty)
 
         Config.setLocale(AppLocale.system)
     }
@@ -139,15 +148,72 @@ class SendViewControllerTests: XCTestCase {
     func testERC20English() {
         let token = Token(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "0", type: .erc20)
         dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
-        let vc = createSendViewControllerAndSetLocale(locale: .english, transactionType: .erc20Token(token, destination: .none, amount: nil))
+        let vc = createSendViewControllerAndSetLocale(locale: .english, transactionType: .erc20Token(token, destination: .none, amount: .notSet))
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), for: token)
         XCTAssertEqual(vc.amountTextField.value, "")
 
-        XCTAssertNil(vc.shortValueForAllFunds)
-        XCTAssertFalse((vc.shortValueForAllFunds ?? "").nonEmpty)
-
         Config.setLocale(AppLocale.system)
 
+    }
+
+    func testScanEip681QrCodeEnglish() {
+        let token = Token(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "0", type: .erc20)
+        dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
+        let vc = createSendViewControllerAndSetLocale(locale: .english, transactionType: .erc20Token(token, destination: .none, amount: .amount(1.34)))
+        dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), for: token)
+        XCTAssertEqual(vc.amountTextField.value, "1.34")
+
+        vc.didScanQRCode("aw.app/ethereum:0xbc8dafeaca658ae0857c80d8aa6de4d487577c63@1?value=1e19")
+
+        let expectation = self.expectation(description: "did update token balance expectation")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            XCTAssertEqual(vc.amountTextField.value, "10")
+            expectation.fulfill()
+        }
+        waitForExpectations(timeout: 10)
+
+        Config.setLocale(AppLocale.system)
+    }
+
+    func testScanEip681QrCodeSpanish() {
+        let token = Token(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "0", type: .erc20)
+        dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
+        let vc = createSendViewControllerAndSetLocale(locale: .spanish, transactionType: .erc20Token(token, destination: .none, amount: .amount(1.34)))
+        dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), for: token)
+        XCTAssertEqual(vc.amountTextField.value, "1,34")
+
+        vc.didScanQRCode("aw.app/ethereum:0xbc8dafeaca658ae0857c80d8aa6de4d487577c63@1?value=1e17")
+
+        let expectation = self.expectation(description: "did update token balance expectation")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            XCTAssertEqual(vc.amountTextField.value, "0,1")
+            expectation.fulfill()
+        }
+        waitForExpectations(timeout: 10)
+
+        Config.setLocale(AppLocale.system)
+    }
+
+    func testScanEip681QrCodeSpanish2() {
+        let token = Token(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "0", type: .erc20)
+        dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
+        let vc = createSendViewControllerAndSetLocale(locale: .spanish, transactionType: .erc20Token(token, destination: .none, amount: .allFunds))
+        dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), for: token)
+        XCTAssertEqual(vc.amountTextField.value, "0")
+
+        let tokenAreGoingToBeResolved = Token(contract: AlphaWallet.Address(string: "0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72")!, name: "erc20", symbol: "erc20", decimals: 18, type: .erc20)
+        dep.tokensService.addOrUpdateTokenTestsOnly(token: tokenAreGoingToBeResolved)
+
+        vc.didScanQRCode("aw.app/ethereum:0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72@1/transfer?address=0x8e23ee67d1332ad560396262c48ffbb01f93d052&uint256=1.004e18")
+
+        let expectation = self.expectation(description: "did update token balance expectation")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            XCTAssertEqual(vc.amountTextField.value, "1,004")
+            expectation.fulfill()
+        }
+        waitForExpectations(timeout: 10)
+
+        Config.setLocale(AppLocale.system)
     }
 
     private func createSendViewControllerAndSetLocale(locale: AppLocale, transactionType: TransactionType) -> SendViewController {

@@ -15,7 +15,7 @@ extension UIControl {
 }
 
 extension Publishers {
-    struct Control: Publisher {
+    class Control: Publisher {
         typealias Output = Void
         typealias Failure = Never
 

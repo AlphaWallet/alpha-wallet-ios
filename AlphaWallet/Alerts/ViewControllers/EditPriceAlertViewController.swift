@@ -102,7 +102,7 @@ class EditPriceAlertViewController: UIViewController {
         let input = EditPriceAlertViewModelInput(
             willAppear: willAppear.eraseToAnyPublisher(),
             save: saveButton.publisher(forEvent: .touchUpInside).eraseToAnyPublisher(),
-            cryptoValue: amountTextField.cryptoValuePublisher)
+            amountToSend: amountTextField.cryptoValuePublisher)
 
         let output = viewModel.transform(input: input)
 
@@ -111,7 +111,7 @@ class EditPriceAlertViewController: UIViewController {
             .store(in: &cancelable)
 
         output.cryptoInitial
-            .sink { [weak amountTextField] in amountTextField?.set(crypto: $0, useFormatting: false) }
+            .sink { [weak amountTextField] in amountTextField?.set(amount: .amount($0)) }
             .store(in: &cancelable)
 
         output.marketPrice

@@ -12,12 +12,12 @@ import Combine
 struct EditPriceAlertViewModelInput {
     let willAppear: AnyPublisher<Void, Never>
     let save: AnyPublisher<Void, Never>
-    let cryptoValue: AnyPublisher<String, Never>
+    let amountToSend: AnyPublisher<AmountTextFieldViewModel.FungibleAmount, Never>
 }
 
 struct EditPriceAlertViewModelOutput {
-    let cryptoInitial: AnyPublisher<String, Never>
-    let cryptoToFiatRate: AnyPublisher<NSDecimalNumber?, Never>
+    let cryptoInitial: AnyPublisher<Double, Never>
+    let cryptoToFiatRate: AnyPublisher<Double?, Never>
     let marketPrice: AnyPublisher<String, Never>
     let isEnabled: AnyPublisher<Bool, Never>
     let createOrUpdatePriceAlert: AnyPublisher<Result<Void, EditPriceAlertViewModel.EditPriceAlertError>, Never>
@@ -43,7 +43,7 @@ final class EditPriceAlertViewModel {
 
     func transform(input: EditPriceAlertViewModelInput) -> EditPriceAlertViewModelOutput {
         let cryptoToFiatRate = Just(1)
-            .map { value -> NSDecimalNumber? in NSDecimalNumber(value: value) }
+            .map { value -> Double? in Double(value) }
             .eraseToAnyPublisher()
 
         let cryptoRate = tokensService.tokenViewModelPublisher(for: token)
@@ -53,9 +53,13 @@ final class EditPriceAlertViewModel {
             .map { $0.flatMap { Formatter.fiat.string(from: $0) } }
             .eraseToAnyPublisher()
 
-        input.cryptoValue
-            .map { Formatter.default.number(from: $0).flatMap { $0.doubleValue } }
-            .sink(receiveValue: { self.cryptoValue = $0 })
+        input.amountToSend
+            .compactMap { amount -> Double? in
+                switch amount {
+                case .amount(let value): return value
+                case .notSet, .allFunds: return nil
+                }
+            }.sink(receiveValue: { self.cryptoValue = $0 })
             .store(in: &cancelable)
 
         let createOrUpdatePriceAlert = input.save
@@ -111,14 +115,14 @@ extension EditPriceAlertViewModel {
             }
         }
 
-        var value: String {
+        var value: Double {
             switch self {
             case .create:
-                return String()
+                return 0
             case .edit(let alert):
                 switch alert.type {
                 case .price(_, let value):
-                    return String(value)
+                    return value
                 }
             }
         }

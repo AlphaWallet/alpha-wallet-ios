@@ -46,16 +46,6 @@ public struct Formatter {
         return formatter
     }()
 
-    public static func shortCrypto(symbol: String) -> NumberFormatter {
-        let formatter = basicCurrencyFormatter()
-        formatter.positiveFormat = ",###.#" + " " + symbol
-        formatter.negativeFormat = "-,###.#" + " " + symbol
-        formatter.minimumFractionDigits = Constants.etherFormatterFractionDigits
-        formatter.maximumFractionDigits = Constants.etherFormatterFractionDigits
-        formatter.numberStyle = .none
-        return formatter
-    }
-
     public static let priceChange: NumberFormatter = {
         let formatter = basicCurrencyFormatter()
         formatter.positiveFormat = "+$,###.#"
@@ -128,8 +118,47 @@ fileprivate func basicNumberFormatter() -> NumberFormatter {
 
 extension NumberFormatter {
 
+    public func string(from source: Decimal) -> String? {
+        return self.string(from: source as NSNumber)
+    }
+
     public func string(from source: Double) -> String? {
         return self.string(from: source as NSNumber)
     }
 
+    public func string(double: Double, minimumFractionDigits: Int, maximumFractionDigits: Int) -> String {
+        let fractionDigits: Int
+        
+        let int = Int(double)
+        let minimumFractionNumber = Double("0." + String(1).leftPadding(to: minimumFractionDigits, pad: "0"))!
+        let maximumFractionNumber = Double("0." + String(1).leftPadding(to: maximumFractionDigits, pad: "0"))!
+
+        if int >= 1 {
+            fractionDigits = minimumFractionDigits
+        } else if double == 0 {
+            fractionDigits = 0
+        } else if double <= maximumFractionNumber {
+            fractionDigits = maximumFractionDigits
+        } else if double <= minimumFractionNumber {
+            fractionDigits = maximumFractionDigits
+        } else {
+            fractionDigits = minimumFractionDigits
+        }
+
+        self.maximumFractionDigits = fractionDigits
+        self.minimumFractionDigits = fractionDigits
+
+        return (self.string(from: double as NSNumber) ?? "").trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).droppedTrailingZeros
+    }
+
+}
+
+fileprivate extension String {
+    func leftPadding(to: Int, pad: String = " ") -> String {
+
+        guard to > self.characters.count else { return self }
+
+        let padding = String(repeating: pad, count: to - self.characters.count)
+        return padding + self
+    }
 }

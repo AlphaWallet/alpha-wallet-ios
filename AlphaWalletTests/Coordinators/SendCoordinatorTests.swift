@@ -8,7 +8,7 @@ class SendCoordinatorTests: XCTestCase {
 
     func testRootViewController() {
         let coordinator = SendCoordinator(
-            transactionType: .nativeCryptocurrency(Token(), destination: .none, amount: nil),
+            transactionType: .nativeCryptocurrency(Token(), destination: .none, amount: .notSet),
             navigationController: FakeNavigationController(),
             session: .make(),
             keystore: FakeEtherKeystore(),
@@ -16,7 +16,7 @@ class SendCoordinatorTests: XCTestCase {
             assetDefinitionStore: AssetDefinitionStore(),
             analytics: FakeAnalyticsService(),
             domainResolutionService: FakeDomainResolutionService(),
-            importToken: FakeImportToken())
+            importToken: ImportToken.make(wallet: .make()))
 
         coordinator.start()
 
@@ -26,7 +26,7 @@ class SendCoordinatorTests: XCTestCase {
     func testDestination() {
         let address: AlphaWallet.Address = .make()
         let coordinator = SendCoordinator(
-            transactionType: .nativeCryptocurrency(Token(), destination: .init(address: address), amount: nil),
+            transactionType: .nativeCryptocurrency(Token(), destination: .init(address: address), amount: .notSet),
             navigationController: FakeNavigationController(),
             session: .make(),
             keystore: FakeEtherKeystore(),
@@ -34,7 +34,7 @@ class SendCoordinatorTests: XCTestCase {
             assetDefinitionStore: AssetDefinitionStore(),
             analytics: FakeAnalyticsService(),
             domainResolutionService: FakeDomainResolutionService(),
-            importToken: FakeImportToken())
+            importToken: ImportToken.make(wallet: .make()))
         coordinator.start()
 
         XCTAssertEqual(address.eip55String, coordinator.sendViewController.targetAddressTextField.value)

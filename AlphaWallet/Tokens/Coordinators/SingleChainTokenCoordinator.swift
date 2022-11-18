@@ -44,17 +44,17 @@ class SingleChainTokenCoordinator: Coordinator {
     }
 
     init(
-            session: WalletSession,
-            keystore: Keystore,
-            assetDefinitionStore: AssetDefinitionStore,
-            analytics: AnalyticsLogger,
-            nftProvider: NFTProvider,
-            tokenActionsProvider: SupportedTokenActionsProvider,
-            coinTickersFetcher: CoinTickersFetcher,
-            activitiesService: ActivitiesServiceType,
-            alertService: PriceAlertServiceType,
-            tokensService: TokenBalanceRefreshable & TokenViewModelState & TokenHolderState,
-            sessions: ServerDictionary<WalletSession>
+        session: WalletSession,
+        keystore: Keystore,
+        assetDefinitionStore: AssetDefinitionStore,
+        analytics: AnalyticsLogger,
+        nftProvider: NFTProvider,
+        tokenActionsProvider: SupportedTokenActionsProvider,
+        coinTickersFetcher: CoinTickersFetcher,
+        activitiesService: ActivitiesServiceType,
+        alertService: PriceAlertServiceType,
+        tokensService: TokenBalanceRefreshable & TokenViewModelState & TokenHolderState,
+        sessions: ServerDictionary<WalletSession>
     ) {
         self.sessions = sessions
         self.tokensService = tokensService

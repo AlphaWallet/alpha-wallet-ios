@@ -29,7 +29,7 @@ struct Erc20BalanceViewModel: BalanceViewModelType {
 
     var balance: [TokenBalanceValue] { return [] }
     var value: BigInt { _balance.valueBI }
-    var amount: Double { return EtherNumberFormatter.plain.string(from: _balance.valueBI).doubleValue }
+    var valueDecimal: Decimal { Decimal(bigInt: value, decimals: _balance.decimals) ?? .zero }
 
     var amountString: String {
         guard !isZero else { return "0.00 \(_balance.symbol)" }
@@ -44,7 +44,7 @@ struct Erc20BalanceViewModel: BalanceViewModelType {
 
     var currencyAmountWithoutSymbol: Double? {
         guard let ticker = ticker else { return nil }
-        return amount * ticker.price_usd
+        return valueDecimal.doubleValue * ticker.price_usd
     }
 
     var amountFull: String { return EtherNumberFormatter.plain.string(from: _balance.valueBI, decimals: _balance.decimals).droppedTrailingZeros }

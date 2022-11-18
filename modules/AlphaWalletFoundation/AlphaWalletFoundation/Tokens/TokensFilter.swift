@@ -20,9 +20,8 @@ public protocol TokenSortable {
 }
 
 public extension TokenSortable {
-    var valueDecimal: NSDecimalNumber? {
-        let value = EtherNumberFormatter.plain.string(from: value, decimals: decimals)
-        return value.optionalDecimalValue
+    var valueDecimal: Decimal? {
+        return Decimal(bigInt: value, decimals: decimals)
     }
 }
 

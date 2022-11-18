@@ -10,7 +10,7 @@ import BigInt
 import AlphaWalletFoundation
 
 extension TransactionConfirmationViewModel {
-    class TokenScriptTransactionViewModel: ExpandableSection, CryptoToFiatRateUpdatable, BalanceUpdatable {
+    class TokenScriptTransactionViewModel: ExpandableSection, RateUpdatable, BalanceUpdatable {
 
         enum Section: Int, CaseIterable {
             case gas
@@ -42,19 +42,20 @@ extension TransactionConfirmationViewModel {
         }
         private let session: WalletSession
         private var formattedAmountValue: String {
-            let cryptoToDollarSymbol = Currency.USD.rawValue
-            let amount = Double(configurator.transaction.value) / Double(EthereumUnit.ether.rawValue)
-            let amountString = EtherNumberFormatter.short.string(from: configurator.transaction.value)
-            let symbol = configurator.session.server.symbol
-            if let cryptoToDollarRate = cryptoToDollarRate {
-                let cryptoToDollarValue = StringFormatter().currency(with: amount * cryptoToDollarRate, and: cryptoToDollarSymbol)
-                return "\(amountString) \(symbol) ≈ \(cryptoToDollarValue) \(cryptoToDollarSymbol)"
+            //FIXME: is here ether token?
+            let amountToSend = (Decimal(bigUInt: configurator.transaction.value, decimals: configurator.session.server.decimals) ?? .zero).doubleValue
+            let amount = Formatter.shortCrypto.string(from: amountToSend) ?? "-"
+
+            if let rate = rate {
+                let amountInFiat = Formatter.fiat.string(from: amountToSend * rate.value) ?? "-"
+
+                return "\(amount) \(configurator.session.server.symbol) ≈ \(amountInFiat) \(rate.currency.code)"
             } else {
-                return "\(amountString) \(symbol)"
+                return "\(amount)"
             }
         }
 
-        var cryptoToDollarRate: Double?
+        var rate: CurrencyRate?
         let functionCallMetaData: DecodedFunctionCall
         var openedSections = Set<Int>()
         var sections: [Section] {
@@ -77,7 +78,7 @@ extension TransactionConfirmationViewModel {
             let headerName = sections[section].title
             switch sections[section] {
             case .gas:
-                let gasFee = gasFeeString(for: configurator, cryptoToDollarRate: cryptoToDollarRate)
+                let gasFee = gasFeeString(for: configurator, rate: rate)
                 if let warning = configurator.gasPriceWarning {
                     return .init(title: .warning(warning.shortTitle), headerName: headerName, details: gasFee, configuration: configuration)
                 } else {

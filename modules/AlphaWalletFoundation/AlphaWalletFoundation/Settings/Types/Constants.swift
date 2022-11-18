@@ -156,10 +156,10 @@ public struct Constants {
     }
 
     //CurrencyFormatter
-    static let formatterFractionDigits = 2
+    public static let formatterFractionDigits = 2
 
     //EtherNumberFormatter
-    static let etherFormatterFractionDigits = 4
+    public static let etherFormatterFractionDigits = 4
 
     public static let defaultSortTokensParams: [SortTokensParam] =  [
         .byField(field: .name, direction: .ascending),

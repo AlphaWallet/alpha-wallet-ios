@@ -974,7 +974,7 @@ extension ActiveWalletCoordinator: SelectTokenCoordinatorDelegate {
             case .swapToken:
                 try swapToken(token: token)
             case .sendToken(let recipient):
-                let paymentFlow = PaymentFlow.send(type: .transaction(.init(fungibleToken: token, recipient: recipient, amount: nil)))
+                let paymentFlow = PaymentFlow.send(type: .transaction(.init(fungibleToken: token, recipient: recipient, amount: .notSet)))
                 showPaymentFlow(for: paymentFlow, server: token.server, navigationController: navigationController)
             }
         } catch {

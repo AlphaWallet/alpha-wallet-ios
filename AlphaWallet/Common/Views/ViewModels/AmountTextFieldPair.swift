@@ -62,10 +62,10 @@ extension AmountTextField {
     }
 
     enum FiatOrCrypto {
-        case cryptoCurrency(Token)
+        case cryptoCurrency(EnterAmountSupportable)
         case fiatCurrency(Currency)
 
-        var token: Token? {
+        var token: EnterAmountSupportable? {
             switch self {
             case .cryptoCurrency(let token): return token
             case .fiatCurrency: return nil
@@ -77,7 +77,7 @@ extension AmountTextField {
         var left: FiatOrCrypto
         var right: FiatOrCrypto
 
-        mutating func swap() {
+        mutating func toggle() {
             let currentLeft = left
 
             left = right
@@ -110,6 +110,6 @@ extension AmountTextField {
             }
         }
 
-        var token: Token? { return left.token ?? right.token }
+        var token: EnterAmountSupportable? { return left.token ?? right.token }
     }
 }

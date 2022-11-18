@@ -58,21 +58,6 @@ class SendCoordinator: Coordinator {
     private func makeSendViewController() -> SendViewController {
         let viewModel = SendViewModel(transactionType: transactionType, session: session, tokensService: tokensService, importToken: importToken)
         let controller = SendViewController(viewModel: viewModel, domainResolutionService: domainResolutionService)
-
-        switch transactionType {
-        case .nativeCryptocurrency(_, let destination, let amount):
-            controller.targetAddressTextField.value = destination?.stringValue ?? ""
-            if let amount = amount {
-                controller.amountTextField.set(crypto: EtherNumberFormatter.full.string(from: amount, units: .ether), useFormatting: true)
-            } else {
-                //do nothing, especially not set it to a default BigInt() / 0
-            }
-        case .erc20Token(_, let destination, let amount):
-            controller.targetAddressTextField.value = destination?.stringValue ?? ""
-            controller.amountTextField.set(crypto: amount ?? "", useFormatting: true)
-        case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .prebuilt:
-            break
-        }
         controller.delegate = self
         controller.navigationItem.largeTitleDisplayMode = .never
         controller.hidesBottomBarWhenPushed = true
@@ -103,13 +88,11 @@ extension SendCoordinator: SendViewControllerDelegate {
         let coordinator = ScanQRCodeCoordinator(analytics: analytics, navigationController: navigationController, account: session.account, domainResolutionService: domainResolutionService)
         coordinator.delegate = self
         addCoordinator(coordinator)
-        coordinator.start(fromSource: .sendFungibleScreen)
+        coordinator.start(fromSource: .sendFungibleScreen, clipboardString: UIPasteboard.general.stringForQRCode)
     }
 
-    func didPressConfirm(transaction: UnconfirmedTransaction, in viewController: SendViewController, amount: String, shortValue: String?) {
-        let configuration: TransactionType.Configuration = .sendFungiblesTransaction(
-            confirmType: .signThenSend,
-            amount: FungiblesTransactionAmount(value: amount, shortValue: shortValue, isAllFunds: viewController.amountTextField.viewModel.isAllFunds))
+    func didPressConfirm(transaction: UnconfirmedTransaction, in viewController: SendViewController) {
+        let configuration: TransactionType.Configuration = .sendFungiblesTransaction(confirmType: .signThenSend)
 
         let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
         addCoordinator(coordinator)
