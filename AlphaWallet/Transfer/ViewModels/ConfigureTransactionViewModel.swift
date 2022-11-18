@@ -13,7 +13,7 @@ struct ConfigureTransactionViewModel {
     private let transactionType: TransactionType
     private let configurator: TransactionConfigurator
     private let fullFormatter = EtherNumberFormatter.full
-    private var totalFee: BigInt {
+    private var totalFee: BigUInt {
         return configurationToEdit.gasPrice * configurationToEdit.gasLimit
     }
     private var server: RPCServer {

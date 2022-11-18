@@ -8,13 +8,13 @@ import AlphaWalletFoundation
 extension UnconfirmedTransaction {
     static func make(
         transactionType: TransactionType = .nativeCryptocurrency(Token(), destination: .none, amount: nil),
-        value: BigInt = BigInt(1),
+        value: BigUInt = BigUInt(1),
         to: AlphaWallet.Address = .make(),
         recipient: AlphaWallet.Address? = .none,
         data: Data = Data(),
-        gasLimit: BigInt? = BigInt(100000),
-        gasPrice: BigInt? = BigInt(1000),
-        nonce: BigInt? = BigInt(1)
+        gasLimit: BigUInt? = BigUInt(100000),
+        gasPrice: BigUInt? = BigUInt(1000),
+        nonce: BigUInt? = BigUInt(1)
     ) -> UnconfirmedTransaction {
         return UnconfirmedTransaction(
             transactionType: transactionType,

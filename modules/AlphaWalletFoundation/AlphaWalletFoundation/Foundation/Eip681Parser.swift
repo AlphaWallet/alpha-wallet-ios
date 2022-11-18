@@ -4,7 +4,8 @@ import Foundation
 import BigInt
 import PromiseKit
 
-//In the future, this can include invoking functions other than for sending of Ether and tokens
+//TODO: In the future, this can include invoking functions other than for sending of Ether and tokens
+//TODO: apply FungibleAmount instead of String
 public enum Eip681Type {
     case nativeCryptoSend(server: RPCServer?, recipient: AddressOrEnsName, amount: String)
     case erc20Send(contract: AlphaWallet.Address, server: RPCServer?, recipient: AddressOrEnsName?, amount: String)

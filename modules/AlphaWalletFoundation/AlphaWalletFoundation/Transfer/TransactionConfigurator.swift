@@ -6,8 +6,8 @@ import PromiseKit
 
 public protocol TransactionConfiguratorDelegate: AnyObject {
     func configurationChanged(in configurator: TransactionConfigurator)
-    func gasLimitEstimateUpdated(to estimate: BigInt, in configurator: TransactionConfigurator)
-    func gasPriceEstimateUpdated(to estimate: BigInt, in configurator: TransactionConfigurator)
+    func gasLimitEstimateUpdated(to estimate: BigUInt, in configurator: TransactionConfigurator)
+    func gasPriceEstimateUpdated(to estimate: BigUInt, in configurator: TransactionConfigurator)
     func updateNonce(to nonce: Int, in configurator: TransactionConfigurator)
 }
 
@@ -34,11 +34,11 @@ public class TransactionConfigurator {
         }
     }
 
-    public var gasValue: BigInt {
+    public var gasValue: BigUInt {
         return currentConfiguration.gasPrice * currentConfiguration.gasLimit
     }
 
-    private var maxGasLimit: BigInt {
+    private var maxGasLimit: BigUInt {
         GasLimitConfiguration.maxGasLimit(forServer: session.server)
     }
 
@@ -51,7 +51,7 @@ public class TransactionConfigurator {
         }
     }
 
-    public var value: BigInt {
+    public var value: BigUInt {
         //TODO why not all `transaction.value`? Shouldn't the other types of transactions make sure their `transaction.value` is 0?
         switch transaction.transactionType {
         case .nativeCryptocurrency, .dapp: return transaction.value
@@ -90,7 +90,7 @@ public class TransactionConfigurator {
         self.configurations = .init(standard: standardConfiguration)
     }
 
-    public func updateTransaction(value: BigInt) {
+    public func updateTransaction(value: BigUInt) {
         let tx = self.transaction
         self.transaction = .init(transactionType: tx.transactionType, value: value, recipient: tx.recipient, contract: tx.contract, data: tx.data, gasLimit: tx.gasLimit, gasPrice: tx.gasPrice, nonce: tx.nonce)
     }
@@ -100,7 +100,7 @@ public class TransactionConfigurator {
             gasLimitEstimator.getGasLimit(value: value, toAddress: toAddress, data: currentConfiguration.data)
         }.done { limit, canCapGasLimit in
             infoLog("Estimated gas limit with eth_estimateGas: \(limit) canCapGasLimit: \(canCapGasLimit)")
-            let gasLimit: BigInt = {
+            let gasLimit: BigUInt = {
                 if limit == GasLimitConfiguration.minGasLimit {
                     return limit
                 }
@@ -179,12 +179,12 @@ public class TransactionConfigurator {
             return .tooHighCustomGasPrice
         }
         //Conversion to gwei is needed so we that 17 (entered) is equal to 17.1 (fetched). Because 17.1 is displayed as "17" in the UI and might confuse the user if it's not treated as equal
-        if let slowestConfig = configurations.slowestThirdPartyConfiguration, (configuration.gasPrice / BigInt(EthereumUnit.gwei.rawValue)) < (slowestConfig.gasPrice / BigInt(EthereumUnit.gwei.rawValue)) {
+        if let slowestConfig = configurations.slowestThirdPartyConfiguration, (configuration.gasPrice / BigUInt(EthereumUnit.gwei.rawValue)) < (slowestConfig.gasPrice / BigUInt(EthereumUnit.gwei.rawValue)) {
             return .tooLowCustomGasPrice
         }
         switch session.server.serverWithEnhancedSupport {
         case .main:
-            if (configurations.standard.gasPrice / BigInt(EthereumUnit.gwei.rawValue)) > Constants.highStandardEthereumMainnetGasThresholdGwei {
+            if (configurations.standard.gasPrice / BigUInt(EthereumUnit.gwei.rawValue)) > Constants.highStandardEthereumMainnetGasThresholdGwei {
                 return .networkCongested
             }
         case .xDai, .candle, .polygon, .binance_smart_chain, .heco, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, .rinkeby, nil:
@@ -193,7 +193,7 @@ public class TransactionConfigurator {
         return nil
     }
 
-    private static func createConfiguration(server: RPCServer, analytics: AnalyticsLogger, transaction: UnconfirmedTransaction, gasLimit: BigInt, data: Data) -> TransactionConfiguration {
+    private static func createConfiguration(server: RPCServer, analytics: AnalyticsLogger, transaction: UnconfirmedTransaction, gasLimit: BigUInt, data: Data) -> TransactionConfiguration {
         let gasPrice = GasPriceEstimator(analytics: analytics).estimateDefaultGasPrice(server: server, transaction: transaction)
         return TransactionConfiguration(gasPrice: gasPrice, gasLimit: gasLimit, data: data)
     }

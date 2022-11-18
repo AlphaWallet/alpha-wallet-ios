@@ -120,6 +120,14 @@ public final class EtherNumberFormatter {
         return string(from: number, decimals: decimals)
     }
 
+    public func string(from number: BigUInt, units: EthereumUnit = .ether) -> String {
+        let decimals = Int(log10(Double(units.rawValue)))
+        precondition(minimumFractionDigits >= 0)
+        precondition(maximumFractionDigits >= 0)
+
+        return formatToPrecision(number.magnitude, decimals: decimals)
+    }
+
     /// Formats a `BigInt` for displaying to the user.
     ///
     /// - Parameters:

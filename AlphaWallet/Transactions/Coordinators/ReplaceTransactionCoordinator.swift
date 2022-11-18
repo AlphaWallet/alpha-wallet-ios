@@ -18,8 +18,8 @@ class ReplaceTransactionCoordinator: Coordinator {
     private let tokensService: TokenViewModelState
     private let analytics: AnalyticsLogger
     private let domainResolutionService: DomainResolutionServiceType
-    private let pendingTransactionInformation: (server: RPCServer, data: Data, transactionType: TransactionType, gasPrice: BigInt)
-    private let nonce: BigInt
+    private let pendingTransactionInformation: (server: RPCServer, data: Data, transactionType: TransactionType, gasPrice: BigUInt)
+    private let nonce: BigUInt
     private let keystore: Keystore
     private let presentingViewController: UIViewController
     private let session: WalletSession
@@ -52,10 +52,10 @@ class ReplaceTransactionCoordinator: Coordinator {
             return .nativeCryptocurrency(MultipleChainsTokensDataStore.functional.etherToken(forServer: pendingTransactionInformation.server), destination: .address(session.account.address), amount: nil)
         }
     }
-    private var transactionValue: BigInt {
+    private var transactionValue: BigUInt {
         switch mode {
         case .speedup:
-            return BigInt(transaction.value) ?? 0
+            return BigUInt(transaction.value) ?? 0
         case .cancel:
             return 0
         }
@@ -82,7 +82,7 @@ class ReplaceTransactionCoordinator: Coordinator {
 
     init?(analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, keystore: Keystore, presentingViewController: UIViewController, session: WalletSession, transaction: TransactionInstance, mode: Mode, assetDefinitionStore: AssetDefinitionStore, tokensService: TokenViewModelState) {
         guard let pendingTransactionInformation = TransactionDataStore.pendingTransactionsInformation[transaction.id] else { return nil }
-        guard let nonce = BigInt(transaction.nonce) else { return nil }
+        guard let nonce = BigUInt(transaction.nonce) else { return nil }
         self.tokensService = tokensService
         self.pendingTransactionInformation = pendingTransactionInformation
         self.keystore = keystore
@@ -126,7 +126,7 @@ class ReplaceTransactionCoordinator: Coordinator {
         }
     }
 
-    private func computeGasPriceForReplacementTransaction(_ gasPrice: BigInt) -> BigInt {
+    private func computeGasPriceForReplacementTransaction(_ gasPrice: BigUInt) -> BigUInt {
         gasPrice * 110 / 100
     }
 }

@@ -4,17 +4,17 @@ import Foundation
 import BigInt
 
 public struct UnsignedTransaction {
-    public let value: BigInt
+    public let value: BigUInt
     public let account: AlphaWallet.Address
     public let to: AlphaWallet.Address?
     public let nonce: Int
     public let data: Data
-    public let gasPrice: BigInt
-    public let gasLimit: BigInt
+    public let gasPrice: BigUInt
+    public let gasLimit: BigUInt
     public let server: RPCServer
     public let transactionType: TransactionType
 
-    public init(value: BigInt, account: AlphaWallet.Address, to: AlphaWallet.Address?, nonce: Int, data: Data, gasPrice: BigInt, gasLimit: BigInt, server: RPCServer, transactionType: TransactionType) {
+    public init(value: BigUInt, account: AlphaWallet.Address, to: AlphaWallet.Address?, nonce: Int, data: Data, gasPrice: BigUInt, gasLimit: BigUInt, server: RPCServer, transactionType: TransactionType) {
         self.value = value
         self.account = account
         self.to = to

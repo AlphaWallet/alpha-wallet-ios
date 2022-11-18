@@ -8,8 +8,8 @@ import AlphaWalletFoundation
 class GasPriceConfigurationTests: XCTestCase {
 
     func testDefault() {
-        XCTAssertEqual(BigInt(9000000000), GasPriceConfiguration.defaultPrice)
-        XCTAssertEqual(BigInt(1000000000), GasPriceConfiguration.minPrice)
-        XCTAssertEqual(BigInt(700000000000), GasPriceConfiguration.maxPrice)
+        XCTAssertEqual(BigUInt(9000000000), GasPriceConfiguration.defaultPrice)
+        XCTAssertEqual(BigUInt(1000000000), GasPriceConfiguration.minPrice)
+        XCTAssertEqual(BigUInt(700000000000), GasPriceConfiguration.maxPrice)
     }
 }

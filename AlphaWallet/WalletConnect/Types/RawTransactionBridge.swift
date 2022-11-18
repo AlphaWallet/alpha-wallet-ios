@@ -20,12 +20,12 @@ struct RawTransactionBridge: Decodable {
         case data
     }
 
-    var value: BigInt? = .none
+    var value: BigUInt? = .none
     var to: AlphaWallet.Address? = .none
     var data: Data? = .none
-    var gas: BigInt? = .none
-    var gasPrice: BigInt? = .none
-    var nonce: BigInt? = .none
+    var gas: BigUInt? = .none
+    var gasPrice: BigUInt? = .none
+    var nonce: BigUInt? = .none
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -34,16 +34,16 @@ struct RawTransactionBridge: Decodable {
             to = AlphaWallet.Address(string: value)
         }
         if let value = try? container.decode(String.self, forKey: .gas).drop0x {
-            gas = BigInt(value, radix: 16)
+            gas = BigUInt(value, radix: 16)
         }
         if let value = try? container.decode(String.self, forKey: .gasPrice).drop0x {
-            gasPrice = BigInt(value, radix: 16)
+            gasPrice = BigUInt(value, radix: 16)
         }
         if let _value = try? container.decode(String.self, forKey: .value).drop0x {
-            value = BigInt(_value, radix: 16)
+            value = BigUInt(_value, radix: 16)
         }
         if let value = try? container.decode(String.self, forKey: .nonce).drop0x {
-            nonce = BigInt(value, radix: 16)
+            nonce = BigUInt(value, radix: 16)
         }
         if let value = try? container.decode(String.self, forKey: .data).drop0x {
             data = Data.fromHex(value)
@@ -52,7 +52,7 @@ struct RawTransactionBridge: Decodable {
 }
 
 extension RawTransactionBridge {
-    init(value: BigInt? = .none, to: AlphaWallet.Address? = .none, data: Data? = .none, gas: BigInt? = .none, gasPrice: BigInt? = .none, nonce: BigInt? = .none) {
+    init(value: BigUInt? = .none, to: AlphaWallet.Address? = .none, data: Data? = .none, gas: BigUInt? = .none, gasPrice: BigUInt? = .none, nonce: BigUInt? = .none) {
         self.value = value
         self.to = to
         self.data = data

@@ -4,16 +4,16 @@ import Foundation
 import BigInt
 
 public struct GasPriceConfiguration {
-    public static let defaultPrice: BigInt = EtherNumberFormatter.full.number(from: "9", units: UnitConfiguration.gasPriceUnit)!
-    public static let minPrice: BigInt = EtherNumberFormatter.full.number(from: "1", units: UnitConfiguration.gasPriceUnit)!
-    public static let oneGwei: BigInt = EtherNumberFormatter.full.number(from: "1", units: UnitConfiguration.gasPriceUnit)!
-    public static let maxPrice: BigInt = EtherNumberFormatter.full.number(from: "700", units: UnitConfiguration.gasPriceUnit)!
-    public static let xDaiGasPrice: BigInt = EtherNumberFormatter.full.number(from: "2", units: UnitConfiguration.gasPriceUnit)!
-    public static let klaytnMaxPrice: BigInt = EtherNumberFormatter.full.number(from: "750", units: UnitConfiguration.gasPriceUnit)!
+    public static let defaultPrice: BigUInt = BigUInt(EtherNumberFormatter.full.number(from: "9", units: UnitConfiguration.gasPriceUnit)!)
+    public static let minPrice: BigUInt = BigUInt(EtherNumberFormatter.full.number(from: "1", units: UnitConfiguration.gasPriceUnit)!)
+    public static let oneGwei: BigUInt = BigUInt(EtherNumberFormatter.full.number(from: "1", units: UnitConfiguration.gasPriceUnit)!)
+    public static let maxPrice: BigUInt = BigUInt(EtherNumberFormatter.full.number(from: "700", units: UnitConfiguration.gasPriceUnit)!)
+    public static let xDaiGasPrice: BigUInt = BigUInt(EtherNumberFormatter.full.number(from: "2", units: UnitConfiguration.gasPriceUnit)!)
+    public static let klaytnMaxPrice: BigUInt = BigUInt(EtherNumberFormatter.full.number(from: "750", units: UnitConfiguration.gasPriceUnit)!)
 }
 
 extension GasPriceConfiguration {
-    public static func defaultPrice(forServer server: RPCServer) -> BigInt {
+    public static func defaultPrice(forServer server: RPCServer) -> BigUInt {
         switch server.serverWithEnhancedSupport {
         case .klaytnCypress, .klaytnBaobabTestnet:
             return GasPriceConfiguration.klaytnMaxPrice
@@ -22,7 +22,7 @@ extension GasPriceConfiguration {
         }
     }
 
-    public static func maxPrice(forServer server: RPCServer) -> BigInt {
+    public static func maxPrice(forServer server: RPCServer) -> BigUInt {
         switch server.serverWithEnhancedSupport {
         case .klaytnCypress, .klaytnBaobabTestnet:
             return GasPriceConfiguration.klaytnMaxPrice

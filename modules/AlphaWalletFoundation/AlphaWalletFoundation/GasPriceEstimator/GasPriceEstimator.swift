@@ -18,7 +18,7 @@ public final class GasPriceEstimator {
         self.analytics = analytics
     }
 
-    public func shouldUseEstimatedGasPrice(_ estimatedGasPrice: BigInt, forTransaction transaction: UnconfirmedTransaction) -> Bool {
+    public func shouldUseEstimatedGasPrice(_ estimatedGasPrice: BigUInt, forTransaction transaction: UnconfirmedTransaction) -> Bool {
         //Gas price may be specified in the transaction object, and it will be if we are trying to speedup or cancel a transaction. The replacement transaction will be automatically assigned a slightly higher gas price. We don't want to override that with what we fetch back from gas price estimate if the estimate is lower
         if let specifiedGasPrice = transaction.gasPrice, specifiedGasPrice > estimatedGasPrice {
             return false
@@ -41,13 +41,13 @@ public final class GasPriceEstimator {
         }
     }
 
-    public func estimateDefaultGasPrice(server: RPCServer, transaction: UnconfirmedTransaction) -> BigInt {
+    public func estimateDefaultGasPrice(server: RPCServer, transaction: UnconfirmedTransaction) -> BigUInt {
         switch server.serverWithEnhancedSupport {
         case .xDai:
             return GasPriceConfiguration.xDaiGasPrice
         case .main, .candle, .polygon, .binance_smart_chain, .heco, .rinkeby, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, nil:
-            let maxPrice: BigInt = GasPriceConfiguration.maxPrice(forServer: server)
-            let defaultPrice: BigInt = GasPriceConfiguration.defaultPrice(forServer: server)
+            let maxPrice: BigUInt = GasPriceConfiguration.maxPrice(forServer: server)
+            let defaultPrice: BigUInt = GasPriceConfiguration.defaultPrice(forServer: server)
             if let gasPrice = transaction.gasPrice, gasPrice > 0 {
                 //We don't compare to `GasPriceConfiguration.minPrice` because if the transaction already has a price (from speedup/cancel or dapp), we should use it
                 return min(gasPrice, maxPrice)
@@ -64,10 +64,10 @@ public final class GasPriceEstimator {
         }.get { estimates in
             infoLog("Estimated gas price with gas price estimator API server: \(server) estimate: \(estimates)")
         }.map { estimates in
-            GasEstimates(standard: BigInt(estimates.standard), others: [
-                TransactionConfigurationType.slow: BigInt(estimates.slow),
-                TransactionConfigurationType.fast: BigInt(estimates.fast),
-                TransactionConfigurationType.rapid: BigInt(estimates.rapid)
+            GasEstimates(standard: BigUInt(estimates.standard), others: [
+                TransactionConfigurationType.slow: BigUInt(estimates.slow),
+                TransactionConfigurationType.fast: BigUInt(estimates.fast),
+                TransactionConfigurationType.rapid: BigUInt(estimates.rapid)
             ])
         }
     }

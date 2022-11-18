@@ -2,6 +2,7 @@
 
 import Foundation
 
+//NOTE: update with using raw NSDecimalNumber
 public struct TransactionValue {
     public let amount: String
     public let symbol: String

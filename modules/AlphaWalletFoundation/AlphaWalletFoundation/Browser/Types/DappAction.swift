@@ -60,18 +60,18 @@ extension DappAction {
     }
 
     private static func makeUnconfirmedTransaction(_ object: [String: DappCommandObjectValue], server: RPCServer, transactionType: TransactionType) -> UnconfirmedTransaction {
-        let value = BigInt((object["value"]?.value ?? "0").drop0x, radix: 16) ?? BigInt()
-        let nonce: BigInt? = {
+        let value = BigUInt((object["value"]?.value ?? "0").drop0x, radix: 16) ?? BigUInt()
+        let nonce: BigUInt? = {
             guard let value = object["nonce"]?.value else { return .none }
-            return BigInt(value.drop0x, radix: 16)
+            return BigUInt(value.drop0x, radix: 16)
         }()
-        let gasLimit: BigInt? = {
+        let gasLimit: BigUInt? = {
             guard let value = object["gasLimit"]?.value ?? object["gas"]?.value else { return .none }
-            return BigInt((value).drop0x, radix: 16)
+            return BigUInt((value).drop0x, radix: 16)
         }()
-        let gasPrice: BigInt? = {
+        let gasPrice: BigUInt? = {
             guard let value = object["gasPrice"]?.value else { return .none }
-            return BigInt((value).drop0x, radix: 16)
+            return BigUInt((value).drop0x, radix: 16)
         }()
         let data = Data(_hex: object["data"]?.value ?? "0x")
 

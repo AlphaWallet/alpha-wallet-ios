@@ -104,7 +104,7 @@ extension TransferCollectiblesCoordinator: SendSemiFungibleTokenViewControllerDe
                 data = (try? Erc1155SafeBatchTransferFrom(recipient: recipient, account: session.account.address, tokenIdsAndValues: tokenIdsAndValues).encodedABI())  ?? Data()
             }
             let transactionType: TransactionType = .init(nonFungibleToken: token, tokenHolders: tokenHolders)
-            let transaction = UnconfirmedTransaction(transactionType: transactionType, value: BigInt(0), recipient: recipient, contract: firstTokenHolder.contractAddress, data: data)
+            let transaction = UnconfirmedTransaction(transactionType: transactionType, value: BigUInt(0), recipient: recipient, contract: firstTokenHolder.contractAddress, data: data)
 
             let configuration: TransactionType.Configuration = .sendNftTransaction(confirmType: .signThenSend)
             let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
