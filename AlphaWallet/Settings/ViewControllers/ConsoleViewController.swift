@@ -25,7 +25,7 @@ class ConsoleViewController: UIViewController {
     private let viewModel: ConsoleViewModel
     private var cancelable = Set<AnyCancellable>()
     private lazy var dataSource: ConsoleViewModel.DataSource = makeDataSource()
-    private let appear = PassthroughSubject<Void, Never>()
+    private let willAppear = PassthroughSubject<Void, Never>()
 
     weak var delegate: ConsoleViewControllerDelegate?
 
@@ -33,7 +33,6 @@ class ConsoleViewController: UIViewController {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
-        view.backgroundColor = Configuration.Color.Semantic.tableViewBackground
         view.addSubview(tableView)
         NSLayoutConstraint.activate([
             tableView.anchorsConstraint(to: view)
@@ -44,13 +43,14 @@ class ConsoleViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         bind(viewModel: viewModel)
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        appear.send(())
+        willAppear.send(())
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -58,7 +58,7 @@ class ConsoleViewController: UIViewController {
     }
 
     private func bind(viewModel: ConsoleViewModel) {
-        let input = ConsoleViewModelInput(appear: appear.eraseToAnyPublisher())
+        let input = ConsoleViewModelInput(willAppear: willAppear.eraseToAnyPublisher())
         let output = viewModel.transform(input: input)
 
         output.viewState
@@ -77,7 +77,7 @@ extension ConsoleViewController: StatefulViewController {
 }
 
 fileprivate extension ConsoleViewController {
-    func makeDataSource() -> ConsoleViewModel.DataSource {
+    private func makeDataSource() -> ConsoleViewModel.DataSource {
         return ConsoleViewModel.DataSource(tableView: tableView, cellProvider: { tableView, indexPath, message in
             let cell: UITableViewCell = tableView.dequeueReusableCell(for: indexPath)
             cell.textLabel?.numberOfLines = 0

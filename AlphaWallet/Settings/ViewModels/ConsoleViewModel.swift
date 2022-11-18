@@ -11,7 +11,7 @@ import AlphaWalletFoundation
 import Combine
 
 struct ConsoleViewModelInput {
-    let appear: AnyPublisher<Void, Never>
+    let willAppear: AnyPublisher<Void, Never>
 }
 
 struct ConsoleViewModelOutput {
