@@ -5,7 +5,7 @@ import AlphaWalletFoundation
 import Combine
 
 struct ChooseSendPrivateTransactionsProviderViewModelInput {
-    let appear: AnyPublisher<Void, Never>
+    let willAppear: AnyPublisher<Void, Never>
     let selection: AnyPublisher<IndexPath, Never>
 }
 
@@ -26,24 +26,25 @@ class ChooseSendPrivateTransactionsProviderViewModel {
             .map { return self.selectProvider(indexPath: $0) }
             .prepend(config.sendPrivateTransactionsProvider)
 
-        let providers = input.appear
+        let providers = input.willAppear
             .map { _ in self.providers }
 
         let viewState = Publishers.CombineLatest(providers, selection)
             .map { providers, selection -> [SwitchTableViewCellViewModel] in
-                return providers.map { row in
-                    .init(titleText: row.title, icon: row.icon, value: selection == row)
-                }
-            }.map { viewModels -> Snapshot in
-                var snapshot = Snapshot()
-                snapshot.appendSections(ChooseSendPrivateTransactionsProviderViewModel.Section.allCases)
-                snapshot.appendItems(viewModels)
-
-                return snapshot
-            }.map { ChooseSendPrivateTransactionsProviderViewModel.ViewState(title: R.string.localizable.settingsChooseSendPrivateTransactionsProviderButtonTitle(), largeTitleDisplayMode: .never, snapshot: $0)
-            }.eraseToAnyPublisher()
+                return providers.map { .init(titleText: $0.title, icon: $0.icon, value: selection == $0) }
+            }.map { self.buildSnapshot(for: $0) }
+            .map { ChooseSendPrivateTransactionsProviderViewModel.ViewState(snapshot: $0) }
+            .eraseToAnyPublisher()
 
         return .init(viewState: viewState)
+    }
+
+    private func buildSnapshot(for viewModels: [SwitchTableViewCellViewModel]) -> Snapshot {
+        var snapshot = Snapshot()
+        snapshot.appendSections(ChooseSendPrivateTransactionsProviderViewModel.Section.allCases)
+        snapshot.appendItems(viewModels)
+
+        return snapshot
     }
 
     private func selectProvider(indexPath: IndexPath) -> SendPrivateTransactionsProvider? {
@@ -70,8 +71,7 @@ extension ChooseSendPrivateTransactionsProviderViewModel {
     }
     
     struct ViewState {
-        let title: String
-        let largeTitleDisplayMode: UINavigationItem.LargeTitleDisplayMode
+        let title: String = R.string.localizable.settingsChooseSendPrivateTransactionsProviderButtonTitle()
         let snapshot: Snapshot
     }
 }

@@ -10,15 +10,10 @@ protocol ServersViewControllerDelegate: AnyObject {
 
 class ServersViewController: UIViewController {
     private lazy var tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .grouped)
-        tableView.translatesAutoresizingMaskIntoConstraints = false
+        let tableView = UITableView.grouped
+        tableView.register(RPCDisplaySelectableTableViewCell.self)
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.separatorStyle = .singleLine
-        tableView.separatorColor = Configuration.Color.Semantic.tableViewSeparator
-        tableView.backgroundColor = Configuration.Color.Semantic.tableViewBackground
-        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
-        tableView.register(RPCDisplaySelectableTableViewCell.self)
 
         return tableView
     }()

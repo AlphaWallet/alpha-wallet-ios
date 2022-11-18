@@ -7,22 +7,15 @@ import Combine
 class ChooseSendPrivateTransactionsProviderViewController: UIViewController {
     private let viewModel: ChooseSendPrivateTransactionsProviderViewModel
     private lazy var tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .grouped)
-        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
+        let tableView = UITableView.grouped
         tableView.register(SettingTableViewCell.self)
         tableView.register(SelectionTableViewCell.self)
-        tableView.separatorStyle = .singleLine
-        tableView.separatorColor = Configuration.Color.Semantic.tableViewSeparator
-        tableView.backgroundColor = Configuration.Color.Semantic.tableViewBackground
-
         tableView.delegate = self
-        tableView.translatesAutoresizingMaskIntoConstraints = false
 
         return tableView
     }()
     private lazy var dataSource: ChooseSendPrivateTransactionsProviderViewModel.DataSource = makeDataSource()
-    private let appear = PassthroughSubject<Void, Never>()
-    private let disappear = PassthroughSubject<Void, Never>()
+    private let willAppear = PassthroughSubject<Void, Never>()
     private let selection = PassthroughSubject<IndexPath, Never>()
     private var cancelable = Set<AnyCancellable>()
 
@@ -33,28 +26,34 @@ class ChooseSendPrivateTransactionsProviderViewController: UIViewController {
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.anchorsConstraint(to: view)
+            tableView.anchorsConstraintSafeArea(to: view)
         ])
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        navigationItem.largeTitleDisplayMode = .never
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
+
         bind(viewModel: viewModel)
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        appear.send(())
+        willAppear.send(())
     }
 
     private func bind(viewModel: ChooseSendPrivateTransactionsProviderViewModel) {
-        let input = ChooseSendPrivateTransactionsProviderViewModelInput(appear: appear.eraseToAnyPublisher(), selection: selection.eraseToAnyPublisher())
+        let input = ChooseSendPrivateTransactionsProviderViewModelInput(
+            willAppear: willAppear.eraseToAnyPublisher(),
+            selection: selection.eraseToAnyPublisher())
 
         let output = viewModel.transform(input: input)
         output.viewState
             .sink { [dataSource, navigationItem] state in
                 navigationItem.title = state.title
-                navigationItem.largeTitleDisplayMode = state.largeTitleDisplayMode
+
                 dataSource.apply(state.snapshot, animatingDifferences: false)
             }.store(in: &cancelable)
     }
@@ -101,5 +100,19 @@ extension ChooseSendPrivateTransactionsProviderViewController: UITableViewDelega
         tableView.deselectRow(at: indexPath, animated: true)
 
         selection.send(indexPath)
+    }
+}
+
+
+extension UITableView {
+    static var grouped: UITableView {
+        let tableView = UITableView(frame: .zero, style: .grouped)
+        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
+        tableView.separatorStyle = .singleLine
+        tableView.separatorColor = Configuration.Color.Semantic.tableViewSeparator
+        tableView.backgroundColor = Configuration.Color.Semantic.tableViewBackground
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+
+        return tableView
     }
 }

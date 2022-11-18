@@ -197,6 +197,8 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
         let controller = AdvancedSettingsViewController(viewModel: viewModel)
         controller.delegate = self
         controller.hidesBottomBarWhenPushed = true
+        controller.navigationItem.largeTitleDisplayMode = .never
+        
         navigationController.pushViewController(controller, animated: true)
     }
 }

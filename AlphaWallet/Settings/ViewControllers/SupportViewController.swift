@@ -22,13 +22,9 @@ class SupportViewController: UIViewController {
     private let viewModel: SupportViewModel
 
     private lazy var tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .grouped)
-        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
+        let tableView = UITableView.grouped
         tableView.register(SettingTableViewCell.self)
-        tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = Configuration.Color.Semantic.tableViewBackground
         tableView.delegate = self
-        tableView.translatesAutoresizingMaskIntoConstraints = false
         
         return tableView
     }()
@@ -135,6 +131,8 @@ extension SupportViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        
         selection.send(indexPath)
     }
 }
