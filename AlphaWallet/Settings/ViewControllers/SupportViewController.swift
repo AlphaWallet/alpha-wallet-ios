@@ -7,69 +7,93 @@
 
 import UIKit
 import AlphaWalletFoundation
+import Combine
 
 protocol SupportViewControllerDelegate: class, CanOpenURL {
-
+    func supportActionSelected(in viewController: SupportViewController, action: SupportViewModel.SupportAction)
+    func didClose(in viewController: SupportViewController)
 }
 
 class SupportViewController: UIViewController {
-    private let analytics: AnalyticsLogger
-    private lazy var viewModel: SupportViewModel = SupportViewModel()
+    private var cancelable = Set<AnyCancellable>()
+    private lazy var dataSource: SupportViewModel.DataSource = makeDataSource()
+    private let willAppear = PassthroughSubject<Void, Never>()
+    private let selection = PassthroughSubject<IndexPath, Never>()
+    private let viewModel: SupportViewModel
+
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.register(SettingTableViewCell.self)
         tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
-        tableView.dataSource = self
+        tableView.backgroundColor = Configuration.Color.Semantic.tableViewBackground
         tableView.delegate = self
         tableView.translatesAutoresizingMaskIntoConstraints = false
         
         return tableView
     }()
-    private let roundedBackground = RoundedBackground()
-    weak var delegate: SupportViewControllerDelegate?
-    private let resolver = ContactUsEmailResolver()
 
-    init(analytics: AnalyticsLogger) {
-        self.analytics = analytics
+    weak var delegate: SupportViewControllerDelegate?
+
+    init(viewModel: SupportViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
-        roundedBackground.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
-
-        view.addSubview(roundedBackground)
-        roundedBackground.addSubview(tableView)
+        view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
-            tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-        ] + roundedBackground.createConstraintsWithContainer(view: view))
+            tableView.anchorsConstraintSafeArea(to: view)
+        ])
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        title = viewModel.title
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         navigationItem.largeTitleDisplayMode = .never
+
+        bind(viewModel: viewModel)
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        willAppear.send(())
     }
 
     required init?(coder aDecoder: NSCoder) {
         return nil
     }
+
+    private func bind(viewModel: SupportViewModel) {
+        let input = SupportViewModelInput(
+            willAppear: willAppear.eraseToAnyPublisher(),
+            selection: selection.eraseToAnyPublisher())
+
+        let output = viewModel.transform(input: input)
+
+        output.viewState
+            .sink { [dataSource, navigationItem] viewState in
+                navigationItem.title = viewState.title
+                dataSource.apply(viewState.snapshot, animatingDifferences: viewState.animatingDifferences)
+            }.store(in: &cancelable)
+
+        output.supportAction
+            .sink { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.delegate?.supportActionSelected(in: strongSelf, action: $0)
+            }.store(in: &cancelable)
+    }
 }
 
-extension SupportViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.rows.count
-    }
+fileprivate extension SupportViewController {
+    private func makeDataSource() -> SupportViewModel.DataSource {
+        return SupportViewModel.DataSource(tableView: tableView, cellProvider: { tableView, indexPath, viewModel in
+            let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+            cell.configure(viewModel: viewModel)
+            cell.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-        cell.configure(viewModel: viewModel.cellViewModel(indexPath: indexPath))
-        cell.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
-        return cell
+            return cell
+        })
     }
 }
 
@@ -111,72 +135,12 @@ extension SupportViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        switch viewModel.rows[indexPath.row] {
-        case .faq:
-            logAccessFaq()
-            openURL(.faq)
-        case .discord:
-            logAccessDiscord()
-            openURL(.discord)
-        case .telegramCustomer:
-            logAccessTelegramCustomerSupport()
-            openURL(.telegramCustomer)
-        case .twitter:
-            logAccessTwitter()
-            openURL(.twitter)
-        case .reddit:
-            logAccessReddit()
-            openURL(.reddit)
-        case .facebook:
-            logAccessFacebook()
-            openURL(.facebook)
-        case .blog:
-            break
-        case .github:
-            logAccessGithub()
-            openURL(.github)
-        case .email:
-            let attachments = Features.default.isAvailable(.isAttachingLogFilesToSupportEmailEnabled) ? DDLogger.logFilesAttachments : []
-            resolver.present(from: self, attachments: attachments)
-        }
-    }
-
-    private func openURL(_ provider: URLServiceProvider) {
-        if let deepLinkURL = provider.deepLinkURL, UIApplication.shared.canOpenURL(deepLinkURL) {
-            UIApplication.shared.open(deepLinkURL, options: [:], completionHandler: .none)
-        } else {
-            delegate?.didPressOpenWebPage(provider.remoteURL, in: self)
-        }
+        selection.send(indexPath)
     }
 }
 
-// MARK: Analytics
-extension SupportViewController {
-    private func logAccessFaq() {
-        analytics.log(navigation: Analytics.Navigation.faq)
-    }
-
-    private func logAccessDiscord() {
-        analytics.log(navigation: Analytics.Navigation.discord)
-    }
-
-    private func logAccessTelegramCustomerSupport() {
-        analytics.log(navigation: Analytics.Navigation.telegramCustomerSupport)
-    }
-
-    private func logAccessTwitter() {
-        analytics.log(navigation: Analytics.Navigation.twitter)
-    }
-
-    private func logAccessReddit() {
-        analytics.log(navigation: Analytics.Navigation.reddit)
-    }
-
-    private func logAccessFacebook() {
-        analytics.log(navigation: Analytics.Navigation.facebook)
-    }
-
-    private func logAccessGithub() {
-        analytics.log(navigation: Analytics.Navigation.github)
+extension SupportViewController: PopNotifiable {
+    func didPopViewController(animated: Bool) {
+        delegate?.didClose(in: self)
     }
 }

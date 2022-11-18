@@ -100,10 +100,6 @@ class SettingsCoordinator: Coordinator {
     }
 }
 
-extension SettingsCoordinator: SupportViewControllerDelegate {
-
-}
-
 extension SettingsCoordinator: RenameWalletViewControllerDelegate {
 
     func didFinish(in viewController: RenameWalletViewController) {
@@ -154,12 +150,11 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
     }
 
     func helpSelected(in controller: SettingsViewController) {
-        let viewController = SupportViewController(analytics: analytics)
-        viewController.delegate = self
-        viewController.navigationItem.largeTitleDisplayMode = .never
-        viewController.hidesBottomBarWhenPushed = true
+        let coordinator = SupportCoordinator(navigationController: navigationController, analytics: analytics)
+        coordinator.delegate = self
+        addCoordinator(coordinator)
 
-        navigationController.pushViewController(viewController, animated: true)
+        coordinator.start()
     }
 
     func changeWalletSelected(in controller: SettingsViewController) {
@@ -208,6 +203,12 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
 
 extension SettingsCoordinator: ShowSeedPhraseCoordinatorDelegate {
     func didCancel(in coordinator: ShowSeedPhraseCoordinator) {
+        removeCoordinator(coordinator)
+    }
+}
+
+extension SettingsCoordinator: SupportCoordinatorDelegate {
+    func didClose(in coordinator: SupportCoordinator) {
         removeCoordinator(coordinator)
     }
 }
