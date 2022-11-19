@@ -54,7 +54,9 @@ public class AlphaWalletTokensService: TokensService {
             .eraseToAnyPublisher()
     }
 
-    public var tokens: [Token] { providers.value.flatMap { $0.value.tokens } }
+    public var tokens: [Token] {
+        AlphaWalletTokensService.filterAwaySpuriousTokens(providers.value.flatMap { $0.value.tokens })
+    }
 
     public lazy var newTokens: AnyPublisher<[Token], Never> = {
         providers.map { $0.values }
