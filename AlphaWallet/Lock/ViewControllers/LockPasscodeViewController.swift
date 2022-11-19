@@ -26,7 +26,6 @@ class LockPasscodeViewController: UIViewController {
 	override func viewDidLoad() {
         super.viewDidLoad()
 
-		NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
 		configureInvisiblePasscodeField()
 		configureLockView()
@@ -79,16 +78,6 @@ class LockPasscodeViewController: UIViewController {
 		invisiblePasscodeField.becomeFirstResponder()
 	}
 
-	@objc private func keyboardWillShow(_ notification: Notification) {
-		if let userInfo = notification.userInfo {
-			if let keyboardSize = (userInfo[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
-				UIView.animate(withDuration: 0.1) { [weak self] () -> Void in
-					guard let strongSelf = self else { return }
-					strongSelf.lockView.bottomAnchor.constraint(equalTo: strongSelf.view.bottomAnchor, constant: -keyboardSize.height).isActive = true
-				}
-			}
-		}
-	}
 	required init?(coder aDecoder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
 	}
