@@ -3,15 +3,15 @@
 import Foundation
 import UIKit
 
-protocol BrowserHistoryViewControllerHeaderViewDelegate: AnyObject {
-    func didTapClearAll(inHeaderView headerView: BrowserHistoryViewControllerHeaderView)
+protocol BrowserHistoryHeaderViewDelegate: AnyObject {
+    func didTapClearAll(in headerView: BrowserHistoryHeaderView)
 }
 
-class BrowserHistoryViewControllerHeaderView: UIView {
+class BrowserHistoryHeaderView: UIView {
     private let header = BrowserHomeHeaderView()
     private let clearButton = UIButton(type: .system)
 
-    weak var delegate: BrowserHistoryViewControllerHeaderViewDelegate?
+    weak var delegate: BrowserHistoryHeaderViewDelegate?
 
     init() {
         super.init(frame: .zero)
@@ -32,6 +32,8 @@ class BrowserHistoryViewControllerHeaderView: UIView {
             clearButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             clearButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20),
         ])
+
+        backgroundColor = Configuration.Color.Semantic.defaultViewBackground
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -39,7 +41,6 @@ class BrowserHistoryViewControllerHeaderView: UIView {
     }
 
     func configure(viewModel: BrowserHomeHeaderViewModel) {
-        backgroundColor = viewModel.backgroundColor
         header.configure(viewModel: viewModel)
 
         clearButton.setTitle(R.string.localizable.clearButtonTitle().localizedUppercase, for: .normal)
@@ -47,6 +48,6 @@ class BrowserHistoryViewControllerHeaderView: UIView {
     }
 
     @objc private func clearHistory() {
-        delegate?.didTapClearAll(inHeaderView: self)
+        delegate?.didTapClearAll(in: self)
     }
 }

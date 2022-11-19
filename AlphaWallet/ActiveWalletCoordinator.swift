@@ -372,7 +372,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     }
 
     private func createBrowserCoordinator(browserOnly: Bool) -> DappBrowserCoordinator {
-        let coordinator = DappBrowserCoordinator(sessionsProvider: sessionsProvider, keystore: keystore, config: config, browserOnly: browserOnly, analytics: analytics, domainResolutionService: domainResolutionService, assetDefinitionStore: assetDefinitionStore, tokensService: tokenCollection, bookmarksStore: BookmarksStore(), historyStore: HistoryStore(ignoreUrls: [Constants.dappsBrowserURL]), wallet: wallet)
+        let coordinator = DappBrowserCoordinator(sessionsProvider: sessionsProvider, keystore: keystore, config: config, browserOnly: browserOnly, analytics: analytics, domainResolutionService: domainResolutionService, assetDefinitionStore: assetDefinitionStore, tokensService: tokenCollection, bookmarksStore: BookmarksStore(), browserHistoryStorage: BrowserHistoryStorage(ignoreUrls: [Constants.dappsBrowserURL]), wallet: wallet)
         coordinator.delegate = self
         coordinator.start()
         coordinator.rootViewController.tabBarItem = ActiveWalletViewModel.Tabs.browser.tabBarItem

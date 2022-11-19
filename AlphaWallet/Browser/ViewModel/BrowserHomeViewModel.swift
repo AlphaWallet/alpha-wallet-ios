@@ -63,12 +63,14 @@ class BrowserHomeViewModel {
 
 extension BrowserHomeViewModel {
     typealias Snapshot = NSDiffableDataSourceSnapshot<BrowserHomeViewModel.Section, DappViewCellViewModel>
+    typealias DataSource = UICollectionViewDiffableDataSource<BrowserHomeViewModel.Section, DappViewCellViewModel>
 
     enum Section: Int, CaseIterable {
         case bookmarks
     }
 
     struct ViewState {
+        let animatingDifferences: Bool = false
         let snapshot: BrowserHomeViewModel.Snapshot
     }
 }

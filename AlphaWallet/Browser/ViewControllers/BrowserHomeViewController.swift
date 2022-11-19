@@ -132,7 +132,7 @@ class BrowserHomeViewController: UIViewController {
 
         output.viewState
             .sink { [dataSource] viewState in
-                dataSource.apply(viewState.snapshot, animatingDifferences: false)
+                dataSource.apply(viewState.snapshot, animatingDifferences: viewState.animatingDifferences)
             }.store(in: &cancelable)
     }
 
@@ -167,9 +167,9 @@ extension BrowserHomeViewController: UICollectionViewDelegateFlowLayout {
 }
 
 fileprivate extension BrowserHomeViewController {
-    typealias DataSource = UICollectionViewDiffableDataSource<BrowserHomeViewModel.Section, DappViewCellViewModel>
-    func makeDataSource() -> DataSource {
-        let dataSource = DataSource(collectionView: collectionView, cellProvider: { collectionView, indexPath, viewModel in
+    
+    func makeDataSource() -> BrowserHomeViewModel.DataSource {
+        let dataSource = BrowserHomeViewModel.DataSource(collectionView: collectionView, cellProvider: { collectionView, indexPath, viewModel in
             let cell: DappViewCell = collectionView.dequeueReusableCell(for: indexPath)
             cell.delegate = self
             cell.configure(viewModel: viewModel)
@@ -196,13 +196,13 @@ extension BrowserHomeViewController: DappViewCellDelegate {
         guard let indexPath = cell.indexPath else { return }
         let bookmark = viewModel.bookmark(at: indexPath.row)
 
-        confirm(title: R.string.localizable.dappBrowserClearMyDapps(), message: bookmark.title, okTitle: R.string.localizable.removeButtonTitle(), okStyle: .destructive) { [deleteBookmark] result in
-            switch result {
-            case .success:
+        confirm(
+            title: R.string.localizable.dappBrowserClearMyDapps(),
+            message: bookmark.title,
+            okTitle: R.string.localizable.removeButtonTitle(),
+            okStyle: .destructive) { [deleteBookmark] result in
+                guard case .success = result else { return }
                 deleteBookmark.send(indexPath)
-            case .failure:
-                break
-            }
         }
     }
 

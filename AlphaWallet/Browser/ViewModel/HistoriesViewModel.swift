@@ -2,23 +2,76 @@
 
 import Foundation
 import AlphaWalletFoundation
+import Combine
 
-struct HistoriesViewModel {
-    private let store: HistoryStore
+struct BrowserHistoryViewModelInput {
+    let deleteRecord: AnyPublisher<BrowserHistoryViewModel.DeleteRecordAction, Never>
+}
 
-    init(store: HistoryStore) {
-        self.store = store
+struct BrowserHistoryViewModelOutput {
+    let viewState: AnyPublisher<BrowserHistoryViewModel.ViewState, Never>
+}
+
+class BrowserHistoryViewModel {
+    private let browserHistoryStorage: BrowserHistoryStorage
+    private var cancelable = Set<AnyCancellable>()
+
+    init(browserHistoryStorage: BrowserHistoryStorage) {
+        self.browserHistoryStorage = browserHistoryStorage
     }
 
-    var hasContent: Bool {
-        return !store.histories.isEmpty
+    func transform(input: BrowserHistoryViewModelInput) -> BrowserHistoryViewModelOutput {
+        input.deleteRecord
+            .sink { [browserHistoryStorage] action in
+                switch action {
+                case .record(let record):
+                    browserHistoryStorage.delete(histories: [record])
+                case .all:
+                    browserHistoryStorage.clearAll()
+                }
+            }.store(in: &cancelable)
+
+        let snapshot = browserHistoryStorage.historiesChangeset
+            .map { changeSet -> [BrowserHistoryRecord] in
+                switch changeSet {
+                case .initial(let results): return Array(results)
+                case .error: return []
+                case .update(let results, _, _, _): return Array(results)
+                }
+            }.map { $0.map { BrowserHistoryCellViewModel(history: $0) } }
+            .map { self.buildSnapshot(for: $0) }
+
+        let viewState = snapshot
+            .map { BrowserHistoryViewModel.ViewState(snapshot: $0) }
+            .eraseToAnyPublisher()
+
+        return .init(viewState: viewState)
     }
 
-    var numberOfRows: Int {
-        return store.histories.count
+    private func buildSnapshot(for viewModels: [BrowserHistoryCellViewModel]) -> BrowserHistoryViewModel.Snapshot {
+        var snapshot = BrowserHistoryViewModel.Snapshot()
+        snapshot.appendSections([.history])
+        snapshot.appendItems(viewModels, toSection: .history)
+
+        return snapshot
+    }
+}
+
+extension BrowserHistoryViewModel {
+    typealias Snapshot = NSDiffableDataSourceSnapshot<BrowserHistoryViewModel.Section, BrowserHistoryCellViewModel>
+    typealias DataSource = UITableViewDiffableDataSource<BrowserHistoryViewModel.Section, BrowserHistoryCellViewModel>
+
+    enum Section: Int, CaseIterable {
+        case history
     }
 
-    func item(for indexPath: IndexPath) -> History {
-        return store.histories[indexPath.row]
+    enum DeleteRecordAction {
+        case record(BrowserHistoryRecord)
+        case all
+    }
+
+    struct ViewState {
+        let snapshot: BrowserHistoryViewModel.Snapshot
+        let animatingDifferences: Bool = false
     }
 }

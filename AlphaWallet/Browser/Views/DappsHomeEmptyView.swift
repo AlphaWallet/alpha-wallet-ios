@@ -32,7 +32,7 @@ class DappsHomeEmptyView: UIView {
     }
 
     func configure(viewModel: DappsHomeEmptyViewModel) {
-        backgroundColor = viewModel.headerViewViewModel.backgroundColor
+        backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         header.configure(viewModel: viewModel.headerViewViewModel)
 
         label.font = Fonts.regular(size: 18)

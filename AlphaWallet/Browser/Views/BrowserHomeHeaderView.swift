@@ -4,19 +4,27 @@ import Foundation
 import UIKit
 
 class BrowserHomeHeaderView: UIView {
-    private let stackView = [].asStackView(axis: .vertical, contentHuggingPriority: .required, alignment: .center)
-    private let logoImage = UIImageView()
+    private let logoImage: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+
+        return imageView
+    }()
     private let titleLabel = UILabel()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.addArrangedSubviews([
+        translatesAutoresizingMaskIntoConstraints = false
+
+        let stackView = [
             logoImage,
             .spacer(height: 20),
             titleLabel,
-        ])
+        ].asStackView(axis: .vertical, contentHuggingPriority: .required, alignment: .center)
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        
         addSubview(stackView)
 
         NSLayoutConstraint.activate([
@@ -35,11 +43,7 @@ class BrowserHomeHeaderView: UIView {
     }
 
     func configure(viewModel: BrowserHomeHeaderViewModel) {
-        backgroundColor = viewModel.backgroundColor
-
-        logoImage.contentMode = .scaleAspectFit
         logoImage.image = viewModel.logo
-
         titleLabel.font = viewModel.titleFont
         titleLabel.text = viewModel.title
     }

@@ -100,7 +100,7 @@ final class BookmarksViewController: UIViewController {
     private func resizeTableViewHeader() {
         headerView.delegate = self
         headerView.configure(viewModel: viewModel.headerViewModel)
-        headerView.backgroundColor = viewModel.headerViewModel.backgroundColor //?? why do we need to set it multiple times
+        
         let fittingSize = headerView.systemLayoutSizeFitting(.init(width: tableView.frame.size.width, height: 1000))
         headerView.frame = .init(x: 0, y: 0, width: 0, height: fittingSize.height)
         tableView.tableHeaderView = headerView

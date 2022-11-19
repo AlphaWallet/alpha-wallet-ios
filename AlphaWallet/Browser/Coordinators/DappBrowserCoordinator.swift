@@ -24,7 +24,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     private let browserOnly: Bool
     private let tokensService: TokenViewModelState
     private let bookmarksStore: BookmarksStore
-    private let historyStore: HistoryStore
+    private let browserHistoryStorage: BrowserHistoryStorage
     private var urlParser: BrowserURLParser {
         return BrowserURLParser()
     }
@@ -83,7 +83,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         assetDefinitionStore: AssetDefinitionStore,
         tokensService: TokenViewModelState,
         bookmarksStore: BookmarksStore,
-        historyStore: HistoryStore,
+        browserHistoryStorage: BrowserHistoryStorage,
         wallet: Wallet
     ) {
         self.wallet = wallet
@@ -93,7 +93,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         self.keystore = keystore
         self.config = config
         self.bookmarksStore = bookmarksStore
-        self.historyStore = historyStore
+        self.browserHistoryStorage = browserHistoryStorage
         self.browserOnly = browserOnly
         self.analytics = analytics
         self.domainResolutionService = domainResolutionService
@@ -122,9 +122,10 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     private func createHistoryViewController() -> BrowserHistoryViewController {
-        let controller = BrowserHistoryViewController(store: historyStore)
-        controller.configure(viewModel: HistoriesViewModel(store: historyStore))
+        let viewModel = BrowserHistoryViewModel(browserHistoryStorage: browserHistoryStorage)
+        let controller = BrowserHistoryViewController(viewModel: viewModel)
         controller.delegate = self
+        
         return controller
     }
 
@@ -506,9 +507,10 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
 
     func didVisitURL(url: URL, title: String, inBrowserViewController viewController: BrowserViewController) {
         browserNavBar?.display(url: url)
-        if let mostRecentUrl = historyStore.histories.first?.url, mostRecentUrl == url.absoluteString {
+        if let mostRecentUrl = browserHistoryStorage.histories.first?.url, mostRecentUrl == url {
+
         } else {
-            historyStore.record(url: url, title: title)
+            browserHistoryStorage.addRecord(url: url, title: title)
         }
     }
 
@@ -526,14 +528,8 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
 }
 
 extension DappBrowserCoordinator: BrowserHistoryViewControllerDelegate {
-    func didSelect(history: History, inViewController controller: BrowserHistoryViewController) {
-        guard let url = history.URL else { return }
-        open(url: url)
-    }
-
-    func clearHistory(inViewController viewController: BrowserHistoryViewController) {
-        historyStore.clearAll()
-        viewController.configure(viewModel: HistoriesViewModel(store: historyStore))
+    func didSelect(history: BrowserHistoryRecord, in viewController: BrowserHistoryViewController) {
+        open(url: history.url)
     }
 
     func dismissKeyboard(inViewController viewController: BrowserHistoryViewController) {
