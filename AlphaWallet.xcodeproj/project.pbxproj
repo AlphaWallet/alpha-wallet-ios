@@ -617,6 +617,7 @@
 		8762002A266E14C10059B05A /* WalletTokenViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87620029266E14C10059B05A /* WalletTokenViewCell.swift */; };
 		8762002C266E150B0059B05A /* WalletTokenViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8762002B266E150B0059B05A /* WalletTokenViewCellViewModel.swift */; };
 		8762002E266E15310059B05A /* PopularTokenViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8762002D266E15310059B05A /* PopularTokenViewCellViewModel.swift */; };
+		8764BA4D292825D00054F574 /* SupportCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8764BA4C292825D00054F574 /* SupportCoordinator.swift */; };
 		8765D6E1282BAD3A00529F45 /* FakeMultiWalletBalanceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8765D6E0282BAD3A00529F45 /* FakeMultiWalletBalanceService.swift */; };
 		8765D6E3282BAD6300529F45 /* FakeNftProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8765D6E2282BAD6300529F45 /* FakeNftProvider.swift */; };
 		8765D6E9282BD64400529F45 /* FakeTokenSwapperNetworkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8765D6E8282BD64400529F45 /* FakeTokenSwapperNetworkProvider.swift */; };
@@ -1488,6 +1489,7 @@
 		87620029266E14C10059B05A /* WalletTokenViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletTokenViewCell.swift; sourceTree = "<group>"; };
 		8762002B266E150B0059B05A /* WalletTokenViewCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletTokenViewCellViewModel.swift; sourceTree = "<group>"; };
 		8762002D266E15310059B05A /* PopularTokenViewCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopularTokenViewCellViewModel.swift; sourceTree = "<group>"; };
+		8764BA4C292825D00054F574 /* SupportCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportCoordinator.swift; sourceTree = "<group>"; };
 		8765D6E0282BAD3A00529F45 /* FakeMultiWalletBalanceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeMultiWalletBalanceService.swift; sourceTree = "<group>"; };
 		8765D6E2282BAD6300529F45 /* FakeNftProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeNftProvider.swift; sourceTree = "<group>"; };
 		8765D6E8282BD64400529F45 /* FakeTokenSwapperNetworkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeTokenSwapperNetworkProvider.swift; sourceTree = "<group>"; };
@@ -2096,6 +2098,7 @@
 				5E7C757AEC6586F51EC75646 /* PingInfuraCoordinator.swift */,
 				025F5D172760C74400B2A3BC /* ExportJsonKeystoreCoordinator.swift */,
 				87D7D65E27D6546D00202861 /* CheckTransactionStateCoordinator.swift */,
+				8764BA4C292825D00054F574 /* SupportCoordinator.swift */,
 			);
 			path = Coordinators;
 			sourceTree = "<group>";
@@ -5131,6 +5134,7 @@
 				87BBF98E2563DD7600FF4846 /* WalletConnectCoordinator.swift in Sources */,
 				5E7C74B99922D0CAB635970E /* PasscodeCharacterView.swift in Sources */,
 				5E7C76B917517C93D1E26B0A /* LockEnterPasscodeCoordinator.swift in Sources */,
+				8764BA4D292825D00054F574 /* SupportCoordinator.swift in Sources */,
 				5E7C76A0365D128B7F19A0C2 /* ProtectionCoordinator.swift in Sources */,
 				5E7C774B5332AC0DC19C5B1B /* EthTokenViewCellViewModel.swift in Sources */,
 				5E7C75D46140FACBD12333BF /* EthTokenViewCell.swift in Sources */,
