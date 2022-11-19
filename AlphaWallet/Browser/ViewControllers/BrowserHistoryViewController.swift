@@ -15,7 +15,16 @@ protocol BrowserHistoryViewControllerDelegate: AnyObject {
 
 final class BrowserHistoryViewController: UIViewController {
     private let store: HistoryStore
-    private let tableView = UITableView(frame: .zero, style: .grouped)
+    private lazy var tableView: UITableView = {
+        let tableView = UITableView.grouped
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.tableHeaderView = headerView
+        tableView.separatorStyle = .none
+        tableView.register(BrowserHistoryCell.self)
+
+        return tableView
+    }()
     private var viewModel: HistoriesViewModel
     lazy private var headerView = BrowserHistoryViewControllerHeaderView()
 
@@ -27,12 +36,6 @@ final class BrowserHistoryViewController: UIViewController {
 
         super.init(nibName: nil, bundle: nil)
 
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.delegate = self
-        tableView.dataSource = self
-        tableView.tableHeaderView = headerView
-        tableView.separatorStyle = .none
-        tableView.register(BrowserHistoryCell.self)
         view.addSubview(tableView)
         emptyView = {
             let emptyView = DappsHomeEmptyView()
@@ -47,6 +50,12 @@ final class BrowserHistoryViewController: UIViewController {
 
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -77,8 +86,6 @@ final class BrowserHistoryViewController: UIViewController {
     }
 
     func configure(viewModel: HistoriesViewModel) {
-        tableView.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
-
         resizeTableViewHeader()
         tableView.reloadData()
         endLoading()

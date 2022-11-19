@@ -381,18 +381,21 @@ extension NFTCollectionCoordinator: NFTCollectionViewControllerDelegate {
 
     private func createNFTAssetListViewController(tokenHolder: TokenHolder) -> NFTAssetListViewController {
         let viewModel = NFTAssetListViewModel(tokenHolder: tokenHolder)
-        let vc = NFTAssetListViewController(viewModel: viewModel, tokenCardViewFactory: tokenCardViewFactory)
-        vc.delegate = self
-        return vc
+        let viewController = NFTAssetListViewController(viewModel: viewModel, tokenCardViewFactory: tokenCardViewFactory)
+        viewController.delegate = self
+        viewController.hidesBottomBarWhenPushed = true
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        
+        return viewController
     }
 
     private func createNFTAssetViewController(tokenHolder: TokenHolder, tokenId: TokenId, mode: TokenInstanceViewMode = .interactive) -> UIViewController {
         let viewModel = NFTAssetViewModel(tokenId: tokenId, token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore, mode: mode, nftProvider: nftProvider, session: session, service: tokensService)
-        let vc = NFTAssetViewController(viewModel: viewModel, tokenCardViewFactory: tokenCardViewFactory)
-        vc.delegate = self
-        vc.navigationItem.largeTitleDisplayMode = .never
+        let viewController = NFTAssetViewController(viewModel: viewModel, tokenCardViewFactory: tokenCardViewFactory)
+        viewController.delegate = self
+        viewController.navigationItem.largeTitleDisplayMode = .never
 
-        return vc
+        return viewController
     }
 
     func didPressRedeem(token: Token, tokenHolder: TokenHolder, in viewController: NFTCollectionViewController) {

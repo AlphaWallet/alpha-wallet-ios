@@ -183,11 +183,18 @@ class WalletConnectCoordinator: NSObject, Coordinator {
         } else {
             let viewController = WalletConnectSessionsViewController(viewModel: .init(provider: provider, state: state))
             viewController.delegate = self
-
+            viewController.navigationItem.rightBarButtonItem = UIBarButtonItem.qrCodeBarButton(self, selector: #selector(qrCodeButtonSelected))
+            viewController.navigationItem.largeTitleDisplayMode = .never
+            viewController.hidesBottomBarWhenPushed = true
+            
             sessionsViewController = viewController
 
             navigationController.pushViewController(viewController, animated: true, completion: completion)
         }
+    }
+
+    @objc private func qrCodeButtonSelected(_ sender: UIBarButtonItem) {
+        startUniversalScanner()
     }
 
     private func display(session: AlphaWallet.WalletConnect.Session, in navigationController: UINavigationController) {

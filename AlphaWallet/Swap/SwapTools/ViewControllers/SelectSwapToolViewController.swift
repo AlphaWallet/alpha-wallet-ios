@@ -14,13 +14,10 @@ final class SelectSwapToolViewController: UIViewController {
     private let viewModel: SelectSwapToolViewModel
 
     private lazy var tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .grouped)
+        let tableView = UITableView.grouped
         tableView.register(SelectableSwapToolTableViewCell.self)
         tableView.estimatedRowHeight = DataEntry.Metric.TableView.estimatedRowHeight
-        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.separatorInset = .zero
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.backgroundColor = GroupedTable.Color.background
 
         return tableView
     }()

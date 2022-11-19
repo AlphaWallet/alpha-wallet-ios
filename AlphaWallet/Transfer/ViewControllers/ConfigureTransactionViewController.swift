@@ -69,11 +69,6 @@ class ConfigureTransactionViewController: UIViewController {
     private lazy var bottomConstraint: NSLayoutConstraint = {
         containerView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
     }()
-    //NOTE: needed to make background view colored as navigation view transparent
-    private lazy var backgroundView: RoundedBackground = {
-        let view = RoundedBackground()
-        return view
-    }()
 
     init(viewModel: ConfigureTransactionViewModel) {
         self.viewModel = viewModel
@@ -85,12 +80,11 @@ class ConfigureTransactionViewController: UIViewController {
         containerView.configure(viewModel: .init(backgroundColor: viewModel.backgroundColor))
         navigationItem.leftBarButtonItem = UIBarButtonItem.saveBarButton(self, selector: #selector(saveButtonSelected))
 
-        view.addSubview(backgroundView)
         view.addSubview(containerView)
 
         keyboardChecker.constraints = [bottomConstraint]
 
-        NSLayoutConstraint.activate(backgroundView.anchorsConstraint(to: view) + [
+        NSLayoutConstraint.activate([
             containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             containerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -118,6 +112,8 @@ class ConfigureTransactionViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         recalculateTotalFeeForCustomGas()
     }
 

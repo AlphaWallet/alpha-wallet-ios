@@ -8,19 +8,7 @@
 import UIKit
 import AlphaWalletFoundation
 
-fileprivate class DisplayTableViewCell: UITableViewCell {
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: .subtitle, reuseIdentifier: reuseIdentifier)
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-}
-
 class FeaturesTableViewController: UITableViewController {
-
-    private static let cellIdentifier: String = String(describing: FeaturesTableViewController.self)
 
     private var features: Features
     private var keys: [FeaturesAvailable] = FeaturesAvailable.allCases

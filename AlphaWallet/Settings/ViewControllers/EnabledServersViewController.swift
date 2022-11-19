@@ -9,15 +9,10 @@ protocol EnabledServersViewControllerDelegate: AnyObject {
 }
 
 class EnabledServersViewController: UIViewController {
-    private let roundedBackground = RoundedBackground()
     private let headers = (mainnet: EnableServersHeaderView(), testnet: EnableServersHeaderView())
     private lazy var tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .grouped)
-        tableView.translatesAutoresizingMaskIntoConstraints = false
+        let tableView = UITableView.grouped
         tableView.delegate = self
-        tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = Configuration.Color.Semantic.searchbarBackground
-        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.register(RPCDisplaySelectableTableViewCell.self)
         tableView.dataSource = self
         tableView.isEditing = false
@@ -32,20 +27,16 @@ class EnabledServersViewController: UIViewController {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
-        roundedBackground.backgroundColor = Configuration.Color.Semantic.tableViewBackground
-        view.addSubview(roundedBackground)
-        roundedBackground.addSubview(tableView)
+        view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
-            tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-        ] + roundedBackground.createConstraintsWithContainer(view: view))
+            tableView.anchorsIgnoringBottomSafeArea(to: view)
+        ])
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         configure(viewModel: viewModel)
     }
 

@@ -40,7 +40,6 @@ class SaveCustomRpcOverallViewController: UIViewController, SaveCustomRpcHandleU
     private let initalizeInitialFirstResponder: ExecuteOnceOnly = ExecuteOnceOnly()
     private let model: SaveCustomRpcOverallModel
     private var browseViewController: SaveCustomRpcBrowseViewController
-    private var containerConstraints: [NSLayoutConstraint] = [NSLayoutConstraint]()
     private var entryViewController: SaveCustomRpcManualEntryViewController
     private var selection: ControlSelection = .selected(UInt(SaveCustomRpcOverallTab.browse.position))
 

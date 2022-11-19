@@ -26,14 +26,13 @@ class ChooseSendPrivateTransactionsProviderViewController: UIViewController {
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.anchorsConstraintSafeArea(to: view)
+            tableView.anchorsIgnoringBottomSafeArea(to: view)
         ])
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        navigationItem.largeTitleDisplayMode = .never
         view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
 
         bind(viewModel: viewModel)
@@ -102,7 +101,6 @@ extension ChooseSendPrivateTransactionsProviderViewController: UITableViewDelega
         selection.send(indexPath)
     }
 }
-
 
 extension UITableView {
     static var grouped: UITableView {

@@ -18,19 +18,18 @@ class SelectTokenViewController: UIViewController {
     private let viewModel: SelectTokenViewModel
     private var cancellable = Set<AnyCancellable>()
     private lazy var tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .grouped)
+        let tableView = UITableView.grouped
         tableView.register(FungibleTokenViewCell.self)
         tableView.register(EthTokenViewCell.self)
         tableView.register(NonFungibleTokenViewCell.self)
         tableView.estimatedRowHeight = 100
-        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.separatorInset = .zero
-        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.delegate = self
 
         return tableView
     }()
     private lazy var dataSource = makeDataSource()
-    private let appear = PassthroughSubject<Void, Never>()
+    private let willAppear = PassthroughSubject<Void, Never>()
     private let fetch = PassthroughSubject<Void, Never>()
 
     weak var delegate: SelectTokenViewControllerDelegate?
@@ -53,7 +52,9 @@ class SelectTokenViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        tableView.delegate = self
+
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
+
         bind(viewModel: viewModel)
     }
 
@@ -64,7 +65,7 @@ class SelectTokenViewController: UIViewController {
         navigationController?.navigationBar.prefersLargeTitles = false
         hidesBottomBarWhenPushed = true
 
-        appear.send(())
+        willAppear.send(())
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -72,10 +73,9 @@ class SelectTokenViewController: UIViewController {
     }
 
     private func bind(viewModel: SelectTokenViewModel) {
-        view.backgroundColor = viewModel.backgroundColor
-        tableView.backgroundColor = viewModel.backgroundColor
-
-        let input = SelectTokenViewModelInput(appear: appear.eraseToAnyPublisher(), fetch: fetch.eraseToAnyPublisher())
+        let input = SelectTokenViewModelInput(
+            willAppear: willAppear.eraseToAnyPublisher(),
+            fetch: fetch.eraseToAnyPublisher())
 
         let output = viewModel.transform(input: input)
         output.viewState.sink { [weak self, dataSource, navigationItem] viewState in

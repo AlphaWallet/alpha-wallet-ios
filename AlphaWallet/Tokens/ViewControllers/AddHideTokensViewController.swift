@@ -16,7 +16,7 @@ class AddHideTokensViewController: UIViewController {
     private let searchController: UISearchController
     private var isSearchBarConfigured = false
     private lazy var tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .grouped)
+        let tableView = UITableView.grouped
         tableView.register(WalletTokenViewCell.self)
         tableView.register(PopularTokenViewCell.self)
         tableView.registerHeaderFooterView(TokensViewController.GeneralTableViewSectionHeader<DropDownView<SortTokensParam>>.self)
@@ -24,15 +24,10 @@ class AddHideTokensViewController: UIViewController {
         tableView.isEditing = true
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.separatorStyle = .singleLine
-        tableView.separatorColor = Configuration.Color.Semantic.tableViewSeparator
-        tableView.backgroundColor = Configuration.Color.Semantic.tableViewBackground
         tableView.estimatedRowHeight = DataEntry.Metric.TableView.estimatedRowHeight
-        tableView.translatesAutoresizingMaskIntoConstraints = false
 
         return tableView
     }()
-    private let refreshControl = UIRefreshControl()
 
     private lazy var tokenFilterView: DropDownView<SortTokensParam> = {
         let view = DropDownView(viewModel: .init(selectionItems: SortTokensParam.allCases, selected: viewModel.sortTokensParam))
@@ -53,7 +48,7 @@ class AddHideTokensViewController: UIViewController {
         self.viewModel = viewModel
         searchController = UISearchController(searchResultsController: nil)
         super.init(nibName: nil, bundle: nil)
-        hidesBottomBarWhenPushed = true
+
         searchController.delegate = self
 
         emptyView = EmptyView.filterTokensEmptyView(completion: { [weak self] in
@@ -81,14 +76,11 @@ class AddHideTokensViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        bind(viewModel: viewModel)
+        edgesForExtendedLayout = []
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         setupFilteringWithKeyword()
 
-        navigationItem.largeTitleDisplayMode = .never
-        navigationItem.rightBarButtonItem = UIBarButtonItem.addButton(self, selector: #selector(addToken))
-
-        edgesForExtendedLayout = []
+        bind(viewModel: viewModel)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -107,14 +99,8 @@ class AddHideTokensViewController: UIViewController {
         configureSearchBarOnce()
     }
 
-    @objc private func addToken() {
-        delegate?.didPressAddToken(in: self, with: "")
-    }
-
     private func bind(viewModel: AddHideTokensViewModel) {
         title = viewModel.title
-        tableView.backgroundColor = viewModel.backgroundColor
-        view.backgroundColor = viewModel.backgroundColor
 
         tokenFilterView.configure(viewModel: .init(selectionItems: SortTokensParam.allCases, selected: viewModel.sortTokensParam))
 
@@ -124,9 +110,9 @@ class AddHideTokensViewController: UIViewController {
             isSearchActive: isSearchActive.eraseToAnyPublisher())
 
         let output = viewModel.transform(input: input)
-        output.viewState.sink { [weak self] _ in
-            self?.reload()
-        }.store(in: &cancelable)
+        output.viewState
+            .sink { [weak self] _ in self?.reload() }
+            .store(in: &cancelable)
     }
 
     private func reload() {
@@ -316,17 +302,18 @@ extension AddHideTokensViewController {
 
     private func fixTableViewBackgroundColor() {
         let v = UIView()
-        v.backgroundColor = viewModel.backgroundColor
+        v.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         tableView.backgroundView = v
     }
 
     private func fixNavigationBarAndStatusBarBackgroundColorForiOS13Dot1() {
-        view.superview?.backgroundColor = viewModel.backgroundColor
+        view.superview?.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
     }
 
     private func setupFilteringWithKeyword() {
         wireUpSearchController()
         fixTableViewBackgroundColor()
+        fixNavigationBarAndStatusBarBackgroundColorForiOS13Dot1()
         doNotDimTableViewToReuseTableForFilteringResult()
         makeSwitchToAnotherTabWorkWhileFiltering()
     }

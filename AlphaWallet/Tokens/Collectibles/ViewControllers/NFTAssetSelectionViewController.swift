@@ -24,15 +24,13 @@ class NFTAssetSelectionViewController: UIViewController {
     }()
     private var isSearchBarConfigured = false
     private lazy var tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .grouped)
+        let tableView = UITableView.grouped
         tableView.register(SelectableNFTAssetTableViewCell.self)
         tableView.registerHeaderFooterView(NFTAssetSelectionSectionHeaderView.self)
         tableView.dataSource = self
         tableView.estimatedRowHeight = 100
         tableView.delegate = self
-        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.separatorInset = .zero
-        tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.allowsMultipleSelection = true
         tableView.allowsMultipleSelectionDuringEditing = true
 

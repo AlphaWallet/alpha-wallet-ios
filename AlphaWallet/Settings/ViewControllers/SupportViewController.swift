@@ -38,7 +38,7 @@ class SupportViewController: UIViewController {
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.anchorsConstraintSafeArea(to: view)
+            tableView.anchorsIgnoringBottomSafeArea(to: view)
         ])
     }
 
@@ -46,8 +46,7 @@ class SupportViewController: UIViewController {
         super.viewDidLoad()
 
         view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
-        navigationItem.largeTitleDisplayMode = .never
-
+        
         bind(viewModel: viewModel)
     }
 
@@ -132,7 +131,7 @@ extension SupportViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        
+
         selection.send(indexPath)
     }
 }

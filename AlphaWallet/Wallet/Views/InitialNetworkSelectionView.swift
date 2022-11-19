@@ -53,11 +53,9 @@ class InitialNetworkSelectionView: UIView {
     }()
 
     private lazy var tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .grouped)
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = Configuration.Color.Semantic.tableViewBackground
+        let tableView = UITableView.grouped
         tableView.isEditing = false
+        
         return tableView
     }()
 

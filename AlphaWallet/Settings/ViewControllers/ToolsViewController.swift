@@ -29,7 +29,7 @@ class ToolsViewController: UIViewController {
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.anchorsConstraint(to: view)
+            tableView.anchorsIgnoringBottomSafeArea(to: view)
         ])
     }
 
@@ -50,7 +50,6 @@ class ToolsViewController: UIViewController {
 
     private func configure(viewModel: ToolsViewModel) {
         title = viewModel.title
-        navigationItem.largeTitleDisplayMode = viewModel.largeTitleDisplayMode
     }
 }
 

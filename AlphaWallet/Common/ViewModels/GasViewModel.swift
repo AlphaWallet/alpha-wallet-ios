@@ -19,7 +19,7 @@ struct GasViewModel {
 
     var feeText: String {
         let gasFee = formatter.string(from: fee)
-        var text = "\(gasFee.description) \(symbol)"
+        let text = "\(gasFee.description) \(symbol)"
         
         guard let coinTicker = coinTicker else { return text }
 

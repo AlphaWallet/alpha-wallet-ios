@@ -80,12 +80,14 @@ class BookmarksViewViewModel {
 
 extension BookmarksViewViewModel {
     typealias Snapshot = NSDiffableDataSourceSnapshot<BookmarksViewViewModel.Section, MyDappCellViewModel>
-
+    typealias DataSource = UITableViewDiffableDataSource<BookmarksViewViewModel.Section, MyDappCellViewModel>
+    
     enum Section: Int, CaseIterable {
         case bookmarks
     }
 
     struct ViewState {
         let snapshot: BookmarksViewViewModel.Snapshot
+        let animatingDifferences: Bool = false
     }
 }

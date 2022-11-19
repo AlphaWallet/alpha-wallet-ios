@@ -10,7 +10,7 @@ import Combine
 import AlphaWalletFoundation
 
 struct SelectTokenViewModelInput {
-    let appear: AnyPublisher<Void, Never>
+    let willAppear: AnyPublisher<Void, Never>
     let fetch: AnyPublisher<Void, Never>
 }
 
@@ -28,7 +28,6 @@ final class SelectTokenViewModel {
 
     var headerBackgroundColor: UIColor = Configuration.Color.Semantic.tableViewHeaderBackground
     var title: String = R.string.localizable.assetsSelectAssetTitle()
-    var backgroundColor: UIColor = Configuration.Color.Semantic.tableViewBackground
 
     init(tokenCollection: TokenCollection, tokensFilter: TokensFilter, filter: WalletFilter) {
         self.tokenCollection = tokenCollection
@@ -52,7 +51,7 @@ final class SelectTokenViewModel {
     func transform(input: SelectTokenViewModelInput) -> SelectTokenViewModelOutput {
         let _loadingState: CurrentValueSubject<LoadingState, Never> = .init(.idle)
 
-        let whenAppearOrFetchOrFilterHasChanged = input.appear.merge(with: input.fetch, whenFilterHasChanged)
+        let whenAppearOrFetchOrFilterHasChanged = input.willAppear.merge(with: input.fetch, whenFilterHasChanged)
             .handleEvents(receiveOutput: { [_loadingState] in
                 _loadingState.send(.beginLoading)
             }).flatMap { [tokenCollection] _ in tokenCollection.tokenViewModels.first() }

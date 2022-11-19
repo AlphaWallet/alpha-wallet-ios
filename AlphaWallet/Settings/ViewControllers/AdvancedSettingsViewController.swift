@@ -43,7 +43,7 @@ class AdvancedSettingsViewController: UIViewController {
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.anchorsConstraintSafeArea(to: view)
+            tableView.anchorsIgnoringBottomSafeArea(to: view)
         ])
     }
 

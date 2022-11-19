@@ -16,14 +16,10 @@ protocol WalletConnectSessionsViewControllerDelegate: AnyObject {
 class WalletConnectSessionsViewController: UIViewController {
 
     private lazy var tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .grouped)
+        let tableView = UITableView.grouped
         tableView.register(WalletConnectSessionCell.self)
         tableView.estimatedRowHeight = DataEntry.Metric.TableView.estimatedRowHeight
-        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.separatorInset = .zero
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.backgroundColor = Configuration.Color.Semantic.tableViewBackground
-        tableView.separatorColor = Configuration.Color.Semantic.tableViewSeparator
         tableView.delegate = self
 
         return tableView
@@ -57,12 +53,10 @@ class WalletConnectSessionsViewController: UIViewController {
         view.addSubview(spinner)
 
         NSLayoutConstraint.activate([
-            tableView.anchorsConstraintSafeArea(to: view),
+            tableView.anchorsIgnoringBottomSafeArea(to: view),
             spinner.centerXAnchor.constraint(equalTo: tableView.centerXAnchor),
             spinner.centerYAnchor.constraint(equalTo: tableView.centerYAnchor)
         ])
-
-        navigationItem.rightBarButtonItem = UIBarButtonItem.qrCodeBarButton(self, selector: #selector(qrCodeButtonSelected))
 
         emptyView = EmptyView.walletSessionEmptyView(completion: { [weak self] in
             guard let strongSelf = self else { return }
@@ -77,8 +71,6 @@ class WalletConnectSessionsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        navigationItem.largeTitleDisplayMode = .never
-        hidesBottomBarWhenPushed = true
         view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
 
         if let host = emptyView {
@@ -95,7 +87,7 @@ class WalletConnectSessionsViewController: UIViewController {
         output.viewState
             .sink { [weak self, spinner, navigationItem] viewState in
                 navigationItem.title = viewState.title
-                self?.dataSource.apply(viewState.snapshot, animatingDifferences: false)
+                self?.dataSource.apply(viewState.snapshot, animatingDifferences: viewState.animatingDifferences)
                 switch viewState.state {
                 case .waitingForSessionConnection:
                     spinner.startAnimating()
@@ -105,10 +97,6 @@ class WalletConnectSessionsViewController: UIViewController {
 
                 self?.endLoading()
             }.store(in: &cancelable)
-    }
-
-    @objc private func qrCodeButtonSelected(_ sender: UIBarButtonItem) {
-        delegate?.qrCodeSelected(in: self)
     }
 }
 
