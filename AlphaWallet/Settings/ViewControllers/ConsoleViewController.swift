@@ -12,12 +12,8 @@ protocol ConsoleViewControllerDelegate: AnyObject {
 
 class ConsoleViewController: UIViewController {
     private lazy var tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .grouped)
-        tableView.translatesAutoresizingMaskIntoConstraints = false
+        let tableView = UITableView.grouped
         tableView.register(UITableViewCell.self)
-        tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = Configuration.Color.Semantic.tableViewBackground
-        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.delegate = self
 
         return tableView
