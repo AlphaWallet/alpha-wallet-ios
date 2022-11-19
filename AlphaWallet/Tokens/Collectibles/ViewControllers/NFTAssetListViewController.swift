@@ -27,7 +27,7 @@ class NFTAssetListViewController: UIViewController {
     private let tokenCardViewFactory: TokenCardViewFactory
     private var cancelable = Set<AnyCancellable>()
     private lazy var dataSource = makeDataSource()
-    private let appear = PassthroughSubject<Void, Never>()
+    private let willAppear = PassthroughSubject<Void, Never>()
     private let viewModel: NFTAssetListViewModel
 
     weak var delegate: NFTAssetListViewControllerDelegate?
@@ -37,7 +37,7 @@ class NFTAssetListViewController: UIViewController {
         self.viewModel = viewModel
 
         super.init(nibName: nil, bundle: nil)
-        
+
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
@@ -53,12 +53,14 @@ class NFTAssetListViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         bind(viewModel: viewModel)
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        appear.send(())
+        willAppear.send(())
     }
 
     private func reload() {
@@ -67,16 +69,13 @@ class NFTAssetListViewController: UIViewController {
     }
 
     private func bind(viewModel: NFTAssetListViewModel) {
-        view.backgroundColor = viewModel.backgroundColor
-        tableView.backgroundColor = viewModel.backgroundColor
-
-        let input = NFTAssetListViewModelInput(appear: appear.eraseToAnyPublisher())
+        let input = NFTAssetListViewModelInput(willAppear: willAppear.eraseToAnyPublisher())
         let output = viewModel.transform(input: input)
 
         output.viewState
             .sink { [dataSource, navigationItem] viewState in
                 navigationItem.title = viewState.title
-                dataSource.apply(viewState.snapshot, animatingDifferences: false)
+                dataSource.apply(viewState.snapshot, animatingDifferences: viewState.animatingDifferences)
                 self.reload()
             }.store(in: &cancelable)
     }
@@ -97,15 +96,13 @@ extension NFTAssetListViewController: UITableViewDelegate {
 }
 
 fileprivate extension NFTAssetListViewController {
-    private typealias DataSource = TableViewDiffableDataSource<NFTAssetListViewModel.Section, NFTAssetListViewModel.AssetViewState>
-    
-    private func makeDataSource() -> DataSource {
-        return TableViewDiffableDataSource(tableView: tableView, cellProvider: { [tokenCardViewFactory] tableView, indexPath, viewModel in
+    private func makeDataSource() -> NFTAssetListViewModel.DataSource {
+        return NFTAssetListViewModel.DataSource(tableView: tableView, cellProvider: { [tokenCardViewFactory] tableView, indexPath, viewModel in
             let cell: ContainerTableViewCell = tableView.dequeueReusableCell(for: indexPath)
             cell.containerEdgeInsets = .zero
             cell.selectionStyle = viewModel.containerViewState.selectionStyle
-            cell.backgroundColor = viewModel.containerViewState.backgroundColor
-            cell.contentView.backgroundColor = viewModel.containerViewState.backgroundColor
+            cell.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
+            cell.contentView.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
             cell.accessoryType = viewModel.containerViewState.accessoryType
 
             let subview = tokenCardViewFactory.createTokenCardView(for: viewModel.tokenHolder, layout: viewModel.layout, listEdgeInsets: .init(top: 8, left: 16, bottom: 8, right: 16))

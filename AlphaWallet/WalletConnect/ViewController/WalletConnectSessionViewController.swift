@@ -73,7 +73,7 @@ class WalletConnectSessionViewController: UIViewController {
 
         var subviews: [UIView] = [
             imageContainerView,
-            UIView.separator,
+            UIView.separator(),
             statusFieldView,
             dappNameFieldView,
             dappUrlFieldView,

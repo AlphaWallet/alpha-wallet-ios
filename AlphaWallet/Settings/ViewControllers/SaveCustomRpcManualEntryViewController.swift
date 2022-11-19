@@ -7,6 +7,7 @@
 
 import UIKit
 import AlphaWalletFoundation
+import IQKeyboardManager
 
 protocol SaveCustomRpcEntryViewControllerDataDelegate: AnyObject {
     func didFinish(in viewController: SaveCustomRpcManualEntryViewController, customRpc: CustomRPC)
@@ -48,11 +49,13 @@ class SaveCustomRpcManualEntryViewController: UIViewController, SaveCustomRpcHan
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        IQKeyboardManager.shared().isEnabled = false
         keyboardChecker.viewWillAppear()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        IQKeyboardManager.shared().isEnabled = true
         keyboardChecker.viewWillDisappear()
     }
 
@@ -156,12 +159,6 @@ extension SaveCustomRpcManualEntryViewController: TextFieldDelegate {
             editView.gotoNextResponder()
         }
         return true
-    }
-
-    func didBeginEditing(in textField: TextField) {
-        DispatchQueue.main.async {
-            self.editView.unobscure(textField: textField)
-        }
     }
 
     func doneButtonTapped(for textField: TextField) {

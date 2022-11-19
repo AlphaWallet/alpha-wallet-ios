@@ -21,40 +21,40 @@ class SaveCustomRpcManualEntryView: UIView {
     private let scrollView = UIScrollView()
 
     var chainNameTextField: TextField = {
-        let textField = defaultTextField(
-            .default,
+        let textField = TextField.textField(
+            keyboardType: .default,
             placeHolder: R.string.localizable.addrpcServerNetworkNameTitle(),
             label: R.string.localizable.addrpcServerNetworkNameTitle())
         return textField
     }()
 
     var rpcEndPointTextField: TextField = {
-        let textField = defaultTextField(
-            .URL,
+        let textField = TextField.textField(
+            keyboardType: .URL,
             placeHolder: R.string.localizable.addrpcServerRpcUrlPlaceholder(),
             label: R.string.localizable.addrpcServerRpcUrlTitle())
         return textField
     }()
 
     var chainIDTextField: TextField = {
-        let textField = defaultTextField(
-            .numberPad,
+        let textField = TextField.textField(
+            keyboardType: .numberPad,
             placeHolder: R.string.localizable.chainID(),
             label: R.string.localizable.chainID())
         return textField
     }()
 
     var symbolTextField: TextField = {
-        let textField = defaultTextField(
-            .default,
+        let textField = TextField.textField(
+            keyboardType: .default,
             placeHolder: R.string.localizable.symbol(),
             label: R.string.localizable.symbol())
         return textField
     }()
 
     var explorerEndpointTextField: TextField = {
-        let textField = defaultTextField(
-            .URL,
+        let textField = TextField.textField(
+            keyboardType: .URL,
             placeHolder: R.string.localizable.addrpcServerBlockExplorerUrlPlaceholder(),
             label: R.string.localizable.addrpcServerBlockExplorerUrlTitle())
         textField.returnKeyType = .done
@@ -101,17 +101,15 @@ class SaveCustomRpcManualEntryView: UIView {
             scrollViewBottomConstraint.constant = -UIApplication.shared.bottomSafeAreaHeight
         }
 
-        let stackView = (
-            TextField.layoutSubviews(for: chainNameTextField) +
-            TextField.layoutSubviews(for: rpcEndPointTextField) +
-            TextField.layoutSubviews(for: chainIDTextField) +
-            TextField.layoutSubviews(for: symbolTextField) +
-            TextField.layoutSubviews(for: explorerEndpointTextField) +
-            [
-                isTestNetworkView,
-                .spacer(height: 40)
-            ]
-        ).asStackView(axis: .vertical)
+        let stackView = [
+            chainNameTextField.defaultLayout(),
+            rpcEndPointTextField.defaultLayout(),
+            chainIDTextField.defaultLayout(),
+            symbolTextField.defaultLayout(),
+            explorerEndpointTextField.defaultLayout(),
+            isTestNetworkView,
+            .spacer(height: 40)
+        ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(stackView)
 
@@ -145,11 +143,6 @@ class SaveCustomRpcManualEntryView: UIView {
 
     func configureView() {
         buttonsBar.configure()
-        chainNameTextField.configureOnce()
-        rpcEndPointTextField.configureOnce()
-        chainIDTextField.configureOnce()
-        symbolTextField.configureOnce()
-        explorerEndpointTextField.configureOnce()
         buttonsBar.buttons[0].setTitle(R.string.localizable.editCustomRPCSaveButtonTitle(preferredLanguages: nil), for: .normal)
         configureInputAccessoryView()
     }
@@ -158,15 +151,6 @@ class SaveCustomRpcManualEntryView: UIView {
         for field in allTextFields {
             field.status = .none
         }
-    }
-
-    func unobscure(textField: TextField) {
-        guard textField != allTextFields.first else {
-            self.scrollView.setContentOffset(.zero, animated: true)
-            return
-        }
-        let rect = self.scrollView.convert(textField.bounds, from: textField)
-        self.scrollView.scrollRectToVisible(rect, animated: true)
     }
 
     private func configureInputAccessoryView() {
@@ -216,20 +200,6 @@ extension SaveCustomRpcManualEntryView: KeyboardNavigationDelegate {
         currentTextField.textField.text = "https://" + inputString
     }
 
-}
-
-fileprivate func defaultTextField(_ type: UIKeyboardType, placeHolder: String, label: String) -> TextField {
-    let textField = TextField()
-    textField.label.translatesAutoresizingMaskIntoConstraints = false
-    textField.translatesAutoresizingMaskIntoConstraints = false
-    textField.keyboardType = type
-    textField.textField.autocorrectionType = .no
-    textField.textField.autocapitalizationType = .none
-    textField.textField.spellCheckingType = .no
-    textField.returnKeyType = .next
-    textField.placeholder = placeHolder
-    textField.label.text = label
-    return textField
 }
 
 fileprivate func navToolbar(for delegate: KeyboardNavigationDelegate) -> UIToolbar {

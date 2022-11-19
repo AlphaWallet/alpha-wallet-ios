@@ -29,7 +29,17 @@ class BackupCoordinator: Coordinator {
     }
 
     func start() {
-        export()
+        if account.origin == .hd {
+            let coordinator = BackupSeedPhraseCoordinator(navigationController: navigationController, keystore: keystore, account: account.address, analytics: analytics)
+            coordinator.delegate = self
+            coordinator.start()
+            addCoordinator(coordinator)
+        } else {
+            let coordinator = EnterPasswordCoordinator(navigationController: navigationController, account: account.address)
+            coordinator.delegate = self
+            coordinator.start()
+            addCoordinator(coordinator)
+        }
     }
 
     private func finish(result: Result<Bool, Error>) {
@@ -108,20 +118,6 @@ class BackupCoordinator: Coordinator {
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
-    }
-
-    private func export() {
-        if account.origin == .hd {
-            let coordinator = BackupSeedPhraseCoordinator(navigationController: navigationController, keystore: keystore, account: account.address, analytics: analytics)
-            coordinator.delegate = self
-            coordinator.start()
-            addCoordinator(coordinator)
-        } else {
-            let coordinator = EnterPasswordCoordinator(navigationController: navigationController, account: account.address)
-            coordinator.delegate = self
-            coordinator.start()
-            addCoordinator(coordinator)
-        }
     }
 
     private func cleanUpAfterBackupAndPromptedToElevateSecurity() {

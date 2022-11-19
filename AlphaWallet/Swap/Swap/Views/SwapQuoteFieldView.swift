@@ -40,7 +40,7 @@ final class SwapQuoteFieldView: UIView {
             stackview.anchorsConstraint(to: self, edgeInsets: edgeInsets),
             titleLabel.leadingAnchor.constraint(equalTo: stackview.leadingAnchor),
             valueLabel.trailingAnchor.constraint(equalTo: stackview.trailingAnchor),
-            heightAnchor.constraint(greaterThanOrEqualToConstant: 60)
+            heightAnchor.constraint(greaterThanOrEqualToConstant: ScreenChecker.size(big: 60, medium: 60, small: 44))
         ])
 
         bind(viewModel: viewModel)

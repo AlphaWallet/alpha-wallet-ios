@@ -10,8 +10,8 @@ import Combine
 import AlphaWalletFoundation
 
 struct RenameWalletViewModelInput {
-    let appear: AnyPublisher<Void, Never>
-    let saveWalletName: AnyPublisher<String, Never>
+    let willAppear: AnyPublisher<Void, Never>
+    let walletName: AnyPublisher<String, Never>
 }
 
 struct RenameWalletViewModelOutput {
@@ -24,11 +24,6 @@ final class RenameWalletViewModel {
     private let analytics: AnalyticsLogger
     private let domainResolutionService: DomainResolutionServiceType
 
-    let title: String = R.string.localizable.settingsWalletRename()
-    let saveWalletNameTitle: String = R.string.localizable.walletRenameSave()
-    let walletNameTitle: String = R.string.localizable.walletRenameEnterNameTitle()
-    let backgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground
-
     init(account: AlphaWallet.Address, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType) {
         self.account = account
         self.analytics = analytics
@@ -36,12 +31,12 @@ final class RenameWalletViewModel {
     }
 
     func transform(input: RenameWalletViewModelInput) -> RenameWalletViewModelOutput {
-        let walletNameSaved = input.saveWalletName
+        let walletNameSaved = input.walletName
             .handleEvents(receiveOutput: { self.set(walletName: $0) })
             .mapToVoid()
             .eraseToAnyPublisher()
 
-        let assignedName = input.appear.map { _ in FileWalletStorage().name(for: self.account) }
+        let assignedName = input.willAppear.map { _ in FileWalletStorage().name(for: self.account) }
 
         let resolvedEns = domainResolutionService.resolveEns(address: account)
             .map { ens -> EnsName? in return ens }
@@ -49,7 +44,7 @@ final class RenameWalletViewModel {
             .prepend(nil)
 
         let viewState = Publishers.CombineLatest(assignedName, resolvedEns)
-            .map { RenameWalletViewModel.ViewState(text: $0.0, placeholder: $0.1, title: self.title) }
+            .map { RenameWalletViewModel.ViewState(text: $0.0, placeholder: $0.1) }
             .eraseToAnyPublisher()
 
         return .init(walletNameSaved: walletNameSaved, viewState: viewState)
@@ -65,6 +60,6 @@ extension RenameWalletViewModel {
     struct ViewState {
         let text: String?
         let placeholder: String?
-        let title: String
+        let title: String = R.string.localizable.settingsWalletRename()
     }
 }

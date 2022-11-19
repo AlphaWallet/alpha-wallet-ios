@@ -42,16 +42,16 @@ class ExportJsonKeystorePasswordViewController: UIViewController {
 
         super.init(nibName: nil, bundle: nil)
 
-        let edgeInsets = UIEdgeInsets(top: 16.0, left: 0.0, bottom: 16.0, right: 0.0)
-        let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, edgeInsets: edgeInsets, separatorHeight: 1.0)
-        let textFieldLayout = passwordTextField.defaultLayout()
+        let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
+        let topInset = ScreenChecker.size(big: 34, medium: 34, small: 24)
+        let textFieldLayout = passwordTextField.defaultLayout(edgeInsets: .init(top: topInset, left: 16, bottom: 16, right: 16))
         view.addSubview(textFieldLayout)
         view.addSubview(footerBar)
 
         NSLayoutConstraint.activate([
-            textFieldLayout.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: ScreenChecker.size(big: 34, medium: 34, small: 24)),
-            textFieldLayout.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16.0),
-            textFieldLayout.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16.0),
+            textFieldLayout.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            textFieldLayout.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            textFieldLayout.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
 
             footerBar.anchorsConstraint(to: view)
         ])
@@ -63,13 +63,14 @@ class ExportJsonKeystorePasswordViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         bind(viewModel: viewModel)
     }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+
         DispatchQueue.main.async { [passwordTextField] in
             passwordTextField.becomeFirstResponder()
         }

@@ -12,10 +12,10 @@ class GasSpeedTableViewHeaderView: UIView {
 
     static let height = CGFloat(50)
     static let contentInsets: UIEdgeInsets = {
-        let topBottomInset: CGFloat = ScreenChecker().isNarrowScreen ? 8 : 16
-        let sideInset: CGFloat = ScreenChecker().isNarrowScreen ? 5 : 10
+        let sideInset: CGFloat = 16
+        let topInset: CGFloat = 16
 
-        return .init(top: sideInset, left: topBottomInset, bottom: sideInset, right: topBottomInset)
+        return .init(top: topInset, left: sideInset, bottom: 0, right: sideInset)
     }()
 
     private let titleLabel: UILabel = {

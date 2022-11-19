@@ -29,19 +29,18 @@ class SendViewController: UIViewController {
     }()
     lazy var targetAddressTextField: AddressTextField = {
         let targetAddressTextField = AddressTextField(domainResolutionService: domainResolutionService)
-        targetAddressTextField.translatesAutoresizingMaskIntoConstraints = false
         targetAddressTextField.delegate = self
         targetAddressTextField.returnKeyType = .done
         targetAddressTextField.pasteButton.contentHorizontalAlignment = .right
+        targetAddressTextField.inputAccessoryButtonType = .done
 
         return targetAddressTextField
     }()
 
     lazy var amountTextField: AmountTextField = {
         let amountTextField = AmountTextField(viewModel: viewModel.amountTextFieldViewModel)
-        amountTextField.translatesAutoresizingMaskIntoConstraints = false
         amountTextField.delegate = self
-        amountTextField.viewModel.accessoryButtonTitle = .next
+        amountTextField.inputAccessoryButtonType = .next
         amountTextField.viewModel.errorState = .none
         amountTextField.isAlternativeAmountEnabled = false
         amountTextField.allFundsAvailable = true
@@ -59,7 +58,7 @@ class SendViewController: UIViewController {
 
         containerView.stackView.addArrangedSubviews([
             amountHeader,
-            .spacer(height: ScreenChecker().isNarrowScreen ? 7 : 27),
+            .spacer(height: ScreenChecker().isNarrowScreen ? 7: 16),
             amountTextField.defaultLayout(edgeInsets: .init(top: 0, left: 16, bottom: 0, right: 16)),
             .spacer(height: ScreenChecker().isNarrowScreen ? 7: 14),
             recipientHeader,
@@ -68,6 +67,7 @@ class SendViewController: UIViewController {
         ])
 
         let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         view.addSubview(footerBar)
         view.addSubview(containerView)
 
@@ -166,8 +166,6 @@ class SendViewController: UIViewController {
     }
 
     private func configure(viewModel: SendViewModel) {
-        targetAddressTextField.configureOnce()
-
         view.backgroundColor = viewModel.backgroundColor
 
         amountHeader.configure(viewModel: viewModel.amountViewModel)
@@ -205,6 +203,14 @@ extension SendViewController: PopNotifiable {
 
 extension SendViewController: AmountTextFieldDelegate {
 
+    func doneButtonTapped(for textField: AmountTextField) {
+        view.endEditing(true)
+    }
+
+    func nextButtonTapped(for textField: AmountTextField) {
+        targetAddressTextField.becomeFirstResponder()
+    }
+
     func shouldReturn(in textField: AmountTextField) -> Bool {
         targetAddressTextField.becomeFirstResponder()
         return false
@@ -220,6 +226,9 @@ extension SendViewController: AmountTextFieldDelegate {
 }
 
 extension SendViewController: AddressTextFieldDelegate {
+    func doneButtonTapped(for textField: AddressTextField) {
+        view.endEditing(true)
+    }
 
     func displayError(error: Error, for textField: AddressTextField) {
         textField.errorState = .error(error.prettyError)

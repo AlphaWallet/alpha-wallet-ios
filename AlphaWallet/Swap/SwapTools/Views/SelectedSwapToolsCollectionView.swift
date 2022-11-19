@@ -20,7 +20,8 @@ final class SelectedSwapToolsCollectionView: UIView {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.register(SwapToolCollectionViewCell.self)
-
+        collectionView.backgroundColor = Configuration.Color.Semantic.tableViewBackground
+        
         return collectionView
     }()
     private lazy var dataSource: SelectedSwapToolsCollectionViewModel.DataSource = makeDataSource()
@@ -28,11 +29,11 @@ final class SelectedSwapToolsCollectionView: UIView {
     private static let fallbackHeight: CGFloat = 60
     lazy private var collectionViewHeightConstraint = collectionView.heightAnchor.constraint(equalToConstant: SelectedSwapToolsCollectionView.fallbackHeight)
     private let viewModel: SelectedSwapToolsCollectionViewModel
-    private let appear: AnyPublisher<Void, Never>
+    private let willAppear: AnyPublisher<Void, Never>
 
-    init(viewModel: SelectedSwapToolsCollectionViewModel, appear: AnyPublisher<Void, Never>) {
+    init(viewModel: SelectedSwapToolsCollectionViewModel, willAppear: AnyPublisher<Void, Never>) {
         self.viewModel = viewModel
-        self.appear = appear
+        self.willAppear = willAppear
         super.init(frame: .zero)
 
         addSubview(collectionView)
@@ -58,7 +59,7 @@ final class SelectedSwapToolsCollectionView: UIView {
     private func bind(viewModel: SelectedSwapToolsCollectionViewModel) {
         backgroundColor = viewModel.backgroundColor
 
-        let appear = appear.handleEvents(receiveOutput: { [weak self] _ in
+        let appear = willAppear.handleEvents(receiveOutput: { [weak self] _ in
             self?.startLoading()
         }).eraseToAnyPublisher()
 

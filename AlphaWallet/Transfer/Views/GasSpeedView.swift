@@ -59,12 +59,12 @@ class GasSpeedView: UIView {
             gasPriceLabel,
         ].asStackView(axis: .vertical, alignment: .leading)
 
-        let row = [.spacerWidth(ScreenChecker().isNarrowScreen ? 8 : 16), col0, estimatedTimeLabel, .spacerWidth(ScreenChecker().isNarrowScreen ? 8 : 16)].asStackView(axis: .horizontal)
+        let row = [.spacerWidth(16), col0, estimatedTimeLabel, .spacerWidth(16)].asStackView(axis: .horizontal)
 
         let stackView = [
-            .spacer(height: ScreenChecker().isNarrowScreen ? 10 : 20),
+            .spacer(height: ScreenChecker.size(big: 20, medium: 20, small: 16)),
             row,
-            .spacer(height: ScreenChecker().isNarrowScreen ? 10 : 20)
+            .spacer(height: ScreenChecker.size(big: 20, medium: 20, small: 16))
         ].asStackView(axis: .vertical)
 
         stackView.translatesAutoresizingMaskIntoConstraints = false

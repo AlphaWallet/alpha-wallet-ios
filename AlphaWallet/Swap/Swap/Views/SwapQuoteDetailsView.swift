@@ -20,10 +20,17 @@ final class SwapQuoteDetailsView: UIView {
 
         return view
     }()
-    private lazy var exchangeView = SwapQuoteFieldView(edgeInsets: .init(top: 0, left: 20, bottom: 0, right: 20), viewModel: viewModel.exchangeViewModel)
-    private lazy var totalFeeView = SwapQuoteFieldView(edgeInsets: .init(top: 0, left: 20, bottom: 0, right: 20), viewModel: viewModel.totalFeeViewModel)
-    private lazy var currentPriceView = SwapQuoteFieldView(edgeInsets: .init(top: 0, left: 20, bottom: 0, right: 20), viewModel: viewModel.currentPriceViewModel)
-    private lazy var minimumReceivedView = SwapQuoteFieldView(edgeInsets: .init(top: 0, left: 20, bottom: 0, right: 20), viewModel: viewModel.minimumReceivedViewModel)
+    private static var fieldEdgeInsets: UIEdgeInsets {
+        return .init(top: 0,
+                     left: ScreenChecker.size(big: 20, medium: 20, small: 16),
+                     bottom: 0,
+                     right: ScreenChecker.size(big: 20, medium: 20, small: 16))
+    }
+
+    private lazy var exchangeView = SwapQuoteFieldView(edgeInsets: SwapQuoteDetailsView.fieldEdgeInsets, viewModel: viewModel.exchangeViewModel)
+    private lazy var totalFeeView = SwapQuoteFieldView(edgeInsets: SwapQuoteDetailsView.fieldEdgeInsets, viewModel: viewModel.totalFeeViewModel)
+    private lazy var currentPriceView = SwapQuoteFieldView(edgeInsets: SwapQuoteDetailsView.fieldEdgeInsets, viewModel: viewModel.currentPriceViewModel)
+    private lazy var minimumReceivedView = SwapQuoteFieldView(edgeInsets: SwapQuoteDetailsView.fieldEdgeInsets, viewModel: viewModel.minimumReceivedViewModel)
     private lazy var swapFeesView = SwapStepsView(viewModel: viewModel.swapStepsViewModel)
 
     private lazy var toggleFeesButton: UIButton = {
@@ -31,7 +38,7 @@ final class SwapQuoteDetailsView: UIView {
         button.translatesAutoresizingMaskIntoConstraints =  false
         button.setTitle("Show", for: .normal)
         button.setTitle("Hide", for: .selected)
-        button.widthAnchor.constraint(equalToConstant: 50).isActive = true
+        button.widthAnchor.constraint(equalToConstant: ScreenChecker.size(big: 50, medium: 50, small: 44)).isActive = true
         button.tintColor = R.color.alabaster()!
         button.setTitleColor(Colors.appTint, for: .normal)
         button.setTitleColor(Colors.appTint, for: .selected)
@@ -41,7 +48,7 @@ final class SwapQuoteDetailsView: UIView {
 
     private let viewModel: SwapQuoteDetailsViewModel
     private var cancelable = Set<AnyCancellable>()
-    private lazy var toggleFeesBackgroundView: UIView = [toggleFeesButton, .spacerWidth(20)].asStackView()
+    private lazy var toggleFeesBackgroundView: UIView = [toggleFeesButton, .spacerWidth(ScreenChecker.size(big: 20, medium: 20, small: 16))].asStackView()
 
     weak var delegate: SwapQuoteDetailsViewDelegate?
 
@@ -51,15 +58,15 @@ final class SwapQuoteDetailsView: UIView {
         translatesAutoresizingMaskIntoConstraints = false
 
         let stackview = [
-            quoteHeaderView.adjusted(adjusment: 20),
-            UIView.separator,
+            quoteHeaderView.adjusted(adjusment: ScreenChecker.size(big: 20, medium: 20, small: 16)),
+            UIView.separator(),
             exchangeView,
-            UIView.separator,
+            UIView.separator(),
             [totalFeeView, toggleFeesBackgroundView].asStackView(),
-            UIView.separator,
+            UIView.separator(),
             swapFeesView,
             currentPriceView,
-            UIView.separator,
+            UIView.separator(),
             minimumReceivedView
         ].asStackView(axis: .vertical)
         stackview.translatesAutoresizingMaskIntoConstraints =  false
@@ -68,7 +75,7 @@ final class SwapQuoteDetailsView: UIView {
 
         NSLayoutConstraint.activate([
             stackview.anchorsConstraint(to: self),
-            quoteHeaderView.heightAnchor.constraint(equalToConstant: 50),
+            quoteHeaderView.heightAnchor.constraint(equalToConstant: ScreenChecker.size(big: 50, medium: 50, small: 44)),
         ])
 
         toggleFeesButton.addTarget(self, action: #selector(toggleFeesSelected), for: .touchUpInside)

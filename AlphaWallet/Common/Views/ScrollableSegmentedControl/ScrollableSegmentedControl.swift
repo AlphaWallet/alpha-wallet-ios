@@ -70,6 +70,7 @@ class ScrollableSegmentedControl: UIControl, ReusableTableHeaderViewType {
         self.cells = cells
         self.configuration = configuration
         super.init(frame: .zero)
+        translatesAutoresizingMaskIntoConstraints = false
         if configuration.isProportionalWidth {
             configureProportionalWidthCells()
         } else {

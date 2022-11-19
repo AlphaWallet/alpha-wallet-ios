@@ -26,10 +26,6 @@ class BrowserHomeViewModel {
         return bookmarks[index]
     }
 
-    var backgroundColor: UIColor {
-        return Configuration.Color.Semantic.defaultViewBackground
-    }
-
     func transform(input: DappsHomeViewViewModelInput) -> DappsHomeViewViewModelOutput {
         input.deleteBookmark
             .sink { [bookmarksStore] indexPath in

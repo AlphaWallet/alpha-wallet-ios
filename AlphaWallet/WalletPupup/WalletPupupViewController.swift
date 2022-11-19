@@ -59,7 +59,7 @@ class WalletPupupViewController: UIViewController {
             let view = WalletPupupItemView(edgeInsets: .init(top: 10, left: 20, bottom: 10, right: 20))
             view.configure(viewModel: .init(title: each.title, description: each.description, icon: each.icon))
             subviews.append(view)
-            subviews.append(UIView.separator)
+            subviews.append(UIView.separator())
 
             UITapGestureRecognizer(addToView: view) { [weak self] in
                 guard let strongSelf = self, let delegate = strongSelf.delegate else { return }

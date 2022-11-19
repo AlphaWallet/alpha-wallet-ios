@@ -18,7 +18,6 @@ struct AmountTextFieldViewModelOutput {
     let text: AnyPublisher<String?, Never>
     let alternativeAmount: AnyPublisher<String?, Never>
     let currentPair: AnyPublisher<AmountTextField.Pair?, Never>
-    let accessoryButtonTitle: AnyPublisher<AmountTextField.AccessoryButtonTitle, Never>
     let errorState: AnyPublisher<AmountTextField.ErrorState, Never>
 }
 
@@ -84,7 +83,6 @@ final class AmountTextFieldViewModel {
     }
 
     @Published var errorState: AmountTextField.ErrorState = .none
-    @Published var accessoryButtonTitle: AmountTextField.AccessoryButtonTitle = .done
     private let fallbackValue: String = "0"
     private var lastValueChangeEvent: CryptoValueChangeEvent?
 
@@ -128,9 +126,6 @@ final class AmountTextFieldViewModel {
         let currentPair = currentPair
             .eraseToAnyPublisher()
 
-        let accessoryButtonTitle = $accessoryButtonTitle
-            .eraseToAnyPublisher()
-
         let errorState = $errorState
             .eraseToAnyPublisher()
 
@@ -155,7 +150,7 @@ final class AmountTextFieldViewModel {
         let text = Publishers.Merge(cryptoAmountToSend, toggleFiatAndCryptoPair(trigger: input.togglePair))
             .eraseToAnyPublisher()
 
-        return .init(text: text, alternativeAmount: alternativeAmount, currentPair: currentPair, accessoryButtonTitle: accessoryButtonTitle, errorState: errorState)
+        return .init(text: text, alternativeAmount: alternativeAmount, currentPair: currentPair, errorState: errorState)
     }
 
     func set(token: Token?) {
