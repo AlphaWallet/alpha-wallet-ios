@@ -6,7 +6,7 @@ import Combine
 import AlphaWalletFoundation
 
 struct SettingsViewModelInput {
-    let appear: AnyPublisher<Void, Never>
+    let willAppear: AnyPublisher<Void, Never>
     let appProtectionSelection: AnyPublisher<(indexPath: IndexPath, isOn: Bool), Never>
     let blockscanChatUnreadCount: AnyPublisher<Int?, Never>
 }
@@ -33,9 +33,6 @@ final class SettingsViewModel {
     }
     private let lock: Lock
     private (set) var sections: [SettingsSection] = []
-
-    var backgroundColor: UIColor = Configuration.Color.Semantic.tableViewBackground
-    var largeTitleDisplayMode: UINavigationItem.LargeTitleDisplayMode = .automatic
 
     init(account: Wallet, keystore: Keystore, lock: Lock, config: Config, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType) {
         self.account = account
@@ -65,9 +62,9 @@ final class SettingsViewModel {
         let askToSetPasscode = self.askToSetPasscodeOrDeleteExisted(trigger: input.appProtectionSelection)
 
         //NOTE: Refresh wallet name or ens when view will appear called, cancel prev. one if in loading proc.
-        let assignedNameOrEns = self.assignedNameOrEns(appear: input.appear)
+        let assignedNameOrEns = self.assignedNameOrEns(appear: input.willAppear)
         let blockscanChatUnreadCount = Publishers.Merge(Just<Int?>(nil), input.blockscanChatUnreadCount)
-        let reload = Publishers.Merge3(Just<Void>(()), input.appear, assignedNameOrEns)
+        let reload = Publishers.Merge3(Just<Void>(()), input.willAppear, assignedNameOrEns)
 
         let sections = Publishers.CombineLatest(reload, blockscanChatUnreadCount)
             .map { [account, keystore] _, blockscanChatUnreadCount -> [SettingsViewModel.SectionViewModel] in

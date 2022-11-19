@@ -11,7 +11,7 @@ import AlphaWalletFoundation
 import Combine
 
 struct AdvancedSettingsViewModelInput {
-    let appear: AnyPublisher<Void, Never>
+    let willAppear: AnyPublisher<Void, Never>
 }
 
 struct AdvancedSettingsViewModelOutput {
@@ -31,7 +31,7 @@ class AdvancedSettingsViewModel {
     }
 
     func transform(input: AdvancedSettingsViewModelInput) -> AdvancedSettingsViewModelOutput {
-        let viewState = input.appear
+        let viewState = input.willAppear
             .map { [wallet] _ in AdvancedSettingsViewModel.functional.computeSections(wallet: wallet) }
             .handleEvents(receiveOutput: { self.rows = $0 })
             .map { $0.map { self.buildCellViewModel(for: $0) } }

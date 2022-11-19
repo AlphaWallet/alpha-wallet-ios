@@ -29,12 +29,13 @@ class SettingsViewController: UIViewController {
         tableView.estimatedRowHeight = Metrics.anArbitraryRowHeightSoAutoSizingCellsWorkIniOS10
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.separatorColor = Configuration.Color.Semantic.tableViewSeparator
+        tableView.backgroundColor = Configuration.Color.Semantic.tableViewBackground
         tableView.delegate = self
 
         return tableView
     }()
     private lazy var dataSource = makeDataSource()
-    private let appear = PassthroughSubject<Void, Never>()
+    private let willAppear = PassthroughSubject<Void, Never>()
     private let appProtectionSelection = PassthroughSubject<(indexPath: IndexPath, isOn: Bool), Never>()
     private let blockscanChatUnreadCount = PassthroughSubject<Int?, Never>()
     private var cancellable = Set<AnyCancellable>()
@@ -69,7 +70,7 @@ class SettingsViewController: UIViewController {
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.anchorsConstraint(to: view)
+            tableView.anchorsConstraintSafeArea(to: view)
         ])
     }
 
@@ -80,21 +81,20 @@ class SettingsViewController: UIViewController {
             hidePromptBackupWalletView()
         }
 
+        navigationItem.largeTitleDisplayMode = .always
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
+
         bind(viewModel: viewModel)
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        appear.send(())
+        willAppear.send(())
     }
 
     private func bind(viewModel: SettingsViewModel) {
-        navigationItem.largeTitleDisplayMode = viewModel.largeTitleDisplayMode
-        view.backgroundColor = viewModel.backgroundColor
-        tableView.backgroundColor = viewModel.backgroundColor
-
         let input = SettingsViewModelInput(
-            appear: appear.eraseToAnyPublisher(),
+            willAppear: willAppear.eraseToAnyPublisher(),
             appProtectionSelection: appProtectionSelection.eraseToAnyPublisher(),
             blockscanChatUnreadCount: blockscanChatUnreadCount.eraseToAnyPublisher())
 

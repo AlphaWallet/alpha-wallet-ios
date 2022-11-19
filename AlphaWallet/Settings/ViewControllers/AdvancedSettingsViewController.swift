@@ -35,7 +35,7 @@ class AdvancedSettingsViewController: UIViewController {
 
         return tableView
     }()
-    private let appear = PassthroughSubject<Void, Never>()
+    private let willAppear = PassthroughSubject<Void, Never>()
     private var cancellable = Set<AnyCancellable>()
     private lazy var dataSource = makeDataSource()
 
@@ -48,18 +48,22 @@ class AdvancedSettingsViewController: UIViewController {
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.anchorsConstraint(to: view)
+            tableView.anchorsConstraintSafeArea(to: view)
         ])
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        navigationItem.largeTitleDisplayMode = viewModel.largeTitleDisplayMode
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
+
         bind(viewModel: viewModel)
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        appear.send(())
+        willAppear.send(())
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -67,9 +71,7 @@ class AdvancedSettingsViewController: UIViewController {
     }
 
     private func bind(viewModel: AdvancedSettingsViewModel) {
-        navigationItem.largeTitleDisplayMode = viewModel.largeTitleDisplayMode
-
-        let input = AdvancedSettingsViewModelInput(appear: appear.eraseToAnyPublisher())
+        let input = AdvancedSettingsViewModelInput(willAppear: willAppear.eraseToAnyPublisher())
         let output = viewModel.transform(input: input)
 
         output.viewState
@@ -81,7 +83,7 @@ class AdvancedSettingsViewController: UIViewController {
 }
 
 fileprivate extension AdvancedSettingsViewController {
-    func makeDataSource() -> AdvancedSettingsViewModel.DataSource {
+    private func makeDataSource() -> AdvancedSettingsViewModel.DataSource {
         return AdvancedSettingsViewModel.DataSource(tableView: tableView, cellProvider: { tableView, indexPath, viewModel in
             let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
             cell.configure(viewModel: viewModel)
