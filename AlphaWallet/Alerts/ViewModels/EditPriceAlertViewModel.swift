@@ -10,7 +10,7 @@ import AlphaWalletFoundation
 import Combine
 
 struct EditPriceAlertViewModelInput {
-    let appear: AnyPublisher<Void, Never>
+    let willAppear: AnyPublisher<Void, Never>
     let save: AnyPublisher<Void, Never>
     let cryptoValue: AnyPublisher<String, Never>
 }
@@ -31,10 +31,7 @@ final class EditPriceAlertViewModel {
     private let alertService: PriceAlertServiceType
     private var cancelable = Set<AnyCancellable>()
 
-    var backgroundColor: UIColor = Colors.appWhite
-    var title: String { configuration.title }
-    var headerTitle: String = R.string.localizable.priceAlertEnterTargetPrice().uppercased()
-    var setAlertTitle: String = R.string.localizable.priceAlertSet()
+    var title: String { configuration.title } 
     let token: Token
 
     init(configuration: EditPriceAlertViewModel.Configuration, token: Token, tokensService: TokenViewModelState, alertService: PriceAlertServiceType) {
@@ -71,12 +68,12 @@ final class EditPriceAlertViewModel {
                 switch configuration {
                 case .create:
                     let alert: PriceAlert = .init(type: .init(value: pair.crypto, marketPrice: pair.marketPrice), token: token, isEnabled: true)
-                    alertService.add(alert: alert)
+                    guard alertService.add(alert: alert) else { return .failure(.alertAlreadyExists) }
+                    return .success(())
                 case .edit(let alert):
                     alertService.update(alert: alert, update: .value(value: pair.crypto, marketPrice: pair.marketPrice))
+                    return .success(())
                 }
-
-                return .success(())
             }.eraseToAnyPublisher()
 
         let marketPrice = cryptoRate
@@ -87,7 +84,7 @@ final class EditPriceAlertViewModel {
             .map { $0 != nil }
             .eraseToAnyPublisher()
 
-        let cryptoInitial = input.appear
+        let cryptoInitial = input.willAppear
             .map { _ in self.configuration.value }
             .eraseToAnyPublisher()
 
@@ -98,6 +95,7 @@ final class EditPriceAlertViewModel {
 extension EditPriceAlertViewModel {
     enum EditPriceAlertError: Error {
         case cryptoOrMarketPriceNotFound
+        case alertAlreadyExists
     }
 
     enum Configuration {

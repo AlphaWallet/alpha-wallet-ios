@@ -294,7 +294,7 @@ class NFTAssetViewModel {
         }
     }
 
-    func tokenScriptWarningMessage(for action: TokenInstanceAction) -> FungibleTokenViewModel.TokenScriptWarningMessage? {
+    func tokenScriptWarningMessage(for action: TokenInstanceAction) -> FungibleTokenDetailsViewModel.TokenScriptWarningMessage? {
         if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: session.account.address) {
             if let denialMessage = selection.denial {
                 return .warning(string: denialMessage)
@@ -307,8 +307,8 @@ class NFTAssetViewModel {
         }
     }
 
-    func buttonState(for action: TokenInstanceAction) -> FungibleTokenViewModel.ActionButtonState {
-        func _configButton(action: TokenInstanceAction) -> FungibleTokenViewModel.ActionButtonState {
+    func buttonState(for action: TokenInstanceAction) -> FungibleTokenDetailsViewModel.ActionButtonState {
+        func _configButton(action: TokenInstanceAction) -> FungibleTokenDetailsViewModel.ActionButtonState {
             if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: session.account.address) {
                 if selection.denial == nil {
                     return .isDisplayed(false)
