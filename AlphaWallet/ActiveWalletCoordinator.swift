@@ -853,7 +853,7 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
             throw ActiveWalletError.unavailableToResolveSwapActionProvider
         }
 
-        let coordinator = SelectServiceToSwapCoordinator(swapTokenProvider: swapTokenProvider, token: token, viewController: navigationController)
+        let coordinator = SelectServiceToSwapCoordinator(swapTokenProvider: swapTokenProvider, token: token, analytics: analytics, viewController: navigationController)
         coordinator.delegate = self
         coordinator.start(wallet: wallet)
         addCoordinator(coordinator)
@@ -1103,10 +1103,6 @@ extension ActiveWalletCoordinator {
     private func logIsAppPasscodeOrBiometricProtectionEnabled() {
         let isOn = lock.isPasscodeSet
         analytics.setUser(property: Analytics.UserProperties.isAppPasscodeOrBiometricProtectionEnabled, value: isOn)
-    }
-
-    private func logTappedSwap(service: SwapTokenViaUrlProvider) {
-        analytics.log(navigation: Analytics.Navigation.tokenSwap, properties: [Analytics.Properties.name.rawValue: service.analyticsName])
     }
 
     private func logExplorerUse(type: Analytics.ExplorerType) {
