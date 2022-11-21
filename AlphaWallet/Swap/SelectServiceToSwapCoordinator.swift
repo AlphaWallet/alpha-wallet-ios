@@ -17,28 +17,33 @@ class SelectServiceToSwapCoordinator: Coordinator {
     private let token: Token
     private let viewController: UIViewController
     private let swapTokenProvider: SwapTokenProvider
-
+    private let analytics: AnalyticsLogger
     var coordinators: [Coordinator] = []
     weak var delegate: SelectServiceToSwapCoordinatorDelegate?
 
-    init(swapTokenProvider: SwapTokenProvider, token: Token, viewController: UIViewController) {
+    init(swapTokenProvider: SwapTokenProvider, token: Token, analytics: AnalyticsLogger, viewController: UIViewController) {
         self.swapTokenProvider = swapTokenProvider
         self.token = token
+        self.analytics = analytics
         self.viewController = viewController
     }
 
     func start(wallet: Wallet) {
         selectSwapService(wallet: wallet, completion: { [token] result in
             switch result {
-            case .service(let service):
-                if let service = service as? SwapTokenViaUrlProvider {
+            case .service(let _service):
+                if let service = _service as? SwapTokenViaUrlProvider {
+                    self.logTappedSwap(service: _service)
+
                     if let url = service.url(token: token) {
                         let server = service.rpcServer(forToken: token)
                         self.delegate?.selectSwapService(.success(.url(url: url, server: server)), in: self)
                     } else {
                         self.delegate?.selectSwapService(.failure(SwapTokenError.swapNotSupported), in: self)
                     }
-                } else if let _ = service as? SwapTokenNativeProvider {
+                } else if let _ = _service as? SwapTokenNativeProvider {
+                    self.logTappedSwap(service: _service)
+
                     let swapPair = SwapPair(from: token, to: nil)
                     self.delegate?.selectSwapService(.success(.native(swapPair: swapPair)), in: self)
                 } else {
@@ -50,6 +55,10 @@ class SelectServiceToSwapCoordinator: Coordinator {
                 self.delegate?.didClose(in: self)
             }
         })
+    }
+
+    private func logTappedSwap(service: SupportedTokenActionsProvider) {
+        analytics.log(navigation: Analytics.Navigation.tokenSwap, properties: [Analytics.Properties.name.rawValue: service.analyticsName])
     }
 
     private func selectSwapService(wallet: Wallet, completion: @escaping (SwapTokenUsingService) -> Void) {
