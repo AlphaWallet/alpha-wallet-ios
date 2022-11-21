@@ -647,6 +647,8 @@ extension ImportWalletViewController: TextViewDelegate {
         } else {
             mnemonicSuggestions = .init()
         }
+
+        mnemonicTextView.errorState = .none
     }
 }
 
