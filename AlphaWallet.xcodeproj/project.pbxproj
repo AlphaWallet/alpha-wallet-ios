@@ -5396,7 +5396,6 @@
 				87E1A5EB283787AB00E98555 /* FungibleTokenHeaderViewModel.swift in Sources */,
 				8728FFE32742906A008E5524 /* TokenCardTableViewCellFactory.swift in Sources */,
 				5E7C74B07DDDBE3344273CB7 /* PromptBackupWalletAfterWalletCreationViewViewModel.swift in Sources */,
-				87DD0C40279977E700460260 /* PasswordTextField.swift in Sources */,
 				5E7C7CA7562FD8352967EFBD /* PromptBackupWalletAfterReceivingEtherViewViewModel.swift in Sources */,
 				5E7C70DDE7C3BD32FA525753 /* PromptBackupWalletAfterIntervalViewViewModel.swift in Sources */,
 				87BBF98B2563DD7600FF4846 /* WalletConnectServer.swift in Sources */,
