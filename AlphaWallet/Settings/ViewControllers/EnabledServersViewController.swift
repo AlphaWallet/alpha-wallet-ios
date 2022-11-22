@@ -185,7 +185,7 @@ extension EnabledServersViewController: PromptViewControllerDelegate {
         tableView.reloadData()
     }
 
-    func controllerDismiss(_ controller: PromptViewController) {
+    func didClose(in controller: PromptViewController) {
         headers.mainnet.configure(mode: .mainnet, isEnabled: true)
         headers.testnet.configure(mode: .testnet, isEnabled: false)
     }
