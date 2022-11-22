@@ -157,7 +157,7 @@ extension InitialNetworkSelectionViewModel: PromptViewControllerDelegate {
         sendDelegateChangeSelectedCount()
     }
 
-    func controllerDismiss(_ controller: PromptViewController) {
+    func didClose(in controller: PromptViewController) {
         headerForMainnet.toggle(isEnabled: true)
         headerForTestnet.toggle(isEnabled: false)
         sendDelegateReloadTable()

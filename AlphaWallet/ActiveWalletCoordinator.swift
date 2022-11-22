@@ -785,7 +785,7 @@ extension ActiveWalletCoordinator: WhereAreMyTokensCoordinatorDelegate {
         processRestartQueueAndRestartUI(reason: .serverChange)
     }
 
-    func didDismiss(in coordinator: WhereAreMyTokensCoordinator) {
+    func didClose(in coordinator: WhereAreMyTokensCoordinator) {
         //no-op
     }
 }
