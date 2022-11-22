@@ -181,7 +181,6 @@ extension SwapOptionsViewController: UITableViewDelegate {
     }
 }
 
-
 class SelfSizingTableView: UITableView {
     override var contentSize: CGSize {
         didSet {

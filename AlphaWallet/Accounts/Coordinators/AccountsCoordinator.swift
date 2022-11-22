@@ -146,7 +146,7 @@ class AccountsCoordinator: Coordinator {
         controller.popoverPresentationController?.sourceView = sender
 
         switch account.type {
-        case .real(let address):
+        case .real:
             let actionTitle: String
             if account.origin == .hd {
                 actionTitle = R.string.localizable.walletsBackupHdWalletAlertSheetTitle()
@@ -166,13 +166,12 @@ class AccountsCoordinator: Coordinator {
                 controller.addAction(renameAction)
             }
 
-            let copyAction = UIAlertAction(title: R.string.localizable.copyAddress(), style: .default) { _ in
-                UIPasteboard.general.string = address.eip55String
+            let copyAction = UIAlertAction(title: R.string.localizable.copyAddress(), style: .default) { [weak self] _ in
+                self?.copyToClipboard(account: account)
             }
             controller.addAction(copyAction)
 
             let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
-
             controller.addAction(cancelAction)
 
             navigationController.present(controller, animated: true)
@@ -182,16 +181,21 @@ class AccountsCoordinator: Coordinator {
             }
             controller.addAction(renameAction)
 
-            let copyAction = UIAlertAction(title: R.string.localizable.copyAddress(), style: .default) { [navigationController] _ in
-                UIPasteboard.general.string = account.address.eip55String
-                navigationController.view.showCopiedToClipboard(title: R.string.localizable.copiedToClipboard())
+            let copyAction = UIAlertAction(title: R.string.localizable.copyAddress(), style: .default) { [weak self] _ in
+                self?.copyToClipboard(account: account)
             }
             controller.addAction(copyAction)
+
             let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
             controller.addAction(cancelAction)
 
             navigationController.present(controller, animated: true)
         }
+    }
+
+    private func copyToClipboard(account: Wallet) {
+        UIPasteboard.general.string = account.address.eip55String
+        navigationController.view.showCopiedToClipboard(title: R.string.localizable.copiedToClipboard())
     }
 
     private func startBackup(for account: Wallet) {
