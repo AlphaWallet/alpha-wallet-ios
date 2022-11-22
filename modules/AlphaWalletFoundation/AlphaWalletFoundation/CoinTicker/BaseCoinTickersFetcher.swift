@@ -83,12 +83,18 @@ public class BaseCoinTickersFetcher {
     }
 
     /// Returns cached chart history if its not expired otherwise download a new version of history, if ticker id has found
-    public func fetchChartHistories(for token: TokenMappedToTicker, force: Bool, periods: [ChartHistoryPeriod]) -> AnyPublisher<[ChartHistory], Never> {
+    public func fetchChartHistories(for token: TokenMappedToTicker, force: Bool, periods: [ChartHistoryPeriod]) -> AnyPublisher<[ChartHistoryPeriod: ChartHistory], Never> {
         let publishers = periods.map { fetchChartHistory(force: force, period: $0, for: token, currency: Currency.USD.rawValue) }
 
         return Publishers.MergeMany(publishers).collect()
-            .map { $0.reorder(by: periods).map { $0.history } }
-            .eraseToAnyPublisher()
+            .map { $0.reorder(by: periods)/*.map { $0.history }*/ }
+            .map { mapped -> [ChartHistoryPeriod: ChartHistory] in
+                var values: [ChartHistoryPeriod: ChartHistory] = [:]
+                for each in mapped {
+                    values[each.period] = each.history
+                }
+                return values
+            }.eraseToAnyPublisher()
     }
 
     struct HistoryToPeriod {
