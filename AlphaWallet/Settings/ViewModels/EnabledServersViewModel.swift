@@ -30,7 +30,7 @@ struct EnabledServersViewModel {
     }
 
     var title: String {
-        return R.string.localizable.settingsEnabledNetworksButtonTitle()
+        return R.string.localizable.settingsEnabledNetworksButtonTitle("(\(selectedServers.count))")
     }
 
     func serverViewModel(indexPath: IndexPath) -> ServerImageViewModel {

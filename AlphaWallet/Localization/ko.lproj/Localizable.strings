@@ -81,7 +81,7 @@
 "settings.biometricsEnabled.label.title" = "암호 / %@";
 "settings.error.failedToSendEmail" = "이메일을 전송하지 못했습니다. 메일 앱이 설치되어 있는지 확인하십시오.";
 "settings.network.button.title" = "네트워크";
-"settings.enabledNetworks.button.title" = "Enabled Networks";
+"settings.enabledNetworks.button.title" = "Enabled Networks %@";
 "settings.enabledNetworks.mainnet" = "Mainnet";
 "settings.enabledNetworks.testnet" = "Testnet";
 "settings.enabledNetworks.promptEnableTestnet.title" = "What is Testnet?";

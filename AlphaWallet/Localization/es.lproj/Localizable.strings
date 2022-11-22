@@ -81,7 +81,7 @@
 "settings.biometricsEnabled.label.title" = "Código de acceso / %@";
 "settings.error.failedToSendEmail" = "Error al enviar el correo electrónico. Asegúrate de que tienes una aplicación de correo instalada.";
 "settings.network.button.title" = "Red";
-"settings.enabledNetworks.button.title" = "Redes activadas";
+"settings.enabledNetworks.button.title" = "Enabled Networks %@";
 "settings.enabledNetworks.mainnet" = "Mainnet";
 "settings.enabledNetworks.testnet" = "Testnet";
 "settings.enabledNetworks.promptEnableTestnet.title" = "What is Testnet?";
