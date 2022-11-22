@@ -8,21 +8,27 @@
 import Foundation
 import BigInt
 
-public struct WalletBalance: Equatable {
-    public static func == (lhs: WalletBalance, rhs: WalletBalance) -> Bool {
-        return lhs.wallet.address.sameContract(as: rhs.wallet.address) &&
-            lhs.totalAmountDouble == rhs.totalAmountDouble &&
-            lhs.changeDouble == rhs.changeDouble
+public struct WalletBalance {
+    private let etherToken: TokenViewModel?
+    public let wallet: Wallet
+    public let totalAmountDouble: Double?
+    public let changeDouble: Double?
+    public var etherBalance: NSDecimalNumber? {
+        etherToken?.valueDecimal
     }
 
-    public let wallet: Wallet
-    private let tokens: [TokenViewModel]
-    public var totalAmountDouble: Double?
-    public var changeDouble: Double?
-
-    public init(wallet: Wallet, tokens: [TokenViewModel]) {
+    init(wallet: Wallet, tokens: [TokenViewModel]) {
         self.wallet = wallet
-        self.tokens = tokens
+
+        if tokens.allSatisfy({ $0.server.isTestnet }) {
+            if let server = tokens.map { $0.server }.sorted(by: { $0.displayOrderPriority > $1.displayOrderPriority }).first {
+                etherToken = tokens.first(where: { $0 == MultipleChainsTokensDataStore.functional.etherToken(forServer: server) })
+            } else {
+                etherToken = nil
+            }
+        } else {
+            etherToken = tokens.first(where: { $0 == MultipleChainsTokensDataStore.functional.etherToken(forServer: .main) })
+        }
         self.totalAmountDouble = WalletBalance.functional.createTotalAmountDouble(tokens: tokens)
         self.changeDouble = WalletBalance.functional.createChangeDouble(tokens: tokens)
     }
@@ -30,28 +36,17 @@ public struct WalletBalance: Equatable {
     public var totalAmountString: String {
         if let totalAmount = totalAmountDouble, let value = Formatter.usd.string(from: totalAmount) {
             return value
-        } else if let etherAmount = etherAmountShort {
-            return "\(etherAmount) \(RPCServer.main.symbol)"
+        } else if let etherAmount = etherAmountShort, let token = etherToken {
+            return "\(etherAmount) \(token.tokenScriptOverrides?.symbolInPluralForm ?? token.symbol)"
         } else {
             return "--"
         }
     }
 
-    public var etherAmountShort: String? {
-        guard let token = etherToken, let value = token.valueDecimal else { return nil }
-
-        return Formatter.shortCrypto.string(from: value.doubleValue)
+    var etherAmountShort: String? {
+        return etherToken?.valueDecimal.flatMap { Formatter.shortCrypto.string(from: $0.doubleValue) }
     }
 
-    public var etherToken: TokenViewModel? {
-        let etherToken: TokenViewModel = .init(token: MultipleChainsTokensDataStore.functional.etherToken(forServer: .main))
-        guard let token = tokens.first(where: { $0 == etherToken }) else {
-            return nil
-        }
-
-        return token
-    }
-    
     public var changePercentage: Double? {
         if let change = changeDouble, let total = totalAmountDouble {
             return change / total
@@ -68,6 +63,14 @@ public struct WalletBalance: Equatable {
 extension Balance: CustomStringConvertible {
     public var description: String {
         return "value: \(EtherNumberFormatter.full.string(from: value))"
+    }
+}
+
+extension WalletBalance: Hashable {
+    public static func == (lhs: WalletBalance, rhs: WalletBalance) -> Bool {
+        return lhs.wallet.address.sameContract(as: rhs.wallet.address) &&
+            lhs.totalAmountDouble == rhs.totalAmountDouble &&
+            lhs.changeDouble == rhs.changeDouble
     }
 }
 

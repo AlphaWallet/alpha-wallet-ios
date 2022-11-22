@@ -80,18 +80,18 @@ extension WalletSummary.functional {
     }
 
     public static func createEtherTotalAmountDouble(balances: [WalletBalance]) -> NSDecimalNumber? {
-        var amount: NSDecimalNumber?
+        var value: NSDecimalNumber?
 
         for each in balances {
-            if let eachEtherAmount = each.etherToken?.valueDecimal {
-                if amount == nil { amount = .zero }
+            if let eachEtherBalance = each.etherBalance {
+                if value == nil { value = .zero }
 
-                if let currentAmount = amount {
-                    amount = currentAmount.adding(eachEtherAmount)
+                if let currentAmount = value {
+                    value = currentAmount.adding(eachEtherBalance)
                 }
             }
         }
 
-        return amount
+        return value
     }
 }

@@ -38,7 +38,7 @@ public class ClientSideTokenSourceProvider: TokenSourceProvider {
 
     public var tokens: [Token] { tokensDataStore.enabledTokens(for: [session.server]) }
 
-    private (set) lazy public var tokensPublisher: AnyPublisher<[Token], Never> = {
+    public var tokensPublisher: AnyPublisher<[Token], Never> {
         let initialOrForceSnapshot = Publishers.Merge(Just<Void>(()), refreshSubject)
             .map { [tokensDataStore, session] _ in tokensDataStore.enabledTokens(for: [session.server]) }
             .eraseToAnyPublisher()
@@ -48,7 +48,7 @@ public class ClientSideTokenSourceProvider: TokenSourceProvider {
 
         return Publishers.Merge(initialOrForceSnapshot, addedOrChanged)
             .eraseToAnyPublisher()
-    }()
+    }
 
     public let session: WalletSession
 

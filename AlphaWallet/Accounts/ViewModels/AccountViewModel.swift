@@ -4,90 +4,20 @@ import UIKit
 import Combine
 import AlphaWalletFoundation
 
-class AccountViewModel {
-    private let getWalletName: GetWalletName
-    private let blockiesGenerator: BlockiesGenerator
-    private let subscribeForBalanceUpdates: Bool
-    private let walletBalanceService: WalletBalanceService
-    private let analytics: AnalyticsLogger
+struct AccountViewModel {
+    private let displayBalanceApprecation: Bool
     private let current: Wallet?
+    private let accountRowViewModel: AccountsViewModel.AccountRowViewModel
+    var wallet: Wallet { accountRowViewModel.wallet }
 
-    let wallet: Wallet
-    lazy var apprecation24hour: AnyPublisher<NSAttributedString, Never> = {
-        return walletBalanceService
-            .walletBalance(for: wallet)
-            .compactMap { [weak self] in self?.apprecation24hourAttributedString($0) }
-            .eraseToAnyPublisher()
-    }()
-
-    lazy var balance: AnyPublisher<NSAttributedString, Never> = {
-        return walletBalanceService.walletBalance(for: wallet)
-            .compactMap { [weak self] in self?.balanceAttributedString($0.totalAmountString) }
-            .eraseToAnyPublisher()
-    }()
-
-    lazy var blockieImage: AnyPublisher<BlockiesImage, Never> = {
-        return blockiesGenerator.getBlockieOrEnsAvatarImage(address: wallet.address, fallbackImage: BlockiesImage.defaulBlockieImage)
-            .handleEvents(receiveOutput: { [weak self] value in
-                guard value.isEnsAvatar else { return }
-                self?.analytics.setUser(property: Analytics.UserProperties.hasEnsAvatar, value: true)
-            }).eraseToAnyPublisher()
-    }()
-
-    lazy var addressOrEnsName: AnyPublisher<NSAttributedString, Never> = {
-        return getWalletName.assignedNameOrEns(for: wallet.address)
-            .map { [wallet] ensOrName in
-                if let ensOrName = ensOrName {
-                    return "\(ensOrName) | \(wallet.address.truncateMiddle)"
-                } else {
-                    return wallet.address.eip55String
-                }
-            }.prepend(wallet.address.eip55String)
-            .compactMap { [weak self] value in self?.addressOrEnsOrNameAttributedString(value) }
-            .eraseToAnyPublisher()
-    }()
-
-    init(
-        analytics: AnalyticsLogger,
-        getWalletName: GetWalletName,
-        blockiesGenerator: BlockiesGenerator,
-        subscribeForBalanceUpdates: Bool,
-        walletBalanceService: WalletBalanceService,
-        wallet: Wallet,
-        current: Wallet?
-    ) {
-        self.analytics = analytics
-        self.wallet = wallet
-        self.current = current
-        self.getWalletName = getWalletName
-        self.blockiesGenerator = blockiesGenerator
-        self.subscribeForBalanceUpdates = subscribeForBalanceUpdates
-        self.walletBalanceService = walletBalanceService
-    }
-
-    var showWatchIcon: Bool {
-        return wallet.type == .watch(wallet.address)
-    }
-
-    var isSelected: Bool {
-        return wallet == current
-    }
-
-    var backgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground
-
-    //Name might not be intention revealing anymore. Refer to callers for why
-    var canEditCell: Bool {
-        return !isSelected
-    }
-
-    private func apprecation24hourAttributedString(_ balance: WalletBalance?) -> NSAttributedString {
-        if subscribeForBalanceUpdates {
+    var apprecation24hour: NSAttributedString {
+        if displayBalanceApprecation {
             let style = NSMutableParagraphStyle()
             style.alignment = .right
 
-            return .init(string: balance?.valuePercentageChangeValue ?? "-", attributes: [
+            return .init(string: accountRowViewModel.balance.valuePercentageChangeValue, attributes: [
                 .font: Fonts.regular(size: 20),
-                .foregroundColor: balance?.valuePercentageChangeColor ?? Configuration.Color.Semantic.defaultAttributedString,
+                .foregroundColor: accountRowViewModel.balance.valuePercentageChangeColor,
                 .paragraphStyle: style
             ])
         } else {
@@ -95,18 +25,36 @@ class AccountViewModel {
         }
     }
 
-    private func balanceAttributedString(_ value: String?) -> NSAttributedString {
-        return .init(string: value ?? "--", attributes: [
+    var balance: NSAttributedString {
+        return .init(string: accountRowViewModel.balance.totalAmountString, attributes: [
             .font: Fonts.bold(size: 20),
             .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
         ])
     }
 
-    private func addressOrEnsOrNameAttributedString(_ name: String) -> NSAttributedString {
-        return .init(string: name, attributes: [
+    var blockieImage: BlockiesImage {
+        accountRowViewModel.blockie
+    }
+
+    var addressOrEnsName: NSAttributedString {
+        return .init(string: accountRowViewModel.addressOrEnsName, attributes: [
             .font: Fonts.regular(size: 12),
             .foregroundColor: Configuration.Color.Semantic.defaultAttributedString
         ])
+    }
+
+    init(displayBalanceApprecation: Bool, accountRowViewModel: AccountsViewModel.AccountRowViewModel, current: Wallet?) {
+        self.accountRowViewModel = accountRowViewModel
+        self.current = current
+        self.displayBalanceApprecation = displayBalanceApprecation
+    }
+
+    var showWatchIcon: Bool {
+        return accountRowViewModel.wallet.type == .watch(accountRowViewModel.wallet.address)
+    }
+
+    var isSelected: Bool {
+        return accountRowViewModel.wallet == current
     }
 }
 
@@ -121,3 +69,5 @@ extension WalletBalance {
         return EthCurrencyHelper(ticker: nil).valueChangeValueColor(from: changeDouble)
     }
 }
+
+extension AccountViewModel: Hashable { }

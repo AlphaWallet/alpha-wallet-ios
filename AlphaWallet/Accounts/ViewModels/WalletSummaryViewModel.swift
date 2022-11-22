@@ -9,18 +9,15 @@ import UIKit
 import Combine
 import AlphaWalletFoundation
 
-struct WalletSummaryViewModel {
+struct WalletSummaryViewModel: Hashable {
     private let alignment: NSTextAlignment
-    private var areTestnetsEnabled: Bool {
-        config.enabledServers.allSatisfy { $0.isTestnet }
-    }
-    private let config: Config
+    private let areTestnetsEnabled: Bool
     private let walletSummary: WalletSummary
 
     init(walletSummary: WalletSummary, config: Config, alignment: NSTextAlignment = .left) {
         self.walletSummary = walletSummary
         self.alignment = alignment
-        self.config = config
+        self.areTestnetsEnabled = config.enabledServers.allSatisfy { $0.isTestnet }
     }
 
     var balanceAttributedString: NSAttributedString {

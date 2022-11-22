@@ -80,7 +80,7 @@ class AppCoordinator: NSObject, Coordinator {
 
         return coordinator
     }()
-    private lazy var tokenSwapper = TokenSwapper(reachabilityManager: ReachabilityManager(), sessionProvider: sessionProvider)
+    private lazy var tokenSwapper = TokenSwapper(reachabilityManager: ReachabilityManager(), sessionProvider: activeSessionsProvider)
     private lazy var tokenActionsService: TokenActionsService = {
         let service = TokenActionsService()
         service.register(service: BuyTokenProvider(subProviders: [
@@ -110,7 +110,7 @@ class AppCoordinator: NSObject, Coordinator {
     }()
 
     private lazy var walletConnectCoordinator: WalletConnectCoordinator = {
-        let coordinator = WalletConnectCoordinator(keystore: keystore, navigationController: navigationController, analytics: analytics, domainResolutionService: domainResolutionService, config: config, sessionProvider: sessionProvider, assetDefinitionStore: assetDefinitionStore)
+        let coordinator = WalletConnectCoordinator(keystore: keystore, navigationController: navigationController, analytics: analytics, domainResolutionService: domainResolutionService, config: config, sessionProvider: activeSessionsProvider, assetDefinitionStore: assetDefinitionStore)
 
         return coordinator
     }()
@@ -123,7 +123,7 @@ class AppCoordinator: NSObject, Coordinator {
     lazy private var blockiesGenerator: BlockiesGenerator = BlockiesGenerator(assetImageProvider: nftProvider, storage: sharedEnsRecordsStorage)
     lazy private var domainResolutionService: DomainResolutionServiceType = DomainResolutionService(blockiesGenerator: blockiesGenerator, storage: sharedEnsRecordsStorage)
     private lazy var walletApiCoordinator: WalletApiCoordinator = {
-        let coordinator = WalletApiCoordinator(keystore: keystore, navigationController: navigationController, analytics: analytics, serviceProvider: sessionProvider)
+        let coordinator = WalletApiCoordinator(keystore: keystore, navigationController: navigationController, analytics: analytics, serviceProvider: activeSessionsProvider)
         coordinator.delegate = self
 
         return coordinator
@@ -134,7 +134,7 @@ class AppCoordinator: NSObject, Coordinator {
         return NotificationService(sources: [], walletBalanceService: walletBalanceService, notificationService: notificationService, pushNotificationsService: pushNotificationsService)
     }()
 
-    private lazy var sessionProvider = SessionsProvider(config: config, analytics: analytics)
+    private lazy var activeSessionsProvider = SessionsProvider(config: config, analytics: analytics)
     private let securedStorage: SecuredPasswordStorage & SecuredStorage
     private let addressStorage: FileAddressStorage
 
@@ -184,6 +184,7 @@ class AppCoordinator: NSObject, Coordinator {
         walletAddressesStore
             .didRemoveWalletPublisher
             .sink { [config, analytics, keystore, legacyFileBasedKeystore] account in
+                
                 //TODO: pass ref
                 FileWalletStorage().addOrUpdate(name: nil, for: account.address)
                 PromptBackupCoordinator(keystore: keystore, wallet: account, config: config, analytics: analytics).deleteWallet()
@@ -304,9 +305,6 @@ class AppCoordinator: NSObject, Coordinator {
         }
 
         let dep = dependencyProvider.makeDependencies(for: wallet)
-        dep.sessionsProvider.start(wallet: wallet)
-        dep.fetcher.start()
-        dep.pipeline.start()
 
         walletConnectCoordinator.configure(with: dep.pipeline)
 
@@ -346,7 +344,7 @@ class AppCoordinator: NSObject, Coordinator {
 
         coordinator.start(animated: animated)
 
-        sessionProvider.start(sessions: dep.sessionsProvider.sessions)
+        activeSessionsProvider.start(sessions: dep.sessionsProvider.sessions)
 
         return coordinator
     }

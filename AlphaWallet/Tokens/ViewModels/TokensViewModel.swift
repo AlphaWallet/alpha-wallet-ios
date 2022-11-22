@@ -210,7 +210,7 @@ final class TokensViewModel {
 
         let walletSummary = walletBalanceService
             .walletBalance(for: wallet)
-            .map { WalletSummary(balances: [$0]) }
+            .map { value in WalletSummary(balances: [value]) }
             .eraseToAnyPublisher()
 
         let title = input.appear
