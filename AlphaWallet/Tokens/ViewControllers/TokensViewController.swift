@@ -273,9 +273,7 @@ final class TokensViewController: UIViewController {
 
                 navigationItem.title = state.title
                 self?.isConsoleButtonHidden = state.isConsoleButtonHidden
-                //Temporarily disable buy crypto functionality
-                //self?.footerBar.isHidden = state.isFooterHidden
-                self?.footerBar.isHidden = true
+                self?.footerBar.isHidden = state.isFooterHidden
                 self?.applySnapshot(with: state.sections, animate: false)
             }.store(in: &cancellable)
 
