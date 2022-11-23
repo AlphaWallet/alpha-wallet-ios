@@ -107,6 +107,11 @@ class AccountsViewController: UIViewController {
                     }
                 }
             }.store(in: &cancelable)
+
+        output.copiedToClipboard
+            .sink(receiveValue: { [weak self] in
+                self?.view.showCopiedToClipboard(title: $0)
+            }).store(in: &cancelable)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -136,9 +141,13 @@ class AccountsViewController: UIViewController {
 
     @objc private func didLongPress(_ recognizer: UILongPressGestureRecognizer) {
         guard let cell = recognizer.view as? AccountViewCell, let indexPath = cell.indexPath, recognizer.state == .began else { return }
-        guard let account = viewModel.account(for: indexPath) else { return }
-
-        delegate?.didSelectInfoForAccount(account: account, sender: cell, in: self)
+        
+        switch dataSource.item(at: indexPath) {
+        case .wallet(let viewModel):
+            delegate?.didSelectInfoForAccount(account: viewModel.wallet, sender: cell, in: self)
+        case .undefined, .summary:
+            break
+        }
     }
 }
 
@@ -201,8 +210,19 @@ extension AccountsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
-        guard let account = viewModel.account(for: indexPath) else { return }
+        switch dataSource.item(at: indexPath) {
+        case .wallet(let viewModel):
+            delegate?.didSelectAccount(account: viewModel.wallet, in: self)
+        case .summary, .undefined:
+            break
+        }
+    }
+}
 
-        delegate?.didSelectAccount(account: account, in: self)
+extension UITableViewDiffableDataSource {
+    func item(at indexPath: IndexPath) -> ItemIdentifierType {
+        let snapshot = snapshot()
+        let section = snapshot.sectionIdentifiers[indexPath.section]
+        return snapshot.itemIdentifiers(inSection: section)[indexPath.row]
     }
 }

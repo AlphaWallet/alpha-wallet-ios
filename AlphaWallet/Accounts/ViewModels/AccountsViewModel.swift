@@ -17,6 +17,7 @@ struct AccountsViewModelOutput {
     let reloadBalanceState: AnyPublisher<AccountsViewModel.ReloadState, Never>
     let deleteWalletState: AnyPublisher<(wallet: Wallet, state: AccountsViewModel.DeleteWalletState), Never>
     let askDeleteWalletConfirmation: AnyPublisher<Wallet, Never>
+    let copiedToClipboard: AnyPublisher<String, Never>
 }
 
 final class AccountsViewModel {
@@ -30,6 +31,7 @@ final class AccountsViewModel {
     private var reloadBalanceSubject: PassthroughSubject<ReloadState, Never> = .init()
     private var deleteWalletState: PassthroughSubject<AccountsViewModel.DeleteWalletState, Never> = .init()
     private var askDeleteWalletConfirmation: PassthroughSubject<Wallet, Never> = .init()
+    private var copiedToClipboard: PassthroughSubject<String, Never> = .init()
 
     private lazy var getWalletName = GetWalletName(domainResolutionService: domainResolutionService)
     private var sections: [AccountsViewModel.Section] {
@@ -114,7 +116,8 @@ final class AccountsViewModel {
             viewState: viewState.eraseToAnyPublisher(),
             reloadBalanceState: reloadBalanceSubject.eraseToAnyPublisher(),
             deleteWalletState: deleteWallet.eraseToAnyPublisher(),
-            askDeleteWalletConfirmation: askDeleteWalletConfirmation.eraseToAnyPublisher())
+            askDeleteWalletConfirmation: askDeleteWalletConfirmation.eraseToAnyPublisher(),
+            copiedToClipboard: copiedToClipboard.eraseToAnyPublisher())
     }
 
     private func buildSnapshot(for viewModels: [AccountsViewModel.SectionViewModel]) -> AccountsViewModel.Snapshot {
@@ -153,9 +156,11 @@ final class AccountsViewModel {
 
     func trailingSwipeActionsConfiguration(for indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         var actions: [UIContextualAction] = []
-        let copyAction = UIContextualAction(style: .normal, title: R.string.localizable.copyAddress()) { [weak self] _, _, complete in
+        let copyAction = UIContextualAction(style: .normal, title: R.string.localizable.copyAddress()) { [weak self, copiedToClipboard] _, _, complete in
             guard let account = self?.account(for: indexPath) else { return }
             UIPasteboard.general.string = account.address.eip55String
+            copiedToClipboard.send(R.string.localizable.copiedToClipboard())
+
             complete(true)
         }
         copyAction.image = R.image.copy()?.withRenderingMode(.alwaysTemplate)
