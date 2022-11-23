@@ -81,7 +81,7 @@
 "settings.biometricsEnabled.label.title" = "密码 / %@";
 "settings.error.failedToSendEmail" = "发送电子邮件失败。请确保您已安装邮件应用。";
 "settings.network.button.title" = "网络";
-"settings.enabledNetworks.button.title" = "已启用网络";
+"settings.enabledNetworks.button.title" = "Enabled Networks %@";
 "settings.enabledNetworks.mainnet" = "Mainnet";
 "settings.enabledNetworks.testnet" = "Testnet";
 "settings.enabledNetworks.promptEnableTestnet.title" = "What is Testnet?";

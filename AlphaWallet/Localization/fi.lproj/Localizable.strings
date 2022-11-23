@@ -81,7 +81,7 @@
 "settings.biometricsEnabled.label.title" = "PIN-koodi / %@";
 "settings.error.failedToSendEmail" = "Sähköpostin lähetys epäonnistui.";
 "settings.network.button.title" = "Verkko";
-"settings.enabledNetworks.button.title" = "Kytketyt verkot";
+"settings.enabledNetworks.button.title" = "Enabled Networks %@";
 "settings.enabledNetworks.mainnet" = "Tuotantoverkko (Mainnet)";
 "settings.enabledNetworks.testnet" = "Testiverkko (Testnet)";
 "settings.enabledNetworks.promptEnableTestnet.title" = "Mikä on testiverkko?";

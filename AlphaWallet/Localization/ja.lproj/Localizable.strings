@@ -81,7 +81,7 @@
 "settings.biometricsEnabled.label.title" = "パスコード/ %@";
 "settings.error.failedToSendEmail" = "メールを送信できませんでした。メール アプリのインストールを確認してください。";
 "settings.network.button.title" = "ネットワーク";
-"settings.enabledNetworks.button.title" = "Enabled Networks";
+"settings.enabledNetworks.button.title" = "Enabled Networks %@";
 "settings.enabledNetworks.mainnet" = "Mainnet";
 "settings.enabledNetworks.testnet" = "Testnet";
 "settings.enabledNetworks.promptEnableTestnet.title" = "What is Testnet?";

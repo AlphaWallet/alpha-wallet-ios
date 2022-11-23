@@ -81,7 +81,7 @@
 "settings.biometricsEnabled.label.title" = "Passcode / %@";
 "settings.error.failedToSendEmail" = "Failed to send email. Make sure you have Mail app installed.";
 "settings.network.button.title" = "Network";
-"settings.enabledNetworks.button.title" = "Enabled Networks";
+"settings.enabledNetworks.button.title" = "Enabled Networks %@";
 "settings.enabledNetworks.mainnet" = "Mainnet";
 "settings.enabledNetworks.testnet" = "Testnet";
 "settings.enabledNetworks.promptEnableTestnet.title" = "What is Testnet?";
