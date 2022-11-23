@@ -135,8 +135,9 @@ class TransactionDetailsViewModel {
         case .pending, .unknown, .failed:
             gasFee = gasPrice * gasLimit
         }
-
-        return GasViewModel(fee: gasFee, symbol: server.symbol, coinTicker: coinTicker, formatter: fullFormatter)
+        let rate = coinTicker.flatMap { CurrencyRate(currency: $0.currency, value: $0.price_usd) }
+        
+        return GasViewModel(fee: gasFee, symbol: server.symbol, rate: rate, formatter: fullFormatter)
     }
 
     private var confirmation: String {

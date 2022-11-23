@@ -34,7 +34,8 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
     private lazy var tokenCardViewFactory: TokenCardViewFactory = {
         TokenCardViewFactory(token: token, assetDefinitionStore: assetDefinitionStore, analytics: analytics, keystore: keystore, wallet: session.account)
     }()
-
+    private let currencyService: CurrencyService
+    
     weak var delegate: NFTCollectionCoordinatorDelegate?
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -47,18 +48,18 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
         return controller
     }()
 
-    init(
-            session: WalletSession,
-            navigationController: UINavigationController,
-            keystore: Keystore,
-            token: Token,
-            assetDefinitionStore: AssetDefinitionStore,
-            analytics: AnalyticsLogger,
-            nftProvider: NFTProvider,
-            activitiesService: ActivitiesServiceType,
-            tokensService: TokenViewModelState & TokenHolderState,
-            sessions: ServerDictionary<WalletSession>
-    ) {
+    init(session: WalletSession,
+         navigationController: UINavigationController,
+         keystore: Keystore,
+         token: Token,
+         assetDefinitionStore: AssetDefinitionStore,
+         analytics: AnalyticsLogger,
+         nftProvider: NFTProvider,
+         activitiesService: ActivitiesServiceType,
+         tokensService: TokenViewModelState & TokenHolderState,
+         sessions: ServerDictionary<WalletSession>,
+         currencyService: CurrencyService) {
+        self.currencyService = currencyService
         self.sessions = sessions
         self.tokensService = tokensService
         self.activitiesService = activitiesService
@@ -185,8 +186,8 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
     }
 
     private func makeEnterSellTokensCardPriceQuantityViewController(token: Token, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> EnterSellTokensCardPriceQuantityViewController {
-        let viewModel = EnterSellTokensCardPriceQuantityViewModel(token: token, tokenHolder: tokenHolder, server: session.server, assetDefinitionStore: assetDefinitionStore)
-        let controller = EnterSellTokensCardPriceQuantityViewController(analytics: analytics, paymentFlow: paymentFlow, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, walletSession: session, keystore: keystore, service: tokensService)
+        let viewModel = EnterSellTokensCardPriceQuantityViewModel(token: token, tokenHolder: tokenHolder, server: session.server, assetDefinitionStore: assetDefinitionStore, currencyService: currencyService)
+        let controller = EnterSellTokensCardPriceQuantityViewController(analytics: analytics, paymentFlow: paymentFlow, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, walletSession: session, keystore: keystore, service: tokensService, currencyService: currencyService)
         controller.configure()
         controller.delegate = self
         return controller

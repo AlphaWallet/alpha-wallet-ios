@@ -83,7 +83,7 @@ final class FungibleTokenHeaderViewModel {
 
     private func buildValue(for tokenViewModel: TokenViewModel?) -> NSAttributedString {
         guard let tokenViewModel = tokenViewModel else { return .init(string: UiTweaks.noPriceMarker) }
-        return asValueAttributedString(for: tokenViewModel.balance) ?? .init(string: UiTweaks.noPriceMarker)
+        return amountAttributedString(for: tokenViewModel.balance) ?? .init(string: UiTweaks.noPriceMarker)
     }
 
     private func buildTitle(for tokenViewModel: TokenViewModel?) -> NSAttributedString {
@@ -101,16 +101,16 @@ final class FungibleTokenHeaderViewModel {
         return FungibleTokenHeaderViewModel.functional.asTitleAttributedString(value)
     }
 
-    private func asValueAttributedString(for balance: BalanceViewModel) -> NSAttributedString? {
+    private func amountAttributedString(for balance: BalanceViewModel) -> NSAttributedString? {
         if token.server.isTestnet {
             return FungibleTokenHeaderViewModel.functional.testnetValueHintLabelAttributedString
         } else {
             switch token.type {
             case .nativeCryptocurrency, .erc20:
                 if isShowingValueSubject.value {
-                    return FungibleTokenHeaderViewModel.functional.tokenValueAttributedStringFor(balance: balance)
+                    return FungibleTokenHeaderViewModel.functional.amountInFiatAttributedString(for: balance)
                 } else {
-                    return FungibleTokenHeaderViewModel.functional.marketPriceAttributedStringFor(balance: balance)
+                    return FungibleTokenHeaderViewModel.functional.marketPriceAttributedString(for: balance)
                 }
             case .erc1155, .erc721, .erc721ForTickets, .erc875:
                 return nil
@@ -128,9 +128,15 @@ extension FungibleTokenHeaderViewModel {
 }
 
 extension FungibleTokenHeaderViewModel.functional {
-    static func tokenValueAttributedStringFor(balance: BalanceViewModel) -> NSAttributedString? {
-        let string = balance.currencyAmount.flatMap { R.string.localizable.aWalletTokenValue($0) } ?? UiTweaks.noPriceMarker
-        return NSAttributedString(string: string, attributes: [
+    static func amountInFiatAttributedString(for balance: BalanceViewModel) -> NSAttributedString? {
+        let string: String = {
+            guard let ticker = balance.ticker, let amount = balance.amountInFiat else { return UiTweaks.noPriceMarker }
+            let formatter = Formatter.fiat(currency: ticker.currency)
+
+            return formatter.string(from: amount) ?? UiTweaks.noPriceMarker
+        }()
+
+        return NSAttributedString(string: R.string.localizable.aWalletTokenValue(string), attributes: [
             .font: Screen.TokenCard.Font.placeholderLabel,
             .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText
         ])
@@ -150,8 +156,8 @@ extension FungibleTokenHeaderViewModel.functional {
         ])
     }
 
-    static func marketPriceAttributedStringFor(balance: BalanceViewModel) -> NSAttributedString? {
-        guard let marketPrice = marketPriceValueFor(balance: balance), let valuePercentageChange = valuePercentageChangeValueFor(balance: balance) else {
+    static func marketPriceAttributedString(for balance: BalanceViewModel) -> NSAttributedString? {
+        guard let marketPrice = marketPrice(for: balance), let valuePercentageChange = priceChange(for: balance) else {
             return nil
         }
 
@@ -173,16 +179,24 @@ extension FungibleTokenHeaderViewModel.functional {
         return mutableAttributedString
     }
 
-    private static func valuePercentageChangeValueFor(balance: BalanceViewModel) -> String? {
-        return EthCurrencyHelper(ticker: balance.ticker).change24h.string.flatMap { "(\($0))" }
-    }
+    private static func priceChange(for balance: BalanceViewModel) -> String? {
+        guard let ticker = balance.ticker else { return nil }
 
-    private static func marketPriceValueFor(balance: BalanceViewModel) -> String? {
-        if let value = EthCurrencyHelper(ticker: balance.ticker).marketPrice {
-            return Formatter.usd.string(from: value)
-        } else {
+        let formatter = Formatter.priceChange(currency: ticker.currency)
+        switch TickerHelper(ticker: ticker).change24h {
+        case .appreciate(let percentageChange24h):
+            return "(\(formatter.string(from: percentageChange24h) ?? "")%)"
+        case .depreciate(let percentageChange24h):
+            return "(\(formatter.string(from: percentageChange24h) ?? "")%)"
+        case .none:
             return nil
         }
+    }
+
+    private static func marketPrice(for balance: BalanceViewModel) -> String? {
+        guard let ticker = balance.ticker else { return nil }
+
+        return Formatter.fiat(currency: ticker.currency).string(from: ticker.price_usd)
     }
 }
 

@@ -36,8 +36,8 @@ class TokensCoordinatorTests: XCTestCase {
             importToken: dep.importToken,
             blockiesGenerator: .make(),
             domainResolutionService: FakeDomainResolutionService(),
-            tokensFilter: .make()
-        )
+            tokensFilter: .make(),
+            currencyService: .make())
         coordinator.start()
 
         XCTAssertTrue(coordinator.navigationController.viewControllers[0] is TokensViewController)

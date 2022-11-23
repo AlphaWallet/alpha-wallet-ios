@@ -150,9 +150,9 @@ extension TransactionConfirmationViewModel {
                 //TODO: extract to constants
                 let amount = Formatter.shortCrypto.string(double: amountToSend, minimumFractionDigits: 4, maximumFractionDigits: 8)
                 if let rate = rate {
-                    let amountInFiat = Formatter.fiat.string(double: amountToSend * rate.value, minimumFractionDigits: 2, maximumFractionDigits: 6)
+                    let amountInFiat = Formatter.fiat(currency: rate.currency).string(double: amountToSend * rate.value, minimumFractionDigits: 2, maximumFractionDigits: 6)
                     
-                    return "\(amount) \(symbol) ≈ \(amountInFiat) \(rate.currency.code)"
+                    return "\(amount) \(symbol) ≈ \(amountInFiat)"
                 } else {
                     return amount
                 }

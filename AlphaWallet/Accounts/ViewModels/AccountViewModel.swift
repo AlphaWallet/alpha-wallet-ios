@@ -15,7 +15,7 @@ struct AccountViewModel {
             let style = NSMutableParagraphStyle()
             style.alignment = .right
 
-            return .init(string: accountRowViewModel.balance.valuePercentageChangeValue, attributes: [
+            return .init(string: accountRowViewModel.balance.changePercentageString, attributes: [
                 .font: Fonts.regular(size: 20),
                 .foregroundColor: accountRowViewModel.balance.valuePercentageChangeColor,
                 .paragraphStyle: style
@@ -66,7 +66,7 @@ extension BlockiesImage {
 
 extension WalletBalance {
     var valuePercentageChangeColor: UIColor {
-        return EthCurrencyHelper(ticker: nil).valueChangeValueColor(from: changeDouble)
+        return TickerHelper(ticker: nil).valueChangeValueColor(from: change?.amount)
     }
 }
 

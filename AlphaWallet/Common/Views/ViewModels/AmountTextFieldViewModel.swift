@@ -32,11 +32,11 @@ final class AmountTextFieldViewModel {
     //NOTE: Raw values for eth and fiat values. To prevent recalculation we store entered eth and calculated dollarCostRawValue values and vice versa.
     private (set) var cryptoRawValue: Double? = .none
     private (set) var fiatRawValue: Double? = .none
-    private (set) var cryptoToFiatRate = CurrentValueSubject<Double?, Never>(nil)
-    private (set) var cryptoCurrency = CurrentValueSubject<AmountTextField.FiatOrCrypto?, Never>(nil)
+    private (set) var cryptoToFiatRate = CurrentValueSubject<AmountTextFieldViewModel.CurrencyRate, Never>(.init(value: nil, currency: .default))
     private (set) var currentPair = CurrentValueSubject<AmountTextField.Pair?, Never>(nil)
-    private var amountChangedSubject = PassthroughSubject<CryptoValueChangeEvent, Never>()
+    private let amountChangedSubject = PassthroughSubject<CryptoValueChangeEvent, Never>()
     private var cancelable = Set<AnyCancellable>()
+    private let decimalParser = DecimalParser()
 
     ///Returns raw (calculated) value based on selected currency
     private var alternativeAmountRawValue: Double? {
@@ -85,7 +85,6 @@ final class AmountTextFieldViewModel {
     @Published var errorState: AmountTextField.ErrorState = .none
 
     private let fallbackValue: Double = .zero
-    private let decimalParser = DecimalParser()
     private let locale: Locale = Config.locale
 
     var cryptoValueChanged: AnyPublisher<CryptoValueChangeEvent, Never> {
@@ -96,22 +95,21 @@ final class AmountTextFieldViewModel {
     
     init(token: EnterAmountSupportable?, debugName: String) {
         self.debugName = debugName
-        cryptoCurrency.value = token.flatMap { .cryptoCurrency($0) }
-        currentPair.value = token.flatMap { AmountTextField.Pair(left: .cryptoCurrency($0), right: .fiatCurrency(.USD)) }
+        self.set(token: token)
     }
 
     func transform(input: AmountTextFieldViewModelInput) -> AmountTextFieldViewModelOutput {
         cryptoToFiatRate
             .compactMap { $0 }
             .removeDuplicates()
-            .sink { [weak self] _ in
-                switch self?.currentPair.value?.left {
-                case .cryptoCurrency:
-                    self?.recalculate(amountValue: self?.cryptoRawValue)
-                case .fiatCurrency:
-                    self?.recalculate(amountValue: self?.fiatRawValue)
-                case .none:
-                    break
+            .sink { [weak self, currentPair] value in
+                guard let strongSelf = self else { return }
+                currentPair.value?.set(currency: value.currency)
+
+                switch strongSelf.currentPair.value?.left {
+                case .cryptoCurrency: strongSelf.recalculate(amountValue: strongSelf.cryptoRawValue)
+                case .fiatCurrency: strongSelf.recalculate(amountValue: strongSelf.fiatRawValue)
+                case .none: break
                 }
             }.store(in: &cancelable)
 
@@ -140,16 +138,23 @@ final class AmountTextFieldViewModel {
                 }
             }.eraseToAnyPublisher()
 
+        let text = Publishers.Merge(cryptoAmountToSend, toggleFiatAndCryptoPair(trigger: input.togglePair))
+            .eraseToAnyPublisher()
+
         return .init(
-            text: Publishers.Merge(cryptoAmountToSend, toggleFiatAndCryptoPair(trigger: input.togglePair)).eraseToAnyPublisher(),
+            text: text,
             alternativeAmount: alternativeAmount,
             currentPair: currentPair.eraseToAnyPublisher(),
             errorState: $errorState.eraseToAnyPublisher())
     }
 
-    func set(token: EnterAmountSupportable?) {
-        cryptoCurrency.value = token.flatMap { .cryptoCurrency($0) }
-        currentPair.value = token.flatMap { AmountTextField.Pair(left: .cryptoCurrency($0), right: .fiatCurrency(.USD)) }
+    func set(token: EnterAmountSupportable?, switchToTokenImmediatelly: Bool = false) {
+        if var currentPair = currentPair.value, !switchToTokenImmediatelly {
+            //NOTE: don't switch beetwen fiat an crypto when token changes
+            self.currentPair.value = token.flatMap { currentPair.set(token: $0) }
+        } else {
+            self.currentPair.value = token.flatMap { AmountTextField.Pair(left: .cryptoCurrency($0), right: .fiatCurrency(cryptoToFiatRate.value.currency)) }
+        }
     }
 
     func crypto(for string: String?) -> AmountTextFieldViewModel.FungibleAmount {
@@ -168,7 +173,7 @@ final class AmountTextFieldViewModel {
     }
 
     func toggleFiatAndCryptoPair() {
-        currentPair.value?.toggle()
+        currentPair.value?.swap()
     }
 
     /// Formats string value for display in text field.
@@ -213,7 +218,8 @@ final class AmountTextFieldViewModel {
         case .amount(let value), .allFunds(let value):
             cryptoRawValue = value
         }
-        recalculate(amountValue: cryptoRawValue, for: cryptoCurrency.value)
+
+        recalculate(amountValue: cryptoRawValue, for: currentPair.value?.anyCryptoCurrency)
 
         amountChangedSubject.send(.manually(amount: amount))
     }
@@ -243,7 +249,7 @@ final class AmountTextFieldViewModel {
     }
 
     private func toggleFiatAndCryptoPair(trigger: AnyPublisher<Void, Never>) -> AnyPublisher<String?, Never> {
-        return trigger.filter { _ in self.cryptoToFiatRate.value != nil }
+        return trigger.filter { [cryptoToFiatRate] _ in cryptoToFiatRate.value.value != nil }
             .map { _ -> String? in
                 let string = self.buildAlternativeAmountString(value: self.alternativeAmountRawValue)
                 self.toggleFiatAndCryptoPair()
@@ -254,7 +260,7 @@ final class AmountTextFieldViewModel {
 
     ///Recalculates raw value (eth, or usd) depends on selected currency `currencyToOverride ?? currentPair.left` based on cryptoToDollarRate
     private func recalculate(amountValue: Double?, for currencyToOverride: AmountTextField.FiatOrCrypto? = nil) {
-        guard let rate = cryptoToFiatRate.value else { return }
+        guard let rate = cryptoToFiatRate.value.value else { return }
 
         switch currencyToOverride ?? currentPair.value?.left {
         case .cryptoCurrency:
@@ -316,5 +322,12 @@ extension AmountTextFieldViewModel {
                 return amount
             }
         }
+    }
+}
+
+extension AmountTextFieldViewModel {
+    public struct CurrencyRate: Equatable {
+        let value: Double?
+        let currency: Currency
     }
 }

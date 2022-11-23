@@ -6,7 +6,7 @@ import AlphaWalletFoundation
 
 class ActiveWalletViewTests: XCTestCase {
 
-    private let currencyService = CurrencyService()
+    private let currencyService = CurrencyService.make()
 
     func testShowTabBar() {
         let config: Config = .make()

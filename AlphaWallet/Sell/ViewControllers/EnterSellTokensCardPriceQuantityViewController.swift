@@ -93,7 +93,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
     private var totalDollarCost: String {
         if let dollarCostPerToken = pricePerTokenField.fiatValue {
             let quantity = Double(quantityStepper.value)
-            return StringFormatter().currency(with: dollarCostPerToken * quantity, currency: CurrencyService().currency)
+            return StringFormatter().currency(with: dollarCostPerToken * quantity, currency: currencyService.currency)
         } else {
             return ""
         }
@@ -126,6 +126,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
 
         return containerView
     }()
+    private let currencyService: CurrencyService
 
     init(
         analytics: AnalyticsLogger,
@@ -134,8 +135,10 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         assetDefinitionStore: AssetDefinitionStore,
         walletSession: WalletSession,
         keystore: Keystore,
-        service: TokenViewModelState
+        service: TokenViewModelState,
+        currencyService: CurrencyService
     ) {
+        self.currencyService = currencyService
         self.service = service
         self.analytics = analytics
         self.paymentFlow = paymentFlow
@@ -233,12 +236,11 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: walletSession.server)
-        service.tokenViewModelPublisher(for: etherToken)
-            .map { tokenViewModel -> Double? in
-                guard let ticker = tokenViewModel?.balance.ticker else { return nil }
+        service.tokenViewModelPublisher(for: viewModel.ethToken)
+            .map { [currencyService] tokenViewModel -> AmountTextFieldViewModel.CurrencyRate in
+                guard let ticker = tokenViewModel?.balance.ticker else { return .init(value: nil, currency: currencyService.currency) }
 
-                return ticker.price_usd
+                return AmountTextFieldViewModel.CurrencyRate(value: ticker.price_usd, currency: ticker.currency)
             }.sink { [weak pricePerTokenField] value in
                 pricePerTokenField?.viewModel.cryptoToFiatRate.value = value
             }.store(in: &cancelable)

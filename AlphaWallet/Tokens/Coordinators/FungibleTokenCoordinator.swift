@@ -35,7 +35,7 @@ class FungibleTokenCoordinator: Coordinator {
     private let token: Token
     private let navigationController: UINavigationController
     private var cancelable = Set<AnyCancellable>()
-
+    private let currencyService: CurrencyService
     private lazy var rootViewController: FungibleTokenTabViewController = {
         let viewModel = FungibleTokenTabViewModel(token: token, session: session, tokensService: tokensService, assetDefinitionStore: assetDefinitionStore)
         let viewController = FungibleTokenTabViewController(viewModel: viewModel)
@@ -60,7 +60,10 @@ class FungibleTokenCoordinator: Coordinator {
          activitiesService: ActivitiesServiceType,
          alertService: PriceAlertServiceType,
          tokensService: TokenBalanceRefreshable & TokenViewModelState & TokenHolderState,
-         sessions: ServerDictionary<WalletSession>) {
+         sessions: ServerDictionary<WalletSession>,
+         currencyService: CurrencyService) {
+        
+        self.currencyService = currencyService
         self.token = token
         self.navigationController = navigationController
         self.sessions = sessions
@@ -119,7 +122,7 @@ class FungibleTokenCoordinator: Coordinator {
     }
 
     private func buildDetailsViewController() -> UIViewController {
-        lazy var viewModel = FungibleTokenDetailsViewModel(token: token, coinTickersFetcher: coinTickersFetcher, tokensService: tokensService, session: session, assetDefinitionStore: assetDefinitionStore, tokenActionsProvider: tokenActionsProvider)
+        lazy var viewModel = FungibleTokenDetailsViewModel(token: token, coinTickersFetcher: coinTickersFetcher, tokensService: tokensService, session: session, assetDefinitionStore: assetDefinitionStore, tokenActionsProvider: tokenActionsProvider, currencyService: currencyService)
         let viewController = FungibleTokenDetailsViewController(viewModel: viewModel)
         viewController.delegate = self
 
@@ -171,14 +174,14 @@ extension FungibleTokenCoordinator: FungibleTokenDetailsViewControllerDelegate {
 
 extension FungibleTokenCoordinator: PriceAlertsViewControllerDelegate {
     func editAlertSelected(in viewController: PriceAlertsViewController, alert: PriceAlert) {
-        let coordinator = EditPriceAlertCoordinator(navigationController: navigationController, configuration: .edit(alert), token: token, session: session, tokensService: tokensService, alertService: alertService)
+        let coordinator = EditPriceAlertCoordinator(navigationController: navigationController, configuration: .edit(alert), token: token, session: session, tokensService: tokensService, alertService: alertService, currencyService: currencyService)
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start()
     }
 
     func addAlertSelected(in viewController: PriceAlertsViewController) {
-        let coordinator = EditPriceAlertCoordinator(navigationController: navigationController, configuration: .create, token: token, session: session, tokensService: tokensService, alertService: alertService)
+        let coordinator = EditPriceAlertCoordinator(navigationController: navigationController, configuration: .create, token: token, session: session, tokensService: tokensService, alertService: alertService, currencyService: currencyService)
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start()

@@ -6,12 +6,11 @@ import AlphaWalletCore
 import AlphaWalletOpenSea
 
 protocol BalanceViewModelType {
-    var currencyAmount: String? { get }
     var amountFull: String { get }
     var amountShort: String { get }
     var symbol: String { get }
     var valueDecimal: Decimal { get }
-    var currencyAmountWithoutSymbol: Double? { get }
+    var amountInFiat: Double? { get }
 
     var value: BigInt { get }
     var balance: [TokenBalanceValue] { get }
@@ -24,13 +23,12 @@ extension BalanceViewModelType {
 }
 
 public struct BalanceViewModel: BalanceViewModelType {
-    public let currencyAmount: String?
     public let amountFull: String
     public let amountShort: String
     public let symbol: String
     public let valueDecimal: Decimal
-    public let currencyAmountWithoutSymbol: Double?
-
+    public let amountInFiat: Double?
+    
     public let value: BigInt
     public let balance: [TokenBalanceValue]
 
@@ -41,12 +39,11 @@ extension BalanceViewModel: Hashable { }
 
 extension BalanceViewModel {
     init(balance: BalanceViewModelType) {
-        self.currencyAmount = balance.currencyAmount
         self.amountFull = balance.amountFull
         self.amountShort = balance.amountShort
         self.symbol = balance.symbol
         self.valueDecimal = balance.valueDecimal
-        self.currencyAmountWithoutSymbol = balance.currencyAmountWithoutSymbol
+        self.amountInFiat = balance.amountInFiat
         self.value = balance.value
         self.balance = balance.balance
         self.ticker = balance.ticker

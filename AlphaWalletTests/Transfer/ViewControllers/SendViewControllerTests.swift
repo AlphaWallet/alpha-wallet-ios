@@ -28,7 +28,7 @@ class SendViewControllerTests: XCTestCase {
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: testValue), for: token)
 
         vc.allFundsSelected()
-        XCTAssertEqual(vc.amountTextField.value, "10000")
+        XCTAssertEqual(vc.amountTextField.value, "10000,0000")
 
         //Reset language to default
         Config.setLocale(AppLocale.system)
@@ -44,7 +44,7 @@ class SendViewControllerTests: XCTestCase {
 
         vc.allFundsSelected()
 
-        XCTAssertEqual(vc.amountTextField.value, "10000")
+        XCTAssertEqual(vc.amountTextField.value, "10000.0000")
         XCTAssertTrue(vc.viewModel.amountToSend == .allFunds)
 
         Config.setLocale(AppLocale.system)
@@ -70,7 +70,7 @@ class SendViewControllerTests: XCTestCase {
         dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
         let vc = createSendViewControllerAndSetLocale(locale: .spanish, transactionType: .erc20Token(token, destination: .none, amount: .amount(0.002)))
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2000000020224719101120")), for: token)
-        XCTAssertEqual(vc.amountTextField.value, "0,002")
+        XCTAssertEqual(vc.amountTextField.value, "0,0020")
 
         XCTAssertTrue(vc.viewModel.amountToSend == .amount(0.002))
         vc.allFundsSelected()
@@ -87,7 +87,7 @@ class SendViewControllerTests: XCTestCase {
         XCTAssertEqual(vc.amountTextField.value, "")
         vc.allFundsSelected()
 
-        XCTAssertEqual(vc.amountTextField.value, "2000")
+        XCTAssertEqual(vc.amountTextField.value, "2000,0000")
         XCTAssertTrue(vc.viewModel.amountToSend == .allFunds)
 
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: .zero), for: token)
@@ -107,7 +107,7 @@ class SendViewControllerTests: XCTestCase {
         XCTAssertEqual(vc.amountTextField.value, "")
 
         vc.allFundsSelected()
-        XCTAssertEqual(vc.amountTextField.value, "0,002")
+        XCTAssertEqual(vc.amountTextField.value, "0,0020")
 
         Config.setLocale(AppLocale.system)
     }
@@ -140,7 +140,7 @@ class SendViewControllerTests: XCTestCase {
         XCTAssertEqual(vc.amountTextField.value, "")
 
         vc.allFundsSelected()
-        XCTAssertEqual(vc.amountTextField.value, "0.002")
+        XCTAssertEqual(vc.amountTextField.value, "0.0020")
 
         Config.setLocale(AppLocale.system)
     }
@@ -161,13 +161,13 @@ class SendViewControllerTests: XCTestCase {
         dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
         let vc = createSendViewControllerAndSetLocale(locale: .english, transactionType: .erc20Token(token, destination: .none, amount: .amount(1.34)))
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), for: token)
-        XCTAssertEqual(vc.amountTextField.value, "1.34")
+        XCTAssertEqual(vc.amountTextField.value, "1.3400")
 
         vc.didScanQRCode("aw.app/ethereum:0xbc8dafeaca658ae0857c80d8aa6de4d487577c63@1?value=1e19")
 
         let expectation = self.expectation(description: "did update token balance expectation")
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            XCTAssertEqual(vc.amountTextField.value, "10")
+            XCTAssertEqual(vc.amountTextField.value, "10.0000")
             expectation.fulfill()
         }
         waitForExpectations(timeout: 10)
@@ -180,13 +180,13 @@ class SendViewControllerTests: XCTestCase {
         dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
         let vc = createSendViewControllerAndSetLocale(locale: .spanish, transactionType: .erc20Token(token, destination: .none, amount: .amount(1.34)))
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), for: token)
-        XCTAssertEqual(vc.amountTextField.value, "1,34")
+        XCTAssertEqual(vc.amountTextField.value, "1,3400")
 
         vc.didScanQRCode("aw.app/ethereum:0xbc8dafeaca658ae0857c80d8aa6de4d487577c63@1?value=1e17")
 
         let expectation = self.expectation(description: "did update token balance expectation")
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            XCTAssertEqual(vc.amountTextField.value, "0,1")
+            XCTAssertEqual(vc.amountTextField.value, "0,1000")
             expectation.fulfill()
         }
         waitForExpectations(timeout: 10)
@@ -208,7 +208,7 @@ class SendViewControllerTests: XCTestCase {
 
         let expectation = self.expectation(description: "did update token balance expectation")
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            XCTAssertEqual(vc.amountTextField.value, "1,004")
+            XCTAssertEqual(vc.amountTextField.value, "1,0040")
             expectation.fulfill()
         }
         waitForExpectations(timeout: 10)

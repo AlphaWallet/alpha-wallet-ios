@@ -99,7 +99,7 @@ class TransactionConfirmationViewModel {
 
         return Publishers.Merge(tokenBalance, forceTriggerUpdateBalance)
             .handleEvents(receiveOutput: { [weak self] balance in
-                self?.rateUpdatable.rate = balance?.ticker.flatMap { CurrencyRate(currency: Currency(rawValue: $0.currency) ?? .USD, value: $0.price_usd) }
+                self?.rateUpdatable.rate = balance?.ticker.flatMap { CurrencyRate(currency: $0.currency, value: $0.price_usd) }
                 self?.updateBalance(balance)
             }).eraseToAnyPublisher()
     }()
@@ -300,7 +300,8 @@ extension TransactionConfirmationViewModel {
         let feeString = Formatter.shortCrypto.string(from: fee) ?? "-"
         let costs: String
         if let rate = rate {
-            let amountInFiat = Formatter.fiat.string(from: fee.doubleValue * rate.value) ?? "-"
+            let amountInFiat = Formatter.fiat(currency: rate.currency).string(from: fee.doubleValue * rate.value) ?? "-"
+
             costs =  "< ~\(feeString) \(configurator.session.server.symbol) (\(amountInFiat) \(rate.currency.code))"
         } else {
             costs = "< ~\(feeString) \(configurator.session.server.symbol)"

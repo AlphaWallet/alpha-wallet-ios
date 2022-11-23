@@ -9,22 +9,25 @@ import Foundation
 
 public struct Formatter {
 
-    public static let currency: NumberFormatter = {
+    public static func fiat(currency: Currency) -> NumberFormatter {
         let formatter = basicCurrencyFormatter()
+        formatter.positiveFormat = ",###.# " + currency.rawValue
+        formatter.negativeFormat = "-,###.# " + currency.rawValue
         formatter.minimumFractionDigits = Constants.formatterFractionDigits
         formatter.maximumFractionDigits = Constants.formatterFractionDigits
-        formatter.currencySymbol = "$"
+        
         return formatter
-    }()
+    }
 
-    public static let usd: NumberFormatter = {
+    public static func fiatShort(currency: Currency) -> NumberFormatter {
         let formatter = basicCurrencyFormatter()
-        formatter.positiveFormat = ",###.# " + Currency.USD.rawValue
-        formatter.negativeFormat = "-,###.# " + Currency.USD.rawValue
+        formatter.positiveFormat = "\(currency.symbol),###.#"
+        formatter.negativeFormat = "-\(currency.symbol),###.#"
         formatter.minimumFractionDigits = Constants.formatterFractionDigits
         formatter.maximumFractionDigits = Constants.formatterFractionDigits
+
         return formatter
-    }()
+    }
 
     public static let percent: NumberFormatter = {
         let formatter = basicCurrencyFormatter()
@@ -33,6 +36,7 @@ public struct Formatter {
         formatter.minimumFractionDigits = Constants.formatterFractionDigits
         formatter.maximumFractionDigits = Constants.formatterFractionDigits
         formatter.numberStyle = .percent
+        
         return formatter
     }()
 
@@ -43,26 +47,20 @@ public struct Formatter {
         formatter.minimumFractionDigits = Constants.etherFormatterFractionDigits
         formatter.maximumFractionDigits = Constants.etherFormatterFractionDigits
         formatter.numberStyle = .none
+
         return formatter
     }()
 
-    public static let priceChange: NumberFormatter = {
+    public static func priceChange(currency: Currency) -> NumberFormatter {
         let formatter = basicCurrencyFormatter()
-        formatter.positiveFormat = "+$,###.#"
-        formatter.negativeFormat = "-$,###.#"
+        formatter.currencyCode = currency.code
+        formatter.positiveFormat = "+\(currency.symbol),###.#"
+        formatter.negativeFormat = "-\(currency.symbol),###.#"
         formatter.minimumFractionDigits = Constants.formatterFractionDigits
         formatter.maximumFractionDigits = Constants.formatterFractionDigits
-        return formatter
-    }()
 
-    public static let fiat: NumberFormatter = {
-        let formatter = basicCurrencyFormatter()
-        formatter.positiveFormat = "$,###.#"
-        formatter.negativeFormat = "-$,###.#"
-        formatter.minimumFractionDigits = Constants.formatterFractionDigits
-        formatter.maximumFractionDigits = Constants.formatterFractionDigits
         return formatter
-    }()
+    }
 
     public static let `default`: NumberFormatter = {
         let formatter = NumberFormatter()
@@ -74,6 +72,7 @@ public struct Formatter {
         formatter.numberStyle = .decimal
         formatter.usesGroupingSeparator = false
         formatter.locale = Locale(identifier: "en_US")
+
         return formatter
     }()
 
@@ -84,6 +83,7 @@ public struct Formatter {
         formatter.maximumFractionDigits = Constants.formatterFractionDigits
         formatter.numberStyle = .currencyAccounting
         formatter.isLenient = true
+
         return formatter
     }()
 
@@ -92,6 +92,7 @@ public struct Formatter {
         formatter.currencySymbol = ""
         formatter.minimumFractionDigits = Constants.etherFormatterFractionDigits
         formatter.maximumFractionDigits = Constants.etherFormatterFractionDigits
+
         return formatter
     }()
 }

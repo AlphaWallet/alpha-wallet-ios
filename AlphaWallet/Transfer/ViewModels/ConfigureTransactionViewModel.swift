@@ -50,7 +50,8 @@ struct ConfigureTransactionViewModel {
     }
 
     var gasViewModel: GasViewModel {
-        return GasViewModel(fee: totalFee, symbol: server.symbol, coinTicker: coinTicker, formatter: fullFormatter)
+        let rate = coinTicker.flatMap { CurrencyRate(currency: $0.currency, value: $0.price_usd) }
+        return GasViewModel(fee: totalFee, symbol: server.symbol, rate: rate, formatter: fullFormatter)
     }
 
     var title: String {
@@ -163,8 +164,9 @@ struct ConfigureTransactionViewModel {
         let configuration = configurations[configurationType]!
         //TODO if subscribable price are resolved or changes, will be good to refresh, but not essential
         let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: configurator.session.server)
-        let ethPrice: Double? = service.tokenViewModel(for: etherToken)?.balance.ticker?.price_usd
-        return .init(configuration: configuration, configurationType: configurationType, cryptoToDollarRate: ethPrice, symbol: server.symbol, title: configurationType.title, isSelected: isSelected)
+        let rate = service.tokenViewModel(for: etherToken)?.balance.ticker.flatMap { CurrencyRate(currency: $0.currency, value: $0.price_usd) }
+
+        return .init(configuration: configuration, configurationType: configurationType, rate: rate, symbol: server.symbol, title: configurationType.title, isSelected: isSelected)
     }
 
     func gasSpeedViewModel(configurationType: TransactionConfigurationType) -> GasSpeedViewModel {
@@ -172,8 +174,9 @@ struct ConfigureTransactionViewModel {
         let configuration = configurations[configurationType]!
         //TODO if subscribable price are resolved or changes, will be good to refresh, but not essential
         let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: configurator.session.server)
-        let ethPrice: Double? = service.tokenViewModel(for: etherToken)?.balance.ticker?.price_usd
-        return .init(configuration: configuration, configurationType: configurationType, cryptoToDollarRate: ethPrice, symbol: server.symbol, title: configurationType.title, isSelected: isSelected)
+        let rate = service.tokenViewModel(for: etherToken)?.balance.ticker.flatMap { CurrencyRate(currency: $0.currency, value: $0.price_usd) }
+
+        return .init(configuration: configuration, configurationType: configurationType, rate: rate, symbol: server.symbol, title: configurationType.title, isSelected: isSelected)
     }
 
     func numberOfRowsInSections(in section: Int) -> Int {

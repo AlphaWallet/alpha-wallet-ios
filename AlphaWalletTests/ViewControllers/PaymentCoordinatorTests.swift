@@ -8,13 +8,18 @@ import AlphaWalletFoundation
 extension TokensFilter {
     static func make() -> TokensFilter {
         let actionsService = TokenActionsService()
-        return TokensFilter(assetDefinitionStore: .init(), tokenActionsService: actionsService, coinTickersFetcher: CoinTickersFetcherImpl.make(), tokenGroupIdentifier: FakeTokenGroupIdentifier())
+        return TokensFilter(tokenActionsService: actionsService, tokenGroupIdentifier: FakeTokenGroupIdentifier())
     }
 }
 
 extension RealmStore {
     static func fake(for wallet: Wallet) -> RealmStore {
         RealmStore(realm: fakeRealm(wallet: wallet), name: RealmStore.threadName(for: wallet))
+    }
+}
+extension CurrencyService {
+    static func make() -> CurrencyService {
+        return .init(storage: Config())
     }
 }
 
@@ -34,7 +39,7 @@ extension WalletDataProcessingPipeline {
 
         let tokensService = AlphaWalletTokensService(sessionsProvider: sessionsProvider, tokensDataStore: tokensDataStore, analytics: fas, importToken: importToken, transactionsStorage: transactionsDataStore, nftProvider: nftProvider, assetDefinitionStore: .init())
 
-        let pipeline: TokensProcessingPipeline = WalletDataProcessingPipeline(wallet: wallet, tokensService: tokensService, coinTickersFetcher: coinTickersFetcher, assetDefinitionStore: .init(), eventsDataStore: eventsDataStore)
+        let pipeline: TokensProcessingPipeline = WalletDataProcessingPipeline(wallet: wallet, tokensService: tokensService, coinTickersFetcher: coinTickersFetcher, assetDefinitionStore: .init(), eventsDataStore: eventsDataStore, currencyService: .make())
 
         let fetcher = WalletBalanceFetcher(wallet: wallet, tokensService: pipeline)
 

@@ -28,7 +28,7 @@ public class WalletComponentsFactory: WalletDependencyContainer {
     public let assetDefinitionStore: AssetDefinitionStore
     public let coinTickersFetcher: CoinTickersFetcher
     public let config: Config
-    
+    private let currencyService: CurrencyService
     private var walletDependencies: [Wallet: WalletDependency] = [:]
 
     public struct Dependencies: WalletDependency {
@@ -42,12 +42,13 @@ public class WalletComponentsFactory: WalletDependencyContainer {
         public let eventsDataStore: NonActivityEventsDataStore
     }
 
-    public init(analytics: AnalyticsServiceType, nftProvider: NFTProvider, assetDefinitionStore: AssetDefinitionStore, coinTickersFetcher: CoinTickersFetcher, config: Config) {
+    public init(analytics: AnalyticsServiceType, nftProvider: NFTProvider, assetDefinitionStore: AssetDefinitionStore, coinTickersFetcher: CoinTickersFetcher, config: Config, currencyService: CurrencyService) {
         self.analytics = analytics
         self.nftProvider = nftProvider
         self.assetDefinitionStore = assetDefinitionStore
         self.coinTickersFetcher = coinTickersFetcher
         self.config = config
+        self.currencyService = currencyService
     }
 
     public func makeDependencies(for wallet: Wallet) -> WalletDependency {
@@ -65,7 +66,7 @@ public class WalletComponentsFactory: WalletDependencyContainer {
         let importToken = ImportToken(tokensDataStore: tokensDataStore, contractDataFetcher: contractDataFetcher)
 
         let tokensService = AlphaWalletTokensService(sessionsProvider: sessionsProvider, tokensDataStore: tokensDataStore, analytics: analytics, importToken: importToken, transactionsStorage: transactionsDataStore, nftProvider: nftProvider, assetDefinitionStore: assetDefinitionStore)
-        let pipeline: TokensProcessingPipeline = WalletDataProcessingPipeline(wallet: wallet, tokensService: tokensService, coinTickersFetcher: coinTickersFetcher, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
+        let pipeline: TokensProcessingPipeline = WalletDataProcessingPipeline(wallet: wallet, tokensService: tokensService, coinTickersFetcher: coinTickersFetcher, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, currencyService: currencyService)
         pipeline.start()
 
         let fetcher = WalletBalanceFetcher(wallet: wallet, tokensService: pipeline)

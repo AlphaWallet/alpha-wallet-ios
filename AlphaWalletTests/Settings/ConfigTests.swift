@@ -51,8 +51,8 @@ class ConfigTests: XCTestCase {
             importToken: dep1.importToken,
             blockiesGenerator: .make(),
             domainResolutionService: FakeDomainResolutionService(),
-            tokensFilter: .make()
-        )
+            tokensFilter: .make(),
+            currencyService: .make())
 
         coordinator_1.start()
         coordinator_1.tokensViewController.viewWillAppear(false)
@@ -79,8 +79,8 @@ class ConfigTests: XCTestCase {
             importToken: dep2.importToken,
             blockiesGenerator: .make(),
             domainResolutionService: FakeDomainResolutionService(),
-            tokensFilter: .make()
-        )
+            tokensFilter: .make(),
+            currencyService: .make())
 
         coordinator_2.start()
         coordinator_2.tokensViewController.viewWillAppear(false)

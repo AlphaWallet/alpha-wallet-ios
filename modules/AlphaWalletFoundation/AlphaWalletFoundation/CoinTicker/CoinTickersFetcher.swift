@@ -16,7 +16,7 @@ public protocol CoinTickersFetcher: AnyObject, CoinTickersFetcherTests, CoinTick
     var tickersDidUpdate: AnyPublisher<Void, Never> { get }
     var updateTickerIds: AnyPublisher<[(tickerId: TickerIdString, key: AddressAndRPCServer)], Never> { get }
 
-    func ticker(for addressAndPRCServer: AddressAndRPCServer) -> CoinTicker?
+    func ticker(for key: AddressAndRPCServer, currency: Currency) -> CoinTicker?
 }
 
 public struct AssignedCoinTickerId: Hashable, Codable {

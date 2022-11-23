@@ -21,20 +21,17 @@ public struct Config {
 
     public let development = Development()
 
-    public static var currency: Currency {
+    public var currency: Currency {
         get {
-            let defaults = UserDefaults.standardOrForTests
-
             if let currency = defaults.string(forKey: Keys.currency) {
                 return Currency(rawValue: currency)!
             } else if let currency = Currency.allCases.first(where: { $0.code == Config.locale.currencySymbol }) {
                 return currency
             } else {
-                return Currency.USD
+                return Currency.default
             }
         }
         set {
-            let defaults = UserDefaults.standardOrForTests
             defaults.set(newValue.code, forKey: Keys.currency)
         }
     }

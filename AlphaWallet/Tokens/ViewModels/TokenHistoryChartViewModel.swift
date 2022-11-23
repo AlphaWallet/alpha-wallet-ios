@@ -21,6 +21,7 @@ struct TokenHistoryChartViewModelOutput {
 class TokenHistoryChartViewModel {
     private let chartHistories: AnyPublisher<[ChartHistoryPeriod: ChartHistory], Never>
     private let coinTicker: AnyPublisher<CoinTicker?, Never>
+    private let currencyService: CurrencyService
 
     var periodTitles: [String] = ChartHistoryPeriod.allCases.map { $0.title }
     var initialSelectionIndex: Int { return 0 }
@@ -28,9 +29,10 @@ class TokenHistoryChartViewModel {
         return ColorFill(color: Colors.clear)
     }
 
-    init(chartHistories: AnyPublisher<[ChartHistoryPeriod: ChartHistory], Never>, coinTicker: AnyPublisher<CoinTicker?, Never>) {
+    init(chartHistories: AnyPublisher<[ChartHistoryPeriod: ChartHistory], Never>, coinTicker: AnyPublisher<CoinTicker?, Never>, currencyService: CurrencyService) {
         self.chartHistories = chartHistories
         self.coinTicker = coinTicker
+        self.currencyService = currencyService
     }
 
     func transform(input: TokenHistoryChartViewModelInput) -> TokenHistoryChartViewModelOutput {
@@ -50,8 +52,11 @@ class TokenHistoryChartViewModel {
                 }
             }.receive(on: RunLoop.main)
 
-        let viewState = Publishers.CombineLatest(selection, lineDataSets)
-            .map { ViewState(lineChartDataSet: $1[$0]) }
+        let currency = coinTicker
+            .compactMap { [currencyService] in $0?.currency ?? currencyService.currency }
+
+        let viewState = Publishers.CombineLatest3(selection, lineDataSets, currency)
+            .map { ViewState(currency: $2, lineChartDataSet: $1[$0]) }
             .eraseToAnyPublisher()
 
         return .init(viewState: viewState)
@@ -81,7 +86,7 @@ class TokenHistoryChartViewModel {
     }
 
     private func gradientColorForTicker(ticker: CoinTicker?) -> UIColor {
-        switch EthCurrencyHelper(ticker: ticker).change24h {
+        switch TickerHelper(ticker: ticker).change24h {
         case .appreciate, .none:
             return Colors.appActionButtonGreen
         case .depreciate:
@@ -92,6 +97,7 @@ class TokenHistoryChartViewModel {
 
 extension TokenHistoryChartViewModel {
     struct ViewState {
+        let currency: Currency
         let lineChartDataSet: LineChartDataSet?
     }
 }

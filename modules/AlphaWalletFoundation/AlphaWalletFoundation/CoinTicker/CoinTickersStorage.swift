@@ -15,13 +15,13 @@ public typealias TickerIdString = String
 public protocol CoinTickersStorage {
     var tickersDidUpdate: AnyPublisher<Void, Never> { get }
 
-    func historyLastUpdatedAt(for token: AddressAndRPCServer) -> Date?
-    func ticker(for addressAndRPCServer: AddressAndRPCServer) -> CoinTicker?
+    func historyLastUpdatedAt(for key: AddressAndRPCServer, currency: Currency) -> Date?
+    func ticker(for key: AddressAndRPCServer, currency: Currency) -> CoinTicker?
     func addOrUpdate(tickers: [AssignedCoinTickerId: CoinTicker])
 }
 
 public protocol ChartHistoryStorage {
-    func chartHistory(period: ChartHistoryPeriod, for tickerId: AssignedCoinTickerId) -> MappedChartHistory?
+    func chartHistory(period: ChartHistoryPeriod, for tickerId: AssignedCoinTickerId, currency: Currency) -> MappedChartHistory?
     func addOrUpdateChartHistory(history: ChartHistory, period: ChartHistoryPeriod, for tickerId: AssignedCoinTickerId)
 }
 
@@ -37,17 +37,6 @@ public protocol TickerIdsStorage {
 }
 
 extension RealmStore: TickerIdsStorage {
-
-    func addOrUpdate(events: [EventActivityInstance]) {
-        guard !events.isEmpty else { return }
-
-        let eventsToSave = events.map { EventActivity(value: $0) }
-        performSync { realm in
-            try? realm.safeWrite {
-                realm.add(eventsToSave, update: .all)
-            }
-        }
-    }
 
     public var updateTickerIds: AnyPublisher<[(tickerId: TickerIdString, key: AddressAndRPCServer)], Never> {
         var publisher: AnyPublisher<[(tickerId: TickerIdString, key: AddressAndRPCServer)], Never>!
@@ -144,11 +133,11 @@ extension RealmStore: TickerIdsStorage {
 
 extension RealmStore: ChartHistoryStorage {
 
-    public func chartHistory(period: ChartHistoryPeriod, for tickerId: AssignedCoinTickerId) -> MappedChartHistory? {
+    public func chartHistory(period: ChartHistoryPeriod, for tickerId: AssignedCoinTickerId, currency: Currency) -> MappedChartHistory? {
         var history: MappedChartHistory?
         performSync { realm in
             let primaryKey = ContractAddressObject.generatePrimaryKey(fromContract: tickerId.primaryToken.address, server: tickerId.primaryToken.server)
-            history = realm.object(ofType: AssignedCoinTickerIdObject.self, forPrimaryKey: primaryKey).flatMap { $0.chartHistory?[period] }
+            history = realm.object(ofType: AssignedCoinTickerIdObject.self, forPrimaryKey: primaryKey).flatMap { $0.chartHistory?[period]?[currency] }
         }
 
         return history
@@ -174,16 +163,17 @@ extension RealmStore: ChartHistoryStorage {
                 let knownTickerId = Self.getOrCreateKnownTickerId(for: tickerId, in: realm)
 
                 if let assignedCoinTicker = realm.object(ofType: AssignedCoinTickerIdObject.self, forPrimaryKey: primaryKey) {
-                    var newHistory = assignedCoinTicker.chartHistory ?? [:]
+                    var histories = assignedCoinTicker.chartHistory ?? [:]
+                    var historyForPeriod = histories[period] ?? [:]
+                    historyForPeriod[history.currency] = .init(history: history, fetchDate: Date())
+                    histories[period] = historyForPeriod
 
-                    newHistory[period] = .init(history: history, fetchDate: Date())
-                    assignedCoinTicker.chartHistory = newHistory
-                    assignedCoinTicker.historyUpdatedAt = NSDate()
+                    assignedCoinTicker.chartHistory = histories
                 } else {
-                    var newHistory: [ChartHistoryPeriod: MappedChartHistory] = [:]
-                    newHistory[period] = .init(history: history, fetchDate: Date())
+                    var newHistories: [ChartHistoryPeriod: [Currency: MappedChartHistory]] = [:]
+                    newHistories[period] = [history.currency: .init(history: history, fetchDate: Date())]
 
-                    let assignedCoinTicker = AssignedCoinTickerIdObject(tickerId: knownTickerId, ticker: nil, chartHistory: newHistory)
+                    let assignedCoinTicker = AssignedCoinTickerIdObject(tickerId: knownTickerId, tickers: [], chartHistories: newHistories)
                     realm.add(assignedCoinTicker, update: .all)
                 }
             }
@@ -192,6 +182,7 @@ extension RealmStore: ChartHistoryStorage {
 }
 
 extension RealmStore: CoinTickersStorage {
+
     public var tickersDidUpdate: AnyPublisher<Void, Never> {
         var publisher: AnyPublisher<Void, Never>!
         performSync { realm in
@@ -204,22 +195,26 @@ extension RealmStore: CoinTickersStorage {
         return publisher
     }
 
-    public func historyLastUpdatedAt(for key: AddressAndRPCServer) -> Date? {
+    public func historyLastUpdatedAt(for key: AddressAndRPCServer, currency: Currency) -> Date? {
         var updatedAt: Date?
         performSync { realm in
             let primaryKey = ContractAddressObject.generatePrimaryKey(fromContract: key.address, server: key.server)
-            updatedAt = realm.object(ofType: AssignedCoinTickerIdObject.self, forPrimaryKey: primaryKey)?.historyUpdatedAt as? Date
+            let obj = realm.object(ofType: AssignedCoinTickerIdObject.self, forPrimaryKey: primaryKey)
+            let historiesToCurrencies = obj?.chartHistory?.map { $0.value } ?? []
+            if let anyHistory = historiesToCurrencies.compactMap { $0[currency] }.first {
+                updatedAt = anyHistory.fetchDate
+            }
         }
 
         return updatedAt
     }
 
-    public func ticker(for key: AddressAndRPCServer) -> CoinTicker? {
+    public func ticker(for key: AddressAndRPCServer, currency: Currency) -> CoinTicker? {
         var ticker: CoinTicker?
         performSync { realm in
             let primaryKey = ContractAddressObject.generatePrimaryKey(fromContract: key.address, server: key.server)
             ticker = realm.object(ofType: AssignedCoinTickerIdObject.self, forPrimaryKey: primaryKey)
-                .flatMap { $0.ticker.flatMap { CoinTicker(coinTickerObject: $0) } }
+                .flatMap { $0.tickers.first(where: { $0.currency == currency.code }).flatMap { CoinTicker(coinTickerObject: $0) } }
         }
 
         return ticker
@@ -232,15 +227,19 @@ extension RealmStore: CoinTickersStorage {
             try? realm.safeWrite {
                 for each in tickers {
                     let primaryKey = ContractAddressObject.generatePrimaryKey(fromContract: each.key.primaryToken.address, server: each.key.primaryToken.server)
-                    let knownTickerId = Self.getOrCreateKnownTickerId(for: each.key, in: realm)
+                    let tickerId = Self.getOrCreateKnownTickerId(for: each.key, in: realm)
 
-                    let coinTicker = CoinTickerObject(coinTicker: each.value)
-                    realm.add(coinTicker, update: .all)
+                    let ticker = CoinTickerObject(coinTicker: each.value)
+                    realm.add(ticker, update: .all)
 
                     if let assignedCoinTicker = realm.object(ofType: AssignedCoinTickerIdObject.self, forPrimaryKey: primaryKey) {
-                        assignedCoinTicker._ticker = coinTicker
+                        var tickers = Array(assignedCoinTicker.tickers.filter { !$0.isEqual(ticker) })
+                        tickers.append(ticker)
+
+                        assignedCoinTicker.tickers.removeAll()
+                        assignedCoinTicker.tickers.append(objectsIn: tickers)
                     } else {
-                        let assignedCoinTicker = AssignedCoinTickerIdObject(tickerId: knownTickerId, ticker: coinTicker, chartHistory: nil)
+                        let assignedCoinTicker = AssignedCoinTickerIdObject(tickerId: tickerId, tickers: [ticker], chartHistories: nil)
                         realm.add(assignedCoinTicker, update: .all)
                     }
                 }

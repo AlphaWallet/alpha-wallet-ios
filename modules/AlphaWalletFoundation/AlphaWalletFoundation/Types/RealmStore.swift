@@ -91,15 +91,18 @@ extension Realm {
             AssignedCoinTickerIdObject.self
         ]
 
-        configuration.schemaVersion = 1
+        configuration.schemaVersion = 2
         configuration.migrationBlock = { migration, oldSchemaVersion in
             if oldSchemaVersion < 1 {
-                migration.enumerateObjects(ofType: CoinTickerObject.className()) { oldObject, newObject in
-                    guard let oldObject = oldObject else { return }
-                    guard let newObject = newObject else { return }
-                    
-                    newObject["currency"] = Currency.USD.rawValue
+                migration.enumerateObjects(ofType: CoinTickerObject.className()) { _, newObject in
+                    newObject?["currency"] = Currency.USD.code
                 }
+            }
+
+            if oldSchemaVersion < 2 {
+                migration.deleteData(forType: EventActivity.className())
+                migration.deleteData(forType: CoinTickerObject.className())
+                migration.deleteData(forType: AssignedCoinTickerIdObject.className())
             }
         }
 
