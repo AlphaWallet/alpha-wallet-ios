@@ -13,12 +13,12 @@ struct TokenInfoPageViewModelOutput {
 }
 
 final class TokenInfoPageViewModel {
-    private var chartHistoriesSubject: CurrentValueSubject<[ChartHistory], Never> = .init([])
+    private var chartHistoriesSubject: CurrentValueSubject<[ChartHistoryPeriod: ChartHistory], Never> = .init([:])
     private let coinTickersFetcher: CoinTickersFetcher
     private var ticker: CoinTicker?
     private let tokensService: TokenViewModelState
     private var cancelable = Set<AnyCancellable>()
-    private var chartHistories: [ChartHistory] { chartHistoriesSubject.value }
+    private var chartHistories: [ChartHistoryPeriod: ChartHistory] { chartHistoriesSubject.value }
     private lazy var coinTicker: AnyPublisher<CoinTicker?, Never> = {
         return tokensService.tokenViewModelPublisher(for: token)
             .map { $0?.balance.ticker }
@@ -100,7 +100,7 @@ final class TokenInfoPageViewModel {
 
     private var yearLowViewModel: TokenAttributeViewModel {
         let value: String = {
-            let history = chartHistories[safe: ChartHistoryPeriod.year.index]
+            let history = chartHistories[ChartHistoryPeriod.year]
             if let min = HistoryHelper(history: history).minMax?.min, let value = Formatter.usd.string(from: min) {
                 return value
             } else {
@@ -114,7 +114,7 @@ final class TokenInfoPageViewModel {
 
     private var yearHighViewModel: TokenAttributeViewModel {
         let value: String = {
-            let history = chartHistories[safe: ChartHistoryPeriod.year.index]
+            let history = chartHistories[ChartHistoryPeriod.year]
             if let max = HistoryHelper(history: history).minMax?.max, let value = Formatter.usd.string(from: max) {
                 return value
             } else {
@@ -148,7 +148,7 @@ final class TokenInfoPageViewModel {
 
     private func attributedHistoryValue(period: ChartHistoryPeriod) -> NSAttributedString {
         let result: (string: String, foregroundColor: UIColor) = {
-            let result = HistoryHelper(history: chartHistories[safe: period.index])
+            let result = HistoryHelper(history: chartHistories[period])
 
             switch result.change {
             case .appreciate(let percentage, let value):

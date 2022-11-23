@@ -12,7 +12,7 @@ import AlphaWalletCore
 public protocol CoinTickersFetcherProvider {
     func fetchTickers(for tokens: [TokenMappedToTicker], force: Bool)
     func resolveTikerIds(for tokens: [TokenMappedToTicker])
-    func fetchChartHistories(for token: TokenMappedToTicker, force: Bool, periods: [ChartHistoryPeriod]) -> AnyPublisher<[ChartHistory], Never>
+    func fetchChartHistories(for token: TokenMappedToTicker, force: Bool, periods: [ChartHistoryPeriod]) -> AnyPublisher<[ChartHistoryPeriod: ChartHistory], Never>
     func cancel()
 }
 
@@ -67,7 +67,7 @@ public final class CoinTickersFetcherImpl: CoinTickersFetcher {
         }
     }
 
-    public func fetchChartHistories(for token: TokenMappedToTicker, force: Bool, periods: [ChartHistoryPeriod]) -> AnyPublisher<[ChartHistory], Never> {
+    public func fetchChartHistories(for token: TokenMappedToTicker, force: Bool, periods: [ChartHistoryPeriod]) -> AnyPublisher<[ChartHistoryPeriod: ChartHistory], Never> {
         guard let publisher = elementMappedToProvider(for: token)
             .flatMap({ $0.provider.fetchChartHistories(for: token, force: force, periods: periods) }) else { return .empty() }
 

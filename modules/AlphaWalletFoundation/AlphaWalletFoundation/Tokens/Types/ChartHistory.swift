@@ -29,19 +29,21 @@ public enum ChartHistoryPeriod: Int, CaseIterable, Codable {
             return "1Y"
         }
     }
-    
-    public var index: Int {
-        switch self {
-        case .day:
-            return 0
-        case .month:
-            return 1
-        case .threeMonth:
-            return 2
-        case .week:
-            return 3
-        case .year:
-            return 4
+
+    public init?(index: Int) {
+        switch index {
+        case 0:
+            self = .day
+        case 1:
+            self = .month
+        case 2:
+            self = .threeMonth
+        case 3:
+            self = .week
+        case 4:
+            self = .year
+        default:
+            return nil
         }
     }
 }
