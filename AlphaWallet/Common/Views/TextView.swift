@@ -208,7 +208,6 @@ class TextView: UIControl {
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-//            view.heightAnchor.constraint(equalTo: stackView.heightAnchor),
             stackView.anchorsConstraint(to: view, edgeInsets: edgeInsets)
         ])
 
@@ -221,6 +220,7 @@ class TextView: UIControl {
         }
 
         updateClearAndPasteButtons(text)
+        delegate?.didChange(inTextView: self)
     }
 
     private func updateClearAndPasteButtons(_ text: String) {
@@ -229,10 +229,10 @@ class TextView: UIControl {
     }
 
     @objc private func pasteButtonSelected(_ sender: UIButton) {
-        if let pastedText = UIPasteboard.general.string?.trimmed {
-            value = pastedText
-            delegate?.didPaste(in: self)
-        }
+        guard let pastedText = UIPasteboard.general.string?.trimmed else { return }
+        
+        value = pastedText
+        delegate?.didPaste(in: self)
     }
 
     required init?(coder aDecoder: NSCoder) {
