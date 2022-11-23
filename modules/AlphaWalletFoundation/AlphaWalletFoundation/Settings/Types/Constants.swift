@@ -111,7 +111,7 @@ public struct Constants {
 
     enum BlockscanChat {
         static let blockscanChatWebUrl = URL(string: "https://chat.blockscan.com/login")!
-        static let unreadCountEndpoint = URL(string: "https://blockscan-chat-proxy.herokuapp.com/blockscanchat/unreadcount")!
+        static let unreadCountBaseUrl = URL(string: "https://blockscan-chat-proxy.herokuapp.com")!
     }
 
     enum Coingecko {

@@ -6,16 +6,18 @@
 //
 
 import Foundation
-import PromiseKit
 import BigInt
-import APIKit
-import JSONRPCKit
+import Combine
+import AlphaWalletCore
 
 public final class GasPriceEstimator {
     private let analytics: AnalyticsLogger
+    private let networkService: NetworkService
+    private lazy var etherscanGasPriceEstimator = EtherscanGasPriceEstimator(networkService: networkService)
 
-    public init(analytics: AnalyticsLogger) {
+    public init(analytics: AnalyticsLogger, networkService: NetworkService) {
         self.analytics = analytics
+        self.networkService = networkService
     }
 
     public func shouldUseEstimatedGasPrice(_ estimatedGasPrice: BigUInt, forTransaction transaction: UnconfirmedTransaction) -> Bool {
@@ -27,10 +29,11 @@ public final class GasPriceEstimator {
         }
     }
 
-    public func estimateGasPrice(server: RPCServer) -> Promise<GasEstimates> {
+    public func estimateGasPrice(server: RPCServer) -> AnyPublisher<GasEstimates, PromiseError> {
         if EtherscanGasPriceEstimator.supports(server: server) {
             return estimateGasPriceForUsingEtherscanApi(server: server)
-                .recover { _ in self.estimateGasPriceForUseRpcNode(server: server) }
+                .catch { _ in self.estimateGasPriceForUseRpcNode(server: server) }
+                .eraseToAnyPublisher()
         } else {
             switch server.serverWithEnhancedSupport {
             case .xDai:
@@ -58,26 +61,26 @@ public final class GasPriceEstimator {
         }
     }
 
-    private func estimateGasPriceForUsingEtherscanApi(server: RPCServer) -> Promise<GasEstimates> {
-        return firstly {
-            EtherscanGasPriceEstimator().fetch(server: server)
-        }.get { estimates in
-            infoLog("Estimated gas price with gas price estimator API server: \(server) estimate: \(estimates)")
-        }.map { estimates in
-            GasEstimates(standard: BigUInt(estimates.standard), others: [
-                TransactionConfigurationType.slow: BigUInt(estimates.slow),
-                TransactionConfigurationType.fast: BigUInt(estimates.fast),
-                TransactionConfigurationType.rapid: BigUInt(estimates.rapid)
-            ])
-        }
+    private func estimateGasPriceForUsingEtherscanApi(server: RPCServer) -> AnyPublisher<GasEstimates, PromiseError> {
+        return etherscanGasPriceEstimator
+            .fetch(server: server)
+            .handleEvents(receiveOutput: { estimates in
+                infoLog("Estimated gas price with gas price estimator API server: \(server) estimate: \(estimates)")
+            }).map { estimates in
+                GasEstimates(standard: BigUInt(estimates.standard), others: [
+                    TransactionConfigurationType.slow: BigUInt(estimates.slow),
+                    TransactionConfigurationType.fast: BigUInt(estimates.fast),
+                    TransactionConfigurationType.rapid: BigUInt(estimates.rapid)
+                ])
+            }.eraseToAnyPublisher()
     }
 
-    private func estimateGasPriceForXDai() -> Promise<GasEstimates> {
+    private func estimateGasPriceForXDai() -> AnyPublisher<GasEstimates, PromiseError> {
         //xDAI node returns a much higher gas price than necessary so if it is xDAI simply return the fixed amount
-        .value(.init(standard: GasPriceConfiguration.xDaiGasPrice))
+        .just(.init(standard: GasPriceConfiguration.xDaiGasPrice))
     }
 
-    private func estimateGasPriceForUseRpcNode(server: RPCServer) -> Promise<GasEstimates> {
+    private func estimateGasPriceForUseRpcNode(server: RPCServer) -> AnyPublisher<GasEstimates, PromiseError> {
         let getGasPrice = GetGasPrice(server: server, analytics: analytics)
         return getGasPrice.getGasEstimates()
     }

@@ -44,7 +44,7 @@ open class TokenSwapper: ObservableObject {
             .eraseToAnyPublisher()
     }
 
-    public init(reachabilityManager: ReachabilityManagerProtocol, sessionProvider: SessionsProvider, networkProvider: TokenSwapperNetworkProvider = LiQuestTokenSwapperNetworkProvider()) {
+    public init(reachabilityManager: ReachabilityManagerProtocol, sessionProvider: SessionsProvider, networkProvider: TokenSwapperNetworkProvider) {
         self.reachabilityManager = reachabilityManager
         self.networkProvider = networkProvider
         self.sessions = sessionProvider.sessions

@@ -42,6 +42,5 @@ public class TickerIdsFetcherImpl: TickerIdsFetcher {
         }
 
         return firstMatchingTickerId(publishers)
-            .eraseToAnyPublisher()
     }
 }

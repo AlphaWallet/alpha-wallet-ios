@@ -7,7 +7,6 @@
 
 import Foundation
 import Combine
-import Alamofire
 import AlphaWalletCore
 
 public class Oneinch: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
@@ -38,7 +37,7 @@ public class Oneinch: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
     public let analyticsNavigation: Analytics.Navigation = .onOneinch
     public let analyticsName: String = "Oneinch"
 
-    public init(action: String, networkProvider: OneinchNetworkProviderType = OneinchNetworkProvider(), reachability: ReachabilityManagerProtocol = ReachabilityManager(), retryBehavior: RetryBehavior<RunLoop> = Oneinch.defaultRetryBehavior) {
+    public init(action: String, networkProvider: OneinchNetworkProviderType, reachability: ReachabilityManagerProtocol = ReachabilityManager(), retryBehavior: RetryBehavior<RunLoop> = Oneinch.defaultRetryBehavior) {
         self.action = action
         self.networkProvider = networkProvider
         self.reachability = reachability

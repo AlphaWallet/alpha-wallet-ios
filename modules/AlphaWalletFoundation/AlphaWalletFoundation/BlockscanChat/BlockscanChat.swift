@@ -2,36 +2,44 @@
 
 import Foundation
 import SwiftyJSON
-import PromiseKit
+import Combine
+import AlphaWalletCore
 
 public class BlockscanChat {
-    enum E: Error {
-        case invalidJson
-    }
+    private var lastKnownCount: Int?
+    private let networkService: NetworkService
 
     let address: AlphaWallet.Address
-    var lastKnownCount: Int?
 
-    public init(address: AlphaWallet.Address) {
+    public init(networkService: NetworkService, address: AlphaWallet.Address) {
         self.address = address
+        self.networkService = networkService
     }
 
-    public func fetchUnreadCount() -> Promise<Int> {
+    public func fetchUnreadCount() -> AnyPublisher<Int, PromiseError> {
         infoLog("[BlockscanChat] Fetching unread count for \(address.eip55String)…")
-        let url = Constants.BlockscanChat.unreadCountEndpoint.appendingPathComponent(address.eip55String)
-        return firstly {
-            Alamofire.request(url, headers: ["PROXY_KEY": Constants.Credentials.blockscanChatProxyKey]).validate().responseJSON(options: [])
-        }.map { [weak self] rawJson, _ in
-            guard let rawJson = rawJson as? [String: Any] else { throw E.invalidJson }
-            let json = JSON(rawJson)
-            let count = json["result"].intValue
-            if let strongSelf = self {
-                strongSelf.lastKnownCount = count
-                infoLog("[BlockscanChat] Fetched unread count for \(strongSelf.address.eip55String) count: \(count)")
-            } else {
-                //no-op
-            }
-            return count
+        return networkService
+            .responseData(GetUnreadCountEndpointRequest(address: address))
+            .tryMap { return try JSON(data: $0.data)["result"].intValue }
+            .handleEvents(receiveOutput: { [weak self, address] in
+                self?.lastKnownCount = $0
+                infoLog("[BlockscanChat] Fetched unread count for \(address.eip55String) count: \($0)")
+            })
+            .mapError { PromiseError.some(error: $0) }
+            .eraseToAnyPublisher()
+    }
+}
+
+extension BlockscanChat {
+    struct GetUnreadCountEndpointRequest: URLRequestConvertible {
+        let address: AlphaWallet.Address
+
+        func asURLRequest() throws -> URLRequest {
+            guard var components = URLComponents(url: Constants.BlockscanChat.unreadCountBaseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
+            components.path = "/blockscanchat/unreadcount/\(address.eip55String)"
+            var request = try URLRequest(url: components.asURL(), method: .get)
+
+            return request.appending(httpHeaders: ["PROXY_KEY": Constants.Credentials.blockscanChatProxyKey])
         }
     }
 }

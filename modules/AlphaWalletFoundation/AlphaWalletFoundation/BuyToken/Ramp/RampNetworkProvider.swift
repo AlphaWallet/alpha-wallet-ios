@@ -7,7 +7,6 @@
 
 import Foundation
 import AlphaWalletCore
-import Alamofire
 import Combine
 
 public protocol RampNetworkProviderType {
@@ -16,17 +15,22 @@ public protocol RampNetworkProviderType {
 
 public final class RampNetworkProvider: RampNetworkProviderType {
     private let decoder = JSONDecoder()
+    private let networkService: NetworkService
 
-    public init() { }
+    public init(networkService: NetworkService) {
+        self.networkService = networkService
+    }
+
     public func retrieveAssets() -> AnyPublisher<[Asset], PromiseError> {
-        let request = RampRequest()
-        return Alamofire.request(request)
-            .responseDataPublisher()
+        return networkService
+            .responseData(RampRequest())
             .tryMap { [decoder] in try decoder.decode(RampAssetsResponse.self, from: $0.data).assets }
             .mapError { PromiseError.some(error: $0) }
             .eraseToAnyPublisher()
     }
-
+}
+//NOTE: internal because we use it also for debugging
+extension RampNetworkProvider {
     struct RampRequest: URLRequestConvertible {
 
         func asURLRequest() throws -> URLRequest {

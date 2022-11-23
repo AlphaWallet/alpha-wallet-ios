@@ -6,42 +6,33 @@
 //
 
 import Foundation
-import Alamofire
 
 extension Covalent {
-    enum ApiUrlProvider: URLConvertible {
-        case transactions(walletAddress: AlphaWallet.Address, server: RPCServer, page: Int?, pageSize: Int, apiKey: String, blockSignedAtAsc: Bool)
-        case balances(walletAddress: AlphaWallet.Address, server: RPCServer, quoteCurrency: String, nft: Bool, noNftFetch: Bool, apiKey: String)
+    struct TransactionsRequest: URLRequestConvertible {
+        let walletAddress: AlphaWallet.Address
+        let server: RPCServer
+        let page: Int?
+        let pageSize: Int
+        let apiKey: String
+        let blockSignedAtAsc: Bool
 
-        func asURL() throws -> URL {
+        func asURLRequest() throws -> URLRequest {
             guard var components: URLComponents = .init(url: Constants.Covalent.apiBaseUrl, resolvingAgainstBaseURL: false) else {
-                throw AFError.invalidURL(url: self)
+                throw URLError(.badURL)
             }
 
-            switch self {
-            case .transactions(let walletAddress, let server, let page, let pageSize, let apiKey, let blockSignedAtAsc):
-                components.path = "/v1/\(server.chainID)/address/\(walletAddress)/transactions_v2/"
-                components.queryItems = [
-                    URLQueryItem(name: "key", value: apiKey),
-                    URLQueryItem(name: "block-signed-at-asc", value: "\(blockSignedAtAsc)"),
-                    URLQueryItem(name: "page-number", value: "\(page ?? 0)"),
-                    URLQueryItem(name: "page-size", value: "\(pageSize)"),
-                ]
+            components.path = "/v1/\(server.chainID)/address/\(walletAddress)/transactions_v2/"
 
-            case .balances(let walletAddress, let server, let quoteCurrency, let nft, let noNftFetch, let apiKey):
-                components.path = "/v1/\(server.chainID)/address/\(walletAddress)/balances_v2/"
-                components.queryItems = [
-                    URLQueryItem(name: "key", value: apiKey),
-                    URLQueryItem(name: "quote-currency", value: quoteCurrency),
-                    URLQueryItem(name: "format", value: "JSON"),
-                    URLQueryItem(name: "nft", value: "\(nft)"),
-                    URLQueryItem(name: "no-nft-fetch", value: "\(noNftFetch)")
-                ]
-            }
+            let url = try components.asURL()
+            let request = try URLRequest(url: url, method: .get)
 
-            guard let url = components.url else { throw AFError.invalidURL(url: self) }
-            
-            return url
+            return try URLEncoding().encode(request, with: [
+                "key": apiKey,
+                "block-signed-at-asc": "\(blockSignedAtAsc)",
+                "page-number": "\(page ?? 0)",
+                "page-size": "\(pageSize)"
+            ])
         }
     }
+
 }

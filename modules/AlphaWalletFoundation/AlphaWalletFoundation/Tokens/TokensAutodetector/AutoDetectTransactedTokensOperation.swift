@@ -6,13 +6,13 @@
 //
 
 import Foundation
-import PromiseKit
+import Combine
 
 protocol AutoDetectTransactedTokensOperationDelegate: class {
     var isAutoDetectingTransactedTokens: Bool { get set }
 
     func didDetect(tokensOrContracts: [TokenOrContract])
-    func autoDetectTransactedErc20AndNonErc20Tokens(wallet: AlphaWallet.Address) -> Promise<[TokenOrContract]>
+    func autoDetectTransactedErc20AndNonErc20Tokens(wallet: AlphaWallet.Address) -> AnyPublisher<[TokenOrContract], Never>
 }
 
 final class AutoDetectTransactedTokensOperation: Operation {
@@ -27,6 +27,7 @@ final class AutoDetectTransactedTokensOperation: Operation {
     override var isAsynchronous: Bool {
         return true
     }
+    private var cancelable = Set<AnyCancellable>()
 
     private let session: WalletSession
 
@@ -40,19 +41,18 @@ final class AutoDetectTransactedTokensOperation: Operation {
     override func main() {
         guard let delegate = delegate else { return }
 
-        delegate.autoDetectTransactedErc20AndNonErc20Tokens(wallet: session.account.address).done { [weak self] values in
-            guard let strongSelf = self else { return }
+        delegate.autoDetectTransactedErc20AndNonErc20Tokens(wallet: session.account.address)
+            .sink(receiveCompletion: { _ in
 
-            strongSelf.willChangeValue(forKey: "isExecuting")
-            strongSelf.willChangeValue(forKey: "isFinished")
-            delegate.isAutoDetectingTransactedTokens = false
-            strongSelf.didChangeValue(forKey: "isExecuting")
-            strongSelf.didChangeValue(forKey: "isFinished")
+            }, receiveValue: { values in
+                self.willChangeValue(forKey: "isExecuting")
+                self.willChangeValue(forKey: "isFinished")
+                delegate.isAutoDetectingTransactedTokens = false
+                self.didChangeValue(forKey: "isExecuting")
+                self.didChangeValue(forKey: "isFinished")
 
-            guard !strongSelf.isCancelled else { return }
-            strongSelf.delegate?.didDetect(tokensOrContracts: values)
-        }.catch { error in
-            warnLog("Error while detecting tokens wallet: \(self.session.account.address.eip55String) error: \(error)")
-        }
+                guard !self.isCancelled else { return }
+                self.delegate?.didDetect(tokensOrContracts: values)
+            }).store(in: &cancelable)
     }
 }

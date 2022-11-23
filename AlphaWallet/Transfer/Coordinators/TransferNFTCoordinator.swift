@@ -32,23 +32,25 @@ class TransferNFTCoordinator: Coordinator {
     private var transactionConfirmationResult: ConfirmResult? = .none
     private let transactionType: TransactionType
     private let tokensService: TokenViewModelState
+    private let networkService: NetworkService
 
     weak var delegate: TransferNFTCoordinatorDelegate?
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
 
-    init(
-            session: WalletSession,
-            navigationController: UINavigationController,
-            keystore: Keystore,
-            tokenHolder: TokenHolder,
-            token: Token,
-            transactionType: TransactionType,
-            assetDefinitionStore: AssetDefinitionStore,
-            analytics: AnalyticsLogger,
-            domainResolutionService: DomainResolutionServiceType,
-            tokensService: TokenViewModelState
-    ) {
+    init(session: WalletSession,
+         navigationController: UINavigationController,
+         keystore: Keystore,
+         tokenHolder: TokenHolder,
+         token: Token,
+         transactionType: TransactionType,
+         assetDefinitionStore: AssetDefinitionStore,
+         analytics: AnalyticsLogger,
+         domainResolutionService: DomainResolutionServiceType,
+         tokensService: TokenViewModelState,
+         networkService: NetworkService) {
+
+        self.networkService = networkService
         self.tokensService = tokensService
         self.transactionType = transactionType
         self.tokenHolder = tokenHolder
@@ -70,11 +72,18 @@ class TransferNFTCoordinator: Coordinator {
 extension TransferNFTCoordinator: SendSemiFungibleTokenViewControllerDelegate {
     func didEnterWalletAddress(tokenHolders: [AlphaWalletFoundation.TokenHolder], to recipient: AlphaWalletFoundation.AlphaWallet.Address, in viewController: SendSemiFungibleTokenViewController) {
         do {
-            // TODO: verify if tokenHolders are same for TransactionType cases
-            let transaction = try transactionType.buildSendErc721Token(recipient: recipient, account: session.account.address)
-
-            let configuration: TransactionType.Configuration = .sendNftTransaction(confirmType: .signThenSend)
-            let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
+            let coordinator = TransactionConfirmationCoordinator(
+                presentingViewController: navigationController,
+                session: session,
+                transaction: try transactionType.buildSendErc721Token(recipient: recipient, account: session.account.address),
+                configuration: .sendNftTransaction(confirmType: .signThenSend),
+                analytics: analytics,
+                domainResolutionService: domainResolutionService,
+                keystore: keystore,
+                assetDefinitionStore: assetDefinitionStore,
+                tokensService: tokensService,
+                networkService: networkService)
+            
             addCoordinator(coordinator)
             coordinator.delegate = self
 

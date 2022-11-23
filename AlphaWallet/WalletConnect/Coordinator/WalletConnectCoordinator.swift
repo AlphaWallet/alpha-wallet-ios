@@ -58,6 +58,7 @@ class WalletConnectCoordinator: NSObject, Coordinator {
     private let sessionProvider: SessionsProvider
     private let assetDefinitionStore: AssetDefinitionStore
     private var tokensService: TokenViewModelState?
+    private let networkService: NetworkService
     weak var delegate: WalletConnectCoordinatorDelegate?
     var coordinators: [Coordinator] = []
 
@@ -65,7 +66,16 @@ class WalletConnectCoordinator: NSObject, Coordinator {
         provider.sessions
     }
 
-    init(keystore: Keystore, navigationController: UINavigationController, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, config: Config, sessionProvider: SessionsProvider, assetDefinitionStore: AssetDefinitionStore) {
+    init(keystore: Keystore,
+         navigationController: UINavigationController,
+         analytics: AnalyticsLogger,
+         domainResolutionService: DomainResolutionServiceType,
+         config: Config,
+         sessionProvider: SessionsProvider,
+         assetDefinitionStore: AssetDefinitionStore,
+         networkService: NetworkService) {
+
+        self.networkService = networkService
         self.sessionProvider = sessionProvider
         self.config = config
         self.keystore = keystore
@@ -73,9 +83,11 @@ class WalletConnectCoordinator: NSObject, Coordinator {
         self.analytics = analytics
         self.domainResolutionService = domainResolutionService
         self.assetDefinitionStore = assetDefinitionStore
+
         super.init()
         start()
     }
+
     //FIXME: think about better way
     func configure(with tokensService: TokenViewModelState?) {
         self.tokensService = tokensService
@@ -395,7 +407,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
 
         infoLog("[WalletConnect] executeTransaction: \(transaction) type: \(type)")
         return firstly {
-            TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, source: .walletConnect, delegate: self.delegate, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
+            TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, source: .walletConnect, delegate: self.delegate, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService, networkService: networkService)
         }.map { data -> AlphaWallet.WalletConnect.Response in
             switch data {
             case .signedTransaction(let data):

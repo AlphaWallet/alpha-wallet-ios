@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Alamofire
 
 extension CoinGeckoNetworkProvider {
     private static var allHTTPHeaderFields: [String: String]? = [

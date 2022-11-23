@@ -7,7 +7,6 @@
 
 import Foundation
 import Combine
-import Alamofire
 import SwiftyJSON
 import AlphaWalletENS
 import AlphaWalletCore
@@ -19,11 +18,12 @@ struct UnstoppableDomainsV2ApiError: Error {
 final class UnstoppableDomainsV2Resolver {
     private let server: RPCServer
     private let storage: EnsRecordsStorage
-    private let networkProvider: UnstoppableDomainsV2NetworkProvider = .init()
+    private let networkProvider: UnstoppableDomainsV2NetworkProvider
 
-    init(server: RPCServer, storage: EnsRecordsStorage) {
+    init(server: RPCServer, storage: EnsRecordsStorage, networkService: NetworkService) {
         self.server = server
         self.storage = storage
+        self.networkProvider = .init(networkService: networkService)
     }
 
     func resolveAddress(forName name: String) -> AnyPublisher<AlphaWallet.Address, PromiseError> {

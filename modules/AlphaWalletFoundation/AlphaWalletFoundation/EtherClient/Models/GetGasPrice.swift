@@ -6,10 +6,11 @@
 //
 
 import Foundation
-import PromiseKit
 import BigInt
 import APIKit
 import JSONRPCKit
+import Combine
+import AlphaWalletCore
 
 public typealias APIKitSession = APIKit.Session
 public typealias SessionTaskError = APIKit.SessionTaskError
@@ -24,29 +25,29 @@ public final class GetGasPrice {
         self.analytics = analytics
     }
 
-    public func getGasEstimates() -> Promise<GasEstimates> {
+    public func getGasEstimates() -> AnyPublisher<GasEstimates, PromiseError> {
         let request = EtherServiceRequest(server: server, batch: BatchFactory().create(GasPriceRequest()))
         let maxPrice: BigUInt = GasPriceConfiguration.maxPrice(forServer: server)
         let defaultPrice: BigUInt = GasPriceConfiguration.defaultPrice(forServer: server)
 
-        return firstly {
-            APIKitSession.send(request, server: server, analytics: analytics)
-        }.get { [server] estimate in
-            infoLog("Estimated gas price with RPC node server: \(server) estimate: \(estimate)")
-        }.map { [server] gasPrice in
-            if (gasPrice + GasPriceConfiguration.oneGwei) > maxPrice {
-                // Guard against really high prices
-                return GasEstimates(standard: maxPrice)
-            } else {
-                if server.canUserChangeGas && server.shouldAddBufferWhenEstimatingGasPrice {
-                    //Add an extra gwei because the estimate is sometimes too low
-                    return GasEstimates(standard: gasPrice + GasPriceConfiguration.oneGwei)
+        return APIKitSession
+            .sendPublisher(request, server: server, analytics: analytics)
+            .handleEvents(receiveOutput: { [server] estimate in
+                infoLog("Estimated gas price with RPC node server: \(server) estimate: \(estimate)")
+            }).map { [server] gasPrice in
+                if (gasPrice + GasPriceConfiguration.oneGwei) > maxPrice {
+                    // Guard against really high prices
+                    return GasEstimates(standard: maxPrice)
                 } else {
-                    return GasEstimates(standard: gasPrice)
+                    if server.canUserChangeGas && server.shouldAddBufferWhenEstimatingGasPrice {
+                        //Add an extra gwei because the estimate is sometimes too low
+                        return GasEstimates(standard: gasPrice + GasPriceConfiguration.oneGwei)
+                    } else {
+                        return GasEstimates(standard: gasPrice)
+                    }
                 }
-            }
-        }.recover { _ -> Promise<GasEstimates> in
-            .value(GasEstimates(standard: defaultPrice))
-        }
+            }.catch { _ -> AnyPublisher<GasEstimates, PromiseError> in .just(GasEstimates(standard: defaultPrice)) }
+            .receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
     }
 }

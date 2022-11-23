@@ -10,7 +10,7 @@ import Foundation
 import AlphaWalletCore
 import CombineExt
 
-public protocol TickerIdsFetcherConfig {
+public protocol SupportedTickerIdsFetcherConfig {
     var tickerIdsLastFetchedDate: Date? { get set }
 }
 
@@ -19,9 +19,8 @@ public final class SupportedTickerIdsFetcher: TickerIdsFetcher {
     typealias TickerIdsPublisher = AnyPublisher<Void, PromiseError>
 
     private let networkProvider: CoinTickerNetworkProviderType
-    private let spamTokens = SpamTokens()
     private let storage: TickerIdsStorage & CoinTickersStorage
-    private var config: TickerIdsFetcherConfig
+    private var config: SupportedTickerIdsFetcherConfig
     private let pricesCacheLifetime: TimeInterval
     private var fetchSupportedTickerIdsPublisher: TickerIdsPublisher?
     private let queue = DispatchQueue(label: "org.alphawallet.swift.coinGeckoTicker.IdsFetcher")
@@ -31,7 +30,7 @@ public final class SupportedTickerIdsFetcher: TickerIdsFetcher {
     /// - networkProvider
     /// - storage
     /// - config
-    public init(networkProvider: CoinTickerNetworkProviderType, storage: TickerIdsStorage & CoinTickersStorage, config: TickerIdsFetcherConfig, pricesCacheLifetime: TimeInterval = 604800) {
+    public init(networkProvider: CoinTickerNetworkProviderType, storage: TickerIdsStorage & CoinTickersStorage, config: SupportedTickerIdsFetcherConfig, pricesCacheLifetime: TimeInterval = 604800) {
         self.networkProvider = networkProvider
         self.storage = storage
         self.config = config
@@ -83,7 +82,7 @@ public final class SupportedTickerIdsFetcher: TickerIdsFetcher {
     }
 }
 
-extension Config: TickerIdsFetcherConfig {
+extension Config: SupportedTickerIdsFetcherConfig {
     static let tickerIdsLastFetchedDateKey = "tickerIdsLastFetchedDateKey"
 
     public var tickerIdsLastFetchedDate: Date? {

@@ -18,7 +18,11 @@ class TransactionConfiguratorTransactionsTests: XCTestCase {
         let transaction = UnconfirmedTransaction(transactionType: .prebuilt(.main), bridgeTransaction: bridgeTransaction)
         let analytics = FakeAnalyticsService()
 
-        let configurator = TransactionConfigurator(session: .make(), analytics: analytics, transaction: transaction)
+        let configurator = TransactionConfigurator(
+            session: .make(),
+            analytics: analytics,
+            transaction: transaction,
+            networkService: FakeNetworkService())
 
         XCTAssertEqual(configurator.toAddress, address)
     }
@@ -31,7 +35,11 @@ class TransactionConfiguratorTransactionsTests: XCTestCase {
 
         let transaction = UnconfirmedTransaction(transactionType: .erc721Token(token, tokenHolders: []), value: BigUInt(0), recipient: address2, contract: address, data: nil)
 
-        let configurator = TransactionConfigurator(session: .make(), analytics: analytics, transaction: transaction)
+        let configurator = TransactionConfigurator(
+            session: .make(),
+            analytics: analytics,
+            transaction: transaction,
+            networkService: FakeNetworkService())
 
         XCTAssertEqual(configurator.toAddress, address)
         XCTAssertNotEqual(configurator.toAddress, transaction.recipient)
@@ -44,7 +52,11 @@ class TransactionConfiguratorTransactionsTests: XCTestCase {
 
         let transaction = UnconfirmedTransaction(transactionType: .nativeCryptocurrency(token, destination: nil, amount: .notSet), value: BigUInt(0), recipient: address, contract: nil, data: nil)
 
-        let configurator = TransactionConfigurator(session: .make(), analytics: analytics, transaction: transaction)
+        let configurator = TransactionConfigurator(
+            session: .make(),
+            analytics: analytics,
+            transaction: transaction,
+            networkService: FakeNetworkService())
 
         XCTAssertEqual(configurator.toAddress, address)
         XCTAssertNotEqual(configurator.toAddress, transaction.contract)

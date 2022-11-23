@@ -29,13 +29,18 @@ final class FakeMultiWalletBalanceService: MultiWalletBalanceService {
         self.servers = servers
         self.wallet = wallet
 
-        let tickersFetcher = CoinTickersFetcherImpl.make()
-        let walletAddressesStore = fakeWalletAddressesStore(wallets: [wallet])
+        let walletDependencyContainer = WalletComponentsFactory(
+            analytics: FakeAnalyticsService(),
+            nftProvider: FakeNftProvider(),
+            assetDefinitionStore: .init(),
+            coinTickersFetcher: CoinTickersFetcherImpl.make(),
+            config: .make(),
+            currencyService: .make(),
+            networkService: FakeNetworkService())
 
-        let fas = FakeAnalyticsService()
-        let fnftp = FakeNftProvider()
-        let walletDependencyContainer = WalletComponentsFactory(analytics: fas, nftProvider: fnftp, assetDefinitionStore: .init(), coinTickersFetcher: tickersFetcher, config: .make(), currencyService: .make())
-        super.init(walletAddressesStore: walletAddressesStore, dependencyContainer: walletDependencyContainer)
+        super.init(
+            walletAddressesStore: fakeWalletAddressesStore(wallets: [wallet]),
+            dependencyContainer: walletDependencyContainer)
         start()
     } 
 }

@@ -14,13 +14,12 @@ protocol OldestTransactionSchedulerProviderDelegate: AnyObject {
 }
 
 final class OldestTransactionSchedulerProvider: SchedulerProvider {
-    private let provider: Covalent.NetworkProvider = .init()
     private let session: WalletSession
     private let fetchLatestTransactionsQueue: OperationQueue
     //NOTE: additional flag to determine whether call is on apps launch. We want to fetch tsx for latest page, as prev requests might be ended with error.
     //reset only when receive success.
     private var isInitialCall: Bool = true
-
+    private let networkService: CovalentNetworkService
     var interval: TimeInterval { Constants.Covalent.oldestTransactionUpdateInterval }
     var name: String { "OldestTransactionSchedulerProvider" }
     var operation: AnyPublisher<Void, SchedulerError> {
@@ -29,8 +28,9 @@ final class OldestTransactionSchedulerProvider: SchedulerProvider {
 
     weak var delegate: OldestTransactionSchedulerProviderDelegate?
 
-    init(session: WalletSession, fetchLatestTransactionsQueue: OperationQueue) {
+    init(session: WalletSession, networkService: CovalentNetworkService, fetchLatestTransactionsQueue: OperationQueue) {
         self.session = session
+        self.networkService = networkService
         self.fetchLatestTransactionsQueue = fetchLatestTransactionsQueue
     }
 
@@ -60,12 +60,12 @@ final class OldestTransactionSchedulerProvider: SchedulerProvider {
             .covalentOldestPage(server: session.server, wallet: session.account)
             .flatMap { isInitialCall ? $0 : $0 + 1 }
 
-        guard Covalent.NetworkProvider.isSupport(server: session.server) else {
+        guard CovalentNetworkService.isSupport(server: session.server) else {
             return fallbackForUnsupportedServer()
         }
 
-        return provider
-            .transactions(walletAddress: session.account.address, server: session.server, page: lastPage, pageSize: Constants.Covalent.oldestAddedTransactionsPerPage)
+        return networkService
+            .transactions(page: lastPage, pageSize: Constants.Covalent.oldestAddedTransactionsPerPage)
             .retry(times: 3)
             .subscribe(on: fetchLatestTransactionsQueue)
             .handleEvents(receiveOutput: { [weak self] response in

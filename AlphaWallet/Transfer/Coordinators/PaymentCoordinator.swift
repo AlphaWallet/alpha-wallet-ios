@@ -34,27 +34,29 @@ class PaymentCoordinator: Coordinator {
     private let domainResolutionService: DomainResolutionServiceType
     private let tokensFilter: TokensFilter
     private let importToken: ImportToken
+    private let networkService: NetworkService
 
     let flow: PaymentFlow
     weak var delegate: PaymentCoordinatorDelegate?
     var coordinators: [Coordinator] = []
     let navigationController: UINavigationController
 
-    init(
-        navigationController: UINavigationController,
-        flow: PaymentFlow,
-        server: RPCServer,
-        sessionProvider: SessionsProvider,
-        keystore: Keystore,
-        assetDefinitionStore: AssetDefinitionStore,
-        analytics: AnalyticsLogger,
-        tokenCollection: TokenCollection,
-        reachabilityManager: ReachabilityManagerProtocol = ReachabilityManager(),
-        domainResolutionService: DomainResolutionServiceType,
-        tokenSwapper: TokenSwapper,
-        tokensFilter: TokensFilter,
-        importToken: ImportToken) {
+    init(navigationController: UINavigationController,
+         flow: PaymentFlow,
+         server: RPCServer,
+         sessionProvider: SessionsProvider,
+         keystore: Keystore,
+         assetDefinitionStore: AssetDefinitionStore,
+         analytics: AnalyticsLogger,
+         tokenCollection: TokenCollection,
+         reachabilityManager: ReachabilityManagerProtocol = ReachabilityManager(),
+         domainResolutionService: DomainResolutionServiceType,
+         tokenSwapper: TokenSwapper,
+         tokensFilter: TokensFilter,
+         importToken: ImportToken,
+         networkService: NetworkService) {
 
+        self.networkService = networkService
         self.importToken = importToken
         self.tokensFilter = tokensFilter
         self.tokenSwapper = tokenSwapper
@@ -83,7 +85,8 @@ class PaymentCoordinator: Coordinator {
             assetDefinitionStore: assetDefinitionStore,
             analytics: analytics,
             domainResolutionService: domainResolutionService,
-            importToken: importToken)
+            importToken: importToken,
+            networkService: networkService)
 
         coordinator.delegate = self
         coordinator.start()
@@ -100,7 +103,9 @@ class PaymentCoordinator: Coordinator {
             assetDefinitionStore: assetDefinitionStore,
             analytics: analytics,
             domainResolutionService: domainResolutionService,
-            tokensService: tokenCollection)
+            tokensService: tokenCollection,
+            networkService: networkService)
+        
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -117,7 +122,9 @@ class PaymentCoordinator: Coordinator {
             assetDefinitionStore: assetDefinitionStore,
             analytics: analytics,
             domainResolutionService: domainResolutionService,
-            tokensService: tokenCollection)
+            tokensService: tokenCollection,
+            networkService: networkService)
+
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -134,7 +141,9 @@ class PaymentCoordinator: Coordinator {
             analytics: analytics,
             domainResolutionService: domainResolutionService,
             action: action,
-            tokensService: tokenCollection)
+            tokensService: tokenCollection,
+            networkService: networkService)
+
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -156,7 +165,9 @@ class PaymentCoordinator: Coordinator {
             domainResolutionService: domainResolutionService,
             assetDefinitionStore: assetDefinitionStore,
             tokenCollection: tokenCollection,
-            tokensFilter: tokensFilter)
+            tokensFilter: tokensFilter,
+            networkService: networkService)
+
         coordinator.start()
         coordinator.delegate = self
         addCoordinator(coordinator)

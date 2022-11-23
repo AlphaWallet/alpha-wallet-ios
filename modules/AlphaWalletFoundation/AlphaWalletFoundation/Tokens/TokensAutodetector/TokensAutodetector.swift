@@ -35,22 +35,24 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
     private let importToken: ImportToken
     private let detectedTokens: DetectedContractsProvideble
     private let tokensOrContractsDetectedSubject = PassthroughSubject<[TokenOrContract], Never>()
-    private let getContractInteractions = GetContractInteractions()
+    private lazy var getContractInteractions = GetContractInteractions(networkService: networkService)
     private let contractToImportStorage: ContractToImportStorage
+    private let networkService: NetworkService
     public var tokensOrContractsDetected: AnyPublisher<[TokenOrContract], Never> {
         tokensOrContractsDetectedSubject.eraseToAnyPublisher()
     }
     var isAutoDetectingTransactedTokens = false
     var isAutoDetectingTokens = false
 
-    init(
-            session: WalletSession,
-            contractToImportStorage: ContractToImportStorage,
-            detectedTokens: DetectedContractsProvideble,
-            withAutoDetectTransactedTokensQueue autoDetectTransactedTokensQueue: OperationQueue,
-            withAutoDetectTokensQueue autoDetectTokensQueue: OperationQueue,
-            importToken: ImportToken
-    ) {
+    init(session: WalletSession,
+         contractToImportStorage: ContractToImportStorage,
+         detectedTokens: DetectedContractsProvideble,
+         withAutoDetectTransactedTokensQueue autoDetectTransactedTokensQueue: OperationQueue,
+         withAutoDetectTokensQueue autoDetectTokensQueue: OperationQueue,
+         importToken: ImportToken,
+         networkService: NetworkService) {
+
+        self.networkService = networkService
         self.contractToImportStorage = contractToImportStorage
         self.importToken = importToken
         self.session = session
@@ -89,7 +91,7 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
         return detectedContracts - alreadyAddedContracts - deletedContracts - hiddenContracts - delegateContracts
     }
 
-    internal func autoDetectTransactedContractsImpl(wallet: AlphaWallet.Address, erc20: Bool, server: RPCServer) -> Promise<[AlphaWallet.Address]> {
+    internal func autoDetectTransactedContractsImpl(wallet: AlphaWallet.Address, erc20: Bool, server: RPCServer) -> AnyPublisher<[AlphaWallet.Address], Never> {
         let startBlock: Int?
         if erc20 {
             startBlock = Config.getLastFetchedAutoDetectedTransactedTokenErc20BlockNumber(server, wallet: wallet).flatMap { $0 + 1 }
@@ -97,35 +99,36 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
             startBlock = Config.getLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber(server, wallet: wallet).flatMap { $0 + 1 }
         }
 
-        return firstly {
-            getContractInteractions.getContractList(walletAddress: wallet, server: server, startBlock: startBlock, erc20: erc20)
-        }.map(on: queue, { contracts, maxBlockNumber -> [AlphaWallet.Address] in
-            if let maxBlockNumber = maxBlockNumber {
-                if erc20 {
-                    Config.setLastFetchedAutoDetectedTransactedTokenErc20BlockNumber(maxBlockNumber, server: server, wallet: wallet)
-                } else {
-                    Config.setLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber(maxBlockNumber, server: server, wallet: wallet)
+        return getContractInteractions
+            .getContractList(walletAddress: wallet, server: server, startBlock: startBlock, erc20: erc20)
+            .map { data -> [AlphaWallet.Address] in
+                if let maxBlockNumber = data.maxBlockNumber {
+                    if erc20 {
+                        Config.setLastFetchedAutoDetectedTransactedTokenErc20BlockNumber(maxBlockNumber, server: server, wallet: wallet)
+                    } else {
+                        Config.setLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber(maxBlockNumber, server: server, wallet: wallet)
+                    }
                 }
-            }
 
-            return contracts
-        })
+                return data.uniqueNonEmptyContracts
+            }.replaceError(with: [])
+            .eraseToAnyPublisher()
     }
 
-    private func autoDetectTransactedTokensImpl(wallet: AlphaWallet.Address, erc20: Bool) -> Promise<[TokenOrContract]> {
+    private func autoDetectTransactedTokensImpl(wallet: AlphaWallet.Address, erc20: Bool) -> AnyPublisher<[TokenOrContract], Never> {
         let server = session.server
 
-        return firstly {
-            autoDetectTransactedContractsImpl(wallet: wallet, erc20: erc20, server: server)
-        }.then(on: queue, { [weak self, importToken, queue] detectedContracts -> Promise<[TokenOrContract]> in
-            guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
+        return autoDetectTransactedContractsImpl(wallet: wallet, erc20: erc20, server: server)
+            .flatMap { [importToken, queue] detectedContracts -> AnyPublisher<[TokenOrContract], Never> in
+                let promises = self.contractsForTransactedTokens(detectedContracts: detectedContracts, forServer: server)
+                    .map { importToken.fetchTokenOrContract(for: $0, server: server, onlyIfThereIsABalance: false) }
 
-            let promises = strongSelf.contractsForTransactedTokens(detectedContracts: detectedContracts, forServer: server)
-                .map { importToken.fetchTokenOrContract(for: $0, server: server, onlyIfThereIsABalance: false) }
-
-            return when(resolved: promises)
-                .map(on: queue, { $0.compactMap { $0.optionalValue } })
-        })
+                return when(resolved: promises)
+                    .map(on: queue, { $0.compactMap { $0.optionalValue } })
+                    .publisher
+                    .replaceError(with: [])
+                    .eraseToAnyPublisher()
+            }.eraseToAnyPublisher()
     }
 
     private func autoDetectPartnerTokens() {
@@ -148,25 +151,28 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
 }
 
 extension SingleChainTokensAutodetector: AutoDetectTransactedTokensOperationDelegate {
-    public func autoDetectTransactedErc20AndNonErc20Tokens(wallet: AlphaWallet.Address) -> Promise<[TokenOrContract]> {
+    public func autoDetectTransactedErc20AndNonErc20Tokens(wallet: AlphaWallet.Address) -> AnyPublisher<[TokenOrContract], Never> {
         let fetchErc20Tokens = autoDetectTransactedTokensImpl(wallet: wallet, erc20: true)
         let fetchNonErc20Tokens = autoDetectTransactedTokensImpl(wallet: wallet, erc20: false)
 
-        return when(resolved: [fetchErc20Tokens, fetchNonErc20Tokens]).map(on: queue, { results in
-            return results.compactMap { $0.optionalValue }.flatMap { $0 }
-        })
+        return Publishers.CombineLatest(fetchErc20Tokens, fetchNonErc20Tokens)
+            .map { $0.0 + $0.1 }
+            .replaceError(with: [])
+            .eraseToAnyPublisher()
     }
 }
 
 extension SingleChainTokensAutodetector: AutoDetectTokensOperationDelegate {
 
-    func autoDetectTokensImpl(withContracts contractsToDetect: [ContractToImport]) -> Promise<[TokenOrContract]> {
+    func autoDetectTokensImpl(withContracts contractsToDetect: [ContractToImport]) -> AnyPublisher<[TokenOrContract], Never> {
         let promises = contractsToAutodetectTokens(contractsToDetect: contractsToDetect)
             .map { importToken.fetchTokenOrContract(for: $0.contract, server: $0.server, onlyIfThereIsABalance: $0.onlyIfThereIsABalance) }
 
-        return when(resolved: promises).map(on: queue, { results in
-            return results.compactMap { $0.optionalValue }
-        })
+        return when(resolved: promises)
+            .map(on: queue, { $0.compactMap { $0.optionalValue } })
+            .publisher
+            .replaceError(with: [])
+            .eraseToAnyPublisher()
     }
 
     public func didDetect(tokensOrContracts: [TokenOrContract]) {
