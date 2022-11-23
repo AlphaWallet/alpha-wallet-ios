@@ -120,7 +120,7 @@ class ConfigureTransactionViewController: UIViewController {
         generateViews(viewModel: viewModel)
     }
 
-    func configure(withEstimatedGasLimit value: BigInt, configurator: TransactionConfigurator) {
+    func configure(withEstimatedGasLimit value: BigUInt, configurator: TransactionConfigurator) {
         var updatedViewModel = viewModel
         var configuration = makeConfigureSuitableForSaving(from: updatedViewModel.configurationToEdit.configuration)
         guard configuration.gasLimit != value else { return }
@@ -131,7 +131,7 @@ class ConfigureTransactionViewController: UIViewController {
         generateViews(viewModel: viewModel)
     }
 
-    func configure(withEstimatedGasPrice value: BigInt, configurator: TransactionConfigurator) {
+    func configure(withEstimatedGasPrice value: BigUInt, configurator: TransactionConfigurator) {
         var updatedViewModel = viewModel
         var configuration = makeConfigureSuitableForSaving(from: updatedViewModel.configurationToEdit.configuration)
         guard configuration.gasPrice != value else { return }

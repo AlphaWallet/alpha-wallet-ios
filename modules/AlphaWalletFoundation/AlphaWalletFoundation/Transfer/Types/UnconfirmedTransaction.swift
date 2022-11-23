@@ -5,23 +5,23 @@ import BigInt
 
 public struct UnconfirmedTransaction {
     public let transactionType: TransactionType
-    public let value: BigInt
+    public let value: BigUInt
     public let recipient: AlphaWallet.Address?
     public let contract: AlphaWallet.Address?
     public let data: Data?
-    public let gasLimit: BigInt?
-    public let gasPrice: BigInt?
-    public let nonce: BigInt?
+    public let gasLimit: BigUInt?
+    public let gasPrice: BigUInt?
+    public let nonce: BigUInt?
 
     public init(
         transactionType: TransactionType,
-        value: BigInt,
+        value: BigUInt,
         recipient: AlphaWallet.Address?,
         contract: AlphaWallet.Address?,
         data: Data?,
-        gasLimit: BigInt? = nil,
-        gasPrice: BigInt? = nil,
-        nonce: BigInt? = nil
+        gasLimit: BigUInt? = nil,
+        gasPrice: BigUInt? = nil,
+        nonce: BigUInt? = nil
     ) {
         self.transactionType = transactionType
         self.value = value

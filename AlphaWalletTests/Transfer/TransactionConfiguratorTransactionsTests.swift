@@ -31,7 +31,7 @@ class TransactionConfiguratorTransactionsTests: XCTestCase {
         let token = Token(contract: address, server: .main, value: "0", type: .erc721)
         let analytics = FakeAnalyticsService()
 
-        let transaction = UnconfirmedTransaction(transactionType: .erc721Token(token, tokenHolders: []), value: BigInt(0), recipient: address2, contract: address, data: nil)
+        let transaction = UnconfirmedTransaction(transactionType: .erc721Token(token, tokenHolders: []), value: BigUInt(0), recipient: address2, contract: address, data: nil)
 
         let configurator = try TransactionConfigurator(session: .make(), analytics: analytics, transaction: transaction)
 
@@ -44,7 +44,7 @@ class TransactionConfiguratorTransactionsTests: XCTestCase {
         let token = Token(contract: address, server: .main, value: "0", type: .erc721)
         let analytics = FakeAnalyticsService()
 
-        let transaction = UnconfirmedTransaction(transactionType: .nativeCryptocurrency(token, destination: nil, amount: nil), value: BigInt(0), recipient: address, contract: nil, data: nil)
+        let transaction = UnconfirmedTransaction(transactionType: .nativeCryptocurrency(token, destination: nil, amount: nil), value: BigUInt(0), recipient: address, contract: nil, data: nil)
 
         let configurator = try TransactionConfigurator(session: .make(), analytics: analytics, transaction: transaction)
 

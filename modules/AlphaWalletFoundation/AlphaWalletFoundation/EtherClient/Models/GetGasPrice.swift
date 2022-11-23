@@ -26,8 +26,8 @@ public final class GetGasPrice {
 
     public func getGasEstimates() -> Promise<GasEstimates> {
         let request = EtherServiceRequest(server: server, batch: BatchFactory().create(GasPriceRequest()))
-        let maxPrice: BigInt = GasPriceConfiguration.maxPrice(forServer: server)
-        let defaultPrice: BigInt = GasPriceConfiguration.defaultPrice(forServer: server)
+        let maxPrice: BigUInt = GasPriceConfiguration.maxPrice(forServer: server)
+        let defaultPrice: BigUInt = GasPriceConfiguration.defaultPrice(forServer: server)
 
         return firstly {
             APIKitSession.send(request, server: server, analytics: analytics)

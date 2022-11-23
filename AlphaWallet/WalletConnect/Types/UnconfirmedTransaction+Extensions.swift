@@ -13,7 +13,7 @@ extension UnconfirmedTransaction {
     init(transactionType: TransactionType, bridge transaction: RawTransactionBridge) {
         self = .init(
                 transactionType: transactionType,
-                value: transaction.value ?? BigInt("0"),
+                value: transaction.value ?? BigUInt("0"),
                 //Tight coupling. Sets recipient and contract relying on implementation of `TransactionConfigurator.toAddress` for `TransactionType.dapp`.
                 recipient: nil,
                 contract: transaction.to,

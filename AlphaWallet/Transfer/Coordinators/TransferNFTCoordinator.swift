@@ -87,7 +87,7 @@ extension TransferNFTCoordinator: SendSemiFungibleTokenViewControllerDelegate {
                 fatalError("Impossible Code Path")
             }
 
-            let transaction = UnconfirmedTransaction(transactionType: transactionType, value: BigInt(0), recipient: recipient, contract: tokenHolder.contractAddress, data: data)
+            let transaction = UnconfirmedTransaction(transactionType: transactionType, value: BigUInt(0), recipient: recipient, contract: tokenHolder.contractAddress, data: data)
 
             let configuration: TransactionType.Configuration = .sendNftTransaction(confirmType: .signThenSend)
             let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)

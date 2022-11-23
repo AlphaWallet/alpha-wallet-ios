@@ -71,24 +71,24 @@ extension TransactionConfirmationViewModel {
                 case .nativeCryptocurrency:
                     balance = "\(viewModel.amountShort) \(viewModel.symbol)"
 
-                    var availableAmount: BigInt
+                    var availableAmount: BigUInt
                     if amount.isAllFunds {
                         //NOTE: we need to handle balance updates, and refresh `amount` balance - gas
                         //if balance is equals to 0, or in case when value (balance - gas) less then zero we willn't crash
-                        let allFundsWithoutGas = abs(viewModel.value - configurator.gasValue)
+                        let allFundsWithoutGas = BigUInt(viewModel.value) - configurator.gasValue
                         availableAmount = allFundsWithoutGas
 
                         configurator.updateTransaction(value: allFundsWithoutGas)
                         amount.value = EtherNumberFormatter.short.string(from: allFundsWithoutGas, units: .ether)
                     } else {
-                        availableAmount = viewModel.value
+                        availableAmount = BigUInt(viewModel.value)
                     }
 
-                    let newAmountShort = EtherNumberFormatter.short.string(from: abs(availableAmount - configurator.transaction.value))
+                    let newAmountShort = EtherNumberFormatter.short.string(from: availableAmount - configurator.transaction.value)
                     newBalance = R.string.localizable.transactionConfirmationSendSectionBalanceNewTitle(newAmountShort, viewModel.symbol)
                 case .erc20:
                     let symbol = token.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
-                    let newAmountShort = EtherNumberFormatter.short.string(from: abs(viewModel.value - configurator.transaction.value), decimals: token.decimals)
+                    let newAmountShort = EtherNumberFormatter.short.string(from: BigUInt(viewModel.value) - configurator.transaction.value, decimals: token.decimals)
                     balance = "\(viewModel.amountShort) \(symbol)"
                     newBalance = R.string.localizable.transactionConfirmationSendSectionBalanceNewTitle(newAmountShort, symbol)
                 case .erc1155, .erc721, .erc721ForTickets, .erc875:
@@ -126,7 +126,7 @@ extension TransactionConfirmationViewModel {
         }
 
         var gasFee: String {
-            let fee: BigInt = configurator.currentConfiguration.gasPrice * configurator.currentConfiguration.gasLimit
+            let fee: BigUInt = configurator.currentConfiguration.gasPrice * configurator.currentConfiguration.gasLimit
             let feeString = EtherNumberFormatter.short.string(from: fee)
             let cryptoToFiatSymbol = Currency.USD.rawValue
             if let cryptoToFiatRate = cryptoToDollarRate {

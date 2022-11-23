@@ -11,7 +11,7 @@ public final class Eip681UrlResolver {
         case transaction(transactionType: TransactionType, token: Token)
     }
 
-    public enum MissingRPCServerStrategy {
+    public enum MissingRpcServerStrategy {
         case fallbackToFirstMatching
         case fallbackToAnyMatching
         case fallbackToPreffered(RPCServer)
@@ -19,9 +19,9 @@ public final class Eip681UrlResolver {
 
     private let config: Config
     private let importToken: ImportToken
-    private let missingRPCServerStrategy: MissingRPCServerStrategy
+    private let missingRPCServerStrategy: MissingRpcServerStrategy
 
-    public init(config: Config, importToken: ImportToken, missingRPCServerStrategy: MissingRPCServerStrategy) {
+    public init(config: Config, importToken: ImportToken, missingRPCServerStrategy: MissingRpcServerStrategy) {
         self.importToken = importToken
         self.config = config
         self.missingRPCServerStrategy = missingRPCServerStrategy

@@ -215,7 +215,7 @@ final class SendViewModel {
                     fatalError("Impossible Code Path")
                 }
 
-                let transaction = UnconfirmedTransaction(transactionType: transactionType, value: value, recipient: recipient, contract: contract, data: data)
+                let transaction = UnconfirmedTransaction(transactionType: transactionType, value: BigUInt(value), recipient: recipient, contract: contract, data: data)
 
                 return .success(transaction)
             }.share()

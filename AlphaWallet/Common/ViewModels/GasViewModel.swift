@@ -5,12 +5,12 @@ import BigInt
 import AlphaWalletFoundation
 
 struct GasViewModel {
-    private let fee: BigInt
+    private let fee: BigUInt
     private let symbol: String
     private let coinTicker: CoinTicker?
     private let formatter: EtherNumberFormatter
 
-    init(fee: BigInt, symbol: String, coinTicker: CoinTicker? = nil, formatter: EtherNumberFormatter = .full) {
+    init(fee: BigUInt, symbol: String, coinTicker: CoinTicker? = nil, formatter: EtherNumberFormatter = .full) {
         self.fee = fee
         self.symbol = symbol
         self.coinTicker = coinTicker

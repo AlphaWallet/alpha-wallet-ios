@@ -108,10 +108,10 @@ struct TransactionDetailsViewModel {
     }
 
     var gasViewModel: GasViewModel {
-        let gasUsed = BigInt(transactionRow.gasUsed) ?? BigInt()
-        let gasPrice = BigInt(transactionRow.gasPrice) ?? BigInt()
-        let gasLimit = BigInt(transactionRow.gas) ?? BigInt()
-        let gasFee: BigInt = {
+        let gasUsed = BigUInt(transactionRow.gasUsed) ?? BigUInt()
+        let gasPrice = BigUInt(transactionRow.gasPrice) ?? BigUInt()
+        let gasLimit = BigUInt(transactionRow.gas) ?? BigUInt()
+        let gasFee: BigUInt = {
             switch transactionRow.state {
             case .completed, .error: return gasPrice * gasUsed
             case .pending, .unknown, .failed: return gasPrice * gasLimit

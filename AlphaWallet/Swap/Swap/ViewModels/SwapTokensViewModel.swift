@@ -155,7 +155,7 @@ final class SwapTokensViewModel: NSObject {
         let convertedValue = configurator.tokensWithTheirSwapQuote
             .map { data -> String in
                 guard let data = data else { return "" }
-                return EtherNumberFormatter.shortPlain.string(from: BigInt(data.swapQuote.estimate.toAmount), decimals: data.tokens.to.decimals)
+                return EtherNumberFormatter.shortPlain.string(from: data.swapQuote.estimate.toAmount, decimals: data.tokens.to.decimals)
             }.eraseToAnyPublisher()
 
         let anyErrorString = configurator.error

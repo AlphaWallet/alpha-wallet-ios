@@ -233,7 +233,7 @@ extension TransactionConfirmationCoordinator: TransactionConfiguratorDelegate {
         rootViewController.viewModel.updateBalance()
     }
 
-    func gasLimitEstimateUpdated(to estimate: BigInt, in configurator: TransactionConfigurator) {
+    func gasLimitEstimateUpdated(to estimate: BigUInt, in configurator: TransactionConfigurator) {
         configureTransactionViewController?.configure(withEstimatedGasLimit: estimate, configurator: configurator)
 
         //TODO: improve these few time view updates
@@ -241,7 +241,7 @@ extension TransactionConfirmationCoordinator: TransactionConfiguratorDelegate {
         rootViewController.viewModel.updateBalance()
     }
 
-    func gasPriceEstimateUpdated(to estimate: BigInt, in configurator: TransactionConfigurator) {
+    func gasPriceEstimateUpdated(to estimate: BigUInt, in configurator: TransactionConfigurator) {
         configureTransactionViewController?.configure(withEstimatedGasPrice: estimate, configurator: configurator)
 
         //TODO: improve these few time view updates

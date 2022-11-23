@@ -5,14 +5,14 @@ import JSONRPCKit
 import BigInt
 
 struct GasPriceRequest: JSONRPCKit.Request {
-    typealias Response = BigInt
+    typealias Response = BigUInt
 
     var method: String {
         return "eth_gasPrice"
     }
 
     func response(from resultObject: Any) throws -> Response {
-        if let response = resultObject as? String, let value = BigInt(response.drop0x, radix: 16) {
+        if let response = resultObject as? String, let value = BigUInt(response.drop0x, radix: 16) {
             return value
         } else {
             throw CastError(actualValue: resultObject, expectedType: Response.self)

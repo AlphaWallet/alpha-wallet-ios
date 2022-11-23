@@ -52,7 +52,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
         do {
             let data = try encodeOrder(signedOrder: signedOrder, recipient: session.account.address)
 
-            let transaction = UnconfirmedTransaction(transactionType: .claimPaidErc875MagicLink(token), value: BigInt(signedOrder.order.price), recipient: nil, contract: signedOrder.order.contractAddress, data: data)
+            let transaction = UnconfirmedTransaction(transactionType: .claimPaidErc875MagicLink(token), value: BigUInt(signedOrder.order.price), recipient: nil, contract: signedOrder.order.contractAddress, data: data)
 
             let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: .claimPaidErc875MagicLink(confirmType: .signThenSend, price: signedOrder.order.price, numberOfTokens: numberOfTokens), analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
             coordinator.delegate = self

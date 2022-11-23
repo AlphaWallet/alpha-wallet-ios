@@ -5,7 +5,7 @@ import JSONRPCKit
 import BigInt
 
 struct EstimateGasRequest: JSONRPCKit.Request {
-    typealias Response = BigInt
+    typealias Response = BigUInt
 
     enum TransactionType {
         case normal(to: AlphaWallet.Address)
@@ -23,7 +23,7 @@ struct EstimateGasRequest: JSONRPCKit.Request {
 
     let from: AlphaWallet.Address
     let transactionType: TransactionType
-    let value: BigInt
+    let value: BigUInt
     let data: Data
 
     var method: String {
@@ -55,7 +55,7 @@ struct EstimateGasRequest: JSONRPCKit.Request {
     }
 
     func response(from resultObject: Any) throws -> Response {
-        if let response = resultObject as? String, let value = BigInt(response.drop0x, radix: 16) {
+        if let response = resultObject as? String, let value = BigUInt(response.drop0x, radix: 16) {
             return value
         } else {
             throw CastError(actualValue: resultObject, expectedType: Response.self)

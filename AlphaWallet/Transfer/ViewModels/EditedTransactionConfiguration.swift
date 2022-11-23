@@ -7,12 +7,12 @@ import AlphaWalletFoundation
 struct EditedTransactionConfiguration {
     private let formatter = EtherNumberFormatter.full
 
-    var gasPrice: BigInt {
-        return formatter.number(from: String(gasPriceRawValue), units: UnitConfiguration.gasPriceUnit) ?? BigInt()
+    var gasPrice: BigUInt {
+        return formatter.number(from: String(gasPriceRawValue), units: UnitConfiguration.gasPriceUnit).flatMap { BigUInt($0) } ?? BigUInt()
     }
 
-    var gasLimit: BigInt {
-        BigInt(String(gasLimitRawValue), radix: 10) ?? BigInt()
+    var gasLimit: BigUInt {
+        BigUInt(String(gasLimitRawValue), radix: 10) ?? BigUInt()
     }
 
     var data: Data {
@@ -32,7 +32,7 @@ struct EditedTransactionConfiguration {
     var overriddenMaxGasLimit: Int?
 
     let defaultMinGasLimit = Int(GasLimitConfiguration.minGasLimit)
-    let defaultMinGasPrice = Int(GasPriceConfiguration.minPrice / BigInt(UnitConfiguration.gasPriceUnit.rawValue))
+    let defaultMinGasPrice = Int(GasPriceConfiguration.minPrice / BigUInt(UnitConfiguration.gasPriceUnit.rawValue))
 
     private let defaultMaxGasLimit: Int
     private let defaultMaxGasPrice: Int
@@ -72,10 +72,10 @@ struct EditedTransactionConfiguration {
     init(configuration: TransactionConfiguration, server: RPCServer) {
         defaultMaxGasLimit = Int(GasLimitConfiguration.maxGasLimit(forServer: server))
         gasLimitRawValue = Int(configuration.gasLimit.description) ?? 21000
-        gasPriceRawValue = Int(configuration.gasPrice / BigInt(UnitConfiguration.gasPriceUnit.rawValue))
+        gasPriceRawValue = Int(configuration.gasPrice / BigUInt(UnitConfiguration.gasPriceUnit.rawValue))
         nonceRawValue = Int(configuration.nonce.flatMap { String($0) } ?? "")
         dataRawValue = configuration.data.hexEncoded.add0x
-        defaultMaxGasPrice = Int(GasPriceConfiguration.maxPrice(forServer: server) / BigInt(UnitConfiguration.gasPriceUnit.rawValue))
+        defaultMaxGasPrice = Int(GasPriceConfiguration.maxPrice(forServer: server) / BigUInt(UnitConfiguration.gasPriceUnit.rawValue))
 
         updateMaxGasLimitIfNeeded(gasLimitRawValue)
         updateMaxGasPriceIfNeeded(gasPriceRawValue)
@@ -93,7 +93,7 @@ struct EditedTransactionConfiguration {
         return gasLimit <= ConfigureTransaction.gasLimitMax && gasLimit >= 0
     }
 
-    var totalFee: BigInt {
+    var totalFee: BigUInt {
         return gasPrice * gasLimit
     }
 
