@@ -13,7 +13,7 @@ class TransactionCoordinator: NSObject, Coordinator {
     private let sessions: ServerDictionary<WalletSession>
     private var cancelable = Set<AnyCancellable>()
     private var transactionsService: TransactionsService
-    private let service: TokenViewModelState
+    private let tokensService: TokenViewModelState
     lazy var rootViewController: TransactionsViewController = {
         return makeTransactionsController()
     }()
@@ -27,9 +27,9 @@ class TransactionCoordinator: NSObject, Coordinator {
         sessions: ServerDictionary<WalletSession>,
         navigationController: UINavigationController = .withOverridenBarAppearence(),
         transactionsService: TransactionsService,
-        service: TokenViewModelState
+        tokensService: TokenViewModelState
     ) {
-        self.service = service
+        self.tokensService = tokensService
         self.analytics = analytics
         self.sessions = sessions
         self.navigationController = navigationController
@@ -67,7 +67,11 @@ class TransactionCoordinator: NSObject, Coordinator {
     }
 
     private func showTransaction(_ transactionRow: TransactionRow, on navigationController: UINavigationController) {
-        let controller = TransactionViewController(analytics: analytics, session: sessions[transactionRow.server], transactionRow: transactionRow, service: service, delegate: self)
+        let session = sessions[transactionRow.server]
+        let viewModel = TransactionDetailsViewModel(transactionsService: transactionsService, transactionRow: transactionRow, chainState: session.chainState, wallet: session.account, tokensService: tokensService, analytics: analytics)
+
+        let controller = TransactionDetailsViewController(viewModel: viewModel)
+        controller.delegate = self
         controller.hidesBottomBarWhenPushed = true
         controller.navigationItem.largeTitleDisplayMode = .never
 
@@ -124,5 +128,12 @@ extension TransactionCoordinator: CanOpenURL {
     }
 }
 
-extension TransactionCoordinator: TransactionViewControllerDelegate {
+extension TransactionCoordinator: TransactionDetailsViewControllerDelegate {
+    func didSelectShare(in viewController: TransactionDetailsViewController, item: URL, sender: UIBarButtonItem) {
+        let activityViewController = UIActivityViewController(activityItems: [item], applicationActivities: nil)
+        activityViewController.popoverPresentationController?.barButtonItem = sender
+
+        navigationController.present(activityViewController, animated: true)
+    }
+
 }

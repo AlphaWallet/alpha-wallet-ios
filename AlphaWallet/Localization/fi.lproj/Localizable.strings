@@ -34,6 +34,8 @@
 "transaction.id.label.title" = "Tilitapahtuman järjestysnumero";
 "transaction.blockNumber.label.title" = "Lohkon järjestysnumero";
 "transaction.nonce.label.title" = "Tilitapahtuman satunnaistunnus (nonce)";
+"transaction.amount.label.title" = "Amount";
+"transaction.network.label.title" = "Network";
 "confirmPayment.confirm.button.title" = "Vahvista";
 "confirmPayment.sign.button.title" = "Allekirjoita";
 "confirmPayment.reject.button.title" = "Peru";
@@ -61,7 +63,8 @@
 "OK" = "OK";
 "Password" = "Salasana";
 "Refresh" = "Päivitä";
-"request.addressCopied.title" = "Osoite kopioitu";
+"copiedToClipboard.title" = "%@ copied";
+"address" = "Address";
 "request.copyWallet.button.title" = "Kopioi lompakon osoite";
 "Retry" = "Yritä uudelleen";
 "Send" = "Lähetä";

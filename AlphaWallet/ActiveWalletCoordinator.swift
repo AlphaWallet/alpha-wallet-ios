@@ -332,7 +332,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
                 analytics: analytics,
                 sessions: sessionsProvider.activeSessions,
                 transactionsService: transactionsService,
-                service: tokenCollection)
+                tokensService: tokenCollection)
         coordinator.rootViewController.tabBarItem = ActiveWalletViewModel.Tabs.transactions.tabBarItem
         coordinator.navigationController.configureForLargeTitles()
         coordinator.delegate = self

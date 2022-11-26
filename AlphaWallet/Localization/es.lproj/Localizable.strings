@@ -32,8 +32,11 @@
 "transaction.to.label.title" = "A";
 "transaction.time.label.title" = "Hora de la transacción";
 "transaction.id.label.title" = "Transacción n.º";
+"transaction.id" = "Transaction ID";
 "transaction.blockNumber.label.title" = "Bloque n.º";
 "transaction.nonce.label.title" = "Nonce";
+"transaction.amount.label.title" = "Amount";
+"transaction.network.label.title" = "Network";
 "confirmPayment.confirm.button.title" = "Confirmar";
 "confirmPayment.sign.button.title" = "Sign";
 "confirmPayment.reject.button.title" = "Reject";
@@ -61,7 +64,8 @@
 "OK" = "OK";
 "Password" = "Contraseña";
 "Refresh" = "Actualizar";
-"request.addressCopied.title" = "Dirección copiada";
+"copiedToClipboard.title" = "%@ copied";
+"address" = "Address";
 "request.copyWallet.button.title" = "Copiar la dirección del monedero";
 "Retry" = "Reintentar";
 "Send" = "Enviar";

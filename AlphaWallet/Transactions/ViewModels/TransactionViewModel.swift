@@ -6,13 +6,12 @@ import BigInt
 import AlphaWalletFoundation
 
 struct TransactionViewModel {
-    private let transactionRow: TransactionRow
+    let transactionRow: TransactionRow
     private let chainState: ChainState
     private let wallet: Wallet
-    private let shortFormatter = EtherNumberFormatter.short
     private let fullFormatter = EtherNumberFormatter.full
 
-    private var server: RPCServer {
+    var server: RPCServer {
         return transactionRow.server
     }
 
@@ -41,10 +40,6 @@ struct TransactionViewModel {
         }
     }
 
-    var shortValue: TransactionValue {
-        return transactionValue(for: shortFormatter)
-    }
-
     var fullValue: TransactionValue {
         return transactionValue(for: fullFormatter)
     }
@@ -54,20 +49,14 @@ struct TransactionViewModel {
     }
 
     func amountAttributedString(for value: TransactionValue) -> NSAttributedString {
-        let amount = NSAttributedString(
-            string: amountWithSign(for: value.amount),
-            attributes: [
-                .font: Fonts.regular(size: 24) as Any,
-                .foregroundColor: amountTextColor,
-            ]
-        )
+        let amount = NSAttributedString(string: amountWithSign(for: value.amount), attributes: [
+            .font: Fonts.regular(size: 24) as Any,
+            .foregroundColor: amountTextColor,
+        ])
 
-        let currency = NSAttributedString(
-            string: " " + value.symbol,
-            attributes: [
-                .font: Fonts.regular(size: 16) as Any
-            ]
-        )
+        let currency = NSAttributedString(string: " " + value.symbol, attributes: [
+            .font: Fonts.regular(size: 16) as Any
+        ])
 
         return amount + currency
     }
@@ -90,13 +79,10 @@ struct TransactionViewModel {
             }
         case .group(let transaction):
             return TransactionValue(amount: formatter.string(from: BigInt(transaction.value) ?? BigInt()), symbol: server.symbol)
-        case .item(transaction: let transaction, operation: let operation):
+        case .item(let transaction, let operation):
             if let symbol = operation.symbol {
                 if operation.operationType == .erc721TokenTransfer || operation.operationType == .erc875TokenTransfer {
-                    return TransactionValue(
-                            amount: operation.value,
-                            symbol: symbol
-                    )
+                    return TransactionValue(amount: operation.value, symbol: symbol)
                 } else {
                     return TransactionValue(amount: formatter.string(from: BigInt(operation.value) ?? BigInt(), decimals: operation.decimals), symbol: symbol)
                 }

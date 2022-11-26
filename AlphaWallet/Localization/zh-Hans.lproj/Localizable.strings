@@ -32,8 +32,11 @@
 "transaction.to.label.title" = "接收地址";
 "transaction.time.label.title" = "交易时间";
 "transaction.id.label.title" = "交易 #";
+"transaction.id" = "Transaction ID";
 "transaction.blockNumber.label.title" = "区块 #";
 "transaction.nonce.label.title" = "Nonce";
+"transaction.amount.label.title" = "Amount";
+"transaction.network.label.title" = "Network";
 "confirmPayment.confirm.button.title" = "确认";
 "confirmPayment.sign.button.title" = "Sign";
 "confirmPayment.reject.button.title" = "Reject";
@@ -61,7 +64,8 @@
 "OK" = "确定";
 "Password" = "密码";
 "Refresh" = "刷新";
-"request.addressCopied.title" = "地址已复制";
+"copiedToClipboard.title" = "%@ copied";
+"address" = "Address";
 "request.copyWallet.button.title" = "复制钱包地址";
 "Retry" = "重试";
 "Send" = "发送";
