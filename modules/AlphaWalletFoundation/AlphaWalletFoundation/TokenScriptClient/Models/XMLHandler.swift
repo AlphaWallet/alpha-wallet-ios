@@ -759,7 +759,7 @@ final class ThreadSafe {
 }
 
 /// This class delegates all the functionality to a singleton of the actual XML parser. 1 for each contract. So we just parse the XML file 1 time only for each contract
-public class XMLHandler {
+public struct XMLHandler {
     public static var assetAttributeProvider = CallForAssetAttributeProvider()
     private let privateXMLHandler: PrivateXMLHandler
     private let baseXMLHandler: PrivateXMLHandler?
@@ -910,11 +910,11 @@ public class XMLHandler {
         return fieldIdsAndNames
     }
 
-    public convenience init(token: TokenScriptSupportable, assetDefinitionStore: AssetDefinitionStore) {
+    public init(token: TokenScriptSupportable, assetDefinitionStore: AssetDefinitionStore) {
         self.init(contract: token.contractAddress, tokenType: token.type, assetDefinitionStore: assetDefinitionStore)
     }
 
-    public convenience init(contract: AlphaWallet.Address, tokenType: TokenType, assetDefinitionStore: AssetDefinitionStore) {
+    public init(contract: AlphaWallet.Address, tokenType: TokenType, assetDefinitionStore: AssetDefinitionStore) {
         self.init(contract: contract, optionalTokenType: tokenType, assetDefinitionStore: assetDefinitionStore)
     }
 
