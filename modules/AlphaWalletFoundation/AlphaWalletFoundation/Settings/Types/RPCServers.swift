@@ -760,7 +760,6 @@ public enum RPCServer: Hashable, CaseIterable {
             .arbitrumRinkeby,
             .klaytnCypress,
             .klaytnBaobabTestnet,
-            .candle,
             .palm,
             .palmTestnet,
             //.ioTeX, //TODO: Disabled as non in Phase 1 anymore, need to take a look on transactions, native balances
