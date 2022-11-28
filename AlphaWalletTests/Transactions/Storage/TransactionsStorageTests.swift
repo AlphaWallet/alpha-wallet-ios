@@ -57,7 +57,7 @@ class TransactionsStorageTests: XCTestCase {
 
         XCTAssertEqual(2, storage.transactionCount(forServer: .main))
 
-        storage.delete([one])
+        storage.delete(transactions: [one])
 
         XCTAssertEqual(1, storage.transactionCount(forServer: .main))
 
