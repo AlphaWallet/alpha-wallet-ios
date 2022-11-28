@@ -266,6 +266,10 @@ struct Configuration {
             static let textViewFailed = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.silver()!, darkColor: R.color.porcelain()!)
             }
+            static let progressDialogBackground = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.alabaster()!, darkColor: R.color.venus()!)
+            }
+
         }
     }
 }
