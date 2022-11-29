@@ -16,7 +16,6 @@ protocol SettingsCoordinatorDelegate: class, CanOpenURL {
     func didRestart(with account: Wallet, in coordinator: SettingsCoordinator, reason: RestartReason)
     func didCancel(in coordinator: SettingsCoordinator)
     func didPressShowWallet(in coordinator: SettingsCoordinator)
-    func assetDefinitionsOverrideViewController(for: SettingsCoordinator) -> UIViewController?
     func showConsole(in coordinator: SettingsCoordinator)
     func restartToReloadServersQueued(in coordinator: SettingsCoordinator)
 }
@@ -38,6 +37,7 @@ class SettingsCoordinator: Coordinator {
     }
     private let lock: Lock
     private let currencyService: CurrencyService
+    private let tokenScriptOverridesFileManager: TokenScriptOverridesFileManager
 
     let navigationController: UINavigationController
     weak var delegate: SettingsCoordinatorDelegate?
@@ -66,8 +66,9 @@ class SettingsCoordinator: Coordinator {
         blockiesGenerator: BlockiesGenerator,
         domainResolutionService: DomainResolutionServiceType,
         lock: Lock,
-        currencyService: CurrencyService
-    ) {
+        currencyService: CurrencyService,
+        tokenScriptOverridesFileManager: TokenScriptOverridesFileManager) {
+        self.tokenScriptOverridesFileManager = tokenScriptOverridesFileManager
         self.navigationController = navigationController
         self.lock = lock
         self.keystore = keystore
@@ -91,16 +92,6 @@ class SettingsCoordinator: Coordinator {
 
     func restart(for wallet: Wallet, reason: RestartReason) {
         delegate?.didRestart(with: wallet, in: self, reason: reason)
-    }
-
-    private func showTools(in controller: AdvancedSettingsViewController) {
-        let viewModel = ToolsViewModel(config: config)
-        let controller = ToolsViewController(viewModel: viewModel)
-        controller.delegate = self
-        controller.hidesBottomBarWhenPushed = true
-        controller.navigationItem.largeTitleDisplayMode = .never
-        
-        navigationController.pushViewController(controller, animated: true)
     }
 
     func showBlockscanChatUnreadCount(_ count: Int?) {
@@ -311,7 +302,13 @@ extension SettingsCoordinator: BackupCoordinatorDelegate {
 
 extension SettingsCoordinator: AdvancedSettingsViewControllerDelegate {
     func moreSelected(in controller: AdvancedSettingsViewController) {
-        showTools(in: controller)
+        let viewModel = ToolsViewModel(config: config)
+        let viewController = ToolsViewController(viewModel: viewModel)
+        viewController.delegate = self
+        viewController.hidesBottomBarWhenPushed = true
+        viewController.navigationItem.largeTitleDisplayMode = .never
+
+        navigationController.pushViewController(viewController, animated: true)
     }
 
     func clearBrowserCacheSelected(in controller: AdvancedSettingsViewController) {
@@ -322,10 +319,11 @@ extension SettingsCoordinator: AdvancedSettingsViewControllerDelegate {
     }
 
     func tokenScriptSelected(in controller: AdvancedSettingsViewController) {
-        guard let controller = delegate?.assetDefinitionsOverrideViewController(for: self) else { return }
-        controller.navigationItem.largeTitleDisplayMode = .never
+        let coordinator = AssetDefinitionStoreCoordinator(tokenScriptOverridesFileManager: tokenScriptOverridesFileManager, navigationController: navigationController)
+        coordinator.delegate = self
+        addCoordinator(coordinator)
 
-        navigationController.pushViewController(controller, animated: true)
+        coordinator.start()
     }
 
     func changeLanguageSelected(in controller: AdvancedSettingsViewController) {
@@ -380,6 +378,12 @@ extension SettingsCoordinator: ChangeCurrencyCoordinatorDelegate {
     }
 
     func didClose(in coordinator: ChangeCurrencyCoordinator) {
+        removeCoordinator(coordinator)
+    }
+}
+
+extension SettingsCoordinator: AssetDefinitionStoreCoordinatorDelegate {
+    func didClose(in coordinator: AssetDefinitionStoreCoordinator) {
         removeCoordinator(coordinator)
     }
 }

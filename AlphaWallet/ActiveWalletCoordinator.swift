@@ -7,7 +7,6 @@ import AlphaWalletFoundation
 protocol ActiveWalletCoordinatorDelegate: AnyObject {
     func didCancel(in coordinator: ActiveWalletCoordinator)
     func didShowWallet(in coordinator: ActiveWalletCoordinator)
-    func assetDefinitionsOverrideViewController(for coordinator: ActiveWalletCoordinator) -> UIViewController?
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: ActiveWalletCoordinator, source: UrlSource)
     func showWallets(in coordinator: ActiveWalletCoordinator)
     func didRestart(in coordinator: ActiveWalletCoordinator, reason: RestartReason, wallet: Wallet)
@@ -132,38 +131,40 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private let tokenSwapper: TokenSwapper
     private let tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable
     private let lock: Lock
+    private let tokenScriptOverridesFileManager: TokenScriptOverridesFileManager
+    private var cancelable = Set<AnyCancellable>()
 
-    init(
-            navigationController: UINavigationController = NavigationController(),
-            walletAddressesStore: WalletAddressesStore,
-            activitiesPipeLine: ActivitiesPipeLine,
-            wallet: Wallet,
-            keystore: Keystore,
-            assetDefinitionStore: AssetDefinitionStore,
-            config: Config,
-            appTracker: AppTracker = AppTracker(),
-            analytics: AnalyticsLogger,
-            nftProvider: NFTProvider,
-            restartQueue: RestartTaskQueue,
-            universalLinkCoordinator: UniversalLinkService,
-            accountsCoordinator: AccountsCoordinator,
-            walletBalanceService: WalletBalanceService,
-            coinTickersFetcher: CoinTickersFetcher,
-            tokenActionsService: TokenActionsService,
-            walletConnectCoordinator: WalletConnectCoordinator,
-            notificationService: NotificationService,
-            blockiesGenerator: BlockiesGenerator,
-            domainResolutionService: DomainResolutionServiceType,
-            tokenSwapper: TokenSwapper,
-            sessionsProvider: SessionsProvider,
-            tokenCollection: TokenCollection,
-            importToken: ImportToken,
-            transactionsDataStore: TransactionDataStore,
-            tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable,
-            lock: Lock,
-            currencyService: CurrencyService
-    ) {
+    init(navigationController: UINavigationController = NavigationController(),
+         walletAddressesStore: WalletAddressesStore,
+         activitiesPipeLine: ActivitiesPipeLine,
+         wallet: Wallet,
+         keystore: Keystore,
+         assetDefinitionStore: AssetDefinitionStore,
+         config: Config,
+         appTracker: AppTracker = AppTracker(),
+         analytics: AnalyticsLogger,
+         nftProvider: NFTProvider,
+         restartQueue: RestartTaskQueue,
+         universalLinkCoordinator: UniversalLinkService,
+         accountsCoordinator: AccountsCoordinator,
+         walletBalanceService: WalletBalanceService,
+         coinTickersFetcher: CoinTickersFetcher,
+         tokenActionsService: TokenActionsService,
+         walletConnectCoordinator: WalletConnectCoordinator,
+         notificationService: NotificationService,
+         blockiesGenerator: BlockiesGenerator,
+         domainResolutionService: DomainResolutionServiceType,
+         tokenSwapper: TokenSwapper,
+         sessionsProvider: SessionsProvider,
+         tokenCollection: TokenCollection,
+         importToken: ImportToken,
+         transactionsDataStore: TransactionDataStore,
+         tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable,
+         lock: Lock,
+         currencyService: CurrencyService,
+         tokenScriptOverridesFileManager: TokenScriptOverridesFileManager) {
         self.currencyService = currencyService
+        self.tokenScriptOverridesFileManager = tokenScriptOverridesFileManager
         self.lock = lock
         self.tokensService = tokensService
         self.transactionsDataStore = transactionsDataStore
@@ -231,6 +232,22 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
 
         showWhatsNew()
         notificationService.start(wallet: wallet)
+        handleTokenScriptOverrideImport()
+    }
+
+    private func handleTokenScriptOverrideImport() {
+        tokenScriptOverridesFileManager.importTokenScriptOverridesFileEvent
+            .sink { [weak self] event in
+                switch event {
+                case .failure(let error):
+                    self?.show(error: error)
+                case .success(let override):
+                    self?.addImported(contract: override.contract, forServer: override.server)
+                    if !override.destinationFileInUse {
+                        self?.show(openedURL: override.filename)
+                    }
+                }
+            }.store(in: &cancelable)
     }
 
     private func showHelpUs() {
@@ -365,19 +382,20 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
 
     private func createSettingsCoordinator(keystore: Keystore, promptBackupCoordinator: PromptBackupCoordinator) -> SettingsCoordinator {
         let coordinator = SettingsCoordinator(
-                keystore: keystore,
-                config: config,
-                sessions: sessionsProvider.activeSessions,
-                restartQueue: restartQueue,
-                promptBackupCoordinator: promptBackupCoordinator,
-                analytics: analytics,
-                walletConnectCoordinator: walletConnectCoordinator,
-                walletBalanceService: walletBalanceService,
-                blockscanChatService: blockscanChatService,
-                blockiesGenerator: blockiesGenerator,
-                domainResolutionService: domainResolutionService,
-                lock: lock,
-                currencyService: currencyService)
+            keystore: keystore,
+            config: config,
+            sessions: sessionsProvider.activeSessions,
+            restartQueue: restartQueue,
+            promptBackupCoordinator: promptBackupCoordinator,
+            analytics: analytics,
+            walletConnectCoordinator: walletConnectCoordinator,
+            walletBalanceService: walletBalanceService,
+            blockscanChatService: blockscanChatService,
+            blockiesGenerator: blockiesGenerator,
+            domainResolutionService: domainResolutionService,
+            lock: lock,
+            currencyService: currencyService,
+            tokenScriptOverridesFileManager: tokenScriptOverridesFileManager)
         coordinator.rootViewController.tabBarItem = ActiveWalletViewModel.Tabs.settings.tabBarItem
         coordinator.navigationController.configureForLargeTitles()
         coordinator.delegate = self
@@ -672,10 +690,6 @@ extension ActiveWalletCoordinator: SettingsCoordinatorDelegate {
         //We are only showing the QR code and some text for this address. Maybe have to rework graphic design so that server isn't necessary
         showPaymentFlow(for: .request, server: config.anyEnabledServer(), navigationController: coordinator.navigationController)
         delegate?.didShowWallet(in: self)
-    }
-
-    func assetDefinitionsOverrideViewController(for: SettingsCoordinator) -> UIViewController? {
-        return delegate?.assetDefinitionsOverrideViewController(for: self)
     }
 
     func restartToReloadServersQueued(in coordinator: SettingsCoordinator) {

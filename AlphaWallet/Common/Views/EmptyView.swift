@@ -182,6 +182,14 @@ extension EmptyView {
             .configure(insets: .zero)
     }
 
+    static func tokenscriptOverridesEmptyView() -> EmptyView {
+        EmptyView()
+            .configure(image: R.image.iconsIllustrationsSearchResults())
+            .configure(title: R.string.localizable.tokenscriptOverridesEmpty())
+            .configure(spacing: 30)
+            .configure(insets: .zero)
+    }
+
     static func activitiesEmptyView() -> EmptyView {
         EmptyView()
             .configure(image: R.image.activities_empty_list())

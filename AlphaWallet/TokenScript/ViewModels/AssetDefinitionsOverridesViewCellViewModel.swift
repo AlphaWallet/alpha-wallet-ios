@@ -2,9 +2,9 @@
 
 import UIKit
 
-struct AssetDefinitionsOverridesViewCellViewModel {
-    private let url: URL
-    private let fileExtension: String
+struct AssetDefinitionsOverridesViewCellViewModel: Hashable {
+    let url: URL
+    let fileExtension: String
 
     init(url: URL, fileExtension: String) {
         self.url = url
@@ -15,9 +15,8 @@ struct AssetDefinitionsOverridesViewCellViewModel {
         return url.lastPathComponent
     }
 
-    let backgroundColor = Colors.appBackground
-
-    let textColor = Colors.appText
+    let backgroundColor = Configuration.Color.Semantic.defaultViewBackground
+    let textColor = Configuration.Color.Semantic.defaultForegroundText
     let textFont = Fonts.regular(size: 18)
     let textLineBreakMode = NSLineBreakMode.byTruncatingMiddle
 }
