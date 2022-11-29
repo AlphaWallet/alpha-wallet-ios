@@ -21,28 +21,22 @@ public struct Config {
 
     public let development = Development()
 
-    //TODO `currency` was originally a instance-side property, but was refactored out. Maybe better if it it's moved elsewhere
-    public static func getCurrency() -> Currency {
-        let defaults = UserDefaults.standardOrForTests
+    public static var currency: Currency {
+        get {
+            let defaults = UserDefaults.standardOrForTests
 
-        //If it is saved currency
-        if let currency = defaults.string(forKey: Keys.currencyID) {
-            return Currency(rawValue: currency)!
+            if let currency = defaults.string(forKey: Keys.currency) {
+                return Currency(rawValue: currency)!
+            } else if let currency = Currency.allCases.first(where: { $0.code == Config.locale.currencySymbol }) {
+                return currency
+            } else {
+                return Currency.USD
+            }
         }
-        //If the is not saved currency try to use user local currency if it is supported.
-        let availableCurrency = Currency.allValues.first { currency in
-            return currency.rawValue == Config.locale.currencySymbol
+        set {
+            let defaults = UserDefaults.standardOrForTests
+            defaults.set(newValue.code, forKey: Keys.currency)
         }
-        if let isAvailableCurrency = availableCurrency {
-            return isAvailableCurrency
-        }
-        //If non of the previous is not working return USD.
-        return Currency.USD
-    }
-
-    public static func setCurrency(_ currency: Currency) {
-        let defaults = UserDefaults.standardOrForTests
-        defaults.set(currency.rawValue, forKey: Keys.currencyID)
     }
 
     //TODO `locale` was originally a instance-side property, but was refactored out. Maybe better if it it's moved elsewhere
@@ -157,7 +151,7 @@ public struct Config {
     public struct Keys {
         static let chainID = "chainID"
         static let isCryptoPrimaryCurrency = "isCryptoPrimaryCurrency"
-        static let currencyID = "currencyID"
+        static let currency = "currencyID"
         static let dAppBrowser = "dAppBrowser"
         //There *is* a trailing space in the key
         static let walletAddressesAlreadyPromptedForBackUp = "walletAddressesAlreadyPromptedForBackUp "

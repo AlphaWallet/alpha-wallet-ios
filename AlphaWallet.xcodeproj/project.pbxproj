@@ -660,6 +660,11 @@
 		87928E5528A50AFB0001FE67 /* NavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87928E5428A50AFB0001FE67 /* NavigationController.swift */; };
 		8793A4772919081400BCF849 /* tokensToImport.json in Resources */ = {isa = PBXBuildFile; fileRef = 8793A4762919081400BCF849 /* tokensToImport.json */; };
 		8793A492291A4E8600BCF849 /* ConsoleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8793A491291A4E8600BCF849 /* ConsoleViewModel.swift */; };
+		8793A49E291A5DA100BCF849 /* ChangeCurrencyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8793A497291A5DA100BCF849 /* ChangeCurrencyViewModel.swift */; };
+		8793A49F291A5DA100BCF849 /* ChangeCurrencyCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8793A499291A5DA100BCF849 /* ChangeCurrencyCoordinator.swift */; };
+		8793A4A0291A5DA100BCF849 /* CurrencyTableViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8793A49B291A5DA100BCF849 /* CurrencyTableViewCellViewModel.swift */; };
+		8793A4A1291A5DA100BCF849 /* ChangeCurrencyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8793A49C291A5DA100BCF849 /* ChangeCurrencyViewController.swift */; };
+		8793A4A2291A5DA100BCF849 /* CurrencyTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8793A49D291A5DA100BCF849 /* CurrencyTableViewCell.swift */; };
 		8795994526049EF8006722B2 /* ActivityStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8795994426049EF8006722B2 /* ActivityStateView.swift */; };
 		8795994726049F0F006722B2 /* ActivityStateViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8795994626049F0F006722B2 /* ActivityStateViewViewModel.swift */; };
 		8797362524E6C20C0042BBCC /* TransactionConfirmationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8797362424E6C20C0042BBCC /* TransactionConfirmationCoordinator.swift */; };
@@ -1529,6 +1534,11 @@
 		87928E5428A50AFB0001FE67 /* NavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationController.swift; sourceTree = "<group>"; };
 		8793A4762919081400BCF849 /* tokensToImport.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = tokensToImport.json; sourceTree = "<group>"; };
 		8793A491291A4E8600BCF849 /* ConsoleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleViewModel.swift; sourceTree = "<group>"; };
+		8793A497291A5DA100BCF849 /* ChangeCurrencyViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChangeCurrencyViewModel.swift; sourceTree = "<group>"; };
+		8793A499291A5DA100BCF849 /* ChangeCurrencyCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChangeCurrencyCoordinator.swift; sourceTree = "<group>"; };
+		8793A49B291A5DA100BCF849 /* CurrencyTableViewCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrencyTableViewCellViewModel.swift; sourceTree = "<group>"; };
+		8793A49C291A5DA100BCF849 /* ChangeCurrencyViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChangeCurrencyViewController.swift; sourceTree = "<group>"; };
+		8793A49D291A5DA100BCF849 /* CurrencyTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrencyTableViewCell.swift; sourceTree = "<group>"; };
 		8795042F27088C2B0075EEC2 /* AlphaWalletSafariExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AlphaWalletSafariExtension.entitlements; sourceTree = "<group>"; };
 		8795994426049EF8006722B2 /* ActivityStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityStateView.swift; sourceTree = "<group>"; };
 		8795994626049F0F006722B2 /* ActivityStateViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityStateViewViewModel.swift; sourceTree = "<group>"; };
@@ -2304,6 +2314,7 @@
 		2996F1441F6C9875005C33AE /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				8793A495291A5DA100BCF849 /* ChangeCurrency */,
 				02645121277206C0009260DC /* TableViewSection.swift */,
 				02645123277217D9009260DC /* CustomRpcTableViewSection.swift */,
 				02F4E8C32771C07500D89C19 /* SaveCustomRpcBrowseDataController.swift */,
@@ -3949,6 +3960,42 @@
 			path = AlphaWalletShare;
 			sourceTree = "<group>";
 		};
+		8793A495291A5DA100BCF849 /* ChangeCurrency */ = {
+			isa = PBXGroup;
+			children = (
+				8793A496291A5DA100BCF849 /* ViewModel */,
+				8793A498291A5DA100BCF849 /* Coordinator */,
+				8793A49A291A5DA100BCF849 /* ViewController */,
+			);
+			path = ChangeCurrency;
+			sourceTree = "<group>";
+		};
+		8793A496291A5DA100BCF849 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				8793A497291A5DA100BCF849 /* ChangeCurrencyViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		8793A498291A5DA100BCF849 /* Coordinator */ = {
+			isa = PBXGroup;
+			children = (
+				8793A499291A5DA100BCF849 /* ChangeCurrencyCoordinator.swift */,
+			);
+			path = Coordinator;
+			sourceTree = "<group>";
+		};
+		8793A49A291A5DA100BCF849 /* ViewController */ = {
+			isa = PBXGroup;
+			children = (
+				8793A49B291A5DA100BCF849 /* CurrencyTableViewCellViewModel.swift */,
+				8793A49C291A5DA100BCF849 /* ChangeCurrencyViewController.swift */,
+				8793A49D291A5DA100BCF849 /* CurrencyTableViewCell.swift */,
+			);
+			path = ViewController;
+			sourceTree = "<group>";
+		};
 		879F184D26E73EBC000602F2 /* Collectibles */ = {
 			isa = PBXGroup;
 			children = (
@@ -4955,6 +5002,7 @@
 				879F184426E73BFF000602F2 /* SingleNFTAssetSelectionView.swift in Sources */,
 				2996F14D1F6CA743005C33AE /* UIViewController.swift in Sources */,
 				875CA92428BF8B9E0020FA48 /* DeepLinkRequesterViewModel.swift in Sources */,
+				8793A4A0291A5DA100BCF849 /* CurrencyTableViewCellViewModel.swift in Sources */,
 				87E2555824F52EBF00F025F7 /* GasSpeedTableViewCellViewModel.swift in Sources */,
 				296421991F70C1F900EB363B /* EmptyView.swift in Sources */,
 				73C41C71201B46AD00243C6C /* LockEnterPasscodeViewModel.swift in Sources */,
@@ -4990,6 +5038,7 @@
 				293E626F1FA2ED1400CB0A66 /* ActiveWalletCoordinator.swift in Sources */,
 				87757290282EA12100EAD907 /* ViewRounding.swift in Sources */,
 				87F15AED27F1EA6900EB9787 /* SwapQuoteDetailsViewModel.swift in Sources */,
+				8793A4A2291A5DA100BCF849 /* CurrencyTableViewCell.swift in Sources */,
 				8736214E264D3B0000AAF794 /* BalloonMarker.swift in Sources */,
 				87E2555024F52E3600F025F7 /* SlidableTextField.swift in Sources */,
 				29C0FCE1200DA94A004A13CB /* SignMessageCoordinator.swift in Sources */,
@@ -5032,6 +5081,7 @@
 				02220CFC273A9A02006A09BF /* SaveCustomRpcCoordinator.swift in Sources */,
 				29F114F41FA8117C00114A29 /* SendCoordinator.swift in Sources */,
 				87ED8FAF2488EA9C0005C69B /* SupportViewModel.swift in Sources */,
+				8793A4A1291A5DA100BCF849 /* ChangeCurrencyViewController.swift in Sources */,
 				87D847452744EFA300EDBA80 /* JSONRPC_2_0.swift in Sources */,
 				293B8B411F707F4600356286 /* TransactionViewModel.swift in Sources */,
 				87ED8F99248541380005C69B /* AdvancedSettingsViewModel.swift in Sources */,
@@ -5081,6 +5131,7 @@
 				879F184226E73BCF000602F2 /* SelectableNFTAssetTableViewCell.swift in Sources */,
 				442FC258BAEFDE2D64E48D0D /* NFTCollectionCoordinator.swift in Sources */,
 				8703F66B26136A500082EE25 /* RenameWalletViewController.swift in Sources */,
+				8793A49F291A5DA100BCF849 /* ChangeCurrencyCoordinator.swift in Sources */,
 				87BBF9912563DD7600FF4846 /* WalletConnectActionType.swift in Sources */,
 				879E1E42264BFB9B006CD362 /* TokenHistoryPeriodSelectorView.swift in Sources */,
 				87BBF9942563DD7600FF4846 /* WalletConnectSessionFieldView.swift in Sources */,
@@ -5497,6 +5548,7 @@
 				5E7C7F61D540CAFC68D6843D /* WebImageView.swift in Sources */,
 				02D8BF8B277D570900EEE8E9 /* SaveCustomRpcManualEntryViewController.swift in Sources */,
 				5E7C72B4302A10E137EEF94A /* DappRequestSwitchCustomChainCoordinator.swift in Sources */,
+				8793A49E291A5DA100BCF849 /* ChangeCurrencyViewModel.swift in Sources */,
 				8737851428DD8A6B00CE836F /* SwapRouteSummaryViewModel.swift in Sources */,
 				879F185526E74042000602F2 /* NFTCollectionInfoPageView.swift in Sources */,
 				87281AF0288521CB0066E31E /* DummySearchView.swift in Sources */,
