@@ -32,6 +32,7 @@
 "transaction.to.label.title" = "Vastaanottaja";
 "transaction.time.label.title" = "Tilitapahtuman ajankohta";
 "transaction.id.label.title" = "Tilitapahtuman järjestysnumero";
+"transaction.id" = "Transaction ID";
 "transaction.blockNumber.label.title" = "Lohkon järjestysnumero";
 "transaction.nonce.label.title" = "Tilitapahtuman satunnaistunnus (nonce)";
 "transaction.amount.label.title" = "Amount";
