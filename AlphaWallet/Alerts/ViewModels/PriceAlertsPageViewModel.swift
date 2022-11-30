@@ -1,5 +1,5 @@
 //
-//  PriceAlertsPageViewModel.swift
+//  PriceAlertsViewModel.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 17.09.2021.
@@ -7,23 +7,74 @@
 
 import UIKit
 import AlphaWalletFoundation
+import Combine
 
-struct PriceAlertsPageViewModel {
-    var title: String { return R.string.localizable.priceAlertNavigationTitle() }
+struct PriceAlertsViewModelInput {
+    let updateAlert: AnyPublisher<(value: Bool, indexPath: IndexPath), Never>
+    let removeAlert: AnyPublisher<IndexPath, Never>
+}
 
-    var backgroundColor: UIColor = Colors.appWhite
-    var alerts: [PriceAlert]
+struct PriceAlertsViewModelOutput {
+    let viewState: AnyPublisher<PriceAlertsViewModel.ViewState, Never>
+}
 
-    init(alerts: [PriceAlert]?) {
-        self.alerts = alerts ?? []
+class PriceAlertsViewModel {
+    private let alertService: PriceAlertServiceType
+    private let token: Token
+    private var cancelable = Set<AnyCancellable>()
+    
+    init(alertService: PriceAlertServiceType, token: Token) {
+        self.alertService = alertService
+        self.token = token
     }
 
-    var addNewAlertViewModel: ShowAddHideTokensViewModel {
-        return .init(addHideTokensIcon: R.image.add_hide_tokens(), addHideTokensTitle: R.string.localizable.priceAlertNewAlert(), backgroundColor: R.color.alabaster()!, badgeText: nil)
+    func transform(input: PriceAlertsViewModelInput) -> PriceAlertsViewModelOutput {
+        input.removeAlert
+            .sink { [alertService] in alertService.remove(indexPath: $0) }
+            .store(in: &cancelable)
+
+        input.updateAlert
+            .sink { [alertService] in alertService.update(indexPath: $0.indexPath, update: .enabled($0.value)) }
+            .store(in: &cancelable)
+
+        let viewState = alertService.alertsPublisher(forStrategy: .token(token))
+            .map { $0.map { PriceAlertTableViewCellViewModel(alert: $0) } }
+            .map { [SectionViewModel(section: .alerts, views: $0)] }
+            .map { ViewState(snapshot: self.buildSnapshot(for: $0)) }
+            .eraseToAnyPublisher()
+
+        return .init(viewState: viewState)
     }
 
-    mutating func removeAlert(indexPath: IndexPath) {
-        alerts.remove(at: indexPath.row)
+    private func buildSnapshot(for viewModels: [SectionViewModel]) -> PriceAlertsViewModel.Snapshot {
+        var snapshot = PriceAlertsViewModel.Snapshot()
+        let sections = viewModels.map { $0.section }
+        snapshot.appendSections(sections)
+        for each in viewModels {
+            snapshot.appendItems(each.views, toSection: each.section)
+        }
+
+        return snapshot
+    }
+}
+
+extension PriceAlertsViewModel {
+    class DataSource: UITableViewDiffableDataSource<PriceAlertsViewModel.Section, PriceAlertTableViewCellViewModel> {}
+    typealias Snapshot = NSDiffableDataSourceSnapshot<PriceAlertsViewModel.Section, PriceAlertTableViewCellViewModel>
+
+    enum Section: Int, Hashable, CaseIterable {
+        case alerts
+    }
+
+    struct SectionViewModel {
+        let section: Section
+        let views: [PriceAlertTableViewCellViewModel]
+    }
+
+    struct ViewState {
+        let animatingDifferences: Bool = false
+        let snapshot: Snapshot
+        let addNewAlertViewModel = ShowAddHideTokensViewModel(addHideTokensIcon: R.image.add_hide_tokens(), addHideTokensTitle: R.string.localizable.priceAlertNewAlert(), backgroundColor: Configuration.Color.Semantic.tableViewHeaderBackground, badgeText: nil)
     }
 }
 

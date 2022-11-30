@@ -12,7 +12,34 @@ public enum PriceTarget: String, Codable {
     case below
 }
 
-public enum AlertType: Codable {
+public enum AlertType {
+    case price(priceTarget: PriceTarget, value: Double)
+
+    public init(value: Double, marketPrice: Double) {
+        let priceTarget: PriceTarget = value > marketPrice ? .above : .below
+        self = .price(priceTarget: priceTarget, value: value)
+    }
+}
+
+public struct PriceAlert {
+    public var type: AlertType
+    public var isEnabled: Bool
+    public let addressAndRPCServer: AddressAndRPCServer
+}
+
+extension PriceAlert: Codable, Equatable, Hashable {
+    public init(type: AlertType, token: Token, isEnabled: Bool) {
+        self.addressAndRPCServer = token.addressAndRPCServer
+        self.type = type
+        self.isEnabled = isEnabled
+    }
+
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        return lhs.addressAndRPCServer == rhs.addressAndRPCServer && lhs.isEnabled == rhs.isEnabled && lhs.type == rhs.type
+    }
+}
+
+extension AlertType: Codable, Hashable {
     private enum CodingKeys: String, CodingKey {
         case priceTarget
         case value
@@ -35,28 +62,5 @@ public enum AlertType: Codable {
         let value: Double = container.decode(Double.self, forKey: .value, defaultValue: 0.0)
 
         self = .price(priceTarget: priceTarget, value: value)
-    }
-
-    case price(priceTarget: PriceTarget, value: Double)
-
-    public init(value: Double, marketPrice: Double) {
-        let priceTarget: PriceTarget = value > marketPrice ? .above : .below
-        self = .price(priceTarget: priceTarget, value: value)
-    }
-}
-
-public struct PriceAlert: Codable, Equatable {
-    public var type: AlertType
-    public var isEnabled: Bool
-    public let addressAndRPCServer: AddressAndRPCServer
-
-    public init(type: AlertType, token: Token, isEnabled: Bool) {
-        self.addressAndRPCServer = token.addressAndRPCServer
-        self.type = type
-        self.isEnabled = isEnabled
-    }
-
-    public static func == (lhs: Self, rhs: Self) -> Bool {
-        return lhs.addressAndRPCServer == rhs.addressAndRPCServer
     }
 }

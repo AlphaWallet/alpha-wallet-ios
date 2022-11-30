@@ -87,7 +87,7 @@ public class BaseCoinTickersFetcher {
         let publishers = periods.map { fetchChartHistory(force: force, period: $0, for: token, currency: Currency.USD.rawValue) }
 
         return Publishers.MergeMany(publishers).collect()
-            .map { $0.reorder(by: periods)/*.map { $0.history }*/ }
+            .map { $0.reorder(by: periods) }
             .map { mapped -> [ChartHistoryPeriod: ChartHistory] in
                 var values: [ChartHistoryPeriod: ChartHistory] = [:]
                 for each in mapped {
@@ -133,6 +133,8 @@ public class BaseCoinTickersFetcher {
     }
 
     private func hasExpired(history mappedChartHistory: MappedChartHistory, for period: ChartHistoryPeriod) -> Bool {
+        guard ReachabilityManager().isReachable else { return false }
+        
         let hasCacheExpired: Bool
         switch period {
         case .day:

@@ -410,7 +410,6 @@ extension TokensCoordinator: EditPriceAlertCoordinatorDelegate {
 }
 
 extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
-
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: TransactionConfirmationCoordinator) {
         delegate?.didSendTransaction(transaction, inCoordinator: coordinator)
     }

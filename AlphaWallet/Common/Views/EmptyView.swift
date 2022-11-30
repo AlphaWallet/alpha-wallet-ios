@@ -190,12 +190,12 @@ extension EmptyView {
             .configure(insets: .zero)
     }
 
-    static func priceAlertsEmpryView() -> EmptyView {
-        EmptyView()
+    static func priceAlertsEmptyView() -> EmptyView {
+        EmptyView(placement: FilterTokensHoldersEmptyViewDefaultPlacement(verticalOffset: -DataEntry.Metric.Tokens.Filter.height))
             .configure(image: R.image.iconsIllustrationsAlert2())
-            .configure(title: R.string.localizable.activityEmpty())
+            .configure(title: "Alerts will appear here")
             .configure(spacing: 0)
-            .configure(insets: .zero)
+            .configure(insets: .init(top: DataEntry.Metric.Tokens.Filter.height, left: 0, bottom: 0, right: 0))
     }
 
     static func filterTokensEmptyView(completion: @escaping () -> Void) -> EmptyView {
