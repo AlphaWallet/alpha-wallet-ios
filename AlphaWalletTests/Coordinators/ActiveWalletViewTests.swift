@@ -6,6 +6,8 @@ import AlphaWalletFoundation
 
 class ActiveWalletViewTests: XCTestCase {
 
+    private let currencyService = CurrencyService()
+
     func testShowTabBar() {
         let config: Config = .make()
         let wallet: Wallet = .make()
@@ -42,7 +44,8 @@ class ActiveWalletViewTests: XCTestCase {
             importToken: dep.importToken,
             transactionsDataStore: dep.transactionsDataStore,
             tokensService: dep.tokensService,
-            lock: FakeLock())
+            lock: FakeLock(),
+            currencyService: currencyService)
 
         coordinator.start(animated: false)
 
@@ -110,7 +113,8 @@ class ActiveWalletViewTests: XCTestCase {
             importToken: dep1.importToken,
             transactionsDataStore: dep1.transactionsDataStore,
             tokensService: dep1.tokensService,
-            lock: FakeLock())
+            lock: FakeLock(),
+            currencyService: currencyService)
 
         c1.start(animated: false)
 
@@ -144,7 +148,8 @@ class ActiveWalletViewTests: XCTestCase {
             importToken: dep2.importToken,
             transactionsDataStore: dep2.transactionsDataStore,
             tokensService: dep2.tokensService,
-            lock: FakeLock())
+            lock: FakeLock(),
+            currencyService: currencyService)
 
         c1.start(animated: false)
 
@@ -187,7 +192,8 @@ class ActiveWalletViewTests: XCTestCase {
                 importToken: dep.importToken,
                 transactionsDataStore: dep.transactionsDataStore,
                 tokensService: dep.tokensService,
-                lock: FakeLock())
+                lock: FakeLock(),
+                currencyService: currencyService)
         coordinator.start(animated: false)
         coordinator.showPaymentFlow(for: .send(type: .transaction(TransactionType.nativeCryptocurrency(Token(), destination: .none, amount: nil))), server: .main, navigationController: coordinator.navigationController)
 
@@ -231,7 +237,8 @@ class ActiveWalletViewTests: XCTestCase {
             importToken: dep.importToken,
             transactionsDataStore: dep.transactionsDataStore,
             tokensService: dep.tokensService,
-            lock: FakeLock())
+            lock: FakeLock(),
+            currencyService: currencyService)
         coordinator.start(animated: false)
         coordinator.showPaymentFlow(for: .request, server: .main, navigationController: coordinator.navigationController)
 
@@ -275,7 +282,8 @@ class ActiveWalletViewTests: XCTestCase {
             importToken: dep.importToken,
             transactionsDataStore: dep.transactionsDataStore,
             tokensService: dep.tokensService,
-            lock: FakeLock())
+            lock: FakeLock(),
+            currencyService: currencyService)
         coordinator.start(animated: false)
 
         let viewController = (coordinator.tabBarController.selectedViewController as? UINavigationController)?.viewControllers[0]
@@ -338,7 +346,8 @@ class ActiveWalletViewTests: XCTestCase {
                     importToken: dep.importToken,
                     transactionsDataStore: dep.transactionsDataStore,
                     tokensService: dep.tokensService,
-                    lock: FakeLock())
+                    lock: FakeLock(),
+                    currencyService: currencyService)
 
             coordinator.start(animated: false)
 
