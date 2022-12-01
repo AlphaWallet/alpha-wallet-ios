@@ -232,10 +232,13 @@ public class AssetDefinitionStore: NSObject {
     }
 
     private func fetchXML(forContract contract: AlphaWallet.Address, server: RPCServer?, withUrl url: URL, useCacheAndFetch: Bool = false, completionHandler: ((Result) -> Void)? = nil) {
+        //TODO improve check. We should store the IPFS hash, if the hash is different, download the new file, otherwise it has not changed
+        //IPFS, at least on Infura returns a `304` even though we pass in a timestamp that is older than the creation date for the "IF-Modified-Since" header. So we always download the entire file. This only works decently when we don't have many TokenScript using EIP-5169/`scriptURI()`
+        let includeLastModifiedTimestampHeader: Bool = !url.absoluteString.contains("ipfs")
         Alamofire.request(
                 url,
                 method: .get,
-                headers: httpHeadersWithLastModifiedTimestamp(forContract: contract)
+                headers: httpHeadersWithLastModifiedTimestamp(forContract: contract, includeLastModifiedTimestampHeader: includeLastModifiedTimestampHeader)
         ).response { [weak self] response in
             guard let strongSelf = self else { return }
             if response.response?.statusCode == 304 {
@@ -308,9 +311,9 @@ public class AssetDefinitionStore: NSObject {
         return backingStore.lastModifiedDateOfCachedAssetDefinitionFile(forContract: contract)
     }
 
-    private func httpHeadersWithLastModifiedTimestamp(forContract contract: AlphaWallet.Address) -> HTTPHeaders {
+    private func httpHeadersWithLastModifiedTimestamp(forContract contract: AlphaWallet.Address, includeLastModifiedTimestampHeader: Bool) -> HTTPHeaders {
         var result = httpHeaders
-        if let lastModified = lastModifiedDateOfCachedAssetDefinitionFile(forContract: contract) {
+        if includeLastModifiedTimestampHeader, let lastModified = lastModifiedDateOfCachedAssetDefinitionFile(forContract: contract) {
             result["IF-Modified-Since"] = string(fromLastModifiedDate: lastModified)
             return result
         } else {
