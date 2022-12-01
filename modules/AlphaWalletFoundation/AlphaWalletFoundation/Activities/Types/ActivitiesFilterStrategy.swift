@@ -50,11 +50,12 @@ fileprivate extension ActivitiesFilterStrategy {
 }
 
 extension ActivitiesFilterStrategy.functional {
-    static func predicateForNativeCryptocurrencyTransactions() -> NSPredicate {
+    static func predicateForNativeCryptocurrencyTransactions(allowZeroValue: Bool = true) -> NSPredicate {
         let completed = TransactionState.predicate(for: .completed)
         let pending = TransactionState.predicate(for: .pending)
         let isInCompletedOrPandingState = NSCompoundPredicate(orPredicateWithSubpredicates: [completed, pending])
-        let valueNonEmpty = NSPredicate(format: "value != '' AND value != '0'")
+        //NOTE: Why actually we need value to be non zero?
+        let valueNonEmpty = NSPredicate(format: allowZeroValue ? "value != ''" : "value != '' AND value != '0'")
         let hasZeroOperations = NSPredicate(format: "localizedOperations.@count == 0")
 
         return NSCompoundPredicate(andPredicateWithSubpredicates: [isInCompletedOrPandingState, hasZeroOperations, valueNonEmpty])
