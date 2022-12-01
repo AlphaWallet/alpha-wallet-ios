@@ -339,7 +339,7 @@
 		5E7C7B2A4B7C94922DED2EA0 /* TokenCardRowViewProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78CDFEB86A8356EA5818 /* TokenCardRowViewProtocol.swift */; };
 		5E7C7B2C388D0B6E8AE1EED6 /* TransactionConfirmationRowDescriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7919EE31DC0B8FCF0D40 /* TransactionConfirmationRowDescriptionView.swift */; };
 		5E7C7B3E08EEA63C5B68B9C4 /* TokenCardRedemptionInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C778F20D32B70D7FF2135 /* TokenCardRedemptionInfoViewController.swift */; };
-		5E7C7B4778FF36371701242E /* BrowserHistoryViewControllerHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C79FA3E6A05845ECFCDCF /* BrowserHistoryViewControllerHeaderView.swift */; };
+		5E7C7B4778FF36371701242E /* BrowserHistoryHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C79FA3E6A05845ECFCDCF /* BrowserHistoryHeaderView.swift */; };
 		5E7C7B4C7DECBF4834B1E6A4 /* CreateInitialWalletViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73BA4FF25754ACB41255 /* CreateInitialWalletViewModel.swift */; };
 		5E7C7B4E3DEA90147A5A9E0A /* TokensDataStoreTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C71E355BD14E975AF7491 /* TokensDataStoreTest.swift */; };
 		5E7C7B89694C62A14CBE8105 /* FakeEventsDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C71A8BE594C1D126AB309 /* FakeEventsDataStore.swift */; };
@@ -1195,7 +1195,7 @@
 		5E7C79E3BC4CACB123840A42 /* LocaleViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocaleViewCell.swift; sourceTree = "<group>"; };
 		5E7C79ED9F842D3FC102AC54 /* FungibleTokenViewCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FungibleTokenViewCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C79EF9D2C12F396364B92 /* AssetDefinitionDiskBackingStoreWithOverridesTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetDefinitionDiskBackingStoreWithOverridesTests.swift; sourceTree = "<group>"; };
-		5E7C79FA3E6A05845ECFCDCF /* BrowserHistoryViewControllerHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrowserHistoryViewControllerHeaderView.swift; sourceTree = "<group>"; };
+		5E7C79FA3E6A05845ECFCDCF /* BrowserHistoryHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrowserHistoryHeaderView.swift; sourceTree = "<group>"; };
 		5E7C7A1D9A35D86A3DE31989 /* ActivitiesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActivitiesViewController.swift; sourceTree = "<group>"; };
 		5E7C7A3D7408DC690C0F601C /* SingleChainTokenCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SingleChainTokenCoordinator.swift; sourceTree = "<group>"; };
 		5E7C7A9876B43B1D9D17A9A9 /* OpenSeaNonFungibleTokenDisplayHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenSeaNonFungibleTokenDisplayHelper.swift; sourceTree = "<group>"; };
@@ -3546,7 +3546,7 @@
 				5E7C799D2B7D91072FC0050B /* DappsHomeViewControllerHeaderView.swift */,
 				5E7C7FE5EEC96A7CDF62213F /* BrowserHomeHeaderView.swift */,
 				5E7C73D55C366BCC53208686 /* BrowserHistoryCell.swift */,
-				5E7C79FA3E6A05845ECFCDCF /* BrowserHistoryViewControllerHeaderView.swift */,
+				5E7C79FA3E6A05845ECFCDCF /* BrowserHistoryHeaderView.swift */,
 				5E7C790B6371A5BCD733A4BE /* DappsHomeEmptyView.swift */,
 				5E7C7171B802C0C2718EEED0 /* BookmarksHeaderView.swift */,
 			);
@@ -5392,7 +5392,8 @@
 				874ED6A227DF53E1001AB374 /* SwapOptionsViewController.swift in Sources */,
 				5E7C7EF1F2CDFA52BBF1C620 /* BrowserHistoryCellViewModel.swift in Sources */,
 				5E7C77B397BCB0E254F359A8 /* DappsAutoCompletionCellViewModel.swift in Sources */,
-				5E7C7B4778FF36371701242E /* BrowserHistoryViewControllerHeaderView.swift in Sources */,
+				5E7C7B4778FF36371701242E /* BrowserHistoryHeaderView.swift in Sources */,
+				8759C9ED279E9D6100FE361F /* TextFieldView.swift in Sources */,
 				5E7C7FE5F70D5777FD7258B2 /* DappsHomeEmptyView.swift in Sources */,
 				5E7C7EAAF2BD4D12987968E4 /* MyDappCellViewModel.swift in Sources */,
 				5E7C746219CE5A1139756869 /* BookmarksHeaderView.swift in Sources */,

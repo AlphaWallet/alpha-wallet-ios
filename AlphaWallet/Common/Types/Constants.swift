@@ -35,5 +35,5 @@ extension Constants {
     // support
     static let supportEmail = "feedback+ios@alphawallet.com"
 
-    static let dappsBrowserURL = "http://aw.app"
+    static let dappsBrowserURL = URL(string: "http://aw.app")!
 }

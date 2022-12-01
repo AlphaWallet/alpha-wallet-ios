@@ -29,7 +29,6 @@ class BookmarksHeaderView: UIView {
     init() {
         super.init(frame: .zero)
 
-        header.translatesAutoresizingMaskIntoConstraints = false
         addSubview(header)
 
         toggleEditModeButton.addTarget(self, action: #selector(toggleEditMode), for: .touchUpInside)
@@ -45,6 +44,8 @@ class BookmarksHeaderView: UIView {
             toggleEditModeButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             toggleEditModeButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20),
         ])
+
+        backgroundColor = Configuration.Color.Semantic.defaultViewBackground
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -54,7 +55,6 @@ class BookmarksHeaderView: UIView {
     func configure(viewModel: BrowserHomeHeaderViewModel) {
         self.viewModel = viewModel
 
-        backgroundColor = viewModel.backgroundColor
         header.configure(viewModel: viewModel)
 
         if isEditing {

@@ -6,10 +6,6 @@ import UIKit
 struct BrowserHomeHeaderViewModel {
     var title: String
 
-    var backgroundColor: UIColor {
-        return Configuration.Color.Semantic.defaultViewBackground
-    }
-
     var logo: UIImage? {
         return R.image.launch_icon()
     }

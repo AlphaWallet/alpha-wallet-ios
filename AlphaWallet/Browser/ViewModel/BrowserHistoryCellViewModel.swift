@@ -4,27 +4,23 @@ import Foundation
 import UIKit
 import AlphaWalletFoundation
 
-struct BrowserHistoryCellViewModel {
-    let history: History
+struct BrowserHistoryCellViewModel: Hashable {
+    let history: BrowserHistoryRecord
+
+    var imageUrl: URL? { return Favicon.get(for: history.url) }
+    var name: String { return history.title }
+    var url: String { return history.url.absoluteString }
+
+    init(history: BrowserHistoryRecord) {
+        self.history = history
+    }
 
     var backgroundColor: UIColor {
         return Configuration.Color.Semantic.defaultViewBackground
     }
 
-    var imageUrl: URL? {
-        return Favicon.get(for: URL(string: history.url))
-    }
-
     var fallbackImage: UIImage? {
         return R.image.iconsTokensPlaceholder()
-    }
-
-    var name: String {
-        return history.title
-    }
-
-    var url: String {
-        return history.url
     }
 
     var nameFont: UIFont {
