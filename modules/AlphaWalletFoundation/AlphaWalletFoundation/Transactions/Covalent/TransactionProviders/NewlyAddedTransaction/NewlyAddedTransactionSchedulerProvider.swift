@@ -106,7 +106,7 @@ extension Covalent.NetworkProvider {
         switch server.serverWithEnhancedSupport {
         case .klaytnCypress:
             return true
-        case .main, .xDai, .candle, .polygon, .binance_smart_chain, .heco, .rinkeby, .arbitrum, .klaytnBaobabTestnet, nil:
+        case .main, .xDai, .polygon, .binance_smart_chain, .heco, .rinkeby, .arbitrum, .klaytnBaobabTestnet, nil:
             return false
         }
     }

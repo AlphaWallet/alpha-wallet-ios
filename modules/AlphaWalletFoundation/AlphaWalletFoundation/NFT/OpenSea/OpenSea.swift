@@ -24,7 +24,7 @@ public final class OpenSea {
         switch server.serverWithEnhancedSupport {
         case .main, .rinkeby:
             return true
-        case .xDai, .candle, .polygon, .binance_smart_chain, .heco, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, nil:
+        case .xDai, .polygon, .binance_smart_chain, .heco, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, nil:
             return false
         }
     }

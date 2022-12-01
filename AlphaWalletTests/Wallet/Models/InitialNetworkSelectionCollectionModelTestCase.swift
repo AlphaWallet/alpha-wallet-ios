@@ -17,7 +17,7 @@ class InitialNetworkSelectionCollectionModelTestCase: XCTestCase {
         model = InitialNetworkSelectionCollectionModel()
         model.set(mode: .mainnet)
         model.removeAllServers()
-        model.addSelected(servers: [RPCServer.main, RPCServer.kovan, RPCServer.avalanche])
+        model.addSelected(servers: [RPCServer.main, RPCServer.goerli, RPCServer.avalanche])
     }
 
     func testModeFilter() {
@@ -29,22 +29,22 @@ class InitialNetworkSelectionCollectionModelTestCase: XCTestCase {
     }
 
     func testSelected() {
-        XCTAssertTrue(model.selected == [.main, .kovan, .avalanche], "\(model.selected)")
+        XCTAssertTrue(model.selected == [.main, .goerli, .avalanche], "\(model.selected)")
     }
 
     func testAddSelected() {
         model.addSelected(server: .arbitrum)
-        XCTAssertTrue(model.selected == [.main, .kovan, .avalanche, .arbitrum], "\(model.selected)")
+        XCTAssertTrue(model.selected == [.main, .goerli, .avalanche, .arbitrum], "\(model.selected)")
     }
 
     func testRemoveSelected() {
-        model.removeSelected(server: .kovan)
+        model.removeSelected(server: .goerli)
         XCTAssertTrue(model.selected == [.main, .avalanche], "\(model.selected)")
     }
 
     func testRemoveNonExisting() {
         model.removeSelected(server: .binance_smart_chain)
-        XCTAssertTrue(model.selected == [.main, .kovan, .avalanche], "\(model.selected)")
+        XCTAssertTrue(model.selected == [.main, .goerli, .avalanche], "\(model.selected)")
     }
 
     func testRefillSelectedWhenEmptyForMainnet() {

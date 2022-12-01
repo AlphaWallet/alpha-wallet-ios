@@ -36,7 +36,7 @@ fileprivate extension RPCServer {
         switch self.serverWithEnhancedSupport {
         case .main, .binance_smart_chain, .heco, .polygon:
             return etherscanApiRoot?.appendingQueryString("\("module=gastracker&action=gasoracle")\(apiKeyParameter)")
-        case .xDai, .candle, .rinkeby, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, nil:
+        case .xDai, .rinkeby, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, nil:
             return nil
         }
     }

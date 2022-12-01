@@ -46,7 +46,6 @@ final class OpenSeaNetworkProvider {
         guard !Config().development.isOpenSeaFetchingDisabled else { return .init() }
         var results = [Int: String]()
         results[RPCServer.main.chainID] = Constants.Credentials.openseaKey
-        results[RPCServer.rinkeby.chainID] = nil
         return results
     }
 }

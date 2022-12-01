@@ -35,7 +35,7 @@ public final class GasPriceEstimator {
             switch server.serverWithEnhancedSupport {
             case .xDai:
                 return estimateGasPriceForXDai()
-            case .main, .candle, .polygon, .binance_smart_chain, .heco, .rinkeby, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, nil:
+            case .main, .polygon, .binance_smart_chain, .heco, .rinkeby, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, nil:
                 return estimateGasPriceForUseRpcNode(server: server)
             }
         }
@@ -45,7 +45,7 @@ public final class GasPriceEstimator {
         switch server.serverWithEnhancedSupport {
         case .xDai:
             return GasPriceConfiguration.xDaiGasPrice
-        case .main, .candle, .polygon, .binance_smart_chain, .heco, .rinkeby, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, nil:
+        case .main, .polygon, .binance_smart_chain, .heco, .rinkeby, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, nil:
             let maxPrice: BigUInt = GasPriceConfiguration.maxPrice(forServer: server)
             let defaultPrice: BigUInt = GasPriceConfiguration.defaultPrice(forServer: server)
             if let gasPrice = transaction.gasPrice, gasPrice > 0 {

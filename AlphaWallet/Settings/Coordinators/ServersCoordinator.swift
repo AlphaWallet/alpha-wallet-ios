@@ -46,10 +46,6 @@ class ServersCoordinator: Coordinator {
             //.ioTeXTestnet,
             .palm,
             .palmTestnet,
-            .ropsten,
-            .kovan,
-            .rinkeby,
-            .sokol
         ] + RPCServer.customServers
     }
 
