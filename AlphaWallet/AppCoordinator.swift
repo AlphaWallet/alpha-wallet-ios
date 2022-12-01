@@ -25,9 +25,6 @@ class AppCoordinator: NSObject, Coordinator {
     private var appTracker = AppTracker()
     //TODO rename and replace type? Not Initializer but similar as of writing
     private var services: [Initializer] = []
-    private var assetDefinitionStoreCoordinator: AssetDefinitionStoreCoordinator? {
-        return coordinators.first { $0 is AssetDefinitionStoreCoordinator } as? AssetDefinitionStoreCoordinator
-    }
     private var initialWalletCreationCoordinator: InitialWalletCreationCoordinator? {
         return coordinators.compactMap { $0 as? InitialWalletCreationCoordinator }.first
     }
@@ -129,6 +126,7 @@ class AppCoordinator: NSObject, Coordinator {
 
         return coordinator
     }()
+    
     private lazy var notificationService: NotificationService = {
         let pushNotificationsService = UNUserNotificationsService()
         let notificationService = LocalNotificationService()
@@ -138,6 +136,7 @@ class AppCoordinator: NSObject, Coordinator {
     private lazy var activeSessionsProvider = SessionsProvider(config: config, analytics: analytics)
     private let securedStorage: SecuredPasswordStorage & SecuredStorage
     private let addressStorage: FileAddressStorage
+    private let tokenScriptOverridesFileManager = TokenScriptOverridesFileManager()
 
     //Unfortunate to have to have a factory method and not be able to use an initializer (because we can't override `init()` to throw)
     static func create() throws -> AppCoordinator {
@@ -213,7 +212,7 @@ class AppCoordinator: NSObject, Coordinator {
         runServices()
         appTracker.start()
         notificationService.registerForReceivingRemoteNotifications()
-        setupAssetDefinitionStoreCoordinator()
+        tokenScriptOverridesFileManager.start()
         migrateToStoringRawPrivateKeysInKeychain()
         tokenActionsService.start()
 
@@ -231,6 +230,10 @@ class AppCoordinator: NSObject, Coordinator {
                 self.launchUniversalScanner()
             }
         }
+    }
+
+    deinit {
+        tokenScriptOverridesFileManager.stop()
     }
 
     func applicationPerformActionFor(_ shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
@@ -293,13 +296,6 @@ class AppCoordinator: NSObject, Coordinator {
         legacyFileBasedKeystore.migrateKeystoreFilesToRawPrivateKeysInKeychain(using: keystore)
     }
 
-    private func setupAssetDefinitionStoreCoordinator() {
-        let coordinator = AssetDefinitionStoreCoordinator(assetDefinitionStore: assetDefinitionStore)
-        coordinator.delegate = self
-        addCoordinator(coordinator)
-        coordinator.start()
-    }
-
     @discardableResult func showActiveWallet(for wallet: Wallet, animated: Bool) -> ActiveWalletCoordinator {
         if let coordinator = initialWalletCreationCoordinator {
             removeCoordinator(coordinator)
@@ -310,34 +306,35 @@ class AppCoordinator: NSObject, Coordinator {
         walletConnectCoordinator.configure(with: dep.pipeline)
 
         let coordinator = ActiveWalletCoordinator(
-                navigationController: navigationController,
-                walletAddressesStore: walletAddressesStore,
-                activitiesPipeLine: dep.activitiesPipeLine,
-                wallet: wallet,
-                keystore: keystore,
-                assetDefinitionStore: assetDefinitionStore,
-                config: config,
-                appTracker: appTracker,
-                analytics: analytics,
-                nftProvider: nftProvider,
-                restartQueue: restartQueue,
-                universalLinkCoordinator: universalLinkService,
-                accountsCoordinator: accountsCoordinator,
-                walletBalanceService: walletBalanceService,
-                coinTickersFetcher: coinTickersFetcher,
-                tokenActionsService: tokenActionsService,
-                walletConnectCoordinator: walletConnectCoordinator,
-                notificationService: notificationService,
-                blockiesGenerator: blockiesGenerator,
-                domainResolutionService: domainResolutionService,
-                tokenSwapper: tokenSwapper,
-                sessionsProvider: dep.sessionsProvider,
-                tokenCollection: dep.pipeline,
-                importToken: dep.importToken,
-                transactionsDataStore: dep.transactionsDataStore,
-                tokensService: dep.tokensService,
-                lock: lock,
-                currencyService: currencyService)
+            navigationController: navigationController,
+            walletAddressesStore: walletAddressesStore,
+            activitiesPipeLine: dep.activitiesPipeLine,
+            wallet: wallet,
+            keystore: keystore,
+            assetDefinitionStore: assetDefinitionStore,
+            config: config,
+            appTracker: appTracker,
+            analytics: analytics,
+            nftProvider: nftProvider,
+            restartQueue: restartQueue,
+            universalLinkCoordinator: universalLinkService,
+            accountsCoordinator: accountsCoordinator,
+            walletBalanceService: walletBalanceService,
+            coinTickersFetcher: coinTickersFetcher,
+            tokenActionsService: tokenActionsService,
+            walletConnectCoordinator: walletConnectCoordinator,
+            notificationService: notificationService,
+            blockiesGenerator: blockiesGenerator,
+            domainResolutionService: domainResolutionService,
+            tokenSwapper: tokenSwapper,
+            sessionsProvider: dep.sessionsProvider,
+            tokenCollection: dep.pipeline,
+            importToken: dep.importToken,
+            transactionsDataStore: dep.transactionsDataStore,
+            tokensService: dep.tokensService,
+            lock: lock,
+            currencyService: currencyService,
+            tokenScriptOverridesFileManager: tokenScriptOverridesFileManager)
 
         coordinator.delegate = self
 
@@ -520,10 +517,6 @@ extension AppCoordinator: ActiveWalletCoordinatorDelegate {
         notificationService.requestToEnableNotification()
     }
 
-    func assetDefinitionsOverrideViewController(for coordinator: ActiveWalletCoordinator) -> UIViewController? {
-        return assetDefinitionStoreCoordinator?.createOverridesViewController()
-    }
-
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: ActiveWalletCoordinator, source: UrlSource) {
         handleUniversalLink(url: url, source: source)
     }
@@ -555,21 +548,6 @@ extension AppCoordinator: ImportMagicLinkCoordinatorDelegate {
     }
 }
 
-extension AppCoordinator: AssetDefinitionStoreCoordinatorDelegate {
-
-    func show(error: Error, for viewController: AssetDefinitionStoreCoordinator) {
-        activeWalletCoordinator?.show(error: error)
-    }
-
-    func addedTokenScript(forContract contract: AlphaWallet.Address, forServer server: RPCServer, destinationFileInUse: Bool, filename: String) {
-        activeWalletCoordinator?.addImported(contract: contract, forServer: server)
-
-        if !destinationFileInUse {
-            activeWalletCoordinator?.show(openedURL: filename)
-        }
-    }
-}
-
 extension AppCoordinator: UniversalLinkServiceDelegate {
 
     private var hasImportMagicLinkCoordinator: ImportMagicLinkCoordinator? {
@@ -579,8 +557,7 @@ extension AppCoordinator: UniversalLinkServiceDelegate {
     func handle(url: DeepLink, for resolver: UrlSchemeResolver) {
         switch url {
         case .maybeFileUrl(let url):
-            guard let coordinator = assetDefinitionStoreCoordinator else { return }
-            coordinator.handleOpen(url: url)
+            tokenScriptOverridesFileManager.importTokenScriptOverrides(url: url)
         case .eip681(let url):
             let paymentFlowResolver = Eip681UrlResolver(config: config, importToken: resolver.importToken, missingRPCServerStrategy: .fallbackToAnyMatching)
             firstly {

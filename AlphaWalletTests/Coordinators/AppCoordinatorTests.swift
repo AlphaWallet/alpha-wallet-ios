@@ -43,7 +43,7 @@ class AppCoordinatorTests: XCTestCase {
 
         coordinator.start()
 
-        XCTAssertEqual(4, coordinator.coordinators.count)
+        XCTAssertEqual(3, coordinator.coordinators.count)
 
         XCTAssertTrue(coordinator.navigationController.viewControllers[0] is AccountsViewController)
         XCTAssertTrue(coordinator.navigationController.viewControllers[1] is UITabBarController)
@@ -102,7 +102,7 @@ class AppCoordinatorTests: XCTestCase {
 
         coordinator.showActiveWallet(for: .make(), animated: true)
 
-        XCTAssertEqual(6, coordinator.coordinators.count)
+        XCTAssertEqual(5, coordinator.coordinators.count)
         XCTAssertTrue(coordinator.navigationController.viewControllers[0] is AccountsViewController)
         XCTAssertTrue(coordinator.navigationController.viewControllers[1] is UITabBarController)
     }
