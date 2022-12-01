@@ -51,6 +51,7 @@
 "Empty" = "Tyhjä";
 "emptyView.noTokens.label.title" = "Et ole vastaanottanut vielä rahakkeita!";
 "emptyView.noMessages.label.title" = "There is nothing logged";
+"emptyView.noTransactions.label.title" = "You haven't received any transactions yet!";
 "errorView.description.label.title" = "Jokin meni pieleen... Yritä uudestaan.";
 "export.backup.button.title" = "Varmuuskopioi";
 "export.controlYourMoney.label.title" = "Lompakon sisältö on vain hallinnassasi. Tallenna avainten varmuuskopiot siltä varalta, että tämä sovellus poistetaan.";

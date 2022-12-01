@@ -18,6 +18,7 @@ class AssetDefinitionsOverridesViewController: UIViewController {
 
         return tableView
     }()
+
     private let viewModel: AssetDefinitionsOverridesViewModel
     private var cancelable = Set<AnyCancellable>()
     private lazy var dataSource = makeDataSource()

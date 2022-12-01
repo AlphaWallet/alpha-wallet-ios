@@ -60,7 +60,7 @@ class SaveCustomRpcBrowseViewController: UIViewController {
     }()
 
     private lazy var emptyView: UIView = {
-        let emptyView = EmptyTableView(title: Style.Search.Network.Empty.text, image: R.image.iconsIllustrationsSearchResults()!, heightAdjustment: 100.0)
+        let emptyView = EmptyTableView(title: Style.Search.Network.Empty.text, image: R.image.empty_list()!, heightAdjustment: 100.0)
         emptyView.isHidden = true
         return emptyView
     }()

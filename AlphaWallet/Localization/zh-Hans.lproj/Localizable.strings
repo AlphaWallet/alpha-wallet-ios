@@ -51,6 +51,7 @@
 "Empty" = "空";
 "emptyView.noTokens.label.title" = "您尚未收到任何通证！";
 "emptyView.noMessages.label.title" = "There is nothing logged";
+"emptyView.noTransactions.label.title" = "You haven't received any transactions yet!";
 "errorView.description.label.title" = "出问题了... 再试一次。";
 "export.backup.button.title" = "备份钱包";
 "export.controlYourMoney.label.title" = "您的资金由您掌控！请务必保存好备份密钥库，以防此应用遭到删除。";

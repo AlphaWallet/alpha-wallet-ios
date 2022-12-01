@@ -137,7 +137,7 @@ extension PendingTransactionProvider: PendingTransactionSchedulerProviderDelegat
 extension TransactionDataStore {
     func initialOrNewTransactionsPublisher(forServer server: RPCServer, transactionState: TransactionState) -> AnyPublisher<[TransactionInstance], Never> {
         let predicate = TransactionDataStore.functional.transactionPredicate(server: server, transactionState: .pending)
-        return transactionsChangeset(forFilter: .predicate(predicate), servers: [server])
+        return transactionsChangeset(filter: .predicate(predicate), servers: [server])
             .map { changeset in
                 switch changeset {
                 case .initial(let transactions): return transactions

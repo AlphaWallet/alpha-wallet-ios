@@ -95,7 +95,8 @@ class TransactionHeaderView: UIView {
         label.textAlignment = .center
         label.font = Fonts.semibold(size: 17)
         label.textColor = Configuration.Color.Semantic.defaultHeadlineText
-
+        label.numberOfLines = 0
+        
         return label
     }()
 
@@ -128,7 +129,7 @@ class TransactionHeaderView: UIView {
         return imageView
     }()
 
-    private let line: UIView = .spacer(height: 1, backgroundColor: R.color.mercury()!)
+    private let line: UIView = .separator()
 
     init() {
         super.init(frame: .zero)

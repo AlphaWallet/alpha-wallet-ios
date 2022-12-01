@@ -22,7 +22,7 @@ class ActivitiesView: UIView {
         let tableView = UITableView.grouped
         tableView.register(ActivityViewCell.self)
         tableView.register(DefaultActivityItemViewCell.self)
-        tableView.register(TransactionViewCell.self)
+        tableView.register(TransactionTableViewCell.self)
         tableView.register(GroupActivityViewCell.self)
         tableView.delegate = self
         tableView.dataSource = self
@@ -178,9 +178,9 @@ extension ActivitiesView: UITableViewDataSource {
                 cell.configure(viewModel: .init(activity: activity))
                 return cell
             } else {
-                let cell: TransactionViewCell = tableView.dequeueReusableCell(for: indexPath)
+                let cell: TransactionTableViewCell = tableView.dequeueReusableCell(for: indexPath)
                 let session = sessions[transaction.server]
-                cell.configure(viewModel: .init(transactionRow: .item(transaction: transaction, operation: operation), chainState: session.chainState, wallet: session.account, server: transaction.server))
+                cell.configure(viewModel: .init(transactionRow: .item(transaction: transaction, operation: operation), chainState: session.chainState, wallet: session.account))
                 return cell
             }
         case .standaloneTransaction(transaction: let transaction, let activity):
@@ -189,9 +189,9 @@ extension ActivitiesView: UITableViewDataSource {
                 cell.configure(viewModel: .init(activity: activity))
                 return cell
             } else {
-                let cell: TransactionViewCell = tableView.dequeueReusableCell(for: indexPath)
+                let cell: TransactionTableViewCell = tableView.dequeueReusableCell(for: indexPath)
                 let session = sessions[transaction.server]
-                cell.configure(viewModel: .init(transactionRow: .standalone(transaction), chainState: session.chainState, wallet: session.account, server: transaction.server))
+                cell.configure(viewModel: .init(transactionRow: .standalone(transaction), chainState: session.chainState, wallet: session.account))
                 return cell
             }
         case .standaloneActivity(activity: let activity):

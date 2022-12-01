@@ -23,7 +23,6 @@ class TransactionDetailsViewController: UIViewController {
 
         return buttonsBar
     }()
-    //NOTE: Maybe it better to make it as table view?
     private let transactionId = TransactionFieldView.textLabelView(title: R.string.localizable.transactionIdLabelTitle(), icon: R.image.copy())
     private let from = TransactionFieldView.textLabelView(title: R.string.localizable.transactionFromLabelTitle(), icon: R.image.copy())
     private let to = TransactionFieldView.textLabelView(title: R.string.localizable.transactionToLabelTitle(), icon: R.image.copy())
@@ -76,6 +75,7 @@ class TransactionDetailsViewController: UIViewController {
         if viewModel.shareAvailable {
             navigationItem.rightBarButtonItem = UIBarButtonItem.actionBarButton(self, selector: #selector(shareButtonSelected))
         }
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
 
         view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
 

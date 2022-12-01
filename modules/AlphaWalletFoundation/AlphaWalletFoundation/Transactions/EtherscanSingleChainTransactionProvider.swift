@@ -327,7 +327,7 @@ extension EtherscanSingleChainTransactionProvider.functional {
             }
 
             let promises = try JSONDecoder().decode(ArrayResponse<RawTransaction>.self, from: result.data)
-                .result.map { TransactionInstance.from(transaction: $0, fetcher: fetcher) }
+                .result.map { TransactionInstance.buildTransaction(from: $0, fetcher: fetcher) }
 
             return when(fulfilled: promises).compactMap(on: .global()) { $0.compactMap { $0 } }
         }

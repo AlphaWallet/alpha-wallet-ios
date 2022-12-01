@@ -106,7 +106,7 @@ final class LocalizedOperationFetcher {
 }
 
 extension TransactionInstance {
-    static func from(transaction: RawTransaction, fetcher: LocalizedOperationFetcher) -> Promise<TransactionInstance?> {
+    static func buildTransaction(from transaction: RawTransaction, fetcher: LocalizedOperationFetcher) -> Promise<TransactionInstance?> {
         guard let from = AlphaWallet.Address(string: transaction.from) else {
             return Promise.value(nil)
         }

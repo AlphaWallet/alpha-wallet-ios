@@ -5,20 +5,23 @@ import PromiseKit
 import Combine
 import AlphaWalletFoundation
 
-protocol TransactionCoordinatorDelegate: class, CanOpenURL {
+protocol TransactionsCoordinatorDelegate: class, CanOpenURL {
 }
 
-class TransactionCoordinator: NSObject, Coordinator {
+class TransactionsCoordinator: NSObject, Coordinator {
     private let analytics: AnalyticsLogger
     private let sessions: ServerDictionary<WalletSession>
-    private var cancelable = Set<AnyCancellable>()
-    private var transactionsService: TransactionsService
+    private let transactionsService: TransactionsService
     private let tokensService: TokenViewModelState
     lazy var rootViewController: TransactionsViewController = {
-        return makeTransactionsController()
+        let viewModel = TransactionsViewModel(transactionsService: transactionsService, sessions: sessions)
+        let controller = TransactionsViewController(viewModel: viewModel)
+        controller.delegate = self
+
+        return controller
     }()
 
-    weak var delegate: TransactionCoordinatorDelegate?
+    weak var delegate: TransactionsCoordinatorDelegate?
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
 
@@ -36,18 +39,6 @@ class TransactionCoordinator: NSObject, Coordinator {
         self.transactionsService = transactionsService
 
         super.init()
-        NotificationCenter.default.addObserver(self, selector: #selector(didEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
-
-        //NOTE: Reduce copies of unused transaction instances, `TransactionsViewController` isn't using when activities enabled.
-        guard !Features.default.isAvailable(.isActivityEnabled) else { return }
-
-        transactionsService
-            .transactionsChangeset
-            .map { TransactionsViewModel.mapTransactions(transactions: $0) }
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] transactions in
-                self?.rootViewController.configure(viewModel: .init(transactions: transactions))
-            }.store(in: &cancelable)
     }
 
     func start() {
@@ -56,14 +47,6 @@ class TransactionCoordinator: NSObject, Coordinator {
 
     func addSentTransaction(_ transaction: SentTransaction) {
         transactionsService.addSentTransaction(transaction)
-    }
-
-    private func makeTransactionsController() -> TransactionsViewController {
-        let viewModel = TransactionsViewModel()
-        let controller = TransactionsViewController(dataCoordinator: transactionsService, sessions: sessions, viewModel: viewModel)
-        controller.delegate = self
-
-        return controller
     }
 
     private func showTransaction(_ transactionRow: TransactionRow, on navigationController: UINavigationController) {
@@ -95,10 +78,6 @@ class TransactionCoordinator: NSObject, Coordinator {
         }
     }
 
-    @objc func didEnterForeground() {
-        rootViewController.fetch()
-    }
-
     func stop() {
         transactionsService.stop()
         //TODO seems not good to stop here because others call stop too
@@ -108,13 +87,13 @@ class TransactionCoordinator: NSObject, Coordinator {
     }
 }
 
-extension TransactionCoordinator: TransactionsViewControllerDelegate {
+extension TransactionsCoordinator: TransactionsViewControllerDelegate {
     func didPressTransaction(transactionRow: TransactionRow, in viewController: TransactionsViewController) {
         showTransaction(transactionRow, on: navigationController)
     }
 }
 
-extension TransactionCoordinator: CanOpenURL {
+extension TransactionsCoordinator: CanOpenURL {
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
         delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
     }
@@ -128,12 +107,9 @@ extension TransactionCoordinator: CanOpenURL {
     }
 }
 
-extension TransactionCoordinator: TransactionDetailsViewControllerDelegate {
+extension TransactionsCoordinator: TransactionDetailsViewControllerDelegate {
     func didSelectShare(in viewController: TransactionDetailsViewController, item: URL, sender: UIBarButtonItem) {
-        let activityViewController = UIActivityViewController(activityItems: [item], applicationActivities: nil)
-        activityViewController.popoverPresentationController?.barButtonItem = sender
-
-        navigationController.present(activityViewController, animated: true)
+        navigationController.showShareActivity(fromSource: .barButtonItem(sender), with: [item])
     }
 
 }

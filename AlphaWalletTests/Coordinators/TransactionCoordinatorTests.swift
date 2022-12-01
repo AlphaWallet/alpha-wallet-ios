@@ -6,7 +6,7 @@ import XCTest
 class TransactionCoordinatorTests: XCTestCase {
     /*
     func testShowSendFlow() {
-        let coordinator = TransactionCoordinator(
+        let coordinator = TransactionsCoordinator(
             session: .make(),
             navigationController: FakeNavigationController(),
             storage: FakeTransactionsStorage(),
@@ -22,7 +22,7 @@ class TransactionCoordinatorTests: XCTestCase {
     }
 
     func testShowRequstFlow() {
-        let coordinator = TransactionCoordinator(
+        let coordinator = TransactionsCoordinator(
             session: .make(),
             navigationController: FakeNavigationController(),
             storage: FakeTransactionsStorage(),

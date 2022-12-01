@@ -81,7 +81,7 @@ class FungibleTokenViewCell: UITableViewCell {
         tokenImageView.subscribable = viewModel.iconImage
 
         blockChainTagLabel.configure(viewModel: viewModel.blockChainTagViewModel)
-        changeValueContainer.isHidden = !viewModel.blockChainTagViewModel.blockChainNameLabelHidden
+        changeValueContainer.isHidden = !viewModel.blockChainTagViewModel.isHidden
         accessoryType = viewModel.accessoryType
     }
 
