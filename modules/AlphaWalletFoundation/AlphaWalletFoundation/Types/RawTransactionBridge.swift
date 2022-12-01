@@ -1,15 +1,32 @@
 //
 //  RawTransactionBridge.swift
-//  AlphaWallet
+//  AlphaWalletFoundation
 //
-//  Created by Vladyslav Shepitko on 28.10.2020.
+//  Created by Vladyslav Shepitko on 01.12.2022.
 //
-
+import AlphaWalletCore
 import Foundation
 import BigInt
-import AlphaWalletFoundation
 
-struct RawTransactionBridge: Decodable {
+public struct RawTransactionBridge {
+    public var value: BigUInt? = .none
+    public var to: AlphaWallet.Address? = .none
+    public var data: Data? = .none
+    public var gas: BigUInt? = .none
+    public var gasPrice: BigUInt? = .none
+    public var nonce: BigUInt? = .none
+
+    public init(value: BigUInt? = .none, to: AlphaWallet.Address? = .none, data: Data? = .none, gas: BigUInt? = .none, gasPrice: BigUInt? = .none, nonce: BigUInt? = .none) {
+        self.value = value
+        self.to = to
+        self.data = data
+        self.gas = gas
+        self.gasPrice = gasPrice
+        self.nonce = nonce
+    }
+}
+
+extension RawTransactionBridge: Decodable {
     private enum CodingKeys: String, CodingKey {
         case from
         case to
@@ -20,14 +37,7 @@ struct RawTransactionBridge: Decodable {
         case data
     }
 
-    var value: BigUInt? = .none
-    var to: AlphaWallet.Address? = .none
-    var data: Data? = .none
-    var gas: BigUInt? = .none
-    var gasPrice: BigUInt? = .none
-    var nonce: BigUInt? = .none
-
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
         if let value = try? container.decode(String.self, forKey: .to) {
@@ -48,16 +58,5 @@ struct RawTransactionBridge: Decodable {
         if let value = try? container.decode(String.self, forKey: .data).drop0x {
             data = Data.fromHex(value)
         }
-    }
-}
-
-extension RawTransactionBridge {
-    init(value: BigUInt? = .none, to: AlphaWallet.Address? = .none, data: Data? = .none, gas: BigUInt? = .none, gasPrice: BigUInt? = .none, nonce: BigUInt? = .none) {
-        self.value = value
-        self.to = to
-        self.data = data
-        self.gas = gas
-        self.gasPrice = gasPrice
-        self.nonce = nonce
     }
 }

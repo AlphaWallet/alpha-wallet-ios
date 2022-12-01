@@ -16,8 +16,8 @@ class TransactionConfiguratorTransactionsTests: XCTestCase {
         let requester = DAppRequester(title: "", url: nil)
         let token = Token(server: .main, value: "", type: .erc20)
         let address = AlphaWallet.Address(string: "0x1000000000000000000000000000000000000000")!
-        let bridge = RawTransactionBridge(to: address)
-        let transaction = UnconfirmedTransaction(transactionType: .dapp(token, requester), bridge: bridge)
+        let bridgeTransaction = RawTransactionBridge(to: address)
+        let transaction = UnconfirmedTransaction(transactionType: .dapp(token, requester), bridgeTransaction: bridgeTransaction)
         let analytics = FakeAnalyticsService()
 
         let configurator = try TransactionConfigurator(session: .make(), analytics: analytics, transaction: transaction)

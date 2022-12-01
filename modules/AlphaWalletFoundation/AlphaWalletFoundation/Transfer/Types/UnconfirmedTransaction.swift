@@ -21,8 +21,7 @@ public struct UnconfirmedTransaction {
         data: Data?,
         gasLimit: BigUInt? = nil,
         gasPrice: BigUInt? = nil,
-        nonce: BigUInt? = nil
-    ) {
+        nonce: BigUInt? = nil) {
         self.transactionType = transactionType
         self.value = value
         self.recipient = recipient
@@ -33,3 +32,18 @@ public struct UnconfirmedTransaction {
         self.nonce = nonce
     }
 }
+
+extension UnconfirmedTransaction {
+    public init(transactionType: TransactionType, bridgeTransaction transaction: RawTransactionBridge) {
+        self = .init(
+            transactionType: transactionType,
+            value: transaction.value ?? BigUInt("0"),
+            //Tight coupling. Sets recipient and contract relying on implementation of `TransactionConfigurator.toAddress` for `TransactionType.dapp`.
+            recipient: nil,
+            contract: transaction.to,
+            data: transaction.data,
+            gasPrice: transaction.gasPrice,
+            nonce: transaction.nonce)
+    }
+}
+

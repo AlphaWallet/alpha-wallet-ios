@@ -187,11 +187,6 @@ final class SendViewModel {
         }.eraseToAnyPublisher()
     }
 
-    private enum InputsValidationError: Error {
-        case recipientInvalid
-        case cryptoValueInvalid
-    }
-
     private func transactionToConfirm(send: AnyPublisher<Void, Never>) -> AnyPublisher<Result<UnconfirmedTransaction, InputsValidationError>, Never> {
         return send.withLatestFrom(tokenViewModel)
             .map { [transactionType] tokenViewModel -> Result<UnconfirmedTransaction, InputsValidationError> in
@@ -201,23 +196,18 @@ final class SendViewModel {
                 guard let value = self.validatedCryptoValue(self.cryptoValue, tokenViewModel: tokenViewModel, checkIfGreaterThanZero: self.checkIfGreaterThanZero) else {
                     return .failure(InputsValidationError.cryptoValueInvalid)
                 }
-
-                let data: Data
-                var contract: AlphaWallet.Address?
-
-                switch transactionType {
-                case .nativeCryptocurrency, .dapp, .claimPaidErc875MagicLink, .tokenScript, .prebuilt:
-                    data = Data()
-                case .erc20Token(let token, _, _):
-                    contract = token.contractAddress
-                    data = (try? Erc20Transfer(recipient: recipient, value: BigUInt(value)).encodedABI()) ?? Data()
-                case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token:
-                    fatalError("Impossible Code Path")
+                do {
+                    switch transactionType {
+                    case .nativeCryptocurrency, .dapp, .claimPaidErc875MagicLink, .tokenScript, .prebuilt:
+                        return .success(try transactionType.buildSendNativeCryptocurrency(recipient: recipient, amount: BigUInt(value)))
+                    case .erc20Token:
+                        return .success(try transactionType.buildSendErc20Token(recipient: recipient, amount: BigUInt(value)))
+                    case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token:
+                        throw TransactionConfiguratorError.impossibleToBuildConfiguration
+                    }
+                } catch {
+                    return .failure(.other(error))
                 }
-
-                let transaction = UnconfirmedTransaction(transactionType: transactionType, value: BigUInt(value), recipient: recipient, contract: contract, data: data)
-
-                return .success(transaction)
             }.share()
             .eraseToAnyPublisher()
     }
@@ -367,6 +357,7 @@ final class SendViewModel {
             .map { (crypto: $0.allFundsFullValue.localizedString, shortCrypto: $0.allFundsShortValue) }
             .eraseToAnyPublisher()
     }
+
     /// Validates recipient when send selected
     private func isRecipientValid(inputsValidationError: AnyPublisher<InputsValidationError?, Never>) -> AnyPublisher<Bool, Never> {
         return inputsValidationError
@@ -512,6 +503,29 @@ extension SendViewModel {
             }
         }
     }
+
+    fileprivate enum InputsValidationError: Error {
+        case other(Error)
+        case recipientInvalid
+        case cryptoValueInvalid
+    }
+}
+
+extension SendViewModel.InputsValidationError: Equatable {
+    static func == (lhs: SendViewModel.InputsValidationError, rhs: SendViewModel.InputsValidationError) -> Bool {
+        switch (lhs, rhs) {
+        case (.other, .other):
+            return true
+        case (.recipientInvalid, .recipientInvalid):
+            return true
+        case (.cryptoValueInvalid, .cryptoValueInvalid):
+            return true
+        case (.other, .cryptoValueInvalid), (.other, .recipientInvalid), (.recipientInvalid, .cryptoValueInvalid), (.recipientInvalid, .other), (.cryptoValueInvalid, .other), (.cryptoValueInvalid, .recipientInvalid):
+            return false
+        }
+    }
+
+
 }
 
 extension Swift.Result {

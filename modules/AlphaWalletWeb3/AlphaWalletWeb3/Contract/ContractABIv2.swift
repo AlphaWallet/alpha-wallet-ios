@@ -234,7 +234,7 @@ public struct ContractV2: ContractProtocol {
             }
         }
         guard foundFunction.count == 1 else { return nil }
-
+        
         return foundFunction[0].decodeInputData(Data(data[4 ..< data.count]))
     }
 }

@@ -59,10 +59,10 @@ extension TokenHolder {
         selections.first(where: { $0.tokenId == tokenId }).flatMap { Int($0.value) }
     }
 
-    public func select(with strategy: TokenHolderSelectionStrategy) {
+    @discardableResult public func select(with strategy: TokenHolderSelectionStrategy) -> Self {
         switch strategy {
         case .allFor(let tokenId):
-            guard let token = token(tokenId: tokenId) else { return }
+            guard let token = token(tokenId: tokenId) else { return self }
             select(with: .token(tokenId: tokenId, amount: token.value ?? 0))
         case .all:
             selections = tokens.compactMap {
@@ -74,7 +74,7 @@ extension TokenHolder {
                 }
             }
         case .token(let tokenId, let newAmount):
-            guard tokens.contains(where: { $0.id == tokenId }) else { return }
+            guard tokens.contains(where: { $0.id == tokenId }) else { return self }
             if let index = selections.firstIndex(where: { $0.tokenId == tokenId }) {
                 if newAmount > 0 {
                     selections[index] = TokenSelection(tokenId: tokenId, value: BigUInt(newAmount))
@@ -82,10 +82,12 @@ extension TokenHolder {
                     selections.remove(at: index)
                 }
             } else {
-                guard newAmount > 0 else { return }
+                guard newAmount > 0 else { return self }
                 selections.append(TokenSelection(tokenId: tokenId, value: BigUInt(newAmount)))
             }
         }
+        
+        return self
     }
 
     public func unselect(with strategy: TokenHolderSelectionStrategy) {
