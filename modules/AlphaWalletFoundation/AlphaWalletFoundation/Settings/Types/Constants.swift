@@ -38,6 +38,7 @@ public struct Constants {
     static let optimismGoerliMagicLinkHost = "optimismGoerli.aw.app"
     static let arbitrumGoerliMagicLinkHost = "arbitrumGoerli.aw.app"
     static let okxMagicLinkHost = "okx.aw.app"
+    static let sepoliaMagicLinkHost = "sepolia.aw.app"
 
     // Magic link networks
     public static let legacyMagicLinkPrefix = "https://app.awallet.io/"
