@@ -2,7 +2,7 @@
 
 import Foundation
 
-public protocol AssetDefinitionBackingStore {
+public protocol AssetDefinitionBackingStore: AnyObject {
     var delegate: AssetDefinitionBackingStoreDelegate? { get set }
     var badTokenScriptFileNames: [TokenScriptFileIndices.FileName] { get }
     var conflictingTokenScriptFileNames: (official: [TokenScriptFileIndices.FileName], overrides: [TokenScriptFileIndices.FileName], all: [TokenScriptFileIndices.FileName]) { get }
