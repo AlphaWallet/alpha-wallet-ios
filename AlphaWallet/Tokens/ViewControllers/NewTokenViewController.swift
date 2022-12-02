@@ -163,6 +163,7 @@ class NewTokenViewController: UIViewController {
 
             footerBar.anchorsConstraint(to: view)
         ])
+
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -173,6 +174,7 @@ class NewTokenViewController: UIViewController {
         super.viewDidLoad()
 
         view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
+        changeServerButton.addTarget(self, action: #selector(changeServerAction), for: .touchUpInside)
         configure()
     }
 
