@@ -25,7 +25,7 @@ class LocalNotificationService: ScheduledNotificationService {
         switch server.serverWithEnhancedSupport {
         case .main, .xDai:
             content.body = R.string.localizable.transactionsReceivedEther(amount, server.symbol)
-        case .candle, .polygon, .binance_smart_chain, .heco, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, .rinkeby, nil:
+        case .polygon, .binance_smart_chain, .heco, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, .rinkeby, nil:
             content.body = R.string.localizable.transactionsReceivedEther("\(amount) (\(server.name))", server.symbol)
         }
 

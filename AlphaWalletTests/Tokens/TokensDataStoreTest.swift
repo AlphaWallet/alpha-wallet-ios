@@ -32,7 +32,7 @@ class TokensDataStoreTest: XCTestCase {
     //5. BOOM.
     func testHideContractTwiceDoesNotCrash() {
         let contract = AlphaWallet.Address(string: "0x66F08Ca6892017A45Da6FB792a8E946FcBE3d865")!
-        storage.add(hiddenContracts: [AddressAndRPCServer(address: contract, server: .ropsten)])
-        XCTAssertNoThrow(storage.add(hiddenContracts: [AddressAndRPCServer(address: contract, server: .ropsten)]))
+        storage.add(hiddenContracts: [AddressAndRPCServer(address: contract, server: .goerli)])
+        XCTAssertNoThrow(storage.add(hiddenContracts: [AddressAndRPCServer(address: contract, server: .goerli)]))
     }
 }

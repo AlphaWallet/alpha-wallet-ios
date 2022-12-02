@@ -103,7 +103,7 @@ public class HoneySwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
         switch token.server.serverWithEnhancedSupport {
         case .xDai:
             return true
-        case .main, .candle, .polygon, .binance_smart_chain, .heco, .rinkeby, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, nil:
+        case .main, .polygon, .binance_smart_chain, .heco, .rinkeby, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, nil:
             return false
         }
     }

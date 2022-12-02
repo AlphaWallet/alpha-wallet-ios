@@ -12,16 +12,10 @@ class RPCServerTests: XCTestCase {
         XCTAssertEqual(.main, server)
     }
 
-    func testKovanNetwork() {
-        let server = RPCServer(chainID: 42)
+    func testGoerliNetwork() {
+        let server = RPCServer(chainID: 5)
 
-        XCTAssertEqual(.kovan, server)
-    }
-
-    func testRopstenNetwork() {
-        let server = RPCServer(chainID: 3)
-
-        XCTAssertEqual(.ropsten, server)
+        XCTAssertEqual(.goerli, server)
     }
 
     func testInitByChainIdCorrect() {

@@ -20,8 +20,8 @@ class ConfigTests: XCTestCase {
     func testChangeChainID() {
         let testDefaults = UserDefaults.test
         XCTAssertEqual(1, Config.getChainId(defaults: testDefaults))
-        Config.setChainId(RPCServer.ropsten.chainID, defaults: testDefaults)
-        XCTAssertEqual(RPCServer.ropsten.chainID, Config.getChainId(defaults: testDefaults))
+        Config.setChainId(RPCServer.goerli.chainID, defaults: testDefaults)
+        XCTAssertEqual(RPCServer.goerli.chainID, Config.getChainId(defaults: testDefaults))
     }
 
     func testSwitchLocale() {

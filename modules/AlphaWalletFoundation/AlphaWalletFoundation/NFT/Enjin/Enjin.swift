@@ -56,7 +56,7 @@ public final class Enjin {
         switch server.serverWithEnhancedSupport {
         case .main:
             return true
-        case .xDai, .candle, .polygon, .binance_smart_chain, .heco, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, .rinkeby, nil:
+        case .xDai, .polygon, .binance_smart_chain, .heco, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, .rinkeby, nil:
             return false
         }
     }

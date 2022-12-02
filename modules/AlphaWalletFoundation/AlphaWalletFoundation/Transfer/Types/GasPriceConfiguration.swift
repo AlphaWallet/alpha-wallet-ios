@@ -17,7 +17,7 @@ extension GasPriceConfiguration {
         switch server.serverWithEnhancedSupport {
         case .klaytnCypress, .klaytnBaobabTestnet:
             return GasPriceConfiguration.klaytnMaxPrice
-        case .main, .xDai, .candle, .polygon, .binance_smart_chain, .heco, .rinkeby, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, nil:
+        case .main, .xDai, .polygon, .binance_smart_chain, .heco, .rinkeby, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, nil:
             return GasPriceConfiguration.defaultPrice
         }
     }
@@ -26,7 +26,7 @@ extension GasPriceConfiguration {
         switch server.serverWithEnhancedSupport {
         case .klaytnCypress, .klaytnBaobabTestnet:
             return GasPriceConfiguration.klaytnMaxPrice
-        case .main, .xDai, .candle, .polygon, .binance_smart_chain, .heco, .rinkeby, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, nil:
+        case .main, .xDai, .polygon, .binance_smart_chain, .heco, .rinkeby, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, nil:
             return GasPriceConfiguration.maxPrice
         }
     }

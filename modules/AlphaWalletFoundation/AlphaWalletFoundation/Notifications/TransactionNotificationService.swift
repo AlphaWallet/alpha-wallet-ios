@@ -101,7 +101,7 @@ public final class TransactionNotificationSourceService: NotificationSourceServi
         case .main:
             etherReceivedUsedForBackupPrompt
                 .flatMap { delegate?.showCreateBackupAfterReceiveNativeCryptoCurrencyPrompt(in: self, etherReceivedUsedForBackupPrompt: $0) }
-        case .xDai, .candle, .polygon, .binance_smart_chain, .heco, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, .rinkeby, nil:
+        case .xDai, .polygon, .binance_smart_chain, .heco, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, .rinkeby, nil:
             break
         }
     }

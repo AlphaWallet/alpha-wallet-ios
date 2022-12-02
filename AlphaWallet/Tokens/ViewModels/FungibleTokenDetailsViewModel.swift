@@ -46,7 +46,7 @@ final class FungibleTokenDetailsViewModel {
     func transform(input: FungibleTokenDetailsViewModelInput) -> FungibleTokenDetailsViewModelOutput {
         input.willAppear.flatMapLatest { [coinTickersFetcher, token] _ in
             coinTickersFetcher.fetchChartHistories(for: .init(token: token), force: false, periods: ChartHistoryPeriod.allCases)
-        }.print("xxx.chartHistories").assign(to: \.value, on: chartHistoriesSubject)
+        }.assign(to: \.value, on: chartHistoriesSubject)
         .store(in: &cancelable)
 
         let viewTypes = Publishers.CombineLatest(coinTicker, chartHistoriesSubject)

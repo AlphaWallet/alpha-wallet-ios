@@ -19,7 +19,7 @@ extension UniswapERC20Token {
         switch token.server.serverWithEnhancedSupport {
         case .main:
             return availableTokens.contains(where: { $0.contract.sameContract(as: token.contractAddress) })
-        case .xDai, .candle, .polygon, .binance_smart_chain, .heco, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, .rinkeby, nil:
+        case .xDai, .polygon, .binance_smart_chain, .heco, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, .rinkeby, nil:
             return false
         }
     }

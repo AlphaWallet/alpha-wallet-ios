@@ -7,7 +7,6 @@ import Foundation
 public enum RPCServerWithEnhancedSupport {
     case main
     case xDai
-    case candle
     case polygon
     case binance_smart_chain
     case heco

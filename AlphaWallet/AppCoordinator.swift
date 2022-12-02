@@ -65,15 +65,14 @@ class AppCoordinator: NSObject, Coordinator {
 
     private lazy var accountsCoordinator: AccountsCoordinator = {
         let coordinator = AccountsCoordinator(
-                config: config,
-                navigationController: navigationController,
-                keystore: keystore,
-                analytics: analytics,
-                viewModel: .init(configuration: .summary),
-                walletBalanceService: walletBalanceService,
-                blockiesGenerator: blockiesGenerator,
-                domainResolutionService: domainResolutionService
-        )
+            config: config,
+            navigationController: navigationController,
+            keystore: keystore,
+            analytics: analytics,
+            viewModel: .init(configuration: .summary),
+            walletBalanceService: walletBalanceService,
+            blockiesGenerator: blockiesGenerator,
+            domainResolutionService: domainResolutionService)
         coordinator.delegate = self
 
         return coordinator
@@ -95,7 +94,6 @@ class AppCoordinator: NSObject, Coordinator {
             honeySwapService,
             quickSwap,
             Oneinch(action: R.string.localizable.aWalletTokenErc20ExchangeOn1inchButtonTitle()),
-            Carthage(action: R.string.localizable.aWalletTokenErc20ExchangeCarthageButtonTitle()),
             //uniswap
         ]
         availableSwapProviders += Features.default.isAvailable(.isSwapEnabled) ? [SwapTokenNativeProvider(tokenSwapper: tokenSwapper)] : []
