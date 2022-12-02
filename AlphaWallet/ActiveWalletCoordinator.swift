@@ -348,16 +348,20 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
             tokensService: tokensService)
 
         transactionsService.delegate = self
+        transactionsService.start()
+
         let coordinator = TransactionsCoordinator(
-                analytics: analytics,
-                sessions: sessionsProvider.activeSessions,
-                transactionsService: transactionsService,
-                tokensService: tokenCollection)
+            analytics: analytics,
+            sessions: sessionsProvider.activeSessions,
+            transactionsService: transactionsService,
+            tokensService: tokenCollection)
+
         coordinator.rootViewController.tabBarItem = ActiveWalletViewModel.Tabs.transactions.tabBarItem
         coordinator.navigationController.configureForLargeTitles()
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
+
         return coordinator
     }
 

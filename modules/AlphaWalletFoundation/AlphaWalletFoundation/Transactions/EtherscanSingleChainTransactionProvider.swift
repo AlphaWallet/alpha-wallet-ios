@@ -45,7 +45,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
         runScheduledTimers()
         if transactionsTracker.fetchingState != .done {
             fetchOlderTransactions()
-            autoDetectERC20Transactions()
+            autoDetectErc20Transactions()
             autoDetectErc721Transactions()
         }
     }
@@ -72,7 +72,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
 
             strongSelf.fetchLatestTransactions()
             strongSelf.queue.async {
-                strongSelf.autoDetectERC20Transactions()
+                strongSelf.autoDetectErc20Transactions()
                 strongSelf.autoDetectErc721Transactions()
             }
         }, selector: #selector(Operation.main), userInfo: nil, repeats: true)
@@ -80,7 +80,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
 
     //TODO should this be added to the queue?
     //TODO when blockscout-compatible, this includes ERC721 too. Maybe rename?
-    private func autoDetectERC20Transactions() {
+    private func autoDetectErc20Transactions() {
         guard !isAutoDetectingERC20Transactions else { return }
         isAutoDetectingERC20Transactions = true
         let server = session.server
