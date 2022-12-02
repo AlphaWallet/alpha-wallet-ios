@@ -91,20 +91,9 @@ extension TransferCollectiblesCoordinator: SendSemiFungibleTokenViewControllerDe
 
     func didEnterWalletAddress(tokenHolders: [TokenHolder], to recipient: AlphaWallet.Address, in viewController: SendSemiFungibleTokenViewController) {
         do {
-            //NOTE: we have to make sure that token holders have the same contract address!
-            guard let firstTokenHolder = tokenHolders.first else { throw TransactionConfiguratorError.impossibleToBuildConfiguration }
-
-            let tokenIdsAndValues: [TokenSelection] = tokenHolders
-                .flatMap { $0.selections }
-
-            let data: Data
-            if tokenIdsAndValues.count == 1 {
-                data = (try? Erc1155SafeTransferFrom(recipient: recipient, account: session.account.address, tokenIdAndValue: tokenIdsAndValues[0]).encodedABI()) ?? Data()
-            } else {
-                data = (try? Erc1155SafeBatchTransferFrom(recipient: recipient, account: session.account.address, tokenIdsAndValues: tokenIdsAndValues).encodedABI())  ?? Data()
-            }
-            let transactionType: TransactionType = .init(nonFungibleToken: token, tokenHolders: tokenHolders)
-            let transaction = UnconfirmedTransaction(transactionType: transactionType, value: BigUInt(0), recipient: recipient, contract: firstTokenHolder.contractAddress, data: data)
+            // TODO: verify if tokenHolders are same for TransactionType.erc1155(token, tokenHolders)
+            let transactionType = TransactionType(nonFungibleToken: token, tokenHolders: tokenHolders)
+            let transaction = try transactionType.buildSendErc1155Token(recipient: recipient, account: session.account.address)
 
             let configuration: TransactionType.Configuration = .sendNftTransaction(confirmType: .signThenSend)
             let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)

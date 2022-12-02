@@ -170,4 +170,101 @@ extension TransactionType {
             }
         }
     }
+
+    public func buildAnyDappTransaction(bridgeTransaction: RawTransactionBridge) throws -> UnconfirmedTransaction {
+        guard case .dapp = self else { throw TransactionConfiguratorError.impossibleToBuildConfiguration }
+
+        return UnconfirmedTransaction(transactionType: self, bridgeTransaction: bridgeTransaction)
+    }
+
+    public func buildSendNativeCryptocurrency(recipient: AlphaWallet.Address, amount: BigUInt) throws -> UnconfirmedTransaction {
+        switch self {
+        case .nativeCryptocurrency, .dapp, .claimPaidErc875MagicLink, .tokenScript, .prebuilt:
+            break //TODO: review codebase and remove `.dapp, .claimPaidErc875MagicLink, .tokenScript, .prebuilt` from send screen
+        case .erc20Token, .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token:
+            throw TransactionConfiguratorError.impossibleToBuildConfiguration
+        }
+
+        return UnconfirmedTransaction(transactionType: self, value: amount, recipient: recipient, contract: nil, data: Data())
+    }
+
+    public func buildSendErc20Token(recipient: AlphaWallet.Address, amount: BigUInt) throws -> UnconfirmedTransaction {
+        //TODO: remove amount from param and use from transaction type
+        guard case .erc20Token(let token, _, _) = self else { throw TransactionConfiguratorError.impossibleToBuildConfiguration }
+
+        let data = (try? Erc20Transfer(recipient: recipient, value: amount).encodedABI()) ?? Data()
+        return UnconfirmedTransaction(transactionType: self, value: amount, recipient: recipient, contract: token.contractAddress, data: data)
+    }
+
+    public func buildSendErc1155Token(recipient: AlphaWallet.Address, account: AlphaWallet.Address) throws -> UnconfirmedTransaction {
+        guard case .erc1155Token(_, let tokenHolders) = self else { throw TransactionConfiguratorError.impossibleToBuildConfiguration }
+
+        //NOTE: we have to make sure that token holders have the same contract address!
+        guard let tokenHolder = tokenHolders.first else { throw TransactionConfiguratorError.impossibleToBuildConfiguration }
+
+        let tokenIdsAndValues: [TokenSelection] = tokenHolders.flatMap { $0.selections }
+
+        let data: Data
+        if tokenIdsAndValues.count == 1 {
+            data = (try? Erc1155SafeTransferFrom(recipient: recipient, account: account, tokenIdAndValue: tokenIdsAndValues[0]).encodedABI()) ?? Data()
+        } else {
+            data = (try? Erc1155SafeBatchTransferFrom(recipient: recipient, account: account, tokenIdsAndValues: tokenIdsAndValues).encodedABI())  ?? Data()
+        }
+
+        return UnconfirmedTransaction(transactionType: self, value: BigUInt(0), recipient: recipient, contract: tokenHolder.contractAddress, data: data)
+    }
+
+    public func buildSendErc721Token(recipient: AlphaWallet.Address, account: AlphaWallet.Address) throws -> UnconfirmedTransaction {
+        switch self {
+        case .erc875Token(let token, let tokenHolders):
+            guard let tokenHolder = tokenHolders.first else { throw TransactionConfiguratorError.impossibleToBuildConfiguration }
+
+            let data = (try? Erc875Transfer(contractAddress: token.contractAddress, recipient: recipient, indices: tokenHolder.indices).encodedABI()) ?? Data()
+            return UnconfirmedTransaction(transactionType: self, value: BigUInt(0), recipient: recipient, contract: tokenHolder.contractAddress, data: data)
+        case .erc721Token(_, let tokenHolders), .erc721ForTicketToken(_, let tokenHolders):
+            guard let tokenHolder = tokenHolders.first else { throw TransactionConfiguratorError.impossibleToBuildConfiguration }
+            guard let token = tokenHolder.tokens.first else { throw TransactionConfiguratorError.impossibleToBuildConfiguration }
+
+            let data: Data
+            if tokenHolder.contractAddress.isLegacy721Contract {
+                data = (try? Erc721TransferFrom(recipient: recipient, tokenId: token.id).encodedABI())  ?? Data()
+            } else {
+                data = (try? Erc721SafeTransferFrom(recipient: recipient, account: account, tokenId: token.id).encodedABI()) ?? Data()
+            }
+
+            return UnconfirmedTransaction(transactionType: self, value: BigUInt(0), recipient: recipient, contract: tokenHolder.contractAddress, data: data)
+        case .nativeCryptocurrency, .erc20Token, .erc1155Token, .dapp, .claimPaidErc875MagicLink, .tokenScript, .prebuilt:
+            throw TransactionConfiguratorError.impossibleToBuildConfiguration
+        }
+    }
+
+    public func buildClaimPaidErc875MagicLink(recipient: AlphaWallet.Address, signedOrder: SignedOrder) throws -> UnconfirmedTransaction {
+        guard case .claimPaidErc875MagicLink = self else { throw TransactionConfiguratorError.impossibleToBuildConfiguration }
+
+        func encodeOrder(signedOrder: SignedOrder, recipient: AlphaWallet.Address) throws -> Data {
+            let signature = signedOrder.signature.substring(from: 2)
+            let v = UInt8(signature.substring(from: 128), radix: 16)!
+            let r = "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64)))
+            let s = "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
+            let expiry = signedOrder.order.expiry
+
+            let method: ContractMethod
+            if let tokenIds = signedOrder.order.tokenIds, !tokenIds.isEmpty {
+                method = Erc875SpawnPassTo(expiry: expiry, tokenIds: tokenIds, v: v, r: r, s: s, recipient: recipient)
+            } else if signedOrder.order.nativeCurrencyDrop {
+                method = Erc875DropCurrency(signedOrder: signedOrder, v: v, r: r, s: s, recipient: recipient)
+            } else {
+                let contractAddress = signedOrder.order.contractAddress
+                let indices = signedOrder.order.indices
+                method = Erc875Trade(contractAddress: contractAddress, v: v, r: r, s: s, expiry: expiry, indices: indices)
+            }
+
+            return try method.encodedABI()
+        }
+
+        let data = try encodeOrder(signedOrder: signedOrder, recipient: recipient)
+
+        return UnconfirmedTransaction(transactionType: self, value: BigUInt(signedOrder.order.price), recipient: nil, contract: signedOrder.order.contractAddress, data: data)
+    }
+
 }

@@ -50,10 +50,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
 
     func start() {
         do {
-            let data = try encodeOrder(signedOrder: signedOrder, recipient: session.account.address)
-
-            let transaction = UnconfirmedTransaction(transactionType: .claimPaidErc875MagicLink(token), value: BigUInt(signedOrder.order.price), recipient: nil, contract: signedOrder.order.contractAddress, data: data)
-
+            let transaction = try TransactionType.claimPaidErc875MagicLink(token).buildClaimPaidErc875MagicLink(recipient: session.account.address, signedOrder: signedOrder)
             let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: .claimPaidErc875MagicLink(confirmType: .signThenSend, price: signedOrder.order.price, numberOfTokens: numberOfTokens), analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
             coordinator.delegate = self
             addCoordinator(coordinator)
@@ -63,27 +60,6 @@ class ClaimPaidOrderCoordinator: Coordinator {
                 .presentedViewController(or: navigationController)
                 .displayError(message: error.prettyError)
         }
-    }
-
-    private func encodeOrder(signedOrder: SignedOrder, recipient: AlphaWallet.Address) throws -> Data {
-        let signature = signedOrder.signature.substring(from: 2)
-        let v = UInt8(signature.substring(from: 128), radix: 16)!
-        let r = "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64)))
-        let s = "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
-        let expiry = signedOrder.order.expiry
-
-        let method: ContractMethod
-        if let tokenIds = signedOrder.order.tokenIds, !tokenIds.isEmpty {
-            method = Erc875SpawnPassTo(expiry: expiry, tokenIds: tokenIds, v: v, r: r, s: s, recipient: recipient)
-        } else if signedOrder.order.nativeCurrencyDrop {
-            method = Erc875DropCurrency(signedOrder: signedOrder, v: v, r: r, s: s, recipient: recipient)
-        } else {
-            let contractAddress = signedOrder.order.contractAddress
-            let indices = signedOrder.order.indices
-            method = Erc875Trade(contractAddress: contractAddress, v: v, r: r, s: s, expiry: expiry, indices: indices)
-        }
-
-        return try method.encodedABI()
     }
 }
 

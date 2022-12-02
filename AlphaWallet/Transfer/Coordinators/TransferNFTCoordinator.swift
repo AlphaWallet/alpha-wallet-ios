@@ -70,24 +70,8 @@ class TransferNFTCoordinator: Coordinator {
 extension TransferNFTCoordinator: SendSemiFungibleTokenViewControllerDelegate {
     func didEnterWalletAddress(tokenHolders: [AlphaWalletFoundation.TokenHolder], to recipient: AlphaWalletFoundation.AlphaWallet.Address, in viewController: SendSemiFungibleTokenViewController) {
         do {
-            guard let tokenHolder = tokenHolders.first else { throw TransactionConfiguratorError.impossibleToBuildConfiguration }
-            guard let token = tokenHolder.tokens.first else { throw TransactionConfiguratorError.impossibleToBuildConfiguration }
-
-            let data: Data
-            switch transactionType {
-            case .erc875Token(let token, _):
-                data = (try? Erc875Transfer(contractAddress: token.contractAddress, recipient: recipient, indices: tokenHolder.indices).encodedABI()) ?? Data()
-            case .erc721Token, .erc721ForTicketToken:
-                if tokenHolder.contractAddress.isLegacy721Contract {
-                    data = (try? Erc721TransferFrom(recipient: recipient, tokenId: token.id).encodedABI())  ?? Data()
-                } else {
-                    data = (try? Erc721SafeTransferFrom(recipient: recipient, account: session.account.address, tokenId: token.id).encodedABI()) ?? Data()
-                }
-            case .nativeCryptocurrency, .erc20Token, .erc1155Token, .dapp, .claimPaidErc875MagicLink, .tokenScript, .prebuilt:
-                fatalError("Impossible Code Path")
-            }
-
-            let transaction = UnconfirmedTransaction(transactionType: transactionType, value: BigUInt(0), recipient: recipient, contract: tokenHolder.contractAddress, data: data)
+            // TODO: verify if tokenHolders are same for TransactionType cases
+            let transaction = try transactionType.buildSendErc721Token(recipient: recipient, account: session.account.address)
 
             let configuration: TransactionType.Configuration = .sendNftTransaction(confirmType: .signThenSend)
             let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)

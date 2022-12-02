@@ -31,16 +31,24 @@ struct WalletConnectRequestConverter {
             return .value(.signMessage(message))
         case .signPersonalMessage(_, let message):
             return .value(.signPersonalMessage(message))
-        case .signTransaction(let data):
-            let data = UnconfirmedTransaction(transactionType: .dapp(token, requester), bridge: data)
-            return .value(.signTransaction(data))
+        case .signTransaction(let bridgeTransaction):
+            do {
+                let transaction = try TransactionType.dapp(token, requester).buildAnyDappTransaction(bridgeTransaction: bridgeTransaction)
+                return .value(.signTransaction(transaction))
+            } catch {
+                return .init(error: error)
+            }
         case .signTypedMessage(let data):
             return .value(.typedMessage(data))
         case .signTypedData(_, let data):
             return .value(.signTypedMessageV3(data))
-        case .sendTransaction(let data):
-            let data = UnconfirmedTransaction(transactionType: .dapp(token, requester), bridge: data)
-            return .value(.sendTransaction(data))
+        case .sendTransaction(let bridgeTransaction):
+            do {
+                let transaction = try TransactionType.dapp(token, requester).buildAnyDappTransaction(bridgeTransaction: bridgeTransaction)
+                return .value(.signTransaction(transaction))
+            } catch {
+                return .init(error: error)
+            }
         case .sendRawTransaction(let rawValue):
             return .value(.sendRawTransaction(rawValue))
         case .unknown:

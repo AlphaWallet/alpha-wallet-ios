@@ -98,19 +98,25 @@ class ReplaceTransactionCoordinator: Coordinator {
 
     func start() {
         do {
-            let higherGasPrice = computeGasPriceForReplacementTransaction(pendingTransactionInformation.gasPrice)
-            let unconfirmedTransaction = UnconfirmedTransaction(transactionType: transactionType, value: transactionValue, recipient: recipient, contract: contract, data: transactionData, gasPrice: higherGasPrice, nonce: nonce)
+            let unconfirmedTransaction = UnconfirmedTransaction(
+                transactionType: transactionType,
+                value: transactionValue,
+                recipient: recipient,
+                contract: contract,
+                data: transactionData,
+                gasPrice: computeGasPriceForReplacementTransaction(pendingTransactionInformation.gasPrice),
+                nonce: nonce)
             
             let coordinator = try TransactionConfirmationCoordinator(
-                    presentingViewController: presentingViewController,
-                    session: session,
-                    transaction: unconfirmedTransaction,
-                    configuration: transactionConfirmationConfiguration,
-                    analytics: analytics,
-                    domainResolutionService: domainResolutionService,
-                    keystore: keystore,
-                    assetDefinitionStore: assetDefinitionStore,
-                    tokensService: tokensService)
+                presentingViewController: presentingViewController,
+                session: session,
+                transaction: unconfirmedTransaction,
+                configuration: transactionConfirmationConfiguration,
+                analytics: analytics,
+                domainResolutionService: domainResolutionService,
+                keystore: keystore,
+                assetDefinitionStore: assetDefinitionStore,
+                tokensService: tokensService)
             coordinator.delegate = self
             addCoordinator(coordinator)
             switch mode {

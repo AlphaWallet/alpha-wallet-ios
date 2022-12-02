@@ -76,5 +76,21 @@ extension Web3 {
         public func createEventParser(_ eventName: String, filter: EventFilter?) -> EventParserProtocol? {
             return EventParser(web3: web3, eventName: eventName, contract: contract, filter: filter)
         }
+
+        public func decodeReturnData(_ method: String, data: Data) -> [String: Any]? {
+            contract.decodeReturnData(method, data: data)
+        }
+
+        public func decodeInputData(_ method: String, data: Data) -> [String: Any]? {
+            contract.decodeInputData(method, data: data)
+        }
+
+        public func decodeInputData(_ data: Data) -> [String: Any]? {
+            contract.decodeInputData(data)
+        }
+
+        public func testBloomForEventPrecence(eventName: String, bloom: EthereumBloomFilter) -> Bool? {
+            contract.testBloomForEventPrecence(eventName: eventName, bloom: bloom)
+        }
     }
 }
