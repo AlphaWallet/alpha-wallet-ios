@@ -71,10 +71,10 @@ struct Configuration {
             }
 
             static let secondaryButtonBackground = UIColor { trait in
-                return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.dusty()!)
+                return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.black()!)
             }
             static let secondaryButtonHighlightedBackground = UIColor { trait in
-                return colorFrom(trait: trait, lightColor: R.color.concrete()!, darkColor: R.color.dusty()!)
+                return colorFrom(trait: trait, lightColor: R.color.concrete()!, darkColor: R.color.black()!)
             }
             static let secondaryButtonBackgroundInactive = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.mike()!, darkColor: R.color.dusty()!)
