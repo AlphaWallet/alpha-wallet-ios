@@ -18,11 +18,12 @@ final class SelectSwapRouteViewController: UIViewController {
         tableView.register(SelectableSwapRouteTableViewCell.self)
         tableView.estimatedRowHeight = DataEntry.Metric.TableView.estimatedRowHeight
         tableView.separatorInset = .zero
+        tableView.delegate = self
 
         return tableView
     }()
     private lazy var dataSource: SelectSwapRouteViewModel.DataSource = makeDataSource()
-    private let appear = PassthroughSubject<Void, Never>()
+    private let willAppear = PassthroughSubject<Void, Never>()
     private let selection = PassthroughSubject<IndexPath, Never>()
     private var cancelable = Set<AnyCancellable>()
 
@@ -36,10 +37,9 @@ final class SelectSwapRouteViewController: UIViewController {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
-        tableView.delegate = self
         view.addSubview(tableView)
         NSLayoutConstraint.activate([tableView.anchorsConstraint(to: view)])
-        view.backgroundColor = viewModel.backgroundColor
+
         emptyView = EmptyView.swapToolsEmptyView()
     }
 
@@ -49,20 +49,23 @@ final class SelectSwapRouteViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
+
         bind(viewModel: viewModel)
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        appear.send(())
+        willAppear.send(())
     }
 
     private func bind(viewModel: SelectSwapRouteViewModel) {
-        let appear = appear
+        let willAppear = willAppear
             .handleEvents(receiveOutput: { [weak self] _ in self?.startLoading() })
             .eraseToAnyPublisher()
 
-        let input = SelectSwapRouteViewModelInput(appear: appear, selection: selection.eraseToAnyPublisher())
+        let input = SelectSwapRouteViewModelInput(willAppear: willAppear, selection: selection.eraseToAnyPublisher())
 
         let output = viewModel.transform(input: input)
         output.viewState

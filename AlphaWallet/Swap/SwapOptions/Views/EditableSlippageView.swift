@@ -15,6 +15,7 @@ final class EditableSlippageView: UIControl {
         textField.keyboardType = .decimalPad
         textField.textField.textAlignment = .center
         textField.inputAccessoryButtonType = .done
+        textField.delegate = self
 
         return textField
     }()
@@ -30,8 +31,10 @@ final class EditableSlippageView: UIControl {
         stachView.translatesAutoresizingMaskIntoConstraints = false
 
         addSubview(stachView)
+
         NSLayoutConstraint.activate([
             stachView.anchorsConstraint(to: self),
+
             textField.widthAnchor.constraint(equalToConstant: ScreenChecker.size(big: 70, medium: 70, small: 60))
         ])
 

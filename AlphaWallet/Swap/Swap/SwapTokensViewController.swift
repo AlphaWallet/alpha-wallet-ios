@@ -80,33 +80,12 @@ class SwapTokensViewController: UIViewController {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
-        generageLayout()
-    }
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        buttonsBar.configure()
-        let continueButton = buttonsBar.buttons[0]
-        continueButton.setTitle(R.string.localizable.continue(), for: .normal)
-        continueButton.addTarget(self, action: #selector(swapTokensSelected), for: .touchUpInside)
-        toAmountTextField.selectCurrencyButton.addTarget(self, action: #selector(chooseTokenSelected), for: .touchUpInside)
-        fromAmountTextField.selectCurrencyButton.addTarget(self, action: #selector(chooseTokenSelected), for: .touchUpInside)
-
-        bind(viewModel: viewModel)
-    }
-
-    required init?(coder: NSCoder) {
-        return nil
-    }
-
-    private func generageLayout() {
         containerView.stackView.addArrangedSubviews([
             fromTokenHeaderView,
-            fromAmountTextField.defaultLayout(edgeInsets: .init(top: 0, left: 16, bottom: 0, right: 16)),
+            fromAmountTextField.defaultLayout(edgeInsets: .init(top: ScreenChecker.size(big: 16, medium: 16, small: 7), left: 16, bottom: 0, right: 16)),
             line,
             toTokenHeaderView,
-            toAmountTextField.defaultLayout(edgeInsets: .init(top: 0, left: 16, bottom: 0, right: 16)),
+            toAmountTextField.defaultLayout(edgeInsets: .init(top: ScreenChecker.size(big: 16, medium: 16, small: 7), left: 16, bottom: 0, right: 16)),
             UIView.separator(),
             quoteDetailsView
         ])
@@ -125,20 +104,37 @@ class SwapTokensViewController: UIViewController {
 
             footerBar.anchorsConstraint(to: view)
         ])
-
     }
 
-    private func bind(viewModel: SwapTokensViewModel) {
-        view.backgroundColor = viewModel.backgoundColor
-        containerView.scrollView.backgroundColor = viewModel.backgoundColor
-        title = viewModel.title
+    override func viewDidLoad() {
+        super.viewDidLoad()
 
+        buttonsBar.configure()
+        let continueButton = buttonsBar.buttons[0]
+        continueButton.setTitle(R.string.localizable.continue(), for: .normal)
+        continueButton.addTarget(self, action: #selector(swapTokensSelected), for: .touchUpInside)
+        toAmountTextField.selectCurrencyButton.addTarget(self, action: #selector(chooseTokenSelected), for: .touchUpInside)
+        fromAmountTextField.selectCurrencyButton.addTarget(self, action: #selector(chooseTokenSelected), for: .touchUpInside)
+
+        containerView.backgroundColor = Configuration.Color.Semantic.tableViewHeaderBackground
+        view.backgroundColor = Configuration.Color.Semantic.tableViewHeaderBackground
+        title = viewModel.title
         fromTokenHeaderView.configure(viewModel: viewModel.fromHeaderViewModel)
         toTokenHeaderView.configure(viewModel: viewModel.toHeaderViewModel)
 
-        let allFunds = fromAmountTextField.allFundsButton.publisher(forEvent: .touchUpInside).eraseToAnyPublisher()
-        let togglePair = togglePairButton.publisher(forEvent: .touchUpInside).eraseToAnyPublisher()
-        let input = SwapTokensViewModelInput(cryptoValue: fromAmountTextField.cryptoValuePublisher, allFunds: allFunds, togglePair: togglePair)
+        bind(viewModel: viewModel)
+    }
+
+    required init?(coder: NSCoder) {
+        return nil
+    }
+
+    private func bind(viewModel: SwapTokensViewModel) {
+        let input = SwapTokensViewModelInput(
+            cryptoValue: fromAmountTextField.cryptoValuePublisher,
+            allFunds: fromAmountTextField.allFundsButton.publisher(forEvent: .touchUpInside).eraseToAnyPublisher(),
+            togglePair: togglePairButton.publisher(forEvent: .touchUpInside).eraseToAnyPublisher())
+
         let output = viewModel.transform(input: input)
 
         output.anyErrorString
@@ -180,7 +176,8 @@ class SwapTokensViewController: UIViewController {
             .sink { [weak toAmountTextField] in toAmountTextField?.statusLabel.text = $0 }
             .store(in: &cancelable)
 
-        output.allFunds.sink { [weak fromAmountTextField] in fromAmountTextField?.set(crypto: $0.allFundsFullValue.localizedString, shortCrypto: $0.allFundsShortValue, useFormatting: false) }
+        output.allFunds
+            .sink { [weak fromAmountTextField] in fromAmountTextField?.set(crypto: $0.allFundsFullValue.localizedString, shortCrypto: $0.allFundsShortValue, useFormatting: false) }
             .store(in: &cancelable)
     }
 

@@ -17,11 +17,7 @@ struct SwapToolCollectionViewCellViewModel: Hashable {
         return NSAttributedString(string: name, attributes: [
             .paragraphStyle: style,
             .font: Fonts.regular(size: 18),
-            .foregroundColor: UIColor(red: 42, green: 42, blue: 42)
+            .foregroundColor: Configuration.Color.Semantic.defaultInverseText
         ])
-    }
-
-    var backgroundColor: UIColor {
-        return UIColor(red: 234, green: 234, blue: 234)
     }
 }

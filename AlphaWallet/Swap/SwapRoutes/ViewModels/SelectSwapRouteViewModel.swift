@@ -10,7 +10,7 @@ import Combine
 import AlphaWalletFoundation
 
 struct SelectSwapRouteViewModelInput {
-    let appear: AnyPublisher<Void, Never>
+    let willAppear: AnyPublisher<Void, Never>
     let selection: AnyPublisher<IndexPath, Never>
 }
 
@@ -21,7 +21,6 @@ struct SelectSwapRouteViewModelOutput {
 final class SelectSwapRouteViewModel {
     private var storage: SwapRouteStorage
     private var cancelable = Set<AnyCancellable>()
-    let backgroundColor: UIColor = Colors.appBackground
 
     lazy var summaryViewModel: SwapRouteSummaryViewModel = {
         SwapRouteSummaryViewModel(route: storage.swapRoutes.map { $0.first }.eraseToAnyPublisher())
@@ -37,7 +36,7 @@ final class SelectSwapRouteViewModel {
             .handleEvents(receiveOutput: { [weak self] in self?.set(prefferedSwapRoute: $0) })
             .prepend(nil)
 
-        let swapRoutes = input.appear
+        let swapRoutes = input.willAppear
             .flatMapLatest { [storage] _ in storage.swapRoutes }
 
         let viewState = Publishers.CombineLatest(swapRoutes, selection)

@@ -10,7 +10,7 @@ import Combine
 import AlphaWalletFoundation
 
 struct SelectSwapToolViewModelInput {
-    let appear: AnyPublisher<Void, Never>
+    let willAppear: AnyPublisher<Void, Never>
     let disappear: AnyPublisher<Void, Never>
     let selection: AnyPublisher<SelectSwapToolViewModel.SwapToolSelection, Never>
 }
@@ -24,8 +24,6 @@ final class SelectSwapToolViewModel {
     private var selectedTools: [SwapTool] = []
     private var cancelable = Set<AnyCancellable>()
 
-    let backgroundColor: UIColor = Colors.appBackground
-
     init(storage: SwapToolStorage & SwapRouteStorage) {
         self.storage = storage
     }
@@ -37,7 +35,7 @@ final class SelectSwapToolViewModel {
                 return (swapTool, selection)
             }.prepend(nil)
 
-        let allSupportedTools = input.appear
+        let allSupportedTools = input.willAppear
             .flatMapLatest { [storage] _ in storage.allSupportedTools }
 
         input.disappear

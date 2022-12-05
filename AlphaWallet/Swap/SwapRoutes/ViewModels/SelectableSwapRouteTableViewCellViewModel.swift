@@ -21,15 +21,13 @@ struct SelectableSwapRouteTableViewCellViewModel: Hashable {
 
     let selectionStyle: UITableViewCell.SelectionStyle = .default
 
-    let backgroundColor: UIColor = Colors.appBackground
-
     var accessoryImage: UIImage? {
         return isSelected ? R.image.iconsSystemCheckboxOn() : R.image.iconsSystemCheckboxOff()
     }
 
     var swapViaExchangeAttributedString: NSAttributedString {
         return NSAttributedString(string: exchange, attributes: [
-            .foregroundColor: Colors.appText,
+            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,
             .font: Fonts.regular(size: 18)
         ])
     }
@@ -40,7 +38,7 @@ struct SelectableSwapRouteTableViewCellViewModel: Hashable {
 
     var amountAttributedString: NSAttributedString {
         return NSAttributedString(string: "\(amount) \(toTokenSymbol)", attributes: [
-            .foregroundColor: Colors.darkGray,
+            .foregroundColor: Configuration.Color.Semantic.alternativeText,
             .font: Fonts.bold(size: 20)
         ])
     }
@@ -55,7 +53,7 @@ struct SelectableSwapRouteTableViewCellViewModel: Hashable {
     var feesAttributedStrings: [NSAttributedString] {
         return fees.map { value -> NSAttributedString in
             return NSAttributedString(string: value, attributes: [
-                .foregroundColor: Colors.darkGray,
+                .foregroundColor: Configuration.Color.Semantic.alternativeText,
                 .font: Fonts.regular(size: 16)
             ])
         }

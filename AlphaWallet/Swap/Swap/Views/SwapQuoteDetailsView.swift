@@ -21,10 +21,11 @@ final class SwapQuoteDetailsView: UIView {
         return view
     }()
     private static var fieldEdgeInsets: UIEdgeInsets {
-        return .init(top: 0,
-                     left: ScreenChecker.size(big: 20, medium: 20, small: 16),
-                     bottom: 0,
-                     right: ScreenChecker.size(big: 20, medium: 20, small: 16))
+        return .init(
+            top: 0,
+            left: ScreenChecker.size(big: 20, medium: 20, small: 16),
+            bottom: 0,
+            right: ScreenChecker.size(big: 20, medium: 20, small: 16))
     }
 
     private lazy var exchangeView = SwapQuoteFieldView(edgeInsets: SwapQuoteDetailsView.fieldEdgeInsets, viewModel: viewModel.exchangeViewModel)
@@ -39,7 +40,7 @@ final class SwapQuoteDetailsView: UIView {
         button.setTitle("Show", for: .normal)
         button.setTitle("Hide", for: .selected)
         button.widthAnchor.constraint(equalToConstant: ScreenChecker.size(big: 50, medium: 50, small: 44)).isActive = true
-        button.tintColor = R.color.alabaster()!
+        button.tintColor = Configuration.Color.Semantic.tableViewHeaderBackground
         button.setTitleColor(Colors.appTint, for: .normal)
         button.setTitleColor(Colors.appTint, for: .selected)
 
@@ -81,7 +82,7 @@ final class SwapQuoteDetailsView: UIView {
         toggleFeesButton.addTarget(self, action: #selector(toggleFeesSelected), for: .touchUpInside)
         bind(viewModel: viewModel)
         swapFeesView.isHidden = true
-        backgroundColor = viewModel.backgoundColor
+        backgroundColor = Configuration.Color.Semantic.tableViewHeaderBackground
     }
 
     private func bind(viewModel: SwapQuoteDetailsViewModel) {

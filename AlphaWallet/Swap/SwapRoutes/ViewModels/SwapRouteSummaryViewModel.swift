@@ -21,8 +21,6 @@ final class SwapRouteSummaryViewModel {
     private let etherFormatter: EtherNumberFormatter = .plain
     private let route: AnyPublisher<SwapRoute?, Never>
 
-    let backgroundColor: UIColor = Colors.appBackground
-
     init(route: AnyPublisher<SwapRoute?, Never>) {
         self.route = route
     }
@@ -39,14 +37,14 @@ final class SwapRouteSummaryViewModel {
     private var currentPriceHeader: NSAttributedString {
         return .init(string: "Current Price", attributes: [
             .font: Fonts.regular(size: 14),
-            .foregroundColor: Colors.darkGray
+            .foregroundColor: Configuration.Color.Semantic.alternativeText
         ])
     }
 
     private var amountToHeader: NSAttributedString {
         return .init(string: "Amount To Swap", attributes: [
             .font: Fonts.regular(size: 14),
-            .foregroundColor: Colors.darkGray
+            .foregroundColor: Configuration.Color.Semantic.alternativeText
         ])
     }
 
@@ -71,7 +69,7 @@ final class SwapRouteSummaryViewModel {
 
         return .init(string: currentPrice, attributes: [
             .font: Fonts.semibold(size: 16),
-            .foregroundColor: Colors.darkGray
+            .foregroundColor: Configuration.Color.Semantic.alternativeText
         ])
     }
 
@@ -83,7 +81,7 @@ final class SwapRouteSummaryViewModel {
 
         return .init(string: amountTo, attributes: [
             .font: Fonts.semibold(size: 16),
-            .foregroundColor: Colors.darkGray
+            .foregroundColor: Configuration.Color.Semantic.alternativeText
         ])
     }
 }

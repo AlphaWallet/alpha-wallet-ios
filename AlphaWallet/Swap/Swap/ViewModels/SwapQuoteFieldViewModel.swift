@@ -20,11 +20,10 @@ struct SwapQuoteFieldViewModelOutput {
 final class SwapQuoteFieldViewModel {
     private let isHidden: AnyPublisher<Bool, Never>
     private let value: AnyPublisher<String, Never>
-    var backgroundColor: UIColor = R.color.alabaster()!
     var titleAttributedString: NSAttributedString {
         NSAttributedString(string: title, attributes: [
             .font: Fonts.regular(size: 15),
-            .foregroundColor: R.color.dove()!
+            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText
         ])
     }
 
@@ -40,7 +39,7 @@ final class SwapQuoteFieldViewModel {
         let value = value.map { value -> NSAttributedString? in
             return NSAttributedString(string: value.replacingOccurrences(of: "\0", with: ""), attributes: [
                 .font: Fonts.regular(size: 17),
-                .foregroundColor: Colors.black
+                .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
             ])
         }.eraseToAnyPublisher()
 

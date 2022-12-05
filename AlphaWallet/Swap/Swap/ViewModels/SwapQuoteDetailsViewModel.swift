@@ -26,8 +26,6 @@ final class SwapQuoteDetailsViewModel {
     private (set) lazy var minimumReceivedViewModel = SwapQuoteFieldViewModel(title: "Minimum Received", value: minimumReceivedString)
     private (set) lazy var swapStepsViewModel = SwapStepsViewModel(swapSteps: swapSteps)
 
-    var backgoundColor: UIColor = R.color.alabaster()!
-
     func transform(input: SwapQuoteDetailsViewModelInput) -> SwapQuoteDetailsViewModelOutput {
         let isHidden = configurator.tokensWithTheirSwapQuote
             .map { $0 == nil }

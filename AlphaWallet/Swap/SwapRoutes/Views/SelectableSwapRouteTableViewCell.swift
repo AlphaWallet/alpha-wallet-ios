@@ -87,7 +87,7 @@ final class SelectableSwapRouteTableViewCell: UITableViewCell {
 
     func configure(viewModel: SelectableSwapRouteTableViewCellViewModel) {
         selectionStyle = viewModel.selectionStyle
-        backgroundColor = viewModel.backgroundColor
+        backgroundColor = Configuration.Color.Semantic.tableViewCellBackground
         accessoryImageView.image = viewModel.accessoryImage
         serverImageView.image = viewModel.tokenRpcServerImage
         exchangeTextLabel.attributedText = viewModel.swapViaExchangeAttributedString

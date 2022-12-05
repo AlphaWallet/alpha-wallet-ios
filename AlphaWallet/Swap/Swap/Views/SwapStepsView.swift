@@ -9,13 +9,13 @@ import UIKit
 import Combine
 
 final class SwapStepsView: UIView {
-    private var viewModel: SwapStepsViewModel
+    private let viewModel: SwapStepsViewModel
 
     private var swapLine: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.widthAnchor.constraint(equalToConstant: 1).isActive = true
-        view.backgroundColor = UIColor.init(red: 74, green: 74, blue: 74)
+        view.backgroundColor = Configuration.Color.Semantic.tableViewSeparator
 
         return view
     }()
@@ -43,6 +43,7 @@ final class SwapStepsView: UIView {
             bottomLine.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
 
+        backgroundColor = Configuration.Color.Semantic.tableViewHeaderBackground
         bind(viewModel: viewModel)
     }
 

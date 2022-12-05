@@ -18,16 +18,15 @@ struct SelectableSwapToolTableViewCellViewModel: Hashable {
     }
     var logoPlaceholder: UIImage? { R.image.awLogoSmall() }
     var selectionStyle: UITableViewCell.SelectionStyle = .default
-    var backgroundColor: UIColor = Colors.appBackground
 
     var infoViewModel: InformationViewModel {
         let title = NSAttributedString(string: name, attributes: [
             .font: Fonts.regular(size: 18),
-            .foregroundColor: UIColor(red: 42, green: 42, blue: 42)
+            .foregroundColor: Configuration.Color.Semantic.defaultTitleText
         ])
         let description = NSAttributedString(string: name, attributes: [
             .font: Fonts.regular(size: 16),
-            .foregroundColor: UIColor(red: 42, green: 42, blue: 42)
+            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText
         ])
         return InformationViewModel(title: title, description: description)
     }
