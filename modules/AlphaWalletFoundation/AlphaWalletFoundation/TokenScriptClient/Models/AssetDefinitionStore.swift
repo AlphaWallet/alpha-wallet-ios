@@ -209,7 +209,7 @@ public class AssetDefinitionStore: NSObject {
 
         //If we override with a TokenScript file that is for a contract that also has an official TokenScript file but the files are different, we'll enter an infinite recursion where we keep fetching the official TokenScript file, store it, think it has changed, invalid cache, re-download from the official repo and loops. The simple solution is to just not attempt to download or check against the official repo if the there's an overriding TokenScript file
         if !backingStore.isOfficial(contract: contract) {
-            completionHandler?(.cached)
+            completionHandler?(.unmodified)
             return
         }
 
