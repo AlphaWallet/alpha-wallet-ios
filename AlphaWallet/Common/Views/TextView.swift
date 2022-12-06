@@ -31,8 +31,8 @@ class TextView: UIControl {
         let button = Button(size: .normal, style: .borderless)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(R.string.localizable.sendPasteButtonTitle(), for: .normal)
-        button.titleLabel?.font = DataEntry.Font.accessory
-        button.setTitleColor(DataEntry.Color.icon, for: .normal)
+        button.titleLabel?.font = Configuration.Font.accessory
+        button.setTitleColor(Configuration.Color.Semantic.icon, for: .normal)
         button.setBackgroundColor(.clear, forState: .normal)
         button.contentHorizontalAlignment = .right
         button.heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
@@ -45,8 +45,8 @@ class TextView: UIControl {
         let button = Button(size: .normal, style: .borderless)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(R.string.localizable.clearButtonTitle(), for: .normal)
-        button.titleLabel?.font = DataEntry.Font.accessory
-        button.setTitleColor(DataEntry.Color.icon, for: .normal)
+        button.titleLabel?.font = Configuration.Font.accessory
+        button.setTitleColor(Configuration.Color.Semantic.icon, for: .normal)
         button.setBackgroundColor(.clear, forState: .normal)
         button.contentHorizontalAlignment = .right
         button.heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
@@ -58,8 +58,8 @@ class TextView: UIControl {
     let statusLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = DataEntry.Font.textFieldStatus
-        label.textColor = DataEntry.Color.textFieldStatus
+        label.font = Configuration.Font.textFieldStatus
+        label.textColor = Configuration.Color.Semantic.textFieldStatus
 
         return label
     }()
@@ -70,8 +70,8 @@ class TextView: UIControl {
         textView.delegate = self
         textView.textContainerInset = .init(top: 10, left: 12, bottom: 10, right: 12)
         textView.textColor = Configuration.Color.Semantic.defaultForegroundText
-        textView.font = DataEntry.Font.text
-        textView.layer.borderColor = DataEntry.Color.border.cgColor
+        textView.font = Configuration.Font.text
+        textView.layer.borderColor = Configuration.Color.Semantic.border.cgColor
         textView.layer.borderWidth = DataEntry.Metric.borderThickness
         textView.layer.cornerRadius = DataEntry.Metric.cornerRadius
         textView.backgroundColor = .clear
@@ -82,8 +82,8 @@ class TextView: UIControl {
     let label: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = DataEntry.Font.textFieldTitle
-        label.textColor = DataEntry.Color.label
+        label.font = Configuration.Font.textFieldTitle
+        label.textColor = Configuration.Color.Semantic.label
 
         return label
     }()

@@ -208,12 +208,12 @@ class ConfigureTransactionViewController: UIViewController {
         let titleLabel = UILabel()
         titleLabel.textAlignment = .center
         titleLabel.font = Fonts.semibold(size: 20)
-        titleLabel.textColor = R.color.danger()
+        titleLabel.textColor = Colors.appRed
         titleLabel.text = gasPriceWarning.longTitle
 
         let descriptionLabel = UITextView()
         descriptionLabel.backgroundColor = .clear
-        descriptionLabel.textColor = R.color.dove()
+        descriptionLabel.textColor = Configuration.Color.Semantic.defaultSubtitleText
         descriptionLabel.textAlignment = .center
         descriptionLabel.isEditable = false
         descriptionLabel.isSelectable = true

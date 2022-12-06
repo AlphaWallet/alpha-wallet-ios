@@ -370,7 +370,7 @@ extension EnterSellTokensCardPriceQuantityViewController: AmountTextFieldDelegat
 class PaddedLabel: UILabel {
     override init(frame: CGRect) {
         super.init(frame: frame)
-        cornerRadius = Metrics.CornerRadius.textbox
+        cornerRadius = DataEntry.Metric.CornerRadius.textbox
     }
 
     required init?(coder aDecoder: NSCoder) {

@@ -41,7 +41,7 @@ class ImportWalletViewController: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .right
-        label.font = DataEntry.Font.label
+        label.font = Configuration.Font.label
         label.textColor = Configuration.Color.Semantic.defaultSubtitleText
 
         return label

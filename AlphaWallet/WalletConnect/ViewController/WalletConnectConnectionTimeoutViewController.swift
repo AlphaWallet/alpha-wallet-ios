@@ -35,7 +35,7 @@ class WalletConnectConnectionTimeoutViewController: ModalViewController {
         let v = UILabel()
         v.numberOfLines = 0
         v.textAlignment = .center
-        v.textColor = R.color.black()
+        v.textColor = Configuration.Color.Semantic.defaultForegroundText
         v.font = Fonts.bold(size: 24)
 
         return v
@@ -45,7 +45,7 @@ class WalletConnectConnectionTimeoutViewController: ModalViewController {
         let v = UILabel()
         v.numberOfLines = 0
         v.textAlignment = .center
-        v.textColor = R.color.mine()
+        v.textColor = Configuration.Color.Semantic.defaultHeadlineText
         v.font = Fonts.regular(size: 17)
 
         return v

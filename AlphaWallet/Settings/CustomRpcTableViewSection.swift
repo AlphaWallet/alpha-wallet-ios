@@ -84,7 +84,7 @@ class CustomRpcTableViewSection: NSObject, TableViewSection {
     }
 
     func headerHeight() -> CGFloat {
-        return Style.RPCServerTableView.HeaderHeight
+        return DataEntry.Metric.TableView.rpcServerHeader
     }
 
     func disableSection() {

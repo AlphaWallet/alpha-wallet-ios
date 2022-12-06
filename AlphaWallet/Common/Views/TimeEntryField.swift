@@ -39,11 +39,11 @@ class TimeEntryField: UIControl {
     private func configure() {
         cornerRadius = DataEntry.Metric.cornerRadius
 
-        layer.borderColor = DataEntry.Color.border.cgColor
+        layer.borderColor = Configuration.Color.Semantic.border.cgColor
         layer.borderWidth = DataEntry.Metric.borderThickness
 
-        leftButton.setTitleColor(DataEntry.Color.text, for: .normal)
-        leftButton.titleLabel?.font = DataEntry.Font.text
+        leftButton.setTitleColor(Configuration.Color.Semantic.text, for: .normal)
+        leftButton.titleLabel?.font = Configuration.Font.text
     }
 
     private func makeRightView() -> UIView {
@@ -53,8 +53,8 @@ class TimeEntryField: UIControl {
         rightButton.imageView?.contentMode = .scaleAspectFit
         rightButton.setImage(R.image.time()?.withRenderingMode(.alwaysTemplate), for: .normal)
         //Needed for some reason to get imageView to use tintColor correctly
-        rightButton.imageView?.tintColor = DataEntry.Color.icon
-        rightButton.tintColor = DataEntry.Color.icon
+        rightButton.imageView?.tintColor = Configuration.Color.Semantic.icon
+        rightButton.tintColor = Configuration.Color.Semantic.icon
         rightButton.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
 
         let rightView = [rightButton].asStackView(distribution: .equalSpacing, spacing: 1)

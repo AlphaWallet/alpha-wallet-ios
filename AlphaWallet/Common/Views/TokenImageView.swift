@@ -120,8 +120,7 @@ final class TokenImageView: UIView, ViewRoundingSupportable, ViewLoadingCancelab
             imageView.anchorsConstraint(to: self, edgeInsets: edgeInsets),
             chainOverlayImageView.leftAnchor.constraint(equalTo: imageView.leftAnchor, constant: 0),
             chainOverlayImageView.bottomAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 0),
-            chainOverlayImageView.widthAnchor.constraint(equalToConstant: Metrics.tokenChainOverlayDimension),
-            chainOverlayImageView.heightAnchor.constraint(equalTo: chainOverlayImageView.widthAnchor),
+            chainOverlayImageView.sized(DataEntry.Metric.ChainOverlay.size),
         ])
 
         chainOverlayImageView.isHidden = isChainOverlayHidden

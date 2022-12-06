@@ -84,7 +84,7 @@ extension TokensViewController {
         override init(reuseIdentifier: String?) {
             super.init(reuseIdentifier: reuseIdentifier)
 
-            contentView.backgroundColor = Colors.appWhite
+            contentView.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
             bottomSeparator.isHidden = true
             topSeparator.isHidden = true
 

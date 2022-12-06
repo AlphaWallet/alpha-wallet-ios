@@ -90,7 +90,6 @@ private class _ModalViewController: UIViewController {
 
     private lazy var scrollableContainerView: ScrollableStackView = {
         let view = ScrollableStackView()
-        UIKitFactory.decorateAsDefaultView(view)
         return view
     }()
 
@@ -112,7 +111,7 @@ private class _ModalViewController: UIViewController {
     private lazy var containerView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        UIKitFactory.decorateAsDefaultView(view)
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         view.cornerRadius = 12
 
         let subview = [

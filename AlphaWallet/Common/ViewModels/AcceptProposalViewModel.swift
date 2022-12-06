@@ -52,7 +52,7 @@ class AcceptProposalViewModel: NSObject {
     }
 
     var backgroundColor: UIColor = Colors.clear
-    var footerBackgroundColor: UIColor = Colors.appWhite
+    var footerBackgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground
 
     var connectionIconUrl: URL? {
         switch proposalType {

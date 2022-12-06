@@ -49,9 +49,9 @@ class PopularTokenViewCell: UITableViewCell {
     func configure(viewModel: PopularTokenViewCellViewModel) {
         selectionStyle = .none
 
-        backgroundColor = viewModel.backgroundColor
-        background.backgroundColor = viewModel.contentsBackgroundColor
-        contentView.backgroundColor = GroupedTable.Color.background
+        backgroundColor = Configuration.Color.Semantic.tableViewCellBackground
+        background.backgroundColor = Configuration.Color.Semantic.tableViewCellBackground
+        contentView.backgroundColor = Configuration.Color.Semantic.tableViewCellBackground
 
         titleLabel.attributedText = viewModel.titleAttributedString
         titleLabel.baselineAdjustment = .alignCenters

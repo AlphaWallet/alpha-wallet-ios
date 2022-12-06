@@ -64,7 +64,7 @@ extension LoadingView: StatefulPlaceholderView {
 
 extension LoadingView {
     static func tokenSelectionLoadingView() -> LoadingView {
-        let loadingView = LoadingView(insets: .init(top: Style.SearchBar.height, left: 0, bottom: 0, right: 0))
+        let loadingView = LoadingView(insets: .init(top: DataEntry.Metric.SearchBar.height, left: 0, bottom: 0, right: 0))
         loadingView.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         loadingView.label.textColor = Configuration.Color.Semantic.alternativeText
         loadingView.loadingIndicator.color =  Configuration.Color.Semantic.alternativeText

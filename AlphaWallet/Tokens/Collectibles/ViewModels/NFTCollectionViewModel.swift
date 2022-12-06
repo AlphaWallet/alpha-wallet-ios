@@ -34,7 +34,6 @@ final class NFTCollectionViewModel {
     let tokenHolders: CurrentValueSubject<[TokenHolder], Never>
     let token: Token
     let initiallySelectedTabIndex: Int = 1
-    let backgroundColor: UIColor = Colors.appBackground
     let wallet: Wallet
 
     private var previewViewType: NFTPreviewViewType {

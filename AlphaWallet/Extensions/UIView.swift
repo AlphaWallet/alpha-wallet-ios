@@ -162,17 +162,6 @@ extension UIView {
     func adjusted(adjusment: CGFloat = 15) -> UIView {
         return [.spacerWidth(adjusment), self, .spacerWidth(adjusment)].asStackView()
     }
-
-    func embededWithSeparator(top: CGFloat = 1, bottom: CGFloat = 1, color: UIColor = GroupedTable.Color.cellSeparator) -> UIView {
-        let stackView = [
-            .spacer(height: top, backgroundColor: color),
-            self,
-            .spacer(height: bottom, backgroundColor: color)
-        ].asStackView(axis: .vertical)
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-
-        return stackView
-    }
 }
 
 extension UIView {
@@ -246,7 +235,7 @@ extension UIView {
         return [
             centerXAnchor.constraint(equalTo: superView.centerXAnchor),
             widthAnchor.constraint(equalTo: superView.widthAnchor),
-            heightAnchor.constraint(equalToConstant: GroupedTable.Metric.cellSeparatorHeight),
+            heightAnchor.constraint(equalToConstant: DataEntry.Metric.TableView.groupedTableCellSeparatorHeight),
             topAnchor.constraint(equalTo: superView.topAnchor)
         ]
     }
@@ -255,7 +244,7 @@ extension UIView {
         return [
             centerXAnchor.constraint(equalTo: superView.centerXAnchor),
             widthAnchor.constraint(equalTo: superView.widthAnchor),
-            heightAnchor.constraint(equalToConstant: GroupedTable.Metric.cellSeparatorHeight),
+            heightAnchor.constraint(equalToConstant: DataEntry.Metric.TableView.groupedTableCellSeparatorHeight),
             bottomAnchor.constraint(equalTo: superView.bottomAnchor)
         ]
     }

@@ -10,12 +10,12 @@ class AccountViewCell: UITableViewCell {
     private let blockieImageView = BlockieImageView(size: .init(width: 40, height: 40))
     lazy private var selectedIndicator: UIView = {
         let indicator = UIView()
-        indicator.layer.cornerRadius = Style.SelectionIndicator.width / 2.0
+        indicator.layer.cornerRadius = DataEntry.Metric.SelectionIndicator.width / 2.0
         indicator.borderWidth = 0.0
         indicator.backgroundColor = Configuration.Color.Semantic.indicator
         NSLayoutConstraint.activate([
-            indicator.widthAnchor.constraint(equalToConstant: Style.SelectionIndicator.width),
-            indicator.heightAnchor.constraint(equalToConstant: Style.SelectionIndicator.height)
+            indicator.widthAnchor.constraint(equalToConstant: DataEntry.Metric.SelectionIndicator.width),
+            indicator.heightAnchor.constraint(equalToConstant: DataEntry.Metric.SelectionIndicator.height)
         ])
         indicator.translatesAutoresizingMaskIntoConstraints = false
         indicator.isHidden = true
@@ -47,7 +47,7 @@ class AccountViewCell: UITableViewCell {
             stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20),
             stackView.rightAnchor.constraint(equalTo: rightAnchor, constant: -25),
             selectedIndicator.centerYAnchor.constraint(equalTo: centerYAnchor),
-            selectedIndicator.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Style.SelectionIndicator.leadingOffset)
+            selectedIndicator.leadingAnchor.constraint(equalTo: leadingAnchor, constant: DataEntry.Metric.SelectionIndicator.leadingOffset)
         ])
     }
 
@@ -56,7 +56,7 @@ class AccountViewCell: UITableViewCell {
     }
 
     func configure(viewModel: AccountViewModel) {
-        accessoryView = Style.AccessoryView.chevron
+        accessoryView = UIImageView.chevronImageView
         selectedIndicator.isHidden = !viewModel.isSelected
 
         addressOrEnsName.attributedText = viewModel.addressOrEnsName

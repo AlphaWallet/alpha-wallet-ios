@@ -44,6 +44,10 @@ struct Configuration {
                 return colorFrom(trait: trait, lightColor: .darkGray, darkColor: .lightGray)
             }
 
+            static let defaultErrorText = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.danger()!, darkColor: R.color.danger()!)
+            }
+
             static let defaultAttributedString = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.azure()!, darkColor: R.color.dodge()!)
             }
@@ -270,7 +274,30 @@ struct Configuration {
                 return colorFrom(trait: trait, lightColor: R.color.alabaster()!, darkColor: R.color.venus()!)
             }
 
+            static let border = UIColor(red: 194, green: 194, blue: 194)
+            static let text = Colors.appText
+            static let label = Colors.appGrayLabel
+            static let textFieldStatus = Configuration.Color.Semantic.defaultErrorText
+            static let icon = Colors.appTint
+            static let secondary = Colors.appGrayLabel
+            static let textFieldError = Colors.appRed
+            static let textFieldShadowWhileEditing = Colors.appTint
+            static let placeholder = UIColor(hex: "919191")
+            static let ensText = UIColor(red: 117, green: 185, blue: 67)
+            static let searchTextFieldBackground = UIColor(red: 243, green: 244, blue: 245)
         }
+    }
+}
+
+extension Configuration {
+    enum Font {
+        static let text = Fonts.regular(size: ScreenChecker.size(big: 18, medium: 18, small: 14))
+        static let label = Fonts.bold(size: 13)
+        static let textFieldTitle = Fonts.regular(size: 13)
+        static let textFieldStatus = Fonts.bold(size: 13)
+        static let textField = Fonts.regular(size: ScreenChecker.size(big: 17, medium: 17, small: 14))
+        static let accessory = Fonts.bold(size: ScreenChecker.size(big: 17, medium: 17, small: 14))
+        static let amountTextField = Fonts.regular(size: ScreenChecker.size(big: 36, medium: 36, small: 26))
     }
 }
 
@@ -289,17 +316,5 @@ class UIKitFactory {
 
     @discardableResult static func decorateAsDefaultView(_ views: [UIView]) -> [UIView] {
         return views.map { decorateAsDefaultView($0) }
-    }
-
-    static func defaultLabel(text: String) -> UILabel {
-        let label = UILabel()
-        label.text = text
-        return decorateAsDefaultLabel(label)
-    }
-
-    @discardableResult static func decorateAsDefaultLabel(_ label: UILabel) -> UILabel {
-        label.textColor = Configuration.Color.Semantic.defaultForegroundText
-        return label
-    }
-
+    } 
 }

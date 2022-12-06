@@ -74,7 +74,7 @@ class NFTAssetsPageView: UIView, PageViewType {
             searchBar.topAnchor.constraint(equalTo: topAnchor),
             searchBar.leadingAnchor.constraint(equalTo: leadingAnchor),
             searchBar.trailingAnchor.constraint(equalTo: trailingAnchor),
-            searchBar.heightAnchor.constraint(equalToConstant: Style.SearchBar.height),
+            searchBar.heightAnchor.constraint(equalToConstant: DataEntry.Metric.SearchBar.height),
             
             collectionView.topAnchor.constraint(equalTo: searchBar.bottomAnchor),
             collectionView.leadingAnchor.constraint(equalTo: leadingAnchor),

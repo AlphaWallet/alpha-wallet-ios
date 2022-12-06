@@ -27,14 +27,14 @@ extension AmountTextField {
 
         var textColor: UIColor {
             switch self {
-            case .error: return DataEntry.Color.textFieldStatus!
+            case .error: return Configuration.Color.Semantic.defaultErrorText
             case .none: return Configuration.Color.Semantic.defaultForegroundText
             }
         }
 
         var statusLabelTextColor: UIColor {
             switch self {
-            case .error: return DataEntry.Color.textFieldStatus!
+            case .error: return Configuration.Color.Semantic.defaultErrorText
             case .none: return Configuration.Color.Semantic.defaultSubtitleText
             }
         }
@@ -48,14 +48,14 @@ extension AmountTextField {
 
         var textFieldTextColor: UIColor {
             switch self {
-            case .error: return DataEntry.Color.textFieldStatus!
+            case .error: return Configuration.Color.Semantic.defaultErrorText
             case .none: return Configuration.Color.Semantic.defaultForegroundText
             }
         }
 
         var textFieldPlaceholderTextColor: UIColor {
             switch self {
-            case .error: return DataEntry.Color.textFieldStatus!
+            case .error: return Configuration.Color.Semantic.textFieldStatus
             case .none: return Configuration.Color.Semantic.placeholderText
             }
         }

@@ -16,16 +16,8 @@ struct NonFungibleTokenViewCellViewModel {
         self.accessoryType = accessoryType
     }
 
-    var backgroundColor: UIColor {
-        return Screen.TokenCard.Color.background
-    }
-
-    var contentsBackgroundColor: UIColor {
-        return Configuration.Color.Semantic.tableViewCellBackground
-    }
-
     var contentsCornerRadius: CGFloat {
-        return Metrics.CornerRadius.box
+        return DataEntry.Metric.CornerRadius.box
     }
 
     var titleAttributedString: NSAttributedString {

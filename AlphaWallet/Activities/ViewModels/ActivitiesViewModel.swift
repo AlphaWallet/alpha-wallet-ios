@@ -28,7 +28,7 @@ struct ActivitiesViewModel {
     }
 
     var headerTitleFont: UIFont {
-        Fonts.tableHeader
+        Fonts.semibold(size: 15)
     }
 
     var numberOfSections: Int {

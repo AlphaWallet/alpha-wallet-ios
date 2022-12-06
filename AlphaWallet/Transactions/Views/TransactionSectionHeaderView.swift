@@ -12,7 +12,7 @@ class TransactionSectionHeaderView: UITableViewHeaderFooterView {
         let titleLabel = UILabel()
         titleLabel.sizeToFit()
         titleLabel.textColor = Configuration.Color.Semantic.defaultForegroundText
-        titleLabel.font = Fonts.tableHeader
+        titleLabel.font = Fonts.semibold(size: 15)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
         return titleLabel

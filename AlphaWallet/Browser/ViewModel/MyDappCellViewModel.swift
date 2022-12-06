@@ -39,39 +39,19 @@ struct MyDappCellViewModel: Hashable {
         return Colors.appTint
     }
 
-    var addRemoveButtonFont: UIFont {
-        return Fonts.semibold(size: 12)
-    }
-
-    var addRemoveButtonContentEdgeInsets: UIEdgeInsets {
-        return .init(top: 7, left: 14, bottom: 7, right: 14)
-    }
-
-    var addRemoveButtonBorderColor: UIColor {
-        return Colors.appBackground
-    }
-
-    var addRemoveButtonBorderWidth: CGFloat {
-        return 1
-    }
-
-    var addRemoveButtonBorderCornerRadius: CGFloat {
-        return 9
-    }
-
     var imageViewShadowColor: UIColor {
         return Configuration.Color.Semantic.shadow
     }
 
     var imageViewShadowOffset: CGSize {
-        return Metrics.DappsHome.Icon.shadowOffset
+        return DataEntry.Metric.DappsHome.Icon.shadowOffset
     }
 
     var imageViewShadowOpacity: Float {
-        return Metrics.DappsHome.Icon.shadowOpacity
+        return DataEntry.Metric.DappsHome.Icon.shadowOpacity
     }
 
     var imageViewShadowRadius: CGFloat {
-        return Metrics.DappsHome.Icon.shadowRadius
+        return DataEntry.Metric.DappsHome.Icon.shadowRadius
     }
 }

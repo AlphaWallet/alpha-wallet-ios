@@ -31,15 +31,15 @@ struct DappViewCellViewModel: Hashable {
     }
 
     var imageViewShadowOffset: CGSize {
-        return Metrics.DappsHome.Icon.shadowOffset
+        return DataEntry.Metric.DappsHome.Icon.shadowOffset
     }
 
     var imageViewShadowOpacity: Float {
-        return Metrics.DappsHome.Icon.shadowOpacity
+        return DataEntry.Metric.DappsHome.Icon.shadowOpacity
     }
 
     var imageViewShadowRadius: CGFloat {
-        return Metrics.DappsHome.Icon.shadowRadius
+        return DataEntry.Metric.DappsHome.Icon.shadowRadius
     }
 
     var titleColor: UIColor {

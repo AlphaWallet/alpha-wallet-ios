@@ -107,7 +107,7 @@ struct DefaultActivityCellViewModel {
     }
 
     var subTitleTextColor: UIColor {
-        R.color.dove()!
+        Configuration.Color.Semantic.defaultSubtitleText
     }
 
     var subTitleFont: UIFont {
@@ -210,11 +210,11 @@ struct DefaultActivityCellViewModel {
     var leftMargin: CGFloat {
         switch activity.rowType {
         case .standalone:
-            return StyleLayout.sideMargin
+            return DataEntry.Metric.sideMargin
         case .group:
-            return StyleLayout.sideMargin
+            return DataEntry.Metric.sideMargin
         case .item:
-            return StyleLayout.sideMargin + 20
+            return DataEntry.Metric.sideMargin + 20
         }
     }
 }

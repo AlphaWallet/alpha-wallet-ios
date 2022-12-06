@@ -43,8 +43,6 @@ final class SendSemiFungibleTokenViewModel {
         return .init(text: R.string.localizable.sendRecipient().uppercased(), showTopSeparatorLine: false)
     }
 
-    let backgroundColor: UIColor = Colors.appBackground
-
     var isAmountSelectionHidden: Bool {
         switch token.type {
         case .erc1155:

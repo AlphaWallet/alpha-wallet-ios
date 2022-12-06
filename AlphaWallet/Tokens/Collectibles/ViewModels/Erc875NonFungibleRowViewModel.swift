@@ -13,10 +13,6 @@ struct Erc875NonFungibleRowViewModel {
     private let displayHelper: OpenSeaNonFungibleTokenDisplayHelper
     private let tokenId: TokenId
 
-    var contentsBackgroundColor: UIColor {
-        return Colors.appBackground
-    }
-
     init(tokenHolder: TokenHolder, tokenId: TokenId) {
         self.tokenHolder = tokenHolder
         self.tokenId = tokenId

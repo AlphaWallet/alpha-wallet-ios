@@ -21,7 +21,7 @@ class TokensCardViewControllerTitleHeader: UIView {
 
         let backgroundWidthConstraint = background.widthAnchor.constraint(equalTo: widthAnchor)
         backgroundWidthConstraint.priority = .defaultHigh
-        // TODO extract constant. Maybe StyleLayout.sideMargin
+        // TODO extract constant. Maybe DataEntry.Metric.sideMargin
         NSLayoutConstraint.activate([
             background.leadingAnchor.constraint(equalTo: leadingAnchor),
             background.centerYAnchor.constraint(equalTo: centerYAnchor),
@@ -43,9 +43,9 @@ class TokensCardViewControllerTitleHeader: UIView {
         if frame.size.width == 0 {
             frame = CGRect(x: 0, y: 0, width: 300, height: 90)
         }
-        backgroundColor = Colors.appWhite
+        backgroundColor = Configuration.Color.Semantic.defaultViewBackground
 
-        titleLabel.textColor = Colors.appText
+        titleLabel.textColor = Configuration.Color.Semantic.defaultForegroundText
         titleLabel.font = Fonts.regular(size: 28)
         titleLabel.adjustsFontSizeToFitWidth = true
         titleLabel.text = title

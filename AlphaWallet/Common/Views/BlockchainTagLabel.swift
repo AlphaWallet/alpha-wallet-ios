@@ -26,7 +26,7 @@ class BlockchainTagLabel: UIView {
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
         addSubview(label)
-        heightConstraint = heightAnchor.constraint(equalToConstant: Screen.TokenCard.Metric.blockChainTagHeight)
+        heightConstraint = heightAnchor.constraint(equalToConstant: DataEntry.Metric.BlockChainTag.height)
         
         NSLayoutConstraint.activate([
             heightConstraint,
@@ -40,7 +40,7 @@ class BlockchainTagLabel: UIView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        layer.cornerRadius = Screen.TokenCard.Metric.blockChainTagCornerRadius
+        layer.cornerRadius = DataEntry.Metric.BlockChainTag.cornerRadius
     }
 
     func configure(viewModel: BlockchainTagLabelViewModel) {

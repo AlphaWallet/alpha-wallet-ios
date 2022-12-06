@@ -8,10 +8,10 @@ struct PromptViewModel {
     let buttonTitle: String
 
     var backgroundColor: UIColor {
-        UIColor.clear
+        Colors.clear
     }
 
     var footerBackgroundColor: UIColor {
-        Colors.appWhite
+        Configuration.Color.Semantic.defaultViewBackground
     }
 }

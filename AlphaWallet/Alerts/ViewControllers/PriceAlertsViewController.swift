@@ -156,7 +156,7 @@ extension PriceAlertsViewController: UITableViewDelegate {
             completion(true)
         }
 
-        hideAction.backgroundColor = R.color.danger()
+        hideAction.backgroundColor = Colors.appRed 
         hideAction.image = R.image.hideToken()
         let configuration = UISwipeActionsConfiguration(actions: [hideAction])
         configuration.performsFirstActionWithFullSwipe = true

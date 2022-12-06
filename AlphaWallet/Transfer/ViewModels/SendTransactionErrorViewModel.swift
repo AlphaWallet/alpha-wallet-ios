@@ -78,14 +78,6 @@ struct SendTransactionErrorViewModel {
             return nil
         }
     }
-
-    var backgroundColor: UIColor {
-        UIColor.clear
-    }
-
-    var footerBackgroundColor: UIColor {
-        R.color.white()!
-    }
 }
 
 extension SendTransactionNotRetryableError {

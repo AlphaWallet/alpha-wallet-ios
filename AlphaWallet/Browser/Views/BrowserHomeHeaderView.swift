@@ -20,9 +20,8 @@ class BrowserHomeHeaderView: UIView {
 
         let stackView = [
             logoImage,
-            .spacer(height: 20),
             titleLabel,
-        ].asStackView(axis: .vertical, contentHuggingPriority: .required, alignment: .center)
+        ].asStackView(axis: .vertical, spacing: 20, contentHuggingPriority: .required, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         
         addSubview(stackView)

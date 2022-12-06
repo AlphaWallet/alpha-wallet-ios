@@ -90,7 +90,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
         textField.borderStyle = .none
         textField.backgroundColor = Configuration.Color.Semantic.textFieldBackground
         textField.layer.borderWidth = DataEntry.Metric.borderThickness
-        textField.layer.borderColor = UIColor.clear.cgColor
+        textField.layer.borderColor = Colors.clear.cgColor
         textField.cornerRadius = DataEntry.Metric.cornerRadius
 
         return textField
@@ -338,7 +338,7 @@ extension DappBrowserNavigationBar: NavigationBarPresentable {
 extension DappBrowserNavigationBar: UITextFieldDelegate {
 
     func textFieldDidEndEditing(_ textField: UITextField) {
-        textField.layer.borderColor = UIColor.clear.cgColor
+        textField.layer.borderColor = Colors.clear.cgColor
         textField.backgroundColor = Configuration.Color.Semantic.textFieldBackground
 
         textField.dropShadow(color: .clear, radius: DataEntry.Metric.shadowRadius)
@@ -346,9 +346,9 @@ extension DappBrowserNavigationBar: UITextFieldDelegate {
 
     func textFieldDidBeginEditing(_ textField: UITextField) {
         textField.backgroundColor = Configuration.Color.Semantic.textFieldBackground
-        textField.layer.borderColor = DataEntry.Color.textFieldShadowWhileEditing.cgColor
+        textField.layer.borderColor = Configuration.Color.Semantic.textFieldShadowWhileEditing.cgColor
 
-        textField.dropShadow(color: DataEntry.Color.textFieldShadowWhileEditing, radius: DataEntry.Metric.shadowRadius)
+        textField.dropShadow(color: Configuration.Color.Semantic.textFieldShadowWhileEditing, radius: DataEntry.Metric.shadowRadius)
     }
 
     private func queue(typedText text: String) {

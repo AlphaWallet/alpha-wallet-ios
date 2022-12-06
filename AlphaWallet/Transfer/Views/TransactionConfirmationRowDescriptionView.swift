@@ -9,7 +9,7 @@ class TransactionConfirmationRowDescriptionView: UIView {
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.font = Fonts.regular(size: ScreenChecker().isNarrowScreen ? 16 : 18)
         titleLabel.textAlignment = .center
-        titleLabel.textColor = R.color.mine()
+        titleLabel.textColor = Configuration.Color.Semantic.defaultHeadlineText
 
         return titleLabel
     }()
@@ -18,14 +18,11 @@ class TransactionConfirmationRowDescriptionView: UIView {
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
 
-        let separatorLine = UIView()
-        separatorLine.backgroundColor = R.color.mercury()
-
-        let row0 = separatorLine
-        let row1 = [.spacerWidth(Screen.TransactionConfirmation.transactionRowInfoInsets.left), titleLabel, .spacerWidth(Screen.TransactionConfirmation.transactionRowInfoInsets.right)].asStackView(axis: .horizontal)
+        let separatorLine = UIView.separator()
+        let row1 = [.spacerWidth(DataEntry.Metric.TransactionConfirmation.transactionRowInfoInsets.left), titleLabel, .spacerWidth(DataEntry.Metric.TransactionConfirmation.transactionRowInfoInsets.right)].asStackView(axis: .horizontal)
 
         let stackView = [
-            row0,
+            separatorLine,
             .spacer(height: 20),
             row1,
             .spacer(height: 40),
@@ -37,8 +34,6 @@ class TransactionConfirmationRowDescriptionView: UIView {
         addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            separatorLine.heightAnchor.constraint(equalToConstant: 1),
-
             stackView.anchorsConstraint(to: self),
         ])
 

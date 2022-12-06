@@ -50,7 +50,7 @@ struct ServersViewModel {
     }
 
     var descriptionColor: UIColor {
-        return GroupedTable.Color.title
+        return Configuration.Color.Semantic.defaultForegroundText
     }
 
     var displayWarningFooter: Bool {

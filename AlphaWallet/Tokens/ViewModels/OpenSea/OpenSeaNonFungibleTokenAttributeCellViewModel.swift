@@ -12,7 +12,7 @@ struct OpenSeaNonFungibleTokenAttributeCellViewModel {
     }
 
     var backgroundColor: UIColor {
-        return Colors.appWhite
+        return Configuration.Color.Semantic.defaultViewBackground
     }
 
     var nameFont: UIFont {

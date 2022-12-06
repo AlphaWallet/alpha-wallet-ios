@@ -96,7 +96,7 @@ class GenerateTransferMagicLinkViewController: UIViewController {
         self.viewModel = viewModel
         if let viewModel = self.viewModel {
             background.backgroundColor = viewModel.contentsBackgroundColor
-            background.layer.cornerRadius = Metrics.CornerRadius.popups
+            background.layer.cornerRadius = DataEntry.Metric.CornerRadius.popups
 
             header.configure(title: viewModel.headerTitle)
 
@@ -123,7 +123,7 @@ class GenerateTransferMagicLinkViewController: UIViewController {
             actionButton.setBackgroundColor(viewModel.actionButtonBackgroundColor, forState: .normal)
             actionButton.titleLabel?.font = viewModel.actionButtonTitleFont
             actionButton.setTitle(viewModel.actionButtonTitle, for: .normal)
-            actionButton.cornerRadius = Metrics.CornerRadius.button
+            actionButton.cornerRadius = DataEntry.Metric.CornerRadius.button
 
             cancelButton.setTitleColor(viewModel.cancelButtonTitleColor, for: .normal)
             cancelButton.setBackgroundColor(viewModel.cancelButtonBackgroundColor, forState: .normal)

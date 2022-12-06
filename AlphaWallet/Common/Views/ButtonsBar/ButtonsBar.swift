@@ -364,8 +364,8 @@ struct ButtonsBarViewModel {
         highlightedButtonBackgroundColor: Colors.appWhite,
         disabledButtonBackgroundColor: Colors.appWhite,
         disabledButtonBorderColor: Colors.appWhite,
-        highlightedButtonTitleColor: R.color.azure()!.withAlphaComponent(0.3),
-        disabledButtonTitleColor: R.color.azure()!.withAlphaComponent(0.3),
+        highlightedButtonTitleColor: Colors.appTint.withAlphaComponent(0.3),
+        disabledButtonTitleColor: Colors.appTint.withAlphaComponent(0.3),
         buttonFont: Fonts.regular(size: ScreenChecker().isNarrowScreen ? 16 : 20),
         buttonBorderWidth: 0.0
     )
@@ -378,7 +378,7 @@ struct ButtonsBarViewModel {
     var disabledButtonBackgroundColor: UIColor = Colors.disabledActionButton
     var disabledButtonBorderColor: UIColor = Colors.disabledActionButton
 
-    var buttonTitleColor: UIColor = R.color.azure()!
+    var buttonTitleColor: UIColor = Colors.appTint
     var highlightedButtonTitleColor: UIColor?
     var disabledButtonTitleColor: UIColor = Colors.appWhite
 
@@ -404,7 +404,7 @@ struct ButtonsBarViewModel {
 
     var buttonFont: UIFont = Fonts.semibold(size: ScreenChecker().isNarrowScreen ? 16 : 20)
 
-    var buttonBorderColor: UIColor = R.color.azure()!
+    var buttonBorderColor: UIColor = Colors.appTint
 
     var buttonBorderWidth: CGFloat = 1.0
 }

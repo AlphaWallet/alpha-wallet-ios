@@ -216,7 +216,7 @@ extension AddHideTokensViewController: UITableViewDataSource {
             }
         }
 
-        hideAction.backgroundColor = R.color.danger()
+        hideAction.backgroundColor = Colors.appRed
         hideAction.image = R.image.hideToken()
 
         let configuration = UISwipeActionsConfiguration(actions: [hideAction])

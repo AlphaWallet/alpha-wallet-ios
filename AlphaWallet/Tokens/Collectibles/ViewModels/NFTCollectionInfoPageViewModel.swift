@@ -61,10 +61,6 @@ final class NFTCollectionInfoPageViewModel {
         self.tokenHolderHelper = TokenInstanceViewConfigurationHelper(tokenId: tokenId, tokenHolder: tokenHolder)
     }
 
-    var backgroundColor: UIColor {
-        return Screen.TokenCard.Color.background
-    } 
-
     var blockChainTagViewModel: BlockchainTagLabelViewModel {
         .init(server: token.server)
     }

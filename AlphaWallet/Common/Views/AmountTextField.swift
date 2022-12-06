@@ -29,14 +29,14 @@ final class AmountTextField: UIControl {
     private(set) lazy var textField: UITextField = {
         let textField = UITextField()
         textField.attributedPlaceholder = NSAttributedString(string: "0", attributes: [
-            .font: DataEntry.Font.amountTextField, .foregroundColor: Configuration.Color.Semantic.placeholderText
+            .font: Configuration.Font.amountTextField, .foregroundColor: Configuration.Color.Semantic.placeholderText
         ])
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.delegate = self
         textField.keyboardType = .decimalPad
         textField.leftViewMode = .always
         textField.textColor = Configuration.Color.Semantic.defaultForegroundText
-        textField.font = DataEntry.Font.amountTextField
+        textField.font = Configuration.Font.amountTextField
         textField.textAlignment = .right
 
         return textField
@@ -46,8 +46,8 @@ final class AmountTextField: UIControl {
         let button = Button(size: .normal, style: .borderless)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(R.string.localizable.sendAllFunds(), for: .normal)
-        button.titleLabel?.font = DataEntry.Font.accessory
-        button.setTitleColor(DataEntry.Color.icon, for: .normal)
+        button.titleLabel?.font = Configuration.Font.accessory
+        button.setTitleColor(Configuration.Color.Semantic.icon, for: .normal)
         button.setBackgroundColor(.clear, forState: .normal)
         button.contentHorizontalAlignment = .right
         button.heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
@@ -89,7 +89,7 @@ final class AmountTextField: UIControl {
         label.textAlignment = .left
         label.numberOfLines = 0
         label.textColor = Colors.appGreenContrastBackground
-        label.font = DataEntry.Font.label
+        label.font = Configuration.Font.label
 
         return label
     }()
@@ -199,7 +199,7 @@ final class AmountTextField: UIControl {
                 textField?.textColor = errorState.textFieldTextColor
 
                 textField?.attributedPlaceholder = NSAttributedString(string: "0", attributes: [
-                    .font: DataEntry.Font.amountTextField, .foregroundColor: errorState.textFieldPlaceholderTextColor
+                    .font: Configuration.Font.amountTextField, .foregroundColor: errorState.textFieldPlaceholderTextColor
                 ])
             }.store(in: &cancelable)
 

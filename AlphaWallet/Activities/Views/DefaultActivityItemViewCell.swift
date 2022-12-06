@@ -56,7 +56,7 @@ class DefaultActivityItemViewCell: UITableViewCell {
         background.addSubview(stackView)
         background.addSubview(stateView)
 
-        leftEdgeConstraint = stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: StyleLayout.sideMargin)
+        leftEdgeConstraint = stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: DataEntry.Metric.sideMargin)
         // NOTE: Cells height is specifying by table view and currently it equals 80
         NSLayoutConstraint.activate([
             timestampLabel.heightAnchor.constraint(equalToConstant: 20),
@@ -65,7 +65,7 @@ class DefaultActivityItemViewCell: UITableViewCell {
             tokenImageView.widthAnchor.constraint(equalToConstant: 40),
 
             leftEdgeConstraint,
-            stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -StyleLayout.sideMargin),
+            stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -DataEntry.Metric.sideMargin),
             stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: 20),
             stackView.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: -20),
             background.anchorsConstraint(to: contentView),

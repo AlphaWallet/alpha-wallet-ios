@@ -4,9 +4,6 @@ import Foundation
 import UIKit
 
 struct KeystoreBackupIntroductionViewModel {
-    var backgroundColor: UIColor {
-        return Colors.appWhite
-    }
 
     var title: String {
         //The longer version is too long when another view controller is pushed onto it

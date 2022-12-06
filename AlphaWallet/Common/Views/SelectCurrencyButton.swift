@@ -15,7 +15,7 @@ class SelectCurrencyButton: UIControl {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.setContentHuggingPriority(.required, for: .horizontal)
         label.setContentCompressionResistancePriority(.required, for: .horizontal)
-        label.font = DataEntry.Font.amountTextField
+        label.font = Configuration.Font.amountTextField
 
         return label
     }()

@@ -35,9 +35,9 @@ struct OpenSeaNonFungibleTokenViewCellViewModel {
     var contentsBackgroundColor: UIColor {
         return Configuration.Color.Semantic.defaultViewBackground
     }
-
+    
     var contentsCornerRadius: CGFloat {
-        return Metrics.CornerRadius.nftBox
+        return DataEntry.Metric.CornerRadius.nftBox
     }
 }
 

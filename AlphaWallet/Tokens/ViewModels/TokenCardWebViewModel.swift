@@ -13,7 +13,7 @@ struct TokenCardWebViewModel {
     let tokenId: TokenId
     let tokenView: TokenView
     let assetDefinitionStore: AssetDefinitionStore
-    var contentsBackgroundColor: UIColor = Colors.appWhite
+    var contentsBackgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground
 
     var tokenScriptHtml: String {
         let xmlHandler = XMLHandler(contract: tokenHolder.contractAddress, tokenType: tokenHolder.tokenType, assetDefinitionStore: assetDefinitionStore)

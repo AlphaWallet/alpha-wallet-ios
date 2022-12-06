@@ -9,7 +9,7 @@ import UIKit
 class SeedPhraseSuggestionViewCell: UICollectionViewCell {
     private let viewContainer: UIView = {
         let view = UIView()
-        view.backgroundColor = R.color.alabaster()
+        view.backgroundColor = Configuration.Color.Semantic.tableViewAccessoryBackground
         view.layer.cornerRadius = 4
         return view
     }()
@@ -17,7 +17,7 @@ class SeedPhraseSuggestionViewCell: UICollectionViewCell {
     let textLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = R.color.mine()
+        label.textColor = Configuration.Color.Semantic.defaultHeadlineText
         return label
     }()
 

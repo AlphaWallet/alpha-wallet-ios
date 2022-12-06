@@ -56,7 +56,7 @@ final class BrowserViewController: UIViewController {
     lazy var progressView: UIProgressView = {
         let progressView = UIProgressView(progressViewStyle: .default)
         progressView.translatesAutoresizingMaskIntoConstraints = false
-        progressView.tintColor = Colors.darkBlue
+        progressView.tintColor = Colors.appTint
         progressView.trackTintColor = .clear
         return progressView
     }()

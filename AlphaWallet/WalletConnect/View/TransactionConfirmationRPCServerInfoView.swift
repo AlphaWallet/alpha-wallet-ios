@@ -40,7 +40,7 @@ class TransactionConfirmationRPCServerInfoView: UIView {
         addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            stackView.anchorsConstraint(to: self, edgeInsets: Screen.TransactionConfirmation.transactionRowInfoInsets),
+            stackView.anchorsConstraint(to: self, edgeInsets: DataEntry.Metric.TransactionConfirmation.transactionRowInfoInsets),
         ])
 
         configure(viewModel: viewModel)

@@ -164,7 +164,7 @@ final class AccountsViewModel {
             complete(true)
         }
         copyAction.image = R.image.copy()?.withRenderingMode(.alwaysTemplate)
-        copyAction.backgroundColor = R.color.azure()
+        copyAction.backgroundColor = Colors.appTint
 
         actions += [copyAction]
 
@@ -176,7 +176,7 @@ final class AccountsViewModel {
             }
 
             deleteAction.image = R.image.close()?.withRenderingMode(.alwaysTemplate)
-            deleteAction.backgroundColor = R.color.danger()
+            deleteAction.backgroundColor = Colors.appRed
 
             actions += [deleteAction]
         }

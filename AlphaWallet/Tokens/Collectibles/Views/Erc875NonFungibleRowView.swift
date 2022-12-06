@@ -91,7 +91,8 @@ class Erc875NonFungibleRowView: TokenCardViewRepresentable {
         ])
 
         clipsToBounds = true
-        borderColor = R.color.mercury()
+        borderColor = Configuration.Color.Semantic.tableViewSeparator
+        backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         configureLayout(layout: layout)
     }
 
@@ -131,7 +132,7 @@ class Erc875NonFungibleRowView: TokenCardViewRepresentable {
             _constraints = imageSmallSizeContraints + stackView.anchorsConstraint(to: self, edgeInsets: listEdgeInsets)
         case .grid:
             contentMode = .scaleAspectFill
-            cornerRadius = Metrics.CornerRadius.nftBox
+            cornerRadius = DataEntry.Metric.CornerRadius.nftBox
             col1.alignment = .center
             descriptionCo1.isHidden = true
 
@@ -169,7 +170,6 @@ class Erc875NonFungibleRowView: TokenCardViewRepresentable {
     }
 
     private func configure(viewModel: Erc875NonFungibleRowViewModel) {
-        backgroundColor = viewModel.contentsBackgroundColor
         titleLabel.text = viewModel.title
 
         descriptionLabel.font = viewModel.descriptionTextFont

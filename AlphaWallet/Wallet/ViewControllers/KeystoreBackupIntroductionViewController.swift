@@ -78,7 +78,7 @@ class KeystoreBackupIntroductionViewController: UIViewController {
     }
 
     func configure() {
-        view.backgroundColor = Colors.appBackground
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
 
         title = viewModel.title
 

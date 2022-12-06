@@ -143,7 +143,7 @@ extension EnabledServersViewController: UITableViewDelegate, UITableViewDataSour
         }
 
         deleteAction.image = R.image.close()?.withRenderingMode(.alwaysTemplate)
-        deleteAction.backgroundColor = R.color.danger()
+        deleteAction.backgroundColor = Colors.appRed
 
         let editAction = UIContextualAction(style: .normal, title: R.string.localizable.editButtonTitle()) { _, _, complete in
             self.edit(server: server)
