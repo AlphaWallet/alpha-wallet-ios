@@ -103,21 +103,17 @@ final class SwapTokensViewModel: NSObject {
             .eraseToAnyPublisher()
     }
 
-    var backgoundColor: UIColor = R.color.alabaster()!
-
-    var footerBackgroundColor: UIColor = Colors.appWhite
-
     let fromHeaderViewModel = SendViewSectionHeaderViewModel(
         text: "From".uppercased(),
         showTopSeparatorLine: false,
         showBottomSeparatorLine: false,
-        backgroundColor: Colors.appBackground)
+        backgroundColor: Configuration.Color.Semantic.defaultViewBackground)
 
     let toHeaderViewModel = SendViewSectionHeaderViewModel(
         text: "To".uppercased(),
         showTopSeparatorLine: false,
         showBottomSeparatorLine: false,
-        backgroundColor: Colors.appBackground)
+        backgroundColor: Configuration.Color.Semantic.defaultViewBackground)
 
     var title: String = "Swap"
 

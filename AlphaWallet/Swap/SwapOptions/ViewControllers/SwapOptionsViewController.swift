@@ -41,14 +41,8 @@ class SwapOptionsViewController: UIViewController {
     }()
 
     private lazy var tableView: UITableView = {
-        let tableView = SelfSizingTableView(frame: .zero, style: .grouped)
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = Configuration.Color.Semantic.tableViewBackground
-        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
+        let tableView = UITableView.selfSizingTableView
         tableView.register(RPCDisplaySelectableTableViewCell.self)
-        tableView.isEditing = false
-        tableView.keyboardDismissMode = .onDrag
         tableView.delegate = self
 
         return tableView
@@ -90,12 +84,8 @@ class SwapOptionsViewController: UIViewController {
 
         view.addSubview(containerView)
 
-        let bottomConstraint = containerView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         NSLayoutConstraint.activate([
-            containerView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-            containerView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            containerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            bottomConstraint
+            containerView.anchorsIgnoringBottomSafeArea(to: view)
         ])
     }
 
@@ -181,7 +171,7 @@ extension SwapOptionsViewController: UITableViewDelegate {
     }
 }
 
-class SelfSizingTableView: UITableView {
+private class SelfSizingTableView: UITableView {
     override var contentSize: CGSize {
         didSet {
             invalidateIntrinsicContentSize()
@@ -192,5 +182,21 @@ class SelfSizingTableView: UITableView {
     override var intrinsicContentSize: CGSize {
         let height = min(.infinity, contentSize.height)
         return CGSize(width: contentSize.width, height: height)
+    }
+}
+
+extension UITableView {
+    static var selfSizingTableView: UITableView {
+        let tableView = SelfSizingTableView(frame: .zero, style: .grouped)
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.separatorStyle = .singleLine
+        tableView.backgroundColor = Configuration.Color.Semantic.tableViewBackground
+        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
+        tableView.isEditing = false
+        tableView.keyboardDismissMode = .onDrag
+        tableView.separatorColor = Configuration.Color.Semantic.tableViewSeparator
+        tableView.isScrollEnabled = false
+
+        return tableView
     }
 }

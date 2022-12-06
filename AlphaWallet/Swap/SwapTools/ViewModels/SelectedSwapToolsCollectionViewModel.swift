@@ -11,7 +11,7 @@ import Combine
 import UIKit
 
 struct SelectedSwapToolsCollectionViewModelInput {
-    let appear: AnyPublisher<Void, Never>
+    let willAppear: AnyPublisher<Void, Never>
 }
 
 struct SelectedSwapToolsCollectionViewModelOutput {
@@ -21,17 +21,15 @@ struct SelectedSwapToolsCollectionViewModelOutput {
 class SelectedSwapToolsCollectionViewModel {
     private var storage: SwapToolStorage
     
-    var backgroundColor: UIColor = Colors.appWhite
-
     init(storage: SwapToolStorage) {
         self.storage = storage
     }
 
     func transform(input: SelectedSwapToolsCollectionViewModelInput) -> SelectedSwapToolsCollectionViewModelOutput {
-        let appear = input.appear
+        let willAppear = input.willAppear
             .flatMapLatest { [storage] _ in storage.selectedTools.first() }
 
-        let viewState = Publishers.Merge(appear, storage.selectedTools)
+        let viewState = Publishers.Merge(willAppear, storage.selectedTools)
             .removeDuplicates()
             .map { tools -> Snapshot in
                 let viewModels = tools.map { SwapToolCollectionViewCellViewModel(name: $0.name) }

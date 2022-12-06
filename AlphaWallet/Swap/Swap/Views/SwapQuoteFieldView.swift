@@ -54,7 +54,7 @@ final class SwapQuoteFieldView: UIView {
         cancelable.cancellAll()
 
         titleLabel.attributedText = viewModel.titleAttributedString
-        backgroundColor = viewModel.backgroundColor
+        backgroundColor = Configuration.Color.Semantic.tableViewHeaderBackground
 
         let output = viewModel.transform(input: .init())
         output.value

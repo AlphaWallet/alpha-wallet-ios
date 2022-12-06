@@ -18,18 +18,16 @@ extension SwapStepsViewModel {
     struct SwapStepViewModel {
         private let swapStep: SwapStep
 
-        var backgroundColor: UIColor = R.color.alabaster()!
-
         var toolAttributedString: NSAttributedString {
             NSAttributedString(string: "\(swapStep.tool.uppercased()) Contract", attributes: [
                 .font: Fonts.bold(size: 15),
-                .foregroundColor: R.color.dove()!
+                .foregroundColor: Configuration.Color.Semantic.defaultHeadlineText
             ])
         }
         var descriptionAttributedString: NSAttributedString {
             NSAttributedString(string: "Single transaction including:", attributes: [
                 .font: Fonts.regular(size: 15),
-                .foregroundColor: R.color.dove()!
+                .foregroundColor: Configuration.Color.Semantic.defaultHeadlineText
             ])
         }
 
@@ -48,14 +46,13 @@ extension SwapStepsViewModel {
     struct SwapSubStepViewModel {
         private let subStep: SwapSubStep
         private let index: Int
-        var backgroundColor: UIColor = R.color.alabaster()!
 
         var descriptionAttributedString: NSAttributedString {
             let amount = EtherNumberFormatter.short.string(from: subStep.amount, decimals: subStep.token.decimals)
             let description = "\(subStep.type.capitalized) to \(amount) \(subStep.token.symbol) via \(subStep.tool)"
             return NSAttributedString(string: "\(index + 1). \(description)", attributes: [
                 .font: Fonts.regular(size: 15),
-                .foregroundColor: R.color.dove()!
+                .foregroundColor: Configuration.Color.Semantic.defaultHeadlineText
             ])
         }
 

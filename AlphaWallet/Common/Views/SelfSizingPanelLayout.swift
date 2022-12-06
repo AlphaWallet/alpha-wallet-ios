@@ -106,7 +106,7 @@ extension FloatingPanelController {
         
         let appearance = SurfaceAppearance()
         appearance.cornerRadius = 16
-        appearance.backgroundColor = Colors.appBackground
+        appearance.backgroundColor = Configuration.Color.Semantic.navigationbarBackgroundColor
 
         let shadow = SurfaceAppearance.Shadow()
         shadow.opacity = shadowOpacity

@@ -34,7 +34,7 @@ final class SwapToolCollectionViewCell: UICollectionViewCell {
 
     func configure(viewModel: SwapToolCollectionViewCellViewModel) {
         cornerRadius = 7
-        backgroundColor = viewModel.backgroundColor
+        backgroundColor = Configuration.Color.Semantic.periodButtonNormalText
         label.attributedText = viewModel.nameAttributedString
     }
 }
