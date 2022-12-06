@@ -89,6 +89,6 @@ class SettingTableViewCell: UITableViewCell {
         subTitleLabel.isHidden = viewModel.subTitleHidden
         subTitleLabel.font = viewModel.subTitleFont
         subTitleLabel.textColor = viewModel.subTitleTextColor
-        accessoryView = Style.AccessoryView.chevron
+        accessoryView = UIImageView.chevronImageView
     }
 }

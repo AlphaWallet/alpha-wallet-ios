@@ -20,8 +20,8 @@ class ActivityStateView: UIView {
 
     private func createPendingLoadingIndicatorView() -> ActivityLoadingIndicatorView {
         let control = ActivityLoadingIndicatorView()
-        control.lineColor = R.color.azure()!
-        control.backgroundLineColor = R.color.loadingBackground()!
+        control.lineColor = Colors.appTint
+        control.backgroundLineColor = Colors.loadingBackground
         control.translatesAutoresizingMaskIntoConstraints = false
         control.duration = 1.1
         control.lineWidth = 3

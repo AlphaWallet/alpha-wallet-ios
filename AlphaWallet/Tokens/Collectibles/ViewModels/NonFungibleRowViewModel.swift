@@ -24,7 +24,6 @@ struct NonFungibleRowViewModel {
             }
         }
     }
-    var backgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground
     var titleColor: UIColor = Configuration.Color.Semantic.defaultTitleText
     var titleFont: UIFont = Screen.TokenCard.Font.title
 

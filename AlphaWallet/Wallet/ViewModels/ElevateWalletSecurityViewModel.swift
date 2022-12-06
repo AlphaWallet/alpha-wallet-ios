@@ -7,10 +7,6 @@ import AlphaWalletFoundation
 struct ElevateWalletSecurityViewModel {
     let isHdWallet: Bool
 
-    var backgroundColor: UIColor {
-        return Colors.appWhite
-    }
-
     var title: String {
         if isHdWallet {
             return R.string.localizable.keystoreLockWalletSeedButton()
@@ -48,7 +44,7 @@ struct ElevateWalletSecurityViewModel {
         attributeString.addAttributes([
             .paragraphStyle: style,
             .font: Screen.Backup.subtitleFont,
-            .foregroundColor: R.color.black()!
+            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
         ], range: NSRange(location: 0, length: subtitle.count))
 
         return attributeString

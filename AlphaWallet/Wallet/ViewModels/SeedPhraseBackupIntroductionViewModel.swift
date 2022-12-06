@@ -5,9 +5,6 @@ import UIKit
 import AlphaWalletFoundation
 
 struct SeedPhraseBackupIntroductionViewModel {
-    var backgroundColor: UIColor {
-        return Colors.appWhite
-    }
 
     var title: String {
         return R.string.localizable.walletsBackupHdWalletIntroductionButtonTitle()

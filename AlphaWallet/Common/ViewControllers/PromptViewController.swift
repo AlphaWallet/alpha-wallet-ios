@@ -39,7 +39,7 @@ class PromptViewController: ModalViewController {
     init() {
         super.init(nibName: nil, bundle: nil)
         let footerView = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
-        UIKitFactory.decorateAsDefaultView(footerView)
+
         footerStackView.addArrangedSubview(footerView)
         generateSubviews()
         presentationDelegate = self

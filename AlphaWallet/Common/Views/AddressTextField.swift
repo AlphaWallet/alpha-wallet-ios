@@ -36,13 +36,13 @@ final class AddressTextField: UIControl {
         textField.layer.cornerRadius = DataEntry.Metric.TextField.Default.cornerRadius
         textField.leftView = .spacerWidth(16)
         textField.rightView = makeTargetAddressRightView()
-        textField.layer.borderColor = DataEntry.Color.border.cgColor
+        textField.layer.borderColor = Configuration.Color.Semantic.border.cgColor
         textField.layer.borderWidth = DataEntry.Metric.borderThickness
         textField.placeholder = R.string.localizable.addressEnsLabelMessage()
         textField.autocapitalizationType = .none
         textField.autocorrectionType = .no
         textField.textColor = Configuration.Color.Semantic.defaultForegroundText
-        textField.font = DataEntry.Font.textField
+        textField.font = Configuration.Font.textField
         
         return textField
     }()
@@ -68,8 +68,8 @@ final class AddressTextField: UIControl {
         let button = Button(size: .normal, style: .borderless)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(R.string.localizable.sendPasteButtonTitle(), for: .normal)
-        button.titleLabel?.font = DataEntry.Font.accessory
-        button.setTitleColor(DataEntry.Color.icon, for: .normal)
+        button.titleLabel?.font = Configuration.Font.accessory
+        button.setTitleColor(Configuration.Color.Semantic.icon, for: .normal)
         button.setBackgroundColor(.clear, forState: .normal)
         button.contentHorizontalAlignment = .right
         button.heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
@@ -85,8 +85,8 @@ final class AddressTextField: UIControl {
         let button = Button(size: .normal, style: .borderless)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(R.string.localizable.clearButtonTitle(), for: .normal)
-        button.titleLabel?.font = DataEntry.Font.accessory
-        button.setTitleColor(DataEntry.Color.icon, for: .normal)
+        button.titleLabel?.font = Configuration.Font.accessory
+        button.setTitleColor(Configuration.Color.Semantic.icon, for: .normal)
         button.setBackgroundColor(.clear, forState: .normal)
         button.contentHorizontalAlignment = .right
         button.heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
@@ -101,8 +101,8 @@ final class AddressTextField: UIControl {
     let label: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = DataEntry.Font.textFieldTitle
-        label.textColor = DataEntry.Color.label
+        label.font = Configuration.Font.textFieldTitle
+        label.textColor = Configuration.Color.Semantic.label
         label.textAlignment = .left
         label.numberOfLines = 0
 
@@ -115,8 +115,8 @@ final class AddressTextField: UIControl {
         label.numberOfLines = 0
         label.setContentHuggingPriority(.required, for: .horizontal)
         label.setContentCompressionResistancePriority(.required, for: .horizontal)
-        label.font = DataEntry.Font.textFieldStatus
-        label.textColor = DataEntry.Color.textFieldStatus
+        label.font = Configuration.Font.textFieldStatus
+        label.textColor = Configuration.Color.Semantic.textFieldStatus
         label.textAlignment = .left
 
         return label
@@ -151,7 +151,7 @@ final class AddressTextField: UIControl {
         didSet {
             switch errorState {
             case .error(let error):
-                statusLabel.textColor = DataEntry.Color.textFieldStatus
+                statusLabel.textColor = Configuration.Color.Semantic.textFieldStatus
                 statusLabel.text = error
                 statusLabel.isHidden = error.isEmpty
             case .none:

@@ -12,7 +12,7 @@ class CurrencyTableViewCell: UITableViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = Fonts.regular(size: ScreenChecker.size(big: 16, medium: 16, small: 12))
-        label.textColor = R.color.dove()!
+        label.textColor = Configuration.Color.Semantic.defaultSubtitleText
 
         return label
     }()
@@ -21,7 +21,7 @@ class CurrencyTableViewCell: UITableViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = Fonts.regular(size: ScreenChecker.size(big: 20, medium: 20, small: 16))
-        label.textColor = R.color.black()!
+        label.textColor = Configuration.Color.Semantic.defaultForegroundText
 
         return label
     }()

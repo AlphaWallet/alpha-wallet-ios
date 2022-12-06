@@ -19,14 +19,7 @@ class AcceptProposalViewController: UIViewController {
     private lazy var headerView = ConfirmationHeaderView(viewModel: .init(title: viewModel.title))
     private let buttonsBar = HorizontalButtonsBar(configuration: .empty)
     private (set) var viewModel: AcceptProposalViewModel
-
-    private let separatorLine: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = R.color.mercury()
-
-        return view
-    }()
+    private let separator = UIView.separator()
 
     private lazy var footerBar: UIView = {
         let view = UIView()
@@ -51,7 +44,7 @@ class AcceptProposalViewController: UIViewController {
         view.addSubview(containerView)
         view.addSubview(footerBar)
         view.addSubview(headerView)
-        view.addSubview(separatorLine)
+        view.addSubview(separator)
 
         NSLayoutConstraint.activate([
             heightConstraint,
@@ -64,10 +57,9 @@ class AcceptProposalViewController: UIViewController {
             containerView.topAnchor.constraint(equalTo: headerView.bottomAnchor),
             containerView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
 
-            separatorLine.heightAnchor.constraint(equalToConstant: DataEntry.Metric.TransactionConfirmation.separatorHeight),
-            separatorLine.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
-            separatorLine.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
-            separatorLine.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
+            separator.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
+            separator.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
+            separator.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),

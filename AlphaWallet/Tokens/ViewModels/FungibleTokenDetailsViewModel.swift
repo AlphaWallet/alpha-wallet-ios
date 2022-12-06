@@ -255,22 +255,18 @@ final class FungibleTokenDetailsViewModel {
                 let p = Formatter.percent.string(from: percentage) ?? "-"
                 let v = Formatter.usd.string(from: value) ?? "-"
 
-                return ("\(v) (\(p)%)", Style.value.appreciated)
+                return ("\(v) (\(p)%)", Colors.green)
             case .depreciate(let percentage, let value):
                 let p = Formatter.percent.string(from: percentage) ?? "-"
                 let v = Formatter.usd.string(from: value) ?? "-"
 
-                return ("\(v) (\(p)%)", Style.value.depreciated)
+                return ("\(v) (\(p)%)", Colors.appRed)
             case .none:
                 return ("-", Colors.black)
             }
         }()
 
         return TokenAttributeViewModel.attributedString(result.string, alignment: .right, font: Fonts.regular(size: 17), foregroundColor: result.foregroundColor, lineBreakMode: .byTruncatingTail)
-    }
-
-    var backgroundColor: UIColor {
-        return Screen.TokenCard.Color.background
     }
 }
 

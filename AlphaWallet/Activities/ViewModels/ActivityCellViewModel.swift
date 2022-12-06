@@ -16,7 +16,7 @@ struct ActivityCellViewModel {
     }
 
     var contentsCornerRadius: CGFloat {
-        return Metrics.CornerRadius.box
+        return DataEntry.Metric.CornerRadius.box
     }
 
     var backgroundColor: UIColor {

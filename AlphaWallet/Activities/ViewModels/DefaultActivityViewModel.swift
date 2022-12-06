@@ -66,11 +66,20 @@ struct DefaultActivityViewModel {
 
         switch activity.state {
         case .pending:
-            return NSAttributedString(string: string, attributes: [.font: Fonts.regular(size: 28), .foregroundColor: Configuration.Color.Semantic.defaultForegroundText])
+            return NSAttributedString(string: string, attributes: [
+                .font: Fonts.regular(size: 28),
+                .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
+            ])
         case .completed:
-            return NSAttributedString(string: string, attributes: [.font: Fonts.regular(size: 28), .foregroundColor: Configuration.Color.Semantic.defaultForegroundText])
+            return NSAttributedString(string: string, attributes: [
+                .font: Fonts.regular(size: 28),
+                .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
+            ])
         case .failed:
-            return NSAttributedString(string: string, attributes: [.font: Fonts.regular(size: 28), .foregroundColor: R.color.silver()!, .strikethroughStyle: NSUnderlineStyle.single.rawValue])
+            return NSAttributedString(string: string, attributes: [
+                .font: Fonts.regular(size: 28),
+                .foregroundColor: Configuration.Color.Semantic.textViewFailed,
+                .strikethroughStyle: NSUnderlineStyle.single.rawValue])
         }
     }
 

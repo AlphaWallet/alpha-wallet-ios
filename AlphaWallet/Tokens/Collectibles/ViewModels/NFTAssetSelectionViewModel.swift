@@ -35,7 +35,7 @@ class NFTAssetSelectionViewModel {
             filter(tokenHolders: tokenHolders)
         }
     }
-    var headerBackgroundColor: UIColor = Colors.appWhite
+    var headerBackgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground
     let actions: [NFTAssetSelectionViewModel.ToolbarAction] = [.clear, .selectAll, .send]
 
     var title: String {

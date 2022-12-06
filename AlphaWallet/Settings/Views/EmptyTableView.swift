@@ -16,7 +16,7 @@ class EmptyTableView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = Configuration.Color.Semantic.labelTextActive
-        label.font = Style.Search.Network.Empty.font
+        label.font = Fonts.regular(size: 17)
         label.textAlignment = .center
         return label
     }()

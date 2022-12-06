@@ -48,7 +48,7 @@ class WhereIsWalletAddressFoundOverlayView: UIView {
             let maskPath = UIBezierPath(rect: UIScreen.main.bounds)
             maskPath.append(clipPath.reversing())
             let mask = CAShapeLayer()
-            mask.backgroundColor = UIColor.red.cgColor
+            mask.backgroundColor = Colors.appRed.cgColor
             mask.path = maskPath.cgPath
             layer.mask = mask
         }

@@ -21,14 +21,6 @@ struct PopularTokenViewCellViewModel {
         return token.name
     }
 
-    var backgroundColor: UIColor {
-        return Configuration.Color.Semantic.tableViewBackground
-    }
-
-    var contentsBackgroundColor: UIColor {
-        return Configuration.Color.Semantic.tableViewBackground
-    }
-
     var titleAttributedString: NSAttributedString {
         return NSAttributedString(string: title, attributes: [
             .foregroundColor: Configuration.Color.Semantic.tableViewCellPrimaryFont,

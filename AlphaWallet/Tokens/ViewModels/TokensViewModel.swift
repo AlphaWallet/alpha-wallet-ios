@@ -321,7 +321,7 @@ final class TokensViewModel {
                     completion(true)
                 }
 
-                hideAction.backgroundColor = R.color.danger()
+                hideAction.backgroundColor = Colors.appRed
                 hideAction.image = R.image.hideToken()
                 let configuration = UISwipeActionsConfiguration(actions: [hideAction])
                 configuration.performsFirstActionWithFullSwipe = true
@@ -380,14 +380,14 @@ final class TokensViewModel {
         case .tokens, .testnetTokens:
             switch tokenOrServer(at: indexPath) {
             case .rpcServer:
-                return Style.Wallet.Header.height
+                return DataEntry.Metric.Tokens.headerHeight
             case .token:
-                return Style.Wallet.Row.height
+                return DataEntry.Metric.Tokens.cellHeight
             }
         case .search, .walletSummary, .filters, .activeWalletSession:
-            return Style.Wallet.Row.height
+            return DataEntry.Metric.Tokens.cellHeight
         case .collectiblePairs:
-            return Style.Wallet.Row.collectiblePairsHeight
+            return DataEntry.Metric.Tokens.collectiblePairsHeight
         }
     }
 

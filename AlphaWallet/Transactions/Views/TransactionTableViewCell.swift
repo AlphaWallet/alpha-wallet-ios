@@ -78,13 +78,13 @@ class TransactionTableViewCell: UITableViewCell {
 
         background.addSubview(stackView)
 
-        leftEdgeConstraint = stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: StyleLayout.sideMargin)
+        leftEdgeConstraint = stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: DataEntry.Metric.sideMargin)
 
         NSLayoutConstraint.activate([
             statusImageView.widthAnchor.constraint(lessThanOrEqualToConstant: ScreenChecker.size(big: 26, medium: 26, small: 20)),
             amountLabel.widthAnchor.constraint(lessThanOrEqualTo: background.widthAnchor, multiplier: 0.5),
             leftEdgeConstraint,
-            stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -StyleLayout.sideMargin),
+            stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -DataEntry.Metric.sideMargin),
             stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: ScreenChecker.size(big: 15, medium: 15, small: 10)),
             stackView.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: -ScreenChecker.size(big: 15, medium: 15, small: 10)),
 
@@ -99,7 +99,7 @@ class TransactionTableViewCell: UITableViewCell {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        background.layer.cornerRadius = Metrics.CornerRadius.box
+        background.layer.cornerRadius = DataEntry.Metric.CornerRadius.box
     }
 
     func configure(viewModel: TransactionRowCellViewModel) {

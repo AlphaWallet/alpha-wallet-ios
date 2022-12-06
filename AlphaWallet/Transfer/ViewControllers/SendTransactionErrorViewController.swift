@@ -19,7 +19,7 @@ class SendTransactionErrorViewController: UIViewController {
         let v = UILabel()
         v.numberOfLines = 0
         v.textAlignment = .center
-        v.textColor = R.color.black()
+        v.textColor = Configuration.Color.Semantic.defaultForegroundText
         v.font = Fonts.regular(size: 28)
         return v
     }()
@@ -28,7 +28,7 @@ class SendTransactionErrorViewController: UIViewController {
         let v = UILabel()
         v.numberOfLines = 0
         v.textAlignment = .center
-        v.textColor = R.color.mine()
+        v.textColor = Configuration.Color.Semantic.defaultHeadlineText
         v.font = Fonts.regular(size: 17)
         return v
     }()
@@ -36,7 +36,7 @@ class SendTransactionErrorViewController: UIViewController {
     private var linkButton: UIButton = {
         let b = UIButton(type: .system)
         b.titleLabel?.font = Fonts.semibold(size: 17)
-        b.setTitleColor(R.color.azure(), for: .normal)
+        b.setTitleColor(Colors.appTint, for: .normal)
         return b
     }()
 
@@ -94,7 +94,7 @@ class SendTransactionErrorViewController: UIViewController {
     }
 
     private func configure() {
-        view.backgroundColor = viewModel.backgroundColor
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
 
         titleLabel.text = viewModel.title
         descriptionLabel.text = viewModel.description

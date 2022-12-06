@@ -5,9 +5,6 @@ import UIKit
 import AlphaWalletFoundation
 
 struct CreateInitialViewModel {
-    var backgroundColor: UIColor {
-        return Colors.appWhite
-    }
 
     var titleAttributedString: NSAttributedString {
         let font: UIFont = ScreenChecker().isNarrowScreen ? Fonts.regular(size: 20) : Fonts.regular(size: 30)

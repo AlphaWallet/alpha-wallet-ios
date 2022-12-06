@@ -11,7 +11,7 @@ struct ShowAddHideTokensViewModel {
     var addHideTokensIcon: UIImage?
     var addHideTokensTitle: String? = R.string.localizable.walletsAddHideTokensTitle()
     var addHideTokensTintColor: UIColor = Colors.appTint
-    var addHideTokensTintFont: UIFont = Screen.Tokens.addHideTokenFont
+    var addHideTokensTintFont: UIFont = Fonts.semibold(size: 17)
 
     var addHideTokensAttributedString: NSAttributedString? {
         guard let string = addHideTokensTitle else { return .none }
@@ -28,7 +28,7 @@ struct ShowAddHideTokensViewModel {
         R.color.radical()
     }
 
-    var backgroundColor: UIColor = Colors.appWhite
+    var backgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground
 
     var badgeText: String?
 }

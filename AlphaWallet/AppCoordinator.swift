@@ -149,7 +149,7 @@ class AppCoordinator: NSObject, Coordinator {
         let keystore: Keystore = EtherKeystore(keychain: securedStorage, walletAddressesStore: walletAddressesStore, analytics: analytics, legacyFileBasedKeystore: legacyFileBasedKeystore)
 
         let navigationController: UINavigationController = .withOverridenBarAppearence()
-        navigationController.view.backgroundColor = Colors.appWhite
+        navigationController.view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
 
         let coordinator = AppCoordinator(window: window, analytics: analytics, keystore: keystore, walletAddressesStore: walletAddressesStore, navigationController: navigationController, securedStorage: securedStorage, legacyFileBasedKeystore: legacyFileBasedKeystore)
         coordinator.keystore.delegate = coordinator

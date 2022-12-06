@@ -6,7 +6,7 @@ class ServerTableViewCell: UITableViewCell {
     static let selectionAccessoryType: (selected: UITableViewCell.AccessoryType, unselected: UITableViewCell.AccessoryType) = (selected: .checkmark, unselected: .none)
 
     private let nameLabel = UILabel()
-    private lazy var topSeparator: UIView = UIView.spacer(backgroundColor: R.color.mike()!)
+    private lazy var topSeparator: UIView = UIView.separator()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -25,7 +25,7 @@ class ServerTableViewCell: UITableViewCell {
             topSeparator.topAnchor.constraint(equalTo: contentView.topAnchor),
             topSeparator.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             topSeparator.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            stackView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 0, left: StyleLayout.sideMargin, bottom: 0, right: StyleLayout.sideMargin)),
+            stackView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 0, left: DataEntry.Metric.sideMargin, bottom: 0, right: DataEntry.Metric.sideMargin)),
         ])
     }
 

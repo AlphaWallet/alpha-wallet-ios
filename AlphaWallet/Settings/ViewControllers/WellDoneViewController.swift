@@ -21,7 +21,7 @@ class WellDoneViewController: UIViewController {
         let descriptionLabel = UILabel()
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         descriptionLabel.text = R.string.localizable.welldoneDescriptionLabelText()
-        descriptionLabel.font = Label.Font.text
+        descriptionLabel.font = Fonts.regular(size: 18)
         descriptionLabel.textColor = Configuration.Color.Semantic.defaultForegroundText
         descriptionLabel.numberOfLines = 0
         descriptionLabel.textAlignment = .center

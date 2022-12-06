@@ -150,7 +150,7 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 			stackView.bottomAnchor.constraint(lessThanOrEqualTo: background.bottomAnchor),
 		]
 
-		// TODO extract constant. Maybe StyleLayout.sideMargin
+		// TODO extract constant. Maybe DataEntry.Metric.sideMargin
 		let xMargin  = CGFloat(7)
 		checkboxRelatedConstraintsWhenShown.append(checkboxImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: xMargin))
 		checkboxRelatedConstraintsWhenShown.append(checkboxImageView.centerYAnchor.constraint(equalTo: centerYAnchor))

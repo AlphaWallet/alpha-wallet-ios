@@ -7,7 +7,7 @@ struct BrowserHomeHeaderViewModel {
     var title: String
 
     var logo: UIImage? {
-        return R.image.launch_icon()
+        return R.image.awLogoSmall()
     }
 
     var titleFont: UIFont? {

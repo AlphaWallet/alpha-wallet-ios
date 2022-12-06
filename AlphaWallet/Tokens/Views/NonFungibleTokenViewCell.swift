@@ -48,11 +48,9 @@ class NonFungibleTokenViewCell: UITableViewCell {
 
     func configure(viewModel: NonFungibleTokenViewCellViewModel) {
         selectionStyle = .none
-        backgroundColor = viewModel.backgroundColor
-
-        background.backgroundColor = viewModel.contentsBackgroundColor
-
-        contentView.backgroundColor = Configuration.Color.Semantic.tableViewBackground
+        backgroundColor = Configuration.Color.Semantic.tableViewCellBackground
+        background.backgroundColor = Configuration.Color.Semantic.tableViewCellBackground
+        contentView.backgroundColor = Configuration.Color.Semantic.tableViewCellBackground
 
         titleLabel.attributedText = viewModel.titleAttributedString
         titleLabel.baselineAdjustment = .alignCenters

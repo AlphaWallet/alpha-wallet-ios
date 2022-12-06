@@ -9,7 +9,7 @@ struct DappButtonViewModel {
     }
 
     var textColor: UIColor? {
-        return R.color.dove()
+        return Configuration.Color.Semantic.defaultSubtitleText
     }
 
     var imageForEnabledMode: UIImage? {

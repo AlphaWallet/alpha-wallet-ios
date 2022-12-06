@@ -31,7 +31,7 @@ class AnalyticsViewController: UIViewController {
         let view = ScrollableStackView(viewModel: .init(backgroundColor: viewModel.backgroundColor))
         return view
     }()
-    private lazy var switchView = SwitchView(edgeInsets: .init(top: 0, left: Metrics.Analytics.edgeInsets.left, bottom: 0, right: Metrics.Analytics.edgeInsets.right), height: 60)
+    private lazy var switchView = SwitchView(edgeInsets: .init(top: 0, left: DataEntry.Metric.Analytics.edgeInsets.left, bottom: 0, right: DataEntry.Metric.Analytics.edgeInsets.right), height: 60)
 
     init(viewModel: AnalyticsViewModel) {
         self.viewModel = viewModel
@@ -40,19 +40,19 @@ class AnalyticsViewController: UIViewController {
         view.addSubview(containerView)
 
         NSLayoutConstraint.activate([
-            containerView.anchorsConstraint(to: view, edgeInsets: .init(top: Metrics.Analytics.spacing, left: 0, bottom: 0, right: 0))
+            containerView.anchorsConstraint(to: view, edgeInsets: .init(top: DataEntry.Metric.Analytics.spacing, left: 0, bottom: 0, right: 0))
         ])
 
         let labeledSwitchViewContainerView = TokensViewController.ContainerView<SwitchView>(subview: switchView)
         labeledSwitchViewContainerView.useSeparatorLine = true
 
-        containerView.stackView.spacing = Metrics.Analytics.spacing
+        containerView.stackView.spacing = DataEntry.Metric.Analytics.spacing
         containerView.stackView.addArrangedSubviews([
             imageView,
             [
-                .spacerWidth(Metrics.Analytics.edgeInsets.left),
+                .spacerWidth(DataEntry.Metric.Analytics.edgeInsets.left),
                 descriptionLabel,
-                .spacerWidth(Metrics.Analytics.edgeInsets.right)
+                .spacerWidth(DataEntry.Metric.Analytics.edgeInsets.right)
             ].asStackView(axis: .horizontal, alignment: .center),
             labeledSwitchViewContainerView
         ])

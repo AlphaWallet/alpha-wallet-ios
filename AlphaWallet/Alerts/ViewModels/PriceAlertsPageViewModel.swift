@@ -74,7 +74,11 @@ extension PriceAlertsViewModel {
     struct ViewState {
         let animatingDifferences: Bool = false
         let snapshot: Snapshot
-        let addNewAlertViewModel = ShowAddHideTokensViewModel(addHideTokensIcon: R.image.add_hide_tokens(), addHideTokensTitle: R.string.localizable.priceAlertNewAlert(), backgroundColor: Configuration.Color.Semantic.tableViewHeaderBackground, badgeText: nil)
+        let addNewAlertViewModel = ShowAddHideTokensViewModel(
+            addHideTokensIcon: R.image.add_hide_tokens(),
+            addHideTokensTitle: R.string.localizable.priceAlertNewAlert(),
+            backgroundColor: Configuration.Color.Semantic.tableViewHeaderBackground,
+            badgeText: nil)
     }
 }
 

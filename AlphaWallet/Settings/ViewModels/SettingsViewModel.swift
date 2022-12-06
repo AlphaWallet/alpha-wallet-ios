@@ -49,7 +49,7 @@ final class SettingsViewModel {
             let row = rows[indexPath.row]
             switch row {
             case .changeWallet:
-                return Style.TableView.ChangeWalletCell.height
+                return DataEntry.Metric.TableView.changeWalletCell
             default:
                 return height
             }

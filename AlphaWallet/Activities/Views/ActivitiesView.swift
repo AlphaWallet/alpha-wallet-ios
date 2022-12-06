@@ -26,7 +26,7 @@ class ActivitiesView: UIView {
         tableView.register(GroupActivityViewCell.self)
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.estimatedRowHeight = Metrics.anArbitraryRowHeightSoAutoSizingCellsWorkIniOS10
+        tableView.estimatedRowHeight = DataEntry.Metric.anArbitraryRowHeightSoAutoSizingCellsWorkIniOS10
 
         return tableView
     }()

@@ -32,6 +32,6 @@ struct GroupActivityCellViewModel {
     }
 
     var leftMargin: CGFloat {
-        StyleLayout.sideMargin
+        DataEntry.Metric.sideMargin
     }
 }

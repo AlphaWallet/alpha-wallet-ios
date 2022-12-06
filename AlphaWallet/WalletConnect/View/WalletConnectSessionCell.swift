@@ -35,7 +35,7 @@ class WalletConnectSessionCell: UITableViewCell {
     }()
 
     private let serverIconImageView: RoundedImageView = {
-        let imageView = RoundedImageView(size: .init(width: Metrics.tokenChainOverlayDimension, height: Metrics.tokenChainOverlayDimension))
+        let imageView = RoundedImageView(size: DataEntry.Metric.ChainOverlay.size)
         return imageView
     }()
 
@@ -46,12 +46,7 @@ class WalletConnectSessionCell: UITableViewCell {
             nameLabel,
             urlLabel
         ].asStackView(axis: .vertical)
-        let stackView = [
-            .spacerWidth(Table.Metric.plainLeftMargin),
-            iconImageView,
-            .spacerWidth(12),
-            cell0
-        ].asStackView(axis: .horizontal, alignment: .center)
+        let stackView = [.spacerWidth(5), iconImageView, .spacerWidth(12), cell0 ].asStackView(axis: .horizontal, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(stackView)
         contentView.addSubview(serverIconImageView)

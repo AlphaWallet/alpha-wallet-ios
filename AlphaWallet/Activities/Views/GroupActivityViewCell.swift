@@ -17,11 +17,11 @@ class GroupActivityViewCell: UITableViewCell {
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         background.addSubview(titleLabel)
 
-        leftEdgeConstraint = titleLabel.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: StyleLayout.sideMargin)
+        leftEdgeConstraint = titleLabel.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: DataEntry.Metric.sideMargin)
 
         NSLayoutConstraint.activate([
             leftEdgeConstraint,
-            titleLabel.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -StyleLayout.sideMargin),
+            titleLabel.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -DataEntry.Metric.sideMargin),
             titleLabel.topAnchor.constraint(equalTo: background.topAnchor, constant: 7),
             titleLabel.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: -7),
 

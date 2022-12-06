@@ -106,7 +106,7 @@ class ActivityViewController: UIViewController {
 
             separator.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: 20),
             separator.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -20),
-            separator.heightAnchor.constraint(equalToConstant: GroupedTable.Metric.cellSeparatorHeight),
+            separator.heightAnchor.constraint(equalToConstant: DataEntry.Metric.TableView.groupedTableCellSeparatorHeight),
             stackView.anchorsConstraintSafeArea(to: roundedBackground),
 
             tokenScriptRendererView.widthAnchor.constraint(equalTo: stackView.widthAnchor),

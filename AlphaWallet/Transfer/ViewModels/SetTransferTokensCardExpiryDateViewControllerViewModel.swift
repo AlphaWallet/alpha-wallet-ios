@@ -59,7 +59,7 @@ struct SetTransferTokensCardExpiryDateViewControllerViewModel {
     }
 
     var noteCornerRadius: CGFloat {
-        return Metrics.CornerRadius.box
+        return DataEntry.Metric.CornerRadius.box
     }
 
     var choiceLabelColor: UIColor {

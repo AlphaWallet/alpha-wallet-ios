@@ -134,7 +134,7 @@ extension TransactionFieldView {
     @discardableResult func configure(title: String) -> Self {
         let attributedTitle = NSAttributedString(string: title, attributes: [
             .font: Fonts.regular(size: 13),
-            .foregroundColor: R.color.dove()!
+            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText
         ])
 
         return configure(attributedTitleText: attributedTitle)

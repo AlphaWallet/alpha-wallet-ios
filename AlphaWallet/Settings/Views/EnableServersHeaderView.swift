@@ -49,7 +49,7 @@ class EnableServersHeaderView: UIView {
 
         label.backgroundColor = Configuration.Color.Semantic.tableViewHeaderBackground
         label.textColor = Configuration.Color.Semantic.tableViewCellPrimaryFont
-        label.font = Fonts.tableHeader
+        label.font = Fonts.semibold(size: 15)
         label.text = mode.headerText
 
         toggle.isOn = isEnabled

@@ -65,12 +65,12 @@ class ContainerTableViewCell: UITableViewCell {
             cellSeparators.top.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             cellSeparators.top.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             cellSeparators.top.topAnchor.constraint(equalTo: contentView.topAnchor),
-            cellSeparators.top.heightAnchor.constraint(equalToConstant: GroupedTable.Metric.cellSeparatorHeight),
+            cellSeparators.top.heightAnchor.constraint(equalToConstant: DataEntry.Metric.TableView.groupedTableCellSeparatorHeight),
 
             cellSeparators.bottom.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             cellSeparators.bottom.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             cellSeparators.bottom.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            cellSeparators.bottom.heightAnchor.constraint(equalToConstant: GroupedTable.Metric.cellSeparatorHeight),
+            cellSeparators.bottom.heightAnchor.constraint(equalToConstant: DataEntry.Metric.TableView.groupedTableCellSeparatorHeight)
         ])
     }
 

@@ -14,14 +14,6 @@ struct FungibleTokenViewCellViewModel {
         self.accessoryType = accessoryType
     }
 
-    var backgroundColor: UIColor {
-        return Screen.TokenCard.Color.background
-    }
-
-    var contentsBackgroundColor: UIColor {
-        return Configuration.Color.Semantic.tableViewCellBackground
-    }
-
     var titleAttributedString: NSAttributedString {
         return NSAttributedString(string: token.tokenScriptOverrides?.safeShortTitleInPluralForm ?? "", attributes: [
             .foregroundColor: Configuration.Color.Semantic.defaultForegroundText,

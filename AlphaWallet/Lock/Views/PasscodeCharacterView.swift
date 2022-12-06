@@ -14,7 +14,7 @@ class PasscodeCharacterView: UIView {
 
 	private func commonInit() {
 		isEmpty = true
-		backgroundColor = UIColor.clear
+		backgroundColor = Colors.clear
 		drawCircle()
 		drawHyphen()
 		redraw()

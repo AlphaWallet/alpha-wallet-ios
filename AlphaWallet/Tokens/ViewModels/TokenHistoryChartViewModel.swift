@@ -25,7 +25,7 @@ class TokenHistoryChartViewModel {
     var periodTitles: [String] = ChartHistoryPeriod.allCases.map { $0.title }
     var initialSelectionIndex: Int { return 0 }
     var setGradientFill: Fill? {
-        return ColorFill(color: UIColor.clear)
+        return ColorFill(color: Colors.clear)
     }
 
     init(chartHistories: AnyPublisher<[ChartHistoryPeriod: ChartHistory], Never>, coinTicker: AnyPublisher<CoinTicker?, Never>) {

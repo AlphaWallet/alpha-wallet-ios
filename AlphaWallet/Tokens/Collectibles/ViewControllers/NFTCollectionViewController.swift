@@ -140,6 +140,7 @@ class NFTCollectionViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         bind(viewModel: viewModel)
         refreshControl.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
     }
@@ -149,8 +150,6 @@ class NFTCollectionViewController: UIViewController {
     }
 
     private func bind(viewModel: NFTCollectionViewModel) {
-        view.backgroundColor = viewModel.backgroundColor
-
         updateNavigationRightBarButtons(tokenScriptFileStatusHandler: viewModel.tokenScriptFileStatusHandler)
 
         let input = NFTCollectionViewModelInput(

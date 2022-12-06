@@ -182,7 +182,7 @@ extension BookmarksViewController: UITableViewDelegate {
             }
         }
 
-        deleteAction.backgroundColor = R.color.danger()
+        deleteAction.backgroundColor = Colors.appRed
         deleteAction.image = R.image.hideToken()
 
         let configuration = UISwipeActionsConfiguration(actions: [deleteAction])

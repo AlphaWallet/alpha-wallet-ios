@@ -56,6 +56,7 @@ class NonFungibleRowView: TokenCardViewRepresentable {
         ]
 
         clipsToBounds = true
+        backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         borderColor = Configuration.Color.Semantic.tableViewSeparator
         configureLayout(layout: layout)
     }
@@ -81,7 +82,7 @@ class NonFungibleRowView: TokenCardViewRepresentable {
             _constraints = imageSmallSizeContraints + stackView.anchorsConstraint(to: self, edgeInsets: listEdgeInsets)
         case .grid:
             borderWidth = 1
-            cornerRadius = Metrics.CornerRadius.nftBox
+            cornerRadius = DataEntry.Metric.CornerRadius.nftBox
             col1.alignment = .center
             thumbnailImageView.rounding = .none
 
@@ -107,7 +108,6 @@ class NonFungibleRowView: TokenCardViewRepresentable {
 
     func configure(viewModel: NonFungibleRowViewModel) {
         thumbnailImageView.contentBackgroundColor = viewModel.contentBackgroundColor
-        backgroundColor = viewModel.backgroundColor
         thumbnailImageView.subscribable = viewModel.assetImage
         descriptionLabel.attributedText = viewModel.description
         titleLabel.attributedText = viewModel.title

@@ -8,19 +8,19 @@
 import UIKit
 
 struct TypedDataViewModel {
-    var backgroundColor: UIColor = .white
+    var backgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground
 
     var nameAttributeString: NSAttributedString {
         return .init(string: name, attributes: [
             .font: Fonts.semibold(size: 13),
-            .foregroundColor: R.color.dove()!
+            .foregroundColor: Configuration.Color.Semantic.defaultSubtitleText
         ])
     }
 
     var valueAttributeString: NSAttributedString {
         return .init(string: value, attributes: [
             .font: Fonts.semibold(size: 17),
-            .foregroundColor: Colors.black
+            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
         ])
     }
 

@@ -41,23 +41,23 @@ class EditBookmarkViewModel {
     }
 
     var imageShadowColor: UIColor {
-        return Metrics.DappsHome.Icon.shadowColor
+        return DataEntry.Metric.DappsHome.Icon.shadowColor
     }
 
     var imageShadowOffset: CGSize {
-        return Metrics.DappsHome.Icon.shadowOffset
+        return DataEntry.Metric.DappsHome.Icon.shadowOffset
     }
 
     var imageShadowOpacity: Float {
-        return Metrics.DappsHome.Icon.shadowOpacity
+        return DataEntry.Metric.DappsHome.Icon.shadowOpacity
     }
 
     var imageShadowRadius: CGFloat {
-        return Metrics.DappsHome.Icon.shadowRadius
+        return DataEntry.Metric.DappsHome.Icon.shadowRadius
     }
 
     var imageBackgroundColor: UIColor {
-        return Colors.appWhite
+        return Configuration.Color.Semantic.defaultViewBackground
     }
 
     var imagePlaceholder: UIImage {

@@ -19,13 +19,7 @@ class SignatureConfirmationViewController: UIViewController {
     private let buttonsBar = HorizontalButtonsBar(configuration: .empty)
     let viewModel: SignatureConfirmationViewModel
 
-    private let separatorLine: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = R.color.mercury()
-
-        return view
-    }()
+    private let separatorLine = UIView.separator()
 
     private lazy var footerBar: UIView = {
         let view = UIView()
@@ -63,7 +57,6 @@ class SignatureConfirmationViewController: UIViewController {
             containerView.topAnchor.constraint(equalTo: headerView.bottomAnchor),
             containerView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
 
-            separatorLine.heightAnchor.constraint(equalToConstant: DataEntry.Metric.TransactionConfirmation.separatorHeight),
             separatorLine.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
             separatorLine.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
             separatorLine.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),

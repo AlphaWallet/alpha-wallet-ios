@@ -227,7 +227,7 @@ extension TransactionConfirmationHeaderView {
 
         label.attributedText = NSAttributedString(string: title, attributes: [
             .font: Fonts.bold(size: 17) as Any,
-            .foregroundColor: R.color.azure() as Any,
+            .foregroundColor: Colors.appTint,
             .paragraphStyle: paragraph
         ])
         label.translatesAutoresizingMaskIntoConstraints = false

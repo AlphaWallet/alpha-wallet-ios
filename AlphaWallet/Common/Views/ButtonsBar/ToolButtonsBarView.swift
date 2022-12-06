@@ -17,12 +17,6 @@ class ToolButtonsBarView: UIView, ButtonsBarViewType {
     private let moreButtonIndex: Int = 2
     private var moreButtons: [UIButton] = []
     private let buttonsBar = HorizontalButtonsBar(configuration: .empty)
-    private let separatorLine: UIView = {
-        let view = UIView()
-        view.backgroundColor = R.color.mike()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
     private var observation: NSKeyValueObservation?
 
     weak var viewController: UIViewController?
@@ -31,7 +25,7 @@ class ToolButtonsBarView: UIView, ButtonsBarViewType {
     init() {
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
-        backgroundColor = Colors.appWhite
+        backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         addSubview(buttonsBar)
 
         NSLayoutConstraint.activate([buttonsBar.anchorsConstraint(to: self)])

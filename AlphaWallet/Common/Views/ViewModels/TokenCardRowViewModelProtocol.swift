@@ -26,11 +26,11 @@ protocol TokenCardRowViewModelProtocol {
 
 extension TokenCardRowViewModelProtocol {
     var contentsBackgroundColor: UIColor {
-        return Colors.appWhite
+        return Configuration.Color.Semantic.defaultViewBackground
     }
 
     var contentsCornerRadius: CGFloat {
-        return Metrics.CornerRadius.box
+        return DataEntry.Metric.CornerRadius.box
     }
 
     var titleColor: UIColor {
@@ -77,19 +77,4 @@ extension TokenCardRowViewModelProtocol {
         return Fonts.regular(size: 16)
     }
 
-    var buttonTitleColor: UIColor {
-        return Colors.appWhite
-    }
-
-    var disabledButtonTitleColor: UIColor {
-        return Colors.darkGray
-    }
-
-    var buttonBackgroundColor: UIColor {
-        return Colors.appHighlightGreen
-    }
-
-    var buttonFont: UIFont {
-        return Fonts.regular(size: 20)
-    }
 }

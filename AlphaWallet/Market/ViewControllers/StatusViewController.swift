@@ -88,7 +88,7 @@ class StatusViewController: UIViewController {
         self.viewModel = viewModel
         if let viewModel = self.viewModel {
 			background.backgroundColor = viewModel.contentsBackgroundColor
-			background.layer.cornerRadius = Metrics.CornerRadius.popups
+			background.layer.cornerRadius = DataEntry.Metric.CornerRadius.popups
 
 			activityIndicator.color = viewModel.activityIndicatorColor
 

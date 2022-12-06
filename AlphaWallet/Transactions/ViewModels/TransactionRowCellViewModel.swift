@@ -107,9 +107,9 @@ struct TransactionRowCellViewModel {
 
     var leftMargin: CGFloat {
         switch transactionRow {
-        case .standalone: return StyleLayout.sideMargin
-        case .group: return StyleLayout.sideMargin
-        case .item: return StyleLayout.sideMargin + ScreenChecker.size(big: 20, medium: 20, small: 10)
+        case .standalone: return DataEntry.Metric.sideMargin
+        case .group: return DataEntry.Metric.sideMargin
+        case .item: return DataEntry.Metric.sideMargin + ScreenChecker.size(big: 20, medium: 20, small: 10)
         }
     }
 }

@@ -12,12 +12,12 @@ class LocaleViewCell: UITableViewCell {
 
         tintColor = Colors.appTint
 
-        let stackView = [.spacerWidth(Table.Metric.plainLeftMargin), nameLabel].asStackView(axis: .horizontal)
+        let stackView = [.spacerWidth(5), nameLabel].asStackView(axis: .horizontal)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            stackView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 7, left: StyleLayout.sideMargin, bottom: 7, right: StyleLayout.sideMargin)),
+            stackView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 7, left: DataEntry.Metric.sideMargin, bottom: 7, right: DataEntry.Metric.sideMargin)),
             stackView.heightAnchor.constraint(equalToConstant: 44),
         ])
     }

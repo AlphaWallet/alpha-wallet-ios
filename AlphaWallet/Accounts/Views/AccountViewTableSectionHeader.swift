@@ -54,7 +54,7 @@ class AccountViewTableSectionHeader: UIView {
         paragraphStyle.minimumLineHeight = 25
         paragraphStyle.maximumLineHeight = 25
         let attributes: [NSAttributedString.Key: Any] = [
-            .font: Style.Wallet.Header.font as Any,
+            .font: Fonts.semibold(size: 15),
             .paragraphStyle: paragraphStyle,
             .backgroundColor: Configuration.Color.Semantic.defaultViewBackground,
             .foregroundColor: Configuration.Color.Semantic.defaultForegroundText]

@@ -4,9 +4,6 @@ import Foundation
 import UIKit
 
 struct VerifySeedPhraseViewModel {
-    var backgroundColor: UIColor {
-        return Colors.appWhite
-    }
 
     var title: String {
         return R.string.localizable.walletsVerifySeedPhraseTitle()
