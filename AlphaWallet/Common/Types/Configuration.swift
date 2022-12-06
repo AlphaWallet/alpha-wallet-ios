@@ -285,6 +285,9 @@ struct Configuration {
             static let placeholder = UIColor(hex: "919191")
             static let ensText = UIColor(red: 117, green: 185, blue: 67)
             static let searchTextFieldBackground = UIColor(red: 243, green: 244, blue: 245)
+            static let headerViewBackground = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.venus()!)
+            }
         }
     }
 }
