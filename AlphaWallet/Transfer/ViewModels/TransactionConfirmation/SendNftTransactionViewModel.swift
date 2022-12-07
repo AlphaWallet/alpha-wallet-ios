@@ -83,7 +83,7 @@ extension TransactionConfirmationViewModel {
                 return tokenHolders
             case .erc721Token(_, let tokenHolders), .erc875Token(_, let tokenHolders), .erc721ForTicketToken(_, let tokenHolders):
                 return tokenHolders
-            case .nativeCryptocurrency, .erc20Token, .dapp, .tokenScript, .prebuilt, .claimPaidErc875MagicLink:
+            case .nativeCryptocurrency, .erc20Token, .prebuilt:
                 fatalError()
             }
         }
@@ -153,7 +153,7 @@ extension TransactionConfirmationViewModel {
                         title = String(tokenHolder.tokenId)
                     }
                     return .init(title: .normal(title), headerName: headerName, configuration: configuration)
-                case .nativeCryptocurrency, .erc20Token, .dapp, .tokenScript, .prebuilt, .claimPaidErc875MagicLink:
+                case .nativeCryptocurrency, .erc20Token, .prebuilt:
                     fatalError()
                 }
             case .recipient:

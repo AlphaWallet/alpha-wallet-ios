@@ -31,7 +31,7 @@ class ReplaceTransactionCoordinator: Coordinator {
         switch transactionType {
         case .nativeCryptocurrency:
             return AlphaWallet.Address(string: transaction.to)
-        case .dapp, .erc20Token, .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+        case .erc20Token, .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .prebuilt:
             return nil
         }
     }
@@ -39,7 +39,7 @@ class ReplaceTransactionCoordinator: Coordinator {
         switch transactionType {
         case .nativeCryptocurrency:
             return nil
-        case .dapp, .erc20Token, .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+        case .erc20Token, .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .prebuilt:
             return AlphaWallet.Address(string: transaction.to)
         }
     }

@@ -48,8 +48,8 @@ class TransactionConfirmationCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: TransactionConfirmationCoordinatorDelegate?
 
-    init(presentingViewController: UIViewController, session: WalletSession, transaction: UnconfirmedTransaction, configuration: TransactionType.Configuration, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, keystore: Keystore, assetDefinitionStore: AssetDefinitionStore, tokensService: TokenViewModelState) throws {
-        configurator = try TransactionConfigurator(session: session, analytics: analytics, transaction: transaction)
+    init(presentingViewController: UIViewController, session: WalletSession, transaction: UnconfirmedTransaction, configuration: TransactionType.Configuration, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, keystore: Keystore, assetDefinitionStore: AssetDefinitionStore, tokensService: TokenViewModelState) {
+        configurator = TransactionConfigurator(session: session, analytics: analytics, transaction: transaction)
         self.keystore = keystore
         self.assetDefinitionStore = assetDefinitionStore
         self.configuration = configuration

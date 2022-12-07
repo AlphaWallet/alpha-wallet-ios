@@ -46,7 +46,7 @@ public class TransactionConfigurator {
         switch transaction.transactionType {
         case .nativeCryptocurrency:
             return transaction.recipient
-        case .dapp, .erc20Token, .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+        case .erc20Token, .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .prebuilt:
             return transaction.contract
         }
     }
@@ -54,14 +54,12 @@ public class TransactionConfigurator {
     public var value: BigUInt {
         //TODO why not all `transaction.value`? Shouldn't the other types of transactions make sure their `transaction.value` is 0?
         switch transaction.transactionType {
-        case .nativeCryptocurrency, .dapp: return transaction.value
+        case .nativeCryptocurrency: return transaction.value
         case .erc20Token: return 0
         case .erc875Token: return 0
         case .erc721Token: return 0
         case .erc721ForTicketToken: return 0
         case .erc1155Token: return 0
-        case .tokenScript: return transaction.value
-        case .claimPaidErc875MagicLink: return transaction.value
         case .prebuilt: return transaction.value
         }
     }
@@ -81,12 +79,12 @@ public class TransactionConfigurator {
     private lazy var gasPriceEstimator = GasPriceEstimator(analytics: analytics)
     private lazy var gasLimitEstimator = GetGasLimit(account: session.account, server: session.server, analytics: analytics)
 
-    public init(session: WalletSession, analytics: AnalyticsLogger, transaction: UnconfirmedTransaction) throws {
+    public init(session: WalletSession, analytics: AnalyticsLogger, transaction: UnconfirmedTransaction) {
         self.session = session
         self.analytics = analytics
         self.transaction = transaction
 
-        let standardConfiguration = try TransactionConfigurator.createConfiguration(server: session.server, analytics: analytics, transaction: transaction, account: session.account.address)
+        let standardConfiguration = TransactionConfigurator.createConfiguration(server: session.server, analytics: analytics, transaction: transaction, account: session.account.address)
         self.configurations = .init(standard: standardConfiguration)
     }
 
@@ -198,52 +196,17 @@ public class TransactionConfigurator {
         return TransactionConfiguration(gasPrice: gasPrice, gasLimit: gasLimit, data: data)
     }
 
-    private static func createConfiguration(server: RPCServer, analytics: AnalyticsLogger, transaction: UnconfirmedTransaction, account: AlphaWallet.Address) throws -> TransactionConfiguration {
+    private static func createConfiguration(server: RPCServer, analytics: AnalyticsLogger, transaction: UnconfirmedTransaction, account: AlphaWallet.Address) -> TransactionConfiguration {
         let maxGasLimit = GasLimitConfiguration.maxGasLimit(forServer: server)
-        do {
-            switch transaction.transactionType {
-            case .dapp:
-                let gasLimit = transaction.gasLimit ?? maxGasLimit
+        switch transaction.transactionType {
+        case .nativeCryptocurrency:
+            let gasLimit = GasLimitConfiguration.minGasLimit
 
-                return createConfiguration(server: server, analytics: analytics, transaction: transaction, gasLimit: gasLimit, data: transaction.data ?? .init())
-            case .nativeCryptocurrency:
-                let gasLimit = GasLimitConfiguration.minGasLimit
+            return createConfiguration(server: server, analytics: analytics, transaction: transaction, gasLimit: gasLimit, data: transaction.data ?? .init())
+        case .erc20Token, .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .prebuilt:
+            let gasLimit = transaction.gasLimit ?? maxGasLimit
 
-                return createConfiguration(server: server, analytics: analytics, transaction: transaction, gasLimit: gasLimit, data: transaction.data ?? .init())
-            case .tokenScript:
-                let gasLimit = transaction.gasLimit ?? maxGasLimit
-
-                return createConfiguration(server: server, analytics: analytics, transaction: transaction, gasLimit: gasLimit, data: transaction.data ?? .init())
-            case .erc20Token:
-                let gasLimit = transaction.gasLimit ?? maxGasLimit
-
-                return createConfiguration(server: server, analytics: analytics, transaction: transaction, gasLimit: gasLimit, data: transaction.data ?? .init())
-            case .erc875Token(let token, _):
-                let gasLimit = transaction.gasLimit ?? maxGasLimit
-
-                return createConfiguration(server: server, analytics: analytics, transaction: transaction, gasLimit: gasLimit, data: transaction.data ?? .init())
-            case .erc721Token(let token, _), .erc721ForTicketToken(let token, _):
-                let gasLimit = transaction.gasLimit ?? maxGasLimit
-
-                return createConfiguration(server: server, analytics: analytics, transaction: transaction, gasLimit: gasLimit, data: transaction.data ?? .init())
-            case .erc1155Token(_, _):
-                let gasLimit = transaction.gasLimit ?? maxGasLimit
-
-                return createConfiguration(server: server, analytics: analytics, transaction: transaction, gasLimit: gasLimit, data: transaction.data ?? .init())
-            case .claimPaidErc875MagicLink:
-                let gasLimit = transaction.gasLimit ?? maxGasLimit
-
-                return createConfiguration(server: server, analytics: analytics, transaction: transaction, gasLimit: gasLimit, data: transaction.data ?? .init())
-            case .prebuilt:
-                let gasLimit = transaction.gasLimit ?? maxGasLimit
-
-                return createConfiguration(server: server, analytics: analytics, transaction: transaction, gasLimit: gasLimit, data: transaction.data ?? .init())
-            }
-        } catch {
-            if case TransactionConfiguratorError.impossibleToBuildConfiguration = error {
-                throw error
-            }
-            return .init(transaction: transaction, server: server)
+            return createConfiguration(server: server, analytics: analytics, transaction: transaction, gasLimit: gasLimit, data: transaction.data ?? .init())
         }
     }
 

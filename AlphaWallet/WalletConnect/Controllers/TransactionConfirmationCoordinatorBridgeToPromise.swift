@@ -57,22 +57,12 @@ private class TransactionConfirmationCoordinatorBridgeToPromise {
     }
 
     func promise(transaction: UnconfirmedTransaction, configuration: TransactionType.Configuration, source: Analytics.TransactionConfirmationSource) -> Promise<ConfirmResult> {
-        do {
-            let confirmationCoordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
+        let confirmationCoordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
 
-            confirmationCoordinator.delegate = self
-            self.confirmationCoordinator = confirmationCoordinator
-            coordinator.addCoordinator(confirmationCoordinator)
-            confirmationCoordinator.start(fromSource: source)
-        } catch {
-            UIApplication.shared
-                .presentedViewController(or: navigationController)
-                .displayError(message: error.prettyError)
-
-            DispatchQueue.main.async {
-                self.seal.reject(error)
-            } 
-        }
+        confirmationCoordinator.delegate = self
+        self.confirmationCoordinator = confirmationCoordinator
+        coordinator.addCoordinator(confirmationCoordinator)
+        confirmationCoordinator.start(fromSource: source)
 
         return promise
     }

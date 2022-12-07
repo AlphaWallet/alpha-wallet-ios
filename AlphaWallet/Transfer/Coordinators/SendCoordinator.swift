@@ -70,7 +70,7 @@ class SendCoordinator: Coordinator {
         case .erc20Token(_, let destination, let amount):
             controller.targetAddressTextField.value = destination?.stringValue ?? ""
             controller.amountTextField.set(crypto: amount ?? "", useFormatting: true)
-        case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+        case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .prebuilt:
             break
         }
         controller.delegate = self
@@ -107,20 +107,14 @@ extension SendCoordinator: SendViewControllerDelegate {
     }
 
     func didPressConfirm(transaction: UnconfirmedTransaction, in viewController: SendViewController, amount: String, shortValue: String?) {
-        do {
-            let configuration: TransactionType.Configuration = .sendFungiblesTransaction(
-                confirmType: .signThenSend,
-                amount: FungiblesTransactionAmount(value: amount, shortValue: shortValue, isAllFunds: viewController.amountTextField.viewModel.isAllFunds))
+        let configuration: TransactionType.Configuration = .sendFungiblesTransaction(
+            confirmType: .signThenSend,
+            amount: FungiblesTransactionAmount(value: amount, shortValue: shortValue, isAllFunds: viewController.amountTextField.viewModel.isAllFunds))
 
-            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
-            addCoordinator(coordinator)
-            coordinator.delegate = self
-            coordinator.start(fromSource: .sendFungible)
-        } catch {
-            UIApplication.shared
-                .presentedViewController(or: navigationController)
-                .displayError(message: error.prettyError)
-        }
+        let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
+        addCoordinator(coordinator)
+        coordinator.delegate = self
+        coordinator.start(fromSource: .sendFungible)
     }
 }
 

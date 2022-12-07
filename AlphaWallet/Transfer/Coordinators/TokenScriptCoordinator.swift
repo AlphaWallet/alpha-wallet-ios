@@ -105,7 +105,7 @@ extension TokenScriptCoordinator: TokenInstanceActionViewControllerDelegate {
 
         do {
             let data = try transactionFunction.makeUnConfirmedTransaction(withTokenObject: token, tokenId: tokenId, attributeAndValues: values, localRefs: localRefs, server: server, session: session)
-            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: data.0, configuration: .tokenScriptTransaction(confirmType: .signThenSend, contract: contract, functionCallMetaData: data.1), analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
+            let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: data.0, configuration: .tokenScriptTransaction(confirmType: .signThenSend, contract: contract, functionCallMetaData: data.1), analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
             coordinator.delegate = self
             addCoordinator(coordinator)
             coordinator.start(fromSource: .tokenScript)

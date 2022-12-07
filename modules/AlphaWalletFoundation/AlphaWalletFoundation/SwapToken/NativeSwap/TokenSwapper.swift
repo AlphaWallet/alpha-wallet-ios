@@ -161,8 +161,8 @@ open class TokenSwapper: ObservableObject {
         return route.steps.first?.tool
     }
 
-    public func buildSwapTransaction(keystore: Keystore, unsignedTransaction: UnsignedSwapTransaction, fromToken: TokenToSwap, fromAmount: BigUInt, toToken: TokenToSwap, toAmount: BigUInt) -> (UnconfirmedTransaction, TransactionType.Configuration) {
-        functional.buildSwapTransaction(keystore: keystore, unsignedTransaction: unsignedTransaction, fromToken: fromToken, fromAmount: fromAmount, toToken: toToken, toAmount: toAmount)
+    public func buildSwapTransaction(unsignedTransaction: UnsignedSwapTransaction, fromToken: TokenToSwap, fromAmount: BigUInt, toToken: TokenToSwap, toAmount: BigUInt) -> (UnconfirmedTransaction, TransactionType.Configuration) {
+        functional.buildSwapTransaction(unsignedTransaction: unsignedTransaction, fromToken: fromToken, fromAmount: fromAmount, toToken: toToken, toAmount: toAmount)
     }
 
     private func fetchAllSupportedTools() -> AnyPublisher<[SwapTool], Never> {
@@ -217,10 +217,10 @@ extension TokenSwapper {
 }
 
 fileprivate extension TokenSwapper.functional {
-    static func buildSwapTransaction(keystore: Keystore, unsignedTransaction: UnsignedSwapTransaction, fromToken: TokenToSwap, fromAmount: BigUInt, toToken: TokenToSwap, toAmount: BigUInt) -> (UnconfirmedTransaction, TransactionType.Configuration) {
+    static func buildSwapTransaction(unsignedTransaction: UnsignedSwapTransaction, fromToken: TokenToSwap, fromAmount: BigUInt, toToken: TokenToSwap, toAmount: BigUInt) -> (UnconfirmedTransaction, TransactionType.Configuration) {
         let configuration: TransactionType.Configuration = .swapTransaction(fromToken: fromToken, fromAmount: fromAmount, toToken: toToken, toAmount: toAmount)
-        let transactionType: TransactionType = .prebuilt(unsignedTransaction.server)
-        let transaction: UnconfirmedTransaction = .init(transactionType: transactionType, value: unsignedTransaction.value, recipient: unsignedTransaction.from, contract: unsignedTransaction.to, data: unsignedTransaction.data, gasLimit: unsignedTransaction.gasLimit, gasPrice: unsignedTransaction.gasPrice)
+        let transaction: UnconfirmedTransaction = .init(transactionType: .prebuilt(unsignedTransaction.server), value: unsignedTransaction.value, recipient: unsignedTransaction.from, contract: unsignedTransaction.to, data: unsignedTransaction.data, gasLimit: unsignedTransaction.gasLimit, gasPrice: unsignedTransaction.gasPrice)
+
         return (transaction, configuration)
     }
 }

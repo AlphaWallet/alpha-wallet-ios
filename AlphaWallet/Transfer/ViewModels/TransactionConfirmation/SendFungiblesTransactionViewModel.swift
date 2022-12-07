@@ -120,7 +120,7 @@ extension TransactionConfirmationViewModel {
                 } else {
                     return "\(amount.value) \(token.symbol)"
                 }
-            case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+            case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .prebuilt:
                 return String()
             }
         }

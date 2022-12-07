@@ -47,7 +47,7 @@ class NFTAssetViewModel {
 
     var sellTransactionType: TransactionType {
         tokenHolder.select(with: .allFor(tokenId: tokenHolder.tokenId))
-        return TransactionType.erc875Token(token, tokenHolders: [tokenHolder])
+        return TransactionType(nonFungibleToken: token, tokenHolders: [tokenHolder])
     }
 
     var previewViewType: NFTPreviewViewType {
