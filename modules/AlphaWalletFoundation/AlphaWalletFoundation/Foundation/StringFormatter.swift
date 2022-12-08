@@ -22,41 +22,32 @@ public final class StringFormatter {
     ///   - double: double to convert.
     ///   - currencyCode: code of the currency.
     /// - Returns: Currency `String` representation.
-    public func currency(with value: NSDecimalNumber, and currencyCode: String = "", usesGroupingSeparator: Bool = true) -> String {
+    public func currency(with value: Double, currency: Currency, locale: Locale = .en_US, usesGroupingSeparator: Bool = true, fractionDigits: Int = Constants.formatterFractionDigits) -> String {
         let formatter = Formatter.currencyAccounting
-        formatter.currencyCode = currencyCode
+        formatter.locale = locale
+        formatter.currencyCode = currency.rawValue
         formatter.usesGroupingSeparator = usesGroupingSeparator
+
+        formatter.minimumFractionDigits = fractionDigits
+        formatter.maximumFractionDigits = fractionDigits
 
         //Trimming is important because the formatter output for `1.2` becomes "1.2 " (with trailing space) when region = Poland
         return (formatter.string(from: value)?.trimmed ?? "\(value)").droppedTrailingZeros
     }
-    /// Converts a Double to a `String`.
-    ///
-    /// - Parameters:
-    ///   - double: double to convert.
-    ///   - precision: symbols after coma.
-    /// - Returns: `String` representation.
-    public func formatter(for double: Double, with precision: Int) -> String {
-        return String(format: "%.\(precision)f", double)
-    }
-    /// Converts a Double to a `String`.
-    ///
-    /// - Parameters:
-    ///   - double: double to convert.
-    /// - Returns: `String` representation.
-    public func formatter(for double: Double) -> String {
-        return String(format: "%f", double)
-    }
 
-    public func alternateAmount(value: NSDecimalNumber, usesGroupingSeparator: Bool = false) -> String {
+    public func alternateAmount(value: Double, locale: Locale = .en_US, usesGroupingSeparator: Bool = false, fractionDigits: Int = Constants.etherFormatterFractionDigits) -> String {
         let formatter = Formatter.alternateAmount
+        formatter.locale = locale
         formatter.usesGroupingSeparator = usesGroupingSeparator
+
+        formatter.minimumFractionDigits = fractionDigits
+        formatter.maximumFractionDigits = fractionDigits
 
         //For some reasons formatter adds trailing whitespace
         if let value = formatter.string(from: value) {
             return value.trimmingCharacters(in: .whitespacesAndNewlines).droppedTrailingZeros
         } else {
-            return value.stringValue.droppedTrailingZeros
+            return String(value)
         }
     }
 
@@ -75,5 +66,11 @@ public final class StringFormatter {
 
         let result = formatNumber(double)
         return String(format: "%.\(decimals)f%@ %@", result.value, result.suffix, currency)
+    }
+}
+
+extension Locale {
+    public static var en_US: Locale {
+        Locale(identifier: "en_US")
     }
 }

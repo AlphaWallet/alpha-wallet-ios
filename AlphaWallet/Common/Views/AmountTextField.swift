@@ -63,19 +63,19 @@ final class AmountTextField: UIControl {
         return label
     }()
 
-    private (set) lazy var cryptoValuePublisher: AnyPublisher<String, Never> = {
+    private (set) lazy var cryptoValuePublisher: AnyPublisher<AmountTextFieldViewModel.FungibleAmount, Never> = {
         return viewModel.cryptoValueChanged
-            .map { $0.crypto }
+            .map { $0.amount }
             .prepend(viewModel.crypto(for: textField.text))
             .share()
             .eraseToAnyPublisher()
     }()
 
-    var cryptoValue: String {
+    var cryptoValue: AmountTextFieldViewModel.FungibleAmount {
         viewModel.crypto(for: textField.text)
     }
 
-    var fiatValue: NSDecimalNumber? {
+    var fiatValue: Double? {
         return viewModel.fiatRawValue
     }
 
@@ -151,8 +151,8 @@ final class AmountTextField: UIControl {
         bind(viewModel: viewModel)
     }
 
-    func set(crypto: String, shortCrypto: String? = .none, useFormatting: Bool) {
-        viewModel.set(crypto: crypto, shortCrypto: shortCrypto, useFormatting: useFormatting)
+    func set(amount: AmountTextFieldViewModel.FungibleAmount) {
+        viewModel.set(amount: amount)
         notifyAmountDidChange()
     }
 
@@ -228,12 +228,10 @@ final class AmountTextField: UIControl {
     }
     
     @discardableResult override func becomeFirstResponder() -> Bool {
-        super.becomeFirstResponder()
         return textField.becomeFirstResponder()
     }
 
     @discardableResult override func resignFirstResponder() -> Bool {
-        super.resignFirstResponder()
         return textField.resignFirstResponder()
     }
 
@@ -241,11 +239,11 @@ final class AmountTextField: UIControl {
         return nil
     }
 
-    @objc func doneButtonTapped() {
+    @objc private func doneButtonTapped() {
         delegate?.doneButtonTapped(for: self)
     }
 
-    @objc func nextButtonTapped() {
+    @objc private func nextButtonTapped() {
         delegate?.nextButtonTapped(for: self)
     }
 
@@ -269,7 +267,8 @@ extension AmountTextField: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         guard let string = textField.stringReplacingCharacters(in: range, with: string) else { return false }
 
-        let allowChange = textField.amountChanged(in: range, to: string, allowedCharacters: AmountTextFieldViewModel.allowedCharacters)
+        let allowChange = viewModel.isValid(string: string)
+
         if allowChange {
             viewModel.set(string: string)
             notifyAmountDidChange()
@@ -282,23 +281,5 @@ private extension UITextField {
 
     func stringReplacingCharacters(in range: NSRange, with string: String) -> String? {
         (text as NSString?)?.replacingCharacters(in: range, with: string)
-    }
-
-    func amountChanged(in range: NSRange, to string: String, allowedCharacters: String) -> Bool {
-        guard let input = text else {
-            return true
-        }
-        //In this step we validate only allowed characters it is because of the iPad keyboard.
-        let characterSet = NSCharacterSet(charactersIn: allowedCharacters).inverted
-        let separatedChars = string.components(separatedBy: characterSet)
-        let filteredNumbersAndSeparator = separatedChars.joined(separator: "")
-        if string != filteredNumbersAndSeparator {
-            return false
-        }
-        //This is required to prevent user from input of numbers like 1.000.25 or 1,000,25.
-        if string == "," || string == "." || string == "'" {
-            return !input.contains(string)
-        }
-        return true
     }
 }

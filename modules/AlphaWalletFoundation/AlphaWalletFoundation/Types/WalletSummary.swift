@@ -10,7 +10,7 @@ import BigInt
 
 public struct WalletSummary {
     private var totalAmountDouble: Double?
-    private var etherTotalAmountDouble: NSDecimalNumber?
+    private var etherTotalAmountDouble: Double?
 
     public let changePercentage: Double?
 
@@ -23,7 +23,7 @@ public struct WalletSummary {
     public var totalAmount: String {
         if let amount = totalAmountDouble, let value = Formatter.fiat.string(from: amount) {
             return value
-        } else if let amount = etherTotalAmountDouble, let value = Formatter.shortCrypto.string(from: amount.doubleValue) {
+        } else if let amount = etherTotalAmountDouble, let value = Formatter.shortCrypto.string(from: amount) {
             return "\(value) \(RPCServer.main.symbol)"
         } else {
             return "--"
@@ -79,15 +79,15 @@ extension WalletSummary.functional {
         return amount?.nilIfNan
     }
 
-    public static func createEtherTotalAmountDouble(balances: [WalletBalance]) -> NSDecimalNumber? {
-        var value: NSDecimalNumber?
+    public static func createEtherTotalAmountDouble(balances: [WalletBalance]) -> Double? {
+        var value: Double?
 
         for each in balances {
             if let eachEtherBalance = each.etherBalance {
                 if value == nil { value = .zero }
 
                 if let currentAmount = value {
-                    value = currentAmount.adding(eachEtherBalance)
+                    value = currentAmount + eachEtherBalance.doubleValue
                 }
             }
         }

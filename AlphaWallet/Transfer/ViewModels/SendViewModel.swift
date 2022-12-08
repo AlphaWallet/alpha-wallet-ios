@@ -8,7 +8,7 @@ import AlphaWalletCore
 import Combine
 
 struct SendViewModelInput {
-    let cryptoValue: AnyPublisher<String, Never>
+    let amountToSend: AnyPublisher<AmountTextFieldViewModel.FungibleAmount, Never>
     let qrCode: AnyPublisher<String, Never>
     let allFunds: AnyPublisher<Void, Never>
     let send: AnyPublisher<Void, Never>
@@ -20,110 +20,107 @@ struct SendViewModelOutput {
     let viewState: AnyPublisher<SendViewModel.ViewState, Never>
     let scanQrCodeError: AnyPublisher<String, Never>
     let activateAmountInput: AnyPublisher<Void, Never>
-    let token: AnyPublisher<Token?, Never>
+    let token: AnyPublisher<TokenViewModel?, Never>
     let cryptoErrorState: AnyPublisher<AmountTextField.ErrorState, Never>
-    let allFundsAmount: AnyPublisher<(crypto: String, shortCrypto: String), Never>
+    let amountTextFieldState: AnyPublisher<SendViewModel.AmountTextFieldState, Never>
     let recipientErrorState: AnyPublisher<TextField.TextFieldErrorState, Never>
     let confirmTransaction: AnyPublisher<UnconfirmedTransaction, Never>
 }
 
-/// suppots next transaction types: .nativeCryptocurrency, .erc20Token, .dapp, .claimPaidErc875MagicLink, .tokenScript, .prebuilt
-final class SendViewModel {
-    private let importToken: ImportToken
-    private lazy var eip681UrlResolver = Eip681UrlResolver(config: session.config, importToken: importToken, missingRPCServerStrategy: .fallbackToPreffered(session.server))
+extension TokenViewModel: EnterAmountSupportable {}
+extension Token: EnterAmountSupportable {}
+
+/// suppots next transaction types: .nativeCryptocurrency, .erc20Token, .prebuilt
+final class SendViewModel: TransactionTypeSupportable {
+    private let transactionTypeFromQrCode: TransactionTypeFromQrCode
     private let session: WalletSession
     private let tokensService: TokenProvidable & TokenAddable & TokenBalanceRefreshable & TokenViewModelState
     private let transactionTypeSubject: CurrentValueSubject<TransactionType, Never>
     private var cancelable = Set<AnyCancellable>()
-    private (set) lazy var amountTextFieldViewModel = AmountTextFieldViewModel(token: token, debugName: "")
-    private var cryptoValueString: String = ""
-    private var cryptoValue: BigInt?
+    private (set) lazy var amountTextFieldViewModel = AmountTextFieldViewModel(token: nil, debugName: "")
+    private (set) var amountToSend: FungibleAmount = .notSet
     private var recipient: AlphaWallet.Address?
-
-    /// Returns token publisher for only supported transaction types
-    private lazy var validToken: AnyPublisher<Token?, Never> = {
-        return transactionTypeSubject.map { _ in return self.token }
-            .removeDuplicates()
-            .eraseToAnyPublisher()
-    }()
 
     /// TokenViewModel updates once we receive a new token, might be when scan qr code or initially. Ask to refresh token balance when received. Only for supported transaction types tokens
     private lazy var tokenViewModel: AnyPublisher<TokenViewModel?, Never> = {
-        return validToken.flatMapLatest { [tokensService] token -> AnyPublisher<TokenViewModel?, Never> in
-            guard let token = token else { return .just(nil) }
+        return transactionTypeSubject
+            .map { [tokensService] transactionType -> Token? in
+                switch transactionType {
+                case .nativeCryptocurrency:
+                    //NOTE: looks like we can use transactionType.tokenObject, for nativeCryptocurrency it might contains incorrect contract value
+                    return tokensService.token(for: transactionType.contract, server: transactionType.server)
+                case .erc20Token:
+                    return transactionType.tokenObject
+                case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .prebuilt:
+                    return nil
+                }
+            }.removeDuplicates()
+            .flatMapLatest { [tokensService] token -> AnyPublisher<TokenViewModel?, Never> in
+                guard let token = token else { return .just(nil) }
 
-            tokensService.refreshBalance(updatePolicy: .token(token: token))
+                tokensService.refreshBalance(updatePolicy: .token(token: token))
 
-            return tokensService.tokenViewModelPublisher(for: token)
-        }.share(replay: 1)
-        .eraseToAnyPublisher()
+                return tokensService.tokenViewModelPublisher(for: token)
+            }.share(replay: 1)
+            .eraseToAnyPublisher()
     }()
-
-    /// Supports cases: `.nativeCryptocurrency, .erc20Token, .dapp, .claimPaidErc875MagicLink, .tokenScript, .prebuilt`
-    private var token: Token? {
-        switch transactionType {
-        case .nativeCryptocurrency:
-            //NOTE: looks like we can use transactionType.tokenObject, for nativeCryptocurrency it might contains incorrect contract value
-            return tokensService.token(for: transactionType.contract, server: session.server)
-        case .erc20Token, .prebuilt:
-            return transactionType.tokenObject
-        case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token:
-            return nil
-        }
-    }
 
     private var title: String {
         "\(R.string.localizable.send()) \(transactionType.symbol)"
     }
 
-    private var transactionType: TransactionType {
+    internal var transactionType: TransactionType {
         return transactionTypeSubject.value
-    }
-
-    var shortValueForAllFunds: String? {
-        return amountTextFieldViewModel.isAllFunds ? allFundsFormattedValues?.allFundsShortValue : .none
     }
 
     let amountViewModel = SendViewSectionHeaderViewModel(text: R.string.localizable.sendAmount().uppercased(), showTopSeparatorLine: true)
     let recipientViewModel = SendViewSectionHeaderViewModel(text: R.string.localizable.sendRecipient().uppercased())
-    let backgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground
 
     init(transactionType: TransactionType, session: WalletSession, tokensService: TokenProvidable & TokenAddable & TokenBalanceRefreshable & TokenViewModelState, importToken: ImportToken) {
-        self.importToken = importToken
         self.transactionTypeSubject = .init(transactionType)
         self.tokensService = tokensService
-        self.session = session 
+        self.session = session
+        self.transactionTypeFromQrCode = TransactionTypeFromQrCode(importToken: importToken, session: session)
+        self.transactionTypeFromQrCode.transactionTypeProvider = self
     }
 
     func transform(input: SendViewModelInput) -> SendViewModelOutput {
-        input.cryptoValue
-            .assign(to: \.cryptoValueString, on: self, ownership: .weak)
-            .store(in: &cancelable)
+        input.amountToSend
+            .map { $0.asAmount }
+            .dropFirst(1) // NOTE: we want to use initial value from transaction type, text field has `0` at launch, so value from transaction type will be overriden with `0`
+            .map { amount in
+                self.amountToSend = amount
 
-        bigIntValue(cryptoValue: input.cryptoValue)
-            .assign(to: \.cryptoValue, on: self, ownership: .weak)
-            .store(in: &cancelable)
-
-        resetAllFundsWhenTextChanged(for: input.cryptoValue)
-            .assign(to: \.isAllFunds, on: amountTextFieldViewModel)
-            .store(in: &cancelable)
-
-        // Reload transaction type when balance has changed, out of cur logic
-        updateTransactionTypeWhenViewModelHasChanged()
-            .assign(to: \.value, on: transactionTypeSubject)
+                return self.overrideTransactionType(with: amount)
+            }.assign(to: \.value, on: transactionTypeSubject, ownership: .weak)
             .store(in: &cancelable)
 
         input.recipient
             .map { AlphaWallet.Address(string: $0) }
-            .assign(to: \.recipient, on: self)
+            .map { recipient in
+                self.recipient = recipient
+
+                return self.overrideTransactionType(with: recipient)
+            }.assign(to: \.value, on: transactionTypeSubject, ownership: .weak)
             .store(in: &cancelable)
 
-        let confirmTransactionResult = transactionToConfirm(send: input.send)
-        let confirmTransaction = confirmTransactionResult
+        let scanQrCode = input.qrCode
+            .flatMap { [transactionTypeFromQrCode] in transactionTypeFromQrCode.buildTransactionType(qrCode: $0) }
+            .handleEvents(receiveOutput: { [transactionTypeSubject] in
+                guard let value = $0.value else { return }
+                //NOTE: we need to syncronize values for .recipient, .amountToSend and transaction type .recipient, .amount, because when active .transactionType prebuild we not able to validate amount and recipient
+                self.recipient = value.recipient?.contract
+                self.amountToSend = value.amount ?? .notSet
+
+                transactionTypeSubject.value = value
+            }).share()
+
+        let transactionResult = buildUnconfirmedTransaction(send: input.send)
+        let confirmTransaction = transactionResult
             .compactMap { $0.value }
             .eraseToAnyPublisher()
 
-        let inputsValidationError = confirmTransactionResult
+        let inputsValidationError = transactionResult
             .map { $0.error }
             .eraseToAnyPublisher()
 
@@ -131,77 +128,98 @@ final class SendViewModel {
             .map { $0 ? TextField.TextFieldErrorState.none : TextField.TextFieldErrorState.error(InputError.invalidAddress.prettyError) }
             .eraseToAnyPublisher()
 
-        let cryptoErrorState = isCryptoValueValid(cryptoValue: input.cryptoValue, send: input.send)
+        let cryptoErrorState = isCryptoValueValid(cryptoValue: input.amountToSend, send: input.send)
             .map { $0 ? AmountTextField.ErrorState.none : AmountTextField.ErrorState.error }
             .eraseToAnyPublisher()
-
-        let allFundsAmount = formattedAllFunds(for: input.allFunds)
-
-        let scanQrCode = input.qrCode
-            .flatMap { self.scanQrCode(from: $0, amount: self.cryptoValueString) }
-            .handleEvents(receiveOutput: { [transactionTypeSubject] in
-                if let value = $0.value {
-                    transactionTypeSubject.value = value
-                }
-            }).share()
-
-        let activateAmountInput = activateAmountInput(scanQrCode: scanQrCode.eraseToAnyPublisher(), didAppear: input.didAppear)
 
         let scanQrCodeError = scanQrCode
             .compactMap { SendViewModel.mapScanQrCodeError($0) }
             .eraseToAnyPublisher()
 
-        let viewState = Publishers.CombineLatest(tokenViewModel, transactionTypeSubject)
-            .map { self.buildViewState(tokenViewModel: $0, transactionType: $1) }
+        let viewState = Publishers.CombineLatest(tokenViewModel, scanQrCode.mapToVoid().prepend(()))
+            .map { self.buildViewState(tokenViewModel: $0.0) }
             .eraseToAnyPublisher()
 
-        return .init(viewState: viewState, scanQrCodeError: scanQrCodeError, activateAmountInput: activateAmountInput, token: validToken, cryptoErrorState: cryptoErrorState, allFundsAmount: allFundsAmount, recipientErrorState: recipientErrorState, confirmTransaction: confirmTransaction)
+        return .init(
+            viewState: viewState,
+            scanQrCodeError: scanQrCodeError,
+            activateAmountInput: activateAmountInput(scanQrCode: scanQrCode.eraseToAnyPublisher(), didAppear: input.didAppear),
+            token: tokenViewModel,
+            cryptoErrorState: cryptoErrorState,
+            amountTextFieldState: buildAmountTextFieldState(qrCode: scanQrCode.eraseToAnyPublisher(), allFunds: input.allFunds),
+            recipientErrorState: recipientErrorState,
+            confirmTransaction: confirmTransaction)
     }
 
-    private func buildViewState(tokenViewModel: TokenViewModel?, transactionType: TransactionType) -> SendViewModel.ViewState {
-        let cryptoToFiatRate = tokenViewModel.flatMap { $0.balance.ticker.flatMap { NSDecimalNumber(value: $0.price_usd) } }
+    private func buildAmountTextFieldState(qrCode: AnyPublisher<Result<TransactionType, CheckEIP681Error>, Never>, allFunds: AnyPublisher<Void, Never>) -> AnyPublisher<AmountTextFieldState, Never> {
 
-        let selectCurrencyButtonState = selectCurrencyButtonState(for: tokenViewModel, transactionType: transactionType)
-        let amountStatuLabelState = SendViewModel.AmountStatuLabelState(text: availableLabelText, isHidden: availableTextHidden)
-        let amountTextFieldState = amountTextFieldState(for: transactionType, cryptoToFiatRate: cryptoToFiatRate)
-        let recipientTextFieldState = recipientTextFieldState(for: transactionType)
+        func buildAmountTextFieldState(for transactionType: TransactionType) -> AmountTextFieldState? {
+            switch transactionType {
+            case .nativeCryptocurrency(let token, _, let amount), .erc20Token(let token, _, let amount):
+                switch amount {
+                case .notSet:
+                    return nil
+                case .allFunds:
+                    guard let amount = tokensService.tokenViewModel(for: token)?.balance.valueDecimal else { return nil }
 
-        return .init(title: title, selectCurrencyButtonState: selectCurrencyButtonState, amountStatusLabelState: amountStatuLabelState, amountTextFieldState: amountTextFieldState, recipientTextFieldState: recipientTextFieldState)
-    }
-
-    private func updateTransactionTypeWhenViewModelHasChanged() -> AnyPublisher<TransactionType, Never> {
-        tokenViewModel.compactMap { [tokensService, transactionTypeSubject] tokenViewModel -> TransactionType? in
-            guard let tokenViewModel = tokenViewModel else { return nil }
-            guard let token = tokensService.token(for: tokenViewModel.contractAddress, server: tokenViewModel.server) else { return nil }
-
-            switch transactionTypeSubject.value {
-            case .nativeCryptocurrency(_, let recipient, let amount):
-                return self.makeTransactionType(token: token, recipient: recipient, amount: amount)
-            case .erc20Token(_, let recipient, let amount):
-                let amount = amount.flatMap { EtherNumberFormatter.plain.number(from: $0, decimals: token.decimals) }
-                return self.makeTransactionType(token: token, recipient: recipient, amount: amount)
-            //NOTE: do we need to repeat `case .erc20Token(_, let recipient, let amount)` for cases `.dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt`?
+                    return AmountTextFieldState(amount: .allFunds(amount.doubleValue))
+                case .amount(let amount):
+                    return AmountTextFieldState(amount: .amount(amount))
+                }
             case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .prebuilt:
                 return nil
             }
+        }
+
+        let initialAmount = Just(transactionType)
+            .compactMap { buildAmountTextFieldState(for: $0) }
+            .eraseToAnyPublisher()
+
+        let amountFromQrCode = qrCode
+            .compactMap { $0.value.flatMap { buildAmountTextFieldState(for: $0) } }
+            .eraseToAnyPublisher()
+
+        let allFundsAmount = allFunds.compactMap { [tokensService, transactionTypeSubject] _ -> AmountTextFieldState? in
+            switch transactionTypeSubject.value {
+            case .nativeCryptocurrency(let token, _, _), .erc20Token(let token, _, _):
+                guard let amount = tokensService.tokenViewModel(for: token)?.balance.valueDecimal else { return nil }
+
+                return AmountTextFieldState(amount: .allFunds(amount.doubleValue))
+            case .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .prebuilt:
+                return nil
+            }
         }.eraseToAnyPublisher()
+
+        return Publishers.MergeMany(initialAmount, amountFromQrCode, allFundsAmount)
+            .eraseToAnyPublisher()
     }
 
-    private func transactionToConfirm(send: AnyPublisher<Void, Never>) -> AnyPublisher<Result<UnconfirmedTransaction, InputsValidationError>, Never> {
-        return send.withLatestFrom(tokenViewModel)
-            .map { [transactionType] tokenViewModel -> Result<UnconfirmedTransaction, InputsValidationError> in
+    private func buildViewState(tokenViewModel: TokenViewModel?) -> SendViewModel.ViewState {
+        return .init(
+            title: title,
+            selectCurrencyButtonState: buildSelectCurrencyButtonState(for: tokenViewModel, transactionType: transactionType),
+            amountStatusLabelState: SendViewModel.AmountStatuLabelState(text: availableLabelText, isHidden: availableTextHidden),
+            rate: tokenViewModel.flatMap { $0.balance.ticker.flatMap { $0.price_usd } },
+            recipientTextFieldState: buildRecipientTextFieldState(for: transactionType))
+    }
+
+    private func buildUnconfirmedTransaction(send: AnyPublisher<Void, Never>) -> AnyPublisher<Result<UnconfirmedTransaction, InputsValidationError>, Never> {
+        return send
+            .withLatestFrom(tokenViewModel)
+            .map { tokenViewModel -> Result<UnconfirmedTransaction, InputsValidationError> in
                 guard let recipient = self.recipient else {
                     return .failure(InputsValidationError.recipientInvalid)
                 }
-                guard let value = self.validatedCryptoValue(self.cryptoValue, tokenViewModel: tokenViewModel, checkIfGreaterThanZero: self.checkIfGreaterThanZero) else {
+                guard let value = self.validatedAmountToSend(self.amountToSend, tokenViewModel: tokenViewModel, checkIfGreaterThanZero: self.checkIfGreaterThanZero) else {
                     return .failure(InputsValidationError.cryptoValueInvalid)
                 }
+
                 do {
-                    switch transactionType {
+                    switch self.transactionType {
                     case .nativeCryptocurrency, .prebuilt:
-                        return .success(try transactionType.buildSendNativeCryptocurrency(recipient: recipient, amount: BigUInt(value)))
+                        return .success(try self.transactionType.buildSendNativeCryptocurrency(recipient: recipient, amount: BigUInt(value)))
                     case .erc20Token:
-                        return .success(try transactionType.buildSendErc20Token(recipient: recipient, amount: BigUInt(value)))
+                        return .success(try self.transactionType.buildSendErc20Token(recipient: recipient, amount: BigUInt(value)))
                     case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token:
                         throw TransactionConfiguratorError.impossibleToBuildConfiguration
                     }
@@ -210,14 +228,6 @@ final class SendViewModel {
                 }
             }.share()
             .eraseToAnyPublisher()
-    }
-
-    //NOTE: not sure if we need to set `isAllFunds` to true if edited value quals to balance value
-    private func resetAllFundsIfNeeded(ethCostRawValue: NSDecimalNumber?) -> Bool? {
-        guard let allFunds = allFundsFormattedValues, allFunds.allFundsFullValue.localizedString.nonEmpty else { return nil }
-        guard let value = allFunds.allFundsFullValue, ethCostRawValue != value else { return nil }
-
-        return false
     }
 
     private func activateAmountInput(scanQrCode: AnyPublisher<Result<TransactionType, CheckEIP681Error>, Never>, didAppear: AnyPublisher<Void, Never>) -> AnyPublisher<Void, Never> {
@@ -230,22 +240,7 @@ final class SendViewModel {
             .eraseToAnyPublisher()
     }
 
-    private func amountTextFieldState(for transactionType: TransactionType, cryptoToFiatRate: NSDecimalNumber?) -> AmountTextFieldState {
-        let transactedAmount: String? = {
-            switch transactionType {
-            case .nativeCryptocurrency(_, _, let amount):
-                return amount.flatMap { EtherNumberFormatter.plain.string(from: $0, units: .ether) }
-            case .erc20Token(_, _, let amount):
-                return amount
-            case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .prebuilt:
-                return nil
-            }
-        }()
-
-        return AmountTextFieldState(amount: transactedAmount, cryptoToFiatRate: cryptoToFiatRate)
-    }
-
-    private func recipientTextFieldState(for transactionType: TransactionType) -> RecipientTextFieldState {
+    private func buildRecipientTextFieldState(for transactionType: TransactionType) -> RecipientTextFieldState {
         switch transactionType {
         case .nativeCryptocurrency(_, let recipient, _):
             return RecipientTextFieldState(recipient: recipient.flatMap { $0.stringValue })
@@ -256,29 +251,18 @@ final class SendViewModel {
         }
     }
 
-    private func selectCurrencyButtonState(for tokenViewModel: TokenViewModel?, transactionType: TransactionType) -> SendViewModel.SelectCurrencyButtonState {
-        let currencyButtonHidden: Bool = {
-            switch transactionType {
-            case .nativeCryptocurrency, .erc20Token:
-                return false
-            case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .prebuilt:
-                return true
-            }
-        }()
-
+    private func buildSelectCurrencyButtonState(for tokenViewModel: TokenViewModel?, transactionType: TransactionType) -> SendViewModel.SelectCurrencyButtonState {
         let selectCurrencyButtonHidden: Bool = {
             switch transactionType {
-            case .nativeCryptocurrency, .erc20Token:
-                guard let ticker = tokenViewModel?.balance.ticker, ticker.price_usd > 0 else {
-                    return true
-                }
+            case .nativeCryptocurrency, .erc20Token, .prebuilt:
+                guard let ticker = tokenViewModel?.balance.ticker, ticker.price_usd > 0 else { return true }
                 return false
-            case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .prebuilt:
+            case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token:
                 return true
             }
         }()
 
-        return .init(isHidden: currencyButtonHidden, expandIconHidden: selectCurrencyButtonHidden)
+        return .init(expandIconHidden: selectCurrencyButtonHidden)
     }
 
     private var availableLabelText: String? {
@@ -315,49 +299,6 @@ final class SendViewModel {
         }
     }
 
-    private var allFundsFormattedValues: (allFundsFullValue: NSDecimalNumber?, allFundsShortValue: String)? {
-        switch transactionType {
-        case .nativeCryptocurrency:
-            let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: transactionType.server)
-            guard let balance = tokensService.tokenViewModel(for: etherToken)?.balance else { return nil }
-            let fullValue = EtherNumberFormatter.plain.string(from: balance.value, units: .ether).droppedTrailingZeros
-            let shortValue = EtherNumberFormatter.shortPlain.string(from: balance.value, units: .ether).droppedTrailingZeros
-
-            return (fullValue.optionalDecimalValue, shortValue)
-        case .erc20Token(let token, _, _):
-            guard let balance = tokensService.tokenViewModel(for: token)?.balance else { return nil }
-            let fullValue = EtherNumberFormatter.plain.string(from: balance.value, decimals: token.decimals).droppedTrailingZeros
-            let shortValue = EtherNumberFormatter.shortPlain.string(from: balance.value, decimals: token.decimals).droppedTrailingZeros
-
-            return (fullValue.optionalDecimalValue, shortValue)
-        case .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .prebuilt:
-            return nil
-        }
-    }
-
-    private func bigIntValue(cryptoValue: AnyPublisher<String, Never>) -> AnyPublisher<BigInt?, Never> {
-        cryptoValue.map { self.parseEnteredAmount($0) }
-            .eraseToAnyPublisher()
-    }
-
-    /// Resets all funds value when text has changed
-    private func resetAllFundsWhenTextChanged(for trigger: AnyPublisher<String, Never>) -> AnyPublisher<Bool, Never> {
-        trigger.receive(on: RunLoop.main)
-            .mapToVoid()
-            .filter { [amountTextFieldViewModel] _ in amountTextFieldViewModel.isAllFunds }
-            .map { [amountTextFieldViewModel] _ in amountTextFieldViewModel.cryptoRawValue }
-            .compactMap { self.resetAllFundsIfNeeded(ethCostRawValue: $0) }
-            .eraseToAnyPublisher()
-    }
-
-    /// Returns crypto and short crypto values when all funds selected, sets all funds flag for `amountTextFieldViewModel`
-    private func formattedAllFunds(for trigger: AnyPublisher<Void, Never>) -> AnyPublisher<(crypto: String, shortCrypto: String), Never> {
-        trigger.compactMap { _ in self.allFundsFormattedValues }
-            .handleEvents(receiveOutput: { [amountTextFieldViewModel] _ in amountTextFieldViewModel.isAllFunds = true })
-            .map { (crypto: $0.allFundsFullValue.localizedString, shortCrypto: $0.allFundsShortValue) }
-            .eraseToAnyPublisher()
-    }
-
     /// Validates recipient when send selected
     private func isRecipientValid(inputsValidationError: AnyPublisher<InputsValidationError?, Never>) -> AnyPublisher<Bool, Never> {
         return inputsValidationError
@@ -368,90 +309,38 @@ final class SendViewModel {
     }
 
     /// Validates entered crypto amount when text changing or send has selected, see: `checkIfGreaterThanZero` returns result async
-    private func isCryptoValueValid(cryptoValue: AnyPublisher<String, Never>, send: AnyPublisher<Void, Never>) -> AnyPublisher<Bool, Never> {
+    private func isCryptoValueValid(cryptoValue: AnyPublisher<AmountTextFieldViewModel.FungibleAmount, Never>, send: AnyPublisher<Void, Never>) -> AnyPublisher<Bool, Never> {
         let whenCryptoValueHasChanged = Publishers.CombineLatest(cryptoValue, tokenViewModel)
-            .map { self.validatedCryptoValue(self.parseEnteredAmount($0), tokenViewModel: $1, checkIfGreaterThanZero: false) != nil }
+            .map { self.validatedAmountToSend($0.asAmount, tokenViewModel: $1, checkIfGreaterThanZero: false) != nil }
 
         let whenSendSelected = send.withLatestFrom(tokenViewModel)
-            .map { self.validatedCryptoValue(self.cryptoValue, tokenViewModel: $0, checkIfGreaterThanZero: self.checkIfGreaterThanZero) != nil }
+            .map { self.validatedAmountToSend(self.transactionType.amount ?? .notSet, tokenViewModel: $0, checkIfGreaterThanZero: self.checkIfGreaterThanZero) != nil }
 
         return Publishers.Merge(whenCryptoValueHasChanged, whenSendSelected)
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }
 
-    private func parseEnteredAmount(_ amountString: String) -> BigInt? {
-        switch transactionType {
-        case .nativeCryptocurrency, .prebuilt:
-            return EtherNumberFormatter.full.number(from: amountString, units: .ether)
-        case .erc20Token, .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token:
-            return EtherNumberFormatter.full.number(from: amountString, decimals: transactionType.tokenObject.decimals)
-        }
-    }
-
-    private func validateRecipient(_ string: String) -> Bool {
-        AlphaWallet.Address(string: string) != nil
-    }
-
-    private func validatedCryptoValue(_ value: BigInt?, tokenViewModel: TokenViewModel?, checkIfGreaterThanZero: Bool = true) -> BigInt? {
-        guard let value = value, checkIfGreaterThanZero ? value > 0 : true else {
+    private func validatedAmountToSend(_ amount: FungibleAmount, tokenViewModel: TokenViewModel?, checkIfGreaterThanZero: Bool = true) -> BigInt? {
+        switch amount {
+        case .notSet:
             return nil
-        }
+        case .amount(let value):
+            guard checkIfGreaterThanZero ? value > 0 : true else { return nil }
 
-        switch transactionType {
-        case .nativeCryptocurrency, .erc20Token:
-            if let balance = tokenViewModel?.balance, balance.value < value {
-                return nil
-            }
-        case .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .prebuilt:
-            break
-        }
-
-        return value
-    }
-
-    private func scanQrCode(from qrCode: String, amount: String) -> AnyPublisher<Result<TransactionType, CheckEIP681Error>, Never> {
-        guard let url = URL(string: qrCode) else {
-            return Fail(error: CheckEIP681Error.notEIP681)
-                .mapToResult()
-                .eraseToAnyPublisher()
-        }
-
-        return eip681UrlResolver.resolvePublisher(url: url)
-            .flatMap { [session] result -> AnyPublisher<TransactionType, CheckEIP681Error> in
-                switch result {
-                case .transaction(let transactionType, let token):
-                    guard token.server == session.server else {
-                        return .fail(CheckEIP681Error.embeded(error: CheckAndFillEIP681DetailsError.serverNotMatches))
-                    }
-                    return .just(transactionType)
-                case .address(let recipient):
-                    guard let token = self.token else { return .fail(CheckEIP681Error.embeded(error: CheckAndFillEIP681DetailsError.tokenNotFound)) }
-                    let amountAsIntWithDecimals = EtherNumberFormatter.plain.number(from: amount, decimals: token.decimals)
-
-                    return .just(self.makeTransactionType(token: token, recipient: .address(recipient), amount: amountAsIntWithDecimals))
-                }
-            }.mapToResult()
-            .eraseToAnyPublisher()
-    }
-
-    private func makeTransactionType(token: Token, recipient: AddressOrEnsName?, amount: BigInt?) -> TransactionType {
-        let amount = amount.flatMap { EtherNumberFormatter.plain.string(from: $0, decimals: token.decimals) }
-        let newTransactionType: TransactionType
-        if let amount = amount, amount != "0" {
-            newTransactionType = TransactionType(fungibleToken: token, recipient: recipient, amount: amount)
-        } else {
             switch transactionType {
-            case .nativeCryptocurrency(_, _, let amount):
-                newTransactionType = TransactionType(fungibleToken: token, recipient: recipient, amount: amount.flatMap { EtherNumberFormatter().string(from: $0, units: .ether) })
-            case .erc20Token(_, _, let amount):
-                newTransactionType = TransactionType(fungibleToken: token, recipient: recipient, amount: amount)
-            case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .prebuilt:
-                newTransactionType = TransactionType(fungibleToken: token, recipient: recipient, amount: nil)
+            case .nativeCryptocurrency, .erc20Token:
+                if let balance = tokenViewModel?.valueDecimal, balance.doubleValue < value {
+                    return nil
+                }
+            case .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .prebuilt:
+                break
             }
-        }
 
-        return newTransactionType
+            return Decimal(value).toBigInt(decimals: transactionType.tokenObject.decimals)
+        case .allFunds:
+            return tokenViewModel?.balance.value
+        }
     }
 
     private static func mapScanQrCodeError(_ result: Result<TransactionType, CheckEIP681Error>) -> String? {
@@ -462,34 +351,93 @@ final class SendViewModel {
     }
 }
 
-extension SendViewModel {
-    struct ViewState {
-        let title: String
-        let selectCurrencyButtonState: SendViewModel.SelectCurrencyButtonState
-        let amountStatusLabelState: AmountStatuLabelState
-        let amountTextFieldState: AmountTextFieldState
-        let recipientTextFieldState: RecipientTextFieldState
+protocol TransactionTypeSupportable: AnyObject {
+    var transactionType: TransactionType { get }
+
+    func overrideTransactionType(with transactionType: TransactionType) -> TransactionType
+    func overrideTransactionType(with recipient: AlphaWallet.Address?) -> TransactionType
+    func overrideTransactionType(with recipient: FungibleAmount) -> TransactionType
+}
+
+extension TransactionTypeSupportable {
+
+    func overrideTransactionType(with amount: FungibleAmount) -> TransactionType {
+        var newTransactionType = self.transactionType
+        newTransactionType.override(amount: amount)
+
+        return newTransactionType
     }
 
-    struct SelectCurrencyButtonState {
-        let isHidden: Bool
-        let expandIconHidden: Bool
+    func overrideTransactionType(with recipient: AlphaWallet.Address?) -> TransactionType {
+        var newTransactionType = self.transactionType
+        newTransactionType.override(recipient: recipient.flatMap { .address($0) } )
+
+        return newTransactionType
     }
 
-    struct AmountStatuLabelState {
-        let text: String?
-        let isHidden: Bool
+    func overrideTransactionType(with transactionType: TransactionType) -> TransactionType {
+        var newTransactionType = transactionType
+        if let recipient = newTransactionType.recipient ?? self.transactionType.recipient {
+            newTransactionType.override(recipient: recipient)
+        }
+
+        switch newTransactionType.amount {
+        case .notSet, .none:
+            if let amount = self.transactionType.amount {
+                newTransactionType.override(amount: amount)
+            }
+        case .amount, .allFunds:
+            break
+        }
+        return newTransactionType
+    }
+}
+
+final class TransactionTypeFromQrCode {
+    private let importToken: ImportToken
+    private lazy var eip681UrlResolver = Eip681UrlResolver(config: session.config, importToken: importToken, missingRPCServerStrategy: .fallbackToPreffered(session.server))
+    private let session: WalletSession
+
+    weak var transactionTypeProvider: TransactionTypeSupportable?
+
+    init(importToken: ImportToken, session: WalletSession) {
+        self.importToken = importToken
+        self.session = session
     }
 
-    struct AmountTextFieldState {
-        let amount: String?
-        let cryptoToFiatRate: NSDecimalNumber?
-    }
+    /// Builds a new transaction type, with overriding recipient and amount if nil
+    func buildTransactionType(qrCode: String) -> AnyPublisher<Result<TransactionType, CheckEIP681Error>, Never> {
+        guard let transactionTypeProvider = transactionTypeProvider else {
+            return Fail(error: CheckEIP681Error.notEIP681)
+                .mapToResult()
+                .eraseToAnyPublisher()
+        }
 
-    struct RecipientTextFieldState {
-        let recipient: String?
-    }
+        guard let url = URL(string: qrCode) else {
+            return Fail(error: CheckEIP681Error.notEIP681)
+                .mapToResult()
+                .eraseToAnyPublisher()
+        }
 
+        return eip681UrlResolver.resolvePublisher(url: url)
+            .flatMap { [session] result -> AnyPublisher<TransactionType, CheckEIP681Error> in
+                switch result {
+                case .transaction(let transactionType, let token):
+
+                    guard token.server == session.server else {
+                        return .fail(CheckEIP681Error.embeded(error: CheckAndFillEIP681DetailsError.serverNotMatches))
+                    }
+
+                    return .just(transactionTypeProvider.overrideTransactionType(with: transactionType))
+                case .address(let recipient):
+                    return .just(transactionTypeProvider.overrideTransactionType(with: recipient))
+                }
+            }.mapToResult()
+            .eraseToAnyPublisher()
+    }
+}
+
+extension TransactionTypeFromQrCode {
     fileprivate enum CheckAndFillEIP681DetailsError: LocalizedError {
         case serverNotMatches
         case tokenNotFound
@@ -502,6 +450,33 @@ extension SendViewModel {
                 return "Token Not Found"
             }
         }
+    }
+}
+
+extension SendViewModel {
+    struct ViewState {
+        let title: String
+        let selectCurrencyButtonState: SendViewModel.SelectCurrencyButtonState
+        let amountStatusLabelState: AmountStatuLabelState
+        let rate: Double?
+        let recipientTextFieldState: RecipientTextFieldState
+    }
+
+    struct SelectCurrencyButtonState {
+        let expandIconHidden: Bool
+    }
+
+    struct AmountStatuLabelState {
+        let text: String?
+        let isHidden: Bool
+    }
+
+    struct AmountTextFieldState {
+        let amount: AmountTextFieldViewModel.FungibleAmount
+    }
+
+    struct RecipientTextFieldState {
+        let recipient: String?
     }
 
     fileprivate enum InputsValidationError: Error {

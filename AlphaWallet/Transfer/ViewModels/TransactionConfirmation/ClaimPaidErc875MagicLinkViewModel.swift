@@ -10,7 +10,7 @@ import BigInt
 import AlphaWalletFoundation
 
 extension TransactionConfirmationViewModel {
-    class ClaimPaidErc875MagicLinkViewModel: ExpandableSection, CryptoToFiatRateUpdatable, BalanceUpdatable {
+    class ClaimPaidErc875MagicLinkViewModel: ExpandableSection, RateUpdatable, BalanceUpdatable {
         enum Section: Int, CaseIterable {
             case gas
             case network
@@ -41,8 +41,22 @@ extension TransactionConfirmationViewModel {
             return configurator.selectedConfigurationType.title
         }
 
+        private var formattedAmountValue: String {
+            //NOTE: what actual token can be here? or its always native crypto, need to firegu out right `decimals` value, better to pass here actual NSDecimalNumber value
+            let amountToSend = Decimal(bigUInt: price, decimals: configurator.session.server.decimals) ?? .zero
+            let amount = Formatter.shortCrypto.string(from: amountToSend) ?? "-"
+
+            if let rate = rate {
+                let amountInFiat = Formatter.fiat.string(from: amountToSend.doubleValue * rate.value) ?? "-"
+
+                return "\(amount) \(configurator.session.server.symbol) ≈ \(amountInFiat) \(rate.currency.code)"
+            } else {
+                return "\(amount)"
+            }
+        }
+
         var openedSections = Set<Int>()
-        var cryptoToDollarRate: Double?
+        var rate: CurrencyRate?
 
         var sections: [Section] {
             return Section.allCases
@@ -63,8 +77,7 @@ extension TransactionConfirmationViewModel {
             let configuration: TransactionConfirmationHeaderView.Configuration = .init(
                     isOpened: openedSections.contains(section),
                     section: section,
-                    shouldHideChevron: true
-            )
+                    shouldHideChevron: true)
 
             let headerName = sections[section].title
             switch sections[section] {
@@ -77,16 +90,6 @@ extension TransactionConfirmationViewModel {
                     return .init(title: .normal(configurationTitle), headerName: headerName, configuration: configuration)
                 }
             case .amount:
-                let cryptoToDollarSymbol = Currency.USD.rawValue
-                let nativeCryptoSymbol = configurator.session.server.symbol
-                let formattedAmountValue: String
-                let nativeCryptoPrice = EtherNumberFormatter.short.string(from: BigInt(price))
-                if let cryptoToDollarRate = cryptoToDollarRate {
-                    let cryptoToDollarValue = StringFormatter().currency(with: Double(price) * cryptoToDollarRate / Double(EthereumUnit.ether.rawValue), and: cryptoToDollarSymbol)
-                    formattedAmountValue = "\(nativeCryptoPrice) \(nativeCryptoSymbol) ≈ \(cryptoToDollarValue) \(cryptoToDollarSymbol)"
-                } else {
-                    formattedAmountValue = "\(nativeCryptoPrice) \(nativeCryptoSymbol)"
-                }
                 return .init(title: .normal(formattedAmountValue), headerName: headerName, configuration: configuration)
             case .numberOfTokens:
                 return .init(title: .normal(String(numberOfTokens)), headerName: headerName, configuration: configuration)

@@ -10,7 +10,8 @@ import BigInt
 import AlphaWalletFoundation
 
 extension TransactionConfirmationViewModel {
-    class DappOrWalletConnectTransactionViewModel: ExpandableSection, CryptoToFiatRateUpdatable, BalanceUpdatable {
+    //TODO: pretty all of `TransactionViewModels` have balance, newBalance and so on, maybe move to base class or protocol definition
+    class DappOrWalletConnectTransactionViewModel: ExpandableSection, RateUpdatable, BalanceUpdatable {
         enum Section {
             case balance
             case gas
@@ -46,8 +47,9 @@ extension TransactionConfirmationViewModel {
             }
         }
 
-        private var balance: String?
-        private var newBalance: String?
+        private var balance: Double = .zero
+        private var newBalance: Double = .zero
+
         private let configurator: TransactionConfigurator
         private var configurationTitle: String {
             return configurator.selectedConfigurationType.title
@@ -55,21 +57,21 @@ extension TransactionConfirmationViewModel {
         private var requester: RequesterViewModel?
         private let assetDefinitionStore: AssetDefinitionStore
         private var formattedAmountValue: String {
-            let cryptoToDollarSymbol = Currency.USD.rawValue
-            let amount = Double(configurator.transaction.value) / Double(EthereumUnit.ether.rawValue)
-            let amountString = EtherNumberFormatter.full.string(from: configurator.transaction.value)
-            let symbol = configurator.session.server.symbol
-            if let cryptoToDollarRate = cryptoToDollarRate {
-                let cryptoToDollarValue = StringFormatter().currency(with: amount * cryptoToDollarRate, and: cryptoToDollarSymbol)
-                return "\(amountString) \(symbol) ≈ \(cryptoToDollarValue) \(cryptoToDollarSymbol)"
+            let amountToSend = Decimal(bigUInt: configurator.transaction.value, decimals: configurator.session.server.decimals) ?? .zero
+            //NOTE: previously it was full, make it full
+            let amount = Formatter.shortCrypto.string(from: amountToSend) ?? "-"
+
+            if let rate = rate {
+                let amountInFiat = Formatter.fiat.string(from: amountToSend.doubleValue * rate.value) ?? "-"
+                return "\(amount) \(configurator.session.server.symbol) ≈ \(amountInFiat) \(rate.currency.code)"
             } else {
-                return "\(amountString) \(symbol)"
+                return "\(amount)"
             }
         }
         private let recipientResolver: RecipientResolver
         let session: WalletSession
         let functionCallMetaData: DecodedFunctionCall?
-        var cryptoToDollarRate: Double?
+        var rate: CurrencyRate?
         var openedSections = Set<Int>()
 
         var sections: [Section] {
@@ -102,22 +104,46 @@ extension TransactionConfirmationViewModel {
             if let viewModel = balanceViewModel {
                 let token = transactionType.tokenObject
                 switch token.type {
-                case .nativeCryptocurrency:
-                    balance = "\(viewModel.amountShort) \(viewModel.symbol)"
-                    let newAmountShort = EtherNumberFormatter.short.string(from: BigUInt(viewModel.value) - configurator.transaction.value)
-                    newBalance = R.string.localizable.transactionConfirmationSendSectionBalanceNewTitle(newAmountShort, viewModel.symbol)
-                case .erc20:
-                    let symbol = token.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
-                    let newAmountShort = EtherNumberFormatter.short.string(from: BigUInt(viewModel.value) - configurator.transaction.value, decimals: token.decimals)
-                    balance = "\(viewModel.amountShort) \(symbol)"
-                    newBalance = R.string.localizable.transactionConfirmationSendSectionBalanceNewTitle(newAmountShort, symbol)
+                case .nativeCryptocurrency, .erc20:
+                    balance = viewModel.valueDecimal.doubleValue
+                    let amountToSend = (Decimal(bigUInt: configurator.transaction.value, decimals: token.decimals) ?? .zero).doubleValue
+                    newBalance = abs(balance - amountToSend)
                 case .erc1155, .erc721, .erc721ForTickets, .erc875:
-                    break
+                    balance = .zero
+                    newBalance = .zero
                 }
             } else {
-                balance = .none
-                newBalance = .none
+                balance = .zero
+                newBalance = .zero
             }
+        }
+
+        private var formattedNewBalanceString: String {
+            let symbol: String
+            switch transactionType.tokenObject.type {
+            case .nativeCryptocurrency:
+                symbol = transactionType.tokenObject.symbol
+            case .erc20, .erc1155, .erc721, .erc721ForTickets, .erc875:
+                symbol = transactionType.tokenObject.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
+            }
+            let newBalance = Formatter.shortCrypto.string(for: newBalance) ?? "-"
+
+            return R.string.localizable.transactionConfirmationSendSectionBalanceNewTitle("\(newBalance) \(symbol)", "symbol")
+        }
+
+        private var formattedBalanceString: String {
+            let title = R.string.localizable.tokenTransactionConfirmationDefault()
+            let symbol: String
+            switch transactionType.tokenObject.type {
+            case .nativeCryptocurrency:
+                symbol = transactionType.tokenObject.symbol
+            case .erc20, .erc1155, .erc721, .erc721ForTickets, .erc875:
+                symbol = transactionType.tokenObject.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
+            }
+
+            let balance = Formatter.shortCrypto.string(for: balance)
+
+            return balance.flatMap { "\($0) \(symbol)" } ?? title
         }
 
         func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
@@ -136,12 +162,11 @@ extension TransactionConfirmationViewModel {
             let headerName = sections[section].title
             switch sections[section] {
             case .balance:
-                let title = R.string.localizable.tokenTransactionConfirmationDefault()
-                return .init(title: .normal(balance ?? title), headerName: headerName, details: newBalance, configuration: configuration)
+                return .init(title: .normal(formattedBalanceString), headerName: headerName, details: formattedNewBalanceString, configuration: configuration)
             case .network:
                 return .init(title: .normal(session.server.displayName), headerName: headerName, titleIcon: session.server.walletConnectIconImage, configuration: configuration)
             case .gas:
-                let gasFee = gasFeeString(for: configurator, cryptoToDollarRate: cryptoToDollarRate)
+                let gasFee = gasFeeString(for: configurator, rate: rate)
                 if let warning = configurator.gasPriceWarning {
                     return .init(title: .warning(warning.shortTitle), headerName: headerName, details: gasFee, configuration: configuration)
                 } else {

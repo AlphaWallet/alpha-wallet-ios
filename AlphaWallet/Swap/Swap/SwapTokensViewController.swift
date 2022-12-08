@@ -155,7 +155,7 @@ class SwapTokensViewController: UIViewController {
             }.store(in: &cancelable)
 
         output.convertedValue
-            .sink { [weak toAmountTextField] in toAmountTextField?.set(crypto: $0, useFormatting: false) }
+            .sink { [weak toAmountTextField] in toAmountTextField?.set(amount: $0) }
             .store(in: &cancelable)
 
         output.amountValidation
@@ -177,7 +177,7 @@ class SwapTokensViewController: UIViewController {
             .store(in: &cancelable)
 
         output.allFunds
-            .sink { [weak fromAmountTextField] in fromAmountTextField?.set(crypto: $0.allFundsFullValue.localizedString, shortCrypto: $0.allFundsShortValue, useFormatting: false) }
+            .sink { [weak fromAmountTextField] in fromAmountTextField?.set(amount: $0) }
             .store(in: &cancelable)
     }
 

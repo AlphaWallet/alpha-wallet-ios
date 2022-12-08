@@ -5,10 +5,11 @@ import BigInt
 import PromiseKit
 import Combine
 
+// TODO: prepare tests for Eip681UrlResolver
 public final class Eip681UrlResolver {
     public enum Resolution {
         case address(AlphaWallet.Address)
-        case transaction(transactionType: TransactionType, token: Token)
+        case transaction(TransactionType, token: Token)
     }
 
     public enum MissingRpcServerStrategy {
@@ -61,8 +62,8 @@ public final class Eip681UrlResolver {
                     .map { token -> Eip681UrlResolver.Resolution in
                         switch token.type {
                         case .erc20, .nativeCryptocurrency:
-                            let transactionType = Eip681UrlResolver.transferFungibleTransactionType(token, recipient: recipient, amount: amount)
-                            return .transaction(transactionType: transactionType, token: token)
+                            let transactionType = Eip681UrlResolver.buildFungibleTransactionType(token, recipient: recipient, amount: amount)
+                            return .transaction(transactionType, token: token)
                         case .erc1155, .erc721, .erc721ForTickets, .erc875:
                             throw CheckEIP681Error.tokenTypeNotSupported
                         }
@@ -86,10 +87,112 @@ public final class Eip681UrlResolver {
         }
     }
 
-    private static func transferFungibleTransactionType(_ token: Token, recipient: AddressOrEnsName?, amount: String) -> TransactionType {
-        let formatter = EtherNumberFormatter.full
-        let amount = amount.scientificAmountToBigInt.flatMap { formatter.string(from: $0, decimals: token.decimals) }
+    private static func buildFungibleTransactionType(_ token: Token, recipient: AddressOrEnsName?, amount amount: Eip681Amount) -> TransactionType {
+        let amountToSend: FungibleAmount
 
-        return TransactionType(fungibleToken: token, recipient: recipient, amount: amount)
+        //NOTE: use decimals only if send ether or number has e notation
+        var decimals: Int = 0
+        switch amount {
+        case .ether(let value):
+            decimals = token.decimals
+        case .uint256(let value, let eNotation):
+            if eNotation { //If a number has e notation, we treat as number need to be converted as
+                decimals = token.decimals
+            } else {
+                decimals = 0
+            }
+        }
+
+        if let amount = amount.rawValue.scientificAmountToBigInt, let value = Decimal(bigUInt: BigUInt(amount), decimals: decimals) {
+            amountToSend = .amount(value.doubleValue)
+        } else if let amount = DecimalParser().parseAnyDecimal(from: amount.rawValue) {
+            amountToSend = .amount(amount.doubleValue)
+        } else {
+            amountToSend = .notSet
+        }
+        return TransactionType(fungibleToken: token, recipient: recipient, amount: amountToSend)
     }
+}
+
+extension Decimal {
+
+    public var decimalCount: Int {
+        max(-exponent, 0)
+    }
+
+    public init?(bigInt: BigInt, decimals: Int) {
+        guard let significand = Decimal(string: bigInt.description, locale: .en_US) else {
+            return nil
+        }
+        let sign: FloatingPointSign
+        switch bigInt.sign {
+        case .minus:
+            sign = .minus
+        case .plus:
+            sign = .plus
+        }
+        self.init(sign: sign, exponent: -decimals, significand: significand)
+    }
+
+    public init?(bigUInt: BigUInt, decimals: Int) {
+        guard let significand = Decimal(string: bigUInt.description, locale: .en_US) else {
+            return nil
+        }
+        self.init(sign: .plus, exponent: -decimals, significand: significand)
+    }
+
+    public init(double: Double) {
+        self.init(string: String(double), locale: .en_US)!
+    }
+
+}
+
+//NOTE: Maybe it could be better to use Decimal instead of Double, but we can't use it because
+// - check for ((Decimal(0.001) / Decimal(0.02231)) * Decimal(0.02231) == Decimal(0.001)) returns false
+// - in some places we need to use Double and when we call .doubleValue for Decimal number it actually return not that value we expect, 1.0000000000000002e-06 when 1e-06 expected
+extension Decimal {
+
+    func roundedString(decimal: Int) -> String {
+        let poweredDecimal = self * pow(10, decimal)
+        let handler = NSDecimalNumberHandler(roundingMode: .plain, scale: 0, raiseOnExactness: false, raiseOnOverflow: false, raiseOnUnderflow: false, raiseOnDivideByZero: false)
+        let roundedDecimal = NSDecimalNumber(decimal: poweredDecimal).rounding(accordingToBehavior: handler).decimalValue
+
+        return String(describing: roundedDecimal)
+    }
+
+    public func toBigInt(decimals: Int) -> BigInt? {
+        return BigInt(roundedString(decimal: decimals))
+    }
+
+}
+
+public class DecimalParser {
+
+    private let formatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.usesGroupingSeparator = false
+
+        return formatter
+    }()
+
+    public init() { }
+
+    public func parseAnyDecimal(from string: String?) -> Decimal? {
+        if let string = string {
+            for localeIdentifier in Locale.availableIdentifiers {
+                formatter.locale = Locale(identifier: localeIdentifier)
+                if formatter.number(from: "0\(string)") == nil {
+                    continue
+                }
+
+                let string = string.replacingOccurrences(of: formatter.decimalSeparator, with: ".")
+                if let decimal = Decimal(string: string, locale: .en_US) {
+                    return decimal
+                }
+             }
+         }
+        return nil
+    }
+
 }

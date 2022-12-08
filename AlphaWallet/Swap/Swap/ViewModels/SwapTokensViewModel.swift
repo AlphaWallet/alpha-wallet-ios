@@ -11,7 +11,7 @@ import BigInt
 import AlphaWalletFoundation
 
 struct SwapTokensViewModelInput {
-    let cryptoValue: AnyPublisher<String, Never>
+    let cryptoValue: AnyPublisher<AmountTextFieldViewModel.FungibleAmount, Never>
     let allFunds: AnyPublisher<Void, Never>
     let togglePair: AnyPublisher<Void, Never>
 }
@@ -20,12 +20,12 @@ struct SwapTokensViewModelOutput {
     let anyErrorString: AnyPublisher<String, Never>
     let isContinueButtonEnabled: AnyPublisher<Bool, Never>
     let isConfiguratorInUpdatingState: AnyPublisher<Bool, Never>
-    let convertedValue: AnyPublisher<String, Never>
+    let convertedValue: AnyPublisher<AmountTextFieldViewModel.FungibleAmount, Never>
     let fromTokenBalance: AnyPublisher<String, Never>
     let toTokenBalance: AnyPublisher<String?, Never>
     let tokens: AnyPublisher<(from: Token, to: Token?), Never>
     let amountValidation: AnyPublisher<AmountTextField.ErrorState, Never>
-    let allFunds: AnyPublisher<(allFundsFullValue: NSDecimalNumber?, allFundsShortValue: String), Never>
+    let allFunds: AnyPublisher<AmountTextFieldViewModel.FungibleAmount, Never>
 }
 
 final class SwapTokensViewModel: NSObject {
@@ -74,29 +74,6 @@ final class SwapTokensViewModel: NSObject {
             .eraseToAnyPublisher()
     }
 
-    private var allFundsFormattedValues: (allFundsFullValue: NSDecimalNumber?, allFundsShortValue: String)? {
-        let token = configurator.swapPair.from
-        switch token.type {
-        case .nativeCryptocurrency:
-            let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: token.server)
-
-            guard let balance = tokensService.tokenViewModel(for: etherToken).flatMap({ $0.balance }) else { return nil }
-            let fullValue = EtherNumberFormatter.plain.string(from: balance.value, units: .ether).droppedTrailingZeros
-            let shortValue = EtherNumberFormatter.shortPlain.string(from: balance.value, units: .ether).droppedTrailingZeros
-
-            return (fullValue.optionalDecimalValue, shortValue)
-        case .erc20:
-            guard let balance = tokensService.tokenViewModel(for: token).flatMap({ $0.balance }) else { return nil }
-            let fullValue = EtherNumberFormatter.plain.string(from: balance.value, decimals: token.decimals).droppedTrailingZeros
-            let shortValue = EtherNumberFormatter.shortPlain.string(from: balance.value, decimals: token.decimals).droppedTrailingZeros
-
-            return (fullValue.optionalDecimalValue, shortValue)
-
-        case .erc1155, .erc721, .erc875, .erc721ForTickets:
-            return nil
-        }
-    }
-
     var tokens: AnyPublisher<(from: Token, to: Token?), Never> {
         return activeSession.combineLatest(swapPair)
             .map { _, swapPair -> (from: Token, to: Token?) in return (swapPair.from, swapPair.to) }
@@ -137,7 +114,11 @@ final class SwapTokensViewModel: NSObject {
     }
 
     func transform(input: SwapTokensViewModelInput) -> SwapTokensViewModelOutput {
-        bigIntValue(cryptoValue: input.cryptoValue)
+        let amountToSwap = input.cryptoValue
+            .map { $0.asAmount }
+            .eraseToAnyPublisher()
+
+        self.buildBigIntValue(amount: amountToSwap)
             .sink { [configurator] in configurator.set(fromAmount: $0) }
             .store(in: &cancelable)
 
@@ -145,28 +126,28 @@ final class SwapTokensViewModel: NSObject {
             .sink { [configurator] _ in configurator.togglePair() }
             .store(in: &cancelable)
 
-        let isContinueButtonEnabled = isContinueButtonEnabled(cryptoValue: input.cryptoValue)
-        let amountValidation = amountValidation(cryptoValue: input.cryptoValue)
+        let isContinueButtonEnabled = isContinueButtonEnabled(amountToSwap: amountToSwap)
+        let amountValidation = amountValidation(amountToSwap: amountToSwap)
 
         let convertedValue = configurator.tokensWithTheirSwapQuote
-            .map { data -> String in
-                guard let data = data else { return "" }
-                return EtherNumberFormatter.shortPlain.string(from: data.swapQuote.estimate.toAmount, decimals: data.tokens.to.decimals)
+            .map { data -> AmountTextFieldViewModel.FungibleAmount in
+                guard let data = data else { return .notSet }
+
+                guard let amount = Decimal(bigUInt: data.swapQuote.estimate.toAmount, decimals: data.tokens.to.decimals) else { return .notSet }
+                return .amount(amount.doubleValue)
             }.eraseToAnyPublisher()
 
         let anyErrorString = configurator.error
             .compactMap { $0?.description }
             .eraseToAnyPublisher()
 
-        let allFunds = input.allFunds
-            .compactMap { _ in self.allFundsFormattedValues }
-            .eraseToAnyPublisher()
+        let allFunds = buildMaxFungibleAmount(for: input.allFunds)
 
         return .init(anyErrorString: anyErrorString, isContinueButtonEnabled: isContinueButtonEnabled, isConfiguratorInUpdatingState: isConfiguratorInUpdatingState, convertedValue: convertedValue, fromTokenBalance: fromTokenBalance, toTokenBalance: toTokenBalance, tokens: tokens, amountValidation: amountValidation, allFunds: allFunds)
     }
 
-    private func isContinueButtonEnabled(cryptoValue: AnyPublisher<String, Never>) -> AnyPublisher<Bool, Never> {
-        let hasValidEnteredAmount = amountValidation(cryptoValue: cryptoValue)
+    private func isContinueButtonEnabled(amountToSwap: AnyPublisher<FungibleAmount, Never>) -> AnyPublisher<Bool, Never> {
+        let hasValidEnteredAmount = amountValidation(amountToSwap: amountToSwap)
             .map { $0 == .none }
             .removeDuplicates()
 
@@ -181,28 +162,61 @@ final class SwapTokensViewModel: NSObject {
             .eraseToAnyPublisher()
     }
 
-    private func bigIntValue(cryptoValue: AnyPublisher<String, Never>) -> AnyPublisher<BigInt?, Never> {
-        return Publishers.CombineLatest(cryptoValue, activeSession.combineLatest(swapPair))
-            .map { cryptoValue, sessionAndSwapPair -> BigInt? in
-                return self.parseEnteredAmount(cryptoValue, token: sessionAndSwapPair.1.from)
+    private func buildMaxFungibleAmount(for trigger: AnyPublisher<Void, Never>) -> AnyPublisher<AmountTextFieldViewModel.FungibleAmount, Never> {
+        trigger.compactMap { [tokensService, configurator] _ -> AmountTextFieldViewModel.FungibleAmount? in
+            let token = configurator.swapPair.from
+            switch token.type {
+            case .nativeCryptocurrency:
+                guard let balance = tokensService.tokenViewModel(for: token)?.balance else { return nil }
+
+                return Decimal(bigUInt: BigUInt(balance.value), decimals: token.decimals).flatMap { AmountTextFieldViewModel.FungibleAmount.allFunds($0.doubleValue) }
+            case .erc20:
+                guard let balance = tokensService.tokenViewModel(for: token)?.balance else { return nil }
+
+                return Decimal(bigUInt: BigUInt(balance.value), decimals: token.decimals).flatMap { AmountTextFieldViewModel.FungibleAmount.allFunds($0.doubleValue) }
+            case .erc1155, .erc721, .erc875, .erc721ForTickets:
+                return nil
+            }
+        }.eraseToAnyPublisher()
+    }
+
+    private func buildBigIntValue(amount: AnyPublisher<FungibleAmount, Never>) -> AnyPublisher<BigInt?, Never> {
+        return Publishers.CombineLatest(amount, activeSession.combineLatest(swapPair))
+            .map { amount, sessionAndSwapPair -> BigInt? in
+                switch amount {
+                case .amount(let amount):
+                    return Decimal(amount).toBigInt(decimals: sessionAndSwapPair.1.from.decimals)
+                case .allFunds:
+                    guard let balance: BalanceViewModel = self.balance(for: sessionAndSwapPair.1.from, session: sessionAndSwapPair.0) else {
+                        return nil
+                    }
+                    return balance.value
+                case .notSet:
+                    return nil
+                }
             }.eraseToAnyPublisher()
     }
 
-    private func amountValidation(cryptoValue: AnyPublisher<String, Never>, useGreaterThanZeroValidation: Bool = true) -> AnyPublisher<AmountTextField.ErrorState, Never> {
-        return Publishers.CombineLatest(cryptoValue, activeSession.combineLatest(swapPair))
-            .map { cryptoValue, sessionAndSwapPair -> AmountTextField.ErrorState in
+    private func amountValidation(amountToSwap: AnyPublisher<FungibleAmount, Never>, useGreaterThanZeroValidation: Bool = true) -> AnyPublisher<AmountTextField.ErrorState, Never> {
+        return Publishers.CombineLatest(amountToSwap, activeSession.combineLatest(swapPair))
+            .map { amountToSwap, sessionAndSwapPair -> AmountTextField.ErrorState in
                 let token = sessionAndSwapPair.1.from
                 guard let balance: BalanceViewModel = self.balance(for: token, session: sessionAndSwapPair.0) else {
                     return .error
                 }
-                let parsedValue: BigInt? = self.parseEnteredAmount(cryptoValue, token: token)
 
-                let greaterThanZero = useGreaterThanZeroValidation ? self.checkIfGreaterThanZero(for: token) : false
-                guard let value = parsedValue, greaterThanZero ? value > 0 : true else {
+                switch amountToSwap {
+                case .notSet:
                     return .error
+                case .allFunds:
+                    return .none
+                case .amount(let amount):
+                    let greaterThanZero = useGreaterThanZeroValidation ? self.checkIfGreaterThanZero(for: token) : false
+                    guard greaterThanZero ? amount > 0 : true else {
+                        return .error
+                    }
+                    return balance.valueDecimal.doubleValue >= amount ? .none : .error
                 }
-
-                return balance.value >= value ? .none : .error
             }.eraseToAnyPublisher()
     }
 
@@ -219,17 +233,6 @@ final class SwapTokensViewModel: NSObject {
             return false
         case .erc20, .erc1155, .erc721, .erc875, .erc721ForTickets:
             return true
-        }
-    }
-
-    private func parseEnteredAmount(_ amountString: String, token: Token) -> BigInt? {
-        switch token.type {
-        case .nativeCryptocurrency:
-            return EtherNumberFormatter.full.number(from: amountString, units: .ether)
-        case .erc20:
-            return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
-        case .erc721, .erc1155, .erc721ForTickets, .erc875:
-            return nil
         }
     }
 

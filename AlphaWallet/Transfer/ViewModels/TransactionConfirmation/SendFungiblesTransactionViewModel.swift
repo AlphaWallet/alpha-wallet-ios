@@ -10,7 +10,7 @@ import BigInt
 import AlphaWalletFoundation
 
 extension TransactionConfirmationViewModel {
-    class SendFungiblesTransactionViewModel: ExpandableSection, CryptoToFiatRateUpdatable {
+    class SendFungiblesTransactionViewModel: ExpandableSection, RateUpdatable {
         enum Section: Int, CaseIterable {
             case balance
             case network
@@ -34,9 +34,8 @@ extension TransactionConfirmationViewModel {
             }
         }
 
-        private var amount: FungiblesTransactionAmount
-        private var balance: String?
-        private var newBalance: String?
+        private var balance: Double = .zero
+        private var newBalance: Double = .zero
         private let configurator: TransactionConfigurator
         private let assetDefinitionStore: AssetDefinitionStore
         private var configurationTitle: String {
@@ -44,7 +43,7 @@ extension TransactionConfirmationViewModel {
         }
         private let recipientResolver: RecipientResolver
 
-        var cryptoToDollarRate: Double?
+        var rate: CurrencyRate?
         var ensName: String? { recipientResolver.ensName }
         var addressString: String? { recipientResolver.address?.eip55String }
         var openedSections = Set<Int>()
@@ -55,85 +54,110 @@ extension TransactionConfirmationViewModel {
             Section.allCases
         }
 
-        init(configurator: TransactionConfigurator, assetDefinitionStore: AssetDefinitionStore, recipientResolver: RecipientResolver, amount: FungiblesTransactionAmount) {
+        init(configurator: TransactionConfigurator, assetDefinitionStore: AssetDefinitionStore, recipientResolver: RecipientResolver) {
             self.configurator = configurator
             self.transactionType = configurator.transaction.transactionType
             self.session = configurator.session
             self.assetDefinitionStore = assetDefinitionStore
             self.recipientResolver = recipientResolver
-            self.amount = amount
         }
 
         func updateBalance(_ balanceViewModel: BalanceViewModel?) {
-            if let viewModel = balanceViewModel {
+            if let balanceViewModel = balanceViewModel {
                 let token = transactionType.tokenObject
                 switch token.type {
                 case .nativeCryptocurrency:
-                    balance = "\(viewModel.amountShort) \(viewModel.symbol)"
+                    balance = balanceViewModel.valueDecimal.doubleValue
 
-                    var availableAmount: BigUInt
-                    if amount.isAllFunds {
-                        //NOTE: we need to handle balance updates, and refresh `amount` balance - gas
-                        //if balance is equals to 0, or in case when value (balance - gas) less then zero we willn't crash
-                        let allFundsWithoutGas = BigUInt(viewModel.value) - configurator.gasValue
-                        availableAmount = allFundsWithoutGas
-
-                        configurator.updateTransaction(value: allFundsWithoutGas)
-                        amount.value = EtherNumberFormatter.short.string(from: allFundsWithoutGas, units: .ether)
-                    } else {
-                        availableAmount = BigUInt(viewModel.value)
+                    var amountToSend: Double
+                    switch configurator.transaction.transactionType.amount {
+                    case .notSet, .none:
+                        amountToSend = .zero
+                    case .amount(let value):
+                        amountToSend = value
+                    case .allFunds:
+                        //NOTE: ignore passed value of 'allFunds', as we recalculating it again
+                        configurator.updateTransaction(value: BigUInt(balanceViewModel.value) - configurator.gasValue)
+                        amountToSend = balance
                     }
 
-                    let newAmountShort = EtherNumberFormatter.short.string(from: availableAmount - configurator.transaction.value)
-                    newBalance = R.string.localizable.transactionConfirmationSendSectionBalanceNewTitle(newAmountShort, viewModel.symbol)
+                    newBalance = abs(balance - amountToSend)
                 case .erc20:
-                    let symbol = token.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
-                    let newAmountShort = EtherNumberFormatter.short.string(from: BigUInt(viewModel.value) - configurator.transaction.value, decimals: token.decimals)
-                    balance = "\(viewModel.amountShort) \(symbol)"
-                    newBalance = R.string.localizable.transactionConfirmationSendSectionBalanceNewTitle(newAmountShort, symbol)
+                    balance = balanceViewModel.valueDecimal.doubleValue
+
+                    let amountToSend: Double
+                    switch transactionType.amount {
+                    case .notSet, .none:
+                        amountToSend = .zero
+                    case .amount(let value):
+                        amountToSend = value
+                    case .allFunds:
+                        amountToSend = balance
+                    }
+
+                    newBalance = abs(balance - amountToSend)
                 case .erc1155, .erc721, .erc721ForTickets, .erc875:
-                    balance = .none
-                    newBalance = .none
+                    balance = .zero
+                    newBalance = .zero
                 }
             } else {
-                balance = .none
-                newBalance = .none
+                balance = .zero
+                newBalance = .zero
             }
         }
 
-        var formattedAmountValue: String {
+        private var formattedAmountValue: String {
+            //NOTE: when we send .allFunds for native crypto its going to be overriden with .allFunds(value - gas)
+            let amountToSend: Double
+
+            //NOTE: special case for `nativeCryptocurrency` we amount - gas displayd in `amount` section
             switch transactionType {
             case .nativeCryptocurrency(let token, _, _):
-                if let cryptoToDollarRate = cryptoToDollarRate {
-                    let cryptoToDollarSymbol = Currency.USD.rawValue
-                    let double = amount.value.optionalDecimalValue ?? 0
-                    let value = double.multiplying(by: NSDecimalNumber(value: cryptoToDollarRate))
-                    let cryptoToDollarValue = StringFormatter().currency(with: value, and: cryptoToDollarSymbol)
-
-                    return "\(amount.value) \(token.symbol) ≈ \(cryptoToDollarValue) \(cryptoToDollarSymbol)"
-                } else {
-                    return "\(amount.value) \(token.symbol)"
+                switch transactionType.amount {
+                case .amount(let value):
+                    amountToSend = value
+                case .allFunds:
+                    //NOTE: special case for `nativeCryptocurrency` we amount - gas displayd in `amount` section
+                    amountToSend = abs(balance - (Decimal(bigUInt: configurator.gasValue, decimals: token.decimals) ?? .zero).doubleValue)
+                case .notSet, .none:
+                    amountToSend = .zero
                 }
-            case .erc20Token(let token, _, _):
-                if let amount = amount.shortValue, amount.nonEmpty {
-                    return "\(amount) \(token.symbol)"
-                } else {
-                    return "\(amount.value) \(token.symbol)"
+            case .erc20Token:
+                switch transactionType.amount {
+                case .amount(let value):
+                    amountToSend = value
+                case .allFunds:
+                    amountToSend = balance
+                case .notSet, .none:
+                    amountToSend = .zero
                 }
-            case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .prebuilt:
-                return String()
+            case .prebuilt:
+                amountToSend = (Decimal(bigUInt: configurator.transaction.value, decimals: session.server.decimals) ?? .zero).doubleValue
+            case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token:
+                amountToSend = .zero
             }
-        }
 
-        var gasFee: String {
-            let fee: BigUInt = configurator.currentConfiguration.gasPrice * configurator.currentConfiguration.gasLimit
-            let feeString = EtherNumberFormatter.short.string(from: fee)
-            let cryptoToFiatSymbol = Currency.USD.rawValue
-            if let cryptoToFiatRate = cryptoToDollarRate {
-                let cryptoToFiatValue = StringFormatter().currency(with: Double(fee) * cryptoToFiatRate / Double(EthereumUnit.ether.rawValue), and: cryptoToFiatSymbol)
-                return "< ~\(feeString) \(session.server.symbol) (\(cryptoToFiatValue) \(cryptoToFiatSymbol))"
-            } else {
-                return "< ~\(feeString) \(session.server.symbol)"
+            switch transactionType {
+            case .nativeCryptocurrency, .erc20Token, .prebuilt:
+                let symbol: String
+                switch transactionType.tokenObject.type {
+                case .nativeCryptocurrency:
+                    symbol = transactionType.tokenObject.symbol
+                case .erc20, .erc1155, .erc721, .erc721ForTickets, .erc875:
+                    symbol = transactionType.tokenObject.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
+                }
+
+                //TODO: extract to constants
+                let amount = Formatter.shortCrypto.string(double: amountToSend, minimumFractionDigits: 4, maximumFractionDigits: 8)
+                if let rate = rate {
+                    let amountInFiat = Formatter.fiat.string(double: amountToSend * rate.value, minimumFractionDigits: 2, maximumFractionDigits: 6)
+                    
+                    return "\(amount) \(symbol) ≈ \(amountInFiat) \(rate.currency.code)"
+                } else {
+                    return amount
+                }
+            case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token:
+                return String()
             }
         }
 
@@ -157,6 +181,34 @@ extension TransactionConfirmationViewModel {
             }
         }
 
+        private var formattedNewBalanceString: String {
+            let symbol: String
+            switch transactionType.tokenObject.type {
+            case .nativeCryptocurrency:
+                symbol = transactionType.tokenObject.symbol
+            case .erc20, .erc1155, .erc721, .erc721ForTickets, .erc875:
+                symbol = transactionType.tokenObject.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
+            }
+            let newBalance = Formatter.shortCrypto.string(for: newBalance) ?? "-"
+
+            return R.string.localizable.transactionConfirmationSendSectionBalanceNewTitle("\(newBalance) \(symbol)", symbol)
+        }
+
+        private var formattedBalanceString: String {
+            let title = R.string.localizable.tokenTransactionConfirmationDefault()
+            let symbol: String
+            switch transactionType.tokenObject.type {
+            case .nativeCryptocurrency:
+                symbol = transactionType.tokenObject.symbol
+            case .erc20, .erc1155, .erc721, .erc721ForTickets, .erc875:
+                symbol = transactionType.tokenObject.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
+            }
+
+            let balance = Formatter.shortCrypto.string(for: balance)
+
+            return balance.flatMap { "\($0) \(symbol)" } ?? title
+        }
+
         func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
             let configuration: TransactionConfirmationHeaderView.Configuration = .init(
                 isOpened: openedSections.contains(section),
@@ -169,10 +221,9 @@ extension TransactionConfirmationViewModel {
             case .network:
                 return .init(title: .normal(session.server.displayName), headerName: headerName, titleIcon: session.server.walletConnectIconImage, configuration: configuration)
             case .balance:
-                let title = R.string.localizable.tokenTransactionConfirmationDefault()
-                return .init(title: .normal(balance ?? title), headerName: headerName, details: newBalance, configuration: configuration)
+                return .init(title: .normal(formattedBalanceString), headerName: headerName, details: formattedNewBalanceString, configuration: configuration)
             case .gas:
-                let gasFee = gasFeeString(for: configurator, cryptoToDollarRate: cryptoToDollarRate)
+                let gasFee = gasFeeString(for: configurator, rate: rate)
                 if let warning = configurator.gasPriceWarning {
                     return .init(title: .warning(warning.shortTitle), headerName: headerName, details: gasFee, configuration: configuration)
                 } else {

@@ -786,6 +786,7 @@
 		87ED8FAB2488E4610005C69B /* SendViewSectionHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED8FAA2488E4610005C69B /* SendViewSectionHeaderViewModel.swift */; };
 		87ED8FAD2488EA610005C69B /* SupportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED8FAC2488EA610005C69B /* SupportViewController.swift */; };
 		87ED8FAF2488EA9C0005C69B /* SupportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED8FAE2488EA9C0005C69B /* SupportViewModel.swift */; };
+		87EFF9CC2941D4F500D3FE30 /* TransactionTypeFromQrCodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87EFF9CB2941D4F500D3FE30 /* TransactionTypeFromQrCodeTests.swift */; };
 		87F15AEB27F1EA4E00EB9787 /* SwapQuoteDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F15AEA27F1EA4E00EB9787 /* SwapQuoteDetailsView.swift */; };
 		87F15AED27F1EA6900EB9787 /* SwapQuoteDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F15AEC27F1EA6900EB9787 /* SwapQuoteDetailsViewModel.swift */; };
 		87F15AEF27F1EA8B00EB9787 /* SwapQuoteFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F15AEE27F1EA8B00EB9787 /* SwapQuoteFieldView.swift */; };
@@ -1658,6 +1659,7 @@
 		87ED8FAA2488E4610005C69B /* SendViewSectionHeaderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendViewSectionHeaderViewModel.swift; sourceTree = "<group>"; };
 		87ED8FAC2488EA610005C69B /* SupportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportViewController.swift; sourceTree = "<group>"; };
 		87ED8FAE2488EA9C0005C69B /* SupportViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportViewModel.swift; sourceTree = "<group>"; };
+		87EFF9CB2941D4F500D3FE30 /* TransactionTypeFromQrCodeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionTypeFromQrCodeTests.swift; sourceTree = "<group>"; };
 		87F15AEA27F1EA4E00EB9787 /* SwapQuoteDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapQuoteDetailsView.swift; sourceTree = "<group>"; };
 		87F15AEC27F1EA6900EB9787 /* SwapQuoteDetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapQuoteDetailsViewModel.swift; sourceTree = "<group>"; };
 		87F15AEE27F1EA8B00EB9787 /* SwapQuoteFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapQuoteFieldView.swift; sourceTree = "<group>"; };
@@ -2486,6 +2488,7 @@
 			children = (
 				29BDF19C1FEE50E90023A45F /* GasPriceConfigurationTests.swift */,
 				8728E2352938E9EF009E633F /* UnconfirmedTransactionTests.swift */,
+				87EFF9CB2941D4F500D3FE30 /* TransactionTypeFromQrCodeTests.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -5616,6 +5619,7 @@
 				8765D6F1282BDDC400529F45 /* FakeTokenSwapper.swift in Sources */,
 				CCA4FE3A1FD42B4100749AE4 /* FakeJailbreakChecker.swift in Sources */,
 				02CEFAF82807FF7500CF8722 /* GetIsERC1155ContractCoordinatorTestCase.swift in Sources */,
+				87EFF9CC2941D4F500D3FE30 /* TransactionTypeFromQrCodeTests.swift in Sources */,
 				028CFFA0284B06540089B551 /* UIColorExtensionTests.swift in Sources */,
 				871442FD27FB1EE6008819D1 /* FunctionCallArgumentTests.swift in Sources */,
 				875E258128CB1E53001976F8 /* Repeat.swift in Sources */,

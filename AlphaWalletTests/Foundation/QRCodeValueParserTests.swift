@@ -125,6 +125,19 @@ class QRCodeValueParserTests: XCTestCase {
         }
     }
 
+    func testParseCommaDecimalSeparator() {
+        guard let result = AddressOrEip681Parser.from(string: "ethereum:0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c?data=0x123&amount=1,01") else { return XCTFail("Can't parse EIP 681") }
+        switch result {
+        case .address:
+            XCTFail("Can't parse EIP 681")
+        case .eip681(let protocolName, _, _, let params):
+            XCTAssertEqual(Eip681Parser.scheme, protocolName)
+            XCTAssertEqual(2, params.count)
+            XCTAssertEqual("0x123", params["data"])
+            XCTAssertEqual("1,01", params["amount"])
+        }
+    }
+
     func testParseNativeCryptoSend() {
         guard let qrCodeValue = AddressOrEip681Parser.from(string: "ethereum:0xfb6916095ca1df60bb79Ce92ce3ea74c37c5d359?value=2.014e18") else { return XCTFail("Can't parse EIP 681") }
         let expectation = self.expectation(description: "Promise resolves")
@@ -138,7 +151,7 @@ class QRCodeValueParserTests: XCTestCase {
                 case .nativeCryptoSend(let chainId, let recipient, let amount):
                     XCTAssertNil(chainId)
                     XCTAssertTrue(recipient.sameContract(as: "0xfb6916095ca1df60bb79Ce92ce3ea74c37c5d359"))
-                    XCTAssertEqual(amount, "2.014e+18")
+                    XCTAssertEqual(amount.rawValue, "2014000000000000000")
                 case .erc20Send, .invalidOrNotSupported:
                     XCTFail("Parsed as wrong EIP 681 type")
                 }
@@ -160,7 +173,7 @@ class QRCodeValueParserTests: XCTestCase {
                 case .nativeCryptoSend(let chainId, let recipient, let amount):
                     XCTAssertNil(chainId)
                     XCTAssertTrue(recipient.sameContract(as: "0xfb6916095ca1df60bb79Ce92ce3ea74c37c5d359"))
-                    XCTAssertEqual(amount, "2.014e+18")
+                    XCTAssertEqual(amount.rawValue, "2014000000000000000")
                 case .erc20Send, .invalidOrNotSupported:
                     XCTFail("Parsed as wrong EIP 681 type")
                 }
@@ -183,7 +196,7 @@ class QRCodeValueParserTests: XCTestCase {
                     XCTAssertEqual(contract, AlphaWallet.Address(string: "0x744d70fdbe2ba4cf95131626614a1763df805b9e"))
                     XCTAssertNil(chainId)
                     XCTAssertTrue(recipient?.sameContract(as: "0x3d597789ea16054a084ac84ce87f50df9198f415") ?? false)
-                    XCTAssertEqual(amount, "31400000000000000000")
+                    XCTAssertEqual(amount.rawValue, "31400000000000000000")
                 case .nativeCryptoSend, .invalidOrNotSupported:
                     XCTFail("Parsed as wrong EIP 681 type")
                 }
@@ -206,7 +219,7 @@ class QRCodeValueParserTests: XCTestCase {
                     XCTAssertEqual(contract, AlphaWallet.Address(string: "0x60fa213f48cd0d83b54380108ccd03a6993247e0"))
                     XCTAssertNil(chainId)
                     XCTAssertNil(recipient)
-                    XCTAssertEqual(amount, "1500000000000000000")
+                    XCTAssertEqual(amount.rawValue, "1500000000000000000")
                 case .nativeCryptoSend, .invalidOrNotSupported:
                     XCTFail("Parsed as wrong EIP 681 type")
                 }
@@ -228,7 +241,7 @@ class QRCodeValueParserTests: XCTestCase {
                 case .nativeCryptoSend(let chainId, let recipient, let amount):
                     XCTAssertNil(chainId)
                     XCTAssertTrue(recipient.sameContract(as: "0xfb6916095ca1df60bb79Ce92ce3ea74c37c5d359"))
-                    XCTAssertEqual(amount, "")
+                    XCTAssertEqual(amount.rawValue, "")
                 case .erc20Send, .invalidOrNotSupported:
                     XCTFail("Parsed as wrong EIP 681 type")
                 }
@@ -251,7 +264,7 @@ class QRCodeValueParserTests: XCTestCase {
                     XCTAssertEqual(contract, AlphaWallet.Address(string: "0x744d70fdbe2ba4cf95131626614a1763df805b9e"))
                     XCTAssertNil(chainId)
                     XCTAssertTrue(recipient?.sameContract(as: "0x3d597789ea16054a084ac84ce87f50df9198f415") ?? false)
-                    XCTAssertEqual(amount, "")
+                    XCTAssertEqual(amount.rawValue, "")
                 case .nativeCryptoSend, .invalidOrNotSupported:
                     XCTFail("Parsed as wrong EIP 681 type")
                 }
@@ -293,7 +306,7 @@ class QRCodeValueParserTests: XCTestCase {
                 case .nativeCryptoSend(let chainId, let recipient, let amount):
                     XCTAssertNil(chainId)
                     XCTAssertTrue(recipient.stringValue == "foo.eth")
-                    XCTAssertEqual(amount, "")
+                    XCTAssertEqual(amount.rawValue, "")
                 case .erc20Send, .invalidOrNotSupported:
                     XCTFail("Parsed as wrong EIP 681 type")
                 }

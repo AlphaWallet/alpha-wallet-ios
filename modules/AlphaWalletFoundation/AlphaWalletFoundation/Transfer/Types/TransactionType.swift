@@ -1,6 +1,40 @@
 import Foundation
 import BigInt
 
+public enum FungibleAmount {
+
+    public enum AmountType {
+        case fiat(value: Double, currency: Currency)
+        case crypto(value: Double)
+    }
+    
+    case amount(Double)
+    case allFunds
+    case notSet
+
+    public var isAllFunds: Bool {
+        switch self {
+        case .allFunds: return true
+        case .notSet, .amount: return false
+        }
+    }
+}
+
+extension FungibleAmount: Equatable {
+    public static func == (lhs: FungibleAmount, rhs: FungibleAmount) -> Bool {
+        switch (lhs, rhs) {
+        case (.amount(let a1), amount(let a2)):
+            return a1 == a2
+        case (.allFunds, .allFunds):
+            return true
+        case (.notSet, .notSet):
+            return true
+        case (.amount, .notSet), (.amount, .allFunds), (.allFunds, .notSet), (.notSet, .amount), (.notSet, .allFunds), (.allFunds, .amount):
+            return false
+        }
+    }
+}
+
 public enum TransactionType {
     public init(nonFungibleToken token: Token, tokenHolders: [TokenHolder]) {
         switch token.type {
@@ -18,13 +52,11 @@ public enum TransactionType {
         }
     }
 
-    public init(fungibleToken token: Token, recipient: AddressOrEnsName? = nil, amount: String? = nil) {
+    public init(fungibleToken token: Token, recipient: AddressOrEnsName? = nil, amount: FungibleAmount = .notSet) {
         switch token.type {
         case .nativeCryptocurrency:
-            let amount = amount.flatMap { EtherNumberFormatter().number(from: $0, units: .ether) }
             self = .nativeCryptocurrency(token, destination: recipient, amount: amount)
         case .erc20:
-            //TODO why is this inconsistent with `.nativeCryptocurrency` which uses an integer value (i.e. taking into account decimals) instead
             self = .erc20Token(token, destination: recipient, amount: amount)
         case .erc875, .erc721, .erc721ForTickets, .erc1155:
             //NOTE: better to throw error than use incorrect state
@@ -32,9 +64,9 @@ public enum TransactionType {
         }
     }
 
-    case nativeCryptocurrency(Token, destination: AddressOrEnsName?, amount: BigInt?)
+    case nativeCryptocurrency(Token, destination: AddressOrEnsName?, amount: FungibleAmount)
     //TODO: replace string with BigInt
-    case erc20Token(Token, destination: AddressOrEnsName?, amount: String?)
+    case erc20Token(Token, destination: AddressOrEnsName?, amount: FungibleAmount)
     case erc875Token(Token, tokenHolders: [TokenHolder])
     case erc721Token(Token, tokenHolders: [TokenHolder])
     case erc721ForTicketToken(Token, tokenHolders: [TokenHolder])
@@ -43,6 +75,42 @@ public enum TransactionType {
 }
 
 extension TransactionType {
+
+    public var recipient: AddressOrEnsName? {
+        switch self {
+        case .nativeCryptocurrency(_, let recipient, _), .erc20Token(_, let recipient, _):
+            return recipient
+        case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .prebuilt:
+            return nil
+        }
+    }
+
+    public var amount: FungibleAmount? {
+        switch self {
+        case .nativeCryptocurrency(_, _, let amount), .erc20Token(_, _, let amount):
+            return amount
+        case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .prebuilt:
+            return nil
+        }
+    }
+
+    public mutating func override(recipient: AddressOrEnsName?) {
+        switch self {
+        case .nativeCryptocurrency(let token, _, let amount), .erc20Token(let token, _, let amount):
+            self = TransactionType(fungibleToken: token, recipient: recipient, amount: amount)
+        case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .prebuilt:
+            break
+        }
+    }
+
+    public mutating func override(amount: FungibleAmount) {
+        switch self {
+        case .nativeCryptocurrency(let token, let recipient, _), .erc20Token(let token, let recipient, _):
+            self = TransactionType(fungibleToken: token, recipient: recipient, amount: amount)
+        case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .prebuilt:
+            break
+        }
+    }
 
     public var symbol: String {
         switch self {
@@ -129,7 +197,7 @@ extension TransactionType {
         case tokenScriptTransaction(confirmType: ConfirmType, contract: AlphaWallet.Address, functionCallMetaData: DecodedFunctionCall)
         case dappTransaction(confirmType: ConfirmType)
         case walletConnect(confirmType: ConfirmType, requester: RequesterViewModel)
-        case sendFungiblesTransaction(confirmType: ConfirmType, amount: FungiblesTransactionAmount)
+        case sendFungiblesTransaction(confirmType: ConfirmType)
         case sendNftTransaction(confirmType: ConfirmType)
         case claimPaidErc875MagicLink(confirmType: ConfirmType, price: BigUInt, numberOfTokens: UInt)
         case speedupTransaction
@@ -140,7 +208,7 @@ extension TransactionType {
 
         public var confirmType: ConfirmType {
             switch self {
-            case .dappTransaction(let confirmType), .walletConnect(let confirmType, _), .sendFungiblesTransaction(let confirmType, _), .sendNftTransaction(let confirmType), .tokenScriptTransaction(let confirmType, _, _), .claimPaidErc875MagicLink(let confirmType, _, _):
+            case .dappTransaction(let confirmType), .walletConnect(let confirmType, _), .sendFungiblesTransaction(let confirmType), .sendNftTransaction(let confirmType), .tokenScriptTransaction(let confirmType, _, _), .claimPaidErc875MagicLink(let confirmType, _, _):
                 return confirmType
             case .speedupTransaction, .cancelTransaction, .swapTransaction, .approve:
                 return .signThenSend

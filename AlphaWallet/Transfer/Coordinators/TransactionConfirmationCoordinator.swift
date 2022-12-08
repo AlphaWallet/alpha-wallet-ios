@@ -294,8 +294,13 @@ extension TransactionConfirmationCoordinator {
             infoLog("Sent transaction publicly")
         }
         switch configuration {
-        case .sendFungiblesTransaction(_, let amount):
-            analyticsProperties[Analytics.Properties.isAllFunds.rawValue] = amount.isAllFunds
+        case .sendFungiblesTransaction:
+            switch configurator.transaction.transactionType.amount {
+            case .notSet, .none, .amount:
+                analyticsProperties[Analytics.Properties.isAllFunds.rawValue] = false
+            case .allFunds:
+                analyticsProperties[Analytics.Properties.isAllFunds.rawValue] = true
+            }
         case .tokenScriptTransaction, .dappTransaction, .walletConnect, .sendNftTransaction, .claimPaidErc875MagicLink, .speedupTransaction, .cancelTransaction, .swapTransaction, .approve:
             break
         }
@@ -321,8 +326,13 @@ extension TransactionConfirmationCoordinator {
             Analytics.Properties.transactionType.rawValue: transactionType.rawValue,
         ]
         switch configuration {
-        case .sendFungiblesTransaction(_, let amount):
-            analyticsProperties[Analytics.Properties.isAllFunds.rawValue] = amount.isAllFunds
+        case .sendFungiblesTransaction:
+            switch configurator.transaction.transactionType.amount {
+            case .notSet, .none, .amount:
+                analyticsProperties[Analytics.Properties.isAllFunds.rawValue] = false
+            case .allFunds:
+                analyticsProperties[Analytics.Properties.isAllFunds.rawValue] = true
+            }
         case .tokenScriptTransaction, .dappTransaction, .walletConnect, .sendNftTransaction, .claimPaidErc875MagicLink, .speedupTransaction, .cancelTransaction, .swapTransaction, .approve:
             break
         }

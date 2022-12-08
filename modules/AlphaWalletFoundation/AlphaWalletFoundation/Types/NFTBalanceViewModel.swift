@@ -23,7 +23,7 @@ struct NFTBalanceViewModel: BalanceViewModelType {
     }
 
     var value: BigInt { return _balance.valueBI }
-    var amount: Double { return Double(nonZeroBalance) }
+    var valueDecimal: Decimal { Decimal(bigInt: value, decimals: _balance.decimals) ?? .zero }
     var amountString: String { return "\(nonZeroBalance) \(_balance.symbol)" }
     var currencyAmount: String? { return nil }
     var currencyAmountWithoutSymbol: Double? { return nil }
@@ -35,4 +35,5 @@ struct NFTBalanceViewModel: BalanceViewModelType {
         let actualBalance = Array(_balance.balanceNft.filter { isNonZeroBalance($0.balance, tokenType: _balance.type) })
         return actualBalance.count
     }
+    
 }

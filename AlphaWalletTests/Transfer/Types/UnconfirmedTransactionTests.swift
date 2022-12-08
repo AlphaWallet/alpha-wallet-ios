@@ -19,7 +19,7 @@ class UnconfirmedTransactionTests: XCTestCase {
         let recipient = AlphaWallet.Address(uncheckedAgainstNullAddress: "0x0000000000000000000000000000000000000001")!
         let token = Token(contract: contract, name: "Erc20", decimals: 6, type: .erc20)
 
-        let transaction = try TransactionType(fungibleToken: token, amount: amount.description).buildSendErc20Token(recipient: recipient, amount: amount)
+        let transaction = try TransactionType(fungibleToken: token, amount: .amount(1)).buildSendErc20Token(recipient: recipient, amount: amount)
 
         XCTAssertEqual(transaction.contract, contract)
         XCTAssertEqual(transaction.recipient, recipient)
@@ -38,11 +38,12 @@ class UnconfirmedTransactionTests: XCTestCase {
         let recipient = AlphaWallet.Address(uncheckedAgainstNullAddress: "0x0000000000000000000000000000000000000001")!
         let token = Token(contract: contract, name: "ETH", decimals: 18, type: .nativeCryptocurrency)
 
-        let transaction = try TransactionType(fungibleToken: token, amount: amount.description).buildSendNativeCryptocurrency(recipient: recipient, amount: BigUInt(amount))
+        let transaction = try TransactionType(fungibleToken: token, amount: .amount(1)).buildSendNativeCryptocurrency(recipient: recipient, amount: BigUInt(amount))
 
         XCTAssertEqual(transaction.contract, nil)
         XCTAssertEqual(transaction.recipient, recipient)
         XCTAssertEqual(transaction.data, Data())
+        
     }
 
     func testErc721Transfer() throws {

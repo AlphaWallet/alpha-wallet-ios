@@ -61,7 +61,8 @@ public class WalletComponentsFactory: WalletDependencyContainer {
         let sessionsProvider: SessionsProvider = .init(config: config, analytics: analytics)
         sessionsProvider.start(wallet: wallet)
 
-        let importToken = ImportToken(sessionProvider: sessionsProvider, tokensDataStore: tokensDataStore, assetDefinitionStore: assetDefinitionStore, analytics: analytics)
+        let contractDataFetcher = ContractDataFetcher(sessionProvider: sessionsProvider, assetDefinitionStore: assetDefinitionStore, analytics: analytics, reachability: ReachabilityManager())
+        let importToken = ImportToken(tokensDataStore: tokensDataStore, contractDataFetcher: contractDataFetcher)
 
         let tokensService = AlphaWalletTokensService(sessionsProvider: sessionsProvider, tokensDataStore: tokensDataStore, analytics: analytics, importToken: importToken, transactionsStorage: transactionsDataStore, nftProvider: nftProvider, assetDefinitionStore: assetDefinitionStore)
         let pipeline: TokensProcessingPipeline = WalletDataProcessingPipeline(wallet: wallet, tokensService: tokensService, coinTickersFetcher: coinTickersFetcher, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)

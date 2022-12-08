@@ -155,7 +155,7 @@ class TransactionConfirmationViewController: UIViewController {
         button.setTitle(viewModel.confirmationButtonTitle, for: .normal)
         button.addTarget(self, action: #selector(confirmButtonSelected), for: .touchUpInside)
 
-        let input = TransactionConfirmationViewModelInput(send: button.publisher(forEvent: .touchUpInside).eraseToAnyPublisher())
+        let input = TransactionConfirmationViewModelInput()
         let output = viewModel.transform(input: input)
         output.viewState
             .sink { [weak self, headerView] viewState in

@@ -21,25 +21,26 @@ struct AmountTextFieldViewModelOutput {
     let errorState: AnyPublisher<AmountTextField.ErrorState, Never>
 }
 
-final class AmountTextFieldViewModel {
-    static let allowedCharacters: String = {
-        let decimalSeparator = Config.locale.decimalSeparator ?? ""
-        return "0123456789" + decimalSeparator + EtherNumberFormatter.decimalPoint
-    }()
+protocol EnterAmountSupportable {
+    var symbol: String { get }
 
+    func icon(withSize size: GoogleContentSize) -> Subscribable<TokenImage>
+}
+
+final class AmountTextFieldViewModel {
+    private static let atLeastOneWhiteSpaceToKeepTextFieldHeight = " "
     //NOTE: Raw values for eth and fiat values. To prevent recalculation we store entered eth and calculated dollarCostRawValue values and vice versa.
-    private (set) var cryptoRawValue: NSDecimalNumber?
-    private (set) var fiatRawValue: NSDecimalNumber?
-    private (set) var cryptoToFiatRate = CurrentValueSubject<NSDecimalNumber?, Never>(nil)
+    private (set) var cryptoRawValue: Double? = .none
+    private (set) var fiatRawValue: Double? = .none
+    private (set) var cryptoToFiatRate = CurrentValueSubject<Double?, Never>(nil)
     private (set) var cryptoCurrency = CurrentValueSubject<AmountTextField.FiatOrCrypto?, Never>(nil)
     private (set) var currentPair = CurrentValueSubject<AmountTextField.Pair?, Never>(nil)
-    private var cryptoValueChangedSubject = PassthroughSubject<CryptoValueChangeEvent, Never>()
+    private var amountChangedSubject = PassthroughSubject<CryptoValueChangeEvent, Never>()
     private var cancelable = Set<AnyCancellable>()
-    var isAllFunds: Bool = false
 
     ///Returns raw (calculated) value based on selected currency
-    private var alternativeAmountRawValue: NSDecimalNumber? {
-        guard let pair = currentPair.value else { return nil }
+    private var alternativeAmountRawValue: Double? {
+        guard let pair = currentPair.value else { return .none }
         switch pair.left {
         case .cryptoCurrency:
             return fiatRawValue
@@ -49,17 +50,16 @@ final class AmountTextFieldViewModel {
     }
 
     private var alternativeAmount: AnyPublisher<String?, Never> {
-        return cryptoValueOrPairChanged
-            .map { _, _ -> NSDecimalNumber? in return self.alternativeAmountRawValue }
+        return Publishers.CombineLatest(cryptoValueOrPairChanged, cryptoToFiatRate)
+            .map { _, _ -> Double? in return self.alternativeAmountRawValue }
             .removeDuplicates()
             .map { value -> String? in
-                let amount = self.formatValueToDisplay(value: value, usesGroupingSeparator: true)
+                let amount = self.buildAlternativeAmountString(value: value, usesGroupingSeparator: true)
 
                 if amount.isEmpty {
-                    let atLeastOneWhiteSpaceToKeepTextFieldHeight = " "
-                    return atLeastOneWhiteSpaceToKeepTextFieldHeight
+                    return AmountTextFieldViewModel.atLeastOneWhiteSpaceToKeepTextFieldHeight
                 } else {
-                    guard let pair = self.currentPair.value else { return nil }
+                    guard let pair = self.currentPair.value else { return AmountTextFieldViewModel.atLeastOneWhiteSpaceToKeepTextFieldHeight }
                     switch pair.left {
                     case .cryptoCurrency:
                         return "~ \(amount) \(pair.fiat.rawValue)"
@@ -68,7 +68,7 @@ final class AmountTextFieldViewModel {
                         case .cryptoCurrency(let token):
                             return "~ \(amount) " + token.symbol
                         case .fiatCurrency:
-                            return nil
+                            return AmountTextFieldViewModel.atLeastOneWhiteSpaceToKeepTextFieldHeight
                         }
                     }
                 }
@@ -83,28 +83,18 @@ final class AmountTextFieldViewModel {
     }
 
     @Published var errorState: AmountTextField.ErrorState = .none
-    private let fallbackValue: String = "0"
-    private var lastValueChangeEvent: CryptoValueChangeEvent?
+
+    private let fallbackValue: Double = .zero
+    private let decimalParser = DecimalParser()
+    private let locale: Locale = Config.locale
 
     var cryptoValueChanged: AnyPublisher<CryptoValueChangeEvent, Never> {
-        cryptoValueChangedSubject.map { event -> CryptoValueChangeEvent in
-            switch event {
-            case .manually(let crypto, let shortCrypto, let useFormatting):
-                let valueToSet = crypto.optionalDecimalValue
-                self.cryptoRawValue = valueToSet
-                self.recalculate(amountValue: valueToSet, for: self.cryptoCurrency.value)
-
-                return .manually(crypto: crypto, shortCrypto: shortCrypto, useFormatting: useFormatting)
-            case .whenTextChanged(let crypto, let shortCrypto, let useFormatting):
-                return .whenTextChanged(crypto: crypto, shortCrypto: shortCrypto, useFormatting: useFormatting)
-            }
-        }.handleEvents(receiveOutput: { [weak self] in self?.lastValueChangeEvent = $0 })
-        .eraseToAnyPublisher()
+        amountChangedSubject.eraseToAnyPublisher()
     }
 
     let debugName: String
-
-    init(token: Token?, debugName: String) {
+    
+    init(token: EnterAmountSupportable?, debugName: String) {
         self.debugName = debugName
         cryptoCurrency.value = token.flatMap { .cryptoCurrency($0) }
         currentPair.value = token.flatMap { AmountTextField.Pair(left: .cryptoCurrency($0), right: .fiatCurrency(.USD)) }
@@ -112,96 +102,124 @@ final class AmountTextFieldViewModel {
 
     func transform(input: AmountTextFieldViewModelInput) -> AmountTextFieldViewModelOutput {
         cryptoToFiatRate
+            .compactMap { $0 }
             .removeDuplicates()
             .sink { [weak self] _ in
-                guard let strongSelf = self else { return }
-
-                switch strongSelf.currentPair.value?.left {
-                case .cryptoCurrency: strongSelf.recalculate(amountValue: strongSelf.cryptoRawValue)
-                case .fiatCurrency: strongSelf.recalculate(amountValue: strongSelf.fiatRawValue)
-                case .none: break
+                switch self?.currentPair.value?.left {
+                case .cryptoCurrency:
+                    self?.recalculate(amountValue: self?.cryptoRawValue)
+                case .fiatCurrency:
+                    self?.recalculate(amountValue: self?.fiatRawValue)
+                case .none:
+                    break
                 }
             }.store(in: &cancelable)
 
-        let currentPair = currentPair
-            .eraseToAnyPublisher()
+        let cryptoAmountToSend = cryptoValueOrPairChanged
+            .filter { $0.0.shouldChangeText }
+            .map { [fallbackValue] event, currentPair -> String? in
+                guard let pair = currentPair else { return nil }
 
-        let errorState = $errorState
-            .eraseToAnyPublisher()
-
-        let cryptoAmountToSend = cryptoValueOrPairChanged.filter { $0.0.shouldChangeText }
-            .map { event, currentPair -> String? in
-                switch currentPair?.left {
+                switch pair.left {
                 case .cryptoCurrency:
-                    if event.useFormatting {
-                        return self.formatValueToDisplay(value: self.cryptoRawValue)
-                    } else if let shortCrypto = event.shortCrypto, shortCrypto.optionalDecimalValue != 0 {
-                        return shortCrypto
-                    } else {
-                        return event.crypto
+                    let formatter = self.cryptoFormatter()
+                    switch event.amount {
+                    case .allFunds(let amount), .amount(let amount):
+                        return formatter.string(double: amount, minimumFractionDigits: 4, maximumFractionDigits: 8)
+                    case .notSet:
+                        return formatter.string(double: fallbackValue, minimumFractionDigits: 4, maximumFractionDigits: 8)
                     }
                 case .fiatCurrency:
-                    return self.formatValueToDisplay(value: self.fiatRawValue)
-                case .none:
-                    return nil
+                    let formatter = self.fiatFormatter(currency: pair.fiat)
+
+                    guard let amount = self.fiatRawValue else {
+                        return formatter.string(double: fallbackValue, minimumFractionDigits: 2, maximumFractionDigits: 6)
+                    }
+
+                    return formatter.string(double: amount, minimumFractionDigits: 2, maximumFractionDigits: 6)
                 }
             }.eraseToAnyPublisher()
 
-        let text = Publishers.Merge(cryptoAmountToSend, toggleFiatAndCryptoPair(trigger: input.togglePair))
-            .eraseToAnyPublisher()
-
-        return .init(text: text, alternativeAmount: alternativeAmount, currentPair: currentPair, errorState: errorState)
+        return .init(
+            text: Publishers.Merge(cryptoAmountToSend, toggleFiatAndCryptoPair(trigger: input.togglePair)).eraseToAnyPublisher(),
+            alternativeAmount: alternativeAmount,
+            currentPair: currentPair.eraseToAnyPublisher(),
+            errorState: $errorState.eraseToAnyPublisher())
     }
 
-    func set(token: Token?) {
+    func set(token: EnterAmountSupportable?) {
         cryptoCurrency.value = token.flatMap { .cryptoCurrency($0) }
         currentPair.value = token.flatMap { AmountTextField.Pair(left: .cryptoCurrency($0), right: .fiatCurrency(.USD)) }
     }
 
-    func crypto(for string: String?) -> String {
-        var ethCostFormatedForCurrentLocale: String {
-            switch currentPair.value?.left {
-            case .cryptoCurrency:
-                return string?.droppedTrailingZeros ?? fallbackValue
-            case .fiatCurrency:
-                guard let value = cryptoRawValue else { return fallbackValue }
-                return StringFormatter().alternateAmount(value: value, usesGroupingSeparator: false)
-            case .none:
-                return String()
-            }
-        }
+    func crypto(for string: String?) -> AmountTextFieldViewModel.FungibleAmount {
+        return decimalParser.parseAnyDecimal(from: string).flatMap { self.buildAmount(from: $0.doubleValue) } ?? .amount(0)
+    }
 
-        if isAllFunds {
-            return cryptoRawValue.localizedString
-        } else {
-            if let value = ethCostFormatedForCurrentLocale.optionalDecimalValue {
-                return value.localizedString
-            } else {
-                return fallbackValue
-            }
+    private func buildAmount(from value: Double) -> AmountTextFieldViewModel.FungibleAmount {
+        switch currentPair.value?.left {
+        case .cryptoCurrency:
+            return .amount(value)
+        case .fiatCurrency:
+            return cryptoRawValue.flatMap { .amount($0) } ?? .notSet
+        case .none:
+            return .notSet
         }
     }
 
     func toggleFiatAndCryptoPair() {
-        currentPair.value?.swap()
+        currentPair.value?.toggle()
     }
 
-    ///Formats string value for display in text field.
-    private func formatValueToDisplay(value: NSDecimalNumber?, usesGroupingSeparator: Bool = false) -> String {
-        guard let amount = value, let pair = currentPair.value else {
-            return String()
-        }
+    /// Formats string value for display in text field.
+    private func buildAlternativeAmountString(value: Double?, usesGroupingSeparator: Bool = false) -> String {
+        guard let pair = currentPair.value, let amount = value else { return "" }
 
         switch pair.left {
         case .cryptoCurrency:
-            return StringFormatter().currency(with: amount, and: pair.fiat.rawValue, usesGroupingSeparator: usesGroupingSeparator)
+            //NOTE: result MUST be formatted as fiat
+            let formatter = fiatFormatter(usesGroupingSeparator: usesGroupingSeparator, currency: pair.fiat)
+
+            return formatter.string(double: amount, minimumFractionDigits: 2, maximumFractionDigits: 6)
         case .fiatCurrency:
-            return StringFormatter().alternateAmount(value: amount, usesGroupingSeparator: usesGroupingSeparator)
+            //NOTE: result MUST be formatted as crypto
+            let formatter = cryptoFormatter(usesGroupingSeparator: usesGroupingSeparator)
+
+            return formatter.string(double: amount, minimumFractionDigits: 4, maximumFractionDigits: 8)
         }
     }
 
-    func set(crypto: String, shortCrypto: String? = .none, useFormatting: Bool) {
-        cryptoValueChangedSubject.send(.manually(crypto: crypto, shortCrypto: shortCrypto, useFormatting: useFormatting))
+    private func fiatFormatter(usesGroupingSeparator: Bool = false, currency: Currency) -> NumberFormatter {
+        let formatter = Formatter.currencyAccounting
+        formatter.locale = locale
+        formatter.currencyCode = currency.code
+        formatter.usesGroupingSeparator = usesGroupingSeparator
+
+        return formatter
+    }
+
+    private func cryptoFormatter(usesGroupingSeparator: Bool = false) -> NumberFormatter {
+        let formatter = Formatter.alternateAmount
+        formatter.locale = locale
+        formatter.usesGroupingSeparator = usesGroupingSeparator
+
+        return formatter
+    }
+
+    func set(amount: AmountTextFieldViewModel.FungibleAmount) {
+        switch amount {
+        case .notSet:
+            cryptoRawValue = nil
+        case .amount(let value), .allFunds(let value):
+            cryptoRawValue = value
+        }
+        recalculate(amountValue: cryptoRawValue, for: cryptoCurrency.value)
+
+        amountChangedSubject.send(.manually(amount: amount))
+    }
+
+    func isValid(string: String) -> Bool {
+        return decimalParser.parseAnyDecimal(from: string) != nil || string.trimmed.isEmpty
     }
 
     func set(string: String) {
@@ -210,56 +228,76 @@ final class AmountTextFieldViewModel {
 
         switch pair.left {
         case .cryptoCurrency:
-            cryptoRawValue = string.optionalDecimalValue
+            cryptoRawValue = decimalParser.parseAnyDecimal(from: string).flatMap { $0.doubleValue }
 
             recalculate(amountValue: cryptoRawValue)
         case .fiatCurrency:
-            fiatRawValue = string.optionalDecimalValue
+            fiatRawValue = decimalParser.parseAnyDecimal(from: string).flatMap { $0.doubleValue }
 
             recalculate(amountValue: fiatRawValue)
         }
 
-        let entered = self.crypto(for: string)
-        cryptoValueChangedSubject.send(.whenTextChanged(crypto: entered, shortCrypto: nil, useFormatting: false))
+        let amount = decimalParser.parseAnyDecimal(from: string).flatMap { self.buildAmount(from: $0.doubleValue) } ?? .amount(0)
+
+        amountChangedSubject.send(.whenTextChanged(amount: amount))
     }
 
     private func toggleFiatAndCryptoPair(trigger: AnyPublisher<Void, Never>) -> AnyPublisher<String?, Never> {
         return trigger.filter { _ in self.cryptoToFiatRate.value != nil }
             .map { _ -> String? in
-                let oldAlternateAmount = self.formatValueToDisplay(value: self.alternativeAmountRawValue)
+                let string = self.buildAlternativeAmountString(value: self.alternativeAmountRawValue)
                 self.toggleFiatAndCryptoPair()
 
-                return oldAlternateAmount
+                return string
             }.eraseToAnyPublisher()
     }
 
     ///Recalculates raw value (eth, or usd) depends on selected currency `currencyToOverride ?? currentPair.left` based on cryptoToDollarRate
-    private func recalculate(amountValue: NSDecimalNumber?, for currencyToOverride: AmountTextField.FiatOrCrypto? = nil) {
-        guard let cryptoToFiatRate = cryptoToFiatRate.value else {
-            return
-        }
+    private func recalculate(amountValue: Double?, for currencyToOverride: AmountTextField.FiatOrCrypto? = nil) {
+        guard let rate = cryptoToFiatRate.value else { return }
 
         switch currencyToOverride ?? currentPair.value?.left {
         case .cryptoCurrency:
             if let amount = amountValue {
-                fiatRawValue = amount.multiplying(by: cryptoToFiatRate)
+                fiatRawValue = amount * rate
             } else {
-                fiatRawValue = nil
+                fiatRawValue = .none
             }
         case .fiatCurrency:
             if let amount = amountValue {
-                cryptoRawValue = amount.dividing(by: cryptoToFiatRate)
+                cryptoRawValue = amount / rate
             } else {
-                cryptoRawValue = nil
+                cryptoRawValue = .none
             }
         case .none:
             break
         }
     }
+}
+
+extension AmountTextFieldViewModel.FungibleAmount {
+    var asAmount: FungibleAmount {
+        switch self {
+        case .allFunds:
+            return .allFunds
+        case .amount(let value):
+            return .amount(value)
+        case .notSet:
+            return .notSet
+        }
+    }
+}
+
+extension AmountTextFieldViewModel {
+    enum FungibleAmount {
+        case amount(Double)
+        case allFunds(Double)
+        case notSet
+    }
 
     enum CryptoValueChangeEvent {
-        case manually(crypto: String, shortCrypto: String? = .none, useFormatting: Bool)
-        case whenTextChanged(crypto: String, shortCrypto: String? = .none, useFormatting: Bool)
+        case manually(amount: AmountTextFieldViewModel.FungibleAmount)
+        case whenTextChanged(amount: AmountTextFieldViewModel.FungibleAmount)
 
         var shouldChangeText: Bool {
             switch self {
@@ -269,30 +307,13 @@ final class AmountTextFieldViewModel {
                 return false
             }
         }
-        var crypto: String {
-            switch self {
-            case .manually(let crypto, _, _):
-                return crypto
-            case .whenTextChanged(let crypto, _, _):
-                return crypto
-            }
-        }
 
-        var shortCrypto: String? {
+        var amount: AmountTextFieldViewModel.FungibleAmount {
             switch self {
-            case .manually(_, let shortCrypto, _):
-                return shortCrypto
-            case .whenTextChanged(_, let shortCrypto, _):
-                return shortCrypto
-            }
-        }
-
-        var useFormatting: Bool {
-            switch self {
-            case .manually(_, _, let useFormatting):
-                return useFormatting
-            case .whenTextChanged(_, _, let useFormatting):
-                return useFormatting
+            case .manually(let amount):
+                return amount
+            case .whenTextChanged(let amount):
+                return amount
             }
         }
     }

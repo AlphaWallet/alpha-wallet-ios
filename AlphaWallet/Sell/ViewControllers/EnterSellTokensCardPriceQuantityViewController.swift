@@ -26,19 +26,20 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
     private var viewModel: EnterSellTokensCardPriceQuantityViewControllerViewModel
     private var totalEthCost: Ether {
-        if let ethCostPerToken = Ether(string: pricePerTokenField.cryptoValue) {
-            let quantity = Int(quantityStepper.value)
-            return ethCostPerToken * quantity
-        } else {
+        switch pricePerTokenField.cryptoValue {
+        case .notSet:
             return .zero
+        case .allFunds(let amount):
+            return .init(bigInt: Decimal(amount).toBigInt(decimals: server.decimals) ?? .zero)
+        case .amount(let amount):
+            return .init(bigInt: Decimal(amount).toBigInt(decimals: server.decimals) ?? .zero)
         }
     }
 
     private var totalDollarCost: String {
         if let dollarCostPerToken = pricePerTokenField.fiatValue {
-            let quantity = NSDecimalNumber(value: quantityStepper.value)
-            let value = dollarCostPerToken.multiplying(by: quantity)
-            return StringFormatter().currency(with: value, and: "USD")
+            let quantity = Double(quantityStepper.value)
+            return StringFormatter().currency(with: dollarCostPerToken * quantity, currency: Currency.USD)
         } else {
             return ""
         }
@@ -105,7 +106,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
 
         let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: walletSession.server)
         service.tokenViewModelPublisher(for: etherToken)
-            .map { $0?.balance.ticker.flatMap { NSDecimalNumber(value: $0.price_usd) } }
+            .map { $0?.balance.ticker.flatMap { $0.price_usd } }
             .sink { [weak pricePerTokenField] value in
                 pricePerTokenField?.viewModel.cryptoToFiatRate.value = value
             }.store(in: &cancelable)
@@ -239,10 +240,13 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
 
         let noPrice: Bool
         //We must use `Ether(string:)` because the input string might not always use a decimal point as the decimal separator. It might use a decimal comma. E.g. "1.2" or "1,2" depending on locale
-        if let price = Double(Ether(string: pricePerTokenField.cryptoValue)?.unformattedDescription ?? "") {
-            noPrice = price.isZero
-        } else {
+        switch pricePerTokenField.cryptoValue {
+        case .notSet:
             noPrice = true
+        case .allFunds(let amount):
+            noPrice = amount == .zero
+        case .amount(let amount):
+            noPrice = amount == .zero
         }
 
         guard !noPrice else {

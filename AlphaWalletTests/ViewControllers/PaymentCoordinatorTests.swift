@@ -25,7 +25,8 @@ extension WalletDataProcessingPipeline {
         let eventsActivityDataStore: EventsActivityDataStoreProtocol = EventsActivityDataStore(store: .fake(for: wallet))
 
         let tokensDataStore = FakeTokensDataStore(account: wallet, servers: [server])
-        let importToken = ImportToken(sessionProvider: sessionsProvider, tokensDataStore: tokensDataStore, assetDefinitionStore: .init(), analytics: fas)
+        let contractDataFetcher = FakeContractDataFetcher()
+        let importToken = ImportToken.make(tokensDataStore: tokensDataStore, contractDataFetcher: contractDataFetcher)
         let eventsDataStore = FakeEventsDataStore()
         let transactionsDataStore = FakeTransactionsStorage()
         let nftProvider = FakeNftProvider()
@@ -80,7 +81,7 @@ class PaymentCoordinatorTests: XCTestCase {
 
         let coordinator = PaymentCoordinator(
             navigationController: FakeNavigationController(),
-            flow: .send(type: .transaction(.nativeCryptocurrency(Token(), destination: .init(address: address), amount: nil))),
+            flow: .send(type: .transaction(.nativeCryptocurrency(Token(), destination: .init(address: address), amount: .notSet))),
             server: .main,
             sessionProvider: dep.sessionsProvider,
             keystore: FakeEtherKeystore(),
