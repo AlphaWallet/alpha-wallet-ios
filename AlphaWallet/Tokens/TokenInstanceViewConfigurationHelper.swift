@@ -13,6 +13,8 @@ final class TokenInstanceViewConfigurationHelper {
     private (set) var tokenId: TokenId
     private (set) var tokenHolder: TokenHolder
     private let displayHelper: OpenSeaNonFungibleTokenDisplayHelper
+    private let assetDefinitionStore: AssetDefinitionStore
+    private let tokenAttributeValues: AssetAttributeValues
 
     private var openSeaCollection: AlphaWalletOpenSea.Collection? {
         values?.collectionValue
@@ -24,9 +26,11 @@ final class TokenInstanceViewConfigurationHelper {
     var overridenFloorPrice: Double?
     var overridenItemsCount: Double?
 
-    init(tokenId: TokenId, tokenHolder: TokenHolder) {
+    init(tokenId: TokenId, tokenHolder: TokenHolder, assetDefinitionStore: AssetDefinitionStore) {
         self.tokenId = tokenId
         self.tokenHolder = tokenHolder
+        self.assetDefinitionStore = assetDefinitionStore
+        self.tokenAttributeValues = AssetAttributeValues(attributeValues: tokenHolder.values)
         self.displayHelper = OpenSeaNonFungibleTokenDisplayHelper(contract: tokenHolder.contractAddress)
     }
 
@@ -152,7 +156,13 @@ final class TokenInstanceViewConfigurationHelper {
     }
 
     var attributes: [NonFungibleTraitViewModel] {
-        let traits = tokenHolder.openSeaNonFungibleTraits ?? []
+        let openSeaTraits: [OpenSeaNonFungibleTrait] = tokenHolder.openSeaNonFungibleTraits ?? []
+        let tokenScriptAttributes: [OpenSeaNonFungibleTrait] = functional.extractTokenScriptTokenLevelAttributes(tokenHolder: tokenHolder, tokenAttributeValues: tokenAttributeValues, assetDefinitionStore: assetDefinitionStore)
+
+        let tokenScriptAttributeIds: [String] = tokenScriptAttributes.map(\.type)
+        let openSeaTraitsNotOverriddenByTokenScript: [OpenSeaNonFungibleTrait] = openSeaTraits.filter { !tokenScriptAttributeIds.contains($0.type) }
+        let traits: [OpenSeaNonFungibleTrait] = openSeaTraitsNotOverriddenByTokenScript + tokenScriptAttributes
+
         let traitsToDisplay = traits.filter { displayHelper.shouldDisplayAttribute(name: $0.type) }
         return traitsToDisplay.map { trait in
             let rarity: Int? = itemsCountRawValue
@@ -172,7 +182,14 @@ final class TokenInstanceViewConfigurationHelper {
 
                 return .init(title: displayName, attributedValue: attribute, attributedCountValue: rarity)
             } else {
-                return mapTraitsToProperName(name: trait.type, value: trait.value, count: String(trait.count))
+                // swiftlint:disable empty_count
+                if trait.count == 0 {
+                // swiftlint:enable empty_count
+                    //Especially for TokenScript attributes
+                    return mapTraitsToProperName(name: trait.type, value: trait.value, count: nil)
+                } else {
+                    return mapTraitsToProperName(name: trait.type, value: trait.value, count: String(trait.count))
+                }
             }
         }
     }
@@ -342,6 +359,27 @@ final class TokenInstanceViewConfigurationHelper {
                 return creator.contractAddress.truncateMiddle
             }
         }.flatMap { .init(title: "Created By", attributedValue: TokenAttributeViewModel.urlValueAttributedString($0), value: value) }
+    }
+}
+
+extension TokenInstanceViewConfigurationHelper {
+    enum functional {}
+}
+
+extension TokenInstanceViewConfigurationHelper.functional {
+    static func extractTokenScriptTokenLevelAttributes(tokenHolder: TokenHolder, tokenAttributeValues: AssetAttributeValues, assetDefinitionStore: AssetDefinitionStore) -> [OpenSeaNonFungibleTrait] {
+        let xmlHandler = XMLHandler(contract: tokenHolder.contractAddress, tokenType: tokenHolder.tokens[0].tokenType, assetDefinitionStore: assetDefinitionStore)
+        let resolvedTokenAttributeNameValues = tokenAttributeValues.resolve { _ in }
+        let tokenLevelAttributeIds = xmlHandler.fieldIdsAndNamesExcludingBase.keys
+        let toDisplay = resolvedTokenAttributeNameValues.filter { attributeId, _ in tokenLevelAttributeIds.contains(attributeId) }
+        var results: [OpenSeaNonFungibleTrait] = []
+        for (name, value) in toDisplay {
+            let convertor = AssetAttributeToUserInterfaceConvertor()
+            if let value = convertor.formatAsTokenScriptString(value: value) {
+                results.append(OpenSeaNonFungibleTrait(count: 0, type: name, value: value))
+            }
+        }
+        return results
     }
 }
 

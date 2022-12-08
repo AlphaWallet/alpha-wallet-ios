@@ -14,8 +14,15 @@ public struct OpenSeaNonFungibleTrait: Codable {
     public let value: String
 
     init(json: JSON) {
-        count = json["trait_count"].intValue
-        type = json["trait_type"].stringValue
-        value = json["value"].stringValue
+        let count = json["trait_count"].intValue
+        let type = json["trait_type"].stringValue
+        let value = json["value"].stringValue
+        self.init(count: count, type: type, value: value)
+    }
+
+    public init(count: Int, type: String, value: String) {
+        self.count = count
+        self.type = type
+        self.value = value
     }
 }
