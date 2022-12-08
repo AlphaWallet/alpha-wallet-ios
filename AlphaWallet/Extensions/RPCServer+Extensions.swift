@@ -34,12 +34,10 @@ extension RPCServer {
         case .polygon: return R.string.localizable.blockchainPolygon()
         case .mumbai_testnet: return R.string.localizable.blockchainMumbai()
         case .optimistic: return R.string.localizable.blockchainOptimistic()
-        case .optimisticKovan: return R.string.localizable.blockchainOptimisticKovan()
         case .cronosMainnet: return R.string.localizable.blockchainCronosMainnet()
         case .cronosTestnet: return R.string.localizable.blockchainCronosTestnet()
         case .custom(let custom): return custom.chainName
         case .arbitrum: return R.string.localizable.blockchainArbitrum()
-        case .arbitrumRinkeby: return R.string.localizable.blockchainArbitrumRinkeby()
         case .palm: return R.string.localizable.blockchainPalm()
         case .palmTestnet: return R.string.localizable.blockchainPalmTestnet()
         case .klaytnCypress: return "Klaytn Cypress"
@@ -68,9 +66,7 @@ extension RPCServer {
         case .avalanche, .avalanche_testnet: return R.image.iconsTokensAvalanche()
         case .polygon, .mumbai_testnet: return R.image.iconsTokensPolygon()
         case .optimistic: return R.image.iconsTokensOptimistic()
-        case .optimisticKovan: return R.image.iconsTokensOptimisticKovan()
         case .arbitrum: return R.image.arbitrum()
-        case .arbitrumRinkeby: return nil
         case .palm: return R.image.iconsTokensPalm()
         case .palmTestnet: return nil
         case .klaytnCypress: return R.image.klaytnIcon()
@@ -100,11 +96,9 @@ extension RPCServer {
         case .avalanche_testnet: return .red
         case .polygon, .mumbai_testnet: return .init(red: 130, green: 71, blue: 229)
         case .optimistic: return .red
-        case .optimisticKovan: return .red
         case .cronosMainnet: return .init(hex: "#002D74")
         case .cronosTestnet: return .red
         case .arbitrum: return .red
-        case .arbitrumRinkeby: return .red
         case .palm: return .red
         case .palmTestnet: return .red
         case .klaytnCypress: return .init(hex: "FE3300")
@@ -134,9 +128,7 @@ extension RPCServer {
         case .polygon: return R.image.iconsNetworkPolygon()
         case .mumbai_testnet: return nil
         case .optimistic: return R.image.iconsNetworkOptimism()
-        case .optimisticKovan: return nil
         case .arbitrum: return R.image.iconsNetworkArbitrum()
-        case .arbitrumRinkeby: return nil
         case .palm, .palmTestnet: return R.image.iconsTokensPalm()
         case .klaytnCypress: return R.image.klaytnIcon()
         case .klaytnBaobabTestnet: return R.image.klaytnIcon()
