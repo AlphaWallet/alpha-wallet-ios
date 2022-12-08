@@ -5,64 +5,48 @@ import UIKit
 
 class PasscodeCharacterView: UIView {
 	private var isEmpty = true
-	private var circle: CAShapeLayer?
-	private var hyphen: CAShapeLayer?
+    private let filledImageView: UIImageView = UIImageView(image: UIImage(systemName: "circle.fill"))
+    private let emptyImageView: UIImageView = UIImageView(image: UIImage(systemName: "circle"))
 
-	override func layoutSubviews() {
-		commonInit()
-	}
+    override init(frame: CGRect) {
+        isEmpty = true
+        super.init(frame: frame)
+        setupView()
+        updateView()
+    }
 
-	private func commonInit() {
-		isEmpty = true
-		backgroundColor = Colors.clear
-		drawCircle()
-		drawHyphen()
-		redraw()
-	}
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
-	private func redraw() {
-		circle?.isHidden = isEmpty
-		hyphen?.isHidden = !isEmpty
-	}
+    private func setupView() {
+        backgroundColor = .clear
+        translatesAutoresizingMaskIntoConstraints = false
+        filledImageView.image = filledImageView.image?.withTintColor(Configuration.Color.Semantic.symbol, renderingMode: .alwaysOriginal)
+        emptyImageView.image = emptyImageView.image?.withTintColor(Configuration.Color.Semantic.symbol, renderingMode: .alwaysOriginal)
+        addSubview(filledImageView)
+        addSubview(emptyImageView)
+        NSLayoutConstraint.activate([
+            filledImageView.leadingAnchor.constraint(equalToSystemSpacingAfter: leadingAnchor, multiplier: 1.0),
+            trailingAnchor.constraint(equalToSystemSpacingAfter: filledImageView.trailingAnchor, multiplier: 1.0),
+            filledImageView.topAnchor.constraint(equalToSystemSpacingBelow: filledImageView.topAnchor, multiplier: 1.0),
+            bottomAnchor.constraint(equalToSystemSpacingBelow: filledImageView.bottomAnchor, multiplier: 1.0),
+            emptyImageView.leadingAnchor.constraint(equalToSystemSpacingAfter: leadingAnchor, multiplier: 1.0),
+            trailingAnchor.constraint(equalToSystemSpacingAfter: emptyImageView.trailingAnchor, multiplier: 1.0),
+            emptyImageView.topAnchor.constraint(equalToSystemSpacingBelow: filledImageView.topAnchor, multiplier: 1.0),
+            bottomAnchor.constraint(equalToSystemSpacingBelow: emptyImageView.bottomAnchor, multiplier: 1.0)
+        ])
+    }
 
-	private func drawCircle() {
-		let borderWidth: CGFloat = 2
-		let radius: CGFloat = bounds.width / 2 - borderWidth
-		let circle = CAShapeLayer()
-		circle.path = UIBezierPath(roundedRect: CGRect(x: borderWidth, y: borderWidth, width: 2.0 * radius, height: 2.0 * radius), cornerRadius: radius).cgPath
-        let circleColor: UIColor? = Configuration.Color.Semantic.defaultForegroundText
-		circle.fillColor = circleColor?.cgColor
-		circle.strokeColor = circleColor?.cgColor
-		circle.borderWidth = borderWidth
-		layer.addSublayer(circle)
-		self.circle = circle
-	}
-
-	private func drawHyphen() {
-		let horizontalMargin: CGFloat = 2
-		let hyphenHeight: CGFloat = bounds.height / 7
-		let hyphen = CAShapeLayer()
-		let hyphenPath = UIBezierPath()
-		let leftTopCorner = CGPoint(x: horizontalMargin, y: 3 * hyphenHeight)
-		let rightTopCorner = CGPoint(x: bounds.width - horizontalMargin, y: 3 * hyphenHeight)
-		let rightBottomCorner = CGPoint(x: bounds.width - horizontalMargin, y: 4 * hyphenHeight)
-		let leftBottomCorner = CGPoint(x: horizontalMargin, y: 4 * hyphenHeight)
-		hyphenPath.move(to: leftTopCorner)
-		hyphenPath.addLine(to: rightTopCorner)
-		hyphenPath.addLine(to: rightBottomCorner)
-		hyphenPath.addLine(to: leftBottomCorner)
-		hyphen.path = hyphenPath.cgPath
-		let hyphenColor: UIColor? = Configuration.Color.Semantic.defaultForegroundText
-		hyphen.fillColor = hyphenColor?.cgColor
-		hyphen.strokeColor = hyphenColor?.cgColor
-		layer.addSublayer(hyphen)
-		self.hyphen = hyphen
+	private func updateView() {
+        filledImageView.isHidden = isEmpty
+        emptyImageView.isHidden = !isEmpty
 	}
 
 	func setEmpty(_ isEmpty: Bool) {
 		if self.isEmpty != isEmpty {
 			self.isEmpty = isEmpty
-			redraw()
+			updateView()
 		}
 	}
 }
