@@ -288,6 +288,9 @@ struct Configuration {
             static let headerViewBackground = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.venus()!)
             }
+            static let symbol = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.black()!, darkColor: R.color.white()!)
+            }
         }
     }
 }
