@@ -74,7 +74,7 @@ extension TransferNFTCoordinator: SendSemiFungibleTokenViewControllerDelegate {
             let transaction = try transactionType.buildSendErc721Token(recipient: recipient, account: session.account.address)
 
             let configuration: TransactionType.Configuration = .sendNftTransaction(confirmType: .signThenSend)
-            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
+            let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
             addCoordinator(coordinator)
             coordinator.delegate = self
 

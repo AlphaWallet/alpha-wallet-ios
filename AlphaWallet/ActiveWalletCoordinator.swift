@@ -461,18 +461,18 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         case (.send, .real), (.swap, .real), (.request, _),
             (_, _) where Config().development.shouldPretendIsRealWallet:
             let coordinator = PaymentCoordinator(
-                    navigationController: navigationController,
-                    flow: type,
-                    server: server,
-                    sessionProvider: sessionsProvider,
-                    keystore: keystore,
-                    assetDefinitionStore: assetDefinitionStore,
-                    analytics: analytics,
-                    tokenCollection: tokenCollection,
-                    domainResolutionService: domainResolutionService,
-                    tokenSwapper: tokenSwapper,
-                    tokensFilter: tokensFilter,
-                    importToken: importToken)
+                navigationController: navigationController,
+                flow: type,
+                server: server,
+                sessionProvider: sessionsProvider,
+                keystore: keystore,
+                assetDefinitionStore: assetDefinitionStore,
+                analytics: analytics,
+                tokenCollection: tokenCollection,
+                domainResolutionService: domainResolutionService,
+                tokenSwapper: tokenSwapper,
+                tokensFilter: tokensFilter,
+                importToken: importToken)
             coordinator.delegate = self
             coordinator.start()
 

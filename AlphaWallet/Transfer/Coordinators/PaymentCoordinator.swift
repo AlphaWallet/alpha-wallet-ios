@@ -41,20 +41,20 @@ class PaymentCoordinator: Coordinator {
     let navigationController: UINavigationController
 
     init(
-            navigationController: UINavigationController,
-            flow: PaymentFlow,
-            server: RPCServer,
-            sessionProvider: SessionsProvider,
-            keystore: Keystore,
-            assetDefinitionStore: AssetDefinitionStore,
-            analytics: AnalyticsLogger,
-            tokenCollection: TokenCollection,
-            reachabilityManager: ReachabilityManagerProtocol = ReachabilityManager(),
-            domainResolutionService: DomainResolutionServiceType,
-            tokenSwapper: TokenSwapper,
-            tokensFilter: TokensFilter,
-            importToken: ImportToken
-    ) {
+        navigationController: UINavigationController,
+        flow: PaymentFlow,
+        server: RPCServer,
+        sessionProvider: SessionsProvider,
+        keystore: Keystore,
+        assetDefinitionStore: AssetDefinitionStore,
+        analytics: AnalyticsLogger,
+        tokenCollection: TokenCollection,
+        reachabilityManager: ReachabilityManagerProtocol = ReachabilityManager(),
+        domainResolutionService: DomainResolutionServiceType,
+        tokenSwapper: TokenSwapper,
+        tokensFilter: TokensFilter,
+        importToken: ImportToken) {
+
         self.importToken = importToken
         self.tokensFilter = tokensFilter
         self.tokenSwapper = tokenSwapper
@@ -91,29 +91,72 @@ class PaymentCoordinator: Coordinator {
     }
 
     private func startWithSendCollectiblesCoordinator(token: Token, tokenHolders: [TokenHolder]) {
-        let coordinator = TransferCollectiblesCoordinator(session: session, navigationController: navigationController, keystore: keystore, filteredTokenHolders: tokenHolders, token: token, assetDefinitionStore: assetDefinitionStore, analytics: analytics, domainResolutionService: domainResolutionService, tokensService: tokenCollection)
+        let coordinator = TransferCollectiblesCoordinator(
+            session: session,
+            navigationController: navigationController,
+            keystore: keystore,
+            filteredTokenHolders: tokenHolders,
+            token: token,
+            assetDefinitionStore: assetDefinitionStore,
+            analytics: analytics,
+            domainResolutionService: domainResolutionService,
+            tokensService: tokenCollection)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
     }
 
     private func startWithSendNFTCoordinator(transactionType: TransactionType, token: Token, tokenHolder: TokenHolder) {
-        let coordinator = TransferNFTCoordinator(session: session, navigationController: navigationController, keystore: keystore, tokenHolder: tokenHolder, token: token, transactionType: transactionType, assetDefinitionStore: assetDefinitionStore, analytics: analytics, domainResolutionService: domainResolutionService, tokensService: tokenCollection)
+        let coordinator = TransferNFTCoordinator(
+            session: session,
+            navigationController: navigationController,
+            keystore: keystore,
+            tokenHolder: tokenHolder,
+            token: token,
+            transactionType: transactionType,
+            assetDefinitionStore: assetDefinitionStore,
+            analytics: analytics,
+            domainResolutionService: domainResolutionService,
+            tokensService: tokenCollection)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
     }
 
     private func startWithTokenScriptCoordinator(action: TokenInstanceAction, token: Token, tokenHolder: TokenHolder) {
-        let coordinator = TokenScriptCoordinator(session: session, navigationController: navigationController, keystore: keystore, tokenHolder: tokenHolder, tokenObject: token, assetDefinitionStore: assetDefinitionStore, analytics: analytics, domainResolutionService: domainResolutionService, action: action, tokensService: tokenCollection)
+        let coordinator = TokenScriptCoordinator(
+            session: session,
+            navigationController: navigationController,
+            keystore: keystore,
+            tokenHolder: tokenHolder,
+            tokenObject: token,
+            assetDefinitionStore: assetDefinitionStore,
+            analytics: analytics,
+            domainResolutionService: domainResolutionService,
+            action: action,
+            tokensService: tokenCollection)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
     }
 
     private func startWithSwapCoordinator(swapPair: SwapPair) {
-        let configurator = SwapOptionsConfigurator(sessionProvider: sessionProvider, swapPair: swapPair, tokenCollection: tokenCollection, reachabilityManager: reachabilityManager, tokenSwapper: tokenSwapper)
-        let coordinator = SwapTokensCoordinator(navigationController: navigationController, configurator: configurator, keystore: keystore, analytics: analytics, domainResolutionService: domainResolutionService, assetDefinitionStore: assetDefinitionStore, tokenCollection: tokenCollection, tokensFilter: tokensFilter)
+        let configurator = SwapOptionsConfigurator(
+            sessionProvider: sessionProvider,
+            swapPair: swapPair,
+            tokenCollection: tokenCollection,
+            reachabilityManager: reachabilityManager,
+            tokenSwapper: tokenSwapper)
+
+        let coordinator = SwapTokensCoordinator(
+            navigationController: navigationController,
+            configurator: configurator,
+            keystore: keystore,
+            analytics: analytics,
+            domainResolutionService: domainResolutionService,
+            assetDefinitionStore: assetDefinitionStore,
+            tokenCollection: tokenCollection,
+            tokensFilter: tokensFilter)
         coordinator.start()
         coordinator.delegate = self
         addCoordinator(coordinator)
@@ -128,13 +171,13 @@ class PaymentCoordinator: Coordinator {
             navigationController.setNavigationBarHidden(false, animated: false)
         }
 
-        func _startPaymentFlow(transactionType: PaymentFlowType) {
-            switch transactionType {
+        func _startPaymentFlow(paymentFlowType: PaymentFlowType) {
+            switch paymentFlowType {
             case .transaction(let transactionType):
                 switch transactionType {
                 case .erc1155Token(let token, let tokenHolders):
                     startWithSendCollectiblesCoordinator(token: token, tokenHolders: tokenHolders)
-                case .nativeCryptocurrency, .erc20Token, .dapp, .claimPaidErc875MagicLink, .tokenScript, .prebuilt:
+                case .nativeCryptocurrency, .erc20Token, .prebuilt:
                     startWithSendCoordinator(transactionType: transactionType)
                 case .erc721ForTicketToken(let token, let tokenHolders), .erc875Token(let token, let tokenHolders), .erc721Token(let token, let tokenHolders):
                     startWithSendNFTCoordinator(transactionType: transactionType, token: token, tokenHolder: tokenHolders[0])
@@ -147,17 +190,20 @@ class PaymentCoordinator: Coordinator {
         switch (flow, session.account.type) {
         case (.swap(let swapPair), .real):
             startWithSwapCoordinator(swapPair: swapPair)
-        case (.send(let transactionType), .real):
-            _startPaymentFlow(transactionType: transactionType)
+        case (.send(let paymentFlowType), .real):
+            _startPaymentFlow(paymentFlowType: paymentFlowType)
         case (.request, _):
-            let coordinator = RequestCoordinator(navigationController: navigationController, account: session.account, domainResolutionService: domainResolutionService)
+            let coordinator = RequestCoordinator(
+                navigationController: navigationController,
+                account: session.account,
+                domainResolutionService: domainResolutionService)
             coordinator.delegate = self
             coordinator.start()
             addCoordinator(coordinator)
-        case (.send(let transactionType), .watch):
+        case (.send(let paymentFlowType), .watch):
             //TODO pass in a config instance instead
             if Config().development.shouldPretendIsRealWallet {
-                _startPaymentFlow(transactionType: transactionType)
+                _startPaymentFlow(paymentFlowType: paymentFlowType)
             } else {
                 //TODO: This case should be returning an error inCoordinator. Improve this logic into single piece.
             }

@@ -157,7 +157,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         do {
             guard let session = sessionsProvider.session(for: server) else { throw DappBrowserError.serverUnavailable }
 
-            let coordinator = try TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: .dappTransaction(confirmType: type), analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
+            let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: .dappTransaction(confirmType: type), analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
             coordinator.delegate = self
             addCoordinator(coordinator)
             coordinator.start(fromSource: .browser)

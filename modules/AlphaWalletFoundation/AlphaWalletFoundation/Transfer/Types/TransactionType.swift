@@ -1,11 +1,6 @@
 import Foundation
 import BigInt
 
-public enum Erc1155TokenTransactionType {
-    case batchTransfer
-    case singleTransfer
-}
-
 public enum TransactionType {
     public init(nonFungibleToken token: Token, tokenHolders: [TokenHolder]) {
         switch token.type {
@@ -44,10 +39,6 @@ public enum TransactionType {
     case erc721Token(Token, tokenHolders: [TokenHolder])
     case erc721ForTicketToken(Token, tokenHolders: [TokenHolder])
     case erc1155Token(Token, tokenHolders: [TokenHolder])
-    case dapp(Token, DAppRequester)
-    case claimPaidErc875MagicLink(Token)
-    case tokenScript(Token)
-    //TODO replace some of those above with this?
     case prebuilt(RPCServer)
 }
 
@@ -57,8 +48,6 @@ extension TransactionType {
         switch self {
         case .nativeCryptocurrency(let server, _, _):
             return server.symbol
-        case .dapp(let token, _), .tokenScript(let token):
-            return token.symbol
         case .erc20Token(let token, _, _):
             return token.symbol
         case .erc875Token(let token, _):
@@ -68,8 +57,6 @@ extension TransactionType {
         case .erc721ForTicketToken(let token, _):
             return token.symbol
         case .erc1155Token(let token, _):
-            return token.symbol
-        case .claimPaidErc875MagicLink(let token):
             return token.symbol
         case .prebuilt:
             //Not applicable
@@ -81,8 +68,6 @@ extension TransactionType {
         switch self {
         case .nativeCryptocurrency(let token, _, _):
             return token
-        case .dapp(let token, _), .tokenScript(let token):
-            return token
         case .erc20Token(let token, _, _):
             return token
         case .erc875Token(let token, _):
@@ -92,8 +77,6 @@ extension TransactionType {
         case .erc721ForTicketToken(let token, _):
             return token
         case .erc1155Token(let token, _):
-            return token
-        case .claimPaidErc875MagicLink(let token):
             return token
         case .prebuilt(let server):
             //Not applicable
@@ -105,8 +88,6 @@ extension TransactionType {
         switch self {
         case .nativeCryptocurrency(let token, _, _):
             return token.server
-        case .dapp(let token, _), .tokenScript(let token):
-            return token.server
         case .erc20Token(let token, _, _):
             return token.server
         case .erc875Token(let token, _):
@@ -116,8 +97,6 @@ extension TransactionType {
         case .erc721ForTicketToken(let token, _):
             return token.server
         case .erc1155Token(let token, _):
-            return token.server
-        case .claimPaidErc875MagicLink(let token):
             return token.server
         case .prebuilt(let server):
              return server
@@ -137,8 +116,6 @@ extension TransactionType {
         case .erc721ForTicketToken(let token, _):
             return token.contractAddress
         case .erc1155Token(let token, _):
-            return token.contractAddress
-        case .dapp(let token, _), .tokenScript(let token), .claimPaidErc875MagicLink(let token):
             return token.contractAddress
         case .prebuilt:
             //We don't care about the contract for prebuilt transactions
@@ -172,15 +149,15 @@ extension TransactionType {
     }
 
     public func buildAnyDappTransaction(bridgeTransaction: RawTransactionBridge) throws -> UnconfirmedTransaction {
-        guard case .dapp = self else { throw TransactionConfiguratorError.impossibleToBuildConfiguration }
+        guard case .prebuilt = self else { throw TransactionConfiguratorError.impossibleToBuildConfiguration }
 
         return UnconfirmedTransaction(transactionType: self, bridgeTransaction: bridgeTransaction)
     }
 
     public func buildSendNativeCryptocurrency(recipient: AlphaWallet.Address, amount: BigUInt) throws -> UnconfirmedTransaction {
         switch self {
-        case .nativeCryptocurrency, .dapp, .claimPaidErc875MagicLink, .tokenScript, .prebuilt:
-            break //TODO: review codebase and remove `.dapp, .claimPaidErc875MagicLink, .tokenScript, .prebuilt` from send screen
+        case .nativeCryptocurrency, .prebuilt:
+            break
         case .erc20Token, .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token:
             throw TransactionConfiguratorError.impossibleToBuildConfiguration
         }
@@ -233,13 +210,13 @@ extension TransactionType {
             }
 
             return UnconfirmedTransaction(transactionType: self, value: BigUInt(0), recipient: recipient, contract: tokenHolder.contractAddress, data: data)
-        case .nativeCryptocurrency, .erc20Token, .erc1155Token, .dapp, .claimPaidErc875MagicLink, .tokenScript, .prebuilt:
+        case .nativeCryptocurrency, .erc20Token, .erc1155Token, .prebuilt:
             throw TransactionConfiguratorError.impossibleToBuildConfiguration
         }
     }
 
     public func buildClaimPaidErc875MagicLink(recipient: AlphaWallet.Address, signedOrder: SignedOrder) throws -> UnconfirmedTransaction {
-        guard case .claimPaidErc875MagicLink = self else { throw TransactionConfiguratorError.impossibleToBuildConfiguration }
+        guard case .prebuilt = self else { throw TransactionConfiguratorError.impossibleToBuildConfiguration }
 
         func encodeOrder(signedOrder: SignedOrder, recipient: AlphaWallet.Address) throws -> Data {
             let signature = signedOrder.signature.substring(from: 2)
