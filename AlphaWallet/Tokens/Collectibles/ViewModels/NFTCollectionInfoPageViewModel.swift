@@ -51,14 +51,14 @@ final class NFTCollectionInfoPageViewModel {
 
     var previewViewContentBackgroundColor: UIColor { return Configuration.Color.Semantic.defaultViewBackground }
 
-    init(token: Token, previewViewType: NFTPreviewViewType, tokenHolder: TokenHolder, tokenId: TokenId, tokenHolders: AnyPublisher<[TokenHolder], Never>, nftProvider: NFTProvider) {
+    init(token: Token, previewViewType: NFTPreviewViewType, tokenHolder: TokenHolder, tokenId: TokenId, tokenHolders: AnyPublisher<[TokenHolder], Never>, nftProvider: NFTProvider, assetDefinitionStore: AssetDefinitionStore) {
         self.previewViewType = previewViewType
         self.nftProvider = nftProvider
         self.tokenHolders = tokenHolders
         self.token = token
         self.tokenHolder = tokenHolder
         self.tokenId = tokenId
-        self.tokenHolderHelper = TokenInstanceViewConfigurationHelper(tokenId: tokenId, tokenHolder: tokenHolder)
+        self.tokenHolderHelper = TokenInstanceViewConfigurationHelper(tokenId: tokenId, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
     }
 
     var blockChainTagViewModel: BlockchainTagLabelViewModel {

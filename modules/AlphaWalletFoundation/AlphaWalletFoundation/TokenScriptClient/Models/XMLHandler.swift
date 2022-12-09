@@ -910,6 +910,10 @@ public struct XMLHandler {
         return fieldIdsAndNames
     }
 
+    public var fieldIdsAndNamesExcludingBase: [AttributeId: String] {
+        return privateXMLHandler.fieldIdsAndNames
+    }
+
     public init(token: TokenScriptSupportable, assetDefinitionStore: AssetDefinitionStore) {
         self.init(contract: token.contractAddress, tokenType: token.type, assetDefinitionStore: assetDefinitionStore)
     }
