@@ -370,7 +370,7 @@ extension TransactionTypeSupportable {
 
     func overrideTransactionType(with recipient: AlphaWallet.Address?) -> TransactionType {
         var newTransactionType = self.transactionType
-        newTransactionType.override(recipient: recipient.flatMap { .address($0) } )
+        newTransactionType.override(recipient: recipient.flatMap { .address($0) })
 
         return newTransactionType
     }
