@@ -92,7 +92,8 @@ public func callSmartContract(withServer server: RPCServer, contract contractAdd
     firstly {
         .value(server)
     }.then(on: callSmartContractQueue, { [callSmartContractQueue] server -> Promise<[String: Any]> in
-        let cacheKey = "\(contractAddress).\(functionName) \(parameters) \(server.chainID)"
+        //cacheKey needs to include the function return type because TokenScript attributes might define it to have different type (and more than 1 type if 2 or more attributes call the same function, for some reason). Without including the return type, subsequent calls will read the cached value but cast to the wrong value if the return type is specified differently. eg. a function call is defined in 2 attributes, 1 with type uint and the other bool, the first call will cache it as `1` and the second call will read it as `false` and not `true`. Caching `abiString` instead of etracting out the return type is just for convenience
+        let cacheKey = "\(contractAddress).\(functionName) \(parameters) \(server.chainID) \(abiString)"
         let ttlForCache: TimeInterval = 10
         let now = Date()
 
