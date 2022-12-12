@@ -20,7 +20,7 @@ class GenerateSellMagicLinkViewController: UIViewController {
     private let descriptionLabel = UILabel()
     private let actionButton = UIButton()
     private let cancelButton = UIButton()
-    private var viewModel: GenerateSellMagicLinkViewControllerViewModel?
+    private var viewModel: GenerateSellMagicLinkViewModel?
 
     weak var delegate: GenerateSellMagicLinkViewControllerDelegate?
     let paymentFlow: PaymentFlow
@@ -106,7 +106,7 @@ class GenerateSellMagicLinkViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(viewModel: GenerateSellMagicLinkViewControllerViewModel) {
+    func configure(viewModel: GenerateSellMagicLinkViewModel) {
         self.viewModel = viewModel
         if let viewModel = self.viewModel {
             background.backgroundColor = viewModel.contentsBackgroundColor

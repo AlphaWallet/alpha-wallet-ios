@@ -185,7 +185,7 @@
 		5E7C718043636901114BF76C /* LocalesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7FB99843529061368DA1 /* LocalesViewModel.swift */; };
 		5E7C71967C34DD3F207F8126 /* WhatsNewExperimentCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7709286B5D5A37D0156B /* WhatsNewExperimentCoordinator.swift */; };
 		5E7C71D1D16FE09032EB4B7E /* TokenObjectTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C702A684DF27DC8ED4E42 /* TokenObjectTest.swift */; };
-		5E7C71DAA5DAFF764F92587D /* SetTransferTokensCardExpiryDateViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C727433F7B8E322B3C68A /* SetTransferTokensCardExpiryDateViewModel.swift */; };
+		5E7C71DAA5DAFF764F92587D /* SetTransferTokensCardExpiryDateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C727433F7B8E322B3C68A /* SetTransferTokensCardExpiryDateViewController.swift */; };
 		5E7C71DC13B2040F5408BF3C /* ImportMagicTokenCardRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C781F82F9E4903C460E33 /* ImportMagicTokenCardRowViewModel.swift */; };
 		5E7C71F8050CCF990539B293 /* LockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C79D674D45A07E694CE31 /* LockView.swift */; };
 		5E7C721B569E1CD1C68295F6 /* LayoutConstraintsWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78C073F380B48D5BE94C /* LayoutConstraintsWrapper.swift */; };
@@ -221,7 +221,7 @@
 		5E7C742DDE5C63804A2C420D /* Collection+UIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7914F01B5FEA5B20398B /* Collection+UIView.swift */; };
 		5E7C743467F5D428AF4E4F0F /* ElevateWalletSecurityViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C77E2559C7C9117C0F75F /* ElevateWalletSecurityViewModel.swift */; };
 		5E7C745A423BD10CFDED9A81 /* ServersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7CBEBF984CFCA29D6866 /* ServersViewModel.swift */; };
-		5E7C745C725F3F34037DCC68 /* SetTransferTokensCardExpiryDateViewControllerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C754C0E2E57F32A61F9A3 /* SetTransferTokensCardExpiryDateViewControllerViewModel.swift */; };
+		5E7C745C725F3F34037DCC68 /* SetTransferTokensCardExpiryDateViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C754C0E2E57F32A61F9A3 /* SetTransferTokensCardExpiryDateViewModel.swift */; };
 		5E7C745ECFCAE8B1A52B7FAC /* EnabledServersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C70A6D4A3737631D092D9 /* EnabledServersViewModel.swift */; };
 		5E7C746219CE5A1139756869 /* BookmarksHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7171B802C0C2718EEED0 /* BookmarksHeaderView.swift */; };
 		5E7C7499A8D6814F7950DA70 /* LockCreatePasscodeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7AB3440C01136DF4F3E9 /* LockCreatePasscodeCoordinator.swift */; };
@@ -234,7 +234,7 @@
 		5E7C74BD08801CABF9695853 /* LocaleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C79778E4BFE1322711EA6 /* LocaleViewModel.swift */; };
 		5E7C74C1C2AB84F9AFAC630E /* TokenCardRowViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7C12E88EB0B73AA1E562 /* TokenCardRowViewModelProtocol.swift */; };
 		5E7C74C6110D4E93C759D5DB /* ConfirmSignMessageTableViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B080E387A79058430B9 /* ConfirmSignMessageTableViewCellViewModel.swift */; };
-		5E7C74DBAE43954C185057B3 /* ChooseTokenCardTransferModeViewControllerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7BA578BE5FB0E613A6D6 /* ChooseTokenCardTransferModeViewControllerViewModel.swift */; };
+		5E7C74DBAE43954C185057B3 /* ChooseTokenCardTransferModeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7BA578BE5FB0E613A6D6 /* ChooseTokenCardTransferModeViewModel.swift */; };
 		5E7C74E1ECC13899FA369E1C /* ClearDappBrowserCacheCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C72571AB0FECB26FEB1B1 /* ClearDappBrowserCacheCoordinator.swift */; };
 		5E7C7507CC97BDE973FD4F0E /* EnsResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7E9A5E7D36AA3BC108A4 /* EnsResolverTests.swift */; };
 		5E7C7521CA17E5C2A4506A20 /* BrowserHomeHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7FE5EEC96A7CDF62213F /* BrowserHomeHeaderView.swift */; };
@@ -252,7 +252,7 @@
 		5E7C76194F5934264E5BABC8 /* ActivityViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7F5A42365FDA22AEE6F7 /* ActivityViewModel.swift */; };
 		5E7C76393408CC2489FF4527 /* AssetDefinitionsOverridesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7F21FA7A02F6341FB58D /* AssetDefinitionsOverridesViewController.swift */; };
 		5E7C7648BFF9AE93CD97A1BE /* ConsoleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7CF1465A1DCB44371BA9 /* ConsoleViewController.swift */; };
-		5E7C76696EF7F27EC0788CDD /* GenerateTransferMagicLinkViewControllerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7EEAAE9C23B68419E9F5 /* GenerateTransferMagicLinkViewControllerViewModel.swift */; };
+		5E7C76696EF7F27EC0788CDD /* GenerateTransferMagicLinkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7EEAAE9C23B68419E9F5 /* GenerateTransferMagicLinkViewModel.swift */; };
 		5E7C7669BBE6255A2377E070 /* SetSellTokensCardExpiryDateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7962AE417E12F13FF58E /* SetSellTokensCardExpiryDateViewController.swift */; };
 		5E7C766B96C59C7893CF2CB4 /* EditedTransactionConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7F1F965C69B80A234F1F /* EditedTransactionConfiguration.swift */; };
 		5E7C76738DDAAD623C6FB4DC /* PromptBackupWalletAfterExceedingThresholdViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C77685B78D5372F6C7CB0 /* PromptBackupWalletAfterExceedingThresholdViewViewModel.swift */; };
@@ -317,7 +317,7 @@
 		5E7C79E9A6A3DFB7FA680752 /* DappViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C793CDFA907BFDFECB6CB /* DappViewCell.swift */; };
 		5E7C79EB8A6EC89F6F033268 /* CreateInitialWalletViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74A5B5B9D8AD0BD913C1 /* CreateInitialWalletViewController.swift */; };
 		5E7C7A0D678C2CE065CC8BB1 /* Erc1155TokenIdsFetcherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C719EC2B8B381C56F8440 /* Erc1155TokenIdsFetcherTests.swift */; };
-		5E7C7A4384A8E3F22D3F8249 /* SetSellTokensCardExpiryDateViewControllerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C700CD3E43689E88FBE9B /* SetSellTokensCardExpiryDateViewControllerViewModel.swift */; };
+		5E7C7A4384A8E3F22D3F8249 /* SetSellTokensCardExpiryDateViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C700CD3E43689E88FBE9B /* SetSellTokensCardExpiryDateViewModel.swift */; };
 		5E7C7A4700C79350AA486E09 /* SeedPhraseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C791C60E8AAF3F4239375 /* SeedPhraseCell.swift */; };
 		5E7C7A496E69849D06DF2731 /* AssetDefinitionStoreCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7D58E7A5DE05425623D2 /* AssetDefinitionStoreCoordinator.swift */; };
 		5E7C7A67B6143DFB9B1CF02B /* ConfirmSignMessageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7DD9C564F2C7DE435894 /* ConfirmSignMessageTableViewCell.swift */; };
@@ -334,7 +334,7 @@
 		5E7C7ADB4D80243679028A6D /* IntExtensionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7F4F209C6EE3828E18EC /* IntExtensionsTests.swift */; };
 		5E7C7AE2EF04A23EC7C5ADFD /* ImportMagicTokenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7535095323B035CA47C0 /* ImportMagicTokenViewController.swift */; };
 		5E7C7AFF5433B2B8B3415C55 /* DefaultActivityCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B6849D43348C5109712 /* DefaultActivityCellViewModel.swift */; };
-		5E7C7B0367CFB413C6885474 /* GenerateSellMagicLinkViewControllerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7624D6F7EA55F6F167B3 /* GenerateSellMagicLinkViewControllerViewModel.swift */; };
+		5E7C7B0367CFB413C6885474 /* GenerateSellMagicLinkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7624D6F7EA55F6F167B3 /* GenerateSellMagicLinkViewModel.swift */; };
 		5E7C7B2A4B7C94922DED2EA0 /* TokenCardRowViewProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78CDFEB86A8356EA5818 /* TokenCardRowViewProtocol.swift */; };
 		5E7C7B2C388D0B6E8AE1EED6 /* TransactionConfirmationRowDescriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7919EE31DC0B8FCF0D40 /* TransactionConfirmationRowDescriptionView.swift */; };
 		5E7C7B3E08EEA63C5B68B9C4 /* TokenCardRedemptionInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C778F20D32B70D7FF2135 /* TokenCardRedemptionInfoViewController.swift */; };
@@ -405,7 +405,7 @@
 		5E7C7FC0770A411DB09F8C09 /* FungibleTokenViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7C077372C3F2A4349FA1 /* FungibleTokenViewCell.swift */; };
 		5E7C7FC3D8846843465B0F90 /* ServersCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78EFAF641C41F06C46BF /* ServersCoordinatorTests.swift */; };
 		5E7C7FC76A025AD91D57B960 /* HistoriesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C715BBA7416942FDA8516 /* HistoriesViewModel.swift */; };
-		5E7C7FCC321493B41C1083C1 /* EnterSellTokensCardPriceQuantityViewControllerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C765E0DC0174E9788CCF9 /* EnterSellTokensCardPriceQuantityViewControllerViewModel.swift */; };
+		5E7C7FCC321493B41C1083C1 /* EnterSellTokensCardPriceQuantityViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C765E0DC0174E9788CCF9 /* EnterSellTokensCardPriceQuantityViewModel.swift */; };
 		5E7C7FD7D2C8BCF6B127FB84 /* EnableServersHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7DC3AEBE4049927B7625 /* EnableServersHeaderView.swift */; };
 		5E7C7FDCAE5ED2EEE02CE661 /* OpenSeaNonFungibleTokenCardRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73E57ADDF29E0A5FB87E /* OpenSeaNonFungibleTokenCardRowView.swift */; };
 		5E7C7FE1E7806D33001F9867 /* ShowSeedPhraseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73CC82B9877AF4A42333 /* ShowSeedPhraseViewController.swift */; };
@@ -1034,7 +1034,7 @@
 		442FCE526E2089CAE88D5602 /* FakeClaimOrderCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FakeClaimOrderCoordinator.swift; sourceTree = "<group>"; };
 		4E16B6D97BD699F844AB4E2B /* Pods-AlphaWalletTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AlphaWalletTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-AlphaWalletTests/Pods-AlphaWalletTests.release.xcconfig"; sourceTree = "<group>"; };
 		5E7C70088832B2D161EB4AAB /* SendViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendViewController.swift; sourceTree = "<group>"; };
-		5E7C700CD3E43689E88FBE9B /* SetSellTokensCardExpiryDateViewControllerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SetSellTokensCardExpiryDateViewControllerViewModel.swift; sourceTree = "<group>"; };
+		5E7C700CD3E43689E88FBE9B /* SetSellTokensCardExpiryDateViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SetSellTokensCardExpiryDateViewModel.swift; sourceTree = "<group>"; };
 		5E7C70165BA8A9F342DC7874 /* PromptBackupWalletView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromptBackupWalletView.swift; sourceTree = "<group>"; };
 		5E7C7021EE19C4B81CAAF3C0 /* TransferTokensCardQuantitySelectionViewControllerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransferTokensCardQuantitySelectionViewControllerTests.swift; sourceTree = "<group>"; };
 		5E7C702300BB7DB0FD7788EF /* XMLHandlerTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XMLHandlerTest.swift; sourceTree = "<group>"; };
@@ -1068,7 +1068,7 @@
 		5E7C7228C9BEB801D4CD34DE /* EtherTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EtherTests.swift; sourceTree = "<group>"; };
 		5E7C723C21F6376387AD1DCE /* PromptBackupWalletAfterWalletCreationViewViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromptBackupWalletAfterWalletCreationViewViewModel.swift; sourceTree = "<group>"; };
 		5E7C72571AB0FECB26FEB1B1 /* ClearDappBrowserCacheCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClearDappBrowserCacheCoordinator.swift; sourceTree = "<group>"; };
-		5E7C727433F7B8E322B3C68A /* SetTransferTokensCardExpiryDateViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SetTransferTokensCardExpiryDateViewModel.swift; sourceTree = "<group>"; };
+		5E7C727433F7B8E322B3C68A /* SetTransferTokensCardExpiryDateViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SetTransferTokensCardExpiryDateViewController.swift; sourceTree = "<group>"; };
 		5E7C728B3CA6A429AB5EE5DF /* ContainerViewWithShadow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContainerViewWithShadow.swift; sourceTree = "<group>"; };
 		5E7C72CDD54E5A0C5BB23C89 /* AddressAndRPCServerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddressAndRPCServerTests.swift; sourceTree = "<group>"; };
 		5E7C72D0E7CA03ADE5CFAE7A /* ImportMagicTokenViewControllerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImportMagicTokenViewControllerViewModel.swift; sourceTree = "<group>"; };
@@ -1112,7 +1112,7 @@
 		5E7C7535095323B035CA47C0 /* ImportMagicTokenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImportMagicTokenViewController.swift; sourceTree = "<group>"; };
 		5E7C753A2216F043CBDEC07C /* ElevateWalletSecurityViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElevateWalletSecurityViewController.swift; sourceTree = "<group>"; };
 		5E7C754BF8B4CC2DA82B1025 /* DappButtonViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DappButtonViewModel.swift; sourceTree = "<group>"; };
-		5E7C754C0E2E57F32A61F9A3 /* SetTransferTokensCardExpiryDateViewControllerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SetTransferTokensCardExpiryDateViewControllerViewModel.swift; sourceTree = "<group>"; };
+		5E7C754C0E2E57F32A61F9A3 /* SetTransferTokensCardExpiryDateViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SetTransferTokensCardExpiryDateViewModel.swift; sourceTree = "<group>"; };
 		5E7C755132D9B6F95080A1BE /* TransferNFTCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransferNFTCoordinator.swift; sourceTree = "<group>"; };
 		5E7C7553BB089397B7E74BE0 /* WalletSecurityLevelIndicator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSecurityLevelIndicator.swift; sourceTree = "<group>"; };
 		5E7C757AEC6586F51EC75646 /* PingInfuraCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PingInfuraCoordinator.swift; sourceTree = "<group>"; };
@@ -1129,10 +1129,10 @@
 		5E7C76052512831B707659CA /* WhereIsWalletAddressFoundOverlayView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WhereIsWalletAddressFoundOverlayView.swift; sourceTree = "<group>"; };
 		5E7C760A524D73F044CC2A4B /* DappRequestSwitchExistingChainCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DappRequestSwitchExistingChainCoordinator.swift; sourceTree = "<group>"; };
 		5E7C760CC5A9E144BDB5451D /* ActivityCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActivityCellViewModel.swift; sourceTree = "<group>"; };
-		5E7C7624D6F7EA55F6F167B3 /* GenerateSellMagicLinkViewControllerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GenerateSellMagicLinkViewControllerViewModel.swift; sourceTree = "<group>"; };
+		5E7C7624D6F7EA55F6F167B3 /* GenerateSellMagicLinkViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GenerateSellMagicLinkViewModel.swift; sourceTree = "<group>"; };
 		5E7C764B98F526271E4C2A6A /* StaticHTMLViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StaticHTMLViewController.swift; sourceTree = "<group>"; };
 		5E7C765A9FA64E4CC1B6C726 /* OpenSeaNonFungibleTokenTraitCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenSeaNonFungibleTokenTraitCell.swift; sourceTree = "<group>"; };
-		5E7C765E0DC0174E9788CCF9 /* EnterSellTokensCardPriceQuantityViewControllerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EnterSellTokensCardPriceQuantityViewControllerViewModel.swift; sourceTree = "<group>"; };
+		5E7C765E0DC0174E9788CCF9 /* EnterSellTokensCardPriceQuantityViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EnterSellTokensCardPriceQuantityViewModel.swift; sourceTree = "<group>"; };
 		5E7C767497AD8DEE83F384D7 /* RequestViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RequestViewModel.swift; sourceTree = "<group>"; };
 		5E7C7676A744239C4880A3ED /* ERC721-TokenScript.tsml */ = {isa = PBXFileReference; lastKnownFileType = file.tsml; path = "ERC721-TokenScript.tsml"; sourceTree = "<group>"; };
 		5E7C768D3C3F400E0B88B575 /* ETH.tsml */ = {isa = PBXFileReference; lastKnownFileType = file.tsml; path = ETH.tsml; sourceTree = "<group>"; };
@@ -1212,7 +1212,7 @@
 		5E7C7B8EB45ABD915B9BFF61 /* LocalPopularTokensCollectionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalPopularTokensCollectionTests.swift; sourceTree = "<group>"; };
 		5E7C7B8FD1E2BCC325DF4EE4 /* ServersCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServersCoordinator.swift; sourceTree = "<group>"; };
 		5E7C7B9220E616F82EDA956F /* PasscodeCharacterView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PasscodeCharacterView.swift; sourceTree = "<group>"; };
-		5E7C7BA578BE5FB0E613A6D6 /* ChooseTokenCardTransferModeViewControllerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChooseTokenCardTransferModeViewControllerViewModel.swift; sourceTree = "<group>"; };
+		5E7C7BA578BE5FB0E613A6D6 /* ChooseTokenCardTransferModeViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChooseTokenCardTransferModeViewModel.swift; sourceTree = "<group>"; };
 		5E7C7BAEF70990DA14C474EB /* GroupActivityCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupActivityCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C7BB70AD8C1E92D37196F /* FakeActivitiesService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FakeActivitiesService.swift; sourceTree = "<group>"; };
 		5E7C7BB7DBFDF5A5E4F2DDC0 /* SendTransactionErrorViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendTransactionErrorViewModel.swift; sourceTree = "<group>"; };
@@ -1261,7 +1261,7 @@
 		5E7C7EA7AD39A9F6703189FD /* ActiveWalletSessionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActiveWalletSessionView.swift; sourceTree = "<group>"; };
 		5E7C7EE374A74F2B00013C18 /* EthTokenViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EthTokenViewCell.swift; sourceTree = "<group>"; };
 		5E7C7EE467A7F5F2E5B1F660 /* TokensViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokensViewModel.swift; sourceTree = "<group>"; };
-		5E7C7EEAAE9C23B68419E9F5 /* GenerateTransferMagicLinkViewControllerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GenerateTransferMagicLinkViewControllerViewModel.swift; sourceTree = "<group>"; };
+		5E7C7EEAAE9C23B68419E9F5 /* GenerateTransferMagicLinkViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GenerateTransferMagicLinkViewModel.swift; sourceTree = "<group>"; };
 		5E7C7F1B07B1403E6382B21F /* PromptBackupWalletAfterIntervalViewViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromptBackupWalletAfterIntervalViewViewModel.swift; sourceTree = "<group>"; };
 		5E7C7F1F965C69B80A234F1F /* EditedTransactionConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditedTransactionConfiguration.swift; sourceTree = "<group>"; };
 		5E7C7F21FA7A02F6341FB58D /* AssetDefinitionsOverridesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetDefinitionsOverridesViewController.swift; sourceTree = "<group>"; };
@@ -2421,7 +2421,7 @@
 				5E7C7419F47CC8B2996AA8F9 /* TransferTokensCardQuantitySelectionViewController.swift */,
 				5E7C70088832B2D161EB4AAB /* SendViewController.swift */,
 				5E7C70FB40612BB02594EC00 /* ChooseTokenCardTransferModeViewController.swift */,
-				5E7C727433F7B8E322B3C68A /* SetTransferTokensCardExpiryDateViewModel.swift */,
+				5E7C727433F7B8E322B3C68A /* SetTransferTokensCardExpiryDateViewController.swift */,
 				5E7C7D46C7CABC31A7477F37 /* GenerateTransferMagicLinkViewController.swift */,
 				87A3020824BEE243000DF32E /* TransactionInProgressViewController.swift */,
 				8757E5DB25DD162E00812392 /* SignatureConfirmationViewController.swift */,
@@ -2441,8 +2441,8 @@
 				299B5E441FD22FB40051361C /* ConfigureTransactionViewModel.swift */,
 				5E7C767497AD8DEE83F384D7 /* RequestViewModel.swift */,
 				5E7C703BA1D0E9ACB7399155 /* TransferTokensCardQuantitySelectionViewModel.swift */,
-				5E7C7BA578BE5FB0E613A6D6 /* ChooseTokenCardTransferModeViewControllerViewModel.swift */,
-				5E7C754C0E2E57F32A61F9A3 /* SetTransferTokensCardExpiryDateViewControllerViewModel.swift */,
+				5E7C7BA578BE5FB0E613A6D6 /* ChooseTokenCardTransferModeViewModel.swift */,
+				5E7C754C0E2E57F32A61F9A3 /* SetTransferTokensCardExpiryDateViewModel.swift */,
 				5E7C7B080E387A79058430B9 /* ConfirmSignMessageTableViewCellViewModel.swift */,
 				87ED8FAA2488E4610005C69B /* SendViewSectionHeaderViewModel.swift */,
 				87A3020A24BF04B6000DF32E /* TransactionInProgressViewModel.swift */,
@@ -2753,10 +2753,10 @@
 		5E7C717017C1CBA50A260024 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
-				5E7C765E0DC0174E9788CCF9 /* EnterSellTokensCardPriceQuantityViewControllerViewModel.swift */,
-				5E7C700CD3E43689E88FBE9B /* SetSellTokensCardExpiryDateViewControllerViewModel.swift */,
-				5E7C7624D6F7EA55F6F167B3 /* GenerateSellMagicLinkViewControllerViewModel.swift */,
-				5E7C7EEAAE9C23B68419E9F5 /* GenerateTransferMagicLinkViewControllerViewModel.swift */,
+				5E7C765E0DC0174E9788CCF9 /* EnterSellTokensCardPriceQuantityViewModel.swift */,
+				5E7C700CD3E43689E88FBE9B /* SetSellTokensCardExpiryDateViewModel.swift */,
+				5E7C7624D6F7EA55F6F167B3 /* GenerateSellMagicLinkViewModel.swift */,
+				5E7C7EEAAE9C23B68419E9F5 /* GenerateTransferMagicLinkViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -5228,19 +5228,19 @@
 				5E7C713ACE8C72642B1C9F93 /* FungibleTokenDetailsViewModel.swift in Sources */,
 				5E7C7376B566E5A59CC8F463 /* ImportMagicTokenViewControllerViewModel.swift in Sources */,
 				5E7C75E81F85353844CACECC /* EnterSellTokensCardPriceQuantityViewController.swift in Sources */,
-				5E7C7FCC321493B41C1083C1 /* EnterSellTokensCardPriceQuantityViewControllerViewModel.swift in Sources */,
+				5E7C7FCC321493B41C1083C1 /* EnterSellTokensCardPriceQuantityViewModel.swift in Sources */,
 				5E7C7669BBE6255A2377E070 /* SetSellTokensCardExpiryDateViewController.swift in Sources */,
-				5E7C7A4384A8E3F22D3F8249 /* SetSellTokensCardExpiryDateViewControllerViewModel.swift in Sources */,
+				5E7C7A4384A8E3F22D3F8249 /* SetSellTokensCardExpiryDateViewModel.swift in Sources */,
 				87A05C7726FCCA8B00AE26CA /* SwitchChainRequestViewModel.swift in Sources */,
-				5E7C7B0367CFB413C6885474 /* GenerateSellMagicLinkViewControllerViewModel.swift in Sources */,
+				5E7C7B0367CFB413C6885474 /* GenerateSellMagicLinkViewModel.swift in Sources */,
 				5E7C7692C981580CD32228EB /* ChooseTokenCardTransferModeViewController.swift in Sources */,
-				5E7C74DBAE43954C185057B3 /* ChooseTokenCardTransferModeViewControllerViewModel.swift in Sources */,
-				5E7C71DAA5DAFF764F92587D /* SetTransferTokensCardExpiryDateViewModel.swift in Sources */,
+				5E7C71DAA5DAFF764F92587D /* SetTransferTokensCardExpiryDateViewController.swift in Sources */,
+				5E7C74DBAE43954C185057B3 /* ChooseTokenCardTransferModeViewModel.swift in Sources */,
 				879F186026E74543000602F2 /* ToolButtonsBarView.swift in Sources */,
-				5E7C745C725F3F34037DCC68 /* SetTransferTokensCardExpiryDateViewControllerViewModel.swift in Sources */,
+				5E7C745C725F3F34037DCC68 /* SetTransferTokensCardExpiryDateViewModel.swift in Sources */,
 				5E7C74B5796FB59C8427C7A0 /* GenerateTransferMagicLinkViewController.swift in Sources */,
 				871CE2E727DF80AF00B1E1CF /* SelectableSlippageView.swift in Sources */,
-				5E7C76696EF7F27EC0788CDD /* GenerateTransferMagicLinkViewControllerViewModel.swift in Sources */,
+				5E7C76696EF7F27EC0788CDD /* GenerateTransferMagicLinkViewModel.swift in Sources */,
 				8757E5E225DE5ADB00812392 /* AcceptProposalViewModel.swift in Sources */,
 				8739BB5526CCECD10045CFED /* Erc875NonFungibleRowView.swift in Sources */,
 				5E7C7317533D24B6A292F88D /* UIStackView+Array.swift in Sources */,

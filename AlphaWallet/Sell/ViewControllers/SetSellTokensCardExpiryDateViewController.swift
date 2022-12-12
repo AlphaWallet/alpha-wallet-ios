@@ -10,28 +10,105 @@ protocol SetSellTokensCardExpiryDateViewControllerDelegate: class, CanOpenURL {
 
 class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiableStatusViewController {
     private let analytics: AnalyticsLogger
-    private let roundedBackground = RoundedBackground()
-    private let scrollView = UIScrollView()
-    private let header = TokensCardViewControllerTitleHeader()
-    private let linkExpiryDateLabel = UILabel()
+    private let linkExpiryDateLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .center
+        label.textColor = Configuration.Color.Semantic.defaultForegroundText
+        label.font = Fonts.regular(size: 10)
+
+        return label
+    }()
     private let linkExpiryDateField = DateEntryField()
-    private let linkExpiryTimeLabel = UILabel()
+    private let linkExpiryTimeLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .center
+        label.textColor = Configuration.Color.Semantic.defaultForegroundText
+        label.font = Fonts.regular(size: 10)
+
+        return label
+    }()
     private let linkExpiryTimeField = TimeEntryField()
-    private let tokenCountLabel = UILabel()
-    private let perTokenPriceLabel = UILabel()
-    private let totalEthLabel = UILabel()
-    private let descriptionLabel = UILabel()
-    private let noteTitleLabel = UILabel()
-    private let noteLabel = UILabel()
-    private let noteBorderView = UIView()
+    private let tokenCountLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .center
+        label.textColor = Configuration.Color.Semantic.defaultSubtitleText
+        label.font = Fonts.semibold(size: 21)
+
+        return label
+    }()
+
+    private let perTokenPriceLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .center
+        label.textColor = Configuration.Color.Semantic.defaultSubtitleText
+        label.font = Fonts.semibold(size: 21)
+
+        return label
+    }()
+    private let totalEthLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .center
+        label.textColor = Configuration.Color.Semantic.defaultSubtitleText
+        label.font = Fonts.semibold(size: 21)
+
+        return label
+    }()
+    private let descriptionLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .center
+        label.textColor = Configuration.Color.Semantic.defaultSubtitleText
+        label.font = Fonts.semibold(size: 21)
+        label.numberOfLines = 0
+
+        return label
+    }()
+    private let noteTitleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .center
+        label.textColor = Colors.appRed
+        label.font = Fonts.semibold(size: 21)
+
+        return label
+    }()
+    private let noteLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .center
+        label.textColor = Colors.appRed
+        label.font = Fonts.semibold(size: 21)
+        label.numberOfLines = 0
+
+        return label
+    }()
+    private let noteBorderView: UIView = {
+        let view = UIView()
+        view.layer.cornerRadius = DataEntry.Metric.CornerRadius.box
+        view.layer.borderColor = Colors.appRed.cgColor
+        view.layer.borderWidth = 1
+
+        return view
+    }()
     private let tokenRowView: TokenRowView & UIView
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
-    private let datePicker = UIDatePicker()
-    private let timePicker = UIDatePicker()
-    private var viewModel: SetSellTokensCardExpiryDateViewControllerViewModel
+    private let datePicker = UIDatePicker.datePicker
+    private let timePicker = UIDatePicker.timePicker
+    private var viewModel: SetSellTokensCardExpiryDateViewModel
     private let tokenHolder: TokenHolder
     private let ethCost: Ether
+    private let containerView: ScrollableStackView = {
+        let view = ScrollableStackView()
+        view.stackView.axis = .vertical
+        view.stackView.alignment = .center
 
+        return view
+    }()
     var contract: AlphaWallet.Address {
         return viewModel.token.contractAddress
     }
@@ -53,16 +130,15 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
         }
     }
 
-// swiftlint:disable function_body_length
     init(
-            analytics: AnalyticsLogger,
-            paymentFlow: PaymentFlow,
-            tokenHolder: TokenHolder,
-            ethCost: Ether,
-            viewModel: SetSellTokensCardExpiryDateViewControllerViewModel,
-            assetDefinitionStore: AssetDefinitionStore,
-            keystore: Keystore,
-            session: WalletSession
+        analytics: AnalyticsLogger,
+        paymentFlow: PaymentFlow,
+        tokenHolder: TokenHolder,
+        ethCost: Ether,
+        viewModel: SetSellTokensCardExpiryDateViewModel,
+        assetDefinitionStore: AssetDefinitionStore,
+        keystore: Keystore,
+        session: WalletSession
     ) {
         self.analytics = analytics
         self.paymentFlow = paymentFlow
@@ -83,26 +159,8 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
 
         updateNavigationRightBarButtons(withTokenScriptFileStatus: nil)
 
-        roundedBackground.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(roundedBackground)
-
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        roundedBackground.addSubview(scrollView)
-
+        view.addSubview(containerView)
         tokenRowView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.addSubview(tokenRowView)
-
-        linkExpiryDateLabel.translatesAutoresizingMaskIntoConstraints = false
-        linkExpiryTimeLabel.translatesAutoresizingMaskIntoConstraints = false
-        tokenCountLabel.translatesAutoresizingMaskIntoConstraints = false
-        perTokenPriceLabel.translatesAutoresizingMaskIntoConstraints = false
-        totalEthLabel.translatesAutoresizingMaskIntoConstraints = false
-        descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
-        noteTitleLabel.translatesAutoresizingMaskIntoConstraints = false
-        noteLabel.translatesAutoresizingMaskIntoConstraints = false
-
-        noteBorderView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.addSubview(noteBorderView)
 
         linkExpiryDateField.translatesAutoresizingMaskIntoConstraints = false
         linkExpiryDateField.value = Date.tomorrow
@@ -136,24 +194,8 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
         noteStackView.translatesAutoresizingMaskIntoConstraints = false
         noteBorderView.addSubview(noteStackView)
 
-        datePicker.datePickerMode = .date
-        datePicker.minimumDate = Date()
-        datePicker.addTarget(self, action: #selector(datePickerValueChanged), for: .valueChanged)
-        datePicker.isHidden = true
-        if let locale = Config.getLocale() {
-            datePicker.locale = Locale(identifier: locale)
-        }
-
-        timePicker.datePickerMode = .time
-        timePicker.minimumDate = Date.yesterday
-        timePicker.addTarget(self, action: #selector(timePickerValueChanged), for: .valueChanged)
-        timePicker.isHidden = true
-        if let locale = Config.getLocale() {
-            timePicker.locale = Locale(identifier: locale)
-        }
-
-        let stackView = [
-            header,
+        containerView.stackView.addArrangedSubviews([
+            .spacer(height: 18),
             tokenRowView,
             .spacer(height: 18),
             tokenCountLabel,
@@ -167,22 +209,15 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
             timePicker,
             .spacer(height: 10),
             noteBorderView,
-        ].asStackView(axis: .vertical, alignment: .center)
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.addSubview(stackView)
+        ])
 
-        let footerBar = UIView()
-        footerBar.translatesAutoresizingMaskIntoConstraints = false
-        footerBar.backgroundColor = .clear
-        roundedBackground.addSubview(footerBar)
+        let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0.0)
+        view.addSubview(containerView)
+        view.addSubview(footerBar)
 
-        footerBar.addSubview(buttonsBar)
+        let xOffset: CGFloat = 16
 
         NSLayoutConstraint.activate([
-			header.heightAnchor.constraint(equalToConstant: 90),
-            //Strange repositioning of header horizontally while typing without this
-            header.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
-            header.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
 
             tokenRowView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tokenRowView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -202,33 +237,30 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
             noteBorderView.leadingAnchor.constraint(equalTo: tokenRowView.background.leadingAnchor),
             noteBorderView.trailingAnchor.constraint(equalTo: tokenRowView.background.trailingAnchor),
 
-            noteStackView.leadingAnchor.constraint(equalTo: noteBorderView.leadingAnchor, constant: 10),
-            noteStackView.trailingAnchor.constraint(equalTo: noteBorderView.trailingAnchor, constant: -10),
-            noteStackView.topAnchor.constraint(equalTo: noteBorderView.topAnchor, constant: 10),
-            noteStackView.bottomAnchor.constraint(equalTo: noteBorderView.bottomAnchor, constant: -10),
+            noteStackView.anchorsConstraint(to: noteBorderView, margin: 10),
 
-            stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            containerView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: xOffset),
+            containerView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -xOffset),
+            containerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            containerView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
 
-            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
-            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
-            buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
-            buttonsBar.heightAnchor.constraint(equalToConstant: HorizontalButtonsBar.buttonsHeight),
-
-            footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -HorizontalButtonsBar.buttonsHeight - HorizontalButtonsBar.marginAtBottomScreen),
-            footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
-        ] + roundedBackground.createConstraintsWithContainer(view: view))
+            footerBar.anchorsConstraint(to: view),
+        ])
     }
-// swiftlint:enable function_body_length
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        timePicker.addTarget(self, action: #selector(timePickerValueChanged), for: .valueChanged)
+        datePicker.addTarget(self, action: #selector(datePickerValueChanged), for: .valueChanged)
+
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
+        buttonsBar.configure()
+
+        let nextButton = buttonsBar.buttons[0]
+        nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(), for: .normal)
+        nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
+    }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -250,78 +282,35 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
         delegate?.didSetSellTokensExpiryDate(tokenHolder: tokenHolder, linkExpiryDate: expiryDate, ethCost: ethCost, in: self)
     }
 
-    func configure(viewModel newViewModel: SetSellTokensCardExpiryDateViewControllerViewModel? = nil) {
+    func configure(viewModel newViewModel: SetSellTokensCardExpiryDateViewModel? = nil) {
         if let newViewModel = newViewModel {
             viewModel = newViewModel
         }
         updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus)
 
-        view.backgroundColor = viewModel.backgroundColor
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
 
-        header.configure(title: viewModel.headerTitle)
+        navigationItem.title = viewModel.headerTitle
 
         tokenRowView.configure(tokenHolder: viewModel.tokenHolder)
 
-        linkExpiryDateLabel.textAlignment = .center
-        linkExpiryDateLabel.textColor = viewModel.choiceLabelColor
-        linkExpiryDateLabel.font = viewModel.choiceLabelFont
         linkExpiryDateLabel.text = viewModel.linkExpiryDateLabelText
-
-        linkExpiryTimeLabel.textAlignment = .center
-        linkExpiryTimeLabel.textColor = viewModel.choiceLabelColor
-        linkExpiryTimeLabel.font = viewModel.choiceLabelFont
         linkExpiryTimeLabel.text = viewModel.linkExpiryTimeLabelText
-
-        tokenCountLabel.textAlignment = .center
-        tokenCountLabel.textColor = viewModel.tokenSaleDetailsLabelColor
-        tokenCountLabel.font = viewModel.tokenSaleDetailsLabelFont
         tokenCountLabel.text = viewModel.tokenCountLabelText
-
-        perTokenPriceLabel.textAlignment = .center
-        perTokenPriceLabel.textColor = viewModel.tokenSaleDetailsLabelColor
-        perTokenPriceLabel.font = viewModel.tokenSaleDetailsLabelFont
         perTokenPriceLabel.text = viewModel.perTokenPriceLabelText
-
-        totalEthLabel.textAlignment = .center
-        totalEthLabel.textColor = viewModel.tokenSaleDetailsLabelColor
-        totalEthLabel.font = viewModel.tokenSaleDetailsLabelFont
         totalEthLabel.text = viewModel.totalEthLabelText
-
-        descriptionLabel.textAlignment = .center
-        descriptionLabel.numberOfLines = 0
-        descriptionLabel.textColor = viewModel.descriptionLabelColor
-        descriptionLabel.font = viewModel.descriptionLabelFont
         descriptionLabel.text = viewModel.descriptionLabelText
-
-        noteTitleLabel.textAlignment = .center
-        noteTitleLabel.textColor = viewModel.noteTitleLabelColor
-        noteTitleLabel.font = viewModel.noteTitleLabelFont
         noteTitleLabel.text = viewModel.noteTitleLabelText
-
-        noteLabel.textAlignment = .center
-        noteLabel.numberOfLines = 0
-        noteLabel.textColor = viewModel.noteLabelColor
-        noteLabel.font = viewModel.noteLabelFont
         noteLabel.text = viewModel.noteLabelText
 
-        noteBorderView.layer.cornerRadius = viewModel.noteCornerRadius
-        noteBorderView.layer.borderColor = viewModel.noteBorderColor.cgColor
-        noteBorderView.layer.borderWidth = 1
-
         tokenRowView.stateLabel.isHidden = true
-
-        buttonsBar.configure()
-
-        let nextButton = buttonsBar.buttons[0]
-        nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(), for: .normal)
-        nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
     }
 
-    @objc func datePickerValueChanged() {
+    @objc private func datePickerValueChanged() {
         linkExpiryDateField.value = datePicker.date
     }
 
-    @objc func timePickerValueChanged() {
+    @objc private func timePickerValueChanged() {
         linkExpiryTimeField.value = timePicker.date
     }
 }

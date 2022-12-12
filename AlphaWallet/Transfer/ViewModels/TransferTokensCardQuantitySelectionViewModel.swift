@@ -18,18 +18,6 @@ struct TransferTokensCardQuantitySelectionViewModel {
         return tokenHolder.tokens.count
     }
 
-    var backgroundColor: UIColor {
-        return Colors.appBackground
-    }
-
-    var subtitleColor: UIColor {
-        return Colors.appText
-    }
-
-    var subtitleFont: UIFont {
-        return Fonts.regular(size: 10)
-    }
-
     var subtitleText: String {
         let tokenTypeName = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
 		return R.string.localizable.aWalletTokenTransferQuantityTitle(tokenTypeName.localizedUppercase)

@@ -4,57 +4,29 @@ import Foundation
 import UIKit
 import AlphaWalletFoundation
 
-struct SetSellTokensCardExpiryDateViewControllerViewModel {
+struct SetSellTokensCardExpiryDateViewModel {
     private let ethCost: Ether
     private let server: RPCServer
     private let assetDefinitionStore: AssetDefinitionStore
-
+    
     let token: Token
     let tokenHolder: TokenHolder
-
+    
     var headerTitle: String {
-		return R.string.localizable.aWalletTokenSellEnterLinkExpiryDateTitle()
-    }
-
-    var backgroundColor: UIColor {
-        return Colors.appBackground
-    }
-
-    var choiceLabelColor: UIColor {
-        return Colors.appText
-    }
-
-    var choiceLabelFont: UIFont {
-        return Fonts.regular(size: 10)
+        return R.string.localizable.aWalletTokenSellEnterLinkExpiryDateTitle()
     }
 
     var linkExpiryDateLabelText: String {
         return R.string.localizable.aWalletTokenSellLinkExpiryDateTitle()
     }
-
+    
     var linkExpiryTimeLabelText: String {
         return R.string.localizable.aWalletTokenSellLinkExpiryTimeTitle()
     }
-
-    var tokenSaleDetailsLabelFont: UIFont {
-        return Fonts.regular(size: 21)
-    }
-
-    var tokenSaleDetailsLabelColor: UIColor {
-        return Colors.appSubtitle
-    }
-
+    
     var descriptionLabelText: String {
         let tokenTypeName = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
         return R.string.localizable.aWalletTokenSellMagicLinkDescriptionTitle(tokenTypeName)
-    }
-
-    var descriptionLabelFont: UIFont {
-        return Fonts.regular(size: 21)
-    }
-
-    var descriptionLabelColor: UIColor {
-        return Colors.appText
     }
 
     var tokenCountLabelText: String {
@@ -66,54 +38,30 @@ struct SetSellTokensCardExpiryDateViewControllerViewModel {
             return R.string.localizable.aWalletTokenSellMultipleTokenSelectedTitle(tokenHolder.count, tokenTypeName)
         }
     }
-
+    
     var perTokenPriceLabelText: String {
         let tokenTypeName = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getLabel()
         let amount = ethCost / tokenCount
         return R.string.localizable.aWalletTokenSellPerTokenEthPriceTitle(amount.formattedDescription, server.symbol, tokenTypeName)
     }
-
+    
     var totalEthLabelText: String {
         return R.string.localizable.aWalletTokenSellTotalEthPriceTitle(ethCost.formattedDescription, server.symbol)
     }
-
+    
     var noteTitleLabelText: String {
         return R.string.localizable.aWalletTokenSellNoteTitleLabelTitle()
-    }
-
-    var noteTitleLabelFont: UIFont {
-        return Fonts.semibold(size: 21)
-    }
-
-    var noteTitleLabelColor: UIColor {
-        return Colors.appRed
     }
 
     var noteLabelText: String {
         let tokenTypeName = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
         return R.string.localizable.aWalletTokenSellNoteLabelTitle(tokenTypeName)
     }
-
-    var noteLabelFont: UIFont {
-        return Fonts.regular(size: 21)
-    }
-
-    var noteLabelColor: UIColor {
-        return Colors.appRed
-    }
-
-    var noteBorderColor: UIColor {
-        return Colors.appRed
-    }
-
-    var noteCornerRadius: CGFloat {
-        return DataEntry.Metric.CornerRadius.box
-    }
-
+    
     private var tokenCount: Int {
         return tokenHolder.count
     }
-
+    
     init(token: Token, tokenHolder: TokenHolder, ethCost: Ether, server: RPCServer, assetDefinitionStore: AssetDefinitionStore) {
         self.token = token
         self.tokenHolder = tokenHolder
