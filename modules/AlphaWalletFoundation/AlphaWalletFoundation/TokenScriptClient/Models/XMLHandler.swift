@@ -213,8 +213,7 @@ class PrivateXMLHandler {
             let fromActionAsTopLevel = Array(XMLHandler.getTokenScriptActionOnlyActionElements(fromRoot: xml, xmlContext: xmlContext))
             let actionElements = fromTokenAsTopLevel + fromActionAsTopLevel
             for actionElement in actionElements {
-                if let name = XMLHandler.getNameElement(fromActionElement: actionElement, xmlContext: xmlContext)?.text?.trimmed.nilIfEmpty,
-                   let viewElement = XMLHandler.getViewElement(fromCardElement: actionElement, xmlContext: xmlContext) {
+                if let name = XMLHandler.getNameElement(fromActionElement: actionElement, xmlContext: xmlContext)?.text?.trimmed.nilIfEmpty, let viewElement = XMLHandler.getViewElement(fromCardElement: actionElement, xmlContext: xmlContext) {
                     let (html: html, style: style) = extractHtml(fromViewElement: viewElement)
                     guard !html.isEmpty else { continue }
                     let attributes = extractFields(forActionElement: actionElement)
