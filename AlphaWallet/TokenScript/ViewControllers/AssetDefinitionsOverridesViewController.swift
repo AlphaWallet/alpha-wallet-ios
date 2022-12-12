@@ -95,9 +95,19 @@ extension AssetDefinitionsOverridesViewController: PopNotifiable {
 }
 
 extension AssetDefinitionsOverridesViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        guard editingStyle == .delete else { return }
-        deletion.send(dataSource.item(at: indexPath).url)
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let hideAction = UIContextualAction(style: .destructive, title: R.string.localizable.delete()) { [deletion, dataSource] _, _, completionHandler in
+            deletion.send(dataSource.item(at: indexPath).url)
+            completionHandler(true)
+        }
+
+        hideAction.backgroundColor = Colors.appRed
+        hideAction.image = R.image.hideToken()
+
+        let configuration = UISwipeActionsConfiguration(actions: [hideAction])
+        configuration.performsFirstActionWithFullSwipe = true
+
+        return configuration
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
