@@ -129,7 +129,7 @@ extension NumberFormatter {
     public func string(double: Double, minimumFractionDigits: Int, maximumFractionDigits: Int) -> String {
         let fractionDigits: Int
         
-        let int = Int(double)
+        let int = double.rounded(to: 0)
         let minimumFractionNumber = Double("0." + String(1).leftPadding(to: minimumFractionDigits, pad: "0"))!
         let maximumFractionNumber = Double("0." + String(1).leftPadding(to: maximumFractionDigits, pad: "0"))!
 
@@ -148,7 +148,11 @@ extension NumberFormatter {
         self.maximumFractionDigits = fractionDigits
         self.minimumFractionDigits = fractionDigits
 
-        return (self.string(from: double as NSNumber) ?? "").trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).droppedTrailingZeros
+        if fractionDigits == minimumFractionDigits {
+            return (self.string(from: double as NSNumber) ?? "").trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+        } else {
+            return (self.string(from: double as NSNumber) ?? "").trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).droppedTrailingZeros
+        }
     }
 
 }
