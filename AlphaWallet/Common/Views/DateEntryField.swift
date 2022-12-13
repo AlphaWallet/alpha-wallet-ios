@@ -10,9 +10,7 @@ class DateEntryField: UIControl {
     private let leftButton = UIButton(type: .custom)
 
     var value = Date() {
-        didSet {
-            displayDateString()
-        }
+        didSet { displayDateString() }
     }
     weak var delegate: DateEntryFieldDelegate?
 
@@ -42,7 +40,7 @@ class DateEntryField: UIControl {
         layer.borderColor = Configuration.Color.Semantic.border.cgColor
         layer.borderWidth = DataEntry.Metric.borderThickness
 
-        leftButton.setTitleColor(Configuration.Color.Semantic.text, for: .normal)
+        leftButton.setTitleColor(Configuration.Color.Semantic.defaultForegroundText, for: .normal)
         leftButton.titleLabel?.font = Configuration.Font.text
     }
 
