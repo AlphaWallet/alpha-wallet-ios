@@ -332,28 +332,28 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 }
 
 extension TokenCardRowView: TokenRowView {
-	func configure(tokenHolder: TokenHolder) {
-		lastTokenHolder = tokenHolder
-		configure(viewModel: TokenCardRowViewModel(tokenHolder: tokenHolder, tokenView: tokenView, assetDefinitionStore: assetDefinitionStore))
-	}
+    func configure(tokenHolder: TokenHolder) {
+        lastTokenHolder = tokenHolder
+        configure(viewModel: TokenCardRowViewModel(tokenHolder: tokenHolder, tokenView: tokenView, assetDefinitionStore: assetDefinitionStore))
+    }
 }
 
 extension TokenCardRowView: TokenInstanceWebViewDelegate {
-	func navigationControllerFor(tokenInstanceWebView: TokenInstanceWebView) -> UINavigationController? {
-		return nil
-	}
+    func navigationControllerFor(tokenInstanceWebView: TokenInstanceWebView) -> UINavigationController? {
+        return nil
+    }
 
-	func shouldClose(tokenInstanceWebView: TokenInstanceWebView) {
+    func shouldClose(tokenInstanceWebView: TokenInstanceWebView) {
         //no-op
-	}
+    }
 
-	func reinject(tokenInstanceWebView: TokenInstanceWebView) {
-		//Refresh if view, but not item-view
+    func reinject(tokenInstanceWebView: TokenInstanceWebView) {
+        //Refresh if view, but not item-view
         if isStandalone {
-			guard let lastTokenHolder = lastTokenHolder else { return }
-			configure(tokenHolder: lastTokenHolder)
-		} else {
-			//no-op for item-views
-		}
+            guard let lastTokenHolder = lastTokenHolder else { return }
+            configure(tokenHolder: lastTokenHolder)
+        } else {
+            //no-op for item-views
+        }
     }
 }

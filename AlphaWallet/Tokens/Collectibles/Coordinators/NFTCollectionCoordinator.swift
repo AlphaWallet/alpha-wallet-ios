@@ -398,14 +398,6 @@ extension NFTCollectionCoordinator: NFTCollectionViewControllerDelegate {
         return viewController
     }
 
-    func didPressRedeem(token: Token, tokenHolder: TokenHolder, in viewController: NFTCollectionViewController) {
-        showEnterQuantityViewControllerForRedeem(token: token, for: tokenHolder, in: viewController)
-    }
-
-    func didPressSell(tokenHolder: TokenHolder, for paymentFlow: PaymentFlow, in viewController: NFTCollectionViewController) {
-        showEnterPriceQuantityViewController(tokenHolder: tokenHolder, forPaymentFlow: paymentFlow, in: viewController)
-    }
-
     func didPressViewRedemptionInfo(in viewController: NFTCollectionViewController) {
         showViewRedemptionInfo(in: viewController)
     }
