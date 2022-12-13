@@ -15,7 +15,7 @@ protocol TokenInstanceWebViewDelegate: AnyObject {
     func reinject(tokenInstanceWebView: TokenInstanceWebView)
 }
 
-class TokenInstanceWebView: UIView {
+class TokenInstanceWebView: UIView, TokenScriptLocalRefsSource {
     var coordinators: [Coordinator] = []
 
     private let analytics: AnalyticsLogger

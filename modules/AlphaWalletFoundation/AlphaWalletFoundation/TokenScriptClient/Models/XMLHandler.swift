@@ -213,10 +213,18 @@ class PrivateXMLHandler {
             let fromActionAsTopLevel = Array(XMLHandler.getTokenScriptActionOnlyActionElements(fromRoot: xml, xmlContext: xmlContext))
             let actionElements = fromTokenAsTopLevel + fromActionAsTopLevel
             for actionElement in actionElements {
-                if let name = XMLHandler.getNameElement(fromActionElement: actionElement, xmlContext: xmlContext)?.text?.trimmed.nilIfEmpty,
-                   let viewElement = XMLHandler.getViewElement(fromCardElement: actionElement, xmlContext: xmlContext) {
-                    let (html: html, style: style) = extractHtml(fromViewElement: viewElement)
-                    guard !html.isEmpty else { continue }
+                if let name = XMLHandler.getNameElement(fromActionElement: actionElement, xmlContext: xmlContext)?.text?.trimmed.nilIfEmpty {
+                    let html: String
+                    let style: String
+                    if let viewElement = XMLHandler.getViewElement(fromCardElement: actionElement, xmlContext: xmlContext) {
+                        let (html: html1, style: style1) = extractHtml(fromViewElement: viewElement)
+                        html = html1
+                        style = style1
+                        guard !html.isEmpty else { continue }
+                    } else {
+                        html = ""
+                        style = ""
+                    }
                     let attributes = extractFields(forActionElement: actionElement)
                     let functionOrigin = XMLHandler.getActionTransactionFunctionElement(fromActionElement: actionElement, xmlContext: xmlContext).flatMap { self.createFunctionOriginFrom(ethereumFunctionElement: $0) }
                     let selection = XMLHandler.getExcludeSelectionId(fromActionElement: actionElement, xmlContext: xmlContext).flatMap { id in
