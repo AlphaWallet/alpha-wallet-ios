@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 import AlphaWalletFoundation
 
-struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
+struct EnterSellTokensCardPriceQuantityViewModel {
     private let server: RPCServer
     private let assetDefinitionStore: AssetDefinitionStore
 
@@ -15,28 +15,16 @@ struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
     var dollarCost: String = ""
 
     var headerTitle: String {
-		return R.string.localizable.aWalletTokenSellSelectQuantityTitle()
+        return R.string.localizable.aWalletTokenSellSelectQuantityTitle()
     }
 
     var maxValue: Int {
         return tokenHolder.tokens.count
     }
 
-    var backgroundColor: UIColor {
-        return Colors.appBackground
-    }
-
-    var choiceLabelColor: UIColor {
-        return Colors.appText
-    }
-
-    var choiceLabelFont: UIFont {
-        return Fonts.regular(size: 10)
-    }
-
     var quantityLabelText: String {
         let tokenTypeName = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
-		return R.string.localizable.aWalletTokenSellQuantityTitle(tokenTypeName.localizedUppercase)
+        return R.string.localizable.aWalletTokenSellQuantityTitle(tokenTypeName.localizedUppercase)
     }
 
     var pricePerTokenLabelText: String {
@@ -56,48 +44,12 @@ struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
         return R.string.localizable.aWalletTokenSellTotalCostTitle()
     }
 
-    var ethCostLabelLabelFont: UIFont {
-        return Fonts.regular(size: 21)
-    }
-
-    var ethCostLabelLabelColor: UIColor {
-        return Colors.appText
-    }
-
     var ethCostLabelText: String {
         return "\(ethCost.formattedDescription) \(server.symbol)"
     }
 
-    var ethCostLabelColor: UIColor {
-        return Colors.appText
-    }
-
-    var ethCostLabelFont: UIFont {
-        return Fonts.semibold(size: 21)
-    }
-
-    var dollarCostLabelLabelColor: UIColor {
-        return Colors.appText
-    }
-
-    var dollarCostLabelLabelFont: UIFont {
-        return Fonts.regular(size: 10)
-    }
-
     var dollarCostLabelText: String {
         return "$\(dollarCost)"
-    }
-
-    var dollarCostLabelColor: UIColor {
-        return Colors.darkGray
-    }
-
-    var dollarCostLabelFont: UIFont {
-        return Fonts.regular(size: 21)
-    }
-
-    var dollarCostLabelBackgroundColor: UIColor {
-        return UIColor(red: 236, green: 236, blue: 236)
     }
 
     var hideDollarCost: Bool {
