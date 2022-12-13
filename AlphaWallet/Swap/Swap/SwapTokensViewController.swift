@@ -28,7 +28,7 @@ class SwapTokensViewController: UIViewController {
         amountTextField.inputAccessoryButtonType = .done
         amountTextField.viewModel.errorState = .none
         amountTextField.isAlternativeAmountEnabled = true
-        amountTextField.allFundsAvailable = true
+        amountTextField.isAllFundsEnabled = true
 
         return amountTextField
     }()
@@ -38,7 +38,7 @@ class SwapTokensViewController: UIViewController {
         amountTextField.inputAccessoryButtonType = .none
         amountTextField.viewModel.errorState = .none
         amountTextField.isAlternativeAmountEnabled = true
-        amountTextField.allFundsAvailable = false
+        amountTextField.isAllFundsEnabled = false
         amountTextField.textField.isUserInteractionEnabled = false
 
         return amountTextField

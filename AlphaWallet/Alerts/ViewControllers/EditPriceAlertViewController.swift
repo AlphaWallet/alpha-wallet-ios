@@ -31,7 +31,7 @@ class EditPriceAlertViewController: UIViewController {
         textField.viewModel.errorState = .none
         textField.viewModel.toggleFiatAndCryptoPair()
         textField.isAlternativeAmountEnabled = false
-        textField.allFundsAvailable = false
+        textField.isAllFundsEnabled = false
         textField.selectCurrencyButton.isHidden = false
         textField.selectCurrencyButton.expandIconHidden = true
         textField.statusLabel.text = nil
