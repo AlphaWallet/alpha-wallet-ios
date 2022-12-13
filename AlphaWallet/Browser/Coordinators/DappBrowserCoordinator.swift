@@ -306,8 +306,8 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         open(url: url, animated: false)
     }
 
-    private func openDappInBrowser(_ bookmark: Bookmark) {
-        guard let url = URL(string: bookmark.url) else { return }
+    private func openDappInBrowser(_ bookmark: BookmarkObject) {
+        guard let url = bookmark.url else { return }
         open(url: url, animated: false)
     }
 
@@ -320,7 +320,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     private func addCurrentPageAsBookmark() {
         logAddDapp()
         if let url = currentUrl?.absoluteString, let title = browserViewController.webView.title {
-            let bookmark = Bookmark(url: url, title: title)
+            let bookmark = BookmarkObject(url: url, title: title)
             bookmarksStore.add(bookmarks: [bookmark])
 
             UINotificationFeedbackGenerator.show(feedbackType: .success)
@@ -507,7 +507,7 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
 
     func didVisitURL(url: URL, title: String, inBrowserViewController viewController: BrowserViewController) {
         browserNavBar?.display(url: url)
-        if let mostRecentUrl = browserHistoryStorage.histories.first?.url, mostRecentUrl == url {
+        if let mostRecentUrl = browserHistoryStorage.firstHistoryRecord?.url, mostRecentUrl == url {
 
         } else {
             browserHistoryStorage.addRecord(url: url, title: title)
@@ -622,11 +622,11 @@ extension DappBrowserCoordinator: BrowserHomeViewControllerDelegate {
         showBrowserHistory()
     }
 
-    func didTap(bookmark: Bookmark, in viewController: BrowserHomeViewController) {
+    func didTap(bookmark: BookmarkObject, in viewController: BrowserHomeViewController) {
         openDappInBrowser(bookmark)
     }
 
-    func viewControllerWillAppear(in viewController: BrowserHomeViewController) {
+    func viewWillAppear(in viewController: BrowserHomeViewController) {
         browserNavBar?.enableButtons()
     }
 
@@ -637,7 +637,7 @@ extension DappBrowserCoordinator: BrowserHomeViewControllerDelegate {
 
 extension DappBrowserCoordinator: BookmarksViewControllerDelegate {
 
-    private func createEditBookmarkViewController(bookmark: Bookmark) -> EditBookmarkViewController {
+    private func createEditBookmarkViewController(bookmark: BookmarkObject) -> EditBookmarkViewController {
         let viewModel = EditBookmarkViewModel(bookmark: bookmark, bookmarksStore: bookmarksStore)
         let viewController = EditBookmarkViewController(viewModel: viewModel)
         viewController.delegate = self
@@ -646,7 +646,7 @@ extension DappBrowserCoordinator: BookmarksViewControllerDelegate {
         return viewController
     }
 
-    func didTapToEdit(bookmark: Bookmark, in viewController: BookmarksViewController) {
+    func didTapToEdit(bookmark: BookmarkObject, in viewController: BookmarksViewController) {
         let viewController = createEditBookmarkViewController(bookmark: bookmark)
 
         browserNavBar?.setBrowserBar(hidden: true)
@@ -654,7 +654,7 @@ extension DappBrowserCoordinator: BookmarksViewControllerDelegate {
         navigationController.pushViewController(viewController, animated: true)
     }
 
-    func didTapToSelect(bookmark: Bookmark, in viewController: BookmarksViewController) {
+    func didTapToSelect(bookmark: BookmarkObject, in viewController: BookmarksViewController) {
         openDappInBrowser(bookmark)
     }
 

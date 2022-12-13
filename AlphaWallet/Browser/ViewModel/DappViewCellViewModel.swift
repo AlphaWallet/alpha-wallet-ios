@@ -5,17 +5,22 @@ import UIKit
 import AlphaWalletFoundation
 
 struct DappViewCellViewModel: Hashable {
-    private let order: Int
-    
-    let imageUrl: URL?
-    let title: String
-    let domainName: String
+    let bookmark: BookmarkObject
 
-    init(dapp: Bookmark) {
-        self.order = dapp.order
-        self.domainName = URL(string: dapp.url)?.host ?? ""
-        self.title = dapp.title
-        self.imageUrl = Favicon.get(for: URL(string: dapp.url))
+    var imageUrl: URL? {
+        Favicon.get(for: bookmark.url)
+    }
+
+    var title: String {
+        bookmark.title
+    }
+
+    var domainName: String {
+        bookmark.url?.host ?? ""
+    }
+
+    init(bookmark: BookmarkObject) {
+        self.bookmark = bookmark
     }
 
     var fallbackImage: UIImage? {

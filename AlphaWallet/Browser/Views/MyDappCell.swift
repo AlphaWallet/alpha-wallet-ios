@@ -36,7 +36,7 @@ class MyDappCell: UITableViewCell {
     func configure(viewModel: MyDappCellViewModel) {
         titleLabel.font = viewModel.nameFont
         titleLabel.textColor = viewModel.nameColor
-        titleLabel.text = viewModel.name
+        titleLabel.text = viewModel.title
 
         urlLabel.font = viewModel.domainNameFont
         urlLabel.textColor = viewModel.domainNameColor

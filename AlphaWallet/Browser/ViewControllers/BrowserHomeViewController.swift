@@ -10,8 +10,8 @@ import Combine
 protocol BrowserHomeViewControllerDelegate: AnyObject {
     func didTapShowMyDappsViewController(in viewController: BrowserHomeViewController)
     func didTapShowBrowserHistoryViewController(in viewController: BrowserHomeViewController)
-    func didTap(bookmark: Bookmark, in viewController: BrowserHomeViewController)
-    func viewControllerWillAppear(in viewController: BrowserHomeViewController)
+    func didTap(bookmark: BookmarkObject, in viewController: BrowserHomeViewController)
+    func viewWillAppear(in viewController: BrowserHomeViewController)
     func dismissKeyboard(in viewController: BrowserHomeViewController)
 }
 
@@ -81,7 +81,7 @@ class BrowserHomeViewController: UIViewController {
 
     private lazy var dataSource = makeDataSource()
     private var cancelable = Set<AnyCancellable>()
-    private let deleteBookmark = PassthroughSubject<IndexPath, Never>()
+    private let deleteBookmark = PassthroughSubject<BookmarkObject, Never>()
 
     weak var delegate: BrowserHomeViewControllerDelegate?
 
@@ -111,7 +111,7 @@ class BrowserHomeViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        delegate?.viewControllerWillAppear(in: self)
+        delegate?.viewWillAppear(in: self)
     }
 
     @objc private func keyboardWillShow(notification: NSNotification) {
@@ -155,8 +155,8 @@ extension BrowserHomeViewController: UICollectionViewDelegateFlowLayout {
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
         dismissKeyboard()
-        let bookmark = viewModel.bookmark(at: indexPath.item)
-        delegate?.didTap(bookmark: bookmark, in: self)
+
+        delegate?.didTap(bookmark: dataSource.item(at: indexPath).bookmark, in: self)
     }
 
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
@@ -194,15 +194,16 @@ fileprivate extension BrowserHomeViewController {
 extension BrowserHomeViewController: DappViewCellDelegate {
     func didTapDelete(in cell: DappViewCell) {
         guard let indexPath = cell.indexPath else { return }
-        let bookmark = viewModel.bookmark(at: indexPath.row)
+
+        let cell = dataSource.item(at: indexPath)
 
         confirm(
             title: R.string.localizable.dappBrowserClearMyDapps(),
-            message: bookmark.title,
+            message: cell.title,
             okTitle: R.string.localizable.removeButtonTitle(),
             okStyle: .destructive) { [deleteBookmark] result in
                 guard case .success = result else { return }
-                deleteBookmark.send(indexPath)
+                deleteBookmark.send(cell.bookmark)
         }
     }
 
