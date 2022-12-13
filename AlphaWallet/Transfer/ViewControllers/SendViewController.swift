@@ -50,7 +50,7 @@ class SendViewController: UIViewController {
         amountTextField.inputAccessoryButtonType = .next
         amountTextField.viewModel.errorState = .none
         amountTextField.isAlternativeAmountEnabled = true
-        amountTextField.allFundsAvailable = true
+        amountTextField.isAllFundsEnabled = true
         amountTextField.selectCurrencyButton.hasToken = true
 
         return amountTextField

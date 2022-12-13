@@ -109,7 +109,7 @@ final class AmountTextField: UIControl {
         set { statusLabelContainer.isHidden = newValue }
     }
 
-    var allFundsAvailable: Bool {
+    var isAllFundsEnabled: Bool {
         get { return !allFundsContainer.isHidden }
         set { allFundsContainer.isHidden = !newValue }
     }
