@@ -359,3 +359,39 @@ extension SetSellTokensCardExpiryDateViewController: TimeEntryFieldDelegate {
         }
     }
 }
+
+extension UIDatePicker {
+    var textColor: UIColor? {
+        get { return value(forKeyPath: "textColor") as? UIColor }
+        set { setValue(newValue, forKeyPath: "textColor") }
+    }
+
+    static var timePicker: UIDatePicker {
+        let picker = UIDatePicker()
+        picker.translatesAutoresizingMaskIntoConstraints = false
+        picker.datePickerMode = .time
+        picker.minimumDate = Date.yesterday
+        picker.isHidden = true
+        if let locale = Config.getLocale() {
+            picker.locale = Locale(identifier: locale)
+        }
+        picker.textColor = Configuration.Color.Semantic.defaultInverseText
+
+        return picker
+    }
+
+    static var datePicker: UIDatePicker {
+        let datePicker = UIDatePicker()
+        datePicker.translatesAutoresizingMaskIntoConstraints = false
+
+        datePicker.datePickerMode = .date
+        datePicker.minimumDate = Date()
+        datePicker.isHidden = true
+        if let locale = Config.getLocale() {
+            datePicker.locale = Locale(identifier: locale)
+        }
+        datePicker.textColor = Configuration.Color.Semantic.defaultInverseText
+
+        return datePicker
+    }
+}
