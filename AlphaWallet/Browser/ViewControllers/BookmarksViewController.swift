@@ -9,8 +9,8 @@ import AlphaWalletFoundation
 import Combine
 
 protocol BookmarksViewControllerDelegate: AnyObject {
-    func didTapToEdit(bookmark: Bookmark, in viewController: BookmarksViewController)
-    func didTapToSelect(bookmark: Bookmark, in viewController: BookmarksViewController)
+    func didTapToEdit(bookmark: BookmarkObject, in viewController: BookmarksViewController)
+    func didTapToSelect(bookmark: BookmarkObject, in viewController: BookmarksViewController)
     func dismissKeyboard(in viewController: BookmarksViewController)
 }
 
@@ -29,7 +29,7 @@ final class BookmarksViewController: UIViewController {
     private let viewModel: BookmarksViewViewModel
     private lazy var dataSource = makeDataSource()
     private var cancelable = Set<AnyCancellable>()
-    private let deleteBookmark = PassthroughSubject<IndexPath, Never>()
+    private let deleteBookmark = PassthroughSubject<BookmarkObject, Never>()
     private let reorderBookmarks = PassthroughSubject<(from: IndexPath, to: IndexPath), Never>()
 
     private var browserNavBar: DappBrowserNavigationBar? {
@@ -62,7 +62,7 @@ final class BookmarksViewController: UIViewController {
         super.viewDidLoad()
 
         view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
-        resizeTableViewHeader()
+        buildTableViewHeader()
 
         bind(viewModel: viewModel)
     }
@@ -97,7 +97,7 @@ final class BookmarksViewController: UIViewController {
             }.store(in: &cancelable)
     }
 
-    private func resizeTableViewHeader() {
+    private func buildTableViewHeader() {
         headerView.delegate = self
         headerView.configure(viewModel: viewModel.headerViewModel)
         
@@ -154,7 +154,7 @@ extension BookmarksViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
-        let bookmark = viewModel.bookmark(at: indexPath.row)
+        let bookmark = dataSource.item(at: indexPath).bookmark
         if tableView.isEditing {
             delegate?.didTapToEdit(bookmark: bookmark, in: self)
         } else {
@@ -165,14 +165,20 @@ extension BookmarksViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let title = R.string.localizable.dappBrowserClearMyDapps()
-        let deleteAction = UIContextualAction(style: .destructive, title: title) { [viewModel, deleteBookmark, headerView] _, _, completion in
-            let bookmark = viewModel.bookmark(at: indexPath.row)
+        let deleteAction = UIContextualAction(style: .destructive, title: title) { [dataSource, deleteBookmark, headerView] _, _, completion in
+            let bookmark = dataSource.item(at: indexPath).bookmark
             self.confirm(title: title, message: bookmark.title, okTitle: R.string.localizable.removeButtonTitle(), okStyle: .destructive) { result in
                 switch result {
                 case .success:
-                    deleteBookmark.send(indexPath)
+                    deleteBookmark.send(bookmark)
 
-                    if !viewModel.hasContent {
+                    var snapshot = dataSource.snapshot()
+                    let item = dataSource.item(at: indexPath)
+                    snapshot.deleteItems([item])
+
+                    dataSource.apply(snapshot, animatingDifferences: true)
+
+                    if !self.hasContent() {
                         headerView.exitEditMode()
                     }
                     completion(true)

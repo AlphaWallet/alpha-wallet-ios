@@ -226,3 +226,11 @@ extension UITableViewDiffableDataSource {
         return snapshot.itemIdentifiers(inSection: section)[indexPath.row]
     }
 }
+
+extension UICollectionViewDiffableDataSource {
+    func item(at indexPath: IndexPath) -> ItemIdentifierType {
+        let snapshot = snapshot()
+        let section = snapshot.sectionIdentifiers[indexPath.section]
+        return snapshot.itemIdentifiers(inSection: section)[indexPath.row]
+    }
+}

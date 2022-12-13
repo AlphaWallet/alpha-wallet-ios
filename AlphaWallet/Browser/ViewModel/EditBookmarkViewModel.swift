@@ -15,10 +15,10 @@ struct EditBookmarkViewModelOutput {
 }
 
 class EditBookmarkViewModel {
-    private let bookmark: Bookmark
+    private let bookmark: BookmarkObject
     private let bookmarksStore: BookmarksStore
 
-    init(bookmark: Bookmark, bookmarksStore: BookmarksStore) {
+    init(bookmark: BookmarkObject, bookmarksStore: BookmarksStore) {
         self.bookmark = bookmark
         self.bookmarksStore = bookmarksStore
     }
@@ -33,8 +33,8 @@ class EditBookmarkViewModel {
             .eraseToAnyPublisher()
 
         let viewState = bookmark.map { bookmark -> ViewState in
-            let imageUrl = Favicon.get(for: URL(string: bookmark.url))
-            return EditBookmarkViewModel.ViewState(bookmarkTitle: bookmark.title, bookmarkUrl: bookmark.url, imageUrl: imageUrl)
+            let imageUrl = Favicon.get(for: bookmark.url)
+            return EditBookmarkViewModel.ViewState(bookmarkTitle: bookmark.title, bookmarkUrl: bookmark.url?.absoluteString ?? "", imageUrl: imageUrl)
         }.eraseToAnyPublisher()
 
         return .init(viewState: viewState, bookmarkSaved: bookmarkSaved)

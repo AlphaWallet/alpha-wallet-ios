@@ -23,8 +23,12 @@ public final class BrowserHistoryStorage {
                 }
             }.eraseToAnyPublisher()
     }
+    
+    public var firstHistoryRecord: BrowserHistoryRecord? {
+        histories.first
+    }
 
-    public var histories: [BrowserHistoryRecord] {
+    private var histories: [BrowserHistoryRecord] {
         return realm.objects(History.self)
             .sorted(byKeyPath: "createdAt", ascending: false)
             .map { BrowserHistoryRecord(history: $0) }
@@ -36,28 +40,28 @@ public final class BrowserHistoryStorage {
     }
 
     public func addRecord(url: URL, title: String) {
-        let history = BrowserHistoryRecord(url: url, title: title)
+        let record = BrowserHistoryRecord(url: url, title: title)
 
-        guard !ignoreUrls.contains(history.url) else { return }
+        guard !ignoreUrls.contains(record.url) else { return }
 
-        add(histories: [history])
+        add(records: [record])
     }
 
-    func add(histories: [BrowserHistoryRecord]) {
+    func add(records: [BrowserHistoryRecord]) {
         try? realm.write {
-            let records = histories.map { History(historyRecord: $0) }
+            let records = records.map { History(historyRecord: $0) }
             realm.add(records, update: .all)
         }
     }
 
-    public func delete(histories: [BrowserHistoryRecord]) {
+    public func delete(record: BrowserHistoryRecord) {
         try? realm.write {
-            let records = histories.map { History(historyRecord: $0) }
-            realm.delete(records)
+            guard let record = realm.object(ofType: History.self, forPrimaryKey: record.id) else { return }
+            realm.delete(record)
         }
     }
 
-    public func clearAll() {
+    public func deleteAllRecords() {
         try? realm.write {
             let histories = realm.objects(History.self)
             realm.delete(histories)

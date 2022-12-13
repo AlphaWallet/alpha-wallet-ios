@@ -56,7 +56,7 @@ final class BrowserHistoryViewController: UIViewController {
         super.viewDidLoad()
 
         view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
-        setupTableViewHeader()
+        buildTableViewHeader()
         bind(viewModel: viewModel)
     }
 
@@ -87,7 +87,7 @@ final class BrowserHistoryViewController: UIViewController {
         }
     }
 
-    private func setupTableViewHeader() {
+    private func buildTableViewHeader() {
         let headerViewModel = BrowserHomeHeaderViewModel(title: R.string.localizable.dappBrowserBrowserHistory())
         headerView.delegate = self
         headerView.configure(viewModel: headerViewModel)
@@ -127,16 +127,35 @@ extension BrowserHistoryViewController: UITableViewDelegate {
         delegate?.didSelect(history: dataSource.item(at: indexPath).history, in: self)
     }
 
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        guard editingStyle == .delete else { return }
-        let history = dataSource.item(at: indexPath).history
-        confirm(title: R.string.localizable.browserHistoryConfirmDeleteTitle(),
-                message: history.url.absoluteString,
-                okTitle: R.string.localizable.removeButtonTitle(),
-                okStyle: .destructive) { [deleteRecord] result in
-            guard case .success = result else { return }
-            deleteRecord.send(.record(history))
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let title = R.string.localizable.removeButtonTitle()
+        let deleteAction = UIContextualAction(style: .destructive, title: title) { [dataSource, deleteRecord] _, _, completion in
+            let history = dataSource.item(at: indexPath).history
+            self.confirm(title: R.string.localizable.browserHistoryConfirmDeleteTitle(), message: history.url.absoluteString, okTitle: R.string.localizable.removeButtonTitle(), okStyle: .destructive) { result in
+                switch result {
+                case .success:
+                    deleteRecord.send(.record(history))
+
+                    var snapshot = dataSource.snapshot()
+                    let item = dataSource.item(at: indexPath)
+                    snapshot.deleteItems([item])
+
+                    dataSource.apply(snapshot, animatingDifferences: true)
+
+                    completion(true)
+                case .failure:
+                    completion(false)
+                }
+            }
         }
+
+        deleteAction.backgroundColor = Colors.appRed
+        deleteAction.image = R.image.hideToken()
+
+        let configuration = UISwipeActionsConfiguration(actions: [deleteAction])
+        configuration.performsFirstActionWithFullSwipe = true
+
+        return configuration
     }
 }
 
