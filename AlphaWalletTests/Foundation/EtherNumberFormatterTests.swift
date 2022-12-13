@@ -137,4 +137,26 @@ class EtherNumberFormatterTests: XCTestCase {
         let input = "A0.190268247.487754"
         XCTAssertNil(fullFormatter.number(from: input))
     }
+
+    func testMinMaxFormattedNumber() {
+        let locale: Locale = Config.locale
+
+        func fiatFormatter(usesGroupingSeparator: Bool = false, currency: Currency) -> NumberFormatter {
+            let formatter = Formatter.currencyAccounting
+            formatter.locale = locale
+            formatter.currencyCode = currency.code
+            formatter.usesGroupingSeparator = usesGroupingSeparator
+
+            return formatter
+        }
+
+        let formatter = fiatFormatter(usesGroupingSeparator: true, currency: .USD)
+
+        XCTAssertEqual(formatter.string(double: 0.00001234234, minimumFractionDigits: 2, maximumFractionDigits: 6), "0.000012")
+        XCTAssertEqual(formatter.string(double: 0.043, minimumFractionDigits: 2, maximumFractionDigits: 6), "0.04")
+        XCTAssertEqual(formatter.string(double: 12.043, minimumFractionDigits: 2, maximumFractionDigits: 6), "12.04")
+        XCTAssertEqual(formatter.string(double: 1, minimumFractionDigits: 2, maximumFractionDigits: 6), "1.00")
+        XCTAssertEqual(formatter.string(double: 0.1213123123123, minimumFractionDigits: 2, maximumFractionDigits: 6), "0.12")
+        XCTAssertEqual(formatter.string(double: 1111102222.1213123123123, minimumFractionDigits: 2, maximumFractionDigits: 6), "1,111,102,222.12")
+    }
 }
