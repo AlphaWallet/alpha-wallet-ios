@@ -89,6 +89,8 @@ class TokenInstanceWebView: UIView {
         ])
 
         translatesAutoresizingMaskIntoConstraints = false
+        backgroundColor = Configuration.Color.Semantic.defaultViewBackground
+        webView.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
     }
 
     required init?(coder aDecoder: NSCoder) {
