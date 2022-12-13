@@ -3,16 +3,16 @@
 import UIKit
 import AlphaWalletFoundation
 
-struct GenerateTransferMagicLinkViewControllerViewModel {
+struct GenerateTransferMagicLinkViewModel {
     private let tokenHolder: TokenHolder
     private let linkExpiryDate: Date
     private let assetDefinitionStore: AssetDefinitionStore
 
     var contentsBackgroundColor: UIColor {
-        return Colors.appWhite
+        return Configuration.Color.Semantic.defaultViewBackground
     }
     var subtitleColor: UIColor {
-        return Colors.appText
+        return Configuration.Color.Semantic.defaultForegroundText
     }
     var subtitleFont: UIFont {
         return Fonts.regular(size: 25)
@@ -26,7 +26,7 @@ struct GenerateTransferMagicLinkViewControllerViewModel {
 	}
 
     var actionButtonTitleColor: UIColor {
-        return Colors.appWhite
+        return Configuration.Color.Semantic.defaultForegroundText
     }
     var actionButtonBackgroundColor: UIColor {
         return Colors.appActionButtonGreen
@@ -55,7 +55,7 @@ struct GenerateTransferMagicLinkViewControllerViewModel {
     }
 
     var tokenSaleDetailsLabelColor: UIColor {
-        return Colors.appText
+        return Configuration.Color.Semantic.defaultForegroundText
     }
 
     var descriptionLabelText: String {
@@ -73,7 +73,7 @@ struct GenerateTransferMagicLinkViewControllerViewModel {
     }
 
     var detailsBackgroundBackgroundColor: UIColor {
-        return UIColor(red: 236, green: 236, blue: 236)
+        return Configuration.Color.Semantic.defaultViewBackground
     }
 
     private var tokenCount: Int {
