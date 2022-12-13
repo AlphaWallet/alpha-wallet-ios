@@ -39,7 +39,7 @@ final class EnjinNetworkProvider {
 
     private func getEnjinBalances(forOwner owner: AlphaWallet.Address, offset: Int, sum: Enjin.MappedEnjinBalances = [:], limit: Int = 50, completion: @escaping (Swift.Result<GetEnjinBalancesResponse, EnjinError>) -> Void) {
 
-        graphqlClient.fetch(query: GetEnjinBalancesQuery(ethAddress: owner.eip55String, page: offset, limit: limit), queue: .global()) { response in
+        graphqlClient.fetch(query: GetEnjinBalancesQuery(ethAddress: owner.eip55String, page: offset, limit: limit)) { response in
             switch response {
             case .failure(let error):
                 completion(.failure(EnjinError(localizedDescription: "Error calling Engin API: \(String(describing: error))")))
@@ -76,7 +76,7 @@ final class EnjinNetworkProvider {
 
         let promises = ids.map { tokenId in
             return Promise<GetEnjinTokenQuery.Data.EnjinToken> { seal in
-                graphqlClient.fetch(query: GetEnjinTokenQuery(id: tokenId), queue: .global()) { response in
+                graphqlClient.fetch(query: GetEnjinTokenQuery(id: tokenId)) { response in
                     switch response {
                     case .failure(let error):
                         seal.reject(error)

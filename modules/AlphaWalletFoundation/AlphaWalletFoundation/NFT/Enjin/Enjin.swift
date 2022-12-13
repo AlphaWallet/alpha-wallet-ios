@@ -36,14 +36,17 @@ public final class Enjin {
             if let promise = self?.inFlightPromises[key] {
                 return promise
             } else {
-                let promise = networkProvider
-                    .getEnjinBalances(forOwner: wallet.address, offset: 1)
-                    .then(on: queue, { [networkProvider] balances -> Promise<EnjinAddressesToSemiFungibles> in
-                        let ids = (balances[wallet.address] ?? []).compactMap { $0.token?.id }
-                        return networkProvider.getEnjinTokens(ids: ids, owner: wallet.address)
-                    }).ensure(on: queue, {
-                        self?.inFlightPromises[key] = .none
-                    })
+                //NOTE: Make sure Apollo get called on main queue, looks like its not threadsafe, (accessing to interceptors on background queue causes bad access)
+                let promise = firstly {
+                    .value(wallet)
+                }.then { wallet in
+                    networkProvider.getEnjinBalances(forOwner: wallet.address, offset: 1)
+                }.then { [networkProvider] balances -> Promise<EnjinAddressesToSemiFungibles> in
+                    let ids = (balances[wallet.address] ?? []).compactMap { $0.token?.id }
+                    return networkProvider.getEnjinTokens(ids: ids, owner: wallet.address)
+                }.ensure(on: queue, {
+                    self?.inFlightPromises[key] = .none
+                })
 
                 self?.inFlightPromises[key] = promise
 
