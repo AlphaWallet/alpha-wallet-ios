@@ -26,7 +26,8 @@ class NumberStepper: UIControl {
     }
 
     @IBInspectable
-    public var buttonsTextColor: UIColor = Configuration.Color.Semantic.text {
+    public var buttonsTextColor: UIColor = Configuration.Color.Semantic.defaultForegroundText {
+ {
         didSet {
             for button in [leftButton, rightButton] {
                 button.setTitleColor(buttonsTextColor, for: .normal)
@@ -53,7 +54,7 @@ class NumberStepper: UIControl {
     }
 
     @IBInspectable
-    public var labelTextColor: UIColor = Configuration.Color.Semantic.text {
+    public var labelTextColor: UIColor = Configuration.Color.Semantic.defaultForegroundText {
         didSet {
             label.textColor = labelTextColor
         }
