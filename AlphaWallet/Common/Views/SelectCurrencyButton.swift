@@ -99,7 +99,6 @@ class SelectCurrencyButton: UIControl {
             whenHasTokenView.anchorsConstraint(to: self),
             whenHasNoTokenView.anchorsConstraint(to: self),
             actionButton.anchorsConstraint(to: self),
-            
             currencyIconImageView.sized(.init(width: 40, height: 40)),
         ] + expandImageView.sized(.init(width: 24, height: 24)))
     }
