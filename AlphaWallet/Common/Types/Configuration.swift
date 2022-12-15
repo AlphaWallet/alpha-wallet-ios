@@ -21,6 +21,8 @@ fileprivate func colorFrom(trait: UITraitCollection, lightColor: UIColor, darkCo
 struct Configuration {
     struct Color {
         struct Semantic {
+            static let borderClear = UIColor.clear
+            static let backgroundClear = UIColor.clear
             static let defaultViewBackground = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.cod()!)
             }
