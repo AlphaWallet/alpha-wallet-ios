@@ -56,6 +56,8 @@ struct Configuration {
                 return colorFrom(trait: trait, lightColor: R.color.azure()!, darkColor: R.color.dodge()!)
             }
 
+            static let disabledActionButton = UIColor(hex: "d7ebc8")
+
             static let primaryButtonBackground = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.cod()!, darkColor: R.color.alabaster()!)
             }
