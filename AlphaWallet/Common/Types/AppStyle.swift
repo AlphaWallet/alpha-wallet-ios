@@ -110,7 +110,7 @@ struct Colors {
     // static let apprecationGreen = Colors.appHighlightGreen
     // static let apprecationRed = UIColor(hex: "ff3b30")
     // static let appRed = R.color.danger()!
-    static let appSubtitle = UIColor(red: 117, green: 117, blue: 117)
+    // static let appSubtitle = UIColor(red: 117, green: 117, blue: 117)
     static let appText = R.color.black()!
     static let appTint = R.color.azure()!
     static let appWhite = UIColor.white
