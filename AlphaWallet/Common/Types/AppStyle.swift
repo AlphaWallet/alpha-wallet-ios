@@ -100,7 +100,6 @@ extension UITabBarController {
 }
 
 struct Colors {
-    static let appActionButtonShadow = UIColor.clear
     static let appBackground = UIColor.white
     static let appGrayLabel = UIColor(red: 155, green: 155, blue: 155)
     static let appGreenContrastBackground = UIColor(red: 86, green: 153, blue: 8)

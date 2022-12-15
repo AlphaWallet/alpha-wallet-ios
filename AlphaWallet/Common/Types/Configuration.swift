@@ -112,6 +112,7 @@ struct Configuration {
             }
             static let defaultButtonBorder = R.color.alabaster()!
             static let actionButtonBackground = UIColor(red: 105, green: 200, blue: 0)
+            static let actionButtonShadow = UIColor.clear
 
             static let labelTextActive = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.mine()!, darkColor: R.color.white()!)
