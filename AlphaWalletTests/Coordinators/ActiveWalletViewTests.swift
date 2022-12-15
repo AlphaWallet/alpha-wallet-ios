@@ -12,6 +12,12 @@ final class FakeNetworkService: NetworkService {
     }
 }
 
+extension AssetDefinitionStore {
+    static func make() -> AssetDefinitionStore {
+        return .init(networkService: FakeNetworkService())
+    }
+}
+
 // swiftlint:disable type_body_length
 class ActiveWalletViewTests: XCTestCase {
 
@@ -33,7 +39,7 @@ class ActiveWalletViewTests: XCTestCase {
             activitiesPipeLine: dep.activitiesPipeLine,
             wallet: wallet,
             keystore: keystore,
-            assetDefinitionStore: AssetDefinitionStore(),
+            assetDefinitionStore: .make(),
             config: config,
             analytics: FakeAnalyticsService(),
             nftProvider: FakeNftProvider(),
@@ -108,7 +114,7 @@ class ActiveWalletViewTests: XCTestCase {
             activitiesPipeLine: dep1.activitiesPipeLine,
             wallet: account1,
             keystore: keystore,
-            assetDefinitionStore: AssetDefinitionStore(),
+            assetDefinitionStore: .make(),
             config: .make(),
             analytics: FakeAnalyticsService(),
             nftProvider: FakeNftProvider(),
@@ -145,7 +151,7 @@ class ActiveWalletViewTests: XCTestCase {
             activitiesPipeLine: dep2.activitiesPipeLine,
             wallet: account2,
             keystore: keystore,
-            assetDefinitionStore: AssetDefinitionStore(),
+            assetDefinitionStore: .make(),
             config: .make(),
             analytics: FakeAnalyticsService(),
             nftProvider: FakeNftProvider(),
@@ -191,7 +197,7 @@ class ActiveWalletViewTests: XCTestCase {
                 activitiesPipeLine: dep.activitiesPipeLine,
                 wallet: wallet,
                 keystore: keystore,
-                assetDefinitionStore: AssetDefinitionStore(),
+                assetDefinitionStore: .make(),
                 config: .make(),
                 analytics: FakeAnalyticsService(),
                 nftProvider: FakeNftProvider(),
@@ -239,7 +245,7 @@ class ActiveWalletViewTests: XCTestCase {
             activitiesPipeLine: dep.activitiesPipeLine,
             wallet: wallet,
             keystore: keystore,
-            assetDefinitionStore: AssetDefinitionStore(),
+            assetDefinitionStore: .make(),
             config: .make(),
             analytics: FakeAnalyticsService(),
             nftProvider: FakeNftProvider(),
@@ -287,7 +293,7 @@ class ActiveWalletViewTests: XCTestCase {
             activitiesPipeLine: dep.activitiesPipeLine,
             wallet: wallet,
             keystore: keystore,
-            assetDefinitionStore: AssetDefinitionStore(),
+            assetDefinitionStore: .make(),
             config: .make(),
             analytics: FakeAnalyticsService(),
             nftProvider: FakeNftProvider(),
@@ -353,7 +359,7 @@ class ActiveWalletViewTests: XCTestCase {
                     activitiesPipeLine: dep.activitiesPipeLine,
                     wallet: wallet,
                     keystore: keystore,
-                    assetDefinitionStore: AssetDefinitionStore(),
+                    assetDefinitionStore: .make(),
                     config: .make(),
                     analytics: FakeAnalyticsService(),
                     nftProvider: FakeNftProvider(),

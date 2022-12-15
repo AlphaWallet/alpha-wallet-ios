@@ -32,7 +32,7 @@ final class FakeMultiWalletBalanceService: MultiWalletBalanceService {
         let walletDependencyContainer = WalletComponentsFactory(
             analytics: FakeAnalyticsService(),
             nftProvider: FakeNftProvider(),
-            assetDefinitionStore: .init(),
+            assetDefinitionStore: .make(),
             coinTickersFetcher: CoinTickersFetcherImpl.make(),
             config: .make(),
             currencyService: .make(),

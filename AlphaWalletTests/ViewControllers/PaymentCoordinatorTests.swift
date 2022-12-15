@@ -44,14 +44,14 @@ extension WalletDataProcessingPipeline {
             importToken: importToken,
             transactionsStorage: transactionsDataStore,
             nftProvider: nftProvider,
-            assetDefinitionStore: .init(),
+            assetDefinitionStore: .make(),
             networkService: FakeNetworkService())
 
         let pipeline: TokensProcessingPipeline = WalletDataProcessingPipeline(
             wallet: wallet,
             tokensService: tokensService,
             coinTickersFetcher: coinTickersFetcher,
-            assetDefinitionStore: .init(),
+            assetDefinitionStore: .make(),
             eventsDataStore: eventsDataStore,
             currencyService: .make())
 
@@ -60,7 +60,7 @@ extension WalletDataProcessingPipeline {
         let activitiesPipeLine = ActivitiesPipeLine(
             config: .make(),
             wallet: wallet,
-            assetDefinitionStore: .init(),
+            assetDefinitionStore: .make(),
             transactionDataStore: transactionsDataStore,
             tokensService: tokensService,
             sessionsProvider: sessionsProvider,
@@ -122,7 +122,7 @@ class PaymentCoordinatorTests: XCTestCase {
             server: .main,
             sessionProvider: dep.sessionsProvider,
             keystore: FakeEtherKeystore(),
-            assetDefinitionStore: AssetDefinitionStore(),
+            assetDefinitionStore: .make(),
             analytics: FakeAnalyticsService(),
             tokenCollection: dep.pipeline,
             domainResolutionService: FakeDomainResolutionService(),
@@ -147,7 +147,7 @@ class PaymentCoordinatorTests: XCTestCase {
             server: .main,
             sessionProvider: dep.sessionsProvider,
             keystore: FakeEtherKeystore(),
-            assetDefinitionStore: AssetDefinitionStore(),
+            assetDefinitionStore: .make(),
             analytics: FakeAnalyticsService(),
             tokenCollection: dep.pipeline,
             domainResolutionService: FakeDomainResolutionService(),

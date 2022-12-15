@@ -17,7 +17,7 @@ extension WalletConnectCoordinator {
             domainResolutionService: FakeDomainResolutionService(),
             config: .make(),
             sessionProvider: sessionProvider,
-            assetDefinitionStore: AssetDefinitionStore(),
+            assetDefinitionStore: .make(),
             networkService: FakeNetworkService())
     }
 }
@@ -46,7 +46,7 @@ class ConfigTests: XCTestCase {
             sessions: sessions,
             keystore: FakeEtherKeystore(),
             config: config,
-            assetDefinitionStore: AssetDefinitionStore(),
+            assetDefinitionStore: .make(),
             promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeEtherKeystore(), wallet: .make(), config: config, analytics: FakeAnalyticsService()),
             analytics: FakeAnalyticsService(),
             nftProvider: FakeNftProvider(),
@@ -74,7 +74,7 @@ class ConfigTests: XCTestCase {
             sessions: sessions,
             keystore: FakeEtherKeystore(),
             config: config,
-            assetDefinitionStore: AssetDefinitionStore(),
+            assetDefinitionStore: .make(),
             promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeEtherKeystore(), wallet: .make(), config: config, analytics: FakeAnalyticsService()),
             analytics: FakeAnalyticsService(),
             nftProvider: FakeNftProvider(),
