@@ -33,14 +33,6 @@ struct ImportMagicTokenViewControllerViewModel {
     var count: Decimal?
     var cost: Cost?
 
-    var backgroundColor: UIColor {
-        return Colors.appBackground
-    }
-
-    var contentsBackgroundColor: UIColor {
-        return Colors.appWhite
-    }
-
     var headerTitle: String {
         if let tokenHolder = tokenHolder {
             return R.string.localizable.aClaimTokenTitle(tokenHolder.name)
@@ -202,7 +194,7 @@ struct ImportMagicTokenViewControllerViewModel {
         if case .failed = state {
             return Colors.appRed
         } else {
-            return UIColor(red: 20, green: 20, blue: 20)
+            return Configuration.Color.Semantic.alternativeText
         }
     }
 
@@ -219,7 +211,7 @@ struct ImportMagicTokenViewControllerViewModel {
     }
 
     var ethCostLabelLabelColor: UIColor {
-        return Colors.appText
+        return Configuration.Color.Semantic.defaultForegroundText
     }
 
     var ethCostLabelLabelFont: UIFont {
@@ -237,7 +229,7 @@ struct ImportMagicTokenViewControllerViewModel {
     }
 
     var ethCostLabelColor: UIColor {
-        return Colors.appText
+        return Configuration.Color.Semantic.defaultForegroundText
     }
 
     var ethCostLabelFont: UIFont {
@@ -249,7 +241,7 @@ struct ImportMagicTokenViewControllerViewModel {
     }
 
     var dollarCostLabelLabelColor: UIColor {
-        return Colors.appText
+        return Configuration.Color.Semantic.defaultForegroundText
     }
 
     var dollarCostLabelLabelFont: UIFont {
@@ -269,11 +261,11 @@ struct ImportMagicTokenViewControllerViewModel {
     }
 
     var dollarCostLabelBackgroundColor: UIColor {
-        return UIColor(red: 236, green: 236, blue: 236)
+        return Configuration.Color.Semantic.tableViewSpecialBackground
     }
 
     var dollarCostLabelColor: UIColor {
-        return Colors.darkGray
+        return Configuration.Color.Semantic.alternativeText
     }
 
     var dollarCostLabelFont: UIFont {

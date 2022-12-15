@@ -16,17 +16,21 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
     }
 
     private let analytics: AnalyticsLogger
-    private let roundedBackground = RoundedBackground()
-    private let header = TokensCardViewControllerTitleHeader()
     lazy private var tokenCardRowView = TokenCardRowView(analytics: analytics, server: session.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: session.account)
     private let statusLabel = UILabel()
-    private let activityIndicator = UIActivityIndicatorView(style: .large)
-    private var costStackView: UIStackView?
+    private let activityIndicator: UIActivityIndicatorView = {
+        let activityIndicator = UIActivityIndicatorView(style: .large)
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        activityIndicator.hidesWhenStopped = true
+
+        return activityIndicator
+    }()
+    private var costStackView: UIStackView!
     private let ethCostLabelLabel = UILabel()
     private let ethCostLabel = UILabel()
     private let dollarCostLabelLabel = UILabel()
     private let dollarCostLabel = PaddedLabel()
-    private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 2))
+    private let buttonsBar = HorizontalButtonsBar(configuration: .custom(types: [.primary, .secondary]))
     private var viewModel: ImportMagicTokenViewControllerViewModel?
 
     let assetDefinitionStore: AssetDefinitionStore
@@ -53,6 +57,13 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
     }
     private let keystore: Keystore
     private let session: WalletSession
+    private lazy var containerView: ScrollableStackView = {
+        let containerView = ScrollableStackView()
+        containerView.stackView.axis = .vertical
+        containerView.stackView.alignment = .center
+
+        return containerView
+    }()
 
     init(analytics: AnalyticsLogger, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore, session: WalletSession) {
         self.analytics = analytics
@@ -61,27 +72,14 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
         self.session = session
         super.init(nibName: nil, bundle: nil)
 
-        view.backgroundColor = .clear
-
         tokenCardRowView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(tokenCardRowView)
-
-        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
-        activityIndicator.hidesWhenStopped = true
-
-        roundedBackground.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(roundedBackground)
-
         ethCostLabelLabel.translatesAutoresizingMaskIntoConstraints = false
         ethCostLabel.translatesAutoresizingMaskIntoConstraints = false
         dollarCostLabelLabel.translatesAutoresizingMaskIntoConstraints = false
         dollarCostLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        let separator1 = UIView()
-        separator1.backgroundColor = UIColor(red: 230, green: 230, blue: 230)
-
-        let separator2 = UIView()
-        separator2.backgroundColor = UIColor(red: 230, green: 230, blue: 230)
+        let separator1 = UIView.separator()
+        let separator2 = UIView.separator()
 
         costStackView = [
             ethCostLabelLabel,
@@ -96,11 +94,9 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
             .spacer(height: 3),
             dollarCostLabel,
         ].asStackView(axis: .vertical, alignment: .center)
-        costStackView?.translatesAutoresizingMaskIntoConstraints = false
+        costStackView.translatesAutoresizingMaskIntoConstraints = false
 
-        let stackView = [
-            header,
-            .spacer(height: 1),
+        containerView.stackView.addArrangedSubviews([
             tokenCardRowView,
             .spacer(height: 1),
             activityIndicator,
@@ -108,47 +104,37 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
             statusLabel,
             .spacer(height: 20),
             costStackView!,
-        ].asStackView(axis: .vertical, alignment: .center)
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        roundedBackground.addSubview(stackView)
+        ])
 
-        let footerBar = UIView()
-        footerBar.translatesAutoresizingMaskIntoConstraints = false
-        footerBar.backgroundColor = .clear
-        roundedBackground.addSubview(footerBar)
-
-        footerBar.addSubview(buttonsBar)
+        let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
+        view.addSubview(footerBar)
+        view.addSubview(containerView)
 
         NSLayoutConstraint.activate([
-            header.heightAnchor.constraint(equalToConstant: 90),
-
             tokenCardRowView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tokenCardRowView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 
-            separator1.heightAnchor.constraint(equalToConstant: 1),
             separator1.leadingAnchor.constraint(equalTo: tokenCardRowView.background.leadingAnchor),
             separator1.trailingAnchor.constraint(equalTo: tokenCardRowView.background.trailingAnchor),
 
-            separator2.heightAnchor.constraint(equalToConstant: 1),
             separator2.leadingAnchor.constraint(equalTo: tokenCardRowView.background.leadingAnchor),
             separator2.trailingAnchor.constraint(equalTo: tokenCardRowView.background.trailingAnchor),
 
-            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
-            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
-            buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
-            buttonsBar.heightAnchor.constraint(equalToConstant: HorizontalButtonsBar.buttonsHeight),
-
-            footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -HorizontalButtonsBar.buttonsHeight - HorizontalButtonsBar.marginAtBottomScreen),
-            footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-
             statusLabel.widthAnchor.constraint(equalTo: tokenCardRowView.widthAnchor, constant: -20),
 
-            stackView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
-            stackView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
-        ] + roundedBackground.createConstraintsWithContainer(view: view))
+            containerView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            containerView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            containerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            containerView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
+
+            footerBar.anchorsConstraint(to: view),
+        ])
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -158,9 +144,7 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
     func configure(viewModel: ImportMagicTokenViewControllerViewModel) {
         self.viewModel = viewModel
         if let viewModel = self.viewModel {
-            view.backgroundColor = viewModel.backgroundColor
-
-            header.configure(title: viewModel.headerTitle)
+            navigationItem.title = viewModel.headerTitle
 
             tokenCardRowView.configure(viewModel: ImportMagicTokenCardRowViewModel(importMagicTokenViewControllerViewModel: viewModel, assetDefinitionStore: assetDefinitionStore))
 
@@ -173,7 +157,7 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
             statusLabel.text = viewModel.statusText
             statusLabel.numberOfLines = 0
 
-            costStackView?.isHidden = !viewModel.showCost
+            costStackView.isHidden = !viewModel.showCost
 
             ethCostLabelLabel.textColor = viewModel.ethCostLabelLabelColor
             ethCostLabelLabel.font = viewModel.ethCostLabelLabelFont
@@ -223,11 +207,11 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
         }
     }
 
-    @objc func actionTapped() {
+    @objc private func actionTapped() {
         delegate?.didPressImport(in: self)
     }
 
-    @objc func cancel() {
+    @objc private func cancel() {
         if let delegate = delegate {
             delegate.didPressDone(in: self)
         } else {
