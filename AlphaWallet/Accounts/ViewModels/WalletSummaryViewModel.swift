@@ -113,7 +113,7 @@ extension TickerHelper {
         case .depreciate:
             return Colors.apprecationRed
         case .none:
-            return Colors.appGrayLabel
+            return Configuration.Color.Semantic.defaultSubtitleText
         }
     }
 }

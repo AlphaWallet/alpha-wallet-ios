@@ -75,7 +75,7 @@ class TextField: UIControl {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = Configuration.Font.textFieldTitle
-        label.textColor = Configuration.Color.Semantic.label
+        label.textColor = Configuration.Color.Semantic.defaultSubtitleText
         label.textAlignment = .left
 
         return label
