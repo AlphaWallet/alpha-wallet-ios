@@ -125,7 +125,7 @@ struct Colors {
     static let lightBlack = UIColor(hex: "313849")
     static let lightGray = UIColor.lightGray
     // static let loadingBackground = R.color.loadingBackground()!
-    static let loadingIndicatorBorder = UIColor(red: 237, green: 237, blue: 237)
+    // static let loadingIndicatorBorder = UIColor(red: 237, green: 237, blue: 237)
     static let navigationTitleColor = UIColor.black
     static let qrCodeRectBorders = UIColor(red: 216, green: 216, blue: 216)
     // static let settingsSubtitle = UIColor(red: 141, green: 141, blue: 141)

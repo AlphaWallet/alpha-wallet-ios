@@ -115,12 +115,12 @@ class AcceptProposalViewController: UIViewController {
         headerView.iconImageView.setImage(url: viewModel.connectionIconUrl, placeholder: R.image.walletConnectIcon())
 
         let button1 = buttonsBar.buttons[0]
-        button1.shrinkBorderColor = Colors.loadingIndicatorBorder
+        button1.shrinkBorderColor = Configuration.Color.Semantic.loadingIndicatorBorder
         button1.setTitle(viewModel.connectButtonTitle, for: .normal)
         button1.addTarget(self, action: #selector(confirmButtonTapped), for: .touchUpInside)
 
         let button2 = buttonsBar.buttons[1]
-        button2.shrinkBorderColor = Colors.loadingIndicatorBorder
+        button2.shrinkBorderColor = Configuration.Color.Semantic.loadingIndicatorBorder
         button2.setTitle(viewModel.rejectButtonTitle, for: .normal)
         button2.addTarget(self, action: #selector(closeButtonSelected), for: .touchUpInside)
     }

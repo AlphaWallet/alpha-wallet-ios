@@ -11,7 +11,7 @@ class ActivityIndicatorControl: UIControl {
     private let circularLoadingView: CircularLoadingIndicatorView = {
         let control = CircularLoadingIndicatorView()
         control.lineColor = Colors.green
-        control.backgroundLineColor = Colors.loadingIndicatorBorder
+        control.backgroundLineColor = Configuration.Color.Semantic.loadingIndicatorBorder
         control.checkmarkColor = Colors.green
         control.translatesAutoresizingMaskIntoConstraints = false
         control.duration = 1.5
