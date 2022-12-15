@@ -117,7 +117,7 @@ struct Colors {
     static let black = UIColor(hex: "313849")
     // static let clear = UIColor.clear
     // static let concrete = R.color.concrete()!
-    static let darkGray = UIColor(hex: "2f2f2f")
+    // static let darkGray = UIColor(hex: "2f2f2f")
     // static let disabledActionButton = UIColor(hex: "d7ebc8")
     // static let dove = R.color.dove()!
     static let gray = UIColor.gray

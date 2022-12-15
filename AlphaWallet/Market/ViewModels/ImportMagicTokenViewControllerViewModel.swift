@@ -274,7 +274,7 @@ struct ImportMagicTokenViewControllerViewModel {
     }
 
     var dollarCostLabelColor: UIColor {
-        return Colors.darkGray
+        return Configuration.Color.Semantic.alternativeText
     }
 
     var dollarCostLabelFont: UIFont {

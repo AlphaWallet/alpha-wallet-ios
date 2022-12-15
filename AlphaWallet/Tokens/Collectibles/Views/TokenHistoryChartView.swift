@@ -70,7 +70,7 @@ class TokenHistoryChartView: UIView {
         chartView.rightAxis.valueFormatter = YMinMaxOnlyAxisValueFormatter()
 
         let marker = XYMarkerView(
-            color: Colors.darkGray,
+            color: Configuration.Color.Semantic.alternativeText,
             font: Fonts.regular(size: 12),
             textColor: Configuration.Color.Semantic.defaultInverseText,
             insets: UIEdgeInsets(top: 8, left: 8, bottom: 20, right: 8))
