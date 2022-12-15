@@ -272,7 +272,7 @@ final class TokensViewController: UIViewController {
                 navigationItem.title = state.title
                 self?.isConsoleButtonHidden = state.isConsoleButtonHidden
                 self?.footerBar.isHidden = state.isFooterHidden
-                self?.applySnapshot(with: state.sections, animate: false)
+                self?.applySnapshot(with: state.sections, animatingDifferences: false)
             }.store(in: &cancellable)
 
         output.deletion
@@ -488,15 +488,16 @@ fileprivate extension TokensViewController {
         })
     }
 
-    private func applySnapshot(with viewModels: [TokensViewModel.SectionViewModel], animate: Bool = true) {
+    private func applySnapshot(with viewModels: [TokensViewModel.SectionViewModel], animatingDifferences: Bool = true) {
         var snapshot = NSDiffableDataSourceSnapshot<TokensViewModel.Section, TokensViewModel.ViewModelType>()
         let sections = viewModels.map { $0.section }
         snapshot.appendSections(sections)
+
         for each in viewModels {
             snapshot.appendItems(each.views, toSection: each.section)
         }
-
-        dataSource.apply(snapshot, animatingDifferences: animate)
+        
+        dataSource.apply(snapshot, animatingDifferences: animatingDifferences)
     }
 }
 

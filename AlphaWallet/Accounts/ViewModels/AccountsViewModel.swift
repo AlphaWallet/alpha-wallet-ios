@@ -101,7 +101,8 @@ final class AccountsViewModel {
             .map { $0.map { self.buildAccountRowViewModel(wallet: $0) } }
             .flatMapLatest { $0.combineLatest() }
 
-        let walletsSummary = walletBalanceService.walletsSummary
+        let walletsSummary = input.willAppear
+            .flatMap { [walletBalanceService] _ in walletBalanceService.walletsSummary }
             .map { [config] in WalletSummaryViewModel(walletSummary: $0, config: config) }
 
         let viewModels = Publishers.CombineLatest(accountRowViewModels, walletsSummary)

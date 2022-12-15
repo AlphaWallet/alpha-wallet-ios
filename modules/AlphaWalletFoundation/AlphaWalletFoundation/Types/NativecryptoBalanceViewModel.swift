@@ -27,12 +27,7 @@ struct NativecryptoBalanceViewModel: BalanceViewModelType {
         return "\(balance) \(_balance.server.symbol)"
     }
 
-    var currencyAmount: String? {
-        guard let totalAmount = currencyAmountWithoutSymbol else { return nil }
-        return Formatter.usd.string(from: totalAmount)
-    }
-
-    var currencyAmountWithoutSymbol: Double? {
+    var amountInFiat: Double? {
         guard let ticker = ticker else { return nil }
         return valueDecimal.doubleValue * ticker.price_usd
     }

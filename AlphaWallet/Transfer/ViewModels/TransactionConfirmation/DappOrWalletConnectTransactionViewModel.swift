@@ -62,8 +62,8 @@ extension TransactionConfirmationViewModel {
             let amount = Formatter.shortCrypto.string(from: amountToSend) ?? "-"
 
             if let rate = rate {
-                let amountInFiat = Formatter.fiat.string(from: amountToSend.doubleValue * rate.value) ?? "-"
-                return "\(amount) \(configurator.session.server.symbol) ≈ \(amountInFiat) \(rate.currency.code)"
+                let amountInFiat = Formatter.fiat(currency: rate.currency).string(from: amountToSend.doubleValue * rate.value) ?? "-"
+                return "\(amount) \(configurator.session.server.symbol) ≈ \(amountInFiat)"
             } else {
                 return "\(amount)"
             }

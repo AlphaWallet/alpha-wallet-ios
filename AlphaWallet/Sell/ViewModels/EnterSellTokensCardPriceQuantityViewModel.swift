@@ -7,7 +7,7 @@ import AlphaWalletFoundation
 struct EnterSellTokensCardPriceQuantityViewModel {
     private let server: RPCServer
     private let assetDefinitionStore: AssetDefinitionStore
-
+    private let currencyService: CurrencyService
     lazy var ethToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: server)
     let token: Token
     let tokenHolder: TokenHolder
@@ -49,15 +49,16 @@ struct EnterSellTokensCardPriceQuantityViewModel {
     }
 
     var dollarCostLabelText: String {
-        return "$\(dollarCost)"
+        return "\(currencyService.currency.symbol)\(dollarCost)"
     }
 
     var hideDollarCost: Bool {
         return dollarCost.trimmed.isEmpty
     }
 
-    init(token: Token, tokenHolder: TokenHolder, server: RPCServer, assetDefinitionStore: AssetDefinitionStore) {
+    init(token: Token, tokenHolder: TokenHolder, server: RPCServer, assetDefinitionStore: AssetDefinitionStore, currencyService: CurrencyService) {
         self.token = token
+        self.currencyService = currencyService
         self.tokenHolder = tokenHolder
         self.server = server
         self.assetDefinitionStore = assetDefinitionStore

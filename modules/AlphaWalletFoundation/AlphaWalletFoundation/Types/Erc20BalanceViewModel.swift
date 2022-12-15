@@ -38,11 +38,12 @@ struct Erc20BalanceViewModel: BalanceViewModelType {
     }
 
     var currencyAmount: String? {
-        guard let totalAmount = currencyAmountWithoutSymbol else { return nil }
-        return Formatter.usd.string(from: totalAmount)
+        guard let ticker = ticker else { return nil }
+
+        return Formatter.fiat(currency: ticker.currency).string(from: valueDecimal.doubleValue * ticker.price_usd)
     }
 
-    var currencyAmountWithoutSymbol: Double? {
+    var amountInFiat: Double? {
         guard let ticker = ticker else { return nil }
         return valueDecimal.doubleValue * ticker.price_usd
     }

@@ -32,7 +32,7 @@ struct WalletSummaryViewModel: Hashable {
         if areTestnetsEnabled {
             return .init(string: "Testnet", attributes: Self.functional.walletBalanceAttributes(alignment: alignment))
         } else {
-            return .init(string: summary.totalAmount, attributes: Self.functional.walletBalanceAttributes(alignment: alignment))
+            return .init(string: summary.totalAmountString, attributes: Self.functional.walletBalanceAttributes(alignment: alignment))
         }
     }
 
@@ -79,16 +79,33 @@ extension WalletSummaryViewModel {
         }
 
         static func todaysApprecationColorAndStringValuePair(summary: WalletSummary?) -> (String, UIColor) {
-            let priceChange = summary.flatMap { $0.changeDouble.flatMap { Formatter.priceChange.string(from: $0) } } ?? "-"
-            let percentageChange = EthCurrencyHelper(ticker: nil).change24h(from: summary?.changePercentage).string.flatMap { "(\($0))" } ?? "-"
+            let helper = TickerHelper(ticker: nil)
 
-            let value = R.string.localizable.walletSummaryToday(priceChange + " " + percentageChange)
-            return (value, EthCurrencyHelper(ticker: nil).valueChangeValueColor(from: summary?.changePercentage))
+            let changeString = summary.flatMap {
+                $0.change.flatMap { Formatter.priceChange(currency: $0.currency).string(from: $0.amount) }
+            } ?? "-"
+
+            let changePercentage: String = {
+                guard let changePercentage = summary?.changePercentage else { return "-" }
+                let formatter = Formatter.priceChange(currency: changePercentage.currency)
+
+                switch helper.change24h(from: changePercentage.amount) {
+                case .appreciate(let percentageChange24h):
+                    return "\(formatter.string(from: percentageChange24h) ?? "")%"
+                case .depreciate(let percentageChange24h):
+                    return "\(formatter.string(from: percentageChange24h) ?? "")%"
+                case .none:
+                    return "-"
+                }
+            }()
+
+            let value = R.string.localizable.walletSummaryToday(changeString + " " + changePercentage)
+            return (value, helper.valueChangeValueColor(from: summary?.changePercentage?.amount))
         }
     }
 }
 
-extension EthCurrencyHelper {
+extension TickerHelper {
     func valueChangeValueColor(from value: Double?) -> UIColor {
         switch change24h(from: value) {
         case .appreciate:

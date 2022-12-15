@@ -2,7 +2,7 @@
 //  ChangeCurrencyViewModel.swift
 //  AlphaWallet
 //
-//  Created by Vladyslav Shepitko on 30.06.2020.
+//  Created by Vladyslav Shepitko on 09.07.2022.
 //
 
 import UIKit
@@ -31,7 +31,7 @@ class ChangeCurrencyViewModel {
         let selectedCurrency = input.selection
             .compactMap { [currencyService] in currencyService.availableCurrencies[$0.row] }
             .filter { [currencyService] in $0 != currencyService.currency }
-            .handleEvents(receiveOutput: { [currencyService] in currencyService.currency = $0 })
+            .handleEvents(receiveOutput: { [currencyService] in currencyService.set(currency: $0) })
             .prepend(currencyService.currency)
             .share()
 

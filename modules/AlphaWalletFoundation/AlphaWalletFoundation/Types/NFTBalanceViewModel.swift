@@ -26,7 +26,7 @@ struct NFTBalanceViewModel: BalanceViewModelType {
     var valueDecimal: Decimal { Decimal(bigInt: value, decimals: _balance.decimals) ?? .zero }
     var amountString: String { return "\(nonZeroBalance) \(_balance.symbol)" }
     var currencyAmount: String? { return nil }
-    var currencyAmountWithoutSymbol: Double? { return nil }
+    var amountInFiat: Double? { return nil }
     var amountFull: String { return "\(nonZeroBalance)" }
     var amountShort: String { return "\(nonZeroBalance)" }
     var symbol: String { return _balance.symbol }

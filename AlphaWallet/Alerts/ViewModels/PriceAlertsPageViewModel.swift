@@ -98,7 +98,8 @@ extension AlertType {
     var title: String {
         switch self {
         case .price(let priceTarget, let value):
-            let result = Formatter.fiat.string(from: value) ?? "-"
+            //FIXME: replace alert rate(double) with CurrencyRateSupportable
+            let result = Formatter.fiatShort(currency: CurrencyService(storage: Config()).currency).string(from: value) ?? "-"
             return "\(priceTarget.title) \(result)"
         }
     }

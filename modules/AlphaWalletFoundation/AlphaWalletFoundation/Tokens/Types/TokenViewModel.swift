@@ -82,6 +82,9 @@ extension TokenViewModel: TokenSortable {
     public var value: BigInt { balance.value }
 }
 
+extension TokenViewModel: TokenScriptOverridesSupportable { }
+extension TokenViewModel: TokenBalanceSupportable { }
+
 extension TokenViewModel: Equatable {
     public static func == (lhs: TokenViewModel, rhs: TokenViewModel) -> Bool {
         return lhs.contractAddress.sameContract(as: rhs.contractAddress) && lhs.server == rhs.server

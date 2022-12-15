@@ -12,30 +12,30 @@ import AlphaWalletFoundation
 class FormattersTestCase: XCTestCase {
 
     func testCurrency() {
-        XCTAssertEqual(Formatter.currency.string(from: 0.0)!, "$0.00")
-        XCTAssertEqual(Formatter.currency.string(from: 10.100)!, "$10.10")
-        XCTAssertEqual(Formatter.currency.string(from: 100.105)!, "$100.10")
-        XCTAssertEqual(Formatter.currency.string(from: 1000.109)!, "$1,000.10")
-        XCTAssertEqual(Formatter.currency.string(from: 9999999999999.999)!, "$9,999,999,999,999.99")
-        XCTAssertEqual(Formatter.currency.string(from: -0.0)!, "-$0.00")
-        XCTAssertEqual(Formatter.currency.string(from: -10.100)!, "-$10.10")
-        XCTAssertEqual(Formatter.currency.string(from: -100.105)!, "-$100.10")
-        XCTAssertEqual(Formatter.currency.string(from: -1000.109)!, "-$1,000.10")
-        XCTAssertEqual(Formatter.currency.string(from: -9999999999999.999)!, "-$9,999,999,999,999.99")
+        XCTAssertEqual(Formatter.fiatShort(currency: .USD).string(from: 0.0)!, "$0.00")
+        XCTAssertEqual(Formatter.fiatShort(currency: .USD).string(from: 10.100)!, "$10.10")
+        XCTAssertEqual(Formatter.fiatShort(currency: .USD).string(from: 100.105)!, "$100.10")
+        XCTAssertEqual(Formatter.fiatShort(currency: .USD).string(from: 1000.109)!, "$1,000.10")
+        XCTAssertEqual(Formatter.fiatShort(currency: .USD).string(from: 9999999999999.999)!, "$9,999,999,999,999.99")
+        XCTAssertEqual(Formatter.fiatShort(currency: .USD).string(from: -0.0)!, "-$0.00")
+        XCTAssertEqual(Formatter.fiatShort(currency: .USD).string(from: -10.100)!, "-$10.10")
+        XCTAssertEqual(Formatter.fiatShort(currency: .USD).string(from: -100.105)!, "-$100.10")
+        XCTAssertEqual(Formatter.fiatShort(currency: .USD).string(from: -1000.109)!, "-$1,000.10")
+        XCTAssertEqual(Formatter.fiatShort(currency: .USD).string(from: -9999999999999.999)!, "-$9,999,999,999,999.99")
         // XCTAssertEqual(Formatters.currency.string(from: 123456789123456789.056), "$123,456,789,123,456,789.05")
     }
 
     func testUsd() {
-        XCTAssertEqual(Formatter.usd.string(from: 0.0)!, "0.00 USD")
-        XCTAssertEqual(Formatter.usd.string(from: 10.100)!, "10.10 USD")
-        XCTAssertEqual(Formatter.usd.string(from: 100.105)!, "100.10 USD")
-        XCTAssertEqual(Formatter.usd.string(from: 1000.109)!, "1,000.10 USD")
-        XCTAssertEqual(Formatter.usd.string(from: 9999999999999.999)!, "9,999,999,999,999.99 USD")
-        XCTAssertEqual(Formatter.usd.string(from: -0.0)!, "-0.00 USD")
-        XCTAssertEqual(Formatter.usd.string(from: -10.100)!, "-10.10 USD")
-        XCTAssertEqual(Formatter.usd.string(from: -100.105)!, "-100.10 USD")
-        XCTAssertEqual(Formatter.usd.string(from: -1000.109)!, "-1,000.10 USD")
-        XCTAssertEqual(Formatter.usd.string(from: -9999999999999.999)!, "-9,999,999,999,999.99 USD")
+        XCTAssertEqual(Formatter.fiat(currency: Currency.USD).string(from: 0.0)!, "0.00 USD")
+        XCTAssertEqual(Formatter.fiat(currency: Currency.USD).string(from: 10.100)!, "10.10 USD")
+        XCTAssertEqual(Formatter.fiat(currency: Currency.USD).string(from: 100.105)!, "100.10 USD")
+        XCTAssertEqual(Formatter.fiat(currency: Currency.USD).string(from: 1000.109)!, "1,000.10 USD")
+        XCTAssertEqual(Formatter.fiat(currency: Currency.USD).string(from: 9999999999999.999)!, "9,999,999,999,999.99 USD")
+        XCTAssertEqual(Formatter.fiat(currency: Currency.USD).string(from: -0.0)!, "-0.00 USD")
+        XCTAssertEqual(Formatter.fiat(currency: Currency.USD).string(from: -10.100)!, "-10.10 USD")
+        XCTAssertEqual(Formatter.fiat(currency: Currency.USD).string(from: -100.105)!, "-100.10 USD")
+        XCTAssertEqual(Formatter.fiat(currency: Currency.USD).string(from: -1000.109)!, "-1,000.10 USD")
+        XCTAssertEqual(Formatter.fiat(currency: Currency.USD).string(from: -9999999999999.999)!, "-9,999,999,999,999.99 USD")
     }
 
     func testPercent() {
@@ -65,29 +65,29 @@ class FormattersTestCase: XCTestCase {
     }
 
     func testPriceChange() {
-        XCTAssertEqual(Formatter.priceChange.string(from: 0.0)!, "+$0.00")
-        XCTAssertEqual(Formatter.priceChange.string(from: 10.100)!, "+$10.10")
-        XCTAssertEqual(Formatter.priceChange.string(from: 100.105)!, "+$100.10")
-        XCTAssertEqual(Formatter.priceChange.string(from: 1000.109)!, "+$1,000.10")
-        XCTAssertEqual(Formatter.priceChange.string(from: 9999999999999.999)!, "+$9,999,999,999,999.99")
-        XCTAssertEqual(Formatter.priceChange.string(from: -0.0)!, "-$0.00")
-        XCTAssertEqual(Formatter.priceChange.string(from: -10.100)!, "-$10.10")
-        XCTAssertEqual(Formatter.priceChange.string(from: -100.105)!, "-$100.10")
-        XCTAssertEqual(Formatter.priceChange.string(from: -1000.109)!, "-$1,000.10")
-        XCTAssertEqual(Formatter.priceChange.string(from: -9999999999999.999)!, "-$9,999,999,999,999.99")
+        XCTAssertEqual(Formatter.priceChange(currency: .USD).string(from: 0.0)!, "+$0.00")
+        XCTAssertEqual(Formatter.priceChange(currency: .USD).string(from: 10.100)!, "+$10.10")
+        XCTAssertEqual(Formatter.priceChange(currency: .USD).string(from: 100.105)!, "+$100.10")
+        XCTAssertEqual(Formatter.priceChange(currency: .USD).string(from: 1000.109)!, "+$1,000.10")
+        XCTAssertEqual(Formatter.priceChange(currency: .USD).string(from: 9999999999999.999)!, "+$9,999,999,999,999.99")
+        XCTAssertEqual(Formatter.priceChange(currency: .USD).string(from: -0.0)!, "-$0.00")
+        XCTAssertEqual(Formatter.priceChange(currency: .USD).string(from: -10.100)!, "-$10.10")
+        XCTAssertEqual(Formatter.priceChange(currency: .USD).string(from: -100.105)!, "-$100.10")
+        XCTAssertEqual(Formatter.priceChange(currency: .USD).string(from: -1000.109)!, "-$1,000.10")
+        XCTAssertEqual(Formatter.priceChange(currency: .USD).string(from: -9999999999999.999)!, "-$9,999,999,999,999.99")
     }
 
     func testFiat() {
-        XCTAssertEqual(Formatter.fiat.string(from: 0.0)!, "$0.00")
-        XCTAssertEqual(Formatter.fiat.string(from: 10.100)!, "$10.10")
-        XCTAssertEqual(Formatter.fiat.string(from: 100.105)!, "$100.10")
-        XCTAssertEqual(Formatter.fiat.string(from: 1000.109)!, "$1,000.10")
-        XCTAssertEqual(Formatter.fiat.string(from: 9999999999999.999)!, "$9,999,999,999,999.99")
-        XCTAssertEqual(Formatter.fiat.string(from: -0.0)!, "-$0.00")
-        XCTAssertEqual(Formatter.fiat.string(from: -10.100)!, "-$10.10")
-        XCTAssertEqual(Formatter.fiat.string(from: -100.105)!, "-$100.10")
-        XCTAssertEqual(Formatter.fiat.string(from: -1000.109)!, "-$1,000.10")
-        XCTAssertEqual(Formatter.fiat.string(from: -9999999999999.999)!, "-$9,999,999,999,999.99")
+        XCTAssertEqual(Formatter.fiatShort(currency: .USD).string(from: 0.0)!, "$0.00")
+        XCTAssertEqual(Formatter.fiatShort(currency: .USD).string(from: 10.100)!, "$10.10")
+        XCTAssertEqual(Formatter.fiatShort(currency: .USD).string(from: 100.105)!, "$100.10")
+        XCTAssertEqual(Formatter.fiatShort(currency: .USD).string(from: 1000.109)!, "$1,000.10")
+        XCTAssertEqual(Formatter.fiatShort(currency: .USD).string(from: 9999999999999.999)!, "$9,999,999,999,999.99")
+        XCTAssertEqual(Formatter.fiatShort(currency: .USD).string(from: -0.0)!, "-$0.00")
+        XCTAssertEqual(Formatter.fiatShort(currency: .USD).string(from: -10.100)!, "-$10.10")
+        XCTAssertEqual(Formatter.fiatShort(currency: .USD).string(from: -100.105)!, "-$100.10")
+        XCTAssertEqual(Formatter.fiatShort(currency: .USD).string(from: -1000.109)!, "-$1,000.10")
+        XCTAssertEqual(Formatter.fiatShort(currency: .USD).string(from: -9999999999999.999)!, "-$9,999,999,999,999.99")
     }
 
     func testDefault() {

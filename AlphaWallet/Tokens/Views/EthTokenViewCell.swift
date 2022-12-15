@@ -141,7 +141,7 @@ class EthTokenViewCell: UITableViewCell {
 
         apprecation24hoursView.configure(viewModel: viewModel.apprecationViewModel)
 
-        priceChangeLabel.attributedText = viewModel.priceChangeUSDValueAttributedString
+        priceChangeLabel.attributedText = viewModel.priceChangeAttributedString
 
         fiatValueLabel.attributedText = viewModel.fiatValueAttributedString
 

@@ -50,11 +50,11 @@ class AppCoordinator: NSObject, Coordinator {
     var activeWalletCoordinator: ActiveWalletCoordinator? {
         return coordinators.first { $0 is ActiveWalletCoordinator } as? ActiveWalletCoordinator
     }
-    private let currencyService = CurrencyService()
+    private lazy var currencyService = CurrencyService(storage: config)
     private lazy var coinTickersFetcher: CoinTickersFetcher = CoinTickersFetcherImpl()
     private lazy var nftProvider: NFTProvider = AlphaWalletNFTProvider(analytics: analytics)
     private lazy var dependencyProvider: WalletDependencyContainer = {
-        WalletComponentsFactory(analytics: analytics, nftProvider: nftProvider, assetDefinitionStore: assetDefinitionStore, coinTickersFetcher: coinTickersFetcher, config: config)
+        WalletComponentsFactory(analytics: analytics, nftProvider: nftProvider, assetDefinitionStore: assetDefinitionStore, coinTickersFetcher: coinTickersFetcher, config: config, currencyService: currencyService)
     }()
     private lazy var walletBalanceService: WalletBalanceService = {
         let service = MultiWalletBalanceService(walletAddressesStore: walletAddressesStore, dependencyContainer: dependencyProvider)

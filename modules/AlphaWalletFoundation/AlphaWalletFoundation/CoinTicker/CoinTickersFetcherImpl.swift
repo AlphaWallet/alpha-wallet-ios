@@ -10,9 +10,9 @@ import Combine
 import AlphaWalletCore
 
 public protocol CoinTickersFetcherProvider {
-    func fetchTickers(for tokens: [TokenMappedToTicker], force: Bool)
+    func fetchTickers(for tokens: [TokenMappedToTicker], force: Bool, currency: Currency)
     func resolveTikerIds(for tokens: [TokenMappedToTicker])
-    func fetchChartHistories(for token: TokenMappedToTicker, force: Bool, periods: [ChartHistoryPeriod]) -> AnyPublisher<[ChartHistoryPeriod: ChartHistory], Never>
+    func fetchChartHistories(for token: TokenMappedToTicker, force: Bool, periods: [ChartHistoryPeriod], currency: Currency) -> AnyPublisher<[ChartHistoryPeriod: ChartHistory], Never>
     func cancel()
 }
 
@@ -46,15 +46,15 @@ public final class CoinTickersFetcherImpl: CoinTickersFetcher {
         ], storage: storage)
     }
 
-    public func ticker(for addressAndPRCServer: AddressAndRPCServer) -> CoinTicker? {
-        return storage.ticker(for: addressAndPRCServer)
+    public func ticker(for key: AddressAndRPCServer, currency: Currency) -> CoinTicker? {
+        return storage.ticker(for: key, currency: currency)
     }
 
-    public func fetchTickers(for tokens: [TokenMappedToTicker], force: Bool) {
+    public func fetchTickers(for tokens: [TokenMappedToTicker], force: Bool, currency: Currency) {
         for each in elementsMappedToProvider(for: tokens) {
             guard !each.elements.isEmpty else { continue }
 
-            each.provider.fetchTickers(for: each.elements, force: force)
+            each.provider.fetchTickers(for: each.elements, force: force, currency: currency)
         }
     }
 
@@ -66,9 +66,9 @@ public final class CoinTickersFetcherImpl: CoinTickersFetcher {
         }
     }
 
-    public func fetchChartHistories(for token: TokenMappedToTicker, force: Bool, periods: [ChartHistoryPeriod]) -> AnyPublisher<[ChartHistoryPeriod: ChartHistory], Never> {
+    public func fetchChartHistories(for token: TokenMappedToTicker, force: Bool, periods: [ChartHistoryPeriod], currency: Currency) -> AnyPublisher<[ChartHistoryPeriod: ChartHistory], Never> {
         guard let publisher = elementMappedToProvider(for: token)
-            .flatMap({ $0.provider.fetchChartHistories(for: token, force: force, periods: periods) }) else { return .empty() }
+            .flatMap({ $0.provider.fetchChartHistories(for: token, force: force, periods: periods, currency: currency) }) else { return .empty() }
 
         return publisher
     }

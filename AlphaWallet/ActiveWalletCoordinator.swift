@@ -31,7 +31,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private let currencyService: CurrencyService
     private lazy var tokensFilter: TokensFilter = {
         let tokenGroupIdentifier: TokenGroupIdentifierProtocol = TokenGroupIdentifier.identifier(fromFileName: "tokens")!
-        return TokensFilter(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: coinTickersFetcher, tokenGroupIdentifier: tokenGroupIdentifier)
+        return TokensFilter(tokenActionsService: tokenActionsService, tokenGroupIdentifier: tokenGroupIdentifier)
     }()
 
     private let tokenCollection: TokenCollection
@@ -314,24 +314,24 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         promptBackupCoordinator.listenToNativeCryptoCurrencyBalance(service: tokenCollection)
 
         let coordinator = TokensCoordinator(
-                sessions: sessionsProvider.activeSessions,
-                keystore: keystore,
-                config: config,
-                assetDefinitionStore: assetDefinitionStore,
-                promptBackupCoordinator: promptBackupCoordinator,
-                analytics: analytics,
-                nftProvider: nftProvider,
-                tokenActionsService: tokenActionsService,
-                walletConnectCoordinator: walletConnectCoordinator,
-                coinTickersFetcher: coinTickersFetcher,
-                activitiesService: activitiesService,
-                walletBalanceService: walletBalanceService,
-                tokenCollection: tokenCollection,
-                importToken: importToken,
-                blockiesGenerator: blockiesGenerator,
-                domainResolutionService: domainResolutionService,
-                tokensFilter: tokensFilter
-        )
+            sessions: sessionsProvider.activeSessions,
+            keystore: keystore,
+            config: config,
+            assetDefinitionStore: assetDefinitionStore,
+            promptBackupCoordinator: promptBackupCoordinator,
+            analytics: analytics,
+            nftProvider: nftProvider,
+            tokenActionsService: tokenActionsService,
+            walletConnectCoordinator: walletConnectCoordinator,
+            coinTickersFetcher: coinTickersFetcher,
+            activitiesService: activitiesService,
+            walletBalanceService: walletBalanceService,
+            tokenCollection: tokenCollection,
+            importToken: importToken,
+            blockiesGenerator: blockiesGenerator,
+            domainResolutionService: domainResolutionService,
+            tokensFilter: tokensFilter,
+            currencyService: currencyService)
         coordinator.rootViewController.tabBarItem = ActiveWalletViewModel.Tabs.tokens.tabBarItem
         coordinator.delegate = self
         coordinator.start()

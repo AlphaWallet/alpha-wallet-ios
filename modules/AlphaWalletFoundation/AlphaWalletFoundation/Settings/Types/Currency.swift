@@ -2,9 +2,11 @@
 
 import Foundation
 
-public enum Currency: String, CaseIterable {
+public enum Currency: String, CaseIterable, Codable {
     private static let outputLocale = NSLocale(localeIdentifier: "en_US_POSIX")
     
+    public static var `default`: Currency = .USD
+
     case AUD
     case UAH
     case USD
@@ -20,7 +22,7 @@ public enum Currency: String, CaseIterable {
     case CAD
 
     public init(code: String) {
-        self = Currency(rawValue: code) ?? .USD
+        self = Currency(rawValue: code) ?? Currency.default
     }
 
     public var name: String? {
@@ -29,5 +31,18 @@ public enum Currency: String, CaseIterable {
 
     public var code: String {
         return rawValue
+    }
+
+    public var symbol: String {
+        switch self {
+        case .USD, .AUD, .TWD, .SGD, .NZD, .CAD: return "$"
+        case .GBP: return "£"
+        case .UAH: return "₴"
+        case .EUR: return "€"
+        case .JPY: return "¥"
+        case .CNY: return "¥"
+        case .PLN: return "zł"
+        case .TRY: return "₺"
+        }
     }
 }

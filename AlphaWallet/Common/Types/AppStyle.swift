@@ -330,7 +330,7 @@ enum Screen {
             static let subtitle = Configuration.Color.Semantic.defaultSubtitleText
             static let valueChangeLabel = Configuration.Color.Semantic.alternativeText
             static func valueChangeValue(ticker: CoinTicker?, emptyValueColor: UIColor = Configuration.Color.Semantic.alternativeText) -> UIColor {
-                switch EthCurrencyHelper(ticker: ticker).change24h {
+                switch TickerHelper(ticker: ticker).change24h {
                 case .appreciate:
                     return Colors.apprecationGreen
                 case .depreciate:

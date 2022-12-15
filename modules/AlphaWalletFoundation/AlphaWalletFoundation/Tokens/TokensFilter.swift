@@ -8,6 +8,14 @@
 import Foundation
 import BigInt
 
+public protocol TokenScriptOverridesSupportable {
+    var tokenScriptOverrides: TokenScriptOverrides? { get }
+}
+
+public protocol TokenBalanceSupportable {
+    var balance: BalanceViewModel { get }
+}
+
 public protocol TokenFilterable: TokenScriptSupportable, TokenGroupIdentifiable, TokenActionsIdentifiable { }
 
 public protocol TokenSortable {
@@ -20,8 +28,8 @@ public protocol TokenSortable {
 }
 
 public extension TokenSortable {
-    var valueDecimal: Decimal? {
-        return Decimal(bigInt: value, decimals: decimals)
+    var valueDecimal: Decimal {
+        return Decimal(bigInt: value, decimals: decimals) ?? .zero
     }
 }
 
@@ -70,19 +78,15 @@ public class TokensFilter {
         }
     }
 
-    private let assetDefinitionStore: AssetDefinitionStore
     private let tokenActionsService: TokenActionsService
-    private let coinTickersFetcher: CoinTickersFetcher
     private let tokenGroupIdentifier: TokenGroupIdentifierProtocol
 
-    public init(assetDefinitionStore: AssetDefinitionStore, tokenActionsService: TokenActionsService, coinTickersFetcher: CoinTickersFetcher, tokenGroupIdentifier: TokenGroupIdentifierProtocol) {
-        self.assetDefinitionStore = assetDefinitionStore
+    public init(tokenActionsService: TokenActionsService, tokenGroupIdentifier: TokenGroupIdentifierProtocol) {
         self.tokenActionsService = tokenActionsService
-        self.coinTickersFetcher = coinTickersFetcher
         self.tokenGroupIdentifier = tokenGroupIdentifier
     }
 
-    public func filterTokens<T>(tokens: [T], filter: WalletFilter) -> [T] where T: TokenFilterable {
+    public func filterTokens<T>(tokens: [T], filter: WalletFilter) -> [T] where T: TokenFilterable & TokenScriptOverridesSupportable & TokenBalanceSupportable {
         let filteredTokens: [T]
 
         func hasMatchingInNftBalance(token: T, string: String) -> Bool {
@@ -96,8 +100,8 @@ public class TokensFilter {
             return token.name.trimmed.lowercased().contains(string) ||
                 token.symbol.trimmed.lowercased().contains(string) ||
                 token.contractAddress.eip55String.lowercased().contains(string) ||
-                token.title(withAssetDefinitionStore: assetDefinitionStore).trimmed.lowercased().contains(string) ||
-                token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore).trimmed.lowercased().contains(string)
+                (token.tokenScriptOverrides?.titleInPluralForm.trimmed.lowercased().contains(string) ?? false) ||
+                (token.tokenScriptOverrides?.title.trimmed.lowercased().contains(string) ?? false)
         }
 
         switch filter {
@@ -130,15 +134,15 @@ public class TokensFilter {
             case .development(let value):
                 switch value {
                 case .fiat:
-                    filteredTokens = tokens.filter { $0.hasTicker(coinTickersFetcher: coinTickersFetcher) }
+                    filteredTokens = tokens.filter { $0.balance.ticker != nil }
                 case .fiatAndBalance, .balanceAndFiat:
-                    filteredTokens = tokens.filter { $0.hasNonZeroBalance && $0.hasTicker(coinTickersFetcher: coinTickersFetcher) }
+                    filteredTokens = tokens.filter { $0.hasNonZeroBalance && $0.balance.ticker != nil }
                 case .balance:
                     filteredTokens = tokens.filter { $0.hasNonZeroBalance }
                 }
             case .tokenscript:
                 filteredTokens = tokens.filter {
-                    let xmlHandler = XMLHandler(token: $0, assetDefinitionStore: assetDefinitionStore)
+                    guard let xmlHandler = $0.tokenScriptOverrides?.xmlHandler else { return false }
                     return xmlHandler.hasNoBaseAssetDefinition && (xmlHandler.server?.matches(server: $0.server) ?? false)
                 }
             case .custom(string: let string):
@@ -175,18 +179,16 @@ public class TokensFilter {
         return filteredTokens
     }
 
-    public func sortDisplayedTokens<T>(tokens: [T]) -> [T] where T: TokenSortable {
+    public func sortDisplayedTokens<T>(tokens: [T]) -> [T] where T: TokenSortable & TokenBalanceSupportable {
 
         func sortTokensByFiatValues(_ token1: T, _ token2: T) -> Bool {
-            let value1 = coinTickersFetcher.ticker(for: .init(address: token1.contractAddress, server: token1.server)).flatMap({ ticker in
-                EthCurrencyHelper(ticker: ticker)
-                    .fiatValue(value: token1.valueDecimal)
-            }) ?? -1
+            let value1 = token1.balance.ticker.flatMap { ticker in
+                TickerHelper(ticker: ticker).fiatValue(value: token1.valueDecimal)
+            } ?? -1
 
-            let value2 = coinTickersFetcher.ticker(for: .init(address: token2.contractAddress, server: token2.server)).flatMap({ ticker in
-                EthCurrencyHelper(ticker: ticker)
-                    .fiatValue(value: token2.valueDecimal)
-            }) ?? -1
+            let value2 = token1.balance.ticker.flatMap { ticker in
+                TickerHelper(ticker: ticker).fiatValue(value: token2.valueDecimal)
+            } ?? -1
 
             return value1 > value2
         }
@@ -254,10 +256,5 @@ fileprivate extension TokenFilterable {
         case .erc875, .erc721, .erc721ForTickets, .erc1155:
             return !nonZeroBalance.isEmpty
         }
-    }
-
-    func hasTicker(coinTickersFetcher: CoinTickersFetcher) -> Bool {
-        let ticker = coinTickersFetcher.ticker(for: .init(address: contractAddress, server: server))
-        return ticker != nil
     }
 }

@@ -66,27 +66,29 @@ class TokensCoordinator: Coordinator {
     private let domainResolutionService: DomainResolutionServiceType
     private let importToken: ImportToken
     private let wallet: Wallet
-    
-    init(
-            navigationController: UINavigationController = .withOverridenBarAppearence(),
-            sessions: ServerDictionary<WalletSession>,
-            keystore: Keystore,
-            config: Config,
-            assetDefinitionStore: AssetDefinitionStore,
-            promptBackupCoordinator: PromptBackupCoordinator,
-            analytics: AnalyticsLogger,
-            nftProvider: NFTProvider,
-            tokenActionsService: TokenActionsService,
-            walletConnectCoordinator: WalletConnectCoordinator,
-            coinTickersFetcher: CoinTickersFetcher,
-            activitiesService: ActivitiesServiceType,
-            walletBalanceService: WalletBalanceService,
-            tokenCollection: TokenCollection,
-            importToken: ImportToken,
-            blockiesGenerator: BlockiesGenerator,
-            domainResolutionService: DomainResolutionServiceType,
-            tokensFilter: TokensFilter
+    private let currencyService: CurrencyService
+
+    init(navigationController: UINavigationController = .withOverridenBarAppearence(),
+         sessions: ServerDictionary<WalletSession>,
+         keystore: Keystore,
+         config: Config,
+         assetDefinitionStore: AssetDefinitionStore,
+         promptBackupCoordinator: PromptBackupCoordinator,
+         analytics: AnalyticsLogger,
+         nftProvider: NFTProvider,
+         tokenActionsService: TokenActionsService,
+         walletConnectCoordinator: WalletConnectCoordinator,
+         coinTickersFetcher: CoinTickersFetcher,
+         activitiesService: ActivitiesServiceType,
+         walletBalanceService: WalletBalanceService,
+         tokenCollection: TokenCollection,
+         importToken: ImportToken,
+         blockiesGenerator: BlockiesGenerator,
+         domainResolutionService: DomainResolutionServiceType,
+         tokensFilter: TokensFilter,
+         currencyService: CurrencyService
     ) {
+        self.currencyService = currencyService
         self.wallet = sessions.anyValue.account
         self.tokensFilter = tokensFilter
         self.tokenCollection = tokenCollection
@@ -149,7 +151,7 @@ class TokensCoordinator: Coordinator {
 
     private func setupSingleChainTokenCoordinators() {
         for session in sessions.values {
-            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, assetDefinitionStore: assetDefinitionStore, analytics: analytics, nftProvider: nftProvider, tokenActionsProvider: tokenActionsService, coinTickersFetcher: coinTickersFetcher, activitiesService: activitiesService, alertService: alertService, tokensService: tokenCollection, sessions: sessions)
+            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, assetDefinitionStore: assetDefinitionStore, analytics: analytics, nftProvider: nftProvider, tokenActionsProvider: tokenActionsService, coinTickersFetcher: coinTickersFetcher, activitiesService: activitiesService, alertService: alertService, tokensService: tokenCollection, sessions: sessions, currencyService: currencyService)
 
             coordinator.delegate = self
             addCoordinator(coordinator)
@@ -415,14 +417,14 @@ extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
     }
 
     func didTapAddAlert(for token: Token, in coordinator: SingleChainTokenCoordinator) {
-        let coordinatorToAdd = EditPriceAlertCoordinator(navigationController: navigationController, configuration: .create, token: token, session: coordinator.session, tokensService: tokenCollection, alertService: alertService)
+        let coordinatorToAdd = EditPriceAlertCoordinator(navigationController: navigationController, configuration: .create, token: token, session: coordinator.session, tokensService: tokenCollection, alertService: alertService, currencyService: currencyService)
         addCoordinator(coordinatorToAdd)
         coordinatorToAdd.delegate = self
         coordinatorToAdd.start()
     }
 
     func didTapEditAlert(for token: Token, alert: PriceAlert, in coordinator: SingleChainTokenCoordinator) {
-        let coordinatorToAdd = EditPriceAlertCoordinator(navigationController: navigationController, configuration: .edit(alert), token: token, session: coordinator.session, tokensService: tokenCollection, alertService: alertService)
+        let coordinatorToAdd = EditPriceAlertCoordinator(navigationController: navigationController, configuration: .edit(alert), token: token, session: coordinator.session, tokensService: tokenCollection, alertService: alertService, currencyService: currencyService)
         addCoordinator(coordinatorToAdd)
         coordinatorToAdd.delegate = self
         coordinatorToAdd.start()

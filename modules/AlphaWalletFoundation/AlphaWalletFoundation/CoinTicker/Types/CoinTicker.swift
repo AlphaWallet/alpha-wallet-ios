@@ -1,12 +1,13 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation 
+import Foundation
 
-public struct CoinTicker: Hashable {
+public struct CoinTicker: Hashable, Equatable {
+    public let primaryKey: String
     public let id: String
-    public let currency: String
+    public let currency: Currency
+    public let lastUpdatedAt: Date
     public let symbol: String
-    public let image: String
     public let price_usd: Double
     public let percent_change_24h: Double
     public let market_cap: Double?
@@ -26,22 +27,24 @@ public struct CoinTicker: Hashable {
 extension CoinTicker {
     public static func make(for token: TokenMappedToTicker) -> CoinTicker {
         let id = "for-testing-tickerId-\(token.contractAddress)-\(token.server.chainID)"
-        return .init(id: id, currency: "USD", symbol: "", image: "", price_usd: 0.0, percent_change_24h: 0.0, market_cap: 0.0, market_cap_rank: 0.0, total_volume: 0.0, high_24h: 0.0, low_24h: 0.0, market_cap_change_24h: 0.0, market_cap_change_percentage_24h: 0.0, circulating_supply: 0.0, total_supply: 0.0, max_supply: 0.0, ath: 0.0, ath_change_percentage: 0.0)
+        return .init(primaryKey: "\(id)-\(Currency.USD.code)", id: id, currency: .USD, lastUpdatedAt: Date(), symbol: "", price_usd: 0.0, percent_change_24h: 0.0, market_cap: 0.0, market_cap_rank: 0.0, total_volume: 0.0, high_24h: 0.0, low_24h: 0.0, market_cap_change_24h: 0.0, market_cap_change_percentage_24h: 0.0, circulating_supply: 0.0, total_supply: 0.0, max_supply: 0.0, ath: 0.0, ath_change_percentage: 0.0)
     }
 
-    public func override(currency: String) -> CoinTicker {
-        return .init(id: id, currency: currency, symbol: symbol, image: image, price_usd: price_usd, percent_change_24h: percent_change_24h, market_cap: market_cap, market_cap_rank: market_cap_rank, total_volume: total_volume, high_24h: high_24h, low_24h: low_24h, market_cap_change_24h: market_cap_change_24h, market_cap_change_percentage_24h: market_cap_change_percentage_24h, circulating_supply: circulating_supply, total_supply: total_supply, max_supply: max_supply, ath: ath, ath_change_percentage: ath_change_percentage)
+    public func override(currency: Currency) -> CoinTicker {
+        let primaryKey = "\(id)-\(currency)"
+        return .init(primaryKey: primaryKey, id: id, currency: currency, lastUpdatedAt: lastUpdatedAt, symbol: symbol, price_usd: price_usd, percent_change_24h: percent_change_24h, market_cap: market_cap, market_cap_rank: market_cap_rank, total_volume: total_volume, high_24h: high_24h, low_24h: low_24h, market_cap_change_24h: market_cap_change_24h, market_cap_change_percentage_24h: market_cap_change_percentage_24h, circulating_supply: circulating_supply, total_supply: total_supply, max_supply: max_supply, ath: ath, ath_change_percentage: ath_change_percentage)
     }
 
     public func override(price_usd: Double) -> CoinTicker {
-        return .init(id: id, currency: currency, symbol: symbol, image: "", price_usd: price_usd, percent_change_24h: percent_change_24h, market_cap: market_cap, market_cap_rank: market_cap_rank, total_volume: total_volume, high_24h: high_24h, low_24h: low_24h, market_cap_change_24h: market_cap_change_24h, market_cap_change_percentage_24h: market_cap_change_percentage_24h, circulating_supply: circulating_supply, total_supply: total_supply, max_supply: max_supply, ath: ath, ath_change_percentage: ath_change_percentage)
+        return .init(primaryKey: primaryKey, id: id, currency: currency, lastUpdatedAt: lastUpdatedAt, symbol: symbol, price_usd: price_usd, percent_change_24h: percent_change_24h, market_cap: market_cap, market_cap_rank: market_cap_rank, total_volume: total_volume, high_24h: high_24h, low_24h: low_24h, market_cap_change_24h: market_cap_change_24h, market_cap_change_percentage_24h: market_cap_change_percentage_24h, circulating_supply: circulating_supply, total_supply: total_supply, max_supply: max_supply, ath: ath, ath_change_percentage: ath_change_percentage)
     }
 
     init(coinTickerObject: CoinTickerObject) {
+        self.primaryKey = coinTickerObject.primaryKey
         self.id = coinTickerObject.id
-        self.currency = coinTickerObject.currency
+        self.lastUpdatedAt = coinTickerObject.lastUpdatedAt
+        self.currency = Currency(rawValue: coinTickerObject.currency) ?? .default
         self.symbol = coinTickerObject.symbol
-        self.image = coinTickerObject.image
         self.price_usd = coinTickerObject.price_usd
         self.percent_change_24h = coinTickerObject.percent_change_24h
         self.market_cap = coinTickerObject.market_cap.value
@@ -65,7 +68,6 @@ extension CoinTicker: Codable {
         case percent_change_24h = "price_change_percentage_24h"
         case id = "id"
         case symbol = "symbol"
-        case image = "image"
         case market_cap
         case market_cap_rank
         case total_volume
@@ -80,17 +82,8 @@ extension CoinTicker: Codable {
         case ath_change_percentage
     }
 
-    var imageURL: URL? {
-        return URL(string: image)
-    }
-
     public init(from decoder: Decoder) throws {
-        enum AnyError: Error {
-            case invalid
-        }
-
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.image = ""
         self.price_usd = container.decode(Double.self, forKey: .price_usd, defaultValue: 0.0)
         self.percent_change_24h = container.decode(Double.self, forKey: .percent_change_24h, defaultValue: 0.0)
         self.market_cap = container.decode(Double.self, forKey: .market_cap, defaultValue: nil)
@@ -109,15 +102,18 @@ extension CoinTicker: Codable {
         if let value = try? container.decode(String.self, forKey: .id) {
             self.id = value
         } else {
-            throw AnyError.invalid
+            throw CastError(actualValue: container, expectedType: String.self)
         }
 
         if let value = try? container.decode(String.self, forKey: .symbol) {
             self.symbol = value
         } else {
-            throw AnyError.invalid
+            throw CastError(actualValue: container, expectedType: String.self)
         }
-        currency = ""
+
+        currency = .default
+        self.primaryKey = "\(id)-\(currency)"
+        lastUpdatedAt = Date()
     }
 
 }

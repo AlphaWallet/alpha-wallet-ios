@@ -199,7 +199,7 @@ final class SendViewModel: TransactionTypeSupportable {
             title: title,
             selectCurrencyButtonState: buildSelectCurrencyButtonState(for: tokenViewModel, transactionType: transactionType),
             amountStatusLabelState: SendViewModel.AmountStatuLabelState(text: availableLabelText, isHidden: availableTextHidden),
-            rate: tokenViewModel.flatMap { $0.balance.ticker.flatMap { $0.price_usd } },
+            rate: tokenViewModel.flatMap { $0.balance.ticker.flatMap { AmountTextFieldViewModel.CurrencyRate(value: $0.price_usd, currency: $0.currency) } } ?? .init(value: nil, currency: .USD),
             recipientTextFieldState: buildRecipientTextFieldState(for: transactionType))
     }
 
@@ -458,7 +458,7 @@ extension SendViewModel {
         let title: String
         let selectCurrencyButtonState: SendViewModel.SelectCurrencyButtonState
         let amountStatusLabelState: AmountStatuLabelState
-        let rate: Double?
+        let rate: AmountTextFieldViewModel.CurrencyRate
         let recipientTextFieldState: RecipientTextFieldState
     }
 
@@ -473,6 +473,7 @@ extension SendViewModel {
 
     struct AmountTextFieldState {
         let amount: AmountTextFieldViewModel.FungibleAmount
+        //let cryptoToFiatRate: AmountTextFieldViewModel.CurrencyRate
     }
 
     struct RecipientTextFieldState {
