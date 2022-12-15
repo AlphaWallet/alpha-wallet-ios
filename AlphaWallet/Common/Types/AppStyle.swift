@@ -105,7 +105,7 @@ struct Colors {
     // static let appActionButtonShadow = UIColor.clear
     // static let appBackground = UIColor.white
     // static let appGrayLabel = UIColor(red: 155, green: 155, blue: 155)
-    static let appGreenContrastBackground = UIColor(red: 86, green: 153, blue: 8)
+    // static let appGreenContrastBackground = UIColor(red: 86, green: 153, blue: 8)
     static let appHighlightGreen = UIColor(red: 117, green: 185, blue: 67)
     static let apprecationGreen = Colors.appHighlightGreen
     static let apprecationRed = UIColor(hex: "ff3b30")

@@ -88,7 +88,7 @@ final class AmountTextField: UIControl {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .left
         label.numberOfLines = 0
-        label.textColor = Colors.appGreenContrastBackground
+        label.textColor = Configuration.Color.Semantic.textFieldContrastText
         label.font = Configuration.Font.label
 
         return label
