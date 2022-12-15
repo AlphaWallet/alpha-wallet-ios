@@ -37,7 +37,7 @@ class TransactionTableViewCell: UITableViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.lineBreakMode = .byTruncatingMiddle
-        label.textColor = Colors.appSubtitle
+        label.textColor = Configuration.Color.Semantic.defaultSubtitleText
         label.font = Fonts.regular(size: ScreenChecker.size(big: 13, medium: 13, small: 12))
 
         return label
