@@ -100,8 +100,6 @@ extension UITabBarController {
 }
 
 struct Colors {
-    static let appBackground = UIColor.white
-    static let apprecationRed = UIColor(hex: "ff3b30")
     static let appRed = R.color.danger()!
     static let appSubtitle = UIColor(red: 117, green: 117, blue: 117)
     static let appText = R.color.black()!
@@ -327,7 +325,7 @@ enum Screen {
                 case .appreciate:
                     return Configuration.Color.Semantic.appreciation
                 case .depreciate:
-                    return Colors.apprecationRed
+                    return Configuration.Color.Semantic.depreciation
                 case .none:
                     return emptyValueColor
                 }
