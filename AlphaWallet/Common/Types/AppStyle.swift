@@ -120,7 +120,7 @@ struct Colors {
     // static let darkGray = UIColor(hex: "2f2f2f")
     // static let disabledActionButton = UIColor(hex: "d7ebc8")
     // static let dove = R.color.dove()!
-    static let gray = UIColor.gray
+    // static let gray = UIColor.gray
     // static let green = R.color.green()!
     static let lightBlack = UIColor(hex: "313849")
     // static let lightGray = UIColor.lightGray

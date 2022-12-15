@@ -14,7 +14,7 @@ final class BrowserErrorView: UIView {
     private lazy var textLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
-        label.textColor = Colors.gray
+        label.textColor = Configuration.Color.Semantic.alternativeText
         label.font = UIFont.systemFont(ofSize: 18)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
