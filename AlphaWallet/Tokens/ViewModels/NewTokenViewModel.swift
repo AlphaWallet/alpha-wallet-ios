@@ -20,7 +20,7 @@ struct NewTokenViewModel {
     }
 
     var choiceLabelColor: UIColor {
-        return Colors.appGrayLabel
+        return Configuration.Color.Semantic.defaultSubtitleText
     }
 
     var choiceLabelFont: UIFont {

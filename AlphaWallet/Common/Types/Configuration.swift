@@ -279,10 +279,10 @@ struct Configuration {
 
             static let border = UIColor(red: 194, green: 194, blue: 194)
             static let text = Colors.appText
-            static let label = Colors.appGrayLabel
+            // static let label = Colors.appGrayLabel
             static let textFieldStatus = Configuration.Color.Semantic.defaultErrorText
             static let icon = Colors.appTint
-            static let secondary = Colors.appGrayLabel
+            // static let secondary = Colors.appGrayLabel
             static let textFieldError = Colors.appRed
             static let textFieldShadowWhileEditing = Colors.appTint
             static let placeholder = UIColor(hex: "919191")
