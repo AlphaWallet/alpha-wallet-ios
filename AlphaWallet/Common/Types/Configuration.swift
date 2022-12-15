@@ -279,6 +279,8 @@ struct Configuration {
                 return colorFrom(trait: trait, lightColor: R.color.alabaster()!, darkColor: R.color.venus()!)
             }
 
+            static let appreciation = UIColor(red: 117, green: 185, blue: 67)
+
             static let border = UIColor(red: 194, green: 194, blue: 194)
             static let text = Colors.appText
             // static let label = Colors.appGrayLabel
