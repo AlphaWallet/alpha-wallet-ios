@@ -236,6 +236,10 @@ struct Configuration {
                 return colorFrom(trait: trait, lightColor: R.color.azure()!, darkColor: R.color.dodge()!)
             }
 
+            static let tabBarUnselected = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.dove()!, darkColor: R.color.dusty()!)
+            }
+
             static let tabBarSeparator = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.mercury()!, darkColor: R.color.venus()!)
             }
