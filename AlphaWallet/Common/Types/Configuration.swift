@@ -43,6 +43,7 @@ struct Configuration {
                 return colorFrom(trait: trait, lightColor: R.color.azure()!, darkColor: R.color.dodge()!)
             }
             static let loading = R.color.loadingBackground()!
+            static let loadingIndicatorBorder = UIColor(red: 237, green: 237, blue: 237)
             static let alternativeText = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: .darkGray, darkColor: .lightGray)
             }

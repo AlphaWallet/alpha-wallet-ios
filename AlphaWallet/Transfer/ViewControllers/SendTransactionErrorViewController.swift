@@ -109,7 +109,7 @@ class SendTransactionErrorViewController: UIViewController {
         if let rectifyErrorTitle = viewModel.rectifyErrorButtonTitle {
             buttonsBar.configure()
             let button = buttonsBar.buttons[0]
-            button.shrinkBorderColor = Colors.loadingIndicatorBorder
+            button.shrinkBorderColor = Configuration.Color.Semantic.loadingIndicatorBorder
             button.setTitle(rectifyErrorTitle, for: .normal)
             button.addTarget(self, action: #selector(rectifyErrorButtonTapped), for: .touchUpInside)
             footerBar.isHidden = false
