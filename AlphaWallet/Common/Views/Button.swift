@@ -33,7 +33,7 @@ enum ButtonStyle {
         case .solid, .squared: return Colors.appTint
         case .border, .borderless: return Configuration.Color.Semantic.defaultViewBackground
         case .system: return .clear
-        case .special: return Colors.concrete
+        case .special: return Configuration.Color.Semantic.specialButton
         case .green: return ButtonsBarViewModel.primaryButton.buttonBackgroundColor
         }
     }
@@ -44,7 +44,7 @@ enum ButtonStyle {
         case .border: return Colors.appTint
         case .borderless: return Configuration.Color.Semantic.defaultViewBackground
         case .system: return .clear
-        case .special: return Colors.concrete
+        case .special: return Configuration.Color.Semantic.specialButton
         case .green: return ButtonsBarViewModel.primaryButton.buttonBackgroundColor
         }
     }
