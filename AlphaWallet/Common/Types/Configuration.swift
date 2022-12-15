@@ -233,6 +233,10 @@ struct Configuration {
                 return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.cod()!)
             }
 
+            static let searchbarPlaceholder = UIColor.lightGray
+
+            static let seedText = UIColor.lightGray
+            
             static let tabBarBackground = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.cod()!)
             }

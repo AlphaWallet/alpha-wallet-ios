@@ -10,7 +10,7 @@ struct VerifySeedPhraseViewModel {
     }
 
     var seedPhraseTextViewBorderNormalColor: UIColor {
-        return Colors.lightGray
+        return Configuration.Color.Semantic.seedText
     }
 
     var seedPhraseTextViewBorderErrorColor: UIColor {
