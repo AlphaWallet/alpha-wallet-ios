@@ -108,7 +108,7 @@ struct Colors {
     // static let appGreenContrastBackground = UIColor(red: 86, green: 153, blue: 8)
     // static let appHighlightGreen = UIColor(red: 117, green: 185, blue: 67)
     // static let apprecationGreen = Colors.appHighlightGreen
-    static let apprecationRed = UIColor(hex: "ff3b30")
+    // static let apprecationRed = UIColor(hex: "ff3b30")
     static let appRed = R.color.danger()!
     static let appSubtitle = UIColor(red: 117, green: 117, blue: 117)
     static let appText = R.color.black()!
@@ -334,7 +334,7 @@ enum Screen {
                 case .appreciate:
                     return Configuration.Color.Semantic.appreciation
                 case .depreciate:
-                    return Colors.apprecationRed
+                    return Configuration.Color.Semantic.depreciation
                 case .none:
                     return emptyValueColor
                 }
