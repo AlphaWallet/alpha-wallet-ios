@@ -303,7 +303,7 @@ struct Configuration {
             static let fail = depreciation
 
             static let border = UIColor(red: 194, green: 194, blue: 194)
-            static let text = Colors.appText
+            // static let text = Colors.appText
             // static let label = Colors.appGrayLabel
             static let textFieldStatus = Configuration.Color.Semantic.defaultErrorText
             static let icon = Colors.appTint

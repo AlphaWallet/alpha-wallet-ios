@@ -6,7 +6,7 @@ import UIKit
 struct StateViewModel {
 
     var titleTextColor: UIColor {
-        return Colors.appText
+        return Configuration.Color.Semantic.defaultForegroundText
    }
 
     var titleFont: UIFont {
@@ -14,7 +14,7 @@ struct StateViewModel {
     }
 
     var descriptionTextColor: UIColor {
-        return Colors.appText
+        return Configuration.Color.Semantic.defaultForegroundText
     }
 
     var descriptionFont: UIFont {

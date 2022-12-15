@@ -220,7 +220,7 @@ struct ImportMagicTokenViewControllerViewModel {
     }
 
     var ethCostLabelLabelColor: UIColor {
-        return Colors.appText
+        return Configuration.Color.Semantic.defaultForegroundText
     }
 
     var ethCostLabelLabelFont: UIFont {
@@ -238,7 +238,7 @@ struct ImportMagicTokenViewControllerViewModel {
     }
 
     var ethCostLabelColor: UIColor {
-        return Colors.appText
+        return Configuration.Color.Semantic.defaultForegroundText
     }
 
     var ethCostLabelFont: UIFont {
@@ -250,7 +250,7 @@ struct ImportMagicTokenViewControllerViewModel {
     }
 
     var dollarCostLabelLabelColor: UIColor {
-        return Colors.appText
+        return Configuration.Color.Semantic.defaultForegroundText
     }
 
     var dollarCostLabelLabelFont: UIFont {

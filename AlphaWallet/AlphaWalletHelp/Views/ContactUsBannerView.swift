@@ -59,7 +59,7 @@ class ContactUsBannerView: UIView {
 
         imageView.image = R.image.onboarding_contact()
 
-        label.textColor = Colors.appText
+        label.textColor = Configuration.Color.Semantic.defaultForegroundText
         label.font = Fonts.regular(size: 18)
         label.text = R.string.localizable.aHelpContactFooterButtonTitle()
     }

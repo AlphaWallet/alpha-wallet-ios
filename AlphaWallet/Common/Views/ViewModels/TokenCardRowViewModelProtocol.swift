@@ -34,7 +34,7 @@ extension TokenCardRowViewModelProtocol {
     }
 
     var titleColor: UIColor {
-        return Colors.appText
+        return Configuration.Color.Semantic.defaultForegroundText
     }
 
     var countColor: UIColor {

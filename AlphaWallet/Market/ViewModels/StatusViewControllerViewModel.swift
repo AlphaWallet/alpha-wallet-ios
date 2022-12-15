@@ -28,7 +28,7 @@ struct StatusViewControllerViewModel {
 		}
 	}
 	var titleColor: UIColor {
-		return Colors.appText
+		return Configuration.Color.Semantic.defaultForegroundText
 	}
 	var titleFont: UIFont {
 		return Fonts.regular(size: 25)
