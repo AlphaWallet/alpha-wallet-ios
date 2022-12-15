@@ -110,6 +110,7 @@ struct Configuration {
             static let periodButtonNormalBackground = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.cod()!)
             }
+            static let defaultButtonBorder = R.color.alabaster()!
 
             static let labelTextActive = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.mine()!, darkColor: R.color.white()!)

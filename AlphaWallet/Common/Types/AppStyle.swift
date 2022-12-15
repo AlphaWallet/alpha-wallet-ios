@@ -100,35 +100,34 @@ extension UITabBarController {
 }
 
 struct Colors {
-    static let lightGray = UIColor.lightGray
-    static let gray = UIColor.gray
-    static let darkGray = UIColor(hex: "2f2f2f")
-    static let black = UIColor(hex: "313849")
-    static let lightBlack = UIColor(hex: "313849")
-    static let clear = UIColor.clear
-    static let appBackground = UIColor.white
-    static let appTint = R.color.azure()!
-    static let navigationTitleColor = UIColor.black
-    static let appWhite = UIColor.white
-    static let appText = R.color.black()!
-    static let appSubtitle = UIColor(red: 117, green: 117, blue: 117)
-    static let appHighlightGreen = UIColor(red: 117, green: 185, blue: 67)
     static let appActionButtonGreen = UIColor(red: 105, green: 200, blue: 0)
-    static let disabledActionButton = UIColor(hex: "d7ebc8")
     static let appActionButtonShadow = UIColor.clear
-    static let appGreenContrastBackground = UIColor(red: 86, green: 153, blue: 8)
-    static let appRed = R.color.danger()!
-    static let green = R.color.green()!
-    static let dove = R.color.dove()!
-    static let alabaster = R.color.alabaster()!
-    static let apprecationRed = UIColor(hex: "ff3b30")
-    static let apprecationGreen = Colors.appHighlightGreen
+    static let appBackground = UIColor.white
     static let appGrayLabel = UIColor(red: 155, green: 155, blue: 155)
-    static let settingsSubtitle = UIColor(red: 141, green: 141, blue: 141)
-    static let qrCodeRectBorders = UIColor(red: 216, green: 216, blue: 216)
-    static let loadingIndicatorBorder = UIColor(red: 237, green: 237, blue: 237)
+    static let appGreenContrastBackground = UIColor(red: 86, green: 153, blue: 8)
+    static let appHighlightGreen = UIColor(red: 117, green: 185, blue: 67)
+    static let apprecationGreen = Colors.appHighlightGreen
+    static let apprecationRed = UIColor(hex: "ff3b30")
+    static let appRed = R.color.danger()!
+    static let appSubtitle = UIColor(red: 117, green: 117, blue: 117)
+    static let appText = R.color.black()!
+    static let appTint = R.color.azure()!
+    static let appWhite = UIColor.white
+    static let black = UIColor(hex: "313849")
+    static let clear = UIColor.clear
     static let concrete = R.color.concrete()!
+    static let darkGray = UIColor(hex: "2f2f2f")
+    static let disabledActionButton = UIColor(hex: "d7ebc8")
+    static let dove = R.color.dove()!
+    static let gray = UIColor.gray
+    static let green = R.color.green()!
+    static let lightBlack = UIColor(hex: "313849")
+    static let lightGray = UIColor.lightGray
     static let loadingBackground = R.color.loadingBackground()!
+    static let loadingIndicatorBorder = UIColor(red: 237, green: 237, blue: 237)
+    static let navigationTitleColor = UIColor.black
+    static let qrCodeRectBorders = UIColor(red: 216, green: 216, blue: 216)
+    static let settingsSubtitle = UIColor(red: 141, green: 141, blue: 141)
 }
 
 struct Fonts {
