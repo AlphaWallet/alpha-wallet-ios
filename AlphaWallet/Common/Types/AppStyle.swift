@@ -117,7 +117,6 @@ struct Colors {
     static let loadingIndicatorBorder = UIColor(red: 237, green: 237, blue: 237)
     static let navigationTitleColor = UIColor.black
     static let qrCodeRectBorders = UIColor(red: 216, green: 216, blue: 216)
-    static let settingsSubtitle = UIColor(red: 141, green: 141, blue: 141)
 }
 
 struct Fonts {
