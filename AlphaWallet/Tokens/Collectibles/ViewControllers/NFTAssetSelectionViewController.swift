@@ -315,7 +315,7 @@ extension NFTAssetSelectionViewController {
         isSearchBarConfigured = true
 
         if let placeholderLabel = searchController.searchBar.firstSubview(ofType: UILabel.self) {
-            placeholderLabel.textColor = Colors.lightGray
+            placeholderLabel.textColor = Configuration.Color.Semantic.searchbarPlaceholder
         }
         if let textField = searchController.searchBar.firstSubview(ofType: UITextField.self) {
             textField.textColor = Colors.appText

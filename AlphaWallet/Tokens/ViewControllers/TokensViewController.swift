@@ -647,7 +647,7 @@ extension TokensViewController.functional {
 extension UISearchBar {
     static func configure(searchBar: UISearchBar, backgroundColor: UIColor = Configuration.Color.Semantic.searchbarBackground) {
         if let placeholderLabel = searchBar.firstSubview(ofType: UILabel.self) {
-            placeholderLabel.textColor = Colors.lightGray
+            placeholderLabel.textColor = Configuration.Color.Semantic.searchbarPlaceholder
         }
         if let textField = searchBar.firstSubview(ofType: UITextField.self) {
             textField.textColor = Configuration.Color.Semantic.defaultForegroundText
