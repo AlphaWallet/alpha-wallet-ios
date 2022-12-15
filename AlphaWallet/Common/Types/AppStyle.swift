@@ -108,7 +108,6 @@ struct Colors {
     static let gray = UIColor.gray
     static let lightBlack = UIColor(hex: "313849")
     static let lightGray = UIColor.lightGray
-    static let navigationTitleColor = UIColor.black
 }
 
 struct Fonts {
