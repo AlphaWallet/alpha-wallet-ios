@@ -50,7 +50,7 @@ struct ImportMagicTokenViewControllerViewModel {
     }
 
     var activityIndicatorColor: UIColor {
-        return Colors.navigationTitleColor
+        return Configuration.Color.Semantic.navigationbarPrimaryFont
     }
     var showActivityIndicator: Bool {
         switch state {

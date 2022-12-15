@@ -34,7 +34,7 @@ struct StatusViewControllerViewModel {
 		return Fonts.regular(size: 25)
 	}
 	var activityIndicatorColor: UIColor {
-		return Colors.navigationTitleColor
+		return Configuration.Color.Semantic.navigationbarPrimaryFont
 	}
 	var actionButtonTitleColor: UIColor {
 		return Colors.appWhite

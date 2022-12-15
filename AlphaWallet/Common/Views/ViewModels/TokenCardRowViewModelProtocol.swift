@@ -46,7 +46,7 @@ extension TokenCardRowViewModelProtocol {
     }
 
     var iconsColor: UIColor {
-        return Colors.navigationTitleColor
+        return Configuration.Color.Semantic.symbol
     }
 
     var tokenCountFont: UIFont {
