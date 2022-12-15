@@ -10,7 +10,7 @@ import UIKit
 struct ShowAddHideTokensViewModel {
     var addHideTokensIcon: UIImage?
     var addHideTokensTitle: String? = R.string.localizable.walletsAddHideTokensTitle()
-    var addHideTokensTintColor: UIColor = Colors.appTint
+    var addHideTokensTintColor: UIColor = Configuration.Color.Semantic.appTint
     var addHideTokensTintFont: UIFont = Fonts.semibold(size: 17)
 
     var addHideTokensAttributedString: NSAttributedString? {

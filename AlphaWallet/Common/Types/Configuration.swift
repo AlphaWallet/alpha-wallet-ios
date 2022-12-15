@@ -53,6 +53,10 @@ struct Configuration {
                 return colorFrom(trait: trait, lightColor: R.color.azure()!, darkColor: R.color.dodge()!)
             }
 
+            static let appTint = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.azure()!, darkColor: R.color.dodge()!)
+            }
+
             static let disabledActionButton = UIColor(hex: "d7ebc8")
             static let specialButton = R.color.concrete()!
             
@@ -306,10 +310,10 @@ struct Configuration {
             // static let text = Colors.appText
             // static let label = Colors.appGrayLabel
             static let textFieldStatus = Configuration.Color.Semantic.defaultErrorText
-            static let icon = Colors.appTint
+            static let icon = Configuration.Color.Semantic.appTint
             // static let secondary = Colors.appGrayLabel
             // static let textFieldError = Configuration.Color.Semantic.dangerBackground
-            static let textFieldShadowWhileEditing = Colors.appTint
+            static let textFieldShadowWhileEditing = Configuration.Color.Semantic.appTint
             static let placeholder = UIColor(hex: "919191")
             static let ensText = UIColor(red: 117, green: 185, blue: 67)
             static let searchTextFieldBackground = UIColor(red: 243, green: 244, blue: 245)

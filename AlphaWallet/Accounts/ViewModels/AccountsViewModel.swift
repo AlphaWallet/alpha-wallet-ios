@@ -164,7 +164,7 @@ final class AccountsViewModel {
             complete(true)
         }
         copyAction.image = R.image.copy()?.withRenderingMode(.alwaysTemplate)
-        copyAction.backgroundColor = Colors.appTint
+        copyAction.backgroundColor = Configuration.Color.Semantic.appTint
 
         actions += [copyAction]
 

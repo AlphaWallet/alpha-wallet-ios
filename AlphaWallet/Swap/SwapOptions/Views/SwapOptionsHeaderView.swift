@@ -73,7 +73,7 @@ extension SwapOptionsHeaderView {
 
         let attributedText = NSAttributedString(string: title, attributes: [
             .font: Fonts.bold(size: 17) as Any,
-            .foregroundColor: Colors.appTint,
+            .foregroundColor: Configuration.Color.Semantic.appTint,
             .paragraphStyle: paragraph
         ])
 

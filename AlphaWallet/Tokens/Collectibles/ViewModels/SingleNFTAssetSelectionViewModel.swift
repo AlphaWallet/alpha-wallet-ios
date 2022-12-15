@@ -9,7 +9,7 @@ import UIKit
 import AlphaWalletFoundation
 
 struct SingleNFTAssetSelectionViewModel {
-    var backgroundColor: UIColor = Colors.appTint
+    var backgroundColor: UIColor = Configuration.Color.Semantic.appTint
 
     var selectedAmount: Int? {
         tokenHolder.selectedCount(tokenId: tokenId).flatMap { String($0) }.flatMap { Int($0) }

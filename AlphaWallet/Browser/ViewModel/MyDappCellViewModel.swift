@@ -44,7 +44,7 @@ struct MyDappCellViewModel: Hashable {
     }
 
     var domainNameColor: UIColor? {
-        return Colors.appTint
+        return Configuration.Color.Semantic.appTint
     }
 
     var imageViewShadowColor: UIColor {
