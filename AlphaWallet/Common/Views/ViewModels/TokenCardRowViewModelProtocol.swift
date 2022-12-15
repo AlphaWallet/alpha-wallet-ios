@@ -34,7 +34,7 @@ extension TokenCardRowViewModelProtocol {
     }
 
     var titleColor: UIColor {
-        return Colors.appText
+        return Configuration.Color.Semantic.defaultForegroundText
     }
 
     var countColor: UIColor {
@@ -42,11 +42,11 @@ extension TokenCardRowViewModelProtocol {
     }
 
     var subtitleColor: UIColor {
-        return UIColor(red: 112, green: 112, blue: 112)
+        return Configuration.Color.Semantic.secondary
     }
 
     var iconsColor: UIColor {
-        return Colors.navigationTitleColor
+        return Configuration.Color.Semantic.defaultHeadlineText
     }
 
     var tokenCountFont: UIFont {
@@ -62,11 +62,11 @@ extension TokenCardRowViewModelProtocol {
     }
 
     var stateBackgroundColor: UIColor {
-        return UIColor(red: 151, green: 151, blue: 151)
+        return Configuration.Color.Semantic.tableViewSpecialBackground
     }
 
     var stateColor: UIColor {
-        return .white
+        return Configuration.Color.Semantic.defaultInverseText
     }
 
     var subtitleFont: UIFont {
