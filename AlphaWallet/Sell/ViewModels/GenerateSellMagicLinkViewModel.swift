@@ -37,7 +37,7 @@ struct GenerateSellMagicLinkViewModel {
         return Fonts.regular(size: 20)
     }
     var cancelButtonTitleColor: UIColor {
-        return Colors.appRed
+        return Configuration.Color.Semantic.cancelButtonTitle
     }
     var cancelButtonBackgroundColor: UIColor {
         return .clear

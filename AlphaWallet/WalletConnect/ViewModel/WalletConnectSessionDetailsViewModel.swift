@@ -85,7 +85,7 @@ class WalletConnectSessionDetailsViewModel {
     private func statusFieldAttributedString(session: AlphaWallet.WalletConnect.Session) -> NSAttributedString {
         NSAttributedString(string: provider.isConnected(session.topicOrUrl) ? R.string.localizable.walletConnectStatusOnline() : R.string.localizable.walletConnectStatusOffline(), attributes: [
             .font: Fonts.semibold(size: 17),
-            .foregroundColor: provider.isConnected(session.topicOrUrl) ? Colors.green : Colors.appRed
+            .foregroundColor: provider.isConnected(session.topicOrUrl) ? Configuration.Color.Semantic.pass : Configuration.Color.Semantic.fail
         ])
     }
 

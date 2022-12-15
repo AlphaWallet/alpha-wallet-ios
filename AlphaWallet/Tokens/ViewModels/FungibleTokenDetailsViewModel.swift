@@ -255,12 +255,12 @@ final class FungibleTokenDetailsViewModel {
                 let p = Formatter.percent.string(from: percentage) ?? "-"
                 let v = Formatter.usd.string(from: value) ?? "-"
 
-                return ("\(v) (\(p)%)", Colors.green)
+                return ("\(v) (\(p)%)", Configuration.Color.Semantic.appreciation)
             case .depreciate(let percentage, let value):
                 let p = Formatter.percent.string(from: percentage) ?? "-"
                 let v = Formatter.usd.string(from: value) ?? "-"
 
-                return ("\(v) (\(p)%)", Colors.appRed)
+                return ("\(v) (\(p)%)", Configuration.Color.Semantic.depreciation)
             case .none:
                 return ("-", Colors.black)
             }

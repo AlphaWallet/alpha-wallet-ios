@@ -33,7 +33,7 @@ class TextField: UIControl {
             case .none:
                 return whileEditing ? Configuration.Color.Semantic.textFieldShadowWhileEditing : Configuration.Color.Semantic.border
             case .error:
-                return Configuration.Color.Semantic.textFieldError
+                return Configuration.Color.Semantic.defaultErrorText
             }
         }
 
@@ -51,7 +51,7 @@ class TextField: UIControl {
             case .none:
                 return Configuration.Color.Semantic.defaultForegroundText
             case .error:
-                return Configuration.Color.Semantic.textFieldError
+                return Configuration.Color.Semantic.defaultErrorText
             }
         }
     }

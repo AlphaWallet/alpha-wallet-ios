@@ -176,7 +176,7 @@ final class AccountsViewModel {
             }
 
             deleteAction.image = R.image.close()?.withRenderingMode(.alwaysTemplate)
-            deleteAction.backgroundColor = Colors.appRed
+            deleteAction.backgroundColor = Configuration.Color.Semantic.dangerBackground
 
             actions += [deleteAction]
         }

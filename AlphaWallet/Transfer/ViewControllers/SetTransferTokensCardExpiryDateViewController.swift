@@ -46,7 +46,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .center
-        label.textColor = Colors.appRed
+        label.textColor = Configuration.Color.Semantic.defaultNote
         label.font = Fonts.semibold(size: 21)
 
         return label
@@ -55,7 +55,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .center
-        label.textColor = Colors.appRed
+        label.textColor = Configuration.Color.Semantic.defaultNote
         label.font = Fonts.regular(size: 21)
         label.numberOfLines = 0
 
@@ -65,7 +65,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
         let noteBorderView = UIView()
         noteBorderView.translatesAutoresizingMaskIntoConstraints = false
         noteBorderView.layer.cornerRadius = DataEntry.Metric.CornerRadius.box
-        noteBorderView.layer.borderColor = Colors.appRed.cgColor
+        noteBorderView.layer.borderColor = Configuration.Color.Semantic.defaultNote.cgColor
         noteBorderView.layer.borderWidth = 1
 
         return noteBorderView

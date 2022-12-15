@@ -200,8 +200,9 @@ struct ImportMagicTokenViewControllerViewModel {
 
     var statusColor: UIColor {
         if case .failed = state {
-            return Colors.appRed
+            return Configuration.Color.Semantic.fail
         } else {
+            // TODO --- check if C.C.S.pass should be used here
             return UIColor(red: 20, green: 20, blue: 20)
         }
     }

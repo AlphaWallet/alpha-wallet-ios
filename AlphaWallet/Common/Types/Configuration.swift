@@ -111,6 +111,9 @@ struct Configuration {
             static let defaultButtonBorder = R.color.alabaster()!
             static let actionButtonBackground = UIColor(red: 105, green: 200, blue: 0)
             static let actionButtonShadow = UIColor.clear
+            static let cancelButtonTitle = R.color.danger()!
+            static let deleteButtonTitle = R.color.danger()!
+            static let defaultNote = R.color.danger()!
 
             static let labelTextActive = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.mine()!, darkColor: R.color.white()!)
@@ -279,8 +282,11 @@ struct Configuration {
                 return colorFrom(trait: trait, lightColor: R.color.alabaster()!, darkColor: R.color.venus()!)
             }
 
+            static let dangerBackground = R.color.danger()!
             static let appreciation = UIColor(red: 117, green: 185, blue: 67)
             static let depreciation = UIColor(hex: "ff3b30")
+            static let pass = appreciation
+            static let fail = depreciation
 
             static let border = UIColor(red: 194, green: 194, blue: 194)
             static let text = Colors.appText
@@ -288,7 +294,7 @@ struct Configuration {
             static let textFieldStatus = Configuration.Color.Semantic.defaultErrorText
             static let icon = Colors.appTint
             // static let secondary = Colors.appGrayLabel
-            static let textFieldError = Colors.appRed
+            // static let textFieldError = Configuration.Color.Semantic.dangerBackground
             static let textFieldShadowWhileEditing = Colors.appTint
             static let placeholder = UIColor(hex: "919191")
             static let ensText = UIColor(red: 117, green: 185, blue: 67)

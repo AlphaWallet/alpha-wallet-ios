@@ -125,7 +125,7 @@ func createTokenScriptFileStatusButton(withStatus status: TokenLevelTokenScriptD
             title = error.localizedDescription
         }
         image = R.image.unverified()
-        tintColor = Colors.appRed
+        tintColor = Configuration.Color.Semantic.defaultErrorText
     }
     button.setTitle(title, for: .normal)
     button.setImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)

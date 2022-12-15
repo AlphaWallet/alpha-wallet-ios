@@ -36,7 +36,7 @@ struct TransactionViewModel {
     var amountTextColor: UIColor {
         switch direction {
         case .incoming: return Configuration.Color.Semantic.appreciation
-        case .outgoing: return Colors.appRed
+        case .outgoing: return Configuration.Color.Semantic.depreciation
         }
     }
 

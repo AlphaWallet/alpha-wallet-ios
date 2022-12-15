@@ -116,8 +116,8 @@ class DappViewCell: UICollectionViewCell {
         imageView.clipsToBounds = true
         imageView.kf.setImage(with: viewModel.imageUrl, placeholder: viewModel.fallbackImage)
 
-        deleteButton.tintColor = Colors.appRed
-        deleteButton.imageView?.tintColor = Colors.appRed
+        deleteButton.tintColor = Configuration.Color.Semantic.deleteButtonTitle
+        deleteButton.imageView?.tintColor = Configuration.Color.Semantic.deleteButtonTitle
         deleteButton.setImage(R.image.onboarding_failed(), for: .normal)
 
         titleLabel.textAlignment = .center
