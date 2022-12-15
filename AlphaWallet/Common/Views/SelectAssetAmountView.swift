@@ -18,7 +18,7 @@ struct SelectTokenCardAmountViewModel {
     }
 
     var amountTextFont: UIFont = Fonts.bold(size: 24)
-    var amountTextColor: UIColor = Colors.black
+    var amountTextColor: UIColor = Configuration.Color.Semantic.defaultForegroundText
 
     mutating func increaseCounter() {
         guard counter + 1 <= availableAmount else { return }

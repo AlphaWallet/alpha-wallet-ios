@@ -262,7 +262,7 @@ final class FungibleTokenDetailsViewModel {
 
                 return ("\(v) (\(p)%)", Configuration.Color.Semantic.depreciation)
             case .none:
-                return ("-", Colors.black)
+                return ("-", Configuration.Color.Semantic.defaultForegroundText)
             }
         }()
 
