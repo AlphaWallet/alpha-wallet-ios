@@ -86,7 +86,7 @@ class CircularLoadingIndicatorView: UIView {
         let layer = CAShapeLayer()
         layer.lineCap = CAShapeLayerLineCap.round
         layer.lineWidth = lineWidth
-        layer.fillColor = Colors.clear.cgColor
+        layer.fillColor = UIColor.clear.cgColor
         layer.strokeColor = lineColor.cgColor
         layer.strokeEnd = 0
 
@@ -97,14 +97,14 @@ class CircularLoadingIndicatorView: UIView {
         let layer = CAShapeLayer()
         layer.strokeColor = backgroundLineColor.cgColor
         layer.lineWidth = lineWidth
-        layer.fillColor = Colors.clear.cgColor
+        layer.fillColor = UIColor.clear.cgColor
 
         return layer
     }()
 
     private lazy var checkmarkLayer: CAShapeLayer = {
         let layer = CAShapeLayer()
-        layer.fillColor = Colors.clear.cgColor
+        layer.fillColor = UIColor.clear.cgColor
         layer.lineWidth = checkmarkWidth
         layer.strokeEnd = 0
         layer.strokeColor = checkmarkColor.cgColor

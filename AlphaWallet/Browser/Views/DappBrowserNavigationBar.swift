@@ -90,7 +90,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
         textField.borderStyle = .none
         textField.backgroundColor = Configuration.Color.Semantic.textFieldBackground
         textField.layer.borderWidth = DataEntry.Metric.borderThickness
-        textField.layer.borderColor = Colors.clear.cgColor
+        textField.layer.borderColor = UIColor.clear.cgColor
         textField.cornerRadius = DataEntry.Metric.cornerRadius
 
         return textField
@@ -338,7 +338,7 @@ extension DappBrowserNavigationBar: NavigationBarPresentable {
 extension DappBrowserNavigationBar: UITextFieldDelegate {
 
     func textFieldDidEndEditing(_ textField: UITextField) {
-        textField.layer.borderColor = Colors.clear.cgColor
+        textField.layer.borderColor = UIColor.clear.cgColor
         textField.backgroundColor = Configuration.Color.Semantic.textFieldBackground
 
         textField.dropShadow(color: .clear, radius: DataEntry.Metric.shadowRadius)
