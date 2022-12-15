@@ -192,9 +192,9 @@ struct ImportMagicTokenViewControllerViewModel {
 
     var statusColor: UIColor {
         if case .failed = state {
-            return Colors.appRed
+            return Configuration.Color.Semantic.fail
         } else {
-            return Configuration.Color.Semantic.alternativeText
+            return Configuration.Color.Semantic.pass
         }
     }
 

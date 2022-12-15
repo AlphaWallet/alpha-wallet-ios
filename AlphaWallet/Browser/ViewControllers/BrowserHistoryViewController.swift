@@ -149,7 +149,7 @@ extension BrowserHistoryViewController: UITableViewDelegate {
             }
         }
 
-        deleteAction.backgroundColor = Colors.appRed
+        deleteAction.backgroundColor = Configuration.Color.Semantic.dangerBackground
         deleteAction.image = R.image.hideToken()
 
         let configuration = UISwipeActionsConfiguration(actions: [deleteAction])

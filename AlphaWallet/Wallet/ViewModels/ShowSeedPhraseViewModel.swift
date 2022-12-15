@@ -21,7 +21,7 @@ struct ShowSeedPhraseViewModel {
     }
 
     var errorColor: UIColor {
-        return Colors.appRed
+        return Configuration.Color.Semantic.defaultErrorText
     }
 
     var errorFont: UIFont {

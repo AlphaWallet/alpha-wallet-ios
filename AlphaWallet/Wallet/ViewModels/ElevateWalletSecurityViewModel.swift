@@ -78,6 +78,6 @@ struct ElevateWalletSecurityViewModel {
     }
 
     var cancelLockingButtonTitleColor: UIColor {
-        return Colors.appRed
+        return Configuration.Color.Semantic.cancelButtonTitle
     }
 }

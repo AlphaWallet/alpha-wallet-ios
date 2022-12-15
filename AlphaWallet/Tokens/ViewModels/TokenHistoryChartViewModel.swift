@@ -88,9 +88,9 @@ class TokenHistoryChartViewModel {
     private func gradientColorForTicker(ticker: CoinTicker?) -> UIColor {
         switch TickerHelper(ticker: ticker).change24h {
         case .appreciate, .none:
-            return Configuration.Color.Semantic.actionButtonBackground
+            return Configuration.Color.Semantic.appreciation
         case .depreciate:
-            return Colors.appRed
+            return  Configuration.Color.Semantic.depreciation
         }
     }
 }

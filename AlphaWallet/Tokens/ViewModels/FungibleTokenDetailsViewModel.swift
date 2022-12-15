@@ -267,12 +267,12 @@ final class FungibleTokenDetailsViewModel {
                 let p = NumberFormatter.percent.string(double: percentage) ?? "-"
                 let v = NumberFormatter.fiat(currency: history.currency).string(double: value) ?? "-"
 
-                return ("\(v) (\(p)%)", Colors.green)
+                return ("\(v) (\(p)%)", Configuration.Color.Semantic.appreciation)
             case .depreciate(let percentage, let value):
                 let p = NumberFormatter.percent.string(double: percentage) ?? "-"
                 let v = NumberFormatter.fiat(currency: history.currency).string(double: value) ?? "-"
 
-                return ("\(v) (\(p)%)", Colors.appRed)
+                return ("\(v) (\(p)%)", Configuration.Color.Semantic.depreciation)
             case .none:
                 return ("-", Colors.black)
             }
