@@ -113,7 +113,6 @@ struct Colors {
     static let lightBlack = UIColor(hex: "313849")
     static let lightGray = UIColor.lightGray
     static let navigationTitleColor = UIColor.black
-    static let qrCodeRectBorders = UIColor(red: 216, green: 216, blue: 216)
 }
 
 struct Fonts {
