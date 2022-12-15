@@ -40,7 +40,7 @@ struct StatusViewControllerViewModel {
 		return Colors.appWhite
 	}
 	var actionButtonBackgroundColor: UIColor {
-		return Colors.appActionButtonGreen
+		return Configuration.Color.Semantic.actionButtonBackground
 	}
 	var actionButtonTitleFont: UIFont {
 		return Fonts.regular(size: 20)
