@@ -259,7 +259,7 @@ final class FungibleTokenDetailsViewModel {
 
     private func attributedHistoryValue(period: ChartHistoryPeriod) -> NSAttributedString {
         let result: (string: String, foregroundColor: UIColor) = {
-            guard let history = chartHistories[period] else { return ("-", Colors.black) }
+            guard let history = chartHistories[period] else { return ("-", Configuration.Color.Semantic.defaultForegroundText) }
 
             let result = HistoryHelper(history: history)
 
@@ -275,7 +275,7 @@ final class FungibleTokenDetailsViewModel {
 
                 return ("\(v) (\(p)%)", Configuration.Color.Semantic.depreciation)
             case .none:
-                return ("-", Colors.black)
+                return ("-", Configuration.Color.Semantic.defaultForegroundText)
             }
         }()
 

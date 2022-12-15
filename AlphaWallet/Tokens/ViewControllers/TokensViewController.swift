@@ -72,7 +72,7 @@ final class TokensViewController: UIViewController {
     private lazy var consoleButton: UIButton = {
         let consoleButton = tableViewHeader.consoleButton
         consoleButton.titleLabel?.font = Fonts.regular(size: 22)
-        consoleButton.setTitleColor(Colors.black, for: .normal)
+        consoleButton.setTitleColor(Configuration.Color.Semantic.defaultForegroundText, for: .normal)
         consoleButton.setTitle(R.string.localizable.tokenScriptShowErrors(), for: .normal)
         consoleButton.bounds.size.height = 44
         consoleButton.isHidden = true
