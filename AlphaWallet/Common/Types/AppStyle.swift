@@ -69,7 +69,7 @@ extension UITabBarAppearance {
 
         tabBarItemAppearance.normal.titleTextAttributes = [
             .font: Fonts.regular(size: 13),
-            .foregroundColor: Colors.dove
+            .foregroundColor: Configuration.Color.Semantic.tabBarUnselected
         ]
         tabBarItemAppearance.selected.titleTextAttributes = [
             .font: Fonts.semibold(size: 13),
@@ -106,7 +106,6 @@ struct Colors {
     static let black = UIColor(hex: "313849")
     static let concrete = R.color.concrete()!
     static let darkGray = UIColor(hex: "2f2f2f")
-    static let dove = R.color.dove()!
     static let gray = UIColor.gray
     static let lightBlack = UIColor(hex: "313849")
     static let lightGray = UIColor.lightGray
