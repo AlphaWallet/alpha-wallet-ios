@@ -320,7 +320,7 @@
     }
   },
   {
-    "onlyIfThereIsABalance": false,
+    "onlyIfThereIsABalance": true,
     "contract": {
       "ethereumAddress": "0x89D142Bef8605646881C68dcD48cDAF17FE597dC"
     },
