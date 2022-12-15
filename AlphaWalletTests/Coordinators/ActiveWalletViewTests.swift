@@ -3,6 +3,14 @@
 import XCTest
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import Combine
+import AlphaWalletCore
+
+final class FakeNetworkService: NetworkService {
+    func responseData(_ request: URLRequestConvertible) -> AnyPublisher<(data: Data, response: AlphaWalletCore.DataResponse), PromiseError> {
+        .empty()
+    }
+}
 
 class ActiveWalletViewTests: XCTestCase {
 
@@ -46,7 +54,8 @@ class ActiveWalletViewTests: XCTestCase {
             tokensService: dep.tokensService,
             lock: FakeLock(),
             currencyService: currencyService,
-            tokenScriptOverridesFileManager: .fake())
+            tokenScriptOverridesFileManager: .fake(),
+            networkService: FakeNetworkService())
 
         coordinator.start(animated: false)
 
@@ -120,7 +129,8 @@ class ActiveWalletViewTests: XCTestCase {
             tokensService: dep1.tokensService,
             lock: FakeLock(),
             currencyService: currencyService,
-            tokenScriptOverridesFileManager: .fake())
+            tokenScriptOverridesFileManager: .fake(),
+            networkService: FakeNetworkService())
 
         c1.start(animated: false)
 
@@ -156,7 +166,8 @@ class ActiveWalletViewTests: XCTestCase {
             tokensService: dep2.tokensService,
             lock: FakeLock(),
             currencyService: currencyService,
-            tokenScriptOverridesFileManager: .fake())
+            tokenScriptOverridesFileManager: .fake(),
+            networkService: FakeNetworkService())
 
         c1.start(animated: false)
 
@@ -201,7 +212,9 @@ class ActiveWalletViewTests: XCTestCase {
                 tokensService: dep.tokensService,
                 lock: FakeLock(),
                 currencyService: currencyService,
-                tokenScriptOverridesFileManager: .fake())
+                tokenScriptOverridesFileManager: .fake(),
+                networkService: FakeNetworkService())
+
         coordinator.start(animated: false)
         coordinator.showPaymentFlow(for: .send(type: .transaction(TransactionType.nativeCryptocurrency(Token(), destination: .none, amount: .notSet))), server: .main, navigationController: coordinator.navigationController)
 
@@ -247,7 +260,8 @@ class ActiveWalletViewTests: XCTestCase {
             tokensService: dep.tokensService,
             lock: FakeLock(),
             currencyService: currencyService,
-            tokenScriptOverridesFileManager: .fake())
+            tokenScriptOverridesFileManager: .fake(),
+            networkService: FakeNetworkService())
 
         coordinator.start(animated: false)
         coordinator.showPaymentFlow(for: .request, server: .main, navigationController: coordinator.navigationController)
@@ -294,7 +308,8 @@ class ActiveWalletViewTests: XCTestCase {
             tokensService: dep.tokensService,
             lock: FakeLock(),
             currencyService: currencyService,
-            tokenScriptOverridesFileManager: .fake())
+            tokenScriptOverridesFileManager: .fake(),
+            networkService: FakeNetworkService())
         coordinator.start(animated: false)
 
         let viewController = (coordinator.tabBarController.selectedViewController as? UINavigationController)?.viewControllers[0]
@@ -359,7 +374,8 @@ class ActiveWalletViewTests: XCTestCase {
                     tokensService: dep.tokensService,
                     lock: FakeLock(),
                     currencyService: currencyService,
-                    tokenScriptOverridesFileManager: .fake())
+                    tokenScriptOverridesFileManager: .fake(),
+                    networkService: FakeNetworkService())
 
             coordinator.start(animated: false)
 

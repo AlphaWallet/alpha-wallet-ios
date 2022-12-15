@@ -234,7 +234,7 @@ extension AddCustomChain.functional {
                 .replacingOccurrences(of: "https://", with: "https://api.")
                 .replacingOccurrences(of: "http://", with: "http://api.")
         //Careful to use `action=tokentx` and not `action=tokennfttx` because only the former works with both Etherscan and Blockscout
-        guard let url =  EtherscanURLBuilder(host: urlString).buildWithTokentx() else {
+        guard let url = EtherscanURLBuilder(host: urlString).buildWithTokentx() else {
             return Promise(error: AddCustomChainError.invalidBlockchainExplorerUrl)
         }
         return firstly {

@@ -45,7 +45,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
             Config.setChainId(newValue.chainID)
         }
     }
-
+    private let networkService: NetworkService
     private var enableToolbar: Bool = true {
         didSet {
             navigationController.isToolbarHidden = !enableToolbar
@@ -73,19 +73,20 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
 
     weak var delegate: DappBrowserCoordinatorDelegate?
 
-    init(
-        sessionsProvider: SessionsProvider,
-        keystore: Keystore,
-        config: Config,
-        browserOnly: Bool,
-        analytics: AnalyticsLogger,
-        domainResolutionService: DomainResolutionServiceType,
-        assetDefinitionStore: AssetDefinitionStore,
-        tokensService: TokenViewModelState,
-        bookmarksStore: BookmarksStore,
-        browserHistoryStorage: BrowserHistoryStorage,
-        wallet: Wallet
-    ) {
+    init(sessionsProvider: SessionsProvider,
+         keystore: Keystore,
+         config: Config,
+         browserOnly: Bool,
+         analytics: AnalyticsLogger,
+         domainResolutionService: DomainResolutionServiceType,
+         assetDefinitionStore: AssetDefinitionStore,
+         tokensService: TokenViewModelState,
+         bookmarksStore: BookmarksStore,
+         browserHistoryStorage: BrowserHistoryStorage,
+         wallet: Wallet,
+         networkService: NetworkService) {
+
+        self.networkService = networkService
         self.wallet = wallet
         self.tokensService = tokensService
         self.navigationController = NavigationController(navigationBarClass: DappBrowserNavigationBar.self, toolbarClass: nil)
@@ -157,7 +158,18 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         do {
             guard let session = sessionsProvider.session(for: server) else { throw DappBrowserError.serverUnavailable }
 
-            let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: .dappTransaction(confirmType: type), analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
+            let coordinator = TransactionConfirmationCoordinator(
+                presentingViewController: navigationController,
+                session: session,
+                transaction: transaction,
+                configuration: .dappTransaction(confirmType: type),
+                analytics: analytics,
+                domainResolutionService: domainResolutionService,
+                keystore: keystore,
+                assetDefinitionStore: assetDefinitionStore,
+                tokensService: tokensService,
+                networkService: networkService)
+
             coordinator.delegate = self
             addCoordinator(coordinator)
             coordinator.start(fromSource: .browser)

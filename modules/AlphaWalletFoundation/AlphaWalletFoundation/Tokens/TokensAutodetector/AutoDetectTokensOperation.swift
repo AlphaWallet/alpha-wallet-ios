@@ -6,17 +6,18 @@
 //
 
 import Foundation
-import PromiseKit
+import Combine
 
 protocol AutoDetectTokensOperationDelegate: class {
     var isAutoDetectingTokens: Bool { get set }
 
     func didDetect(tokensOrContracts: [TokenOrContract])
-    func autoDetectTokensImpl(withContracts contractsToDetect: [ContractToImport]) -> Promise<[TokenOrContract]>
+    func autoDetectTokensImpl(withContracts contractsToDetect: [ContractToImport]) -> AnyPublisher<[TokenOrContract], Never>
 }
 
 final class AutoDetectTokensOperation: Operation {
     private let tokens: [ContractToImport]
+    private var cancelable = Set<AnyCancellable>()
 
     weak private var delegate: AutoDetectTokensOperationDelegate?
     override var isExecuting: Bool {
@@ -28,30 +29,30 @@ final class AutoDetectTokensOperation: Operation {
     override var isAsynchronous: Bool {
         return true
     }
-    private let session: WalletSession
 
     init(session: WalletSession, delegate: AutoDetectTokensOperationDelegate, tokens: [ContractToImport]) {
         self.delegate = delegate
-        self.session = session
         self.tokens = tokens
         super.init()
         self.queuePriority = session.server.networkRequestsQueuePriority
     } 
 
     override func main() {
-        guard let strongDelegate = delegate else { return }
+        guard let delegate = delegate else { return }
 
-        strongDelegate.autoDetectTokensImpl(withContracts: tokens).done { [weak self] values in
-            guard let strongSelf = self else { return }
+        delegate.autoDetectTokensImpl(withContracts: tokens)
+            .sink(receiveCompletion: { _ in
 
-            strongSelf.willChangeValue(forKey: "isExecuting")
-            strongSelf.willChangeValue(forKey: "isFinished")
-            strongDelegate.isAutoDetectingTokens = false
-            strongSelf.didChangeValue(forKey: "isExecuting")
-            strongSelf.didChangeValue(forKey: "isFinished")
+            }, receiveValue: { values in
 
-            guard !strongSelf.isCancelled else { return }
-            strongSelf.delegate?.didDetect(tokensOrContracts: values)
-        }.cauterize()
+                self.willChangeValue(forKey: "isExecuting")
+                self.willChangeValue(forKey: "isFinished")
+                delegate.isAutoDetectingTokens = false
+                self.didChangeValue(forKey: "isExecuting")
+                self.didChangeValue(forKey: "isFinished")
+
+                guard !self.isCancelled else { return }
+                self.delegate?.didDetect(tokensOrContracts: values)
+            }).store(in: &cancelable)
     } 
 }

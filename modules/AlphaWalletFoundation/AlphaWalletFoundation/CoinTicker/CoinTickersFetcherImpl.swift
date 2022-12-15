@@ -33,7 +33,7 @@ public final class CoinTickersFetcherImpl: CoinTickersFetcher {
         self.storage = storage
     }
 
-    public convenience init() {
+    public convenience init(networkService: NetworkService) {
         let storage: CoinTickersStorage & ChartHistoryStorage & TickerIdsStorage
         if isRunningTests() {
             storage = RealmStore(realm: fakeRealm(), name: "org.alphawallet.swift.realmStore.shared.wallet")
@@ -42,7 +42,7 @@ public final class CoinTickersFetcherImpl: CoinTickersFetcher {
         }
 
         self.init(providers: [
-            CoinGeckoTickersFetcher(storage: storage)
+            CoinGeckoTickersFetcher(storage: storage, networkService: networkService)
         ], storage: storage)
     }
 

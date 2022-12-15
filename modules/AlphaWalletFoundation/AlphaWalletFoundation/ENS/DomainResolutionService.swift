@@ -14,14 +14,15 @@ public class DomainResolutionService {
     private let storage: EnsRecordsStorage
     private let blockiesGenerator: BlockiesGenerator
     private lazy var getEnsAddressResolver = EnsResolver(server: server, storage: storage)
-    private lazy var unstoppableDomainsV2Resolver = UnstoppableDomainsV2Resolver(server: server, storage: storage)
+    private lazy var unstoppableDomainsV2Resolver = UnstoppableDomainsV2Resolver(server: server, storage: storage, networkService: networkService)
     private lazy var ensReverseLookupResolver = EnsReverseResolver(server: server, storage: storage)
-
+    private let networkService: NetworkService
     public let server: RPCServer = .forResolvingEns
 
-    public init(blockiesGenerator: BlockiesGenerator, storage: EnsRecordsStorage) {
+    public init(blockiesGenerator: BlockiesGenerator, storage: EnsRecordsStorage, networkService: NetworkService) {
         self.blockiesGenerator = blockiesGenerator
         self.storage = storage
+        self.networkService = networkService
     }
 }
 

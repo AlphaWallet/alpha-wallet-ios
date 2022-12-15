@@ -128,16 +128,14 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
     }()
     private let currencyService: CurrencyService
 
-    init(
-        analytics: AnalyticsLogger,
-        paymentFlow: PaymentFlow,
-        viewModel: EnterSellTokensCardPriceQuantityViewModel,
-        assetDefinitionStore: AssetDefinitionStore,
-        walletSession: WalletSession,
-        keystore: Keystore,
-        service: TokenViewModelState,
-        currencyService: CurrencyService
-    ) {
+    init(analytics: AnalyticsLogger,
+         paymentFlow: PaymentFlow,
+         viewModel: EnterSellTokensCardPriceQuantityViewModel,
+         assetDefinitionStore: AssetDefinitionStore,
+         walletSession: WalletSession,
+         keystore: Keystore,
+         service: TokenViewModelState,
+         currencyService: CurrencyService) {
         self.currencyService = currencyService
         self.service = service
         self.analytics = analytics

@@ -8,7 +8,6 @@
 import Foundation
 import Combine
 import SwiftyJSON
-import Alamofire
 import AlphaWalletCore
 
 public class FakeCoinGeckoNetworkProvider: CoinTickerNetworkProviderType {
@@ -28,10 +27,15 @@ public class FakeCoinGeckoNetworkProvider: CoinTickerNetworkProviderType {
 
 public class CoinGeckoNetworkProvider: CoinTickerNetworkProviderType {
     private let decoder = JSONDecoder()
+    private let networkService: NetworkService
+
+    init(networkService: NetworkService) {
+        self.networkService = networkService
+    }
 
     public func fetchSupportedTickerIds() -> AnyPublisher<[TickerId], PromiseError> {
-        Alamofire.request(TokensThatHasPricesRequest())
-            .responseDataPublisher()
+        networkService
+            .responseData(TokensThatHasPricesRequest())
             .retry(times: 3)
             .tryMap { [decoder] in try decoder.decode([TickerId].self, from: $0.data) }
             .mapError { PromiseError.some(error: $0) }
@@ -62,8 +66,8 @@ public class CoinGeckoNetworkProvider: CoinTickerNetworkProviderType {
     }
 
     public func fetchChartHistory(for period: ChartHistoryPeriod, tickerId: String, currency: Currency) -> AnyPublisher<ChartHistory, PromiseError> {
-        return Alamofire.request(PriceHistoryOfTokenRequest(id: tickerId, currency: currency.code, days: period.rawValue))
-            .responseDataPublisher()
+        return networkService
+            .responseData(PriceHistoryOfTokenRequest(id: tickerId, currency: currency.code, days: period.rawValue))
             .retry(times: 3)
             .tryMap { try ChartHistory(json: try JSON(data: $0.data), currency: currency) }
             .mapError { PromiseError.some(error: $0) }
@@ -72,8 +76,8 @@ public class CoinGeckoNetworkProvider: CoinTickerNetworkProviderType {
     }
 
     private func fetchPricesPage(for tickerIds: String, page: Int, currency: Currency) -> AnyPublisher<[CoinTicker], PromiseError> {
-        return Alamofire.request(PricesOfTokensRequest(ids: tickerIds, currency: currency.code, page: page))
-            .responseDataPublisher()
+        return networkService
+            .responseData(PricesOfTokensRequest(ids: tickerIds, currency: currency.code, page: page))
             .retry(times: 3)
             .tryMap { [decoder] in
                 do {

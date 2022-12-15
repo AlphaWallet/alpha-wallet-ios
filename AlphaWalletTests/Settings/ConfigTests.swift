@@ -10,7 +10,15 @@ extension WalletConnectCoordinator {
     static func fake() -> WalletConnectCoordinator {
         let keystore = FakeEtherKeystore()
         let sessionProvider: SessionsProvider = .make(wallet: .make(), servers: [.main])
-        return WalletConnectCoordinator(keystore: keystore, navigationController: .init(), analytics: FakeAnalyticsService(), domainResolutionService: FakeDomainResolutionService(), config: .make(), sessionProvider: sessionProvider, assetDefinitionStore: AssetDefinitionStore())
+        return WalletConnectCoordinator(
+            keystore: keystore,
+            navigationController: .init(),
+            analytics: FakeAnalyticsService(),
+            domainResolutionService: FakeDomainResolutionService(),
+            config: .make(),
+            sessionProvider: sessionProvider,
+            assetDefinitionStore: AssetDefinitionStore(),
+            networkService: FakeNetworkService())
     }
 }
 

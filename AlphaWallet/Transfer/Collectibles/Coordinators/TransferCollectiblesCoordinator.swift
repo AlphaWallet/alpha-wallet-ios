@@ -28,21 +28,24 @@ class TransferCollectiblesCoordinator: Coordinator {
     private let filteredTokenHolders: [TokenHolder]
     private var transactionConfirmationResult: ConfirmResult? = .none
     private let tokensService: TokenViewModelState
+    private let networkService: NetworkService
+
     weak var delegate: TransferCollectiblesCoordinatorDelegate?
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
 
-    init(
-            session: WalletSession,
-            navigationController: UINavigationController,
-            keystore: Keystore,
-            filteredTokenHolders: [TokenHolder],
-            token: Token,
-            assetDefinitionStore: AssetDefinitionStore,
-            analytics: AnalyticsLogger,
-            domainResolutionService: DomainResolutionServiceType,
-            tokensService: TokenViewModelState
-    ) {
+    init(session: WalletSession,
+         navigationController: UINavigationController,
+         keystore: Keystore,
+         filteredTokenHolders: [TokenHolder],
+         token: Token,
+         assetDefinitionStore: AssetDefinitionStore,
+         analytics: AnalyticsLogger,
+         domainResolutionService: DomainResolutionServiceType,
+         tokensService: TokenViewModelState,
+         networkService: NetworkService) {
+
+        self.networkService = networkService
         self.tokensService = tokensService
         self.filteredTokenHolders = filteredTokenHolders
         self.session = session
@@ -96,7 +99,7 @@ extension TransferCollectiblesCoordinator: SendSemiFungibleTokenViewControllerDe
             let transaction = try transactionType.buildSendErc1155Token(recipient: recipient, account: session.account.address)
 
             let configuration: TransactionType.Configuration = .sendNftTransaction(confirmType: .signThenSend)
-            let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
+            let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService, networkService: networkService)
             addCoordinator(coordinator)
             coordinator.delegate = self
             coordinator.start(fromSource: .sendNft)

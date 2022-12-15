@@ -31,6 +31,7 @@ public class AlphaWalletTokensService: TokensService {
     private let transactionsStorage: TransactionDataStore
     private let nftProvider: NFTProvider
     private let assetDefinitionStore: AssetDefinitionStore
+    private let networkService: NetworkService
 
     public lazy var tokensPublisher: AnyPublisher<[Token], Never> = {
         providers.map { $0.values }
@@ -64,7 +65,16 @@ public class AlphaWalletTokensService: TokensService {
             .eraseToAnyPublisher()
     }()
 
-    public init(sessionsProvider: SessionsProvider, tokensDataStore: TokensDataStore, analytics: AnalyticsLogger, importToken: ImportToken, transactionsStorage: TransactionDataStore, nftProvider: NFTProvider, assetDefinitionStore: AssetDefinitionStore) {
+    public init(sessionsProvider: SessionsProvider,
+                tokensDataStore: TokensDataStore,
+                analytics: AnalyticsLogger,
+                importToken: ImportToken,
+                transactionsStorage: TransactionDataStore,
+                nftProvider: NFTProvider,
+                assetDefinitionStore: AssetDefinitionStore,
+                networkService: NetworkService) {
+
+        self.networkService = networkService
         self.sessionsProvider = sessionsProvider
         self.tokensDataStore = tokensDataStore
         self.importToken = importToken
@@ -124,10 +134,24 @@ public class AlphaWalletTokensService: TokensService {
 
     private func makeTokenSource(session: WalletSession) -> TokenSourceProvider {
         let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: session.server)
-        let balanceFetcher = TokenBalanceFetcher(session: session, nftProvider: nftProvider, tokensService: self, etherToken: etherToken, assetDefinitionStore: assetDefinitionStore, analytics: analytics, importToken: importToken)
+        let balanceFetcher = TokenBalanceFetcher(session: session,
+                                                 nftProvider: nftProvider,
+                                                 tokensService: self,
+                                                 etherToken: etherToken,
+                                                 assetDefinitionStore: assetDefinitionStore,
+                                                 analytics: analytics,
+                                                 importToken: importToken)
+        
         balanceFetcher.erc721TokenIdsFetcher = transactionsStorage
         
-        return ClientSideTokenSourceProvider(session: session, autoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, autoDetectTokensQueue: autoDetectTokensQueue, importToken: importToken, tokensDataStore: tokensDataStore, balanceFetcher: balanceFetcher)
+        return ClientSideTokenSourceProvider(
+            session: session,
+            autoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue,
+            autoDetectTokensQueue: autoDetectTokensQueue,
+            importToken: importToken,
+            tokensDataStore: tokensDataStore,
+            balanceFetcher: balanceFetcher,
+            networkService: networkService)
     }
 
     deinit {

@@ -8,7 +8,6 @@
 import Foundation
 import AlphaWalletCore
 import Combine
-import Alamofire
 
 public protocol OneinchNetworkProviderType {
     func retrieveAssets() -> AnyPublisher<[Oneinch.Asset], PromiseError>
@@ -16,23 +15,28 @@ public protocol OneinchNetworkProviderType {
 
 public final class OneinchNetworkProvider: OneinchNetworkProviderType {
     private let decoder = JSONDecoder()
+    private let networkService: NetworkService
 
-    public init() { }
+    public init(networkService: NetworkService) {
+        self.networkService = networkService
+    }
+
     public func retrieveAssets() -> AnyPublisher<[Oneinch.Asset], PromiseError> {
-        let request = OneInchAssetsRequest()
-        return Alamofire.request(request)
-            .responseDataPublisher()
+        return networkService
+            .responseData(OneInchAssetsRequest())
             .tryMap { [decoder] in try decoder.decode(Oneinch.AssetsResponse.self, from: $0.data).tokens.map { $0.value } }
             .mapError { PromiseError.some(error: $0) }
             .eraseToAnyPublisher()
     }
+}
 
+fileprivate extension OneinchNetworkProvider {
     private struct OneInchAssetsRequest: URLRequestConvertible {
         func asURLRequest() throws -> URLRequest {
             guard var components = URLComponents(url: Constants.OneInch.exchangeUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
             components.path = "/v3.0/1/tokens"
-            let url = try components.asURL()
-            return try URLRequest(url: url, method: .get)
+
+            return try URLRequest(url: try components.asURL(), method: .get)
         }
     }
 }

@@ -2,7 +2,6 @@
 
 import Combine
 import Foundation
-import PromiseKit
 
 public protocol BlockscanChatServiceDelegate: class {
     func openBlockscanChat(url: URL, for: BlockscanChatService)
@@ -11,7 +10,7 @@ public protocol BlockscanChatServiceDelegate: class {
 
 public class BlockscanChatService {
     private static let refreshInterval: TimeInterval = 60
-
+    private let networkService: NetworkService
     private let account: Wallet
     private var blockscanChatsForRealWallets: [BlockscanChat]
     private let walletAddressesStore: WalletAddressesStore
@@ -31,12 +30,12 @@ public class BlockscanChatService {
 
     public weak var delegate: BlockscanChatServiceDelegate?
 
-    public init(walletAddressesStore: WalletAddressesStore, account: Wallet, analytics: AnalyticsLogger) {
+    public init(walletAddressesStore: WalletAddressesStore, account: Wallet, analytics: AnalyticsLogger, networkService: NetworkService) {
         self.blockscanChatsForRealWallets = []
         self.walletAddressesStore = walletAddressesStore
         self.account = account
         self.analytics = analytics
-
+        self.networkService = networkService
         watchForWalletChanges()
         NotificationCenter.default.addObserver(self, selector: #selector(applicationWillEnterForeground(_:)), name: UIApplication.willEnterForegroundNotification, object: nil)
         periodicRefreshTimer = Timer.scheduledTimer(withTimeInterval: Self.refreshInterval, repeats: true) { [weak self] _ in
@@ -49,7 +48,7 @@ public class BlockscanChatService {
     }
 
     private func configureBlockscanChats() {
-        blockscanChatsForRealWallets = realWalletAddresses.map { BlockscanChat(address: $0) }
+        blockscanChatsForRealWallets = realWalletAddresses.map { BlockscanChat(networkService: networkService, address: $0) }
     }
 
     private func refreshUnreadCount(forBlockscanChat blockscanChat: BlockscanChat) {
@@ -57,29 +56,33 @@ public class BlockscanChatService {
 
         guard Features.default.isAvailable(.isBlockscanChatEnabled) else { return }
         guard !Constants.Credentials.blockscanChatProxyKey.isEmpty else { return }
-        firstly {
-            blockscanChat.fetchUnreadCount()
-        }.done { [weak self] unreadCount in
-           guard let strongSelf = self else { return }
-            if unreadCount > 0 {
-                strongSelf.logUnreadAnalytics(resultType: Analytics.BlockscanChatResultType.nonZero)
-            } else {
-                strongSelf.logUnreadAnalytics(resultType: Analytics.BlockscanChatResultType.zero)
-            }
-            if isCurrentRealAccount {
-                strongSelf.delegate?.showBlockscanUnreadCount(unreadCount, for: strongSelf)
-            }
-        }.catch { [weak self] error in
-            guard let strongSelf = self else { return }
-            if let error = error as? AFError, let code = error.responseCode, code == 429 {
-                strongSelf.logUnreadAnalytics(resultType: Analytics.BlockscanChatResultType.error429)
-            } else {
-                strongSelf.logUnreadAnalytics(resultType: Analytics.BlockscanChatResultType.errorOthers)
-            }
-            if isCurrentRealAccount {
-                strongSelf.delegate?.showBlockscanUnreadCount(nil, for: strongSelf)
-            }
-        }
+
+        blockscanChat.fetchUnreadCount()
+            .sink(receiveCompletion: { [weak self] result in
+                guard let strongSelf = self else { return }
+                guard case .failure(let error) = result else { return }
+
+//                if let error = error as? AFError, let code = error.responseCode, code == 429 {
+//                    strongSelf.logUnreadAnalytics(resultType: Analytics.BlockscanChatResultType.error429)
+//                } else {
+//                    strongSelf.logUnreadAnalytics(resultType: Analytics.BlockscanChatResultType.errorOthers)
+//                }
+                if isCurrentRealAccount {
+                    strongSelf.delegate?.showBlockscanUnreadCount(nil, for: strongSelf)
+                }
+
+            }, receiveValue: { [weak self] unreadCount in
+                guard let strongSelf = self else { return }
+
+                 if unreadCount > 0 {
+                     strongSelf.logUnreadAnalytics(resultType: Analytics.BlockscanChatResultType.nonZero)
+                 } else {
+                     strongSelf.logUnreadAnalytics(resultType: Analytics.BlockscanChatResultType.zero)
+                 }
+                 if isCurrentRealAccount {
+                     strongSelf.delegate?.showBlockscanUnreadCount(unreadCount, for: strongSelf)
+                 }
+            }).store(in: &cancelable)
     }
 
     public func openBlockscanChat(forAddress address: AlphaWallet.Address) {

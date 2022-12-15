@@ -20,6 +20,7 @@ class SendCoordinator: Coordinator {
     private let domainResolutionService: DomainResolutionServiceType
     private var transactionConfirmationResult: ConfirmResult? = .none
     private let importToken: ImportToken
+    private let networkService: NetworkService
 
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -29,17 +30,18 @@ class SendCoordinator: Coordinator {
 
     weak var delegate: SendCoordinatorDelegate?
 
-    init(
-            transactionType: TransactionType,
-            navigationController: UINavigationController,
-            session: WalletSession,
-            keystore: Keystore,
-            tokensService: TokenProvidable & TokenAddable & TokenViewModelState & TokenBalanceRefreshable,
-            assetDefinitionStore: AssetDefinitionStore,
-            analytics: AnalyticsLogger,
-            domainResolutionService: DomainResolutionServiceType,
-            importToken: ImportToken
-    ) {
+    init(transactionType: TransactionType,
+         navigationController: UINavigationController,
+         session: WalletSession,
+         keystore: Keystore,
+         tokensService: TokenProvidable & TokenAddable & TokenViewModelState & TokenBalanceRefreshable,
+         assetDefinitionStore: AssetDefinitionStore,
+         analytics: AnalyticsLogger,
+         domainResolutionService: DomainResolutionServiceType,
+         importToken: ImportToken,
+         networkService: NetworkService) {
+        
+        self.networkService = networkService
         self.importToken = importToken
         self.transactionType = transactionType
         self.navigationController = navigationController
@@ -94,7 +96,7 @@ extension SendCoordinator: SendViewControllerDelegate {
     func didPressConfirm(transaction: UnconfirmedTransaction, in viewController: SendViewController) {
         let configuration: TransactionType.Configuration = .sendFungiblesTransaction(confirmType: .signThenSend)
 
-        let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService)
+        let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService, networkService: networkService)
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start(fromSource: .sendFungible)

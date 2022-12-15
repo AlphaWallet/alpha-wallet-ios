@@ -30,6 +30,7 @@ public class WalletComponentsFactory: WalletDependencyContainer {
     public let config: Config
     private let currencyService: CurrencyService
     private var walletDependencies: [Wallet: WalletDependency] = [:]
+    private let networkService: NetworkService
 
     public struct Dependencies: WalletDependency {
         public let activitiesPipeLine: ActivitiesPipeLine
@@ -42,13 +43,14 @@ public class WalletComponentsFactory: WalletDependencyContainer {
         public let eventsDataStore: NonActivityEventsDataStore
     }
 
-    public init(analytics: AnalyticsServiceType, nftProvider: NFTProvider, assetDefinitionStore: AssetDefinitionStore, coinTickersFetcher: CoinTickersFetcher, config: Config, currencyService: CurrencyService) {
+    public init(analytics: AnalyticsServiceType, nftProvider: NFTProvider, assetDefinitionStore: AssetDefinitionStore, coinTickersFetcher: CoinTickersFetcher, config: Config, currencyService: CurrencyService, networkService: NetworkService) {
         self.analytics = analytics
         self.nftProvider = nftProvider
         self.assetDefinitionStore = assetDefinitionStore
         self.coinTickersFetcher = coinTickersFetcher
         self.config = config
         self.currencyService = currencyService
+        self.networkService = networkService
     }
 
     public func makeDependencies(for wallet: Wallet) -> WalletDependency {
@@ -65,7 +67,7 @@ public class WalletComponentsFactory: WalletDependencyContainer {
         let contractDataFetcher = ContractDataFetcher(sessionProvider: sessionsProvider, assetDefinitionStore: assetDefinitionStore, analytics: analytics, reachability: ReachabilityManager())
         let importToken = ImportToken(tokensDataStore: tokensDataStore, contractDataFetcher: contractDataFetcher)
 
-        let tokensService = AlphaWalletTokensService(sessionsProvider: sessionsProvider, tokensDataStore: tokensDataStore, analytics: analytics, importToken: importToken, transactionsStorage: transactionsDataStore, nftProvider: nftProvider, assetDefinitionStore: assetDefinitionStore)
+        let tokensService = AlphaWalletTokensService(sessionsProvider: sessionsProvider, tokensDataStore: tokensDataStore, analytics: analytics, importToken: importToken, transactionsStorage: transactionsDataStore, nftProvider: nftProvider, assetDefinitionStore: assetDefinitionStore, networkService: networkService)
         let pipeline: TokensProcessingPipeline = WalletDataProcessingPipeline(wallet: wallet, tokensService: tokensService, coinTickersFetcher: coinTickersFetcher, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, currencyService: currencyService)
         pipeline.start()
 

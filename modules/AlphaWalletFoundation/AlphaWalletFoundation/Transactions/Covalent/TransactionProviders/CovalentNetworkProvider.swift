@@ -5,7 +5,6 @@
 //  Created by Vladyslav Shepitko on 30.03.2022.
 //
 
-import Alamofire
 import SwiftyJSON 
 import Combine
 import APIKit
@@ -17,34 +16,28 @@ public extension Covalent {
         case requestFailure(PromiseError)
         case sessionError(SessionTaskError)
     }
+}
 
-    public final class NetworkProvider {
-        private let key = Constants.Credentials.covalentApiKey
+final class CovalentNetworkService {
+    private let key = Constants.Credentials.covalentApiKey
+    private let networkService: NetworkService
+    private let walletAddress: AlphaWallet.Address
+    private let server: RPCServer
 
-        func transactions(walletAddress: AlphaWallet.Address, server: RPCServer, page: Int? = nil, pageSize: Int = 5, blockSignedAtAsc: Bool = false) -> AnyPublisher<TransactionsResponse, CovalentError> {
-            return Alamofire
-                .request(ApiUrlProvider.transactions(walletAddress: walletAddress, server: server, page: page, pageSize: pageSize, apiKey: key, blockSignedAtAsc: blockSignedAtAsc))
-                .validate()
-                .responseJSONPublisher(options: [])
-                .tryMap { response -> TransactionsResponse in
-                    guard let rawJson = response.json as? [String: Any] else { throw CovalentError.jsonDecodeFailure }
-                    return try TransactionsResponse(json: JSON(rawJson))
-                }
-                .mapError { return CovalentError.requestFailure(.some(error: $0)) }
-                .eraseToAnyPublisher()
-        }
+    init(networkService: NetworkService, walletAddress: AlphaWallet.Address, server: RPCServer) {
+        self.walletAddress = walletAddress
+        self.server = server
+        self.networkService = networkService
+    }
 
-        func balances(walletAddress: AlphaWallet.Address, server: RPCServer, quoteCurrency: String, nft: Bool, noNftFetch: Bool) -> AnyPublisher<BalancesResponse, CovalentError> {
-            return Alamofire
-                .request(ApiUrlProvider.balances(walletAddress: walletAddress, server: server, quoteCurrency: quoteCurrency, nft: nft, noNftFetch: noNftFetch, apiKey: key))
-                .validate()
-                .responseJSONPublisher(options: [])
-                .tryMap { response -> BalancesResponse in
-                    guard let rawJson = response.json as? [String: Any] else { throw CovalentError.jsonDecodeFailure }
-                    return try BalancesResponse(json: JSON(rawJson))
-                }
-                .mapError { return CovalentError.requestFailure(.some(error: $0)) }
-                .eraseToAnyPublisher()
-        }
+    func transactions(page: Int? = nil, pageSize: Int = 5, blockSignedAtAsc: Bool = false) -> AnyPublisher<Covalent.TransactionsResponse, Covalent.CovalentError> {
+        return networkService
+            .responseData(Covalent.TransactionsRequest(walletAddress: walletAddress, server: server, page: page, pageSize: pageSize, apiKey: key, blockSignedAtAsc: blockSignedAtAsc))
+            .tryMap { response -> Covalent.TransactionsResponse in
+                guard let json = try? JSON(data: response.data) else { throw Covalent.CovalentError.jsonDecodeFailure }
+
+                return try Covalent.TransactionsResponse(json: json)
+            }.mapError { return Covalent.CovalentError.requestFailure(.some(error: $0)) }
+            .eraseToAnyPublisher()
     }
 }

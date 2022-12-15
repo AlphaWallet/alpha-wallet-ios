@@ -10,12 +10,12 @@ import Foundation
 import AlphaWalletCore
 
 public final class CoinGeckoTickersFetcher: BaseCoinTickersFetcher, CoinTickersFetcherProvider {
-    public convenience init(storage: CoinTickersStorage & ChartHistoryStorage & TickerIdsStorage) {
+    public convenience init(storage: CoinTickersStorage & ChartHistoryStorage & TickerIdsStorage, networkService: NetworkService) {
         let networkProvider: CoinTickerNetworkProviderType
         if isRunningTests() {
             networkProvider = FakeCoinGeckoNetworkProvider()
         } else {
-            networkProvider = CoinGeckoNetworkProvider()
+            networkProvider = CoinGeckoNetworkProvider(networkService: networkService)
         }
 
         let supportedTickerIdsFetcher = SupportedTickerIdsFetcher(networkProvider: networkProvider, storage: storage, config: Config())

@@ -45,10 +45,22 @@ final class SwapTokensCoordinator: Coordinator {
     private let domainResolutionService: DomainResolutionServiceType
     private var transactionConfirmationResult: ConfirmResult? = .none
     private let tokensFilter: TokensFilter
+    private let networkService: NetworkService
+
     var coordinators: [Coordinator] = []
     weak var delegate: SwapTokensCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, configurator: SwapOptionsConfigurator, keystore: Keystore, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, assetDefinitionStore: AssetDefinitionStore, tokenCollection: TokenCollection, tokensFilter: TokensFilter) {
+    init(navigationController: UINavigationController,
+         configurator: SwapOptionsConfigurator,
+         keystore: Keystore,
+         analytics: AnalyticsLogger,
+         domainResolutionService: DomainResolutionServiceType,
+         assetDefinitionStore: AssetDefinitionStore,
+         tokenCollection: TokenCollection,
+         tokensFilter: TokensFilter,
+         networkService: NetworkService) {
+
+        self.networkService = networkService
         self.tokensFilter = tokensFilter
         self.assetDefinitionStore = assetDefinitionStore
         self.tokenCollection = tokenCollection
@@ -173,7 +185,7 @@ extension SwapTokensCoordinator: ApproveSwapProviderDelegate {
     func promptToSwap(unsignedTransaction: UnsignedSwapTransaction, fromToken: TokenToSwap, fromAmount: BigUInt, toToken: TokenToSwap, toAmount: BigUInt, in provider: ApproveSwapProvider) {
         let (transaction, configuration) = configurator.tokenSwapper.buildSwapTransaction(unsignedTransaction: unsignedTransaction, fromToken: fromToken, fromAmount: fromAmount, toToken: toToken, toAmount: toAmount)
 
-        let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: configurator.session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokenCollection)
+        let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: configurator.session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokenCollection, networkService: networkService)
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start(fromSource: .swap)
@@ -184,8 +196,8 @@ extension SwapTokensCoordinator: ApproveSwapProviderDelegate {
             Promise.value(token)
         }.map { contract in
             try UnconfirmedTransaction.buildApproveTransaction(contract: contract, server: server, owner: owner, spender: spender, amount: amount)
-        }.then { [navigationController, keystore, analytics, assetDefinitionStore, configurator, tokenCollection, domainResolutionService] (transaction, configuration) in
-            TransactionConfirmationCoordinator.promise(navigationController, session: configurator.session, coordinator: self, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, source: .swapApproval, delegate: self, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokenCollection)
+        }.then { [navigationController, keystore, analytics, assetDefinitionStore, configurator, tokenCollection, domainResolutionService, networkService] (transaction, configuration) in
+            TransactionConfirmationCoordinator.promise(navigationController, session: configurator.session, coordinator: self, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, source: .swapApproval, delegate: self, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokenCollection, networkService: networkService)
         }.map { confirmationResult in
             switch confirmationResult {
             case .signedTransaction, .sentRawTransaction:

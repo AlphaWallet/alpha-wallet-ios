@@ -39,13 +39,14 @@ public class TransactionsService {
     }
     private var cancelable = Set<AnyCancellable>()
     private let queue = DispatchQueue(label: "com.TransactionsService.UpdateQueue")
+    private let networkService: NetworkService
 
-    public init(sessions: ServerDictionary<WalletSession>, transactionDataStore: TransactionDataStore, analytics: AnalyticsLogger, tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable) {
+    public init(sessions: ServerDictionary<WalletSession>, transactionDataStore: TransactionDataStore, analytics: AnalyticsLogger, tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable, networkService: NetworkService) {
         self.sessions = sessions
         self.tokensService = tokensService
         self.transactionDataStore = transactionDataStore
         self.analytics = analytics
-
+        self.networkService = networkService
         setupSingleChainTransactionProviders()
 
         NotificationCenter.default.applicationState
@@ -74,7 +75,7 @@ public class TransactionsService {
             let providerType = each.server.transactionProviderType
             let tokensFromTransactionsFetcher = TokensFromTransactionsFetcher(detectedTokens: tokensService, session: each)
             tokensFromTransactionsFetcher.delegate = self
-            let provider = providerType.init(session: each, analytics: analytics, transactionDataStore: transactionDataStore, tokensService: tokensService, fetchLatestTransactionsQueue: fetchLatestTransactionsQueue, tokensFromTransactionsFetcher: tokensFromTransactionsFetcher)
+            let provider = providerType.init(session: each, analytics: analytics, transactionDataStore: transactionDataStore, tokensService: tokensService, fetchLatestTransactionsQueue: fetchLatestTransactionsQueue, tokensFromTransactionsFetcher: tokensFromTransactionsFetcher, networkService: networkService)
             provider.delegate = self
 
             return provider

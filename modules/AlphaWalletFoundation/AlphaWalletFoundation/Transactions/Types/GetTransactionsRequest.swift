@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Alamofire
 
 struct GetTransactions: URLRequestConvertible {
     struct NoBlockchainExplorerApi: Error {
@@ -47,6 +46,6 @@ struct GetTransactions: URLRequestConvertible {
             "client-build": Bundle.main.buildNumber ?? "",
         ]
 
-        return try URLEncoding().encode(URLRequest(url: url, method: .get), with: parameters)
+        return try URLEncoding().encode(request, with: parameters)
     }
 }

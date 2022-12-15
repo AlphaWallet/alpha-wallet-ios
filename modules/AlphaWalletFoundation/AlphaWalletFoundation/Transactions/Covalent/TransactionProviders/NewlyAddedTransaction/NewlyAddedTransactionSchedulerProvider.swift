@@ -15,9 +15,8 @@ protocol NewlyAddedTransactionSchedulerProviderDelegate: AnyObject {
 
 /// Newly added transactions provider, performs fetching transaction from frist page until it find some of latest existed stored transaction. Once transaction has found the cycle starts from 0 page again
 final class NewlyAddedTransactionSchedulerProvider: SchedulerProvider {
-    private let provider: Covalent.NetworkProvider = .init()
     private let session: WalletSession
-
+    private let networkService: CovalentNetworkService
     private let fetchNewlyAddedTransactionsQueue: OperationQueue
 
     var interval: TimeInterval { return Constants.Covalent.newlyAddedTransactionUpdateInterval }
@@ -28,8 +27,9 @@ final class NewlyAddedTransactionSchedulerProvider: SchedulerProvider {
 
     weak var delegate: NewlyAddedTransactionSchedulerProviderDelegate?
 
-    init(session: WalletSession, fetchNewlyAddedTransactionsQueue: OperationQueue) {
+    init(session: WalletSession, networkService: CovalentNetworkService, fetchNewlyAddedTransactionsQueue: OperationQueue) {
         self.session = session
+        self.networkService = networkService
         self.fetchNewlyAddedTransactionsQueue = fetchNewlyAddedTransactionsQueue
     }
 
@@ -49,12 +49,12 @@ final class NewlyAddedTransactionSchedulerProvider: SchedulerProvider {
             .covalentLastNewestPage(server: session.server, wallet: session.account)
             .flatMap { $0 + 1 }
 
-        guard Covalent.NetworkProvider.isSupport(server: session.server) else {
+        guard CovalentNetworkService.isSupport(server: session.server) else {
             return fallbackForUnsupportedServer()
         }
 
-        return provider
-            .transactions(walletAddress: session.account.address, server: session.server, page: lastPage, pageSize: Constants.Covalent.newlyAddedTransactionsPerPage)
+        return networkService
+            .transactions(page: lastPage, pageSize: Constants.Covalent.newlyAddedTransactionsPerPage)
             .retry(times: 3)
             .subscribe(on: fetchNewlyAddedTransactionsQueue)
             .handleEvents(receiveOutput: { [weak self] response in
@@ -101,7 +101,7 @@ extension Config {
     }
 }
 
-extension Covalent.NetworkProvider {
+extension CovalentNetworkService {
     static func isSupport(server: RPCServer) -> Bool {
         switch server.serverWithEnhancedSupport {
         case .klaytnCypress:
