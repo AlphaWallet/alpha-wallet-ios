@@ -113,7 +113,7 @@ struct Colors {
     // static let appSubtitle = UIColor(red: 117, green: 117, blue: 117)
     // static let appText = R.color.black()!
     // static let appTint = R.color.azure()!
-    static let appWhite = UIColor.white
+    // static let appWhite = UIColor.white
     // static let black = UIColor(hex: "313849")
     // static let clear = UIColor.clear
     // static let concrete = R.color.concrete()!

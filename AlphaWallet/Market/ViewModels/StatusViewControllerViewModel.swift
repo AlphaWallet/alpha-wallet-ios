@@ -15,7 +15,7 @@ struct StatusViewControllerViewModel {
 	var state: State
 
 	var contentsBackgroundColor: UIColor {
-		return Colors.appWhite
+        return Configuration.Color.Semantic.defaultViewBackground
 	}
 	var image: UIImage? {
 		switch state {
@@ -37,7 +37,7 @@ struct StatusViewControllerViewModel {
 		return Configuration.Color.Semantic.navigationbarPrimaryFont
 	}
 	var actionButtonTitleColor: UIColor {
-		return Colors.appWhite
+        return Configuration.Color.Semantic.primaryButtonTextActive
 	}
 	var actionButtonBackgroundColor: UIColor {
 		return Configuration.Color.Semantic.actionButtonBackground

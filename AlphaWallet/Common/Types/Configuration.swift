@@ -61,7 +61,9 @@ struct Configuration {
             static let specialButton = R.color.concrete()!
             
             static let qrCodeRectBorders = UIColor(red: 216, green: 216, blue: 216)
-            
+            static let defaultButtonBackground = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.black()!)
+            }
             static let primaryButtonBackground = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.cod()!, darkColor: R.color.alabaster()!)
             }
@@ -119,6 +121,9 @@ struct Configuration {
                 return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.cod()!)
             }
             static let defaultButtonBorder = R.color.alabaster()!
+            static let shrinkButtonBackground = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.black()!)
+            }
             static let actionButtonBackground = UIColor(red: 105, green: 200, blue: 0)
             static let actionButtonShadow = UIColor.clear
             static let cancelButtonTitle = R.color.danger()!

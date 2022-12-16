@@ -38,7 +38,7 @@ struct ImportMagicTokenViewControllerViewModel {
     }
 
     var contentsBackgroundColor: UIColor {
-        return Colors.appWhite
+        return Configuration.Color.Semantic.defaultViewBackground
     }
 
     var headerTitle: String {

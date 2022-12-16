@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 
+fileprivate typealias CFG = Configuration
 /**
 Stop animation style of the `TransitionButton`.
  - normal: just revert the button to the original state.
@@ -22,7 +23,7 @@ public enum StopAnimationStyle {
 @IBDesignable open class TransitionButton: UIButton, CAAnimationDelegate {
     var shrinkBorderColor: UIColor = .lightGray
     var shrinkBorderWidth: CGFloat = 3.0
-    var shrinkBackgroundColor: UIColor = Colors.appWhite
+    var shrinkBackgroundColor: UIColor = CFG.Color.Semantic.shrinkButtonBackground
 
     private var cachedTitle: String?
     private var cachedImage: UIImage?
