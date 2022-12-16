@@ -13,17 +13,15 @@ import SwiftyJSON
 
 final class JsonFromTokenUri {
     private let tokensService: TokenProvidable
-    //Unlike `SessionManager.default`, this doesn't add default HTTP headers. It looks like POAP token URLs (e.g. https://api.poap.xyz/metadata/2503/278569) don't like them and return `406` in the JSON. It's strangely not responsible when curling, but only when running in the app
-    private var sessionManagerWithDefaultHttpHeaders: SessionManager = {
-        let configuration = URLSessionConfiguration.default
-        return SessionManager(configuration: configuration)
-    }()
     private lazy var getTokenUri = NonFungibleContract(server: server)
     private let server: RPCServer
     private var inFlightPromises: [String: Promise<NonFungibleBalanceAndItsSource<JsonString>>] = [:]
     private let queue = DispatchQueue(label: "org.alphawallet.swift.jsonFromTokenUri")
+    //Unlike `SessionManager.default`, this doesn't add default HTTP headers. It looks like POAP token URLs (e.g. https://api.poap.xyz/metadata/2503/278569) don't like them and return `406` in the JSON. It's strangely not responsible when curling, but only when running in the app
+    private let networkService: NetworkService
 
-    public init(server: RPCServer, tokensService: TokenProvidable) {
+    public init(server: RPCServer, tokensService: TokenProvidable, networkService: NetworkService) {
+        self.networkService = networkService
         self.server = server
         self.tokensService = tokensService
     }
@@ -79,10 +77,8 @@ final class JsonFromTokenUri {
         verboseLog("Fetching token URI: \(originalUri.absoluteString)… with: \(uri.absoluteString)")
 
         //Must not use `SessionManager.default.request` or `Alamofire.request` which uses the former. See comment in var
-        let request = sessionManagerWithDefaultHttpHeaders.request(uri, method: .get)
-
         return firstly {
-            request.responseData(queue: queue)
+            networkService.responseData(uri, queue: queue)
         }.map(on: queue, { [tokensService, server] (data, _) -> NonFungibleBalanceAndItsSource in
             if let json = try? JSON(data: data) {
                 if let errorMessage = json["error"].string {

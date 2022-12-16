@@ -376,21 +376,43 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     }
 
     private func createActivityCoordinator(activitiesService: ActivitiesServiceType) -> ActivitiesCoordinator {
-        let coordinator = ActivitiesCoordinator(analytics: analytics, sessions: sessionsProvider.activeSessions, activitiesService: activitiesService, keystore: keystore, wallet: wallet, assetDefinitionStore: assetDefinitionStore)
+        let coordinator = ActivitiesCoordinator(
+            analytics: analytics,
+            sessions: sessionsProvider.activeSessions,
+            activitiesService: activitiesService,
+            keystore: keystore,
+            wallet: wallet,
+            assetDefinitionStore: assetDefinitionStore)
+
         coordinator.delegate = self
         coordinator.start()
         coordinator.rootViewController.tabBarItem = ActiveWalletViewModel.Tabs.activities.tabBarItem
         coordinator.navigationController.configureForLargeTitles()
         addCoordinator(coordinator)
+        
         return coordinator
     }
 
     private func createBrowserCoordinator(browserOnly: Bool) -> DappBrowserCoordinator {
-        let coordinator = DappBrowserCoordinator(sessionsProvider: sessionsProvider, keystore: keystore, config: config, browserOnly: browserOnly, analytics: analytics, domainResolutionService: domainResolutionService, assetDefinitionStore: assetDefinitionStore, tokensService: tokenCollection, bookmarksStore: BookmarksStore(), browserHistoryStorage: BrowserHistoryStorage(ignoreUrls: [Constants.dappsBrowserURL]), wallet: wallet, networkService: networkService)
+        let coordinator = DappBrowserCoordinator(
+            sessionsProvider: sessionsProvider,
+            keystore: keystore,
+            config: config,
+            browserOnly: browserOnly,
+            analytics: analytics,
+            domainResolutionService: domainResolutionService,
+            assetDefinitionStore: assetDefinitionStore,
+            tokensService: tokenCollection,
+            bookmarksStore: BookmarksStore(),
+            browserHistoryStorage: BrowserHistoryStorage(ignoreUrls: [Constants.dappsBrowserURL]),
+            wallet: wallet,
+            networkService: networkService)
+
         coordinator.delegate = self
         coordinator.start()
         coordinator.rootViewController.tabBarItem = ActiveWalletViewModel.Tabs.browser.tabBarItem
         addCoordinator(coordinator)
+
         return coordinator
     }
 
@@ -409,12 +431,15 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
             domainResolutionService: domainResolutionService,
             lock: lock,
             currencyService: currencyService,
-            tokenScriptOverridesFileManager: tokenScriptOverridesFileManager)
+            tokenScriptOverridesFileManager: tokenScriptOverridesFileManager,
+            networkService: networkService)
+
         coordinator.rootViewController.tabBarItem = ActiveWalletViewModel.Tabs.settings.tabBarItem
         coordinator.navigationController.configureForLargeTitles()
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
+
         return coordinator
     }
 
@@ -624,14 +649,33 @@ extension ActiveWalletCoordinator: SelectServiceToBuyCryptoCoordinatorDelegate {
 
 extension ActiveWalletCoordinator {
     func requestSwitchChain(server: RPCServer, currentUrl: URL?, callbackID: SwitchCustomChainCallbackId, targetChain: WalletSwitchEthereumChainObject) {
-        let coordinator = DappRequestSwitchExistingChainCoordinator(config: config, server: server, callbackId: callbackID, targetChain: targetChain, restartQueue: restartQueue, analytics: analytics, currentUrl: currentUrl, inViewController: presentationViewController)
+        let coordinator = DappRequestSwitchExistingChainCoordinator(
+            config: config,
+            server: server,
+            callbackId: callbackID,
+            targetChain: targetChain,
+            restartQueue: restartQueue,
+            analytics: analytics,
+            currentUrl: currentUrl,
+            inViewController: presentationViewController)
+
         coordinator.delegate = dappRequestHandler
         dappRequestHandler.addCoordinator(coordinator)
         coordinator.start()
     }
 
     func requestAddCustomChain(server: RPCServer, callbackId: SwitchCustomChainCallbackId, customChain: WalletAddEthereumChainObject) {
-        let coordinator = DappRequestSwitchCustomChainCoordinator(config: config, server: server, callbackId: callbackId, customChain: customChain, restartQueue: restartQueue, analytics: analytics, currentUrl: nil, inViewController: presentationViewController)
+        let coordinator = DappRequestSwitchCustomChainCoordinator(
+            config: config,
+            server: server,
+            callbackId: callbackId,
+            customChain: customChain,
+            restartQueue: restartQueue,
+            analytics: analytics,
+            currentUrl: nil,
+            viewController: presentationViewController,
+            networkService: networkService)
+        
         coordinator.delegate = dappRequestHandler
         dappRequestHandler.addCoordinator(coordinator)
         coordinator.start()

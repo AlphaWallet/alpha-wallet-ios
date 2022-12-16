@@ -6,8 +6,8 @@
 //
 
 import UIKit
-import PromiseKit
 import AlphaWalletFoundation
+import Combine
 
 @objc protocol AddMultipleCustomRpcViewControllerResponse: AnyObject {
     @objc func addMultipleCustomRpcCompleted()
@@ -29,6 +29,7 @@ class AddMultipleCustomRpcViewController: UIViewController {
     private var viewModel: AddMultipleCustomRpcViewModel
     private var restartQueue: RestartTaskQueue
     private let analytics: AnalyticsLogger
+    private let networkService: NetworkService
 
     // MARK: Public
 
@@ -40,8 +41,9 @@ class AddMultipleCustomRpcViewController: UIViewController {
 
     // MARK: - Constructor
 
-    init(model: AddMultipleCustomRpcModel, analytics: AnalyticsLogger, restartQueue: RestartTaskQueue) {
+    init(model: AddMultipleCustomRpcModel, analytics: AnalyticsLogger, restartQueue: RestartTaskQueue, networkService: NetworkService) {
         let viewModel = AddMultipleCustomRpcViewModel(model: model)
+        self.networkService = networkService
         self.viewModel = viewModel
         self.isCanceled = false
         self.analytics = analytics
@@ -110,7 +112,12 @@ class AddMultipleCustomRpcViewController: UIViewController {
     }
 
     private func startAddChain(for customRpc: CustomRPC) {
-        let chain = AddCustomChain(customRpc, analytics: analytics, restartQueue: restartQueue)
+        let chain = AddCustomChain(
+            customRpc,
+            analytics: analytics,
+            restartQueue: restartQueue,
+            networkService: networkService)
+
         chain.delegate = self
         chain.run()
     }
@@ -158,10 +165,8 @@ extension AddMultipleCustomRpcViewController: AddCustomChainDelegate {
         handleAddChainCompletion(array: &viewModel.model.failedCustomRpc)
     }
 
-    func notifyAddExplorerApiHostnameFailure(customChain: WalletAddEthereumChainObject, chainId: Int) -> Promise<Bool> {
-        return Promise { seal in
-            seal.fulfill(true)
-        }
+    func notifyAddExplorerApiHostnameFailure(customChain: WalletAddEthereumChainObject, chainId: Int) -> AnyPublisher<Bool, Never> {
+        return .just(true)
     }
 
     func notifyRpcURlHostnameFailure() {
@@ -182,7 +187,7 @@ extension AddMultipleCustomRpcViewController: AddCustomChainDelegate {
 
 extension AddCustomChain {
 
-    convenience init(_ customRpc: CustomRPC, analytics: AnalyticsLogger, restartQueue: RestartTaskQueue) {
+    convenience init(_ customRpc: CustomRPC, analytics: AnalyticsLogger, restartQueue: RestartTaskQueue, networkService: NetworkService) {
         let defaultDecimals = 18
         let explorerEndpoints: [String]?
 
@@ -192,9 +197,24 @@ extension AddCustomChain {
             explorerEndpoints = nil
         }
 
-        let customChain = WalletAddEthereumChainObject(nativeCurrency: .init(name: customRpc.nativeCryptoTokenName ?? R.string.localizable.addCustomChainUnnamed(), symbol: customRpc.symbol ?? "", decimals: defaultDecimals), blockExplorerUrls: explorerEndpoints, chainName: customRpc.chainName, chainId: String(customRpc.chainID), rpcUrls: [customRpc.rpcEndpoint])
+        let customChain = WalletAddEthereumChainObject(
+            nativeCurrency: .init(
+                name: customRpc.nativeCryptoTokenName ?? R.string.localizable.addCustomChainUnnamed(),
+                symbol: customRpc.symbol ?? "", decimals: defaultDecimals),
+            blockExplorerUrls: explorerEndpoints,
+            chainName: customRpc.chainName,
+            chainId: String(customRpc.chainID),
+            rpcUrls: [customRpc.rpcEndpoint])
 
-        self.init(customChain, analytics: analytics, isTestnet: customRpc.isTestnet, restartQueue: restartQueue, url: nil, operation: .add, chainNameFallback: R.string.localizable.addCustomChainUnnamed())
+        self.init(
+            customChain,
+            analytics: analytics,
+            isTestnet: customRpc.isTestnet,
+            restartQueue: restartQueue,
+            url: nil,
+            operation: .add,
+            chainNameFallback: R.string.localizable.addCustomChainUnnamed(),
+            networkService: networkService)
     }
 
 }

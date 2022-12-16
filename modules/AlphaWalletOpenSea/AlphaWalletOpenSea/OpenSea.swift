@@ -9,6 +9,7 @@ import AlphaWalletAddress
 import AlphaWalletCore
 import PromiseKit
 import SwiftyJSON
+import Alamofire
 
 public typealias ChainId = Int
 public typealias OpenSeaAddressesToNonFungibles = [AlphaWallet.Address: [OpenSeaNonFungible]]
@@ -159,7 +160,7 @@ public class OpenSea {
             //Using responseData() instead of responseJSON() below because `PromiseKit`'s `responseJSON()` resolves to failure if body isn't JSON. But OpenSea returns a non-JSON when the status code is 401 (unauthorized, aka. wrong API key) and we want to detect that.
             return sessionManagerWithDefaultHttpHeaders
                     .request(url, method: .get, headers: headers)
-                    .responseData()
+                    .responseDataPromise(queue: queue)
                     .map(on: queue, { data, response -> (HTTPURLResponse, JSON) in
                         if let response: HTTPURLResponse = response.response {
                             let statusCode = response.statusCode
