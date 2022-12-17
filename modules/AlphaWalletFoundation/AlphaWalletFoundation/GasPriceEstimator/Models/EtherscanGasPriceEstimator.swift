@@ -16,7 +16,7 @@ class EtherscanGasPriceEstimator {
         return server.etherscanGasPriceEstimatesURL != nil
     }
 
-    func fetch(server: RPCServer) -> AnyPublisher<GasPriceEstimates, PromiseError> {
+    func gasPriceEstimatesPublisher(server: RPCServer) -> AnyPublisher<GasPriceEstimates, PromiseError> {
         return networkService
             .dataTaskPublisher(GetGasPriceEstimatesRequest(server: server))
             .tryMap { [decoder] in try decoder.decode(EtherscanPriceEstimatesResponse.self, from: $0.data) }

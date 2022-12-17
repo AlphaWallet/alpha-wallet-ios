@@ -10,19 +10,16 @@ import PromiseKit
 import AlphaWalletCore
 
 public final class WaitTillTransactionCompleted {
-    private let server: RPCServer
-    private let analytics: AnalyticsLogger
-    private lazy var provider = GetIsTransactionCompleted(server: server, analytics: analytics)
+    private let blockchainProvider: BlockchainProvider
 
-    public init(server: RPCServer, analytics: AnalyticsLogger) {
-        self.server = server
-        self.analytics = analytics
+    public init(blockchainProvider: BlockchainProvider) {
+        self.blockchainProvider = blockchainProvider
     }
 
     public func waitTillCompleted(hash: EthereumTransaction.Hash, timesToRepeat: Int = 50) -> Promise<Void> {
-        return attempt(maximumRetryCount: timesToRepeat, delayBeforeRetry: .seconds(10), delayUpperRangeValueFrom0To: 20) { [provider] in
+        return attempt(maximumRetryCount: timesToRepeat, delayBeforeRetry: .seconds(10), delayUpperRangeValueFrom0To: 20) { [blockchainProvider] in
             firstly {
-                provider.getTransactionIfCompleted(hash: hash)
+                blockchainProvider.getTransactionIfCompleted(hash: hash)
             }.map { _ in }
         }
     }

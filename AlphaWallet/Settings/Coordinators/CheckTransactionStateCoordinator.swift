@@ -6,8 +6,8 @@
 //
 
 import Foundation
-import PromiseKit
 import AlphaWalletFoundation
+import Combine
 
 protocol CheckTransactionStateCoordinatorDelegate: AnyObject {
     func didComplete(coordinator: CheckTransactionStateCoordinator)
@@ -16,7 +16,7 @@ protocol CheckTransactionStateCoordinatorDelegate: AnyObject {
 class CheckTransactionStateCoordinator: Coordinator {
     private let navigationController: UINavigationController
     private let config: Config
-    private let analytics: AnalyticsLogger
+    private let sessions: ServerDictionary<WalletSession>
     private var serverSelection: ServerSelection = .server(server: .server(.main))
     private lazy var rootViewController: CheckTransactionStateViewController = {
         let viewModel = CheckTransactionStateViewModel(serverSelection: serverSelection)
@@ -26,14 +26,15 @@ class CheckTransactionStateCoordinator: Coordinator {
 
         return viewController
     }()
+    private var cancellable = Set<AnyCancellable>()
 
     var coordinators: [Coordinator] = []
     weak var delegate: CheckTransactionStateCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, config: Config, analytics: AnalyticsLogger) {
+    init(navigationController: UINavigationController, config: Config, sessions: ServerDictionary<WalletSession>) {
         self.navigationController = navigationController
-        self.analytics = analytics
         self.config = config
+        self.sessions = sessions
     }
 
     func start() {
@@ -50,19 +51,22 @@ class CheckTransactionStateCoordinator: Coordinator {
 extension CheckTransactionStateCoordinator: SelectTransactionHashViewControllerDelegate {
 
     func didSelectedCheckTransactionStatus(in viewController: CheckTransactionStateViewController, transactionHash: String) {
-        guard let server = serverSelection.asServersArray.first else { return }
+        guard let server = serverSelection.asServersArray.first, let session = sessions[safe: server] else { return }
 
         rootViewController.set(isActionButtonEnable: false)
 
-        GetTransactionState(server: server, analytics: analytics)
-            .getTransactionsState(hash: transactionHash)
-            .done { state in
-                self.displayErrorMessage(R.string.localizable.checkTransactionStateComplete(state.description))
-            }.catch { error in
-                self.displayErrorMessage(R.string.localizable.checkTransactionStateError(error.prettyError), title: R.string.localizable.error())
-            }.finally {
+        session.blockchainProvider
+            .transactionsStatePublisher(hash: transactionHash)
+            .receive(on: RunLoop.main)
+            .sink(receiveCompletion: { result in
+                if case .failure(let error) = result {
+                    self.displayErrorMessage(R.string.localizable.checkTransactionStateError(error.prettyError), title: R.string.localizable.error())
+                }
+
                 self.rootViewController.set(isActionButtonEnable: true)
-            }
+            }, receiveValue: { state in
+                self.displayErrorMessage(R.string.localizable.checkTransactionStateComplete(state.description))
+            }).store(in: &cancellable)
     }
 
     func didClose(in viewController: CheckTransactionStateViewController) {

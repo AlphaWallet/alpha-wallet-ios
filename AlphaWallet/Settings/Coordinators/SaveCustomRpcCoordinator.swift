@@ -26,6 +26,7 @@ class SaveCustomRpcCoordinator: NSObject, Coordinator {
     private let operation: SaveOperationType
     private var activeViewController: OverallProtocol?
     private let networkService: NetworkService
+    private let rpcApiProvider: RpcApiProvider
     var coordinators: [Coordinator] = []
     weak var delegate: SaveCustomRpcCoordinatorDelegate?
 
@@ -34,8 +35,10 @@ class SaveCustomRpcCoordinator: NSObject, Coordinator {
          restartQueue: RestartTaskQueue,
          analytics: AnalyticsLogger,
          operation: SaveOperationType,
-         networkService: NetworkService) {
+         networkService: NetworkService,
+         rpcApiProvider: RpcApiProvider) {
 
+        self.rpcApiProvider = rpcApiProvider
         self.networkService = networkService
         self.navigationController = navigationController
         self.config = config
@@ -115,13 +118,13 @@ extension SaveCustomRpcCoordinator: SaveCustomRpcEntryViewControllerDataDelegate
 
         let saveCustomChain = AddCustomChain(
             customChain,
-            analytics: analytics,
             isTestnet: customRpc.isTestnet,
             restartQueue: restartQueue,
             url: nil,
             operation: operation,
             chainNameFallback: R.string.localizable.addCustomChainUnnamed(),
-            networkService: networkService)
+            networkService: networkService,
+            rpcApiProvider: rpcApiProvider)
 
         saveCustomChain.delegate = self
         saveCustomChain.run()
@@ -137,7 +140,8 @@ extension SaveCustomRpcCoordinator: SaveCustomRpcBrowseViewControllerDataDelegat
             model: model,
             analytics: analytics,
             restartQueue: restartQueue,
-            networkService: networkService)
+            networkService: networkService,
+            rpcApiProvider: rpcApiProvider)
 
         addViewController.delegate = self
         viewController.present(addViewController, animated: true) {

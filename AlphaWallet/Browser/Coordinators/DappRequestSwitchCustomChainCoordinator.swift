@@ -28,6 +28,7 @@ class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
     private let currentUrl: URL?
     private let viewController: UIViewController
     private let networkService: NetworkService
+    private let rpcApiProvider: RpcApiProvider
     var coordinators: [Coordinator] = []
     weak var delegate: DappRequestSwitchCustomChainCoordinatorDelegate?
 
@@ -39,7 +40,8 @@ class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
          analytics: AnalyticsLogger,
          currentUrl: URL?,
          viewController: UIViewController,
-         networkService: NetworkService) {
+         networkService: NetworkService,
+         rpcApiProvider: RpcApiProvider) {
 
         self.networkService = networkService
         self.config = config
@@ -50,6 +52,7 @@ class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
         self.analytics = analytics
         self.currentUrl = currentUrl
         self.viewController = viewController
+        self.rpcApiProvider = rpcApiProvider
     }
 
     func start() {
@@ -100,13 +103,13 @@ class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
         func runAddCustomChain(isTestnet: Bool) {
             let addCustomChain = AddCustomChain(
                 customChain,
-                analytics: analytics,
                 isTestnet: isTestnet,
                 restartQueue: restartQueue,
                 url: currentUrl,
                 operation: .add,
                 chainNameFallback: R.string.localizable.addCustomChainUnnamed(),
-                networkService: networkService)
+                networkService: networkService,
+                rpcApiProvider: rpcApiProvider)
 
             self.addCustomChain = (chain: addCustomChain, callbackId: callbackID)
             addCustomChain.delegate = self

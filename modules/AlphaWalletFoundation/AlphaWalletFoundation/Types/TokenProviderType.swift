@@ -26,8 +26,8 @@ public class TokenProvider: TokenProviderType {
     private let account: Wallet
     private let server: RPCServer
     private let analytics: AnalyticsLogger
+    private let blockchainProvider: BlockchainProvider
 
-    private lazy var getEthBalance = GetEthBalance(forServer: server, analytics: analytics)
     private lazy var getContractDecimals = GetContractDecimals(forServer: server)
     private lazy var getContractSymbol = GetContractSymbol(forServer: server)
     private lazy var getContractName = GetContractName(forServer: server)
@@ -37,15 +37,16 @@ public class TokenProvider: TokenProviderType {
     private lazy var getErc721Balance = GetErc721Balance(forServer: server)
     private lazy var getTokenType = GetTokenType(forServer: server)
 
-    public init(account: Wallet, server: RPCServer, analytics: AnalyticsLogger) {
+    public init(account: Wallet, server: RPCServer, analytics: AnalyticsLogger, blockchainProvider: BlockchainProvider) {
         self.account = account
         self.server = server
         self.analytics = analytics
+        self.blockchainProvider = blockchainProvider
     }
 
     public func getEthBalance(for address: AlphaWallet.Address) -> Promise<Balance> {
         //NOTE: retrying is performing via APIKit.session request
-        return getEthBalance.getBalance(for: address)
+        return blockchainProvider.balancePromise(for: address)
     }
 
     public func getContractName(for address: AlphaWallet.Address) -> Promise<String> {

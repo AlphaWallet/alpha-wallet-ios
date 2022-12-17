@@ -144,14 +144,3 @@ public struct AnyJsonDecoder: AnyDecoder {
         }
     }
 }
-
-struct RawDataParser: AnyDecoder {
-    var contentType: String? {
-        "application/json"
-    }
-
-    func decode(response: HTTPURLResponse, data: Data) throws -> Any {
-        return data
-    }
-}
-

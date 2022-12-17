@@ -39,6 +39,7 @@ class SettingsCoordinator: Coordinator {
     private let currencyService: CurrencyService
     private let tokenScriptOverridesFileManager: TokenScriptOverridesFileManager
     private let networkService: NetworkService
+    private let rpcApiProvider: RpcApiProvider
 
     let navigationController: UINavigationController
     weak var delegate: SettingsCoordinatorDelegate?
@@ -76,8 +77,10 @@ class SettingsCoordinator: Coordinator {
          lock: Lock,
          currencyService: CurrencyService,
          tokenScriptOverridesFileManager: TokenScriptOverridesFileManager,
-         networkService: NetworkService) {
+         networkService: NetworkService,
+         rpcApiProvider: RpcApiProvider) {
 
+        self.rpcApiProvider = rpcApiProvider
         self.networkService = networkService
         self.tokenScriptOverridesFileManager = tokenScriptOverridesFileManager
         self.navigationController = navigationController
@@ -212,7 +215,8 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
             restartQueue: restartQueue,
             analytics: analytics,
             config: config,
-            networkService: networkService)
+            networkService: networkService,
+            rpcApiProvider: rpcApiProvider)
 
         coordinator.delegate = self
         coordinator.start()
@@ -460,7 +464,7 @@ extension SettingsCoordinator: ClearDappBrowserCacheCoordinatorDelegate {
 
 extension SettingsCoordinator: ToolsViewControllerDelegate {
     func checkTransactionStateSelected(in controller: ToolsViewController) {
-        let coordinator = CheckTransactionStateCoordinator(navigationController: navigationController, config: config, analytics: analytics)
+        let coordinator = CheckTransactionStateCoordinator(navigationController: navigationController, config: config, sessions: sessions)
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start()
@@ -471,7 +475,7 @@ extension SettingsCoordinator: ToolsViewControllerDelegate {
     }
 
     func pingInfuraSelected(in controller: ToolsViewController) {
-        let coordinator = PingInfuraCoordinator(viewController: controller, analytics: analytics)
+        let coordinator = PingInfuraCoordinator(viewController: controller, analytics: analytics, blockchainProvider: sessions.anyValue.blockchainProvider)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)

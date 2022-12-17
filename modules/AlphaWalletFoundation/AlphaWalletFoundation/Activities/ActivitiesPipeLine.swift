@@ -14,13 +14,13 @@ public final class ActivitiesPipeLine: ActivitiesServiceType {
     private let assetDefinitionStore: AssetDefinitionStore
     private let sessionsProvider: SessionsProvider
     private let transactionDataStore: TransactionDataStore
-    private let analytics: AnalyticsLogger
     private let eventsDataStore: NonActivityEventsDataStore
     private let eventsActivityDataStore: EventsActivityDataStoreProtocol
     private let getEventLogs: GetEventLogs = GetEventLogs()
+    private let rpcApiProvider: RpcApiProvider
     private lazy var eventSourceForActivities: EventSourceForActivities? = {
         guard Features.default.isAvailable(.isActivityEnabled) else { return nil }
-        return EventSourceForActivities(wallet: wallet, config: config, tokensService: tokensService, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsActivityDataStore, getEventLogs: getEventLogs, analytics: analytics)
+        return EventSourceForActivities(wallet: wallet, config: config, tokensService: tokensService, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsActivityDataStore, getEventLogs: getEventLogs, rpcApiProvider: rpcApiProvider)
     }()
     private let tokensService: TokenProvidable
 
@@ -40,8 +40,8 @@ public final class ActivitiesPipeLine: ActivitiesServiceType {
         activitiesSubService.didUpdateActivityPublisher
     }
 
-    public init(config: Config, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, transactionDataStore: TransactionDataStore, tokensService: TokenProvidable, sessionsProvider: SessionsProvider, eventsActivityDataStore: EventsActivityDataStoreProtocol, eventsDataStore: NonActivityEventsDataStore, analytics: AnalyticsLogger) {
-        self.analytics = analytics
+    public init(config: Config, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, transactionDataStore: TransactionDataStore, tokensService: TokenProvidable, sessionsProvider: SessionsProvider, eventsActivityDataStore: EventsActivityDataStoreProtocol, eventsDataStore: NonActivityEventsDataStore, rpcApiProvider: RpcApiProvider) {
+        self.rpcApiProvider = rpcApiProvider
         self.eventsActivityDataStore = eventsActivityDataStore
         self.eventsDataStore = eventsDataStore
         self.tokensService = tokensService

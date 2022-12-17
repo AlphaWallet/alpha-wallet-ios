@@ -36,7 +36,8 @@ final class FakeMultiWalletBalanceService: MultiWalletBalanceService {
             coinTickersFetcher: CoinTickersFetcherImpl.make(),
             config: .make(),
             currencyService: .make(),
-            networkService: FakeNetworkService())
+            networkService: FakeNetworkService(),
+            rpcApiProvider: BaseRpcApiProvider.make())
 
         super.init(
             walletAddressesStore: fakeWalletAddressesStore(wallets: [wallet]),

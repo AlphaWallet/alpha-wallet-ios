@@ -13,6 +13,7 @@ open class SessionsProvider {
     private let config: Config
     private var cancelable = Set<AnyCancellable>()
     private let analytics: AnalyticsLogger
+    private let rpcApiProvider: RpcApiProvider
     
     public var sessions: AnyPublisher<ServerDictionary<WalletSession>, Never> {
         return sessionsSubject.eraseToAnyPublisher()
@@ -22,9 +23,10 @@ open class SessionsProvider {
         sessionsSubject.value
     }
 
-    public init(config: Config, analytics: AnalyticsLogger) {
+    public init(config: Config, analytics: AnalyticsLogger, rpcApiProvider: RpcApiProvider) {
         self.config = config
         self.analytics = analytics
+        self.rpcApiProvider = rpcApiProvider
     }
 
     public func set(activeSessions: ServerDictionary<WalletSession>) {
@@ -43,14 +45,29 @@ open class SessionsProvider {
             .merge(with: config.enabledServersPublisher)//subscribe for servers changing so not active providers can handle changes too
             .removeDuplicates()
             .combineLatest(Just(wallet))
-            .map { [config, analytics, sessionsSubject] servers, wallet -> ServerDictionary<WalletSession>in
+            .map { [config, analytics, sessionsSubject, rpcApiProvider] servers, wallet -> ServerDictionary<WalletSession>in
                 var sessions: ServerDictionary<WalletSession> = .init()
 
                 for server in servers {
                     if let session = sessionsSubject.value[safe: server] {
                         sessions[server] = session
                     } else {
-                        let session = WalletSession(account: wallet, server: server, config: config, analytics: analytics)
+                        let nodeApiProvider: NodeApiProvider
+                        switch server.rpcSource {
+                        case .http:
+                            nodeApiProvider = NodeRpcApiProvider(rpcApiProvider: rpcApiProvider, config: config, server: server)
+                        case .webSocket:
+                            nodeApiProvider = WebSocketNodeApiProvider()
+                        }
+
+                        let blockchainProvider: BlockchainProvider = RpcBlockchainProvider(
+                            server: server,
+                            account: wallet,
+                            nodeApiProvider: nodeApiProvider,
+                            analytics: analytics,
+                            params: .defaultParams(for: server))
+
+                        let session = WalletSession(account: wallet, server: server, config: config, analytics: analytics, blockchainProvider: blockchainProvider)
                         sessions[server] = session
                     }
                 }

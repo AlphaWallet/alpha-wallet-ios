@@ -52,6 +52,12 @@ final class FakeNetworkService: NetworkService {
     }
 }
 
+extension BaseRpcApiProvider {
+    static func make(analytics: AnalyticsLogger = FakeAnalyticsService(), networkService: NetworkService = FakeNetworkService()) -> BaseRpcApiProvider {
+        BaseRpcApiProvider(analytics: analytics, networkService: networkService)
+    }
+}
+
 extension AssetDefinitionStore {
     static func make() -> AssetDefinitionStore {
         return .init(networkService: FakeNetworkService())
@@ -102,7 +108,8 @@ class ActiveWalletViewTests: XCTestCase {
             lock: FakeLock(),
             currencyService: currencyService,
             tokenScriptOverridesFileManager: .fake(),
-            networkService: FakeNetworkService())
+            networkService: FakeNetworkService(),
+            rpcApiProvider: BaseRpcApiProvider.make(networkService: FakeNetworkService()))
 
         coordinator.start(animated: false)
 
@@ -177,7 +184,8 @@ class ActiveWalletViewTests: XCTestCase {
             lock: FakeLock(),
             currencyService: currencyService,
             tokenScriptOverridesFileManager: .fake(),
-            networkService: FakeNetworkService())
+            networkService: FakeNetworkService(),
+            rpcApiProvider: BaseRpcApiProvider.make(networkService: FakeNetworkService()))
 
         c1.start(animated: false)
 
@@ -214,7 +222,8 @@ class ActiveWalletViewTests: XCTestCase {
             lock: FakeLock(),
             currencyService: currencyService,
             tokenScriptOverridesFileManager: .fake(),
-            networkService: FakeNetworkService())
+            networkService: FakeNetworkService(),
+            rpcApiProvider: BaseRpcApiProvider.make(networkService: FakeNetworkService()))
 
         c1.start(animated: false)
 
@@ -260,7 +269,8 @@ class ActiveWalletViewTests: XCTestCase {
                 lock: FakeLock(),
                 currencyService: currencyService,
                 tokenScriptOverridesFileManager: .fake(),
-                networkService: FakeNetworkService())
+                networkService: FakeNetworkService(),
+                rpcApiProvider: BaseRpcApiProvider.make(networkService: FakeNetworkService()))
 
         coordinator.start(animated: false)
         coordinator.showPaymentFlow(for: .send(type: .transaction(TransactionType.nativeCryptocurrency(Token(), destination: .none, amount: .notSet))), server: .main, navigationController: coordinator.navigationController)
@@ -308,7 +318,8 @@ class ActiveWalletViewTests: XCTestCase {
             lock: FakeLock(),
             currencyService: currencyService,
             tokenScriptOverridesFileManager: .fake(),
-            networkService: FakeNetworkService())
+            networkService: FakeNetworkService(),
+            rpcApiProvider: BaseRpcApiProvider.make(networkService: FakeNetworkService()))
 
         coordinator.start(animated: false)
         coordinator.showPaymentFlow(for: .request, server: .main, navigationController: coordinator.navigationController)
@@ -356,7 +367,8 @@ class ActiveWalletViewTests: XCTestCase {
             lock: FakeLock(),
             currencyService: currencyService,
             tokenScriptOverridesFileManager: .fake(),
-            networkService: FakeNetworkService())
+            networkService: FakeNetworkService(),
+            rpcApiProvider: BaseRpcApiProvider.make(networkService: FakeNetworkService()))
         coordinator.start(animated: false)
 
         let viewController = (coordinator.tabBarController.selectedViewController as? UINavigationController)?.viewControllers[0]
@@ -422,7 +434,8 @@ class ActiveWalletViewTests: XCTestCase {
                     lock: FakeLock(),
                     currencyService: currencyService,
                     tokenScriptOverridesFileManager: .fake(),
-                    networkService: FakeNetworkService())
+                    networkService: FakeNetworkService(),
+                    rpcApiProvider: BaseRpcApiProvider.make(networkService: FakeNetworkService()))
 
             coordinator.start(animated: false)
 

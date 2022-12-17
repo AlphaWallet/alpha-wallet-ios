@@ -40,10 +40,6 @@ public class TransactionConfigurator {
         return currentConfiguration.gasPrice * currentConfiguration.gasLimit
     }
 
-    private var maxGasLimit: BigUInt {
-        GasLimitConfiguration.maxGasLimit(forServer: session.server)
-    }
-
     public var toAddress: AlphaWallet.Address? {
         switch transaction.transactionType {
         case .nativeCryptocurrency:
@@ -79,8 +75,7 @@ public class TransactionConfigurator {
     }
     private let analytics: AnalyticsLogger
     private let networkService: NetworkService
-    private lazy var gasPriceEstimator = GasPriceEstimator(analytics: analytics, networkService: networkService)
-    private lazy var gasLimitEstimator = GetGasLimit(account: session.account, server: session.server, analytics: analytics)
+    private let gasPriceEstimator: GasPriceEstimator
     private var cancelable = Set<AnyCancellable>()
     
     public init(session: WalletSession, analytics: AnalyticsLogger, transaction: UnconfirmedTransaction, networkService: NetworkService) {
@@ -88,8 +83,9 @@ public class TransactionConfigurator {
         self.analytics = analytics
         self.transaction = transaction
         self.networkService = networkService
+        self.gasPriceEstimator = GasPriceEstimator(blockchainProvider: session.blockchainProvider, networkService: networkService)
 
-        let standardConfiguration = TransactionConfigurator.createConfiguration(server: session.server, analytics: analytics, transaction: transaction, account: session.account.address, networkService: networkService)
+        let standardConfiguration = TransactionConfigurator.createConfiguration(server: session.server, gasPriceEstimator: gasPriceEstimator, transaction: transaction)
         self.configurations = .init(standard: standardConfiguration)
     }
 
@@ -99,45 +95,35 @@ public class TransactionConfigurator {
     }
 
     private func estimateGasLimit() {
-        firstly {
-            gasLimitEstimator.getGasLimit(value: value, toAddress: toAddress, data: currentConfiguration.data)
-        }.done { limit, canCapGasLimit in
-            infoLog("Estimated gas limit with eth_estimateGas: \(limit) canCapGasLimit: \(canCapGasLimit)")
-            let gasLimit: BigUInt = {
-                if limit == GasLimitConfiguration.minGasLimit {
-                    return limit
-                }
-                if canCapGasLimit {
-                    return min(limit + (limit * 20 / 100), self.maxGasLimit)
-                } else {
-                    return limit + (limit * 20 / 100)
-                }
-            }()
-            infoLog("Using gas limit: \(gasLimit)")
-            var customConfig = self.configurations.custom
-            customConfig.setEstimated(gasLimit: gasLimit)
-            self.configurations.custom = customConfig
-            var defaultConfig = self.configurations.standard
-            defaultConfig.setEstimated(gasLimit: gasLimit)
-            self.configurations.standard = defaultConfig
+        session.blockchainProvider
+            .gasLimitPublisher(value: value, toAddress: toAddress, data: currentConfiguration.data)
+            .sink(receiveCompletion: { result in
+                guard case .failure(let e) = result else { return }
+                infoLog("Error estimating gas limit: \(e)")
+                logError(e, rpcServer: self.session.server)
+            }, receiveValue: { gasLimit in
+                infoLog("Using gas limit: \(gasLimit)")
+                var customConfig = self.configurations.custom
+                customConfig.setEstimated(gasLimit: gasLimit)
+                self.configurations.custom = customConfig
+                var defaultConfig = self.configurations.standard
+                defaultConfig.setEstimated(gasLimit: gasLimit)
+                self.configurations.standard = defaultConfig
 
-            //Careful to not create if they don't exist
-            for each: TransactionConfigurationType in [.slow, .fast, .rapid] {
-                guard var config = self.configurations[each] else { continue }
-                config.setEstimated(gasLimit: gasLimit)
-                self.configurations[each] = config
-            }
+                //Careful to not create if they don't exist
+                for each: TransactionConfigurationType in [.slow, .fast, .rapid] {
+                    guard var config = self.configurations[each] else { continue }
+                    config.setEstimated(gasLimit: gasLimit)
+                    self.configurations[each] = config
+                }
 
-            self.delegate?.gasLimitEstimateUpdated(to: gasLimit, in: self)
-        }.catch { e in
-            infoLog("Error estimating gas limit: \(e)")
-            logError(e, rpcServer: self.session.server)
-        }
+                self.delegate?.gasLimitEstimateUpdated(to: gasLimit, in: self)
+            }).store(in: &cancelable)
     }
 
     private func estimateGasPrice() {
         gasPriceEstimator
-            .estimateGasPrice(server: session.server)
+            .estimateGasPrice()
             .sink(receiveCompletion: { [session] result in
                 guard case .failure(let e)  = result else { return }
                 logError(e, rpcServer: session.server)
@@ -197,9 +183,9 @@ public class TransactionConfigurator {
         return nil
     }
 
-    private static func createConfiguration(server: RPCServer, analytics: AnalyticsLogger, transaction: UnconfirmedTransaction, account: AlphaWallet.Address, networkService: NetworkService) -> TransactionConfiguration {
+    private static func createConfiguration(server: RPCServer, gasPriceEstimator: GasPriceEstimator, transaction: UnconfirmedTransaction) -> TransactionConfiguration {
         let maxGasLimit = GasLimitConfiguration.maxGasLimit(forServer: server)
-        let gasPrice = GasPriceEstimator(analytics: analytics, networkService: networkService).estimateDefaultGasPrice(server: server, transaction: transaction)
+        let gasPrice = gasPriceEstimator.estimateDefaultGasPrice(transaction: transaction)
         let gasLimit: BigUInt
 
         switch transaction.transactionType {
@@ -246,11 +232,14 @@ public class TransactionConfigurator {
         if let nonce = transaction.nonce, nonce > 0 {
             useNonce(Int(nonce))
         } else {
-            firstly {
-                GetNextNonce(server: session.server, wallet: session.account.address, analytics: analytics).getNextNonce()
-            }.done {
-                self.useNonce($0)
-            }.cauterize()
+            session.blockchainProvider
+                .nextNoncePublisher()
+                .sink(receiveCompletion: { [session] result in
+                    guard case .failure(let e) = result else { return }
+                    logError(e, rpcServer: session.server)
+                }, receiveValue: {
+                    self.useNonce($0)
+                }).store(in: &cancelable)
         }
     }
 

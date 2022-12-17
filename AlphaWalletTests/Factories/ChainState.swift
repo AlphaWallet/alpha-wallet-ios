@@ -4,12 +4,29 @@ import Foundation
 @testable import AlphaWallet
 import AlphaWalletFoundation
 
-extension ChainState {
+extension BlockNumberProvider {
     static func make(
         config: Config = .make(),
         analytics: AnalyticsLogger = FakeAnalyticsService(),
         server: RPCServer = .main
-    ) -> ChainState {
-        return ChainState(config: config, server: server, analytics: analytics)
+    ) -> BlockNumberProvider {
+
+        let blockchainProvider = RpcBlockchainProvider(
+            server: server,
+            account: .make(),
+            nodeApiProvider: NodeRpcApiProvider.make(server: server),
+            analytics: analytics,
+            params: BlockchainParams.defaultParams(for: server))
+
+        return BlockNumberProvider(storage: config, blockchainProvider: blockchainProvider)
+    }
+}
+
+extension NodeRpcApiProvider {
+    static func make(server: RPCServer, config: Config = .make()) -> NodeRpcApiProvider {
+        NodeRpcApiProvider(
+            rpcApiProvider: BaseRpcApiProvider.make(),
+            config: config,
+            server: server)
     }
 }

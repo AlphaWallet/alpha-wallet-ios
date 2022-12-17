@@ -80,7 +80,7 @@ public final class ApproveSwapProvider {
             return Promise(error: SwapError.unknownError)
         }
 
-        let provider = WaitTillTransactionCompleted(server: server, analytics: analytics)
+        let provider = WaitTillTransactionCompleted(blockchainProvider: configurator.session.blockchainProvider)
 
         return firstly {
             delegate.promptForErc20Approval(token: token, server: server, owner: owner, spender: spender, amount: amount, in: self)

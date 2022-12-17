@@ -56,7 +56,7 @@ class AppCoordinator: NSObject, Coordinator {
     private lazy var coinTickersFetcher: CoinTickersFetcher = CoinTickersFetcherImpl(networkService: networkService)
     private lazy var nftProvider: NFTProvider = AlphaWalletNFTProvider(analytics: analytics)
     private lazy var dependencyProvider: WalletDependencyContainer = {
-        WalletComponentsFactory(analytics: analytics, nftProvider: nftProvider, assetDefinitionStore: assetDefinitionStore, coinTickersFetcher: coinTickersFetcher, config: config, currencyService: currencyService, networkService: networkService)
+        WalletComponentsFactory(analytics: analytics, nftProvider: nftProvider, assetDefinitionStore: assetDefinitionStore, coinTickersFetcher: coinTickersFetcher, config: config, currencyService: currencyService, networkService: networkService, rpcApiProvider: rpcApiProvider)
     }()
     private lazy var walletBalanceService: WalletBalanceService = {
         let service = MultiWalletBalanceService(walletAddressesStore: walletAddressesStore, dependencyContainer: dependencyProvider)
@@ -80,6 +80,7 @@ class AppCoordinator: NSObject, Coordinator {
         return coordinator
     }()
     private lazy var networkService: NetworkService = BaseNetworkService(analytics: analytics)
+    private lazy var rpcApiProvider: RpcApiProvider = BaseRpcApiProvider(analytics: analytics, networkService: networkService)
     private lazy var tokenSwapper = TokenSwapper(reachabilityManager: ReachabilityManager(), sessionProvider: activeSessionsProvider, networkProvider: LiQuestTokenSwapperNetworkProvider(networkService: networkService))
     private lazy var tokenActionsService: TokenActionsService = {
         let service = TokenActionsService()
@@ -134,7 +135,7 @@ class AppCoordinator: NSObject, Coordinator {
         return NotificationService(sources: [], walletBalanceService: walletBalanceService, notificationService: notificationService, pushNotificationsService: pushNotificationsService)
     }()
 
-    private lazy var activeSessionsProvider = SessionsProvider(config: config, analytics: analytics)
+    private lazy var activeSessionsProvider = SessionsProvider(config: config, analytics: analytics, rpcApiProvider: rpcApiProvider)
     private let securedStorage: SecuredPasswordStorage & SecuredStorage
     private let addressStorage: FileAddressStorage
     private let tokenScriptOverridesFileManager = TokenScriptOverridesFileManager()
@@ -358,7 +359,8 @@ class AppCoordinator: NSObject, Coordinator {
             lock: lock,
             currencyService: currencyService,
             tokenScriptOverridesFileManager: tokenScriptOverridesFileManager,
-            networkService: networkService)
+            networkService: networkService,
+            rpcApiProvider: rpcApiProvider)
 
         coordinator.delegate = self
 

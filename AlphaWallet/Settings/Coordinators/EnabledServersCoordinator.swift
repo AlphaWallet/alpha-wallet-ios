@@ -12,7 +12,7 @@ class EnabledServersCoordinator: Coordinator {
     static var serversOrdered: [RPCServer] {
         ServersCoordinator.serversOrdered
     }
-
+    private let rpcApiProvider: RpcApiProvider
     private let serverChoices = EnabledServersCoordinator.serversOrdered
     private let navigationController: UINavigationController
     private let selectedServers: [RPCServer]
@@ -44,8 +44,10 @@ class EnabledServersCoordinator: Coordinator {
          restartQueue: RestartTaskQueue,
          analytics: AnalyticsLogger,
          config: Config,
-         networkService: NetworkService) {
+         networkService: NetworkService,
+         rpcApiProvider: RpcApiProvider) {
 
+        self.rpcApiProvider = rpcApiProvider
         self.networkService = networkService
         self.navigationController = navigationController
         self.selectedServers = selectedServers
@@ -66,7 +68,8 @@ class EnabledServersCoordinator: Coordinator {
             restartQueue: restartQueue,
             analytics: analytics,
             operation: .add,
-            networkService: networkService)
+            networkService: networkService,
+            rpcApiProvider: rpcApiProvider)
         addCoordinator(coordinator)
         coordinator.delegate = self
 
@@ -80,7 +83,8 @@ class EnabledServersCoordinator: Coordinator {
             restartQueue: restartQueue,
             analytics: analytics,
             operation: .edit(customRpc),
-            networkService: networkService)
+            networkService: networkService,
+            rpcApiProvider: rpcApiProvider)
 
         addCoordinator(coordinator)
         coordinator.delegate = self

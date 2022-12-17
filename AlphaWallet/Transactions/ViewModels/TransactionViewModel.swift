@@ -7,7 +7,7 @@ import AlphaWalletFoundation
 
 struct TransactionViewModel {
     let transactionRow: TransactionRow
-    private let chainState: ChainState
+    private let blockNumberProvider: BlockNumberProvider
     private let wallet: Wallet
     private let fullFormatter = EtherNumberFormatter.full
 
@@ -15,9 +15,9 @@ struct TransactionViewModel {
         return transactionRow.server
     }
 
-    init(transactionRow: TransactionRow, chainState: ChainState, wallet: Wallet) {
+    init(transactionRow: TransactionRow, blockNumberProvider: BlockNumberProvider, wallet: Wallet) {
         self.transactionRow = transactionRow
-        self.chainState = chainState
+        self.blockNumberProvider = blockNumberProvider
         self.wallet = wallet
     }
 
@@ -30,7 +30,7 @@ struct TransactionViewModel {
     }
 
     var confirmations: Int? {
-        return chainState.confirmations(fromBlock: transactionRow.blockNumber)
+        return blockNumberProvider.confirmations(fromBlock: transactionRow.blockNumber)
     }
 
     var amountTextColor: UIColor {

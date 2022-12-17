@@ -4,6 +4,7 @@ import UIKit
 import WebKit
 import PromiseKit
 import AlphaWalletFoundation
+import Combine
 
 protocol DappBrowserCoordinatorDelegate: CanOpenURL, RequestAddCustomChainProvider, RequestSwitchChainProvider, BuyCryptoDelegate {
     func didSentTransaction(transaction: SentTransaction, inCoordinator coordinator: DappBrowserCoordinator)
@@ -30,6 +31,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         return BrowserURLParser()
     }
 
+    private var cancellable = Set<AnyCancellable>()
     private var server: RPCServer {
         get {
             let selected = RPCServer(chainID: Config.getChainId())
@@ -182,20 +184,22 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     private func ethCall(callbackID: Int, from: AlphaWallet.Address?, to: AlphaWallet.Address?, value: String?, data: String, server: RPCServer) {
-        let request = EthCall(server: server, analytics: analytics)
-        firstly {
-            request.ethCall(from: from, to: to, value: value, data: data)
-        }.done { result in
-            let callback = DappCallback(id: callbackID, value: .ethCall(result))
-            self.browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
-        }.catch { error in
-            if case let SessionTaskError.responseError(JSONRPCError.responseError(_, message: message, _)) = error {
-                self.browserViewController.notifyFinish(callbackID: callbackID, value: .failure(.nodeError(message)))
-            } else {
-                //TODO better handle. User didn't cancel
-                self.browserViewController.notifyFinish(callbackID: callbackID, value: .failure(.cancelled))
-            }
-        }
+        guard let session = sessionsProvider.activeSessions[safe: server] else { return }
+
+        session.blockchainProvider
+            .callPublisher(from: from, to: to, value: value, data: data)
+            .sink(receiveCompletion: { [browserViewController] result in
+                guard case .failure(let error) = result else { return }
+                if case let SessionTaskError.responseError(JSONRPCError.responseError(_, message: message, _)) = error {
+                    browserViewController.notifyFinish(callbackID: callbackID, value: .failure(.nodeError(message)))
+                } else {
+                    //TODO better handle. User didn't cancel
+                    browserViewController.notifyFinish(callbackID: callbackID, value: .failure(.cancelled))
+                }
+            }, receiveValue: { [browserViewController] result in
+                let callback = DappCallback(id: callbackID, value: .ethCall(result))
+                browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
+            }).store(in: &cancellable)
     }
 
     func open(url: URL, animated: Bool = true) {

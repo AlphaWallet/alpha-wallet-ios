@@ -8,13 +8,14 @@ struct BalanceRequest: JSONRPCKit.Request {
     typealias Response = Balance
 
     let address: AlphaWallet.Address
-
+    let block: BlockParameter
+    
     var method: String {
         return "eth_getBalance"
     }
 
     var parameters: Any? {
-        return [address.eip55String, "latest"]
+        return [address.eip55String, block.rawValue]
     }
 
     func response(from resultObject: Any) throws -> Response {

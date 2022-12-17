@@ -16,13 +16,13 @@ final class EventForActivitiesFetcher {
     private let getEventLogs: GetEventLogs
     private let queue: DispatchQueue = .global()
     private let wallet: Wallet
-    private let analytics: AnalyticsLogger
-    private lazy var getBlockTimestamp = GetBlockTimestamp(analytics: analytics)
+    private let rpcApiProvider: RpcApiProvider
+    private lazy var getBlockTimestamp = GetBlockTimestamp(rpcApiProvider: rpcApiProvider)
 
-    init(getEventLogs: GetEventLogs, wallet: Wallet, analytics: AnalyticsLogger) {
+    init(getEventLogs: GetEventLogs, wallet: Wallet, rpcApiProvider: RpcApiProvider) {
         self.getEventLogs = getEventLogs
         self.wallet = wallet
-        self.analytics = analytics
+        self.rpcApiProvider = rpcApiProvider
     }
 
     func fetchEvents(token: Token, card: TokenScriptCard, oldEvent: EventActivityInstance?) -> Promise<[EventActivityInstance]> {

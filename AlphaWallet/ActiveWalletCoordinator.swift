@@ -139,6 +139,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private let tokenScriptOverridesFileManager: TokenScriptOverridesFileManager
     private var cancelable = Set<AnyCancellable>()
     private let networkService: NetworkService
+    private let rpcApiProvider: RpcApiProvider
 
     init(navigationController: UINavigationController = NavigationController(),
          walletAddressesStore: WalletAddressesStore,
@@ -169,8 +170,10 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
          lock: Lock,
          currencyService: CurrencyService,
          tokenScriptOverridesFileManager: TokenScriptOverridesFileManager,
-         networkService: NetworkService) {
+         networkService: NetworkService,
+         rpcApiProvider: RpcApiProvider) {
 
+        self.rpcApiProvider = rpcApiProvider
         self.networkService = networkService
         self.currencyService = currencyService
         self.tokenScriptOverridesFileManager = tokenScriptOverridesFileManager
@@ -436,7 +439,8 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
             lock: lock,
             currencyService: currencyService,
             tokenScriptOverridesFileManager: tokenScriptOverridesFileManager,
-            networkService: networkService)
+            networkService: networkService,
+            rpcApiProvider: rpcApiProvider)
 
         coordinator.rootViewController.tabBarItem = ActiveWalletViewModel.Tabs.settings.tabBarItem
         coordinator.navigationController.configureForLargeTitles()
@@ -678,7 +682,8 @@ extension ActiveWalletCoordinator {
             analytics: analytics,
             currentUrl: nil,
             viewController: presentationViewController,
-            networkService: networkService)
+            networkService: networkService,
+            rpcApiProvider: rpcApiProvider)
         
         coordinator.delegate = dappRequestHandler
         dappRequestHandler.addCoordinator(coordinator)

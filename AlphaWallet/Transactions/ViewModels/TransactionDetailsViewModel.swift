@@ -19,7 +19,7 @@ struct TransactionDetailsViewModelOutput {
 
 class TransactionDetailsViewModel {
     private var transactionRow: TransactionRow
-    private let chainState: ChainState
+    private let blockNumberProvider: BlockNumberProvider
     private let fullFormatter = EtherNumberFormatter.full
     private let analytics: AnalyticsLogger
     private let transactionsService: TransactionsService
@@ -38,12 +38,12 @@ class TransactionDetailsViewModel {
     var server: RPCServer { transactionRow.server }
     var shareAvailable: Bool { detailsAvailable }
 
-    init(transactionsService: TransactionsService, transactionRow: TransactionRow, chainState: ChainState, wallet: Wallet, tokensService: TokenViewModelState, analytics: AnalyticsLogger) {
+    init(transactionsService: TransactionsService, transactionRow: TransactionRow, blockNumberProvider: BlockNumberProvider, wallet: Wallet, tokensService: TokenViewModelState, analytics: AnalyticsLogger) {
         self.wallet = wallet
         self.tokensService = tokensService
         self.transactionsService = transactionsService
         self.transactionRow = transactionRow
-        self.chainState = chainState
+        self.blockNumberProvider = blockNumberProvider
         self.analytics = analytics
     }
 
@@ -71,9 +71,9 @@ class TransactionDetailsViewModel {
                 return self.buildGasViewModel(transactionRow: self.transactionRow, coinTicker: token?.balance.ticker)
             }
 
-        let viewState = Publishers.CombineLatest3(transactionRow, gasViewModel, chainState.latestBlockPublisher)
-            .map { [chainState, wallet] transactionRow, gasViewModel, _ -> TransactionDetailsViewModel.ViewState in
-                let transactionViewModel = TransactionViewModel(transactionRow: transactionRow, chainState: chainState, wallet: wallet)
+        let viewState = Publishers.CombineLatest3(transactionRow, gasViewModel, blockNumberProvider.latestBlockPublisher)
+            .map { [blockNumberProvider, wallet] transactionRow, gasViewModel, _ -> TransactionDetailsViewModel.ViewState in
+                let transactionViewModel = TransactionViewModel(transactionRow: transactionRow, blockNumberProvider: blockNumberProvider, wallet: wallet)
                 return self.buildViewState(transactionRow: transactionRow, transactionViewModel: transactionViewModel, gasViewModel: gasViewModel)
             }.eraseToAnyPublisher()
 
@@ -141,7 +141,7 @@ class TransactionDetailsViewModel {
     }
 
     private var confirmation: String {
-        guard let confirmation = chainState.confirmations(fromBlock: transactionRow.blockNumber) else {
+        guard let confirmation = blockNumberProvider.confirmations(fromBlock: transactionRow.blockNumber) else {
             return "--"
         }
         return String(confirmation)

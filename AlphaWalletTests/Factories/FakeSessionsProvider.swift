@@ -12,6 +12,7 @@ import AlphaWalletFoundation
 
 final class FakeSessionsProvider: SessionsProvider {
     init(servers: [RPCServer]) {
-        super.init(config: .make(defaults: .standardOrForTests, enabledServers: servers), analytics: FakeAnalyticsService())
+        let rpcApiProvider = BaseRpcApiProvider(analytics: FakeAnalyticsService(), networkService: FakeNetworkService())
+        super.init(config: .make(defaults: .standardOrForTests, enabledServers: servers), analytics: FakeAnalyticsService(), rpcApiProvider: rpcApiProvider)
     }
 }

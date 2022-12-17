@@ -32,6 +32,7 @@ public class WalletComponentsFactory: WalletDependencyContainer {
     public let currencyService: CurrencyService
     private var walletDependencies: [Wallet: WalletDependency] = [:]
     private let networkService: NetworkService
+    private let rpcApiProvider: RpcApiProvider
 
     public struct Dependencies: WalletDependency {
         public let activitiesPipeLine: ActivitiesPipeLine
@@ -51,9 +52,11 @@ public class WalletComponentsFactory: WalletDependencyContainer {
                 coinTickersFetcher: CoinTickersFetcher,
                 config: Config,
                 currencyService: CurrencyService,
-                networkService: NetworkService) {
+                networkService: NetworkService,
+                rpcApiProvider: RpcApiProvider) {
 
         self.analytics = analytics
+        self.rpcApiProvider = rpcApiProvider
         self.nftProvider = nftProvider
         self.assetDefinitionStore = assetDefinitionStore
         self.coinTickersFetcher = coinTickersFetcher
@@ -70,7 +73,7 @@ public class WalletComponentsFactory: WalletDependencyContainer {
         let transactionsDataStore: TransactionDataStore = TransactionDataStore(store: .storage(for: wallet))
         let eventsActivityDataStore: EventsActivityDataStoreProtocol = EventsActivityDataStore(store: .storage(for: wallet))
 
-        let sessionsProvider: SessionsProvider = .init(config: config, analytics: analytics)
+        let sessionsProvider: SessionsProvider = .init(config: config, analytics: analytics, rpcApiProvider: rpcApiProvider)
         sessionsProvider.start(wallet: wallet)
 
         let contractDataFetcher = ContractDataFetcher(
@@ -113,7 +116,7 @@ public class WalletComponentsFactory: WalletDependencyContainer {
             sessionsProvider: sessionsProvider,
             eventsActivityDataStore: eventsActivityDataStore,
             eventsDataStore: eventsDataStore,
-            analytics: analytics)
+            rpcApiProvider: rpcApiProvider)
 
         let dependency: WalletDependency = Dependencies(
             activitiesPipeLine: activitiesPipeLine,

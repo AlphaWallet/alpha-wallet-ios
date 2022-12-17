@@ -2,48 +2,30 @@
 
 import BigInt
 import Foundation
-import APIKit
-import JSONRPCKit
 import PromiseKit
 
 public class SendTransaction {
     private let keystore: Keystore
     private let session: WalletSession
     private let confirmType: ConfirmType
-    private let config: Config
-    private let analytics: AnalyticsLogger
     private let prompt: String
 
-    public init(
-        session: WalletSession,
-        keystore: Keystore,
-        confirmType: ConfirmType,
-        config: Config,
-        analytics: AnalyticsLogger,
-        prompt: String
-    ) {
+    public init(session: WalletSession,
+                keystore: Keystore,
+                confirmType: ConfirmType,
+                prompt: String) {
+
         self.prompt = prompt
         self.session = session
         self.keystore = keystore
         self.confirmType = confirmType
-        self.config = config
-        self.analytics = analytics
     }
 
-    public func send(rawTransaction: String) -> Promise<ConfirmResult> {
-        let rawRequest = SendRawTransactionRequest(signedTransaction: rawTransaction.add0x)
-        let (rpcURL, rpcHeaders) = rpcURLAndHeaders
-        let request = EtherServiceRequest(rpcURL: rpcURL, rpcHeaders: rpcHeaders, batch: BatchFactory().create(rawRequest))
-
+    public func sendPromise(rawTransaction: String) -> Promise<ConfirmResult> {
         return firstly {
-            APIKitSession.send(request, server: session.server, analytics: analytics)
-        }.recover { error -> Promise<SendRawTransactionRequest.Response> in
-            self.logSelectSendError(error)
-            throw error
+            session.blockchainProvider.sendPromise(rawTransaction: rawTransaction)
         }.map { transactionID in
             .sentRawTransaction(id: transactionID, original: rawTransaction)
-        }.get {
-            infoLog("Sent rawTransaction with transactionId: \($0)")
         }
     }
 
@@ -57,11 +39,10 @@ public class SendTransaction {
             gasPrice: to.gasPrice,
             gasLimit: to.gasLimit,
             server: to.server,
-            transactionType: to.transactionType
-        )
+            transactionType: to.transactionType)
     }
 
-    public func send(transaction: UnsignedTransaction) -> Promise<ConfirmResult> {
+    public func sendPromise(transaction: UnsignedTransaction) -> Promise<ConfirmResult> {
         if transaction.nonce >= 0 {
             return signAndSend(transaction: transaction)
         } else {
@@ -74,13 +55,12 @@ public class SendTransaction {
     }
 
     private func resolveNextNonce(for transaction: UnsignedTransaction) -> Promise<UnsignedTransaction> {
-        let (rpcURL, rpcHeaders) = rpcURLAndHeaders
-        return firstly {
-            GetNextNonce(rpcURL: rpcURL, rpcHeaders: rpcHeaders, server: session.server, wallet: session.account.address, analytics: analytics).getNextNonce()
-        }.map { nonce -> UnsignedTransaction in
-            let transaction = self.appendNonce(to: transaction, currentNonce: nonce)
-            return transaction
-        }
+        session.blockchainProvider
+            .nextNoncePromise()
+            .map { nonce -> UnsignedTransaction in
+                let transaction = self.appendNonce(to: transaction, currentNonce: nonce)
+                return transaction
+            }
     }
 
     private func signAndSend(transaction: UnsignedTransaction) -> Promise<ConfirmResult> {
@@ -97,34 +77,11 @@ public class SendTransaction {
     }
 
     private func sendTransactionRequest(transaction: UnsignedTransaction, data: Data) -> Promise<ConfirmResult> {
-        let rawTransaction = SendRawTransactionRequest(signedTransaction: data.hexEncoded)
-        let (rpcURL, rpcHeaders) = rpcURLAndHeaders
-        let request = EtherServiceRequest(rpcURL: rpcURL, rpcHeaders: rpcHeaders, batch: BatchFactory().create(rawTransaction))
-
         return firstly {
-            APIKitSession.send(request, server: session.server, analytics: analytics)
-        }.recover { error -> Promise<SendRawTransactionRequest.Response> in
-            self.logSelectSendError(error)
-            throw error
+            session.blockchainProvider.sendPromise(transaction: transaction, data: data)
         }.map { transactionID in
             .sentTransaction(SentTransaction(id: transactionID, original: transaction))
-        }.get {
-            infoLog("Sent transaction with transactionId: \($0)")
         }
-    }
-
-    private func logSelectSendError(_ error: Error) {
-        guard let error = error as? SendTransactionNotRetryableError else { return }
-        switch error {
-        case .nonceTooLow:
-            analytics.log(error: Analytics.Error.sendTransactionNonceTooLow)
-        case .insufficientFunds, .gasPriceTooLow, .gasLimitTooLow, .gasLimitTooHigh, .possibleChainIdMismatch, .executionReverted, .unknown:
-            break
-        }
-    }
-
-    private var rpcURLAndHeaders: (url: URL, rpcHeaders: [String: String]) {
-        session.server.rpcUrlAndHeadersWithReplacementSendPrivateTransactionsProviderIfEnabled(config: config)
     }
 }
 

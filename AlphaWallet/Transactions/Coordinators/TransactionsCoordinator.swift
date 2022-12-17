@@ -51,7 +51,7 @@ class TransactionsCoordinator: NSObject, Coordinator {
 
     private func showTransaction(_ transactionRow: TransactionRow, on navigationController: UINavigationController) {
         let session = sessions[transactionRow.server]
-        let viewModel = TransactionDetailsViewModel(transactionsService: transactionsService, transactionRow: transactionRow, chainState: session.chainState, wallet: session.account, tokensService: tokensService, analytics: analytics)
+        let viewModel = TransactionDetailsViewModel(transactionsService: transactionsService, transactionRow: transactionRow, blockNumberProvider: session.blockNumberProvider, wallet: session.account, tokensService: tokensService, analytics: analytics)
 
         let controller = TransactionDetailsViewController(viewModel: viewModel)
         controller.delegate = self

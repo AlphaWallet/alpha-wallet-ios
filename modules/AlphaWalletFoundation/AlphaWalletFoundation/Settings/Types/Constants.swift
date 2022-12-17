@@ -137,8 +137,8 @@ public struct Constants {
         static let pendingTransactionUpdateInterval: TimeInterval = 5
     }
 
-    enum ChainState {
-        static let getChainStateInterval: TimeInterval = 6
+    enum BlockNumberProvider {
+        static let getBlockNumberSchedulerInterval: TimeInterval = 6
     }
 
     enum Ens {

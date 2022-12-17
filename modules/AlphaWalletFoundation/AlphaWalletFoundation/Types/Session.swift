@@ -13,30 +13,33 @@ public final class WalletSession: Equatable {
     public let account: Wallet
     public let server: RPCServer
     public let config: Config
-    public let chainState: ChainState
+    public let blockNumberProvider: BlockNumberProvider
     public lazy private (set) var tokenProvider: TokenProviderType = {
-        return TokenProvider(account: account, server: server, analytics: analytics)
+        return TokenProvider(account: account, server: server, analytics: analytics, blockchainProvider: blockchainProvider)
     }()
     public var sessionID: String {
         return WalletSession.functional.sessionID(account: account, server: server)
     }
+    public let blockchainProvider: BlockchainProvider
 
-    public init(account: Wallet, server: RPCServer, config: Config, analytics: AnalyticsLogger) {
+    public init(account: Wallet, server: RPCServer, config: Config, analytics: AnalyticsLogger, blockchainProvider: BlockchainProvider) {
         self.analytics = analytics
         self.account = account
         self.server = server
         self.config = config
-        self.chainState = ChainState(config: config, server: server, analytics: analytics)
+        self.blockchainProvider = blockchainProvider
+        
+        self.blockNumberProvider = BlockNumberProvider(storage: config, blockchainProvider: blockchainProvider)
 
         if config.development.isAutoFetchingDisabled {
             //no-op
         } else {
-            self.chainState.start()
+            self.blockNumberProvider.start()
         }
     }
 
     public func stop() {
-        chainState.stop()
+        blockNumberProvider.stop()
     }
 }
 

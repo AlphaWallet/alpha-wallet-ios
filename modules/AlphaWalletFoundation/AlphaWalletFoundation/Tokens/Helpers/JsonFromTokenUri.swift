@@ -82,7 +82,7 @@ final class JsonFromTokenUri {
         }.map(on: queue, { [tokensService, server] data -> NonFungibleBalanceAndItsSource in
             if let json = try? JSON(data: data.data) {
                 if let errorMessage = json["error"].string {
-                    warnLog("Fetched token URI: \(originalUri.absoluteString) error: \(errorMessage)")
+                warnLog("Fetched token URI: \(originalUri.absoluteString) error: \(errorMessage)")
                 }
                 if json["error"] == "Internal Server Error" {
                     throw Error()
@@ -112,6 +112,7 @@ final class JsonFromTokenUri {
                     } else {
                         throw Error()
                     }
+
                 }
             } else {
                 //TODO lots of this so not using `warnLog()`. Check

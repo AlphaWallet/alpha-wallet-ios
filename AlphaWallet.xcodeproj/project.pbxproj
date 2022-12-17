@@ -423,7 +423,6 @@
 		73ACEF0120163ED4003DD71D /* LockViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73ACEF0020163ED4003DD71D /* LockViewModel.swift */; };
 		73C41C71201B46AD00243C6C /* LockEnterPasscodeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73C41C70201B46AD00243C6C /* LockEnterPasscodeViewModel.swift */; };
 		73C41C73201B5EFF00243C6C /* LockCreatePasscodeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73C41C72201B5EFF00243C6C /* LockCreatePasscodeViewModel.swift */; };
-		73CBC761202139FB00374666 /* FakeGetEthBalance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73CBC760202139FB00374666 /* FakeGetEthBalance.swift */; };
 		73ED85A72034BFEF00593BF3 /* UITextFieldAdditions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73ED85A62034BFEF00593BF3 /* UITextFieldAdditions.swift */; };
 		73ED85A92034C42D00593BF3 /* StringFormatterTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73ED85A82034C42D00593BF3 /* StringFormatterTest.swift */; };
 		76F1D09ED5C81F9B420FACD4 /* TokenScriptSignatureVerifierTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D7C0B5043312AADA668A /* TokenScriptSignatureVerifierTest.swift */; };
@@ -1293,7 +1292,6 @@
 		73ACEF0020163ED4003DD71D /* LockViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockViewModel.swift; sourceTree = "<group>"; };
 		73C41C70201B46AD00243C6C /* LockEnterPasscodeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockEnterPasscodeViewModel.swift; sourceTree = "<group>"; };
 		73C41C72201B5EFF00243C6C /* LockCreatePasscodeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockCreatePasscodeViewModel.swift; sourceTree = "<group>"; };
-		73CBC760202139FB00374666 /* FakeGetEthBalance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeGetEthBalance.swift; sourceTree = "<group>"; };
 		73ED85A62034BFEF00593BF3 /* UITextFieldAdditions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITextFieldAdditions.swift; sourceTree = "<group>"; };
 		73ED85A82034C42D00593BF3 /* StringFormatterTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringFormatterTest.swift; sourceTree = "<group>"; };
 		76F1D3AB33F1310B03B18E37 /* BookmarksViewViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BookmarksViewViewModel.swift; sourceTree = "<group>"; };
@@ -2629,7 +2627,6 @@
 				29BDF1951FEE43F40023A45F /* UnconfirmedTransaction.swift */,
 				29F1C864200384FE003780D8 /* Wallet.swift */,
 				732E0F512022754600B39C1F /* FakeLockProtocol.swift */,
-				73CBC760202139FB00374666 /* FakeGetEthBalance.swift */,
 				442FCE526E2089CAE88D5602 /* FakeClaimOrderCoordinator.swift */,
 				8765D6E0282BAD3A00529F45 /* FakeMultiWalletBalanceService.swift */,
 				8765D6E2282BAD6300529F45 /* FakeNftProvider.swift */,
@@ -5660,7 +5657,6 @@
 				77872D2D202514AD0032D687 /* EnterPasswordCoordinatorTests.swift in Sources */,
 				8765D6E9282BD64400529F45 /* FakeTokenSwapperNetworkProvider.swift in Sources */,
 				771A8485203242B400528D28 /* ActiveWalletViewModelTests.swift in Sources */,
-				73CBC761202139FB00374666 /* FakeGetEthBalance.swift in Sources */,
 				295996031FAA865800DB66A8 /* TokensCoordinatorTests.swift in Sources */,
 				87D1F91228900E2800056EBE /* FakeSessionsProvider.swift in Sources */,
 				73958DC720263525000A40EB /* SplashCoordinatorTests.swift in Sources */,

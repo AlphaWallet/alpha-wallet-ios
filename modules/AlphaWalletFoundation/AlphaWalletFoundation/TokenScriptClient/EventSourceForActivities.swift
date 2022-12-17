@@ -19,13 +19,13 @@ final class EventSourceForActivities {
     private var cancellable = Set<AnyCancellable>()
     private let fetcher: EventForActivitiesFetcher
 
-    init(wallet: Wallet, config: Config, tokensService: TokenProvidable, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsActivityDataStoreProtocol, getEventLogs: GetEventLogs, analytics: AnalyticsLogger) {
+    init(wallet: Wallet, config: Config, tokensService: TokenProvidable, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsActivityDataStoreProtocol, getEventLogs: GetEventLogs, rpcApiProvider: RpcApiProvider) {
         self.config = config
         self.tokensService = tokensService
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
         self.enabledServers = config.enabledServers
-        self.fetcher = EventForActivitiesFetcher(getEventLogs: getEventLogs, wallet: wallet, analytics: analytics)
+        self.fetcher = EventForActivitiesFetcher(getEventLogs: getEventLogs, wallet: wallet, rpcApiProvider: rpcApiProvider)
     }
 
     func start() {

@@ -8,7 +8,7 @@ struct GetTransactionCountRequest: JSONRPCKit.Request {
     typealias Response = Int
 
     let address: AlphaWallet.Address
-    let state: String
+    let block: BlockParameter
 
     var method: String {
         return "eth_getTransactionCount"
@@ -17,7 +17,7 @@ struct GetTransactionCountRequest: JSONRPCKit.Request {
     var parameters: Any? {
         return [
             address.eip55String,
-            state,
+            block.rawValue,
         ]
     }
 

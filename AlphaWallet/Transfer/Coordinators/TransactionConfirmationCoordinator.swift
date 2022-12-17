@@ -147,13 +147,13 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
 
     private func sendTransaction() -> Promise<ConfirmResult> {
         let prompt = R.string.localizable.keystoreAccessKeySign()
-        let sender = SendTransaction(session: configurator.session, keystore: keystore, confirmType: configuration.confirmType, config: configurator.session.config, analytics: analytics, prompt: prompt)
+        let sender = SendTransaction(session: configurator.session, keystore: keystore, confirmType: configuration.confirmType, prompt: prompt)
         let transaction = configurator.formUnsignedTransaction()
         infoLog("[TransactionConfirmation] form unsigned transaction: \(transaction)")
         if configurator.session.config.development.shouldNotSendTransactions {
             return Promise(error: DevelopmentForcedError(message: "Did not send transaction because of development flag"))
         } else {
-            return sender.send(transaction: transaction)
+            return sender.sendPromise(transaction: transaction)
         }
     }
 

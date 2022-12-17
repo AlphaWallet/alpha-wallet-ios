@@ -5,8 +5,6 @@
 //  Created by Vladyslav Shepitko on 08.10.2021.
 //
 
-import JSONRPCKit
-import APIKit
 import PromiseKit
 
 public final class GetDASNameLookup {
@@ -18,11 +16,11 @@ public final class GetDASNameLookup {
     private static let ethAddressKey = "address.eth"
 
     private let server: RPCServer
-    private let analytics: AnalyticsLogger
+    private let rpcApiProvider: RpcApiProvider
 
-    public init(server: RPCServer, analytics: AnalyticsLogger) {
+    public init(server: RPCServer, rpcApiProvider: RpcApiProvider) {
         self.server = server
-        self.analytics = analytics
+        self.rpcApiProvider = rpcApiProvider
     }
 
     public static func isValid(value: String) -> Bool {
@@ -35,9 +33,11 @@ public final class GetDASNameLookup {
             return .init(error: DASNameLookupError.invalidInput)
         }
 
-        let request = EtherServiceRequest(rpcURL: rpcURL, rpcHeaders: rpcHeaders, batch: BatchFactory().create(DASLookupRequest(value: value)))
         infoLog("[DAS] Looking up value \(value)…")
-        return APIKitSession.send(request, server: server, analytics: analytics).map { response -> AlphaWallet.Address in
+        let request = JsonRpcRequest(server: server, rpcURL: rpcURL, rpcHeaders: rpcHeaders, request: DASLookupRequest(value: value))
+        return firstly {
+            rpcApiProvider.dataTaskPromise(request)
+        }.map { response -> AlphaWallet.Address in
             infoLog("[DAS] response for value: \(value) response : \(response)")
             if let record = response.records.first(where: { $0.key == GetDASNameLookup.ethAddressKey }), let address = AlphaWallet.Address(string: record.value) {
                 infoLog("[DAS] resolve value: \(value) to address: \(address)")

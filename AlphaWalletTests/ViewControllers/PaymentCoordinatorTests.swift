@@ -67,7 +67,7 @@ extension WalletDataProcessingPipeline {
             sessionsProvider: sessionsProvider,
             eventsActivityDataStore: eventsActivityDataStore,
             eventsDataStore: eventsDataStore,
-            analytics: fas)
+            rpcApiProvider: BaseRpcApiProvider(analytics: fas, networkService: FakeNetworkService()))
 
         let dep = FakeWalletDep(
             activitiesPipeLine: activitiesPipeLine,

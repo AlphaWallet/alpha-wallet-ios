@@ -180,7 +180,7 @@ extension ActivitiesView: UITableViewDataSource {
             } else {
                 let cell: TransactionTableViewCell = tableView.dequeueReusableCell(for: indexPath)
                 let session = sessions[transaction.server]
-                cell.configure(viewModel: .init(transactionRow: .item(transaction: transaction, operation: operation), chainState: session.chainState, wallet: session.account))
+                cell.configure(viewModel: .init(transactionRow: .item(transaction: transaction, operation: operation), blockNumberProvider: session.blockNumberProvider, wallet: session.account))
                 return cell
             }
         case .standaloneTransaction(transaction: let transaction, let activity):
@@ -191,7 +191,7 @@ extension ActivitiesView: UITableViewDataSource {
             } else {
                 let cell: TransactionTableViewCell = tableView.dequeueReusableCell(for: indexPath)
                 let session = sessions[transaction.server]
-                cell.configure(viewModel: .init(transactionRow: .standalone(transaction), chainState: session.chainState, wallet: session.account))
+                cell.configure(viewModel: .init(transactionRow: .standalone(transaction), blockNumberProvider: session.blockNumberProvider, wallet: session.account))
                 return cell
             }
         case .standaloneActivity(activity: let activity):

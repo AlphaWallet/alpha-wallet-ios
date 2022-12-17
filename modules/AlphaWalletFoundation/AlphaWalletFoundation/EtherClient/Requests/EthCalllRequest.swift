@@ -10,12 +10,14 @@ public struct EthCallRequest: JSONRPCKit.Request {
     let to: AlphaWallet.Address?
     let value: String?
     let data: String
+    let block: BlockParameter
 
-    public init(from: AlphaWallet.Address?, to: AlphaWallet.Address?, value: String?, data: String) {
+    public init(from: AlphaWallet.Address?, to: AlphaWallet.Address?, value: String?, data: String, block: BlockParameter) {
         self.from = from
         self.to = to
         self.value = value
         self.data = data
+        self.block = block
     }
 
     public var method: String {
@@ -38,7 +40,7 @@ public struct EthCallRequest: JSONRPCKit.Request {
         }
         let results: [Any] = [
             payload,
-            "latest",
+            block.rawValue,
         ]
         return results
     }

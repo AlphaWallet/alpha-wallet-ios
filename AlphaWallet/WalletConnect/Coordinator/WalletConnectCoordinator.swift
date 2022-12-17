@@ -495,8 +495,8 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         }.then { shouldSend -> Promise<ConfirmResult> in
             guard shouldSend else { return .init(error: DAppError.cancelled) }
             let prompt = R.string.localizable.keystoreAccessKeySign()
-            let sender = SendTransaction(session: session, keystore: self.keystore, confirmType: .sign, config: self.config, analytics: self.analytics, prompt: prompt)
-            return sender.send(rawTransaction: rawTransaction)
+            let sender = SendTransaction(session: session, keystore: self.keystore, confirmType: .sign, prompt: prompt)
+            return sender.sendPromise(rawTransaction: rawTransaction)
         }.map { data in
             switch data {
             case .signedTransaction, .sentTransaction:
@@ -511,7 +511,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
 
     private func getTransactionCount(session: WalletSession) -> Promise<AlphaWallet.WalletConnect.Response> {
         return firstly {
-            GetNextNonce(server: session.server, wallet: session.account.address, analytics: analytics).getNextNonce()
+            session.blockchainProvider.nextNoncePromise()
         }.map {
             if let data = Data(fromHexEncodedString: String(format: "%02X", $0)) {
                 return .value(data)

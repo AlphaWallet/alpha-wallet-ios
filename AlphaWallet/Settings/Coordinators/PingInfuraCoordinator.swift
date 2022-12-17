@@ -3,6 +3,7 @@
 import UIKit
 import PromiseKit
 import AlphaWalletFoundation
+import Combine
 
 protocol PingInfuraCoordinatorDelegate: AnyObject {
     func didPing(in coordinator: PingInfuraCoordinator)
@@ -12,13 +13,15 @@ protocol PingInfuraCoordinatorDelegate: AnyObject {
 class PingInfuraCoordinator: Coordinator {
     private let viewController: UIViewController
     private let analytics: AnalyticsLogger
-    private lazy var provider = GetBlockNumber(server: .main, analytics: analytics)
+    private let blockchainProvider: BlockchainProvider
+    private var cancellable = Set<AnyCancellable>()
 
     var coordinators: [Coordinator] = []
     weak var delegate: PingInfuraCoordinatorDelegate?
 
-    init(viewController: UIViewController, analytics: AnalyticsLogger) {
+    init(viewController: UIViewController, analytics: AnalyticsLogger, blockchainProvider: BlockchainProvider) {
         self.viewController = viewController
+        self.blockchainProvider = blockchainProvider
         self.analytics = analytics
     }
 
@@ -40,32 +43,35 @@ class PingInfuraCoordinator: Coordinator {
     }
 
     private func pingInfura() {
-        firstly {
-            provider.getBlockNumber()
-        }.done { _ in
-            UIAlertController.alert(
-                    title: R.string.localizable.settingsPingInfuraSuccessful(),
-                    message: nil,
-                    alertButtonTitles: [
-                        R.string.localizable.oK()
-                    ],
-                    alertButtonStyles: [
-                        .cancel
-                    ],
-                    viewController: self.viewController,
-                    style: .alert)
-        }.catch { error in
-            UIAlertController.alert(title: R.string.localizable.settingsPingInfuraFail(),
-                    message: "\(error.prettyError)",
-                    alertButtonTitles: [
-                        R.string.localizable.oK(),
-                    ],
-                    alertButtonStyles: [
-                        .cancel
-                    ],
-                    viewController: self.viewController,
-                    style: .alert)
-        }
+        blockchainProvider
+            .blockNumberPublisher()
+            .receive(on: RunLoop.main)
+            .sink(receiveCompletion: { result in
+                guard case .failure(let error) = result else { return }
+                UIAlertController.alert(title: R.string.localizable.settingsPingInfuraFail(),
+                        message: "\(error.prettyError)",
+                        alertButtonTitles: [
+                            R.string.localizable.oK(),
+                        ],
+                        alertButtonStyles: [
+                            .cancel
+                        ],
+                        viewController: self.viewController,
+                        style: .alert)
+
+            }, receiveValue: { _ in
+                UIAlertController.alert(
+                        title: R.string.localizable.settingsPingInfuraSuccessful(),
+                        message: nil,
+                        alertButtonTitles: [
+                            R.string.localizable.oK()
+                        ],
+                        alertButtonStyles: [
+                            .cancel
+                        ],
+                        viewController: self.viewController,
+                        style: .alert)
+            }).store(in: &cancellable)
     }
 }
 
