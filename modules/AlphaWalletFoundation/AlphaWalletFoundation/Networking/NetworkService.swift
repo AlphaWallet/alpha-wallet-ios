@@ -119,3 +119,22 @@ extension BaseNetworkService {
 struct NonHTTPURLResponseError: Error {
     let error: AFError?
 }
+extension JSONEncoding {
+    public func encode(_ urlRequest: URLRequestConvertible, codable: Codable) throws -> URLRequest {
+        var urlRequest = try urlRequest.asURLRequest()
+
+        do {
+            let data = try JSONEncoder().encode(codable)
+
+            if urlRequest.headers["Content-Type"] == nil {
+                urlRequest.headers.update(.contentType("application/json"))
+            }
+
+            urlRequest.httpBody = data
+        } catch {
+            throw AFError.parameterEncodingFailed(reason: .jsonEncodingFailed(error: error))
+        }
+
+        return urlRequest
+    }
+}

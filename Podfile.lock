@@ -25,14 +25,12 @@ PODS:
     - AlphaWalletTrustWalletCoreExtensions
     - AlphaWalletWeb3
     - AlphaWalletWeb3Provider
-    - APIKit (= 5.1.0)
     - Apollo (= 0.53.0)
     - BigInt (~> 3.1)
     - BlockiesSwift
     - CombineExt (= 1.8.0)
     - CryptoSwift (~> 1.4)
     - EthereumABI
-    - JSONRPCKit (~> 2.0.0)
     - Kanna
     - PaperTrailLumberjack/Swift
     - PromiseKit/CorePromise
@@ -71,7 +69,6 @@ PODS:
     - PromiseKit (~> 6.3.0)
     - secp256k1_ios (~> 0.1.3)
   - AlphaWalletWeb3Provider (0.3.0)
-  - APIKit (5.1.0)
   - Apollo (0.53.0):
     - Apollo/Core (= 0.53.0)
   - Apollo/Core (0.53.0)
@@ -159,8 +156,6 @@ PODS:
   - iOSSnapshotTestCase/SwiftSupport (6.2.0):
     - iOSSnapshotTestCase/Core
   - IQKeyboardManager (6.5.10)
-  - JSONRPCKit (2.0.3):
-    - Result (~> 3.0)
   - Kanna (5.0.0)
   - KeychainSwift (10.0.0)
   - Kingfisher (7.6.2)
@@ -199,7 +194,6 @@ PODS:
   - Realm/Headers (10.36.0)
   - RealmSwift (10.36.0):
     - Realm (= 10.36.0)
-  - Result (3.2.4)
   - SAMKeychain (1.5.3)
   - secp256k1_ios (0.1.3)
   - SipHash (1.2.2)
@@ -269,7 +263,6 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - Alamofire
-    - APIKit
     - Apollo
     - BigInt
     - BlockiesSwift
@@ -290,7 +283,6 @@ SPEC REPOS:
     - GoogleUtilities
     - iOSSnapshotTestCase
     - IQKeyboardManager
-    - JSONRPCKit
     - Kingfisher
     - MailchimpSDK
     - MBProgressHUD
@@ -303,7 +295,6 @@ SPEC REPOS:
     - R.swift.Library
     - Realm
     - RealmSwift
-    - Result
     - SAMKeychain
     - secp256k1_ios
     - SipHash
@@ -400,7 +391,7 @@ SPEC CHECKSUMS:
   AlphaWalletAddress: e9f10243983ac7f51671671b7964eb49d14854ab
   AlphaWalletCore: 6f67a6ce7b25614a4cad4ca7330afeaea1b9ad03
   AlphaWalletENS: 8f611f655728c8f2a6b91fb8f1417144d33a4915
-  AlphaWalletFoundation: 7cf355ef9b4aff7acd54621290a533dd2659ed69
+  AlphaWalletFoundation: 45a9555fbf66aff74826ae9428c0b045338e151e
   AlphaWalletGoBack: 665101a1185145ef0a4a92943dcb11ae1fe697ca
   AlphaWalletHardwareWallet: 01e02d59b25853134c823063e27a9e05fbfde0a7
   AlphaWalletLogger: 54208bad850ec92a32fa4f969d0026305b6ce028
@@ -411,7 +402,6 @@ SPEC CHECKSUMS:
   AlphaWalletTrustWalletCoreExtensions: 290b1c05cada7715c29b52622688da01ab88ffa7
   AlphaWalletWeb3: 1603f0e60dd63598c5c939f9c46ef8178cd28bb9
   AlphaWalletWeb3Provider: 7ca1e1c1dc841dc1915f970daace48bf34931655
-  APIKit: 9e1a4069608bf0ae5238811e6cfc26928ad4d01e
   Apollo: 204819ea82022fbc59ad05056820df867f19bd02
   BigInt: 76b5dfdfa3e2e478d4ffdf161aeede5502e2742f
   BlockiesSwift: 22d8d56dd187e6bfd16cb8c8fbd4fd4896c3e65d
@@ -433,7 +423,6 @@ SPEC CHECKSUMS:
   GoogleUtilities: c2bdc4cf2ce786c4d2e6b3bcfd599a25ca78f06f
   iOSSnapshotTestCase: 9ab44cb5aa62b84d31847f40680112e15ec579a6
   IQKeyboardManager: 45a1fa55c1a5b02c61ac0fd7fd5b62bb4ad20d97
-  JSONRPCKit: b2991f2f242d72022083f9d869140dabd26d65c7
   Kanna: a32875df62975f8f4b871e933b4ea1a5c3b8be0f
   KeychainSwift: c0d1b0c2901b9873f07f0e560fde92929069e863
   Kingfisher: 6c5449c6450c5239166510ba04afe374a98afc4f
@@ -449,7 +438,6 @@ SPEC CHECKSUMS:
   R.swift.Library: 0fc583cb55a99e28901299cc451614cad1161962
   Realm: 3fd136cb4c83a927482a7f1612496d37beed3cf5
   RealmSwift: 513d4dcbf5bfc4d573454088b592685fc48dd716
-  Result: d2d07204ce72856f1fd9130bbe42c35a7b0fea10
   SAMKeychain: 483e1c9f32984d50ca961e26818a534283b4cd5c
   secp256k1_ios: ac9ef04e761f43c58012b28548afa91493761f17
   SipHash: fad90a4683e420c52ef28063063dbbce248ea6d4
@@ -466,6 +454,6 @@ SPEC CHECKSUMS:
   WalletConnectSwift: 6309bf3011b0b30e3e9d1e7449535302a9240f71
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: 6e1b35032ac3cc092b978925e4dffac80d160a1e
+PODFILE CHECKSUM: ed0dcd5ac611ba26fad4ca7eab491a9593109374
 
 COCOAPODS: 1.11.3

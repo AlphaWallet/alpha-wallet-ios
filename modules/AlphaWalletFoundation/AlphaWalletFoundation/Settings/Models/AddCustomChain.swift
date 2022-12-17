@@ -241,12 +241,21 @@ public class AddCustomChain {
             chainNameFallback: chainNameFallback)
 
         let server = RPCServer.custom(customRpc)
+        let transporter = HttpRpcRequestTransporter(
+            server: server,
+            rpcHttpParams: .init(rpcUrls: [url], headers: [:]),
+            networkService: BaseRpcNetworkService(server: RPCServer.custom(customRpc)),
+            analytics: analytics)
+        
+        let rpcRequestProvider = BatchSupportableRpcRequestDispatcher(transporter: transporter, policy: .noBatching)
         let provider = RpcBlockchainProvider(
             server: server,
+            rpcRequestProvider: rpcRequestProvider,
             analytics: analytics,
             params: .defaultParams(for: server))
 
-        return provider.getChainId()
+            return provider
+            .getChainId()
             .mapError { AddCustomChainError.unknown($0) }
             .tryMap { retrievedChainId in
                 if retrievedChainId == chainId {

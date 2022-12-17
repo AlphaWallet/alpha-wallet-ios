@@ -8,11 +8,9 @@
 import Foundation
 import Combine
 import AlphaWalletLogger
-import AlphaWalletWeb3
 import BigInt
 import AlphaWalletCore
-import APIKit
-import JSONRPCKit
+import AlphaWalletWeb3
 
 public protocol BlockchainProvider {
     var server: RPCServer { get }
@@ -40,109 +38,100 @@ extension BlockchainProvider {
 }
 
 public final class RpcBlockchainProvider: BlockchainProvider {
-    private let getEventLogs: GetEventLogs
     private let analytics: AnalyticsLogger
-    private let config: Config = Config()
+    private let rpcRequestProvider: RpcRequestDispatcher
     private let params: BlockchainParams
-    private var rpcURLAndHeaders: (url: URL, rpcHeaders: [String: String]) {
-        server.rpcUrlAndHeadersWithReplacementSendPrivateTransactionsProviderIfEnabled(config: config)
-    }
-
+    private let getEventLogs: GetEventLogs
+    private let cachableContractMethodCall: CachableContractMethodCallProvider
     public let server: RPCServer
 
     public init(server: RPCServer,
+                rpcRequestProvider: RpcRequestDispatcher,
                 analytics: AnalyticsLogger,
                 params: BlockchainParams) {
 
-        self.params = params
+        self.cachableContractMethodCall = CachableContractMethodCallProvider(rpcRequestProvider: rpcRequestProvider)
+        self.getEventLogs = GetEventLogs(rpcRequestProvider: rpcRequestProvider)
         self.analytics = analytics
         self.server = server
-        self.getEventLogs = GetEventLogs()
-    }
-
-    public func send(rawTransaction: String) -> AnyPublisher<String, SessionTaskError> {
-        let payload = SendRawTransactionRequest(signedTransaction: rawTransaction.add0x)
-        let (rpcURL, rpcHeaders) = rpcURLAndHeaders
-        let request = EtherServiceRequest(rpcURL: rpcURL, rpcHeaders: rpcHeaders, batch: BatchFactory().create(payload))
-
-        return APIKitSession.sendPublisher(request, server: server, analytics: analytics)
+        self.params = params
+        self.rpcRequestProvider = rpcRequestProvider
     }
 
     public func getChainId() -> AnyPublisher<Int, SessionTaskError> {
-        let request = ChainIdRequest()
-        return APIKitSession.sendPublisher(EtherServiceRequest(server: server, batch: BatchFactory().create(request)), server: server, analytics: analytics)
+        return rpcRequestProvider.send(request: .chainId())
+            .tryMap { try ChainIdDecoder().decode(response: $0) }
+            .mapError { SessionTaskError(error: $0) }
+            .print("xxx.chainId for server: \(server)")
+            .eraseToAnyPublisher()
     }
 
-    public func nextNonce(wallet: AlphaWallet.Address) -> AnyPublisher<Int, SessionTaskError> {
-        let payload = GetTransactionCountRequest(address: wallet, state: "pending")
-        let (rpcURL, rpcHeaders) = rpcURLAndHeaders
-        let request = EtherServiceRequest(rpcURL: rpcURL, rpcHeaders: rpcHeaders, batch: BatchFactory().create(payload))
-
-        return APIKitSession.sendPublisher(request, server: server, analytics: analytics)
-    }
-
-    public func balance(for address: AlphaWallet.Address) -> AnyPublisher<Balance, SessionTaskError> {
-        let request = EtherServiceRequest(server: server, batch: BatchFactory().create(BalanceRequest(address: address)))
-
-        return APIKitSession.sendPublisher(request, server: server, analytics: analytics)
-    }
-
-    public func call(from: AlphaWallet.Address?, to: AlphaWallet.Address?, value: String?, data: String) -> AnyPublisher<String, SessionTaskError> {
-        let request = EtherServiceRequest(server: server, batch: BatchFactory().create(EthCallRequest(from: from, to: to, value: value, data: data)))
-
-        return APIKitSession.sendPublisher(request, server: server, analytics: analytics)
-    }
-
-    public func call<R: ContractMethodCall>(_ method: R, block: BlockParameter) -> AnyPublisher<R.Response, SessionTaskError> {
-        callSmartContract(withServer: server, contract: method.contract, functionName: method.name, abiString: method.abi, parameters: method.parameters)
-            .map { try method.response(from: $0) }
-            .publisher()
-            .mapError { SessionTaskError.responseError($0.embedded) }
+    public func block(by blockNumber: BigUInt) -> AnyPublisher<Block, SessionTaskError> {
+        return rpcRequestProvider.send(request: .getBlockByNumber(number: blockNumber))
+            .tryMap { try BlockByNumberDecoder().decode(response: $0) }
+            .mapError { SessionTaskError(error: $0) }
+            .print("xxx.block(by: for server: \(server)")
             .eraseToAnyPublisher()
     }
 
     public func blockNumber() -> AnyPublisher<Int, SessionTaskError> {
-        let request = EtherServiceRequest(server: server, batch: BatchFactory().create(BlockNumberRequest()))
-
-        return APIKitSession.sendPublisher(request, server: server, analytics: analytics)
-    }
-
-    public func transactionReceipt(hash: String) -> AnyPublisher<TransactionReceipt, SessionTaskError> {
-        let request = EtherServiceRequest(server: server, batch: BatchFactory().create(TransactionReceiptRequest(hash: hash)))
-
-        return APIKitSession.sendPublisher(request, server: server, analytics: analytics)
-    }
-
-    public func transaction(byHash hash: String) -> AnyPublisher<EthereumTransaction?, SessionTaskError> {
-        let request = EtherServiceRequest(server: server, batch: BatchFactory().create(GetTransactionRequest(hash: hash)))
-
-        return APIKitSession.sendPublisher(request, server: server, analytics: analytics)
-    }
-
-    public func block(by blockNumber: BigUInt) -> AnyPublisher<Block, SessionTaskError> {
-        let request = EtherServiceRequest(server: server, batch: BatchFactory().create(BlockByNumberRequest(number: blockNumber)))
-
-        return APIKitSession.sendPublisher(request, server: server, analytics: analytics)
-    }
-
-    public func feeHistory(blockCount: Int, block: BlockParameter, rewardPercentile: [Int]) -> AnyPublisher<FeeHistory, SessionTaskError> {
-        let payload = FeeHistoryRequest(blockCount: blockCount, lastBlock: block.rawValue, rewardPercentile: rewardPercentile)
-        let request = EtherServiceRequest(server: server, batch: BatchFactory().create(payload))
-
-        return APIKitSession.sendPublisher(request, server: server, analytics: analytics)
-    }
-
-    public func eventLogs(contractAddress: AlphaWallet.Address, eventName: String, abiString: String, filter: EventFilter) -> AnyPublisher<[EventParserResultProtocol], SessionTaskError> {
-        getEventLogs.getEventLogs(contractAddress: contractAddress, server: server, eventName: eventName, abiString: abiString, filter: filter)
-            .publisher()
-            .mapError { SessionTaskError.responseError($0.embedded) }
+        return rpcRequestProvider.send(request: .blockNumber())
+            .tryMap { try BlockNumberDecoder().decode(response: $0) }
+            .mapError { SessionTaskError(error: $0) }
+            .receive(on: RunLoop.main)
+            .print("xxx.blockNumber")
             .eraseToAnyPublisher()
     }
 
-    public func gasEstimates() -> AnyPublisher<LegacyGasEstimates, PromiseError> {
-        let request = EtherServiceRequest(server: server, batch: BatchFactory().create(GasPriceRequest()))
+    public func call<R: ContractMethodCall>(_ method: R, block: BlockParameter) -> AnyPublisher<R.Response, SessionTaskError> {
+        return cachableContractMethodCall
+            .call(method, block: block)
+            .print("xxx.call for \(method.contract)")
+            .eraseToAnyPublisher()
+    }
 
-        return APIKitSession.sendPublisher(request, server: server, analytics: analytics)
+    //TODO: might be needed to handle of several call issue. applicatable for multiple rpc urls,
+    //we applying inflight promises/publishers for rpc calls, but it could not work when balance is going to be fetched with another rpc url.
+    public func balance(for address: AlphaWallet.Address) -> AnyPublisher<Balance, SessionTaskError> {
+        return rpcRequestProvider.send(request: .getBalance(address: address))
+            .tryMap { try BalanceDecoder().decode(response: $0) }
+            .mapError { SessionTaskError(error: $0) }
+            .print("xxx.balance for \(address)")
+            .eraseToAnyPublisher()
+    }
+
+    public func transactionReceipt(hash: String) -> AnyPublisher<TransactionReceipt, SessionTaskError> {
+        return rpcRequestProvider.send(request: .getTransactionReceipt(hash: hash))
+            .tryMap { try TransactionReceiptDecoder().decode(response: $0) }
+            .mapError { SessionTaskError(error: $0) }
+            .print("xxx.transactionReceipt")
+            .eraseToAnyPublisher()
+    }
+
+    public func transaction(byHash hash: String) -> AnyPublisher<EthereumTransaction?, SessionTaskError> {
+        return rpcRequestProvider.send(request: .getTransactionReceipt(hash: hash))
+            .tryMap { try PendingTransactionDecoder(hash: hash).decode(response: $0) }
+            .mapError { SessionTaskError(error: $0) }
+            .print("xxx.pendingTransaction")
+            .eraseToAnyPublisher()
+    }
+
+    public func feeHistory(blockCount: Int, block: BlockParameter, rewardPercentile: [Int]) -> AnyPublisher<FeeHistory, SessionTaskError> {
+        return rpcRequestProvider.send(request: .feeHistory(blockCount: blockCount, lastBlock: block.rawValue, rewardPercentile: rewardPercentile))
+            .tryMap { try FeeHistoryDecoder().decode(response: $0) }
+            .mapError { SessionTaskError(error: $0) }
+            .print("xxx.feeHistory")
+            .eraseToAnyPublisher()
+    }
+
+    public func eventLogs(contractAddress: AlphaWallet.Address, eventName: String, abiString: String, filter: EventFilter) -> AnyPublisher<[EventParserResultProtocol], SessionTaskError> {
+        getEventLogs.getEventLogs(contractAddress: contractAddress, eventName: eventName, abiString: abiString, filter: filter)
+    }
+
+    public func gasEstimates() -> AnyPublisher<LegacyGasEstimates, PromiseError> {
+        return rpcRequestProvider.send(request: .gasPrice())
+            .tryMap { try BigUIntDecoder().decode(response: $0) }
+            .mapError { SessionTaskError(error: $0) }
             .handleEvents(receiveOutput: { [server] estimate in
                 infoLog("[RPC] Estimated gas price with RPC node server: \(server) estimate: \(estimate)")
             }).map { [params] gasPrice in
@@ -161,20 +150,63 @@ public final class RpcBlockchainProvider: BlockchainProvider {
                     }
                 }
             }.catch { [params] _ -> AnyPublisher<LegacyGasEstimates, PromiseError> in .just(LegacyGasEstimates(standard: params.defaultPrice)) }
+            .receive(on: RunLoop.main)
+            .print("xxx.gasPrice")
             .eraseToAnyPublisher()
+    }
+
+    public func nextNonce(wallet: AlphaWallet.Address) -> AnyPublisher<Int, SessionTaskError> {
+        return rpcRequestProvider.send(request: .getTransactionCount(address: wallet, block: .pending), policy: .noBatching)
+            .tryMap { try TransactionCountDecoder().decode(response: $0) }
+            .mapError { SessionTaskError(error: $0) }
+            .receive(on: RunLoop.main)
+            .print("xxx.getTransactionCount")
+            .eraseToAnyPublisher()
+    }
+
+    public func call(from: AlphaWallet.Address?, to: AlphaWallet.Address?, value: String?, data: String) -> AnyPublisher<String, SessionTaskError> {
+        return rpcRequestProvider.send(request: .call(from: from, to: to, value: value, data: data, block: .latest), policy: .noBatching)
+            .tryMap { try $0.decode(type: String.self) }
+            .mapError { SessionTaskError(error: $0) }
+            .receive(on: RunLoop.main)
+            .print("xxx.call")
+            .eraseToAnyPublisher()
+    }
+
+    public func send(rawTransaction: String) -> AnyPublisher<String, SessionTaskError> {
+        return rpcRequestProvider.send(request: .sendRawTransaction(rawTransaction: rawTransaction), policy: .noBatching)
+            .tryMap { try $0.decode(type: String.self) }
+            .mapError { SessionTaskError(error: $0) }
+            .receive(on: RunLoop.main)
+            .print("xxx.send(rawTransaction")
+            .handleEvents(receiveOutput: {
+                infoLog("Sent transaction with transactionId: \($0)")
+            }, receiveCompletion: { result in
+                guard case .failure(let error) = result else { return }
+                self.logSelectSendError(error)
+            }).eraseToAnyPublisher()
+    }
+
+    private func logSelectSendError(_ error: Error) {
+        guard let error = error as? SendTransactionNotRetryableError else { return }
+        switch error.type {
+        case .nonceTooLow:
+            analytics.log(error: Analytics.Error.sendTransactionNonceTooLow)
+        case .insufficientFunds, .gasPriceTooLow, .gasLimitTooLow, .gasLimitTooHigh, .possibleChainIdMismatch, .executionReverted, .unknown:
+            break
+        }
     }
 
     public func gasLimit(wallet: AlphaWallet.Address, value: BigUInt, toAddress: AlphaWallet.Address?, data: Data) -> AnyPublisher<BigUInt, SessionTaskError> {
         let transactionType = toAddress.flatMap { EstimateGasTransactionType.normal(to: $0) } ?? .contractDeployment
-        let payload = EstimateGasRequest(from: wallet, transactionType: transactionType, value: value, data: data)
-        let request = EtherServiceRequest(server: server, batch: BatchFactory().create(payload))
 
-        return APIKitSession.sendPublisher(request, server: server, analytics: analytics)
+        return rpcRequestProvider.send(request: .estimateGas(from: wallet, transactionType: transactionType, value: value, data: data), policy: .noBatching)
+            .tryMap { try BigUIntDecoder().decode(response: $0) }
             .mapError { SessionTaskError(error: $0) }
             .map { [params] limit -> BigUInt in
                 infoLog("[RPC] Estimated gas limit with eth_estimateGas: \(limit) canCapGasLimit: \(transactionType.canCapGasLimit)")
                 let gasLimit: BigUInt = {
-                    if limit == GasLimitConfiguration.minGasLimit {
+                    if limit == params.minGasLimit {
                         return limit
                     }
                     if transactionType.canCapGasLimit {
@@ -188,54 +220,6 @@ public final class RpcBlockchainProvider: BlockchainProvider {
             }.eraseToAnyPublisher()
     }
 
-}
-
-public typealias APIKitSession = APIKit.Session
-public typealias SessionTaskError = APIKit.SessionTaskError
-public typealias JSONRPCError = JSONRPCKit.JSONRPCError
-
-extension SessionTaskError {
-    public init(error: Error) {
-        if let e = error as? SessionTaskError {
-            self = e
-        } else {
-            self = .responseError(error)
-        }
-    }
-
-    public var unwrapped: Error {
-        switch self {
-        case .connectionError(let e):
-            return e
-        case .requestError(let e):
-            return e
-        case .responseError(let e):
-            return e
-        }
-    }
-}
-
-extension JSONRPCKit.JSONRPCError: LocalizedError {
-    public var errorDescription: String? {
-        switch self {
-        case .responseError(_, let message, _):
-            return message
-        case .responseNotFound:
-            return "Response Not Found"
-        case .resultObjectParseError:
-            return "Result Object Parse Error"
-        case .errorObjectParseError:
-            return "Error Object Parse Error"
-        case .unsupportedVersion(let string):
-            return "Unsupported Version \(string)"
-        case .unexpectedTypeObject:
-            return "Unexpected Type Object"
-        case .missingBothResultAndError:
-            return "Missing Both Result And Error"
-        case .nonArrayResponse:
-            return "Non Array Response"
-        }
-    }
 }
 
 public enum GasPriceBuffer {

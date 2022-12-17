@@ -460,6 +460,7 @@
 		8703FC15270366DA0062C416 /* AlphaWalletSafariExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 8703FBFD270366DA0062C416 /* AlphaWalletSafariExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		870415A125E8FBD30013F3E2 /* MixpanelCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 870415A025E8FBD30013F3E2 /* MixpanelCoordinatorTests.swift */; };
 		87108AF429FA59980078CA30 /* UserActivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87108AF329FA59980078CA30 /* UserActivityService.swift */; };
+		870E5A6A29537590009B859B /* NodeRpcApiProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 870E5A6929537590009B859B /* NodeRpcApiProviderTests.swift */; };
 		8712A37F26F315190009C376 /* EditPriceAlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8712A37E26F315190009C376 /* EditPriceAlertViewController.swift */; };
 		8712A38B26F476030009C376 /* StatefulView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8712A38A26F476030009C376 /* StatefulView.swift */; };
 		8712A38D26F476540009C376 /* EditPriceAlertViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8712A38C26F476540009C376 /* EditPriceAlertViewModel.swift */; };
@@ -766,6 +767,7 @@
 		87C10A6525ED1105008E9B1B /* SignatureConfirmationDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87C10A6425ED1105008E9B1B /* SignatureConfirmationDetailsViewController.swift */; };
 		87C237DC26DE5303003CA387 /* UIToolbar+Custom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87C237DB26DE5303003CA387 /* UIToolbar+Custom.swift */; };
 		87C237DE26DE5389003CA387 /* SelectAssetAmountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87C237DD26DE5389003CA387 /* SelectAssetAmountView.swift */; };
+		87C2F3BB2977166100CD08F5 /* BatchSupportableRpcRequestDispatcherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87C2F3BA2977166100CD08F5 /* BatchSupportableRpcRequestDispatcherTests.swift */; };
 		87C650C325F2408E007B02CB /* ServerUnavailableCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87C650C225F2408E007B02CB /* ServerUnavailableCoordinator.swift */; };
 		87C7B5CC29373FFB0012CCA7 /* TopTabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87C7B5CB29373FFB0012CCA7 /* TopTabBarViewController.swift */; };
 		87C8018C24350174007648CF /* AddHideTokenSectionHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87C8018B24350174007648CF /* AddHideTokenSectionHeaderViewModel.swift */; };
@@ -1379,6 +1381,7 @@
 		8703FC12270366DA0062C416 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		870415A025E8FBD30013F3E2 /* MixpanelCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MixpanelCoordinatorTests.swift; sourceTree = "<group>"; };
 		87108AF329FA59980078CA30 /* UserActivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserActivityService.swift; sourceTree = "<group>"; };
+		870E5A6929537590009B859B /* NodeRpcApiProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeRpcApiProviderTests.swift; sourceTree = "<group>"; };
 		8712A37E26F315190009C376 /* EditPriceAlertViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPriceAlertViewController.swift; sourceTree = "<group>"; };
 		8712A38A26F476030009C376 /* StatefulView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatefulView.swift; sourceTree = "<group>"; };
 		8712A38C26F476540009C376 /* EditPriceAlertViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPriceAlertViewModel.swift; sourceTree = "<group>"; };
@@ -1682,6 +1685,7 @@
 		87C10A6425ED1105008E9B1B /* SignatureConfirmationDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignatureConfirmationDetailsViewController.swift; sourceTree = "<group>"; };
 		87C237DB26DE5303003CA387 /* UIToolbar+Custom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIToolbar+Custom.swift"; sourceTree = "<group>"; };
 		87C237DD26DE5389003CA387 /* SelectAssetAmountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectAssetAmountView.swift; sourceTree = "<group>"; };
+		87C2F3BA2977166100CD08F5 /* BatchSupportableRpcRequestDispatcherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchSupportableRpcRequestDispatcherTests.swift; sourceTree = "<group>"; };
 		87C650C225F2408E007B02CB /* ServerUnavailableCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerUnavailableCoordinator.swift; sourceTree = "<group>"; };
 		87C7B5CB29373FFB0012CCA7 /* TopTabBarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopTabBarViewController.swift; sourceTree = "<group>"; };
 		87C8018B24350174007648CF /* AddHideTokenSectionHeaderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddHideTokenSectionHeaderViewModel.swift; sourceTree = "<group>"; };
@@ -1898,6 +1902,7 @@
 			isa = PBXGroup;
 			children = (
 				02C7AF6E2770C405005367EE /* RpcNetworkTestCase.swift */,
+				870E5A6929537590009B859B /* NodeRpcApiProviderTests.swift */,
 			);
 			path = "Rpc Network";
 			sourceTree = "<group>";
@@ -2090,6 +2095,7 @@
 				61DCE17C2001A7A20053939F /* RLPTests.swift */,
 				61C359E12002AC9D0097B04D /* TransactionSigningTests.swift */,
 				5E7C79A125DB5FBD258F9F95 /* KeysTests.swift */,
+				87C2F3BA2977166100CD08F5 /* BatchSupportableRpcRequestDispatcherTests.swift */,
 			);
 			path = EtherClient;
 			sourceTree = "<group>";
@@ -4921,7 +4927,6 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-AlphaWallet/Pods-AlphaWallet-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/APIKit/APIKit.framework",
 				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
 				"${BUILT_PRODUCTS_DIR}/AlphaWalletAddress/AlphaWalletAddress.framework",
 				"${BUILT_PRODUCTS_DIR}/AlphaWalletCore/AlphaWalletCore.framework",
@@ -4955,7 +4960,6 @@
 				"${BUILT_PRODUCTS_DIR}/GoogleDataTransport/GoogleDataTransport.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleUtilities/GoogleUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/IQKeyboardManager/IQKeyboardManager.framework",
-				"${BUILT_PRODUCTS_DIR}/JSONRPCKit/JSONRPCKit.framework",
 				"${BUILT_PRODUCTS_DIR}/Kanna/Kanna.framework",
 				"${BUILT_PRODUCTS_DIR}/KeychainSwift/KeychainSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/Kingfisher/Kingfisher.framework",
@@ -4968,7 +4972,6 @@
 				"${BUILT_PRODUCTS_DIR}/R.swift.Library/Rswift.framework",
 				"${BUILT_PRODUCTS_DIR}/Realm/Realm.framework",
 				"${BUILT_PRODUCTS_DIR}/RealmSwift/RealmSwift.framework",
-				"${BUILT_PRODUCTS_DIR}/Result/Result.framework",
 				"${BUILT_PRODUCTS_DIR}/SAMKeychain/SAMKeychain.framework",
 				"${BUILT_PRODUCTS_DIR}/SipHash/SipHash.framework",
 				"${BUILT_PRODUCTS_DIR}/Starscream/Starscream.framework",
@@ -4986,7 +4989,6 @@
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/APIKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AlphaWalletAddress.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AlphaWalletCore.framework",
@@ -5020,7 +5022,6 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleDataTransport.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQKeyboardManager.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/JSONRPCKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Kanna.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KeychainSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Kingfisher.framework",
@@ -5033,7 +5034,6 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Rswift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Realm.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RealmSwift.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Result.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SAMKeychain.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SipHash.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Starscream.framework",
@@ -5863,6 +5863,7 @@
 				87831C822849E47A002E856E /* AddressStorageTests.swift in Sources */,
 				61FC5ED11FCFBDEB00CCB12A /* EtherNumberFormatterTests.swift in Sources */,
 				29E14FD91F7F4D4E00185568 /* FakeTransactionsStorage.swift in Sources */,
+				870E5A6A29537590009B859B /* NodeRpcApiProviderTests.swift in Sources */,
 				0242551C28168C28009D626E /* EnvironmentTestCase.swift in Sources */,
 				02E0FE1429DE6B0700928E56 /* ScheduledToDoTest.swift in Sources */,
 				29BDF1961FEE43F40023A45F /* UnconfirmedTransaction.swift in Sources */,
@@ -5971,6 +5972,7 @@
 				5E7C79DC5BDC391C983B6CAC /* ChainIdTests.swift in Sources */,
 				5E7C74B9BD63DEFE074BB80D /* ErrorTests.swift in Sources */,
 				5E7C7A0D678C2CE065CC8BB1 /* Erc1155TokenIdsFetcherTests.swift in Sources */,
+				87C2F3BB2977166100CD08F5 /* BatchSupportableRpcRequestDispatcherTests.swift in Sources */,
 				5E7C7D7F197980329CFB502D /* DappCommandTests.swift in Sources */,
 				5E7C7C53FC6F46DF501E8AD1 /* CallSmartContractFunctionTests.swift in Sources */,
 				5E7C7A0DD3EA1BC36F567068 /* BCHardwareWalletTests.swift in Sources */,

@@ -8,7 +8,15 @@ import AlphaWalletCore
 
 extension WalletSession {
     static func make(account: Wallet = .make(), server: RPCServer = .main, config: Config = .make(), analytics: AnalyticsLogger = FakeAnalyticsService()) -> WalletSession {
-        let blockchainProvider = RpcBlockchainProvider(server: server, analytics: analytics, params: .defaultParams(for: server))
+        let dispatcher = BatchSupportableRpcRequestDispatcher(
+            transporter: HttpRpcRequestTransporter(
+                server: server,
+                rpcHttpParams: .init(rpcUrls: [server.rpcURL], headers: server.rpcHeaders),
+                networkService: FakeRpcNetworkService(),
+                analytics: FakeAnalyticsService()),
+            policy: .noBatching)
+
+        let blockchainProvider = RpcBlockchainProvider(server: server, rpcRequestProvider: dispatcher, analytics: analytics, params: .defaultParams(for: server))
         let ercTokenProvider = TokenProvider(account: account, blockchainProvider: blockchainProvider)
         let importToken: ImportToken = .make(server: server)
         let nftProvider = FakeNftProvider()
@@ -17,7 +25,15 @@ extension WalletSession {
     }
 
     static func make(account: Wallet = .make(), server: RPCServer = .main, config: Config = .make(), analytics: AnalyticsLogger = FakeAnalyticsService(), importToken: TokenImportable & TokenOrContractFetchable) -> WalletSession {
-        let blockchainProvider = RpcBlockchainProvider(server: server, analytics: analytics, params: .defaultParams(for: server))
+        let dispatcher = BatchSupportableRpcRequestDispatcher(
+            transporter: HttpRpcRequestTransporter(
+                server: server,
+                rpcHttpParams: .init(rpcUrls: [server.rpcURL], headers: server.rpcHeaders),
+                networkService: FakeRpcNetworkService(),
+                analytics: FakeAnalyticsService()),
+            policy: .noBatching)
+
+        let blockchainProvider = RpcBlockchainProvider(server: server, rpcRequestProvider: dispatcher, analytics: analytics, params: .defaultParams(for: server))
         let ercTokenProvider = TokenProvider(account: account, blockchainProvider: blockchainProvider)
         let nftProvider = FakeNftProvider()
         let tokenAdaptor = TokenAdaptor(assetDefinitionStore: .make(), eventsDataStore: FakeEventsDataStore(account: account), wallet: account, nftProvider: nftProvider)
@@ -25,7 +41,15 @@ extension WalletSession {
     }
 
     static func makeStormBirdSession(account: Wallet = .makeStormBird(), server: RPCServer, config: Config = .make(), analytics: AnalyticsLogger = FakeAnalyticsService()) -> WalletSession {
-        let blockchainProvider = RpcBlockchainProvider(server: server, analytics: analytics, params: .defaultParams(for: server))
+        let dispatcher = BatchSupportableRpcRequestDispatcher(
+            transporter: HttpRpcRequestTransporter(
+                server: server,
+                rpcHttpParams: .init(rpcUrls: [server.rpcURL], headers: server.rpcHeaders),
+                networkService: FakeRpcNetworkService(),
+                analytics: FakeAnalyticsService()),
+            policy: .noBatching)
+
+        let blockchainProvider = RpcBlockchainProvider(server: server, rpcRequestProvider: dispatcher, analytics: analytics, params: .defaultParams(for: server))
         let ercTokenProvider = TokenProvider(account: account, blockchainProvider: blockchainProvider)
         let importToken: ImportToken = .make(server: server)
         let nftProvider = FakeNftProvider()

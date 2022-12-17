@@ -5,35 +5,28 @@
 //  Created by Vladyslav Shepitko on 16.08.2022.
 //
 
-import Foundation
-import JSONRPCKit
-import APIKit
-import Combine
+extension RpcRequest {
+    static func feeHistory(blockCount: Int, lastBlock: String, rewardPercentile: [Int]) -> RpcRequest {
+        let params = RpcParams(params: [blockCount, lastBlock, rewardPercentile] as [Any])
 
-struct FeeHistoryRequest: JSONRPCKit.Request {
-    typealias Response = FeeHistory
-
-    let blockCount: Int
-    let lastBlock: String
-    let rewardPercentile: [Int]
-
-    var method: String {
-        return "eth_feeHistory"
-    }
-
-    var parameters: Any? {
-        return [blockCount, lastBlock, rewardPercentile]
-    }
-
-    func response(from resultObject: Any) throws -> Response {
-        guard let data = try? JSONSerialization.data(withJSONObject: resultObject, options: []) else {
-            throw CastError(actualValue: resultObject, expectedType: Response.self)
-        }
-        if let data = try? JSONDecoder().decode(Response.self, from: data) {
-            return data
-        } else {
-            throw CastError(actualValue: resultObject, expectedType: Response.self)
-        }
+        return RpcRequest(method: "eth_feeHistory", params: params)
     }
 }
 
+struct FeeHistoryDecoder {
+    func decode(response: RpcResponse) throws -> FeeHistory {
+        switch response.outcome {
+        case .response(let value):
+            guard let data = try? JSONSerialization.data(withJSONObject: value.value, options: []) else {
+                throw CastError(actualValue: value.value, expectedType: FeeHistory.self)
+            }
+            if let data = try? JSONDecoder().decode(FeeHistory.self, from: data) {
+                return data
+            } else {
+                throw CastError(actualValue: value.value, expectedType: FeeHistory.self)
+            }
+        case .error(let error):
+            throw error
+        }
+    }
+}

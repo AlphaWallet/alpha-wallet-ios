@@ -127,18 +127,21 @@ public final class PendingTransactionProvider {
         case .responseError(let error):
             // TODO: Think about the logic to handle pending transactions.
             //TODO we need to detect when a transaction is marked as failed by the node?
-            switch error as? JSONRPCError {
-            case .responseError:
-                transactionDataStore.delete(transactions: [transaction])
-                cancelScheduler(transaction: transaction)
-            case .resultObjectParseError:
-                guard transactionDataStore.hasCompletedTransaction(withNonce: transaction.nonce, forServer: session.server) else { return }
-                transactionDataStore.delete(transactions: [transaction])
-                cancelScheduler(transaction: transaction)
-                //The transaction might not be posted to this node yet (ie. it doesn't even think that this transaction is pending). Especially common if we post a transaction to Ethermine and fetch pending status through Etherscan
-            case .responseNotFound, .errorObjectParseError, .unsupportedVersion, .unexpectedTypeObject, .missingBothResultAndError, .nonArrayResponse, .none:
-                break
-            }
+            guard let error = error as? JSONRPCError else { return }
+
+//                switch error as? JSONRPCError {
+//                case .responseError:
+            transactionDataStore.delete(transactions: [transaction])
+            cancelScheduler(transaction: transaction)
+//                case .resultObjectParseError:
+//                    guard transactionDataStore.hasCompletedTransaction(withNonce: transaction.nonce, forServer: session.server) else { return }
+//                    transactionDataStore.delete(transactions: [transaction])
+//                    cancelScheduler(transaction: transaction)
+//                    //The transaction might not be posted to this node yet (ie. it doesn't even think that this transaction is pending). Especially common if we post a transaction to Ethermine and fetch pending status through Etherscan
+//                case .responseNotFound, .errorObjectParseError, .unsupportedVersion, .unexpectedTypeObject, .missingBothResultAndError, .nonArrayResponse, .none:
+//                    break
+//                }
+            break
         case .connectionError, .requestError:
             break
         }

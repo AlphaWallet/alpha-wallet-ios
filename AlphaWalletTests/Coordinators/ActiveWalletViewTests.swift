@@ -22,6 +22,36 @@ final class FakeApiTransporter: ApiTransporter {
     }
 }
 
+final class FakeRpcNetworkService: RpcNetworkService {
+    var responseClosure: ((URLRequestConvertible) -> Swift.Result<URLRequest.Response, SessionTaskError>) = { _ in
+        struct NoResponseError: Error {}
+        return .failure(.responseError(NoResponseError()))
+    }
+    var callbackQueue: DispatchQueue = .main
+    var delay: TimeInterval = 0.5
+    private (set) var calls: Int = 0
+
+    func dataTaskPublisher(_ request: URLRequestConvertible) -> AnyPublisher<URLRequest.Response, SessionTaskError> {
+        return AnyPublisher<URLRequest.Response, SessionTaskError>.create { [callbackQueue, delay] seal in
+            self.calls += 1
+
+            callbackQueue.asyncAfter(deadline: .now() + delay) {
+                switch self.responseClosure(request) {
+                case .success(let value):
+                    seal.send(value)
+                    seal.send(completion: .finished)
+                case .failure(let error):
+                    seal.send(completion: .failure(error))
+                }
+            }
+
+            return AnyCancellable {
+
+            }
+        }.eraseToAnyPublisher()
+    }
+}
+
 final class FakeNetworkService: NetworkService {
     func dataTask(_ request: AlphaWalletFoundation.URLRequestConvertible) async throws -> URLRequest.Response {
         let url = URL(string: "https://github.com/AlphaWallet/alpha-wallet-ios")!
@@ -29,12 +59,15 @@ final class FakeNetworkService: NetworkService {
         return (data: Data(), response: response)
     }
 
-    var response: Swift.Result<URLRequest.Response, AlphaWalletFoundation.SessionTaskError>?
+    var responseClosure: ((AlphaWalletFoundation.URLRequestConvertible) -> Swift.Result<URLRequest.Response, AlphaWalletFoundation.SessionTaskError>) = { _ in
+        struct NoResponseError: Error {}
+        return .failure(.responseError(NoResponseError()))
+    }
     var callbackQueue: DispatchQueue = .main
     var delay: TimeInterval = 0.5
     private (set) var calls: Int = 0
 
-    func upload(multipartFormData: @escaping (MultipartFormData) -> Void,
+    func upload(multipartFormData: @escaping (Alamofire.MultipartFormData) -> Void,
                 usingThreshold: UInt64,
                 with request: AlphaWalletFoundation.URLRequestConvertible,
                 callbackQueue: DispatchQueue) -> AnyPublisher<URLRequest.Response, SessionTaskError> {
@@ -47,14 +80,12 @@ final class FakeNetworkService: NetworkService {
             self.calls += 1
 
             callbackQueue.asyncAfter(deadline: .now() + delay) {
-                switch self.response {
+                switch self.responseClosure(request) {
                 case .success(let value):
                     seal.send(value)
                     seal.send(completion: .finished)
                 case .failure(let error):
                     seal.send(completion: .failure(error))
-                case .none:
-                    seal.send(completion: .finished)
                 }
             }
 
@@ -70,6 +101,19 @@ extension AnyCAIP10AccountProvidable {
         let keystore = FakeEtherKeystore(wallets: wallets)
         let serversProvidable = BaseServersProvider(config: .make(enabledServers: servers))
         return AnyCAIP10AccountProvidable(keystore: keystore, serversProvidable: serversProvidable)
+    }
+}
+
+extension HttpRpcRequestTransporter {
+    static func make(analytics: AnalyticsLogger = FakeAnalyticsService(),
+                     server: RPCServer,
+                     rpcHttpParams: RpcHttpParams,
+                     networkService: RpcNetworkService = FakeRpcNetworkService()) -> HttpRpcRequestTransporter {
+        HttpRpcRequestTransporter(server: server,
+                                  rpcHttpParams: rpcHttpParams,
+                                  networkService: networkService,
+                                  analytics: analytics,
+                                  logger: .instance)
     }
 }
 

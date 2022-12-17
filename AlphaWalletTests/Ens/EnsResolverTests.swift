@@ -16,9 +16,10 @@ class EnsResolverTests: XCTestCase {
     }
     private var cancelable = Set<AnyCancellable>()
     private lazy var resolver: EnsResolver = {
+        let server = makeServerForMainnet()
         return EnsResolver(
             storage: FakeEnsRecordsStorage(),
-            blockchainProvider: RpcBlockchainProvider(server: .main, analytics: FakeAnalyticsService(), params: .defaultParams(for: .main)))
+            blockchainProvider: BlockchainsProvider.make(servers: [.main]).blockchain(with: .main)!)
     }()
     func testResolution() {
         var expectations = [XCTestExpectation]()

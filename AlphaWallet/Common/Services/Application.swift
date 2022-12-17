@@ -130,11 +130,14 @@ class Application: WalletDependenciesProvidable {
 
         self.tokenGroupIdentifier = TokenGroupIdentifier.identifier(tokenJsonUrl: R.file.tokensJson()!)!
         self.systemSettingsRequestableDelegate = SystemSettingsRequestableDelegate()
+
+        let blockchainFactory = BaseBlockchainFactory(
+            config: config,
+            analytics: analytics)
+
         self.blockchainsProvider = BlockchainsProvider(
                 serversProvider: serversProvider,
-                blockchainFactory: BaseBlockchainFactory(
-                    config: config,
-                    analytics: analytics))
+                blockchainFactory: blockchainFactory)
 
         self.assetDefinitionStore = AssetDefinitionStore(
             baseTokenScriptFiles: TokenScript.baseTokenScriptFiles,
@@ -167,7 +170,7 @@ class Application: WalletDependenciesProvidable {
             analytics: analytics,
             walletBalanceProvidable: walletBalanceService)
 
-        let blockchainProviderForResolvingEns = RpcBlockchainProvider.instanceForResolvingEns(analytics: analytics)
+        let blockchainProviderForResolvingEns = blockchainFactory.buildBlockchain(server: .forResolvingEns)
 
         self.blockiesGenerator = BlockiesGenerator(
             assetImageProvider: OpenSea(analytics: analytics, server: .main, config: config),
@@ -541,15 +544,6 @@ extension TokenImageFetcherImpl {
             networking: KingfisherImageFetcher(),
             tokenGroupIdentifier: tokenGroupIdentifier,
             spamImage: R.image.spamSmall()!)
-    }
-}
-
-extension RpcBlockchainProvider {
-    static func instanceForResolvingEns(analytics: AnalyticsLogger) -> RpcBlockchainProvider {
-        return RpcBlockchainProvider(
-            server: .forResolvingEns,
-            analytics: analytics,
-            params: .defaultParams(for: .forResolvingEns))
     }
 }
 

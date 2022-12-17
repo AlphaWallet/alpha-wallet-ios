@@ -167,19 +167,17 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
                                 data: String) {
 
         delegate.requestEthCall(from: from, to: to, value: value, data: data, source: .dappBrowser, session: session)
-            .sink(receiveCompletion: { [browserViewController] result in
+            .sink(receiveCompletion: { [weak browserViewController] result in
                 guard case .failure(let error) = result else { return }
 
-                if case JSONRPCError.responseError(let code, let message, _) = error.embedded {
-                    browserViewController.notifyFinish(callbackId: callbackId, value: .failure(.init(code: code, message: message)))
+                if let error = error.embedded as? JsonRpcError {
+                    browserViewController?.notifyFinish(callbackId: callbackId, value: .failure(error))
                 } else {
-                    //TODO better handle. User didn't cancel
-                    browserViewController.notifyFinish(callbackId: callbackId, value: .failure(.responseError))
+                    browserViewController?.notifyFinish(callbackId: callbackId, value: .failure(.requestRejected))
                 }
-
-            }, receiveValue: { [browserViewController] value in
+            }, receiveValue: { [weak browserViewController] value in
                 let callback = DappCallback(id: callbackId, value: .ethCall(value))
-                browserViewController.notifyFinish(callbackId: callbackId, value: .success(callback))
+                browserViewController?.notifyFinish(callbackId: callbackId, value: .success(callback))
             }).store(in: &cancellable)
     }
 

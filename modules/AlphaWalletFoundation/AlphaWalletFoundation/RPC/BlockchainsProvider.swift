@@ -24,8 +24,28 @@ public final class BaseBlockchainFactory: BlockchainFactory {
     }
 
     public func buildBlockchain(server: RPCServer) -> BlockchainProvider {
+        let transporter: RpcRequestTransporter
+        //NOTE: batching isn't tested, might not working correctly
+        let policy: DispatchPolicy = server.web3SwiftRpcNodeBatchSupportPolicy
+
+        switch server.rpcSource(config: config) {
+        case .http(let rpcHttpParams, let privateNetworkParams):
+            let httpRpcRequestTransporter = HttpRpcRequestTransporter(
+                server: server,
+                rpcHttpParams: rpcHttpParams,
+                networkService: BaseRpcNetworkService(server: server),
+                analytics: analytics)
+            httpRpcRequestTransporter.requestInterceptor = PrivateRpcUrlInterceptor(privateNetworkParams: privateNetworkParams)
+            transporter = httpRpcRequestTransporter
+
+        case .webSocket(let url, let privateNetworkParams):
+            //NOTE: private networks are not supported, implement retry logic
+            transporter = WebSocketRpcRequestTransporter(url: url, server: server)
+        }
+
         return RpcBlockchainProvider(
             server: server,
+            rpcRequestProvider: BatchSupportableRpcRequestDispatcher(transporter: transporter, policy: policy),
             analytics: analytics,
             params: .defaultParams(for: server))
     }
@@ -65,6 +85,7 @@ public class BlockchainsProvider {
                         blockchains[server] = blockchainFactory.buildBlockchain(server: server)
                     }
                 }
+
                 return blockchains
             }.assign(to: \.value, on: blockchainsSubject, ownership: .weak)
             .store(in: &cancelable)

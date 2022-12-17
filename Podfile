@@ -86,7 +86,7 @@ post_install do |installer|
       end
     end
 
-    if ['Result', 'SwiftyXMLParser', 'JSONRPCKit', 'Starscream'].include? target.name
+    if ['Result', 'SwiftyXMLParser', 'Starscream'].include? target.name
       target.build_configurations.each do |config|
         config.build_settings['SWIFT_VERSION'] = '4.2'
       end
