@@ -24,16 +24,15 @@ public class AssetDefinitionNetworking {
 
     public func fetchXml(request: GetXmlFileRequest) -> AnyPublisher<AssetDefinitionNetworking.Response, Never> {
         return networkService
-            .responseData(request)
+            .dataTaskPublisher(request)
             .map { data -> AssetDefinitionNetworking.Response in
-                guard let response = data.response.response else { return .error }
-                if response.statusCode == 304 {
+                if data.response.statusCode == 304 {
                     return .unmodified
-                } else if response.statusCode == 406 {
+                } else if data.response.statusCode == 406 {
                     return .error
-                } else if response.statusCode == 404 {
+                } else if data.response.statusCode == 404 {
                     return .error
-                } else if response.statusCode == 200 {
+                } else if data.response.statusCode == 200 {
                     if let xml = String(data: data.data, encoding: .utf8).nilIfEmpty {
                         return .xml(xml)
                     } else {

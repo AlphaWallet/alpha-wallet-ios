@@ -32,7 +32,7 @@ final class CovalentNetworkService {
 
     func transactions(page: Int? = nil, pageSize: Int = 5, blockSignedAtAsc: Bool = false) -> AnyPublisher<Covalent.TransactionsResponse, Covalent.CovalentError> {
         return networkService
-            .responseData(Covalent.TransactionsRequest(walletAddress: walletAddress, server: server, page: page, pageSize: pageSize, apiKey: key, blockSignedAtAsc: blockSignedAtAsc))
+            .dataTaskPublisher(Covalent.TransactionsRequest(walletAddress: walletAddress, server: server, page: page, pageSize: pageSize, apiKey: key, blockSignedAtAsc: blockSignedAtAsc))
             .tryMap { response -> Covalent.TransactionsResponse in
                 guard let json = try? JSON(data: response.data) else { throw Covalent.CovalentError.jsonDecodeFailure }
 

@@ -23,7 +23,7 @@ public final class RampNetworkProvider: RampNetworkProviderType {
 
     public func retrieveAssets() -> AnyPublisher<[Asset], PromiseError> {
         return networkService
-            .responseData(RampRequest())
+            .dataTaskPublisher(RampRequest())
             .tryMap { [decoder] in try decoder.decode(RampAssetsResponse.self, from: $0.data).assets }
             .mapError { PromiseError.some(error: $0) }
             .eraseToAnyPublisher()
@@ -31,7 +31,7 @@ public final class RampNetworkProvider: RampNetworkProviderType {
 }
 //NOTE: internal because we use it also for debugging
 extension RampNetworkProvider {
-    struct RampRequest: URLRequestConvertible {
+    struct RampRequest: URLRequestConvertible { 
 
         func asURLRequest() throws -> URLRequest {
             guard var components = URLComponents(url: Constants.Ramp.exchangeUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }

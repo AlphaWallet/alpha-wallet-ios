@@ -19,7 +19,7 @@ public class BlockscanChat {
     public func fetchUnreadCount() -> AnyPublisher<Int, PromiseError> {
         infoLog("[BlockscanChat] Fetching unread count for \(address.eip55String)…")
         return networkService
-            .responseData(GetUnreadCountEndpointRequest(address: address))
+            .dataTaskPublisher(GetUnreadCountEndpointRequest(address: address))
             .tryMap { return try JSON(data: $0.data)["result"].intValue }
             .handleEvents(receiveOutput: { [weak self, address] in
                 self?.lastKnownCount = $0

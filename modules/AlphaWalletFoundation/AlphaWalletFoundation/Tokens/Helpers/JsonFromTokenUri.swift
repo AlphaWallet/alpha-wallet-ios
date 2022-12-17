@@ -78,9 +78,9 @@ final class JsonFromTokenUri {
 
         //Must not use `SessionManager.default.request` or `Alamofire.request` which uses the former. See comment in var
         return firstly {
-            networkService.responseData(uri, queue: queue)
-        }.map(on: queue, { [tokensService, server] (data, _) -> NonFungibleBalanceAndItsSource in
-            if let json = try? JSON(data: data) {
+            networkService.dataTaskPromise(UrlRequest(url: uri))
+        }.map(on: queue, { [tokensService, server] data -> NonFungibleBalanceAndItsSource in
+            if let json = try? JSON(data: data.data) {
                 if let errorMessage = json["error"].string {
                     warnLog("Fetched token URI: \(originalUri.absoluteString) error: \(errorMessage)")
                 }

@@ -11,7 +11,7 @@ import SwiftyJSON
 
 class AddCustomChainNetworking {
     private let networkService: NetworkService
-    private let decoder = AnyJsonDecoder()
+    private let decoder = AnyJsonDecoder(options: [])
 
     init(networkService: NetworkService) {
         self.networkService = networkService
@@ -26,7 +26,7 @@ class AddCustomChainNetworking {
         }
 
         return networkService
-            .responseData(UrlRequest(url: url))
+            .dataTaskPublisher(UrlRequest(url: url))
             .tryMap { [decoder] in
                 if let json = try decoder.decode($0) as? [String: Any] {
                     if json["result"] is [String] {
@@ -74,7 +74,7 @@ class AddCustomChainNetworking {
 
     private func isValidBlockchainExplorerApiRoot(_ url: URL) -> AnyPublisher<Void, AddCustomChainError> {
         networkService
-            .responseData(UrlRequest(url: url))
+            .dataTaskPublisher(UrlRequest(url: url))
             .tryMap { [decoder] in
                 if let json = try decoder.decode($0) as? [String: Any], json["result"] is [Any] {
                     return
@@ -88,16 +88,15 @@ class AddCustomChainNetworking {
     }
 }
 
-extension AddCustomChainNetworking {
-    struct UrlRequest: URLRequestConvertible {
-        let url: URL
+struct UrlRequest: URLRequestConvertible {
+    let url: URL
 
-        func asURLRequest() throws -> URLRequest {
-            return try URLRequest(url: url, method: .get)
-        }
+    func asURLRequest() throws -> URLRequest {
+        return try URLRequest(url: url, method: .get)
     }
+}
 
-
+extension AddCustomChainNetworking {
     private struct EtherscanURLBuilder {
         private let host: String
 

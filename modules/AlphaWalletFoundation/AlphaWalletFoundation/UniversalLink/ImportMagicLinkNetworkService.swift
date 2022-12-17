@@ -19,43 +19,29 @@ public class ImportMagicLinkNetworking {
 
     public func checkPaymentServerSupportsContract(contractAddress: AlphaWallet.Address) -> AnyPublisher<Bool, Never> {
         networkService
-            .responseData(CheckPaymentServerSupportsContractRequest(contractAddress: contractAddress))
-            .map {
-                if let response = $0.response.response {
-                    return response.statusCode >= 200 && response.statusCode <= 299
-                } else {
-                    return false
-                }
-            }.replaceError(with: false)
+            .dataTaskPublisher(CheckPaymentServerSupportsContractRequest(contractAddress: contractAddress))
+            .map { $0.response.statusCode >= 200 && $0.response.statusCode <= 299 }
+            .replaceError(with: false)
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }
 
     public func checkIfLinkClaimed(r: String) -> AnyPublisher<Bool, Never> {
         networkService
-            .responseData(CheckIfLinkClaimedRequest(r: r))
-            .map {
-                if let response = $0.response.response {
-                    return response.statusCode == 208 || response.statusCode > 299
-                } else {
-                    return false
-                }
-            }.replaceError(with: false)
+            .dataTaskPublisher(CheckIfLinkClaimedRequest(r: r))
+            .map { $0.response.statusCode == 208 || $0.response.statusCode > 299 }
+            .replaceError(with: false)
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }
 
     public func freeTransfer(request: FreeTransferRequest) -> AnyPublisher<Bool, Never> {
         networkService
-            .responseData(request)
+            .dataTaskPublisher(request)
             .map {
                 //need to set this to false by default else it will allow no connections to be considered successful etc
                 //401 code will be given if signature is invalid on the server
-                if let response = $0.response.response {
-                    return response.statusCode < 300
-                } else {
-                    return false
-                }
+                return $0.response.statusCode < 300
             }.replaceError(with: false)
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
@@ -64,6 +50,7 @@ public class ImportMagicLinkNetworking {
 
 extension ImportMagicLinkNetworking {
     public struct FreeTransferRequest: URLRequestConvertible {
+
         public var contractAddress: AlphaWallet.Address {
             signedOrder.order.contractAddress
         }
