@@ -312,12 +312,8 @@ struct Configuration {
             static let fail = depreciation
 
             static let border = UIColor(red: 194, green: 194, blue: 194)
-            // static let text = Colors.appText
-            // static let label = Colors.appGrayLabel
             static let textFieldStatus = Configuration.Color.Semantic.defaultErrorText
             static let icon = Configuration.Color.Semantic.appTint
-            // static let secondary = Colors.appGrayLabel
-            // static let textFieldError = Configuration.Color.Semantic.dangerBackground
             static let textFieldShadowWhileEditing = Configuration.Color.Semantic.appTint
             static let placeholder = UIColor(hex: "919191")
             static let ensText = UIColor(red: 117, green: 185, blue: 67)
