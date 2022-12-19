@@ -158,21 +158,30 @@ class NFTAssetViewModel {
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         let actionsFromTokenScript = xmlHandler.actions
         infoLog("[TokenScript] actions names: \(actionsFromTokenScript.map(\.name))")
+        let results: [TokenInstanceAction]
         if xmlHandler.hasAssetDefinition {
-            return actionsFromTokenScript
+            results = actionsFromTokenScript
         } else {
             switch token.type {
             case .erc1155, .erc721:
-                return [
+                results = [
                     .init(type: .nonFungibleTransfer)
                 ]
             case .erc875, .erc721ForTickets:
-                return [
+                results = [
                     .init(type: .nftSell),
                     .init(type: .nonFungibleTransfer)
                 ]
             case .nativeCryptocurrency, .erc20:
-                return []
+                results = []
+            }
+        }
+
+        if Features.default.isAvailable(.isNftTransferEnabled) {
+            return results
+        } else {
+            return results.filter {
+                $0.type != .nonFungibleTransfer
             }
         }
     }
