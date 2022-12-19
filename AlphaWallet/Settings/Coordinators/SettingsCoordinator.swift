@@ -48,7 +48,7 @@ class SettingsCoordinator: Coordinator {
         let controller = SettingsViewController(viewModel: viewModel)
         controller.delegate = self
         controller.navigationItem.largeTitleDisplayMode = .always
-        
+
         return controller
     }()
 
@@ -113,7 +113,7 @@ extension SettingsCoordinator: LockCreatePasscodeCoordinatorDelegate {
 }
 
 extension SettingsCoordinator: SettingsViewControllerDelegate {
-    
+
     func createPasswordSelected(in controller: SettingsViewController) {
         let coordinator = LockCreatePasscodeCoordinator(navigationController: navigationController, lock: lock)
         addCoordinator(coordinator)
@@ -197,7 +197,7 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
         controller.delegate = self
         controller.hidesBottomBarWhenPushed = true
         controller.navigationItem.largeTitleDisplayMode = .never
-        
+
         navigationController.pushViewController(controller, animated: true)
     }
 }
@@ -345,6 +345,12 @@ extension SettingsCoordinator: AdvancedSettingsViewControllerDelegate {
     func analyticsSelected(in controller: AdvancedSettingsViewController) {
         let viewModel = AnalyticsViewModel(config: config)
         let controller = AnalyticsViewController(viewModel: viewModel)
+        navigationController.pushViewController(controller, animated: true)
+    }
+
+    func crashReporterSelected(in controller: AdvancedSettingsViewController) {
+        let viewModel = CrashReporterViewModel(config: config)
+        let controller = CrashReporterViewController(viewModel: viewModel)
         navigationController.pushViewController(controller, animated: true)
     }
 

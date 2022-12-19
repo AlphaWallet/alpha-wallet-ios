@@ -119,6 +119,7 @@
 "settings.contactUs.title" = "Ota yhteyttä";
 "settings.changeCurrency.title" = "Vaihda valuutta";
 "settings.analitycs.title" = "Analytiikka";
+"settings.crashReporter.title" = "Crash Reporting";
 "settings.pingInfura.title" = "Testaa Infura";
 "settings.pingInfura.successful" = "Infura toimii";
 "settings.pingInfura.fail" = "Infura-virhe";

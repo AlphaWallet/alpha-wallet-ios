@@ -310,6 +310,7 @@
 		5E7C793F7E346402CDAF771F /* AssetDefinitionStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7FE30D58E4022AF04E48 /* AssetDefinitionStoreTests.swift */; };
 		5E7C7965C9BF539ABAD1D01C /* FakeDomainResolutionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7900C580D38703DEB396 /* FakeDomainResolutionService.swift */; };
 		5E7C79880D398BF8D145D666 /* DeepLinkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74A5A91E5DE208B33325 /* DeepLinkTests.swift */; };
+		5E7C79A9B4DCEB1A62D657B7 /* CrashReporterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7D7B32E3672F2A7B0A68 /* CrashReporterViewModel.swift */; };
 		5E7C79BFFFB6A5FE833489C0 /* ActivitiesCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C72E648B7C34EDA193BDA /* ActivitiesCoordinator.swift */; };
 		5E7C79D78AA5E774119BE49B /* TextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7CFDE7DEA8C06C4100AF /* TextField.swift */; };
 		5E7C79DC5BDC391C983B6CAC /* ChainIdTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78DB6F47344EBBC2567F /* ChainIdTests.swift */; };
@@ -350,6 +351,7 @@
 		5E7C7C0FAC500A6651E663FD /* TransferTokensCardQuantitySelectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C703BA1D0E9ACB7399155 /* TransferTokensCardQuantitySelectionViewModel.swift */; };
 		5E7C7C60BAF11B0BD135FC1E /* GroupActivityViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7E58DD0CF4E2B35B6ED2 /* GroupActivityViewCell.swift */; };
 		5E7C7C869A09FD09DCE77EE6 /* ActivityCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C760CC5A9E144BDB5451D /* ActivityCellViewModel.swift */; };
+		5E7C7C8C689E972389F4A564 /* CrashReporterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C76A087FB8690364F8552 /* CrashReporterViewController.swift */; };
 		5E7C7C98EAF40E8110241DBD /* NonFungibleTokenViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C783E3ADA4CF9554A0E7D /* NonFungibleTokenViewCell.swift */; };
 		5E7C7CA7562FD8352967EFBD /* PromptBackupWalletAfterReceivingEtherViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7F6C71DDC98D7DF754B2 /* PromptBackupWalletAfterReceivingEtherViewViewModel.swift */; };
 		5E7C7CC1E06FFC3A5BEBF1EC /* WhatsNewViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C75F846C598287230CFAB /* WhatsNewViews.swift */; };
@@ -1135,6 +1137,7 @@
 		5E7C768D3C3F400E0B88B575 /* ETH.tsml */ = {isa = PBXFileReference; lastKnownFileType = file.tsml; path = ETH.tsml; sourceTree = "<group>"; };
 		5E7C769371BC70B5C4349B2B /* NoViewCardTokenScriptActionCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NoViewCardTokenScriptActionCoordinator.swift; sourceTree = "<group>"; };
 		5E7C7695F7C45A31C7EAF97F /* AssetDefinitionsOverridesViewCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetDefinitionsOverridesViewCellViewModel.swift; sourceTree = "<group>"; };
+		5E7C76A087FB8690364F8552 /* CrashReporterViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CrashReporterViewController.swift; sourceTree = "<group>"; };
 		5E7C76AF81B8DFF605558499 /* ImportMagicLinkCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImportMagicLinkCoordinator.swift; sourceTree = "<group>"; };
 		5E7C76B3FD690DC23263DE26 /* DefaultActivityItemViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultActivityItemViewCell.swift; sourceTree = "<group>"; };
 		5E7C76C895E7BFA47233068C /* LocalesCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalesCoordinator.swift; sourceTree = "<group>"; };
@@ -1241,6 +1244,7 @@
 		5E7C7D58E7A5DE05425623D2 /* AssetDefinitionStoreCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetDefinitionStoreCoordinator.swift; sourceTree = "<group>"; };
 		5E7C7D5F3CAE69CF932AB236 /* LockPasscodeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LockPasscodeViewController.swift; sourceTree = "<group>"; };
 		5E7C7D674F6B2415FB5552B0 /* CanOpenContractWebPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CanOpenContractWebPage.swift; sourceTree = "<group>"; };
+		5E7C7D7B32E3672F2A7B0A68 /* CrashReporterViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CrashReporterViewModel.swift; sourceTree = "<group>"; };
 		5E7C7D8A8A4E7A77F7344E2F /* CollectionViewLeftAlignedFlowLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CollectionViewLeftAlignedFlowLayout.swift; sourceTree = "<group>"; };
 		5E7C7D8C3613A9BD9F147B3C /* DappViewCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DappViewCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C7D913DAA3322F1C7DD46 /* OpenSeaNonFungibleTokenCardRowViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenSeaNonFungibleTokenCardRowViewModel.swift; sourceTree = "<group>"; };
@@ -2300,6 +2304,7 @@
 				5E7C7F970B01399530F62569 /* ToolsViewModel.swift */,
 				87D7D66027D654A000202861 /* CheckTransactionStateViewModel.swift */,
 				8793A491291A4E8600BCF849 /* ConsoleViewModel.swift */,
+				5E7C7D7B32E3672F2A7B0A68 /* CrashReporterViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -2602,6 +2607,7 @@
 				02D8BF8A277D570900EEE8E9 /* SaveCustomRpcManualEntryViewController.swift */,
 				87442BD727D615B500EA2209 /* CheckTransactionStateViewController.swift */,
 				5E7C7AB8844E5D88BD6B2F2A /* ToolsViewController.swift */,
+				5E7C76A087FB8690364F8552 /* CrashReporterViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -5590,6 +5596,8 @@
 				5E7C7FA36B12D00E131398CF /* TokenScriptOverrides+Extensions.swift in Sources */,
 				5E7C731E718A557B7B04B37E /* Error.swift in Sources */,
 				5E7C75B277F1E0CC2356DA7B /* NoViewCardTokenScriptActionCoordinator.swift in Sources */,
+				5E7C79A9B4DCEB1A62D657B7 /* CrashReporterViewModel.swift in Sources */,
+				5E7C7C8C689E972389F4A564 /* CrashReporterViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

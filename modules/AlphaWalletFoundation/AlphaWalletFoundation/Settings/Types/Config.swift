@@ -165,6 +165,7 @@ public struct Config {
         static let customRpcServers = "customRpcServers"
         static let homePageURL = "homePageURL"
         static let sendAnalyticsEnabled = "sendAnalyticsEnabled"
+        static let sendCrashReportingEnabled = "sendCrashReportingEnabled"
     }
 
     public let defaults: UserDefaults
@@ -188,6 +189,23 @@ public struct Config {
             }
 
             defaults.set(newValue, forKey: Keys.sendAnalyticsEnabled)
+        }
+    }
+
+    public var isSendCrashReportingEnabled: Bool {
+        sendCrashReportingEnabled ?? false
+    }
+
+    public var sendCrashReportingEnabled: Bool? {
+        get {
+            guard let value = defaults.value(forKey: Keys.sendCrashReportingEnabled) as? Bool else {
+                return nil
+            }
+
+            return value
+        }
+        set {
+            defaults.set(newValue, forKey: Keys.sendCrashReportingEnabled)
         }
     }
 
