@@ -100,7 +100,7 @@ final class BookmarksViewController: UIViewController {
     private func buildTableViewHeader() {
         headerView.delegate = self
         headerView.configure(viewModel: viewModel.headerViewModel)
-        
+
         let fittingSize = headerView.systemLayoutSizeFitting(.init(width: tableView.frame.size.width, height: 1000))
         headerView.frame = .init(x: 0, y: 0, width: 0, height: fittingSize.height)
         tableView.tableHeaderView = headerView
@@ -178,7 +178,9 @@ extension BookmarksViewController: UITableViewDelegate {
 
                     dataSource.apply(snapshot, animatingDifferences: true)
 
+                    // swiftlint:disable empty_enum_arguments
                     if !self.hasContent() {
+                    // swiftlint:enable empty_enum_arguments
                         headerView.exitEditMode()
                     }
                     completion(true)

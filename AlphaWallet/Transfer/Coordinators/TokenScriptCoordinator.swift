@@ -78,7 +78,6 @@ class TokenScriptCoordinator: Coordinator {
             }
         case .erc20Send, .erc20Receive, .nftRedeem, .nftSell, .nonFungibleTransfer, .swap, .bridge, .buy:
             assertImpossibleCodePath(message: "Should only be TokenScript actions")
-            break
         }
     }
 

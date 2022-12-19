@@ -151,7 +151,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
             .compactMap { tokenScriptRendererView.inject(javaScript: $0) }
         guard let navigationController = navigationController else { return }
 
-        TokenScript.performTokenScriptAction(action, token: token, tokenId: tokenId, tokenHolder: tokenHolder, userEntryIds : userEntryIds, fetchUserEntries: fetchUserEntries, localRefsSource: tokenScriptRendererView, assetDefinitionStore: assetDefinitionStore, keystore: keystore, server: server, session: session, confirmTokenScriptActionTransactionDelegate: self, navigationController: navigationController)
+        TokenScript.performTokenScriptAction(action, token: token, tokenId: tokenId, tokenHolder: tokenHolder, userEntryIds: userEntryIds, fetchUserEntries: fetchUserEntries, localRefsSource: tokenScriptRendererView, assetDefinitionStore: assetDefinitionStore, keystore: keystore, server: server, session: session, confirmTokenScriptActionTransactionDelegate: self, navigationController: navigationController)
     }
 }
 

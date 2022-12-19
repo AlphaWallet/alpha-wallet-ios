@@ -29,10 +29,10 @@ extension TokenScript {
         }.map { (userEntryValues: [Any?]) -> [AttributeId: String] in
             guard let values = userEntryValues as? [String] else { return .init() }
             let zippedIdsAndValues = zip(userEntryIds, values).map { (userEntryId, value) -> (AttributeId, String)? in
-                    //Should always find a matching attribute
-                    guard action.attributes.values.first(where: { $0.userEntryId == userEntryId }) != nil else { return nil }
-                    return (userEntryId, value)
-                }.compactMap { $0 }
+                //Should always find a matching attribute
+                guard action.attributes.values.first(where: { $0.userEntryId == userEntryId }) != nil else { return nil }
+                return (userEntryId, value)
+            }.compactMap { $0 }
             return Dictionary(uniqueKeysWithValues: zippedIdsAndValues)
         }.then { userEntryValues -> Promise<[AttributeId: AssetInternalValue]> in
             //Make sure to resolve every attribute before actionsheet appears without hitting the cache. Both action and token-level attributes (especially function-origins)

@@ -12,6 +12,7 @@ final class FakeNetworkService: NetworkService {
     }
 }
 
+// swiftlint:disable type_body_length
 class ActiveWalletViewTests: XCTestCase {
 
     private let currencyService = CurrencyService.make()
@@ -389,3 +390,4 @@ class ActiveWalletViewTests: XCTestCase {
         }
     }
 }
+// swiftlint:enable type_body_length
