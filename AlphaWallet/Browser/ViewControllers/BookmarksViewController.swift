@@ -178,9 +178,7 @@ extension BookmarksViewController: UITableViewDelegate {
 
                     dataSource.apply(snapshot, animatingDifferences: true)
 
-                    // swiftlint:disable empty_enum_arguments
                     if !self.hasContent() {
-                    // swiftlint:enable empty_enum_arguments
                         headerView.exitEditMode()
                     }
                     completion(true)
