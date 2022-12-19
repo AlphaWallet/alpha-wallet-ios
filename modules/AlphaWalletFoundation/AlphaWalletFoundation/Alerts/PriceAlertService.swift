@@ -80,10 +80,8 @@ public class PriceAlertService: PriceAlertServiceType {
 extension Sequence where Element: Hashable {
     public func uniqued() -> [Element] {
         var elements: [Element] = []
-        for value in self {
-            if !elements.contains(value) {
-                elements.append(value)
-            }
+        for value in self where !elements.contains(value) {
+            elements.append(value)
         }
         return elements
     }

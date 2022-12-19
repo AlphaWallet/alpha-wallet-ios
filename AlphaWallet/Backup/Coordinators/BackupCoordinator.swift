@@ -77,7 +77,7 @@ class BackupCoordinator: Coordinator {
                 activityItems: [url],
                 applicationActivities: nil
             )
-            activityViewController.completionWithItemsHandler = { _, result, _, error in
+            activityViewController.completionWithItemsHandler = { _, result, _, _ in
                 do {
                     try FileManager.default.removeItem(at: url)
                 } catch {

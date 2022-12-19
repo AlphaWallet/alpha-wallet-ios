@@ -17,7 +17,7 @@ extension ABIv2 {
         var indexed: Bool?
         var components: [Input]?
     }
-    
+
     public struct Output: Decodable {
         var name: String?
         var type: String
@@ -34,24 +34,24 @@ extension ABIv2 {
         var outputs: [ABIv2.Output]?
         var anonymous: Bool?
     }
-    
+
     public enum Element {
         public enum ArraySize { //bytes for convenience
             case staticSize(UInt64)
             case dynamicSize
             case notArray
         }
-        
+
         case function(Function)
         case constructor(Constructor)
         case fallback(Fallback)
         case event(Event)
-        
+
         public struct InOut {
             let name: String
             let type: ParameterType
         }
-        
+
         public struct Function {
             let name: String?
             let inputs: [InOut]
@@ -59,23 +59,23 @@ extension ABIv2 {
             let constant: Bool
             let payable: Bool
         }
-        
+
         public struct Constructor {
             let inputs: [InOut]
             let constant: Bool
             let payable: Bool
         }
-        
+
         public struct Fallback {
             let constant: Bool
             let payable: Bool
         }
-        
+
         public struct Event {
             let name: String
             let inputs: [Input]
             let anonymous: Bool
-            
+
             struct Input {
                 let name: String
                 let type: ParameterType
@@ -92,9 +92,9 @@ extension ABIv2.Element {
             guard parameters.count == constructor.inputs.count else { return nil }
             guard let data = ABIv2Encoder.encode(types: constructor.inputs, values: parameters) else { return nil }
             return data
-        case .event(_):
+        case .event:
             return nil
-        case .fallback(_):
+        case .fallback:
             return nil
         case .function(let function):
             guard parameters.count == function.inputs.count else { return nil }
@@ -121,7 +121,7 @@ extension ABIv2.Element {
                 }
                 return returnArray
             }
-            
+
             guard function.outputs.count*32 <= data.count else { return nil }
             var returnArray: [String: Any] = [:]
             var i = 0
@@ -137,7 +137,7 @@ extension ABIv2.Element {
             return returnArray
         }
     }
-    
+
     func decodeInputData(_ rawData: Data) -> [String: Any]? {
         var data = rawData
         var sig: Data?
@@ -162,7 +162,7 @@ extension ABIv2.Element {
                 }
                 return returnArray
             }
-            
+
             guard function.inputs.count*32 <= data.count else { return nil }
             var returnArray: [String: Any] = [:]
             var i = 0
@@ -192,7 +192,7 @@ extension ABIv2.Element {
                 }
                 return returnArray
             }
-            
+
             guard function.inputs.count*32 <= data.count else { return nil }
             var returnArray: [String: Any] = [:]
             var i = 0

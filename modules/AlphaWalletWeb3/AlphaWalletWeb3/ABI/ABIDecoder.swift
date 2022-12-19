@@ -143,9 +143,9 @@ extension ABIElement {
                 let name = "0"
                 var value: Any
                 switch function.outputs[0].type {
-                case .dynamicABIType(let type) :
+                case .dynamicABIType(let type):
                     value = type.emptyValue
-                case .staticABIType(let type) :
+                case .staticABIType(let type):
                     value = type.emptyValue
                 }
                 var returnArray: [String: Any] = [:]

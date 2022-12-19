@@ -109,10 +109,8 @@ public final class TransactionNotificationSourceService: NotificationSourceServi
     //Etherscan for Ropsten returns the same transaction twice. Normally Realm will take care of this, but since we are showing user a notification, we don't want to show duplicates
     private func filterUniqueTransactions(_ transactions: [TransactionInstance]) -> [TransactionInstance] {
         var results = [TransactionInstance]()
-        for each in transactions {
-            if !results.contains(where: { each.id == $0.id }) {
-                results.append(each)
-            }
+        for each in transactions where !results.contains(where: { each.id == $0.id }) {
+            results.append(each)
         }
         return results
     }

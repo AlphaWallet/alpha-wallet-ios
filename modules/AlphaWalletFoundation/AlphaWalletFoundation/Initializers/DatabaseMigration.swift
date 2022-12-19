@@ -12,6 +12,7 @@ public class DatabaseMigration: Initializer {
         self.account = account
     }
 
+    // swiftlint:disable function_body_length
     public func perform() {
         config.schemaVersion = 12
         config.objectTypes = [
@@ -120,6 +121,7 @@ public class DatabaseMigration: Initializer {
             }
         }
     }
+    // swiftlint:enable function_body_length
 }
 
 import AlphaWalletCore
@@ -191,10 +193,7 @@ extension DatabaseMigration {
     }
 
     public static func oneTimeMigrationForBookmarksAndUrlHistoryToSharedRealm(walletAddressesStore: WalletAddressesStore, config: Config) {
-//Disable what seems like a sprurious SwiftLint warning
-// swiftlint:disable empty_enum_arguments
         guard !config.hasMigratedToSharedRealm() else { return }
-// swiftlint:enable empty_enum_arguments
 
         for each in walletAddressesStore.wallets {
             let migration = DatabaseMigration(account: each)

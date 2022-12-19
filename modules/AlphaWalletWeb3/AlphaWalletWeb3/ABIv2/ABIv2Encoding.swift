@@ -57,7 +57,7 @@ extension ABIv2Encoder {
         }
         return nil
     }
-    
+
     public static func convertToBigInt(_ value: AnyObject) -> BigInt? {
         switch value {
         case let v as BigUInt:
@@ -98,7 +98,7 @@ extension ABIv2Encoder {
         }
         return nil
     }
-    
+
     public static func convertToData(_ value: AnyObject) -> Data? {
         switch value {
         case let d as Data:
@@ -136,7 +136,7 @@ extension ABIv2Encoder {
         let params = types.compactMap { $0.type }
         return encode(types: params, values: values)
     }
-    
+
     public static func encode(types: [ABIv2.Element.ParameterType], values: [AnyObject]) -> Data? {
         guard types.count == values.count else { return nil }
         var tails = [Data]()
@@ -177,14 +177,14 @@ extension ABIv2Encoder {
     // swiftlint:disable function_body_length
     public static func encodeSingleType(type: ABIv2.Element.ParameterType, value: AnyObject) -> Data? {
         switch type {
-        case .uint(_):
+        case .uint:
             if let biguint = convertToBigUInt(value) {
                 return biguint.abiEncode(bits: 256)
             }
             if let bigint = convertToBigInt(value) {
                 return bigint.abiEncode(bits: 256)
             }
-        case .int(_):
+        case .int:
             if let biguint = convertToBigUInt(value) {
                 return biguint.abiEncode(bits: 256)
             }

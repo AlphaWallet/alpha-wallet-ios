@@ -35,7 +35,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
         TokenCardViewFactory(token: token, assetDefinitionStore: assetDefinitionStore, analytics: analytics, keystore: keystore, wallet: session.account)
     }()
     private let currencyService: CurrencyService
-    
+
     weak var delegate: NFTCollectionCoordinatorDelegate?
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -79,7 +79,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
 
     func didClose(in viewController: NFTCollectionViewController) {
         delegate?.didClose(in: self)
-    } 
+    }
 
     private func showChooseTokensCardTransferModeViewController(token: Token,
                                                                 for tokenHolder: TokenHolder,
@@ -294,7 +294,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
         )
         let vc = UIActivityViewController(activityItems: [url], applicationActivities: nil)
         vc.popoverPresentationController?.sourceView = sender
-        vc.completionWithItemsHandler = { [weak self] activityType, completed, returnedItems, error in
+        vc.completionWithItemsHandler = { [weak self] activityType, completed, _, _ in
             guard let strongSelf = self else { return }
             //Be annoying if user copies and we close the sell process
             if completed && activityType != UIActivity.ActivityType.copyToPasteboard {
@@ -318,7 +318,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
         let url = generateTransferLink(tokenHolder: tokenHolder, linkExpiryDate: linkExpiryDate, server: server)
         let vc = UIActivityViewController(activityItems: [url], applicationActivities: nil)
         vc.popoverPresentationController?.sourceView = sender
-        vc.completionWithItemsHandler = { [weak self] activityType, completed, returnedItems, error in
+        vc.completionWithItemsHandler = { [weak self] activityType, completed, _, _ in
             guard let strongSelf = self else { return }
             //Be annoying if user copies and we close the transfer process
             if completed && activityType != UIActivity.ActivityType.copyToPasteboard {
@@ -386,7 +386,7 @@ extension NFTCollectionCoordinator: NFTCollectionViewControllerDelegate {
         viewController.delegate = self
         viewController.hidesBottomBarWhenPushed = true
         viewController.navigationItem.largeTitleDisplayMode = .never
-        
+
         return viewController
     }
 

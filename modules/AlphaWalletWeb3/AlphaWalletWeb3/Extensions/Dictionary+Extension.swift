@@ -16,10 +16,8 @@ extension Dictionary where Value: Equatable {
 
 extension Dictionary where Key == String, Value: Equatable {
     func keyForValue(value: Value) -> String? {
-        for key in self.keys {
-            if self[key] == value {
-                return key
-            }
+        for key in self.keys where self[key] == value {
+            return key
         }
         return nil
     }

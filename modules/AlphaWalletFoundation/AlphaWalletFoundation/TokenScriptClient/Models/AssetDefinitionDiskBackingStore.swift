@@ -72,25 +72,21 @@ public class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
                 tokenScriptFileIndices.trackHash(forFile: fileName, contents: contents)
             } else {
                 var isOldTokenScriptVersion = false
-                for (contract, fileNames) in previousTokenScriptFileIndices.contractsToOldTokenScriptFileNames {
-                    if fileNames.contains(fileName) {
+                for (contract, fileNames) in previousTokenScriptFileIndices.contractsToOldTokenScriptFileNames where fileNames.contains(fileName) {
+                    let newHash = tokenScriptFileIndices.hash(contents: contents)
+                    if newHash == previousTokenScriptFileIndices.fileHashes[fileName] {
+                        tokenScriptFileIndices.contractsToOldTokenScriptFileNames[contract, default: []] += [fileName]
+                        tokenScriptFileIndices.trackHash(forFile: fileName, contents: contents)
+                        isOldTokenScriptVersion = true
+                    }
+                }
+                if !isOldTokenScriptVersion {
+                    for (contract, fileNames) in previousTokenScriptFileIndices.contractsToFileNames where fileNames.contains(fileName) {
                         let newHash = tokenScriptFileIndices.hash(contents: contents)
                         if newHash == previousTokenScriptFileIndices.fileHashes[fileName] {
                             tokenScriptFileIndices.contractsToOldTokenScriptFileNames[contract, default: []] += [fileName]
                             tokenScriptFileIndices.trackHash(forFile: fileName, contents: contents)
                             isOldTokenScriptVersion = true
-                        }
-                    }
-                }
-                if !isOldTokenScriptVersion {
-                    for (contract, fileNames) in previousTokenScriptFileIndices.contractsToFileNames {
-                        if fileNames.contains(fileName) {
-                            let newHash = tokenScriptFileIndices.hash(contents: contents)
-                            if newHash == previousTokenScriptFileIndices.fileHashes[fileName] {
-                                tokenScriptFileIndices.contractsToOldTokenScriptFileNames[contract, default: []] += [fileName]
-                                tokenScriptFileIndices.trackHash(forFile: fileName, contents: contents)
-                                isOldTokenScriptVersion = true
-                            }
                         }
                     }
                 }
@@ -186,12 +182,10 @@ public class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
         tokenScriptFileIndices.removeHash(forFile: filename)
 
         var contractsToFileNames = tokenScriptFileIndices.contractsToFileNames
-        for (eachContract, eachFilenames) in tokenScriptFileIndices.contractsToFileNames {
-            if eachFilenames.contains(filename) {
-                var updatedFilenames = eachFilenames
-                updatedFilenames.removeAll { $0 == filename }
-                contractsToFileNames[eachContract] = updatedFilenames
-            }
+        for (eachContract, eachFilenames) in tokenScriptFileIndices.contractsToFileNames where eachFilenames.contains(filename) {
+            var updatedFilenames = eachFilenames
+            updatedFilenames.removeAll { $0 == filename }
+            contractsToFileNames[eachContract] = updatedFilenames
         }
         tokenScriptFileIndices.contractsToFileNames = contractsToFileNames
         tokenScriptFileIndices.contractsToEntities[filename] = nil
@@ -275,11 +269,9 @@ public class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
             contractsAndServersAffected = contractsAndServers + contractsPreviouslyForThisXmlFile.map { AddressAndOptionalRPCServer(address: $0, server: nil) }
         } else {
             contractsAndServersAffected = [AddressAndOptionalRPCServer]()
-            for (xmlFileName, entities) in tokenScriptFileIndices.contractsToEntities {
-                if entities.contains(where: { $0.fileName == fileName }) {
-                    let contracts = tokenScriptFileIndices.contracts(inFileName: xmlFileName)
-                    contractsAndServersAffected.append(contentsOf: contracts.map { AddressAndOptionalRPCServer(address: $0, server: nil) })
-                }
+            for (xmlFileName, entities) in tokenScriptFileIndices.contractsToEntities where entities.contains(where: { $0.fileName == fileName }) {
+                let contracts = tokenScriptFileIndices.contracts(inFileName: xmlFileName)
+                contractsAndServersAffected.append(contentsOf: contracts.map { AddressAndOptionalRPCServer(address: $0, server: nil) })
             }
         }
         purgeCacheFor(contractsAndServers: contractsAndServersAffected, changeHandler: changeHandler)

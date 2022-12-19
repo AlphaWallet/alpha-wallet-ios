@@ -375,7 +375,7 @@ open class EtherKeystore: NSObject, Keystore {
             .eraseToAnyPublisher()
     }
 
-    public func verifySeedPhraseOfHdWallet(_ inputSeedPhrase: String, forAccount account: AlphaWallet.Address, prompt: String, context: LAContext)  -> AnyPublisher<Result<Bool, KeystoreError>, Never> {
+    public func verifySeedPhraseOfHdWallet(_ inputSeedPhrase: String, forAccount account: AlphaWallet.Address, prompt: String, context: LAContext) -> AnyPublisher<Result<Bool, KeystoreError>, Never> {
         Just(account)
             .receive(on: queue)
             .flatMap { account -> AnyPublisher<Result<Bool, KeystoreError>, Never> in

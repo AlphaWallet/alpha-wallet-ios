@@ -22,6 +22,7 @@ public enum FunctionError: LocalizedError {
     }
 }
 
+// swiftlint:disable type_body_length
 public struct FunctionOrigin {
     public enum FunctionType {
         case functionCall(functionName: String, inputs: [AssetFunctionCall.Argument], output: AssetFunctionCall.ReturnType)
@@ -359,3 +360,4 @@ public struct FunctionOrigin {
         return assetAttributeProvider.getValue(forAttributeId: attributeId, functionCall: functionCall)
     }
 }
+// swiftlint:enable type_body_length

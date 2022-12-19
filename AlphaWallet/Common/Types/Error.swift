@@ -65,7 +65,7 @@ extension Error {
             return error.errorDescription ?? UnknownError().localizedDescription
         case let error as RpcNodeRetryableRequestError:
             return error.errorDescription ?? UnknownError().localizedDescription
-        case let error as DelayWalletConnectResponseError :
+        case let error as DelayWalletConnectResponseError:
             return error.localizedDescription
         case let error as OpenURLError:
             return error.localizedDescription

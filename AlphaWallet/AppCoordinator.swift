@@ -15,6 +15,7 @@ extension TokenScript {
     ]
 }
 
+// swiftlint:disable type_body_length
 class AppCoordinator: NSObject, Coordinator {
     private let config = Config()
     private let legacyFileBasedKeystore: LegacyFileBasedKeystore
@@ -126,7 +127,7 @@ class AppCoordinator: NSObject, Coordinator {
 
         return coordinator
     }()
-    
+
     private lazy var notificationService: NotificationService = {
         let pushNotificationsService = UNUserNotificationsService()
         let notificationService = LocalNotificationService()
@@ -155,7 +156,7 @@ class AppCoordinator: NSObject, Coordinator {
 
         let coordinator = AppCoordinator(window: window, analytics: analytics, keystore: keystore, walletAddressesStore: walletAddressesStore, navigationController: navigationController, securedStorage: securedStorage, legacyFileBasedKeystore: legacyFileBasedKeystore)
         coordinator.keystore.delegate = coordinator
-        
+
         return coordinator
     }
 
@@ -184,7 +185,7 @@ class AppCoordinator: NSObject, Coordinator {
         walletAddressesStore
             .didRemoveWalletPublisher
             .sink { [config, analytics, keystore, legacyFileBasedKeystore] account in
-                
+
                 //TODO: pass ref
                 FileWalletStorage().addOrUpdate(name: nil, for: account.address)
                 PromptBackupCoordinator(keystore: keystore, wallet: account, config: config, analytics: analytics).deleteWallet()
@@ -450,6 +451,7 @@ class AppCoordinator: NSObject, Coordinator {
         }
     }
 }
+// swiftlint:enable type_body_length
 
 extension AppCoordinator: InitialWalletCreationCoordinatorDelegate {
 

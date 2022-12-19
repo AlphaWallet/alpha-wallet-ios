@@ -33,7 +33,7 @@ public struct ABIRecord: Decodable {
 }
 
 public struct EventLogJSON {
-    
+
 }
 
 // Native parsing
@@ -51,13 +51,13 @@ protocol ABIElementPropertiesProtocol {
 }
 
 public enum ABIElement {
-    
+
     enum ArraySize { //bytes for convenience
         case staticSize(UInt64)
         case dynamicSize
         case notArray
     }
-    
+
     case function(Function)
     case constructor(Constructor)
     case fallback(Fallback)
@@ -73,7 +73,7 @@ public enum ABIElement {
             let name: String
             let type: ParameterType
         }
-        
+
         struct Input {
             let name: String
             let type: ParameterType
@@ -85,40 +85,40 @@ public enum ABIElement {
         let constant: Bool
         let payable: Bool
     }
-    
+
     public struct Fallback {
         let constant: Bool
         let payable: Bool
     }
-    
+
     public struct Event {
         let name: String
         let inputs: [Input]
         let anonymous: Bool
-        
+
         struct Input {
             let name: String
             let type: ParameterType
             let indexed: Bool
         }
     }
-    
+
     /// Specifies the type that parameters in a contract have.
     public enum ParameterType {
         case dynamicABIType(DynamicType)
         case staticABIType(StaticType)
-        
+
         /// Denotes any type that has a fixed length.
         public enum StaticType: ABIElementPropertiesProtocol {
             var isArray: Bool {
                 switch self {
-                case .array(_, length: _):
+                case .array:
                     return true
                 default:
                     return false
                 }
             }
-            
+
             var arraySize: ABIElement.ArraySize {
                 switch self {
                 case .array(_, length: let length):
@@ -127,7 +127,7 @@ public enum ABIElement {
                     return ABIElement.ArraySize.notArray
                 }
             }
-            
+
             var subtype: ABIElement.ParameterType? {
                 switch self {
                 case .array(let type, length: _):
@@ -136,7 +136,7 @@ public enum ABIElement {
                     return nil
                 }
             }
-            
+
             var memoryUsage: UInt64 {
                 switch self {
                 case .array(_, length: let length):
@@ -145,24 +145,24 @@ public enum ABIElement {
                     return 32
                 }
             }
-            
+
             var emptyValue: Any {
                 switch self {
-                case .uint(bits: _):
+                case .uint:
                     return BigUInt(0)
-                case .int(bits: _):
+                case .int:
                     return BigUInt(0)
                 case .address:
                     return EthereumAddress("0x0000000000000000000000000000000000000000")!
                 case .bool:
                     return false
-                case .bytes(length: _):
+                case .bytes:
                     return Data()
-                case .array(_, length: _):
+                case .array:
                     return [StaticType]()
                 }
             }
-            
+
             /// uint<M>: unsigned integer type of M bits, 0 < M <= 256, M % 8 == 0. e.g. uint32, uint8, uint256.
             case uint(bits: UInt64)
             /// int<M>: two's complement signed integer type of M bits, 0 < M <= 256, M % 8 == 0.
@@ -177,29 +177,29 @@ public enum ABIElement {
 //            case function
             /// <type>[M]: a fixed-length array of the given fixed-length type.
             indirect case array(StaticType, length: UInt64)
-            
+
             // The specification also defines the following types:
             // uint, int: synonyms for uint256, int256 respectively (not to be used for computing the function selector).
             // We do not include these in this enum, as we will just be mapping those
             // to .uint(bits: 256) and .int(bits: 256) directly.
         }
-        
+
         /// Denotes any type that has a variable length.
         public enum DynamicType {
             var isArray: Bool {
                 switch self {
-                case .dynamicArray(_):
+                case .dynamicArray:
                     return true
-                case .arrayOfDynamicTypes(length: _):
+                case .arrayOfDynamicTypes:
                     return true
                 default:
                     return false
                 }
             }
-            
+
             var arraySize: ABIElement.ArraySize {
                 switch self {
-                case .dynamicArray(_):
+                case .dynamicArray:
                     return ABIElement.ArraySize.dynamicSize
                 case .arrayOfDynamicTypes(_, length: let length):
                     return ABIElement.ArraySize.staticSize(length)
@@ -207,7 +207,7 @@ public enum ABIElement {
                     return ABIElement.ArraySize.notArray
                 }
             }
-            
+
             var subtype: ABIElement.ParameterType? {
                 switch self {
                 case .dynamicArray(let type):
@@ -218,7 +218,7 @@ public enum ABIElement {
                     return nil
                 }
             }
-            
+
             var memoryUsage: UInt64 {
                 switch self {
 //                case .dynamicArray(_):
@@ -229,20 +229,20 @@ public enum ABIElement {
                     return 32
                 }
             }
-            
+
             var emptyValue: Any {
                 switch self {
                 case .bytes:
                     return Data()
                 case .string:
                     return ""
-                case .arrayOfDynamicTypes(_, length: _):
+                case .arrayOfDynamicTypes:
                     return [DynamicType]()
-                case .dynamicArray(_):
+                case .dynamicArray:
                     return [StaticType]()
                 }
             }
-            
+
             /// bytes: dynamic sized byte sequence.
             case bytes
             /// string: dynamic sized unicode string assumed to be UTF-8 encoded.
@@ -352,11 +352,11 @@ extension ABIElement.Function {
     public var signature: String {
         return "\(name ?? "")(\(inputs.map { $0.type.abiRepresentation }.joined(separator: ",")))"
     }
-    
+
     public var methodString: String {
         return String(signature.sha3(.keccak256).prefix(8))
     }
-    
+
     public var methodEncoding: Data {
         return signature.data(using: .ascii)!.sha3(.keccak256)[0...3]
     }
@@ -367,7 +367,7 @@ extension ABIElement.Event {
     public var signature: String {
         return "\(name)(\(inputs.map { $0.type.abiRepresentation }.joined(separator: ",")))"
     }
-    
+
     public var topic: Data {
         return signature.data(using: .ascii)!.sha3(.keccak256)
     }

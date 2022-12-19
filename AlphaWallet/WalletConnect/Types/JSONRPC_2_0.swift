@@ -69,6 +69,7 @@ enum DataConversionError: Error {
     case dataToStringFailed
 }
 
+// swiftlint:disable type_body_length
 internal enum JSONRPC_2_0 {
     struct JSON: Equatable, ExpressibleByStringInterpolation {
         var string: String
@@ -433,6 +434,7 @@ internal enum JSONRPC_2_0 {
         }
     }
 }
+// swiftlint:enable type_body_length
 
 extension JSONEncoder {
     static func encoder() -> JSONEncoder {

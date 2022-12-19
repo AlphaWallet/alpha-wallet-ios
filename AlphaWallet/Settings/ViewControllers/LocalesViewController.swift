@@ -95,12 +95,10 @@ extension LocalesViewController: UITableViewDelegate, UITableViewDataSource {
             cell.accessoryType = LocaleViewCell.selectionAccessoryType.selected
         }
         guard let viewModel = viewModel else { return }
-        for (index, locale) in viewModel.locales.enumerated() {
-            if viewModel.isLocaleSelected(locale) {
-                guard let cell = tableView.cellForRow(at: .init(row: index, section: indexPath.section)) else { break }
-                cell.accessoryType = LocaleViewCell.selectionAccessoryType.unselected
-                break
-            }
+        for (index, locale) in viewModel.locales.enumerated() where viewModel.isLocaleSelected(locale) {
+            guard let cell = tableView.cellForRow(at: .init(row: index, section: indexPath.section)) else { break }
+            cell.accessoryType = LocaleViewCell.selectionAccessoryType.unselected
+            break
         }
     }
 }

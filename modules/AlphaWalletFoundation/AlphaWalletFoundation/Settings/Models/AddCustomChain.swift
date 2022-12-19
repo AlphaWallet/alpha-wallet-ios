@@ -241,7 +241,7 @@ extension AddCustomChain.functional {
             isValidBlockchainExplorerApiRoot(url)
         }.map {
             urlString
-        }.recover { error -> Promise<String> in
+        }.recover { _ -> Promise<String> in
             //Careful to use `action=tokentx` and not `action=tokennfttx` because only the former works with both Etherscan and Blockscout
             guard let url = EtherscanURLBuilder(host: originalUrlString).buildWithTokentx() else {
                 return Promise(error: AddCustomChainError.invalidBlockchainExplorerUrl)

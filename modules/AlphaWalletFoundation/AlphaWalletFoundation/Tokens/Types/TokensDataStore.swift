@@ -186,6 +186,7 @@ public enum TokenFieldUpdate {
     case coinGeckoTickerId(String)
 }
 
+// swiftlint:disable type_body_length
 open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
     private let store: RealmStore
 
@@ -563,6 +564,7 @@ open class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
             .filter(predicate)
     }
 }
+// swiftlint:enable type_body_length
 
 extension TokenObject {
 
