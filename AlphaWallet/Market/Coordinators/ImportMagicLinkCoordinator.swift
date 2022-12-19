@@ -18,7 +18,7 @@ protocol ImportMagicLinkCoordinatorDelegate: class, CanOpenURL {
 // swiftlint:disable type_body_length
 class ImportMagicLinkCoordinator: Coordinator {
     private enum TransactionType {
-        case freeTransfer(request: ImportMagicLinkNetworkService.FreeTransferRequest)
+        case freeTransfer(request: ImportMagicLinkNetworking.FreeTransferRequest)
         case paid(signedOrder: SignedOrder, token: Token)
     }
 
@@ -61,14 +61,14 @@ class ImportMagicLinkCoordinator: Coordinator {
     private var cryptoToFiatRateWhenNotEnoughEthForPaidImportCancelable: AnyCancellable?
     private var balanceWhenHandlePaidImportsCancelable: AnyCancellable?
     private let session: WalletSession
-    private let networkService: ImportMagicLinkNetworkService
+    private let networkService: ImportMagicLinkNetworking
 
     init(analytics: AnalyticsLogger, session: WalletSession, config: Config, assetDefinitionStore: AssetDefinitionStore, url: URL, keystore: Keystore, tokensService: TokenViewModelState & TokenProvidable, networkService: NetworkService) {
         self.analytics = analytics
         self.session = session
         self.config = config
         self.assetDefinitionStore = assetDefinitionStore
-        self.networkService = ImportMagicLinkNetworkService(networkService: networkService)
+        self.networkService = ImportMagicLinkNetworking(networkService: networkService)
         self.url = url
         self.keystore = keystore
         self.tokensService = tokensService
@@ -117,7 +117,7 @@ class ImportMagicLinkCoordinator: Coordinator {
 
     @discardableResult private func usePaymentServerForFreeTransferLinks(signedOrder: SignedOrder) -> Bool {
         guard isShowingImportUserInterface else { return false }
-        let request = ImportMagicLinkNetworkService.FreeTransferRequest(signedOrder: signedOrder, wallet: wallet, server: server)
+        let request = ImportMagicLinkNetworking.FreeTransferRequest(signedOrder: signedOrder, wallet: wallet, server: server)
         transactionType = .freeTransfer(request: request)
         promptImportUniversalLink(cost: .free)
 
@@ -423,7 +423,7 @@ class ImportMagicLinkCoordinator: Coordinator {
         }
     }
 
-    private func importFreeTransfer(request: ImportMagicLinkNetworkService.FreeTransferRequest) {
+    private func importFreeTransfer(request: ImportMagicLinkNetworking.FreeTransferRequest) {
         updateImportTokenController(with: .processing)
 
         networkService.freeTransfer(request: request)

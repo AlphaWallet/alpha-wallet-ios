@@ -8,7 +8,7 @@ import AlphaWalletFoundation
 class AssetDefinitionStoreTests: XCTestCase {
     func testConvertsModifiedDateToStringForHTTPHeaderIfModifiedSince() {
         let date = GeneralisedTime(string: "20230405111234+0000")!.date
-        XCTAssertEqual(AssetDefinitionNetwork.GetXmlFileRequest(url: URL(string: "http://google.com")!, lastModifiedDate: nil).string(fromLastModifiedDate: date), "Wed, 05 Apr 2023 11:12:34 GMT")
+        XCTAssertEqual(AssetDefinitionNetworking.GetXmlFileRequest(url: URL(string: "http://google.com")!, lastModifiedDate: nil).string(fromLastModifiedDate: date), "Wed, 05 Apr 2023 11:12:34 GMT")
     }
 
     func testXMLAccess() {
