@@ -49,6 +49,7 @@ public struct ActivityCollection {
         items = activities
     }
 
+    // swiftlint:disable function_body_length
     static func sorted(activities: [ActivityRowModel]) -> [MappedToDateActivityOrTransaction] {
         //Uses NSMutableArray instead of Swift array for performance. Really slow when dealing with 10k events, which is hardly a big wallet
         var newItems: [ActivityDateKey: NSMutableArray] = [:]
@@ -148,6 +149,7 @@ public struct ActivityCollection {
             return object1.date.date.timeIntervalSince1970 > object2.date.date.timeIntervalSince1970
         }
     }
+    // swiftlint:enable function_body_length
 
     public mutating func filter(_ filter: ActivityOrTransactionFilter) {
         var newFilteredItems = items
@@ -183,7 +185,7 @@ public struct ActivityCollection {
         }
 
         filteredItems = newFilteredItems
-    } 
+    }
 
     private func splitIntoExactlyTwoKeywords(_ string: String) -> (String, String)? {
         let components = string.split(separator: " ")

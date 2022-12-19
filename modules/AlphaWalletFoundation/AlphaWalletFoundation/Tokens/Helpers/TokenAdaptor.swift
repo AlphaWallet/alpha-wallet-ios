@@ -320,6 +320,6 @@ public class TokenAdaptor {
 extension TokenScript.Token {
     //TODO Convenience-only. (Look for references). Should remove once we generalize things further and not hardcode the use of seatId
     var seatId: Int {
-        return values.numeroIntValue.flatMap { Int($0) }  ?? 0
+        return values.numeroIntValue.flatMap { Int($0) } ?? 0
     }
 }

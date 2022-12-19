@@ -190,6 +190,7 @@ public struct TokenScriptFilterParser {
         }()
         public init() {}
 
+        // swiftlint:disable function_body_length
         public func tokenize(expression: String) -> [Token] {
             var result: [Token] = []
             var buffer: [Character] = []
@@ -295,6 +296,7 @@ public struct TokenScriptFilterParser {
             }
             return result
         }
+        // swiftlint:enable function_body_length
 
         private func convertHexToCharacter(_ hex: String) -> Character? {
             let code = Int(strtoul(hex, nil, 16))

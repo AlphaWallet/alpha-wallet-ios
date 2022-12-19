@@ -69,7 +69,7 @@ public class RunLoopThread: Thread {
     }
 
     func stop() {
-        self._perform() {
+        self._perform {
             self.cancel()
         }
     }

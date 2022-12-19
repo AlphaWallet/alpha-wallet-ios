@@ -34,7 +34,7 @@ class LockEnterPasscodeViewController: LockPasscodeViewController {
         lockEnterPasscodeViewModel.invalidateContext()
 		touchValidation()
 	}
-    
+
 	override func enteredPasscode(_ passcode: String) {
 		super.enteredPasscode(passcode)
         if lockEnterPasscodeViewModel.lock.isPasscodeValid(passcode: passcode) {
@@ -80,7 +80,7 @@ class LockEnterPasscodeViewController: LockPasscodeViewController {
 	private func touchValidation() {
         guard lockEnterPasscodeViewModel.canEvaluatePolicy else { return }
 		hideKeyboard()
-		lockEnterPasscodeViewModel.evaluatePolicy() { [weak self] success in
+		lockEnterPasscodeViewModel.evaluatePolicy { [weak self] success in
             if success {
                 self?.lockEnterPasscodeViewModel.lock.resetPasscodeAttemptHistory()
                 self?.lockEnterPasscodeViewModel.lock.removeIncorrectMaxAttemptTime()

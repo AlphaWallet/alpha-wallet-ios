@@ -54,6 +54,7 @@ extension APIKitSession {
     }
 
     //TODO we should make sure we only call this RPC nodes because the errors we map to mentions "RPC"
+    // swiftlint:disable function_body_length
     public static func convertToUserFriendlyError(error: SessionTaskError, server: RPCServer, baseUrl: URL) -> Error? {
         infoLog("convertToUserFriendlyError URL: \(baseUrl.absoluteString) error: \(error)")
         switch error {
@@ -148,6 +149,7 @@ extension APIKitSession {
             return nil
         }
     }
+    // swiftlint:enable function_body_length
 }
 
 extension RPCServer {

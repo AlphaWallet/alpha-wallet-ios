@@ -23,7 +23,7 @@ extension ABIv2.Element {
         case dynamicBytes
         case string
         indirect case tuple(types: [ParameterType])
-        
+
         var isStatic: Bool {
             switch self {
             case .string:
@@ -39,37 +39,35 @@ extension ABIv2.Element {
                 }
                 return true
             case .tuple(types: let types):
-                for t in types {
-                    if !t.isStatic {
-                        return false
-                    }
+                for t in types where !t.isStatic {
+                    return false
                 }
                 return true
-            case .bytes(length: _):
+            case .bytes:
                 return true
             default:
                 return true
             }
         }
-        
+
         var isArray: Bool {
             switch self {
-            case .array(type: _, length: _):
+            case .array:
                 return true
             default:
                 return false
             }
         }
-        
+
         var isTuple: Bool {
             switch self {
-            case .tuple(_):
+            case .tuple:
                 return true
             default:
                 return false
             }
         }
-        
+
         var subtype: ABIv2.Element.ParameterType? {
             switch self {
             case .array(type: let type, length: _):
@@ -78,7 +76,7 @@ extension ABIv2.Element {
                 return nil
             }
         }
-        
+
         var memoryUsage: UInt64 {
             switch self {
             case .array(_, length: let length):
@@ -102,12 +100,12 @@ extension ABIv2.Element {
                 return 32
             }
         }
-        
+
         var emptyValue: Any {
             switch self {
-            case .uint(bits: _):
+            case .uint:
                 return BigUInt(0)
-            case .int(bits: _):
+            case .int:
                 return BigUInt(0)
             case .address:
                 return EthereumAddress("0x0000000000000000000000000000000000000000")!
@@ -124,11 +122,11 @@ extension ABIv2.Element {
                 return Data()
             case .string:
                 return ""
-            case .tuple(types: _):
+            case .tuple:
                 return [Any]()
             }
         }
-        
+
         var arraySize: ABIv2.Element.ArraySize {
             switch self {
             case .array(type: _, length: let length):
@@ -174,11 +172,11 @@ extension ABIv2.Element.Function {
     public var signature: String {
         return "\(name ?? "")(\(inputs.map { $0.type.abiRepresentation }.joined(separator: ",")))"
     }
-    
+
     public var methodString: String {
         return String(signature.sha3(.keccak256).prefix(8))
     }
-    
+
     public var methodEncoding: Data {
         return signature.data(using: .ascii)!.sha3(.keccak256)[0...3]
     }
@@ -189,7 +187,7 @@ extension ABIv2.Element.Event {
     public var signature: String {
         return "\(name)(\(inputs.map { $0.type.abiRepresentation }.joined(separator: ",")))"
     }
-    
+
     public var topic: Data {
         return signature.data(using: .ascii)!.sha3(.keccak256)
     }
@@ -236,10 +234,8 @@ extension ABIv2.Element.ParameterType: ABIv2Validation {
         case .array(type: let type, _):
             return type.isValid
         case .tuple(types: let types):
-            for t in types {
-                if !t.isValid {
-                    return false
-                }
+            for t in types where !t.isValid {
+                return false
             }
             return true
         default:

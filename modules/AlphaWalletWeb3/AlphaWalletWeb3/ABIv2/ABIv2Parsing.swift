@@ -9,7 +9,7 @@
 import Foundation
 
 extension ABIv2 {
-    
+
     public enum ParsingError: Error {
         case invalidJsonFile
         case elementTypeInvalid
@@ -21,7 +21,7 @@ extension ABIv2 {
         case parameterTypeNotFound
         case abiInvalid
     }
-    
+
     enum TypeParsingExpressions {
         static var typeEatingRegex = "^((u?int|bytes)([1-9][0-9]*)|(address|bool|string|tuple|bytes)|(\\[([1-9][0-9]*)\\]))"
         static var arrayEatingRegex = "^(\\[([1-9][0-9]*)?\\])?.*$"
@@ -100,7 +100,7 @@ extension ABIv2.Input {
             return ABIv2.Element.InOut(name: name ?? "", type: parameterType)
         }
     }
-    
+
     func parseForEvent() throws -> ABIv2.Element.Event.Input {
         let parameterType = try ABIv2TypeParser.parseTypeString(type)
         return ABIv2.Element.Event.Input(name: name ?? "", type: parameterType, indexed: indexed ?? false)
@@ -111,13 +111,13 @@ extension ABIv2.Output {
     func parse() throws -> ABIv2.Element.InOut {
         let parameterType = try ABIv2TypeParser.parseTypeString(type)
         switch parameterType {
-        case .tuple(types: _):
+        case .tuple:
             let components = try components?.compactMap { try $0.parse().type } ?? []
             let type = ABIv2.Element.ParameterType.tuple(types: components)
             return ABIv2.Element.InOut(name: name ?? "", type: type)
         case .array(type: let subtype, length: let length):
             switch subtype {
-            case .tuple(types: _):
+            case .tuple:
                 let components = try self.components?.compactMap { try $0.parse().type } ?? []
                 let nestedSubtype = ABIv2.Element.ParameterType.tuple(types: components)
                 let properType = ABIv2.Element.ParameterType.array(type: nestedSubtype, length: length)

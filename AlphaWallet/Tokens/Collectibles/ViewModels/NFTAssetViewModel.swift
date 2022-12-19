@@ -209,7 +209,7 @@ class NFTAssetViewModel {
         return R.image.tokenPlaceholderLarge()
     }
 
-    private func buildViewTypes(for tokenHolderHelper: TokenInstanceViewConfigurationHelper)-> [NFTAssetViewModel.ViewType] {
+    private func buildViewTypes(for tokenHolderHelper: TokenInstanceViewConfigurationHelper) -> [NFTAssetViewModel.ViewType] {
         var configurations: [NFTAssetViewModel.ViewType] = []
 
         configurations += [

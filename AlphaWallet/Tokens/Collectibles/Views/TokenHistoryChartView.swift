@@ -18,7 +18,7 @@ class TokenHistoryChartView: UIView {
         insets: UIEdgeInsets(top: 8, left: 8, bottom: 20, right: 8))
 
     private lazy var valueFormatter = YMinMaxOnlyAxisValueFormatter(currency: .default)
-    
+
     private lazy var chartView: LineChartView = {
         let chartView = LineChartView()
 
@@ -113,7 +113,7 @@ class TokenHistoryChartView: UIView {
             return
         }
 
-        dataSet.fillFormatter = DefaultFillFormatter { [weak chartView] _, _  -> CGFloat in
+        dataSet.fillFormatter = DefaultFillFormatter { [weak chartView] _, _ -> CGFloat in
             guard let chartView = chartView else { return .zero }
             return CGFloat(chartView.leftAxis.axisMinimum)
         }

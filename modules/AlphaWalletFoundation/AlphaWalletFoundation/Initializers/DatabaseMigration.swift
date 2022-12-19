@@ -12,6 +12,7 @@ public class DatabaseMigration: Initializer {
         self.account = account
     }
 
+    // swiftlint:disable function_body_length
     public func perform() {
         config.schemaVersion = 12
         config.objectTypes = [
@@ -120,6 +121,7 @@ public class DatabaseMigration: Initializer {
             }
         }
     }
+    // swiftlint:enable function_body_length
 }
 
 import AlphaWalletCore

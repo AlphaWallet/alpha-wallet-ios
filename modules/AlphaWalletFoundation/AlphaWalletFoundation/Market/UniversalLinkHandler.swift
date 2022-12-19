@@ -178,7 +178,7 @@ public class UniversalLinkHandler {
     }
 
     private func getTokenIdsFromSpawnableLink(linkBytes: [UInt8]) -> [BigUInt] {
-        let sigPos = linkBytes.count - 65; //the last 65 bytes are the signature params
+        let sigPos = linkBytes.count - 65 //the last 65 bytes are the signature params
         let tokenPos = 28 //tokens start at this byte
         let bytes = Array(linkBytes[tokenPos..<sigPos])
         let tokenIds = bytes.chunked(into: 32)

@@ -42,11 +42,9 @@ internal func filterLogs(decodedLogs: [EventParserResultProtocol], eventFilter: 
                     continue
                 }
                 var inAllowed = false
-                for value in allowedValues! {
-                    if value.isEqualTo(actualValue! as AnyObject) {
-                        inAllowed = true
-                        break
-                    }
+                for value in allowedValues! where value.isEqualTo(actualValue! as AnyObject) {
+                    inAllowed = true
+                    break
                 }
                 if !inAllowed {
                     return false
@@ -88,14 +86,12 @@ internal func encodeTopicToGetLogs(contract: ContractV2, eventName: String?, fil
                 if filterValues != nil {
                     var isFound = false
                     var targetIndexedPosition = i
-                    for j in 0 ..< event!.inputs.count {
-                        if event!.inputs[j].indexed {
-                            if targetIndexedPosition == 0 {
-                                isFound = true
-                                break
-                            }
-                            targetIndexedPosition -= 1
+                    for j in 0 ..< event!.inputs.count where event!.inputs[j].indexed {
+                        if targetIndexedPosition == 0 {
+                            isFound = true
+                            break
                         }
+                        targetIndexedPosition -= 1
                     }
 
                     if !isFound { return nil }

@@ -48,7 +48,7 @@ enum NewTokenInitialState {
 
 class NewTokenViewController: UIViewController {
     private var viewModel = NewTokenViewModel()
-    private var tokenType: TokenType? = nil {
+    private var tokenType: TokenType? {
         didSet {
             updateSaveButtonBasedOnTokenTypeDetected()
         }

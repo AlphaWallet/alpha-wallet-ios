@@ -10,6 +10,7 @@ protocol DappBrowserCoordinatorDelegate: CanOpenURL, RequestAddCustomChainProvid
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: DappBrowserCoordinator)
 }
 
+// swiftlint:disable type_body_length
 final class DappBrowserCoordinator: NSObject, Coordinator {
     private let sessionsProvider: SessionsProvider
     private let keystore: Keystore
@@ -126,7 +127,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         let viewModel = BrowserHistoryViewModel(browserHistoryStorage: browserHistoryStorage)
         let controller = BrowserHistoryViewController(viewModel: viewModel)
         controller.delegate = self
-        
+
         return controller
     }
 
@@ -385,6 +386,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         delegate?.requestSwitchChain(server: server, currentUrl: currentUrl, callbackID: .dapp(requestId: callbackID), targetChain: targetChain)
     }
 }
+// swiftlint:enable type_body_length
 
 extension DappBrowserCoordinator: TransactionConfirmationCoordinatorDelegate {
 

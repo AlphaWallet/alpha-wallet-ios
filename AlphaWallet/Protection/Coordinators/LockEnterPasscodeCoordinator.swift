@@ -17,7 +17,7 @@ class LockEnterPasscodeCoordinator: Coordinator {
         self.lock = lock
 		self.window.windowLevel = UIWindow.Level.statusBar + 1.0
 
-		lockEnterPasscodeViewController.unlockWithResult = { [weak self] (state, bioUnlock) in
+		lockEnterPasscodeViewController.unlockWithResult = { [weak self] (state, _) in
 			if state {
 				self?.stop()
 			}

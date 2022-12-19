@@ -29,17 +29,17 @@ extension ABIElement.ParameterType {
 }
 
 extension ABIElement.ParameterType.StaticType {
-    
+
     func encode(_ value: AnyObject) -> Data? {
         switch self {
-        case .uint(_):
+        case .uint:
             if let biguint = value as? BigUInt {
                 return biguint.abiEncode(bits: 256)
             }
             if let bigint = value as? BigInt {
                 return bigint.abiEncode(bits: 256)
             }
-        case .int(_):
+        case .int:
             if let biguint = value as? BigUInt {
                 return biguint.abiEncode(bits: 256)
             }
@@ -89,7 +89,7 @@ extension ABIElement.ParameterType.StaticType {
         }
         return nil
     }
-    
+
     func encode(_ values: [AnyObject]) -> Data? {
         switch self {
         case let .array(type, length):
@@ -163,7 +163,7 @@ extension ABIElement.ParameterType.DynamicType {
         }
         return nil
     }
-    
+
     func encode(_ values: [AnyObject]) -> Data? {
         switch self {
         case let .dynamicArray(type):
