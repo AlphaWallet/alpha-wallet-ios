@@ -1,4 +1,4 @@
-swiftlint_version: 0.40.3
+swiftlint_version: 0.50.3
 disabled_rules:
   - cyclomatic_complexity
   - force_cast
@@ -15,6 +15,10 @@ disabled_rules:
   - xctfail_message
   - file_header
   - private_over_fileprivate
+  - comment_spacing
+  - orphaned_doc_comment
+  - void_function_in_ternary
+  - inclusive_language
 opt_in_rules:
   - closure_end_indentation
   - closure_spacing
