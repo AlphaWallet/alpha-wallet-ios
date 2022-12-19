@@ -21,7 +21,7 @@ class AppCoordinator: NSObject, Coordinator {
     private let legacyFileBasedKeystore: LegacyFileBasedKeystore
     private lazy var lock: Lock = SecuredLock(securedStorage: securedStorage)
     private var keystore: Keystore
-    private let assetDefinitionStore = AssetDefinitionStore(baseTokenScriptFiles: TokenScript.baseTokenScriptFiles)
+    private lazy var assetDefinitionStore = AssetDefinitionStore(baseTokenScriptFiles: TokenScript.baseTokenScriptFiles, networkService: networkService)
     private let window: UIWindow
     private var appTracker = AppTracker()
     //TODO rename and replace type? Not Initializer but similar as of writing
@@ -603,7 +603,8 @@ extension AppCoordinator: UniversalLinkServiceDelegate {
                     assetDefinitionStore: assetDefinitionStore,
                     url: url,
                     keystore: keystore,
-                    tokensService: resolver.service)
+                    tokensService: resolver.service,
+                    networkService: networkService)
 
                 coordinator.delegate = self
                 let handled = coordinator.start(url: url)

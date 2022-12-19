@@ -41,7 +41,7 @@ class TokenAdaptorTest: XCTestCase {
                 "countryB": .init(directoryString: "Team B")
             ]),
         ]
-        let assetDefinitionStore = AssetDefinitionStore()
+        let assetDefinitionStore = AssetDefinitionStore.make()
         let token = Token(contract: Constants.nullAddress)
         let bundles = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: FakeEventsDataStore()).bundleTestsOnly(tokens: tokens)
         XCTAssertEqual(bundles.count, 2)
@@ -91,7 +91,7 @@ class TokenAdaptorTest: XCTestCase {
                 "countryB": .init(directoryString: "Team B")
             ])
         ]
-        let assetDefinitionStore = AssetDefinitionStore()
+        let assetDefinitionStore = AssetDefinitionStore.make()
         let token = Token(contract: Constants.nullAddress)
 
         let bundles = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: FakeEventsDataStore()).bundleTestsOnly(tokens: tokens)
