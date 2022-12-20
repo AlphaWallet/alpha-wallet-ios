@@ -95,6 +95,7 @@ public enum FeaturesAvailable: String, CaseIterable, Codable {
     case isCoinbasePayEnabled
     case isLoggingEnabledForTickerMatches
     case isChangeCurrencyEnabled
+    case isNftTransferEnabled
 
     public var defaultValue: Bool {
         switch self {
@@ -118,6 +119,7 @@ public enum FeaturesAvailable: String, CaseIterable, Codable {
         case .isCoinbasePayEnabled: return true
         case .isLoggingEnabledForTickerMatches: return false
         case .isChangeCurrencyEnabled: return false
+        case .isNftTransferEnabled: return false
         }
     }
 
