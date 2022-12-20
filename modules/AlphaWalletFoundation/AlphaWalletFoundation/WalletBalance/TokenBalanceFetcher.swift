@@ -33,7 +33,11 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
     private let analytics: AnalyticsLogger
 
     private lazy var nonErc1155BalanceFetcher: TokenProviderType = session.tokenProvider
-    private lazy var jsonFromTokenUri = JsonFromTokenUri(server: session.server, tokensService: tokensService)
+    private lazy var jsonFromTokenUri: JsonFromTokenUri = {
+        //FIXME: maybe use default but check headers to send, might work.
+        let networkService = NoHeadersNetworkService(analytics: analytics)
+        return JsonFromTokenUri(server: session.server, tokensService: tokensService, networkService: networkService)
+    }()
     private lazy var erc1155TokenIdsFetcher = Erc1155TokenIdsFetcher(analytics: analytics, session: session, server: session.server, config: session.config)
     private lazy var erc1155BalanceFetcher = Erc1155BalanceFetcher(address: session.account.address, server: session.server)
     private lazy var erc1155JsonBalanceFetcher: NonFungibleErc1155JsonBalanceFetcher = {

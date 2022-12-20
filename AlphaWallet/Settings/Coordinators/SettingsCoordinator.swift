@@ -38,13 +38,20 @@ class SettingsCoordinator: Coordinator {
     private let lock: Lock
     private let currencyService: CurrencyService
     private let tokenScriptOverridesFileManager: TokenScriptOverridesFileManager
-
+    private let networkService: NetworkService
     let navigationController: UINavigationController
     weak var delegate: SettingsCoordinatorDelegate?
     var coordinators: [Coordinator] = []
 
     lazy var rootViewController: SettingsViewController = {
-        let viewModel = SettingsViewModel(account: account, keystore: keystore, lock: lock, config: config, analytics: analytics, domainResolutionService: domainResolutionService)
+        let viewModel = SettingsViewModel(
+            account: account,
+            keystore: keystore,
+            lock: lock,
+            config: config,
+            analytics: analytics,
+            domainResolutionService: domainResolutionService)
+
         let controller = SettingsViewController(viewModel: viewModel)
         controller.delegate = self
         controller.navigationItem.largeTitleDisplayMode = .always
@@ -52,22 +59,24 @@ class SettingsCoordinator: Coordinator {
         return controller
     }()
 
-    init(
-        navigationController: UINavigationController = .withOverridenBarAppearence(),
-        keystore: Keystore,
-        config: Config,
-        sessions: ServerDictionary<WalletSession>,
-        restartQueue: RestartTaskQueue,
-        promptBackupCoordinator: PromptBackupCoordinator,
-        analytics: AnalyticsLogger,
-        walletConnectCoordinator: WalletConnectCoordinator,
-        walletBalanceService: WalletBalanceService,
-        blockscanChatService: BlockscanChatService,
-        blockiesGenerator: BlockiesGenerator,
-        domainResolutionService: DomainResolutionServiceType,
-        lock: Lock,
-        currencyService: CurrencyService,
-        tokenScriptOverridesFileManager: TokenScriptOverridesFileManager) {
+    init(navigationController: UINavigationController = .withOverridenBarAppearence(),
+         keystore: Keystore,
+         config: Config,
+         sessions: ServerDictionary<WalletSession>,
+         restartQueue: RestartTaskQueue,
+         promptBackupCoordinator: PromptBackupCoordinator,
+         analytics: AnalyticsLogger,
+         walletConnectCoordinator: WalletConnectCoordinator,
+         walletBalanceService: WalletBalanceService,
+         blockscanChatService: BlockscanChatService,
+         blockiesGenerator: BlockiesGenerator,
+         domainResolutionService: DomainResolutionServiceType,
+         lock: Lock,
+         currencyService: CurrencyService,
+         tokenScriptOverridesFileManager: TokenScriptOverridesFileManager,
+         networkService: NetworkService) {
+
+        self.networkService = networkService
         self.tokenScriptOverridesFileManager = tokenScriptOverridesFileManager
         self.navigationController = navigationController
         self.lock = lock
@@ -142,7 +151,11 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
     func showSeedPhraseSelected(in controller: SettingsViewController) {
         guard case .real(let account) = account.type else { return }
 
-        let coordinator = ShowSeedPhraseCoordinator(navigationController: navigationController, keystore: keystore, account: account)
+        let coordinator = ShowSeedPhraseCoordinator(
+            navigationController: navigationController,
+            keystore: keystore,
+            account: account)
+        
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start()
@@ -166,6 +179,7 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
             walletBalanceService: walletBalanceService,
             blockiesGenerator: blockiesGenerator,
             domainResolutionService: domainResolutionService)
+        
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -178,14 +192,26 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
     func backupWalletSelected(in controller: SettingsViewController) {
         guard case .real = account.type else { return }
 
-        let coordinator = BackupCoordinator(navigationController: navigationController, keystore: keystore, account: account, analytics: analytics)
+        let coordinator = BackupCoordinator(
+            navigationController: navigationController,
+            keystore: keystore,
+            account: account,
+            analytics: analytics)
+
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
     }
 
     func activeNetworksSelected(in controller: SettingsViewController) {
-        let coordinator = EnabledServersCoordinator(navigationController: navigationController, selectedServers: config.enabledServers, restartQueue: restartQueue, analytics: analytics, config: config)
+        let coordinator = EnabledServersCoordinator(
+            navigationController: navigationController,
+            selectedServers: config.enabledServers,
+            restartQueue: restartQueue,
+            analytics: analytics,
+            config: config,
+            networkService: networkService)
+
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)

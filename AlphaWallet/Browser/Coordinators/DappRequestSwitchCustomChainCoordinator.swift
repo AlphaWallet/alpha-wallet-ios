@@ -3,6 +3,7 @@
 import UIKit
 import PromiseKit
 import AlphaWalletFoundation
+import Combine
 
 protocol DappRequestSwitchCustomChainCoordinatorDelegate: AnyObject {
     func notifySuccessful(withCallbackId callbackId: SwitchCustomChainCallbackId, inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator)
@@ -26,11 +27,21 @@ class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
     private let analytics: AnalyticsLogger
     private let currentUrl: URL?
     private let viewController: UIViewController
-
+    private let networkService: NetworkService
     var coordinators: [Coordinator] = []
     weak var delegate: DappRequestSwitchCustomChainCoordinatorDelegate?
 
-    init(config: Config, server: RPCServer, callbackId: SwitchCustomChainCallbackId, customChain: WalletAddEthereumChainObject, restartQueue: RestartTaskQueue, analytics: AnalyticsLogger, currentUrl: URL?, inViewController viewController: UIViewController) {
+    init(config: Config,
+         server: RPCServer,
+         callbackId: SwitchCustomChainCallbackId,
+         customChain: WalletAddEthereumChainObject,
+         restartQueue: RestartTaskQueue,
+         analytics: AnalyticsLogger,
+         currentUrl: URL?,
+         viewController: UIViewController,
+         networkService: NetworkService) {
+
+        self.networkService = networkService
         self.config = config
         self.server = server
         self.callbackId = callbackId
@@ -87,7 +98,16 @@ class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
 
     private func promptAndAddAndActivateServer(customChain: WalletAddEthereumChainObject, customChainId: Int, inViewController viewController: UIViewController, callbackID: SwitchCustomChainCallbackId) {
         func runAddCustomChain(isTestnet: Bool) {
-            let addCustomChain = AddCustomChain(customChain, analytics: analytics, isTestnet: isTestnet, restartQueue: restartQueue, url: currentUrl, operation: .add, chainNameFallback: R.string.localizable.addCustomChainUnnamed())
+            let addCustomChain = AddCustomChain(
+                customChain,
+                analytics: analytics,
+                isTestnet: isTestnet,
+                restartQueue: restartQueue,
+                url: currentUrl,
+                operation: .add,
+                chainNameFallback: R.string.localizable.addCustomChainUnnamed(),
+                networkService: networkService)
+
             self.addCustomChain = (chain: addCustomChain, callbackId: callbackID)
             addCustomChain.delegate = self
             addCustomChain.run()
@@ -140,7 +160,7 @@ extension DappRequestSwitchCustomChainCoordinator: EnableChainDelegate {
 
 extension DappRequestSwitchCustomChainCoordinator: AddCustomChainDelegate {
 
-    func notifyAddExplorerApiHostnameFailure(customChain: WalletAddEthereumChainObject, chainId: Int) -> Promise<Bool> {
+    func notifyAddExplorerApiHostnameFailure(customChain: WalletAddEthereumChainObject, chainId: Int) -> AnyPublisher<Bool, Never> {
         UIAlertController.promptToUseUnresolvedExplorerURL(customChain: customChain, chainId: chainId, viewController: viewController)
     }
 

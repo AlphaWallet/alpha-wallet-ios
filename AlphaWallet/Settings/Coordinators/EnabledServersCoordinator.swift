@@ -19,9 +19,15 @@ class EnabledServersCoordinator: Coordinator {
     private let restartQueue: RestartTaskQueue
     private let analytics: AnalyticsLogger
     private let config: Config
-
+    private let networkService: NetworkService
     private lazy var enabledServersViewController: EnabledServersViewController = {
-        let viewModel = EnabledServersViewModel(servers: serverChoices, selectedServers: selectedServers, mode: selectedServers.contains(where: { $0.isTestnet }) ? .testnet : .mainnet, restartQueue: restartQueue, config: config)
+        let viewModel = EnabledServersViewModel(
+            servers: serverChoices,
+            selectedServers: selectedServers,
+            mode: selectedServers.contains(where: { $0.isTestnet }) ? .testnet : .mainnet,
+            restartQueue: restartQueue,
+            config: config)
+        
         let controller = EnabledServersViewController(viewModel: viewModel)
         controller.delegate = self
         controller.hidesBottomBarWhenPushed = true
@@ -33,7 +39,14 @@ class EnabledServersCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: EnabledServersCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, selectedServers: [RPCServer], restartQueue: RestartTaskQueue, analytics: AnalyticsLogger, config: Config) {
+    init(navigationController: UINavigationController,
+         selectedServers: [RPCServer],
+         restartQueue: RestartTaskQueue,
+         analytics: AnalyticsLogger,
+         config: Config,
+         networkService: NetworkService) {
+
+        self.networkService = networkService
         self.navigationController = navigationController
         self.selectedServers = selectedServers
         self.restartQueue = restartQueue
@@ -47,7 +60,13 @@ class EnabledServersCoordinator: Coordinator {
     }
 
     @objc private func addRPCSelected() {
-        let coordinator = SaveCustomRpcCoordinator(navigationController: navigationController, config: config, restartQueue: restartQueue, analytics: analytics, operation: .add)
+        let coordinator = SaveCustomRpcCoordinator(
+            navigationController: navigationController,
+            config: config,
+            restartQueue: restartQueue,
+            analytics: analytics,
+            operation: .add,
+            networkService: networkService)
         addCoordinator(coordinator)
         coordinator.delegate = self
 
@@ -55,7 +74,14 @@ class EnabledServersCoordinator: Coordinator {
     }
     
     private func edit(customRpc: CustomRPC, in viewController: EnabledServersViewController) {
-        let coordinator = SaveCustomRpcCoordinator(navigationController: navigationController, config: config, restartQueue: restartQueue, analytics: analytics, operation: .edit(customRpc))
+        let coordinator = SaveCustomRpcCoordinator(
+            navigationController: navigationController,
+            config: config,
+            restartQueue: restartQueue,
+            analytics: analytics,
+            operation: .edit(customRpc),
+            networkService: networkService)
+
         addCoordinator(coordinator)
         coordinator.delegate = self
 

@@ -5,10 +5,14 @@ import XCTest
 import AlphaWalletFoundation
 import Combine
 import AlphaWalletCore
+import PromiseKit
 
 final class FakeNetworkService: NetworkService {
-    func responseData(_ request: URLRequestConvertible) -> AnyPublisher<(data: Data, response: AlphaWalletCore.DataResponse), PromiseError> {
+    func responseData(_ request: AlphaWalletFoundation.URLRequestConvertible) -> AnyPublisher<(data: Data, response: AlphaWalletCore.DataResponse), PromiseError> {
         .empty()
+    }
+    func responseData(_ uri: URL, queue: DispatchQueue?) -> Promise<(data: Data, response: AlphaWalletCore.DataResponse)> {
+        return .init(error: PMKError.cancelled)
     }
 }
 

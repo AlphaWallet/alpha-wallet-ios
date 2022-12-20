@@ -205,7 +205,7 @@ class ImportMagicLinkCoordinator: Coordinator {
 
             strongSelf.completeOrderHandling(signedOrder: signedOrder)
         }).catch({ [weak self]  _ in
-            if let reachabilityManager = NetworkReachabilityManager(), !reachabilityManager.isReachable {
+            if !ReachabilityManager().isReachable {
                 self?.showImportError(errorMessage: R.string.localizable.aClaimTokenNoConnectivityTryAgain())
             } else {
                 self?.showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())

@@ -89,4 +89,17 @@ extension Alamofire.DataRequest {
         return publisher
             .eraseToAnyPublisher()
     }
+
+    public func responseDataPromise(queue: DispatchQueue? = DispatchQueue.global()) -> Promise<(data: Data, response: AlphaWalletCore.DataResponse)> {
+        Promise<(data: Data, response: AlphaWalletCore.DataResponse)>.init { seal in
+            self.responseData(queue: queue) { response in
+                switch response.result {
+                case .success(let value):
+                    seal.fulfill((value, DataResponse(response)))
+                case .failure(let error):
+                    seal.reject(PromiseError.some(error: error))
+                }
+            }
+        }
+    }
 }

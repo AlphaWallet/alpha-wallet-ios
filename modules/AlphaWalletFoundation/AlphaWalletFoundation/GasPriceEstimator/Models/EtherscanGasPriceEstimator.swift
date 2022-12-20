@@ -37,9 +37,8 @@ extension EtherscanGasPriceEstimator {
 
         func asURLRequest() throws -> URLRequest {
             guard let baseUrl = server.etherscanGasPriceEstimatesURL else { throw URLError(.badURL) }
-            guard var components = URLComponents(url: baseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
 
-            return try URLRequest(url: components.asURL(), method: .get)
+            return try URLRequest(url: baseUrl, method: .get)
         }
     }
 }
