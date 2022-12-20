@@ -119,6 +119,7 @@
 "settings.contactUs.title" = "Contact Us";
 "settings.changeCurrency.title" = "Change Currency";
 "settings.analitycs.title" = "Analytics";
+"settings.crashReporter.title" = "Crash Reporting";
 "settings.pingInfura.title" = "Ping Infura";
 "settings.pingInfura.successful" = "Infura looks OK";
 "settings.pingInfura.fail" = "Infura Error";

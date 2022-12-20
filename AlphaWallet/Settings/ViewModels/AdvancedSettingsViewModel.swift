@@ -24,7 +24,7 @@ class AdvancedSettingsViewModel {
     private (set) var rows: [AdvancedSettingsViewModel.AdvancedSettingsRow] = []
     private let features: Features = .default
     let largeTitleDisplayMode: UINavigationItem.LargeTitleDisplayMode = .never
-    
+
     init(wallet: Wallet, config: Config) {
         self.wallet = wallet
         self.config = config
@@ -45,7 +45,7 @@ class AdvancedSettingsViewModel {
 
     private func buildCellViewModel(for row: AdvancedSettingsViewModel.AdvancedSettingsRow) -> SettingTableViewCellViewModel {
         switch row {
-        case .analytics, .changeCurrency, .changeLanguage, .clearBrowserCache, .tools, .tokenScript, .exportJSONKeystore, .features:
+        case .analytics, .crashReporter, .changeCurrency, .changeLanguage, .clearBrowserCache, .tools, .tokenScript, .exportJSONKeystore, .features:
             return .init(titleText: row.title, subTitleText: nil, icon: row.icon)
         case .usePrivateNetwork:
             let provider = config.sendPrivateTransactionsProvider
@@ -70,7 +70,7 @@ extension AdvancedSettingsViewModel {
     typealias Snapshot = NSDiffableDataSourceSnapshot<AdvancedSettingsViewModel.Section, SettingTableViewCellViewModel>
 
     enum functional {}
-    
+
     enum Section: Int, Hashable, CaseIterable {
         case rows
     }
@@ -93,6 +93,7 @@ extension AdvancedSettingsViewModel {
         case changeLanguage
         case changeCurrency
         case analytics
+        case crashReporter
         case usePrivateNetwork
         case exportJSONKeystore
         case features
@@ -107,6 +108,7 @@ extension AdvancedSettingsViewModel.functional {
             .tokenScript,
             features.isAvailable(.isUsingPrivateNetwork) ? .usePrivateNetwork : nil,
             features.isAvailable(.isAnalyticsUIEnabled) ? .analytics : nil,
+            .crashReporter,
             features.isAvailable(.isLanguageSwitcherEnabled) ? .changeLanguage: nil,
             features.isAvailable(.isChangeCurrencyEnabled) ? .changeCurrency : nil,
             canExportToJSONKeystore ? .exportJSONKeystore : nil,
@@ -132,6 +134,8 @@ fileprivate extension AdvancedSettingsViewModel.AdvancedSettingsRow {
             return R.string.localizable.settingsChangeCurrencyTitle()
         case .analytics:
             return R.string.localizable.settingsAnalitycsTitle()
+        case .crashReporter:
+            return R.string.localizable.settingsCrashReporterTitle()
         case .usePrivateNetwork:
             return R.string.localizable.settingsChooseSendPrivateTransactionsProviderButtonTitle()
         case .exportJSONKeystore:
@@ -155,6 +159,8 @@ fileprivate extension AdvancedSettingsViewModel.AdvancedSettingsRow {
             return R.image.settings_currency()!
         case .analytics:
             return R.image.settings_analytics()!
+        case .crashReporter:
+            return R.image.settings_crash_reporter()!
         case .usePrivateNetwork:
             return R.image.iconsSettingsEthermine()!
         case .exportJSONKeystore:

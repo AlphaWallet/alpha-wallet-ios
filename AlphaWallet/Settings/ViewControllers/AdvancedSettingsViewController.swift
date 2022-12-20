@@ -16,6 +16,7 @@ protocol AdvancedSettingsViewControllerDelegate: AnyObject {
     func changeLanguageSelected(in controller: AdvancedSettingsViewController)
     func changeCurrencySelected(in controller: AdvancedSettingsViewController)
     func analyticsSelected(in controller: AdvancedSettingsViewController)
+    func crashReporterSelected(in controller: AdvancedSettingsViewController)
     func usePrivateNetworkSelected(in controller: AdvancedSettingsViewController)
     func exportJSONKeystoreSelected(in controller: AdvancedSettingsViewController)
     func featuresSelected(in controller: AdvancedSettingsViewController)
@@ -49,7 +50,7 @@ class AdvancedSettingsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
 
         bind(viewModel: viewModel)
@@ -123,6 +124,8 @@ extension AdvancedSettingsViewController: UITableViewDelegate {
             delegate?.changeCurrencySelected(in: self)
         case .analytics:
             delegate?.analyticsSelected(in: self)
+        case .crashReporter:
+            delegate?.crashReporterSelected(in: self)
         case .usePrivateNetwork:
             delegate?.usePrivateNetworkSelected(in: self)
         case .exportJSONKeystore:
