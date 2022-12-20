@@ -19,7 +19,7 @@ class GetContractInteractions {
     func getContractList(walletAddress: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil, erc20: Bool) -> AnyPublisher<UniqueNonEmptyContracts, PromiseError> {
         let request = GetContractList(walletAddress: walletAddress, server: server, startBlock: startBlock, erc20: erc20)
         return networkService
-            .responseData(request)
+            .dataTaskPublisher(request)
             .tryMap { UniqueNonEmptyContracts(json: try JSON(data: $0.data)) }
             .mapError { PromiseError.some(error: $0) }
             .eraseToAnyPublisher()
@@ -89,9 +89,10 @@ class TransactionsNetworkProvider {
 
     func getTransactions(startBlock: Int, endBlock: Int = 999_999_999, sortOrder: GetTransactions.SortOrder) -> AnyPublisher<[TransactionInstance], PromiseError> {
         return networkService
-            .responseData(GetTransactions(server: server, address: walletAddress, startBlock: startBlock, endBlock: endBlock, sortOrder: sortOrder))
+            .dataTaskPublisher(GetTransactions(server: server, address: walletAddress, startBlock: startBlock, endBlock: endBlock, sortOrder: sortOrder))
+            .mapError { PromiseError(error: $0) }
             .flatMap { [localizedOperationFetcher] result -> AnyPublisher<[TransactionInstance], PromiseError> in
-                if result.response.response?.statusCode == 404 {
+                if result.response.statusCode == 404 {
                     return .fail(.some(error: URLError(URLError.Code(rawValue: 404)))) // Clearer than a JSON deserialization error when it's a 404
                 }
 
@@ -110,7 +111,7 @@ class TransactionsNetworkProvider {
     //TODO: rename this since it might include ERC721 (blockscout and compatible like Polygon's). Or can we make this really fetch ERC20, maybe by filtering the results?
     private func getErc20Transactions(walletAddress: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil) -> AnyPublisher<[TransactionInstance], PromiseError> {
         return networkService
-            .responseData(GetErc20TransactionsRequest(startBlock: startBlock, server: server, walletAddress: walletAddress))
+            .dataTaskPublisher(GetErc20TransactionsRequest(startBlock: startBlock, server: server, walletAddress: walletAddress))
             .tryMap { GetContractInteractions.functional.decodeTransactions(json: JSON($0.data), server: server) }
             .mapError { PromiseError.some(error: $0) }
             .eraseToAnyPublisher()
@@ -118,7 +119,7 @@ class TransactionsNetworkProvider {
 
     private func getErc721Transactions(walletAddress: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil) -> AnyPublisher<[TransactionInstance], PromiseError> {
         return networkService
-            .responseData(GetErc721TransactionsRequest(startBlock: startBlock, server: server, walletAddress: walletAddress))
+            .dataTaskPublisher(GetErc721TransactionsRequest(startBlock: startBlock, server: server, walletAddress: walletAddress))
             .tryMap { GetContractInteractions.functional.decodeTransactions(json: JSON($0.data), server: server) }
             .mapError { PromiseError.some(error: $0) }
             .eraseToAnyPublisher()

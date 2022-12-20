@@ -10,6 +10,7 @@ import Alamofire
 import Combine
 import PromiseKit
 import AlphaWalletCore
+import APIKit
 
 public typealias URLRequestConvertible = Alamofire.URLRequestConvertible
 public typealias URLEncoding = Alamofire.URLEncoding
@@ -17,71 +18,124 @@ public typealias Parameters = Alamofire.Parameters
 public typealias JSONEncoding = Alamofire.JSONEncoding
 public typealias HTTPHeaders = Alamofire.HTTPHeaders
 
+public typealias ResponseError = APIKit.ResponseError
+
+extension URLRequest {
+    public typealias Response = (data: Data, response: HTTPURLResponse)
+}
+
 public protocol NetworkService {
-    func responseData(_ request: URLRequestConvertible) -> AnyPublisher<(data: Data, response: AlphaWalletCore.DataResponse), PromiseError>
-    //FIXME: get rid of promise version, need for now to avoid a lot files changing
-    func responseData(_ uri: URL, queue: DispatchQueue?) -> Promise<(data: Data, response: AlphaWalletCore.DataResponse)>
+    func dataTaskPublisher(_ request: URLRequestConvertible) -> AnyPublisher<URLRequest.Response, SessionTaskError>
+    func dataTaskPromise(_ request: URLRequestConvertible) -> Promise<URLRequest.Response>
 }
 
-public final class BaseNetworkService: NetworkService {
+public class BaseNetworkService: NetworkService {
     private let analytics: AnalyticsLogger
-
-    public init(analytics: AnalyticsLogger) {
-        self.analytics = analytics
-    }
-
-    public func responseData(_ request: URLRequestConvertible) -> AnyPublisher<(data: Data, response: AlphaWalletCore.DataResponse), PromiseError> {
-        Alamofire.request(request)
-            .validate()
-            .responseDataPublisher()
-            //TODO: add logging rate limit and the rest errors
-    }
-
-    public func responseData(_ uri: URL, queue: DispatchQueue?) -> Promise<(data: Data, response: AlphaWalletCore.DataResponse)> {
-        Alamofire.request(uri, method: .get)
-            .validate()
-            .responseDataPromise(queue: queue)
-    }
-}
-
-public class NoHeadersNetworkService: NetworkService {
-    private let analytics: AnalyticsLogger
-    private var sessionManagerWithDefaultHttpHeaders: SessionManager = {
+    private let session: SessionManager = {
         let configuration = URLSessionConfiguration.default
         return SessionManager(configuration: configuration)
     }()
 
-    public init(analytics: AnalyticsLogger) {
+    public var callbackQueue: DispatchQueue
+
+    public init(analytics: AnalyticsLogger, callbackQueue: DispatchQueue = .global()) {
         self.analytics = analytics
+        self.callbackQueue = callbackQueue
     }
 
-    public func responseData(_ request: URLRequestConvertible) -> AnyPublisher<(data: Data, response: AlphaWalletCore.DataResponse), PromiseError> {
-        sessionManagerWithDefaultHttpHeaders
-            .request(request)
-            .responseDataPublisher()
-            //TODO: add logging rate limit and the rest errors
+    public func dataTaskPromise(_ request: URLRequestConvertible) -> Promise<URLRequest.Response> {
+        return Promise<URLRequest.Response>.init { [session, callbackQueue] seal in
+            let urlRequest: URLRequest
+            do {
+                urlRequest = try request.asURLRequest()
+            } catch {
+                seal.reject(SessionTaskError.requestError(error))
+                return
+            }
+
+            session
+                .request(urlRequest)
+                .response(queue: callbackQueue, completionHandler: { response in
+                    switch BaseNetworkService.functional.decode(response: response) {
+                    case .success(let value):
+                        seal.fulfill(value)
+                    case .failure(let error):
+                        seal.reject(error)
+                    }
+                })
+        }
     }
 
-    public func responseData(_ uri: URL, queue: DispatchQueue?) -> Promise<(data: Data, response: AlphaWalletCore.DataResponse)> {
-        //Must not use `SessionManager.default.request` or `Alamofire.request` which uses the former. See comment in var
-        sessionManagerWithDefaultHttpHeaders
-            .request(uri, method: .get)
-            .responseDataPromise(queue: queue)
+    public func dataTaskPublisher(_ request: URLRequestConvertible) -> AnyPublisher<URLRequest.Response, SessionTaskError> {
+        var cancellable: DataRequest?
+        return Deferred { [session, callbackQueue] in
+            Future<URLRequest.Response, SessionTaskError> { seal in
+                let urlRequest: URLRequest
+                do {
+                    urlRequest = try request.asURLRequest()
+                } catch {
+                    seal(.failure(.requestError(error)))
+                    return
+                }
+
+                cancellable = session
+                    .request(urlRequest)
+                    .response(queue: callbackQueue, completionHandler: { response in
+                        switch BaseNetworkService.functional.decode(response: response) {
+                        case .success(let value):
+                            seal(.success(value))
+                        case .failure(let error):
+                            seal(.failure(error))
+                        }
+                    })
+            }
+        }.handleEvents(receiveCancel: { cancellable?.cancel() })
+        .eraseToAnyPublisher()
+    }
+
+}
+
+extension BaseNetworkService {
+    class functional {}
+}
+
+extension BaseNetworkService.functional {
+    static func decode(response: DefaultDataResponse) -> Swift.Result<URLRequest.Response, SessionTaskError> {
+        switch (response.data, response.response, response.error) {
+        case (_, _, let error?):
+            return .failure(.connectionError(error))
+        case (let data?, let urlResponse as HTTPURLResponse, _):
+            do {
+                return .success((data: data as Data, response: urlResponse))
+            } catch {
+                return .failure(.responseError(error))
+            }
+        default:
+            return .failure(.responseError(ResponseError.nonHTTPURLResponse(response.response)))
+        }
     }
 }
 
 public protocol AnyDecoder {
-    func decode(options: JSONSerialization.ReadingOptions, response: HTTPURLResponse?, data: Data?) throws -> Any
+    var contentType: String? { get }
+
+    func decode(response: HTTPURLResponse, data: Data) throws -> Any
 }
 
 extension AnyDecoder {
-    func decode(options: JSONSerialization.ReadingOptions = [], _ response: (data: Data, response: AlphaWalletCore.DataResponse)) throws -> Any {
-        try decode(options: options, response: response.response.response, data: response.data)
+    func decode(options: JSONSerialization.ReadingOptions = [], _ response: URLRequest.Response) throws -> Any {
+        try decode(response: response.response, data: response.data)
     }
 }
 
 public struct AnyJsonDecoder: AnyDecoder {
-    public func decode(options: JSONSerialization.ReadingOptions = [], response: HTTPURLResponse?, data: Data?) throws -> Any {
+    public var contentType: String? {
+        return "application/json"
+    }
+
+    let options: JSONSerialization.ReadingOptions
+
+    public func decode(response: HTTPURLResponse, data: Data) throws -> Any {
         switch Alamofire.Request.serializeResponseJSON(options: options, response: response, data: data, error: nil) {
         case .success(let value):
             return value
@@ -90,3 +144,14 @@ public struct AnyJsonDecoder: AnyDecoder {
         }
     }
 }
+
+struct RawDataParser: AnyDecoder {
+    var contentType: String? {
+        "application/json"
+    }
+
+    func decode(response: HTTPURLResponse, data: Data) throws -> Any {
+        return data
+    }
+}
+

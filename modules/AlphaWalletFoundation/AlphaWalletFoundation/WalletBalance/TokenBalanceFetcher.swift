@@ -35,7 +35,7 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
     private lazy var nonErc1155BalanceFetcher: TokenProviderType = session.tokenProvider
     private lazy var jsonFromTokenUri: JsonFromTokenUri = {
         //FIXME: maybe use default but check headers to send, might work.
-        let networkService = NoHeadersNetworkService(analytics: analytics)
+        let networkService = BaseNetworkService(analytics: analytics)
         return JsonFromTokenUri(server: session.server, tokensService: tokensService, networkService: networkService)
     }()
     private lazy var erc1155TokenIdsFetcher = Erc1155TokenIdsFetcher(analytics: analytics, session: session, server: session.server, config: session.config)

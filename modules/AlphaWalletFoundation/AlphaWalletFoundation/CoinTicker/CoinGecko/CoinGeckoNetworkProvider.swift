@@ -35,7 +35,7 @@ public class CoinGeckoNetworkProvider: CoinTickerNetworkProviderType {
 
     public func fetchSupportedTickerIds() -> AnyPublisher<[TickerId], PromiseError> {
         networkService
-            .responseData(TokensThatHasPricesRequest())
+            .dataTaskPublisher(TokensThatHasPricesRequest())
             .retry(times: 3)
             .tryMap { [decoder] in try decoder.decode([TickerId].self, from: $0.data) }
             .mapError { PromiseError.some(error: $0) }
@@ -67,7 +67,7 @@ public class CoinGeckoNetworkProvider: CoinTickerNetworkProviderType {
 
     public func fetchChartHistory(for period: ChartHistoryPeriod, tickerId: String, currency: Currency) -> AnyPublisher<ChartHistory, PromiseError> {
         return networkService
-            .responseData(PriceHistoryOfTokenRequest(id: tickerId, currency: currency.code, days: period.rawValue))
+            .dataTaskPublisher(PriceHistoryOfTokenRequest(id: tickerId, currency: currency.code, days: period.rawValue))
             .retry(times: 3)
             .tryMap { try ChartHistory(json: try JSON(data: $0.data), currency: currency) }
             .mapError { PromiseError.some(error: $0) }
@@ -77,7 +77,7 @@ public class CoinGeckoNetworkProvider: CoinTickerNetworkProviderType {
 
     private func fetchPricesPage(for tickerIds: String, page: Int, currency: Currency) -> AnyPublisher<[CoinTicker], PromiseError> {
         return networkService
-            .responseData(PricesOfTokensRequest(ids: tickerIds, currency: currency.code, page: page))
+            .dataTaskPublisher(PricesOfTokensRequest(ids: tickerIds, currency: currency.code, page: page))
             .retry(times: 3)
             .tryMap { [decoder] in
                 do {

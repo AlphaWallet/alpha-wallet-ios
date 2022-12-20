@@ -30,7 +30,7 @@ public final class LiQuestTokenSwapperNetworkProvider: TokenSwapperNetworkProvid
 
     public func fetchSupportedTools() -> AnyPublisher<[SwapTool], SwapError> {
         networkService
-            .responseData(ToolsRequest())
+            .dataTaskPublisher(ToolsRequest())
             .tryMap { [decoder] data, _ -> [SwapTool] in
                 if let response: SwapToolsResponse = try? decoder.decode(SwapToolsResponse.self, from: data) {
                     return response.tools
@@ -42,7 +42,8 @@ public final class LiQuestTokenSwapperNetworkProvider: TokenSwapperNetworkProvid
     }
 
     public func fetchSwapRoutes(fromToken: TokenToSwap, toToken: TokenToSwap, slippage: String, fromAmount: BigUInt, exchanges: [String]) -> AnyPublisher<[SwapRoute], SwapError> {
-        return networkService.responseData(RoutesRequest(fromToken: fromToken, toToken: toToken, slippage: slippage, fromAmount: fromAmount, exchanges: exchanges))
+        return networkService
+            .dataTaskPublisher(RoutesRequest(fromToken: fromToken, toToken: toToken, slippage: slippage, fromAmount: fromAmount, exchanges: exchanges))
             .tryMap { [decoder] data, _ -> [SwapRoute] in
                 if let response: SwapRouteReponse = try? decoder.decode(SwapRouteReponse.self, from: data) {
                     return response.routes
@@ -54,26 +55,31 @@ public final class LiQuestTokenSwapperNetworkProvider: TokenSwapperNetworkProvid
     }
 
     public func fetchSupportedChains() -> AnyPublisher<[RPCServer], PromiseError> {
-        return networkService.responseData(SupportedChainsRequest())
+        return networkService
+            .dataTaskPublisher(SupportedChainsRequest())
             .map { data, _ -> [RPCServer] in
                 let chains = JSON(data)["chains"].arrayValue
                 return chains.compactMap { each in return RPCServer(chainIdOptional: each["id"].intValue) }
-            }.eraseToAnyPublisher()
+            }.mapError { PromiseError(error: $0) }
+            .eraseToAnyPublisher()
     }
 
     public func fetchSupportedTokens(for server: RPCServer) -> AnyPublisher<SwapPairs, PromiseError> {
-        return networkService.responseData(SupportedTokensRequest(server: server))
+        return networkService
+            .dataTaskPublisher(SupportedTokensRequest(server: server))
             .map { [decoder] data, _ -> SwapPairs in
                 if let connections: Swap.Connections = try? decoder.decode(Swap.Connections.self, from: data) {
                     return SwapPairs(connections: connections)
                 } else {
                     return SwapPairs(connections: .init(connections: []))
                 }
-            }.eraseToAnyPublisher()
+            }.mapError { PromiseError(error: $0) }
+            .eraseToAnyPublisher()
     }
 
     public func fetchSwapQuote(fromToken: TokenToSwap, toToken: TokenToSwap, wallet: AlphaWallet.Address, slippage: String, fromAmount: BigUInt, exchange: String) -> AnyPublisher<SwapQuote, SwapError> {
-        return networkService.responseData(SwapQuoteRequest(fromToken: fromToken, toToken: toToken, wallet: wallet, slippage: slippage, fromAmount: fromAmount, exchange: exchange))
+        return networkService
+            .dataTaskPublisher(SwapQuoteRequest(fromToken: fromToken, toToken: toToken, wallet: wallet, slippage: slippage, fromAmount: fromAmount, exchange: exchange))
             .tryMap { [decoder] data, _ -> SwapQuote in
                 guard let data = try? JSONSerialization.data(withJSONObject: data) else { throw SwapError.invalidJson }
                 if let swapQuote = try? decoder.decode(SwapQuote.self, from: data) {
@@ -105,6 +111,7 @@ fileprivate extension LiQuestTokenSwapperNetworkProvider {
             components.path = "/v1/tools"
             return try URLRequest(url: components.asURL(), method: .get)
         }
+        
     }
 
     struct RoutesRequest: URLRequestConvertible {
@@ -183,6 +190,7 @@ fileprivate extension LiQuestTokenSwapperNetworkProvider {
             components.path = "/v1/chains"
             return try URLRequest(url: components.asURL(), method: .get)
         }
+        
     }
 }
 

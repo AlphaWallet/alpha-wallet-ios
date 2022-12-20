@@ -8,11 +8,47 @@ import AlphaWalletCore
 import PromiseKit
 
 final class FakeNetworkService: NetworkService {
-    func responseData(_ request: AlphaWalletFoundation.URLRequestConvertible) -> AnyPublisher<(data: Data, response: AlphaWalletCore.DataResponse), PromiseError> {
-        .empty()
+
+    var response: Swift.Result<URLRequest.Response, AlphaWalletFoundation.SessionTaskError>?
+    var callbackQueue: DispatchQueue = .main
+    var delay: TimeInterval = 0.5
+    private (set) var calls: Int = 0
+
+    func dataTaskPublisher(_ request: AlphaWalletFoundation.URLRequestConvertible) -> AnyPublisher<URLRequest.Response, SessionTaskError> {
+        return AnyPublisher<URLRequest.Response, AlphaWalletFoundation.SessionTaskError>.create { [callbackQueue, delay] seal in
+            self.calls += 1
+
+            callbackQueue.asyncAfter(deadline: .now() + delay) {
+                switch self.response {
+                case .success(let value):
+                    seal.send(value)
+                    seal.send(completion: .finished)
+                case .failure(let error):
+                    seal.send(completion: .failure(error))
+                case .none:
+                    seal.send(completion: .finished)
+                }
+            }
+
+            return AnyCancellable {
+
+            }
+        }.eraseToAnyPublisher()
     }
-    func responseData(_ uri: URL, queue: DispatchQueue?) -> Promise<(data: Data, response: AlphaWalletCore.DataResponse)> {
-        return .init(error: PMKError.cancelled)
+
+    func dataTaskPromise(_ request: AlphaWalletFoundation.URLRequestConvertible) -> Promise<URLRequest.Response> {
+        PromiseKit.Promise<URLRequest.Response>.init { [callbackQueue, delay] seal in
+            callbackQueue.asyncAfter(deadline: .now() + delay) {
+                switch self.response {
+                case .success(let value):
+                    seal.fulfill(value)
+                case .failure(let error):
+                    seal.reject(error)
+                case .none:
+                    seal.reject(PMKError.cancelled)
+                }
+            }
+        }
     }
 }
 
