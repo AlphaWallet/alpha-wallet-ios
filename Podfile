@@ -10,7 +10,6 @@ target 'AlphaWallet' do
   pod 'StatefulViewController'
   pod 'QRCodeReaderViewController', :git=>'https://github.com/AlphaWallet/QRCodeReaderViewController.git', :commit=>'30d1a2a7d167d0d207ae0ae3a4d81bcf473d7a65'
   pod 'KeychainSwift', :git=>'https://github.com/AlphaWallet/keychain-swift.git', :commit=> 'b797d40a9d08ec509db4335140cf2259b226e6a2'
-  pod 'SwiftLint', '0.50.3'
   pod 'Kingfisher', '~> 7.0'
   pod 'AlphaWalletWeb3Provider', :git=>'https://github.com/AlphaWallet/AlphaWallet-web3-provider', :commit => '9a4496d02b7ddb2f6307fd0510d8d7c9fcef9870'
   pod 'TrezorCrypto', :git=>'https://github.com/AlphaWallet/trezor-crypto-ios.git', :commit => '50c16ba5527e269bbc838e80aee5bac0fe304cc7'
@@ -32,8 +31,10 @@ target 'AlphaWallet' do
   pod 'MailchimpSDK'
   pod 'xcbeautify'
   pod 'FloatingPanel'
-  pod 'SwiftFormat/CLI', '~> 0.49'
   pod 'IQKeyboardManager'
+
+  pod 'SwiftLint', '0.50.3', :configuration => 'Debug'
+  pod 'SwiftFormat/CLI', '~> 0.49', :configuration => 'Debug'
 
   target 'AlphaWalletTests' do
       inherit! :search_paths
