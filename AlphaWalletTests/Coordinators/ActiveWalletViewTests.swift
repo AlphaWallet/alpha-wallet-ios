@@ -13,12 +13,11 @@ final class FakeNetworkService: NetworkService {
     var delay: TimeInterval = 0.5
     private (set) var calls: Int = 0
 
-    func upload(
-        multipartFormData: @escaping (Alamofire.MultipartFormData) -> Void,
-        usingThreshold: UInt64,
-        to url: Alamofire.URLConvertible,
-        method: AlphaWalletFoundation.HTTPMethod,
-        headers: AlphaWalletFoundation.HTTPHeaders?) -> AnyPublisher<Alamofire.SessionManager.MultipartFormDataEncodingResult, Never> {
+    func upload(multipartFormData: @escaping (Alamofire.MultipartFormData) -> Void,
+                usingThreshold: UInt64,
+                to url: Alamofire.URLConvertible,
+                method: AlphaWalletFoundation.HTTPMethod,
+                headers: AlphaWalletFoundation.HTTPHeaders?) -> AnyPublisher<Alamofire.DataResponse<Any>, AlphaWalletFoundation.SessionTaskError> {
 
         return .empty()
     }

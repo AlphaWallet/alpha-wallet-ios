@@ -28,7 +28,7 @@ extension URLRequest {
 public protocol NetworkService {
     func dataTaskPublisher(_ request: URLRequestConvertible) -> AnyPublisher<URLRequest.Response, SessionTaskError>
     func dataTaskPromise(_ request: URLRequestConvertible) -> Promise<URLRequest.Response>
-    func upload(multipartFormData: @escaping (MultipartFormData) -> Void, usingThreshold: UInt64, to url: URLConvertible, method: HTTPMethod, headers: HTTPHeaders?) -> AnyPublisher<SessionManager.MultipartFormDataEncodingResult, Never>
+    func upload(multipartFormData: @escaping (MultipartFormData) -> Void, usingThreshold: UInt64, to url: URLConvertible, method: HTTPMethod, headers: HTTPHeaders?) -> AnyPublisher<Alamofire.DataResponse<Any>, SessionTaskError>
 }
 
 extension NetworkService {
@@ -36,7 +36,7 @@ extension NetworkService {
                 usingThreshold: UInt64 = SessionManager.multipartFormDataEncodingMemoryThreshold,
                 to url: URLConvertible,
                 method: HTTPMethod = .post,
-                headers: HTTPHeaders? = nil) -> AnyPublisher<SessionManager.MultipartFormDataEncodingResult, Never> {
+                headers: HTTPHeaders? = nil) -> AnyPublisher<Alamofire.DataResponse<Any>, SessionTaskError> {
         return upload(multipartFormData: multipartFormData, usingThreshold: usingThreshold, to: url, method: method, headers: headers)
     }
 }
@@ -60,9 +60,11 @@ public class BaseNetworkService: NetworkService {
         usingThreshold encodingMemoryThreshold: UInt64 = SessionManager.multipartFormDataEncodingMemoryThreshold,
         to url: URLConvertible,
         method: HTTPMethod = .post,
-        headers: HTTPHeaders? = nil) -> AnyPublisher<SessionManager.MultipartFormDataEncodingResult, Never> {
+        headers: HTTPHeaders? = nil) -> AnyPublisher<Alamofire.DataResponse<Any>, SessionTaskError> {
 
-            return AnyPublisher<SessionManager.MultipartFormDataEncodingResult, Never>.create { [session] seal in
+            return AnyPublisher<Alamofire.DataResponse<Any>, SessionTaskError>.create { [session, callbackQueue] seal in
+                var urlRequest: UploadRequest?
+
                 session.upload(
                     multipartFormData: multipartFormData,
                     usingThreshold: encodingMemoryThreshold,
@@ -70,12 +72,19 @@ public class BaseNetworkService: NetworkService {
                     method: method,
                     headers: headers,
                     encodingCompletion: { result in
-                        seal.send(result)
-                        seal.send(completion: .finished)
+                        switch result {
+                        case .success(let request, let streamingFromDisk, let streamFileURL):
+                            urlRequest = request.responseJSON(queue: callbackQueue, completionHandler: {
+                                seal.send($0)
+                                seal.send(completion: .finished)
+                            })
+                        case .failure(let error):
+                            seal.send(completion: .failure(.requestError(error)))
+                        }
                     })
 
                 return AnyCancellable {
-
+                    urlRequest?.cancel()
                 }
             }
     }

@@ -21,7 +21,10 @@ class AppCoordinator: NSObject, Coordinator {
     private let legacyFileBasedKeystore: LegacyFileBasedKeystore
     private lazy var lock: Lock = SecuredLock(securedStorage: securedStorage)
     private var keystore: Keystore
-    private lazy var assetDefinitionStore = AssetDefinitionStore(baseTokenScriptFiles: TokenScript.baseTokenScriptFiles, networkService: networkService)
+    private lazy var assetDefinitionStore = AssetDefinitionStore(
+        baseTokenScriptFiles: TokenScript.baseTokenScriptFiles,
+        networkService: networkService)
+    
     private let window: UIWindow
     private var appTracker = AppTracker()
     //TODO rename and replace type? Not Initializer but similar as of writing

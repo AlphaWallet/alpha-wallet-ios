@@ -5,17 +5,13 @@ import PromiseKit
 
 public typealias XMLFile = String
 
-public protocol NetworkServiceProvidable {
-    var networkService: NetworkService { get }
-}
-
-public protocol BaseTokenScriptFilesProvider {
+public protocol BaseTokenScriptFilesProvider: AnyObject {
     func containsTokenScriptFile(for file: XMLFile) -> Bool
     func baseTokenScriptFile(for tokenType: TokenType) -> XMLFile?
 }
 
 /// Manage access to and cache asset definition XML files
-public class AssetDefinitionStore: NSObject, NetworkServiceProvidable {
+public class AssetDefinitionStore: NSObject {
     public enum Result {
         case cached
         case updated
@@ -34,7 +30,6 @@ public class AssetDefinitionStore: NSObject, NetworkServiceProvidable {
 
     private var lastContractInPasteboard: String?
     private var backingStore: AssetDefinitionBackingStore
-    private let _baseTokenScriptFiles: AtomicDictionary<TokenType, String> = .init()
     private let xmlHandlers: AtomicDictionary<AlphaWallet.Address, PrivateXMLHandler> = .init()
     private let baseXmlHandlers: AtomicDictionary<String, PrivateXMLHandler> = .init()
     private var signatureChangeSubject: PassthroughSubject<AlphaWallet.Address, Never> = .init()
@@ -42,6 +37,8 @@ public class AssetDefinitionStore: NSObject, NetworkServiceProvidable {
     private var listOfBadTokenScriptFilesSubject: CurrentValueSubject<[TokenScriptFileIndices.FileName], Never> = .init([])
     private let networking: AssetDefinitionNetworking
     private var cancelable = AtomicDictionary<Int, AnyCancellable>()
+    private let tokenScriptStatusResolver: TokenScriptStatusResolver
+    private let tokenScriptFilesProvider: BaseTokenScriptFilesProvider
 
     public var listOfBadTokenScriptFiles: AnyPublisher<[TokenScriptFileIndices.FileName], Never> {
         listOfBadTokenScriptFilesSubject.eraseToAnyPublisher()
@@ -124,13 +121,32 @@ public class AssetDefinitionStore: NSObject, NetworkServiceProvidable {
                """
     }
 
-    public let networkService: NetworkService
+    convenience public init(
+        backingStore: AssetDefinitionBackingStore = AssetDefinitionDiskBackingStoreWithOverrides(),
+        baseTokenScriptFiles: [TokenType: String] = [:],
+        networkService: NetworkService,
+        reachability: ReachabilityManagerProtocol = ReachabilityManager()) {
 
-    public init(backingStore: AssetDefinitionBackingStore = AssetDefinitionDiskBackingStoreWithOverrides(), baseTokenScriptFiles: [TokenType: String] = [:], networkService: NetworkService) {
-        self.networkService = networkService
+        let baseTokenScriptFilesProvider: BaseTokenScriptFilesProvider = InMemoryTokenScriptFilesProvider(baseTokenScriptFiles: baseTokenScriptFiles)
+        self.init(backingStore: backingStore,
+                  tokenScriptFilesProvider: baseTokenScriptFilesProvider,
+                  signatureVerifier: TokenScriptSignatureVerifier(
+                    tokenScriptFilesProvider: baseTokenScriptFilesProvider,
+                    networkService: networkService,
+                    reachability: reachability),
+                  networkService: networkService)
+    }
+
+    public init(
+        backingStore: AssetDefinitionBackingStore,
+        tokenScriptFilesProvider: BaseTokenScriptFilesProvider,
+        signatureVerifier: TokenScriptSignatureVerifieble,
+        networkService: NetworkService) {
+
         self.networking = AssetDefinitionNetworking(networkService: networkService)
         self.backingStore = backingStore
-        self._baseTokenScriptFiles.set(value: baseTokenScriptFiles)
+        self.tokenScriptStatusResolver = BaseTokenScriptStatusResolver(backingStore: backingStore, signatureVerifier: signatureVerifier)
+        self.tokenScriptFilesProvider = tokenScriptFilesProvider
         super.init()
         self.backingStore.delegate = self
 
@@ -151,14 +167,6 @@ public class AssetDefinitionStore: NSObject, NetworkServiceProvidable {
 
     func setBaseXmlHandler(for key: String, baseXmlHandler: PrivateXMLHandler?) {
         baseXmlHandlers[key] = baseXmlHandler
-    }
-
-    public func hasConflict(forContract contract: AlphaWallet.Address) -> Bool {
-        return backingStore.hasConflictingFile(forContract: contract)
-    }
-
-    public func hasOutdatedTokenScript(forContract contract: AlphaWallet.Address) -> Bool {
-        return backingStore.hasOutdatedTokenScript(forContract: contract)
     }
 
     //Calling this in >= iOS 14 will trigger a scary "AlphaWallet pasted from <app>" message
@@ -307,28 +315,37 @@ public class AssetDefinitionStore: NSObject, NetworkServiceProvidable {
     public func invalidateSignatureStatus(forContract contract: AlphaWallet.Address) {
         triggerSignatureChangedSubscribers(forContract: contract)
     }
+}
 
-    public func getCacheTokenScriptSignatureVerificationType(forXmlString xmlString: String) -> TokenScriptSignatureVerificationType? {
-        return backingStore.getCacheTokenScriptSignatureVerificationType(forXmlString: xmlString)
-    }
-
-    public func writeCacheTokenScriptSignatureVerificationType(_ verificationType: TokenScriptSignatureVerificationType, forContract contract: AlphaWallet.Address, forXmlString xmlString: String) {
-        return backingStore.writeCacheTokenScriptSignatureVerificationType(verificationType, forContract: contract, forXmlString: xmlString)
-    }
-
-    public func contractDeleted(_ contract: AlphaWallet.Address) {
-        invalidate(forContract: contract)
-        backingStore.deleteFileDownloadedFromOfficialRepoFor(contract: contract)
+extension AssetDefinitionStore: TokenScriptStatusResolver {
+    public func computeTokenScriptStatus(forContract contract: AlphaWallet.Address, xmlString: String, isOfficial: Bool) -> Promise<TokenLevelTokenScriptDisplayStatus> {
+        tokenScriptStatusResolver.computeTokenScriptStatus(forContract: contract, xmlString: xmlString, isOfficial: isOfficial)
     }
 }
 
-extension AssetDefinitionStore: BaseTokenScriptFilesProvider {
+public final class InMemoryTokenScriptFilesProvider: BaseTokenScriptFilesProvider {
+    private let _baseTokenScriptFiles: AtomicDictionary<TokenType, String> = .init()
+
+    public init(baseTokenScriptFiles: [TokenType: String] = [:]) {
+        _baseTokenScriptFiles.set(value: baseTokenScriptFiles)
+    }
+
     public func containsTokenScriptFile(for file: XMLFile) -> Bool {
         return _baseTokenScriptFiles.contains(where: { $1 == file })
     }
 
     public func baseTokenScriptFile(for tokenType: TokenType) -> XMLFile? {
         return _baseTokenScriptFiles[tokenType]
+    }
+}
+
+extension AssetDefinitionStore: BaseTokenScriptFilesProvider {
+    public func containsTokenScriptFile(for file: XMLFile) -> Bool {
+        return tokenScriptFilesProvider.containsTokenScriptFile(for: file)
+    }
+
+    public func baseTokenScriptFile(for tokenType: TokenType) -> XMLFile? {
+        return tokenScriptFilesProvider.baseTokenScriptFile(for: tokenType)
     }
 }
 
@@ -370,4 +387,3 @@ extension AssetDefinitionStore.functional {
         ScriptUri(forServer: server).get(forContract: contract)
     }
 }
-

@@ -6,36 +6,132 @@ import SwiftyJSON
 import Combine
 import AlphaWalletCore
 
-public class TokenScriptSignatureVerifier {
-    private let provider: BaseTokenScriptFilesProvider & NetworkServiceProvidable
+public protocol TokenScriptSignatureVerifieble {
+    func verificationType(forXml xmlString: String) -> Promise<TokenScriptSignatureVerificationType>
+    //NOTE: for test purposes
+    func verifyXMLSignatureViaAPI(xml: String, completion: @escaping (TokenScriptSignatureVerifier.VerifierResult) -> Void)
+}
+
+public protocol TokenScriptStatusResolver {
+    func computeTokenScriptStatus(forContract contract: AlphaWallet.Address, xmlString: String, isOfficial: Bool) -> Promise<TokenLevelTokenScriptDisplayStatus>
+}
+
+public class BaseTokenScriptStatusResolver: TokenScriptStatusResolver {
+
+    private let backingStore: AssetDefinitionBackingStore
+    private let signatureVerifier: TokenScriptSignatureVerifieble
+
+    public init(backingStore: AssetDefinitionBackingStore, signatureVerifier: TokenScriptSignatureVerifieble) {
+        self.backingStore = backingStore
+        self.signatureVerifier = signatureVerifier
+    }
+
+    public func computeTokenScriptStatus(forContract contract: AlphaWallet.Address, xmlString: String, isOfficial: Bool) -> Promise<TokenLevelTokenScriptDisplayStatus> {
+        if backingStore.hasConflictingFile(forContract: contract) {
+            return .value(.type2BadTokenScript(isDebugMode: !isOfficial, error: .tokenScriptType2ConflictingFiles, reason: .conflictWithAnotherFile))
+        }
+        if backingStore.hasOutdatedTokenScript(forContract: contract) {
+            return .value(.type2BadTokenScript(isDebugMode: !isOfficial, error: .tokenScriptType2OldSchemaVersion, reason: .oldTokenScriptVersion))
+        }
+        if xmlString.nilIfEmpty == nil {
+            return .value(.type0NoTokenScript)
+        }
+
+        switch XMLHandler.functional.checkTokenScriptSchema(xmlString) {
+        case .supportedTokenScriptVersion:
+            return firstly {
+                verificationType(forXml: xmlString)
+            }.then { [backingStore] verificationStatus -> Promise<TokenLevelTokenScriptDisplayStatus> in
+                return Promise { seal in
+                    backingStore.writeCacheTokenScriptSignatureVerificationType(verificationStatus, forContract: contract, forXmlString: xmlString)
+
+                    switch verificationStatus {
+                    case .verified(let domainName):
+                    seal.fulfill(.type1GoodTokenScriptSignatureGoodOrOptional(isDebugMode: !isOfficial, isSigned: true, validatedDomain: domainName, error: .tokenScriptType1SupportedAndSigned))
+                    case .verificationFailed:
+                        seal.fulfill(.type2BadTokenScript(isDebugMode: !isOfficial, error: .tokenScriptType2InvalidSignature, reason: .invalidSignature))
+                    case .notCanonicalizedAndNotSigned:
+                        //But should always be debug mode because we can't have a non-canonicalized XML from the official repo
+                        seal.fulfill(.type1GoodTokenScriptSignatureGoodOrOptional(isDebugMode: !isOfficial, isSigned: false, validatedDomain: nil, error: .tokenScriptType1SupportedNotCanonicalizedAndUnsigned))
+                    }
+                }
+            }
+        case .unsupportedTokenScriptVersion(let isOld):
+            if isOld {
+                return .value(.type2BadTokenScript(isDebugMode: !isOfficial, error: .custom("type 2 or bad? Mismatch version. Old version"), reason: .oldTokenScriptVersion))
+            } else {
+                assertImpossibleCodePath()
+                return .value(.type2BadTokenScript(isDebugMode: !isOfficial, error: .custom("type 2 or bad? Mismatch version. Unknown schema"), reason: nil))
+            }
+        case .unknownXml:
+            assertImpossibleCodePath()
+            return .value(.type2BadTokenScript(isDebugMode: !isOfficial, error: .custom("unknown. Maybe empty invalid? Doesn't even include something that might be our schema"), reason: nil))
+        case .others:
+            assertImpossibleCodePath()
+            return .value(.type2BadTokenScript(isDebugMode: !isOfficial, error: .custom("Not XML?"), reason: nil))
+        }
+    }
+
+    private func verificationType(forXml xmlString: String) -> PromiseKit.Promise<TokenScriptSignatureVerificationType> {
+        if let cachedVerificationType = backingStore.getCacheTokenScriptSignatureVerificationType(forXmlString: xmlString) {
+            return .value(cachedVerificationType)
+        } else {
+            return signatureVerifier.verificationType(forXml: xmlString)
+        }
+    }
+}
+
+public final class TokenScriptSignatureVerifier: TokenScriptSignatureVerifieble {
+    private let tokenScriptFilesProvider: BaseTokenScriptFilesProvider
     private let networking: TokenScriptSignatureNetworking
     private let queue = DispatchQueue(label: "org.alphawallet.swift.TokenScriptSignatureVerifier")
     private let reachability: ReachabilityManagerProtocol
-    private let cancellable: AtomicDictionary<String,AnyCancellable> = .init()
-    public var retryBehavior: RetryBehavior<RunLoop> = .delayed(retries: UInt.max, time: 10)
+    private let cancellable: AtomicDictionary<String, AnyCancellable> = .init()
+    //TODO: remove later when replace with publisher, needed to add waiting for completion of single api call, to avoid multiple uploading of same file
+    private let completions: AtomicDictionary<String, [((VerifierResult) -> Void)?]> = .init()
 
-    public init(provider: BaseTokenScriptFilesProvider & NetworkServiceProvidable, reachability: ReachabilityManagerProtocol = ReachabilityManager()) {
-        self.provider = provider
-        self.reachability = reachability
-        self.networking = TokenScriptSignatureNetworking(networkService: provider.networkService)
+    public var retryBehavior: RetryBehavior<RunLoop> = .delayed(retries: UInt.max, time: 10)
+    //NOTE: we receive 404 error code when uploading file might be something wrong with api, don't retry on 404 error code
+    public var retryPredicate: RetryPredicate = { error in
+        guard let erorr = error as? SessionTaskError else { return true }
+        switch erorr {
+        case .responseError(let error):
+            guard let wrapper = error as? TokenScriptSignatureNetworking.ResponseError else { return true }
+            return !(wrapper.response.statusCode == 404 || wrapper.isCancelled)
+        case .requestError, .connectionError:
+            return true
+        }
     }
 
-    public func verify(xml: String) -> Promise<TokenScriptSignatureVerificationType> {
+    public init(tokenScriptFilesProvider: BaseTokenScriptFilesProvider, networkService: NetworkService, reachability: ReachabilityManagerProtocol = ReachabilityManager()) {
+        self.tokenScriptFilesProvider = tokenScriptFilesProvider
+        self.reachability = reachability
+        self.networking = TokenScriptSignatureNetworking(networkService: networkService)
+    }
+
+    public func verificationType(forXml xmlString: String) -> Promise<TokenScriptSignatureVerificationType> {
         return Promise { seal in
             if Features.default.isAvailable(.isActivityEnabled) {
-                if provider.containsTokenScriptFile(for: xml) {
+                if tokenScriptFilesProvider.containsTokenScriptFile(for: xmlString) {
                     seal.fulfill(.verified(domainName: "*.aw.app"))
                     return
                 }
             }
 
-            verifyXMLSignatureViaAPI(xml: xml) { result in
+            guard Features.default.isAvailable(.isTokenScriptSignatureStatusEnabled) else {
+                //It is safe to return without calling `completion` here since we aren't supposed to be using the results with the feature flag above
+                verboseLog("[TokenScript] Signature verification disabled")
+                //We call the completion handler so that if the caller is a `Promise`, it will resolve, in order to avoid the warning: "PromiseKit: warning: pending promise deallocated"
+                seal.fulfill(.verified(domainName: ""))
+                return
+            }
+
+            verifyXMLSignatureViaAPI(xml: xmlString) { result in
                 switch result {
                 case .success(domain: let domain):
                     seal.fulfill(.verified(domainName: domain))
-                case .failed:
+                case .failed, .unknownCn:
                     seal.fulfill(.verificationFailed)
-                case .unknownCn:
                     seal.fulfill(.verificationFailed)
                 }
             }
@@ -44,29 +140,41 @@ public class TokenScriptSignatureVerifier {
 
     //TODO log reasons for failures `completion(.failed)` as well as those that triggers retries in in-app Console
     public func verifyXMLSignatureViaAPI(xml: String, completion: @escaping (VerifierResult) -> Void) {
-        guard Features.default.isAvailable(.isTokenScriptSignatureStatusEnabled) else {
-            //It is safe to return without calling `completion` here since we aren't supposed to be using the results with the feature flag above
-            verboseLog("[TokenScript] Signature verification disabled")
-            //We call the completion handler so that if the caller is a `Promise`, it will resolve, in order to avoid the warning: "PromiseKit: warning: pending promise deallocated"
-            completion(.success(domain: ""))
-            return
-        }
+        add(callback: completion, xml: xml)
+
+        guard cancellable[xml] == nil else { return }
 
         cancellable[xml] = reachability
             .networkBecomeReachablePublisher
             .receive(on: queue)
             .map { _ in xml }
             .setFailureType(to: SessionTaskError.self)
-            .flatMapLatest { [networking, retryBehavior] xml -> AnyPublisher<VerifierResult, SessionTaskError> in
+            .flatMapLatest { [networking, retryBehavior, retryPredicate] xml -> AnyPublisher<VerifierResult, SessionTaskError> in
                 networking
                     .upload(xmlFile: xml)
-                    .retry(retryBehavior, scheduler: RunLoop.main)
+                    .retry(retryBehavior, shouldOnlyRetryIf: retryPredicate, scheduler: RunLoop.main)
                     .eraseToAnyPublisher()
             }.replaceError(with: .failed)
             .receive(on: queue)
-            .sink(receiveCompletion: { [weak self]_ in
-                self?.cancellable[xml] = nil
-            }, receiveValue: { result in DispatchQueue.main.async { completion(result) } })
+            .sink(receiveCompletion: { _ in
+                self.cancellable[xml] = nil
+            }, receiveValue: { result in
+                DispatchQueue.main.async {
+                    self.fulfill(for: xml, result: result)
+                }
+            })
+    }
+
+    private func add(callback: ((VerifierResult) -> Void)?, xml: String) {
+        var callbacks = completions[xml] ?? []
+        callbacks.append(callback)
+
+        completions[xml] = callbacks
+    }
+
+    private func fulfill(for xml: String, result: TokenScriptSignatureVerifier.VerifierResult) {
+        var callbacks = completions[xml] ?? []
+        callbacks.forEach { $0?(result) }
     }
 }
 
@@ -80,6 +188,15 @@ extension TokenScriptSignatureVerifier {
 
 class TokenScriptSignatureNetworking {
     private let networkService: NetworkService
+    private static let validatorBaseUrl = URL(string: Constants.TokenScript.validatorAPI)!
+    private static let headers: [String: String] = [
+        "cache-control": "no-cache",
+        "content-type": "application/x-www-form-urlencoded"
+    ]
+
+    struct ResponseError: Error {
+        let response: HTTPURLResponse
+    }
 
     init(networkService: NetworkService) {
         self.networkService = networkService
@@ -89,67 +206,38 @@ class TokenScriptSignatureNetworking {
         guard let xmlAsData = xml.data(using: String.Encoding.utf8) else {
             return .fail(.requestError(URLError(.zeroByteResource)))
         }
-        let url = URL(string: Constants.TokenScript.validatorAPI)!
-        let headers = [
-            "cache-control": "no-cache",
-            "content-type": "application/x-www-form-urlencoded"
-        ]
 
         let multipartFormData: (MultipartFormData) -> Void = { multipartFormData in
             multipartFormData.append(xmlAsData, withName: "file", fileName: "file.tsml", mimeType: "text/xml")
         }
 
-        //TODO more detailed error reporting for failed verifications
+        //TODO: more detailed error reporting for failed verifications
         return networkService
-            .upload(multipartFormData: multipartFormData, to: url, headers: headers)
-            .setFailureType(to: SessionTaskError.self)
-            .flatMap { encodingResult -> AnyPublisher<TokenScriptSignatureVerifier.VerifierResult, SessionTaskError> in
-                return AnyPublisher<TokenScriptSignatureVerifier.VerifierResult, SessionTaskError>.create { seal in
-                    switch encodingResult {
-                    case .success(let upload, _, _):
-                        upload.validate()
-                        upload.responseJSON { response in
-                            guard let unwrappedResponse = response.response else {
-                                    //We must be careful to not check NetworkReachabilityManager()?.isReachable == true and presume API server is down. Intermittent connectivity happens. It's harmless to retry if the API server is down anyway
-                                seal.send(completion: .failure(.responseError(URLError(.badServerResponse))))
-                                return
-                            }
+            .upload(multipartFormData: multipartFormData, to: TokenScriptSignatureNetworking.validatorBaseUrl, headers: TokenScriptSignatureNetworking.headers)
+            .flatMap { response -> AnyPublisher<TokenScriptSignatureVerifier.VerifierResult, SessionTaskError> in
+                guard let unwrappedResponse = response.response else {
+                    //We must be careful to not check NetworkReachabilityManager()?.isReachable == true and presume API server is down. Intermittent connectivity happens. It's harmless to retry if the API server is down anyway
+                    return .fail(.responseError(URLError(.badServerResponse)))
+                }
 
-                            guard response.result.isSuccess, unwrappedResponse.statusCode <= 299, let value = response.result.value else {
-                                    //API is coded to fail with 400
-                                if unwrappedResponse.statusCode == 400 {
-                                    seal.send(.failed)
-                                    seal.send(completion: .finished)
-                                } else {
-                                    seal.send(completion: .failure(.responseError(URLError(.badServerResponse))))
-                                }
-                                return
-                            }
-
-
-                            let json = JSON(value)
-                            guard let subject = json["subject"].string else {
-                                //Should never hit
-                                seal.send(.unknownCn)
-                                seal.send(completion: .finished)
-                                return
-                            }
-
-                            if let domain = TokenScriptSignatureNetworking.functional.keyValuePairs(fromCommaSeparatedKeyValuePairs: subject)["CN"] {
-                                seal.send(.success(domain: domain))
-                                seal.send(completion: .finished)
-                            } else {
-                                seal.send(.failed)
-                                seal.send(completion: .finished)
-                            }
-                        }
-                    case .failure(let error):
-                        seal.send(completion: .failure(.responseError(SessionTaskError.responseError(error))))
+                guard response.result.isSuccess, unwrappedResponse.statusCode <= 299, let value = response.result.value else {
+                    //API is coded to fail with 400
+                    if unwrappedResponse.statusCode == 400 {
+                        return .just(.failed)
+                    } else {
+                        return .fail(.responseError(ResponseError(response: unwrappedResponse)))
                     }
+                }
 
-                    return AnyCancellable {
+                guard let subject = JSON(value)["subject"].string else {
+                    //Should never hit
+                    return .just(.unknownCn)
+                }
 
-                    }
+                if let domain = TokenScriptSignatureNetworking.functional.keyValuePairs(fromCommaSeparatedKeyValuePairs: subject)["CN"] {
+                    return .just(.success(domain: domain))
+                } else {
+                    return .just(.failed)
                 }
             }.eraseToAnyPublisher()
     }
