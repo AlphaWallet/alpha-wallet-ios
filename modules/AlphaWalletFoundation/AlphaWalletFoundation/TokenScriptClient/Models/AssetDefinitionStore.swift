@@ -35,7 +35,7 @@ public class AssetDefinitionStore: NSObject {
     private var signatureChangeSubject: PassthroughSubject<AlphaWallet.Address, Never> = .init()
     private var bodyChangeSubject: PassthroughSubject<AlphaWallet.Address, Never> = .init()
     private var listOfBadTokenScriptFilesSubject: CurrentValueSubject<[TokenScriptFileIndices.FileName], Never> = .init([])
-    private let network: AssetDefinitionNetwork
+    private let network: AssetDefinitionNetworking
     private var cancelable = AtomicDictionary<Int, AnyCancellable>()
 
     public var listOfBadTokenScriptFiles: AnyPublisher<[TokenScriptFileIndices.FileName], Never> {
@@ -120,7 +120,7 @@ public class AssetDefinitionStore: NSObject {
     }
 
     public init(backingStore: AssetDefinitionBackingStore = AssetDefinitionDiskBackingStoreWithOverrides(), baseTokenScriptFiles: [TokenType: String] = [:], networkService: NetworkService) {
-        self.network = AssetDefinitionNetwork(networkService: networkService)
+        self.network = AssetDefinitionNetworking(networkService: networkService)
         self.backingStore = backingStore
         self._baseTokenScriptFiles.set(value: baseTokenScriptFiles)
         super.init()
@@ -218,7 +218,7 @@ public class AssetDefinitionStore: NSObject {
 
     private func fetchXML(contract: AlphaWallet.Address, server: RPCServer?, url: URL, useCacheAndFetch: Bool = false, completionHandler: ((Result) -> Void)? = nil) {
         let lastModified = lastModifiedDateOfCachedAssetDefinitionFile(forContract: contract)
-        let request = AssetDefinitionNetwork.GetXmlFileRequest(url: url, lastModifiedDate: lastModified)
+        let request = AssetDefinitionNetworking.GetXmlFileRequest(url: url, lastModifiedDate: lastModified)
 
         cancelable[request.hashValue] = network
             .fetchXml(request: request)
@@ -347,104 +347,6 @@ extension AssetDefinitionStore {
     }
 }
 
-import AlphaWalletCore
-
-public class AssetDefinitionNetwork {
-    private let networkService: NetworkService
-
-    public init(networkService: NetworkService) {
-        self.networkService = networkService
-    }
-
-    public enum Response {
-        case unmodified
-        case error
-        case xml(String)
-    }
-
-    public func fetchXml(request: GetXmlFileRequest) -> AnyPublisher<AssetDefinitionNetwork.Response, Never> {
-        return networkService
-            .responseData(request)
-            .map { data -> AssetDefinitionNetwork.Response in
-                guard let response = data.response.response else { return .error }
-                if response.statusCode == 304 {
-                    return .unmodified
-                } else if response.statusCode == 406 {
-                    return .error
-                } else if response.statusCode == 404 {
-                    return .error
-                } else if response.statusCode == 200 {
-                    if let xml = String(data: data.data, encoding: .utf8).nilIfEmpty {
-                        return .xml(xml)
-                    } else {
-                        return .error
-                    }
-                }
-                return .error
-            }.replaceError(with: .error)
-            .receive(on: RunLoop.main)
-            .eraseToAnyPublisher()
-    }
-}
-
-extension AssetDefinitionNetwork {
-    public struct GetXmlFileRequest: URLRequestConvertible, Hashable {
-        let url: URL
-        let lastModifiedDate: Date?
-
-        public init(url: URL, lastModifiedDate: Date?) {
-            self.url = url
-            self.lastModifiedDate = lastModifiedDate
-        }
-
-        public func asURLRequest() throws -> URLRequest {
-            guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
-
-            var request = try URLRequest(url: components.asURL(), method: .get)
-
-            //TODO improve check. We should store the IPFS hash, if the hash is different, download the new file, otherwise it has not changed
-            //IPFS, at least on Infura returns a `304` even though we pass in a timestamp that is older than the creation date for the "IF-Modified-Since" header. So we always download the entire file. This only works decently when we don't have many TokenScript using EIP-5169/`scriptURI()`
-            request.allHTTPHeaderFields = httpHeadersWithLastModifiedTimestamp(
-                includeLastModifiedTimestampHeader: !url.absoluteString.contains("ipfs"),
-                lastModifiedDate: lastModifiedDate)
-
-            return request
-        }
-
-        private var httpHeaders: HTTPHeaders {
-            guard let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String else { return [:] }
-            return [
-                "Accept": "application/tokenscript+xml; charset=UTF-8",
-                "X-Client-Name": TokenScript.repoClientName,
-                "X-Client-Version": appVersion,
-                "X-Platform-Name": TokenScript.repoPlatformName,
-                "X-Platform-Version": UIDevice.current.systemVersion
-            ]
-        }
-
-        private static let lastModifiedDateFormatter: DateFormatter = {
-            let df = DateFormatter()
-            df.dateFormat = "E, dd MMM yyyy HH:mm:ss z"
-            df.timeZone = TimeZone(secondsFromGMT: 0)
-            return df
-        }()
-
-        private func httpHeadersWithLastModifiedTimestamp(includeLastModifiedTimestampHeader: Bool, lastModifiedDate: Date?) -> HTTPHeaders {
-            var result = httpHeaders
-            if includeLastModifiedTimestampHeader, let lastModified = lastModifiedDate {
-                result["IF-Modified-Since"] = string(fromLastModifiedDate: lastModified)
-                return result
-            } else {
-                return result
-            }
-        }
-
-        public func string(fromLastModifiedDate date: Date) -> String {
-            return GetXmlFileRequest.lastModifiedDateFormatter.string(from: date)
-        }
-    }
-}
-
 extension AssetDefinitionStore {
     enum functional {}
 }
@@ -460,3 +362,4 @@ extension AssetDefinitionStore.functional {
         ScriptUri(forServer: server).get(forContract: contract)
     }
 }
+

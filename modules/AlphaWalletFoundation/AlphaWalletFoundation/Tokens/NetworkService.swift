@@ -14,6 +14,7 @@ public typealias URLRequestConvertible = Alamofire.URLRequestConvertible
 public typealias URLEncoding = Alamofire.URLEncoding
 public typealias Parameters = Alamofire.Parameters
 public typealias JSONEncoding = Alamofire.JSONEncoding
+public typealias HTTPHeaders = Alamofire.HTTPHeaders
 
 public protocol NetworkService {
     func responseData(_ request: URLRequestConvertible) -> AnyPublisher<(data: Data, response: AlphaWalletCore.DataResponse), PromiseError>

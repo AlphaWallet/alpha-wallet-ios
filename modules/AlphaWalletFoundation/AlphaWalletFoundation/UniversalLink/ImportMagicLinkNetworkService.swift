@@ -1,5 +1,5 @@
 //
-//  ImportMagicLinkNetworkService.swift
+//  ImportMagicLinkNetworking.swift
 //  AlphaWalletFoundation
 //
 //  Created by Vladyslav Shepitko on 15.12.2022.
@@ -10,7 +10,7 @@ import BigInt
 import Combine
 import AlphaWalletCore
 
-public class ImportMagicLinkNetworkService {
+public class ImportMagicLinkNetworking {
     private let networkService: NetworkService
 
     public init(networkService: NetworkService) {
@@ -62,7 +62,7 @@ public class ImportMagicLinkNetworkService {
     }
 }
 
-extension ImportMagicLinkNetworkService {
+extension ImportMagicLinkNetworking {
     public struct FreeTransferRequest: URLRequestConvertible {
         public var contractAddress: AlphaWallet.Address {
             signedOrder.order.contractAddress
