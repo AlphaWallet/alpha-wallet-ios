@@ -582,9 +582,9 @@ class PrivateXMLHandler {
         return nil
     }
 
-    private static func verificationType(forXml xmlString: String, isCanonicalized: Bool, contractAddress: AlphaWallet.Address, provider: BaseTokenScriptFilesProvider) -> Promise<TokenScriptSignatureVerificationType> {
-        let verifier = TokenScriptSignatureVerifier()
-        return verifier.verify(xml: xmlString, provider: provider)
+    private static func verificationType(forXml xmlString: String, isCanonicalized: Bool, contractAddress: AlphaWallet.Address, provider: BaseTokenScriptFilesProvider & NetworkServiceProvidable) -> Promise<TokenScriptSignatureVerificationType> {
+        let verifier = TokenScriptSignatureVerifier(provider: provider)
+        return verifier.verify(xml: xmlString)
     }
 
     private func defaultActions(forTokenType tokenType: TokenInterfaceType) -> [TokenInstanceAction] {

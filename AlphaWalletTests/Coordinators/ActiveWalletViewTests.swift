@@ -8,11 +8,20 @@ import AlphaWalletCore
 import PromiseKit
 
 final class FakeNetworkService: NetworkService {
-
     var response: Swift.Result<URLRequest.Response, AlphaWalletFoundation.SessionTaskError>?
     var callbackQueue: DispatchQueue = .main
     var delay: TimeInterval = 0.5
     private (set) var calls: Int = 0
+
+    func upload(
+        multipartFormData: @escaping (Alamofire.MultipartFormData) -> Void,
+        usingThreshold: UInt64,
+        to url: Alamofire.URLConvertible,
+        method: AlphaWalletFoundation.HTTPMethod,
+        headers: AlphaWalletFoundation.HTTPHeaders?) -> AnyPublisher<Alamofire.SessionManager.MultipartFormDataEncodingResult, Never> {
+
+        return .empty()
+    }
 
     func dataTaskPublisher(_ request: AlphaWalletFoundation.URLRequestConvertible) -> AnyPublisher<URLRequest.Response, SessionTaskError> {
         return AnyPublisher<URLRequest.Response, AlphaWalletFoundation.SessionTaskError>.create { [callbackQueue, delay] seal in

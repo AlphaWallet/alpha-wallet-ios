@@ -17,6 +17,7 @@ public typealias URLEncoding = Alamofire.URLEncoding
 public typealias Parameters = Alamofire.Parameters
 public typealias JSONEncoding = Alamofire.JSONEncoding
 public typealias HTTPHeaders = Alamofire.HTTPHeaders
+public typealias HTTPMethod = Alamofire.HTTPMethod
 
 public typealias ResponseError = APIKit.ResponseError
 
@@ -27,6 +28,17 @@ extension URLRequest {
 public protocol NetworkService {
     func dataTaskPublisher(_ request: URLRequestConvertible) -> AnyPublisher<URLRequest.Response, SessionTaskError>
     func dataTaskPromise(_ request: URLRequestConvertible) -> Promise<URLRequest.Response>
+    func upload(multipartFormData: @escaping (MultipartFormData) -> Void, usingThreshold: UInt64, to url: URLConvertible, method: HTTPMethod, headers: HTTPHeaders?) -> AnyPublisher<SessionManager.MultipartFormDataEncodingResult, Never>
+}
+
+extension NetworkService {
+    func upload(multipartFormData: @escaping (MultipartFormData) -> Void,
+                usingThreshold: UInt64 = SessionManager.multipartFormDataEncodingMemoryThreshold,
+                to url: URLConvertible,
+                method: HTTPMethod = .post,
+                headers: HTTPHeaders? = nil) -> AnyPublisher<SessionManager.MultipartFormDataEncodingResult, Never> {
+        return upload(multipartFormData: multipartFormData, usingThreshold: usingThreshold, to: url, method: method, headers: headers)
+    }
 }
 
 public class BaseNetworkService: NetworkService {
@@ -41,6 +53,31 @@ public class BaseNetworkService: NetworkService {
     public init(analytics: AnalyticsLogger, callbackQueue: DispatchQueue = .global()) {
         self.analytics = analytics
         self.callbackQueue = callbackQueue
+    }
+
+    public func upload(
+        multipartFormData: @escaping (MultipartFormData) -> Void,
+        usingThreshold encodingMemoryThreshold: UInt64 = SessionManager.multipartFormDataEncodingMemoryThreshold,
+        to url: URLConvertible,
+        method: HTTPMethod = .post,
+        headers: HTTPHeaders? = nil) -> AnyPublisher<SessionManager.MultipartFormDataEncodingResult, Never> {
+
+            return AnyPublisher<SessionManager.MultipartFormDataEncodingResult, Never>.create { [session] seal in
+                session.upload(
+                    multipartFormData: multipartFormData,
+                    usingThreshold: encodingMemoryThreshold,
+                    to: url,
+                    method: method,
+                    headers: headers,
+                    encodingCompletion: { result in
+                        seal.send(result)
+                        seal.send(completion: .finished)
+                    })
+
+                return AnyCancellable {
+
+                }
+            }
     }
 
     public func dataTaskPromise(_ request: URLRequestConvertible) -> Promise<URLRequest.Response> {

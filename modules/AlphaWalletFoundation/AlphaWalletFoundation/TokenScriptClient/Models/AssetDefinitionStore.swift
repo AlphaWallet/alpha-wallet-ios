@@ -4,13 +4,18 @@ import Combine
 import PromiseKit
 
 public typealias XMLFile = String
+
+public protocol NetworkServiceProvidable {
+    var networkService: NetworkService { get }
+}
+
 public protocol BaseTokenScriptFilesProvider {
     func containsTokenScriptFile(for file: XMLFile) -> Bool
     func baseTokenScriptFile(for tokenType: TokenType) -> XMLFile?
 }
 
 /// Manage access to and cache asset definition XML files
-public class AssetDefinitionStore: NSObject {
+public class AssetDefinitionStore: NSObject, NetworkServiceProvidable {
     public enum Result {
         case cached
         case updated
@@ -35,7 +40,7 @@ public class AssetDefinitionStore: NSObject {
     private var signatureChangeSubject: PassthroughSubject<AlphaWallet.Address, Never> = .init()
     private var bodyChangeSubject: PassthroughSubject<AlphaWallet.Address, Never> = .init()
     private var listOfBadTokenScriptFilesSubject: CurrentValueSubject<[TokenScriptFileIndices.FileName], Never> = .init([])
-    private let network: AssetDefinitionNetworking
+    private let networking: AssetDefinitionNetworking
     private var cancelable = AtomicDictionary<Int, AnyCancellable>()
 
     public var listOfBadTokenScriptFiles: AnyPublisher<[TokenScriptFileIndices.FileName], Never> {
@@ -119,8 +124,11 @@ public class AssetDefinitionStore: NSObject {
                """
     }
 
+    public let networkService: NetworkService
+
     public init(backingStore: AssetDefinitionBackingStore = AssetDefinitionDiskBackingStoreWithOverrides(), baseTokenScriptFiles: [TokenType: String] = [:], networkService: NetworkService) {
-        self.network = AssetDefinitionNetworking(networkService: networkService)
+        self.networkService = networkService
+        self.networking = AssetDefinitionNetworking(networkService: networkService)
         self.backingStore = backingStore
         self._baseTokenScriptFiles.set(value: baseTokenScriptFiles)
         super.init()
@@ -220,7 +228,7 @@ public class AssetDefinitionStore: NSObject {
         let lastModified = lastModifiedDateOfCachedAssetDefinitionFile(forContract: contract)
         let request = AssetDefinitionNetworking.GetXmlFileRequest(url: url, lastModifiedDate: lastModified)
 
-        cancelable[request.hashValue] = network
+        cancelable[request.hashValue] = networking
             .fetchXml(request: request)
             .sink(receiveCompletion: { [cancelable] _ in
                 cancelable[request.hashValue] = .none
