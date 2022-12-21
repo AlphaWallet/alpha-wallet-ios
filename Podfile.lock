@@ -78,7 +78,38 @@ PODS:
     - EthereumAddress (~> 1.3)
   - EthereumAddress (1.3.0):
     - CryptoSwift (~> 1.0)
+  - FirebaseCore (8.15.0):
+    - FirebaseCoreDiagnostics (~> 8.0)
+    - GoogleUtilities/Environment (~> 7.7)
+    - GoogleUtilities/Logger (~> 7.7)
+  - FirebaseCoreDiagnostics (8.15.0):
+    - GoogleDataTransport (~> 9.1)
+    - GoogleUtilities/Environment (~> 7.7)
+    - GoogleUtilities/Logger (~> 7.7)
+    - nanopb (~> 2.30908.0)
+  - FirebaseCrashlytics (8.10.0):
+    - FirebaseCore (~> 8.0)
+    - FirebaseInstallations (~> 8.0)
+    - GoogleDataTransport (~> 9.1)
+    - GoogleUtilities/Environment (~> 7.6)
+    - nanopb (~> 2.30908.0)
+    - PromisesObjC (< 3.0, >= 1.2)
+  - FirebaseInstallations (8.15.0):
+    - FirebaseCore (~> 8.0)
+    - GoogleUtilities/Environment (~> 7.7)
+    - GoogleUtilities/UserDefaults (~> 7.7)
+    - PromisesObjC (< 3.0, >= 1.2)
   - FloatingPanel (2.5.2)
+  - GoogleDataTransport (9.2.0):
+    - GoogleUtilities/Environment (~> 7.7)
+    - nanopb (< 2.30910.0, >= 2.30908.0)
+    - PromisesObjC (< 3.0, >= 1.2)
+  - GoogleUtilities/Environment (7.10.0):
+    - PromisesObjC (< 3.0, >= 1.2)
+  - GoogleUtilities/Logger (7.10.0):
+    - GoogleUtilities/Environment
+  - GoogleUtilities/UserDefaults (7.10.0):
+    - GoogleUtilities/Logger
   - iOSSnapshotTestCase (6.2.0):
     - iOSSnapshotTestCase/SwiftSupport (= 6.2.0)
   - iOSSnapshotTestCase/Core (6.2.0)
@@ -95,6 +126,11 @@ PODS:
   - Mixpanel-swift (3.2.0):
     - Mixpanel-swift/Complete (= 3.2.0)
   - Mixpanel-swift/Complete (3.2.0)
+  - nanopb (2.30908.0):
+    - nanopb/decode (= 2.30908.0)
+    - nanopb/encode (= 2.30908.0)
+  - nanopb/decode (2.30908.0)
+  - nanopb/encode (2.30908.0)
   - PaperTrailLumberjack/Core (0.1.9):
     - CocoaAsyncSocket (~> 7.6)
     - CocoaLumberjack (~> 3.4)
@@ -113,6 +149,7 @@ PODS:
     - PromiseKit/CorePromise
   - PromiseKit/UIKit (6.3.5):
     - PromiseKit/CorePromise
+  - PromisesObjC (2.1.1)
   - QRCodeReaderViewController (4.0.2)
   - R.swift (5.4.0):
     - R.swift.Library (~> 5.3.0)
@@ -126,6 +163,7 @@ PODS:
   - SAMKeychain (1.5.3)
   - secp256k1_ios (0.1.3)
   - SipHash (1.2.2)
+  - Starscream (3.1.1)
   - StatefulViewController (3.0)
   - SwiftAlgorithms (1.0.0)
   - SwiftFormat/CLI (0.50.3)
@@ -143,6 +181,8 @@ PODS:
     - TrustWalletCore/Types
   - TrustWalletCore/Types (2.6.34):
     - SwiftProtobuf
+  - WalletConnectSwift (1.7.0):
+    - CryptoSwift (~> 1.5)
   - WalletConnectSwiftV2 (1.0.5):
     - WalletConnectSwiftV2/WalletConnect (= 1.0.5)
   - WalletConnectSwiftV2/Commons (1.0.5)
@@ -175,6 +215,7 @@ DEPENDENCIES:
   - BigInt (~> 3.1)
   - Charts
   - EthereumABI (from `https://github.com/AlphaWallet/EthereumABI.git`, commit `877b77e8e7cbc54ab0712d509b74fec21b79d1bb`)
+  - FirebaseCrashlytics (= 8.10.0)
   - FloatingPanel
   - iOSSnapshotTestCase (= 6.2.0)
   - IQKeyboardManager
@@ -188,11 +229,13 @@ DEPENDENCIES:
   - QRCodeReaderViewController (from `https://github.com/AlphaWallet/QRCodeReaderViewController.git`, commit `30d1a2a7d167d0d207ae0ae3a4d81bcf473d7a65`)
   - R.swift
   - SAMKeychain
+  - Starscream (= 3.1.1)
   - StatefulViewController
   - SwiftFormat/CLI (~> 0.49)
   - SwiftLint (= 0.50.3)
   - TrezorCrypto (from `https://github.com/AlphaWallet/trezor-crypto-ios.git`, commit `50c16ba5527e269bbc838e80aee5bac0fe304cc7`)
   - TrustKeystore (from `https://github.com/AlphaWallet/latest-keystore-snapshot`, commit `c0bdc4f6ffc117b103e19d17b83109d4f5a0e764`)
+  - WalletConnectSwift (from `https://github.com/AlphaWallet/WalletConnectSwift.git`, branch `alphaWallet`)
   - WalletConnectSwiftV2 (~> 1.0.2)
   - xcbeautify
 
@@ -209,7 +252,13 @@ SPEC REPOS:
     - CombineExt
     - CryptoSwift
     - EthereumAddress
+    - FirebaseCore
+    - FirebaseCoreDiagnostics
+    - FirebaseCrashlytics
+    - FirebaseInstallations
     - FloatingPanel
+    - GoogleDataTransport
+    - GoogleUtilities
     - iOSSnapshotTestCase
     - IQKeyboardManager
     - JSONRPCKit
@@ -217,8 +266,10 @@ SPEC REPOS:
     - MailchimpSDK
     - MBProgressHUD
     - Mixpanel-swift
+    - nanopb
     - PaperTrailLumberjack
     - PromiseKit
+    - PromisesObjC
     - R.swift
     - R.swift.Library
     - Realm
@@ -227,6 +278,7 @@ SPEC REPOS:
     - SAMKeychain
     - secp256k1_ios
     - SipHash
+    - Starscream
     - StatefulViewController
     - SwiftAlgorithms
     - SwiftFormat
@@ -275,6 +327,9 @@ EXTERNAL SOURCES:
   TrustKeystore:
     :commit: c0bdc4f6ffc117b103e19d17b83109d4f5a0e764
     :git: https://github.com/AlphaWallet/latest-keystore-snapshot
+  WalletConnectSwift:
+    :branch: alphaWallet
+    :git: https://github.com/AlphaWallet/WalletConnectSwift.git
 
 CHECKOUT OPTIONS:
   AlphaWalletWeb3Provider:
@@ -298,6 +353,9 @@ CHECKOUT OPTIONS:
   TrustKeystore:
     :commit: c0bdc4f6ffc117b103e19d17b83109d4f5a0e764
     :git: https://github.com/AlphaWallet/latest-keystore-snapshot
+  WalletConnectSwift:
+    :commit: cb8dfc428ec70499a585c43e33a5e5c695b135a2
+    :git: https://github.com/AlphaWallet/WalletConnectSwift.git
 
 SPEC CHECKSUMS:
   Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
@@ -321,7 +379,13 @@ SPEC CHECKSUMS:
   CryptoSwift: c4f2debceb38bf44c80659afe009f71e23e4a082
   EthereumABI: c021720744d260b87def6aa45d94554d260cb5a9
   EthereumAddress: 39fe8e11cf04e4e9902b55ae653dbc4e0aee5f30
+  FirebaseCore: 5743c5785c074a794d35f2fff7ecc254a91e08b1
+  FirebaseCoreDiagnostics: 92e07a649aeb66352b319d43bdd2ee3942af84cb
+  FirebaseCrashlytics: 3b7f17cdf5bf1ae6ad5956696a6c26edeb39cca7
+  FirebaseInstallations: 40bd9054049b2eae9a2c38ef1c3dd213df3605cd
   FloatingPanel: 935712d7a8076630135fbbd47f717700913efef9
+  GoogleDataTransport: 1c8145da7117bd68bbbed00cf304edb6a24de00f
+  GoogleUtilities: bad72cb363809015b1f7f19beb1f1cd23c589f95
   iOSSnapshotTestCase: 9ab44cb5aa62b84d31847f40680112e15ec579a6
   IQKeyboardManager: 45a1fa55c1a5b02c61ac0fd7fd5b62bb4ad20d97
   JSONRPCKit: b2991f2f242d72022083f9d869140dabd26d65c7
@@ -331,8 +395,10 @@ SPEC CHECKSUMS:
   MailchimpSDK: 794fd7cb1095e55c764d8a699eb11fb61849ed76
   MBProgressHUD: 3ee5efcc380f6a79a7cc9b363dd669c5e1ae7406
   Mixpanel-swift: 7c0b15c3ea96a997a989737612a3e62e72c1c561
+  nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   PaperTrailLumberjack: 449587968d5aeb3eab2d4de041ffc61ee2d49f25
   PromiseKit: 32c36425387e9cfc7f1206f27bfd906d0b53c0d6
+  PromisesObjC: ab77feca74fa2823e7af4249b8326368e61014cb
   QRCodeReaderViewController: e8f27d035b3e72b1d4b1c61ff66458287e3be0ff
   R.swift: c533450b0f7dc494e0993f5f1a1db925d84c3006
   R.swift.Library: 0fc583cb55a99e28901299cc451614cad1161962
@@ -342,6 +408,7 @@ SPEC CHECKSUMS:
   SAMKeychain: 483e1c9f32984d50ca961e26818a534283b4cd5c
   secp256k1_ios: ac9ef04e761f43c58012b28548afa91493761f17
   SipHash: fad90a4683e420c52ef28063063dbbce248ea6d4
+  Starscream: 4bb2f9942274833f7b4d296a55504dcfc7edb7b0
   StatefulViewController: 4803bf900d44de26074344998e10e041113b5931
   SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
   SwiftFormat: 61cda3819dc3a7d69795ce0430e1e1d53c4a4fb2
@@ -351,9 +418,10 @@ SPEC CHECKSUMS:
   TrezorCrypto: bfeea47a052dca2c77d4a39e1e183865e52de14d
   TrustKeystore: 3d8b4571c66648fb985015c96b3185440bb837fe
   TrustWalletCore: a92d85baa15932279cce925559e93695558cafdd
+  WalletConnectSwift: 6309bf3011b0b30e3e9d1e7449535302a9240f71
   WalletConnectSwiftV2: e05838f7d04eb69197a23b37768365d8595bab32
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: 2cbfb7871b3f51b6f4d02205bd5ad38b0b129e60
+PODFILE CHECKSUM: a630c6a4f2ab558045bf3ed60220f1050feb4cb1
 
 COCOAPODS: 1.11.3
