@@ -458,6 +458,7 @@
 		8703FC11270366DA0062C416 /* popup.js in Resources */ = {isa = PBXBuildFile; fileRef = 8703FC10270366DA0062C416 /* popup.js */; };
 		8703FC15270366DA0062C416 /* AlphaWalletSafariExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 8703FBFD270366DA0062C416 /* AlphaWalletSafariExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		870415A125E8FBD30013F3E2 /* MixpanelCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 870415A025E8FBD30013F3E2 /* MixpanelCoordinatorTests.swift */; };
+		870E5A6A29537590009B859B /* NodeRpcApiProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 870E5A6929537590009B859B /* NodeRpcApiProviderTests.swift */; };
 		8712A37F26F315190009C376 /* EditPriceAlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8712A37E26F315190009C376 /* EditPriceAlertViewController.swift */; };
 		8712A38B26F476030009C376 /* StatefulView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8712A38A26F476030009C376 /* StatefulView.swift */; };
 		8712A38D26F476540009C376 /* EditPriceAlertViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8712A38C26F476540009C376 /* EditPriceAlertViewModel.swift */; };
@@ -1330,6 +1331,7 @@
 		8703FC10270366DA0062C416 /* popup.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = popup.js; sourceTree = "<group>"; };
 		8703FC12270366DA0062C416 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		870415A025E8FBD30013F3E2 /* MixpanelCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MixpanelCoordinatorTests.swift; sourceTree = "<group>"; };
+		870E5A6929537590009B859B /* NodeRpcApiProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeRpcApiProviderTests.swift; sourceTree = "<group>"; };
 		8712A37E26F315190009C376 /* EditPriceAlertViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPriceAlertViewController.swift; sourceTree = "<group>"; };
 		8712A38A26F476030009C376 /* StatefulView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatefulView.swift; sourceTree = "<group>"; };
 		8712A38C26F476540009C376 /* EditPriceAlertViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPriceAlertViewModel.swift; sourceTree = "<group>"; };
@@ -1805,6 +1807,7 @@
 			isa = PBXGroup;
 			children = (
 				02C7AF6E2770C405005367EE /* RpcNetworkTestCase.swift */,
+				870E5A6929537590009B859B /* NodeRpcApiProviderTests.swift */,
 			);
 			path = "Rpc Network";
 			sourceTree = "<group>";
@@ -5635,6 +5638,7 @@
 				87831C822849E47A002E856E /* AddressStorageTests.swift in Sources */,
 				61FC5ED11FCFBDEB00CCB12A /* EtherNumberFormatterTests.swift in Sources */,
 				29E14FD91F7F4D4E00185568 /* FakeTransactionsStorage.swift in Sources */,
+				870E5A6A29537590009B859B /* NodeRpcApiProviderTests.swift in Sources */,
 				0242551C28168C28009D626E /* EnvironmentTestCase.swift in Sources */,
 				29BDF1961FEE43F40023A45F /* UnconfirmedTransaction.swift in Sources */,
 				29E14FD71F7F490000185568 /* Transaction.swift in Sources */,

@@ -23,10 +23,10 @@ extension BlockNumberProvider {
 }
 
 extension NodeRpcApiProvider {
-    static func make(server: RPCServer, config: Config = .make()) -> NodeRpcApiProvider {
-        NodeRpcApiProvider(
+    static func make(server: RPCServer) -> NodeRpcApiProvider {
+        return NodeRpcApiProvider(
             rpcApiProvider: BaseRpcApiProvider.make(),
-            config: config,
-            server: server)
+            server: server,
+            rpcHttpParams: .init(rpcUrls: [server.rpcURL], headers: server.rpcHeaders))
     }
 }

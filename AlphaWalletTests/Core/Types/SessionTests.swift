@@ -23,7 +23,9 @@ class SessionTests: XCTestCase {
 
         networkService.callbackQueue = .main
         networkService.delay = 1
-        networkService.response = .failure(.requestError(RpcNodeRetryableRequestError.networkConnectionWasLost))
+        networkService.responseClosure = { _ in
+            return .failure(.requestError(RpcNodeRetryableRequestError.networkConnectionWasLost))
+        }
 
         provider.retries = 2
 
@@ -44,7 +46,9 @@ class SessionTests: XCTestCase {
 
         networkService.callbackQueue = .main
         networkService.delay = 1
-        networkService.response = .failure(.requestError(RpcNodeRetryableRequestError.networkConnectionWasLost))
+        networkService.responseClosure = { _ in
+            return .failure(.requestError(RpcNodeRetryableRequestError.networkConnectionWasLost))
+        }
 
         provider.retries = 3
 
@@ -65,7 +69,9 @@ class SessionTests: XCTestCase {
 
         networkService.callbackQueue = .main
         networkService.delay = 2
-        networkService.response = .failure(.requestError(RpcNodeRetryableRequestError.rateLimited(server: .main, domainName: "")))
+        networkService.responseClosure = { _ in
+            return .failure(.requestError(RpcNodeRetryableRequestError.rateLimited(server: .main, domainName: "")))
+        }
 
         provider.retries = 3
 

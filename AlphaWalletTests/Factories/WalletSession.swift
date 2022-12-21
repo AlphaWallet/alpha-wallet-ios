@@ -10,7 +10,10 @@ extension WalletSession {
         let blockchainProvider = RpcBlockchainProvider(
             server: server,
             account: account,
-            nodeApiProvider: NodeRpcApiProvider(rpcApiProvider: rpcApiProvider, config: Config(), server: server),
+            nodeApiProvider: NodeRpcApiProvider(
+                rpcApiProvider: rpcApiProvider,
+                server: server,
+                rpcHttpParams: .init(rpcUrls: [server.rpcURL], headers: server.rpcHeaders)),
             analytics: FakeAnalyticsService(),
             params: BlockchainParams.defaultParams(for: server))
         return WalletSession(account: account, server: server, config: config, analytics: analytics, blockchainProvider: blockchainProvider)
@@ -22,7 +25,10 @@ extension WalletSession {
         let blockchainProvider = RpcBlockchainProvider(
             server: server,
             account: account,
-            nodeApiProvider: NodeRpcApiProvider(rpcApiProvider: rpcApiProvider, config: Config(), server: server),
+            nodeApiProvider: NodeRpcApiProvider(
+                rpcApiProvider: rpcApiProvider,
+                server: server,
+                rpcHttpParams: .init(rpcUrls: [server.rpcURL], headers: server.rpcHeaders)),
             analytics: FakeAnalyticsService(),
             params: BlockchainParams.defaultParams(for: server))
         

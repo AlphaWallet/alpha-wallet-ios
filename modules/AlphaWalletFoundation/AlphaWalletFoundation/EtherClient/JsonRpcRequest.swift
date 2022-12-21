@@ -17,6 +17,15 @@ public struct JsonRpcRequest<R: JSONRPCKit.Request>: RpcRequest {
 
     public let server: RPCServer
     public let rpcUrl: URL
+    public var embeded: R {
+        return request.batchElement.request
+    }
+
+    public init(server: RPCServer, rpcURL: URL, request: Batch1<R>) {
+        self.server = server
+        self.rpcUrl = rpcURL
+        self.request = request
+    }
 
     public init(server: RPCServer, request: R) {
         self.server = server

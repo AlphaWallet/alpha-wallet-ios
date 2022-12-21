@@ -24,8 +24,21 @@ public class BaseRpcApiProvider: RpcApiProvider {
     private var inFlightPublishers: [URLRequest: Any] = [:]
     private var inFlightPromises: [URLRequest: Any] = [:]
 
+    private var retryBehavior: RetryBehavior<RunLoop> { .immediate(retries: retries) }
+
     public let callbackQueue = DispatchQueue.global()
-    public var retries: Int = 2
+
+    /// Request retry attempts
+    public var retries: UInt = 2
+    /// Delay before retry in seconds
+
+    public lazy var shouldOnlyRetryIf: RetryPredicate = { error in
+        guard case SessionTaskError.responseError(let e) = error else { return false }
+        if let e = e as? RpcNodeRetryableRequestError {
+            self.logRpcNodeError(e)
+        }
+        return e is RpcNodeRetryableRequestError
+    }
 
     public init(analytics: AnalyticsLogger, networkService: NetworkService, logger: RemoteLogger = .instance) {
         self.analytics = analytics
@@ -36,70 +49,68 @@ public class BaseRpcApiProvider: RpcApiProvider {
     public func dataTaskPromise<R>(_ request: R) -> PromiseKit.Promise<R.Response> where R: RpcRequest {
         return firstly {
             .value(request)
-        }.then(on: serialQueue, { [weak self, networkService, retries, serialQueue, callbackQueue] request -> PromiseKit.Promise<R.Response> in
+        }.then(on: serialQueue, { [weak self, networkService, serialQueue, retries, shouldOnlyRetryIf] request -> PromiseKit.Promise<R.Response> in
             do {
                 let urlRequest = try request.intercept(urlRequest: request.asURLRequest())
 
                 if let promise = self?.inFlightPromises[urlRequest] as? PromiseKit.Promise<R.Response> {
                     return promise
                 } else {
-                    let promise = attempt(shouldOnlyRetryIf: { error in
-                        return error is RpcNodeRetryableRequestError
-                    }, {
-                        return networkService
-                            .dataTaskPromise(urlRequest)
-                            .map { try request.parse(data: $0.data, urlResponse: $0.response) }
-                            .recover { error -> Promise<R.Response> in
-                                guard let error = error as? SessionTaskError else { return .init(error: error) }
-                                if let e = self?.convertToUserFriendlyError(error: error, server: request.server, baseUrl: request.rpcUrl) {
-                                    if let e = e as? RpcNodeRetryableRequestError {
-                                        self?.logRpcNodeError(e)
+                    let promise = firstly {
+                        attemptImmediatelly(maximumRetryCount: retries, shouldOnlyRetryIf: shouldOnlyRetryIf, {
+                            return networkService
+                                .dataTaskPromise(urlRequest)
+                                .map { try request.parse(data: $0.data, urlResponse: $0.response) }
+                                .recover { error -> Promise<R.Response> in
+                                    guard let error = error as? SessionTaskError else { return .init(error: SessionTaskError.responseError(error)) }
+                                    if let e = self?.convertToUserFriendlyError(error: error, server: request.server, baseUrl: request.rpcUrl) {
+                                        if let e = e as? RpcNodeRetryableRequestError {
+                                            self?.logRpcNodeError(e)
+                                        }
+
+                                        return .init(error: SessionTaskError.responseError(e))
+                                    } else {
+                                        return .init(error: error)
                                     }
-
-                                    return .init(error: e)
-                                } else {
-                                    return .init(error: error)
                                 }
-                            }
-                    }).ensure(on: serialQueue, { self?.inFlightPromises[urlRequest] = .none })
+                        })
+                    }.ensure(on: serialQueue, { self?.inFlightPromises[urlRequest] = .none })
 
-                    self?.inFlightPromises[urlRequest]
+                    self?.inFlightPromises[urlRequest] = promise
 
                     return promise
+                    fatalError()
                 }
             } catch {
                 return .init(error: SessionTaskError.requestError(error))
             }
         })
     }
+
     /// Performs rpc request, caches publisher and return shared publisher
     public func dataTaskPublisher<R>(_ request: R) -> AnyPublisher<R.Response, SessionTaskError> where R: RpcRequest {
         return Just(request)
             .receive(on: serialQueue)
             .setFailureType(to: SessionTaskError.self)
-            .flatMap { [weak self, networkService, retries, serialQueue, callbackQueue] request -> AnyPublisher<R.Response, SessionTaskError> in
+            .flatMap { [weak self, networkService, serialQueue, callbackQueue, retryBehavior, shouldOnlyRetryIf] request -> AnyPublisher<R.Response, SessionTaskError> in
                 do {
                     let urlRequest = try request.intercept(urlRequest: request.asURLRequest())
 
                     if let publisher = self?.inFlightPublishers[urlRequest] as? AnyPublisher<R.Response, SessionTaskError> {
                         return publisher
                     } else {
-                        let publisher = networkService.dataTaskPublisher(urlRequest)
+                        let publisher = networkService
+                            .dataTaskPublisher(urlRequest)
                             .tryMap { try request.parse(data: $0.data, urlResponse: $0.response) }
                             .mapError { error -> SessionTaskError in
                                 guard let error = error as? SessionTaskError else { return .responseError(error)  }
                                 if let e = self?.convertToUserFriendlyError(error: error, server: request.server, baseUrl: request.rpcUrl) {
-                                    return .requestError(e)
+                                    return .responseError(e)
                                 } else {
                                     return error
                                 }
-                            }.retry(times: retries, when: {
-                                guard case SessionTaskError.requestError(let e) = $0 else { return false }
-                                if let e = e as? RpcNodeRetryableRequestError {
-                                    self?.logRpcNodeError(e)
-                                }
-                                return e is RpcNodeRetryableRequestError
-                            }).receive(on: serialQueue)
+                            }.retry(retryBehavior, shouldOnlyRetryIf: shouldOnlyRetryIf, scheduler: RunLoop.main)
+                            .receive(on: serialQueue)
                             .handleEvents(receiveCompletion: { _ in self?.inFlightPublishers[urlRequest] = .none })
                             .receive(on: callbackQueue)
                             .share()
@@ -152,7 +163,7 @@ public class BaseRpcApiProvider: RpcApiProvider {
             if let jsonRpcError = e as? JSONRPCError {
                 switch jsonRpcError {
                 case .responseError(let code, let message, _):
-                    //Lowercased as RPC nodes implementation differ
+                    //NOTE: Lowercased as RPC nodes implementation differ
                     if message.lowercased().hasPrefix("insufficient funds") {
                         return SendTransactionNotRetryableError.insufficientFunds(message: message)
                     } else if message.lowercased().hasPrefix("execution reverted") || message.lowercased().hasPrefix("vm execution error") || message.lowercased().hasPrefix("revert") {
@@ -225,14 +236,11 @@ public class BaseRpcApiProvider: RpcApiProvider {
     // swiftlint:enable function_body_length
 }
 
-public enum RpcSource {
-    case http
-    case webSocket
-}
-
 extension RPCServer {
-    var rpcSource: RpcSource {
-        return .http
+
+    func rpcSource(config: Config) -> RpcSource {
+        let privateParams = config.sendPrivateTransactionsProvider?.rpcUrl(forServer: self).flatMap { PrivateNetworkParams(rpcUrl: $0, headers: [:] ) }
+        return .http(params: .init(rpcUrls: [rpcURL], headers: rpcHeaders), privateParams: privateParams)
     }
 
     public static func serverWithRpcURL(_ string: String) -> RPCServer? {

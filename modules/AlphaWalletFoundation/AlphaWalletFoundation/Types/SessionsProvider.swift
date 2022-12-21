@@ -53,11 +53,17 @@ open class SessionsProvider {
                         sessions[server] = session
                     } else {
                         let nodeApiProvider: NodeApiProvider
-                        switch server.rpcSource {
-                        case .http:
-                            nodeApiProvider = NodeRpcApiProvider(rpcApiProvider: rpcApiProvider, config: config, server: server)
-                        case .webSocket:
-                            nodeApiProvider = WebSocketNodeApiProvider()
+                        switch server.rpcSource(config: config) {
+                        case .http(let rpcHttpParams, let privateNetworkParams):
+                            let rpcNodeApiProvider = NodeRpcApiProvider(
+                                rpcApiProvider: rpcApiProvider,
+                                server: server,
+                                rpcHttpParams: rpcHttpParams)
+                            rpcNodeApiProvider.requestInterceptor = PrivateRpcNodeInterceptor(server: server, privateNetworkParams: privateNetworkParams)
+                            nodeApiProvider = rpcNodeApiProvider
+
+                        case .webSocket(let url, let privateNetworkParams):
+                            nodeApiProvider = WebSocketNodeApiProvider(url: url)
                         }
 
                         let blockchainProvider: BlockchainProvider = RpcBlockchainProvider(
@@ -67,7 +73,13 @@ open class SessionsProvider {
                             analytics: analytics,
                             params: .defaultParams(for: server))
 
-                        let session = WalletSession(account: wallet, server: server, config: config, analytics: analytics, blockchainProvider: blockchainProvider)
+                        let session = WalletSession(
+                            account: wallet,
+                            server: server,
+                            config: config,
+                            analytics: analytics,
+                            blockchainProvider: blockchainProvider)
+                        
                         sessions[server] = session
                     }
                 }

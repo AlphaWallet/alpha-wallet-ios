@@ -8,7 +8,9 @@ import AlphaWalletCore
 import PromiseKit
 
 final class FakeNetworkService: NetworkService {
-    var response: Swift.Result<URLRequest.Response, AlphaWalletFoundation.SessionTaskError>?
+    var responseClosure: ((AlphaWalletFoundation.URLRequestConvertible) -> Swift.Result<URLRequest.Response, AlphaWalletFoundation.SessionTaskError>) = { _ in
+        return .failure(.responseError(PMKError.badInput))
+    }
     var callbackQueue: DispatchQueue = .main
     var delay: TimeInterval = 0.5
     private (set) var calls: Int = 0
@@ -27,14 +29,12 @@ final class FakeNetworkService: NetworkService {
             self.calls += 1
 
             callbackQueue.asyncAfter(deadline: .now() + delay) {
-                switch self.response {
+                switch self.responseClosure(request) {
                 case .success(let value):
                     seal.send(value)
                     seal.send(completion: .finished)
                 case .failure(let error):
                     seal.send(completion: .failure(error))
-                case .none:
-                    seal.send(completion: .finished)
                 }
             }
 
@@ -46,14 +46,15 @@ final class FakeNetworkService: NetworkService {
 
     func dataTaskPromise(_ request: AlphaWalletFoundation.URLRequestConvertible) -> Promise<URLRequest.Response> {
         PromiseKit.Promise<URLRequest.Response>.init { [callbackQueue, delay] seal in
+            self.calls += 1
+            
+            print("xxx.send request to: \(request.urlRequest?.url)")
             callbackQueue.asyncAfter(deadline: .now() + delay) {
-                switch self.response {
+                switch self.responseClosure(request) {
                 case .success(let value):
                     seal.fulfill(value)
                 case .failure(let error):
                     seal.reject(error)
-                case .none:
-                    seal.reject(PMKError.cancelled)
                 }
             }
         }

@@ -77,7 +77,7 @@ public final class RpcBlockchainProvider: BlockchainProvider {
             nodeApiProvider.dataTaskPromise(BalanceRequest(address: address, block: .latest))
         }.get {
             print("xxx.getBalance value: \($0)")
-        }.recover { e  -> Promise<Balance> in
+        }.recover { e -> Promise<Balance> in
             print("xxx.getBalance error: \(e)")
             return .init(error: e)
         }
@@ -149,7 +149,7 @@ public final class RpcBlockchainProvider: BlockchainProvider {
             .dataTaskPromise(GetTransactionCountRequest(address: wallet.address, block: .pending))
             .get {
                 print("xxx.nextNoncePromise value: \($0)")
-            }.recover { e  -> Promise<Int> in
+            }.recover { e -> Promise<Int> in
                 print("xxx.nextNoncePromise error: \(e)")
                 return .init(error: e)
             }
