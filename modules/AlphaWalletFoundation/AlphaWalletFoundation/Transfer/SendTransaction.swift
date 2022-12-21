@@ -3,106 +3,79 @@
 import BigInt
 import Foundation
 import PromiseKit
+import Combine
+import AlphaWalletCore
 
 public class SendTransaction {
     private let keystore: Keystore
-    private let session: WalletSession
+    private let blockchainProvider: BlockchainProvider
     private let confirmType: ConfirmType
     private let prompt: String
 
-    public init(session: WalletSession,
+    public init(blockchainProvider: BlockchainProvider,
                 keystore: Keystore,
                 confirmType: ConfirmType,
                 prompt: String) {
 
         self.prompt = prompt
-        self.session = session
+        self.blockchainProvider = blockchainProvider
         self.keystore = keystore
         self.confirmType = confirmType
     }
 
     public func sendPromise(rawTransaction: String) -> Promise<ConfirmResult> {
         return firstly {
-            session.blockchainProvider.sendPromise(rawTransaction: rawTransaction)
+            blockchainProvider.sendPromise(rawTransaction: rawTransaction)
         }.map { transactionID in
             .sentRawTransaction(id: transactionID, original: rawTransaction)
         }
     }
 
-    private func appendNonce(to: UnsignedTransaction, currentNonce: Int) -> UnsignedTransaction {
-        return UnsignedTransaction(
-            value: to.value,
-            account: to.account,
-            to: to.to,
-            nonce: currentNonce,
-            data: to.data,
-            gasPrice: to.gasPrice,
-            gasLimit: to.gasLimit,
-            server: to.server,
-            transactionType: to.transactionType)
-    }
-
-    public func sendPromise(transaction: UnsignedTransaction) -> Promise<ConfirmResult> {
+    public func sendPublisher(transaction: UnsignedTransaction) -> AnyPublisher<ConfirmResult, PromiseError> {
         if transaction.nonce >= 0 {
             return signAndSend(transaction: transaction)
         } else {
-            return firstly {
-                resolveNextNonce(for: transaction)
-            }.then { transaction -> Promise<ConfirmResult> in
-                return self.signAndSend(transaction: transaction)
-            }
+            return blockchainProvider
+                .nextNoncePublisher()
+                .map { transaction.overriding(nonce: $0) }
+                .mapError { PromiseError(error: $0) }
+                .flatMap { self.signAndSend(transaction: $0) }
+                .eraseToAnyPublisher()
         }
     }
 
-    private func resolveNextNonce(for transaction: UnsignedTransaction) -> Promise<UnsignedTransaction> {
-        session.blockchainProvider
-            .nextNoncePromise()
-            .map { nonce -> UnsignedTransaction in
-                let transaction = self.appendNonce(to: transaction, currentNonce: nonce)
-                return transaction
-            }
-    }
-
-    private func signAndSend(transaction: UnsignedTransaction) -> Promise<ConfirmResult> {
-        firstly {
-            keystore.signTransactionPromise(transaction, prompt: prompt)
-        }.then { data -> Promise<ConfirmResult> in
-            switch self.confirmType {
-            case .sign:
-                return .value(.signedTransaction(data))
-            case .signThenSend:
-                return self.sendTransactionRequest(transaction: transaction, data: data)
-            }
-        }
-    }
-
-    private func sendTransactionRequest(transaction: UnsignedTransaction, data: Data) -> Promise<ConfirmResult> {
-        return firstly {
-            session.blockchainProvider.sendPromise(transaction: transaction, data: data)
-        }.map { transactionID in
-            .sentTransaction(SentTransaction(id: transactionID, original: transaction))
-        }
-    }
-}
-
-extension RPCServer {
-    public func rpcUrlAndHeadersWithReplacementSendPrivateTransactionsProviderIfEnabled(config: Config) -> (url: URL, rpcHeaders: [String: String]) {
-        if let rpcUrlForSendPrivateTransactionsNetworkProvider = config.sendPrivateTransactionsProvider?.rpcUrl(forServer: self) {
-            return (url: rpcUrlForSendPrivateTransactionsNetworkProvider, rpcHeaders: .init())
-        } else {
-            return (url: rpcURL, rpcHeaders: rpcHeaders)
-        }
+    private func signAndSend(transaction: UnsignedTransaction) -> AnyPublisher<ConfirmResult, PromiseError> {
+        return keystore
+            .signTransactionPublisher(transaction, prompt: prompt)
+            .mapError { PromiseError(error: $0) }
+            .flatMap { [confirmType, blockchainProvider] data -> AnyPublisher<ConfirmResult, PromiseError> in
+                switch confirmType {
+                case .sign:
+                    return .just(.signedTransaction(data))
+                case .signThenSend:
+                    return blockchainProvider
+                        .sendPublisher(transaction: transaction, data: data)
+                        .map { ConfirmResult.sentTransaction(SentTransaction(id: $0, original: transaction)) }
+                        .mapError { PromiseError(error: $0) }
+                        .eraseToAnyPublisher()
+                }
+            }.eraseToAnyPublisher()
     }
 }
 
 extension Keystore {
-    public func signTransactionPromise(_ transaction: UnsignedTransaction, prompt: String) -> Promise<Data> {
-        return Promise { seal in
+    public func signTransactionPublisher(_ transaction: UnsignedTransaction, prompt: String) -> AnyPublisher<Data, KeystoreError> {
+        return AnyPublisher<Data, KeystoreError>.create { seal in
             switch signTransaction(transaction, prompt: prompt) {
             case .success(let data):
-                seal.fulfill(data)
+                seal.send(data)
+                seal.send(completion: .finished)
             case .failure(let error):
-                seal.reject(error)
+                seal.send(completion: .failure(error))
+            }
+
+            return AnyCancellable {
+
             }
         }
     }

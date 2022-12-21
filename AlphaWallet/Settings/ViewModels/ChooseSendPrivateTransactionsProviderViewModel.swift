@@ -10,6 +10,7 @@ struct ChooseSendPrivateTransactionsProviderViewModelInput {
 }
 
 struct ChooseSendPrivateTransactionsProviderViewModelOutput {
+    let privateTransactionsProviderChanged: AnyPublisher<Void, Never>
     let viewState: AnyPublisher<ChooseSendPrivateTransactionsProviderViewModel.ViewState, Never>
 }
 
@@ -22,8 +23,11 @@ class ChooseSendPrivateTransactionsProviderViewModel {
     }
 
     func transform(input: ChooseSendPrivateTransactionsProviderViewModelInput) -> ChooseSendPrivateTransactionsProviderViewModelOutput {
-        let selection = input.selection
+        let selectProvider = input.selection
             .map { return self.selectProvider(indexPath: $0) }
+            .share()
+
+        let selection = selectProvider
             .prepend(config.sendPrivateTransactionsProvider)
 
         let providers = input.willAppear
@@ -35,8 +39,11 @@ class ChooseSendPrivateTransactionsProviderViewModel {
             }.map { self.buildSnapshot(for: $0) }
             .map { ChooseSendPrivateTransactionsProviderViewModel.ViewState(snapshot: $0) }
             .eraseToAnyPublisher()
+        let privateTransactionsProviderChanged = selectProvider
+            .mapToVoid()
+            .eraseToAnyPublisher()
 
-        return .init(viewState: viewState)
+        return .init(privateTransactionsProviderChanged: privateTransactionsProviderChanged, viewState: viewState)
     }
 
     private func buildSnapshot(for viewModels: [SwitchTableViewCellViewModel]) -> Snapshot {

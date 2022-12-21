@@ -25,4 +25,17 @@ public struct UnsignedTransaction {
         self.server = server
         self.transactionType = transactionType
     }
+
+    func overriding(nonce: Int) -> UnsignedTransaction {
+        return UnsignedTransaction(
+            value: value,
+            account: account,
+            to: to,
+            nonce: nonce,
+            data: data,
+            gasPrice: gasPrice,
+            gasLimit: gasLimit,
+            server: server,
+            transactionType: transactionType)
+    }
 }

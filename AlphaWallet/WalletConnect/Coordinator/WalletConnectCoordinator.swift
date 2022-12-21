@@ -495,7 +495,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         }.then { shouldSend -> Promise<ConfirmResult> in
             guard shouldSend else { return .init(error: DAppError.cancelled) }
             let prompt = R.string.localizable.keystoreAccessKeySign()
-            let sender = SendTransaction(session: session, keystore: self.keystore, confirmType: .sign, prompt: prompt)
+            let sender = SendTransaction(blockchainProvider: session.blockchainProvider, keystore: self.keystore, confirmType: .sign, prompt: prompt)
             return sender.sendPromise(rawTransaction: rawTransaction)
         }.map { data in
             switch data {

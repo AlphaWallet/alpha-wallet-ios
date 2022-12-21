@@ -85,7 +85,11 @@ public class TransactionConfigurator {
         self.networkService = networkService
         self.gasPriceEstimator = GasPriceEstimator(blockchainProvider: session.blockchainProvider, networkService: networkService)
 
-        let standardConfiguration = TransactionConfigurator.createConfiguration(server: session.server, gasPriceEstimator: gasPriceEstimator, transaction: transaction)
+        let standardConfiguration = TransactionConfigurator.createConfiguration(
+            blockchainParams: session.blockchainProvider.params,
+            gasPriceEstimator: gasPriceEstimator,
+            transaction: transaction)
+
         self.configurations = .init(standard: standardConfiguration)
     }
 
@@ -183,16 +187,15 @@ public class TransactionConfigurator {
         return nil
     }
 
-    private static func createConfiguration(server: RPCServer, gasPriceEstimator: GasPriceEstimator, transaction: UnconfirmedTransaction) -> TransactionConfiguration {
-        let maxGasLimit = GasLimitConfiguration.maxGasLimit(forServer: server)
+    private static func createConfiguration(blockchainParams: BlockchainParams, gasPriceEstimator: GasPriceEstimator, transaction: UnconfirmedTransaction) -> TransactionConfiguration {
         let gasPrice = gasPriceEstimator.estimateDefaultGasPrice(transaction: transaction)
         let gasLimit: BigUInt
 
         switch transaction.transactionType {
         case .nativeCryptocurrency:
-            gasLimit = GasLimitConfiguration.minGasLimit
+            gasLimit = blockchainParams.minGasLimit
         case .erc20Token, .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token, .prebuilt:
-            gasLimit = transaction.gasLimit ?? maxGasLimit
+            gasLimit = transaction.gasLimit ?? blockchainParams.maxGasLimit
         }
 
         return TransactionConfiguration(gasPrice: gasPrice, gasLimit: gasLimit, data: transaction.data ?? .init())

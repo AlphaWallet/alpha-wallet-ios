@@ -16,21 +16,26 @@ public final class BaseSessionFactory: SessionFactory {
     private let config: Config
     private let rpcApiProvider: RpcApiProvider
     private let analytics: AnalyticsLogger
+    private let sessionsParamsStorage: SessionsParamsStorage
 
-    public init(config: Config, rpcApiProvider: RpcApiProvider, analytics: AnalyticsLogger) {
+    public init(config: Config, rpcApiProvider: RpcApiProvider, analytics: AnalyticsLogger, sessionsParamsStorage: SessionsParamsStorage) {
         self.config = config
         self.rpcApiProvider = rpcApiProvider
         self.analytics = analytics
+        self.sessionsParamsStorage = sessionsParamsStorage
     }
 
     public func buildSession(server: RPCServer, wallet: Wallet) -> WalletSession {
         let nodeApiProvider: NodeApiProvider
-        switch server.rpcSource(config: config) {
+        let params = sessionsParamsStorage.sessionParams(chainId: server.chainID)
+        
+        switch params.rpcSource {
         case .http(let rpcHttpParams, let privateNetworkParams):
             let rpcNodeApiProvider = NodeRpcApiProvider(
                 rpcApiProvider: rpcApiProvider,
                 server: server,
                 rpcHttpParams: rpcHttpParams)
+            
             rpcNodeApiProvider.requestInterceptor = PrivateRpcNodeInterceptor(server: server, privateNetworkParams: privateNetworkParams)
             nodeApiProvider = rpcNodeApiProvider
 
@@ -43,7 +48,7 @@ public final class BaseSessionFactory: SessionFactory {
             account: wallet,
             nodeApiProvider: nodeApiProvider,
             analytics: analytics,
-            params: .defaultParams(for: server))
+            params: params.blockchainParams)
 
         return WalletSession(
             account: wallet,

@@ -6,6 +6,7 @@ import AlphaWalletFoundation
 
 struct EditedTransactionConfiguration {
     private let formatter = EtherNumberFormatter.full
+    private let blockchainParams: BlockchainParams
 
     var gasPrice: BigUInt {
         return formatter.number(from: String(gasPriceRawValue), units: UnitConfiguration.gasPriceUnit).flatMap { BigUInt($0) } ?? BigUInt()
@@ -31,8 +32,13 @@ struct EditedTransactionConfiguration {
     var overriddenMaxGasPrice: Int?
     var overriddenMaxGasLimit: Int?
 
-    let defaultMinGasLimit = Int(GasLimitConfiguration.minGasLimit)
-    let defaultMinGasPrice = Int(GasPriceConfiguration.minPrice / BigUInt(UnitConfiguration.gasPriceUnit.rawValue))
+    var defaultMinGasLimit: Int {
+        return Int(blockchainParams.minPrice / BigUInt(UnitConfiguration.gasPriceUnit.rawValue))
+    }
+
+    var defaultMinGasPrice: Int {
+        return Int(blockchainParams.minPrice / BigUInt(UnitConfiguration.gasPriceUnit.rawValue))
+    }
 
     private let defaultMaxGasLimit: Int
     private let defaultMaxGasPrice: Int
@@ -69,13 +75,14 @@ struct EditedTransactionConfiguration {
         }
     }
 
-    init(configuration: TransactionConfiguration, server: RPCServer) {
-        defaultMaxGasLimit = Int(GasLimitConfiguration.maxGasLimit(forServer: server))
+    init(configuration: TransactionConfiguration, blockchainParams: BlockchainParams) {
+        self.blockchainParams = blockchainParams
+        defaultMaxGasLimit = Int(blockchainParams.maxGasLimit)
         gasLimitRawValue = Int(configuration.gasLimit.description) ?? 21000
         gasPriceRawValue = Int(configuration.gasPrice / BigUInt(UnitConfiguration.gasPriceUnit.rawValue))
         nonceRawValue = Int(configuration.nonce.flatMap { String($0) } ?? "")
         dataRawValue = configuration.data.hexEncoded.add0x
-        defaultMaxGasPrice = Int(GasPriceConfiguration.maxPrice(forServer: server) / BigUInt(UnitConfiguration.gasPriceUnit.rawValue))
+        defaultMaxGasPrice = Int(blockchainParams.maxPrice / BigUInt(UnitConfiguration.gasPriceUnit.rawValue))
 
         updateMaxGasLimitIfNeeded(gasLimitRawValue)
         updateMaxGasPriceIfNeeded(gasPriceRawValue)

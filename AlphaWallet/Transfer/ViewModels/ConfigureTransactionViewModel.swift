@@ -143,13 +143,17 @@ struct ConfigureTransactionViewModel {
         self.transactionType = configurator.transaction.transactionType
         self.recoveryMode = recoveryMode
         self.service = service
+
         switch recoveryMode {
         case .invalidNonce:
             selectedConfigurationType = .custom
         case .none:
             selectedConfigurationType = configurator.selectedConfigurationType
         }
-        configurationToEdit = EditedTransactionConfiguration(configuration: configurator.configurations.custom, server: configurator.session.server)
+
+        configurationToEdit = EditedTransactionConfiguration(
+            configuration: configurator.configurations.custom,
+            blockchainParams: configurator.session.blockchainProvider.params)
     }
 
     static func sortedConfigurationTypes(fromConfigurations configurations: TransactionConfigurations) -> [TransactionConfigurationType] {
@@ -166,7 +170,13 @@ struct ConfigureTransactionViewModel {
         let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: configurator.session.server)
         let rate = service.tokenViewModel(for: etherToken)?.balance.ticker.flatMap { CurrencyRate(currency: $0.currency, value: $0.price_usd) }
 
-        return .init(configuration: configuration, configurationType: configurationType, rate: rate, symbol: server.symbol, title: configurationType.title, isSelected: isSelected)
+        return .init(
+            configuration: configuration,
+            configurationType: configurationType,
+            rate: rate,
+            symbol: server.symbol,
+            title: configurationType.title,
+            isSelected: isSelected)
     }
 
     func gasSpeedViewModel(configurationType: TransactionConfigurationType) -> GasSpeedViewModel {

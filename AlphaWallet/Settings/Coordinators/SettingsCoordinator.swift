@@ -10,6 +10,7 @@ enum RestartReason {
     case changeLocalization
     case serverChange
     case currencyChange
+    case sendPrivateTransactionsProviderChange
 }
 
 protocol SettingsCoordinatorDelegate: AnyObject, CanOpenURL {
@@ -390,6 +391,7 @@ extension SettingsCoordinator: AdvancedSettingsViewControllerDelegate {
         let viewModel = ChooseSendPrivateTransactionsProviderViewModel(config: config)
         let controller = ChooseSendPrivateTransactionsProviderViewController(viewModel: viewModel)
         controller.navigationItem.largeTitleDisplayMode = .never
+        controller.delegate = self
 
         navigationController.pushViewController(controller, animated: true)
     }
@@ -407,6 +409,12 @@ extension SettingsCoordinator: AdvancedSettingsViewControllerDelegate {
         navigationController.pushViewController(controller, animated: true)
     }
 
+}
+
+extension SettingsCoordinator: ChooseSendPrivateTransactionsProviderViewControllerDelegate {
+    func didChangePrivateTransactionsProvider(in viewController: ChooseSendPrivateTransactionsProviderViewController) {
+        restart(for: account, reason: .sendPrivateTransactionsProviderChange)
+    }
 }
 
 extension SettingsCoordinator: ChangeCurrencyCoordinatorDelegate {

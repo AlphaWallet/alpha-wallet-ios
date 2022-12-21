@@ -55,12 +55,21 @@ class AppCoordinator: NSObject, Coordinator {
     var activeWalletCoordinator: ActiveWalletCoordinator? {
         return coordinators.first { $0 is ActiveWalletCoordinator } as? ActiveWalletCoordinator
     }
-
+    private lazy var sessionsParamsStorage: SessionsParamsStorage = SessionsParamsFileStorage(privateNetworkRpcNodeParamsProvider: config)
     private lazy var currencyService = CurrencyService(storage: config)
     private lazy var coinTickersFetcher: CoinTickersFetcher = CoinTickersFetcherImpl(networkService: networkService)
     private lazy var nftProvider: NFTProvider = AlphaWalletNFTProvider(analytics: analytics)
     private lazy var dependencyProvider: WalletDependencyContainer = {
-        WalletComponentsFactory(analytics: analytics, nftProvider: nftProvider, assetDefinitionStore: assetDefinitionStore, coinTickersFetcher: coinTickersFetcher, config: config, currencyService: currencyService, networkService: networkService, rpcApiProvider: rpcApiProvider)
+        WalletComponentsFactory(
+            analytics: analytics,
+            nftProvider: nftProvider,
+            assetDefinitionStore: assetDefinitionStore,
+            coinTickersFetcher: coinTickersFetcher,
+            config: config,
+            currencyService: currencyService,
+            networkService: networkService,
+            rpcApiProvider: rpcApiProvider,
+            sessionsParamsStorage: sessionsParamsStorage)
     }()
     private lazy var walletBalanceService: WalletBalanceService = {
         let service = MultiWalletBalanceService(walletAddressesStore: walletAddressesStore, dependencyContainer: dependencyProvider)
@@ -153,7 +162,8 @@ class AppCoordinator: NSObject, Coordinator {
         factory: BaseSessionFactory(
             config: config,
             rpcApiProvider: rpcApiProvider,
-            analytics: analytics))
+            analytics: analytics,
+            sessionsParamsStorage: sessionsParamsStorage))
 
     private let securedStorage: SecuredPasswordStorage & SecuredStorage
     private let addressStorage: FileAddressStorage
@@ -678,7 +688,7 @@ extension AppCoordinator: AccountsCoordinatorDelegate {
 
     private func disconnectWalletConnectSessionsSelectively(for reason: RestartReason, walletConnectCoordinator: WalletConnectCoordinator) {
         switch reason {
-        case .changeLocalization, .walletChange, .currencyChange:
+        case .changeLocalization, .walletChange, .currencyChange, .sendPrivateTransactionsProviderChange:
             break //no op
         case .serverChange:
             walletConnectCoordinator.disconnect(sessionsToDisconnect: .allExcept(config.enabledServers))

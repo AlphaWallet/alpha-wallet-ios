@@ -17,6 +17,7 @@ class SessionTests: XCTestCase {
     private var cancelable = Set<AnyCancellable>()
     private let networkService = FakeNetworkService()
     private lazy var provider = BaseRpcApiProvider.make(networkService: networkService)
+    private let rpcUrl = URL(string: "http://google.com")!
 
     func testSessionDefaultRetries() throws {
         let callCompletionExpectation = self.expectation(description: "expect to call callback closure after few retries")
@@ -30,7 +31,7 @@ class SessionTests: XCTestCase {
         provider.retries = 2
 
         provider
-            .dataTaskPublisher(JsonRpcRequest(server: .main, request: FakeBlockNumberRequest()))
+            .dataTaskPublisher(JsonRpcRequest(server: .main, rpcURL: rpcUrl, request: FakeBlockNumberRequest()))
             .replaceError(with: .zero)
             .eraseToAnyPublisher()
             .sink { [networkService] _ in
@@ -53,7 +54,7 @@ class SessionTests: XCTestCase {
         provider.retries = 3
 
         provider
-            .dataTaskPublisher(JsonRpcRequest(server: .main, request: FakeBlockNumberRequest()))
+            .dataTaskPublisher(JsonRpcRequest(server: .main, rpcURL: rpcUrl, request: FakeBlockNumberRequest()))
             .replaceError(with: .zero)
             .eraseToAnyPublisher()
             .sink { [networkService] _ in
@@ -76,7 +77,7 @@ class SessionTests: XCTestCase {
         provider.retries = 3
 
         let cancelable = provider
-            .dataTaskPublisher(JsonRpcRequest(server: .main, request: FakeBlockNumberRequest()))
+            .dataTaskPublisher(JsonRpcRequest(server: .main, rpcURL: rpcUrl, request: FakeBlockNumberRequest()))
             .print("xxx.dataTaskPublisher")
             .eraseToAnyPublisher()
             .sink(receiveCompletion: { _ in

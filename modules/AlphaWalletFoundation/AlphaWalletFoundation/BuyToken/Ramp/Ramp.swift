@@ -84,7 +84,7 @@ public final class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType 
 
                 guard case .failure(let error) = result else { return }
                 let request = RampNetworkProvider.RampRequest()
-                RemoteLogger.instance.logRpcOrOtherWebError("Ramp error | \(error)", url: request.urlRequest?.url?.absoluteString ?? "")
+                RemoteLogger.instance.logWebError("Ramp error | \(error)", url: request.urlRequest?.url?.absoluteString ?? "")
             } receiveValue: {
                 self.assets = .success($0)
             }.store(in: &cancelable)

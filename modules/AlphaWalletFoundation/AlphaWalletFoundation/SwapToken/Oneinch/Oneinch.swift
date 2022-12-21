@@ -58,7 +58,7 @@ public class Oneinch: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
 
                 guard case .failure(let error) = result else { return }
                 let request = RampNetworkProvider.RampRequest()
-                RemoteLogger.instance.logRpcOrOtherWebError("Oneinch error | \(error)", url: request.urlRequest?.url?.absoluteString ?? "")
+                RemoteLogger.instance.logWebError("Oneinch error | \(error)", url: request.urlRequest?.url?.absoluteString ?? "")
             } receiveValue: { assets in
                 var newAssets: [AlphaWallet.Address: Oneinch.Asset] = [:]
                 for asset in self.predefinedAssets + assets {

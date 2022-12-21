@@ -58,7 +58,7 @@ public struct JsonRpcRequest<R: JSONRPCKit.Request>: RpcRequest {
         self.request = request
     }
 
-    public init(server: RPCServer, request: R) {
+    public init(server: RPCServer, rpcURL: URL, request: R) {
         self.server = server
         self.rpcUrl = server.rpcURL
         self.request = BatchFactory(version: "2.0", idGenerator: SharedNumberIdGenerator()).create(request)

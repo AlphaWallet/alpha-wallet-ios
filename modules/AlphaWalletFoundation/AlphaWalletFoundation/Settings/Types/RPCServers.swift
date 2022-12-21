@@ -280,7 +280,7 @@ public enum RPCServer: Hashable, CaseIterable {
         }
     }
 
-    private var etherscanCompatibleType: EtherscanCompatibleType {
+    public var etherscanCompatibleType: EtherscanCompatibleType {
         switch self {
         case .main, .goerli, .fantom, .heco, .heco_testnet, .optimistic, .binance_smart_chain, .binance_smart_chain_testnet, .polygon, .arbitrum, .cronosMainnet, .avalanche, .avalanche_testnet:
             return .etherscan

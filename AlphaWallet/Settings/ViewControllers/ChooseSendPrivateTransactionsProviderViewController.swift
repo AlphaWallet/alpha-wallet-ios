@@ -4,6 +4,10 @@ import UIKit
 import AlphaWalletFoundation
 import Combine
 
+protocol ChooseSendPrivateTransactionsProviderViewControllerDelegate: AnyObject {
+    func didChangePrivateTransactionsProvider(in viewController: ChooseSendPrivateTransactionsProviderViewController)
+}
+
 class ChooseSendPrivateTransactionsProviderViewController: UIViewController {
     private let viewModel: ChooseSendPrivateTransactionsProviderViewModel
     private lazy var tableView: UITableView = {
@@ -18,6 +22,8 @@ class ChooseSendPrivateTransactionsProviderViewController: UIViewController {
     private let willAppear = PassthroughSubject<Void, Never>()
     private let selection = PassthroughSubject<IndexPath, Never>()
     private var cancelable = Set<AnyCancellable>()
+
+    weak var delegate: ChooseSendPrivateTransactionsProviderViewControllerDelegate?
 
     init(viewModel: ChooseSendPrivateTransactionsProviderViewModel) {
         self.viewModel = viewModel
@@ -54,6 +60,12 @@ class ChooseSendPrivateTransactionsProviderViewController: UIViewController {
                 navigationItem.title = state.title
 
                 dataSource.apply(state.snapshot, animatingDifferences: false)
+            }.store(in: &cancelable)
+
+        output.privateTransactionsProviderChanged
+            .sink { [weak self] _ in
+                guard let strongSelf = self else { return }
+                strongSelf.delegate?.didChangePrivateTransactionsProvider(in: strongSelf)
             }.store(in: &cancelable)
     }
 

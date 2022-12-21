@@ -9,6 +9,8 @@ import UIKit
 import BigInt
 import PromiseKit
 import AlphaWalletFoundation
+import AlphaWalletCore
+import Combine
 
 protocol TransactionConfirmationCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryptoDelegate {
     func didFinish(_ result: ConfirmResult, in coordinator: TransactionConfirmationCoordinator)
@@ -44,6 +46,7 @@ class TransactionConfirmationCoordinator: Coordinator {
     private let keystore: Keystore
     private let assetDefinitionStore: AssetDefinitionStore
     private let tokensService: TokenViewModelState
+    private var cancellable = Set<AnyCancellable>()
 
     var coordinators: [Coordinator] = []
     weak var delegate: TransactionConfirmationCoordinatorDelegate?
@@ -126,34 +129,40 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
         canBeDismissed = false
         rootViewController.set(state: .pending)
 
-        firstly { () -> Promise<ConfirmResult> in
-            return sendTransaction()
-        }.done { result in
-            self.handleSendTransactionSuccessfully(result: result)
-            self.logCompleteActionSheetForTransactionConfirmationSuccessfully()
-        }.catch { error in
-            self.logActionSheetForTransactionConfirmationFailed()
-            //TODO remove delay which is currently needed because the starting animation may not have completed and internal state (whether animation is running) is in correct
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                self.rootViewController.set(state: .done(withError: true)) {
-                    self.handleSendTransactionError(error)
+        sendTransaction()
+            .sink(receiveCompletion: { result in
+                if case .failure(let error)  = result {
+                    self.logActionSheetForTransactionConfirmationFailed()
+                    //TODO remove delay which is currently needed because the starting animation may not have completed and internal state (whether animation is running) is in correct
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                        self.rootViewController.set(state: .done(withError: true)) {
+                            self.handleSendTransactionError(error.embedded)
+                        }
+                    }
                 }
-            }
-        }.finally {
-            sender.isEnabled = true
-            self.canBeDismissed = true
-        }
+
+                sender.isEnabled = true
+                self.canBeDismissed = true
+            }, receiveValue: { result in
+                self.handleSendTransactionSuccessfully(result: result)
+                self.logCompleteActionSheetForTransactionConfirmationSuccessfully()
+            }).store(in: &cancellable)
     }
 
-    private func sendTransaction() -> Promise<ConfirmResult> {
+    private func sendTransaction() -> AnyPublisher<ConfirmResult, PromiseError> {
         let prompt = R.string.localizable.keystoreAccessKeySign()
-        let sender = SendTransaction(session: configurator.session, keystore: keystore, confirmType: configuration.confirmType, prompt: prompt)
+        let sender = SendTransaction(
+            blockchainProvider: configurator.session.blockchainProvider,
+            keystore: keystore,
+            confirmType: configuration.confirmType,
+            prompt: prompt)
+        
         let transaction = configurator.formUnsignedTransaction()
         infoLog("[TransactionConfirmation] form unsigned transaction: \(transaction)")
         if configurator.session.config.development.shouldNotSendTransactions {
-            return Promise(error: DevelopmentForcedError(message: "Did not send transaction because of development flag"))
+            return .fail(PromiseError(error: DevelopmentForcedError(message: "Did not send transaction because of development flag")))
         } else {
-            return sender.sendPromise(transaction: transaction)
+            return sender.sendPublisher(transaction: transaction)
         }
     }
 

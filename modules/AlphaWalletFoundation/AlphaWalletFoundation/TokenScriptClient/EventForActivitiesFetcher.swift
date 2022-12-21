@@ -55,7 +55,7 @@ final class EventForActivitiesFetcher {
                 .eventLogsPromise(contractAddress: eventOrigin.contract, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter)
                 .then(on: queue, { [queue] events -> Promise<[EventActivityInstance]> in
                     let promises = events.compactMap { event -> Promise<EventActivityInstance?> in
-                        guard let blockNumber = event.eventLog?.blockNumber else {
+                        guard let blockchainProvider = sessionsProvider.session(for: token.server)?.blockchainProvider, let blockNumber = event.eventLog?.blockNumber else {
                             return .value(nil)
                         }
 

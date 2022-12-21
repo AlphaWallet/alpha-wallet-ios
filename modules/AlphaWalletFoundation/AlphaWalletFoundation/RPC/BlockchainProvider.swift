@@ -10,10 +10,12 @@ import Combine
 import BigInt
 import PromiseKit
 import AlphaWalletCore
+import AlphaWalletWeb3
 
 public protocol BlockchainProvider {
     var server: RPCServer { get }
     var wallet: Wallet { get }
+    var params: BlockchainParams { get }
 
     func blockNumberPublisher() -> AnyPublisher<Int, SessionTaskError>
     func transactionsStatePublisher(hash: String) -> AnyPublisher<TransactionState, SessionTaskError>
@@ -29,15 +31,127 @@ public protocol BlockchainProvider {
     func nextNoncePromise() -> Promise<Int>
     func nextNoncePublisher() -> AnyPublisher<Int, SessionTaskError>
     func gasLimitPublisher(value: BigUInt, toAddress: AlphaWallet.Address?, data: Data) -> AnyPublisher<BigUInt, SessionTaskError>
-    func sendPromise(transaction: UnsignedTransaction, data: Data) -> Promise<String>
+    func sendPublisher(transaction: UnsignedTransaction, data: Data) -> AnyPublisher<String, SessionTaskError>
     func sendPromise(rawTransaction: String) -> Promise<String>
     func blockByNumberPromise(blockNumber: BigUInt) -> Promise<Block>
     func eventLogsPromise(contractAddress: AlphaWallet.Address, eventName: String, abiString: String, filter: EventFilter) -> Promise<[EventParserResultProtocol]>
 }
 
+public enum ExplorerType: Codable {
+    case etherscan(url: URL, api: String)
+    case blockscout(url: URL)
+    case none
+}
+
+//NOTE: rename 
+public protocol SessionsParamsStorage {
+    func sessionParams(chainId: Int) -> SessionParams
+}
+
+public protocol PrivateNetworkRpcNodeParamsProvider {
+    func rpcNodeParams(server: RPCServer) -> PrivateNetworkParams?
+}
+
+extension Config: PrivateNetworkRpcNodeParamsProvider {
+    public func rpcNodeParams(server: RPCServer) -> PrivateNetworkParams? {
+        sendPrivateTransactionsProvider?.rpcUrl(forServer: server).flatMap { PrivateNetworkParams(rpcUrl: $0, headers: [:]) }
+    }
+}
+
+public class SessionsParamsFileStorage: SessionsParamsStorage {
+    private let storage: Storage<[Int: SessionParams]>
+    private let privateNetworkRpcNodeParamsProvider: PrivateNetworkRpcNodeParamsProvider
+
+    public init(privateNetworkRpcNodeParamsProvider: PrivateNetworkRpcNodeParamsProvider, fileName: String = "Keys.storageFileKey") {
+        storage = .init(fileName: fileName, defaultValue: [:])
+        self.privateNetworkRpcNodeParamsProvider = privateNetworkRpcNodeParamsProvider
+    }
+
+    public func sessionParams(chainId: Int) -> SessionParams {
+        let server = RPCServer(chainID: chainId)
+        let rpcNodeParamsForPrivateNetwork = privateNetworkRpcNodeParamsProvider.rpcNodeParams(server: server)
+
+        if let params = storage.value[chainId] {
+            return params.overriding(rpcSource: params.rpcSource.adding(privateParams: rpcNodeParamsForPrivateNetwork))
+        } else {
+            let params = SessionParams(server: server)
+            var allParams = storage.value
+            allParams[chainId] = params
+
+            storage.value = allParams
+
+            return params.overriding(rpcSource: params.rpcSource.adding(privateParams: rpcNodeParamsForPrivateNetwork))
+        }
+    }
+}
+
+//TODO: maybe rename, don't know
+public struct SessionParams: Codable {
+    public let chainId: Int
+    public var overridenChainId: Int?
+    public var chainName: String
+    public var cryptoCurrencyName: String?
+    public var rpcSource: RpcSource
+    public var explorer: ExplorerType
+    public var etherscanCompatibleType: RPCServer.EtherscanCompatibleType
+    public var isTestnet: Bool
+
+    public init(chainId: Int,
+                overridenChainId: Int?,
+                chainName: String,
+                cryptoCurrencyName: String?,
+                rpcSource: RpcSource,
+                explorer: ExplorerType,
+                etherscanCompatibleType: RPCServer.EtherscanCompatibleType,
+                isTestnet: Bool) {
+        self.overridenChainId = nil
+        self.chainId = chainId
+        self.chainName = chainName
+        self.cryptoCurrencyName = cryptoCurrencyName
+        self.rpcSource = rpcSource
+        self.explorer = explorer
+        self.etherscanCompatibleType = etherscanCompatibleType
+        self.isTestnet = isTestnet
+    }
+
+    func overriding(rpcSource: RpcSource) -> SessionParams {
+        SessionParams(
+            chainId: chainId,
+            overridenChainId: overridenChainId,
+            chainName: chainName,
+            cryptoCurrencyName: cryptoCurrencyName,
+            rpcSource: rpcSource,
+            explorer: explorer,
+            etherscanCompatibleType: etherscanCompatibleType,
+            isTestnet: isTestnet)
+    }
+
+    public init(server: RPCServer) {
+        self.chainId = server.chainID
+        self.chainName = server.name
+        self.cryptoCurrencyName = server.cryptoCurrencyName
+        self.rpcSource = .http(params: .init(rpcUrls: [server.rpcURL], headers: [:]), privateParams: nil)
+        self.explorer = server.etherscanApiRoot.flatMap { ExplorerType.etherscan(url: $0, api: "<apiKey>") } ?? .none
+
+        self.etherscanCompatibleType = server.etherscanCompatibleType
+        self.isTestnet = server.isTestnet
+    }
+
+    public var blockchainParams: BlockchainParams {
+        return .defaultParams(for: server)
+    }
+
+    public var server: RPCServer {
+        RPCServer(chainID: chainId)
+    }
+}
+
 public struct BlockchainParams {
     public let maxGasLimit: BigUInt
+    public let minGasLimit: BigUInt
+
     public let maxPrice: BigUInt
+    public let minPrice: BigUInt
     public let defaultPrice: BigUInt
 
     public let canUserChangeGas: Bool
@@ -46,21 +160,21 @@ public struct BlockchainParams {
     public static func defaultParams(for server: RPCServer) -> BlockchainParams {
         return .init(
             maxGasLimit: GasLimitConfiguration.maxGasLimit(forServer: server),
+            minGasLimit: GasLimitConfiguration.minGasLimit,
             maxPrice: GasPriceConfiguration.maxPrice(forServer: server),
+            minPrice: GasPriceConfiguration.minPrice,
             defaultPrice: GasPriceConfiguration.defaultPrice(forServer: server),
             canUserChangeGas: server.canUserChangeGas,
             shouldAddBufferWhenEstimatingGasPrice: server.shouldAddBufferWhenEstimatingGasPrice)
     }
 }
 
-import AlphaWalletWeb3
-
 public final class RpcBlockchainProvider: BlockchainProvider {
     private let analytics: AnalyticsLogger
     private let nodeApiProvider: NodeApiProvider
-    private let params: BlockchainParams
     private lazy var getEventLogs = GetEventLogs(server: server)
 
+    public let params: BlockchainParams
     public let server: RPCServer
     public let wallet: Wallet
 
@@ -198,15 +312,17 @@ public final class RpcBlockchainProvider: BlockchainProvider {
             .eraseToAnyPublisher()
     }
 
-    public func sendPromise(transaction: UnsignedTransaction, data: Data) -> Promise<String> {
+    public func sendPublisher(transaction: UnsignedTransaction, data: Data) -> AnyPublisher<String, SessionTaskError> {
         return nodeApiProvider
-            .dataTaskPromise(SendRawTransactionRequest(signedTransaction: data.hexEncoded))
-            .recover { error -> Promise<SendRawTransactionRequest.Response> in
-                self.logSelectSendError(error)
-                throw error
-            }.get {
+            .dataTaskPublisher(SendRawTransactionRequest(signedTransaction: data.hexEncoded))
+            .handleEvents(receiveOutput: {
                 infoLog("Sent transaction with transactionId: \($0)")
-            }
+            }, receiveCompletion: { [weak self] result in
+                if case .failure(let error) = result {
+                    self?.logSelectSendError(error)
+                }
+            }).receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
     }
 
     public func sendPromise(rawTransaction: String) -> Promise<String> {
@@ -240,7 +356,7 @@ public final class RpcBlockchainProvider: BlockchainProvider {
             .map { [params] limit -> BigUInt in
                 infoLog("Estimated gas limit with eth_estimateGas: \(limit) canCapGasLimit: \(request.canCapGasLimit)")
                 let gasLimit: BigUInt = {
-                    if limit == GasLimitConfiguration.minGasLimit {
+                    if limit == params.minGasLimit {
                         return limit
                     }
                     if request.canCapGasLimit {

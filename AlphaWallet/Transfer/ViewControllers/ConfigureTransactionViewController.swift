@@ -125,7 +125,9 @@ class ConfigureTransactionViewController: UIViewController {
         var configuration = makeConfigureSuitableForSaving(from: updatedViewModel.configurationToEdit.configuration)
         guard configuration.gasLimit != value else { return }
         configuration.setEstimated(gasLimit: value)
-        updatedViewModel.configurationToEdit = EditedTransactionConfiguration(configuration: configuration, server: configurator.session.server)
+        updatedViewModel.configurationToEdit = EditedTransactionConfiguration(
+            configuration: configuration,
+            blockchainParams: configurator.session.blockchainProvider.params)
         viewModel = updatedViewModel
         recalculateTotalFeeForCustomGas()
         generateViews(viewModel: viewModel)
@@ -136,7 +138,9 @@ class ConfigureTransactionViewController: UIViewController {
         var configuration = makeConfigureSuitableForSaving(from: updatedViewModel.configurationToEdit.configuration)
         guard configuration.gasPrice != value else { return }
         configuration.setEstimated(gasPrice: value)
-        updatedViewModel.configurationToEdit = EditedTransactionConfiguration(configuration: configuration, server: configurator.session.server)
+        updatedViewModel.configurationToEdit = EditedTransactionConfiguration(
+            configuration: configuration,
+            blockchainParams: configurator.session.blockchainProvider.params)
         updatedViewModel.configurations = configurator.configurations
         viewModel = updatedViewModel
         recalculateTotalFeeForCustomGas()
@@ -150,7 +154,9 @@ class ConfigureTransactionViewController: UIViewController {
         var configuration = makeConfigureSuitableForSaving(from: updatedViewModel.configurationToEdit.configuration)
         guard configuration.nonce != nonce else { return }
         configuration.set(nonce: nonce)
-        updatedViewModel.configurationToEdit = EditedTransactionConfiguration(configuration: configuration, server: configurator.session.server)
+        updatedViewModel.configurationToEdit = EditedTransactionConfiguration(
+            configuration: configuration,
+            blockchainParams: configurator.session.blockchainProvider.params)
         updatedViewModel.configurations = configurator.configurations
         viewModel = updatedViewModel
         recalculateTotalFeeForCustomGas()

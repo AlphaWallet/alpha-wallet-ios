@@ -33,17 +33,6 @@ public struct TransactionConfiguration {
     public mutating func set(nonce: Int) {
         self.nonce = nonce
     }
-
-    public init(transaction: UnconfirmedTransaction, server: RPCServer) {
-        let maxGasLimit = GasLimitConfiguration.maxGasLimit(forServer: server)
-        let maxPrice: BigUInt = GasPriceConfiguration.maxPrice(forServer: server)
-        let defaultPrice: BigUInt = GasPriceConfiguration.defaultPrice(forServer: server)
-        self.init(
-            gasPrice: min(max(transaction.gasPrice ?? defaultPrice, GasPriceConfiguration.minPrice), maxPrice),
-            gasLimit: min(transaction.gasLimit ?? maxGasLimit, maxGasLimit),
-            data: transaction.data ?? Data()
-        )
-    }
 }
 
 public enum TransactionConfigurationType: Int, CaseIterable {

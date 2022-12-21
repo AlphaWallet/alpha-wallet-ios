@@ -83,12 +83,12 @@ public class RemoteLogger {
         DDLogVerbose("Build: \(Bundle.main.buildNumber!) | Other web API error: \(message)", ddlog: logger)
     }
 
-    func logRpcOrOtherWebError(_ message: String, url: String) {
-        if let server = RPCServer.serverWithRpcURL(url) {
-            RemoteLogger.instance.logRpcErrorMessage("\(message) | from: \(server)")
-        } else {
-            RemoteLogger.instance.logOtherWebApiErrorMessage("\(message) | from: \(url)")
-        }
+    func logRpcError(_ message: String, url: String?, server: RPCServer) {
+        RemoteLogger.instance.logRpcErrorMessage("\(message) | from: \(server) | rpc: \(url ?? "nil rpc")")
+    }
+
+    func logWebError(_ message: String, url: String?) {
+        RemoteLogger.instance.logRpcErrorMessage("\(message) | from: \(url ?? "nil url")")
     }
 }
 

@@ -16,25 +16,20 @@ class FakeSessionFactory: SessionFactory {
     var rpcApiProvider: BaseRpcApiProvider = BaseRpcApiProvider(analytics: FakeAnalyticsService(), networkService: FakeNetworkService())
     var config: Config = .make()
     var nodeApiProvider: NodeApiProvider?
+    var httpParam: RpcHttpParams = .init(rpcUrls: [
+        URL(string: "http://google.com")!
+    ], headers: [:])
 
     func buildSession(server: RPCServer, wallet: Wallet) -> WalletSession {
-        let _nodeApiProvider: NodeApiProvider
-        switch server.rpcSource(config: config) {
-        case .http(let rpcHttpParams, _):
-            let rpcNodeApiProvider = NodeRpcApiProvider(
-                rpcApiProvider: rpcApiProvider,
-                server: server,
-                rpcHttpParams: rpcHttpParams)
-            _nodeApiProvider = rpcNodeApiProvider
-
-        case .webSocket:
-            fatalError()
-        }
+        let nodeApiProvider: NodeApiProvider = NodeRpcApiProvider(
+            rpcApiProvider: rpcApiProvider,
+            server: server,
+            rpcHttpParams: httpParam)
 
         let blockchainProvider: BlockchainProvider = RpcBlockchainProvider(
             server: server,
             account: wallet,
-            nodeApiProvider: nodeApiProvider ?? _nodeApiProvider,
+            nodeApiProvider: nodeApiProvider,
             analytics: analytics,
             params: .defaultParams(for: server))
 

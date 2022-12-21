@@ -61,7 +61,7 @@ public class BaseRpcApiProvider: RpcApiProvider {
                                 .map { try request.parse(data: $0.data, urlResponse: $0.response) }
                                 .recover { error -> Promise<R.Response> in
                                     guard let error = error as? SessionTaskError else { return .init(error: SessionTaskError.responseError(error)) }
-                                    if let e = self?.convertToUserFriendlyError(error: error, server: request.server, baseUrl: request.rpcUrl) {
+                                    if let e = self?.convertToUserFriendlyError(error: error, server: request.server, rpcUrl: request.rpcUrl) {
                                         if let e = e as? RpcNodeRetryableRequestError {
                                             self?.logRpcNodeError(e)
                                         }
@@ -101,7 +101,7 @@ public class BaseRpcApiProvider: RpcApiProvider {
                             .tryMap { try request.parse(data: $0.data, urlResponse: $0.response) }
                             .mapError { error -> SessionTaskError in
                                 guard let error = error as? SessionTaskError else { return .responseError(error)  }
-                                if let e = self?.convertToUserFriendlyError(error: error, server: request.server, baseUrl: request.rpcUrl) {
+                                if let e = self?.convertToUserFriendlyError(error: error, server: request.server, rpcUrl: request.rpcUrl) {
                                     return .responseError(e)
                                 } else {
                                     return error
@@ -136,25 +136,25 @@ public class BaseRpcApiProvider: RpcApiProvider {
 
     //TODO we should make sure we only call this RPC nodes because the errors we map to mentions "RPC"
     // swiftlint:disable function_body_length
-    private func convertToUserFriendlyError(error: SessionTaskError, server: RPCServer, baseUrl: URL) -> Error? {
-        infoLog("convertToUserFriendlyError URL: \(baseUrl.absoluteString) error: \(error)")
+    private func convertToUserFriendlyError(error: SessionTaskError, server: RPCServer, rpcUrl: URL) -> Error? {
+        infoLog("convertToUserFriendlyError URL: \(rpcUrl.absoluteString) error: \(error)")
         switch error {
         case .connectionError(let e):
             let message = e.localizedDescription
             if message.hasPrefix("The network connection was lost") {
-                logger.logRpcOrOtherWebError("Connection Error | \(e.localizedDescription) | as: NetworkConnectionWasLostError()", url: baseUrl.absoluteString)
+                logger.logRpcError("Connection Error | \(e.localizedDescription) | as: NetworkConnectionWasLostError()", url: rpcUrl.absoluteString, server: server)
                 return RpcNodeRetryableRequestError.networkConnectionWasLost
             } else if message.hasPrefix("The certificate for this server is invalid") {
-                logger.logRpcOrOtherWebError("Connection Error | \(e.localizedDescription) | as: InvalidCertificateError()", url: baseUrl.absoluteString)
+                logger.logRpcError("Connection Error | \(e.localizedDescription) | as: InvalidCertificateError()", url: rpcUrl.absoluteString, server: server)
                 return RpcNodeRetryableRequestError.invalidCertificate
             } else if message.hasPrefix("The request timed out") {
-                logger.logRpcOrOtherWebError("Connection Error | \(e.localizedDescription) | as: RequestTimedOutError()", url: baseUrl.absoluteString)
+                logger.logRpcError("Connection Error | \(e.localizedDescription) | as: RequestTimedOutError()", url: rpcUrl.absoluteString, server: server)
                 return RpcNodeRetryableRequestError.requestTimedOut
             }
-            logger.logRpcOrOtherWebError("Connection Error | \(e.localizedDescription)", url: baseUrl.absoluteString)
+            logger.logRpcError("Connection Error | \(e.localizedDescription)", url: rpcUrl.absoluteString, server: server)
             return nil
         case .requestError(let e):
-            logger.logRpcOrOtherWebError("Request Error | \(e.localizedDescription)", url: baseUrl.absoluteString)
+            logger.logRpcError("Request Error | \(e.localizedDescription)", url: rpcUrl.absoluteString, server: server)
             return nil
         case .responseError(let e):
             if let jsonRpcError = e as? JSONRPCError {
@@ -179,23 +179,23 @@ public class BaseRpcApiProvider: RpcApiProvider {
                         //Spotted for Palm chain (mainnet)
                         return SendTransactionNotRetryableError.insufficientFunds(message: message)
                     } else {
-                        logger.logRpcOrOtherWebError("JSONRPCError.responseError | code: \(code) | message: \(message)", url: baseUrl.absoluteString)
+                        logger.logRpcError("JSONRPCError.responseError | code: \(code) | message: \(message)", url: rpcUrl.absoluteString, server: server)
                         return SendTransactionNotRetryableError.unknown(code: code, message: message)
                     }
                 case .responseNotFound(_, let object):
-                    logger.logRpcOrOtherWebError("JSONRPCError.responseNotFound | object: \(object)", url: baseUrl.absoluteString)
+                    logger.logRpcError("JSONRPCError.responseNotFound | object: \(object)", url: rpcUrl.absoluteString, server: server)
                 case .resultObjectParseError(let e):
-                    logger.logRpcOrOtherWebError("JSONRPCError.resultObjectParseError | error: \(e.localizedDescription)", url: baseUrl.absoluteString)
+                    logger.logRpcError("JSONRPCError.resultObjectParseError | error: \(e.localizedDescription)", url: rpcUrl.absoluteString, server: server)
                 case .errorObjectParseError(let e):
-                    logger.logRpcOrOtherWebError("JSONRPCError.errorObjectParseError | error: \(e.localizedDescription)", url: baseUrl.absoluteString)
+                    logger.logRpcError("JSONRPCError.errorObjectParseError | error: \(e.localizedDescription)", url: rpcUrl.absoluteString, server: server)
                 case .unsupportedVersion(let str):
-                    logger.logRpcOrOtherWebError("JSONRPCError.unsupportedVersion | str: \(String(describing: str))", url: baseUrl.absoluteString)
+                    logger.logRpcError("JSONRPCError.unsupportedVersion | str: \(String(describing: str))", url: rpcUrl.absoluteString, server: server)
                 case .unexpectedTypeObject(let obj):
-                    logger.logRpcOrOtherWebError("JSONRPCError.unexpectedTypeObject | obj: \(obj)", url: baseUrl.absoluteString)
+                    logger.logRpcError("JSONRPCError.unexpectedTypeObject | obj: \(obj)", url: rpcUrl.absoluteString, server: server)
                 case .missingBothResultAndError(let obj):
-                    logger.logRpcOrOtherWebError("JSONRPCError.missingBothResultAndError | obj: \(obj)", url: baseUrl.absoluteString)
+                    logger.logRpcError("JSONRPCError.missingBothResultAndError | obj: \(obj)", url: rpcUrl.absoluteString, server: server)
                 case .nonArrayResponse(let obj):
-                    logger.logRpcOrOtherWebError("JSONRPCError.nonArrayResponse | obj: \(obj)", url: baseUrl.absoluteString)
+                    logger.logRpcError("JSONRPCError.nonArrayResponse | obj: \(obj)", url: rpcUrl.absoluteString, server: server)
                 }
                 return nil
             }
@@ -203,45 +203,33 @@ public class BaseRpcApiProvider: RpcApiProvider {
             if let apiKitError = e as? ResponseError {
                 switch apiKitError {
                 case .nonHTTPURLResponse:
-                    logger.logRpcOrOtherWebError("APIKit.ResponseError.nonHTTPURLResponse", url: baseUrl.absoluteString)
+                    logger.logRpcError("APIKit.ResponseError.nonHTTPURLResponse", url: rpcUrl.absoluteString, server: server)
                 case .unacceptableStatusCode(let statusCode):
                     if statusCode == 401 {
-                        warnLog("[API] Invalid API key with baseURL: \(baseUrl.absoluteString)")
-                        return RpcNodeRetryableRequestError.invalidApiKey(server: server, domainName: baseUrl.host ?? "")
+                        warnLog("[API] Invalid API key with baseURL: \(rpcUrl.absoluteString)")
+                        return RpcNodeRetryableRequestError.invalidApiKey(server: server, domainName: rpcUrl.host ?? "")
                     } else if statusCode == 429 {
-                        warnLog("[API] Rate limited by baseURL: \(baseUrl.absoluteString)")
-                        return RpcNodeRetryableRequestError.rateLimited(server: server, domainName: baseUrl.host ?? "")
+                        warnLog("[API] Rate limited by baseURL: \(rpcUrl.absoluteString)")
+                        return RpcNodeRetryableRequestError.rateLimited(server: server, domainName: rpcUrl.host ?? "")
                     } else {
-                        logger.logRpcOrOtherWebError("APIKit.ResponseError.unacceptableStatusCode | status: \(statusCode)", url: baseUrl.absoluteString)
+                        logger.logRpcError("APIKit.ResponseError.unacceptableStatusCode | status: \(statusCode)", url: rpcUrl.absoluteString, server: server)
                     }
                 case .unexpectedObject(let obj):
-                    logger.logRpcOrOtherWebError("APIKit.ResponseError.unexpectedObject | obj: \(obj)", url: baseUrl.absoluteString)
+                    logger.logRpcError("APIKit.ResponseError.unexpectedObject | obj: \(obj)", url: rpcUrl.absoluteString, server: server)
                 }
                 return nil
             }
 
-            if RPCServer.binance_smart_chain_testnet.rpcURL.absoluteString == baseUrl.absoluteString, e.localizedDescription == "The data couldn’t be read because it isn’t in the correct format." {
-                logger.logRpcOrOtherWebError("\(e.localizedDescription) -> PossibleBinanceTestnetTimeoutError()", url: baseUrl.absoluteString)
+            // Bad check
+            if server == RPCServer.binance_smart_chain_testnet && e.localizedDescription == "The data couldn’t be read because it isn’t in the correct format." {
+                logger.logRpcError("\(e.localizedDescription) -> PossibleBinanceTestnetTimeoutError()", url: rpcUrl.absoluteString, server: server)
                 //This is potentially Binance testnet timing out
                 return RpcNodeRetryableRequestError.possibleBinanceTestnetTimeout
             }
 
-            logger.logRpcOrOtherWebError("Other Error: \(e) | \(e.localizedDescription)", url: baseUrl.absoluteString)
+            logger.logRpcError("Other Error: \(e) | \(e.localizedDescription)", url: rpcUrl.absoluteString, server: server)
             return nil
         }
     }
     // swiftlint:enable function_body_length
-}
-
-extension RPCServer {
-
-    public func rpcSource(config: Config) -> RpcSource {
-        let privateParams = config.sendPrivateTransactionsProvider?.rpcUrl(forServer: self).flatMap { PrivateNetworkParams(rpcUrl: $0, headers: [:] ) }
-        return .http(params: .init(rpcUrls: [rpcURL], headers: rpcHeaders), privateParams: privateParams)
-    }
-
-    public static func serverWithRpcURL(_ string: String) -> RPCServer? {
-        RPCServer.availableServers.first { $0.rpcURL.absoluteString == string }
-    }
-
 }

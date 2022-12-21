@@ -180,7 +180,7 @@ public class AddCustomChain {
 
     private func checkAndDetectUrls(_ customChain: WalletAddEthereumChainObject, chainId: Int, chainNameFallback: String) -> AnyPublisher<(customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String), AddCustomChainError> {
         //We need a check that the url is a valid URL (especially because it might contain markers like `${INFURA_API_KEY}` and `${ALCHEMY_API_KEY}` which we don't support. We can't support Infura keys because if we don't already support this chain in the app, then it must not have been enabled for our Infura account so it wouldn't work anyway.)
-        guard let rpcUrl = customChain.rpcUrls?.first(where: { URL(string: $0) != nil }) else {
+        guard let rpcUrl = customChain.rpcUrls?.compactMap({ URL(string: $0) }).first else {
             //Not to spec since RPC URLs are optional according to EIP3085, but it is so much easier to assume it's needed, and quite useless if it isn't provided
             return .fail(AddCustomChainError.noRpcNodeUrl)
         }
@@ -190,22 +190,22 @@ public class AddCustomChain {
             .eraseToAnyPublisher()
     }
 
-    private func checkRpcServer(customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String, chainNameFallback: String) -> AnyPublisher<(chainId: Int, rpcUrl: String), AddCustomChainError> {
+    private func checkRpcServer(customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: URL, chainNameFallback: String) -> AnyPublisher<(chainId: Int, rpcUrl: String), AddCustomChainError> {
         //Whether the explorer API endpoint is Etherscan or blockscout or testnet or not doesn't matter here
         let customRpc = CustomRPC(
             customChain: customChain,
             chainId: chainId,
-            rpcUrl: rpcUrl,
+            rpcUrl: rpcUrl.absoluteString,
             etherscanCompatibleType: .unknown,
             isTestnet: false,
             chainNameFallback: chainNameFallback)
 
         return rpcApiProvider
-            .dataTaskPublisher(JsonRpcRequest(server: RPCServer.custom(customRpc), request: ChainIdRequest()))
+            .dataTaskPublisher(JsonRpcRequest(server: RPCServer.custom(customRpc), rpcURL: rpcUrl, request: ChainIdRequest()))
             .mapError { AddCustomChainError.unknown($0) }
             .tryMap { retrievedChainId in
                 if retrievedChainId == chainId {
-                    return (chainId: chainId, rpcUrl: rpcUrl)
+                    return (chainId: chainId, rpcUrl: rpcUrl.absoluteString)
                 } else {
                     throw AddCustomChainError.chainIdNotMatch(String(retrievedChainId), customChain.chainId)
                 }

@@ -37,7 +37,8 @@ final class FakeMultiWalletBalanceService: MultiWalletBalanceService {
             config: .make(),
             currencyService: .make(),
             networkService: FakeNetworkService(),
-            rpcApiProvider: BaseRpcApiProvider.make())
+            rpcApiProvider: BaseRpcApiProvider.make(),
+            sessionsParamsStorage: SessionsParamsFileStorage(privateNetworkRpcNodeParamsProvider: Config.make(), fileName: "fake-session-params"))
 
         super.init(
             walletAddressesStore: fakeWalletAddressesStore(wallets: [wallet]),

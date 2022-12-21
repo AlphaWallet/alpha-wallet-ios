@@ -33,6 +33,7 @@ public class WalletComponentsFactory: WalletDependencyContainer {
     private var walletDependencies: [Wallet: WalletDependency] = [:]
     private let networkService: NetworkService
     private let rpcApiProvider: RpcApiProvider
+    private let sessionsParamsStorage: SessionsParamsStorage
 
     public struct Dependencies: WalletDependency {
         public let activitiesPipeLine: ActivitiesPipeLine
@@ -53,9 +54,11 @@ public class WalletComponentsFactory: WalletDependencyContainer {
                 config: Config,
                 currencyService: CurrencyService,
                 networkService: NetworkService,
-                rpcApiProvider: RpcApiProvider) {
+                rpcApiProvider: RpcApiProvider,
+                sessionsParamsStorage: SessionsParamsStorage) {
 
         self.analytics = analytics
+        self.sessionsParamsStorage = sessionsParamsStorage
         self.rpcApiProvider = rpcApiProvider
         self.nftProvider = nftProvider
         self.assetDefinitionStore = assetDefinitionStore
@@ -78,7 +81,8 @@ public class WalletComponentsFactory: WalletDependencyContainer {
             factory: BaseSessionFactory(
                 config: config,
                 rpcApiProvider: rpcApiProvider,
-                analytics: analytics))
+                analytics: analytics,
+                sessionsParamsStorage: sessionsParamsStorage))
         
         sessionsProvider.start(wallet: wallet)
 
@@ -87,7 +91,7 @@ public class WalletComponentsFactory: WalletDependencyContainer {
             assetDefinitionStore: assetDefinitionStore,
             analytics: analytics,
             reachability: ReachabilityManager())
-        
+
         let importToken = ImportToken(tokensDataStore: tokensDataStore, contractDataFetcher: contractDataFetcher)
 
         let tokensService = AlphaWalletTokensService(
