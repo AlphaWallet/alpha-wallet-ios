@@ -4,8 +4,8 @@
 //
 //  Created by Vladyslav Shepitko on 03.02.2021.
 //
-
-import Firebase
+import FirebaseCore
+import FirebaseCrashlytics
 import AlphaWalletFoundation
 
 extension AlphaWallet {

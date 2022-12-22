@@ -490,7 +490,6 @@
 		8722F86B25F79A2E00293D89 /* UIResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8722F86A25F79A2E00293D89 /* UIResponder.swift */; };
 		8722F86D25F79A4700293D89 /* UITableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8722F86C25F79A4700293D89 /* UITableViewCell.swift */; };
 		87242E4225F2749500F0E89D /* SendViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87242E4125F2749500F0E89D /* SendViewControllerTests.swift */; };
-		87243921290FE74200FF3058 /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = 87243920290FE74200FF3058 /* Starscream */; };
 		8727149A282175EB00901B3E /* NFTAssetListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87271499282175EB00901B3E /* NFTAssetListViewModel.swift */; };
 		8727149C2822489300901B3E /* ContainerCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8727149B2822489200901B3E /* ContainerCollectionViewCell.swift */; };
 		87281AEE2885219A0066E31E /* TableViewDiffableDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87281AED2885219A0066E31E /* TableViewDiffableDataSource.swift */; };
@@ -630,7 +629,6 @@
 		87713EB4264BAB5A00B1B9CB /* ActivityPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87713EB3264BAB5A00B1B9CB /* ActivityPageView.swift */; };
 		87713EB6264BAB6E00B1B9CB /* PriceAlertsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87713EB5264BAB6E00B1B9CB /* PriceAlertsViewController.swift */; };
 		877239CB28F7DCE00062DC14 /* GoogleService-InfoTests.plist in Resources */ = {isa = PBXBuildFile; fileRef = 877239CA28F7DCE00062DC14 /* GoogleService-InfoTests.plist */; };
-		877239CE28F806820062DC14 /* WalletConnectSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 877239CD28F806820062DC14 /* WalletConnectSwift */; };
 		8772D77028D1EFB300615803 /* ServiceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8772D76F28D1EFB200615803 /* ServiceProvider.swift */; };
 		8772D77228D1F03600615803 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8772D77128D1F03600615803 /* Constants.swift */; };
 		87741F1827709073007F4604 /* TestnetTokenInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87741F1727709073007F4604 /* TestnetTokenInfoView.swift */; };
@@ -803,7 +801,6 @@
 		87F53A012817FF8400BD8017 /* WalletConnectSessionsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F53A002817FF8400BD8017 /* WalletConnectSessionsViewModel.swift */; };
 		87F9972824E155280092D262 /* SeedPhraseBackupIntroductionViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F9972724E155280092D262 /* SeedPhraseBackupIntroductionViewControllerTests.swift */; };
 		87FBAE0124A1EE67005EF293 /* AddressOrEnsNameLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FBAE0024A1EE67005EF293 /* AddressOrEnsNameLabel.swift */; };
-		87FBF2B128056AC200616B7D /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 87FBF2B028056AC200616B7D /* FirebaseCrashlytics */; };
 		87FBF2B528056B6F00616B7D /* FirebaseReportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FBF2B428056B6F00616B7D /* FirebaseReportService.swift */; };
 		87FBF2B728056B8E00616B7D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 87FBF2B628056B8E00616B7D /* GoogleService-Info.plist */; };
 		AA26C61F20412A1E00318B9B /* NFTCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA26C61D20412A1D00318B9B /* NFTCollectionViewController.swift */; };
@@ -1731,10 +1728,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				87FBF2B128056AC200616B7D /* FirebaseCrashlytics in Frameworks */,
 				2A669F5585899E890EF26C57 /* Pods_AlphaWallet.framework in Frameworks */,
-				877239CE28F806820062DC14 /* WalletConnectSwift in Frameworks */,
-				87243921290FE74200FF3058 /* Starscream in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4391,9 +4385,6 @@
 			);
 			name = AlphaWallet;
 			packageProductDependencies = (
-				87FBF2B028056AC200616B7D /* FirebaseCrashlytics */,
-				877239CD28F806820062DC14 /* WalletConnectSwift */,
-				87243920290FE74200FF3058 /* Starscream */,
 			);
 			productName = etherwallet;
 			productReference = 2912CCF51F6A830700C6CBE3 /* AlphaWallet.app */;
@@ -4521,9 +4512,6 @@
 			);
 			mainGroup = 2912CCEC1F6A830700C6CBE3;
 			packageReferences = (
-				87FBF2AF28056AC200616B7D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
-				877239CC28F806820062DC14 /* XCRemoteSwiftPackageReference "WalletConnectSwift.git" */,
-				8724391F290FE74200FF3058 /* XCRemoteSwiftPackageReference "Starscream" */,
 			);
 			productRefGroup = 2912CCF61F6A830700C6CBE3 /* Products */;
 			projectDirPath = "";
@@ -4745,7 +4733,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\n";
+			shellScript = "\"${PODS_ROOT}/FirebaseCrashlytics/run\"\n";
 		};
 		8A3C752ACC5CACBD729A8F25 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -4775,7 +4763,13 @@
 				"${BUILT_PRODUCTS_DIR}/CryptoSwift/CryptoSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/EthereumABI/EthereumABI.framework",
 				"${BUILT_PRODUCTS_DIR}/EthereumAddress/EthereumAddress.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseCore/FirebaseCore.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseCoreDiagnostics/FirebaseCoreDiagnostics.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseCrashlytics/FirebaseCrashlytics.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseInstallations/FirebaseInstallations.framework",
 				"${BUILT_PRODUCTS_DIR}/FloatingPanel/FloatingPanel.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleDataTransport/GoogleDataTransport.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleUtilities/GoogleUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/IQKeyboardManager/IQKeyboardManager.framework",
 				"${BUILT_PRODUCTS_DIR}/JSONRPCKit/JSONRPCKit.framework",
 				"${BUILT_PRODUCTS_DIR}/Kanna/Kanna.framework",
@@ -4785,6 +4779,7 @@
 				"${BUILT_PRODUCTS_DIR}/Mixpanel-swift/Mixpanel.framework",
 				"${BUILT_PRODUCTS_DIR}/PaperTrailLumberjack/PaperTrailLumberjack.framework",
 				"${BUILT_PRODUCTS_DIR}/PromiseKit/PromiseKit.framework",
+				"${BUILT_PRODUCTS_DIR}/PromisesObjC/FBLPromises.framework",
 				"${BUILT_PRODUCTS_DIR}/QRCodeReaderViewController/QRCodeReaderViewController.framework",
 				"${BUILT_PRODUCTS_DIR}/R.swift.Library/Rswift.framework",
 				"${BUILT_PRODUCTS_DIR}/Realm/Realm.framework",
@@ -4792,6 +4787,7 @@
 				"${BUILT_PRODUCTS_DIR}/Result/Result.framework",
 				"${BUILT_PRODUCTS_DIR}/SAMKeychain/SAMKeychain.framework",
 				"${BUILT_PRODUCTS_DIR}/SipHash/SipHash.framework",
+				"${BUILT_PRODUCTS_DIR}/Starscream/Starscream.framework",
 				"${BUILT_PRODUCTS_DIR}/StatefulViewController/StatefulViewController.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftAlgorithms/Algorithms.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftProtobuf/SwiftProtobuf.framework",
@@ -4799,7 +4795,9 @@
 				"${BUILT_PRODUCTS_DIR}/TrezorCrypto/TrezorCrypto.framework",
 				"${BUILT_PRODUCTS_DIR}/TrustKeystore/TrustKeystore.framework",
 				"${BUILT_PRODUCTS_DIR}/TrustWalletCore/WalletCore.framework",
+				"${BUILT_PRODUCTS_DIR}/WalletConnectSwift/WalletConnectSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/WalletConnectSwiftV2/WalletConnectSwiftV2.framework",
+				"${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework",
 				"${BUILT_PRODUCTS_DIR}/secp256k1_ios/secp256k1_ios.framework",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/MailchimpSDK/MailchimpSDK.framework/MailchimpSDK",
 			);
@@ -4825,7 +4823,13 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CryptoSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/EthereumABI.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/EthereumAddress.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCore.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCoreDiagnostics.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCrashlytics.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseInstallations.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FloatingPanel.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleDataTransport.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQKeyboardManager.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/JSONRPCKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Kanna.framework",
@@ -4835,6 +4839,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Mixpanel.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PaperTrailLumberjack.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PromiseKit.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FBLPromises.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/QRCodeReaderViewController.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Rswift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Realm.framework",
@@ -4842,6 +4847,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Result.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SAMKeychain.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SipHash.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Starscream.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/StatefulViewController.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Algorithms.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftProtobuf.framework",
@@ -4849,7 +4855,9 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/TrezorCrypto.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/TrustKeystore.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WalletCore.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WalletConnectSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WalletConnectSwiftV2.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/secp256k1_ios.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MailchimpSDK.framework",
 			);
@@ -6288,52 +6296,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		8724391F290FE74200FF3058 /* XCRemoteSwiftPackageReference "Starscream" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/daltoniam/Starscream";
-			requirement = {
-				kind = versionRange;
-				maximumVersion = 4.0.0;
-				minimumVersion = 3.0.0;
-			};
-		};
-		877239CC28F806820062DC14 /* XCRemoteSwiftPackageReference "WalletConnectSwift.git" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/AlphaWallet/WalletConnectSwift.git";
-			requirement = {
-				branch = alphaWallet;
-				kind = branch;
-			};
-		};
-		87FBF2AF28056AC200616B7D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 8.10.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		87243920290FE74200FF3058 /* Starscream */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 8724391F290FE74200FF3058 /* XCRemoteSwiftPackageReference "Starscream" */;
-			productName = Starscream;
-		};
-		877239CD28F806820062DC14 /* WalletConnectSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 877239CC28F806820062DC14 /* XCRemoteSwiftPackageReference "WalletConnectSwift.git" */;
-			productName = WalletConnectSwift;
-		};
-		87FBF2B028056AC200616B7D /* FirebaseCrashlytics */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 87FBF2AF28056AC200616B7D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseCrashlytics;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 2912CCED1F6A830700C6CBE3 /* Project object */;
 }

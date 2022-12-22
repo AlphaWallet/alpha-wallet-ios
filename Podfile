@@ -37,6 +37,9 @@ target 'AlphaWallet' do
   pod 'SwiftFormat/CLI', '~> 0.49', :configuration => 'Debug'
 
   pod 'WalletConnectSwiftV2', '~> 1.0.2'
+  pod 'FirebaseCrashlytics', '8.10.0'
+  pod 'WalletConnectSwift', :git => 'https://github.com/AlphaWallet/WalletConnectSwift.git', :branch => 'alphaWallet'
+  pod 'Starscream', '3.1.1'
   
   target 'AlphaWalletTests' do
       inherit! :search_paths
@@ -77,7 +80,7 @@ post_install do |installer|
       end
     end
 
-    if ['Result', 'SwiftyXMLParser', 'JSONRPCKit'].include? target.name
+    if ['Result', 'SwiftyXMLParser', 'JSONRPCKit', 'Starscream'].include? target.name
       target.build_configurations.each do |config|
         config.build_settings['SWIFT_VERSION'] = '4.2'
       end
