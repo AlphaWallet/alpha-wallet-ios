@@ -51,7 +51,7 @@ extension TransactionConfirmationViewModel {
 
                 return "\(amount) \(configurator.session.server.symbol) ≈ \(amountInFiat)"
             } else {
-                return "\(amount)"
+                return "\(amount) \(configurator.session.server.symbol)"
             }
         }
 

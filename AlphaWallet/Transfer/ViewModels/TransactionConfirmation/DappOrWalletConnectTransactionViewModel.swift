@@ -65,7 +65,7 @@ extension TransactionConfirmationViewModel {
                 let amountInFiat = Formatter.fiat(currency: rate.currency).string(from: amountToSend.doubleValue * rate.value) ?? "-"
                 return "\(amount) \(configurator.session.server.symbol) ≈ \(amountInFiat)"
             } else {
-                return "\(amount)"
+                return "\(amount) \(configurator.session.server.symbol)"
             }
         }
         private let recipientResolver: RecipientResolver

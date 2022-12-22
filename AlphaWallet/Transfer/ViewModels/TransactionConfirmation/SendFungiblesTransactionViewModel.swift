@@ -154,7 +154,7 @@ extension TransactionConfirmationViewModel {
                     
                     return "\(amount) \(symbol) ≈ \(amountInFiat)"
                 } else {
-                    return amount
+                    return "\(amount) \(symbol)"
                 }
             case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token:
                 return String()
