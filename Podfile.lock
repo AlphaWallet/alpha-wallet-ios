@@ -143,6 +143,23 @@ PODS:
     - TrustWalletCore/Types
   - TrustWalletCore/Types (2.6.34):
     - SwiftProtobuf
+  - WalletConnectSwiftV2 (1.0.5):
+    - WalletConnectSwiftV2/WalletConnect (= 1.0.5)
+  - WalletConnectSwiftV2/Commons (1.0.5)
+  - WalletConnectSwiftV2/JSONRPC (1.0.5):
+    - WalletConnectSwiftV2/Commons
+  - WalletConnectSwiftV2/WalletConnect (1.0.5):
+    - WalletConnectSwiftV2/WalletConnectPairing
+  - WalletConnectSwiftV2/WalletConnectKMS (1.0.5):
+    - WalletConnectSwiftV2/WalletConnectUtils
+  - WalletConnectSwiftV2/WalletConnectNetworking (1.0.5):
+    - WalletConnectSwiftV2/WalletConnectRelay
+  - WalletConnectSwiftV2/WalletConnectPairing (1.0.5):
+    - WalletConnectSwiftV2/WalletConnectNetworking
+  - WalletConnectSwiftV2/WalletConnectRelay (1.0.5):
+    - WalletConnectSwiftV2/WalletConnectKMS
+  - WalletConnectSwiftV2/WalletConnectUtils (1.0.5):
+    - WalletConnectSwiftV2/JSONRPC
   - xcbeautify (0.11.0)
 
 DEPENDENCIES:
@@ -176,6 +193,7 @@ DEPENDENCIES:
   - SwiftLint (= 0.50.3)
   - TrezorCrypto (from `https://github.com/AlphaWallet/trezor-crypto-ios.git`, commit `50c16ba5527e269bbc838e80aee5bac0fe304cc7`)
   - TrustKeystore (from `https://github.com/AlphaWallet/latest-keystore-snapshot`, commit `c0bdc4f6ffc117b103e19d17b83109d4f5a0e764`)
+  - WalletConnectSwiftV2 (~> 1.0.2)
   - xcbeautify
 
 SPEC REPOS:
@@ -216,6 +234,7 @@ SPEC REPOS:
     - SwiftProtobuf
     - SwiftyJSON
     - TrustWalletCore
+    - WalletConnectSwiftV2
     - xcbeautify
 
 EXTERNAL SOURCES:
@@ -332,8 +351,9 @@ SPEC CHECKSUMS:
   TrezorCrypto: bfeea47a052dca2c77d4a39e1e183865e52de14d
   TrustKeystore: 3d8b4571c66648fb985015c96b3185440bb837fe
   TrustWalletCore: a92d85baa15932279cce925559e93695558cafdd
+  WalletConnectSwiftV2: e05838f7d04eb69197a23b37768365d8595bab32
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: c004a08c30c03d65fc33d9f7699138b02d7de584
+PODFILE CHECKSUM: 2cbfb7871b3f51b6f4d02205bd5ad38b0b129e60
 
 COCOAPODS: 1.11.3

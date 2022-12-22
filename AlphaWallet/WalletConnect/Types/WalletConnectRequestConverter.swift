@@ -100,7 +100,15 @@ extension AlphaWallet.WalletConnect.Request {
             let parameters = JSONRPC_2_0.Request.Params.positional(values)
 
             self.method = request.method
-            self.payload = JSONRPC_2_0.Request(method: request.method, params: parameters, id: JSONRPC_2_0.IDType.int(request.id))
+
+            let id: JSONRPC_2_0.IDType
+            switch request.id {
+            case .left(let string):
+                id = .string(string)
+            case .right(let int):
+                id = .int(int)
+            }
+            self.payload = JSONRPC_2_0.Request(method: request.method, params: parameters, id: id)
             self.request = request
         }
 

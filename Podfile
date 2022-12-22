@@ -36,6 +36,8 @@ target 'AlphaWallet' do
   pod 'SwiftLint', '0.50.3', :configuration => 'Debug'
   pod 'SwiftFormat/CLI', '~> 0.49', :configuration => 'Debug'
 
+  pod 'WalletConnectSwiftV2', '~> 1.0.2'
+  
   target 'AlphaWalletTests' do
       inherit! :search_paths
       # Pods for testing

@@ -7,7 +7,7 @@
 
 import Foundation
 import Combine
-import WalletConnectSign
+import WalletConnectSwiftV2
 import AlphaWalletCore
 import AlphaWalletFoundation
 
@@ -39,7 +39,7 @@ class WalletConnectV2Storage {
         storage.value.remove(at: index)
     }
 
-    func addOrUpdate(session: WalletConnectSign.Session) {
+    func addOrUpdate(session: WalletConnectSwiftV2.Session) {
         if let index = try? indexOf(.topic(string: session.topic)) {
             storage.value[index].update(namespaces: session.namespaces)
         } else {
@@ -64,9 +64,7 @@ class WalletConnectV2Storage {
     }
 
     @discardableResult func update(_ topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl, servers: [RPCServer]) throws -> WalletConnectV2Session {
-        let index = try indexOf(topicOrUrl)
-
-        let session = storage.value[index]
+        let session = try session(for: topicOrUrl)
         let namespaces = session.namespaces.mapValues { namespace -> SessionNamespace in
             let blockchains = servers.compactMap { server in Blockchain(server.eip155) }
             let accounts = Set(blockchains.flatMap { blockchain in
@@ -80,9 +78,8 @@ class WalletConnectV2Storage {
     }
 
     @discardableResult func update(_ topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl, accounts: Set<CAIP10Account>) throws -> WalletConnectV2Session {
-        let index = try indexOf(topicOrUrl)
+        let session = try session(for: topicOrUrl)
 
-        let session = storage.value[index]
         let namespaces = session.namespaces.mapValues {
             return SessionNamespace(accounts: accounts, methods: $0.methods, events: $0.events, extensions: $0.extensions)
         }

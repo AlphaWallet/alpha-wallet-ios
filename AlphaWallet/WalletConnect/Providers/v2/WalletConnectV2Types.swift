@@ -6,18 +6,18 @@
 //
 
 import Foundation
-import WalletConnectSign
+import WalletConnectSwiftV2
 import AlphaWalletFoundation
 
-typealias SessionNamespace = WalletConnectSign.SessionNamespace
-typealias Blockchain = WalletConnectSign.Blockchain
-typealias CAIP10Account = WalletConnectSign.Account
+typealias SessionNamespace = WalletConnectSwiftV2.SessionNamespace
+typealias Blockchain = WalletConnectSwiftV2.Blockchain
+typealias CAIP10Account = WalletConnectSwiftV2.Account
 
 struct WalletConnectV2Session: Codable {
     private (set) var namespaces: [String: SessionNamespace]
     let expiryDate: Date
     var requester: DAppRequester { .init(title: dapp.name, url: URL(string: dapp.url)) }
-    let dapp: WalletConnectSign.AppMetadata
+    let dapp: WalletConnectSwiftV2.AppMetadata
     let topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl
 
     var servers: [RPCServer] {
@@ -25,7 +25,7 @@ struct WalletConnectV2Session: Codable {
         return RPCServer.decodeEip155Array(values: blockchains)
     }
 
-    init(session: WalletConnectSign.Session) {
+    init(session: WalletConnectSwiftV2.Session) {
         topicOrUrl = .topic(string: session.topic)
         dapp = session.peer
         namespaces = session.namespaces
@@ -45,7 +45,7 @@ extension WalletSession {
 
 extension AlphaWallet.WalletConnect.Dapp {
 
-    init(appMetadata metadata: WalletConnectSign.AppMetadata) {
+    init(appMetadata metadata: WalletConnectSwiftV2.AppMetadata) {
         self.name = metadata.name
         self.description = metadata.description
         self.url = URL(string: metadata.url)!
@@ -63,7 +63,7 @@ extension AlphaWallet.WalletConnect.Session {
     }
 }
 
-typealias WalletConnectV2Request = WalletConnectSign.Request
+typealias WalletConnectV2Request = WalletConnectSwiftV2.Request
 
 extension WalletConnectV2Request {
     var rpcServer: RPCServer? { eip155URLCoder.decodeRPC(from: chainId.absoluteString) }

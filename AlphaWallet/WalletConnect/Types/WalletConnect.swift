@@ -249,14 +249,16 @@ extension AlphaWallet.WalletConnect.Session {
         return .init(title: dappName, url: dappUrl)
     }
 
-    var dappName: String { return dapp.name }
+    var dappName: String {
+        return dapp.name.isEmpty ? "--" : dapp.name
+    }
 
     var dappNameShort: String {
         guard let approxDapName = dappName.components(separatedBy: " ").first, approxDapName.nonEmpty else {
             return dappName
         }
 
-        return approxDapName
+        return approxDapName.isEmpty ? "--" : approxDapName
     }
 
     var dappIconUrl: URL? { dapp.icons.first }
