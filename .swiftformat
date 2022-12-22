@@ -1,0 +1,88 @@
+#Disable all and explicitly enable them to avoid unintentionally activating new rules in newer versions of SwiftFormat
+--disable all
+
+#TODO enable
+#--enable redundantVoidReturnType
+#--closurevoid remove
+
+#TODO enable
+#--enable trailingCommas
+#--commas always
+
+#TODO enable
+#--enable elseOnSameLine
+#--elseposition same-line
+#--guardelse "same-line"
+
+#TODO enable
+#--enable emptyBraces
+#--emptybraces no-space
+
+#TODO enable
+#--enable enumNamespaces
+#--enumnamespaces always
+
+--enable genericExtensions
+
+#TODO enable
+#--enable indent
+#--ifdef indent
+#--indent 4
+#--indentcase false
+#--indentstrings true
+#--tabwidth unspecified
+#--xcodeindentation disabled
+
+--enable linebreaks
+--linebreaks lf
+
+--disable wrapSingleLineComments
+
+#TODO enable
+#--enable modifierorder 
+#--modifierorder private,lazy
+
+#TODO enable
+#--enable spaceAroundOperators
+#--operatorfunc spaced
+#--nospaceoperators ...,..<
+#--ranges "no-space"
+
+#TODO enable
+#--enable hoistPatternLet
+#--patternlet inline
+
+#TODO enable
+#--enable semicolons
+#--semicolons inline
+
+#TODO enable
+#--enable typeSugar
+#--shortoptionals always
+
+--enable unusedArguments
+--stripunusedargs closure-only
+
+#TODO enable
+#--enable trailingSpace
+#--trimwhitespace always
+
+#TODO enable
+#--enable blankLinesAtStartOfScope
+#--typeblanklines remove
+
+#TODO enable
+#--enable void
+#--voidtype void
+
+--enable yodaConditions
+--yodaswap always
+
+--disable spaceInsideComments
+
+#Files
+
+--exclude build,vendor
+--exclude Pods,Generated
+#Excluded because of error while processing
+--exclude AlphaWallet/Browser/ViewModel/Dapps.swift
