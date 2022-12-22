@@ -185,17 +185,17 @@ final class AmountTextFieldViewModel {
             //NOTE: result MUST be formatted as fiat
             let formatter = fiatFormatter(usesGroupingSeparator: usesGroupingSeparator, currency: pair.fiat)
 
-            return formatter.string(double: amount, minimumFractionDigits: 2, maximumFractionDigits: 6)
+            return formatter.string(double: amount, minimumFractionDigits: 2, maximumFractionDigits: 6).droppedTrailingZeros
         case .fiatCurrency:
             //NOTE: result MUST be formatted as crypto
             let formatter = cryptoFormatter(usesGroupingSeparator: usesGroupingSeparator)
 
-            return formatter.string(double: amount, minimumFractionDigits: 4, maximumFractionDigits: 8)
+            return formatter.string(double: amount, minimumFractionDigits: 4, maximumFractionDigits: 8).droppedTrailingZeros
         }
     }
 
     private func fiatFormatter(usesGroupingSeparator: Bool = false, currency: Currency) -> NumberFormatter {
-        let formatter = Formatter.currencyAccounting
+        let formatter = NumberFormatter.currencyAccounting
         formatter.locale = locale
         formatter.currencyCode = currency.code
         formatter.usesGroupingSeparator = usesGroupingSeparator
@@ -204,7 +204,7 @@ final class AmountTextFieldViewModel {
     }
 
     private func cryptoFormatter(usesGroupingSeparator: Bool = false) -> NumberFormatter {
-        let formatter = Formatter.alternateAmount
+        let formatter = NumberFormatter.alternateAmount
         formatter.locale = locale
         formatter.usesGroupingSeparator = usesGroupingSeparator
 

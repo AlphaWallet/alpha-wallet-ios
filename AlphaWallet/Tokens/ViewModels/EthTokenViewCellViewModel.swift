@@ -71,13 +71,13 @@ struct EthTokenViewCellViewModel {
             guard let ticker = ticker else { return UiTweaks.noPriceMarker }
 
             let helper = TickerHelper(ticker: ticker)
-            let formatter = Formatter.priceChange(currency: ticker.currency)
+            let formatter = NumberFormatter.priceChange(currency: ticker.currency)
 
             switch helper.change24h {
             case .appreciate(let percentageChange24h):
-                return "\(formatter.string(from: percentageChange24h) ?? "")%"
+                return "\(formatter.string(double: percentageChange24h) ?? "")%"
             case .depreciate(let percentageChange24h):
-                return "\(formatter.string(from: percentageChange24h) ?? "")%"
+                return "\(formatter.string(double: percentageChange24h) ?? "")%"
             case .none:
                 return UiTweaks.noPriceMarker
             }
@@ -91,10 +91,10 @@ struct EthTokenViewCellViewModel {
 
     private var priceChange: String {
         guard let ticker = ticker else { return UiTweaks.noPriceMarker }
-        let formatter = Formatter.priceChange(currency: ticker.currency)
+        let formatter = NumberFormatter.priceChange(currency: ticker.currency)
 
         if let result = TickerHelper(ticker: ticker).valueChanged24h(value: valueDecimal) {
-            return formatter.string(from: result) ?? UiTweaks.noPriceMarker
+            return formatter.string(double: result) ?? UiTweaks.noPriceMarker
         } else {
             return UiTweaks.noPriceMarker
         }
@@ -114,9 +114,9 @@ struct EthTokenViewCellViewModel {
             } else {
                 //FIXME: refactor this, maybe remove `amountInFiat`
                 guard let ticker = ticker else { return UiTweaks.noPriceMarker }
-                let formatter = Formatter.fiatShort(currency: ticker.currency)
+                let formatter = NumberFormatter.fiatShort(currency: ticker.currency)
 
-                return amountInFiat.flatMap { formatter.string(from: $0) } ?? UiTweaks.noPriceMarker
+                return amountInFiat.flatMap { formatter.string(double: $0) } ?? UiTweaks.noPriceMarker
             }
         }()
 

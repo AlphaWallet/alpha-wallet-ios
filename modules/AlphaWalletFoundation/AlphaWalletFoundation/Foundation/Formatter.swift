@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Formatter {
+extension NumberFormatter {
 
     public static func fiat(currency: Currency) -> NumberFormatter {
         let formatter = basicCurrencyFormatter()
@@ -40,16 +40,16 @@ public struct Formatter {
         return formatter
     }()
 
-    public static let shortCrypto: NumberFormatter = {
+    //NOTE: does't work when its stored static let, should be computed var
+    public static var shortCrypto: NumberFormatter {
         let formatter = basicCurrencyFormatter()
         formatter.positiveFormat = ",###.#"
         formatter.negativeFormat = "-,###.#"
         formatter.minimumFractionDigits = Constants.etherFormatterFractionDigits
         formatter.maximumFractionDigits = Constants.etherFormatterFractionDigits
-        formatter.numberStyle = .none
 
         return formatter
-    }()
+    }
 
     public static func priceChange(currency: Currency) -> NumberFormatter {
         let formatter = basicCurrencyFormatter()
@@ -62,13 +62,8 @@ public struct Formatter {
         return formatter
     }
 
-    public static let `default`: NumberFormatter = {
-        let formatter = NumberFormatter()
-        return formatter
-    }()
-
     public static let scientificAmount: NumberFormatter = {
-        let formatter = Formatter.default
+        let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         formatter.usesGroupingSeparator = false
         formatter.locale = Locale(identifier: "en_US")
@@ -119,11 +114,11 @@ fileprivate func basicNumberFormatter() -> NumberFormatter {
 
 extension NumberFormatter {
 
-    public func string(from source: Decimal) -> String? {
+    public func string(decimal source: Decimal) -> String? {
         return self.string(from: source as NSNumber)
     }
 
-    public func string(from source: Double) -> String? {
+    public func string(double source: Double) -> String? {
         return self.string(from: source as NSNumber)
     }
 
@@ -134,10 +129,8 @@ extension NumberFormatter {
         let minimumFractionNumber = Double("0." + String(1).leftPadding(to: minimumFractionDigits, pad: "0"))!
         let maximumFractionNumber = Double("0." + String(1).leftPadding(to: maximumFractionDigits, pad: "0"))!
 
-        if int >= 1 {
+        if int >= 1 || double == 0 {
             fractionDigits = minimumFractionDigits
-        } else if double == 0 {
-            fractionDigits = 0
         } else if double <= maximumFractionNumber {
             fractionDigits = maximumFractionDigits
         } else if double <= minimumFractionNumber {
@@ -149,11 +142,7 @@ extension NumberFormatter {
         self.maximumFractionDigits = fractionDigits
         self.minimumFractionDigits = fractionDigits
 
-        if fractionDigits == minimumFractionDigits {
-            return (self.string(from: double as NSNumber) ?? "").trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-        } else {
-            return (self.string(from: double as NSNumber) ?? "").trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).droppedTrailingZeros
-        }
+        return (self.string(from: double as NSNumber) ?? "").trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
     }
 
 }

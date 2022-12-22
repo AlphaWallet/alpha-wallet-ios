@@ -57,12 +57,12 @@ extension TransactionConfirmationViewModel {
         private var requester: RequesterViewModel?
         private let assetDefinitionStore: AssetDefinitionStore
         private var formattedAmountValue: String {
-            let amountToSend = Decimal(bigUInt: configurator.transaction.value, decimals: configurator.session.server.decimals) ?? .zero
+            let amountToSend = (Decimal(bigUInt: configurator.transaction.value, decimals: configurator.session.server.decimals) ?? .zero).doubleValue
             //NOTE: previously it was full, make it full
-            let amount = Formatter.shortCrypto.string(from: amountToSend) ?? "-"
+            let amount = NumberFormatter.shortCrypto.string(double: amountToSend) ?? "-"
 
             if let rate = rate {
-                let amountInFiat = Formatter.fiat(currency: rate.currency).string(from: amountToSend.doubleValue * rate.value) ?? "-"
+                let amountInFiat = NumberFormatter.fiat(currency: rate.currency).string(double: amountToSend * rate.value) ?? "-"
                 return "\(amount) \(configurator.session.server.symbol) ≈ \(amountInFiat)"
             } else {
                 return "\(amount) \(configurator.session.server.symbol)"
@@ -126,7 +126,7 @@ extension TransactionConfirmationViewModel {
             case .erc20, .erc1155, .erc721, .erc721ForTickets, .erc875:
                 symbol = transactionType.tokenObject.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
             }
-            let newBalance = Formatter.shortCrypto.string(for: newBalance) ?? "-"
+            let newBalance = NumberFormatter.shortCrypto.string(for: newBalance) ?? "-"
 
             return R.string.localizable.transactionConfirmationSendSectionBalanceNewTitle("\(newBalance) \(symbol)", "symbol")
         }
@@ -141,7 +141,7 @@ extension TransactionConfirmationViewModel {
                 symbol = transactionType.tokenObject.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
             }
 
-            let balance = Formatter.shortCrypto.string(for: balance)
+            let balance = NumberFormatter.shortCrypto.string(for: balance)
 
             return balance.flatMap { "\($0) \(symbol)" } ?? title
         }

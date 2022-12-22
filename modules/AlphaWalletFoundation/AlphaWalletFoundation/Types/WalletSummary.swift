@@ -19,9 +19,9 @@ public struct WalletSummary {
 
     public var totalAmountString: String {
         guard let amount = totalAmount else { return "--" }
-        let formatter = Formatter.fiatShort(currency: amount.currency)
+        let formatter = NumberFormatter.fiatShort(currency: amount.currency)
 
-        return formatter.string(from: amount.amount) ?? "--"
+        return formatter.string(double: amount.amount) ?? "--"
     }
 
     public var change: WalletBalance.ValueForCurrency? {

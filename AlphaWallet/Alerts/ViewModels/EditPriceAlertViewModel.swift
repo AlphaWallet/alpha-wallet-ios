@@ -52,7 +52,7 @@ final class EditPriceAlertViewModel {
             .map { $0.flatMap { $0.balance.ticker.flatMap { CurrencyRate(currency: $0.currency, value: $0.price_usd) } } }
             .share()
             .handleEvents(receiveOutput: { self.rate = $0 })
-            .map { $0.flatMap { Formatter.fiatShort(currency: $0.currency).string(from: $0.value) } }
+            .map { $0.flatMap { NumberFormatter.fiatShort(currency: $0.currency).string(double: $0.value) } }
 
         input.amountToSend
             .compactMap { amount -> Double? in

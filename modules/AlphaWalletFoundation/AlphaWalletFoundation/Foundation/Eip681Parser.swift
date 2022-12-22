@@ -72,7 +72,7 @@ public struct Eip681Parser {
             let eNotation = params["uint256"].flatMap { $0.contains("e") } ?? false
             if let amountBigInt = optionalAmountBigInt {
                 //TODO According to the EIP, check for UNITS (if available), and if that matches the symbol of the specified contract, use the decimals (if available) returned by the contract. Since we are also checking the decimals based on the contract, just make sure symbols (if it is provided) matches
-                amount = formatter.string(from: amountBigInt.doubleValue) ?? String(amountBigInt.doubleValue)
+                amount = formatter.string(double: amountBigInt.doubleValue) ?? String(amountBigInt.doubleValue)
             } else {
                 amount = ""
             }
@@ -81,7 +81,7 @@ public struct Eip681Parser {
             //TODO UNITS is either optional or "ETH" for native crypto sends. If it's not provided, we treat it as something like 3.14e18, but it also can be like 1
             let amount: String
             if let value = params["value"], let amountToSend = decimalParser.parseAnyDecimal(from: value) {
-                amount = formatter.string(from: amountToSend.doubleValue) ?? String(amountToSend.doubleValue)
+                amount = formatter.string(double: amountToSend.doubleValue) ?? String(amountToSend.doubleValue)
             } else {
                 amount = ""
             }

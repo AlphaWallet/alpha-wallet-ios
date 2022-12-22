@@ -31,9 +31,9 @@ public struct WalletBalance {
     }
 
     public var totalAmountString: String {
-        if let totalAmount = totalAmount, let value = Formatter.fiat(currency: totalAmount.currency).string(from: totalAmount.amount) {
+        if let totalAmount = totalAmount, let value = NumberFormatter.fiat(currency: totalAmount.currency).string(double: totalAmount.amount) {
             return value
-        } else if let etherToken = etherToken, let amount = Formatter.shortCrypto.string(from: etherToken.balance.valueDecimal.doubleValue) {
+        } else if let etherToken = etherToken, let amount = NumberFormatter.shortCrypto.string(double: etherToken.balance.valueDecimal.doubleValue) {
             return "\(amount) \(etherToken.tokenScriptOverrides?.symbolInPluralForm ?? etherToken.symbol)"
         } else {
             return "--"
@@ -49,13 +49,13 @@ public struct WalletBalance {
     public var changePercentageString: String {
         guard let changePercentage = changePercentage else { return "-" }
         let helper = TickerHelper(ticker: nil)
-        let formatter = Formatter.priceChange(currency: changePercentage.currency)
+        let formatter = NumberFormatter.priceChange(currency: changePercentage.currency)
         
         switch helper.change24h(from: changePercentage.amount) {
         case .appreciate(let percentageChange24h):
-            return "\(formatter.string(from: percentageChange24h) ?? "")%"
+            return "\(formatter.string(double: percentageChange24h) ?? "")%"
         case .depreciate(let percentageChange24h):
-            return "\(formatter.string(from: percentageChange24h) ?? "")%"
+            return "\(formatter.string(double: percentageChange24h) ?? "")%"
         case .none:
             return "-"
         }

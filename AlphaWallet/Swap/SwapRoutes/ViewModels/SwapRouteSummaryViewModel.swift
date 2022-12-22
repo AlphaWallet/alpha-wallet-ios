@@ -62,7 +62,7 @@ final class SwapRouteSummaryViewModel {
                 guard fromAmount > 0 else { return nil }
                 return (toAmount / fromAmount).nilIfNan
             }()
-            guard let cryptoToCryptoRate = rate.flatMap({ Formatter.shortCrypto.string(from: $0).flatMap { "\($0) \(route.toToken.symbol)" } }) else { return "-" }
+            guard let cryptoToCryptoRate = rate.flatMap({ NumberFormatter.shortCrypto.string(double: $0).flatMap { "\($0) \(route.toToken.symbol)" } }) else { return "-" }
 
             return "1 \(route.fromToken.symbol) = \(cryptoToCryptoRate)"
         } ?? "-"

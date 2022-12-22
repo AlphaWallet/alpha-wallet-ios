@@ -23,8 +23,8 @@ struct GasViewModel {
         
         guard let rate = rate else { return text }
         
-        let formatter = Formatter.fiat(currency: rate.currency)
-        if let fee = gasFee.optionalDecimalValue, let feeInFiat = formatter.string(from: rate.value * fee.doubleValue) {
+        let formatter = NumberFormatter.fiat(currency: rate.currency)
+        if let fee = gasFee.optionalDecimalValue, let feeInFiat = formatter.string(double: rate.value * fee.doubleValue) {
             return text + " (\(feeInFiat))"
         } else {
             return text
