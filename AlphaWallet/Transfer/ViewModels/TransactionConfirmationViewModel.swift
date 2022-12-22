@@ -302,7 +302,7 @@ extension TransactionConfirmationViewModel {
         if let rate = rate {
             let amountInFiat = Formatter.fiat(currency: rate.currency).string(from: fee.doubleValue * rate.value) ?? "-"
 
-            costs =  "< ~\(feeString) \(configurator.session.server.symbol) (\(amountInFiat) \(rate.currency.code))"
+            costs =  "< ~\(feeString) \(configurator.session.server.symbol) (\(amountInFiat))"
         } else {
             costs = "< ~\(feeString) \(configurator.session.server.symbol)"
         }
