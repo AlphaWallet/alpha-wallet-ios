@@ -65,8 +65,6 @@ extension WalletConnectSessionCoordinator: ServersCoordinatorDelegate {
             Analytics.Properties.source.rawValue: "walletConnect"
         ])
         try? provider.update(session.topicOrUrl, servers: servers)
-
-        navigationController.popViewController(animated: true)
     }
 
     func didClose(in coordinator: ServersCoordinator) {

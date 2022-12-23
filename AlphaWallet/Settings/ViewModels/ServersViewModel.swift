@@ -89,6 +89,22 @@ struct ServersViewModel {
         return viewModel
     }
 
+    mutating func selectOrDeselectServer(indexPath: IndexPath) {
+        let server = server(for: indexPath)
+
+        if multipleSessionSelectionEnabled {
+            if isServerSelected(server) {
+                guard selectedServers.count > 1 else { return }
+                unselectServer(server: server)
+            } else {
+                selectServer(server: server)
+            }
+        } else {
+            selectedServers.forEach { unselectServer(server: $0) }
+            selectServer(server: server)
+        }
+    }
+
     mutating func selectServer(server: RPCServerOrAuto) {
         guard !selectedServers.contains(server) else { return }
         selectedServers.append(server)
