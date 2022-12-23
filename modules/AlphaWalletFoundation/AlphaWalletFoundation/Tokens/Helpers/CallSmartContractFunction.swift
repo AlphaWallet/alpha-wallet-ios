@@ -139,7 +139,8 @@ final class GetEventLogs {
         firstly {
             .value(contractAddress)
         }.then(on: queue, { [weak self, queue] contractAddress -> Promise<[EventParserResultProtocol]> in
-            let key = "\(contractAddress.eip55String)-\(server.chainID)-\(eventName)-\(abiString)-\(try JSONEncoder().encode(filter.rpcPreEncode()).hashValue)"
+            //It is fine to use the default String representation of `EventFilter` in the cache key. But it is crucial to include it, because the actual variables of the event log fetching are in there. For example ERC1155's `TransferSingle` event is used for fetching both send and receive single token ID events. We can ony tell based on the arguments in `EventFilter` whether it is a send or receive
+            let key = "\(contractAddress.eip55String)-\(server.chainID)-\(eventName)-\(abiString)-\(filter)"
 
             if let promise = self?.inFlightPromises[key] {
                 return promise
