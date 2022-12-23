@@ -85,10 +85,19 @@ final class SendViewModel: TransactionTypeSupportable {
     }
 
     func transform(input: SendViewModelInput) -> SendViewModelOutput {
+        var isInitialAmountToSend: Bool = true
+        //NOTE: override initial value if `transactionType.amount` in nil
+        // NOTE: we want to use initial value from transaction type, text field has `0` at launch, so value from transaction type will be overriden with `0`
         input.amountToSend
             .map { $0.asAmount }
-            .dropFirst(1) // NOTE: we want to use initial value from transaction type, text field has `0` at launch, so value from transaction type will be overriden with `0`
-            .map { amount in
+            .filter { _ in
+                if isInitialAmountToSend {
+                    isInitialAmountToSend = false
+
+                    return self.transactionType.amount == nil || self.transactionType.amount == .notSet
+                }
+                return true
+            }.map { amount in
                 self.amountToSend = amount
 
                 return self.overrideTransactionType(with: amount)
