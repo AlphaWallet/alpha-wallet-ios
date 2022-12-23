@@ -19,13 +19,12 @@ class InitialWalletCreationCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: InitialWalletCreationCoordinatorDelegate?
 
-    init(
-        config: Config,
-        navigationController: UINavigationController,
-        keystore: Keystore,
-        analytics: AnalyticsLogger,
-        domainResolutionService: DomainResolutionServiceType
-    ) {
+    init(config: Config,
+         navigationController: UINavigationController,
+         keystore: Keystore,
+         analytics: AnalyticsLogger,
+         domainResolutionService: DomainResolutionServiceType) {
+
         self.config = config
         self.navigationController = navigationController
         self.keystore = keystore
@@ -40,7 +39,13 @@ class InitialWalletCreationCoordinator: Coordinator {
     }
 
     private func startWalletCoordinator() {
-        let coordinator = WalletCoordinator(config: config, navigationController: navigationController, keystore: keystore, analytics: analytics, domainResolutionService: domainResolutionService)
+        let coordinator = WalletCoordinator(
+            config: config,
+            navigationController: navigationController,
+            keystore: keystore,
+            analytics: analytics,
+            domainResolutionService: domainResolutionService)
+
         coordinator.delegate = self
         coordinator.start(.addInitialWallet)
 
