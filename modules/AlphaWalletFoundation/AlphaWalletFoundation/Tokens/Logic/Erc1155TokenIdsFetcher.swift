@@ -91,7 +91,6 @@ public class Erc1155TokenIdsFetcher {
         let address = self.address
         let server = self.server
         let config = self.config
-        let maximumBlockRangeWindow: UInt64? = server.maximumBlockRangeForEvents
 
         let promise = firstly {
             Promise<Int>.value(session.chainState.latestBlock)
