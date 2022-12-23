@@ -196,7 +196,6 @@
 		5E7C7264B6B898A90F1761F0 /* AlphaWalletAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C70E0ADFCBFD9B7354389 /* AlphaWalletAddressTests.swift */; };
 		5E7C729D43F311810652B1D5 /* UIActivityViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78E5C8FAEA752B32626D /* UIActivityViewController.swift */; };
 		5E7C72A83542B1CB69E7B4B7 /* EnabledServersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B6A80324059B3EDA38C /* EnabledServersViewController.swift */; };
-		5E7C72AF95DCE8BC65490BCA /* StatusViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B82CC07F290B9CAA4E4 /* StatusViewController.swift */; };
 		5E7C72B0A10A92E591696E48 /* ContactUsBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7AE6FAE0DF969B4F52E9 /* ContactUsBannerView.swift */; };
 		5E7C72B4302A10E137EEF94A /* DappRequestSwitchCustomChainCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7C11AF59E7CA26B3A2BB /* DappRequestSwitchCustomChainCoordinator.swift */; };
 		5E7C72C8A15397C5A40BFE76 /* WhatIsEthereumInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C774BCA281E4B077DBBFA /* WhatIsEthereumInfoViewController.swift */; };
@@ -286,7 +285,6 @@
 		5E7C77E844D710D7AFBC58D4 /* RequestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74DCC21272EC231A20E2 /* RequestViewController.swift */; };
 		5E7C782069BAD4A667543979 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7C468EC03C073E0EEA03 /* SettingsViewController.swift */; };
 		5E7C78265EECE083C3EB1845 /* BrowserHomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78B61907C2C1E2BCD478 /* BrowserHomeViewModel.swift */; };
-		5E7C783B4784DE76971EEBB4 /* StatusViewControllerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7BD9B4BDAFC2D9EBD741 /* StatusViewControllerViewModel.swift */; };
 		5E7C78407F6DCB0EDD562DF6 /* NonFungibleTokenViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C731B6F01534683227123 /* NonFungibleTokenViewCellViewModel.swift */; };
 		5E7C7855E46A6604B2028C9D /* BrowserErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7F718714A0EA529664E7 /* BrowserErrorView.swift */; };
 		5E7C785C39CC8243BEC1219C /* PromptViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7E50E9184C7F0FE3966C /* PromptViewModel.swift */; };
@@ -1206,7 +1204,6 @@
 		5E7C7B6849D43348C5109712 /* DefaultActivityCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultActivityCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C7B6A80324059B3EDA38C /* EnabledServersViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EnabledServersViewController.swift; sourceTree = "<group>"; };
 		5E7C7B7A45EDFA8ED1E25863 /* FungibleTokenDetailsViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FungibleTokenDetailsViewModel.swift; sourceTree = "<group>"; };
-		5E7C7B82CC07F290B9CAA4E4 /* StatusViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusViewController.swift; sourceTree = "<group>"; };
 		5E7C7B8EB45ABD915B9BFF61 /* LocalPopularTokensCollectionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalPopularTokensCollectionTests.swift; sourceTree = "<group>"; };
 		5E7C7B8FD1E2BCC325DF4EE4 /* ServersCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServersCoordinator.swift; sourceTree = "<group>"; };
 		5E7C7B9220E616F82EDA956F /* PasscodeCharacterView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PasscodeCharacterView.swift; sourceTree = "<group>"; };
@@ -1214,7 +1211,6 @@
 		5E7C7BAEF70990DA14C474EB /* GroupActivityCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupActivityCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C7BB70AD8C1E92D37196F /* FakeActivitiesService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FakeActivitiesService.swift; sourceTree = "<group>"; };
 		5E7C7BB7DBFDF5A5E4F2DDC0 /* SendTransactionErrorViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendTransactionErrorViewModel.swift; sourceTree = "<group>"; };
-		5E7C7BD9B4BDAFC2D9EBD741 /* StatusViewControllerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusViewControllerViewModel.swift; sourceTree = "<group>"; };
 		5E7C7BF09AD68C113D58344C /* LocalesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalesViewController.swift; sourceTree = "<group>"; };
 		5E7C7C077372C3F2A4349FA1 /* FungibleTokenViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FungibleTokenViewCell.swift; sourceTree = "<group>"; };
 		5E7C7C11AF59E7CA26B3A2BB /* DappRequestSwitchCustomChainCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DappRequestSwitchCustomChainCoordinator.swift; sourceTree = "<group>"; };
@@ -2726,7 +2722,6 @@
 		5E7C714506B5E3AED3C410FC /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
-				5E7C7B82CC07F290B9CAA4E4 /* StatusViewController.swift */,
 				5E7C7535095323B035CA47C0 /* ImportMagicTokenViewController.swift */,
 			);
 			path = ViewControllers;
@@ -2955,7 +2950,6 @@
 		5E7C755521B5CAF98176AB84 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
-				5E7C7BD9B4BDAFC2D9EBD741 /* StatusViewControllerViewModel.swift */,
 				5E7C72D0E7CA03ADE5CFAE7A /* ImportMagicTokenViewControllerViewModel.swift */,
 				5E7C781F82F9E4903C460E33 /* ImportMagicTokenCardRowViewModel.swift */,
 			);
@@ -5228,8 +5222,6 @@
 				5E7C7E04D4DDD7D8881A2AB1 /* ImportMagicLinkCoordinator.swift in Sources */,
 				8795994726049F0F006722B2 /* ActivityStateViewViewModel.swift in Sources */,
 				875CA8E028BDEE3D0020FA48 /* SwitchCustomChainCallbackId.swift in Sources */,
-				5E7C72AF95DCE8BC65490BCA /* StatusViewController.swift in Sources */,
-				5E7C783B4784DE76971EEBB4 /* StatusViewControllerViewModel.swift in Sources */,
 				875F868127ABC7C80071ABD1 /* NonFungibleTraitView.swift in Sources */,
 				5E7C7C0FAC500A6651E663FD /* TransferTokensCardQuantitySelectionViewModel.swift in Sources */,
 				5E7C77AD9FAAC18211B6F355 /* TransferTokensCardQuantitySelectionViewController.swift in Sources */,
