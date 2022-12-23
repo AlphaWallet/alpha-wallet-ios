@@ -23,7 +23,7 @@ struct WalletConnectConnectionTimeoutViewModel {
     }
 }
 
-protocol WalletConnectConnectionTimeoutViewControllerDelegate: class {
+protocol WalletConnectConnectionTimeoutViewControllerDelegate: AnyObject {
     func didClose(in viewController: WalletConnectConnectionTimeoutViewController)
     func didSelectActionButton(in viewController: WalletConnectConnectionTimeoutViewController)
 }

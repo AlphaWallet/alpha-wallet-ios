@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol CollectUsersEmailViewControllerDelegate: class {
+protocol CollectUsersEmailViewControllerDelegate: AnyObject {
     func didClose(in viewController: CollectUsersEmailViewController)
     func didFinish(in viewController: CollectUsersEmailViewController, email: String)
 }

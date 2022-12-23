@@ -76,10 +76,10 @@ extension UIAlertController {
             break
         }
         alertButtonTitles.forEach { title in
-            let alertStyle = alertButtonStyles[alertButtonTitles.index(of: title)!]
+            let alertStyle = alertButtonStyles[alertButtonTitles.firstIndex(of: title)!]
             let action = UIAlertAction(title: title, style: alertStyle, handler: { action in
                 if completion != nil {
-                    completion!(alertButtonTitles.index(of: action.title!)!)
+                    completion!(alertButtonTitles.firstIndex(of: action.title!)!)
                 }
             })
             alertController.addAction(action)

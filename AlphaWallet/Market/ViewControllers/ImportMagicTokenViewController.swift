@@ -3,7 +3,7 @@
 import UIKit
 import AlphaWalletFoundation
 
-protocol ImportMagicTokenViewControllerDelegate: class, CanOpenURL {
+protocol ImportMagicTokenViewControllerDelegate: AnyObject, CanOpenURL {
     func didPressDone(in viewController: ImportMagicTokenViewController)
     func didPressImport(in viewController: ImportMagicTokenViewController)
 }

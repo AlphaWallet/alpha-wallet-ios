@@ -9,7 +9,7 @@ import UIKit
 import Combine
 import AlphaWalletFoundation
 
-protocol NFTCollectionInfoPageViewDelegate: class {
+protocol NFTCollectionInfoPageViewDelegate: AnyObject {
     func didPressOpenWebPage(_ url: URL, in view: NFTCollectionInfoPageView)
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, in view: NFTCollectionInfoPageView)
 }

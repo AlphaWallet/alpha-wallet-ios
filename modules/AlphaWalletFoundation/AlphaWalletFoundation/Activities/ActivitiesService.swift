@@ -10,7 +10,7 @@ import CoreFoundation
 import Combine
 import CombineExt
 
-public protocol ActivitiesServiceType: class {
+public protocol ActivitiesServiceType: AnyObject {
     var activitiesPublisher: AnyPublisher<[ActivityCollection.MappedToDateActivityOrTransaction], Never> { get }
     var didUpdateActivityPublisher: AnyPublisher<Activity, Never> { get }
 

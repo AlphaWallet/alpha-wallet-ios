@@ -5,7 +5,7 @@ import BigInt
 import Combine
 import AlphaWalletFoundation
 
-protocol EnterSellTokensCardPriceQuantityViewControllerDelegate: class, CanOpenURL {
+protocol EnterSellTokensCardPriceQuantityViewControllerDelegate: AnyObject, CanOpenURL {
     func didEnterSellTokensPriceQuantity(token: Token, tokenHolder: TokenHolder, ethCost: Ether, in viewController: EnterSellTokensCardPriceQuantityViewController)
     func didPressViewInfo(in viewController: EnterSellTokensCardPriceQuantityViewController)
 }

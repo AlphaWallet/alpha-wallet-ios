@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol DropDownViewDelegate: class {
+protocol DropDownViewDelegate: AnyObject {
     func filterDropDownViewDidChange(selection: ControlSelection)
 }
 

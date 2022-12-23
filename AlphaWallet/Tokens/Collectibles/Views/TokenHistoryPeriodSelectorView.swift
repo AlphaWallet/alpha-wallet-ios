@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol TokenHistoryPeriodSelectorViewDelegate: class {
+protocol TokenHistoryPeriodSelectorViewDelegate: AnyObject {
     func view(_ view: TokenHistoryPeriodSelectorView, didChangeSelection selection: ControlSelection)
 }
 

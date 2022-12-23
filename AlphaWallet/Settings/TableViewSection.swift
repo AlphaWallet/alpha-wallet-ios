@@ -8,7 +8,7 @@
 import UIKit
 import AlphaWalletFoundation
 
-protocol TableViewSection: class {
+protocol TableViewSection: AnyObject {
     func addMarked(chainID: Int)
     func serverAt(row: Int) -> CustomRPC
     func didSelect(row: Int)

@@ -8,7 +8,7 @@
 import Foundation
 import PromiseKit
 
-protocol SelectTransactionHashViewControllerDelegate: class {
+protocol SelectTransactionHashViewControllerDelegate: AnyObject {
     func didClose(in viewController: CheckTransactionStateViewController)
     func didSelectServerSelected(in viewController: CheckTransactionStateViewController)
     func didSelectedCheckTransactionStatus(in viewController: CheckTransactionStateViewController, transactionHash: String)

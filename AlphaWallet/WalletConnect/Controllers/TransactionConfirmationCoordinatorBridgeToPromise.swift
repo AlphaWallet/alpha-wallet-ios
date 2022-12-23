@@ -9,11 +9,11 @@ import UIKit
 import PromiseKit
 import AlphaWalletFoundation
 
-protocol SendTransactionDelegate: class {
+protocol SendTransactionDelegate: AnyObject {
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: TransactionConfirmationCoordinator)
 }
 
-protocol BuyCryptoDelegate: class {
+protocol BuyCryptoDelegate: AnyObject {
     func buyCrypto(wallet: Wallet, server: RPCServer, viewController: UIViewController, source: Analytics.BuyCryptoSource)
 }
 

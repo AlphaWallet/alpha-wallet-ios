@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol PriceAlertTableViewCellDelegate: class {
+protocol PriceAlertTableViewCellDelegate: AnyObject {
     func cell(_ cell: PriceAlertTableViewCell, didToggle value: Bool, indexPath: IndexPath)
 }
 

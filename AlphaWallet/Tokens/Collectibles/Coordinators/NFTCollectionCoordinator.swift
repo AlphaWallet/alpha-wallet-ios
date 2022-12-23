@@ -13,7 +13,7 @@ import BigInt
 import Combine
 import AlphaWalletFoundation
 
-protocol NFTCollectionCoordinatorDelegate: class, CanOpenURL {
+protocol NFTCollectionCoordinatorDelegate: AnyObject, CanOpenURL {
     func didClose(in coordinator: NFTCollectionCoordinator)
     func didPress(for type: PaymentFlow, inViewController viewController: UIViewController, in coordinator: NFTCollectionCoordinator)
     func didTap(transaction: TransactionInstance, in coordinator: NFTCollectionCoordinator)

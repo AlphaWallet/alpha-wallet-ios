@@ -4,7 +4,7 @@ import UIKit
 import Combine
 import AlphaWalletFoundation
 
-protocol SendViewControllerDelegate: class, CanOpenURL {
+protocol SendViewControllerDelegate: AnyObject, CanOpenURL {
     func didPressConfirm(transaction: UnconfirmedTransaction, in viewController: SendViewController)
     func openQRCode(in viewController: SendViewController)
     func didClose(in viewController: SendViewController)

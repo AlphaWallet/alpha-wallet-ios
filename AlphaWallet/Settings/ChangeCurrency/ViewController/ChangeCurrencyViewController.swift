@@ -9,7 +9,7 @@ import UIKit
 import AlphaWalletFoundation
 import Combine
 
-protocol ChangeCurrencyViewControllerDelegate: class {
+protocol ChangeCurrencyViewControllerDelegate: AnyObject {
     func didClose(in viewController: ChangeCurrencyViewController)
     func controller(_ viewController: ChangeCurrencyViewController, didSelectCurrency currency: Currency)
 }

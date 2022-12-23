@@ -8,7 +8,7 @@
 import UIKit
 import AlphaWalletFoundation
 
-protocol SendSemiFungibleTokenViewControllerDelegate: class, CanOpenURL {
+protocol SendSemiFungibleTokenViewControllerDelegate: AnyObject, CanOpenURL {
     func didEnterWalletAddress(tokenHolders: [TokenHolder], to recipient: AlphaWallet.Address, in viewController: SendSemiFungibleTokenViewController)
     func openQRCode(in controller: SendSemiFungibleTokenViewController)
     func didSelectTokenHolder(tokenHolder: TokenHolder, in viewController: SendSemiFungibleTokenViewController)

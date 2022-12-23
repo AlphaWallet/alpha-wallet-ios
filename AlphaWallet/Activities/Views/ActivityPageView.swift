@@ -21,7 +21,7 @@ struct ActivityPageViewModel {
     }
 }
 
-protocol ActivitiesPageViewDelegate: class {
+protocol ActivitiesPageViewDelegate: AnyObject {
     func didTap(activity: Activity, in view: ActivitiesPageView)
     func didTap(transaction: TransactionInstance, in view: ActivitiesPageView)
 }

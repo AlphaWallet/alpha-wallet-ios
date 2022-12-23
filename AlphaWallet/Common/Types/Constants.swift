@@ -13,7 +13,7 @@ extension Constants {
     static let etherReceivedNotificationIdentifier = "etherReceivedNotificationIdentifier"
 
     static let keychainKeyPrefix = "alphawallet"
-    static let xdaiDropPrefix = Data(bytes: [0x58, 0x44, 0x41, 0x49, 0x44, 0x52, 0x4F, 0x50]).hex()
+    static let xdaiDropPrefix = Data([0x58, 0x44, 0x41, 0x49, 0x44, 0x52, 0x4F, 0x50]).hex()
 
     enum WalletConnect {
         static let server = "AlphaWallet"

@@ -9,7 +9,7 @@ import Foundation
 import PromiseKit
 import BigInt 
 
-public protocol ApproveSwapProviderDelegate: class {
+public protocol ApproveSwapProviderDelegate: AnyObject {
     func promptToSwap(unsignedTransaction: UnsignedSwapTransaction, fromToken: TokenToSwap, fromAmount: BigUInt, toToken: TokenToSwap, toAmount: BigUInt, in provider: ApproveSwapProvider)
     func promptForErc20Approval(token: AlphaWallet.Address, server: RPCServer, owner: AlphaWallet.Address, spender: AlphaWallet.Address, amount: BigUInt, in provider: ApproveSwapProvider) -> Promise<EthereumTransaction.Hash>
     func changeState(in approveSwapProvider: ApproveSwapProvider, state: ApproveSwapState)

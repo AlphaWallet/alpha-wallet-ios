@@ -8,7 +8,7 @@
 import UIKit
 import AlphaWalletFoundation
 
-protocol WalletPupupCoordinatorDelegate: class {
+protocol WalletPupupCoordinatorDelegate: AnyObject {
     func didSelect(action: PupupAction, in coordinator: WalletPupupCoordinator)
     func didClose(in coordinator: WalletPupupCoordinator)
 }

@@ -5,11 +5,11 @@ import BigInt
 import Combine
 import AlphaWalletFoundation
 
-protocol RateUpdatable: class {
+protocol RateUpdatable: AnyObject {
     var rate: CurrencyRate? { get set }
 }
 
-protocol BalanceUpdatable: class {
+protocol BalanceUpdatable: AnyObject {
     func updateBalance(_ balanceViewModel: BalanceViewModel?)
 }
 

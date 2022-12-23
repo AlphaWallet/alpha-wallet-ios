@@ -8,7 +8,7 @@
 import UIKit
 import AlphaWalletFoundation
 
-protocol WhereAreMyTokensCoordinatorDelegate: class {
+protocol WhereAreMyTokensCoordinatorDelegate: AnyObject {
     func switchToMainnetSelected(in coordinator: WhereAreMyTokensCoordinator)
     func didClose(in coordinator: WhereAreMyTokensCoordinator)
 }

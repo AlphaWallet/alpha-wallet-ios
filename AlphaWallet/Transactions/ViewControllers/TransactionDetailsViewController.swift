@@ -5,7 +5,7 @@ import SafariServices
 import AlphaWalletFoundation
 import Combine
 
-protocol TransactionDetailsViewControllerDelegate: class, CanOpenURL {
+protocol TransactionDetailsViewControllerDelegate: AnyObject, CanOpenURL {
     func didSelectShare(in viewController: TransactionDetailsViewController, item: URL, sender: UIBarButtonItem)
 }
 

@@ -221,7 +221,7 @@ final class WalletConnectV2Provider: WalletConnectServer {
     private func _didReceive(proposal: WalletConnectSwiftV2.Session.Proposal, completion: @escaping () -> Void) {
         infoLog("[WalletConnect2] WC: Did receive session proposal")
 
-        func reject(proposal: WalletConnectSwiftV2.Session.Proposal) {
+        @Sendable func reject(proposal: WalletConnectSwiftV2.Session.Proposal) {
             infoLog("[WalletConnect2] WC: Did reject session proposal: \(proposal)")
             Task {
                 try await client.reject(proposalId: proposal.id, reason: .userRejectedChains)
@@ -231,7 +231,7 @@ final class WalletConnectV2Provider: WalletConnectServer {
             }
         }
 
-        DispatchQueue.main.async { [weak self] in
+        queue.async { [weak self] in
             guard let strongSelf = self else { return }
 
             guard let delegate = strongSelf.delegate else {
@@ -243,26 +243,28 @@ final class WalletConnectV2Provider: WalletConnectServer {
                 try WalletConnectV2Provider.validateProposalForMixedMainnetOrTestnet(proposal)
 
                 delegate.server(strongSelf, shouldConnectFor: .init(proposal: proposal)) { response in
-                    do {
-                        guard response.shouldProceed else {
-                            strongSelf.currentProposal = .none
-                            reject(proposal: proposal)
-                            return
-                        }
+                    guard response.shouldProceed else {
+                        strongSelf.currentProposal = .none
+                        reject(proposal: proposal)
+                        return
+                    }
 
-                        Task {
+                    Task {
+                        do {
                             let namespaces = try strongSelf.validateProposalForSupportingBlockchains(proposal)
                             try await strongSelf.client.approve(proposalId: proposal.id, namespaces: namespaces)
                             strongSelf.currentProposal = .none
+
                             DispatchQueue.main.async {
                                 completion()
                             }
+                        } catch {
+                            DispatchQueue.main.async {
+                                delegate.server(strongSelf, didFail: error)
+                                    //NOTE: for now we dont throw any error, just rejecting connection proposal
+                                reject(proposal: proposal)
+                            }
                         }
-                    } catch {
-                        delegate.server(strongSelf, didFail: error)
-                        //NOTE: for now we dont throw any error, just rejecting connection proposal
-                        reject(proposal: proposal)
-                        return
                     }
                 }
             } catch {

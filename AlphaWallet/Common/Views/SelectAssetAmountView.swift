@@ -83,7 +83,7 @@ private class TokenCardSelectionAmountHeaderView: UIView {
     }
 }
 
-protocol SelectTokenCardAmountViewDelegate: class {
+protocol SelectTokenCardAmountViewDelegate: AnyObject {
     func valueDidChange(in view: SelectTokenCardAmountView)
 }
 
@@ -185,7 +185,7 @@ class SelectTokenCardAmountView: UIView {
     }
 }
 
-protocol SingleTokenCardAmountSelectionToolbarViewDelegate: class {
+protocol SingleTokenCardAmountSelectionToolbarViewDelegate: AnyObject {
     func closeSelected(in: SingleTokenCardAmountSelectionToolbarView)
 }
 

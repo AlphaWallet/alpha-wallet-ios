@@ -8,7 +8,7 @@
 import Foundation
 import AlphaWalletFoundation
 
-protocol DappRequestHandlerDelegate: class {
+protocol DappRequestHandlerDelegate: AnyObject {
     func processRestartQueueAndRestartUI(reason: RestartReason)
 }
 

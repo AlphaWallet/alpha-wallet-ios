@@ -15,6 +15,8 @@ extension Array where Iterator.Element == UIView {
                 stackView.setContentHuggingPriority(contentHuggingPriority, for: .horizontal)
             case .vertical:
                 stackView.setContentHuggingPriority(contentHuggingPriority, for: .vertical)
+            @unknown default:
+                break
             }
         }
         if let perpendicularContentHuggingPriority = perpendicularContentHuggingPriority {
@@ -23,6 +25,8 @@ extension Array where Iterator.Element == UIView {
                 stackView.setContentHuggingPriority(perpendicularContentHuggingPriority, for: .vertical)
             case .vertical:
                 stackView.setContentHuggingPriority(perpendicularContentHuggingPriority, for: .horizontal)
+            @unknown default:
+                break
             }
         }
         return stackView

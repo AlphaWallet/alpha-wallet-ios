@@ -8,7 +8,7 @@
 import UIKit
 import AlphaWalletFoundation
 
-protocol InitialNetworkSelectionViewControllerDelegate: class {
+protocol InitialNetworkSelectionViewControllerDelegate: AnyObject {
     func didSelect(servers: [RPCServer], in viewController: InitialNetworkSelectionViewController)
 }
 

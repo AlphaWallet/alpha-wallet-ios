@@ -14,7 +14,7 @@ import Alamofire
 public typealias ChainId = Int
 public typealias OpenSeaAddressesToNonFungibles = [AlphaWallet.Address: [OpenSeaNonFungible]]
 
-public protocol OpenSeaDelegate: class {
+public protocol OpenSeaDelegate: AnyObject {
     func openSeaError(error: OpenSeaApiError)
 }
 

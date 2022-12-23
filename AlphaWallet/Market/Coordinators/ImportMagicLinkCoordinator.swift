@@ -7,7 +7,7 @@ import Combine
 import AlphaWalletFoundation
 import AlphaWalletWeb3
 
-protocol ImportMagicLinkCoordinatorDelegate: class, CanOpenURL {
+protocol ImportMagicLinkCoordinatorDelegate: AnyObject, CanOpenURL {
     func viewControllerForPresenting(in coordinator: ImportMagicLinkCoordinator) -> UIViewController?
     func completed(in coordinator: ImportMagicLinkCoordinator)
     func importPaidSignedOrder(signedOrder: SignedOrder, token: Token, inViewController viewController: ImportMagicTokenViewController, completion: @escaping (Bool) -> Void)

@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol SelectableNFTAssetTableViewCellDelegate: class {
+protocol SelectableNFTAssetTableViewCellDelegate: AnyObject {
     func didCloseSelection(in sender: SelectableNFTAssetTableViewCell, with selectedAmount: Int)
 }
 

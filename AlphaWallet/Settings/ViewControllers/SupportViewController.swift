@@ -9,7 +9,7 @@ import UIKit
 import AlphaWalletFoundation
 import Combine
 
-protocol SupportViewControllerDelegate: class, CanOpenURL {
+protocol SupportViewControllerDelegate: AnyObject, CanOpenURL {
     func supportActionSelected(in viewController: SupportViewController, action: SupportViewModel.SupportAction)
     func didClose(in viewController: SupportViewController)
 }
