@@ -90,21 +90,6 @@ class FormattersTestCase: XCTestCase {
         XCTAssertEqual(NumberFormatter.fiatShort(currency: .USD).string(double: -9999999999999.999)!, "-$9,999,999,999,999.99")
     }
 
-//    func testDefault() {
-//        XCTAssertEqual(NumberFormatter.default.string(double: 0.0)!, "0")
-//        XCTAssertEqual(NumberFormatter.default.string(double: 10.1)!, "10")
-//        XCTAssertEqual(NumberFormatter.default.string(double: 100.50)!, "100")
-//        XCTAssertEqual(NumberFormatter.default.string(double: 100.51)!, "101")
-//        XCTAssertEqual(NumberFormatter.default.string(double: 1000.9)!, "1001")
-//        XCTAssertEqual(NumberFormatter.default.string(double: 9999999999999.999)!, "10000000000000")
-//        XCTAssertEqual(NumberFormatter.default.string(double: -0.0)!, "-0")
-//        XCTAssertEqual(NumberFormatter.default.string(double: -10.1)!, "-10")
-//        XCTAssertEqual(NumberFormatter.default.string(double: -100.50)!, "-100")
-//        XCTAssertEqual(NumberFormatter.default.string(double: -100.51)!, "-101")
-//        XCTAssertEqual(NumberFormatter.default.string(double: -1000.9)!, "-1001")
-//        XCTAssertEqual(NumberFormatter.default.string(double: -9999999999999.999)!, "-10000000000000")
-//    }
-
     func testStringCurrency() {
         XCTAssertEqual(NumberFormatter.currencyAccounting.string(double: 0.0)!, "0.00")
         XCTAssertEqual(NumberFormatter.currencyAccounting.string(double: 0.500)!, "0.50")
