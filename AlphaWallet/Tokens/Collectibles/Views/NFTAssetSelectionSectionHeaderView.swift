@@ -8,10 +8,10 @@
 import UIKit
 import AlphaWalletFoundation
 
-protocol NFTAssetSelectionSectionHeaderViewDelegate: class {
+protocol NFTAssetSelectionSectionHeaderViewDelegate: AnyObject {
     func didSelectAll(in view: NFTAssetSelectionViewController.NFTAssetSelectionSectionHeaderView)
 }
-protocol SelectionPositioningView: class {
+protocol SelectionPositioningView: AnyObject {
     var positioningView: UIView { get }
 }
 

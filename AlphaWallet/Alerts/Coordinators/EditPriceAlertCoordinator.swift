@@ -8,7 +8,7 @@
 import UIKit
 import AlphaWalletFoundation
 
-protocol EditPriceAlertCoordinatorDelegate: class {
+protocol EditPriceAlertCoordinatorDelegate: AnyObject {
     func didClose(in coordinator: EditPriceAlertCoordinator)
 }
 

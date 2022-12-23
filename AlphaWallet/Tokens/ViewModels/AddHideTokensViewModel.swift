@@ -133,7 +133,7 @@ final class AddHideTokensViewModel {
             let token = hiddenTokens.remove(at: indexPath.row)
             displayedTokens.append(token)
 
-            if let sectionIndex = sections.index(of: .displayedTokens) {
+            if let sectionIndex = sections.firstIndex(of: .displayedTokens) {
                 mark(token: token, isHidden: false)
 
                 return .value((token, IndexPath(row: max(0, displayedTokens.count - 1), section: Int(sectionIndex))))
@@ -147,7 +147,7 @@ final class AddHideTokensViewModel {
                     self.popularTokens.remove(at: indexPath.row)
                     self.displayedTokens.append(token)
 
-                    if let sectionIndex = self.sections.index(of: .displayedTokens) {
+                    if let sectionIndex = self.sections.firstIndex(of: .displayedTokens) {
                         tokenCollection.mark(token: token, isHidden: false)
 
                         return .value((token, IndexPath(row: max(0, self.displayedTokens.count - 1), section: Int(sectionIndex))))
@@ -168,7 +168,7 @@ final class AddHideTokensViewModel {
             let token = displayedTokens.remove(at: indexPath.row)
             hiddenTokens.insert(token, at: 0)
 
-            if let sectionIndex = sections.index(of: .hiddenTokens) {
+            if let sectionIndex = sections.firstIndex(of: .hiddenTokens) {
                 mark(token: token, isHidden: true)
                 
                 return .value((token, IndexPath(row: 0, section: Int(sectionIndex))))

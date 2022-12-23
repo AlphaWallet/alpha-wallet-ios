@@ -10,7 +10,7 @@ import FloatingPanel
 import Combine
 import AlphaWalletFoundation
 
-protocol SwapOptionsCoordinatorDelegate: class {
+protocol SwapOptionsCoordinatorDelegate: AnyObject {
     func didClose(in coordinator: SwapOptionsCoordinator)
 }
 

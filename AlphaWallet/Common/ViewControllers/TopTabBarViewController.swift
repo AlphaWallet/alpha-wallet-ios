@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol TopTabBarViewControllerDelegate: class {
+protocol TopTabBarViewControllerDelegate: AnyObject {
     func viewController(_ viewController: TopTabBarViewController, didSelectPage index: Int)
 }
 

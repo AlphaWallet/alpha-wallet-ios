@@ -3,7 +3,7 @@
 import UIKit
 import AlphaWalletFoundation
 
-protocol ChooseTokenCardTransferModeViewControllerDelegate: class, CanOpenURL {
+protocol ChooseTokenCardTransferModeViewControllerDelegate: AnyObject, CanOpenURL {
     func didChooseTransferViaMagicLink(token: Token, tokenHolder: TokenHolder, in viewController: ChooseTokenCardTransferModeViewController)
     func didChooseTransferNow(token: Token, tokenHolder: TokenHolder, in viewController: ChooseTokenCardTransferModeViewController)
     func didPressViewInfo(in viewController: ChooseTokenCardTransferModeViewController)

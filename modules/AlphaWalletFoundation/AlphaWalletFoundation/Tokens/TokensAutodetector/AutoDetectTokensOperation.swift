@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-protocol AutoDetectTokensOperationDelegate: class {
+protocol AutoDetectTokensOperationDelegate: AnyObject {
     var isAutoDetectingTokens: Bool { get set }
 
     func didDetect(tokensOrContracts: [TokenOrContract])

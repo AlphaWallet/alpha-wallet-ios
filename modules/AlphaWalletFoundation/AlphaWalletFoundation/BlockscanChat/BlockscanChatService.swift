@@ -3,7 +3,7 @@
 import Combine
 import Foundation
 
-public protocol BlockscanChatServiceDelegate: class {
+public protocol BlockscanChatServiceDelegate: AnyObject {
     func openBlockscanChat(url: URL, for: BlockscanChatService)
     func showBlockscanUnreadCount(_ count: Int?, for: BlockscanChatService)
 }

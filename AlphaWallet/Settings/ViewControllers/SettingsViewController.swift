@@ -4,7 +4,7 @@ import UIKit
 import Combine
 import AlphaWalletFoundation
 
-protocol SettingsViewControllerDelegate: class, CanOpenURL {
+protocol SettingsViewControllerDelegate: AnyObject, CanOpenURL {
     func advancedSettingsSelected(in controller: SettingsViewController)
     func changeWalletSelected(in controller: SettingsViewController)
     func myWalletAddressSelected(in controller: SettingsViewController)

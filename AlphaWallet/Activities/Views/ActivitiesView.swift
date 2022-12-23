@@ -10,7 +10,7 @@ import BigInt
 import StatefulViewController
 import AlphaWalletFoundation
 
-protocol ActivitiesViewDelegate: class {
+protocol ActivitiesViewDelegate: AnyObject {
     func didPressActivity(activity: Activity, in view: ActivitiesView)
     func didPressTransaction(transaction: TransactionInstance, in view: ActivitiesView)
 }

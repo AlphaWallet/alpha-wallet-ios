@@ -13,6 +13,8 @@ fileprivate func colorFrom(trait: UITraitCollection, lightColor: UIColor, darkCo
         return lightColor
     case .dark:
         return darkColor
+    @unknown default:
+        return lightColor
     }
 }
 

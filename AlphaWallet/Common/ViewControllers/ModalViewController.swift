@@ -8,7 +8,7 @@
 import UIKit
 import AlphaWalletFoundation
 
-protocol ModalViewControllerDelegate: class {
+protocol ModalViewControllerDelegate: AnyObject {
     func didDismiss(_ controller: ModalViewController)
     func didClose(_ controller: ModalViewController)
 }

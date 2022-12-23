@@ -9,7 +9,7 @@ import UIKit
 import Combine
 import AlphaWalletFoundation
 
-protocol EditPriceAlertViewControllerDelegate: class {
+protocol EditPriceAlertViewControllerDelegate: AnyObject {
     func didUpdateAlert(in viewController: EditPriceAlertViewController)
     func didClose(in viewController: EditPriceAlertViewController)
 }

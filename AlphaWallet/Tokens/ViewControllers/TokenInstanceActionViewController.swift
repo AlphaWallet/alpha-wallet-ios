@@ -6,7 +6,7 @@ import BigInt
 import PromiseKit
 import AlphaWalletFoundation
 
-protocol TokenInstanceActionViewControllerDelegate: class, CanOpenURL {
+protocol TokenInstanceActionViewControllerDelegate: AnyObject, CanOpenURL {
     func didPressViewRedemptionInfo(in viewController: TokenInstanceActionViewController)
     func shouldCloseFlow(inViewController viewController: TokenInstanceActionViewController)
     func didClose(in viewController: TokenInstanceActionViewController)

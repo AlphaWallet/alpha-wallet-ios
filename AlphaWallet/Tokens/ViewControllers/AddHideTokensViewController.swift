@@ -168,6 +168,8 @@ extension AddHideTokensViewController: UITableViewDataSource {
             result = viewModel.markTokenAsHidden(at: indexPath)
         case .none:
             result = .value(nil)
+        @unknown default:
+            result = .value(nil)
         }
 
         switch result {

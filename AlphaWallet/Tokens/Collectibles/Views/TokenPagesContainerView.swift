@@ -12,7 +12,7 @@ protocol PageViewType: UIView {
     var rightBarButtonItem: UIBarButtonItem? { get set }
 }
 
-protocol PagesContainerViewDelegate: class {
+protocol PagesContainerViewDelegate: AnyObject {
     func containerView(_ containerView: PagesContainerView, didSelectPage index: Int)
 }
 

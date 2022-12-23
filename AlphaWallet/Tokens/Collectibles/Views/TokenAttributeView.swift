@@ -7,7 +7,7 @@
 
 import UIKit 
 
-protocol TokenAttributeViewDelegate: class {
+protocol TokenAttributeViewDelegate: AnyObject {
     func didSelect(in view: TokenAttributeView)
 }
 

@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol EnterKeystorePasswordViewControllerDelegate: class {
+protocol EnterKeystorePasswordViewControllerDelegate: AnyObject {
     func didEnterPassword(password: String, in viewController: EnterKeystorePasswordViewController)
 }
 

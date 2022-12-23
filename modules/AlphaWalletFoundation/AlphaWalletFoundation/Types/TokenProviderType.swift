@@ -10,7 +10,7 @@ import PromiseKit
 import BigInt
 
 // NOTE: Think about the name, more fittable name is needed
-public protocol TokenProviderType: class {
+public protocol TokenProviderType: AnyObject {
     func getContractName(for address: AlphaWallet.Address) -> Promise<String>
     func getContractSymbol(for address: AlphaWallet.Address) -> Promise<String>
     func getDecimals(for address: AlphaWallet.Address) -> Promise<Int>

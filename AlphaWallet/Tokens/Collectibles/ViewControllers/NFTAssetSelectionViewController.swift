@@ -10,7 +10,7 @@ import StatefulViewController
 import AlphaWalletFoundation
 import Combine
 
-protocol NFTAssetSelectionViewControllerDelegate: class {
+protocol NFTAssetSelectionViewControllerDelegate: AnyObject {
     func didTapSend(in viewController: NFTAssetSelectionViewController, token: Token, tokenHolders: [TokenHolder])
 }
 
@@ -329,7 +329,7 @@ extension NFTAssetSelectionViewController {
     }
 }
 
-protocol SelectAllAssetsViewDelegate: class {
+protocol SelectAllAssetsViewDelegate: AnyObject {
     func selectAllSelected(in view: NFTAssetSelectionViewController.SelectAllAssetsView)
 }
 

@@ -14,7 +14,7 @@ extension NSNotification.Name {
     static let invalidateLayout = NSNotification.Name(rawValue: "InvalidateLayout")
 }
 
-protocol NFTAssetsPageViewDelegate: class {
+protocol NFTAssetsPageViewDelegate: AnyObject {
     func nftAssetsPageView(_ view: NFTAssetsPageView, didSelectTokenHolder tokenHolder: TokenHolder)
 }
 

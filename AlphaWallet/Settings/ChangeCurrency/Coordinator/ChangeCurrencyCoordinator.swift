@@ -8,7 +8,7 @@
 import UIKit
 import AlphaWalletFoundation
 
-protocol ChangeCurrencyCoordinatorDelegate: class {
+protocol ChangeCurrencyCoordinatorDelegate: AnyObject {
     func didChangeCurrency(in coordinator: ChangeCurrencyCoordinator, currency: AlphaWalletFoundation.Currency)
     func didClose(in coordinator: ChangeCurrencyCoordinator)
 }

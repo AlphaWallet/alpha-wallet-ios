@@ -10,7 +10,7 @@ import Combine
 import BigInt
 import AlphaWalletFoundation
 
-protocol SwapTokensViewControllerDelegate: class {
+protocol SwapTokensViewControllerDelegate: AnyObject {
     func swapSelected(in viewController: SwapTokensViewController)
     func changeSwapRouteSelected(in viewController: SwapTokensViewController)
     func chooseTokenSelected(in viewController: SwapTokensViewController, selection: SwapTokens.TokenSelection)

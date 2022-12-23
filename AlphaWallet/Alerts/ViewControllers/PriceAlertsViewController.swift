@@ -10,7 +10,7 @@ import AlphaWalletFoundation
 import StatefulViewController
 import Combine
 
-protocol PriceAlertsViewControllerDelegate: class {
+protocol PriceAlertsViewControllerDelegate: AnyObject {
     func editAlertSelected(in viewController: PriceAlertsViewController, alert: PriceAlert)
     func addAlertSelected(in viewController: PriceAlertsViewController)
 }

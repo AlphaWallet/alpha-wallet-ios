@@ -15,6 +15,8 @@ extension UITraitCollection {
             return .dark
         case .light, .unspecified:
             return .light
+        @unknown default:
+            return .light
         }
     }
 }
@@ -25,6 +27,8 @@ extension UITraitCollection {
         case .dark:
             return .dark
         case .light, .unspecified:
+            return .light
+        @unknown default:
             return .light
         }
     }

@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol WalletPupupViewControllerDelegate: class {
+protocol WalletPupupViewControllerDelegate: AnyObject {
     func didSelect(action: PupupAction, in viewController: WalletPupupViewController)
 }
 

@@ -97,7 +97,7 @@ extension LockPasscodeViewController: UITextFieldDelegate {
 			return false
 		} else {
 			for characterView in lockView.characters {
-				let index: Int = lockView.characters.index(of: characterView)!
+                let index: Int = lockView.characters.firstIndex(of: characterView)!
 				characterView.setEmpty(index >= newLength)
 			}
 			return true

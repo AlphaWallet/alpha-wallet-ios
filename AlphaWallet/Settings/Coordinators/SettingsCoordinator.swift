@@ -12,7 +12,7 @@ enum RestartReason {
     case currencyChange
 }
 
-protocol SettingsCoordinatorDelegate: class, CanOpenURL {
+protocol SettingsCoordinatorDelegate: AnyObject, CanOpenURL {
     func didRestart(with account: Wallet, in coordinator: SettingsCoordinator, reason: RestartReason)
     func didCancel(in coordinator: SettingsCoordinator)
     func didPressShowWallet(in coordinator: SettingsCoordinator)

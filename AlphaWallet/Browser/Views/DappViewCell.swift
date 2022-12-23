@@ -22,7 +22,7 @@ class DappViewCell: UICollectionViewCell {
     var isEditing: Bool = false {
         didSet {
             if isEditing {
-                let randomNumber = CGFloat(arc4random_uniform(500)) / 500 + 0.5
+                let randomNumber = CGFloat(Float.random(in: 0...500)) / 500 + 0.5
                 let angle = CGFloat(0.06 * randomNumber)
                 let left = CATransform3DMakeRotation(angle, 0, 0, 1)
                 let right = CATransform3DMakeRotation(-angle, 0, 0, 1)

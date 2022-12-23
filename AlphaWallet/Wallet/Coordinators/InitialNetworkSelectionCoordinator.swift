@@ -8,7 +8,7 @@
 import UIKit
 import AlphaWalletFoundation
 
-protocol InitialNetworkSelectionCoordinatorDelegate: class {
+protocol InitialNetworkSelectionCoordinatorDelegate: AnyObject {
     func didSelect(networks: [RPCServer], in coordinator: InitialNetworkSelectionCoordinator)
 }
 

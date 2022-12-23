@@ -8,7 +8,7 @@
 import UIKit
 import AlphaWalletFoundation
 
-protocol SaveCustomRpcBrowseDataObserver: class {
+protocol SaveCustomRpcBrowseDataObserver: AnyObject {
     func dataHasChanged(rows: Int)
     func selectedServers() -> [CustomRPC]
 }

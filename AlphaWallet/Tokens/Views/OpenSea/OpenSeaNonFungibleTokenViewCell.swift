@@ -98,7 +98,7 @@ extension OpenSeaNonFungibleTokenPairTableCellViewModel: Hashable {
     } 
 }
 
-protocol OpenSeaNonFungibleTokenPairTableCellDelegate: class {
+protocol OpenSeaNonFungibleTokenPairTableCellDelegate: AnyObject {
     func didSelect(cell: OpenSeaNonFungibleTokenPairTableCell, indexPath: IndexPath, isLeftCardSelected: Bool)
 }
 

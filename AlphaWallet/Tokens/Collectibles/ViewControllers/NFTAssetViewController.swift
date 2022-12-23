@@ -9,7 +9,7 @@ import UIKit
 import Combine
 import AlphaWalletFoundation
 
-protocol NonFungibleTokenViewControllerDelegate: class, CanOpenURL {
+protocol NonFungibleTokenViewControllerDelegate: AnyObject, CanOpenURL {
     func didPressRedeem(token: Token, tokenHolder: TokenHolder, in viewController: NFTAssetViewController)
     func didPressSell(tokenHolder: TokenHolder, for paymentFlow: PaymentFlow, in viewController: NFTAssetViewController)
     func didPressTransfer(token: Token, tokenHolder: TokenHolder, forPaymentFlow paymentFlow: PaymentFlow, in viewController: NFTAssetViewController)

@@ -9,7 +9,7 @@ import Foundation
 import Combine
 import AlphaWalletFoundation
 
-protocol SupportCoordinatorDelegate: class, CanOpenURL {
+protocol SupportCoordinatorDelegate: AnyObject, CanOpenURL {
     func didClose(in coordinator: SupportCoordinator)
 }
 

@@ -13,7 +13,7 @@ public enum PriceAlertsFilterStrategy {
     case token(Token)
 }
 
-public protocol PriceAlertServiceType: class {
+public protocol PriceAlertServiceType: AnyObject {
     func alertsPublisher(forStrategy strategy: PriceAlertsFilterStrategy) -> AnyPublisher<[PriceAlert], Never>
     func alerts(forStrategy strategy: PriceAlertsFilterStrategy) -> [PriceAlert]
     func start()

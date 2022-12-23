@@ -9,7 +9,7 @@ import UIKit
 import PromiseKit
 import AlphaWalletFoundation
 
-protocol SwitchChainRequestViewControllerDelegate: class {
+protocol SwitchChainRequestViewControllerDelegate: AnyObject {
     func didClose(in viewController: SwitchChainRequestViewController)
     func didSelectActionButton(in viewController: SwitchChainRequestViewController)
     func didSelectAdditionalButton(in viewController: SwitchChainRequestViewController)

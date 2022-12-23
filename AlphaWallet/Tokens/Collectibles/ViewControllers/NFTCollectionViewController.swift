@@ -11,7 +11,7 @@ import UIKit
 import Combine
 import AlphaWalletFoundation
 
-protocol NFTCollectionViewControllerDelegate: class, CanOpenURL {
+protocol NFTCollectionViewControllerDelegate: AnyObject, CanOpenURL {
     func didSelectAssetSelection(in viewController: NFTCollectionViewController)
     func didTap(transaction: TransactionInstance, in viewController: NFTCollectionViewController)
     func didTap(activity: Activity, in viewController: NFTCollectionViewController)

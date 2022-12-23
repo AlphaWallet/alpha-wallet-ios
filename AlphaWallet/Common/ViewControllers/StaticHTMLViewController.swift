@@ -3,7 +3,7 @@
 import UIKit
 import WebKit
 
-protocol StaticHTMLViewControllerDelegate: class, CanOpenURL {
+protocol StaticHTMLViewControllerDelegate: AnyObject, CanOpenURL {
 }
 
 class StaticHTMLViewController: UIViewController {

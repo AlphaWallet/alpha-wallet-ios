@@ -9,7 +9,7 @@ import Foundation
 import PromiseKit
 import AlphaWalletFoundation
 
-protocol CheckTransactionStateCoordinatorDelegate: class {
+protocol CheckTransactionStateCoordinatorDelegate: AnyObject {
     func didComplete(coordinator: CheckTransactionStateCoordinator)
 }
 

@@ -95,7 +95,7 @@ class BarButton: TransitionButton {
 
 }
 
-protocol ButtonObservationProtocol: class {
+protocol ButtonObservationProtocol: AnyObject {
     func observeButtonUpdates(closure: @escaping (_ sender: ButtonsBarViewType) -> Void)
 }
 

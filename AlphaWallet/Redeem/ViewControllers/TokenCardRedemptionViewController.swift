@@ -9,7 +9,7 @@
 import UIKit
 import AlphaWalletFoundation
 
-protocol TokenCardRedemptionViewControllerDelegate: class, CanOpenURL {
+protocol TokenCardRedemptionViewControllerDelegate: AnyObject, CanOpenURL {
 }
 
 class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatusViewController {

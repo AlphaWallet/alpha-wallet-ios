@@ -3,7 +3,7 @@
 import UIKit
 import AlphaWalletFoundation
 
-protocol SetSellTokensCardExpiryDateViewControllerDelegate: class, CanOpenURL {
+protocol SetSellTokensCardExpiryDateViewControllerDelegate: AnyObject, CanOpenURL {
     func didSetSellTokensExpiryDate(tokenHolder: TokenHolder, linkExpiryDate: Date, ethCost: Ether, in viewController: SetSellTokensCardExpiryDateViewController)
     func didPressViewInfo(in viewController: SetSellTokensCardExpiryDateViewController)
 }

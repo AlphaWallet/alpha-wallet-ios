@@ -7,7 +7,7 @@ public protocol TokenScriptLocalRefsSource {
     var localRefs: [AttributeId: AssetInternalValue] { get }
 }
 
-public protocol ConfirmTokenScriptActionTransactionDelegate: class {
+public protocol ConfirmTokenScriptActionTransactionDelegate: AnyObject {
     func confirmTransactionSelected(in navigationController: UINavigationController, token: Token, contract: AlphaWallet.Address, tokenId: TokenId, values: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession, keystore: Keystore, transactionFunction: FunctionOrigin)
 }
 

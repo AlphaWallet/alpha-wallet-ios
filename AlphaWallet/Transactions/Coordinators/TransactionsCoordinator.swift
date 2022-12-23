@@ -5,7 +5,7 @@ import PromiseKit
 import Combine
 import AlphaWalletFoundation
 
-protocol TransactionsCoordinatorDelegate: class, CanOpenURL {
+protocol TransactionsCoordinatorDelegate: AnyObject, CanOpenURL {
 }
 
 class TransactionsCoordinator: NSObject, Coordinator {
