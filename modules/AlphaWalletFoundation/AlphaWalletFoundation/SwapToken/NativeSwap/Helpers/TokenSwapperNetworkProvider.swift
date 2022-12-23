@@ -81,7 +81,6 @@ public final class LiQuestTokenSwapperNetworkProvider: TokenSwapperNetworkProvid
         return networkService
             .dataTaskPublisher(SwapQuoteRequest(fromToken: fromToken, toToken: toToken, wallet: wallet, slippage: slippage, fromAmount: fromAmount, exchange: exchange))
             .tryMap { [decoder] data, _ -> SwapQuote in
-                guard let data = try? JSONSerialization.data(withJSONObject: data) else { throw SwapError.invalidJson }
                 if let swapQuote = try? decoder.decode(SwapQuote.self, from: data) {
                     return swapQuote
                 } else if let error = try? decoder.decode(SwapQuote.Error.self, from: data) {

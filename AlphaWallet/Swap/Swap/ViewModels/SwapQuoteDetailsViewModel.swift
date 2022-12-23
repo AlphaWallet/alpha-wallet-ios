@@ -42,7 +42,27 @@ final class SwapQuoteDetailsViewModel {
                     let subSteps = step.estimate.gasCosts.map {
                         SwapSubStep(gasCost: $0, type: step.type, amount: pair.swapQuote.estimate.toAmount, token: pair.swapQuote.action.toToken, tool: step.tool)
                     }
-                    return SwapStep(tool: pair.swapQuote.type, subSteps: subSteps)
+
+                    if subSteps.isEmpty {
+                        let gasCost = SwapEstimate.GasCost(
+                            type: step.type,
+                            amount: pair.swapQuote.unsignedSwapTransaction.value,
+                            amountUsd: pair.swapQuote.action.fromToken.priceUSD,
+                            estimate: pair.swapQuote.unsignedSwapTransaction.gasPrice ?? .zero,
+                            limit: pair.swapQuote.unsignedSwapTransaction.gasLimit,
+                            token: pair.swapQuote.action.fromToken)
+
+                        let step = SwapSubStep(
+                            gasCost: gasCost,
+                            type: step.type,
+                            amount: pair.swapQuote.estimate.toAmount,
+                            token: pair.swapQuote.action.toToken,
+                            tool: step.tool)
+
+                        return SwapStep(tool: pair.swapQuote.type, subSteps: [step])
+                    } else {
+                        return SwapStep(tool: pair.swapQuote.type, subSteps: subSteps)
+                    }
                 }
             }.eraseToAnyPublisher()
     }()
