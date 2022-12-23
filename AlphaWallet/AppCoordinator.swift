@@ -386,13 +386,6 @@ class AppCoordinator: NSObject, Coordinator {
         addCoordinator(coordinator)
     }
 
-    func showInitialNetworkSelectionCoordinator() {
-        let coordinator = InitialNetworkSelectionCoordinator(config: config, navigationController: navigationController, restartTaskQueue: restartQueue)
-        coordinator.delegate = self
-        coordinator.start()
-        addCoordinator(coordinator)
-    }
-
     private func createInitialWalletIfMissing() {
         WalletCoordinator(config: config, keystore: keystore, analytics: analytics, domainResolutionService: domainResolutionService).createInitialWalletIfMissing()
     }
@@ -460,17 +453,11 @@ extension AppCoordinator: InitialWalletCreationCoordinatorDelegate {
         removeCoordinator(coordinator)
     }
 
-    func didAddAccount(_ account: Wallet, in coordinator: InitialWalletCreationCoordinator) {
+    func didAddAccount(_ wallet: Wallet, in coordinator: InitialWalletCreationCoordinator) {
         coordinator.navigationController.dismiss(animated: true)
 
         removeCoordinator(coordinator)
-        switch account.type {
-        case .real:
-            showInitialNetworkSelectionCoordinator()
-        case .watch:
-            guard let wallet = keystore.currentWallet else { return }
-            showActiveWallet(for: wallet, animated: false)
-        }
+        showActiveWallet(for: wallet, animated: false)
     }
 
 }
