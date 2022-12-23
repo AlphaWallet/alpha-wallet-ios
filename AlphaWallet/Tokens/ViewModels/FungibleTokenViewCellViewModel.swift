@@ -66,12 +66,12 @@ struct FungibleTokenViewCellViewModel {
         let apprecation24hours: String = {
             guard let ticker = ticker else { return UiTweaks.noPriceMarker }
 
-            let formatter = Formatter.priceChange(currency: ticker.currency)
+            let formatter = NumberFormatter.priceChange(currency: ticker.currency)
             switch TickerHelper(ticker: ticker).change24h {
             case .appreciate(let percentageChange24h):
-                return "\(formatter.string(from: percentageChange24h) ?? "")%"
+                return "\(formatter.string(double: percentageChange24h) ?? "")%"
             case .depreciate(let percentageChange24h):
-                return "\(formatter.string(from: percentageChange24h) ?? "")%"
+                return "\(formatter.string(double: percentageChange24h) ?? "")%"
             case .none:
                 if priceChange == UiTweaks.noPriceMarker {
                     return UiTweaks.noPriceMarker
@@ -102,7 +102,7 @@ struct FungibleTokenViewCellViewModel {
         guard let ticker = ticker else { return UiTweaks.noPriceMarker }
 
         if let result = TickerHelper(ticker: ticker).valueChanged24h(value: valueDecimal) {
-            return Formatter.priceChange(currency: ticker.currency).string(from: result) ?? UiTweaks.noPriceMarker
+            return NumberFormatter.priceChange(currency: ticker.currency).string(double: result) ?? UiTweaks.noPriceMarker
         } else {
             return UiTweaks.noPriceMarker
         }
@@ -120,7 +120,7 @@ struct FungibleTokenViewCellViewModel {
             guard let ticker = ticker else { return UiTweaks.noPriceMarker }
 
             if let fiatValue = TickerHelper(ticker: ticker).fiatValue(value: valueDecimal) {
-                return Formatter.fiatShort(currency: ticker.currency).string(from: fiatValue) ?? UiTweaks.noPriceMarker
+                return NumberFormatter.fiatShort(currency: ticker.currency).string(double: fiatValue) ?? UiTweaks.noPriceMarker
             } else {
                 return UiTweaks.noPriceMarker
             }

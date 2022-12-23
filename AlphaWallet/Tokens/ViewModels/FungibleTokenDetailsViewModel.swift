@@ -197,7 +197,7 @@ final class FungibleTokenDetailsViewModel {
         let value: String = {
             guard let ticker = ticker else { return "-" }
             if let maxSupply = ticker.max_supply {
-                return Formatter.fiat(currency: ticker.currency).string(from: maxSupply) ?? "-"
+                return NumberFormatter.fiat(currency: ticker.currency).string(double: maxSupply) ?? "-"
             } else {
                 return "-"
             }
@@ -210,7 +210,7 @@ final class FungibleTokenDetailsViewModel {
         let value: String = {
             guard let history = chartHistories[ChartHistoryPeriod.year] else { return "-" }
             let helper = HistoryHelper(history: history)
-            if let min = helper.minMax?.min, let value = Formatter.fiat(currency: history.currency).string(from: min) {
+            if let min = helper.minMax?.min, let value = NumberFormatter.fiat(currency: history.currency).string(double: min) {
                 return value
             } else {
                 return "-"
@@ -225,7 +225,7 @@ final class FungibleTokenDetailsViewModel {
         let value: String = {
             guard let history = chartHistories[ChartHistoryPeriod.year] else { return "-" }
             let helper = HistoryHelper(history: history)
-            if let max = helper.minMax?.max, let value = Formatter.fiat(currency: history.currency).string(from: max) {
+            if let max = helper.minMax?.max, let value = NumberFormatter.fiat(currency: history.currency).string(double: max) {
                 return value
             } else {
                 return "-"
@@ -264,13 +264,13 @@ final class FungibleTokenDetailsViewModel {
 
             switch result.change {
             case .appreciate(let percentage, let value):
-                let p = Formatter.percent.string(from: percentage) ?? "-"
-                let v = Formatter.fiat(currency: history.currency).string(from: value) ?? "-"
+                let p = NumberFormatter.percent.string(double: percentage) ?? "-"
+                let v = NumberFormatter.fiat(currency: history.currency).string(double: value) ?? "-"
 
                 return ("\(v) (\(p)%)", Colors.green)
             case .depreciate(let percentage, let value):
-                let p = Formatter.percent.string(from: percentage) ?? "-"
-                let v = Formatter.fiat(currency: history.currency).string(from: value) ?? "-"
+                let p = NumberFormatter.percent.string(double: percentage) ?? "-"
+                let v = NumberFormatter.fiat(currency: history.currency).string(double: value) ?? "-"
 
                 return ("\(v) (\(p)%)", Colors.appRed)
             case .none:

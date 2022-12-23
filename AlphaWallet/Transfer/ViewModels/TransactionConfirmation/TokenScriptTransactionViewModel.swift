@@ -44,14 +44,14 @@ extension TransactionConfirmationViewModel {
         private var formattedAmountValue: String {
             //FIXME: is here ether token?
             let amountToSend = (Decimal(bigUInt: configurator.transaction.value, decimals: configurator.session.server.decimals) ?? .zero).doubleValue
-            let amount = Formatter.shortCrypto.string(from: amountToSend) ?? "-"
+            let amount = NumberFormatter.shortCrypto.string(double: amountToSend) ?? "-"
 
             if let rate = rate {
-                let amountInFiat = Formatter.fiat(currency: rate.currency).string(from: amountToSend * rate.value) ?? "-"
+                let amountInFiat = NumberFormatter.fiat(currency: rate.currency).string(double: amountToSend * rate.value) ?? "-"
 
-                return "\(amount) \(configurator.session.server.symbol) ≈ \(amountInFiat) \(rate.currency.code)"
+                return "\(amount) \(configurator.session.server.symbol) ≈ \(amountInFiat)"
             } else {
-                return "\(amount)"
+                return "\(amount) \(configurator.session.server.symbol)"
             }
         }
 

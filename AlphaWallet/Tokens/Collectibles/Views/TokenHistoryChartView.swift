@@ -154,7 +154,7 @@ extension TokenHistoryChartView {
         func stringForValue(_ value: Double, axis: AxisBase?) -> String {
             guard let axis = axis else { return "" }
             func formattedString(for value: Double) -> String {
-                return Formatter.fiat(currency: currency).string(from: value) ?? ""
+                return NumberFormatter.fiat(currency: currency).string(double: value) ?? ""
             }
 
             let validEntryIndex = index % axis.entries.count

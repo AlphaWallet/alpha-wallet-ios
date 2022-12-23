@@ -188,7 +188,7 @@ extension StringProtocol {
 extension String {
 
     public var scientificAmountToBigInt: BigInt? {
-        let numberFormatter = Formatter.scientificAmount
+        let numberFormatter = NumberFormatter.scientificAmount
 
         let amountString = numberFormatter.number(from: self).flatMap { numberFormatter.string(from: $0) }
         return amountString.flatMap { BigInt($0) }

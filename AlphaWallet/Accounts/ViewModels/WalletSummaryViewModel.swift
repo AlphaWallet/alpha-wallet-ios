@@ -82,18 +82,18 @@ extension WalletSummaryViewModel {
             let helper = TickerHelper(ticker: nil)
 
             let changeString = summary.flatMap {
-                $0.change.flatMap { Formatter.priceChange(currency: $0.currency).string(from: $0.amount) }
+                $0.change.flatMap { NumberFormatter.priceChange(currency: $0.currency).string(double: $0.amount) }
             } ?? "-"
 
             let changePercentage: String = {
                 guard let changePercentage = summary?.changePercentage else { return "-" }
-                let formatter = Formatter.priceChange(currency: changePercentage.currency)
+                let formatter = NumberFormatter.priceChange(currency: changePercentage.currency)
 
                 switch helper.change24h(from: changePercentage.amount) {
                 case .appreciate(let percentageChange24h):
-                    return "\(formatter.string(from: percentageChange24h) ?? "")%"
+                    return "\(formatter.string(double: percentageChange24h) ?? "")%"
                 case .depreciate(let percentageChange24h):
-                    return "\(formatter.string(from: percentageChange24h) ?? "")%"
+                    return "\(formatter.string(double: percentageChange24h) ?? "")%"
                 case .none:
                     return "-"
                 }

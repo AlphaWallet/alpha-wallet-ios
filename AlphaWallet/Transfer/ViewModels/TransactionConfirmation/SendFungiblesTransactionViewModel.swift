@@ -148,13 +148,13 @@ extension TransactionConfirmationViewModel {
                 }
 
                 //TODO: extract to constants
-                let amount = Formatter.shortCrypto.string(double: amountToSend, minimumFractionDigits: 4, maximumFractionDigits: 8)
+                let amount = NumberFormatter.shortCrypto.string(double: amountToSend, minimumFractionDigits: 4, maximumFractionDigits: 8)
                 if let rate = rate {
-                    let amountInFiat = Formatter.fiat(currency: rate.currency).string(double: amountToSend * rate.value, minimumFractionDigits: 2, maximumFractionDigits: 6)
+                    let amountInFiat = NumberFormatter.fiat(currency: rate.currency).string(double: amountToSend * rate.value, minimumFractionDigits: 2, maximumFractionDigits: 6)
                     
                     return "\(amount) \(symbol) ≈ \(amountInFiat)"
                 } else {
-                    return amount
+                    return "\(amount) \(symbol)"
                 }
             case .erc875Token, .erc721Token, .erc721ForTicketToken, .erc1155Token:
                 return String()
@@ -189,7 +189,7 @@ extension TransactionConfirmationViewModel {
             case .erc20, .erc1155, .erc721, .erc721ForTickets, .erc875:
                 symbol = transactionType.tokenObject.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
             }
-            let newBalance = Formatter.shortCrypto.string(for: newBalance) ?? "-"
+            let newBalance = NumberFormatter.shortCrypto.string(for: newBalance) ?? "-"
 
             return R.string.localizable.transactionConfirmationSendSectionBalanceNewTitle("\(newBalance) \(symbol)", symbol)
         }
@@ -204,7 +204,8 @@ extension TransactionConfirmationViewModel {
                 symbol = transactionType.tokenObject.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
             }
 
-            let balance = Formatter.shortCrypto.string(for: balance)
+            let balance = NumberFormatter.alternateAmount.string(double: balance)
+
 
             return balance.flatMap { "\($0) \(symbol)" } ?? title
         }

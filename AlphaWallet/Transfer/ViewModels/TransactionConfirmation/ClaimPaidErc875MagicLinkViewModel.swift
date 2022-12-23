@@ -43,15 +43,15 @@ extension TransactionConfirmationViewModel {
 
         private var formattedAmountValue: String {
             //NOTE: what actual token can be here? or its always native crypto, need to firegu out right `decimals` value, better to pass here actual NSDecimalNumber value
-            let amountToSend = Decimal(bigUInt: price, decimals: configurator.session.server.decimals) ?? .zero
-            let amount = Formatter.shortCrypto.string(from: amountToSend) ?? "-"
+            let amountToSend = (Decimal(bigUInt: price, decimals: configurator.session.server.decimals) ?? .zero).doubleValue
+            let amount = NumberFormatter.shortCrypto.string(double: amountToSend) ?? "-"
 
             if let rate = rate {
-                let amountInFiat = Formatter.fiat(currency: rate.currency).string(from: amountToSend.doubleValue * rate.value) ?? "-"
+                let amountInFiat = NumberFormatter.fiat(currency: rate.currency).string(double: amountToSend * rate.value) ?? "-"
 
-                return "\(amount) \(configurator.session.server.symbol) ≈ \(amountInFiat) \(rate.currency.code)"
+                return "\(amount) \(configurator.session.server.symbol) ≈ \(amountInFiat)"
             } else {
-                return "\(amount)"
+                return "\(amount) \(configurator.session.server.symbol)"
             }
         }
 

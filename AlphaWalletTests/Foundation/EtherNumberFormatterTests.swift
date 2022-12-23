@@ -142,7 +142,7 @@ class EtherNumberFormatterTests: XCTestCase {
         let locale: Locale = Config.locale
 
         func fiatFormatter(usesGroupingSeparator: Bool = false, currency: Currency) -> NumberFormatter {
-            let formatter = Formatter.currencyAccounting
+            let formatter = NumberFormatter.currencyAccounting
             formatter.locale = locale
             formatter.currencyCode = currency.code
             formatter.usesGroupingSeparator = usesGroupingSeparator

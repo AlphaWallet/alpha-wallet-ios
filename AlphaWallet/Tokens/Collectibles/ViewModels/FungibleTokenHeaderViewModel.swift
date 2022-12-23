@@ -131,9 +131,9 @@ extension FungibleTokenHeaderViewModel.functional {
     static func amountInFiatAttributedString(for balance: BalanceViewModel) -> NSAttributedString? {
         let string: String = {
             guard let ticker = balance.ticker, let amount = balance.amountInFiat else { return UiTweaks.noPriceMarker }
-            let formatter = Formatter.fiat(currency: ticker.currency)
+            let formatter = NumberFormatter.fiat(currency: ticker.currency)
 
-            return formatter.string(from: amount) ?? UiTweaks.noPriceMarker
+            return formatter.string(double: amount) ?? UiTweaks.noPriceMarker
         }()
 
         return NSAttributedString(string: R.string.localizable.aWalletTokenValue(string), attributes: [
@@ -182,12 +182,12 @@ extension FungibleTokenHeaderViewModel.functional {
     private static func priceChange(for balance: BalanceViewModel) -> String? {
         guard let ticker = balance.ticker else { return nil }
 
-        let formatter = Formatter.priceChange(currency: ticker.currency)
+        let formatter = NumberFormatter.priceChange(currency: ticker.currency)
         switch TickerHelper(ticker: ticker).change24h {
         case .appreciate(let percentageChange24h):
-            return "(\(formatter.string(from: percentageChange24h) ?? "")%)"
+            return "(\(formatter.string(double: percentageChange24h) ?? "")%)"
         case .depreciate(let percentageChange24h):
-            return "(\(formatter.string(from: percentageChange24h) ?? "")%)"
+            return "(\(formatter.string(double: percentageChange24h) ?? "")%)"
         case .none:
             return nil
         }
@@ -196,7 +196,7 @@ extension FungibleTokenHeaderViewModel.functional {
     private static func marketPrice(for balance: BalanceViewModel) -> String? {
         guard let ticker = balance.ticker else { return nil }
 
-        return Formatter.fiat(currency: ticker.currency).string(from: ticker.price_usd)
+        return NumberFormatter.fiat(currency: ticker.currency).string(double: ticker.price_usd)
     }
 }
 

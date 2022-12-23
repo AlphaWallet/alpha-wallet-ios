@@ -40,7 +40,7 @@ struct Erc20BalanceViewModel: BalanceViewModelType {
     var currencyAmount: String? {
         guard let ticker = ticker else { return nil }
 
-        return Formatter.fiat(currency: ticker.currency).string(from: valueDecimal.doubleValue * ticker.price_usd)
+        return NumberFormatter.fiat(currency: ticker.currency).string(double: valueDecimal.doubleValue * ticker.price_usd)
     }
 
     var amountInFiat: Double? {

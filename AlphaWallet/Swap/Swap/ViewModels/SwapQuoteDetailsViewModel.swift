@@ -113,7 +113,7 @@ final class SwapQuoteDetailsViewModel {
                     guard fromAmount > 0 else { return nil }
                     return (toAmount / fromAmount).nilIfNan
                 }()
-                guard let cryptoToCryptoRate = rate.flatMap({ Formatter.shortCrypto.string(from: $0).flatMap { "\($0) \(pair.tokens.to.symbol)" } }) else { return "-" }
+                guard let cryptoToCryptoRate = rate.flatMap({ NumberFormatter.shortCrypto.string(double: $0).flatMap { "\($0) \(pair.tokens.to.symbol)" } }) else { return "-" }
 
                 return "1 \(pair.tokens.from.symbol) = \(cryptoToCryptoRate)"
             }.removeDuplicates()

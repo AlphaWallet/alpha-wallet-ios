@@ -99,7 +99,7 @@ extension AlertType {
         switch self {
         case .price(let priceTarget, let value):
             //FIXME: replace alert rate(double) with CurrencyRateSupportable
-            let result = Formatter.fiatShort(currency: CurrencyService(storage: Config()).currency).string(from: value) ?? "-"
+            let result = NumberFormatter.fiatShort(currency: CurrencyService(storage: Config()).currency).string(double: value) ?? "-"
             return "\(priceTarget.title) \(result)"
         }
     }

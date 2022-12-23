@@ -297,12 +297,12 @@ extension TransactionConfirmationViewModel {
         let configuration = configurator.currentConfiguration
         let fee = Decimal(bigUInt: configuration.gasPrice * configuration.gasLimit, decimals: configurator.session.server.decimals) ?? .zero
         let estimatedProcessingTime = configurator.selectedConfigurationType.estimatedProcessingTime
-        let feeString = Formatter.shortCrypto.string(from: fee) ?? "-"
+        let feeString = NumberFormatter.shortCrypto.string(decimal: fee) ?? "-"
         let costs: String
         if let rate = rate {
-            let amountInFiat = Formatter.fiat(currency: rate.currency).string(from: fee.doubleValue * rate.value) ?? "-"
+            let amountInFiat = NumberFormatter.fiat(currency: rate.currency).string(double: fee.doubleValue * rate.value) ?? "-"
 
-            costs =  "< ~\(feeString) \(configurator.session.server.symbol) (\(amountInFiat) \(rate.currency.code))"
+            costs =  "< ~\(feeString) \(configurator.session.server.symbol) (\(amountInFiat))"
         } else {
             costs = "< ~\(feeString) \(configurator.session.server.symbol)"
         }
