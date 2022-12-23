@@ -115,11 +115,11 @@ fileprivate func basicNumberFormatter() -> NumberFormatter {
 extension NumberFormatter {
 
     public func string(decimal source: Decimal) -> String? {
-        return self.string(from: source as NSNumber)
+        return self.string(from: source as NSNumber)?.trimmed
     }
 
     public func string(double source: Double) -> String? {
-        return self.string(from: source as NSNumber)
+        return self.string(from: source as NSNumber)?.trimmed
     }
 
     public func string(double: Double, minimumFractionDigits: Int, maximumFractionDigits: Int) -> String {
@@ -142,7 +142,7 @@ extension NumberFormatter {
         self.maximumFractionDigits = fractionDigits
         self.minimumFractionDigits = fractionDigits
 
-        return (self.string(from: double as NSNumber) ?? "").trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+        return (self.string(from: double as NSNumber) ?? "").trimmed
     }
 
 }
