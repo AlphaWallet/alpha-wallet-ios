@@ -139,6 +139,7 @@ final class AmountTextFieldViewModel {
             }.eraseToAnyPublisher()
 
         let text = Publishers.Merge(cryptoAmountToSend, toggleFiatAndCryptoPair(trigger: input.togglePair))
+            .map { $0?.droppedTrailingZeros }
             .eraseToAnyPublisher()
 
         return .init(

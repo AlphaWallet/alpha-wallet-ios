@@ -36,6 +36,7 @@ extension WalletDataProcessingPipeline {
         let transactionsDataStore = FakeTransactionsStorage()
         let nftProvider = FakeNftProvider()
         let coinTickersFetcher = CoinTickersFetcherImpl.make()
+        let currencyService: CurrencyService = .make()
 
         let tokensService = AlphaWalletTokensService(
             sessionsProvider: sessionsProvider,
@@ -53,7 +54,7 @@ extension WalletDataProcessingPipeline {
             coinTickersFetcher: coinTickersFetcher,
             assetDefinitionStore: .make(),
             eventsDataStore: eventsDataStore,
-            currencyService: .make())
+            currencyService: currencyService)
 
         let fetcher = WalletBalanceFetcher(wallet: wallet, tokensService: pipeline)
 
@@ -76,7 +77,8 @@ extension WalletDataProcessingPipeline {
             tokensService: tokensService,
             pipeline: pipeline,
             fetcher: fetcher,
-            sessionsProvider: sessionsProvider)
+            sessionsProvider: sessionsProvider,
+            currencyService: currencyService)
         
         dep.sessionsProvider.start(wallet: wallet)
         dep.fetcher.start()
@@ -94,6 +96,7 @@ extension WalletDataProcessingPipeline {
         let pipeline: TokensProcessingPipeline
         let fetcher: WalletBalanceFetcher
         let sessionsProvider: SessionsProvider
+        let currencyService: AlphaWalletFoundation.CurrencyService
     }
 
 }

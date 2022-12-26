@@ -22,13 +22,13 @@ class SendViewControllerTests: XCTestCase {
     func testNativeCryptocurrencyAllFundsValueSpanish() {
         let vc = createSendViewControllerAndSetLocale(locale: .spanish, transactionType: nativeCryptocurrencyTransactionType)
 
-        XCTAssertEqual(vc.amountTextField.value, "")
+        XCTAssertEqual(vc.amountTextField.value, "0")
 
         let testValue = BigInt("10000000000000000000000")
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: testValue), for: token)
 
         vc.allFundsSelected()
-        XCTAssertEqual(vc.amountTextField.value, "10000,0000")
+        XCTAssertEqual(vc.amountTextField.value, "10000")
 
         //Reset language to default
         Config.setLocale(AppLocale.system)
@@ -37,14 +37,14 @@ class SendViewControllerTests: XCTestCase {
     func testNativeCryptocurrencyAllFundsValueEnglish() {
         let vc = createSendViewControllerAndSetLocale(locale: .japanese, transactionType: nativeCryptocurrencyTransactionType)
 
-        XCTAssertEqual(vc.amountTextField.value, "")
+        XCTAssertEqual(vc.amountTextField.value, "0")
 
         let testValue = BigInt("10000000000000000000000")
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: testValue), for: token)
 
         vc.allFundsSelected()
 
-        XCTAssertEqual(vc.amountTextField.value, "10000.0000")
+        XCTAssertEqual(vc.amountTextField.value, "10000")
         XCTAssertTrue(vc.viewModel.amountToSend == .allFunds)
 
         Config.setLocale(AppLocale.system)
@@ -53,7 +53,7 @@ class SendViewControllerTests: XCTestCase {
     func testNativeCryptocurrencyAllFundsValueEnglish2() {
         let vc = createSendViewControllerAndSetLocale(locale: .english, transactionType: nativeCryptocurrencyTransactionType)
 
-        XCTAssertEqual(vc.amountTextField.value, "")
+        XCTAssertEqual(vc.amountTextField.value, "0")
 
         let testValue = BigInt("10000000000000")
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: testValue), for: token)
@@ -70,7 +70,7 @@ class SendViewControllerTests: XCTestCase {
         dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
         let vc = createSendViewControllerAndSetLocale(locale: .spanish, transactionType: .erc20Token(token, destination: .none, amount: .amount(0.002)))
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2000000020224719101120")), for: token)
-        XCTAssertEqual(vc.amountTextField.value, "0,0020")
+        XCTAssertEqual(vc.amountTextField.value, "0,002")
 
         XCTAssertTrue(vc.viewModel.amountToSend == .amount(0.002))
         vc.allFundsSelected()
@@ -84,10 +84,10 @@ class SendViewControllerTests: XCTestCase {
         dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
         let vc = createSendViewControllerAndSetLocale(locale: .spanish, transactionType: .erc20Token(token, destination: .none, amount: .notSet))
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2000000020224719101120")), for: token)
-        XCTAssertEqual(vc.amountTextField.value, "")
+        XCTAssertEqual(vc.amountTextField.value, "0")
         vc.allFundsSelected()
 
-        XCTAssertEqual(vc.amountTextField.value, "2000,0000")
+        XCTAssertEqual(vc.amountTextField.value, "2000")
         XCTAssertTrue(vc.viewModel.amountToSend == .allFunds)
 
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: .zero), for: token)
@@ -104,10 +104,10 @@ class SendViewControllerTests: XCTestCase {
         dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
         let vc = createSendViewControllerAndSetLocale(locale: .spanish, transactionType: .erc20Token(token, destination: .none, amount: .notSet))
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), for: token)
-        XCTAssertEqual(vc.amountTextField.value, "")
+        XCTAssertEqual(vc.amountTextField.value, "0")
 
         vc.allFundsSelected()
-        XCTAssertEqual(vc.amountTextField.value, "0,0020")
+        XCTAssertEqual(vc.amountTextField.value, "0,002")
 
         Config.setLocale(AppLocale.system)
     }
@@ -137,10 +137,10 @@ class SendViewControllerTests: XCTestCase {
         let vc = createSendViewControllerAndSetLocale(locale: .english, transactionType: .erc20Token(token, destination: .none, amount: .notSet))
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), for: token)
 
-        XCTAssertEqual(vc.amountTextField.value, "")
+        XCTAssertEqual(vc.amountTextField.value, "0")
 
         vc.allFundsSelected()
-        XCTAssertEqual(vc.amountTextField.value, "0.0020")
+        XCTAssertEqual(vc.amountTextField.value, "0.002")
 
         Config.setLocale(AppLocale.system)
     }
@@ -150,7 +150,7 @@ class SendViewControllerTests: XCTestCase {
         dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
         let vc = createSendViewControllerAndSetLocale(locale: .english, transactionType: .erc20Token(token, destination: .none, amount: .notSet))
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), for: token)
-        XCTAssertEqual(vc.amountTextField.value, "")
+        XCTAssertEqual(vc.amountTextField.value, "0")
 
         Config.setLocale(AppLocale.system)
 
@@ -161,13 +161,13 @@ class SendViewControllerTests: XCTestCase {
         dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
         let vc = createSendViewControllerAndSetLocale(locale: .english, transactionType: .erc20Token(token, destination: .none, amount: .amount(1.34)))
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), for: token)
-        XCTAssertEqual(vc.amountTextField.value, "1.3400")
+        XCTAssertEqual(vc.amountTextField.value, "1.34")
 
         vc.didScanQRCode("aw.app/ethereum:0xbc8dafeaca658ae0857c80d8aa6de4d487577c63@1?value=1e19")
 
         let expectation = self.expectation(description: "did update token balance expectation")
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            XCTAssertEqual(vc.amountTextField.value, "10.0000")
+            XCTAssertEqual(vc.amountTextField.value, "10")
             expectation.fulfill()
         }
         waitForExpectations(timeout: 10)
@@ -180,13 +180,13 @@ class SendViewControllerTests: XCTestCase {
         dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
         let vc = createSendViewControllerAndSetLocale(locale: .spanish, transactionType: .erc20Token(token, destination: .none, amount: .amount(1.34)))
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), for: token)
-        XCTAssertEqual(vc.amountTextField.value, "1,3400")
+        XCTAssertEqual(vc.amountTextField.value, "1,34")
 
         vc.didScanQRCode("aw.app/ethereum:0xbc8dafeaca658ae0857c80d8aa6de4d487577c63@1?value=1e17")
 
         let expectation = self.expectation(description: "did update token balance expectation")
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            XCTAssertEqual(vc.amountTextField.value, "0,1000")
+            XCTAssertEqual(vc.amountTextField.value, "0,1")
             expectation.fulfill()
         }
         waitForExpectations(timeout: 10)
@@ -208,7 +208,7 @@ class SendViewControllerTests: XCTestCase {
 
         let expectation = self.expectation(description: "did update token balance expectation")
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            XCTAssertEqual(vc.amountTextField.value, "1,0040")
+            XCTAssertEqual(vc.amountTextField.value, "1,004")
             expectation.fulfill()
         }
         waitForExpectations(timeout: 10)
@@ -239,7 +239,8 @@ class TokenBalanceTests: XCTestCase {
         var callbackCount: Int = 0
         let callbackCountExpectation: Int = 4
 
-        pipeline.tokenViewModelPublisher(for: token)
+        pipeline
+            .tokenViewModelPublisher(for: token)
             .sink { _ in
                 callbackCount += 1
 
@@ -251,7 +252,7 @@ class TokenBalanceTests: XCTestCase {
         tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("3000000020224719101120")!), for: token)
 
         let tokenToTicker = TokenMappedToTicker(token: token)
-        let ticker = CoinTicker.make(for: tokenToTicker)
+        let ticker = CoinTicker.make(for: tokenToTicker, currency: dep.currencyService.currency)
 
         pipeline.addOrUpdateTestsOnly(ticker: ticker, for: tokenToTicker)
         pipeline.addOrUpdateTestsOnly(ticker: ticker.override(price_usd: 0), for: tokenToTicker) // no changes should be, as value is stay the same
@@ -259,14 +260,20 @@ class TokenBalanceTests: XCTestCase {
 
         tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("4000000020224719101120")!), for: token)
         
-        waitForExpectations(timeout: 10)
+        waitForExpectations(timeout: 50)
     }
 
     func testBalanceUpdates() {
         let pipeline = dep.pipeline
         let tokensService = dep.tokensService
 
-        let token = Token(contract: AlphaWallet.Address.make(address: "0x1000000000000000000000000000000000000002"), server: .main, decimals: 18, value: "2000000020224719101120", type: .erc20)
+        let token = Token(
+            contract: AlphaWallet.Address.make(address: "0x1000000000000000000000000000000000000002"),
+            server: .main,
+            decimals: 18,
+            value: "2000000020224719101120",
+            type: .erc20)
+
         var balance = pipeline.tokenViewModel(for: token)
         XCTAssertNil(balance)
 
@@ -304,7 +311,13 @@ class TokenBalanceTests: XCTestCase {
     func testBalanceUpdatesPublisherWhenServersChanged() {
         let pipeline = dep.pipeline
         let tokensService = dep.tokensService
-        let token = Token(contract: AlphaWallet.Address.make(address: "0x1000000000000000000000000000000000000003"), server: .main, decimals: 18, value: "2000000020224719101120", type: .erc20)
+        let token = Token(
+            contract: AlphaWallet.Address.make(address: "0x1000000000000000000000000000000000000003"),
+            server: .main,
+            decimals: 18,
+            value: "2000000020224719101120",
+            type: .erc20)
+
         var balance = pipeline.tokenViewModel(for: token)
         XCTAssertNil(balance)
 
@@ -317,7 +330,8 @@ class TokenBalanceTests: XCTestCase {
         var callbackCount: Int = 0
         let callbackCountExpectation: Int = 13
 
-        pipeline.tokenViewModelPublisher(for: token)
+        pipeline
+            .tokenViewModelPublisher(for: token)
             .sink { _ in
                 callbackCount += 1
                 if callbackCount == callbackCountExpectation {
@@ -326,7 +340,7 @@ class TokenBalanceTests: XCTestCase {
             }.store(in: &cancelable)
 
         let tokenToTicker = TokenMappedToTicker(token: token)
-        let ticker = CoinTicker.make(for: tokenToTicker)
+        let ticker = CoinTicker.make(for: tokenToTicker, currency: dep.currencyService.currency)
         pipeline.addOrUpdateTestsOnly(ticker: ticker, for: tokenToTicker)
 
         let group = DispatchGroup()
@@ -350,7 +364,7 @@ class TokenBalanceTests: XCTestCase {
             tokensService.deleteTokenTestsOnly(token: token)
         }
 
-        waitForExpectations(timeout: 30)
+        waitForExpectations(timeout: 50)
     }
 
     func testTokenDeletion() {
