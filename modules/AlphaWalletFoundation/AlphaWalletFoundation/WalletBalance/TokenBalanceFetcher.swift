@@ -199,7 +199,7 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
             var anyNonFungible: T? = nonFungibles.compactMap { $0.value }.first
             for each in nonFungibles {
                 if let encodedJson = try? JSONEncoder().encode(each.value), let jsonString = String(data: encodedJson, encoding: .utf8) {
-//                    anyNonFungible = each.value
+                    anyNonFungible = each.value
                     listOfAssets.append(.init(json: jsonString, source: each.source))
                 } else {
                     //no op
