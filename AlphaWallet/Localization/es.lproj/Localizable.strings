@@ -505,7 +505,7 @@
 "backup.prompt.afterInterval.title" = "Es hora de hacer una copia de seguridad de tu monedero";
 "backup.prompt.afterInterval.description" = "Te recomendamos encarecidamente que hagas una copia de seguridad de tu monedero";
 "backup.prompt.afterHittingThreshold.title" = "¡Tu monedero está en peligro!";
-"backup.prompt.afterHittingThreshold.description" = "Todavía no has hecho una copia de seguridad de tu monedero. Tienes %@ USD netos. Hazlo ahora. ";
+"backup.prompt.afterHittingThreshold.description" = "Todavía no has hecho una copia de seguridad de tu monedero. Tienes %@ netos. Hazlo ahora. ";
 "onboarding.newWallet.backupWallet.title" = "Haz una copia de seguridad de tu monedero";
 "onboarding.newWallet.backupWallet.description" = "Tus fondos estarán en peligro si no haces una copia de seguridad antes de utilizar tu monedero";
 "keystore.accessKey.nonHd.backup" = "Accediendo a la clave de tu monedero para hacer una copia de seguridad";
