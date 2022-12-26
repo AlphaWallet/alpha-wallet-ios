@@ -139,6 +139,8 @@ class EtherNumberFormatterTests: XCTestCase {
     }
 
     func testMinMaxFormattedNumber() {
+        Config.setLocale(.english)
+        
         let locale: Locale = Config.locale
 
         func fiatFormatter(usesGroupingSeparator: Bool = false, currency: Currency) -> NumberFormatter {
@@ -158,5 +160,7 @@ class EtherNumberFormatterTests: XCTestCase {
         XCTAssertEqual(formatter.string(double: 1, minimumFractionDigits: 2, maximumFractionDigits: 6), "1.00")
         XCTAssertEqual(formatter.string(double: 0.1213123123123, minimumFractionDigits: 2, maximumFractionDigits: 6), "0.12")
         XCTAssertEqual(formatter.string(double: 1111102222.1213123123123, minimumFractionDigits: 2, maximumFractionDigits: 6), "1,111,102,222.12")
+
+        Config.setLocale(.system)
     }
 }

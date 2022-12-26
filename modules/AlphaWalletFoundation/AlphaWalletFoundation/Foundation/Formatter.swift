@@ -29,7 +29,7 @@ extension NumberFormatter {
         return formatter
     }
 
-    public static let percent: NumberFormatter = {
+    public static var percent: NumberFormatter {
         let formatter = basicCurrencyFormatter()
         formatter.positiveFormat = ",###.#"
         formatter.negativeFormat = "-,###.#"
@@ -38,7 +38,7 @@ extension NumberFormatter {
         formatter.numberStyle = .percent
         
         return formatter
-    }()
+    }
 
     //NOTE: does't work when its stored static let, should be computed var
     public static var shortCrypto: NumberFormatter {
@@ -62,16 +62,16 @@ extension NumberFormatter {
         return formatter
     }
 
-    public static let scientificAmount: NumberFormatter = {
+    public static var scientificAmount: NumberFormatter {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         formatter.usesGroupingSeparator = false
         formatter.locale = Locale(identifier: "en_US")
 
         return formatter
-    }()
+    }
 
-    public static let currencyAccounting: NumberFormatter = {
+    public static var currencyAccounting: NumberFormatter {
         let formatter = basicCurrencyFormatter()
         formatter.currencySymbol = ""
         formatter.minimumFractionDigits = Constants.formatterFractionDigits
@@ -80,16 +80,16 @@ extension NumberFormatter {
         formatter.isLenient = true
 
         return formatter
-    }()
-
-    public static let alternateAmount: NumberFormatter = {
+    }
+    //NOTE: don't use static let, some on formatters has changed in runtime, that brakes logic, use computed var
+    public static var alternateAmount: NumberFormatter {
         let formatter = basicCurrencyFormatter()
         formatter.currencySymbol = ""
         formatter.minimumFractionDigits = Constants.etherFormatterFractionDigits
         formatter.maximumFractionDigits = Constants.etherFormatterFractionDigits
 
         return formatter
-    }()
+    }
 }
 
 fileprivate func basicCurrencyFormatter() -> NumberFormatter {

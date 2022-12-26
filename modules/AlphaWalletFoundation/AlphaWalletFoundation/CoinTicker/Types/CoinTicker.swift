@@ -25,9 +25,9 @@ public struct CoinTicker: Hashable, Equatable {
 }
 
 extension CoinTicker {
-    public static func make(for token: TokenMappedToTicker) -> CoinTicker {
+    public static func make(for token: TokenMappedToTicker, currency: Currency) -> CoinTicker {
         let id = "for-testing-tickerId-\(token.contractAddress)-\(token.server.chainID)"
-        return .init(primaryKey: "\(id)-\(Currency.USD.code)", id: id, currency: .USD, lastUpdatedAt: Date(), symbol: "", price_usd: 0.0, percent_change_24h: 0.0, market_cap: 0.0, market_cap_rank: 0.0, total_volume: 0.0, high_24h: 0.0, low_24h: 0.0, market_cap_change_24h: 0.0, market_cap_change_percentage_24h: 0.0, circulating_supply: 0.0, total_supply: 0.0, max_supply: 0.0, ath: 0.0, ath_change_percentage: 0.0)
+        return .init(primaryKey: "\(id)-\(currency.code)", id: id, currency: currency, lastUpdatedAt: Date(), symbol: "", price_usd: 0.0, percent_change_24h: 0.0, market_cap: 0.0, market_cap_rank: 0.0, total_volume: 0.0, high_24h: 0.0, low_24h: 0.0, market_cap_change_24h: 0.0, market_cap_change_percentage_24h: 0.0, circulating_supply: 0.0, total_supply: 0.0, max_supply: 0.0, ath: 0.0, ath_change_percentage: 0.0)
     }
 
     public func override(currency: Currency) -> CoinTicker {
