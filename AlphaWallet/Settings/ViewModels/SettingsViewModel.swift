@@ -32,9 +32,18 @@ final class SettingsViewModel {
         }
     }
     private let lock: Lock
+    private let walletBalanceService: WalletBalanceService
     private (set) var sections: [SettingsSection] = []
 
-    init(account: Wallet, keystore: Keystore, lock: Lock, config: Config, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType) {
+    init(account: Wallet,
+         keystore: Keystore,
+         lock: Lock,
+         config: Config,
+         analytics: AnalyticsLogger,
+         domainResolutionService: DomainResolutionServiceType,
+         walletBalanceService: WalletBalanceService) {
+
+        self.walletBalanceService = walletBalanceService
         self.account = account
         self.config = config
         self.keystore = keystore
@@ -173,7 +182,13 @@ final class SettingsViewModel {
             case .changeWallet:
                 return .cell(.init(titleText: row.title, subTitleText: addressReplacedWithEnsOrWalletName(assignedNameOrEns), icon: row.icon))
             case .backup:
-                let walletSecurityLevel = PromptBackupCoordinator(keystore: keystore, wallet: account, config: .init(), analytics: analytics).securityLevel
+                let walletSecurityLevel = PromptBackupCoordinator(
+                    keystore: keystore,
+                    wallet: account,
+                    config: .init(),
+                    analytics: analytics,
+                    walletBalanceService: walletBalanceService).securityLevel
+                
                 let accessoryView = walletSecurityLevel.flatMap { WalletSecurityLevelIndicator(level: $0) }
                 return .cell(.init(titleText: row.title, subTitleText: nil, icon: row.icon, accessoryType: .disclosureIndicator, accessoryView: accessoryView))
             case .showMyWallet, .showSeedPhrase, .walletConnect, .nameWallet, .blockscanChat:

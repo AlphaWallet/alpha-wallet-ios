@@ -21,7 +21,7 @@ protocol PromptBackupCoordinatorSubtlePromptDelegate: AnyObject {
 class PromptBackupCoordinator: Coordinator {
     //Explicit `TimeInterval()` to speed up compilation
     private static let secondsInAMonth = TimeInterval(30) * 24 * 60 * 60
-    private static let thresholdNativeCryptoCurrencyAmountInUsdToPromptBackup = Double(200)
+    private static let thresholdNativeCryptoCurrencyAmountInFiatToPromptBackup = Double(200)
 
     private let documentsDirectory = URL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])
     private let filename = "backupState.json"
@@ -30,17 +30,20 @@ class PromptBackupCoordinator: Coordinator {
     private let wallet: Wallet
     private let config: Config
     private let analytics: AnalyticsLogger
+    private let walletBalanceService: WalletBalanceService
     //TODO this should be the total of mainnets instead of just Ethereum mainnet
-    private var rate: CurrencyRateForEther = .init(value: .zero, currency: .default)
+    private var balance: WalletBalance.ValueForCurrency = .init(amount: .zero, currency: .default)
+    private var cancelable = Set<AnyCancellable>()
 
     var prominentPromptView: UIView?
     var subtlePromptView: UIView?
     var coordinators: [Coordinator] = []
-    private var cancelable = Set<AnyCancellable>()
+
     weak var prominentPromptDelegate: PromptBackupCoordinatorProminentPromptDelegate?
     weak var subtlePromptDelegate: PromptBackupCoordinatorSubtlePromptDelegate?
 
-    init(keystore: Keystore, wallet: Wallet, config: Config, analytics: AnalyticsLogger) {
+    init(keystore: Keystore, wallet: Wallet, config: Config, analytics: AnalyticsLogger, walletBalanceService: WalletBalanceService) {
+        self.walletBalanceService = walletBalanceService
         self.keystore = keystore
         self.wallet = wallet
         self.config = config
@@ -48,6 +51,7 @@ class PromptBackupCoordinator: Coordinator {
     }
 
     func start() {
+        listenToNativeCryptoCurrencyBalance()
         migrateOldData()
         guard canBackupWallet else { return }
         setUpAndPromptIfWalletHasNotBeenPromptedBefore()
@@ -106,20 +110,12 @@ class PromptBackupCoordinator: Coordinator {
         return view
     }
 
-    struct CurrencyRateForEther {
-        let value: NSDecimalNumber
-        let currency: Currency
-    }
-
-    //TODO not the best way to watch Ether balance
-    func listenToNativeCryptoCurrencyBalance(service: TokenViewModelState) {
-        let etherToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: .main)
-        service.tokenViewModelPublisher(for: etherToken)
-            .compactMap { $0?.balance.ticker }
-            .map { PromptBackupCoordinator.CurrencyRateForEther(value: NSDecimalNumber(value: $0.price_usd), currency: $0.currency) }
-            .sink { [weak self] rate in
-                self?.showCreateBackupAfterExceedThresholdPrompt(rate: rate)
-            }.store(in: &cancelable)
+    private func listenToNativeCryptoCurrencyBalance() {
+        walletBalanceService
+            .walletBalance(for: wallet)
+            .compactMap { $0.totalAmount }
+            .sink { [weak self] in self?.showCreateBackupAfterExceedThresholdPrompt(balance: $0) }
+            .store(in: &cancelable)
     }
 
     // MARK: Update UI
@@ -145,7 +141,7 @@ class PromptBackupCoordinator: Coordinator {
     }
 
     private func createBackupAfterExceedingThresholdView() {
-        let view = createBackupViewImpl(viewModel: PromptBackupWalletAfterExceedingThresholdViewViewModel(walletAddress: wallet.address, rate: rate))
+        let view = createBackupViewImpl(viewModel: PromptBackupWalletAfterExceedingThresholdViewViewModel(walletAddress: wallet.address, balance: balance))
         prominentPromptView = view
         subtlePromptView = nil
         informDelegatesPromptHasChanged()
@@ -197,13 +193,13 @@ class PromptBackupCoordinator: Coordinator {
         showHideCurrentPrompt()
     }
 
-    private func showCreateBackupAfterExceedThresholdPrompt(rate: PromptBackupCoordinator.CurrencyRateForEther) {
-        self.rate = rate
+    private func showCreateBackupAfterExceedThresholdPrompt(balance: WalletBalance.ValueForCurrency) {
+        self.balance = balance
         guard canBackupWallet else { return }
         guard !isBackedUp else { return }
         guard !isImported else { return }
 
-        let hasExceededThreshold = rate.value.doubleValue >= PromptBackupCoordinator.thresholdNativeCryptoCurrencyAmountInUsdToPromptBackup
+        let hasExceededThreshold = balance.amount >= PromptBackupCoordinator.thresholdNativeCryptoCurrencyAmountInFiatToPromptBackup
         let toShow: Bool
         if isShowingExceededThresholdPrompt {
             if hasExceededThreshold {
