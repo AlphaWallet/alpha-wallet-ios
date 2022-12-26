@@ -27,7 +27,7 @@ class ImportMagicLinkCoordinator: Coordinator {
     private let config: Config
     private var importTokenViewController: ImportMagicTokenViewController?
     private var hasCompleted = false
-    private lazy var getERC875TokenBalance = GetErc875Balance(forServer: server)
+    private lazy var getErc875TokenBalance = GetErc875Balance(blockchainProvider: session.blockchainProvider)
     //TODO better to make sure tokenHolder is non-optional. But be careful that ImportMagicTokenViewController also handles when viewModel always has a TokenHolder. Needs good defaults in TokenHolder that can be displayed
     private var tokenHolder: TokenHolder?
     private var count: Decimal?
@@ -61,14 +61,27 @@ class ImportMagicLinkCoordinator: Coordinator {
     private var cryptoToFiatRateWhenNotEnoughEthForPaidImportCancelable: AnyCancellable?
     private var balanceWhenHandlePaidImportsCancelable: AnyCancellable?
     private let session: WalletSession
-    private let networkService: ImportMagicLinkNetworking
+    private let networking: ImportMagicLinkNetworking
+    private var cancelable = Set<AnyCancellable>()
+    private lazy var tokenHolderResolver = TokenHolderResolver(
+        assetDefinitionStore: assetDefinitionStore,
+        session: session,
+        tokensService: tokensService)
 
-    init(analytics: AnalyticsLogger, session: WalletSession, config: Config, assetDefinitionStore: AssetDefinitionStore, url: URL, keystore: Keystore, tokensService: TokenViewModelState & TokenProvidable, networkService: NetworkService) {
+    init(analytics: AnalyticsLogger,
+         session: WalletSession,
+         config: Config,
+         assetDefinitionStore: AssetDefinitionStore,
+         url: URL,
+         keystore: Keystore,
+         tokensService: TokenViewModelState & TokenProvidable,
+         networkService: NetworkService) {
+
         self.analytics = analytics
         self.session = session
         self.config = config
         self.assetDefinitionStore = assetDefinitionStore
-        self.networkService = ImportMagicLinkNetworking(networkService: networkService)
+        self.networking = ImportMagicLinkNetworking(networkService: networkService)
         self.url = url
         self.keystore = keystore
         self.tokensService = tokensService
@@ -127,7 +140,7 @@ class ImportMagicLinkCoordinator: Coordinator {
     func completeOrderHandling(signedOrder: SignedOrder) {
         let requiresPaymaster = requiresPaymasterForCurrencyLinks(signedOrder: signedOrder)
         if signedOrder.order.price == 0 {
-            networkService.checkPaymentServerSupportsContract(contractAddress: signedOrder.order.contractAddress)
+            networking.checkPaymentServerSupportsContract(contractAddress: signedOrder.order.contractAddress)
                 .sink { supported in
                     //Currency links on mainnet/classic/xdai without a paymaster should be rejected for security reasons (front running)
                     guard supported || !requiresPaymaster else {
@@ -153,10 +166,9 @@ class ImportMagicLinkCoordinator: Coordinator {
 
     private func handleSpawnableLink(signedOrder: SignedOrder, tokens: [BigUInt]) {
         let tokenStrings: [String] = tokens.map { String($0, radix: 16) }
-        self.makeTokenHolder(tokenStrings, signedOrder.order.contractAddress)
+        self.buildTokenHolder(tokenStrings, signedOrder.order.contractAddress)
         completeOrderHandling(signedOrder: signedOrder)
     }
-    private var cancelable = Set<AnyCancellable>()
 
     private func handleNativeCurrencyDrop(signedOrder: SignedOrder) {
         let amt: Decimal
@@ -179,7 +191,7 @@ class ImportMagicLinkCoordinator: Coordinator {
 
         self.tokenHolder = TokenHolder(tokens: [token], contractAddress: signedOrder.order.contractAddress, hasAssetDefinition: false)
         let r = signedOrder.signature.substring(with: Range(uncheckedBounds: (2, 66)))
-        networkService.checkIfLinkClaimed(r: r)
+        networking.checkIfLinkClaimed(r: r)
             .sink(receiveValue: { claimed in
                 if claimed {
                     self.showImportError(errorMessage: R.string.localizable.aClaimTokenLinkAlreadyRedeemed())
@@ -190,9 +202,9 @@ class ImportMagicLinkCoordinator: Coordinator {
     }
 
     private func handleNormalLinks(signedOrder: SignedOrder, recoverAddress: AlphaWallet.Address, contractAsAddress: AlphaWallet.Address) {
-        getERC875TokenBalance.getErc875TokenBalance(for: recoverAddress, contract: contractAsAddress).done({ [weak self] balance in
+        getErc875TokenBalance.getErc875TokenBalance(for: recoverAddress, contract: contractAsAddress).done({ [weak self] balance in
             guard let strongSelf = self else { return }
-            let filteredTokens: [String] = strongSelf.checkERC875TokensAreAvailable(
+            let filteredTokens: [String] = strongSelf.checkErc875TokensAreAvailable(
                 indices: signedOrder.order.indices,
                 balance: balance
             )
@@ -201,7 +213,7 @@ class ImportMagicLinkCoordinator: Coordinator {
                 return
             }
 
-            strongSelf.makeTokenHolder(filteredTokens, signedOrder.order.contractAddress)
+            strongSelf.buildTokenHolder(filteredTokens, signedOrder.order.contractAddress)
 
             strongSelf.completeOrderHandling(signedOrder: signedOrder)
         }).catch({ [weak self]  _ in
@@ -300,7 +312,7 @@ class ImportMagicLinkCoordinator: Coordinator {
             }
     }
 
-    private func checkERC875TokensAreAvailable(indices: [UInt16], balance: [String]) -> [String] {
+    private func checkErc875TokensAreAvailable(indices: [UInt16], balance: [String]) -> [String] {
         var filteredTokens = [String]()
         if balance.count < indices.count {
             return [String]()
@@ -317,48 +329,114 @@ class ImportMagicLinkCoordinator: Coordinator {
         return filteredTokens
     }
 
-    private func makeTokenHolder(_ bytes32Tokens: [String], _ contractAddress: AlphaWallet.Address) {
-        assetDefinitionStore.fetchXML(forContract: contractAddress, server: server, useCacheAndFetch: true) { [weak self, session] _ in
-            guard let strongSelf = self else { return }
+    class TokenHolderResolver {
+        enum TokenHolderResolverError: Error {
+            case tokenTypeMissing
+            case embedded(error: Error)
+        }
 
-            func makeTokenHolder(name: String, symbol: String, type: TokenType? = nil) {
-                strongSelf.makeTokenHolderImpl(name: name, symbol: symbol, type: type, bytes32Tokens: bytes32Tokens, contractAddress: contractAddress)
-                strongSelf.updateTokenFields()
-            }
+        private let assetDefinitionStore: AssetDefinitionStore
+        private let session: WalletSession
+        private let tokensService: TokenViewModelState & TokenProvidable
 
-            if let existingToken = strongSelf.tokensService.token(for: contractAddress, server: strongSelf.server) {
-                let name = XMLHandler(token: existingToken, assetDefinitionStore: strongSelf.assetDefinitionStore).getLabel(fallback: existingToken.name)
-                makeTokenHolder(name: name, symbol: existingToken.symbol)
-            } else {
-                let localizedTokenTypeName = R.string.localizable.tokensTitlecase()
-                makeTokenHolder(name: localizedTokenTypeName, symbol: "")
+        init(assetDefinitionStore: AssetDefinitionStore,
+             session: WalletSession,
+             tokensService: TokenViewModelState & TokenProvidable) {
 
-                let getContractName = session.tokenProvider.getContractName(for: contractAddress)
-                let getContractSymbol = session.tokenProvider.getContractSymbol(for: contractAddress)
-                let getTokenType = session.tokenProvider.getTokenType(for: contractAddress)
+            self.assetDefinitionStore = assetDefinitionStore
+            self.tokensService = tokensService
+            self.session = session
+        }
 
-                firstly {
-                    when(fulfilled: getContractName, getContractSymbol, getTokenType)
-                }.done { name, symbol, type in
-                    makeTokenHolder(name: name, symbol: symbol, type: type)
-                }.cauterize()
-            }
+        func buildTokenHolder(bytes32Tokens: [String], contractAddress: AlphaWallet.Address) -> AnyPublisher<TokenHolder, TokenHolderResolverError> {
+            return assetDefinitionStore
+                .fetchXmlPublisher(contract: contractAddress, server: session.server, useCacheAndFetch: true)
+                .setFailureType(to: TokenHolderResolverError.self)
+                .flatMap { [tokensService, session, assetDefinitionStore] _ -> AnyPublisher<TokenHolder, TokenHolderResolverError> in
+
+                    if let existingToken = tokensService.token(for: contractAddress, server: session.server) {
+                        let name = XMLHandler(token: existingToken, assetDefinitionStore: assetDefinitionStore).getLabel(fallback: existingToken.name)
+                        do {
+                            let tokenHolder = try self.buildTokenHolder(
+                                name: name,
+                                symbol: existingToken.symbol,
+                                bytes32Tokens: bytes32Tokens,
+                                contractAddress: contractAddress)
+
+                            return .just(tokenHolder)
+                        } catch {
+                            return .fail(TokenHolderResolverError.embedded(error: error))
+                        }
+                    } else {
+                        return Publishers.Merge(
+                            self.buildEmptySymbolTokenHolder(bytes32Tokens: bytes32Tokens, contractAddress: contractAddress),
+                            self.resolveTokenHolder(bytes32Tokens: bytes32Tokens, contractAddress: contractAddress))
+                        .eraseToAnyPublisher()
+                    }
+                }.receive(on: RunLoop.main)
+                .eraseToAnyPublisher()
+        }
+
+        private func resolveTokenHolder(bytes32Tokens: [String], contractAddress: AlphaWallet.Address) -> AnyPublisher<TokenHolder, TokenHolderResolverError> {
+            return Publishers.CombineLatest3(
+                session.tokenProvider.getContractName(for: contractAddress).publisher,
+                session.tokenProvider.getContractSymbol(for: contractAddress).publisher,
+                session.tokenProvider.getTokenType(for: contractAddress).publisher)
+                .tryMap { try self.buildTokenHolder(name: $0, symbol: $1, type: $2, bytes32Tokens: bytes32Tokens, contractAddress: contractAddress) }
+                .mapError { TokenHolderResolverError.embedded(error: $0) }
+                .eraseToAnyPublisher()
+        }
+
+        private func buildEmptySymbolTokenHolder(bytes32Tokens: [String], contractAddress: AlphaWallet.Address) -> AnyPublisher<TokenHolder, TokenHolderResolverError> {
+            AnyPublisher<TokenHolder, TokenHolderResolverError>.create { seal in
+                do {
+                    let tokenHolder = try self.buildTokenHolder(
+                        name: R.string.localizable.tokensTitlecase(),
+                        symbol: "",
+                        bytes32Tokens: bytes32Tokens,
+                        contractAddress: contractAddress)
+
+                    seal.send(tokenHolder)
+                    seal.send(completion: .finished)
+                } catch {
+                    seal.send(completion: .finished)
+                }
+
+                return AnyCancellable { }
+            }.eraseToAnyPublisher()
+        }
+
+        private func buildTokenHolder(name: String,
+                                      symbol: String,
+                                      type: TokenType? = nil,
+                                      bytes32Tokens: [String],
+                                      contractAddress: AlphaWallet.Address) throws -> TokenHolder {
+
+            let token = tokensService.token(for: contractAddress, server: session.server)
+            guard let tokenType = type ?? token?.type else { throw TokenHolderResolverError.tokenTypeMissing }
+
+            return TokenAdaptor.getTokenHolders(
+                name: name,
+                symbol: symbol,
+                tokenType: tokenType,
+                bytes32Tokens: bytes32Tokens,
+                contractAddress: contractAddress,
+                server: session.server,
+                wallet: session.account,
+                assetDefinitionStore: assetDefinitionStore)
         }
     }
 
-    private func makeTokenHolderImpl(name: String, symbol: String, type: TokenType? = nil, bytes32Tokens: [String], contractAddress: AlphaWallet.Address) {
-        //TODO pass in the wallet instead
-        guard let tokenType = type ?? (tokensService.token(for: contractAddress, server: server)?.type) else { return }
-        var tokens = [TokenScript.Token]()
-        let xmlHandler = XMLHandler(contract: contractAddress, tokenType: tokenType, assetDefinitionStore: assetDefinitionStore)
-        for i in 0..<bytes32Tokens.count {
-            let token = bytes32Tokens[i]
-            if let tokenId = BigUInt(token.drop0x, radix: 16) {
-                let token = xmlHandler.getToken(name: name, symbol: symbol, fromTokenIdOrEvent: .tokenId(tokenId: tokenId), index: UInt16(i), inWallet: wallet, server: server, tokenType: tokenType)
-                tokens.append(token)
-            }
-        }
-        tokenHolder = TokenHolder(tokens: tokens, contractAddress: contractAddress, hasAssetDefinition: xmlHandler.hasAssetDefinition)
+    private func buildTokenHolder(_ bytes32Tokens: [String], _ contractAddress: AlphaWallet.Address) {
+        tokenHolderResolver
+            .buildTokenHolder(bytes32Tokens: bytes32Tokens, contractAddress: contractAddress)
+            .sink(receiveCompletion: { result in
+                guard case .failure(let e) = result else { return }
+                debugLog("[TokenHolderResolver] resolve failure with error: \(e)")
+            }, receiveValue: { [weak self] tokenHolder in
+                self?.tokenHolder = tokenHolder
+                self?.updateTokenFields()
+            }).store(in: &cancelable)
     }
 
     private func preparingToImportUniversalLink() {
@@ -426,7 +504,7 @@ class ImportMagicLinkCoordinator: Coordinator {
     private func importFreeTransfer(request: ImportMagicLinkNetworking.FreeTransferRequest) {
         updateImportTokenController(with: .processing)
 
-        networkService.freeTransfer(request: request)
+        networking.freeTransfer(request: request)
             .sink { [weak self] successful in
                 guard let strongSelf = self else { return }
 

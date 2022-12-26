@@ -73,7 +73,13 @@ public class WalletComponentsFactory: WalletDependencyContainer {
         let transactionsDataStore: TransactionDataStore = TransactionDataStore(store: .storage(for: wallet))
         let eventsActivityDataStore: EventsActivityDataStoreProtocol = EventsActivityDataStore(store: .storage(for: wallet))
 
-        let sessionsProvider: SessionsProvider = .init(config: config, analytics: analytics, rpcApiProvider: rpcApiProvider)
+        let sessionsProvider: SessionsProvider = .init(
+            config: config,
+            factory: BaseSessionFactory(
+                config: config,
+                rpcApiProvider: rpcApiProvider,
+                analytics: analytics))
+        
         sessionsProvider.start(wallet: wallet)
 
         let contractDataFetcher = ContractDataFetcher(

@@ -19,15 +19,20 @@ public protocol BlockchainProvider {
     func transactionsStatePublisher(hash: String) -> AnyPublisher<TransactionState, SessionTaskError>
     func pendingTransactionPublisher(hash: String) -> AnyPublisher<PendingTransaction?, SessionTaskError>
     func callPublisher(from: AlphaWallet.Address?, to: AlphaWallet.Address?, value: String?, data: String) -> AnyPublisher<String, SessionTaskError>
+    func callPromise<R: ContractMethodCall>(_ method: R) -> Promise<R.Response>
+    func callPublisher<R: ContractMethodCall>(_ method: R) -> AnyPublisher<R.Response, SessionTaskError>
+
     func gasEstimatesPublisher() -> AnyPublisher<GasEstimates, PromiseError>
 
-    func balancePromise(for address: AlphaWallet.Address) -> Promise<Balance>
+    func balancePublisher(for address: AlphaWallet.Address) -> AnyPublisher<Balance, SessionTaskError>
     func getTransactionIfCompleted(hash: EthereumTransaction.Hash) -> Promise<PendingTransaction>
     func nextNoncePromise() -> Promise<Int>
     func nextNoncePublisher() -> AnyPublisher<Int, SessionTaskError>
     func gasLimitPublisher(value: BigUInt, toAddress: AlphaWallet.Address?, data: Data) -> AnyPublisher<BigUInt, SessionTaskError>
     func sendPromise(transaction: UnsignedTransaction, data: Data) -> Promise<String>
     func sendPromise(rawTransaction: String) -> Promise<String>
+    func blockByNumberPromise(blockNumber: BigUInt) -> Promise<Block>
+    func eventLogsPromise(contractAddress: AlphaWallet.Address, eventName: String, abiString: String, filter: EventFilter) -> Promise<[EventParserResultProtocol]>
 }
 
 public struct BlockchainParams {
@@ -48,10 +53,13 @@ public struct BlockchainParams {
     }
 }
 
+import AlphaWalletWeb3
+
 public final class RpcBlockchainProvider: BlockchainProvider {
     private let analytics: AnalyticsLogger
     private let nodeApiProvider: NodeApiProvider
     private let params: BlockchainParams
+    private lazy var getEventLogs = GetEventLogs(server: server)
 
     public let server: RPCServer
     public let wallet: Wallet
@@ -64,6 +72,16 @@ public final class RpcBlockchainProvider: BlockchainProvider {
         self.nodeApiProvider = nodeApiProvider
     }
 
+    //TODO: update it later
+    public func eventLogsPromise(contractAddress: AlphaWallet.Address, eventName: String, abiString: String, filter: EventFilter) -> Promise<[EventParserResultProtocol]> {
+        getEventLogs.getEventLogs(contractAddress: contractAddress, eventName: eventName, abiString: abiString, filter: filter)
+    }
+
+    public func blockByNumberPromise(blockNumber: BigUInt) -> Promise<Block> {
+        return nodeApiProvider
+            .dataTaskPromise(BlockByNumberRequest(number: blockNumber))
+    }
+
     public func blockNumberPublisher() -> AnyPublisher<Int, SessionTaskError> {
         return nodeApiProvider
             .dataTaskPublisher(BlockNumberRequest())
@@ -72,15 +90,32 @@ public final class RpcBlockchainProvider: BlockchainProvider {
             .eraseToAnyPublisher()
     }
 
-    public func balancePromise(for address: AlphaWallet.Address) -> Promise<Balance> {
-        return firstly {
-            nodeApiProvider.dataTaskPromise(BalanceRequest(address: address, block: .latest))
-        }.get {
-            print("xxx.getBalance value: \($0)")
-        }.recover { e -> Promise<Balance> in
-            print("xxx.getBalance error: \(e)")
-            return .init(error: e)
-        }
+    public func callPromise<R: ContractMethodCall>(_ method: R) -> Promise<R.Response> {
+        nodeApiProvider
+            .dataTaskPromise(method)
+            .get {
+                print("xxx.call value: \($0) for \(method.description)")
+            }.recover { e -> Promise<R.Response> in
+                print("xxx.call error: \(e) for \(method.description)")
+                return .init(error: e)
+            }
+    }
+
+    public func callPublisher<R: ContractMethodCall>(_ method: R) -> AnyPublisher<R.Response, SessionTaskError> {
+        nodeApiProvider
+            .dataTaskPublisher(method)
+            .print("xxx.call")
+            .receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
+    }
+
+    //TODO: might be needed to handle of several call issue. applicatable for multiple rpc urls,
+    //we applying inflight promises/publishers for rpc calls, but it could not work when balance is going to be fetched with another rpc url.
+    public func balancePublisher(for address: AlphaWallet.Address) -> AnyPublisher<Balance, SessionTaskError> {
+        return nodeApiProvider
+            .dataTaskPublisher(BalanceRequest(address: address, block: .latest))
+            .print("xxx.balancePublisher")
+            .eraseToAnyPublisher()
     }
 
     public func transactionsStatePublisher(hash: String) -> AnyPublisher<TransactionState, SessionTaskError> {

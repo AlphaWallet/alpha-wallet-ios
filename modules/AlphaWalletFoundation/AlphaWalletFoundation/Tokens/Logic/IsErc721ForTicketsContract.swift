@@ -4,13 +4,13 @@ import Foundation
 import PromiseKit
 
 public class IsErc721ForTicketsContract {
-    private let server: RPCServer
-    private lazy var isInterfaceSupported165 = IsInterfaceSupported165(forServer: server)
+    private let blockchainProvider: BlockchainProvider
+    private lazy var isInterfaceSupported165 = IsInterfaceSupported165(blockchainProvider: blockchainProvider)
     //UEFA 721 balances function hash
     static let balances165Hash721Ticket = "0xc84aae17"
 
-    public init(forServer server: RPCServer) {
-        self.server = server
+    public init(blockchainProvider: BlockchainProvider) {
+        self.blockchainProvider = blockchainProvider
     }
 
     public func getIsErc721ForTicketContract(for contract: AlphaWallet.Address) -> Promise<Bool> {

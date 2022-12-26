@@ -19,13 +19,20 @@ final class EventSourceForActivities {
     private var cancellable = Set<AnyCancellable>()
     private let fetcher: EventForActivitiesFetcher
 
-    init(wallet: Wallet, config: Config, tokensService: TokenProvidable, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsActivityDataStoreProtocol, getEventLogs: GetEventLogs, rpcApiProvider: RpcApiProvider) {
+    init(wallet: Wallet,
+         config: Config,
+         tokensService: TokenProvidable,
+         assetDefinitionStore: AssetDefinitionStore,
+         eventsDataStore: EventsActivityDataStoreProtocol,
+         rpcApiProvider: RpcApiProvider,
+         sessionsProvider: SessionsProvider) {
+
         self.config = config
         self.tokensService = tokensService
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
         self.enabledServers = config.enabledServers
-        self.fetcher = EventForActivitiesFetcher(getEventLogs: getEventLogs, wallet: wallet, rpcApiProvider: rpcApiProvider)
+        self.fetcher = EventForActivitiesFetcher(sessionsProvider: sessionsProvider)
     }
 
     func start() {
@@ -82,7 +89,7 @@ final class EventSourceForActivities {
         let promises = getActivityCards(forToken: token).map { card -> Promise<Void> in
             let eventOrigin = card.eventOrigin
             let oldEvent = eventsDataStore.getLastMatchingEventSortedByBlockNumber(for: eventOrigin.contract, tokenContract: token.contractAddress, server: token.server, eventName: eventOrigin.eventName)
-            return fetcher.fetchEvents(token: token, card: card, oldEvent: oldEvent)
+            return fetcher.fetchEvents(token: token, card: card, oldEventBlockNumber: oldEvent?.blockNumber)
                 .map(on: queue, { [eventsDataStore] events in
                     eventsDataStore.addOrUpdate(events: events)
                 })
@@ -130,7 +137,18 @@ extension EventSourceForActivities.functional {
         let filterTextEquivalent = filterParam.compactMap({ $0?.textEquivalent }).first
         let filterText = filterTextEquivalent ?? "\(eventOrigin.eventFilter.name)=\(eventOrigin.eventFilter.value)"
 
-        return EventActivityInstance(contract: eventOrigin.contract, tokenContract: tokenContract, server: server, date: date, eventName: eventOrigin.eventName, blockNumber: Int(eventLog.blockNumber), transactionId: transactionId, transactionIndex: Int(eventLog.transactionIndex), logIndex: Int(eventLog.logIndex), filter: filterText, json: json)
+        return EventActivityInstance(
+            contract: eventOrigin.contract,
+            tokenContract: tokenContract,
+            server: server,
+            date: date,
+            eventName: eventOrigin.eventName,
+            blockNumber: Int(eventLog.blockNumber),
+            transactionId: transactionId,
+            transactionIndex: Int(eventLog.transactionIndex),
+            logIndex: Int(eventLog.logIndex),
+            filter: filterText,
+            json: json)
     }
 
     static func formFilterFrom(fromParameter parameter: EventParameter, filterName: String, filterValue: String, wallet: Wallet) -> (filter: [EventFilterable], textEquivalent: String)? {

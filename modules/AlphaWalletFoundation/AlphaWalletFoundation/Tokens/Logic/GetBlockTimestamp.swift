@@ -10,17 +10,17 @@ final class GetBlockTimestamp {
     private lazy var storage: Storage<[String: Date]> = .init(fileName: fileName, storage: FileStorage(fileExtension: "json"), defaultValue: [:])
     private var inFlightPromises: [String: Promise<Date>] = [:]
 
-    private let rpcApiProvider: RpcApiProvider
+    private let sessionsProvider: SessionsProvider
 
-    init(fileName: String = "blockTimestampStorage", rpcApiProvider: RpcApiProvider) {
+    init(fileName: String = "blockTimestampStorage", sessionsProvider: SessionsProvider) {
         self.fileName = fileName
-        self.rpcApiProvider = rpcApiProvider
+        self.sessionsProvider = sessionsProvider
     }
 
     func getBlockTimestamp(for blockNumber: BigUInt, server: RPCServer) -> Promise<Date> {
         firstly {
             .value(blockNumber)
-        }.then { [weak self, queue, storage, rpcApiProvider] blockNumber -> Promise<Date> in
+        }.then { [weak self, storage, sessionsProvider] blockNumber -> Promise<Date> in
             let key = "\(blockNumber)-\(server)"
             if let value = storage.value[key] {
                 return .value(value)
@@ -29,11 +29,11 @@ final class GetBlockTimestamp {
             if let promise = self?.inFlightPromises[key] {
                 return promise
             } else {
-                let request = JsonRpcRequest(server: server, request: BlockByNumberRequest(number: blockNumber))
+                guard let session = sessionsProvider.session(for: server) else { return .init(error: PMKError.cancelled) }
 
                 let promise = firstly {
-                    rpcApiProvider.dataTaskPromise(request)
-                }.map{
+                    session.blockchainProvider.blockByNumberPromise(blockNumber: blockNumber)
+                }.map {
                     $0.timestamp
                 }.ensure {
                     self?.inFlightPromises[key] = .none

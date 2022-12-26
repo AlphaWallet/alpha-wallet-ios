@@ -206,7 +206,6 @@ extension TransactionConfirmationViewModel {
 
             let balance = NumberFormatter.alternateAmount.string(double: balance)
 
-
             return balance.flatMap { "\($0) \(symbol)" } ?? title
         }
 

@@ -31,7 +31,12 @@ extension TokenScriptSupportable {
         let hardcodedTokenIdForFungibles = BigUInt(1)
         let xmlHandler = XMLHandler(token: self, assetDefinitionStore: assetDefinitionStore)
             //TODO Event support, if/when designed for fungibles
-        let values = xmlHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles), server: server, account: account)
+        let values = xmlHandler.resolveAttributesBypassingCache(
+            withTokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles),
+            server: server,
+            account: account,
+            assetDefinitionStore: assetDefinitionStore)
+
         let subscribablesForAttributeValues = values.values
         let allResolved = subscribablesForAttributeValues.allSatisfy { $0.subscribableValue?.value != nil }
 
@@ -80,6 +85,37 @@ public class TokenAdaptor {
                 return getNotSupportedByNonFungibleJsonTokenHolders(forWallet: account)
             }
         }
+    }
+
+    public static func getTokenHolders(name: String,
+                                       symbol: String,
+                                       tokenType: TokenType,
+                                       bytes32Tokens: [String],
+                                       contractAddress: AlphaWallet.Address,
+                                       server: RPCServer,
+                                       wallet: Wallet,
+                                       assetDefinitionStore: AssetDefinitionStore) -> TokenHolder {
+        //TODO: pass in the wallet instead
+        var tokens = [TokenScript.Token]()
+        let xmlHandler = XMLHandler(contract: contractAddress, tokenType: tokenType, assetDefinitionStore: assetDefinitionStore)
+        for i in 0..<bytes32Tokens.count {
+            let token = bytes32Tokens[i]
+            if let tokenId = BigUInt(token.drop0x, radix: 16) {
+                let token = xmlHandler.getToken(
+                    name: name,
+                    symbol: symbol,
+                    fromTokenIdOrEvent: .tokenId(tokenId: tokenId),
+                    index: UInt16(i),
+                    inWallet: wallet,
+                    server: server,
+                    tokenType: tokenType,
+                    assetDefinitionStore: assetDefinitionStore)
+
+                tokens.append(token)
+            }
+        }
+
+        return TokenHolder(tokens: tokens, contractAddress: contractAddress, hasAssetDefinition: xmlHandler.hasAssetDefinition)
     }
 
     private func getNotSupportedByNonFungibleJsonTokenHolders(forWallet account: Wallet) -> [TokenHolder] {
@@ -200,8 +236,22 @@ public class TokenAdaptor {
     }
 
     //TODO pass lang into here
-    private func getToken(name: String, symbol: String, forTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent, index: UInt16, inWallet account: Wallet, server: RPCServer) -> TokenScript.Token {
-        xmlHandler.getToken(name: name, symbol: symbol, fromTokenIdOrEvent: tokenIdOrEvent, index: index, inWallet: account, server: server, tokenType: token.type)
+    private func getToken(name: String,
+                          symbol: String,
+                          forTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent,
+                          index: UInt16,
+                          inWallet account: Wallet,
+                          server: RPCServer) -> TokenScript.Token {
+
+        xmlHandler.getToken(
+            name: name,
+            symbol: symbol,
+            fromTokenIdOrEvent: tokenIdOrEvent,
+            index: index,
+            inWallet: account,
+            server: server,
+            tokenType: token.type,
+            assetDefinitionStore: assetDefinitionStore)
     }
 
     private func getFirstMatchingEvent(nonFungible: NonFungibleFromJson, inWallet account: Wallet, isSourcedFromEvents: Bool) -> EventInstanceValue? {
@@ -248,7 +298,12 @@ public class TokenAdaptor {
         let event = getFirstMatchingEvent(nonFungible: nonFungible, inWallet: account, isSourcedFromEvents: isSourcedFromEvents)
         let tokenIdOrEvent: TokenIdOrEvent = getTokenIdOrEvent(event: event, nonFungible: nonFungible)
 
-        var values = xmlHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: tokenIdOrEvent, server: token.server, account: account)
+        var values = xmlHandler.resolveAttributesBypassingCache(
+            withTokenIdOrEvent: tokenIdOrEvent,
+            server: token.server,
+            account: account,
+            assetDefinitionStore: assetDefinitionStore)
+
         values.setTokenId(string: nonFungible.tokenId)
         if let date = nonFungible.collectionCreatedDate {
             //Storing as GeneralisedTime because we only support that for date/time formats in TokenScript. We are using the same `values` infrastructure

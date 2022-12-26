@@ -5,10 +5,10 @@ import BigInt
 import PromiseKit
 
 final class NonFungibleContract {
-    private let server: RPCServer
+    private let blockchainProvider: BlockchainProvider
 
-    init(server: RPCServer) {
-        self.server = server
+    public init(blockchainProvider: BlockchainProvider) {
+        self.blockchainProvider = blockchainProvider
     }
 
     func getUriOrTokenUri(for tokenId: String, contract: AlphaWallet.Address) -> Promise<URL> {
@@ -20,29 +20,83 @@ final class NonFungibleContract {
     }
 
     private func getTokenUri(for tokenId: String, contract: AlphaWallet.Address) -> Promise<URL> {
-        let function = GetTokenUri()
-        return firstly {
-            callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [tokenId] as [AnyObject])
-        }.map(on: .global(), { uriResult -> URL in
-            if let string = uriResult["0"] as? String, let url = URL(string: string.stringWithTokenIdSubstituted(tokenId)) {
-                return url
-            } else {
-                throw CastError(actualValue: uriResult["0"], expectedType: URL.self)
+        blockchainProvider
+            .callPromise(Erc721TokenUriRequest(contract: contract, tokenId: tokenId))
+            .get {
+                print("xxx.Erc721 tokenUri value: \($0)")
+            }.recover { e -> Promise<URL> in
+                print("xxx.Erc721 tokenUri failure: \(e)")
+                throw e
             }
-        })
     }
 
     private func getUri(for tokenId: String, contract: AlphaWallet.Address) -> Promise<URL> {
-        let function = GetUri()
-        return firstly {
-            callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [tokenId] as [AnyObject])
-        }.map(on: .global(), { uriResult -> URL in
-            if let string = uriResult["0"] as? String, let url = URL(string: string.stringWithTokenIdSubstituted(tokenId)) {
-                return url
-            } else {
-                throw CastError(actualValue: uriResult["0"], expectedType: URL.self)
+        blockchainProvider
+            .callPromise(Erc721UriRequest(contract: contract, tokenId: tokenId))
+            .get {
+                print("xxx.Erc721 uri value: \($0)")
+            }.recover { e -> Promise<URL> in
+                print("xxx.Erc721 uri failure: \(e)")
+                throw e
             }
-        })
+    }
+}
+
+struct Erc721TokenUriRequest: ContractMethodCall {
+    typealias Response = URL
+
+    private let function = GetTokenUri()
+    private let tokenId: String
+    
+    let contract: AlphaWallet.Address
+    var name: String { function.name }
+    var abi: String { function.abi }
+    var parameters: [AnyObject] { [tokenId] as [AnyObject] }
+
+    init(contract: AlphaWallet.Address, tokenId: String) {
+        self.contract = contract
+        self.tokenId = tokenId
+    }
+
+    func response(from resultObject: Any) throws -> URL {
+        guard let dictionary = resultObject as? [String: AnyObject] else {
+            throw CastError(actualValue: resultObject, expectedType: [String: AnyObject].self)
+        }
+
+        if let string = dictionary["0"] as? String, let url = URL(string: string.stringWithTokenIdSubstituted(tokenId)) {
+            return url
+        } else {
+            throw CastError(actualValue: dictionary["0"], expectedType: URL.self)
+        }
+    }
+}
+
+struct Erc721UriRequest: ContractMethodCall {
+    typealias Response = URL
+
+    private let function = GetUri()
+    private let tokenId: String
+
+    let contract: AlphaWallet.Address
+    var name: String { function.name }
+    var abi: String { function.abi }
+    var parameters: [AnyObject] { [tokenId] as [AnyObject] }
+
+    init(contract: AlphaWallet.Address, tokenId: String) {
+        self.contract = contract
+        self.tokenId = tokenId
+    }
+
+    func response(from resultObject: Any) throws -> URL {
+        guard let dictionary = resultObject as? [String: AnyObject] else {
+            throw CastError(actualValue: resultObject, expectedType: [String: AnyObject].self)
+        }
+
+        if let string = dictionary["0"] as? String, let url = URL(string: string.stringWithTokenIdSubstituted(tokenId)) {
+            return url
+        } else {
+            throw CastError(actualValue: dictionary["0"], expectedType: URL.self)
+        }
     }
 }
 

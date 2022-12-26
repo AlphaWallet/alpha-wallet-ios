@@ -10,14 +10,14 @@ import PromiseKit
 import BigInt
 
 final class GetTokenType {
-    private let server: RPCServer
     private var inFlightPromises: [String: Promise<TokenType>] = [:]
     private let queue = DispatchQueue(label: "org.alphawallet.swift.getTokenType")
-    private lazy var isErc1155Contract = IsErc1155Contract(forServer: server)
-    private lazy var isErc875Contract = IsErc875Contract(forServer: server)
+    private lazy var isErc1155Contract = IsErc1155Contract(blockchainProvider: blockchainProvider)
+    private lazy var isErc875Contract = IsErc875Contract(blockchainProvider: blockchainProvider)
+    private let blockchainProvider: BlockchainProvider
 
-    public init(forServer server: RPCServer) {
-        self.server = server
+    public init(blockchainProvider: BlockchainProvider) {
+        self.blockchainProvider = blockchainProvider
     }
 
     public func getTokenType(for address: AlphaWallet.Address) -> Promise<TokenType> {
@@ -63,13 +63,13 @@ final class GetTokenType {
         }
 
         let isErc721Promise = firstly {
-            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) { [server] in
-                IsErc721Contract(forServer: server).getIsERC721Contract(for: address)
+            attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) { [blockchainProvider] in
+                IsErc721Contract(blockchainProvider: blockchainProvider).getIsERC721Contract(for: address)
             }
-        }.then { [server] isERC721 -> Promise<Erc721Type> in
+        }.then { [blockchainProvider] isERC721 -> Promise<Erc721Type> in
             if isERC721 {
                 return attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {
-                    IsErc721ForTicketsContract(forServer: server)
+                    IsErc721ForTicketsContract(blockchainProvider: blockchainProvider)
                         .getIsErc721ForTicketContract(for: address)
                 }.map { isERC721ForTickets -> Erc721Type in
                     if isERC721ForTickets {

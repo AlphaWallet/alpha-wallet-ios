@@ -13,16 +13,16 @@ import SwiftyJSON
 
 final class JsonFromTokenUri {
     private let tokensService: TokenProvidable
-    private lazy var getTokenUri = NonFungibleContract(server: server)
-    private let server: RPCServer
+    private lazy var getTokenUri = NonFungibleContract(blockchainProvider: blockchainProvider)
+    private let blockchainProvider: BlockchainProvider
     private var inFlightPromises: [String: Promise<NonFungibleBalanceAndItsSource<JsonString>>] = [:]
     private let queue = DispatchQueue(label: "org.alphawallet.swift.jsonFromTokenUri")
     //Unlike `SessionManager.default`, this doesn't add default HTTP headers. It looks like POAP token URLs (e.g. https://api.poap.xyz/metadata/2503/278569) don't like them and return `406` in the JSON. It's strangely not responsible when curling, but only when running in the app
     private let networkService: NetworkService
 
-    public init(server: RPCServer, tokensService: TokenProvidable, networkService: NetworkService) {
+    public init(blockchainProvider: BlockchainProvider, tokensService: TokenProvidable, networkService: NetworkService) {
         self.networkService = networkService
-        self.server = server
+        self.blockchainProvider = blockchainProvider
         self.tokensService = tokensService
     }
 
@@ -54,7 +54,7 @@ final class JsonFromTokenUri {
 
     private func generateTokenJsonFallback(forTokenId tokenId: String, tokenType: TokenType, address: AlphaWallet.Address) -> Guarantee<NonFungibleBalanceAndItsSource<JsonString>> {
         var jsonDictionary = JSON()
-        if let token = tokensService.token(for: address, server: server) {
+        if let token = tokensService.token(for: address, server: blockchainProvider.server) {
             jsonDictionary["tokenId"] = JSON(tokenId)
             jsonDictionary["tokenType"] = JSON(tokenType.rawValue)
             jsonDictionary["contractName"] = JSON(token.name)
@@ -79,7 +79,7 @@ final class JsonFromTokenUri {
         //Must not use `SessionManager.default.request` or `Alamofire.request` which uses the former. See comment in var
         return firstly {
             networkService.dataTaskPromise(UrlRequest(url: uri))
-        }.map(on: queue, { [tokensService, server] data -> NonFungibleBalanceAndItsSource in
+        }.map(on: queue, { [tokensService, blockchainProvider] data -> NonFungibleBalanceAndItsSource in
             if let json = try? JSON(data: data.data) {
                 if let errorMessage = json["error"].string {
                 warnLog("Fetched token URI: \(originalUri.absoluteString) error: \(errorMessage)")
@@ -89,7 +89,7 @@ final class JsonFromTokenUri {
                 } else {
                     verboseLog("Fetched token URI: \(originalUri.absoluteString)")
                     var jsonDictionary = json
-                    if let token = tokensService.token(for: address, server: server) {
+                    if let token = tokensService.token(for: address, server: blockchainProvider.server) {
                         jsonDictionary["tokenType"] = JSON(tokenType.rawValue)
                         //We must make sure the value stored is at least an empty string, never nil because we need to deserialise/decode it
                         jsonDictionary["contractName"] = JSON(token.name)

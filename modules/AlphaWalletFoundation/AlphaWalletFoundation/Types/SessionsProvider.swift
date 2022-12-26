@@ -8,13 +8,58 @@
 import Foundation
 import Combine
 
+public protocol SessionFactory {
+    func buildSession(server: RPCServer, wallet: Wallet) -> WalletSession
+}
+
+public final class BaseSessionFactory: SessionFactory {
+    private let config: Config
+    private let rpcApiProvider: RpcApiProvider
+    private let analytics: AnalyticsLogger
+
+    public init(config: Config, rpcApiProvider: RpcApiProvider, analytics: AnalyticsLogger) {
+        self.config = config
+        self.rpcApiProvider = rpcApiProvider
+        self.analytics = analytics
+    }
+
+    public func buildSession(server: RPCServer, wallet: Wallet) -> WalletSession {
+        let nodeApiProvider: NodeApiProvider
+        switch server.rpcSource(config: config) {
+        case .http(let rpcHttpParams, let privateNetworkParams):
+            let rpcNodeApiProvider = NodeRpcApiProvider(
+                rpcApiProvider: rpcApiProvider,
+                server: server,
+                rpcHttpParams: rpcHttpParams)
+            rpcNodeApiProvider.requestInterceptor = PrivateRpcNodeInterceptor(server: server, privateNetworkParams: privateNetworkParams)
+            nodeApiProvider = rpcNodeApiProvider
+
+        case .webSocket(let url, let privateNetworkParams):
+            nodeApiProvider = WebSocketNodeApiProvider(url: url, server: server)
+        }
+
+        let blockchainProvider: BlockchainProvider = RpcBlockchainProvider(
+            server: server,
+            account: wallet,
+            nodeApiProvider: nodeApiProvider,
+            analytics: analytics,
+            params: .defaultParams(for: server))
+
+        return WalletSession(
+            account: wallet,
+            server: server,
+            config: config,
+            analytics: analytics,
+            blockchainProvider: blockchainProvider)
+    }
+}
+
 open class SessionsProvider {
     private let sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never> = .init(.init())
     private let config: Config
     private var cancelable = Set<AnyCancellable>()
-    private let analytics: AnalyticsLogger
-    private let rpcApiProvider: RpcApiProvider
-    
+    private let factory: SessionFactory
+
     public var sessions: AnyPublisher<ServerDictionary<WalletSession>, Never> {
         return sessionsSubject.eraseToAnyPublisher()
     }
@@ -23,10 +68,9 @@ open class SessionsProvider {
         sessionsSubject.value
     }
 
-    public init(config: Config, analytics: AnalyticsLogger, rpcApiProvider: RpcApiProvider) {
+    public init(config: Config, factory: SessionFactory) {
         self.config = config
-        self.analytics = analytics
-        self.rpcApiProvider = rpcApiProvider
+        self.factory = factory
     }
 
     public func set(activeSessions: ServerDictionary<WalletSession>) {
@@ -45,42 +89,14 @@ open class SessionsProvider {
             .merge(with: config.enabledServersPublisher)//subscribe for servers changing so not active providers can handle changes too
             .removeDuplicates()
             .combineLatest(Just(wallet))
-            .map { [config, analytics, sessionsSubject, rpcApiProvider] servers, wallet -> ServerDictionary<WalletSession>in
+            .map { [sessionsSubject, factory] servers, wallet -> ServerDictionary<WalletSession>in
                 var sessions: ServerDictionary<WalletSession> = .init()
 
                 for server in servers {
                     if let session = sessionsSubject.value[safe: server] {
                         sessions[server] = session
                     } else {
-                        let nodeApiProvider: NodeApiProvider
-                        switch server.rpcSource(config: config) {
-                        case .http(let rpcHttpParams, let privateNetworkParams):
-                            let rpcNodeApiProvider = NodeRpcApiProvider(
-                                rpcApiProvider: rpcApiProvider,
-                                server: server,
-                                rpcHttpParams: rpcHttpParams)
-                            rpcNodeApiProvider.requestInterceptor = PrivateRpcNodeInterceptor(server: server, privateNetworkParams: privateNetworkParams)
-                            nodeApiProvider = rpcNodeApiProvider
-
-                        case .webSocket(let url, let privateNetworkParams):
-                            nodeApiProvider = WebSocketNodeApiProvider(url: url)
-                        }
-
-                        let blockchainProvider: BlockchainProvider = RpcBlockchainProvider(
-                            server: server,
-                            account: wallet,
-                            nodeApiProvider: nodeApiProvider,
-                            analytics: analytics,
-                            params: .defaultParams(for: server))
-
-                        let session = WalletSession(
-                            account: wallet,
-                            server: server,
-                            config: config,
-                            analytics: analytics,
-                            blockchainProvider: blockchainProvider)
-                        
-                        sessions[server] = session
+                        sessions[server] = factory.buildSession(server: server, wallet: wallet)
                     }
                 }
                 return sessions

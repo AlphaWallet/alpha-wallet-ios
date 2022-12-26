@@ -35,21 +35,22 @@ extension RpcRequest {
     func parse(data: Data, urlResponse: HTTPURLResponse) throws -> Response {
         let parsedObject = try decoder.decode(response: urlResponse, data: data)
         let passedObject = try intercept(object: parsedObject, urlResponse: urlResponse)
+        
         return try response(from: passedObject, urlResponse: urlResponse)
     }
 }
 
 public enum BlockParameter: RawRepresentable {
-    public init?(rawValue: String) {
-        return nil
-    }
-
     public typealias RawValue = String
 
     case blockNumber(value: Int)
     case earliest
     case latest
     case pending
+
+    public init?(rawValue: String) {
+        return nil
+    }
 
     public var rawValue: RawValue {
         switch self {

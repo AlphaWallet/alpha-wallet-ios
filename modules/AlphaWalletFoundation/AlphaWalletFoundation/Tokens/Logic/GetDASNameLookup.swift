@@ -7,6 +7,7 @@
 
 import PromiseKit
 
+//FIXME: remove if not needed, seems like not using, but why?
 public final class GetDASNameLookup {
     public enum DASNameLookupError: Error {
         case ethRecordNotFound

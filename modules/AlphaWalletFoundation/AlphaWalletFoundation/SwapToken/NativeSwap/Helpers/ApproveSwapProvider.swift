@@ -27,7 +27,7 @@ public enum ApproveSwapState {
 public final class ApproveSwapProvider {
     private let configurator: SwapOptionsConfigurator
     private let analytics: AnalyticsLogger
-    private lazy var getErc20Allowance = GetErc20Allowance(server: configurator.server)
+    private lazy var getErc20Allowance = GetErc20Allowance(blockchainProvider: configurator.session.blockchainProvider)
     
     public weak var delegate: ApproveSwapProviderDelegate?
 

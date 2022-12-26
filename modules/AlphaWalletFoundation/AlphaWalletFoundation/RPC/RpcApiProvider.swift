@@ -8,7 +8,6 @@
 import Combine
 import PromiseKit
 import AlphaWalletCore
-import APIKit
 
 public protocol RpcApiProvider {
     func dataTaskPromise<R: RpcRequest>(_ request: R) -> Promise<R.Response>
@@ -30,7 +29,6 @@ public class BaseRpcApiProvider: RpcApiProvider {
 
     /// Request retry attempts
     public var retries: UInt = 2
-    /// Delay before retry in seconds
 
     public lazy var shouldOnlyRetryIf: RetryPredicate = { error in
         guard case SessionTaskError.responseError(let e) = error else { return false }
@@ -79,7 +77,6 @@ public class BaseRpcApiProvider: RpcApiProvider {
                     self?.inFlightPromises[urlRequest] = promise
 
                     return promise
-                    fatalError()
                 }
             } catch {
                 return .init(error: SessionTaskError.requestError(error))
@@ -87,7 +84,7 @@ public class BaseRpcApiProvider: RpcApiProvider {
         })
     }
 
-    /// Performs rpc request, caches publisher and return shared publisher
+    /// Performs rpc request, caches publisher and return shared publisher, think aboud inflight promises might be non nneeded here
     public func dataTaskPublisher<R>(_ request: R) -> AnyPublisher<R.Response, SessionTaskError> where R: RpcRequest {
         return Just(request)
             .receive(on: serialQueue)
@@ -203,7 +200,7 @@ public class BaseRpcApiProvider: RpcApiProvider {
                 return nil
             }
 
-            if let apiKitError = e as? APIKit.ResponseError {
+            if let apiKitError = e as? ResponseError {
                 switch apiKitError {
                 case .nonHTTPURLResponse:
                     logger.logRpcOrOtherWebError("APIKit.ResponseError.nonHTTPURLResponse", url: baseUrl.absoluteString)
@@ -238,7 +235,7 @@ public class BaseRpcApiProvider: RpcApiProvider {
 
 extension RPCServer {
 
-    func rpcSource(config: Config) -> RpcSource {
+    public func rpcSource(config: Config) -> RpcSource {
         let privateParams = config.sendPrivateTransactionsProvider?.rpcUrl(forServer: self).flatMap { PrivateNetworkParams(rpcUrl: $0, headers: [:] ) }
         return .http(params: .init(rpcUrls: [rpcURL], headers: rpcHeaders), privateParams: privateParams)
     }

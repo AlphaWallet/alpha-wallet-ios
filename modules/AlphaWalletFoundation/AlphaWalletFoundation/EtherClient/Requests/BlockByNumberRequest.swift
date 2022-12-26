@@ -15,9 +15,7 @@ struct BlockByNumberRequest: JSONRPCKit.Request {
 
     let number: BigUInt
     var fullTransactions: Bool = false
-    var method: String {
-        return "eth_getBlockByNumber"
-    }
+    let method: String = "eth_getBlockByNumber"
 
     var parameters: Any? {
         return [String(number, radix: 16).add0x, fullTransactions]

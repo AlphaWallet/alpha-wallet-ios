@@ -23,8 +23,8 @@ class XMLHandlerTest: XCTestCase {
                 index: UInt16(1),
                 inWallet: .make(),
                 server: .main,
-                tokenType: TokenType.erc875
-        )
+                tokenType: TokenType.erc875,
+                assetDefinitionStore: assetDefinitionStore)
         XCTAssertNotNil(token)
     }
 
@@ -898,15 +898,15 @@ class XMLHandlerTest: XCTestCase {
             </ts:token>
         """
         let contractAddress = AlphaWallet.Address(string: "0xA66A3F08068174e8F005112A8b2c7A507a822335")!
-        let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore(), networkService: FakeNetworkService())
+        let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore(), networkService: FakeNetworkService(), sessionsProvider: .make())
 
-        XMLHandler.assetAttributeProvider = CallForAssetAttributeProvider()
+//        XMLHandler.assetAttributeProvider = CallForAssetAttributeProvider(sessionsProvider: .make())
 
         store[contractAddress] = xml
         let xmlHandler = XMLHandler(contract: contractAddress, tokenType: .erc20, assetDefinitionStore: store)
         let tokenId = BigUInt("0000000000000000000000000000000002000000000000000000000000000000", radix: 16)!
         let server: RPCServer = .main
-        let token = xmlHandler.getToken(name: "Some name", symbol: "Some symbol", fromTokenIdOrEvent: .tokenId(tokenId: tokenId), index: 1, inWallet: .make(), server: server, tokenType: TokenType.erc875)
+        let token = xmlHandler.getToken(name: "Some name", symbol: "Some symbol", fromTokenIdOrEvent: .tokenId(tokenId: tokenId), index: 1, inWallet: .make(), server: server, tokenType: TokenType.erc875, assetDefinitionStore: store)
         let values = token.values
 
         XCTAssertEqual(values["locality"]?.stringValue, "Saint Petersburg")
@@ -914,11 +914,11 @@ class XMLHandlerTest: XCTestCase {
 // swiftlint:enable function_body_length
 
     func testNoAssetDefinition() {
-        let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore(), networkService: FakeNetworkService())
+        let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore(), networkService: FakeNetworkService(), sessionsProvider: .make())
         let xmlHandler = XMLHandler(contract: Constants.nullAddress, tokenType: .erc875, assetDefinitionStore: store)
         let tokenId = BigUInt("0000000000000000000000000000000002000000000000000000000000000000", radix: 16)!
         let server: RPCServer = .main
-        let token = xmlHandler.getToken(name: "Some name", symbol: "Some symbol", fromTokenIdOrEvent: .tokenId(tokenId: tokenId), index: 1, inWallet: .make(), server: server, tokenType: TokenType.erc721)
+        let token = xmlHandler.getToken(name: "Some name", symbol: "Some symbol", fromTokenIdOrEvent: .tokenId(tokenId: tokenId), index: 1, inWallet: .make(), server: server, tokenType: TokenType.erc721, assetDefinitionStore: store)
         let values = token.values
         XCTAssertTrue(values.isEmpty)
     }

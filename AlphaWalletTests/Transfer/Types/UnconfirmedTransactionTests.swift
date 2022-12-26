@@ -61,8 +61,8 @@ class UnconfirmedTransactionTests: XCTestCase {
         XCTAssertEqual(transaction.recipient, recipient)
 
         guard let data = transaction.data else { fatalError() }
-        let web3 = try Web3.instance(for: .main, timeout: 0)
-        let _contract = try Web3.Contract(web3: web3, abiString: AlphaWallet.Ethereum.ABI.erc721String)
+        
+        guard let _contract = try? ContractV2(abi: AlphaWallet.Ethereum.ABI.erc721String, address: nil) else { return }
         guard let result = _contract.decodeInputData(data) else { fatalError() }
 
         XCTAssertEqual((result["tokenId"] as? BigUInt), "1")

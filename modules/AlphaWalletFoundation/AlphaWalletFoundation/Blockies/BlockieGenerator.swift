@@ -29,10 +29,12 @@ public class BlockiesGenerator {
     /// Address related icons cache without image size. Cache is using for determine images without sizes and scales, fetched out from OpenSea
     private var sizelessCache: [String: BlockiesImage] = [:]
     private let storage: EnsRecordsStorage
-    private lazy var ensTextRecordFetcher = GetEnsTextRecord(server: .forResolvingEns, storage: storage)
+    private lazy var ensTextRecordFetcher = GetEnsTextRecord(server: .forResolvingEns, storage: storage, sessionsProvider: sessionsProvider)
     private let assetImageProvider: NftAssetImageProvider
+    private let sessionsProvider: SessionsProvider
 
-    public init(assetImageProvider: NftAssetImageProvider, storage: EnsRecordsStorage) {
+    public init(assetImageProvider: NftAssetImageProvider, storage: EnsRecordsStorage, sessionsProvider: SessionsProvider) {
+        self.sessionsProvider = sessionsProvider
         self.assetImageProvider = assetImageProvider
         self.storage = storage
     }

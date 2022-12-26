@@ -38,7 +38,7 @@ class SessionTests: XCTestCase {
                 XCTAssertEqual(networkService.calls, 3)
             }.store(in: &cancelable)
 
-        waitForExpectations(timeout: 10)
+        waitForExpectations(timeout: 50)
     }
 
     func testSessionRetry() throws {

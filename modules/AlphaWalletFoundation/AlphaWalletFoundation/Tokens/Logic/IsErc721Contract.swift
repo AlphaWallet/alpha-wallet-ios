@@ -7,7 +7,7 @@ import Foundation
 import PromiseKit 
 
 public class IsErc721Contract {
-    private let server: RPCServer
+    private let blockchainProvider: BlockchainProvider
 
     private struct DoesNotSupportERC165Querying {
         static let bitizen = AlphaWallet.Address(string: "0xb891c4d89c1bf012f0014f56ce523f248a07f714")!
@@ -32,38 +32,37 @@ public class IsErc721Contract {
 
     private var inFlightPromises: [String: Promise<Bool>] = [:]
     private let queue = DispatchQueue(label: "org.alphawallet.swift.isErc721Contract")
+    private lazy var isInterfaceSupported165 = IsInterfaceSupported165(blockchainProvider: blockchainProvider)
 
-    public init(forServer server: RPCServer) {
-        self.server = server
+    public init(blockchainProvider: BlockchainProvider) {
+        self.blockchainProvider = blockchainProvider
     }
 
     func getIsERC721Contract(for contract: AlphaWallet.Address) -> Promise<Bool> {
         firstly {
-            .value(server)
-        }.then(on: queue, { [weak self, queue] server -> Promise<Bool> in
+            .value(contract)
+        }.then(on: queue, { [weak self, queue, isInterfaceSupported165, blockchainProvider] contract -> Promise<Bool> in
             if let value = IsErc721Contract.sureItsErc721(contract: contract) {
                 return .value(value)
             }
 
-            let key = "\(contract.eip55String)-\(server.chainID)"
+            let key = "\(contract.eip55String)-\(blockchainProvider.server.chainID)"
             if let promise = self?.inFlightPromises[key] {
                 return promise
             } else {
                 let function = GetInterfaceSupported165Encode()
 
-                let cryptoKittyPromise = callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [ERC165Hash.onlyKat] as [AnyObject])
-
-                let nonCryptoKittyERC721Promise = callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [ERC165Hash.official] as [AnyObject])
-
-                let nonCryptoKittyERC721WithOldInterfaceHashPromise = callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [ERC165Hash.old] as [AnyObject])
+                let cryptoKittyPromise = isInterfaceSupported165.getInterfaceSupported165(hash: ERC165Hash.onlyKat, contract: contract)
+                let nonCryptoKittyERC721Promise = isInterfaceSupported165.getInterfaceSupported165(hash: ERC165Hash.official, contract: contract)
+                let nonCryptoKittyERC721WithOldInterfaceHashPromise = isInterfaceSupported165.getInterfaceSupported165(hash: ERC165Hash.old, contract: contract)
 
                 //Slower than theoretically possible because we wait for every promise to be resolved. In theory we can stop when any promise is fulfilled with true. But code is much less elegant
                 let promise = firstly {
                     when(resolved: cryptoKittyPromise, nonCryptoKittyERC721Promise, nonCryptoKittyERC721WithOldInterfaceHashPromise)
                 }.map(on: queue, { data -> Bool in
-                    let isCryptoKitty = cryptoKittyPromise.value?["0"] as? Bool
-                    let isNonCryptoKittyERC721 = nonCryptoKittyERC721Promise.value?["0"] as? Bool
-                    let isNonCryptoKittyERC721WithOldInterfaceHash = nonCryptoKittyERC721WithOldInterfaceHashPromise.value?["0"] as? Bool
+                    let isCryptoKitty = cryptoKittyPromise.value
+                    let isNonCryptoKittyERC721 = nonCryptoKittyERC721Promise.value
+                    let isNonCryptoKittyERC721WithOldInterfaceHash = nonCryptoKittyERC721WithOldInterfaceHashPromise.value
                     if let isCryptoKitty = isCryptoKitty, isCryptoKitty {
                         return true
                     } else if let isNonCryptoKittyERC721 = isNonCryptoKittyERC721, isNonCryptoKittyERC721 {

@@ -40,6 +40,8 @@ public class AssetDefinitionStore: NSObject {
     private let tokenScriptStatusResolver: TokenScriptStatusResolver
     private let tokenScriptFilesProvider: BaseTokenScriptFilesProvider
 
+    public let sessionsProvider: SessionsProvider
+    public let assetAttributeResolver: AssetAttributeResolver
     public var listOfBadTokenScriptFiles: AnyPublisher<[TokenScriptFileIndices.FileName], Never> {
         listOfBadTokenScriptFilesSubject.eraseToAnyPublisher()
     }
@@ -125,7 +127,8 @@ public class AssetDefinitionStore: NSObject {
         backingStore: AssetDefinitionBackingStore = AssetDefinitionDiskBackingStoreWithOverrides(),
         baseTokenScriptFiles: [TokenType: String] = [:],
         networkService: NetworkService,
-        reachability: ReachabilityManagerProtocol = ReachabilityManager()) {
+        reachability: ReachabilityManagerProtocol = ReachabilityManager(),
+        sessionsProvider: SessionsProvider) {
 
         let baseTokenScriptFilesProvider: BaseTokenScriptFilesProvider = InMemoryTokenScriptFilesProvider(baseTokenScriptFiles: baseTokenScriptFiles)
         self.init(backingStore: backingStore,
@@ -134,19 +137,23 @@ public class AssetDefinitionStore: NSObject {
                     tokenScriptFilesProvider: baseTokenScriptFilesProvider,
                     networkService: networkService,
                     reachability: reachability),
-                  networkService: networkService)
+                  networkService: networkService,
+                  sessionsProvider: sessionsProvider)
     }
 
     public init(
         backingStore: AssetDefinitionBackingStore,
         tokenScriptFilesProvider: BaseTokenScriptFilesProvider,
         signatureVerifier: TokenScriptSignatureVerifieble,
-        networkService: NetworkService) {
+        networkService: NetworkService,
+        sessionsProvider: SessionsProvider) {
 
+        self.sessionsProvider = sessionsProvider
         self.networking = AssetDefinitionNetworking(networkService: networkService)
         self.backingStore = backingStore
         self.tokenScriptStatusResolver = BaseTokenScriptStatusResolver(backingStore: backingStore, signatureVerifier: signatureVerifier)
         self.tokenScriptFilesProvider = tokenScriptFilesProvider
+        assetAttributeResolver = AssetAttributeResolver(sessionsProvider: sessionsProvider)
         super.init()
         self.backingStore.delegate = self
 
@@ -232,6 +239,19 @@ public class AssetDefinitionStore: NSObject {
         }
     }
 
+    public func fetchXmlPublisher(contract: AlphaWallet.Address, server: RPCServer?, useCacheAndFetch: Bool = false) -> AnyPublisher<Result, Never> {
+        AnyPublisher<Result, Never>.create { seal in
+            self.fetchXML(forContract: contract, server: server, useCacheAndFetch: useCacheAndFetch) { result in
+                seal.send(result)
+                seal.send(completion: .finished)
+            }
+
+            return AnyCancellable {
+                //NOTE: implement request cancellation
+            }
+        }
+    }
+
     private func fetchXML(contract: AlphaWallet.Address, server: RPCServer?, url: URL, useCacheAndFetch: Bool = false, completionHandler: ((Result) -> Void)? = nil) {
         let lastModified = lastModifiedDateOfCachedAssetDefinitionFile(forContract: contract)
         let request = AssetDefinitionNetworking.GetXmlFileRequest(url: url, lastModifiedDate: lastModified)
@@ -291,8 +311,10 @@ public class AssetDefinitionStore: NSObject {
 
     private func urlToFetch(contract: AlphaWallet.Address, server: RPCServer?) -> Promise<(url: URL, isScriptUri: Bool)?> {
         if let server = server {
-            return firstly { () -> Promise<(url: URL, isScriptUri: Bool)?> in
-                Self.functional.urlToFetchFromScriptUri(contract: contract, server: server)
+            return firstly { [sessionsProvider] () -> Promise<(url: URL, isScriptUri: Bool)?> in
+                guard let session = sessionsProvider.session(for: server) else { return .init(error: PMKError.cancelled) }
+
+                return ScriptUri(blockchainProvider: session.blockchainProvider).get(forContract: contract)
                     .map { ($0, true) }
             }.recover { _ -> Promise<(url: URL, isScriptUri: Bool)?> in
                 Self.functional.urlToFetchFromTokenScriptRepo(contract: contract)
@@ -381,9 +403,5 @@ extension AssetDefinitionStore.functional {
         let name = contract.eip55String
         let url = URL(string: TokenScript.repoServer)?.appendingPathComponent(name)
         return .value(url)
-    }
-
-    public static func urlToFetchFromScriptUri(contract: AlphaWallet.Address, server: RPCServer) -> Promise<URL> {
-        ScriptUri(forServer: server).get(forContract: contract)
     }
 }

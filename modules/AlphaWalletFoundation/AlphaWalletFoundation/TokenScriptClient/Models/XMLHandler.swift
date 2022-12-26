@@ -495,7 +495,8 @@ class PrivateXMLHandler {
             index: UInt16,
             inWallet account: Wallet,
             server: RPCServer,
-            tokenType: TokenType
+            tokenType: TokenType,
+            assetDefinitionStore: AssetDefinitionStore
     ) -> TokenScript.Token {
         guard tokenIdOrEvent.tokenId != 0 else { return .empty }
         let values: [AttributeId: AssetAttributeSyntaxValue]
@@ -503,7 +504,7 @@ class PrivateXMLHandler {
             values = .init()
         } else {
             //TODO read from cache again, perhaps based on a timeout/TTL for each attribute. There was a bug with reading from cache sometimes. e.g. cache a token with 8 token origin attributes and 1 function origin attribute and when displaying it and reading from the cache, sometimes it'll only return the 1 function origin attribute in the cache
-            values = resolveAttributesBypassingCache(withTokenIdOrEvent: tokenIdOrEvent, server: server, account: account)
+            values = resolveAttributesBypassingCache(withTokenIdOrEvent: tokenIdOrEvent, server: server, account: account, assetDefinitionStore: assetDefinitionStore)
         }
         return TokenScript.Token(tokenIdOrEvent: tokenIdOrEvent, tokenType: tokenType, index: index, name: name, symbol: symbol, status: .available, values: values)
     }
@@ -517,10 +518,21 @@ class PrivateXMLHandler {
         return areFieldsEmpty
     }
 
-    func resolveAttributesBypassingCache(withTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent, server: RPCServer, account: Wallet) -> [AttributeId: AssetAttributeSyntaxValue] {
+    func resolveAttributesBypassingCache(withTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent,
+                                         server: RPCServer,
+                                         account: Wallet,
+                                         assetDefinitionStore: AssetDefinitionStore) -> [AttributeId: AssetAttributeSyntaxValue] {
         var attributes: [AttributeId: AssetAttributeSyntaxValue] = [:]
         threadSafe.performSync {
-            attributes = _fields.resolve(withTokenIdOrEvent: tokenIdOrEvent, userEntryValues: .init(), server: server, account: account, additionalValues: .init(), localRefs: .init())
+            attributes = assetDefinitionStore
+                .assetAttributeResolver
+                .resolve(withTokenIdOrEvent: tokenIdOrEvent,
+                         userEntryValues: .init(),
+                         server: server,
+                         account: account,
+                         additionalValues: .init(),
+                         localRefs: .init(),
+                         attributes: _fields)
         }
         return attributes
     }
@@ -714,7 +726,6 @@ final class ThreadSafe {
 
 /// This class delegates all the functionality to a singleton of the actual XML parser. 1 for each contract. So we just parse the XML file 1 time only for each contract
 public struct XMLHandler {
-    public static var assetAttributeProvider = CallForAssetAttributeProvider()
     private let privateXMLHandler: PrivateXMLHandler
     private let baseXMLHandler: PrivateXMLHandler?
 
@@ -915,14 +926,40 @@ public struct XMLHandler {
         self.privateXMLHandler = privateXMLHandler
     }
 
-    public func getToken(name: String, symbol: String, fromTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent, index: UInt16, inWallet account: Wallet, server: RPCServer, tokenType: TokenType) -> TokenScript.Token {
+    public func getToken(name: String,
+                         symbol: String,
+                         fromTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent,
+                         index: UInt16,
+                         inWallet account: Wallet,
+                         server: RPCServer,
+                         tokenType: TokenType,
+                         assetDefinitionStore: AssetDefinitionStore) -> TokenScript.Token {
         //TODO get rid of the forced unwrap
 
-        let overriden = privateXMLHandler.getToken(name: name, symbol: symbol, fromTokenIdOrEvent: tokenIdOrEvent, index: index, inWallet: account, server: server, tokenType: tokenType)
+        let overriden = privateXMLHandler.getToken(
+            name: name,
+            symbol: symbol,
+            fromTokenIdOrEvent: tokenIdOrEvent,
+            index: index,
+            inWallet: account,
+            server: server,
+            tokenType: tokenType,
+            assetDefinitionStore: assetDefinitionStore)
+
         if let baseXMLHandler = baseXMLHandler {
-            let base = baseXMLHandler.getToken(name: name, symbol: symbol, fromTokenIdOrEvent: tokenIdOrEvent, index: index, inWallet: account, server: server, tokenType: tokenType)
+            let base = baseXMLHandler.getToken(
+                name: name,
+                symbol: symbol,
+                fromTokenIdOrEvent: tokenIdOrEvent,
+                index: index,
+                inWallet: account,
+                server: server,
+                tokenType: tokenType,
+                assetDefinitionStore: assetDefinitionStore)
+
             let baseValues = base.values
             let overriddenValues = overriden.values
+            
             return TokenScript.Token(
                     tokenIdOrEvent: overriden.tokenIdOrEvent,
                     tokenType: overriden.tokenType,
@@ -960,12 +997,26 @@ public struct XMLHandler {
         return nameInPluralForm
     }
 
-    public func resolveAttributesBypassingCache(withTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent, server: RPCServer, account: Wallet) -> [AttributeId: AssetAttributeSyntaxValue] {
+    public func resolveAttributesBypassingCache(withTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent,
+                                                server: RPCServer,
+                                                account: Wallet,
+                                                assetDefinitionStore: AssetDefinitionStore) -> [AttributeId: AssetAttributeSyntaxValue] {
+        
         var attributes: [AttributeId: AssetAttributeSyntaxValue] = [:]
-        let overrides = privateXMLHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: tokenIdOrEvent, server: server, account: account)
+        let overrides = privateXMLHandler.resolveAttributesBypassingCache(
+            withTokenIdOrEvent: tokenIdOrEvent,
+            server: server,
+            account: account,
+            assetDefinitionStore: assetDefinitionStore)
+
         if let baseXMLHandler = baseXMLHandler {
             //TODO This is inefficient because overridden attributes get resolved too
-            let base = baseXMLHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: tokenIdOrEvent, server: server, account: account)
+            let base = baseXMLHandler.resolveAttributesBypassingCache(
+                withTokenIdOrEvent: tokenIdOrEvent,
+                server: server,
+                account: account,
+                assetDefinitionStore: assetDefinitionStore)
+            
             attributes = base.merging(overrides) { _, new in new }
         } else {
             attributes = overrides

@@ -15,7 +15,6 @@ public protocol TokenProviderType: AnyObject {
     func getContractSymbol(for address: AlphaWallet.Address) -> Promise<String>
     func getDecimals(for address: AlphaWallet.Address) -> Promise<Int>
     func getTokenType(for address: AlphaWallet.Address) -> Promise<TokenType>
-    func getEthBalance(for address: AlphaWallet.Address) -> Promise<Balance>
     func getErc20Balance(for address: AlphaWallet.Address) -> Promise<BigInt>
     func getErc875Balance(for address: AlphaWallet.Address) -> Promise<[String]>
     func getErc721ForTicketsBalance(for address: AlphaWallet.Address) -> Promise<[String]>
@@ -24,29 +23,20 @@ public protocol TokenProviderType: AnyObject {
 
 public class TokenProvider: TokenProviderType {
     private let account: Wallet
-    private let server: RPCServer
-    private let analytics: AnalyticsLogger
     private let blockchainProvider: BlockchainProvider
 
-    private lazy var getContractDecimals = GetContractDecimals(forServer: server)
-    private lazy var getContractSymbol = GetContractSymbol(forServer: server)
-    private lazy var getContractName = GetContractName(forServer: server)
-    private lazy var getErc20Balance = GetErc20Balance(forServer: server)
-    private lazy var getErc875Balance = GetErc875Balance(forServer: server)
-    private lazy var getErc721ForTicketsBalance = GetErc721ForTicketsBalance(forServer: server)
-    private lazy var getErc721Balance = GetErc721Balance(forServer: server)
-    private lazy var getTokenType = GetTokenType(forServer: server)
+    private lazy var getContractDecimals = GetContractDecimals(blockchainProvider: blockchainProvider)
+    private lazy var getContractSymbol = GetContractSymbol(blockchainProvider: blockchainProvider)
+    private lazy var getContractName = GetContractName(blockchainProvider: blockchainProvider)
+    private lazy var getErc20Balance = GetErc20Balance(blockchainProvider: blockchainProvider)
+    private lazy var getErc875Balance = GetErc875Balance(blockchainProvider: blockchainProvider)
+    private lazy var getErc721ForTicketsBalance = GetErc721ForTicketsBalance(blockchainProvider: blockchainProvider)
+    private lazy var getErc721Balance = GetErc721Balance(blockchainProvider: blockchainProvider)
+    private lazy var getTokenType = GetTokenType(blockchainProvider: blockchainProvider)
 
-    public init(account: Wallet, server: RPCServer, analytics: AnalyticsLogger, blockchainProvider: BlockchainProvider) {
-        self.account = account
-        self.server = server
-        self.analytics = analytics
+    public init(blockchainProvider: BlockchainProvider) {
+        self.account = blockchainProvider.wallet
         self.blockchainProvider = blockchainProvider
-    }
-
-    public func getEthBalance(for address: AlphaWallet.Address) -> Promise<Balance> {
-        //NOTE: retrying is performing via APIKit.session request
-        return blockchainProvider.balancePromise(for: address)
     }
 
     public func getContractName(for address: AlphaWallet.Address) -> Promise<String> {

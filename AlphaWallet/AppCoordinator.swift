@@ -23,7 +23,8 @@ class AppCoordinator: NSObject, Coordinator {
     private var keystore: Keystore
     private lazy var assetDefinitionStore = AssetDefinitionStore(
         baseTokenScriptFiles: TokenScript.baseTokenScriptFiles,
-        networkService: networkService)
+        networkService: networkService,
+        sessionsProvider: activeSessionsProvider)
     
     private let window: UIWindow
     private var appTracker = AppTracker()
@@ -123,8 +124,17 @@ class AppCoordinator: NSObject, Coordinator {
         let storage: EnsRecordsStorage = RealmStore.shared
         return storage
     }()
-    lazy private var blockiesGenerator: BlockiesGenerator = BlockiesGenerator(assetImageProvider: nftProvider, storage: sharedEnsRecordsStorage)
-    lazy private var domainResolutionService: DomainResolutionServiceType = DomainResolutionService(blockiesGenerator: blockiesGenerator, storage: sharedEnsRecordsStorage, networkService: networkService)
+    lazy private var blockiesGenerator: BlockiesGenerator = BlockiesGenerator(
+        assetImageProvider: nftProvider,
+        storage: sharedEnsRecordsStorage,
+        sessionsProvider: activeSessionsProvider)
+
+    lazy private var domainResolutionService: DomainResolutionServiceType = DomainResolutionService(
+        blockiesGenerator: blockiesGenerator,
+        storage: sharedEnsRecordsStorage,
+        networkService: networkService,
+        sessionsProvider: activeSessionsProvider)
+
     private lazy var walletApiCoordinator: WalletApiCoordinator = {
         let coordinator = WalletApiCoordinator(keystore: keystore, navigationController: navigationController, analytics: analytics, serviceProvider: activeSessionsProvider)
         coordinator.delegate = self
@@ -138,7 +148,13 @@ class AppCoordinator: NSObject, Coordinator {
         return NotificationService(sources: [], walletBalanceService: walletBalanceService, notificationService: notificationService, pushNotificationsService: pushNotificationsService)
     }()
 
-    private lazy var activeSessionsProvider = SessionsProvider(config: config, analytics: analytics, rpcApiProvider: rpcApiProvider)
+    private lazy var activeSessionsProvider = SessionsProvider(
+        config: config,
+        factory: BaseSessionFactory(
+            config: config,
+            rpcApiProvider: rpcApiProvider,
+            analytics: analytics))
+
     private let securedStorage: SecuredPasswordStorage & SecuredStorage
     private let addressStorage: FileAddressStorage
     private let tokenScriptOverridesFileManager = TokenScriptOverridesFileManager()

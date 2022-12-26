@@ -13,27 +13,26 @@ import Combine
 import AlphaWalletWeb3
 
 final class EventForActivitiesFetcher {
-    private let getEventLogs: GetEventLogs
     private let queue: DispatchQueue = .global()
-    private let wallet: Wallet
-    private let rpcApiProvider: RpcApiProvider
-    private lazy var getBlockTimestamp = GetBlockTimestamp(rpcApiProvider: rpcApiProvider)
+    private let sessionsProvider: SessionsProvider
 
-    init(getEventLogs: GetEventLogs, wallet: Wallet, rpcApiProvider: RpcApiProvider) {
-        self.getEventLogs = getEventLogs
-        self.wallet = wallet
-        self.rpcApiProvider = rpcApiProvider
+    init(sessionsProvider: SessionsProvider) {
+        self.sessionsProvider = sessionsProvider
     }
 
-    func fetchEvents(token: Token, card: TokenScriptCard, oldEvent: EventActivityInstance?) -> Promise<[EventActivityInstance]> {
+    func fetchEvents(token: Token, card: TokenScriptCard, oldEventBlockNumber: Int?) -> Promise<[EventActivityInstance]> {
         firstly {
             .value(token)
-        }.then(on: queue, { [queue, getEventLogs, wallet, getBlockTimestamp] token -> Promise<[EventActivityInstance]> in
+        }.then(on: queue, { [queue, sessionsProvider] token -> Promise<[EventActivityInstance]> in
+            guard let session = sessionsProvider.session(for: token.server) else {
+                return .init(error: PMKError.cancelled)
+            }
+
             let eventOrigin = card.eventOrigin
             let (filterName, filterValue) = eventOrigin.eventFilter
             let filterParam = eventOrigin.parameters
                 .filter { $0.isIndexed }
-                .map { EventSourceForActivities.functional.formFilterFrom(fromParameter: $0, filterName: filterName, filterValue: filterValue, wallet: wallet) }
+                .map { EventSourceForActivities.functional.formFilterFrom(fromParameter: $0, filterName: filterName, filterValue: filterValue, wallet: session.account) }
 
             if filterParam.allSatisfy({ $0 == nil }) {
                 //TODO log to console as diagnostic
@@ -41,8 +40,8 @@ final class EventForActivitiesFetcher {
             }
 
             let fromBlock: (EventFilter.Block, UInt64)
-            if let newestEvent = oldEvent {
-                let value = UInt64(newestEvent.blockNumber + 1)
+            if let blockNumber = oldEventBlockNumber {
+                let value = UInt64(blockNumber + 1)
                 fromBlock = (.blockNumber(value), value)
             } else {
                 fromBlock = (.blockNumber(0), 0)
@@ -52,18 +51,25 @@ final class EventForActivitiesFetcher {
             let toBlock = token.server.makeMaximumToBlockForEvents(fromBlockNumber: fromBlock.1)
             let eventFilter = EventFilter(fromBlock: fromBlock.0, toBlock: toBlock, addresses: addresses, parameterFilters: parameterFilters)
 
-            return getEventLogs
-                .getEventLogs(contractAddress: eventOrigin.contract, server: token.server, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter)
+            return session.blockchainProvider
+                .eventLogsPromise(contractAddress: eventOrigin.contract, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter)
                 .then(on: queue, { [queue] events -> Promise<[EventActivityInstance]> in
                     let promises = events.compactMap { event -> Promise<EventActivityInstance?> in
                         guard let blockNumber = event.eventLog?.blockNumber else {
                             return .value(nil)
                         }
 
-                        return getBlockTimestamp
-                            .getBlockTimestamp(for: blockNumber, server: token.server)
-                            .map(on: queue, { date in
-                                EventSourceForActivities.functional.convertEventToDatabaseObject(event, date: date, filterParam: filterParam, eventOrigin: eventOrigin, tokenContract: token.contractAddress, server: token.server)
+                        return session.blockchainProvider
+                            .blockByNumberPromise(blockNumber: blockNumber)
+                            .map(on: queue, { block in
+                                EventSourceForActivities.functional.convertEventToDatabaseObject(
+                                    event,
+                                    date: block.timestamp,
+                                    filterParam: filterParam,
+                                    eventOrigin: eventOrigin,
+                                    tokenContract: token.contractAddress,
+                                    server: token.server)
+
                             }).recover(on: queue, { _ -> Promise<EventActivityInstance?> in
                                 return .value(nil)
                             })

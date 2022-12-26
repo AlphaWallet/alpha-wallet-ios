@@ -15,7 +15,7 @@ class EnsResolverTests: XCTestCase {
     private var cancelable = Set<AnyCancellable>()
     private lazy var resolver: EnsResolver = {
         let server = makeServerForMainnet()
-        return EnsResolver(server: server, storage: FakeEnsRecordsStorage())
+        return EnsResolver(server: server, storage: FakeEnsRecordsStorage(), sessionsProvider: .make())
     }()
     func testResolution() {
         var expectations = [XCTestExpectation]()

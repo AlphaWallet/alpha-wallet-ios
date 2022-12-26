@@ -10,16 +10,13 @@ import Alamofire
 import Combine
 import PromiseKit
 import AlphaWalletCore
-import APIKit
 
 public typealias URLRequestConvertible = Alamofire.URLRequestConvertible
 public typealias URLEncoding = Alamofire.URLEncoding
-public typealias Parameters = Alamofire.Parameters
 public typealias JSONEncoding = Alamofire.JSONEncoding
+public typealias Parameters = Alamofire.Parameters
 public typealias HTTPHeaders = Alamofire.HTTPHeaders
 public typealias HTTPMethod = Alamofire.HTTPMethod
-
-public typealias ResponseError = APIKit.ResponseError
 
 extension URLRequest {
     public typealias Response = (data: Data, response: HTTPURLResponse)
@@ -43,16 +40,13 @@ extension NetworkService {
 
 public class BaseNetworkService: NetworkService {
     private let analytics: AnalyticsLogger
-    private let session: SessionManager = {
-        let configuration = URLSessionConfiguration.default
-        return SessionManager(configuration: configuration)
-    }()
+    private let session: SessionManager
+    
+    public var callbackQueue: DispatchQueue = .global()
 
-    public var callbackQueue: DispatchQueue
-
-    public init(analytics: AnalyticsLogger, callbackQueue: DispatchQueue = .global()) {
+    public init(analytics: AnalyticsLogger, configuration: URLSessionConfiguration = .default) {
+        self.session = SessionManager(configuration: configuration)
         self.analytics = analytics
-        self.callbackQueue = callbackQueue
     }
 
     public func upload(

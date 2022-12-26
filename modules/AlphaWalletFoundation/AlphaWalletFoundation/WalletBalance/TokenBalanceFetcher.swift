@@ -34,12 +34,10 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
 
     private lazy var nonErc1155BalanceFetcher: TokenProviderType = session.tokenProvider
     private lazy var jsonFromTokenUri: JsonFromTokenUri = {
-        //FIXME: maybe use default but check headers to send, might work.
-        let networkService = BaseNetworkService(analytics: analytics)
-        return JsonFromTokenUri(server: session.server, tokensService: tokensService, networkService: networkService)
+        return JsonFromTokenUri(blockchainProvider: session.blockchainProvider, tokensService: tokensService, networkService: networkService)
     }()
-    private lazy var erc1155TokenIdsFetcher = Erc1155TokenIdsFetcher(analytics: analytics, session: session, server: session.server, config: session.config)
-    private lazy var erc1155BalanceFetcher = Erc1155BalanceFetcher(address: session.account.address, server: session.server)
+    private lazy var erc1155TokenIdsFetcher = Erc1155TokenIdsFetcher(analytics: analytics, session: session)
+    private lazy var erc1155BalanceFetcher = Erc1155BalanceFetcher(address: session.account.address, blockchainProvider: session.blockchainProvider)
     private lazy var erc1155JsonBalanceFetcher: NonFungibleErc1155JsonBalanceFetcher = {
         let fetcher = NonFungibleErc1155JsonBalanceFetcher(tokensService: tokensService, session: session, erc1155TokenIdsFetcher: erc1155TokenIdsFetcher, jsonFromTokenUri: jsonFromTokenUri, erc1155BalanceFetcher: erc1155BalanceFetcher, importToken: importToken)
         fetcher.delegate = self
@@ -49,11 +47,23 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
     private let session: WalletSession
     private let etherToken: Token
     private let importToken: ImportToken
+    private let networkService: NetworkService
+    private var cancellable = AtomicDictionary<AlphaWallet.Address, AnyCancellable>()
+
     weak public var delegate: TokenBalanceFetcherDelegate?
     weak public var erc721TokenIdsFetcher: Erc721TokenIdsFetcher?
 
-    public init(session: WalletSession, nftProvider: NFTProvider, tokensService: TokenProvidable & TokenAddable, etherToken: Token, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger, importToken: ImportToken) {
+    public init(session: WalletSession,
+                nftProvider: NFTProvider,
+                tokensService: TokenProvidable & TokenAddable,
+                etherToken: Token,
+                assetDefinitionStore: AssetDefinitionStore,
+                analytics: AnalyticsLogger,
+                importToken: ImportToken,
+                networkService: NetworkService) {
+        
         self.session = session
+        self.networkService = networkService
         self.importToken = importToken
         self.nftProvider = nftProvider
         self.etherToken = etherToken
@@ -101,11 +111,21 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
     /// NOTE: here actually alway only one token, made it as array of being able to skip updating ether token
     private func refreshEtherTokens(tokens: [Token]) {
         for etherToken in tokens {
-            nonErc1155BalanceFetcher
-                .getEthBalance(for: session.account.address)
-                .done(on: queue, { [weak self] balance in
+            let wallet = session.account.address
+            guard cancellable[wallet] == nil else { return }
+
+            cancellable[wallet] = session
+                .blockchainProvider
+                .balancePublisher(for: wallet)
+                .receive(on: queue)
+                .sink(receiveCompletion: { [weak self] result in
+                    self?.cancellable[wallet] = nil
+                    guard case .failure(let error) = result else { return }
+                    
+                    verboseLog("[Balance Fetcher] failure to fetch balance for wallet: \(wallet)")
+                }, receiveValue: { [weak self] balance in
                     self?.notifyUpdateBalance([.update(token: etherToken, field: .value(balance.value))])
-                }).cauterize()
+                })
         }
     }
 

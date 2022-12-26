@@ -19,14 +19,14 @@ final class EventSource: NSObject {
     private let tokensService: TokenProvidable
     private let eventFetcher: EventFetcher
 
-    init(wallet: Wallet, tokensService: TokenProvidable, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, config: Config, getEventLogs: GetEventLogs) {
+    init(wallet: Wallet, tokensService: TokenProvidable, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, config: Config, sessionsProvider: SessionsProvider) {
         self.wallet = wallet
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
         self.config = config
         self.enabledServers = config.enabledServers
         self.tokensService = tokensService
-        self.eventFetcher = EventFetcher(getEventLogs: getEventLogs, wallet: wallet)
+        self.eventFetcher = EventFetcher(sessionsProvider: sessionsProvider)
         super.init()
     }
 
@@ -101,7 +101,7 @@ final class EventSource: NSObject {
                 value.tokenIds.map { tokenId -> Promise<Void> in
                     let eventOrigin = value.eventOrigin
                     let oldEvent = eventsDataStore.getLastMatchingEventSortedByBlockNumber(for: eventOrigin.contract, tokenContract: token.contractAddress, server: token.server, eventName: eventOrigin.eventName)
-                    return eventFetcher.fetchEvents(tokenId: tokenId, token: token, eventOrigin: eventOrigin, oldEvent: oldEvent)
+                    return eventFetcher.fetchEvents(tokenId: tokenId, token: token, eventOrigin: eventOrigin, oldEventBlockNumber: oldEvent?.blockNumber)
                         .map(on: queue, { [eventsDataStore] events in
                             eventsDataStore.addOrUpdate(events: events)
                         })

@@ -64,20 +64,16 @@ fileprivate struct Erc1155TransferEvent: Comparable {
 public class Erc1155TokenIdsFetcher {
     private static let documentDirectory = URL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]).appendingPathComponent("erc1155TokenIds")
 
+    private let queue: DispatchQueue = .global(qos: .utility)
+    //This is only for development purposes to keep the PromiseKit `Resolver`(s) from being deallocated when they aren't resolved so PromiseKit don't show a warning and create noise and confusion
+    private static var fetchEventsPromiseKitResolversKeptForDevelopmentFeatureFlagOnly: [Resolver<[Erc1155TransferEvent]>] = .init()
     private let analytics: AnalyticsLogger
     private let session: WalletSession
-    private let address: AlphaWallet.Address
-    private let server: RPCServer
-    private let config: Config
     private var inFlightPromise: Promise<Erc1155TokenIds>?
-    private lazy var getEventLogs = GetEventLogs()
 
-    public init(analytics: AnalyticsLogger, session: WalletSession, server: RPCServer, config: Config) {
+    public init(analytics: AnalyticsLogger, session: WalletSession) {
         self.analytics = analytics
         self.session = session
-        self.address = session.account.address
-        self.server = server
-        self.config = config
         try? FileManager.default.createDirectory(at: Self.documentDirectory, withIntermediateDirectories: true)
         migrateToStorageV2()
     }
@@ -88,21 +84,18 @@ public class Erc1155TokenIdsFetcher {
         if let inFlightPromise = inFlightPromise {
             return inFlightPromise
         }
-        let address = self.address
-        let server = self.server
-        let config = self.config
 
         let promise = firstly {
             Promise<Int>.value(session.blockNumberProvider.latestBlock)
         }.map { blockNumber -> (Erc1155TokenIds, Int) in
             let tokenIds: Erc1155TokenIds = self.readJson() ?? .init()
             return (tokenIds, blockNumber)
-        }.then { [getEventLogs] (tokenIds: Erc1155TokenIds, currentBlockNumber: Int) -> Promise<Erc1155TokenIds> in
-            functional.fetchTokenIdsWithLatestEvents(config: config, address: address, server: server, getEventLogs: getEventLogs, tokenIds: tokenIds, currentBlockNumber: currentBlockNumber)
-        }.then { [getEventLogs] (tokenIds: Erc1155TokenIds) -> Promise<Erc1155TokenIds> in
-            functional.fetchTokenIdsByCatchingUpOlderEvents(config: config, address: address, server: server, getEventLogs: getEventLogs, tokenIds: tokenIds)
+        }.then { (tokenIds: Erc1155TokenIds, currentBlockNumber: Int) -> Promise<Erc1155TokenIds> in
+            self.fetchTokenIdsWithLatestEvents(tokenIds: tokenIds, currentBlockNumber: currentBlockNumber)
+        }.then { (tokenIds: Erc1155TokenIds) -> Promise<Erc1155TokenIds> in
+            self.fetchTokenIdsByCatchingUpOlderEvents(tokenIds: tokenIds)
         }.then { tokenIds -> Promise<Erc1155TokenIds> in
-            Erc1155TokenIdsFetcher.writeJson(contractsAndTokenIds: tokenIds, address: address, server: server).map { tokenIds }
+            self.writeJson(contractsAndTokenIds: tokenIds).map { tokenIds }
         }.ensure {
             self.inFlightPromise = nil
         }
@@ -130,7 +123,7 @@ public class Erc1155TokenIdsFetcher {
     }
 
     private func readJson() -> Erc1155TokenIds? {
-        guard let data = try? Data(contentsOf: Self.fileUrl(forWallet: address, server: server)) else { return nil }
+        guard let data = try? Data(contentsOf: Self.fileUrl(forWallet: session.account.address, server: session.server)) else { return nil }
         return try? JSONDecoder().decode(Erc1155TokenIds.self, from: data)
     }
 
@@ -139,14 +132,14 @@ public class Erc1155TokenIdsFetcher {
     }
 
     private func readJsonV1() -> Erc1155TokenIdsV1? {
-        guard let data = try? Data(contentsOf: Self.fileUrlV1(forWallet: address, server: server)) else { return nil }
+        guard let data = try? Data(contentsOf: Self.fileUrlV1(forWallet: session.account.address, server: session.server)) else { return nil }
         return try? JSONDecoder().decode(Erc1155TokenIdsV1.self, from: data)
     }
 
-    private static func writeJson(contractsAndTokenIds: Erc1155TokenIds, address: AlphaWallet.Address, server: RPCServer) -> Promise<Void> {
-        Promise { seal in
+    private func writeJson(contractsAndTokenIds: Erc1155TokenIds) -> Promise<Void> {
+        Promise { [session] seal in
             if let data = try? JSONEncoder().encode(contractsAndTokenIds) {
-                try data.write(to: Self.fileUrl(forWallet: address, server: server), options: .atomicWrite)
+                try data.write(to: Self.fileUrl(forWallet: session.account.address, server: session.server), options: .atomicWrite)
                 seal.fulfill(())
             } else {
                 struct E: Error {}
@@ -165,35 +158,59 @@ public class Erc1155TokenIdsFetcher {
     private func migrateToStorageV2() {
         if let oldVersion = readJsonV1() {
             let tokenIds: Erc1155TokenIds = readJson() ?? .init()
-            let updatedTokens = functional.computeUpdatedTokenIds(address: address, fromPreviousRead: oldVersion.tokens, newlyFetched: tokenIds.tokens)
+            let updatedTokens = functional.computeUpdatedTokenIds(fromPreviousRead: oldVersion.tokens, newlyFetched: tokenIds.tokens)
             let updated = Erc1155TokenIds(tokens: updatedTokens, blockNumbersProcessed: tokenIds.blockNumbersProcessed)
-            Erc1155TokenIdsFetcher.writeJson(contractsAndTokenIds: updated, address: address, server: server)
-            try? FileManager.default.removeItem(at: Self.fileUrlV1(forWallet: address, server: server))
+            writeJson(contractsAndTokenIds: updated)
+            try? FileManager.default.removeItem(at: Self.fileUrlV1(forWallet: session.account.address, server: session.server))
         }
     }
-}
 
-extension Erc1155TokenIdsFetcher {
-    class functional {}
-}
+    private func fetchTokenIdsWithLatestEvents(tokenIds: Erc1155TokenIds, currentBlockNumber: Int) -> Promise<Erc1155TokenIds> {
+        let maximumBlockRangeWindow: UInt64? = session.server.maximumBlockRangeForEvents
+        //We must not use `.latest` because there is a chance it is slightly later than what we use to compute the block range for events
+        guard let (fromBlockNumber, toBlockNumber) = Erc1155TokenIdsFetcher.functional.makeBlockRangeForEvents(
+            toBlockNumber: UInt64(currentBlockNumber),
+            maximumWindow: maximumBlockRangeWindow,
+            excludingRanges: tokenIds.blockNumbersProcessed) else { return .init(error: PMKError.cancelled) }
 
-extension Erc1155TokenIdsFetcher.functional {
-    //This is only for development purposes to keep the PromiseKit `Resolver`(s) from being deallocated when they aren't resolved so PromiseKit don't show a warning and create noise and confusion
-    private static var fetchEventsPromiseKitResolversKeptForDevelopmentFeatureFlagOnly: [Resolver<[Erc1155TransferEvent]>] = .init()
+        return fetchTokenIdsWithEvents(fromBlockNumber: fromBlockNumber, toBlockNumber: toBlockNumber, previousTokenIds: tokenIds)
+    }
 
-    private static let queue: DispatchQueue = .global(qos: .utility)
+    private func fetchTokenIdsByCatchingUpOlderEvents(tokenIds: Erc1155TokenIds) -> Promise<Erc1155TokenIds> {
+        let maximumBlockRangeWindow: UInt64? = session.server.maximumBlockRangeForEvents
+        //We must not use `.latest` because there is a chance it is slightly later than what we use to compute the block range for events
+        if let range = Erc1155TokenIdsFetcher.functional.makeBlockRangeToCatchUpForOlderEvents(maximumWindow: maximumBlockRangeWindow, excludingRanges: tokenIds.blockNumbersProcessed) {
+            let (fromBlockNumber, toBlockNumber) = range
+            return fetchTokenIdsWithEvents(fromBlockNumber: fromBlockNumber, toBlockNumber: toBlockNumber, previousTokenIds: tokenIds)
+        } else {
+            return .value(tokenIds)
+        }
+    }
 
-    private static func fetchEvents(config: Config, server: RPCServer, forAddress address: AlphaWallet.Address, getEventLogs: GetEventLogs, fromBlock: EventFilter.Block, toBlock: EventFilter.Block) -> Promise<Erc1155TokenIds.ContractsAndTokenIds> {
-        let recipientAddress = EthereumAddress(address.eip55String)!
+    private func fetchTokenIdsWithEvents(fromBlockNumber: UInt64, toBlockNumber: UInt64, previousTokenIds: Erc1155TokenIds) -> Promise<Erc1155TokenIds> {
+        let fromBlock = EventFilter.Block.blockNumber(fromBlockNumber)
+        let toBlock = EventFilter.Block.blockNumber(toBlockNumber)
+        return firstly {
+            fetchEvents(fromBlock: fromBlock, toBlock: toBlock)
+        }.map { fetched -> Erc1155TokenIds in
+            let updatedTokens = Erc1155TokenIdsFetcher.functional.computeUpdatedTokenIds(fromPreviousRead: previousTokenIds.tokens, newlyFetched: fetched)
+            let updatedBlockNumbersProcessed = Erc1155TokenIdsFetcher.functional.combinedBlockNumbersProcessed(old: previousTokenIds.blockNumbersProcessed, newEntry: (fromBlockNumber, toBlockNumber))
+
+            return Erc1155TokenIds(tokens: updatedTokens, blockNumbersProcessed: updatedBlockNumbersProcessed)
+        }
+    }
+
+    private func fetchEvents(fromBlock: EventFilter.Block, toBlock: EventFilter.Block) -> Promise<Erc1155TokenIds.ContractsAndTokenIds> {
+        let recipientAddress = EthereumAddress(session.account.address.eip55String)!
         let nullFilter: [EventFilterable]? = nil
         let singleTransferEventName = "TransferSingle"
         let batchTransferEventName = "TransferBatch"
         let sendParameterFilters: [[EventFilterable]?] = [nullFilter, [recipientAddress], nullFilter]
         let receiveParameterFilters: [[EventFilterable]?] = [nullFilter, nullFilter, [recipientAddress]]
-        let sendSinglePromise = fetchEvents(config: config, server: server, getEventLogs: getEventLogs, transferType: .send, eventName: singleTransferEventName, parameterFilters: sendParameterFilters, fromBlock: fromBlock, toBlock: toBlock)
-        let receiveSinglePromise = fetchEvents(config: config, server: server, getEventLogs: getEventLogs, transferType: .receive, eventName: singleTransferEventName, parameterFilters: receiveParameterFilters, fromBlock: fromBlock, toBlock: toBlock)
-        let sendBulkPromise = fetchEvents(config: config, server: server, getEventLogs: getEventLogs, transferType: .send, eventName: batchTransferEventName, parameterFilters: sendParameterFilters, fromBlock: fromBlock, toBlock: toBlock)
-        let receiveBulkPromise = fetchEvents(config: config, server: server, getEventLogs: getEventLogs, transferType: .receive, eventName: batchTransferEventName, parameterFilters: receiveParameterFilters, fromBlock: fromBlock, toBlock: toBlock)
+        let sendSinglePromise = fetchEvents(transferType: .send, eventName: singleTransferEventName, parameterFilters: sendParameterFilters, fromBlock: fromBlock, toBlock: toBlock)
+        let receiveSinglePromise = fetchEvents(transferType: .receive, eventName: singleTransferEventName, parameterFilters: receiveParameterFilters, fromBlock: fromBlock, toBlock: toBlock)
+        let sendBulkPromise = fetchEvents(transferType: .send, eventName: batchTransferEventName, parameterFilters: sendParameterFilters, fromBlock: fromBlock, toBlock: toBlock)
+        let receiveBulkPromise = fetchEvents(transferType: .receive, eventName: batchTransferEventName, parameterFilters: receiveParameterFilters, fromBlock: fromBlock, toBlock: toBlock)
         return firstly {
             when(fulfilled: sendSinglePromise, receiveSinglePromise, sendBulkPromise, receiveBulkPromise)
         }.map(on: queue, { a, b, c, d -> Erc1155TokenIds.ContractsAndTokenIds in
@@ -221,10 +238,10 @@ extension Erc1155TokenIdsFetcher.functional {
         })
     }
 
-    fileprivate static func fetchEvents(config: Config, server: RPCServer, getEventLogs: GetEventLogs, transferType: Erc1155TransferEvent.TransferType, eventName: String, parameterFilters: [[EventFilterable]?], fromBlock: EventFilter.Block, toBlock: EventFilter.Block) -> Promise<[Erc1155TransferEvent]> {
-        if config.development.isAutoFetchingDisabled {
+    fileprivate func fetchEvents(transferType: Erc1155TransferEvent.TransferType, eventName: String, parameterFilters: [[EventFilterable]?], fromBlock: EventFilter.Block, toBlock: EventFilter.Block) -> Promise<[Erc1155TransferEvent]> {
+        if session.config.development.isAutoFetchingDisabled {
             return Promise<[Erc1155TransferEvent]> { seal in
-                fetchEventsPromiseKitResolversKeptForDevelopmentFeatureFlagOnly.append(seal)
+                Erc1155TokenIdsFetcher.fetchEventsPromiseKitResolversKeptForDevelopmentFeatureFlagOnly.append(seal)
             }
         }
 
@@ -233,7 +250,9 @@ extension Erc1155TokenIdsFetcher.functional {
         let eventFilter = EventFilter(fromBlock: fromBlock, toBlock: toBlock, addresses: nil, parameterFilters: parameterFilters)
 
         return firstly {
-            getEventLogs.getEventLogs(contractAddress: dummyContract, server: server, eventName: eventName, abiString: AlphaWallet.Ethereum.ABI.erc1155String, filter: eventFilter)
+            session
+                .blockchainProvider
+                .eventLogsPromise(contractAddress: dummyContract, eventName: eventName, abiString: AlphaWallet.Ethereum.ABI.erc1155String, filter: eventFilter)
         }.map(on: queue, { events -> [Erc1155TransferEvent] in
             let events = events.filter { $0.eventLog != nil }
             let sortedEvents = events.sorted(by: { a, b in
@@ -267,8 +286,16 @@ extension Erc1155TokenIdsFetcher.functional {
         })
     }
 
+}
+
+extension Erc1155TokenIdsFetcher {
+    class functional {}
+}
+
+extension Erc1155TokenIdsFetcher.functional {
+
     //Even if a tokenId now has a balance/value of 0, it will be included in the results
-    static func computeUpdatedTokenIds(address: AlphaWallet.Address, fromPreviousRead old: Erc1155TokenIds.ContractsAndTokenIds, newlyFetched: Erc1155TokenIds.ContractsAndTokenIds) -> Erc1155TokenIds.ContractsAndTokenIds {
+    static func computeUpdatedTokenIds(fromPreviousRead old: Erc1155TokenIds.ContractsAndTokenIds, newlyFetched: Erc1155TokenIds.ContractsAndTokenIds) -> Erc1155TokenIds.ContractsAndTokenIds {
         var updatedTokenIds: Erc1155TokenIds.ContractsAndTokenIds = old
         for (contract, newTokenIds) in newlyFetched {
             if let tokenIds = updatedTokenIds[contract] {
@@ -278,18 +305,6 @@ extension Erc1155TokenIdsFetcher.functional {
             }
         }
         return updatedTokenIds
-    }
-
-    private static func fetchTokenIdsWithEvents(config: Config, server: RPCServer, address: AlphaWallet.Address, getEventLogs: GetEventLogs, fromBlockNumber: UInt64, toBlockNumber: UInt64, previousTokenIds: Erc1155TokenIds) -> Promise<Erc1155TokenIds> {
-        let fromBlock = EventFilter.Block.blockNumber(fromBlockNumber)
-        let toBlock = EventFilter.Block.blockNumber(toBlockNumber)
-        return firstly {
-            fetchEvents(config: config, server: server, forAddress: address, getEventLogs: getEventLogs, fromBlock: fromBlock, toBlock: toBlock)
-        }.map { fetched -> Erc1155TokenIds in
-            let updatedTokens = computeUpdatedTokenIds(address: address, fromPreviousRead: previousTokenIds.tokens, newlyFetched: fetched)
-            let updatedBlockNumbersProcessed = combinedBlockNumbersProcessed(old: previousTokenIds.blockNumbersProcessed, newEntry: (fromBlockNumber, toBlockNumber))
-            return Erc1155TokenIds(tokens: updatedTokens, blockNumbersProcessed: updatedBlockNumbersProcessed)
-        }
     }
 
     static func combinedBlockNumbersProcessed(old: Erc1155TokenIds.BlockNumbersProcessed, newEntry: (UInt64, UInt64)) -> Erc1155TokenIds.BlockNumbersProcessed {
@@ -370,24 +385,6 @@ extension Erc1155TokenIdsFetcher.functional {
             }
         } else {
             return nil
-        }
-    }
-
-    static func fetchTokenIdsWithLatestEvents(config: Config, address: AlphaWallet.Address, server: RPCServer, getEventLogs: GetEventLogs, tokenIds: Erc1155TokenIds, currentBlockNumber: Int) -> Promise<Erc1155TokenIds> {
-        let maximumBlockRangeWindow: UInt64? = server.maximumBlockRangeForEvents
-        //We must not use `.latest` because there is a chance it is slightly later than what we use to compute the block range for events
-        guard let (fromBlockNumber, toBlockNumber) = makeBlockRangeForEvents(toBlockNumber: UInt64(currentBlockNumber), maximumWindow: maximumBlockRangeWindow, excludingRanges: tokenIds.blockNumbersProcessed) else { return .init(error: PMKError.cancelled) }
-        return fetchTokenIdsWithEvents(config: config, server: server, address: address, getEventLogs: getEventLogs, fromBlockNumber: fromBlockNumber, toBlockNumber: toBlockNumber, previousTokenIds: tokenIds)
-    }
-
-    static func fetchTokenIdsByCatchingUpOlderEvents(config: Config, address: AlphaWallet.Address, server: RPCServer, getEventLogs: GetEventLogs, tokenIds: Erc1155TokenIds) -> Promise<Erc1155TokenIds> {
-        let maximumBlockRangeWindow: UInt64? = server.maximumBlockRangeForEvents
-        //We must not use `.latest` because there is a chance it is slightly later than what we use to compute the block range for events
-        if let range = makeBlockRangeToCatchUpForOlderEvents(maximumWindow: maximumBlockRangeWindow, excludingRanges: tokenIds.blockNumbersProcessed) {
-            let (fromBlockNumber, toBlockNumber) = range
-            return fetchTokenIdsWithEvents(config: config, server: server, address: address, getEventLogs: getEventLogs, fromBlockNumber: fromBlockNumber, toBlockNumber: toBlockNumber, previousTokenIds: tokenIds)
-        } else {
-            return .value(tokenIds)
         }
     }
 }

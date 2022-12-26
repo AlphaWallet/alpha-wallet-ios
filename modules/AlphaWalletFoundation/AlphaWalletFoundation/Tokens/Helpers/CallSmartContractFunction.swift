@@ -84,63 +84,21 @@ extension Web3 {
     }
 }
 
-fileprivate var smartContractCallsCache = AtomicDictionary<String, (promise: Promise<[String: Any]>, timestamp: Date)>()
-private let callSmartContractQueue = DispatchQueue(label: "com.callSmartContractQueue.updateQueue")
-//`shouldDelayIfCached` is a hack for TokenScript views
-//TODO should trap 429 from RPC node
-public func callSmartContract(withServer server: RPCServer, contract contractAddress: AlphaWallet.Address, functionName: String, abiString: String, parameters: [AnyObject] = [], shouldDelayIfCached: Bool = false) -> Promise<[String: Any]> {
-    firstly {
-        .value(server)
-    }.then(on: callSmartContractQueue, { [callSmartContractQueue] server -> Promise<[String: Any]> in
-        //cacheKey needs to include the function return type because TokenScript attributes might define it to have different type (and more than 1 type if 2 or more attributes call the same function, for some reason). Without including the return type, subsequent calls will read the cached value but cast to the wrong value if the return type is specified differently. eg. a function call is defined in 2 attributes, 1 with type uint and the other bool, the first call will cache it as `1` and the second call will read it as `false` and not `true`. Caching `abiString` instead of etracting out the return type is just for convenience
-        let cacheKey = "\(contractAddress).\(functionName) \(parameters) \(server.chainID) \(abiString)"
-        let ttlForCache: TimeInterval = 10
-        let now = Date()
-
-        if let (cachedPromise, cacheTimestamp) = smartContractCallsCache[cacheKey], now.timeIntervalSince(cacheTimestamp) < ttlForCache {
-            //HACK: We can't return the cachedPromise directly and immediately because if we use the value as a TokenScript attribute in a TokenScript view, timing issues will cause the webview to not load properly or for the injection with updates to fail
-            return after(seconds: shouldDelayIfCached ? 0.7 : 0).then(on: callSmartContractQueue, { _ -> Promise<[String: Any]> in return cachedPromise })
-        } else {
-            let web3 = try Web3.instance(for: server, timeout: 60)
-            let contract = try Web3.Contract(web3: web3, abiString: abiString, at: EthereumAddress(address: contractAddress))
-            let promiseCreator = try contract.method(functionName, parameters: parameters)
-
-            var web3Options = Web3Options()
-            web3Options.excludeZeroGasPrice = server.shouldExcludeZeroGasPrice
-
-            let promise: Promise<[String: Any]> = promiseCreator.callPromise(options: web3Options)
-                .recover(on: callSmartContractQueue, { error -> Promise<[String: Any]> in
-                        //NOTE: We only want to log rate limit errors above
-                    guard case AlphaWalletWeb3.Web3Error.rateLimited = error else { throw error }
-                    warnLog("[API] Rate limited by RPC node server: \(server)")
-
-                    throw error
-                })
-
-            smartContractCallsCache[cacheKey] = (promise, now)
-
-            return promise
-        }
-    })
-}
-
-public func getSmartContractCallData(withServer server: RPCServer, contract contractAddress: AlphaWallet.Address, functionName: String, abiString: String, parameters: [AnyObject] = []) -> Data? {
-    guard let web3 = try? Web3.instance(for: server, timeout: 60) else { return nil }
-    guard let contract = try? Web3.Contract(web3: web3, abiString: abiString, at: EthereumAddress(address: contractAddress), options: web3.options) else { return nil }
-    guard let promiseCreator = try? contract.method(functionName, parameters: parameters, options: nil) else { return nil }
-    return promiseCreator.transaction.data
-}
-
 final class GetEventLogs {
+    private let server: RPCServer
     private let queue = DispatchQueue(label: "org.alphawallet.swift.eth.getEventLogs", qos: .utility)
     private var inFlightPromises: [String: Promise<[EventParserResultProtocol]>] = [:]
 
-    func getEventLogs(contractAddress: AlphaWallet.Address, server: RPCServer, eventName: String, abiString: String, filter: EventFilter) -> Promise<[EventParserResultProtocol]> {
+    init(server: RPCServer) {
+        self.server = server
+    }
+
+    func getEventLogs(contractAddress: AlphaWallet.Address, eventName: String, abiString: String, filter: EventFilter) -> Promise<[EventParserResultProtocol]> {
         firstly {
             .value(contractAddress)
-        }.then(on: queue, { [weak self, queue] contractAddress -> Promise<[EventParserResultProtocol]> in
+        }.then(on: queue, { [weak self, queue, server] contractAddress -> Promise<[EventParserResultProtocol]> in
             //It is fine to use the default String representation of `EventFilter` in the cache key. But it is crucial to include it, because the actual variables of the event log fetching are in there. For example ERC1155's `TransferSingle` event is used for fetching both send and receive single token ID events. We can ony tell based on the arguments in `EventFilter` whether it is a send or receive
-            let key = "\(contractAddress.eip55String)-\(server.chainID)-\(eventName)-\(abiString)-\(filter)"
+            let key = "\(contractAddress.eip55String)--\(eventName)-\(abiString)-\(filter)"
 
             if let promise = self?.inFlightPromises[key] {
                 return promise
@@ -156,7 +114,7 @@ final class GetEventLogs {
 
                 return promise
             }
-        }).recover(on: queue, { error -> Promise<[EventParserResultProtocol]> in
+        }).recover(on: queue, { [server] error -> Promise<[EventParserResultProtocol]> in
             warnLog("[eth_getLogs] failure for server: \(server) with error: \(error)")
             throw error
         })

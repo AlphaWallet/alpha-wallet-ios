@@ -16,16 +16,15 @@ public final class ActivitiesPipeLine: ActivitiesServiceType {
     private let transactionDataStore: TransactionDataStore
     private let eventsDataStore: NonActivityEventsDataStore
     private let eventsActivityDataStore: EventsActivityDataStoreProtocol
-    private let getEventLogs: GetEventLogs = GetEventLogs()
     private let rpcApiProvider: RpcApiProvider
     private lazy var eventSourceForActivities: EventSourceForActivities? = {
         guard Features.default.isAvailable(.isActivityEnabled) else { return nil }
-        return EventSourceForActivities(wallet: wallet, config: config, tokensService: tokensService, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsActivityDataStore, getEventLogs: getEventLogs, rpcApiProvider: rpcApiProvider)
+        return EventSourceForActivities(wallet: wallet, config: config, tokensService: tokensService, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsActivityDataStore, rpcApiProvider: rpcApiProvider, sessionsProvider: sessionsProvider)
     }()
     private let tokensService: TokenProvidable
 
     private lazy var eventSource: EventSource = {
-        EventSource(wallet: wallet, tokensService: tokensService, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, config: config, getEventLogs: getEventLogs)
+        EventSource(wallet: wallet, tokensService: tokensService, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, config: config, sessionsProvider: sessionsProvider)
     }()
 
     private lazy var activitiesSubService: ActivitiesServiceType = {

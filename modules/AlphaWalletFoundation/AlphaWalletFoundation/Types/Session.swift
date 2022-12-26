@@ -15,8 +15,9 @@ public final class WalletSession: Equatable {
     public let config: Config
     public let blockNumberProvider: BlockNumberProvider
     public lazy private (set) var tokenProvider: TokenProviderType = {
-        return TokenProvider(account: account, server: server, analytics: analytics, blockchainProvider: blockchainProvider)
+        return TokenProvider(blockchainProvider: blockchainProvider)
     }()
+
     public var sessionID: String {
         return WalletSession.functional.sessionID(account: account, server: server)
     }

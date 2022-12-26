@@ -4,14 +4,16 @@ import Foundation
 import AlphaWalletENS
 import Combine
 
-class EnsReverseResolver: ENSDelegateImpl {
+class EnsReverseResolver {
     private let storage: EnsRecordsStorage
     private let server: RPCServer
-    private lazy var ens = ENS(delegate: self, chainId: server.chainID)
+    private lazy var ens = ENS(delegate: ensDelegate, chainId: server.chainID)
+    private let ensDelegate: ENSDelegateImpl
 
-    init(server: RPCServer, storage: EnsRecordsStorage) {
+    init(server: RPCServer, storage: EnsRecordsStorage, sessionsProvider: SessionsProvider) {
         self.server = server
         self.storage = storage
+        self.ensDelegate = ENSDelegateImpl(sessionsProvider: sessionsProvider)
     }
 
     //TODO make calls from multiple callers at the same time for the same address more efficient
