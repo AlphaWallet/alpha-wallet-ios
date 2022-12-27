@@ -74,12 +74,9 @@ extension NewTokenCoordinator: ServersCoordinatorDelegate {
         switch selection {
         case .server(let server):
             serverToAddCustomTokenOn = server
-            coordinator.navigationController.popViewController(animated: true) { [weak self] in
-                guard let strongSelf = self else { return }
-                strongSelf.viewController.server = strongSelf.serverToAddCustomTokenOn
-                strongSelf.viewController.configure()
-                strongSelf.viewController.redetectToken()
-            }
+            viewController.server = serverToAddCustomTokenOn
+            viewController.configure()
+            viewController.redetectToken()
         case .multipleServers:
             break
         }

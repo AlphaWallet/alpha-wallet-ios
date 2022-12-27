@@ -85,14 +85,11 @@ extension CheckTransactionStateCoordinator: SelectTransactionHashViewControllerD
 extension CheckTransactionStateCoordinator: ServersCoordinatorDelegate {
     func didSelectServer(selection: ServerSelection, in coordinator: ServersCoordinator) {
         serverSelection = selection
-        coordinator.navigationController.popViewController(animated: true) { [weak self] in
-            guard let strongSelf = self else { return }
 
-            let viewModel = CheckTransactionStateViewModel(serverSelection: selection)
-            strongSelf.rootViewController.configure(viewModel: viewModel)
+        let viewModel = CheckTransactionStateViewModel(serverSelection: selection)
+        rootViewController.configure(viewModel: viewModel)
 
-            strongSelf.removeCoordinator(coordinator)
-        }
+        removeCoordinator(coordinator)
     }
 
     func didClose(in coordinator: ServersCoordinator) {

@@ -21,7 +21,7 @@ protocol PushNotifiable {
     func didPopViewController(animated: Bool)
 }
 
-final class NavigationController: UINavigationController, UIGestureRecognizerDelegate {
+class NavigationController: UINavigationController, UIGestureRecognizerDelegate {
     private var isPopActionInterractive: Bool = false
 
     override func viewDidLoad() {

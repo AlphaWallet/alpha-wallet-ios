@@ -757,6 +757,8 @@ extension DappBrowserCoordinator: ScanQRCodeCoordinatorDelegate {
 
 extension DappBrowserCoordinator: ServersCoordinatorDelegate {
     func didSelectServer(selection: ServerSelection, in coordinator: ServersCoordinator) {
+        removeCoordinator(coordinator)
+
         browserNavBar?.setBrowserBar(hidden: false)
 
         switch selection {
@@ -765,11 +767,7 @@ extension DappBrowserCoordinator: ServersCoordinatorDelegate {
             case .auto:
                 break
             case .server(let server):
-                coordinator.navigationController.popViewController(animated: true) { [weak self] in
-                    guard let strongSelf = self else { return }
-                    strongSelf.removeCoordinator(coordinator)
-                    strongSelf.`switch`(toServer: server)
-                }
+                `switch`(toServer: server)
             }
         case .multipleServers:
             break

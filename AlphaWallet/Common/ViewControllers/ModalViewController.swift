@@ -13,7 +13,7 @@ protocol ModalViewControllerDelegate: AnyObject {
     func didClose(_ controller: ModalViewController)
 }
 
-class ModalViewController: UINavigationController {
+class ModalViewController: NavigationController {
 
     private let viewController: _ModalViewController = {
         let viewController = _ModalViewController()

@@ -51,8 +51,12 @@ class ServersViewController: UIViewController {
 
 extension ServersViewController: PopNotifiable {
     func didPopViewController(animated: Bool) {
-        if viewModel.multipleSessionSelectionEnabled && viewModel.serversHaveChanged {
-            delegate?.didSelectServer(selection: .multipleServers(servers: viewModel.selectedServers), in: self)
+        if viewModel.serversHaveChanged {
+            if viewModel.multipleSessionSelectionEnabled && !viewModel.selectedServers.isEmpty {
+                delegate?.didSelectServer(selection: .multipleServers(servers: viewModel.selectedServers), in: self)
+            } else if let server = viewModel.selectedServers.first {
+                delegate?.didSelectServer(selection: .server(server: server), in: self)
+            }
         } else {
             delegate?.didClose(in: self)
         }
@@ -79,21 +83,9 @@ extension ServersViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
-        let server = viewModel.server(for: indexPath)
+        viewModel.selectOrDeselectServer(indexPath: indexPath)
 
-        if viewModel.multipleSessionSelectionEnabled {
-            if viewModel.isServerSelected(server) {
-                viewModel.unselectServer(server: server)
-            } else {
-                viewModel.selectServer(server: server)
-            }
-
-            tableView.reloadRows(at: [indexPath], with: .none)
-        } else {
-            viewModel.selectServer(server: server)
-
-            delegate?.didSelectServer(selection: .server(server: server), in: self)
-        }
+        tableView.reloadData()
     }
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
