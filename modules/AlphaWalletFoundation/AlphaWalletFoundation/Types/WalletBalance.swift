@@ -78,6 +78,11 @@ public extension WalletBalance {
     public struct ValueForCurrency: Equatable, Hashable {
         public var amount: Double
         public var currency: Currency
+
+        public init(amount: Double, currency: Currency) {
+            self.amount = amount
+            self.currency = currency
+        }
     }
 
     public enum functional {}

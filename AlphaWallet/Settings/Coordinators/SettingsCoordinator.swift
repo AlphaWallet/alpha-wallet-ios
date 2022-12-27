@@ -39,6 +39,7 @@ class SettingsCoordinator: Coordinator {
     private let currencyService: CurrencyService
     private let tokenScriptOverridesFileManager: TokenScriptOverridesFileManager
     private let networkService: NetworkService
+
     let navigationController: UINavigationController
     weak var delegate: SettingsCoordinatorDelegate?
     var coordinators: [Coordinator] = []
@@ -50,7 +51,8 @@ class SettingsCoordinator: Coordinator {
             lock: lock,
             config: config,
             analytics: analytics,
-            domainResolutionService: domainResolutionService)
+            domainResolutionService: domainResolutionService,
+            walletBalanceService: walletBalanceService)
 
         let controller = SettingsViewController(viewModel: viewModel)
         controller.delegate = self

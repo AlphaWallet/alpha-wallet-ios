@@ -149,18 +149,38 @@ class AppCoordinator: NSObject, Coordinator {
         let walletAddressesStore: WalletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: .standardOrForTests)
         let securedStorage: SecuredStorage & SecuredPasswordStorage = try KeychainStorage()
         let legacyFileBasedKeystore = try LegacyFileBasedKeystore(securedStorage: securedStorage)
-        let keystore: Keystore = EtherKeystore(keychain: securedStorage, walletAddressesStore: walletAddressesStore, analytics: analytics, legacyFileBasedKeystore: legacyFileBasedKeystore)
+
+        let keystore: Keystore = EtherKeystore(
+            keychain: securedStorage,
+            walletAddressesStore: walletAddressesStore,
+            analytics: analytics,
+            legacyFileBasedKeystore: legacyFileBasedKeystore)
 
         let navigationController: UINavigationController = .withOverridenBarAppearence()
         navigationController.view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
 
-        let coordinator = AppCoordinator(window: window, analytics: analytics, keystore: keystore, walletAddressesStore: walletAddressesStore, navigationController: navigationController, securedStorage: securedStorage, legacyFileBasedKeystore: legacyFileBasedKeystore)
+        let coordinator = AppCoordinator(
+            window: window,
+            analytics: analytics,
+            keystore: keystore,
+            walletAddressesStore: walletAddressesStore,
+            navigationController: navigationController,
+            securedStorage: securedStorage,
+            legacyFileBasedKeystore: legacyFileBasedKeystore)
+
         coordinator.keystore.delegate = coordinator
 
         return coordinator
     }
 
-    init(window: UIWindow, analytics: AnalyticsServiceType, keystore: Keystore, walletAddressesStore: WalletAddressesStore, navigationController: UINavigationController, securedStorage: SecuredPasswordStorage & SecuredStorage, legacyFileBasedKeystore: LegacyFileBasedKeystore) {
+    init(window: UIWindow,
+         analytics: AnalyticsServiceType,
+         keystore: Keystore,
+         walletAddressesStore: WalletAddressesStore,
+         navigationController: UINavigationController,
+         securedStorage: SecuredPasswordStorage & SecuredStorage,
+         legacyFileBasedKeystore: LegacyFileBasedKeystore) {
+
         let addressStorage = FileAddressStorage()
         register(addressStorage: addressStorage)
 
@@ -184,11 +204,11 @@ class AppCoordinator: NSObject, Coordinator {
     private func bindWalletAddressesStore() {
         walletAddressesStore
             .didRemoveWalletPublisher
-            .sink { [config, analytics, keystore, legacyFileBasedKeystore] account in
+            .sink { [config, analytics, keystore, legacyFileBasedKeystore, walletBalanceService] account in
 
                 //TODO: pass ref
                 FileWalletStorage().addOrUpdate(name: nil, for: account.address)
-                PromptBackupCoordinator(keystore: keystore, wallet: account, config: config, analytics: analytics).deleteWallet()
+                PromptBackupCoordinator(keystore: keystore, wallet: account, config: config, analytics: analytics, walletBalanceService: walletBalanceService).deleteWallet()
                 TransactionsTracker.resetFetchingState(account: account, config: config)
                 Erc1155TokenIdsFetcher.deleteForWallet(account.address)
                 DatabaseMigration.addToDeleteList(address: account.address)
@@ -683,6 +703,6 @@ extension AppCoordinator: AccountsCoordinatorDelegate {
 
 extension AppCoordinator: KeystoreDelegate {
     func didImport(wallet: Wallet, in keystore: Keystore) {
-        PromptBackupCoordinator(keystore: keystore, wallet: wallet, config: config, analytics: analytics).markWalletAsImported()
+        PromptBackupCoordinator(keystore: keystore, wallet: wallet, config: config, analytics: analytics, walletBalanceService: walletBalanceService).markWalletAsImported()
     }
 }

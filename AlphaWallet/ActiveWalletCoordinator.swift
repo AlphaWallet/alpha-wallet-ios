@@ -73,7 +73,12 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private var tokenActionsService: TokenActionsService
     private let walletConnectCoordinator: WalletConnectCoordinator
     private lazy var promptBackupCoordinator: PromptBackupCoordinator = {
-        return PromptBackupCoordinator(keystore: keystore, wallet: wallet, config: config, analytics: analytics)
+        return PromptBackupCoordinator(
+            keystore: keystore,
+            wallet: wallet,
+            config: config,
+            analytics: analytics,
+            walletBalanceService: walletBalanceService)
     }()
 
     private (set) var swapButton: UIButton = {
@@ -244,7 +249,8 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     }
 
     private func handleTokenScriptOverrideImport() {
-        tokenScriptOverridesFileManager.importTokenScriptOverridesFileEvent
+        tokenScriptOverridesFileManager
+            .importTokenScriptOverridesFileEvent
             .sink { [weak self] event in
                 switch event {
                 case .failure(let error):
@@ -318,9 +324,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         universalLinkService.handlePendingUniversalLink(in: self)
     }
 
-    private func createTokensCoordinator(promptBackupCoordinator: PromptBackupCoordinator, activitiesService: ActivitiesServiceType) -> TokensCoordinator {
-        promptBackupCoordinator.listenToNativeCryptoCurrencyBalance(service: tokenCollection)
-
+    private func createTokensCoordinator() -> TokensCoordinator {
         let coordinator = TokensCoordinator(
             sessions: sessionsProvider.activeSessions,
             keystore: keystore,
@@ -332,7 +336,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
             tokenActionsService: tokenActionsService,
             walletConnectCoordinator: walletConnectCoordinator,
             coinTickersFetcher: coinTickersFetcher,
-            activitiesService: activitiesService,
+            activitiesService: activitiesPipeLine,
             walletBalanceService: walletBalanceService,
             tokenCollection: tokenCollection,
             importToken: importToken,
@@ -349,10 +353,10 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         return coordinator
     }
 
-    private func createTransactionCoordinator(transactionDataStore: TransactionDataStore) -> TransactionsCoordinator {
+    private func createTransactionCoordinator() -> TransactionsCoordinator {
         let transactionsService = TransactionsService(
             sessions: sessionsProvider.activeSessions,
-            transactionDataStore: transactionDataStore,
+            transactionDataStore: transactionsDataStore,
             analytics: analytics,
             tokensService: tokensService,
             networkService: networkService)
@@ -446,10 +450,10 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private func setupTabBarController() {
         var viewControllers = [UIViewController]()
 
-        let tokensCoordinator = createTokensCoordinator(promptBackupCoordinator: promptBackupCoordinator, activitiesService: activitiesPipeLine)
+        let tokensCoordinator = createTokensCoordinator()
         viewControllers.append(tokensCoordinator.navigationController)
 
-        let transactionCoordinator = createTransactionCoordinator(transactionDataStore: transactionsDataStore)
+        let transactionCoordinator = createTransactionCoordinator()
 
         if Features.default.isAvailable(.isActivityEnabled) {
             let activityCoordinator = createActivityCoordinator(activitiesService: activitiesPipeLine)

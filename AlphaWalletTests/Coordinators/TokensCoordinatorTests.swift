@@ -9,14 +9,25 @@ import AlphaWalletFoundation
 final class FakeSwapTokenService: TokenActionsService {
 }
 
-class TokensCoordinatorTests: XCTestCase {
+class TokensCoordinatorTests: XCTestCase, WalletDependencyContainer {
+
+    func destroy(for wallet: AlphaWalletFoundation.Wallet) {
+
+    }
+
+    func makeDependencies(for wallet: AlphaWalletFoundation.Wallet) -> AlphaWalletFoundation.WalletDependency {
+        fatalError()
+    }
 
     func testRootViewController() {
         var sessions = ServerDictionary<WalletSession>()
         sessions[.main] = WalletSession.make()
         let config: Config = .make()
         let tokenActionsService = FakeSwapTokenService()
+        let wallet: Wallet = .make()
         let dep = WalletDataProcessingPipeline.make(wallet: .make(), server: .main)
+        let walletAddressesStore = fakeWalletAddressStore(wallets: [wallet], recentlyUsedWallet: .make())
+        let walletBalanceService = MultiWalletBalanceService(walletAddressesStore: walletAddressesStore, dependencyContainer: self)
 
         let coordinator = TokensCoordinator(
             navigationController: FakeNavigationController(),
@@ -24,7 +35,12 @@ class TokensCoordinatorTests: XCTestCase {
             keystore: FakeEtherKeystore(),
             config: config,
             assetDefinitionStore: .make(),
-            promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeEtherKeystore(), wallet: .make(), config: config, analytics: FakeAnalyticsService()),
+            promptBackupCoordinator: PromptBackupCoordinator(
+                keystore: FakeEtherKeystore(),
+                wallet: wallet,
+                config: config,
+                analytics: FakeAnalyticsService(),
+                walletBalanceService: walletBalanceService),
             analytics: FakeAnalyticsService(),
             nftProvider: FakeNftProvider(),
             tokenActionsService: tokenActionsService,
@@ -38,6 +54,7 @@ class TokensCoordinatorTests: XCTestCase {
             domainResolutionService: FakeDomainResolutionService(),
             tokensFilter: .make(),
             currencyService: .make())
+
         coordinator.start()
 
         XCTAssertTrue(coordinator.navigationController.viewControllers[0] is TokensViewController)
