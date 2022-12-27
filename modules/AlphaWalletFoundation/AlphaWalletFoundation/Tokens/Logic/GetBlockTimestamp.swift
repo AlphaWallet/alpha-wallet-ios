@@ -2,7 +2,7 @@
 
 import Foundation
 import BigInt
-import PromiseKit 
+import PromiseKit
 import AlphaWalletWeb3
 import AlphaWalletCore
 import JSONRPCKit
@@ -10,7 +10,6 @@ import APIKit
 
 final class GetBlockTimestamp {
     private let fileName: String
-    private let queue = DispatchQueue(label: "org.alphawallet.swift.getBlockTimestamp")
     private lazy var storage: Storage<[String: Date]> = .init(fileName: fileName, storage: FileStorage(fileExtension: "json"), defaultValue: [:])
     private var inFlightPromises: [String: Promise<Date>] = [:]
     private let analytics: AnalyticsLogger
@@ -23,7 +22,7 @@ final class GetBlockTimestamp {
     func getBlockTimestamp(for blockNumber: BigUInt, server: RPCServer) -> Promise<Date> {
         firstly {
             .value(blockNumber)
-        }.then(on: queue, { [weak self, queue, storage, analytics] blockNumber -> Promise<Date> in
+        }.then { [weak self, storage, analytics] blockNumber -> Promise<Date> in
             let key = "\(blockNumber)-\(server)"
             if let value = storage.value[key] {
                 return .value(value)
@@ -35,19 +34,19 @@ final class GetBlockTimestamp {
                 let request = EtherServiceRequest(server: server, batch: BatchFactory().create(BlockByNumberRequest(number: blockNumber)))
                 let promise = firstly {
                     APIKitSession.send(request, server: server, analytics: analytics)
-                }.map(on: queue, {
+                }.map {
                     $0.timestamp
-                }).ensure(on: queue, {
+                }.ensure {
                     self?.inFlightPromises[key] = .none
-                }).get(on: queue, { date in
+                }.get { date in
                     storage.value[key] = date
-                })
+                }
 
                 self?.inFlightPromises[key] = promise
 
                 return promise
             }
-        })
+        }
     }
 }
 
