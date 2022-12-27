@@ -38,7 +38,7 @@ class ImportTokenTests: XCTestCase {
                 XCTAssertEqual(token.decimals, 6)
                 XCTAssertEqual(token, tokensDataStore.token(forContract: address, server: server), "Token has added to storage")
             }).store(in: &cancelable)
-            
+
         waitForExpectations(timeout: 30)
     }
 
@@ -186,7 +186,6 @@ class TransactionTypeFromQrCodeTests: XCTestCase {
         let expectation = self.expectation(description: "did resolve erc20 transaction type")
         let qrCode = "aw.app/ethereum:0x89205a3a3b2a69de6dbf7f01ed13b2108b2c43e7/transfer?address=0x8e23ee67d1332ad560396262c48ffbb01f93d052&uint256=1"
 
-        let erc20Token = Token(contract: .init(string: "0x89205a3a3b2a69de6dbf7f01ed13b2108b2c43e7")!, server: .main, name: "erc20", symbol: "erc20", decimals: 6, type: .erc721)
         //NOTE: make sure we have a eth token, base impl resolves it automatically, for test does it manually
         contractDataFetcher.contractData[.init(address: .init(string: "0x89205a3a3b2a69de6dbf7f01ed13b2108b2c43e7")!, server: .main)] = .fungibleTokenComplete(name: "erc721", symbol: "erc721", decimals: 0, value: .zero, tokenType: .erc721)
 
