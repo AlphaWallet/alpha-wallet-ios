@@ -164,7 +164,7 @@ class TransactionTypeFromQrCodeTests: XCTestCase {
         //NOTE: make sure we have a eth token, base impl resolves it automatically, for test does it manually
         contractDataFetcher.contractData[.init(address: .init(string: "0x89205a3a3b2a69de6dbf7f01ed13b2108b2c43e7")!, server: .main)] = .fungibleTokenComplete(name: "erc20", symbol: "erc20", decimals: 18, value: .zero, tokenType: .erc20)
 
-        transactionTypeSupportable.transactionType = .prebuilt(.main)// .erc20Token(erc20Token, destination: nil, amount: .notSet)
+        transactionTypeSupportable.transactionType = .erc20Token(erc20Token, destination: nil, amount: .notSet)
 
         provider.buildTransactionType(qrCode: qrCode)
             .sink { result in
