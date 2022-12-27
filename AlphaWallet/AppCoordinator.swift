@@ -197,9 +197,11 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     func start(launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) {
-        //Want to start as soon as possible
         if AlphaWallet.Device.isSimulator {
+            //Want to start as soon as possible
             TrackApiCalls.shared.start()
+
+            UserDefaults.standard.set(!isRunningTests(), forKey: "_UIConstraintBasedLayoutLogUnsatisfiable")
         }
 
         if Features.default.isAvailable(.isLoggingEnabledForTickerMatches) {
