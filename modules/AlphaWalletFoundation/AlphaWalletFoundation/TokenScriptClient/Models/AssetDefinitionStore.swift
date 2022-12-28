@@ -36,7 +36,7 @@ public class AssetDefinitionStore: NSObject {
     private var bodyChangeSubject: PassthroughSubject<AlphaWallet.Address, Never> = .init()
     private var listOfBadTokenScriptFilesSubject: CurrentValueSubject<[TokenScriptFileIndices.FileName], Never> = .init([])
     private let network: AssetDefinitionNetworking
-    private var cancelable = AtomicDictionary<Int, AnyCancellable>()
+    private var cancelable: [Int: AnyCancellable] = [:]
 
     public var listOfBadTokenScriptFiles: AnyPublisher<[TokenScriptFileIndices.FileName], Never> {
         listOfBadTokenScriptFilesSubject.eraseToAnyPublisher()
@@ -222,8 +222,8 @@ public class AssetDefinitionStore: NSObject {
 
         cancelable[request.hashValue] = network
             .fetchXml(request: request)
-            .sink(receiveCompletion: { [cancelable] _ in
-                cancelable[request.hashValue] = .none
+            .sink(receiveCompletion: { [weak self] _ in
+                self?.cancelable[request.hashValue] = .none
             }, receiveValue: { [weak self] response in
                 guard let strongSelf = self else { return }
 
