@@ -86,8 +86,7 @@ class WalletCoordinator: Coordinator {
 
     func createInitialWalletIfMissing() {
         if !keystore.hasWallets {
-            let result = keystore.createAccount()
-            switch result {
+            switch keystore.importWallet(type: .newWallet) {
             case .success(let account):
                 keystore.recentlyUsedWallet = account
             case .failure:
