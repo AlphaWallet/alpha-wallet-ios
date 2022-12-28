@@ -103,8 +103,10 @@ class SettingsViewController: UIViewController {
             }.store(in: &cancellable)
 
         output.askToSetPasscode
-            .sink { _ in self.delegate?.createPasswordSelected(in: self) }
-            .store(in: &cancellable)
+            .sink { [weak self] _ in
+                guard let strongSelf = self else { return }
+                strongSelf.delegate?.createPasswordSelected(in: strongSelf)
+            }.store(in: &cancellable)
     }
 
     func configure(blockscanChatUnreadCount value: Int?) {
@@ -153,7 +155,9 @@ extension SettingsViewController: SwitchTableViewCellDelegate {
 
 fileprivate extension SettingsViewController {
     func makeDataSource() -> SettingsViewModel.DataSource {
-        return SettingsViewModel.DataSource(tableView: tableView, cellProvider: { tableView, indexPath, viewModel in
+        return SettingsViewModel.DataSource(tableView: tableView, cellProvider: { [weak self] tableView, indexPath, viewModel in
+            guard let strongSelf = self else { return UITableViewCell() }
+
             switch viewModel {
             case .cell(let vm):
                 let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
@@ -167,7 +171,7 @@ fileprivate extension SettingsViewController {
             case .passcode(let vm):
                 let cell: SwitchTableViewCell = tableView.dequeueReusableCell(for: indexPath)
                 cell.configure(viewModel: vm)
-                cell.delegate = self
+                cell.delegate = strongSelf
 
                 return cell
             }

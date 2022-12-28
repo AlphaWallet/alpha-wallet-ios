@@ -169,20 +169,26 @@ extension BrowserHomeViewController: UICollectionViewDelegateFlowLayout {
 fileprivate extension BrowserHomeViewController {
     
     func makeDataSource() -> BrowserHomeViewModel.DataSource {
-        let dataSource = BrowserHomeViewModel.DataSource(collectionView: collectionView, cellProvider: { collectionView, indexPath, viewModel in
+        let dataSource = BrowserHomeViewModel.DataSource(collectionView: collectionView, cellProvider: { [weak self] collectionView, indexPath, viewModel in
+            guard let strongSelf = self else { return UICollectionViewCell() }
+
             let cell: DappViewCell = collectionView.dequeueReusableCell(for: indexPath)
-            cell.delegate = self
+
+            cell.delegate = strongSelf
             cell.configure(viewModel: viewModel)
-            cell.isEditing = self.isEditingDapps
+            cell.isEditing = strongSelf.isEditingDapps
 
             return cell
         })
-        dataSource.supplementaryViewProvider = { collectionView, elementKind, indexPath in
+
+        dataSource.supplementaryViewProvider = { [weak self] collectionView, elementKind, indexPath in
+            guard let strongSelf = self else { return nil }
+
             let headerView: DappsHomeViewControllerHeaderView = collectionView.dequeueReusableSupplementaryView(ofKind: elementKind, for: indexPath)
-            headerView.delegate = self
-            headerView.configure(viewModel: .init(isEditing: self.isEditingDapps))
-            headerView.myDappsButton.addTarget(self, action: #selector(self.showMyDappsViewController), for: .touchUpInside)
-            headerView.historyButton.addTarget(self, action: #selector(self.showBrowserHistoryViewController), for: .touchUpInside)
+            headerView.delegate = strongSelf
+            headerView.configure(viewModel: .init(isEditing: strongSelf.isEditingDapps))
+            headerView.myDappsButton.addTarget(strongSelf, action: #selector(strongSelf.showMyDappsViewController), for: .touchUpInside)
+            headerView.historyButton.addTarget(strongSelf, action: #selector(strongSelf.showBrowserHistoryViewController), for: .touchUpInside)
 
             return headerView
         }

@@ -153,7 +153,9 @@ class AccountsViewController: UIViewController {
 
 extension AccountsViewController {
     private func makeDataSource() -> AccountsViewModel.DataSource {
-        AccountsViewModel.DataSource(tableView: tableView, cellProvider: { tableView, indexPath, viewModel in
+        AccountsViewModel.DataSource(tableView: tableView, cellProvider: { [weak self] tableView, indexPath, viewModel in
+            guard let strongSelf = self else { return UITableViewCell() }
+
             switch viewModel {
             case .undefined:
                 return UITableViewCell()
@@ -161,7 +163,7 @@ extension AccountsViewController {
                 let cell: AccountViewCell = tableView.dequeueReusableCell(for: indexPath)
                 cell.configure(viewModel: viewModel)
 
-                self.addLongPressGestureRecognizer(toView: cell)
+                strongSelf.addLongPressGestureRecognizer(toView: cell)
 
                 return cell
             case .summary(let viewModel):
