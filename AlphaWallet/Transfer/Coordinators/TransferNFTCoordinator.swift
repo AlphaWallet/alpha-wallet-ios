@@ -12,9 +12,22 @@ protocol TransferNFTCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, Bu
 
 class TransferNFTCoordinator: Coordinator {
     private lazy var sendViewController: SendSemiFungibleTokenViewController = {
-        let tokenCardViewFactory: TokenCardViewFactory = .init(token: token, assetDefinitionStore: assetDefinitionStore, analytics: analytics, keystore: keystore, wallet: session.account)
-        let viewModel = SendSemiFungibleTokenViewModel(token: token, tokenHolders: [tokenHolder])
-        let controller = SendSemiFungibleTokenViewController(viewModel: viewModel, tokenCardViewFactory: tokenCardViewFactory, domainResolutionService: domainResolutionService)
+        let tokenCardViewFactory = TokenCardViewFactory(
+            token: token,
+            assetDefinitionStore: assetDefinitionStore,
+            analytics: analytics,
+            keystore: keystore,
+            wallet: session.account)
+
+        let viewModel = SendSemiFungibleTokenViewModel(
+            token: token,
+            tokenHolders: [tokenHolder])
+
+        let controller = SendSemiFungibleTokenViewController(
+            viewModel: viewModel,
+            tokenCardViewFactory: tokenCardViewFactory,
+            domainResolutionService: domainResolutionService)
+
         controller.delegate = self
         controller.navigationItem.largeTitleDisplayMode = .never
         controller.hidesBottomBarWhenPushed = true
@@ -114,7 +127,12 @@ extension TransferNFTCoordinator: SendSemiFungibleTokenViewControllerDelegate {
     func openQRCode(in controller: SendSemiFungibleTokenViewController) {
         guard navigationController.ensureHasDeviceAuthorization() else { return }
 
-        let coordinator = ScanQRCodeCoordinator(analytics: analytics, navigationController: navigationController, account: session.account, domainResolutionService: domainResolutionService)
+        let coordinator = ScanQRCodeCoordinator(
+            analytics: analytics,
+            navigationController: navigationController,
+            account: session.account,
+            domainResolutionService: domainResolutionService)
+        
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start(fromSource: .addressTextField)

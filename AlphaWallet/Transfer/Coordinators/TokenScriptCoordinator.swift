@@ -67,7 +67,20 @@ class TokenScriptCoordinator: Coordinator {
         switch action.type {
         case .tokenScript(_, let title, viewHtml: (html: let html, style: let style), attributes: let attributes, transactionFunction: let transactionFunction, selection: let selection):
             if TokenScript.functional.isNoView(html: html, style: style) {
-                let noViewActionCoordinator = NoViewCardTokenScriptActionCoordinator(token: token, tokenHolder: tokenHolder, action: action, title: title, viewHtml: (html: html, style: style), attributes: attributes, transactionFunction: transactionFunction, selection: selection, navigationController: navigationController, assetDefinitionStore: assetDefinitionStore, session: session, keystore: keystore)
+                let noViewActionCoordinator = NoViewCardTokenScriptActionCoordinator(
+                    token: token,
+                    tokenHolder: tokenHolder,
+                    action: action,
+                    title: title,
+                    viewHtml: (html: html, style: style),
+                    attributes: attributes,
+                    transactionFunction: transactionFunction,
+                    selection: selection,
+                    navigationController: navigationController,
+                    assetDefinitionStore: assetDefinitionStore,
+                    session: session,
+                    keystore: keystore)
+
                 noViewActionCoordinator.delegate = self
                 noViewActionCoordinator.start()
             } else {
@@ -82,7 +95,15 @@ class TokenScriptCoordinator: Coordinator {
     }
 
     private func makeTokenInstanceActionViewController(token: Token, for tokenHolder: TokenHolder, action: TokenInstanceAction) -> TokenInstanceActionViewController {
-        let vc = TokenInstanceActionViewController(analytics: analytics, token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore, action: action, session: session, keystore: keystore)
+        let vc = TokenInstanceActionViewController(
+            analytics: analytics,
+            token: token,
+            tokenHolder: tokenHolder,
+            assetDefinitionStore: assetDefinitionStore,
+            action: action,
+            session: session,
+            keystore: keystore)
+
         vc.delegate = self
         vc.configure()
 
@@ -181,8 +202,29 @@ extension TokenScriptCoordinator: TransactionInProgressCoordinatorDelegate {
 extension TokenScriptCoordinator: ConfirmTokenScriptActionTransactionDelegate {
     func confirmTransactionSelected(in navigationController: UINavigationController, token: Token, contract: AlphaWallet.Address, tokenId: TokenId, values: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession, keystore: Keystore, transactionFunction: FunctionOrigin) {
         do {
-            let data = try transactionFunction.makeUnConfirmedTransaction(withTokenObject: token, tokenId: tokenId, attributeAndValues: values, localRefs: localRefs, server: server, session: session)
-            let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: data.0, configuration: .tokenScriptTransaction(confirmType: .signThenSend, contract: contract, functionCallMetaData: data.1), analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService, networkService: networkService)
+            let data = try transactionFunction.makeUnConfirmedTransaction(
+                withTokenObject: token,
+                tokenId: tokenId,
+                attributeAndValues: values,
+                localRefs: localRefs,
+                server: server,
+                session: session)
+
+            let coordinator = TransactionConfirmationCoordinator(
+                presentingViewController: navigationController,
+                session: session,
+                transaction: data.0,
+                configuration: .tokenScriptTransaction(
+                    confirmType: .signThenSend,
+                    contract: contract,
+                    functionCallMetaData: data.1),
+                analytics: analytics,
+                domainResolutionService: domainResolutionService,
+                keystore: keystore,
+                assetDefinitionStore: assetDefinitionStore,
+                tokensService: tokensService,
+                networkService: networkService)
+
             coordinator.delegate = self
             addCoordinator(coordinator)
             coordinator.start(fromSource: .tokenScript)

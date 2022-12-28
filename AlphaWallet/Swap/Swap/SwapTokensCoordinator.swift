@@ -36,7 +36,10 @@ final class SwapTokensCoordinator: Coordinator {
     private let configurator: SwapOptionsConfigurator
     private lazy var tokenSelectionProvider = SwapTokenSelectionProvider(configurator: configurator)
     private lazy var approveSwapProvider: ApproveSwapProvider = {
-        let provider = ApproveSwapProvider(configurator: configurator, analytics: analytics)
+        let provider = ApproveSwapProvider(
+            configurator: configurator,
+            analytics: analytics)
+
         provider.delegate = self
         return provider
     }()
@@ -77,14 +80,22 @@ final class SwapTokensCoordinator: Coordinator {
     }
 
     @objc private func swapConfiguratinSelected(_ sender: UIBarButtonItem) {
-        let coordinator = SwapOptionsCoordinator(navigationController: navigationController, configurator: configurator)
+        let coordinator = SwapOptionsCoordinator(
+            navigationController: navigationController,
+            configurator: configurator)
+
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start()
     }
 
     private func showSelectToken() {
-        let coordinator = SelectTokenCoordinator(tokenCollection: tokenCollection, tokensFilter: tokensFilter, navigationController: navigationController, filter: .filter(tokenSelectionProvider))
+        let coordinator = SelectTokenCoordinator(
+            tokenCollection: tokenCollection,
+            tokensFilter: tokensFilter,
+            navigationController: navigationController,
+            filter: .filter(tokenSelectionProvider))
+
         coordinator.rootViewController.navigationItem.leftBarButtonItem = UIBarButtonItem.logoBarButton()
         coordinator.delegate = self
         addCoordinator(coordinator)
@@ -183,9 +194,26 @@ extension SwapTokensCoordinator: ApproveSwapProviderDelegate {
     }
 
     func promptToSwap(unsignedTransaction: UnsignedSwapTransaction, fromToken: TokenToSwap, fromAmount: BigUInt, toToken: TokenToSwap, toAmount: BigUInt, in provider: ApproveSwapProvider) {
-        let (transaction, configuration) = configurator.tokenSwapper.buildSwapTransaction(unsignedTransaction: unsignedTransaction, fromToken: fromToken, fromAmount: fromAmount, toToken: toToken, toAmount: toAmount)
 
-        let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: configurator.session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokenCollection, networkService: networkService)
+        let (transaction, configuration) = configurator.tokenSwapper.buildSwapTransaction(
+            unsignedTransaction: unsignedTransaction,
+            fromToken: fromToken,
+            fromAmount: fromAmount,
+            toToken: toToken,
+            toAmount: toAmount)
+
+        let coordinator = TransactionConfirmationCoordinator(
+            presentingViewController: navigationController,
+            session: configurator.session,
+            transaction: transaction,
+            configuration: configuration,
+            analytics: analytics,
+            domainResolutionService: domainResolutionService,
+            keystore: keystore,
+            assetDefinitionStore: assetDefinitionStore,
+            tokensService: tokenCollection,
+            networkService: networkService)
+
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start(fromSource: .swap)
@@ -195,9 +223,28 @@ extension SwapTokensCoordinator: ApproveSwapProviderDelegate {
         return firstly {
             Promise.value(token)
         }.map { contract in
-            try UnconfirmedTransaction.buildApproveTransaction(contract: contract, server: server, owner: owner, spender: spender, amount: amount)
+            try UnconfirmedTransaction.buildApproveTransaction(
+                contract: contract,
+                server: server,
+                owner: owner,
+                spender: spender,
+                amount: amount)
         }.then { [navigationController, keystore, analytics, assetDefinitionStore, configurator, tokenCollection, domainResolutionService, networkService] (transaction, configuration) in
-            TransactionConfirmationCoordinator.promise(navigationController, session: configurator.session, coordinator: self, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, source: .swapApproval, delegate: self, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokenCollection, networkService: networkService)
+            TransactionConfirmationCoordinator.promise(
+                navigationController,
+                session: configurator.session,
+                coordinator: self,
+                transaction: transaction,
+                configuration: configuration,
+                analytics: analytics,
+                domainResolutionService: domainResolutionService,
+                source: .swapApproval,
+                delegate: self,
+                keystore: keystore,
+                assetDefinitionStore: assetDefinitionStore,
+                tokensService: tokenCollection,
+                networkService: networkService)
+
         }.map { confirmationResult in
             switch confirmationResult {
             case .signedTransaction, .sentRawTransaction:
@@ -290,7 +337,13 @@ public extension UnconfirmedTransaction {
         let transactionType: TransactionType = .prebuilt(server)
         let data = (try? Erc20Approve(spender: spender, value: amount).encodedABI()) ?? Data()
 
-        let transaction: UnconfirmedTransaction = .init(transactionType: transactionType, value: 0, recipient: owner, contract: contract, data: data)
+        let transaction = UnconfirmedTransaction(
+            transactionType: transactionType,
+            value: 0,
+            recipient: owner,
+            contract: contract,
+            data: data)
+
         return (transaction, configuration)
     }
 }

@@ -36,7 +36,17 @@ class TokensCoordinator: Coordinator {
     private let activitiesService: ActivitiesServiceType
     //NOTE: private (set) - `For test purposes only`
     private (set) lazy var tokensViewController: TokensViewController = {
-        let viewModel = TokensViewModel(wallet: wallet, tokenCollection: tokenCollection, tokensFilter: tokensFilter, walletConnectCoordinator: walletConnectCoordinator, walletBalanceService: walletBalanceService, config: config, domainResolutionService: domainResolutionService, blockiesGenerator: blockiesGenerator, assetDefinitionStore: assetDefinitionStore)
+        let viewModel = TokensViewModel(
+            wallet: wallet,
+            tokenCollection: tokenCollection,
+            tokensFilter: tokensFilter,
+            walletConnectCoordinator: walletConnectCoordinator,
+            walletBalanceService: walletBalanceService,
+            config: config,
+            domainResolutionService: domainResolutionService,
+            blockiesGenerator: blockiesGenerator,
+            assetDefinitionStore: assetDefinitionStore)
+
         let controller = TokensViewController(viewModel: viewModel)
 
         controller.delegate = self
@@ -86,8 +96,8 @@ class TokensCoordinator: Coordinator {
          blockiesGenerator: BlockiesGenerator,
          domainResolutionService: DomainResolutionServiceType,
          tokensFilter: TokensFilter,
-         currencyService: CurrencyService
-    ) {
+         currencyService: CurrencyService) {
+
         self.currencyService = currencyService
         self.wallet = sessions.anyValue.account
         self.tokensFilter = tokensFilter
@@ -108,6 +118,7 @@ class TokensCoordinator: Coordinator {
         self.importToken = importToken
         self.blockiesGenerator = blockiesGenerator
         self.domainResolutionService = domainResolutionService
+
         promptBackupCoordinator.prominentPromptDelegate = self
         setupSingleChainTokenCoordinators()
 
@@ -151,7 +162,19 @@ class TokensCoordinator: Coordinator {
 
     private func setupSingleChainTokenCoordinators() {
         for session in sessions.values {
-            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, assetDefinitionStore: assetDefinitionStore, analytics: analytics, nftProvider: nftProvider, tokenActionsProvider: tokenActionsService, coinTickersFetcher: coinTickersFetcher, activitiesService: activitiesService, alertService: alertService, tokensService: tokenCollection, sessions: sessions, currencyService: currencyService)
+            let coordinator = SingleChainTokenCoordinator(
+                session: session,
+                keystore: keystore,
+                assetDefinitionStore: assetDefinitionStore,
+                analytics: analytics,
+                nftProvider: nftProvider,
+                tokenActionsProvider: tokenActionsService,
+                coinTickersFetcher: coinTickersFetcher,
+                activitiesService: activitiesService,
+                alertService: alertService,
+                tokensService: tokenCollection,
+                sessions: sessions,
+                currencyService: currencyService)
 
             coordinator.delegate = self
             addCoordinator(coordinator)
@@ -167,8 +190,18 @@ class TokensCoordinator: Coordinator {
     }
 
     func launchUniversalScanner(fromSource source: Analytics.ScanQRCodeSource) {
-        let scanQRCodeCoordinator = ScanQRCodeCoordinator(analytics: analytics, navigationController: navigationController, account: wallet, domainResolutionService: domainResolutionService)
-        let coordinator = QRCodeResolutionCoordinator(config: config, coordinator: scanQRCodeCoordinator, usage: .all(tokensService: tokenCollection, importToken: importToken), account: wallet)
+        let scanQRCodeCoordinator = ScanQRCodeCoordinator(
+            analytics: analytics,
+            navigationController: navigationController,
+            account: wallet,
+            domainResolutionService: domainResolutionService)
+
+        let coordinator = QRCodeResolutionCoordinator(
+            config: config,
+            coordinator: scanQRCodeCoordinator,
+            usage: .all(tokensService: tokenCollection, importToken: importToken),
+            account: wallet)
+
         coordinator.delegate = self
 
         addCoordinator(coordinator)
@@ -259,7 +292,11 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     }
 
     private func didPressRenameThisWallet() {
-        let viewModel = RenameWalletViewModel(account: wallet.address, analytics: analytics, domainResolutionService: domainResolutionService)
+        let viewModel = RenameWalletViewModel(
+            account: wallet.address,
+            analytics: analytics,
+            domainResolutionService: domainResolutionService)
+
         let viewController = RenameWalletViewController(viewModel: viewModel)
         viewController.delegate = self
         viewController.navigationItem.largeTitleDisplayMode = .never
@@ -278,6 +315,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
             navigationController: navigationController,
             config: config,
             importToken: importToken)
+
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start()
@@ -355,6 +393,7 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
             importToken: importToken,
             initialState: .address(address),
             domainResolutionService: domainResolutionService)
+
         coordinator.delegate = self
         addCoordinator(coordinator)
 
@@ -362,7 +401,12 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
     }
 
     private func handleImportOrWatchWallet(_ entryPoint: WalletEntryPoint) {
-        let walletCoordinator = WalletCoordinator(config: config, keystore: keystore, analytics: analytics, domainResolutionService: domainResolutionService)
+        let walletCoordinator = WalletCoordinator(
+            config: config,
+            keystore: keystore,
+            analytics: analytics,
+            domainResolutionService: domainResolutionService)
+
         walletCoordinator.delegate = self
 
         addCoordinator(walletCoordinator)
@@ -417,14 +461,30 @@ extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
     }
 
     func didTapAddAlert(for token: Token, in coordinator: SingleChainTokenCoordinator) {
-        let coordinatorToAdd = EditPriceAlertCoordinator(navigationController: navigationController, configuration: .create, token: token, session: coordinator.session, tokensService: tokenCollection, alertService: alertService, currencyService: currencyService)
+        let coordinatorToAdd = EditPriceAlertCoordinator(
+            navigationController: navigationController,
+            configuration: .create,
+            token: token,
+            session: coordinator.session,
+            tokensService: tokenCollection,
+            alertService: alertService,
+            currencyService: currencyService)
+
         addCoordinator(coordinatorToAdd)
         coordinatorToAdd.delegate = self
         coordinatorToAdd.start()
     }
 
     func didTapEditAlert(for token: Token, alert: PriceAlert, in coordinator: SingleChainTokenCoordinator) {
-        let coordinatorToAdd = EditPriceAlertCoordinator(navigationController: navigationController, configuration: .edit(alert), token: token, session: coordinator.session, tokensService: tokenCollection, alertService: alertService, currencyService: currencyService)
+        let coordinatorToAdd = EditPriceAlertCoordinator(
+            navigationController: navigationController,
+            configuration: .edit(alert),
+            token: token,
+            session: coordinator.session,
+            tokensService: tokenCollection,
+            alertService: alertService,
+            currencyService: currencyService)
+        
         addCoordinator(coordinatorToAdd)
         coordinatorToAdd.delegate = self
         coordinatorToAdd.start()

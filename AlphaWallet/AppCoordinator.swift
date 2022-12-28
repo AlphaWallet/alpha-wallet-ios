@@ -56,10 +56,20 @@ class AppCoordinator: NSObject, Coordinator {
     private lazy var coinTickersFetcher: CoinTickersFetcher = CoinTickersFetcherImpl(networkService: networkService)
     private lazy var nftProvider: NFTProvider = AlphaWalletNFTProvider(analytics: analytics)
     private lazy var dependencyProvider: WalletDependencyContainer = {
-        WalletComponentsFactory(analytics: analytics, nftProvider: nftProvider, assetDefinitionStore: assetDefinitionStore, coinTickersFetcher: coinTickersFetcher, config: config, currencyService: currencyService, networkService: networkService)
+        WalletComponentsFactory(
+            analytics: analytics,
+            nftProvider: nftProvider,
+            assetDefinitionStore: assetDefinitionStore,
+            coinTickersFetcher: coinTickersFetcher,
+            config: config,
+            currencyService: currencyService,
+            networkService: networkService)
     }()
     private lazy var walletBalanceService: WalletBalanceService = {
-        let service = MultiWalletBalanceService(walletAddressesStore: walletAddressesStore, dependencyContainer: dependencyProvider)
+        let service = MultiWalletBalanceService(
+            walletAddressesStore: walletAddressesStore,
+            dependencyContainer: dependencyProvider)
+
         service.start()
         return service
     }()
@@ -80,7 +90,12 @@ class AppCoordinator: NSObject, Coordinator {
         return coordinator
     }()
     private lazy var networkService: NetworkService = BaseNetworkService(analytics: analytics)
-    private lazy var tokenSwapper = TokenSwapper(reachabilityManager: ReachabilityManager(), sessionProvider: activeSessionsProvider, networkProvider: LiQuestTokenSwapperNetworkProvider(networkService: networkService))
+    private lazy var tokenSwapper: TokenSwapper = {
+        TokenSwapper(
+            reachabilityManager: ReachabilityManager(),
+            sessionProvider: activeSessionsProvider,
+            networkProvider: LiQuestTokenSwapperNetworkProvider(networkService: networkService))
+    }()
     private lazy var tokenActionsService: TokenActionsService = {
         let service = TokenActionsService()
         service.register(service: BuyTokenProvider(subProviders: [
@@ -109,7 +124,15 @@ class AppCoordinator: NSObject, Coordinator {
     }()
 
     private lazy var walletConnectCoordinator: WalletConnectCoordinator = {
-        let coordinator = WalletConnectCoordinator(keystore: keystore, navigationController: navigationController, analytics: analytics, domainResolutionService: domainResolutionService, config: config, sessionProvider: activeSessionsProvider, assetDefinitionStore: assetDefinitionStore, networkService: networkService)
+        let coordinator = WalletConnectCoordinator(
+            keystore: keystore,
+            navigationController: navigationController,
+            analytics: analytics,
+            domainResolutionService: domainResolutionService,
+            config: config,
+            sessionProvider: activeSessionsProvider,
+            assetDefinitionStore: assetDefinitionStore,
+            networkService: networkService)
 
         return coordinator
     }()
@@ -119,10 +142,22 @@ class AppCoordinator: NSObject, Coordinator {
         let storage: EnsRecordsStorage = RealmStore.shared
         return storage
     }()
-    lazy private var blockiesGenerator: BlockiesGenerator = BlockiesGenerator(assetImageProvider: nftProvider, storage: sharedEnsRecordsStorage)
-    lazy private var domainResolutionService: DomainResolutionServiceType = DomainResolutionService(blockiesGenerator: blockiesGenerator, storage: sharedEnsRecordsStorage, networkService: networkService)
+    lazy private var blockiesGenerator: BlockiesGenerator = BlockiesGenerator(
+        assetImageProvider: nftProvider,
+        storage: sharedEnsRecordsStorage)
+
+    lazy private var domainResolutionService: DomainResolutionServiceType = DomainResolutionService(
+        blockiesGenerator: blockiesGenerator,
+        storage: sharedEnsRecordsStorage,
+        networkService: networkService)
+
     private lazy var walletApiCoordinator: WalletApiCoordinator = {
-        let coordinator = WalletApiCoordinator(keystore: keystore, navigationController: navigationController, analytics: analytics, serviceProvider: activeSessionsProvider)
+        let coordinator = WalletApiCoordinator(
+            keystore: keystore,
+            navigationController: navigationController,
+            analytics: analytics,
+            serviceProvider: activeSessionsProvider)
+
         coordinator.delegate = self
 
         return coordinator
@@ -131,7 +166,12 @@ class AppCoordinator: NSObject, Coordinator {
     private lazy var notificationService: NotificationService = {
         let pushNotificationsService = UNUserNotificationsService()
         let notificationService = LocalNotificationService()
-        return NotificationService(sources: [], walletBalanceService: walletBalanceService, notificationService: notificationService, pushNotificationsService: pushNotificationsService)
+
+        return NotificationService(
+            sources: [],
+            walletBalanceService: walletBalanceService,
+            notificationService: notificationService,
+            pushNotificationsService: pushNotificationsService)
     }()
 
     private lazy var activeSessionsProvider = SessionsProvider(config: config, analytics: analytics)
@@ -402,14 +442,26 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     func showInitialWalletCoordinator() {
-        let coordinator = InitialWalletCreationCoordinator(config: config, navigationController: navigationController, keystore: keystore, analytics: analytics, domainResolutionService: domainResolutionService)
+        let coordinator = InitialWalletCreationCoordinator(
+            config: config,
+            navigationController: navigationController,
+            keystore: keystore,
+            analytics: analytics,
+            domainResolutionService: domainResolutionService)
+
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
     }
 
     private func createInitialWalletIfMissing() {
-        WalletCoordinator(config: config, keystore: keystore, analytics: analytics, domainResolutionService: domainResolutionService).createInitialWalletIfMissing()
+        let coordinator = WalletCoordinator(
+            config: config,
+            keystore: keystore,
+            analytics: analytics,
+            domainResolutionService: domainResolutionService)
+
+        coordinator.createInitialWalletIfMissing()
     }
 
     private func showActiveWalletIfNeeded() {
@@ -703,6 +755,13 @@ extension AppCoordinator: AccountsCoordinatorDelegate {
 
 extension AppCoordinator: KeystoreDelegate {
     func didImport(wallet: Wallet, in keystore: Keystore) {
-        PromptBackupCoordinator(keystore: keystore, wallet: wallet, config: config, analytics: analytics, walletBalanceService: walletBalanceService).markWalletAsImported()
+        let coordinator = PromptBackupCoordinator(
+            keystore: keystore,
+            wallet: wallet,
+            config: config,
+            analytics: analytics,
+            walletBalanceService: walletBalanceService)
+
+        coordinator.markWalletAsImported()
     }
 }

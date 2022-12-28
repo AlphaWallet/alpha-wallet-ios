@@ -58,8 +58,16 @@ class SendCoordinator: Coordinator {
     }
     
     private func makeSendViewController() -> SendViewController {
-        let viewModel = SendViewModel(transactionType: transactionType, session: session, tokensService: tokensService, importToken: importToken)
-        let controller = SendViewController(viewModel: viewModel, domainResolutionService: domainResolutionService)
+        let viewModel = SendViewModel(
+            transactionType: transactionType,
+            session: session,
+            tokensService: tokensService,
+            importToken: importToken)
+
+        let controller = SendViewController(
+            viewModel: viewModel,
+            domainResolutionService: domainResolutionService)
+
         controller.delegate = self
         controller.navigationItem.largeTitleDisplayMode = .never
         controller.hidesBottomBarWhenPushed = true
@@ -87,7 +95,12 @@ extension SendCoordinator: SendViewControllerDelegate {
     func openQRCode(in viewController: SendViewController) {
         guard navigationController.ensureHasDeviceAuthorization() else { return }
 
-        let coordinator = ScanQRCodeCoordinator(analytics: analytics, navigationController: navigationController, account: session.account, domainResolutionService: domainResolutionService)
+        let coordinator = ScanQRCodeCoordinator(
+            analytics: analytics,
+            navigationController: navigationController,
+            account: session.account,
+            domainResolutionService: domainResolutionService)
+
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start(fromSource: .sendFungibleScreen, clipboardString: UIPasteboard.general.stringForQRCode)
@@ -96,7 +109,18 @@ extension SendCoordinator: SendViewControllerDelegate {
     func didPressConfirm(transaction: UnconfirmedTransaction, in viewController: SendViewController) {
         let configuration: TransactionType.Configuration = .sendFungiblesTransaction(confirmType: .signThenSend)
 
-        let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService, networkService: networkService)
+        let coordinator = TransactionConfirmationCoordinator(
+            presentingViewController: navigationController,
+            session: session,
+            transaction: transaction,
+            configuration: configuration,
+            analytics: analytics,
+            domainResolutionService: domainResolutionService,
+            keystore: keystore,
+            assetDefinitionStore: assetDefinitionStore,
+            tokensService: tokensService,
+            networkService: networkService)
+        
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start(fromSource: .sendFungible)

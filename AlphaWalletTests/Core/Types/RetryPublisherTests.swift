@@ -182,7 +182,7 @@ class RetryPublisherTests: XCTestCase {
             }
         }
 
-        let resultPublisher = upstreamPublisher.retry(.randomDelayed(retries: 2, delayBeforeRetry: 2, delayUpperRangeValueFrom0To: 5), scheduler: DispatchQueue.global())
+        let resultPublisher = upstreamPublisher.retry(.randomDelayed(retries: 2, delayBeforeRetry: 2, delayUpperRangeValueFrom0To: 5), scheduler: DispatchQueue.global(qos: .userInitiated))
         XCTAssertEqual(asyncAPICallCount, 0)
         XCTAssertEqual(futureClosureHandlerCount, 0)
 
