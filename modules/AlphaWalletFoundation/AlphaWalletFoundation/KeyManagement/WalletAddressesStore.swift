@@ -22,13 +22,11 @@ public protocol WalletAddressesStore: WalletAddressesStoreMigration {
     var hasMigratedFromKeystoreFiles: Bool { get }
     var recentlyUsedWallet: Wallet? { get set }
     var walletsPublisher: AnyPublisher<Set<Wallet>, Never> { get }
-    var didAddWalletPublisher: AnyPublisher<AlphaWallet.Address, Never> { get }
+    var didAddWalletPublisher: AnyPublisher<Wallet, Never> { get }
     var didRemoveWalletPublisher: AnyPublisher<Wallet, Never> { get }
 
     mutating func removeAddress(_ account: Wallet)
-    mutating func addToListOfWatchEthereumAddresses(_ address: AlphaWallet.Address)
-    mutating func addToListOfEthereumAddressesWithPrivateKeys(_ address: AlphaWallet.Address)
-    mutating func addToListOfEthereumAddressesWithSeed(_ address: AlphaWallet.Address)
+    mutating func add(wallet: Wallet)
     mutating func addToListOfEthereumAddressesProtectedByUserPresence(_ address: AlphaWallet.Address)
 }
 

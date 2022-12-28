@@ -151,9 +151,11 @@ open class EtherKeystore: NSObject, Keystore {
         }
     }
 
-    weak public var delegate: KeystoreDelegate?
-
-    public init(keychain: SecuredStorage, walletAddressesStore: WalletAddressesStore, analytics: AnalyticsLogger, legacyFileBasedKeystore: LegacyFileBasedKeystore) {
+    public init(keychain: SecuredStorage,
+                walletAddressesStore: WalletAddressesStore,
+                analytics: AnalyticsLogger,
+                legacyFileBasedKeystore: LegacyFileBasedKeystore) {
+        
         self.keychain = keychain
         self.analytics = analytics
         self.walletAddressesStore = walletAddressesStore
@@ -210,10 +212,9 @@ open class EtherKeystore: NSObject, Keystore {
                 let isSuccessful = savePrivateKeyForNonHdWallet(privateKey, forAccount: address, withUserPresence: false)
                 guard isSuccessful else { return .failure(.failedToCreateWallet) }
             }
-            walletAddressesStore.addToListOfEthereumAddressesWithPrivateKeys(address)
 
             let wallet = Wallet(address: address, origin: .privateKey)
-            delegate?.didImport(wallet: wallet, in: self)
+            walletAddressesStore.add(wallet: wallet)
 
             return .success(wallet)
         case .mnemonic(let mnemonic, _):
@@ -235,20 +236,18 @@ open class EtherKeystore: NSObject, Keystore {
                 let isSuccessful = saveSeedForHdWallet(seed, forAccount: address, withUserPresence: false)
                 guard isSuccessful else { return .failure(.failedToCreateWallet) }
             }
-            walletAddressesStore.addToListOfEthereumAddressesWithSeed(address)
 
             let wallet = Wallet(address: address, origin: .hd)
-            delegate?.didImport(wallet: wallet, in: self)
+            walletAddressesStore.add(wallet: wallet)
 
             return .success(wallet)
         case .watch(let address):
             guard !isAddressAlreadyInWalletsList(address: address) else {
                 return .failure(.duplicateAccount)
             }
-            walletAddressesStore.addToListOfWatchEthereumAddresses(address)
 
             let wallet = Wallet(address: address, origin: .watch)
-            delegate?.didImport(wallet: wallet, in: self)
+            walletAddressesStore.add(wallet: wallet)
 
             return .success(wallet)
         }
@@ -426,35 +425,8 @@ open class EtherKeystore: NSObject, Keystore {
         walletAddressesStore.removeAddress(account)
     }
 
-    func isHdWallet(account: AlphaWallet.Address) -> Bool {
+    private func isHdWallet(account: AlphaWallet.Address) -> Bool {
         return walletAddressesStore.ethereumAddressesWithSeed.contains(account.eip55String)
-    }
-
-    func isHdWallet(wallet: Wallet) -> Bool {
-        switch wallet.type {
-        case .real(let account):
-            return walletAddressesStore.ethereumAddressesWithSeed.contains(account.eip55String)
-        case .watch:
-            return false
-        }
-    }
-
-    func isKeystore(wallet: Wallet) -> Bool {
-        switch wallet.type {
-        case .real(let account):
-            return walletAddressesStore.ethereumAddressesWithPrivateKeys.contains(account.eip55String)
-        case .watch:
-            return false
-        }
-    }
-
-    func isWatched(wallet: Wallet) -> Bool {
-        switch wallet.type {
-        case .real:
-            return false
-        case .watch(let address):
-            return walletAddressesStore.watchAddresses.contains(address.eip55String)
-        }
     }
 
     public func isProtectedByUserPresence(account: AlphaWallet.Address) -> Bool {

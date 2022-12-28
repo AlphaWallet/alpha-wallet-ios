@@ -12,14 +12,7 @@ import AlphaWalletFoundation
 func fakeWalletAddressStore(wallets: [Wallet] = [], recentlyUsedWallet: Wallet? = nil) -> WalletAddressesStore {
     var walletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: .test)
     for wallet in wallets {
-        switch wallet.origin {
-        case .privateKey:
-            walletAddressesStore.addToListOfEthereumAddressesWithPrivateKeys(wallet.address)
-        case .hd:
-            walletAddressesStore.addToListOfEthereumAddressesWithSeed(wallet.address)
-        case .watch:
-            walletAddressesStore.addToListOfWatchEthereumAddresses(wallet.address)
-        }
+        walletAddressesStore.add(wallet: wallet)
     }
     walletAddressesStore.recentlyUsedWallet = recentlyUsedWallet
 

@@ -9,15 +9,7 @@ import AlphaWalletFoundation
 final class FakeSwapTokenService: TokenActionsService {
 }
 
-class TokensCoordinatorTests: XCTestCase, WalletDependencyContainer {
-
-    func destroy(for wallet: AlphaWalletFoundation.Wallet) {
-
-    }
-
-    func makeDependencies(for wallet: AlphaWalletFoundation.Wallet) -> AlphaWalletFoundation.WalletDependency {
-        fatalError()
-    }
+class TokensCoordinatorTests: XCTestCase {
 
     func testRootViewController() {
         var sessions = ServerDictionary<WalletSession>()
@@ -27,7 +19,7 @@ class TokensCoordinatorTests: XCTestCase, WalletDependencyContainer {
         let wallet: Wallet = .make()
         let dep = WalletDataProcessingPipeline.make(wallet: .make(), server: .main)
         let walletAddressesStore = fakeWalletAddressStore(wallets: [wallet], recentlyUsedWallet: .make())
-        let walletBalanceService = MultiWalletBalanceService(walletAddressesStore: walletAddressesStore, dependencyContainer: self)
+        let walletBalanceService = FakeMultiWalletBalanceService(wallet: wallet, servers: [.main])
 
         let coordinator = TokensCoordinator(
             navigationController: FakeNavigationController(),

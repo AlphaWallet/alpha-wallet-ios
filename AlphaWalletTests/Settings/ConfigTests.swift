@@ -22,14 +22,7 @@ extension WalletConnectCoordinator {
     }
 }
 
-class ConfigTests: XCTestCase, WalletDependencyContainer {
-    func destroy(for wallet: AlphaWalletFoundation.Wallet) {
-
-    }
-
-    func makeDependencies(for wallet: AlphaWalletFoundation.Wallet) -> AlphaWalletFoundation.WalletDependency {
-        fatalError()
-    }
+class ConfigTests: XCTestCase {
 
     //This is still used by Dapp browser
     func testChangeChainID() {
@@ -49,7 +42,7 @@ class ConfigTests: XCTestCase, WalletDependencyContainer {
         let dep1 = WalletDataProcessingPipeline.make(wallet: .make(), server: .main)
 
         let walletAddressesStore = fakeWalletAddressStore(wallets: [.make()], recentlyUsedWallet: .make())
-        let walletBalanceService = MultiWalletBalanceService(walletAddressesStore: walletAddressesStore, dependencyContainer: self)
+        let walletBalanceService = MultiWalletBalanceService()
 
         let coordinator_1 = TokensCoordinator(
             navigationController: FakeNavigationController(),

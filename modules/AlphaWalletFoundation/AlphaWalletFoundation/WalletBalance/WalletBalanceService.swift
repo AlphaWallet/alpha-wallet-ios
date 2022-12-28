@@ -22,13 +22,11 @@ public protocol WalletBalanceService {
 
     func walletBalance(for wallet: Wallet) -> AnyPublisher<WalletBalance, Never>
     func refreshBalance(updatePolicy: TokenBalanceFetcher.RefreshBalancePolicy, wallets: [Wallet])
+    func start(fetchers: [Wallet: WalletBalanceFetcherType])
 }
 
 open class MultiWalletBalanceService: WalletBalanceService {
-    private let walletAddressesStore: WalletAddressesStore
-    private var cancelable = Set<AnyCancellable>()
     private let fetchers = CurrentValueSubject<[Wallet: WalletBalanceFetcherType], Never>([:])
-    private let dependencyContainer: WalletDependencyContainer
 
     public var walletsSummary: AnyPublisher<WalletSummary, Never> {
         fetchers.map { $0.values }
@@ -38,39 +36,10 @@ open class MultiWalletBalanceService: WalletBalanceService {
             .eraseToAnyPublisher()
     }
 
-    public init(walletAddressesStore: WalletAddressesStore, dependencyContainer: WalletDependencyContainer) {
-        self.walletAddressesStore = walletAddressesStore
-        self.dependencyContainer = dependencyContainer
-    }
+    public init() { }
 
-    public func start() {
-        walletAddressesStore
-            .walletsPublisher
-            .receive(on: RunLoop.main) //NOTE: async to avoid `swift_beginAccess` crash
-            .map { [dependencyContainer, weak self] wallets -> [Wallet: WalletBalanceFetcherType] in
-                guard let strongSelf = self else { return [:] }
-                var fetchers: [Wallet: WalletBalanceFetcherType] = [:]
-
-                for wallet in wallets {
-                    if let fetcher = strongSelf.fetchers.value[wallet] {
-                        fetchers[wallet] = fetcher
-                    } else {
-                        let dep = dependencyContainer.makeDependencies(for: wallet)
-                        fetchers[wallet] = dep.fetcher
-                    }
-                }
-
-                return fetchers
-            }.sink { [weak self, dependencyContainer] newFetchers in
-                guard let strongSelf = self else { return }
-
-                let fetchersToDelete = strongSelf.fetchers.value.keys.filter { !newFetchers.keys.contains($0) }
-                for wallet in fetchersToDelete {
-                    dependencyContainer.destroy(for: wallet)
-                }
-
-                strongSelf.fetchers.send(newFetchers)
-            }.store(in: &cancelable)
+    public func start(fetchers: [Wallet: WalletBalanceFetcherType]) {
+        self.fetchers.send(fetchers)
     }
 
     ///Refreshes available wallets balances
