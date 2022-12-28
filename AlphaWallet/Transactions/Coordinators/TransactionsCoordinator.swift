@@ -8,11 +8,12 @@ import AlphaWalletFoundation
 protocol TransactionsCoordinatorDelegate: AnyObject, CanOpenURL {
 }
 
-class TransactionsCoordinator: NSObject, Coordinator {
+class TransactionsCoordinator: Coordinator {
     private let analytics: AnalyticsLogger
     private let sessions: ServerDictionary<WalletSession>
     private let transactionsService: TransactionsService
     private let tokensService: TokenViewModelState
+    
     lazy var rootViewController: TransactionsViewController = {
         let viewModel = TransactionsViewModel(transactionsService: transactionsService, sessions: sessions)
         let controller = TransactionsViewController(viewModel: viewModel)
@@ -25,20 +26,17 @@ class TransactionsCoordinator: NSObject, Coordinator {
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
 
-    init(
-        analytics: AnalyticsLogger,
-        sessions: ServerDictionary<WalletSession>,
-        navigationController: UINavigationController = .withOverridenBarAppearence(),
-        transactionsService: TransactionsService,
-        tokensService: TokenViewModelState
-    ) {
+    init(analytics: AnalyticsLogger,
+         sessions: ServerDictionary<WalletSession>,
+         navigationController: UINavigationController = .withOverridenBarAppearence(),
+         transactionsService: TransactionsService,
+         tokensService: TokenViewModelState) {
+
         self.tokensService = tokensService
         self.analytics = analytics
         self.sessions = sessions
         self.navigationController = navigationController
         self.transactionsService = transactionsService
-
-        super.init()
     }
 
     func start() {
@@ -51,7 +49,14 @@ class TransactionsCoordinator: NSObject, Coordinator {
 
     private func showTransaction(_ transactionRow: TransactionRow, on navigationController: UINavigationController) {
         let session = sessions[transactionRow.server]
-        let viewModel = TransactionDetailsViewModel(transactionsService: transactionsService, transactionRow: transactionRow, chainState: session.chainState, wallet: session.account, tokensService: tokensService, analytics: analytics)
+
+        let viewModel = TransactionDetailsViewModel(
+            transactionsService: transactionsService,
+            transactionRow: transactionRow,
+            chainState: session.chainState,
+            wallet: session.account,
+            tokensService: tokensService,
+            analytics: analytics)
 
         let controller = TransactionDetailsViewController(viewModel: viewModel)
         controller.delegate = self

@@ -93,7 +93,12 @@ public final class SwapOptionsConfigurator {
             .eraseToAnyPublisher()
     }()
 
-    public init(sessionProvider: SessionsProvider, swapPair: SwapPair, tokenCollection: TokenCollection, reachabilityManager: ReachabilityManagerProtocol, tokenSwapper: TokenSwapper) {
+    public init(sessionProvider: SessionsProvider,
+                swapPair: SwapPair,
+                tokenCollection: TokenCollection,
+                reachabilityManager: ReachabilityManagerProtocol,
+                tokenSwapper: TokenSwapper) {
+        
         self.tokenSwapper = tokenSwapper
         self.sessions = sessionProvider.activeSessions.values.sorted(by: { $0.server.displayOrderPriority < $1.server.displayOrderPriority })
         self.server = swapPair.from.server

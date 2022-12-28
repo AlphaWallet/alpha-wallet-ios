@@ -61,8 +61,25 @@ class ClaimPaidOrderCoordinator: Coordinator {
 
     func start() {
         do {
-            let transaction = try TransactionType.prebuilt(token.server).buildClaimPaidErc875MagicLink(recipient: session.account.address, signedOrder: signedOrder)
-            let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: .claimPaidErc875MagicLink(confirmType: .signThenSend, price: signedOrder.order.price, numberOfTokens: numberOfTokens), analytics: analytics, domainResolutionService: domainResolutionService, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService, networkService: networkService)
+            let transaction = try TransactionType.prebuilt(token.server).buildClaimPaidErc875MagicLink(
+                recipient: session.account.address,
+                signedOrder: signedOrder)
+            
+            let coordinator = TransactionConfirmationCoordinator(
+                presentingViewController: navigationController,
+                session: session,
+                transaction: transaction,
+                configuration: .claimPaidErc875MagicLink(
+                    confirmType: .signThenSend,
+                    price: signedOrder.order.price,
+                    numberOfTokens: numberOfTokens),
+                analytics: analytics,
+                domainResolutionService: domainResolutionService,
+                keystore: keystore,
+                assetDefinitionStore: assetDefinitionStore,
+                tokensService: tokensService,
+                networkService: networkService)
+
             coordinator.delegate = self
             addCoordinator(coordinator)
             coordinator.start(fromSource: .claimPaidMagicLink)
