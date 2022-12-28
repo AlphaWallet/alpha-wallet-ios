@@ -6,7 +6,7 @@ import AlphaWalletFoundation
 import Combine
 
 protocol BackupCoordinatorDelegate: AnyObject {
-    func didCancel(coordinator: BackupCoordinator)
+    func didCancel(in coordinator: BackupCoordinator)
     func didFinish(account: AlphaWallet.Address, in coordinator: BackupCoordinator)
 }
 
@@ -15,12 +15,19 @@ class BackupCoordinator: Coordinator {
     private let account: Wallet
     private let analytics: AnalyticsLogger
     private var cancelable = Set<AnyCancellable>()
+    private let promptBackup: PromptBackup
 
     let navigationController: UINavigationController
     weak var delegate: BackupCoordinatorDelegate?
     var coordinators: [Coordinator] = []
 
-    init(navigationController: UINavigationController, keystore: Keystore, account: Wallet, analytics: AnalyticsLogger) {
+    init(navigationController: UINavigationController,
+         keystore: Keystore,
+         account: Wallet,
+         analytics: AnalyticsLogger,
+         promptBackup: PromptBackup) {
+
+        self.promptBackup = promptBackup
         self.navigationController = navigationController
         self.keystore = keystore
         self.account = account
@@ -30,12 +37,20 @@ class BackupCoordinator: Coordinator {
 
     func start() {
         if account.origin == .hd {
-            let coordinator = BackupSeedPhraseCoordinator(navigationController: navigationController, keystore: keystore, account: account.address, analytics: analytics)
+            let coordinator = BackupSeedPhraseCoordinator(
+                navigationController: navigationController,
+                keystore: keystore,
+                account: account.address,
+                analytics: analytics)
+
             coordinator.delegate = self
             coordinator.start()
             addCoordinator(coordinator)
         } else {
-            let coordinator = EnterPasswordCoordinator(navigationController: navigationController, account: account.address)
+            let coordinator = EnterPasswordCoordinator(
+                navigationController: navigationController,
+                account: account.address)
+            
             coordinator.delegate = self
             coordinator.start()
             addCoordinator(coordinator)
@@ -45,9 +60,11 @@ class BackupCoordinator: Coordinator {
     private func finish(result: Result<Bool, Error>) {
         switch result {
         case .success:
+            promptBackup.markBackupDone(wallet: account)
+
             delegate?.didFinish(account: account.address, in: self)
         case .failure:
-            delegate?.didCancel(coordinator: self)
+            delegate?.didCancel(in: self)
         }
     }
 
@@ -168,7 +185,7 @@ class BackupCoordinator: Coordinator {
 
 extension BackupCoordinator: EnterPasswordCoordinatorDelegate {
     func didCancel(in coordinator: EnterPasswordCoordinator) {
-        coordinator.navigationController.dismiss(animated: true, completion: nil)
+        coordinator.navigationController.dismiss(animated: true)
         removeCoordinator(coordinator)
     }
 
@@ -180,6 +197,7 @@ extension BackupCoordinator: EnterPasswordCoordinatorDelegate {
 extension BackupCoordinator: BackupSeedPhraseCoordinatorDelegate {
     func didClose(forAccount account: AlphaWallet.Address, inCoordinator coordinator: BackupSeedPhraseCoordinator) {
         removeCoordinator(coordinator)
+        delegate?.didFinish(account: account, in: self)
     }
 
     func didVerifySeedPhraseSuccessfully(forAccount account: AlphaWallet.Address, inCoordinator coordinator: BackupSeedPhraseCoordinator) {

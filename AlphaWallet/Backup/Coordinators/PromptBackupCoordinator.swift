@@ -1,6 +1,5 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
-import Foundation
 import UIKit
 import BigInt
 import Combine
@@ -19,87 +18,57 @@ protocol PromptBackupCoordinatorSubtlePromptDelegate: AnyObject {
 }
 
 class PromptBackupCoordinator: Coordinator {
-    //Explicit `TimeInterval()` to speed up compilation
-    private static let secondsInAMonth = TimeInterval(30) * 24 * 60 * 60
-    private static let thresholdNativeCryptoCurrencyAmountInFiatToPromptBackup = Double(200)
-
-    private let documentsDirectory = URL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])
-    private let filename = "backupState.json"
-    lazy private var fileUrl = documentsDirectory.appendingPathComponent(filename)
     private let keystore: Keystore
     private let wallet: Wallet
-    private let config: Config
     private let analytics: AnalyticsLogger
-    private let walletBalanceService: WalletBalanceService
-    //TODO this should be the total of mainnets instead of just Ethereum mainnet
-    private var balance: WalletBalance.ValueForCurrency = .init(amount: .zero, currency: .default)
-    private var cancelable = Set<AnyCancellable>()
+    private let promptBackup: PromptBackup
+    private var cancellable = Set<AnyCancellable>()
 
-    var prominentPromptView: UIView?
-    var subtlePromptView: UIView?
+    private (set) var prominentPromptView: UIView?
+    private (set) var subtlePromptView: UIView?
     var coordinators: [Coordinator] = []
 
     weak var prominentPromptDelegate: PromptBackupCoordinatorProminentPromptDelegate?
     weak var subtlePromptDelegate: PromptBackupCoordinatorSubtlePromptDelegate?
 
-    init(keystore: Keystore, wallet: Wallet, config: Config, analytics: AnalyticsLogger, walletBalanceService: WalletBalanceService) {
-        self.walletBalanceService = walletBalanceService
+    init(wallet: Wallet,
+         promptBackup: PromptBackup,
+         keystore: Keystore,
+         analytics: AnalyticsLogger) {
+
         self.keystore = keystore
-        self.wallet = wallet
-        self.config = config
         self.analytics = analytics
+        self.wallet = wallet
+        self.promptBackup = promptBackup
+
+        promptBackup.promptEvent
+            .filter { $0 == wallet }
+            .sink { [weak self] event in
+                switch event {
+                case .show(_, let prompt):
+                    switch prompt {
+                    case .newWallet:
+                        self?.createBackupAfterWalletCreationView()
+                    case .intervalPassed:
+                        self?.createBackupAfterIntervalView()
+                    case .balanceExceededThreshold:
+                        self?.createBackupAfterExceedingThresholdView()
+                    case .receivedNativeCryptoCurrency(let nativeCryptoCurrency):
+                        self?.createBackupAfterReceiveNativeCryptoCurrencyView(nativeCryptoCurrency: nativeCryptoCurrency)
+                    }
+                case .hideBackupView:
+                    self?.removeBackupView()
+                }
+            }.store(in: &cancellable)
     }
 
     func start() {
-        listenToNativeCryptoCurrencyBalance()
-        migrateOldData()
-        guard canBackupWallet else { return }
-        setUpAndPromptIfWalletHasNotBeenPromptedBefore()
-        showCreateBackupAfterIntervalPrompt()
-        showHideCurrentPrompt()
-    }
-
-    private func setUpAndPromptIfWalletHasNotBeenPromptedBefore() {
-        guard !hasState else { return }
-        updateState { state in
-            state.backupState[wallet.address] = .init(shownNativeCryptoCurrencyReceivedPrompt: false, timeToShowIntervalPassedPrompt: nil, shownNativeCryptoCurrencyDollarValueExceedThresholdPrompt: false, lastBackedUpTime: nil, isImported: false)
-        }
-        showCreateBackupAfterWalletCreationPrompt()
-    }
-
-    func showHideCurrentPrompt() {
-        if let prompt = readState()?.prompt[wallet.address] {
-            switch prompt {
-            case .newWallet:
-                createBackupAfterWalletCreationView()
-            case .intervalPassed:
-                createBackupAfterIntervalView()
-            case .nativeCryptoCurrencyDollarValueExceededThreshold:
-                createBackupAfterExceedingThresholdView()
-            case .receivedNativeCryptoCurrency(let nativeCryptoCurrency):
-                createBackupAfterReceiveNativeCryptoCurrencyView(nativeCryptoCurrency: nativeCryptoCurrency)
-            }
-        } else {
-            removeBackupView()
-        }
+        promptBackup.start(wallet: wallet)
     }
 
     private func informDelegatesPromptHasChanged() {
         subtlePromptDelegate?.updatePrompt(inCoordinator: self)
         prominentPromptDelegate?.updatePrompt(inCoordinator: self)
-    }
-
-    private func migrateOldData() {
-        guard !FileManager.default.fileExists(atPath: fileUrl.path) else { return }
-        let addressesAlreadyPromptedForBackup = config.oldWalletAddressesAlreadyPromptedForBackUp
-        var walletsBackupState: WalletsBackupState = .init()
-        for eachAlreadyBackedUp in addressesAlreadyPromptedForBackup {
-            guard let walletAddress = AlphaWallet.Address(string: eachAlreadyBackedUp) else { continue }
-            walletsBackupState.prompt[walletAddress] = nil
-            //We'll just take the last backed up time as when this migration runs
-            walletsBackupState.backupState[walletAddress] = .init(shownNativeCryptoCurrencyReceivedPrompt: true, timeToShowIntervalPassedPrompt: nil, shownNativeCryptoCurrencyDollarValueExceedThresholdPrompt: true, lastBackedUpTime: Date(), isImported: false)
-        }
-        writeState(walletsBackupState)
     }
 
     private func createBackupViewImpl(viewModel: PromptBackupWalletViewModel, callerFunctionName: String = #function) -> UIView {
@@ -108,14 +77,6 @@ class PromptBackupCoordinator: Coordinator {
         view.delegate = self
         view.configure()
         return view
-    }
-
-    private func listenToNativeCryptoCurrencyBalance() {
-        walletBalanceService
-            .walletBalance(for: wallet)
-            .compactMap { $0.totalAmount }
-            .sink { [weak self] in self?.showCreateBackupAfterExceedThresholdPrompt(balance: $0) }
-            .store(in: &cancelable)
     }
 
     // MARK: Update UI
@@ -141,6 +102,7 @@ class PromptBackupCoordinator: Coordinator {
     }
 
     private func createBackupAfterExceedingThresholdView() {
+        let balance = promptBackup.balance(wallet: wallet)
         let view = createBackupViewImpl(viewModel: PromptBackupWalletAfterExceedingThresholdViewViewModel(walletAddress: wallet.address, balance: balance))
         prominentPromptView = view
         subtlePromptView = nil
@@ -151,208 +113,6 @@ class PromptBackupCoordinator: Coordinator {
         prominentPromptView = nil
         subtlePromptView = nil
         informDelegatesPromptHasChanged()
-    }
-
-    // MARK: Set current prompt and state
-
-    private func showCreateBackupAfterWalletCreationPrompt() {
-        guard canBackupWallet else { return }
-        guard !isBackedUp else { return }
-        guard !isImported else { return }
-        updateState { state in
-            state.prompt[wallet.address] = .newWallet
-            writeState(state)
-        }
-        showHideCurrentPrompt()
-    }
-
-    func showCreateBackupAfterReceiveNativeCryptoCurrencyPrompt(nativeCryptoCurrency: BigInt) {
-        guard canBackupWallet else { return }
-        guard !isBackedUp else { return }
-        guard !isImported else { return }
-        guard !hasShownNativeCryptoCurrencyReceivedPrompt else { return }
-        updateState { state in
-            state.prompt[wallet.address] = .receivedNativeCryptoCurrency(nativeCryptoCurrency)
-            state.backupState[wallet.address]?.shownNativeCryptoCurrencyReceivedPrompt = true
-            writeState(state)
-        }
-        showHideCurrentPrompt()
-    }
-
-    private func showCreateBackupAfterIntervalPrompt() {
-        guard canBackupWallet else { return }
-        guard !isBackedUp else { return }
-        guard !isImported else { return }
-        guard let time = timeToShowIntervalPassedPrompt else { return }
-        guard time.isEarlierThan(date: .init()) else { return }
-        updateState { state in
-            state.prompt[wallet.address] = .intervalPassed
-            state.backupState[wallet.address]?.timeToShowIntervalPassedPrompt = nil
-            writeState(state)
-        }
-        showHideCurrentPrompt()
-    }
-
-    private func showCreateBackupAfterExceedThresholdPrompt(balance: WalletBalance.ValueForCurrency) {
-        self.balance = balance
-        guard canBackupWallet else { return }
-        guard !isBackedUp else { return }
-        guard !isImported else { return }
-
-        let hasExceededThreshold = balance.amount >= PromptBackupCoordinator.thresholdNativeCryptoCurrencyAmountInFiatToPromptBackup
-        let toShow: Bool
-        if isShowingExceededThresholdPrompt {
-            if hasExceededThreshold {
-                toShow = true
-            } else {
-                toShow = false
-            }
-        } else {
-            guard !hasShownExceededThresholdPrompt else { return }
-            guard hasExceededThreshold else { return }
-            toShow = true
-        }
-        if toShow {
-            updateState { state in
-                state.prompt[wallet.address] = .nativeCryptoCurrencyDollarValueExceededThreshold
-                state.backupState[wallet.address]?.shownNativeCryptoCurrencyDollarValueExceedThresholdPrompt = true
-                writeState(state)
-            }
-            showHideCurrentPrompt()
-        } else {
-            updateState { state in
-                state.prompt[wallet.address] = nil
-                writeState(state)
-            }
-            showHideCurrentPrompt()
-        }
-    }
-
-    func markBackupDone() {
-        guard canBackupWallet else { return }
-        updateState { state in
-            state.prompt[wallet.address] = nil
-            state.backupState[wallet.address]?.lastBackedUpTime = Date()
-            writeState(state)
-        }
-    }
-
-    private func remindLater() {
-        guard canBackupWallet else { return }
-        guard !isBackedUp else { return }
-        guard !isImported else { return }
-        updateState { state in
-            state.prompt[wallet.address] = nil
-            state.backupState[wallet.address]?.timeToShowIntervalPassedPrompt = Date(timeIntervalSinceNow: PromptBackupCoordinator.secondsInAMonth)
-            writeState(state)
-        }
-    }
-
-    func markWalletAsImported() {
-        updateState { state in
-            state.prompt[wallet.address] = nil
-            if var backupState = state.backupState[wallet.address] {
-                backupState.isImported = true
-            } else {
-                state.backupState[wallet.address] = .init(shownNativeCryptoCurrencyReceivedPrompt: false, timeToShowIntervalPassedPrompt: nil, shownNativeCryptoCurrencyDollarValueExceedThresholdPrompt: false, lastBackedUpTime: nil, isImported: true)
-            }
-            writeState(state)
-        }
-    }
-
-    func deleteWallet() {
-        updateState { state in
-            state.prompt[wallet.address] = nil
-            state.backupState[wallet.address] = nil
-            writeState(state)
-        }
-    }
-
-    // MARK: State
-
-    private var hasState: Bool {
-        guard let state = WalletsBackupState.load(fromUrl: fileUrl) else { return false }
-        return state.backupState[wallet.address] != nil
-    }
-
-    private var hasShownNativeCryptoCurrencyReceivedPrompt: Bool {
-        if let shown = readState()?.backupState[wallet.address]?.shownNativeCryptoCurrencyReceivedPrompt {
-            return shown
-        } else {
-            return false
-        }
-    }
-
-    private var hasShownExceededThresholdPrompt: Bool {
-        if let shown = readState()?.backupState[wallet.address]?.shownNativeCryptoCurrencyDollarValueExceedThresholdPrompt {
-            return shown
-        } else {
-            return false
-        }
-    }
-
-    private var isBackedUp: Bool {
-        return readState()?.backupState[wallet.address]?.lastBackedUpTime != nil
-    }
-
-    private var isImported: Bool {
-        return readState()?.backupState[wallet.address]?.isImported ?? false
-    }
-
-    private var canBackupWallet: Bool {
-        switch wallet.type {
-        case .real:
-            return true
-        case .watch:
-            return false
-        }
-    }
-
-    private var isShowingExceededThresholdPrompt: Bool {
-        guard let prompt = readState()?.prompt[wallet.address] else { return false }
-        switch prompt {
-        case .nativeCryptoCurrencyDollarValueExceededThreshold:
-            return true
-        case .newWallet, .intervalPassed, .receivedNativeCryptoCurrency:
-            return false
-        }
-    }
-
-    private var timeToShowIntervalPassedPrompt: Date? {
-        return readState()?.backupState[wallet.address]?.timeToShowIntervalPassedPrompt
-    }
-
-    var securityLevel: WalletSecurityLevel? {
-        switch wallet.type {
-        case .real(let account):
-            if isBackedUp || isImported {
-                let isProtectedByUserPresence = keystore.isProtectedByUserPresence(account: account)
-                if isProtectedByUserPresence {
-                    return .backedUpWithElevatedSecurity
-                } else {
-                    return .backedUpButSecurityIsNotElevated
-                }
-            } else {
-                return .notBackedUp
-            }
-        case .watch:
-            return nil
-        }
-    }
-
-    private func readState() -> WalletsBackupState? {
-        return WalletsBackupState.load(fromUrl: fileUrl)
-    }
-
-    private func writeState(_ state: WalletsBackupState) {
-        state.writeTo(url: fileUrl)
-    }
-
-    private func updateState(block: (inout WalletsBackupState) -> Void) {
-        if var state = readState() {
-            block(&state)
-            writeState(state)
-        }
     }
 }
 
@@ -369,33 +129,30 @@ extension PromptBackupCoordinator: PromptBackupWalletViewDelegate {
     }
 
     func didChooseBackupLater(inView view: PromptBackupWalletView) {
-        remindLater()
-        showHideCurrentPrompt()
+        promptBackup.remindLater(wallet: wallet)
     }
 
     func didChooseBackup(inView view: PromptBackupWalletView) {
         guard let nc = viewControllerToShowBackupLaterAlert(forView: view)?.navigationController else { return }
-        let coordinator = BackupCoordinator(navigationController: nc, keystore: keystore, account: wallet, analytics: analytics)
+        let coordinator = BackupCoordinator(
+            navigationController: nc,
+            keystore: keystore,
+            account: wallet,
+            analytics: analytics,
+            promptBackup: promptBackup)
+
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
     }
 }
 
-extension PromptBackupCoordinator: NotificationSourceServiceDelegate {
-    func showCreateBackupAfterReceiveNativeCryptoCurrencyPrompt(in service: NotificationSourceService, etherReceivedUsedForBackupPrompt: BigInt) {
-        showCreateBackupAfterReceiveNativeCryptoCurrencyPrompt(nativeCryptoCurrency: etherReceivedUsedForBackupPrompt)
-    }
-}
-
 extension PromptBackupCoordinator: BackupCoordinatorDelegate {
-    func didCancel(coordinator: BackupCoordinator) {
+    func didCancel(in coordinator: BackupCoordinator) {
         removeCoordinator(coordinator)
     }
 
     func didFinish(account: AlphaWallet.Address, in coordinator: BackupCoordinator) {
         removeCoordinator(coordinator)
-        markBackupDone()
-        showHideCurrentPrompt()
     }
 }

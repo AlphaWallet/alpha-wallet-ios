@@ -70,7 +70,17 @@ class ActiveWalletViewTests: XCTestCase {
 
         let fas = FakeAnalyticsService()
         let keystore = FakeEtherKeystore(wallets: [wallet])
-        let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, analytics: fas, viewModel: .init(configuration: .changeWallets), walletBalanceService: FakeMultiWalletBalanceService(), blockiesGenerator: .make(), domainResolutionService: FakeDomainResolutionService())
+        let ac = AccountsCoordinator(
+            config: .make(),
+            navigationController: navigationController,
+            keystore: keystore,
+            analytics: fas,
+            viewModel: .init(configuration: .changeWallets),
+            walletBalanceService: FakeMultiWalletBalanceService(),
+            blockiesGenerator: .make(),
+            domainResolutionService: FakeDomainResolutionService(),
+            promptBackup: .make())
+
         let dep = WalletDataProcessingPipeline.make(wallet: wallet, server: .main)
 
         let coordinator = ActiveWalletCoordinator(
@@ -102,7 +112,8 @@ class ActiveWalletViewTests: XCTestCase {
             lock: FakeLock(),
             currencyService: currencyService,
             tokenScriptOverridesFileManager: .fake(),
-            networkService: FakeNetworkService())
+            networkService: FakeNetworkService(),
+            promptBackup: .make())
 
         coordinator.start(animated: false)
 
@@ -143,8 +154,16 @@ class ActiveWalletViewTests: XCTestCase {
 
         let navigationController = FakeNavigationController()
         let fas = FakeAnalyticsService()
-        let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, analytics: fas, viewModel: .init(configuration: .changeWallets),
-        walletBalanceService: FakeMultiWalletBalanceService(), blockiesGenerator: .make(), domainResolutionService: FakeDomainResolutionService())
+        let ac = AccountsCoordinator(
+            config: .make(),
+            navigationController: navigationController,
+            keystore: keystore,
+            analytics: fas,
+            viewModel: .init(configuration: .changeWallets),
+            walletBalanceService: FakeMultiWalletBalanceService(),
+            blockiesGenerator: .make(),
+            domainResolutionService: FakeDomainResolutionService(),
+            promptBackup: .make())
 
         let dep1 = WalletDataProcessingPipeline.make(wallet: account1, server: .main)
 
@@ -177,7 +196,8 @@ class ActiveWalletViewTests: XCTestCase {
             lock: FakeLock(),
             currencyService: currencyService,
             tokenScriptOverridesFileManager: .fake(),
-            networkService: FakeNetworkService())
+            networkService: FakeNetworkService(),
+            promptBackup: .make())
 
         c1.start(animated: false)
 
@@ -214,7 +234,8 @@ class ActiveWalletViewTests: XCTestCase {
             lock: FakeLock(),
             currencyService: currencyService,
             tokenScriptOverridesFileManager: .fake(),
-            networkService: FakeNetworkService())
+            networkService: FakeNetworkService(),
+            promptBackup: .make())
 
         c1.start(animated: false)
 
@@ -226,8 +247,16 @@ class ActiveWalletViewTests: XCTestCase {
         let navigationController = FakeNavigationController()
         let fas = FakeAnalyticsService()
         let keystore = FakeEtherKeystore(wallets: [wallet])
-        let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, analytics: fas, viewModel: .init(configuration: .changeWallets),
-        walletBalanceService: FakeMultiWalletBalanceService(), blockiesGenerator: .make(), domainResolutionService: FakeDomainResolutionService())
+        let ac = AccountsCoordinator(
+            config: .make(),
+            navigationController: navigationController,
+            keystore: keystore,
+            analytics: fas,
+            viewModel: .init(configuration: .changeWallets),
+            walletBalanceService: FakeMultiWalletBalanceService(),
+            blockiesGenerator: .make(),
+            domainResolutionService: FakeDomainResolutionService(),
+            promptBackup: .make())
 
         let dep = WalletDataProcessingPipeline.make(wallet: wallet, server: .main)
 
@@ -260,10 +289,14 @@ class ActiveWalletViewTests: XCTestCase {
                 lock: FakeLock(),
                 currencyService: currencyService,
                 tokenScriptOverridesFileManager: .fake(),
-                networkService: FakeNetworkService())
+                networkService: FakeNetworkService(),
+                promptBackup: .make())
 
         coordinator.start(animated: false)
-        coordinator.showPaymentFlow(for: .send(type: .transaction(TransactionType.nativeCryptocurrency(Token(), destination: .none, amount: .notSet))), server: .main, navigationController: coordinator.navigationController)
+        coordinator.showPaymentFlow(
+            for: .send(type: .transaction(TransactionType.nativeCryptocurrency(Token(), destination: .none, amount: .notSet))),
+            server: .main,
+            navigationController: coordinator.navigationController)
 
         XCTAssertTrue(coordinator.coordinators.last is PaymentCoordinator)
         XCTAssertTrue(coordinator.navigationController.viewControllers.last is SendViewController)
@@ -274,8 +307,16 @@ class ActiveWalletViewTests: XCTestCase {
         let navigationController = FakeNavigationController()
         let fas = FakeAnalyticsService()
         let keystore = FakeEtherKeystore(wallets: [wallet])
-        let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, analytics: fas, viewModel: .init(configuration: .changeWallets),
-        walletBalanceService: FakeMultiWalletBalanceService(), blockiesGenerator: .make(), domainResolutionService: FakeDomainResolutionService())
+        let ac = AccountsCoordinator(
+            config: .make(),
+            navigationController: navigationController,
+            keystore: keystore,
+            analytics: fas,
+            viewModel: .init(configuration: .changeWallets),
+            walletBalanceService: FakeMultiWalletBalanceService(),
+            blockiesGenerator: .make(),
+            domainResolutionService: FakeDomainResolutionService(),
+            promptBackup: .make())
 
         let dep = WalletDataProcessingPipeline.make(wallet: wallet, server: .main)
 
@@ -308,7 +349,8 @@ class ActiveWalletViewTests: XCTestCase {
             lock: FakeLock(),
             currencyService: currencyService,
             tokenScriptOverridesFileManager: .fake(),
-            networkService: FakeNetworkService())
+            networkService: FakeNetworkService(),
+            promptBackup: .make())
 
         coordinator.start(animated: false)
         coordinator.showPaymentFlow(for: .request, server: .main, navigationController: coordinator.navigationController)
@@ -321,8 +363,16 @@ class ActiveWalletViewTests: XCTestCase {
         let navigationController = FakeNavigationController()
         let fas = FakeAnalyticsService()
         let keystore = FakeEtherKeystore()
-        let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, analytics: fas, viewModel: .init(configuration: .changeWallets),
-        walletBalanceService: FakeMultiWalletBalanceService(), blockiesGenerator: .make(), domainResolutionService: FakeDomainResolutionService())
+        let ac = AccountsCoordinator(
+            config: .make(),
+            navigationController: navigationController,
+            keystore: keystore,
+            analytics: fas,
+            viewModel: .init(configuration: .changeWallets),
+            walletBalanceService: FakeMultiWalletBalanceService(),
+            blockiesGenerator: .make(),
+            domainResolutionService: FakeDomainResolutionService(),
+            promptBackup: .make())
 
         let wallet: Wallet = .make()
         let dep = WalletDataProcessingPipeline.make(wallet: wallet, server: .main)
@@ -356,7 +406,8 @@ class ActiveWalletViewTests: XCTestCase {
             lock: FakeLock(),
             currencyService: currencyService,
             tokenScriptOverridesFileManager: .fake(),
-            networkService: FakeNetworkService())
+            networkService: FakeNetworkService(),
+            promptBackup: .make())
         coordinator.start(animated: false)
 
         let viewController = (coordinator.tabBarController.selectedViewController as? UINavigationController)?.viewControllers[0]
@@ -389,7 +440,16 @@ class ActiveWalletViewTests: XCTestCase {
             let navigationController = FakeNavigationController()
             let fas = FakeAnalyticsService()
 
-            let ac: AccountsCoordinator = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, analytics: fas, viewModel: .init(configuration: .changeWallets), walletBalanceService: FakeMultiWalletBalanceService(), blockiesGenerator: .make(), domainResolutionService: FakeDomainResolutionService())
+            let ac: AccountsCoordinator = AccountsCoordinator(
+                config: .make(),
+                navigationController: navigationController,
+                keystore: keystore,
+                analytics: fas,
+                viewModel: .init(configuration: .changeWallets),
+                walletBalanceService: FakeMultiWalletBalanceService(),
+                blockiesGenerator: .make(),
+                domainResolutionService: FakeDomainResolutionService(),
+                promptBackup: .make())
 
             let dep = WalletDataProcessingPipeline.make(wallet: wallet, server: .main)
 
@@ -422,7 +482,8 @@ class ActiveWalletViewTests: XCTestCase {
                     lock: FakeLock(),
                     currencyService: currencyService,
                     tokenScriptOverridesFileManager: .fake(),
-                    networkService: FakeNetworkService())
+                    networkService: FakeNetworkService(),
+                    promptBackup: .make())
 
             coordinator.start(animated: false)
 

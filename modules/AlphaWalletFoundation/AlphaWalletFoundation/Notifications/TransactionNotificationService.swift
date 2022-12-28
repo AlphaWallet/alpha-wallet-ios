@@ -92,15 +92,12 @@ public final class TransactionNotificationSourceService: NotificationSourceServi
             config.markScheduledNotification(transaction: each, in: wallet)
         }
 
-        let etherReceivedUsedForBackupPrompt = newIncomingEthTransactions
-                .last
-                .flatMap { BigInt($0.value) }
+        let etherReceived = newIncomingEthTransactions.last.flatMap { BigInt($0.value) }
 
         switch server.serverWithEnhancedSupport {
         //TODO make this work for other mainnets
         case .main:
-            etherReceivedUsedForBackupPrompt
-                .flatMap { delegate?.showCreateBackupAfterReceiveNativeCryptoCurrencyPrompt(in: self, etherReceivedUsedForBackupPrompt: $0) }
+            etherReceived.flatMap { delegate?.showCreateBackup(in: self, etherReceived: $0, wallet: wallet) }
         case .xDai, .polygon, .binance_smart_chain, .heco, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, .rinkeby, nil:
             break
         }
