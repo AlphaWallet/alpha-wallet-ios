@@ -92,9 +92,11 @@ extension PriceAlertsViewController: StatefulViewController {
 
 extension PriceAlertsViewController {
     private func makeDataSource() -> PriceAlertsViewModel.DataSource {
-        PriceAlertsViewModel.DataSource(tableView: tableView) { tableView, indexPath, viewModel -> PriceAlertTableViewCell in
+        PriceAlertsViewModel.DataSource(tableView: tableView) { [weak self] tableView, indexPath, viewModel -> PriceAlertTableViewCell in
+            guard let strongSelf = self else { return PriceAlertTableViewCell() }
+            
             let cell: PriceAlertTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.delegate = self
+            cell.delegate = strongSelf
             cell.configure(viewModel: viewModel)
 
             return cell

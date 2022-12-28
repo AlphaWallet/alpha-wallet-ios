@@ -230,10 +230,16 @@ final class TokensViewModel {
 
         let titleWithListOfBadTokenScriptFiles = Publishers.CombineLatest(title, assetDefinitionStore.listOfBadTokenScriptFiles)
         let viewState = Publishers.CombineLatest4(sectionViewModelsSubject, walletSummary, blockieImage, titleWithListOfBadTokenScriptFiles)
-            .map { sections, summary, blockiesImage, data -> TokensViewModel.ViewState in
+            .map { [weak self] sections, summary, blockiesImage, data -> TokensViewModel.ViewState in
                 let isConsoleButtonHidden = data.1.isEmpty
 
-                return TokensViewModel.ViewState(title: data.0, summary: summary, blockiesImage: blockiesImage, isConsoleButtonHidden: isConsoleButtonHidden, isFooterHidden: self.isFooterHidden, sections: sections)
+                return TokensViewModel.ViewState(
+                    title: data.0,
+                    summary: summary,
+                    blockiesImage: blockiesImage,
+                    isConsoleButtonHidden: isConsoleButtonHidden,
+                    isFooterHidden: self?.isFooterHidden ?? true,
+                    sections: sections)
             }.removeDuplicates()
             .eraseToAnyPublisher()
 
@@ -251,7 +257,7 @@ final class TokensViewModel {
         keyboard
             .map { $0.isVisible }
             .prepend(false)
-            .map { self.isFooterHidden ? KeyboardInset.none : KeyboardInset.some($0) }
+            .map { [unowned self] in self.isFooterHidden ? KeyboardInset.none : KeyboardInset.some($0) }
             .eraseToAnyPublisher()
     }
 

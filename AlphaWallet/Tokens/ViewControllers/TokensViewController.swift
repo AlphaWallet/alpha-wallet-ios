@@ -454,13 +454,14 @@ extension TokensViewController {
 
 fileprivate extension TokensViewController {
     func makeDataSource() -> TableViewDiffableDataSource<TokensViewModel.Section, TokensViewModel.ViewModelType> {
-        return TableViewDiffableDataSource(tableView: tableView, cellProvider: { tableView, indexPath, viewModel in
+        return TableViewDiffableDataSource(tableView: tableView, cellProvider: { [weak self] tableView, indexPath, viewModel in
+            guard let strongSelf = self else { return UITableViewCell() }
             switch viewModel {
             case .undefined:
                 return UITableViewCell()
             case .nftCollection(let viewModel):
                 let cell: OpenSeaNonFungibleTokenPairTableCell = tableView.dequeueReusableCell(for: indexPath)
-                cell.delegate = self
+                cell.delegate = strongSelf
                 cell.configure(viewModel: viewModel)
 
                 return cell
