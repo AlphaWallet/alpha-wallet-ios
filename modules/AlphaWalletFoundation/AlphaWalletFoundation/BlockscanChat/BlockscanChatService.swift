@@ -57,31 +57,33 @@ public class BlockscanChatService {
         guard Features.default.isAvailable(.isBlockscanChatEnabled) else { return }
         guard !Constants.Credentials.blockscanChatProxyKey.isEmpty else { return }
 
-        blockscanChat.fetchUnreadCount()
+        blockscanChat
+            .fetchUnreadCount()
             .sink(receiveCompletion: { [weak self] result in
                 guard let strongSelf = self else { return }
                 guard case .failure(let error) = result else { return }
 
-//                if let error = error as? AFError, let code = error.responseCode, code == 429 {
-//                    strongSelf.logUnreadAnalytics(resultType: Analytics.BlockscanChatResultType.error429)
-//                } else {
-//                    strongSelf.logUnreadAnalytics(resultType: Analytics.BlockscanChatResultType.errorOthers)
-//                }
+                switch error {
+                case .statusCode(let code) where code == 429:
+                    strongSelf.logUnreadAnalytics(resultType: Analytics.BlockscanChatResultType.error429)
+                case .statusCode, .other:
+                    strongSelf.logUnreadAnalytics(resultType: Analytics.BlockscanChatResultType.errorOthers)
+                }
+
                 if isCurrentRealAccount {
                     strongSelf.delegate?.showBlockscanUnreadCount(nil, for: strongSelf)
                 }
-
             }, receiveValue: { [weak self] unreadCount in
                 guard let strongSelf = self else { return }
 
-                 if unreadCount > 0 {
-                     strongSelf.logUnreadAnalytics(resultType: Analytics.BlockscanChatResultType.nonZero)
-                 } else {
-                     strongSelf.logUnreadAnalytics(resultType: Analytics.BlockscanChatResultType.zero)
-                 }
-                 if isCurrentRealAccount {
-                     strongSelf.delegate?.showBlockscanUnreadCount(unreadCount, for: strongSelf)
-                 }
+                if unreadCount > 0 {
+                    strongSelf.logUnreadAnalytics(resultType: Analytics.BlockscanChatResultType.nonZero)
+                } else {
+                    strongSelf.logUnreadAnalytics(resultType: Analytics.BlockscanChatResultType.zero)
+                }
+                if isCurrentRealAccount {
+                    strongSelf.delegate?.showBlockscanUnreadCount(unreadCount, for: strongSelf)
+                }
             }).store(in: &cancelable)
     }
 
