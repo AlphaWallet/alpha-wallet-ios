@@ -11,9 +11,7 @@ extension NonFungibleFromJson {
     }
 }
 
-private let decoder = JSONDecoder()
-
-public func nonFungible(fromJsonData jsonData: Data, tokenType: TokenType? = nil) -> NonFungibleFromJson? {
+public func nonFungible(fromJsonData jsonData: Data, tokenType: TokenType? = nil, decoder: JSONDecoder = JSONDecoder()) -> NonFungibleFromJson? {
     if let nonFungible = try? decoder.decode(OpenSeaNonFungible.self, from: jsonData) {
         return nonFungible
     }
