@@ -38,14 +38,10 @@
 		02645122277206C0009260DC /* TableViewSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02645121277206C0009260DC /* TableViewSection.swift */; };
 		02645124277217D9009260DC /* CustomRpcTableViewSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02645123277217D9009260DC /* CustomRpcTableViewSection.swift */; };
 		0277D92B282A494600510ECE /* InitialNetworkSelectionCollectionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0277D92A282A494600510ECE /* InitialNetworkSelectionCollectionModel.swift */; };
-		0277D92E282A789000510ECE /* InitialNetworkSelectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0277D92D282A789000510ECE /* InitialNetworkSelectionViewModel.swift */; };
 		028CFFA0284B06540089B551 /* UIColorExtensionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 028CFF9F284B06540089B551 /* UIColorExtensionTests.swift */; };
 		028D4E5A277309ED00E7418D /* EmptyTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 028D4E59277309ED00E7418D /* EmptyTableView.swift */; };
 		02988ACC282C85F100433F3B /* InitialNetworkSelectionCollectionModelTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02988ACB282C85F100433F3B /* InitialNetworkSelectionCollectionModelTestCase.swift */; };
 		02B01A6327B3CD6F00379A00 /* ButtonsBarStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02B01A6227B3CD6F00379A00 /* ButtonsBarStyle.swift */; };
-		02C6B6A02828D71700A6FEF0 /* InitialNetworkSelectionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C6B69F2828D71700A6FEF0 /* InitialNetworkSelectionCoordinator.swift */; };
-		02C6B6A22828E2A000A6FEF0 /* InitialNetworkSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C6B6A12828E2A000A6FEF0 /* InitialNetworkSelectionViewController.swift */; };
-		02C6B6A42828E2EF00A6FEF0 /* InitialNetworkSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C6B6A32828E2EF00A6FEF0 /* InitialNetworkSelectionView.swift */; };
 		02C7AF6F2770C405005367EE /* RpcNetworkTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C7AF6E2770C405005367EE /* RpcNetworkTestCase.swift */; };
 		02CEFAF82807FF7500CF8722 /* GetIsERC1155ContractCoordinatorTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CEFAF72807FF7500CF8722 /* GetIsERC1155ContractCoordinatorTestCase.swift */; };
 		02CEFAFB2808027E00CF8722 /* urlUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CEFAFA2808027E00CF8722 /* urlUtilities.swift */; };
@@ -901,14 +897,10 @@
 		02645121277206C0009260DC /* TableViewSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewSection.swift; sourceTree = "<group>"; };
 		02645123277217D9009260DC /* CustomRpcTableViewSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomRpcTableViewSection.swift; sourceTree = "<group>"; };
 		0277D92A282A494600510ECE /* InitialNetworkSelectionCollectionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialNetworkSelectionCollectionModel.swift; sourceTree = "<group>"; };
-		0277D92D282A789000510ECE /* InitialNetworkSelectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialNetworkSelectionViewModel.swift; sourceTree = "<group>"; };
 		028CFF9F284B06540089B551 /* UIColorExtensionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColorExtensionTests.swift; sourceTree = "<group>"; };
 		028D4E59277309ED00E7418D /* EmptyTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyTableView.swift; sourceTree = "<group>"; };
 		02988ACB282C85F100433F3B /* InitialNetworkSelectionCollectionModelTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialNetworkSelectionCollectionModelTestCase.swift; sourceTree = "<group>"; };
 		02B01A6227B3CD6F00379A00 /* ButtonsBarStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonsBarStyle.swift; sourceTree = "<group>"; };
-		02C6B69F2828D71700A6FEF0 /* InitialNetworkSelectionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialNetworkSelectionCoordinator.swift; sourceTree = "<group>"; };
-		02C6B6A12828E2A000A6FEF0 /* InitialNetworkSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialNetworkSelectionViewController.swift; sourceTree = "<group>"; };
-		02C6B6A32828E2EF00A6FEF0 /* InitialNetworkSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialNetworkSelectionView.swift; sourceTree = "<group>"; };
 		02C7AF6E2770C405005367EE /* RpcNetworkTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RpcNetworkTestCase.swift; sourceTree = "<group>"; };
 		02CEFAF72807FF7500CF8722 /* GetIsERC1155ContractCoordinatorTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetIsERC1155ContractCoordinatorTestCase.swift; sourceTree = "<group>"; };
 		02CEFAFA2808027E00CF8722 /* urlUtilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = urlUtilities.swift; sourceTree = "<group>"; };
@@ -2133,7 +2125,6 @@
 				5E7C79107D8AAA345518435F /* BackupSeedPhraseCoordinator.swift */,
 				5E7C7CE6E3560E773D2287E2 /* ElevateWalletSecurityCoordinator.swift */,
 				87584B4025EF911D0070063B /* ShowSeedPhraseCoordinator.swift */,
-				02C6B69F2828D71700A6FEF0 /* InitialNetworkSelectionCoordinator.swift */,
 			);
 			path = Coordinators;
 			sourceTree = "<group>";
@@ -2183,7 +2174,6 @@
 				5E7C78CF45AA54EF8647C44B /* SeedPhraseBackupIntroductionViewController.swift */,
 				87897B9B25EF7C08006E3C75 /* ShowSeedPhraseIntroductionViewController.swift */,
 				8703F66A26136A500082EE25 /* RenameWalletViewController.swift */,
-				02C6B6A12828E2A000A6FEF0 /* InitialNetworkSelectionViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -2204,7 +2194,6 @@
 				87897B9D25EF7C50006E3C75 /* ShowSeedPhraseIntroductionViewModel.swift */,
 				8703F686261461E40082EE25 /* RenameWalletViewModel.swift */,
 				87DD0C41279979F900460260 /* EnterKeystorePasswordViewModel.swift */,
-				0277D92D282A789000510ECE /* InitialNetworkSelectionViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -3481,7 +3470,6 @@
 				5E7C7D8A8A4E7A77F7344E2F /* CollectionViewLeftAlignedFlowLayout.swift */,
 				5E7C77BCBD2C2BE682D384DB /* SeedPhraseCollectionView.swift */,
 				C6959E31246C1D720095DE91 /* SeedPhraseSuggestionViewCell.swift */,
-				02C6B6A32828E2EF00A6FEF0 /* InitialNetworkSelectionView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -4999,7 +4987,6 @@
 				AA26C62320412A4100318B9B /* UIViewInspectableEnhancements.swift in Sources */,
 				8757E5E425DE5EC400812392 /* AcceptProposalCoordinator.swift in Sources */,
 				87B1B64128CB16D50072A5E2 /* ScreenChecker.swift in Sources */,
-				02C6B6A02828D71700A6FEF0 /* InitialNetworkSelectionCoordinator.swift in Sources */,
 				29BB94971F6FCD60009B09CC /* SendViewModel.swift in Sources */,
 				BBF4F9B72029D0B3009E04C0 /* GasViewModel.swift in Sources */,
 				29FC0CB61F8298820036089F /* TransactionsCoordinator.swift in Sources */,
@@ -5290,7 +5277,6 @@
 				5E7C7AE2EF04A23EC7C5ADFD /* ImportMagicTokenViewController.swift in Sources */,
 				5E7C78A31A16600FBA5C9956 /* ScanQRCodeCoordinator.swift in Sources */,
 				8737851228DC97E200CE836F /* SelectableSwapRouteTableViewCell.swift in Sources */,
-				02C6B6A42828E2EF00A6FEF0 /* InitialNetworkSelectionView.swift in Sources */,
 				024255202816DB6B009D626E /* FeaturesTableViewController.swift in Sources */,
 				8712A38D26F476540009C376 /* EditPriceAlertViewModel.swift in Sources */,
 				874ED69527DF34C0001AB374 /* SwapOptionsHeaderView.swift in Sources */,
@@ -5389,7 +5375,6 @@
 				5E7C7EE445B044CA15171BD5 /* DappsHomeHeaderViewModel.swift in Sources */,
 				5E7C7F67945615E242B61CC3 /* BoxView.swift in Sources */,
 				5E7C72CEFE98436DB8EC0E05 /* BrowserHistoryCell.swift in Sources */,
-				02C6B6A22828E2A000A6FEF0 /* InitialNetworkSelectionViewController.swift in Sources */,
 				874ED6A227DF53E1001AB374 /* SwapOptionsViewController.swift in Sources */,
 				5E7C7EF1F2CDFA52BBF1C620 /* BrowserHistoryCellViewModel.swift in Sources */,
 				5E7C7B4778FF36371701242E /* BrowserHistoryHeaderView.swift in Sources */,
@@ -5453,7 +5438,6 @@
 				5E7C7FE1E7806D33001F9867 /* ShowSeedPhraseViewController.swift in Sources */,
 				5E7C75F1B2340BB6AA86A2EE /* ShowSeedPhraseViewModel.swift in Sources */,
 				5E7C7A4700C79350AA486E09 /* SeedPhraseCell.swift in Sources */,
-				0277D92E282A789000510ECE /* InitialNetworkSelectionViewModel.swift in Sources */,
 				5E7C767848E46E079557A039 /* SeedPhraseCellViewModel.swift in Sources */,
 				8766B053283242E3004CF81C /* NFTPreviewView.swift in Sources */,
 				87D7D66127D654A000202861 /* CheckTransactionStateViewModel.swift in Sources */,
