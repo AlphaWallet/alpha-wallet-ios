@@ -25,7 +25,7 @@ struct TransactionReceiptRequest: JSONRPCKit.Request {
 
     func response(from resultObject: Any) throws -> Response {
         do {
-            let data = try JSONSerialization.data(withJSONObject: resultObject)
+            let data = try Data(json: resultObject)
             return try JSONDecoder().decode(TransactionReceipt.self, from: data)
         } catch {
             throw CastError(actualValue: resultObject, expectedType: Response.self)

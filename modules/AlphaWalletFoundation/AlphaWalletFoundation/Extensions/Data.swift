@@ -2,8 +2,17 @@
 
 import UIKit
 import CoreImage
+import AlphaWalletWeb3
 
 extension Data {
+
+    public init(json: Any, options: JSONSerialization.WritingOptions = []) throws {
+        guard JSONSerialization.isValidJSONObject(json) else {
+            throw DecodeError.initFailure
+        }
+        self = try JSONSerialization.data(withJSONObject: json, options: options)
+    }
+
     public struct HexEncodingOptions: OptionSet {
         public let rawValue: Int
         public static let upperCase = HexEncodingOptions(rawValue: 1 << 0)
