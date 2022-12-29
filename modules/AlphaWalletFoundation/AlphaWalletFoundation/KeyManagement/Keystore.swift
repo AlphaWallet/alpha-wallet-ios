@@ -4,12 +4,7 @@ import Foundation
 import LocalAuthentication
 import Combine
 
-public protocol KeystoreDelegate: AnyObject {
-    func didImport(wallet: Wallet, in keystore: Keystore)
-}
-
 public protocol Keystore {
-    var delegate: KeystoreDelegate? { get set }
     var hasMigratedFromKeystoreFiles: Bool { get }
     var hasWallets: Bool { get }
     var isUserPresenceCheckPossible: Bool { get }

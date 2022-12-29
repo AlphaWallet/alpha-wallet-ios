@@ -76,7 +76,7 @@ class SettingsCoordinatorTests: XCTestCase {
         var walletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: .test)
 
         let wallet: Wallet = .make()
-        var addedAddress: AlphaWallet.Address?
+        var addedAddress: Wallet?
         let expectation = self.expectation(description: "didAddWalletPublisher")
 
         addWalletCancelable = walletAddressesStore
@@ -86,13 +86,12 @@ class SettingsCoordinatorTests: XCTestCase {
                 addedAddress = value
                 expectation.fulfill()
             }
-
-        walletAddressesStore.addToListOfWatchEthereumAddresses(wallet.address)
+        walletAddressesStore.add(wallet: wallet)
 
         waitForExpectations(timeout: 10)
 
         XCTAssertNotNil(addedAddress)
-        XCTAssertTrue(wallet.address.sameContract(as: addedAddress!))
+        XCTAssertTrue(wallet.address.sameContract(as: addedAddress!.address))
         XCTAssertEqual(1, walletAddressesStore.wallets.count)
     }
 }

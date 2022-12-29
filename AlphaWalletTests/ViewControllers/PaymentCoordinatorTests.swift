@@ -24,7 +24,7 @@ extension CurrencyService {
 }
 
 extension WalletDataProcessingPipeline {
-    static func make(wallet: Wallet = .make(), server: RPCServer = .main) -> WalletDependency {
+    static func make(wallet: Wallet = .make(), server: RPCServer = .main) -> FakeWalletDep {
         let fas = FakeAnalyticsService()
         let sessionsProvider: SessionsProvider = .make(wallet: wallet, servers: [server])
         let eventsActivityDataStore: EventsActivityDataStoreProtocol = EventsActivityDataStore(store: .fake(for: wallet))
@@ -87,7 +87,7 @@ extension WalletDataProcessingPipeline {
         return dep
     }
 
-    struct FakeWalletDep: WalletDependency {
+    struct FakeWalletDep {
         let activitiesPipeLine: ActivitiesPipeLine
         let tokensDataStore: TokensDataStore
         let transactionsDataStore: TransactionDataStore

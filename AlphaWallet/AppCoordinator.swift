@@ -29,9 +29,6 @@ class AppCoordinator: NSObject, Coordinator {
     private var initialWalletCreationCoordinator: InitialWalletCreationCoordinator? {
         return coordinators.compactMap { $0 as? InitialWalletCreationCoordinator }.first
     }
-    var promptBackupCoordinator: PromptBackupCoordinator? {
-        return coordinators.compactMap { $0 as? PromptBackupCoordinator }.first
-    }
 
     private lazy var protectionCoordinator: ProtectionCoordinator = {
         return ProtectionCoordinator(lock: lock)
@@ -55,24 +52,8 @@ class AppCoordinator: NSObject, Coordinator {
     private lazy var currencyService = CurrencyService(storage: config)
     private lazy var coinTickersFetcher: CoinTickersFetcher = CoinTickersFetcherImpl(networkService: networkService)
     private lazy var nftProvider: NFTProvider = AlphaWalletNFTProvider(analytics: analytics)
-    private lazy var dependencyProvider: WalletDependencyContainer = {
-        WalletComponentsFactory(
-            analytics: analytics,
-            nftProvider: nftProvider,
-            assetDefinitionStore: assetDefinitionStore,
-            coinTickersFetcher: coinTickersFetcher,
-            config: config,
-            currencyService: currencyService,
-            networkService: networkService)
-    }()
-    private lazy var walletBalanceService: WalletBalanceService = {
-        let service = MultiWalletBalanceService(
-            walletAddressesStore: walletAddressesStore,
-            dependencyContainer: dependencyProvider)
-
-        service.start()
-        return service
-    }()
+    private var walletDependencies: [Wallet: WalletDependencies] = [:]
+    private let walletBalanceService = MultiWalletBalanceService()
     private var pendingActiveWalletCoordinator: ActiveWalletCoordinator?
 
     private lazy var accountsCoordinator: AccountsCoordinator = {
@@ -208,8 +189,6 @@ class AppCoordinator: NSObject, Coordinator {
             securedStorage: securedStorage,
             legacyFileBasedKeystore: legacyFileBasedKeystore)
 
-        coordinator.keystore.delegate = coordinator
-
         return coordinator
     }
 
@@ -253,7 +232,38 @@ class AppCoordinator: NSObject, Coordinator {
                 Erc1155TokenIdsFetcher.deleteForWallet(account.address)
                 DatabaseMigration.addToDeleteList(address: account.address)
                 legacyFileBasedKeystore.delete(wallet: account)
+
+                self.destroy(for: account)
             }.store(in: &cancelable)
+
+        walletAddressesStore
+            .didAddWalletPublisher
+            .sink { [keystore, config, analytics, walletBalanceService] wallet in
+
+                let coordinator = PromptBackupCoordinator(
+                    keystore: keystore,
+                    wallet: wallet,
+                    config: config,
+                    analytics: analytics,
+                    walletBalanceService: walletBalanceService)
+
+                coordinator.markWalletAsImported()
+            }.store(in: &cancelable)
+
+        walletAddressesStore
+            .walletsPublisher
+            .receive(on: RunLoop.main) //NOTE: async to avoid `swift_beginAccess` crash
+            .map { wallets -> [Wallet: WalletBalanceFetcherType] in
+                var fetchers: [Wallet: WalletBalanceFetcherType] = [:]
+
+                for wallet in wallets {
+                    let dep = self.buildDependencies(for: wallet, activeSessionsProvider: nil)
+                    fetchers[wallet] = dep.fetcher
+                }
+
+                return fetchers
+            }.sink { [walletBalanceService] in walletBalanceService.start(fetchers: $0) }
+            .store(in: &cancelable)
     }
 
     func start(launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) {
@@ -364,7 +374,7 @@ class AppCoordinator: NSObject, Coordinator {
             removeCoordinator(coordinator)
         }
 
-        let dep = dependencyProvider.makeDependencies(for: wallet)
+        let dep = buildDependencies(for: wallet, activeSessionsProvider: activeSessionsProvider)
 
         walletConnectCoordinator.configure(with: dep.pipeline)
 
@@ -406,8 +416,6 @@ class AppCoordinator: NSObject, Coordinator {
         addCoordinator(accountsCoordinator)
 
         coordinator.start(animated: animated)
-
-        activeSessionsProvider.start(sessions: dep.sessionsProvider.sessions)
 
         return coordinator
     }
@@ -516,6 +524,80 @@ class AppCoordinator: NSObject, Coordinator {
         } else {
             return false
         }
+    }
+    //NOTE: not good to pass `activeSessionsProvider` but needed to update active wallet session with right sessions in time
+    private func buildDependencies(for wallet: Wallet, activeSessionsProvider: SessionsProvider?) -> WalletDependencies {
+        if let dep = walletDependencies[wallet] { return dep }
+
+        let tokensDataStore: TokensDataStore = MultipleChainsTokensDataStore(store: .storage(for: wallet), servers: config.enabledServers)
+        let eventsDataStore: NonActivityEventsDataStore = NonActivityMultiChainEventsDataStore(store: .storage(for: wallet))
+        let transactionsDataStore: TransactionDataStore = TransactionDataStore(store: .storage(for: wallet))
+        let eventsActivityDataStore: EventsActivityDataStoreProtocol = EventsActivityDataStore(store: .storage(for: wallet))
+
+        let sessionsProvider: SessionsProvider = .init(config: config, analytics: analytics)
+        sessionsProvider.start(wallet: wallet)
+        activeSessionsProvider?.set(activeSessions: sessionsProvider.activeSessions)
+
+        let contractDataFetcher = ContractDataFetcher(
+            sessionProvider: sessionsProvider,
+            assetDefinitionStore: assetDefinitionStore,
+            analytics: analytics,
+            reachability: ReachabilityManager())
+
+        let importToken = ImportToken(tokensDataStore: tokensDataStore, contractDataFetcher: contractDataFetcher)
+
+        let tokensService = AlphaWalletTokensService(
+            sessionsProvider: sessionsProvider,
+            tokensDataStore: tokensDataStore,
+            analytics: analytics,
+            importToken: importToken,
+            transactionsStorage: transactionsDataStore,
+            nftProvider: nftProvider,
+            assetDefinitionStore: assetDefinitionStore,
+            networkService: networkService)
+
+        let pipeline: TokensProcessingPipeline = WalletDataProcessingPipeline(
+            wallet: wallet,
+            tokensService: tokensService,
+            coinTickersFetcher: coinTickersFetcher,
+            assetDefinitionStore: assetDefinitionStore,
+            eventsDataStore: eventsDataStore,
+            currencyService: currencyService)
+
+        pipeline.start()
+
+        let fetcher = WalletBalanceFetcher(wallet: wallet, tokensService: pipeline)
+        fetcher.start()
+
+        let activitiesPipeLine = ActivitiesPipeLine(
+            config: config,
+            wallet: wallet,
+            assetDefinitionStore: assetDefinitionStore,
+            transactionDataStore: transactionsDataStore,
+            tokensService: tokensService,
+            sessionsProvider: sessionsProvider,
+            eventsActivityDataStore: eventsActivityDataStore,
+            eventsDataStore: eventsDataStore,
+            analytics: analytics)
+
+        let dependency = WalletDependencies(
+            activitiesPipeLine: activitiesPipeLine,
+            transactionsDataStore: transactionsDataStore,
+            importToken: importToken,
+            tokensService: tokensService,
+            pipeline: pipeline,
+            fetcher: fetcher,
+            sessionsProvider: sessionsProvider,
+            eventsDataStore: eventsDataStore,
+            currencyService: currencyService)
+
+        walletDependencies[wallet] = dependency
+
+        return dependency
+    }
+
+    private func destroy(for wallet: Wallet) {
+        walletDependencies[wallet] = nil
     }
 }
 // swiftlint:enable type_body_length
@@ -681,6 +763,20 @@ extension AppCoordinator: ServerUnavailableCoordinatorDelegate {
     }
 }
 
+extension AppCoordinator {
+    private struct WalletDependencies {
+        let activitiesPipeLine: ActivitiesPipeLine
+        let transactionsDataStore: TransactionDataStore
+        let importToken: ImportToken
+        let tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable & TokensServiceTests
+        let pipeline: TokensProcessingPipeline
+        let fetcher: WalletBalanceFetcher
+        let sessionsProvider: SessionsProvider
+        let eventsDataStore: NonActivityEventsDataStore
+        let currencyService: CurrencyService
+    }
+}
+
 extension AppCoordinator: WalletApiCoordinatorDelegate {
     func didOpenUrl(in service: WalletApiCoordinator, redirectUrl: URL) {
         if UIApplication.shared.canOpenURL(redirectUrl) {
@@ -736,18 +832,5 @@ extension AppCoordinator: AccountsCoordinatorDelegate {
         }
 
         pendingActiveWalletCoordinator = .none
-    }
-}
-
-extension AppCoordinator: KeystoreDelegate {
-    func didImport(wallet: Wallet, in keystore: Keystore) {
-        let coordinator = PromptBackupCoordinator(
-            keystore: keystore,
-            wallet: wallet,
-            config: config,
-            analytics: analytics,
-            walletBalanceService: walletBalanceService)
-
-        coordinator.markWalletAsImported()
     }
 }
