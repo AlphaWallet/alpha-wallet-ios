@@ -22,7 +22,7 @@ struct DASLookupRequest: JSONRPCKit.Request {
     }
 
     func response(from resultObject: Any) throws -> Response {
-        guard let data = try? JSONSerialization.data(withJSONObject: resultObject, options: []) else {
+        guard let data = try? Data(json: resultObject) else {
             throw CastError(actualValue: resultObject, expectedType: Response.self)
         }
         if let data = try? JSONDecoder().decode(DASLookupResponse.self, from: data) {

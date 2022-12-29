@@ -755,6 +755,7 @@
 		87D847452744EFA300EDBA80 /* JSONRPC_2_0.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D847442744EFA300EDBA80 /* JSONRPC_2_0.swift */; };
 		87D84747274521FD00EDBA80 /* TransactionConfirmationRPCServerInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D84746274521FD00EDBA80 /* TransactionConfirmationRPCServerInfoView.swift */; };
 		87D84749274533F600EDBA80 /* UIImageView+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D84748274533F500EDBA80 /* UIImageView+Extension.swift */; };
+		87DC8A48295CA0C300CFBEDA /* DataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87DC8A47295CA0C300CFBEDA /* DataTests.swift */; };
 		87DCCB51266F655D003E8EA0 /* WalletSummaryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87DCCB50266F655D003E8EA0 /* WalletSummaryViewModel.swift */; };
 		87DD0C42279979F900460260 /* EnterKeystorePasswordViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87DD0C41279979F900460260 /* EnterKeystorePasswordViewModel.swift */; };
 		87DD0C44279980E500460260 /* ValidatorsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87DD0C43279980E500460260 /* ValidatorsTests.swift */; };
@@ -1622,6 +1623,7 @@
 		87D847442744EFA300EDBA80 /* JSONRPC_2_0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONRPC_2_0.swift; sourceTree = "<group>"; };
 		87D84746274521FD00EDBA80 /* TransactionConfirmationRPCServerInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionConfirmationRPCServerInfoView.swift; sourceTree = "<group>"; };
 		87D84748274533F500EDBA80 /* UIImageView+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+Extension.swift"; sourceTree = "<group>"; };
+		87DC8A47295CA0C300CFBEDA /* DataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTests.swift; sourceTree = "<group>"; };
 		87DCCB50266F655D003E8EA0 /* WalletSummaryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSummaryViewModel.swift; sourceTree = "<group>"; };
 		87DD0C41279979F900460260 /* EnterKeystorePasswordViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnterKeystorePasswordViewModel.swift; sourceTree = "<group>"; };
 		87DD0C43279980E500460260 /* ValidatorsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorsTests.swift; sourceTree = "<group>"; };
@@ -2632,6 +2634,7 @@
 				87D1F91328900E4600056EBE /* FakeUniversalLinkCoordinator.swift */,
 				87D1F91528900EDD00056EBE /* FakeNotificationService.swift */,
 				87BCB98529362A8100C6BA67 /* FakeTokenScriptOverridesFileManager.swift */,
+				87DC8A47295CA0C300CFBEDA /* DataTests.swift */,
 			);
 			path = Factories;
 			sourceTree = "<group>";
@@ -5629,6 +5632,7 @@
 				02EFD0FC27DF0815008B5808 /* RepeatTests.swift in Sources */,
 				295B61D61FE7FC8300642E60 /* FakeTokensDataStore.swift in Sources */,
 				291E8FBF1F7DEA85003F0ECF /* EtherKeystoreTests.swift in Sources */,
+				87DC8A48295CA0C300CFBEDA /* DataTests.swift in Sources */,
 				732E0F542022786400B39C1F /* LockCreatePasscodeCoordinatorTest.swift in Sources */,
 				298543001FBEAE2F00CB5081 /* ChainState.swift in Sources */,
 				29AD8A0E1F93FF28008E10E7 /* WalletSession.swift in Sources */,
