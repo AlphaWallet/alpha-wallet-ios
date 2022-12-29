@@ -37,14 +37,6 @@ class ElevateWalletSecurityCoordinator: Coordinator {
         rootViewController.navigationItem.largeTitleDisplayMode = .never
         navigationController.pushViewController(rootViewController, animated: true)
     }
-
-    func end() {
-        //do nothing
-    }
-
-    func endUserInterface(animated: Bool) {
-        navigationController.popViewController(animated: animated)
-    }
 }
 
 extension ElevateWalletSecurityCoordinator: ElevateWalletSecurityViewControllerDelegate {

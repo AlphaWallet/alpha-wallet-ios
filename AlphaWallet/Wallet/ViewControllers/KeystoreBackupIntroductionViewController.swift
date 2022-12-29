@@ -4,7 +4,8 @@ import UIKit
 import AlphaWalletFoundation
 
 protocol KeystoreBackupIntroductionViewControllerDelegate: AnyObject {
-    func didTapExport(inViewController viewController: KeystoreBackupIntroductionViewController)
+    func didClose(in viewController: KeystoreBackupIntroductionViewController)
+    func didTapExport(in viewController: KeystoreBackupIntroductionViewController)
 }
 
 class KeystoreBackupIntroductionViewController: UIViewController {
@@ -102,6 +103,12 @@ class KeystoreBackupIntroductionViewController: UIViewController {
     }
 
     @objc private func tappedExportButton() {
-        delegate?.didTapExport(inViewController: self)
+        delegate?.didTapExport(in: self)
+    }
+}
+
+extension KeystoreBackupIntroductionViewController: PopNotifiable {
+    func didPopViewController(animated: Bool) {
+        delegate?.didClose(in: self)
     }
 }

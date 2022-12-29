@@ -64,10 +64,6 @@ class BackupSeedPhraseCoordinator: Coordinator {
         navigationController.pushViewController(rootViewController, animated: true)
     }
 
-    func end() {
-        showSeedPhraseViewController.markDone()
-    }
-
     private func createShowSeedPhraseViewController() -> ShowSeedPhraseViewController {
         let controller = ShowSeedPhraseViewController(keystore: keystore, account: account)
         controller.configure()
@@ -94,12 +90,6 @@ class BackupSeedPhraseCoordinator: Coordinator {
         _context = nil
         showSeedPhraseViewController.removeSeedPhraseFromDisplay()
         verifySeedPhraseViewController.removeSeedPhraseFromDisplay()
-    }
-
-    func endUserInterface(animated: Bool) {
-        let _ = navigationController.viewControllers.firstIndex(of: rootViewController)
-                .flatMap { navigationController.viewControllers[$0 - 1] }
-                .flatMap { navigationController.popToViewController($0, animated: animated) }
     }
 }
 
