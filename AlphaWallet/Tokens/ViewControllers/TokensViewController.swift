@@ -1,8 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit 
+import UIKit
 import Combine
-import AlphaWalletFoundation 
+import AlphaWalletFoundation
 
 protocol TokensViewControllerDelegate: AnyObject {
     func viewWillAppear(in viewController: UIViewController)
@@ -114,7 +114,7 @@ final class TokensViewController: UIViewController {
             adjustTableViewHeaderHeightToFitContents()
         }
     }
-    
+
     private var isPromptBackupWalletViewHolderHidden: Bool {
         get { promptBackupWalletViewHolder.isHidden }
         set {
@@ -125,7 +125,7 @@ final class TokensViewController: UIViewController {
     }
 
     weak var delegate: TokensViewControllerDelegate?
-    
+
     var promptBackupWalletView: UIView? {
         didSet {
             oldValue?.removeFromSuperview()
@@ -152,7 +152,11 @@ final class TokensViewController: UIViewController {
     }()
     private lazy var dataSource = makeDataSource()
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
-    private lazy var footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
+    private lazy var footerBar: ButtonsBarBackgroundView = {
+        let result = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
+        result.backgroundColor = viewModel.buyButtonFooterBarBackgroundColor
+        return result
+    }()
 
     init(viewModel: TokensViewModel) {
         self.viewModel = viewModel
@@ -497,7 +501,7 @@ fileprivate extension TokensViewController {
         for each in viewModels {
             snapshot.appendItems(each.views, toSection: each.section)
         }
-        
+
         dataSource.apply(snapshot, animatingDifferences: animatingDifferences)
     }
 }
