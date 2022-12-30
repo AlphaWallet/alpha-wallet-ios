@@ -434,7 +434,7 @@ class ActiveWalletViewTests: XCTestCase {
 
     func testShowTabAlphwaWalletWallet() {
         let keystore = FakeEtherKeystore()
-        switch keystore.createAccount() {
+        switch keystore.importWallet(type: .newWallet) {
         case .success(let wallet):
             keystore.recentlyUsedWallet = wallet
             let navigationController = FakeNavigationController()

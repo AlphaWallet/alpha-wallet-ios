@@ -171,7 +171,7 @@ open class EtherKeystore: NSObject, Keystore {
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             guard let strongSelf = self else { return }
 
-            let mnemonicString = strongSelf.generateMnemonic()
+            let mnemonicString = strongSelf.generateMnemonic(seedPhraseCount: .word12, passphrase: strongSelf.emptyPassphrase)
             let mnemonic = mnemonicString.split(separator: " ").map { String($0) }
 
             DispatchQueue.main.async {
@@ -250,13 +250,17 @@ open class EtherKeystore: NSObject, Keystore {
             walletAddressesStore.add(wallet: wallet)
 
             return .success(wallet)
+        case .new(let seedPhraseCount, let passphrase):
+            let mnemonicString = generateMnemonic(seedPhraseCount: seedPhraseCount, passphrase: passphrase)
+            let mnemonic = mnemonicString.split(separator: " ").map { String($0) }
+
+            return importWallet(type: .mnemonic(words: mnemonic, password: emptyPassphrase))
         }
     }
 
-    private func generateMnemonic() -> String {
-        let seedPhraseCount: HDWallet.SeedPhraseCount = .word12
+    private func generateMnemonic(seedPhraseCount: HDWallet.SeedPhraseCount, passphrase: String) -> String {
         repeat {
-            if let newHdWallet = HDWallet(strength: seedPhraseCount.strength, passphrase: emptyPassphrase) {
+            if let newHdWallet = HDWallet(strength: seedPhraseCount.strength, passphrase: passphrase) {
                 let mnemonicIsGood = doesSeedMatchWalletAddress(mnemonic: newHdWallet.mnemonic)
                 if mnemonicIsGood {
                     return newHdWallet.mnemonic
@@ -265,20 +269,6 @@ open class EtherKeystore: NSObject, Keystore {
                 continue
             }
         } while true
-    }
-
-    public func createAccount() -> Result<Wallet, KeystoreError> {
-        let mnemonicString = generateMnemonic()
-        let mnemonic = mnemonicString.split(separator: " ").map {
-            String($0)
-        }
-        let result = importWallet(type: .mnemonic(words: mnemonic, password: emptyPassphrase))
-        switch result {
-        case .success(let wallet):
-            return .success(wallet)
-        case .failure:
-            return .failure(.failedToCreateWallet)
-        }
     }
 
     //Defensive check. Make sure mnemonic is OK and signs data correctly

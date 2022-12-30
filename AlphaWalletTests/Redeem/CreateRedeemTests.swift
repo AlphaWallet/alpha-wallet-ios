@@ -15,7 +15,7 @@ class CreateRedeemTests: XCTestCase {
         var token = [BigUInt]()
         token.append(1)
         token.append(2)
-        let account = keyStore.createAccount()
+        let account = keyStore.importWallet(type: .newWallet)
         let message = CreateRedeem(token: Token()).redeemMessage(tokenIds: token).0
         let data = message.data(using: String.Encoding.utf8)
         do {
