@@ -3,6 +3,7 @@
 import UIKit
 
 protocol EnterKeystorePasswordViewControllerDelegate: AnyObject {
+    func didClose(in viewController: EnterKeystorePasswordViewController)
     func didEnterPassword(password: String, in viewController: EnterKeystorePasswordViewController)
 }
 
@@ -141,5 +142,11 @@ extension EnterKeystorePasswordViewController: TextFieldDelegate {
         case .failure:
             buttonsBar.buttons[0].isEnabled = false
         }
+    }
+}
+
+extension EnterKeystorePasswordViewController: PopNotifiable {
+    func didPopViewController(animated: Bool) {
+        delegate?.didClose(in: self)
     }
 }

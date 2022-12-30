@@ -16,6 +16,7 @@ class BackupCoordinator: Coordinator {
     private let analytics: AnalyticsLogger
     private var cancelable = Set<AnyCancellable>()
     private let promptBackup: PromptBackup
+    private var lastVisibleViewController: UIViewController?
 
     let navigationController: UINavigationController
     weak var delegate: BackupCoordinatorDelegate?
@@ -32,7 +33,9 @@ class BackupCoordinator: Coordinator {
         self.keystore = keystore
         self.account = account
         self.analytics = analytics
+
         navigationController.navigationBar.isTranslucent = false
+        lastVisibleViewController = navigationController.visibleViewController
     }
 
     func start() {
@@ -50,21 +53,10 @@ class BackupCoordinator: Coordinator {
             let coordinator = EnterPasswordCoordinator(
                 navigationController: navigationController,
                 account: account.address)
-            
+
             coordinator.delegate = self
             coordinator.start()
             addCoordinator(coordinator)
-        }
-    }
-
-    private func finish(result: Result<Bool, Error>) {
-        switch result {
-        case .success:
-            promptBackup.markBackupDone(wallet: account)
-
-            delegate?.didFinish(account: account.address, in: self)
-        case .failure:
-            delegate?.didCancel(in: self)
         }
     }
 
@@ -92,8 +84,8 @@ class BackupCoordinator: Coordinator {
 
             let activityViewController = UIActivityViewController(
                 activityItems: [url],
-                applicationActivities: nil
-            )
+                applicationActivities: nil)
+
             activityViewController.completionWithItemsHandler = { _, result, _, _ in
                 do {
                     try FileManager.default.removeItem(at: url)
@@ -104,6 +96,7 @@ class BackupCoordinator: Coordinator {
             }
             activityViewController.popoverPresentationController?.sourceView = navigationController.view
             activityViewController.popoverPresentationController?.sourceRect = navigationController.view.centerRect
+
             navigationController.present(activityViewController, animated: true) { [weak self] in
                 self?.navigationController.hideLoading()
             }
@@ -117,19 +110,20 @@ class BackupCoordinator: Coordinator {
         presentActivityViewController(for: account, newPassword: newPassword) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
-            case .success(let isBackedUp):
-                if isBackedUp {
-                    strongSelf.promptElevateSecurityOrEnd()
-                }
-            case .failure:
+            case .success(let isBackedUp) where isBackedUp:
+                strongSelf.promptElevateSecurityOrClose()
+            case .success, .failure:
                 break
             }
         }
     }
 
-    private func promptElevateSecurityOrEnd() {
-        guard keystore.isUserPresenceCheckPossible else { return cleanUpAfterBackupAndNotPromptedToElevateSecurity() }
-        guard !keystore.isProtectedByUserPresence(account: account.address) else { return cleanUpAfterBackupAndNotPromptedToElevateSecurity() }
+    private var canPromptElevateSecurity: Bool {
+        keystore.isUserPresenceCheckPossible && !keystore.isProtectedByUserPresence(account: account.address)
+    }
+
+    private func promptElevateSecurityOrClose() {
+        guard canPromptElevateSecurity else { return close() }
 
         let coordinator = ElevateWalletSecurityCoordinator(navigationController: navigationController, keystore: keystore, account: account)
         coordinator.delegate = self
@@ -137,45 +131,15 @@ class BackupCoordinator: Coordinator {
         addCoordinator(coordinator)
     }
 
-    private func cleanUpAfterBackupAndPromptedToElevateSecurity() {
-        let backupSeedPhraseCoordinator = coordinators.first { $0 is BackupSeedPhraseCoordinator } as? BackupSeedPhraseCoordinator
-        defer { backupSeedPhraseCoordinator.flatMap { removeCoordinator($0) } }
-        let elevateWalletSecurityCoordinator = coordinators.first { $0 is ElevateWalletSecurityCoordinator } as? ElevateWalletSecurityCoordinator
-        defer { elevateWalletSecurityCoordinator.flatMap { removeCoordinator($0) } }
-        let enterPasswordCoordinator = coordinators.first { $0 is EnterPasswordCoordinator } as? EnterPasswordCoordinator
-        defer { enterPasswordCoordinator.flatMap { removeCoordinator($0) } }
-
-        enterPasswordCoordinator?.end()
-        backupSeedPhraseCoordinator?.end()
-        elevateWalletSecurityCoordinator?.end()
-
-        //Must only call endUserInterface() on the coordinators managing the bottom-most view controller
-        //Only one of these 2 coordinators will be nil
-        backupSeedPhraseCoordinator?.endUserInterface(animated: true)
-        enterPasswordCoordinator?.endUserInterface(animated: true)
-
-        finish(result: .success(true))
-        //Bit of delay to wait for the UI animation to almost finish
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-            SuccessOverlayView.show()
+    private func close() {
+        if let viewController = lastVisibleViewController {
+            navigationController.popToViewController(viewController, animated: true)
         }
-    }
 
-    private func cleanUpAfterBackupAndNotPromptedToElevateSecurity() {
-        let backupSeedPhraseCoordinator = coordinators.first { $0 is BackupSeedPhraseCoordinator } as? BackupSeedPhraseCoordinator
-        defer { backupSeedPhraseCoordinator.flatMap { removeCoordinator($0) } }
-        let enterPasswordCoordinator = coordinators.first { $0 is EnterPasswordCoordinator } as? EnterPasswordCoordinator
-        defer { enterPasswordCoordinator.flatMap { removeCoordinator($0) } }
+        promptBackup.markBackupDone(wallet: account)
 
-        enterPasswordCoordinator?.end()
-        backupSeedPhraseCoordinator?.end()
+        delegate?.didFinish(account: account.address, in: self)
 
-        //Must only call endUserInterface() on the coordinators managing the bottom-most view controller
-        //Only one of these 2 coordinators will be nil
-        backupSeedPhraseCoordinator?.endUserInterface(animated: true)
-        enterPasswordCoordinator?.endUserInterface(animated: true)
-
-        finish(result: .success(true))
         //Bit of delay to wait for UI animation to almost finish
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
             SuccessOverlayView.show()
@@ -185,7 +149,6 @@ class BackupCoordinator: Coordinator {
 
 extension BackupCoordinator: EnterPasswordCoordinatorDelegate {
     func didCancel(in coordinator: EnterPasswordCoordinator) {
-        coordinator.navigationController.dismiss(animated: true)
         removeCoordinator(coordinator)
     }
 
@@ -197,20 +160,23 @@ extension BackupCoordinator: EnterPasswordCoordinatorDelegate {
 extension BackupCoordinator: BackupSeedPhraseCoordinatorDelegate {
     func didClose(forAccount account: AlphaWallet.Address, inCoordinator coordinator: BackupSeedPhraseCoordinator) {
         removeCoordinator(coordinator)
-        delegate?.didFinish(account: account, in: self)
+        delegate?.didCancel(in: self)
     }
 
     func didVerifySeedPhraseSuccessfully(forAccount account: AlphaWallet.Address, inCoordinator coordinator: BackupSeedPhraseCoordinator) {
-        promptElevateSecurityOrEnd()
+        removeCoordinator(coordinator)
+        promptElevateSecurityOrClose()
     }
 }
 
 extension BackupCoordinator: ElevateWalletSecurityCoordinatorDelegate {
     func didLockWalletSuccessfully(forAccount account: AlphaWallet.Address, inCoordinator coordinator: ElevateWalletSecurityCoordinator) {
-        cleanUpAfterBackupAndPromptedToElevateSecurity()
+        removeCoordinator(coordinator)
+        close()
     }
 
     func didCancelLock(forAccount account: AlphaWallet.Address, inCoordinator coordinator: ElevateWalletSecurityCoordinator) {
-        cleanUpAfterBackupAndPromptedToElevateSecurity()
+        removeCoordinator(coordinator)
+        close()
     }
 }

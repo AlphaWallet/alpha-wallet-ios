@@ -9,7 +9,7 @@ protocol EnterPasswordCoordinatorDelegate: AnyObject {
     func didCancel(in coordinator: EnterPasswordCoordinator)
 }
 
-class EnterPasswordCoordinator: CoordinatorThatEnds {
+class EnterPasswordCoordinator: Coordinator {
     private lazy var rootViewController: KeystoreBackupIntroductionViewController = {
         let controller = KeystoreBackupIntroductionViewController()
         controller.delegate = self
@@ -32,29 +32,26 @@ class EnterPasswordCoordinator: CoordinatorThatEnds {
         rootViewController.navigationItem.largeTitleDisplayMode = .never
         navigationController.pushViewController(rootViewController, animated: true)
     }
-
-    func end() {
-        //do nothing
-    }
-
-    func endUserInterface(animated: Bool) {
-        let _ = navigationController.viewControllers.firstIndex(of: rootViewController)
-                .flatMap { navigationController.viewControllers[$0 - 1] }
-                .flatMap { navigationController.popToViewController($0, animated: animated) }
-    }
 }
 
 extension EnterPasswordCoordinator: KeystoreBackupIntroductionViewControllerDelegate {
-    func didTapExport(inViewController viewController: KeystoreBackupIntroductionViewController) {
+    func didTapExport(in viewController: KeystoreBackupIntroductionViewController) {
         let controller = EnterKeystorePasswordViewController(viewModel: EnterKeystorePasswordViewModel())
         controller.delegate = self
         controller.navigationItem.largeTitleDisplayMode = .never
 
         navigationController.pushViewController(controller, animated: true)
     }
+
+    func didClose(in viewController: KeystoreBackupIntroductionViewController) {
+        delegate?.didCancel(in: self)
+    }
 }
 
 extension EnterPasswordCoordinator: EnterKeystorePasswordViewControllerDelegate {
+    func didClose(in viewController: EnterKeystorePasswordViewController) {
+        //no-op
+    }
 
     func didEnterPassword(password: String, in viewController: EnterKeystorePasswordViewController) {
         delegate?.didEnterPassword(password: password, account: account, in: self)
