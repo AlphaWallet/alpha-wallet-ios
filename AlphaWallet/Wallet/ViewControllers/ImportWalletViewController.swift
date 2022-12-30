@@ -197,7 +197,6 @@ class ImportWalletViewController: UIViewController {
             watchControlsLayout,
         ])
 
-        // importKeystoreJsonFromCloudButton.isHidden = true
         buttonsBar.hideButtonInStack(button: importKeystoreJsonFromCloudButton)
 
         view.addSubview(tabBar)
@@ -425,7 +424,7 @@ class ImportWalletViewController: UIViewController {
 
         let result = keystore.importWallet(type: importType)
         hideLoading(animated: false)
-        
+
         switch result {
         case .success(let account):
             didImport(account: account)
@@ -511,7 +510,6 @@ class ImportWalletViewController: UIViewController {
         privateKeyControlsLayout.isHidden = true
         watchControlsLayout.isHidden = true
         configureImportButtonTitle(R.string.localizable.importWalletImportButtonTitle())
-        // importKeystoreJsonFromCloudButton.isHidden = true
         buttonsBar.hideButtonInStack(button: importKeystoreJsonFromCloudButton)
         importSeedDescriptionLabel.isHidden = false
         importButton.isEnabled = !mnemonicTextView.value.isEmpty
@@ -539,7 +537,6 @@ class ImportWalletViewController: UIViewController {
         privateKeyControlsLayout.isHidden = false
         watchControlsLayout.isHidden = true
         configureImportButtonTitle(R.string.localizable.importWalletImportButtonTitle())
-        // importKeystoreJsonFromCloudButton.isHidden = true
         buttonsBar.hideButtonInStack(button: importKeystoreJsonFromCloudButton)
         importSeedDescriptionLabel.isHidden = true
         importButton.isEnabled = !privateKeyTextView.value.isEmpty
@@ -553,7 +550,6 @@ class ImportWalletViewController: UIViewController {
         privateKeyControlsLayout.isHidden = true
         watchControlsLayout.isHidden = false
         configureImportButtonTitle(R.string.localizable.walletWatchButtonTitle())
-        // importKeystoreJsonFromCloudButton.isHidden = true
         buttonsBar.hideButtonInStack(button: importKeystoreJsonFromCloudButton)
         importSeedDescriptionLabel.isHidden = true
         importButton.isEnabled = !watchAddressTextField.value.isEmpty
