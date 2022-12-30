@@ -1,4 +1,4 @@
-//  Web3+ContractV1.swift
+//  Web3+ContractAbiV1.swift
 //  web3swift
 //
 //  Created by Alexander Vlasov on 19.12.2017.
@@ -7,6 +7,8 @@
 
 import Foundation 
 import BigInt
+
+fileprivate typealias GlobalContract = Contract
 
 extension Web3 {
     enum ABIError: Error {
@@ -25,7 +27,7 @@ extension Web3 {
     }
 
     public class Contract {
-        let contract: ContractProtocol
+        let contract: ContractRepresentable
         let web3: Web3
 
         public var options: Web3Options?
@@ -34,12 +36,7 @@ extension Web3 {
             self.web3 = web3
             self.options = web3.options
 
-            var contract: ContractProtocol
-            do {
-                contract = try ContractV2(abi: abiString, address: at)
-            } catch {
-                contract = try ContractV1(abi: abiString, address: at)
-            }
+            var contract = try GlobalContract(abi: abiString, address: at)
 
             var mergedOptions = Web3Options.merge(self.options, with: options)
             if at != nil {
@@ -69,7 +66,7 @@ extension Web3 {
             return TransactionIntermediate(transaction: transaction, web3: web3, contract: contract, method: method, options: mergedOptions)
         }
 
-        public func parseEvent(_ eventLog: EventLog) -> (eventName: String?, eventData: [String: Any]?) {
+        public func parseEvent(_ eventLog: EventLog) -> (eventName: String, eventData: [String: Any])? {
             return contract.parseEvent(eventLog)
         }
         
@@ -86,7 +83,7 @@ extension Web3 {
         }
 
         public func decodeInputData(_ data: Data) -> [String: Any]? {
-            contract.decodeInputData(data)
+            contract.decodeInputData(data)?.params
         }
 
         public func testBloomForEventPrecence(eventName: String, bloom: EthereumBloomFilter) -> Bool? {

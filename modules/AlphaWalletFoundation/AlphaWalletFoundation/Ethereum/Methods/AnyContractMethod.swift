@@ -20,10 +20,7 @@ public struct AnyContractMethod: ContractMethod {
     }
 
     public func encodedABI() throws -> Data {
-        let web3 = try Web3.instance(for: .main, timeout: 60)
-        let contract = try Web3.Contract(web3: web3, abiString: abi)
-        let promiseCreator = try contract.method(method, parameters: params)
-
-        return promiseCreator.transaction.data
+        let contract = try Contract(abi: abi)
+        return try contract.methodData(method, parameters: params)
     }
 }

@@ -30,6 +30,13 @@ class UnconfirmedTransactionTests: XCTestCase {
 
         XCTAssertEqual(_recipient, recipient)
         XCTAssertEqual(_amount, amount)
+
+        let _contract = try Contract(abi: String(data: AlphaWallet.Ethereum.ABI.erc20, encoding: .utf8)!)
+        guard let result = _contract.decodeInputData(data) else { fatalError() }
+
+        XCTAssertEqual(result.name, "transfer")
+        XCTAssertEqual((result.params?["tokens"] as? BigUInt), amount)
+        XCTAssertEqual((result.params?["to"] as? AlphaWalletWeb3.EthereumAddress)?.description, recipient.eip55String)
     }
 
     func testNativeCryptoTransfer() throws {
@@ -43,17 +50,24 @@ class UnconfirmedTransactionTests: XCTestCase {
         XCTAssertEqual(transaction.contract, nil)
         XCTAssertEqual(transaction.recipient, recipient)
         XCTAssertEqual(transaction.data, Data())
-        
     }
 
     func testErc721Transfer() throws {
         let contract = AlphaWallet.Address(uncheckedAgainstNullAddress: "0x0000000000000000000000000000000000000009")!
         let recipient = AlphaWallet.Address(uncheckedAgainstNullAddress: "0x0000000000000000000000000000000000000001")!
         let token = Token(contract: contract, name: "Erc721", decimals: 0, type: .erc721)
+        let tokenId: BigUInt = "1"
 
         let tokenHolders = [TokenHolder(tokens: [
-            TokenScript.Token(tokenIdOrEvent: .tokenId(tokenId: "1"), tokenType: .erc721, index: 0, name: "Name", symbol: "Symbol", status: .available, values: [:])
-        ], contractAddress: contract, hasAssetDefinition: false).select(with: .allFor(tokenId: "1"))]
+            TokenScript.Token(
+                tokenIdOrEvent: .tokenId(tokenId: tokenId),
+                tokenType: .erc721,
+                index: 0,
+                name: "Name",
+                symbol: "Symbol",
+                status: .available,
+                values: [:])
+        ], contractAddress: contract, hasAssetDefinition: false).select(with: .allFor(tokenId: tokenId))]
 
         let transaction = try TransactionType(nonFungibleToken: token, tokenHolders: tokenHolders).buildSendErc721Token(recipient: recipient, account: Constants.nullAddress)
 
@@ -61,12 +75,15 @@ class UnconfirmedTransactionTests: XCTestCase {
         XCTAssertEqual(transaction.recipient, recipient)
 
         guard let data = transaction.data else { fatalError() }
-        let web3 = try Web3.instance(for: .main, timeout: 0)
-        let _contract = try Web3.Contract(web3: web3, abiString: AlphaWallet.Ethereum.ABI.erc721String)
+
+        let _contract = try Contract(abi: AlphaWallet.Ethereum.ABI.erc721String)
         guard let result = _contract.decodeInputData(data) else { fatalError() }
 
-        XCTAssertEqual((result["tokenId"] as? BigUInt), "1")
-        XCTAssertEqual((result["from"] as? AlphaWalletWeb3.EthereumAddress)?.description, Constants.nullAddress.eip55String)
-        XCTAssertEqual((result["to"] as? AlphaWalletWeb3.EthereumAddress)?.description, recipient.eip55String)
+        XCTAssertEqual(result.signature, "42842e0e")
+        XCTAssertEqual(result.name, "safeTransferFrom")
+
+        XCTAssertEqual((result.params?["tokenId"] as? BigUInt), "1")
+        XCTAssertEqual((result.params?["from"] as? AlphaWalletWeb3.EthereumAddress)?.description, Constants.nullAddress.eip55String)
+        XCTAssertEqual((result.params?["to"] as? AlphaWalletWeb3.EthereumAddress)?.description, recipient.eip55String)
     }
 }

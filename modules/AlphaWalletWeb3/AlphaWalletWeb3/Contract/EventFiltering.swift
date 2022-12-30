@@ -56,66 +56,7 @@ internal func filterLogs(decodedLogs: [EventParserResultProtocol], eventFilter: 
     return filteredLogs
 }
 
-internal func encodeTopicToGetLogs(contract: ContractV2, eventName: String?, filter: EventFilter) -> EventFilterParameters? {
-    var eventTopic: Data?
-    var event: ABIv2.Element.Event?
-    if eventName != nil {
-        guard let ev = contract.events[eventName!] else { return nil }
-        event = ev
-        eventTopic = ev.topic
-    }
-    var topics = [[String?]?]()
-    if eventTopic != nil {
-        topics.append([eventTopic!.toHexString().addHexPrefix()])
-    } else {
-        topics.append(nil as [String?]?)
-    }
-    if filter.parameterFilters != nil {
-        if event == nil { return nil }
-        var lastNonemptyFilter = -1
-        for i in 0 ..< filter.parameterFilters!.count {
-            let filterValue = filter.parameterFilters![i]
-            if filterValue != nil {
-                lastNonemptyFilter = i
-            }
-        }
-        if lastNonemptyFilter != -1 {
-            guard lastNonemptyFilter <= event!.inputs.count else { return nil }
-            for i in 0 ... lastNonemptyFilter {
-                let filterValues = filter.parameterFilters![i]
-                if filterValues != nil {
-                    var isFound = false
-                    var targetIndexedPosition = i
-                    for j in 0 ..< event!.inputs.count where event!.inputs[j].indexed {
-                        if targetIndexedPosition == 0 {
-                            isFound = true
-                            break
-                        }
-                        targetIndexedPosition -= 1
-                    }
-
-                    if !isFound { return nil }
-                }
-
-                if filterValues == nil {
-                    topics.append(nil as [String?]?)
-                    continue
-                }
-                var encodings = [String]()
-                for val in filterValues! {
-                    guard let enc = val.eventFilterEncoded() else { return nil }
-                    encodings.append(enc)
-                }
-                topics.append(encodings)
-            }
-        }
-    }
-    var preEncoding = filter.rpcPreEncode()
-    preEncoding.topics = topics
-    return preEncoding
-}
-
-internal func parseReceiptForLogs(receipt: TransactionReceipt, contract: ContractProtocol, eventName: String, filter: EventFilter?) -> [EventParserResultProtocol]? {
+internal func parseReceiptForLogs(receipt: TransactionReceipt, contract: ContractRepresentable, eventName: String, filter: EventFilter?) -> [EventParserResultProtocol]? {
     guard let bloom = receipt.logsBloom else { return nil }
     if contract.address != nil {
         let addressPresent = bloom.test(topic: contract.address!.addressData)
@@ -147,8 +88,7 @@ internal func parseReceiptForLogs(receipt: TransactionReceipt, contract: Contrac
         })
     }
     let decodedLogs = allLogs.compactMap({ (log) -> EventParserResultProtocol? in
-        let (n, d) = contract.parseEvent(log)
-        guard let evName = n, let evData = d else { return nil }
+        guard let (evName, evData) = contract.parseEvent(log) else { return nil }
         var result = EventParserResult(eventName: evName, transactionReceipt: receipt, contractAddress: log.address, decodedResult: evData)
         result.eventLog = log
         return result

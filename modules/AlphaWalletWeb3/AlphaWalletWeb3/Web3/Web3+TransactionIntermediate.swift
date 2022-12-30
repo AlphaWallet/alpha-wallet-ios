@@ -14,16 +14,15 @@ extension Web3.Contract {
 
     public class TransactionIntermediate {
         public var transaction: EthereumTransaction
-        public var contract: ContractProtocol
+        var contract: ContractRepresentable
         public var method: String
         public var options: Web3Options? = Web3Options.defaultOptions()
         let web3: Web3
 
-        public init(transaction: EthereumTransaction, web3: Web3, contract: ContractProtocol, method: String, options: Web3Options?) {
+        public init(transaction: EthereumTransaction, web3: Web3, contract: ContractRepresentable, method: String, options: Web3Options?) {
             self.transaction = transaction
             self.web3 = web3
             self.contract = contract
-            self.contract.options = options
             self.method = method
             self.options = Web3Options.merge(web3.options, with: options)
             self.transaction.chainID = self.web3.chainID
@@ -91,10 +90,6 @@ extension Web3.Contract.TransactionIntermediate {
         optionsForCall.excludeZeroGasPrice = mergedOptions.excludeZeroGasPrice
 
         return eth.callPromise(transaction, options: optionsForCall, onBlock: onBlock).map(on: web3.queue) { [method, contract] data in
-            if method == "fallback" {
-                let resultHex = data.toHexString().addHexPrefix()
-                return ["result": resultHex as Any]
-            }
             guard let decodedData = contract.decodeReturnData(method, data: data) else {
                 throw Web3Error.inputError("Can not decode returned parameters")
             }

@@ -51,7 +51,7 @@ public struct DecodedFunctionCall {
         case erc20Transfer(recipient: AlphaWallet.Address, value: BigUInt)
         case erc20Approve(spender: AlphaWallet.Address, value: BigUInt)
         case erc721ApproveAll(spender: AlphaWallet.Address, value: Bool)
-        //NOTE: native crypty
+        //NOTE: native crypto
         case nativeCryptoTransfer(value: BigUInt)
         //NOTE: erc1155
         case erc1155SafeTransfer(spender: AlphaWallet.Address)

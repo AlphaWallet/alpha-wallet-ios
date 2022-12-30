@@ -65,7 +65,6 @@ public enum TransactionType {
     }
 
     case nativeCryptocurrency(Token, destination: AddressOrEnsName?, amount: FungibleAmount)
-    //TODO: replace string with BigInt
     case erc20Token(Token, destination: AddressOrEnsName?, amount: FungibleAmount)
     case erc875Token(Token, tokenHolders: [TokenHolder])
     case erc721Token(Token, tokenHolders: [TokenHolder])
@@ -272,7 +271,7 @@ extension TransactionType {
 
             let data: Data
             if tokenHolder.contractAddress.isLegacy721Contract {
-                data = (try? Erc721TransferFrom(recipient: recipient, tokenId: token.id).encodedABI())  ?? Data()
+                data = (try? Erc721TransferFrom(recipient: recipient, tokenId: token.id).encodedABI()) ?? Data()
             } else {
                 data = (try? Erc721SafeTransferFrom(recipient: recipient, account: account, tokenId: token.id).encodedABI()) ?? Data()
             }

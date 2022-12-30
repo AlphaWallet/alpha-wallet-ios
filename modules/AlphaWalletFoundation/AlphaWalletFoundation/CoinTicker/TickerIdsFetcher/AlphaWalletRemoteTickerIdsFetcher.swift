@@ -40,7 +40,7 @@ public class AlphaWalletRemoteTickerIdsFetcher: TickerIdsFetcher {
     private func resolveTickerId(in tokenEntries: [TokenEntry], for token: TokenMappedToTicker) -> AnyPublisher<TickerIdString?, Never> {
         return Just(token)
             .map { token -> TokenEntry? in
-                let targetContract: Contract = .init(address: token.contractAddress.eip55String, chainId: token.server.chainID)
+                let targetContract: TokenEntry.Contract = .init(address: token.contractAddress.eip55String, chainId: token.server.chainID)
                 return tokenEntries.first(where: { entry in entry.contracts.contains(targetContract) })
             }.flatMap { [weak self] entry -> AnyPublisher<TickerIdString?, Never> in
                 guard let strongSelf = self else { return .empty() }

@@ -9,15 +9,11 @@
 import Foundation
 import BigInt
 
-public struct ABIv2Decoder {
-    
-}
+public struct ABIv2Decoder { }
 
 extension ABIv2Decoder {
     public static func decode(types: [ABIv2.Element.InOut], data: Data) -> [AnyObject]? {
-        let params = types.compactMap { (el) -> ABIv2.Element.ParameterType in
-            return el.type
-        }
+        let params = types.compactMap { $0.type }
         return decode(types: params, data: data)
     }
     

@@ -7,25 +7,27 @@
 
 import Foundation
 
-public struct Contract: Codable, Hashable {
-    let address: String
-    let chainId: Int
-
-    var key: String {
-        let returnKey = address + ":" + String(chainId)
-        return returnKey.trimmed.lowercased()
-    }
-}
-
-extension Contract: Equatable {
-    public static func == (lhs: Contract, rhs: Contract) -> Bool {
-        return lhs.key == rhs.key
-    }
-}
-
 public struct TokenEntry: Decodable {
     let contracts: [Contract]
     let group: String?
+}
+
+extension TokenEntry {
+    public struct Contract: Codable, Hashable {
+        let address: String
+        let chainId: Int
+
+        var key: String {
+            let returnKey = address + ":" + String(chainId)
+            return returnKey.trimmed.lowercased()
+        }
+    }
+}
+
+extension TokenEntry.Contract: Equatable {
+    public static func == (lhs: TokenEntry.Contract, rhs: TokenEntry.Contract) -> Bool {
+        return lhs.key == rhs.key
+    }
 }
 
 public class TokenJsonReader {
