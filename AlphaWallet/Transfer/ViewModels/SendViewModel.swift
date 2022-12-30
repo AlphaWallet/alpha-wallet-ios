@@ -83,6 +83,8 @@ final class SendViewModel: TransactionTypeSupportable {
         self.transactionTypeFromQrCode = TransactionTypeFromQrCode(importToken: importToken, session: session)
         self.transactionTypeFromQrCode.transactionTypeProvider = self
     }
+    //NOTE: test purposes
+    private (set) var scanQrCodeLatest: Result<TransactionType, CheckEIP681Error>?
 
     func transform(input: SendViewModelInput) -> SendViewModelOutput {
         var isInitialAmountToSend: Bool = true
@@ -116,6 +118,7 @@ final class SendViewModel: TransactionTypeSupportable {
         let scanQrCode = input.qrCode
             .flatMap { [transactionTypeFromQrCode] in transactionTypeFromQrCode.buildTransactionType(qrCode: $0) }
             .handleEvents(receiveOutput: { [transactionTypeSubject] in
+                self.scanQrCodeLatest = $0
                 guard let value = $0.value else { return }
                 //NOTE: we need to syncronize values for .recipient, .amountToSend and transaction type .recipient, .amount, because when active .transactionType prebuild we not able to validate amount and recipient
                 self.recipient = value.recipient?.contract
@@ -428,7 +431,8 @@ final class TransactionTypeFromQrCode {
                 .eraseToAnyPublisher()
         }
 
-        return eip681UrlResolver.resolvePublisher(url: url)
+        return eip681UrlResolver
+            .resolvePublisher(url: url)
             .flatMap { [session] result -> AnyPublisher<TransactionType, CheckEIP681Error> in
                 switch result {
                 case .transaction(let transactionType, let token):

@@ -3,7 +3,7 @@
 import Foundation
 
 //TODO this should probably be part of AlphaWallet.Address functionality instead, but narrowing the scope of the current change when we added this
-public enum AddressOrEnsName {
+public enum AddressOrEnsName: Equatable {
     case address(AlphaWallet.Address)
     case ensName(String)
 

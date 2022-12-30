@@ -166,8 +166,21 @@ class SendViewControllerTests: XCTestCase {
         vc.didScanQRCode("aw.app/ethereum:0xbc8dafeaca658ae0857c80d8aa6de4d487577c63@1?value=1e19")
 
         let expectation = self.expectation(description: "did update token balance expectation")
+        let expectedToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: .main)
+        let destination = AlphaWallet.Address(string: "0xbc8dafeaca658ae0857c80d8aa6de4d487577c63").flatMap { AddressOrEnsName(address: $0) }
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            switch vc.viewModel.scanQrCodeLatest {
+            case .success(let transactionType):
+                XCTAssertEqual(transactionType.amount, .amount(10))
+                XCTAssertEqual(transactionType.recipient, destination)
+            case .failure(let e):
+                XCTFail(e.description)
+            case .none:
+                XCTFail()
+            }
             XCTAssertEqual(vc.amountTextField.value, "10")
+
             expectation.fulfill()
         }
         waitForExpectations(timeout: 10)
