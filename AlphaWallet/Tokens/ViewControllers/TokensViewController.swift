@@ -152,7 +152,11 @@ final class TokensViewController: UIViewController {
     }()
     private lazy var dataSource = makeDataSource()
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
-    private lazy var footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
+    private lazy var footerBar: ButtonsBarBackgroundView = {
+        let result = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
+        result.backgroundColor = viewModel.buyButtonFooterBarBackgroundColor
+        return result
+    }()
 
     init(viewModel: TokensViewModel) {
         self.viewModel = viewModel

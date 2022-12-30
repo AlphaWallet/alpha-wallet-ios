@@ -115,6 +115,10 @@ final class TokensViewModel {
         return Configuration.Color.Semantic.searchbarBackground
     }
 
+    var buyButtonFooterBarBackgroundColor: UIColor {
+        return .clear
+    }
+
     var shouldShowBackupPromptViewHolder: Bool {
             //TODO show the prompt in both ASSETS and COLLECTIBLES tab too
         switch filter {
