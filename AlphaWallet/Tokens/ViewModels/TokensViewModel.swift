@@ -54,7 +54,7 @@ final class TokensViewModel {
     private let deletionSubject = PassthroughSubject<[IndexPath], Never>()
     private let wallet: Wallet
     private let assetDefinitionStore: AssetDefinitionStore
-    
+
     let config: Config
     let largeTitleDisplayMode: UINavigationItem.LargeTitleDisplayMode = .never
     var filterViewModel: (cells: [ScrollableSegmentedControlCell], configuration: ScrollableSegmentedControlConfiguration) {
@@ -161,7 +161,7 @@ final class TokensViewModel {
             }
         }
     }
-    
+
     init(wallet: Wallet, tokenCollection: TokenCollection, tokensFilter: TokensFilter, walletConnectCoordinator: WalletConnectCoordinator, walletBalanceService: WalletBalanceService, config: Config, domainResolutionService: DomainResolutionServiceType, blockiesGenerator: BlockiesGenerator, assetDefinitionStore: AssetDefinitionStore) {
         self.wallet = wallet
         self.tokenCollection = tokenCollection
@@ -296,7 +296,7 @@ final class TokensViewModel {
 
     func set(isSearchActive: Bool) {
         self.isSearchActive = isSearchActive
-        
+
         reloadData()
     }
 
@@ -531,7 +531,7 @@ extension TokensViewModel {
         case success(indexPaths: [IndexPath])
         case failure
     }
-    
+
     enum TokenOrRpcServer {
         case token(TokenViewModel)
         case rpcServer(RPCServer)
@@ -699,7 +699,7 @@ extension TokensViewModel.functional {
         }
 
         return results
-    } 
+    }
 }
 
 fileprivate extension IndexPath {
