@@ -14,7 +14,7 @@ public struct WalletsBackupState: Codable {
         case newWallet
         case receivedNativeCryptoCurrency(BigInt)
         case intervalPassed
-        case nativeCryptoCurrencyDollarValueExceededThreshold
+        case balanceExceededThreshold
     }
 
     public struct BackupState: Codable {
@@ -75,7 +75,7 @@ extension WalletsBackupState.Prompt: Codable {
         case 2:
             self = .intervalPassed
         case 3:
-            self = .nativeCryptoCurrencyDollarValueExceededThreshold
+            self = .balanceExceededThreshold
         default:
             throw CodingError.unknownValue
         }
@@ -91,7 +91,7 @@ extension WalletsBackupState.Prompt: Codable {
             try container.encode(nativeCryptoCurrency, forKey: .associatedValue)
         case .intervalPassed:
             try container.encode(2, forKey: .rawValue)
-        case .nativeCryptoCurrencyDollarValueExceededThreshold:
+        case .balanceExceededThreshold:
             try container.encode(3, forKey: .rawValue)
         }
     }

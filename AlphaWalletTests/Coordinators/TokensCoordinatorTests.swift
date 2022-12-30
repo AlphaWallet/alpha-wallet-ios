@@ -9,6 +9,15 @@ import AlphaWalletFoundation
 final class FakeSwapTokenService: TokenActionsService {
 }
 
+extension PromptBackupCoordinator {
+    static func make(wallet: Wallet = .make()) -> PromptBackupCoordinator {
+        PromptBackupCoordinator(
+            wallet: wallet,
+            promptBackup: .make(),
+            keystore: FakeEtherKeystore(),
+            analytics: FakeAnalyticsService())
+    }
+}
 class TokensCoordinatorTests: XCTestCase {
 
     func testRootViewController() {
@@ -20,19 +29,14 @@ class TokensCoordinatorTests: XCTestCase {
         let dep = WalletDataProcessingPipeline.make(wallet: .make(), server: .main)
         let walletAddressesStore = fakeWalletAddressStore(wallets: [wallet], recentlyUsedWallet: .make())
         let walletBalanceService = FakeMultiWalletBalanceService(wallet: wallet, servers: [.main])
-
+        
         let coordinator = TokensCoordinator(
             navigationController: FakeNavigationController(),
             sessions: sessions,
             keystore: FakeEtherKeystore(),
             config: config,
             assetDefinitionStore: .make(),
-            promptBackupCoordinator: PromptBackupCoordinator(
-                keystore: FakeEtherKeystore(),
-                wallet: wallet,
-                config: config,
-                analytics: FakeAnalyticsService(),
-                walletBalanceService: walletBalanceService),
+            promptBackupCoordinator: .make(wallet: wallet),
             analytics: FakeAnalyticsService(),
             nftProvider: FakeNftProvider(),
             tokenActionsService: tokenActionsService,

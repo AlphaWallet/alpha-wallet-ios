@@ -77,13 +77,14 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private let walletBalanceService: WalletBalanceService
     private var tokenActionsService: TokenActionsService
     private let walletConnectCoordinator: WalletConnectCoordinator
+    private let promptBackup: PromptBackup
+
     private lazy var promptBackupCoordinator: PromptBackupCoordinator = {
         return PromptBackupCoordinator(
-            keystore: keystore,
             wallet: wallet,
-            config: config,
-            analytics: analytics,
-            walletBalanceService: walletBalanceService)
+            promptBackup: promptBackup,
+            keystore: keystore,
+            analytics: analytics)
     }()
 
     private (set) var swapButton: UIButton = {
@@ -132,7 +133,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
 
     private lazy var transactionNotificationService: NotificationSourceService = {
         let service = TransactionNotificationSourceService(transactionDataStore: transactionsDataStore, config: config)
-        service.delegate = promptBackupCoordinator
+        service.delegate = promptBackup
         return service
     }()
     private let notificationService: NotificationService
@@ -174,8 +175,10 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
          lock: Lock,
          currencyService: CurrencyService,
          tokenScriptOverridesFileManager: TokenScriptOverridesFileManager,
-         networkService: NetworkService) {
+         networkService: NetworkService,
+         promptBackup: PromptBackup) {
 
+        self.promptBackup = promptBackup
         self.networkService = networkService
         self.currencyService = currencyService
         self.tokenScriptOverridesFileManager = tokenScriptOverridesFileManager
@@ -220,15 +223,12 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
 
         notificationService.register(source: transactionNotificationService)
         swapButton.addTarget(self, action: #selector(swapButtonSelected), for: .touchUpInside)
+
+        addCoordinator(promptBackupCoordinator)
     }
 
     deinit {
         notificationService.unregister(source: transactionNotificationService)
-    }
-
-    private func startPromptBackup() {
-        promptBackupCoordinator.start()
-        addCoordinator(promptBackupCoordinator)
     }
 
     func start(animated: Bool) {
@@ -242,7 +242,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
 
         checkDevice()
         showHelpUs()
-        startPromptBackup()
 
         fetchXMLAssetDefinitions()
 
@@ -290,11 +289,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             WalletQrCodeDonation(address: self.wallet.address).donate()
         }
-    }
-
-    func didFinishBackup(account: AlphaWallet.Address) {
-        promptBackupCoordinator.markBackupDone()
-        promptBackupCoordinator.showHideCurrentPrompt()
     }
 
     func launchUniversalScanner() {
@@ -441,7 +435,8 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
             lock: lock,
             currencyService: currencyService,
             tokenScriptOverridesFileManager: tokenScriptOverridesFileManager,
-            networkService: networkService)
+            networkService: networkService,
+            promptBackup: promptBackup)
 
         coordinator.rootViewController.tabBarItem = ActiveWalletViewModel.Tabs.settings.tabBarItem
         coordinator.navigationController.configureForLargeTitles()

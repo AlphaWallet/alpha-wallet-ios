@@ -39,6 +39,7 @@ class SettingsCoordinator: Coordinator {
     private let currencyService: CurrencyService
     private let tokenScriptOverridesFileManager: TokenScriptOverridesFileManager
     private let networkService: NetworkService
+    private let promptBackup: PromptBackup
 
     let navigationController: UINavigationController
     weak var delegate: SettingsCoordinatorDelegate?
@@ -47,12 +48,11 @@ class SettingsCoordinator: Coordinator {
     lazy var rootViewController: SettingsViewController = {
         let viewModel = SettingsViewModel(
             account: account,
-            keystore: keystore,
             lock: lock,
             config: config,
             analytics: analytics,
             domainResolutionService: domainResolutionService,
-            walletBalanceService: walletBalanceService)
+            promptBackup: promptBackup)
 
         let controller = SettingsViewController(viewModel: viewModel)
         controller.delegate = self
@@ -76,8 +76,10 @@ class SettingsCoordinator: Coordinator {
          lock: Lock,
          currencyService: CurrencyService,
          tokenScriptOverridesFileManager: TokenScriptOverridesFileManager,
-         networkService: NetworkService) {
+         networkService: NetworkService,
+         promptBackup: PromptBackup) {
 
+        self.promptBackup = promptBackup
         self.networkService = networkService
         self.tokenScriptOverridesFileManager = tokenScriptOverridesFileManager
         self.navigationController = navigationController
@@ -180,7 +182,8 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
             viewModel: .init(configuration: .changeWallets, animatedPresentation: true),
             walletBalanceService: walletBalanceService,
             blockiesGenerator: blockiesGenerator,
-            domainResolutionService: domainResolutionService)
+            domainResolutionService: domainResolutionService,
+            promptBackup: promptBackup)
         
         coordinator.delegate = self
         coordinator.start()
@@ -198,7 +201,8 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
             navigationController: navigationController,
             keystore: keystore,
             account: account,
-            analytics: analytics)
+            analytics: analytics,
+            promptBackup: promptBackup)
 
         coordinator.delegate = self
         coordinator.start()
@@ -258,11 +262,6 @@ extension SettingsCoordinator: CanOpenURL {
 
 extension SettingsCoordinator: AccountsCoordinatorDelegate {
 
-    func didFinishBackup(account: AlphaWallet.Address, in coordinator: AccountsCoordinator) {
-        promptBackupCoordinator.markBackupDone()
-        promptBackupCoordinator.showHideCurrentPrompt()
-    }
-
     func didAddAccount(account: Wallet, in coordinator: AccountsCoordinator) {
         //no-op
     }
@@ -317,13 +316,11 @@ extension SettingsCoordinator: PromptBackupCoordinatorSubtlePromptDelegate {
 }
 
 extension SettingsCoordinator: BackupCoordinatorDelegate {
-    func didCancel(coordinator: BackupCoordinator) {
+    func didCancel(in coordinator: BackupCoordinator) {
         removeCoordinator(coordinator)
     }
 
     func didFinish(account: AlphaWallet.Address, in coordinator: BackupCoordinator) {
-        promptBackupCoordinator.markBackupDone()
-        promptBackupCoordinator.showHideCurrentPrompt()
         removeCoordinator(coordinator)
     }
 }

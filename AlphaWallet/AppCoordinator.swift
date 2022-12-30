@@ -65,7 +65,9 @@ class AppCoordinator: NSObject, Coordinator {
             viewModel: .init(configuration: .summary),
             walletBalanceService: walletBalanceService,
             blockiesGenerator: blockiesGenerator,
-            domainResolutionService: domainResolutionService)
+            domainResolutionService: domainResolutionService,
+            promptBackup: promptBackup)
+        
         coordinator.delegate = self
 
         return coordinator
@@ -219,15 +221,20 @@ class AppCoordinator: NSObject, Coordinator {
         setupSplashViewController(on: navigationController)
         bindWalletAddressesStore()
     }
+    private lazy var promptBackup = PromptBackup(
+        keystore: keystore,
+        config: config,
+        analytics: analytics,
+        walletBalanceProvidable: walletBalanceService)
 
     private func bindWalletAddressesStore() {
         walletAddressesStore
             .didRemoveWalletPublisher
-            .sink { [config, analytics, keystore, legacyFileBasedKeystore, walletBalanceService] account in
+            .sink { [config, legacyFileBasedKeystore, promptBackup] account in
 
                 //TODO: pass ref
                 FileWalletStorage().addOrUpdate(name: nil, for: account.address)
-                PromptBackupCoordinator(keystore: keystore, wallet: account, config: config, analytics: analytics, walletBalanceService: walletBalanceService).deleteWallet()
+                promptBackup.deleteWallet(wallet: account)
                 TransactionsTracker.resetFetchingState(account: account, config: config)
                 Erc1155TokenIdsFetcher.deleteForWallet(account.address)
                 DatabaseMigration.addToDeleteList(address: account.address)
@@ -238,17 +245,8 @@ class AppCoordinator: NSObject, Coordinator {
 
         walletAddressesStore
             .didAddWalletPublisher
-            .sink { [keystore, config, analytics, walletBalanceService] wallet in
-
-                let coordinator = PromptBackupCoordinator(
-                    keystore: keystore,
-                    wallet: wallet,
-                    config: config,
-                    analytics: analytics,
-                    walletBalanceService: walletBalanceService)
-
-                coordinator.markWalletAsImported()
-            }.store(in: &cancelable)
+            .sink { [promptBackup] in promptBackup.markWalletAsImported(wallet: $0) }
+            .store(in: &cancelable)
 
         walletAddressesStore
             .walletsPublisher
@@ -408,7 +406,8 @@ class AppCoordinator: NSObject, Coordinator {
             lock: lock,
             currencyService: currencyService,
             tokenScriptOverridesFileManager: tokenScriptOverridesFileManager,
-            networkService: networkService)
+            networkService: networkService,
+            promptBackup: promptBackup)
 
         coordinator.delegate = self
 
@@ -814,10 +813,6 @@ extension AppCoordinator: AccountsCoordinatorDelegate {
 
     func didCancel(in coordinator: AccountsCoordinator) {
         coordinator.navigationController.dismiss(animated: true)
-    }
-
-    func didFinishBackup(account: AlphaWallet.Address, in coordinator: AccountsCoordinator) {
-        activeWalletCoordinator?.didFinishBackup(account: account)
     }
 
     func didSelectAccount(account: Wallet, in coordinator: AccountsCoordinator) {

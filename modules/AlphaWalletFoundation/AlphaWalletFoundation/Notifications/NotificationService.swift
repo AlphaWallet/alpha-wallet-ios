@@ -15,7 +15,7 @@ public protocol PushNotificationsService: AnyObject {
 }
 
 public protocol NotificationSourceServiceDelegate: AnyObject {
-    func showCreateBackupAfterReceiveNativeCryptoCurrencyPrompt(in service: NotificationSourceService, etherReceivedUsedForBackupPrompt: BigInt)
+    func showCreateBackup(in service: NotificationSourceService, etherReceived: BigInt, wallet: Wallet)
 }
 
 public protocol NotificationSourceService: AnyObject {
@@ -37,7 +37,11 @@ public final class NotificationService {
         receiveNotificationSubject.eraseToAnyPublisher()
     }
 
-    public init(sources: [NotificationSourceService], walletBalanceService: WalletBalanceService, notificationService: ScheduledNotificationService, pushNotificationsService: PushNotificationsService) {
+    public init(sources: [NotificationSourceService],
+                walletBalanceService: WalletBalanceService,
+                notificationService: ScheduledNotificationService,
+                pushNotificationsService: PushNotificationsService) {
+
         self.sources = sources
         self.notificationService = notificationService
         self.walletBalanceService = walletBalanceService

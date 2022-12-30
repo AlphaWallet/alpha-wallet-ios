@@ -22,10 +22,8 @@ class EnterPasswordCoordinator: CoordinatorThatEnds {
     var coordinators: [Coordinator] = []
     weak var delegate: EnterPasswordCoordinatorDelegate?
 
-    init(
-        navigationController: UINavigationController = NavigationController(),
-        account: AlphaWallet.Address
-    ) {
+    init(navigationController: UINavigationController = NavigationController(),
+         account: AlphaWallet.Address) {
         self.navigationController = navigationController
         self.account = account
     }

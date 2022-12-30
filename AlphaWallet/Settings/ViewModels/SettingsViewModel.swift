@@ -20,7 +20,6 @@ final class SettingsViewModel {
     private let account: Wallet
     private var assignedNameOrEns: String?
     private var config: Config
-    private let keystore: Keystore
     private let analytics: AnalyticsLogger
     private let getWalletName: GetWalletName
     private var passcodeTitle: String {
@@ -32,21 +31,19 @@ final class SettingsViewModel {
         }
     }
     private let lock: Lock
-    private let walletBalanceService: WalletBalanceService
+    private let promptBackup: PromptBackup
     private (set) var sections: [SettingsSection] = []
 
     init(account: Wallet,
-         keystore: Keystore,
          lock: Lock,
          config: Config,
          analytics: AnalyticsLogger,
          domainResolutionService: DomainResolutionServiceType,
-         walletBalanceService: WalletBalanceService) {
+         promptBackup: PromptBackup) {
 
-        self.walletBalanceService = walletBalanceService
+        self.promptBackup = promptBackup
         self.account = account
         self.config = config
-        self.keystore = keystore
         self.analytics = analytics
         self.lock = lock
         self.getWalletName = GetWalletName(domainResolutionService: domainResolutionService)
@@ -76,8 +73,8 @@ final class SettingsViewModel {
         let reload = Publishers.Merge3(Just<Void>(()), input.willAppear, assignedNameOrEns)
 
         let sections = Publishers.CombineLatest(reload, blockscanChatUnreadCount)
-            .map { [account, keystore] _, blockscanChatUnreadCount -> [SettingsViewModel.SectionViewModel] in
-                let sections = SettingsViewModel.functional.computeSections(account: account, keystore: keystore, blockscanChatUnreadCount: blockscanChatUnreadCount)
+            .map { [account] _, blockscanChatUnreadCount -> [SettingsViewModel.SectionViewModel] in
+                let sections = SettingsViewModel.functional.computeSections(account: account, blockscanChatUnreadCount: blockscanChatUnreadCount)
                 return sections.indices.map { sectionIndex -> SettingsViewModel.SectionViewModel in
                     var views: [ViewType] = []
                     guard sections[sectionIndex].numberOfRows > 0 else {
@@ -182,13 +179,7 @@ final class SettingsViewModel {
             case .changeWallet:
                 return .cell(.init(titleText: row.title, subTitleText: addressReplacedWithEnsOrWalletName(assignedNameOrEns), icon: row.icon))
             case .backup:
-                let walletSecurityLevel = PromptBackupCoordinator(
-                    keystore: keystore,
-                    wallet: account,
-                    config: .init(),
-                    analytics: analytics,
-                    walletBalanceService: walletBalanceService).securityLevel
-                
+                let walletSecurityLevel = promptBackup.securityLevel(wallet: account)
                 let accessoryView = walletSecurityLevel.flatMap { WalletSecurityLevelIndicator(level: $0) }
                 return .cell(.init(titleText: row.title, subTitleText: nil, icon: row.icon, accessoryType: .disclosureIndicator, accessoryView: accessoryView))
             case .showMyWallet, .showSeedPhrase, .walletConnect, .nameWallet, .blockscanChat:
@@ -272,7 +263,7 @@ extension SettingsViewModel.ViewType: Hashable {
 }
 
 extension SettingsViewModel.functional {
-    fileprivate static func computeSections(account: Wallet, keystore: Keystore, blockscanChatUnreadCount: Int?) -> [SettingsViewModel.SettingsSection] {
+    fileprivate static func computeSections(account: Wallet, blockscanChatUnreadCount: Int?) -> [SettingsViewModel.SettingsSection] {
         let walletRows: [SettingsViewModel.SettingsWalletRow]
         if account.allowBackup {
             if account.origin == .hd {

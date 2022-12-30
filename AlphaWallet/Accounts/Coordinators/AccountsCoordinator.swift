@@ -10,7 +10,6 @@ protocol AccountsCoordinatorDelegate: AnyObject {
     func didSelectAccount(account: Wallet, in coordinator: AccountsCoordinator)
     func didAddAccount(account: Wallet, in coordinator: AccountsCoordinator)
     func didDeleteAccount(account: Wallet, in coordinator: AccountsCoordinator)
-    func didFinishBackup(account: AlphaWallet.Address, in coordinator: AccountsCoordinator)
 }
 
 struct AccountsCoordinatorViewModel {
@@ -54,6 +53,7 @@ class AccountsCoordinator: Coordinator {
     private let domainResolutionService: DomainResolutionServiceType
     private let viewModel: AccountsCoordinatorViewModel
     private var cancelable = Set<AnyCancellable>()
+    private let promptBackup: PromptBackup
 
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -73,16 +73,17 @@ class AccountsCoordinator: Coordinator {
 
     weak var delegate: AccountsCoordinatorDelegate?
 
-    init(
-        config: Config,
-        navigationController: UINavigationController,
-        keystore: Keystore,
-        analytics: AnalyticsLogger,
-        viewModel: AccountsCoordinatorViewModel,
-        walletBalanceService: WalletBalanceService,
-        blockiesGenerator: BlockiesGenerator,
-        domainResolutionService: DomainResolutionServiceType
-    ) {
+    init(config: Config,
+         navigationController: UINavigationController,
+         keystore: Keystore,
+         analytics: AnalyticsLogger,
+         viewModel: AccountsCoordinatorViewModel,
+         walletBalanceService: WalletBalanceService,
+         blockiesGenerator: BlockiesGenerator,
+         domainResolutionService: DomainResolutionServiceType,
+         promptBackup: PromptBackup) {
+
+        self.promptBackup = promptBackup
         self.config = config
         self.navigationController = navigationController
         self.keystore = keystore
@@ -199,14 +200,24 @@ class AccountsCoordinator: Coordinator {
     }
 
     private func startBackup(for account: Wallet) {
-        let coordinator = BackupCoordinator(navigationController: navigationController, keystore: keystore, account: account, analytics: analytics)
+        let coordinator = BackupCoordinator(
+            navigationController: navigationController,
+            keystore: keystore,
+            account: account,
+            analytics: analytics,
+            promptBackup: promptBackup)
+
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
     }
 
     private func promptRenameWallet(_ account: Wallet) {
-        let viewModel = RenameWalletViewModel(account: account.address, analytics: analytics, domainResolutionService: domainResolutionService)
+        let viewModel = RenameWalletViewModel(
+            account: account.address,
+            analytics: analytics,
+            domainResolutionService: domainResolutionService)
+
         let viewController = RenameWalletViewController(viewModel: viewModel)
         viewController.delegate = self
         viewController.navigationItem.largeTitleDisplayMode = .never
@@ -277,13 +288,11 @@ extension AccountsCoordinator: WalletCoordinatorDelegate {
 
 extension AccountsCoordinator: BackupCoordinatorDelegate {
 
-    func didCancel(coordinator: BackupCoordinator) {
+    func didCancel(in coordinator: BackupCoordinator) {
         removeCoordinator(coordinator)
     }
 
     func didFinish(account: AlphaWallet.Address, in coordinator: BackupCoordinator) {
-        delegate?.didFinishBackup(account: account, in: self)
-
         removeCoordinator(coordinator)
     }
 }
