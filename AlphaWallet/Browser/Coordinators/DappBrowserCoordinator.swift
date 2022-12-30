@@ -154,7 +154,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
 
     private var pendingTransaction: PendingTransaction = .none
 
-    private func executeTransaction(account: AlphaWallet.Address, action: DappAction, callbackID: Int, transaction: UnconfirmedTransaction, type: ConfirmType, server: RPCServer) {
+    private func executeTransaction(action: DappAction, callbackID: Int, transaction: UnconfirmedTransaction, type: ConfirmType, server: RPCServer) {
         pendingTransaction = .data(callbackID: callbackID)
         do {
             guard let session = sessionsProvider.session(for: server) else { throw DappBrowserError.serverUnavailable }
@@ -477,9 +477,9 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
         func performDappAction(account: AlphaWallet.Address) {
             switch action {
             case .signTransaction(let unconfirmedTransaction):
-                executeTransaction(account: account, action: action, callbackID: callbackID, transaction: unconfirmedTransaction, type: .signThenSend, server: server)
+                executeTransaction(action: action, callbackID: callbackID, transaction: unconfirmedTransaction, type: .signThenSend, server: server)
             case .sendTransaction(let unconfirmedTransaction):
-                executeTransaction(account: account, action: action, callbackID: callbackID, transaction: unconfirmedTransaction, type: .signThenSend, server: server)
+                executeTransaction(action: action, callbackID: callbackID, transaction: unconfirmedTransaction, type: .signThenSend, server: server)
             case .signMessage(let hexMessage):
                 signMessage(with: .message(hexMessage.asSignableMessageData), account: account, callbackID: callbackID)
             case .signPersonalMessage(let hexMessage):
