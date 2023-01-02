@@ -156,6 +156,8 @@ class SendViewControllerTests: XCTestCase {
 
     }
 
+    private var testScanEip681QrCodeEnglishViewController: UIViewController?
+
     func testScanEip681QrCodeEnglish() {
         let token = Token(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "0", type: .erc20)
         dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
@@ -163,11 +165,13 @@ class SendViewControllerTests: XCTestCase {
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), for: token)
         XCTAssertEqual(vc.amountTextField.value, "1.34")
 
-        vc.didScanQRCode("aw.app/ethereum:0xbc8dafeaca658ae0857c80d8aa6de4d487577c63@1?value=1e19")
+        let qrCode = "aw.app/ethereum:0xbc8dafeaca658ae0857c80d8aa6de4d487577c63@1?value=1e19"
+        vc.didScanQRCode(qrCode)
 
         let expectation = self.expectation(description: "did update token balance expectation")
-        let expectedToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: .main)
         let destination = AlphaWallet.Address(string: "0xbc8dafeaca658ae0857c80d8aa6de4d487577c63").flatMap { AddressOrEnsName(address: $0) }
+
+        XCTAssertEqual(vc.viewModel.latestQrCode, qrCode)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             switch vc.viewModel.scanQrCodeLatest {
@@ -184,6 +188,8 @@ class SendViewControllerTests: XCTestCase {
             expectation.fulfill()
         }
         waitForExpectations(timeout: 10)
+
+        testScanEip681QrCodeEnglishViewController = vc
 
         Config.setLocale(AppLocale.system)
     }
