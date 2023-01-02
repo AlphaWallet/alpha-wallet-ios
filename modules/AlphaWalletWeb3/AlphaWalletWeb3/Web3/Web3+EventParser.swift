@@ -13,12 +13,12 @@ import PromiseKit
 extension Web3.Contract {
     public struct EventParser: EventParserProtocol {
 
-        public let contract: ContractProtocol
+        public let contract: ContractRepresentable
         public let eventName: String
         public let filter: EventFilter?
         private let web3: Web3
 
-        public init? (web3 web3Instance: Web3, eventName: String, contract: ContractProtocol, filter: EventFilter? = nil) {
+        public init? (web3 web3Instance: Web3, eventName: String, contract: ContractRepresentable, filter: EventFilter? = nil) {
             guard let _ = contract.allEvents.index(of: eventName) else { return nil }
             self.eventName = eventName
             self.web3 = web3Instance
@@ -193,20 +193,11 @@ extension Web3.Contract.EventParser {
 }
 
 extension Web3.Contract {
-    public func getIndexedEventsPromise(eventName: String?, filter: EventFilter, joinWithReceipts: Bool = false) -> Promise<[EventParserResultProtocol]> {
+    public func getIndexedEventsPromise(eventName: String, filter: EventFilter, joinWithReceipts: Bool = false) -> Promise<[EventParserResultProtocol]> {
         let queue = self.web3.queue
         do {
-            guard let rawContract = self.contract as? ContractV2 else {
-                throw Web3Error.nodeError("ABIv1 is not supported for this method")
-            }
-            guard let preEncoding = encodeTopicToGetLogs(contract: rawContract, eventName: eventName, filter: filter) else {
+            guard let preEncoding = contract.encodeTopicToGetLogs(eventName: eventName, filter: filter) else {
                 throw Web3Error.inputError("Failed to encode topic for request")
-            }
-
-            if let eventName = eventName {
-                guard rawContract.events[eventName] != nil else {
-                    throw Web3Error.inputError("No such event in a contract")
-                }
             }
 
             let request = JSONRPCrequest(method: .getLogs, params: JSONRPCparams(params: [preEncoding]))
@@ -219,8 +210,7 @@ extension Web3.Contract {
                 }
                 let allLogs = value
                 let decodedLogs = allLogs.compactMap({ (log) -> EventParserResult? in
-                    let (n, d) = self.contract.parseEvent(log)
-                    guard let evName = n, let evData = d else { return nil }
+                    guard let (evName, evData) = self.contract.parseEvent(log) else { return nil }
                     var res = EventParserResult(eventName: evName, transactionReceipt: nil, contractAddress: log.address, decodedResult: evData)
                     res.eventLog = log
                     return res

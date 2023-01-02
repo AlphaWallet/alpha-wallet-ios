@@ -9,25 +9,76 @@
 import Foundation
 import BigInt
 
-public struct ContractV2: ContractProtocol {
+public struct Contract: ContractRepresentable {
+    private var contract: ContractRepresentable
+
+    public var address: EthereumAddress? {
+        get { return contract.address }
+        set { contract.address = newValue }
+    }
+
+    public var allMethods: [String] { contract.allEvents }
+    public var allEvents: [String] { contract.allEvents }
+
+    public init(abi: String, address: EthereumAddress? = nil) throws {
+        do {
+            contract = try ContractAbiV2(abi: abi, address: address)
+        } catch {
+            contract = try ContractAbiV1(abi: abi, address: address)
+        }
+    }
+
+    public func deploy(bytecode: Data, parameters: [AnyObject], extraData: Data, options: Web3Options?) throws -> EthereumTransaction {
+        try contract.deploy(bytecode: bytecode, parameters: parameters, extraData: extraData, options: options)
+    }
+
+    public func method(_ method: String, parameters: [AnyObject], extraData: Data, options: Web3Options?) throws -> EthereumTransaction {
+        try contract.method(method, parameters: parameters, extraData: extraData, options: options)
+    }
+
+    public func methodData(_ method: String = "fallback", parameters: [AnyObject] = [], fallbackData: Data = Data()) throws -> Data {
+        try contract.methodData(method, parameters: parameters, fallbackData: fallbackData)
+    }
+
+    public func decodeReturnData(_ method: String, data: Data) -> [String: Any]? {
+        return contract.decodeReturnData(method, data: data)
+    }
+
+    public func decodeInputData(_ method: String, data: Data) -> [String: Any]? {
+        contract.decodeInputData(method, data: data)
+    }
+
+    public func decodeInputData(_ data: Data) -> FunctionalCall? {
+        contract.decodeInputData(data)
+    }
+
+    public func parseEvent(_ eventLog: EventLog) -> (eventName: String, eventData: [String: Any])? {
+        contract.parseEvent(eventLog)
+    }
+
+    public func testBloomForEventPrecence(eventName: String, bloom: EthereumBloomFilter) -> Bool? {
+        contract.testBloomForEventPrecence(eventName: eventName, bloom: bloom)
+    }
+
+    public func encodeTopicToGetLogs(eventName: String, filter: EventFilter) -> EventFilterParameters? {
+        contract.encodeTopicToGetLogs(eventName: eventName, filter: filter)
+    }
+}
+
+struct ContractAbiV2: ContractRepresentable {
     
-    public var allEvents: [String] {
+    var allEvents: [String] {
         return events.keys.compactMap { $0 }
     }
     
-    public var allMethods: [String] {
+    var allMethods: [String] {
         return methods.keys.compactMap { $0 }
     }
     
-    public struct EventFilter {
-        public var parameterName: String
-        public var parameterValues: [AnyObject]
-    }
-    
-    public var address: EthereumAddress?
+    var address: EthereumAddress?
     var abi: [ABIv2.Element]
 
-    public var methods: [String: ABIv2.Element] {
+    var methods: [String: ABIv2.Element] {
         var toReturn: [String: ABIv2.Element] = [:]
         for m in self.abi {
             switch m {
@@ -41,7 +92,7 @@ public struct ContractV2: ContractProtocol {
         return toReturn
     }
     
-    public var constructor: ABIv2.Element? {
+    var constructor: ABIv2.Element? {
         var toReturn: ABIv2.Element?
         for element in self.abi {
             if toReturn != nil {
@@ -60,7 +111,7 @@ public struct ContractV2: ContractProtocol {
         return toReturn
     }
     
-    public var events: [String: ABIv2.Element.Event] {
+    var events: [String: ABIv2.Element.Event] {
         var toReturn: [String: ABIv2.Element.Event] = [:]
         for element in self.abi {
             switch element {
@@ -74,9 +125,7 @@ public struct ContractV2: ContractProtocol {
         return toReturn
     }
     
-    public var options: Web3Options? = Web3Options.defaultOptions()
-    
-    public init(abi: String, address: EthereumAddress? = nil) throws {
+    init(abi: String, address: EthereumAddress? = nil) throws {
         do {
             guard let json = abi.data(using: .utf8) else { throw Web3.ContractError.abiError(.abiInvalid) }
 
@@ -87,34 +136,33 @@ public struct ContractV2: ContractProtocol {
         }
     }
     
-    public init(abi: [ABIv2.Element]) {
+    init(abi: [ABIv2.Element]) {
         self.abi = abi
     }
     
-    public init(abi: [ABIv2.Element], at: EthereumAddress) {
+    init(abi: [ABIv2.Element], at: EthereumAddress) {
         self.abi = abi
         self.address = at
     }
     
-    public func deploy(bytecode: Data, parameters: [AnyObject] = [], extraData: Data = Data(), options: Web3Options?) throws -> EthereumTransaction {
+    func deploy(bytecode: Data, parameters: [AnyObject] = [], extraData: Data = Data(), options: Web3Options?) throws -> EthereumTransaction {
         let to: EthereumAddress = EthereumAddress.contractDeploymentAddress()
-        let mergedOptions = Web3Options.merge(self.options, with: options)
         var gasLimit: BigUInt
-        if let gasInOptions = mergedOptions?.gasLimit {
+        if let gasInOptions = options?.gasLimit {
             gasLimit = gasInOptions
         } else {
             throw Web3.ContractError.gasLimitNotFound
         }
         
         var gasPrice: BigUInt
-        if let gasPriceInOptions = mergedOptions?.gasPrice {
+        if let gasPriceInOptions = options?.gasPrice {
             gasPrice = gasPriceInOptions
         } else {
             throw Web3.ContractError.gasPriceNotFound
         }
         
         var value: BigUInt
-        if let valueInOptions = mergedOptions?.value {
+        if let valueInOptions = options?.value {
             value = valueInOptions
         } else {
             value = BigUInt(0)
@@ -131,49 +179,52 @@ public struct ContractV2: ContractProtocol {
         return EthereumTransaction(gasPrice: gasPrice, gasLimit: gasLimit, to: to, value: value, data: data)
     }
     
-    public func method(_ method: String = "fallback", parameters: [AnyObject] = [], extraData: Data = Data(), options: Web3Options?) throws -> EthereumTransaction {
+    func method(_ method: String = "fallback", parameters: [AnyObject] = [], extraData: Data = Data(), options: Web3Options?) throws -> EthereumTransaction {
         var to: EthereumAddress
-        let mergedOptions = Web3Options.merge(self.options, with: options)
         if let address = address {
             to = address
-        } else if let toAddress = mergedOptions?.to, toAddress.isValid {
-            to = toAddress
+        } else if let address = options?.to, address.isValid {
+            to = address
         } else {
             throw Web3.ContractError.toNotFound
         }
         
         var gasLimit: BigUInt
-        if let gasInOptions = mergedOptions?.gasLimit {
+        if let gasInOptions = options?.gasLimit {
             gasLimit = gasInOptions
         } else {
             throw Web3.ContractError.gasLimitNotFound
         }
         
         var gasPrice: BigUInt
-        if let gasPriceInOptions = mergedOptions?.gasPrice {
+        if let gasPriceInOptions = options?.gasPrice {
             gasPrice = gasPriceInOptions
         } else {
             throw Web3.ContractError.gasPriceNotFound
         }
         
         var value: BigUInt
-        if let valueInOptions = mergedOptions?.value {
+        if let valueInOptions = options?.value {
             value = valueInOptions
         } else {
             value = BigUInt(0)
         }
-        
-        if method == "fallback" {
-            return EthereumTransaction(gasPrice: gasPrice, gasLimit: gasLimit, to: to, value: value, data: extraData)
-        } else {
-            guard let abiElement = methods[method] else { throw Web3.ContractError.abiError(.methodNotFound(method)) }
-            guard let data = abiElement.encodeParameters(parameters) else { throw Web3.ContractError.abiError(.encodeParamFailure(parameters)) }
 
-            return EthereumTransaction(gasPrice: gasPrice, gasLimit: gasLimit, to: to, value: value, data: data)
-        }
+        let data = try methodData(method, parameters: parameters, fallbackData: extraData)
+
+        return EthereumTransaction(gasPrice: gasPrice, gasLimit: gasLimit, to: to, value: value, data: data)
+    }
+
+    func methodData(_ method: String = "fallback", parameters: [AnyObject] = [], fallbackData: Data = Data()) throws -> Data {
+        guard method != "fallback" else { return fallbackData }
+
+        guard let abiElement = methods[method] else { throw Web3.ContractError.abiError(.methodNotFound(method)) }
+        guard let data = abiElement.encodeParameters(parameters) else { throw Web3.ContractError.abiError(.encodeParamFailure(parameters)) }
+
+        return data
     }
     
-    public func parseEvent(_ eventLog: EventLog) -> (eventName: String?, eventData: [String: Any]?) {
+    func parseEvent(_ eventLog: EventLog) -> (eventName: String, eventData: [String: Any])? {
         for (eName, ev) in self.events {
             if !ev.anonymous {
                 if eventLog.topics[0] != ev.topic {
@@ -189,10 +240,10 @@ public struct ContractV2: ContractProtocol {
                 }
             }
         }
-        return (nil, nil)
+        return nil
     }
     
-    public func testBloomForEventPrecence(eventName: String, bloom: EthereumBloomFilter) -> Bool? {
+    func testBloomForEventPrecence(eventName: String, bloom: EthereumBloomFilter) -> Bool? {
         guard let event = events[eventName] else { return nil }
         if event.anonymous {
             return true
@@ -200,41 +251,102 @@ public struct ContractV2: ContractProtocol {
         return bloom.test(topic: event.topic)
     }
     
-    public func decodeReturnData(_ method: String, data: Data) -> [String: Any]? {
-        guard method != "fallback" else { return [:] }
+    func decodeReturnData(_ method: String, data: Data) -> [String: Any]? {
+        guard method != "fallback" else {
+            let resultHex = data.toHexString().addHexPrefix()
+            return ["result": resultHex as Any]
+        }
 
         guard let function = methods[method] else { return nil }
         guard case .function = function else { return nil }
+
         return function.decodeReturnData(data)
     }
     
-    public func decodeInputData(_ method: String, data: Data) -> [String: Any]? {
+    func decodeInputData(_ method: String, data: Data) -> [String: Any]? {
         guard method != "fallback" else { return nil }
 
         guard let function = methods[method] else { return nil }
         switch function {
-        case .function:
-            return function.decodeInputData(data)
-        case .constructor:
+        case .function, .constructor:
             return function.decodeInputData(data)
         default:
             return nil
         }
     }
     
-    public func decodeInputData(_ data: Data) -> [String: Any]? {
+    func decodeInputData(_ data: Data) -> FunctionalCall? {
         guard data.count % 32 == 4 else { return nil }
-        let methodSignature = data[0..<4]
-        let foundFunction = self.abi.filter { (m) -> Bool in
-            switch m {
+        let signature = data[0..<4]
+        let functions = self.abi.filter { element -> Bool in
+            switch element {
             case .function(let function):
-                return function.methodEncoding == methodSignature
+                return function.methodEncoding == signature
             default:
                 return false
             }
         }
-        guard foundFunction.count == 1 else { return nil }
-        
-        return foundFunction[0].decodeInputData(Data(data[4 ..< data.count]))
+
+        guard functions.count == 1 else { return nil }
+        let function = functions[0]
+
+        switch function {
+        case .function(let f):
+            let decoded = function.decodeInputData(Data(data[4 ..< data.count]))
+            return FunctionalCall(name: f.name, signature: f.methodString, params: decoded)
+        case .constructor, .fallback, .event:
+            return nil
+        }
+    }
+
+    func encodeTopicToGetLogs(eventName: String, filter: EventFilter) -> EventFilterParameters? {
+        guard let event = events[eventName] else { return nil }
+
+        var topics: [[String?]?] = [[event.topic.toHexString().addHexPrefix()]]
+
+        if let parameterFilters = filter.parameterFilters {
+            var lastNonemptyFilter = -1
+            for i in 0 ..< parameterFilters.count {
+                let filterValue = parameterFilters[i]
+                if filterValue != nil {
+                    lastNonemptyFilter = i
+                }
+            }
+            if lastNonemptyFilter != -1 {
+                guard lastNonemptyFilter <= event.inputs.count else { return nil }
+                for i in 0 ... lastNonemptyFilter {
+                    let filterValues = parameterFilters[i]
+                    if filterValues != nil {
+                        var isFound = false
+                        var targetIndexedPosition = i
+                        for j in 0 ..< event.inputs.count where event.inputs[j].indexed {
+                            if targetIndexedPosition == 0 {
+                                isFound = true
+                                break
+                            }
+                            targetIndexedPosition -= 1
+                        }
+
+                        if !isFound { return nil }
+                    }
+
+                    if filterValues == nil {
+                        topics.append(nil as [String?]?)
+                        continue
+                    }
+                    var encodings = [String]()
+                    for val in filterValues! {
+                        guard let enc = val.eventFilterEncoded() else { return nil }
+                        encodings.append(enc)
+                    }
+                    topics.append(encodings)
+                }
+            }
+        }
+
+        var preEncoding = filter.rpcPreEncode()
+        preEncoding.topics = topics
+
+        return preEncoding
     }
 }

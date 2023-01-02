@@ -1,5 +1,5 @@
 //
-//  ContractProtocol.swift
+//  ContractRepresentable.swift
 //  web3swift
 //
 //  Created by Alexander Vlasov on 04.04.2018.
@@ -9,9 +9,8 @@
 import Foundation
 import BigInt
 
-public protocol ContractProtocol {
+public protocol ContractRepresentable {
     var address: EthereumAddress? { get set }
-    var options: Web3Options? { get set }
     var allMethods: [String] { get }
     var allEvents: [String] { get }
 
@@ -19,11 +18,19 @@ public protocol ContractProtocol {
 
     func deploy(bytecode: Data, parameters: [AnyObject], extraData: Data, options: Web3Options?) throws -> EthereumTransaction
     func method(_ method: String, parameters: [AnyObject], extraData: Data, options: Web3Options?) throws -> EthereumTransaction
+    func methodData(_ method: String, parameters: [AnyObject], fallbackData: Data) throws -> Data
     func decodeReturnData(_ method: String, data: Data) -> [String: Any]?
     func decodeInputData(_ method: String, data: Data) -> [String: Any]?
-    func decodeInputData(_ data: Data) -> [String: Any]?
-    func parseEvent(_ eventLog: EventLog) -> (eventName: String?, eventData: [String: Any]?)
+    func decodeInputData(_ data: Data) -> FunctionalCall?
+    func parseEvent(_ eventLog: EventLog) -> (eventName: String, eventData: [String: Any])?
     func testBloomForEventPrecence(eventName: String, bloom: EthereumBloomFilter) -> Bool?
+    func encodeTopicToGetLogs(eventName: String, filter: EventFilter) -> EventFilterParameters?
+}
+
+public struct FunctionalCall {
+    public let name: String?
+    public let signature: String
+    public let params: [String: Any]?
 }
 
 public protocol EventFilterComparable {
