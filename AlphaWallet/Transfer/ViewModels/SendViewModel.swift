@@ -85,6 +85,7 @@ final class SendViewModel: TransactionTypeSupportable {
     }
     //NOTE: test purposes
     private (set) var scanQrCodeLatest: Result<TransactionType, CheckEIP681Error>?
+    private (set) var latestQrCode: String?
 
     func transform(input: SendViewModelInput) -> SendViewModelOutput {
         var isInitialAmountToSend: Bool = true
@@ -116,6 +117,7 @@ final class SendViewModel: TransactionTypeSupportable {
             .store(in: &cancelable)
 
         let scanQrCode = input.qrCode
+            .handleEvents(receiveOutput: { self.latestQrCode = $0 })
             .flatMap { [transactionTypeFromQrCode] in transactionTypeFromQrCode.buildTransactionType(qrCode: $0) }
             .handleEvents(receiveOutput: { [transactionTypeSubject] in
                 self.scanQrCodeLatest = $0
