@@ -343,6 +343,7 @@
 		5E7C7BFE9C8CAA3E204B1FAA /* TokenRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7F89E3480D3680750EA9 /* TokenRowView.swift */; };
 		5E7C7C0D3181CD31A581AEBE /* EditBookmarkViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7F55495A6095B3E86248 /* EditBookmarkViewController.swift */; };
 		5E7C7C0FAC500A6651E663FD /* TransferTokensCardQuantitySelectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C703BA1D0E9ACB7399155 /* TransferTokensCardQuantitySelectionViewModel.swift */; };
+		5E7C7C53FC6F46DF501E8AD1 /* CallSmartContractFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78E17FA9C8C892EEA355 /* CallSmartContractFunctionTests.swift */; };
 		5E7C7C60BAF11B0BD135FC1E /* GroupActivityViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7E58DD0CF4E2B35B6ED2 /* GroupActivityViewCell.swift */; };
 		5E7C7C869A09FD09DCE77EE6 /* ActivityCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C760CC5A9E144BDB5451D /* ActivityCellViewModel.swift */; };
 		5E7C7C8C689E972389F4A564 /* CrashReporterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C76A087FB8690364F8552 /* CrashReporterViewController.swift */; };
@@ -1158,6 +1159,7 @@
 		5E7C78CDFEB86A8356EA5818 /* TokenCardRowViewProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenCardRowViewProtocol.swift; sourceTree = "<group>"; };
 		5E7C78CF45AA54EF8647C44B /* SeedPhraseBackupIntroductionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SeedPhraseBackupIntroductionViewController.swift; sourceTree = "<group>"; };
 		5E7C78DB6F47344EBBC2567F /* ChainIdTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainIdTests.swift; sourceTree = "<group>"; };
+		5E7C78E17FA9C8C892EEA355 /* CallSmartContractFunctionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CallSmartContractFunctionTests.swift; sourceTree = "<group>"; };
 		5E7C78E5C8FAEA752B32626D /* UIActivityViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIActivityViewController.swift; sourceTree = "<group>"; };
 		5E7C78EFAF641C41F06C46BF /* ServersCoordinatorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServersCoordinatorTests.swift; sourceTree = "<group>"; };
 		5E7C7900C580D38703DEB396 /* FakeDomainResolutionService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FakeDomainResolutionService.swift; sourceTree = "<group>"; };
@@ -3017,6 +3019,14 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		5E7C77D279AE7B89A9C8D2E0 /* RPC */ = {
+			isa = PBXGroup;
+			children = (
+				5E7C78E17FA9C8C892EEA355 /* CallSmartContractFunctionTests.swift */,
+			);
+			path = RPC;
+			sourceTree = "<group>";
+		};
 		5E7C78095E4361EDA4CC72B1 /* Types */ = {
 			isa = PBXGroup;
 			children = (
@@ -3081,6 +3091,7 @@
 				8722324528D8607F001A9BCC /* Oneinch */,
 				5E7C733DEBED923B8D281682 /* Tokens */,
 				5E7C7D5C0666C0010B6343C8 /* Browser */,
+				5E7C77D279AE7B89A9C8D2E0 /* RPC */,
 			);
 			path = AlphaWalletFoundation;
 			sourceTree = "<group>";
@@ -5729,6 +5740,7 @@
 				5E7C74B9BD63DEFE074BB80D /* ErrorTests.swift in Sources */,
 				5E7C7A0D678C2CE065CC8BB1 /* Erc1155TokenIdsFetcherTests.swift in Sources */,
 				5E7C7D7F197980329CFB502D /* DappCommandTests.swift in Sources */,
+				5E7C7C53FC6F46DF501E8AD1 /* CallSmartContractFunctionTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
