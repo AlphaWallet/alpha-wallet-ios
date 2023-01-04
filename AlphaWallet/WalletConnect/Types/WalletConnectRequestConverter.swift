@@ -44,7 +44,7 @@ struct WalletConnectRequestConverter {
         case .sendTransaction(let bridgeTransaction):
             do {
                 let transaction = try TransactionType.prebuilt(server).buildAnyDappTransaction(bridgeTransaction: bridgeTransaction)
-                return .value(.signTransaction(transaction))
+                return .value(.sendTransaction(transaction))
             } catch {
                 return .init(error: error)
             }
