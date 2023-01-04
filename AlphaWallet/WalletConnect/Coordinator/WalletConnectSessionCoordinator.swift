@@ -17,9 +17,14 @@ protocol WalletConnectSessionCoordinatorDelegate: AnyObject {
 class WalletConnectSessionCoordinator: Coordinator {
     private let analytics: AnalyticsLogger
     private let navigationController: UINavigationController
-    private let provider: WalletConnectServerProviderType
+    private let walletConnectProvider: WalletConnectProvider
     private lazy var viewController: WalletConnectSessionViewController = {
-        let viewController = WalletConnectSessionViewController(viewModel: .init(provider: provider, session: session, analytics: analytics))
+        let viewModel = WalletConnectSessionDetailsViewModel(
+            walletConnectProvider: walletConnectProvider,
+            session: session,
+            analytics: analytics)
+
+        let viewController = WalletConnectSessionViewController(viewModel: viewModel)
         viewController.delegate = self
 
         return viewController
@@ -29,10 +34,14 @@ class WalletConnectSessionCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: WalletConnectSessionCoordinatorDelegate?
 
-    init(analytics: AnalyticsLogger, navigationController: UINavigationController, provider: WalletConnectServerProviderType, session: AlphaWallet.WalletConnect.Session) {
+    init(analytics: AnalyticsLogger,
+         navigationController: UINavigationController,
+         walletConnectProvider: WalletConnectProvider,
+         session: AlphaWallet.WalletConnect.Session) {
+
         self.analytics = analytics
         self.navigationController = navigationController
-        self.provider = provider
+        self.walletConnectProvider = walletConnectProvider
         self.session = session
     }
 
@@ -64,7 +73,7 @@ extension WalletConnectSessionCoordinator: ServersCoordinatorDelegate {
         analytics.log(action: Analytics.Action.switchedServer, properties: [
             Analytics.Properties.source.rawValue: "walletConnect"
         ])
-        try? provider.update(session.topicOrUrl, servers: servers)
+        try? walletConnectProvider.update(session.topicOrUrl, servers: servers)
     }
 
     func didClose(in coordinator: ServersCoordinator) {

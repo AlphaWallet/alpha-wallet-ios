@@ -8,13 +8,52 @@
 import Foundation
 import Combine
 import AlphaWalletFoundation
+import PromiseKit
 
-enum WalletConnectError: Error {
+enum WalletConnectError: Error, LocalizedError {
+    case onlyForWatchWallet(address: AlphaWallet.Address)
+    case walletsNotFound(addresses: [AlphaWallet.Address])
     case callbackIdMissing
     case connectionFailure(WalletConnectV1URL)
+    case `internal`(Error)
+
+    init(error: Error) {
+        if let value = error as? WalletConnectError {
+            self = value
+        } else {
+            self = .internal(error)
+        }
+    }
+
+    var isCancellationError: Bool {
+        switch self {
+        case .internal(let error):
+            if case DAppError.cancelled = error {
+                return true
+            } else if case PMKError.cancelled = error {
+                return true
+            }
+            return false
+        case .walletsNotFound, .onlyForWatchWallet, .callbackIdMissing, .connectionFailure:
+            return false
+        }
+    }
+
+    var localizedDescription: String {
+        switch self {
+        case .internal(let error):
+            return error.localizedDescription
+        case .callbackIdMissing, .connectionFailure:
+            return R.string.localizable.walletConnectFailureTitle()
+        case .onlyForWatchWallet:
+            return R.string.localizable.walletConnectFailureMustNotBeWatchedWallet()
+        case .walletsNotFound:
+            return R.string.localizable.walletConnectFailureWalletsNotFound()
+        }
+    }
 }
 
-protocol WalletConnectResponder {
+protocol WalletConnectResponder: AnyObject {
     func respond(_ response: AlphaWallet.WalletConnect.Response, request: AlphaWallet.WalletConnect.Session.Request) throws
 }
 
@@ -25,10 +64,8 @@ protocol WalletConnectServer: WalletConnectResponder {
 
     func connect(url: AlphaWallet.WalletConnect.ConnectionUrl) throws
     func session(for topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl) -> AlphaWallet.WalletConnect.Session?
-    func reconnect(_ topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl) throws
     func update(_ topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl, servers: [RPCServer]) throws
     func disconnect(_ topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl) throws
-    func disconnectSession(sessions: [NFDSession]) throws
     func isConnected(_ topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl) -> Bool
 }
 

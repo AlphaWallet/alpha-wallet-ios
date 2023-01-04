@@ -14,14 +14,13 @@ public class SendTransaction {
     private let analytics: AnalyticsLogger
     private let prompt: String
 
-    public init(
-        session: WalletSession,
-        keystore: Keystore,
-        confirmType: ConfirmType,
-        config: Config,
-        analytics: AnalyticsLogger,
-        prompt: String
-    ) {
+    public init(session: WalletSession,
+                keystore: Keystore,
+                confirmType: ConfirmType,
+                config: Config,
+                analytics: AnalyticsLogger,
+                prompt: String) {
+        
         self.prompt = prompt
         self.session = session
         self.keystore = keystore

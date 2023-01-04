@@ -20,7 +20,7 @@ struct WalletConnectSessionDetailsViewModelOutput {
 
 class WalletConnectSessionDetailsViewModel {
     @Published private var session: AlphaWallet.WalletConnect.Session
-    private let provider: WalletConnectServerProviderType
+    private let walletConnectProvider: WalletConnectProvider
     private var cancellable = Set<AnyCancellable>()
     private let analytics: AnalyticsLogger
     private let config: Config = Config()
@@ -28,8 +28,6 @@ class WalletConnectSessionDetailsViewModel {
     private var serverChoices: [RPCServer] {
         ServersCoordinator.serversOrdered.filter { config.enabledServers.contains($0) }
     }
-    
-    var methods: [String] { session.methods }
 
     var serversViewModel: ServersViewModel {
         let selectedServers: [RPCServerOrAuto] = rpcServers.map { return .server($0) }
@@ -40,14 +38,17 @@ class WalletConnectSessionDetailsViewModel {
         return viewModel
     }
 
-    init(provider: WalletConnectServerProviderType, session: AlphaWallet.WalletConnect.Session, analytics: AnalyticsLogger) {
-        self.provider = provider
+    init(walletConnectProvider: WalletConnectProvider,
+         session: AlphaWallet.WalletConnect.Session,
+         analytics: AnalyticsLogger) {
+        
+        self.walletConnectProvider = walletConnectProvider
         self.analytics = analytics
         self.session = session
     }
 
     func transform(input: WalletConnectSessionDetailsViewModelInput) -> WalletConnectSessionDetailsViewModelOutput {
-        provider.sessions
+        walletConnectProvider.sessionsPublisher
             .receive(on: RunLoop.main)
             .compactMap { [session] sessions in sessions.first(where: { $0.topicOrUrl == session.topicOrUrl }) }
             .handleEvents(receiveOutput: { self.session = $0 })
@@ -56,16 +57,16 @@ class WalletConnectSessionDetailsViewModel {
 
         let didDisconnect = input.disconnect
             .map { _ in return self.session }
-            .handleEvents(receiveOutput: { [analytics, provider] session in
+            .handleEvents(receiveOutput: { [analytics, walletConnectProvider] session in
                 analytics.log(action: Analytics.Action.walletConnectDisconnect)
 
-                try? provider.disconnect(session.topicOrUrl)
+                try? walletConnectProvider.disconnect(session.topicOrUrl)
             }).mapToVoid()
             .eraseToAnyPublisher()
 
         let viewState = $session
-            .map { [provider] session -> WalletConnectSessionDetailsViewModel.ViewState in
-                let isConnected = provider.isConnected(session.topicOrUrl)
+            .map { [walletConnectProvider] session -> WalletConnectSessionDetailsViewModel.ViewState in
+                let isConnected = walletConnectProvider.isConnected(session.topicOrUrl)
 
                 return WalletConnectSessionDetailsViewModel.ViewState(
                     sessionIconURL: session.dappIconUrl,
@@ -74,18 +75,41 @@ class WalletConnectSessionDetailsViewModel {
                     dappUrlFieldAttributedString: self.dappUrlFieldAttributedString(session: session),
                     chainFieldAttributedString: self.chainIdFieldAttributedString(session: session),
                     methodsFieldAttributedString: self.methodsFieldAttributedString(session: session),
+                    eventsFieldAttributedString: self.eventsFieldAttributedString(session: session),
                     isDisconnectEnabled: isConnected,
                     isSwitchServerEnabled: isConnected,
-                    dappNameAttributedString: self.dappNameAttributedString(session: session))
+                    dappNameAttributedString: self.dappNameAttributedString(session: session),
+                    viewTypes: self.buildViewTypes(session: session))
             }.eraseToAnyPublisher()
 
         return .init(didDisconnect: didDisconnect, viewState: viewState)
     }
 
+    private func buildViewTypes(session: AlphaWallet.WalletConnect.Session) -> [WalletConnectSessionDetailsViewModel.ViewType] {
+        var subviews: [WalletConnectSessionDetailsViewModel.ViewType] = [
+            .image,
+            .separator,
+            .status,
+            .status,
+            .dappName,
+            .dappUrl,
+            .network
+        ]
+
+        if !session.methods.isEmpty {
+            subviews += [.methods]
+        }
+
+        if !session.events.isEmpty {
+            subviews += [.events]
+        }
+        return subviews
+    }
+
     private func statusFieldAttributedString(session: AlphaWallet.WalletConnect.Session) -> NSAttributedString {
-        NSAttributedString(string: provider.isConnected(session.topicOrUrl) ? R.string.localizable.walletConnectStatusOnline() : R.string.localizable.walletConnectStatusOffline(), attributes: [
+        NSAttributedString(string: walletConnectProvider.isConnected(session.topicOrUrl) ? R.string.localizable.walletConnectStatusOnline() : R.string.localizable.walletConnectStatusOffline(), attributes: [
             .font: Fonts.semibold(size: 17),
-            .foregroundColor: provider.isConnected(session.topicOrUrl) ? Colors.green : Colors.appRed
+            .foregroundColor: walletConnectProvider.isConnected(session.topicOrUrl) ? Colors.green : Colors.appRed
         ])
     }
 
@@ -127,9 +151,28 @@ class WalletConnectSessionDetailsViewModel {
             .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
         ])
     }
+
+    private func eventsFieldAttributedString(session: AlphaWallet.WalletConnect.Session) -> NSAttributedString {
+        let events = session.events.joined(separator: ", ")
+        return NSAttributedString(string: events, attributes: [
+            .font: Fonts.regular(size: 17),
+            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
+        ])
+    }
 }
 
 extension WalletConnectSessionDetailsViewModel {
+    enum ViewType: String, Hashable {
+        case separator
+        case image
+        case status
+        case dappName
+        case dappUrl
+        case network
+        case methods
+        case events
+    }
+
     struct ViewState {
         let dissconnectButtonText: String = R.string.localizable.walletConnectSessionDisconnect()
         let changeNetworksButtonText: String = R.string.localizable.walletConnectSessionSwitchNetwork()
@@ -141,8 +184,10 @@ extension WalletConnectSessionDetailsViewModel {
         let dappUrlFieldAttributedString: NSAttributedString
         let chainFieldAttributedString: NSAttributedString
         let methodsFieldAttributedString: NSAttributedString
+        let eventsFieldAttributedString: NSAttributedString
         let isDisconnectEnabled: Bool
         let isSwitchServerEnabled: Bool
         let dappNameAttributedString: NSAttributedString
+        let viewTypes: [WalletConnectSessionDetailsViewModel.ViewType]
     }
 }

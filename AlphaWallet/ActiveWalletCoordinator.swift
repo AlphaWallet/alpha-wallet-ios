@@ -35,7 +35,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
             tokenGroupIdentifier: TokenGroupIdentifier.identifier(fromFileName: "tokens")!)
     }()
 
-    private let tokenCollection: TokenCollection
+    internal let tokenCollection: TokenCollection
 
     private var transactionCoordinator: TransactionsCoordinator? {
         return coordinators.compactMap { $0 as? TransactionsCoordinator }.first
@@ -125,7 +125,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     }
 
     private lazy var dappRequestHandler: DappRequestHandler = {
-        let handler = DappRequestHandler(walletConnectCoordinator: walletConnectCoordinator, dappBrowserCoordinator: dappBrowserCoordinator!)
+        let handler = DappRequestHandler(walletConnectProvider: walletConnectCoordinator.walletConnectProvider, dappBrowserCoordinator: dappBrowserCoordinator!)
         handler.delegate = self
 
         return handler
@@ -176,7 +176,8 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
          currencyService: CurrencyService,
          tokenScriptOverridesFileManager: TokenScriptOverridesFileManager,
          networkService: NetworkService,
-         promptBackup: PromptBackup) {
+         promptBackup: PromptBackup,
+         caip10AccountProvidable: CAIP10AccountProvidable) {
 
         self.promptBackup = promptBackup
         self.networkService = networkService
@@ -220,7 +221,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
 
         self.keystore.recentlyUsedWallet = wallet
         crashlytics.trackActiveWallet(wallet: wallet)
-
+        caip10AccountProvidable.set(activeWallet: wallet)
         notificationService.register(source: transactionNotificationService)
         swapButton.addTarget(self, action: #selector(swapButtonSelected), for: .touchUpInside)
 
@@ -637,11 +638,6 @@ extension ActiveWalletCoordinator: SelectServiceToBuyCryptoCoordinatorDelegate {
         removeCoordinator(coordinator)
     }
 
-    func buyCrypto(wallet: Wallet, server: RPCServer, viewController: UIViewController, source: Analytics.BuyCryptoSource) {
-        let token = MultipleChainsTokensDataStore.functional.etherToken(forServer: server)
-        buyCrypto(wallet: wallet, token: token, viewController: viewController, source: source)
-    }
-
     private func buyCrypto(wallet: Wallet, token: TokenActionsIdentifiable, viewController: UIViewController, source: Analytics.BuyCryptoSource) {
         guard let buyTokenProvider = tokenActionsService.service(ofType: BuyTokenProvider.self) as? BuyTokenProvider else { return }
         let coordinator = SelectServiceToBuyCryptoCoordinator(buyTokenProvider: buyTokenProvider, token: token, viewController: viewController, source: source, analytics: analytics)
@@ -651,7 +647,14 @@ extension ActiveWalletCoordinator: SelectServiceToBuyCryptoCoordinatorDelegate {
     }
 }
 
-extension ActiveWalletCoordinator {
+// swiftlint:enable type_body_length
+extension ActiveWalletCoordinator: WalletConnectCoordinatorDelegate {
+
+    func buyCrypto(wallet: Wallet, server: RPCServer, viewController: UIViewController, source: Analytics.BuyCryptoSource) {
+        let token = MultipleChainsTokensDataStore.functional.etherToken(forServer: server)
+        buyCrypto(wallet: wallet, token: token, viewController: viewController, source: source)
+    }
+
     func requestSwitchChain(server: RPCServer, currentUrl: URL?, callbackID: SwitchCustomChainCallbackId, targetChain: WalletSwitchEthereumChainObject) {
         let coordinator = DappRequestSwitchExistingChainCoordinator(
             config: config,
@@ -684,10 +687,10 @@ extension ActiveWalletCoordinator {
         dappRequestHandler.addCoordinator(coordinator)
         coordinator.start()
     }
-}
 
-// swiftlint:enable type_body_length
-extension ActiveWalletCoordinator: WalletConnectCoordinatorDelegate {
+    func session(for server: AlphaWalletFoundation.RPCServer) -> WalletSession? {
+        sessionsProvider.session(for: server)
+    }
 
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: TransactionConfirmationCoordinator) {
         handlePendingTransaction(transaction: transaction)

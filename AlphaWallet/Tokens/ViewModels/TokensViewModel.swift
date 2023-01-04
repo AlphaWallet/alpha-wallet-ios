@@ -24,7 +24,7 @@ struct TokensViewModelOutput {
 // swiftlint:disable type_body_length
 final class TokensViewModel {
     private let tokenCollection: TokenCollection
-    private let walletConnectCoordinator: WalletConnectCoordinator
+    private let walletConnectProvider: WalletConnectProvider
     private let walletBalanceService: WalletBalanceService
         //Must be computed because localization can be overridden by user dynamically
     static var segmentedControlTitles: [String] { WalletFilter.orderedTabs.map { $0.title } }
@@ -161,7 +161,7 @@ final class TokensViewModel {
     init(wallet: Wallet,
          tokenCollection: TokenCollection,
          tokensFilter: TokensFilter,
-         walletConnectCoordinator: WalletConnectCoordinator,
+         walletConnectProvider: WalletConnectProvider,
          walletBalanceService: WalletBalanceService,
          config: Config,
          domainResolutionService: DomainResolutionServiceType,
@@ -171,7 +171,7 @@ final class TokensViewModel {
         self.wallet = wallet
         self.tokenCollection = tokenCollection
         self.tokensFilter = tokensFilter
-        self.walletConnectCoordinator = walletConnectCoordinator
+        self.walletConnectProvider = walletConnectProvider
         self.walletBalanceService = walletBalanceService
         self.config = config
         self.domainResolutionService = domainResolutionService
@@ -204,7 +204,7 @@ final class TokensViewModel {
                 tokenCollection.refresh()
             }.store(in: &cancellable)
 
-        walletConnectCoordinator.sessions
+        walletConnectProvider.sessionsPublisher
             .receive(on: RunLoop.main)
             .sink { [weak self] sessions in
                 self?.walletConnectSessions = sessions.count

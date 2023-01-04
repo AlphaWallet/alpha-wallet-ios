@@ -15,14 +15,14 @@ protocol DappRequestHandlerDelegate: AnyObject {
 extension ActiveWalletCoordinator {
     /// Wraps DappRequestSwitchCustomChainCoordinatorDelegate and DappRequestSwitchExistingChainCoordinatorDelegate to reduce in coordinator size
     class DappRequestHandler: Coordinator {
-        private let walletConnectCoordinator: WalletConnectCoordinator
+        private let walletConnectProvider: WalletConnectProvider
         private var dappBrowserCoordinator: DappBrowserCoordinator
 
         weak var delegate: DappRequestHandlerDelegate?
         var coordinators: [Coordinator] = []
 
-        init(walletConnectCoordinator: WalletConnectCoordinator, dappBrowserCoordinator: DappBrowserCoordinator) {
-            self.walletConnectCoordinator = walletConnectCoordinator
+        init(walletConnectProvider: WalletConnectProvider, dappBrowserCoordinator: DappBrowserCoordinator) {
+            self.walletConnectProvider = walletConnectProvider
             self.dappBrowserCoordinator = dappBrowserCoordinator
         }
 
@@ -39,8 +39,8 @@ extension ActiveWalletCoordinator.DappRequestHandler: DappRequestSwitchCustomCha
             let callback = DappCallback(id: callbackId, value: .walletAddEthereumChain)
             dappBrowserCoordinator.notifyFinish(callbackID: callbackId, value: .success(callback))
         case .walletConnect(let request):
-            try? walletConnectCoordinator.responseServerChangeSucceed(request: request)
-            try? walletConnectCoordinator.notifyUpdateServers(request: request, server: coordinator.server)
+            try? walletConnectProvider.responseServerChangeSucceed(request: request)
+            try? walletConnectProvider.notifyUpdateServers(request: request, server: coordinator.server)
         }
         removeCoordinator(coordinator)
     }
@@ -52,8 +52,8 @@ extension ActiveWalletCoordinator.DappRequestHandler: DappRequestSwitchCustomCha
         case .dapp:
             break
         case .walletConnect(let request):
-            try? walletConnectCoordinator.responseServerChangeSucceed(request: request)
-            try? walletConnectCoordinator.notifyUpdateServers(request: request, server: server)
+            try? walletConnectProvider.responseServerChangeSucceed(request: request)
+            try? walletConnectProvider.notifyUpdateServers(request: request, server: server)
         }
         removeCoordinator(coordinator)
     }
@@ -64,8 +64,8 @@ extension ActiveWalletCoordinator.DappRequestHandler: DappRequestSwitchCustomCha
         case .dapp:
             break
         case .walletConnect(let request):
-            try? walletConnectCoordinator.responseServerChangeSucceed(request: request)
-            try? walletConnectCoordinator.notifyUpdateServers(request: request, server: coordinator.server)
+            try? walletConnectProvider.responseServerChangeSucceed(request: request)
+            try? walletConnectProvider.notifyUpdateServers(request: request, server: coordinator.server)
         }
         removeCoordinator(coordinator)
     }
@@ -76,8 +76,8 @@ extension ActiveWalletCoordinator.DappRequestHandler: DappRequestSwitchCustomCha
         case .dapp:
             break
         case .walletConnect(let request):
-            try? walletConnectCoordinator.responseServerChangeSucceed(request: request)
-            try? walletConnectCoordinator.notifyUpdateServers(request: request, server: coordinator.server)
+            try? walletConnectProvider.responseServerChangeSucceed(request: request)
+            try? walletConnectProvider.notifyUpdateServers(request: request, server: coordinator.server)
         }
         removeCoordinator(coordinator)
     }
@@ -87,7 +87,7 @@ extension ActiveWalletCoordinator.DappRequestHandler: DappRequestSwitchCustomCha
         case .dapp(let callbackId):
             dappBrowserCoordinator.notifyFinish(callbackID: callbackId, value: .failure(DAppError.cancelled))
         case .walletConnect(let request):
-            try? walletConnectCoordinator.respond(response: .init(error: .requestRejected), request: request)
+            try? walletConnectProvider.respond(.init(error: .requestRejected), request: request)
         }
         removeCoordinator(coordinator)
     }
@@ -98,7 +98,7 @@ extension ActiveWalletCoordinator.DappRequestHandler: DappRequestSwitchCustomCha
             let error = DAppError.nodeError(errorMessage)
             dappBrowserCoordinator.notifyFinish(callbackID: callbackId, value: .failure(error))
         case .walletConnect(let request):
-            try? walletConnectCoordinator.respond(response: .init(code: 0, message: errorMessage), request: request)
+            try? walletConnectProvider.respond(.init(code: 0, message: errorMessage), request: request)
         }
         removeCoordinator(coordinator)
     }
@@ -108,7 +108,7 @@ extension ActiveWalletCoordinator.DappRequestHandler: DappRequestSwitchCustomCha
         case .dapp(let callbackId):
             dappBrowserCoordinator.notifyFinish(callbackID: callbackId, value: .failure(error))
         case .walletConnect(let request):
-            try? walletConnectCoordinator.respond(response: .init(error: .requestRejected), request: request)
+            try? walletConnectProvider.respond(.init(error: .requestRejected), request: request)
         }
         removeCoordinator(coordinator)
     }
@@ -126,8 +126,8 @@ extension ActiveWalletCoordinator.DappRequestHandler: DappRequestSwitchExistingC
             let callback = DappCallback(id: callbackId, value: .walletSwitchEthereumChain)
             dappBrowserCoordinator.notifyFinish(callbackID: callbackId, value: .success(callback))
         case .walletConnect(let request):
-            try? walletConnectCoordinator.respond(response: .value(nil), request: request)
-            try? walletConnectCoordinator.notifyUpdateServers(request: request, server: coordinator.server)
+            try? walletConnectProvider.respond(.value(nil), request: request)
+            try? walletConnectProvider.notifyUpdateServers(request: request, server: coordinator.server)
         }
 
         removeCoordinator(coordinator)
@@ -139,8 +139,8 @@ extension ActiveWalletCoordinator.DappRequestHandler: DappRequestSwitchExistingC
         case .dapp:
             break
         case .walletConnect(let request):
-            try? walletConnectCoordinator.respond(response: .value(nil), request: request)
-            try? walletConnectCoordinator.notifyUpdateServers(request: request, server: server)
+            try? walletConnectProvider.respond(.value(nil), request: request)
+            try? walletConnectProvider.notifyUpdateServers(request: request, server: server)
         }
         removeCoordinator(coordinator)
     }
@@ -151,8 +151,8 @@ extension ActiveWalletCoordinator.DappRequestHandler: DappRequestSwitchExistingC
         case .dapp:
             break
         case .walletConnect(let request):
-            try? walletConnectCoordinator.respond(response: .value(nil), request: request)
-            try? walletConnectCoordinator.notifyUpdateServers(request: request, server: coordinator.server)
+            try? walletConnectProvider.respond(.value(nil), request: request)
+            try? walletConnectProvider.notifyUpdateServers(request: request, server: coordinator.server)
         }
         removeCoordinator(coordinator)
     }
@@ -161,7 +161,7 @@ extension ActiveWalletCoordinator.DappRequestHandler: DappRequestSwitchExistingC
         case .dapp(let callbackId):
             dappBrowserCoordinator.notifyFinish(callbackID: callbackId, value: .failure(DAppError.cancelled))
         case .walletConnect(let request):
-            try? walletConnectCoordinator.respond(response: .init(error: .requestRejected), request: request)
+            try? walletConnectProvider.respond(.init(error: .requestRejected), request: request)
         }
         removeCoordinator(coordinator)
     }
@@ -172,7 +172,7 @@ extension ActiveWalletCoordinator.DappRequestHandler: DappRequestSwitchExistingC
             let error = DAppError.nodeError(errorMessage)
             dappBrowserCoordinator.notifyFinish(callbackID: callbackId, value: .failure(error))
         case .walletConnect(let request):
-            try? walletConnectCoordinator.respond(response: .init(error: .requestRejected), request: request)
+            try? walletConnectProvider.respond(.init(error: .requestRejected), request: request)
         }
         removeCoordinator(coordinator)
     }

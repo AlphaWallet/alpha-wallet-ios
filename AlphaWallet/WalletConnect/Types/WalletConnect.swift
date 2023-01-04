@@ -159,8 +159,17 @@ extension AlphaWallet.WalletConnect {
             return chains.compactMap { eip155URLCoder.decodeRPC(from: $0) }
         }
 
+        var accounts: [AlphaWallet.Address] {
+            let chains = Array(namespaces.values.flatMap { $0.accounts.map { $0.address } })
+            return chains.compactMap { AlphaWallet.Address(string: $0) }
+        }
+
         var methods: [String] {
             Array(namespaces.values.first?.methods ?? [])
+        }
+
+        var events: [String] {
+            Array(namespaces.values.first?.events ?? [])
         }
 
         func hash(into hasher: inout Hasher) {
@@ -190,19 +199,6 @@ extension AlphaWallet.WalletConnect {
             }
         }
     }
-}
-
-///WalletConnect SDK connection URL
-//public typealias WalletConnectV1URL = _WCURL
-
-///NFDSession - Non Full Disconnectable Session - when the session have a multiple connected servers we able to update this session with excluding non needed servers
-///- serversToDisconnect - servers we are going to disconnect, `session.servers.filter{ !serversToDisconnect.contains($0) }`  its gonna to be servers that we want to left connected
-///- session - session instance
-typealias NFDSession = (session: AlphaWallet.WalletConnect.Session, serversToDisconnect: [RPCServer])
-
-enum SessionsToDisconnect {
-    case allExcept(_ servers: [RPCServer])
-    case all
 }
 
 extension AlphaWallet.WalletConnect.Session: Equatable {
