@@ -812,12 +812,24 @@ public enum RPCServer: Hashable, CaseIterable {
         }
     }
 
+    //These limits are empirically determined to:
+    // A. fit within the node's limits, and
+    // B. and be fast enough to return
     var rpcNodeBatchSupport: RpcNodeBatchSupport {
         switch self {
         case .klaytnCypress, .klaytnBaobabTestnet: return .noBatching
-        case .xDai: return .batch(6)
+        case .xDai: return .batch(1000)
         case .cronosMainnet: return .batch(5)
-        case .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .optimistic, .polygon, .mumbai_testnet, .cronosTestnet, .arbitrum, .main, .poa, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .custom, .palm, .palmTestnet, .ioTeX, .ioTeXTestnet, .optimismGoerli, .arbitrumGoerli: return .batch(32)
+        //Infura's. Can do more, but way too slow
+        case .main, .goerli, .polygon, .mumbai_testnet, .arbitrum, .arbitrumGoerli, .palm, .palmTestnet, .optimistic, .optimismGoerli: return .batch(100)
+        case .classic: return .batch(128)
+        case .callisto, .poa: return .batch(1000)
+        case .artis_sigma1, .artis_tau1: return .batch(100)
+        case .binance_smart_chain, .binance_smart_chain_testnet: return .batch(100)
+        case .heco, .heco_testnet: return .batch(1000)
+        case .fantom:  return .batch(1000)
+        case .ioTeX, .ioTeXTestnet: return .batch(200)
+        case .cronosTestnet, .fantom_testnet, .avalanche, .avalanche_testnet, .custom: return .batch(32)
         }
     }
 
