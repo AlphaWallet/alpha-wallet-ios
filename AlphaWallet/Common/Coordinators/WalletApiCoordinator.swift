@@ -15,7 +15,6 @@ protocol WalletApiCoordinatorDelegate: AnyObject {
 }
 
 class WalletApiCoordinator: NSObject, Coordinator {
-    private let serviceProvider: SessionsProvider
     private let navigationController: UINavigationController
     private let keystore: Keystore
     private let analytics: AnalyticsLogger
@@ -23,8 +22,7 @@ class WalletApiCoordinator: NSObject, Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: WalletApiCoordinatorDelegate?
 
-    init(keystore: Keystore, navigationController: UINavigationController, analytics: AnalyticsLogger, serviceProvider: SessionsProvider) {
-        self.serviceProvider = serviceProvider
+    init(keystore: Keystore, navigationController: UINavigationController, analytics: AnalyticsLogger) {
         self.keystore = keystore
         self.navigationController = navigationController
         self.analytics = analytics
@@ -40,20 +38,12 @@ class WalletApiCoordinator: NSObject, Coordinator {
         }
     }
 
-    private var wallet: Wallet {
-        return serviceProvider.activeSessions.anyValue.account
-    }
-
-    private func isActiveWallet(address: AlphaWallet.Address) -> Bool {
-        return wallet.address.sameContract(as: address)
-    }
-
     private func validate(addressToConnect address: AlphaWallet.Address?) throws -> AlphaWallet.Address {
-        guard let address = address else {
+        guard let address = address, let wallet = keystore.currentWallet else {
             throw WalletApiError.connectionAddressNotFound
         }
 
-        guard isActiveWallet(address: address) else {
+        guard wallet.address.sameContract(as: address) else {
             throw WalletApiError.requestedWalletNonActive
         }
 
@@ -61,6 +51,7 @@ class WalletApiCoordinator: NSObject, Coordinator {
     }
 
     private func connect(redirectUrl: URL, metadata: DeepLink.Metadata) {
+        guard let wallet = keystore.currentWallet else { return }
         let proposalType: ProposalType = .deepLink(.init(metadata: metadata, address: wallet.address))
 
         firstly {

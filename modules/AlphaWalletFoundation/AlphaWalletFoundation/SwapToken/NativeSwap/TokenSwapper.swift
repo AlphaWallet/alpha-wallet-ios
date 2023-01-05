@@ -21,7 +21,7 @@ open class TokenSwapper: ObservableObject {
     private (set) public var storage: SwapSupportStateStorage & SwapPairsStorage & SwapToolStorage & SwapRouteStorage & SwapQuoteStorage = InMemoryTokenSwapperStorage()
     private var inflightFetchSupportedServersPublisher: AnyPublisher<[RPCServer], PromiseError>?
     private var inflightFetchSupportedToolsPublisher: AnyPublisher<[SwapTool], Never>?
-    private let sessions: AnyPublisher<ServerDictionary<WalletSession>, Never>
+    private let serversProvider: ServersProvidable
     private var cancelable = Set<AnyCancellable>()
     private var reloadSubject = PassthroughSubject<Void, Never>()
     private var loadingStateSubject: CurrentValueSubject<TokenSwapper.LoadingState, Never> = .init(.pending)
@@ -44,22 +44,20 @@ open class TokenSwapper: ObservableObject {
             .eraseToAnyPublisher()
     }
 
-    public init(reachabilityManager: ReachabilityManagerProtocol, sessionProvider: SessionsProvider, networkProvider: TokenSwapperNetworkProvider) {
+    public init(reachabilityManager: ReachabilityManagerProtocol, serversProvider: ServersProvidable, networkProvider: TokenSwapperNetworkProvider) {
         self.reachabilityManager = reachabilityManager
         self.networkProvider = networkProvider
-        self.sessions = sessionProvider.sessions
-            .filter { !$0.isEmpty }
-            .eraseToAnyPublisher()
+        self.serversProvider = serversProvider
     }
 
     public func start() {
         guard Features.default.isAvailable(.isSwapEnabled) else { return }
 
         reachabilityManager.networkBecomeReachablePublisher
-            .combineLatest(sessions, reloadSubject)
-            .map { (_, sessions, _) in sessions }
+            .combineLatest(serversProvider.servers, reloadSubject)
+            .map { (_, servers, _) in servers }
             .receive(on: RunLoop.main)
-            .flatMap { self.fetchAllSupportedTokens(sessions: $0) }
+            .flatMap { self.fetchAllSupportedTokens(servers: $0) }
             .sink { [weak loadingStateSubject] swapSupportStates in
                 self.storage.addOrUpdate(swapSupportStates: swapSupportStates)
                 loadingStateSubject?.send(.done)
@@ -184,10 +182,10 @@ open class TokenSwapper: ObservableObject {
         return publisher
     }
 
-    private func fetchAllSupportedTokens(sessions: ServerDictionary<WalletSession>) -> AnyPublisher<[SwapSupportState], Never> {
+    private func fetchAllSupportedTokens(servers: Set<RPCServer>) -> AnyPublisher<[SwapSupportState], Never> {
         loadingStateSubject.send(.updating)
 
-        let publishers = sessions.values.map { fetchSupportedTokens(for: $0.server) }
+        let publishers = servers.map { fetchSupportedTokens(for: $0) }
         return Publishers.MergeMany(publishers).collect()
             .eraseToAnyPublisher()
     }

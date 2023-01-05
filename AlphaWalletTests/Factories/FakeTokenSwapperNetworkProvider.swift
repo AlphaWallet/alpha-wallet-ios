@@ -1,5 +1,5 @@
 //
-//  FakeTokenSwapper.swift
+//  FakeTokenSwapperNetworkProvider.swift
 //  AlphaWalletTests
 //
 //  Created by Vladyslav Shepitko on 11.05.2022.
