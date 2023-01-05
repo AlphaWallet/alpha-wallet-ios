@@ -77,8 +77,6 @@ class TransactionDetailsViewController: UIViewController {
         }
         view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
 
-        view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
-
         bind(viewModel: viewModel)
     }
 

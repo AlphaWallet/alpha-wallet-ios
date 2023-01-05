@@ -40,10 +40,10 @@ public class PromptBackup {
     }
 
     public init(keystore: Keystore,
-         config: Config,
-         analytics: AnalyticsLogger,
-         walletBalanceProvidable: WalletBalanceProvidable,
-         filename: String = "backupState.json") {
+                config: Config,
+                analytics: AnalyticsLogger,
+                walletBalanceProvidable: WalletBalanceProvidable,
+                filename: String = "backupState.json") {
 
         self.filename = filename
         self.walletBalanceProvidable = walletBalanceProvidable
