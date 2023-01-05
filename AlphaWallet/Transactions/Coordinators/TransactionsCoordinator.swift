@@ -114,7 +114,7 @@ extension TransactionsCoordinator: CanOpenURL {
 
 extension TransactionsCoordinator: TransactionDetailsViewControllerDelegate {
     func didSelectShare(in viewController: TransactionDetailsViewController, item: URL, sender: UIBarButtonItem) {
-        navigationController.showShareActivity(fromSource: .barButtonItem(sender), with: [item])
+        viewController.showShareActivity(fromSource: .barButtonItem(sender), with: [item])
     }
 
 }
