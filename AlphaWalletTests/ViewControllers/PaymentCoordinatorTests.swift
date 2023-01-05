@@ -129,7 +129,7 @@ class PaymentCoordinatorTests: XCTestCase {
             analytics: FakeAnalyticsService(),
             tokenCollection: dep.pipeline,
             domainResolutionService: FakeDomainResolutionService(),
-            tokenSwapper: FakeTokenSwapper(),
+            tokenSwapper: TokenSwapper.make(),
             tokensFilter: .make(),
             importToken: dep.importToken,
             networkService: FakeNetworkService())
@@ -154,7 +154,7 @@ class PaymentCoordinatorTests: XCTestCase {
             analytics: FakeAnalyticsService(),
             tokenCollection: dep.pipeline,
             domainResolutionService: FakeDomainResolutionService(),
-            tokenSwapper: FakeTokenSwapper(),
+            tokenSwapper: TokenSwapper.make(),
             tokensFilter: .make(),
             importToken: dep.importToken,
             networkService: FakeNetworkService())

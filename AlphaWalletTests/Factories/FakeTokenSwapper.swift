@@ -24,8 +24,11 @@ final class FakeReachabilityManager: ReachabilityManagerProtocol {
     }
 }
 
-final class FakeTokenSwapper: TokenSwapper {
-    convenience init(sessionProvider: SessionsProvider = .make(wallet: .make(), servers: [.main])) {
-        self.init(reachabilityManager: FakeReachabilityManager(true), sessionProvider: sessionProvider, networkProvider: FakeTokenSwapperNetworkProvider())
+extension TokenSwapper {
+    static func make(enabledServers: [RPCServer] = [.main]) -> TokenSwapper {
+        return TokenSwapper(
+            reachabilityManager: FakeReachabilityManager(true),
+            serversProvider: BaseServersProvider(config: .make(enabledServers: enabledServers)),
+            networkProvider: FakeTokenSwapperNetworkProvider())
     }
 }

@@ -76,7 +76,7 @@ class AppCoordinator: NSObject, Coordinator {
     private lazy var tokenSwapper: TokenSwapper = {
         TokenSwapper(
             reachabilityManager: ReachabilityManager(),
-            sessionProvider: activeSessionsProvider,
+            serversProvider: serversProvider,
             networkProvider: LiQuestTokenSwapperNetworkProvider(networkService: networkService))
     }()
     private lazy var tokenActionsService: TokenActionsService = {
@@ -138,8 +138,7 @@ class AppCoordinator: NSObject, Coordinator {
         let coordinator = WalletApiCoordinator(
             keystore: keystore,
             navigationController: navigationController,
-            analytics: analytics,
-            serviceProvider: activeSessionsProvider)
+            analytics: analytics)
 
         coordinator.delegate = self
 
@@ -161,7 +160,9 @@ class AppCoordinator: NSObject, Coordinator {
     private let securedStorage: SecuredPasswordStorage & SecuredStorage
     private let addressStorage: FileAddressStorage
     private let tokenScriptOverridesFileManager = TokenScriptOverridesFileManager()
-
+    private lazy var serversProvider: ServersProvidable = {
+        BaseServersProvider(config: config)
+    }()
     //Unfortunate to have to have a factory method and not be able to use an initializer (because we can't override `init()` to throw)
     static func create() throws -> AppCoordinator {
         crashlytics.register(AlphaWallet.FirebaseCrashlyticsReporter.instance)
