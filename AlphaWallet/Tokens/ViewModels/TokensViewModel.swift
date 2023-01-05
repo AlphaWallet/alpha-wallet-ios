@@ -223,7 +223,7 @@ final class TokensViewModel {
             .eraseToAnyPublisher()
 
         let title = input.appear
-            .flatMap { [unowned self, walletNameFetcher, wallet] _ -> AnyPublisher<String, Never> in
+            .flatMap { [walletNameFetcher, wallet] _ -> AnyPublisher<String, Never> in
                 walletNameFetcher.assignedNameOrEns(for: wallet.address)
                     .map { $0 ?? wallet.address.truncateMiddle }
                     .prepend(wallet.address.truncateMiddle)
