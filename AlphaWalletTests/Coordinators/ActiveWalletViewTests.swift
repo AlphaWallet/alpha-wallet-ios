@@ -140,7 +140,7 @@ class ActiveWalletViewTests: XCTestCase {
             XCTAssert((tabbarController?.viewControllers?[3] as? UINavigationController)?.viewControllers[0] is SettingsViewController)
         }
     }
-
+    // swiftlint:disable function_body_length
     func testChangeRecentlyUsedAccount() {
         let account1: Wallet = .make(address: AlphaWallet.Address(string: "0x1000000000000000000000000000000000000000")!)
         let account2: Wallet = .make(address: AlphaWallet.Address(string: "0x2000000000000000000000000000000000000000")!)
@@ -241,6 +241,7 @@ class ActiveWalletViewTests: XCTestCase {
 
         XCTAssertEqual(c2.keystore.currentWallet, account2)
     }
+    // swiftlint:enable function_body_length
 
     func testShowSendFlow() {
         let wallet: Wallet = .make()
