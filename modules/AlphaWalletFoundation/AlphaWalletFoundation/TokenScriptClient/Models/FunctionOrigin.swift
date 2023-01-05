@@ -286,7 +286,7 @@ public struct FunctionOrigin {
             functionCallMetaData = metadata
             value = formValue(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: session.account) ?? 0
         }
-        //TODO feels ike everything can just be in `.tokenScript`. But have to check dapp, it includes other parameters like gas
+        //TODO feels like everything can just be in `.tokenScript`. But have to check dapp, it includes other parameters like gas
         return (UnconfirmedTransaction(transactionType: .prebuilt(token.server), value: value, recipient: nil, contract: originContractOrRecipientAddress, data: payload),
                 functionCallMetaData)
     }
