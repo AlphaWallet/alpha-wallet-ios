@@ -184,6 +184,15 @@ extension SwapTokensCoordinator: ApproveSwapProviderDelegate {
     func didFailure(in approveSwapProvider: ApproveSwapProvider, error: Error) {
         rootViewController.hideLoading()
 
+        if let _error = error as? SwapError {
+            switch _error {
+            case .unableToBuildSwapUnsignedTransaction, .unableToBuildSwapUnsignedTransactionFromSwapProvider, .userCancelledApproval, .approveTransactionNotCompleted, .tokenOrSwapQuoteNotFound:
+                return
+            case .unknownError, .inner, .invalidJson:
+                break
+            }
+        }
+
         if error.isUserCancelledError {
             //no-op
         } else {
