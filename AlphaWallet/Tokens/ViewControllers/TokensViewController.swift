@@ -248,7 +248,6 @@ final class TokensViewController: UIViewController {
         navigationItem.largeTitleDisplayMode = viewModel.largeTitleDisplayMode
         view.backgroundColor = viewModel.backgroundColor
         tableView.backgroundColor = viewModel.backgroundColor
-        title = viewModel.walletDefaultTitle
 
         buttonsBar.buttons[0].setTitle(viewModel.buyCryptoTitle, for: .normal)
 

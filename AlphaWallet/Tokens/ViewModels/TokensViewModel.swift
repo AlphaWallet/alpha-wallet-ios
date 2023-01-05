@@ -103,10 +103,6 @@ final class TokensViewModel {
         return .white
     }
 
-    var walletDefaultTitle: String {
-        return R.string.localizable.walletTokensTabbarItemTitle()
-    }
-
     var buyCryptoTitle: String {
         return R.string.localizable.buyCryptoTitle()
     }
@@ -162,7 +158,16 @@ final class TokensViewModel {
         }
     }
 
-    init(wallet: Wallet, tokenCollection: TokenCollection, tokensFilter: TokensFilter, walletConnectCoordinator: WalletConnectCoordinator, walletBalanceService: WalletBalanceService, config: Config, domainResolutionService: DomainResolutionServiceType, blockiesGenerator: BlockiesGenerator, assetDefinitionStore: AssetDefinitionStore) {
+    init(wallet: Wallet,
+         tokenCollection: TokenCollection,
+         tokensFilter: TokensFilter,
+         walletConnectCoordinator: WalletConnectCoordinator,
+         walletBalanceService: WalletBalanceService,
+         config: Config,
+         domainResolutionService: DomainResolutionServiceType,
+         blockiesGenerator: BlockiesGenerator,
+         assetDefinitionStore: AssetDefinitionStore) {
+
         self.wallet = wallet
         self.tokenCollection = tokenCollection
         self.tokensFilter = tokensFilter
@@ -220,8 +225,8 @@ final class TokensViewModel {
         let title = input.appear
             .flatMap { [unowned self, walletNameFetcher, wallet] _ -> AnyPublisher<String, Never> in
                 walletNameFetcher.assignedNameOrEns(for: wallet.address)
-                    .map { $0 ?? self.walletDefaultTitle }
-                    .prepend(self.walletDefaultTitle)
+                    .map { $0 ?? wallet.address.truncateMiddle }
+                    .prepend(wallet.address.truncateMiddle)
                     .eraseToAnyPublisher()
             }.eraseToAnyPublisher()
 
