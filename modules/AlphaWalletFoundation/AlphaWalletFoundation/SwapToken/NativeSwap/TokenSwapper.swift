@@ -54,7 +54,7 @@ open class TokenSwapper: ObservableObject {
 
     public func start() {
         guard Features.default.isAvailable(.isSwapEnabled) else { return }
-        
+
         reachabilityManager.networkBecomeReachablePublisher
             .combineLatest(sessions, reloadSubject)
             .map { (_, sessions, _) in sessions }
@@ -136,7 +136,7 @@ open class TokenSwapper: ObservableObject {
             .receive(on: RunLoop.main)
             .map { swapRoutes -> String? in
                 guard !swapRoutes.isEmpty else { return nil }
-                
+
                 self.storage.addOrUpdate(swapRoutes: swapRoutes)
 
                 guard let pair = TokenSwapper.firstRouteWithExchange(from: swapRoutes) else { return nil }
