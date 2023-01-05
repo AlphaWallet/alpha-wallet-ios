@@ -340,7 +340,7 @@ public extension UnconfirmedTransaction {
         let transaction = UnconfirmedTransaction(
             transactionType: transactionType,
             value: 0,
-            recipient: owner,
+            recipient: nil,
             contract: contract,
             data: data)
 
