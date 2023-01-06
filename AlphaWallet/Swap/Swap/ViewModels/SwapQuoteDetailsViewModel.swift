@@ -19,7 +19,7 @@ struct SwapQuoteDetailsViewModelOutput {
 }
 
 final class SwapQuoteDetailsViewModel {
-    private let etherFormatter: EtherNumberFormatter = .plain
+    private let formatter = NumberFormatter.shortCrypto
     private (set) lazy var exchangeViewModel = SwapQuoteFieldViewModel(title: "Exchange", value: exchangeString)
     private (set) lazy var totalFeeViewModel = SwapQuoteFieldViewModel(title: "Gas Cost", value: gasCostString)
     private (set) lazy var currentPriceViewModel = SwapQuoteFieldViewModel(title: "Current Price", value: currentPriceString)
@@ -69,9 +69,11 @@ final class SwapQuoteDetailsViewModel {
 
     private lazy var minimumReceivedString: AnyPublisher<String, Never> = {
         configurator.tokensWithTheirSwapQuote
-            .map { data -> String in
+            .map { [formatter] data -> String in
                 guard let data = data else { return "-" }
-                let amount = EtherNumberFormatter.short.string(from: data.swapQuote.estimate.toAmountMin, decimals: data.tokens.to.decimals)
+                let doubleAmount = (Decimal(bigUInt: data.swapQuote.estimate.toAmountMin, decimals: data.tokens.to.decimals) ?? .zero).doubleValue
+                let amount = formatter.string(double: doubleAmount, minimumFractionDigits: 4, maximumFractionDigits: 8)
+
                 return "\(amount) \(data.tokens.to.symbol)"
             }.removeDuplicates()
             .eraseToAnyPublisher()
@@ -86,36 +88,34 @@ final class SwapQuoteDetailsViewModel {
 
     private lazy var gasCostString: AnyPublisher<String, Never> = {
         Publishers.CombineLatest(configurator.validatedAmount, configurator.tokensWithTheirSwapQuote)
-            .map { data -> String in
+            .map { [formatter] data -> String in
                 guard let pair = data.1, let gasCosts = pair.swapQuote.estimate.gasCosts.first else { return "-" }
 
-                let amount = EtherNumberFormatter.short.string(from: gasCosts.amount, decimals: gasCosts.token.decimals)
+                let doubleAmount = (Decimal(bigUInt: gasCosts.amount, decimals: gasCosts.token.decimals) ?? .zero).doubleValue
+                let amount = formatter.string(double: doubleAmount, minimumFractionDigits: 4, maximumFractionDigits: 8)
 
-                return "\(amount) \(gasCosts.token.symbol) ~ \(gasCosts.amountUsd.droppedTrailingZeros) USD"
+                return "\(amount) \(gasCosts.token.symbol) ~ \(gasCosts.amountUsd.droppedTrailingZeros) \(Currency.USD.code)"
             }.removeDuplicates()
             .eraseToAnyPublisher()
     }()
 
     private lazy var currentPriceString: AnyPublisher<String, Never> = {
         Publishers.CombineLatest(configurator.validatedAmount, configurator.tokensWithTheirSwapQuote)
-            .map { [etherFormatter] data -> String in
+            .map { [formatter] data -> String in
                 guard let pair = data.1 else { return "" }
 
-                let toAmount = etherFormatter.string(from: pair.swapQuote.estimate.toAmount, decimals: pair.tokens.to.decimals)
-                let fromAmount = etherFormatter.string(from: data.0, decimals: pair.tokens.from.decimals)
-
-                guard
-                    let toAmount = toAmount.optionalDecimalValue?.doubleValue,
-                    let fromAmount = fromAmount.optionalDecimalValue?.doubleValue
-                else { return "-" }
+                let toAmount = (Decimal(bigUInt: pair.swapQuote.estimate.toAmount, decimals: pair.tokens.to.decimals) ?? .zero).doubleValue
+                let fromAmount = (Decimal(bigUInt: data.0, decimals: pair.tokens.from.decimals) ?? .zero).doubleValue
 
                 let rate: Double? = {
                     guard fromAmount > 0 else { return nil }
                     return (toAmount / fromAmount).nilIfNan
                 }()
-                guard let cryptoToCryptoRate = rate.flatMap({ NumberFormatter.shortCrypto.string(double: $0).flatMap { "\($0) \(pair.tokens.to.symbol)" } }) else { return "-" }
+                guard let rate = rate else { return "-" }
 
-                return "1 \(pair.tokens.from.symbol) = \(cryptoToCryptoRate)"
+                let amount = formatter.string(double: rate, minimumFractionDigits: 4, maximumFractionDigits: 8)
+
+                return "1 \(pair.tokens.from.symbol) = \(amount) \(pair.tokens.to.symbol)"
             }.removeDuplicates()
             .eraseToAnyPublisher()
     }()
