@@ -1,6 +1,6 @@
 {
   "devDependencies": {
-    "danger": "^9.1.5"
+    "danger": "^11.2.1"
   },
   "dependencies": {
     "npm": "^8.14.0"
