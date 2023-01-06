@@ -48,7 +48,7 @@ final class SwapQuoteDetailsViewModel {
                             type: step.type,
                             amount: pair.swapQuote.unsignedSwapTransaction.value,
                             amountUsd: pair.swapQuote.action.fromToken.priceUSD,
-                            estimate: pair.swapQuote.unsignedSwapTransaction.gasPrice ?? .zero,
+                            estimate: pair.swapQuote.unsignedSwapTransaction.gasPrice,
                             limit: pair.swapQuote.unsignedSwapTransaction.gasLimit,
                             token: pair.swapQuote.action.fromToken)
 

@@ -21,11 +21,11 @@ public struct SwapEstimate {
         public let type: String
         public let amount: BigUInt
         public let amountUsd: String
-        public let estimate: BigUInt
-        public let limit: BigUInt
+        public let estimate: BigUInt?
+        public let limit: BigUInt?
         public let token: SwapQuote.Token
         
-        public init(type: String, amount: BigUInt, amountUsd: String, estimate: BigUInt, limit: BigUInt, token: SwapQuote.Token) {
+        public init(type: String, amount: BigUInt, amountUsd: String, estimate: BigUInt?, limit: BigUInt?, token: SwapQuote.Token) {
             self.type = type
             self.amount = amount
             self.amountUsd = amountUsd
