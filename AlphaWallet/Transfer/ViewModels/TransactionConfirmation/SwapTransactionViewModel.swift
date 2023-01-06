@@ -72,13 +72,15 @@ extension TransactionConfirmationViewModel {
                     return .init(title: .normal(configurationTitle), headerName: headerName, details: gasFee, configuration: configuration)
                 }
             case .from:
-                let amount = EtherNumberFormatter.short.string(from: BigInt(fromAmount), decimals: fromToken.decimals)
-                let symbol = fromToken.symbol
-                return .init(title: .normal("\(amount) \(symbol)"), headerName: headerName, configuration: configuration)
+                let doubleAmount = (Decimal(bigInt: BigInt(fromAmount), decimals: fromToken.decimals) ?? .zero).doubleValue
+                let amount = NumberFormatter.shortCrypto.string(double: doubleAmount, minimumFractionDigits: 4, maximumFractionDigits: 8)
+
+                return .init(title: .normal("\(amount) \(fromToken.symbol)"), headerName: headerName, configuration: configuration)
             case .to:
-                let amount = EtherNumberFormatter.short.string(from: BigInt(toAmount), decimals: toToken.decimals)
-                let symbol = toToken.symbol
-                return .init(title: .normal("\(amount) \(symbol)"), headerName: headerName, configuration: configuration)
+                let doubleAmount = (Decimal(bigInt: BigInt(toAmount), decimals: toToken.decimals) ?? .zero).doubleValue
+                let amount = NumberFormatter.shortCrypto.string(double: doubleAmount, minimumFractionDigits: 4, maximumFractionDigits: 8)
+
+                return .init(title: .normal("\(amount) \(toToken.symbol)"), headerName: headerName, configuration: configuration)
             case .network:
                 return .init(title: .normal(session.server.displayName), headerName: headerName, titleIcon: session.server.walletConnectIconImage, configuration: configuration)
             }
