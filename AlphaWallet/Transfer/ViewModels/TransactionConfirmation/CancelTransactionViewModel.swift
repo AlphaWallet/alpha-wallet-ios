@@ -138,6 +138,12 @@ extension TransactionConfigurator.GasPriceWarning {
     }
 }
 
+extension TransactionConfigurator.GasLimitWarning {
+    var description: String {
+        ConfigureTransactionError.gasLimitTooHigh.localizedDescription
+    }
+}
+
 extension TransactionConfigurator.GasFeeWarning {
     var description: String {
         ConfigureTransactionError.gasFeeTooHigh.localizedDescription

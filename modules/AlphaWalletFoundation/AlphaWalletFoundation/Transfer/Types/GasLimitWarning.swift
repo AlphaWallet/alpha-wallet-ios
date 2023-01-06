@@ -10,9 +10,6 @@ import Foundation
 extension TransactionConfigurator {
     public enum GasLimitWarning {
         case tooHighCustomGasLimit
-
-        public var description: String {
-            ConfigureTransactionError.gasLimitTooHigh.localizedDescription
-        }
     }
 }
+
