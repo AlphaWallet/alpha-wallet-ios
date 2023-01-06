@@ -154,7 +154,6 @@ class PaymentCoordinator: Coordinator {
             sessionProvider: sessionProvider,
             swapPair: swapPair,
             tokenCollection: tokenCollection,
-            reachabilityManager: reachabilityManager,
             tokenSwapper: tokenSwapper)
 
         let coordinator = SwapTokensCoordinator(

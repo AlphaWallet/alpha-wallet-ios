@@ -96,7 +96,6 @@ public final class SwapOptionsConfigurator {
     public init(sessionProvider: SessionsProvider,
                 swapPair: SwapPair,
                 tokenCollection: TokenCollection,
-                reachabilityManager: ReachabilityManagerProtocol,
                 tokenSwapper: TokenSwapper) {
         
         self.tokenSwapper = tokenSwapper
