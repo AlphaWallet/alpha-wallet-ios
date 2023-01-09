@@ -12,15 +12,15 @@ extension AlphaWallet.Address {
     }
 
     public var isLegacy721Contract: Bool {
-        return Constants.legacy721Addresses.contains { sameContract(as: $0) }
+        return Constants.legacy721Addresses.contains(self)
     }
 
     //Useful for special case for FIFA tickets
     public var isFifaTicketContract: Bool {
-        return sameContract(as: Constants.ticketContractAddress) || sameContract(as: Constants.ticketContractAddressRopsten)
+        return self == Constants.ticketContractAddress || self == Constants.ticketContractAddressRopsten
     }
 
     public var isUEFATicketContract: Bool {
-        return sameContract(as: Constants.uefaMainnet.0)
+        return self == Constants.uefaMainnet.0
     }
 }

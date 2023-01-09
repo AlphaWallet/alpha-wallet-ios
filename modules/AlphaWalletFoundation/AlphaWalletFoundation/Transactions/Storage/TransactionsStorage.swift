@@ -302,7 +302,7 @@ extension TransactionDataStore: Erc721TokenIdsFetcher {
                     .sorted(byKeyPath: "date", ascending: true)
 
                 let operations: [LocalizedOperationObject] = transactions
-                    .flatMap { $0.localizedOperations.filter { $0.contractAddress?.sameContract(as: contract) ?? false } }
+                    .flatMap { $0.localizedOperations.filter { $0.contractAddress == contract } }
 
                 for each in operations {
                     let tokenId = each.tokenId

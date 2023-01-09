@@ -43,7 +43,7 @@ final class TokensViewModel {
         return tokens.chunked(into: 2).compactMap { elems -> CollectiblePairs? in
             guard let left = elems.first else { return nil }
 
-            let right = (elems.last?.contractAddress.sameContract(as: left.contractAddress) ?? false) ? nil : elems.last
+            let right = elems.last?.contractAddress == left.contractAddress ? nil : elems.last
             return .init(left: left, right: right)
         }
     }
@@ -555,7 +555,7 @@ extension TokensViewModel {
             case .rpcServer:
                 return false
             case .token(let token):
-                if token.contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
+                if token.contractAddress == Constants.nativeCryptoAddressInDatabase {
                     return false
                 }
                 return true

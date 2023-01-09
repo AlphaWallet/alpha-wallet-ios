@@ -87,11 +87,11 @@ extension TokenViewModel: TokenBalanceSupportable { }
 
 extension TokenViewModel: Equatable {
     public static func == (lhs: TokenViewModel, rhs: TokenViewModel) -> Bool {
-        return lhs.contractAddress.sameContract(as: rhs.contractAddress) && lhs.server == rhs.server
+        return lhs.contractAddress == rhs.contractAddress && lhs.server == rhs.server
     }
 
     public static func == (lhs: TokenViewModel, rhs: Token) -> Bool {
-        return lhs.contractAddress.sameContract(as: rhs.contractAddress) && lhs.server == rhs.server
+        return lhs.contractAddress == rhs.contractAddress && lhs.server == rhs.server
     }
 }
 

@@ -694,8 +694,8 @@ extension MultipleChainsTokensDataStore.functional {
     public static func erc20AddressForNativeTokenFilter(servers: [RPCServer], tokens: [Token]) -> [Token] {
         var result = tokens
         for server in servers {
-            if let address = server.erc20AddressForNativeToken, result.contains(where: { $0.contractAddress.sameContract(as: address) }) {
-                result = result.filter { !$0.contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) && $0.server == server }
+            if let address = server.erc20AddressForNativeToken, result.contains(where: { $0.contractAddress == address }) {
+                result = result.filter { $0.contractAddress != Constants.nativeCryptoAddressInDatabase && $0.server == server }
             } else {
                 continue
             }

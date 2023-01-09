@@ -97,7 +97,7 @@ final class NFTCollectionInfoPageViewModel {
     }
 
     private func buildViewTypes(helper tokenHolderHelper: TokenInstanceViewConfigurationHelper) -> [NFTCollectionInfoPageViewModel.ViewType] {
-        if Constants.ticketContractAddress.sameContract(as: token.contractAddress) {
+        if Constants.ticketContractAddress == token.contractAddress {
             return buildViewTypesForFifaToken(helper: tokenHolderHelper)
         } else {
             return buildDefaultViewTypes(helper: tokenHolderHelper)

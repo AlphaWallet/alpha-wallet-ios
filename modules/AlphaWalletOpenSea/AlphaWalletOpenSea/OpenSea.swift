@@ -228,7 +228,7 @@ public class OpenSea {
             } else {
                 let excludeContracts = excludeContracts.map { $0.0 }
                 let assetsExcluding = assets.filter { eachAsset in
-                    !excludeContracts.contains { $0.sameContract(as: eachAsset.key) }
+                    !excludeContracts.contains(eachAsset.key)
                 }
                 return .value(.init(hasError: false, result: assetsExcluding))
             }
@@ -236,7 +236,7 @@ public class OpenSea {
             //NOTE: return some already fetched amount
             let excludeContracts = excludeContracts.map { $0.0 }
             let assetsExcluding = assets.filter { eachAsset in
-                !excludeContracts.contains { $0.sameContract(as: eachAsset.key) }
+                !excludeContracts.contains(eachAsset.key)
             }
             return .value(.init(hasError: true, result: assetsExcluding))
         }

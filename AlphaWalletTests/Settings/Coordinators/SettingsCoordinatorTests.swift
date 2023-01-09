@@ -43,7 +43,7 @@ class SettingsCoordinatorTests: XCTestCase {
         waitForExpectations(timeout: 10)
 
         XCTAssertNotNil(deletedWallet)
-        XCTAssertTrue(wallet.address.sameContract(as: deletedWallet!.address))
+        XCTAssertTrue(wallet.address == deletedWallet!.address)
         XCTAssertEqual(0, walletAddressesStore.wallets.count)
         XCTAssertEqual(0, storage.transactionCount(forServer: .main))
     }
@@ -68,7 +68,7 @@ class SettingsCoordinatorTests: XCTestCase {
         waitForExpectations(timeout: 10)
 
         XCTAssertNotNil(deletedWallet)
-        XCTAssertTrue(wallet.address.sameContract(as: deletedWallet!.address))
+        XCTAssertTrue(wallet.address == deletedWallet!.address)
         XCTAssertEqual(0, walletAddressesStore.wallets.count)
     }
 
@@ -91,7 +91,7 @@ class SettingsCoordinatorTests: XCTestCase {
         waitForExpectations(timeout: 10)
 
         XCTAssertNotNil(addedAddress)
-        XCTAssertTrue(wallet.address.sameContract(as: addedAddress!.address))
+        XCTAssertTrue(wallet.address == addedAddress!.address)
         XCTAssertEqual(1, walletAddressesStore.wallets.count)
     }
 }

@@ -13,8 +13,8 @@ public struct Uniswap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
         return .empty()
     }
 
-    public let action: String 
-    
+    public let action: String
+
     public func rpcServer(forToken token: TokenActionsIdentifiable) -> RPCServer? {
         return .main
     }
@@ -90,7 +90,7 @@ public struct Uniswap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
 
         class functional {
             static func rewriteContractInput(_ address: AlphaWallet.Address) -> String {
-                if address.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
+                if address == Constants.nativeCryptoAddressInDatabase {
                     //Uniswap likes it this way
                     return "ETH"
                 } else {

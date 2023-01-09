@@ -39,6 +39,6 @@ class ContractAddressObject: Object {
     override func isEqual(_ object: Any?) -> Bool {
         guard let object = object as? ContractAddressObject else { return false }
         //NOTE: to improve perfomance seems like we can use check for primary key instead of checking contracts
-        return object.contractAddress.sameContract(as: contractAddress) && object.server == server
+        return object.contractAddress == contractAddress && object.server == server
     }
 }

@@ -43,7 +43,7 @@ class WalletApiCoordinator: NSObject, Coordinator {
             throw WalletApiError.connectionAddressNotFound
         }
 
-        guard wallet.address.sameContract(as: address) else {
+        guard wallet.address == address else {
             throw WalletApiError.requestedWalletNonActive
         }
 
