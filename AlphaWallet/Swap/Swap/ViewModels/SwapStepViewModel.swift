@@ -44,12 +44,15 @@ extension SwapStepsViewModel {
     }
 
     struct SwapSubStepViewModel {
+        private let formatter = NumberFormatter.shortCrypto
         private let subStep: SwapSubStep
         private let index: Int
 
         var descriptionAttributedString: NSAttributedString {
-            let amount = EtherNumberFormatter.short.string(from: subStep.amount, decimals: subStep.token.decimals)
-            let description = "\(subStep.type.capitalized) to \(amount) \(subStep.token.symbol) via \(subStep.tool)"
+            let amount = (Decimal(bigUInt: subStep.amount, decimals: subStep.token.decimals) ?? .zero).doubleValue
+            let amountString = formatter.string(double: amount, minimumFractionDigits: 4, maximumFractionDigits: 8)
+
+            let description = "\(subStep.type.capitalized) to \(amountString) \(subStep.token.symbol) via \(subStep.tool)"
             return NSAttributedString(string: "\(index + 1). \(description)", attributes: [
                 .font: Fonts.regular(size: 15),
                 .foregroundColor: Configuration.Color.Semantic.defaultHeadlineText
