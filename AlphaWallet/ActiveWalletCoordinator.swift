@@ -37,19 +37,19 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
 
     internal let tokenCollection: TokenCollection
 
-    private var transactionCoordinator: TransactionsCoordinator? {
+    var transactionCoordinator: TransactionsCoordinator? {
         return coordinators.compactMap { $0 as? TransactionsCoordinator }.first
     }
-    private var tokensCoordinator: TokensCoordinator? {
+    var tokensCoordinator: TokensCoordinator? {
         return coordinators.compactMap { $0 as? TokensCoordinator }.first
     }
     var dappBrowserCoordinator: DappBrowserCoordinator? {
         coordinators.compactMap { $0 as? DappBrowserCoordinator }.first
     }
-    private var activityCoordinator: ActivitiesCoordinator? {
+    var activityCoordinator: ActivitiesCoordinator? {
         return coordinators.compactMap { $0 as? ActivitiesCoordinator }.first
     }
-    private var settingsCoordinator: SettingsCoordinator? {
+    var settingsCoordinator: SettingsCoordinator? {
         return coordinators.compactMap { $0 as? SettingsCoordinator }.first
     }
     private lazy var helpUsCoordinator: HelpUsCoordinator = {
