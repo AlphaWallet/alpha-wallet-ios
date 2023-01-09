@@ -14,7 +14,7 @@ class SignMessageCoordinator: Coordinator {
     private let navigationController: UINavigationController
     private let keystore: Keystore
     private let account: AlphaWallet.Address
-    private var message: SignMessageType
+    private let message: SignMessageType
     private let source: Analytics.SignMessageRequestSource
     private weak var signatureConfirmationDetailsViewController: SignatureConfirmationDetailsViewController?
     private var canBeDismissed = true
