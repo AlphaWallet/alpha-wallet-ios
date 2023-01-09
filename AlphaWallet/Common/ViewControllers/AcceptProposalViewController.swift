@@ -24,7 +24,7 @@ class AcceptProposalViewController: UIViewController {
     private lazy var footerBar: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = viewModel.footerBackgroundColor
+        view.backgroundColor = Configuration.Color.Semantic.backgroundClear
         view.addSubview(buttonsBar)
 
         return view
@@ -100,6 +100,9 @@ class AcceptProposalViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        containerView.scrollView.backgroundColor = Configuration.Color.Semantic.backgroundClear
+        view.backgroundColor = Configuration.Color.Semantic.backgroundClear
+
         configure(for: viewModel)
     }
 
@@ -108,9 +111,6 @@ class AcceptProposalViewController: UIViewController {
     }
 
     private func configure(for viewModel: AcceptProposalViewModel) {
-        containerView.scrollView.backgroundColor = viewModel.backgroundColor
-        view.backgroundColor = viewModel.backgroundColor
-
         buttonsBar.configure(.custom(types: [.primary, .secondary]))
         headerView.iconImageView.setImage(url: viewModel.connectionIconUrl, placeholder: R.image.walletConnectIcon())
 

@@ -6,7 +6,7 @@ import Combine
 
 protocol EnabledServersViewControllerDelegate: AnyObject {
     func didEditSelectedServer(customRpc: CustomRPC, in viewController: EnabledServersViewController)
-    func notifyReloadServersQueued(in viewController: EnabledServersViewController)
+    func didClose(in viewController: EnabledServersViewController)
 }
 
 class EnabledServersViewController: UIViewController {
@@ -22,6 +22,8 @@ class EnabledServersViewController: UIViewController {
     private let viewModel: EnabledServersViewModel
     private let selection = PassthroughSubject<RPCServer, Never>()
     private let enableTestnet = PassthroughSubject<Bool, Never>()
+    private let reload = PassthroughSubject<Void, Never>()
+    private let deleteCustomRpc = PassthroughSubject<CustomRPC, Never>()
     private var cancellable = Set<AnyCancellable>()
     private lazy var dataSource = makeDataSource()
 
@@ -49,7 +51,9 @@ class EnabledServersViewController: UIViewController {
 
         let input = EnabledServersViewModelInput(
             selection: selection.eraseToAnyPublisher(),
-            enableTestnet: enableTestnet.eraseToAnyPublisher())
+            enableTestnet: enableTestnet.eraseToAnyPublisher(),
+            deleteCustomRpc: deleteCustomRpc.eraseToAnyPublisher(),
+            reload: reload.eraseToAnyPublisher())
 
         let output = viewModel.transform(input: input)
 
@@ -66,28 +70,14 @@ class EnabledServersViewController: UIViewController {
     }
 
     private func confirmDelete(customRpc: CustomRPC) {
-        confirm(title: R.string.localizable.settingsEnabledNetworksDeleteTitle(), message: R.string.localizable.settingsEnabledNetworksDeleteMessage(), okTitle: R.string.localizable.delete(), okStyle: .destructive) { [weak self] result in
-            switch result {
-            case .success:
-                self?.markForDeletion(customRpc: customRpc)
-            case .failure:
-                break
-            }
+        confirm(title: R.string.localizable.settingsEnabledNetworksDeleteTitle(), message: R.string.localizable.settingsEnabledNetworksDeleteMessage(), okTitle: R.string.localizable.delete(), okStyle: .destructive) { [deleteCustomRpc] result in
+            guard case .success = result else { return }
+            deleteCustomRpc.send(customRpc)
         }
     }
 
     private func edit(customRpc: CustomRPC) {
         delegate?.didEditSelectedServer(customRpc: customRpc, in: self)
-    }
-
-    private func markForDeletion(customRpc: CustomRPC) {
-        viewModel.markForDeletion(customRpc: customRpc)
-
-        delegate?.notifyReloadServersQueued(in: self)
-    }
-
-    func pushReloadServersIfNeeded() {
-        viewModel.pushReloadServersIfNeeded()
     }
 
     //NOTE: for some reasons section view reloads not always, need to reload them manually
@@ -196,8 +186,8 @@ extension EnabledServersViewController: EnableServersHeaderViewDelegate {
 
 extension EnabledServersViewController: PopNotifiable {
     func didPopViewController(animated: Bool) {
-        guard viewModel.pushReloadServersIfNeeded() else { return }
-        delegate?.notifyReloadServersQueued(in: self)
+        reload.send(())
+        delegate?.didClose(in: self)
     }
 }
 

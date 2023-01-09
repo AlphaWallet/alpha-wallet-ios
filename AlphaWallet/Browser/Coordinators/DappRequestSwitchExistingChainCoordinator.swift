@@ -21,10 +21,20 @@ class DappRequestSwitchExistingChainCoordinator: NSObject, Coordinator {
     private let currentUrl: URL?
     private let viewController: UIViewController
     private let subject = PassthroughSubject<SwitchExistingChainOperation, PromiseError>()
+    private let serversProvider: ServersProvidable
 
     var coordinators: [Coordinator] = []
 
-    init(config: Config, server: RPCServer, targetChain: WalletSwitchEthereumChainObject, restartHandler: RestartQueueHandler, analytics: AnalyticsLogger, currentUrl: URL?, inViewController viewController: UIViewController) {
+    init(config: Config,
+         server: RPCServer,
+         targetChain: WalletSwitchEthereumChainObject,
+         restartHandler: RestartQueueHandler,
+         analytics: AnalyticsLogger,
+         currentUrl: URL?,
+         serversProvider: ServersProvidable,
+         viewController: UIViewController) {
+
+        self.serversProvider = serversProvider
         self.config = config
         self.server = server
         self.targetChain = targetChain
@@ -39,7 +49,7 @@ class DappRequestSwitchExistingChainCoordinator: NSObject, Coordinator {
             return .fail(PromiseError(error: JsonRpcError.internalError(message: R.string.localizable.switchChainErrorInvalidChainId(targetChain.chainId))))
         }
         if let existingServer = ServersCoordinator.serversOrdered.first(where: { $0.chainID == targetChainId }) {
-            if config.enabledServers.contains(where: { $0.chainID == targetChainId }) {
+            if serversProvider.enabledServers.contains(where: { $0.chainID == targetChainId }) {
                 if server.chainID == targetChainId {
                     //This is really only (and should only be) fired when the chain is already enabled and activated in browser. i.e. we are not supposed to have restarted the app UI or browser. It's a no-op. If DApps detect that the browser is already connected to the right chain, they might not even trigger this
                     return .just(.notifySuccessful)

@@ -48,7 +48,7 @@ class AppCoordinator: NSObject, Coordinator {
 
     private lazy var restartHandler: RestartQueueHandler = {
         return RestartQueueHandler(
-            config: config,
+            serversProvider: serversProvider,
             restartQueue: RestartTaskQueue())
     }()
 
@@ -115,11 +115,11 @@ class AppCoordinator: NSObject, Coordinator {
 
         return service
     }()
-    private lazy var serversProvidable: ServersProvidable = {
+    private lazy var serversProvider: ServersProvidable = {
         BaseServersProvider(config: config)
     }()
     private lazy var caip10AccountProvidable: CAIP10AccountProvidable = {
-        AnyCAIP10AccountProvidable(keystore: keystore, serversProvidable: serversProvidable)
+        AnyCAIP10AccountProvidable(keystore: keystore, serversProvidable: serversProvider)
     }()
 
     private lazy var walletConnectProvider: WalletConnectProvider = {
@@ -139,7 +139,7 @@ class AppCoordinator: NSObject, Coordinator {
         let v2Provider = WalletConnectV2Provider(
             caip10AccountProvidable: caip10AccountProvidable,
             storage: WalletConnectV2Storage(),
-            config: config,
+            serversProvider: serversProvider,
             decoder: decoder,
             client: WalletConnectV2NativeClient())
 
@@ -159,7 +159,9 @@ class AppCoordinator: NSObject, Coordinator {
             assetDefinitionStore: assetDefinitionStore,
             networkService: networkService,
             walletConnectProvider: walletConnectProvider,
-            dependencies: dependencies)
+            dependencies: dependencies,
+            restartHandler: restartHandler,
+            serversProvider: serversProvider)
 
         return coordinator
     }()
@@ -184,7 +186,11 @@ class AppCoordinator: NSObject, Coordinator {
         let coordinator = WalletApiCoordinator(
             keystore: keystore,
             navigationController: navigationController,
-            analytics: analytics)
+            analytics: analytics,
+            config: config,
+            restartHandler: restartHandler,
+            networkService: networkService,
+            serversProvider: serversProvider)
 
         coordinator.delegate = self
 
@@ -218,9 +224,7 @@ class AppCoordinator: NSObject, Coordinator {
     private let securedStorage: SecuredPasswordStorage & SecuredStorage
     private let addressStorage: FileAddressStorage
     private let tokenScriptOverridesFileManager = TokenScriptOverridesFileManager()
-    private lazy var serversProvider: ServersProvidable = {
-        BaseServersProvider(config: config)
-    }()
+
     private let tokenImageFetcher: TokenImageFetcher = TokenImageFetcherImpl(networking: KingfisherImageFetcher())
 
     //Unfortunate to have to have a factory method and not be able to use an initializer (because we can't override `init()` to throw)
@@ -288,13 +292,13 @@ class AppCoordinator: NSObject, Coordinator {
 
     private func bindWalletAddressesStore() {
         keystore.didRemoveWallet
-            .sink { [config, legacyFileBasedKeystore, promptBackup] account in
+            .sink { [serversProvider, legacyFileBasedKeystore, promptBackup] account in
 
                 //TODO: pass ref
                 FileWalletStorage().addOrUpdate(name: nil, for: account.address)
                 promptBackup.deleteWallet(wallet: account)
                 //TODO: make same as WalletConfig
-                TransactionsTracker.resetFetchingState(account: account, config: config)
+                TransactionsTracker.resetFetchingState(account: account, serversProvider: serversProvider)
                 Erc1155TokenIdsFetcher.deleteForWallet(account.address)
                 DatabaseMigration.addToDeleteList(address: account.address)
                 legacyFileBasedKeystore.delete(wallet: account)
@@ -595,7 +599,7 @@ class AppCoordinator: NSObject, Coordinator {
     private func buildDependencies(for wallet: Wallet) -> WalletDependencies {
         if let dep = dependencies[wallet] { return dep  }
 
-        let tokensDataStore: TokensDataStore = MultipleChainsTokensDataStore(store: .storage(for: wallet), servers: config.enabledServers)
+        let tokensDataStore: TokensDataStore = MultipleChainsTokensDataStore(store: .storage(for: wallet))
         let eventsDataStore: NonActivityEventsDataStore = NonActivityMultiChainEventsDataStore(store: .storage(for: wallet))
         let transactionsDataStore: TransactionDataStore = TransactionDataStore(store: .storage(for: wallet))
         let eventsActivityDataStore: EventsActivityDataStoreProtocol = EventsActivityDataStore(store: .storage(for: wallet))
@@ -752,7 +756,6 @@ extension AppCoordinator: UniversalLinkServiceDelegate {
             guard let wallet = keystore.currentWallet, let dependency = dependencies[wallet] else { return }
 
             let paymentFlowResolver = Eip681UrlResolver(
-                config: config,
                 sessionsProvider: dependency.sessionsProvider,
                 missingRPCServerStrategy: .fallbackToAnyMatching)
 
@@ -810,7 +813,11 @@ extension AppCoordinator: UniversalLinkServiceDelegate {
                     addCoordinator(coordinator)
                 }
             } else {
-                let coordinator = ServerUnavailableCoordinator(navigationController: navigationController, servers: [server])
+                let coordinator = ServerUnavailableCoordinator(
+                    navigationController: navigationController,
+                    disabledServers: [server],
+                    restartHandler: restartHandler)
+
                 coordinator.delegate = self
                 addCoordinator(coordinator)
                 coordinator.start()
@@ -826,8 +833,9 @@ extension AppCoordinator: UniversalLinkServiceDelegate {
 }
 
 extension AppCoordinator: ServerUnavailableCoordinatorDelegate {
-    func didDismiss(in coordinator: ServerUnavailableCoordinator) {
+    func didDismiss(in coordinator: ServerUnavailableCoordinator, result: Swift.Result<Void, Error>) {
         removeCoordinator(coordinator)
+        //TODO: update to retry operation again after enabling disabled servers
     }
 }
 

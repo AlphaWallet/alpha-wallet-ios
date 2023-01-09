@@ -9,29 +9,35 @@ import Foundation
 import AlphaWalletFoundation
 import Combine
 
+struct MissingRpcServerError: Error {
+    let servers: [RPCServer]
+}
+
 final class AcceptWalletConnectSessionViewModel: ExpandableSection {
-    private let config: Config
+    private let serversProvider: ServersProvidable
     private let proposal: AlphaWallet.WalletConnect.Proposal
     private (set) var serversToConnect: [RPCServer]
     private var serverChoices: [RPCServer] {
-        ServersCoordinator.serversOrdered.filter { config.enabledServers.contains($0) }
+        ServersCoordinator.serversOrdered.filter { serversProvider.enabledServers.contains($0) }
     }
     var openedSections: Set<Int> = .init()
     let methods: [String]
     var connectionIconUrl: URL? { proposal.iconUrl }
 
     var serversViewModel: ServersViewModel {
-        let servers = serverChoices.filter { config.enabledServers.contains($0) } .compactMap { RPCServerOrAuto.server($0) }
+        let servers = serverChoices.filter { serversProvider.enabledServers.contains($0) } .compactMap { RPCServerOrAuto.server($0) }
         let serversToConnect: [RPCServerOrAuto] = serversToConnect.map { .server($0) }
         //NOTE: multiple server selection is disable for this case
         return ServersViewModel(servers: servers, selectedServers: serversToConnect, displayWarningFooter: false)
     }
 
-    init(proposal: AlphaWallet.WalletConnect.Proposal, config: Config) {
+    init(proposal: AlphaWallet.WalletConnect.Proposal,
+         serversProvider: ServersProvidable) {
+        
         self.proposal = proposal
         self.serversToConnect = proposal.servers
         self.methods = proposal.methods
-        self.config = config
+        self.serversProvider = serversProvider
     }
 
     func set(serversToConnect: [RPCServer]) {
@@ -54,7 +60,7 @@ final class AcceptWalletConnectSessionViewModel: ExpandableSection {
         var sections: [Section] = [.name, .url]
         sections += [.networks]
         sections += methods.isEmpty ? [] : [.methods]
-
+        //TODO: display events
         return sections
     }
 
@@ -63,12 +69,11 @@ final class AcceptWalletConnectSessionViewModel: ExpandableSection {
     }
 
     func validateEnabledServers(serversToConnect: [RPCServer]) throws {
-        struct MissingRPCServer: Error {}
-        let missedServers = serversToConnect.filter { !config.enabledServers.contains($0) }
-        if missedServers.isEmpty {
+        let missingServers = serversToConnect.filter { !serversProvider.enabledServers.contains($0) }
+        if missingServers.isEmpty {
             //no-op
         } else {
-            throw MissingRPCServer()
+            throw MissingRpcServerError(servers: missingServers)
         }
     }
 

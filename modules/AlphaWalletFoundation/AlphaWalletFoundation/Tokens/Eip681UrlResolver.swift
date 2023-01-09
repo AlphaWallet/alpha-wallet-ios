@@ -18,16 +18,13 @@ public final class Eip681UrlResolver {
         case fallbackToPreffered(RPCServer)
     }
 
-    private let config: Config
     private let sessionsProvider: SessionsProvider
     private let missingRPCServerStrategy: MissingRpcServerStrategy
 
-    public init(config: Config,
-                sessionsProvider: SessionsProvider,
+    public init(sessionsProvider: SessionsProvider,
                 missingRPCServerStrategy: MissingRpcServerStrategy) {
 
         self.sessionsProvider = sessionsProvider
-        self.config = config
         self.missingRPCServerStrategy = missingRPCServerStrategy
     }
 
@@ -79,10 +76,13 @@ public final class Eip681UrlResolver {
         } else {
             switch missingRPCServerStrategy {
             case .fallbackToAnyMatching:
-                return serverInLink ?? config.anyEnabledServer()
+                let enabledServers = sessionsProvider.activeSessions.map { $0.key }
+
+                return serverInLink ?? (enabledServers.contains(.main) ? RPCServer.main : enabledServers.first)
             case .fallbackToFirstMatching:
                 //Specs https://eips.ethereum.org/EIPS/eip-681 says we should fallback to the current chainId, but since we support multiple chains at the same time, we only fallback if there is exactly 1 enabled network
-                return config.enabledServers.count == 1 ? config.enabledServers[0] : nil
+                let enabledServers = sessionsProvider.activeSessions.map { $0.key }
+                return enabledServers.count == 1 ? enabledServers[0] : nil
             case .fallbackToPreffered(let server):
                 return server
             }

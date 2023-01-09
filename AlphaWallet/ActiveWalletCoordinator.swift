@@ -221,6 +221,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
         notificationService.register(source: transactionNotificationService)
         swapButton.addTarget(self, action: #selector(swapButtonSelected), for: .touchUpInside)
 
+        restartHandler.provider = self
         addCoordinator(promptBackupCoordinator)
     }
 
@@ -241,8 +242,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
         showHelpUs()
 
         fetchXMLAssetDefinitions()
-
-        restartHandler.processRestartQueueAfterRestart(provider: self)
 
         showWhatsNew()
         notificationService.start(wallet: wallet)
@@ -343,7 +342,8 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
             domainResolutionService: domainResolutionService,
             tokensFilter: tokensFilter,
             currencyService: currencyService,
-            tokenImageFetcher: tokenImageFetcher)
+            tokenImageFetcher: tokenImageFetcher,
+            serversProvider: serversProvider)
 
         coordinator.rootViewController.tabBarItem = ActiveWalletViewModel.Tabs.tokens.tabBarItem
         coordinator.delegate = self
@@ -360,6 +360,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
             analytics: analytics,
             tokensService: tokensService,
             networkService: networkService,
+            config: config,
             assetDefinitionStore: assetDefinitionStore)
 
         let coordinator = TransactionsCoordinator(
@@ -407,7 +408,8 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
             bookmarksStore: BookmarksStore(),
             browserHistoryStorage: BrowserHistoryStorage(ignoreUrls: [Constants.dappsBrowserURL]),
             wallet: wallet,
-            networkService: networkService)
+            networkService: networkService,
+            serversProvider: serversProvider)
 
         coordinator.delegate = self
         coordinator.start()
@@ -573,11 +575,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
         walletConnectCoordinator.openSession(url: url)
     }
 
-    func processRestartQueueAndRestartUI(reason: RestartReason) {
-        restartHandler.processRestartQueueBeforeRestart()
-        restartUI(withReason: reason, account: wallet)
-    }
-
     private func restartUI(withReason reason: RestartReason, account: Wallet) {
         delegate?.didRestart(in: self, reason: reason, wallet: account)
     }
@@ -636,7 +633,8 @@ extension ActiveWalletCoordinator: WalletConnectCoordinatorDelegate {
             restartHandler: restartHandler,
             analytics: analytics,
             currentUrl: currentUrl,
-            inViewController: presentationViewController)
+            serversProvider: serversProvider,
+            viewController: presentationViewController)
 
         addCoordinator(coordinator)
 
@@ -644,7 +642,7 @@ extension ActiveWalletCoordinator: WalletConnectCoordinatorDelegate {
             .handleEvents(receiveOutput: { [weak self] operation in
                 switch operation {
                 case .restartToEnableAndSwitchBrowserToServer:
-                    self?.processRestartQueueAndRestartUI(reason: .serverChange)
+                    self?.restartHandler.processTasks()
                 case .switchBrowserToExistingServer, .notifySuccessful:
                     break
                 }
@@ -665,6 +663,7 @@ extension ActiveWalletCoordinator: WalletConnectCoordinatorDelegate {
             restartHandler: restartHandler,
             analytics: analytics,
             currentUrl: nil,
+            serversProvider: serversProvider,
             viewController: presentationViewController,
             networkService: networkService)
 
@@ -676,7 +675,7 @@ extension ActiveWalletCoordinator: WalletConnectCoordinatorDelegate {
                 case .notifySuccessful:
                     break
                 case .restartToEnableAndSwitchBrowserToServer, .restartToAddEnableAndSwitchBrowserToServer:
-                    self?.processRestartQueueAndRestartUI(reason: .serverChange)
+                    self?.restartHandler.processTasks()
                 case .switchBrowserToExistingServer(let server, url: let url):
                     self?.dappBrowserCoordinator?.switch(toServer: server, url: url)
                 }
@@ -764,10 +763,6 @@ extension ActiveWalletCoordinator: SettingsCoordinatorDelegate {
         //We are only showing the QR code and some text for this address. Maybe have to rework graphic design so that server isn't necessary
         showPaymentFlow(for: .request, server: config.anyEnabledServer(), navigationController: coordinator.navigationController)
         delegate?.didShowWallet(in: self)
-    }
-
-    func restartToReloadServersQueued(in coordinator: SettingsCoordinator) {
-        processRestartQueueAndRestartUI(reason: .serverChange)
     }
 }
 
@@ -1010,7 +1005,7 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
 
     private func open(url: URL, onServer server: RPCServer) {
         //Server shouldn't be disabled since the action is selected
-        guard let dappBrowserCoordinator = dappBrowserCoordinator, config.enabledServers.contains(server) else { return }
+        guard let dappBrowserCoordinator = dappBrowserCoordinator, serversProvider.enabledServers.contains(server) else { return }
         showTab(.browser)
         dappBrowserCoordinator.switch(toServer: server, url: url)
     }
@@ -1269,14 +1264,6 @@ extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: DappBrowserCoordinator) {
         delegate?.handleUniversalLink(url, forCoordinator: self, source: .dappBrowser)
     }
-
-    func restartToAddEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappBrowserCoordinator) {
-        processRestartQueueAndRestartUI(reason: .serverChange)
-    }
-
-    func restartToEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappBrowserCoordinator) {
-        processRestartQueueAndRestartUI(reason: .serverChange)
-    }
 }
 
 extension ActiveWalletCoordinator: StaticHTMLViewControllerDelegate {
@@ -1302,7 +1289,7 @@ extension ActiveWalletCoordinator: ActivitiesCoordinatorDelegate {
 // MARK: Analytics
 extension ActiveWalletCoordinator {
     private func logEnabledChains() {
-        let list = config.enabledServers.map(\.chainID).sorted()
+        let list = serversProvider.enabledServers.map(\.chainID).sorted()
         analytics.setUser(property: Analytics.UserProperties.enabledChains, value: list)
     }
 

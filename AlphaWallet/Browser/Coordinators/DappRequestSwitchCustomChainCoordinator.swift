@@ -23,6 +23,7 @@ class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
     private let currentUrl: URL?
     private let viewController: UIViewController
     private let networkService: NetworkService
+    private let serversProvider: ServersProvidable
     var coordinators: [Coordinator] = []
 
     private let subject = PassthroughSubject<SwitchCustomChainOperation, PromiseError>()
@@ -33,9 +34,11 @@ class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
          restartHandler: RestartQueueHandler,
          analytics: AnalyticsLogger,
          currentUrl: URL?,
+         serversProvider: ServersProvidable,
          viewController: UIViewController,
          networkService: NetworkService) {
 
+        self.serversProvider = serversProvider
         self.networkService = networkService
         self.config = config
         self.server = server
@@ -55,7 +58,7 @@ class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
             return .fail(PromiseError(error: JsonRpcError.internalError(message: R.string.localizable.addCustomChainErrorInvalidChainId(customChain.chainId))))
         }
         if let existingServer = ServersCoordinator.serversOrdered.first(where: { $0.chainID == customChainId }) {
-            if config.enabledServers.contains(where: { $0.chainID == customChainId }) {
+            if serversProvider.enabledServers.contains(where: { $0.chainID == customChainId }) {
                 if server.chainID == customChainId {
                     return .just(.notifySuccessful)
                 } else {

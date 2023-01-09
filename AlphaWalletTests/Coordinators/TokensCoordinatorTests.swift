@@ -45,7 +45,8 @@ class TokensCoordinatorTests: XCTestCase {
             domainResolutionService: FakeDomainResolutionService(),
             tokensFilter: .make(),
             currencyService: .make(),
-            tokenImageFetcher: FakeTokenImageFetcher())
+            tokenImageFetcher: FakeTokenImageFetcher(),
+            serversProvider: BaseServersProvider())
 
         coordinator.start()
 

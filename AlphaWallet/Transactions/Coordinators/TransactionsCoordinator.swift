@@ -86,14 +86,6 @@ class TransactionsCoordinator: Coordinator {
             showTransaction(.standalone(transaction), inViewController: viewController)
         }
     }
-
-    func stop() {
-        transactionsService.stop()
-        //TODO seems not good to stop here because others call stop too
-        for each in sessionsProvider.activeSessions.values {
-            each.stop()
-        }
-    }
 }
 
 extension TransactionsCoordinator: TransactionsViewControllerDelegate {

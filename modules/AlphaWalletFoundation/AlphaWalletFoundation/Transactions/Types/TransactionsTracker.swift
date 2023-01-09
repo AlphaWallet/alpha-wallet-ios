@@ -25,16 +25,18 @@ public final class TransactionsTracker {
         set { return defaults.set(newValue.rawValue, forKey: fetchingStateKey) }
     }
 
-    public init(
-        sessionID: String,
-        defaults: UserDefaults = .standardOrForTests
-    ) {
+    public init(sessionID: String,
+                defaults: UserDefaults = .standardOrForTests) {
+
         self.sessionID = sessionID
         self.defaults = defaults
     }
 
-    public static func resetFetchingState(account: Wallet, config: Config, fetchingState: TransactionFetchingState = .initial) {
-        for each in config.enabledServers {
+    public static func resetFetchingState(account: Wallet,
+                                          serversProvider: ServersProvidable,
+                                          fetchingState: TransactionFetchingState = .initial) {
+
+        for each in serversProvider.enabledServers {
             let sessionID = WalletSession.functional.sessionID(account: account, server: each)
             TransactionsTracker(sessionID: sessionID).fetchingState = fetchingState
         }

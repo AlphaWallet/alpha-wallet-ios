@@ -34,7 +34,7 @@ class NewTokenCoordinator: Coordinator {
     private let wallet: Wallet
     private var addressToAutoDetectServerFor: AlphaWallet.Address?
     private let sessionsProvider: SessionsProvider
-    private let config: Config
+    private let serversProvider: ServersProvidable
     private let analytics: AnalyticsLogger
     private let domainResolutionService: DomainResolutionServiceType
     private let navigationController: UINavigationController
@@ -53,12 +53,12 @@ class NewTokenCoordinator: Coordinator {
     init(analytics: AnalyticsLogger,
          wallet: Wallet,
          navigationController: UINavigationController,
-         config: Config,
+         serversProvider: ServersProvidable,
          sessionsProvider: SessionsProvider,
          initialState: NewTokenInitialState = .empty,
          domainResolutionService: DomainResolutionServiceType) {
 
-        self.config = config
+        self.serversProvider = serversProvider
         self.wallet = wallet
         self.analytics = analytics
         self.navigationController = navigationController
@@ -79,7 +79,7 @@ class NewTokenCoordinator: Coordinator {
     private func showServers() {
         let coordinator = ServersCoordinator(
             defaultServer: serverToAddCustomTokenOn,
-            config: config,
+            serversProvider: serversProvider,
             navigationController: navigationController)
 
         coordinator.delegate = self
@@ -130,39 +130,40 @@ extension NewTokenCoordinator: NewTokenViewControllerDelegate {
             var serversFailed = 0
 
             //TODO be good if we can check every chain, including those that are not enabled: https://github.com/AlphaWallet/alpha-wallet-ios/issues/1166
-            let servers = config.enabledServers
-            for each in servers {
+            let sessions = sessionsProvider.activeSessions.values
+            for session in sessions {
                 //It's possible we'll find the contracts with the same address across different chains, but let's not worry about it. User can manually choose a chain if they encounter this
-                fetchContractDataPromise(server: each, address: address, in: viewController)
+                fetchContractDataPromise(session: session, address: address, in: viewController)
                     .sink(receiveCompletion: { result in
                         guard case .failure = result else { return }
                         serversFailed += 1
-                        if serversFailed == servers.count {
+                        if serversFailed == sessions.count {
                             //So that we can enable the Done button
-                            verboseLog("[TokenType] fallback contract: \(address.eip55String) server: \(each) to token type: erc20")
+                            verboseLog("[TokenType] fallback contract: \(address.eip55String) server: \(session) to token type: erc20")
                             viewController.updateForm(forTokenType: .erc20)
                         }
                     }, receiveValue: { [weak self] tokenType in
-                        self?.serverToAddCustomTokenOn = .server(each)
+                        self?.serverToAddCustomTokenOn = .server(session.server)
                         viewController.updateForm(forTokenType: tokenType)
-                        viewController.server = .server(each)
+                        viewController.server = .server(session.server)
                         viewController.configure()
                     }).store(in: &cancellable)
             }
         case .server(let server):
-            fetchContractData(server: server, address: address, in: viewController)
+            guard let session = sessionsProvider.session(for: server) else { return }
+            fetchContractData(session: session, address: address, in: viewController)
         }
     }
 
-    private func fetchContractDataPromise(server: RPCServer, address: AlphaWallet.Address, in viewController: NewTokenViewController) -> AnyPublisher<TokenType, PromiseError> {
-        guard let session = sessionsProvider.session(for: server) else {
-            return .fail(PromiseError(error: NoContractDetailsDetected()))
-        }
+    private func fetchContractDataPromise(session: WalletSession,
+                                          address: AlphaWallet.Address,
+                                          in viewController: NewTokenViewController) -> AnyPublisher<TokenType, PromiseError> {
+        let server = session.server
 
         return session.importToken.fetchContractData(for: address)
             .receive(on: RunLoop.main)
             .setFailureType(to: PromiseError.self)
-            .flatMap { data -> AnyPublisher<TokenType, PromiseError> in
+            .flatMap {  data -> AnyPublisher<TokenType, PromiseError> in
                 guard self.addressToAutoDetectServerFor == address else { return .empty() }
                 switch data {
                 case .name, .symbol, .balance, .decimals:
@@ -172,12 +173,14 @@ extension NewTokenCoordinator: NewTokenViewControllerDelegate {
                     viewController.updateSymbolValue(symbol)
                     viewController.updateBalanceValue(balance.rawValue, tokenType: tokenType)
                     verboseLog("[TokenType] contract: \(address.eip55String) server: \(server) to token type: nonFungibleTokenComplete")
+
                     return .just(tokenType)
                 case .fungibleTokenComplete(let name, let symbol, let decimals, _, let tokenType):
                     viewController.updateNameValue(name)
                     viewController.updateSymbolValue(symbol)
                     viewController.updateDecimalsValue(decimals)
                     verboseLog("[TokenType] contract: \(address.eip55String) server: \(server) to token type: fungibleTokenComplete")
+
                     return .just(tokenType)
                 case .delegateTokenComplete:
                     verboseLog("[TokenType] contract: \(address.eip55String) server: \(server) to token type: delegateTokenComplete")
@@ -189,9 +192,7 @@ extension NewTokenCoordinator: NewTokenViewControllerDelegate {
             }.eraseToAnyPublisher()
     }
 
-    private func fetchContractData(server: RPCServer, address: AlphaWallet.Address, in viewController: NewTokenViewController) {
-        guard let session = sessionsProvider.session(for: server) else { return }
-
+    private func fetchContractData(session: WalletSession, address: AlphaWallet.Address, in viewController: NewTokenViewController) {
         session.importToken
             .fetchContractData(for: address)
             .receive(on: RunLoop.main)

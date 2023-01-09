@@ -23,15 +23,15 @@ class WalletConnectSessionDetailsViewModel {
     private let walletConnectProvider: WalletConnectProvider
     private var cancellable = Set<AnyCancellable>()
     private let analytics: AnalyticsLogger
-    private let config: Config = Config()
+    private let serversProvider: ServersProvidable
     private var rpcServers: [RPCServer] { session.servers }
     private var serverChoices: [RPCServer] {
-        ServersCoordinator.serversOrdered.filter { config.enabledServers.contains($0) }
+        ServersCoordinator.serversOrdered.filter { serversProvider.enabledServers.contains($0) }
     }
 
     var serversViewModel: ServersViewModel {
         let selectedServers: [RPCServerOrAuto] = rpcServers.map { return .server($0) }
-        let servers = serverChoices.filter { config.enabledServers.contains($0) } .compactMap { RPCServerOrAuto.server($0) }
+        let servers = serverChoices.filter { serversProvider.enabledServers.contains($0) } .compactMap { RPCServerOrAuto.server($0) }
         var viewModel = ServersViewModel(servers: servers, selectedServers: selectedServers, displayWarningFooter: false)
         viewModel.multipleSessionSelectionEnabled = session.multipleServersSelection == .enabled
 
@@ -40,8 +40,10 @@ class WalletConnectSessionDetailsViewModel {
 
     init(walletConnectProvider: WalletConnectProvider,
          session: AlphaWallet.WalletConnect.Session,
-         analytics: AnalyticsLogger) {
-        
+         analytics: AnalyticsLogger,
+         serversProvider: ServersProvidable) {
+
+        self.serversProvider = serversProvider
         self.walletConnectProvider = walletConnectProvider
         self.analytics = analytics
         self.session = session

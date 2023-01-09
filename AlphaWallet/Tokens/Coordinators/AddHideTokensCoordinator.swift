@@ -16,7 +16,6 @@ class AddHideTokensCoordinator: Coordinator {
         tokenCollection: tokenCollection,
         tokensFilter: tokensFilter,
         sessionsProvider: sessionsProvider,
-        config: config,
         tokenImageFetcher: tokenImageFetcher)
 
     private lazy var rootViewController: AddHideTokensViewController = {
@@ -28,8 +27,7 @@ class AddHideTokensCoordinator: Coordinator {
 
         return viewController
     }()
-
-    private let config: Config
+    private let serversProvider: ServersProvidable
     private let tokenCollection: TokenCollection
     private let tokensFilter: TokensFilter
     private let wallet: Wallet
@@ -44,13 +42,13 @@ class AddHideTokensCoordinator: Coordinator {
          analytics: AnalyticsLogger,
          domainResolutionService: DomainResolutionServiceType,
          navigationController: UINavigationController,
-         config: Config,
+         serversProvider: ServersProvidable,
          sessionsProvider: SessionsProvider,
          tokenImageFetcher: TokenImageFetcher) {
 
         self.tokenImageFetcher = tokenImageFetcher
         self.wallet = wallet
-        self.config = config
+        self.serversProvider = serversProvider
         self.tokenCollection = tokenCollection
         self.analytics = analytics
         self.domainResolutionService = domainResolutionService
@@ -94,7 +92,7 @@ extension AddHideTokensCoordinator: AddHideTokensViewControllerDelegate {
             analytics: analytics,
             wallet: wallet,
             navigationController: navigationController,
-            config: config,
+            serversProvider: serversProvider,
             sessionsProvider: sessionsProvider,
             initialState: initialState,
             domainResolutionService: domainResolutionService)

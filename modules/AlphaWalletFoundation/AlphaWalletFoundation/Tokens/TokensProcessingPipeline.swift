@@ -38,11 +38,11 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
     private let tokenViewModelsSubject = CurrentValueSubject<[TokenViewModel], Never>([])
     private let eventsDataStore: NonActivityEventsDataStore
     private let wallet: Wallet
-    private let queue = DispatchQueue(label: "org.alphawallet.swift.walletData.processingPipeline", qos: .utility)
+    private let queue = DispatchQueue(label: "org.alphawallet.swift.walletData.processingPipeline", qos: .userInitiated)
     private let currencyService: CurrencyService
     private let sessionsProvider: SessionsProvider
 
-    public var tokenViewModels: AnyPublisher<[TokenViewModel], Never> {
+    public lazy var tokenViewModels: AnyPublisher<[TokenViewModel], Never> = {
         let whenTickersChanged = coinTickersFetcher.tickersDidUpdate.dropFirst()
             .receive(on: queue)
             .map { [tokensService] _ in tokensService.tokens }
@@ -63,7 +63,7 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
             .map { $0.map { TokenViewModel(token: $0) } }
             .flatMapLatest { [weak self] in self?.applyTickers(tokens: $0) ?? .empty() }
             .flatMapLatest { [weak self] in self?.applyTokenScriptOverrides(tokens: $0) ?? .empty() }
-            .removeAllDuplicates(by: { return $0.hashValue == $1.hashValue })
+            .removeDuplicates()
             .receive(on: RunLoop.main)
 
         let initialSnapshot = Just(tokensService.tokens)
@@ -73,7 +73,7 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
 
         return Publishers.Merge(whenCollectionHasChanged, initialSnapshot)
             .eraseToAnyPublisher()
-    }
+    }()
 
     public init(wallet: Wallet,
                 tokensService: TokensService,

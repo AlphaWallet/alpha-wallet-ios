@@ -30,6 +30,8 @@ class WalletConnectCoordinator: NSObject, Coordinator {
     private let assetDefinitionStore: AssetDefinitionStore
     private let networkService: NetworkService
     private let dependencies: AtomicDictionary<Wallet, AppCoordinator.WalletDependencies>
+    private let restartHandler: RestartQueueHandler
+    private let serversProvider: ServersProvidable
 
     let walletConnectProvider: WalletConnectProvider
 
@@ -44,8 +46,12 @@ class WalletConnectCoordinator: NSObject, Coordinator {
          assetDefinitionStore: AssetDefinitionStore,
          networkService: NetworkService,
          walletConnectProvider: WalletConnectProvider,
-         dependencies: AtomicDictionary<Wallet, AppCoordinator.WalletDependencies>) {
+         dependencies: AtomicDictionary<Wallet, AppCoordinator.WalletDependencies>,
+         restartHandler: RestartQueueHandler,
+         serversProvider: ServersProvidable) {
 
+        self.serversProvider = serversProvider
+        self.restartHandler = restartHandler
         self.dependencies = dependencies
         self.walletConnectProvider = walletConnectProvider
         self.networkService = networkService
@@ -118,7 +124,8 @@ class WalletConnectCoordinator: NSObject, Coordinator {
             analytics: analytics,
             navigationController: navigationController,
             walletConnectProvider: walletConnectProvider,
-            session: session)
+            session: session,
+            serversProvider: serversProvider)
 
         coordinator.delegate = self
         coordinator.start()
@@ -324,14 +331,22 @@ extension WalletConnectCoordinator: WalletConnectProviderDelegate {
                   shouldConnectFor proposal: AlphaWallet.WalletConnect.Proposal) -> AnyPublisher<AlphaWallet.WalletConnect.ProposalResponse, Never> {
 
         infoLog("[WalletConnect] shouldConnectFor connection: \(proposal)")
-        let proposalType: ProposalType = .walletConnect(.init(proposal: proposal, config: config))
+        let proposalType: ProposalType = .walletConnect(.init(proposal: proposal, serversProvider: serversProvider))
 
-        return AcceptProposalCoordinator.promise(navigationController, coordinator: self, proposalType: proposalType, analytics: analytics)
-            .publisher()
-            .map { choise -> AlphaWallet.WalletConnect.ProposalResponse in
-                guard case .walletConnect(let server) = choise else { return .cancel }
-                return .connect(server)
-            }.replaceError(with: .cancel)
+        return AcceptProposalCoordinator.promise(
+            navigationController,
+            coordinator: self,
+            proposalType: proposalType,
+            analytics: analytics,
+            config: config,
+            restartHandler: restartHandler,
+            networkService: networkService,
+            serversProvider: serversProvider)
+        .publisher()
+        .map { choise -> AlphaWallet.WalletConnect.ProposalResponse in
+            guard case .walletConnect(let server) = choise else { return .cancel }
+            return .connect(server)
+        }.replaceError(with: .cancel)
             .handleEvents(receiveOutput: { response in
                 switch response {
                 case .cancel:
