@@ -45,12 +45,12 @@ public struct WalletBalance {
 
         return .init(amount: change.amount / total.amount, currency: total.currency)
     }
-    
+
     public var changePercentageString: String {
         guard let changePercentage = changePercentage else { return "-" }
         let helper = TickerHelper(ticker: nil)
         let formatter = NumberFormatter.priceChange(currency: changePercentage.currency)
-        
+
         switch helper.change24h(from: changePercentage.amount) {
         case .appreciate(let percentageChange24h):
             return "\(formatter.string(double: percentageChange24h) ?? "")%"

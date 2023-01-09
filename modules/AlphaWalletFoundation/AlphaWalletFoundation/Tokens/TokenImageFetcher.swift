@@ -84,7 +84,7 @@ public class TokenImageFetcher {
     public static var instance = TokenImageFetcher()
 
     private static var subscribables: AtomicDictionary<String, Subscribable<TokenImage>> = .init()
-    
+
     private static func programmaticallyGenerateIcon(for contractAddress: AlphaWallet.Address, type: TokenType, server: RPCServer, symbol: String, colors: [UIColor], staticOverlayIcon: UIImage?, blockChainNameColor: UIColor) -> TokenImage? {
         guard let i = [Constants.Image.numberOfCharactersOfSymbolToShowInIcon, symbol.count].min() else { return nil }
         let symbol = symbol.substring(to: i)

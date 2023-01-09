@@ -155,7 +155,7 @@ open class EtherKeystore: NSObject, Keystore {
                 walletAddressesStore: WalletAddressesStore,
                 analytics: AnalyticsLogger,
                 legacyFileBasedKeystore: LegacyFileBasedKeystore) {
-        
+
         self.keychain = keychain
         self.analytics = analytics
         self.walletAddressesStore = walletAddressesStore

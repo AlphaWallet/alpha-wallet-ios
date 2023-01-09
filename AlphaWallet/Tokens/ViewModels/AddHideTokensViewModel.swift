@@ -78,7 +78,7 @@ final class AddHideTokensViewModel {
             .handleEvents(receiveOutput: { [weak self] _ in self?.filterTokens() })
 
         return .init(viewState: viewState.eraseToAnyPublisher())
-    } 
+    }
 
     func titleForSection(_ section: Int) -> String {
         sections[section].description
@@ -170,7 +170,7 @@ final class AddHideTokensViewModel {
 
             if let sectionIndex = sections.firstIndex(of: .hiddenTokens) {
                 mark(token: token, isHidden: true)
-                
+
                 return .value((token, IndexPath(row: 0, section: Int(sectionIndex))))
             }
         case .hiddenTokens, .availableNewTokens, .popularTokens, .sortingFilters:

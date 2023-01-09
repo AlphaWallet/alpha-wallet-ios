@@ -343,7 +343,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
             domainResolutionService: domainResolutionService,
             tokensFilter: tokensFilter,
             currencyService: currencyService)
-        
+
         coordinator.rootViewController.tabBarItem = ActiveWalletViewModel.Tabs.tokens.tabBarItem
         coordinator.delegate = self
         coordinator.start()
@@ -392,7 +392,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         coordinator.rootViewController.tabBarItem = ActiveWalletViewModel.Tabs.activities.tabBarItem
         coordinator.navigationController.configureForLargeTitles()
         addCoordinator(coordinator)
-        
+
         return coordinator
     }
 
@@ -679,7 +679,7 @@ extension ActiveWalletCoordinator {
             currentUrl: nil,
             viewController: presentationViewController,
             networkService: networkService)
-        
+
         coordinator.delegate = dappRequestHandler
         dappRequestHandler.addCoordinator(coordinator)
         coordinator.start()

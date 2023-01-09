@@ -13,8 +13,8 @@ public struct Uniswap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
         return .empty()
     }
 
-    public let action: String 
-    
+    public let action: String
+
     public func rpcServer(forToken token: TokenActionsIdentifiable) -> RPCServer? {
         return .main
     }

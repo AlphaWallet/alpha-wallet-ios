@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import Combine 
+import Combine
 import BigInt
 import CombineExt
 
@@ -97,7 +97,7 @@ public final class SwapOptionsConfigurator {
                 swapPair: SwapPair,
                 tokenCollection: TokenCollection,
                 tokenSwapper: TokenSwapper) {
-        
+
         self.tokenSwapper = tokenSwapper
         self.sessions = sessionProvider.activeSessions.values.sorted(by: { $0.server.displayOrderPriority < $1.server.displayOrderPriority })
         self.server = swapPair.from.server
@@ -107,7 +107,7 @@ public final class SwapOptionsConfigurator {
         invalidateSessionsWhenSupportedTokensChanged()
         fetchSupportedTokensForSelectedServer()
         resetToTokenForNonSupportedSwapPair()
-    } 
+    }
 
     public func set(token: Token, selection: SwapTokens.TokenSelection) {
         var pair = swapPair
