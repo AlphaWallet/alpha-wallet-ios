@@ -171,8 +171,8 @@ fileprivate extension AdvancedSettingsViewModel.AdvancedSettingsRow {
     }
 }
 
-fileprivate extension Wallet {
-    func isReal() -> Bool {
+extension Wallet {
+    public func isReal() -> Bool {
         return type == .real(address)
     }
 }

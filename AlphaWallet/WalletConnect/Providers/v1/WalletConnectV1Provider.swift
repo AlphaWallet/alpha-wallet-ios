@@ -10,85 +10,95 @@ import WalletConnectSwift
 import AlphaWalletAddress
 import PromiseKit
 import Combine
-import AlphaWalletCore
 import AlphaWalletFoundation
 
 class WalletConnectV1Provider: WalletConnectServer {
-    enum Keys {
-        static let storageFileKey = "walletConnectSessions-v1"
-    }
 
-    private let walletMeta: Session.ClientMeta = {
-        let client = Session.ClientMeta(
-            name: Constants.WalletConnect.server,
-            description: nil,
-            icons: Constants.WalletConnect.icons.compactMap { URL(string: $0) },
-            url: Constants.WalletConnect.websiteUrl
-        )
-        return client
-    }()
-    private var connectionTimeoutTimers: [WalletConnectV1URL: Timer] = .init()
-    private lazy var server: Server = {
-        return Server(delegate: self)
-    }()
+    private let client: WalletConnectV1Client
+    private let storage: WalletConnectV1Storage
+    private let caip10AccountProvidable: CAIP10AccountProvidable
+    private var cancelable = Set<AnyCancellable>()
+    private let decoder: WalletConnectRequestDecoder
+    private let config: Config
 
-    lazy var sessions: AnyPublisher<[AlphaWallet.WalletConnect.Session], Never> = {
+    var sessions: AnyPublisher<[AlphaWallet.WalletConnect.Session], Never> {
         return storage.publisher
             .map { $0.map { AlphaWallet.WalletConnect.Session(session: $0) } }
             .eraseToAnyPublisher()
-    }()
-
-    private let storage: Storage<[WalletConnectV1Session]>
+    }
     weak var delegate: WalletConnectServerDelegate?
-    private lazy var requestHandler: RequestHandlerToAvoidMemoryLeak = { [weak self] in
-        let handler = RequestHandlerToAvoidMemoryLeak()
-        handler.delegate = self
 
-        return handler
-    }()
-    private let serviceProvider: SessionsProvider
-    private var cancelable = Set<AnyCancellable>()
-    private let queue: DispatchQueue = .main
+    init(caip10AccountProvidable: CAIP10AccountProvidable,
+         client: WalletConnectV1Client,
+         storage: WalletConnectV1Storage,
+         decoder: WalletConnectRequestDecoder,
+         config: Config) {
 
-    init(serviceProvider: SessionsProvider, storage: Storage<[WalletConnectV1Session]> = .init(fileName: Keys.storageFileKey, defaultValue: [])) {
-        self.serviceProvider = serviceProvider
+        self.config = config
+        self.decoder = decoder
+        self.client = client
+        self.caip10AccountProvidable = caip10AccountProvidable
         self.storage = storage
+        client.delegate = self
 
-        server.register(handler: requestHandler)
+        caip10AccountProvidable
+            .accounts
+            .sink { [weak self] in self?.reloadSessions(accounts: $0) }
+            .store(in: &cancelable)
 
-        serviceProvider.sessions
-            .filter { !$0.isEmpty }
-            .sink { [weak self] sessions in
-                guard let strongSelf = self else { return }
-                let wallets = Array(Set(sessions.values.map { $0.account.address.eip55String }))
-
-                for each in strongSelf.storage.value {
-                    let walletInfo = strongSelf.walletInfo(choice: .connect(each.server), wallets: wallets)
-                    try? strongSelf.server.updateSession(each.session, with: walletInfo)
-                }
-            }.store(in: &cancelable)
+        for each in storage.value {
+            try? client.reconnect(to: each.session)
+        }
     }
 
     deinit {
         verboseLog("[WalletConnect] WalletConnectV1Provider.deinit")
-        server.unregister(handler: requestHandler)
+    }
+
+    private func reloadSessions(accounts: Set<CAIP10Account>) {
+        verboseLog("[WalletConnect] reload sessions with: \(accounts)")
+        var sessionsToDelete: [Session] = []
+
+        for (index, each) in storage.value.enumerated() {
+            do {
+                if accounts.isEmpty {
+                    sessionsToDelete += [each.session]
+                } else {
+                    guard let blockchain = Blockchain(each.server.eip155) else { return }
+
+                    if accounts.contains(where: { $0.blockchain == blockchain }) {
+                        let data = try caip10AccountProvidable.namespaces(for: each.server)
+                        let session = each.session.updatingWalletInfo(with: data.accounts, chainId: data.server.chainID)
+                        storage.value[index] = .init(session: session, namespaces: data.namespaces)
+
+                        try client.updateSession(session, with: session.walletInfo!)
+                    } else if let account = accounts.first, let server = eip155URLCoder.decodeRPC(from: account.blockchain.absoluteString) {
+                        let data = try caip10AccountProvidable.namespaces(for: server)
+                        let session = each.session.updatingWalletInfo(with: data.accounts, chainId: data.server.chainID)
+
+                        storage.value[index] = .init(session: session, namespaces: data.namespaces)
+                        try client.updateSession(session, with: session.walletInfo!)
+                    } else {
+
+                        sessionsToDelete += [each.session]
+                    }
+                }
+            } catch {
+                verboseLog("[WalletConnect] failure to reload session: \(each.topicOrUrl)")
+            }
+        }
+
+        for each in sessionsToDelete {
+            removeSession(for: .init(url: each.url))
+
+            try? client.disconnect(from: each)
+        }
     }
 
     func connect(url: AlphaWallet.WalletConnect.ConnectionUrl) throws {
         guard case .v1(let wcUrl) = url else { return }
-        let timer = Timer.scheduledTimer(withTimeInterval: Constants.WalletConnect.connectionTimeout, repeats: false) { _ in
-            let isStillWatching = self.connectionTimeoutTimers[wcUrl] != nil
-            debugLog("[WalletConnect] app-enforced connection timer is up for: \(wcUrl.absoluteString) isStillWatching: \(isStillWatching)")
-            if isStillWatching {
-                //TODO be good if we can do `server.communicator.disconnect(from: url)` here on in the delegate. But `communicator` is not accessible
-                self.delegate?.server(self, tookTooLongToConnectToUrl: url)
-            } else {
-                //no-op
-            }
-        }
-        connectionTimeoutTimers[wcUrl] = timer
 
-        try server.connect(to: WCURL(wcUrl.absoluteString)!)
+        try client.connect(to: WCURL(wcUrl.absoluteString)!)
     }
 
     func session(for topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl) -> AlphaWallet.WalletConnect.Session? {
@@ -97,155 +107,109 @@ class WalletConnectV1Provider: WalletConnectServer {
 
     func update(_ topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl, servers: [RPCServer]) throws {
         guard let index = storage.value.firstIndex(where: { $0.topicOrUrl == topicOrUrl }), let server = servers.first else { return }
-        let namespaces = namespaces(for: server)
-        storage.value[index] = .init(session: storage.value[index].session, namespaces: namespaces)
+        let data = try caip10AccountProvidable.namespaces(for: server)
 
-        let wallets = Array(Set(serviceProvider.activeSessions.values.map { $0.account.address.eip55String }))
-        let walletInfo = walletInfo(choice: .connect(server), wallets: wallets)
-        try self.server.updateSession(storage.value[index].session, with: walletInfo)
-    }
+        let session = storage.value[index].session.updatingWalletInfo(with: data.accounts, chainId: data.server.chainID)
+        storage.value[index] = .init(session: session, namespaces: data.namespaces)
 
-    func reconnect(_ topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl) throws {
-        guard let nativeSession = storage.value.first(where: { $0.topicOrUrl == topicOrUrl }) else { return }
-
-        try server.reconnect(to: nativeSession.session)
-    }
-
-    func disconnectSession(sessions: [NFDSession]) throws {
-        for each in sessions {
-            guard let session = storage.value.first(where: { $0.topicOrUrl == each.session.topicOrUrl }) else { continue }
-
-            removeSession(for: .init(url: session.session.url))
-
-            try server.disconnect(from: session.session)
-        }
+        try client.updateSession(session, with: session.walletInfo!)
     }
 
     func disconnect(_ topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl) throws {
         guard let nativeSession = storage.value.first(where: { $0.topicOrUrl == topicOrUrl }) else { return }
         //NOTE: for some reasons completion handler doesn't get called, when we do disconnect, for this we remove session before do disconnect
         removeSession(for: .init(url: nativeSession.session.url))
-        try server.disconnect(from: nativeSession.session)
+        try client.disconnect(from: nativeSession.session)
     }
 
     func respond(_ response: AlphaWallet.WalletConnect.Response, request: AlphaWallet.WalletConnect.Session.Request) throws {
         guard case .v1(let request, _) = request else { return }
         guard let callbackId = request.id else { throw WalletConnectError.callbackIdMissing }
+
         switch response {
         case .value(let value):
             let response = try Response(url: request.url, value: value.flatMap { $0.hexEncoded }, id: callbackId)
-            server.send(response)
+            client.send(response)
         case .error(let code, let message):
             let response = try Response(url: request.url, errorCode: code, message: message, id: callbackId)
-            server.send(response)
+            client.send(response)
         }
     }
 
     func isConnected(_ topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl) -> Bool {
         guard let nativeSession = storage.value.first(where: { $0.topicOrUrl == topicOrUrl }) else { return false }
-        return server.openSessions().contains(where: { $0.dAppInfo.peerId == nativeSession.session.dAppInfo.peerId })
-    }
-
-    private func walletInfo(choice: AlphaWallet.WalletConnect.ProposalResponse, wallets: [String]) -> Session.WalletInfo {
-        func peerId(approved: Bool) -> String {
-            return approved ? UUID().uuidString : String()
-        }
-
-        return Session.WalletInfo(
-            approved: choice.shouldProceed,
-            accounts: wallets,
-            //When there's no server (because user chose to cancel), it shouldn't matter whether the fallback (mainnet) is enabled
-            chainId: choice.server?.chainID ?? Config().anyEnabledServer().chainID,
-            peerId: peerId(approved: choice.shouldProceed),
-            peerMeta: walletMeta
-        )
+        return client.openSessions().contains(where: { $0.dAppInfo.peerId == nativeSession.session.dAppInfo.peerId })
     }
 }
 
-extension WalletConnectV1Provider: WalletConnectV1ServerRequestHandlerDelegate {
+extension WalletConnectV1Provider: WalletConnectV1ClientDelegate {
 
-    func handler(_ handler: RequestHandlerToAvoidMemoryLeak, request: WalletConnectV1Request) {
+    func server(_ server: Server, didReceiveRequest request: WalletConnectV1Request) {
         infoLog("[WalletConnect] handler request: \(request.method) url: \(request.url.absoluteString)")
 
-        queue.async { [weak self] in
-            guard let strongSelf = self else { return }
-
-            guard let session = strongSelf.storage.value.first(where: { $0.topicOrUrl == .url(url: .init(url: request.url)) }) else {
-                return strongSelf.server.send(.reject(request))
-            }
-
-            WalletConnectRequestConverter()
-                .convert(request: request, session: session)
-                .map { AlphaWallet.WalletConnect.Action(type: $0) }
-                .done { action in
-                    strongSelf.delegate?.server(strongSelf, action: action, request: .v1(request: request, server: session.server), session: .init(session: session))
-                }.catch { error in
-                    strongSelf.delegate?.server(strongSelf, didFail: error)
-                    //NOTE: we need to reject request if there is some arrays
-                    strongSelf.server.send(.reject(request))
-                }
+        guard let session = storage.value.first(where: { $0.topicOrUrl == .url(url: .init(url: request.url)) }) else {
+            return client.send(.reject(request))
         }
+
+        decoder.decode(request: request, session: session)
+            .map { AlphaWallet.WalletConnect.Action(type: $0) }
+            .done { action in
+                self.delegate?.server(self, action: action, request: .v1(request: request, server: session.server), session: .init(session: session))
+            }.catch { error in
+                self.delegate?.server(self, didFail: error)
+                //NOTE: we need to reject request if there is some arrays
+                self.client.send(.reject(request))
+            }
     }
 
-    func handler(_ handler: RequestHandlerToAvoidMemoryLeak, canHandle request: WalletConnectV1Request) -> Bool {
-        infoLog("[WalletConnect] canHandle: \(request.method) url: \(request.url.absoluteString)")
-        return true
-    }
-}
-
-extension WalletConnectV1Provider: ServerDelegate {
     private func removeSession(for url: WalletConnectV1URL) {
         storage.value.removeAll(where: { $0.topicOrUrl == .url(url: url) })
+    }
+
+    func server(_ server: Server, tookTooLongToConnectToUrl url: WCURL) {
+        delegate?.server(self, tookTooLongToConnectToUrl: .v1(wcUrl: WalletConnectV1URL(url: url)))
     }
 
     func server(_ server: Server, didFailToConnect url: WCURL) {
         let url = WalletConnectV1URL(url: url)
         infoLog("[WalletConnect] didFailToConnect: \(url)")
-        queue.async {
-            self.connectionTimeoutTimers[url] = nil
-            self.removeSession(for: url)
-            self.delegate?.server(self, didFail: WalletConnectError.connectionFailure(url))
-        }
+        removeSession(for: url)
+        delegate?.server(self, didFail: WalletConnectError.connectionFailure(url))
     }
 
-    func server(_ server: Server, shouldStart session: Session, completion: @escaping (Session.WalletInfo) -> Void) {
-        connectionTimeoutTimers[.init(url: session.url)] = nil
-        let wallets = Array(Set(serviceProvider.activeSessions.values.map { $0.account.address.eip55String }))
+    func server(_ server: Server, shouldStart session: Session, completion: @escaping (Session.WalletInfo?) -> Void) {
+        if let delegate = self.delegate {
+            let sessionProposal = AlphaWallet.WalletConnect.Proposal(dAppInfo: session.dAppInfo)
 
-        queue.async {
-            if let delegate = self.delegate {
-                let sessionProposal = AlphaWallet.WalletConnect.Proposal(dAppInfo: session.dAppInfo)
+            delegate.server(self, shouldConnectFor: sessionProposal) { [weak self, caip10AccountProvidable] choice in
+                guard let strongSelf = self else { return }
 
-                delegate.server(self, shouldConnectFor: sessionProposal) { [weak self] choice in
-                    guard let strongSelf = self, let server = choice.server else { return }
-
-                    let info = strongSelf.walletInfo(choice: choice, wallets: wallets)
-                    let namespaces = strongSelf.namespaces(for: server)
-                    if let index = strongSelf.storage.value.firstIndex(where: { $0.topicOrUrl == session.topicOrUrl }) {
-                        strongSelf.storage.value[index] = .init(session: session, namespaces: namespaces)
-                    } else {
-                        strongSelf.storage.value.append(.init(session: session, namespaces: namespaces))
-                    }
-                    completion(info)
+                guard let server = choice.server else {
+                    completion(nil)
+                    return
                 }
-            } else {
-                let info = self.walletInfo(choice: .cancel, wallets: wallets)
-                completion(info)
+
+                guard let data = try? caip10AccountProvidable.namespaces(for: server) else {
+                    completion(nil)
+                    return
+                }
+
+                let session = session.updatingWalletInfo(with: data.accounts, chainId: data.server.chainID)
+
+                if let index = strongSelf.storage.value.firstIndex(where: { $0.topicOrUrl == session.topicOrUrl }) {
+                    strongSelf.storage.value[index] = .init(session: session, namespaces: data.namespaces)
+                } else {
+                    strongSelf.storage.value.append(.init(session: session, namespaces: data.namespaces))
+                }
+
+                completion(session.walletInfo!)
             }
+        } else {
+            completion(nil)
         }
     }
 
-    private func namespaces(for server: RPCServer?) -> [String: SessionNamespace] {
-        let accounts = Set(serviceProvider.activeSessions.values.compactMap { _session -> CAIP10Account? in
-            let server = server ?? _session.server
-            guard let blockchain = Blockchain(server.eip155) else { return nil }
-
-            return CAIP10Account(blockchain: blockchain, address: _session.account.address.eip55String)
-        })
-        return ["eip155": SessionNamespace(accounts: accounts, methods: [], events: [], extensions: [])]
-    }
-
-    @discardableResult private func addOrUpdateSession(session: Session) -> WalletConnectV1Session {
+    @discardableResult private func addOrUpdateSession(session: Session) throws -> WalletConnectV1Session {
         let nativeSession: WalletConnectV1Session
         if let index = storage.value.firstIndex(where: { $0.topicOrUrl == session.topicOrUrl }) {
             let sessionToUpdate = storage.value[index]
@@ -254,8 +218,10 @@ extension WalletConnectV1Provider: ServerDelegate {
             storage.value[index] = nativeSession
         } else {
             let server = session.dAppInfo.chainId.flatMap({ RPCServer(chainID: $0) }) ?? Config().anyEnabledServer()
-            let namespaces = namespaces(for: server)
-            nativeSession = .init(session: session, namespaces: namespaces)
+            let data = try caip10AccountProvidable.namespaces(for: server)
+
+            let session = session.updatingWalletInfo(with: data.accounts, chainId: data.server.chainID)
+            nativeSession = .init(session: session, namespaces: data.namespaces)
 
             storage.value.append(nativeSession)
         }
@@ -265,31 +231,23 @@ extension WalletConnectV1Provider: ServerDelegate {
 
     func server(_ server: Server, didUpdate session: Session) {
         infoLog("[WalletConnect] didUpdate: \(session.url.absoluteString)")
-        queue.async {
-            self.addOrUpdateSession(session: session)
-        }
+        _ = try? addOrUpdateSession(session: session)
     }
 
     func server(_ server: Server, didConnect session: Session) {
         infoLog("[WalletConnect] didConnect: \(session.url.absoluteString)")
-        queue.async {
-            let nativeSession: WalletConnectV1Session = self.addOrUpdateSession(session: session)
-            if let delegate = self.delegate {
-                delegate.server(self, didConnect: .init(session: nativeSession))
-            }
-        }
+        guard let nativeSession: WalletConnectV1Session = try? addOrUpdateSession(session: session) else { return }
+        delegate?.server(self, didConnect: .init(session: nativeSession))
     }
 
     func server(_ server: Server, didDisconnect session: Session) {
-        queue.async {
-            self.removeSession(for: .init(url: session.url))
-        }
+        removeSession(for: .init(url: session.url))
     }
 }
 
-fileprivate extension WalletConnectRequestConverter {
-    func convert(request: WalletConnectV1Request, session: WalletConnectV1Session) -> Promise<AlphaWallet.WalletConnect.Action.ActionType> {
-        return convert(request: .v1(request: request, server: session.server), requester: session.session.requester)
+fileprivate extension WalletConnectRequestDecoder {
+    func decode(request: WalletConnectV1Request, session: WalletConnectV1Session) -> Promise<AlphaWallet.WalletConnect.Action.ActionType> {
+        return decode(request: .v1(request: request, server: session.server))
     }
 }
 

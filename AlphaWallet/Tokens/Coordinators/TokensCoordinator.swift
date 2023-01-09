@@ -40,7 +40,7 @@ class TokensCoordinator: Coordinator {
             wallet: wallet,
             tokenCollection: tokenCollection,
             tokensFilter: tokensFilter,
-            walletConnectCoordinator: walletConnectCoordinator,
+            walletConnectProvider: walletConnectCoordinator.walletConnectProvider,
             walletBalanceService: walletBalanceService,
             config: config,
             domainResolutionService: domainResolutionService,

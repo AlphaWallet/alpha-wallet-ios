@@ -49,6 +49,7 @@ class WalletConnectSessionViewController: UIViewController {
     private let dappUrlFieldView = WalletConnectSessionFieldView.textLabelView(title: R.string.localizable.walletConnectSessionConnectedURL())
     private let networkFieldView = WalletConnectSessionFieldView.textLabelView(title: R.string.localizable.settingsNetworkButtonTitle())
     private let methodsFieldView = WalletConnectSessionFieldView.textLabelView(title: R.string.localizable.walletConnectConnectionMethodsTitle())
+    private let eventsFieldView = WalletConnectSessionFieldView.textLabelView(title: R.string.localizable.walletConnectConnectionEventsTitle())
     private let buttonsBar: HorizontalButtonsBar = {
         let buttonsBar = HorizontalButtonsBar(configuration: .combined(buttons: 2))
         buttonsBar.configure()
@@ -71,20 +72,6 @@ class WalletConnectSessionViewController: UIViewController {
 
         super.init(nibName: nil, bundle: nil)
 
-        var subviews: [UIView] = [
-            imageContainerView,
-            UIView.separator(),
-            statusFieldView,
-            dappNameFieldView,
-            dappUrlFieldView,
-            networkFieldView
-        ]
-        if !viewModel.methods.isEmpty {
-            subviews += [methodsFieldView]
-        }
-
-        containerView.stackView.addArrangedSubviews(subviews)
-
         let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar)
         view.addSubview(footerBar)
         view.addSubview(containerView)
@@ -101,6 +88,21 @@ class WalletConnectSessionViewController: UIViewController {
 
     required init?(coder: NSCoder) {
         return nil
+    }
+
+    private func buildSubviews(viewTypes: [WalletConnectSessionDetailsViewModel.ViewType]) -> [UIView] {
+        return viewTypes.map { viewType in
+            switch viewType {
+            case .image: return imageContainerView
+            case .separator: return UIView.separator()
+            case .status: return statusFieldView
+            case .dappName: return dappNameFieldView
+            case .dappUrl: return dappUrlFieldView
+            case .network: return networkFieldView
+            case .methods: return methodsFieldView
+            case .events: return eventsFieldView
+            }
+        }
     }
 
     override func viewDidLoad() {
@@ -127,20 +129,24 @@ class WalletConnectSessionViewController: UIViewController {
 
         output.viewState
             .sink { [weak self] viewState in
+                self?.containerView.stackView.removeAllArrangedSubviews()
+                self?.containerView.stackView.addArrangedSubviews(self?.buildSubviews(viewTypes: viewState.viewTypes) ?? [])
+
                 self?.navigationItem.title = viewState.title
                 self?.statusFieldView.configure(attributedValueText: viewState.statusFieldAttributedString)
                 self?.dappNameFieldView.configure(attributedValueText: viewState.dappNameFieldAttributedString)
                 self?.dappUrlFieldView.configure(attributedValueText: viewState.dappUrlFieldAttributedString)
                 self?.networkFieldView.configure(attributedValueText: viewState.chainFieldAttributedString)
                 self?.methodsFieldView.configure(attributedValueText: viewState.methodsFieldAttributedString)
+                self?.eventsFieldView.configure(attributedValueText: viewState.eventsFieldAttributedString)
                 self?.imageView.setImage(url: viewState.sessionIconURL, placeholder: viewState.walletImageIcon)
                 self?.iconTitleLabel.attributedText = viewState.dappNameAttributedString
 
                 self?.disconnectButton.isEnabled = viewState.isDisconnectEnabled
                 self?.disconnectButton.setTitle(viewState.dissconnectButtonText, for: .normal)
 
-                self?.changeNetworksButton.setTitle(viewState.changeNetworksButtonText, for: .normal)
                 self?.changeNetworksButton.isEnabled = viewState.isSwitchServerEnabled
+                self?.changeNetworksButton.setTitle(viewState.changeNetworksButtonText, for: .normal)
             }.store(in: &cancelable)
 
         output.didDisconnect

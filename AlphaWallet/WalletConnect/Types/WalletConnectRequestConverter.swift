@@ -1,5 +1,5 @@
 //
-//  WalletConnectRequestConverter.swift
+//  WalletConnectRequestDecoder.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 09.11.2021.
@@ -10,11 +10,11 @@ import PromiseKit
 import WalletConnectSwift
 import AlphaWalletFoundation
 
-struct WalletConnectRequestConverter {
+struct WalletConnectRequestDecoder {
 
-    func convert(request: AlphaWallet.WalletConnect.Session.Request, requester: DAppRequester) -> Promise<AlphaWallet.WalletConnect.Action.ActionType> {
+    func decode(request: AlphaWallet.WalletConnect.Session.Request) -> Promise<AlphaWallet.WalletConnect.Action.ActionType> {
         guard let server: RPCServer = request.server else {
-            return .init(error: WalletConnectRequestConverter.sessionRequestRPCServerMissing)
+            return .init(error: WalletConnectRequestDecoder.sessionRequestRPCServerMissing)
         }
         infoLog("[WalletConnect] convert request: \(request.method) url: \(request.description)")
 
@@ -59,11 +59,11 @@ struct WalletConnectRequestConverter {
         case .walletAddEthereumChain(let data):
             return .value(.walletAddEthereumChain(data))
         case .custom:
-            return .init(error: WalletConnectRequestConverter.unsupportedMethod)
+            return .init(error: WalletConnectRequestDecoder.unsupportedMethod)
         }
     }
 
-    enum WalletConnectRequestConverter: Error {
+    enum WalletConnectRequestDecoder: Error {
         case sessionRequestRPCServerMissing
         case unsupportedMethod
     }

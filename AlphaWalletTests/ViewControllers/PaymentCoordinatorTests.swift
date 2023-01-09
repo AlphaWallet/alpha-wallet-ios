@@ -24,7 +24,7 @@ extension CurrencyService {
 }
 
 extension WalletDataProcessingPipeline {
-    static func make(wallet: Wallet = .make(), server: RPCServer = .main) -> FakeWalletDep {
+    static func make(wallet: Wallet = .make(), server: RPCServer = .main) -> AppCoordinator.WalletDependencies {
         let fas = FakeAnalyticsService()
         let sessionsProvider: SessionsProvider = .make(wallet: wallet, servers: [server])
         let eventsActivityDataStore: EventsActivityDataStoreProtocol = EventsActivityDataStore(store: .fake(for: wallet))
@@ -69,15 +69,15 @@ extension WalletDataProcessingPipeline {
             eventsDataStore: eventsDataStore,
             analytics: fas)
 
-        let dep = FakeWalletDep(
+        let dep = AppCoordinator.WalletDependencies(
             activitiesPipeLine: activitiesPipeLine,
-            tokensDataStore: tokensDataStore,
             transactionsDataStore: transactionsDataStore,
             importToken: importToken,
             tokensService: tokensService,
             pipeline: pipeline,
             fetcher: fetcher,
             sessionsProvider: sessionsProvider,
+            eventsDataStore: eventsDataStore,
             currencyService: currencyService)
         
         dep.sessionsProvider.start(wallet: wallet)
@@ -86,19 +86,6 @@ extension WalletDataProcessingPipeline {
 
         return dep
     }
-
-    struct FakeWalletDep {
-        let activitiesPipeLine: ActivitiesPipeLine
-        let tokensDataStore: TokensDataStore
-        let transactionsDataStore: TransactionDataStore
-        let importToken: ImportToken
-        let tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable & TokensServiceTests
-        let pipeline: TokensProcessingPipeline
-        let fetcher: WalletBalanceFetcher
-        let sessionsProvider: SessionsProvider
-        let currencyService: AlphaWalletFoundation.CurrencyService
-    }
-
 }
 
 extension SessionsProvider {

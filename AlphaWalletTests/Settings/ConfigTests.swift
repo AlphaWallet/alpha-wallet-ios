@@ -8,17 +8,23 @@ import AlphaWalletFoundation
 extension WalletConnectCoordinator {
 
     static func fake() -> WalletConnectCoordinator {
-        let keystore = FakeEtherKeystore()
-        let sessionProvider: SessionsProvider = .make(wallet: .make(), servers: [.main])
+        let keystore = FakeEtherKeystore(wallets: [.make()])
+        let dependencies = AtomicDictionary<Wallet, AppCoordinator.WalletDependencies>(value: [
+            .make(): WalletDataProcessingPipeline.make(wallet: .make(), server: .main)
+        ])
+
+        let provider = WalletConnectProvider(keystore: keystore, config: .make(), dependencies: dependencies)
+
         return WalletConnectCoordinator(
             keystore: keystore,
             navigationController: .init(),
             analytics: FakeAnalyticsService(),
             domainResolutionService: FakeDomainResolutionService(),
             config: .make(),
-            sessionProvider: sessionProvider,
             assetDefinitionStore: .make(),
-            networkService: FakeNetworkService())
+            networkService: FakeNetworkService(),
+            walletConnectProvider: provider,
+            dependencies: dependencies)
     }
 }
 

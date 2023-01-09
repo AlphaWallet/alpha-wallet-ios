@@ -651,6 +651,7 @@
 "walletConnect.session.switchNetwork" = "Vaihda varkkoa";
 "walletConnect.session.signedTransactions" = "Allekirjoitetut tapahtumat";
 "walletConnect.start" = "%@\n\nAloita WalletConnect-kytkentä verkossa:";
+"walletConnect.failure.walletsNotFound" = "WalletConnect Wallet not found";
 "walletConnect.failure.title" = "WalletConnect-kytkentävirhe";
 "walletConnect.failure.mustNotBeWatchedWallet" = "Request Rejected! Switch to non watched wallet";
 "walletConnect.sendRawTransaction.title" = "Lähetä raaka (raw) tilitapahtuma";
@@ -661,6 +662,7 @@
 "walletConnect.connection.network.title" = "Verkko";
 "walletConnect.connection.networks.title" = "Verkot";
 "walletConnect.connection.methods.title" = "Metodit";
+"walletConnect.connection.events.title" = "Events";
 "walletConnect.connection.url.title" = "Kytketyn verkon URL";
 "send.allFunds" = "Kaikki varat";
 "copiedToClipboard" = "Kopioitu leikekirjaan";

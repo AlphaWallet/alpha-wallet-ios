@@ -52,7 +52,7 @@ class AppCoordinator: NSObject, Coordinator {
     private lazy var currencyService = CurrencyService(storage: config)
     private lazy var coinTickersFetcher: CoinTickersFetcher = CoinTickersFetcherImpl(networkService: networkService)
     private lazy var nftProvider: NFTProvider = AlphaWalletNFTProvider(analytics: analytics)
-    private var walletDependencies: [Wallet: WalletDependencies] = [:]
+    private let walletDependencies: AtomicDictionary<Wallet, WalletDependencies> = .init()
     private let walletBalanceService = MultiWalletBalanceService()
     private var pendingActiveWalletCoordinator: ActiveWalletCoordinator?
 
@@ -105,6 +105,39 @@ class AppCoordinator: NSObject, Coordinator {
 
         return service
     }()
+    private lazy var serversProvidable: ServersProvidable = {
+        BaseServersProvider(config: config)
+    }()
+    private lazy var caip10AccountProvidable: CAIP10AccountProvidable = {
+        AnyCAIP10AccountProvidable(walletAddressesStore: walletAddressesStore, serversProvidable: serversProvidable)
+    }()
+
+    private lazy var walletConnectProvider: WalletConnectProvider = {
+        let provider = WalletConnectProvider(
+            keystore: keystore,
+            config: config,
+            dependencies: walletDependencies)
+        let decoder = WalletConnectRequestDecoder()
+
+        let v1Provider = WalletConnectV1Provider(
+            caip10AccountProvidable: caip10AccountProvidable,
+            client: WalletConnectV1NativeClient(),
+            storage: WalletConnectV1Storage(),
+            decoder: decoder,
+            config: config)
+
+        let v2Provider = WalletConnectV2Provider(
+            caip10AccountProvidable: caip10AccountProvidable,
+            storage: WalletConnectV2Storage(),
+            config: config,
+            decoder: decoder,
+            client: WalletConnectV2NativeClient())
+
+        provider.register(service: v1Provider)
+        provider.register(service: v2Provider)
+
+        return provider
+    }()
 
     private lazy var walletConnectCoordinator: WalletConnectCoordinator = {
         let coordinator = WalletConnectCoordinator(
@@ -113,9 +146,10 @@ class AppCoordinator: NSObject, Coordinator {
             analytics: analytics,
             domainResolutionService: domainResolutionService,
             config: config,
-            sessionProvider: activeSessionsProvider,
             assetDefinitionStore: assetDefinitionStore,
-            networkService: networkService)
+            networkService: networkService,
+            walletConnectProvider: walletConnectProvider,
+            dependencies: walletDependencies)
 
         return coordinator
     }()
@@ -156,7 +190,6 @@ class AppCoordinator: NSObject, Coordinator {
             pushNotificationsService: pushNotificationsService)
     }()
 
-    private lazy var activeSessionsProvider = SessionsProvider(config: config, analytics: analytics)
     private let securedStorage: SecuredPasswordStorage & SecuredStorage
     private let addressStorage: FileAddressStorage
     private let tokenScriptOverridesFileManager = TokenScriptOverridesFileManager()
@@ -256,7 +289,7 @@ class AppCoordinator: NSObject, Coordinator {
                 var fetchers: [Wallet: WalletBalanceFetcherType] = [:]
 
                 for wallet in wallets {
-                    let dep = self.buildDependencies(for: wallet, activeSessionsProvider: nil)
+                    let dep = self.buildDependencies(for: wallet)
                     fetchers[wallet] = dep.fetcher
                 }
 
@@ -373,9 +406,7 @@ class AppCoordinator: NSObject, Coordinator {
             removeCoordinator(coordinator)
         }
 
-        let dep = buildDependencies(for: wallet, activeSessionsProvider: activeSessionsProvider)
-
-        walletConnectCoordinator.configure(with: dep.pipeline)
+        let dep = buildDependencies(for: wallet)
 
         let coordinator = ActiveWalletCoordinator(
             navigationController: navigationController,
@@ -408,7 +439,8 @@ class AppCoordinator: NSObject, Coordinator {
             currencyService: currencyService,
             tokenScriptOverridesFileManager: tokenScriptOverridesFileManager,
             networkService: networkService,
-            promptBackup: promptBackup)
+            promptBackup: promptBackup,
+            caip10AccountProvidable: caip10AccountProvidable)
 
         coordinator.delegate = self
 
@@ -526,8 +558,8 @@ class AppCoordinator: NSObject, Coordinator {
         }
     }
     //NOTE: not good to pass `activeSessionsProvider` but needed to update active wallet session with right sessions in time
-    private func buildDependencies(for wallet: Wallet, activeSessionsProvider: SessionsProvider?) -> WalletDependencies {
-        if let dep = walletDependencies[wallet] { return dep }
+    private func buildDependencies(for wallet: Wallet) -> WalletDependencies {
+        if let dep = walletDependencies[wallet] { return dep  }
 
         let tokensDataStore: TokensDataStore = MultipleChainsTokensDataStore(store: .storage(for: wallet), servers: config.enabledServers)
         let eventsDataStore: NonActivityEventsDataStore = NonActivityMultiChainEventsDataStore(store: .storage(for: wallet))
@@ -536,7 +568,6 @@ class AppCoordinator: NSObject, Coordinator {
 
         let sessionsProvider: SessionsProvider = .init(config: config, analytics: analytics)
         sessionsProvider.start(wallet: wallet)
-        activeSessionsProvider?.set(activeSessions: sessionsProvider.activeSessions)
 
         let contractDataFetcher = ContractDataFetcher(
             sessionProvider: sessionsProvider,
@@ -597,7 +628,7 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     private func destroy(for wallet: Wallet) {
-        walletDependencies[wallet] = nil
+        walletDependencies.removeValue(forKey: wallet)
     }
 }
 // swiftlint:enable type_body_length
@@ -621,8 +652,6 @@ extension AppCoordinator: InitialWalletCreationCoordinatorDelegate {
 extension AppCoordinator: ActiveWalletCoordinatorDelegate {
 
     func didRestart(in coordinator: ActiveWalletCoordinator, reason: RestartReason, wallet: Wallet) {
-        disconnectWalletConnectSessionsSelectively(for: reason, walletConnectCoordinator: walletConnectCoordinator)
-
         keystore.recentlyUsedWallet = wallet
 
         coordinator.navigationController.dismiss(animated: true)
@@ -764,7 +793,7 @@ extension AppCoordinator: ServerUnavailableCoordinatorDelegate {
 }
 
 extension AppCoordinator {
-    private struct WalletDependencies {
+    struct WalletDependencies {
         let activitiesPipeLine: ActivitiesPipeLine
         let transactionsDataStore: TransactionDataStore
         let importToken: ImportToken
@@ -788,15 +817,6 @@ extension AppCoordinator: WalletApiCoordinatorDelegate {
 }
 
 extension AppCoordinator: AccountsCoordinatorDelegate {
-
-    private func disconnectWalletConnectSessionsSelectively(for reason: RestartReason, walletConnectCoordinator: WalletConnectCoordinator) {
-        switch reason {
-        case .changeLocalization, .walletChange, .currencyChange:
-            break //no op
-        case .serverChange:
-            walletConnectCoordinator.disconnect(sessionsToDisconnect: .allExcept(config.enabledServers))
-        }
-    }
 
     func didAddAccount(account: Wallet, in coordinator: AccountsCoordinator) {
         coordinator.navigationController.dismiss(animated: true)
@@ -823,7 +843,6 @@ extension AppCoordinator: AccountsCoordinatorDelegate {
 
             pendingCoordinator.showTabBar(animated: true)
         } else {
-            disconnectWalletConnectSessionsSelectively(for: .walletChange, walletConnectCoordinator: walletConnectCoordinator)
             showActiveWallet(for: account, animated: true)
         }
 

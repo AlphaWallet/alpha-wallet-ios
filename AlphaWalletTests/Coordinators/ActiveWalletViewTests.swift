@@ -52,6 +52,14 @@ final class FakeNetworkService: NetworkService {
     }
 }
 
+extension AnyCAIP10AccountProvidable {
+    static func make(wallets: [Wallet] = [.make()], servers: [RPCServer] = [.main]) -> AnyCAIP10AccountProvidable {
+        let walletAddressesStore = fakeWalletAddressesStore(wallets: wallets)
+        let serversProvidable = BaseServersProvider(config: .make(enabledServers: servers))
+        return AnyCAIP10AccountProvidable(walletAddressesStore: walletAddressesStore, serversProvidable: serversProvidable)
+    }
+}
+
 extension AssetDefinitionStore {
     static func make() -> AssetDefinitionStore {
         return .init(networkService: FakeNetworkService())
@@ -113,7 +121,8 @@ class ActiveWalletViewTests: XCTestCase {
             currencyService: currencyService,
             tokenScriptOverridesFileManager: .fake(),
             networkService: FakeNetworkService(),
-            promptBackup: .make())
+            promptBackup: .make(),
+            caip10AccountProvidable: AnyCAIP10AccountProvidable.make())
 
         coordinator.start(animated: false)
 
@@ -197,7 +206,8 @@ class ActiveWalletViewTests: XCTestCase {
             currencyService: currencyService,
             tokenScriptOverridesFileManager: .fake(),
             networkService: FakeNetworkService(),
-            promptBackup: .make())
+            promptBackup: .make(),
+            caip10AccountProvidable: AnyCAIP10AccountProvidable.make())
 
         c1.start(animated: false)
 
@@ -235,7 +245,8 @@ class ActiveWalletViewTests: XCTestCase {
             currencyService: currencyService,
             tokenScriptOverridesFileManager: .fake(),
             networkService: FakeNetworkService(),
-            promptBackup: .make())
+            promptBackup: .make(),
+            caip10AccountProvidable: AnyCAIP10AccountProvidable.make())
 
         c1.start(animated: false)
 
@@ -291,7 +302,8 @@ class ActiveWalletViewTests: XCTestCase {
                 currencyService: currencyService,
                 tokenScriptOverridesFileManager: .fake(),
                 networkService: FakeNetworkService(),
-                promptBackup: .make())
+                promptBackup: .make(),
+                caip10AccountProvidable: AnyCAIP10AccountProvidable.make())
 
         coordinator.start(animated: false)
         coordinator.showPaymentFlow(
@@ -351,7 +363,8 @@ class ActiveWalletViewTests: XCTestCase {
             currencyService: currencyService,
             tokenScriptOverridesFileManager: .fake(),
             networkService: FakeNetworkService(),
-            promptBackup: .make())
+            promptBackup: .make(),
+            caip10AccountProvidable: AnyCAIP10AccountProvidable.make())
 
         coordinator.start(animated: false)
         coordinator.showPaymentFlow(for: .request, server: .main, navigationController: coordinator.navigationController)
@@ -408,7 +421,8 @@ class ActiveWalletViewTests: XCTestCase {
             currencyService: currencyService,
             tokenScriptOverridesFileManager: .fake(),
             networkService: FakeNetworkService(),
-            promptBackup: .make())
+            promptBackup: .make(),
+            caip10AccountProvidable: AnyCAIP10AccountProvidable.make())
         coordinator.start(animated: false)
 
         let viewController = (coordinator.tabBarController.selectedViewController as? UINavigationController)?.viewControllers[0]
@@ -484,7 +498,8 @@ class ActiveWalletViewTests: XCTestCase {
                     currencyService: currencyService,
                     tokenScriptOverridesFileManager: .fake(),
                     networkService: FakeNetworkService(),
-                    promptBackup: .make())
+                    promptBackup: .make(),
+                    caip10AccountProvidable: AnyCAIP10AccountProvidable.make())
 
             coordinator.start(animated: false)
 

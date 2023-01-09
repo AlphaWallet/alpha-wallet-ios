@@ -651,6 +651,7 @@
 "walletConnect.session.switchNetwork" = "Switch Network";
 "walletConnect.session.signedTransactions" = "Signed Transactions";
 "walletConnect.start" = "%@\n\nStart WalletConnect session on:";
+"walletConnect.failure.walletsNotFound" = "WalletConnect Wallet not found";
 "walletConnect.failure.title" = "WalletConnect Error";
 "walletConnect.failure.mustNotBeWatchedWallet" = "Request Rejected! Switch to non watched wallet";
 "walletConnect.sendRawTransaction.title" = "Send raw transaction";
@@ -661,6 +662,7 @@
 "walletConnect.connection.network.title" = "Network";
 "walletConnect.connection.networks.title" = "Networks";
 "walletConnect.connection.methods.title" = "Methods";
+"walletConnect.connection.events.title" = "Events";
 "walletConnect.connection.url.title" = "Connected To";
 "send.allFunds" = "All Funds";
 "copiedToClipboard" = "Copied to clipboard";

@@ -19,17 +19,17 @@ struct WalletConnectSessionsViewModelIOutput {
 }
 
 class WalletConnectSessionsViewModel {
-    private let provider: WalletConnectServerProviderType
+    private let walletConnectProvider: WalletConnectProvider
     private var cancelable = Set<AnyCancellable>()
     private let stateSubject: CurrentValueSubject<State, Never>
 
-    init(provider: WalletConnectServerProviderType, state: State = .sessions) {
-        self.provider = provider
+    init(walletConnectProvider: WalletConnectProvider, state: State = .sessions) {
+        self.walletConnectProvider = walletConnectProvider
         self.stateSubject = .init(state)
     }
 
     func transform(input: WalletConnectSessionsViewModelInput) -> WalletConnectSessionsViewModelIOutput {
-        let snapshot = provider.sessions
+        let snapshot = walletConnectProvider.sessionsPublisher
             .map { sessions -> Snapshot in
                 var snapshot = Snapshot()
                 snapshot.appendSections([.sessions])
