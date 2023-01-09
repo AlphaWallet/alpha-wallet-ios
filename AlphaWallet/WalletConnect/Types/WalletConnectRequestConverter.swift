@@ -16,7 +16,7 @@ struct WalletConnectRequestConverter {
         guard let server: RPCServer = request.server else {
             return .init(error: WalletConnectRequestConverter.sessionRequestRPCServerMissing)
         }
-        infoLog("WalletConnect convert request: \(request.method) url: \(request.description)")
+        infoLog("[WalletConnect] convert request: \(request.method) url: \(request.description)")
 
         let data: AlphaWallet.WalletConnect.Request
         do {
