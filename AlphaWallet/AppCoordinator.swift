@@ -494,16 +494,6 @@ class AppCoordinator: NSObject, Coordinator {
         addCoordinator(coordinator)
     }
 
-    private func createInitialWalletIfMissing() {
-        let coordinator = WalletCoordinator(
-            config: config,
-            keystore: keystore,
-            analytics: analytics,
-            domainResolutionService: domainResolutionService)
-
-        coordinator.createInitialWalletIfMissing()
-    }
-
     private func showActiveWalletIfNeeded() {
         if activeWalletCoordinator != nil {
             //no-op
@@ -519,7 +509,7 @@ class AppCoordinator: NSObject, Coordinator {
 
     /// Return true if handled
     @discardableResult private func handleUniversalLink(url: URL, source: UrlSource) -> Bool {
-        createInitialWalletIfMissing()
+        keystore.createWalletIfMissing()
         showActiveWalletIfNeeded()
 
         return universalLinkService.handleUniversalLink(url: url, source: source)

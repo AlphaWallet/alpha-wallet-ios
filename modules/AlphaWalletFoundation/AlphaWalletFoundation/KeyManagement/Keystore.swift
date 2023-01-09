@@ -30,3 +30,16 @@ public protocol Keystore {
     func signMessageBulk(_ data: [Data], for account: AlphaWallet.Address, prompt: String) -> Result<[Data], KeystoreError>
     func signMessageData(_ message: Data?, for account: AlphaWallet.Address, prompt: String) -> Result<Data, KeystoreError>
 }
+
+extension Keystore {
+    public mutating func createWalletIfMissing() {
+        if !hasWallets {
+            switch importWallet(type: .newWallet) {
+            case .success(let account):
+                recentlyUsedWallet = account
+            case .failure:
+                break //TODO handle initial wallet creation error. App can't be used!
+            }
+        }
+    }
+}
