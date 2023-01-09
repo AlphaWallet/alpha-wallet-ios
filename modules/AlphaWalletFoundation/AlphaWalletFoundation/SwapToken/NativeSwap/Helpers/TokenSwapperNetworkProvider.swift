@@ -31,27 +31,27 @@ public final class LiQuestTokenSwapperNetworkProvider: TokenSwapperNetworkProvid
     public func fetchSupportedTools() -> AnyPublisher<[SwapTool], SwapError> {
         networkService
             .dataTaskPublisher(ToolsRequest())
-            .tryMap { [decoder] data, _ -> [SwapTool] in
+            .mapError { SwapError.inner($0.unwrapped) }
+            .flatMap { [decoder] data, _ -> AnyPublisher<[SwapTool], SwapError> in
                 if let response: SwapToolsResponse = try? decoder.decode(SwapToolsResponse.self, from: data) {
-                    return response.tools
+                    return .just(response.tools)
                 } else {
-                    throw SwapError.invalidJson
+                    return .fail(SwapError.invalidJson)
                 }
-            }.mapError { LiQuestTokenSwapperNetworkProvider.mapToSwapError($0) }
-            .eraseToAnyPublisher()
+            }.eraseToAnyPublisher()
     }
 
     public func fetchSwapRoutes(fromToken: TokenToSwap, toToken: TokenToSwap, slippage: String, fromAmount: BigUInt, exchanges: [String]) -> AnyPublisher<[SwapRoute], SwapError> {
         return networkService
             .dataTaskPublisher(RoutesRequest(fromToken: fromToken, toToken: toToken, slippage: slippage, fromAmount: fromAmount, exchanges: exchanges))
-            .tryMap { [decoder] data, _ -> [SwapRoute] in
+            .mapError { SwapError.inner($0.unwrapped) }
+            .flatMap { [decoder] data, _ -> AnyPublisher<[SwapRoute], SwapError> in
                 if let response: SwapRouteReponse = try? decoder.decode(SwapRouteReponse.self, from: data) {
-                    return response.routes
+                    return .just(response.routes)
                 } else {
-                    throw SwapError.invalidJson
+                    return .fail(SwapError.invalidJson)
                 }
-            }.mapError { return LiQuestTokenSwapperNetworkProvider.mapToSwapError($0) }
-            .eraseToAnyPublisher()
+            }.eraseToAnyPublisher()
     }
 
     public func fetchSupportedChains() -> AnyPublisher<[RPCServer], PromiseError> {
@@ -80,24 +80,16 @@ public final class LiQuestTokenSwapperNetworkProvider: TokenSwapperNetworkProvid
     public func fetchSwapQuote(fromToken: TokenToSwap, toToken: TokenToSwap, wallet: AlphaWallet.Address, slippage: String, fromAmount: BigUInt, exchange: String) -> AnyPublisher<SwapQuote, SwapError> {
         return networkService
             .dataTaskPublisher(SwapQuoteRequest(fromToken: fromToken, toToken: toToken, wallet: wallet, slippage: slippage, fromAmount: fromAmount, exchange: exchange))
-            .tryMap { [decoder] data, _ -> SwapQuote in
+            .mapError { SwapError.inner($0.unwrapped) }
+            .flatMap { [decoder] data, _ -> AnyPublisher<SwapQuote, SwapError> in
                 if let swapQuote = try? decoder.decode(SwapQuote.self, from: data) {
-                    return swapQuote
+                    return .just(swapQuote)
                 } else if let error = try? decoder.decode(SwapQuote.Error.self, from: data) {
-                    throw SwapError.unableToBuildSwapUnsignedTransaction(message: error.message)
+                    return .fail(SwapError.unableToBuildSwapUnsignedTransaction(message: error.message))
                 } else {
-                    throw SwapError.unableToBuildSwapUnsignedTransactionFromSwapProvider
+                    return .fail(SwapError.unableToBuildSwapUnsignedTransactionFromSwapProvider)
                 }
-            }.mapError { LiQuestTokenSwapperNetworkProvider.mapToSwapError($0) }
-            .eraseToAnyPublisher()
-    }
-
-    private static func mapToSwapError(_ e: Error) -> SwapError {
-        if let error = e as? SwapError {
-            return error
-        } else {
-            return SwapError.unknownError
-        }
+            }.eraseToAnyPublisher()
     }
 }
 

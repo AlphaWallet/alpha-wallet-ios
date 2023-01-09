@@ -39,14 +39,19 @@ public final class ApproveSwapProvider {
     public func approveSwap(swapQuote: SwapQuote, fromAmount: BigUInt) {
         delegate?.changeState(in: self, state: .checkingForEnoughAllowance)
 
-        getErc20Allowance.hasEnoughAllowance(tokenAddress: swapQuote.action.fromToken.address, owner: configurator.session.account.address, spender: swapQuote.estimate.spender, amount: fromAmount)
-            .map { (swapQuote, $0.hasEnough, $0.shortOf) }
-        .then { swapQuote, isApproved, shortOf -> Promise<SwapQuote> in
+        firstly {
+            getErc20Allowance.hasEnoughAllowance(
+                tokenAddress: swapQuote.action.fromToken.address,
+                owner: configurator.session.account.address,
+                spender: swapQuote.estimate.spender,
+                amount: fromAmount)
+        }.map { (swapQuote, $0.hasEnough, $0.shortOf) }
+        .then { [configurator] swapQuote, isApproved, shortOf -> Promise<SwapQuote> in
             if isApproved {
                 return Promise.value(swapQuote)
             } else {
                 self.delegate?.changeState(in: self, state: .waitingForUsersAllowanceApprove)
-                return self.promptApproval(unsignedSwapTransaction: swapQuote.unsignedSwapTransaction, token: swapQuote.action.fromToken.address, server: self.configurator.server, owner: self.configurator.session.account.address, spender: swapQuote.estimate.spender, amount: shortOf).map { isApproved in
+                return self.promptApproval(unsignedSwapTransaction: swapQuote.unsignedSwapTransaction, token: swapQuote.action.fromToken.address, server: configurator.server, owner: configurator.session.account.address, spender: swapQuote.estimate.spender, amount: shortOf).map { isApproved in
                     if isApproved {
                         return swapQuote
                     } else {
@@ -62,16 +67,7 @@ public final class ApproveSwapProvider {
             strongSelf.delegate?.promptToSwap(unsignedTransaction: swapQuote.unsignedSwapTransaction, fromToken: fromToken, fromAmount: fromAmount, toToken: toToken, toAmount: swapQuote.estimate.toAmount, in: strongSelf)
         }.catch { error in
             infoLog("[Swap] Error while swapping. Error: \(error)")
-            if let _error = error as? SwapError {
-                switch _error {
-                case .unableToBuildSwapUnsignedTransaction, .unableToBuildSwapUnsignedTransactionFromSwapProvider, .userCancelledApproval, .approveTransactionNotCompleted, .tokenOrSwapQuoteNotFound:
-                    break
-                case .unknownError, .invalidJson:
-                    self.delegate?.didFailure(in: self, error: _error)
-                }
-            } else {
-                self.delegate?.didFailure(in: self, error: error)
-            }
+            self.delegate?.didFailure(in: self, error: error)
         }
     }
 
@@ -97,7 +93,7 @@ public final class ApproveSwapProvider {
                     switch error {
                     case .userCancelledApproval:
                         return .value(false)
-                    case .unableToBuildSwapUnsignedTransactionFromSwapProvider, .invalidJson, .unableToBuildSwapUnsignedTransaction, .approveTransactionNotCompleted, .unknownError, .tokenOrSwapQuoteNotFound:
+                    case .unableToBuildSwapUnsignedTransactionFromSwapProvider, .invalidJson, .unableToBuildSwapUnsignedTransaction, .approveTransactionNotCompleted, .unknownError, .tokenOrSwapQuoteNotFound, .inner:
                         throw error
                     }
                 }

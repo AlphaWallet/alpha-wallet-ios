@@ -16,6 +16,19 @@ public typealias APIKitSession = APIKit.Session
 public typealias SessionTaskError = APIKit.SessionTaskError
 public typealias JSONRPCError = JSONRPCKit.JSONRPCError
 
+extension SessionTaskError {
+    public var unwrapped: Error {
+        switch self {
+        case .connectionError(let e):
+            return e
+        case .requestError(let e):
+            return e
+        case .responseError(let e):
+            return e
+        }
+    }
+}
+
 public final class GetGasPrice {
     private let analytics: AnalyticsLogger
     private let server: RPCServer

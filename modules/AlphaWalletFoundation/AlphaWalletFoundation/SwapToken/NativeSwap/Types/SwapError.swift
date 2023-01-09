@@ -14,6 +14,7 @@ public enum SwapError: Error {
     case userCancelledApproval
     case approveTransactionNotCompleted
     case tokenOrSwapQuoteNotFound
+    case inner(Error)
     case unknownError
 
     public var localizedDescription: String {
@@ -32,6 +33,8 @@ public enum SwapError: Error {
             return "Unable To Build Swap Unsigned Transaction, Token Or Swap Quote Not Found"
         case .invalidJson:
             return "Invalid Json"
+        case .inner(let error):
+            return "\(error.localizedDescription)"
         }
     }
 }
@@ -42,7 +45,7 @@ extension Error {
         switch swapError {
         case .userCancelledApproval:
             return true
-        case .unableToBuildSwapUnsignedTransactionFromSwapProvider, .unableToBuildSwapUnsignedTransaction, .invalidJson, .approveTransactionNotCompleted, .tokenOrSwapQuoteNotFound, .unknownError:
+        case .unableToBuildSwapUnsignedTransactionFromSwapProvider, .unableToBuildSwapUnsignedTransaction, .invalidJson, .approveTransactionNotCompleted, .tokenOrSwapQuoteNotFound, .unknownError, .inner:
             return false
         }
     }
