@@ -2,6 +2,12 @@
 
 import Foundation
 
+public protocol SecuredPasswordStorage {
+    func password(forService service: String, account: String) -> String?
+    func setPasword(_ pasword: String, forService service: String, account: String)
+    func deletePasword(forService service: String, account: String)
+}
+
 public protocol Lock {
     var isPasscodeSet: Bool { get }
     var currentPasscode: String? { get }

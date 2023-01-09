@@ -11,7 +11,7 @@ import SAMKeychain
 import AlphaWalletFoundation
 import LocalAuthentication
 
-final class KeychainStorage: SecuredStorage, SecuredPasswordStorage {
+final class KeychainStorage: SecuredStorage {
     private let keychain: KeychainSwift
 
     init(keyPrefix: String = Constants.keychainKeyPrefix) throws {
@@ -23,7 +23,7 @@ final class KeychainStorage: SecuredStorage, SecuredPasswordStorage {
             throw EtherKeystoreError.protectionDisabled
         }
     }
-    
+
     var hasUserCancelledLastAccess: Bool {
         return keychain.lastResultCode == errSecUserCanceled
     }
@@ -51,7 +51,9 @@ final class KeychainStorage: SecuredStorage, SecuredPasswordStorage {
     func delete(_ key: String) -> Bool {
         return keychain.delete(key)
     }
+}
 
+extension KeychainStorage: SecuredPasswordStorage {
     func password(forService service: String, account: String) -> String? {
         return SAMKeychain.password(forService: service, account: account)
     }

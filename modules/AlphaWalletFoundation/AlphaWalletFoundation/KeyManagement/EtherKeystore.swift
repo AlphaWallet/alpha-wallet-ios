@@ -50,12 +50,6 @@ public enum AccessOptions {
     case accessibleAlwaysThisDeviceOnly
 }
 
-public protocol SecuredPasswordStorage {
-    func password(forService service: String, account: String) -> String?
-    func setPasword(_ pasword: String, forService service: String, account: String)
-    func deletePasword(forService service: String, account: String)
-}
-
 public protocol SecuredStorage {
     var hasUserCancelledLastAccess: Bool { get }
     var isDataNotFoundForLastAccess: Bool { get }
