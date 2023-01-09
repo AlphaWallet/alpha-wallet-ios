@@ -10,13 +10,6 @@ public enum EtherKeystoreError: LocalizedError {
     case protectionDisabled
 }
 
-public enum SignMessageType {
-    case message(Data)
-    case personalMessage(Data)
-    case typedMessage([EthTypedData])
-    case eip712v3And4(EIP712TypedData)
-}
-
 extension String {
     public var asSignableMessageData: Data {
         if self.hasPrefix("0x") {
