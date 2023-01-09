@@ -564,9 +564,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     }
 
     func addImported(contract: AlphaWallet.Address, forServer server: RPCServer) {
-        //Useful to check because we are/might action-only TokenScripts for native crypto currency
-        guard contract != Constants.nativeCryptoAddressInDatabase else { return }
-
         importToken.importToken(for: contract, server: server, onlyIfThereIsABalance: false)
             .done { _ in }
             .catch { error in
