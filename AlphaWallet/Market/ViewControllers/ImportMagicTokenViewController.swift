@@ -9,11 +9,6 @@ protocol ImportMagicTokenViewControllerDelegate: AnyObject, CanOpenURL {
 }
 
 class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableStatusViewController {
-    enum State {
-        case ready(ImportMagicTokenViewControllerViewModel)
-        case notReady
-    }
-
     private let analytics: AnalyticsLogger
     lazy private var tokenCardRowView = TokenCardRowView(analytics: analytics, server: session.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: session.account)
     private let statusLabel = UILabel()
@@ -30,7 +25,7 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
     private let dollarCostLabelLabel = UILabel()
     private let dollarCostLabel = PaddedLabel()
     private let buttonsBar = HorizontalButtonsBar(configuration: .custom(types: [.primary, .secondary]))
-    private var viewModel: ImportMagicTokenViewControllerViewModel?
+    private (set) var viewModel: ImportMagicTokenViewControllerViewModel
 
     let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: ImportMagicTokenViewControllerDelegate?
@@ -43,16 +38,7 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
     }
     var server: RPCServer { session.server }
     var url: URL? {
-        didSet {
-            updateNavigationRightBarButtons(withTokenScriptFileStatus: nil, hasShowInfoButton: false)
-        }
-    }
-    var state: State {
-        if let viewModel = viewModel {
-            return .ready(viewModel)
-        } else {
-            return .notReady
-        }
+        didSet { updateNavigationRightBarButtons(withTokenScriptFileStatus: nil, hasShowInfoButton: false) }
     }
     private let keystore: Keystore
     private let session: WalletSession
@@ -64,11 +50,18 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
         return containerView
     }()
 
-    init(analytics: AnalyticsLogger, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore, session: WalletSession) {
+    init(analytics: AnalyticsLogger,
+         assetDefinitionStore: AssetDefinitionStore,
+         keystore: Keystore,
+         session: WalletSession,
+         viewModel: ImportMagicTokenViewControllerViewModel) {
+
+        self.viewModel = viewModel
         self.analytics = analytics
         self.assetDefinitionStore = assetDefinitionStore
         self.keystore = keystore
         self.session = session
+
         super.init(nibName: nil, bundle: nil)
 
         tokenCardRowView.translatesAutoresizingMaskIntoConstraints = false
@@ -128,6 +121,7 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
 
             footerBar.anchorsConstraint(to: view),
         ])
+        configure(viewModel: viewModel)
     }
 
     override func viewDidLoad() {
@@ -142,68 +136,66 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
 
     func configure(viewModel: ImportMagicTokenViewControllerViewModel) {
         self.viewModel = viewModel
-        if let viewModel = self.viewModel {
-            navigationItem.title = viewModel.headerTitle
+        navigationItem.title = viewModel.headerTitle
 
-            tokenCardRowView.configure(viewModel: ImportMagicTokenCardRowViewModel(importMagicTokenViewControllerViewModel: viewModel, assetDefinitionStore: assetDefinitionStore))
+        tokenCardRowView.configure(viewModel: ImportMagicTokenCardRowViewModel(importMagicTokenViewControllerViewModel: viewModel, assetDefinitionStore: assetDefinitionStore))
 
-            tokenCardRowView.isHidden = !viewModel.showTokenRow
-            tokenCardRowView.stateLabel.isHidden = true
+        tokenCardRowView.isHidden = !viewModel.showTokenRow
+        tokenCardRowView.stateLabel.isHidden = true
 
-            statusLabel.textColor = viewModel.statusColor
-            statusLabel.font = viewModel.statusFont
-            statusLabel.textAlignment = .center
-            statusLabel.text = viewModel.statusText
-            statusLabel.numberOfLines = 0
+        statusLabel.textColor = viewModel.statusColor
+        statusLabel.font = viewModel.statusFont
+        statusLabel.textAlignment = .center
+        statusLabel.text = viewModel.statusText
+        statusLabel.numberOfLines = 0
 
-            costStackView.isHidden = !viewModel.showCost
+        costStackView.isHidden = !viewModel.showCost
 
-            ethCostLabelLabel.textColor = viewModel.ethCostLabelLabelColor
-            ethCostLabelLabel.font = viewModel.ethCostLabelLabelFont
-            ethCostLabelLabel.textAlignment = .center
-            ethCostLabelLabel.text = viewModel.ethCostLabelLabelText
+        ethCostLabelLabel.textColor = viewModel.ethCostLabelLabelColor
+        ethCostLabelLabel.font = viewModel.ethCostLabelLabelFont
+        ethCostLabelLabel.textAlignment = .center
+        ethCostLabelLabel.text = viewModel.ethCostLabelLabelText
 
-            ethCostLabel.textColor = viewModel.ethCostLabelColor
-            ethCostLabel.font = viewModel.ethCostLabelFont
-            ethCostLabel.textAlignment = .center
-            ethCostLabel.text = viewModel.ethCostLabelText
+        ethCostLabel.textColor = viewModel.ethCostLabelColor
+        ethCostLabel.font = viewModel.ethCostLabelFont
+        ethCostLabel.textAlignment = .center
+        ethCostLabel.text = viewModel.ethCostLabelText
 
-            dollarCostLabelLabel.textColor = viewModel.dollarCostLabelLabelColor
-            dollarCostLabelLabel.font = viewModel.dollarCostLabelLabelFont
-            dollarCostLabelLabel.textAlignment = .center
-            dollarCostLabelLabel.text = viewModel.dollarCostLabelLabelText
-            dollarCostLabelLabel.isHidden = viewModel.hideDollarCost
+        dollarCostLabelLabel.textColor = viewModel.dollarCostLabelLabelColor
+        dollarCostLabelLabel.font = viewModel.dollarCostLabelLabelFont
+        dollarCostLabelLabel.textAlignment = .center
+        dollarCostLabelLabel.text = viewModel.dollarCostLabelLabelText
+        dollarCostLabelLabel.isHidden = viewModel.hideDollarCost
 
-            dollarCostLabel.textColor = viewModel.dollarCostLabelColor
-            dollarCostLabel.font = viewModel.dollarCostLabelFont
-            dollarCostLabel.textAlignment = .center
-            dollarCostLabel.text = viewModel.dollarCostLabelText
-            dollarCostLabel.backgroundColor = viewModel.dollarCostLabelBackgroundColor
-            dollarCostLabel.layer.masksToBounds = true
-            dollarCostLabel.isHidden = viewModel.hideDollarCost
+        dollarCostLabel.textColor = viewModel.dollarCostLabelColor
+        dollarCostLabel.font = viewModel.dollarCostLabelFont
+        dollarCostLabel.textAlignment = .center
+        dollarCostLabel.text = viewModel.dollarCostLabelText
+        dollarCostLabel.backgroundColor = viewModel.dollarCostLabelBackgroundColor
+        dollarCostLabel.layer.masksToBounds = true
+        dollarCostLabel.isHidden = viewModel.hideDollarCost
 
-            activityIndicator.color = viewModel.activityIndicatorColor
+        activityIndicator.color = viewModel.activityIndicatorColor
 
-            if viewModel.showActivityIndicator {
-                activityIndicator.startAnimating()
-            } else {
-                activityIndicator.stopAnimating()
-            }
-
-            buttonsBar.configure()
-
-            let actionButton = buttonsBar.buttons[0]
-            actionButton.setTitle(viewModel.actionButtonTitle, for: .normal)
-            actionButton.addTarget(self, action: #selector(actionTapped), for: .touchUpInside)
-
-            let cancelButton = buttonsBar.buttons[1]
-            cancelButton.setTitle(viewModel.cancelButtonTitle, for: .normal)
-            cancelButton.addTarget(self, action: #selector(cancel), for: .touchUpInside)
-
-            actionButton.isHidden = !viewModel.showActionButton
-
-            updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus, hasShowInfoButton: false)
+        if viewModel.showActivityIndicator {
+            activityIndicator.startAnimating()
+        } else {
+            activityIndicator.stopAnimating()
         }
+
+        buttonsBar.configure()
+
+        let actionButton = buttonsBar.buttons[0]
+        actionButton.setTitle(viewModel.actionButtonTitle, for: .normal)
+        actionButton.addTarget(self, action: #selector(actionTapped), for: .touchUpInside)
+
+        let cancelButton = buttonsBar.buttons[1]
+        cancelButton.setTitle(viewModel.cancelButtonTitle, for: .normal)
+        cancelButton.addTarget(self, action: #selector(cancel), for: .touchUpInside)
+
+        actionButton.isHidden = !viewModel.showActionButton
+
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus, hasShowInfoButton: false)
     }
 
     @objc private func actionTapped() {
