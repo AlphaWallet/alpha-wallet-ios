@@ -99,7 +99,6 @@ open class EtherKeystore: NSObject, Keystore {
         case otherFailure
     }
 
-    private let emptyPassphrase = ""
     private let keychain: SecuredStorage
     private let defaultKeychainAccessUserPresenceRequired: AccessOptions = .accessibleWhenUnlockedThisDeviceOnly(userPresenceRequired: true)
     private let defaultKeychainAccessUserPresenceNotRequired: AccessOptions = .accessibleWhenUnlockedThisDeviceOnly(userPresenceRequired: false)
@@ -155,7 +154,7 @@ open class EtherKeystore: NSObject, Keystore {
                 walletAddressesStore: WalletAddressesStore,
                 analytics: AnalyticsLogger,
                 legacyFileBasedKeystore: LegacyFileBasedKeystore) {
-        
+
         self.keychain = keychain
         self.analytics = analytics
         self.walletAddressesStore = walletAddressesStore
@@ -171,11 +170,11 @@ open class EtherKeystore: NSObject, Keystore {
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             guard let strongSelf = self else { return }
 
-            let mnemonicString = strongSelf.generateMnemonic(seedPhraseCount: .word12, passphrase: strongSelf.emptyPassphrase)
+            let mnemonicString = functional.generateMnemonic(seedPhraseCount: .word12, passphrase: functional.emptyPassphrase)
             let mnemonic = mnemonicString.split(separator: " ").map { String($0) }
 
             DispatchQueue.main.async {
-                let result = strongSelf.importWallet(type: .mnemonic(words: mnemonic, password: strongSelf.emptyPassphrase))
+                let result = strongSelf.importWallet(type: .mnemonic(words: mnemonic, password: functional.emptyPassphrase))
                 switch result {
                 case .success(let wallet):
                     completion(.success(wallet))
@@ -219,10 +218,10 @@ open class EtherKeystore: NSObject, Keystore {
             return .success(wallet)
         case .mnemonic(let mnemonic, _):
             let mnemonicString = mnemonic.joined(separator: " ")
-            let mnemonicIsGood = doesSeedMatchWalletAddress(mnemonic: mnemonicString)
+            let mnemonicIsGood = functional.doesSeedMatchWalletAddress(mnemonic: mnemonicString)
             guard mnemonicIsGood else { return .failure(.failedToCreateWallet) }
-            guard let hdWallet = HDWallet(mnemonic: mnemonicString, passphrase: emptyPassphrase) else { return .failure(.failedToCreateWallet) }
-            let privateKey = derivePrivateKeyOfAccount0(fromHdWallet: hdWallet)
+            guard let hdWallet = HDWallet(mnemonic: mnemonicString, passphrase: functional.emptyPassphrase) else { return .failure(.failedToCreateWallet) }
+            let privateKey = functional.derivePrivateKeyOfAccount0(fromHdWallet: hdWallet)
             guard let address = AlphaWallet.Address(fromPrivateKey: privateKey) else { return .failure(.failedToCreateWallet) }
             guard !isAddressAlreadyInWalletsList(address: address) else {
                 return .failure(.duplicateAccount)
@@ -251,51 +250,11 @@ open class EtherKeystore: NSObject, Keystore {
 
             return .success(wallet)
         case .new(let seedPhraseCount, let passphrase):
-            let mnemonicString = generateMnemonic(seedPhraseCount: seedPhraseCount, passphrase: passphrase)
+            let mnemonicString = functional.generateMnemonic(seedPhraseCount: seedPhraseCount, passphrase: passphrase)
             let mnemonic = mnemonicString.split(separator: " ").map { String($0) }
 
-            return importWallet(type: .mnemonic(words: mnemonic, password: emptyPassphrase))
+            return importWallet(type: .mnemonic(words: mnemonic, password: functional.emptyPassphrase))
         }
-    }
-
-    private func generateMnemonic(seedPhraseCount: HDWallet.SeedPhraseCount, passphrase: String) -> String {
-        repeat {
-            if let newHdWallet = HDWallet(strength: seedPhraseCount.strength, passphrase: passphrase) {
-                let mnemonicIsGood = doesSeedMatchWalletAddress(mnemonic: newHdWallet.mnemonic)
-                if mnemonicIsGood {
-                    return newHdWallet.mnemonic
-                }
-            } else {
-                continue
-            }
-        } while true
-    }
-
-    //Defensive check. Make sure mnemonic is OK and signs data correctly
-    private func doesSeedMatchWalletAddress(mnemonic: String) -> Bool {
-        guard let wallet = HDWallet(mnemonic: mnemonic, passphrase: emptyPassphrase) else { return false }
-        guard wallet.mnemonic == mnemonic else { return false }
-        guard let walletWhenImported = HDWallet(entropy: wallet.entropy, passphrase: emptyPassphrase) else { return false }
-        //If seed phrase has a typo, the typo will be dropped and "abandon" added as the first word, deriving a different mnemonic silently. We don't want that to happen!
-
-        guard walletWhenImported.mnemonic == mnemonic else { return false }
-        let privateKey = derivePrivateKeyOfAccount0(fromHdWallet: walletWhenImported)
-        guard let address = AlphaWallet.Address(fromPrivateKey: privateKey) else { return false }
-        let testData = "any data will do here"
-        let hash = testData.data(using: .utf8)!.sha3(.keccak256)
-        //Do not use EthereumSigner.vitaliklizeConstant because the ECRecover implementation doesn't include it
-        guard let signature = try? EthereumSigner().sign(hash: hash, withPrivateKey: privateKey) else { return false }
-        guard let recoveredAddress = Web3.Utils.hashECRecover(hash: hash, signature: signature) else { return false }
-        //Make sure the wallet address (recoveredAddress) is what we think it is (address)
-        return address.sameContract(as: recoveredAddress.address)
-    }
-
-    private func derivePrivateKeyOfAccount0(fromHdWallet wallet: HDWallet) -> Data {
-        let firstAccountIndex = UInt32(0)
-        let externalChangeConstant = UInt32(0)
-        let addressIndex = UInt32(0)
-        let privateKey = wallet.getDerivedKey(coin: .ethereum, account: firstAccountIndex, change: externalChangeConstant, address: addressIndex)
-        return privateKey.data
     }
 
     public func exportRawPrivateKeyForNonHdWalletForBackup(forAccount account: AlphaWallet.Address, prompt: String, newPassword: String) -> AnyPublisher<Result<String, KeystoreError>, Never> {
@@ -565,8 +524,8 @@ open class EtherKeystore: NSObject, Keystore {
         let seedResult = getSeedForHdWallet(forAccount: account, prompt: prompt, context: createContext(), withUserPresence: withUserPresence)
         switch seedResult {
         case .seed(let seed):
-            if let wallet = HDWallet(seed: seed, passphrase: emptyPassphrase) {
-                let privateKey = derivePrivateKeyOfAccount0(fromHdWallet: wallet)
+            if let wallet = HDWallet(seed: seed, passphrase: functional.emptyPassphrase) {
+                let privateKey = functional.derivePrivateKeyOfAccount0(fromHdWallet: wallet)
                 return .key(privateKey)
             } else {
                 return .otherFailure
@@ -621,7 +580,7 @@ open class EtherKeystore: NSObject, Keystore {
         let seedOrKey = getSeedForHdWallet(forAccount: account, prompt: prompt, context: context, withUserPresence: withUserPresence)
         switch seedOrKey {
         case .seed(let seed):
-            if let wallet = HDWallet(seed: seed, passphrase: emptyPassphrase) {
+            if let wallet = HDWallet(seed: seed, passphrase: functional.emptyPassphrase) {
                 return .seedPhrase(wallet.mnemonic)
             } else {
                 return .otherFailure
@@ -815,3 +774,51 @@ open class EtherKeystore: NSObject, Keystore {
     }
 }
 // swiftlint:enable type_body_length
+
+extension EtherKeystore {
+    enum functional {}
+}
+
+extension EtherKeystore.functional {
+    static fileprivate var emptyPassphrase = ""
+
+    static fileprivate func generateMnemonic(seedPhraseCount: HDWallet.SeedPhraseCount, passphrase: String) -> String {
+        repeat {
+            if let newHdWallet = HDWallet(strength: seedPhraseCount.strength, passphrase: passphrase) {
+                let mnemonicIsGood = doesSeedMatchWalletAddress(mnemonic: newHdWallet.mnemonic)
+                if mnemonicIsGood {
+                    return newHdWallet.mnemonic
+                }
+            } else {
+                continue
+            }
+        } while true
+    }
+
+    //Defensive check. Make sure mnemonic is OK and signs data correctly
+    static fileprivate func doesSeedMatchWalletAddress(mnemonic: String) -> Bool {
+        guard let wallet = HDWallet(mnemonic: mnemonic, passphrase: emptyPassphrase) else { return false }
+        guard wallet.mnemonic == mnemonic else { return false }
+        guard let walletWhenImported = HDWallet(entropy: wallet.entropy, passphrase: emptyPassphrase) else { return false }
+        //If seed phrase has a typo, the typo will be dropped and "abandon" added as the first word, deriving a different mnemonic silently. We don't want that to happen!
+
+        guard walletWhenImported.mnemonic == mnemonic else { return false }
+        let privateKey = derivePrivateKeyOfAccount0(fromHdWallet: walletWhenImported)
+        guard let address = AlphaWallet.Address(fromPrivateKey: privateKey) else { return false }
+        let testData = "any data will do here"
+        let hash = testData.data(using: .utf8)!.sha3(.keccak256)
+        //Do not use EthereumSigner.vitaliklizeConstant because the ECRecover implementation doesn't include it
+        guard let signature = try? EthereumSigner().sign(hash: hash, withPrivateKey: privateKey) else { return false }
+        guard let recoveredAddress = Web3.Utils.hashECRecover(hash: hash, signature: signature) else { return false }
+        //Make sure the wallet address (recoveredAddress) is what we think it is (address)
+        return address.sameContract(as: recoveredAddress.address)
+    }
+
+    static fileprivate func derivePrivateKeyOfAccount0(fromHdWallet wallet: HDWallet) -> Data {
+        let firstAccountIndex = UInt32(0)
+        let externalChangeConstant = UInt32(0)
+        let addressIndex = UInt32(0)
+        let privateKey = wallet.getDerivedKey(coin: .ethereum, account: firstAccountIndex, change: externalChangeConstant, address: addressIndex)
+        return privateKey.data
+    }
+}
