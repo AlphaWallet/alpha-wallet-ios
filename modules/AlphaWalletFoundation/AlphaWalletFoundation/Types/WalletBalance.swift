@@ -70,7 +70,7 @@ extension Balance: CustomStringConvertible {
 
 extension WalletBalance: Hashable {
     public static func == (lhs: WalletBalance, rhs: WalletBalance) -> Bool {
-        return lhs.wallet.address.sameContract(as: rhs.wallet.address) && lhs.totalAmount == rhs.totalAmount && lhs.change == rhs.change
+        return lhs.wallet.address == rhs.wallet.address && lhs.totalAmount == rhs.totalAmount && lhs.change == rhs.change
     }
 }
 

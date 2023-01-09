@@ -157,7 +157,7 @@ public class TokensFilter {
 
     public func filterTokens(tokens: [PopularToken], walletTokens: [TokenViewModel], filter: WalletFilter) -> [PopularToken] {
         var filteredTokens: [PopularToken] = tokens.filter { token in
-            !walletTokens.contains(where: { $0.contractAddress.sameContract(as: token.contractAddress) }) && !token.name.isEmpty
+            !walletTokens.contains(where: { $0.contractAddress == token.contractAddress }) && !token.name.isEmpty
         }
 
         switch filter {

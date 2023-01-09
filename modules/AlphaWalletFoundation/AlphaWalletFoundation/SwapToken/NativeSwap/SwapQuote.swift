@@ -78,7 +78,7 @@ extension SwapQuote.Action: Decodable {
 
 extension SwapQuote.Token {
     public static func == (lhs: SwapQuote.Token, rhs: TokenToSwap) -> Bool {
-        return lhs.address.sameContract(as: rhs.address) && lhs.chainId == rhs.server.chainID
+        return lhs.address == rhs.address && lhs.chainId == rhs.server.chainID
     }
 }
 

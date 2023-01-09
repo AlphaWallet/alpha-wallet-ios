@@ -230,7 +230,7 @@ public final class SwapOptionsConfigurator {
         do {
             let tokens = try supportedTokens(forServer: server)
             let token = try firstSupportedFromToken(forServer: server, tokens: tokens)
-            if isInitialServerValidation && !swapPair.from.contractAddress.sameContract(as: token.contractAddress) {
+            if isInitialServerValidation && swapPair.from.contractAddress != token.contractAddress {
                 let _ = try firstSupportedFromToken(forServer: server, tokens: [swapPair.from])
                 //NOTE: no changes needed as current swapPair.from supports
             } else {

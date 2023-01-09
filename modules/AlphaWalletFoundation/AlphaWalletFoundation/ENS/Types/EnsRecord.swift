@@ -45,7 +45,7 @@ extension EnsRecord.Value: Equatable {
         case (.ens(let e1), .ens(let e2)):
             return e1 == e2
         case (.address(let a1), .address(let a2)):
-            return a1.sameContract(as: a2)
+            return a1 == a2
         default:
             return false
         }

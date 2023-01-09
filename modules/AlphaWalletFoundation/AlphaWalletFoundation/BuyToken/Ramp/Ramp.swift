@@ -58,7 +58,7 @@ public final class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType 
         func isAssetMatchesForToken(token: TokenActionsIdentifiable, asset: Asset) -> Bool {
             return asset.symbol.lowercased() == token.symbol.trimmingCharacters(in: .controlCharacters).lowercased()
                     && asset.decimals == token.decimals
-                    && (asset.address == nil ? token.contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) : asset.address!.sameContract(as: token.contractAddress))
+                    && (asset.address == nil ? token.contractAddress == Constants.nativeCryptoAddressInDatabase : asset.address! == token.contractAddress)
         }
 
         guard !token.server.isTestnet else { return nil }

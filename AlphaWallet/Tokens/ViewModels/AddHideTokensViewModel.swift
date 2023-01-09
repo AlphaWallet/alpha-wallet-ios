@@ -184,7 +184,7 @@ final class AddHideTokensViewModel {
         switch sections[indexPath.section] {
         case .displayedTokens:
             let token = displayedTokens[indexPath.row]
-            guard token.contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) else { return .delete }
+            guard token.contractAddress == Constants.nativeCryptoAddressInDatabase else { return .delete }
             return .none
         case .availableNewTokens, .popularTokens, .hiddenTokens:
             return .insert

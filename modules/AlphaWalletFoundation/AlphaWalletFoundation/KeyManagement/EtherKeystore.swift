@@ -187,7 +187,7 @@ open class EtherKeystore: NSObject, Keystore {
     }
 
     private func isAddressAlreadyInWalletsList(address: AlphaWallet.Address) -> Bool {
-        return wallets.map({ $0.address }).contains { $0.sameContract(as: address) }
+        return wallets.map({ $0.address }).contains(address)
     }
 
     public func importWallet(type: ImportType) -> Result<Wallet, KeystoreError> {

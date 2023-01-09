@@ -82,10 +82,6 @@ extension AlphaWallet {
         public func sameContract(as contract: String) -> Bool {
             return eip55String.drop0x.lowercased() == contract.drop0x.lowercased()
         }
-
-        public func sameContract(as contract: AlphaWallet.Address) -> Bool {
-            return eip55String == contract.eip55String
-        }
     }
 }
 

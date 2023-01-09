@@ -18,7 +18,7 @@ extension UniswapERC20Token {
     static func isSupport(token: TokenActionsIdentifiable) -> Bool {
         switch token.server.serverWithEnhancedSupport {
         case .main:
-            return availableTokens.contains(where: { $0.contract.sameContract(as: token.contractAddress) })
+            return availableTokens.contains(where: { $0.contract == token.contractAddress })
         case .xDai, .polygon, .binance_smart_chain, .heco, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, .rinkeby, nil:
             return false
         }

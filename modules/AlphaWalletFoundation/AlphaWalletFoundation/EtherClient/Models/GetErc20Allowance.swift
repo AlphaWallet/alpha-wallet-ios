@@ -18,7 +18,7 @@ class GetErc20Allowance {
     }
 
     public func hasEnoughAllowance(tokenAddress: AlphaWallet.Address, owner: AlphaWallet.Address, spender: AlphaWallet.Address, amount: BigUInt) -> Promise<(hasEnough: Bool, shortOf: BigUInt)> {
-        if tokenAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
+        if tokenAddress == Constants.nativeCryptoAddressInDatabase {
             return .value((true, 0))
         }
 

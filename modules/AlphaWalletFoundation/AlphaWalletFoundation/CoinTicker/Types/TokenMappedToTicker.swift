@@ -56,6 +56,6 @@ extension TokenMappedToTicker: Equatable {
 
     /// Checks for matching of ticker id
     public static func == (lhs: TokenMappedToTicker, rhs: AddressAndRPCServer) -> Bool {
-        return lhs.contractAddress.sameContract(as: rhs.address) && lhs.server == rhs.server
+        return lhs.contractAddress == rhs.address && lhs.server == rhs.server
     }
 }
