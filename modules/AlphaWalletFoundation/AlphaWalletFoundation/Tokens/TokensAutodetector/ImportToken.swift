@@ -53,6 +53,7 @@ public final class ContractDataFetcher: ContractDataFetchable {
 
 final public class ImportToken: TokenImportable, TokenOrContractFetchable {
     enum ImportTokenError: Error {
+        case nativeCryptoNotSupported
         case serverIsDisabled
         case zeroBalanceDetected
         case `internal`(error: Error)
@@ -76,6 +77,11 @@ final public class ImportToken: TokenImportable, TokenOrContractFetchable {
         firstly {
             .value(server)
         }.then(on: queue, { [queue, tokensDataStore] server -> Promise<Token> in
+            //Useful to check because we are/might action-only TokenScripts for native crypto currency
+            guard contract != Constants.nativeCryptoAddressInDatabase else {
+                return .init(error: ImportTokenError.nativeCryptoNotSupported)
+            }
+            
             if let token = tokensDataStore.token(forContract: contract, server: server) {
                 return .value(token)
             } else {
