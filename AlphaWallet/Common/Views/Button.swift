@@ -88,7 +88,7 @@ enum ButtonStyle {
 
     var borderColor: UIColor {
         switch self {
-        case .solid, .squared, .border: return Colors.alabaster
+        case .solid, .squared, .border: return Configuration.Color.Semantic.defaultButtonBorder
         case .borderless, .system, .special: return .clear
         case .green: return ButtonsBarViewModel.primaryButton.buttonBorderColor
         }
