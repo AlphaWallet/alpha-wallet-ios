@@ -564,11 +564,13 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     }
 
     func addImported(contract: AlphaWallet.Address, forServer server: RPCServer) {
-        importToken.importToken(for: contract, server: server, onlyIfThereIsABalance: false)
-            .done { _ in }
-            .catch { error in
+        importToken
+            .importTokenPublisher(for: contract, server: server, onlyIfThereIsABalance: false)
+            .sink(receiveCompletion: { result in
+                guard case .failure(let error) = result else { return }
                 debugLog("Error while adding imported token contract: \(contract.eip55String) server: \(server) wallet: \(self.wallet.address.eip55String) error: \(error)")
-            }
+            }, receiveValue: { _ in })
+            .store(in: &cancelable)
     }
 
     func show(error: Error) {

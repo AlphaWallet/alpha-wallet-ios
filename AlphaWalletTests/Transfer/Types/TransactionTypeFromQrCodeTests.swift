@@ -28,8 +28,7 @@ class ImportTokenTests: XCTestCase {
         XCTAssertNil(tokensDataStore.token(forContract: address, server: server), "Initially token is nil")
 
         let expectation = self.expectation(description: "did resolve erc20 token")
-        importToken.importToken(for: address, server: server)
-            .publisher
+        importToken.importTokenPublisher(for: address, server: server)
             .sink(receiveCompletion: { _ in
                 expectation.fulfill()
             }, receiveValue: { token in
@@ -54,8 +53,7 @@ class ImportTokenTests: XCTestCase {
         let expectation = self.expectation(description: "did resolve erc20 token")
         expectation.isInverted = true
 
-        importToken.importToken(for: address, server: server)
-            .publisher
+        importToken.importTokenPublisher(for: address, server: server)
             .sink(receiveCompletion: { _ in
                 expectation.fulfill()
             }, receiveValue: { _ in
@@ -79,8 +77,7 @@ class ImportTokenTests: XCTestCase {
         let expectation = self.expectation(description: "did resolve erc20 token")
         contractDataFetcher.contractData[.init(address: address, server: server)] = .fungibleTokenComplete(name: "erc20", symbol: "erc20", decimals: 6, value: .init("1"), tokenType: .erc20)
 
-        importToken.importToken(for: address, server: server)
-            .publisher
+        importToken.importTokenPublisher(for: address, server: server)
             .sink(receiveCompletion: { _ in
                 expectation.fulfill()
             }, receiveValue: { token in
@@ -112,12 +109,22 @@ class TransactionTypeFromQrCodeTests: XCTestCase {
 
         let etherToken = Token(contract: Constants.nativeCryptoAddressInDatabase, server: .main, name: "Ether", symbol: "eth", decimals: 18, type: .nativeCryptocurrency)
         //NOTE: make sure we have a eth token, base impl resolves it automatically, for test does it manually
-        tokensDataStore.addOrUpdate(with: [.init(etherToken)])
+        tokensDataStore.addOrUpdate(with: [
+            .init(etherToken)
+        ])
 
         provider.buildTransactionType(qrCode: qrCode)
             .sink { result in
-                guard case .success(let transactionType) = result else { fatalError() }
-                guard case .nativeCryptocurrency(let token, let destination, let amount) = transactionType else { fatalError() }
+                guard case .success(let transactionType) = result else {
+                    XCTFail("failure as resolved: \(result)")
+                    expectation.fulfill()
+                    return
+                }
+                guard case .nativeCryptocurrency(let token, let destination, let amount) = transactionType else {
+                    XCTFail("failure as resolved: \(transactionType)")
+                    expectation.fulfill()
+                    return
+                }
                 XCTAssertEqual(token, etherToken)
                 XCTAssertNotNil(destination)
                 XCTAssertNotNil(amount)
@@ -137,6 +144,7 @@ class TransactionTypeFromQrCodeTests: XCTestCase {
         let erc20Token = Token(contract: .init(string: "0x89205a3a3b2a69de6dbf7f01ed13b2108b2c43e7")!, server: .main, name: "erc20", symbol: "erc20", decimals: 6, type: .erc20)
         //NOTE: make sure we have a eth token, base impl resolves it automatically, for test does it manually
         tokensDataStore.addOrUpdate(with: [.init(erc20Token)])
+
 
         transactionTypeSupportable.transactionType = .erc20Token(erc20Token, destination: nil, amount: .notSet)
 

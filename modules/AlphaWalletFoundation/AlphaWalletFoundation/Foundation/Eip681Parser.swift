@@ -63,7 +63,7 @@ public struct Eip681Parser {
     private let decimalParser = DecimalParser()
 
     //https://github.com/ethereum/EIPs/blob/master/EIPS/eip-681.md
-    public func parse() -> Promise<Eip681Type> {
+    public func parse() -> Eip681Type {
         let chainId = params["chainId"].flatMap { Int($0) }
         if functionName == "transfer", let contract = address.contract {
             let recipient = params["address"].flatMap({ AddressOrEnsName(string: $0) })
@@ -76,7 +76,7 @@ public struct Eip681Parser {
             } else {
                 amount = ""
             }
-            return .value(.erc20Send(contract: contract, server: chainId.flatMap { .init(chainID: $0) }, recipient: recipient, amount: .uint256(amount, eNotation: eNotation)))
+            return .erc20Send(contract: contract, server: chainId.flatMap { .init(chainID: $0) }, recipient: recipient, amount: .uint256(amount, eNotation: eNotation))
         } else if functionName == nil {
             //TODO UNITS is either optional or "ETH" for native crypto sends. If it's not provided, we treat it as something like 3.14e18, but it also can be like 1
             let amount: String
@@ -85,9 +85,9 @@ public struct Eip681Parser {
             } else {
                 amount = ""
             }
-            return .value(.nativeCryptoSend(server: chainId.flatMap { .init(chainID: $0) }, recipient: address, amount: .ether(amount)))
+            return .nativeCryptoSend(server: chainId.flatMap { .init(chainID: $0) }, recipient: address, amount: .ether(amount))
         } else {
-            return .value(.invalidOrNotSupported)
+            return .invalidOrNotSupported
         }
     }
 

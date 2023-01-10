@@ -28,47 +28,43 @@ public final class Eip681UrlResolver {
         self.missingRPCServerStrategy = missingRPCServerStrategy
     }
 
-    @discardableResult public func resolvePublisher(url: URL) -> AnyPublisher<Eip681UrlResolver.Resolution, CheckEIP681Error> {
-        return resolve(url: url).publisher
-            .receive(on: RunLoop.main)
-            .mapError { return $0.embedded as? CheckEIP681Error ?? .embeded(error: $0.embedded) }
-            .eraseToAnyPublisher()
-    }
-
-    @discardableResult public func resolve(url: URL) -> Promise<Eip681UrlResolver.Resolution> {
+    @discardableResult public func resolve(url: URL) -> AnyPublisher<Eip681UrlResolver.Resolution, CheckEIP681Error> {
         switch AddressOrEip681Parser.from(string: url.absoluteString) {
         case .address(let address):
-            return .value(.address(address))
+            return .just(.address(address))
         case .eip681(let protocolName, let address, let functionName, let params):
             return resolve(protocolName: protocolName, address: address, functionName: functionName, params: params)
         case .none:
-            return .init(error: CheckEIP681Error.notEIP681)
+            return .fail(CheckEIP681Error.notEIP681)
         }
     }
 
-    @discardableResult public func resolve(protocolName: String, address: AddressOrEnsName, functionName: String?, params: [String: String]) -> Promise<Eip681UrlResolver.Resolution> {
-        Eip681Parser(protocolName: protocolName, address: address, functionName: functionName, params: params)
-            .parse()
-            .then { [importToken] result -> Promise<Eip681UrlResolver.Resolution> in
+    @discardableResult public func resolve(protocolName: String, address: AddressOrEnsName, functionName: String?, params: [String: String]) -> AnyPublisher<Eip681UrlResolver.Resolution, CheckEIP681Error> {
+        return Just(protocolName)
+            .setFailureType(to: CheckEIP681Error.self)
+            .map { protocolName in
+                Eip681Parser(protocolName: protocolName, address: address, functionName: functionName, params: params).parse()
+            }.flatMap { [importToken] result -> AnyPublisher<Eip681UrlResolver.Resolution, CheckEIP681Error> in
                 guard let (contract: contract, customServer, recipient, amount) = result.parameters else {
-                    return .init(error: CheckEIP681Error.parameterInvalid)
+                    return .fail(CheckEIP681Error.parameterInvalid)
                 }
                 guard let server = self.serverFromEip681LinkOrDefault(customServer) else {
-                    return .init(error: CheckEIP681Error.missingRpcServer)
+                    return .fail(CheckEIP681Error.missingRpcServer)
                 }
 
                 return importToken
-                    .importToken(for: contract, server: server)
-                    .map { token -> Eip681UrlResolver.Resolution in
+                    .importTokenPublisher(for: contract, server: server)
+                    .mapError { CheckEIP681Error.embeded(error: $0) }
+                    .flatMap { token -> AnyPublisher<Eip681UrlResolver.Resolution, CheckEIP681Error> in
                         switch token.type {
                         case .erc20, .nativeCryptocurrency:
                             let transactionType = Eip681UrlResolver.buildFungibleTransactionType(token, recipient: recipient, amount: amount)
-                            return .transaction(transactionType, token: token)
+                            return .just(.transaction(transactionType, token: token))
                         case .erc1155, .erc721, .erc721ForTickets, .erc875:
-                            throw CheckEIP681Error.tokenTypeNotSupported
+                            return .fail(CheckEIP681Error.tokenTypeNotSupported)
                         }
-                    }
-            }
+                    }.eraseToAnyPublisher()
+            }.eraseToAnyPublisher()
     }
 
     private func serverFromEip681LinkOrDefault(_ serverInLink: RPCServer?) -> RPCServer? {
