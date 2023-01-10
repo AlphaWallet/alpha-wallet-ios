@@ -243,8 +243,8 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
     }
 
     private func mapTraitsToProperName(name: String, value: String) -> OpenSeaNonFungibleTokenAttributeCellViewModel {
-        let displayName = displayHelper.mapTraitsToDisplayName(name: name)
-        let displayValue = displayHelper.mapTraitsToDisplayValue(name: name, value: value)
+        let displayName = displayHelper.mapTraitsToDisplayName(name: name).replacingEmpty("-")
+        let displayValue = displayHelper.mapTraitsToDisplayValue(name: name, value: value).replacingEmpty("-")
         return OpenSeaNonFungibleTokenAttributeCellViewModel(name: displayName, value: displayValue)
     }
 

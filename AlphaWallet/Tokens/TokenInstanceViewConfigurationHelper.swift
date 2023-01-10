@@ -207,8 +207,8 @@ final class TokenInstanceViewConfigurationHelper {
     }
 
     private func mapTraitsToProperName(name: String, value: String, count: String? = nil) -> NonFungibleTraitViewModel {
-        let displayName = displayHelper.mapTraitsToDisplayName(name: name)
-        let displayValue = displayHelper.mapTraitsToDisplayValue(name: name, value: value)
+        let displayName = displayHelper.mapTraitsToDisplayName(name: name).replacingEmpty("-")
+        let displayValue = displayHelper.mapTraitsToDisplayValue(name: name, value: value).replacingEmpty("-")
 
         let attributedValue = TokenAttributeViewModel.defaultValueAttributedString(displayValue, alignment: .center)
         let count = count.flatMap { TokenAttributeViewModel.defaultValueAttributedString($0, alignment: .center) }
@@ -381,6 +381,13 @@ extension TokenInstanceViewConfigurationHelper.functional {
             }
         }
         return results
+    }
+}
+
+extension String {
+    func replacingEmpty(_ other: String) -> String {
+        let value = trimmed
+        return value.isEmpty ? other : value
     }
 }
 
