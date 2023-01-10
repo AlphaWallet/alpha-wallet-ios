@@ -5,7 +5,7 @@ import UIKit
 import AlphaWalletFoundation
 
 struct SetSellTokensCardExpiryDateViewModel {
-    private let ethCost: Ether
+    private let ethCost: Double
     private let server: RPCServer
     private let assetDefinitionStore: AssetDefinitionStore
     
@@ -41,12 +41,15 @@ struct SetSellTokensCardExpiryDateViewModel {
     
     var perTokenPriceLabelText: String {
         let tokenTypeName = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getLabel()
-        let amount = ethCost / tokenCount
-        return R.string.localizable.aWalletTokenSellPerTokenEthPriceTitle(amount.formattedDescription, server.symbol, tokenTypeName)
+        let amount = NumberFormatter.shortCrypto.string(double: ethCost / Double(tokenCount), minimumFractionDigits: 4, maximumFractionDigits: 8).droppedTrailingZeros
+        
+        return R.string.localizable.aWalletTokenSellPerTokenEthPriceTitle(amount, server.symbol, tokenTypeName)
     }
     
     var totalEthLabelText: String {
-        return R.string.localizable.aWalletTokenSellTotalEthPriceTitle(ethCost.formattedDescription, server.symbol)
+        let amount = NumberFormatter.shortCrypto.string(double: ethCost, minimumFractionDigits: 4, maximumFractionDigits: 8).droppedTrailingZeros
+
+        return R.string.localizable.aWalletTokenSellTotalEthPriceTitle(amount, server.symbol)
     }
     
     var noteTitleLabelText: String {
@@ -62,7 +65,7 @@ struct SetSellTokensCardExpiryDateViewModel {
         return tokenHolder.count
     }
     
-    init(token: Token, tokenHolder: TokenHolder, ethCost: Ether, server: RPCServer, assetDefinitionStore: AssetDefinitionStore) {
+    init(token: Token, tokenHolder: TokenHolder, ethCost: Double, server: RPCServer, assetDefinitionStore: AssetDefinitionStore) {
         self.token = token
         self.tokenHolder = tokenHolder
         self.ethCost = ethCost

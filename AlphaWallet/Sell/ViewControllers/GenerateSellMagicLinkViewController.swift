@@ -25,10 +25,10 @@ class GenerateSellMagicLinkViewController: UIViewController {
     weak var delegate: GenerateSellMagicLinkViewControllerDelegate?
     let paymentFlow: PaymentFlow
     let tokenHolder: TokenHolder
-    let ethCost: Ether
+    let ethCost: Double
     let linkExpiryDate: Date
 
-    init(paymentFlow: PaymentFlow, tokenHolder: TokenHolder, ethCost: Ether, linkExpiryDate: Date) {
+    init(paymentFlow: PaymentFlow, tokenHolder: TokenHolder, ethCost: Double, linkExpiryDate: Date) {
         self.paymentFlow = paymentFlow
         self.tokenHolder = tokenHolder
         self.ethCost = ethCost

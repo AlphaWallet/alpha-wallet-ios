@@ -91,7 +91,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
 
     private func showSaleConfirmationScreen(for tokenHolder: TokenHolder,
                                             linkExpiryDate: Date,
-                                            ethCost: Ether,
+                                            ethCost: Double,
                                             in viewController: SetSellTokensCardExpiryDateViewController) {
         let vc = makeGenerateSellMagicLinkViewController(paymentFlow: viewController.paymentFlow, tokenHolder: tokenHolder, ethCost: ethCost, linkExpiryDate: linkExpiryDate)
         viewController.navigationController?.present(vc, animated: true)
@@ -104,20 +104,19 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
         viewController.navigationController?.present(vc, animated: true)
     }
 
-    private func makeGenerateSellMagicLinkViewController(paymentFlow: PaymentFlow, tokenHolder: TokenHolder, ethCost: Ether, linkExpiryDate: Date) -> GenerateSellMagicLinkViewController {
+    private func makeGenerateSellMagicLinkViewController(paymentFlow: PaymentFlow, tokenHolder: TokenHolder, ethCost: Double, linkExpiryDate: Date) -> GenerateSellMagicLinkViewController {
         let vc = GenerateSellMagicLinkViewController(
-                paymentFlow: paymentFlow,
-                tokenHolder: tokenHolder,
-                ethCost: ethCost,
-                linkExpiryDate: linkExpiryDate
-        )
+            paymentFlow: paymentFlow,
+            tokenHolder: tokenHolder,
+            ethCost: ethCost,
+            linkExpiryDate: linkExpiryDate)
         vc.delegate = self
         vc.configure(viewModel: .init(
-                tokenHolder: tokenHolder,
-                ethCost: ethCost,
-                linkExpiryDate: linkExpiryDate,
-                server: session.server,
-                assetDefinitionStore: assetDefinitionStore
+            tokenHolder: tokenHolder,
+            ethCost: ethCost,
+            linkExpiryDate: linkExpiryDate,
+            server: session.server,
+            assetDefinitionStore: assetDefinitionStore
         ))
         vc.modalPresentationStyle = .overCurrentContext
         return vc
@@ -142,7 +141,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
     private func showEnterSellTokensCardExpiryDateViewController(
             token: Token,
             for tokenHolder: TokenHolder,
-            ethCost: Ether,
+            ethCost: Double,
             in viewController: EnterSellTokensCardPriceQuantityViewController) {
         let vc = makeEnterSellTokensCardExpiryDateViewController(token: token, for: tokenHolder, ethCost: ethCost, paymentFlow: viewController.paymentFlow)
         vc.navigationItem.largeTitleDisplayMode = .never
@@ -201,7 +200,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
         return controller
     }
 
-    private func makeEnterSellTokensCardExpiryDateViewController(token: Token, for tokenHolder: TokenHolder, ethCost: Ether, paymentFlow: PaymentFlow) -> SetSellTokensCardExpiryDateViewController {
+    private func makeEnterSellTokensCardExpiryDateViewController(token: Token, for tokenHolder: TokenHolder, ethCost: Double, paymentFlow: PaymentFlow) -> SetSellTokensCardExpiryDateViewController {
         let viewModel = SetSellTokensCardExpiryDateViewModel(token: token, tokenHolder: tokenHolder, ethCost: ethCost, server: session.server, assetDefinitionStore: assetDefinitionStore)
         let controller = SetSellTokensCardExpiryDateViewController(analytics: analytics, paymentFlow: paymentFlow, tokenHolder: tokenHolder, ethCost: ethCost, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, keystore: keystore, session: session)
         controller.configure()
@@ -258,21 +257,23 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
     //note that the price must be in szabo for a sell link, price must be rounded
     private func generateSellLink(tokenHolder: TokenHolder,
                                   linkExpiryDate: Date,
-                                  ethCost: Ether,
+                                  ethCost: Double,
                                   server: RPCServer) throws -> String {
+
         let ethCostRoundedTo5dp = String(format: "%.5f", Float(String(ethCost))!)
         let cost = Decimal(string: ethCostRoundedTo5dp)! * Decimal(string: "1000000000000000000")!
         let wei = BigUInt(cost.description)!
+
         let order = Order(
-                price: wei,
-                indices: tokenHolder.indices,
-                expiry: BigUInt(Int(linkExpiryDate.timeIntervalSince1970)),
-                contractAddress: tokenHolder.contractAddress,
-                count: BigUInt(tokenHolder.indices.count),
-                nonce: BigUInt(0),
-                tokenIds: tokenHolder.tokenIds,
-                spawnable: false,
-                nativeCurrencyDrop: false)
+            price: wei,
+            indices: tokenHolder.indices,
+            expiry: BigUInt(Int(linkExpiryDate.timeIntervalSince1970)),
+            contractAddress: tokenHolder.contractAddress,
+            count: BigUInt(tokenHolder.indices.count),
+            nonce: BigUInt(0),
+            tokenIds: tokenHolder.tokenIds,
+            spawnable: false,
+            nativeCurrencyDrop: false)
 
         let signedOrders = try OrderHandler(keystore: keystore, prompt: R.string.localizable.keystoreAccessKeySign()).signOrders(
             orders: [order],
@@ -284,7 +285,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
             tokenType: tokenHolder.tokenType)
     }
 
-    private func sellViaActivitySheet(tokenHolder: TokenHolder, linkExpiryDate: Date, ethCost: Ether, paymentFlow: PaymentFlow, in viewController: UIViewController, sender: UIView) {
+    private func sellViaActivitySheet(tokenHolder: TokenHolder, linkExpiryDate: Date, ethCost: Double, paymentFlow: PaymentFlow, in viewController: UIViewController, sender: UIView) {
         do {
             guard case .send(let transactionType) = paymentFlow else { return }
 
@@ -508,7 +509,7 @@ extension NFTCollectionCoordinator: TransferTokenCardQuantitySelectionViewContro
 }
 
 extension NFTCollectionCoordinator: EnterSellTokensCardPriceQuantityViewControllerDelegate {
-    func didEnterSellTokensPriceQuantity(token: Token, tokenHolder: TokenHolder, ethCost: Ether, in viewController: EnterSellTokensCardPriceQuantityViewController) {
+    func didEnterSellTokensPriceQuantity(token: Token, tokenHolder: TokenHolder, ethCost: Double, in viewController: EnterSellTokensCardPriceQuantityViewController) {
         showEnterSellTokensCardExpiryDateViewController(token: token, for: tokenHolder, ethCost: ethCost, in: viewController)
     }
 
@@ -518,7 +519,7 @@ extension NFTCollectionCoordinator: EnterSellTokensCardPriceQuantityViewControll
 }
 
 extension NFTCollectionCoordinator: SetSellTokensCardExpiryDateViewControllerDelegate {
-    func didSetSellTokensExpiryDate(tokenHolder: TokenHolder, linkExpiryDate: Date, ethCost: Ether, in viewController: SetSellTokensCardExpiryDateViewController) {
+    func didSetSellTokensExpiryDate(tokenHolder: TokenHolder, linkExpiryDate: Date, ethCost: Double, in viewController: SetSellTokensCardExpiryDateViewController) {
         showSaleConfirmationScreen(for: tokenHolder, linkExpiryDate: linkExpiryDate, ethCost: ethCost, in: viewController)
     }
 

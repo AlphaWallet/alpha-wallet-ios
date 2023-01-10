@@ -3,6 +3,7 @@
 import Foundation
 import UIKit
 import AlphaWalletFoundation
+import BigInt
 
 struct EnterSellTokensCardPriceQuantityViewModel {
     private let server: RPCServer
@@ -11,7 +12,7 @@ struct EnterSellTokensCardPriceQuantityViewModel {
     lazy var ethToken: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: server)
     let token: Token
     let tokenHolder: TokenHolder
-    var ethCost: Ether = .zero
+    var ethCost: Double = .zero
     var dollarCost: String = ""
 
     var headerTitle: String {
@@ -45,7 +46,8 @@ struct EnterSellTokensCardPriceQuantityViewModel {
     }
 
     var ethCostLabelText: String {
-        return "\(ethCost.formattedDescription) \(server.symbol)"
+        let amount = NumberFormatter.shortCrypto.string(double: ethCost, minimumFractionDigits: 6, maximumFractionDigits: 8).droppedTrailingZeros
+        return "\(amount) \(server.symbol)"
     }
 
     var dollarCostLabelText: String {
