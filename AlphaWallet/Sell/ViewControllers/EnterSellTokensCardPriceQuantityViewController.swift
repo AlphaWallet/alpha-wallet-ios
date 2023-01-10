@@ -111,6 +111,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         textField.selectCurrencyButton.hasToken = true
         textField.isAlternativeAmountEnabled = false
         textField.isAllFundsEnabled = false
+        textField.inputAccessoryButtonType = .done
 
         return textField
     }()
@@ -136,6 +137,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
          keystore: Keystore,
          service: TokenViewModelState,
          currencyService: CurrencyService) {
+        
         self.currencyService = currencyService
         self.service = service
         self.analytics = analytics
@@ -368,6 +370,10 @@ extension EnterSellTokensCardPriceQuantityViewController: AmountTextFieldDelegat
 
     func changeType(in textField: AmountTextField) {
         updateTotalCostsLabels()
+    }
+    
+    func doneButtonTapped(for textField: AmountTextField) {
+        view.endEditing(true)
     }
 }
 
