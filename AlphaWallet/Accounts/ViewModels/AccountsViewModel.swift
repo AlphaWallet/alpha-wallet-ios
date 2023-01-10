@@ -78,6 +78,7 @@ final class AccountsViewModel {
     }
 
     func transform(input: AccountsViewModelInput) -> AccountsViewModelOutput {
+        
         let deleteWallet = input.deleteWallet
             .flatMap { [weak self, deleteWalletState] confirmation -> AnyPublisher<(wallet: Wallet, state: AccountsViewModel.DeleteWalletState), Never> in
                 self?.fulfillPendingDeleteConfirmationBlock(confirmation.deletionConfirmed)
@@ -102,11 +103,11 @@ final class AccountsViewModel {
             .flatMapLatest { $0.combineLatest() }
 
         let walletsSummary = input.willAppear
-            .flatMap { [walletBalanceService] _ in walletBalanceService.walletsSummary }
+            .flatMapLatest { [walletBalanceService] _ in walletBalanceService.walletsSummary }
             .map { [config] in WalletSummaryViewModel(walletSummary: $0, config: config) }
 
         let viewModels = Publishers.CombineLatest(accountRowViewModels, walletsSummary)
-            .map { self.buildViewModels(sections: self.sections, accountViewModels: $0, summary: $1) }
+            .map { self.buildViewModels(sections: self.sections, accountViewModels: $0, summary: $1).uniqued() }
             .handleEvents(receiveOutput: { self.viewModels = $0 })
 
         let viewState = viewModels
@@ -135,9 +136,9 @@ final class AccountsViewModel {
     private func buildAccountRowViewModel(wallet: Wallet) -> AnyPublisher<AccountRowViewModel, Never> {
         let balance = walletBalanceService.walletBalance(for: wallet)
         let blockieImage = blockiesGenerator.getBlockieOrEnsAvatarImage(address: wallet.address, fallbackImage: BlockiesImage.defaulBlockieImage)
-            .handleEvents(receiveOutput: { [weak self] value in
+            .handleEvents(receiveOutput: { [analytics] value in
                 guard value.isEnsAvatar else { return }
-                self?.analytics.setUser(property: Analytics.UserProperties.hasEnsAvatar, value: true)
+                analytics.setUser(property: Analytics.UserProperties.hasEnsAvatar, value: true)
             })
 
         let addressOrEnsName = getWalletName.assignedNameOrEns(for: wallet.address)
@@ -407,3 +408,4 @@ extension AccountsViewModel {
 }
 extension AccountsViewModel.AccountRowViewModel: Hashable { }
 extension AccountsViewModel.ViewModelType: Hashable { }
+extension AccountsViewModel.SectionViewModel: Hashable { }
