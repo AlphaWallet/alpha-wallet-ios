@@ -82,9 +82,6 @@ clean:
 	rm -rf ./Pods/*
 	@xcodebuild -quiet -disableAutomaticPackageResolution -workspace AlphaWallet.xcworkspace -scheme AlphaWallet -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 12,OS=latest' clean
 
-release:
-	fastlane release
-
 setup_path:
 	@$(bundle_cmd) config path $(vendor_path)
 
