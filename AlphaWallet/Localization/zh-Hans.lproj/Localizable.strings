@@ -421,6 +421,7 @@
 "accounts.error.accountNotFound" = "未找到帐户";
 "accounts.error.failedToSignMessage" = "签署消息失败";
 "accounts.error.failedToExportPrivateKey" = "导出私钥失败";
+"accounts.error.failedToSignEmptyMessage" = "Failed to sign an empty message";
 "accounts.error.failedToExportSeed" = "导出钱包种子失败。如果您已迁移到新手机或者重置了设备，则需再次导入钱包";
 "Chain ID" = "链 ID";
 "Chain ID with prefix" = "链 ID: %ld";

@@ -421,6 +421,7 @@
 "accounts.error.accountNotFound" = "Account not found";
 "accounts.error.failedToSignMessage" = "Failed to sign message";
 "accounts.error.failedToExportPrivateKey" = "Failed to export private key";
+"accounts.error.failedToSignEmptyMessage" = "Failed to sign an empty message";
 "accounts.error.failedToExportSeed" = "Failed to export wallet seed. If you have migrated to a new phone or restored your device, you need to import your wallet again";
 "Chain ID" = "Chain ID";
 "Chain ID with prefix" = "Chain ID: %ld";
