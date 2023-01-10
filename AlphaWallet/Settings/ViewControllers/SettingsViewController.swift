@@ -161,9 +161,9 @@ fileprivate extension SettingsViewController {
             switch viewModel {
             case .cell(let vm):
                 let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+                cell.configure(viewModel: vm)
                 cell.accessoryView = vm.accessoryView
                 cell.accessoryType = vm.accessoryType
-                cell.configure(viewModel: vm)
 
                 return cell
             case .undefined:
