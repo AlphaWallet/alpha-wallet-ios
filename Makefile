@@ -114,7 +114,7 @@ update_chains_file:
 	@echo "Compressing."
 	@$(compress_cmd)
 	@echo "Moving compressed file into project."
-	@mv scripts/chains.json.zip AlphaWallet/Rpc\ Network/chains.zip
+	@mv scripts/chains.json.zip AlphaWallet/Resources/chains.zip
 	@rm -f ./scripts/chains.json
 	@echo "Update completed."
 
