@@ -22,7 +22,7 @@ public struct UnsignedSwapTransaction: Codable {
     public let data: Data
     public let from: AlphaWallet.Address
     public let to: AlphaWallet.Address
-    public let gasLimit: BigUInt
+    public let gasLimit: BigUInt?
     public let gasPrice: BigUInt?
     public let value: BigUInt
 
@@ -33,7 +33,7 @@ public struct UnsignedSwapTransaction: Codable {
         let dataString = try container.decode(String.self, forKey: .data)
         let fromString = try container.decode(String.self, forKey: .from)
         let toString = try container.decode(String.self, forKey: .to)
-        let gasLimitString = try container.decode(String.self, forKey: .gasLimit)
+        let gasLimitString = try container.decodeIfPresent(String.self, forKey: .gasLimit)
         let gasPriceString = try container.decodeIfPresent(String.self, forKey: .gasPrice)
         let valueString = try container.decode(String.self, forKey: .value)
 
@@ -41,7 +41,7 @@ public struct UnsignedSwapTransaction: Codable {
         data = Data(hex: dataString)
         from = try AlphaWallet.Address(string: fromString) ?? { throw ParsingError(fieldName: .from) }()
         to = try AlphaWallet.Address(string: toString) ?? { throw ParsingError(fieldName: .to) }()
-        gasLimit = try BigUInt(gasLimitString.drop0x, radix: 16) ?? { throw ParsingError(fieldName: .gasLimit) }()
+        gasLimit = try gasLimitString.flatMap { BigUInt($0.drop0x, radix: 16) }
         gasPrice = try gasPriceString.flatMap { BigUInt($0.drop0x, radix: 16) }
         value = try BigUInt(valueString.drop0x, radix: 16) ?? { throw ParsingError(fieldName: .value) }()
     }
