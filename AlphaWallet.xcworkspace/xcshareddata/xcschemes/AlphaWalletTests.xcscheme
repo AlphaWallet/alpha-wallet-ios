@@ -94,8 +94,88 @@
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
+            key = "SOURCE_ROOT"
+            value = "$(SOURCE_ROOT)"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
             key = "IMAGE_DIFF_DIR"
             value = "$(SOURCE_ROOT)/AlphaWalletTests/Snapshots/FailureDiffs"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "INFURAKEY"
+            value = "$(INFURAKEY)"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "WALLETCONNECTPROJECTID"
+            value = "$(WALLETCONNECTPROJECTID)"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "ETHERSCANKEY"
+            value = "$(ETHERSCANKEY)"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "BINANCESMARTCHAINEXPLORERAPIKEY"
+            value = "$(BINANCESMARTCHAINEXPLORERAPIKEY)"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "POLYGONSCANEXPLORERAPIKEY"
+            value = "$(POLYGONSCANEXPLORERAPIKEY)"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "PAPERTRAILHOST"
+            value = "$(PAPERTRAILHOST)"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "OPENSEAKEY"
+            value = "$(OPENSEAKEY)"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "RAMPAPIKEY"
+            value = "$(RAMPAPIKEY)"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "COINBASEAPPID"
+            value = "$(COINBASEAPPID)"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "ENJINUSERNAME"
+            value = "$(ENJINUSERNAME)"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "ENJINUSERPASSWORD"
+            value = "$(ENJINUSERPASSWORD)"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "UNSTOPPABLEDOMAINSV2KEY"
+            value = "$(UNSTOPPABLEDOMAINSV2KEY)"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "BLOCKSCHATPROXYKEY"
+            value = "$(BLOCKSCHATPROXYKEY)"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "COVALENTAPIKEY"
+            value = "$(COVALENTAPIKEY)"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "KLAYTNRPCNODEKEYBASICAUTH"
+            value = "$(KLAYTNRPCNODEKEYBASICAUTH)"
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>
