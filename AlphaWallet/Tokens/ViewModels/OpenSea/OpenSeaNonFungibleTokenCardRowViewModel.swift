@@ -38,7 +38,7 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
     }
 
     var titleColor: UIColor {
-        return Colors.appText
+        return Configuration.Color.Semantic.defaultForegroundText
     }
 
     var subtitleColor: UIColor {
