@@ -108,7 +108,9 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
     let assetDefinitionStore: AssetDefinitionStore
     lazy var pricePerTokenField: AmountTextField = {
         let textField = AmountTextField(token: viewModel.ethToken)
+        textField.selectCurrencyButton.isEnabled = false
         textField.selectCurrencyButton.hasToken = true
+        textField.selectCurrencyButton.expandIconHidden = true
         textField.isAlternativeAmountEnabled = false
         textField.isAllFundsEnabled = false
         textField.inputAccessoryButtonType = .done
