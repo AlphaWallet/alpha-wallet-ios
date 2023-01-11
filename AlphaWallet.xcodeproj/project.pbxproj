@@ -655,6 +655,7 @@
 		87931AD22968571F00887810 /* WalletConnectV1Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87931AD12968571F00887810 /* WalletConnectV1Client.swift */; };
 		87931AD42969C12E00887810 /* WalletConnectV2Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87931AD32969C12E00887810 /* WalletConnectV2Client.swift */; };
 		87931AD62969C87D00887810 /* WalletConnectV1Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87931AD52969C87D00887810 /* WalletConnectV1Storage.swift */; };
+		87931AE1296C864C00887810 /* ImportMagicLinkController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87931AE0296C864C00887810 /* ImportMagicLinkController.swift */; };
 		8793A4772919081400BCF849 /* tokensToImport.json in Resources */ = {isa = PBXBuildFile; fileRef = 8793A4762919081400BCF849 /* tokensToImport.json */; };
 		8793A492291A4E8600BCF849 /* ConsoleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8793A491291A4E8600BCF849 /* ConsoleViewModel.swift */; };
 		8793A49E291A5DA100BCF849 /* ChangeCurrencyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8793A497291A5DA100BCF849 /* ChangeCurrencyViewModel.swift */; };
@@ -1530,6 +1531,7 @@
 		87931AD12968571F00887810 /* WalletConnectV1Client.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectV1Client.swift; sourceTree = "<group>"; };
 		87931AD32969C12E00887810 /* WalletConnectV2Client.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectV2Client.swift; sourceTree = "<group>"; };
 		87931AD52969C87D00887810 /* WalletConnectV1Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectV1Storage.swift; sourceTree = "<group>"; };
+		87931AE0296C864C00887810 /* ImportMagicLinkController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportMagicLinkController.swift; sourceTree = "<group>"; };
 		8793A4762919081400BCF849 /* tokensToImport.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = tokensToImport.json; sourceTree = "<group>"; };
 		8793A491291A4E8600BCF849 /* ConsoleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleViewModel.swift; sourceTree = "<group>"; };
 		8793A497291A5DA100BCF849 /* ChangeCurrencyViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChangeCurrencyViewModel.swift; sourceTree = "<group>"; };
@@ -3448,6 +3450,7 @@
 				5E7C71D254F51DCFBA549722 /* Coordinators */,
 				5E7C714506B5E3AED3C410FC /* ViewControllers */,
 				5E7C755521B5CAF98176AB84 /* ViewModels */,
+				87931AE0296C864C00887810 /* ImportMagicLinkController.swift */,
 			);
 			path = Market;
 			sourceTree = "<group>";
@@ -5315,6 +5318,7 @@
 				5E7C7855E46A6604B2028C9D /* BrowserErrorView.swift in Sources */,
 				873784FC28DB1F8600CE836F /* SelectSwapToolViewController.swift in Sources */,
 				874DED1524C1BAFF006C8FCE /* SelectTokenCoordinator.swift in Sources */,
+				87931AE1296C864C00887810 /* ImportMagicLinkController.swift in Sources */,
 				023286E2277D7960007D33C5 /* AddMultipleCustomRpcView.swift in Sources */,
 				5E7C77D5AD018763345D8DD5 /* CanOpenContractWebPage.swift in Sources */,
 				87B3CC15292A1017008DBA51 /* FungibleTokenTabViewController.swift in Sources */,

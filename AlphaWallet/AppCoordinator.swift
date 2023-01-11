@@ -52,7 +52,7 @@ class AppCoordinator: NSObject, Coordinator {
     private lazy var currencyService = CurrencyService(storage: config)
     private lazy var coinTickersFetcher: CoinTickersFetcher = CoinTickersFetcherImpl(networkService: networkService)
     private lazy var nftProvider: NFTProvider = AlphaWalletNFTProvider(analytics: analytics)
-    private let walletDependencies: AtomicDictionary<Wallet, WalletDependencies> = .init()
+    private let dependencies: AtomicDictionary<Wallet, WalletDependencies> = .init()
     private let walletBalanceService = MultiWalletBalanceService()
     private var pendingActiveWalletCoordinator: ActiveWalletCoordinator?
 
@@ -116,7 +116,7 @@ class AppCoordinator: NSObject, Coordinator {
         let provider = WalletConnectProvider(
             keystore: keystore,
             config: config,
-            dependencies: walletDependencies)
+            dependencies: dependencies)
         let decoder = WalletConnectRequestDecoder()
 
         let v1Provider = WalletConnectV1Provider(
@@ -149,7 +149,7 @@ class AppCoordinator: NSObject, Coordinator {
             assetDefinitionStore: assetDefinitionStore,
             networkService: networkService,
             walletConnectProvider: walletConnectProvider,
-            dependencies: walletDependencies)
+            dependencies: dependencies)
 
         return coordinator
     }()
@@ -549,7 +549,7 @@ class AppCoordinator: NSObject, Coordinator {
     }
     //NOTE: not good to pass `activeSessionsProvider` but needed to update active wallet session with right sessions in time
     private func buildDependencies(for wallet: Wallet) -> WalletDependencies {
-        if let dep = walletDependencies[wallet] { return dep  }
+        if let dep = dependencies[wallet] { return dep  }
 
         let tokensDataStore: TokensDataStore = MultipleChainsTokensDataStore(store: .storage(for: wallet), servers: config.enabledServers)
         let eventsDataStore: NonActivityEventsDataStore = NonActivityMultiChainEventsDataStore(store: .storage(for: wallet))
@@ -613,13 +613,13 @@ class AppCoordinator: NSObject, Coordinator {
             eventsDataStore: eventsDataStore,
             currencyService: currencyService)
 
-        walletDependencies[wallet] = dependency
+        dependencies[wallet] = dependency
 
         return dependency
     }
 
     private func destroy(for wallet: Wallet) {
-        walletDependencies.removeValue(forKey: wallet)
+        dependencies.removeValue(forKey: wallet)
     }
 }
 // swiftlint:enable type_body_length
@@ -676,6 +676,10 @@ extension AppCoordinator: ActiveWalletCoordinatorDelegate {
 
 extension AppCoordinator: ImportMagicLinkCoordinatorDelegate {
 
+    func buyCrypto(wallet: Wallet, server: RPCServer, viewController: UIViewController, source: Analytics.BuyCryptoSource) {
+        activeWalletCoordinator?.buyCrypto(wallet: wallet, server: server, viewController: viewController, source: source)
+    }
+
     func viewControllerForPresenting(in coordinator: ImportMagicLinkCoordinator) -> UIViewController? {
         if var top = window.rootViewController {
             while let vc = top.presentedViewController {
@@ -687,16 +691,8 @@ extension AppCoordinator: ImportMagicLinkCoordinatorDelegate {
         }
     }
 
-    func importPaidSignedOrder(signedOrder: SignedOrder, token: Token, inViewController viewController: ImportMagicTokenViewController, completion: @escaping (Bool) -> Void) {
-        activeWalletCoordinator?.importPaidSignedOrder(signedOrder: signedOrder, token: token, inViewController: viewController, completion: completion)
-    }
-
-    func completed(in coordinator: ImportMagicLinkCoordinator) {
+    func didClose(in coordinator: ImportMagicLinkCoordinator) {
         removeCoordinator(coordinator)
-    }
-
-    func didImported(contract: AlphaWallet.Address, in coordinator: ImportMagicLinkCoordinator) {
-        activeWalletCoordinator?.addImported(contract: contract, forServer: coordinator.server)
     }
 }
 
@@ -711,7 +707,9 @@ extension AppCoordinator: UniversalLinkServiceDelegate {
         case .maybeFileUrl(let url):
             tokenScriptOverridesFileManager.importTokenScriptOverrides(url: url)
         case .eip681(let url):
-            let paymentFlowResolver = Eip681UrlResolver(config: config, importToken: resolver.importToken, missingRPCServerStrategy: .fallbackToAnyMatching)
+            guard let wallet = keystore.currentWallet, let dependency = dependencies[wallet] else { return }
+            
+            let paymentFlowResolver = Eip681UrlResolver(config: config, importToken: dependency.importToken, missingRPCServerStrategy: .fallbackToAnyMatching)
             paymentFlowResolver.resolve(url: url)
                 .sink(receiveCompletion: { result in
                     guard case .failure(let error) = result else { return }
@@ -744,18 +742,20 @@ extension AppCoordinator: UniversalLinkServiceDelegate {
                 resolver.openURLInBrowser(url: url)
             }
         case .magicLink(_, let server, let url):
-            guard hasImportMagicLinkCoordinator == nil else { return }
+            guard let wallet = keystore.currentWallet, let dependency = dependencies[wallet], hasImportMagicLinkCoordinator == nil else { return }
 
-            if let session = resolver.sessions[safe: server] {
+            if let session = dependency.sessionsProvider.session(for: server) {
                 let coordinator = ImportMagicLinkCoordinator(
                     analytics: analytics,
                     session: session,
                     config: config,
                     assetDefinitionStore: assetDefinitionStore,
-                    url: url,
                     keystore: keystore,
-                    tokensService: resolver.service,
-                    networkService: networkService)
+                    tokensService: dependency.pipeline,
+                    networkService: networkService,
+                    domainResolutionService: domainResolutionService,
+                    importToken: dependency.importToken,
+                    reachability: ReachabilityManager())
 
                 coordinator.delegate = self
                 let handled = coordinator.start(url: url)
