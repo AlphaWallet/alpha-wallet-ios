@@ -120,13 +120,12 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
 
         return autoDetectTransactedContractsImpl(wallet: wallet, erc20: erc20, server: server)
             .flatMap { [importToken, queue] detectedContracts -> AnyPublisher<[TokenOrContract], Never> in
-                let promises = self.contractsForTransactedTokens(detectedContracts: detectedContracts, forServer: server)
-                    .map { importToken.fetchTokenOrContract(for: $0, server: server, onlyIfThereIsABalance: false) }
+                let publishers = self.contractsForTransactedTokens(detectedContracts: detectedContracts, forServer: server)
+                    .map { importToken.fetchTokenOrContractPublisher(for: $0, server: server, onlyIfThereIsABalance: false).mapToResult() }
 
-                return when(resolved: promises)
-                    .map(on: queue, { $0.compactMap { $0.optionalValue } })
-                    .publisher
-                    .replaceError(with: [])
+                return Publishers.MergeMany(publishers).collect()
+                    .map { $0.compactMap { try? $0.get() } }
+                    .receive(on: queue)
                     .eraseToAnyPublisher()
             }.eraseToAnyPublisher()
     }
@@ -165,13 +164,12 @@ extension SingleChainTokensAutodetector: AutoDetectTransactedTokensOperationDele
 extension SingleChainTokensAutodetector: AutoDetectTokensOperationDelegate {
 
     func autoDetectTokensImpl(withContracts contractsToDetect: [ContractToImport]) -> AnyPublisher<[TokenOrContract], Never> {
-        let promises = contractsToAutodetectTokens(contractsToDetect: contractsToDetect)
-            .map { importToken.fetchTokenOrContract(for: $0.contract, server: $0.server, onlyIfThereIsABalance: $0.onlyIfThereIsABalance) }
+        let publishers = contractsToAutodetectTokens(contractsToDetect: contractsToDetect)
+            .map { importToken.fetchTokenOrContractPublisher(for: $0.contract, server: $0.server, onlyIfThereIsABalance: $0.onlyIfThereIsABalance).mapToResult() }
 
-        return when(resolved: promises)
-            .map(on: queue, { $0.compactMap { $0.optionalValue } })
-            .publisher
-            .replaceError(with: [])
+        return Publishers.MergeMany(publishers).collect()
+            .map { $0.compactMap { try? $0.get() } }
+            .receive(on: queue)
             .eraseToAnyPublisher()
     }
 

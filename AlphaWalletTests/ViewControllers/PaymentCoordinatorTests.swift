@@ -72,6 +72,7 @@ extension WalletDataProcessingPipeline {
         let dep = AppCoordinator.WalletDependencies(
             activitiesPipeLine: activitiesPipeLine,
             transactionsDataStore: transactionsDataStore,
+            tokensDataStore: tokensDataStore,
             importToken: importToken,
             tokensService: tokensService,
             pipeline: pipeline,

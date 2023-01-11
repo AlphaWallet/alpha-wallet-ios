@@ -604,6 +604,7 @@ class AppCoordinator: NSObject, Coordinator {
         let dependency = WalletDependencies(
             activitiesPipeLine: activitiesPipeLine,
             transactionsDataStore: transactionsDataStore,
+            tokensDataStore: tokensDataStore,
             importToken: importToken,
             tokensService: tokensService,
             pipeline: pipeline,
@@ -711,16 +712,18 @@ extension AppCoordinator: UniversalLinkServiceDelegate {
             tokenScriptOverridesFileManager.importTokenScriptOverrides(url: url)
         case .eip681(let url):
             let paymentFlowResolver = Eip681UrlResolver(config: config, importToken: resolver.importToken, missingRPCServerStrategy: .fallbackToAnyMatching)
-            firstly {
-                paymentFlowResolver.resolve(url: url)
-            }.done { result in
-                switch result {
-                case .address:
-                    break //Add handling address, maybe same action when scan qr code
-                case .transaction(let transactionType, let token):
-                    resolver.showPaymentFlow(for: .send(type: .transaction(transactionType)), server: token.server, navigationController: resolver.presentationNavigationController)
-                }
-            }.cauterize()
+            paymentFlowResolver.resolve(url: url)
+                .sink(receiveCompletion: { result in
+                    guard case .failure(let error) = result else { return }
+                    verboseLog("[Eip681UrlResolver] failure to resolve value from: \(url) with error: \(error)")
+                }, receiveValue: { result in
+                    switch result {
+                    case .address:
+                        break //Add handling address, maybe same action when scan qr code
+                    case .transaction(let transactionType, let token):
+                        resolver.showPaymentFlow(for: .send(type: .transaction(transactionType)), server: token.server, navigationController: resolver.presentationNavigationController)
+                    }
+                }).store(in: &cancelable)
         case .walletConnect(let url, let source):
             switch source {
             case .safariExtension:
@@ -786,6 +789,7 @@ extension AppCoordinator {
     struct WalletDependencies {
         let activitiesPipeLine: ActivitiesPipeLine
         let transactionsDataStore: TransactionDataStore
+        let tokensDataStore: TokensDataStore
         let importToken: ImportToken
         let tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable & TokensServiceTests
         let pipeline: TokensProcessingPipeline

@@ -18,6 +18,7 @@ class SendViewControllerTests: XCTestCase {
         return .nativeCryptocurrency(token, destination: nil, amount: .notSet)
     }()
     private let dep = WalletDataProcessingPipeline.make(wallet: .make(), server: .main)
+    let contractDataFetcher = FakeContractDataFetcher()
 
     func testNativeCryptocurrencyAllFundsValueSpanish() {
         let vc = createSendViewControllerAndSetLocale(locale: .spanish, transactionType: nativeCryptocurrencyTransactionType)
@@ -160,10 +161,15 @@ class SendViewControllerTests: XCTestCase {
 
     func testScanEip681QrCodeEnglish() {
         let token = Token(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "0", type: .erc20)
+
         dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
         let vc = createSendViewControllerAndSetLocale(locale: .english, transactionType: .erc20Token(token, destination: .none, amount: .amount(1.34)))
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), for: token)
         XCTAssertEqual(vc.amountTextField.value, "1.34")
+
+        let address = AlphaWallet.Address(string: "0xbc8dafeaca658ae0857c80d8aa6de4d487577c63")!
+        let server = RPCServer.main
+        contractDataFetcher.contractData[.init(address: address, server: server)] = .fungibleTokenComplete(name: "erc20", symbol: "erc20", decimals: 18, value: .zero, tokenType: .erc20)
 
         let qrCode = "aw.app/ethereum:0xbc8dafeaca658ae0857c80d8aa6de4d487577c63@1?value=1e19"
         vc.didScanQRCode(qrCode)
@@ -171,9 +177,9 @@ class SendViewControllerTests: XCTestCase {
         let expectation = self.expectation(description: "did update token balance expectation")
         let destination = AlphaWallet.Address(string: "0xbc8dafeaca658ae0857c80d8aa6de4d487577c63").flatMap { AddressOrEnsName(address: $0) }
 
-        XCTAssertEqual(vc.viewModel.latestQrCode, qrCode)
-
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            XCTAssertEqual(vc.viewModel.latestQrCode, qrCode)
+
             switch vc.viewModel.scanQrCodeLatest {
             case .success(let transactionType):
                 XCTAssertEqual(transactionType.amount, .amount(10))
@@ -201,10 +207,23 @@ class SendViewControllerTests: XCTestCase {
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), for: token)
         XCTAssertEqual(vc.amountTextField.value, "1,34")
 
+        let address = AlphaWallet.Address(string: "0xbc8dafeaca658ae0857c80d8aa6de4d487577c63")!
+        let server = RPCServer.main
+        contractDataFetcher.contractData[.init(address: address, server: server)] = .fungibleTokenComplete(name: "erc20", symbol: "erc20", decimals: 18, value: .zero, tokenType: .erc20)
+
         vc.didScanQRCode("aw.app/ethereum:0xbc8dafeaca658ae0857c80d8aa6de4d487577c63@1?value=1e17")
 
         let expectation = self.expectation(description: "did update token balance expectation")
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            switch vc.viewModel.scanQrCodeLatest {
+            case .success(let transactionType):
+                XCTAssertEqual(transactionType.amount, .amount(0.1))
+            case .failure(let e):
+                XCTFail(e.description)
+            case .none:
+                XCTFail()
+            }
+
             XCTAssertEqual(vc.amountTextField.value, "0,1")
             expectation.fulfill()
         }
@@ -237,7 +256,8 @@ class SendViewControllerTests: XCTestCase {
 
     private func createSendViewControllerAndSetLocale(locale: AppLocale, transactionType: TransactionType) -> SendViewController {
         Config.setLocale(locale)
-        let viewModel = SendViewModel(transactionType: transactionType, session: dep.sessionsProvider.session(for: .main)!, tokensService: dep.pipeline, importToken: dep.importToken)
+        let importToken = ImportToken.make(tokensDataStore: dep.tokensDataStore, contractDataFetcher: contractDataFetcher)
+        let viewModel = SendViewModel(transactionType: transactionType, session: dep.sessionsProvider.session(for: .main)!, tokensService: dep.pipeline, importToken: importToken)
         return SendViewController(viewModel: viewModel, domainResolutionService: FakeDomainResolutionService())
     }
 }

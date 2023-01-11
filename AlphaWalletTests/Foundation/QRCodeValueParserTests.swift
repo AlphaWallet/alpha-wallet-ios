@@ -140,178 +140,139 @@ class QRCodeValueParserTests: XCTestCase {
 
     func testParseNativeCryptoSend() {
         guard let qrCodeValue = AddressOrEip681Parser.from(string: "ethereum:0xfb6916095ca1df60bb79Ce92ce3ea74c37c5d359?value=2.014e18") else { return XCTFail("Can't parse EIP 681") }
-        let expectation = self.expectation(description: "Promise resolves")
         switch qrCodeValue {
         case .address:
             XCTFail("Can't parse EIP 681")
         case .eip681(let protocolName, let address, let functionName, let params):
-            Eip681Parser(protocolName: protocolName, address: address, functionName: functionName, params: params).parse().done { result in
-                expectation.fulfill()
-                switch result {
-                case .nativeCryptoSend(let chainId, let recipient, let amount):
-                    XCTAssertNil(chainId)
-                    XCTAssertTrue(recipient.sameContract(as: "0xfb6916095ca1df60bb79Ce92ce3ea74c37c5d359"))
-                    XCTAssertEqual(amount.rawValue, "2014000000000000000")
-                case .erc20Send, .invalidOrNotSupported:
-                    XCTFail("Parsed as wrong EIP 681 type")
-                }
-            }.cauterize()
+            switch Eip681Parser(protocolName: protocolName, address: address, functionName: functionName, params: params).parse() {
+            case .nativeCryptoSend(let chainId, let recipient, let amount):
+                XCTAssertNil(chainId)
+                XCTAssertTrue(recipient.sameContract(as: "0xfb6916095ca1df60bb79Ce92ce3ea74c37c5d359"))
+                XCTAssertEqual(amount.rawValue, "2014000000000000000")
+            case .erc20Send, .invalidOrNotSupported:
+                XCTFail("Parsed as wrong EIP 681 type")
+            }
         }
-        wait(for: [expectation], timeout: 20)
     }
 
     func testParseNativeCryptoSendWithScientificNotation() {
         guard let qrCodeValue = AddressOrEip681Parser.from(string: "ethereum:0xfb6916095ca1df60bb79Ce92ce3ea74c37c5d359?value=2.014e18") else { return XCTFail("Can't parse EIP 681") }
-        let expectation = self.expectation(description: "Promise resolves")
         switch qrCodeValue {
         case .address:
             XCTFail("Can't parse EIP 681")
         case .eip681(let protocolName, let address, let functionName, let params):
-            Eip681Parser(protocolName: protocolName, address: address, functionName: functionName, params: params).parse().done { result in
-                expectation.fulfill()
-                switch result {
-                case .nativeCryptoSend(let chainId, let recipient, let amount):
-                    XCTAssertNil(chainId)
-                    XCTAssertTrue(recipient.sameContract(as: "0xfb6916095ca1df60bb79Ce92ce3ea74c37c5d359"))
-                    XCTAssertEqual(amount.rawValue, "2014000000000000000")
-                case .erc20Send, .invalidOrNotSupported:
-                    XCTFail("Parsed as wrong EIP 681 type")
-                }
-            }.cauterize()
+            switch Eip681Parser(protocolName: protocolName, address: address, functionName: functionName, params: params).parse() {
+            case .nativeCryptoSend(let chainId, let recipient, let amount):
+                XCTAssertNil(chainId)
+                XCTAssertTrue(recipient.sameContract(as: "0xfb6916095ca1df60bb79Ce92ce3ea74c37c5d359"))
+                XCTAssertEqual(amount.rawValue, "2014000000000000000")
+            case .erc20Send, .invalidOrNotSupported:
+                XCTFail("Parsed as wrong EIP 681 type")
+            }
         }
-        wait(for: [expectation], timeout: 20)
     }
 
     func testParseErc20Send() {
         guard let qrCodeValue = AddressOrEip681Parser.from(string: "ethereum:0x744d70fdbe2ba4cf95131626614a1763df805b9e/transfer?address=0x3d597789ea16054a084ac84ce87f50df9198f415&uint256=314e17") else { return XCTFail("Can't parse EIP 681") }
-        let expectation = self.expectation(description: "Promise resolves")
         switch qrCodeValue {
         case .address:
             XCTFail("Can't parse EIP 681")
         case .eip681(let protocolName, let address, let functionName, let params):
-            Eip681Parser(protocolName: protocolName, address: address, functionName: functionName, params: params).parse().done { result in
-                expectation.fulfill()
-                switch result {
-                case .erc20Send(let contract, let chainId, let recipient, let amount):
-                    XCTAssertEqual(contract, AlphaWallet.Address(string: "0x744d70fdbe2ba4cf95131626614a1763df805b9e"))
-                    XCTAssertNil(chainId)
-                    XCTAssertTrue(recipient?.sameContract(as: "0x3d597789ea16054a084ac84ce87f50df9198f415") ?? false)
-                    XCTAssertEqual(amount.rawValue, "31400000000000000000")
-                case .nativeCryptoSend, .invalidOrNotSupported:
-                    XCTFail("Parsed as wrong EIP 681 type")
-                }
-            }.cauterize()
+            switch Eip681Parser(protocolName: protocolName, address: address, functionName: functionName, params: params).parse() {
+            case .erc20Send(let contract, let chainId, let recipient, let amount):
+                XCTAssertEqual(contract, AlphaWallet.Address(string: "0x744d70fdbe2ba4cf95131626614a1763df805b9e"))
+                XCTAssertNil(chainId)
+                XCTAssertTrue(recipient?.sameContract(as: "0x3d597789ea16054a084ac84ce87f50df9198f415") ?? false)
+                XCTAssertEqual(amount.rawValue, "31400000000000000000")
+            case .nativeCryptoSend, .invalidOrNotSupported:
+                XCTFail("Parsed as wrong EIP 681 type")
+            }
         }
-        wait(for: [expectation], timeout: 20)
     }
 
     func testParseErc20SendWithoutRecipient() {
         guard let qrCodeValue = AddressOrEip681Parser.from(string: "ethereum:0x60fa213f48cd0d83b54380108ccd03a6993247e0/transfer?uint256=1.5e18") else { return XCTFail("Can't parse EIP 681") }
-        let expectation = self.expectation(description: "Promise resolves")
         switch qrCodeValue {
         case .address:
             XCTFail("Can't parse EIP 681")
         case .eip681(let protocolName, let address, let functionName, let params):
-            Eip681Parser(protocolName: protocolName, address: address, functionName: functionName, params: params).parse().done { result in
-                expectation.fulfill()
-                switch result {
-                case .erc20Send(let contract, let chainId, let recipient, let amount):
-                    XCTAssertEqual(contract, AlphaWallet.Address(string: "0x60fa213f48cd0d83b54380108ccd03a6993247e0"))
-                    XCTAssertNil(chainId)
-                    XCTAssertNil(recipient)
-                    XCTAssertEqual(amount.rawValue, "1500000000000000000")
-                case .nativeCryptoSend, .invalidOrNotSupported:
-                    XCTFail("Parsed as wrong EIP 681 type")
-                }
-            }.cauterize()
+            switch Eip681Parser(protocolName: protocolName, address: address, functionName: functionName, params: params).parse() {
+            case .erc20Send(let contract, let chainId, let recipient, let amount):
+                XCTAssertEqual(contract, AlphaWallet.Address(string: "0x60fa213f48cd0d83b54380108ccd03a6993247e0"))
+                XCTAssertNil(chainId)
+                XCTAssertNil(recipient)
+                XCTAssertEqual(amount.rawValue, "1500000000000000000")
+            case .nativeCryptoSend, .invalidOrNotSupported:
+                XCTFail("Parsed as wrong EIP 681 type")
+            }
         }
-        wait(for: [expectation], timeout: 20)
     }
 
     func testParseNativeCryptoSendWithoutValue() {
         guard let qrCodeValue = AddressOrEip681Parser.from(string: "ethereum:0xfb6916095ca1df60bb79Ce92ce3ea74c37c5d359") else { return XCTFail("Can't parse EIP 681") }
-        let expectation = self.expectation(description: "Promise resolves")
         switch qrCodeValue {
         case .address:
             XCTFail("Can't parse EIP 681")
         case .eip681(let protocolName, let address, let functionName, let params):
-            Eip681Parser(protocolName: protocolName, address: address, functionName: functionName, params: params).parse().done { result in
-                expectation.fulfill()
-                switch result {
-                case .nativeCryptoSend(let chainId, let recipient, let amount):
-                    XCTAssertNil(chainId)
-                    XCTAssertTrue(recipient.sameContract(as: "0xfb6916095ca1df60bb79Ce92ce3ea74c37c5d359"))
-                    XCTAssertEqual(amount.rawValue, "")
-                case .erc20Send, .invalidOrNotSupported:
-                    XCTFail("Parsed as wrong EIP 681 type")
-                }
-            }.cauterize()
+            switch Eip681Parser(protocolName: protocolName, address: address, functionName: functionName, params: params).parse() {
+            case .nativeCryptoSend(let chainId, let recipient, let amount):
+                XCTAssertNil(chainId)
+                XCTAssertTrue(recipient.sameContract(as: "0xfb6916095ca1df60bb79Ce92ce3ea74c37c5d359"))
+                XCTAssertEqual(amount.rawValue, "")
+            case .erc20Send, .invalidOrNotSupported:
+                XCTFail("Parsed as wrong EIP 681 type")
+            }
         }
-        wait(for: [expectation], timeout: 20)
     }
 
     func testParseErc20SendWithoutAmount() {
         guard let qrCodeValue = AddressOrEip681Parser.from(string: "ethereum:0x744d70fdbe2ba4cf95131626614a1763df805b9e/transfer?address=0x3d597789ea16054a084ac84ce87f50df9198f415") else { return XCTFail("Can't parse EIP 681") }
-        let expectation = self.expectation(description: "Promise resolves")
         switch qrCodeValue {
         case .address:
             XCTFail("Can't parse EIP 681")
         case .eip681(let protocolName, let address, let functionName, let params):
-            Eip681Parser(protocolName: protocolName, address: address, functionName: functionName, params: params).parse().done { result in
-                expectation.fulfill()
-                switch result {
-                case .erc20Send(let contract, let chainId, let recipient, let amount):
-                    XCTAssertEqual(contract, AlphaWallet.Address(string: "0x744d70fdbe2ba4cf95131626614a1763df805b9e"))
-                    XCTAssertNil(chainId)
-                    XCTAssertTrue(recipient?.sameContract(as: "0x3d597789ea16054a084ac84ce87f50df9198f415") ?? false)
-                    XCTAssertEqual(amount.rawValue, "")
-                case .nativeCryptoSend, .invalidOrNotSupported:
-                    XCTFail("Parsed as wrong EIP 681 type")
-                }
-            }.cauterize()
+
+            switch Eip681Parser(protocolName: protocolName, address: address, functionName: functionName, params: params).parse() {
+            case .erc20Send(let contract, let chainId, let recipient, let amount):
+                XCTAssertEqual(contract, AlphaWallet.Address(string: "0x744d70fdbe2ba4cf95131626614a1763df805b9e"))
+                XCTAssertNil(chainId)
+                XCTAssertTrue(recipient?.sameContract(as: "0x3d597789ea16054a084ac84ce87f50df9198f415") ?? false)
+                XCTAssertEqual(amount.rawValue, "")
+            case .nativeCryptoSend, .invalidOrNotSupported:
+                XCTFail("Parsed as wrong EIP 681 type")
+            }
         }
-        wait(for: [expectation], timeout: 20)
     }
 
     func testParseInvalidNativeCryptoSend() {
         guard let qrCodeValue = AddressOrEip681Parser.from(string: "ethereum:0xfb6916095ca1df60bb79Ce92ce3ea74c37c5d359/foo?value=2.014e18") else { return XCTFail("Can't parse EIP 681") }
-        let expectation = self.expectation(description: "Promise resolves")
         switch qrCodeValue {
         case .address:
             XCTFail("Can't parse EIP 681")
         case .eip681(let protocolName, let address, let functionName, let params):
-            Eip681Parser(protocolName: protocolName, address: address, functionName: functionName, params: params).parse().done { result in
-                expectation.fulfill()
-                switch result {
-                case .nativeCryptoSend, .erc20Send:
-                    XCTFail("Parsed as wrong EIP 681 type")
-                case .invalidOrNotSupported:
-                    XCTAssert(true)
-                }
-            }.cauterize()
+            switch Eip681Parser(protocolName: protocolName, address: address, functionName: functionName, params: params).parse() {
+            case .nativeCryptoSend, .erc20Send:
+                XCTFail("Parsed as wrong EIP 681 type")
+            case .invalidOrNotSupported:
+                XCTAssert(true)
+            }
         }
-        wait(for: [expectation], timeout: 20)
     }
 
     func testParseNativeCryptoSendWithoutValueWithEnsName() {
         guard let qrCodeValue = AddressOrEip681Parser.from(string: "ethereum:foo.eth") else { return XCTFail("Can't parse EIP 681") }
-        let expectation = self.expectation(description: "Promise resolves")
         switch qrCodeValue {
         case .address:
             XCTFail("Can't parse EIP 681")
         case .eip681(let protocolName, let address, let functionName, let params):
-            Eip681Parser(protocolName: protocolName, address: address, functionName: functionName, params: params).parse().done { result in
-                expectation.fulfill()
-                switch result {
-                case .nativeCryptoSend(let chainId, let recipient, let amount):
-                    XCTAssertNil(chainId)
-                    XCTAssertTrue(recipient.stringValue == "foo.eth")
-                    XCTAssertEqual(amount.rawValue, "")
-                case .erc20Send, .invalidOrNotSupported:
-                    XCTFail("Parsed as wrong EIP 681 type")
-                }
-            }.cauterize()
+            switch Eip681Parser(protocolName: protocolName, address: address, functionName: functionName, params: params).parse() {
+            case .nativeCryptoSend(let chainId, let recipient, let amount):
+                XCTAssertNil(chainId)
+                XCTAssertTrue(recipient.stringValue == "foo.eth")
+                XCTAssertEqual(amount.rawValue, "")
+            case .erc20Send, .invalidOrNotSupported:
+                XCTFail("Parsed as wrong EIP 681 type")
+            }
         }
-        wait(for: [expectation], timeout: 20)
     }
 }

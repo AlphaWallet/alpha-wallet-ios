@@ -9,6 +9,7 @@ import Foundation
 import BigInt
 import PromiseKit
 import AlphaWalletFoundation
+import Combine
 
 enum QrCodeResolution {
     case address(address: AlphaWallet.Address, action: ScanQRCodeAction)
@@ -40,6 +41,8 @@ final class QRCodeResolutionCoordinator: Coordinator {
     }
     private let scanQRCodeCoordinator: ScanQRCodeCoordinator
     private let account: Wallet
+    private var cancellable = Set<AnyCancellable>()
+
     var coordinators: [Coordinator] = []
     weak var delegate: QRCodeResolutionCoordinatorDelegate?
 
@@ -108,16 +111,18 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
                 switch usage {
                 case .all(_, let importToken):
                     let resolver = Eip681UrlResolver(config: config, importToken: importToken, missingRPCServerStrategy: .fallbackToFirstMatching)
-                    firstly {
-                        resolver.resolve(protocolName: protocolName, address: address, functionName: functionName, params: params)
-                    }.done { result in
-                        switch result {
-                        case .transaction(let transactionType, let token):
-                            delegate.coordinator(self, didResolve: .transactionType(transactionType: transactionType, token: token))
-                        case .address:
-                            break // Not possible here
-                        }
-                    }.cauterize()
+                    resolver.resolve(protocolName: protocolName, address: address, functionName: functionName, params: params)
+                        .sink(receiveCompletion: { result in
+                            guard case .failure(let error) = result else { return }
+                            verboseLog("[Eip681UrlResolver] failure to resolve value from: \(qrCodeValue) with error: \(error)")
+                        }, receiveValue: { result in
+                            switch result {
+                            case .transaction(let transactionType, let token):
+                                delegate.coordinator(self, didResolve: .transactionType(transactionType: transactionType, token: token))
+                            case .address:
+                                break // Not possible here
+                            }
+                        }).store(in: &cancellable)
                 case .importWalletOnly:
                     break
                 }

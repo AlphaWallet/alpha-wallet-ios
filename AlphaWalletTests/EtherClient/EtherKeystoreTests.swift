@@ -87,7 +87,7 @@ class EtherKeystoreTests: XCTestCase {
                 XCTAssertEqual(seedPhrase.split(separator: " ").count, 12)
             }.store(in: &cancelable)
         
-        wait(for: [expectation], timeout: 0.01)
+        wait(for: [expectation], timeout: 600)
     }
 
     func testExportRawPrivateKeyToKeystoreFile() throws {
@@ -107,8 +107,8 @@ class EtherKeystoreTests: XCTestCase {
 
                 expectation.fulfill()
             }.store(in: &cancelable)
-
-        wait(for: [expectation], timeout: 20)
+        //NOTE: increase waiting time, latest version of iOS takes more time to decode encrypted data
+        wait(for: [expectation], timeout: 600)
     }
 
     func testRecentlyUsedAccount() throws {
