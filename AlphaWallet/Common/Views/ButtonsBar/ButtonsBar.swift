@@ -387,7 +387,7 @@ struct ButtonsBarViewModel {
     }
 
     var buttonShadowColor: UIColor {
-        return Colors.appActionButtonShadow
+        return Configuration.Color.Semantic.actionButtonShadow
     }
 
     var buttonShadowOffset: CGSize {
