@@ -48,11 +48,14 @@ target 'AlphaWallet' do
       pod 'iOSSnapshotTestCase', '6.2.0'
   end
 
-  target 'AlphaWalletShare' do
-      inherit! :search_paths
-      # Pods for testing
-  end
 
+end
+
+target 'AlphaWalletShare' do
+  use_frameworks!
+  inherit! :search_paths
+
+  pod 'AlphaWalletShareExtensionCore', :path => '.'
 end
 
 post_install do |installer|
