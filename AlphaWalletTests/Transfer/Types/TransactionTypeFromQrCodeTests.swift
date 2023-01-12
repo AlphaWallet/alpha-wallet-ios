@@ -145,7 +145,6 @@ class TransactionTypeFromQrCodeTests: XCTestCase {
         //NOTE: make sure we have a eth token, base impl resolves it automatically, for test does it manually
         tokensDataStore.addOrUpdate(with: [.init(erc20Token)])
 
-
         transactionTypeSupportable.transactionType = .erc20Token(erc20Token, destination: nil, amount: .notSet)
 
         provider.buildTransactionType(qrCode: qrCode)
