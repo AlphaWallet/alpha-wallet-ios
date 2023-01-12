@@ -19,14 +19,6 @@ struct NewTokenViewModel {
         return balance
     }
 
-    var choiceLabelColor: UIColor {
-        return Colors.appGrayLabel
-    }
-
-    var choiceLabelFont: UIFont {
-        return Fonts.regular(size: 10)
-    }
-
     var addressLabel: String {
         return R.string.localizable.contractAddress()
     }
