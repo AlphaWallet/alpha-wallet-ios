@@ -59,7 +59,7 @@ struct ElevateWalletSecurityViewModel {
         attributeString.addAttributes([
             .paragraphStyle: style,
             .font: descriptionFont,
-            .foregroundColor: Colors.appText
+            .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
         ], range: NSRange(location: 0, length: description.count))
 
         return attributeString
