@@ -102,7 +102,7 @@ func createTokenScriptFileStatusButton(withStatus status: TokenLevelTokenScriptD
             title = message
         }
         image = R.image.verified()
-        tintColor = Colors.appGreenContrastBackground
+        tintColor = Configuration.Color.Semantic.textFieldContrastText
     case .type2BadTokenScript(let isDebugMode, let error, let reason):
         switch reason {
         case .some(.oldTokenScriptVersion):
