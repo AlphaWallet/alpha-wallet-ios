@@ -28,7 +28,12 @@ extension Constants {
             if Environment.isDebug, let cachedDevelopmentCredentials = cachedDevelopmentCredentials {
                 return cachedDevelopmentCredentials[name]
             } else {
-                return ProcessInfo.processInfo.environment[name]
+                //We inject the environment variables into the app through Xcode scheme configuration (we do this so that we can pass the environment variables injected by Travis dashboard into the shell to the app). But this means the injected/forwarded variables will be an empty string if they are missing (and no longer nil)
+                if let value = ProcessInfo.processInfo.environment[name], !value.isEmpty {
+                    return value
+                } else {
+                    return nil
+                }
             }
         }
 
