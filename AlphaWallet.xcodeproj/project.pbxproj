@@ -4392,8 +4392,6 @@
 				8703FC14270366DA0062C416 /* PBXTargetDependency */,
 			);
 			name = AlphaWallet;
-			packageProductDependencies = (
-			);
 			productName = etherwallet;
 			productReference = 2912CCF51F6A830700C6CBE3 /* AlphaWallet.app */;
 			productType = "com.apple.product-type.application";
@@ -4519,8 +4517,6 @@
 				Base,
 			);
 			mainGroup = 2912CCEC1F6A830700C6CBE3;
-			packageReferences = (
-			);
 			productRefGroup = 2912CCF61F6A830700C6CBE3 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -4759,6 +4755,7 @@
 				"${BUILT_PRODUCTS_DIR}/AlphaWalletFoundation/AlphaWalletFoundation.framework",
 				"${BUILT_PRODUCTS_DIR}/AlphaWalletGoBack/AlphaWalletGoBack.framework",
 				"${BUILT_PRODUCTS_DIR}/AlphaWalletOpenSea/AlphaWalletOpenSea.framework",
+				"${BUILT_PRODUCTS_DIR}/AlphaWalletShareExtensionCore/AlphaWalletShareExtensionCore.framework",
 				"${BUILT_PRODUCTS_DIR}/AlphaWalletTrackAPICalls/AlphaWalletTrackAPICalls.framework",
 				"${BUILT_PRODUCTS_DIR}/AlphaWalletWeb3/AlphaWalletWeb3.framework",
 				"${BUILT_PRODUCTS_DIR}/Apollo/Apollo.framework",
@@ -4819,6 +4816,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AlphaWalletFoundation.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AlphaWalletGoBack.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AlphaWalletOpenSea.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AlphaWalletShareExtensionCore.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AlphaWalletTrackAPICalls.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AlphaWalletWeb3.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Apollo.framework",

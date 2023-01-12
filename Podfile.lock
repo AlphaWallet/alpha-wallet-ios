@@ -19,6 +19,7 @@ PODS:
     - AlphaWalletENS
     - AlphaWalletGoBack
     - AlphaWalletOpenSea
+    - AlphaWalletShareExtensionCore
     - AlphaWalletWeb3
     - AlphaWalletWeb3Provider
     - APIKit (= 5.1.0)
@@ -46,6 +47,7 @@ PODS:
     - AlphaWalletCore
     - PromiseKit
     - SwiftyJSON (= 5.0.0)
+  - AlphaWalletShareExtensionCore (1.0.0)
   - AlphaWalletTrackAPICalls (1.0.0)
   - AlphaWalletWeb3 (0.0.1):
     - BigInt
@@ -209,6 +211,7 @@ DEPENDENCIES:
   - AlphaWalletFoundation (from `.`)
   - AlphaWalletGoBack (from `.`)
   - AlphaWalletOpenSea (from `.`)
+  - AlphaWalletShareExtensionCore (from `.`)
   - AlphaWalletTrackAPICalls (from `.`)
   - AlphaWalletWeb3 (from `.`)
   - AlphaWalletWeb3Provider (from `https://github.com/AlphaWallet/AlphaWallet-web3-provider`, commit `9a4496d02b7ddb2f6307fd0510d8d7c9fcef9870`)
@@ -302,6 +305,8 @@ EXTERNAL SOURCES:
     :path: "."
   AlphaWalletOpenSea:
     :path: "."
+  AlphaWalletShareExtensionCore:
+    :path: "."
   AlphaWalletTrackAPICalls:
     :path: "."
   AlphaWalletWeb3:
@@ -362,9 +367,10 @@ SPEC CHECKSUMS:
   AlphaWalletAddress: 72c3fc97248fc0cdc50d137faaa295bc9610c7ec
   AlphaWalletCore: 635739018555de844a020f8b9b7d49610b3de655
   AlphaWalletENS: 33e4fd3d46929938c271190fe7804811c1e9dc8f
-  AlphaWalletFoundation: 8abb1d09ee12536cc2378e57512961f2e94bc059
+  AlphaWalletFoundation: e7f301df95df33949fc826723d1082ab54b36d0a
   AlphaWalletGoBack: 1d55b51e6cfd999740d3cfab09d9fa723ba85ff2
   AlphaWalletOpenSea: 71e255612529b04ae4d66dca54bd181185593b1d
+  AlphaWalletShareExtensionCore: e5fc88c6120d5b77b3ba44a37e7b58da5ccbb7b6
   AlphaWalletTrackAPICalls: 1e5d1f0a1858bd4d383aa412677a642be7d21e17
   AlphaWalletWeb3: 86d0be33c612d75685a5797ef4492e42c295f1a5
   AlphaWalletWeb3Provider: 7ca1e1c1dc841dc1915f970daace48bf34931655
@@ -422,6 +428,6 @@ SPEC CHECKSUMS:
   WalletConnectSwiftV2: e05838f7d04eb69197a23b37768365d8595bab32
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: a630c6a4f2ab558045bf3ed60220f1050feb4cb1
+PODFILE CHECKSUM: c6ec33d251a737d93342fba966430617b3018b78
 
 COCOAPODS: 1.11.3
