@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AlphaWalletShareExtensionCore
 import SwiftyJSON
 
 public enum DeepLink {

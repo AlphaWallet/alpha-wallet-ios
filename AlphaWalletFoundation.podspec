@@ -45,6 +45,7 @@ Pod::Spec.new do |spec|
   spec.dependency 'AlphaWalletGoBack'
   spec.dependency 'AlphaWalletENS'
   spec.dependency 'AlphaWalletOpenSea'
+  spec.dependency 'AlphaWalletShareExtensionCore'
   spec.dependency 'Apollo', '0.53.0'
   spec.dependency 'CombineExt', '1.8.0'
   spec.dependency 'SwiftProtobuf', '~> 1.18.0'

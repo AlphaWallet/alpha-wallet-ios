@@ -8,7 +8,7 @@
 import Foundation
 import Social
 import MobileCoreServices
-import AlphaWalletFoundation
+import AlphaWalletShareExtensionCore
 
 protocol ItemProviderValueResolver {
     var supportedTypes: [NSItemProvider.ItemType] { get }
@@ -55,7 +55,7 @@ extension NSExtensionItem {
 
         attachment.loadItem(forTypeIdentifier: attachment.type.rawValue, options: nil) { result, _ in
             let value = valueResolver.resolve(itemType: attachment.type, value: result)
-            
+
             DispatchQueue.main.async {
                 completion(value)
             }
