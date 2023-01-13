@@ -295,8 +295,8 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         }
     }
 
-    func launchUniversalScanner() {
-        tokensCoordinator?.launchUniversalScanner(fromSource: .quickAction)
+    func launchUniversalScanner(fromSource source: Analytics.ScanQRCodeSource) {
+        tokensCoordinator?.launchUniversalScanner(fromSource: source)
     }
 
     private func oneTimeCreationOfOneDatabaseToHoldAllChains() {
