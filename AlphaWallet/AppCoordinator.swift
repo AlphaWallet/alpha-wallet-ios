@@ -541,7 +541,7 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     private func handleIntent(userActivity: NSUserActivity) -> Bool {
-        if let type = userActivity.userInfo?[WalletQrCodeDonation.userInfoType.key] as? String, type == WalletQrCodeDonation.userInfoType.value {
+        if let type = userActivity.userInfo?[Donations.typeKey] as? String, type == WalletQrCodeDonation.userInfoTypeValue {
             analytics.log(navigation: Analytics.Navigation.openShortcut, properties: [
                 Analytics.Properties.type.rawValue: Analytics.ShortcutType.walletQrCode.rawValue
             ])

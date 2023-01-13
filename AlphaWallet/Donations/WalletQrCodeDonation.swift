@@ -10,14 +10,14 @@ class WalletQrCodeDonation {
     //Matches `Info.plist` entry
     private static let activityType = "com.alphawallet.ethereum-wallet-qr-code"
 
-    static let userInfoType: (key: String, value: String) = (key: "type", value: "walletQRCodeDonation")
-
     private let address: AlphaWallet.Address
 
     //Because donating a shortcut is asynchronous, the NSUserActivity has to be kept alive for a bit
     private var userActivity: NSUserActivity?
     //Because donating a shortcut is asynchronous, the NSUserActivity has to be kept alive for a bit. We keep a strong reference to self for a short while to ensure that so client code doesn't have to
     private var selfReference: WalletQrCodeDonation?
+
+    static let userInfoTypeValue = "walletQRCodeDonation"
 
     init(address: AlphaWallet.Address) {
         self.address = address
@@ -31,8 +31,8 @@ class WalletQrCodeDonation {
         let activity = NSUserActivity(activityType: Self.activityType)
         activity.title = R.string.localizable.donateShortcutsWalletQrCode()
         let walletKey = "wallet"
-        activity.addUserInfoEntries(from: [Self.userInfoType.key: Self.userInfoType.value, walletKey: address.eip55String])
-        activity.requiredUserInfoKeys = [walletKey, Self.userInfoType.key]
+        activity.addUserInfoEntries(from: [Donations.typeKey: Self.userInfoTypeValue, walletKey: address.eip55String])
+        activity.requiredUserInfoKeys = [walletKey, Donations.typeKey]
         activity.isEligibleForPrediction = true
         activity.isEligibleForSearch = true
         activity.persistentIdentifier = Self.persistentIdentifier
