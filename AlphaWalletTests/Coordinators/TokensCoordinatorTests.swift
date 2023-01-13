@@ -27,9 +27,7 @@ class TokensCoordinatorTests: XCTestCase {
         let tokenActionsService = FakeSwapTokenService()
         let wallet: Wallet = .make()
         let dep = WalletDataProcessingPipeline.make(wallet: .make(), server: .main)
-        let walletAddressesStore = fakeWalletAddressStore(wallets: [wallet], recentlyUsedWallet: .make())
-        let walletBalanceService = FakeMultiWalletBalanceService(wallet: wallet, servers: [.main])
-        
+
         let coordinator = TokensCoordinator(
             navigationController: FakeNavigationController(),
             sessions: sessions,
