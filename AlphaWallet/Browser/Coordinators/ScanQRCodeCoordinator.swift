@@ -55,6 +55,7 @@ final class ScanQRCodeCoordinator: NSObject, Coordinator {
     }
 
     func start(fromSource source: Analytics.ScanQRCodeSource, clipboardString: String? = nil) {
+        CameraDonation().donate()
         logStartScan(source: source)
         navigationController.makePresentationFullScreenForiOS13Migration()
         parentNavigationController.present(navigationController, animated: true)

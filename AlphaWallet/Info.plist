@@ -103,6 +103,7 @@
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>com.alphawallet.ethereum-wallet-qr-code</string>
+		<string>com.alphawallet.camera</string>
 	</array>
 	<key>UIAppFonts</key>
 	<array>

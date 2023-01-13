@@ -541,16 +541,26 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     private func handleIntent(userActivity: NSUserActivity) -> Bool {
-        if let type = userActivity.userInfo?[Donations.typeKey] as? String, type == WalletQrCodeDonation.userInfoTypeValue {
-            analytics.log(navigation: Analytics.Navigation.openShortcut, properties: [
-                Analytics.Properties.type.rawValue: Analytics.ShortcutType.walletQrCode.rawValue
-            ])
-            activeWalletCoordinator?.showWalletQrCode()
-            return true
-        } else {
-            return false
+        if let type = userActivity.userInfo?[Donations.typeKey] as? String {
+            infoLog("[Shortcuts] handleIntent type: \(type)")
+            if type == CameraDonation.userInfoTypeValue {
+                analytics.log(navigation: Analytics.Navigation.openShortcut, properties: [
+                    Analytics.Properties.type.rawValue: Analytics.ShortcutType.camera.rawValue
+                ])
+                self.launchUniversalScanner(fromSource: .siriShortcut)
+                return true
+            }
+            if type == WalletQrCodeDonation.userInfoTypeValue {
+                analytics.log(navigation: Analytics.Navigation.openShortcut, properties: [
+                    Analytics.Properties.type.rawValue: Analytics.ShortcutType.walletQrCode.rawValue
+                ])
+                activeWalletCoordinator?.showWalletQrCode()
+                return true
+            }
         }
+        return false
     }
+
     //NOTE: not good to pass `activeSessionsProvider` but needed to update active wallet session with right sessions in time
     private func buildDependencies(for wallet: Wallet) -> WalletDependencies {
         if let dep = dependencies[wallet] { return dep  }
