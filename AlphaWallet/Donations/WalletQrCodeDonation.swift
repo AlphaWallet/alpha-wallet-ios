@@ -31,21 +31,23 @@ class WalletQrCodeDonation {
         let activity = NSUserActivity(activityType: Self.activityType)
         activity.title = R.string.localizable.donateShortcutsWalletQrCode()
         let walletKey = "wallet"
-        activity.addUserInfoEntries(from: [Donations.typeKey: Self.userInfoTypeValue, walletKey: address.eip55String])
+        let userInfo = [Donations.typeKey: Self.userInfoTypeValue, walletKey: address.eip55String]
+        activity.addUserInfoEntries(from: userInfo)
         activity.requiredUserInfoKeys = [walletKey, Donations.typeKey]
         activity.isEligibleForPrediction = true
         activity.isEligibleForSearch = true
         activity.persistentIdentifier = Self.persistentIdentifier
         self.userActivity = activity
         activity.becomeCurrent()
+        infoLog("[Shortcuts] donated \(Self.persistentIdentifier) userInfo: \(userInfo)")
     }
 
     //For development only
     func delete() {
-        infoLog("[Donate] Deleting donated shortcut: \(Self.persistentIdentifier)…")
+        infoLog("[Shortcuts] Deleting donated shortcut: \(Self.persistentIdentifier)…")
         CSSearchableIndex.default().deleteSearchableItems(withDomainIdentifiers: [Self.persistentIdentifier])
         NSUserActivity.deleteSavedUserActivities(withPersistentIdentifiers: [Self.persistentIdentifier]) {
-            infoLog("[Donate] Deleted donated shortcut: \(Self.persistentIdentifier)")
+            infoLog("[Shortcuts] Deleted donated shortcut: \(Self.persistentIdentifier)")
         }
     }
 }
