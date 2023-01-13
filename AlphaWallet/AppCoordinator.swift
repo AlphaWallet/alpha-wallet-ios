@@ -67,7 +67,7 @@ class AppCoordinator: NSObject, Coordinator {
             blockiesGenerator: blockiesGenerator,
             domainResolutionService: domainResolutionService,
             promptBackup: promptBackup)
-        
+
         coordinator.delegate = self
 
         return coordinator
@@ -332,7 +332,7 @@ class AppCoordinator: NSObject, Coordinator {
         if let shortcutItem = launchOptions?[UIApplication.LaunchOptionsKey.shortcutItem] as? UIApplicationShortcutItem, shortcutItem.type == Constants.launchShortcutKey {
             //Delay needed to work because app is launching..
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.launchUniversalScanner()
+                self.launchUniversalScannerFromQuickAction()
             }
         }
     }
@@ -343,7 +343,7 @@ class AppCoordinator: NSObject, Coordinator {
 
     func applicationPerformActionFor(_ shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
         if shortcutItem.type == Constants.launchShortcutKey {
-            launchUniversalScanner()
+            launchUniversalScannerFromQuickAction()
         }
         completionHandler(true)
     }
@@ -519,9 +519,13 @@ class AppCoordinator: NSObject, Coordinator {
         universalLinkService.handleUniversalLinkInPasteboard()
     }
 
-    func launchUniversalScanner() {
+    private func launchUniversalScannerFromQuickAction() {
+        launchUniversalScanner(fromSource: .quickAction)
+    }
+
+    private func launchUniversalScanner(fromSource source: Analytics.ScanQRCodeSource) {
         showActiveWalletIfNeeded()
-        activeWalletCoordinator?.launchUniversalScanner()
+        activeWalletCoordinator?.launchUniversalScanner(fromSource: source)
     }
 
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
@@ -708,7 +712,7 @@ extension AppCoordinator: UniversalLinkServiceDelegate {
             tokenScriptOverridesFileManager.importTokenScriptOverrides(url: url)
         case .eip681(let url):
             guard let wallet = keystore.currentWallet, let dependency = dependencies[wallet] else { return }
-            
+
             let paymentFlowResolver = Eip681UrlResolver(config: config, importToken: dependency.importToken, missingRPCServerStrategy: .fallbackToAnyMatching)
             paymentFlowResolver.resolve(url: url)
                 .sink(receiveCompletion: { result in
