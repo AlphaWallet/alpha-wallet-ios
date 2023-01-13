@@ -40,6 +40,7 @@ class WalletQrCodeDonation {
         activity.becomeCurrent()
     }
 
+    //For development only
     func delete() {
         infoLog("[Donate] Deleting donated shortcut: \(Self.persistentIdentifier)…")
         CSSearchableIndex.default().deleteSearchableItems(withDomainIdentifiers: [Self.persistentIdentifier])
