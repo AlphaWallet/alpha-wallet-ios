@@ -533,7 +533,7 @@ public enum RPCServer: Hashable, CaseIterable {
             case .heco_testnet: return "https://http-testnet.hecochain.com"
             case .custom(let custom): return custom.rpcEndpoint
             case .fantom: return "https://rpc.ftm.tools"
-            case .fantom_testnet: return "https://rpc.testnet.fantom.network/"
+            case .fantom_testnet: return "https://rpc.ankr.com/fantom_testnet"
             case .avalanche: return "https://api.avax.network/ext/bc/C/rpc"
             case .avalanche_testnet: return "https://api.avax-test.network/ext/bc/C/rpc"
             case .polygon: return "https://polygon-mainnet.infura.io/v3/\(Constants.Credentials.infuraKey)"
@@ -708,7 +708,9 @@ public enum RPCServer: Hashable, CaseIterable {
             return 99990
         case .xDai:
             return 3000
-        case .main, .poa, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .fantom, .fantom_testnet, .custom, .palm, .palmTestnet, .optimismGoerli, .arbitrumGoerli:
+        case .fantom_testnet:
+            return 3000
+        case .main, .poa, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .fantom, .custom, .palm, .palmTestnet, .optimismGoerli, .arbitrumGoerli:
             return nil
         case .klaytnCypress, .klaytnBaobabTestnet, .ioTeX, .ioTeXTestnet:
             //These not allow range more than 10,000
@@ -828,8 +830,9 @@ public enum RPCServer: Hashable, CaseIterable {
         case .binance_smart_chain, .binance_smart_chain_testnet: return .batch(100)
         case .heco, .heco_testnet: return .batch(1000)
         case .fantom:  return .batch(1000)
+        case .fantom_testnet: return .batch (1000)
         case .ioTeX, .ioTeXTestnet: return .batch(200)
-        case .cronosTestnet, .fantom_testnet, .avalanche, .avalanche_testnet, .custom: return .batch(32)
+        case .cronosTestnet, .avalanche, .avalanche_testnet, .custom: return .batch(32)
         }
     }
 
