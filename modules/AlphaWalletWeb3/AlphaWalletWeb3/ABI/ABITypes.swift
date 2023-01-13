@@ -64,7 +64,7 @@ public enum ABIElement {
     case event(Event)
 
     public struct Function {
-        let name: String?
+        let name: String
         let inputs: [Input]
         let outputs: [Output]
         let constant: Bool

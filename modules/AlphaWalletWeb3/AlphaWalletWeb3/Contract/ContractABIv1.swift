@@ -17,7 +17,7 @@ struct ContractAbiV1: ContractRepresentable {
     var allMethods: [String] {
         return methods.keys.flatMap { $0 }
     }
-    
+
     var address: EthereumAddress?
     var abi: [ABIElement]
     var methods: [String: ABIElement] {
@@ -25,7 +25,7 @@ struct ContractAbiV1: ContractRepresentable {
         for m in self.abi {
             switch m {
             case .function(let function):
-                guard let name = function.name else { continue }
+                let name = function.name
                 toReturn[name] = m
             default:
                 continue
@@ -33,7 +33,7 @@ struct ContractAbiV1: ContractRepresentable {
         }
         return toReturn
     }
-    
+
     var constructor: ABIElement? {
         var toReturn: ABIElement?
         for elem in self.abi {
@@ -50,7 +50,7 @@ struct ContractAbiV1: ContractRepresentable {
 
         return toReturn ?? ABIElement.constructor(ABIElement.Constructor.init(inputs: [], constant: false, payable: false))
     }
-    
+
     var events: [String: ABIElement] {
         var toReturn: [String: ABIElement] = [:]
         for elem in self.abi {
@@ -64,44 +64,44 @@ struct ContractAbiV1: ContractRepresentable {
         }
         return toReturn
     }
-    
+
     init(abi abiString: String, address: EthereumAddress? = nil) throws {
         do {
             guard let jsonData = abiString.data(using: .utf8) else { throw Web3.ContractError.abiError(.abiInvalid) }
-            
+
             self.abi = try JSONDecoder().decode([ABIRecord].self, from: jsonData).map { try $0.parse() }
             self.address = address
         } catch {
             throw Web3.ContractError.abiError(.abiInvalid)
         }
     }
-    
+
     init(abi: [ABIElement]) {
         self.abi = abi
     }
-    
+
     init(abi: [ABIElement], at: EthereumAddress) {
         self.abi = abi
         self.address = at
     }
-    
+
     func deploy(bytecode: Data, parameters: [AnyObject] = [AnyObject](), extraData: Data = Data(), options: Web3Options?) throws -> EthereumTransaction {
         let to: EthereumAddress = EthereumAddress.contractDeploymentAddress()
-        
+
         var gasLimit: BigUInt
         if let gasInOptions = options?.gasLimit {
             gasLimit = gasInOptions
         } else {
             throw Web3.ContractError.gasLimitNotFound
         }
-        
+
         var gasPrice: BigUInt
         if let gasPriceInOptions = options?.gasPrice {
             gasPrice = gasPriceInOptions
         } else {
             throw Web3.ContractError.gasPriceNotFound
         }
-        
+
         var value: BigUInt
         if let valueInOptions = options?.value {
             value = valueInOptions
@@ -119,7 +119,7 @@ struct ContractAbiV1: ContractRepresentable {
 
         return EthereumTransaction(gasPrice: gasPrice, gasLimit: gasLimit, to: to, value: value, data: fullData)
     }
-    
+
     func method(_ method: String = "fallback", parameters: [AnyObject] = [], extraData: Data = Data(), options: Web3Options?) throws -> EthereumTransaction {
         var to: EthereumAddress
         if let address = address {
@@ -129,21 +129,21 @@ struct ContractAbiV1: ContractRepresentable {
         } else {
             throw Web3.ContractError.toNotFound
         }
-        
+
         var gasLimit: BigUInt
         if let gasInOptions = options?.gasLimit {
             gasLimit = gasInOptions
         } else {
             throw Web3.ContractError.gasLimitNotFound
         }
-        
+
         var gasPrice: BigUInt
         if let gasPriceInOptions = options?.gasPrice {
             gasPrice = gasPriceInOptions
         } else {
             throw Web3.ContractError.gasPriceNotFound
         }
-        
+
         var value: BigUInt
         if let valueInOptions = options?.value {
             value = valueInOptions
@@ -152,7 +152,7 @@ struct ContractAbiV1: ContractRepresentable {
         }
 
         let data = try methodData(method, parameters: parameters, fallbackData: extraData)
-        
+
         return EthereumTransaction(gasPrice: gasPrice, gasLimit: gasLimit, to: to, value: value, data: extraData)
     }
 
@@ -164,16 +164,16 @@ struct ContractAbiV1: ContractRepresentable {
 
         return data
     }
-    
+
     func parseEvent(_ eventLog: EventLog) -> (eventName: String, eventData: [String: Any])? {
         for (eName, ev) in self.events {
             guard let parsed = ev.decodeReturnedLogs(eventLog) else { continue }
             return (eName, parsed)
         }
-        
+
         return nil
     }
-    
+
     func decodeReturnData(_ method: String, data: Data) -> [String: Any]? {
         guard method != "fallback" else {
             let resultHex = data.toHexString().addHexPrefix()
@@ -183,15 +183,15 @@ struct ContractAbiV1: ContractRepresentable {
         guard case .function = function else { return nil }
         return function.decodeReturnData(data)
     }
-    
+
     func testBloomForEventPrecence(eventName: String, bloom: EthereumBloomFilter) -> Bool? {
         return false
     }
-    
+
     func decodeInputData(_ method: String, data: Data) -> [String: Any]? {
         return nil
     }
-    
+
     func decodeInputData(_ data: Data) -> FunctionalCall? {
         return nil
     }

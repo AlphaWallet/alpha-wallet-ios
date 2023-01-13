@@ -128,7 +128,7 @@ extension FungibleTokenHeaderViewModel {
 }
 
 extension FungibleTokenHeaderViewModel.functional {
-    static func amountInFiatAttributedString(for balance: BalanceViewModel) -> NSAttributedString? {
+    static func amountInFiatAttributedString(for balance: BalanceViewModel) -> NSAttributedString {
         let string: String = {
             guard let ticker = balance.ticker, let amount = balance.amountInFiat else { return UiTweaks.noPriceMarker }
             let formatter = NumberFormatter.fiat(currency: ticker.currency)

@@ -54,7 +54,7 @@ class NavigationController: UINavigationController, UIGestureRecognizerDelegate 
         self.isPopActionInterractive = false
 
         let viewController = super.popViewController(animated: animated)
-        
+
         if let viewController = viewController as? PopNotifiable {
             viewController.willPopViewController?(animated: animated)
         }

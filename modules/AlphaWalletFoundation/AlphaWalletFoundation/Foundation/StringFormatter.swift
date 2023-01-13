@@ -4,24 +4,13 @@ import Foundation
 
 public final class StringFormatter {
     public init() {}
-    /// Converts a Double to a `currency String`.
-    ///
-    /// - Parameters:
-    ///   - double: double to convert.
-    ///   - currencyCode: code of the currency.
-    /// - Returns: Currency `String` representation.
     public func currency(with value: Double, and currencyCode: String = "") -> String {
         let formatter = NumberFormatter.currencyAccounting
         formatter.currencyCode = currencyCode
         //Trimming is important because the formatter output for `1.2` becomes "1.2 " (with trailing space) when region = Poland
         return (formatter.string(from: NSNumber(value: value))?.trimmed ?? "\(value)").droppedTrailingZeros
     }
-    /// Converts a NSDecimalNumber to a `currency String`.
-    ///
-    /// - Parameters:
-    ///   - double: double to convert.
-    ///   - currencyCode: code of the currency.
-    /// - Returns: Currency `String` representation.
+
     public func currency(with value: Double, currency: Currency, locale: Locale = .en_US, usesGroupingSeparator: Bool = true, fractionDigits: Int = Constants.formatterFractionDigits) -> String {
         let formatter = NumberFormatter.currencyAccounting
         formatter.locale = locale

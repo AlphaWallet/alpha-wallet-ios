@@ -10,8 +10,8 @@ import AlphaWalletFoundation
 import Combine
 
 @objc protocol AddMultipleCustomRpcViewControllerResponse: AnyObject {
-    @objc func addMultipleCustomRpcCompleted()
-    @objc func addMultipleCustomRpcFailed(added: NSArray, failed: NSArray, duplicates: NSArray, remaining: NSArray)
+    func addMultipleCustomRpcCompleted()
+    func addMultipleCustomRpcFailed(added: NSArray, failed: NSArray, duplicates: NSArray, remaining: NSArray)
 }
 
 @objc protocol HandleAddMultipleCustomRpcViewControllerResponse: AnyObject {

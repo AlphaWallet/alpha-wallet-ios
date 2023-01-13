@@ -19,7 +19,7 @@ final class SelectSwapToolViewController: UIViewController {
         tableView.estimatedRowHeight = DataEntry.Metric.TableView.estimatedRowHeight
         tableView.separatorInset = .zero
         tableView.delegate = self
-        
+
         return tableView
     }()
     private lazy var dataSource: SelectSwapToolViewModel.DataSource = makeDataSource()
@@ -39,7 +39,7 @@ final class SelectSwapToolViewController: UIViewController {
 
         emptyView = EmptyView.swapToolsEmptyView()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -77,7 +77,7 @@ final class SelectSwapToolViewController: UIViewController {
 }
 
 extension SelectSwapToolViewController: PopNotifiable {
-    @objc func willPopViewController(animated: Bool) {
+    func willPopViewController(animated: Bool) {
         disappear.send(())
     }
 
@@ -95,7 +95,7 @@ extension SelectSwapToolViewController: StatefulViewController {
 extension SelectSwapToolViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        
+
         let item = dataSource.snapshot().itemIdentifiers[indexPath.row]
         selection.send(item.isSelected ? .deselect(indexPath) : .select(indexPath))
     }
