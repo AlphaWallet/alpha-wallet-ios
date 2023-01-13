@@ -25,7 +25,7 @@ struct ContractAbiV1: ContractRepresentable {
         for m in self.abi {
             switch m {
             case .function(let function):
-                guard let name = function.name else { continue }
+                let name = function.name
                 toReturn[name] = m
             default:
                 continue
