@@ -21,12 +21,9 @@ struct GetTransactionRequest: JSONRPCKit.Request {
             infoLog("[RPC] Fetch transaction by hash: \(hash) is null")
             return nil
         }
-        guard
-            let dict = resultObject as? [String: AnyObject],
-            let transaction = PendingTransaction.from(dict)
-        else {
+        guard let dict = resultObject as? [String: AnyObject] else {
             throw CastError(actualValue: resultObject, expectedType: Response.self)
         }
-        return transaction
+        return PendingTransaction.from(dict)
     }
 }
