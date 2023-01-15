@@ -23,7 +23,7 @@ public struct Web3Options {
 
     public init() {
     }
-    
+
     public static func defaultOptions() -> Web3Options {
         var options = Web3Options()
 //        options.gasLimit = BigUInt("90000", radix: 10)!
@@ -33,7 +33,7 @@ public struct Web3Options {
         options.value = BigUInt(0)
         return options
     }
-    
+
     public static func fromJSON(_ json: [String: Any]) -> Web3Options? {
         var options = Web3Options()
         if let gas = json["gas"] as? String, let gasBiguint = BigUInt(gas.stripHexPrefix().lowercased(), radix: 16) {
@@ -51,8 +51,8 @@ public struct Web3Options {
         }
         return options
     }
-    
-    public static func merge(_ options: Web3Options?, with other: Web3Options?) -> Web3Options? {
+
+    public static func merge(_ options: Web3Options?, with other: Web3Options?) -> Web3Options {
         if other == nil && options == nil {
             return Web3Options.defaultOptions()
         }
@@ -87,9 +87,9 @@ public struct Web3Options {
         }
         return newOptions
     }
-    
+
     public static func smartMergeGasLimit(originalOptions: Web3Options?, extraOptions: Web3Options?, gasEstimage: BigUInt) -> BigUInt? {
-        guard let mergedOptions = Web3Options.merge(originalOptions, with: extraOptions) else { return nil } //just require any non-nils
+        let mergedOptions = Web3Options.merge(originalOptions, with: extraOptions)
         if mergedOptions.gasLimit == nil {
             return gasEstimage // for user's convenience we just use an estimate
 //            return nil // there is no opinion from user, so we can not proceed

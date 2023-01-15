@@ -37,9 +37,7 @@ extension Web3.Contract.TransactionIntermediate {
 
         let eth = Web3.Eth(web3: web3)
 
-        guard let mergedOptions = Web3Options.merge(self.options, with: options) else {
-            return .init(error: Web3Error.inputError("Provided options are invalid"))
-        }
+        let mergedOptions = Web3Options.merge(self.options, with: options)
         guard let from = mergedOptions.from else {
             return .init(error: Web3Error.inputError("No 'from' field provided"))
         }
@@ -79,10 +77,7 @@ extension Web3.Contract.TransactionIntermediate {
 
     public func callPromise(options: Web3Options? = nil, onBlock: String = "latest") -> Promise<[String: Any]> {
         let eth = Web3.Eth(web3: self.web3)
-        guard let mergedOptions = Web3Options.merge(self.options, with: options) else {
-            return .init(error: Web3Error.inputError("Provided options are invalid"))
-        }
-
+        let mergedOptions = Web3Options.merge(self.options, with: options)
         var optionsForCall = Web3Options()
         optionsForCall.from = mergedOptions.from
         optionsForCall.to = mergedOptions.to
@@ -100,9 +95,7 @@ extension Web3.Contract.TransactionIntermediate {
 
     func estimateGasPromise(options: Web3Options? = nil, onBlock: String = "latest") -> Promise<BigUInt> {
         let eth = Web3.Eth(web3: self.web3)
-        guard let mergedOptions = Web3Options.merge(self.options, with: options) else {
-            return .init(error: Web3Error.inputError("Provided options are invalid"))
-        }
+        let mergedOptions = Web3Options.merge(self.options, with: options)
         var optionsForGasEstimation = Web3Options()
         optionsForGasEstimation.from = mergedOptions.from
         optionsForGasEstimation.to = mergedOptions.to
