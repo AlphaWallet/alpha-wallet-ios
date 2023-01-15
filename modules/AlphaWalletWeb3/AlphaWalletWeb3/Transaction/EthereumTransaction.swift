@@ -64,9 +64,9 @@ public struct EthereumTransaction: CustomStringConvertible {
         let defaults = Web3Options.defaultOptions()
         let merged = Web3Options.merge(defaults, with: options)
         self.nonce = BigUInt(0)
-        self.gasLimit = merged!.gasLimit!
-        self.gasPrice = merged!.gasPrice!
-        self.value = merged!.value!
+        self.gasLimit = merged.gasLimit!
+        self.gasPrice = merged.gasPrice!
+        self.value = merged.value!
         self.to = to
         self.data = data
     }

@@ -41,8 +41,8 @@ extension Web3 {
             var mergedOptions = Web3Options.merge(self.options, with: options)
             if at != nil {
                 contract.address = at
-                mergedOptions?.to = at
-            } else if let addr = mergedOptions?.to {
+                mergedOptions.to = at
+            } else if let addr = mergedOptions.to {
                 contract.address = addr
             }
 
