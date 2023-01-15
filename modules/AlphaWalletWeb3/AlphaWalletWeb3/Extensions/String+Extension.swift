@@ -60,13 +60,7 @@ extension String {
             return String(self.suffix(toLength))
         }
     }
-    
-    func interpretAsBinaryData() -> Data? {
-        let padded = self.padding(toLength: ((self.count + 7) / 8) * 8, withPad: "0", startingAt: 0)
-        let byteArray = padded.split(intoChunksOf: 8).map { UInt8(strtoul($0, nil, 2)) }
-        return Data(byteArray)
-    }
-    
+
     var hasHexPrefix: Bool {
         return self.hasPrefix("0x")
     }
