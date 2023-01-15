@@ -35,7 +35,7 @@ public struct RpcNetwork: Codable {
         }
         return name.lowercased().contains("testnet")
     }
-    
+
     public var customRpc: CustomRPC {
         CustomRPC(chainID: chainId, nativeCryptoTokenName: nativeCurrency.name, chainName: name, symbol: nativeCurrency.symbol, rpcEndpoint: rpc.first ?? "", explorerEndpoint: infoURL, etherscanCompatibleType: .unknown, isTestnet: isTestNet)
     }
@@ -59,10 +59,10 @@ public struct NativeCurrency: Codable {
 }
 
 fileprivate func readFromCompressedFile(filePathUrl: URL?) -> [CustomRPC]? {
-    guard let filePathUrl = filePathUrl, let rawData = readFileIntoMemory(url: filePathUrl), let uncompressedData = uncompressData(data: rawData), let unfilteredChainArray = decodeDataToChainEntryArray(data: uncompressedData), let chainList = filterChainAndConvertToCustomRPC(chains: unfilteredChainArray) else {
+    guard let filePathUrl = filePathUrl, let rawData = readFileIntoMemory(url: filePathUrl), let uncompressedData = uncompressData(data: rawData), let unfilteredChainArray = decodeDataToChainEntryArray(data: uncompressedData) else {
         return nil
     }
-    return chainList
+    return filterChainAndConvertToCustomRPC(chains: unfilteredChainArray)
 }
 
 fileprivate func readFileIntoMemory(url: URL) -> Data? {
@@ -91,7 +91,7 @@ fileprivate func decodeDataToChainEntryArray(data: Data) -> [RpcNetwork]? {
     }
 }
 
-fileprivate func filterChainAndConvertToCustomRPC(chains: [RpcNetwork]) -> [CustomRPC]? {
+fileprivate func filterChainAndConvertToCustomRPC(chains: [RpcNetwork]) -> [CustomRPC] {
     let viewModel = SaveCustomRpcManualEntryViewModel(operation: .add)
     let filteredChain = chains.compactMap { entry -> CustomRPC? in
         switch viewModel.validate(entry: entry) {
