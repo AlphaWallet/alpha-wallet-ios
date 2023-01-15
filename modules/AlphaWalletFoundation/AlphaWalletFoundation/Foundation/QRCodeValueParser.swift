@@ -18,7 +18,7 @@ public struct AddressOrEip681Parser {
             return .address(address)
         }
 
-        guard parts.count == 2, let address = parts.last?.slice(to: "@")?.slice(to: "/")?.slice(to: "?").flatMap({ AddressOrEnsName(string: Eip681Parser.stripOptionalPrefix(from: $0)) }) else { return nil }
+        guard parts.count == 2, let addressOrNameString = parts.last?.slice(to: "@").slice(to: "/").slice(to: "?"), let address = AddressOrEnsName(string: Eip681Parser.stripOptionalPrefix(from: addressOrNameString)) else { return nil }
         let secondHalf = parts[1]
         let uncheckedParamParts = Array(secondHalf.components(separatedBy: "?")[1...])
         let paramParts = uncheckedParamParts.isEmpty ? [] : Array(uncheckedParamParts[0].components(separatedBy: "&"))
@@ -65,7 +65,7 @@ public extension String {
         }
     }
 
-    func slice(to: String) -> String? {
+    func slice(to: String) -> String {
         if let substringTo = (range(of: to, range: startIndex..<endIndex)?.lowerBound) {
             return String(self[startIndex..<substringTo])
         } else {
