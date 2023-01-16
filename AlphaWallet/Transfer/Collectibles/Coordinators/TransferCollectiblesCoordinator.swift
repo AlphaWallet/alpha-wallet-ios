@@ -162,7 +162,7 @@ extension TransferCollectiblesCoordinator: TransactionConfirmationCoordinatorDel
     func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: Error) {
         UIApplication.shared
             .presentedViewController(or: navigationController)
-            .displayError(message: error.localizedDescription)
+            .displayError(message: error.prettyError)
     }
 
     func didClose(in coordinator: TransactionConfirmationCoordinator) {

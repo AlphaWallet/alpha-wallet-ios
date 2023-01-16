@@ -173,7 +173,7 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
 
     private func handleSendTransactionError(_ error: Error) {
         switch error {
-        case let e as SendTransactionNotRetryableError:
+        case let e as SendTransactionNotRetryableError where !server.isTestnet:
             let errorViewController = SendTransactionErrorViewController(analytics: analytics, viewModel: .init(server: server, error: e))
             errorViewController.delegate = self
 
