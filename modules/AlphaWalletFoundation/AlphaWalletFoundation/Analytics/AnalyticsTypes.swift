@@ -107,6 +107,11 @@ public enum Analytics {
         case openSeaExpiredApiKey
         case rpcNodeRateLimited
         case rpcNodeInvalidApiKey
+        case lifiFetchSupportedTokensError
+        case lifiFetchSwapQuoteError
+        case lifiFetchSwapRouteError
+        case lifiFetchSupportedToolsError
+        case lifiFetchSupportedChainsError
     }
 
     public enum Properties: String {

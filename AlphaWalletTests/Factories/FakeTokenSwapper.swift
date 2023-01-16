@@ -29,6 +29,8 @@ extension TokenSwapper {
         return TokenSwapper(
             reachabilityManager: FakeReachabilityManager(true),
             serversProvider: BaseServersProvider(config: .make(enabledServers: enabledServers)),
-            networkProvider: FakeTokenSwapperNetworkProvider())
+            networkProvider: FakeTokenSwapperNetworkProvider(),
+            analyticsLogger: FakeAnalyticsService()
+        )
     }
 }
