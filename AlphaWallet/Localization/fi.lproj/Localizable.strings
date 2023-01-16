@@ -803,6 +803,7 @@
 "walletConnect.error.connectionTimeout.errorMessage" = "Yritit kytkeä WalletConnect-toiminnolla.\nValitettavasti tämä kesti liian pitkään. Luo uusi\nQR-koodi ja yritä uudestaan.";
 "walletConnect.scanQRCodeAgain" = "Lue QR-koodi uudestaan";
 "donate.shortcuts.walletQrCode" = "Näytä lompakon QR-koodi";
+"donate.shortcuts.camera" = "Scan QR Code with Camera";
 "whats.new" = "Mitä uutta?";
 "token.testnetWarning" = "Ropsten-rahakkeet eivät ole vaihdettavissa keskuspankkirahaan. Niiden rahallinen arvo on nolla. Sovelluskehittäjät käyttävät niitä testatakseen uusia asioita ilman, että heidän täytyy käyttää 'oikeita' Ethereum-rahakkeita.";
 "token.value.testnetWarning" = "Ei arvoa, luotu testaustarkoituksiin";

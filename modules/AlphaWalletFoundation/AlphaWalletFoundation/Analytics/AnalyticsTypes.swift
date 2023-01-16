@@ -165,6 +165,7 @@ public enum Analytics {
         case addCustomTokenScreen
         case walletScreen
         case quickAction
+        case siriShortcut
     }
 
     public enum ScanQRCodeResultType: String {
@@ -241,6 +242,7 @@ public enum Analytics {
 
     public enum ShortcutType: String {
         case walletQrCode
+        case camera
     }
 
     public enum HelpUrl: String {

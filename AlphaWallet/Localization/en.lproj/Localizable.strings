@@ -803,6 +803,7 @@
 "walletConnect.error.connectionTimeout.errorMessage" = "You tried to connect with WalletConnect.\nWell.. It takes too long. Please generate\na fresh QR code and try again.";
 "walletConnect.scanQRCodeAgain" = "Scan QR Code again";
 "donate.shortcuts.walletQrCode" = "Show Wallet QR Code";
+"donate.shortcuts.camera" = "Scan QR Code with Camera";
 "whats.new" = "What’s new?";
 "token.testnetWarning" = "Ropsten tokens are like ‘Monopoly’ money. They have zero financial worth but are used by developers to try out new designs without needing to spend valuable coins. ";
 "token.value.testnetWarning" = "No Value, made for tests only";

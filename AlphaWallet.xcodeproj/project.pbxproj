@@ -194,6 +194,7 @@
 		5E7C72A83542B1CB69E7B4B7 /* EnabledServersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B6A80324059B3EDA38C /* EnabledServersViewController.swift */; };
 		5E7C72B0A10A92E591696E48 /* ContactUsBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7AE6FAE0DF969B4F52E9 /* ContactUsBannerView.swift */; };
 		5E7C72B4302A10E137EEF94A /* DappRequestSwitchCustomChainCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7C11AF59E7CA26B3A2BB /* DappRequestSwitchCustomChainCoordinator.swift */; };
+		5E7C72C38C700EACD9AD9C96 /* CameraDonation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C781EC7B566DA16720207 /* CameraDonation.swift */; };
 		5E7C72C8A15397C5A40BFE76 /* WhatIsEthereumInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C774BCA281E4B077DBBFA /* WhatIsEthereumInfoViewController.swift */; };
 		5E7C72CEFE98436DB8EC0E05 /* BrowserHistoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73D55C366BCC53208686 /* BrowserHistoryCell.swift */; };
 		5E7C72CF145240C816BB12E2 /* DappsHomeViewControllerHeaderViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7375430F36C549EA8748 /* DappsHomeViewControllerHeaderViewViewModel.swift */; };
@@ -1150,6 +1151,7 @@
 		5E7C77E2559C7C9117C0F75F /* ElevateWalletSecurityViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElevateWalletSecurityViewModel.swift; sourceTree = "<group>"; };
 		5E7C77FAAB69452F5310356F /* EIP712TypedDataTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EIP712TypedDataTests.swift; sourceTree = "<group>"; };
 		5E7C7809B67CC2D8D6AA31C4 /* KeystoreBackupIntroductionViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeystoreBackupIntroductionViewModel.swift; sourceTree = "<group>"; };
+		5E7C781EC7B566DA16720207 /* CameraDonation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraDonation.swift; sourceTree = "<group>"; };
 		5E7C781F82F9E4903C460E33 /* ImportMagicTokenCardRowViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImportMagicTokenCardRowViewModel.swift; sourceTree = "<group>"; };
 		5E7C7828BD821B6F04B71C00 /* FungibleTokenHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FungibleTokenHeaderView.swift; sourceTree = "<group>"; };
 		5E7C783E3ADA4CF9554A0E7D /* NonFungibleTokenViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NonFungibleTokenViewCell.swift; sourceTree = "<group>"; };
@@ -2976,6 +2978,7 @@
 			children = (
 				5E7C7F4F9F57A4B1834EB723 /* WalletQrCodeDonation.swift */,
 				5E7C7E654FD9501D83F355C1 /* Donations.swift */,
+				5E7C781EC7B566DA16720207 /* CameraDonation.swift */,
 			);
 			path = Donations;
 			sourceTree = "<group>";
@@ -5616,6 +5619,7 @@
 				5E7C79A9B4DCEB1A62D657B7 /* CrashReporterViewModel.swift in Sources */,
 				5E7C7C8C689E972389F4A564 /* CrashReporterViewController.swift in Sources */,
 				5E7C7307FAE6F7E0BC1FE6A3 /* Donations.swift in Sources */,
+				5E7C72C38C700EACD9AD9C96 /* CameraDonation.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
