@@ -109,7 +109,7 @@ extension TickerHelper {
     func valueChangeValueColor(from value: Double?) -> UIColor {
         switch change24h(from: value) {
         case .appreciate:
-            return Colors.appHighlightGreen
+            return Configuration.Color.Semantic.appreciation
         case .depreciate:
             return Colors.apprecationRed
         case .none:

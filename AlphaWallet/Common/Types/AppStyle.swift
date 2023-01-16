@@ -102,8 +102,6 @@ extension UITabBarController {
 struct Colors {
     static let appBackground = UIColor.white
     static let appGrayLabel = UIColor(red: 155, green: 155, blue: 155)
-    static let appHighlightGreen = UIColor(red: 117, green: 185, blue: 67)
-    static let apprecationGreen = Colors.appHighlightGreen
     static let apprecationRed = UIColor(hex: "ff3b30")
     static let appRed = R.color.danger()!
     static let appSubtitle = UIColor(red: 117, green: 117, blue: 117)
@@ -328,7 +326,7 @@ enum Screen {
             static func valueChangeValue(ticker: CoinTicker?, emptyValueColor: UIColor = Configuration.Color.Semantic.alternativeText) -> UIColor {
                 switch TickerHelper(ticker: ticker).change24h {
                 case .appreciate:
-                    return Colors.apprecationGreen
+                    return Configuration.Color.Semantic.appreciation
                 case .depreciate:
                     return Colors.apprecationRed
                 case .none:

@@ -38,7 +38,7 @@ extension TokenCardRowViewModelProtocol {
     }
 
     var countColor: UIColor {
-        return Colors.appHighlightGreen
+        return Configuration.Color.Semantic.appreciation
     }
 
     var subtitleColor: UIColor {
