@@ -22,6 +22,7 @@ open class TokenSwapper: ObservableObject {
     private var inflightFetchSupportedServersPublisher: AnyPublisher<[RPCServer], PromiseError>?
     private var inflightFetchSupportedToolsPublisher: AnyPublisher<[SwapTool], Never>?
     private let serversProvider: ServersProvidable
+    private let analyticsLogger: AnalyticsLogger
     private var cancelable = Set<AnyCancellable>()
     private var reloadSubject = PassthroughSubject<Void, Never>()
     private var loadingStateSubject: CurrentValueSubject<TokenSwapper.LoadingState, Never> = .init(.pending)
@@ -44,10 +45,11 @@ open class TokenSwapper: ObservableObject {
             .eraseToAnyPublisher()
     }
 
-    public init(reachabilityManager: ReachabilityManagerProtocol, serversProvider: ServersProvidable, networkProvider: TokenSwapperNetworkProvider) {
+    public init(reachabilityManager: ReachabilityManagerProtocol, serversProvider: ServersProvidable, networkProvider: TokenSwapperNetworkProvider, analyticsLogger: AnalyticsLogger) {
         self.reachabilityManager = reachabilityManager
         self.networkProvider = networkProvider
         self.serversProvider = serversProvider
+        self.analyticsLogger = analyticsLogger
     }
 
     public func start() {
@@ -106,9 +108,9 @@ open class TokenSwapper: ObservableObject {
                 }.receive(on: queue)
                 .handleEvents(receiveOutput: { self.storage.addOrUpdate(swapPairs: $0, for: server) })
                 .map { _ in SwapSupportState(server: server, supportingType: .supports) }
-                .catch { [server] e -> AnyPublisher<SwapSupportState, Never> in
+                .catch { [analyticsLogger, server] e -> AnyPublisher<SwapSupportState, Never> in
                     infoLog("[Swap] Error while fetching supported tokens for chain: \(server). Error: \(e)")
-
+                    Self.logSwapError(Analytics.WebApiErrors.lifiFetchSupportedTokensError, analyticsLogger: analyticsLogger)
                     return Just(server)
                         .map { SwapSupportState(server: $0, supportingType: .failure(error: e)) }
                         .eraseToAnyPublisher()
@@ -123,8 +125,9 @@ open class TokenSwapper: ObservableObject {
             .map { value -> Result<SwapQuote, SwapError> in
                 self.storage.set(swapQuote: value)
                 return .success(value)
-            }.catch { e -> AnyPublisher<Result<SwapQuote, SwapError>, Never> in
+            }.catch { [analyticsLogger] e -> AnyPublisher<Result<SwapQuote, SwapError>, Never> in
                 infoLog("[Swap] Error while fetching swap quote for tokens. Error: \(e)")
+                Self.logSwapError(Analytics.WebApiErrors.lifiFetchSwapQuoteError, analyticsLogger: analyticsLogger)
                 return .just(.failure(e))
             }.eraseToAnyPublisher()
     }
@@ -141,8 +144,9 @@ open class TokenSwapper: ObservableObject {
                 self.storage.set(prefferedSwapRoute: pair.prefferedSwapRoute)
 
                 return pair.exchange
-            }.catch { e -> AnyPublisher<String?, Never> in
+            }.catch { [analyticsLogger] e -> AnyPublisher<String?, Never> in
                 infoLog("[Swap] Error while fetching swap route for tokens. Error: \(e)")
+                Self.logSwapError(Analytics.WebApiErrors.lifiFetchSwapRouteError, analyticsLogger: analyticsLogger)
                 return .just(nil)
             }.eraseToAnyPublisher()
     }
@@ -170,9 +174,10 @@ open class TokenSwapper: ObservableObject {
             .receive(on: queue)
             .handleEvents(receiveOutput: { _ in
                 self.inflightFetchSupportedToolsPublisher = nil
-            }, receiveCompletion: { result in
+            }, receiveCompletion: { [analyticsLogger] result in
                 guard case .failure(let error) = result else { return }
                 infoLog("[Swap] Error while fetching supported chains. Error: \(error)")
+                Self.logSwapError(Analytics.WebApiErrors.lifiFetchSupportedToolsError, analyticsLogger: analyticsLogger)
             }).share()
             .replaceError(with: [])
             .eraseToAnyPublisher()
@@ -197,15 +202,22 @@ open class TokenSwapper: ObservableObject {
             .receive(on: queue)
             .handleEvents(receiveOutput: { _ in
                 self.inflightFetchSupportedServersPublisher = nil
-            }, receiveCompletion: { result in
+            }, receiveCompletion: { [analyticsLogger] result in
                 guard case .failure(let error) = result else { return }
                 infoLog("[Swap] Error while fetching supported chains. Error: \(error)")
+                Self.logSwapError(Analytics.WebApiErrors.lifiFetchSupportedChainsError, analyticsLogger: analyticsLogger)
             }).share()
             .eraseToAnyPublisher()
 
         self.inflightFetchSupportedServersPublisher = publisher
 
         return publisher
+    }
+}
+
+extension TokenSwapper {
+    static func logSwapError(_ error: Analytics.WebApiErrors, analyticsLogger: AnalyticsLogger) {
+        analyticsLogger.log(error: error)
     }
 }
 
