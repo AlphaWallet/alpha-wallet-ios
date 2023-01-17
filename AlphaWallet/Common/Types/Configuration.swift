@@ -287,7 +287,7 @@ struct Configuration {
             static let text = Colors.appText
             static let textFieldStatus = Configuration.Color.Semantic.defaultErrorText
             static let icon = Colors.appTint
-            static let secondary = Colors.appGrayLabel
+            static let secondary = UIColor(red: 155, green: 155, blue: 155)
             static let textFieldError = Colors.appRed
             static let textFieldShadowWhileEditing = Colors.appTint
             static let placeholder = UIColor(hex: "919191")
