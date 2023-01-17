@@ -1,5 +1,5 @@
 //
-//  ChainStateSchedulerProvider.swift
+//  BlockNumberSchedulerProvider.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 20.08.2022.
@@ -10,17 +10,19 @@ import Combine
 import AlphaWalletCore
 import CombineExt
 
+public typealias BlockNumber = Int
+
 public protocol ChainStateSchedulerProviderDelegate: AnyObject {
-    func didReceive(result: Result<Int, PromiseError>)
+    func didReceive(result: Result<BlockNumber, PromiseError>)
 }
 
-public final class ChainStateSchedulerProvider: SchedulerProvider {
+public final class BlockNumberSchedulerProvider: SchedulerProvider {
     private let server: RPCServer
     private let analytics: AnalyticsLogger
     private lazy var blockNumberProvider = GetBlockNumber(server: server, analytics: analytics)
 
-    var interval: TimeInterval { return Constants.ChainState.getChainStateInterval }
-    var name: String { "ChainStateSchedulerProvider" }
+    var interval: TimeInterval { return Constants.BlockNumberProvider.getChainStateInterval }
+    var name: String { "BlockNumberSchedulerProvider" }
     var operation: AnyPublisher<Void, SchedulerError> {
         blockNumberProvider.getBlockNumber().publisher
             .receive(on: RunLoop.main)
@@ -40,7 +42,7 @@ public final class ChainStateSchedulerProvider: SchedulerProvider {
         self.analytics = analytics
     }
 
-    private func didReceiveValue(response block: Int) {
+    private func didReceiveValue(response block: BlockNumber) {
         delegate?.didReceive(result: .success(block))
     }
 

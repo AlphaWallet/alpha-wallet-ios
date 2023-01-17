@@ -4,22 +4,26 @@ import Foundation
 import AlphaWalletCore
 import Combine
 
-public final class ChainState {
+public protocol BlockNumberStorage {
+    func latestBlock(server: RPCServer) -> BlockNumber
+    func set(latestBlock: BlockNumber, for server: RPCServer)
+}
+
+public final class BlockNumberProvider {
     private let server: RPCServer
     private let analytics: AnalyticsLogger
-    private lazy var provider: ChainStateSchedulerProvider = {
-        let provider = ChainStateSchedulerProvider(server: server, analytics: analytics)
+    private lazy var provider: BlockNumberSchedulerProvider = {
+        let provider = BlockNumberSchedulerProvider(server: server, analytics: analytics)
         provider.delegate = self
 
         return provider
     }()
     private lazy var scheduler = Scheduler(provider: provider)
-    private var config: Config
-
+    private var storage: BlockNumberStorage
     public var latestBlock: Int {
-        get { return config.latestBlock(server: server) }
+        get { return storage.latestBlock(server: server) }
         set {
-            config.set(latestBlock: newValue, for: server)
+            storage.set(latestBlock: newValue, for: server)
             latestBlockSubject.send(newValue)
         }
     }
@@ -30,8 +34,8 @@ public final class ChainState {
 
     private lazy var latestBlockSubject: CurrentValueSubject<Int, Never> = .init(latestBlock)
 
-    public init(config: Config, server: RPCServer, analytics: AnalyticsLogger) {
-        self.config = config
+    public init(storage: BlockNumberStorage, server: RPCServer, analytics: AnalyticsLogger) {
+        self.storage = storage
         self.server = server
         self.analytics = analytics
     }
@@ -52,11 +56,11 @@ public final class ChainState {
     }
 }
 
-extension ChainState: ChainStateSchedulerProviderDelegate {
-    public func didReceive(result: Result<Int, PromiseError>) {
+extension BlockNumberProvider: ChainStateSchedulerProviderDelegate {
+    public func didReceive(result: Result<BlockNumber, PromiseError>) {
         switch result {
-        case .success(let block):
-            latestBlock = block
+        case .success(let blockNumber):
+            latestBlock = blockNumber
         case .failure(let error):
             //We need to catch (and since we can make a good guess what it might be, capture it below) it instead of `.cauterize()` because the latter would log a scary message about malformed JSON in the console.
             guard case .some(let error) = error else { return }
@@ -67,17 +71,17 @@ extension ChainState: ChainStateSchedulerProviderDelegate {
     }
 }
 
-fileprivate extension Config {
+extension Config: BlockNumberStorage {
     private static func chainStateKey(server: RPCServer) -> String {
         return "\(server.chainID)-" + "chainID"
     }
 
-    func latestBlock(server: RPCServer) -> Int {
+    public func latestBlock(server: RPCServer) -> BlockNumber {
         let latestBlockKey = Config.chainStateKey(server: server)
         return defaults.integer(forKey: latestBlockKey)
     }
 
-    func set(latestBlock: Int, for server: RPCServer) {
+    public func set(latestBlock: BlockNumber, for server: RPCServer) {
         let latestBlockKey = Config.chainStateKey(server: server)
         defaults.set(latestBlock, forKey: latestBlockKey)
     }

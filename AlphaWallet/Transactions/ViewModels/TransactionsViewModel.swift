@@ -55,7 +55,7 @@ class TransactionsViewModel {
 
     func buildCellViewModel(for transactionRow: TransactionRow) -> TransactionRowCellViewModel {
         let session = sessions[transactionRow.server]
-        return .init(transactionRow: transactionRow, chainState: session.chainState, wallet: session.account)
+        return .init(transactionRow: transactionRow, blockNumberProvider: session.blockNumberProvider, wallet: session.account)
     }
 }
 
