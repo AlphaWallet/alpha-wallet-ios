@@ -174,7 +174,7 @@ public enum Analytics {
         case string
         case url
         case privateKey
-        case seedPhase
+        case seedPhrase
         case json
         case address
     }

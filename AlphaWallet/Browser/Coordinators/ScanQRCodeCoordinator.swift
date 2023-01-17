@@ -148,7 +148,7 @@ extension ScanQRCodeCoordinator {
         case .privateKey:
             return .privateKey
         case .seedPhase:
-            return .seedPhase
+            return .seedPhrase
         }
     }
 
