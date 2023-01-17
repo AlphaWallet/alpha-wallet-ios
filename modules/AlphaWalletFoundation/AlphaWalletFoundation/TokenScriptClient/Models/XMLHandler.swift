@@ -392,7 +392,7 @@ class PrivateXMLHandler {
 
         threadSafe.performSync {
             //We still compute the TokenScript status even if xmlString is empty because it might be considered empty because there's a conflict
-            let tokenScriptStatusPromise = PrivateXMLHandler.computeTokenScriptStatus(forContract: contract, xmlString: xmlString, isOfficial: isOfficial, isCanonicalized: isCanonicalized, assetDefinitionStore: assetDefinitionStore)
+            let tokenScriptStatusPromise = assetDefinitionStore.computeTokenScriptStatus(forContract: contract, xmlString: xmlString, isOfficial: isOfficial)
             _tokenScriptStatus = tokenScriptStatusPromise
             if let tokenScriptStatus = tokenScriptStatusPromise.value {
                 let (xml, hasValidTokenScriptFile) = PrivateXMLHandler.storeXmlAccordingToTokenScriptStatus(xmlString: xmlString, tokenScriptStatus: tokenScriptStatus)
@@ -518,7 +518,10 @@ class PrivateXMLHandler {
         return areFieldsEmpty
     }
 
-    func resolveAttributesBypassingCache(withTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent, server: RPCServer, account: Wallet, assetDefinitionStore: AssetDefinitionStore) -> [AttributeId: AssetAttributeSyntaxValue] {
+    func resolveAttributesBypassingCache(withTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent,
+                                         server: RPCServer,
+                                         account: Wallet,
+                                         assetDefinitionStore: AssetDefinitionStore) -> [AttributeId: AssetAttributeSyntaxValue] {
         var attributes: [AttributeId: AssetAttributeSyntaxValue] = [:]
         threadSafe.performSync {
             attributes = assetDefinitionStore
@@ -534,66 +537,12 @@ class PrivateXMLHandler {
         return attributes
     }
 
-    private static func computeTokenScriptStatus(forContract contract: AlphaWallet.Address, xmlString: String, isOfficial: Bool, isCanonicalized: Bool, assetDefinitionStore: AssetDefinitionStore) -> Promise<TokenLevelTokenScriptDisplayStatus> {
-        if assetDefinitionStore.hasConflict(forContract: contract) {
-            return .value(.type2BadTokenScript(isDebugMode: !isOfficial, error: .tokenScriptType2ConflictingFiles, reason: .conflictWithAnotherFile))
-        }
-        if assetDefinitionStore.hasOutdatedTokenScript(forContract: contract) {
-            return .value(.type2BadTokenScript(isDebugMode: !isOfficial, error: .tokenScriptType2OldSchemaVersion, reason: .oldTokenScriptVersion))
-        }
-        if xmlString.nilIfEmpty == nil {
-            return .value(.type0NoTokenScript)
-        }
-        let result = XMLHandler.functional.checkTokenScriptSchema(xmlString)
-        switch result {
-        case .supportedTokenScriptVersion:
-            return firstly { () -> Promise<TokenScriptSignatureVerificationType> in
-                if let cachedVerificationType = assetDefinitionStore.getCacheTokenScriptSignatureVerificationType(forXmlString: xmlString) {
-                    return .value(cachedVerificationType)
-                } else {
-                    return verificationType(forXml: xmlString, isCanonicalized: isCanonicalized, contractAddress: contract, provider: assetDefinitionStore)
-                }
-            }.then { verificationStatus -> Promise<TokenLevelTokenScriptDisplayStatus> in
-                return Promise { seal in
-                    assetDefinitionStore.writeCacheTokenScriptSignatureVerificationType(verificationStatus, forContract: contract, forXmlString: xmlString)
-                    switch verificationStatus {
-                    case .verified(let domainName):
-                    seal.fulfill(.type1GoodTokenScriptSignatureGoodOrOptional(isDebugMode: !isOfficial, isSigned: true, validatedDomain: domainName, error: .tokenScriptType1SupportedAndSigned))
-                    case .verificationFailed:
-                        seal.fulfill(.type2BadTokenScript(isDebugMode: !isOfficial, error: .tokenScriptType2InvalidSignature, reason: .invalidSignature))
-                    case .notCanonicalizedAndNotSigned:
-                        //But should always be debug mode because we can't have a non-canonicalized XML from the official repo
-                        seal.fulfill(.type1GoodTokenScriptSignatureGoodOrOptional(isDebugMode: !isOfficial, isSigned: false, validatedDomain: nil, error: .tokenScriptType1SupportedNotCanonicalizedAndUnsigned))
-                    }
-                }
-            }
-        case .unsupportedTokenScriptVersion(let isOld):
-            if isOld {
-                return .value(.type2BadTokenScript(isDebugMode: !isOfficial, error: .custom("type 2 or bad? Mismatch version. Old version"), reason: .oldTokenScriptVersion))
-            } else {
-                assertImpossibleCodePath()
-                return .value(.type2BadTokenScript(isDebugMode: !isOfficial, error: .custom("type 2 or bad? Mismatch version. Unknown schema"), reason: nil))
-            }
-        case .unknownXml:
-            assertImpossibleCodePath()
-            return .value(.type2BadTokenScript(isDebugMode: !isOfficial, error: .custom("unknown. Maybe empty invalid? Doesn't even include something that might be our schema"), reason: nil))
-        case .others:
-            assertImpossibleCodePath()
-            return .value(.type2BadTokenScript(isDebugMode: !isOfficial, error: .custom("Not XML?"), reason: nil))
-        }
-    }
-
     private static func extractServer(fromXML xml: XMLDocument, xmlContext: XmlContext, matchingContract contractAddress: AlphaWallet.Address) -> RPCServer? {
         for (contract, chainId) in getHoldingContracts(xml: xml, xmlContext: xmlContext) where contract == contractAddress {
             return .init(chainID: chainId)
         }
         //Might be possible?
         return nil
-    }
-
-    private static func verificationType(forXml xmlString: String, isCanonicalized: Bool, contractAddress: AlphaWallet.Address, provider: BaseTokenScriptFilesProvider) -> Promise<TokenScriptSignatureVerificationType> {
-        let verifier = TokenScriptSignatureVerifier()
-        return verifier.verify(xml: xmlString, provider: provider)
     }
 
     private func defaultActions(forTokenType tokenType: TokenInterfaceType) -> [TokenInstanceAction] {
@@ -977,14 +926,40 @@ public struct XMLHandler {
         self.privateXMLHandler = privateXMLHandler
     }
 
-    public func getToken(name: String, symbol: String, fromTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent, index: UInt16, inWallet account: Wallet, server: RPCServer, tokenType: TokenType, assetDefinitionStore: AssetDefinitionStore) -> TokenScript.Token {
+    public func getToken(name: String,
+                         symbol: String,
+                         fromTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent,
+                         index: UInt16,
+                         inWallet account: Wallet,
+                         server: RPCServer,
+                         tokenType: TokenType,
+                         assetDefinitionStore: AssetDefinitionStore) -> TokenScript.Token {
         //TODO get rid of the forced unwrap
 
-        let overriden = privateXMLHandler.getToken(name: name, symbol: symbol, fromTokenIdOrEvent: tokenIdOrEvent, index: index, inWallet: account, server: server, tokenType: tokenType, assetDefinitionStore: assetDefinitionStore)
+        let overriden = privateXMLHandler.getToken(
+            name: name,
+            symbol: symbol,
+            fromTokenIdOrEvent: tokenIdOrEvent,
+            index: index,
+            inWallet: account,
+            server: server,
+            tokenType: tokenType,
+            assetDefinitionStore: assetDefinitionStore)
+
         if let baseXMLHandler = baseXMLHandler {
-            let base = baseXMLHandler.getToken(name: name, symbol: symbol, fromTokenIdOrEvent: tokenIdOrEvent, index: index, inWallet: account, server: server, tokenType: tokenType, assetDefinitionStore: assetDefinitionStore)
+            let base = baseXMLHandler.getToken(
+                name: name,
+                symbol: symbol,
+                fromTokenIdOrEvent: tokenIdOrEvent,
+                index: index,
+                inWallet: account,
+                server: server,
+                tokenType: tokenType,
+                assetDefinitionStore: assetDefinitionStore)
+
             let baseValues = base.values
             let overriddenValues = overriden.values
+
             return TokenScript.Token(
                     tokenIdOrEvent: overriden.tokenIdOrEvent,
                     tokenType: overriden.tokenType,
@@ -1026,12 +1001,22 @@ public struct XMLHandler {
                                                 server: RPCServer,
                                                 account: Wallet,
                                                 assetDefinitionStore: AssetDefinitionStore) -> [AttributeId: AssetAttributeSyntaxValue] {
-        
+
         var attributes: [AttributeId: AssetAttributeSyntaxValue] = [:]
-        let overrides = privateXMLHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: tokenIdOrEvent, server: server, account: account, assetDefinitionStore: assetDefinitionStore)
+        let overrides = privateXMLHandler.resolveAttributesBypassingCache(
+            withTokenIdOrEvent: tokenIdOrEvent,
+            server: server,
+            account: account,
+            assetDefinitionStore: assetDefinitionStore)
+
         if let baseXMLHandler = baseXMLHandler {
             //TODO This is inefficient because overridden attributes get resolved too
-            let base = baseXMLHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: tokenIdOrEvent, server: server, account: account, assetDefinitionStore: assetDefinitionStore)
+            let base = baseXMLHandler.resolveAttributesBypassingCache(
+                withTokenIdOrEvent: tokenIdOrEvent,
+                server: server,
+                account: account,
+                assetDefinitionStore: assetDefinitionStore)
+
             attributes = base.merging(overrides) { _, new in new }
         } else {
             attributes = overrides
