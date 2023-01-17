@@ -14,6 +14,13 @@ public struct WalletBalance {
     public let totalAmount: ValueForCurrency?
     public let change: ValueForCurrency?
 
+    public init(wallet: Wallet) {
+        self.wallet = wallet
+        self.etherToken = nil
+        self.totalAmount = nil
+        self.change = nil
+    }
+
     init(wallet: Wallet, tokens: [TokenViewModel]) {
         self.wallet = wallet
 

@@ -33,6 +33,7 @@ open class MultiWalletBalanceService: WalletBalanceService {
             .flatMapLatest { $0.map { $0.walletBalance }.combineLatest() }
             .map { WalletSummary(balances: $0) }
             .removeDuplicates()
+            .prepend(WalletSummary(balances: []))
             .eraseToAnyPublisher()
     }
 
@@ -51,10 +52,12 @@ open class MultiWalletBalanceService: WalletBalanceService {
     }
 
     public func walletBalance(for wallet: Wallet) -> AnyPublisher<WalletBalance, Never> {
-        return Just(wallet)
-            .combineLatest(fetchers)
-            .compactMap { wallet, fetchers in fetchers[wallet] }
+        let walletBalance = fetchers
+            .compactMap { fetchers in fetchers[wallet] }
             .flatMapLatest { $0.walletBalance }
-            .eraseToAnyPublisher()
+
+        let initial = Just(WalletBalance(wallet: wallet))
+
+        return Publishers.Merge(initial, walletBalance).eraseToAnyPublisher()
     }
 }
