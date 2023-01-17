@@ -13,6 +13,7 @@ public enum KeystoreError: LocalizedError {
     case failedToParseJSON
     case accountNotFound
     case failedToSignMessage
+    case signDataIsEmpty
     case failedToExportPrivateKey
     case failedToExportSeed
     case accountMayNeedImportingAgainOrEnablePasscode

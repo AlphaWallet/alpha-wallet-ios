@@ -421,6 +421,7 @@
 "accounts.error.accountNotFound" = "No se ha encontrado la cuenta";
 "accounts.error.failedToSignMessage" = "Error al firmar el mensaje";
 "accounts.error.failedToExportPrivateKey" = "Error al exportar la clave privada";
+"accounts.error.failedToSignEmptyMessage" = "Failed to sign an empty message";
 "accounts.error.failedToExportSeed" = "Error al exportar la semilla del monedero. Si has migrado a un teléfono nuevo o has restaurado el dispositivo, tienes que volver a importar el monedero";
 "Chain ID" = "ID de cadena";
 "Chain ID with prefix" = "Chain ID: %ld";

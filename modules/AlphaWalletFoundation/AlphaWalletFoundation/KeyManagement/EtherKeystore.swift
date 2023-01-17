@@ -410,7 +410,7 @@ open class EtherKeystore: NSObject, Keystore {
     }
 
     public func signMessageBulk(_ data: [Data], for account: AlphaWallet.Address, prompt: String) -> Result<[Data], KeystoreError> {
-        guard !data.isEmpty else { return .failure(KeystoreError.failedToSignMessage) }
+        guard !data.isEmpty else { return .failure(KeystoreError.signDataIsEmpty) }
         
         switch getPrivateKeyForSigning(forAccount: account, prompt: prompt) {
         case .seed, .seedPhrase:

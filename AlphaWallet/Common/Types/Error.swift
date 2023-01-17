@@ -34,6 +34,8 @@ extension KeystoreError {
             return R.string.localizable.keystoreAccessKeyNeedImportOrPasscode()
         case .userCancelled:
             return R.string.localizable.keystoreAccessKeyCancelled()
+        case .signDataIsEmpty:
+            return R.string.localizable.accountsErrorFailedToSignEmptyMessage()
         }
     }
 }

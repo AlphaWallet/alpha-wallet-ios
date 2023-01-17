@@ -233,7 +233,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
         return controller
     }
 
-    private func generateTransferLink(tokenHolder: TokenHolder, linkExpiryDate: Date, server: RPCServer) -> String {
+    private func generateTransferLink(tokenHolder: TokenHolder, linkExpiryDate: Date, server: RPCServer) throws -> String {
         let order = Order(
             price: BigUInt(0),
             indices: tokenHolder.indices,
@@ -243,20 +243,23 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
             nonce: BigUInt(0),
             tokenIds: tokenHolder.tokenIds,
             spawnable: false,
-            nativeCurrencyDrop: false
-        )
-        let orders = [order]
-        let address = session.account.address
-        let prompt = R.string.localizable.keystoreAccessKeySign()
-        let signedOrders = try! OrderHandler(keystore: keystore, prompt: prompt).signOrders(orders: orders, account: address, tokenType: tokenHolder.tokenType)
-        return UniversalLinkHandler(server: server).createUniversalLink(signedOrder: signedOrders[0], tokenType: tokenHolder.tokenType)
+            nativeCurrencyDrop: false)
+
+        let signedOrders = try OrderHandler(keystore: keystore, prompt: R.string.localizable.keystoreAccessKeySign()).signOrders(
+            orders: [order],
+            account: session.account.address,
+            tokenType: tokenHolder.tokenType)
+
+        return UniversalLinkHandler(server: server).createUniversalLink(
+            signedOrder: signedOrders[0],
+            tokenType: tokenHolder.tokenType)
     }
 
     //note that the price must be in szabo for a sell link, price must be rounded
     private func generateSellLink(tokenHolder: TokenHolder,
                                   linkExpiryDate: Date,
                                   ethCost: Ether,
-                                  server: RPCServer) -> String {
+                                  server: RPCServer) throws -> String {
         let ethCostRoundedTo5dp = String(format: "%.5f", Float(String(ethCost))!)
         let cost = Decimal(string: ethCostRoundedTo5dp)! * Decimal(string: "1000000000000000000")!
         let wei = BigUInt(cost.description)!
@@ -269,53 +272,50 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
                 nonce: BigUInt(0),
                 tokenIds: tokenHolder.tokenIds,
                 spawnable: false,
-                nativeCurrencyDrop: false
-        )
-        let orders = [order]
-        let address = session.account.address
-        let prompt = R.string.localizable.keystoreAccessKeySign()
-        let signedOrders = try! OrderHandler(keystore: keystore, prompt: prompt).signOrders(orders: orders, account: address, tokenType: tokenHolder.tokenType)
-        return UniversalLinkHandler(server: server).createUniversalLink(signedOrder: signedOrders[0], tokenType: tokenHolder.tokenType)
+                nativeCurrencyDrop: false)
+
+        let signedOrders = try OrderHandler(keystore: keystore, prompt: R.string.localizable.keystoreAccessKeySign()).signOrders(
+            orders: [order],
+            account: session.account.address,
+            tokenType: tokenHolder.tokenType)
+
+        return UniversalLinkHandler(server: server).createUniversalLink(
+            signedOrder: signedOrders[0],
+            tokenType: tokenHolder.tokenType)
     }
 
     private func sellViaActivitySheet(tokenHolder: TokenHolder, linkExpiryDate: Date, ethCost: Ether, paymentFlow: PaymentFlow, in viewController: UIViewController, sender: UIView) {
-        let server: RPCServer
-        switch paymentFlow {
-        case .send(let transactionType):
-            server = transactionType.server
-        case .request, .swap:
-            return
+        do {
+            guard case .send(let transactionType) = paymentFlow else { return }
+
+            let url = try generateSellLink(
+                tokenHolder: tokenHolder,
+                linkExpiryDate: linkExpiryDate,
+                ethCost: ethCost,
+                server: transactionType.server)
+
+            displayShareUrlView(url: url, from: viewController, sender: sender)
+        } catch {
+            viewController.displayError(error: error)
         }
-        let url = generateSellLink(
-            tokenHolder: tokenHolder,
-            linkExpiryDate: linkExpiryDate,
-            ethCost: ethCost,
-            server: server
-        )
-        let vc = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-        vc.popoverPresentationController?.sourceView = sender
-        vc.completionWithItemsHandler = { [weak self] activityType, completed, _, _ in
-            guard let strongSelf = self else { return }
-            //Be annoying if user copies and we close the sell process
-            if completed && activityType != UIActivity.ActivityType.copyToPasteboard {
-                strongSelf.navigationController.dismiss(animated: false) {
-                    strongSelf.delegate?.didClose(in: strongSelf)
-                }
-            }
-        }
-        viewController.present(vc, animated: true)
     }
 
     private func transferViaActivitySheet(tokenHolder: TokenHolder, linkExpiryDate: Date, paymentFlow: PaymentFlow, in viewController: UIViewController, sender: UIView) {
-        let server: RPCServer
-        switch paymentFlow {
-        case .send(let transactionType):
-            server = transactionType.server
-        case .request, .swap:
-            return
-        }
+        do {
+            guard case .send(let transactionType) = paymentFlow else { return }
 
-        let url = generateTransferLink(tokenHolder: tokenHolder, linkExpiryDate: linkExpiryDate, server: server)
+            let url = try generateTransferLink(
+                tokenHolder: tokenHolder,
+                linkExpiryDate: linkExpiryDate,
+                server: transactionType.server)
+
+            displayShareUrlView(url: url, from: viewController, sender: sender)
+        } catch {
+            viewController.displayError(error: error)
+        }
+    }
+
+    private func displayShareUrlView(url: String, from viewController: UIViewController, sender: UIView) {
         let vc = UIActivityViewController(activityItems: [url], applicationActivities: nil)
         vc.popoverPresentationController?.sourceView = sender
         vc.completionWithItemsHandler = { [weak self] activityType, completed, _, _ in
