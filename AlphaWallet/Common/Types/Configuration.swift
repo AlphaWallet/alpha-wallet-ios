@@ -282,6 +282,7 @@ struct Configuration {
             }
 
             static let appreciation = UIColor(red: 117, green: 185, blue: 67)
+            static let depreciation = UIColor(hex: "ff3b30")
 
             static let border = UIColor(red: 194, green: 194, blue: 194)
             static let text = Colors.appText

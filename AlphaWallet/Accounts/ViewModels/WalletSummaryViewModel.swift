@@ -111,7 +111,7 @@ extension TickerHelper {
         case .appreciate:
             return Configuration.Color.Semantic.appreciation
         case .depreciate:
-            return Colors.apprecationRed
+            return Configuration.Color.Semantic.depreciation
         case .none:
             return Configuration.Color.Semantic.defaultSubtitleText
         }
