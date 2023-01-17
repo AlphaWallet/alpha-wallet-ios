@@ -101,7 +101,6 @@ extension UITabBarController {
 
 struct Colors {
     static let appBackground = UIColor.white
-    static let appGrayLabel = UIColor(red: 155, green: 155, blue: 155)
     static let apprecationRed = UIColor(hex: "ff3b30")
     static let appRed = R.color.danger()!
     static let appSubtitle = UIColor(red: 117, green: 117, blue: 117)
