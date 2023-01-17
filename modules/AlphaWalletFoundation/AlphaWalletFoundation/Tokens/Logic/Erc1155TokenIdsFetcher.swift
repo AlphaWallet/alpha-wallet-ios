@@ -93,7 +93,7 @@ public class Erc1155TokenIdsFetcher {
         let config = self.config
 
         let promise = firstly {
-            Promise<Int>.value(session.chainState.latestBlock)
+            Promise<Int>.value(session.blockNumberProvider.latestBlock)
         }.map { blockNumber -> (Erc1155TokenIds, Int) in
             let tokenIds: Erc1155TokenIds = self.readJson() ?? .init()
             return (tokenIds, blockNumber)

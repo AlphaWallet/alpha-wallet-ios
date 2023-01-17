@@ -9,10 +9,10 @@ struct TransactionRowCellViewModel {
     private let wallet: Wallet
     private let transactionRowViewModel: TransactionRowViewModel
 
-    init(transactionRow: TransactionRow, chainState: ChainState, wallet: Wallet) {
+    init(transactionRow: TransactionRow, blockNumberProvider: BlockNumberProvider, wallet: Wallet) {
         self.transactionRow = transactionRow
         self.wallet = wallet
-        self.transactionRowViewModel = TransactionRowViewModel(transactionRow: transactionRow, chainState: chainState, wallet: wallet)
+        self.transactionRowViewModel = TransactionRowViewModel(transactionRow: transactionRow, blockNumberProvider: blockNumberProvider, wallet: wallet)
     }
 
     private var operationTitle: String? {

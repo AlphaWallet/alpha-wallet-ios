@@ -13,7 +13,7 @@ public final class WalletSession: Equatable {
     public let account: Wallet
     public let server: RPCServer
     public let config: Config
-    public let chainState: ChainState
+    public let blockNumberProvider: BlockNumberProvider
     public lazy private (set) var tokenProvider: TokenProviderType = {
         return TokenProvider(account: account, server: server, analytics: analytics)
     }()
@@ -26,17 +26,17 @@ public final class WalletSession: Equatable {
         self.account = account
         self.server = server
         self.config = config
-        self.chainState = ChainState(config: config, server: server, analytics: analytics)
+        self.blockNumberProvider = BlockNumberProvider(storage: config, server: server, analytics: analytics)
 
         if config.development.isAutoFetchingDisabled {
             //no-op
         } else {
-            self.chainState.start()
+            self.blockNumberProvider.start()
         }
     }
 
     public func stop() {
-        chainState.stop()
+        blockNumberProvider.stop()
     }
 }
 

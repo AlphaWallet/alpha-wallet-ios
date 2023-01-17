@@ -53,7 +53,7 @@ class TransactionsCoordinator: Coordinator {
         let viewModel = TransactionDetailsViewModel(
             transactionsService: transactionsService,
             transactionRow: transactionRow,
-            chainState: session.chainState,
+            blockNumberProvider: session.blockNumberProvider,
             wallet: session.account,
             tokensService: tokensService,
             analytics: analytics)
