@@ -427,7 +427,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         let coordinator = SettingsCoordinator(
             keystore: keystore,
             config: config,
-            sessions: sessionsProvider.activeSessions,
+            sessionsProvider: sessionsProvider,
             restartQueue: restartQueue,
             promptBackupCoordinator: promptBackupCoordinator,
             analytics: analytics,

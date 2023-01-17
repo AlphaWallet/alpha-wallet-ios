@@ -23,7 +23,7 @@ protocol SettingsCoordinatorDelegate: AnyObject, CanOpenURL {
 class SettingsCoordinator: Coordinator {
     private let keystore: Keystore
     private var config: Config
-    private let sessions: ServerDictionary<WalletSession>
+    private let sessionsProvider: SessionsProvider
     private let restartQueue: RestartTaskQueue
     private let promptBackupCoordinator: PromptBackupCoordinator
     private let analytics: AnalyticsLogger
@@ -33,7 +33,8 @@ class SettingsCoordinator: Coordinator {
     private let blockiesGenerator: BlockiesGenerator
     private let domainResolutionService: DomainResolutionServiceType
     private var account: Wallet {
-        return sessions.anyValue.account
+        return sessionsProvider.activeSessions.anyValue.account
+
     }
     private let lock: Lock
     private let currencyService: CurrencyService
@@ -64,7 +65,7 @@ class SettingsCoordinator: Coordinator {
     init(navigationController: UINavigationController = .withOverridenBarAppearence(),
          keystore: Keystore,
          config: Config,
-         sessions: ServerDictionary<WalletSession>,
+         sessionsProvider: SessionsProvider,
          restartQueue: RestartTaskQueue,
          promptBackupCoordinator: PromptBackupCoordinator,
          analytics: AnalyticsLogger,
@@ -86,7 +87,7 @@ class SettingsCoordinator: Coordinator {
         self.lock = lock
         self.keystore = keystore
         self.config = config
-        self.sessions = sessions
+        self.sessionsProvider = sessionsProvider
         self.restartQueue = restartQueue
         self.promptBackupCoordinator = promptBackupCoordinator
         self.analytics = analytics
