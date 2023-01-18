@@ -11,7 +11,7 @@ import BigInt
 
 public protocol ApproveSwapProviderDelegate: AnyObject {
     func promptToSwap(unsignedTransaction: UnsignedSwapTransaction, fromToken: TokenToSwap, fromAmount: BigUInt, toToken: TokenToSwap, toAmount: BigUInt, in provider: ApproveSwapProvider)
-    func promptForErc20Approval(token: AlphaWallet.Address, server: RPCServer, owner: AlphaWallet.Address, spender: AlphaWallet.Address, amount: BigUInt, in provider: ApproveSwapProvider) -> Promise<EthereumTransaction.Hash>
+    func promptForErc20Approval(token: AlphaWallet.Address, server: RPCServer, owner: AlphaWallet.Address, spender: AlphaWallet.Address, amount: BigUInt, in provider: ApproveSwapProvider) -> Promise<String>
     func changeState(in approveSwapProvider: ApproveSwapProvider, state: ApproveSwapState)
     func didFailure(in approveSwapProvider: ApproveSwapProvider, error: Error)
 }
@@ -87,7 +87,7 @@ public final class ApproveSwapProvider {
             }.map {
                 return true
             }.recover { error -> Promise<Bool> in
-                if error is EthereumTransaction.NotCompletedYet {
+                if error is WaitTillTransactionCompleted.NotCompletedYetError {
                     throw SwapError.approveTransactionNotCompleted
                 } else if let error = error as? SwapError {
                     switch error {
