@@ -3,6 +3,7 @@
 import Foundation
 import BigInt
 import PromiseKit
+import Combine
 
 struct RawTransaction: Decodable {
     let hash: String
@@ -57,7 +58,6 @@ final class LocalizedOperationFetcher {
 
     private let tokensService: TokenProvidable
     private let session: WalletSession
-    private let queue = DispatchQueue(label: "org.alphawallet.swift.localizedOperationFetcher", qos: .utility)
 
     var server: RPCServer { session.server }
     var account: Wallet { session.account }
@@ -67,48 +67,45 @@ final class LocalizedOperationFetcher {
         self.session = session
     }
 
-    func fetchLocalizedOperation(value: BigUInt, from: String, contract: AlphaWallet.Address, to recipient: AlphaWallet.Address, functionCall: DecodedFunctionCall) -> Promise<[LocalizedOperationObjectInstance]> {
+    func fetchLocalizedOperation(value: BigUInt, from: String, contract: AlphaWallet.Address, to recipient: AlphaWallet.Address, functionCall: DecodedFunctionCall) -> AnyPublisher<[LocalizedOperationObjectInstance], Never> {
         fetchLocalizedOperation(contract: contract)
-            .map(on: queue, { token -> [LocalizedOperationObjectInstance] in
+            .map { token -> [LocalizedOperationObjectInstance] in
                 let operationType = TransactionInstance.mapTokenTypeToTransferOperationType(token.tokenType, functionCall: functionCall)
                 let result = LocalizedOperationObjectInstance(from: from, to: recipient.eip55String, contract: contract, type: operationType.rawValue, value: String(value), tokenId: "", symbol: token.symbol, name: token.name, decimals: token.decimals)
                 return [result]
-            }).recover(on: queue, { _ -> Promise<[LocalizedOperationObjectInstance]> in
-                return .value([])
-            })
+            }.replaceError(with: [])
+            .eraseToAnyPublisher()
     }
 
-    private func fetchLocalizedOperation(contract: AlphaWallet.Address) -> Promise<LocalizedOperationFetcher.LocalizedOperation> {
-        firstly {
-            .value(contract)
-        }.then(on: queue, { [queue, tokensService, session] contract -> Promise<LocalizedOperationFetcher.LocalizedOperation> in
-            if let token = tokensService.token(for: contract, server: session.server) {
-                return .value((name: token.name, symbol: token.symbol, decimals: token.decimals, tokenType: token.type))
-            } else {
-                let getContractName = session.tokenProvider.getContractName(for: contract)
-                let getContractSymbol = session.tokenProvider.getContractSymbol(for: contract)
-                let getDecimals = session.tokenProvider.getDecimals(for: contract)
-                let getTokenType = session.tokenProvider.getTokenType(for: contract)
+    private func fetchLocalizedOperation(contract: AlphaWallet.Address) -> AnyPublisher<LocalizedOperationFetcher.LocalizedOperation, SessionTaskError> {
+        return Just(contract)
+            .setFailureType(to: SessionTaskError.self)
+            .flatMap { [tokensService, session] contract -> AnyPublisher<LocalizedOperationFetcher.LocalizedOperation, SessionTaskError> in
+                if let token = tokensService.token(for: contract, server: session.server) {
+                    return .just((name: token.name, symbol: token.symbol, decimals: token.decimals, tokenType: token.type))
+                } else {
+                    let getContractName = session.tokenProvider.getContractName(for: contract)
+                        .publisher().mapError { SessionTaskError.responseError($0.embedded) }.eraseToAnyPublisher()
+                    let getContractSymbol = session.tokenProvider.getContractSymbol(for: contract)
+                        .publisher().mapError { SessionTaskError.responseError($0.embedded) }.eraseToAnyPublisher()
+                    let getDecimals = session.tokenProvider.getDecimals(for: contract)
+                        .publisher().mapError { SessionTaskError.responseError($0.embedded) }.eraseToAnyPublisher()
+                    let getTokenType = session.tokenProvider.getTokenType(for: contract)
+                        .publisher().mapError { SessionTaskError.responseError($0.embedded) }.eraseToAnyPublisher()
 
-                let promise = firstly {
-                    when(fulfilled: getContractName, getContractSymbol, getDecimals, getTokenType)
-                }.then(on: queue, { name, symbol, decimals, tokenType -> Promise<LocalizedOperationFetcher.LocalizedOperation> in
-                    return .value((name: name, symbol: symbol, decimals: decimals, tokenType: tokenType))
-                }).recover(on: queue, { error -> Promise<LocalizedOperationFetcher.LocalizedOperation> in
-                    //NOTE: Return an empty array when failure to fetch contracts data, instead of failing whole TransactionInstance creating
-                    throw error
-                })
-
-                return promise
-            }
-        })
+                    return Publishers.CombineLatest4(getContractName, getContractSymbol, getDecimals, getTokenType)
+                        .map { (name: $0, symbol: $1, decimals: $2, tokenType: $3) }
+                        .eraseToAnyPublisher()
+                }
+            }.eraseToAnyPublisher()
     }
 }
 
 extension TransactionInstance {
-    static func buildTransaction(from transaction: RawTransaction, fetcher: LocalizedOperationFetcher) -> Promise<TransactionInstance?> {
+
+    static func buildTransaction(from transaction: RawTransaction, fetcher: LocalizedOperationFetcher) -> AnyPublisher<TransactionInstance?, Never> {
         guard let from = AlphaWallet.Address(string: transaction.from) else {
-            return Promise.value(nil)
+            return .just(nil)
         }
 
         let state: TransactionState = {
@@ -120,33 +117,30 @@ extension TransactionInstance {
 
         let to = AlphaWallet.Address(string: transaction.to)?.eip55String ?? transaction.to
 
-        return firstly {
-            createOperationForTokenTransfer(for: transaction, fetcher: fetcher)
-        }.then(on: .global(), { operations -> Promise<TransactionInstance?> in
-            let result = TransactionInstance(
-                    id: transaction.hash,
-                    server: fetcher.server,
-                    blockNumber: Int(transaction.blockNumber)!,
-                    transactionIndex: Int(transaction.transactionIndex)!,
-                    from: from.description,
-                    to: to,
-                    value: transaction.value,
-                    gas: transaction.gas,
-                    gasPrice: transaction.gasPrice,
-                    gasUsed: transaction.gasUsed,
-                    nonce: transaction.nonce,
-                    date: NSDate(timeIntervalSince1970: TimeInterval(transaction.timeStamp) ?? 0) as Date,
-                    localizedOperations: operations,
-                    state: state,
-                    isErc20Interaction: false)
-
-            return .value(result)
-        })
+        return createOperationForTokenTransfer(for: transaction, fetcher: fetcher)
+            .map { operations -> TransactionInstance? in
+                return TransactionInstance(
+                        id: transaction.hash,
+                        server: fetcher.server,
+                        blockNumber: Int(transaction.blockNumber)!,
+                        transactionIndex: Int(transaction.transactionIndex)!,
+                        from: from.description,
+                        to: to,
+                        value: transaction.value,
+                        gas: transaction.gas,
+                        gasPrice: transaction.gasPrice,
+                        gasUsed: transaction.gasUsed,
+                        nonce: transaction.nonce,
+                        date: NSDate(timeIntervalSince1970: TimeInterval(transaction.timeStamp) ?? 0) as Date,
+                        localizedOperations: operations,
+                        state: state,
+                        isErc20Interaction: false)
+            }.eraseToAnyPublisher()
     }
 
-    static private func createOperationForTokenTransfer(for transaction: RawTransaction, fetcher: LocalizedOperationFetcher) -> Promise<[LocalizedOperationObjectInstance]> {
+    static private func createOperationForTokenTransfer(for transaction: RawTransaction, fetcher: LocalizedOperationFetcher) -> AnyPublisher<[LocalizedOperationObjectInstance], Never> {
         guard let contract = transaction.toAddress else {
-            return Promise.value([])
+            return .just([])
         }
 
         if let functionCall = DecodedFunctionCall(data: Data(hex: transaction.input)) {
@@ -165,7 +159,7 @@ extension TransactionInstance {
             }
         }
 
-        return Promise.value([])
+        return .just([])
     }
 
     static func mapTokenTypeToTransferOperationType(_ tokenType: TokenType, functionCall: DecodedFunctionCall) -> OperationType {

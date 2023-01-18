@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import Combine 
+import Combine
 import CombineExt
 
 protocol PendingTransactionSchedulerProviderDelegate: AnyObject {
@@ -21,19 +21,20 @@ final class PendingTransactionSchedulerProvider: SchedulerProvider {
     var operation: AnyPublisher<Void, SchedulerError> {
         return fetchPendingTransactionPublisher()
     }
-    private let fetcher: GetPendingTransaction
+    private let blockchainProvider: BlockchainProvider
     let transaction: TransactionInstance
 
     weak var delegate: PendingTransactionSchedulerProviderDelegate?
 
-    init(fetcher: GetPendingTransaction, transaction: TransactionInstance, fetchPendingTransactionsQueue: OperationQueue) {
-        self.fetcher = fetcher
+    init(blockchainProvider: BlockchainProvider, transaction: TransactionInstance, fetchPendingTransactionsQueue: OperationQueue) {
+        self.blockchainProvider = blockchainProvider
         self.fetchPendingTransactionsQueue = fetchPendingTransactionsQueue
         self.transaction = transaction
     }
 
     private func fetchPendingTransactionPublisher() -> AnyPublisher<Void, SchedulerError> {
-        return fetcher.getPendingTransaction(server: transaction.server, hash: transaction.id)
+        return blockchainProvider
+            .pendingTransaction(hash: transaction.id)
             .subscribe(on: fetchPendingTransactionsQueue)
             .handleEvents(receiveOutput: { [weak self] pendingTransaction in
                 //We can't just delete the pending transaction because it might be valid, just that the RPC node doesn't know about it

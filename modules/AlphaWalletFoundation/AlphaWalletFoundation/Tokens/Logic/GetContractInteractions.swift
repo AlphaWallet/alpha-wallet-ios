@@ -100,8 +100,11 @@ class TransactionsNetworkProvider {
                     let promises = try JSONDecoder().decode(ArrayResponse<RawTransaction>.self, from: result.data)
                         .result.map { TransactionInstance.buildTransaction(from: $0, fetcher: localizedOperationFetcher) }
 
-                    return (when(fulfilled: promises).compactMap(on: .global()) { $0.compactMap { $0 } })
-                        .publisher(queue: .global())
+                    return Publishers.MergeMany(promises)
+                        .collect()
+                        .map { $0.compactMap { $0 } }
+                        .setFailureType(to: PromiseError.self)
+                        .eraseToAnyPublisher()
                 } catch {
                     return .fail(.some(error: error))
                 }

@@ -7,7 +7,6 @@
 
 import SwiftyJSON 
 import Combine
-import APIKit
 import AlphaWalletCore
 
 public extension Covalent {

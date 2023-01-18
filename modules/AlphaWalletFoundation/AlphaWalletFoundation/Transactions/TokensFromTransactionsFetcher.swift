@@ -7,6 +7,7 @@
 
 import Foundation
 import PromiseKit
+import Combine
 
 public protocol TokensFromTransactionsFetcherDelegate: AnyObject {
     func didExtractTokens(in fetcher: TokensFromTransactionsFetcher, contractsAndServers: [AddressAndRPCServer], ercTokens: [ErcToken])
@@ -15,6 +16,7 @@ public protocol TokensFromTransactionsFetcherDelegate: AnyObject {
 public final class TokensFromTransactionsFetcher {
     private let detectedTokens: DetectedContractsProvideble
     private let session: WalletSession
+    private var cancellable = Set<AnyCancellable>()
 
     public weak var delegate: TokensFromTransactionsFetcherDelegate?
 
@@ -26,10 +28,12 @@ public final class TokensFromTransactionsFetcher {
     func extractNewTokens(from transactions: [TransactionInstance]) {
         guard !transactions.isEmpty else { return }
         filterTransactionsToPullContractsFrom(transactions)
-            .done { [weak self] transactionsToPullContractsFrom, contractsAndTokenTypes in
+            .sink(receiveCompletion: { _ in
+
+            }, receiveValue: { [weak self] transactionsToPullContractsFrom, contractsAndTokenTypes in
                 guard !transactionsToPullContractsFrom.isEmpty else { return }
                 self?.addTokensFromUpdates(transactionsToPullContractsFrom: transactionsToPullContractsFrom, contractsAndTokenTypes: contractsAndTokenTypes)
-            }.cauterize()
+            }).store(in: &cancellable)
     }
 
     private func addTokensFromUpdates(transactionsToPullContractsFrom transactions: [TransactionInstance], contractsAndTokenTypes: [AlphaWallet.Address: TokenType]) {
@@ -48,7 +52,7 @@ public final class TokensFromTransactionsFetcher {
         return alreadyAddedContracts + deletedContracts + hiddenContracts + delegateContracts
     }
 
-    private func filterTransactionsToPullContractsFrom(_ transactions: [TransactionInstance]) -> Promise<(transactions: [TransactionInstance], contractTypes: [AlphaWallet.Address: TokenType])> {
+    private func filterTransactionsToPullContractsFrom(_ transactions: [TransactionInstance]) -> AnyPublisher<(transactions: [TransactionInstance], contractTypes: [AlphaWallet.Address: TokenType]), SessionTaskError> {
         let contractsToAvoid = contractsToAvoid
         let filteredTransactions = transactions.filter {
             if let toAddressToCheck = AlphaWallet.Address(string: $0.to), contractsToAvoid.contains(toAddressToCheck) {
@@ -62,13 +66,13 @@ public final class TokensFromTransactionsFetcher {
 
         //The fetch ERC20 transactions endpoint from Etherscan returns only ERC20 token transactions but the Blockscout version also includes ERC721 transactions too (so it's likely other types that it can detect will be returned too); thus we check the token type rather than assume that they are all ERC20
         let contracts = Array(Set(filteredTransactions.compactMap { $0.localizedOperations.first?.contractAddress }))
-        let tokenTypePromises = contracts.map { session.tokenProvider.getTokenType(for: $0) }
+        let tokenTypePromises = contracts.map { session.tokenProvider.getTokenType(for: $0).publisher(queue: .main).mapError { SessionTaskError.responseError($0.embedded) }.eraseToAnyPublisher() }
 
-        return when(fulfilled: tokenTypePromises)
+        return Publishers.MergeMany(tokenTypePromises).collect()
             .map { tokenTypes in
                 let contractsToTokenTypes = Dictionary(uniqueKeysWithValues: zip(contracts, tokenTypes))
                 return (transactions: filteredTransactions, contractTypes: contractsToTokenTypes)
-            }
+            }.eraseToAnyPublisher()
     }
 }
 

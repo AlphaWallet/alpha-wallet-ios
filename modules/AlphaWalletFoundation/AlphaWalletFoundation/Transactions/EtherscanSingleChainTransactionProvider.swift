@@ -25,12 +25,10 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
     private lazy var localizedOperationFetcher = LocalizedOperationFetcher(tokensService: tokensService, session: session)
 
     private lazy var pendingTransactionProvider: PendingTransactionProvider = {
-        let pendingTransactionFetcher = GetPendingTransaction(server: session.server, analytics: analytics)
         return PendingTransactionProvider(
             session: session,
             transactionDataStore: transactionDataStore,
-            tokensFromTransactionsFetcher: tokensFromTransactionsFetcher,
-            fetcher: pendingTransactionFetcher)
+            tokensFromTransactionsFetcher: tokensFromTransactionsFetcher)
     }()
     private let networkService: NetworkService
     private var cancelable = Set<AnyCancellable>()
