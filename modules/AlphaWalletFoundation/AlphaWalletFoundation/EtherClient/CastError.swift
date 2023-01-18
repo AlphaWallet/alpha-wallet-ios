@@ -2,7 +2,16 @@
 
 import Foundation
 
-public struct CastError<ExpectedType>: Error {
+public struct CastError<ExpectedType>: LocalizedError {
     let actualValue: Any
     let expectedType: ExpectedType.Type
+
+    public init(actualValue: Any, expectedType: ExpectedType.Type) {
+        self.actualValue = actualValue
+        self.expectedType = expectedType
+    }
+
+    public var localizedDescription: String {
+        return "Decode failure: Unavailable to decode value of \(actualValue) to expected type \(String(describing: expectedType))"
+    }
 }
