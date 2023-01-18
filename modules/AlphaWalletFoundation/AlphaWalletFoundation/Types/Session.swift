@@ -34,7 +34,7 @@ public final class WalletSession: Equatable {
         self.config = config
 
         self.blockchainProvider = blockchainProvider
-        self.blockNumberProvider = BlockNumberProvider(storage: config, server: server, analytics: analytics)
+        self.blockNumberProvider = BlockNumberProvider(storage: config, blockchainProvider: blockchainProvider)
 
         if config.development.isAutoFetchingDisabled {
             //no-op
