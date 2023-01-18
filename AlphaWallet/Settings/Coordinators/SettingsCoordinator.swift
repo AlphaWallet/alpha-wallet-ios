@@ -34,7 +34,6 @@ class SettingsCoordinator: Coordinator {
     private let domainResolutionService: DomainResolutionServiceType
     private var account: Wallet {
         return sessionsProvider.activeSessions.anyValue.account
-
     }
     private let lock: Lock
     private let currencyService: CurrencyService
@@ -160,7 +159,7 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
             navigationController: navigationController,
             keystore: keystore,
             account: account)
-        
+
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start()
@@ -185,7 +184,7 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
             blockiesGenerator: blockiesGenerator,
             domainResolutionService: domainResolutionService,
             promptBackup: promptBackup)
-        
+
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -458,7 +457,7 @@ extension SettingsCoordinator: ClearDappBrowserCacheCoordinatorDelegate {
 
 extension SettingsCoordinator: ToolsViewControllerDelegate {
     func checkTransactionStateSelected(in controller: ToolsViewController) {
-        let coordinator = CheckTransactionStateCoordinator(navigationController: navigationController, config: config, analytics: analytics)
+        let coordinator = CheckTransactionStateCoordinator(navigationController: navigationController, config: config, sessionsProvider: sessionsProvider)
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start()
@@ -469,7 +468,7 @@ extension SettingsCoordinator: ToolsViewControllerDelegate {
     }
 
     func pingInfuraSelected(in controller: ToolsViewController) {
-        let coordinator = PingInfuraCoordinator(viewController: controller, analytics: analytics)
+        let coordinator = PingInfuraCoordinator(viewController: controller, analytics: analytics, sessionsProvider: sessionsProvider)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)

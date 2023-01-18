@@ -100,13 +100,13 @@ class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
         func runAddCustomChain(isTestnet: Bool) {
             let addCustomChain = AddCustomChain(
                 customChain,
-                analytics: analytics,
                 isTestnet: isTestnet,
                 restartQueue: restartQueue,
                 url: currentUrl,
                 operation: .add,
                 chainNameFallback: R.string.localizable.addCustomChainUnnamed(),
-                networkService: networkService)
+                networkService: networkService,
+                analytics: analytics)
 
             self.addCustomChain = (chain: addCustomChain, callbackId: callbackID)
             addCustomChain.delegate = self

@@ -44,42 +44,44 @@ public class AddCustomChain {
     public typealias CustomChainWithChainIdAndRPC = (customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String)
     private var cancelable: AnyCancellable?
     private var customChain: WalletAddEthereumChainObject
-    private let analytics: AnalyticsLogger
     private let isTestnet: Bool
     private let restartQueue: RestartTaskQueue
     private let url: URL?
     private let operation: SaveOperationType
     private let chainNameFallback: String
     private let network: AddCustomChainNetworking
+    private let analytics: AnalyticsLogger
+    private let networkService: NetworkService
     private lazy var getChainId = GetChainId(analytics: analytics)
 
     public weak var delegate: AddCustomChainDelegate?
 
     public init(_ customChain: WalletAddEthereumChainObject,
-                analytics: AnalyticsLogger,
                 isTestnet: Bool,
                 restartQueue: RestartTaskQueue,
                 url: URL?,
                 operation: SaveOperationType,
                 chainNameFallback: String,
-                networkService: NetworkService) {
+                networkService: NetworkService,
+                analytics: AnalyticsLogger) {
 
+        self.networkService = networkService
         self.network = AddCustomChainNetworking(networkService: networkService)
         self.customChain = customChain
-        self.analytics = analytics
         self.isTestnet = isTestnet
         self.restartQueue = restartQueue
         self.url = url
         self.operation = operation
         self.chainNameFallback = chainNameFallback
+        self.analytics = analytics
     }
 
     public func run() {
         cancelable?.cancel()
         cancelable = functional
             .checkChainId(customChain)
-            .flatMap { [analytics, chainNameFallback] customChain, chainId in
-                self.checkAndDetectUrls(customChain, chainId: chainId, analytics: analytics, chainNameFallback: chainNameFallback)
+            .flatMap { [chainNameFallback] customChain, chainId in
+                self.checkAndDetectUrls(customChain, chainId: chainId, chainNameFallback: chainNameFallback)
                     .catch { error -> AnyPublisher<CustomChainWithChainIdAndRPC, AddCustomChainError> in
                         guard case .unknown(let e) = error, case ResolveExplorerApiHostnameError.resolveExplorerApiHostnameFailure = e else {
                             return .fail(error)
@@ -179,19 +181,21 @@ public class AddCustomChain {
         }
     }
 
-    private func checkAndDetectUrls(_ customChain: WalletAddEthereumChainObject, chainId: Int, analytics: AnalyticsLogger, chainNameFallback: String) -> AnyPublisher<(customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String), AddCustomChainError> {
+    private func checkAndDetectUrls(_ customChain: WalletAddEthereumChainObject, chainId: Int, chainNameFallback: String) -> AnyPublisher<(customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String), AddCustomChainError> {
         //We need a check that the url is a valid URL (especially because it might contain markers like `${INFURA_API_KEY}` and `${ALCHEMY_API_KEY}` which we don't support. We can't support Infura keys because if we don't already support this chain in the app, then it must not have been enabled for our Infura account so it wouldn't work anyway.)
         guard let rpcUrl = customChain.rpcUrls?.first(where: { URL(string: $0) != nil }) else {
             //Not to spec since RPC URLs are optional according to EIP3085, but it is so much easier to assume it's needed, and quite useless if it isn't provided
             return .fail(AddCustomChainError.noRpcNodeUrl)
         }
 
-        return checkRpcServer(customChain: customChain, chainId: chainId, rpcUrl: rpcUrl, analytics: analytics, chainNameFallback: chainNameFallback)
+        return checkRpcServer(customChain: customChain, chainId: chainId, rpcUrl: rpcUrl, chainNameFallback: chainNameFallback)
             .flatMap { chainId, rpcUrl in self.checkBlockchainExplorerApiHostname(customChain: customChain, chainId: chainId, rpcUrl: rpcUrl) }
             .eraseToAnyPublisher()
     }
 
-    private func checkRpcServer(customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String, analytics: AnalyticsLogger, chainNameFallback: String) -> AnyPublisher<(chainId: Int, rpcUrl: String), AddCustomChainError> {
+    private func checkRpcServer(customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String, chainNameFallback: String) -> AnyPublisher<(chainId: Int, rpcUrl: String), AddCustomChainError> {
+        guard let url = URL(string: rpcUrl) else { return .fail(AddCustomChainError.noRpcNodeUrl) }
+
         //Whether the explorer API endpoint is Etherscan or blockscout or testnet or not doesn't matter here
         let customRpc = CustomRPC(
             customChain: customChain,

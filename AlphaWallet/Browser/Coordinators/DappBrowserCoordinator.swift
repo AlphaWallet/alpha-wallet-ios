@@ -4,6 +4,7 @@ import UIKit
 import WebKit
 import PromiseKit
 import AlphaWalletFoundation
+import Combine
 
 protocol DappBrowserCoordinatorDelegate: CanOpenURL, RequestAddCustomChainProvider, RequestSwitchChainProvider, BuyCryptoDelegate {
     func didSentTransaction(transaction: SentTransaction, inCoordinator coordinator: DappBrowserCoordinator)
@@ -30,6 +31,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         return BrowserURLParser()
     }
 
+    private var cancellable = Set<AnyCancellable>()
     private var server: RPCServer {
         get {
             let selected = RPCServer(chainID: Config.getChainId())
@@ -48,18 +50,12 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
     private let networkService: NetworkService
     private var enableToolbar: Bool = true {
-        didSet {
-            navigationController.isToolbarHidden = !enableToolbar
-        }
+        didSet { navigationController.isToolbarHidden = !enableToolbar }
     }
     private let assetDefinitionStore: AssetDefinitionStore
-    private var currentUrl: URL? {
-        return browserViewController.webView.url
-    }
+    private var currentUrl: URL? { browserViewController.webView.url }
 
-    var hasWebPageLoaded: Bool {
-        return currentUrl != nil
-    }
+    var hasWebPageLoaded: Bool { currentUrl != nil }
 
     var coordinators: [Coordinator] = []
     let navigationController: UINavigationController
@@ -154,7 +150,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
 
     private var pendingTransaction: PendingTransaction = .none
 
-    private func executeTransaction(action: DappAction, callbackID: Int, transaction: UnconfirmedTransaction, type: ConfirmType, server: RPCServer) {
+    private func executeTransaction(action: DappAction, callbackID: Int, transaction: UnconfirmedTransaction, type: ConfirmType) {
         pendingTransaction = .data(callbackID: callbackID)
         do {
             guard let session = sessionsProvider.session(for: server) else { throw DappBrowserError.serverUnavailable }
@@ -181,21 +177,23 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         }
     }
 
-    private func ethCall(callbackID: Int, from: AlphaWallet.Address?, to: AlphaWallet.Address?, value: String?, data: String, server: RPCServer) {
-        let request = EthCall(server: server, analytics: analytics)
-        firstly {
-            request.ethCall(from: from, to: to, value: value, data: data)
-        }.done { result in
-            let callback = DappCallback(id: callbackID, value: .ethCall(result))
-            self.browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
-        }.catch { error in
-            if case let SessionTaskError.responseError(JSONRPCError.responseError(_, message: message, _)) = error {
-                self.browserViewController.notifyFinish(callbackID: callbackID, value: .failure(.nodeError(message)))
-            } else {
-                //TODO better handle. User didn't cancel
-                self.browserViewController.notifyFinish(callbackID: callbackID, value: .failure(.cancelled))
-            }
-        }
+    private func ethCall(callbackID: Int, from: AlphaWallet.Address?, to: AlphaWallet.Address?, value: String?, data: String) {
+        guard let session = sessionsProvider.session(for: server) else { return }
+
+        session.blockchainProvider
+            .call(from: from, to: to, value: value, data: data)
+            .sink(receiveCompletion: { [browserViewController] result in
+                guard case .failure(let error) = result else { return }
+                if case let SessionTaskError.responseError(JSONRPCError.responseError(_, message: message, _)) = error {
+                    browserViewController.notifyFinish(callbackID: callbackID, value: .failure(.nodeError(message)))
+                } else {
+                    //TODO better handle. User didn't cancel
+                    browserViewController.notifyFinish(callbackID: callbackID, value: .failure(.cancelled))
+                }
+            }, receiveValue: { [browserViewController] result in
+                let callback = DappCallback(id: callbackID, value: .ethCall(result))
+                browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
+            }).store(in: &cancellable)
     }
 
     func open(url: URL, animated: Bool = true) {
@@ -477,9 +475,9 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
         func performDappAction(account: AlphaWallet.Address) {
             switch action {
             case .signTransaction(let unconfirmedTransaction):
-                executeTransaction(action: action, callbackID: callbackID, transaction: unconfirmedTransaction, type: .signThenSend, server: server)
+                executeTransaction(action: action, callbackID: callbackID, transaction: unconfirmedTransaction, type: .signThenSend)
             case .sendTransaction(let unconfirmedTransaction):
-                executeTransaction(action: action, callbackID: callbackID, transaction: unconfirmedTransaction, type: .signThenSend, server: server)
+                executeTransaction(action: action, callbackID: callbackID, transaction: unconfirmedTransaction, type: .signThenSend)
             case .signMessage(let hexMessage):
                 signMessage(with: .message(hexMessage.asSignableMessageData), account: account, callbackID: callbackID)
             case .signPersonalMessage(let hexMessage):
@@ -492,7 +490,7 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
                 //Must use unchecked form for `Address `because `from` and `to` might be 0x0..0. We assume the dapp author knows what they are doing
                 let from = AlphaWallet.Address(uncheckedAgainstNullAddress: from)
                 let to = AlphaWallet.Address(uncheckedAgainstNullAddress: to)
-                ethCall(callbackID: callbackID, from: from, to: to, value: value, data: data, server: server)
+                ethCall(callbackID: callbackID, from: from, to: to, value: value, data: data)
             case .walletAddEthereumChain(let customChain):
                 addCustomChain(callbackID: callbackID, customChain: customChain, inViewController: viewController)
             case .walletSwitchEthereumChain(let targetChain):

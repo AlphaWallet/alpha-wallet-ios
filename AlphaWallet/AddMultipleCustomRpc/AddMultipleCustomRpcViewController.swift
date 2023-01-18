@@ -30,7 +30,6 @@ class AddMultipleCustomRpcViewController: UIViewController {
     private var restartQueue: RestartTaskQueue
     private let analytics: AnalyticsLogger
     private let networkService: NetworkService
-
     // MARK: Public
 
     var progressView: AddMultipleCustomRpcView {
@@ -41,7 +40,11 @@ class AddMultipleCustomRpcViewController: UIViewController {
 
     // MARK: - Constructor
 
-    init(model: AddMultipleCustomRpcModel, analytics: AnalyticsLogger, restartQueue: RestartTaskQueue, networkService: NetworkService) {
+    init(model: AddMultipleCustomRpcModel,
+         analytics: AnalyticsLogger,
+         restartQueue: RestartTaskQueue,
+         networkService: NetworkService) {
+
         let viewModel = AddMultipleCustomRpcViewModel(model: model)
         self.networkService = networkService
         self.viewModel = viewModel
@@ -114,9 +117,9 @@ class AddMultipleCustomRpcViewController: UIViewController {
     private func startAddChain(for customRpc: CustomRPC) {
         let chain = AddCustomChain(
             customRpc,
-            analytics: analytics,
             restartQueue: restartQueue,
-            networkService: networkService)
+            networkService: networkService,
+            analytics: analytics)
 
         chain.delegate = self
         chain.run()
@@ -187,7 +190,7 @@ extension AddMultipleCustomRpcViewController: AddCustomChainDelegate {
 
 extension AddCustomChain {
 
-    convenience init(_ customRpc: CustomRPC, analytics: AnalyticsLogger, restartQueue: RestartTaskQueue, networkService: NetworkService) {
+    convenience init(_ customRpc: CustomRPC, restartQueue: RestartTaskQueue, networkService: NetworkService, analytics: AnalyticsLogger) {
         let defaultDecimals = 18
         let explorerEndpoints: [String]?
 
@@ -208,13 +211,13 @@ extension AddCustomChain {
 
         self.init(
             customChain,
-            analytics: analytics,
             isTestnet: customRpc.isTestnet,
             restartQueue: restartQueue,
             url: nil,
             operation: .add,
             chainNameFallback: R.string.localizable.addCustomChainUnnamed(),
-            networkService: networkService)
+            networkService: networkService,
+            analytics: analytics)
     }
 
 }
