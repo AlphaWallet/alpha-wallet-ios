@@ -81,7 +81,7 @@ class SendTransactionErrorViewController: UIViewController {
 
     @objc private func linkButtonTapped() {
         if let url = viewModel.linkUrl {
-            switch viewModel.error {
+            switch viewModel.error.type {
             case .insufficientFunds:
                 analytics.log(navigation: Analytics.Navigation.openHelpUrl, properties: [Analytics.Properties.type.rawValue: Analytics.HelpUrl.insufficientFunds.rawValue])
             case .nonceTooLow, .gasPriceTooLow, .gasLimitTooLow, .gasLimitTooHigh, .possibleChainIdMismatch, .executionReverted, .unknown:

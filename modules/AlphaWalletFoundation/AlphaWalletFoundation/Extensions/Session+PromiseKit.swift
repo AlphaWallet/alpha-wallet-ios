@@ -81,25 +81,25 @@ extension APIKitSession {
                 case .responseError(let code, let message, _):
                     //Lowercased as RPC nodes implementation differ
                     if message.lowercased().hasPrefix("insufficient funds") {
-                        return SendTransactionNotRetryableError.insufficientFunds(message: message)
+                        return SendTransactionNotRetryableError(type: .insufficientFunds(message: message), server: server)
                     } else if message.lowercased().hasPrefix("execution reverted") || message.lowercased().hasPrefix("vm execution error") || message.lowercased().hasPrefix("revert") {
-                        return SendTransactionNotRetryableError.executionReverted(message: message)
+                        return SendTransactionNotRetryableError(type: .executionReverted(message: message), server: server)
                     } else if message.lowercased().hasPrefix("nonce too low") || message.lowercased().hasPrefix("nonce is too low") {
-                        return SendTransactionNotRetryableError.nonceTooLow(message: message)
+                        return SendTransactionNotRetryableError(type: .nonceTooLow(message: message), server: server)
                     } else if message.lowercased().hasPrefix("transaction underpriced") || message.lowercased().hasPrefix("feetoolow") {
-                        return SendTransactionNotRetryableError.gasPriceTooLow(message: message)
+                        return SendTransactionNotRetryableError(type: .gasPriceTooLow(message: message), server: server)
                     } else if message.lowercased().hasPrefix("intrinsic gas too low") || message.lowercased().hasPrefix("Transaction gas is too low") {
-                        return SendTransactionNotRetryableError.gasLimitTooLow(message: message)
+                        return SendTransactionNotRetryableError(type: .gasLimitTooLow(message: message), server: server)
                     } else if message.lowercased().hasPrefix("intrinsic gas exceeds gas limit") {
-                        return SendTransactionNotRetryableError.gasLimitTooHigh(message: message)
+                        return SendTransactionNotRetryableError(type: .gasLimitTooHigh(message: message), server: server)
                     } else if message.lowercased().hasPrefix("invalid sender") {
-                        return SendTransactionNotRetryableError.possibleChainIdMismatch(message: message)
+                        return SendTransactionNotRetryableError(type: .possibleChainIdMismatch(message: message), server: server)
                     } else if message == "Upfront cost exceeds account balance" {
                         //Spotted for Palm chain (mainnet)
-                        return SendTransactionNotRetryableError.insufficientFunds(message: message)
+                        return SendTransactionNotRetryableError(type: .insufficientFunds(message: message), server: server)
                     } else {
                         RemoteLogger.instance.logRpcOrOtherWebError("JSONRPCError.responseError | code: \(code) | message: \(message)", url: baseUrl.absoluteString)
-                        return SendTransactionNotRetryableError.unknown(code: code, message: message)
+                        return SendTransactionNotRetryableError(type: .unknown(code: code, message: message), server: server)
                     }
                 case .responseNotFound(_, let object):
                     RemoteLogger.instance.logRpcOrOtherWebError("JSONRPCError.responseNotFound | object: \(object)", url: baseUrl.absoluteString)
