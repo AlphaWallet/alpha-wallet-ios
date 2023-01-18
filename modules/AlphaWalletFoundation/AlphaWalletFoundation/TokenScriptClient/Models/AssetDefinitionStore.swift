@@ -38,6 +38,7 @@ public class AssetDefinitionStore: NSObject {
     private let network: AssetDefinitionNetworking
     private var cancelable: [Int: AnyCancellable] = [:]
 
+    public let assetAttributeResolver: AssetAttributeResolver
     public var listOfBadTokenScriptFiles: AnyPublisher<[TokenScriptFileIndices.FileName], Never> {
         listOfBadTokenScriptFilesSubject.eraseToAnyPublisher()
     }
@@ -119,10 +120,14 @@ public class AssetDefinitionStore: NSObject {
                """
     }
 
-    public init(backingStore: AssetDefinitionBackingStore = AssetDefinitionDiskBackingStoreWithOverrides(), baseTokenScriptFiles: [TokenType: String] = [:], networkService: NetworkService) {
+    public init(backingStore: AssetDefinitionBackingStore = AssetDefinitionDiskBackingStoreWithOverrides(),
+                baseTokenScriptFiles: [TokenType: String] = [:],
+                networkService: NetworkService,
+                blockchainsProvider: BlockchainsProvider) {
         self.network = AssetDefinitionNetworking(networkService: networkService)
         self.backingStore = backingStore
         self._baseTokenScriptFiles.set(value: baseTokenScriptFiles)
+        assetAttributeResolver = AssetAttributeResolver(blockchainsProvider: blockchainsProvider)
         super.init()
         self.backingStore.delegate = self
 

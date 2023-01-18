@@ -150,22 +150,29 @@ public struct AssetAttribute {
     }
 }
 
-extension Dictionary where Key == AttributeId, Value == AssetAttribute {
+public class AssetAttributeResolver {
+    private let blockchainsProvider: BlockchainsProvider
+    private lazy var assetAttributeProvider = CallForAssetAttributeProvider(blockchainsProvider: blockchainsProvider)
+
+    public init(blockchainsProvider: BlockchainsProvider) {
+        self.blockchainsProvider = blockchainsProvider
+    }
+
     //This is useful for implementing 3-phase resolution of attributes: resolve the immediate ones (non-function origins), then use those values to resolve the function-origins
-    public var splitAttributesByOrigin: (tokenIdBased: [Key: Value], userEntryBased: [Key: Value], functionBased: [Key: Value], eventBased: [Key: Value]) {
+    private func splitAttributesByOrigin(for attributes: [AttributeId: AssetAttribute]) -> (tokenIdBased: [AttributeId: AssetAttribute], userEntryBased: [AttributeId: AssetAttribute], functionBased: [AttributeId: AssetAttribute], eventBased: [AttributeId: AssetAttribute]) {
         return (
-                tokenIdBased: filter { $0.value.isTokenIdOriginBased },
-                userEntryBased: filter { $0.value.isUserEntryOriginBased },
-                functionBased: filter { $0.value.isFunctionOriginBased },
-                eventBased: filter { $0.value.isEventOriginBased }
+            tokenIdBased: attributes.filter { $0.value.isTokenIdOriginBased },
+            userEntryBased: attributes.filter { $0.value.isUserEntryOriginBased },
+            functionBased: attributes.filter { $0.value.isFunctionOriginBased },
+            eventBased: attributes.filter { $0.value.isEventOriginBased }
         )
     }
 
     //Order of resolution is important: token-id, event, user-entry, functions. For now, we don't support functions that have args based on attributes that are also function-based
-    public func resolve(withTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent, userEntryValues: [AttributeId: String], server: RPCServer, account: Wallet, additionalValues: [AttributeId: AssetAttributeSyntaxValue], localRefs: [AttributeId: AssetInternalValue]) -> [AttributeId: AssetAttributeSyntaxValue] {
+    public func resolve(withTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent, userEntryValues: [AttributeId: String], server: RPCServer, account: Wallet, additionalValues: [AttributeId: AssetAttributeSyntaxValue], localRefs: [AttributeId: AssetInternalValue], attributes: [AttributeId: AssetAttribute]) -> [AttributeId: AssetAttributeSyntaxValue] {
         var attributeNameValues = [AttributeId: AssetAttributeSyntaxValue]()
-        let (tokenIdBased, userEntryBased, functionBased, eventBased) = splitAttributesByOrigin
-        let assetAttributeProvider = XMLHandler.assetAttributeProvider
+        let (tokenIdBased, userEntryBased, functionBased, eventBased) = splitAttributesByOrigin(for: attributes)
+
         for (attributeId, attribute) in tokenIdBased {
             let value = attribute.value(from: tokenIdOrEvent, inWallet: account, server: server, assetAttributeProvider: assetAttributeProvider, userEntryValues: userEntryValues, tokenLevelNonSubscribableAttributesAndValues: .init(), localRefs: localRefs)
             attributeNameValues[attributeId] = value
