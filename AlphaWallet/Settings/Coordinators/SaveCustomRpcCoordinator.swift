@@ -115,13 +115,13 @@ extension SaveCustomRpcCoordinator: SaveCustomRpcEntryViewControllerDataDelegate
 
         let saveCustomChain = AddCustomChain(
             customChain,
-            analytics: analytics,
             isTestnet: customRpc.isTestnet,
             restartQueue: restartQueue,
             url: nil,
             operation: operation,
             chainNameFallback: R.string.localizable.addCustomChainUnnamed(),
-            networkService: networkService)
+            networkService: networkService,
+            analytics: analytics)
 
         saveCustomChain.delegate = self
         saveCustomChain.run()
