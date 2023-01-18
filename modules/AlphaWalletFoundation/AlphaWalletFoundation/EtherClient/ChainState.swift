@@ -10,20 +10,20 @@ public protocol BlockNumberStorage {
 }
 
 public final class BlockNumberProvider {
-    private let server: RPCServer
-    private let analytics: AnalyticsLogger
+
     private lazy var provider: BlockNumberSchedulerProvider = {
-        let provider = BlockNumberSchedulerProvider(server: server, analytics: analytics)
+        let provider = BlockNumberSchedulerProvider(blockchainProvider: blockchainProvider)
         provider.delegate = self
 
         return provider
     }()
+    private let blockchainProvider: BlockchainProvider
     private lazy var scheduler = Scheduler(provider: provider)
     private var storage: BlockNumberStorage
     public var latestBlock: Int {
-        get { return storage.latestBlock(server: server) }
+        get { return storage.latestBlock(server: blockchainProvider.server) }
         set {
-            storage.set(latestBlock: newValue, for: server)
+            storage.set(latestBlock: newValue, for: blockchainProvider.server)
             latestBlockSubject.send(newValue)
         }
     }
@@ -34,10 +34,9 @@ public final class BlockNumberProvider {
 
     private lazy var latestBlockSubject: CurrentValueSubject<Int, Never> = .init(latestBlock)
 
-    public init(storage: BlockNumberStorage, server: RPCServer, analytics: AnalyticsLogger) {
+    public init(storage: BlockNumberStorage, blockchainProvider: BlockchainProvider) {
         self.storage = storage
-        self.server = server
-        self.analytics = analytics
+        self.blockchainProvider = blockchainProvider
     }
 
     public func start() {
@@ -56,7 +55,7 @@ public final class BlockNumberProvider {
     }
 }
 
-extension BlockNumberProvider: ChainStateSchedulerProviderDelegate {
+extension BlockNumberProvider: BlockNumberSchedulerProviderDelegate {
     public func didReceive(result: Result<BlockNumber, PromiseError>) {
         switch result {
         case .success(let blockNumber):
@@ -86,3 +85,4 @@ extension Config: BlockNumberStorage {
         defaults.set(latestBlock, forKey: latestBlockKey)
     }
 }
+

@@ -12,38 +12,36 @@ import CombineExt
 
 public typealias BlockNumber = Int
 
-public protocol ChainStateSchedulerProviderDelegate: AnyObject {
+public protocol BlockNumberSchedulerProviderDelegate: AnyObject {
     func didReceive(result: Result<BlockNumber, PromiseError>)
 }
 
 public final class BlockNumberSchedulerProvider: SchedulerProvider {
-    private let server: RPCServer
-    private let analytics: AnalyticsLogger
-    private lazy var blockNumberProvider = GetBlockNumber(server: server, analytics: analytics)
+    private let blockchainProvider: BlockchainProvider
 
     var interval: TimeInterval { return Constants.BlockNumberProvider.getChainStateInterval }
-    var name: String { "BlockNumberSchedulerProvider" }
+    var name: String { "BlockNumberSchedulerProvider.\(blockchainProvider.server)" }
+
     var operation: AnyPublisher<Void, SchedulerError> {
-        blockNumberProvider.getBlockNumber().publisher(queue: .global())
-            .receive(on: RunLoop.main)
+        blockchainProvider
+            .blockNumber()
             .handleEvents(receiveOutput: { [weak self] response in
                 self?.didReceiveValue(response: response)
             }, receiveCompletion: { [weak self] result in
                 guard case .failure(let e) = result else { return }
-                self?.didReceiveError(error: e)
+                self?.didReceiveError(error: PromiseError(error: e))
             }).mapToVoid()
-            .mapError { SchedulerError.promiseError($0) }
+            .mapError { SchedulerError.promiseError(PromiseError(error: $0)) }
             .eraseToAnyPublisher()
     }
-    public weak var delegate: ChainStateSchedulerProviderDelegate?
+    public weak var delegate: BlockNumberSchedulerProviderDelegate?
 
-    public init(server: RPCServer, analytics: AnalyticsLogger) {
-        self.server = server
-        self.analytics = analytics
+    public init(blockchainProvider: BlockchainProvider) {
+        self.blockchainProvider = blockchainProvider
     }
 
-    private func didReceiveValue(response block: BlockNumber) {
-        delegate?.didReceive(result: .success(block))
+    private func didReceiveValue(response blockNumber: BlockNumber) {
+        delegate?.didReceive(result: .success(blockNumber))
     }
 
     private func didReceiveError(error: PromiseError) {
