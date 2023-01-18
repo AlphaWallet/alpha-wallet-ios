@@ -24,7 +24,7 @@ public final class BlockNumberSchedulerProvider: SchedulerProvider {
     var interval: TimeInterval { return Constants.BlockNumberProvider.getChainStateInterval }
     var name: String { "BlockNumberSchedulerProvider" }
     var operation: AnyPublisher<Void, SchedulerError> {
-        blockNumberProvider.getBlockNumber().publisher
+        blockNumberProvider.getBlockNumber().publisher(queue: .global())
             .receive(on: RunLoop.main)
             .handleEvents(receiveOutput: { [weak self] response in
                 self?.didReceiveValue(response: response)

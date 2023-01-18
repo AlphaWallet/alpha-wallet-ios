@@ -19,7 +19,7 @@ protocol ENSDelegateImpl: ENSDelegate {
 extension ENSDelegateImpl {
     public func callSmartContract(withChainId chainId: ChainId, contract: AlphaWallet.Address, functionName: String, abiString: String, parameters: [AnyObject]) -> AnyPublisher<[String: Any], SmartContractError> {
         let server = RPCServer(chainID: chainId)
-        return globalCallSmartContract(server, contract, functionName, abiString, parameters, false).publisher
+        return globalCallSmartContract(server, contract, functionName, abiString, parameters, false).publisher(queue: .global())
             .mapError { e in SmartContractError.embeded(e) }
             .share()
             .eraseToAnyPublisher()
@@ -32,7 +32,7 @@ extension ENSDelegateImpl {
 
     public func getInterfaceSupported165(chainId: ChainId, hash: String, contract: AlphaWallet.Address) -> AnyPublisher<Bool, SmartContractError> {
         let server = RPCServer(chainID: chainId)
-        return IsInterfaceSupported165(forServer: server).getInterfaceSupported165(hash: hash, contract: contract).publisher
+        return IsInterfaceSupported165(forServer: server).getInterfaceSupported165(hash: hash, contract: contract).publisher(queue: .global())
             .mapError { e in SmartContractError.embeded(e) }
             .share()
             .eraseToAnyPublisher()

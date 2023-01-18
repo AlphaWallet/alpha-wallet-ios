@@ -52,7 +52,7 @@ public final class AlphaWalletNFTProvider: NFTProvider {
     }
 
     public func assetImageUrl(for url: Eip155URL) -> AnyPublisher<URL, PromiseError> {
-        openSea.fetchAssetImageUrl(for: url, server: .main).publisher
+        openSea.fetchAssetImageUrl(for: url, server: .main).publisher(queue: queue)
     }
 
     public func collectionStats(slug: String, server: RPCServer) -> Promise<Stats> {

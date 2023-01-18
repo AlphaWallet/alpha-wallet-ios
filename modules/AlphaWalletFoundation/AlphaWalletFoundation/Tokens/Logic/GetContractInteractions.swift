@@ -101,7 +101,7 @@ class TransactionsNetworkProvider {
                         .result.map { TransactionInstance.buildTransaction(from: $0, fetcher: localizedOperationFetcher) }
 
                     return (when(fulfilled: promises).compactMap(on: .global()) { $0.compactMap { $0 } })
-                        .publisher
+                        .publisher(queue: .global())
                 } catch {
                     return .fail(.some(error: error))
                 }
