@@ -5,13 +5,15 @@ import Foundation
 import AlphaWalletENS
 import Combine
 
-public class EnsResolver: ENSDelegateImpl {
+public class EnsResolver {
     private let storage: EnsRecordsStorage
     private let server: RPCServer
-    private lazy var ens = ENS(delegate: self, chainId: server.chainID)
+    private lazy var ens = ENS(delegate: ensDelegate, chainId: server.chainID)
+    private let ensDelegate: ENSDelegateImpl
 
-    public init(server: RPCServer, storage: EnsRecordsStorage) {
-        self.server = server
+    public init(storage: EnsRecordsStorage, blockchainProvider: BlockchainProvider) {
+        self.server = blockchainProvider.server
+        self.ensDelegate = ENSDelegateImpl(blockchainProvider: blockchainProvider)
         self.storage = storage
     }
 

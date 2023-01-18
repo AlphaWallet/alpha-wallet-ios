@@ -13,13 +13,14 @@ import AlphaWalletCore
 public class DomainResolutionService {
     private let storage: EnsRecordsStorage
     private let blockiesGenerator: BlockiesGenerator
-    private lazy var getEnsAddressResolver = EnsResolver(server: server, storage: storage)
-    private lazy var unstoppableDomainsV2Resolver = UnstoppableDomainsV2Resolver(server: server, storage: storage, networkService: networkService)
-    private lazy var ensReverseLookupResolver = EnsReverseResolver(server: server, storage: storage)
+    private lazy var getEnsAddressResolver = EnsResolver(storage: storage, blockchainProvider: blockchainProvider)
+    private lazy var unstoppableDomainsV2Resolver = UnstoppableDomainsV2Resolver(server: blockchainProvider.server, storage: storage, networkService: networkService)
+    private lazy var ensReverseLookupResolver = EnsReverseResolver(storage: storage, blockchainProvider: blockchainProvider)
     private let networkService: NetworkService
-    public let server: RPCServer = .forResolvingEns
+    private let blockchainProvider: BlockchainProvider
 
-    public init(blockiesGenerator: BlockiesGenerator, storage: EnsRecordsStorage, networkService: NetworkService) {
+    public init(blockiesGenerator: BlockiesGenerator, storage: EnsRecordsStorage, networkService: NetworkService, blockchainProvider: BlockchainProvider) {
+        self.blockchainProvider = blockchainProvider
         self.blockiesGenerator = blockiesGenerator
         self.storage = storage
         self.networkService = networkService

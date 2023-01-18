@@ -7,6 +7,9 @@ import AlphaWalletFoundation
 extension BlockiesGenerator {
     //TODO do we need to make a fake one instead?
     static func make() -> BlockiesGenerator {
-        return BlockiesGenerator(assetImageProvider: FakeNftProvider(), storage: FakeEnsRecordsStorage())
+        return BlockiesGenerator(
+            assetImageProvider: FakeNftProvider(),
+            storage: FakeEnsRecordsStorage(),
+            blockchainProvider: RpcBlockchainProvider(server: .main, analytics: FakeAnalyticsService()))
     }
 }

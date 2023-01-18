@@ -10,16 +10,18 @@ import PromiseKit
 import Combine
 
 /// https://eips.ethereum.org/EIPS/eip-634
-final class GetEnsTextRecord: ENSDelegateImpl {
+final class GetEnsTextRecord {
     private let storage: EnsRecordsStorage
-    private lazy var ens = ENS(delegate: self, chainId: server.chainID)
+    private lazy var ens = ENS(delegate: ensDelegate, chainId: server.chainID)
     private let server: RPCServer
     private let ensReverseLookup: EnsReverseResolver
+    private let ensDelegate: ENSDelegateImpl
 
-    init(server: RPCServer, storage: EnsRecordsStorage) {
-        self.server = server
+    init(blockchainProvider: BlockchainProvider, storage: EnsRecordsStorage) {
+        self.ensDelegate = ENSDelegateImpl(blockchainProvider: blockchainProvider)
         self.storage = storage
-        ensReverseLookup = EnsReverseResolver(server: server, storage: storage)
+        self.server = blockchainProvider.server
+        ensReverseLookup = EnsReverseResolver(storage: storage, blockchainProvider: blockchainProvider)
     }
 
     func getENSRecord(forAddress address: AlphaWallet.Address, record: EnsTextRecordKey) -> AnyPublisher<String, SmartContractError> {
