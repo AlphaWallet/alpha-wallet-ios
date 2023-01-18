@@ -3,7 +3,6 @@
 import Foundation
 import AlphaWalletCore
 import BigInt
-import PromiseKit
 import Combine
 import AlphaWalletWeb3
 
@@ -19,13 +18,19 @@ final class EventSourceForActivities {
     private var cancellable = Set<AnyCancellable>()
     private let fetcher: EventForActivitiesFetcher
 
-    init(wallet: Wallet, config: Config, tokensService: TokenProvidable, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsActivityDataStoreProtocol, getEventLogs: GetEventLogs, analytics: AnalyticsLogger) {
+    init(wallet: Wallet,
+         config: Config,
+         tokensService: TokenProvidable,
+         assetDefinitionStore: AssetDefinitionStore,
+         eventsDataStore: EventsActivityDataStoreProtocol,
+         sessionsProvider: SessionsProvider) {
+
         self.config = config
         self.tokensService = tokensService
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
         self.enabledServers = config.enabledServers
-        self.fetcher = EventForActivitiesFetcher(getEventLogs: getEventLogs, wallet: wallet, analytics: analytics)
+        self.fetcher = EventForActivitiesFetcher(sessionsProvider: sessionsProvider)
     }
 
     func start() {
@@ -54,22 +59,20 @@ final class EventSourceForActivities {
         for each in fetchMappedContractsAndServers(token: token) {
             guard let token = tokensService.token(for: each.contract, server: each.server) else { return }
             fetchEvents(for: token)
-                .done { _ in }
-                .cauterize()
+                .sink { _ in }
+                .store(in: &cancellable)
         }
     }
 
     private func fetchMappedContractsAndServers(token: Token) -> [(contract: AlphaWallet.Address, server: RPCServer)] {
-        var values: [(contract: AlphaWallet.Address, server: RPCServer)] = []
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         guard xmlHandler.hasAssetDefinition, let server = xmlHandler.server else { return [] }
         switch server {
         case .any:
-            values = enabledServers.map { (contract: token.contractAddress, server: $0) }
+            return enabledServers.map { (contract: token.contractAddress, server: $0) }
         case .server(let server):
-            values = [(contract: token.contractAddress, server: server)]
+            return [(contract: token.contractAddress, server: server)]
         }
-        return values
     }
 
     private func getActivityCards(forToken token: Token) -> [TokenScriptCard] {
@@ -78,17 +81,26 @@ final class EventSourceForActivities {
         return xmlHandler.activityCards
     }
 
-    private func fetchEvents(for token: Token) -> Promise<Void> {
-        let promises = getActivityCards(forToken: token).map { card -> Promise<Void> in
-            let eventOrigin = card.eventOrigin
-            let oldEvent = eventsDataStore.getLastMatchingEventSortedByBlockNumber(for: eventOrigin.contract, tokenContract: token.contractAddress, server: token.server, eventName: eventOrigin.eventName)
-            return fetcher.fetchEvents(token: token, card: card, oldEvent: oldEvent)
-                .map(on: queue, { [eventsDataStore] events in
-                    eventsDataStore.addOrUpdate(events: events)
-                })
-        }
+    private func fetchEvents(for token: Token) -> AnyPublisher<[EventActivityInstance], Never> {
+        let publishers = getActivityCards(forToken: token)
+            .map { card -> AnyPublisher<[EventActivityInstance], Never> in
+                let eventOrigin = card.eventOrigin
+                let oldEvent = eventsDataStore.getLastMatchingEventSortedByBlockNumber(
+                    for: eventOrigin.contract,
+                    tokenContract: token.contractAddress,
+                    server: token.server,
+                    eventName: eventOrigin.eventName)
 
-        return when(resolved: promises).map { _ in }
+                return fetcher.fetchEvents(token: token, card: card, oldEventBlockNumber: oldEvent?.blockNumber)
+                    .handleEvents(receiveOutput: { [eventsDataStore] in eventsDataStore.addOrUpdate(events: $0) })
+                    .replaceError(with: [])
+                    .eraseToAnyPublisher()
+            }
+
+        return Publishers.MergeMany(publishers)
+            .collect()
+            .map { $0.flatMap { $0 } }
+            .eraseToAnyPublisher()
     }
 
     private func fetchAllEvents() {
@@ -107,11 +119,12 @@ final class EventSourceForActivities {
         guard !isFetching else { return }
         isFetching = true
 
-        let promises = tokensService.tokens(for: enabledServers).map { fetchEvents(for: $0) }.flatMap { $0 }
+        let publishers = tokensService.tokens(for: enabledServers).map { fetchEvents(for: $0) }.flatMap { $0 }
 
-        when(resolved: promises).done { [weak self] _ in
-            self?.isFetching = false
-        }
+        Publishers.MergeMany(publishers)
+            .collect()
+            .sink { [weak self] _ in self?.isFetching = false }
+            .store(in: &cancellable)
     }
 }
 
@@ -130,7 +143,18 @@ extension EventSourceForActivities.functional {
         let filterTextEquivalent = filterParam.compactMap({ $0?.textEquivalent }).first
         let filterText = filterTextEquivalent ?? "\(eventOrigin.eventFilter.name)=\(eventOrigin.eventFilter.value)"
 
-        return EventActivityInstance(contract: eventOrigin.contract, tokenContract: tokenContract, server: server, date: date, eventName: eventOrigin.eventName, blockNumber: Int(eventLog.blockNumber), transactionId: transactionId, transactionIndex: Int(eventLog.transactionIndex), logIndex: Int(eventLog.logIndex), filter: filterText, json: json)
+        return EventActivityInstance(
+            contract: eventOrigin.contract,
+            tokenContract: tokenContract,
+            server: server,
+            date: date,
+            eventName: eventOrigin.eventName,
+            blockNumber: Int(eventLog.blockNumber),
+            transactionId: transactionId,
+            transactionIndex: Int(eventLog.transactionIndex),
+            logIndex: Int(eventLog.logIndex),
+            filter: filterText,
+            json: json)
     }
 
     static func formFilterFrom(fromParameter parameter: EventParameter, filterName: String, filterValue: String, wallet: Wallet) -> (filter: [EventFilterable], textEquivalent: String)? {

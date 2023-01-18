@@ -614,8 +614,7 @@ class AppCoordinator: NSObject, Coordinator {
             tokensService: tokensService,
             sessionsProvider: sessionsProvider,
             eventsActivityDataStore: eventsActivityDataStore,
-            eventsDataStore: eventsDataStore,
-            analytics: analytics)
+            eventsDataStore: eventsDataStore)
 
         let dependency = WalletDependencies(
             activitiesPipeLine: activitiesPipeLine,

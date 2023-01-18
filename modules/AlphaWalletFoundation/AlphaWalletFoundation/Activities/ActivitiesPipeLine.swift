@@ -14,18 +14,16 @@ public final class ActivitiesPipeLine: ActivitiesServiceType {
     private let assetDefinitionStore: AssetDefinitionStore
     private let sessionsProvider: SessionsProvider
     private let transactionDataStore: TransactionDataStore
-    private let analytics: AnalyticsLogger
     private let eventsDataStore: NonActivityEventsDataStore
     private let eventsActivityDataStore: EventsActivityDataStoreProtocol
-    private let getEventLogs: GetEventLogs = GetEventLogs()
     private lazy var eventSourceForActivities: EventSourceForActivities? = {
         guard Features.default.isAvailable(.isActivityEnabled) else { return nil }
-        return EventSourceForActivities(wallet: wallet, config: config, tokensService: tokensService, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsActivityDataStore, getEventLogs: getEventLogs, analytics: analytics)
+        return EventSourceForActivities(wallet: wallet, config: config, tokensService: tokensService, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsActivityDataStore, sessionsProvider: sessionsProvider)
     }()
     private let tokensService: TokenProvidable
 
     private lazy var eventSource: EventSource = {
-        EventSource(wallet: wallet, tokensService: tokensService, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, config: config, getEventLogs: getEventLogs)
+        EventSource(wallet: wallet, tokensService: tokensService, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, config: config, sessionsProvider: sessionsProvider)
     }()
 
     private lazy var activitiesSubService: ActivitiesServiceType = {
@@ -40,8 +38,7 @@ public final class ActivitiesPipeLine: ActivitiesServiceType {
         activitiesSubService.didUpdateActivityPublisher
     }
 
-    public init(config: Config, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, transactionDataStore: TransactionDataStore, tokensService: TokenProvidable, sessionsProvider: SessionsProvider, eventsActivityDataStore: EventsActivityDataStoreProtocol, eventsDataStore: NonActivityEventsDataStore, analytics: AnalyticsLogger) {
-        self.analytics = analytics
+    public init(config: Config, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, transactionDataStore: TransactionDataStore, tokensService: TokenProvidable, sessionsProvider: SessionsProvider, eventsActivityDataStore: EventsActivityDataStoreProtocol, eventsDataStore: NonActivityEventsDataStore) {
         self.eventsActivityDataStore = eventsActivityDataStore
         self.eventsDataStore = eventsDataStore
         self.tokensService = tokensService
