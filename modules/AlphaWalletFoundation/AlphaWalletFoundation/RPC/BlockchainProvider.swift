@@ -15,6 +15,7 @@ public protocol BlockchainProvider {
 
     func blockNumber() -> AnyPublisher<Int, SessionTaskError>
     func pendingTransaction(hash: String) -> AnyPublisher<PendingTransaction?, SessionTaskError>
+    func nextNonce(wallet: AlphaWallet.Address) -> AnyPublisher<Int, SessionTaskError>
     func block(by blockNumber: BigUInt) -> AnyPublisher<Date, SessionTaskError>
     func eventLogs(contractAddress: AlphaWallet.Address, eventName: String, abiString: String, filter: EventFilter) -> AnyPublisher<[EventParserResultProtocol], SessionTaskError>
 }
@@ -25,7 +26,7 @@ public final class RpcBlockchainProvider: BlockchainProvider {
     private let analytics: AnalyticsLogger
     private lazy var getBlockTimestamp = GetBlockTimestamp(analytics: analytics)
     private lazy var getBlockNumber = GetBlockNumber(server: server, analytics: analytics)
-
+    private lazy var getNextNonce = GetNextNonce(server: server, analytics: analytics)
     public let server: RPCServer
 
     public init(server: RPCServer,
@@ -57,6 +58,13 @@ public final class RpcBlockchainProvider: BlockchainProvider {
 
     public func eventLogs(contractAddress: AlphaWallet.Address, eventName: String, abiString: String, filter: EventFilter) -> AnyPublisher<[EventParserResultProtocol], SessionTaskError> {
         getEventLogs.getEventLogs(contractAddress: contractAddress, server: server, eventName: eventName, abiString: abiString, filter: filter)
+            .publisher(queue: .global())
+            .mapError { SessionTaskError.responseError($0.embedded) }
+            .eraseToAnyPublisher()
+    }
+
+    public func nextNonce(wallet: AlphaWallet.Address) -> AnyPublisher<Int, SessionTaskError> {
+        getNextNonce.getNextNonce(wallet: wallet)
             .publisher(queue: .global())
             .mapError { SessionTaskError.responseError($0.embedded) }
             .eraseToAnyPublisher()

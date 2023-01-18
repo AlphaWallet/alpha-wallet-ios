@@ -247,7 +247,7 @@ public class TransactionConfigurator {
             useNonce(Int(nonce))
         } else {
             firstly {
-                GetNextNonce(server: session.server, wallet: session.account.address, analytics: analytics).getNextNonce()
+                GetNextNonce(server: session.server, analytics: analytics).getNextNonce(wallet: session.account.address)
             }.done {
                 self.useNonce($0)
             }.cauterize()

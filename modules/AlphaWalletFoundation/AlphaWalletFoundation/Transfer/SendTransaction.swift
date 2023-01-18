@@ -75,7 +75,7 @@ public class SendTransaction {
     private func resolveNextNonce(for transaction: UnsignedTransaction) -> Promise<UnsignedTransaction> {
         let (rpcURL, rpcHeaders) = rpcURLAndHeaders
         return firstly {
-            GetNextNonce(rpcURL: rpcURL, rpcHeaders: rpcHeaders, server: session.server, wallet: session.account.address, analytics: analytics).getNextNonce()
+            GetNextNonce(rpcURL: rpcURL, rpcHeaders: rpcHeaders, server: session.server, analytics: analytics).getNextNonce(wallet: session.account.address)
         }.map { nonce -> UnsignedTransaction in
             let transaction = self.appendNonce(to: transaction, currentNonce: nonce)
             return transaction

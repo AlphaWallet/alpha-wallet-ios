@@ -11,6 +11,7 @@ import WalletConnectSwift
 import PromiseKit
 import Combine
 import AlphaWalletFoundation
+import AlphaWalletCore
 
 protocol RequestAddCustomChainProvider: NSObjectProtocol {
     func requestAddCustomChain(server: RPCServer, callbackId: SwitchCustomChainCallbackId, customChain: WalletAddEthereumChainObject)
@@ -38,7 +39,7 @@ class WalletConnectCoordinator: NSObject, Coordinator {
     private let dependencies: AtomicDictionary<Wallet, AppCoordinator.WalletDependencies>
 
     let walletConnectProvider: WalletConnectProvider
-    
+
     weak var delegate: WalletConnectCoordinatorDelegate?
     var coordinators: [Coordinator] = []
 
@@ -108,7 +109,7 @@ class WalletConnectCoordinator: NSObject, Coordinator {
             viewController.navigationItem.rightBarButtonItem = UIBarButtonItem.qrCodeBarButton(self, selector: #selector(qrCodeButtonSelected))
             viewController.navigationItem.largeTitleDisplayMode = .never
             viewController.hidesBottomBarWhenPushed = true
-            
+
             sessionsViewController = viewController
 
             navigationController.pushViewController(viewController, animated: true, completion: completion)
@@ -178,36 +179,38 @@ extension WalletConnectCoordinator: WalletConnectSessionCoordinatorDelegate {
 
 extension WalletConnectCoordinator: WalletConnectProviderDelegate {
 
-    func requestGetTransactionCount(session: WalletSession) -> Promise<AlphaWallet.WalletConnect.Response> {
+    func requestGetTransactionCount(session: WalletSession) -> AnyPublisher<AlphaWallet.WalletConnect.Response, PromiseError> {
         infoLog("[WalletConnect] getTransactionCount")
-        return firstly {
-            GetNextNonce(server: session.server, wallet: session.account.address, analytics: analytics).getNextNonce()
-        }.map {
-            if let data = Data(fromHexEncodedString: String(format: "%02X", $0)) {
-                return .value(data)
-            } else {
-                throw PMKError.cancelled
-            }
-        }
+        return session.blockchainProvider
+            .nextNonce(wallet: session.account.address)
+            .mapError { PromiseError(error: $0) }
+            .flatMap { nonce -> AnyPublisher<AlphaWallet.WalletConnect.Response, PromiseError> in
+                if let data = Data(fromHexEncodedString: String(format: "%02X", nonce)) {
+                    return .just(.value(data))
+                } else {
+                    return .fail(PromiseError(error: PMKError.badInput))
+                }
+            }.receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
     }
 
-    func requestSignMessage(message: SignMessageType, account: AlphaWallet.Address, requester: RequesterViewModel) -> Promise<AlphaWallet.WalletConnect.Response> {
+    func requestSignMessage(message: SignMessageType, account: AlphaWallet.Address, requester: RequesterViewModel) -> AnyPublisher<AlphaWallet.WalletConnect.Response, PromiseError> {
         infoLog("[WalletConnect] signMessage: \(message)")
         return firstly {
             SignMessageCoordinator.promise(analytics: analytics, navigationController: navigationController, keystore: keystore, coordinator: self, signType: message, account: account, source: .walletConnect, requester: requester)
         }.map { data -> AlphaWallet.WalletConnect.Response in
             return .value(data)
-        }
+        }.publisher(queue: .main)
     }
 
-    func requestSendRawTransaction(session: WalletSession, requester: DappRequesterViewModel, transaction: String, configuration: TransactionType.Configuration) -> Promise<AlphaWallet.WalletConnect.Response> {
+    func requestSendRawTransaction(session: WalletSession, requester: DappRequesterViewModel, transaction: String, configuration: TransactionType.Configuration) -> AnyPublisher<AlphaWallet.WalletConnect.Response, PromiseError> {
         infoLog("[WalletConnect] signRawTransaction: \(transaction)")
         return firstly {
             showAskSendRawTransaction(title: R.string.localizable.walletConnectSendRawTransactionTitle(), message: transaction)
         }.then { shouldSend -> Promise<ConfirmResult> in
             guard shouldSend else { return .init(error: DAppError.cancelled) }
             let prompt = R.string.localizable.keystoreAccessKeySign()
-            let sender = SendTransaction(session: session, keystore: self.keystore, confirmType: .signThenSend, config: self.config, analytics: self.analytics, prompt: prompt)
+            let sender = SendTransaction(session: session, keystore: self.keystore, confirmType: .signThenSend, config: session.config, analytics: self.analytics, prompt: prompt)
             return sender.send(rawTransaction: transaction)
         }.map { data in
             switch data {
@@ -220,11 +223,11 @@ extension WalletConnectCoordinator: WalletConnectProviderDelegate {
             return UINotificationFeedbackGenerator.showFeedbackPromise(value: callback, feedbackType: .success)
         }.get { _ in
             TransactionInProgressCoordinator.promise(self.navigationController, coordinator: self).done { _ in }.cauterize()
-        }
+        }.publisher(queue: .main)
     }
 
-    func requestSendTransaction(session: WalletSession, requester: DappRequesterViewModel, transaction: UnconfirmedTransaction, configuration: TransactionType.Configuration) -> Promise<AlphaWallet.WalletConnect.Response> {
-        guard let dependency = dependencies[session.account] else { return .init(error: PMKError.cancelled) }
+    func requestSendTransaction(session: WalletSession, requester: DappRequesterViewModel, transaction: UnconfirmedTransaction, configuration: TransactionType.Configuration) -> AnyPublisher<AlphaWallet.WalletConnect.Response, PromiseError> {
+        guard let dependency = dependencies[session.account] else { return .fail(PromiseError(error: PMKError.cancelled)) }
 
         infoLog("[WalletConnect] sendTransaction: \(transaction) type: \(configuration.confirmType)")
 
@@ -242,13 +245,13 @@ extension WalletConnectCoordinator: WalletConnectProviderDelegate {
             }
         }.get { _ in
             TransactionInProgressCoordinator.promise(self.navigationController, coordinator: self).done { _ in }.cauterize()
-        }
+        }.publisher(queue: .main)
     }
 
-    func requestSingTransaction(session: WalletSession, requester: DappRequesterViewModel, transaction: UnconfirmedTransaction, configuration: TransactionType.Configuration) -> Promise<AlphaWallet.WalletConnect.Response> {
-        guard let dependency = dependencies[session.account] else { return .init(error: PMKError.cancelled) }
+    func requestSingTransaction(session: WalletSession, requester: DappRequesterViewModel, transaction: UnconfirmedTransaction, configuration: TransactionType.Configuration) -> AnyPublisher<AlphaWallet.WalletConnect.Response, PromiseError> {
+        guard let dependency = dependencies[session.account] else { return .fail(PromiseError(error: PMKError.cancelled)) }
         infoLog("[WalletConnect] singTransaction: \(transaction) type: \(configuration.confirmType)")
-        
+
         return firstly {
             TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, source: .walletConnect, delegate: self.delegate, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: dependency.pipeline, networkService: networkService)
         }.map { data -> AlphaWallet.WalletConnect.Response in
@@ -261,23 +264,23 @@ extension WalletConnectCoordinator: WalletConnectProviderDelegate {
                 //NOTE: Doesn't support sentRawTransaction for TransactionConfirmationCoordinator, for it we are using another function
                 throw PMKError.cancelled
             }
-        }
+        }.publisher(queue: .main)
     }
 
-    func requestAddCustomChain(server: RPCServer, callbackId: SwitchCustomChainCallbackId, customChain: WalletAddEthereumChainObject) -> Promise<AlphaWallet.WalletConnect.Response> {
+    func requestAddCustomChain(server: RPCServer, callbackId: SwitchCustomChainCallbackId, customChain: WalletAddEthereumChainObject) -> AnyPublisher<AlphaWallet.WalletConnect.Response, PromiseError> {
         infoLog("[WalletConnect] addCustomChain: \(customChain)")
 
         delegate?.requestAddCustomChain(server: server, callbackId: callbackId, customChain: customChain)
 
-        return .init(error: DelayWalletConnectResponseError())
+        return .fail(PromiseError(error: DelayWalletConnectResponseError()))
     }
 
-    func requestSwitchChain(server: RPCServer, currentUrl: URL?, callbackID: SwitchCustomChainCallbackId, targetChain: WalletSwitchEthereumChainObject) -> Promise<AlphaWallet.WalletConnect.Response> {
+    func requestSwitchChain(server: RPCServer, currentUrl: URL?, callbackID: SwitchCustomChainCallbackId, targetChain: WalletSwitchEthereumChainObject) -> AnyPublisher<AlphaWallet.WalletConnect.Response, PromiseError> {
         infoLog("[WalletConnect] switchChain: \(targetChain)")
 
         delegate?.requestSwitchChain(server: server, currentUrl: nil, callbackID: callbackID, targetChain: targetChain)
 
-        return .init(error: DelayWalletConnectResponseError())
+        return .fail(PromiseError(error: DelayWalletConnectResponseError()))
     }
 
     private func resetSessionsToRemoveLoadingIfNeeded() {
