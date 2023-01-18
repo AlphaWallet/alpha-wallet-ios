@@ -228,7 +228,7 @@ extension SwapTokensCoordinator: ApproveSwapProviderDelegate {
         coordinator.start(fromSource: .swap)
     }
 
-    func promptForErc20Approval(token: AlphaWallet.Address, server: RPCServer, owner: AlphaWallet.Address, spender: AlphaWallet.Address, amount: BigUInt, in provider: ApproveSwapProvider) -> Promise<EthereumTransaction.Hash> {
+    func promptForErc20Approval(token: AlphaWallet.Address, server: RPCServer, owner: AlphaWallet.Address, spender: AlphaWallet.Address, amount: BigUInt, in provider: ApproveSwapProvider) -> Promise<String> {
         return firstly {
             Promise.value(token)
         }.map { contract in
@@ -261,7 +261,7 @@ extension SwapTokensCoordinator: ApproveSwapProviderDelegate {
             case .sentTransaction(let transaction):
                 return transaction.id
             }
-        }.recover { error -> Promise<EthereumTransaction.Hash> in
+        }.recover { error -> Promise<String> in
             //TODO no good to have `DAppError` here, but this is because of `TransactionConfirmationCoordinatorBridgeToPromise`. Maybe good to have a global "UserCancelled" or something? If enum, not too many cases? To avoid `switch`
             if case DAppError.cancelled = error {
                 throw SwapError.userCancelledApproval
