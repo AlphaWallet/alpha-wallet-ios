@@ -66,8 +66,7 @@ extension WalletDataProcessingPipeline {
             tokensService: tokensService,
             sessionsProvider: sessionsProvider,
             eventsActivityDataStore: eventsActivityDataStore,
-            eventsDataStore: eventsDataStore,
-            analytics: fas)
+            eventsDataStore: eventsDataStore)
 
         let dep = AppCoordinator.WalletDependencies(
             activitiesPipeLine: activitiesPipeLine,

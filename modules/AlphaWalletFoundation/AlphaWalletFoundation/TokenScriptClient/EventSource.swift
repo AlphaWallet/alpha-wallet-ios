@@ -19,14 +19,20 @@ final class EventSource: NSObject {
     private let tokensService: TokenProvidable
     private let eventFetcher: EventFetcher
 
-    init(wallet: Wallet, tokensService: TokenProvidable, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, config: Config, getEventLogs: GetEventLogs) {
+    init(wallet: Wallet,
+         tokensService: TokenProvidable,
+         assetDefinitionStore: AssetDefinitionStore,
+         eventsDataStore: NonActivityEventsDataStore,
+         config: Config,
+         sessionsProvider: SessionsProvider) {
+
         self.wallet = wallet
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
         self.config = config
         self.enabledServers = config.enabledServers
         self.tokensService = tokensService
-        self.eventFetcher = EventFetcher(getEventLogs: getEventLogs, wallet: wallet)
+        self.eventFetcher = EventFetcher(sessionsProvider: sessionsProvider)
         super.init()
     }
 
@@ -59,26 +65,23 @@ final class EventSource: NSObject {
             eventsDataStore.deleteEvents(for: each.contract)
 
             fetchEventsByTokenId(for: token)
-                .done { _ in }
-                .cauterize()
+                .sink { _ in }
+                .store(in: &cancellable)
         }
     }
 
     private func fetchMappedContractsAndServers(token: Token) -> [(contract: AlphaWallet.Address, server: RPCServer)] {
-        var values: [(contract: AlphaWallet.Address, server: RPCServer)] = []
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         guard xmlHandler.hasAssetDefinition, let server = xmlHandler.server else { return [] }
         switch server {
         case .any:
-            values = enabledServers.map { (contract: token.contractAddress, server: $0) }
+            return enabledServers.map { (contract: token.contractAddress, server: $0) }
         case .server(let server):
-            values = [(contract: token.contractAddress, server: server)]
+            return [(contract: token.contractAddress, server: server)]
         }
-
-        return values
     }
 
-    private func getEventOriginsAndTokenIds(forToken token: Token) -> [(eventOrigin: EventOrigin, tokenIds: [TokenId])] {
+    private func getEventOriginsAndTokenIds(token: Token) -> [(eventOrigin: EventOrigin, tokenIds: [TokenId])] {
         var cards: [(eventOrigin: EventOrigin, tokenIds: [TokenId])] = []
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         guard xmlHandler.hasAssetDefinition else { return [] }
@@ -86,7 +89,13 @@ final class EventSource: NSObject {
 
         for each in xmlHandler.attributesWithEventSource {
             guard let eventOrigin = each.eventOrigin else { continue }
-            let tokenHolders = token.getTokenHolders(assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: wallet, isSourcedFromEvents: false)
+
+            let tokenHolders = token.getTokenHolders(
+                assetDefinitionStore: assetDefinitionStore,
+                eventsDataStore: eventsDataStore,
+                forWallet: wallet,
+                isSourcedFromEvents: false)
+
             let tokenIds = tokenHolders.flatMap { $0.tokenIds }
 
             cards.append((eventOrigin, tokenIds))
@@ -95,19 +104,29 @@ final class EventSource: NSObject {
         return cards
     }
 
-    private func fetchEventsByTokenId(for token: Token) -> Promise<Void> {
-        let promises = getEventOriginsAndTokenIds(forToken: token)
+    private func fetchEventsByTokenId(for token: Token) -> AnyPublisher<[EventInstanceValue], Never> {
+        let publishers = getEventOriginsAndTokenIds(token: token)
             .flatMap { value in
-                value.tokenIds.map { tokenId -> Promise<Void> in
+                value.tokenIds.map { tokenId -> AnyPublisher<[EventInstanceValue], Never> in
                     let eventOrigin = value.eventOrigin
-                    let oldEvent = eventsDataStore.getLastMatchingEventSortedByBlockNumber(for: eventOrigin.contract, tokenContract: token.contractAddress, server: token.server, eventName: eventOrigin.eventName)
-                    return eventFetcher.fetchEvents(tokenId: tokenId, token: token, eventOrigin: eventOrigin, oldEvent: oldEvent)
-                        .map(on: queue, { [eventsDataStore] events in
-                            eventsDataStore.addOrUpdate(events: events)
-                        })
+                    let oldEvent = eventsDataStore.getLastMatchingEventSortedByBlockNumber(
+                        for: eventOrigin.contract,
+                        tokenContract: token.contractAddress,
+                        server: token.server,
+                        eventName: eventOrigin.eventName)
+
+                    return eventFetcher
+                        .fetchEvents(tokenId: tokenId, token: token, eventOrigin: eventOrigin, oldEventBlockNumber: oldEvent?.blockNumber)
+                        .handleEvents(receiveOutput: { [eventsDataStore] in eventsDataStore.addOrUpdate(events: $0) })
+                        .replaceError(with: [])
+                        .eraseToAnyPublisher()
                 }
             }
-        return when(resolved: promises).map { _ in }
+
+        return Publishers.MergeMany(publishers)
+            .collect()
+            .map { $0.flatMap { $0 } }
+            .eraseToAnyPublisher()
     }
 
     private func fetchAllEvents() {
@@ -126,10 +145,13 @@ final class EventSource: NSObject {
         guard !isFetching else { return }
         isFetching = true
 
-        let promises = tokensService.tokens(for: enabledServers).map { fetchEventsByTokenId(for: $0) }.flatMap { $0 }
-        when(resolved: promises).done { [weak self] _ in
-            self?.isFetching = false
-        }
+        let publishers = tokensService.tokens(for: enabledServers)
+            .flatMap { fetchEventsByTokenId(for: $0) }
+
+        Publishers.MergeMany(publishers)
+            .collect()
+            .sink { [weak self] _ in self?.isFetching = false }
+            .store(in: &cancellable)
     }
 }
 
