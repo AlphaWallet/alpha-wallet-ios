@@ -72,7 +72,7 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .center
-        label.textColor = Colors.appRed
+        label.textColor = Configuration.Color.Semantic.defaultNote
         label.font = Fonts.semibold(size: 21)
 
         return label
@@ -81,7 +81,7 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .center
-        label.textColor = Colors.appRed
+        label.textColor = Configuration.Color.Semantic.defaultNote
         label.font = Fonts.semibold(size: 21)
         label.numberOfLines = 0
 
@@ -90,7 +90,7 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
     private let noteBorderView: UIView = {
         let view = UIView()
         view.layer.cornerRadius = DataEntry.Metric.CornerRadius.box
-        view.layer.borderColor = Colors.appRed.cgColor
+        view.layer.borderColor = Configuration.Color.Semantic.defaultNote.cgColor
         view.layer.borderWidth = 1
 
         return view
