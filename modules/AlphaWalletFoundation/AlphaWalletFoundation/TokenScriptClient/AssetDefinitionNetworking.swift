@@ -41,6 +41,7 @@ public class AssetDefinitionNetworking {
                 }
                 return .error
             }.replaceError(with: .error)
+            .share()
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }
