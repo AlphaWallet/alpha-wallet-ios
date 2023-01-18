@@ -317,7 +317,7 @@ extension EthereumAddress: Decodable, Encodable {
     }
 }
 
-public struct EventLog: Decodable {
+public struct EventLog: Codable {
     public var address: EthereumAddress
     public var blockHash: Data
     public var blockNumber: BigUInt
