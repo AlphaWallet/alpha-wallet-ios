@@ -49,11 +49,22 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
     private let session: WalletSession
     private let etherToken: Token
     private let importToken: ImportToken
+    private let networkService: NetworkService
+
     weak public var delegate: TokenBalanceFetcherDelegate?
     weak public var erc721TokenIdsFetcher: Erc721TokenIdsFetcher?
 
-    public init(session: WalletSession, nftProvider: NFTProvider, tokensService: TokenProvidable & TokenAddable, etherToken: Token, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger, importToken: ImportToken) {
+    public init(session: WalletSession,
+                nftProvider: NFTProvider,
+                tokensService: TokenProvidable & TokenAddable,
+                etherToken: Token,
+                assetDefinitionStore: AssetDefinitionStore,
+                analytics: AnalyticsLogger,
+                importToken: ImportToken,
+                networkService: NetworkService) {
+
         self.session = session
+        self.networkService = networkService
         self.importToken = importToken
         self.nftProvider = nftProvider
         self.etherToken = etherToken
