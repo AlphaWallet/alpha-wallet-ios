@@ -39,26 +39,77 @@ extension Publishers {
 }
 
 extension Publisher {
-    private func retry<S: Combine.Scheduler>(_ currentAttempt: UInt, behavior: RetryBehavior<S>, shouldOnlyRetryIf: RetryPredicate? = nil, tolerance: S.SchedulerTimeType.Stride? = nil, scheduler: S, options: S.SchedulerOptions? = nil) -> AnyPublisher<Output, Failure> {
+
+    private func retry<S: Combine.Scheduler>(_ currentAttempt: UInt, resolver: @escaping (Failure) -> RetryBehavior<S>?, tolerance: S.SchedulerTimeType.Stride? = nil, scheduler: S, options: S.SchedulerOptions? = nil) -> AnyPublisher<Output, Failure> {
+
+        return self.catch { error -> AnyPublisher<Output, Failure> in
+            guard let behavior = resolver(error) else { return .fail(error) }
+
+            let conditions = behavior.calculateConditions(currentAttempt)
+            guard currentAttempt <= conditions.maxRetries else { return .fail(error) }
+
+            guard conditions.delay != .zero else {
+                return self.retry(
+                    currentAttempt + 1,
+                    resolver: resolver,
+                    tolerance: tolerance,
+                    scheduler: scheduler,
+                    options: options).eraseToAnyPublisher()
+            }
+
+            return Just(())
+                .delay(for: conditions.delay, tolerance: tolerance, scheduler: scheduler, options: options)
+                .setFailureType(to: Failure.self)
+                .flatMap {
+                    self.retry(
+                        currentAttempt + 1,
+                        resolver: resolver,
+                        tolerance: tolerance,
+                        scheduler: scheduler,
+                        options: options)
+                }.eraseToAnyPublisher()
+        }.eraseToAnyPublisher()
+    }
+
+    private func retry<S: Combine.Scheduler>(_ currentAttempt: UInt,
+                                             behavior: RetryBehavior<S>,
+                                             shouldOnlyRetryIf: RetryPredicate? = nil,
+                                             tolerance: S.SchedulerTimeType.Stride? = nil,
+                                             scheduler: S,
+                                             options: S.SchedulerOptions? = nil) -> AnyPublisher<Output, Failure> {
+
         let conditions = behavior.calculateConditions(currentAttempt)
-        
+
         return self.catch { error -> AnyPublisher<Output, Failure> in
             guard currentAttempt <= conditions.maxRetries else { return .fail(error) }
 
             if let shouldOnlyRetryIf = shouldOnlyRetryIf, !shouldOnlyRetryIf(error) { return .fail(error) }
 
             guard conditions.delay != .zero else {
-                return self.retry(currentAttempt + 1, behavior: behavior, shouldOnlyRetryIf: shouldOnlyRetryIf, tolerance: tolerance, scheduler: scheduler, options: options).eraseToAnyPublisher()
+                return self.retry(
+                    currentAttempt + 1,
+                    behavior: behavior,
+                    shouldOnlyRetryIf: shouldOnlyRetryIf,
+                    tolerance: tolerance,
+                    scheduler: scheduler,
+                    options: options).eraseToAnyPublisher()
             }
 
             return Just(())
                 .delay(for: conditions.delay, tolerance: tolerance, scheduler: scheduler, options: options)
                 .setFailureType(to: Failure.self)
-                .flatMap { self.retry(currentAttempt + 1, behavior: behavior, shouldOnlyRetryIf: shouldOnlyRetryIf, tolerance: tolerance, scheduler: scheduler, options: options) }
-                .eraseToAnyPublisher()
+                .flatMap {
+                    self.retry(
+                        currentAttempt + 1,
+                        behavior: behavior,
+                        shouldOnlyRetryIf: shouldOnlyRetryIf,
+                        tolerance: tolerance,
+                        scheduler: scheduler,
+                        options: options)
+                }.eraseToAnyPublisher()
         }.eraseToAnyPublisher()
     }
-    
+
     public func retry<T: Combine.Scheduler>(_ retries: Int, delay: T.SchedulerTimeType.Stride, scheduler: T) -> AnyPublisher<Output, Failure> {
         self.catch { _ -> AnyPublisher<Output, Failure> in
             return Just(())
@@ -88,6 +139,24 @@ extension Publisher {
         return retry(1, behavior: behavior, shouldOnlyRetryIf: shouldOnlyRetryIf, tolerance: tolerance, scheduler: scheduler, options: options)
     }
 
+    /**
+       Retries the failed upstream publisher using the given retry behavior.
+       - parameter behavior: The retry behavior that will be used in case of an error.
+       - parameter shouldOnlyRetryIf: An optional custom closure which uses the downstream error to determine
+       if the publisher should retry.
+       - parameter tolerance: The allowed tolerance in firing delayed events.
+       - parameter scheduler: The scheduler that will be used for delaying the retry.
+       - parameter options: Options relevant to the scheduler’s behavior.
+       - returns: A publisher that attempts to recreate its subscription to a failed upstream publisher.
+       */
+    public func retry<S: Combine.Scheduler>(_ resolver: @escaping (Failure) -> RetryBehavior<S>?,
+                                              tolerance: S.SchedulerTimeType.Stride? = nil,
+                                              scheduler: S,
+                                              options: S.SchedulerOptions? = nil) -> AnyPublisher<Output, Failure> {
+
+        return retry(1, resolver: resolver, tolerance: tolerance, scheduler: scheduler, options: options)
+    }
+
 }
 
 /**
@@ -108,9 +177,9 @@ public enum RetryBehavior<S> where S: Combine.Scheduler {
     case custom(retries: UInt, delayCalculator: (UInt) -> TimeInterval)
 }
 
-fileprivate extension RetryBehavior {
+extension RetryBehavior {
 
-    func calculateConditions(_ currentRetry: UInt) -> (maxRetries: UInt, delay: S.SchedulerTimeType.Stride) {
+    public func calculateConditions(_ currentRetry: UInt) -> (maxRetries: UInt, delay: S.SchedulerTimeType.Stride) {
         switch self {
         case let .immediate(retries):
             // If immediate, returns 0.0 for delay
