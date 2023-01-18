@@ -120,7 +120,7 @@ public class AlphaWalletTokensService: TokensService {
                 if let provider = self?.providers.value[safe: session.key] {
                     providers[session.key] = provider
                 } else {
-                    guard let provider = self?.makeTokenSource(session: session.value) else { continue }
+                    guard let provider = self?.buildTokenSource(session: session.value) else { continue }
                     provider.start()
 
                     providers[session.key] = provider
@@ -132,18 +132,20 @@ public class AlphaWalletTokensService: TokensService {
         .store(in: &cancelable)
     }
 
-    private func makeTokenSource(session: WalletSession) -> TokenSourceProvider {
+    private func buildTokenSource(session: WalletSession) -> TokenSourceProvider {
         let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: session.server)
-        let balanceFetcher = TokenBalanceFetcher(session: session,
-                                                 nftProvider: nftProvider,
-                                                 tokensService: self,
-                                                 etherToken: etherToken,
-                                                 assetDefinitionStore: assetDefinitionStore,
-                                                 analytics: analytics,
-                                                 importToken: importToken)
-        
+        let balanceFetcher = TokenBalanceFetcher(
+            session: session,
+            nftProvider: nftProvider,
+            tokensService: self,
+            etherToken: etherToken,
+            assetDefinitionStore: assetDefinitionStore,
+            analytics: analytics,
+            importToken: importToken,
+            networkService: networkService)
+
         balanceFetcher.erc721TokenIdsFetcher = transactionsStorage
-        
+
         return ClientSideTokenSourceProvider(
             session: session,
             autoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue,
@@ -231,7 +233,7 @@ extension AlphaWalletTokensService: TokensServiceTests {
 
     public func deleteTokenTestsOnly(token: Token) {
         tokensDataStore.deleteTestsOnly(tokens: [token])
-    } 
+    }
 }
 
 extension AlphaWalletTokensService {
