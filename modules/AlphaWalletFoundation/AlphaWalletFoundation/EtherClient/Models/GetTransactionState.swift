@@ -7,7 +7,6 @@
 
 import Foundation
 import PromiseKit
-import AlphaWalletWeb3
 import JSONRPCKit
 import APIKit
 
@@ -29,17 +28,4 @@ public final class GetTransactionState {
         return promise
     }
 
-}
-
-extension TransactionState {
-    init(status: TransactionReceipt.TXStatus) {
-        switch status {
-        case .ok:
-            self = .completed
-        case .failed:
-            self = .failed
-        case .notYetProcessed:
-            self = .pending
-        }
-    }
 }

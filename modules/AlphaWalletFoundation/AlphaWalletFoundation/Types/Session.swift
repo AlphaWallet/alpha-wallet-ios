@@ -20,12 +20,20 @@ public final class WalletSession: Equatable {
     public var sessionID: String {
         return WalletSession.functional.sessionID(account: account, server: server)
     }
+    public let blockchainProvider: BlockchainProvider
 
-    public init(account: Wallet, server: RPCServer, config: Config, analytics: AnalyticsLogger) {
+    public init(account: Wallet,
+                server: RPCServer,
+                config: Config,
+                analytics: AnalyticsLogger,
+                blockchainProvider: BlockchainProvider) {
+
         self.analytics = analytics
         self.account = account
         self.server = server
         self.config = config
+
+        self.blockchainProvider = blockchainProvider
         self.blockNumberProvider = BlockNumberProvider(storage: config, server: server, analytics: analytics)
 
         if config.development.isAutoFetchingDisabled {

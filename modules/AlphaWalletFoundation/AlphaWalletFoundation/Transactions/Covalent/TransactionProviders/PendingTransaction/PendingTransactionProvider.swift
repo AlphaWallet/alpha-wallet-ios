@@ -7,7 +7,6 @@
 
 import Foundation
 import BigInt
-import JSONRPCKit
 import PromiseKit
 import Combine
 
@@ -15,7 +14,6 @@ final class PendingTransactionProvider {
     private let session: WalletSession
     private let transactionDataStore: TransactionDataStore
     private let tokensFromTransactionsFetcher: TokensFromTransactionsFetcher
-    private let fetcher: GetPendingTransaction
     private var cancelable = Set<AnyCancellable>()
     private let queue = DispatchQueue(label: "com.PendingTransactionProvider.updateQueue")
     private let fetchPendingTransactionsQueue: OperationQueue = {
@@ -28,11 +26,10 @@ final class PendingTransactionProvider {
 
     private lazy var store: AtomicDictionary<String, SchedulerProtocol> = .init()
 
-    init(session: WalletSession, transactionDataStore: TransactionDataStore, tokensFromTransactionsFetcher: TokensFromTransactionsFetcher, fetcher: GetPendingTransaction) {
+    init(session: WalletSession, transactionDataStore: TransactionDataStore, tokensFromTransactionsFetcher: TokensFromTransactionsFetcher) {
         self.session = session
         self.transactionDataStore = transactionDataStore
         self.tokensFromTransactionsFetcher = tokensFromTransactionsFetcher
-        self.fetcher = fetcher
     }
 
     func start() {
@@ -63,7 +60,7 @@ final class PendingTransactionProvider {
     deinit {
         for each in store.values {
             each.value.cancel()
-        } 
+        }
     }
 
     private func runPendingTransactionWatchers(transactions: [TransactionInstance]) {
@@ -71,7 +68,7 @@ final class PendingTransactionProvider {
             if store[each.id] != nil {
                 //no-op
             } else {
-                let provider = PendingTransactionSchedulerProvider(fetcher: fetcher, transaction: each, fetchPendingTransactionsQueue: fetchPendingTransactionsQueue)
+                let provider = PendingTransactionSchedulerProvider(blockchainProvider: session.blockchainProvider, transaction: each, fetchPendingTransactionsQueue: fetchPendingTransactionsQueue)
                 provider.delegate = self
                 let scheduler = Scheduler(provider: provider)
 

@@ -24,8 +24,7 @@ public class CovalentSingleChainTransactionProvider: SingleChainTransactionProvi
     }()
     private let networkService: CovalentNetworkService
     private lazy var pendingTransactionProvider: PendingTransactionProvider = {
-        let pendingTransactionFetcher = GetPendingTransaction(server: session.server, analytics: analytics)
-        return PendingTransactionProvider(session: session, transactionDataStore: transactionDataStore, tokensFromTransactionsFetcher: tokensFromTransactionsFetcher, fetcher: pendingTransactionFetcher)
+        return PendingTransactionProvider(session: session, transactionDataStore: transactionDataStore, tokensFromTransactionsFetcher: tokensFromTransactionsFetcher)
     }()
 
     private lazy var newlyAddedTransactionProvider: NewlyAddedTransactionProvider = {
