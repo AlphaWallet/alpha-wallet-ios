@@ -195,27 +195,30 @@ extension URLRequest {
     }
 
     public func curl(pretty: Bool = false) -> String {
+        guard let url = url else { return "" }
+        var baseCommand = #"curl "\#(url.absoluteString)""#
 
-        var data: String = ""
-        let complement = pretty ? "\\\n" : ""
-        let method = "-X \(self.httpMethod ?? "GET") \(complement)"
-        let url = "\"" + (self.url?.absoluteString ?? "") + "\""
+        if httpMethod == "HEAD" {
+            baseCommand += " --head"
+        }
 
-        var header = ""
+        var command = [baseCommand]
 
-        if let httpHeaders = self.allHTTPHeaderFields, !httpHeaders.keys.isEmpty {
-            for (key, value) in httpHeaders {
-                header += "-H \"\(key): \(value)\" \(complement)"
+        if let method = httpMethod, method != "GET" && method != "HEAD" {
+            command.append("-X \(method)")
+        }
+
+        if let headers = allHTTPHeaderFields {
+            for (key, value) in headers where key != "Cookie" {
+                command.append("-H '\(key): \(value)'")
             }
         }
 
-        if let bodyData = self.httpBody, let bodyString = String(data: bodyData, encoding: .utf8) {
-            data = "-d \"\(bodyString)\" \(complement)"
+        if let data = httpBody, let body = String(data: data, encoding: .utf8) {
+            command.append("-d '\(body)'")
         }
 
-        let command = "curl -i " + complement + method + header + data + url
-
-        return command
+        return command.joined(separator: " \\\n\t")
     }
 
 }
