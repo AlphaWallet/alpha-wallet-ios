@@ -16,10 +16,17 @@ public protocol BlockchainProvider {
     func blockNumber() -> AnyPublisher<Int, SessionTaskError>
     func transactionsState(hash: String) -> AnyPublisher<TransactionState, SessionTaskError>
     func call(from: AlphaWallet.Address?, to: AlphaWallet.Address?, value: String?, data: String) -> AnyPublisher<String, SessionTaskError>
+    func call<R: ContractMethodCall>(_ method: R, block: BlockParameter) -> AnyPublisher<R.Response, SessionTaskError>
     func pendingTransaction(hash: String) -> AnyPublisher<PendingTransaction?, SessionTaskError>
     func nextNonce(wallet: AlphaWallet.Address) -> AnyPublisher<Int, SessionTaskError>
     func block(by blockNumber: BigUInt) -> AnyPublisher<Date, SessionTaskError>
     func eventLogs(contractAddress: AlphaWallet.Address, eventName: String, abiString: String, filter: EventFilter) -> AnyPublisher<[EventParserResultProtocol], SessionTaskError>
+}
+
+extension BlockchainProvider {
+    func call<R: ContractMethodCall>(_ method: R, block: BlockParameter = .latest) -> AnyPublisher<R.Response, SessionTaskError> {
+        call(method, block: block)
+    }
 }
 
 public final class RpcBlockchainProvider: BlockchainProvider {
@@ -46,6 +53,14 @@ public final class RpcBlockchainProvider: BlockchainProvider {
         let request = EthCall(server: server, analytics: analytics)
         return request.ethCall(from: from, to: to, value: value, data: data)
             .publisher(queue: .main)
+            .mapError { SessionTaskError.responseError($0.embedded) }
+            .eraseToAnyPublisher()
+    }
+
+    public func call<R: ContractMethodCall>(_ method: R, block: BlockParameter) -> AnyPublisher<R.Response, SessionTaskError> {
+        callSmartContract(withServer: server, contract: method.contract, functionName: method.name, abiString: method.abi, parameters: method.parameters)
+            .map { try method.response(from: $0) }
+            .publisher(queue: .global())
             .mapError { SessionTaskError.responseError($0.embedded) }
             .eraseToAnyPublisher()
     }

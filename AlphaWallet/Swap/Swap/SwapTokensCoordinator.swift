@@ -11,6 +11,7 @@ import FloatingPanel
 import PromiseKit
 import BigInt
 import AlphaWalletFoundation
+import AlphaWalletCore
 
 protocol SwapTokensCoordinatorDelegate: CanOpenURL, BuyCryptoDelegate {
     func didFinish(_ result: ConfirmResult, in coordinator: SwapTokensCoordinator)
@@ -228,7 +229,7 @@ extension SwapTokensCoordinator: ApproveSwapProviderDelegate {
         coordinator.start(fromSource: .swap)
     }
 
-    func promptForErc20Approval(token: AlphaWallet.Address, server: RPCServer, owner: AlphaWallet.Address, spender: AlphaWallet.Address, amount: BigUInt, in provider: ApproveSwapProvider) -> Promise<String> {
+    func promptForErc20Approval(token: AlphaWallet.Address, server: RPCServer, owner: AlphaWallet.Address, spender: AlphaWallet.Address, amount: BigUInt, in provider: ApproveSwapProvider) -> AnyPublisher<String, PromiseError> {
         return firstly {
             Promise.value(token)
         }.map { contract in
@@ -268,7 +269,7 @@ extension SwapTokensCoordinator: ApproveSwapProviderDelegate {
             } else {
                 throw error
             }
-        }
+        }.publisher()
     }
 
     private func showError(_ error: Error) {
