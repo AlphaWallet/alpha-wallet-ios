@@ -18,11 +18,12 @@ final class FakeNetworkService: NetworkService {
                 usingThreshold: UInt64,
                 to url: URLConvertible,
                 method: HTTPMethod,
-                headers: HTTPHeaders?) -> AnyPublisher<Alamofire.DataResponse<Any>, SessionTaskError> {
+                headers: HTTPHeaders?,
+                callbackQueue: DispatchQueue = .main) -> AnyPublisher<Alamofire.DataResponse<Any>, SessionTaskError> {
         return .empty()
     }
 
-    func dataTaskPublisher(_ request: AlphaWalletFoundation.URLRequestConvertible) -> AnyPublisher<URLRequest.Response, SessionTaskError> {
+    func dataTaskPublisher(_ request: AlphaWalletFoundation.URLRequestConvertible, callbackQueue: DispatchQueue = .main) -> AnyPublisher<URLRequest.Response, SessionTaskError> {
         return AnyPublisher<URLRequest.Response, AlphaWalletFoundation.SessionTaskError>.create { [callbackQueue, delay] seal in
             self.calls += 1
 
@@ -44,7 +45,7 @@ final class FakeNetworkService: NetworkService {
         }.eraseToAnyPublisher()
     }
 
-    func dataTaskPromise(_ request: AlphaWalletFoundation.URLRequestConvertible) -> Promise<URLRequest.Response> {
+    func dataTaskPromise(_ request: AlphaWalletFoundation.URLRequestConvertible, callbackQueue: DispatchQueue = .main) -> Promise<URLRequest.Response> {
         PromiseKit.Promise<URLRequest.Response>.init { [callbackQueue, delay] seal in
             callbackQueue.asyncAfter(deadline: .now() + delay) {
                 switch self.response {
