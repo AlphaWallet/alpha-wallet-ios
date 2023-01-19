@@ -17,6 +17,14 @@ public typealias SessionTaskError = APIKit.SessionTaskError
 public typealias JSONRPCError = JSONRPCKit.JSONRPCError
 
 extension SessionTaskError {
+    public init(error: Error) {
+        if let e = error as? SessionTaskError {
+            self = e
+        } else {
+            self = .responseError(error)
+        }
+    }
+
     public var unwrapped: Error {
         switch self {
         case .connectionError(let e):
