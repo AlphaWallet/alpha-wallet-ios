@@ -151,7 +151,7 @@ class TransactionConfirmationViewController: UIViewController {
 
         buttonsBar.configure()
         let button = buttonsBar.buttons[0]
-        button.shrinkBorderColor = Colors.loadingIndicatorBorder
+        button.shrinkBorderColor = Configuration.Color.Semantic.loadingIndicatorBorder
         button.setTitle(viewModel.confirmationButtonTitle, for: .normal)
         button.addTarget(self, action: #selector(confirmButtonSelected), for: .touchUpInside)
 
