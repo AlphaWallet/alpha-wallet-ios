@@ -12,6 +12,6 @@ public struct CastError<ExpectedType>: LocalizedError {
     }
 
     public var localizedDescription: String {
-        return "Decode failure: Unavailable to decode value of \(actualValue) to expected type \(String(describing: expectedType))"
+        return "Decode failure: Unable to decode value of \(actualValue) to expected type \(String(describing: expectedType))"
     }
 }
