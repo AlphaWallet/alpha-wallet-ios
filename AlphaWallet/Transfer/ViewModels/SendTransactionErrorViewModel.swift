@@ -3,12 +3,9 @@
 import UIKit
 import AlphaWalletFoundation
 
-struct SendTransactionErrorViewModel {
-    let server: RPCServer
-    let error: SendTransactionNotRetryableError
-
-    var title: String {
-        switch error {
+extension SendTransactionNotRetryableError: LocalizedError {
+    public var errorDescription: String? {
+        switch type {
         case .insufficientFunds:
             return R.string.localizable.tokenTransactionConfirmationErrorTitleInsufficientFundsError(server.cryptoCurrencyName)
         case .nonceTooLow:
@@ -27,9 +24,18 @@ struct SendTransactionErrorViewModel {
             return R.string.localizable.unknownError()
         }
     }
+}
+
+struct SendTransactionErrorViewModel {
+    let server: RPCServer
+    let error: SendTransactionNotRetryableError
+
+    var title: String {
+        error.errorDescription ?? R.string.localizable.unknownError()
+    }
 
     var description: String {
-        switch error {
+        switch error.type {
         case .insufficientFunds:
             return R.string.localizable.tokenTransactionConfirmationErrorDescriptionInsufficientFundsError(server.cryptoCurrencyName, server.symbol, server.symbol, server.cryptoCurrencyName)
         case .nonceTooLow:
@@ -58,7 +64,7 @@ struct SendTransactionErrorViewModel {
     }
 
     var rectifyErrorButtonTitle: String? {
-        switch error {
+        switch error.type {
         case .insufficientFunds:
             return R.string.localizable.tokenTransactionConfirmationErrorRectifyButtonTitleInsufficientFundsError(server.symbol)
         case .nonceTooLow:
@@ -82,7 +88,7 @@ struct SendTransactionErrorViewModel {
 
 extension SendTransactionNotRetryableError {
     var faqEntry: (url: URL, title: String)? {
-        switch self {
+        switch self.type {
         case .insufficientFunds:
             return (url: URL(string: "https://alphawallet.com/faq/what-do-insufficient-funds-for-gas-price-mean/")!, title: R.string.localizable.tokenTransactionConfirmationErrorLinkTitleInsufficientFundsError())
         case .nonceTooLow:

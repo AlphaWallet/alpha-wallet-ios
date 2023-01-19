@@ -114,7 +114,7 @@ public class SendTransaction {
 
     private func logSelectSendError(_ error: Error) {
         guard let error = error as? SendTransactionNotRetryableError else { return }
-        switch error {
+        switch error.type {
         case .nonceTooLow:
             analytics.log(error: Analytics.Error.sendTransactionNonceTooLow)
         case .insufficientFunds, .gasPriceTooLow, .gasLimitTooLow, .gasLimitTooHigh, .possibleChainIdMismatch, .executionReverted, .unknown:
