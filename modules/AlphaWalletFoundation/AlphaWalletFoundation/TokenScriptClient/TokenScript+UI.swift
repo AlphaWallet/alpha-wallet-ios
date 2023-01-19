@@ -19,7 +19,12 @@ extension TokenScript {
         guard action.hasTransactionFunction else { return }
 
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
-        let tokenLevelAttributeValues = xmlHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: tokenHolder.tokens[0].tokenIdOrEvent, server: server, account: session.account)
+        let tokenLevelAttributeValues = xmlHandler.resolveAttributesBypassingCache(
+            withTokenIdOrEvent: tokenHolder.tokens[0].tokenIdOrEvent,
+            server: server,
+            account: session.account,
+            assetDefinitionStore: assetDefinitionStore)
+        
         let resolveTokenLevelSubscribableAttributes = Array(tokenLevelAttributeValues.values).filterToSubscribables.createPromiseForSubscribeOnce()
 
         firstly {
@@ -38,7 +43,7 @@ extension TokenScript {
             //Make sure to resolve every attribute before actionsheet appears without hitting the cache. Both action and token-level attributes (especially function-origins)
             //TODO also have to monitor for changes to the attributes, be able to flag it and update actionsheet. Maybe just a matter of getting a list of AssetAttributes and their subscribables (AssetInternalValue?), subscribing to them so that we can indicate changes?
             let (_, tokenIdBased) = tokenLevelAttributeValues.splitAttributesIntoSubscribablesAndNonSubscribables
-            return resolveActionAttributeValues(action: action, withUserEntryValues: userEntryValues, tokenLevelTokenIdOriginAttributeValues: tokenIdBased, tokenHolder: tokenHolder, server: server, session: session, localRefsSource: localRefsSource)
+            return resolveActionAttributeValues(action: action, withUserEntryValues: userEntryValues, tokenLevelTokenIdOriginAttributeValues: tokenIdBased, tokenHolder: tokenHolder, server: server, session: session, localRefsSource: localRefsSource, assetDefinitionStore: assetDefinitionStore)
         }.map { (values: [AttributeId: AssetInternalValue]) -> [AttributeId: AssetInternalValue] in
             //Force unwrap because we know they have been resolved earlier in this promise chain
             let allAttributesAndValues = values.merging(tokenLevelAttributeValues.mapValues { $0.value.resolvedValue! }) { (_, new) in new }
@@ -52,11 +57,11 @@ extension TokenScript {
         //TODO catch
     }
 
-    private static func resolveActionAttributeValues(action: TokenInstanceAction, withUserEntryValues userEntryValues: [AttributeId: String], tokenLevelTokenIdOriginAttributeValues: [AttributeId: AssetAttributeSyntaxValue], tokenHolder: TokenHolder, server: RPCServer, session: WalletSession, localRefsSource: TokenScriptLocalRefsSource) -> Promise<[AttributeId: AssetInternalValue]> {
+    private static func resolveActionAttributeValues(action: TokenInstanceAction, withUserEntryValues userEntryValues: [AttributeId: String], tokenLevelTokenIdOriginAttributeValues: [AttributeId: AssetAttributeSyntaxValue], tokenHolder: TokenHolder, server: RPCServer, session: WalletSession, localRefsSource: TokenScriptLocalRefsSource, assetDefinitionStore: AssetDefinitionStore) -> Promise<[AttributeId: AssetInternalValue]> {
         return Promise { seal in
             //TODO Not reading/writing from/to cache here because we haven't worked out volatility of attributes yet. So we assume all attributes used by an action as volatile, have to fetch the latest
             //Careful to only resolve (and wait on) attributes that the smart contract function invocation is dependent on. Some action-level attributes might only be used for display
-            let attributeNameValues = action.attributesDependencies.resolve(withTokenIdOrEvent: tokenHolder.tokens[0].tokenIdOrEvent, userEntryValues: userEntryValues, server: server, account: session.account, additionalValues: tokenLevelTokenIdOriginAttributeValues, localRefs: localRefsSource.localRefs).mapValues { $0.value }
+            let attributeNameValues = assetDefinitionStore.assetAttributeResolver.resolve(withTokenIdOrEvent: tokenHolder.tokens[0].tokenIdOrEvent, userEntryValues: userEntryValues, server: server, account: session.account, additionalValues: tokenLevelTokenIdOriginAttributeValues, localRefs: localRefsSource.localRefs, attributes: action.attributesDependencies).mapValues { $0.value }
             var allResolved = false
             let attributes = AssetAttributeValues(attributeValues: attributeNameValues)
             let resolvedAttributeNameValues = attributes.resolve { updatedValues in

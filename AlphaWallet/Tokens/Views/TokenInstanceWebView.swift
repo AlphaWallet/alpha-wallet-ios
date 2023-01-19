@@ -207,7 +207,16 @@ class TokenInstanceWebView: UIView, TokenScriptLocalRefsSource {
         guard !localRefs.isEmpty else { return .init() }
         let xmlHandler = XMLHandler(contract: tokenHolder.contractAddress, tokenType: tokenHolder.tokenType, assetDefinitionStore: assetDefinitionStore)
         let attributes = xmlHandler.fields.filter { $0.value.isDependentOnProps && lastCardLevelAttributeValues?[$0.key] == nil }
-        return attributes.resolve(withTokenIdOrEvent: .tokenId(tokenId: tokenHolder.tokenIds[0]), userEntryValues: .init(), server: server, account: wallet, additionalValues: .init(), localRefs: localRefs)
+
+        return assetDefinitionStore
+            .assetAttributeResolver
+            .resolve(withTokenIdOrEvent: .tokenId(tokenId: tokenHolder.tokenIds[0]),
+                     userEntryValues: .init(),
+                     server: server,
+                     account: wallet,
+                     additionalValues: .init(),
+                     localRefs: localRefs,
+                     attributes: attributes)
     }
 
     private func implicitAttributes(tokenHolder: TokenHolder, isFungible: Bool) -> [String: AssetInternalValue] {
