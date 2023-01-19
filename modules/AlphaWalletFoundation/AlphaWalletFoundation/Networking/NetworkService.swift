@@ -10,15 +10,13 @@ import Alamofire
 import Combine
 import PromiseKit
 import AlphaWalletCore
-import APIKit
 
 public typealias URLRequestConvertible = Alamofire.URLRequestConvertible
 public typealias URLEncoding = Alamofire.URLEncoding
-public typealias Parameters = Alamofire.Parameters
 public typealias JSONEncoding = Alamofire.JSONEncoding
+public typealias Parameters = Alamofire.Parameters
 public typealias HTTPHeaders = Alamofire.HTTPHeaders
-
-public typealias ResponseError = APIKit.ResponseError
+public typealias HTTPMethod = Alamofire.HTTPMethod
 
 extension URLRequest {
     public typealias Response = (data: Data, response: HTTPURLResponse)
@@ -27,20 +25,62 @@ extension URLRequest {
 public protocol NetworkService {
     func dataTaskPublisher(_ request: URLRequestConvertible) -> AnyPublisher<URLRequest.Response, SessionTaskError>
     func dataTaskPromise(_ request: URLRequestConvertible) -> Promise<URLRequest.Response>
+    func upload(multipartFormData: @escaping (MultipartFormData) -> Void, usingThreshold: UInt64, to url: URLConvertible, method: HTTPMethod, headers: HTTPHeaders?) -> AnyPublisher<Alamofire.DataResponse<Any>, SessionTaskError>
+}
+
+extension NetworkService {
+    func upload(multipartFormData: @escaping (MultipartFormData) -> Void,
+                usingThreshold: UInt64 = SessionManager.multipartFormDataEncodingMemoryThreshold,
+                to url: URLConvertible,
+                method: HTTPMethod = .post,
+                headers: HTTPHeaders? = nil) -> AnyPublisher<Alamofire.DataResponse<Any>, SessionTaskError> {
+        return upload(multipartFormData: multipartFormData, usingThreshold: usingThreshold, to: url, method: method, headers: headers)
+    }
 }
 
 public class BaseNetworkService: NetworkService {
     private let analytics: AnalyticsLogger
-    private let session: SessionManager = {
-        let configuration = URLSessionConfiguration.default
-        return SessionManager(configuration: configuration)
-    }()
+    private let session: SessionManager
 
-    public var callbackQueue: DispatchQueue
+    public var callbackQueue: DispatchQueue = .global()
 
-    public init(analytics: AnalyticsLogger, callbackQueue: DispatchQueue = .global()) {
+    public init(analytics: AnalyticsLogger, configuration: URLSessionConfiguration = .default) {
+        self.session = SessionManager(configuration: configuration)
         self.analytics = analytics
-        self.callbackQueue = callbackQueue
+    }
+
+    public func upload(
+        multipartFormData: @escaping (MultipartFormData) -> Void,
+        usingThreshold encodingMemoryThreshold: UInt64 = SessionManager.multipartFormDataEncodingMemoryThreshold,
+        to url: URLConvertible,
+        method: HTTPMethod = .post,
+        headers: HTTPHeaders? = nil) -> AnyPublisher<Alamofire.DataResponse<Any>, SessionTaskError> {
+
+            return AnyPublisher<Alamofire.DataResponse<Any>, SessionTaskError>.create { [session, callbackQueue] seal in
+                var urlRequest: UploadRequest?
+
+                session.upload(
+                    multipartFormData: multipartFormData,
+                    usingThreshold: encodingMemoryThreshold,
+                    to: url,
+                    method: method,
+                    headers: headers,
+                    encodingCompletion: { result in
+                        switch result {
+                        case .success(let request, let streamingFromDisk, let streamFileURL):
+                            urlRequest = request.responseJSON(queue: callbackQueue, completionHandler: {
+                                seal.send($0)
+                                seal.send(completion: .finished)
+                            })
+                        case .failure(let error):
+                            seal.send(completion: .failure(.requestError(error)))
+                        }
+                    })
+
+                return AnyCancellable {
+                    urlRequest?.cancel()
+                }
+            }
     }
 
     public func dataTaskPromise(_ request: URLRequestConvertible) -> Promise<URLRequest.Response> {
@@ -99,6 +139,10 @@ extension BaseNetworkService {
     class functional {}
 }
 
+struct NonHTTPURLResponseError: Error {
+    let response: HTTPURLResponse?
+}
+
 extension BaseNetworkService.functional {
     static func decode(response: DefaultDataResponse) -> Swift.Result<URLRequest.Response, SessionTaskError> {
         switch (response.data, response.response, response.error) {
@@ -111,7 +155,7 @@ extension BaseNetworkService.functional {
                 return .failure(.responseError(error))
             }
         default:
-            return .failure(.responseError(ResponseError.nonHTTPURLResponse(response.response)))
+            return .failure(.responseError(NonHTTPURLResponseError(response: response.response)))
         }
     }
 }
@@ -145,13 +189,22 @@ public struct AnyJsonDecoder: AnyDecoder {
     }
 }
 
-struct RawDataParser: AnyDecoder {
-    var contentType: String? {
-        "application/json"
-    }
+extension JSONEncoding {
+    public func encode(_ urlRequest: URLRequestConvertible, codable: Codable) throws -> URLRequest {
+        var urlRequest = try urlRequest.asURLRequest()
 
-    func decode(response: HTTPURLResponse, data: Data) throws -> Any {
-        return data
+        do {
+            let data = try JSONEncoder().encode(codable)
+
+            if urlRequest.value(forHTTPHeaderField: "Content-Type") == nil {
+                urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            }
+
+            urlRequest.httpBody = data
+        } catch {
+            throw AFError.parameterEncodingFailed(reason: .jsonEncodingFailed(error: error))
+        }
+
+        return urlRequest
     }
 }
-

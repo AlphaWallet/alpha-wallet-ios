@@ -14,6 +14,14 @@ final class FakeNetworkService: NetworkService {
     var delay: TimeInterval = 0.5
     private (set) var calls: Int = 0
 
+    func upload(multipartFormData: @escaping (MultipartFormData) -> Void,
+                usingThreshold: UInt64,
+                to url: URLConvertible,
+                method: HTTPMethod,
+                headers: HTTPHeaders?) -> AnyPublisher<Alamofire.DataResponse<Any>, SessionTaskError> {
+        return .empty()
+    }
+
     func dataTaskPublisher(_ request: AlphaWalletFoundation.URLRequestConvertible) -> AnyPublisher<URLRequest.Response, SessionTaskError> {
         return AnyPublisher<URLRequest.Response, AlphaWalletFoundation.SessionTaskError>.create { [callbackQueue, delay] seal in
             self.calls += 1
