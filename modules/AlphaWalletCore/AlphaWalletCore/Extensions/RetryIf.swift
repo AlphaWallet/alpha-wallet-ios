@@ -150,10 +150,10 @@ extension Publisher {
        - returns: A publisher that attempts to recreate its subscription to a failed upstream publisher.
        */
     public func retry<S: Combine.Scheduler>(_ resolver: @escaping (Failure) -> RetryBehavior<S>?,
-                                              tolerance: S.SchedulerTimeType.Stride? = nil,
-                                              scheduler: S,
-                                              options: S.SchedulerOptions? = nil) -> AnyPublisher<Output, Failure> {
-
+                                            tolerance: S.SchedulerTimeType.Stride? = nil,
+                                            scheduler: S,
+                                            options: S.SchedulerOptions? = nil) -> AnyPublisher<Output, Failure> {
+        
         return retry(1, resolver: resolver, tolerance: tolerance, scheduler: scheduler, options: options)
     }
 
