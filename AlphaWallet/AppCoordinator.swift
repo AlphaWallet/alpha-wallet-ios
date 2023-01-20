@@ -164,7 +164,7 @@ class AppCoordinator: NSObject, Coordinator {
         let storage: EnsRecordsStorage = RealmStore.shared
         return storage
     }()
-    private lazy var blockchainProviderForResolvingEns: BlockchainProvider = RpcBlockchainProvider(server: .forResolvingEns, analytics: analytics)
+    private lazy var blockchainProviderForResolvingEns: BlockchainProvider = RpcBlockchainProvider(server: .forResolvingEns, analytics: analytics, params: .defaultParams(for: .forResolvingEns))
     lazy private var blockiesGenerator: BlockiesGenerator = BlockiesGenerator(
         assetImageProvider: nftProvider,
         storage: sharedEnsRecordsStorage,

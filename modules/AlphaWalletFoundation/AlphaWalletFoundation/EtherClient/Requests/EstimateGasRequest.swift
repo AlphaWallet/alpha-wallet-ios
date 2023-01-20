@@ -4,16 +4,12 @@ import Foundation
 import JSONRPCKit
 import BigInt
 
-struct EstimateGasRequest: JSONRPCKit.Request {
-    typealias Response = BigUInt
+enum EstimateGasTransactionType {
+    case normal(to: AlphaWallet.Address)
+    case contractDeployment
 
-    enum TransactionType {
-        case normal(to: AlphaWallet.Address)
-        case contractDeployment
-    }
-
-    private var to: AlphaWallet.Address? {
-        switch transactionType {
+    var contract: AlphaWallet.Address? {
+        switch self {
         case .normal(let to):
             return to
         case .contractDeployment:
@@ -21,8 +17,21 @@ struct EstimateGasRequest: JSONRPCKit.Request {
         }
     }
 
+    var canCapGasLimit: Bool {
+        switch self {
+        case .normal:
+            return true
+        case .contractDeployment:
+            return false
+        }
+    }
+}
+
+struct EstimateGasRequest: JSONRPCKit.Request {
+    typealias Response = BigUInt
+
     let from: AlphaWallet.Address
-    let transactionType: TransactionType
+    let transactionType: EstimateGasTransactionType
     let value: BigUInt
     let data: Data
 
@@ -39,19 +48,10 @@ struct EstimateGasRequest: JSONRPCKit.Request {
                 "data": data.hexEncoded,
             ],
         ]
-        if let to: AlphaWallet.Address = to {
+        if let to: AlphaWallet.Address = transactionType.contract {
             results[0]["to"] = to.eip55String
         }
         return results
-    }
-
-    var canCapGasLimit: Bool {
-        switch transactionType {
-        case .normal:
-            return true
-        case .contractDeployment:
-            return false
-        }
     }
 
     func response(from resultObject: Any) throws -> Response {

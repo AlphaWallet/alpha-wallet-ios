@@ -10,6 +10,6 @@ extension BlockiesGenerator {
         return BlockiesGenerator(
             assetImageProvider: FakeNftProvider(),
             storage: FakeEnsRecordsStorage(),
-            blockchainProvider: RpcBlockchainProvider(server: .main, analytics: FakeAnalyticsService()))
+            blockchainProvider: RpcBlockchainProvider(server: .main, analytics: FakeAnalyticsService(), params: .defaultParams(for: .main)))
     }
 }

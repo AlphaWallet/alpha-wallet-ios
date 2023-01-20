@@ -40,35 +40,20 @@ extension SessionTaskError {
 public final class GetGasPrice {
     private let analytics: AnalyticsLogger
     private let server: RPCServer
+    private let params: BlockchainParams
 
-    public init(server: RPCServer, analytics: AnalyticsLogger) {
+    public init(server: RPCServer, params: BlockchainParams, analytics: AnalyticsLogger) {
         self.server = server
+        self.params = params
         self.analytics = analytics
     }
 
-    public func getGasEstimates() -> AnyPublisher<GasEstimates, PromiseError> {
+    public func getGasEstimates() -> AnyPublisher<BigUInt, SessionTaskError> {
         let request = EtherServiceRequest(server: server, batch: BatchFactory().create(GasPriceRequest()))
         let maxPrice: BigUInt = GasPriceConfiguration.maxPrice(forServer: server)
         let defaultPrice: BigUInt = GasPriceConfiguration.defaultPrice(forServer: server)
 
         return APIKitSession
             .sendPublisher(request, server: server, analytics: analytics)
-            .handleEvents(receiveOutput: { [server] estimate in
-                infoLog("Estimated gas price with RPC node server: \(server) estimate: \(estimate)")
-            }).map { [server] gasPrice in
-                if (gasPrice + GasPriceConfiguration.oneGwei) > maxPrice {
-                    // Guard against really high prices
-                    return GasEstimates(standard: maxPrice)
-                } else {
-                    if server.canUserChangeGas && server.shouldAddBufferWhenEstimatingGasPrice {
-                        //Add an extra gwei because the estimate is sometimes too low
-                        return GasEstimates(standard: gasPrice + GasPriceConfiguration.oneGwei)
-                    } else {
-                        return GasEstimates(standard: gasPrice)
-                    }
-                }
-            }.catch { _ -> AnyPublisher<GasEstimates, PromiseError> in .just(GasEstimates(standard: defaultPrice)) }
-            .receive(on: RunLoop.main)
-            .eraseToAnyPublisher()
     }
 }

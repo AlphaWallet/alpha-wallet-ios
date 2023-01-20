@@ -11,32 +11,23 @@ import BigInt
 import JSONRPCKit
 import PromiseKit
 
-public final class GetGasLimit {
-    private let account: Wallet
+final class GetGasLimit {
     private let server: RPCServer
     private let analytics: AnalyticsLogger
 
-    public init(account: Wallet, server: RPCServer, analytics: AnalyticsLogger) {
-        self.account = account
+    init(server: RPCServer, analytics: AnalyticsLogger) {
         self.server = server
         self.analytics = analytics
     }
 
-    public func getGasLimit(value: BigUInt, toAddress: AlphaWallet.Address?, data: Data) -> Promise<(BigUInt, Bool)> {
-        let transactionType: EstimateGasRequest.TransactionType
-        if let toAddress = toAddress {
-            transactionType = .normal(to: toAddress)
-        } else {
-            transactionType = .contractDeployment
-        }
-
-        let request = EstimateGasRequest(from: account.address, transactionType: transactionType, value: value, data: data)
+    func getGasLimit(account: AlphaWallet.Address, value: BigUInt, transactionType: EstimateGasTransactionType, data: Data) -> Promise<BigUInt> {
+        let request = EstimateGasRequest(from: account, transactionType: transactionType, value: value, data: data)
 
         return firstly {
             APIKitSession.send(EtherServiceRequest(server: server, batch: BatchFactory().create(request)), server: server, analytics: analytics)
-        }.map { gasLimit -> (BigUInt, Bool) in
+        }.map { gasLimit -> BigUInt in
             infoLog("Estimated gas limit with eth_estimateGas: \(gasLimit)")
-            return (gasLimit, request.canCapGasLimit)
+            return gasLimit
         }
     }
 }

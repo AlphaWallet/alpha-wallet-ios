@@ -34,7 +34,7 @@ extension AnyPublisher {
     public func promise() -> Promise<Output> {
         var cancellable: AnyCancellable?
         return Promise<Output> { seal in
-            cancellable = self.print("xxx.bridge to promise")
+            cancellable = self
                 .receive(on: RunLoop.main)
                 .sink { result in
                     if case .failure(let error) = result {

@@ -41,7 +41,6 @@ public final class WaitTillTransactionCompleted {
                 } else {
                     return .fail(PromiseError(error: NotCompletedYetError()))
                 }
-            }.print("xxx.getTransactionIfCompleted")
-            .eraseToAnyPublisher()
+            }.eraseToAnyPublisher()
     }
 }
