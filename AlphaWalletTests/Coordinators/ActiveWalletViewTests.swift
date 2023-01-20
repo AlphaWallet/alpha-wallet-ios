@@ -71,7 +71,7 @@ extension AnyCAIP10AccountProvidable {
 
 extension AssetDefinitionStore {
     static func make() -> AssetDefinitionStore {
-        return .init(networkService: FakeNetworkService(), blockchainsProvider: BaseBlockchainsProvider())
+        return .init(networkService: FakeNetworkService(), blockchainsProvider: BlockchainsProvider.make(servers: [.main]))
     }
 }
 

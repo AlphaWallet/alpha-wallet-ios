@@ -12,7 +12,7 @@ class AssetDefinitionStoreTests: XCTestCase {
     }
 
     func testXMLAccess() {
-        let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore(), networkService: FakeNetworkService(), blockchainsProvider: BaseBlockchainsProvider())
+        let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore(), networkService: FakeNetworkService(), blockchainsProvider: BlockchainsProvider.make(servers: [.main]))
         let address = AlphaWallet.Address.make()
         XCTAssertNil(store[address])
         store[address] = "xml1"
@@ -21,7 +21,7 @@ class AssetDefinitionStoreTests: XCTestCase {
 
     func testShouldNotCallCompletionBlockWithCacheCaseIfNotAlreadyCached() {
         let contractAddress = AlphaWallet.Address.make()
-        let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore(), networkService: FakeNetworkService(), blockchainsProvider: BaseBlockchainsProvider())
+        let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore(), networkService: FakeNetworkService(), blockchainsProvider: BlockchainsProvider.make(servers: [.main]))
         let expectation = XCTestExpectation(description: "cached case should not be called")
         expectation.isInverted = true
         store.fetchXML(forContract: contractAddress, server: nil, useCacheAndFetch: true) { [weak self] result in
@@ -38,7 +38,7 @@ class AssetDefinitionStoreTests: XCTestCase {
 
     func testShouldCallCompletionBlockWithCacheCaseIfAlreadyCached() {
         let contractAddress = AlphaWallet.Address.ethereumAddress(eip55String: "0x0000000000000000000000000000000000000001")
-        let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore(), networkService: FakeNetworkService(), blockchainsProvider: BaseBlockchainsProvider())
+        let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore(), networkService: FakeNetworkService(), blockchainsProvider: BlockchainsProvider.make(servers: [.main]))
         store[contractAddress] = "something"
         let expectation = XCTestExpectation(description: "cached case should be called")
         store.fetchXML(forContract: contractAddress, server: nil, useCacheAndFetch: true) { [weak self] result in

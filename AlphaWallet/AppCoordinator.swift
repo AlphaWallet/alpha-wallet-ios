@@ -198,8 +198,17 @@ class AppCoordinator: NSObject, Coordinator {
             pushNotificationsService: pushNotificationsService)
     }()
 
+    private lazy var blockchainFactory: BlockchainFactory = {
+        return BaseBlockchainFactory(
+            config: config,
+            analytics: analytics,
+            networkService: networkService)
+    }()
+
     private lazy var blockchainsProvider: BlockchainsProvider = {
-        return BaseBlockchainsProvider()
+        return BlockchainsProvider(
+            serversProvider: serversProvider,
+            blockchainFactory: blockchainFactory)
     }()
 
     private let securedStorage: SecuredPasswordStorage & SecuredStorage
@@ -323,6 +332,8 @@ class AppCoordinator: NSObject, Coordinator {
                 infoLog("Ticker ID positive matching counts: \(TickerIdFilter.matchCounts)")
             }
         }
+        
+        blockchainsProvider.start()
         DatabaseMigration.dropDeletedRealmFiles(excluding: walletAddressesStore.wallets)
         protectionCoordinator.didFinishLaunchingWithOptions()
         initializers()
@@ -582,7 +593,11 @@ class AppCoordinator: NSObject, Coordinator {
         let transactionsDataStore: TransactionDataStore = TransactionDataStore(store: .storage(for: wallet))
         let eventsActivityDataStore: EventsActivityDataStoreProtocol = EventsActivityDataStore(store: .storage(for: wallet))
 
-        let sessionsProvider: SessionsProvider = .init(config: config, analytics: analytics)
+        let sessionsProvider = SessionsProvider(
+            config: config,
+            analytics: analytics,
+            blockchainsProvider: blockchainsProvider)
+
         sessionsProvider.start(wallet: wallet)
 
         let contractDataFetcher = ContractDataFetcher(

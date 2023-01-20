@@ -6,26 +6,69 @@
 //
 
 import Foundation
-import PromiseKit
+import Combine
 
-public protocol BlockchainsProvider {
-    func callSmartContract(withServer server: RPCServer, contract: AlphaWallet.Address, functionName: String, abiString: String, parameters: [AnyObject], shouldDelayIfCached: Bool) -> Promise<[String: Any]>
+public protocol BlockchainFactory {
+    func buildBlockchain(server: RPCServer) -> BlockchainProvider
 }
 
-fileprivate let globalCallSmartContract = callSmartContract
+public final class BaseBlockchainFactory: BlockchainFactory {
+    private let config: Config
+    private let analytics: AnalyticsLogger
+    private let networkService: NetworkService
 
-public final class BaseBlockchainsProvider: BlockchainsProvider {
-    public init() {
+    public init(config: Config,
+                analytics: AnalyticsLogger,
+                networkService: NetworkService) {
 
+        self.config = config
+        self.analytics = analytics
+        self.networkService = networkService
     }
 
-    public func callSmartContract(withServer server: RPCServer, contract: AlphaWallet.Address, functionName: String, abiString: String, parameters: [AnyObject], shouldDelayIfCached: Bool) -> Promise<[String: Any]> {
-        globalCallSmartContract(server, contract, functionName, abiString, parameters, shouldDelayIfCached)
+    public func buildBlockchain(server: RPCServer) -> BlockchainProvider {
+        return RpcBlockchainProvider(
+            server: server,
+            analytics: analytics,
+            params: .defaultParams(for: server))
     }
 }
 
-extension BlockchainsProvider {
-    public func callSmartContract(withServer server: RPCServer, contract: AlphaWallet.Address, functionName: String, abiString: String, parameters: [AnyObject] = [], shouldDelayIfCached: Bool = false) -> Promise<[String: Any]> {
-        callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: abiString, parameters: parameters, shouldDelayIfCached: shouldDelayIfCached)
+public class BlockchainsProvider {
+    private let serversProvider: ServersProvidable
+    private let blockchainsSubject: CurrentValueSubject<ServerDictionary<BlockchainProvider>, Never> = .init(.init())
+    private let blockchainFactory: BlockchainFactory
+    private var cancelable = Set<AnyCancellable>()
+
+    public var blockchains: AnyPublisher<ServerDictionary<BlockchainProvider>, Never> {
+        return blockchainsSubject.eraseToAnyPublisher()
+    }
+
+    public func blockchain(with server: RPCServer) -> BlockchainProvider? {
+        blockchainsSubject.value[safe: server]
+    }
+
+    public init(serversProvider: ServersProvidable,
+                blockchainFactory: BlockchainFactory) {
+
+        self.blockchainFactory = blockchainFactory
+        self.serversProvider = serversProvider
+    }
+
+    public func start() {
+        serversProvider.servers
+            .map { [blockchainsSubject, blockchainFactory] servers -> ServerDictionary<BlockchainProvider> in
+                var blockchains: ServerDictionary<BlockchainProvider> = .init()
+
+                for server in servers {
+                    if let blockchain = blockchainsSubject.value[safe: server] {
+                        blockchains[server] = blockchain
+                    } else {
+                        blockchains[server] = blockchainFactory.buildBlockchain(server: server)
+                    }
+                }
+                return blockchains
+            }.assign(to: \.value, on: blockchainsSubject, ownership: .weak)
+            .store(in: &cancelable)
     }
 }

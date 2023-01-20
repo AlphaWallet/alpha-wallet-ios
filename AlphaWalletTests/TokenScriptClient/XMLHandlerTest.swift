@@ -899,7 +899,7 @@ class XMLHandlerTest: XCTestCase {
             </ts:token>
         """
         let contractAddress = AlphaWallet.Address(string: "0xA66A3F08068174e8F005112A8b2c7A507a822335")!
-        let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore(), networkService: FakeNetworkService(), blockchainsProvider: BaseBlockchainsProvider())
+        let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore(), networkService: FakeNetworkService(), blockchainsProvider: BlockchainsProvider.make(servers: [.main]))
 
         store[contractAddress] = xml
         let xmlHandler = XMLHandler(contract: contractAddress, tokenType: .erc20, assetDefinitionStore: store)
@@ -913,7 +913,7 @@ class XMLHandlerTest: XCTestCase {
 // swiftlint:enable function_body_length
 
     func testNoAssetDefinition() {
-        let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore(), networkService: FakeNetworkService(), blockchainsProvider: BaseBlockchainsProvider())
+        let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore(), networkService: FakeNetworkService(), blockchainsProvider: BlockchainsProvider.make(servers: [.main]))
         let xmlHandler = XMLHandler(contract: Constants.nullAddress, tokenType: .erc875, assetDefinitionStore: store)
         let tokenId = BigUInt("0000000000000000000000000000000002000000000000000000000000000000", radix: 16)!
         let server: RPCServer = .main

@@ -315,12 +315,10 @@ public class AssetDefinitionStore: NSObject {
         if let server = server {
             return Just(server)
                 .setFailureType(to: SessionTaskError.self)
-                .flatMap { server -> AnyPublisher<(url: URL, isScriptUri: Bool)?, SessionTaskError> in
+                .flatMap { [blockchainsProvider] server -> AnyPublisher<(url: URL, isScriptUri: Bool)?, SessionTaskError> in
+                    guard let blockchain = blockchainsProvider.blockchain(with: server) else { return .fail(SessionTaskError.responseError(PMKError.cancelled)) }
 
-                    return ScriptUri(forServer: server)
-                        .get(forContract: contract)
-                        .publisher()
-                        .mapError { SessionTaskError(error: $0) }
+                    return ScriptUri(blockchainProvider: blockchain).get(forContract: contract)
                         .map { ($0, true) }
                         .eraseToAnyPublisher()
                 }.replaceError(with: urlToFetchFromTokenScriptRepo)

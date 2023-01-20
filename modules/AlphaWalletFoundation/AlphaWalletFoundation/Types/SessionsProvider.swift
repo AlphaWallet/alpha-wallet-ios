@@ -12,8 +12,9 @@ open class SessionsProvider {
     private let sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never> = .init(.init())
     private let config: Config
     private var cancelable = Set<AnyCancellable>()
+    private let blockchainsProvider: BlockchainsProvider
     private let analytics: AnalyticsLogger
-    
+
     public var sessions: AnyPublisher<ServerDictionary<WalletSession>, Never> {
         return sessionsSubject.eraseToAnyPublisher()
     }
@@ -22,38 +23,28 @@ open class SessionsProvider {
         sessionsSubject.value
     }
 
-    public init(config: Config, analytics: AnalyticsLogger) {
+    public init(config: Config, analytics: AnalyticsLogger, blockchainsProvider: BlockchainsProvider) {
         self.config = config
         self.analytics = analytics
-    }
-
-    public func set(activeSessions: ServerDictionary<WalletSession>) {
-        sessionsSubject.send(activeSessions)
-    }
-
-    public func start(sessions: AnyPublisher<ServerDictionary<WalletSession>, Never>) {
-        cancelable.cancellAll()
-
-        sessions.assign(to: \.value, on: sessionsSubject)
-            .store(in: &cancelable)
+        self.blockchainsProvider = blockchainsProvider
     }
 
     public func start(wallet: Wallet) {
-        Just(config.enabledServers)
-            .merge(with: config.enabledServersPublisher)//subscribe for servers changing so not active providers can handle changes too
-            .removeDuplicates()
-            .combineLatest(Just(wallet))
-            .map { [config, analytics, sessionsSubject] servers, wallet -> ServerDictionary<WalletSession>in
+        blockchainsProvider
+            .blockchains
+            .map { [sessionsSubject, config, analytics] blockchains -> ServerDictionary<WalletSession>in
                 var sessions: ServerDictionary<WalletSession> = .init()
 
-                for server in servers {
-                    if let session = sessionsSubject.value[safe: server] {
-                        sessions[server] = session
+                for blockchain in blockchains.values {
+                    if let session = sessionsSubject.value[safe: blockchain.server] {
+                        sessions[blockchain.server] = session
                     } else {
-                        let params = BlockchainParams.defaultParams(for: server)
-                        let provider: BlockchainProvider = RpcBlockchainProvider(server: server, analytics: analytics, params: params)
-                        let session = WalletSession(account: wallet, server: server, config: config, analytics: analytics, blockchainProvider: provider)
-                        sessions[server] = session
+                        sessions[blockchain.server] = WalletSession(
+                            account: wallet,
+                            server: blockchain.server,
+                            config: config,
+                            analytics: analytics,
+                            blockchainProvider: blockchain)
                     }
                 }
                 return sessions
