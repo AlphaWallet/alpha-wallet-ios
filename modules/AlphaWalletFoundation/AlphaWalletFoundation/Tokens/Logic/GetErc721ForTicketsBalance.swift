@@ -2,49 +2,39 @@
 
 import Foundation 
 import BigInt
-import PromiseKit
+import Combine
 import AlphaWalletCore
 
 class GetErc721ForTicketsBalance {
     private let queue = DispatchQueue(label: "org.alphawallet.swift.getErc721ForTicketsBalance")
-    private var inFlightPromises: [String: Promise<[String]>] = [:]
-    private let server: RPCServer
+    private var inFlightPublishers: [String: AnyPublisher<[String], SessionTaskError>] = [:]
+    private let blockchainProvider: BlockchainProvider
 
-    init(forServer server: RPCServer) {
-        self.server = server
+    init(blockchainProvider: BlockchainProvider) {
+        self.blockchainProvider = blockchainProvider
     }
 
-    func getERC721ForTicketsTokenBalance(for address: AlphaWallet.Address, contract: AlphaWallet.Address) -> Promise<[String]> {
-        firstly {
-            .value(contract)
-        }.then(on: queue, { [weak self, queue, server] contract -> Promise<[String]> in
-            let key = "\(address.eip55String)-\(contract.eip55String)"
-            
-            if let promise = self?.inFlightPromises[key] {
-                return promise
-            } else {
-                let function = GetERC721ForTicketsBalance()
-                let promise = attempt(maximumRetryCount: 2, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {
-                    return callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [address.eip55String] as [AnyObject])
-                        .map(on: queue, { balanceResult in
-                            return GetErc721ForTicketsBalance.adapt(balanceResult["0"])
-                        })
-                }.ensure(on: queue, {
-                    self?.inFlightPromises[key] = .none
-                })
+    func getErc721ForTicketsTokenBalance(for address: AlphaWallet.Address, contract: AlphaWallet.Address) -> AnyPublisher<[String], SessionTaskError> {
+        Just(contract)
+            .receive(on: queue)
+            .setFailureType(to: SessionTaskError.self)
+            .flatMap { [weak self, queue, blockchainProvider] contract -> AnyPublisher<[String], SessionTaskError> in
+                let key = "\(address.eip55String)-\(contract.eip55String)"
 
-                self?.inFlightPromises[key] = promise
+                if let publisher = self?.inFlightPublishers[key] {
+                    return publisher
+                } else {
+                    let publisher = blockchainProvider
+                        .call(Erc721GetBalancesMethodCall(contract: contract, address: address))
+                        .receive(on: queue)
+                        .handleEvents(receiveCompletion: { _ in self?.inFlightPublishers[key] = .none })
+                        .share()
+                        .eraseToAnyPublisher()
 
-                return promise
-            }
-        })
-    }
+                    self?.inFlightPublishers[key] = publisher
 
-    private static func adapt(_ values: Any?) -> [String] {
-        guard let array = values as? [BigUInt] else { return [] }
-        return array.filter({ $0 != BigUInt(0) }).map { each in
-            let value = each.serialize().hex()
-            return "0x\(value)"
-        }
+                    return publisher
+                }
+            }.eraseToAnyPublisher()
     }
 }

@@ -135,11 +135,15 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
         case .nativeCryptocurrency, .erc721, .erc1155:
             break
         case .erc20:
-            nonErc1155BalanceFetcher
+            guard cancellable[token.contractAddress] == nil else { return }
+            
+            cancellable[token.contractAddress] = nonErc1155BalanceFetcher
                 .getErc20Balance(for: token.contractAddress)
-                .done(on: queue, { [weak self] value in
+                .sink(receiveCompletion: { [cancellable] _ in
+                    cancellable[token.contractAddress] = .none
+                }, receiveValue: { [weak self] value in
                     self?.notifyUpdateBalance([.update(token: token, field: .value(value))])
-                }).cauterize()
+                })
         case .erc875:
             guard cancellable[token.contractAddress] == nil else { return }
 
@@ -151,11 +155,15 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
                     self?.notifyUpdateBalance([.update(token: token, field: .nonFungibleBalance(.erc875(balance)))])
                 })
         case .erc721ForTickets:
-            nonErc1155BalanceFetcher
+            guard cancellable[token.contractAddress] == nil else { return }
+
+            cancellable[token.contractAddress] = nonErc1155BalanceFetcher
                 .getErc721ForTicketsBalance(for: token.contractAddress)
-                .done(on: queue, { [weak self] balance in
+                .sink(receiveCompletion: { [cancellable] _ in
+                    cancellable[token.contractAddress] = .none
+                }, receiveValue: { [weak self] balance in
                     self?.notifyUpdateBalance([.update(token: token, field: .nonFungibleBalance(.erc721ForTickets(balance)))])
-                }).cauterize()
+                })
         }
     }
 

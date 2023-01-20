@@ -69,7 +69,7 @@ public final class RpcBlockchainProvider: BlockchainProvider {
     public func call(from: AlphaWallet.Address?, to: AlphaWallet.Address?, value: String?, data: String) -> AnyPublisher<String, SessionTaskError> {
         let request = EthCall(server: server, analytics: analytics)
         return request.ethCall(from: from, to: to, value: value, data: data)
-            .publisher(queue: .main)
+            .publisher()
             .mapError { SessionTaskError.responseError($0.embedded) }
             .eraseToAnyPublisher()
     }
@@ -77,14 +77,14 @@ public final class RpcBlockchainProvider: BlockchainProvider {
     public func call<R: ContractMethodCall>(_ method: R, block: BlockParameter) -> AnyPublisher<R.Response, SessionTaskError> {
         callSmartContract(withServer: server, contract: method.contract, functionName: method.name, abiString: method.abi, parameters: method.parameters)
             .map { try method.response(from: $0) }
-            .publisher(queue: .global())
+            .publisher()
             .mapError { SessionTaskError.responseError($0.embedded) }
             .eraseToAnyPublisher()
     }
 
     public func blockNumber() -> AnyPublisher<Int, SessionTaskError> {
         getBlockNumber.getBlockNumber()
-            .publisher(queue: .global())
+            .publisher()
             .mapError { SessionTaskError.responseError($0.embedded) }
             .eraseToAnyPublisher()
     }
@@ -92,7 +92,7 @@ public final class RpcBlockchainProvider: BlockchainProvider {
     public func transactionsState(hash: String) -> AnyPublisher<TransactionState, SessionTaskError> {
         getTransactionState
             .getTransactionsState(hash: hash)
-            .publisher(queue: .global())
+            .publisher()
             .mapError { SessionTaskError.responseError($0.embedded) }
             .eraseToAnyPublisher()
     }
@@ -110,7 +110,7 @@ public final class RpcBlockchainProvider: BlockchainProvider {
 
     public func eventLogs(contractAddress: AlphaWallet.Address, eventName: String, abiString: String, filter: EventFilter) -> AnyPublisher<[EventParserResultProtocol], SessionTaskError> {
         getEventLogs.getEventLogs(contractAddress: contractAddress, server: server, eventName: eventName, abiString: abiString, filter: filter)
-            .publisher(queue: .global())
+            .publisher()
             .mapError { SessionTaskError.responseError($0.embedded) }
             .eraseToAnyPublisher()
     }
@@ -137,7 +137,7 @@ public final class RpcBlockchainProvider: BlockchainProvider {
 
     public func nextNonce(wallet: AlphaWallet.Address) -> AnyPublisher<Int, SessionTaskError> {
         getNextNonce.getNextNonce(wallet: wallet)
-            .publisher(queue: .global())
+            .publisher()
             .mapError { SessionTaskError.responseError($0.embedded) }
             .eraseToAnyPublisher()
     }
@@ -163,8 +163,7 @@ public final class RpcBlockchainProvider: BlockchainProvider {
                 }()
                 infoLog("Using gas limit: \(gasLimit)")
                 return gasLimit
-            }.receive(on: RunLoop.main)
-            .eraseToAnyPublisher()
+            }.eraseToAnyPublisher()
     }
 
 }
