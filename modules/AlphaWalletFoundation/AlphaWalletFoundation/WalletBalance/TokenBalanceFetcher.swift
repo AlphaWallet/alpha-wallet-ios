@@ -50,6 +50,7 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
     private let etherToken: Token
     private let importToken: ImportToken
     private let networkService: NetworkService
+    private var cancellable = AtomicDictionary<AlphaWallet.Address, AnyCancellable>()
 
     weak public var delegate: TokenBalanceFetcherDelegate?
     weak public var erc721TokenIdsFetcher: Erc721TokenIdsFetcher?
@@ -111,12 +112,21 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
 
     /// NOTE: here actually alway only one token, made it as array of being able to skip updating ether token
     private func refreshEtherTokens(tokens: [Token]) {
+        let wallet = session.account.address
+
         for etherToken in tokens {
-            nonErc1155BalanceFetcher
-                .getEthBalance(for: session.account.address)
-                .done(on: queue, { [weak self] balance in
+            guard cancellable[wallet] == nil else { return }
+
+            cancellable[wallet] = session.blockchainProvider
+                .balance(for: wallet)
+                .sink(receiveCompletion: { [weak self] result in
+                    self?.cancellable[wallet] = nil
+                    guard case .failure(let error) = result else { return }
+
+                    verboseLog("[Balance Fetcher] failure to fetch balance for wallet: \(wallet)")
+                }, receiveValue: { [weak self] balance in
                     self?.notifyUpdateBalance([.update(token: etherToken, field: .value(balance.value))])
-                }).cauterize()
+                })
         }
     }
 
@@ -131,11 +141,15 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
                     self?.notifyUpdateBalance([.update(token: token, field: .value(value))])
                 }).cauterize()
         case .erc875:
-            nonErc1155BalanceFetcher
-                .getErc875Balance(for: token.contractAddress)
-                .done(on: queue, { [weak self] balance in
+            guard cancellable[token.contractAddress] == nil else { return }
+
+            cancellable[token.contractAddress] = nonErc1155BalanceFetcher
+                .getErc875TokenBalance(for: session.account.address, contract: token.contractAddress)
+                .sink(receiveCompletion: { [cancellable] _ in
+                    cancellable[token.contractAddress] = .none
+                }, receiveValue: { [weak self] balance in
                     self?.notifyUpdateBalance([.update(token: token, field: .nonFungibleBalance(.erc875(balance)))])
-                }).cauterize()
+                })
         case .erc721ForTickets:
             nonErc1155BalanceFetcher
                 .getErc721ForTicketsBalance(for: token.contractAddress)

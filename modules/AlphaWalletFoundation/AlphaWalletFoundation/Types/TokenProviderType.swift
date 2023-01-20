@@ -8,6 +8,7 @@
 import AlphaWalletCore
 import PromiseKit
 import BigInt
+import Combine
 
 // NOTE: Think about the name, more fittable name is needed
 public protocol TokenProviderType: AnyObject {
@@ -15,37 +16,33 @@ public protocol TokenProviderType: AnyObject {
     func getContractSymbol(for address: AlphaWallet.Address) -> Promise<String>
     func getDecimals(for address: AlphaWallet.Address) -> Promise<Int>
     func getTokenType(for address: AlphaWallet.Address) -> Promise<TokenType>
-    func getEthBalance(for address: AlphaWallet.Address) -> Promise<Balance>
+    func getEthBalance(for address: AlphaWallet.Address) -> AnyPublisher<Balance, SessionTaskError>
     func getErc20Balance(for address: AlphaWallet.Address) -> Promise<BigInt>
-    func getErc875Balance(for address: AlphaWallet.Address) -> Promise<[String]>
+    func getErc875TokenBalance(for address: AlphaWallet.Address, contract: AlphaWallet.Address) -> AnyPublisher<[String], SessionTaskError>
     func getErc721ForTicketsBalance(for address: AlphaWallet.Address) -> Promise<[String]>
     func getErc721Balance(for address: AlphaWallet.Address) -> Promise<[String]>
 }
 
 public class TokenProvider: TokenProviderType {
     private let account: Wallet
-    private let server: RPCServer
-    private let analytics: AnalyticsLogger
+    private let blockchainProvider: BlockchainProvider
 
-    private lazy var getEthBalance = GetEthBalance(forServer: server, analytics: analytics)
-    private lazy var getContractDecimals = GetContractDecimals(forServer: server)
-    private lazy var getContractSymbol = GetContractSymbol(forServer: server)
-    private lazy var getContractName = GetContractName(forServer: server)
-    private lazy var getErc20Balance = GetErc20Balance(forServer: server)
-    private lazy var getErc875Balance = GetErc875Balance(forServer: server)
-    private lazy var getErc721ForTicketsBalance = GetErc721ForTicketsBalance(forServer: server)
-    private lazy var getErc721Balance = GetErc721Balance(forServer: server)
-    private lazy var getTokenType = GetTokenType(forServer: server)
+    private lazy var getContractDecimals = GetContractDecimals(forServer: blockchainProvider.server)
+    private lazy var getContractSymbol = GetContractSymbol(forServer: blockchainProvider.server)
+    private lazy var getContractName = GetContractName(forServer: blockchainProvider.server)
+    private lazy var getErc20Balance = GetErc20Balance(forServer: blockchainProvider.server)
+    private lazy var getErc875Balance = GetErc875Balance(blockchainProvider: blockchainProvider)
+    private lazy var getErc721ForTicketsBalance = GetErc721ForTicketsBalance(forServer: blockchainProvider.server)
+    private lazy var getErc721Balance = GetErc721Balance(forServer: blockchainProvider.server)
+    private lazy var getTokenType = GetTokenType(forServer: blockchainProvider.server)
 
-    public init(account: Wallet, server: RPCServer, analytics: AnalyticsLogger) {
+    public init(account: Wallet, blockchainProvider: BlockchainProvider) {
         self.account = account
-        self.server = server
-        self.analytics = analytics
+        self.blockchainProvider = blockchainProvider
     }
 
-    public func getEthBalance(for address: AlphaWallet.Address) -> Promise<Balance> {
-        //NOTE: retrying is performing via APIKit.session request
-        return getEthBalance.getBalance(for: address)
+    public func getEthBalance(for address: AlphaWallet.Address) -> AnyPublisher<Balance, SessionTaskError> {
+        blockchainProvider.balance(for: address)
     }
 
     public func getContractName(for address: AlphaWallet.Address) -> Promise<String> {
@@ -68,8 +65,8 @@ public class TokenProvider: TokenProviderType {
         getErc20Balance.getErc20Balance(for: account.address, contract: address)
     }
 
-    public func getErc875Balance(for address: AlphaWallet.Address) -> Promise<[String]> {
-        getErc875Balance.getErc875TokenBalance(for: account.address, contract: address)
+    public func getErc875TokenBalance(for address: AlphaWallet.Address, contract: AlphaWallet.Address) -> AnyPublisher<[String], SessionTaskError> {
+        getErc875Balance.getErc875TokenBalance(for: address, contract: contract)
     }
 
     public func getErc721ForTicketsBalance(for address: AlphaWallet.Address) -> Promise<[String]> {

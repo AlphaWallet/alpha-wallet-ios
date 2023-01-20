@@ -13,6 +13,7 @@ import BigInt
 public protocol BlockchainProvider {
     var server: RPCServer { get }
 
+    func balance(for address: AlphaWallet.Address) -> AnyPublisher<Balance, SessionTaskError>
     func blockNumber() -> AnyPublisher<Int, SessionTaskError>
     func transactionsState(hash: String) -> AnyPublisher<TransactionState, SessionTaskError>
     func call(from: AlphaWallet.Address?, to: AlphaWallet.Address?, value: String?, data: String) -> AnyPublisher<String, SessionTaskError>
@@ -37,7 +38,7 @@ public final class RpcBlockchainProvider: BlockchainProvider {
     private lazy var getBlockNumber = GetBlockNumber(server: server, analytics: analytics)
     private lazy var getNextNonce = GetNextNonce(server: server, analytics: analytics)
     private lazy var getTransactionState = GetTransactionState(server: server, analytics: analytics)
-
+    private lazy var getEthBalance = GetEthBalance(forServer: server, analytics: analytics)
     public let server: RPCServer
 
     public init(server: RPCServer,
@@ -47,6 +48,13 @@ public final class RpcBlockchainProvider: BlockchainProvider {
         self.server = server
         self.getEventLogs = GetEventLogs()
         self.getPendingTransaction = GetPendingTransaction(server: server, analytics: analytics)
+    }
+
+    public func balance(for address: AlphaWallet.Address) -> AnyPublisher<Balance, SessionTaskError> {
+        getEthBalance.getBalance(for: address)
+            .publisher(queue: .global())
+            .mapError { SessionTaskError.responseError($0.embedded) }
+            .eraseToAnyPublisher()
     }
 
     public func call(from: AlphaWallet.Address?, to: AlphaWallet.Address?, value: String?, data: String) -> AnyPublisher<String, SessionTaskError> {
