@@ -488,7 +488,6 @@ extension SendViewModel {
 
     struct AmountTextFieldState {
         let amount: AmountTextFieldViewModel.FungibleAmount
-        //let cryptoToFiatRate: AmountTextFieldViewModel.CurrencyRate
     }
 
     struct RecipientTextFieldState {

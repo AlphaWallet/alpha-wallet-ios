@@ -158,14 +158,14 @@ class SendViewController: UIViewController {
                 navigationItem.title = viewState.title
 
                 amountTextField.selectCurrencyButton.expandIconHidden = viewState.selectCurrencyButtonState.expandIconHidden
-
                 amountTextField.statusLabel.text = viewState.amountStatusLabelState.text
                 amountTextField.availableTextHidden = viewState.amountStatusLabelState.isHidden
+                amountTextField.viewModel.cryptoToFiatRate.value = viewState.rate
 
                 if let recipient = viewState.recipientTextFieldState.recipient {
                     targetAddressTextField.value = recipient
                 }
-                amountTextField.viewModel.cryptoToFiatRate.value = viewState.rate
+
             }.store(in: &cancelable)
     }
 

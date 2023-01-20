@@ -71,7 +71,7 @@ class SelectCurrencyButton: UIControl {
     }
 
     private lazy var whenHasTokenView: UIView =  {
-        let stackView = [currencyIconImageView, .spacerWidth(7), textLabel, .spacerWidth(10), expandImageView].asStackView(axis: .horizontal)
+        let stackView = [currencyIconImageView, .spacerWidth(7), textLabel, .spacerWidth(7), expandImageView].asStackView(axis: .horizontal)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
