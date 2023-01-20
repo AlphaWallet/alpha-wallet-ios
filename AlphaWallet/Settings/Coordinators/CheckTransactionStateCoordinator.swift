@@ -57,7 +57,6 @@ extension CheckTransactionStateCoordinator: SelectTransactionHashViewControllerD
 
         session.blockchainProvider
             .transactionsState(hash: transactionHash)
-            .receive(on: RunLoop.main)
             .sink(receiveCompletion: { result in
                 if case .failure(let error) = result {
                     self.displayErrorMessage(R.string.localizable.checkTransactionStateError(error.prettyError), title: R.string.localizable.error())

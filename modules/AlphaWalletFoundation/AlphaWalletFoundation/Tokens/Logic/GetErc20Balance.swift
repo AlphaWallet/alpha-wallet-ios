@@ -2,44 +2,40 @@
 
 import Foundation
 import BigInt
-import PromiseKit
+import Combine
 import AlphaWalletWeb3
 import AlphaWalletCore
 
 final class GetErc20Balance {
-    private let server: RPCServer
-    private var inFlightPromises: [String: Promise<BigInt>] = [:]
+    private var inFlightPublishers: [String: AnyPublisher<BigInt, SessionTaskError>] = [:]
     private let queue = DispatchQueue(label: "org.alphawallet.swift.getErc20Balance")
+    private let blockchainProvider: BlockchainProvider
 
-    init(forServer server: RPCServer) {
-        self.server = server
+    init(blockchainProvider: BlockchainProvider) {
+        self.blockchainProvider = blockchainProvider
     }
 
-    func getErc20Balance(for address: AlphaWallet.Address, contract: AlphaWallet.Address) -> Promise<BigInt> {
-        firstly {
-            .value(contract)
-        }.then(on: queue, { [weak self, queue, server] contract -> Promise<BigInt> in
-            let key = "\(address.eip55String)-\(contract.eip55String)"
-            
-            if let promise = self?.inFlightPromises[key] {
-                return promise
-            } else {
-                let promise = attempt(maximumRetryCount: 2, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {
-                    callSmartContract(withServer: server, contract: contract, functionName: "balanceOf", abiString: Web3.Utils.erc20ABI, parameters: [address.eip55String] as [AnyObject])
-                        .map(on: queue, { balanceResult -> BigInt in
-                            guard let balanceOfUnknownType = balanceResult["0"], let balance = BigInt(String(describing: balanceOfUnknownType)) else {
-                                throw CastError(actualValue: balanceResult["0"], expectedType: BigInt.self)
-                            }
-                            return balance
-                        })
-                }.ensure(on: queue, {
-                    self?.inFlightPromises[key] = .none
-                })
+    func getErc20Balance(for address: AlphaWallet.Address, contract: AlphaWallet.Address) -> AnyPublisher<BigInt, SessionTaskError> {
+        Just(contract)
+            .setFailureType(to: SessionTaskError.self)
+            .receive(on: queue)
+            .flatMap { [weak self, queue, blockchainProvider] contract -> AnyPublisher<BigInt, SessionTaskError> in
+                let key = "\(address.eip55String)-\(contract.eip55String)"
 
-                self?.inFlightPromises[key] = promise
+                if let publisher = self?.inFlightPublishers[key] {
+                    return publisher
+                } else {
+                    let publisher = blockchainProvider
+                        .call(Erc20BalanceOfMethodCall(contract: address, address: address))
+                        .receive(on: queue)
+                        .handleEvents(receiveCompletion: { _ in self?.inFlightPublishers[key] = .none })
+                        .share()
+                        .eraseToAnyPublisher()
 
-                return promise
-            }
-        })
+                    self?.inFlightPublishers[key] = publisher
+
+                    return publisher
+                }
+            }.eraseToAnyPublisher()
     }
 }
