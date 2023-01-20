@@ -10,7 +10,7 @@ extension BlockNumberProvider {
         analytics: AnalyticsLogger = FakeAnalyticsService(),
         server: RPCServer = .main
     ) -> BlockNumberProvider {
-        let blockchainProvider = RpcBlockchainProvider(server: server, analytics: analytics)
+        let blockchainProvider = RpcBlockchainProvider(server: server, analytics: analytics, params: .defaultParams(for: server))
         return BlockNumberProvider(storage: config, blockchainProvider: blockchainProvider)
     }
 }

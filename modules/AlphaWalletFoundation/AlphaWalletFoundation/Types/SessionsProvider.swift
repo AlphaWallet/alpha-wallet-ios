@@ -50,7 +50,8 @@ open class SessionsProvider {
                     if let session = sessionsSubject.value[safe: server] {
                         sessions[server] = session
                     } else {
-                        let provider: BlockchainProvider = RpcBlockchainProvider(server: server, analytics: analytics)
+                        let params = BlockchainParams.defaultParams(for: server)
+                        let provider: BlockchainProvider = RpcBlockchainProvider(server: server, analytics: analytics, params: params)
                         let session = WalletSession(account: wallet, server: server, config: config, analytics: analytics, blockchainProvider: provider)
                         sessions[server] = session
                     }

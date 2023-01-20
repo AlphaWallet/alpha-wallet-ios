@@ -18,7 +18,7 @@ class EnsResolverTests: XCTestCase {
     private lazy var resolver: EnsResolver = {
         return EnsResolver(
             storage: FakeEnsRecordsStorage(),
-            blockchainProvider: RpcBlockchainProvider(server: .main, analytics: FakeAnalyticsService()))
+            blockchainProvider: RpcBlockchainProvider(server: .main, analytics: FakeAnalyticsService(), params: .defaultParams(for: .main)))
     }()
     func testResolution() {
         var expectations = [XCTestExpectation]()

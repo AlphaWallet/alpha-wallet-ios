@@ -9,6 +9,7 @@ import Foundation
 import Combine
 import AlphaWalletWeb3
 import BigInt
+import AlphaWalletCore
 
 public protocol BlockchainProvider {
     var server: RPCServer { get }
@@ -22,6 +23,8 @@ public protocol BlockchainProvider {
     func nextNonce(wallet: AlphaWallet.Address) -> AnyPublisher<Int, SessionTaskError>
     func block(by blockNumber: BigUInt) -> AnyPublisher<Date, SessionTaskError>
     func eventLogs(contractAddress: AlphaWallet.Address, eventName: String, abiString: String, filter: EventFilter) -> AnyPublisher<[EventParserResultProtocol], SessionTaskError>
+    func gasEstimates() -> AnyPublisher<GasEstimates, PromiseError>
+    func gasLimit(wallet: AlphaWallet.Address, value: BigUInt, toAddress: AlphaWallet.Address?, data: Data) -> AnyPublisher<BigUInt, SessionTaskError>
 }
 
 extension BlockchainProvider {
@@ -39,11 +42,17 @@ public final class RpcBlockchainProvider: BlockchainProvider {
     private lazy var getNextNonce = GetNextNonce(server: server, analytics: analytics)
     private lazy var getTransactionState = GetTransactionState(server: server, analytics: analytics)
     private lazy var getEthBalance = GetEthBalance(forServer: server, analytics: analytics)
+    private lazy var getGasPrice = GetGasPrice(server: server, params: params, analytics: analytics)
+    private lazy var getGaslimit = GetGasLimit(server: server, analytics: analytics)
+
+    private let params: BlockchainParams
     public let server: RPCServer
 
     public init(server: RPCServer,
-                analytics: AnalyticsLogger) {
+                analytics: AnalyticsLogger,
+                params: BlockchainParams) {
 
+        self.params = params
         self.analytics = analytics
         self.server = server
         self.getEventLogs = GetEventLogs()
@@ -106,10 +115,55 @@ public final class RpcBlockchainProvider: BlockchainProvider {
             .eraseToAnyPublisher()
     }
 
+    public func gasEstimates() -> AnyPublisher<GasEstimates, PromiseError> {
+        return getGasPrice.getGasEstimates()
+            .handleEvents(receiveOutput: { [server] estimate in
+                infoLog("Estimated gas price with RPC node server: \(server) estimate: \(estimate)")
+            }).map { [params] gasPrice in
+                if (gasPrice + GasPriceConfiguration.oneGwei) > params.maxPrice {
+                    // Guard against really high prices
+                    return GasEstimates(standard: params.maxPrice)
+                } else {
+                    if params.canUserChangeGas && params.shouldAddBufferWhenEstimatingGasPrice {
+                        //Add an extra gwei because the estimate is sometimes too low
+                        return GasEstimates(standard: gasPrice + GasPriceConfiguration.oneGwei)
+                    } else {
+                        return GasEstimates(standard: gasPrice)
+                    }
+                }
+            }.catch { [params] _ -> AnyPublisher<GasEstimates, PromiseError> in .just(GasEstimates(standard: params.defaultPrice)) }
+            .eraseToAnyPublisher()
+    }
+
     public func nextNonce(wallet: AlphaWallet.Address) -> AnyPublisher<Int, SessionTaskError> {
         getNextNonce.getNextNonce(wallet: wallet)
             .publisher(queue: .global())
             .mapError { SessionTaskError.responseError($0.embedded) }
+            .eraseToAnyPublisher()
+    }
+
+    public func gasLimit(wallet: AlphaWallet.Address, value: BigUInt, toAddress: AlphaWallet.Address?, data: Data) -> AnyPublisher<BigUInt, SessionTaskError> {
+        let transactionType = toAddress.flatMap { EstimateGasTransactionType.normal(to: $0) } ?? .contractDeployment
+
+        return getGaslimit
+            .getGasLimit(account: wallet, value: value, transactionType: transactionType, data: data)
+            .publisher()
+            .mapError { SessionTaskError(error: $0) }
+            .map { [params] limit -> BigUInt in
+                infoLog("Estimated gas limit with eth_estimateGas: \(limit) canCapGasLimit: \(transactionType.canCapGasLimit)")
+                let gasLimit: BigUInt = {
+                    if limit == GasLimitConfiguration.minGasLimit {
+                        return limit
+                    }
+                    if transactionType.canCapGasLimit {
+                        return min(limit + (limit * 20 / 100), params.maxGasLimit)
+                    } else {
+                        return limit + (limit * 20 / 100)
+                    }
+                }()
+                infoLog("Using gas limit: \(gasLimit)")
+                return gasLimit
+            }.receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }
 
