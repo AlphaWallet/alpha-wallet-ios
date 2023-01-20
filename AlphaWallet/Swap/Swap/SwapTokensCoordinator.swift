@@ -39,7 +39,8 @@ final class SwapTokensCoordinator: Coordinator {
     private lazy var approveSwapProvider: ApproveSwapProvider = {
         let provider = ApproveSwapProvider(
             configurator: configurator,
-            analytics: analytics)
+            analytics: analytics,
+            transactionDataStore: transactionDataStore)
 
         provider.delegate = self
         return provider
@@ -50,6 +51,7 @@ final class SwapTokensCoordinator: Coordinator {
     private var transactionConfirmationResult: ConfirmResult? = .none
     private let tokensFilter: TokensFilter
     private let networkService: NetworkService
+    private let transactionDataStore: TransactionDataStore
 
     var coordinators: [Coordinator] = []
     weak var delegate: SwapTokensCoordinatorDelegate?
@@ -62,8 +64,10 @@ final class SwapTokensCoordinator: Coordinator {
          assetDefinitionStore: AssetDefinitionStore,
          tokenCollection: TokenCollection,
          tokensFilter: TokensFilter,
-         networkService: NetworkService) {
+         networkService: NetworkService,
+         transactionDataStore: TransactionDataStore) {
 
+        self.transactionDataStore = transactionDataStore
         self.networkService = networkService
         self.tokensFilter = tokensFilter
         self.assetDefinitionStore = assetDefinitionStore
@@ -182,16 +186,14 @@ extension SwapTokensCoordinator: ApproveSwapProviderDelegate {
         }
     }
 
-    func didFailure(in approveSwapProvider: ApproveSwapProvider, error: Error) {
+    func didFailure(in approveSwapProvider: ApproveSwapProvider, error: SwapError) {
         rootViewController.hideLoading()
 
-        if let _error = error as? SwapError {
-            switch _error {
-            case .unableToBuildSwapUnsignedTransaction, .unableToBuildSwapUnsignedTransactionFromSwapProvider, .userCancelledApproval, .approveTransactionNotCompleted, .tokenOrSwapQuoteNotFound:
-                return
-            case .unknownError, .inner, .invalidJson:
-                break
-            }
+        switch error {
+        case .unableToBuildSwapUnsignedTransaction, .unableToBuildSwapUnsignedTransactionFromSwapProvider, .userCancelledApproval, .tokenOrSwapQuoteNotFound:
+            return
+        case .unknownError, .inner, .invalidJson:
+            break
         }
 
         if error.isUserCancelledError {

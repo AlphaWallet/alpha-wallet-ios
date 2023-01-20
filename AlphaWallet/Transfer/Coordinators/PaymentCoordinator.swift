@@ -35,6 +35,7 @@ class PaymentCoordinator: Coordinator {
     private let tokensFilter: TokensFilter
     private let importToken: ImportToken
     private let networkService: NetworkService
+    private let transactionDataStore: TransactionDataStore
 
     let flow: PaymentFlow
     weak var delegate: PaymentCoordinatorDelegate?
@@ -54,8 +55,10 @@ class PaymentCoordinator: Coordinator {
          tokenSwapper: TokenSwapper,
          tokensFilter: TokensFilter,
          importToken: ImportToken,
-         networkService: NetworkService) {
+         networkService: NetworkService,
+         transactionDataStore: TransactionDataStore) {
 
+        self.transactionDataStore = transactionDataStore
         self.networkService = networkService
         self.importToken = importToken
         self.tokensFilter = tokensFilter
@@ -165,7 +168,8 @@ class PaymentCoordinator: Coordinator {
             assetDefinitionStore: assetDefinitionStore,
             tokenCollection: tokenCollection,
             tokensFilter: tokensFilter,
-            networkService: networkService)
+            networkService: networkService,
+            transactionDataStore: transactionDataStore)
 
         coordinator.start()
         coordinator.delegate = self

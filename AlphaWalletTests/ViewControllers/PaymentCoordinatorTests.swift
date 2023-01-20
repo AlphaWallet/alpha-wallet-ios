@@ -119,7 +119,8 @@ class PaymentCoordinatorTests: XCTestCase {
             tokenSwapper: TokenSwapper.make(),
             tokensFilter: .make(),
             importToken: dep.importToken,
-            networkService: FakeNetworkService())
+            networkService: FakeNetworkService(),
+            transactionDataStore: FakeTransactionsStorage(wallet: wallet))
         coordinator.start()
 
         XCTAssertEqual(1, coordinator.coordinators.count)
@@ -144,7 +145,8 @@ class PaymentCoordinatorTests: XCTestCase {
             tokenSwapper: TokenSwapper.make(),
             tokensFilter: .make(),
             importToken: dep.importToken,
-            networkService: FakeNetworkService())
+            networkService: FakeNetworkService(),
+            transactionDataStore: FakeTransactionsStorage(wallet: wallet))
 
         coordinator.start()
 

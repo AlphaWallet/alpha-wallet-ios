@@ -30,6 +30,7 @@ class GetErc20Allowance {
                 } else {
                     return (false, amount - allowance)
                 }
-            }.eraseToAnyPublisher()
+            }.receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
     }
 }

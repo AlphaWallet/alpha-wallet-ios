@@ -516,7 +516,8 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
                 tokenSwapper: tokenSwapper,
                 tokensFilter: tokensFilter,
                 importToken: importToken,
-                networkService: networkService)
+                networkService: networkService,
+                transactionDataStore: transactionsDataStore)
 
             coordinator.delegate = self
             coordinator.start()

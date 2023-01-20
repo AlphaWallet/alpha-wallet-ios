@@ -16,7 +16,7 @@ public protocol ApproveSwapProviderDelegate: AnyObject {
     func promptToSwap(unsignedTransaction: UnsignedSwapTransaction, fromToken: TokenToSwap, fromAmount: BigUInt, toToken: TokenToSwap, toAmount: BigUInt, in provider: ApproveSwapProvider)
     func promptForErc20Approval(token: AlphaWallet.Address, server: RPCServer, owner: AlphaWallet.Address, spender: AlphaWallet.Address, amount: BigUInt, in provider: ApproveSwapProvider) -> AnyPublisher<String, PromiseError>
     func changeState(in approveSwapProvider: ApproveSwapProvider, state: ApproveSwapState)
-    func didFailure(in approveSwapProvider: ApproveSwapProvider, error: Error)
+    func didFailure(in approveSwapProvider: ApproveSwapProvider, error: SwapError)
 }
 
 public enum ApproveSwapState {
@@ -32,10 +32,17 @@ public final class ApproveSwapProvider {
     private let analytics: AnalyticsLogger
     private lazy var getErc20Allowance = GetErc20Allowance(blockchainProvider: configurator.session.blockchainProvider)
     private var cancellable = Set<AnyCancellable>()
+    private let transactionDataStore: TransactionDataStore
+    private let provider: WaitTillTransactionCompleted
 
     public weak var delegate: ApproveSwapProviderDelegate?
 
-    public init(configurator: SwapOptionsConfigurator, analytics: AnalyticsLogger) {
+    public init(configurator: SwapOptionsConfigurator,
+                analytics: AnalyticsLogger,
+                transactionDataStore: TransactionDataStore) {
+
+        self.provider = WaitTillTransactionCompleted(transactionDataStore: transactionDataStore, server: configurator.server)
+        self.transactionDataStore = transactionDataStore
         self.configurator = configurator
         self.analytics = analytics
     }
@@ -55,6 +62,7 @@ public final class ApproveSwapProvider {
                 return .just(swapQuote)
             } else {
                 self.delegate?.changeState(in: self, state: .waitingForUsersAllowanceApprove)
+
                 return self.promptApproval(unsignedSwapTransaction: swapQuote.unsignedSwapTransaction, token: swapQuote.action.fromToken.address, server: configurator.server, owner: configurator.session.account.address, spender: swapQuote.estimate.spender, amount: shortOf)
                 .flatMap { isApproved -> AnyPublisher<SwapQuote, SwapError> in
                     if isApproved {
@@ -84,28 +92,15 @@ public final class ApproveSwapProvider {
             return .fail(SwapError.unknownError)
         }
 
-        let provider = WaitTillTransactionCompleted(blockchainProvider: configurator.session.blockchainProvider)
-
         return delegate
             .promptForErc20Approval(token: token, server: server, owner: owner, spender: spender, amount: amount, in: self)
             .mapError { SwapError.inner($0) }
-            .flatMap { [provider] transactionId -> AnyPublisher<Bool, SwapError> in
+            .flatMap { [provider] hash -> AnyPublisher<Bool, SwapError> in
                 self.delegate?.changeState(in: self, state: .waitTillApproveCompleted)
 
-                return provider.waitTillCompleted(hash: transactionId)
+                return provider.transaction(hash: hash, for: .completed, timeout: 3600)
                     .map { _ in return true }
-                    .catch { error -> AnyPublisher<Bool, SwapError> in
-                        if error.embedded is WaitTillTransactionCompleted.NotCompletedYetError {
-                            return .fail(SwapError.approveTransactionNotCompleted)
-                        } else if let error = error.embedded as? SwapError {
-                            switch error {
-                            case .userCancelledApproval:
-                                return .just(false)
-                            case .unableToBuildSwapUnsignedTransactionFromSwapProvider, .invalidJson, .unableToBuildSwapUnsignedTransaction, .approveTransactionNotCompleted, .unknownError, .tokenOrSwapQuoteNotFound, .inner:
-                                return .fail(error)
-                            }
-                        }
-                        //Exists to make compiler happy
+                    .catch { _ -> AnyPublisher<Bool, SwapError> in
                         return .just(false)
                     }.eraseToAnyPublisher()
             }.eraseToAnyPublisher()
