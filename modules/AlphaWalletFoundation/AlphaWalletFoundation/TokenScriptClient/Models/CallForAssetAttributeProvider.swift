@@ -23,7 +23,7 @@ public class CallForAssetAttributeProvider {
             return subscribable
         }
 
-        let promise = makeRpcPromise(forAttributeId: attributeId, functionCall: functionCall)
+        let promise = makeRpcPromise(functionCall: functionCall)
         inflightPromises[functionCall] = promise
 
         //TODO need to throttle smart contract function calls?
@@ -39,29 +39,16 @@ public class CallForAssetAttributeProvider {
         return subscribable
     }
 
-    private func makeRpcPromise(forAttributeId attributeId: AttributeId?, functionCall: AssetFunctionCall) -> Promise<AssetInternalValue> {
+    private func makeRpcPromise(functionCall: AssetFunctionCall) -> Promise<AssetInternalValue> {
         guard let function = CallForAssetAttribute(functionName: functionCall.functionName, inputs: functionCall.inputs, output: functionCall.output) else {
             return .init(error: Web3Error(description: "Failed to create CallForAssetAttribute instance for function: \(functionCall.functionName)"))
         }
 
-        return blockchainsProvider
-            .callSmartContract(
-                withServer: functionCall.server,
-                contract: functionCall.contract,
-                functionName: functionCall.functionName,
-                abiString: "[\(function.abi)]",
-                parameters: functionCall.arguments,
-                shouldDelayIfCached: true)
-            .map { dictionary in
-                if let value = dictionary["0"] {
-                    return CallForAssetAttributeProvider.functional.mapValue(of: functionCall.output, for: value)
-                } else {
-                    if case SolidityType.void = functionCall.output.type {
-                        return .bool(false)
-                    } else {
-                        throw Web3Error(description: "nil result from calling: \(function.name)() on contract: \(functionCall.contract.eip55String)")
-                    }
-                }
-            }
+        guard let blockchain = blockchainsProvider.blockchain(with: functionCall.server) else {
+            return .init(error: Web3Error(description: "Failed to get blockchain of \(functionCall.server) for function: \(functionCall.functionName)"))
+        }
+
+        //Fine to store a strong reference to self here because it's still useful to cache the function call result
+        return blockchain.call(AssetAttributeMethodCall(functionCall: functionCall, function: function), block: .latest).promise()
     }
 }
