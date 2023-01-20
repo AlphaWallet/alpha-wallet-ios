@@ -3,6 +3,7 @@
 import Foundation
 import PromiseKit
 import BigInt
+import Combine
 
 public enum ContractData {
     case name(String)
@@ -45,6 +46,7 @@ public class ContractDataDetector {
     private var completion: ((ContractData) -> Void)?
     private let reachability: ReachabilityManagerProtocol
     private let wallet: AlphaWallet.Address
+    private var cancellable = Set<AnyCancellable>()
 
     public init(address: AlphaWallet.Address, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger, reachability: ReachabilityManagerProtocol) {
         self.reachability = reachability
@@ -78,14 +80,17 @@ public class ContractDataDetector {
     private func processTokenType(_ tokenType: TokenType) {
         switch tokenType {
         case .erc875:
-            tokenProvider.getErc875Balance(for: address).done { balance in
-                self.nonFungibleBalanceSeal.fulfill(.erc875(balance))
-                self.completionOfPartialData(.balance(nonFungible: .erc875(balance), fungible: nil, tokenType: .erc875))
-            }.catch { error in
-                self.nonFungibleBalanceSeal.reject(error)
-                self.decimalsSeal.fulfill(0)
-                self.callCompletionFailed(error: ContractDataDetectorError.promise(error: error, .erc875Balance))
-            }
+            tokenProvider.getErc875TokenBalance(for: wallet, contract: address)
+                .sink(receiveCompletion: { result in
+                    guard case .failure(let error) = result else { return }
+
+                    self.nonFungibleBalanceSeal.reject(error)
+                    self.decimalsSeal.fulfill(0)
+                    self.callCompletionFailed(error: ContractDataDetectorError.promise(error: error, .erc875Balance))
+                }, receiveValue: { balance in
+                    self.nonFungibleBalanceSeal.fulfill(.erc875(balance))
+                    self.completionOfPartialData(.balance(nonFungible: .erc875(balance), fungible: nil, tokenType: .erc875))
+                }).store(in: &cancellable)
         case .erc721:
             tokenProvider.getErc721Balance(for: address).done { balance in
                 self.nonFungibleBalanceSeal.fulfill(.balance(balance))

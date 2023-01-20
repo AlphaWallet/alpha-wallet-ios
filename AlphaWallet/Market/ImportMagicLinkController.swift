@@ -22,7 +22,6 @@ final class ImportMagicLinkController {
 
     private var wallet: Wallet { session.account }
     private var hasCompleted = false
-    private lazy var getErc875TokenBalance = GetErc875Balance(forServer: server)
     //TODO: better to make sure tokenHolder is non-optional. But be careful that ImportMagicTokenViewController also handles when viewModel always has a TokenHolder. Needs good defaults in TokenHolder that can be displayed
     private var tokenHolder: TokenHolder?
     private var count: Decimal?
@@ -207,24 +206,23 @@ final class ImportMagicLinkController {
     }
 
     private func handleNormalLinks(signedOrder: SignedOrder, recoverAddress: AlphaWallet.Address, contractAsAddress: AlphaWallet.Address) {
-        getErc875TokenBalance
+        session.tokenProvider
             .getErc875TokenBalance(for: recoverAddress, contract: contractAsAddress)
-            .done { [weak self] balance in
-                let filteredTokens = ImportMagicLinkController.functional.checkErc875TokensAreAvailable(indices: signedOrder.order.indices, balance: balance)
-                if filteredTokens.isEmpty {
-                    self?.showImportError(errorMessage: R.string.localizable.aClaimTokenLinkAlreadyRedeemed())
-                    return
-                }
-
-                self?.makeTokenHolder(filteredTokens, signedOrder.order.contractAddress)
-                self?.completeOrderHandling(signedOrder: signedOrder)
-            }.catch { [weak self, reachability]  _ in
+            .sink(receiveCompletion: { [weak self, reachability] _ in
                 if !reachability.isReachable {
                     self?.showImportError(errorMessage: R.string.localizable.aClaimTokenNoConnectivityTryAgain())
                 } else {
                     self?.showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
                 }
-            }
+            }, receiveValue: { [weak self] balance in
+                let filteredTokens = ImportMagicLinkController.functional.checkErc875TokensAreAvailable(indices: signedOrder.order.indices, balance: balance)
+                if filteredTokens.isEmpty {
+                    self?.showImportError(errorMessage: R.string.localizable.aClaimTokenLinkAlreadyRedeemed())
+                } else {
+                    self?.makeTokenHolder(filteredTokens, signedOrder.order.contractAddress)
+                    self?.completeOrderHandling(signedOrder: signedOrder)
+                }
+            }).store(in: &cancelable)
     }
 
     private func handleMagicLink(url: URL) -> Bool {
