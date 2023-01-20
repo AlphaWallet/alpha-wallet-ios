@@ -375,8 +375,8 @@ struct ButtonsBarViewModel {
     var buttonBackgroundColor: UIColor = Colors.appWhite
 
     var highlightedButtonBackgroundColor: UIColor?
-    var disabledButtonBackgroundColor: UIColor = Colors.disabledActionButton
-    var disabledButtonBorderColor: UIColor = Colors.disabledActionButton
+    var disabledButtonBackgroundColor: UIColor = Configuration.Color.Semantic.disabledActionButton
+    var disabledButtonBorderColor: UIColor = Configuration.Color.Semantic.disabledActionButton
 
     var buttonTitleColor: UIColor = Colors.appTint
     var highlightedButtonTitleColor: UIColor?
