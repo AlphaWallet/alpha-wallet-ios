@@ -13,7 +13,7 @@ import Combine
 final class PendingTransactionProvider {
     private let session: WalletSession
     private let transactionDataStore: TransactionDataStore
-    private let tokensFromTransactionsFetcher: TokensFromTransactionsFetcher
+    private let ercTokenDetector: ErcTokenDetector
     private var cancelable = Set<AnyCancellable>()
     private let queue = DispatchQueue(label: "com.PendingTransactionProvider.updateQueue")
     private let fetchPendingTransactionsQueue: OperationQueue = {
@@ -26,10 +26,10 @@ final class PendingTransactionProvider {
 
     private lazy var store: AtomicDictionary<String, SchedulerProtocol> = .init()
 
-    init(session: WalletSession, transactionDataStore: TransactionDataStore, tokensFromTransactionsFetcher: TokensFromTransactionsFetcher) {
+    init(session: WalletSession, transactionDataStore: TransactionDataStore, ercTokenDetector: ErcTokenDetector) {
         self.session = session
         self.transactionDataStore = transactionDataStore
-        self.tokensFromTransactionsFetcher = tokensFromTransactionsFetcher
+        self.ercTokenDetector = ercTokenDetector
     }
 
     func start() {
@@ -81,7 +81,7 @@ final class PendingTransactionProvider {
 
     private func didReceiveValue(transaction: TransactionInstance, pendingTransaction: PendingTransaction) {
         transactionDataStore.update(state: .completed, for: transaction.primaryKey, withPendingTransaction: pendingTransaction)
-        tokensFromTransactionsFetcher.extractNewTokens(from: [transaction])
+        ercTokenDetector.detect(from: [transaction])
 
         cancelScheduler(transaction: transaction)
     }

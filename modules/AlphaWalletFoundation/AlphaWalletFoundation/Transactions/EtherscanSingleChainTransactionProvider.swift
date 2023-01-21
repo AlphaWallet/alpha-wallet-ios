@@ -15,7 +15,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
     private lazy var transactionsTracker: TransactionsTracker = {
         return TransactionsTracker(sessionID: session.sessionID)
     }()
-    private let tokensFromTransactionsFetcher: TokensFromTransactionsFetcher
+    private let ercTokenDetector: ErcTokenDetector
     private var autoDetectErc20TransactionsOperation: AnyCancellable?
     private var autoDetectErc721TransactionsOperation: AnyCancellable?
 
@@ -35,7 +35,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
         return PendingTransactionProvider(
             session: session,
             transactionDataStore: transactionDataStore,
-            tokensFromTransactionsFetcher: tokensFromTransactionsFetcher)
+            ercTokenDetector: ercTokenDetector)
     }()
     private let networkService: NetworkService
     private var cancelable = Set<AnyCancellable>()
@@ -47,7 +47,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
                   transactionDataStore: TransactionDataStore,
                   tokensService: TokenProvidable,
                   fetchLatestTransactionsQueue: OperationQueue,
-                  tokensFromTransactionsFetcher: TokensFromTransactionsFetcher,
+                  ercTokenDetector: ErcTokenDetector,
                   networkService: NetworkService) {
 
         self.networkService = networkService
@@ -56,7 +56,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
         self.analytics = analytics
         self.transactionDataStore = transactionDataStore
         self.fetchLatestTransactionsQueue = fetchLatestTransactionsQueue
-        self.tokensFromTransactionsFetcher = tokensFromTransactionsFetcher
+        self.ercTokenDetector = ercTokenDetector
     }
 
     func start() {
@@ -149,7 +149,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
         guard !transactions.isEmpty else { return }
 
         transactionDataStore.addOrUpdate(transactions: transactions)
-        tokensFromTransactionsFetcher.extractNewTokens(from: transactions)
+        ercTokenDetector.detect(from: transactions)
     }
 
     ///Fetching transactions might take a long time, we use a flag to make sure we only pull the latest transactions 1 "page" at a time, otherwise we'd end up pulling the same "page" multiple times

@@ -362,7 +362,8 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
             transactionDataStore: transactionsDataStore,
             analytics: analytics,
             tokensService: tokensService,
-            networkService: networkService)
+            networkService: networkService,
+            assetDefinitionStore: assetDefinitionStore)
 
         transactionsService.delegate = self
         transactionsService.start()
@@ -1230,12 +1231,6 @@ extension ActiveWalletCoordinator: TransactionsServiceDelegate {
 
     func didCompleteTransaction(in service: TransactionsService, transaction: TransactionInstance) {
         tokenCollection.refreshBalance(updatePolicy: .all)
-    }
-
-    func didExtractNewContracts(in service: TransactionsService, contractsAndServers: [AddressAndRPCServer]) {
-        for each in contractsAndServers {
-            assetDefinitionStore.fetchXML(forContract: each.address, server: each.server)
-        }
     }
 }
 
