@@ -58,11 +58,14 @@ class TransactionsNetworkProvider {
     private let walletAddress: AlphaWallet.Address
     private let server: RPCServer
     private var networkService: NetworkService
-    private var localizedOperationFetcher: LocalizedOperationFetcher
+    private var transactionBuilder: TransactionBuilder
 
-    init(session: WalletSession, networkService: NetworkService, localizedOperationFetcher: LocalizedOperationFetcher) {
+    init(session: WalletSession,
+         networkService: NetworkService,
+         transactionBuilder: TransactionBuilder) {
+        
         self.walletAddress = session.account.address
-        self.localizedOperationFetcher = localizedOperationFetcher
+        self.transactionBuilder = transactionBuilder
         self.networkService = networkService
         self.server = session.server
     }
@@ -91,14 +94,14 @@ class TransactionsNetworkProvider {
         return networkService
             .dataTaskPublisher(GetTransactions(server: server, address: walletAddress, startBlock: startBlock, endBlock: endBlock, sortOrder: sortOrder))
             .mapError { PromiseError(error: $0) }
-            .flatMap { [localizedOperationFetcher] result -> AnyPublisher<[TransactionInstance], PromiseError> in
+            .flatMap { [transactionBuilder] result -> AnyPublisher<[TransactionInstance], PromiseError> in
                 if result.response.statusCode == 404 {
                     return .fail(.some(error: URLError(URLError.Code(rawValue: 404)))) // Clearer than a JSON deserialization error when it's a 404
                 }
 
                 do {
                     let promises = try JSONDecoder().decode(ArrayResponse<RawTransaction>.self, from: result.data)
-                        .result.map { TransactionInstance.buildTransaction(from: $0, fetcher: localizedOperationFetcher) }
+                        .result.map { transactionBuilder.buildTransaction(from: $0) }
 
                     return Publishers.MergeMany(promises)
                         .collect()
