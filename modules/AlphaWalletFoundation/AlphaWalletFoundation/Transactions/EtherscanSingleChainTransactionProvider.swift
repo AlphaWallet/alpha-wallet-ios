@@ -21,8 +21,15 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
 
     private var isFetchingLatestTransactions = false
     private let tokensService: TokenProvidable
-    private lazy var transactionsNetworkProvider = TransactionsNetworkProvider(session: session, networkService: networkService, localizedOperationFetcher: localizedOperationFetcher)
-    private lazy var localizedOperationFetcher = LocalizedOperationFetcher(tokensService: tokensService, session: session)
+    private lazy var transactionsNetworkProvider = TransactionsNetworkProvider(
+        session: session,
+        networkService: networkService,
+        transactionBuilder: transactionBuilder)
+
+    private lazy var transactionBuilder = TransactionBuilder(
+        tokensService: tokensService,
+        server: session.server,
+        tokenProvider: session.tokenProvider)
 
     private lazy var pendingTransactionProvider: PendingTransactionProvider = {
         return PendingTransactionProvider(
@@ -222,7 +229,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
             self.startBlock = startBlock
             self.sortOrder = sortOrder
             super.init()
-            self.queuePriority = provider.localizedOperationFetcher.server.networkRequestsQueuePriority
+            self.queuePriority = provider.transactionBuilder.server.networkRequestsQueuePriority
         }
 
         override func main() {
