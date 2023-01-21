@@ -13,14 +13,14 @@ import Combine
 final class NewlyAddedTransactionProvider: NSObject {
     private let session: WalletSession
     private let scheduler: SchedulerProtocol
-    private let tokensFromTransactionsFetcher: TokensFromTransactionsFetcher
+    private let ercTokenDetector: ErcTokenDetector
     private let queue = DispatchQueue(label: "com.NewlyAddedTransactionProvider.updateQueue")
     private let transactionDataStore: TransactionDataStore
 
-    init(session: WalletSession, scheduler: SchedulerProtocol, tokensFromTransactionsFetcher: TokensFromTransactionsFetcher, transactionDataStore: TransactionDataStore) {
+    init(session: WalletSession, scheduler: SchedulerProtocol, ercTokenDetector: ErcTokenDetector, transactionDataStore: TransactionDataStore) {
         self.session = session
         self.scheduler = scheduler
-        self.tokensFromTransactionsFetcher = tokensFromTransactionsFetcher
+        self.ercTokenDetector = ercTokenDetector
         self.transactionDataStore = transactionDataStore
         super.init()
     }
@@ -52,7 +52,7 @@ final class NewlyAddedTransactionProvider: NSObject {
 
     private func didReceiveValue(transactions: [TransactionInstance]) {
         let newOrUpdatedTransactions = transactionDataStore.addOrUpdate(transactions: transactions)
-        tokensFromTransactionsFetcher.extractNewTokens(from: newOrUpdatedTransactions)
+        ercTokenDetector.detect(from: newOrUpdatedTransactions)
         //NOTE: in case if thre some transactions that already exist we can suggest to reset `covalentLastNewestPage`
         if newOrUpdatedTransactions.count != transactions.count || transactions.isEmpty {
             session.config.set(covalentLastNewestPage: session.server, wallet: session.account, page: nil)

@@ -5,7 +5,6 @@ import Combine
 
 public protocol TransactionsServiceDelegate: AnyObject {
     func didCompleteTransaction(in service: TransactionsService, transaction: TransactionInstance)
-    func didExtractNewContracts(in service: TransactionsService, contractsAndServers: [AddressAndRPCServer])
 }
 
 public class TransactionsService {
@@ -40,13 +39,15 @@ public class TransactionsService {
     private var cancelable = Set<AnyCancellable>()
     private let queue = DispatchQueue(label: "com.TransactionsService.UpdateQueue")
     private let networkService: NetworkService
+    private let assetDefinitionStore: AssetDefinitionStore
 
-    public init(sessions: ServerDictionary<WalletSession>, transactionDataStore: TransactionDataStore, analytics: AnalyticsLogger, tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable, networkService: NetworkService) {
+    public init(sessions: ServerDictionary<WalletSession>, transactionDataStore: TransactionDataStore, analytics: AnalyticsLogger, tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable, networkService: NetworkService, assetDefinitionStore: AssetDefinitionStore) {
         self.sessions = sessions
         self.tokensService = tokensService
         self.transactionDataStore = transactionDataStore
         self.analytics = analytics
         self.networkService = networkService
+        self.assetDefinitionStore = assetDefinitionStore
         setupSingleChainTransactionProviders()
 
         NotificationCenter.default.applicationState
@@ -73,9 +74,13 @@ public class TransactionsService {
     private func setupSingleChainTransactionProviders() {
         providers = sessions.values.map { each in
             let providerType = each.server.transactionProviderType
-            let tokensFromTransactionsFetcher = TokensFromTransactionsFetcher(detectedTokens: tokensService, session: each)
-            tokensFromTransactionsFetcher.delegate = self
-            let provider = providerType.init(session: each, analytics: analytics, transactionDataStore: transactionDataStore, tokensService: tokensService, fetchLatestTransactionsQueue: fetchLatestTransactionsQueue, tokensFromTransactionsFetcher: tokensFromTransactionsFetcher, networkService: networkService)
+            let ercTokenDetector = ErcTokenDetector(
+                tokensService: tokensService,
+                server: each.server,
+                ercProvider: each.tokenProvider,
+                assetDefinitionStore: assetDefinitionStore)
+
+            let provider = providerType.init(session: each, analytics: analytics, transactionDataStore: transactionDataStore, tokensService: tokensService, fetchLatestTransactionsQueue: fetchLatestTransactionsQueue, ercTokenDetector: ercTokenDetector, networkService: networkService)
             provider.delegate = self
 
             return provider
@@ -137,16 +142,6 @@ public class TransactionsService {
         for each in providers {
             each.stop()
         }
-    }
-}
-
-extension TransactionsService: TokensFromTransactionsFetcherDelegate {
-
-    public func didExtractTokens(in fetcher: TokensFromTransactionsFetcher, contractsAndServers: [AddressAndRPCServer], ercTokens: [ErcToken]) {
-        let actions = ercTokens.map { AddOrUpdateTokenAction.add(ercToken: $0, shouldUpdateBalance: true) }
-        tokensService.addOrUpdate(with: actions)
-
-        delegate?.didExtractNewContracts(in: self, contractsAndServers: contractsAndServers)
     }
 }
 

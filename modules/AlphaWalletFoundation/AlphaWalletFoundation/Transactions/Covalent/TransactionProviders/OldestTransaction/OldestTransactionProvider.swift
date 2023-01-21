@@ -12,14 +12,14 @@ final class OldestTransactionProvider: NSObject {
     private let session: WalletSession
     private lazy var transactionsTracker: TransactionsTracker = TransactionsTracker(sessionID: session.sessionID)
     private let scheduler: SchedulerProtocol
-    private let tokensFromTransactionsFetcher: TokensFromTransactionsFetcher
+    private let ercTokenDetector: ErcTokenDetector
     private let queue = DispatchQueue(label: "com.OldestTransactionProvider.updateQueue")
     private let transactionDataStore: TransactionDataStore
 
-    init(session: WalletSession, scheduler: SchedulerProtocol, tokensFromTransactionsFetcher: TokensFromTransactionsFetcher, transactionDataStore: TransactionDataStore) {
+    init(session: WalletSession, scheduler: SchedulerProtocol, ercTokenDetector: ErcTokenDetector, transactionDataStore: TransactionDataStore) {
         self.session = session
         self.scheduler = scheduler
-        self.tokensFromTransactionsFetcher = tokensFromTransactionsFetcher
+        self.ercTokenDetector = ercTokenDetector
         self.transactionDataStore = transactionDataStore
         super.init()
     }
@@ -59,7 +59,7 @@ final class OldestTransactionProvider: NSObject {
             scheduler.cancel()
         } else {
             transactionDataStore.addOrUpdate(transactions: transactions)
-            tokensFromTransactionsFetcher.extractNewTokens(from: transactions)
+            ercTokenDetector.detect(from: transactions)
         }
     }
 }
