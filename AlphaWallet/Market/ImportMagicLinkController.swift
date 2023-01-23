@@ -324,11 +324,12 @@ final class ImportMagicLinkController {
                 let getContractSymbol = session.tokenProvider.getContractSymbol(for: contractAddress)
                 let getTokenType = session.tokenProvider.getTokenType(for: contractAddress)
 
-                firstly {
-                    when(fulfilled: getContractName, getContractSymbol, getTokenType)
-                }.done { name, symbol, type in
-                    makeTokenHolder(name: name, symbol: symbol, type: type)
-                }.cauterize()
+                Publishers.CombineLatest3(getContractName, getContractSymbol, getTokenType)
+                    .sink(receiveCompletion: { _ in
+                        //no-op
+                    }, receiveValue: { name, symbol, type in
+                        makeTokenHolder(name: name, symbol: symbol, type: type)
+                    }).store(in: &strongSelf.cancelable)
             }
         }
     }

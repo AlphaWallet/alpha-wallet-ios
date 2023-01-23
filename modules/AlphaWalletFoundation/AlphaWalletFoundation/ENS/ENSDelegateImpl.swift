@@ -18,10 +18,9 @@ class ENSDelegateImpl: ENSDelegate {
     }
 
     func getInterfaceSupported165(chainId: Int, hash: String, contract: AlphaWallet.Address) -> AnyPublisher<Bool, AlphaWalletENS.SmartContractError> {
-        return IsInterfaceSupported165(forServer: RPCServer(chainID: chainId))
+        return IsInterfaceSupported165(blockchainProvider: blockchainProvider)
             .getInterfaceSupported165(hash: hash, contract: contract)
-            .publisher(queue: .global())
-            .mapError { e in SmartContractError.embeded(e.embedded) }
+            .mapError { e in SmartContractError.embeded(e) }
             .eraseToAnyPublisher()
     }
 

@@ -4,41 +4,38 @@ import Foundation
 import PromiseKit
 import AlphaWalletWeb3
 import AlphaWalletCore
+import Combine
 
 final class GetContractName {
-    private let server: RPCServer
-    private var inFlightPromises: [String: Promise<String>] = [:]
+    private let blockchainProvider: BlockchainProvider
+    private var inFlightPromises: [String: AnyPublisher<String, SessionTaskError>] = [:]
     private let queue = DispatchQueue(label: "org.alphawallet.swift.getContractName")
 
-    init(forServer server: RPCServer) {
-        self.server = server
+    init(blockchainProvider: BlockchainProvider) {
+        self.blockchainProvider = blockchainProvider
     }
 
-    func getName(for contract: AlphaWallet.Address) -> Promise<String> {
-        firstly {
-            .value(contract)
-        }.then(on: queue, { [weak self, queue, server] contract -> Promise<String> in
-            let key = contract.eip55String
-            
-            if let promise = self?.inFlightPromises[key] {
-                return promise
-            } else {
-                let promise = attempt(maximumRetryCount: 2, shouldOnlyRetryIf: TokenProvider.shouldRetry(error:)) {
-                    callSmartContract(withServer: server, contract: contract, functionName: "name", abiString: Web3.Utils.erc20ABI)
-                        .map(on: queue, { nameResult -> String in
-                            guard let name = nameResult["0"] as? String else {
-                                throw CastError(actualValue: nameResult["0"], expectedType: String.self)
-                            }
-                            return name
-                        })
-                }.ensure(on: queue, {
-                    self?.inFlightPromises[key] = .none
-                })
+    func getName(for contract: AlphaWallet.Address) -> AnyPublisher<String, SessionTaskError> {
+        return Just(contract)
+            .receive(on: queue)
+            .setFailureType(to: SessionTaskError.self)
+            .flatMap { [weak self, queue, blockchainProvider] contract -> AnyPublisher<String, SessionTaskError> in
+                let key = contract.eip55String
 
-                self?.inFlightPromises[key] = promise
+                if let promise = self?.inFlightPromises[key] {
+                    return promise
+                } else {
+                    let promise = blockchainProvider
+                        .call(Erc20NameMethodCall(contract: contract))
+                        .receive(on: queue)
+                        .handleEvents(receiveCompletion: { _ in self?.inFlightPromises[key] = .none })
+                        .share()
+                        .eraseToAnyPublisher()
 
-                return promise
-            }
-        })
+                    self?.inFlightPromises[key] = promise
+
+                    return promise
+                }
+            }.eraseToAnyPublisher()
     }
 }
