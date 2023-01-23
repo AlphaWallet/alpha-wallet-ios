@@ -26,7 +26,7 @@ final class GetErc20Balance {
                     return publisher
                 } else {
                     let publisher = blockchainProvider
-                        .call(Erc20BalanceOfMethodCall(contract: address, address: address))
+                        .call(Erc20BalanceOfMethodCall(contract: contract, address: address))
                         .receive(on: queue)
                         .handleEvents(receiveCompletion: { _ in self?.inFlightPublishers[key] = .none })
                         .share()
