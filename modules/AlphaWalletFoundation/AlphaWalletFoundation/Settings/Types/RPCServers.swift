@@ -260,8 +260,8 @@ public enum RPCServer: Hashable, CaseIterable {
             case .arbitrum: return "https://api.arbiscan.io/api"
             case .palm: return "https://explorer.palm.io/api"
             case .palmTestnet: return "https://explorer.palm-uat.xyz/api"
-            case .klaytnCypress: return nil
-            case .klaytnBaobabTestnet: return nil
+            case .klaytnCypress: return "https://klaytn-mainnet.blockscout.com/api"
+            case .klaytnBaobabTestnet: return "https://klaytn-testnet.blockscout.com/api"
             case .ioTeX: return nil
             case .ioTeXTestnet: return nil
             case .optimismGoerli: return "https://goerli-rollup-explorer.arbitrum.io/api"
@@ -290,7 +290,7 @@ public enum RPCServer: Hashable, CaseIterable {
             return .blockscout
         case .fantom_testnet:
             return .unknown
-        case .klaytnCypress, .klaytnBaobabTestnet: return .etherscan
+        case .klaytnCypress, .klaytnBaobabTestnet: return .blockscout
         case .custom(let custom):
             return custom.etherscanCompatibleType
         case .ioTeX, .ioTeXTestnet: return .etherscan
@@ -600,7 +600,7 @@ public enum RPCServer: Hashable, CaseIterable {
         case .main, .classic, .callisto, .custom, .poa, .goerli, .xDai, .artis_sigma1, .binance_smart_chain, .binance_smart_chain_testnet, .artis_tau1, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .cronosTestnet, .arbitrum, .palm, .palmTestnet, .optimismGoerli, .arbitrumGoerli, .cronosMainnet:
             return EtherscanSingleChainTransactionProvider.self
         case .klaytnCypress, .klaytnBaobabTestnet:
-            return CovalentSingleChainTransactionProvider.self
+            return EtherscanSingleChainTransactionProvider.self
         case .ioTeX, .ioTeXTestnet:
             return CovalentSingleChainTransactionProvider.self
         }
