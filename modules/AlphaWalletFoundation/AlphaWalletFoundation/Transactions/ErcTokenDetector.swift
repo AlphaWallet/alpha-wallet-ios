@@ -67,7 +67,6 @@ public final class ErcTokenDetector {
         let contracts = Array(Set(filteredTransactions.compactMap { $0.localizedOperations.first?.contractAddress }))
         let tokenTypePromises = contracts.map { contract in
             ercProvider.getTokenType(for: contract)
-                .publisher()
                 .map { Optional($0) }
                 .replaceError(with: nil)
                 .map { (contract: contract, tokenType: $0) }

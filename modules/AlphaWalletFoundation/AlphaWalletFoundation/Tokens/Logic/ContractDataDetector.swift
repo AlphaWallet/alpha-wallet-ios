@@ -54,9 +54,9 @@ public class ContractDataDetector {
         self.wallet = session.account.address
         self.tokenProvider = session.tokenProvider
         self.assetDefinitionStore = assetDefinitionStore
-        namePromise = tokenProvider.getContractName(for: address)
-        symbolPromise = tokenProvider.getContractSymbol(for: address)
-        tokenTypePromise = tokenProvider.getTokenType(for: address)
+        namePromise = tokenProvider.getContractName(for: address).promise()
+        symbolPromise = tokenProvider.getContractSymbol(for: address).promise()
+        tokenTypePromise = tokenProvider.getTokenType(for: address).promise()
     }
 
     //Failure to obtain contract data may be due to no-connectivity. So we should check .failed(networkReachable: Bool)
@@ -134,13 +134,16 @@ public class ContractDataDetector {
                     self.completionOfPartialData(.balance(nonFungible: nil, fungible: value, tokenType: .erc20))
                 }).store(in: &cancellable)
 
-            tokenProvider.getDecimals(for: address).done { decimal in
-                self.decimalsSeal.fulfill(decimal)
-                self.completionOfPartialData(.decimals(decimal))
-            }.catch { error in
-                self.decimalsSeal.reject(error)
-                self.callCompletionFailed(error: ContractDataDetectorError.promise(error: error, .decimals))
-            }
+            tokenProvider.getDecimals(for: address)
+                .sink(receiveCompletion: { result in
+                    guard case .failure(let error) = result else { return }
+
+                    self.decimalsSeal.reject(error)
+                    self.callCompletionFailed(error: ContractDataDetectorError.promise(error: error, .decimals))
+                }, receiveValue: { decimal in
+                    self.decimalsSeal.fulfill(decimal)
+                    self.completionOfPartialData(.decimals(decimal))
+                }).store(in: &cancellable)
         case .nativeCryptocurrency:
             break
         }

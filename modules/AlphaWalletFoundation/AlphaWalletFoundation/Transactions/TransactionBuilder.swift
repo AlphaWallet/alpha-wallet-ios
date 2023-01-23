@@ -79,13 +79,9 @@ final class TransactionBuilder {
                     return .just((name: token.name, symbol: token.symbol, decimals: token.decimals, tokenType: token.type))
                 } else {
                     let getContractName = ercProvider.getContractName(for: contract)
-                        .publisher().mapError { SessionTaskError.responseError($0.embedded) }.eraseToAnyPublisher()
                     let getContractSymbol = ercProvider.getContractSymbol(for: contract)
-                        .publisher().mapError { SessionTaskError.responseError($0.embedded) }.eraseToAnyPublisher()
                     let getDecimals = ercProvider.getDecimals(for: contract)
-                        .publisher().mapError { SessionTaskError.responseError($0.embedded) }.eraseToAnyPublisher()
                     let getTokenType = ercProvider.getTokenType(for: contract)
-                        .publisher().mapError { SessionTaskError.responseError($0.embedded) }.eraseToAnyPublisher()
 
                     return Publishers.CombineLatest4(getContractName, getContractSymbol, getDecimals, getTokenType)
                         .map { (name: $0, symbol: $1, decimals: $2, tokenType: $3) }

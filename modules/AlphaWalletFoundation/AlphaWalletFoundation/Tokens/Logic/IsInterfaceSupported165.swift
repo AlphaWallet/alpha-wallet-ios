@@ -3,50 +3,51 @@
 //
 
 import Foundation
-import PromiseKit
+import Combine
 import AlphaWalletCore
 
 public class IsInterfaceSupported165 {
-    private let server: RPCServer
     private let fileName: String
     private let queue = DispatchQueue(label: "org.alphawallet.swift.isInterfaceSupported165")
     private lazy var storage: Storage<[String: Bool]> = .init(fileName: fileName, storage: FileStorage(fileExtension: "json"), defaultValue: [:])
-    private var inFlightPromises: [String: Promise<Bool>] = [:]
+    private var inFlightPromises: [String: AnyPublisher<Bool, SessionTaskError>] = [:]
 
-    public init(forServer server: RPCServer, fileName: String = "isInterfaceSupported165") {
-        self.server = server
+    private let blockchainProvider: BlockchainProvider
+
+    public init(blockchainProvider: BlockchainProvider, fileName: String = "isInterfaceSupported165") {
+        self.blockchainProvider = blockchainProvider
         self.fileName = fileName
     }
 
-    public func getInterfaceSupported165(hash: String, contract: AlphaWallet.Address) -> Promise<Bool> {
-        return firstly {
-            .value(hash)
-        }.then(on: queue, { [weak self, queue, server, storage] hash -> Promise<Bool> in
-            let key = "\(hash)-\(contract)-\(server)"
+    public func getInterfaceSupported165(hash: String, contract: AlphaWallet.Address) -> AnyPublisher<Bool, SessionTaskError> {
+        return Just(hash)
+            .receive(on: queue)
+            .setFailureType(to: SessionTaskError.self)
+            .flatMap { [weak self, queue, blockchainProvider, storage] hash -> AnyPublisher<Bool, SessionTaskError> in
+                let key = "\(hash)-\(contract)-\(blockchainProvider.server)"
 
-            if let value = storage.value[key] {
-                return .value(value)
-            }
+                if let value = storage.value[key] {
+                    return .just(value)
+                }
 
-            if let promise = self?.inFlightPromises[key] {
-                return promise
-            } else {
-                let function = GetInterfaceSupported165Encode()
-                let promise = firstly {
-                    callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [hash] as [AnyObject])
-                }.map(on: queue, { result -> Bool in
-                    guard let supported = result["0"] as? Bool else { throw CastError(actualValue: result["0"], expectedType: Bool.self) }
-                    storage.value[key] = supported
+                if let promise = self?.inFlightPromises[key] {
+                    return promise
+                } else {
+                    let promise = blockchainProvider
+                        .call(Erc20SupportsInterfaceMethodCall(contract: contract, hash: hash))
+                        .receive(on: queue)
+                        .handleEvents(receiveOutput: { supported in
+                            storage.value[key] = supported
+                        }, receiveCompletion: { _ in
+                            self?.inFlightPromises[key] = .none
+                        })
+                        .share()
+                        .eraseToAnyPublisher()
 
-                    return supported
-                }).ensure(on: queue, {
-                    self?.inFlightPromises[key] = .none
-                })
+                    self?.inFlightPromises[key] = promise
 
-                self?.inFlightPromises[key] = promise
-
-                return promise
-            }
-        })
+                    return promise
+                }
+            }.eraseToAnyPublisher()
     }
 }

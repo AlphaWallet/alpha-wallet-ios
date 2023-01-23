@@ -4,21 +4,21 @@
 //
 
 import Foundation
-import PromiseKit
+import Combine
 
 public class IsErc1155Contract {
-    private let server: RPCServer
-    private lazy var resolver = IsInterfaceSupported165(forServer: server)
+    private let blockchainProvider: BlockchainProvider
+    private lazy var resolver = IsInterfaceSupported165(blockchainProvider: blockchainProvider)
 
     private struct ERC165Hash {
         //https://eips.ethereum.org/EIPS/eip-1155
         static let official = "0xd9b67a26"
     }
-    public init(forServer server: RPCServer) {
-        self.server = server
+    public init(blockchainProvider: BlockchainProvider) {
+        self.blockchainProvider = blockchainProvider
     }
 
-    public func getIsErc1155Contract(for contract: AlphaWallet.Address) -> Promise<Bool> {
+    public func getIsErc1155Contract(for contract: AlphaWallet.Address) -> AnyPublisher<Bool, SessionTaskError> {
         return resolver.getInterfaceSupported165(hash: ERC165Hash.official, contract: contract)
     }
 }
