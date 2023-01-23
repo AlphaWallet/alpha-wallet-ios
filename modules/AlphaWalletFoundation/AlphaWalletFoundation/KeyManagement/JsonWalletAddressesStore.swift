@@ -42,9 +42,6 @@ public struct JsonWalletAddressesStore: WalletAddressesStore {
 
     private var storage: StorageType
     private var walletAddresses: WalletAddresses
-    private var walletsSubject: CurrentValueSubject<Set<Wallet>, Never>
-    private var didAddWalletSubject: PassthroughSubject<Wallet, Never> = .init()
-    private var didRemoveWalletSubject: PassthroughSubject<Wallet, Never> = .init()
 
     public var recentlyUsedWallet: Wallet? {
         get {
@@ -58,20 +55,6 @@ public struct JsonWalletAddressesStore: WalletAddressesStore {
 
             saveWalletCollectionToFile()
         }
-    }
-
-    public var walletsPublisher: AnyPublisher<Set<Wallet>, Never> {
-        walletsSubject
-            .removeDuplicates()
-            .eraseToAnyPublisher()
-    }
-
-    public var didAddWalletPublisher: AnyPublisher<Wallet, Never> {
-        didAddWalletSubject.eraseToAnyPublisher()
-    }
-
-    public var didRemoveWalletPublisher: AnyPublisher<Wallet, Never> {
-        didRemoveWalletSubject.eraseToAnyPublisher()
     }
 
     var hasAnyStoredData: Bool {
@@ -142,14 +125,11 @@ public struct JsonWalletAddressesStore: WalletAddressesStore {
         } else {
             walletAddresses = WalletAddresses()
         }
-        walletsSubject = .init(Set(walletAddresses.wallets))
     }
 
     mutating private func saveWalletCollectionToFile() {
         guard let data = try? JSONEncoder().encode(walletAddresses) else { return }
         storage.setData(data, forKey: Keys.walletAddresses)
-
-        walletsSubject.send(walletAddresses.wallets)
     }
 
     mutating public func add(wallet: Wallet) {
@@ -161,7 +141,6 @@ public struct JsonWalletAddressesStore: WalletAddressesStore {
         case .watch:
             addToListOfWatchEthereumAddresses(wallet.address)
         }
-        didAddWalletSubject.send(wallet)
     }
 
     mutating private func addToListOfWatchEthereumAddresses(_ address: AlphaWallet.Address) {
@@ -181,9 +160,6 @@ public struct JsonWalletAddressesStore: WalletAddressesStore {
     mutating public func addToListOfEthereumAddressesProtectedByUserPresence(_ address: AlphaWallet.Address) {
         let updated = Array(Set(ethereumAddressesProtectedByUserPresence + [address.eip55String]))
         ethereumAddressesProtectedByUserPresence = updated
-
-        guard let wallet = wallets.first(where: { $0.address == address }) else { return }
-        didAddWalletSubject.send(wallet)
     }
 
     mutating public func removeAddress(_ account: Wallet) {
@@ -191,8 +167,6 @@ public struct JsonWalletAddressesStore: WalletAddressesStore {
         ethereumAddressesWithSeed = ethereumAddressesWithSeed.filter { $0 != account.address.eip55String }
         ethereumAddressesProtectedByUserPresence = ethereumAddressesProtectedByUserPresence.filter { $0 != account.address.eip55String }
         watchAddresses = watchAddresses.filter { $0 != account.address.eip55String }
-
-        didRemoveWalletSubject.send(account)
     }
 
 }

@@ -21,7 +21,8 @@ class SettingsCoordinatorTests: XCTestCase {
     func testOnDeleteCleanStorage() {
         let wallet: Wallet = .make()
         let storage = FakeTransactionsStorage(wallet: wallet)
-        var walletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: .test)
+        let walletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: .test)
+        let keystore = FakeEtherKeystore(walletAddressesStore: walletAddressesStore)
         storage.add(transactions: [.make()])
 
         XCTAssertEqual(1, storage.transactionCount(forServer: .main))
@@ -29,69 +30,70 @@ class SettingsCoordinatorTests: XCTestCase {
         var deletedWallet: Wallet?
         let expectation = self.expectation(description: "didRemoveWalletPublisher")
 
-        removeWalletCancelable = walletAddressesStore
-            .didRemoveWalletPublisher
+        removeWalletCancelable = keystore
+            .didRemoveWallet
             .receive(on: RunLoop.main)
             .sink { value in
                 deletedWallet = value
                 expectation.fulfill()
                 storage.deleteAllForTestsOnly()
+
+                XCTAssertNotNil(deletedWallet)
+                XCTAssertTrue(wallet.address == deletedWallet!.address)
+                XCTAssertEqual(0, keystore.wallets.count)
+                XCTAssertEqual(0, storage.transactionCount(forServer: .main))
             }
 
-        walletAddressesStore.removeAddress(wallet)
+        keystore.delete(wallet: wallet)
 
-        waitForExpectations(timeout: 10)
-
-        XCTAssertNotNil(deletedWallet)
-        XCTAssertTrue(wallet.address == deletedWallet!.address)
-        XCTAssertEqual(0, walletAddressesStore.wallets.count)
-        XCTAssertEqual(0, storage.transactionCount(forServer: .main))
+        wait(for: [expectation], timeout: 20)
     }
 
     func testDeleteWallet() {
-        var walletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: .test)
+        let walletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: .test)
+        let keystore = FakeEtherKeystore(walletAddressesStore: walletAddressesStore)
 
-        let wallet: Wallet = .make()
+        var wallet: Wallet?
         var deletedWallet: Wallet?
         let expectation = self.expectation(description: "didRemoveWalletPublisher")
 
-        removeWalletCancelable = walletAddressesStore
-            .didRemoveWalletPublisher
+        keystore.createHDWallet()
+            .sinkAsync(receiveValue: { _wallet in
+                wallet = _wallet
+                keystore.delete(wallet: _wallet)
+            })
+
+        removeWalletCancelable = keystore
+            .didRemoveWallet
             .receive(on: RunLoop.main)
             .sink { value in
                 deletedWallet = value
+                XCTAssertNotNil(deletedWallet)
+                XCTAssertTrue(wallet?.address == deletedWallet?.address)
+                XCTAssertEqual(0, walletAddressesStore.wallets.count)
+
                 expectation.fulfill()
             }
 
-        walletAddressesStore.removeAddress(wallet)
-
-        waitForExpectations(timeout: 10)
-
-        XCTAssertNotNil(deletedWallet)
-        XCTAssertTrue(wallet.address == deletedWallet!.address)
-        XCTAssertEqual(0, walletAddressesStore.wallets.count)
+        wait(for: [expectation], timeout: 20)
     }
 
     func testAddDeleteWallet() {
-        var walletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: .test)
-
-        let wallet: Wallet = .make()
-        var addedAddress: Wallet?
+        let walletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: .test)
+        let keystore = FakeEtherKeystore(walletAddressesStore: walletAddressesStore)
         let expectation = self.expectation(description: "didAddWalletPublisher")
 
-        addWalletCancelable = walletAddressesStore
-            .didAddWalletPublisher
+        addWalletCancelable = keystore
+            .didAddWallet
             .receive(on: RunLoop.main)
-            .sink { value in
-                addedAddress = value
+            .sink { _ in
+                XCTAssertEqual(1, keystore.wallets.count)
+
                 expectation.fulfill()
             }
-        walletAddressesStore.add(wallet: wallet)
 
-        waitForExpectations(timeout: 10)
+        keystore.createHDWallet().sinkAsync()
 
-        XCTAssertNotNil(addedAddress)
-        XCTAssertTrue(wallet.address == addedAddress!.address)
-        XCTAssertEqual(1, walletAddressesStore.wallets.count)
+        wait(for: [expectation], timeout: 20)
     }
 }

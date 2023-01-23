@@ -18,7 +18,6 @@ class AppCoordinatorTests: XCTestCase {
             window: UIWindow(),
             analytics: FakeAnalyticsService(),
             keystore: FakeEtherKeystore(),
-            walletAddressesStore: fakeWalletAddressesStore(wallets: [.make()]),
             navigationController: FakeNavigationController(),
             securedStorage: KeychainStorage.make(),
             legacyFileBasedKeystore: .make())
@@ -36,7 +35,6 @@ class AppCoordinatorTests: XCTestCase {
                 wallets: [.make()],
                 recentlyUsedWallet: .make()
             ),
-            walletAddressesStore: fakeWalletAddressesStore(wallets: [.make()]),
             navigationController: FakeNavigationController(),
             securedStorage: KeychainStorage.make(),
             legacyFileBasedKeystore: .make())
@@ -57,7 +55,6 @@ class AppCoordinatorTests: XCTestCase {
                 wallets: [.make()],
                 recentlyUsedWallet: .make()
             ),
-            walletAddressesStore: fakeWalletAddressesStore(wallets: [.make()]),
             navigationController: FakeNavigationController(),
             securedStorage: KeychainStorage.make(),
             legacyFileBasedKeystore: .make())
@@ -75,7 +72,6 @@ class AppCoordinatorTests: XCTestCase {
                 wallets: [.make()],
                 recentlyUsedWallet: .make()
             ),
-            walletAddressesStore: fakeWalletAddressesStore(wallets: [.make()]),
             navigationController: FakeNavigationController(),
             securedStorage: KeychainStorage.make(),
             legacyFileBasedKeystore: .make())
@@ -94,7 +90,6 @@ class AppCoordinatorTests: XCTestCase {
                 wallets: [.make()],
                 recentlyUsedWallet: .make()
             ),
-            walletAddressesStore: fakeWalletAddressesStore(wallets: [.make()]),
             navigationController: FakeNavigationController(),
             securedStorage: KeychainStorage.make(),
             legacyFileBasedKeystore: .make())
@@ -115,7 +110,6 @@ class AppCoordinatorTests: XCTestCase {
                 wallets: [.make()],
                 recentlyUsedWallet: .make()
             ),
-            walletAddressesStore: fakeWalletAddressesStore(wallets: [.make()]),
             navigationController: FakeNavigationController(),
             securedStorage: KeychainStorage.make(),
             legacyFileBasedKeystore: .make())
@@ -130,7 +124,6 @@ class AppCoordinatorTests: XCTestCase {
             window: .init(),
             analytics: FakeAnalyticsService(),
             keystore: FakeEtherKeystore(),
-            walletAddressesStore: fakeWalletAddressesStore(wallets: [.make()]),
             navigationController: FakeNavigationController(),
             securedStorage: KeychainStorage.make(),
             legacyFileBasedKeystore: .make())

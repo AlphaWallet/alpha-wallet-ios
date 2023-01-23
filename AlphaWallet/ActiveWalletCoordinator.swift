@@ -147,7 +147,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private let networkService: NetworkService
 
     init(navigationController: UINavigationController = NavigationController(),
-         walletAddressesStore: WalletAddressesStore,
          activitiesPipeLine: ActivitiesPipeLine,
          wallet: Wallet,
          keystore: Keystore,
@@ -207,7 +206,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         self.coinTickersFetcher = coinTickersFetcher
         self.tokenActionsService = tokenActionsService
         self.blockscanChatService = BlockscanChatService(
-            walletAddressesStore: walletAddressesStore,
+            keystore: keystore,
             account: wallet,
             analytics: analytics,
             networkService: networkService)

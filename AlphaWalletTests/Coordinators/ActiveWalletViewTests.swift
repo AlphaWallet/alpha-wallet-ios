@@ -63,9 +63,9 @@ final class FakeNetworkService: NetworkService {
 
 extension AnyCAIP10AccountProvidable {
     static func make(wallets: [Wallet] = [.make()], servers: [RPCServer] = [.main]) -> AnyCAIP10AccountProvidable {
-        let walletAddressesStore = fakeWalletAddressesStore(wallets: wallets)
+        let keystore = FakeEtherKeystore(wallets: wallets)
         let serversProvidable = BaseServersProvider(config: .make(enabledServers: servers))
-        return AnyCAIP10AccountProvidable(walletAddressesStore: walletAddressesStore, serversProvidable: serversProvidable)
+        return AnyCAIP10AccountProvidable(keystore: keystore, serversProvidable: serversProvidable)
     }
 }
 
@@ -102,7 +102,6 @@ class ActiveWalletViewTests: XCTestCase {
 
         let coordinator = ActiveWalletCoordinator(
             navigationController: navigationController,
-            walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
             activitiesPipeLine: dep.activitiesPipeLine,
             wallet: wallet,
             keystore: keystore,
@@ -187,7 +186,6 @@ class ActiveWalletViewTests: XCTestCase {
 
         let c1 = ActiveWalletCoordinator(
             navigationController: FakeNavigationController(),
-            walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
             activitiesPipeLine: dep1.activitiesPipeLine,
             wallet: account1,
             keystore: keystore,
@@ -226,7 +224,6 @@ class ActiveWalletViewTests: XCTestCase {
 
         let c2 = ActiveWalletCoordinator(
             navigationController: FakeNavigationController(),
-            walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
             activitiesPipeLine: dep2.activitiesPipeLine,
             wallet: account2,
             keystore: keystore,
@@ -283,7 +280,6 @@ class ActiveWalletViewTests: XCTestCase {
 
         let coordinator = ActiveWalletCoordinator(
                 navigationController: FakeNavigationController(),
-                walletAddressesStore: fakeWalletAddressesStore(wallets: [.make()]),
                 activitiesPipeLine: dep.activitiesPipeLine,
                 wallet: wallet,
                 keystore: keystore,
@@ -344,7 +340,6 @@ class ActiveWalletViewTests: XCTestCase {
 
         let coordinator = ActiveWalletCoordinator(
             navigationController: navigationController,
-            walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
             activitiesPipeLine: dep.activitiesPipeLine,
             wallet: wallet,
             keystore: keystore,
@@ -402,7 +397,6 @@ class ActiveWalletViewTests: XCTestCase {
 
         let coordinator = ActiveWalletCoordinator(
             navigationController: navigationController,
-            walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
             activitiesPipeLine: dep.activitiesPipeLine,
             wallet: wallet,
             keystore: keystore,
@@ -455,71 +449,71 @@ class ActiveWalletViewTests: XCTestCase {
 
 //        XCTAssert(viewController is TokensViewController)
 //    }
-
-    func testShowTabAlphwaWalletWallet() {
+    private var cancellable = Set<AnyCancellable>()
+    func testShowTabAlphwaWalletWallet() throws {
         let keystore = FakeEtherKeystore()
-        switch keystore.importWallet(type: .newWallet) {
-        case .success(let wallet):
-            keystore.recentlyUsedWallet = wallet
-            let navigationController = FakeNavigationController()
-            let fas = FakeAnalyticsService()
+        keystore.createHDWallet()
+            .sink(receiveCompletion: { result  in
+                guard case .failure = result else { return }
+                XCTFail()
+            }, receiveValue: { wallet in
+                keystore.recentlyUsedWallet = wallet
+                let navigationController = FakeNavigationController()
+                let fas = FakeAnalyticsService()
 
-            let ac: AccountsCoordinator = AccountsCoordinator(
-                config: .make(),
-                navigationController: navigationController,
-                keystore: keystore,
-                analytics: fas,
-                viewModel: .init(configuration: .changeWallets),
-                walletBalanceService: FakeMultiWalletBalanceService(),
-                blockiesGenerator: .make(),
-                domainResolutionService: FakeDomainResolutionService(),
-                promptBackup: .make())
-
-            let dep = WalletDataProcessingPipeline.make(wallet: wallet, server: .main)
-
-            let coordinator: ActiveWalletCoordinator = ActiveWalletCoordinator(
-                    navigationController: navigationController,
-                    walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
-                    activitiesPipeLine: dep.activitiesPipeLine,
-                    wallet: wallet,
-                    keystore: keystore,
-                    assetDefinitionStore: .make(),
+                let ac: AccountsCoordinator = AccountsCoordinator(
                     config: .make(),
-                    analytics: FakeAnalyticsService(),
-                    nftProvider: FakeNftProvider(),
-                    restartQueue: .init(),
-                    universalLinkCoordinator: FakeUniversalLinkCoordinator.make(),
-                    accountsCoordinator: ac,
+                    navigationController: navigationController,
+                    keystore: keystore,
+                    analytics: fas,
+                    viewModel: .init(configuration: .changeWallets),
                     walletBalanceService: FakeMultiWalletBalanceService(),
-                    coinTickersFetcher: CoinTickersFetcherImpl.make(),
-                    tokenActionsService: FakeSwapTokenService(),
-                    walletConnectCoordinator: .fake(),
-                    notificationService: .fake(),
                     blockiesGenerator: .make(),
                     domainResolutionService: FakeDomainResolutionService(),
-                    tokenSwapper: TokenSwapper.make(),
-                    sessionsProvider: dep.sessionsProvider,
-                    tokenCollection: dep.pipeline,
-                    importToken: dep.importToken,
-                    transactionsDataStore: dep.transactionsDataStore,
-                    tokensService: dep.tokensService,
-                    lock: FakeLock(),
-                    currencyService: currencyService,
-                    tokenScriptOverridesFileManager: .fake(),
-                    networkService: FakeNetworkService(),
-                    promptBackup: .make(),
-                    caip10AccountProvidable: AnyCAIP10AccountProvidable.make())
+                    promptBackup: .make())
 
-            coordinator.start(animated: false)
+                let dep = WalletDataProcessingPipeline.make(wallet: wallet, server: .main)
 
-            coordinator.showTab(.tokens)
+                let coordinator: ActiveWalletCoordinator = ActiveWalletCoordinator(
+                        navigationController: navigationController,
+                        activitiesPipeLine: dep.activitiesPipeLine,
+                        wallet: wallet,
+                        keystore: keystore,
+                        assetDefinitionStore: .make(),
+                        config: .make(),
+                        analytics: FakeAnalyticsService(),
+                        nftProvider: FakeNftProvider(),
+                        restartQueue: .init(),
+                        universalLinkCoordinator: FakeUniversalLinkCoordinator.make(),
+                        accountsCoordinator: ac,
+                        walletBalanceService: FakeMultiWalletBalanceService(),
+                        coinTickersFetcher: CoinTickersFetcherImpl.make(),
+                        tokenActionsService: FakeSwapTokenService(),
+                        walletConnectCoordinator: .fake(),
+                        notificationService: .fake(),
+                        blockiesGenerator: .make(),
+                        domainResolutionService: FakeDomainResolutionService(),
+                        tokenSwapper: TokenSwapper.make(),
+                        sessionsProvider: dep.sessionsProvider,
+                        tokenCollection: dep.pipeline,
+                        importToken: dep.importToken,
+                        transactionsDataStore: dep.transactionsDataStore,
+                        tokensService: dep.tokensService,
+                        lock: FakeLock(),
+                        currencyService: self.currencyService,
+                        tokenScriptOverridesFileManager: .fake(),
+                        networkService: FakeNetworkService(),
+                        promptBackup: .make(),
+                        caip10AccountProvidable: AnyCAIP10AccountProvidable.make())
 
-            let viewController = (coordinator.tabBarController.selectedViewController as? UINavigationController)?.viewControllers[0]
+                coordinator.start(animated: false)
 
-            XCTAssert(viewController is TokensViewController)
-        case .failure:
-            XCTFail()
-        }
+                coordinator.showTab(.tokens)
+
+                let viewController = (coordinator.tabBarController.selectedViewController as? UINavigationController)?.viewControllers[0]
+
+                XCTAssert(viewController is TokensViewController)
+            }).store(in: &cancellable)
     }
 }
 // swiftlint:enable type_body_length

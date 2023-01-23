@@ -193,10 +193,10 @@ extension DatabaseMigration {
         }
     }
 
-    public static func oneTimeMigrationForBookmarksAndUrlHistoryToSharedRealm(walletAddressesStore: WalletAddressesStore, config: Config) {
+    public static func oneTimeMigrationForBookmarksAndUrlHistoryToSharedRealm(keystore: Keystore, config: Config) {
         guard !config.hasMigratedToSharedRealm() else { return }
 
-        for each in walletAddressesStore.wallets {
+        for each in keystore.wallets {
             let migration = DatabaseMigration(account: each)
             migration.perform()
             migration.oneTimeMigrationForBookmarksAndUrlHistoryToSharedRealm()

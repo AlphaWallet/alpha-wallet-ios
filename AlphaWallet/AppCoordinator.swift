@@ -115,7 +115,7 @@ class AppCoordinator: NSObject, Coordinator {
         BaseServersProvider(config: config)
     }()
     private lazy var caip10AccountProvidable: CAIP10AccountProvidable = {
-        AnyCAIP10AccountProvidable(walletAddressesStore: walletAddressesStore, serversProvidable: serversProvidable)
+        AnyCAIP10AccountProvidable(keystore: keystore, serversProvidable: serversProvidable)
     }()
 
     private lazy var walletConnectProvider: WalletConnectProvider = {
@@ -159,7 +159,6 @@ class AppCoordinator: NSObject, Coordinator {
 
         return coordinator
     }()
-    private var walletAddressesStore: WalletAddressesStore
     private var cancelable = Set<AnyCancellable>()
     private let sharedEnsRecordsStorage: EnsRecordsStorage = {
         let storage: EnsRecordsStorage = RealmStore.shared
@@ -242,7 +241,6 @@ class AppCoordinator: NSObject, Coordinator {
             window: window,
             analytics: analytics,
             keystore: keystore,
-            walletAddressesStore: walletAddressesStore,
             navigationController: navigationController,
             securedStorage: securedStorage,
             legacyFileBasedKeystore: legacyFileBasedKeystore)
@@ -253,7 +251,6 @@ class AppCoordinator: NSObject, Coordinator {
     init(window: UIWindow,
          analytics: AnalyticsServiceType,
          keystore: Keystore,
-         walletAddressesStore: WalletAddressesStore,
          navigationController: UINavigationController,
          securedStorage: SecuredPasswordStorage & SecuredStorage,
          legacyFileBasedKeystore: LegacyFileBasedKeystore) {
@@ -266,7 +263,6 @@ class AppCoordinator: NSObject, Coordinator {
         self.window = window
         self.analytics = analytics
         self.keystore = keystore
-        self.walletAddressesStore = walletAddressesStore
         self.securedStorage = securedStorage
         self.legacyFileBasedKeystore = legacyFileBasedKeystore
 
@@ -284,8 +280,7 @@ class AppCoordinator: NSObject, Coordinator {
         walletBalanceProvidable: walletBalanceService)
 
     private func bindWalletAddressesStore() {
-        walletAddressesStore
-            .didRemoveWalletPublisher
+        keystore.didRemoveWallet
             .sink { [config, legacyFileBasedKeystore, promptBackup] account in
 
                 //TODO: pass ref
@@ -299,13 +294,12 @@ class AppCoordinator: NSObject, Coordinator {
                 self.destroy(for: account)
             }.store(in: &cancelable)
 
-        walletAddressesStore
-            .didAddWalletPublisher
-            .sink { [promptBackup] in promptBackup.markWalletAsImported(wallet: $0) }
-            .store(in: &cancelable)
+        keystore.didAddWallet
+            .sink { [promptBackup] in
+                promptBackup.markWalletAsImported(wallet: $0.wallet)
+            }.store(in: &cancelable)
 
-        walletAddressesStore
-            .walletsPublisher
+        keystore.walletsPublisher
             .receive(on: RunLoop.main) //NOTE: async to avoid `swift_beginAccess` crash
             .map { wallets -> [Wallet: WalletBalanceFetcherType] in
                 var fetchers: [Wallet: WalletBalanceFetcherType] = [:]
@@ -335,7 +329,7 @@ class AppCoordinator: NSObject, Coordinator {
         }
 
         blockchainsProvider.start()
-        DatabaseMigration.dropDeletedRealmFiles(excluding: walletAddressesStore.wallets)
+        DatabaseMigration.dropDeletedRealmFiles(excluding: keystore.wallets)
         protectionCoordinator.didFinishLaunchingWithOptions()
         initializers()
         runServices()
@@ -434,7 +428,6 @@ class AppCoordinator: NSObject, Coordinator {
 
         let coordinator = ActiveWalletCoordinator(
             navigationController: navigationController,
-            walletAddressesStore: walletAddressesStore,
             activitiesPipeLine: dep.activitiesPipeLine,
             wallet: wallet,
             keystore: keystore,
@@ -480,7 +473,7 @@ class AppCoordinator: NSObject, Coordinator {
         let initializers: [Initializer] = [
             ConfigureImageStorage(),
             ConfigureApp(),
-            CleanupWallets(keystore: keystore, walletAddressesStore: walletAddressesStore, config: config),
+            CleanupWallets(keystore: keystore, config: config),
             SkipBackupFiles(legacyFileBasedKeystore: legacyFileBasedKeystore),
             CleanupPasscode(keystore: keystore, lock: lock),
             KeyboardInitializer()
@@ -491,7 +484,7 @@ class AppCoordinator: NSObject, Coordinator {
 
     private func runServices() {
         services = [
-            ReportUsersWalletAddresses(walletAddressesStore: walletAddressesStore),
+            ReportUsersWalletAddresses(keystore: keystore),
             ReportUsersActiveChains(config: config),
         ]
         services.forEach { $0.perform() }
@@ -534,7 +527,8 @@ class AppCoordinator: NSObject, Coordinator {
     /// Return true if handled
     @discardableResult private func handleUniversalLink(url: URL, source: UrlSource) -> Bool {
         keystore.createWalletIfMissing()
-        showActiveWalletIfNeeded()
+            .sink(receiveValue: { _ in self.showActiveWalletIfNeeded() })
+            .store(in: &cancelable)
 
         return universalLinkService.handleUniversalLink(url: url, source: source)
     }

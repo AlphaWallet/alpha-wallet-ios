@@ -3,6 +3,7 @@
 import Foundation
 import UIKit
 import AlphaWalletFoundation
+import Combine
 
 protocol WalletCoordinatorDelegate: AnyObject {
     func didFinish(with account: Wallet, in coordinator: WalletCoordinator)
@@ -15,18 +16,18 @@ class WalletCoordinator: Coordinator {
     private weak var importWalletViewController: ImportWalletViewController?
     private let analytics: AnalyticsLogger
     private let domainResolutionService: DomainResolutionServiceType
+    private var cancellable = Set<AnyCancellable>()
 
     var navigationController: UINavigationController
     weak var delegate: WalletCoordinatorDelegate?
     var coordinators: [Coordinator] = []
 
-    init(
-        config: Config,
-        navigationController: UINavigationController = NavigationController(),
-        keystore: Keystore,
-        analytics: AnalyticsLogger,
-        domainResolutionService: DomainResolutionServiceType
-    ) {
+    init(config: Config,
+         navigationController: UINavigationController = NavigationController(),
+         keystore: Keystore,
+         analytics: AnalyticsLogger,
+         domainResolutionService: DomainResolutionServiceType) {
+
         self.config = config
         self.navigationController = navigationController
         self.keystore = keystore
@@ -85,21 +86,19 @@ class WalletCoordinator: Coordinator {
     }
 
     //TODO Rename this is create in both settings and new install
-    func createInstantWallet() {
+    private func createInstantWallet() {
+        //NOTE: don't use weak ref here
         navigationController.displayLoading(text: R.string.localizable.walletCreateInProgress(), animated: false)
-        keystore.createAccount { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-            case .success(let wallet):
-                //Not the best implementation, since there's some coupling, but it's clean. We need this so we don't show the What's New UI right after a wallet is created and clash with the pop up prompting user to back up the new wallet, for new installs and creating new wallets for existing installs
+        keystore.createHDWallet()
+            .sink(receiveCompletion: { result in
+                self.navigationController.hideLoading(animated: false)
+                if case .failure(let error) = result {
+                    self.navigationController.displayError(error: error)
+                }
+            }, receiveValue: { wallet in
                 WhatsNewExperimentCoordinator.lastCreatedWalletTimestamp = Date()
-                strongSelf.didImportAccount(account: wallet)
-            case .failure(let error):
-                //TODO this wouldn't work since navigationController isn't shown anymore
-                strongSelf.navigationController.displayError(error: error)
-            }
-            strongSelf.navigationController.hideLoading(animated: false)
-        }
+                self.didImportAccount(account: wallet)
+            }).store(in: &cancellable)
     }
 
     private func addWalletWith(entryPoint: WalletEntryPoint) {
