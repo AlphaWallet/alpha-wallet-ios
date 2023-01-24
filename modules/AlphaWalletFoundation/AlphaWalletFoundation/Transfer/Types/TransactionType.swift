@@ -215,10 +215,10 @@ extension TransactionType {
         }
     }
 
-    public func buildAnyDappTransaction(bridgeTransaction: RawTransactionBridge) throws -> UnconfirmedTransaction {
+    public func buildAnyDappTransaction(walletConnectTransaction: WalletConnectTransaction) throws -> UnconfirmedTransaction {
         guard case .prebuilt = self else { throw TransactionConfiguratorError.impossibleToBuildConfiguration }
 
-        return UnconfirmedTransaction(transactionType: self, bridgeTransaction: bridgeTransaction)
+        return UnconfirmedTransaction(transactionType: self, walletConnectTransaction: walletConnectTransaction)
     }
 
     public func buildSendNativeCryptocurrency(recipient: AlphaWallet.Address, amount: BigUInt) throws -> UnconfirmedTransaction {

@@ -53,12 +53,12 @@ extension AlphaWallet.WalletConnect {
     }
 
     enum Request {
-        case signTransaction(_ transaction: RawTransactionBridge)
+        case signTransaction(_ transaction: WalletConnectTransaction)
         case sign(address: AlphaWallet.Address, message: String)
         case signPersonalMessage(address: AlphaWallet.Address, message: String)
         case signTypedData(address: AlphaWallet.Address, data: EIP712TypedData)
         case signTypedMessage(data: [EthTypedData])
-        case sendTransaction(_ transaction: RawTransactionBridge)
+        case sendTransaction(_ transaction: WalletConnectTransaction)
         case sendRawTransaction(_ value: String)
         case getTransactionCount(_ filter: String)
         case walletSwitchEthereumChain(WalletSwitchEthereumChainObject)
@@ -100,7 +100,7 @@ extension AlphaWallet.WalletConnect {
 
                 return .sign(address: address, message: data)
             case .signTransaction:
-                let data = try request.parameter(of: RawTransactionBridge.self, at: 0)
+                let data = try request.parameter(of: WalletConnectTransaction.self, at: 0)
 
                 return .signTransaction(data)
             case .signTypedData:
@@ -120,7 +120,7 @@ extension AlphaWallet.WalletConnect {
                     return .signTypedMessage(data: typed)
                 }
             case .sendTransaction:
-                let data = try request.parameter(of: RawTransactionBridge.self, at: 0)
+                let data = try request.parameter(of: WalletConnectTransaction.self, at: 0)
 
                 return .sendTransaction(data)
             case .sendRawTransaction:

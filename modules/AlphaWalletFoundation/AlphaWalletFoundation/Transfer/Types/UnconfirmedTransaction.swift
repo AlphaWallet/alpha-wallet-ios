@@ -34,7 +34,7 @@ public struct UnconfirmedTransaction {
 }
 
 extension UnconfirmedTransaction {
-    public init(transactionType: TransactionType, bridgeTransaction transaction: RawTransactionBridge) {
+    public init(transactionType: TransactionType, walletConnectTransaction transaction: WalletConnectTransaction) {
         self = .init(
             transactionType: transactionType,
             value: transaction.value ?? BigUInt("0"),
