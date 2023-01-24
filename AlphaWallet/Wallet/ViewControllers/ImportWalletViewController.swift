@@ -311,7 +311,7 @@ class ImportWalletViewController: UIViewController {
         importButton.setTitle(title, for: .normal)
     }
 
-    func didImport(account: Wallet) {
+    private func didImport(account: Wallet) {
         delegate?.didImportAccount(account: account, in: self)
     }
 
