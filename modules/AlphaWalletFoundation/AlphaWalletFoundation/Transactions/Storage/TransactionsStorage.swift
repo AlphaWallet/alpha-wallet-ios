@@ -1,7 +1,6 @@
 import Foundation
 import BigInt
 import RealmSwift
-import PromiseKit
 import Combine
 
 open class TransactionDataStore {
@@ -290,8 +289,8 @@ open class TransactionDataStore {
 }
 
 extension TransactionDataStore: Erc721TokenIdsFetcher {
-    public func tokenIdsForErc721Token(contract: AlphaWallet.Address, forServer server: RPCServer, inAccount account: AlphaWallet.Address) -> Promise<[String]> {
-        Promise { seal in
+    public func tokenIdsForErc721Token(contract: AlphaWallet.Address, forServer server: RPCServer, inAccount account: AlphaWallet.Address) -> AnyPublisher<[String], Never> {
+        Future { [store] seal in
             //Important to sort ascending to figure out ownership from transfers in and out
             //TODO is this really slow? getting all transactions, right?
             //TODO why are some isERC20Interaction = false
@@ -319,8 +318,8 @@ extension TransactionDataStore: Erc721TokenIdsFetcher {
                 }
             }
 
-            seal.fulfill(Array(tokenIds))
-        }
+            seal(.success(Array(tokenIds)))
+        }.eraseToAnyPublisher()
     }
 }
 

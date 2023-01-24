@@ -8,7 +8,6 @@
 import Foundation
 import Alamofire
 import Combine
-import PromiseKit
 import AlphaWalletCore
 
 public typealias URLRequestConvertible = Alamofire.URLRequestConvertible
@@ -24,17 +23,12 @@ extension URLRequest {
 
 public protocol NetworkService {
     func dataTaskPublisher(_ request: URLRequestConvertible, callbackQueue: DispatchQueue) -> AnyPublisher<URLRequest.Response, SessionTaskError>
-    func dataTaskPromise(_ request: URLRequestConvertible, callbackQueue: DispatchQueue) -> Promise<URLRequest.Response>
     func upload(multipartFormData: @escaping (MultipartFormData) -> Void, usingThreshold: UInt64, to url: URLConvertible, method: HTTPMethod, headers: HTTPHeaders?, callbackQueue: DispatchQueue) -> AnyPublisher<Alamofire.DataResponse<Any>, SessionTaskError>
 }
 
 extension NetworkService {
     func dataTaskPublisher(_ request: URLRequestConvertible) -> AnyPublisher<URLRequest.Response, SessionTaskError> {
         dataTaskPublisher(request, callbackQueue: .main)
-    }
-
-    func dataTaskPromise(_ request: URLRequestConvertible) -> Promise<URLRequest.Response> {
-        dataTaskPromise(request, callbackQueue: .main)
     }
 
     func upload(multipartFormData: @escaping (MultipartFormData) -> Void,
@@ -96,29 +90,6 @@ public class BaseNetworkService: NetworkService {
                     urlRequest?.cancel()
                 }
             }
-    }
-
-    public func dataTaskPromise(_ request: URLRequestConvertible, callbackQueue: DispatchQueue) -> Promise<URLRequest.Response> {
-        return Promise<URLRequest.Response>.init { [session, callbackQueue] seal in
-            let urlRequest: URLRequest
-            do {
-                urlRequest = try request.asURLRequest()
-            } catch {
-                seal.reject(SessionTaskError.requestError(error))
-                return
-            }
-
-            session
-                .request(urlRequest)
-                .response(queue: callbackQueue, completionHandler: { response in
-                    switch BaseNetworkService.functional.decode(response: response) {
-                    case .success(let value):
-                        seal.fulfill(value)
-                    case .failure(let error):
-                        seal.reject(error)
-                    }
-                })
-        }
     }
 
     public func dataTaskPublisher(_ request: URLRequestConvertible, callbackQueue: DispatchQueue) -> AnyPublisher<URLRequest.Response, SessionTaskError> {

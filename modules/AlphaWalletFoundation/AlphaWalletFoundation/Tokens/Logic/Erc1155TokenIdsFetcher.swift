@@ -2,8 +2,8 @@
 
 import Foundation
 import BigInt
-import PromiseKit
 import AlphaWalletWeb3
+import Combine
 
 struct Erc1155TokenIds: Codable {
     typealias ContractsAndTokenIds = [AlphaWallet.Address: Set<BigUInt>]
@@ -64,49 +64,45 @@ fileprivate struct Erc1155TransferEvent: Comparable {
 public class Erc1155TokenIdsFetcher {
     private static let documentDirectory = URL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]).appendingPathComponent("erc1155TokenIds")
 
+    private let queue: DispatchQueue = .global(qos: .utility)
+    //This is only for development purposes to keep the PromiseKit `Resolver`(s) from being deallocated when they aren't resolved so PromiseKit don't show a warning and create noise and confusion
+    private static var fetchEventsPromiseKitResolversKeptForDevelopmentFeatureFlagOnly: [PassthroughSubject<[Erc1155TransferEvent], Erc1155TokenIdsFetcherError>] = .init()
     private let analytics: AnalyticsLogger
     private let session: WalletSession
-    private let address: AlphaWallet.Address
-    private let server: RPCServer
-    private let config: Config
-    private var inFlightPromise: Promise<Erc1155TokenIds>?
-    private lazy var getEventLogs = GetEventLogs()
+    private var inFlightPromise: AnyPublisher<Erc1155TokenIds, Erc1155TokenIdsFetcherError>?
 
-    public init(analytics: AnalyticsLogger, session: WalletSession, server: RPCServer, config: Config) {
+    public init(analytics: AnalyticsLogger, session: WalletSession) {
         self.analytics = analytics
         self.session = session
-        self.address = session.account.address
-        self.server = server
-        self.config = config
         try? FileManager.default.createDirectory(at: Self.documentDirectory, withIntermediateDirectories: true)
         migrateToStorageV2()
     }
 
     //TODO debounce? Don't need too often? Or can be done from callers. Seems better to do it here
     //TODO Future PR to fix is so the lookups are combined if possible? Because it is sometimes 1 lookup for [0x0, token1], then [0x0] and another [token1]. While blocking it if inflight will work, we can actually coalesce the lookups by debouncing depending on how close they are (they can be just 1-4 seconds apart for Polygon)
-    func detectContractsAndTokenIds() -> Promise<Erc1155TokenIds> {
+    func detectContractsAndTokenIds() -> AnyPublisher<Erc1155TokenIds, Erc1155TokenIdsFetcherError> {
         if let inFlightPromise = inFlightPromise {
             return inFlightPromise
         }
-        let address = self.address
-        let server = self.server
-        let config = self.config
 
-        let promise = firstly {
-            Promise<Int>.value(session.blockNumberProvider.latestBlock)
-        }.map { blockNumber -> (Erc1155TokenIds, Int) in
-            let tokenIds: Erc1155TokenIds = self.readJson() ?? .init()
-            return (tokenIds, blockNumber)
-        }.then { [getEventLogs] (tokenIds: Erc1155TokenIds, currentBlockNumber: Int) -> Promise<Erc1155TokenIds> in
-            functional.fetchTokenIdsWithLatestEvents(config: config, address: address, server: server, getEventLogs: getEventLogs, tokenIds: tokenIds, currentBlockNumber: currentBlockNumber)
-        }.then { [getEventLogs] (tokenIds: Erc1155TokenIds) -> Promise<Erc1155TokenIds> in
-            functional.fetchTokenIdsByCatchingUpOlderEvents(config: config, address: address, server: server, getEventLogs: getEventLogs, tokenIds: tokenIds)
-        }.then { tokenIds -> Promise<Erc1155TokenIds> in
-            Erc1155TokenIdsFetcher.writeJson(contractsAndTokenIds: tokenIds, address: address, server: server).map { tokenIds }
-        }.ensure {
-            self.inFlightPromise = nil
-        }
+        let promise = session.blockNumberProvider.latestBlockPublisher
+            .receive(on: DispatchQueue.main)
+            .setFailureType(to: Erc1155TokenIdsFetcherError.self)
+            .map { blockNumber -> (Erc1155TokenIds, Int) in
+                let tokenIds: Erc1155TokenIds = self.readJson() ?? .init()
+                return (tokenIds, blockNumber)
+            }.flatMap { (tokenIds: Erc1155TokenIds, currentBlockNumber: Int) -> AnyPublisher<Erc1155TokenIds, Erc1155TokenIdsFetcherError> in
+                self.fetchTokenIdsWithLatestEvents(tokenIds: tokenIds, currentBlockNumber: currentBlockNumber)
+            }.flatMap { (tokenIds: Erc1155TokenIds) -> AnyPublisher<Erc1155TokenIds, Erc1155TokenIdsFetcherError> in
+                self.fetchTokenIdsByCatchingUpOlderEvents(tokenIds: tokenIds)
+            }.flatMap { tokenIds -> AnyPublisher<Erc1155TokenIds, Erc1155TokenIdsFetcherError> in
+                self.writeJson(contractsAndTokenIds: tokenIds).map { tokenIds }.eraseToAnyPublisher()
+            }.handleEvents(receiveCompletion: { [weak self] _ in self?.inFlightPromise = nil })
+            .share()
+            .eraseToAnyPublisher()
+
         inFlightPromise = promise
+
         return promise
     }
 
@@ -130,7 +126,7 @@ public class Erc1155TokenIdsFetcher {
     }
 
     private func readJson() -> Erc1155TokenIds? {
-        guard let data = try? Data(contentsOf: Self.fileUrl(forWallet: address, server: server)) else { return nil }
+        guard let data = try? Data(contentsOf: Self.fileUrl(forWallet: session.account.address, server: session.server)) else { return nil }
         return try? JSONDecoder().decode(Erc1155TokenIds.self, from: data)
     }
 
@@ -139,20 +135,27 @@ public class Erc1155TokenIdsFetcher {
     }
 
     private func readJsonV1() -> Erc1155TokenIdsV1? {
-        guard let data = try? Data(contentsOf: Self.fileUrlV1(forWallet: address, server: server)) else { return nil }
+        guard let data = try? Data(contentsOf: Self.fileUrlV1(forWallet: session.account.address, server: session.server)) else { return nil }
         return try? JSONDecoder().decode(Erc1155TokenIdsV1.self, from: data)
     }
 
-    private static func writeJson(contractsAndTokenIds: Erc1155TokenIds, address: AlphaWallet.Address, server: RPCServer) -> Promise<Void> {
-        Promise { seal in
-            if let data = try? JSONEncoder().encode(contractsAndTokenIds) {
-                try data.write(to: Self.fileUrl(forWallet: address, server: server), options: .atomicWrite)
-                seal.fulfill(())
-            } else {
-                struct E: Error {}
-                seal.reject(E())
+    enum Erc1155TokenIdsFetcherError: Error {
+        case writeFileFailure(error: Error)
+        case fromAndToBlockNumberNotFound
+        case `internal`(error: Error)
+    }
+
+    private func writeJson(contractsAndTokenIds: Erc1155TokenIds) -> AnyPublisher<Void, Erc1155TokenIdsFetcherError> {
+        return Future<Void, Erc1155TokenIdsFetcherError> { [session] seal in
+            do {
+                let data = try JSONEncoder().encode(contractsAndTokenIds)
+                try data.write(to: Self.fileUrl(forWallet: session.account.address, server: session.server), options: .atomicWrite)
+
+                seal(.success(()))
+            } catch {
+                seal(.failure(.writeFileFailure(error: error)))
             }
-        }
+        }.eraseToAnyPublisher()
     }
 
     public static func deleteForWallet(_ address: AlphaWallet.Address) {
@@ -165,12 +168,136 @@ public class Erc1155TokenIdsFetcher {
     private func migrateToStorageV2() {
         if let oldVersion = readJsonV1() {
             let tokenIds: Erc1155TokenIds = readJson() ?? .init()
-            let updatedTokens = functional.computeUpdatedTokenIds(address: address, fromPreviousRead: oldVersion.tokens, newlyFetched: tokenIds.tokens)
+            let updatedTokens = functional.computeUpdatedTokenIds(fromPreviousRead: oldVersion.tokens, newlyFetched: tokenIds.tokens)
             let updated = Erc1155TokenIds(tokens: updatedTokens, blockNumbersProcessed: tokenIds.blockNumbersProcessed)
-            Erc1155TokenIdsFetcher.writeJson(contractsAndTokenIds: updated, address: address, server: server)
-            try? FileManager.default.removeItem(at: Self.fileUrlV1(forWallet: address, server: server))
+            writeJson(contractsAndTokenIds: updated)
+            try? FileManager.default.removeItem(at: Self.fileUrlV1(forWallet: session.account.address, server: session.server))
         }
     }
+
+    private func fetchTokenIdsWithLatestEvents(tokenIds: Erc1155TokenIds, currentBlockNumber: Int) -> AnyPublisher<Erc1155TokenIds, Erc1155TokenIdsFetcherError> {
+        let maximumBlockRangeWindow: UInt64? = session.server.maximumBlockRangeForEvents
+        //We must not use `.latest` because there is a chance it is slightly later than what we use to compute the block range for events
+        guard let (fromBlockNumber, toBlockNumber) = Erc1155TokenIdsFetcher.functional.makeBlockRangeForEvents(
+            toBlockNumber: UInt64(currentBlockNumber),
+            maximumWindow: maximumBlockRangeWindow,
+            excludingRanges: tokenIds.blockNumbersProcessed) else {
+            return .fail(Erc1155TokenIdsFetcherError.fromAndToBlockNumberNotFound)
+        }
+
+        return fetchTokenIdsWithEvents(fromBlockNumber: fromBlockNumber, toBlockNumber: toBlockNumber, previousTokenIds: tokenIds)
+    }
+
+    private func fetchTokenIdsByCatchingUpOlderEvents(tokenIds: Erc1155TokenIds) -> AnyPublisher<Erc1155TokenIds, Erc1155TokenIdsFetcherError> {
+        let maximumBlockRangeWindow: UInt64? = session.server.maximumBlockRangeForEvents
+        //We must not use `.latest` because there is a chance it is slightly later than what we use to compute the block range for events
+        if let range = Erc1155TokenIdsFetcher.functional.makeBlockRangeToCatchUpForOlderEvents(maximumWindow: maximumBlockRangeWindow, excludingRanges: tokenIds.blockNumbersProcessed) {
+            let (fromBlockNumber, toBlockNumber) = range
+            return fetchTokenIdsWithEvents(fromBlockNumber: fromBlockNumber, toBlockNumber: toBlockNumber, previousTokenIds: tokenIds)
+        } else {
+            return .just(tokenIds)
+        }
+    }
+
+    private func fetchTokenIdsWithEvents(fromBlockNumber: UInt64, toBlockNumber: UInt64, previousTokenIds: Erc1155TokenIds) -> AnyPublisher<Erc1155TokenIds, Erc1155TokenIdsFetcherError> {
+        let fromBlock = EventFilter.Block.blockNumber(fromBlockNumber)
+        let toBlock = EventFilter.Block.blockNumber(toBlockNumber)
+        return fetchEvents(fromBlock: fromBlock, toBlock: toBlock)
+            .map { fetched -> Erc1155TokenIds in
+                let updatedTokens = Erc1155TokenIdsFetcher.functional.computeUpdatedTokenIds(fromPreviousRead: previousTokenIds.tokens, newlyFetched: fetched)
+                let updatedBlockNumbersProcessed = Erc1155TokenIdsFetcher.functional.combinedBlockNumbersProcessed(old: previousTokenIds.blockNumbersProcessed, newEntry: (fromBlockNumber, toBlockNumber))
+
+                return Erc1155TokenIds(tokens: updatedTokens, blockNumbersProcessed: updatedBlockNumbersProcessed)
+            }.eraseToAnyPublisher()
+    }
+
+    private func fetchEvents(fromBlock: EventFilter.Block, toBlock: EventFilter.Block) -> AnyPublisher<Erc1155TokenIds.ContractsAndTokenIds, Erc1155TokenIdsFetcherError> {
+        let recipientAddress = EthereumAddress(session.account.address.eip55String)!
+        let nullFilter: [EventFilterable]? = nil
+        let singleTransferEventName = "TransferSingle"
+        let batchTransferEventName = "TransferBatch"
+        let sendParameterFilters: [[EventFilterable]?] = [nullFilter, [recipientAddress], nullFilter]
+        let receiveParameterFilters: [[EventFilterable]?] = [nullFilter, nullFilter, [recipientAddress]]
+        let sendSinglePromise = fetchEvents(transferType: .send, eventName: singleTransferEventName, parameterFilters: sendParameterFilters, fromBlock: fromBlock, toBlock: toBlock)
+        let receiveSinglePromise = fetchEvents(transferType: .receive, eventName: singleTransferEventName, parameterFilters: receiveParameterFilters, fromBlock: fromBlock, toBlock: toBlock)
+        let sendBulkPromise = fetchEvents(transferType: .send, eventName: batchTransferEventName, parameterFilters: sendParameterFilters, fromBlock: fromBlock, toBlock: toBlock)
+        let receiveBulkPromise = fetchEvents(transferType: .receive, eventName: batchTransferEventName, parameterFilters: receiveParameterFilters, fromBlock: fromBlock, toBlock: toBlock)
+
+        return Publishers.CombineLatest4(sendSinglePromise, receiveSinglePromise, sendBulkPromise, receiveBulkPromise)
+            .map { a, b, c, d -> Erc1155TokenIds.ContractsAndTokenIds in
+                let all: [Erc1155TransferEvent] = (a + b + c + d).sorted()
+                let contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds = all.reduce(Erc1155TokenIds.ContractsAndTokenIds()) { result, each in
+                    var result = result
+                    var tokenIds = result[each.contract] ?? .init()
+                    tokenIds.insert(each.tokenId)
+                    result[each.contract] = tokenIds
+                    return result
+                }
+                let biggestBlockNumber: BigUInt
+                if let blockNumber = all.last?.blockNumber {
+                    biggestBlockNumber = blockNumber
+                } else {
+                    switch fromBlock {
+                    case .latest, .pending:
+                        //TODO should set to the latest blockNumber on the blockchain instead
+                        biggestBlockNumber = 0
+                    case .blockNumber(let blockNumber):
+                        biggestBlockNumber = BigUInt(blockNumber)
+                    }
+                }
+                return contractsAndTokenIds
+            }.receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
+    }
+
+    fileprivate func fetchEvents(transferType: Erc1155TransferEvent.TransferType, eventName: String, parameterFilters: [[EventFilterable]?], fromBlock: EventFilter.Block, toBlock: EventFilter.Block) -> AnyPublisher<[Erc1155TransferEvent], Erc1155TokenIdsFetcherError> {
+        if session.config.development.isAutoFetchingDisabled {
+            let subject = PassthroughSubject<[Erc1155TransferEvent], Erc1155TokenIdsFetcherError>()
+            Erc1155TokenIdsFetcher.fetchEventsPromiseKitResolversKeptForDevelopmentFeatureFlagOnly.append(subject)
+
+            return subject.eraseToAnyPublisher()
+        }
+
+        //We just need any contract for the Swift API to get events, it's not actually used
+        let dummyContract = Constants.nullAddress
+        let eventFilter = EventFilter(fromBlock: fromBlock, toBlock: toBlock, addresses: nil, parameterFilters: parameterFilters)
+
+        return session.blockchainProvider
+            .eventLogs(contractAddress: dummyContract, eventName: eventName, abiString: AlphaWallet.Ethereum.ABI.erc1155String, filter: eventFilter)
+            .map { events -> [Erc1155TransferEvent] in
+                let events = events.filter { $0.eventLog != nil }
+                let sortedEvents = events.sorted(by: { a, b in
+                    if a.eventLog!.blockNumber == b.eventLog!.blockNumber {
+                        return a.eventLog!.transactionIndex == b.eventLog!.transactionIndex
+                    } else {
+                        return a.eventLog!.blockNumber < b.eventLog!.blockNumber
+                    }
+                })
+                let results: [Erc1155TransferEvent] = sortedEvents.flatMap { each -> [Erc1155TransferEvent] in
+                    let contract = AlphaWallet.Address(address: each.eventLog!.address)
+                    guard let from = ((each.decodedResult["_from"] as? EthereumAddress).flatMap({ AlphaWallet.Address(address: $0) })) else { return [] }
+                    guard let to = ((each.decodedResult["_to"] as? EthereumAddress).flatMap({ AlphaWallet.Address(address: $0) })) else { return [] }
+                    let blockNumber = each.eventLog!.blockNumber
+                    let transactionIndex = each.eventLog!.transactionIndex
+                    let logIndex = each.eventLog!.logIndex
+                    if eventName == "TransferSingle" {
+                        guard let tokenId = each.decodedResult["_id"] as? BigUInt else { return [] }
+                        guard let value = each.decodedResult["_value"] as? BigUInt else { return [] }
+                        return [.init(contract: contract, tokenId: tokenId, value: value, from: from, to: to, transferType: transferType, blockNumber: blockNumber, transactionIndex: transactionIndex, logIndex: logIndex)]
+                    } else {
+                        guard let tokenIds = each.decodedResult["_ids"] as? [BigUInt] else { return [] }
+                        guard let values = each.decodedResult["_values"] as? [BigUInt] else { return [] }
+                        let results: [Erc1155TransferEvent] = zip(tokenIds, values).map { (tokenId, value) in
+                            .init(contract: contract, tokenId: tokenId, value: value, from: from, to: to, transferType: transferType, blockNumber: blockNumber, transactionIndex: transactionIndex, logIndex: logIndex)
+                        }
+                        return results
+                    }
+                }
+                return results
+            }.mapError { Erc1155TokenIdsFetcherError.internal(error: $0.unwrapped) }
+            .eraseToAnyPublisher()
+    }
+
 }
 
 extension Erc1155TokenIdsFetcher {
@@ -178,97 +305,9 @@ extension Erc1155TokenIdsFetcher {
 }
 
 extension Erc1155TokenIdsFetcher.functional {
-    //This is only for development purposes to keep the PromiseKit `Resolver`(s) from being deallocated when they aren't resolved so PromiseKit don't show a warning and create noise and confusion
-    private static var fetchEventsPromiseKitResolversKeptForDevelopmentFeatureFlagOnly: [Resolver<[Erc1155TransferEvent]>] = .init()
-
-    private static let queue: DispatchQueue = .global(qos: .utility)
-
-    private static func fetchEvents(config: Config, server: RPCServer, forAddress address: AlphaWallet.Address, getEventLogs: GetEventLogs, fromBlock: EventFilter.Block, toBlock: EventFilter.Block) -> Promise<Erc1155TokenIds.ContractsAndTokenIds> {
-        let recipientAddress = EthereumAddress(address.eip55String)!
-        let nullFilter: [EventFilterable]? = nil
-        let singleTransferEventName = "TransferSingle"
-        let batchTransferEventName = "TransferBatch"
-        let sendParameterFilters: [[EventFilterable]?] = [nullFilter, [recipientAddress], nullFilter]
-        let receiveParameterFilters: [[EventFilterable]?] = [nullFilter, nullFilter, [recipientAddress]]
-        let sendSinglePromise = fetchEvents(config: config, server: server, getEventLogs: getEventLogs, transferType: .send, eventName: singleTransferEventName, parameterFilters: sendParameterFilters, fromBlock: fromBlock, toBlock: toBlock)
-        let receiveSinglePromise = fetchEvents(config: config, server: server, getEventLogs: getEventLogs, transferType: .receive, eventName: singleTransferEventName, parameterFilters: receiveParameterFilters, fromBlock: fromBlock, toBlock: toBlock)
-        let sendBulkPromise = fetchEvents(config: config, server: server, getEventLogs: getEventLogs, transferType: .send, eventName: batchTransferEventName, parameterFilters: sendParameterFilters, fromBlock: fromBlock, toBlock: toBlock)
-        let receiveBulkPromise = fetchEvents(config: config, server: server, getEventLogs: getEventLogs, transferType: .receive, eventName: batchTransferEventName, parameterFilters: receiveParameterFilters, fromBlock: fromBlock, toBlock: toBlock)
-        return firstly {
-            when(fulfilled: sendSinglePromise, receiveSinglePromise, sendBulkPromise, receiveBulkPromise)
-        }.map(on: queue, { a, b, c, d -> Erc1155TokenIds.ContractsAndTokenIds in
-            let all: [Erc1155TransferEvent] = (a + b + c + d).sorted()
-            let contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds = all.reduce(Erc1155TokenIds.ContractsAndTokenIds()) { result, each in
-                var result = result
-                var tokenIds = result[each.contract] ?? .init()
-                tokenIds.insert(each.tokenId)
-                result[each.contract] = tokenIds
-                return result
-            }
-            let biggestBlockNumber: BigUInt
-            if let blockNumber = all.last?.blockNumber {
-                biggestBlockNumber = blockNumber
-            } else {
-                switch fromBlock {
-                case .latest, .pending:
-                    //TODO should set to the latest blockNumber on the blockchain instead
-                    biggestBlockNumber = 0
-                case .blockNumber(let blockNumber):
-                    biggestBlockNumber = BigUInt(blockNumber)
-                }
-            }
-            return contractsAndTokenIds
-        })
-    }
-
-    fileprivate static func fetchEvents(config: Config, server: RPCServer, getEventLogs: GetEventLogs, transferType: Erc1155TransferEvent.TransferType, eventName: String, parameterFilters: [[EventFilterable]?], fromBlock: EventFilter.Block, toBlock: EventFilter.Block) -> Promise<[Erc1155TransferEvent]> {
-        if config.development.isAutoFetchingDisabled {
-            return Promise<[Erc1155TransferEvent]> { seal in
-                fetchEventsPromiseKitResolversKeptForDevelopmentFeatureFlagOnly.append(seal)
-            }
-        }
-
-        //We just need any contract for the Swift API to get events, it's not actually used
-        let dummyContract = Constants.nullAddress
-        let eventFilter = EventFilter(fromBlock: fromBlock, toBlock: toBlock, addresses: nil, parameterFilters: parameterFilters)
-
-        return firstly {
-            getEventLogs.getEventLogs(contractAddress: dummyContract, server: server, eventName: eventName, abiString: AlphaWallet.Ethereum.ABI.erc1155String, filter: eventFilter)
-        }.map(on: queue, { events -> [Erc1155TransferEvent] in
-            let events = events.filter { $0.eventLog != nil }
-            let sortedEvents = events.sorted(by: { a, b in
-                if a.eventLog!.blockNumber == b.eventLog!.blockNumber {
-                    return a.eventLog!.transactionIndex == b.eventLog!.transactionIndex
-                } else {
-                    return a.eventLog!.blockNumber < b.eventLog!.blockNumber
-                }
-            })
-            let results: [Erc1155TransferEvent] = sortedEvents.flatMap { each -> [Erc1155TransferEvent] in
-                let contract = AlphaWallet.Address(address: each.eventLog!.address)
-                guard let from = ((each.decodedResult["_from"] as? EthereumAddress).flatMap({ AlphaWallet.Address(address: $0) })) else { return [] }
-                guard let to = ((each.decodedResult["_to"] as? EthereumAddress).flatMap({ AlphaWallet.Address(address: $0) })) else { return [] }
-                let blockNumber = each.eventLog!.blockNumber
-                let transactionIndex = each.eventLog!.transactionIndex
-                let logIndex = each.eventLog!.logIndex
-                if eventName == "TransferSingle" {
-                    guard let tokenId = each.decodedResult["_id"] as? BigUInt else { return [] }
-                    guard let value = each.decodedResult["_value"] as? BigUInt else { return [] }
-                    return [.init(contract: contract, tokenId: tokenId, value: value, from: from, to: to, transferType: transferType, blockNumber: blockNumber, transactionIndex: transactionIndex, logIndex: logIndex)]
-                } else {
-                    guard let tokenIds = each.decodedResult["_ids"] as? [BigUInt] else { return [] }
-                    guard let values = each.decodedResult["_values"] as? [BigUInt] else { return [] }
-                    let results: [Erc1155TransferEvent] = zip(tokenIds, values).map { (tokenId, value) in
-                        .init(contract: contract, tokenId: tokenId, value: value, from: from, to: to, transferType: transferType, blockNumber: blockNumber, transactionIndex: transactionIndex, logIndex: logIndex)
-                    }
-                    return results
-                }
-            }
-            return results
-        })
-    }
 
     //Even if a tokenId now has a balance/value of 0, it will be included in the results
-    static func computeUpdatedTokenIds(address: AlphaWallet.Address, fromPreviousRead old: Erc1155TokenIds.ContractsAndTokenIds, newlyFetched: Erc1155TokenIds.ContractsAndTokenIds) -> Erc1155TokenIds.ContractsAndTokenIds {
+    static func computeUpdatedTokenIds(fromPreviousRead old: Erc1155TokenIds.ContractsAndTokenIds, newlyFetched: Erc1155TokenIds.ContractsAndTokenIds) -> Erc1155TokenIds.ContractsAndTokenIds {
         var updatedTokenIds: Erc1155TokenIds.ContractsAndTokenIds = old
         for (contract, newTokenIds) in newlyFetched {
             if let tokenIds = updatedTokenIds[contract] {
@@ -278,18 +317,6 @@ extension Erc1155TokenIdsFetcher.functional {
             }
         }
         return updatedTokenIds
-    }
-
-    private static func fetchTokenIdsWithEvents(config: Config, server: RPCServer, address: AlphaWallet.Address, getEventLogs: GetEventLogs, fromBlockNumber: UInt64, toBlockNumber: UInt64, previousTokenIds: Erc1155TokenIds) -> Promise<Erc1155TokenIds> {
-        let fromBlock = EventFilter.Block.blockNumber(fromBlockNumber)
-        let toBlock = EventFilter.Block.blockNumber(toBlockNumber)
-        return firstly {
-            fetchEvents(config: config, server: server, forAddress: address, getEventLogs: getEventLogs, fromBlock: fromBlock, toBlock: toBlock)
-        }.map { fetched -> Erc1155TokenIds in
-            let updatedTokens = computeUpdatedTokenIds(address: address, fromPreviousRead: previousTokenIds.tokens, newlyFetched: fetched)
-            let updatedBlockNumbersProcessed = combinedBlockNumbersProcessed(old: previousTokenIds.blockNumbersProcessed, newEntry: (fromBlockNumber, toBlockNumber))
-            return Erc1155TokenIds(tokens: updatedTokens, blockNumbersProcessed: updatedBlockNumbersProcessed)
-        }
     }
 
     static func combinedBlockNumbersProcessed(old: Erc1155TokenIds.BlockNumbersProcessed, newEntry: (UInt64, UInt64)) -> Erc1155TokenIds.BlockNumbersProcessed {
@@ -370,24 +397,6 @@ extension Erc1155TokenIdsFetcher.functional {
             }
         } else {
             return nil
-        }
-    }
-
-    static func fetchTokenIdsWithLatestEvents(config: Config, address: AlphaWallet.Address, server: RPCServer, getEventLogs: GetEventLogs, tokenIds: Erc1155TokenIds, currentBlockNumber: Int) -> Promise<Erc1155TokenIds> {
-        let maximumBlockRangeWindow: UInt64? = server.maximumBlockRangeForEvents
-        //We must not use `.latest` because there is a chance it is slightly later than what we use to compute the block range for events
-        guard let (fromBlockNumber, toBlockNumber) = makeBlockRangeForEvents(toBlockNumber: UInt64(currentBlockNumber), maximumWindow: maximumBlockRangeWindow, excludingRanges: tokenIds.blockNumbersProcessed) else { return .init(error: PMKError.cancelled) }
-        return fetchTokenIdsWithEvents(config: config, server: server, address: address, getEventLogs: getEventLogs, fromBlockNumber: fromBlockNumber, toBlockNumber: toBlockNumber, previousTokenIds: tokenIds)
-    }
-
-    static func fetchTokenIdsByCatchingUpOlderEvents(config: Config, address: AlphaWallet.Address, server: RPCServer, getEventLogs: GetEventLogs, tokenIds: Erc1155TokenIds) -> Promise<Erc1155TokenIds> {
-        let maximumBlockRangeWindow: UInt64? = server.maximumBlockRangeForEvents
-        //We must not use `.latest` because there is a chance it is slightly later than what we use to compute the block range for events
-        if let range = makeBlockRangeToCatchUpForOlderEvents(maximumWindow: maximumBlockRangeWindow, excludingRanges: tokenIds.blockNumbersProcessed) {
-            let (fromBlockNumber, toBlockNumber) = range
-            return fetchTokenIdsWithEvents(config: config, server: server, address: address, getEventLogs: getEventLogs, fromBlockNumber: fromBlockNumber, toBlockNumber: toBlockNumber, previousTokenIds: tokenIds)
-        } else {
-            return .value(tokenIds)
         }
     }
 }
