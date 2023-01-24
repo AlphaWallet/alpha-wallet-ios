@@ -9,16 +9,16 @@ import Foundation
 import BigInt
 
 public struct WalletConnectTransaction {
-    public var value: BigUInt?
-    public var to: AlphaWallet.Address?
-    public var data: Data?
-    public var gasLimit: BigUInt?
-    public var gasPrice: BigUInt?
-    public var nonce: BigUInt?
+    public let value: BigUInt?
+    public let to: AlphaWallet.Address?
+    public let data: Data
+    public let gasLimit: BigUInt?
+    public let gasPrice: BigUInt?
+    public let nonce: BigUInt?
 
     public init(value: BigUInt? = nil,
                 to: AlphaWallet.Address? = nil,
-                data: Data? = nil,
+                data: Data = Data(),
                 gasLimit: BigUInt? = nil,
                 gasPrice: BigUInt? = nil,
                 nonce: BigUInt? = nil) {
