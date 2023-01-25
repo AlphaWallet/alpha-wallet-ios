@@ -3,6 +3,7 @@
 import Foundation
 import Combine
 import AlphaWalletCore
+import BigInt
 
 class EtherscanGasPriceEstimator {
     private let networkService: NetworkService
@@ -16,12 +17,18 @@ class EtherscanGasPriceEstimator {
         return server.etherscanGasPriceEstimatesURL != nil
     }
 
-    func gasPriceEstimates(server: RPCServer) -> AnyPublisher<GasPriceEstimates, PromiseError> {
+    func gasPriceEstimates(server: RPCServer) -> AnyPublisher<GasEstimates, PromiseError> {
         return networkService
             .dataTaskPublisher(GetGasPriceEstimatesRequest(server: server))
             .tryMap { [decoder] in try decoder.decode(EtherscanPriceEstimatesResponse.self, from: $0.data) }
             .compactMap { EtherscanPriceEstimates.bridgeToGasPriceEstimates(for: $0.result) }
-            .mapError { PromiseError.some(error: $0) }
+            .map { estimates in
+                GasEstimates(standard: BigUInt(estimates.standard), others: [
+                    TransactionConfigurationType.slow: BigUInt(estimates.slow),
+                    TransactionConfigurationType.fast: BigUInt(estimates.fast),
+                    TransactionConfigurationType.rapid: BigUInt(estimates.rapid)
+                ])
+            }.mapError { PromiseError.some(error: $0) }
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }
