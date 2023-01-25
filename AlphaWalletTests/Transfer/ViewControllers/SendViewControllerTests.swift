@@ -23,7 +23,7 @@ class SendViewControllerTests: XCTestCase {
     func testNativeCryptocurrencyAllFundsValueSpanish() {
         let vc = createSendViewControllerAndSetLocale(locale: .spanish, transactionType: nativeCryptocurrencyTransactionType)
 
-        XCTAssertEqual(vc.amountTextField.value, "0")
+        XCTAssertEqual(vc.amountTextField.value, "")
 
         let testValue = BigInt("10000000000000000000000")
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: testValue), for: token)
@@ -38,7 +38,7 @@ class SendViewControllerTests: XCTestCase {
     func testNativeCryptocurrencyAllFundsValueEnglish() {
         let vc = createSendViewControllerAndSetLocale(locale: .japanese, transactionType: nativeCryptocurrencyTransactionType)
 
-        XCTAssertEqual(vc.amountTextField.value, "0")
+        XCTAssertEqual(vc.amountTextField.value, "")
 
         let testValue = BigInt("10000000000000000000000")
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: testValue), for: token)
@@ -54,7 +54,7 @@ class SendViewControllerTests: XCTestCase {
     func testNativeCryptocurrencyAllFundsValueEnglish2() {
         let vc = createSendViewControllerAndSetLocale(locale: .english, transactionType: nativeCryptocurrencyTransactionType)
 
-        XCTAssertEqual(vc.amountTextField.value, "0")
+        XCTAssertEqual(vc.amountTextField.value, "")
 
         let testValue = BigInt("10000000000000")
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: testValue), for: token)
@@ -85,7 +85,7 @@ class SendViewControllerTests: XCTestCase {
         dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
         let vc = createSendViewControllerAndSetLocale(locale: .spanish, transactionType: .erc20Token(token, destination: .none, amount: .notSet))
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2000000020224719101120")), for: token)
-        XCTAssertEqual(vc.amountTextField.value, "0")
+        XCTAssertEqual(vc.amountTextField.value, "")
         vc.allFundsSelected()
 
         XCTAssertEqual(vc.amountTextField.value, "2000")
@@ -94,7 +94,7 @@ class SendViewControllerTests: XCTestCase {
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: .zero), for: token)
         vc.allFundsSelected()
 
-        XCTAssertEqual(vc.amountTextField.value, "0")
+        XCTAssertEqual(vc.amountTextField.value, "")
         XCTAssertTrue(vc.viewModel.amountToSend == .allFunds)
 
         Config.setLocale(AppLocale.system)
@@ -105,7 +105,7 @@ class SendViewControllerTests: XCTestCase {
         dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
         let vc = createSendViewControllerAndSetLocale(locale: .spanish, transactionType: .erc20Token(token, destination: .none, amount: .notSet))
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), for: token)
-        XCTAssertEqual(vc.amountTextField.value, "0")
+        XCTAssertEqual(vc.amountTextField.value, "")
 
         vc.allFundsSelected()
         XCTAssertEqual(vc.amountTextField.value, "0,002")
@@ -138,7 +138,7 @@ class SendViewControllerTests: XCTestCase {
         let vc = createSendViewControllerAndSetLocale(locale: .english, transactionType: .erc20Token(token, destination: .none, amount: .notSet))
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), for: token)
 
-        XCTAssertEqual(vc.amountTextField.value, "0")
+        XCTAssertEqual(vc.amountTextField.value, "")
 
         vc.allFundsSelected()
         XCTAssertEqual(vc.amountTextField.value, "0.002")
@@ -151,7 +151,7 @@ class SendViewControllerTests: XCTestCase {
         dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
         let vc = createSendViewControllerAndSetLocale(locale: .english, transactionType: .erc20Token(token, destination: .none, amount: .notSet))
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), for: token)
-        XCTAssertEqual(vc.amountTextField.value, "0")
+        XCTAssertEqual(vc.amountTextField.value, "")
 
         Config.setLocale(AppLocale.system)
 
@@ -237,7 +237,7 @@ class SendViewControllerTests: XCTestCase {
         dep.tokensService.addOrUpdateTokenTestsOnly(token: token)
         let vc = createSendViewControllerAndSetLocale(locale: .spanish, transactionType: .erc20Token(token, destination: .none, amount: .allFunds))
         dep.tokensService.setBalanceTestsOnly(balance: .init(value: BigInt("2020224719101120")), for: token)
-        XCTAssertEqual(vc.amountTextField.value, "0")
+        XCTAssertEqual(vc.amountTextField.value, "")
 
         let tokenAreGoingToBeResolved = Token(contract: AlphaWallet.Address(string: "0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72")!, name: "erc20", symbol: "erc20", decimals: 18, type: .erc20)
         dep.tokensService.addOrUpdateTokenTestsOnly(token: tokenAreGoingToBeResolved)
