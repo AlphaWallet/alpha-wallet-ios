@@ -66,7 +66,7 @@ public class TransactionConfigurator {
         gasPriceWarning(forConfiguration: currentConfiguration)
     }
 
-    public var transaction: UnconfirmedTransaction
+    public private(set) var transaction: UnconfirmedTransaction
     public var selectedConfigurationType: TransactionConfigurationType = .standard
     public var configurations: TransactionConfigurations
 
@@ -75,15 +75,21 @@ public class TransactionConfigurator {
     }
     private let analytics: AnalyticsLogger
     private let networkService: NetworkService
-    private let gasPriceEstimator: GasPriceEstimator
+    private let gasPriceEstimator: LegacyGasPriceEstimator
     private var cancelable = Set<AnyCancellable>()
 
-    public init(session: WalletSession, analytics: AnalyticsLogger, transaction: UnconfirmedTransaction, networkService: NetworkService) {
+    public init(session: WalletSession,
+                analytics: AnalyticsLogger,
+                transaction: UnconfirmedTransaction,
+                networkService: NetworkService) {
+
         self.session = session
         self.analytics = analytics
         self.transaction = transaction
         self.networkService = networkService
-        self.gasPriceEstimator = GasPriceEstimator(blockchainProvider: session.blockchainProvider, networkService: networkService)
+        self.gasPriceEstimator = LegacyGasPriceEstimator(
+            blockchainProvider: session.blockchainProvider,
+            networkService: networkService)
 
         let standardConfiguration = TransactionConfigurator.createConfiguration(server: session.server, gasPriceEstimator: gasPriceEstimator, transaction: transaction)
         self.configurations = .init(standard: standardConfiguration)
@@ -122,18 +128,18 @@ public class TransactionConfigurator {
     }
 
     private func estimateGasPrice() {
-        gasPriceEstimator
-            .estimateGasPrice()
+        gasPriceEstimator.estimateGasPrice()
             .sink(receiveCompletion: { [session] result in
-                guard case .failure(let e)  = result else { return }
+                guard case .failure(let e) = result else { return }
                 logError(e, rpcServer: session.server)
-            }, receiveValue: { [gasPriceEstimator] estimates in
+            }, receiveValue: { estimates in
                 let standard = estimates.standard
                 var customConfig = self.configurations.custom
                 customConfig.setEstimated(gasPrice: standard)
                 var defaultConfig = self.configurations.standard
                 defaultConfig.setEstimated(gasPrice: standard)
-                if gasPriceEstimator.shouldUseEstimatedGasPrice(standard, forTransaction: self.transaction) {
+
+                if self.shouldUseEstimatedGasPrice(standard) {
                     self.configurations.custom = customConfig
                     self.configurations.standard = defaultConfig
                 }
@@ -148,6 +154,15 @@ public class TransactionConfigurator {
 
                 self.delegate?.gasPriceEstimateUpdated(to: standard, in: self)
             }).store(in: &cancelable)
+    }
+
+    public func shouldUseEstimatedGasPrice(_ estimatedGasPrice: BigUInt) -> Bool {
+        //Gas price may be specified in the transaction object, and it will be if we are trying to speedup or cancel a transaction. The replacement transaction will be automatically assigned a slightly higher gas price. We don't want to override that with what we fetch back from gas price estimate if the estimate is lower
+        if let specifiedGasPrice = transaction.gasPrice, specifiedGasPrice > estimatedGasPrice {
+            return false
+        } else {
+            return true
+        }
     }
 
     public func gasLimitWarning(forConfiguration configuration: TransactionConfiguration) -> GasLimitWarning? {
@@ -183,9 +198,9 @@ public class TransactionConfigurator {
         return nil
     }
 
-    private static func createConfiguration(server: RPCServer, gasPriceEstimator: GasPriceEstimator, transaction: UnconfirmedTransaction) -> TransactionConfiguration {
+    private static func createConfiguration(server: RPCServer, gasPriceEstimator: LegacyGasPriceEstimator, transaction: UnconfirmedTransaction) -> TransactionConfiguration {
         let maxGasLimit = GasLimitConfiguration.maxGasLimit(forServer: server)
-        let gasPrice = gasPriceEstimator.estimateDefaultGasPrice(transaction: transaction)
+        let gasPrice = server.defaultLegacyGasPrice(usingGasPrice: transaction.gasPrice)
         let gasLimit: BigUInt
 
         switch transaction.transactionType {
@@ -253,8 +268,7 @@ public class TransactionConfigurator {
             gasPrice: currentConfiguration.gasPrice,
             gasLimit: currentConfiguration.gasLimit,
             server: session.server,
-            transactionType: transaction.transactionType
-        )
+            transactionType: transaction.transactionType)
     }
 
     public func chooseCustomConfiguration(_ configuration: TransactionConfiguration) {
