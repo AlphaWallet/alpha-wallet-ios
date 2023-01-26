@@ -26,7 +26,7 @@ final class GetGasLimit {
         return firstly {
             APIKitSession.send(EtherServiceRequest(server: server, batch: BatchFactory().create(request)), server: server, analytics: analytics)
         }.map { gasLimit -> BigUInt in
-            infoLog("Estimated gas limit with eth_estimateGas: \(gasLimit)")
+            infoLog("[Gas] Estimated gas limit with eth_estimateGas: \(gasLimit)")
             return gasLimit
         }
     }

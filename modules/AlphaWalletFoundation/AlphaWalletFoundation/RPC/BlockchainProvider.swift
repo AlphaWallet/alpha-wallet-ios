@@ -118,7 +118,7 @@ public final class RpcBlockchainProvider: BlockchainProvider {
     public func gasEstimates() -> AnyPublisher<GasEstimates, PromiseError> {
         return getGasPrice.getGasEstimates()
             .handleEvents(receiveOutput: { [server] estimate in
-                infoLog("Estimated gas price with RPC node server: \(server) estimate: \(estimate)")
+                infoLog("[RPC] Estimated gas price with RPC node server: \(server) estimate: \(estimate)")
             }).map { [params] gasPrice in
                 if (gasPrice + GasPriceConfiguration.oneGwei) > params.maxPrice {
                     // Guard against really high prices
@@ -150,7 +150,7 @@ public final class RpcBlockchainProvider: BlockchainProvider {
             .publisher()
             .mapError { SessionTaskError(error: $0) }
             .map { [params] limit -> BigUInt in
-                infoLog("Estimated gas limit with eth_estimateGas: \(limit) canCapGasLimit: \(transactionType.canCapGasLimit)")
+                infoLog("[RPC] Estimated gas limit with eth_estimateGas: \(limit) canCapGasLimit: \(transactionType.canCapGasLimit)")
                 let gasLimit: BigUInt = {
                     if limit == GasLimitConfiguration.minGasLimit {
                         return limit
@@ -161,7 +161,7 @@ public final class RpcBlockchainProvider: BlockchainProvider {
                         return limit + (limit * 20 / 100)
                     }
                 }()
-                infoLog("Using gas limit: \(gasLimit)")
+                infoLog("[RPC] Using gas limit: \(gasLimit)")
                 return gasLimit
             }.eraseToAnyPublisher()
     }
