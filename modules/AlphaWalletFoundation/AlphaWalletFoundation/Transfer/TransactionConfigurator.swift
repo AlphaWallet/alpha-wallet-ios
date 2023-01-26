@@ -105,10 +105,10 @@ public class TransactionConfigurator {
             .gasLimit(wallet: session.account.address, value: value, toAddress: toAddress, data: currentConfiguration.data)
             .sink(receiveCompletion: { result in
                 guard case .failure(let e) = result else { return }
-                infoLog("Error estimating gas limit: \(e)")
+                infoLog("[Transaction Confirmation] Error estimating gas limit: \(e)")
                 logError(e, rpcServer: self.session.server)
             }, receiveValue: { gasLimit in
-                infoLog("Using gas limit: \(gasLimit)")
+                infoLog("[Transaction Confirmation] Using gas limit: \(gasLimit)")
                 var customConfig = self.configurations.custom
                 customConfig.setEstimated(gasLimit: gasLimit)
                 self.configurations.custom = customConfig
