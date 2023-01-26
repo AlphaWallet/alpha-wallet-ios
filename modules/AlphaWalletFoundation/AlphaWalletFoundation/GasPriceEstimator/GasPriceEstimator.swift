@@ -41,7 +41,7 @@ public final class LegacyGasPriceEstimator: GasPriceEstimator {
 
     public init(blockchainProvider: BlockchainProvider,
                 networkService: NetworkService) {
-        
+
         self.networkService = networkService
         self.blockchainProvider = blockchainProvider
     }
@@ -65,7 +65,7 @@ public final class LegacyGasPriceEstimator: GasPriceEstimator {
         return etherscanGasPriceEstimator
             .gasPriceEstimates(server: server)
             .handleEvents(receiveOutput: { estimates in
-                infoLog("Estimated gas price with gas price estimator API server: \(server) estimate: \(estimates)")
+                infoLog("[Gas] Estimated gas price with gas price estimator API server: \(server) estimate: \(estimates)")
             }).eraseToAnyPublisher()
     }
 }
