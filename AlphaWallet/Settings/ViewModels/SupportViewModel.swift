@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletLogger
 import AlphaWalletFoundation
 import Combine
 
