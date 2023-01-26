@@ -24,6 +24,7 @@ public final class RampNetworkProvider: RampNetworkProviderType {
     public func retrieveAssets() -> AnyPublisher<[Asset], PromiseError> {
         return networkService
             .dataTaskPublisher(RampRequest())
+            .receive(on: DispatchQueue.global())
             .tryMap { [decoder] in try decoder.decode(RampAssetsResponse.self, from: $0.data).assets }
             .mapError { PromiseError.some(error: $0) }
             .eraseToAnyPublisher()

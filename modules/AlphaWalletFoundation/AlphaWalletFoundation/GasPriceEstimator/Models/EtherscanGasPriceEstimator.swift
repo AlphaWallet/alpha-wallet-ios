@@ -20,6 +20,7 @@ class EtherscanGasPriceEstimator {
     func gasPriceEstimates(server: RPCServer) -> AnyPublisher<GasEstimates, PromiseError> {
         return networkService
             .dataTaskPublisher(GetGasPriceEstimatesRequest(server: server))
+            .receive(on: DispatchQueue.global())
             .tryMap { [decoder] in try decoder.decode(EtherscanPriceEstimatesResponse.self, from: $0.data) }
             .compactMap { EtherscanPriceEstimates.bridgeToGasPriceEstimates(for: $0.result) }
             .map { estimates in
