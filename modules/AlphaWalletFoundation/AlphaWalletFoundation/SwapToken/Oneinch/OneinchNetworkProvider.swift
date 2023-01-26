@@ -24,6 +24,7 @@ public final class OneinchNetworkProvider: OneinchNetworkProviderType {
     public func retrieveAssets() -> AnyPublisher<[Oneinch.Asset], PromiseError> {
         return networkService
             .dataTaskPublisher(OneInchAssetsRequest())
+            .receive(on: DispatchQueue.global())
             .tryMap { [decoder] in try decoder.decode(Oneinch.AssetsResponse.self, from: $0.data).tokens.map { $0.value } }
             .mapError { PromiseError.some(error: $0) }
             .eraseToAnyPublisher()

@@ -25,6 +25,7 @@ public class BlockscanChat {
         infoLog("[BlockscanChat] Fetching unread count for \(address.eip55String)…")
         return networkService
             .dataTaskPublisher(GetUnreadCountEndpointRequest(address: address))
+            .receive(on: DispatchQueue.global())
             .mapError { BlockscanChat.ResponseError.other($0) }
             .flatMap { response -> AnyPublisher<Int, BlockscanChat.ResponseError> in
                 do {

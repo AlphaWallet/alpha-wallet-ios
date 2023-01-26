@@ -31,6 +31,7 @@ public final class LiQuestTokenSwapperNetworkProvider: TokenSwapperNetworkProvid
     public func fetchSupportedTools() -> AnyPublisher<[SwapTool], SwapError> {
         networkService
             .dataTaskPublisher(ToolsRequest())
+            .receive(on: DispatchQueue.global())
             .mapError { SwapError.inner($0.unwrapped) }
             .flatMap { [decoder] data, _ -> AnyPublisher<[SwapTool], SwapError> in
                 if let response: SwapToolsResponse = try? decoder.decode(SwapToolsResponse.self, from: data) {
@@ -44,6 +45,7 @@ public final class LiQuestTokenSwapperNetworkProvider: TokenSwapperNetworkProvid
     public func fetchSwapRoutes(fromToken: TokenToSwap, toToken: TokenToSwap, slippage: String, fromAmount: BigUInt, exchanges: [String]) -> AnyPublisher<[SwapRoute], SwapError> {
         return networkService
             .dataTaskPublisher(RoutesRequest(fromToken: fromToken, toToken: toToken, slippage: slippage, fromAmount: fromAmount, exchanges: exchanges))
+            .receive(on: DispatchQueue.global())
             .mapError { SwapError.inner($0.unwrapped) }
             .flatMap { [decoder] data, _ -> AnyPublisher<[SwapRoute], SwapError> in
                 if let response: SwapRouteReponse = try? decoder.decode(SwapRouteReponse.self, from: data) {
@@ -57,6 +59,7 @@ public final class LiQuestTokenSwapperNetworkProvider: TokenSwapperNetworkProvid
     public func fetchSupportedChains() -> AnyPublisher<[RPCServer], PromiseError> {
         return networkService
             .dataTaskPublisher(SupportedChainsRequest())
+            .receive(on: DispatchQueue.global())
             .map { data, _ -> [RPCServer] in
                 let chains = JSON(data)["chains"].arrayValue
                 return chains.compactMap { each in return RPCServer(chainIdOptional: each["id"].intValue) }
@@ -67,6 +70,7 @@ public final class LiQuestTokenSwapperNetworkProvider: TokenSwapperNetworkProvid
     public func fetchSupportedTokens(for server: RPCServer) -> AnyPublisher<SwapPairs, PromiseError> {
         return networkService
             .dataTaskPublisher(SupportedTokensRequest(server: server))
+            .receive(on: DispatchQueue.global())
             .map { [decoder] data, _ -> SwapPairs in
                 if let connections: Swap.Connections = try? decoder.decode(Swap.Connections.self, from: data) {
                     return SwapPairs(connections: connections)
@@ -80,6 +84,7 @@ public final class LiQuestTokenSwapperNetworkProvider: TokenSwapperNetworkProvid
     public func fetchSwapQuote(fromToken: TokenToSwap, toToken: TokenToSwap, wallet: AlphaWallet.Address, slippage: String, fromAmount: BigUInt, exchange: String) -> AnyPublisher<SwapQuote, SwapError> {
         return networkService
             .dataTaskPublisher(SwapQuoteRequest(fromToken: fromToken, toToken: toToken, wallet: wallet, slippage: slippage, fromAmount: fromAmount, exchange: exchange))
+            .receive(on: DispatchQueue.global())
             .mapError { SwapError.inner($0.unwrapped) }
             .flatMap { [decoder] data, _ -> AnyPublisher<SwapQuote, SwapError> in
                 if let swapQuote = try? decoder.decode(SwapQuote.self, from: data) {

@@ -27,6 +27,7 @@ class AddCustomChainNetworking {
 
         return networkService
             .dataTaskPublisher(UrlRequest(url: url))
+            .receive(on: DispatchQueue.global())
             .tryMap { [decoder] in
                 if let json = try decoder.decode($0) as? [String: Any] {
                     if json["result"] is [String] {
@@ -75,6 +76,7 @@ class AddCustomChainNetworking {
     private func isValidBlockchainExplorerApiRoot(_ url: URL) -> AnyPublisher<Void, AddCustomChainError> {
         networkService
             .dataTaskPublisher(UrlRequest(url: url))
+            .receive(on: DispatchQueue.global())
             .tryMap { [decoder] in
                 if let json = try decoder.decode($0) as? [String: Any], json["result"] is [Any] {
                     return
