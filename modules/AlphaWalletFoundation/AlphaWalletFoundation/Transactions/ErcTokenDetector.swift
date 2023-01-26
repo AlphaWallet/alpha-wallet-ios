@@ -30,9 +30,7 @@ public final class ErcTokenDetector {
         guard !transactions.isEmpty else { return }
 
         filterTransactionsToPullContracts(from: transactions)
-            .sinkAsync(receiveCompletion: { _ in
-
-            }, receiveValue: { [weak self] transactionsToPullContractsFrom, contractsAndTokenTypes in
+            .sinkAsync(receiveValue: { [weak self] transactionsToPullContractsFrom, contractsAndTokenTypes in
                 guard !transactionsToPullContractsFrom.isEmpty else { return }
                 self?.addTokensFromUpdates(transactionsToPullContractsFrom: transactionsToPullContractsFrom, contractsAndTokenTypes: contractsAndTokenTypes)
             })
@@ -46,7 +44,7 @@ public final class ErcTokenDetector {
         tokensService.addOrUpdate(with: actions)
 
         for each in contractsAndServers {
-            assetDefinitionStore.fetchXML(forContract: each.address, server: each.server)
+            assetDefinitionStore.fetchXML(forContract: each.address, server: each.server).sinkAsync()
         }
     }
 

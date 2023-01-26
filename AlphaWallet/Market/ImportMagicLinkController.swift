@@ -147,9 +147,7 @@ final class ImportMagicLinkController {
         let requiresPaymaster = ImportMagicLinkController.functional.requiresPaymasterForCurrencyLinks(signedOrder: signedOrder, server: server)
         if signedOrder.order.price == 0 {
             networking.checkPaymentServerSupportsContract(contractAddress: signedOrder.order.contractAddress)
-                .sinkAsync(receiveCompletion: { _ in
-
-                }, receiveValue: { [weak self] supported in
+                .sinkAsync(receiveValue: { [weak self] supported in
                     guard let strongSelf = self else { return }
 
                     //Currency links on mainnet/classic/xdai without a paymaster should be rejected for security reasons (front running)
@@ -306,33 +304,34 @@ final class ImportMagicLinkController {
     }
 
     private func makeTokenHolder(_ bytes32Tokens: [String], _ contractAddress: AlphaWallet.Address) {
-        assetDefinitionStore.fetchXML(forContract: contractAddress, server: server, useCacheAndFetch: true) { [weak self, session] _ in
-            guard let strongSelf = self else { return }
+        assetDefinitionStore.fetchXML(forContract: contractAddress, server: server, useCacheAndFetch: true)
+            .sinkAsync(receiveValue: { [weak self, session] _ in
+                guard let strongSelf = self else { return }
 
-            func makeTokenHolder(name: String, symbol: String, type: TokenType? = nil) {
-                strongSelf.makeTokenHolderImpl(name: name, symbol: symbol, type: type, bytes32Tokens: bytes32Tokens, contractAddress: contractAddress)
-                strongSelf.updateTokenFields()
-            }
+                func makeTokenHolder(name: String, symbol: String, type: TokenType? = nil) {
+                    strongSelf.makeTokenHolderImpl(name: name, symbol: symbol, type: type, bytes32Tokens: bytes32Tokens, contractAddress: contractAddress)
+                    strongSelf.updateTokenFields()
+                }
 
-            if let existingToken = strongSelf.tokensService.token(for: contractAddress, server: strongSelf.server) {
-                let name = XMLHandler(token: existingToken, assetDefinitionStore: strongSelf.assetDefinitionStore).getLabel(fallback: existingToken.name)
-                makeTokenHolder(name: name, symbol: existingToken.symbol)
-            } else {
-                let localizedTokenTypeName = R.string.localizable.tokensTitlecase()
-                makeTokenHolder(name: localizedTokenTypeName, symbol: "")
+                if let existingToken = strongSelf.tokensService.token(for: contractAddress, server: strongSelf.server) {
+                    let name = XMLHandler(token: existingToken, assetDefinitionStore: strongSelf.assetDefinitionStore).getLabel(fallback: existingToken.name)
+                    makeTokenHolder(name: name, symbol: existingToken.symbol)
+                } else {
+                    let localizedTokenTypeName = R.string.localizable.tokensTitlecase()
+                    makeTokenHolder(name: localizedTokenTypeName, symbol: "")
 
-                let getContractName = session.tokenProvider.getContractName(for: contractAddress)
-                let getContractSymbol = session.tokenProvider.getContractSymbol(for: contractAddress)
-                let getTokenType = session.tokenProvider.getTokenType(for: contractAddress)
+                    let getContractName = session.tokenProvider.getContractName(for: contractAddress)
+                    let getContractSymbol = session.tokenProvider.getContractSymbol(for: contractAddress)
+                    let getTokenType = session.tokenProvider.getTokenType(for: contractAddress)
 
-                Publishers.CombineLatest3(getContractName, getContractSymbol, getTokenType)
-                    .sinkAsync(receiveCompletion: { _ in
-                        //no-op
-                    }, receiveValue: { name, symbol, type in
-                        makeTokenHolder(name: name, symbol: symbol, type: type)
-                    })
-            }
-        }
+                    Publishers.CombineLatest3(getContractName, getContractSymbol, getTokenType)
+                        .sinkAsync(receiveCompletion: { _ in
+                            //no-op
+                        }, receiveValue: { name, symbol, type in
+                            makeTokenHolder(name: name, symbol: symbol, type: type)
+                        })
+                }
+            })
     }
 
     private func makeTokenHolderImpl(name: String, symbol: String, type: TokenType? = nil, bytes32Tokens: [String], contractAddress: AlphaWallet.Address) {
@@ -479,4 +478,3 @@ extension ImportMagicLinkController.functional {
     }
 
 }
-

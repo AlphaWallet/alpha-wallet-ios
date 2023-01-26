@@ -35,6 +35,9 @@ public class AssetDefinitionStore: NSObject {
     private var signatureChangeSubject: PassthroughSubject<AlphaWallet.Address, Never> = .init()
     private var bodyChangeSubject: PassthroughSubject<AlphaWallet.Address, Never> = .init()
     private var listOfBadTokenScriptFilesSubject: CurrentValueSubject<[TokenScriptFileIndices.FileName], Never> = .init([])
+    private var inflightPromises: [String: AnyPublisher<Result, Never>] = [:]
+    private let queue = DispatchQueue(label: "org.alphawallet.swift.assetDefinitionStore")
+
     private let networking: AssetDefinitionNetworking
     private let tokenScriptStatusResolver: TokenScriptStatusResolver
     private let tokenScriptFilesProvider: BaseTokenScriptFilesProvider
@@ -200,75 +203,98 @@ public class AssetDefinitionStore: NSObject {
     /// useCacheAndFetch: when true, the completionHandler will be called immediately and a second time if an updated XML is fetched. When false, the completionHandler will only be called up fetching an updated XML
     ///
     /// IMPLEMENTATION NOTE: Current implementation will fetch the same XML multiple times if this function is called again before the previous attempt has completed. A check (which requires tracking completion handlers) hasn't been implemented because this doesn't usually happen in practice
-    public func fetchXML(forContract contract: AlphaWallet.Address, server: RPCServer?, useCacheAndFetch: Bool = false, completionHandler: ((Result) -> Void)? = nil) {
+    public func fetchXML(forContract contract: AlphaWallet.Address, server: RPCServer?, useCacheAndFetch: Bool = false) -> AnyPublisher<Result, Never> {
+        Just(contract)
+            .receive(on: queue)
+            .flatMap { [weak self] contract -> AnyPublisher<Result, Never> in
+                guard let strongSelf = self else { return .just(.error) }
+                let key = "\(contract)-\(server)-\(useCacheAndFetch)"
+                
+                if let promise = strongSelf.inflightPromises[key] {
+                    return promise
+                } else {
+                    let promise = strongSelf.privateFetchXML(forContract: contract, server: server, useCacheAndFetch: useCacheAndFetch)
+                        .handleEvents(receiveCompletion: { _ in strongSelf.inflightPromises[key] = nil })
+                        .share()
+                        .eraseToAnyPublisher()
+
+                    strongSelf.inflightPromises[key] = promise
+
+                    return promise
+                }
+            }.eraseToAnyPublisher()
+    }
+
+    public func privateFetchXML(forContract contract: AlphaWallet.Address, server: RPCServer?, useCacheAndFetch: Bool = false) -> AnyPublisher<Result, Never> {
         if useCacheAndFetch && self[contract] != nil {
-            completionHandler?(.cached)
+            return .just(.cached)
         }
 
         //If we override with a TokenScript file that is for a contract that also has an official TokenScript file but the files are different, we'll enter an infinite recursion where we keep fetching the official TokenScript file, store it, think it has changed, invalid cache, re-download from the official repo and loops. The simple solution is to just not attempt to download or check against the official repo if the there's an overriding TokenScript file
         if !backingStore.isOfficial(contract: contract) {
-            completionHandler?(.unmodified)
-            return
+            return .just(.unmodified)
         }
 
-        urlToFetch(contract: contract, server: server)
-            .receive(on: RunLoop.main)
-            .sinkAsync(receiveCompletion: { result in
-                guard case .failure(let error) = result else { return }
-                //no-op
-                warnLog("[TokenScript] unexpected error while fetching TokenScript file for contract: \(contract.eip55String) error: \(error)")
-            }, receiveValue: { result in
-                guard let (url, isScriptUri) = result else { return }
-                self.fetchXML(contract: contract, server: server, url: url, useCacheAndFetch: useCacheAndFetch) { result in
-                    //Try a bit harder if the TokenScript was specified via EIP-5169 (`scriptURI()`)
-                    //TODO probably better to convert completionHandler to Promise so we can retry more elegantly
-                    if isScriptUri && result.isError {
-                        self.fetchXML(contract: contract, server: server, url: url, useCacheAndFetch: useCacheAndFetch) { result in
-                            if isScriptUri && result.isError {
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                                    self.fetchXML(contract: contract, server: server, url: url, useCacheAndFetch: useCacheAndFetch, completionHandler: completionHandler)
-                                }
-                            }
-                        }
-                    } else {
-                        completionHandler?(result)
-                    }
+        return urlToFetch(contract: contract, server: server)
+            .receive(on: queue)
+            .flatMap { [queue] result -> AnyPublisher<Result, Never> in
+                guard let (url, isScriptUri) = result else {
+                    //no-op
+                    warnLog("[TokenScript] unexpected error while fetching TokenScript file for contract: \(contract.eip55String) error: \("error")")
+                    return .empty()
                 }
-            })
+
+                return self.fetchXML(contract: contract, server: server, url: url, useCacheAndFetch: useCacheAndFetch)
+                    .flatMap { result -> AnyPublisher<Result, Never> in
+                        //Try a bit harder if the TokenScript was specified via EIP-5169 (`scriptURI()`)
+                        //TODO: probably better to convert completionHandler to Promise so we can retry more elegantly
+                        if isScriptUri && result.isError {
+                            return self.fetchXML(contract: contract, server: server, url: url, useCacheAndFetch: useCacheAndFetch)
+                                .flatMap { result -> AnyPublisher<Result, Never> in
+                                    if isScriptUri && result.isError {
+                                        return Just(result).delay(for: .seconds(3), scheduler: queue)
+                                            .flatMap { _ -> AnyPublisher<Result, Never> in
+                                                self.fetchXML(contract: contract, server: server, url: url, useCacheAndFetch: useCacheAndFetch)
+                                            }.eraseToAnyPublisher()
+                                    } else {
+                                        return .empty()
+                                    }
+                                }.eraseToAnyPublisher()
+                        } else {
+                            return .just(result)
+                        }
+                    }.eraseToAnyPublisher()
+            }.eraseToAnyPublisher()
     }
 
-    private func fetchXML(contract: AlphaWallet.Address, server: RPCServer?, url: URL, useCacheAndFetch: Bool = false, completionHandler: ((Result) -> Void)? = nil) {
+    private func fetchXML(contract: AlphaWallet.Address, server: RPCServer?, url: URL, useCacheAndFetch: Bool = false) -> AnyPublisher<Result, Never> {
         let lastModified = lastModifiedDateOfCachedAssetDefinitionFile(forContract: contract)
         let request = AssetDefinitionNetworking.GetXmlFileRequest(url: url, lastModifiedDate: lastModified)
 
-        networking.fetchXml(request: request)
-            .sinkAsync(receiveCompletion: { [weak self] _ in
-                //no-op
-            }, receiveValue: { [weak self] response in
-                guard let strongSelf = self else { return }
-
+        return networking.fetchXml(request: request)
+            .receive(on: queue)
+            .flatMap { response -> AnyPublisher<Result, Never> in
                 switch response {
                 case .error:
-                    completionHandler?(.error)
+                    return .just(.error)
                 case .unmodified:
-                    completionHandler?(.unmodified)
+                    return .just(.unmodified)
                 case .xml(let xml):
                     //Note that Alamofire converts the 304 to a 200 if caching is enabled (which it is, by default). So we'll never get a 304 here. Checking against Charles proxy will show that a 304 is indeed returned by the server with an empty body. So we compare the contents instead. https://github.com/Alamofire/Alamofire/issues/615
-                    if xml == strongSelf[contract] {
-                        completionHandler?(.unmodified)
-                    } else if strongSelf.isTruncatedXML(xml: xml) {
-                        strongSelf.fetchXML(forContract: contract, server: server, useCacheAndFetch: false) { result in
-                            completionHandler?(result)
-                        }
+                    if xml == self[contract] {
+                        return .just(.unmodified)
+                    } else if self.isTruncatedXML(xml: xml) {
+                        return self.fetchXML(forContract: contract, server: server, useCacheAndFetch: false)
                     } else {
-                        strongSelf[contract] = xml
-                        strongSelf.invalidate(forContract: contract)
-                        completionHandler?(.updated)
-                        strongSelf.triggerBodyChangedSubscribers(forContract: contract)
-                        strongSelf.triggerSignatureChangedSubscribers(forContract: contract)
+                        self[contract] = xml
+                        self.invalidate(forContract: contract)
+                        self.triggerBodyChangedSubscribers(forContract: contract)
+                        self.triggerSignatureChangedSubscribers(forContract: contract)
+
+                        return .just(.updated)
                     }
                 }
-            })
+            }.eraseToAnyPublisher()
     }
 
     private func isTruncatedXML(xml: String) -> Bool {
