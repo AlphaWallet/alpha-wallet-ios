@@ -47,3 +47,56 @@ extension AnyPublisher {
         }
     }
 }
+
+enum AsyncError: Error {
+    case finishedWithoutValue
+}
+
+extension Publisher {
+
+    public func sinkFirst(receiveCompletion: @escaping (Subscribers.Completion<Failure>) -> Void = { _ in }, receiveValue: @escaping (Output) -> Void = { _ in }) {
+        var cancellable: AnyCancellable?
+        cancellable = self
+            .first()
+            .sink { result in
+                receiveCompletion(result)
+                cancellable = nil
+            } receiveValue: { value in
+                receiveValue(value)
+            }
+    }
+
+    public func sinkAsync(receiveCompletion: @escaping (Subscribers.Completion<Failure>) -> Void = { _ in }, receiveValue: @escaping (Output) -> Void = { _ in }) {
+        var cancellable: AnyCancellable?
+        cancellable = self
+            .handleEvents(receiveCancel: { cancellable = nil })
+            .sink { result in
+                receiveCompletion(result)
+                cancellable = nil
+            } receiveValue: { value in
+                receiveValue(value)
+            }
+    }
+
+    public func async() async throws -> Output {
+        try await withCheckedThrowingContinuation { continuation in
+            var cancellable: AnyCancellable?
+            var finishedWithoutValue = true
+            cancellable = first()
+                .sink { result in
+                    switch result {
+                    case .finished:
+                        if finishedWithoutValue {
+                            continuation.resume(throwing: AsyncError.finishedWithoutValue)
+                        }
+                    case let .failure(error):
+                        continuation.resume(throwing: error)
+                    }
+                    cancellable?.cancel()
+                } receiveValue: { value in
+                    finishedWithoutValue = false
+                    continuation.resume(with: .success(value))
+                }
+        }
+    }
+}

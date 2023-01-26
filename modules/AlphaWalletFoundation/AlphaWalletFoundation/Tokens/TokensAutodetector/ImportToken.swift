@@ -67,7 +67,6 @@ final public class ImportToken: TokenImportable, TokenOrContractFetchable {
 
     private let contractDataFetcher: ContractDataFetchable
     private let tokensDataStore: TokensDataStore
-    private var cancelable = Set<AnyCancellable>()
     private let queue = DispatchQueue(label: "org.alphawallet.swift.importToken")
     private var inFlightPromises: [String: Promise<TokenOrContract>] = [:]
     private var inFlightPublishers: [String: AnyPublisher<TokenOrContract, ImportTokenError>] = [:]

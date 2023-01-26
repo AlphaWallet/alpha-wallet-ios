@@ -35,8 +35,6 @@ public class AssetDefinitionStore: NSObject {
     private var signatureChangeSubject: PassthroughSubject<AlphaWallet.Address, Never> = .init()
     private var bodyChangeSubject: PassthroughSubject<AlphaWallet.Address, Never> = .init()
     private var listOfBadTokenScriptFilesSubject: CurrentValueSubject<[TokenScriptFileIndices.FileName], Never> = .init([])
-    private var cancelable: [Int: AnyCancellable] = [:]
-    private var anyCancellable = Set<AnyCancellable>()
     private let networking: AssetDefinitionNetworking
     private let tokenScriptStatusResolver: TokenScriptStatusResolver
     private let tokenScriptFilesProvider: BaseTokenScriptFilesProvider
@@ -215,7 +213,7 @@ public class AssetDefinitionStore: NSObject {
 
         urlToFetch(contract: contract, server: server)
             .receive(on: RunLoop.main)
-            .sink(receiveCompletion: { result in
+            .sinkAsync(receiveCompletion: { result in
                 guard case .failure(let error) = result else { return }
                 //no-op
                 warnLog("[TokenScript] unexpected error while fetching TokenScript file for contract: \(contract.eip55String) error: \(error)")
@@ -236,30 +234,16 @@ public class AssetDefinitionStore: NSObject {
                         completionHandler?(result)
                     }
                 }
-            }).store(in: &anyCancellable)
-    }
-
-    public func fetchXmlPublisher(contract: AlphaWallet.Address, server: RPCServer?, useCacheAndFetch: Bool = false) -> AnyPublisher<Result, Never> {
-        AnyPublisher<Result, Never>.create { seal in
-            self.fetchXML(forContract: contract, server: server, useCacheAndFetch: useCacheAndFetch) { result in
-                seal.send(result)
-                seal.send(completion: .finished)
-            }
-
-            return AnyCancellable {
-                //NOTE: implement request cancellation
-            }
-        }
+            })
     }
 
     private func fetchXML(contract: AlphaWallet.Address, server: RPCServer?, url: URL, useCacheAndFetch: Bool = false, completionHandler: ((Result) -> Void)? = nil) {
         let lastModified = lastModifiedDateOfCachedAssetDefinitionFile(forContract: contract)
         let request = AssetDefinitionNetworking.GetXmlFileRequest(url: url, lastModifiedDate: lastModified)
 
-        cancelable[request.hashValue] = networking
-            .fetchXml(request: request)
-            .sink(receiveCompletion: { [weak self] _ in
-                self?.cancelable[request.hashValue] = .none
+        networking.fetchXml(request: request)
+            .sinkAsync(receiveCompletion: { [weak self] _ in
+                //no-op
             }, receiveValue: { [weak self] response in
                 guard let strongSelf = self else { return }
 

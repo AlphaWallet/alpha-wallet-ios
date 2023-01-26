@@ -12,7 +12,6 @@ import Combine
 public final class ErcTokenDetector {
     private let tokensService: DetectedContractsProvideble & TokenAddable
     private let ercProvider: TokenProviderType
-    private var cancellable = Set<AnyCancellable>()
     private let server: RPCServer
     private let assetDefinitionStore: AssetDefinitionStore
 
@@ -31,12 +30,12 @@ public final class ErcTokenDetector {
         guard !transactions.isEmpty else { return }
 
         filterTransactionsToPullContracts(from: transactions)
-            .sink(receiveCompletion: { _ in
+            .sinkAsync(receiveCompletion: { _ in
 
             }, receiveValue: { [weak self] transactionsToPullContractsFrom, contractsAndTokenTypes in
                 guard !transactionsToPullContractsFrom.isEmpty else { return }
                 self?.addTokensFromUpdates(transactionsToPullContractsFrom: transactionsToPullContractsFrom, contractsAndTokenTypes: contractsAndTokenTypes)
-            }).store(in: &cancellable)
+            })
     }
 
     private func addTokensFromUpdates(transactionsToPullContractsFrom transactions: [TransactionInstance], contractsAndTokenTypes: [AlphaWallet.Address: TokenType]) {
