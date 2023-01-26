@@ -2,60 +2,29 @@
 
 import Foundation
 import BigInt
-import PromiseKit
+import Combine
 
 final class NonFungibleContract {
-    private let server: RPCServer
+    private let blockchainProvider: BlockchainProvider
 
-    init(server: RPCServer) {
-        self.server = server
+    public init(blockchainProvider: BlockchainProvider) {
+        self.blockchainProvider = blockchainProvider
     }
 
-    func getUriOrTokenUri(for tokenId: String, contract: AlphaWallet.Address) -> Promise<URL> {
-        firstly {
-            self.getTokenUri(for: tokenId, contract: contract)
-        }.recover { _ in
-            self.getUri(for: tokenId, contract: contract)
-        }
+    func getUriOrTokenUri(for tokenId: String, contract: AlphaWallet.Address) -> AnyPublisher<URL, SessionTaskError> {
+        return getTokenUri(for: tokenId, contract: contract)
+            .catch { _ -> AnyPublisher<URL, SessionTaskError> in
+                self.getUri(for: tokenId, contract: contract)
+            }.eraseToAnyPublisher()
     }
 
-    private func getTokenUri(for tokenId: String, contract: AlphaWallet.Address) -> Promise<URL> {
-        let function = GetTokenUri()
-        return firstly {
-            callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [tokenId] as [AnyObject])
-        }.map(on: .global(), { uriResult -> URL in
-            if let string = uriResult["0"] as? String, let url = URL(string: string.stringWithTokenIdSubstituted(tokenId)) {
-                return url
-            } else {
-                throw CastError(actualValue: uriResult["0"], expectedType: URL.self)
-            }
-        })
+    private func getTokenUri(for tokenId: String, contract: AlphaWallet.Address) -> AnyPublisher<URL, SessionTaskError> {
+        blockchainProvider
+            .call(Erc721TokenUriMethodCall(contract: contract, tokenId: tokenId))
     }
 
-    private func getUri(for tokenId: String, contract: AlphaWallet.Address) -> Promise<URL> {
-        let function = GetUri()
-        return firstly {
-            callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [tokenId] as [AnyObject])
-        }.map(on: .global(), { uriResult -> URL in
-            if let string = uriResult["0"] as? String, let url = URL(string: string.stringWithTokenIdSubstituted(tokenId)) {
-                return url
-            } else {
-                throw CastError(actualValue: uriResult["0"], expectedType: URL.self)
-            }
-        })
-    }
-}
-
-extension String {
-    fileprivate func stringWithTokenIdSubstituted(_ tokenId: String) -> String {
-        //According to https://eips.ethereum.org/EIPS/eip-1155
-        //The string format of the substituted hexadecimal ID MUST be lowercase alphanumeric: [0-9a-f] with no 0x prefix.
-        //The string format of the substituted hexadecimal ID MUST be leading zero padded to 64 hex characters length if necessary.
-        if let tokenId = BigInt(tokenId) {
-            let hex = String(tokenId, radix: 16).padding(toLength: 64, withPad: "0", startingAt: 0)
-            return self.replacingOccurrences(of: "{id}", with: hex)
-        } else {
-            return self
-        }
+    private func getUri(for tokenId: String, contract: AlphaWallet.Address) -> AnyPublisher<URL, SessionTaskError> {
+        blockchainProvider
+            .call(Erc721UriMethodCall(contract: contract, tokenId: tokenId))
     }
 }

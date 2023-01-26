@@ -6,7 +6,6 @@
 //
 
 import AlphaWalletCore
-import PromiseKit
 import BigInt
 import Combine
 
