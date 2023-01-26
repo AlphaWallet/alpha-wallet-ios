@@ -44,7 +44,6 @@ final class ImportMagicLinkController {
     private let networking: ImportMagicLinkNetworking
     private var signedOrder: SignedOrder?
     private let importToken: ImportToken
-    private var cancelable = Set<AnyCancellable>()
     private let displayViewSubject = PassthroughSubject<Void, Never>()
     private let claimPaidSignedOrderSubject = PassthroughSubject<(signedOrder: SignedOrder, token: Token), Never>()
     private let viewStateSubject: CurrentValueSubject<ViewState, Never> = .init(.init(state: .validating))
@@ -148,7 +147,9 @@ final class ImportMagicLinkController {
         let requiresPaymaster = ImportMagicLinkController.functional.requiresPaymasterForCurrencyLinks(signedOrder: signedOrder, server: server)
         if signedOrder.order.price == 0 {
             networking.checkPaymentServerSupportsContract(contractAddress: signedOrder.order.contractAddress)
-                .sink { [weak self] supported in
+                .sinkAsync(receiveCompletion: { _ in
+
+                }, receiveValue: { [weak self] supported in
                     guard let strongSelf = self else { return }
 
                     //Currency links on mainnet/classic/xdai without a paymaster should be rejected for security reasons (front running)
@@ -161,7 +162,7 @@ final class ImportMagicLinkController {
                     } else {
                         strongSelf.handlePaidImports(signedOrder: signedOrder)
                     }
-                }.store(in: &cancelable)
+                })
         } else {
             handlePaidImports(signedOrder: signedOrder)
         }
@@ -196,19 +197,19 @@ final class ImportMagicLinkController {
 
         let r = signedOrder.signature.substring(with: Range(uncheckedBounds: (2, 66)))
         networking.checkIfLinkClaimed(r: r)
-            .sink(receiveValue: { [weak self] claimed in
+            .sinkAsync(receiveValue: { [weak self] claimed in
                 if claimed {
                     self?.showImportError(errorMessage: R.string.localizable.aClaimTokenLinkAlreadyRedeemed())
                 } else {
                     self?.completeOrderHandling(signedOrder: signedOrder)
                 }
-            }).store(in: &cancelable)
+            })
     }
 
     private func handleNormalLinks(signedOrder: SignedOrder, recoverAddress: AlphaWallet.Address, contractAsAddress: AlphaWallet.Address) {
         session.tokenProvider
             .getErc875TokenBalance(for: recoverAddress, contract: contractAsAddress)
-            .sink(receiveCompletion: { [weak self, reachability] _ in
+            .sinkAsync(receiveCompletion: { [weak self, reachability] _ in
                 if !reachability.isReachable {
                     self?.showImportError(errorMessage: R.string.localizable.aClaimTokenNoConnectivityTryAgain())
                 } else {
@@ -222,7 +223,7 @@ final class ImportMagicLinkController {
                     self?.makeTokenHolder(filteredTokens, signedOrder.order.contractAddress)
                     self?.completeOrderHandling(signedOrder: signedOrder)
                 }
-            }).store(in: &cancelable)
+            })
     }
 
     private func handleMagicLink(url: URL) -> Bool {
@@ -269,7 +270,7 @@ final class ImportMagicLinkController {
         let token: Token = MultipleChainsTokensDataStore.functional.etherToken(forServer: server)
         tokensService.tokenViewModelPublisher(for: token)
             .compactMap { $0?.balance }
-            .sink { [weak self] balance in
+            .sinkAsync(receiveValue: { [weak self] balance in
                 guard let strongSelf = self else { return }
 
                 if balance.value > signedOrder.order.price {
@@ -277,7 +278,7 @@ final class ImportMagicLinkController {
                 } else {
                     strongSelf.notEnoughEthForPaidImport(signedOrder: signedOrder, balance: balance)
                 }
-            }.store(in: &cancelable)
+            })
     }
 
     private func notEnoughEthForPaidImport(signedOrder: SignedOrder, balance: BalanceViewModel) {
@@ -325,11 +326,11 @@ final class ImportMagicLinkController {
                 let getTokenType = session.tokenProvider.getTokenType(for: contractAddress)
 
                 Publishers.CombineLatest3(getContractName, getContractSymbol, getTokenType)
-                    .sink(receiveCompletion: { _ in
+                    .sinkAsync(receiveCompletion: { _ in
                         //no-op
                     }, receiveValue: { name, symbol, type in
                         makeTokenHolder(name: name, symbol: symbol, type: type)
-                    }).store(in: &strongSelf.cancelable)
+                    })
             }
         }
     }
@@ -408,7 +409,7 @@ final class ImportMagicLinkController {
         updateImportTokenState(with: .processing)
 
         networking.freeTransfer(request: request)
-            .sink { [weak self] successful in
+            .sinkAsync(receiveValue: { [weak self] successful in
                 guard let strongSelf = self else { return }
 
                 strongSelf.importToken(contract: request.contractAddress)
@@ -420,17 +421,15 @@ final class ImportMagicLinkController {
                     //TODO: Pass in error message
                     strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenFailedTitle())
                 }
-            }.store(in: &cancelable)
+            })
     }
 
     private func importToken(contract: AlphaWallet.Address) {
-        importToken
-            .importTokenPublisher(for: contract, server: server, onlyIfThereIsABalance: false)
+        importToken.importTokenPublisher(for: contract, server: server, onlyIfThereIsABalance: false)
             .handleEvents(receiveCompletion: { [server, wallet] result in
                 guard case .failure(let error) = result else { return }
                 debugLog("Error while adding imported token contract: \(contract.eip55String) server: \(server) wallet: \(wallet.address.eip55String) error: \(error)")
-            }).sink(receiveCompletion: { _ in }, receiveValue: { _ in })
-            .store(in: &cancelable)
+            }).sinkAsync()
     }
 }
 // swiftlint:enable type_body_length
