@@ -17,7 +17,7 @@ public typealias SessionTaskError = APIKit.SessionTaskError
 public typealias JSONRPCError = JSONRPCKit.JSONRPCError
 
 extension SessionTaskError {
-    public init(error: Error) {
+    init(error: Error) {
         if let e = error as? SessionTaskError {
             self = e
         } else {
@@ -25,7 +25,7 @@ extension SessionTaskError {
         }
     }
 
-    public var unwrapped: Error {
+    var unwrapped: Error {
         switch self {
         case .connectionError(let e):
             return e
@@ -37,18 +37,18 @@ extension SessionTaskError {
     }
 }
 
-public final class GetGasPrice {
+final class GetGasPrice {
     private let analytics: AnalyticsLogger
     private let server: RPCServer
     private let params: BlockchainParams
 
-    public init(server: RPCServer, params: BlockchainParams, analytics: AnalyticsLogger) {
+    init(server: RPCServer, params: BlockchainParams, analytics: AnalyticsLogger) {
         self.server = server
         self.params = params
         self.analytics = analytics
     }
 
-    public func getGasEstimates() -> AnyPublisher<BigUInt, SessionTaskError> {
+    func getGasEstimates() -> AnyPublisher<BigUInt, SessionTaskError> {
         let request = EtherServiceRequest(server: server, batch: BatchFactory().create(GasPriceRequest()))
         let maxPrice: BigUInt = GasPriceConfiguration.maxPrice(forServer: server)
         let defaultPrice: BigUInt = GasPriceConfiguration.defaultPrice(forServer: server)
