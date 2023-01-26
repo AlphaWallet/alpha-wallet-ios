@@ -18,6 +18,7 @@ PODS:
     - AlphaWalletCore
     - AlphaWalletENS
     - AlphaWalletGoBack
+    - AlphaWalletLogger
     - AlphaWalletOpenSea
     - AlphaWalletShareExtensionCore
     - AlphaWalletWeb3
@@ -26,7 +27,6 @@ PODS:
     - Apollo (= 0.53.0)
     - BigInt (~> 3.1)
     - BlockiesSwift
-    - CocoaLumberjack (= 3.7.0)
     - CombineExt (= 1.8.0)
     - CryptoSwift (~> 1.4)
     - EthereumABI
@@ -42,6 +42,8 @@ PODS:
     - TrustKeystore
     - TrustWalletCore (= 2.6.34)
   - AlphaWalletGoBack (1.0.0)
+  - AlphaWalletLogger (1.0.0):
+    - CocoaLumberjack (= 3.7.0)
   - AlphaWalletOpenSea (1.0.0):
     - AlphaWalletAddress
     - AlphaWalletCore
@@ -210,6 +212,7 @@ DEPENDENCIES:
   - AlphaWalletENS (from `.`)
   - AlphaWalletFoundation (from `.`)
   - AlphaWalletGoBack (from `.`)
+  - AlphaWalletLogger (from `.`)
   - AlphaWalletOpenSea (from `.`)
   - AlphaWalletShareExtensionCore (from `.`)
   - AlphaWalletTrackAPICalls (from `.`)
@@ -303,6 +306,8 @@ EXTERNAL SOURCES:
     :path: "."
   AlphaWalletGoBack:
     :path: "."
+  AlphaWalletLogger:
+    :path: "."
   AlphaWalletOpenSea:
     :path: "."
   AlphaWalletShareExtensionCore:
@@ -367,8 +372,9 @@ SPEC CHECKSUMS:
   AlphaWalletAddress: 72c3fc97248fc0cdc50d137faaa295bc9610c7ec
   AlphaWalletCore: 635739018555de844a020f8b9b7d49610b3de655
   AlphaWalletENS: 33e4fd3d46929938c271190fe7804811c1e9dc8f
-  AlphaWalletFoundation: e7f301df95df33949fc826723d1082ab54b36d0a
+  AlphaWalletFoundation: a346030f01cce3ad0e6b9d74fe0f0c606eead53b
   AlphaWalletGoBack: 1d55b51e6cfd999740d3cfab09d9fa723ba85ff2
+  AlphaWalletLogger: 1c0f115e624b6b6e67e9767560fddb6bda2aaa75
   AlphaWalletOpenSea: 71e255612529b04ae4d66dca54bd181185593b1d
   AlphaWalletShareExtensionCore: e5fc88c6120d5b77b3ba44a37e7b58da5ccbb7b6
   AlphaWalletTrackAPICalls: 1e5d1f0a1858bd4d383aa412677a642be7d21e17
@@ -428,6 +434,6 @@ SPEC CHECKSUMS:
   WalletConnectSwiftV2: e05838f7d04eb69197a23b37768365d8595bab32
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: 9b17da6bb6fa3b7d561f061df313287d938957c6
+PODFILE CHECKSUM: ca673bbb1b9ed838c202d85fb6e0211b01cbf155
 
 COCOAPODS: 1.11.3
