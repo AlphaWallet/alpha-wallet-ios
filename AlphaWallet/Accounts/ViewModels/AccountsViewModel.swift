@@ -9,14 +9,15 @@ import CombineExt
 struct AccountsViewModelInput {
     let willAppear: AnyPublisher<Void, Never>
     let pullToRefresh: AnyPublisher<Void, Never>
-    let deleteWallet: AnyPublisher<AccountsViewModel.WalletDeleteConfirmation, Never>
+    let copyToClipboard: AnyPublisher<IndexPath, Never>
+    let deleteWallet: AnyPublisher<IndexPath, Never>
 }
 
 struct AccountsViewModelOutput {
     let viewState: AnyPublisher<AccountsViewModel.ViewState, Never>
-    let reloadBalanceState: AnyPublisher<AccountsViewModel.ReloadState, Never>
-    let deleteWalletState: AnyPublisher<(wallet: Wallet, state: AccountsViewModel.DeleteWalletState), Never>
-    let askDeleteWalletConfirmation: AnyPublisher<Wallet, Never>
+    //TODO: replace later with
+    let reloadBalanceState: AnyPublisher<Loadable<Void, Error>, Never>
+    let walletDelated: AnyPublisher<Wallet, Never>
     let copiedToClipboard: AnyPublisher<String, Never>
 }
 
@@ -28,10 +29,7 @@ final class AccountsViewModel {
     private let walletBalanceService: WalletBalanceService
     private let blockiesGenerator: BlockiesGenerator
     private let domainResolutionService: DomainResolutionServiceType
-    private var reloadBalanceSubject: PassthroughSubject<ReloadState, Never> = .init()
-    private var deleteWalletState: PassthroughSubject<AccountsViewModel.DeleteWalletState, Never> = .init()
-    private var askDeleteWalletConfirmation: PassthroughSubject<Wallet, Never> = .init()
-    private var copiedToClipboard: PassthroughSubject<String, Never> = .init()
+    private var cancellable = Set<AnyCancellable>()
 
     private lazy var getWalletName = GetWalletName(domainResolutionService: domainResolutionService)
     private var sections: [AccountsViewModel.Section] {
@@ -42,11 +40,10 @@ final class AccountsViewModel {
             return [.summary, .hdWallet, .keystoreWallet, .watchedWallet]
         }
     }
-    private var deleteWalletPendingBlock: ((Bool) -> Void)?
 
     let configuration: AccountsCoordinatorViewModel.Configuration
     var allowsAccountDeletion: Bool = false
-    var displayBalanceApprecation: Bool {
+    private var displayBalanceApprecation: Bool {
         switch configuration {
         case .changeWallets:
             return false
@@ -63,7 +60,14 @@ final class AccountsViewModel {
         return keystore.hasWallets
     }
 
-    init(keystore: Keystore, config: Config, configuration: AccountsCoordinatorViewModel.Configuration, analytics: AnalyticsLogger, walletBalanceService: WalletBalanceService, blockiesGenerator: BlockiesGenerator, domainResolutionService: DomainResolutionServiceType) {
+    init(keystore: Keystore,
+         config: Config,
+         configuration: AccountsCoordinatorViewModel.Configuration,
+         analytics: AnalyticsLogger,
+         walletBalanceService: WalletBalanceService,
+         blockiesGenerator: BlockiesGenerator,
+         domainResolutionService: DomainResolutionServiceType) {
+
         self.config = config
         self.keystore = keystore
         self.configuration = configuration
@@ -78,48 +82,62 @@ final class AccountsViewModel {
     }
 
     func transform(input: AccountsViewModelInput) -> AccountsViewModelOutput {
-        
-        let deleteWallet = input.deleteWallet
-            .flatMap { [weak self, deleteWalletState] confirmation -> AnyPublisher<(wallet: Wallet, state: AccountsViewModel.DeleteWalletState), Never> in
-                self?.fulfillPendingDeleteConfirmationBlock(confirmation.deletionConfirmed)
-                if confirmation.deletionConfirmed {
-                    self?.delete(account: confirmation.wallet)
-                    return deleteWalletState.map { (wallet: confirmation.wallet, state: $0) }.eraseToAnyPublisher()
-                } else {
-                    return .just((confirmation.wallet, .none))
-                }
-            }
 
-        let reloadBalance = input.pullToRefresh
-            .handleEvents(receiveOutput: { [weak self] _ in self?.reloadBalance() })
+        deleteWallet(input: input.deleteWallet)
+            .sink { _ in }
+            .store(in: &cancellable)
 
-        let reloadWhenDelated = deleteWalletState.filter { $0 == .didDelete }
-            .receive(on: DispatchQueue.main)
-            .mapToVoid()
+        let copiedToClipboard = copyToClipboard(input: input.copyToClipboard)
 
-        let accountRowViewModels = Publishers.Merge3(input.willAppear, reloadWhenDelated, reloadBalance)
-            .map { [keystore] _ in keystore.wallets }
+        let reloadBalanceState = reloadBalance(input: input.pullToRefresh)
+
+        let accountRowViewModels = Publishers.Merge(input.willAppear, reloadBalanceState.mapToVoid().eraseToAnyPublisher())
+            .flatMapLatest { [keystore] _ in keystore.walletsPublisher }
             .map { $0.map { self.buildAccountRowViewModel(wallet: $0) } }
             .flatMapLatest { $0.combineLatest() }
 
         let walletsSummary = input.willAppear
-            .flatMapLatest { [walletBalanceService] _ in walletBalanceService.walletsSummary }
-            .map { [config] in WalletSummaryViewModel(walletSummary: $0, config: config) }
+            .flatMapLatest { [walletBalanceService] _ in
+                walletBalanceService.walletsSummary
+            }.map { [config] in WalletSummaryViewModel(walletSummary: $0, config: config) }
 
-        let viewModels = Publishers.CombineLatest(accountRowViewModels, walletsSummary)
+        let viewState = Publishers.CombineLatest(accountRowViewModels, walletsSummary)
+            //NOTE: .uniqued() looks liek doesn't work
             .map { self.buildViewModels(sections: self.sections, accountViewModels: $0, summary: $1).uniqued() }
             .handleEvents(receiveOutput: { self.viewModels = $0 })
-
-        let viewState = viewModels
             .map { self.buildSnapshot(for: $0) }
             .map { [configuration] snapshot in AccountsViewModel.ViewState(title: configuration.title, snapshot: snapshot) }
 
         return .init(
             viewState: viewState.eraseToAnyPublisher(),
-            reloadBalanceState: reloadBalanceSubject.eraseToAnyPublisher(),
-            deleteWalletState: deleteWallet.eraseToAnyPublisher(),
-            askDeleteWalletConfirmation: askDeleteWalletConfirmation.eraseToAnyPublisher(),
+            reloadBalanceState: reloadBalanceState,
+            walletDelated: keystore.didRemoveWallet,
             copiedToClipboard: copiedToClipboard.eraseToAnyPublisher())
+    }
+
+    private func reloadBalance(input: AnyPublisher<Void, Never>) -> AnyPublisher<Loadable<Void, Error>, Never> {
+        input.map { _ in Loadable<Void, Error>.loading }
+            .delay(for: .seconds(1), scheduler: RunLoop.main)
+            .handleEvents(receiveOutput: { [walletBalanceService, keystore] _ in
+                walletBalanceService.refreshBalance(updatePolicy: .all, wallets: keystore.wallets)
+            })
+            .map { _ in Loadable<Void, Error>.done(()) }
+            .share()
+            .eraseToAnyPublisher()
+    }
+
+    private func deleteWallet(input: AnyPublisher<IndexPath, Never>) -> AnyPublisher<Void, Never> {
+        input.compactMap { self.account(for: $0) }
+            .map { [keystore] wallet in keystore.delete(wallet: wallet) }
+            .eraseToAnyPublisher()
+    }
+
+    private func copyToClipboard(input: AnyPublisher<IndexPath, Never>) -> AnyPublisher<String, Never> {
+        input.compactMap { self.account(for: $0) }
+            .map { wallet -> String in
+                UIPasteboard.general.string = wallet.address.eip55String
+                return R.string.localizable.copiedToClipboard()
+            }.eraseToAnyPublisher()
     }
 
     private func buildSnapshot(for viewModels: [AccountsViewModel.SectionViewModel]) -> AccountsViewModel.Snapshot {
@@ -156,44 +174,19 @@ final class AccountsViewModel {
             .eraseToAnyPublisher()
     }
 
-    func trailingSwipeActionsConfiguration(for indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        var actions: [UIContextualAction] = []
-        let copyAction = UIContextualAction(style: .normal, title: R.string.localizable.copyAddress()) { [weak self, copiedToClipboard] _, _, complete in
-            guard let account = self?.account(for: indexPath) else { return }
-            UIPasteboard.general.string = account.address.eip55String
-            copiedToClipboard.send(R.string.localizable.copiedToClipboard())
-
-            complete(true)
-        }
-        copyAction.image = R.image.copy()?.withRenderingMode(.alwaysTemplate)
-        copyAction.backgroundColor = Colors.appTint
-
-        actions += [copyAction]
-
+    func trailingSwipeActionsConfiguration(for indexPath: IndexPath) -> [AccountsViewModel.SwipeAction] {
+        var actions: [AccountsViewModel.SwipeAction] = [.copyToClipboard]
         if canDeleteWallet(at: indexPath) {
-            let deleteAction = UIContextualAction(style: .normal, title: R.string.localizable.accountsConfirmDeleteAction()) { [weak self, askDeleteWalletConfirmation] _, _, complete in
-                guard let account = self?.account(for: indexPath) else { return }
-                askDeleteWalletConfirmation.send(account)
-                self?.deleteWalletPendingBlock = complete
-            }
-
-            deleteAction.image = R.image.close()?.withRenderingMode(.alwaysTemplate)
-            deleteAction.backgroundColor = Configuration.Color.Semantic.dangerBackground
-
-            actions += [deleteAction]
+            actions += [.deleteWallet]
         }
-
-        let configuration = UISwipeActionsConfiguration(actions: actions)
-        configuration.performsFirstActionWithFullSwipe = true
-
-        return configuration
+        return actions
     }
 
-    func account(for indexPath: IndexPath) -> Wallet? {
+    private func account(for indexPath: IndexPath) -> Wallet? {
         switch viewModels[indexPath.section].views[indexPath.row] {
         case .wallet(let viewModel):
             return viewModel.wallet
-        case .summary, .undefined:
+        case .summary:
             return .none
         }
     }
@@ -225,58 +218,51 @@ final class AccountsViewModel {
         }
     }
 
-    private func reloadBalance() {
-        reloadBalanceSubject.send(.fetching)
-        walletBalanceService.refreshBalance(updatePolicy: .all, wallets: keystore.wallets)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [reloadBalanceSubject] in
-            reloadBalanceSubject.send(.done)
-        }
-    }
-
-    private func fulfillPendingDeleteConfirmationBlock(_ value: Bool) {
-        deleteWalletPendingBlock?(value)
-        deleteWalletPendingBlock = nil
-    }
-
     private func buildViewModels(sections: [Section], accountViewModels: [AccountRowViewModel], summary: WalletSummaryViewModel) -> [SectionViewModel] {
         sections.map { section in
             switch section {
             case .summary:
                 return .init(section: section, views: [.summary(summary)])
             case .hdWallet:
-                let hdWallets = accountViewModels.filter { $0.wallet.origin == .hd }.sorted { $0.wallet.address.eip55String < $1.wallet.address.eip55String }
-                let views: [ViewModelType] = hdWallets.map {
-                    let viewModel = AccountViewModel(displayBalanceApprecation: displayBalanceApprecation, accountRowViewModel: $0, current: keystore.currentWallet)
+                let views: [ViewModelType] = accountViewModels
+                    .filter { $0.wallet.origin == .hd }
+                    .sorted { $0.wallet.address.eip55String < $1.wallet.address.eip55String }
+                    .map {
+                        let viewModel = AccountViewModel(
+                            displayBalanceApprecation: displayBalanceApprecation,
+                            accountRowViewModel: $0,
+                            current: keystore.currentWallet)
 
-                    return .wallet(viewModel)
-                }
+                        return .wallet(viewModel)
+                    }
                 return .init(section: section, views: views)
             case .keystoreWallet:
-                let keystoreWallets = accountViewModels.filter { $0.wallet.origin == .privateKey }.sorted { $0.wallet.address.eip55String < $1.wallet.address.eip55String }
-                let views: [ViewModelType] = keystoreWallets.map {
-                    let viewModel = AccountViewModel(displayBalanceApprecation: displayBalanceApprecation, accountRowViewModel: $0, current: keystore.currentWallet)
+                let views: [ViewModelType] = accountViewModels
+                    .filter { $0.wallet.origin == .privateKey }
+                    .sorted { $0.wallet.address.eip55String < $1.wallet.address.eip55String }
+                    .map {
+                        let viewModel = AccountViewModel(
+                            displayBalanceApprecation: displayBalanceApprecation,
+                            accountRowViewModel: $0,
+                            current: keystore.currentWallet)
 
-                    return .wallet(viewModel)
-                }
+                        return .wallet(viewModel)
+                    }
                 return .init(section: section, views: views)
             case .watchedWallet:
-                let watchedWallets = accountViewModels.filter { $0.wallet.origin == .watch }.sorted { $0.wallet.address.eip55String < $1.wallet.address.eip55String }
-                let views: [ViewModelType] = watchedWallets.map {
-                    let viewModel = AccountViewModel(displayBalanceApprecation: displayBalanceApprecation, accountRowViewModel: $0, current: keystore.currentWallet)
+                let views: [ViewModelType] = accountViewModels
+                    .filter { $0.wallet.origin == .watch }
+                    .sorted { $0.wallet.address.eip55String < $1.wallet.address.eip55String }
+                    .map {
+                        let viewModel = AccountViewModel(
+                            displayBalanceApprecation: displayBalanceApprecation,
+                            accountRowViewModel: $0,
+                            current: keystore.currentWallet)
 
-                    return .wallet(viewModel)
-                }
+                        return .wallet(viewModel)
+                    }
                 return .init(section: section, views: views)
             }
-        }
-    }
-
-    private func delete(account: Wallet) {
-        deleteWalletState.send(.willDelete)
-        let _ = keystore.delete(wallet: account)
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [deleteWalletState] in
-            deleteWalletState.send(.didDelete)
         }
     }
 
@@ -287,7 +273,7 @@ final class AccountsViewModel {
         case .wallet(let viewModel):
             //We allow user to delete the last wallet. App store review wants users to be able to remove wallets
             return numberOfWallets == 1 || !viewModel.isSelected
-        case .summary, .undefined:
+        case .summary:
             return false
         }
     }
@@ -317,7 +303,7 @@ final class AccountsViewModel {
                 switch $0 {
                 case .wallet(let viewModel):
                     return viewModel.wallet == wallet
-                case .undefined, .summary:
+                case .summary:
                     return false
                 }
             }) else { return nil }
@@ -332,15 +318,42 @@ extension AccountsViewModel {
     class DataSource: UITableViewDiffableDataSource<AccountsViewModel.Section, AccountsViewModel.ViewModelType> {}
     typealias Snapshot = NSDiffableDataSourceSnapshot<AccountsViewModel.Section, AccountsViewModel.ViewModelType>
 
-    struct WalletDeleteConfirmation {
-        let wallet: Wallet
-        let deletionConfirmed: Bool
+    enum SwipeAction {
+        case copyToClipboard
+        case deleteWallet
+
+        var title: String {
+            switch self {
+            case .copyToClipboard: return R.string.localizable.copyAddress()
+            case .deleteWallet: return R.string.localizable.accountsConfirmDeleteAction()
+            }
+        }
+
+        var icon: UIImage? {
+            switch self {
+            case .copyToClipboard: return R.image.copy()?.withRenderingMode(.alwaysTemplate)
+            case .deleteWallet: return R.image.close()?.withRenderingMode(.alwaysTemplate)
+            }
+        }
+
+        var backgroundColor: UIColor {
+            switch self {
+            case .copyToClipboard: return Colors.appTint
+            case .deleteWallet: return Configuration.Color.Semantic.dangerBackground
+            }
+        }
     }
 
     enum ViewModelType {
         case wallet(AccountViewModel)
         case summary(WalletSummaryViewModel)
-        case undefined
+
+        var wallet: Wallet? {
+            switch self {
+            case .wallet(let vm): return vm.wallet
+            case .summary: return nil
+            }
+        }
     }
 
     struct SectionViewModel {
@@ -353,7 +366,7 @@ extension AccountsViewModel {
                 switch each {
                 case .wallet:
                     results += 1
-                case .summary, .undefined:
+                case .summary:
                     break
                 }
             }
@@ -388,18 +401,6 @@ extension AccountsViewModel {
         let balance: WalletBalance
     }
 
-    enum ReloadState {
-        case fetching
-        case done
-        case failure(error: Error)
-    }
-
-    enum DeleteWalletState {
-        case willDelete
-        case didDelete
-        case none
-    }
-
     struct ViewState {
         let title: String
         let snapshot: AccountsViewModel.Snapshot
@@ -409,3 +410,24 @@ extension AccountsViewModel {
 extension AccountsViewModel.AccountRowViewModel: Hashable { }
 extension AccountsViewModel.ViewModelType: Hashable { }
 extension AccountsViewModel.SectionViewModel: Hashable { }
+
+enum Loadable<T, F> {
+    case loading
+    case done(T)
+    case failure(F)
+}
+
+extension Loadable: Equatable where T: Equatable, F: Equatable {
+    static func == (lhs: Loadable<T, F>, rhs: Loadable<T, F>) -> Bool {
+        switch (lhs, rhs) {
+        case (.loading, .loading):
+            return true
+        case (.done(let v1), .done(let v2)):
+            return v1 == v2
+        case (.failure(let f1), .failure(let f2)):
+            return f1 == f2
+        case (.done, .loading), (.failure, .done), (.failure, .loading), (.loading, .failure), (.loading, .done), (.done, .failure):
+            return false
+        }
+    }
+}

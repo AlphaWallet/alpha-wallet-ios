@@ -183,9 +183,7 @@ class EtherKeystoreTests: XCTestCase {
             }, receiveValue: { wallet in
                 XCTAssertEqual(1, keystore.wallets.count)
 
-                let result = keystore.delete(wallet: wallet)
-
-                guard case .success = result else { return XCTFail() }
+                keystore.delete(wallet: wallet)
 
                 XCTAssertTrue(keystore.wallets.isEmpty)
             }).store(in: &cancellable)

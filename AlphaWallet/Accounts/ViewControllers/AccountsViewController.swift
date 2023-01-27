@@ -18,7 +18,8 @@ class AccountsViewController: UIViewController {
         return control
     }()
     private let willAppear = PassthroughSubject<Void, Never>()
-    private let deleteWallet = PassthroughSubject<AccountsViewModel.WalletDeleteConfirmation, Never>()
+    private let copyToClipboard = PassthroughSubject<IndexPath, Never>()
+    private let deleteWallet = PassthroughSubject<IndexPath, Never>()
 
     private lazy var dataSource = makeDataSource()
     private lazy var tableView: UITableView = {
@@ -57,6 +58,7 @@ class AccountsViewController: UIViewController {
         let input = AccountsViewModelInput(
             willAppear: willAppear.eraseToAnyPublisher(),
             pullToRefresh: refreshControl.publisher(forEvent: .valueChanged).eraseToAnyPublisher(),
+            copyToClipboard: copyToClipboard.eraseToAnyPublisher(),
             deleteWallet: deleteWallet.eraseToAnyPublisher())
 
         let output = viewModel.transform(input: input)
@@ -70,42 +72,17 @@ class AccountsViewController: UIViewController {
         output.reloadBalanceState
             .sink { [refreshControl] state in
                 switch state {
-                case .fetching:
+                case .loading:
                     refreshControl.beginRefreshing()
                 case .done, .failure:
                     refreshControl.endRefreshing()
                 }
             }.store(in: &cancelable)
 
-        output.deleteWalletState
-            .sink { [weak self] data in
+        output.walletDelated
+            .sink { [weak self] wallet in
                 guard let strongSelf = self else { return }
-                switch data.state {
-                case .willDelete:
-                    strongSelf.navigationController?.displayLoading(text: R.string.localizable.deleting())
-                case .didDelete:
-                    strongSelf.navigationController?.hideLoading()
-                    strongSelf.delegate?.didDeleteAccount(account: data.wallet, in: strongSelf)
-                case .none:
-                    break
-                }
-            }.store(in: &cancelable)
-
-        output.askDeleteWalletConfirmation
-            .sink { [weak self, deleteWallet] wallet in
-                guard let strongSelf = self else { return }
-
-                strongSelf.confirm(title: R.string.localizable.accountsConfirmDeleteTitle(),
-                        message: R.string.localizable.accountsConfirmDeleteMessage(),
-                        okTitle: R.string.localizable.accountsConfirmDeleteOkTitle(),
-                        okStyle: .destructive) { result in
-                    switch result {
-                    case .success:
-                        deleteWallet.send(.init(wallet: wallet, deletionConfirmed: true))
-                    case .failure:
-                        deleteWallet.send(.init(wallet: wallet, deletionConfirmed: false))
-                    }
-                }
+                strongSelf.delegate?.didDeleteAccount(account: wallet, in: strongSelf)
             }.store(in: &cancelable)
 
         output.copiedToClipboard
@@ -145,7 +122,7 @@ class AccountsViewController: UIViewController {
         switch dataSource.item(at: indexPath) {
         case .wallet(let viewModel):
             delegate?.didSelectInfoForAccount(account: viewModel.wallet, sender: cell, in: self)
-        case .undefined, .summary:
+        case .summary:
             break
         }
     }
@@ -157,8 +134,6 @@ extension AccountsViewController {
             guard let strongSelf = self else { return UITableViewCell() }
 
             switch viewModel {
-            case .undefined:
-                return UITableViewCell()
             case .wallet(let viewModel):
                 let cell: AccountViewCell = tableView.dequeueReusableCell(for: indexPath)
                 cell.configure(viewModel: viewModel)
@@ -181,7 +156,7 @@ extension AccountsViewController: PopNotifiable {
         delegate?.didClose(in: self)
     }
 }
-// MARK: - TableView Delegate
+
 extension AccountsViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
@@ -196,7 +171,6 @@ extension AccountsViewController: UITableViewDelegate {
         return headerView
     }
 
-    //Hide the footer
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         .leastNormalMagnitude
     }
@@ -205,8 +179,46 @@ extension AccountsViewController: UITableViewDelegate {
         nil
     }
 
+    private func askDeleteWallet(indexPath: IndexPath, completion: @escaping (Bool) -> Void) {
+        confirm(title: R.string.localizable.accountsConfirmDeleteTitle(),
+                message: R.string.localizable.accountsConfirmDeleteMessage(),
+                okTitle: R.string.localizable.accountsConfirmDeleteOkTitle(),
+                okStyle: .destructive) { [deleteWallet, dataSource] result in
+
+            switch result {
+            case .success:
+                dataSource.delete(at: indexPath)
+
+                deleteWallet.send(indexPath)
+                completion(true)
+            case .failure:
+                completion(false)
+            }
+        }
+    }
+
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        return viewModel.trailingSwipeActionsConfiguration(for: indexPath)
+        let actions = viewModel.trailingSwipeActionsConfiguration(for: indexPath).map { action -> UIContextualAction in
+            let contextualAction = UIContextualAction(style: .normal, title: action.title) { [copyToClipboard] _, _, complete in
+                switch action {
+                case .copyToClipboard:
+                    copyToClipboard.send(indexPath)
+                    complete(true)
+                case .deleteWallet:
+                    self.askDeleteWallet(indexPath: indexPath, completion: complete)
+                }
+            }
+
+            contextualAction.image = action.icon
+            contextualAction.backgroundColor = action.backgroundColor
+
+            return contextualAction
+        }
+
+        let configuration = UISwipeActionsConfiguration(actions: actions)
+        configuration.performsFirstActionWithFullSwipe = true
+
+        return configuration
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -215,17 +227,25 @@ extension AccountsViewController: UITableViewDelegate {
         switch dataSource.item(at: indexPath) {
         case .wallet(let viewModel):
             delegate?.didSelectAccount(account: viewModel.wallet, in: self)
-        case .summary, .undefined:
+        case .summary:
             break
         }
     }
 }
 
 extension UITableViewDiffableDataSource {
+
     func item(at indexPath: IndexPath) -> ItemIdentifierType {
         let snapshot = snapshot()
         let section = snapshot.sectionIdentifiers[indexPath.section]
         return snapshot.itemIdentifiers(inSection: section)[indexPath.row]
+    }
+
+    func delete(at indexPath: IndexPath, animatingDifferences: Bool = true) {
+        let item = item(at: indexPath)
+        var snapshot = snapshot()
+        snapshot.deleteItems([item])
+        apply(snapshot, animatingDifferences: animatingDifferences)
     }
 }
 

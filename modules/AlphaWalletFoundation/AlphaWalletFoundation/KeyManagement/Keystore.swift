@@ -27,7 +27,7 @@ public protocol Keystore: AnyObject {
     func exportRawPrivateKeyFromHdWallet0thAddressForBackup(forAccount account: AlphaWallet.Address, prompt: String, newPassword: String) -> AnyPublisher<Result<String, KeystoreError>, Never>
     func exportSeedPhraseOfHdWallet(forAccount account: AlphaWallet.Address, context: LAContext, prompt: String) -> AnyPublisher<Result<String, KeystoreError>, Never>
     func verifySeedPhraseOfHdWallet(_ inputSeedPhrase: String, forAccount account: AlphaWallet.Address, prompt: String, context: LAContext) -> AnyPublisher<Result<Bool, KeystoreError>, Never>
-    func delete(wallet: Wallet) -> Result<Void, KeystoreError>
+    func delete(wallet: Wallet)
     func isProtectedByUserPresence(account: AlphaWallet.Address) -> Bool
     func signPersonalMessage(_ message: Data, for account: AlphaWallet.Address, prompt: String) -> Result<Data, KeystoreError>
     func signTypedMessage(_ datas: [EthTypedData], for account: AlphaWallet.Address, prompt: String) -> Result<Data, KeystoreError>
