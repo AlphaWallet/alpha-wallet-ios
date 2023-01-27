@@ -242,7 +242,7 @@ public class AssetDefinitionStore: NSObject {
         let request = AssetDefinitionNetworking.GetXmlFileRequest(url: url, lastModifiedDate: lastModified)
 
         networking.fetchXml(request: request)
-            .sinkAsync(receiveCompletion: { [weak self] _ in
+            .sinkAsync(receiveCompletion: { _ in
                 //no-op
             }, receiveValue: { [weak self] response in
                 guard let strongSelf = self else { return }
