@@ -9,7 +9,7 @@ import Foundation
 import AlphaWalletWeb3
 import BigInt
 
-struct AssetAttributeMethodCall: ContractMethodCall {
+class AssetAttributeMethodCall: ContractMethodCall {
     typealias Response = AssetInternalValue
 
     private let functionCall: AssetFunctionCall
