@@ -7,7 +7,6 @@
 
 import Foundation
 import BigInt
-import PromiseKit
 import Combine
 
 final class PendingTransactionProvider {
@@ -24,7 +23,7 @@ final class PendingTransactionProvider {
         return queue
     }()
 
-    private lazy var store: AtomicDictionary<String, SchedulerProtocol> = .init()
+    private var store: [String: SchedulerProtocol] = [:]
 
     init(session: WalletSession, transactionDataStore: TransactionDataStore, ercTokenDetector: ErcTokenDetector) {
         self.session = session
@@ -36,14 +35,13 @@ final class PendingTransactionProvider {
         transactionDataStore
             .initialOrNewTransactionsPublisher(forServer: session.server, transactionState: .pending)
             .receive(on: queue)
-            .sink { [weak self] transactions in
-                self?.runPendingTransactionWatchers(transactions: transactions)
-            }.store(in: &cancelable)
+            .sink { [weak self] transactions in self?.runPendingTransactionWatchers(transactions: transactions) }
+            .store(in: &cancelable)
     }
 
     func cancelScheduler() {
         queue.async {
-            for each in self.store.values {
+            for each in self.store {
                 each.value.cancel()
             }
         }
@@ -51,31 +49,47 @@ final class PendingTransactionProvider {
 
     func resumeScheduler() {
         queue.async {
-            for each in self.store.values {
+            for each in self.store {
                 each.value.resume()
             }
         }
     }
 
     deinit {
-        for each in store.values {
-            each.value.cancel()
+        queue.async {
+            for each in self.store {
+                each.value.cancel()
+            }
         }
     }
 
     private func runPendingTransactionWatchers(transactions: [TransactionInstance]) {
         for each in transactions {
-            if store[each.id] != nil {
-                //no-op
-            } else {
-                let provider = PendingTransactionSchedulerProvider(blockchainProvider: session.blockchainProvider, transaction: each, fetchPendingTransactionsQueue: fetchPendingTransactionsQueue)
-                provider.delegate = self
-                let scheduler = Scheduler(provider: provider)
+            guard store[each.id] == nil else { continue }
 
-                scheduler.start()
+            let provider = PendingTransactionSchedulerProvider(
+                blockchainProvider: session.blockchainProvider,
+                transaction: each,
+                fetchPendingTransactionsQueue: fetchPendingTransactionsQueue)
 
-                store[each.id] = scheduler
-            }
+            provider.responsePublisher
+                .receive(on: queue)
+                .sink { [weak self] in self?.handle(response: $0, for: provider) }
+                .store(in: &cancelable)
+
+            let scheduler = Scheduler(provider: provider)
+            scheduler.start()
+
+            store[each.id] = scheduler
+        }
+    }
+
+    private func handle(response: Result<PendingTransaction, SessionTaskError>, for provider: PendingTransactionSchedulerProvider) {
+        switch response {
+        case .success(let pendingTransaction):
+            didReceiveValue(transaction: provider.transaction, pendingTransaction: pendingTransaction)
+        case .failure(let error):
+            didReceiveError(error: error, forTransaction: provider.transaction)
         }
     }
 
@@ -92,41 +106,25 @@ final class PendingTransactionProvider {
         store[transaction.id] = nil
     }
 
-    private func didReceiveError(error: Covalent.CovalentError, forTransaction transaction: TransactionInstance) {
+    private func didReceiveError(error: SessionTaskError, forTransaction transaction: TransactionInstance) {
         switch error {
-        case .jsonDecodeFailure, .requestFailure:
-            break
-        case .sessionError(let error):
-            switch error {
-            case .responseError(let error):
-                // TODO: Think about the logic to handle pending transactions.
-                //TODO we need to detect when a transaction is marked as failed by the node?
-                switch error as? JSONRPCError {
-                case .responseError:
-                    transactionDataStore.delete(transactions: [transaction])
-                    cancelScheduler(transaction: transaction)
-                case .resultObjectParseError:
-                    guard transactionDataStore.hasCompletedTransaction(withNonce: transaction.nonce, forServer: session.server) else { return }
-                    transactionDataStore.delete(transactions: [transaction])
-                    cancelScheduler(transaction: transaction)
-                    //The transaction might not be posted to this node yet (ie. it doesn't even think that this transaction is pending). Especially common if we post a transaction to Ethermine and fetch pending status through Etherscan
-                case .responseNotFound, .errorObjectParseError, .unsupportedVersion, .unexpectedTypeObject, .missingBothResultAndError, .nonArrayResponse, .none:
-                    break
-                }
-            case .connectionError, .requestError:
+        case .responseError(let error):
+            // TODO: Think about the logic to handle pending transactions.
+            //TODO we need to detect when a transaction is marked as failed by the node?
+            switch error as? JSONRPCError {
+            case .responseError:
+                transactionDataStore.delete(transactions: [transaction])
+                cancelScheduler(transaction: transaction)
+            case .resultObjectParseError:
+                guard transactionDataStore.hasCompletedTransaction(withNonce: transaction.nonce, forServer: session.server) else { return }
+                transactionDataStore.delete(transactions: [transaction])
+                cancelScheduler(transaction: transaction)
+                //The transaction might not be posted to this node yet (ie. it doesn't even think that this transaction is pending). Especially common if we post a transaction to Ethermine and fetch pending status through Etherscan
+            case .responseNotFound, .errorObjectParseError, .unsupportedVersion, .unexpectedTypeObject, .missingBothResultAndError, .nonArrayResponse, .none:
                 break
             }
-        }
-    }
-}
-
-extension PendingTransactionProvider: PendingTransactionSchedulerProviderDelegate {
-    func didReceiveResponse(_ response: Swift.Result<PendingTransaction, Covalent.CovalentError>, in provider: PendingTransactionSchedulerProvider) {
-        switch response {
-        case .success(let pendingTransaction):
-            didReceiveValue(transaction: provider.transaction, pendingTransaction: pendingTransaction)
-        case .failure(let error):
-            didReceiveError(error: error, forTransaction: provider.transaction)
+        case .connectionError, .requestError:
+            break
         }
     }
 }

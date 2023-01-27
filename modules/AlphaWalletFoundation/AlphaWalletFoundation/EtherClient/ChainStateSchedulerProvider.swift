@@ -22,7 +22,7 @@ public final class BlockNumberSchedulerProvider: SchedulerProvider {
     var interval: TimeInterval { return Constants.BlockNumberProvider.getChainStateInterval }
     var name: String { "BlockNumberSchedulerProvider.\(blockchainProvider.server)" }
 
-    var operation: AnyPublisher<Void, SchedulerError> {
+    var operation: AnyPublisher<Void, PromiseError> {
         blockchainProvider
             .blockNumber()
             .handleEvents(receiveOutput: { [weak self] response in
@@ -31,7 +31,7 @@ public final class BlockNumberSchedulerProvider: SchedulerProvider {
                 guard case .failure(let e) = result else { return }
                 self?.didReceiveError(error: PromiseError(error: e))
             }).mapToVoid()
-            .mapError { SchedulerError.promiseError(PromiseError(error: $0)) }
+            .mapError { PromiseError(error: $0) }
             .eraseToAnyPublisher()
     }
     public weak var delegate: BlockNumberSchedulerProviderDelegate?

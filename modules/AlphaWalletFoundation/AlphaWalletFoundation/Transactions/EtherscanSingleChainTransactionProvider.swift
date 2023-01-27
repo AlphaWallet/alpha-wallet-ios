@@ -40,15 +40,13 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
     private let networkService: NetworkService
     private var cancelable = Set<AnyCancellable>()
 
-    weak public var delegate: SingleChainTransactionProviderDelegate?
-
-    required init(session: WalletSession,
-                  analytics: AnalyticsLogger,
-                  transactionDataStore: TransactionDataStore,
-                  tokensService: TokenProvidable,
-                  fetchLatestTransactionsQueue: OperationQueue,
-                  ercTokenDetector: ErcTokenDetector,
-                  networkService: NetworkService) {
+    init(session: WalletSession,
+         analytics: AnalyticsLogger,
+         transactionDataStore: TransactionDataStore,
+         tokensService: TokenProvidable,
+         fetchLatestTransactionsQueue: OperationQueue,
+         ercTokenDetector: ErcTokenDetector,
+         networkService: NetworkService) {
 
         self.networkService = networkService
         self.tokensService = tokensService
@@ -67,6 +65,10 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
             fetchOlderTransactions()
             autoDetectErc20Transactions()
             autoDetectErc721Transactions()
+        }
+
+        queue.async { [weak self] in
+            self?.removeUnknownTransactions()
         }
     }
 
@@ -91,6 +93,11 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
                 strongSelf.autoDetectErc721Transactions()
             }
         }, selector: #selector(Operation.main), userInfo: nil, repeats: true)
+    }
+
+    private func removeUnknownTransactions() {
+        //TODO why do we remove such transactions? especially `.failed` and `.unknown`?
+        transactionDataStore.removeTransactions(for: [.unknown], servers: [session.server])
     }
 
     private func autoDetectErc20Transactions() {

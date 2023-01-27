@@ -8,9 +8,10 @@
 import Foundation
 import Combine
 import CombineExt
+import AlphaWalletCore
 
 protocol OldestTransactionSchedulerProviderDelegate: AnyObject {
-    func didReceiveResponse(_ response: Swift.Result<[TransactionInstance], Covalent.CovalentError>, in provider: OldestTransactionSchedulerProvider)
+    func didReceiveResponse(_ response: Swift.Result<[TransactionInstance], PromiseError>, in provider: OldestTransactionSchedulerProvider)
 }
 
 final class OldestTransactionSchedulerProvider: SchedulerProvider {
@@ -22,7 +23,7 @@ final class OldestTransactionSchedulerProvider: SchedulerProvider {
     private let networkService: CovalentNetworkService
     var interval: TimeInterval { Constants.Covalent.oldestTransactionUpdateInterval }
     var name: String { "OldestTransactionSchedulerProvider" }
-    var operation: AnyPublisher<Void, SchedulerError> {
+    var operation: AnyPublisher<Void, PromiseError> {
         return fetchOldestTransactionPublisher()
     }
 
@@ -34,7 +35,7 @@ final class OldestTransactionSchedulerProvider: SchedulerProvider {
         self.fetchLatestTransactionsQueue = fetchLatestTransactionsQueue
     }
 
-    private func fallbackForUnsupportedServer() -> AnyPublisher<Void, SchedulerError> {
+    private func fallbackForUnsupportedServer() -> AnyPublisher<Void, PromiseError> {
         delegate?.didReceiveResponse(.success([]), in: self)
         session.config.set(covalentOldestPageForServer: session.server, wallet: session.account, page: nil)
 
@@ -51,11 +52,11 @@ final class OldestTransactionSchedulerProvider: SchedulerProvider {
         isInitialCall = false
     }
 
-    private func didReceiveError(_ e: Covalent.CovalentError) {
+    private func didReceiveError(_ e: PromiseError) {
         delegate?.didReceiveResponse(.failure(e), in: self)
     }
 
-    private func fetchOldestTransactionPublisher() -> AnyPublisher<Void, SchedulerError> {
+    private func fetchOldestTransactionPublisher() -> AnyPublisher<Void, PromiseError> {
         let lastPage = session.config
             .covalentOldestPage(server: session.server, wallet: session.account)
             .flatMap { isInitialCall ? $0 : $0 + 1 }
@@ -72,10 +73,10 @@ final class OldestTransactionSchedulerProvider: SchedulerProvider {
                 self?.didReceiveValue(response)
             }, receiveCompletion: { [weak self] result in
                 guard case .failure(let e) = result else { return }
-                self?.didReceiveError(e)
+                self?.didReceiveError(PromiseError(error: e))
             })
             .mapToVoid()
-            .mapError { SchedulerError.covalentError($0) }
+            .mapError { PromiseError(error: $0) }
             .eraseToAnyPublisher()
     }
 }

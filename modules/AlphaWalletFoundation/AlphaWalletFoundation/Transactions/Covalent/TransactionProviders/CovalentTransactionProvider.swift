@@ -36,14 +36,12 @@ public class CovalentSingleChainTransactionProvider: SingleChainTransactionProvi
         return provider
     }()
 
-    weak public var delegate: SingleChainTransactionProviderDelegate?
-
-    public required init(session: WalletSession,
-                         analytics: AnalyticsLogger,
-                         transactionDataStore: TransactionDataStore,
-                         fetchLatestTransactionsQueue: OperationQueue,
-                         ercTokenDetector: ErcTokenDetector,
-                         networkService: NetworkService) {
+    public init(session: WalletSession,
+                analytics: AnalyticsLogger,
+                transactionDataStore: TransactionDataStore,
+                fetchLatestTransactionsQueue: OperationQueue,
+                ercTokenDetector: ErcTokenDetector,
+                networkService: NetworkService) {
 
         self.session = session
         self.networkService = CovalentNetworkService(networkService: networkService, walletAddress: session.account.address, server: session.server)
@@ -57,6 +55,9 @@ public class CovalentSingleChainTransactionProvider: SingleChainTransactionProvi
         oldestTransactionProvider.startScheduler()
         newlyAddedTransactionProvider.startScheduler()
         pendingTransactionProvider.start()
+        fetchLatestTransactionsQueue.addOperation { [weak self] in
+            self?.removeUnknownTransactions()
+        }
     }
 
     public func stopTimers() {
@@ -81,5 +82,10 @@ public class CovalentSingleChainTransactionProvider: SingleChainTransactionProvi
 
     public func isServer(_ server: RPCServer) -> Bool {
         return session.server == server
+    }
+
+    private func removeUnknownTransactions() {
+        //TODO why do we remove such transactions? especially `.failed` and `.unknown`?
+        transactionDataStore.removeTransactions(for: [.unknown], servers: [session.server])
     }
 }

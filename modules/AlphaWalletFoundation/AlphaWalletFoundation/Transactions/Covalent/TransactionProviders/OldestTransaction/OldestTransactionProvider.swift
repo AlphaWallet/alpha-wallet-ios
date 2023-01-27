@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import AlphaWalletCore
 
 final class OldestTransactionProvider: NSObject {
     private let session: WalletSession
@@ -49,7 +50,7 @@ final class OldestTransactionProvider: NSObject {
         scheduler.cancel()
     }
 
-    private func didReceiveError(error: Covalent.CovalentError) {
+    private func didReceiveError(error: PromiseError) {
         transactionsTracker.fetchingState = .failed
     }
 
@@ -65,7 +66,7 @@ final class OldestTransactionProvider: NSObject {
 }
 
 extension OldestTransactionProvider: OldestTransactionSchedulerProviderDelegate {
-    func didReceiveResponse(_ response: Swift.Result<[TransactionInstance], Covalent.CovalentError>, in provider: OldestTransactionSchedulerProvider) {
+    func didReceiveResponse(_ response: Swift.Result<[TransactionInstance], PromiseError>, in provider: OldestTransactionSchedulerProvider) {
         switch response {
         case .success(let transactions):
             didReceiveValue(transactions: transactions)
