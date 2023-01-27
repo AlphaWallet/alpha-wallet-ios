@@ -56,10 +56,8 @@ final class PendingTransactionProvider {
     }
 
     deinit {
-        queue.async {
-            for each in self.store {
-                each.value.cancel()
-            }
+        for each in self.store {
+            each.value.cancel()
         }
     }
 
