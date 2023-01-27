@@ -31,21 +31,27 @@ final class SelectSwapRouteViewModel {
     }
 
     func transform(input: SelectSwapRouteViewModelInput) -> SelectSwapRouteViewModelOutput {
-        let selection = input.selection
-            .map { [storage] indexPath -> SwapRoute? in storage.swapRoute(at: indexPath.row) }
-            .handleEvents(receiveOutput: { [weak self] in self?.set(prefferedSwapRoute: $0) })
-            .prepend(nil)
+        let selection = routeSelection(input: input.selection)
 
-        let swapRoutes = input.willAppear
+        let viewState = Publishers.Merge(input.willAppear, selection)
             .flatMapLatest { [storage] _ in storage.swapRoutes }
-
-        let viewState = Publishers.CombineLatest(swapRoutes, selection)
             .map { routes -> [SelectableSwapRouteTableViewCellViewModel] in
-                return routes.0.map { return .init(swapRoute: $0, isSelected: self.isSelected($0)) }
+                return routes.map { return .init(swapRoute: $0, isSelected: self.isSelected($0)) }
             }.map { self.buildSnapshot(viewModels: $0) }
             .map { SelectSwapRouteViewModel.ViewState(title: "Select Route".uppercased(), snapshot: $0) }
 
         return .init(viewState: viewState.eraseToAnyPublisher())
+    }
+
+    private func routeSelection(input selection: AnyPublisher<IndexPath, Never>) -> AnyPublisher<Void, Never> {
+        return selection
+            .map { [storage] indexPath -> SwapRoute? in storage.swapRoute(at: indexPath.row) }
+            .filter { route in
+                guard let route = route else { return true }
+                return !self.isSelected(route)
+            }.handleEvents(receiveOutput: { [weak self] in self?.set(prefferedSwapRoute: $0) })
+            .mapToVoid()
+            .eraseToAnyPublisher()
     }
 
     private func buildSnapshot(viewModels: [SelectableSwapRouteTableViewCellViewModel]) -> Snapshot {

@@ -80,10 +80,14 @@ public final class SwapOptionsConfigurator {
         let exchanges = tokenSwapper.storage.selectedTools.map { $0.map { $0.key }.filter { $0.nonEmpty } }
         let swapParams = Publishers.CombineLatest4(fromAndToTokens, amount, slippage, exchanges)
 
-        return Publishers.CombineLatest(swapParams, tokenSwapper.storage.prefferedExchange)
+        let prefferedExchange = tokenSwapper.storage.prefferedExchange
+            .removeDuplicates()
+            .debounce(for: .milliseconds(250), scheduler: RunLoop.main)
+
+        return Publishers.CombineLatest(swapParams, prefferedExchange)
             .compactMap { [weak self] (params, prefferedExchange) -> AnyPublisher<SwapQuote?, Never>? in
                 if params.1 == .zero {
-                    return Just<SwapQuote?>(nil).eraseToAnyPublisher()
+                    return .just(nil)
                 } else {
                     return self?.fetchSwapQuote(tokens: params.0, amount: params.1, slippage: params.2, exchanges: params.3, prefferedExchange: prefferedExchange)
                 }
