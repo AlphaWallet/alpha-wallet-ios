@@ -182,27 +182,12 @@ final class TokensViewModel {
     func transform(input: TokensViewModelInput) -> TokensViewModelOutput {
         cancellable.cancellAll()
 
-        let refreshTokens: AnyPublisher<Void, Never> = Publishers.Merge(input.appear, input.pullToRefresh).eraseToAnyPublisher()
+        let pullToRefreshState = pullToRefreshState(input: input.pullToRefresh)
 
-            //NOTE: when we make db snapshot data mignt not changed, so table view refresh control will never ended, as we do `viewModelsSubject.removeDuplicates()`
-        let beginLoading = input.pullToRefresh.map { _ in PullToRefreshState.beginLoading }
-        let loadingHasEnded = beginLoading.delay(for: .seconds(2), scheduler: RunLoop.main)
-            .map { _ in PullToRefreshState.endLoading }
-
-        let fakePullToRefreshState = Just<PullToRefreshState>(PullToRefreshState.idle)
-            .merge(with: beginLoading, loadingHasEnded)
-            .compactMap { state -> TokensViewModel.RefreshControlState? in
-                switch state {
-                case .idle: return nil
-                case .endLoading: return .endLoading
-                case .beginLoading: return .beginLoading
-                }
-            }.eraseToAnyPublisher()
-
-        refreshTokens.receive(on: RunLoop.main)
-            .sink { [tokenCollection] _ in
-                tokenCollection.refresh()
-            }.store(in: &cancellable)
+        Publishers.Merge(input.appear, input.pullToRefresh)
+            .receive(on: RunLoop.main)
+            .sink { [tokenCollection] _ in tokenCollection.refresh() }
+            .store(in: &cancellable)
 
         walletConnectProvider.sessionsPublisher
             .receive(on: RunLoop.main)
@@ -217,25 +202,9 @@ final class TokensViewModel {
                 self?.reloadData()
             }.store(in: &cancellable)
 
-        let walletSummary = walletBalanceService
-            .walletBalance(for: wallet)
-            .map { value in WalletSummary(balances: [value]) }
-            .prepend(WalletSummary(balances: []))
-            .eraseToAnyPublisher()
-
-        let title = input.appear
-            .flatMap { [walletNameFetcher, wallet] _ -> AnyPublisher<String, Never> in
-                walletNameFetcher.assignedNameOrEns(for: wallet.address)
-                    .map { $0 ?? wallet.address.truncateMiddle }
-                    .prepend(wallet.address.truncateMiddle)
-                    .eraseToAnyPublisher()
-            }.eraseToAnyPublisher()
-
-        let blockieImage = input.appear
-            .flatMap { [blockiesGenerator, wallet] _ in
-                blockiesGenerator.getBlockieOrEnsAvatarImage(address: wallet.address, fallbackImage: BlockiesImage.defaulBlockieImage)
-            }.eraseToAnyPublisher()
-
+        let walletSummary = walletSummary()
+        let title = title(input: input.appear)
+        let blockieImage = blockieImage(input: input.appear)
         let selection = selection(trigger: input.selection)
 
         let titleWithListOfBadTokenScriptFiles = Publishers.CombineLatest(title, assetDefinitionStore.listOfBadTokenScriptFiles)
@@ -255,12 +224,53 @@ final class TokensViewModel {
 
         let applyTableInset = applyTableInset(keyboard: input.keyboard)
 
+        reloadData()
+
         return .init(
             viewState: viewState,
             selection: selection,
-            pullToRefreshState: fakePullToRefreshState,
+            pullToRefreshState: pullToRefreshState,
             deletion: deletionSubject.eraseToAnyPublisher(),
             applyTableInset: applyTableInset)
+    }
+
+    private func walletSummary() -> AnyPublisher<WalletSummary, Never> {
+        walletBalanceService
+            .walletBalance(for: wallet)
+            .map { value in WalletSummary(balances: [value]) }
+            .prepend(WalletSummary(balances: []))
+            .eraseToAnyPublisher()
+    }
+
+    private func blockieImage(input appear: AnyPublisher<Void, Never>) -> AnyPublisher<BlockiesImage, Never> {
+        return appear.flatMap { [blockiesGenerator, wallet] _ in
+            blockiesGenerator.getBlockieOrEnsAvatarImage(address: wallet.address, fallbackImage: BlockiesImage.defaulBlockieImage)
+        }.eraseToAnyPublisher()
+    }
+
+    private func title(input appear: AnyPublisher<Void, Never>) -> AnyPublisher<String, Never> {
+        return appear.flatMap { [walletNameFetcher, wallet] _ -> AnyPublisher<String, Never> in
+            walletNameFetcher.assignedNameOrEns(for: wallet.address)
+                .map { $0 ?? wallet.address.truncateMiddle }
+                .eraseToAnyPublisher()
+        }.prepend(wallet.address.truncateMiddle)
+        .eraseToAnyPublisher()
+    }
+
+    private func pullToRefreshState(input pullToRefresh: AnyPublisher<Void, Never>) -> AnyPublisher<RefreshControlState, Never> {
+        let beginLoading = pullToRefresh.map { _ in PullToRefreshState.beginLoading }
+        let loadingHasEnded = beginLoading.delay(for: .seconds(2), scheduler: RunLoop.main)
+            .map { _ in PullToRefreshState.endLoading }
+
+        return Just<PullToRefreshState>(PullToRefreshState.idle)
+            .merge(with: beginLoading, loadingHasEnded)
+            .compactMap { state -> TokensViewModel.RefreshControlState? in
+                switch state {
+                case .idle: return nil
+                case .endLoading: return .endLoading
+                case .beginLoading: return .beginLoading
+                }
+            }.eraseToAnyPublisher()
     }
 
     private func applyTableInset(keyboard: AnyPublisher<KeyboardChecker.KeyboardState, Never>) -> AnyPublisher<KeyboardInset, Never> {
