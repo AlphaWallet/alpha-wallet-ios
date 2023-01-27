@@ -9,7 +9,7 @@ import Foundation
 import AlphaWalletWeb3
 import BigInt
 
-struct Erc721GetBalancesMethodCall: ContractMethodCall {
+class Erc721GetBalancesMethodCall: ContractMethodCall {
     typealias Response = [String]
 
     private let function = GetERC721ForTicketsBalance()

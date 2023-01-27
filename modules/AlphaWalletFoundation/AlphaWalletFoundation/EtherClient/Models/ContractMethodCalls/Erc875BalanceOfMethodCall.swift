@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Erc875BalanceOfMethodCall: ContractMethodCall {
+class Erc875BalanceOfMethodCall: ContractMethodCall {
     typealias Response = [String]
 
     private let function = GetERC875Balance()
