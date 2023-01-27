@@ -260,11 +260,11 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
                 case .failure(let error):
                     self?.show(error: error)
                 case .success(let override):
-                    importToken.importToken(for: override.contract, server: override.server, onlyIfThereIsABalance: false)
-                        .done { _ in }
-                        .catch { error in
+                    importToken.importTokenPublisher(for: override.contract, server: override.server, onlyIfThereIsABalance: false)
+                        .sinkAsync(receiveCompletion: { result in
+                            guard case .failure(let error) = result else { return }
                             debugLog("Error while adding imported token contract: \(override.contract.eip55String) server: \(override.server) wallet: \(wallet.address.eip55String) error: \(error)")
-                        }
+                        })
                     if !override.destinationFileInUse {
                         self?.show(openedURL: override.filename)
                     }
