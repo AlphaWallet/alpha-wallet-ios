@@ -18,7 +18,6 @@ struct SwapRouteSummaryViewModelOutput {
 }
 
 final class SwapRouteSummaryViewModel {
-    private let etherFormatter: EtherNumberFormatter = .plain
     private let route: AnyPublisher<SwapRoute?, Never>
 
     init(route: AnyPublisher<SwapRoute?, Never>) {
@@ -28,7 +27,12 @@ final class SwapRouteSummaryViewModel {
     func transform(input: SwapRouteSummaryViewModelInput) -> SwapRouteSummaryViewModelOutput {
         let viewState = route.map { route -> SwapRouteSummaryViewModel.ViewState in
             let serverImage = route.flatMap { RPCServer(chainID: $0.toToken.chainId).iconImage }
-            return .init(serverImage: serverImage, amountToHeader: self.amountToHeader, amountTo: self.amountTo(for: route), currentPriceHeader: self.currentPriceHeader, currentPrice: self.currentPrice(for: route))
+            return .init(
+                serverImage: serverImage,
+                amountToHeader: self.amountToHeader,
+                amountTo: self.amountTo(for: route),
+                currentPriceHeader: self.currentPriceHeader,
+                currentPrice: self.currentPrice(for: route))
         }.eraseToAnyPublisher()
 
         return .init(viewState: viewState)
@@ -49,37 +53,34 @@ final class SwapRouteSummaryViewModel {
     }
 
     private func currentPrice(for swapRoute: SwapRoute?) -> NSAttributedString {
-        let currentPrice = swapRoute.flatMap { route in
-            let toAmount = etherFormatter.string(from: route.toAmount, decimals: route.toToken.decimals)
-            let fromAmount = etherFormatter.string(from: route.fromAmount, decimals: route.fromToken.decimals)
+        guard let route = swapRoute else { return attributedValue("-") }
 
-            guard
-                let toAmount = toAmount.optionalDecimalValue?.doubleValue,
-                let fromAmount = fromAmount.optionalDecimalValue?.doubleValue
-            else { return "-" }
+        let toAmount = Decimal(bigUInt: route.toAmount, decimals: route.toToken.decimals)
+        let fromAmount = Decimal(bigUInt: route.fromAmount, decimals: route.fromToken.decimals)
 
-            let rate: Double? = {
-                guard fromAmount > 0 else { return nil }
-                return (toAmount / fromAmount).nilIfNan
-            }()
-            guard let cryptoToCryptoRate = rate.flatMap({ NumberFormatter.shortCrypto.string(double: $0).flatMap { "\($0) \(route.toToken.symbol)" } }) else { return "-" }
+        guard let toAmount = toAmount, let fromAmount = fromAmount else { return attributedValue("-") }
+        guard fromAmount > 0, let rate = (toAmount / fromAmount).nilIfNan else { return attributedValue("-") }
 
-            return "1 \(route.fromToken.symbol) = \(cryptoToCryptoRate)"
-        } ?? "-"
+        let string = NumberFormatter.shortCrypto.string(double: rate.doubleValue, minimumFractionDigits: 2, maximumFractionDigits: 4).droppedTrailingZeros
 
-        return .init(string: currentPrice, attributes: [
-            .font: Fonts.semibold(size: 16),
-            .foregroundColor: Configuration.Color.Semantic.alternativeText
-        ])
+        let currentPrice = "1 \(route.fromToken.symbol) = \(string) \(route.toToken.symbol)"
+
+        return attributedValue(currentPrice)
     }
 
     private func amountTo(for swapRoute: SwapRoute?) -> NSAttributedString {
-        let amountTo = swapRoute.flatMap { route -> String? in
-            let fromAmount = EtherNumberFormatter.plain.string(from: route.fromAmount, decimals: route.fromToken.decimals)
-            return "\(fromAmount) \(route.fromToken.symbol)"
-        } ?? "-"
+        guard let route = swapRoute else { return attributedValue("-") }
 
-        return .init(string: amountTo, attributes: [
+        let fromAmount = Decimal(bigUInt: route.fromAmount, decimals: route.fromToken.decimals) ?? .zero
+        let string = NumberFormatter.shortCrypto.string(double: fromAmount.doubleValue, minimumFractionDigits: 6, maximumFractionDigits: 8).droppedTrailingZeros
+
+        let amountTo = "\(string) \(route.fromToken.symbol)"
+
+        return attributedValue(amountTo)
+    }
+
+    private func attributedValue(_ string: String) -> NSAttributedString {
+        return .init(string: string, attributes: [
             .font: Fonts.semibold(size: 16),
             .foregroundColor: Configuration.Color.Semantic.alternativeText
         ])

@@ -43,6 +43,13 @@ public extension Double {
     }
 }
 
+public extension Decimal {
+    var nilIfNan: Decimal? {
+        guard !isNaN else { return nil }
+        return self
+    }
+}
+
 public extension WalletSummary {
     public enum functional {}
 }
