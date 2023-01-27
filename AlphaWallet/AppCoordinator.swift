@@ -296,7 +296,12 @@ class AppCoordinator: NSObject, Coordinator {
 
         keystore.didAddWallet
             .sink { [promptBackup] in
-                promptBackup.markWalletAsImported(wallet: $0.wallet)
+                switch $0.event {
+                case .new, .watch:
+                    break
+                case .keystore, .mnemonic, .privateKey:
+                    promptBackup.markWalletAsImported(wallet: $0.wallet)
+                }
             }.store(in: &cancelable)
 
         keystore.walletsPublisher
