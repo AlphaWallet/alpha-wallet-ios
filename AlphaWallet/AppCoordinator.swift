@@ -332,7 +332,7 @@ class AppCoordinator: NSObject, Coordinator {
                 infoLog("Ticker ID positive matching counts: \(TickerIdFilter.matchCounts)")
             }
         }
-        
+
         blockchainsProvider.start()
         DatabaseMigration.dropDeletedRealmFiles(excluding: walletAddressesStore.wallets)
         protectionCoordinator.didFinishLaunchingWithOptions()

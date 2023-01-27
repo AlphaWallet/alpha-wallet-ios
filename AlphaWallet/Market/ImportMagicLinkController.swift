@@ -14,7 +14,6 @@ import AlphaWalletWeb3
 
 // swiftlint:disable type_body_length
 final class ImportMagicLinkController {
-
     private enum TransactionType {
         case freeTransfer(request: ImportMagicLinkNetworking.FreeTransferRequest)
         case paid(signedOrder: SignedOrder, token: Token)

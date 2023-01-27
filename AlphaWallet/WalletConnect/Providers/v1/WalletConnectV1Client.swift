@@ -100,7 +100,7 @@ final class WalletConnectV1NativeClient: WalletConnectV1Client {
             }
         }
         connectionTimeoutTimers[url] = timer
-        
+
         try server.connect(to: url)
     }
 
