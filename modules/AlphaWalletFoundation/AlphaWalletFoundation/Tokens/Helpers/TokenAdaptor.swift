@@ -64,7 +64,10 @@ public class TokenAdaptor {
     private let eventsDataStore: NonActivityEventsDataStore
     private let xmlHandler: XMLHandler
 
-    public init(token: TokenScriptSupportable, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore) {
+    public init(token: TokenScriptSupportable,
+                assetDefinitionStore: AssetDefinitionStore,
+                eventsDataStore: NonActivityEventsDataStore) {
+
         self.token = token
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
@@ -327,16 +330,14 @@ public class TokenAdaptor {
                 name: nonFungible.contractName,
                 symbol: "",
                 status: status,
-                values: values
-        )
+                values: values)
     }
 
     private func getTokenHolder(for tokens: [TokenScript.Token]) -> TokenHolder {
         return TokenHolder(
                 tokens: tokens,
                 contractAddress: token.contractAddress,
-                hasAssetDefinition: xmlHandler.hasAssetDefinition
-        )
+                hasAssetDefinition: xmlHandler.hasAssetDefinition)
     }
 
 }
