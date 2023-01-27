@@ -20,7 +20,7 @@ public class SendTransaction {
                 config: Config,
                 analytics: AnalyticsLogger,
                 prompt: String) {
-        
+
         self.prompt = prompt
         self.session = session
         self.keystore = keystore

@@ -50,7 +50,7 @@ extension BlockscanChat {
         func asURLRequest() throws -> URLRequest {
             guard var components = URLComponents(url: Constants.BlockscanChat.unreadCountBaseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
             components.path = "/blockscanchat/unreadcount/\(address.eip55String)"
-            
+
             return try URLRequest(url: components.asURL(), method: .get, headers: [
                 "PROXY_KEY": Constants.Credentials.blockscanChatProxyKey
             ])
