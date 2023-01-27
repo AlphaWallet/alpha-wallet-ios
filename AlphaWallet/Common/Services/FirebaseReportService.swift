@@ -7,6 +7,7 @@
 import FirebaseCore
 import FirebaseCrashlytics
 import AlphaWalletFoundation
+import AlphaWalletLogger
 
 extension AlphaWallet {
     final class FirebaseCrashlyticsReporter: CrashlyticsReporter {

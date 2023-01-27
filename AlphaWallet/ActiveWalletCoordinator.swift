@@ -2,6 +2,7 @@ import UIKit
 import PromiseKit
 import Combine
 import AlphaWalletFoundation
+import AlphaWalletLogger
 
 // swiftlint:disable file_length
 protocol ActiveWalletCoordinatorDelegate: AnyObject {

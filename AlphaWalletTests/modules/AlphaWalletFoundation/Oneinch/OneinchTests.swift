@@ -10,6 +10,7 @@ import XCTest
 import Combine
 import CombineExt
 import AlphaWalletCore
+import AlphaWalletLogger
 
 final class OneinchTests: XCTestCase {
     private var cancelable = Set<AnyCancellable>()

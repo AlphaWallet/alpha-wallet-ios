@@ -1,10 +1,11 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright © 2023 Stormbird PTE. LTD.
 
 import Foundation
 import BigInt
 import PromiseKit
 import Combine
 import AlphaWalletCore
+import AlphaWalletLogger
 
 public protocol TransactionConfiguratorDelegate: AnyObject {
     func configurationChanged(in configurator: TransactionConfigurator)

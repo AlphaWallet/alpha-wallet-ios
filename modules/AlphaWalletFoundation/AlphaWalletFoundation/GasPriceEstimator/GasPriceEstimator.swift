@@ -9,6 +9,7 @@ import Foundation
 import BigInt
 import Combine
 import AlphaWalletCore
+import AlphaWalletLogger
 
 public protocol GasPriceEstimator {
     func estimateGasPrice() -> AnyPublisher<GasEstimates, PromiseError>

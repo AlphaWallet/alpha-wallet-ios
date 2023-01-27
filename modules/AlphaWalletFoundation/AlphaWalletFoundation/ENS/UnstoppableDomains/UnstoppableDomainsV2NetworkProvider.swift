@@ -9,6 +9,7 @@ import Combine
 import SwiftyJSON
 import AlphaWalletENS
 import AlphaWalletCore
+import AlphaWalletLogger
 
 struct UnstoppableDomainsV2NetworkProvider {
     private let networkService: NetworkService

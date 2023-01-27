@@ -8,6 +8,7 @@
 import Foundation
 import WalletConnectSwift
 import AlphaWalletFoundation
+import AlphaWalletLogger
 
 protocol WalletConnectV1ClientDelegate: AnyObject {
     func server(_ server: Server, didReceiveRequest: Request)

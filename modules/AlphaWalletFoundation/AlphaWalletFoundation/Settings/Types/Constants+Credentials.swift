@@ -1,5 +1,6 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 import Foundation
+import AlphaWalletLogger
 
 extension Constants {
     public enum Credentials {

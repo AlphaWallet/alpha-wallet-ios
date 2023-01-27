@@ -5,6 +5,7 @@ import BigInt
 import Combine
 import AlphaWalletAddress
 import AlphaWalletCore
+import AlphaWalletLogger
 
 public struct SwapSupportState {
     let server: RPCServer

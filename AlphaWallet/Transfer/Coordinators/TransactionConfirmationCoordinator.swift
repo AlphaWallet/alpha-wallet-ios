@@ -9,6 +9,7 @@ import UIKit
 import BigInt
 import PromiseKit
 import AlphaWalletFoundation
+import AlphaWalletLogger
 
 protocol TransactionConfirmationCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryptoDelegate {
     func didFinish(_ result: ConfirmResult, in coordinator: TransactionConfirmationCoordinator)

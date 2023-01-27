@@ -4,6 +4,7 @@ import UIKit
 import BigInt
 import Combine
 import AlphaWalletFoundation
+import AlphaWalletLogger
 
 protocol PromptBackupCoordinatorProminentPromptDelegate: AnyObject {
     var viewControllerToShowBackupLaterAlert: UIViewController { get }

@@ -5,6 +5,7 @@ import QRCodeReaderViewController
 import BigInt
 import PromiseKit
 import AlphaWalletFoundation
+import AlphaWalletLogger
 
 protocol ScanQRCodeCoordinatorDelegate: AnyObject {
     func didCancel(in coordinator: ScanQRCodeCoordinator)

@@ -11,6 +11,7 @@ import WalletConnectSwift
 import PromiseKit
 import Combine
 import AlphaWalletFoundation
+import AlphaWalletLogger
 import AlphaWalletCore
 
 protocol RequestAddCustomChainProvider: NSObjectProtocol {

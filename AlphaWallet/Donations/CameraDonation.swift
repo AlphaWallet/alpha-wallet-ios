@@ -2,7 +2,7 @@
 
 import CoreSpotlight
 import Foundation
-import AlphaWalletFoundation
+import AlphaWalletLogger
 
 class CameraDonation {
     //TODO maybe change to include wallet address

@@ -8,7 +8,7 @@
 import UIKit
 import WebKit
 import Kingfisher
-import AlphaWalletFoundation
+import AlphaWalletLogger
 
 private let svgImageViewSharedConfiguration: WKWebViewConfiguration = {
     let preferences = WKPreferences()

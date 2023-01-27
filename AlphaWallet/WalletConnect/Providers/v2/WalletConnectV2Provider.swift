@@ -9,6 +9,7 @@ import Foundation
 import Combine
 import WalletConnectSwiftV2
 import AlphaWalletFoundation
+import AlphaWalletLogger
 
 enum ProposalOrServer {
     case server(RPCServer)

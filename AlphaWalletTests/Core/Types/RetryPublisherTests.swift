@@ -11,6 +11,7 @@ import AlphaWalletAddress
 import AlphaWalletCore
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import AlphaWalletLogger
 
 class RetryPublisherTests: XCTestCase {
     private var cancelable = Set<AnyCancellable>()

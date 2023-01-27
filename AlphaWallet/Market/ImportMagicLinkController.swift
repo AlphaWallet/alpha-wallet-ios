@@ -10,6 +10,7 @@ import BigInt
 import PromiseKit
 import Combine
 import AlphaWalletFoundation
+import AlphaWalletLogger
 import AlphaWalletWeb3
 
 // swiftlint:disable type_body_length

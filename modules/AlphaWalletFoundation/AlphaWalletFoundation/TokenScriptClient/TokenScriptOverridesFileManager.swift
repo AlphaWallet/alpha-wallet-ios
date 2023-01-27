@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import AlphaWalletCore
+import AlphaWalletLogger
 
 public typealias ImportTokenScriptOverridesFileEvent = Result<TokenScriptOverridesForContract, OpenURLError>
 public typealias TokenScriptOverridesForContract = (contract: AlphaWallet.Address, server: RPCServer, destinationFileInUse: Bool, filename: String)

@@ -3,6 +3,7 @@
 import UIKit
 import PromiseKit
 import AlphaWalletCore
+import AlphaWalletLogger
 import AlphaWalletOpenSea
 
 public typealias GoogleContentSize = AlphaWalletCore.GoogleContentSize

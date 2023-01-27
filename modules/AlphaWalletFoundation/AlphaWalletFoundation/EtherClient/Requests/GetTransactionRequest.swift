@@ -2,6 +2,7 @@
 
 import Foundation
 import JSONRPCKit
+import AlphaWalletLogger
 
 struct GetTransactionRequest: JSONRPCKit.Request {
     typealias Response = PendingTransaction?

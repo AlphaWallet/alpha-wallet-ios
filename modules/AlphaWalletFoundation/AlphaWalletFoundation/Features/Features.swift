@@ -1,6 +1,7 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
 import Foundation
+import AlphaWalletLogger
 
 public class Features {
     public static let `default`: Features = Features()!

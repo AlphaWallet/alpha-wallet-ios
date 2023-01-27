@@ -2,6 +2,7 @@
 
 import Combine
 import Foundation
+import AlphaWalletLogger
 
 public protocol BlockscanChatServiceDelegate: AnyObject {
     func openBlockscanChat(url: URL, for: BlockscanChatService)

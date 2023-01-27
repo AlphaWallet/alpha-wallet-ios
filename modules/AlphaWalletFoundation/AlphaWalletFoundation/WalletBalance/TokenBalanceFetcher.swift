@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import AlphaWalletCore
+import AlphaWalletLogger
 import AlphaWalletOpenSea
 import BigInt
 import PromiseKit

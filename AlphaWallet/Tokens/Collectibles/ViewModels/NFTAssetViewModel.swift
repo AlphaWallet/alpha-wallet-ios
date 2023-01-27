@@ -9,6 +9,7 @@ import UIKit
 import BigInt
 import Combine
 import AlphaWalletFoundation
+import AlphaWalletLogger
 
 struct AttributeCollectionViewModel {
     let traits: [NonFungibleTraitViewModel]
