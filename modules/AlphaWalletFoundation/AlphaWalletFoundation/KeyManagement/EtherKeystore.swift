@@ -388,7 +388,7 @@ open class EtherKeystore: NSObject, Keystore {
             .eraseToAnyPublisher()
     }
 
-    @discardableResult public func delete(wallet: Wallet) -> Result<Void, KeystoreError> {
+    public func delete(wallet: Wallet) {
         switch wallet.type {
         case .real:
             walletAddressesStore.removeAddress(wallet)
@@ -401,8 +401,6 @@ open class EtherKeystore: NSObject, Keystore {
 
         walletsSubject.send(Set(wallets))
         didRemoveWalletSubject.send(wallet)
-
-        return .success(())
     }
 
     private func deletePrivateKeysFromSecureEnclave(forAccount account: AlphaWallet.Address) {
