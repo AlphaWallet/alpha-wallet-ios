@@ -8,6 +8,7 @@
 import UIKit
 import PromiseKit
 import AlphaWalletFoundation
+import AlphaWalletLogger
 
 private struct NoContractDetailsDetected: Error {
 }

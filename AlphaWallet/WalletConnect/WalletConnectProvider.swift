@@ -9,6 +9,7 @@ import Foundation
 import Combine
 import CombineExt
 import AlphaWalletFoundation
+import AlphaWalletLogger
 import PromiseKit
 import AlphaWalletCore
 

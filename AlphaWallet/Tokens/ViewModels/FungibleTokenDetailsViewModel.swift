@@ -3,6 +3,7 @@
 import UIKit
 import Combine
 import AlphaWalletFoundation
+import AlphaWalletLogger
 
 struct FungibleTokenDetailsViewModelInput {
     let willAppear: AnyPublisher<Void, Never>

@@ -1,4 +1,5 @@
 import Foundation
+import AlphaWalletLogger
 import BigInt
 import RealmSwift
 import Combine

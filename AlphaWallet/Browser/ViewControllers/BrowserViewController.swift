@@ -1,10 +1,11 @@
-// Copyright DApps Platform Inc. All rights reserved.
+// Copyright © 2023 Stormbird PTE. LTD.
 
 import Foundation
 import UIKit
 import WebKit
 import JavaScriptCore
 import AlphaWalletFoundation
+import AlphaWalletLogger
 
 protocol BrowserViewControllerDelegate: AnyObject {
     func didCall(action: DappAction, callbackID: Int, inBrowserViewController viewController: BrowserViewController)

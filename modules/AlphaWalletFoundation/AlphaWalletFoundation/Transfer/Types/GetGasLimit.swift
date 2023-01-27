@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AlphaWalletLogger
 import APIKit
 import BigInt
 import JSONRPCKit

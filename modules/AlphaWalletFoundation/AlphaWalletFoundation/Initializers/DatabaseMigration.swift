@@ -2,6 +2,7 @@
 
 import Foundation
 import RealmSwift
+import AlphaWalletLogger
 
 public class DatabaseMigration: Initializer {
     let account: Wallet

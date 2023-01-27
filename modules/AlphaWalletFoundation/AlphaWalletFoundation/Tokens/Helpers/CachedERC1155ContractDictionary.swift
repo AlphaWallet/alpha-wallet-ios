@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AlphaWalletLogger
 
 public class CachedERC1155ContractDictionary {
     private let fileUrl: URL

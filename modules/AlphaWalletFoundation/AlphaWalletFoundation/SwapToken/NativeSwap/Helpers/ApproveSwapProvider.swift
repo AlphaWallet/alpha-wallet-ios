@@ -10,6 +10,7 @@ import PromiseKit
 import BigInt
 import Combine
 import AlphaWalletCore
+import AlphaWalletLogger
 
 public protocol ApproveSwapProviderDelegate: AnyObject {
     func promptToSwap(unsignedTransaction: UnsignedSwapTransaction, fromToken: TokenToSwap, fromAmount: BigUInt, toToken: TokenToSwap, toAmount: BigUInt, in provider: ApproveSwapProvider)

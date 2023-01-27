@@ -5,6 +5,7 @@ import PromiseKit
 import SwiftyJSON
 import Combine
 import AlphaWalletCore
+import AlphaWalletLogger
 
 public protocol TokenScriptSignatureVerifieble {
     func verificationType(forXml xmlString: String) -> Promise<TokenScriptSignatureVerificationType>

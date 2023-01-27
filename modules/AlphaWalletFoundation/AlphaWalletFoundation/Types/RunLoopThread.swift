@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletLogger
 
 public class RunLoopThread: Thread {
     let isRunLoopThreadLoggingEnabled: Bool = Config().development.isRunLoopThreadLoggingEnabled

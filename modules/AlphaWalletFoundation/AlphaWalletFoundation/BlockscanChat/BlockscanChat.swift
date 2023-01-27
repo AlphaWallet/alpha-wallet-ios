@@ -4,6 +4,7 @@ import Foundation
 import SwiftyJSON
 import Combine
 import AlphaWalletCore
+import AlphaWalletLogger
 
 public class BlockscanChat {
     private var lastKnownCount: Int?

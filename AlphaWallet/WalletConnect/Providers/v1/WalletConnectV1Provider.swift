@@ -11,6 +11,7 @@ import AlphaWalletAddress
 import PromiseKit
 import Combine
 import AlphaWalletFoundation
+import AlphaWalletLogger
 
 class WalletConnectV1Provider: WalletConnectServer {
 

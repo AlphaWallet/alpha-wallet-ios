@@ -5,7 +5,7 @@ import Foundation
 @testable import AlphaWallet
 import XCTest
 import BigInt
-import AlphaWalletFoundation
+import AlphaWalletLogger
 
 class CreateRedeemTests: XCTestCase {
     let keyStore = FakeEtherKeystore()

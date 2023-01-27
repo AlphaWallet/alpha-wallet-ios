@@ -4,26 +4,6 @@ import Foundation
 import AlphaWalletLogger
 import PaperTrailLumberjack
 
-public func debugLog(_ message: Any, _ logger: Logger = DDLogger.instance, callerFunctionName: String = #function) {
-    AlphaWalletLogger.debugLog(message, logger, callerFunctionName: callerFunctionName)
-}
-
-public func infoLog(_ message: Any, _ logger: Logger = DDLogger.instance, callerFunctionName: String = #function) {
-    AlphaWalletLogger.infoLog(message, logger, callerFunctionName: callerFunctionName)
-}
-
-public func warnLog(_ message: Any, _ logger: Logger = DDLogger.instance, callerFunctionName: String = #function) {
-    AlphaWalletLogger.warnLog(message, logger, callerFunctionName: callerFunctionName)
-}
-
-public func verboseLog(_ message: Any, _ logger: Logger = DDLogger.instance, callerFunctionName: String = #function) {
-    AlphaWalletLogger.verboseLog(message, logger, callerFunctionName: callerFunctionName)
-}
-
-public func errorLog(_ message: Any, _ logger: Logger = DDLogger.instance, callerFunctionName: String = #function) {
-    AlphaWalletLogger.errorLog(message, logger, callerFunctionName: callerFunctionName)
-}
-
 public typealias EmailAttachment = (data: Data, mimeType: String, fileName: String)
 extension Logger {
     public static var logFilesAttachments: [EmailAttachment] {

@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import AlphaWalletCore
+import AlphaWalletLogger
 
 public final class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType {
     private var objectWillChangeSubject = PassthroughSubject<Void, Never>()

@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import AlphaWalletLogger
 import AlphaWalletWeb3
 import BigInt
 import AlphaWalletCore

@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import AlphaWalletFoundation
+import AlphaWalletLogger
 
 protocol PushNotifiable {
     func didPushViewController(animated: Bool)

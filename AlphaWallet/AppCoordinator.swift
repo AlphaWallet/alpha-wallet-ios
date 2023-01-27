@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright © 2023 Stormbird PTE. LTD.
 
 import Combine
 import UIKit
@@ -6,6 +6,7 @@ import PromiseKit
 import AlphaWalletAddress
 import AlphaWalletCore
 import AlphaWalletFoundation
+import AlphaWalletLogger
 import AlphaWalletTrackAPICalls
 
 extension TokenScript {

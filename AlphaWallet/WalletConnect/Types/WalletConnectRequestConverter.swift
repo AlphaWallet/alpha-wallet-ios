@@ -9,6 +9,7 @@ import Foundation
 import PromiseKit
 import WalletConnectSwift
 import AlphaWalletFoundation
+import AlphaWalletLogger
 
 struct WalletConnectRequestDecoder {
 

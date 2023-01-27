@@ -1,6 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Combine
+import AlphaWalletLogger
 import PromiseKit
 
 public typealias XMLFile = String

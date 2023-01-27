@@ -7,6 +7,7 @@
 
 import Foundation
 import AlphaWalletCore
+import AlphaWalletLogger
 import AlphaWalletOpenSea
 import SwiftyJSON
 import Combine
