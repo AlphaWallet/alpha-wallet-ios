@@ -3,10 +3,6 @@
 import Foundation
 import Combine
 
-public protocol TransactionsServiceDelegate: AnyObject {
-    func didCompleteTransaction(in service: TransactionsService, transaction: TransactionInstance)
-}
-
 public class TransactionsService {
     private let transactionDataStore: TransactionDataStore
     private let sessions: ServerDictionary<WalletSession>
@@ -22,8 +18,6 @@ public class TransactionsService {
         return queue
     }()
 
-    public weak var delegate: TransactionsServiceDelegate?
-
     public var transactionsChangeset: AnyPublisher<[TransactionInstance], Never> {
         let servers = sessions.values.map { $0.server }
         return transactionDataStore
@@ -37,11 +31,16 @@ public class TransactionsService {
             }.eraseToAnyPublisher()
     }
     private var cancelable = Set<AnyCancellable>()
-    private let queue = DispatchQueue(label: "com.TransactionsService.UpdateQueue")
     private let networkService: NetworkService
     private let assetDefinitionStore: AssetDefinitionStore
 
-    public init(sessions: ServerDictionary<WalletSession>, transactionDataStore: TransactionDataStore, analytics: AnalyticsLogger, tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable, networkService: NetworkService, assetDefinitionStore: AssetDefinitionStore) {
+    public init(sessions: ServerDictionary<WalletSession>,
+                transactionDataStore: TransactionDataStore,
+                analytics: AnalyticsLogger,
+                tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable,
+                networkService: NetworkService,
+                assetDefinitionStore: AssetDefinitionStore) {
+
         self.sessions = sessions
         self.tokensService = tokensService
         self.transactionDataStore = transactionDataStore
@@ -66,11 +65,6 @@ public class TransactionsService {
         fetchLatestTransactionsQueue.cancelAllOperations()
     }
 
-    private func removeUnknownTransactions() {
-        //TODO why do we remove such transactions? especially `.failed` and `.unknown`?
-        transactionDataStore.removeTransactions(for: [.unknown], servers: config.enabledServers)
-    }
-
     private func setupSingleChainTransactionProviders() {
         providers = sessions.values.map { each in
             let ercTokenDetector = ErcTokenDetector(
@@ -90,8 +84,6 @@ public class TransactionsService {
                     ercTokenDetector: ercTokenDetector,
                     networkService: networkService)
 
-                provider.delegate = self
-
                 return provider
             case .covalent:
                 let provider = CovalentSingleChainTransactionProvider(
@@ -102,8 +94,6 @@ public class TransactionsService {
                     ercTokenDetector: ercTokenDetector,
                     networkService: networkService)
 
-                provider.delegate = self
-
                 return provider
             }
         }
@@ -112,10 +102,6 @@ public class TransactionsService {
     public func start() {
         for each in providers {
             each.start()
-        }
-
-        queue.async {
-            self.removeUnknownTransactions()
         }
     }
 
@@ -164,11 +150,5 @@ public class TransactionsService {
         for each in providers {
             each.stop()
         }
-    }
-}
-
-extension TransactionsService: SingleChainTransactionProviderDelegate {
-    public func didCompleteTransaction(transaction: TransactionInstance, in provider: SingleChainTransactionProvider) {
-        delegate?.didCompleteTransaction(in: self, transaction: transaction)
     }
 }

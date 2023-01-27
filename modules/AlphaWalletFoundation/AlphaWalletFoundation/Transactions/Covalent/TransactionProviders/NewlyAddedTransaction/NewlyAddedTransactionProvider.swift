@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import AlphaWalletCore
 
 /// Provider performs fetching newly added transactions start from 0 page and increase page index untinl it find some of transactions that has already stored in db.
 /// Resets page index once it found first matching transactions
@@ -59,13 +60,13 @@ final class NewlyAddedTransactionProvider: NSObject {
         }
     }
 
-    private func didReceiveError(error: Covalent.CovalentError) {
+    private func didReceiveError(error: PromiseError) {
         //no-op
     }
 }
 
 extension NewlyAddedTransactionProvider: NewlyAddedTransactionSchedulerProviderDelegate {
-    func didReceiveResponse(_ response: Swift.Result<[TransactionInstance], Covalent.CovalentError>, in provider: NewlyAddedTransactionSchedulerProvider) {
+    func didReceiveResponse(_ response: Swift.Result<[TransactionInstance], PromiseError>, in provider: NewlyAddedTransactionSchedulerProvider) {
         switch response {
         case .success(let transactions):
             didReceiveValue(transactions: transactions)

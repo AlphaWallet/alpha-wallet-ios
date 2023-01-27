@@ -11,14 +11,8 @@ import AlphaWalletCore
 
 protocol SchedulerProvider: AnyObject {
     var name: String { get }
-    var operation: AnyPublisher<Void, SchedulerError> { get }
+    var operation: AnyPublisher<Void, PromiseError> { get }
     var interval: TimeInterval { get }
-}
-
-enum SchedulerError: Error {
-    case general
-    case covalentError(Covalent.CovalentError)
-    case promiseError(PromiseError)
 }
 
 protocol SchedulerProtocol {

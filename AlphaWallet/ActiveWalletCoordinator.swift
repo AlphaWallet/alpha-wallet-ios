@@ -365,7 +365,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
             networkService: networkService,
             assetDefinitionStore: assetDefinitionStore)
 
-        transactionsService.delegate = self
         transactionsService.start()
 
         let coordinator = TransactionsCoordinator(
@@ -1224,13 +1223,6 @@ extension ActiveWalletCoordinator: BlockscanChatServiceDelegate {
 
     func showBlockscanUnreadCount(_ count: Int?, for: BlockscanChatService) {
         settingsCoordinator?.showBlockscanChatUnreadCount(count)
-    }
-}
-
-extension ActiveWalletCoordinator: TransactionsServiceDelegate {
-
-    func didCompleteTransaction(in service: TransactionsService, transaction: TransactionInstance) {
-        tokenCollection.refreshBalance(updatePolicy: .all)
     }
 }
 

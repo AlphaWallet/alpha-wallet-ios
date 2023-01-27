@@ -8,9 +8,10 @@
 import Foundation
 import Combine
 import CombineExt
+import AlphaWalletCore
 
 protocol NewlyAddedTransactionSchedulerProviderDelegate: AnyObject {
-    func didReceiveResponse(_ response: Swift.Result<[TransactionInstance], Covalent.CovalentError>, in provider: NewlyAddedTransactionSchedulerProvider)
+    func didReceiveResponse(_ response: Swift.Result<[TransactionInstance], PromiseError>, in provider: NewlyAddedTransactionSchedulerProvider)
 }
 
 /// Newly added transactions provider, performs fetching transaction from frist page until it find some of latest existed stored transaction. Once transaction has found the cycle starts from 0 page again
@@ -21,7 +22,7 @@ final class NewlyAddedTransactionSchedulerProvider: SchedulerProvider {
 
     var interval: TimeInterval { return Constants.Covalent.newlyAddedTransactionUpdateInterval }
     var name: String { "NewlyAddedTransactionSchedulerProvider" }
-    var operation: AnyPublisher<Void, SchedulerError> {
+    var operation: AnyPublisher<Void, PromiseError> {
         return fetchNewlyAddedTransactionPublisher()
     }
 
@@ -33,18 +34,18 @@ final class NewlyAddedTransactionSchedulerProvider: SchedulerProvider {
         self.fetchNewlyAddedTransactionsQueue = fetchNewlyAddedTransactionsQueue
     }
 
-    private func fallbackForUnsupportedServer() -> AnyPublisher<Void, SchedulerError> {
+    private func fallbackForUnsupportedServer() -> AnyPublisher<Void, PromiseError> {
         session.config
             .set(covalentLastNewestPage: session.server, wallet: session.account, page: nil)
 
         delegate?.didReceiveResponse(.success([]), in: self)
 
         return Just(())
-            .setFailureType(to: SchedulerError.self)
+            .setFailureType(to: PromiseError.self)
             .eraseToAnyPublisher()
     }
 
-    private func fetchNewlyAddedTransactionPublisher() -> AnyPublisher<Void, SchedulerError> {
+    private func fetchNewlyAddedTransactionPublisher() -> AnyPublisher<Void, PromiseError> {
         let lastPage = session.config
             .covalentLastNewestPage(server: session.server, wallet: session.account)
             .flatMap { $0 + 1 }
@@ -61,10 +62,10 @@ final class NewlyAddedTransactionSchedulerProvider: SchedulerProvider {
                 self?.didReceiveValue(response: response)
             }, receiveCompletion: { [weak self] result in
                 guard case .failure(let e) = result else { return }
-                self?.didReceiveError(error: e)
+                self?.didReceiveError(error: PromiseError(error: e))
             })
             .mapToVoid()
-            .mapError { SchedulerError.covalentError($0) }
+            .mapError { PromiseError(error: $0) }
             .eraseToAnyPublisher()
     }
 
@@ -79,7 +80,7 @@ final class NewlyAddedTransactionSchedulerProvider: SchedulerProvider {
         delegate?.didReceiveResponse(.success(transactions), in: self)
     }
 
-    private func didReceiveError(error: Covalent.CovalentError) {
+    private func didReceiveError(error: PromiseError) {
         delegate?.didReceiveResponse(.failure(error), in: self)
     }
 }
