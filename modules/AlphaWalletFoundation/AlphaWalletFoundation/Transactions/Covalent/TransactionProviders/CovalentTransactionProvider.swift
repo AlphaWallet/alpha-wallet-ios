@@ -38,7 +38,13 @@ public class CovalentSingleChainTransactionProvider: SingleChainTransactionProvi
 
     weak public var delegate: SingleChainTransactionProviderDelegate?
 
-    public required init(session: WalletSession, analytics: AnalyticsLogger, transactionDataStore: TransactionDataStore, tokensService: TokenProvidable, fetchLatestTransactionsQueue: OperationQueue, ercTokenDetector: ErcTokenDetector, networkService: NetworkService) {
+    public required init(session: WalletSession,
+                         analytics: AnalyticsLogger,
+                         transactionDataStore: TransactionDataStore,
+                         fetchLatestTransactionsQueue: OperationQueue,
+                         ercTokenDetector: ErcTokenDetector,
+                         networkService: NetworkService) {
+
         self.session = session
         self.networkService = CovalentNetworkService(networkService: networkService, walletAddress: session.account.address, server: session.server)
         self.analytics = analytics

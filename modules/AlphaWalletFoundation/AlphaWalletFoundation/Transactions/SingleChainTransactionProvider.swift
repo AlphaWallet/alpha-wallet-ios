@@ -6,10 +6,13 @@ public protocol SingleChainTransactionProviderDelegate: AnyObject {
     func didCompleteTransaction(transaction: TransactionInstance, in provider: SingleChainTransactionProvider)
 }
 
+enum TransactionsSource {
+    case etherscan
+    case covalent
+}
+
 public protocol SingleChainTransactionProvider: AnyObject {
     var delegate: SingleChainTransactionProviderDelegate? { get set }
-
-    init(session: WalletSession, analytics: AnalyticsLogger, transactionDataStore: TransactionDataStore, tokensService: TokenProvidable, fetchLatestTransactionsQueue: OperationQueue, ercTokenDetector: ErcTokenDetector, networkService: NetworkService)
 
     func start()
     func stopTimers()
