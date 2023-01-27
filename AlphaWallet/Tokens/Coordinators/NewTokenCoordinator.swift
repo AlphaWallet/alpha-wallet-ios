@@ -135,29 +135,31 @@ extension NewTokenCoordinator: NewTokenViewControllerDelegate {
     private func fetchContractDataPromise(forServer server: RPCServer, address: AlphaWallet.Address, inViewController viewController: NewTokenViewController) -> Promise<TokenType> {
         return Promise { seal in
             importToken.fetchContractData(for: address, server: server) { [weak self] (data) in
-                guard let strongSelf = self else { return }
-                guard strongSelf.addressToAutoDetectServerFor == address else { return }
-                switch data {
-                case .name, .symbol, .balance, .decimals:
-                    break
-                case .nonFungibleTokenComplete(let name, let symbol, let balance, let tokenType):
-                    viewController.updateNameValue(name)
-                    viewController.updateSymbolValue(symbol)
-                    viewController.updateBalanceValue(balance.rawValue, tokenType: tokenType)
-                    verboseLog("[TokenType] contract: \(address.eip55String) server: \(server) to token type: nonFungibleTokenComplete")
-                    seal.fulfill(tokenType)
-                case .fungibleTokenComplete(let name, let symbol, let decimals, _, let tokenType):
-                    viewController.updateNameValue(name)
-                    viewController.updateSymbolValue(symbol)
-                    viewController.updateDecimalsValue(decimals)
-                    verboseLog("[TokenType] contract: \(address.eip55String) server: \(server) to token type: fungibleTokenComplete")
-                    seal.fulfill(tokenType)
-                case .delegateTokenComplete:
-                    verboseLog("[TokenType] contract: \(address.eip55String) server: \(server) to token type: delegateTokenComplete")
-                    seal.reject(NoContractDetailsDetected())
-                case .failed:
-                    verboseLog("[TokenType] contract: \(address.eip55String) server: \(server) failed")
-                    seal.reject(NoContractDetailsDetected())
+                DispatchQueue.main.async {
+                    guard let strongSelf = self else { return }
+                    guard strongSelf.addressToAutoDetectServerFor == address else { return }
+                    switch data {
+                    case .name, .symbol, .balance, .decimals:
+                        break
+                    case .nonFungibleTokenComplete(let name, let symbol, let balance, let tokenType):
+                        viewController.updateNameValue(name)
+                        viewController.updateSymbolValue(symbol)
+                        viewController.updateBalanceValue(balance.rawValue, tokenType: tokenType)
+                        verboseLog("[TokenType] contract: \(address.eip55String) server: \(server) to token type: nonFungibleTokenComplete")
+                        seal.fulfill(tokenType)
+                    case .fungibleTokenComplete(let name, let symbol, let decimals, _, let tokenType):
+                        viewController.updateNameValue(name)
+                        viewController.updateSymbolValue(symbol)
+                        viewController.updateDecimalsValue(decimals)
+                        verboseLog("[TokenType] contract: \(address.eip55String) server: \(server) to token type: fungibleTokenComplete")
+                        seal.fulfill(tokenType)
+                    case .delegateTokenComplete:
+                        verboseLog("[TokenType] contract: \(address.eip55String) server: \(server) to token type: delegateTokenComplete")
+                        seal.reject(NoContractDetailsDetected())
+                    case .failed:
+                        verboseLog("[TokenType] contract: \(address.eip55String) server: \(server) failed")
+                        seal.reject(NoContractDetailsDetected())
+                    }
                 }
             }
         }
@@ -165,25 +167,27 @@ extension NewTokenCoordinator: NewTokenViewControllerDelegate {
 
     private func fetchContractData(forServer server: RPCServer, address: AlphaWallet.Address, inViewController viewController: NewTokenViewController) {
         importToken.fetchContractData(for: address, server: server) { data in
-            switch data {
-            case .name(let name):
-                viewController.updateNameValue(name)
-            case .symbol(let symbol):
-                viewController.updateSymbolValue(symbol)
-            case .balance(let nonFungibleBalance, _, let tokenType):
-                if let balance = nonFungibleBalance {
-                    viewController.updateBalanceValue(balance.rawValue, tokenType: tokenType)
+            DispatchQueue.main.async {
+                switch data {
+                case .name(let name):
+                    viewController.updateNameValue(name)
+                case .symbol(let symbol):
+                    viewController.updateSymbolValue(symbol)
+                case .balance(let nonFungibleBalance, _, let tokenType):
+                    if let balance = nonFungibleBalance {
+                        viewController.updateBalanceValue(balance.rawValue, tokenType: tokenType)
+                    }
+                case .decimals(let decimals):
+                    viewController.updateDecimalsValue(decimals)
+                case .nonFungibleTokenComplete(_, _, _, let tokenType):
+                    viewController.updateForm(forTokenType: tokenType)
+                case .fungibleTokenComplete:
+                    viewController.updateForm(forTokenType: .erc20)
+                case .delegateTokenComplete:
+                    viewController.updateForm(forTokenType: .erc20)
+                case .failed:
+                    break
                 }
-            case .decimals(let decimals):
-                viewController.updateDecimalsValue(decimals)
-            case .nonFungibleTokenComplete(_, _, _, let tokenType):
-                viewController.updateForm(forTokenType: tokenType)
-            case .fungibleTokenComplete:
-                viewController.updateForm(forTokenType: .erc20)
-            case .delegateTokenComplete:
-                viewController.updateForm(forTokenType: .erc20)
-            case .failed:
-                break
             }
         }
     }
