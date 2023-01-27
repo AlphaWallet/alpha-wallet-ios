@@ -2,6 +2,7 @@
 
 import UIKit
 import AlphaWalletFoundation
+import Combine
 
 protocol ImportWalletViewControllerDelegate: AnyObject {
     func didImportAccount(account: Wallet, in viewController: ImportWalletViewController)
@@ -112,6 +113,7 @@ class ImportWalletViewController: UIViewController {
 
     private lazy var privateKeyControlsLayout: UIView = privateKeyTextView.defaultLayout()
     private lazy var watchControlsLayout: UIView = watchAddressTextField.defaultLayout(edgeInsets: .zero)
+    private var cancellable = Set<AnyCancellable>()
 
     private lazy var importSeedDescriptionLabel: UILabel = {
         let label = UILabel()
@@ -388,48 +390,68 @@ class ImportWalletViewController: UIViewController {
     @objc func importWallet() {
         guard validate() else { return }
 
-        let keystoreInput = keystoreJSONTextView.value.trimmed
-        let privateKeyInput = privateKeyTextView.value.trimmed.drop0x
-        let password = passwordTextField.value.trimmed
-        let watchInput = watchAddressTextField.value.trimmed
+        switch viewModel.convertSegmentedControlSelectionToFilter(tabBar.selectedSegment) {
+        case .mnemonic:
+            displayLoading(text: R.string.localizable.importWalletImportingIndicatorLabelTitle(), animated: false)
+            keystore.importWallet(mnemonic: mnemonicInput, passphrase: "")
+                .sink(receiveCompletion: { result in
+                    self.hideLoading(animated: false)
 
-        displayLoading(text: R.string.localizable.importWalletImportingIndicatorLabelTitle(), animated: false)
+                    if case .failure(let error) = result {
+                        self.displayError(error: error)
+                    }
+                }, receiveValue: { wallet in
+                    self.didImport(account: wallet)
+                }).store(in: &cancellable)
+        case .keystore:
+            displayLoading(text: R.string.localizable.importWalletImportingIndicatorLabelTitle(), animated: false)
+            keystore.importWallet(json: keystoreJSONTextView.value.trimmed, password: passwordTextField.value.trimmed)
+                .sink(receiveCompletion: { result in
+                    self.hideLoading(animated: false)
 
-        let importTypeOptional: ImportType? = {
-            guard let tab = viewModel.convertSegmentedControlSelectionToFilter(tabBar.selectedSegment) else { return nil }
-            switch tab {
-            case .mnemonic:
-                return .mnemonic(words: mnemonicInput, password: "")
-            case .keystore:
-                return .keystore(string: keystoreInput, password: password)
-            case .privateKey:
-                guard let data = Data(hexString: privateKeyInput) else {
-                    hideLoading(animated: false)
-                    privateKeyTextView.errorState = .error(R.string.localizable.importWalletImportInvalidPrivateKey())
-                    return nil
-                }
-                privateKeyTextView.errorState = .none
-                return .privateKey(privateKey: data)
-            case .watch:
-                guard let address = AlphaWallet.Address(string: watchInput) else {
-                    hideLoading(animated: false)
-                    watchAddressTextField.errorState = .error(R.string.localizable.importWalletImportInvalidAddress())
-                    return nil
-                }
-
-                return .watch(address: address)
+                    if case .failure(let error) = result {
+                        self.displayError(error: error)
+                    }
+                }, receiveValue: { wallet in
+                    self.didImport(account: wallet)
+                }).store(in: &cancellable)
+        case .privateKey:
+            guard let data = Data(hexString: privateKeyTextView.value.trimmed.drop0x) else {
+                privateKeyTextView.errorState = .error(R.string.localizable.importWalletImportInvalidPrivateKey())
+                return
             }
-        }()
-        guard let importType = importTypeOptional else { return }
+            privateKeyTextView.errorState = .none
 
-        let result = keystore.importWallet(type: importType)
-        hideLoading(animated: false)
+            displayLoading(text: R.string.localizable.importWalletImportingIndicatorLabelTitle(), animated: false)
+            keystore.importWallet(privateKey: data)
+                .sink(receiveCompletion: { result in
+                    self.hideLoading(animated: false)
 
-        switch result {
-        case .success(let account):
-            didImport(account: account)
-        case .failure(let error):
-            displayError(error: error)
+                    if case .failure(let error) = result {
+                        self.displayError(error: error)
+                    }
+                }, receiveValue: { wallet in
+                    self.didImport(account: wallet)
+                }).store(in: &cancellable)
+        case .watch:
+            guard let address = AlphaWallet.Address(string: watchAddressTextField.value.trimmed) else {
+                watchAddressTextField.errorState = .error(R.string.localizable.importWalletImportInvalidAddress())
+                return
+            }
+
+            displayLoading(text: R.string.localizable.importWalletImportingIndicatorLabelTitle(), animated: false)
+            keystore.watchWallet(address: address)
+                .sink(receiveCompletion: { result in
+                    self.hideLoading(animated: false)
+
+                    if case .failure(let error) = result {
+                        self.displayError(error: error)
+                    }
+                }, receiveValue: { wallet in
+                    self.didImport(account: wallet)
+                }).store(in: &cancellable)
+        case .none:
+            break
         }
     }
 

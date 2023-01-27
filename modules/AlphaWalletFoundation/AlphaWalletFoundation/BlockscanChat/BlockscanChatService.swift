@@ -14,12 +14,12 @@ public class BlockscanChatService {
     private let networkService: NetworkService
     private let account: Wallet
     private var blockscanChatsForRealWallets: [BlockscanChat]
-    private let walletAddressesStore: WalletAddressesStore
+    private let keystore: Keystore
     private let analytics: AnalyticsLogger
     private var cancelable = Set<AnyCancellable>()
     private var periodicRefreshTimer: Timer?
     private var realWalletAddresses: [AlphaWallet.Address] {
-        walletAddressesStore.wallets.compactMap {
+        keystore.wallets.compactMap {
             switch $0.type {
             case .real(let address):
                 return address
@@ -31,9 +31,9 @@ public class BlockscanChatService {
 
     public weak var delegate: BlockscanChatServiceDelegate?
 
-    public init(walletAddressesStore: WalletAddressesStore, account: Wallet, analytics: AnalyticsLogger, networkService: NetworkService) {
+    public init(keystore: Keystore, account: Wallet, analytics: AnalyticsLogger, networkService: NetworkService) {
         self.blockscanChatsForRealWallets = []
-        self.walletAddressesStore = walletAddressesStore
+        self.keystore = keystore
         self.account = account
         self.analytics = analytics
         self.networkService = networkService
@@ -99,7 +99,7 @@ public class BlockscanChatService {
     }
 
     private func watchForWalletChanges() {
-        walletAddressesStore
+        keystore
                 .walletsPublisher
                 .receive(on: RunLoop.main)
                 .sink { [weak self] _ in

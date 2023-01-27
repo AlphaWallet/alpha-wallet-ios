@@ -4,6 +4,7 @@ import BigInt
 import Foundation
 import CryptoSwift
 import TrustKeystore
+import Combine
 
 public enum FileBasedKeystoreError: LocalizedError {
     case protectionDisabled
@@ -14,6 +15,8 @@ public class LegacyFileBasedKeystore {
     private let securedStorage: SecuredStorage
     private let datadir = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
     private let keyStore: LegacyKeyStore
+    private var cancellable = Set<AnyCancellable>()
+
     let keystoreDirectory: URL
 
     public init(securedStorage: SecuredStorage, keyStoreSubfolder: String = "/keystore") throws {
@@ -23,9 +26,10 @@ public class LegacyFileBasedKeystore {
     }
 
     public func getPrivateKeyFromKeystoreFile(json: String, password: String) -> Result<Data, KeystoreError> {
-        guard let data = json.data(using: .utf8) else { return .failure(.failedToDecryptKey) }
-        guard let key = try? JSONDecoder().decode(KeystoreKey.self, from: data) else { return .failure(.failedToImportPrivateKey) }
-        guard let privateKey = try? key.decrypt(password: password) else { return .failure(.failedToDecryptKey) }
+        guard let data = json.data(using: .utf8) else { return .failure(KeystoreError.failedToDecryptKey) }
+        guard let key = try? JSONDecoder().decode(KeystoreKey.self, from: data) else { return .failure(KeystoreError.failedToImportPrivateKey) }
+        guard let privateKey = try? key.decrypt(password: password) else { return .failure(KeystoreError.failedToDecryptKey) }
+
         return .success(privateKey)
     }
 
@@ -97,7 +101,12 @@ public class LegacyFileBasedKeystore {
         for each in keyStore.accounts {
             switch exportPrivateKey(account: AlphaWallet.Address(address: each.address)) {
             case .success(let privateKey):
-                etherkeystore.importWallet(type: .privateKey(privateKey: privateKey))
+                etherkeystore.importWallet(privateKey: privateKey)
+                    .sink(receiveCompletion: { _ in
+                        //no-op
+                    }, receiveValue: { _ in
+                        //no-op
+                    }).store(in: &cancellable)
             case .failure:
                 break
             }

@@ -4,7 +4,7 @@ import Foundation
 import LocalAuthentication
 import Combine
 
-public protocol Keystore {
+public protocol Keystore: AnyObject {
     var hasMigratedFromKeystoreFiles: Bool { get }
     var hasWallets: Bool { get }
     var isUserPresenceCheckPossible: Bool { get }
@@ -12,8 +12,16 @@ public protocol Keystore {
     var recentlyUsedWallet: Wallet? { get set }
     var currentWallet: Wallet? { get }
 
-    func createAccount(completion: @escaping (Result<Wallet, KeystoreError>) -> Void)
-    func importWallet(type: ImportType) -> Result<Wallet, KeystoreError>
+    var didAddWallet: AnyPublisher<(wallet: Wallet, event: ImportWalletEvent), Never> { get }
+    var didRemoveWallet: AnyPublisher<Wallet, Never> { get }
+    var walletsPublisher: AnyPublisher<Set<Wallet>, Never> { get }
+
+    func createHDWallet(seedPhraseCount: HDWallet.SeedPhraseCount, passphrase: String) -> AnyPublisher<Wallet, KeystoreError>
+    func watchWallet(address: AlphaWallet.Address) -> AnyPublisher<Wallet, KeystoreError>
+    func importWallet(json: String, password: String) -> AnyPublisher<Wallet, KeystoreError>
+    func importWallet(mnemonic: [String], passphrase: String) -> AnyPublisher<Wallet, KeystoreError>
+    func importWallet(privateKey: Data) -> AnyPublisher<Wallet, KeystoreError>
+
     func elevateSecurity(forAccount account: AlphaWallet.Address, prompt: String) -> Bool
     func exportRawPrivateKeyForNonHdWalletForBackup(forAccount account: AlphaWallet.Address, prompt: String, newPassword: String) -> AnyPublisher<Result<String, KeystoreError>, Never>
     func exportRawPrivateKeyFromHdWallet0thAddressForBackup(forAccount account: AlphaWallet.Address, prompt: String, newPassword: String) -> AnyPublisher<Result<String, KeystoreError>, Never>
@@ -32,14 +40,19 @@ public protocol Keystore {
 }
 
 extension Keystore {
-    public mutating func createWalletIfMissing() {
+    public func createHDWallet() -> AnyPublisher<Wallet, KeystoreError> {
+        createHDWallet(seedPhraseCount: .word12, passphrase: "")
+    }
+
+    public func createWalletIfMissing() -> AnyPublisher<Void, Never> {
         if !hasWallets {
-            switch importWallet(type: .newWallet) {
-            case .success(let account):
-                recentlyUsedWallet = account
-            case .failure:
-                break //TODO handle initial wallet creation error. App can't be used!
-            }
+            return createHDWallet()
+                .handleEvents(receiveOutput: { self.recentlyUsedWallet = $0 })
+                .mapToVoid()
+                .replaceError(with: ())
+                .eraseToAnyPublisher()
+        } else {
+            return.just(())
         }
     }
 }

@@ -91,7 +91,6 @@ class ConfigTests: XCTestCase {
                 wallets: [.make()],
                 recentlyUsedWallet: .make()
             ),
-            walletAddressesStore: fakeWalletAddressesStore(wallets: [.make()]),
             navigationController: FakeNavigationController(),
             securedStorage: KeychainStorage.make(),
             legacyFileBasedKeystore: .make())
@@ -110,7 +109,6 @@ class ConfigTests: XCTestCase {
                 wallets: [.make()],
                 recentlyUsedWallet: .make()
             ),
-            walletAddressesStore: fakeWalletAddressesStore(wallets: [.make()]),
             navigationController: FakeNavigationController(),
             securedStorage: KeychainStorage.make(),
             legacyFileBasedKeystore: .make())

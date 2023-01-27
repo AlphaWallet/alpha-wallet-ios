@@ -21,9 +21,6 @@ public protocol WalletAddressesStore: WalletAddressesStoreMigration {
     var wallets: [Wallet] { get }
     var hasMigratedFromKeystoreFiles: Bool { get }
     var recentlyUsedWallet: Wallet? { get set }
-    var walletsPublisher: AnyPublisher<Set<Wallet>, Never> { get }
-    var didAddWalletPublisher: AnyPublisher<Wallet, Never> { get }
-    var didRemoveWalletPublisher: AnyPublisher<Wallet, Never> { get }
 
     mutating func removeAddress(_ account: Wallet)
     mutating func add(wallet: Wallet)

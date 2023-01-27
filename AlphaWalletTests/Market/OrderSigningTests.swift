@@ -2,16 +2,15 @@ import XCTest
 @testable import AlphaWallet
 import BigInt
 import AlphaWalletFoundation
+import Combine
 
 class OrderSigningTests: XCTestCase {
+    private var cancellable = Set<AnyCancellable>()
 
-    func testSigningOrders() {
+    func testSigningOrders() throws {
         let keystore = FakeEtherKeystore()
         let contractAddress = AlphaWallet.Address(string: "0xacDe9017473D7dC82ACFd0da601E4de291a7d6b0")!
-        guard let account = try? keystore.importWallet(type: .newWallet).get().address else {
-            XCTFail("Failure to import wallet")
-            return
-        }
+        
         var testOrdersList = [Order]()
         //set up test orders
         var indices = [UInt16]()
@@ -32,12 +31,28 @@ class OrderSigningTests: XCTestCase {
         }
         let prompt = R.string.localizable.keystoreAccessKeySign()
         let signOrders = OrderHandler(keystore: keystore, prompt: prompt)
-        guard let signedOrders = try? signOrders.signOrders(orders: testOrdersList, account: account, tokenType: TokenType.erc875) else {
-            XCTFail("Failure to sign an order")
-            return
-        }
-        XCTAssertGreaterThanOrEqual(2016, signedOrders.count)
-        keystore.delete(wallet: Wallet(address: account, origin: .hd))
+
+        let expectation = self.expectation(description: "Wait for a new wallet")
+        keystore.createHDWallet()
+            .sink(receiveCompletion: { result in
+                if case .failure(let error) = result {
+                    XCTFail("Failure to import wallet: \(error)")
+                }
+
+                expectation.fulfill()
+            }, receiveValue: { account in
+                let account = account.address
+
+                guard let signedOrders = try? signOrders.signOrders(orders: testOrdersList, account: account, tokenType: TokenType.erc875) else {
+                    XCTFail("Failure to sign an order")
+                    return
+                }
+                XCTAssertGreaterThanOrEqual(2016, signedOrders.count)
+                keystore.delete(wallet: Wallet(address: account, origin: .hd))
+
+            }).store(in: &cancellable)
+        
+        wait(for: [expectation], timeout: 20)
     }
 }
 

@@ -9,12 +9,6 @@ import Foundation
 import Combine
 
 public struct DefaultsWalletAddressesStore: WalletAddressesStore {
-    public var walletsPublisher: AnyPublisher<Set<Wallet>, Never> {
-        walletsSubject.eraseToAnyPublisher()
-    }
-
-    private var walletsSubject: CurrentValueSubject<Set<Wallet>, Never> = .init([])
-
     private struct Keys {
         static let watchAddresses = "watchAddresses"
         static let ethereumAddressesWithPrivateKeys = "ethereumAddressesWithPrivateKeys"
@@ -92,17 +86,6 @@ public struct DefaultsWalletAddressesStore: WalletAddressesStore {
         }
     }
 
-    private var didAddWalletSubject: PassthroughSubject<Wallet, Never> = .init()
-    private var didRemoveWalletSubject: PassthroughSubject<Wallet, Never> = .init()
-
-    public var didAddWalletPublisher: AnyPublisher<Wallet, Never> {
-        didAddWalletSubject.eraseToAnyPublisher()
-    }
-
-    public var didRemoveWalletPublisher: AnyPublisher<Wallet, Never> {
-        didRemoveWalletSubject.eraseToAnyPublisher()
-    }
-
     mutating public func add(wallet: Wallet) {
         switch wallet.origin {
         case .hd:
@@ -112,7 +95,6 @@ public struct DefaultsWalletAddressesStore: WalletAddressesStore {
         case .watch:
             addToListOfWatchEthereumAddresses(wallet.address)
         }
-        didAddWalletSubject.send(wallet)
     }
 
     mutating private func addToListOfWatchEthereumAddresses(_ address: AlphaWallet.Address) {
@@ -132,9 +114,6 @@ public struct DefaultsWalletAddressesStore: WalletAddressesStore {
     mutating public func addToListOfEthereumAddressesProtectedByUserPresence(_ address: AlphaWallet.Address) {
         let updated = Array(Set(ethereumAddressesProtectedByUserPresence + [address.eip55String]))
         ethereumAddressesProtectedByUserPresence = updated
-
-        guard let wallet = wallets.first(where: { $0.address == address }) else { return }
-        didAddWalletSubject.send(wallet)
     }
 
     mutating public func removeAddress(_ account: Wallet) {
@@ -142,7 +121,5 @@ public struct DefaultsWalletAddressesStore: WalletAddressesStore {
         ethereumAddressesWithSeed = ethereumAddressesWithSeed.filter { $0 != account.address.eip55String }
         ethereumAddressesProtectedByUserPresence = ethereumAddressesProtectedByUserPresence.filter { $0 != account.address.eip55String }
         watchAddresses = watchAddresses.filter { $0 != account.address.eip55String }
-
-        didRemoveWalletSubject.send(account)
     }
 }

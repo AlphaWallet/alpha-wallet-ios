@@ -37,7 +37,7 @@ class AnyCAIP10AccountProvidable: CAIP10AccountProvidable {
 
     private let accountsSubject: CurrentValueSubject<Set<CAIP10Account>?, Never> = .init(nil)
     private let activeWalletSubject: CurrentValueSubject<Wallet?, Never> = .init(nil)
-    private let walletAddressesStore: WalletAddressesStore
+    private let keystore: Keystore
     private var cancellable = Set<AnyCancellable>()
     
     var accounts: AnyPublisher<Set<CAIP10Account>, Never> {
@@ -46,10 +46,10 @@ class AnyCAIP10AccountProvidable: CAIP10AccountProvidable {
             .eraseToAnyPublisher()
     }
 
-    public init(walletAddressesStore: WalletAddressesStore, serversProvidable: ServersProvidable) {
-        self.walletAddressesStore = walletAddressesStore
+    public init(keystore: Keystore, serversProvidable: ServersProvidable) {
+        self.keystore = keystore
 
-        let wallets = walletAddressesStore.walletsPublisher.filter { !$0.isEmpty }
+        let wallets = keystore.walletsPublisher.filter { !$0.isEmpty }
 
         let servers = serversProvidable.servers
             .filter { !$0.isEmpty }
