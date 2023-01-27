@@ -65,7 +65,9 @@ final class SelectSwapRouteViewController: UIViewController {
             .handleEvents(receiveOutput: { [weak self] _ in self?.startLoading() })
             .eraseToAnyPublisher()
 
-        let input = SelectSwapRouteViewModelInput(willAppear: willAppear, selection: selection.eraseToAnyPublisher())
+        let input = SelectSwapRouteViewModelInput(
+            willAppear: willAppear,
+            selection: selection.eraseToAnyPublisher())
 
         let output = viewModel.transform(input: input)
         output.viewState
