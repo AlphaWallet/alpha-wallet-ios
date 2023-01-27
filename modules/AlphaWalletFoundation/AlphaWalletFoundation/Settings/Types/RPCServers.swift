@@ -595,14 +595,14 @@ public enum RPCServer: Hashable, CaseIterable {
         }
     }
 
-    var transactionProviderType: SingleChainTransactionProvider.Type {
+    var transactionsSource: TransactionsSource {
         switch self {
         case .main, .classic, .callisto, .custom, .poa, .goerli, .xDai, .artis_sigma1, .binance_smart_chain, .binance_smart_chain_testnet, .artis_tau1, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .cronosTestnet, .arbitrum, .palm, .palmTestnet, .optimismGoerli, .arbitrumGoerli, .cronosMainnet:
-            return EtherscanSingleChainTransactionProvider.self
+            return .etherscan
         case .klaytnCypress, .klaytnBaobabTestnet:
-            return EtherscanSingleChainTransactionProvider.self
+            return .etherscan
         case .ioTeX, .ioTeXTestnet:
-            return CovalentSingleChainTransactionProvider.self
+            return .covalent
         }
     }
 

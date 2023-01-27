@@ -73,17 +73,39 @@ public class TransactionsService {
 
     private func setupSingleChainTransactionProviders() {
         providers = sessions.values.map { each in
-            let providerType = each.server.transactionProviderType
             let ercTokenDetector = ErcTokenDetector(
                 tokensService: tokensService,
                 server: each.server,
                 ercProvider: each.tokenProvider,
                 assetDefinitionStore: assetDefinitionStore)
 
-            let provider = providerType.init(session: each, analytics: analytics, transactionDataStore: transactionDataStore, tokensService: tokensService, fetchLatestTransactionsQueue: fetchLatestTransactionsQueue, ercTokenDetector: ercTokenDetector, networkService: networkService)
-            provider.delegate = self
+            switch each.server.transactionsSource {
+            case .etherscan:
+                let provider = EtherscanSingleChainTransactionProvider(
+                    session: each,
+                    analytics: analytics,
+                    transactionDataStore: transactionDataStore,
+                    tokensService: tokensService,
+                    fetchLatestTransactionsQueue: fetchLatestTransactionsQueue,
+                    ercTokenDetector: ercTokenDetector,
+                    networkService: networkService)
 
-            return provider
+                provider.delegate = self
+
+                return provider
+            case .covalent:
+                let provider = CovalentSingleChainTransactionProvider(
+                    session: each,
+                    analytics: analytics,
+                    transactionDataStore: transactionDataStore,
+                    fetchLatestTransactionsQueue: fetchLatestTransactionsQueue,
+                    ercTokenDetector: ercTokenDetector,
+                    networkService: networkService)
+
+                provider.delegate = self
+
+                return provider
+            }
         }
     }
 
