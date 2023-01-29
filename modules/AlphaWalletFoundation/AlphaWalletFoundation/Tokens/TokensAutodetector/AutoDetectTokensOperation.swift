@@ -17,7 +17,7 @@ protocol AutoDetectTokensOperationDelegate: AnyObject {
 
 final class AutoDetectTokensOperation: Operation {
     private let tokens: [ContractToImport]
-    private var cancelable = Set<AnyCancellable>()
+    private var cancellable: AnyCancellable?
 
     weak private var delegate: AutoDetectTokensOperationDelegate?
     override var isExecuting: Bool {
@@ -40,7 +40,7 @@ final class AutoDetectTokensOperation: Operation {
     override func main() {
         guard let delegate = delegate else { return }
 
-        delegate.autoDetectTokensImpl(withContracts: tokens)
+        cancellable = delegate.autoDetectTokensImpl(withContracts: tokens)
             .sink(receiveCompletion: { _ in
 
             }, receiveValue: { values in
@@ -53,6 +53,6 @@ final class AutoDetectTokensOperation: Operation {
 
                 guard !self.isCancelled else { return }
                 self.delegate?.didDetect(tokensOrContracts: values)
-            }).store(in: &cancelable)
+            })
     } 
 }
