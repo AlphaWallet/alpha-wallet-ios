@@ -75,11 +75,7 @@ extension Balance: CustomStringConvertible {
     }
 }
 
-extension WalletBalance: Hashable {
-    public static func == (lhs: WalletBalance, rhs: WalletBalance) -> Bool {
-        return lhs.wallet.address == rhs.wallet.address && lhs.totalAmount == rhs.totalAmount && lhs.change == rhs.change
-    }
-}
+extension WalletBalance: Hashable { }
 
 public extension WalletBalance {
     public struct ValueForCurrency: Equatable, Hashable {
