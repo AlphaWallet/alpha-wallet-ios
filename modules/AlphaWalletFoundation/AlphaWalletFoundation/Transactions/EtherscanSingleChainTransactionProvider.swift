@@ -38,7 +38,6 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
             ercTokenDetector: ercTokenDetector)
     }()
     private let networkService: NetworkService
-    private var cancelable = Set<AnyCancellable>()
 
     init(session: WalletSession,
          analytics: AnalyticsLogger,
@@ -184,7 +183,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
 
         transactionsNetworkProvider
             .getTransactions(startBlock: 1, endBlock: oldestCachedTransaction.blockNumber - 1, sortOrder: .desc)
-            .sink(receiveCompletion: { [transactionsTracker] result in
+            .sinkAsync(receiveCompletion: { [transactionsTracker] result in
                 guard case .failure = result else { return }
 
                 transactionsTracker.fetchingState = .failed
@@ -200,7 +199,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
                         strongSelf.fetchOlderTransactions()
                     }
                 }
-            }).store(in: &cancelable)
+            })
     }
 
     public func stop() {
