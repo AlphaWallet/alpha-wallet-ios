@@ -78,7 +78,7 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
         guard !isAutoDetectingTransactedTokens else { return }
 
         isAutoDetectingTransactedTokens = true
-        let operation = AutoDetectTransactedTokensOperation(session: session, delegate: self)
+        let operation = AutoDetectTransactedTokensOperation(server: session.server, wallet: session.account, delegate: self)
         autoDetectTransactedTokensQueue.addOperation(operation)
     }
 
@@ -119,8 +119,9 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
         let server = session.server
 
         return autoDetectTransactedContractsImpl(wallet: wallet, erc20: erc20, server: server)
-            .flatMap { [importToken, queue] detectedContracts -> AnyPublisher<[TokenOrContract], Never> in
-                let publishers = self.contractsForTransactedTokens(detectedContracts: detectedContracts, forServer: server)
+            .flatMap { [importToken, queue, weak self] detectedContracts -> AnyPublisher<[TokenOrContract], Never> in
+                guard let strongSelf = self else { return .empty() }
+                let publishers = strongSelf.contractsForTransactedTokens(detectedContracts: detectedContracts, forServer: server)
                     .map { importToken.fetchTokenOrContract(for: $0, onlyIfThereIsABalance: false).mapToResult() }
 
                 return Publishers.MergeMany(publishers).collect()
@@ -136,7 +137,7 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
         guard !isAutoDetectingTokens else { return }
         isAutoDetectingTokens = true
 
-        let operation = AutoDetectTokensOperation(session: session, delegate: self, tokens: contractToImportStorage.contractsToDetect)
+        let operation = AutoDetectTokensOperation(server: session.server, delegate: self, tokens: contractToImportStorage.contractsToDetect)
         autoDetectTokensQueue.addOperation(operation)
     }
 

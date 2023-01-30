@@ -13,8 +13,9 @@ final class NonFungibleContract {
 
     func getUriOrTokenUri(for tokenId: String, contract: AlphaWallet.Address) -> AnyPublisher<URL, SessionTaskError> {
         return getTokenUri(for: tokenId, contract: contract)
-            .catch { _ -> AnyPublisher<URL, SessionTaskError> in
-                self.getUri(for: tokenId, contract: contract)
+            .catch { [weak self] _ -> AnyPublisher<URL, SessionTaskError> in
+                guard let strongSelf = self else { return .fail(.cancelledError) }
+                return strongSelf.getUri(for: tokenId, contract: contract)
             }.eraseToAnyPublisher()
     }
 

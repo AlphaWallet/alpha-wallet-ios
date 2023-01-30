@@ -39,6 +39,10 @@ public final class BlockNumberProvider {
         self.blockchainProvider = blockchainProvider
     }
 
+    deinit {
+        scheduler.cancel()
+    }
+
     public func start() {
         scheduler.start()
     }

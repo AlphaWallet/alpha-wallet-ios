@@ -17,8 +17,8 @@ protocol AutoDetectTransactedTokensOperationDelegate: AnyObject {
 
 final class AutoDetectTransactedTokensOperation: Operation {
     private var cancellable: AnyCancellable?
-    private let session: WalletSession
-
+    private let wallet: Wallet
+    
     weak private var delegate: AutoDetectTransactedTokensOperationDelegate?
     override var isExecuting: Bool {
         return delegate?.isAutoDetectingTransactedTokens ?? false
@@ -30,28 +30,32 @@ final class AutoDetectTransactedTokensOperation: Operation {
         return true
     }
 
-    init(session: WalletSession, delegate: AutoDetectTransactedTokensOperationDelegate) {
+    init(server: RPCServer, wallet: Wallet, delegate: AutoDetectTransactedTokensOperationDelegate) {
         self.delegate = delegate
-        self.session = session
+        self.wallet = wallet
         super.init()
-        self.queuePriority = session.server.networkRequestsQueuePriority
+        self.queuePriority = server.networkRequestsQueuePriority
+    }
+
+    override func cancel() {
+        cancellable?.cancel()
+        cancellable = nil
     }
 
     override func main() {
         guard let delegate = delegate else { return }
 
-        cancellable = delegate.autoDetectTransactedErc20AndNonErc20Tokens(wallet: session.account.address)
+        cancellable = delegate.autoDetectTransactedErc20AndNonErc20Tokens(wallet: wallet.address)
             .sink(receiveCompletion: { _ in
 
-            }, receiveValue: { values in
-                self.willChangeValue(forKey: "isExecuting")
-                self.willChangeValue(forKey: "isFinished")
+            }, receiveValue: { [weak self] values in
+                self?.willChangeValue(forKey: "isExecuting")
+                self?.willChangeValue(forKey: "isFinished")
                 delegate.isAutoDetectingTransactedTokens = false
-                self.didChangeValue(forKey: "isExecuting")
-                self.didChangeValue(forKey: "isFinished")
+                self?.didChangeValue(forKey: "isExecuting")
+                self?.didChangeValue(forKey: "isFinished")
 
-                guard !self.isCancelled else { return }
-                self.delegate?.didDetect(tokensOrContracts: values)
+                self?.delegate?.didDetect(tokensOrContracts: values)
             })
     }
 }

@@ -107,7 +107,6 @@ class FakeSessionsProvider: SessionsProvider {
     public func start() {
         blockchainsProvider
             .blockchains
-            .print("xxx.blockchains")
             .map { [sessionsSubject] blockchains -> ServerDictionary<WalletSession>in
                 var sessions: ServerDictionary<WalletSession> = .init()
 

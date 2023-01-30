@@ -19,19 +19,18 @@ class NonFungibleErc1155JsonBalanceFetcher {
     private let jsonFromTokenUri: JsonFromTokenUri
     private let erc1155TokenIdsFetcher: Erc1155TokenIdsFetcher
     private let erc1155BalanceFetcher: Erc1155BalanceFetcher
-
-    private let session: WalletSession
+    private let server: RPCServer
     private let tokensService: TokenProvidable
     private let importToken: TokenImportable & TokenOrContractFetchable
 
     init(tokensService: TokenProvidable,
-         session: WalletSession,
+         server: RPCServer,
          erc1155TokenIdsFetcher: Erc1155TokenIdsFetcher,
          jsonFromTokenUri: JsonFromTokenUri,
          erc1155BalanceFetcher: Erc1155BalanceFetcher,
          importToken: TokenImportable & TokenOrContractFetchable) {
 
-        self.session = session
+        self.server = server
         self.erc1155TokenIdsFetcher = erc1155TokenIdsFetcher
         self.tokensService = tokensService
         self.jsonFromTokenUri = jsonFromTokenUri
@@ -43,10 +42,12 @@ class NonFungibleErc1155JsonBalanceFetcher {
         return erc1155TokenIdsFetcher
             .detectContractsAndTokenIds()
             .mapError { SessionTaskError(error: $0) }
-            .flatMap { contractsAndTokenIds -> AnyPublisher<Erc1155TokenIds.ContractsAndTokenIds, SessionTaskError> in
-                self.addUnknownErc1155ContractsToDatabase(contractsAndTokenIds: contractsAndTokenIds.tokens)
-            }.flatMap { contractsAndTokenIds -> AnyPublisher<(contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds, tokenIdMetaDatas: [TokenIdMetaData]), SessionTaskError> in
-                self._fetchErc1155NonFungibleJsons(contractsAndTokenIds: contractsAndTokenIds, enjinTokens: enjinTokens)
+            .flatMap { [weak self] contractsAndTokenIds -> AnyPublisher<Erc1155TokenIds.ContractsAndTokenIds, SessionTaskError> in
+                guard let strongSelf = self else { return .fail(.cancelledError) }
+                return strongSelf.addUnknownErc1155ContractsToDatabase(contractsAndTokenIds: contractsAndTokenIds.tokens)
+            }.flatMap { [weak self] contractsAndTokenIds -> AnyPublisher<(contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds, tokenIdMetaDatas: [TokenIdMetaData]), SessionTaskError> in
+                guard let strongSelf = self else { return .fail(.cancelledError) }
+                return strongSelf._fetchErc1155NonFungibleJsons(contractsAndTokenIds: contractsAndTokenIds, enjinTokens: enjinTokens)
                     .map { (contractsAndTokenIds: contractsAndTokenIds, tokenIdMetaDatas: $0) }
                     .eraseToAnyPublisher()
             }.flatMap { [erc1155BalanceFetcher] (contractsAndTokenIds, tokenIdMetaDatas) -> AnyPublisher<[AlphaWallet.Address: [NonFungibleBalanceAndItsSource<NonFungibleFromTokenUri>]], SessionTaskError> in
@@ -107,10 +108,10 @@ class NonFungibleErc1155JsonBalanceFetcher {
         let promises = contractsAndTokenIds.keys.map { importToken.importToken(for: $0, onlyIfThereIsABalance: false).mapToResult() }
         return Publishers.MergeMany(promises)
             .collect()
-            .map { [session] results -> Erc1155TokenIds.ContractsAndTokenIds in
+            .map { [server] results -> Erc1155TokenIds.ContractsAndTokenIds in
                 let tokens = results.compactMap { return try? $0.get() }
                 return contractsAndTokenIds.filter { value in
-                    tokens.contains(where: { $0.contractAddress == value.key && $0.server == session.server })
+                    tokens.contains(where: { $0.contractAddress == value.key && $0.server == server })
                 }
             }.setFailureType(to: SessionTaskError.self)
             .eraseToAnyPublisher()

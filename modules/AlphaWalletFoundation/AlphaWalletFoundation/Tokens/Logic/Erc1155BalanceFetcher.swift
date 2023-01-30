@@ -22,6 +22,10 @@ final class Erc1155BalanceFetcher {
         self.address = address
     }
 
+    func clear() {
+        inFlightPromises.removeAll()
+    }
+
     func getErc1155Balance(contract: AlphaWallet.Address, tokenIds: Set<BigInt>) -> AnyPublisher<[BigInt: BigUInt], SessionTaskError> {
         return Just(contract)
             .receive(on: queue)

@@ -67,15 +67,33 @@ public class Erc1155TokenIdsFetcher {
     private let queue: DispatchQueue = .global(qos: .utility)
     //This is only for development purposes to keep the PromiseKit `Resolver`(s) from being deallocated when they aren't resolved so PromiseKit don't show a warning and create noise and confusion
     private static var fetchEventsPromiseKitResolversKeptForDevelopmentFeatureFlagOnly: [PassthroughSubject<[Erc1155TransferEvent], Erc1155TokenIdsFetcherError>] = .init()
+    private let blockNumberProvider: BlockNumberProvider
     private let analytics: AnalyticsLogger
-    private let session: WalletSession
+    private let wallet: Wallet
+    private let server: RPCServer
+    private let blockchainProvider: BlockchainProvider
     private var inFlightPromise: AnyPublisher<Erc1155TokenIds, Erc1155TokenIdsFetcherError>?
+    private let config: Config
 
-    public init(analytics: AnalyticsLogger, session: WalletSession) {
+    public init(analytics: AnalyticsLogger,
+                blockNumberProvider: BlockNumberProvider,
+                blockchainProvider: BlockchainProvider,
+                wallet: Wallet,
+                server: RPCServer,
+                config: Config) {
+
+        self.config = config
+        self.blockchainProvider = blockchainProvider
         self.analytics = analytics
-        self.session = session
+        self.blockNumberProvider = blockNumberProvider
+        self.server = server
+        self.wallet = wallet
         try? FileManager.default.createDirectory(at: Self.documentDirectory, withIntermediateDirectories: true)
         migrateToStorageV2()
+    }
+
+    func clear() {
+        inFlightPromise = nil
     }
 
     //TODO debounce? Don't need too often? Or can be done from callers. Seems better to do it here
@@ -85,18 +103,23 @@ public class Erc1155TokenIdsFetcher {
             return inFlightPromise
         }
 
-        let promise = session.blockNumberProvider.latestBlockPublisher
+        //don't use strong ref here as publisher stores as variable, causes ref cycle
+        let promise = blockNumberProvider.latestBlockPublisher
             .receive(on: DispatchQueue.main)
             .setFailureType(to: Erc1155TokenIdsFetcherError.self)
-            .map { blockNumber -> (Erc1155TokenIds, Int) in
-                let tokenIds: Erc1155TokenIds = self.readJson() ?? .init()
+            .compactMap { [weak self] blockNumber -> (Erc1155TokenIds, Int)? in
+                guard let strongSelf = self else { return nil }
+                let tokenIds: Erc1155TokenIds = strongSelf.readJson() ?? .init()
                 return (tokenIds, blockNumber)
-            }.flatMap { (tokenIds: Erc1155TokenIds, currentBlockNumber: Int) -> AnyPublisher<Erc1155TokenIds, Erc1155TokenIdsFetcherError> in
-                self.fetchTokenIdsWithLatestEvents(tokenIds: tokenIds, currentBlockNumber: currentBlockNumber)
-            }.flatMap { (tokenIds: Erc1155TokenIds) -> AnyPublisher<Erc1155TokenIds, Erc1155TokenIdsFetcherError> in
-                self.fetchTokenIdsByCatchingUpOlderEvents(tokenIds: tokenIds)
-            }.flatMap { tokenIds -> AnyPublisher<Erc1155TokenIds, Erc1155TokenIdsFetcherError> in
-                self.writeJson(contractsAndTokenIds: tokenIds).map { tokenIds }.eraseToAnyPublisher()
+            }.flatMap { [weak self] (tokenIds: Erc1155TokenIds, currentBlockNumber: Int) -> AnyPublisher<Erc1155TokenIds, Erc1155TokenIdsFetcherError> in
+                guard let strongSelf = self else { return .fail(.selfDellocated) }
+                return strongSelf.fetchTokenIdsWithLatestEvents(tokenIds: tokenIds, currentBlockNumber: currentBlockNumber)
+            }.flatMap { [weak self] (tokenIds: Erc1155TokenIds) -> AnyPublisher<Erc1155TokenIds, Erc1155TokenIdsFetcherError> in
+                guard let strongSelf = self else { return .fail(.selfDellocated) }
+                return strongSelf.fetchTokenIdsByCatchingUpOlderEvents(tokenIds: tokenIds)
+            }.flatMap { [weak self] tokenIds -> AnyPublisher<Erc1155TokenIds, Erc1155TokenIdsFetcherError> in
+                guard let strongSelf = self else { return .fail(.selfDellocated) }
+                return strongSelf.writeJson(contractsAndTokenIds: tokenIds).map { tokenIds }.eraseToAnyPublisher()
             }.handleEvents(receiveCompletion: { [weak self] _ in self?.inFlightPromise = nil })
             .share()
             .eraseToAnyPublisher()
@@ -126,7 +149,7 @@ public class Erc1155TokenIdsFetcher {
     }
 
     private func readJson() -> Erc1155TokenIds? {
-        guard let data = try? Data(contentsOf: Self.fileUrl(forWallet: session.account.address, server: session.server)) else { return nil }
+        guard let data = try? Data(contentsOf: Self.fileUrl(forWallet: wallet.address, server: server)) else { return nil }
         return try? JSONDecoder().decode(Erc1155TokenIds.self, from: data)
     }
 
@@ -135,21 +158,22 @@ public class Erc1155TokenIdsFetcher {
     }
 
     private func readJsonV1() -> Erc1155TokenIdsV1? {
-        guard let data = try? Data(contentsOf: Self.fileUrlV1(forWallet: session.account.address, server: session.server)) else { return nil }
+        guard let data = try? Data(contentsOf: Self.fileUrlV1(forWallet: wallet.address, server: server)) else { return nil }
         return try? JSONDecoder().decode(Erc1155TokenIdsV1.self, from: data)
     }
 
     enum Erc1155TokenIdsFetcherError: Error {
+        case selfDellocated
         case writeFileFailure(error: Error)
         case fromAndToBlockNumberNotFound
         case `internal`(error: Error)
     }
 
     private func writeJson(contractsAndTokenIds: Erc1155TokenIds) -> AnyPublisher<Void, Erc1155TokenIdsFetcherError> {
-        return Future<Void, Erc1155TokenIdsFetcherError> { [session] seal in
+        return Future<Void, Erc1155TokenIdsFetcherError> { [wallet, server] seal in
             do {
                 let data = try JSONEncoder().encode(contractsAndTokenIds)
-                try data.write(to: Self.fileUrl(forWallet: session.account.address, server: session.server), options: .atomicWrite)
+                try data.write(to: Self.fileUrl(forWallet: wallet.address, server: server), options: .atomicWrite)
 
                 seal(.success(()))
             } catch {
@@ -171,12 +195,12 @@ public class Erc1155TokenIdsFetcher {
             let updatedTokens = functional.computeUpdatedTokenIds(fromPreviousRead: oldVersion.tokens, newlyFetched: tokenIds.tokens)
             let updated = Erc1155TokenIds(tokens: updatedTokens, blockNumbersProcessed: tokenIds.blockNumbersProcessed)
             writeJson(contractsAndTokenIds: updated)
-            try? FileManager.default.removeItem(at: Self.fileUrlV1(forWallet: session.account.address, server: session.server))
+            try? FileManager.default.removeItem(at: Self.fileUrlV1(forWallet: wallet.address, server: server))
         }
     }
 
     private func fetchTokenIdsWithLatestEvents(tokenIds: Erc1155TokenIds, currentBlockNumber: Int) -> AnyPublisher<Erc1155TokenIds, Erc1155TokenIdsFetcherError> {
-        let maximumBlockRangeWindow: UInt64? = session.server.maximumBlockRangeForEvents
+        let maximumBlockRangeWindow: UInt64? = server.maximumBlockRangeForEvents
         //We must not use `.latest` because there is a chance it is slightly later than what we use to compute the block range for events
         guard let (fromBlockNumber, toBlockNumber) = Erc1155TokenIdsFetcher.functional.makeBlockRangeForEvents(
             toBlockNumber: UInt64(currentBlockNumber),
@@ -189,7 +213,7 @@ public class Erc1155TokenIdsFetcher {
     }
 
     private func fetchTokenIdsByCatchingUpOlderEvents(tokenIds: Erc1155TokenIds) -> AnyPublisher<Erc1155TokenIds, Erc1155TokenIdsFetcherError> {
-        let maximumBlockRangeWindow: UInt64? = session.server.maximumBlockRangeForEvents
+        let maximumBlockRangeWindow: UInt64? = server.maximumBlockRangeForEvents
         //We must not use `.latest` because there is a chance it is slightly later than what we use to compute the block range for events
         if let range = Erc1155TokenIdsFetcher.functional.makeBlockRangeToCatchUpForOlderEvents(maximumWindow: maximumBlockRangeWindow, excludingRanges: tokenIds.blockNumbersProcessed) {
             let (fromBlockNumber, toBlockNumber) = range
@@ -212,7 +236,7 @@ public class Erc1155TokenIdsFetcher {
     }
 
     private func fetchEvents(fromBlock: EventFilter.Block, toBlock: EventFilter.Block) -> AnyPublisher<Erc1155TokenIds.ContractsAndTokenIds, Erc1155TokenIdsFetcherError> {
-        let recipientAddress = EthereumAddress(session.account.address.eip55String)!
+        let recipientAddress = EthereumAddress(wallet.address.eip55String)!
         let nullFilter: [EventFilterable]? = nil
         let singleTransferEventName = "TransferSingle"
         let batchTransferEventName = "TransferBatch"
@@ -251,7 +275,7 @@ public class Erc1155TokenIdsFetcher {
     }
 
     fileprivate func fetchEvents(transferType: Erc1155TransferEvent.TransferType, eventName: String, parameterFilters: [[EventFilterable]?], fromBlock: EventFilter.Block, toBlock: EventFilter.Block) -> AnyPublisher<[Erc1155TransferEvent], Erc1155TokenIdsFetcherError> {
-        if session.config.development.isAutoFetchingDisabled {
+        if config.development.isAutoFetchingDisabled {
             let subject = PassthroughSubject<[Erc1155TransferEvent], Erc1155TokenIdsFetcherError>()
             Erc1155TokenIdsFetcher.fetchEventsPromiseKitResolversKeptForDevelopmentFeatureFlagOnly.append(subject)
 
@@ -262,7 +286,7 @@ public class Erc1155TokenIdsFetcher {
         let dummyContract = Constants.nullAddress
         let eventFilter = EventFilter(fromBlock: fromBlock, toBlock: toBlock, addresses: nil, parameterFilters: parameterFilters)
 
-        return session.blockchainProvider
+        return blockchainProvider
             .eventLogs(contractAddress: dummyContract, eventName: eventName, abiString: AlphaWallet.Ethereum.ABI.erc1155String, filter: eventFilter)
             .map { events -> [Erc1155TransferEvent] in
                 let events = events.filter { $0.eventLog != nil }

@@ -55,14 +55,15 @@ open class BaseSessionsProvider: SessionsProvider {
     public func start() {
         blockchainsProvider
             .blockchains
-            .map { [sessionsSubject] blockchains -> ServerDictionary<WalletSession>in
+            .map { [weak self, sessionsSubject] blockchains -> ServerDictionary<WalletSession> in
+                guard let strongSelf = self else { return .init() }
                 var sessions: ServerDictionary<WalletSession> = .init()
 
                 for blockchain in blockchains.values {
                     if let session = sessionsSubject.value[safe: blockchain.server] {
                         sessions[blockchain.server] = session
                     } else {
-                        sessions[blockchain.server] = self.buildSession(blockchain: blockchain)
+                        sessions[blockchain.server] = strongSelf.buildSession(blockchain: blockchain)
                     }
                 }
                 return sessions
