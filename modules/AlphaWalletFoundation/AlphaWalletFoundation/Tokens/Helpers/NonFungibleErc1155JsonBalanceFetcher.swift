@@ -22,9 +22,15 @@ class NonFungibleErc1155JsonBalanceFetcher {
 
     private let session: WalletSession
     private let tokensService: TokenProvidable
-    private let importToken: ImportToken
+    private let importToken: TokenImportable & TokenOrContractFetchable
 
-    init(tokensService: TokenProvidable, session: WalletSession, erc1155TokenIdsFetcher: Erc1155TokenIdsFetcher, jsonFromTokenUri: JsonFromTokenUri, erc1155BalanceFetcher: Erc1155BalanceFetcher, importToken: ImportToken) {
+    init(tokensService: TokenProvidable,
+         session: WalletSession,
+         erc1155TokenIdsFetcher: Erc1155TokenIdsFetcher,
+         jsonFromTokenUri: JsonFromTokenUri,
+         erc1155BalanceFetcher: Erc1155BalanceFetcher,
+         importToken: TokenImportable & TokenOrContractFetchable) {
+
         self.session = session
         self.erc1155TokenIdsFetcher = erc1155TokenIdsFetcher
         self.tokensService = tokensService
@@ -98,7 +104,7 @@ class NonFungibleErc1155JsonBalanceFetcher {
     }
 
     private func importUnknownErc1155Contracts(contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds) -> AnyPublisher<Erc1155TokenIds.ContractsAndTokenIds, SessionTaskError> {
-        let promises = contractsAndTokenIds.keys.map { importToken.importTokenPublisher(for: $0, server: session.server, onlyIfThereIsABalance: false).mapToResult() }
+        let promises = contractsAndTokenIds.keys.map { importToken.importToken(for: $0, onlyIfThereIsABalance: false).mapToResult() }
         return Publishers.MergeMany(promises)
             .collect()
             .map { [session] results -> Erc1155TokenIds.ContractsAndTokenIds in

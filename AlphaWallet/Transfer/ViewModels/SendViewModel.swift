@@ -76,11 +76,15 @@ final class SendViewModel: TransactionTypeSupportable {
     let amountViewModel = SendViewSectionHeaderViewModel(text: R.string.localizable.sendAmount().uppercased(), showTopSeparatorLine: true)
     let recipientViewModel = SendViewSectionHeaderViewModel(text: R.string.localizable.sendRecipient().uppercased())
 
-    init(transactionType: TransactionType, session: WalletSession, tokensService: TokenProvidable & TokenAddable & TokenBalanceRefreshable & TokenViewModelState, importToken: ImportToken) {
+    init(transactionType: TransactionType,
+         session: WalletSession,
+         tokensService: TokenProvidable & TokenAddable & TokenBalanceRefreshable & TokenViewModelState,
+         sessionsProvider: SessionsProvider) {
+
         self.transactionTypeSubject = .init(transactionType)
         self.tokensService = tokensService
         self.session = session
-        self.transactionTypeFromQrCode = TransactionTypeFromQrCode(importToken: importToken, session: session)
+        self.transactionTypeFromQrCode = TransactionTypeFromQrCode(sessionsProvider: sessionsProvider, session: session)
         self.transactionTypeFromQrCode.transactionTypeProvider = self
     }
     //NOTE: test purposes
@@ -360,7 +364,7 @@ final class SendViewModel: TransactionTypeSupportable {
     private static func mapScanQrCodeError(_ result: Result<TransactionType, CheckEIP681Error>) -> String? {
         switch result.error {
         case .tokenTypeNotSupported: return "Token Not Supported"
-        case .configurationInvalid, .contractInvalid, .parameterInvalid, .missingRpcServer, .notEIP681, .embeded, .none: return nil
+        case .configurationInvalid, .serverNotEnabled, .contractInvalid, .parameterInvalid, .missingRpcServer, .notEIP681, .embeded, .none: return nil
         }
     }
 }
@@ -408,14 +412,17 @@ extension TransactionTypeSupportable {
 }
 
 final class TransactionTypeFromQrCode {
-    private let importToken: ImportToken
-    private lazy var eip681UrlResolver = Eip681UrlResolver(config: session.config, importToken: importToken, missingRPCServerStrategy: .fallbackToPreffered(session.server))
+    private lazy var eip681UrlResolver = Eip681UrlResolver(
+        config: session.config,
+        sessionsProvider: sessionsProvider,
+        missingRPCServerStrategy: .fallbackToPreffered(session.server))
     private let session: WalletSession
+    private let sessionsProvider: SessionsProvider
 
     weak var transactionTypeProvider: TransactionTypeSupportable?
 
-    init(importToken: ImportToken, session: WalletSession) {
-        self.importToken = importToken
+    init(sessionsProvider: SessionsProvider, session: WalletSession) {
+        self.sessionsProvider = sessionsProvider
         self.session = session
     }
 

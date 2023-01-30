@@ -11,8 +11,13 @@ class AddHideTokensCoordinator: Coordinator {
     private let analytics: AnalyticsLogger
     private let domainResolutionService: DomainResolutionServiceType
     private let navigationController: UINavigationController
-    private let importToken: ImportToken
-    private lazy var viewModel = AddHideTokensViewModel(tokenCollection: tokenCollection, tokensFilter: tokensFilter, importToken: importToken, config: config)
+    private let sessionsProvider: SessionsProvider
+    private lazy var viewModel = AddHideTokensViewModel(
+        tokenCollection: tokenCollection,
+        tokensFilter: tokensFilter,
+        sessionsProvider: sessionsProvider,
+        config: config)
+
     private lazy var rootViewController: AddHideTokensViewController = {
         let viewController = AddHideTokensViewController(viewModel: viewModel)
         viewController.hidesBottomBarWhenPushed = true
@@ -31,14 +36,22 @@ class AddHideTokensCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: AddHideTokensCoordinatorDelegate?
 
-    init(tokensFilter: TokensFilter, wallet: Wallet, tokenCollection: TokenCollection, analytics: AnalyticsLogger, domainResolutionService: DomainResolutionServiceType, navigationController: UINavigationController, config: Config, importToken: ImportToken) {
+    init(tokensFilter: TokensFilter,
+         wallet: Wallet,
+         tokenCollection: TokenCollection,
+         analytics: AnalyticsLogger,
+         domainResolutionService: DomainResolutionServiceType,
+         navigationController: UINavigationController,
+         config: Config,
+         sessionsProvider: SessionsProvider) {
+
         self.wallet = wallet
         self.config = config
         self.tokenCollection = tokenCollection
         self.analytics = analytics
         self.domainResolutionService = domainResolutionService
         self.navigationController = navigationController
-        self.importToken = importToken
+        self.sessionsProvider = sessionsProvider
         self.tokensFilter = tokensFilter
     }
 
@@ -78,7 +91,7 @@ extension AddHideTokensCoordinator: AddHideTokensViewControllerDelegate {
             wallet: wallet,
             navigationController: navigationController,
             config: config,
-            importToken: importToken,
+            sessionsProvider: sessionsProvider,
             initialState: initialState,
             domainResolutionService: domainResolutionService)
         coordinator.delegate = self

@@ -21,8 +21,7 @@ extension PromptBackupCoordinator {
 class TokensCoordinatorTests: XCTestCase {
 
     func testRootViewController() {
-        var sessions = ServerDictionary<WalletSession>()
-        sessions[.main] = WalletSession.make()
+        let sessionsProvider = FakeSessionsProvider.make(servers: [.main])
         let config: Config = .make()
         let tokenActionsService = FakeSwapTokenService()
         let wallet: Wallet = .make()
@@ -30,7 +29,7 @@ class TokensCoordinatorTests: XCTestCase {
 
         let coordinator = TokensCoordinator(
             navigationController: FakeNavigationController(),
-            sessions: sessions,
+            sessionsProvider: sessionsProvider,
             keystore: FakeEtherKeystore(),
             config: config,
             assetDefinitionStore: .make(),
@@ -43,7 +42,6 @@ class TokensCoordinatorTests: XCTestCase {
             activitiesService: FakeActivitiesService(),
             walletBalanceService: FakeMultiWalletBalanceService(),
             tokenCollection: dep.pipeline,
-            importToken: dep.importToken,
             blockiesGenerator: .make(),
             domainResolutionService: FakeDomainResolutionService(),
             tokensFilter: .make(),
@@ -56,15 +54,28 @@ class TokensCoordinatorTests: XCTestCase {
 }
 
 extension ImportToken {
-    static func make(tokensDataStore: TokensDataStore = FakeTokensDataStore(), wallet: Wallet = .make(), contractDataFetcher: ContractDataFetchable = FakeContractDataFetcher()) -> ImportToken {
-        return .init(tokensDataStore: tokensDataStore, contractDataFetcher: contractDataFetcher)
+    static func make(tokensDataStore: TokensDataStore = FakeTokensDataStore(),
+                     wallet: Wallet = .make(),
+                     contractDataFetcher: ContractDataFetchable = FakeContractDataFetcher(),
+                     server: RPCServer = .main) -> ImportToken {
+        
+        return .init(
+            tokensDataStore: tokensDataStore,
+            contractDataFetcher: contractDataFetcher,
+            server: server,
+            reachability: FakeReachabilityManager(false))
     }
 }
 
 final class FakeContractDataFetcher: ContractDataFetchable {
     var contractData: [AddressAndRPCServer: AlphaWalletFoundation.ContractData] = [:]
+    private let server: RPCServer
 
-    func fetchContractData(for contract: AlphaWallet.Address, server: RPCServer, completion: @escaping (ContractData) -> Void) {
+    init(server: RPCServer = .main) {
+        self.server = server
+    }
+
+    func fetchContractData(for contract: AlphaWallet.Address, completion: @escaping (ContractData) -> Void) {
         guard let contractData = contractData[.init(address: contract, server: server)] else { return }
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             completion(contractData)

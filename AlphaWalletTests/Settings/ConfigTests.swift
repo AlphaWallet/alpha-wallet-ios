@@ -42,16 +42,15 @@ class ConfigTests: XCTestCase {
 
         let expectation = expectation(description: "Wait for resolve tokens navigation title")
 
-        var sessions = ServerDictionary<WalletSession>()
-        sessions[.main] = WalletSession.make()
-
+        let sessionsProvider = FakeSessionsProvider.make(servers: [.main])
+        
         let config: Config = .make()
         let tokenActionsService = FakeSwapTokenService()
         let dep1 = WalletDataProcessingPipeline.make(wallet: .make(), server: .main)
 
         let coordinator = TokensCoordinator(
             navigationController: FakeNavigationController(),
-            sessions: sessions,
+            sessionsProvider: sessionsProvider,
             keystore: FakeEtherKeystore(),
             config: config,
             assetDefinitionStore: .make(),
@@ -64,7 +63,6 @@ class ConfigTests: XCTestCase {
             activitiesService: FakeActivitiesService(),
             walletBalanceService: FakeMultiWalletBalanceService(),
             tokenCollection: dep1.pipeline,
-            importToken: dep1.importToken,
             blockiesGenerator: .make(),
             domainResolutionService: FakeDomainResolutionService(),
             tokensFilter: .make(),

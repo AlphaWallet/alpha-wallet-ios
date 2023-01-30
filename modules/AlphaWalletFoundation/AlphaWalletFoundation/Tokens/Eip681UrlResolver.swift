@@ -19,11 +19,14 @@ public final class Eip681UrlResolver {
     }
 
     private let config: Config
-    private let importToken: ImportToken
+    private let sessionsProvider: SessionsProvider
     private let missingRPCServerStrategy: MissingRpcServerStrategy
 
-    public init(config: Config, importToken: ImportToken, missingRPCServerStrategy: MissingRpcServerStrategy) {
-        self.importToken = importToken
+    public init(config: Config,
+                sessionsProvider: SessionsProvider,
+                missingRPCServerStrategy: MissingRpcServerStrategy) {
+
+        self.sessionsProvider = sessionsProvider
         self.config = config
         self.missingRPCServerStrategy = missingRPCServerStrategy
     }
@@ -44,16 +47,19 @@ public final class Eip681UrlResolver {
             .setFailureType(to: CheckEIP681Error.self)
             .map { protocolName in
                 Eip681Parser(protocolName: protocolName, address: address, functionName: functionName, params: params).parse()
-            }.flatMap { [importToken] result -> AnyPublisher<Eip681UrlResolver.Resolution, CheckEIP681Error> in
+            }.flatMap { [sessionsProvider] result -> AnyPublisher<Eip681UrlResolver.Resolution, CheckEIP681Error> in
                 guard let (contract: contract, customServer, recipient, amount) = result.parameters else {
                     return .fail(CheckEIP681Error.parameterInvalid)
                 }
                 guard let server = self.serverFromEip681LinkOrDefault(customServer) else {
                     return .fail(CheckEIP681Error.missingRpcServer)
                 }
+                guard let session = sessionsProvider.session(for: server) else {
+                    return .fail(CheckEIP681Error.serverNotEnabled)
+                }
 
-                return importToken
-                    .importTokenPublisher(for: contract, server: server)
+                return session.importToken
+                    .importToken(for: contract)
                     .mapError { CheckEIP681Error.embeded(error: $0) }
                     .flatMap { token -> AnyPublisher<Eip681UrlResolver.Resolution, CheckEIP681Error> in
                         switch token.type {

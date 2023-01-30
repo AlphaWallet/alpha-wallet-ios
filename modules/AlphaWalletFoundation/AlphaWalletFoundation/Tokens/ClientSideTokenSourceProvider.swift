@@ -12,7 +12,7 @@ public class ClientSideTokenSourceProvider: TokenSourceProvider {
     private lazy var tokensAutodetector: TokensAutodetector = {
         let detectedContractsProvider = DetectedContractsProvider(tokensDataStore: tokensDataStore)
         let contractToImportStorage = ContractToImportFileStorage(server: session.server)
-        let autodetector = SingleChainTokensAutodetector(session: session, contractToImportStorage: contractToImportStorage, detectedTokens: detectedContractsProvider, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, importToken: importToken, networkService: networkService)
+        let autodetector = SingleChainTokensAutodetector(session: session, contractToImportStorage: contractToImportStorage, detectedTokens: detectedContractsProvider, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, importToken: session.importToken, networkService: networkService)
         return autodetector
     }()
     private let networkService: NetworkService
@@ -20,7 +20,6 @@ public class ClientSideTokenSourceProvider: TokenSourceProvider {
     private let tokensDataStore: TokensDataStore
     private let autoDetectTransactedTokensQueue: OperationQueue
     private let autoDetectTokensQueue: OperationQueue
-    private let importToken: ImportToken
     private let refreshSubject = PassthroughSubject<Void, Never>.init()
     private let balanceFetcher: TokenBalanceFetcherType
 
@@ -52,12 +51,17 @@ public class ClientSideTokenSourceProvider: TokenSourceProvider {
 
     public let session: WalletSession
 
-    public init(session: WalletSession, autoDetectTransactedTokensQueue: OperationQueue, autoDetectTokensQueue: OperationQueue, importToken: ImportToken, tokensDataStore: TokensDataStore, balanceFetcher: TokenBalanceFetcherType, networkService: NetworkService) {
+    public init(session: WalletSession,
+                autoDetectTransactedTokensQueue: OperationQueue,
+                autoDetectTokensQueue: OperationQueue,
+                tokensDataStore: TokensDataStore,
+                balanceFetcher: TokenBalanceFetcherType,
+                networkService: NetworkService) {
+
         self.session = session
         self.tokensDataStore = tokensDataStore
         self.autoDetectTransactedTokensQueue = autoDetectTransactedTokensQueue
         self.autoDetectTokensQueue = autoDetectTokensQueue
-        self.importToken = importToken
         self.balanceFetcher = balanceFetcher
         self.networkService = networkService
     }

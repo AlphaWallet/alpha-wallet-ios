@@ -23,7 +23,7 @@ protocol TokensCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, BuyCryp
 }
 
 class TokensCoordinator: Coordinator {
-    private let sessions: ServerDictionary<WalletSession>
+    private let sessionsProvider: SessionsProvider
     private let keystore: Keystore
     private let config: Config
     private let tokenCollection: TokenCollection
@@ -74,12 +74,11 @@ class TokensCoordinator: Coordinator {
     private var viewWillAppearHandled = false
     private let blockiesGenerator: BlockiesGenerator
     private let domainResolutionService: DomainResolutionServiceType
-    private let importToken: ImportToken
     private let wallet: Wallet
     private let currencyService: CurrencyService
 
     init(navigationController: UINavigationController = .withOverridenBarAppearence(),
-         sessions: ServerDictionary<WalletSession>,
+         sessionsProvider: SessionsProvider,
          keystore: Keystore,
          config: Config,
          assetDefinitionStore: AssetDefinitionStore,
@@ -92,18 +91,17 @@ class TokensCoordinator: Coordinator {
          activitiesService: ActivitiesServiceType,
          walletBalanceService: WalletBalanceService,
          tokenCollection: TokenCollection,
-         importToken: ImportToken,
          blockiesGenerator: BlockiesGenerator,
          domainResolutionService: DomainResolutionServiceType,
          tokensFilter: TokensFilter,
          currencyService: CurrencyService) {
 
         self.currencyService = currencyService
-        self.wallet = sessions.anyValue.account
+        self.wallet = sessionsProvider.activeSessions.anyValue.account
         self.tokensFilter = tokensFilter
         self.tokenCollection = tokenCollection
         self.navigationController = navigationController
-        self.sessions = sessions
+        self.sessionsProvider = sessionsProvider
         self.keystore = keystore
         self.config = config
         self.assetDefinitionStore = assetDefinitionStore
@@ -115,7 +113,6 @@ class TokensCoordinator: Coordinator {
         self.coinTickersFetcher = coinTickersFetcher
         self.activitiesService = activitiesService
         self.walletBalanceService = walletBalanceService
-        self.importToken = importToken
         self.blockiesGenerator = blockiesGenerator
         self.domainResolutionService = domainResolutionService
 
@@ -161,7 +158,7 @@ class TokensCoordinator: Coordinator {
     }
 
     private func setupSingleChainTokenCoordinators() {
-        for session in sessions.values {
+        for session in sessionsProvider.activeSessions.values {
             let coordinator = SingleChainTokenCoordinator(
                 session: session,
                 keystore: keystore,
@@ -173,7 +170,7 @@ class TokensCoordinator: Coordinator {
                 activitiesService: activitiesService,
                 alertService: alertService,
                 tokensService: tokenCollection,
-                sessions: sessions,
+                sessions: sessionsProvider.activeSessions,
                 currencyService: currencyService)
 
             coordinator.delegate = self
@@ -199,7 +196,7 @@ class TokensCoordinator: Coordinator {
         let coordinator = QRCodeResolutionCoordinator(
             config: config,
             coordinator: scanQRCodeCoordinator,
-            usage: .all(tokensService: tokenCollection, importToken: importToken),
+            usage: .all(tokensService: tokenCollection, sessionsProvider: sessionsProvider),
             account: wallet)
 
         coordinator.delegate = self
@@ -238,7 +235,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         alertController.popoverPresentationController?.barButtonItem = sender
 
-        let server: RPCServer = sessions.anyValue.server
+        let server: RPCServer = sessionsProvider.activeSessions.anyValue.server
 
         let copyAddressAction = UIAlertAction(title: R.string.localizable.copyAddress(), style: .default) { [weak self] _ in
             guard let strongSelf = self else { return }
@@ -314,7 +311,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
             domainResolutionService: domainResolutionService,
             navigationController: navigationController,
             config: config,
-            importToken: importToken)
+            sessionsProvider: sessionsProvider)
 
         coordinator.delegate = self
         addCoordinator(coordinator)
@@ -390,7 +387,7 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
             wallet: wallet,
             navigationController: navigationController,
             config: config,
-            importToken: importToken,
+            sessionsProvider: sessionsProvider,
             initialState: .address(address),
             domainResolutionService: domainResolutionService)
 

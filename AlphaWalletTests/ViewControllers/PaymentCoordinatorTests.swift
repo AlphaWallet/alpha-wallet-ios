@@ -26,12 +26,21 @@ extension CurrencyService {
 extension WalletDataProcessingPipeline {
     static func make(wallet: Wallet = .make(), server: RPCServer = .main) -> AppCoordinator.WalletDependencies {
         let fas = FakeAnalyticsService()
-        let sessionsProvider: SessionsProvider = .make(wallet: wallet, servers: [server])
-        let eventsActivityDataStore: EventsActivityDataStoreProtocol = EventsActivityDataStore(store: .fake(for: wallet))
 
         let tokensDataStore = FakeTokensDataStore(account: wallet, servers: [server])
-        let contractDataFetcher = FakeContractDataFetcher()
-        let importToken = ImportToken.make(tokensDataStore: tokensDataStore, contractDataFetcher: contractDataFetcher)
+        let sessionsProvider = FakeSessionsProvider(
+            config: .make(),
+            analytics: FakeAnalyticsService(),
+            blockchainsProvider: .make(servers: [server]),
+            tokensDataStore: tokensDataStore,
+            assetDefinitionStore: .make(),
+            reachability: FakeReachabilityManager(true),
+            wallet: wallet)
+
+        sessionsProvider.start()
+
+        let eventsActivityDataStore: EventsActivityDataStoreProtocol = EventsActivityDataStore(store: .fake(for: wallet))
+
         let eventsDataStore = FakeEventsDataStore()
         let transactionsDataStore = FakeTransactionsStorage()
         let nftProvider = FakeNftProvider()
@@ -42,7 +51,6 @@ extension WalletDataProcessingPipeline {
             sessionsProvider: sessionsProvider,
             tokensDataStore: tokensDataStore,
             analytics: fas,
-            importToken: importToken,
             transactionsStorage: transactionsDataStore,
             nftProvider: nftProvider,
             assetDefinitionStore: .make(),
@@ -72,7 +80,6 @@ extension WalletDataProcessingPipeline {
             activitiesPipeLine: activitiesPipeLine,
             transactionsDataStore: transactionsDataStore,
             tokensDataStore: tokensDataStore,
-            importToken: importToken,
             tokensService: tokensService,
             pipeline: pipeline,
             fetcher: fetcher,
@@ -80,20 +87,11 @@ extension WalletDataProcessingPipeline {
             eventsDataStore: eventsDataStore,
             currencyService: currencyService)
         
-        dep.sessionsProvider.start(wallet: wallet)
+        dep.sessionsProvider.start()
         dep.fetcher.start()
         dep.pipeline.start()
 
         return dep
-    }
-}
-
-extension SessionsProvider {
-    static func make(wallet: Wallet = .make(), servers: [RPCServer] = [.main]) -> SessionsProvider {
-        let provider = FakeSessionsProvider(servers: servers)
-        provider.start(wallet: wallet)
-
-        return provider
     }
 }
 
@@ -110,7 +108,7 @@ class PaymentCoordinatorTests: XCTestCase {
             navigationController: FakeNavigationController(),
             flow: .send(type: .transaction(.nativeCryptocurrency(Token(), destination: .init(address: address), amount: .notSet))),
             server: .main,
-            sessionProvider: dep.sessionsProvider,
+            sessionsProvider: dep.sessionsProvider,
             keystore: FakeEtherKeystore(),
             assetDefinitionStore: .make(),
             analytics: FakeAnalyticsService(),
@@ -118,7 +116,6 @@ class PaymentCoordinatorTests: XCTestCase {
             domainResolutionService: FakeDomainResolutionService(),
             tokenSwapper: TokenSwapper.make(),
             tokensFilter: .make(),
-            importToken: dep.importToken,
             networkService: FakeNetworkService(),
             transactionDataStore: FakeTransactionsStorage(wallet: wallet))
         coordinator.start()
@@ -136,7 +133,7 @@ class PaymentCoordinatorTests: XCTestCase {
             navigationController: FakeNavigationController(),
             flow: .request,
             server: .main,
-            sessionProvider: dep.sessionsProvider,
+            sessionsProvider: dep.sessionsProvider,
             keystore: FakeEtherKeystore(),
             assetDefinitionStore: .make(),
             analytics: FakeAnalyticsService(),
@@ -144,7 +141,6 @@ class PaymentCoordinatorTests: XCTestCase {
             domainResolutionService: FakeDomainResolutionService(),
             tokenSwapper: TokenSwapper.make(),
             tokensFilter: .make(),
-            importToken: dep.importToken,
             networkService: FakeNetworkService(),
             transactionDataStore: FakeTransactionsStorage(wallet: wallet))
 
