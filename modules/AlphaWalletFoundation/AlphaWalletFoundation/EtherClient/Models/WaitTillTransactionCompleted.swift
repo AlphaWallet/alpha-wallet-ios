@@ -6,41 +6,49 @@
 //
 
 import Foundation
-import PromiseKit
 import AlphaWalletCore
 import Combine
 
-//TODO: improve waiting for tx completion
 public final class WaitTillTransactionCompleted {
-    struct NotCompletedYetError: Error { }
-
-    private let blockchainProvider: BlockchainProvider
-
-    public init(blockchainProvider: BlockchainProvider) {
-        self.blockchainProvider = blockchainProvider
+    
+    enum TransactionError: Error {
+        case `internal`(Error)
+        case timeout
+        case notInState(TransactionState)
     }
 
-    public func waitTillCompleted(hash: String, timesToRepeat: Int = 50) -> AnyPublisher<Void, PromiseError> {
-        Just(hash)
-            .setFailureType(to: PromiseError.self)
-            .flatMap { hash -> AnyPublisher<Void, PromiseError> in
-                self.waitTillCompleted(hash: hash)
-                    .retry(.randomDelayed(retries: UInt(timesToRepeat), delayBeforeRetry: 10, delayUpperRangeValueFrom0To: 20), scheduler: RunLoop.main)
-                    .mapToVoid()
-                    .eraseToAnyPublisher()
-            }.eraseToAnyPublisher()
+    private let server: RPCServer
+    private let transactionDataStore: TransactionDataStore
+
+    public init(transactionDataStore: TransactionDataStore, server: RPCServer) {
+        self.transactionDataStore = transactionDataStore
+        self.server = server
     }
 
-    private func getTransactionIfCompleted(hash: String) -> AnyPublisher<PendingTransaction, PromiseError> {
-        return blockchainProvider
-            .pendingTransaction(hash: hash)
-            .mapError { PromiseError(error: $0) }
-            .flatMap { pendingTransaction -> AnyPublisher<PendingTransaction, PromiseError> in
-                if let pendingTransaction = pendingTransaction, let blockNumber = Int(pendingTransaction.blockNumber), blockNumber > 0 {
-                    return .just(pendingTransaction)
+    /// Return transaction when it reaches state
+    /// - state - transactions state required
+    /// - hash - transaction hash to look for trsnsaction
+    /// - timeout - waiting timeout
+    func transaction(hash: String, for state: TransactionState, timeout: Int) -> AnyPublisher<TransactionInstance, TransactionError> {
+        transactionDataStore
+            .transactionPublisher(for: hash, server: server)
+            .mapError { TransactionError.internal($0) }
+            .map { tx -> Result<TransactionInstance, TransactionError> in
+                if let tx = tx {
+                    if tx.state == state {
+                        return .success(tx)
+                    } else {
+                        return .failure(TransactionError.notInState(state))
+                    }
                 } else {
-                    return .fail(PromiseError(error: NotCompletedYetError()))
+                    return .failure(TransactionError.internal(DataStoreError.objectNotFound))
                 }
-            }.eraseToAnyPublisher()
+            }.compactMap { result -> TransactionInstance? in
+                guard case .success(let tx) = result else { return nil }
+                return tx
+            }.timeout(.seconds(timeout), scheduler: DispatchQueue.main, options: nil) { return TransactionError.timeout }
+            .receive(on: DispatchQueue.main)
+            .first()
+            .eraseToAnyPublisher()
     }
 }
