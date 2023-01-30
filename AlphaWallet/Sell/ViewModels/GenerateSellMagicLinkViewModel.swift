@@ -5,7 +5,7 @@ import AlphaWalletFoundation
 
 struct GenerateSellMagicLinkViewModel {
     private let tokenHolder: TokenHolder
-    private let ethCost: Ether
+    private let ethCost: Double
     private let linkExpiryDate: Date
     private let server: RPCServer
     private let assetDefinitionStore: AssetDefinitionStore
@@ -76,12 +76,14 @@ struct GenerateSellMagicLinkViewModel {
 
     var perTokenPriceLabelText: String {
         let tokenTypeName = XMLHandler(contract: tokenHolder.contractAddress, tokenType: tokenHolder.tokenType, assetDefinitionStore: assetDefinitionStore).getLabel()
-        let amount = ethCost / tokenCount
-        return R.string.localizable.aWalletTokenSellPerTokenEthPriceTitle(amount.formattedDescription, server.symbol, tokenTypeName)
+        let amount = NumberFormatter.shortCrypto.string(double: ethCost / Double(tokenCount), minimumFractionDigits: 4, maximumFractionDigits: 8).droppedTrailingZeros
+
+        return R.string.localizable.aWalletTokenSellPerTokenEthPriceTitle(amount, server.symbol, tokenTypeName)
     }
 
     var totalEthLabelText: String {
-        return R.string.localizable.aWalletTokenSellTotalEthPriceTitle(ethCost.formattedDescription, server.symbol)
+        let amount = NumberFormatter.shortCrypto.string(double: ethCost, minimumFractionDigits: 4, maximumFractionDigits: 8).droppedTrailingZeros
+        return R.string.localizable.aWalletTokenSellTotalEthPriceTitle(amount, server.symbol)
     }
 
     var detailsBackgroundBackgroundColor: UIColor {
@@ -92,7 +94,7 @@ struct GenerateSellMagicLinkViewModel {
         return tokenHolder.count
     }
 
-    init(tokenHolder: TokenHolder, ethCost: Ether, linkExpiryDate: Date, server: RPCServer, assetDefinitionStore: AssetDefinitionStore) {
+    init(tokenHolder: TokenHolder, ethCost: Double, linkExpiryDate: Date, server: RPCServer, assetDefinitionStore: AssetDefinitionStore) {
         self.tokenHolder = tokenHolder
         self.ethCost = ethCost
         self.linkExpiryDate = linkExpiryDate
