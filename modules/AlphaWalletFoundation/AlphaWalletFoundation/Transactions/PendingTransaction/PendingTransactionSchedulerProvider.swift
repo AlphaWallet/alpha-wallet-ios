@@ -10,7 +10,6 @@ import Combine
 import CombineExt
 import AlphaWalletCore
 
-
 final class PendingTransactionSchedulerProvider: SchedulerProvider {
     private let fetchPendingTransactionsQueue: OperationQueue
     private let blockchainProvider: BlockchainProvider
@@ -53,7 +52,7 @@ final class PendingTransactionSchedulerProvider: SchedulerProvider {
             .eraseToAnyPublisher()
     }
 
-    private func handle(response:  Swift.Result<PendingTransaction, SessionTaskError>) {
+    private func handle(response: Swift.Result<PendingTransaction, SessionTaskError>) {
         responseSubject.send(response)
     }
 }
