@@ -173,7 +173,7 @@ struct Configuration {
             static let collectionViewCellBackground = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.cod()!)
             }
-            static let searchbarTint = UIColor { trait in
+            static let searchBarTint = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.mine()!, darkColor: R.color.white()!)
             }
 
@@ -229,7 +229,7 @@ struct Configuration {
                 return colorFrom(trait: trait, lightColor: R.color.dove()!, darkColor: R.color.dusty()!)
             }
 
-            static let searchbarBackground = UIColor { trait in
+            static let searchBarBackground = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.cod()!)
             }
 

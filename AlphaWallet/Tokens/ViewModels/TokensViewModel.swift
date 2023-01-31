@@ -108,7 +108,7 @@ final class TokensViewModel {
     }
 
     var backgroundColor: UIColor {
-        return Configuration.Color.Semantic.searchbarBackground
+        return Configuration.Color.Semantic.searchBarBackground
     }
 
     var buyButtonFooterBarBackgroundColor: UIColor {
