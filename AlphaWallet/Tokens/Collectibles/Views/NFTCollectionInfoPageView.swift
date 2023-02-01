@@ -29,7 +29,7 @@ class NFTCollectionInfoPageView: ScrollableStackView, PageViewType {
          tokenCardViewFactory: TokenCardViewFactory) {
 
         self.viewModel = viewModel
-        self.previewView = tokenCardViewFactory.createPreview(of: viewModel.previewViewType, session: session, edgeInsets: viewModel.previewEdgeInsets)
+        self.previewView = tokenCardViewFactory.createPreview(of: viewModel.previewViewType, session: session, edgeInsets: viewModel.previewEdgeInsets, playButtonPositioning: .bottomRight)
         self.previewView.rounding = .custom(20)
         self.previewView.contentMode = .scaleAspectFill
         super.init()

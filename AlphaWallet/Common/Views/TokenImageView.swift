@@ -44,8 +44,10 @@ class ImageView: UIImageView {
 }
 
 final class TokenImageView: UIView, ViewRoundingSupportable, ViewLoadingCancelable {
-    private let symbolLabel: UILabel = {
-        let label = UILabel()
+
+    private let playButtonPositioning: AVPlayerView.PlayButtonPositioning
+    private let symbolLabel: ResponsiveLabel = {
+        let label = ResponsiveLabel()
         label.textColor = Configuration.Color.Semantic.defaultInverseText
         label.font = UIFont.systemFont(ofSize: 13)
         label.textAlignment = .center
@@ -54,7 +56,7 @@ final class TokenImageView: UIView, ViewRoundingSupportable, ViewLoadingCancelab
         return label
     }()
     private (set) lazy var imageView: WebImageView = {
-        let imageView = WebImageView()
+        let imageView = WebImageView(playButtonPositioning: playButtonPositioning)
         imageView.rounding = rounding
 
         return imageView
@@ -88,7 +90,8 @@ final class TokenImageView: UIView, ViewRoundingSupportable, ViewLoadingCancelab
     private let imageSourceSubject = PassthroughSubject<TokenImagePublisher, Never>()
     private var cancellable = Set<AnyCancellable>()
 
-    init(edgeInsets: UIEdgeInsets = .zero) {
+    init(edgeInsets: UIEdgeInsets = .zero, playButtonPositioning: AVPlayerView.PlayButtonPositioning = .center) {
+        self.playButtonPositioning = playButtonPositioning
         super.init(frame: .zero)
 
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -99,6 +102,8 @@ final class TokenImageView: UIView, ViewRoundingSupportable, ViewLoadingCancelab
 
         symbolLabel.translatesAutoresizingMaskIntoConstraints = false
         addSubview(symbolLabel)
+
+        isUserInteractionEnabled = true
 
         NSLayoutConstraint.activate([
             symbolLabel.anchorsConstraint(to: imageView),
@@ -146,5 +151,11 @@ final class TokenImageView: UIView, ViewRoundingSupportable, ViewLoadingCancelab
 
     func cancel() {
         imageView.cancel()
+    }
+}
+
+private class ResponsiveLabel: UILabel {
+    override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+        return false
     }
 }

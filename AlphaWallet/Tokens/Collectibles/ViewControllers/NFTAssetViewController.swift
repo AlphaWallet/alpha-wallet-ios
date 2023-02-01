@@ -40,7 +40,7 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
 
     init(viewModel: NFTAssetViewModel, tokenCardViewFactory: TokenCardViewFactory) {
         self.viewModel = viewModel
-        self.previewView = tokenCardViewFactory.createPreview(of: viewModel.previewViewType, session: viewModel.session, edgeInsets: viewModel.previewEdgeInsets)
+        self.previewView = tokenCardViewFactory.createPreview(of: viewModel.previewViewType, session: viewModel.session, edgeInsets: viewModel.previewEdgeInsets, playButtonPositioning: .bottomRight)
         self.previewView.rounding = .custom(20)
         self.previewView.contentMode = .scaleAspectFill
         super.init(nibName: nil, bundle: nil)
@@ -83,6 +83,7 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
         title = ""
         super.viewWillDisappear(animated)
         showNavigationBarTopSeparatorLine()
+        previewView.cancel()
     }
 
     override func viewDidLoad() {

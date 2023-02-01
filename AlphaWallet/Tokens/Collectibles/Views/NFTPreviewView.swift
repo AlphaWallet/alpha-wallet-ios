@@ -44,11 +44,12 @@ final class NFTPreviewView: NFTPreviewViewRepresentable {
     init(type: NFTPreviewViewType,
          session: WalletSession,
          assetDefinitionStore: AssetDefinitionStore,
-         edgeInsets: UIEdgeInsets = .zero) {
+         edgeInsets: UIEdgeInsets = .zero,
+         playButtonPositioning: AVPlayerView.PlayButtonPositioning) {
 
         switch type {
         case .imageView:
-            previewView = NFTPreviewView.generateTokenImageView()
+            previewView = NFTPreviewView.generateTokenImageView(playButtonPositioning: playButtonPositioning)
         case .tokenCardView:
             previewView = NFTPreviewView.generateTokenCardView(session: session, assetDefinitionStore: assetDefinitionStore)
         }
@@ -80,8 +81,8 @@ final class NFTPreviewView: NFTPreviewViewRepresentable {
         return tokeCardWebView
     }
 
-    private static func generateTokenImageView() -> TokenImageView {
-        let imageView = TokenImageView()
+    private static func generateTokenImageView(playButtonPositioning: AVPlayerView.PlayButtonPositioning) -> TokenImageView {
+        let imageView = TokenImageView(playButtonPositioning: playButtonPositioning)
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.isUserInteractionEnabled = true
         imageView.rounding = .none

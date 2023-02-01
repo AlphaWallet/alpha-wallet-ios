@@ -10,7 +10,7 @@ import AlphaWalletFoundation
 
 class BlockieImageView: UIView {
     private lazy var imageView: WebImageView = {
-        let imageView = WebImageView()
+        let imageView = WebImageView(playButtonPositioning: .center)
         imageView.contentMode = .scaleAspectFit
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.isUserInteractionEnabled = true
