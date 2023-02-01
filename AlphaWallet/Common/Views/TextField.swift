@@ -341,7 +341,7 @@ fileprivate extension TextField {
     @objc private func toggleMaskPassword(_ sender: UIButton) {
         isSecureTextEntry.toggle()
         if isSecureTextEntry {
-            sender.tintColor = Colors.navigationTitleColor
+            sender.tintColor = Configuration.Color.Semantic.secureIcon
         } else {
             sender.tintColor = .init(red: 111, green: 111, blue: 111)
         }
