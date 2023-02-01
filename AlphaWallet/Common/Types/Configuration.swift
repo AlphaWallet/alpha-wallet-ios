@@ -177,19 +177,19 @@ struct Configuration {
                 return colorFrom(trait: trait, lightColor: R.color.mine()!, darkColor: R.color.white()!)
             }
 
-            static let navigationbarBackgroundColor = UIColor { trait in
+            static let navigationBarBackgroundColor = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.black()!)
             }
 
-            static let navigationbarSeparator = UIColor { trait in
+            static let navigationBarSeparator = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.mercury()!, darkColor: R.color.venus()!)
             }
 
-            static let navigationbarPrimaryFont = UIColor { trait in
+            static let navigationBarPrimaryFont = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.black()!, darkColor: R.color.white()!)
             }
 
-            static let navigationbarButtonItemTint = UIColor { trait in
+            static let navigationBarButtonItemTint = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.mine()!, darkColor: R.color.white()!)
             }
 

@@ -5,18 +5,18 @@ import UIKit
 import AlphaWalletFoundation
 
 func applyStyle() {
-    UIBarButtonItem.appearance(whenContainedInInstancesOf: [UIDocumentBrowserViewController.self]).tintColor = Configuration.Color.Semantic.navigationbarButtonItemTint
+    UIBarButtonItem.appearance(whenContainedInInstancesOf: [UIDocumentBrowserViewController.self]).tintColor = Configuration.Color.Semantic.navigationBarButtonItemTint
     UIWindow.appearance().tintColor = Colors.appTint
 
-    UINavigationBar.appearance().shadowImage = UIImage(color: Configuration.Color.Semantic.navigationbarSeparator, size: CGSize(width: 0.25, height: 0.25))
+    UINavigationBar.appearance().shadowImage = UIImage(color: Configuration.Color.Semantic.navigationBarSeparator, size: CGSize(width: 0.25, height: 0.25))
     UINavigationBar.appearance().compactAppearance = UINavigationBarAppearance.defaultAppearence
     UINavigationBar.appearance().standardAppearance = UINavigationBarAppearance.defaultAppearence
     UINavigationBar.appearance().scrollEdgeAppearance = UINavigationBarAppearance.defaultAppearence
 
     //We could have set the backBarButtonItem with an empty title for every view controller. Using appearance here, while a hack is still more convenient though, since we don't have to do it for every view controller instance
     UIBarButtonItem.appearance().setBackButtonTitlePositionAdjustment(UIOffset(horizontal: -200, vertical: 0), for: .default)
-    UIBarButtonItem.appearance().tintColor = Configuration.Color.Semantic.navigationbarButtonItemTint
-    UIBarButtonItem.appearance(whenContainedInInstancesOf: [UIToolbar.self]).tintColor = Configuration.Color.Semantic.navigationbarButtonItemTint
+    UIBarButtonItem.appearance().tintColor = Configuration.Color.Semantic.navigationBarButtonItemTint
+    UIBarButtonItem.appearance(whenContainedInInstancesOf: [UIToolbar.self]).tintColor = Configuration.Color.Semantic.navigationBarButtonItemTint
 
     UIToolbar.appearance().tintColor = Colors.appTint
 
@@ -37,16 +37,16 @@ extension UINavigationBarAppearance {
     static var defaultAppearence: UINavigationBarAppearance {
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = Configuration.Color.Semantic.navigationbarBackgroundColor
-        appearance.shadowColor = Configuration.Color.Semantic.navigationbarSeparator
+        appearance.backgroundColor = Configuration.Color.Semantic.navigationBarBackgroundColor
+        appearance.shadowColor = Configuration.Color.Semantic.navigationBarSeparator
         appearance.shadowImage = nil
         appearance.setBackIndicatorImage(R.image.backWhite(), transitionMaskImage: R.image.backWhite())
         appearance.titleTextAttributes = [
-            .foregroundColor: Configuration.Color.Semantic.navigationbarPrimaryFont,
+            .foregroundColor: Configuration.Color.Semantic.navigationBarPrimaryFont,
             .font: Fonts.semibold(size: 17) as Any
         ]
         appearance.largeTitleTextAttributes = [
-            .foregroundColor: Configuration.Color.Semantic.navigationbarPrimaryFont,
+            .foregroundColor: Configuration.Color.Semantic.navigationBarPrimaryFont,
             .font: Fonts.bold(size: 36) as Any,
         ]
         //NOTE: Hides back button text

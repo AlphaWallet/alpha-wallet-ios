@@ -30,16 +30,16 @@ final class DappBrowserNavigationBar: UINavigationBar {
     private let stackView = UIStackView()
     private let moreButton: UIButton = {
         let moreButton = UIButton(type: .system)
-        moreButton.tintColor = Configuration.Color.Semantic.navigationbarPrimaryFont
+        moreButton.tintColor = Configuration.Color.Semantic.navigationBarPrimaryFont
         moreButton.adjustsImageWhenHighlighted = true
         moreButton.setImage(R.image.toolbarMenu(), for: .normal)
-        moreButton.backgroundColor = Configuration.Color.Semantic.navigationbarBackgroundColor
+        moreButton.backgroundColor = Configuration.Color.Semantic.navigationBarBackgroundColor
         return moreButton
     }()
 
     private let homeButton: UIButton = {
         let homeButton = UIButton(type: .system)
-        homeButton.tintColor = Configuration.Color.Semantic.navigationbarPrimaryFont
+        homeButton.tintColor = Configuration.Color.Semantic.navigationBarPrimaryFont
         homeButton.adjustsImageWhenHighlighted = true
         homeButton.setImage(R.image.iconsSystemHome(), for: .normal)
 
@@ -51,7 +51,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
     private let changeServerButton = UIButton(type: .system)
     private let cancelEditingButton: UIButton = {
         let cancelEditingButton = UIButton(type: .system)
-        cancelEditingButton.setTitleColor(Configuration.Color.Semantic.navigationbarButtonItemTint, for: .normal)
+        cancelEditingButton.setTitleColor(Configuration.Color.Semantic.navigationBarButtonItemTint, for: .normal)
         //compression and hugging priority required to make cancel button appear reliably yet not be too wide
         cancelEditingButton.setContentCompressionResistancePriority(.required, for: .horizontal)
         cancelEditingButton.setContentHuggingPriority(.defaultHigh, for: .horizontal)
@@ -65,10 +65,10 @@ final class DappBrowserNavigationBar: UINavigationBar {
     }()
     private let closeButton: UIButton = {
         let closeButton = UIButton(type: .system)
-        closeButton.tintColor = Configuration.Color.Semantic.navigationbarPrimaryFont
+        closeButton.tintColor = Configuration.Color.Semantic.navigationBarPrimaryFont
         closeButton.isHidden = true
         closeButton.setTitle(R.string.localizable.done(), for: .normal)
-        closeButton.setTitleColor(Configuration.Color.Semantic.navigationbarButtonItemTint, for: .normal)
+        closeButton.setTitleColor(Configuration.Color.Semantic.navigationBarButtonItemTint, for: .normal)
         closeButton.setContentCompressionResistancePriority(.required, for: .horizontal)
         closeButton.setContentHuggingPriority(.required, for: .horizontal)
 
@@ -99,7 +99,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
     private let domainNameLabel = UILabel()
     private let backButton: UIButton = {
         let backButton = UIButton(type: .system)
-        backButton.tintColor = Configuration.Color.Semantic.navigationbarPrimaryFont
+        backButton.tintColor = Configuration.Color.Semantic.navigationBarPrimaryFont
         backButton.adjustsImageWhenHighlighted = true
         backButton.setImage(R.image.toolbarBack(), for: .normal)
         
@@ -107,7 +107,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
     }()
     private let forwardButton: UIButton = {
         let forwardButton = UIButton(type: .system)
-        forwardButton.tintColor = Configuration.Color.Semantic.navigationbarPrimaryFont
+        forwardButton.tintColor = Configuration.Color.Semantic.navigationBarPrimaryFont
         forwardButton.adjustsImageWhenHighlighted = true
         forwardButton.setImage(R.image.toolbarForward(), for: .normal)
 
@@ -220,7 +220,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
     }
 
     func configure(server: RPCServer) {
-        let color = Configuration.Color.Semantic.navigationbarButtonItemTint
+        let color = Configuration.Color.Semantic.navigationBarButtonItemTint
         backButton.imageView?.tintColor = color
         forwardButton.imageView?.tintColor = color
         changeServerButton.tintColor = color
