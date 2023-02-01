@@ -75,11 +75,12 @@ class NFTCollectionInfoPageView: ScrollableStackView, PageViewType {
         let input = NFTCollectionInfoPageViewModelInput()
         let output = viewModel.transform(input: input)
 
-        output.viewState.sink { [weak self, weak previewView] state in
-            self?.generateSubviews(for: state.viewTypes)
-            previewView?.configure(params: state.previewViewParams)
-            previewView?.contentBackgroundColor = state.previewViewContentBackgroundColor
-        }.store(in: &cancelable)
+        output.viewState
+            .sink { [weak self, weak previewView] state in
+                self?.generateSubviews(for: state.viewTypes)
+                previewView?.configure(params: state.previewViewParams)
+                previewView?.contentBackgroundColor = state.previewViewContentBackgroundColor
+            }.store(in: &cancelable)
     }
 
     required init?(coder: NSCoder) {

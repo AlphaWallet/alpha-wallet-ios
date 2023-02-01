@@ -53,7 +53,13 @@ final class NFTCollectionViewModel {
 
     private (set) lazy var nftAssetsPageViewModel = NFTAssetsPageViewModel(token: token, assetDefinitionStore: assetDefinitionStore, tokenHolders: tokenHolders.eraseToAnyPublisher(), layout: .list)
 
-    init(token: Token, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, tokensService: TokenViewModelState & TokenHolderState, activitiesService: ActivitiesServiceType, nftProvider: NFTProvider) {
+    init(token: Token,
+         wallet: Wallet,
+         assetDefinitionStore: AssetDefinitionStore,
+         tokensService: TokenViewModelState & TokenHolderState,
+         activitiesService: ActivitiesServiceType,
+         nftProvider: NFTProvider) {
+
         self.activitiesService = activitiesService
         self.nftProvider = nftProvider
         self.tokensService = tokensService

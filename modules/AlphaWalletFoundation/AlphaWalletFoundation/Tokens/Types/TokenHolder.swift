@@ -129,7 +129,10 @@ public class TokenHolder: Hashable {
 
     public private (set) var selections: [TokenSelection] = []
 
-    public init(tokens: [TokenScript.Token], contractAddress: AlphaWallet.Address, hasAssetDefinition: Bool) {
+    public init(tokens: [TokenScript.Token],
+                contractAddress: AlphaWallet.Address,
+                hasAssetDefinition: Bool) {
+
         self.tokens = tokens
         self.contractAddress = contractAddress
         self.hasAssetDefinition = hasAssetDefinition

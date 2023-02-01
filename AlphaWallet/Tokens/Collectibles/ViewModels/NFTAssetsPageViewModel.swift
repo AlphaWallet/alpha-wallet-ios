@@ -86,7 +86,11 @@ final class NFTAssetsPageViewModel {
         }
     }
 
-    init(token: Token, assetDefinitionStore: AssetDefinitionStore, tokenHolders: AnyPublisher<[TokenHolder], Never>, layout: GridOrListLayout) {
+    init(token: Token,
+         assetDefinitionStore: AssetDefinitionStore,
+         tokenHolders: AnyPublisher<[TokenHolder], Never>,
+         layout: GridOrListLayout) {
+
         self.tokenHolders = tokenHolders
         self.layoutSubject = .init(layout)
         self.assetDefinitionStore = assetDefinitionStore
