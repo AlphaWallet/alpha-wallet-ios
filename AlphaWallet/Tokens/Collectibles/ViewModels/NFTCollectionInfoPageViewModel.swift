@@ -51,7 +51,14 @@ final class NFTCollectionInfoPageViewModel {
 
     var previewViewContentBackgroundColor: UIColor { return Configuration.Color.Semantic.defaultViewBackground }
 
-    init(token: Token, previewViewType: NFTPreviewViewType, tokenHolder: TokenHolder, tokenId: TokenId, tokenHolders: AnyPublisher<[TokenHolder], Never>, nftProvider: NFTProvider, assetDefinitionStore: AssetDefinitionStore) {
+    init(token: Token,
+         previewViewType: NFTPreviewViewType,
+         tokenHolder: TokenHolder,
+         tokenId: TokenId,
+         tokenHolders: AnyPublisher<[TokenHolder], Never>,
+         nftProvider: NFTProvider,
+         assetDefinitionStore: AssetDefinitionStore) {
+
         self.previewViewType = previewViewType
         self.nftProvider = nftProvider
         self.tokenHolders = tokenHolders
@@ -85,15 +92,17 @@ final class NFTCollectionInfoPageViewModel {
             tokenHolderHelper.update(tokenHolder: $0.tokenHolder, tokenId: $0.tokenId)
         }).map { _ in }
 
-        let viewTypes = Publishers.Merge(whenTokehHolderHasChanged, whenOpenSeaStatsHasChanged)
+        let viewState = Publishers.Merge(whenTokehHolderHasChanged, whenOpenSeaStatsHasChanged)
             .compactMap { [tokenHolderHelper, weak self] _ in self?.buildViewTypes(helper: tokenHolderHelper) }
             .handleEvents(receiveOutput: { [weak self] in self?.viewTypes = $0 })
+            .map {
+                NFTCollectionInfoPageViewModel.ViewState(
+                    previewViewParams: self.previewViewParams,
+                    previewViewContentBackgroundColor: self.previewViewContentBackgroundColor,
+                    viewTypes: $0)
+            }.eraseToAnyPublisher()
 
-        let viewState = viewTypes.map {
-            NFTCollectionInfoPageViewModel.ViewState(previewViewParams: self.previewViewParams, previewViewContentBackgroundColor: self.previewViewContentBackgroundColor, viewTypes: $0)
-        }
-
-        return .init(viewState: viewState.eraseToAnyPublisher())
+        return .init(viewState: viewState)
     }
 
     private func buildViewTypes(helper tokenHolderHelper: TokenInstanceViewConfigurationHelper) -> [NFTCollectionInfoPageViewModel.ViewType] {
