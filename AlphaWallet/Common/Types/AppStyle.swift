@@ -22,9 +22,9 @@ func applyStyle() {
 
     //Background (not needed in iOS 12.1 on simulator)
     //Cancel button
-    UISearchBar.appearance().tintColor = Configuration.Color.Semantic.searchbarTint
+    UISearchBar.appearance().tintColor = Configuration.Color.Semantic.searchBarTint
     //Cursor color
-    UITextField.appearance(whenContainedInInstancesOf: [UISearchBar.self]).tintColor = Configuration.Color.Semantic.searchbarTint
+    UITextField.appearance(whenContainedInInstancesOf: [UISearchBar.self]).tintColor = Configuration.Color.Semantic.searchBarTint
 
     UIRefreshControl.appearance().tintColor = Configuration.Color.Semantic.refreshControl
 

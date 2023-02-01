@@ -24,7 +24,7 @@ class EditableSlippageViewModel {
     var titleAttributedString: NSAttributedString {
         return .init(string: "Custom: ", attributes: [
             .font: Fonts.regular(size: 14),
-            .foregroundColor: Configuration.Color.Semantic.searchbarTint
+            .foregroundColor: Configuration.Color.Semantic.searchBarTint
         ])
     }
 
