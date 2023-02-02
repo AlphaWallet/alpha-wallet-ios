@@ -136,7 +136,7 @@ extension Dictionary where Key == AttributeId, Value == AssetAttributeSyntaxValu
     }
 
     public var imageUrlUrlValue: URL? {
-        self["imageUrl"]?.stringValue.flatMap { URL(string: $0) }
+        self["imageUrl"]?.stringValue.flatMap { WebImageURL(string: $0)?.url }
     }
 
     public mutating func setImageUrl(string: String) {
@@ -144,7 +144,7 @@ extension Dictionary where Key == AttributeId, Value == AssetAttributeSyntaxValu
     }
 
     public var thumbnailUrlUrlValue: URL? {
-        self["thumbnailUrl"]?.stringValue.flatMap { URL(string: $0) }
+        self["thumbnailUrl"]?.stringValue.flatMap { WebImageURL(string: $0)?.url }
     }
 
     public mutating func setThumbnailUrl(string: String) {
@@ -152,7 +152,7 @@ extension Dictionary where Key == AttributeId, Value == AssetAttributeSyntaxValu
     }
 
     public var externalLinkUrlValue: URL? {
-        self["externalLink"]?.stringValue.flatMap { URL(string: $0) }
+        self["externalLink"]?.stringValue.flatMap { WebImageURL(string: $0)?.url }
     }
 
     public mutating func setExternalLink(string: String) {
