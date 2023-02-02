@@ -85,7 +85,7 @@ class NonFungibleErc1155JsonBalanceFetcher {
         var allGuarantees: [AnyPublisher<TokenIdMetaData, SessionTaskError>] = .init()
         for (contract, tokenIds) in contractsAndTokenIds {
             let guarantees = tokenIds.map { tokenId -> AnyPublisher<TokenIdMetaData, SessionTaskError> in
-                return jsonFromTokenUri.fetchJsonFromTokenUri(forTokenId: String(tokenId), tokenType: .erc1155, address: contract)
+                return jsonFromTokenUri.fetchJsonFromTokenUri(for: String(tokenId), tokenType: .erc1155, address: contract)
                     .map { jsonAndItsUri -> TokenIdMetaData in
                         return (contract: contract, tokenId: tokenId, jsonAndItsSource: jsonAndItsUri)
                     }.eraseToAnyPublisher()

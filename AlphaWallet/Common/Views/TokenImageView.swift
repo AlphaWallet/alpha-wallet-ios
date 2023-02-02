@@ -117,10 +117,10 @@ final class TokenImageView: UIView, ViewRoundingSupportable, ViewLoadingCancelab
         chainOverlayImageView.isHidden = isChainOverlayHidden
 
         imageSourceSubject.flatMapLatest { $0 }
-            .sink(receiveValue: { [weak self] imageAndSymbol in
+            .sink(receiveValue: { [weak self] value in
                 self?.symbolLabel.text = ""
 
-                switch imageAndSymbol?.image {
+                switch value?.image {
                 case .image(let imageType):
                     switch imageType {
                     case .generated(let image, let symbol):
@@ -137,7 +137,7 @@ final class TokenImageView: UIView, ViewRoundingSupportable, ViewLoadingCancelab
                     self?.imageView.setImage(url: nil, placeholder: self?.tokenImagePlaceholder)
                 }
 
-                self?.chainOverlayImageView.image = imageAndSymbol?.overlayServerIcon
+                self?.chainOverlayImageView.image = value?.overlayServerIcon
             }).store(in: &cancellable)
     }
 

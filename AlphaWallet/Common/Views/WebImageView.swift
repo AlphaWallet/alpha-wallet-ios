@@ -67,6 +67,14 @@ final class WebImageView: UIView, ContentBackgroundSupportable {
         return imageView
     }()
 
+    private lazy var loadingIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .large)
+        indicator.hidesWhenStopped = true
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+
+        return indicator
+    }()
+
     private lazy var videoPlayerView: AVPlayerView = {
         let view = AVPlayerView(edgeInsets: .zero, playButtonPositioning: playButtonPositioning, viewModel: viewModel.avPlayerViewModel)
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -108,12 +116,16 @@ final class WebImageView: UIView, ContentBackgroundSupportable {
         addSubview(svgImageView)
         addSubview(placeholderImageView)
         addSubview(videoPlayerView)
+        addSubview(loadingIndicator)
         
         NSLayoutConstraint.activate([
             videoPlayerView.anchorsConstraint(to: self, edgeInsets: edgeInsets),
             svgImageView.anchorsConstraint(to: self, edgeInsets: edgeInsets),
             placeholderImageView.anchorsConstraint(to: self, edgeInsets: edgeInsets),
-            imageView.anchorsConstraint(to: self, edgeInsets: edgeInsets)
+            imageView.anchorsConstraint(to: self, edgeInsets: edgeInsets),
+
+            loadingIndicator.centerXAnchor.constraint(equalTo: centerXAnchor),
+            loadingIndicator.centerYAnchor.constraint(equalTo: centerYAnchor),
         ])
 
         bind(viewModel: viewModel)
@@ -155,6 +167,7 @@ final class WebImageView: UIView, ContentBackgroundSupportable {
             videoPlayerView.alpha = 0
             placeholderImageView.isHidden = false
             videoPlayerView.cancel()
+            loadingIndicator.startAnimating()
         case .noContent:
             svgImageView.alpha = 0
             imageView.image = nil
@@ -162,7 +175,9 @@ final class WebImageView: UIView, ContentBackgroundSupportable {
 
             placeholderImageView.isHidden = false
             videoPlayerView.cancel()
+            loadingIndicator.stopAnimating()
         case .content(let data):
+            loadingIndicator.stopAnimating()
             switch data {
             case .svg(let svg):
                 imageView.image = nil

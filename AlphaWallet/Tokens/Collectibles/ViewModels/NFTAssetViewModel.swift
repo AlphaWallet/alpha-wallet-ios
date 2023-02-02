@@ -60,10 +60,10 @@ class NFTAssetViewModel {
         case .tokenCardView:
             return .tokenScriptWebView(tokenHolder: tokenHolder, tokenId: tokenId)
         case .imageView:
-            let tokenImage = tokenHolder.assetImageUrl(tokenId: tokenId)
+            let assetImage = tokenHolder.assetImageUrl(tokenId: tokenId)
                 .flatMap { TokenImage(image: .url($0), isFinal: true, overlayServerIcon: nil) }
-
-            return .image(iconImage: .just(tokenImage))
+            
+            return .image(iconImage: .just(assetImage))
         }
     }
 

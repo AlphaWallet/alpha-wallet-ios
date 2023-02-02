@@ -89,12 +89,7 @@ class WebImageViewModel {
         .compactMap { viewState -> Bool? in
             switch viewState {
             case .loading: return nil
-            case .done(let content):
-                //NOTE: hide placeholder only when failure or loaded content type is video, skip when loading
-                switch content {
-                case .content(let mediaType): return mediaType == .video
-                case .undefined: return false
-                }
+            case .done(let mediaType): return mediaType == .video //NOTE: hide placeholder only when failure or loaded content type is video, skip when loading
             case .failure: return false
             }
         }.eraseToAnyPublisher()

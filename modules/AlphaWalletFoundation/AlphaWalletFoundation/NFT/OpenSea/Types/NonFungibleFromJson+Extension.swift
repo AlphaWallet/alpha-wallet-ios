@@ -6,7 +6,7 @@ import AlphaWalletCore
 import AlphaWalletOpenSea
 
 extension NonFungibleFromJson {
-    public func nonFungibleImageUrl(rewriteGoogleContentSizeUrl size: GoogleContentSize) -> WebImageURL? {
+    public func nftCollectionImageUrl(rewriteGoogleContentSizeUrl size: GoogleContentSize) -> WebImageURL? {
         return WebImageURL(string: contractImageUrl, rewriteGoogleContentSizeUrl: size) ??
         WebImageURL(string: thumbnailUrl, rewriteGoogleContentSizeUrl: size) ??
         animationUrl.flatMap { WebImageURL(string: $0, rewriteGoogleContentSizeUrl: size) } ??
