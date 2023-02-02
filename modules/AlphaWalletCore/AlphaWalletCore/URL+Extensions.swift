@@ -23,6 +23,13 @@ extension URL {
             }()
             return URL(string: urlString)
         } else {
+            guard var components = URLComponents(url: self, resolvingAgainstBaseURL: false) else { return nil }
+            if components.host == "ipfs.infura.io" {
+                components.scheme = "https"
+                components.host = "alphawallet.infura-ipfs.io"
+
+                return components.url
+            }
             return nil
         }
     }
