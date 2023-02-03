@@ -103,7 +103,6 @@ struct Colors {
     static let appText = R.color.black()!
     static let appTint = R.color.azure()!
     static let appWhite = UIColor.white
-    static let black = UIColor(hex: "313849")
 }
 
 struct Fonts {
