@@ -7,276 +7,336 @@
 
 import Foundation
 
-// https://developer.apple.com/documentation/swift/rangereplaceablecollection
-public struct AtomicArray<T>: RangeReplaceableCollection {
+/// A thread-safe array.
+public class AtomicArray<Element> {
+    private let queue = DispatchQueue(label: "org.alphawallet.swift.atomicArray", attributes: .concurrent)
+    private var array = [Element]()
 
-    public typealias Element = T
-    public typealias Index = Int
-    public typealias SubSequence = AtomicArray<T>
-    public typealias Indices = Range<Int>
-    public var array: [T]
-    public var startIndex: Int { return array.startIndex }
-    public var endIndex: Int { return array.endIndex }
-    public var indices: Range<Int> { return array.indices }
-    public func index(after i: Int) -> Int { return array.index(after: i) }
-    private var semaphore = DispatchSemaphore(value: 1)
-    public func _wait() { semaphore.wait() }
-    public func _signal() { semaphore.signal() }
-}
+    public init() { }
 
-// MARK: - Instance Methods
-public extension AtomicArray {
-
-    init<S>(_ elements: S) where S: Sequence, AtomicArray.Element == S.Element {
-// swiftlint:disable syntactic_sugar
-        array = Array<S.Element>(elements)
-// swiftlint:enable syntactic_sugar
-    }
-
-    init() { self.init([]) }
-
-    init(repeating repeatedValue: AtomicArray.Element, count: Int) {
-        let array = Array(repeating: repeatedValue, count: count)
-        self.init(array)
-    }
-}
-
-// MARK: - Instance Methods
-public extension AtomicArray {
-
-    public mutating func append(_ newElement: AtomicArray.Element) {
-        _wait(); defer { _signal() }
-        array.append(newElement)
-    }
-
-    public mutating func append<S>(contentsOf newElements: S) where S: Sequence, AtomicArray.Element == S.Element {
-        _wait(); defer { _signal() }
-        array.append(contentsOf: newElements)
-    }
-
-    func filter(_ isIncluded: (AtomicArray.Element) throws -> Bool) rethrows -> AtomicArray {
-        _wait(); defer { _signal() }
-        let subArray = try array.filter(isIncluded)
-        return AtomicArray(subArray)
-    }
-
-    public mutating func insert(_ newElement: AtomicArray.Element, at i: AtomicArray.Index) {
-        _wait(); defer { _signal() }
-        array.insert(newElement, at: i)
-    }
-
-    mutating func insert<S>(contentsOf newElements: S, at i: AtomicArray.Index) where S: Collection, AtomicArray.Element == S.Element {
-        _wait(); defer { _signal() }
-        array.insert(contentsOf: newElements, at: i)
-    }
-
-    mutating func popLast() -> AtomicArray.Element? {
-        _wait(); defer { _signal() }
-        return array.popLast()
-    }
-
-    @discardableResult mutating func remove(at i: AtomicArray.Index) -> AtomicArray.Element {
-        _wait(); defer { _signal() }
-        return array.remove(at: i)
-    }
-
-    mutating func removeAll() {
-        _wait(); defer { _signal() }
-        array.removeAll()
-    }
-
-    mutating func removeAll(keepingCapacity keepCapacity: Bool) {
-        _wait(); defer { _signal() }
-        array.removeAll()
-    }
-
-    mutating func removeAll(where shouldBeRemoved: (AtomicArray.Element) throws -> Bool) rethrows {
-        _wait(); defer { _signal() }
-        try array.removeAll(where: shouldBeRemoved)
-    }
-
-    @discardableResult mutating func removeFirst() -> AtomicArray.Element {
-        _wait(); defer { _signal() }
-        return array.removeFirst()
-    }
-
-    mutating func removeFirst(_ k: Int) {
-        _wait(); defer { _signal() }
-        array.removeFirst(k)
-    }
-
-    @discardableResult mutating func removeLast() -> AtomicArray.Element {
-        _wait(); defer { _signal() }
-        return array.removeLast()
-    }
-
-    mutating func removeLast(_ k: Int) {
-        _wait(); defer { _signal() }
-        array.removeLast(k)
-    }
-
-    @inlinable public func forEach(_ body: (Element) throws -> Void) rethrows {
-        _wait(); defer { _signal() }
-        try array.forEach(body)
-    }
-
-    mutating func removeFirstIfExist(where shouldBeRemoved: (AtomicArray.Element) throws -> Bool) {
-        _wait(); defer { _signal() }
-        guard let index = try? array.firstIndex(where: shouldBeRemoved), let index = index else { return }
-        array.remove(at: index)
-    }
-
-    mutating func removeSubrange(_ bounds: Range<Int>) {
-        _wait(); defer { _signal() }
-        array.removeSubrange(bounds)
-    }
-
-    mutating func replaceSubrange<C, R>(_ subrange: R, with newElements: C) where C: Collection, R: RangeExpression, T == C.Element, AtomicArray<Element>.Index == R.Bound {
-        _wait(); defer { _signal() }
-        array.replaceSubrange(subrange, with: newElements)
-    }
-
-    mutating func reserveCapacity(_ n: Int) {
-        _wait(); defer { _signal() }
-        array.reserveCapacity(n)
-    }
-
-    public var count: Int {
-        _wait(); defer { _signal() }
-        return array.count
-    }
-
-    public var isEmpty: Bool {
-        _wait(); defer { _signal() }
-        return array.isEmpty
-    }
-}
-
-// MARK: - Get/Set
-extension AtomicArray {
-
-    // Single  action
-    public func get() -> [T] {
-        _wait(); defer { _signal() }
-        return array
-    }
-
-    public mutating func set(array: [T]) {
-        _wait(); defer { _signal() }
+    public convenience init(_ array: [Element]) {
+        self.init()
         self.array = array
     }
 
-    // Multy actions
-    public mutating func get(closure: ([T]) -> Void) {
-        _wait(); defer { _signal() }
-        closure(array)
+    public func set(array: [Element]) {
+        queue.async(flags: .barrier) { self.array = array }
     }
 
-    public mutating func set(closure: ([T]) -> ([T])) {
-        _wait(); defer { _signal() }
-        array = closure(array)
+    public var all: [Element] {
+        var result: [Element] = []
+        queue.sync { result = self.array }
+        return result
+    }
+
+    public func contains(index: Int) -> Bool {
+        var result: Bool = false
+        queue.sync { result = self.array.indices.contains(index) }
+        return result
+    }
+
+    public func foreachEnumerated(_ transform: @escaping (EnumeratedSequence<[Element]>.Element) -> Void) {
+        queue.sync { self.array.enumerated().forEach(transform) }
+    }
+
+}
+
+// MARK: - Properties
+public extension AtomicArray {
+
+    /// The first element of the collection.
+    var first: Element? {
+        var result: Element?
+        queue.sync { result = self.array.first }
+        return result
+    }
+
+    /// The last element of the collection.
+    var last: Element? {
+        var result: Element?
+        queue.sync { result = self.array.last }
+        return result
+    }
+
+    /// The number of elements in the array.
+    var count: Int {
+        var result = 0
+        queue.sync { result = self.array.count }
+        return result
+    }
+
+    /// A Boolean value indicating whether the collection is empty.
+    var isEmpty: Bool {
+        var result = false
+        queue.sync { result = self.array.isEmpty }
+        return result
+    }
+
+    /// A textual representation of the array and its elements.
+    var description: String {
+        var result = ""
+        queue.sync { result = self.array.description }
+        return result
     }
 }
 
-// MARK: - Subscripts
+// MARK: - Immutable
+public extension AtomicArray {
 
-extension AtomicArray {
-
-    public subscript(bounds: Range<AtomicArray.Index>) -> AtomicArray.SubSequence {
-        _wait(); defer { _signal() }
-        return AtomicArray(array[bounds])
+    /// Returns the first element of the sequence that satisfies the given predicate.
+    ///
+    /// - Parameter predicate: A closure that takes an element of the sequence as its argument and returns a Boolean value indicating whether the element is a match.
+    /// - Returns: The first element of the sequence that satisfies predicate, or nil if there is no element that satisfies predicate.
+    func first(where predicate: (Element) -> Bool) -> Element? {
+        var result: Element?
+        queue.sync { result = self.array.first(where: predicate) }
+        return result
     }
 
-    public subscript(bounds: AtomicArray.Index) -> AtomicArray.Element {
+    /// Returns the last element of the sequence that satisfies the given predicate.
+    ///
+    /// - Parameter predicate: A closure that takes an element of the sequence as its argument and returns a Boolean value indicating whether the element is a match.
+    /// - Returns: The last element of the sequence that satisfies predicate, or nil if there is no element that satisfies predicate.
+    func last(where predicate: (Element) -> Bool) -> Element? {
+        var result: Element?
+        queue.sync { result = self.array.last(where: predicate) }
+        return result
+    }
+
+    /// Returns an array containing, in order, the elements of the sequence that satisfy the given predicate.
+    ///
+    /// - Parameter isIncluded: A closure that takes an element of the sequence as its argument and returns a Boolean value indicating whether the element should be included in the returned array.
+    /// - Returns: An array of the elements that includeElement allowed.
+    func filter(_ isIncluded: @escaping (Element) -> Bool) -> AtomicArray {
+        var result: AtomicArray?
+        queue.sync { result = AtomicArray(self.array.filter(isIncluded)) }
+        return result!
+    }
+
+    /// Returns the first index in which an element of the collection satisfies the given predicate.
+    ///
+    /// - Parameter predicate: A closure that takes an element as its argument and returns a Boolean value that indicates whether the passed element represents a match.
+    /// - Returns: The index of the first element for which predicate returns true. If no elements in the collection satisfy the given predicate, returns nil.
+    func index(where predicate: (Element) -> Bool) -> Int? {
+        var result: Int?
+        queue.sync { result = self.array.index(where: predicate) }
+        return result
+    }
+
+    /// Returns the elements of the collection, sorted using the given predicate as the comparison between elements.
+    ///
+    /// - Parameter areInIncreasingOrder: A predicate that returns true if its first argument should be ordered before its second argument; otherwise, false.
+    /// - Returns: A sorted array of the collection’s elements.
+    func sorted(by areInIncreasingOrder: (Element, Element) -> Bool) -> AtomicArray {
+        var result: AtomicArray?
+        queue.sync { result = AtomicArray(self.array.sorted(by: areInIncreasingOrder)) }
+        return result!
+    }
+
+    /// Returns an array containing the results of mapping the given closure over the sequence’s elements.
+    ///
+    /// - Parameter transform: A closure that accepts an element of this sequence as its argument and returns an optional value.
+    /// - Returns: An array of the non-nil results of calling transform with each element of the sequence.
+    func map<ElementOfResult>(_ transform: @escaping (Element) -> ElementOfResult) -> [ElementOfResult] {
+        var result = [ElementOfResult]()
+        queue.sync { result = self.array.map(transform) }
+        return result
+    }
+
+    /// Returns an array containing the non-nil results of calling the given transformation with each element of this sequence.
+    ///
+    /// - Parameter transform: A closure that accepts an element of this sequence as its argument and returns an optional value.
+    /// - Returns: An array of the non-nil results of calling transform with each element of the sequence.
+    func compactMap<ElementOfResult>(_ transform: (Element) -> ElementOfResult?) -> [ElementOfResult] {
+        var result = [ElementOfResult]()
+        queue.sync { result = self.array.compactMap(transform) }
+        return result
+    }
+
+    /// Returns the result of combining the elements of the sequence using the given closure.
+    ///
+    /// - Parameters:
+    ///   - initialResult: The value to use as the initial accumulating value. initialResult is passed to nextPartialResult the first time the closure is executed.
+    ///   - nextPartialResult: A closure that combines an accumulating value and an element of the sequence into a new accumulating value, to be used in the next call of the nextPartialResult closure or returned to the caller.
+    /// - Returns: The final accumulated value. If the sequence has no elements, the result is initialResult.
+    func reduce<ElementOfResult>(_ initialResult: ElementOfResult, _ nextPartialResult: @escaping (ElementOfResult, Element) -> ElementOfResult) -> ElementOfResult {
+        var result: ElementOfResult?
+        queue.sync { result = self.array.reduce(initialResult, nextPartialResult) }
+        return result ?? initialResult
+    }
+
+    /// Returns the result of combining the elements of the sequence using the given closure.
+    ///
+    /// - Parameters:
+    ///   - initialResult: The value to use as the initial accumulating value.
+    ///   - updateAccumulatingResult: A closure that updates the accumulating value with an element of the sequence.
+    /// - Returns: The final accumulated value. If the sequence has no elements, the result is initialResult.
+    func reduce<ElementOfResult>(into initialResult: ElementOfResult, _ updateAccumulatingResult: @escaping (inout ElementOfResult, Element) -> Void) -> ElementOfResult {
+        var result: ElementOfResult?
+        queue.sync { result = self.array.reduce(into: initialResult, updateAccumulatingResult) }
+        return result ?? initialResult
+    }
+
+    /// Calls the given closure on each element in the sequence in the same order as a for-in loop.
+    ///
+    /// - Parameter body: A closure that takes an element of the sequence as a parameter.
+    func forEach(_ body: (Element) -> Void) {
+        queue.sync { self.array.forEach(body) }
+    }
+
+    /// Returns a Boolean value indicating whether the sequence contains an element that satisfies the given predicate.
+    ///
+    /// - Parameter predicate: A closure that takes an element of the sequence as its argument and returns a Boolean value that indicates whether the passed element represents a match.
+    /// - Returns: true if the sequence contains an element that satisfies predicate; otherwise, false.
+    func contains(where predicate: (Element) -> Bool) -> Bool {
+        var result = false
+        queue.sync { result = self.array.contains(where: predicate) }
+        return result
+    }
+
+    /// Returns a Boolean value indicating whether every element of a sequence satisfies a given predicate.
+    ///
+    /// - Parameter predicate: A closure that takes an element of the sequence as its argument and returns a Boolean value that indicates whether the passed element satisfies a condition.
+    /// - Returns: true if the sequence contains only elements that satisfy predicate; otherwise, false.
+    func allSatisfy(_ predicate: (Element) -> Bool) -> Bool {
+        var result = false
+        queue.sync { result = self.array.allSatisfy(predicate) }
+        return result
+    }
+}
+
+// MARK: - Mutable
+public extension AtomicArray {
+
+    /// Adds a new element at the end of the array.
+    ///
+    /// - Parameter element: The element to append to the array.
+    func append(_ element: Element) {
+        queue.async(flags: .barrier) {
+            self.array.append(element)
+        }
+    }
+
+    /// Adds new elements at the end of the array.
+    ///
+    /// - Parameter element: The elements to append to the array.
+    func append(_ elements: [Element]) {
+        queue.async(flags: .barrier) {
+            self.array += elements
+        }
+    }
+
+    /// Inserts a new element at the specified position.
+    ///
+    /// - Parameters:
+    ///   - element: The new element to insert into the array.
+    ///   - index: The position at which to insert the new element.
+    func insert(_ element: Element, at index: Int) {
+        queue.async(flags: .barrier) {
+            self.array.insert(element, at: index)
+        }
+    }
+
+    /// Removes and returns the element at the specified position.
+    ///
+    /// - Parameters:
+    ///   - index: The position of the element to remove.
+    ///   - completion: The handler with the removed element.
+    func remove(at index: Int, completion: ((Element) -> Void)? = nil) {
+        queue.async(flags: .barrier) {
+            let element = self.array.remove(at: index)
+            DispatchQueue.main.async { completion?(element) }
+        }
+    }
+
+    /// Removes and returns the elements that meet the criteria.
+    ///
+    /// - Parameters:
+    ///   - predicate: A closure that takes an element of the sequence as its argument and returns a Boolean value indicating whether the element is a match.
+    ///   - completion: The handler with the removed elements.
+    func remove(where predicate: @escaping (Element) -> Bool, completion: (([Element]) -> Void)? = nil) {
+        queue.async(flags: .barrier) {
+            var elements = [Element]()
+
+            while let index = self.array.index(where: predicate) {
+                elements.append(self.array.remove(at: index))
+            }
+
+            DispatchQueue.main.async { completion?(elements) }
+        }
+    }
+
+    /// Removes all elements from the array.
+    ///
+    /// - Parameter completion: The handler with the removed elements.
+    func removeAll(completion: (([Element]) -> Void)? = nil) {
+        queue.async(flags: .barrier) {
+            let elements = self.array
+            self.array.removeAll()
+            DispatchQueue.main.async { completion?(elements) }
+        }
+    }
+}
+
+public extension AtomicArray {
+
+    /// Accesses the element at the specified position if it exists.
+    ///
+    /// - Parameter index: The position of the element to access.
+    /// - Returns: optional element if it exists.
+    subscript(index: Int) -> Element? {
         get {
-            _wait(); defer { _signal() }
-            return array[bounds]
+            var result: Element?
+
+            queue.sync {
+                guard self.array.startIndex..<self.array.endIndex ~= index else { return }
+                result = self.array[index]
+            }
+
+            return result
         }
-        set(value) {
-            _wait(); defer { _signal() }
-            array[bounds] = value
+        set {
+            guard let newValue = newValue else { return }
+
+            queue.async(flags: .barrier) {
+                self.array[index] = newValue
+            }
         }
-    }
-}
-
-// MARK: - Operator Functions
-
-extension AtomicArray {
-
-    static func + <Other>(lhs: Other, rhs: AtomicArray) -> AtomicArray where Other: Sequence, AtomicArray.Element == Other.Element {
-        return AtomicArray(lhs + rhs.get())
-    }
-
-    static func + <Other>(lhs: AtomicArray, rhs: Other) -> AtomicArray where Other: Sequence, AtomicArray.Element == Other.Element {
-        return AtomicArray(lhs.get() + rhs)
-    }
-
-    static func + <Other>(lhs: AtomicArray, rhs: Other) -> AtomicArray where Other: RangeReplaceableCollection, AtomicArray.Element == Other.Element {
-        return AtomicArray(lhs.get() + rhs)
-    }
-
-    static func + (lhs: AtomicArray<Element>, rhs: AtomicArray<Element>) -> AtomicArray {
-        return AtomicArray(lhs.get() + rhs.get())
-    }
-
-    static func += <Other>(lhs: inout AtomicArray, rhs: Other) where Other: Sequence, AtomicArray.Element == Other.Element {
-        lhs._wait(); defer { lhs._signal() }
-        lhs.array += rhs
-    }
-}
-
-// MARK: - CustomStringConvertible
-
-extension AtomicArray: CustomStringConvertible {
-    public var description: String {
-        _wait(); defer { _signal() }
-        return "\(array)"
     }
 }
 
 // MARK: - Equatable
+public extension AtomicArray where Element: Equatable {
 
-extension AtomicArray where Element: Equatable {
-
-    func split(separator: Element, maxSplits: Int, omittingEmptySubsequences: Bool) -> [ArraySlice<Element>] {
-        _wait(); defer { _signal() }
-        return array.split(separator: separator, maxSplits: maxSplits, omittingEmptySubsequences: omittingEmptySubsequences)
-    }
-
-    func firstIndex(of element: Element) -> Int? {
-        _wait(); defer { _signal() }
-        return array.firstIndex(of: element)
-    }
-
-    func lastIndex(of element: Element) -> Int? {
-        _wait(); defer { _signal() }
-        return array.lastIndex(of: element)
-    }
-
-    func starts<PossiblePrefix>(with possiblePrefix: PossiblePrefix) -> Bool where PossiblePrefix: Sequence, Element == PossiblePrefix.Element {
-        _wait(); defer { _signal() }
-        return array.starts(with: possiblePrefix)
-    }
-
-    func elementsEqual<OtherSequence>(_ other: OtherSequence) -> Bool where OtherSequence: Sequence, Element == OtherSequence.Element {
-        _wait(); defer { _signal() }
-        return array.elementsEqual(other)
-    }
-
+    /// Returns a Boolean value indicating whether the sequence contains the given element.
+    ///
+    /// - Parameter element: The element to find in the sequence.
+    /// - Returns: true if the element was found in the sequence; otherwise, false.
     func contains(_ element: Element) -> Bool {
-        _wait(); defer { _signal() }
-        return array.contains(element)
+        var result = false
+        queue.sync { result = self.array.contains(element) }
+        return result
+    }
+}
+
+// MARK: - Infix operators
+public extension AtomicArray {
+
+    /// Adds a new element at the end of the array.
+    ///
+    /// - Parameters:
+    ///   - left: The collection to append to.
+    ///   - right: The element to append to the array.
+    static func += (left: inout AtomicArray, right: Element) {
+        left.append(right)
     }
 
-    static func != (lhs: AtomicArray<Element>, rhs: AtomicArray<Element>) -> Bool {
-        lhs._wait(); defer { lhs._signal() }
-        rhs._wait(); defer { rhs._signal() }
-        return lhs.array != rhs.array
-    }
-
-    static func == (lhs: AtomicArray<Element>, rhs: AtomicArray<Element>) -> Bool {
-        lhs._wait(); defer { lhs._signal() }
-        rhs._wait(); defer { rhs._signal() }
-        return lhs.array == rhs.array
+    /// Adds new elements at the end of the array.
+    ///
+    /// - Parameters:
+    ///   - left: The collection to append to.
+    ///   - right: The elements to append to the array.
+    static func += (left: inout AtomicArray, right: [Element]) {
+        left.append(right)
     }
 }

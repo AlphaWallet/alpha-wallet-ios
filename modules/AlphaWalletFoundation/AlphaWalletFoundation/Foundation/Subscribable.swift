@@ -44,10 +44,9 @@ open class Subscribable<T>: Hashable {
         }
 
         if let value = value {
-            for f in _oneTimeSubscribers.array {
-                f(value)
-            }
-            _oneTimeSubscribers.set(array: [])
+            _oneTimeSubscribers.forEach { $0(value) }
+
+            _oneTimeSubscribers.removeAll()
         }
     }
 
