@@ -50,11 +50,6 @@ class TokenHistoryChartView: UIView {
         chartView.rightAxis.setLabelCount(5, force: true)
         chartView.rightAxis.valueFormatter = valueFormatter
 
-        let marker = XYMarkerView(
-            color: Configuration.Color.Semantic.alternativeText,
-            font: Fonts.regular(size: 12),
-            textColor: Configuration.Color.Semantic.defaultInverseText,
-            insets: UIEdgeInsets(top: 8, left: 8, bottom: 20, right: 8))
         marker.chartView = chartView
         marker.minimumSize = CGSize(width: 80, height: 40)
         chartView.marker = marker
