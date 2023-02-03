@@ -37,6 +37,9 @@ class WebImageUrlTests: XCTestCase {
 
         let u5 = WebImageURL(string: "https://storage.opensea.io/files/9f7d57faea1308f84bd5d680b6f05e3a.svg")
         XCTAssertNotNil(u5)
+
+        let u6 = WebImageURL(string: "QmcBdgwjcfPXwTHDBWtvvAWNiDbkEXuthADd7LDVXauzSG")
+        XCTAssertNotNil(u6)
     }
 
 }

@@ -14,6 +14,11 @@ class URLTests: XCTestCase {
         XCTAssertEqual(URL(string: "ipfs://QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/7")?.rewrittenIfIpfs.absoluteString, "https://alphawallet.infura-ipfs.io/ipfs/QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/7")
     }
 
+    func testIpfsUrls() {
+        XCTAssertEqual(WebImageURL(string: "QmP7KX56TTvLY313HPrha8BkaSzzzVS3FyHF7dMd3V49Md")?.absoluteString, "https://alphawallet.infura-ipfs.io/ipfs/QmP7KX56TTvLY313HPrha8BkaSzzzVS3FyHF7dMd3V49Md")
+        XCTAssertEqual(WebImageURL(string: "QmP7KX56TTvLY313HPrha8BkaSzzzVS3Fy-HF7dMd3V49Md")?.absoluteString, "QmP7KX56TTvLY313HPrha8BkaSzzzVS3Fy-HF7dMd3V49Md")
+    }
+
     func testWebImageUrls() {
         let u1 = WebImageURL(string: "https://lh3.googleusercontent.com/g-NFUWjS4IGgym8PHBxyhg5-G_B4x-IHgPKRkxo00JQFE3LOd-95yU2uhrokITVmV7KHEav6OMfAhfJ4roC5hwP-0tI9dMRd9wQLdw=s120")
         XCTAssertNotNil(u1?.googleContentSizeIfAvailable)
