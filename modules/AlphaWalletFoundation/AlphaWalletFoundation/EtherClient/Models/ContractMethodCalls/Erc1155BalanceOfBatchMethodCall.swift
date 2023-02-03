@@ -9,7 +9,7 @@ import Foundation
 import BigInt
 import AlphaWalletWeb3
 
-class Erc1155BalanceOfBatchMethodCall: ContractMethodCall {
+struct Erc1155BalanceOfBatchMethodCall: ContractMethodCall {
     typealias Response = [BigInt: BigUInt]
 
     private let tokenIds: Set<BigInt>

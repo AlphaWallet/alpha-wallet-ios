@@ -8,7 +8,7 @@
 import Foundation
 import AlphaWalletWeb3
 
-class Erc20DecimalsMethodCall: ContractMethodCall {
+struct Erc20DecimalsMethodCall: ContractMethodCall {
     typealias Response = Int
 
     let contract: AlphaWallet.Address
