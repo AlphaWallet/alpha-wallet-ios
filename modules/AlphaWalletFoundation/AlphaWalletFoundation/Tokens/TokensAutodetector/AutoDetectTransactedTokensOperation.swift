@@ -16,6 +16,8 @@ protocol AutoDetectTransactedTokensOperationDelegate: AnyObject {
 }
 
 final class AutoDetectTransactedTokensOperation: Operation {
+    private var cancellable: AnyCancellable?
+    private let session: WalletSession
 
     weak private var delegate: AutoDetectTransactedTokensOperationDelegate?
     override var isExecuting: Bool {
@@ -27,9 +29,6 @@ final class AutoDetectTransactedTokensOperation: Operation {
     override var isAsynchronous: Bool {
         return true
     }
-    private var cancelable = Set<AnyCancellable>()
-
-    private let session: WalletSession
 
     init(session: WalletSession, delegate: AutoDetectTransactedTokensOperationDelegate) {
         self.delegate = delegate
@@ -41,7 +40,7 @@ final class AutoDetectTransactedTokensOperation: Operation {
     override func main() {
         guard let delegate = delegate else { return }
 
-        delegate.autoDetectTransactedErc20AndNonErc20Tokens(wallet: session.account.address)
+        cancellable = delegate.autoDetectTransactedErc20AndNonErc20Tokens(wallet: session.account.address)
             .sink(receiveCompletion: { _ in
 
             }, receiveValue: { values in
@@ -53,6 +52,6 @@ final class AutoDetectTransactedTokensOperation: Operation {
 
                 guard !self.isCancelled else { return }
                 self.delegate?.didDetect(tokensOrContracts: values)
-            }).store(in: &cancelable)
+            })
     }
 }

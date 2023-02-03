@@ -220,6 +220,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
         weak private var provider: EtherscanSingleChainTransactionProvider?
         private let startBlock: Int
         private let sortOrder: GetTransactions.SortOrder
+        private var cancellable: AnyCancellable?
         override var isExecuting: Bool {
             return provider?.isFetchingLatestTransactions ?? false
         }
@@ -229,7 +230,6 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
         override var isAsynchronous: Bool {
             return true
         }
-        private var cancelable = Set<AnyCancellable>()
 
         init(provider: EtherscanSingleChainTransactionProvider, startBlock: Int, sortOrder: GetTransactions.SortOrder) {
             self.provider = provider
@@ -242,7 +242,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
         override func main() {
             guard let provider = self.provider else { return }
 
-            provider.transactionsNetworkProvider
+            cancellable = provider.transactionsNetworkProvider
                 .getTransactions(startBlock: startBlock, sortOrder: sortOrder)
                 .sink(receiveCompletion: { [weak self] _ in
                     guard let strongSelf = self else { return }
@@ -260,7 +260,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
                     guard !strongSelf.isCancelled else { return }
 
                     provider.addOrUpdate(transactions: transactions)
-                }).store(in: &cancelable)
+                })
         }
     }
 }
