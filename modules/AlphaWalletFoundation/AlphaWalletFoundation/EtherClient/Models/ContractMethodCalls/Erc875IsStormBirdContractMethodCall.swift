@@ -7,7 +7,7 @@
 
 import Foundation
 
-class Erc875IsStormBirdContractMethodCall: ContractMethodCall {
+struct Erc875IsStormBirdContractMethodCall: ContractMethodCall {
     typealias Response = Bool
 
     private let function = GetIsERC875()

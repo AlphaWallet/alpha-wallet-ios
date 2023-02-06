@@ -7,7 +7,7 @@
 
 import Foundation
 
-class Erc20SupportsInterfaceMethodCall: ContractMethodCall {
+struct Erc20SupportsInterfaceMethodCall: ContractMethodCall {
     typealias Response = Bool
 
     private let function = GetInterfaceSupported165Encode()

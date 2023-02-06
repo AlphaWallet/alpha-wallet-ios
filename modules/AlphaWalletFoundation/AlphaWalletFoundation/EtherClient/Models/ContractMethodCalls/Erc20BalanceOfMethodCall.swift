@@ -9,7 +9,7 @@ import Foundation
 import AlphaWalletWeb3
 import BigInt
 
-class Erc20BalanceOfMethodCall: ContractMethodCall {
+struct Erc20BalanceOfMethodCall: ContractMethodCall {
     typealias Response = BigInt
 
     let contract: AlphaWallet.Address

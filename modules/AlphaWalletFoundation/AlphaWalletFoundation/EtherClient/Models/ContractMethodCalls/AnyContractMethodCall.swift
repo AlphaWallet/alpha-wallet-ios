@@ -7,7 +7,7 @@
 
 import Foundation
 
-class AnyContractMethodCall: ContractMethodCall {
+struct AnyContractMethodCall: ContractMethodCall {
     typealias Response = [String: Any]
 
     let contract: AlphaWallet.Address

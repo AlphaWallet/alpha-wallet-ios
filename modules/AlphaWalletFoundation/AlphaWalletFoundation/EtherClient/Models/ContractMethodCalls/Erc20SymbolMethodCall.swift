@@ -8,7 +8,7 @@
 import Foundation
 import AlphaWalletWeb3
 
-class Erc20SymbolMethodCall: ContractMethodCall {
+struct Erc20SymbolMethodCall: ContractMethodCall {
     typealias Response = String
 
     let contract: AlphaWallet.Address

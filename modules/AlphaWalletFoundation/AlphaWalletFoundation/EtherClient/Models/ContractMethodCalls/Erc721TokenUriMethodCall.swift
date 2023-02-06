@@ -8,7 +8,7 @@
 import Foundation
 import BigInt
 
-class Erc721TokenUriMethodCall: ContractMethodCall {
+struct Erc721TokenUriMethodCall: ContractMethodCall {
     typealias Response = URL
 
     private let function = GetTokenUri()
@@ -37,7 +37,7 @@ class Erc721TokenUriMethodCall: ContractMethodCall {
     }
 }
 
-class Erc721UriMethodCall: ContractMethodCall {
+struct Erc721UriMethodCall: ContractMethodCall {
     typealias Response = URL
 
     private let function = GetUri()
