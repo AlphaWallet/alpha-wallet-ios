@@ -6,7 +6,7 @@ import AlphaWalletFoundation
 
 func applyStyle() {
     UIBarButtonItem.appearance(whenContainedInInstancesOf: [UIDocumentBrowserViewController.self]).tintColor = Configuration.Color.Semantic.navigationBarButtonItemTint
-    UIWindow.appearance().tintColor = Colors.appTint
+    UIWindow.appearance().tintColor = Configuration.Color.Semantic.appTint
 
     UINavigationBar.appearance().shadowImage = UIImage(color: Configuration.Color.Semantic.navigationBarSeparator, size: CGSize(width: 0.25, height: 0.25))
     UINavigationBar.appearance().compactAppearance = UINavigationBarAppearance.defaultAppearence
@@ -18,7 +18,7 @@ func applyStyle() {
     UIBarButtonItem.appearance().tintColor = Configuration.Color.Semantic.navigationBarButtonItemTint
     UIBarButtonItem.appearance(whenContainedInInstancesOf: [UIToolbar.self]).tintColor = Configuration.Color.Semantic.navigationBarButtonItemTint
 
-    UIToolbar.appearance().tintColor = Colors.appTint
+    UIToolbar.appearance().tintColor = Configuration.Color.Semantic.appTint
 
     //Background (not needed in iOS 12.1 on simulator)
     //Cancel button
@@ -28,7 +28,7 @@ func applyStyle() {
 
     UIRefreshControl.appearance().tintColor = Configuration.Color.Semantic.refreshControl
 
-    UISwitch.appearance().onTintColor = Colors.appTint
+    UISwitch.appearance().onTintColor = Configuration.Color.Semantic.appTint
 
     UITableView.appearance().separatorColor = Configuration.Color.Semantic.tableViewSeparator
 }
@@ -73,7 +73,7 @@ extension UITabBarAppearance {
         ]
         tabBarItemAppearance.selected.titleTextAttributes = [
             .font: Fonts.semibold(size: 13),
-            .foregroundColor: Colors.appTint
+            .foregroundColor: Configuration.Color.Semantic.appTint
         ]
 
         tabBarAppearance.stackedLayoutAppearance = tabBarItemAppearance
@@ -100,7 +100,6 @@ extension UITabBarController {
 }
 
 struct Colors {
-    static let appTint = R.color.azure()!
     static let appWhite = UIColor.white
 }
 

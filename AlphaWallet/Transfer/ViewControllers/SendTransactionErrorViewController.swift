@@ -36,7 +36,7 @@ class SendTransactionErrorViewController: UIViewController {
     private var linkButton: UIButton = {
         let b = UIButton(type: .system)
         b.titleLabel?.font = Fonts.semibold(size: 17)
-        b.setTitleColor(Colors.appTint, for: .normal)
+        b.setTitleColor(Configuration.Color.Semantic.appTint, for: .normal)
         return b
     }()
 

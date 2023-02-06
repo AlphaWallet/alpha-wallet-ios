@@ -46,7 +46,7 @@ struct SelectableSwapRouteTableViewCellViewModel: Hashable {
 
     var tagAttributedString: NSAttributedString {
         return NSAttributedString(string: tag, attributes: [
-            .foregroundColor: Colors.appTint,
+            .foregroundColor: Configuration.Color.Semantic.appTint,
             .font: Fonts.bold(size: 14)
         ])
     }

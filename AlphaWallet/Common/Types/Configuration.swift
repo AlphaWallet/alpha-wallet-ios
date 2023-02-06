@@ -301,6 +301,10 @@ struct Configuration {
                 return colorFrom(trait: trait, lightColor: R.color.alabaster()!, darkColor: R.color.venus()!)
             }
 
+            static let appTint = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.azure()!, darkColor: R.color.dodge()!)
+            }
+
             static let dangerBackground = R.color.danger()!
             static let appreciation = UIColor(red: 117, green: 185, blue: 67)
             static let depreciation = R.color.danger()!
@@ -309,9 +313,9 @@ struct Configuration {
 
             static let border = UIColor(red: 194, green: 194, blue: 194)
             static let textFieldStatus = Configuration.Color.Semantic.defaultErrorText
-            static let icon = Colors.appTint
+            static let icon = Configuration.Color.Semantic.appTint
             static let secondary = UIColor(red: 155, green: 155, blue: 155)
-            static let textFieldShadowWhileEditing = Colors.appTint
+            static let textFieldShadowWhileEditing = Configuration.Color.Semantic.appTint
             static let placeholder = UIColor(hex: "919191")
             static let ensText = UIColor(red: 117, green: 185, blue: 67)
             static let searchTextFieldBackground = UIColor(red: 243, green: 244, blue: 245)
