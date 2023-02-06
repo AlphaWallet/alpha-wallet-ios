@@ -27,7 +27,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private let blockscanChatService: BlockscanChatService
     private let activitiesPipeLine: ActivitiesPipeLine
     private let sessionsProvider: SessionsProvider
-    internal let importToken: ImportToken
     private let currencyService: CurrencyService
     private lazy var tokensFilter: TokensFilter = {
         return TokensFilter(
@@ -168,7 +167,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
          tokenSwapper: TokenSwapper,
          sessionsProvider: SessionsProvider,
          tokenCollection: TokenCollection,
-         importToken: ImportToken,
          transactionsDataStore: TransactionDataStore,
          tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable,
          lock: Lock,
@@ -185,7 +183,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         self.lock = lock
         self.tokensService = tokensService
         self.transactionsDataStore = transactionsDataStore
-        self.importToken = importToken
         self.tokenCollection = tokenCollection
         self.activitiesPipeLine = activitiesPipeLine
         self.tokenSwapper = tokenSwapper
@@ -255,12 +252,13 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private func handleTokenScriptOverrideImport() {
         tokenScriptOverridesFileManager
             .importTokenScriptOverridesFileEvent
-            .sink { [weak self, importToken, wallet] event in
+            .sink { [weak self, sessionsProvider, wallet] event in
                 switch event {
                 case .failure(let error):
                     self?.show(error: error)
                 case .success(let override):
-                    importToken.importTokenPublisher(for: override.contract, server: override.server, onlyIfThereIsABalance: false)
+                    guard let session = sessionsProvider.session(for: override.server) else { return }
+                    session.importToken.importToken(for: override.contract, onlyIfThereIsABalance: false)
                         .sinkAsync(receiveCompletion: { result in
                             guard case .failure(let error) = result else { return }
                             debugLog("Error while adding imported token contract: \(override.contract.eip55String) server: \(override.server) wallet: \(wallet.address.eip55String) error: \(error)")
@@ -329,7 +327,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
 
     private func createTokensCoordinator() -> TokensCoordinator {
         let coordinator = TokensCoordinator(
-            sessions: sessionsProvider.activeSessions,
+            sessionsProvider: sessionsProvider,
             keystore: keystore,
             config: config,
             assetDefinitionStore: assetDefinitionStore,
@@ -342,7 +340,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
             activitiesService: activitiesPipeLine,
             walletBalanceService: walletBalanceService,
             tokenCollection: tokenCollection,
-            importToken: importToken,
             blockiesGenerator: blockiesGenerator,
             domainResolutionService: domainResolutionService,
             tokensFilter: tokensFilter,
@@ -507,7 +504,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
                 navigationController: navigationController,
                 flow: type,
                 server: server,
-                sessionProvider: sessionsProvider,
+                sessionsProvider: sessionsProvider,
                 keystore: keystore,
                 assetDefinitionStore: assetDefinitionStore,
                 analytics: analytics,
@@ -515,7 +512,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
                 domainResolutionService: domainResolutionService,
                 tokenSwapper: tokenSwapper,
                 tokensFilter: tokensFilter,
-                importToken: importToken,
                 networkService: networkService,
                 transactionDataStore: transactionsDataStore)
 

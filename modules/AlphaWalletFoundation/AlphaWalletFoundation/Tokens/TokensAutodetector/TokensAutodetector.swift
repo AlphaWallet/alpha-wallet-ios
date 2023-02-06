@@ -32,7 +32,7 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
     private let autoDetectTokensQueue: OperationQueue
     private let session: WalletSession
     private let queue = DispatchQueue(label: "org.alphawallet.swift.tokensAutoDetection")
-    private let importToken: ImportToken
+    private let importToken: TokenImportable & TokenOrContractFetchable
     private let detectedTokens: DetectedContractsProvideble
     private let tokensOrContractsDetectedSubject = PassthroughSubject<[TokenOrContract], Never>()
     private lazy var getContractInteractions = GetContractInteractions(networkService: networkService)
@@ -49,7 +49,7 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
          detectedTokens: DetectedContractsProvideble,
          withAutoDetectTransactedTokensQueue autoDetectTransactedTokensQueue: OperationQueue,
          withAutoDetectTokensQueue autoDetectTokensQueue: OperationQueue,
-         importToken: ImportToken,
+         importToken: TokenImportable & TokenOrContractFetchable,
          networkService: NetworkService) {
 
         self.networkService = networkService
@@ -121,7 +121,7 @@ public class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
         return autoDetectTransactedContractsImpl(wallet: wallet, erc20: erc20, server: server)
             .flatMap { [importToken, queue] detectedContracts -> AnyPublisher<[TokenOrContract], Never> in
                 let publishers = self.contractsForTransactedTokens(detectedContracts: detectedContracts, forServer: server)
-                    .map { importToken.fetchTokenOrContractPublisher(for: $0, server: server, onlyIfThereIsABalance: false).mapToResult() }
+                    .map { importToken.fetchTokenOrContract(for: $0, onlyIfThereIsABalance: false).mapToResult() }
 
                 return Publishers.MergeMany(publishers).collect()
                     .map { $0.compactMap { try? $0.get() } }
@@ -165,7 +165,7 @@ extension SingleChainTokensAutodetector: AutoDetectTokensOperationDelegate {
 
     func autoDetectTokensImpl(withContracts contractsToDetect: [ContractToImport]) -> AnyPublisher<[TokenOrContract], Never> {
         let publishers = contractsToAutodetectTokens(contractsToDetect: contractsToDetect)
-            .map { importToken.fetchTokenOrContractPublisher(for: $0.contract, server: $0.server, onlyIfThereIsABalance: $0.onlyIfThereIsABalance).mapToResult() }
+            .map { importToken.fetchTokenOrContract(for: $0.contract, onlyIfThereIsABalance: $0.onlyIfThereIsABalance).mapToResult() }
 
         return Publishers.MergeMany(publishers).collect()
             .map { $0.compactMap { try? $0.get() } }

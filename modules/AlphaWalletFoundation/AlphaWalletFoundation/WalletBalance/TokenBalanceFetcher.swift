@@ -40,13 +40,12 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
     private lazy var erc1155TokenIdsFetcher = Erc1155TokenIdsFetcher(analytics: analytics, session: session)
     private lazy var erc1155BalanceFetcher = Erc1155BalanceFetcher(address: session.account.address, blockchainProvider: session.blockchainProvider)
     private lazy var erc1155JsonBalanceFetcher: NonFungibleErc1155JsonBalanceFetcher = {
-        let fetcher = NonFungibleErc1155JsonBalanceFetcher(tokensService: tokensService, session: session, erc1155TokenIdsFetcher: erc1155TokenIdsFetcher, jsonFromTokenUri: jsonFromTokenUri, erc1155BalanceFetcher: erc1155BalanceFetcher, importToken: importToken)
+        let fetcher = NonFungibleErc1155JsonBalanceFetcher(tokensService: tokensService, session: session, erc1155TokenIdsFetcher: erc1155TokenIdsFetcher, jsonFromTokenUri: jsonFromTokenUri, erc1155BalanceFetcher: erc1155BalanceFetcher, importToken: session.importToken)
 
         return fetcher
     }()
     private let session: WalletSession
     private let etherToken: Token
-    private let importToken: ImportToken
     private let networkService: NetworkService
     private var cancellable = AtomicDictionary<AlphaWallet.Address, AnyCancellable>()
 
@@ -59,12 +58,10 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
                 etherToken: Token,
                 assetDefinitionStore: AssetDefinitionStore,
                 analytics: AnalyticsLogger,
-                importToken: ImportToken,
                 networkService: NetworkService) {
 
         self.session = session
         self.networkService = networkService
-        self.importToken = importToken
         self.nftProvider = nftProvider
         self.etherToken = etherToken
         self.tokensService = tokensService

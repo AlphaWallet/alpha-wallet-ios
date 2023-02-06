@@ -43,7 +43,7 @@ final class ImportMagicLinkController {
     private let session: WalletSession
     private let networking: ImportMagicLinkNetworking
     private var signedOrder: SignedOrder?
-    private let importToken: ImportToken
+    private let importToken: TokenImportable & TokenOrContractFetchable
     private let displayViewSubject = PassthroughSubject<Void, Never>()
     private let claimPaidSignedOrderSubject = PassthroughSubject<(signedOrder: SignedOrder, token: Token), Never>()
     private let viewStateSubject: CurrentValueSubject<ViewState, Never> = .init(.init(state: .validating))
@@ -67,7 +67,7 @@ final class ImportMagicLinkController {
          keystore: Keystore,
          tokensService: TokenViewModelState & TokenProvidable,
          networkService: NetworkService,
-         importToken: ImportToken,
+         importToken: TokenImportable & TokenOrContractFetchable,
          reachability: ReachabilityManagerProtocol) {
 
         self.reachability = reachability
@@ -425,7 +425,7 @@ final class ImportMagicLinkController {
     }
 
     private func importToken(contract: AlphaWallet.Address) {
-        importToken.importTokenPublisher(for: contract, server: server, onlyIfThereIsABalance: false)
+        importToken.importToken(for: contract, onlyIfThereIsABalance: false)
             .handleEvents(receiveCompletion: { [server, wallet] result in
                 guard case .failure(let error) = result else { return }
                 debugLog("Error while adding imported token contract: \(contract.eip55String) server: \(server) wallet: \(wallet.address.eip55String) error: \(error)")

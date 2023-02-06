@@ -32,7 +32,7 @@ class NewTokenCoordinator: Coordinator {
     }
     private let wallet: Wallet
     private var addressToAutoDetectServerFor: AlphaWallet.Address?
-    private let importToken: ImportToken
+    private let sessionsProvider: SessionsProvider
     private let config: Config
     private let analytics: AnalyticsLogger
     private let domainResolutionService: DomainResolutionServiceType
@@ -42,12 +42,19 @@ class NewTokenCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: NewTokenCoordinatorDelegate?
 
-    init(analytics: AnalyticsLogger, wallet: Wallet, navigationController: UINavigationController, config: Config, importToken: ImportToken, initialState: NewTokenInitialState = .empty, domainResolutionService: DomainResolutionServiceType) {
+    init(analytics: AnalyticsLogger,
+         wallet: Wallet,
+         navigationController: UINavigationController,
+         config: Config,
+         sessionsProvider: SessionsProvider,
+         initialState: NewTokenInitialState = .empty,
+         domainResolutionService: DomainResolutionServiceType) {
+
         self.config = config
         self.wallet = wallet
         self.analytics = analytics
         self.navigationController = navigationController
-        self.importToken = importToken
+        self.sessionsProvider = sessionsProvider
         self.initialState = initialState
         self.domainResolutionService = domainResolutionService
     }
@@ -97,7 +104,8 @@ extension NewTokenCoordinator: NewTokenViewControllerDelegate {
     }
 
     func didAddToken(ercToken: ErcToken, in viewController: NewTokenViewController) {
-        let token = importToken.importToken(ercToken: ercToken)
+        guard let session = sessionsProvider.session(for: ercToken.server) else { return }
+        let token = session.importToken.importToken(ercToken: ercToken, shouldUpdateBalance: true)
 
         delegate?.coordinator(self, didAddToken: token)
         dismiss()
@@ -133,8 +141,13 @@ extension NewTokenCoordinator: NewTokenViewControllerDelegate {
     }
 
     private func fetchContractDataPromise(forServer server: RPCServer, address: AlphaWallet.Address, inViewController viewController: NewTokenViewController) -> Promise<TokenType> {
-        return Promise { seal in
-            importToken.fetchContractData(for: address, server: server) { [weak self] (data) in
+        return Promise { [sessionsProvider] seal in
+            guard let session = sessionsProvider.session(for: server) else {
+                seal.reject(NoContractDetailsDetected())
+                return
+            }
+
+            session.importToken.fetchContractData(for: address) { [weak self] (data) in
                 DispatchQueue.main.async {
                     guard let strongSelf = self else { return }
                     guard strongSelf.addressToAutoDetectServerFor == address else { return }
@@ -166,7 +179,9 @@ extension NewTokenCoordinator: NewTokenViewControllerDelegate {
     }
 
     private func fetchContractData(forServer server: RPCServer, address: AlphaWallet.Address, inViewController viewController: NewTokenViewController) {
-        importToken.fetchContractData(for: address, server: server) { data in
+        guard let session = sessionsProvider.session(for: server) else { return }
+        
+        session.importToken.fetchContractData(for: address) { data in
             DispatchQueue.main.async {
                 switch data {
                 case .name(let name):

@@ -241,7 +241,7 @@ class SendViewControllerTests: XCTestCase {
 
         let tokenAreGoingToBeResolved = Token(contract: AlphaWallet.Address(string: "0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72")!, name: "erc20", symbol: "erc20", decimals: 18, type: .erc20)
         dep.tokensService.addOrUpdateTokenTestsOnly(token: tokenAreGoingToBeResolved)
-
+        
         vc.didScanQRCode("aw.app/ethereum:0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72@1/transfer?address=0x8e23ee67d1332ad560396262c48ffbb01f93d052&uint256=1.004e18")
 
         let expectation = self.expectation(description: "did update token balance expectation")
@@ -256,8 +256,7 @@ class SendViewControllerTests: XCTestCase {
 
     private func createSendViewControllerAndSetLocale(locale: AppLocale, transactionType: TransactionType) -> SendViewController {
         Config.setLocale(locale)
-        let importToken = ImportToken.make(tokensDataStore: dep.tokensDataStore, contractDataFetcher: contractDataFetcher)
-        let viewModel = SendViewModel(transactionType: transactionType, session: dep.sessionsProvider.session(for: .main)!, tokensService: dep.pipeline, importToken: importToken)
+        let viewModel = SendViewModel(transactionType: transactionType, session: dep.sessionsProvider.session(for: .main)!, tokensService: dep.pipeline, sessionsProvider: dep.sessionsProvider)
         return SendViewController(viewModel: viewModel, domainResolutionService: FakeDomainResolutionService())
     }
 }

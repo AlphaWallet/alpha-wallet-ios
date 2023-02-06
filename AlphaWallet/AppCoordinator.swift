@@ -210,7 +210,7 @@ class AppCoordinator: NSObject, Coordinator {
             serversProvider: serversProvider,
             blockchainFactory: blockchainFactory)
     }()
-
+    private let reachability = ReachabilityManager()
     private let securedStorage: SecuredPasswordStorage & SecuredStorage
     private let addressStorage: FileAddressStorage
     private let tokenScriptOverridesFileManager = TokenScriptOverridesFileManager()
@@ -454,7 +454,6 @@ class AppCoordinator: NSObject, Coordinator {
             tokenSwapper: tokenSwapper,
             sessionsProvider: dep.sessionsProvider,
             tokenCollection: dep.pipeline,
-            importToken: dep.importToken,
             transactionsDataStore: dep.transactionsDataStore,
             tokensService: dep.tokensService,
             lock: lock,
@@ -593,26 +592,21 @@ class AppCoordinator: NSObject, Coordinator {
         let transactionsDataStore: TransactionDataStore = TransactionDataStore(store: .storage(for: wallet))
         let eventsActivityDataStore: EventsActivityDataStoreProtocol = EventsActivityDataStore(store: .storage(for: wallet))
 
-        let sessionsProvider = SessionsProvider(
+        let sessionsProvider = BaseSessionsProvider(
             config: config,
             analytics: analytics,
-            blockchainsProvider: blockchainsProvider)
-
-        sessionsProvider.start(wallet: wallet)
-
-        let contractDataFetcher = ContractDataFetcher(
-            sessionProvider: sessionsProvider,
+            blockchainsProvider: blockchainsProvider,
+            tokensDataStore: tokensDataStore,
             assetDefinitionStore: assetDefinitionStore,
-            analytics: analytics,
-            reachability: ReachabilityManager())
+            reachability: reachability,
+            wallet: wallet)
 
-        let importToken = ImportToken(tokensDataStore: tokensDataStore, contractDataFetcher: contractDataFetcher)
+        sessionsProvider.start()
 
         let tokensService = AlphaWalletTokensService(
             sessionsProvider: sessionsProvider,
             tokensDataStore: tokensDataStore,
             analytics: analytics,
-            importToken: importToken,
             transactionsStorage: transactionsDataStore,
             nftProvider: nftProvider,
             assetDefinitionStore: assetDefinitionStore,
@@ -645,7 +639,6 @@ class AppCoordinator: NSObject, Coordinator {
             activitiesPipeLine: activitiesPipeLine,
             transactionsDataStore: transactionsDataStore,
             tokensDataStore: tokensDataStore,
-            importToken: importToken,
             tokensService: tokensService,
             pipeline: pipeline,
             fetcher: fetcher,
@@ -749,9 +742,13 @@ extension AppCoordinator: UniversalLinkServiceDelegate {
         case .eip681(let url):
             guard let wallet = keystore.currentWallet, let dependency = dependencies[wallet] else { return }
 
-            let paymentFlowResolver = Eip681UrlResolver(config: config, importToken: dependency.importToken, missingRPCServerStrategy: .fallbackToAnyMatching)
+            let paymentFlowResolver = Eip681UrlResolver(
+                config: config,
+                sessionsProvider: dependency.sessionsProvider,
+                missingRPCServerStrategy: .fallbackToAnyMatching)
+
             paymentFlowResolver.resolve(url: url)
-                .sink(receiveCompletion: { result in
+                .sinkAsync(receiveCompletion: { result in
                     guard case .failure(let error) = result else { return }
                     verboseLog("[Eip681UrlResolver] failure to resolve value from: \(url) with error: \(error)")
                 }, receiveValue: { result in
@@ -761,7 +758,7 @@ extension AppCoordinator: UniversalLinkServiceDelegate {
                     case .transaction(let transactionType, let token):
                         resolver.showPaymentFlow(for: .send(type: .transaction(transactionType)), server: token.server, navigationController: resolver.presentationNavigationController)
                     }
-                }).store(in: &cancelable)
+                })
         case .walletConnect(let url, let source):
             switch source {
             case .safariExtension:
@@ -794,8 +791,8 @@ extension AppCoordinator: UniversalLinkServiceDelegate {
                     tokensService: dependency.pipeline,
                     networkService: networkService,
                     domainResolutionService: domainResolutionService,
-                    importToken: dependency.importToken,
-                    reachability: ReachabilityManager())
+                    importToken: session.importToken,
+                    reachability: reachability)
 
                 coordinator.delegate = self
                 let handled = coordinator.start(url: url)
@@ -830,7 +827,6 @@ extension AppCoordinator {
         let activitiesPipeLine: ActivitiesPipeLine
         let transactionsDataStore: TransactionDataStore
         let tokensDataStore: TokensDataStore
-        let importToken: ImportToken
         let tokensService: DetectedContractsProvideble & TokenProvidable & TokenAddable & TokensServiceTests
         let pipeline: TokensProcessingPipeline
         let fetcher: WalletBalanceFetcher

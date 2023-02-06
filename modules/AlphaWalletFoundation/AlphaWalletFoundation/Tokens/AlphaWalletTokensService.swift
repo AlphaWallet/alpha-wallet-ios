@@ -26,7 +26,6 @@ public class AlphaWalletTokensService: TokensService {
     }()
     private let sessionsProvider: SessionsProvider
     private let analytics: AnalyticsLogger
-    private let importToken: ImportToken
     private let tokensDataStore: TokensDataStore
     private let transactionsStorage: TransactionDataStore
     private let nftProvider: NFTProvider
@@ -68,7 +67,6 @@ public class AlphaWalletTokensService: TokensService {
     public init(sessionsProvider: SessionsProvider,
                 tokensDataStore: TokensDataStore,
                 analytics: AnalyticsLogger,
-                importToken: ImportToken,
                 transactionsStorage: TransactionDataStore,
                 nftProvider: NFTProvider,
                 assetDefinitionStore: AssetDefinitionStore,
@@ -77,7 +75,6 @@ public class AlphaWalletTokensService: TokensService {
         self.networkService = networkService
         self.sessionsProvider = sessionsProvider
         self.tokensDataStore = tokensDataStore
-        self.importToken = importToken
         self.analytics = analytics
         self.transactionsStorage = transactionsStorage
         self.nftProvider = nftProvider
@@ -141,7 +138,6 @@ public class AlphaWalletTokensService: TokensService {
             etherToken: etherToken,
             assetDefinitionStore: assetDefinitionStore,
             analytics: analytics,
-            importToken: importToken,
             networkService: networkService)
 
         balanceFetcher.erc721TokenIdsFetcher = transactionsStorage
@@ -150,7 +146,6 @@ public class AlphaWalletTokensService: TokensService {
             session: session,
             autoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue,
             autoDetectTokensQueue: autoDetectTokensQueue,
-            importToken: importToken,
             tokensDataStore: tokensDataStore,
             balanceFetcher: balanceFetcher,
             networkService: networkService)

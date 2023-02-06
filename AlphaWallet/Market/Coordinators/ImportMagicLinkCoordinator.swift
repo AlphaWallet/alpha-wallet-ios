@@ -33,7 +33,7 @@ class ImportMagicLinkCoordinator: Coordinator {
          tokensService: TokenViewModelState & TokenProvidable,
          networkService: NetworkService,
          domainResolutionService: DomainResolutionServiceType,
-         importToken: ImportToken,
+         importToken: TokenImportable & TokenOrContractFetchable,
          reachability: ReachabilityManagerProtocol) {
 
         self.networkService = networkService

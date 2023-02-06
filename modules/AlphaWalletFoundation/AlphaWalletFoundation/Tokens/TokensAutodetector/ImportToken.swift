@@ -6,22 +6,38 @@
 //
 
 import Foundation
-import PromiseKit
 import Combine
 import BigInt
 
 public protocol TokenImportable {
     func importToken(ercToken: ErcToken, shouldUpdateBalance: Bool) -> Token
-    func importTokenPublisher(for contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool) -> AnyPublisher<Token, ImportToken.ImportTokenError>
+    func importToken(for contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool) -> AnyPublisher<Token, ImportToken.ImportTokenError>
+}
+
+extension TokenImportable {
+
+    func importToken(ercToken: ErcToken) -> Token {
+        importToken(ercToken: ercToken, shouldUpdateBalance: true)
+    }
+
+    func importToken(for contract: AlphaWallet.Address) -> AnyPublisher<Token, ImportToken.ImportTokenError> {
+        importToken(for: contract, onlyIfThereIsABalance: false)
+    }
 }
 
 public protocol TokenOrContractFetchable: ContractDataFetchable {
-    func fetchTokenOrContractPublisher(for contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool) -> AnyPublisher<TokenOrContract, ImportToken.ImportTokenError>
+    func fetchTokenOrContract(for contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool) -> AnyPublisher<TokenOrContract, ImportToken.ImportTokenError>
+}
+
+extension TokenOrContractFetchable {
+    func fetchTokenOrContract(for contract: AlphaWallet.Address) -> AnyPublisher<TokenOrContract, ImportToken.ImportTokenError> {
+        fetchTokenOrContract(for: contract, onlyIfThereIsABalance: false)
+    }
 }
 
 //NOTE: actually its internal, public for tests
 public protocol ContractDataFetchable {
-    func fetchContractData(for contract: AlphaWallet.Address, server: RPCServer, completion: @escaping (ContractData) -> Void)
+    func fetchContractData(for contract: AlphaWallet.Address, completion: @escaping (ContractData) -> Void)
 }
 
 public final class ContractDataFetcher: ContractDataFetchable {
@@ -32,26 +48,32 @@ public final class ContractDataFetcher: ContractDataFetchable {
     private let assetDefinitionStore: AssetDefinitionStore
     private let analytics: AnalyticsLogger
     private let reachability: ReachabilityManagerProtocol
-    private let sessionProvider: SessionsProvider
+    private let wallet: Wallet
+    private let ercTokenProvider: TokenProviderType
 
-    public init(sessionProvider: SessionsProvider,
+    public init(wallet: Wallet,
+                ercTokenProvider: TokenProviderType,
                 assetDefinitionStore: AssetDefinitionStore,
                 analytics: AnalyticsLogger,
                 reachability: ReachabilityManagerProtocol) {
 
         self.assetDefinitionStore = assetDefinitionStore
-        self.sessionProvider = sessionProvider
+        self.wallet = wallet
+        self.ercTokenProvider = ercTokenProvider
         self.analytics = analytics
         self.reachability = reachability
     }
 
-    public func fetchContractData(for contract: AlphaWallet.Address, server: RPCServer, completion: @escaping (ContractData) -> Void) {
-        if let session = sessionProvider.session(for: server) {
-            let detector = ContractDataDetector(address: contract, session: session, assetDefinitionStore: assetDefinitionStore, analytics: analytics, reachability: reachability)
-            detector.fetch(completion: completion)
-        } else {
-            completion(.failed(networkReachable: reachability.isReachable, error: FetcherError.serverIsDisabled))
-        }
+    public func fetchContractData(for contract: AlphaWallet.Address, completion: @escaping (ContractData) -> Void) {
+        let detector = ContractDataDetector(
+            contract: contract,
+            wallet: wallet.address,
+            ercTokenProvider: ercTokenProvider,
+            assetDefinitionStore: assetDefinitionStore,
+            analytics: analytics,
+            reachability: reachability)
+
+        detector.fetch(completion: completion)
     }
 }
 
@@ -67,26 +89,33 @@ final public class ImportToken: TokenImportable, TokenOrContractFetchable {
     private let contractDataFetcher: ContractDataFetchable
     private let tokensDataStore: TokensDataStore
     private let queue = DispatchQueue(label: "org.alphawallet.swift.importToken")
-    private var inFlightPromises: [String: Promise<TokenOrContract>] = [:]
-    private var inFlightPublishers: [String: AnyPublisher<TokenOrContract, ImportTokenError>] = [:]
-    private let reachability = ReachabilityManager()
 
-    public init(tokensDataStore: TokensDataStore, contractDataFetcher: ContractDataFetchable) {
+    private var inFlightPublishers: [String: AnyPublisher<TokenOrContract, ImportTokenError>] = [:]
+    private let reachability: ReachabilityManagerProtocol
+    private let server: RPCServer
+
+    public init(tokensDataStore: TokensDataStore,
+                contractDataFetcher: ContractDataFetchable,
+                server: RPCServer,
+                reachability: ReachabilityManagerProtocol) {
+
+        self.reachability = reachability
+        self.server = server
         self.tokensDataStore = tokensDataStore
         self.contractDataFetcher = contractDataFetcher
     }
 
-    public func importTokenPublisher(for contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool = false) -> AnyPublisher<Token, ImportTokenError> {
+    public func importToken(for contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool = false) -> AnyPublisher<Token, ImportTokenError> {
         return Just(server)
             .receive(on: queue)
             .setFailureType(to: ImportTokenError.self)
-            .flatMap { [tokensDataStore, queue] server -> AnyPublisher<Token, ImportTokenError> in
+            .flatMap { [tokensDataStore, queue, server] server -> AnyPublisher<Token, ImportTokenError> in
                 if let token = tokensDataStore.token(forContract: contract, server: server) {
                     return .just(token)
                 } else {
-                    return self.fetchTokenOrContractPublisher(for: contract, server: server, onlyIfThereIsABalance: onlyIfThereIsABalance)
+                    return self.fetchTokenOrContract(for: contract, onlyIfThereIsABalance: onlyIfThereIsABalance)
                         .flatMap { tokenOrContract -> AnyPublisher<Token, ImportTokenError> in
-                            //FIXME: looks like blocking access to realm doesn't work well, after adding a new token and retrieving its value from bd, returns nil, adding delay in 1 sec to return a new token.
+                            //FIXME: looks like blocking access to realm doesn't work well, after adding a new token and retrieving its value from bd it returns nil, adding delay in 1 sec helps to return a new token.
                             if let token = tokensDataStore.addOrUpdate(tokensOrContracts: [tokenOrContract]).first {
                                 return .just(token)
                                     .delay(for: .seconds(1), scheduler: queue)
@@ -106,15 +135,15 @@ final public class ImportToken: TokenImportable, TokenOrContractFetchable {
         return tokens[0]
     }
 
-    public func fetchContractData(for contract: AlphaWallet.Address, server: RPCServer, completion: @escaping (ContractData) -> Void) {
-        contractDataFetcher.fetchContractData(for: contract, server: server, completion: completion)
+    public func fetchContractData(for contract: AlphaWallet.Address, completion: @escaping (ContractData) -> Void) {
+        contractDataFetcher.fetchContractData(for: contract, completion: completion)
     }
 
-    public func fetchTokenOrContractPublisher(for contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool = false) -> AnyPublisher<TokenOrContract, ImportTokenError> {
+    public func fetchTokenOrContract(for contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool = false) -> AnyPublisher<TokenOrContract, ImportTokenError> {
         Just(contract)
             .receive(on: queue)
             .setFailureType(to: ImportTokenError.self)
-            .flatMap { [queue] contract -> AnyPublisher<TokenOrContract, ImportTokenError> in
+            .flatMap { [weak self, queue, server, contractDataFetcher] contract -> AnyPublisher<TokenOrContract, ImportTokenError> in
                 //Useful to check because we are/might action-only TokenScripts for native crypto currency
                 guard contract != Constants.nativeCryptoAddressInDatabase else {
                     return .fail(ImportTokenError.nativeCryptoNotSupported)
@@ -122,11 +151,11 @@ final public class ImportToken: TokenImportable, TokenOrContractFetchable {
 
                 let key = "\(contract.hashValue)-\(onlyIfThereIsABalance)-\(server)"
 
-                if let publisher = self.inFlightPublishers[key] {
+                if let publisher = self?.inFlightPublishers[key] {
                     return publisher
                 } else {
                     let publisher = Future<TokenOrContract, ImportTokenError> { seal in
-                        self.fetchContractData(for: contract, server: server) { data in
+                        contractDataFetcher.fetchContractData(for: contract) { data in
                             switch data {
                             case .name, .symbol, .balance, .decimals:
                                 break
@@ -162,10 +191,11 @@ final public class ImportToken: TokenImportable, TokenOrContractFetchable {
                             }
                         }
                     }.receive(on: queue)
-                    .handleEvents(receiveCompletion: { _ in self.inFlightPublishers[key] = nil })
+                    .handleEvents(receiveCompletion: { _ in self?.inFlightPublishers[key] = nil })
+                    .share()
                     .eraseToAnyPublisher()
 
-                    self.inFlightPublishers[key] = publisher
+                    self?.inFlightPublishers[key] = publisher
 
                     return publisher
                 }

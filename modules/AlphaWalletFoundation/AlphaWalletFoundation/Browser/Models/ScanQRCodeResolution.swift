@@ -54,6 +54,7 @@ public enum CheckEIP681Error: Error, CustomStringConvertible {
     case contractInvalid
     case parameterInvalid
     case missingRpcServer
+    case serverNotEnabled
     case tokenTypeNotSupported
     case notEIP681
     case embeded(error: Error)
@@ -72,6 +73,8 @@ public enum CheckEIP681Error: Error, CustomStringConvertible {
             return "tokenTypeNotSupported"
         case .notEIP681:
             return "notEIP681"
+        case .serverNotEnabled:
+            return "serverNotEnabled"
         case .embeded(let error):
             return "embedded: \(error)"
         }

@@ -17,18 +17,18 @@ class ImportTokenTests: XCTestCase {
 
     func testImportUnknownErc20Token() throws {
         let tokensDataStore = FakeTokensDataStore()
-        let contractDataFetcher = FakeContractDataFetcher()
-
-        let importToken = ImportToken.make(tokensDataStore: tokensDataStore, contractDataFetcher: contractDataFetcher)
-        let address = AlphaWallet.Address(string: "0xbc8dafeaca658ae0857c80d8aa6de4d487577c63")!
         let server = RPCServer.main
+        let contractDataFetcher = FakeContractDataFetcher(server: server)
+
+        let importToken = ImportToken.make(tokensDataStore: tokensDataStore, contractDataFetcher: contractDataFetcher, server: server)
+        let address = AlphaWallet.Address(string: "0xbc8dafeaca658ae0857c80d8aa6de4d487577c63")!
 
         contractDataFetcher.contractData[.init(address: address, server: server)] = .fungibleTokenComplete(name: "erc20", symbol: "erc20", decimals: 6, value: .zero, tokenType: .erc20)
 
         XCTAssertNil(tokensDataStore.token(forContract: address, server: server), "Initially token is nil")
 
         let expectation = self.expectation(description: "did resolve erc20 token")
-        importToken.importTokenPublisher(for: address, server: server)
+        importToken.importToken(for: address)
             .sink(receiveCompletion: { _ in
                 expectation.fulfill()
             }, receiveValue: { token in
@@ -43,17 +43,17 @@ class ImportTokenTests: XCTestCase {
 
     func testImportNotDetectedErc20Token() throws {
         let tokensDataStore = FakeTokensDataStore()
-        let contractDataFetcher = FakeContractDataFetcher()
+        let server = RPCServer.main
+        let contractDataFetcher = FakeContractDataFetcher(server: server)
 
-        let importToken = ImportToken.make(tokensDataStore: tokensDataStore, contractDataFetcher: contractDataFetcher)
+        let importToken = ImportToken.make(tokensDataStore: tokensDataStore, contractDataFetcher: contractDataFetcher, server: server)
 
         let address = AlphaWallet.Address(string: "0xbc8dafeaca658ae0857c80d8aa6de4d487577c63")!
-        let server = RPCServer.main
 
         let expectation = self.expectation(description: "did resolve erc20 token")
         expectation.isInverted = true
 
-        importToken.importTokenPublisher(for: address, server: server)
+        importToken.importToken(for: address)
             .sink(receiveCompletion: { _ in
                 expectation.fulfill()
             }, receiveValue: { _ in
@@ -65,19 +65,20 @@ class ImportTokenTests: XCTestCase {
 
     func testImportAlreadyAddedErc20Token() throws {
         let tokensDataStore = FakeTokensDataStore()
-        let contractDataFetcher = FakeContractDataFetcher()
+        let server = RPCServer.main
+        let contractDataFetcher = FakeContractDataFetcher(server: server)
 
-        let importToken = ImportToken.make(tokensDataStore: tokensDataStore, wallet: .make(), contractDataFetcher: contractDataFetcher)
+        let importToken = ImportToken.make(tokensDataStore: tokensDataStore, wallet: .make(), contractDataFetcher: contractDataFetcher, server: server)
 
         let address = AlphaWallet.Address(string: "0xbc8dafeaca658ae0857c80d8aa6de4d487577c63")!
-        let server = RPCServer.main
+
         let token = Token(contract: address, server: server, value: .zero, type: .erc20)
         tokensDataStore.addOrUpdate(with: [.init(token)])
 
         let expectation = self.expectation(description: "did resolve erc20 token")
         contractDataFetcher.contractData[.init(address: address, server: server)] = .fungibleTokenComplete(name: "erc20", symbol: "erc20", decimals: 6, value: .init("1"), tokenType: .erc20)
 
-        importToken.importTokenPublisher(for: address, server: server)
+        importToken.importToken(for: address)
             .sink(receiveCompletion: { _ in
                 expectation.fulfill()
             }, receiveValue: { token in
@@ -97,7 +98,11 @@ class TransactionTypeFromQrCodeTests: XCTestCase {
     private lazy var fakeFakeImportToken = ImportToken.make(tokensDataStore: tokensDataStore, contractDataFetcher: contractDataFetcher)
     private var cancelable = Set<AnyCancellable>()
     private lazy var provider: TransactionTypeFromQrCode = {
-        let provider = TransactionTypeFromQrCode(importToken: fakeFakeImportToken, session: .make())
+        let sessions = FakeSessionsProvider(servers: [.main])
+        sessions.importToken[.main] = fakeFakeImportToken
+        sessions.start()
+        
+        let provider = TransactionTypeFromQrCode(sessionsProvider: sessions, session: sessions.session(for: .main)!)
         provider.transactionTypeProvider = transactionTypeSupportable
 
         return provider

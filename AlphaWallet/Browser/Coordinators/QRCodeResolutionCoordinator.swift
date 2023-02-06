@@ -30,7 +30,7 @@ protocol QRCodeResolutionCoordinatorDelegate: AnyObject {
 
 final class QRCodeResolutionCoordinator: Coordinator {
     enum Usage {
-        case all(tokensService: TokenProvidable, importToken: ImportToken)
+        case all(tokensService: TokenProvidable, sessionsProvider: SessionsProvider)
         case importWalletOnly
     }
 
@@ -110,8 +110,12 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
                 }
             case .eip681(let protocolName, let address, let functionName, let params):
                 switch usage {
-                case .all(_, let importToken):
-                    let resolver = Eip681UrlResolver(config: config, importToken: importToken, missingRPCServerStrategy: .fallbackToFirstMatching)
+                case .all(_, let sessionsProvider):
+                    let resolver = Eip681UrlResolver(
+                        config: config,
+                        sessionsProvider: sessionsProvider,
+                        missingRPCServerStrategy: .fallbackToFirstMatching)
+
                     resolver.resolve(protocolName: protocolName, address: address, functionName: functionName, params: params)
                         .sink(receiveCompletion: { result in
                             guard case .failure(let error) = result else { return }

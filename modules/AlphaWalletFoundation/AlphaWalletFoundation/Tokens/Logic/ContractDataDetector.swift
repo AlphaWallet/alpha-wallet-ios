@@ -33,8 +33,8 @@ enum ContractDataDetectorError: Error {
 }
 
 public class ContractDataDetector {
-    private let address: AlphaWallet.Address
-    private let tokenProvider: TokenProviderType
+    private let contract: AlphaWallet.Address
+    private let ercTokenProvider: TokenProviderType
     private let assetDefinitionStore: AssetDefinitionStore
     private let namePromise: Promise<String>
     private let symbolPromise: Promise<String>
@@ -47,15 +47,21 @@ public class ContractDataDetector {
     private let reachability: ReachabilityManagerProtocol
     private let wallet: AlphaWallet.Address
 
-    public init(address: AlphaWallet.Address, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger, reachability: ReachabilityManagerProtocol) {
+    public init(contract: AlphaWallet.Address,
+                wallet: AlphaWallet.Address,
+                ercTokenProvider: TokenProviderType,
+                assetDefinitionStore: AssetDefinitionStore,
+                analytics: AnalyticsLogger,
+                reachability: ReachabilityManagerProtocol) {
+
         self.reachability = reachability
-        self.address = address
-        self.wallet = session.account.address
-        self.tokenProvider = session.tokenProvider
+        self.contract = contract
+        self.wallet = wallet
+        self.ercTokenProvider = ercTokenProvider
         self.assetDefinitionStore = assetDefinitionStore
-        namePromise = tokenProvider.getContractName(for: address).promise()
-        symbolPromise = tokenProvider.getContractSymbol(for: address).promise()
-        tokenTypePromise = tokenProvider.getTokenType(for: address).promise()
+        namePromise = ercTokenProvider.getContractName(for: contract).promise()
+        symbolPromise = ercTokenProvider.getContractSymbol(for: contract).promise()
+        tokenTypePromise = ercTokenProvider.getTokenType(for: contract).promise()
     }
 
     //Failure to obtain contract data may be due to no-connectivity. So we should check .failed(networkReachable: Bool)
@@ -63,7 +69,7 @@ public class ContractDataDetector {
     public func fetch(completion: @escaping (ContractData) -> Void) {
         self.completion = completion
 
-        assetDefinitionStore.fetchXML(forContract: address, server: nil)
+        assetDefinitionStore.fetchXML(forContract: contract, server: nil)
 
         firstly {
             tokenTypePromise
@@ -79,7 +85,7 @@ public class ContractDataDetector {
     private func processTokenType(_ tokenType: TokenType) {
         switch tokenType {
         case .erc875:
-            tokenProvider.getErc875TokenBalance(for: wallet, contract: address)
+            ercTokenProvider.getErc875TokenBalance(for: wallet, contract: contract)
                 .sinkAsync(receiveCompletion: { result in
                     guard case .failure(let error) = result else { return }
 
@@ -91,7 +97,7 @@ public class ContractDataDetector {
                     self.completionOfPartialData(.balance(nonFungible: .erc875(balance), fungible: nil, tokenType: .erc875))
                 })
         case .erc721:
-            tokenProvider.getErc721Balance(for: address)
+            ercTokenProvider.getErc721Balance(for: contract)
                 .sinkAsync(receiveCompletion: { result in
                     guard case .failure(let error) = result else { return }
 
@@ -105,7 +111,7 @@ public class ContractDataDetector {
                     self.completionOfPartialData(.balance(nonFungible: .balance(balance), fungible: nil, tokenType: .erc721))
                 })
         case .erc721ForTickets:
-            tokenProvider.getErc721ForTicketsBalance(for: address)
+            ercTokenProvider.getErc721ForTicketsBalance(for: contract)
                 .sinkAsync(receiveCompletion: { result in
                     guard case .failure(let error) = result else { return }
 
@@ -122,7 +128,7 @@ public class ContractDataDetector {
             self.decimalsSeal.fulfill(0)
             self.completionOfPartialData(.balance(nonFungible: .balance(balance), fungible: nil, tokenType: .erc1155))
         case .erc20:
-            tokenProvider.getErc20Balance(for: address)
+            ercTokenProvider.getErc20Balance(for: contract)
                 .sinkAsync(receiveCompletion: { result in
                     guard case .failure(let error) = result else { return }
 
@@ -133,7 +139,7 @@ public class ContractDataDetector {
                     self.completionOfPartialData(.balance(nonFungible: nil, fungible: value, tokenType: .erc20))
                 })
 
-            tokenProvider.getDecimals(for: address)
+            ercTokenProvider.getDecimals(for: contract)
                 .sinkAsync(receiveCompletion: { result in
                     guard case .failure(let error) = result else { return }
 

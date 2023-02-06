@@ -8,12 +8,24 @@
 import Foundation
 import Combine
 
-open class SessionsProvider {
+public protocol SessionsProvider: AnyObject {
+    var sessions: AnyPublisher<ServerDictionary<WalletSession>, Never> { get }
+    var activeSessions: ServerDictionary<WalletSession> { get }
+
+    func start()
+    func session(for server: RPCServer) -> WalletSession?
+}
+
+open class BaseSessionsProvider: SessionsProvider {
     private let sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never> = .init(.init())
     private let config: Config
     private var cancelable = Set<AnyCancellable>()
     private let blockchainsProvider: BlockchainsProvider
     private let analytics: AnalyticsLogger
+    private let tokensDataStore: TokensDataStore
+    private let assetDefinitionStore: AssetDefinitionStore
+    private let reachability: ReachabilityManagerProtocol
+    private let wallet: Wallet
 
     public var sessions: AnyPublisher<ServerDictionary<WalletSession>, Never> {
         return sessionsSubject.eraseToAnyPublisher()
@@ -23,33 +35,67 @@ open class SessionsProvider {
         sessionsSubject.value
     }
 
-    public init(config: Config, analytics: AnalyticsLogger, blockchainsProvider: BlockchainsProvider) {
+    public init(config: Config,
+                analytics: AnalyticsLogger,
+                blockchainsProvider: BlockchainsProvider,
+                tokensDataStore: TokensDataStore,
+                assetDefinitionStore: AssetDefinitionStore,
+                reachability: ReachabilityManagerProtocol,
+                wallet: Wallet) {
+
+        self.wallet = wallet
+        self.reachability = reachability
+        self.assetDefinitionStore = assetDefinitionStore
+        self.tokensDataStore = tokensDataStore
         self.config = config
         self.analytics = analytics
         self.blockchainsProvider = blockchainsProvider
     }
 
-    public func start(wallet: Wallet) {
+    public func start() {
         blockchainsProvider
             .blockchains
-            .map { [sessionsSubject, config, analytics] blockchains -> ServerDictionary<WalletSession>in
+            .map { [sessionsSubject] blockchains -> ServerDictionary<WalletSession>in
                 var sessions: ServerDictionary<WalletSession> = .init()
 
                 for blockchain in blockchains.values {
                     if let session = sessionsSubject.value[safe: blockchain.server] {
                         sessions[blockchain.server] = session
                     } else {
-                        sessions[blockchain.server] = WalletSession(
-                            account: wallet,
-                            server: blockchain.server,
-                            config: config,
-                            analytics: analytics,
-                            blockchainProvider: blockchain)
+                        sessions[blockchain.server] = self.buildSession(blockchain: blockchain)
                     }
                 }
                 return sessions
             }.assign(to: \.value, on: sessionsSubject, ownership: .weak)
             .store(in: &cancelable)
+    }
+
+    private func buildSession(blockchain: BlockchainProvider) -> WalletSession {
+        let ercTokenProvider: TokenProviderType = TokenProvider(
+            account: wallet,
+            blockchainProvider: blockchain)
+
+        let contractDataFetcher = ContractDataFetcher(
+            wallet: wallet,
+            ercTokenProvider: ercTokenProvider,
+            assetDefinitionStore: assetDefinitionStore,
+            analytics: analytics,
+            reachability: reachability)
+
+        let importToken = ImportToken(
+            tokensDataStore: tokensDataStore,
+            contractDataFetcher: contractDataFetcher,
+            server: blockchain.server,
+            reachability: reachability)
+
+        return WalletSession(
+            account: wallet,
+            server: blockchain.server,
+            config: config,
+            analytics: analytics,
+            ercTokenProvider: ercTokenProvider,
+            importToken: importToken,
+            blockchainProvider: blockchain)
     }
 
     public func session(for server: RPCServer) -> WalletSession? {
