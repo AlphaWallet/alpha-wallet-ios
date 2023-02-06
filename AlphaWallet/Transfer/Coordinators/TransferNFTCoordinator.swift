@@ -15,8 +15,6 @@ class TransferNFTCoordinator: Coordinator {
         let tokenCardViewFactory = TokenCardViewFactory(
             token: token,
             assetDefinitionStore: assetDefinitionStore,
-            analytics: analytics,
-            keystore: keystore,
             wallet: session.account)
 
         let viewModel = SendSemiFungibleTokenViewModel(

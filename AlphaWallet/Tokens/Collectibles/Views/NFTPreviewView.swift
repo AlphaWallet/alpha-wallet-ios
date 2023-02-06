@@ -40,12 +40,16 @@ final class NFTPreviewView: NFTPreviewViewRepresentable {
         set { previewView.contentBackgroundColor = newValue }
     }
 
-    init(type: NFTPreviewViewType, keystore: Keystore, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger, edgeInsets: UIEdgeInsets = .zero) {
+    init(type: NFTPreviewViewType,
+         session: WalletSession,
+         assetDefinitionStore: AssetDefinitionStore,
+         edgeInsets: UIEdgeInsets = .zero) {
+
         switch type {
         case .imageView:
             previewView = NFTPreviewView.generateTokenImageView()
         case .tokenCardView:
-            previewView = NFTPreviewView.generateTokenCardView(keystore: keystore, session: session, assetDefinitionStore: assetDefinitionStore, analytics: analytics)
+            previewView = NFTPreviewView.generateTokenCardView(session: session, assetDefinitionStore: assetDefinitionStore)
         }
         super.init(frame: .zero)
 
@@ -70,8 +74,8 @@ final class NFTPreviewView: NFTPreviewViewRepresentable {
         previewView.cancel()
     }
 
-    private static func generateTokenCardView(keystore: Keystore, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger) -> TokenCardWebView {
-        let tokeCardWebView = TokenCardWebView(analytics: analytics, server: session.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: session.account)
+    private static func generateTokenCardView(session: WalletSession, assetDefinitionStore: AssetDefinitionStore) -> TokenCardWebView {
+        let tokeCardWebView = TokenCardWebView(server: session.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, wallet: session.account)
         return tokeCardWebView
     }
 

@@ -8,17 +8,17 @@
 import Foundation
 import UIKit
 import AlphaWalletFoundation
+import Combine
+import AlphaWalletCore
 
 class TokenCardWebView: UIView, TokenCardRowViewConfigurable, ViewRoundingSupportable, ViewLoadingCancelable {
-    private let analytics: AnalyticsLogger
     private let server: RPCServer
     private let assetDefinitionStore: AssetDefinitionStore
     private var lastTokenHolder: TokenHolder?
     private var tokenView: TokenView
-    private let keystore: Keystore
     private let wallet: Wallet
     private lazy var tokenScriptRendererView: TokenInstanceWebView = {
-        let webView = TokenInstanceWebView(analytics: analytics, server: server, wallet: wallet, assetDefinitionStore: assetDefinitionStore, keystore: keystore)
+        let webView = TokenInstanceWebView(server: server, wallet: wallet, assetDefinitionStore: assetDefinitionStore)
         webView.delegate = self
         return webView
     }()
@@ -29,9 +29,7 @@ class TokenCardWebView: UIView, TokenCardRowViewConfigurable, ViewRoundingSuppor
         set { tokenScriptRendererView.isStandalone = newValue }
     }
 
-    init(analytics: AnalyticsLogger, server: RPCServer, tokenView: TokenView, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore, wallet: Wallet) {
-        self.keystore = keystore
-        self.analytics = analytics
+    init(server: RPCServer, tokenView: TokenView, assetDefinitionStore: AssetDefinitionStore, wallet: Wallet) {
         self.server = server
         self.tokenView = tokenView
         self.assetDefinitionStore = assetDefinitionStore
@@ -72,8 +70,13 @@ class TokenCardWebView: UIView, TokenCardRowViewConfigurable, ViewRoundingSuppor
 }
 
 extension TokenCardWebView: TokenInstanceWebViewDelegate {
-    func navigationControllerFor(tokenInstanceWebView: TokenInstanceWebView) -> UINavigationController? {
-        return nil
+
+    func requestSignMessage(message: SignMessageType,
+                            server: RPCServer,
+                            account: AlphaWallet.Address,
+                            source: Analytics.SignMessageRequestSource,
+                            requester: RequesterViewModel?) -> AnyPublisher<DappCallbackValue, PromiseError> {
+        return .empty()
     }
 
     func shouldClose(tokenInstanceWebView: TokenInstanceWebView) {

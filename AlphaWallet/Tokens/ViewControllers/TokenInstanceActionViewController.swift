@@ -5,8 +5,10 @@ import UIKit
 import BigInt
 import PromiseKit
 import AlphaWalletFoundation
+import AlphaWalletCore
+import Combine
 
-protocol TokenInstanceActionViewControllerDelegate: AnyObject, CanOpenURL {
+protocol TokenInstanceActionViewControllerDelegate: AnyObject, CanOpenURL, RequestSignMessage {
     func didPressViewRedemptionInfo(in viewController: TokenInstanceActionViewController)
     func shouldCloseFlow(inViewController viewController: TokenInstanceActionViewController)
     func didClose(in viewController: TokenInstanceActionViewController)
@@ -21,7 +23,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
     private let keystore: Keystore
     private let roundedBackground = RoundedBackground()
     lazy private var tokenScriptRendererView: TokenInstanceWebView = {
-        let webView = TokenInstanceWebView(analytics: analytics, server: server, wallet: session.account, assetDefinitionStore: assetDefinitionStore, keystore: keystore)
+        let webView = TokenInstanceWebView(server: server, wallet: session.account, assetDefinitionStore: assetDefinitionStore)
         webView.isWebViewInteractionEnabled = true
         webView.delegate = self
         webView.isStandalone = true
@@ -178,9 +180,21 @@ extension TokenInstanceActionViewController: VerifiableStatusViewController {
 }
 
 extension TokenInstanceActionViewController: TokenInstanceWebViewDelegate {
-    //TODO not good. But quick and dirty to ship
-    func navigationControllerFor(tokenInstanceWebView: TokenInstanceWebView) -> UINavigationController? {
-        return navigationController
+
+    func requestSignMessage(message: SignMessageType,
+                            server: RPCServer,
+                            account: AlphaWallet.Address,
+                            source: Analytics.SignMessageRequestSource,
+                            requester: RequesterViewModel?) -> AnyPublisher<DappCallbackValue, PromiseError> {
+
+        guard let delegate = delegate else { return .empty() }
+
+        return delegate.requestSignMessage(
+            message: message,
+            server: server,
+            account: account,
+            source: source,
+            requester: requester)
     }
 
     func shouldClose(tokenInstanceWebView: TokenInstanceWebView) {

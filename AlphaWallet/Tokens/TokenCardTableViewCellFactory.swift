@@ -20,22 +20,18 @@ typealias TokenCardViewRepresentable = UIView & TokenCardRowViewConfigurable & S
 
 final class TokenCardViewFactory {
     private let token: Token
-    private let analytics: AnalyticsLogger
-    private let keystore: Keystore
     private let wallet: Wallet
 
     let assetDefinitionStore: AssetDefinitionStore
     
-    init(token: Token, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger, keystore: Keystore, wallet: Wallet) {
+    init(token: Token, assetDefinitionStore: AssetDefinitionStore, wallet: Wallet) {
         self.token = token
         self.assetDefinitionStore = assetDefinitionStore
-        self.analytics = analytics
-        self.keystore = keystore
         self.wallet = wallet
     }
 
     func createPreview(of type: NFTPreviewViewType, session: WalletSession, edgeInsets: UIEdgeInsets = .zero) -> NFTPreviewViewRepresentable {
-        return NFTPreviewView(type: type, keystore: keystore, session: session, assetDefinitionStore: assetDefinitionStore, analytics: analytics, edgeInsets: edgeInsets)
+        return NFTPreviewView(type: type, session: session, assetDefinitionStore: assetDefinitionStore, edgeInsets: edgeInsets)
     }
 
     func createTokenCardView(for tokenHolder: TokenHolder, layout: GridOrListLayout, gridEdgeInsets: UIEdgeInsets = .zero, listEdgeInsets: UIEdgeInsets = .init(top: 0, left: 16, bottom: 0, right: 16)) -> TokenCardViewRepresentable {
@@ -45,7 +41,7 @@ final class TokenCardViewFactory {
 
         switch tokenHolder.tokenType {
         case .erc875, .erc721ForTickets:
-            rowView = Erc875NonFungibleRowView(token: token, tokenType: tokenType, analytics: analytics, keystore: keystore, assetDefinitionStore: assetDefinitionStore, wallet: wallet, layout: layout, gridEdgeInsets: gridEdgeInsets, listEdgeInsets: listEdgeInsets)
+            rowView = Erc875NonFungibleRowView(token: token, tokenType: tokenType, assetDefinitionStore: assetDefinitionStore, wallet: wallet, layout: layout, gridEdgeInsets: gridEdgeInsets, listEdgeInsets: listEdgeInsets)
         case .nativeCryptocurrency, .erc20, .erc721, .erc1155:
             rowView = NonFungibleRowView(layout: layout, gridEdgeInsets: gridEdgeInsets, listEdgeInsets: listEdgeInsets)
         } 
