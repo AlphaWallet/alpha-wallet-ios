@@ -78,7 +78,7 @@ extension SignatureConfirmationViewModel {
             return String(message.removingPrefixWhitespacesAndNewlines.prefix(MessageConfirmationViewModel.MessagePrefixLength))
         }
         private var availableToShowFullMessage: Bool {
-            message.removingWhitespacesAndNewlines.count > messagePrefix.count
+            return true
         }
         private let requester: RequesterViewModel?
         let message: String
