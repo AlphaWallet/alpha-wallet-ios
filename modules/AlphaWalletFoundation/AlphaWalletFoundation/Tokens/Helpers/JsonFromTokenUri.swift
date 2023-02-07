@@ -14,38 +14,47 @@ import Combine
 
 final class JsonFromTokenUri {
     private let tokensService: TokenProvidable
-    private lazy var getTokenUri = NonFungibleContract(blockchainProvider: blockchainProvider)
+    private let getTokenUri: NonFungibleContract
     private let blockchainProvider: BlockchainProvider
     private var inFlightPromises: [String: AnyPublisher<NonFungibleBalanceAndItsSource<JsonString>, SessionTaskError>] = [:]
     private let queue = DispatchQueue(label: "org.alphawallet.swift.jsonFromTokenUri")
     //Unlike `SessionManager.default`, this doesn't add default HTTP headers. It looks like POAP token URLs (e.g. https://api.poap.xyz/metadata/2503/278569) don't like them and return `406` in the JSON. It's strangely not responsible when curling, but only when running in the app
     private let networkService: NetworkService
 
-    public init(blockchainProvider: BlockchainProvider, tokensService: TokenProvidable, networkService: NetworkService) {
+    public init(blockchainProvider: BlockchainProvider,
+                tokensService: TokenProvidable,
+                networkService: NetworkService) {
+
         self.networkService = networkService
         self.blockchainProvider = blockchainProvider
         self.tokensService = tokensService
+        self.getTokenUri = NonFungibleContract(blockchainProvider: blockchainProvider)
+    }
+
+    func clear() {
+        inFlightPromises.removeAll()
     }
 
     func fetchJsonFromTokenUri(forTokenId tokenId: String, tokenType: TokenType, address: AlphaWallet.Address, enjinToken: GetEnjinTokenQuery.Data.EnjinToken?) -> AnyPublisher<NonFungibleBalanceAndItsSource<JsonString>, SessionTaskError> {
         return Just(tokenId)
             .receive(on: queue)
             .setFailureType(to: SessionTaskError.self)
-            .flatMap { [queue, getTokenUri] tokenId -> AnyPublisher<NonFungibleBalanceAndItsSource<JsonString>, SessionTaskError> in
+            .flatMap { [weak self, queue, weak getTokenUri] tokenId -> AnyPublisher<NonFungibleBalanceAndItsSource<JsonString>, SessionTaskError> in
+                guard let strongSelf = self, let getTokenUri = getTokenUri else { return .fail(.cancelledError) }
                 let key = "\(tokenId).\(address.eip55String).\(tokenType.rawValue)"
 
-                if let promise = self.inFlightPromises[key] {
+                if let promise = strongSelf.inFlightPromises[key] {
                     return promise
                 } else {
                     let promise = getTokenUri.getUriOrTokenUri(for: tokenId, contract: address)
-                        .flatMap { self.fetchTokenJson(forTokenId: tokenId, tokenType: tokenType, uri: $0, address: address, enjinToken: enjinToken) }
-                        .catch { _ in return self.generateTokenJsonFallback(forTokenId: tokenId, tokenType: tokenType, address: address) }
+                        .flatMap { strongSelf.fetchTokenJson(forTokenId: tokenId, tokenType: tokenType, uri: $0, address: address, enjinToken: enjinToken) }
+                        .catch { _ in return strongSelf.generateTokenJsonFallback(forTokenId: tokenId, tokenType: tokenType, address: address) }
                         .receive(on: queue)
-                        .handleEvents(receiveCompletion: { _ in self.inFlightPromises[key] = .none })
+                        .handleEvents(receiveCompletion: { _ in strongSelf.inFlightPromises[key] = .none })
                         .share()
                         .eraseToAnyPublisher()
 
-                    self.inFlightPromises[key] = promise
+                    strongSelf.inFlightPromises[key] = promise
 
                     return promise
                 }

@@ -35,6 +35,11 @@ extension SessionTaskError {
             return e
         }
     }
+
+    static var cancelledError: SessionTaskError {
+        struct SelfDellocatedError: Error {}
+        return .responseError(SelfDellocatedError())
+    }
 }
 
 final class GetGasPrice {

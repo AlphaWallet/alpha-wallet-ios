@@ -30,12 +30,17 @@ final class AutoDetectTokensOperation: Operation {
         return true
     }
 
-    init(session: WalletSession, delegate: AutoDetectTokensOperationDelegate, tokens: [ContractToImport]) {
+    init(server: RPCServer, delegate: AutoDetectTokensOperationDelegate, tokens: [ContractToImport]) {
         self.delegate = delegate
         self.tokens = tokens
         super.init()
-        self.queuePriority = session.server.networkRequestsQueuePriority
-    } 
+        self.queuePriority = server.networkRequestsQueuePriority
+    }
+
+    override func cancel() {
+        cancellable?.cancel()
+        cancellable = nil
+    }
 
     override func main() {
         guard let delegate = delegate else { return }
@@ -43,16 +48,15 @@ final class AutoDetectTokensOperation: Operation {
         cancellable = delegate.autoDetectTokensImpl(withContracts: tokens)
             .sink(receiveCompletion: { _ in
 
-            }, receiveValue: { values in
+            }, receiveValue: { [weak self] values in
 
-                self.willChangeValue(forKey: "isExecuting")
-                self.willChangeValue(forKey: "isFinished")
+                self?.willChangeValue(forKey: "isExecuting")
+                self?.willChangeValue(forKey: "isFinished")
                 delegate.isAutoDetectingTokens = false
-                self.didChangeValue(forKey: "isExecuting")
-                self.didChangeValue(forKey: "isFinished")
+                self?.didChangeValue(forKey: "isExecuting")
+                self?.didChangeValue(forKey: "isFinished")
 
-                guard !self.isCancelled else { return }
-                self.delegate?.didDetect(tokensOrContracts: values)
+                self?.delegate?.didDetect(tokensOrContracts: values)
             })
     } 
 }
