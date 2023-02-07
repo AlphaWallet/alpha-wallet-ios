@@ -32,7 +32,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
     private var cancelable = Set<AnyCancellable>()
     private let tokensService: TokenViewModelState & TokenHolderState
     private lazy var tokenCardViewFactory: TokenCardViewFactory = {
-        TokenCardViewFactory(token: token, assetDefinitionStore: assetDefinitionStore, analytics: analytics, keystore: keystore, wallet: session.account)
+        TokenCardViewFactory(token: token, assetDefinitionStore: assetDefinitionStore, wallet: session.account)
     }()
     private let currencyService: CurrencyService
 

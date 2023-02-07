@@ -3,6 +3,8 @@
 import UIKit
 import WebKit
 import AlphaWalletFoundation
+import AlphaWalletCore
+import Combine
 
 class TokenCardRowView: UIView, TokenCardRowViewProtocol {
     private let analytics: AnalyticsLogger
@@ -54,7 +56,7 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
     var stateLabel = UILabel()
     var tokenView: TokenView
     lazy var tokenScriptRendererView: TokenInstanceWebView = {
-        let webView = TokenInstanceWebView(analytics: analytics, server: server, wallet: wallet, assetDefinitionStore: assetDefinitionStore, keystore: keystore)
+        let webView = TokenInstanceWebView(server: server, wallet: wallet, assetDefinitionStore: assetDefinitionStore)
         webView.delegate = self
         return webView
     }()
@@ -339,8 +341,14 @@ extension TokenCardRowView: TokenRowView {
 }
 
 extension TokenCardRowView: TokenInstanceWebViewDelegate {
-    func navigationControllerFor(tokenInstanceWebView: TokenInstanceWebView) -> UINavigationController? {
-        return nil
+
+    func requestSignMessage(message: SignMessageType,
+                            server: RPCServer,
+                            account: AlphaWallet.Address,
+                            source: Analytics.SignMessageRequestSource,
+                            requester: RequesterViewModel?) -> AnyPublisher<DappCallbackValue, PromiseError> {
+        
+        return .fail(PromiseError(error: DAppError.cancelled))
     }
 
     func shouldClose(tokenInstanceWebView: TokenInstanceWebView) {

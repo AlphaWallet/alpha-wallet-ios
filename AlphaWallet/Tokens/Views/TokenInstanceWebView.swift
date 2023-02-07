@@ -7,10 +7,17 @@ import PromiseKit
 import WebKit
 import Combine
 import AlphaWalletFoundation
+import AlphaWalletCore
 
-protocol TokenInstanceWebViewDelegate: AnyObject {
-    //TODO not good. But quick and dirty to ship
-    func navigationControllerFor(tokenInstanceWebView: TokenInstanceWebView) -> UINavigationController?
+protocol RequestSignMessage: AnyObject {
+    func requestSignMessage(message: SignMessageType,
+                            server: RPCServer,
+                            account: AlphaWallet.Address,
+                            source: Analytics.SignMessageRequestSource,
+                            requester: RequesterViewModel?) -> AnyPublisher<DappCallbackValue, PromiseError>
+}
+
+protocol TokenInstanceWebViewDelegate: RequestSignMessage {
     func shouldClose(tokenInstanceWebView: TokenInstanceWebView)
     func reinject(tokenInstanceWebView: TokenInstanceWebView)
 }
@@ -18,7 +25,6 @@ protocol TokenInstanceWebViewDelegate: AnyObject {
 class TokenInstanceWebView: UIView, TokenScriptLocalRefsSource {
     var coordinators: [Coordinator] = []
 
-    private let analytics: AnalyticsLogger
     //TODO see if we can be smarter about just subscribing to the attribute once. Note that this is not `Subscribable.subscribeOnce()`
     private let wallet: Wallet
     private let assetDefinitionStore: AssetDefinitionStore
@@ -33,7 +39,6 @@ class TokenInstanceWebView: UIView, TokenScriptLocalRefsSource {
     private var lastTokenHolder: TokenHolder?
     private var actionProperties: TokenScript.SetProperties.Properties = .init()
     private var lastCardLevelAttributeValues: [AttributeId: AssetAttributeSyntaxValue]?
-    private let keystore: Keystore
     private var cancelable = Set<AnyCancellable>()
 
     var server: RPCServer
@@ -61,12 +66,10 @@ class TokenInstanceWebView: UIView, TokenScriptLocalRefsSource {
         return results
     }
 
-    init(analytics: AnalyticsLogger, server: RPCServer, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore) {
-        self.analytics = analytics
+    init(server: RPCServer, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore) {
         self.server = server
         self.wallet = wallet
         self.assetDefinitionStore = assetDefinitionStore
-        self.keystore = keystore
         super.init(frame: .zero)
 
         webView.isUserInteractionEnabled = false
@@ -277,9 +280,9 @@ class TokenInstanceWebView: UIView, TokenScriptLocalRefsSource {
 extension TokenInstanceWebView: WKScriptMessageHandler {
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         switch Browser.MessageType.fromMessage(message) {
-        case .some(.dappAction(let command)):
+        case .dappAction(let command):
             handleCommandForDappAction(command)
-        case .some(.setActionProps(.action(let id, let changedProperties))):
+        case .setActionProps(.action(let id, let changedProperties)):
             handleSetActionProperties(id: id, changedProperties: changedProperties)
         case .none:
             break
@@ -338,7 +341,26 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
         func _sign(action: DappAction, command: DappCommand, account: AlphaWallet.Address) {
             switch action {
             case .signPersonalMessage(let message):
-                signMessage(with: .personalMessage(message.asSignableMessageData), account: account, callbackID: command.id)
+                guard let delegate = self.delegate else {
+                    self.notifyFinish(callbackID: command.id, value: .failure(DAppError.cancelled))
+                    return
+                }
+
+                delegate.requestSignMessage(
+                    message: .personalMessage(message.asSignableMessageData),
+                    server: server,
+                    account: account,
+                    source: .tokenScript,
+                    requester: nil)
+                .handleEvents(receiveCancel: {
+                    self.notifyFinish(callbackID: command.id, value: .failure(DAppError.cancelled))
+                })
+                .sinkAsync(receiveCompletion: { _ in
+                    self.notifyFinish(callbackID: command.id, value: .failure(DAppError.cancelled))
+                }, receiveValue: { value in
+                    let callback = DappCallback(id: command.id, value: value)
+                    self.notifyFinish(callbackID: command.id, value: .success(callback))
+                })
             case .signTransaction, .sendTransaction, .signMessage, .signTypedMessage, .unknown, .sendRawTransaction, .signTypedMessageV3, .ethCall, .walletAddEthereumChain, .walletSwitchEthereumChain:
                 break
             }
@@ -372,32 +394,6 @@ extension TokenInstanceWebView: WKNavigationDelegate {
 extension TokenInstanceWebView: WKUIDelegate {
     func webViewDidClose(_ webView: WKWebView) {
         delegate?.shouldClose(tokenInstanceWebView: self)
-    }
-}
-
-//TODO this contains functions duplicated and modified from DappBrowserCoordinator. Clean this up. Or move it somewhere, to a coordinator?
-extension TokenInstanceWebView: Coordinator {
-    func signMessage(with type: SignMessageType, account: AlphaWallet.Address, callbackID: Int) {
-        guard let navigationController = delegate?.navigationControllerFor(tokenInstanceWebView: self) else { return }
-        firstly {
-            SignMessageCoordinator.promise(analytics: analytics, navigationController: navigationController, keystore: keystore, coordinator: self, signType: type, account: account, source: .tokenScript, requester: nil)
-        }.done { data in
-            let callback: DappCallback
-            switch type {
-            case .message:
-                callback = DappCallback(id: callbackID, value: .signMessage(data))
-            case .personalMessage:
-                callback = DappCallback(id: callbackID, value: .signPersonalMessage(data))
-            case .typedMessage:
-                callback = DappCallback(id: callbackID, value: .signTypedMessage(data))
-            case .eip712v3And4:
-                callback = DappCallback(id: callbackID, value: .signTypedMessageV3(data))
-            }
-
-            self.notifyFinish(callbackID: callbackID, value: .success(callback))
-        }.catch { _ in
-            self.notifyFinish(callbackID: callbackID, value: .failure(DAppError.cancelled))
-        }
     }
 }
 

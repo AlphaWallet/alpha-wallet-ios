@@ -140,7 +140,7 @@ extension ActivitiesView: UITableViewDataSource {
 
         let tokenScriptRendererView: TokenInstanceWebView = {
             //TODO server value doesn't matter since we will change it later. But we should improve this
-            let webView = TokenInstanceWebView(analytics: analytics, server: .main, wallet: wallet, assetDefinitionStore: assetDefinitionStore, keystore: keystore)
+            let webView = TokenInstanceWebView(server: .main, wallet: wallet, assetDefinitionStore: assetDefinitionStore)
             //TODO needed? Seems like scary, performance-wise
             //webView.delegate = self
             return webView

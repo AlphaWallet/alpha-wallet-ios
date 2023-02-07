@@ -3,6 +3,7 @@ import PromiseKit
 import Combine
 import AlphaWalletFoundation
 import AlphaWalletLogger
+import AlphaWalletCore
 
 // swiftlint:disable file_length
 protocol ActiveWalletCoordinatorDelegate: AnyObject {
@@ -753,6 +754,37 @@ extension ActiveWalletCoordinator: UrlSchemeResolver {
 }
 
 extension ActiveWalletCoordinator: ActivityViewControllerDelegate {
+
+    func requestSignMessage(message: SignMessageType,
+                            server: RPCServer,
+                            account: AlphaWallet.Address,
+                            source: Analytics.SignMessageRequestSource,
+                            requester: RequesterViewModel?) -> AnyPublisher<DappCallbackValue, PromiseError> {
+
+        return SignMessageCoordinator.promise(
+            analytics: analytics,
+            navigationController: navigationController,
+            keystore: keystore,
+            coordinator: self,
+            signType: message,
+            account: account,
+            source: source,
+            requester: requester)
+            .publisher(queue: .main)
+            .map { data -> DappCallbackValue in
+                switch message {
+                case .message:
+                    return .signMessage(data)
+                case .personalMessage:
+                    return .signPersonalMessage(data)
+                case .typedMessage:
+                    return .signTypedMessage(data)
+                case .eip712v3And4:
+                    return .signTypedMessageV3(data)
+                }
+            }.eraseToAnyPublisher()
+    }
+
     func reinject(viewController: ActivityViewController) {
         activitiesPipeLine.reinject(activity: viewController.viewModel.activity)
     }
@@ -889,12 +921,10 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
 
     private func showActivity(_ activity: Activity, navigationController: UINavigationController) {
         let controller = ActivityViewController(
-            analytics: analytics,
             wallet: wallet,
             assetDefinitionStore: assetDefinitionStore,
             viewModel: .init(activity: activity),
-            service: activitiesPipeLine,
-            keystore: keystore)
+            service: activitiesPipeLine)
 
         controller.delegate = self
 
