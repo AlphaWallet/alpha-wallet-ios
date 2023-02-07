@@ -69,8 +69,8 @@ class TransactionsViewController: UIViewController {
         output.pullToRefreshState
             .sink { [refreshControl] state in
                 switch state {
-                case .endLoading: refreshControl.endRefreshing()
-                case .beginLoading: refreshControl.beginRefreshing()
+                case .done, .failure: refreshControl.endRefreshing()
+                case .loading: refreshControl.beginRefreshing()
                 }
             }.store(in: &cancellable)
     }
