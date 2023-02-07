@@ -15,14 +15,13 @@ struct AccountsViewModelInput {
 
 struct AccountsViewModelOutput {
     let viewState: AnyPublisher<AccountsViewModel.ViewState, Never>
-    //TODO: replace later with
     let reloadBalanceState: AnyPublisher<Loadable<Void, Error>, Never>
     let walletDelated: AnyPublisher<Wallet, Never>
     let copiedToClipboard: AnyPublisher<String, Never>
 }
 
 final class AccountsViewModel {
-    private var config: Config
+    private let config: Config
     private var viewModels: [AccountsViewModel.SectionViewModel] = []
     private let keystore: Keystore
     private let analytics: AnalyticsLogger
@@ -48,7 +47,7 @@ final class AccountsViewModel {
         case .changeWallets:
             return false
         case .summary:
-            return !Config().enabledServers.allSatisfy { $0.isTestnet }
+            return !config.enabledServers.allSatisfy { $0.isTestnet }
         }
     }
 
@@ -102,8 +101,7 @@ final class AccountsViewModel {
             }.map { [config] in WalletSummaryViewModel(walletSummary: $0, config: config) }
 
         let viewState = Publishers.CombineLatest(accountRowViewModels, walletsSummary)
-            //NOTE: .uniqued() looks liek doesn't work
-            .map { self.buildViewModels(sections: self.sections, accountViewModels: $0, summary: $1).uniqued() }
+            .map { self.buildViewModels(sections: self.sections, accountViewModels: $0, summary: $1) }
             .handleEvents(receiveOutput: { self.viewModels = $0 })
             .map { self.buildSnapshot(for: $0) }
             .map { [configuration] snapshot in AccountsViewModel.ViewState(title: configuration.title, snapshot: snapshot) }

@@ -5,7 +5,7 @@ import XCTest
 import AlphaWalletFoundation
 
 extension PromptBackup {
-    static func make(walletBalanceProvidable: WalletBalanceProvidable = MultiWalletBalanceService()) -> PromptBackup {
+    static func make(walletBalanceProvidable: WalletBalanceProvidable = MultiWalletBalanceService(currencyService: .make())) -> PromptBackup {
         return PromptBackup(
             keystore: FakeEtherKeystore(wallets: [.make(origin: .hd)]),
             config: .make(),

@@ -64,7 +64,7 @@ extension WalletDataProcessingPipeline {
             eventsDataStore: eventsDataStore,
             currencyService: currencyService)
 
-        let fetcher = WalletBalanceFetcher(wallet: wallet, tokensService: pipeline)
+        let fetcher = WalletBalanceFetcher(wallet: wallet, tokensService: pipeline, currencyService: .make())
 
         let activitiesPipeLine = ActivitiesPipeLine(
             config: .make(),

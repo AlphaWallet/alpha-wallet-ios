@@ -9,39 +9,52 @@ import Foundation
 import BigInt
 
 public struct WalletBalance {
-    private let etherToken: TokenViewModel?
+    fileprivate struct BalanceRepresentable: Hashable {
+        let balance: Double
+        let price: Double?
+        let currency: Currency?
+        let percentChange24: Double?
+        let symbol: String
+
+        init(token: TokenViewModel) {
+            balance = token.balance.valueDecimal.doubleValue
+            symbol = token.tokenScriptOverrides?.symbolInPluralForm ?? token.symbol
+            price = token.balance.ticker?.price_usd
+            currency = token.balance.ticker?.currency
+            percentChange24 = token.balance.ticker?.percent_change_24h
+        }
+    }
+
+    private let etherBalance: BalanceRepresentable?
     public let wallet: Wallet
     public let totalAmount: ValueForCurrency?
     public let change: ValueForCurrency?
 
-    public init(wallet: Wallet) {
-        self.wallet = wallet
-        self.etherToken = nil
-        self.totalAmount = nil
-        self.change = nil
-    }
-
-    init(wallet: Wallet, tokens: [TokenViewModel]) {
+    init(wallet: Wallet, tokens: [TokenViewModel], currency: Currency) {
         self.wallet = wallet
 
         if tokens.allSatisfy({ $0.server.isTestnet }) {
             if let server = tokens.map { $0.server }.sorted(by: { $0.displayOrderPriority > $1.displayOrderPriority }).first {
-                etherToken = tokens.first(where: { $0 == MultipleChainsTokensDataStore.functional.etherToken(forServer: server) })
+                etherBalance = tokens.first(where: { $0 == MultipleChainsTokensDataStore.functional.etherToken(forServer: server) })
+                    .flatMap { BalanceRepresentable(token: $0) }
             } else {
-                etherToken = nil
+                etherBalance = nil
             }
         } else {
-            etherToken = tokens.first(where: { $0 == MultipleChainsTokensDataStore.functional.etherToken(forServer: .main) })
+            etherBalance = tokens.first(where: { $0 == MultipleChainsTokensDataStore.functional.etherToken(forServer: .main) })
+                .flatMap { BalanceRepresentable(token: $0) }
         }
-        self.totalAmount = WalletBalance.functional.createTotalAmount(for: tokens)
-        self.change = WalletBalance.functional.createChange(for: tokens)
+
+        let tokens = tokens.map { BalanceRepresentable(token: $0) }
+        self.totalAmount = WalletBalance.functional.createTotalAmount(for: tokens, currency: currency)
+        self.change = WalletBalance.functional.createChange(for: tokens, currency: currency)
     }
 
     public var totalAmountString: String {
         if let totalAmount = totalAmount, let value = NumberFormatter.fiat(currency: totalAmount.currency).string(double: totalAmount.amount) {
             return value
-        } else if let etherToken = etherToken, let amount = NumberFormatter.shortCrypto.string(double: etherToken.balance.valueDecimal.doubleValue) {
-            return "\(amount) \(etherToken.tokenScriptOverrides?.symbolInPluralForm ?? etherToken.symbol)"
+        } else if let balance = etherBalance, let amount = NumberFormatter.shortCrypto.string(double: balance.balance) {
+            return "\(amount) \(balance.symbol)"
         } else {
             return "--"
         }
@@ -93,51 +106,41 @@ public extension WalletBalance {
 
 extension WalletBalance.functional {
 
-    public static func createChange(for tokens: [TokenViewModel]) -> WalletBalance.ValueForCurrency? {
-        var totalChange: Double?
+    fileprivate static func createChange(for tokens: [WalletBalance.BalanceRepresentable], currency: Currency) -> WalletBalance.ValueForCurrency? {
+        var totalChange: Double? = 0.0
         for token in tokens {
-            guard let ticker = token.balance.ticker else { continue }
             if totalChange == nil { totalChange = 0.0 }
 
             if var totalChangePrev = totalChange {
-                let balance = token.balance.valueDecimal.doubleValue * ticker.price_usd
-                totalChangePrev += balance * ticker.percent_change_24h
+                let balance = token.balance * (token.price ?? 0)
+                totalChangePrev += balance * (token.percentChange24 ?? 0)
 
                 totalChange = totalChangePrev
             }
         }
 
-        return validateAmount(amount: totalChange, tokens: tokens)
+        let currency = tokens.compactMap { $0.currency }.first ?? currency
+
+        return totalChange.flatMap { WalletBalance.ValueForCurrency(amount: $0, currency: currency) }
     }
 
-    /// Returns validated amount, with checking all tokens satisfy condition of same currencies, in list
-    private static func validateAmount(amount: Double?, tokens: [TokenViewModel]) -> WalletBalance.ValueForCurrency? {
-        guard let amount = amount else { return nil }
-        guard let ticker = tokens.first(where: { $0.balance.ticker != nil })?.balance.ticker else {
-            //NOTE: we can't reach here if totalChange is nil
-            return nil
-        }
-
-        return WalletBalance.ValueForCurrency(amount: amount, currency: ticker.currency)
-    }
-
-    public static func createTotalAmount(for tokens: [TokenViewModel]) -> WalletBalance.ValueForCurrency? {
-        var totalAmount: Double?
+    fileprivate static func createTotalAmount(for tokens: [WalletBalance.BalanceRepresentable], currency: Currency) -> WalletBalance.ValueForCurrency? {
+        var totalAmount: Double? = 0
 
         for token in tokens {
-            guard let ticker = token.balance.ticker else { continue }
 
             if totalAmount == nil {
                 totalAmount = 0.0
             }
 
             if var all = totalAmount {
-                all += token.balance.valueDecimal.doubleValue * ticker.price_usd
+                all += token.balance * (token.price ?? 0)
 
                 totalAmount = all
             }
         }
 
-        return validateAmount(amount: totalAmount, tokens: tokens)
+        let currency = tokens.compactMap { $0.currency }.first ?? currency
+        return totalAmount.flatMap { WalletBalance.ValueForCurrency(amount: $0, currency: currency) }
     }
 }

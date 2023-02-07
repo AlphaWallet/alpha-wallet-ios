@@ -57,7 +57,7 @@ class AppCoordinator: NSObject, Coordinator {
     private lazy var coinTickersFetcher: CoinTickersFetcher = CoinTickersFetcherImpl(networkService: networkService)
     private lazy var nftProvider: NFTProvider = AlphaWalletNFTProvider(analytics: analytics)
     private let dependencies: AtomicDictionary<Wallet, WalletDependencies> = .init()
-    private let walletBalanceService = MultiWalletBalanceService()
+    private lazy var walletBalanceService = MultiWalletBalanceService(currencyService: currencyService)
     private var pendingActiveWalletCoordinator: ActiveWalletCoordinator?
 
     private lazy var accountsCoordinator: AccountsCoordinator = {
@@ -622,7 +622,7 @@ class AppCoordinator: NSObject, Coordinator {
 
         pipeline.start()
 
-        let fetcher = WalletBalanceFetcher(wallet: wallet, tokensService: pipeline)
+        let fetcher = WalletBalanceFetcher(wallet: wallet, tokensService: pipeline, currencyService: currencyService)
         fetcher.start()
 
         let activitiesPipeLine = ActivitiesPipeLine(

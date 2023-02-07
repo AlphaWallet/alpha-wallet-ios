@@ -142,8 +142,8 @@ public class TokensFilter {
                 }
             case .tokenscript:
                 filteredTokens = tokens.filter {
-                    guard let xmlHandler = $0.tokenScriptOverrides?.xmlHandler else { return false }
-                    return xmlHandler.hasNoBaseAssetDefinition && (xmlHandler.server?.matches(server: $0.server) ?? false)
+                    guard let overrides = $0.tokenScriptOverrides else { return false }
+                    return overrides.hasNoBaseAssetDefinition && (overrides.server?.matches(server: $0.server) ?? false)
                 }
             case .custom(string: let string):
                 filteredTokens = tokens.filter {

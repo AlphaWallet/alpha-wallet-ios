@@ -27,7 +27,7 @@ public protocol WalletBalanceService {
 
 open class MultiWalletBalanceService: WalletBalanceService {
     private let fetchers = CurrentValueSubject<[Wallet: WalletBalanceFetcherType], Never>([:])
-
+    private let currencyService: CurrencyService
     public var walletsSummary: AnyPublisher<WalletSummary, Never> {
         fetchers.map { $0.values }
             .flatMapLatest { $0.map { $0.walletBalance }.combineLatest() }
@@ -37,7 +37,9 @@ open class MultiWalletBalanceService: WalletBalanceService {
             .eraseToAnyPublisher()
     }
 
-    public init() { }
+    public init(currencyService: CurrencyService) {
+        self.currencyService = currencyService
+    }
 
     public func start(fetchers: [Wallet: WalletBalanceFetcherType]) {
         self.fetchers.send(fetchers)
@@ -56,7 +58,7 @@ open class MultiWalletBalanceService: WalletBalanceService {
             .compactMap { fetchers in fetchers[wallet] }
             .flatMapLatest { $0.walletBalance }
 
-        let initial = Just(WalletBalance(wallet: wallet))
+        let initial = Just(WalletBalance(wallet: wallet, tokens: [], currency: currencyService.currency))
 
         return Publishers.Merge(initial, walletBalance).eraseToAnyPublisher()
     }

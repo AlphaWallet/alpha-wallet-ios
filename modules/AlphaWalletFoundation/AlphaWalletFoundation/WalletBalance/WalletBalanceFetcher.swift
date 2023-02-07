@@ -29,15 +29,19 @@ public class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     private let wallet: Wallet
     private var cancelable = Set<AnyCancellable>()
     private let tokensService: TokenViewModelState & TokenBalanceRefreshable
-    private lazy var walletBalanceSubject = CurrentValueSubject<WalletBalance, Never>(.init(wallet: wallet))
-
+    private lazy var walletBalanceSubject = CurrentValueSubject<WalletBalance, Never>(WalletBalance(wallet: wallet, tokens: [], currency: currencyService.currency))
+    private let currencyService: CurrencyService
     public var walletBalance: AnyPublisher<WalletBalance, Never> {
         walletBalanceSubject.eraseToAnyPublisher()
     }
 
-    public init(wallet: Wallet, tokensService: TokenViewModelState & TokenBalanceRefreshable) {
+    public init(wallet: Wallet,
+                tokensService: TokenViewModelState & TokenBalanceRefreshable,
+                currencyService: CurrencyService) {
+
         self.wallet = wallet
         self.tokensService = tokensService
+        self.currencyService = currencyService
         super.init()
     }
 
@@ -49,7 +53,7 @@ public class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         }
 
         tokensService.tokenViewModels
-            .map { [wallet] in WalletBalance(wallet: wallet, tokens: $0) }
+            .map { [wallet, currencyService] in WalletBalance(wallet: wallet, tokens: $0, currency: currencyService.currency) }
             .removeDuplicates()
             .assign(to: \.value, on: walletBalanceSubject)
             .store(in: &cancelable)
