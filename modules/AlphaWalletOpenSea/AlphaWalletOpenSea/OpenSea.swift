@@ -37,7 +37,7 @@ public class OpenSea {
         return SessionManager(configuration: configuration)
     }()
 
-    private var apiKeys: [ChainId: String]
+    private let apiKeys: [ChainId: String]
 
     weak public var delegate: OpenSeaDelegate?
 
@@ -84,14 +84,14 @@ public class OpenSea {
             })
     }
 
-    private func getBaseURLForOpenSea(forChainId chainId: ChainId) -> String {
+    private func getBaseUrlForOpenSea(forChainId chainId: ChainId) -> URL {
         switch chainId {
         case 1:
-            return "https://api.opensea.io/"
+            return URL(string: "https://api.opensea.io")!
         case 4:
-            return "https://rinkeby-api.opensea.io/"
+            return URL(string: "https://rinkeby-api.opensea.io")!
         default:
-            return "https://api.opensea.io/"
+            return URL(string: "https://api.opensea.io")!
         }
     }
 
@@ -99,46 +99,49 @@ public class OpenSea {
         return apiKeys[chainId]
     }
 
-    public func fetchAssetImageUrl(path: String, chainId: ChainId) -> Promise<URL> {
-        let baseURL = getBaseURLForOpenSea(forChainId: chainId)
-        guard let url = URL(string: "\(baseURL)api/v1/asset/\(path)") else {
-            return .init(error: OpenSeaError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)"))
-        }
+    public func fetchAssetImageUrl(asset: String, chainId: ChainId) -> Promise<URL> {
+        let request = AssetRequest(
+            baseUrl: getBaseUrlForOpenSea(forChainId: chainId),
+            apiKey: openSeaKey(forChainId: chainId) ?? "",
+            chainId: chainId,
+            asset: asset)
 
         return firstly {
-            performRequestWithRetry(chainId: chainId, url: url, queue: .main)
+            performRequestWithRetry(request: request, queue: .main)
         }.map { json -> URL in
             let image: String = json["image_url"].string ?? json["image_preview_url"].string ?? json["image_thumbnail_url"].string ?? json["image_original_url"].string ?? ""
             guard let url = URL(string: image) else {
-                throw OpenSeaError(localizedDescription: "Error calling \(baseURL)")
+                throw OpenSeaError(localizedDescription: "Error calling \(self.getBaseUrlForOpenSea(forChainId: chainId))")
             }
             return url
         }
     }
 
     public func collectionStats(slug: String, chainId: ChainId) -> Promise<NftCollectionStats> {
-        let baseURL = getBaseURLForOpenSea(forChainId: chainId)
-        guard let url = URL(string: "\(baseURL)api/v1/collection/\(slug)/stats") else {
-            return .init(error: OpenSeaError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)"))
-        }
+        let request = CollectionStatsRequest(
+            baseUrl: getBaseUrlForOpenSea(forChainId: chainId),
+            apiKey: openSeaKey(forChainId: chainId) ?? "",
+            slug: slug)
 
         //TODO Why is specifying .main queue needed?
         return firstly {
-            performRequestWithRetry(chainId: chainId, url: url, queue: .main)
+            performRequestWithRetry(request: request, queue: .main)
         }.map { json -> NftCollectionStats in
             try NftCollectionStats(json: json)
         }
     }
 
     private func fetchCollectionsPage(forOwner owner: AlphaWallet.Address, chainId: ChainId, offset: Int, collections: [CollectionKey: NftCollection] = [:]) -> Promise<Response<[CollectionKey: NftCollection]>> {
-        let baseURL = getBaseURLForOpenSea(forChainId: chainId)
-        guard let url = URL(string: "\(baseURL)api/v1/collections?asset_owner=\(owner.eip55String)&limit=300&offset=\(offset)") else {
-            return .init(error: OpenSeaError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)"))
-        }
+        let request = CollectionsRequest(
+            baseUrl: getBaseUrlForOpenSea(forChainId: chainId),
+            apiKey: openSeaKey(forChainId: chainId) ?? "",
+            chainId: chainId,
+            offset: offset,
+            owner: owner)
 
         let decoder = OpenSeaCollectionDecoder(collections: collections)
         return firstly {
-            performRequestWithRetry(chainId: chainId, url: url, queue: .global())
+            performRequestWithRetry(request: request, queue: .global())
         }.then(on: .global(), { [weak self] json -> Promise<Response<[CollectionKey: NftCollection]>> in
             guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
             let result = decoder.decode(json: json)
@@ -153,13 +156,11 @@ public class OpenSea {
         }
     }
 
-    private func performRequestWithRetry(chainId: ChainId, url: URL, maximumRetryCount: Int = 3, delayMultiplayer: Int = 5, retryDelay: DispatchTimeInterval = .seconds(2), queue: DispatchQueue) -> Promise<JSON> {
-        func privatePerformRequest(url: URL) -> Promise<(HTTPURLResponse, JSON)> {
-            var headers: [String: String] = .init()
-            headers["X-API-KEY"] = openSeaKey(forChainId: chainId)
+    private func performRequestWithRetry(request: Alamofire.URLRequestConvertible, maximumRetryCount: Int = 3, delayMultiplayer: Int = 5, retryDelay: DispatchTimeInterval = .seconds(2), queue: DispatchQueue) -> Promise<JSON> {
+        func privatePerformRequest(request: Alamofire.URLRequestConvertible) -> Promise<(HTTPURLResponse, JSON)> {
             //Using responseData() instead of responseJSON() below because `PromiseKit`'s `responseJSON()` resolves to failure if body isn't JSON. But OpenSea returns a non-JSON when the status code is 401 (unauthorized, aka. wrong API key) and we want to detect that.
             return sessionManagerWithDefaultHttpHeaders
-                    .request(url, method: .get, headers: headers)
+                    .request(request)
                     .responseDataPromise(queue: queue)
                     .map(on: queue, { data, response -> (HTTPURLResponse, JSON) in
                         if let response: HTTPURLResponse = response.response {
@@ -176,10 +177,10 @@ public class OpenSea {
                             if let json = try? JSON(data: data) {
                                 return (response, json)
                             } else {
-                                throw OpenSeaError(localizedDescription: "Error calling \(url)")
+                                throw OpenSeaError(localizedDescription: "Error calling \(try? request.asURLRequest().url?.absoluteString)")
                             }
                         } else {
-                            throw OpenSeaError(localizedDescription: "Error calling \(url)")
+                            throw OpenSeaError(localizedDescription: "Error calling \(try? request.asURLRequest().url?.absoluteString)")
                         }
                     }).recover { error -> Promise<(HTTPURLResponse, JSON)> in
                         if let error = error as? OpenSeaApiError {
@@ -196,10 +197,10 @@ public class OpenSea {
             attempt(maximumRetryCount: maximumRetryCount, delayBeforeRetry: retryDelay, delayUpperRangeValueFrom0To: delayUpperRangeValueFrom0To) {
                 DispatchQueue.main.async {
                     Self.callCounter.clock()
-                    infoLog("[OpenSea] Accessing url: \(url.absoluteString) rate: \(Self.callCounter.averageRatePerSecond)/sec")
+                    infoLog("[OpenSea] Accessing url: \(try? request.asURLRequest().url?.absoluteString) rate: \(Self.callCounter.averageRatePerSecond)/sec")
                 }
                 return firstly {
-                    privatePerformRequest(url: url)
+                    privatePerformRequest(request: request)
                 }.map { _, json -> JSON in
                     json
                 }
@@ -216,15 +217,22 @@ public class OpenSea {
                              assets: OpenSeaAddressesToNonFungibles = [:],
                              excludeContracts: [(AlphaWallet.Address, ChainId)]) -> Promise<Response<OpenSeaAddressesToNonFungibles>> {
 
-        let baseURL = getBaseURLForOpenSea(forChainId: chainId)
-        //Careful to `order_by` with a valid value otherwise OpenSea will return 0 results
-        guard let url = URL(string: next ?? "\(baseURL)api/v1/assets/?owner=\(owner.eip55String)&order_by=pk&order_direction=asc&limit=50") else {
-            return .init(error: OpenSeaError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)"))
+        let request: Alamofire.URLRequestConvertible
+        if let cursorUrl = next {
+            request = AssetsCursorRequest(
+                apiKey: openSeaKey(forChainId: chainId) ?? "",
+                cursorUrl: cursorUrl)
+        } else {
+            request = AssetsRequest(
+                baseUrl: getBaseUrlForOpenSea(forChainId: chainId),
+                owner: owner,
+                apiKey: openSeaKey(forChainId: chainId) ?? "",
+                chainId: chainId)
         }
 
         let decoder = NftAssetsPageDecoder(assets: assets)
         return firstly {
-            performRequestWithRetry(chainId: chainId, url: url, queue: .global())
+            performRequestWithRetry(request: request, queue: .global())
         }.then({ [weak self] json -> Promise<Response<OpenSeaAddressesToNonFungibles>> in
             guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
             let result = decoder.decode(json: json)
@@ -281,4 +289,161 @@ fileprivate class CallCounter {
             }
         }
     }
+}
+
+extension OpenSea {
+    enum ApiVersion: String {
+        case v1
+        case v2
+    }
+
+    private struct AssetRequest: Alamofire.URLRequestConvertible {
+        let baseUrl: URL
+        let apiKey: String
+        let chainId: ChainId
+        let asset: String
+
+        private func apiVersion(chainId: ChainId) -> ApiVersion {
+            switch chainId {
+            case 1, 4: return .v1
+            case 137: return .v2
+            case 42161: return .v2
+            case 0xa86a: return .v2
+            case 8217: return .v2
+            case 10: return .v2
+            default: return .v1
+            }
+        }
+
+        private func pathToPlatform(chainId: ChainId) -> String {
+            switch chainId {
+            case 1, 4: return "/asset/"
+            case 137: return "/metadata/matic/"
+            case 42161: return "/metadata/arbitrum/"
+            case 0xa86a: return "/metadata/avalanche/"
+            case 8217: return "/metadata/klaytn/"
+            case 10: return "/metadata/optimism/"
+            default: return "/asset/"
+            }
+        }
+
+        func asURLRequest() throws -> URLRequest {
+            guard var components = URLComponents(url: baseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
+            components.path = "/api/\(apiVersion(chainId: chainId))\(pathToPlatform(chainId: chainId))\(asset)"
+
+            var request = try URLRequest(url: components.asURL(), method: .get)
+            request.allHTTPHeaderFields = ["X-API-KEY": apiKey]
+
+            return request
+        }
+    }
+
+    private struct CollectionStatsRequest: Alamofire.URLRequestConvertible {
+        let baseUrl: URL
+        let apiKey: String
+        let slug: String
+
+        func asURLRequest() throws -> URLRequest {
+            guard var components = URLComponents(url: baseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
+            components.path = "/api/v1/collection/\(slug)/stats"
+
+            var request = try URLRequest(url: components.asURL(), method: .get)
+            request.allHTTPHeaderFields = ["X-API-KEY": apiKey]
+
+            return request
+        }
+    }
+
+    private struct CollectionsRequest: Alamofire.URLRequestConvertible {
+        let baseUrl: URL
+        let apiKey: String
+        let chainId: ChainId
+        let limit: Int = 300
+        let offset: Int
+        let owner: AlphaWallet.Address
+
+        func asURLRequest() throws -> URLRequest {
+            guard var components = URLComponents(url: baseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
+            components.path = "/api/v1/collections"
+
+            var request = try URLRequest(url: components.asURL(), method: .get)
+            request.allHTTPHeaderFields = ["X-API-KEY": apiKey]
+
+            return try URLEncoding().encode(request, with: [
+                "asset_owner": owner.eip55String,
+                "limit": String(limit),
+                "offset": String(offset)
+            ])
+        }
+    }
+
+    private struct AssetsRequest: Alamofire.URLRequestConvertible {
+        let baseUrl: URL
+        let owner: AlphaWallet.Address
+        let orderBy: String = "pk"
+        let orderDirection: String = "asc"
+        let limit: Int = 50
+        let apiKey: String
+        let chainId: ChainId
+
+        private func apiVersion(chainId: ChainId) -> ApiVersion {
+            switch chainId {
+            case 1, 4: return .v1
+            case 137: return .v2
+            case 42161: return .v2
+            case 0xa86a: return .v2
+            case 8217: return .v2
+            case 10: return .v2
+            default: return .v1
+            }
+        }
+
+        private func pathToPlatform(chainId: ChainId) -> String {
+            switch chainId {
+            case 1, 4: return ""
+            case 137: return "matic"
+            case 42161: return "arbitrum"
+            case 0xa86a: return "avalanche"
+            case 8217: return "klaytn"
+            case 10: return "optimism"
+            default: return ""
+            }
+        }
+
+        private func ownerParamKey(chainId: ChainId) -> String {
+            switch chainId {
+            case 1, 4: return "owner"
+            case 137: return "owner_address"
+            default: return "owner"
+            }
+        }
+
+        func asURLRequest() throws -> URLRequest {
+            guard var components = URLComponents(url: baseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
+            components.path = "/api/\(apiVersion(chainId: chainId))/assets/\(pathToPlatform(chainId: chainId))"
+
+            var request = try URLRequest(url: components.asURL(), method: .get)
+            request.allHTTPHeaderFields = ["X-API-KEY": apiKey]
+
+            return try URLEncoding().encode(request, with: [
+                ownerParamKey(chainId: chainId): owner.eip55String,
+                "order_by": orderBy,
+                "order_direction": orderDirection,
+                "limit": String(limit)
+            ])
+        }
+    }
+
+    private struct AssetsCursorRequest: Alamofire.URLRequestConvertible {
+        let apiKey: String
+        let cursorUrl: String
+
+        func asURLRequest() throws -> URLRequest {
+            guard let url = URL(string: cursorUrl) else { throw URLError(.badURL) }
+            var request = try URLRequest(url: url, method: .get)
+            request.allHTTPHeaderFields = ["X-API-KEY": apiKey]
+            return request
+        }
+    }
+
 }

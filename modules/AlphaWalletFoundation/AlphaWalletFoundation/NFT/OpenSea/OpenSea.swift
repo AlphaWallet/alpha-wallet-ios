@@ -37,7 +37,7 @@ public final class OpenSea {
 
     public func nonFungible(wallet: Wallet) -> Promise<OpenSeaAddressesToNonFungibles> {
         let key: AddressAndRPCServer = .init(address: wallet.address, server: server)
-
+        
         guard OpenSea.isServerSupported(key.server) else {
             return .value([:])
         }
@@ -97,7 +97,7 @@ public final class OpenSea {
                 return promise
             } else {
                 let promise = openSea
-                    .fetchAssetImageUrl(path: value.path, chainId: server.chainID)
+                    .fetchAssetImageUrl(asset: value.path, chainId: server.chainID)
                     .ensure(on: queue, {
                         self?.inFlightFetchImageUrlPromises[key] = .none
                     })
@@ -136,6 +136,12 @@ public final class OpenSea {
         guard !config.development.isOpenSeaFetchingDisabled else { return .init() }
         var results = [Int: String]()
         results[RPCServer.main.chainID] = Constants.Credentials.openseaKey
+        results[RPCServer.polygon.chainID] = Constants.Credentials.openseaKey
+        results[RPCServer.arbitrum.chainID] = Constants.Credentials.openseaKey
+        results[RPCServer.avalanche.chainID] = Constants.Credentials.openseaKey
+        results[RPCServer.klaytnCypress.chainID] = Constants.Credentials.openseaKey
+        results[RPCServer.optimistic.chainID] = Constants.Credentials.openseaKey
+
         return results
     }
 }
