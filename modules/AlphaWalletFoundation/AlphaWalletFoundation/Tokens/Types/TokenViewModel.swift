@@ -11,6 +11,7 @@ import BigInt
 public protocol TokenIdentifiable {
     var contractAddress: AlphaWallet.Address { get }
     var server: RPCServer { get }
+    var type: TokenType { get }
 }
 
 public struct TokenViewModel {

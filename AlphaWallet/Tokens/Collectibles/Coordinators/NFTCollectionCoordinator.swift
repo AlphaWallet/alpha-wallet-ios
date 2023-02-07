@@ -40,8 +40,24 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
     lazy var rootViewController: NFTCollectionViewController = {
-        let viewModel = NFTCollectionViewModel(token: token, wallet: session.account, assetDefinitionStore: assetDefinitionStore, tokensService: tokensService, activitiesService: activitiesService, nftProvider: nftProvider)
-        let controller = NFTCollectionViewController(keystore: keystore, session: session, assetDefinition: assetDefinitionStore, analytics: analytics, viewModel: viewModel, sessions: sessions, tokenCardViewFactory: tokenCardViewFactory)
+        let viewModel = NFTCollectionViewModel(
+            token: token,
+            wallet: session.account,
+            assetDefinitionStore: assetDefinitionStore,
+            tokensService: tokensService,
+            activitiesService: activitiesService,
+            nftProvider: nftProvider,
+            config: session.config)
+
+        let controller = NFTCollectionViewController(
+            keystore: keystore,
+            session: session,
+            assetDefinition: assetDefinitionStore,
+            analytics: analytics,
+            viewModel: viewModel,
+            sessions: sessions,
+            tokenCardViewFactory: tokenCardViewFactory)
+        
         controller.hidesBottomBarWhenPushed = true
         controller.delegate = self
 

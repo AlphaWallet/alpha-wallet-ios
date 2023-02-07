@@ -14,6 +14,23 @@ import Combine
 public protocol TokenHolderState {
     func tokenHolders(for token: TokenIdentifiable) -> [TokenHolder]
     func tokenHoldersPublisher(for token: TokenIdentifiable) -> AnyPublisher<[TokenHolder], Never>
+    func tokenHolderPublisher(for token: TokenIdentifiable, tokenId: TokenId) -> AnyPublisher<TokenHolder?, Never>
+}
+
+extension TokenHolderState {
+    public func tokenHolderPublisher(for token: TokenIdentifiable, tokenId: TokenId) -> AnyPublisher<TokenHolder?, Never> {
+        tokenHoldersPublisher(for: token)
+            .map { tokenHolders in
+                switch token.type {
+                case .erc721, .erc875, .erc721ForTickets:
+                    return tokenHolders.first { $0.tokens[0].id == tokenId }
+                case .erc1155:
+                    return tokenHolders.first(where: { $0.tokens.contains(where: { $0.id == tokenId }) })
+                case .nativeCryptocurrency, .erc20:
+                    return nil
+                }
+            }.eraseToAnyPublisher()
+    }
 }
 
 extension TokenHolder: ObservableObject { }

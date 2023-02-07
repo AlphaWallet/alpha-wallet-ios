@@ -19,7 +19,7 @@ struct NFTCollectionViewModelInput {
 struct NFTCollectionViewModelOutput {
     let viewState: AnyPublisher<NFTCollectionViewModel.ViewState, Never>
     let activities: AnyPublisher<ActivityPageViewModel, Never>
-    let pullToRefreshState: AnyPublisher<TokensViewModel.RefreshControlState, Never>
+    let pullToRefreshState: AnyPublisher<Loadable<Void, Error>, Never>
 }
 
 final class NFTCollectionViewModel {
@@ -27,11 +27,11 @@ final class NFTCollectionViewModel {
     private let assetDefinitionStore: AssetDefinitionStore
     private let tokensService: TokenViewModelState & TokenHolderState
     private let nftProvider: NFTProvider
-    private (set) var openInUrl: URL?
+    private let config: Config
     private (set) lazy var tokenScriptFileStatusHandler: XMLHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
     
     let activitiesService: ActivitiesServiceType
-    let tokenHolders: CurrentValueSubject<[TokenHolder], Never>
+    let tokenHolders: CurrentValueSubject<[TokenHolder], Never> = .init([])
     let token: Token
     let initiallySelectedTabIndex: Int = 1
     let wallet: Wallet
@@ -46,68 +46,50 @@ final class NFTCollectionViewModel {
     }
 
     private (set) lazy var infoPageViewModel: NFTCollectionInfoPageViewModel = {
-        let tokenHolder = tokenHolders.value[0]
-        let tokenId = tokenHolder.tokenIds[0]
-        return NFTCollectionInfoPageViewModel(token: token, previewViewType: previewViewType, tokenHolder: tokenHolder, tokenId: tokenId, tokenHolders: tokenHolders.eraseToAnyPublisher(), nftProvider: nftProvider, assetDefinitionStore: assetDefinitionStore)
+        return NFTCollectionInfoPageViewModel(
+            token: token,
+            previewViewType: previewViewType,
+            tokenHolder: tokenHolders.map { $0.first }.eraseToAnyPublisher(),
+            nftProvider: nftProvider,
+            assetDefinitionStore: assetDefinitionStore)
     }()
 
-    private (set) lazy var nftAssetsPageViewModel = NFTAssetsPageViewModel(token: token, assetDefinitionStore: assetDefinitionStore, tokenHolders: tokenHolders.eraseToAnyPublisher(), layout: .list)
+    private (set) lazy var nftAssetsPageViewModel = NFTAssetsPageViewModel(
+        token: token,
+        assetDefinitionStore: assetDefinitionStore,
+        tokenHolders: tokenHolders.eraseToAnyPublisher(),
+        layout: .list)
 
     init(token: Token,
          wallet: Wallet,
          assetDefinitionStore: AssetDefinitionStore,
          tokensService: TokenViewModelState & TokenHolderState,
          activitiesService: ActivitiesServiceType,
-         nftProvider: NFTProvider) {
+         nftProvider: NFTProvider,
+         config: Config) {
 
+        self.config = config
         self.activitiesService = activitiesService
         self.nftProvider = nftProvider
         self.tokensService = tokensService
         self.token = token
         self.wallet = wallet
-        self.tokenHolders = .init(tokensService.tokenHolders(for: token))
         self.assetDefinitionStore = assetDefinitionStore
     } 
     
     func transform(input: NFTCollectionViewModelInput) -> NFTCollectionViewModelOutput {
         activitiesService.start()
-        
-        let tokenViewModel = tokensService.tokenViewModelPublisher(for: token)
 
-        let beginLoading = input.pullToRefresh.map { _ in TokensViewModel.PullToRefreshState.beginLoading }
-        let loadingHasEnded = beginLoading.delay(for: .seconds(2), scheduler: RunLoop.main)
-            .map { _ in TokensViewModel.PullToRefreshState.endLoading }
-
-        let fakePullToRefreshState = Just<TokensViewModel.PullToRefreshState>(TokensViewModel.PullToRefreshState.idle)
-            .merge(with: beginLoading, loadingHasEnded)
-            .compactMap { state -> TokensViewModel.RefreshControlState? in
-                switch state {
-                case .idle: return nil
-                case .endLoading: return .endLoading
-                case .beginLoading: return .beginLoading
-                }
-            }.eraseToAnyPublisher()
-
-        let whenPullToRefresh = loadingHasEnded.map { [token] _ in token }
-            .compactMap { [tokensService] in tokensService.tokenHolders(for: $0) }
-
-        let whenViewModelHasChanged = tokenViewModel.dropFirst()
-            .compactMap { [tokensService] in $0.flatMap { tokensService.tokenHolders(for: $0) } }
-
-        Publishers.Merge(whenViewModelHasChanged, whenPullToRefresh)
+        tokensService.tokenHoldersPublisher(for: token)
             .assign(to: \.value, on: tokenHolders)
             .store(in: &cancelable)
 
-        let actions = tokenHolders.compactMap { $0.first }
-            .map {
-                $0.values.collectionValue.flatMap { collection -> URL? in
-                    guard collection.slug.trimmed.nonEmpty else { return nil }
-                    return URL(string: "https://opensea.io/collection/\(collection.slug)")
-                }
-            }.handleEvents(receiveOutput: { [weak self] in self?.openInUrl = $0 })
-            .map { $0 == nil ? [] : [NonFungibleTokenAction.openInUrl] }
+        let pullToRefreshState = refreshTokenHolders(input: input.pullToRefresh)
+        let tokenHolder = tokenHolders.map { $0.first }.eraseToAnyPublisher()
+        let actions = actions(for: tokenHolder)
 
-        let title = tokenViewModel.compactMap { $0?.tokenScriptOverrides?.titleInPluralForm }
+        let title = tokensService.tokenViewModelPublisher(for: token)
+            .compactMap { $0?.tokenScriptOverrides?.titleInPluralForm ?? "-" }
 
         let viewState = Publishers.CombineLatest3(title, tokenHolders, actions)
             .map { title, tokenHolders, actions in
@@ -119,7 +101,30 @@ final class NFTCollectionViewModel {
             .map { ActivityPageViewModel(activitiesViewModel: .init(collection: .init(activities: $0))) }
             .eraseToAnyPublisher()
 
-        return .init(viewState: viewState, activities: activities, pullToRefreshState: fakePullToRefreshState)
+        return .init(
+            viewState: viewState,
+            activities: activities,
+            pullToRefreshState: pullToRefreshState)
+    }
+
+    private func actions(for trigger: AnyPublisher<TokenHolder?, Never>) -> AnyPublisher<[NonFungibleTokenAction], Never> {
+        trigger.map {
+            $0?.values.collectionValue.flatMap { collection -> URL? in
+                guard collection.slug.trimmed.nonEmpty else { return nil }
+                return URL(string: "https://opensea.io/collection/\(collection.slug)")
+            }
+        }.map { $0.flatMap { [NonFungibleTokenAction.openInUrl(url: $0)] } ?? [] }
+        .eraseToAnyPublisher()
+    }
+
+    private func refreshTokenHolders(input: AnyPublisher<Void, Never>) -> AnyPublisher<Loadable<Void, Error>, Never> {
+        input.map { _ in Loadable<Void, Error>.loading }
+            .delay(for: .seconds(1), scheduler: RunLoop.main)
+            .handleEvents(receiveOutput: { [tokensService, token, tokenHolders] _ in
+                tokenHolders.value = tokensService.tokenHolders(for: token)
+            })
+            .map { _ in Loadable<Void, Error>.done(()) }
+            .eraseToAnyPublisher()
     }
 
     var rightBarButtonItem: NFTCollectionViewModel.RightBarButtonItem {
@@ -129,7 +134,7 @@ final class NFTCollectionViewModel {
             case .real:
                 return .assetSelection(isEnabled: true)
             case .watch:
-                return .assetSelection(isEnabled: Config().development.shouldPretendIsRealWallet)
+                return .assetSelection(isEnabled: config.development.shouldPretendIsRealWallet)
             }
         case .erc721, .erc721ForTickets, .erc875:
             return .assetsDisplayType(layout: nftAssetsPageViewModel.layout.inverted)
@@ -147,7 +152,14 @@ extension NFTCollectionViewModel {
     }
 
     enum NonFungibleTokenAction {
-        case openInUrl
+        case openInUrl(url: URL)
+
+        var name: String {
+            switch self {
+            case .openInUrl:
+                return R.string.localizable.openOnOpenSea()
+            }
+        }
     }
 
     enum RightBarButtonItem {
