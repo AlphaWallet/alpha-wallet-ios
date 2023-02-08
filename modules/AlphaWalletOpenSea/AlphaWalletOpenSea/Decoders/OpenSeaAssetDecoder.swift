@@ -20,14 +20,14 @@ struct NftAssetsFilter {
 }
 
 struct NftAssetsPage {
-    let assets: [AlphaWallet.Address: [NftAsset]]
-    let count: Int
+    let assets: [NftAssetResponse]
     let next: String?
     let error: Error?
 }
 
+typealias NftCollectionsResponse = [NftCollectionIdentifier: NftCollection]
 struct NftCollectionsPage {
-    let collections: [CollectionKey: NftCollection]
+    let collections: NftCollectionsResponse
     let count: Int
     let hasNextPage: Bool
     let error: Error?
@@ -46,100 +46,136 @@ public struct NftAssetsPageDecoder {
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
         return dateFormatter
     }()
-    let assets: [AlphaWallet.Address: [NftAsset]]
+    let assets: [NftAssetResponse]
     
     func decode(json: JSON) -> NftAssetsPage {
         var assets = assets
-        let results = (json["assets"].array ?? json["results"].array ?? [])
-        let nextPage = json["next"].string
+        let results = json["assets"].array ?? json["results"].array ?? []
+        let next = json["next"].string
 
-        for each in results {
-            guard let assetContract = try? PrimaryAssetContract(json: each["asset_contract"]) else {
-                continue
-            }
-            let collection = NftCollection(json: each, contracts: [assetContract])
-            guard let cat = NftAsset(json: each) else {
-                continue
-            }
+        assets += results.compactMap { NftAssetResponse(json: $0) }
+//        for each in results {
+//            guard let assetContract = try? PrimaryAssetContract(json: each["asset_contract"]) else {
+//                continue
+//            }
+//            let collection = NftCollection(json: each, contracts: [assetContract])
+//            guard let cat = NftAsset(json: each) else {
+//                continue
+//            }
+//
+//            if var list = assets[assetContract.address] {
+//                list.append(cat)
+//                assets[assetContract.address] = list
+//            } else {
+//                let list = [cat]
+//                assets[assetContract.address] = list
+//            }
+//        }
 
-            if var list = assets[assetContract.address] {
-                list.append(cat)
-                assets[assetContract.address] = list
-            } else {
-                let list = [cat]
-                assets[assetContract.address] = list
-            }
-        }
-
-        return .init(assets: assets, count: results.count, next: nextPage, error: nil)
+        return .init(assets: assets, next: next, error: nil)
     }
 }
 
-extension NftAsset {
+//extension NftAsset {
+//    init?(json: JSON) {
+//        let assetContractJson = json["asset_contract"]
+//        let collectionJson = json["collection"]
+//
+//        guard let contract = AlphaWallet.Address(string: assetContractJson["address"].stringValue) else {
+//            return nil
+//        }
+//        guard let tokenType = NonFungibleFromJsonTokenType(rawString: assetContractJson["schema_name"].stringValue) else {
+//            return nil
+//        }
+//        let tokenId = json["token_id"].stringValue
+//        let contractName = assetContractJson["name"].stringValue
+//        //So if it's null in OpenSea, we get a 0, as expected. And 0 works for ERC721 too
+//        let decimals = json["decimals"].intValue
+//        let value: BigInt
+//        switch tokenType {
+//        case .erc721:
+//            value = 1
+//        case .erc1155:
+//            //OpenSea API doesn't include value for ERC1155, so we'll have to batch fetch it later for each contract before we update the database
+//            value = 0
+//        }
+//        let symbol = assetContractJson["symbol"].stringValue
+//        let name = json["name"].stringValue
+//        let description = json["description"].stringValue
+//        let thumbnailUrl = json["image_thumbnail_url"].stringValue
+//        //We'll get what seems to be the PNG version first, falling back to the sometimes PNG, but sometimes SVG version
+//        var imageUrl = json["image_preview_url"].stringValue
+//        if imageUrl.isEmpty {
+//            imageUrl = json["image_url"].stringValue
+//        }
+//        let previewUrl = json["image_preview_url"].stringValue
+//        let imageOriginalUrl = json["image_original_url"].stringValue
+//        let contractImageUrl = assetContractJson["image_url"].stringValue
+//        let externalLink = json["external_link"].stringValue
+//        let backgroundColor = json["background_color"].stringValue
+//
+//        let traits = json["traits"].arrayValue.compactMap { OpenSeaNonFungibleTrait(json: $0) }
+//        let collectionId = collectionJson["slug"].stringValue
+//        let collectionCreatedDate = assetContractJson["created_date"].string
+//                .flatMap { NftAssetsPageDecoder.dateFormatter.date(from: $0) }
+//        let collectionDescription = assetContractJson["description"].string
+//        let creator = AssetCreator(json: json["creator"])
+//
+//        self.init(tokenId: tokenId,
+//                  tokenType: tokenType,
+//                  value: value,
+//                  contractName: contractName,
+//                  decimals: decimals,
+//                  symbol: symbol,
+//                  name: name,
+//                  description: description,
+//                  thumbnailUrl: thumbnailUrl,
+//                  imageUrl: imageUrl,
+//                  contractImageUrl: contractImageUrl,
+//                  externalLink: externalLink,
+//                  backgroundColor: backgroundColor,
+//                  traits: traits,
+//                  collectionCreatedDate: collectionCreatedDate,
+//                  collectionDescription: collectionDescription,
+//                  creator: creator,
+//                  collectionId: collectionId,
+//                  imageOriginalUrl: imageOriginalUrl,
+//                  previewUrl: previewUrl)
+//    }
+//}
+
+public struct NftAssetResponse {
+    public let tokenId: String
+    public let backgroundColor: String?
+    public let imageUrl: String
+    public let previewUrl: String
+    public let thumbnailUrl: String?
+    public let imageOriginalUrl: String?
+    public let animationUrl: String?
+    public let name: String
+    public let description: String?
+    public let externalLink: String?
+    public let assetContract: PrimaryAssetContract
+    public let collection: NftCollection
+    public let traits: [OpenSeaNonFungibleTrait]
+    public let creator: AssetCreator?
+
     init?(json: JSON) {
-        let assetContractJson = json["asset_contract"]
-        let collectionJson = json["collection"]
+        guard let assetContract = PrimaryAssetContract(json: json["asset_contract"]) else { return nil }
 
-        guard let contract = AlphaWallet.Address(string: assetContractJson["address"].stringValue) else {
-            return nil
-        }
-        guard let tokenType = NonFungibleFromJsonTokenType(rawString: assetContractJson["schema_name"].stringValue) else {
-            return nil
-        }
-        let tokenId = json["token_id"].stringValue
-        let contractName = assetContractJson["name"].stringValue
-        //So if it's null in OpenSea, we get a 0, as expected. And 0 works for ERC721 too
-        let decimals = json["decimals"].intValue
-        let value: BigInt
-        switch tokenType {
-        case .erc721:
-            value = 1
-        case .erc1155:
-            //OpenSea API doesn't include value for ERC1155, so we'll have to batch fetch it later for each contract before we update the database
-            value = 0
-        }
-        let symbol = assetContractJson["symbol"].stringValue
-        let name = json["name"].stringValue
-        let description = json["description"].stringValue
-        let thumbnailUrl = json["image_thumbnail_url"].stringValue
-        //We'll get what seems to be the PNG version first, falling back to the sometimes PNG, but sometimes SVG version
-        var imageUrl = json["image_preview_url"].stringValue
-        if imageUrl.isEmpty {
-            imageUrl = json["image_url"].stringValue
-        }
-        let previewUrl = json["image_preview_url"].stringValue
-        let imageOriginalUrl = json["image_original_url"].stringValue
-        let contractImageUrl = assetContractJson["image_url"].stringValue
-        let externalLink = json["external_link"].stringValue
-        let backgroundColor = json["background_color"].stringValue
-        let animationUrl = json["animation_url"].string
-        let traits = json["traits"].arrayValue.compactMap { OpenSeaNonFungibleTrait(json: $0) }
-        let collectionId = collectionJson["slug"].stringValue
-        let collectionCreatedDate = assetContractJson["created_date"].string
-                .flatMap { NftAssetsPageDecoder.dateFormatter.date(from: $0) }
-        let collectionDescription = assetContractJson["description"].string
-        let creator = try? AssetCreator(json: json["creator"])
-
-        self.init(tokenId: tokenId,
-                  tokenType: tokenType,
-                  value: value,
-                  contractName: contractName,
-                  decimals: decimals,
-                  symbol: symbol,
-                  name: name,
-                  description: description,
-                  thumbnailUrl: thumbnailUrl,
-                  imageUrl: imageUrl,
-                  contractImageUrl: contractImageUrl,
-                  externalLink: externalLink,
-                  backgroundColor: backgroundColor,
-                  traits: traits,
-                  collectionCreatedDate: collectionCreatedDate,
-                  collectionDescription: collectionDescription,
-                  creator: creator,
-                  collectionId: collectionId,
-                  imageOriginalUrl: imageOriginalUrl,
-                  previewUrl: previewUrl,
-                  animationUrl: animationUrl)
+        tokenId = json["token_id"].stringValue
+        backgroundColor = json["background_color"].stringValue
+        imageUrl = json["image_url"].stringValue
+        previewUrl = json["image_preview_url"].stringValue
+        thumbnailUrl = json["image_thumbnail_url"].stringValue
+        imageOriginalUrl = json["image_original_url"].stringValue
+        animationUrl = json["animation_url"].stringValue
+        name = json["name"].stringValue
+        description = json["description"].stringValue
+        externalLink = json["external_link"].stringValue
+        self.assetContract = assetContract
+        collection = NftCollection(json: json["collection"], contracts: [assetContract])
+        traits = json["traits"].arrayValue.compactMap { OpenSeaNonFungibleTrait(json: $0) }
+        creator = AssetCreator(json: json["creator"])
     }
 }

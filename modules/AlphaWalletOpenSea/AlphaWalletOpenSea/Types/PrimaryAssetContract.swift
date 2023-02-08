@@ -9,24 +9,23 @@ import Foundation
 import AlphaWalletAddress
 import SwiftyJSON
 
+//TODO: rename with NftAssetContract
 public struct PrimaryAssetContract: Codable {
-    let address: AlphaWallet.Address
-    let assetContractType: String
-    let createdDate: String
-    let name: String
-    let nftVersion: String
-    let schemaName: String
-    let symbol: String
-    let owner: String
-    let totalSupply: String
-    let description: String
-    let externalLink: String
-    let imageUrl: String
+    public let address: AlphaWallet.Address
+    public let assetContractType: String
+    public let createdDate: String
+    public let name: String
+    public let nftVersion: String
+    public let schemaName: String
+    public let symbol: String
+    public let owner: String
+    public let totalSupply: String
+    public let description: String
+    public let externalLink: String
+    public let imageUrl: String
 
-    init(json: JSON) throws {
-        guard let address = AlphaWallet.Address(string: json["address"].stringValue) else {
-            throw NftAssetsPageDecoder.DecoderError.jsonInvalidError
-        }
+    init?(json: JSON) {
+        guard let address = AlphaWallet.Address(string: json["address"].stringValue) else { return nil }
 
         self.address = address
         assetContractType = json["asset_contract_type"].stringValue

@@ -19,7 +19,7 @@ public struct NftCollection: Codable {
     public let shortDescription: String?
     public let bannerImageUrl: String?
     public let chatUrl: String?
-    public let createdDate: String?
+    public let createdDate: Date?
     public let defaultToFiat: Bool
     public let descriptionString: String
     public var stats: NftCollectionStats?
@@ -40,7 +40,7 @@ public struct NftCollection: Codable {
         shortDescription = json["short_description"].string
         bannerImageUrl = json["banner_image_url"].string
         chatUrl = json["chat_url"].stringValue
-        createdDate = json["created_date"].stringValue
+        createdDate = json["created_date"].string.flatMap { NftAssetsPageDecoder.dateFormatter.date(from: $0) }
         defaultToFiat = json["default_to_fiat"].boolValue
         descriptionString = json["description"].stringValue
         stats = json["stats"] != .null ? NftCollectionStats(json: json["stats"]) : nil

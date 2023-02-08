@@ -15,10 +15,9 @@ public struct AssetCreator: Codable {
     public let profileImageUrl: URL?
     public let user: String?
 
-    public init(json: JSON) throws {
-        guard let address = AlphaWallet.Address(string: json["address"].stringValue) else {
-            throw NftAssetsPageDecoder.DecoderError.jsonInvalidError
-        }
+    init?(json: JSON) {
+        guard let address = AlphaWallet.Address(string: json["address"].stringValue) else { return nil }
+        
         self.contractAddress = address
         self.config = json["config"].stringValue
         self.profileImageUrl = json["profile_img_url"].string.flatMap { URL(string: $0.trimmed) }

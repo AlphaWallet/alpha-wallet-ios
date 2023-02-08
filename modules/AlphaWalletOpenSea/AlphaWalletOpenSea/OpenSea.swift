@@ -159,6 +159,10 @@ public final class BaseOpenSeaNetworkingFactory: OpenSeaNetworkingFactory {
         return networking
     }
 }
+struct NftCollectionAssetsResponse {
+    let collection: AlphaWalletOpenSea.NftCollection
+    let assers: AlphaWalletOpenSea.NftAsset
+}
 
 public class OpenSea {
     public static var isLoggingEnabled = false
@@ -172,12 +176,16 @@ public class OpenSea {
         self.networking = networking
     }
 
+    struct NftCollectionAssetsDecoder {
+
+    }
+
     public func fetchAssetsCollections(owner: AlphaWallet.Address,
                                        chainId: ChainId,
-                                       excludeContracts: [(AlphaWallet.Address, ChainId)]) -> AnyPublisher<Response<OpenSeaAddressesToNonFungibles>, Never> {
+                                       excludeContracts: [(AlphaWallet.Address, ChainId)]) -> AnyPublisher<FetchResponse<OpenSeaAddressesToNonFungibles>, Never> {
 
-        //NOTE: some of OpenSea collections have an empty `primary_asset_contracts` array, so we are not able to identifyto each asset connection relates. it solves with `slug` field for collection. We match assets `slug` with collections `slug` values for identification
-        func findCollection(address: AlphaWallet.Address, asset: NftAsset, collections: [CollectionKey: AlphaWalletOpenSea.NftCollection]) -> AlphaWalletOpenSea.NftCollection? {
+        //NOTE: some of OpenSea collections have an empty `primary_asset_contracts` array, so we are not able to identify each asset connection relates. it solves with `slug` field for collection. We match assets `slug` with collections `slug` values for identification
+        func findCollection(address: AlphaWallet.Address, asset: NftAsset, collections: [NftCollectionIdentifier: AlphaWalletOpenSea.NftCollection]) -> AlphaWalletOpenSea.NftCollection? {
             return collections[.address(address)] ?? collections[.collectionId(asset.collectionId)]
         }
 
@@ -189,22 +197,22 @@ public class OpenSea {
 
         return Publishers.CombineLatest(assets, collections)
             .map { assets, collections in
-                var result: [AlphaWallet.Address: [NftAsset]] = [:]
-                for asset in assets.result {
-                    let updatedElements = asset.value.map { _asset -> NftAsset in
-                        var _asset = _asset
-                        let collection = findCollection(address: asset.key, asset: _asset, collections: collections.result)
-                        _asset.collection = collection
-
-                        return _asset
-                    }
-
-                    result[asset.key] = updatedElements
-                }
-                let hasError = assets.hasError || collections.hasError
-
-                return .init(hasError: hasError, result: result)
-            }.eraseToAnyPublisher()
+//                var result: [AlphaWallet.Address: [NftAsset]] = [:]
+//                for asset in assets.result {
+//                    let updatedElements = asset.value.map { _asset -> NftAsset in
+//                        var _asset = _asset
+//                        let collection = findCollection(address: asset.key, asset: _asset, collections: collections.result)
+//                        _asset.collection = collection
+//
+//                        return _asset
+//                    }
+//
+//                    result[asset.key] = updatedElements
+//                }
+//
+//                return .init(result: result, error: assets.error ?? collections.error)
+                fatalError()
+            }.print("xxx.fetchAssetsPublisher: \(owner) chainId: \(chainId)").eraseToAnyPublisher()
     }
 
     static func getBaseUrlForOpenSea(forChainId chainId: ChainId) -> URL {
@@ -234,11 +242,12 @@ public class OpenSea {
         return send(request: request, chainId: chainId)
             .mapError { PromiseError(error: $0) }
             .flatMap { json -> AnyPublisher<NftAsset, PromiseError> in
-                if let asset = NftAsset(json: json) {
-                    return .just(asset)
-                } else {
-                    return .fail(PromiseError(error: OpenSeaApiError.invalidJson))
-                }
+//                if let asset = NftAsset(json: json) {
+//                    return .just(asset)
+//                } else {
+//                    return .fail(PromiseError(error: OpenSeaApiError.invalidJson))
+//                }
+                fatalError()
             }.eraseToAnyPublisher()
     }
 
@@ -264,7 +273,7 @@ public class OpenSea {
     private func fetchCollections(owner: AlphaWallet.Address,
                                   chainId: ChainId,
                                   offset: Int = 0,
-                                  collections: [CollectionKey: NftCollection] = [:]) -> AnyPublisher<Response<[CollectionKey: NftCollection]>, Never> {
+                                  collections: [NftCollectionIdentifier: NftCollection] = [:]) -> AnyPublisher<FetchResponse<[NftCollectionIdentifier: NftCollection]>, Never> {
 
         let request = CollectionsRequest(
             baseUrl: Self.getBaseUrlForOpenSea(forChainId: chainId),
@@ -279,13 +288,13 @@ public class OpenSea {
             .map { decoder.decode(json: $0) }
             .catch { error -> AnyPublisher<NftCollectionsPage, Never> in
                 return .just(.init(collections: [:], count: 0, hasNextPage: false, error: error))
-            }.flatMap { [weak self] result -> AnyPublisher<Response<[CollectionKey: NftCollection]>, Never> in
+            }.flatMap { [weak self] result -> AnyPublisher<FetchResponse<[NftCollectionIdentifier: NftCollection]>, Never> in
                 guard let strongSelf = self else { return .empty() }
 
                 if result.hasNextPage {
                     return strongSelf.fetchCollections(owner: owner, chainId: chainId, offset: offset + result.count, collections: result.collections)
                 } else {
-                    return .just(.init(hasError: result.error != nil, result: result.collections))
+                    return .just(.init(result: result.collections, error: result.error))
                 }
             }.eraseToAnyPublisher()
     }
@@ -323,8 +332,8 @@ public class OpenSea {
     private func fetchAssets(owner: AlphaWallet.Address,
                              chainId: ChainId,
                              next: String? = nil,
-                             assets: OpenSeaAddressesToNonFungibles = [:],
-                             excludeContracts: [(AlphaWallet.Address, ChainId)]) -> AnyPublisher<Response<OpenSeaAddressesToNonFungibles>, Never> {
+                             assets: [NftAssetResponse] = [],
+                             excludeContracts: [(AlphaWallet.Address, ChainId)]) -> AnyPublisher<FetchResponse<[NftAssetResponse]>, Never> {
 
         let request: Alamofire.URLRequestConvertible
         if let cursorUrl = next {
@@ -344,9 +353,9 @@ public class OpenSea {
         return send(request: request, chainId: chainId)
             .map { decoder.decode(json: $0) }
             .catch { error -> AnyPublisher<NftAssetsPage, Never> in
-                let assetsExcluding = NftAssetsFilter(assets: assets).assets(excludeing: excludeContracts)
-                return .just(.init(assets: assetsExcluding, count: 0, next: nil, error: error))
-            }.flatMap { [weak self] result -> AnyPublisher<Response<OpenSeaAddressesToNonFungibles>, Never> in
+                let assetsExcluding = NftAssetsFilter(assets: assets).assets(excluding: excludeContracts)
+                return .just(.init(assets: assetsExcluding, next: nil, error: error))
+            }.flatMap { [weak self] result -> AnyPublisher<FetchResponse<[NftAssetResponse]>, Never> in
                 guard let strongSelf = self else { return .empty() }
 
                 if let next = result.next {
@@ -357,19 +366,20 @@ public class OpenSea {
                         assets: result.assets,
                         excludeContracts: excludeContracts)
                 } else {
-                    let assetsExcluding = NftAssetsFilter(assets: result.assets).assets(excludeing: excludeContracts)
+                    let assetsExcluding = NftAssetsFilter(assets: result.assets).assets(excluding: excludeContracts)
 
-                    return .just(.init(hasError: result.error != nil, result: assetsExcluding))
+                    return .just(.init(result: assetsExcluding, error: result.error))
                 }
             }.eraseToAnyPublisher()
     }
 
     private struct NftAssetsFilter {
-        let assets: [AlphaWallet.Address: [NftAsset]]
+        let assets: [NftAssetResponse]
 
-        func assets(excludeing excludeContracts: [(AlphaWallet.Address, ChainId)]) -> [AlphaWallet.Address: [NftAsset]] {
-            let excludeContracts = excludeContracts.map { $0.0 }
-            return assets.filter { asset in !excludeContracts.contains(asset.key) }
+        func assets(excluding excludeContracts: [(AlphaWallet.Address, ChainId)]) -> [NftAssetResponse] {
+//            let excludeContracts = excludeContracts.map { $0.0 }
+//            return assets.filter { asset in !excludeContracts.contains(asset.key) }
+            return []
         }
     }
 }

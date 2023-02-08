@@ -17,3 +17,13 @@ public struct Response<T> {
         self.result = result
     }
 }
+
+public struct FetchResponse<T> {
+    public let error: Error?
+    public let result: T
+
+    init(result: T, error: Error?) {
+        self.error = error
+        self.result = result
+    }
+}

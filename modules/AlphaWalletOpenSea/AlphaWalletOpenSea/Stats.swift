@@ -9,19 +9,19 @@ import Foundation
 import SwiftyJSON
 
 public struct NftCollectionStats: Codable {
-    let oneDayVolume: Double
-    let oneDayChange: Double
-    let oneDaySales: Double
-    let oneDayAveragePrice: Double
-    let sevenDayVolume: Double
-    let sevenDayChange: Double
-    let sevenDaySales: Double
-    let sevenDayAveragePrice: Double
+    public let oneDayVolume: Double
+    public let oneDayChange: Double
+    public let oneDaySales: Double
+    public let oneDayAveragePrice: Double
+    public let sevenDayVolume: Double
+    public let sevenDayChange: Double
+    public let sevenDaySales: Double
+    public let sevenDayAveragePrice: Double
 
-    let thirtyDayVolume: Double
-    let thirtyDayChange: Double
-    let thirtyDaySales: Double
-    let thirtyDayAveragePrice: Double
+    public let thirtyDayVolume: Double
+    public let thirtyDayChange: Double
+    public let thirtyDaySales: Double
+    public let thirtyDayAveragePrice: Double
 
     public let itemsCount: Double
     public let totalVolume: Double

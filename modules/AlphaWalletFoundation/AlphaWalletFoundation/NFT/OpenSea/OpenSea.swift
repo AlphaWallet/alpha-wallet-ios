@@ -1,7 +1,6 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
-import PromiseKit
 import AlphaWalletCore
 import AlphaWalletOpenSea
 import Combine
@@ -10,22 +9,25 @@ public typealias Stats = AlphaWalletOpenSea.NftCollectionStats
 
 public final class OpenSea {
     private let analytics: AnalyticsLogger
-    private let storage: Storage<[AddressAndRPCServer: OpenSeaAddressesToNonFungibles]> = .init(fileName: "OpenSea", defaultValue: [:])
+//    private let storage: Storage<[AddressAndRPCServer: OpenSeaAddressesToNonFungibles]> = .init(fileName: "OpenSea", defaultValue: [:])
     private let queue = DispatchQueue(label: "org.alphawallet.swift.openSea")
     private let config: Config
     private let server: RPCServer
+    private let storage: OpenSeaStorage
     private let openSea: AlphaWalletOpenSea.OpenSea
 
     private let excludeContracts: [(AlphaWallet.Address, ChainId)] = [
         (Constants.uefaMainnet.0, Constants.uefaMainnet.1.chainID)
     ]
 
-    public init(analytics: AnalyticsLogger, server: RPCServer, config: Config) {
+    public init(analytics: AnalyticsLogger, server: RPCServer, config: Config, storage: OpenSeaStorage) {
         self.config = config
         self.analytics = analytics
         self.server = server
         self.openSea = AlphaWalletOpenSea.OpenSea(apiKeys: Self.openSeaApiKeys(config: config))
         openSea.delegate = self
+        self.storage = storage
+        self.openSea.delegate = self
     }
 
     public static func isServerSupported(_ server: RPCServer) -> Bool {
@@ -48,20 +50,21 @@ public final class OpenSea {
 
         return openSea.fetchAssetsCollections(owner: wallet.address, chainId: server.chainID, excludeContracts: excludeContracts)
             .map { [weak storage] result -> OpenSeaAddressesToNonFungibles in
-                if result.hasError {
-                    let merged = (storage?.value[key] ?? [:])
-                        .merging(result.result) { Array(Set($0 + $1)) }
+//                if result.hasError {
+//                    let merged = (storage?.value[key] ?? [:])
+//                        .merging(result.result) { Array(Set($0 + $1)) }
+//
+//                    if merged.isEmpty {
+//                        //no-op
+//                    } else {
+//                        storage?.value[key] = merged
+//                    }
+//                } else {
+//                    storage?.value[key] = result.result
+//                }
 
-                    if merged.isEmpty {
-                        //no-op
-                    } else {
-                        storage?.value[key] = merged
-                    }
-                } else {
-                    storage?.value[key] = result.result
-                }
-
-                return storage?.value[key] ?? result.result
+//                return storage?.value[key] ?? result.result
+                return [:]
             }.eraseToAnyPublisher()
     }
 
@@ -107,4 +110,3 @@ extension OpenSea: OpenSeaDelegate {
         }
     }
 }
-

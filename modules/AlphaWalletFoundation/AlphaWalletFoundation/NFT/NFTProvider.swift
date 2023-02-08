@@ -8,7 +8,6 @@
 import Foundation
 import AlphaWalletCore
 import AlphaWalletOpenSea
-import PromiseKit
 import Combine
 
 public typealias NonFungiblesTokens = (openSea: OpenSeaAddressesToNonFungibles, enjin: Void)
@@ -45,7 +44,7 @@ public final class AlphaWalletNFTProvider: NFTProvider {
         self.wallet = wallet
         self.server = server
         enjin = Enjin(server: server, storage: storage)
-        openSea = OpenSea(analytics: analytics, server: server, config: config)
+        openSea = OpenSea(analytics: analytics, server: server, config: config, storage: storage)
     }
 
     public func collectionStats(collectionId: String) -> AnyPublisher<Stats, PromiseError> {
