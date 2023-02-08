@@ -87,6 +87,7 @@ class NFTAssetViewModel {
             return .init(top: 0, left: 15, bottom: 0, right: 15)
         }
     }
+    private var cancellable = Set<AnyCancellable>()
 
     init(tokenId: TokenId, token: Token, tokenHolder: TokenHolder, assetDefinitionStore: AssetDefinitionStore, mode: TokenInstanceViewMode, nftProvider: NFTProvider, session: WalletSession, service: TokenViewModelState & TokenHolderState) {
         self.service = service
@@ -105,10 +106,13 @@ class NFTAssetViewModel {
     func transform(input: NFTAssetViewModelInput) -> NFTAssetViewModelOutput {
         let whenOpenSeaStatsHasChanged = PassthroughSubject<Void, Never>()
         if let collectionId = tokenHolder.values.collectionId, collectionId.trimmed.nonEmpty {
-            nftProvider.collectionStats(collectionId: collectionId).done { [weak self] stats in
-                self?.configure(overiddenOpenSeaStats: stats)
-                whenOpenSeaStatsHasChanged.send(())
-            }.cauterize()
+            nftProvider.collectionStats(collectionId: collectionId)
+                .sink(receiveCompletion: { _ in
+
+                }, receiveValue: { [weak self] stats in
+                    self?.configure(overiddenOpenSeaStats: stats)
+                    whenOpenSeaStatsHasChanged.send(())
+                }).store(in: &cancellable)
         }
 
         let tokenHolderHasChanged = service.tokenHoldersPublisher(for: token)

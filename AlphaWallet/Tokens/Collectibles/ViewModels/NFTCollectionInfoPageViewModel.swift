@@ -81,7 +81,6 @@ final class NFTCollectionInfoPageViewModel {
             .flatMapLatest { [nftProvider] tokenHolder -> AnyPublisher<Loadable<Stats, PromiseError>, Never> in
                 if let collectionId = tokenHolder?.values.collectionId, collectionId.trimmed.nonEmpty {
                     return nftProvider.collectionStats(collectionId: collectionId)
-                        .publisher()
                         .map { stats -> Loadable<Stats, PromiseError> in .done(stats) }
                         .catch { return Just(.failure($0)) }
                         .eraseToAnyPublisher()
