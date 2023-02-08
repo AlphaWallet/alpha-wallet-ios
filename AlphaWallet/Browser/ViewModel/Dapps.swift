@@ -90,8 +90,8 @@ enum OriginalDapps {
         Dapp(name: "PancakeSwap", description: " A next evolution DeFi exchange on BNB Smart Chain (BSC)", url: "https://pancakeswap.finance/info", cat: "Exchange")
         Dapp(name: "mail³", description: "Decentralized mail system for web3 natives.", url: "https://app.mail3.me/", cat: "Social Media")
         Dapp(name: "ApeNow", description: "Buy now, pay later marketplace for NFTs.", url: "https://www.apenowpaylater.com/", cat: "Marketplace")
-        Dapp(name: "Blur", description: "The fastest NFT marketplace", url: "https://www.blur.io", cat: "Marketplace")
-
+        Dapp(name: "Blur", description: "The fastest NFT marketplace", url: "https://www.blur.io", cat: "Marketplace"),
+        Dapp(name: "Onramper", description: "Fiat-Crypto Onramp Aggregator", url: "https://buy.onramper.com/?apiKey=pk_prod_01GRNVSF7Q68BP7HF0SDRXXBYW", cat: "Exchange")
 ),
     ]
 
