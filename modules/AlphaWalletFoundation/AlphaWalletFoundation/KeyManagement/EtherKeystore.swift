@@ -529,7 +529,7 @@ open class EtherKeystore: NSObject, Keystore {
                 return .failure(.failedToExportPrivateKey)
             case .key(let key):
                 let signature = try EthereumSigner().sign(hash: hash, withPrivateKey: key)
-                let (r, s, v) = signer.values(transaction: transaction, signature: signature)
+                let (r, s, v) = signer.values(signature: signature)
                 let values: [Any] = [
                     transaction.nonce,
                     transaction.gasPrice,

@@ -72,7 +72,7 @@ class TransactionSigningTests: XCTestCase {
             XCTAssertThrowsError(error)
         }
         let signature = Data(hexString: "28ef61340bd939bc2195fe537567866003e1a15d3c71ff63e1590620aa63627667cbe9d8997f761aecb703304b3800ccf555c9f3dc64214b297fb1966a3b6d8300")!
-        let (r, s, v) = signer.values(transaction: transaction, signature: signature)
+        let (r, s, v) = signer.values(signature: signature)
         XCTAssertEqual(v, BigInt(37))
         XCTAssertEqual(r, BigInt("18515461264373351373200002665853028612451056578545711640558177340181847433846"))
         XCTAssertEqual(s, BigInt("46948507304638947509940763649030358759909902576025900602547168820602576006531"))
