@@ -14,14 +14,24 @@ import Combine
 public typealias NonFungiblesTokens = (openSea: OpenSeaAddressesToNonFungibles, enjin: Void)
 
 public protocol NFTProvider {
-    func collectionStats(collectionId: String) -> Promise<Stats>
+    func collectionStats(collectionId: String) -> AnyPublisher<Stats, PromiseError>
     func nonFungible() -> AnyPublisher<NonFungiblesTokens, Never>
     func enjinToken(tokenId: TokenId) -> EnjinToken?
 }
 
 extension OpenSea: NftAssetImageProvider {
-    public func assetImageUrl(for url: Eip155URL) -> AnyPublisher<URL, AlphaWalletCore.PromiseError> {
-        fetchAssetImageUrl(for: url).publisher(queue: .global())
+    public func assetImageUrl(for url: Eip155URL) -> AnyPublisher<URL, PromiseError> {
+        fetchAsset(for: url)
+            .map { [$0.imageUrl, $0.thumbnailUrl, $0.imageOriginalUrl].compactMap { URL(string: $0) } }
+            .tryMap {
+                if let url = $0.first {
+                    return url
+                } else {
+                    struct AssetImageUrlNotFound: Error {}
+                    throw PromiseError(error: AssetImageUrlNotFound())
+                }
+            }.mapError { PromiseError(error: $0) }
+            .eraseToAnyPublisher()
     }
 }
 
@@ -38,11 +48,7 @@ public final class AlphaWalletNFTProvider: NFTProvider {
         openSea = OpenSea(analytics: analytics, server: server, config: config)
     }
 
-    private func getOpenSeaNonFungible() -> Promise<OpenSeaAddressesToNonFungibles> {
-        return openSea.nonFungible(wallet: wallet)
-    }
-
-    public func collectionStats(collectionId: String) -> Promise<Stats> {
+    public func collectionStats(collectionId: String) -> AnyPublisher<Stats, PromiseError> {
         openSea.collectionStats(collectionId: collectionId)
     }
 
@@ -53,8 +59,13 @@ public final class AlphaWalletNFTProvider: NFTProvider {
     public func nonFungible() -> AnyPublisher<NonFungiblesTokens, Never> {
         let key = AddressAndRPCServer(address: wallet.address, server: server)
 
-        let tokensFromOpenSeaPromise = getOpenSeaNonFungible().publisher(queue: .global()).replaceError(with: [:])
-        let enjinTokensPromise = enjin.fetchTokens(wallet: wallet).receive(on: DispatchQueue.global()).mapToVoid().replaceError(with: ())
+        let tokensFromOpenSeaPromise = openSea.nonFungible(wallet: wallet)
+            .replaceError(with: [:])
+
+        let enjinTokensPromise = enjin.fetchTokens(wallet: wallet)
+            .receive(on: DispatchQueue.global())
+            .mapToVoid()
+            .replaceError(with: ())
 
         return Publishers.CombineLatest(tokensFromOpenSeaPromise, enjinTokensPromise)
             .map { ($0, $1) }

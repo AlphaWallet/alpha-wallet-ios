@@ -10,6 +10,7 @@ import AlphaWalletCore
 import PromiseKit
 import SwiftyJSON
 import Alamofire
+import Combine
 
 public typealias ChainId = Int
 public typealias OpenSeaAddressesToNonFungibles = [AlphaWallet.Address: [NftAsset]]
@@ -19,34 +20,162 @@ public protocol OpenSeaDelegate: AnyObject {
 }
 
 public enum OpenSeaApiError: Error {
+    case `internal`(Error)
+    case invalidJson
     case rateLimited
     case invalidApiKey
     case expiredApiKey
 }
 
-public class OpenSea {
-    public static var isLoggingEnabled = false
+extension OpenSeaApiError {
+    init(error: Error) {
+        if let e = error as? OpenSeaApiError {
+            self = e
+        } else {
+            self = .internal(error)
+        }
+    }
+}
+
+extension URLRequest {
+    public typealias Response = (data: Data, response: HTTPURLResponse)
+}
+
+public typealias Request = Alamofire.URLRequestConvertible
+
+public protocol Networking {
+    func send(request: Request) -> AnyPublisher<URLRequest.Response, PromiseError>
+}
+
+final class OpenSeaRetryPolicy: RetryPolicy {
+
+    init() {
+        super.init(retryableHTTPStatusCodes: Set([429, 408, 500, 502, 503, 504]))
+    }
+    
+    override func retry(_ request: Alamofire.Request,
+                        for session: Session,
+                        dueTo error: Error,
+                        completion: @escaping (RetryResult) -> Void) {
+
+        if request.retryCount < retryLimit, shouldRetry(request: request, dueTo: error) {
+            if let httpResponse = request.response, let delay = OpenSeaRetryPolicy.retryDelay(from: httpResponse) {
+                completion(.retryWithDelay(delay))
+            } else {
+                completion(.retryWithDelay(pow(Double(exponentialBackoffBase), Double(request.retryCount)) * exponentialBackoffScale))
+            }
+        } else {
+            completion(.doNotRetry)
+        }
+    }
+
+    private static func retryDelay(from httpResponse: HTTPURLResponse) -> TimeInterval? {
+        (httpResponse.allHeaderFields["retry-after"] as? String).flatMap { TimeInterval($0) }
+    }
+}
+
+public class OpenSeaNetworking: Networking {
+
     //Important to be static so it's for *all* OpenSea calls
     private static let callCounter = CallCounter()
+    private let rootQueue = DispatchQueue(label: "org.alamofire.customQueue")
+    private let session: Session
 
-    private let sessionManagerWithDefaultHttpHeaders: Session = {
+    public init() {
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = 30
         configuration.timeoutIntervalForResource = 30
+        configuration.waitsForConnectivity = true
 
-        return Session(configuration: configuration)
-    }()
+        let policy = OpenSeaRetryPolicy()
 
+        let monitor = ClosureEventMonitor()
+        monitor.requestDidCreateTask = { _, _ in
+            DispatchQueue.main.async { OpenSeaNetworking.callCounter.clock() }
+        }
+
+        let queue = OperationQueue()
+        queue.maxConcurrentOperationCount = 3
+        queue.underlyingQueue = rootQueue
+
+        let delegate = SessionDelegate()
+        let urlSession = URLSession(
+            configuration: configuration,
+            delegate: delegate,
+            delegateQueue: queue)
+
+        session = Session(
+            session: urlSession,
+            delegate: delegate,
+            rootQueue: rootQueue,
+            interceptor: policy,
+            eventMonitors: [monitor])
+    }
+
+    struct NonHttpUrlResponseError: Error {
+        let request: Request
+    }
+
+    public func send(request: Request) -> AnyPublisher<URLRequest.Response, PromiseError> {
+        session.request(request)
+            .validate()
+            .publishData(queue: rootQueue)
+            .tryMap { respose in
+                if let data = respose.data, let httpResponse = respose.response {
+                    return (data: data, response: httpResponse)
+                } else {
+                    throw PromiseError(error: NonHttpUrlResponseError(request: request))
+                }
+            }.mapError { PromiseError(error: $0) }
+            .eraseToAnyPublisher()
+    }
+}
+
+public protocol OpenSeaNetworkingFactory {
+    func networking(for chainId: ChainId) -> Networking
+}
+
+public final class BaseOpenSeaNetworkingFactory: OpenSeaNetworkingFactory {
+    private var networkings: [URL: Networking] = [:]
+    private let queue = DispatchQueue(label: "org.alphawallet.swift.atomicDictionary", qos: .background)
+
+    public static let shared = BaseOpenSeaNetworkingFactory()
+    private init() { }
+
+    public func networking(for chainId: ChainId) -> Networking {
+        var networking: Networking!
+
+        dispatchPrecondition(condition: .notOnQueue(queue))
+        queue.sync { [unowned self] in
+            let baseUrl = OpenSea.getBaseUrlForOpenSea(forChainId: chainId)
+            if let _networking = self.networkings[baseUrl] {
+                networking = _networking
+            } else {
+                networking = OpenSeaNetworking()
+                self.networkings[baseUrl] = networking
+            }
+        }
+
+        return networking
+    }
+}
+
+public class OpenSea {
+    public static var isLoggingEnabled = false
+    private let networking: OpenSeaNetworkingFactory
     private let apiKeys: [ChainId: String]
 
     weak public var delegate: OpenSeaDelegate?
 
-    public init(apiKeys: [ChainId: String]) {
+    public init(apiKeys: [ChainId: String], networking: OpenSeaNetworkingFactory = BaseOpenSeaNetworkingFactory.shared) {
         self.apiKeys = apiKeys
+        self.networking = networking
     }
 
-    public func fetchAssetsPromise(address owner: AlphaWallet.Address, chainId: ChainId, excludeContracts: [(AlphaWallet.Address, ChainId)]) -> Promise<Response<OpenSeaAddressesToNonFungibles>> {
-        let offset = 0
+    public func fetchAssetsCollections(owner: AlphaWallet.Address,
+                                       chainId: ChainId,
+                                       excludeContracts: [(AlphaWallet.Address, ChainId)]) -> AnyPublisher<Response<OpenSeaAddressesToNonFungibles>, Never> {
+
         //NOTE: some of OpenSea collections have an empty `primary_asset_contracts` array, so we are not able to identifyto each asset connection relates. it solves with `slug` field for collection. We match assets `slug` with collections `slug` values for identification
         func findCollection(address: AlphaWallet.Address, asset: NftAsset, collections: [CollectionKey: AlphaWalletOpenSea.NftCollection]) -> AlphaWalletOpenSea.NftCollection? {
             return collections[.address(address)] ?? collections[.collectionId(asset.collectionId)]
@@ -54,37 +183,31 @@ public class OpenSea {
 
         //NOTE: Due to OpenSea's policy of sending requests, (we are not able to sent multiple requests, the request trottled, and 1 sec delay is needed)
         //to send a new one. First we send fetch assets requests and then fetch collections requests
-        typealias OpenSeaAssetsAndCollections = (OpenSeaAddressesToNonFungibles, [CollectionKey: AlphaWalletOpenSea.NftCollection])
 
-        let assetsPromise = fetchAssets(owner: owner, chainId: chainId, excludeContracts: excludeContracts)
-        let collectionsPromise = fetchCollectionsPage(forOwner: owner, chainId: chainId, offset: offset)
+        let assets = fetchAssets(owner: owner, chainId: chainId, excludeContracts: excludeContracts)
+        let collections = fetchCollections(owner: owner, chainId: chainId)
 
-        return when(resolved: [assetsPromise.asVoid(), collectionsPromise.asVoid()])
-            .map(on: .global(), { _ -> Response<OpenSeaAddressesToNonFungibles> in
-                let assets = assetsPromise.result?.optionalValue ?? .init(hasError: true, result: [:])
-                let collections = collectionsPromise.result?.optionalValue ?? .init(hasError: true, result: [:])
-
+        return Publishers.CombineLatest(assets, collections)
+            .map { assets, collections in
                 var result: [AlphaWallet.Address: [NftAsset]] = [:]
-                for each in assets.result {
-                    let updatedElements = each.value.map { openSeaNonFungible -> NftAsset in
-                        var openSeaNonFungible = openSeaNonFungible
-                        let collection = findCollection(address: each.key, asset: openSeaNonFungible, collections: collections.result)
-                        openSeaNonFungible.collection = collection
+                for asset in assets.result {
+                    let updatedElements = asset.value.map { _asset -> NftAsset in
+                        var _asset = _asset
+                        let collection = findCollection(address: asset.key, asset: _asset, collections: collections.result)
+                        _asset.collection = collection
 
-                        return openSeaNonFungible
+                        return _asset
                     }
 
-                    result[each.key] = updatedElements
+                    result[asset.key] = updatedElements
                 }
                 let hasError = assets.hasError || collections.hasError
 
                 return .init(hasError: hasError, result: result)
-            }).recover({ _ -> Promise<Response<OpenSeaAddressesToNonFungibles>> in
-                return .value(.init(hasError: true, result: [:]))
-            })
+            }.eraseToAnyPublisher()
     }
 
-    private func getBaseUrlForOpenSea(forChainId chainId: ChainId) -> URL {
+    static func getBaseUrlForOpenSea(forChainId chainId: ChainId) -> URL {
         switch chainId {
         case 1:
             return URL(string: "https://api.opensea.io")!
@@ -99,120 +222,109 @@ public class OpenSea {
         return apiKeys[chainId]
     }
 
-    public func fetchAssetImageUrl(asset: String, chainId: ChainId) -> Promise<URL> {
+    public func fetchAsset(asset: String,
+                           chainId: ChainId) -> AnyPublisher<NftAsset, PromiseError> {
+        
         let request = AssetRequest(
-            baseUrl: getBaseUrlForOpenSea(forChainId: chainId),
+            baseUrl: Self.getBaseUrlForOpenSea(forChainId: chainId),
             apiKey: openSeaKey(forChainId: chainId) ?? "",
             chainId: chainId,
             asset: asset)
 
-        return firstly {
-            performRequestWithRetry(request: request, queue: .main)
-        }.map { json -> URL in
-            let image: String = json["image_url"].string ?? json["image_preview_url"].string ?? json["image_thumbnail_url"].string ?? json["image_original_url"].string ?? ""
-            guard let url = URL(string: image) else {
-                throw OpenSeaError(localizedDescription: "Error calling \(self.getBaseUrlForOpenSea(forChainId: chainId))")
-            }
-            return url
-        }
+        return send(request: request, chainId: chainId)
+            .mapError { PromiseError(error: $0) }
+            .flatMap { json -> AnyPublisher<NftAsset, PromiseError> in
+                if let asset = NftAsset(json: json) {
+                    return .just(asset)
+                } else {
+                    return .fail(PromiseError(error: OpenSeaApiError.invalidJson))
+                }
+            }.eraseToAnyPublisher()
     }
 
-    public func collectionStats(slug: String, chainId: ChainId) -> Promise<NftCollectionStats> {
+    public func collectionStats(collectionId: String,
+                                chainId: ChainId) -> AnyPublisher<NftCollectionStats, PromiseError> {
+
         let request = CollectionStatsRequest(
-            baseUrl: getBaseUrlForOpenSea(forChainId: chainId),
+            baseUrl: Self.getBaseUrlForOpenSea(forChainId: chainId),
             apiKey: openSeaKey(forChainId: chainId) ?? "",
-            slug: slug)
+            collectionId: collectionId)
 
-        //TODO Why is specifying .main queue needed?
-        return firstly {
-            performRequestWithRetry(request: request, queue: .main)
-        }.map { json -> NftCollectionStats in
-            try NftCollectionStats(json: json)
-        }
+        return send(request: request, chainId: chainId)
+            .mapError { PromiseError(error: $0) }
+            .flatMap { json -> AnyPublisher<NftCollectionStats, PromiseError> in
+                if json["stats"] != .null {
+                    return .just(NftCollectionStats(json: json["stats"]))
+                } else {
+                    return .fail(PromiseError(error: OpenSeaApiError.invalidJson))
+                }
+            }.eraseToAnyPublisher()
     }
 
-    private func fetchCollectionsPage(forOwner owner: AlphaWallet.Address, chainId: ChainId, offset: Int, collections: [CollectionKey: NftCollection] = [:]) -> Promise<Response<[CollectionKey: NftCollection]>> {
+    private func fetchCollections(owner: AlphaWallet.Address,
+                                  chainId: ChainId,
+                                  offset: Int = 0,
+                                  collections: [CollectionKey: NftCollection] = [:]) -> AnyPublisher<Response<[CollectionKey: NftCollection]>, Never> {
+
         let request = CollectionsRequest(
-            baseUrl: getBaseUrlForOpenSea(forChainId: chainId),
+            baseUrl: Self.getBaseUrlForOpenSea(forChainId: chainId),
             apiKey: openSeaKey(forChainId: chainId) ?? "",
             chainId: chainId,
             offset: offset,
             owner: owner)
 
         let decoder = OpenSeaCollectionDecoder(collections: collections)
-        return firstly {
-            performRequestWithRetry(request: request, queue: .global())
-        }.then(on: .global(), { [weak self] json -> Promise<Response<[CollectionKey: NftCollection]>> in
-            guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
-            let result = decoder.decode(json: json)
-            if result.hasNextPage {
-                return strongSelf.fetchCollectionsPage(forOwner: owner, chainId: chainId, offset: offset + result.count, collections: result.collections)
-            } else {
-                return .value(.init(hasError: false, result: result.collections))
+
+        return send(request: request, chainId: chainId)
+            .map { decoder.decode(json: $0) }
+            .catch { error -> AnyPublisher<NftCollectionsPage, Never> in
+                return .just(.init(collections: [:], count: 0, hasNextPage: false, error: error))
+            }.flatMap { [weak self] result -> AnyPublisher<Response<[CollectionKey: NftCollection]>, Never> in
+                guard let strongSelf = self else { return .empty() }
+
+                if result.hasNextPage {
+                    return strongSelf.fetchCollections(owner: owner, chainId: chainId, offset: offset + result.count, collections: result.collections)
+                } else {
+                    return .just(.init(hasError: result.error != nil, result: result.collections))
+                }
+            }.eraseToAnyPublisher()
+    }
+
+    private struct JsonDecoder {
+        func decode(data: URLRequest.Response) throws -> JSON {
+            let statusCode = data.response.statusCode
+            if statusCode == 401 {
+                if let body = String(data: data.data, encoding: .utf8), body.contains("Expired API key") {
+                    throw OpenSeaApiError.expiredApiKey
+                } else {
+                    throw OpenSeaApiError.invalidApiKey
+                }
+            } else if statusCode == 429 {
+                throw OpenSeaApiError.rateLimited
             }
-        }).recover { _ -> Promise<Response<[CollectionKey: NftCollection]>> in
-            //NOTE: return some already fetched amount
-            return .value(.init(hasError: true, result: collections))
+
+            if let json = try? JSON(data: data.data) {
+                return json
+            } else {
+                throw OpenSeaApiError.invalidJson
+            }
         }
     }
 
-    private func performRequestWithRetry(request: Alamofire.URLRequestConvertible, maximumRetryCount: Int = 3, delayMultiplayer: Int = 5, retryDelay: DispatchTimeInterval = .seconds(2), queue: DispatchQueue) -> Promise<JSON> {
-        func privatePerformRequest(request: Alamofire.URLRequestConvertible) -> Promise<JSON> {
-            //Using responseData() instead of responseJSON() below because `PromiseKit`'s `responseJSON()` resolves to failure if body isn't JSON. But OpenSea returns a non-JSON when the status code is 401 (unauthorized, aka. wrong API key) and we want to detect that.
-            return sessionManagerWithDefaultHttpHeaders
-                    .request(request)
-                    .publishData(queue: queue)
-                    .eraseToAnyPublisher()
-                    .promise()
-                    .map(on: queue, { response -> JSON in
-                        if let data = response.data, let response = response.response {
-                            if response.statusCode == 401 {
-                                if let body = String(data: data, encoding: .utf8), body.contains("Expired API key") {
-                                    throw OpenSeaApiError.expiredApiKey
-                                } else {
-                                    throw OpenSeaApiError.invalidApiKey
-                                }
-                            } else if response.statusCode == 429 {
-                                throw OpenSeaApiError.rateLimited
-                            }
-                            if let json = try? JSON(data: data) {
-                                return json
-                            } else {
-                                throw OpenSeaError(localizedDescription: "Error calling \(try? request.asURLRequest().url?.absoluteString)")
-                            }
-                        } else {
-                            throw OpenSeaError(localizedDescription: "Error calling \(try? request.asURLRequest().url?.absoluteString)")
-                        }
-                    }).recover { error -> Promise<JSON> in
-                        if let error = error as? OpenSeaApiError {
-                            self.delegate?.openSeaError(error: error)
-                        } else {
-                            //no-op
-                        }
-                        throw error
-                    }
-        }
-
-        let delayUpperRangeValueFrom0To: Int = delayMultiplayer
-        return firstly {
-            attempt(maximumRetryCount: maximumRetryCount, delayBeforeRetry: retryDelay, delayUpperRangeValueFrom0To: delayUpperRangeValueFrom0To) {
-                DispatchQueue.main.async {
-                    Self.callCounter.clock()
-                    infoLog("[OpenSea] Accessing url: \(try? request.asURLRequest().url?.absoluteString) rate: \(Self.callCounter.averageRatePerSecond)/sec")
-                }
-                return privatePerformRequest(request: request)
-            }
-        }.recover { error -> Promise<JSON> in
-            infoLog("[OpenSea] API error: \(error)")
-            throw error
-        }
+    private func send(request: Alamofire.URLRequestConvertible, chainId: ChainId) -> AnyPublisher<JSON, OpenSeaApiError> {
+        networking.networking(for: chainId)
+            .send(request: request)
+            .tryMap { try JsonDecoder().decode(data: $0) }
+            .mapError { OpenSeaApiError(error: $0) }
+            .print("xxx.opensea")
+            .eraseToAnyPublisher()
     }
 
     private func fetchAssets(owner: AlphaWallet.Address,
                              chainId: ChainId,
                              next: String? = nil,
                              assets: OpenSeaAddressesToNonFungibles = [:],
-                             excludeContracts: [(AlphaWallet.Address, ChainId)]) -> Promise<Response<OpenSeaAddressesToNonFungibles>> {
+                             excludeContracts: [(AlphaWallet.Address, ChainId)]) -> AnyPublisher<Response<OpenSeaAddressesToNonFungibles>, Never> {
 
         let request: Alamofire.URLRequestConvertible
         if let cursorUrl = next {
@@ -221,34 +333,43 @@ public class OpenSea {
                 cursorUrl: cursorUrl)
         } else {
             request = AssetsRequest(
-                baseUrl: getBaseUrlForOpenSea(forChainId: chainId),
+                baseUrl: Self.getBaseUrlForOpenSea(forChainId: chainId),
                 owner: owner,
                 apiKey: openSeaKey(forChainId: chainId) ?? "",
                 chainId: chainId)
         }
 
         let decoder = NftAssetsPageDecoder(assets: assets)
-        return firstly {
-            performRequestWithRetry(request: request, queue: .global())
-        }.then({ [weak self] json -> Promise<Response<OpenSeaAddressesToNonFungibles>> in
-            guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
-            let result = decoder.decode(json: json)
 
-            if let next = result.next {
-                return strongSelf.fetchAssets(
-                    owner: owner,
-                    chainId: chainId,
-                    next: next,
-                    assets: result.assets,
-                    excludeContracts: excludeContracts)
-            } else {
-                let assetsExcluding = NftAssetsFilter(assets: result.assets).assets(excluding: excludeContracts)
-                return .value(.init(hasError: false, result: assetsExcluding))
-            }
-        }).recover { _ -> Promise<Response<OpenSeaAddressesToNonFungibles>> in
-            //NOTE: return some already fetched amount
-            let assetsExcluding = NftAssetsFilter(assets: assets).assets(excluding: excludeContracts)
-            return .value(.init(hasError: true, result: assetsExcluding))
+        return send(request: request, chainId: chainId)
+            .map { decoder.decode(json: $0) }
+            .catch { error -> AnyPublisher<NftAssetsPage, Never> in
+                let assetsExcluding = NftAssetsFilter(assets: assets).assets(excludeing: excludeContracts)
+                return .just(.init(assets: assetsExcluding, count: 0, next: nil, error: error))
+            }.flatMap { [weak self] result -> AnyPublisher<Response<OpenSeaAddressesToNonFungibles>, Never> in
+                guard let strongSelf = self else { return .empty() }
+
+                if let next = result.next {
+                    return strongSelf.fetchAssets(
+                        owner: owner,
+                        chainId: chainId,
+                        next: next,
+                        assets: result.assets,
+                        excludeContracts: excludeContracts)
+                } else {
+                    let assetsExcluding = NftAssetsFilter(assets: result.assets).assets(excludeing: excludeContracts)
+
+                    return .just(.init(hasError: result.error != nil, result: assetsExcluding))
+                }
+            }.eraseToAnyPublisher()
+    }
+
+    private struct NftAssetsFilter {
+        let assets: [AlphaWallet.Address: [NftAsset]]
+
+        func assets(excludeing excludeContracts: [(AlphaWallet.Address, ChainId)]) -> [AlphaWallet.Address: [NftAsset]] {
+            let excludeContracts = excludeContracts.map { $0.0 }
+            return assets.filter { asset in !excludeContracts.contains(asset.key) }
         }
     }
 }
@@ -342,11 +463,11 @@ extension OpenSea {
     private struct CollectionStatsRequest: Alamofire.URLRequestConvertible {
         let baseUrl: URL
         let apiKey: String
-        let slug: String
+        let collectionId: String
 
         func asURLRequest() throws -> URLRequest {
             guard var components = URLComponents(url: baseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
-            components.path = "/api/v1/collection/\(slug)/stats"
+            components.path = "/api/v1/collection/\(collectionId)/stats"
 
             var request = try URLRequest(url: components.asURL(), method: .get)
             request.allHTTPHeaderFields = ["X-API-KEY": apiKey]
@@ -448,27 +569,6 @@ extension OpenSea {
             var request = try URLRequest(url: url, method: .get)
             request.allHTTPHeaderFields = ["X-API-KEY": apiKey]
             return request
-        }
-    }
-
-}
-
-import Combine
-
-extension AnyPublisher {
-    fileprivate func promise() -> Promise<Output> {
-        var cancellable: AnyCancellable?
-        return Promise<Output> { seal in
-            cancellable = self
-                .receive(on: RunLoop.main)
-                .sink { result in
-                    if case .failure(let error) = result {
-                        seal.reject(error)
-                    }
-                    cancellable = nil
-                } receiveValue: {
-                    seal.fulfill($0)
-                }
         }
     }
 }
