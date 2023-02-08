@@ -9,7 +9,7 @@ import Combine
 import AlphaWalletFoundation
 import AlphaWalletCore
 
-protocol RequestSignMessage: AnyObject {
+protocol RequestSignMessageDelegate: AnyObject {
     func requestSignMessage(message: SignMessageType,
                             server: RPCServer,
                             account: AlphaWallet.Address,
@@ -17,7 +17,7 @@ protocol RequestSignMessage: AnyObject {
                             requester: RequesterViewModel?) -> AnyPublisher<DappCallbackValue, PromiseError>
 }
 
-protocol TokenInstanceWebViewDelegate: RequestSignMessage {
+protocol TokenInstanceWebViewDelegate: RequestSignMessageDelegate {
     func shouldClose(tokenInstanceWebView: TokenInstanceWebView)
     func reinject(tokenInstanceWebView: TokenInstanceWebView)
 }

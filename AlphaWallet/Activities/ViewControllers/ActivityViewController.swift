@@ -5,7 +5,7 @@ import Combine
 import AlphaWalletFoundation
 import AlphaWalletCore
 
-protocol ActivityViewControllerDelegate: AnyObject, RequestSignMessage {
+protocol ActivityViewControllerDelegate: AnyObject, RequestSignMessageDelegate {
     func reinject(viewController: ActivityViewController)
     func goToToken(viewController: ActivityViewController)
     func speedupTransaction(transactionId: String, server: RPCServer, viewController: ActivityViewController)
