@@ -90,7 +90,6 @@
 		2963B6AD1F981A96003063C1 /* TransactionFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2963B6AC1F981A96003063C1 /* TransactionFieldView.swift */; };
 		2963B6B11F9891F5003063C1 /* UIButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2963B6B01F9891F5003063C1 /* UIButton.swift */; };
 		296421951F70C1EC00EB363B /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 296421941F70C1EC00EB363B /* LoadingView.swift */; };
-		296421971F70C1F200EB363B /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 296421961F70C1F200EB363B /* ErrorView.swift */; };
 		296421991F70C1F900EB363B /* EmptyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 296421981F70C1F900EB363B /* EmptyView.swift */; };
 		296AF9A31F733AB30058AF78 /* WalletCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 296AF9A21F733AB30058AF78 /* WalletCoordinator.swift */; };
 		2977CAE01F7DEEB0009682A0 /* FakeEtherKeystore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2977CADF1F7DEEB0009682A0 /* FakeEtherKeystore.swift */; };
@@ -964,7 +963,6 @@
 		2963B6AC1F981A96003063C1 /* TransactionFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionFieldView.swift; sourceTree = "<group>"; };
 		2963B6B01F9891F5003063C1 /* UIButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIButton.swift; sourceTree = "<group>"; };
 		296421941F70C1EC00EB363B /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
-		296421961F70C1F200EB363B /* ErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
 		296421981F70C1F900EB363B /* EmptyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyView.swift; sourceTree = "<group>"; };
 		296AF9A21F733AB30058AF78 /* WalletCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletCoordinator.swift; sourceTree = "<group>"; };
 		2977CADF1F7DEEB0009682A0 /* FakeEtherKeystore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeEtherKeystore.swift; sourceTree = "<group>"; };
@@ -2899,7 +2897,6 @@
 				8736214C264D3AFF00AAF794 /* BalloonMarker.swift */,
 				8736214B264D3AFF00AAF794 /* XYMarkerView.swift */,
 				296421941F70C1EC00EB363B /* LoadingView.swift */,
-				296421961F70C1F200EB363B /* ErrorView.swift */,
 				296421981F70C1F900EB363B /* EmptyView.swift */,
 				29D03F1C1F712183006E548C /* Button.swift */,
 				29DBF2A61F9F145900327C60 /* StateViewModel.swift */,
@@ -5013,7 +5010,6 @@
 				295A59381F71C1B90092F0FC /* AccountsCoordinator.swift in Sources */,
 				87F15AF727F1EB7D00EB9787 /* SwapStepView.swift in Sources */,
 				879F185E26E74512000602F2 /* ButtonsBarBackgroundView.swift in Sources */,
-				296421971F70C1F200EB363B /* ErrorView.swift in Sources */,
 				874ED69727DF3685001AB374 /* SlippageView.swift in Sources */,
 				87BBF9962563DD7600FF4846 /* SignMessageCoordinatorBridgeToPromise.swift in Sources */,
 				AA26C62320412A4100318B9B /* UIViewInspectableEnhancements.swift in Sources */,
