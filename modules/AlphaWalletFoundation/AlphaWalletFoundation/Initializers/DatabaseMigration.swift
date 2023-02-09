@@ -30,6 +30,7 @@ public class DatabaseMigration: Initializer {
             //It is necessary to include these 2 classes even though they are no longer managed in this Realm database (since 8814bd234dec8fc01be2cf9e7201724572627c97 and earlier) because they can still be accessed by users for database migration
             Bookmark.self,
             History.self,
+            EnjinTokenObject.self
         ]
         //NOTE: use [weak self] to avoid memory leak
         config.migrationBlock = { [weak self] migration, oldSchemaVersion in

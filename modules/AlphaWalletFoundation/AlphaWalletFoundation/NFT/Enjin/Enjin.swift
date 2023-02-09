@@ -7,54 +7,35 @@
 
 import Foundation
 import Apollo
-import PromiseKit
-
-public struct EnjinError: Error {
-    var localizedDescription: String
-}
-
-public typealias EnjinAddressesToSemiFungibles = [AlphaWallet.Address: [GetEnjinTokenQuery.Data.EnjinToken]]
-public typealias EnjinTokenIdsToSemiFungibles = [String: GetEnjinTokenQuery.Data.EnjinToken]
+import Combine
+import AlphaWalletCore
 
 public final class Enjin {
-    private lazy var networkProvider = EnjinNetworkProvider()
-    private let queue = DispatchQueue(label: "org.alphawallet.swift.enjin")
-    private var inFlightPromises: [String: Promise<EnjinAddressesToSemiFungibles>] = [:]
     private let server: RPCServer
-    public typealias EnjinBalances = [GetEnjinBalancesQuery.Data.EnjinBalance]
-    public typealias MappedEnjinBalances = [AlphaWallet.Address: EnjinBalances]
+    private let networking: EnjinNetworking
+    private let storage: EnjinStorage
 
-    public init(server: RPCServer) {
+    public init(server: RPCServer, storage: EnjinStorage) {
+        self.storage = storage
         self.server = server
+        self.networking = EnjinNetworking()
     }
 
-    public func semiFungible(wallet: Wallet) -> Promise<EnjinAddressesToSemiFungibles> {
-        firstly {
-            .value(wallet)
-        }.then(on: queue, { [weak self, queue, networkProvider, server] wallet -> Promise<EnjinAddressesToSemiFungibles> in
-            guard Enjin.isServerSupported(server) else { return .value([:]) }
+    func token(tokenId: TokenId) -> EnjinToken? {
+        return storage.getEnjinToken(for: tokenId, server: server)
+    }
 
-            let key = "\(wallet.address.eip55String)-\(server.chainID)"
-            if let promise = self?.inFlightPromises[key] {
-                return promise
-            } else {
-                //NOTE: Make sure Apollo get called on main queue, looks like its not threadsafe, (accessing to interceptors on background queue causes bad access)
-                let promise = firstly {
-                    .value(wallet)
-                }.then { wallet in
-                    networkProvider.getEnjinBalances(forOwner: wallet.address, offset: 1)
-                }.then { [networkProvider] balances -> Promise<EnjinAddressesToSemiFungibles> in
-                    let ids = (balances[wallet.address] ?? []).compactMap { $0.token?.id }
-                    return networkProvider.getEnjinTokens(ids: ids, owner: wallet.address)
-                }.ensure(on: queue, {
-                    self?.inFlightPromises[key] = .none
-                })
+    public func fetchTokens(wallet: Wallet) -> AnyPublisher<[EnjinToken], PromiseError> {
+        guard Enjin.isServerSupported(server) else { return .just([]) }
 
-                self?.inFlightPromises[key] = promise
-
-                return promise
-            }
-        })
+        return networking.getEnjinBalances(owner: wallet.address, offset: 1)
+            .flatMap { [networking] balances in
+                let balances = balances.compactMap { EnjinBalance(balance: $0) }
+                return networking.getEnjinTokens(balances: balances, owner: wallet.address)
+            }.handleEvents(receiveOutput: { [storage, server] response in
+                storage.addOrUpdate(enjinTokens: response.tokens, server: server)
+            }).map { $0.tokens }
+            .eraseToAnyPublisher()
     }
 
     static func isServerSupported(_ server: RPCServer) -> Bool {

@@ -46,26 +46,12 @@ public struct NftAsset: Codable, Equatable, Hashable, NonFungibleFromJson {
     }
     public let collectionCreatedDate: Date?
     public let collectionDescription: String?
-
-    public var meltStringValue: String?
-    public var meltFeeRatio: Int?
-    public var meltFeeMaxRatio: Int?
-    public var totalSupplyStringValue: String?
-    public var circulatingSupplyStringValue: String?
-    public var reserveStringValue: String?
-    public var nonFungible: Bool?
-    public var blockHeight: Int?
-    public var mintableSupply: BigInt?
-    public var transferable: String?
-    public var supplyModel: String?
-    public var issuer: String?
-    public var created: String?
-    public var transferFee: String?
     public var collection: AlphaWalletOpenSea.NftCollection?
+
     public var creator: AssetCreator?
     public let collectionId: String
 
-    public init(tokenId: String, tokenType: NonFungibleFromJsonTokenType, value: BigInt, contractName: String, decimals: Int, symbol: String, name: String, description: String, thumbnailUrl: String, imageUrl: String, contractImageUrl: String, externalLink: String, backgroundColor: String?, traits: [OpenSeaNonFungibleTrait], collectionCreatedDate: Date?, collectionDescription: String?, meltStringValue: String? = nil, meltFeeRatio: Int? = nil, meltFeeMaxRatio: Int? = nil, totalSupplyStringValue: String? = nil, circulatingSupplyStringValue: String? = nil, reserveStringValue: String? = nil, nonFungible: Bool? = nil, blockHeight: Int? = nil, mintableSupply: BigInt? = nil, transferable: String? = nil, supplyModel: String? = nil, issuer: String? = nil, created: String? = nil, transferFee: String? = nil, collection: AlphaWalletOpenSea.NftCollection? = nil, creator: AssetCreator?, collectionId: String, imageOriginalUrl: String, previewUrl: String) {
+    public init(tokenId: String, tokenType: NonFungibleFromJsonTokenType, value: BigInt, contractName: String, decimals: Int, symbol: String, name: String, description: String, thumbnailUrl: String, imageUrl: String, contractImageUrl: String, externalLink: String, backgroundColor: String?, traits: [OpenSeaNonFungibleTrait], collectionCreatedDate: Date?, collectionDescription: String?, collection: AlphaWalletOpenSea.NftCollection? = nil, creator: AssetCreator?, collectionId: String, imageOriginalUrl: String, previewUrl: String) {
         self.imageOriginalUrl = imageOriginalUrl
         self.tokenId = tokenId
         self.tokenType = tokenType
@@ -83,24 +69,9 @@ public struct NftAsset: Codable, Equatable, Hashable, NonFungibleFromJson {
         self.traits = traits
         self.collectionCreatedDate = collectionCreatedDate
         self.collectionDescription = collectionDescription
-        self.meltStringValue = meltStringValue
-        self.meltFeeRatio = meltFeeRatio
-        self.meltFeeMaxRatio = meltFeeMaxRatio
-        self.totalSupplyStringValue = totalSupplyStringValue
-        self.circulatingSupplyStringValue = circulatingSupplyStringValue
-        self.reserveStringValue = reserveStringValue
-        self.nonFungible = nonFungible
-        self.blockHeight = blockHeight
-        self.mintableSupply = mintableSupply
-        self.transferable = transferable
-        self.supplyModel = supplyModel
-        self.issuer = issuer
-        self.created = created
-        self.transferFee = transferFee
         self.collection = collection
         self.creator = creator
         self.collectionId = collectionId
         self.previewUrl = previewUrl
     }
 }
-

@@ -38,7 +38,7 @@ class NonFungibleErc1155JsonBalanceFetcher {
         self.importToken = importToken
     }
 
-    func fetchErc1155NonFungibleJsons(enjinTokens: EnjinTokenIdsToSemiFungibles) -> AnyPublisher<[AlphaWallet.Address: [NonFungibleBalanceAndItsSource<NonFungibleFromTokenUri>]], SessionTaskError> {
+    func fetchErc1155NonFungibleJsons() -> AnyPublisher<[AlphaWallet.Address: [NonFungibleBalanceAndItsSource<NonFungibleFromTokenUri>]], SessionTaskError> {
         return erc1155TokenIdsFetcher
             .detectContractsAndTokenIds()
             .mapError { SessionTaskError(error: $0) }
@@ -47,7 +47,7 @@ class NonFungibleErc1155JsonBalanceFetcher {
                 return strongSelf.addUnknownErc1155ContractsToDatabase(contractsAndTokenIds: contractsAndTokenIds.tokens)
             }.flatMap { [weak self] contractsAndTokenIds -> AnyPublisher<(contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds, tokenIdMetaDatas: [TokenIdMetaData]), SessionTaskError> in
                 guard let strongSelf = self else { return .empty() }
-                return strongSelf._fetchErc1155NonFungibleJsons(contractsAndTokenIds: contractsAndTokenIds, enjinTokens: enjinTokens)
+                return strongSelf._fetchErc1155NonFungibleJsons(contractsAndTokenIds: contractsAndTokenIds)
                     .map { (contractsAndTokenIds: contractsAndTokenIds, tokenIdMetaDatas: $0) }
                     .eraseToAnyPublisher()
             }.flatMap { [erc1155BalanceFetcher] (contractsAndTokenIds, tokenIdMetaDatas) -> AnyPublisher<[AlphaWallet.Address: [NonFungibleBalanceAndItsSource<NonFungibleFromTokenUri>]], SessionTaskError> in
@@ -81,12 +81,11 @@ class NonFungibleErc1155JsonBalanceFetcher {
         //TODO: log error remotely
     }
 
-    private func _fetchErc1155NonFungibleJsons(contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds, enjinTokens: EnjinTokenIdsToSemiFungibles) -> AnyPublisher<[TokenIdMetaData], SessionTaskError> {
+    private func _fetchErc1155NonFungibleJsons(contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds) -> AnyPublisher<[TokenIdMetaData], SessionTaskError> {
         var allGuarantees: [AnyPublisher<TokenIdMetaData, SessionTaskError>] = .init()
         for (contract, tokenIds) in contractsAndTokenIds {
             let guarantees = tokenIds.map { tokenId -> AnyPublisher<TokenIdMetaData, SessionTaskError> in
-                let enjinToken = enjinTokens[TokenIdConverter.toTokenIdSubstituted(string: String(tokenId))]
-                return jsonFromTokenUri.fetchJsonFromTokenUri(forTokenId: String(tokenId), tokenType: .erc1155, address: contract, enjinToken: enjinToken)
+                return jsonFromTokenUri.fetchJsonFromTokenUri(forTokenId: String(tokenId), tokenType: .erc1155, address: contract)
                     .map { jsonAndItsUri -> TokenIdMetaData in
                         return (contract: contract, tokenId: tokenId, jsonAndItsSource: jsonAndItsUri)
                     }.eraseToAnyPublisher()

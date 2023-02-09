@@ -92,8 +92,18 @@ open class BaseSessionsProvider: SessionsProvider {
             server: blockchain.server,
             reachability: reachability)
 
-        let nftProvider = AlphaWalletNFTProvider(analytics: analytics, wallet: wallet, server: blockchain.server, config: config)
-        let tokenAdaptor = TokenAdaptor(assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, wallet: wallet)
+        let nftProvider = AlphaWalletNFTProvider(
+            analytics: analytics,
+            wallet: wallet,
+            server: blockchain.server,
+            config: config,
+            storage: .storage(for: wallet))
+
+        let tokenAdaptor = TokenAdaptor(
+            assetDefinitionStore: assetDefinitionStore,
+            eventsDataStore: eventsDataStore,
+            wallet: wallet,
+            nftProvider: nftProvider)
 
         return WalletSession(
             account: wallet,

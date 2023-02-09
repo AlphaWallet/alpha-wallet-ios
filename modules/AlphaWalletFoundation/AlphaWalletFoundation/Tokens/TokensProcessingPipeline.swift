@@ -40,6 +40,7 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
     private let wallet: Wallet
     private let queue = DispatchQueue(label: "org.alphawallet.swift.walletData.processingPipeline", qos: .utility)
     private let currencyService: CurrencyService
+    private let sessionsProvider: SessionsProvider
 
     public var tokenViewModels: AnyPublisher<[TokenViewModel], Never> {
         let whenTickersChanged = coinTickersFetcher.tickersDidUpdate.dropFirst()
@@ -73,16 +74,22 @@ public final class WalletDataProcessingPipeline: TokensProcessingPipeline {
         return Publishers.Merge(whenCollectionHasChanged, initialSnapshot)
             .eraseToAnyPublisher()
     }
-    private let sessionsProvider: SessionsProvider
 
-    public init(wallet: Wallet, tokensService: TokensService, coinTickersFetcher: CoinTickersFetcher, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, currencyService: CurrencyService, sessionsProvider: SessionsProvider) {
+    public init(wallet: Wallet,
+                tokensService: TokensService,
+                coinTickersFetcher: CoinTickersFetcher,
+                assetDefinitionStore: AssetDefinitionStore,
+                eventsDataStore: NonActivityEventsDataStore,
+                currencyService: CurrencyService,
+                sessionsProvider: SessionsProvider) {
+
+        self.sessionsProvider = sessionsProvider
         self.wallet = wallet
         self.currencyService = currencyService
         self.eventsDataStore = eventsDataStore
         self.tokensService = tokensService
         self.coinTickersFetcher = coinTickersFetcher
         self.assetDefinitionStore = assetDefinitionStore
-        self.sessionsProvider = sessionsProvider
     }
 
     public func tokens(for servers: [RPCServer]) -> [Token] {

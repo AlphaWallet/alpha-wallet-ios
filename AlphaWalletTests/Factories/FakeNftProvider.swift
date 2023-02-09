@@ -21,7 +21,11 @@ final class FakeNftProvider: NFTProvider, NftAssetImageProvider {
     func collectionStats(collectionId: String) -> Promise<Stats> {
         return .init(error: ProviderError())
     }
-    func nonFungible() -> Promise<NonFungiblesTokens> {
-        return .value((openSea: [:], enjin: [:]))
+    func nonFungible() -> AnyPublisher<NonFungiblesTokens, Never> {
+        return .just((openSea: [:], enjin: ()))
+    }
+    
+    func enjinToken(tokenId: TokenId) -> EnjinToken? {
+        return nil
     }
 }

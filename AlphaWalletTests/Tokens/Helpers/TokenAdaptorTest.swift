@@ -43,7 +43,8 @@ class TokenAdaptorTest: XCTestCase {
         ]
         let assetDefinitionStore = AssetDefinitionStore.make()
         let token = Token(contract: Constants.nullAddress)
-        let bundles = TokenAdaptor(assetDefinitionStore: assetDefinitionStore, eventsDataStore: FakeEventsDataStore(), wallet: .make()).bundleTestsOnly(tokens: tokens, token: token)
+        let nftProvider = FakeNftProvider()
+        let bundles = TokenAdaptor(assetDefinitionStore: assetDefinitionStore, eventsDataStore: FakeEventsDataStore(), wallet: .make(), nftProvider: nftProvider).bundleTestsOnly(tokens: tokens, token: token)
         XCTAssertEqual(bundles.count, 2)
     }
 
@@ -93,8 +94,8 @@ class TokenAdaptorTest: XCTestCase {
         ]
         let assetDefinitionStore = AssetDefinitionStore.make()
         let token = Token(contract: Constants.nullAddress)
-
-        let bundles = TokenAdaptor(assetDefinitionStore: assetDefinitionStore, eventsDataStore: FakeEventsDataStore(), wallet: .make()).bundleTestsOnly(tokens: tokens, token: token)
+        let nftProvider = FakeNftProvider()
+        let bundles = TokenAdaptor(assetDefinitionStore: assetDefinitionStore, eventsDataStore: FakeEventsDataStore(), wallet: .make(), nftProvider: nftProvider).bundleTestsOnly(tokens: tokens, token: token)
         XCTAssertEqual(bundles.count, 2)
     }
 

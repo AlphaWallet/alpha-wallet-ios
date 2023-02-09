@@ -154,7 +154,8 @@ class FakeSessionsProvider: SessionsProvider {
                 server: blockchain.server,
                 reachability: reachability)
         }
-        let tokenAdaptor = TokenAdaptor(assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, wallet: wallet)
+        let nftProvider = FakeNftProvider()
+        let tokenAdaptor = TokenAdaptor(assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, wallet: wallet, nftProvider: nftProvider)
 
         return WalletSession(
             account: wallet,
