@@ -10,12 +10,44 @@ import WalletConnectSwiftV2
 import AlphaWalletFoundation
 import Starscream
 import Combine
+import AlphaWalletWeb3
 
 extension WebSocket: WebSocketConnecting { }
 
 struct SocketFactory: WebSocketFactory {
     func create(with url: URL) -> WebSocketConnecting {
         return WebSocket(url: url)
+    }
+}
+
+struct DefaultEthereumSignerFactory: SignerFactory {
+    func createEthereumSigner() -> WalletConnectSwiftV2.EthereumSigner {
+        Web3Signer()
+    }
+}
+
+struct Web3Signer: WalletConnectSwiftV2.EthereumSigner {
+    enum SignerError: Error {
+        case recoverPubKeyFailure
+    }
+
+    func sign(message: Data, with key: Data) throws -> EthereumSignature {
+        let hash = message.sha3(.keccak256)
+        var signature = try EthereumSigner().sign(hash: hash, withPrivateKey: key)
+        signature[64] += EthereumSigner.vitaliklizeConstant
+
+        return EthereumSignature(v: signature[64], r: signature[0 ..< 32].bytes, s: signature[32 ..< 64].bytes)
+    }
+
+    func recoverPubKey(signature: EthereumSignature, message: Data) throws -> Data {
+        guard let data = Web3.Utils.recoverPublicKey(message: message, v: signature.v, r: signature.r, s: signature.s) else {
+            throw SignerError.recoverPubKeyFailure
+        }
+        return data
+    }
+
+    func keccak256(_ data: Data) -> Data {
+        return data.sha3(.keccak256)
     }
 }
 
@@ -43,10 +75,10 @@ final class WalletConnectV2NativeClient: WalletConnectV2Client {
         url: Constants.WalletConnect.websiteUrl.absoluteString,
         icons: Constants.WalletConnect.icons)
 
-    private lazy var client: SignClient = {
+    private lazy var client: Web3WalletClient = {
         Networking.configure(projectId: Constants.Credentials.walletConnectProjectId, socketFactory: SocketFactory())
-        Pair.configure(metadata: metadata)
-        return Sign.instance
+        Web3Wallet.configure(metadata: metadata, signerFactory: DefaultEthereumSignerFactory())
+        return Web3Wallet.instance
     }()
 
     var sessionProposalPublisher: AnyPublisher<Session.Proposal, Never> {
@@ -62,19 +94,19 @@ final class WalletConnectV2NativeClient: WalletConnectV2Client {
     }
 
     var sessionDeletePublisher: AnyPublisher<(String, Reason), Never> {
-        client.sessionDeletePublisher
+        Sign.instance.sessionDeletePublisher
             .receive(on: queue)
             .eraseToAnyPublisher()
     }
 
     var sessionSettlePublisher: AnyPublisher<Session, Never> {
-        client.sessionSettlePublisher
+        Sign.instance.sessionSettlePublisher
             .receive(on: queue)
             .eraseToAnyPublisher()
     }
 
     var sessionUpdatePublisher: AnyPublisher<(sessionTopic: String, namespaces: [String: SessionNamespace]), Never> {
-        client.sessionUpdatePublisher
+        Sign.instance.sessionUpdatePublisher
             .receive(on: queue)
             .eraseToAnyPublisher()
     }

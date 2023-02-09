@@ -88,7 +88,7 @@ class AnyCAIP10AccountProvidable: CAIP10AccountProvidable {
             guard let blockchain = Blockchain(server.eip155) else { throw CAIP10AccountProvidableError.unavailableToBuildBlockchain }
             let accounts = try accountsForSupportedBlockchains(for: [blockchain])
 
-            return ["eip155": SessionNamespace(accounts: accounts, methods: [], events: [], extensions: [])]
+            return ["eip155": SessionNamespace(accounts: accounts, methods: [], events: [])]
         case .proposal(let proposal):
             var sessionNamespaces: [String: SessionNamespace] = [:]
             for each in proposal.requiredNamespaces {
@@ -96,25 +96,12 @@ class AnyCAIP10AccountProvidable: CAIP10AccountProvidable {
                 let proposalNamespace = each.value
 
                 let accounts = try accountsForSupportedBlockchains(for: proposalNamespace.chains)
-
-                let extensions: [SessionNamespace.Extension]? = proposalNamespace.extensions?.compactMap { element in
-                    guard let accounts = try? accountsForSupportedBlockchains(for: element.chains) else { return nil }
-
-                    return SessionNamespace.Extension(
-                        accounts: accounts,
-                        methods: element.methods,
-                        events: element.events)
-                }
-
-                if accounts.isEmpty {
-                    continue
-                }
+                if accounts.isEmpty { continue }
 
                 let sessionNamespace = SessionNamespace(
                     accounts: accounts,
                     methods: proposalNamespace.methods,
-                    events: proposalNamespace.events,
-                    extensions: extensions)
+                    events: proposalNamespace.events)
 
                 sessionNamespaces[caip2Namespace] = sessionNamespace
             }

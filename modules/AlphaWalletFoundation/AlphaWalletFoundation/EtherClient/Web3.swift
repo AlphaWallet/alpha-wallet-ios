@@ -22,6 +22,11 @@ extension Web3.Utils {
              print(error)
          }
      */
+
+    public static func recoverPublicKey(message: Data, v: UInt8, r: [UInt8], s: [UInt8]) -> Data? {
+        Web3.Utils.personalECRecover(message, r: r, s: s, v: v)
+    }
+
     public static func ecrecover(message: Data, signature: Data) -> EthereumAddress? {
         //need to hash message here because the web3swift implementation adds prefix
         let messageHash = message.sha3(.keccak256)
