@@ -23,7 +23,7 @@ final class FakeMultiWalletBalanceService: MultiWalletBalanceService {
     init(wallet: Wallet = .make(), servers: [RPCServer] = [.main]) {
         self.servers = servers
         self.wallet = wallet
-        super.init()
+        super.init(currencyService: .make())
 
         start(fetchers: [:])
     } 

@@ -33,8 +33,6 @@ public struct TokenScriptOverrides {
     public let hasNoBaseAssetDefinition: Bool
     public let server: RPCServerOrAny?
 
-    public let xmlHandler: XMLHandler
-
     init(token: TokenScriptSupportable, assetDefinitionStore: AssetDefinitionStore, wallet: Wallet, eventsDataStore: NonActivityEventsDataStore) {
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         self.symbolInPluralForm = token.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
@@ -49,7 +47,6 @@ public struct TokenScriptOverrides {
             self.titleInPluralForm = token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: wallet) ?? token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
         }
 
-        self.xmlHandler = xmlHandler
         self.hasNoBaseAssetDefinition = xmlHandler.hasNoBaseAssetDefinition
         self.server = xmlHandler.server
     }
@@ -57,21 +54,7 @@ public struct TokenScriptOverrides {
 
 extension TokenViewModel: BalanceRepresentable { }
 
-extension TokenScriptOverrides: Hashable {
-    public static func == (lhs: TokenScriptOverrides, rhs: TokenScriptOverrides) -> Bool {
-        return lhs.title == rhs.title && lhs.titleInPluralForm == rhs.titleInPluralForm && lhs.shortTitleInPluralForm == rhs.shortTitleInPluralForm && lhs.symbolInPluralForm == rhs.symbolInPluralForm && lhs.hasNoBaseAssetDefinition == rhs.hasNoBaseAssetDefinition && lhs.server == rhs.server
-    }
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(title)
-        hasher.combine(titleInPluralForm)
-        hasher.combine(shortTitleInPluralForm)
-        hasher.combine(symbolInPluralForm)
-        hasher.combine(hasNoBaseAssetDefinition)
-        hasher.combine(server)
-        //NOTE: we don't want to add xmlHandler to compute hash value, for now
-    }
-}
+extension TokenScriptOverrides: Hashable { }
 
 extension TokenViewModel: TokenFilterable {
     public var balanceNft: [TokenBalanceValue] { balance.balance }
