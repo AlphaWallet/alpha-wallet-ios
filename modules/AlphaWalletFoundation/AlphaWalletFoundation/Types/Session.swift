@@ -20,6 +20,7 @@ public final class WalletSession: Equatable {
         return WalletSession.functional.sessionID(account: account, server: server)
     }
     public let blockchainProvider: BlockchainProvider
+    public let nftProvider: NFTProvider
 
     public init(account: Wallet,
                 server: RPCServer,
@@ -27,8 +28,10 @@ public final class WalletSession: Equatable {
                 analytics: AnalyticsLogger,
                 ercTokenProvider: TokenProviderType,
                 importToken: TokenImportable & TokenOrContractFetchable,
-                blockchainProvider: BlockchainProvider) {
+                blockchainProvider: BlockchainProvider,
+                nftProvider: NFTProvider) {
 
+        self.nftProvider = nftProvider
         self.analytics = analytics
         self.account = account
         self.server = server

@@ -89,6 +89,8 @@ open class BaseSessionsProvider: SessionsProvider {
             server: blockchain.server,
             reachability: reachability)
 
+        let nftProvider = AlphaWalletNFTProvider(analytics: analytics, wallet: wallet, server: blockchain.server)
+        
         return WalletSession(
             account: wallet,
             server: blockchain.server,
@@ -96,7 +98,8 @@ open class BaseSessionsProvider: SessionsProvider {
             analytics: analytics,
             ercTokenProvider: ercTokenProvider,
             importToken: importToken,
-            blockchainProvider: blockchain)
+            blockchainProvider: blockchain,
+            nftProvider: nftProvider)
     }
 
     public func session(for server: RPCServer) -> WalletSession? {

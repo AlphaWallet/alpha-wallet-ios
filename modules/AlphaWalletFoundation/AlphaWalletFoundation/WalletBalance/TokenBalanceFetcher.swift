@@ -69,7 +69,6 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
     weak public var erc721TokenIdsFetcher: Erc721TokenIdsFetcher?
 
     public init(session: WalletSession,
-                nftProvider: NFTProvider,
                 tokensService: TokenProvidable & TokenAddable,
                 etherToken: Token,
                 assetDefinitionStore: AssetDefinitionStore,
@@ -78,7 +77,7 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
 
         self.session = session
         self.networkService = networkService
-        self.nftProvider = nftProvider
+        self.nftProvider = session.nftProvider
         self.etherToken = etherToken
         self.tokensService = tokensService
         self.assetDefinitionStore = assetDefinitionStore
@@ -192,7 +191,7 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
         assert(!tokens.contains { !$0.isERC721Or1155AndNotForTickets })
 
         firstly {
-            nftProvider.nonFungible(wallet: session.account, server: session.server)
+            nftProvider.nonFungible()
         }.done(on: queue, { [weak self] response in
             guard let strongSelf = self else { return }
 

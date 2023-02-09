@@ -43,7 +43,6 @@ extension WalletDataProcessingPipeline {
 
         let eventsDataStore = FakeEventsDataStore()
         let transactionsDataStore = FakeTransactionsStorage()
-        let nftProvider = FakeNftProvider()
         let coinTickersFetcher = CoinTickersFetcherImpl.make()
         let currencyService: CurrencyService = .make()
 
@@ -52,7 +51,6 @@ extension WalletDataProcessingPipeline {
             tokensDataStore: tokensDataStore,
             analytics: fas,
             transactionsStorage: transactionsDataStore,
-            nftProvider: nftProvider,
             assetDefinitionStore: .make(),
             networkService: FakeNetworkService())
 

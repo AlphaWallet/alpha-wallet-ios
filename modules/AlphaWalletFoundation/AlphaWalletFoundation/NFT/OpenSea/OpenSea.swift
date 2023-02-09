@@ -15,9 +15,11 @@ public final class OpenSea {
     private var inFlightPromises: [String: Promise<OpenSeaAddressesToNonFungibles>] = [:]
     private var inFlightFetchImageUrlPromises: [String: Promise<URL>] = [:]
     private var inFlightFetchStatsPromises: [String: Promise<Stats>] = [:]
+    private let server: RPCServer
 
-    public init(analytics: AnalyticsLogger) {
+    public init(analytics: AnalyticsLogger, server: RPCServer) {
         self.analytics = analytics
+        self.server = server
     }
 
     public static func isServerSupported(_ server: RPCServer) -> Bool {
@@ -29,7 +31,7 @@ public final class OpenSea {
         }
     }
 
-    public func nonFungible(wallet: Wallet, server: RPCServer) -> Promise<OpenSeaAddressesToNonFungibles> {
+    public func nonFungible(wallet: Wallet) -> Promise<OpenSeaAddressesToNonFungibles> {
         let key: AddressAndRPCServer = .init(address: wallet.address, server: server)
 
         guard OpenSea.isServerSupported(key.server) else {
@@ -75,10 +77,10 @@ public final class OpenSea {
         })
     }
 
-    public func fetchAssetImageUrl(for value: Eip155URL, server: RPCServer) -> Promise<URL> {
+    public func fetchAssetImageUrl(for value: Eip155URL) -> Promise<URL> {
         firstly {
             .value(value)
-        }.then(on: queue, { [weak self, queue, networkProvider] value -> Promise<URL> in
+        }.then(on: queue, { [weak self, queue, networkProvider, server] value -> Promise<URL> in
             let key = "\(value.description)-\(server)"
             if let promise = self?.inFlightFetchImageUrlPromises[key] {
                 return promise
@@ -96,10 +98,10 @@ public final class OpenSea {
         })
     }
 
-    public func collectionStats(slug: String, server: RPCServer) -> Promise<Stats> {
+    public func collectionStats(slug: String) -> Promise<Stats> {
         firstly {
             .value(slug)
-        }.then(on: queue, { [weak self, queue, networkProvider] slug -> Promise<Stats> in
+        }.then(on: queue, { [weak self, queue, networkProvider, server] slug -> Promise<Stats> in
             let key = "\(slug)-\(server)"
             if let promise = self?.inFlightFetchStatsPromises[key] {
                 return promise

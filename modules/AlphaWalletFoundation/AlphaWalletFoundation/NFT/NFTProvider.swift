@@ -13,9 +13,15 @@ import Combine
 
 public typealias NonFungiblesTokens = (openSea: OpenSeaAddressesToNonFungibles, enjin: EnjinTokenIdsToSemiFungibles)
 
-public protocol NFTProvider: NftAssetImageProvider {
-    func collectionStats(slug: String, server: RPCServer) -> Promise<Stats>
-    func nonFungible(wallet: Wallet, server: RPCServer) -> Promise<NonFungiblesTokens>
+public protocol NFTProvider {
+    func collectionStats(slug: String) -> Promise<Stats>
+    func nonFungible() -> Promise<NonFungiblesTokens>
+}
+
+extension OpenSea: NftAssetImageProvider {
+    public func assetImageUrl(for url: Eip155URL) -> AnyPublisher<URL, AlphaWalletCore.PromiseError> {
+        fetchAssetImageUrl(for: url).publisher(queue: .global())
+    }
 }
 
 public final class AlphaWalletNFTProvider: NFTProvider {
@@ -24,15 +30,19 @@ public final class AlphaWalletNFTProvider: NFTProvider {
     private var inflightPromises: AtomicDictionary<AddressAndRPCServer, Promise<NonFungiblesTokens>> = .init()
     //TODO when we remove `queue`, it's also a good time to look at using a shared copy of `OpenSea` from `AppCoordinator`
     private let queue = DispatchQueue(label: "org.alphawallet.swift.nftProvider")
+    private let wallet: Wallet
+    private let server: RPCServer
 
-    public init(analytics: AnalyticsLogger) {
-        enjin = Enjin()
-        openSea = OpenSea(analytics: analytics)
+    public init(analytics: AnalyticsLogger, wallet: Wallet, server: RPCServer) {
+        self.wallet = wallet
+        self.server = server
+        enjin = Enjin(server: server)
+        openSea = OpenSea(analytics: analytics, server: server)
     }
 
     // NOTE: Its important to return value for promise and not an error. As we are using `when(fulfilled: ...)`. There is force unwrap inside the `when(fulfilled` function
-    private func getEnjinSemiFungible(account: Wallet, server: RPCServer) -> Promise<EnjinTokenIdsToSemiFungibles> {
-        return enjin.semiFungible(wallet: account, server: server)
+    private func getEnjinSemiFungible() -> Promise<EnjinTokenIdsToSemiFungibles> {
+        return enjin.semiFungible(wallet: wallet)
             .map(on: queue, { mapped -> EnjinTokenIdsToSemiFungibles in
                 var result: EnjinTokenIdsToSemiFungibles = [:]
                 let tokens = Array(mapped.values.flatMap { $0 })
@@ -47,26 +57,22 @@ public final class AlphaWalletNFTProvider: NFTProvider {
             })
     }
 
-    private func getOpenSeaNonFungible(account: Wallet, server: RPCServer) -> Promise<OpenSeaAddressesToNonFungibles> {
-        return openSea.nonFungible(wallet: account, server: server)
+    private func getOpenSeaNonFungible() -> Promise<OpenSeaAddressesToNonFungibles> {
+        return openSea.nonFungible(wallet: wallet)
     }
 
-    public func assetImageUrl(for url: Eip155URL) -> AnyPublisher<URL, PromiseError> {
-        openSea.fetchAssetImageUrl(for: url, server: .main).publisher(queue: queue)
+    public func collectionStats(slug: String) -> Promise<Stats> {
+        openSea.collectionStats(slug: slug)
     }
 
-    public func collectionStats(slug: String, server: RPCServer) -> Promise<Stats> {
-        openSea.collectionStats(slug: slug, server: server)
-    }
-
-    public func nonFungible(wallet: Wallet, server: RPCServer) -> Promise<NonFungiblesTokens> {
+    public func nonFungible() -> Promise<NonFungiblesTokens> {
         let key = AddressAndRPCServer(address: wallet.address, server: server)
 
         if let promise = inflightPromises[key] {
             return promise
         } else {
-            let tokensFromOpenSeaPromise = getOpenSeaNonFungible(account: wallet, server: server)
-            let enjinTokensPromise = getEnjinSemiFungible(account: wallet, server: server)
+            let tokensFromOpenSeaPromise = getOpenSeaNonFungible()
+            let enjinTokensPromise = getEnjinSemiFungible()
 
             let promise = firstly {
                 when(fulfilled: tokensFromOpenSeaPromise, enjinTokensPromise)

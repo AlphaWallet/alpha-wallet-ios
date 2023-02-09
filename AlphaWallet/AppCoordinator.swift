@@ -55,7 +55,6 @@ class AppCoordinator: NSObject, Coordinator {
 
     private lazy var currencyService = CurrencyService(storage: config)
     private lazy var coinTickersFetcher: CoinTickersFetcher = CoinTickersFetcherImpl(networkService: networkService)
-    private lazy var nftProvider: NFTProvider = AlphaWalletNFTProvider(analytics: analytics)
     private let dependencies: AtomicDictionary<Wallet, WalletDependencies> = .init()
     private lazy var walletBalanceService = MultiWalletBalanceService(currencyService: currencyService)
     private var pendingActiveWalletCoordinator: ActiveWalletCoordinator?
@@ -166,7 +165,7 @@ class AppCoordinator: NSObject, Coordinator {
     }()
     private lazy var blockchainProviderForResolvingEns: BlockchainProvider = RpcBlockchainProvider(server: .forResolvingEns, analytics: analytics, params: .defaultParams(for: .forResolvingEns))
     lazy private var blockiesGenerator: BlockiesGenerator = BlockiesGenerator(
-        assetImageProvider: nftProvider,
+        assetImageProvider: OpenSea(analytics: analytics, server: .main),
         storage: sharedEnsRecordsStorage,
         blockchainProvider: blockchainProviderForResolvingEns)
 
@@ -440,7 +439,6 @@ class AppCoordinator: NSObject, Coordinator {
             config: config,
             appTracker: appTracker,
             analytics: analytics,
-            nftProvider: nftProvider,
             restartQueue: restartQueue,
             universalLinkCoordinator: universalLinkService,
             accountsCoordinator: accountsCoordinator,
@@ -583,7 +581,6 @@ class AppCoordinator: NSObject, Coordinator {
         return false
     }
 
-    //NOTE: not good to pass `activeSessionsProvider` but needed to update active wallet session with right sessions in time
     private func buildDependencies(for wallet: Wallet) -> WalletDependencies {
         if let dep = dependencies[wallet] { return dep  }
 
@@ -608,7 +605,6 @@ class AppCoordinator: NSObject, Coordinator {
             tokensDataStore: tokensDataStore,
             analytics: analytics,
             transactionsStorage: transactionsDataStore,
-            nftProvider: nftProvider,
             assetDefinitionStore: assetDefinitionStore,
             networkService: networkService)
 

@@ -35,7 +35,6 @@ class TokensCoordinatorTests: XCTestCase {
             assetDefinitionStore: .make(),
             promptBackupCoordinator: .make(wallet: wallet),
             analytics: FakeAnalyticsService(),
-            nftProvider: FakeNftProvider(),
             tokenActionsService: tokenActionsService,
             walletConnectCoordinator: .fake(),
             coinTickersFetcher: CoinTickersFetcherImpl.make(),

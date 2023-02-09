@@ -53,7 +53,6 @@ class ConfigTests: XCTestCase {
             assetDefinitionStore: .make(),
             promptBackupCoordinator: .make(),
             analytics: FakeAnalyticsService(),
-            nftProvider: FakeNftProvider(),
             tokenActionsService: tokenActionsService,
             walletConnectCoordinator: .fake(),
             coinTickersFetcher: CoinTickersFetcherImpl.make(),
