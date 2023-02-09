@@ -20,16 +20,18 @@ public final class Enjin {
     private lazy var networkProvider = EnjinNetworkProvider()
     private let queue = DispatchQueue(label: "org.alphawallet.swift.enjin")
     private var inFlightPromises: [String: Promise<EnjinAddressesToSemiFungibles>] = [:]
-
+    private let server: RPCServer
     public typealias EnjinBalances = [GetEnjinBalancesQuery.Data.EnjinBalance]
     public typealias MappedEnjinBalances = [AlphaWallet.Address: EnjinBalances]
 
-    public init() { }
+    public init(server: RPCServer) {
+        self.server = server
+    }
 
-    public func semiFungible(wallet: Wallet, server: RPCServer) -> Promise<EnjinAddressesToSemiFungibles> {
+    public func semiFungible(wallet: Wallet) -> Promise<EnjinAddressesToSemiFungibles> {
         firstly {
             .value(wallet)
-        }.then(on: queue, { [weak self, queue, networkProvider] wallet -> Promise<EnjinAddressesToSemiFungibles> in
+        }.then(on: queue, { [weak self, queue, networkProvider, server] wallet -> Promise<EnjinAddressesToSemiFungibles> in
             guard Enjin.isServerSupported(server) else { return .value([:]) }
 
             let key = "\(wallet.address.eip55String)-\(server.chainID)"

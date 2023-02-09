@@ -157,7 +157,8 @@ class FakeSessionsProvider: SessionsProvider {
             analytics: analytics,
             ercTokenProvider: ercTokenProvider,
             importToken: importToken,
-            blockchainProvider: blockchain)
+            blockchainProvider: blockchain,
+            nftProvider: FakeNftProvider())
     }
 
     public func session(for server: RPCServer) -> WalletSession? {

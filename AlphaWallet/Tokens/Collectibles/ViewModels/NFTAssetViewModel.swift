@@ -110,7 +110,7 @@ class NFTAssetViewModel {
     func transform(input: NFTAssetViewModelInput) -> NFTAssetViewModelOutput {
         let whenOpenSeaStatsHasChanged = PassthroughSubject<Void, Never>()
         if let openSeaSlug = tokenHolder.values.slug, openSeaSlug.trimmed.nonEmpty {
-            nftProvider.collectionStats(slug: openSeaSlug, server: token.server).done { [weak self] stats in
+            nftProvider.collectionStats(slug: openSeaSlug).done { [weak self] stats in
                 self?.configure(overiddenOpenSeaStats: stats)
                 whenOpenSeaStatsHasChanged.send(())
             }.cauterize()

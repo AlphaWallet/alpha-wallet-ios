@@ -30,7 +30,6 @@ class TokensCoordinator: Coordinator {
     private let assetDefinitionStore: AssetDefinitionStore
     private let promptBackupCoordinator: PromptBackupCoordinator
     private let analytics: AnalyticsLogger
-    private let nftProvider: NFTProvider
     private let tokenActionsService: TokenActionsService
     private let tokensFilter: TokensFilter
     private let activitiesService: ActivitiesServiceType
@@ -84,7 +83,6 @@ class TokensCoordinator: Coordinator {
          assetDefinitionStore: AssetDefinitionStore,
          promptBackupCoordinator: PromptBackupCoordinator,
          analytics: AnalyticsLogger,
-         nftProvider: NFTProvider,
          tokenActionsService: TokenActionsService,
          walletConnectCoordinator: WalletConnectCoordinator,
          coinTickersFetcher: CoinTickersFetcher,
@@ -107,7 +105,6 @@ class TokensCoordinator: Coordinator {
         self.assetDefinitionStore = assetDefinitionStore
         self.promptBackupCoordinator = promptBackupCoordinator
         self.analytics = analytics
-        self.nftProvider = nftProvider
         self.tokenActionsService = tokenActionsService
         self.walletConnectCoordinator = walletConnectCoordinator
         self.coinTickersFetcher = coinTickersFetcher
@@ -164,7 +161,7 @@ class TokensCoordinator: Coordinator {
                 keystore: keystore,
                 assetDefinitionStore: assetDefinitionStore,
                 analytics: analytics,
-                nftProvider: nftProvider,
+                nftProvider: session.nftProvider,
                 tokenActionsProvider: tokenActionsService,
                 coinTickersFetcher: coinTickersFetcher,
                 activitiesService: activitiesService,
