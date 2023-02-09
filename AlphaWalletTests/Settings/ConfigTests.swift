@@ -40,7 +40,7 @@ class ConfigTests: XCTestCase {
 
     func testTokensNavigationTitle() {
         let sessionsProvider = FakeSessionsProvider.make(servers: [.main])
-        
+
         let config: Config = .make()
         let tokenActionsService = FakeSwapTokenService()
         let dep1 = WalletDataProcessingPipeline.make(wallet: .make(), server: .main)
@@ -73,7 +73,7 @@ class ConfigTests: XCTestCase {
 
     func testTabBarItemTitle() {
         Config.setLocale(AppLocale.english)
-        
+
         let coordinator_1 = AppCoordinator(
             window: .init(),
             analytics: FakeAnalyticsService(),
