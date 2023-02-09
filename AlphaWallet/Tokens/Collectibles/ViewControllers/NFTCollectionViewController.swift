@@ -171,10 +171,8 @@ class NFTCollectionViewController: UIViewController {
         output.pullToRefreshState
             .sink { [refreshControl] state in
                 switch state {
-                case .endLoading:
-                    refreshControl.endRefreshing()
-                case .beginLoading:
-                    refreshControl.beginRefreshing()
+                case .done, .failure: refreshControl.endRefreshing()
+                case .loading: refreshControl.beginRefreshing()
                 }
             }.store(in: &cancellable)
     }
@@ -184,10 +182,14 @@ class NFTCollectionViewController: UIViewController {
         if actions.isEmpty {
             buttonsBar.configure(.empty)
         } else {
-            buttonsBar.configure(.secondary(buttons: 1))
-            let button = buttonsBar.buttons[0]
-            button.setTitle(R.string.localizable.openOnOpenSea(), for: .normal)
-            button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
+            buttonsBar.configure(.secondary(buttons: actions.count))
+            for (index, each) in actions.enumerated() {
+                let button = buttonsBar.buttons[index]
+                button.setTitle(each.name, for: .normal)
+                button.publisher(forEvent: .touchUpInside)
+                    .sink { [weak self] _ in self?.perform(action: each) }
+                    .store(in: &cancellable)
+            }
         }
     }
 
@@ -219,9 +221,11 @@ class NFTCollectionViewController: UIViewController {
         }
     }
 
-    @objc private func actionButtonTapped(sender: UIButton) {
-        guard let url = viewModel.openInUrl else { return }
-        delegate?.didPressOpenWebPage(url, in: self)
+    private func perform(action: NFTCollectionViewModel.NonFungibleTokenAction) {
+        switch action {
+        case .openInUrl(let url):
+            delegate?.didPressOpenWebPage(url, in: self)
+        }
     }
 }
 
