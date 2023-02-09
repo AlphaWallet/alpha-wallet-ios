@@ -168,7 +168,7 @@ public class ActivitiesService: NSObject, ActivitiesServiceType {
         let activitiesAndTokens = getActivitiesAndTokens(contractsAndCards: contractsAndCards)
 
         activities.set(array: activitiesAndTokens.compactMap { $0.activity }.sorted { $0.blockNumber > $1.blockNumber })
-        updateActivitiesIndexLookup(with: activities.array)
+        updateActivitiesIndexLookup(with: activities.all)
 
         reloadViewController(reloadImmediately: true)
 
@@ -287,8 +287,8 @@ public class ActivitiesService: NSObject, ActivitiesServiceType {
             hasLoadedActivitiesTheFirstTime = true
         }
 
-        let transactions = transactionDataStore.transactions(forFilter: transactionsFilterStrategy, servers: config.enabledServers, oldestBlockNumber: activities.array.last?.blockNumber)
-        let items = combine(activities: activities.array, with: transactions)
+        let transactions = transactionDataStore.transactions(forFilter: transactionsFilterStrategy, servers: config.enabledServers, oldestBlockNumber: activities.last?.blockNumber)
+        let items = combine(activities: activities.all, with: transactions)
         let activities = ActivityCollection.sorted(activities: items)
 
         activitiesSubject.send(activities)
@@ -354,7 +354,7 @@ public class ActivitiesService: NSObject, ActivitiesServiceType {
                 } else if transaction.localizedOperations.count == 1 {
                     return [.standaloneTransaction(transaction: transaction, activity: activity)]
                 } else {
-                    let isSwap = self.isSwap(activities: activities.array, operations: transaction.localizedOperations, wallet: wallet)
+                    let isSwap = self.isSwap(activities: activities.all, operations: transaction.localizedOperations, wallet: wallet)
                     var results: [ActivityRowModel] = .init()
                     results.append(.parentTransaction(transaction: transaction, isSwap: isSwap, activities: .init()))
                     results.append(contentsOf: transaction.localizedOperations.map {
@@ -390,7 +390,7 @@ public class ActivitiesService: NSObject, ActivitiesServiceType {
             let updatedValues = (token: oldActivity.values.token.merging(resolvedAttributeNameValues) { _, new in new }, card: oldActivity.values.card)
             let updatedActivity: Activity = .init(id: oldActivity.id, rowType: oldActivity.rowType, token: token, server: oldActivity.server, name: oldActivity.name, eventName: oldActivity.eventName, blockNumber: oldActivity.blockNumber, transactionId: oldActivity.transactionId, transactionIndex: oldActivity.transactionIndex, logIndex: oldActivity.logIndex, date: oldActivity.date, values: updatedValues, view: oldActivity.view, itemView: oldActivity.itemView, isBaseCard: oldActivity.isBaseCard, state: oldActivity.state)
 
-            if activities.indices.contains(index) {
+            if activities.contains(index: index) {
                 activities[index] = updatedActivity
                 reloadViewController(reloadImmediately: false)
 
