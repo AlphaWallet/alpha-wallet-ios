@@ -336,7 +336,7 @@ extension AccountsViewModel {
 
         var backgroundColor: UIColor {
             switch self {
-            case .copyToClipboard: return Colors.appTint
+            case .copyToClipboard: return Configuration.Color.Semantic.appTint
             case .deleteWallet: return Configuration.Color.Semantic.dangerBackground
             }
         }

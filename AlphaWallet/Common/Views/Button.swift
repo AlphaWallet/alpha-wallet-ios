@@ -30,7 +30,7 @@ enum ButtonStyle {
 
     var backgroundColor: UIColor {
         switch self {
-        case .solid, .squared: return Colors.appTint
+        case .solid, .squared: return Configuration.Color.Semantic.appTint
         case .border, .borderless: return Configuration.Color.Semantic.defaultViewBackground
         case .system: return .clear
         case .special: return Configuration.Color.Semantic.specialButton
@@ -40,8 +40,8 @@ enum ButtonStyle {
 
     var backgroundColorHighlighted: UIColor {
         switch self {
-        case .solid, .squared: return Colors.appTint
-        case .border: return Colors.appTint
+        case .solid, .squared: return Configuration.Color.Semantic.appTint
+        case .border: return Configuration.Color.Semantic.appTint
         case .borderless: return Configuration.Color.Semantic.defaultViewBackground
         case .system: return .clear
         case .special: return Configuration.Color.Semantic.specialButton

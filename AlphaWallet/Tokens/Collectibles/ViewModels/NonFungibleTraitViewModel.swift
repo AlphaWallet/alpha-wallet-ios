@@ -21,7 +21,7 @@ struct NonFungibleTraitViewModel: Equatable {
     let count: String?
     var attributedValue: NSAttributedString?
     var attributedCountValue: NSAttributedString?
-    var borderColor: UIColor = Colors.appTint
+    var borderColor: UIColor = Configuration.Color.Semantic.appTint
     var cornerRadius: CGFloat = 10
     var borderWidth: CGFloat = 1
 

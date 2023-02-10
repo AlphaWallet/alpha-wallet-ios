@@ -10,7 +10,7 @@ class LocaleViewCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
-        tintColor = Colors.appTint
+        tintColor = Configuration.Color.Semantic.appTint
 
         let stackView = [.spacerWidth(5), nameLabel].asStackView(axis: .horizontal)
         stackView.translatesAutoresizingMaskIntoConstraints = false

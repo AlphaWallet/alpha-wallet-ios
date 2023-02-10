@@ -41,8 +41,8 @@ final class SwapQuoteDetailsView: UIView {
         button.setTitle("Hide", for: .selected)
         button.widthAnchor.constraint(equalToConstant: ScreenChecker.size(big: 50, medium: 50, small: 44)).isActive = true
         button.tintColor = Configuration.Color.Semantic.tableViewHeaderBackground
-        button.setTitleColor(Colors.appTint, for: .normal)
-        button.setTitleColor(Colors.appTint, for: .selected)
+        button.setTitleColor(Configuration.Color.Semantic.appTint, for: .normal)
+        button.setTitleColor(Configuration.Color.Semantic.appTint, for: .selected)
 
         return button
     }()

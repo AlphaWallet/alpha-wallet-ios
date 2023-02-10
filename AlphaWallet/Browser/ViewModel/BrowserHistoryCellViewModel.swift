@@ -36,7 +36,7 @@ struct BrowserHistoryCellViewModel: Hashable {
     }
 
     var urlColor: UIColor? {
-        return Colors.appTint
+        return Configuration.Color.Semantic.appTint
     }
 
     var imageViewShadowColor: UIColor {
