@@ -89,7 +89,7 @@ open class BaseSessionsProvider: SessionsProvider {
             server: blockchain.server,
             reachability: reachability)
 
-        let nftProvider = AlphaWalletNFTProvider(analytics: analytics, wallet: wallet, server: blockchain.server)
+        let nftProvider = AlphaWalletNFTProvider(analytics: analytics, wallet: wallet, server: blockchain.server, config: config)
         
         return WalletSession(
             account: wallet,

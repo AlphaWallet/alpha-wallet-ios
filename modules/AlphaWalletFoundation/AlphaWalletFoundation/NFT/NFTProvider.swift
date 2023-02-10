@@ -33,11 +33,11 @@ public final class AlphaWalletNFTProvider: NFTProvider {
     private let wallet: Wallet
     private let server: RPCServer
 
-    public init(analytics: AnalyticsLogger, wallet: Wallet, server: RPCServer) {
+    public init(analytics: AnalyticsLogger, wallet: Wallet, server: RPCServer, config: Config) {
         self.wallet = wallet
         self.server = server
         enjin = Enjin(server: server)
-        openSea = OpenSea(analytics: analytics, server: server)
+        openSea = OpenSea(analytics: analytics, server: server, config: config)
     }
 
     // NOTE: Its important to return value for promise and not an error. As we are using `when(fulfilled: ...)`. There is force unwrap inside the `when(fulfilled` function

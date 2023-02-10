@@ -165,7 +165,7 @@ class AppCoordinator: NSObject, Coordinator {
     }()
     private lazy var blockchainProviderForResolvingEns: BlockchainProvider = RpcBlockchainProvider(server: .forResolvingEns, analytics: analytics, params: .defaultParams(for: .forResolvingEns))
     lazy private var blockiesGenerator: BlockiesGenerator = BlockiesGenerator(
-        assetImageProvider: OpenSea(analytics: analytics, server: .main),
+        assetImageProvider: OpenSea(analytics: analytics, server: .main, config: config),
         storage: sharedEnsRecordsStorage,
         blockchainProvider: blockchainProviderForResolvingEns)
 
