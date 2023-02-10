@@ -200,7 +200,7 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
 
             strongSelf.updateNonOpenSeaNonFungiblesBalance(contracts: erc721Or1155ContractsNotFoundInOpenSea, enjinTokens: response.enjin)
             let contractToOpenSeaNonFungibles = response.openSea.mapValues { openSeaJsons in
-                return openSeaJsons.map { each -> NonFungibleBalanceAndItsSource<OpenSeaNonFungible> in
+                return openSeaJsons.map { each -> NonFungibleBalanceAndItsSource<NftAsset> in
                     return .init(tokenId: each.tokenId, value: each, source: .nativeProvider(.openSea))
                 }
             }
@@ -298,17 +298,17 @@ public class TokenBalanceFetcher: TokenBalanceFetcherType {
         transactionStorage.writeJsonForTransactions(toUrl: url, server: server)
     }
 
-    private func updateOpenSeaErc721Tokens(contractToOpenSeaNonFungibles: [AlphaWallet.Address: [NonFungibleBalanceAndItsSource<OpenSeaNonFungible>]], enjinTokens: EnjinTokenIdsToSemiFungibles) {
+    private func updateOpenSeaErc721Tokens(contractToOpenSeaNonFungibles: [AlphaWallet.Address: [NonFungibleBalanceAndItsSource<NftAsset>]], enjinTokens: EnjinTokenIdsToSemiFungibles) {
         //All non-ERC1155 to be defensive
         let erc721ContractToOpenSeaNonFungibles = contractToOpenSeaNonFungibles.filter { $0.value.randomElement()?.value.tokenType != .erc1155 }
         let ops = buildUpdateNonFungiblesBalanceActions(contractToNonFungibles: erc721ContractToOpenSeaNonFungibles)
         notifyUpdateBalance(ops)
     }
 
-    private func updateOpenSeaErc1155Tokens(contractToOpenSeaNonFungibles: [AlphaWallet.Address: [NonFungibleBalanceAndItsSource<OpenSeaNonFungible>]], enjinTokens: EnjinTokenIdsToSemiFungibles) {
+    private func updateOpenSeaErc1155Tokens(contractToOpenSeaNonFungibles: [AlphaWallet.Address: [NonFungibleBalanceAndItsSource<NftAsset>]], enjinTokens: EnjinTokenIdsToSemiFungibles) {
         var erc1155ContractToOpenSeaNonFungibles = contractToOpenSeaNonFungibles.filter { $0.value.randomElement()?.value.tokenType == .erc1155 }
 
-        func _buildErc1155Updater(contractToOpenSeaNonFungibles: [AlphaWallet.Address: [NonFungibleBalanceAndItsSource<OpenSeaNonFungible>]]) -> AnyPublisher<[AddOrUpdateTokenAction], SessionTaskError> {
+        func _buildErc1155Updater(contractToOpenSeaNonFungibles: [AlphaWallet.Address: [NonFungibleBalanceAndItsSource<NftAsset>]]) -> AnyPublisher<[AddOrUpdateTokenAction], SessionTaskError> {
             let contractsToTokenIds: [AlphaWallet.Address: [BigInt]] = contractToOpenSeaNonFungibles.mapValues { $0.compactMap { BigInt($0.tokenId) } }
             //OpenSea API output doesn't include the balance ("value") for each tokenId, it seems. So we have to fetch them:
             let promises = contractsToTokenIds.map { contract, tokenIds in

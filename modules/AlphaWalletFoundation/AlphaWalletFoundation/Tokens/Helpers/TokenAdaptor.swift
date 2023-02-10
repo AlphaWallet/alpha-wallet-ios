@@ -330,7 +330,7 @@ public class TokenAdaptor {
         values.setTransferFee(string: nonFungible.transferFee)
 
         values.setCollection(collection: nonFungible.collection)
-        values.setSlug(string: nonFungible.slug)
+        values.setCollectionId(string: nonFungible.collectionId)
         values.setCreator(creator: nonFungible.creator)
 
         let status: TokenScript.Token.Status

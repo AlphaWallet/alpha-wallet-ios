@@ -1,5 +1,5 @@
 //
-//  OpenSeaNonFungible.swift
+//  NftAsset.swift
 //  AlphaWalletOpenSea
 //
 //  Created by Hwee-Boon Yar on Apr/30/22.
@@ -7,16 +7,17 @@
 
 import Foundation
 import BigInt
+import SwiftyJSON
 
 //Some fields are duplicated across token IDs within the same contract like the contractName, symbol, contractImageUrl, etc. The space savings in the database aren't work the normalization
-public struct OpenSeaNonFungible: Codable, Equatable, Hashable, NonFungibleFromJson {
+public struct NftAsset: Codable, Equatable, Hashable, NonFungibleFromJson {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(tokenId)
         hasher.combine(tokenType.rawValue)
         hasher.combine(value.description)
     }
 
-    public static func == (lhs: OpenSeaNonFungible, rhs: OpenSeaNonFungible) -> Bool {
+    public static func == (lhs: NftAsset, rhs: NftAsset) -> Bool {
         return lhs.tokenId == rhs.tokenId
     }
 
@@ -34,15 +35,18 @@ public struct OpenSeaNonFungible: Codable, Equatable, Hashable, NonFungibleFromJ
     public let description: String
     public let thumbnailUrl: String
     public let imageUrl: String
+    public let previewUrl: String
     public let contractImageUrl: String
+    public let imageOriginalUrl: String
     public let externalLink: String
     public let backgroundColor: String?
     public let traits: [OpenSeaNonFungibleTrait]
     public var generationTrait: OpenSeaNonFungibleTrait? {
-        return traits.first { $0.type == OpenSeaNonFungible.generationTraitName }
+        return traits.first { $0.type == NftAsset.generationTraitName }
     }
     public let collectionCreatedDate: Date?
     public let collectionDescription: String?
+
     public var meltStringValue: String?
     public var meltFeeRatio: Int?
     public var meltFeeMaxRatio: Int?
@@ -57,12 +61,12 @@ public struct OpenSeaNonFungible: Codable, Equatable, Hashable, NonFungibleFromJ
     public var issuer: String?
     public var created: String?
     public var transferFee: String?
-    public var collection: AlphaWalletOpenSea.Collection?
+    public var collection: AlphaWalletOpenSea.NftCollection?
     public var creator: AssetCreator?
-    public let slug: String
+    public let collectionId: String
 
-    //TODO remove when we aren't calling from outside the pod
-    public init(tokenId: String, tokenType: NonFungibleFromJsonTokenType, value: BigInt, contractName: String, decimals: Int, symbol: String, name: String, description: String, thumbnailUrl: String, imageUrl: String, contractImageUrl: String, externalLink: String, backgroundColor: String?, traits: [OpenSeaNonFungibleTrait], collectionCreatedDate: Date?, collectionDescription: String?, meltStringValue: String? = nil, meltFeeRatio: Int? = nil, meltFeeMaxRatio: Int? = nil, totalSupplyStringValue: String? = nil, circulatingSupplyStringValue: String? = nil, reserveStringValue: String? = nil, nonFungible: Bool? = nil, blockHeight: Int? = nil, mintableSupply: BigInt? = nil, transferable: String? = nil, supplyModel: String? = nil, issuer: String? = nil, created: String? = nil, transferFee: String? = nil, collection: AlphaWalletOpenSea.Collection? = nil, creator: AssetCreator?, slug: String) {
+    public init(tokenId: String, tokenType: NonFungibleFromJsonTokenType, value: BigInt, contractName: String, decimals: Int, symbol: String, name: String, description: String, thumbnailUrl: String, imageUrl: String, contractImageUrl: String, externalLink: String, backgroundColor: String?, traits: [OpenSeaNonFungibleTrait], collectionCreatedDate: Date?, collectionDescription: String?, meltStringValue: String? = nil, meltFeeRatio: Int? = nil, meltFeeMaxRatio: Int? = nil, totalSupplyStringValue: String? = nil, circulatingSupplyStringValue: String? = nil, reserveStringValue: String? = nil, nonFungible: Bool? = nil, blockHeight: Int? = nil, mintableSupply: BigInt? = nil, transferable: String? = nil, supplyModel: String? = nil, issuer: String? = nil, created: String? = nil, transferFee: String? = nil, collection: AlphaWalletOpenSea.NftCollection? = nil, creator: AssetCreator?, collectionId: String, imageOriginalUrl: String, previewUrl: String) {
+        self.imageOriginalUrl = imageOriginalUrl
         self.tokenId = tokenId
         self.tokenType = tokenType
         self.value = value
@@ -95,6 +99,8 @@ public struct OpenSeaNonFungible: Codable, Equatable, Hashable, NonFungibleFromJ
         self.transferFee = transferFee
         self.collection = collection
         self.creator = creator
-        self.slug = slug
+        self.collectionId = collectionId
+        self.previewUrl = previewUrl
     }
 }
+

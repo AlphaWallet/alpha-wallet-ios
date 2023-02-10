@@ -8,7 +8,8 @@
 import Foundation
 import SwiftyJSON
 
-public struct Collection: Codable {
+public struct NftCollection: Codable {
+    public let id: String
     public let ownedAssetCount: Int
     public let wikiUrl: String?
     public let instagramUsername: String?
@@ -21,18 +22,15 @@ public struct Collection: Codable {
     public let createdDate: String?
     public let defaultToFiat: Bool
     public let descriptionString: String
-    public var stats: Stats?
+    public var stats: NftCollectionStats?
     public let name: String
     public let externalUrl: String?
-    public let slug: String
     public let contracts: [PrimaryAssetContract]
+    public let bannerUrl: String?
 
-    public init(json: JSON) throws {
-        contracts = json["primary_asset_contracts"].arrayValue.compactMap { json in
-            return try? PrimaryAssetContract(json: json)
-        }
-        slug = json["slug"].stringValue
-
+    init(json: JSON, contracts: [PrimaryAssetContract]) {
+        self.contracts = contracts
+        id = json["slug"].stringValue
         ownedAssetCount = json["owned_asset_count"].intValue
         wikiUrl = json["wiki_url"].stringValue
         instagramUsername = json["instagram_username"].string
@@ -45,8 +43,9 @@ public struct Collection: Codable {
         createdDate = json["created_date"].stringValue
         defaultToFiat = json["default_to_fiat"].boolValue
         descriptionString = json["description"].stringValue
-        stats = try Stats(json: json)
+        stats = json["stats"] != .null ? NftCollectionStats(json: json["stats"]) : nil
         name = json["name"].stringValue
         externalUrl = json["external_url"].string
+        bannerUrl = json["banner_image_url"].string
     }
 }

@@ -12,7 +12,7 @@ extension NonFungibleFromJson {
 }
 
 public func nonFungible(fromJsonData jsonData: Data, tokenType: TokenType? = nil, decoder: JSONDecoder = JSONDecoder()) -> NonFungibleFromJson? {
-    if let nonFungible = try? decoder.decode(OpenSeaNonFungible.self, from: jsonData) {
+    if let nonFungible = try? decoder.decode(NftAsset.self, from: jsonData) {
         return nonFungible
     }
     if let nonFungible = try? decoder.decode(NonFungibleFromTokenUri.self, from: jsonData) {

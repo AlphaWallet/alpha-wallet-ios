@@ -5,7 +5,7 @@ import AlphaWalletOpenSea
 import BigInt
 import SwiftyJSON
 
-extension OpenSeaNonFungible {
+extension NftAsset {
     var tokenIdSubstituted: String {
         return TokenIdConverter.toTokenIdSubstituted(string: tokenId)
     }
@@ -79,11 +79,11 @@ struct OpenSeaNonFungibleBeforeErc1155Support: Codable {
     let backgroundColor: String?
     let traits: [OpenSeaNonFungibleTrait]
     var generationTrait: OpenSeaNonFungibleTrait? {
-        return traits.first { $0.type == OpenSeaNonFungible.generationTraitName }
+        return traits.first { $0.type == NftAsset.generationTraitName }
     }
 
     func asPostErc1155Support(tokenType: NonFungibleFromJsonTokenType?) -> NonFungibleFromJson {
-        let result = OpenSeaNonFungible(tokenId: tokenId, tokenType: tokenType ?? .erc721, value: 1, contractName: contractName, decimals: 0, symbol: symbol, name: name, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, contractImageUrl: contractImageUrl, externalLink: externalLink, backgroundColor: backgroundColor, traits: traits, collectionCreatedDate: nil, collectionDescription: nil, creator: nil, slug: "")
+        let result = NftAsset(tokenId: tokenId, tokenType: tokenType ?? .erc721, value: 1, contractName: contractName, decimals: 0, symbol: symbol, name: name, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, contractImageUrl: contractImageUrl, externalLink: externalLink, backgroundColor: backgroundColor, traits: traits, collectionCreatedDate: nil, collectionDescription: nil, creator: nil, collectionId: "", imageOriginalUrl: "", previewUrl: "")
         return result
     }
 }

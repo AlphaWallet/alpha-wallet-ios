@@ -76,8 +76,8 @@ final class NFTCollectionInfoPageViewModel {
     private func loadCollectionStats(for tokenHolder: AnyPublisher<TokenHolder?, Never>) -> AnyPublisher<Loadable<Stats, PromiseError>, Never> {
         return tokenHolder
             .flatMapLatest { [nftProvider] tokenHolder -> AnyPublisher<Loadable<Stats, PromiseError>, Never> in
-                if let openSeaSlug = tokenHolder?.values.slug, openSeaSlug.trimmed.nonEmpty {
-                    return nftProvider.collectionStats(slug: openSeaSlug)
+                if let collectionId = tokenHolder?.values.collectionId, collectionId.trimmed.nonEmpty {
+                    return nftProvider.collectionStats(collectionId: collectionId)
                         .publisher()
                         .map { stats -> Loadable<Stats, PromiseError> in .done(stats) }
                         .catch { return Just(.failure($0)) }

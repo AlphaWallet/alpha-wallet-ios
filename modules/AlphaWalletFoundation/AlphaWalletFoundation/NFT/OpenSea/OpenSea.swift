@@ -5,7 +5,7 @@ import PromiseKit
 import AlphaWalletCore
 import AlphaWalletOpenSea
 
-public typealias Stats = AlphaWalletOpenSea.Stats
+public typealias Stats = AlphaWalletOpenSea.NftCollectionStats
 
 public final class OpenSea {
     private let analytics: AnalyticsLogger
@@ -98,16 +98,16 @@ public final class OpenSea {
         })
     }
 
-    public func collectionStats(slug: String) -> Promise<Stats> {
+    public func collectionStats(collectionId: String) -> Promise<Stats> {
         firstly {
-            .value(slug)
-        }.then(on: queue, { [weak self, queue, networkProvider, server] slug -> Promise<Stats> in
-            let key = "\(slug)-\(server)"
+            .value(collectionId)
+        }.then(on: queue, { [weak self, queue, networkProvider, server] collectionId -> Promise<Stats> in
+            let key = "\(collectionId)-\(server)"
             if let promise = self?.inFlightFetchStatsPromises[key] {
                 return promise
             } else {
                 let promise = networkProvider
-                    .collectionStats(slug: slug, server: server)
+                    .collectionStats(slug: collectionId, server: server)
                     .ensure(on: queue, {
                         self?.inFlightFetchStatsPromises[key] = .none
                     })

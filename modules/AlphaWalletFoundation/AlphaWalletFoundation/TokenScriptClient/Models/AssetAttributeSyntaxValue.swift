@@ -346,14 +346,14 @@ extension Dictionary where Key == AttributeId, Value == AssetAttributeSyntaxValu
         self["description"]?.value
     }
 
-    public var slug: String? {
-        self["slug"]?.stringValue
+    public var collectionId: String? {
+        self["collectionId"]?.stringValue
     }
 
-    public var collectionValue: AlphaWalletOpenSea.Collection? {
-        return self["collection"]?.stringValue.flatMap { rawValue -> AlphaWalletOpenSea.Collection? in
+    public var collectionValue: AlphaWalletOpenSea.NftCollection? {
+        return self["collection"]?.stringValue.flatMap { rawValue -> AlphaWalletOpenSea.NftCollection? in
             guard let data = rawValue.data(using: .utf8) else { return nil }
-            return try? JSONDecoder().decode(AlphaWalletOpenSea.Collection.self, from: data)
+            return try? JSONDecoder().decode(AlphaWalletOpenSea.NftCollection.self, from: data)
         }
     }
 
@@ -432,7 +432,7 @@ extension Dictionary where Key == AttributeId, Value == AssetAttributeSyntaxValu
         self["transferFee"] = string.flatMap { .init(directoryString: $0) }
     }
 
-    public mutating func setCollection(collection: AlphaWalletOpenSea.Collection?) {
+    public mutating func setCollection(collection: AlphaWalletOpenSea.NftCollection?) {
         self["collection"] = collection.flatMap { collection -> String? in
             let data = try? JSONEncoder().encode(collection)
             return data.flatMap { data in
@@ -450,7 +450,7 @@ extension Dictionary where Key == AttributeId, Value == AssetAttributeSyntaxValu
         }.flatMap { .init(directoryString: $0) }
     }
 
-    public mutating func setSlug(string: String?) {
-        self["slug"] = string.flatMap { .init(directoryString: $0) }
+    public mutating func setCollectionId(string: String?) {
+        self["collectionId"] = string.flatMap { .init(directoryString: $0) }
     }
 }

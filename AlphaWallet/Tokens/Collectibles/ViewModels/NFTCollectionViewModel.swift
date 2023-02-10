@@ -110,8 +110,8 @@ final class NFTCollectionViewModel {
     private func actions(for trigger: AnyPublisher<TokenHolder?, Never>) -> AnyPublisher<[NonFungibleTokenAction], Never> {
         trigger.map {
             $0?.values.collectionValue.flatMap { collection -> URL? in
-                guard collection.slug.trimmed.nonEmpty else { return nil }
-                return URL(string: "https://opensea.io/collection/\(collection.slug)")
+                guard collection.id.trimmed.nonEmpty else { return nil }
+                return URL(string: "https://opensea.io/collection/\(collection.id)")
             }
         }.map { $0.flatMap { [NonFungibleTokenAction.openInUrl(url: $0)] } ?? [] }
         .eraseToAnyPublisher()

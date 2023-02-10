@@ -41,7 +41,7 @@ public protocol NonFungibleFromJson: Codable {
     var issuer: String? { get }
     var created: String? { get }
     var transferFee: String? { get }
-    var slug: String { get }
+    var collectionId: String { get }
     var creator: AssetCreator? { get }
-    var collection: AlphaWalletOpenSea.Collection? { get }
+    var collection: AlphaWalletOpenSea.NftCollection? { get }
 }

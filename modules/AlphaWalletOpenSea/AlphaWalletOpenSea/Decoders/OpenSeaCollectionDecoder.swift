@@ -8,24 +8,25 @@
 import Foundation
 import SwiftyJSON
 
-public struct OpenSeaCollectionDecoder {
-    public static func decode(json: JSON, results: [CollectionKey: Collection]) -> [CollectionKey: Collection] {
-        var results = results
+struct OpenSeaCollectionDecoder {
+    let collections: [CollectionKey: NftCollection]
+
+    func decode(json: JSON) -> NftCollectionsPage {
+        var collections = collections
 
         for each in json.arrayValue {
-            guard let collection = try? Collection(json: each) else {
-                continue
-            }
+            let contracts = json["primary_asset_contracts"].arrayValue.compactMap { try? PrimaryAssetContract(json: $0) }
+            let collection = NftCollection(json: each, contracts: contracts)
 
             if collection.contracts.isEmpty {
-                results[CollectionKey.slug(collection.slug)] = collection
+                collections[CollectionKey.collectionId(collection.id)] = collection
             } else {
                 for each in collection.contracts {
-                    results[CollectionKey.address(each.address)] = collection
+                    collections[CollectionKey.address(each.address)] = collection
                 }
             }
         }
 
-        return results
+        return .init(collections: collections, count: json.arrayValue.count, hasNextPage: !json.arrayValue.isEmpty, error: nil)
     }
 }
