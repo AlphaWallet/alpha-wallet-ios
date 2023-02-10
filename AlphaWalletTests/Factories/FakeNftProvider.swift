@@ -18,7 +18,7 @@ final class FakeNftProvider: NFTProvider, NftAssetImageProvider {
 
     struct ProviderError: Error {}
 
-    func collectionStats(slug: String) -> Promise<Stats> {
+    func collectionStats(collectionId: String) -> Promise<Stats> {
         return .init(error: ProviderError())
     }
     func nonFungible() -> Promise<NonFungiblesTokens> {

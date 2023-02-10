@@ -8,7 +8,7 @@
 import Foundation
 import SwiftyJSON
 
-public struct Stats: Codable {
+public struct NftCollectionStats: Codable {
     let oneDayVolume: Double
     let oneDayChange: Double
     let oneDaySales: Double
@@ -34,12 +34,7 @@ public struct Stats: Codable {
     public let floorPrice: Double?
     public let numReports: Int
 
-    init(json: JSON) throws {
-        guard json["stats"] != .null else {
-            throw OpenSeaAssetDecoder.DecoderError.statsDecoding
-        }
-        let json = json["stats"]
-
+    init(json: JSON) {
         oneDayVolume = json["one_day_volume"].doubleValue
         oneDayChange = json["one_day_change"].doubleValue
         oneDaySales = json["one_day_sales"].doubleValue

@@ -25,7 +25,7 @@ public struct PrimaryAssetContract: Codable {
 
     init(json: JSON) throws {
         guard let address = AlphaWallet.Address(string: json["address"].stringValue) else {
-            throw OpenSeaAssetDecoder.DecoderError.jsonInvalidError
+            throw NftAssetsPageDecoder.DecoderError.jsonInvalidError
         }
 
         self.address = address

@@ -14,7 +14,7 @@ import Combine
 public typealias NonFungiblesTokens = (openSea: OpenSeaAddressesToNonFungibles, enjin: EnjinTokenIdsToSemiFungibles)
 
 public protocol NFTProvider {
-    func collectionStats(slug: String) -> Promise<Stats>
+    func collectionStats(collectionId: String) -> Promise<Stats>
     func nonFungible() -> Promise<NonFungiblesTokens>
 }
 
@@ -61,8 +61,8 @@ public final class AlphaWalletNFTProvider: NFTProvider {
         return openSea.nonFungible(wallet: wallet)
     }
 
-    public func collectionStats(slug: String) -> Promise<Stats> {
-        openSea.collectionStats(slug: slug)
+    public func collectionStats(collectionId: String) -> Promise<Stats> {
+        openSea.collectionStats(collectionId: collectionId)
     }
 
     public func nonFungible() -> Promise<NonFungiblesTokens> {

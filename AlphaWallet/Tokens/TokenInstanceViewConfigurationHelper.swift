@@ -16,7 +16,7 @@ final class TokenInstanceViewConfigurationHelper {
     private let assetDefinitionStore: AssetDefinitionStore
     private let tokenAttributeValues: AssetAttributeValues
 
-    private var openSeaCollection: AlphaWalletOpenSea.Collection? {
+    private var openSeaCollection: AlphaWalletOpenSea.NftCollection? {
         values?.collectionValue
     }
     private var openSeaStats: Stats? {

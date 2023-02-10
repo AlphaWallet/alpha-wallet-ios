@@ -10,5 +10,5 @@ import AlphaWalletAddress
 
 public enum CollectionKey: Hashable {
     case address(AlphaWallet.Address)
-    case slug(String)
+    case collectionId(String)
 }
