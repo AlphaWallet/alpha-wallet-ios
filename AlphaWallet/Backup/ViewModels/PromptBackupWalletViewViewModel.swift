@@ -34,7 +34,7 @@ extension PromptBackupWalletViewModel {
     }
 
     var titleColor: UIColor {
-        return Colors.appWhite
+        return Configuration.Color.Semantic.defaultInverseText
     }
 
     var descriptionFont: UIFont {
@@ -42,11 +42,11 @@ extension PromptBackupWalletViewModel {
     }
 
     var descriptionColor: UIColor {
-        return Colors.appWhite
+        return Configuration.Color.Semantic.defaultInverseText
     }
 
     var backupButtonTitleColor: UIColor {
-        return Colors.appWhite
+        return Configuration.Color.Semantic.defaultInverseText
     }
 
     var backupButtonTitleFont: UIFont {
@@ -66,7 +66,7 @@ extension PromptBackupWalletViewModel {
     }
 
     var moreButtonColor: UIColor {
-        return Colors.appWhite
+        return Configuration.Color.Semantic.defaultInverseText
     }
 
     var backupButtonTitle: String {

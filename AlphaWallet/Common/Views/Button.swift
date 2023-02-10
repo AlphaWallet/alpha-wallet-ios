@@ -71,7 +71,7 @@ enum ButtonStyle {
 
     var textColor: UIColor {
         switch self {
-        case .solid, .squared: return Colors.appWhite
+        case .solid, .squared: return Configuration.Color.Semantic.defaultInverseText
         case .border, .borderless, .system, .special: return Configuration.Color.Semantic.defaultForegroundText
         case .green: return ButtonsBarViewModel.primaryButton.buttonTitleColor
         }
@@ -79,10 +79,10 @@ enum ButtonStyle {
 
     var textColorHighlighted: UIColor {
         switch self {
-        case .solid, .squared: return UIColor(white: 1, alpha: 0.8)
-        case .border: return Colors.appWhite
+        case .solid, .squared: return Configuration.Color.Semantic.defaultInverseText.withAlphaComponent(0.8)
+        case .border: return Configuration.Color.Semantic.defaultInverseText
         case .borderless, .system, .special: return Configuration.Color.Semantic.defaultViewBackground
-        case .green: return Colors.appWhite.withAlphaComponent(0.8)
+        case .green: return Configuration.Color.Semantic.defaultInverseText.withAlphaComponent(0.8)
         }
     }
 

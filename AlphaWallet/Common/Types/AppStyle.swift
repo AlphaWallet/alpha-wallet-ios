@@ -100,7 +100,6 @@ extension UITabBarController {
 }
 
 struct Colors {
-    static let appWhite = UIColor.white
 }
 
 struct Fonts {
