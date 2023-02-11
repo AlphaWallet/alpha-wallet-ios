@@ -148,7 +148,7 @@ public class OpenSea {
             if result.hasNextPage {
                 return strongSelf.fetchCollectionsPage(forOwner: owner, chainId: chainId, offset: offset + result.count, collections: result.collections)
             } else {
-                return .value(.init(hasError: false, result: collections))
+                return .value(.init(hasError: false, result: result.collections))
             }
         }).recover { _ -> Promise<Response<[CollectionKey: NftCollection]>> in
             //NOTE: return some already fetched amount
