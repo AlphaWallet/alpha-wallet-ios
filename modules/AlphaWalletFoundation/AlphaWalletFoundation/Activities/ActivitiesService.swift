@@ -35,7 +35,6 @@ public class ActivitiesService: NSObject, ActivitiesServiceType {
     //Dictionary for lookup. Using `.firstIndex` too many times is too slow (60s for 10k events)
     private var activitiesIndexLookup: AtomicDictionary<Int, (index: Int, activity: Activity)> = .init()
     private var activities: AtomicArray<Activity> = .init()
-
     private var tokensAndTokenHolders: AtomicDictionary<AddressAndRPCServer, [TokenHolder]> = .init()
     private var rateLimitedViewControllerReloader: RateLimiter?
     private var hasLoadedActivitiesTheFirstTime = false
@@ -60,17 +59,16 @@ public class ActivitiesService: NSObject, ActivitiesServiceType {
         didUpdateActivitySubject.eraseToAnyPublisher()
     }
 
-    init(
-        config: Config,
-        sessions: ServerDictionary<WalletSession>,
-        assetDefinitionStore: AssetDefinitionStore,
-        eventsActivityDataStore: EventsActivityDataStoreProtocol,
-        eventsDataStore: NonActivityEventsDataStore,
-        transactionDataStore: TransactionDataStore,
-        activitiesFilterStrategy: ActivitiesFilterStrategy = .none,
-        transactionsFilterStrategy: TransactionsFilterStrategy = .all,
-        tokensService: TokenProvidable
-    ) {
+    init(config: Config,
+         sessions: ServerDictionary<WalletSession>,
+         assetDefinitionStore: AssetDefinitionStore,
+         eventsActivityDataStore: EventsActivityDataStoreProtocol,
+         eventsDataStore: NonActivityEventsDataStore,
+         transactionDataStore: TransactionDataStore,
+         activitiesFilterStrategy: ActivitiesFilterStrategy = .none,
+         transactionsFilterStrategy: TransactionsFilterStrategy = .all,
+         tokensService: TokenProvidable) {
+
         self.config = config
         self.sessions = sessions
         self.assetDefinitionStore = assetDefinitionStore

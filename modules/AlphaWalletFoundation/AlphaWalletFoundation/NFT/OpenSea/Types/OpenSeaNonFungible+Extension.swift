@@ -9,42 +9,6 @@ extension NftAsset {
     var tokenIdSubstituted: String {
         return TokenIdConverter.toTokenIdSubstituted(string: tokenId)
     }
-
-    mutating func update(enjinToken: GetEnjinTokenQuery.Data.EnjinToken) {
-        meltStringValue = enjinToken.meltValue
-        meltFeeRatio = enjinToken.meltFeeRatio
-        meltFeeMaxRatio = enjinToken.meltFeeMaxRatio
-        totalSupplyStringValue = enjinToken.totalSupply
-        circulatingSupplyStringValue = enjinToken.circulatingSupply
-        reserveStringValue = enjinToken.reserve
-        nonFungible = enjinToken.nonFungible
-        blockHeight = enjinToken.blockHeight
-        mintableSupply = enjinToken.mintableSupply.flatMap { BigInt($0) }
-        transferable = enjinToken.transferable?.rawValue
-        supplyModel = enjinToken.supplyModel?.rawValue
-        issuer = enjinToken.creator
-        created = enjinToken.createdAt
-        transferFee = enjinToken.transferFeeSettings?.type?.rawValue
-    }
-}
-
-extension JSON {
-    mutating func update(enjinToken: GetEnjinTokenQuery.Data.EnjinToken) {
-        self["meltStringValue"] = JSON(enjinToken.meltValue as Any)
-        self["meltFeeRatio"] = JSON(enjinToken.meltFeeRatio as Any)
-        self["meltFeeMaxRatio"] = JSON(enjinToken.supplyModel as Any)
-        self["supplyModel"] = JSON(enjinToken.supplyModel as Any)
-        self["totalSupplyStringValue"] = JSON(enjinToken.totalSupply as Any)
-        self["circulatingSupplyStringValue"] = JSON(enjinToken.circulatingSupply as Any)
-        self["reserveStringValue"] = JSON(enjinToken.reserve as Any)
-        self["transferable"] = JSON(enjinToken.transferable as Any)
-        self["nonFungible"] = JSON(enjinToken.nonFungible as Any)
-        self["blockHeight"] = JSON(enjinToken.blockHeight as Any)
-        self["mintableSupply"] = JSON(enjinToken.mintableSupply as Any)
-        self["enjin.issuer"] = JSON(enjinToken.creator as Any)
-        self["created"] = JSON(enjinToken.createdAt as Any)
-        self["transferFee"] = JSON(enjinToken.transferFeeSettings?.type?.rawValue as Any)
-    }
 }
 
 struct TokenIdConverter {

@@ -35,7 +35,7 @@ final class JsonFromTokenUri {
         inFlightPromises.removeAll()
     }
 
-    func fetchJsonFromTokenUri(forTokenId tokenId: String, tokenType: TokenType, address: AlphaWallet.Address, enjinToken: GetEnjinTokenQuery.Data.EnjinToken?) -> AnyPublisher<NonFungibleBalanceAndItsSource<JsonString>, SessionTaskError> {
+    func fetchJsonFromTokenUri(forTokenId tokenId: String, tokenType: TokenType, address: AlphaWallet.Address) -> AnyPublisher<NonFungibleBalanceAndItsSource<JsonString>, SessionTaskError> {
         return Just(tokenId)
             .receive(on: queue)
             .setFailureType(to: SessionTaskError.self)
@@ -47,7 +47,7 @@ final class JsonFromTokenUri {
                     return promise
                 } else {
                     let promise = getTokenUri.getUriOrTokenUri(for: tokenId, contract: address)
-                        .flatMap { strongSelf.fetchTokenJson(forTokenId: tokenId, tokenType: tokenType, uri: $0, address: address, enjinToken: enjinToken) }
+                        .flatMap { strongSelf.fetchTokenJson(forTokenId: tokenId, tokenType: tokenType, uri: $0, address: address) }
                         .catch { _ in return strongSelf.generateTokenJsonFallback(forTokenId: tokenId, tokenType: tokenType, address: address) }
                         .receive(on: queue)
                         .handleEvents(receiveCompletion: { _ in strongSelf.inFlightPromises[key] = .none })
@@ -78,7 +78,7 @@ final class JsonFromTokenUri {
         return .just(.init(tokenId: tokenId, value: json, source: .fallback))
     }
 
-    private func fetchTokenJson(forTokenId tokenId: String, tokenType: TokenType, uri originalUri: URL, address: AlphaWallet.Address, enjinToken: GetEnjinTokenQuery.Data.EnjinToken?) -> AnyPublisher<NonFungibleBalanceAndItsSource<JsonString>, SessionTaskError> {
+    private func fetchTokenJson(forTokenId tokenId: String, tokenType: TokenType, uri originalUri: URL, address: AlphaWallet.Address) -> AnyPublisher<NonFungibleBalanceAndItsSource<JsonString>, SessionTaskError> {
         struct Error: Swift.Error {
         }
         let uri = originalUri.rewrittenIfIpfs
@@ -110,10 +110,6 @@ final class JsonFromTokenUri {
                             jsonDictionary["thumbnailUrl"] = jsonDictionary["imageUrl"]
                             //POAP tokens (https://blockscout.com/xdai/mainnet/address/0x22C1f6050E56d2876009903609a2cC3fEf83B415/transactions), eg. https://api.poap.xyz/metadata/2503/278569, use `home_url` as the key for what they should use `external_url` for and they use `external_url` to point back to the token URI
                             jsonDictionary["externalLink"] = JSON(jsonDictionary["home_url"].string ?? jsonDictionary["external_url"].string ?? "")
-                        }
-
-                        if let enjinToken = enjinToken {
-                            jsonDictionary.update(enjinToken: enjinToken)
                         }
 
                         if let jsonString = jsonDictionary.rawString() {

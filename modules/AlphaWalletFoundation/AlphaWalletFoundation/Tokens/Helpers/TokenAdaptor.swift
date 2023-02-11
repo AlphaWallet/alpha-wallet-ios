@@ -36,14 +36,17 @@ extension TokenHolderState {
 extension TokenHolder: ObservableObject { }
 
 public struct TokenAdaptor {
+    let nftProvider: NFTProvider
     let assetDefinitionStore: AssetDefinitionStore
     let eventsDataStore: NonActivityEventsDataStore
     let wallet: Wallet
 
     public init(assetDefinitionStore: AssetDefinitionStore,
                 eventsDataStore: NonActivityEventsDataStore,
-                wallet: Wallet) {
+                wallet: Wallet,
+                nftProvider: NFTProvider) {
 
+        self.nftProvider = nftProvider
         self.wallet = wallet
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
@@ -319,20 +322,21 @@ public struct TokenAdaptor {
         values.setDecimals(int: nonFungible.decimals)
         values.setTokenType(string: nonFungible.tokenType.rawValue)
 
-        values.setMeltStringValue(string: nonFungible.meltStringValue)
-        values.setMeltFeeRatio(int: nonFungible.meltFeeRatio)
-        values.setMeltFeeMaxRatio(int: nonFungible.meltFeeMaxRatio)
-        values.setTotalSupplyStringValue(string: nonFungible.totalSupplyStringValue)
-        values.setCirculatingSupply(string: nonFungible.circulatingSupplyStringValue)
-        values.setReserveStringValue(string: nonFungible.reserveStringValue)
-        values.setNonFungible(bool: nonFungible.nonFungible)
-        values.setBlockHeight(int: nonFungible.blockHeight)
-        values.setMintableSupply(bigInt: nonFungible.mintableSupply)
-        values.setTransferable(string: nonFungible.transferable)
-        values.setSupplyModel(string: nonFungible.supplyModel)
-        values.setIssuer(string: nonFungible.issuer)
-        values.setCreated(string: nonFungible.created)
-        values.setTransferFee(string: nonFungible.transferFee)
+        if let token = nftProvider.enjinToken(tokenId: tokenIdOrEvent.tokenId) {
+            values.setMeltStringValue(string: token.meltValue)
+            values.setMeltFeeRatio(int: token.meltFeeRatio)
+            values.setMeltFeeMaxRatio(int: token.meltFeeMaxRatio)
+            values.setTotalSupplyStringValue(string: token.totalSupply)
+            values.setCirculatingSupply(string: token.circulatingSupply)
+            values.setReserveStringValue(string: token.reserve)
+            values.setNonFungible(bool: token.nonFungible)
+            values.setBlockHeight(int: token.blockHeight)
+            values.setMintableSupply(bigInt: BigInt(token.mintableSupply))
+            values.setTransferable(string: token.transferable)
+            values.setSupplyModel(string: token.supplyModel)
+            values.setCreated(string: token.createdAt)
+            values.setTransferFee(string: token.transferFee)
+        }
 
         values.setCollection(collection: nonFungible.collection)
         values.setCollectionId(string: nonFungible.collectionId)
