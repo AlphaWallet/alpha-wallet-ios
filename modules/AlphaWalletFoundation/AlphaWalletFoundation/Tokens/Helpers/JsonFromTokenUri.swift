@@ -40,7 +40,7 @@ final class JsonFromTokenUri {
             .receive(on: queue)
             .setFailureType(to: SessionTaskError.self)
             .flatMap { [weak self, queue, weak getTokenUri] tokenId -> AnyPublisher<NonFungibleBalanceAndItsSource<JsonString>, SessionTaskError> in
-                guard let strongSelf = self, let getTokenUri = getTokenUri else { return .fail(.cancelledError) }
+                guard let strongSelf = self, let getTokenUri = getTokenUri else { return .empty() }
                 let key = "\(tokenId).\(address.eip55String).\(tokenType.rawValue)"
 
                 if let promise = strongSelf.inFlightPromises[key] {
