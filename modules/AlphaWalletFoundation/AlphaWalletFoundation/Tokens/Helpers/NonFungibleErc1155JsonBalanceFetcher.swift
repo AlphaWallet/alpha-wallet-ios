@@ -43,10 +43,10 @@ class NonFungibleErc1155JsonBalanceFetcher {
             .detectContractsAndTokenIds()
             .mapError { SessionTaskError(error: $0) }
             .flatMap { [weak self] contractsAndTokenIds -> AnyPublisher<Erc1155TokenIds.ContractsAndTokenIds, SessionTaskError> in
-                guard let strongSelf = self else { return .fail(.cancelledError) }
+                guard let strongSelf = self else { return .empty() }
                 return strongSelf.addUnknownErc1155ContractsToDatabase(contractsAndTokenIds: contractsAndTokenIds.tokens)
             }.flatMap { [weak self] contractsAndTokenIds -> AnyPublisher<(contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds, tokenIdMetaDatas: [TokenIdMetaData]), SessionTaskError> in
-                guard let strongSelf = self else { return .fail(.cancelledError) }
+                guard let strongSelf = self else { return .empty() }
                 return strongSelf._fetchErc1155NonFungibleJsons(contractsAndTokenIds: contractsAndTokenIds, enjinTokens: enjinTokens)
                     .map { (contractsAndTokenIds: contractsAndTokenIds, tokenIdMetaDatas: $0) }
                     .eraseToAnyPublisher()
