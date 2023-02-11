@@ -144,7 +144,7 @@ extension TransactionConfirmationViewModel {
                 case .nativeCryptocurrency:
                     symbol = transactionType.tokenObject.symbol
                 case .erc20, .erc1155, .erc721, .erc721ForTickets, .erc875:
-                    symbol = transactionType.tokenObject.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
+                    symbol = session.tokenAdaptor.tokenScriptOverrides(token: transactionType.tokenObject).symbolInPluralForm
                 }
 
                 //TODO: extract to constants
@@ -187,7 +187,7 @@ extension TransactionConfirmationViewModel {
             case .nativeCryptocurrency:
                 symbol = transactionType.tokenObject.symbol
             case .erc20, .erc1155, .erc721, .erc721ForTickets, .erc875:
-                symbol = transactionType.tokenObject.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
+                symbol = session.tokenAdaptor.tokenScriptOverrides(token: transactionType.tokenObject).symbolInPluralForm
             }
             let newBalance = NumberFormatter.shortCrypto.string(for: newBalance) ?? "-"
 
@@ -201,7 +201,7 @@ extension TransactionConfirmationViewModel {
             case .nativeCryptocurrency:
                 symbol = transactionType.tokenObject.symbol
             case .erc20, .erc1155, .erc721, .erc721ForTickets, .erc875:
-                symbol = transactionType.tokenObject.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
+                symbol = session.tokenAdaptor.tokenScriptOverrides(token: transactionType.tokenObject).symbolInPluralForm
             }
 
             let balance = NumberFormatter.alternateAmount.string(double: balance)

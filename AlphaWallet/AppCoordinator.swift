@@ -594,6 +594,7 @@ class AppCoordinator: NSObject, Coordinator {
             analytics: analytics,
             blockchainsProvider: blockchainsProvider,
             tokensDataStore: tokensDataStore,
+            eventsDataStore: eventsDataStore,
             assetDefinitionStore: assetDefinitionStore,
             reachability: reachability,
             wallet: wallet)
@@ -614,7 +615,8 @@ class AppCoordinator: NSObject, Coordinator {
             coinTickersFetcher: coinTickersFetcher,
             assetDefinitionStore: assetDefinitionStore,
             eventsDataStore: eventsDataStore,
-            currencyService: currencyService)
+            currencyService: currencyService,
+            sessionsProvider: sessionsProvider)
 
         pipeline.start()
 

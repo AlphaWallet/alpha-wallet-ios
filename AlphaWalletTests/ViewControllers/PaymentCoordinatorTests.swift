@@ -35,7 +35,8 @@ extension WalletDataProcessingPipeline {
             tokensDataStore: tokensDataStore,
             assetDefinitionStore: .make(),
             reachability: FakeReachabilityManager(true),
-            wallet: wallet)
+            wallet: wallet,
+            eventsDataStore: FakeEventsDataStore(account: wallet))
 
         sessionsProvider.start()
 
@@ -60,7 +61,8 @@ extension WalletDataProcessingPipeline {
             coinTickersFetcher: coinTickersFetcher,
             assetDefinitionStore: .make(),
             eventsDataStore: eventsDataStore,
-            currencyService: currencyService)
+            currencyService: currencyService,
+            sessionsProvider: sessionsProvider)
 
         let fetcher = WalletBalanceFetcher(wallet: wallet, tokensService: pipeline, currencyService: .make())
 
