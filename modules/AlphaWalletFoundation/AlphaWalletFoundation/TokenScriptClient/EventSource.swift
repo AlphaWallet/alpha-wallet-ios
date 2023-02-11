@@ -18,6 +18,7 @@ final class EventSource: NSObject {
     private var cancellable = Set<AnyCancellable>()
     private let tokensService: TokenProvidable
     private let eventFetcher: EventFetcher
+    private let sessionsProvider: SessionsProvider
 
     init(wallet: Wallet,
          tokensService: TokenProvidable,
@@ -26,6 +27,7 @@ final class EventSource: NSObject {
          config: Config,
          sessionsProvider: SessionsProvider) {
 
+        self.sessionsProvider = sessionsProvider
         self.wallet = wallet
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
@@ -89,13 +91,9 @@ final class EventSource: NSObject {
 
         for each in xmlHandler.attributesWithEventSource {
             guard let eventOrigin = each.eventOrigin else { continue }
+            guard let session = sessionsProvider.session(for: token.server) else { continue }
 
-            let tokenHolders = token.getTokenHolders(
-                assetDefinitionStore: assetDefinitionStore,
-                eventsDataStore: eventsDataStore,
-                forWallet: wallet,
-                isSourcedFromEvents: false)
-
+            let tokenHolders = session.tokenAdaptor.getTokenHolders(token: token, isSourcedFromEvents: false)
             let tokenIds = tokenHolders.flatMap { $0.tokenIds }
 
             cards.append((eventOrigin, tokenIds))

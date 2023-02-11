@@ -34,18 +34,18 @@ public struct TokenScriptOverrides {
     public let hasNoBaseAssetDefinition: Bool
     public let server: RPCServerOrAny?
 
-    init(token: TokenScriptSupportable, assetDefinitionStore: AssetDefinitionStore, wallet: Wallet, eventsDataStore: NonActivityEventsDataStore) {
-        let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
-        self.symbolInPluralForm = token.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
-        self.title = token.title(withAssetDefinitionStore: assetDefinitionStore)
+    init(token: TokenScriptSupportable, tokenAdaptor: TokenAdaptor) {
+        let xmlHandler = tokenAdaptor.xmlHandler(token: token)
+        self.symbolInPluralForm = tokenAdaptor.symbolInPluralForm2(token: token)
+        self.title = tokenAdaptor.title(token: token)
         //NOTE: replace if needed
         switch token.type {
         case .erc20, .nativeCryptocurrency:
-            self.shortTitleInPluralForm = token.shortTitleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
-            self.titleInPluralForm = token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
+            self.shortTitleInPluralForm = tokenAdaptor.shortTitleInPluralForm(token: token)
+            self.titleInPluralForm = tokenAdaptor.titleInPluralForm(token: token)
         case .erc875, .erc1155, .erc721, .erc721ForTickets:
-            self.shortTitleInPluralForm = token.shortTitleInPluralForm(withAssetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: wallet)
-            self.titleInPluralForm = token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: wallet) ?? token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
+            self.shortTitleInPluralForm = tokenAdaptor.shortTitleInPluralForm(token: token)
+            self.titleInPluralForm = tokenAdaptor.titleInPluralFormOptional(token: token) ?? tokenAdaptor.titleInPluralForm(token: token)
         }
 
         self.hasNoBaseAssetDefinition = xmlHandler.hasNoBaseAssetDefinition

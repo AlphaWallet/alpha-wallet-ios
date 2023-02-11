@@ -44,7 +44,8 @@ extension FakeSessionsProvider {
             tokensDataStore: FakeTokensDataStore(servers: servers),
             assetDefinitionStore: .make(),
             reachability: FakeReachabilityManager(true),
-            wallet: wallet)
+            wallet: wallet,
+            eventsDataStore: FakeEventsDataStore(account: wallet))
 
         provider.start()
 
@@ -62,6 +63,7 @@ class FakeSessionsProvider: SessionsProvider {
     private let assetDefinitionStore: AssetDefinitionStore
     private let reachability: ReachabilityManagerProtocol
     private let wallet: Wallet
+    private let eventsDataStore: NonActivityEventsDataStore
 
     var sessions: AnyPublisher<ServerDictionary<WalletSession>, Never> {
         return sessionsSubject.eraseToAnyPublisher()
@@ -84,7 +86,8 @@ class FakeSessionsProvider: SessionsProvider {
             tokensDataStore: FakeTokensDataStore(servers: servers),
             assetDefinitionStore: .make(),
             reachability: FakeReachabilityManager(false),
-            wallet: .make())
+            wallet: .make(),
+            eventsDataStore: FakeEventsDataStore(account: .make()))
     }
 
     init(config: Config,
@@ -93,8 +96,10 @@ class FakeSessionsProvider: SessionsProvider {
          tokensDataStore: TokensDataStore,
          assetDefinitionStore: AssetDefinitionStore,
          reachability: ReachabilityManagerProtocol,
-         wallet: Wallet) {
+         wallet: Wallet,
+         eventsDataStore: NonActivityEventsDataStore) {
 
+        self.eventsDataStore = eventsDataStore
         self.wallet = wallet
         self.reachability = reachability
         self.assetDefinitionStore = assetDefinitionStore
@@ -149,6 +154,7 @@ class FakeSessionsProvider: SessionsProvider {
                 server: blockchain.server,
                 reachability: reachability)
         }
+        let tokenAdaptor = TokenAdaptor(assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, wallet: wallet)
 
         return WalletSession(
             account: wallet,
@@ -158,7 +164,8 @@ class FakeSessionsProvider: SessionsProvider {
             ercTokenProvider: ercTokenProvider,
             importToken: importToken,
             blockchainProvider: blockchain,
-            nftProvider: FakeNftProvider())
+            nftProvider: FakeNftProvider(),
+            tokenAdaptor: tokenAdaptor)
     }
 
     public func session(for server: RPCServer) -> WalletSession? {

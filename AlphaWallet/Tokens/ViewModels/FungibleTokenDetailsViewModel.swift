@@ -24,7 +24,7 @@ final class FungibleTokenDetailsViewModel {
             .map { $0?.balance.ticker }
             .eraseToAnyPublisher()
     }()
-    private lazy var tokenHolder: TokenHolder = token.getTokenHolder(assetDefinitionStore: assetDefinitionStore, forWallet: session.account)
+    private lazy var tokenHolder: TokenHolder = session.tokenAdaptor.getTokenHolder(token: token)
     private let session: WalletSession
     private let assetDefinitionStore: AssetDefinitionStore
     private let tokenActionsProvider: SupportedTokenActionsProvider
@@ -81,7 +81,7 @@ final class FungibleTokenDetailsViewModel {
     }
 
     private func buildTokenActions() -> [TokenInstanceAction] {
-        let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
+        let xmlHandler = session.tokenAdaptor.xmlHandler(token: token)
         let actionsFromTokenScript = xmlHandler.actions
         infoLog("[TokenScript] actions names: \(actionsFromTokenScript.map(\.name))")
         if actionsFromTokenScript.isEmpty {

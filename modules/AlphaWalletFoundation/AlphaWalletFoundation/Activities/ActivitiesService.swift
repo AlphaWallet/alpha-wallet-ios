@@ -212,6 +212,7 @@ public class ActivitiesService: NSObject, ActivitiesServiceType {
 
         let activitiesForThisCard: [ActivityTokenObjectTokenHolder] = events.compactMap { eachEvent in
             guard let token = tokensService.token(for: contract, server: server) else { return nil }
+            guard let session = sessions[safe: token.server] else { return nil }
 
             let implicitAttributes = generateImplicitAttributesForToken(forContract: contract, server: server, symbol: token.symbol)
             let tokenAttributes = implicitAttributes
@@ -235,7 +236,7 @@ public class ActivitiesService: NSObject, ActivitiesServiceType {
 
                     tokenHolders = [TokenHolder(tokens: [_token], contractAddress: token.contractAddress, hasAssetDefinition: true)]
                 } else {
-                    tokenHolders = token.getTokenHolders(assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: wallet)
+                    tokenHolders = session.tokenAdaptor.getTokenHolders(token: token)
                 }
                 tokensAndTokenHolders[token.addressAndRPCServer] = tokenHolders
             }

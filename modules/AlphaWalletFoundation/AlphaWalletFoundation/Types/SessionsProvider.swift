@@ -26,6 +26,7 @@ open class BaseSessionsProvider: SessionsProvider {
     private let assetDefinitionStore: AssetDefinitionStore
     private let reachability: ReachabilityManagerProtocol
     private let wallet: Wallet
+    private let eventsDataStore: NonActivityEventsDataStore
 
     public var sessions: AnyPublisher<ServerDictionary<WalletSession>, Never> {
         return sessionsSubject.eraseToAnyPublisher()
@@ -39,10 +40,12 @@ open class BaseSessionsProvider: SessionsProvider {
                 analytics: AnalyticsLogger,
                 blockchainsProvider: BlockchainsProvider,
                 tokensDataStore: TokensDataStore,
+                eventsDataStore: NonActivityEventsDataStore,
                 assetDefinitionStore: AssetDefinitionStore,
                 reachability: ReachabilityManagerProtocol,
                 wallet: Wallet) {
 
+        self.eventsDataStore = eventsDataStore
         self.wallet = wallet
         self.reachability = reachability
         self.assetDefinitionStore = assetDefinitionStore
@@ -90,7 +93,8 @@ open class BaseSessionsProvider: SessionsProvider {
             reachability: reachability)
 
         let nftProvider = AlphaWalletNFTProvider(analytics: analytics, wallet: wallet, server: blockchain.server, config: config)
-        
+        let tokenAdaptor = TokenAdaptor(assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, wallet: wallet)
+
         return WalletSession(
             account: wallet,
             server: blockchain.server,
@@ -99,7 +103,8 @@ open class BaseSessionsProvider: SessionsProvider {
             ercTokenProvider: ercTokenProvider,
             importToken: importToken,
             blockchainProvider: blockchain,
-            nftProvider: nftProvider)
+            nftProvider: nftProvider,
+            tokenAdaptor: tokenAdaptor)
     }
 
     public func session(for server: RPCServer) -> WalletSession? {
