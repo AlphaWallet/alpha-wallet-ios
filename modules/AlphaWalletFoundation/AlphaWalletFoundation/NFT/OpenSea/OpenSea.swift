@@ -27,10 +27,10 @@ public final class OpenSea {
     }
 
     public static func isServerSupported(_ server: RPCServer) -> Bool {
-        switch server.serverWithEnhancedSupport {
-        case .main, .rinkeby:
+        switch server {
+        case .main, .polygon, .arbitrum, .avalanche, .klaytnCypress, .optimistic:
             return true
-        case .xDai, .polygon, .binance_smart_chain, .heco, .arbitrum, .klaytnCypress, .klaytnBaobabTestnet, nil:
+        default:
             return false
         }
     }
