@@ -218,14 +218,7 @@ extension SECP256K1 {
         guard let serializedKey = SECP256K1.serializePublicKey(publicKey: &publicKey, compressed: compressed) else { return nil }
         return serializedKey
     }
-    
-    static func recoverSender(hash: Data, signature: Data) -> EthereumAddress? {
-        guard let pubKey = SECP256K1.recoverPublicKey(hash: hash, signature: signature, compressed: false) else { return nil }
-        guard pubKey.count == 65 else { return nil }
-        let addressData = Data(pubKey.sha3(.keccak256)[12..<32])
-        return EthereumAddress(addressData)
-    }
-    
+
     static func verifyPrivateKey(privateKey: Data) -> Bool {
         if privateKey.count != 32 { return false }
         let result = privateKey.withUnsafeBytes { privateKeyPointer -> Int32 in
