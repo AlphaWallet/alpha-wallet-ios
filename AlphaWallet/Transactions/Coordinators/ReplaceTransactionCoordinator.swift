@@ -18,7 +18,7 @@ class ReplaceTransactionCoordinator: Coordinator {
     private let tokensService: TokenViewModelState
     private let analytics: AnalyticsLogger
     private let domainResolutionService: DomainResolutionServiceType
-    private let pendingTransactionInformation: (server: RPCServer, data: Data, transactionType: TransactionType, gasPrice: BigUInt)
+    private let pendingTransactionInformation: (server: RPCServer, data: Data, transactionType: TransactionType, gasPrice: GasPrice)
     private let nonce: BigUInt
     private let keystore: Keystore
     private let presentingViewController: UIViewController
@@ -137,8 +137,8 @@ class ReplaceTransactionCoordinator: Coordinator {
         }
     }
 
-    private func computeGasPriceForReplacementTransaction(_ gasPrice: BigUInt) -> BigUInt {
-        gasPrice * 110 / 100
+    private func computeGasPriceForReplacementTransaction(_ gasPrice: GasPrice) -> GasPrice {
+        return .legacy(gasPrice: gasPrice.max * 110 / 100)
     }
 }
 

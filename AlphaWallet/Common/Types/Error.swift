@@ -37,6 +37,8 @@ extension KeystoreError: LocalizedError {
             return R.string.localizable.keystoreAccessKeyCancelled()
         case .signDataIsEmpty:
             return R.string.localizable.accountsErrorFailedToSignEmptyMessage()
+        case .failedToEncodeRLP:
+            return R.string.localizable.accountsErrorFailedToSignTransaction()
         }
     }
 }

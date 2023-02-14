@@ -12,7 +12,7 @@ extension UnconfirmedTransaction {
                      recipient: AlphaWallet.Address? = .none,
                      data: Data = Data(),
                      gasLimit: BigUInt? = BigUInt(100000),
-                     gasPrice: BigUInt? = BigUInt(1000),
+                     gasPrice: GasPrice? = .legacy(gasPrice: BigUInt(1000)),
                      nonce: BigUInt? = BigUInt(1)) -> UnconfirmedTransaction {
 
         return UnconfirmedTransaction(

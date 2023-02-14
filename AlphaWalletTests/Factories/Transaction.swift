@@ -3,6 +3,7 @@
 import Foundation
 @testable import AlphaWallet
 import AlphaWalletFoundation
+import BigInt
 
 extension TransactionInstance {
     static func make(
@@ -30,13 +31,12 @@ extension TransactionInstance {
             to: to,
             value: value,
             gas: gas,
-            gasPrice: gasPrice,
+            gasPrice: BigUInt(gasPrice).flatMap { GasPrice.legacy(gasPrice: $0) },
             gasUsed: gasUsed,
             nonce: nonce,
             date: date,
             localizedOperations: localizedOperations,
             state: state,
-            isErc20Interaction: false
-        )
+            isErc20Interaction: false)
     }
 }

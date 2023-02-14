@@ -51,7 +51,7 @@ public final class TransactionBuilder {
                         to: to,
                         value: transaction.value,
                         gas: transaction.gas,
-                        gasPrice: transaction.gasPrice,
+                        gasPrice: BigUInt(transaction.gasPrice.drop0x).flatMap { GasPrice.legacy(gasPrice: $0) },
                         gasUsed: transaction.gasUsed,
                         nonce: transaction.nonce,
                         date: NSDate(timeIntervalSince1970: TimeInterval(transaction.timeStamp) ?? 0) as Date,

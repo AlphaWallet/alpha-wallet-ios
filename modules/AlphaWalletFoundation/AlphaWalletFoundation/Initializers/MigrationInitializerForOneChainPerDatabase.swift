@@ -32,7 +32,7 @@ public class MigrationInitializerForOneChainPerDatabase: Initializer {
             TokenBalance.self,
             TokenInfoObject.self,
             TokenObject.self,
-            Transaction.self
+            TransactionObject.self
         ]
 
         config.migrationBlock = { [weak self] migration, oldSchemaVersion in
@@ -88,7 +88,7 @@ public class MigrationInitializerForOneChainPerDatabase: Initializer {
                 }
             }
             if oldSchemaVersion < 52 {
-                migration.deleteData(forType: Transaction.className())
+                migration.deleteData(forType: "Transaction")
             }
             if oldSchemaVersion < 53 {
                 let chainId = strongSelf.server.chainID
@@ -101,7 +101,7 @@ public class MigrationInitializerForOneChainPerDatabase: Initializer {
                     newObject["chainId"] = chainId
                     newObject["primaryKey"] = "\(contract)-\(chainId)"
                 }
-                migration.enumerateObjects(ofType: Transaction.className()) { _, newObject in
+                migration.enumerateObjects(ofType: "Transaction") { _, newObject in
                     guard let newObject = newObject else { return }
                     guard let id = newObject["id"] as? String else {
                         migration.delete(newObject)

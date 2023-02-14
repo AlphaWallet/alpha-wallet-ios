@@ -39,7 +39,7 @@ public struct TransactionConfiguration {
         let maxPrice: BigUInt = GasPriceConfiguration.maxPrice(forServer: server)
         let defaultPrice: BigUInt = GasPriceConfiguration.defaultPrice(forServer: server)
         self.init(
-            gasPrice: min(max(transaction.gasPrice ?? defaultPrice, GasPriceConfiguration.minPrice), maxPrice),
+            gasPrice: min(max(transaction.gasPrice?.max ?? defaultPrice, GasPriceConfiguration.minPrice), maxPrice),
             gasLimit: min(transaction.gasLimit ?? maxGasLimit, maxGasLimit),
             data: transaction.data ?? Data()
         )
