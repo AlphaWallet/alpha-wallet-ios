@@ -25,6 +25,6 @@ Pod::Spec.new do |s|
 
   s.frameworks       = 'Foundation'
 
-  s.dependency 'Alamofire'
+  s.dependency 'Alamofire', '5.6.4'
   s.dependency 'PromiseKit'
 end

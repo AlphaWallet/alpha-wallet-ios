@@ -53,8 +53,8 @@ public final class AlphaWalletNFTProvider: NFTProvider {
     public func nonFungible() -> AnyPublisher<NonFungiblesTokens, Never> {
         let key = AddressAndRPCServer(address: wallet.address, server: server)
 
-        let tokensFromOpenSeaPromise = getOpenSeaNonFungible().publisher().replaceError(with: [:])
-        let enjinTokensPromise = enjin.fetchTokens(wallet: wallet).mapToVoid().replaceError(with: ())
+        let tokensFromOpenSeaPromise = getOpenSeaNonFungible().publisher(queue: .global()).replaceError(with: [:])
+        let enjinTokensPromise = enjin.fetchTokens(wallet: wallet).receive(on: DispatchQueue.global()).mapToVoid().replaceError(with: ())
 
         return Publishers.CombineLatest(tokensFromOpenSeaPromise, enjinTokensPromise)
             .map { ($0, $1) }

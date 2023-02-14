@@ -27,16 +27,14 @@ public class ReachabilityManager {
     public init() {
         manager = NetworkReachabilityManager()
 
-        manager?.listener = { [weak reachabilitySubject] state in
+        manager?.startListening(onUpdatePerforming: { [weak reachabilitySubject] state in
             switch state {
             case .notReachable, .unknown:
                 reachabilitySubject?.send(false)
             case .reachable:
                 reachabilitySubject?.send(true)
             }
-        }
-
-        manager?.startListening()
+        })
     }
 }
 

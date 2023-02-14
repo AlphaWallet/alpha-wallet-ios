@@ -11,7 +11,6 @@ import SwiftyJSON
 
 class AddCustomChainNetworking {
     private let networkService: NetworkService
-    private let decoder = AnyJsonDecoder(options: [])
 
     init(networkService: NetworkService) {
         self.networkService = networkService
@@ -28,9 +27,9 @@ class AddCustomChainNetworking {
         return networkService
             .dataTaskPublisher(UrlRequest(url: url))
             .receive(on: DispatchQueue.global())
-            .tryMap { [decoder] in
-                if let json = try decoder.decode($0) as? [String: Any] {
-                    if json["result"] is [String] {
+            .tryMap {
+                if let json = try? JSON($0.data) {
+                    if json["result"].array != nil {
                         return RPCServer.EtherscanCompatibleType.etherscan
                     } else {
                         return RPCServer.EtherscanCompatibleType.blockscout
@@ -77,8 +76,8 @@ class AddCustomChainNetworking {
         networkService
             .dataTaskPublisher(UrlRequest(url: url))
             .receive(on: DispatchQueue.global())
-            .tryMap { [decoder] in
-                if let json = try decoder.decode($0) as? [String: Any], json["result"] is [Any] {
+            .tryMap {
+                if let json = try? JSON($0.data), json["result"].array != nil {
                     return
                 } else {
                     throw AddCustomChainError.invalidBlockchainExplorerUrl

@@ -1,12 +1,12 @@
 PODS:
-  - Alamofire (4.9.1)
+  - Alamofire (5.6.4)
   - AlphaWalletAddress (1.0.2):
     - AlphaWalletCore
     - AlphaWalletWeb3
     - EthereumAddress
     - TrustKeystore
   - AlphaWalletCore (1.0.2):
-    - Alamofire
+    - Alamofire (= 5.6.4)
     - PromiseKit
   - AlphaWalletENS (1.0.0):
     - AlphaWalletAddress
@@ -33,7 +33,6 @@ PODS:
     - JSONRPCKit (~> 2.0.0)
     - Kanna
     - PaperTrailLumberjack/Swift
-    - PromiseKit/Alamofire
     - PromiseKit/CorePromise
     - RealmSwift (= 10.27.0)
     - SwiftProtobuf (~> 1.18.0)
@@ -145,9 +144,6 @@ PODS:
     - PromiseKit/CorePromise (= 6.3.5)
     - PromiseKit/Foundation (= 6.3.5)
     - PromiseKit/UIKit (= 6.3.5)
-  - PromiseKit/Alamofire (6.3.5):
-    - Alamofire (~> 4.0)
-    - PromiseKit/CorePromise
   - PromiseKit/CorePromise (6.3.5)
   - PromiseKit/Foundation (6.3.5):
     - PromiseKit/CorePromise
@@ -368,11 +364,11 @@ CHECKOUT OPTIONS:
     :git: https://github.com/AlphaWallet/WalletConnectSwift.git
 
 SPEC CHECKSUMS:
-  Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
+  Alamofire: 4e95d97098eacb88856099c4fc79b526a299e48c
   AlphaWalletAddress: 72c3fc97248fc0cdc50d137faaa295bc9610c7ec
-  AlphaWalletCore: 635739018555de844a020f8b9b7d49610b3de655
+  AlphaWalletCore: ad96bd240255db44aaeaecc10928e82a24ef54c3
   AlphaWalletENS: 33e4fd3d46929938c271190fe7804811c1e9dc8f
-  AlphaWalletFoundation: a346030f01cce3ad0e6b9d74fe0f0c606eead53b
+  AlphaWalletFoundation: 23a54a359139bb67a49e6017fac35fb562dc90c0
   AlphaWalletGoBack: 1d55b51e6cfd999740d3cfab09d9fa723ba85ff2
   AlphaWalletLogger: 1c0f115e624b6b6e67e9767560fddb6bda2aaa75
   AlphaWalletOpenSea: 71e255612529b04ae4d66dca54bd181185593b1d

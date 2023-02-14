@@ -33,7 +33,6 @@ Pod::Spec.new do |spec|
   spec.dependency 'SwiftyJSON', '5.0.0'
   spec.dependency 'AlphaWalletWeb3' 
   spec.dependency 'PromiseKit/CorePromise'
-  spec.dependency 'PromiseKit/Alamofire'
   spec.dependency 'Kanna'
   spec.dependency 'TrustWalletCore', '2.6.34'
   spec.dependency 'EthereumABI'

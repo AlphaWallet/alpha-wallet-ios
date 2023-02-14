@@ -71,7 +71,7 @@ extension AssetDefinitionNetworking {
             return request
         }
 
-        private var httpHeaders: HTTPHeaders {
+        private var httpHeaders: [String: String] {
             guard let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String else { return [:] }
             return [
                 "Accept": "application/tokenscript+xml; charset=UTF-8",
@@ -89,7 +89,7 @@ extension AssetDefinitionNetworking {
             return df
         }()
 
-        private func httpHeadersWithLastModifiedTimestamp(includeLastModifiedTimestampHeader: Bool, lastModifiedDate: Date?) -> HTTPHeaders {
+        private func httpHeadersWithLastModifiedTimestamp(includeLastModifiedTimestampHeader: Bool, lastModifiedDate: Date?) -> [String: String] {
             var result = httpHeaders
             if includeLastModifiedTimestampHeader, let lastModified = lastModifiedDate {
                 result["IF-Modified-Since"] = string(fromLastModifiedDate: lastModified)
