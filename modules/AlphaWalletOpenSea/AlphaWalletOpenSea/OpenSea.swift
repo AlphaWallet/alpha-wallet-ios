@@ -29,12 +29,12 @@ public class OpenSea {
     //Important to be static so it's for *all* OpenSea calls
     private static let callCounter = CallCounter()
 
-    private let sessionManagerWithDefaultHttpHeaders: SessionManager = {
+    private let sessionManagerWithDefaultHttpHeaders: Session = {
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = 30
         configuration.timeoutIntervalForResource = 30
 
-        return SessionManager(configuration: configuration)
+        return Session(configuration: configuration)
     }()
 
     private let apiKeys: [ChainId: String]
@@ -157,32 +157,33 @@ public class OpenSea {
     }
 
     private func performRequestWithRetry(request: Alamofire.URLRequestConvertible, maximumRetryCount: Int = 3, delayMultiplayer: Int = 5, retryDelay: DispatchTimeInterval = .seconds(2), queue: DispatchQueue) -> Promise<JSON> {
-        func privatePerformRequest(request: Alamofire.URLRequestConvertible) -> Promise<(HTTPURLResponse, JSON)> {
+        func privatePerformRequest(request: Alamofire.URLRequestConvertible) -> Promise<JSON> {
             //Using responseData() instead of responseJSON() below because `PromiseKit`'s `responseJSON()` resolves to failure if body isn't JSON. But OpenSea returns a non-JSON when the status code is 401 (unauthorized, aka. wrong API key) and we want to detect that.
             return sessionManagerWithDefaultHttpHeaders
                     .request(request)
-                    .responseDataPromise(queue: queue)
-                    .map(on: queue, { data, response -> (HTTPURLResponse, JSON) in
-                        if let response: HTTPURLResponse = response.response {
-                            let statusCode = response.statusCode
-                            if statusCode == 401 {
+                    .publishData(queue: queue)
+                    .eraseToAnyPublisher()
+                    .promise()
+                    .map(on: queue, { response -> JSON in
+                        if let data = response.data, let response = response.response {
+                            if response.statusCode == 401 {
                                 if let body = String(data: data, encoding: .utf8), body.contains("Expired API key") {
                                     throw OpenSeaApiError.expiredApiKey
                                 } else {
                                     throw OpenSeaApiError.invalidApiKey
                                 }
-                            } else if statusCode == 429 {
+                            } else if response.statusCode == 429 {
                                 throw OpenSeaApiError.rateLimited
                             }
                             if let json = try? JSON(data: data) {
-                                return (response, json)
+                                return json
                             } else {
                                 throw OpenSeaError(localizedDescription: "Error calling \(try? request.asURLRequest().url?.absoluteString)")
                             }
                         } else {
                             throw OpenSeaError(localizedDescription: "Error calling \(try? request.asURLRequest().url?.absoluteString)")
                         }
-                    }).recover { error -> Promise<(HTTPURLResponse, JSON)> in
+                    }).recover { error -> Promise<JSON> in
                         if let error = error as? OpenSeaApiError {
                             self.delegate?.openSeaError(error: error)
                         } else {
@@ -199,11 +200,7 @@ public class OpenSea {
                     Self.callCounter.clock()
                     infoLog("[OpenSea] Accessing url: \(try? request.asURLRequest().url?.absoluteString) rate: \(Self.callCounter.averageRatePerSecond)/sec")
                 }
-                return firstly {
-                    privatePerformRequest(request: request)
-                }.map { _, json -> JSON in
-                    json
-                }
+                return privatePerformRequest(request: request)
             }
         }.recover { error -> Promise<JSON> in
             infoLog("[OpenSea] API error: \(error)")
@@ -446,4 +443,24 @@ extension OpenSea {
         }
     }
 
+}
+
+import Combine
+
+extension AnyPublisher {
+    fileprivate func promise() -> Promise<Output> {
+        var cancellable: AnyCancellable?
+        return Promise<Output> { seal in
+            cancellable = self
+                .receive(on: RunLoop.main)
+                .sink { result in
+                    if case .failure(let error) = result {
+                        seal.reject(error)
+                    }
+                    cancellable = nil
+                } receiveValue: {
+                    seal.fulfill($0)
+                }
+        }
+    }
 }

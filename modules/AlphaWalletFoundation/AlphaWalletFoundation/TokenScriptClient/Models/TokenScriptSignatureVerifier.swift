@@ -189,7 +189,7 @@ extension TokenScriptSignatureVerifier {
 class TokenScriptSignatureNetworking {
     private let networkService: NetworkService
     private static let validatorBaseUrl = URL(string: Constants.TokenScript.validatorAPI)!
-    private static let headers: [String: String] = [
+    private static let headers: HTTPHeaders = [
         "cache-control": "no-cache",
         "content-type": "application/x-www-form-urlencoded"
     ]
@@ -212,24 +212,23 @@ class TokenScriptSignatureNetworking {
         }
 
         //TODO: more detailed error reporting for failed verifications
-        return networkService
-            .upload(multipartFormData: multipartFormData, to: TokenScriptSignatureNetworking.validatorBaseUrl, headers: TokenScriptSignatureNetworking.headers)
-            .flatMap { response -> AnyPublisher<TokenScriptSignatureVerifier.VerifierResult, SessionTaskError> in
-                guard let unwrappedResponse = response.response else {
-                    //We must be careful to not check NetworkReachabilityManager()?.isReachable == true and presume API server is down. Intermittent connectivity happens. It's harmless to retry if the API server is down anyway
-                    return .fail(.responseError(URLError(.badServerResponse)))
-                }
+        var request = URLRequest(url: TokenScriptSignatureNetworking.validatorBaseUrl)
+        request.httpMethod = HTTPMethod.get.rawValue
+        request.allHTTPHeaderFields = TokenScriptSignatureNetworking.headers.dictionary
 
-                guard response.result.isSuccess, unwrappedResponse.statusCode <= 299, let value = response.result.value else {
+        return networkService
+            .upload(multipartFormData: multipartFormData, with: request)
+            .flatMap { response -> AnyPublisher<TokenScriptSignatureVerifier.VerifierResult, SessionTaskError> in
+                guard response.response.statusCode <= 299 else {
                     //API is coded to fail with 400
-                    if unwrappedResponse.statusCode == 400 {
+                    if response.response.statusCode == 400 {
                         return .just(.failed)
                     } else {
-                        return .fail(.responseError(ResponseError(response: unwrappedResponse)))
+                        return .fail(.responseError(ResponseError(response: response.response)))
                     }
                 }
 
-                guard let subject = JSON(value)["subject"].string else {
+                guard let subject = JSON(response.data)["subject"].string else {
                     //Should never hit
                     return .just(.unknownCn)
                 }
