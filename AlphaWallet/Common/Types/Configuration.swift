@@ -60,9 +60,14 @@ struct Configuration {
 
             static let disabledActionButton = UIColor(hex: "d7ebc8")
             static let specialButton = R.color.concrete()!
-            
+
             static let qrCodeRectBorders = UIColor(red: 216, green: 216, blue: 216)
-            
+            static let defaultButtonBackground = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.white()!, darkColor: R.color.cod()!)
+            }
+            static let inverseDefaultButtonBackground = UIColor { trait in
+                return colorFrom(trait: trait, lightColor: R.color.cod()!, darkColor: R.color.white()!)
+            }
             static let primaryButtonBackground = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.cod()!, darkColor: R.color.alabaster()!)
             }

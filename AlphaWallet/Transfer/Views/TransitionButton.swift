@@ -22,7 +22,7 @@ public enum StopAnimationStyle {
 @IBDesignable open class TransitionButton: UIButton, CAAnimationDelegate {
     var shrinkBorderColor: UIColor = .lightGray
     var shrinkBorderWidth: CGFloat = 3.0
-    var shrinkBackgroundColor: UIColor = Colors.appWhite
+    var shrinkBackgroundColor: UIColor = AlphaWallet.Configuration.Color.Semantic.defaultButtonBackground
 
     private var cachedTitle: String?
     private var cachedImage: UIImage?
