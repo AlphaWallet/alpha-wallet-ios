@@ -14,7 +14,16 @@ public struct UnsignedTransaction {
     public let server: RPCServer
     public let transactionType: TransactionType
 
-    public init(value: BigUInt, account: AlphaWallet.Address, to: AlphaWallet.Address?, nonce: Int, data: Data, gasPrice: BigUInt, gasLimit: BigUInt, server: RPCServer, transactionType: TransactionType) {
+    public init(value: BigUInt,
+                account: AlphaWallet.Address,
+                to: AlphaWallet.Address?,
+                nonce: Int,
+                data: Data,
+                gasPrice: BigUInt,
+                gasLimit: BigUInt,
+                server: RPCServer,
+                transactionType: TransactionType) {
+        
         self.value = value
         self.account = account
         self.to = to
@@ -25,4 +34,18 @@ public struct UnsignedTransaction {
         self.server = server
         self.transactionType = transactionType
     }
+
+    public func updating(nonce: Int) -> UnsignedTransaction {
+        return UnsignedTransaction(
+            value: value,
+            account: account,
+            to: to,
+            nonce: nonce,
+            data: data,
+            gasPrice: gasPrice,
+            gasLimit: gasLimit,
+            server: server,
+            transactionType: transactionType)
+    }
+
 }

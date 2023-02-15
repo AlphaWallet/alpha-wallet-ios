@@ -136,6 +136,14 @@ extension Decimal {
         self.init(sign: sign, exponent: -decimals, significand: significand)
     }
 
+    public init?(bigUInt: BigUInt, units: EthereumUnit) {
+        self.init(bigUInt: bigUInt, decimals: units.decimals)
+    }
+
+    public init?(bigInt: BigInt, units: EthereumUnit) {
+        self.init(bigInt: bigInt, decimals: units.decimals)
+    }
+
     public init?(bigUInt: BigUInt, decimals: Int) {
         guard let significand = Decimal(string: bigUInt.description, locale: .en_US) else {
             return nil
@@ -162,8 +170,20 @@ extension Decimal {
         return String(describing: roundedDecimal)
     }
 
+    public func toBigInt(units: EthereumUnit) -> BigInt? {
+        return toBigInt(decimals: units.decimals)
+    }
+
+    public func toBigUInt(units: EthereumUnit) -> BigUInt? {
+        toBigUInt(decimals: units.decimals)
+    }
+
     public func toBigInt(decimals: Int) -> BigInt? {
         return BigInt(roundedString(decimal: decimals))
+    }
+
+    public func toBigUInt(decimals: Int) -> BigUInt? {
+        return toBigInt(decimals: decimals).flatMap { BigUInt($0) }
     }
 
 }
