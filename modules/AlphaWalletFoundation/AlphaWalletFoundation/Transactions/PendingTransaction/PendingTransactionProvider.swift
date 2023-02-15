@@ -82,7 +82,7 @@ final class PendingTransactionProvider {
         }
     }
 
-    private func handle(response: Result<PendingTransaction, SessionTaskError>, for provider: PendingTransactionSchedulerProvider) {
+    private func handle(response: Result<EthereumTransaction, SessionTaskError>, for provider: PendingTransactionSchedulerProvider) {
         switch response {
         case .success(let pendingTransaction):
             didReceiveValue(transaction: provider.transaction, pendingTransaction: pendingTransaction)
@@ -91,7 +91,7 @@ final class PendingTransactionProvider {
         }
     }
 
-    private func didReceiveValue(transaction: TransactionInstance, pendingTransaction: PendingTransaction) {
+    private func didReceiveValue(transaction: TransactionInstance, pendingTransaction: EthereumTransaction) {
         transactionDataStore.update(state: .completed, for: transaction.primaryKey, withPendingTransaction: pendingTransaction)
         ercTokenDetector.detect(from: [transaction])
 

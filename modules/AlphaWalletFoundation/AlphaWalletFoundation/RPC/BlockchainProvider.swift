@@ -20,7 +20,7 @@ public protocol BlockchainProvider {
     func transactionsState(hash: String) -> AnyPublisher<TransactionState, SessionTaskError>
     func call(from: AlphaWallet.Address?, to: AlphaWallet.Address?, value: String?, data: String) -> AnyPublisher<String, SessionTaskError>
     func call<R: ContractMethodCall>(_ method: R, block: BlockParameter) -> AnyPublisher<R.Response, SessionTaskError>
-    func pendingTransaction(hash: String) -> AnyPublisher<PendingTransaction?, SessionTaskError>
+    func pendingTransaction(hash: String) -> AnyPublisher<EthereumTransaction?, SessionTaskError>
     func nextNonce(wallet: AlphaWallet.Address) -> AnyPublisher<Int, SessionTaskError>
     func block(by blockNumber: BigUInt) -> AnyPublisher<Date, SessionTaskError>
     func eventLogs(contractAddress: AlphaWallet.Address, eventName: String, abiString: String, filter: EventFilter) -> AnyPublisher<[EventParserResultProtocol], SessionTaskError>
@@ -98,7 +98,7 @@ public final class RpcBlockchainProvider: BlockchainProvider {
             .eraseToAnyPublisher()
     }
 
-    public func pendingTransaction(hash: String) -> AnyPublisher<PendingTransaction?, SessionTaskError> {
+    public func pendingTransaction(hash: String) -> AnyPublisher<EthereumTransaction?, SessionTaskError> {
         getPendingTransaction.getPendingTransaction(server: server, hash: hash)
     }
 

@@ -16,10 +16,9 @@ final class FakeNetworkService: NetworkService {
 
     func upload(multipartFormData: @escaping (MultipartFormData) -> Void,
                 usingThreshold: UInt64,
-                to url: URLConvertible,
-                method: HTTPMethod,
-                headers: HTTPHeaders?,
-                callbackQueue: DispatchQueue = .main) -> AnyPublisher<Alamofire.DataResponse<Any>, SessionTaskError> {
+                with request: AlphaWalletFoundation.URLRequestConvertible,
+                callbackQueue: DispatchQueue) -> AnyPublisher<URLRequest.Response, SessionTaskError> {
+
         return .empty()
     }
 
@@ -43,21 +42,6 @@ final class FakeNetworkService: NetworkService {
 
             }
         }.eraseToAnyPublisher()
-    }
-
-    func dataTaskPromise(_ request: AlphaWalletFoundation.URLRequestConvertible, callbackQueue: DispatchQueue = .main) -> Promise<URLRequest.Response> {
-        PromiseKit.Promise<URLRequest.Response>.init { [callbackQueue, delay] seal in
-            callbackQueue.asyncAfter(deadline: .now() + delay) {
-                switch self.response {
-                case .success(let value):
-                    seal.fulfill(value)
-                case .failure(let error):
-                    seal.reject(error)
-                case .none:
-                    seal.reject(PMKError.cancelled)
-                }
-            }
-        }
     }
 }
 

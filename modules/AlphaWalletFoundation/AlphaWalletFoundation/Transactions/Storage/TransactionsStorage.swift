@@ -186,7 +186,7 @@ open class TransactionDataStore {
         }
     }
 
-    public func update(state: TransactionState, for primaryKey: String, withPendingTransaction pendingTransaction: PendingTransaction?) {
+    public func update(state: TransactionState, for primaryKey: String, withPendingTransaction pendingTransaction: EthereumTransaction?) {
         store.performSync { realm in
             guard let value = realm.object(ofType: Transaction.self, forPrimaryKey: primaryKey) else { return }
             try? realm.safeWrite {

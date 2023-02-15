@@ -57,17 +57,16 @@ public struct LocalizedOperationObjectInstance: Equatable, Hashable {
         self.decimals = object.decimals
     }
 
-    public init(
-        from: String,
-        to: String,
-        contract: AlphaWallet.Address?,
-        type: String,
-        value: String,
-        tokenId: String,
-        symbol: String?,
-        name: String?,
-        decimals: Int
-    ) {
+    public init(from: String,
+                to: String,
+                contract: AlphaWallet.Address?,
+                type: String,
+                value: String,
+                tokenId: String,
+                symbol: String?,
+                name: String?,
+                decimals: Int) {
+
         self.from = from
         self.to = to
         self.contract = contract?.eip55String

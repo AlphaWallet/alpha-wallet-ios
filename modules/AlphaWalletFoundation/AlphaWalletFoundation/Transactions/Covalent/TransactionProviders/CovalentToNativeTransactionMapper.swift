@@ -60,7 +60,22 @@ extension Covalent {
 
             let transactionIndex = tx.logEvents.first?.txOffset ?? 0
 
-            return TransactionInstance(id: tx.txHash, server: server, blockNumber: tx.blockHeight, transactionIndex: transactionIndex, from: tx.from, to: tx.to, value: tx.value, gas: gas, gasPrice: gasPrice, gasUsed: gasSpent, nonce: "0", date: date, localizedOperations: operations, state: .completed, isErc20Interaction: true)
+            return TransactionInstance(
+                id: tx.txHash,
+                server: server,
+                blockNumber: tx.blockHeight,
+                transactionIndex: transactionIndex,
+                from: tx.from,
+                to: tx.to,
+                value: tx.value,
+                gas: gas,
+                gasPrice: gasPrice,
+                gasUsed: gasSpent,
+                nonce: "0",
+                date: date,
+                localizedOperations: operations,
+                state: .completed,
+                isErc20Interaction: true)
         }
     }
 }
