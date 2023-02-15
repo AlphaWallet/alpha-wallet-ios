@@ -23,7 +23,6 @@ extension AlphaWallet.WalletConnect {
             case getTransactionCount(String)
             case walletSwitchEthereumChain(WalletSwitchEthereumChainObject)
             case walletAddEthereumChain(WalletAddEthereumChainObject)
-            case unknown
         }
 
         let type: ActionType

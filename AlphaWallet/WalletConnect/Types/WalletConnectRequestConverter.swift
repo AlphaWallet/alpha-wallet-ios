@@ -14,10 +14,17 @@ struct WalletConnectRequestDecoder {
 
     func decode(request: AlphaWallet.WalletConnect.Session.Request) throws -> AlphaWallet.WalletConnect.Action.ActionType {
         guard let server: RPCServer = request.server else {
-            throw WalletConnectRequestDecoder.sessionRequestRPCServerMissing
+            throw AlphaWallet.WalletConnect.ResponseError.invalidParams
         }
+
         infoLog("[WalletConnect] convert request: \(request.method) url: \(request.description)")
-        let data = try AlphaWallet.WalletConnect.Request(request: request)
+
+        let data: AlphaWallet.WalletConnect.Request
+        do {
+            data = try AlphaWallet.WalletConnect.Request(request: request)
+        } catch {
+            throw AlphaWallet.WalletConnect.ResponseError.invalidParams
+        }
 
         switch data {
         case .sign(_, let message):
@@ -25,19 +32,25 @@ struct WalletConnectRequestDecoder {
         case .signPersonalMessage(_, let message):
             return .signPersonalMessage(message)
         case .signTransaction(let walletConnectTransaction):
-            let transaction = try TransactionType.prebuilt(server).buildAnyDappTransaction(walletConnectTransaction: walletConnectTransaction)
-            return .signTransaction(transaction)
+            do {
+                let transaction = try TransactionType.prebuilt(server).buildAnyDappTransaction(walletConnectTransaction: walletConnectTransaction)
+                return .signTransaction(transaction)
+            } catch {
+                throw AlphaWallet.WalletConnect.ResponseError.invalidParams
+            }
         case .signTypedMessage(let data):
             return .typedMessage(data)
         case .signTypedData(_, let data):
             return .signTypedMessageV3(data)
         case .sendTransaction(let walletConnectTransaction):
-            let transaction = try TransactionType.prebuilt(server).buildAnyDappTransaction(walletConnectTransaction: walletConnectTransaction)
-            return .sendTransaction(transaction)
+            do {
+                let transaction = try TransactionType.prebuilt(server).buildAnyDappTransaction(walletConnectTransaction: walletConnectTransaction)
+                return .sendTransaction(transaction)
+            } catch {
+                throw AlphaWallet.WalletConnect.ResponseError.invalidParams
+            }
         case .sendRawTransaction(let rawValue):
             return .sendRawTransaction(rawValue)
-        case .unknown:
-            return .unknown
         case .getTransactionCount(let filter):
             return .getTransactionCount(filter)
         case .walletSwitchEthereumChain(let data):
@@ -45,13 +58,8 @@ struct WalletConnectRequestDecoder {
         case .walletAddEthereumChain(let data):
             return .walletAddEthereumChain(data)
         case .custom:
-            throw WalletConnectRequestDecoder.unsupportedMethod
+            throw AlphaWallet.WalletConnect.ResponseError.methodNotFound
         }
-    }
-
-    enum WalletConnectRequestDecoder: Error {
-        case sessionRequestRPCServerMissing
-        case unsupportedMethod
     }
 }
 
