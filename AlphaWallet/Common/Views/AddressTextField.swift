@@ -70,7 +70,7 @@ final class AddressTextField: UIControl {
         button.setTitle(R.string.localizable.sendPasteButtonTitle(), for: .normal)
         button.titleLabel?.font = Configuration.Font.accessory
         button.setTitleColor(Configuration.Color.Semantic.icon, for: .normal)
-        button.setBackgroundColor(.clear, forState: .normal)
+        button.setBackgroundColor(Configuration.Color.Semantic.addressTextFieldPasteButtonBackground, forState: .normal)
         button.contentHorizontalAlignment = .right
         button.heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
         button.setContentHuggingPriority(.required, for: .horizontal)
@@ -87,7 +87,7 @@ final class AddressTextField: UIControl {
         button.setTitle(R.string.localizable.clearButtonTitle(), for: .normal)
         button.titleLabel?.font = Configuration.Font.accessory
         button.setTitleColor(Configuration.Color.Semantic.icon, for: .normal)
-        button.setBackgroundColor(.clear, forState: .normal)
+        button.setBackgroundColor(Configuration.Color.Semantic.addressTextFieldClearButtonBackground, forState: .normal)
         button.contentHorizontalAlignment = .right
         button.heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
         button.setContentHuggingPriority(.required, for: .horizontal)
@@ -213,7 +213,7 @@ final class AddressTextField: UIControl {
     private func defaultLayout() -> UIView {
         let controlsContainer = UIView()
         controlsContainer.translatesAutoresizingMaskIntoConstraints = false
-        controlsContainer.backgroundColor = .clear
+        controlsContainer.backgroundColor = Configuration.Color.Semantic.addressTextFieldControlsContainerBackground
 
         let addressControlsStackView = [
             pasteButton,
@@ -298,7 +298,7 @@ final class AddressTextField: UIControl {
         scanQRCodeButton.translatesAutoresizingMaskIntoConstraints = false
         scanQRCodeButton.setImage(icon, for: .normal)
         scanQRCodeButton.addTarget(self, action: #selector(openReaderButtonSelected), for: .touchUpInside)
-        scanQRCodeButton.setBackgroundColor(.clear, forState: .normal)
+        scanQRCodeButton.setBackgroundColor(Configuration.Color.Semantic.addressTextFieldScanQRCodeButtonBackground, forState: .normal)
         //NOTE: Fix clipped shadow on textField (iPhone 5S)
         scanQRCodeButton.clipsToBounds = false
         scanQRCodeButton.layer.masksToBounds = false
@@ -306,7 +306,7 @@ final class AddressTextField: UIControl {
         let targetAddressRightView = [scanQRCodeButton].asStackView(distribution: .fill)
         targetAddressRightView.clipsToBounds = false
         targetAddressRightView.layer.masksToBounds = false
-        targetAddressRightView.backgroundColor = .clear
+        targetAddressRightView.backgroundColor = Configuration.Color.Semantic.addressTextFieldTargetAddressRightViewBackground
         //As of iOS 13, we need to constrain the width of `rightView`
         let rightViewFittingSize = targetAddressRightView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
         NSLayoutConstraint.activate([

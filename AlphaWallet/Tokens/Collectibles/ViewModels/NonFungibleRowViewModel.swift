@@ -20,7 +20,7 @@ struct NonFungibleRowViewModel {
             if let color = tokenHolder.values.backgroundColorStringValue.nilIfEmpty {
                 return UIColor(hex: color)
             } else {
-                return UIColor(red: 247, green: 197, blue: 196)
+                return Configuration.Color.Semantic.nonFungibleRowViewContentBackgroundColor
             }
         }
     }

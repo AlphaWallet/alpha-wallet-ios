@@ -18,6 +18,8 @@ fileprivate func colorFrom(trait: UITraitCollection, lightColor: UIColor, darkCo
     }
 }
 
+// swiftlint:disable type_body_length
+
 struct Configuration {
     struct Color {
         struct Semantic {
@@ -46,6 +48,65 @@ struct Configuration {
             }
             static let loading = R.color.loadingBackground()!
             static let loadingIndicatorBorder = UIColor(red: 237, green: 237, blue: 237)
+            static let loadingIndicatorLine = UIColor.red
+            static let backgroundLine = UIColor.lightGray
+            static let checkmark = UIColor.red
+            static let backButtonText = UIColor.clear
+            static let dappsIconShadow = UIColor.black
+            static let browserHistoryCellName = UIColor(red: 77, green: 77, blue: 77)
+            static let myDappCellName = UIColor(red: 77, green: 77, blue: 77)
+            static let promptBackupWalletAfterWalletCreationViewBackupButtonBackground = UIColor(red: 119, green: 56, blue: 50)
+            static let promptBackupWalletAfterReceivingNativeCryptoCurrencyViewBackupButtonBackground = UIColor(red: 65, green: 71, blue: 89)
+            static let promptBackupWalletAfterIntervalViewBackupButtonBackground = UIColor(red: 65, green: 71, blue: 89)
+            static let promptBackupWalletAfterExceedingThresholdViewBackupButtonBackground = UIColor(red: 119, green: 56, blue: 50)
+            static let NFTAssetViewPreviewViewContentBackgroundColor = UIColor(red: 247, green: 197, blue: 196)
+            static let nonFungibleRowViewContentBackgroundColor = UIColor(red: 247, green: 197, blue: 196)
+            static let openSeaNonFungibleTokenCardRowBigImageBackgroundColor = UIColor(red: 247, green: 197, blue: 196)
+            static let importSeedText = UIColor(red: 116, green: 116, blue: 116)
+            static let seedPhraseCellBackground = UIColor(red: 234, green: 234, blue: 234)
+            static let seedPhraseCellSelectedBackground = UIColor(red: 249, green: 249, blue: 249)
+            static let seedPhraseCellText = UIColor(red: 42, green: 42, blue: 42)
+            static let seedPhraseCellSelectedText = UIColor(red: 255, green: 255, blue: 255)
+            static let seedPhraseCellSequence = UIColor(red: 200, green: 200, blue: 200)
+            static let contactUsBannerBackground = UIColor(red: 249, green: 208, blue: 33)
+            static let buttonUrlText = UIColor(red: 84, green: 84, blue: 84)
+            static let buttonBorderlessBorder = UIColor.clear
+            static let buttonBackgroundSystem = UIColor.clear
+            static let buttonBackgroundHighlighted = UIColor.clear
+            static let blockChainHeco = UIColor(hex: "1253FC")
+            static let blockChainCronosMainnet = UIColor(hex: "#002D74")
+            static let blockChainKlaytnCypress = UIColor(hex: "FE3300")
+            static let blockChainKlaytnBaobabTestnet = UIColor(hex: "313557")
+            static let blockChainIoTeX = UIColor(hex: "00D4D5")
+            static let blockChainIoTeXTestnet = UIColor(hex: "00D4D5")
+            static let blockChainMain = UIColor(red: 41, green: 134, blue: 175)
+            static let blockChainClassic = UIColor(red: 55, green: 137, blue: 55)
+            static let blockChainCallisto = UIColor(red: 88, green: 56, blue: 163)
+            static let blockChainPoa = UIColor(red: 88, green: 56, blue: 163)
+            static let blockChainGoerli = UIColor(red: 187, green: 174, blue: 154)
+            static let blockChainXDai = UIColor(red: 253, green: 176, blue: 61)
+            static let blockChainArtisSigma1 = UIColor(red: 83, green: 162, blue: 113)
+            static let blockChainArtisTau1 = UIColor(red: 255, green: 117, blue: 153)
+            static let blockChainBinanceSmartChain = UIColor(red: 255, green: 211, blue: 0)
+            static let blockChainFantom = UIColor.red
+            static let blockChainFantomTestnet = UIColor.red
+            static let blockChainAvalanche = UIColor.red
+            static let blockChainAvalancheTestnet = UIColor.red
+            static let blockChainPolygon = UIColor(red: 130, green: 71, blue: 229)
+            static let blockChainOptimistic = UIColor.red
+            static let blockChainCronosTestnet = UIColor.red
+            static let blockChainArbitrum = UIColor.red
+            static let blockChainPalm = UIColor.red
+            static let blockChainPalmTestnet = UIColor.red
+            static let blockChainOptimismGoerli = UIColor.red
+            static let blockChainArbitrumGoerli = UIColor.red
+            static let blockChainCustom = UIColor.red
+
+            static let openSeaNonFungibleTokenCardRowIconText = UIColor(red: 192, green: 192, blue: 192)
+            static let openSeaNonFungibleTokenCardRowIdText = UIColor(red: 155, green: 155, blue: 155)
+            static let openSeaNonFungibleTokenCardRowGenerationText = UIColor(red: 155, green: 155, blue: 155)
+            static let openSeaNonFungibleTokenCardRowCooldownText = UIColor(red: 155, green: 155, blue: 155)
+
             static let alternativeText = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: .darkGray, darkColor: .lightGray)
             }
@@ -279,11 +340,27 @@ struct Configuration {
             static let textFieldBackground = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.alabaster()!, darkColor: R.color.venus()!)
             }
-
+            static let textFieldPasswordTint = UIColor(red: 111, green: 111, blue: 111)
+            static let configureTransactionBackground = UIColor(red: 255, green: 235, blue: 234)
+            static let configureTransactionBorder = UIColor(red: 252, green: 187, blue: 183)
+            static let promptBackupWalletAfterWalletCreationViewBackground = UIColor(red: 183, green: 80, blue: 70)
+            static let promptBackupWalletAfterReceivingNativeCryptoCurrencyViewBackground = UIColor(red: 97, green: 103, blue: 123)
+            static let promptBackupWalletAfterIntervalViewBackground = UIColor(red: 97, green: 103, blue: 123)
+            static let promptBackupWalletAfterExceedingThresholdViewBackground = UIColor(red: 183, green: 80, blue: 70)
+            static let tokenHistoryChartViewGrid = UIColor(red: 220, green: 220, blue: 220)
             static let textViewBackground = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.alabaster()!, darkColor: R.color.venus()!)
             }
 
+            static let containerTableViewCellBackground = UIColor.clear
+            static let numberStepperButtonsBackground = UIColor.clear
+            static let numberStepperLabelBackground = UIColor.clear
+            static let addressTextFieldPasteButtonBackground = UIColor.clear
+            static let addressTextFieldClearButtonBackground = UIColor.clear
+            static let addressTextFieldControlsContainerBackground = UIColor.clear
+            static let addressTextFieldScanQRCodeButtonBackground = UIColor.clear
+            static let addressTextFieldTargetAddressRightViewBackground = UIColor.clear
+            
             static let shadow = UIColor { trait in
                 return colorFrom(trait: trait, lightColor: R.color.black()!, darkColor: R.color.white()!)
             }
@@ -336,6 +413,8 @@ struct Configuration {
         }
     }
 }
+
+// swiftlint:enable type_body_length
 
 extension Configuration {
     enum Font {

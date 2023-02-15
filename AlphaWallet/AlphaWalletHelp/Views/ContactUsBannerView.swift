@@ -55,7 +55,7 @@ class ContactUsBannerView: UIView {
     }
 
     func configure() {
-        backgroundColor = UIColor(red: 249, green: 208, blue: 33)
+        backgroundColor = Configuration.Color.Semantic.contactUsBannerBackground
 
         imageView.image = R.image.onboarding_contact()
 

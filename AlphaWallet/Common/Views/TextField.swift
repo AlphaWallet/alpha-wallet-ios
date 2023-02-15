@@ -325,7 +325,7 @@ extension TextField {
             let button = UIButton(type: .system)
             button.frame = .init(x: 0, y: 0, width: 30, height: 30)
             button.setImage(R.image.togglePassword(), for: .normal)
-            button.tintColor = .init(red: 111, green: 111, blue: 111)
+            button.tintColor = Configuration.Color.Semantic.textFieldPasswordTint
             button.addTarget(textField, action: #selector(toggleMaskPassword), for: .touchUpInside)
             return button
         }()
@@ -343,7 +343,7 @@ fileprivate extension TextField {
         if isSecureTextEntry {
             sender.tintColor = Configuration.Color.Semantic.secureIcon
         } else {
-            sender.tintColor = .init(red: 111, green: 111, blue: 111)
+            sender.tintColor = Configuration.Color.Semantic.textFieldPasswordTint
         }
     }
 }

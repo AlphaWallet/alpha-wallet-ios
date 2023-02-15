@@ -32,7 +32,7 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
             if let color = tokenHolder.values.backgroundColorStringValue.nilIfEmpty {
                 return UIColor(hex: color)
             } else {
-                return UIColor(red: 247, green: 197, blue: 196)
+                return Configuration.Color.Semantic.openSeaNonFungibleTokenCardRowBigImageBackgroundColor
             }
         }
     }
@@ -115,19 +115,19 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
     }
 
     var nonFungibleIdIconTextColor: UIColor {
-        return .init(red: 192, green: 192, blue: 192)
+        return Configuration.Color.Semantic.openSeaNonFungibleTokenCardRowIconText
     }
 
     var nonFungibleIdTextColor: UIColor {
-        return .init(red: 155, green: 155, blue: 155)
+        return Configuration.Color.Semantic.openSeaNonFungibleTokenCardRowIdText
     }
 
     var generationTextColor: UIColor {
-        return .init(red: 155, green: 155, blue: 155)
+        return Configuration.Color.Semantic.openSeaNonFungibleTokenCardRowGenerationText
     }
 
     var cooldownTextColor: UIColor {
-        return .init(red: 155, green: 155, blue: 155)
+        return Configuration.Color.Semantic.openSeaNonFungibleTokenCardRowCooldownText
     }
 
     var generationIcon: UIImage {
@@ -218,7 +218,7 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
     }
 
     var urlButtonTextColor: UIColor {
-        return UIColor(red: 84, green: 84, blue: 84)
+        return Configuration.Color.Semantic.buttonUrlText
     }
 
     var urlButtonFont: UIFont {

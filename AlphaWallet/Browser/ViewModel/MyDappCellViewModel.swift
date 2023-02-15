@@ -40,7 +40,7 @@ struct MyDappCellViewModel: Hashable {
     }
 
     var nameColor: UIColor? {
-        return UIColor(red: 77, green: 77, blue: 77)
+        return Configuration.Color.Semantic.myDappCellName
     }
 
     var domainNameColor: UIColor? {

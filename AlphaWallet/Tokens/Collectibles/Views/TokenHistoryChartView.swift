@@ -40,7 +40,7 @@ class TokenHistoryChartView: UIView {
         chartView.rightAxis.enabled = true
 
         chartView.rightAxis.drawGridLinesEnabled = true
-        chartView.rightAxis.gridColor = .init(red: 220, green: 220, blue: 220)
+        chartView.rightAxis.gridColor = Configuration.Color.Semantic.tokenHistoryChartViewGrid
         chartView.rightAxis.drawLabelsEnabled = true
 
         chartView.rightAxis.axisLineColor = .clear

@@ -49,18 +49,18 @@ class CircularLoadingIndicatorView: UIView {
 
     var lineWidth: CGFloat = 2
     var circleWidth: CGFloat = 15
-    var lineColor: UIColor = .red {
+    var lineColor: UIColor = Configuration.Color.Semantic.loadingIndicatorLine {
         didSet {
             fillLayer.strokeColor = lineColor.cgColor
             circleLayer.fillColor = lineColor.cgColor
         }
     }
-    var backgroundLineColor: UIColor = .lightGray {
+    var backgroundLineColor: UIColor = Configuration.Color.Semantic.backgroundLine {
         didSet {
             backgroundLayer.strokeColor = backgroundLineColor.cgColor
         }
     }
-    var checkmarkColor: UIColor = .red {
+    var checkmarkColor: UIColor = Configuration.Color.Semantic.checkmark {
         didSet {
             checkmarkLayer.strokeColor = checkmarkColor.cgColor
         }

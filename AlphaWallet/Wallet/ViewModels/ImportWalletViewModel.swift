@@ -46,7 +46,7 @@ struct ImportWalletViewModel {
         return .init(string: R.string.localizable.importWalletImportSeedPhraseDescription(), attributes: [
             .paragraphStyle: style,
             .font: Fonts.regular(size: ScreenChecker().isNarrowScreen ? 14 : 16),
-            .foregroundColor: UIColor(red: 116, green: 116, blue: 116)
+            .foregroundColor: Configuration.Color.Semantic.importSeedText
         ])
     }
 
