@@ -64,7 +64,6 @@ extension AlphaWallet.WalletConnect {
         case walletSwitchEthereumChain(WalletSwitchEthereumChainObject)
         case walletAddEthereumChain(WalletAddEthereumChainObject)
         case custom(request: PositionedJSONRPC_2_0_RequestType)
-        case unknown
     }
 }
 

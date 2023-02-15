@@ -153,10 +153,12 @@ extension WalletConnectV1Provider: WalletConnectV1ClientDelegate {
         do {
             let action = AlphaWallet.WalletConnect.Action(type: try decoder.decode(request: request, session: session))
             delegate?.server(self, action: action, request: .v1(request: request, server: session.server), session: .init(session: session))
-        } catch {
+        } catch let error as AlphaWallet.WalletConnect.ResponseError {
             delegate?.server(self, didFail: error)
             //NOTE: we need to reject request if there is some arrays
             client.send(.reject(request))
+        } catch {
+            //no-op
         }
     }
 

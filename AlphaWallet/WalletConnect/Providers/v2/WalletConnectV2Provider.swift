@@ -165,14 +165,16 @@ final class WalletConnectV2Provider: WalletConnectServer {
             return reject(request: request, error: .requestRejected)
         }
 
-        let requestV2: AlphaWallet.WalletConnect.Session.Request = .v2(request: request)
         do {
-            let action = AlphaWallet.WalletConnect.Action(type: try decoder.decode(request: requestV2))
-            self.delegate?.server(self, action: action, request: requestV2, session: .init(multiServerSession: session))
-        } catch {
+            let request: AlphaWallet.WalletConnect.Session.Request = .v2(request: request)
+            let action = AlphaWallet.WalletConnect.Action(type: try decoder.decode(request: request))
+            self.delegate?.server(self, action: action, request: request, session: .init(multiServerSession: session))
+        } catch let error as AlphaWallet.WalletConnect.ResponseError {
             self.delegate?.server(self, didFail: error)
             //NOTE: we need to reject request if there is some arrays
-            self.reject(request: request, error: .requestRejected)
+            self.reject(request: request, error: error)
+        } catch {
+            //no-op
         }
     }
 
