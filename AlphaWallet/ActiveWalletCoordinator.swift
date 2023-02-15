@@ -776,7 +776,7 @@ extension ActiveWalletCoordinator: ActivityViewControllerDelegate {
                 case .typedMessage:
                     return .signTypedMessage(data)
                 case .eip712v3And4:
-                    return .signTypedMessageV3(data)
+                    return .signEip712v3And4(data)
                 }
             }.eraseToAnyPublisher()
     }

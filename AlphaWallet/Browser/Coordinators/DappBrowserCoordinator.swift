@@ -228,7 +228,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
             case .typedMessage:
                 callback = DappCallback(id: callbackID, value: .signTypedMessage(data))
             case .eip712v3And4:
-                callback = DappCallback(id: callbackID, value: .signTypedMessageV3(data))
+                callback = DappCallback(id: callbackID, value: .signEip712v3And4(data))
             }
 
             self.browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
@@ -484,7 +484,7 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
                 signMessage(with: .personalMessage(hexMessage.asSignableMessageData), account: account, callbackID: callbackID)
             case .signTypedMessage(let typedData):
                 signMessage(with: .typedMessage(typedData), account: account, callbackID: callbackID)
-            case .signTypedMessageV3(let typedData):
+            case .signEip712v3And4(let typedData):
                 signMessage(with: .eip712v3And4(typedData), account: account, callbackID: callbackID)
             case .ethCall(from: let from, to: let to, value: let value, data: let data):
                 //Must use unchecked form for `Address `because `from` and `to` might be 0x0..0. We assume the dapp author knows what they are doing
@@ -508,7 +508,7 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
                 return performDappAction(account: account)
             } else {
                 switch action {
-                case .signTransaction, .sendTransaction, .signMessage, .signPersonalMessage, .signTypedMessage, .signTypedMessageV3, .unknown, .sendRawTransaction:
+                case .signTransaction, .sendTransaction, .signMessage, .signPersonalMessage, .signTypedMessage, .signEip712v3And4, .unknown, .sendRawTransaction:
                     return rejectDappAction()
                 case .walletAddEthereumChain, .walletSwitchEthereumChain, .ethCall:
                     return performDappAction(account: account)

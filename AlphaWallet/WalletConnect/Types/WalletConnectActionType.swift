@@ -15,7 +15,7 @@ extension AlphaWallet.WalletConnect {
         enum ActionType {
             case signMessage(String)
             case signPersonalMessage(String)
-            case signTypedMessageV3(EIP712TypedData)
+            case signEip712v3And4(EIP712TypedData)
             case signTransaction(UnconfirmedTransaction)
             case sendTransaction(UnconfirmedTransaction)
             case typedMessage([EthTypedData])

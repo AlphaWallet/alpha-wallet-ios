@@ -90,7 +90,7 @@ public enum DappCallbackValue {
     case signMessage(Data)
     case signPersonalMessage(Data)
     case signTypedMessage(Data)
-    case signTypedMessageV3(Data)
+    case signEip712v3And4(Data)
     case ethCall(String)
     case walletAddEthereumChain
     case walletSwitchEthereumChain
@@ -107,7 +107,7 @@ public enum DappCallbackValue {
             return data.hexEncoded
         case .signTypedMessage(let data):
             return data.hexEncoded
-        case .signTypedMessageV3(let data):
+        case .signEip712v3And4(let data):
             return data.hexEncoded
         case .ethCall(let value):
             return value

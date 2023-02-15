@@ -282,7 +282,7 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
                 message: .personalMessage(hexMessage.asSignableMessageData),
                 account: walletSession.account.address,
                 requester: requester)
-        case .signTypedMessageV3(let typedData):
+        case .signEip712v3And4(let typedData):
             return dappRequestProvider.requestSignMessage(
                 message: .eip712v3And4(typedData),
                 account: walletSession.account.address,
@@ -329,7 +329,7 @@ class JumpBackToPreviousApp {
 extension AlphaWallet.WalletConnect.Action.ActionType {
     var shouldGoBackToPreviousAppAfterAction: Bool {
         switch self {
-        case .signMessage, .signPersonalMessage, .signTypedMessageV3, .signTransaction, .sendTransaction, .typedMessage, .sendRawTransaction, .walletSwitchEthereumChain, .walletAddEthereumChain:
+        case .signMessage, .signPersonalMessage, .signEip712v3And4, .signTransaction, .sendTransaction, .typedMessage, .sendRawTransaction, .walletSwitchEthereumChain, .walletAddEthereumChain:
             return true
         case .getTransactionCount:
             return false
