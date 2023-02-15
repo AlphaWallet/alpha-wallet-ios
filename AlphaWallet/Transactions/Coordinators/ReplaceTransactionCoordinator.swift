@@ -61,12 +61,12 @@ class ReplaceTransactionCoordinator: Coordinator {
             return 0
         }
     }
-    private var transactionData: Data? {
+    private var transactionData: Data {
         switch mode {
         case .speedup:
             return pendingTransactionInformation.data
         case .cancel:
-            return nil
+            return Data()
         }
     }
     private var transactionConfirmationConfiguration: TransactionType.Configuration {

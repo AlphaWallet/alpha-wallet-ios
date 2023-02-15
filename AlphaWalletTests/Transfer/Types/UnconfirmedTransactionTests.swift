@@ -13,6 +13,10 @@ import AlphaWalletWeb3
 
 class UnconfirmedTransactionTests: XCTestCase {
 
+    func testDecodeEmptyData() throws {
+        XCTAssertNil(DecodedFunctionCall(data: Data()))
+    }
+
     func testErc20Transfer() throws {
         let amount = BigUInt(1)
         let contract = AlphaWallet.Address(uncheckedAgainstNullAddress: "0x0000000000000000000000000000000000000009")!
@@ -23,16 +27,15 @@ class UnconfirmedTransactionTests: XCTestCase {
 
         XCTAssertEqual(transaction.contract, contract)
         XCTAssertEqual(transaction.recipient, recipient)
-        
-        guard let data = transaction.data else { fatalError() }
-        guard let functionalCall = DecodedFunctionCall(data: data) else { fatalError() }
+
+        guard let functionalCall = DecodedFunctionCall(data: transaction.data) else { fatalError() }
         guard case .erc20Transfer(let _recipient, let _amount) = functionalCall.type else { fatalError() }
 
         XCTAssertEqual(_recipient, recipient)
         XCTAssertEqual(_amount, amount)
 
         let _contract = try Contract(abi: String(data: AlphaWallet.Ethereum.ABI.erc20, encoding: .utf8)!)
-        guard let result = _contract.decodeInputData(data) else { fatalError() }
+        guard let result = _contract.decodeInputData(transaction.data) else { fatalError() }
 
         XCTAssertEqual(result.name, "transfer")
         XCTAssertEqual((result.params?["tokens"] as? BigUInt), amount)
@@ -74,10 +77,8 @@ class UnconfirmedTransactionTests: XCTestCase {
         XCTAssertEqual(transaction.contract, contract)
         XCTAssertEqual(transaction.recipient, recipient)
 
-        guard let data = transaction.data else { fatalError() }
-
         let _contract = try Contract(abi: AlphaWallet.Ethereum.ABI.erc721String)
-        guard let result = _contract.decodeInputData(data) else { fatalError() }
+        guard let result = _contract.decodeInputData(transaction.data) else { fatalError() }
 
         XCTAssertEqual(result.signature, "42842e0e")
         XCTAssertEqual(result.name, "safeTransferFrom")

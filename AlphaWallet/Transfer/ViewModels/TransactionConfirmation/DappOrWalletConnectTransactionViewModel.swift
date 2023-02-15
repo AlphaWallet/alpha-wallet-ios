@@ -94,7 +94,7 @@ extension TransactionConfirmationViewModel {
             self.recipientResolver = recipientResolver
             self.assetDefinitionStore = assetDefinitionStore
             self.configurator = configurator
-            self.functionCallMetaData = configurator.transaction.data.flatMap { DecodedFunctionCall(data: $0) }
+            self.functionCallMetaData = DecodedFunctionCall(data: configurator.transaction.data)
             self.session = configurator.session
             self.requester = requester
             self.transactionType = configurator.transaction.transactionType
