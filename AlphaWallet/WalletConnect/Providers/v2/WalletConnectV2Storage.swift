@@ -71,7 +71,7 @@ class WalletConnectV2Storage {
                 namespace.accounts.compactMap { account in Account(blockchain: blockchain, address: account.address) }
             })
 
-            return SessionNamespace(accounts: accounts, methods: namespace.methods, events: namespace.events, extensions: namespace.extensions)
+            return SessionNamespace(accounts: accounts, methods: namespace.methods, events: namespace.events)
         }
 
         return try update(topicOrUrl, namespaces: namespaces)
@@ -80,9 +80,7 @@ class WalletConnectV2Storage {
     @discardableResult func update(_ topicOrUrl: AlphaWallet.WalletConnect.TopicOrUrl, accounts: Set<CAIP10Account>) throws -> WalletConnectV2Session {
         let session = try session(for: topicOrUrl)
 
-        let namespaces = session.namespaces.mapValues {
-            return SessionNamespace(accounts: accounts, methods: $0.methods, events: $0.events, extensions: $0.extensions)
-        }
+        let namespaces = session.namespaces.mapValues { SessionNamespace(accounts: accounts, methods: $0.methods, events: $0.events) }
 
         return try update(topicOrUrl, namespaces: namespaces)
     }

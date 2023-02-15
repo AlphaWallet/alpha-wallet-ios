@@ -38,7 +38,8 @@ target 'AlphaWallet' do
   pod 'SwiftLint', '0.50.3', :configuration => 'Debug'
   pod 'SwiftFormat/CLI', '~> 0.49', :configuration => 'Debug'
 
-  pod 'WalletConnectSwiftV2', '~> 1.0.2'
+  pod 'WalletConnectSwiftV2', :git => 'https://github.com/WalletConnect/WalletConnectSwiftV2.git', :tag => '1.3.1'
+  pod 'WalletConnectSwiftV2/Web3Wallet', :git => 'https://github.com/WalletConnect/WalletConnectSwiftV2.git', :tag => '1.3.1'
   pod 'FirebaseCrashlytics', '8.10.0'
   pod 'WalletConnectSwift', :git => 'https://github.com/AlphaWallet/WalletConnectSwift.git', :branch => 'alphaWallet'
   pod 'Starscream', '3.1.1'

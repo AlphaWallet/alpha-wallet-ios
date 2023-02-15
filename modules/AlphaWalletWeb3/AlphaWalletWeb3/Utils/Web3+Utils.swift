@@ -110,8 +110,8 @@ extension Web3.Utils {
             data.append(prefixData)
             data.append(personalMessage)
         }
-        let hash = data.sha3(.keccak256)
-        return hash
+
+        return data.sha3(.keccak256)
     }
 
     public static func parseToBigUInt(_ amount: String, units: Web3.Utils.Units = .eth) -> BigUInt? {
@@ -202,6 +202,13 @@ extension Web3.Utils {
         guard let data = Data.fromHex(personalMessage) else { return nil }
         guard let sig = Data.fromHex(signature) else { return nil }
         return Web3.Utils.personalECRecover(data, signature: sig)
+    }
+
+    static public func personalECRecover(_ message: Data, r: [UInt8], s: [UInt8], v: UInt8) -> Data? {
+        guard let signatureData = SECP256K1.marshalSignature(v: v, r: r, s: s) else { return nil }
+        guard let hash = Web3.Utils.hashPersonalMessage(message) else { return nil }
+
+        return SECP256K1.recoverPublicKey(hash: hash, signature: signatureData)
     }
 
     static public func personalECRecover(_ personalMessage: Data, signature: Data) -> EthereumAddress? {
