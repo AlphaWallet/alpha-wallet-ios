@@ -8,20 +8,20 @@ public struct UnconfirmedTransaction {
     public let value: BigUInt
     public let recipient: AlphaWallet.Address?
     public let contract: AlphaWallet.Address?
-    public let data: Data?
+    public let data: Data
     public let gasLimit: BigUInt?
     public let gasPrice: BigUInt?
     public let nonce: BigUInt?
 
-    public init(
-        transactionType: TransactionType,
-        value: BigUInt,
-        recipient: AlphaWallet.Address?,
-        contract: AlphaWallet.Address?,
-        data: Data?,
-        gasLimit: BigUInt? = nil,
-        gasPrice: BigUInt? = nil,
-        nonce: BigUInt? = nil) {
+    public init(transactionType: TransactionType,
+                value: BigUInt,
+                recipient: AlphaWallet.Address?,
+                contract: AlphaWallet.Address?,
+                data: Data = Data(),
+                gasLimit: BigUInt? = nil,
+                gasPrice: BigUInt? = nil,
+                nonce: BigUInt? = nil) {
+
         self.transactionType = transactionType
         self.value = value
         self.recipient = recipient
