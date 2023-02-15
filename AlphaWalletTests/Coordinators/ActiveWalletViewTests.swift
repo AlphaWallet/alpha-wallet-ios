@@ -16,10 +16,8 @@ final class FakeNetworkService: NetworkService {
 
     func upload(multipartFormData: @escaping (MultipartFormData) -> Void,
                 usingThreshold: UInt64,
-                to url: URLConvertible,
-                method: HTTPMethod,
-                headers: HTTPHeaders?,
-                callbackQueue: DispatchQueue = .main) -> AnyPublisher<Alamofire.DataResponse<Any>, SessionTaskError> {
+                with request: AlphaWalletFoundation.URLRequestConvertible,
+                callbackQueue: DispatchQueue = .main) -> AnyPublisher<URLRequest.Response, SessionTaskError> {
         return .empty()
     }
 
