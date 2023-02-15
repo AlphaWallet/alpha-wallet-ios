@@ -74,6 +74,7 @@ extension AlphaWallet.WalletConnect {
             case sign = "eth_sign"
             case personalSign = "personal_sign"
             case signTypedData = "eth_signTypedData"
+            case signTypedDatav4 = "eth_signTypedData_v4"
             case signTransaction = "eth_signTransaction"
             case sendTransaction = "eth_sendTransaction"
             case sendRawTransaction = "eth_sendRawTransaction"
@@ -102,7 +103,7 @@ extension AlphaWallet.WalletConnect {
                 let data = try request.parameter(of: WalletConnectTransaction.self, at: 0)
 
                 return .signTransaction(data)
-            case .signTypedData:
+            case .signTypedData, .signTypedDatav4:
                 do {
                     let addressRawValue = try request.parameter(of: String.self, at: 0)
                     let rawValue = try request.parameter(of: String.self, at: 1)
