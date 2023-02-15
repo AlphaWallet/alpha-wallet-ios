@@ -6,61 +6,46 @@
 //
 
 import Foundation
-import PromiseKit
 import WalletConnectSwift
 import AlphaWalletFoundation
 import AlphaWalletLogger
 
 struct WalletConnectRequestDecoder {
 
-    func decode(request: AlphaWallet.WalletConnect.Session.Request) -> Promise<AlphaWallet.WalletConnect.Action.ActionType> {
+    func decode(request: AlphaWallet.WalletConnect.Session.Request) throws -> AlphaWallet.WalletConnect.Action.ActionType {
         guard let server: RPCServer = request.server else {
-            return .init(error: WalletConnectRequestDecoder.sessionRequestRPCServerMissing)
+            throw WalletConnectRequestDecoder.sessionRequestRPCServerMissing
         }
         infoLog("[WalletConnect] convert request: \(request.method) url: \(request.description)")
-
-        let data: AlphaWallet.WalletConnect.Request
-        do {
-            data = try AlphaWallet.WalletConnect.Request(request: request)
-        } catch let error {
-            return .init(error: error)
-        }
+        let data = try AlphaWallet.WalletConnect.Request(request: request)
 
         switch data {
         case .sign(_, let message):
-            return .value(.signMessage(message))
+            return .signMessage(message)
         case .signPersonalMessage(_, let message):
-            return .value(.signPersonalMessage(message))
+            return .signPersonalMessage(message)
         case .signTransaction(let walletConnectTransaction):
-            do {
-                let transaction = try TransactionType.prebuilt(server).buildAnyDappTransaction(walletConnectTransaction: walletConnectTransaction)
-                return .value(.signTransaction(transaction))
-            } catch {
-                return .init(error: error)
-            }
+            let transaction = try TransactionType.prebuilt(server).buildAnyDappTransaction(walletConnectTransaction: walletConnectTransaction)
+            return .signTransaction(transaction)
         case .signTypedMessage(let data):
-            return .value(.typedMessage(data))
+            return .typedMessage(data)
         case .signTypedData(_, let data):
-            return .value(.signTypedMessageV3(data))
+            return .signTypedMessageV3(data)
         case .sendTransaction(let walletConnectTransaction):
-            do {
-                let transaction = try TransactionType.prebuilt(server).buildAnyDappTransaction(walletConnectTransaction: walletConnectTransaction)
-                return .value(.sendTransaction(transaction))
-            } catch {
-                return .init(error: error)
-            }
+            let transaction = try TransactionType.prebuilt(server).buildAnyDappTransaction(walletConnectTransaction: walletConnectTransaction)
+            return .sendTransaction(transaction)
         case .sendRawTransaction(let rawValue):
-            return .value(.sendRawTransaction(rawValue))
+            return .sendRawTransaction(rawValue)
         case .unknown:
-            return .value(.unknown)
+            return .unknown
         case .getTransactionCount(let filter):
-            return .value(.getTransactionCount(filter))
+            return .getTransactionCount(filter)
         case .walletSwitchEthereumChain(let data):
-            return .value(.walletSwitchEthereumChain(data))
+            return .walletSwitchEthereumChain(data)
         case .walletAddEthereumChain(let data):
-            return .value(.walletAddEthereumChain(data))
+            return .walletAddEthereumChain(data)
         case .custom:
-            return .init(error: WalletConnectRequestDecoder.unsupportedMethod)
+            throw WalletConnectRequestDecoder.unsupportedMethod
         }
     }
 

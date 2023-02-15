@@ -8,7 +8,6 @@
 import Foundation
 import WalletConnectSwift
 import AlphaWalletAddress
-import PromiseKit
 import Combine
 import AlphaWalletFoundation
 import AlphaWalletLogger
@@ -151,16 +150,14 @@ extension WalletConnectV1Provider: WalletConnectV1ClientDelegate {
         guard let session = storage.value.first(where: { $0.topicOrUrl == .url(url: .init(url: request.url)) }) else {
             return client.send(.reject(request))
         }
-
-        decoder.decode(request: request, session: session)
-            .map { AlphaWallet.WalletConnect.Action(type: $0) }
-            .done { action in
-                self.delegate?.server(self, action: action, request: .v1(request: request, server: session.server), session: .init(session: session))
-            }.catch { error in
-                self.delegate?.server(self, didFail: error)
-                //NOTE: we need to reject request if there is some arrays
-                self.client.send(.reject(request))
-            }
+        do {
+            let action = AlphaWallet.WalletConnect.Action(type: try decoder.decode(request: request, session: session))
+            delegate?.server(self, action: action, request: .v1(request: request, server: session.server), session: .init(session: session))
+        } catch {
+            delegate?.server(self, didFail: error)
+            //NOTE: we need to reject request if there is some arrays
+            client.send(.reject(request))
+        }
     }
 
     private func removeSession(for url: WalletConnectV1URL) {
@@ -247,8 +244,8 @@ extension WalletConnectV1Provider: WalletConnectV1ClientDelegate {
 }
 
 fileprivate extension WalletConnectRequestDecoder {
-    func decode(request: WalletConnectV1Request, session: WalletConnectV1Session) -> Promise<AlphaWallet.WalletConnect.Action.ActionType> {
-        return decode(request: .v1(request: request, server: session.server))
+    func decode(request: WalletConnectV1Request, session: WalletConnectV1Session) throws -> AlphaWallet.WalletConnect.Action.ActionType {
+        return try decode(request: .v1(request: request, server: session.server))
     }
 }
 
