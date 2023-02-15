@@ -361,7 +361,7 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
                     let callback = DappCallback(id: command.id, value: value)
                     self.notifyFinish(callbackID: command.id, value: .success(callback))
                 })
-            case .signTransaction, .sendTransaction, .signMessage, .signTypedMessage, .unknown, .sendRawTransaction, .signTypedMessageV3, .ethCall, .walletAddEthereumChain, .walletSwitchEthereumChain:
+            case .signTransaction, .sendTransaction, .signMessage, .signTypedMessage, .unknown, .sendRawTransaction, .signEip712v3And4, .ethCall, .walletAddEthereumChain, .walletSwitchEthereumChain:
                 break
             }
         }

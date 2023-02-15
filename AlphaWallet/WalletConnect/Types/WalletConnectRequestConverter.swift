@@ -41,7 +41,7 @@ struct WalletConnectRequestDecoder {
         case .signTypedMessage(let data):
             return .typedMessage(data)
         case .signTypedData(_, let data):
-            return .signTypedMessageV3(data)
+            return .signEip712v3And4(data)
         case .sendTransaction(let walletConnectTransaction):
             do {
                 let transaction = try TransactionType.prebuilt(server).buildAnyDappTransaction(walletConnectTransaction: walletConnectTransaction)
