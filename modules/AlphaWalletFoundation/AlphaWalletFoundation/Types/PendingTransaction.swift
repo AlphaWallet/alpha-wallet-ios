@@ -3,7 +3,7 @@
 import BigInt
 import Foundation
 
-public struct PendingTransaction {
+public struct EthereumTransaction {
     let blockHash: String
     let blockNumber: String
     let from: String
@@ -15,8 +15,8 @@ public struct PendingTransaction {
     let nonce: String
 }
 
-extension PendingTransaction {
-    public static func from(_ transaction: [String: AnyObject]) -> PendingTransaction {
+extension EthereumTransaction {
+    public init(_ transaction: [String: AnyObject]) {
         let blockHash = transaction["blockHash"] as? String ?? ""
         let blockNumber = transaction["blockNumber"] as? String ?? ""
         let gas = transaction["gas"] as? String ?? "0"
@@ -26,7 +26,8 @@ extension PendingTransaction {
         let nonce = transaction["nonce"] as? String ?? "0"
         let from = transaction["from"] as? String ?? ""
         let to = transaction["to"] as? String ?? ""
-        return PendingTransaction(
+        
+        self.init(
             blockHash: blockHash,
             blockNumber: BigInt(blockNumber.drop0x, radix: 16)?.description ?? "",
             from: from,

@@ -13,7 +13,7 @@ import AlphaWalletCore
 final class PendingTransactionSchedulerProvider: SchedulerProvider {
     private let fetchPendingTransactionsQueue: OperationQueue
     private let blockchainProvider: BlockchainProvider
-    private let responseSubject = PassthroughSubject<Swift.Result<PendingTransaction, SessionTaskError>, Never>()
+    private let responseSubject = PassthroughSubject<Swift.Result<EthereumTransaction, SessionTaskError>, Never>()
 
     var interval: TimeInterval { return Constants.Covalent.pendingTransactionUpdateInterval }
     var name: String { "PendingTransactionSchedulerProvider" }
@@ -23,7 +23,7 @@ final class PendingTransactionSchedulerProvider: SchedulerProvider {
 
     let transaction: TransactionInstance
 
-    var responsePublisher: AnyPublisher<Swift.Result<PendingTransaction, SessionTaskError>, Never> {
+    var responsePublisher: AnyPublisher<Swift.Result<EthereumTransaction, SessionTaskError>, Never> {
         responseSubject.eraseToAnyPublisher()
     }
 
@@ -52,7 +52,7 @@ final class PendingTransactionSchedulerProvider: SchedulerProvider {
             .eraseToAnyPublisher()
     }
 
-    private func handle(response: Swift.Result<PendingTransaction, SessionTaskError>) {
+    private func handle(response: Swift.Result<EthereumTransaction, SessionTaskError>) {
         responseSubject.send(response)
     }
 }

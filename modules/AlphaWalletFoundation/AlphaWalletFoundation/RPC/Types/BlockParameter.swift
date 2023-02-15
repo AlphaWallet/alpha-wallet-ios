@@ -22,7 +22,7 @@ public enum BlockParameter: RawRepresentable, Codable {
     public var rawValue: RawValue {
         switch self {
         case .blockNumber(let value):
-            return "0x" + String(value, radix: 16)
+            return String(value, radix: 16).add0x
         case .earliest:
             return "earliest"
         case .latest:

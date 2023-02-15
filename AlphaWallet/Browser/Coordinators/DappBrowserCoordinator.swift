@@ -143,12 +143,12 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         return browserViewController
     }
 
-    private enum PendingTransaction {
+    private enum EthereumTransaction {
         case none
         case data(callbackID: Int)
     }
 
-    private var pendingTransaction: PendingTransaction = .none
+    private var pendingTransaction: EthereumTransaction = .none
 
     private func executeTransaction(action: DappAction, callbackID: Int, transaction: UnconfirmedTransaction, type: ConfirmType) {
         pendingTransaction = .data(callbackID: callbackID)
