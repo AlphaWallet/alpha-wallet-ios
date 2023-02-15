@@ -166,15 +166,14 @@ final class WalletConnectV2Provider: WalletConnectServer {
         }
 
         let requestV2: AlphaWallet.WalletConnect.Session.Request = .v2(request: request)
-        decoder.decode(request: requestV2)
-            .map { AlphaWallet.WalletConnect.Action(type: $0) }
-            .done { action in
-                self.delegate?.server(self, action: action, request: requestV2, session: .init(multiServerSession: session))
-            }.catch { error in
-                self.delegate?.server(self, didFail: error)
-                //NOTE: we need to reject request if there is some arrays
-                self.reject(request: request, error: .requestRejected)
-            }
+        do {
+            let action = AlphaWallet.WalletConnect.Action(type: try decoder.decode(request: requestV2))
+            self.delegate?.server(self, action: action, request: requestV2, session: .init(multiServerSession: session))
+        } catch {
+            self.delegate?.server(self, didFail: error)
+            //NOTE: we need to reject request if there is some arrays
+            self.reject(request: request, error: .requestRejected)
+        }
     }
 
     private func didDelete(topic: String, reason: WalletConnectSwiftV2.Reason) {
