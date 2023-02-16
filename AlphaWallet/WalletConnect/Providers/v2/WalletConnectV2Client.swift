@@ -33,9 +33,7 @@ struct Web3Signer: WalletConnectSwiftV2.EthereumSigner {
 
     func sign(message: Data, with key: Data) throws -> EthereumSignature {
         let hash = message.sha3(.keccak256)
-        var signature = try EthereumSigner().sign(hash: hash, withPrivateKey: key)
-        signature[64] += EthereumSigner.vitaliklizeConstant
-
+        let signature = try EthereumSigner().sign(hash: hash, withPrivateKey: key)
         return EthereumSignature(v: signature[64], r: signature[0 ..< 32].bytes, s: signature[32 ..< 64].bytes)
     }
 
