@@ -25,7 +25,7 @@ extension SessionTaskError {
         }
     }
 
-    var unwrapped: Error {
+    public var unwrapped: Error {
         switch self {
         case .connectionError(let e):
             return e

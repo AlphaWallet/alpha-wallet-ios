@@ -5,16 +5,15 @@ import WebKit
 import PromiseKit
 import AlphaWalletFoundation
 import Combine
+import AlphaWalletCore
 
-protocol DappBrowserCoordinatorDelegate: CanOpenURL, RequestAddCustomChainProvider, RequestSwitchChainProvider, BuyCryptoDelegate {
-    func didSentTransaction(transaction: SentTransaction, inCoordinator coordinator: DappBrowserCoordinator)
+protocol DappBrowserCoordinatorDelegate: DappRequesterDelegate, CanOpenURL {
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: DappBrowserCoordinator)
 }
 
 // swiftlint:disable type_body_length
 final class DappBrowserCoordinator: NSObject, Coordinator {
     private let sessionsProvider: SessionsProvider
-    private let keystore: Keystore
     private var config: Config
     private let analytics: AnalyticsLogger
     private let domainResolutionService: DomainResolutionServiceType
@@ -24,7 +23,6 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     private let wallet: Wallet
     private lazy var browserViewController: BrowserViewController = createBrowserViewController()
     private let browserOnly: Bool
-    private let tokensService: TokenViewModelState
     private let bookmarksStore: BookmarksStore
     private let browserHistoryStorage: BrowserHistoryStorage
     private var urlParser: BrowserURLParser {
@@ -52,7 +50,6 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     private var enableToolbar: Bool = true {
         didSet { navigationController.isToolbarHidden = !enableToolbar }
     }
-    private let assetDefinitionStore: AssetDefinitionStore
     private var currentUrl: URL? { browserViewController.webView.url }
 
     var hasWebPageLoaded: Bool { currentUrl != nil }
@@ -71,13 +68,10 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     weak var delegate: DappBrowserCoordinatorDelegate?
 
     init(sessionsProvider: SessionsProvider,
-         keystore: Keystore,
          config: Config,
          browserOnly: Bool,
          analytics: AnalyticsLogger,
          domainResolutionService: DomainResolutionServiceType,
-         assetDefinitionStore: AssetDefinitionStore,
-         tokensService: TokenViewModelState,
          bookmarksStore: BookmarksStore,
          browserHistoryStorage: BrowserHistoryStorage,
          wallet: Wallet,
@@ -85,17 +79,14 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
 
         self.networkService = networkService
         self.wallet = wallet
-        self.tokensService = tokensService
         self.navigationController = NavigationController(navigationBarClass: DappBrowserNavigationBar.self, toolbarClass: nil)
         self.sessionsProvider = sessionsProvider
-        self.keystore = keystore
         self.config = config
         self.bookmarksStore = bookmarksStore
         self.browserHistoryStorage = browserHistoryStorage
         self.browserOnly = browserOnly
         self.analytics = analytics
         self.domainResolutionService = domainResolutionService
-        self.assetDefinitionStore = assetDefinitionStore
         super.init()
         //Necessary so that some sites don't bleed into (under) navigation bar after we tweak global styles for navigationBars after adding large title support
         navigationController.navigationBar.isTranslucent = false
@@ -143,56 +134,58 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         return browserViewController
     }
 
-    private enum PendingTransaction {
-        case none
-        case data(callbackID: Int)
+    private func requestSingTransaction(session: WalletSession,
+                                        delegate: DappBrowserCoordinatorDelegate,
+                                        callbackId: Int,
+                                        transaction: UnconfirmedTransaction) {
+
+        delegate.requestSingTransaction(session: session, source: .browser, requester: nil, transaction: transaction, configuration: .dappTransaction(confirmType: .sign))
+            .sink(receiveCompletion: { [browserViewController] result in
+                guard case .failure = result else { return }
+                browserViewController.notifyFinish(callbackID: callbackId, value: .failure(DAppError.cancelled))
+            }, receiveValue: { [browserViewController] data in
+                let callback = DappCallback(id: callbackId, value: .signTransaction(data))
+                browserViewController.notifyFinish(callbackID: callbackId, value: .success(callback))
+            }).store(in: &cancellable)
     }
 
-    private var pendingTransaction: PendingTransaction = .none
+    private func requestSendTransaction(session: WalletSession,
+                                        delegate: DappBrowserCoordinatorDelegate,
+                                        callbackId: Int,
+                                        transaction: UnconfirmedTransaction) {
 
-    private func executeTransaction(action: DappAction, callbackID: Int, transaction: UnconfirmedTransaction, type: ConfirmType) {
-        pendingTransaction = .data(callbackID: callbackID)
-        do {
-            guard let session = sessionsProvider.session(for: server) else { throw DappBrowserError.serverUnavailable }
-
-            let coordinator = TransactionConfirmationCoordinator(
-                presentingViewController: navigationController,
-                session: session,
-                transaction: transaction,
-                configuration: .dappTransaction(confirmType: type),
-                analytics: analytics,
-                domainResolutionService: domainResolutionService,
-                keystore: keystore,
-                assetDefinitionStore: assetDefinitionStore,
-                tokensService: tokensService,
-                networkService: networkService)
-
-            coordinator.delegate = self
-            addCoordinator(coordinator)
-            coordinator.start(fromSource: .browser)
-        } catch {
-            UIApplication.shared
-                .presentedViewController(or: navigationController)
-                .displayError(message: error.prettyError)
-        }
+        delegate.requestSendTransaction(session: session, source: .browser, requester: nil, transaction: transaction, configuration: .dappTransaction(confirmType: .signThenSend))
+            .sink(receiveCompletion: { [browserViewController] result in
+                guard case .failure = result else { return }
+                browserViewController.notifyFinish(callbackID: callbackId, value: .failure(DAppError.cancelled))
+            }, receiveValue: { [browserViewController] transaction in
+                let callback = DappCallback(id: callbackId, value: .sentTransaction(Data(_hex: transaction.id)))
+                browserViewController.notifyFinish(callbackID: callbackId, value: .success(callback))
+            }).store(in: &cancellable)
     }
 
-    private func ethCall(callbackID: Int, from: AlphaWallet.Address?, to: AlphaWallet.Address?, value: String?, data: String) {
-        guard let session = sessionsProvider.session(for: server) else { return }
+    private func requestEthCall(session: WalletSession,
+                                delegate: DappBrowserCoordinatorDelegate,
+                                callbackId: Int,
+                                from: AlphaWallet.Address?,
+                                to: AlphaWallet.Address?,
+                                value: String?,
+                                data: String) {
 
-        session.blockchainProvider
-            .call(from: from, to: to, value: value, data: data)
+        delegate.requestEthCall(from: from, to: to, value: value, data: data, source: .dappBrowser, session: session)
             .sink(receiveCompletion: { [browserViewController] result in
                 guard case .failure(let error) = result else { return }
-                if case let SessionTaskError.responseError(JSONRPCError.responseError(_, message: message, _)) = error {
-                    browserViewController.notifyFinish(callbackID: callbackID, value: .failure(.nodeError(message)))
+
+                if case JSONRPCError.responseError(_, let message, _) = error.embedded {
+                    browserViewController.notifyFinish(callbackID: callbackId, value: .failure(.nodeError(message)))
                 } else {
                     //TODO better handle. User didn't cancel
-                    browserViewController.notifyFinish(callbackID: callbackID, value: .failure(.cancelled))
+                    browserViewController.notifyFinish(callbackID: callbackId, value: .failure(.cancelled))
                 }
-            }, receiveValue: { [browserViewController] result in
-                let callback = DappCallback(id: callbackID, value: .ethCall(result))
-                browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
+
+            }, receiveValue: { [browserViewController] value in
+                let callback = DappCallback(id: callbackId, value: .ethCall(value))
+                browserViewController.notifyFinish(callbackID: callbackId, value: .success(callback))
             }).store(in: &cancellable)
     }
 
@@ -215,26 +208,30 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         browserViewController.goTo(url: url)
     }
 
-    private func signMessage(with type: SignMessageType, account: AlphaWallet.Address, callbackID: Int) {
-        firstly {
-            SignMessageCoordinator.promise(analytics: analytics, navigationController: navigationController, keystore: keystore, coordinator: self, signType: type, account: account, source: .dappBrowser, requester: nil)
-        }.done { data in
-            let callback: DappCallback
-            switch type {
-            case .message:
-                callback = DappCallback(id: callbackID, value: .signMessage(data))
-            case .personalMessage:
-                callback = DappCallback(id: callbackID, value: .signPersonalMessage(data))
-            case .typedMessage:
-                callback = DappCallback(id: callbackID, value: .signTypedMessage(data))
-            case .eip712v3And4:
-                callback = DappCallback(id: callbackID, value: .signEip712v3And4(data))
-            }
+    private func requestSignMessage(session: WalletSession,
+                                    delegate: DappBrowserCoordinatorDelegate,
+                                    message: SignMessageType,
+                                    callbackId: Int) {
 
-            self.browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
-        }.catch { _ in
-            self.browserViewController.notifyFinish(callbackID: callbackID, value: .failure(DAppError.cancelled))
-        }
+        delegate.requestSignMessage(message: message, session: session, source: .dappBrowser, requester: nil)
+            .sink(receiveCompletion: { [browserViewController] result in
+                guard case .failure = result else { return }
+                browserViewController.notifyFinish(callbackID: callbackId, value: .failure(DAppError.cancelled))
+            }, receiveValue: { [browserViewController] data in
+                let callback: DappCallback
+                switch message {
+                case .message:
+                    callback = DappCallback(id: callbackId, value: .signMessage(data))
+                case .personalMessage:
+                    callback = DappCallback(id: callbackId, value: .signPersonalMessage(data))
+                case .typedMessage:
+                    callback = DappCallback(id: callbackId, value: .signTypedMessage(data))
+                case .eip712v3And4:
+                    callback = DappCallback(id: callbackId, value: .signEip712v3And4(data))
+                }
+
+                browserViewController.notifyFinish(callbackID: callbackId, value: .success(callback))
+            }).store(in: &cancellable)
     }
 
     private func makeMoreAlertSheet(sender: UIView) -> UIAlertController {
@@ -376,19 +373,17 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         open(url: url, animated: false)
     }
 
-    private func requestAddCustomChain(_ callbackId: Int, customChain: WalletAddEthereumChainObject) {
-        guard let delegate = delegate else {
-            notifyFinish(callbackID: callbackId, value: .failure(.cancelled))
-            return
-        }
+    private func requestAddCustomChain(session: WalletSession,
+                                       delegate: DappBrowserCoordinatorDelegate,
+                                       callbackId: Int,
+                                       customChain: WalletAddEthereumChainObject) {
 
         delegate.requestAddCustomChain(server: server, customChain: customChain)
             .sink(receiveCompletion: { [weak self] result in
-                if case .failure(let e) = result {
-                    let error = e.embedded as? DAppError ?? .nodeError("Unknown Error")
+                guard case .failure(let e) = result else { return }
+                let error = e.embedded as? DAppError ?? .nodeError("Unknown Error")
 
-                    self?.notifyFinish(callbackID: callbackId, value: .failure(error))
-                }
+                self?.notifyFinish(callbackID: callbackId, value: .failure(error))
             }, receiveValue: { [weak self] operation in
                 switch operation {
                 case .notifySuccessful:
@@ -404,24 +399,22 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
             }).store(in: &cancellable)
     }
 
-    private func switchChain(callbackID: Int, targetChain: WalletSwitchEthereumChainObject) {
-        guard let delegate = delegate else {
-            notifyFinish(callbackID: callbackID, value: .failure(.cancelled))
-            return
-        }
+    private func requestSwitchChain(session: WalletSession,
+                                    delegate: DappBrowserCoordinatorDelegate,
+                                    callbackId: Int,
+                                    targetChain: WalletSwitchEthereumChainObject) {
 
         delegate.requestSwitchChain(server: server, currentUrl: currentUrl, targetChain: targetChain)
             .sink(receiveCompletion: { [weak self] result in
-                if case .failure(let e) = result {
-                    let error = e.embedded as? DAppError ?? .nodeError("Unknown Error")
+                guard case .failure(let e) = result else { return }
+                let error = e.embedded as? DAppError ?? .nodeError("Unknown Error")
 
-                    self?.notifyFinish(callbackID: callbackID, value: .failure(error))
-                }
+                self?.notifyFinish(callbackID: callbackId, value: .failure(error))
             }, receiveValue: { [weak self] operation in
                 switch operation {
                 case .notifySuccessful:
-                    let callback = DappCallback(id: callbackID, value: .walletSwitchEthereumChain)
-                    self?.notifyFinish(callbackID: callbackID, value: .success(callback))
+                    let callback = DappCallback(id: callbackId, value: .walletSwitchEthereumChain)
+                    self?.notifyFinish(callbackID: callbackId, value: .success(callback))
                 case .switchBrowserToExistingServer(let server, let url):
                     self?.switch(toServer: server, url: url)
                 case .restartToEnableAndSwitchBrowserToServer:
@@ -429,135 +422,112 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
                 }
             }).store(in: &cancellable)
     }
+
+    private func notifyFinish(callbackID: Int, value: Swift.Result<DappCallback, DAppError>) {
+        browserViewController.notifyFinish(callbackID: callbackID, value: value)
+    }
 }
 // swiftlint:enable type_body_length
 
-extension DappBrowserCoordinator: TransactionConfirmationCoordinatorDelegate {
-
-    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: Error) {
-        coordinator.close { [weak self] in
-            guard let strongSelf = self else { return }
-
-            switch strongSelf.pendingTransaction {
-            case .data(let callbackID):
-                strongSelf.browserViewController.notifyFinish(callbackID: callbackID, value: .failure(DAppError.cancelled))
-            case .none:
-                break
-            }
-
-            strongSelf.removeCoordinator(coordinator)
-            strongSelf.navigationController.dismiss(animated: true)
-
-            UIApplication.shared
-                .presentedViewController(or: strongSelf.navigationController)
-                .displayError(message: error.prettyError)
-        }
-    }
-
-    func notifyFinish(callbackID: Int, value: Swift.Result<DappCallback, DAppError>) {
-        browserViewController.notifyFinish(callbackID: callbackID, value: value)
-    }
-
-    func didClose(in coordinator: TransactionConfirmationCoordinator) {
-        switch pendingTransaction {
-        case .data(let callbackID):
-            browserViewController.notifyFinish(callbackID: callbackID, value: .failure(DAppError.cancelled))
-        case .none:
-            break
-        }
-
-        removeCoordinator(coordinator)
-        navigationController.dismiss(animated: true)
-    }
-
-    func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: TransactionConfirmationCoordinator) {
-        switch pendingTransaction {
-        case .data(let callbackID):
-            let data = Data(_hex: transaction.id)
-            let callback = DappCallback(id: callbackID, value: .sentTransaction(data))
-            browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
-
-            delegate?.didSentTransaction(transaction: transaction, inCoordinator: self)
-        case .none:
-            break
-        }
-    }
-
-    func didFinish(_ result: ConfirmResult, in coordinator: TransactionConfirmationCoordinator) {
-        coordinator.close { [weak self] in
-            guard let strongSelf = self else { return }
-
-            switch (strongSelf.pendingTransaction, result) {
-            case (.data(let callbackID), .signedTransaction(let data)):
-                let callback = DappCallback(id: callbackID, value: .signTransaction(data))
-                strongSelf.browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
-                //TODO do we need to do this for a pending transaction?
-                //strongSelf.delegate?.didSentTransaction(transaction: transaction, inCoordinator: strongSelf)
-            case (.data, .sentTransaction):
-                //moved up to `didSendTransaction` function
-                break
-            case (.none, _), (_, .sentTransaction), (_, .sentRawTransaction):
-                break
-            }
-
-            strongSelf.removeCoordinator(coordinator)
-            strongSelf.navigationController.dismiss(animated: true)
-        }
-    }
-
-    func buyCrypto(wallet: Wallet, server: RPCServer, viewController: UIViewController, source: Analytics.BuyCryptoSource) {
-        delegate?.buyCrypto(wallet: wallet, server: server, viewController: viewController, source: .transactionActionSheetInsufficientFunds)
-    }
-}
-
 extension DappBrowserCoordinator: BrowserViewControllerDelegate {
 
+    private func performDappAction(action: DappAction,
+                                   callbackId: Int,
+                                   session: WalletSession,
+                                   delegate: DappBrowserCoordinatorDelegate) {
+        switch action {
+        case .signTransaction(let unconfirmedTransaction):
+            requestSingTransaction(
+                session: session,
+                delegate: delegate,
+                callbackId: callbackId,
+                transaction: unconfirmedTransaction)
+        case .sendTransaction(let unconfirmedTransaction):
+            requestSendTransaction(
+                session: session,
+                delegate: delegate,
+                callbackId: callbackId,
+                transaction: unconfirmedTransaction)
+        case .signMessage(let hexMessage):
+            requestSignMessage(
+                session: session,
+                delegate: delegate,
+                message: .message(hexMessage.asSignableMessageData),
+                callbackId: callbackId)
+        case .signPersonalMessage(let hexMessage):
+            requestSignMessage(
+                session: session,
+                delegate: delegate,
+                message: .personalMessage(hexMessage.asSignableMessageData),
+                callbackId: callbackId)
+        case .signTypedMessage(let typedData):
+            requestSignMessage(
+                session: session,
+                delegate: delegate,
+                message: .typedMessage(typedData),
+                callbackId: callbackId)
+        case .signEip712v3And4(let typedData):
+            requestSignMessage(
+                session: session,
+                delegate: delegate,
+                message: .eip712v3And4(typedData),
+                callbackId: callbackId)
+        case .ethCall(from: let from, to: let to, value: let value, data: let data):
+            //Must use unchecked form for `Address `because `from` and `to` might be 0x0..0. We assume the dapp author knows what they are doing
+            let from = AlphaWallet.Address(uncheckedAgainstNullAddress: from)
+            let to = AlphaWallet.Address(uncheckedAgainstNullAddress: to)
+            requestEthCall(
+                session: session,
+                delegate: delegate,
+                callbackId: callbackId,
+                from: from,
+                to: to,
+                value: value,
+                data: data)
+        case .walletAddEthereumChain(let customChain):
+            requestAddCustomChain(
+                session: session,
+                delegate: delegate,
+                callbackId: callbackId,
+                customChain: customChain)
+        case .walletSwitchEthereumChain(let targetChain):
+            requestSwitchChain(
+                session: session,
+                delegate: delegate,
+                callbackId: callbackId,
+                targetChain: targetChain)
+        case .unknown, .sendRawTransaction:
+            break
+        }
+    }
+
     func didCall(action: DappAction, callbackID: Int, inBrowserViewController viewController: BrowserViewController) {
+        guard let session = sessionsProvider.session(for: server) else {
+            browserViewController.notifyFinish(callbackID: callbackID, value: .failure(.cancelled))
+            return
+        }
+        guard let delegate = delegate else {
+            browserViewController.notifyFinish(callbackID: callbackID, value: .failure(.cancelled))
+            return
+        }
+
         func rejectDappAction() {
             browserViewController.notifyFinish(callbackID: callbackID, value: .failure(DAppError.cancelled))
             navigationController.topViewController?.displayError(error: ActiveWalletViewModel.Error.onlyWatchAccount)
         }
 
-        func performDappAction(account: AlphaWallet.Address) {
-            switch action {
-            case .signTransaction(let unconfirmedTransaction):
-                executeTransaction(action: action, callbackID: callbackID, transaction: unconfirmedTransaction, type: .signThenSend)
-            case .sendTransaction(let unconfirmedTransaction):
-                executeTransaction(action: action, callbackID: callbackID, transaction: unconfirmedTransaction, type: .signThenSend)
-            case .signMessage(let hexMessage):
-                signMessage(with: .message(hexMessage.asSignableMessageData), account: account, callbackID: callbackID)
-            case .signPersonalMessage(let hexMessage):
-                signMessage(with: .personalMessage(hexMessage.asSignableMessageData), account: account, callbackID: callbackID)
-            case .signTypedMessage(let typedData):
-                signMessage(with: .typedMessage(typedData), account: account, callbackID: callbackID)
-            case .signEip712v3And4(let typedData):
-                signMessage(with: .eip712v3And4(typedData), account: account, callbackID: callbackID)
-            case .ethCall(from: let from, to: let to, value: let value, data: let data):
-                //Must use unchecked form for `Address `because `from` and `to` might be 0x0..0. We assume the dapp author knows what they are doing
-                let from = AlphaWallet.Address(uncheckedAgainstNullAddress: from)
-                let to = AlphaWallet.Address(uncheckedAgainstNullAddress: to)
-                ethCall(callbackID: callbackID, from: from, to: to, value: value, data: data)
-            case .walletAddEthereumChain(let customChain):
-                requestAddCustomChain(callbackID, customChain: customChain)
-            case .walletSwitchEthereumChain(let targetChain):
-                switchChain(callbackID: callbackID, targetChain: targetChain)
-            case .unknown, .sendRawTransaction:
-                break
-            }
-        }
-
         switch wallet.type {
-        case .real(let account):
-            return performDappAction(account: account)
-        case .watch(let account):
+        case .real:
+            performDappAction(action: action, callbackId: callbackID, session: session, delegate: delegate)
+        case .watch:
             if config.development.shouldPretendIsRealWallet {
-                return performDappAction(account: account)
+                performDappAction(action: action, callbackId: callbackID, session: session, delegate: delegate)
             } else {
                 switch action {
                 case .signTransaction, .sendTransaction, .signMessage, .signPersonalMessage, .signTypedMessage, .signEip712v3And4, .unknown, .sendRawTransaction:
-                    return rejectDappAction()
+                    rejectDappAction()
                 case .walletAddEthereumChain, .walletSwitchEthereumChain, .ethCall:
-                    return performDappAction(account: account)
+                    performDappAction(action: action, callbackId: callbackID, session: session, delegate: delegate)
                 }
             }
         }
@@ -608,8 +578,7 @@ extension DappBrowserCoordinator: WKUIDelegate {
             title: .none,
             message: message,
             style: .alert,
-            in: navigationController
-        )
+            in: navigationController)
         alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default, handler: { _ in
             completionHandler()
         }))
@@ -621,8 +590,7 @@ extension DappBrowserCoordinator: WKUIDelegate {
             title: .none,
             message: message,
             style: .alert,
-            in: navigationController
-        )
+            in: navigationController)
         alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default, handler: { _ in
             completionHandler(true)
         }))
@@ -637,8 +605,7 @@ extension DappBrowserCoordinator: WKUIDelegate {
             title: .none,
             message: prompt,
             style: .alert,
-            in: navigationController
-        )
+            in: navigationController)
         alertController.addTextField { (textField) in
             textField.text = defaultText
         }
