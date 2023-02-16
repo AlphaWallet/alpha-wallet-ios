@@ -209,11 +209,24 @@ public enum Analytics {
         case unknown
     }
 
-    public enum SignMessageRequestSource: String {
+    public enum WalletConnectVersion: String {
+        case v1, v2
+    }
+
+    public enum SignMessageRequestSource: CustomStringConvertible {
+        public var description: String {
+            switch self {
+            case .tokenScript: return "tokenScript"
+            case .deepLink: return "deepLink"
+            case .dappBrowser: return "dappBrowser"
+            case .walletConnect(let version): return "walletConnect-\(version.rawValue)"
+            }
+        }
+
         case dappBrowser
         case deepLink
         case tokenScript
-        case walletConnect
+        case walletConnect(WalletConnectVersion)
     }
 
     public enum SignMessageRequestType: String {

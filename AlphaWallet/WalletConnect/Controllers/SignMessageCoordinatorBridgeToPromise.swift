@@ -51,13 +51,8 @@ private class SignMessageCoordinatorBridgeToPromise {
 }
 
 extension SignMessageCoordinatorBridgeToPromise: SignMessageCoordinatorDelegate {
-    func coordinator(_ coordinator: SignMessageCoordinator, didSign result: Swift.Result<Data, KeystoreError>) {
-        switch result {
-        case .success(let data):
-            seal.fulfill(data)
-        case .failure:
-            seal.reject(DAppError.cancelled)
-        }
+    func coordinator(_ coordinator: SignMessageCoordinator, didSign data: Data) {
+        seal.fulfill(data)
     }
 
     func didCancel(in coordinator: SignMessageCoordinator) {

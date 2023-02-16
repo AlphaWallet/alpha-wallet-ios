@@ -236,7 +236,7 @@ class ActivityViewController: UIViewController {
 }
 
 extension ActivityViewController: TokenInstanceWebViewDelegate {
-
+    
     func requestSignMessage(message: SignMessageType,
                             server: RPCServer,
                             account: AlphaWallet.Address,

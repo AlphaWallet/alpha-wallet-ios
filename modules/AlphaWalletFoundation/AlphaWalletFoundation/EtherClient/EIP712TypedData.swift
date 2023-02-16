@@ -35,6 +35,23 @@ public struct EIP712TypedData: Codable {
         }
     }
 
+    public var server: RPCServer? {
+        switch domain {
+        case .object(let dictionary):
+            switch dictionary["chainId"] {
+            case .number(let value):
+                if let value = Int(value.description) {
+                    return RPCServer(chainIdOptional: value)
+                }
+                return nil
+            case .object, .string, .array, .object, .bool, .null, .none:
+                return nil
+            }
+        case .array, .string, .number, .bool, .null:
+            return nil
+        }
+    }
+
     public var domainVerifyingContract: AlphaWallet.Address? {
         switch domain {
         case .object(let dictionary):
