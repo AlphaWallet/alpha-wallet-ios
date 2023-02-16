@@ -92,6 +92,14 @@ post_install do |installer|
       end
     end
 
+    #Work around for build warning:
+    #    Run script build phase 'Create Symlinks to Header Folders' will be run during every build because it does not specify any outputs. To address this warning, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase.
+    #From https://github.com/realm/realm-swift/issues/7957#issuecomment-1248556797
+    if ['Realm'].include? target.name
+      create_symlink_phase = target.shell_script_build_phases.find { |x| x.name == 'Create Symlinks to Header Folders' }
+      create_symlink_phase.always_out_of_date = "1"
+    end
+
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0';
     end
