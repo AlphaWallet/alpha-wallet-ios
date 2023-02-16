@@ -4938,6 +4938,7 @@
 		};
 		C8FC0401219E9CC000445E21 /* R.swift */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
