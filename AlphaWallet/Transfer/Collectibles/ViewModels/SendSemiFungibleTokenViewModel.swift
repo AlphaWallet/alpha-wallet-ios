@@ -133,18 +133,6 @@ extension WalletApiError {
     }
 }
 
-extension DelayWalletConnectResponseError {
-    var localizedDescription: String {
-        return "Request Rejected! Switch to non watched wallet"
-    }
-}
-
-extension RequestCanceledDueToWatchWalletError {
-    var localizedDescription: String {
-        return R.string.localizable.walletConnectFailureMustNotBeWatchedWallet()
-    }
-}
-
 extension OpenURLError {
     var localizedDescription: String {
         switch self {

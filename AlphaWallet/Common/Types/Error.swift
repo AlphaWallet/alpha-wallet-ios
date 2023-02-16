@@ -59,16 +59,12 @@ extension Error {
             return error.localizedDescription
         case let error as TransactionConfiguratorError:
             return error.localizedDescription
-        case let error as RequestCanceledDueToWatchWalletError:
-            return error.localizedDescription
         case let error as KeystoreError:
             return error.errorDescription ?? UnknownError().localizedDescription
         case let error as SendInputErrors:
             return error.errorDescription ?? UnknownError().localizedDescription
         case let error as RpcNodeRetryableRequestError:
             return error.errorDescription ?? UnknownError().localizedDescription
-        case let error as DelayWalletConnectResponseError:
-            return error.localizedDescription
         case let error as OpenURLError:
             return error.localizedDescription
         case let error as ConfigureTransactionError:

@@ -9,46 +9,52 @@ import Foundation
 import Combine
 import AlphaWalletFoundation
 import PromiseKit
+import AlphaWalletCore
 
-enum WalletConnectError: Error, LocalizedError {
+enum WalletConnectError: Error {
     case onlyForWatchWallet(address: AlphaWallet.Address)
     case walletsNotFound(addresses: [AlphaWallet.Address])
     case callbackIdMissing
     case connectionFailure(WalletConnectV1URL)
-    case `internal`(Error)
+    case cancelled
+    case delayedOperation
+    case `internal`(JsonRpcError)
 
-    init(error: Error) {
-        if let value = error as? WalletConnectError {
-            self = value
-        } else {
+    init(error: PromiseError) {
+        if case DAppError.cancelled = error.embedded {
+            self = .cancelled
+        } else if case PMKError.cancelled = error.embedded {
+            self = .cancelled
+        } else if let error = error.embedded as? JsonRpcError {
             self = .internal(error)
+        } else if let error = error.embedded as? WalletConnectError {
+            self = error
+        } else {
+            self = .internal(.init(code: -32051, message: error.embedded.prettyError))
         }
     }
 
-    var isCancellationError: Bool {
+    var asJsonRpcError: JsonRpcError {
         switch self {
         case .internal(let error):
-            if case DAppError.cancelled = error {
-                return true
-            } else if case PMKError.cancelled = error {
-                return true
-            }
-            return false
-        case .walletsNotFound, .onlyForWatchWallet, .callbackIdMissing, .connectionFailure:
-            return false
+            return error
+        case .delayedOperation, .cancelled, .walletsNotFound, .onlyForWatchWallet, .callbackIdMissing, .connectionFailure:
+            return .requestRejected
         }
     }
 
-    var localizedDescription: String {
+    var localizedDescription: String? {
         switch self {
         case .internal(let error):
-            return error.localizedDescription
+            return error.message
         case .callbackIdMissing, .connectionFailure:
             return R.string.localizable.walletConnectFailureTitle()
         case .onlyForWatchWallet:
             return R.string.localizable.walletConnectFailureMustNotBeWatchedWallet()
         case .walletsNotFound:
             return R.string.localizable.walletConnectFailureWalletsNotFound()
+        case .delayedOperation, .cancelled:
+            return nil
         }
     }
 }

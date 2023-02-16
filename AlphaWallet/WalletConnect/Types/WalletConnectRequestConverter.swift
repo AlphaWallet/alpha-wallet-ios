@@ -14,7 +14,7 @@ struct WalletConnectRequestDecoder {
 
     func decode(request: AlphaWallet.WalletConnect.Session.Request) throws -> AlphaWallet.WalletConnect.Action.ActionType {
         guard let server: RPCServer = request.server else {
-            throw AlphaWallet.WalletConnect.ResponseError.invalidParams
+            throw JsonRpcError.invalidParams
         }
 
         infoLog("[WalletConnect] convert request: \(request.method) url: \(request.description)")
@@ -23,7 +23,7 @@ struct WalletConnectRequestDecoder {
         do {
             data = try AlphaWallet.WalletConnect.Request(request: request)
         } catch {
-            throw AlphaWallet.WalletConnect.ResponseError.invalidParams
+            throw JsonRpcError.invalidParams
         }
 
         switch data {
@@ -36,7 +36,7 @@ struct WalletConnectRequestDecoder {
                 let transaction = try TransactionType.prebuilt(server).buildAnyDappTransaction(walletConnectTransaction: walletConnectTransaction)
                 return .signTransaction(transaction)
             } catch {
-                throw AlphaWallet.WalletConnect.ResponseError.invalidParams
+                throw JsonRpcError.invalidParams
             }
         case .signTypedMessage(let data):
             return .typedMessage(data)
@@ -47,7 +47,7 @@ struct WalletConnectRequestDecoder {
                 let transaction = try TransactionType.prebuilt(server).buildAnyDappTransaction(walletConnectTransaction: walletConnectTransaction)
                 return .sendTransaction(transaction)
             } catch {
-                throw AlphaWallet.WalletConnect.ResponseError.invalidParams
+                throw JsonRpcError.invalidParams
             }
         case .sendRawTransaction(let rawValue):
             return .sendRawTransaction(rawValue)
@@ -58,7 +58,7 @@ struct WalletConnectRequestDecoder {
         case .walletAddEthereumChain(let data):
             return .walletAddEthereumChain(data)
         case .custom:
-            throw AlphaWallet.WalletConnect.ResponseError.methodNotFound
+            throw JsonRpcError.methodNotFound
         }
     }
 }

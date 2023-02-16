@@ -29,10 +29,3 @@ public enum WalletApiError: LocalizedError {
     case requestedServerDisabled
     case cancelled
 }
-
-public struct RequestCanceledDueToWatchWalletError: Error {
-    public init() {}
-}
-public struct DelayWalletConnectResponseError: Error {
-    public init() {}
-}

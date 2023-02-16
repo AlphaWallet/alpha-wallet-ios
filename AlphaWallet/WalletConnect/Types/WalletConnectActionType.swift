@@ -40,7 +40,7 @@ extension AlphaWallet.WalletConnect {
             self = .error(code: code, message: message)
         }
 
-        init(error: AlphaWallet.WalletConnect.ResponseError) {
+        init(error: JsonRpcError) {
             self = .error(code: error.code, message: error.message)
         }
 
