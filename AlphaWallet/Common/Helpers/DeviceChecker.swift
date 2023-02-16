@@ -5,8 +5,20 @@ import AlphaWalletFoundation
 
 class DeviceChecker: JailbreakChecker {
     init() {}
+
+    //A property to workaround this build warning:
+    //Will never be executed
+    //The warning refers to the lines after the `return` statement following the `targetEnvironment(simulator)` check
+    private let isPhoneSimulator: Bool = {
+        #if targetEnvironment(simulator)
+            return true
+        #else
+            return false
+        #endif
+    }()
+
     var isJailbroken: Bool {
-        if TARGET_IPHONE_SIMULATOR == 1 {
+        if isPhoneSimulator {
             return false
         }
 
