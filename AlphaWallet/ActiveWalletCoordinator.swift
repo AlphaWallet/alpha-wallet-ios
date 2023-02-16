@@ -652,10 +652,6 @@ extension ActiveWalletCoordinator: WalletConnectCoordinatorDelegate {
         coordinator.start()
     }
 
-    func session(for server: AlphaWalletFoundation.RPCServer) -> WalletSession? {
-        sessionsProvider.session(for: server)
-    }
-
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: TransactionConfirmationCoordinator) {
         handlePendingTransaction(transaction: transaction)
     }
