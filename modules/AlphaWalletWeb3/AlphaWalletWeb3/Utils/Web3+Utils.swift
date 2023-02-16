@@ -204,7 +204,7 @@ extension Web3.Utils {
         return Web3.Utils.personalECRecover(data, signature: sig)
     }
 
-    static public func personalECRecover(_ message: Data, r: [UInt8], s: [UInt8], v: UInt8) -> Data? {
+    static public func personalECRecoverPublicKey(message: Data, r: [UInt8], s: [UInt8], v: UInt8) -> Data? {
         guard let signatureData = SECP256K1.marshalSignature(v: v, r: r, s: s) else { return nil }
         guard let hash = Web3.Utils.hashPersonalMessage(message) else { return nil }
 

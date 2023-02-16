@@ -24,7 +24,7 @@ extension Web3.Utils {
      */
 
     public static func recoverPublicKey(message: Data, v: UInt8, r: [UInt8], s: [UInt8]) -> Data? {
-        Web3.Utils.personalECRecover(message, r: r, s: s, v: v)
+        Web3.Utils.personalECRecoverPublicKey(message: message, r: r, s: s, v: v)
     }
 
     public static func ecrecover(message: Data, signature: Data) -> EthereumAddress? {
