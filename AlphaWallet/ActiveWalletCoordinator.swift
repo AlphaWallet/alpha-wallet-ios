@@ -15,7 +15,7 @@ protocol ActiveWalletCoordinatorDelegate: AnyObject {
 }
 
 // swiftlint:disable type_body_length
-class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
+class ActiveWalletCoordinator: NSObject, Coordinator {
     private let wallet: Wallet
     private let config: Config
     private let assetDefinitionStore: AssetDefinitionStore
@@ -122,13 +122,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
             return navigationController
         }
     }
-
-    private lazy var dappRequestHandler: DappRequestHandler = {
-        let handler = DappRequestHandler(walletConnectProvider: walletConnectCoordinator.walletConnectProvider, dappBrowserCoordinator: dappBrowserCoordinator!)
-        handler.delegate = self
-
-        return handler
-    }()
 
     private lazy var transactionNotificationService: NotificationSourceService = {
         let service = TransactionNotificationSourceService(transactionDataStore: transactionsDataStore, config: config)
@@ -619,20 +612,37 @@ extension ActiveWalletCoordinator: WalletConnectCoordinatorDelegate {
         buyCrypto(wallet: wallet, token: token, viewController: viewController, source: source)
     }
 
-    func requestSwitchChain(server: RPCServer, currentUrl: URL?, callbackID: SwitchCustomChainCallbackId, targetChain: WalletSwitchEthereumChainObject) {
+    func requestSwitchChain(server: RPCServer,
+                            currentUrl: URL?,
+                            targetChain: WalletSwitchEthereumChainObject) -> AnyPublisher<SwitchExistingChainOperation, PromiseError> {
+
         let coordinator = DappRequestSwitchExistingChainCoordinator(
             config: config,
             server: server,
-            callbackId: callbackID,
             targetChain: targetChain,
             restartQueue: restartQueue,
             analytics: analytics,
             currentUrl: currentUrl,
             inViewController: presentationViewController)
 
-        coordinator.delegate = dappRequestHandler
-        dappRequestHandler.addCoordinator(coordinator)
-        coordinator.start()
+        addCoordinator(coordinator)
+
+        return coordinator.start()
+            .handleEvents(receiveOutput: { [weak self] operation in
+                //NOTE: we need this small delay to make sure source subscriber received event, e.g web browser or wallet connect, and then perform switching actions, because for processRestartQueueAndRestartUI recreates active wallet coordinator, will be removed when silent updated will be applied
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    switch operation {
+                    case .restartToEnableAndSwitchBrowserToServer:
+                        self?.processRestartQueueAndRestartUI(reason: .serverChange)
+                    case .switchBrowserToExistingServer, .notifySuccessful:
+                        break
+                    }
+                }
+            }, receiveCompletion: { [weak self] _ in
+                self?.removeCoordinator(coordinator)
+            }, receiveCancel: { [weak self] in
+                self?.removeCoordinator(coordinator)
+            }).eraseToAnyPublisher()
     }
 
     func requestAddCustomChain(server: RPCServer,
@@ -652,14 +662,12 @@ extension ActiveWalletCoordinator: WalletConnectCoordinatorDelegate {
 
         return coordinator.start()
             .handleEvents(receiveOutput: { [weak self] operation in
-                //NOTE: we need this small delay to make sure source subscriber received event, e.g web browser or wallet connect, and then perform switching actions, because for processRestartQueueAndRestartUI recreates active wallet coordinator, will be removes when silent updated will be applied
+                //NOTE: we need this small delay to make sure source subscriber received event, e.g web browser or wallet connect, and then perform switching actions, because for processRestartQueueAndRestartUI recreates active wallet coordinator, will be removed when silent updated will be applied
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     switch operation {
                     case .notifySuccessful:
                         break
-                    case .restartToEnableAndSwitchBrowserToServer:
-                        self?.processRestartQueueAndRestartUI(reason: .serverChange)
-                    case .restartToAddEnableAndSwitchBrowserToServer:
+                    case .restartToEnableAndSwitchBrowserToServer, .restartToAddEnableAndSwitchBrowserToServer:
                         self?.processRestartQueueAndRestartUI(reason: .serverChange)
                     case .switchBrowserToExistingServer(let server, url: let url):
                         self?.dappBrowserCoordinator?.switch(toServer: server, url: url)

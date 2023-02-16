@@ -20,7 +20,9 @@ protocol RequestAddCustomChainProvider: NSObjectProtocol {
 }
 
 protocol RequestSwitchChainProvider: NSObjectProtocol {
-    func requestSwitchChain(server: RPCServer, currentUrl: URL?, callbackID: SwitchCustomChainCallbackId, targetChain: WalletSwitchEthereumChainObject)
+    func requestSwitchChain(server: RPCServer,
+                            currentUrl: URL?,
+                            targetChain: WalletSwitchEthereumChainObject) -> AnyPublisher<SwitchExistingChainOperation, PromiseError>
 }
 
 protocol WalletConnectCoordinatorDelegate: CanOpenURL, SendTransactionAndFiatOnRampDelegate, RequestAddCustomChainProvider, RequestSwitchChainProvider {
@@ -277,12 +279,11 @@ extension WalletConnectCoordinator: WalletConnectProviderDelegate {
         return delegate.requestAddCustomChain(server: server, customChain: customChain)
     }
 
-    func requestSwitchChain(server: RPCServer, currentUrl: URL?, callbackID: SwitchCustomChainCallbackId, targetChain: WalletSwitchEthereumChainObject) -> AnyPublisher<AlphaWallet.WalletConnect.Response, PromiseError> {
+    func requestSwitchChain(server: RPCServer, currentUrl: URL?, targetChain: WalletSwitchEthereumChainObject) -> AnyPublisher<SwitchExistingChainOperation, PromiseError> {
         infoLog("[WalletConnect] switchChain: \(targetChain)")
+        guard let delegate = delegate else { return .empty() }
 
-        delegate?.requestSwitchChain(server: server, currentUrl: nil, callbackID: callbackID, targetChain: targetChain)
-
-        return .fail(PromiseError(error: WalletConnectError.delayedOperation))
+        return delegate.requestSwitchChain(server: server, currentUrl: nil, targetChain: targetChain)
     }
 
     private func resetSessionsToRemoveLoadingIfNeeded() {

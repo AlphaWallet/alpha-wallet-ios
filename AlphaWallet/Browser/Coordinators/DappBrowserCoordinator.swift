@@ -404,8 +404,30 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
             }).store(in: &cancellable)
     }
 
-    private func switchChain(callbackID: Int, targetChain: WalletSwitchEthereumChainObject, inViewController viewController: UIViewController) {
-        delegate?.requestSwitchChain(server: server, currentUrl: currentUrl, callbackID: .dapp(requestId: callbackID), targetChain: targetChain)
+    private func switchChain(callbackID: Int, targetChain: WalletSwitchEthereumChainObject) {
+        guard let delegate = delegate else {
+            notifyFinish(callbackID: callbackID, value: .failure(.cancelled))
+            return
+        }
+
+        delegate.requestSwitchChain(server: server, currentUrl: currentUrl, targetChain: targetChain)
+            .sink(receiveCompletion: { [weak self] result in
+                if case .failure(let e) = result {
+                    let error = e.embedded as? DAppError ?? .nodeError("Unknown Error")
+
+                    self?.notifyFinish(callbackID: callbackID, value: .failure(error))
+                }
+            }, receiveValue: { [weak self] operation in
+                switch operation {
+                case .notifySuccessful:
+                    let callback = DappCallback(id: callbackID, value: .walletSwitchEthereumChain)
+                    self?.notifyFinish(callbackID: callbackID, value: .success(callback))
+                case .switchBrowserToExistingServer(let server, let url):
+                    self?.switch(toServer: server, url: url)
+                case .restartToEnableAndSwitchBrowserToServer:
+                    break
+                }
+            }).store(in: &cancellable)
     }
 }
 // swiftlint:enable type_body_length
@@ -518,7 +540,7 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
             case .walletAddEthereumChain(let customChain):
                 requestAddCustomChain(callbackID, customChain: customChain)
             case .walletSwitchEthereumChain(let targetChain):
-                switchChain(callbackID: callbackID, targetChain: targetChain, inViewController: viewController)
+                switchChain(callbackID: callbackID, targetChain: targetChain)
             case .unknown, .sendRawTransaction:
                 break
             }
