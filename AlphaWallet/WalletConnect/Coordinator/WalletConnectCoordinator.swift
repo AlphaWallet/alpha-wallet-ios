@@ -189,7 +189,7 @@ extension WalletConnectCoordinator: WalletConnectProviderDelegate {
                 if let data = Data(fromHexEncodedString: String(format: "%02X", nonce)) {
                     return .just(.value(data))
                 } else {
-                    return .fail(PromiseError(error: PMKError.badInput))
+                    return .fail(PromiseError(error: DAppError.cancelled))
                 }
             }.receive(on: RunLoop.main)
             .eraseToAnyPublisher()
@@ -216,7 +216,7 @@ extension WalletConnectCoordinator: WalletConnectProviderDelegate {
         }.map { data in
             switch data {
             case .signedTransaction, .sentTransaction:
-                throw PMKError.cancelled
+                throw DAppError.cancelled
             case .sentRawTransaction(let transactionId, _):
                 return .value(Data(_hex: transactionId))
             }
@@ -228,7 +228,7 @@ extension WalletConnectCoordinator: WalletConnectProviderDelegate {
     }
 
     func requestSendTransaction(session: WalletSession, requester: DappRequesterViewModel, transaction: UnconfirmedTransaction, configuration: TransactionType.Configuration) -> AnyPublisher<AlphaWallet.WalletConnect.Response, PromiseError> {
-        guard let dependency = dependencies[session.account] else { return .fail(PromiseError(error: PMKError.cancelled)) }
+        guard let dependency = dependencies[session.account] else { return .fail(PromiseError(error: DAppError.cancelled)) }
 
         infoLog("[WalletConnect] sendTransaction: \(transaction) type: \(configuration.confirmType)")
 
@@ -242,7 +242,7 @@ extension WalletConnectCoordinator: WalletConnectProviderDelegate {
                 return .value(Data(_hex: transaction.id))
             case .sentRawTransaction:
                 //NOTE: Doesn't support sentRawTransaction for TransactionConfirmationCoordinator, for it we are using another function
-                throw PMKError.cancelled
+                throw DAppError.cancelled
             }
         }.get { _ in
             TransactionInProgressCoordinator.promise(self.navigationController, coordinator: self).done { _ in }.cauterize()
@@ -250,7 +250,7 @@ extension WalletConnectCoordinator: WalletConnectProviderDelegate {
     }
 
     func requestSingTransaction(session: WalletSession, requester: DappRequesterViewModel, transaction: UnconfirmedTransaction, configuration: TransactionType.Configuration) -> AnyPublisher<AlphaWallet.WalletConnect.Response, PromiseError> {
-        guard let dependency = dependencies[session.account] else { return .fail(PromiseError(error: PMKError.cancelled)) }
+        guard let dependency = dependencies[session.account] else { return .fail(PromiseError(error: DAppError.cancelled)) }
         infoLog("[WalletConnect] singTransaction: \(transaction) type: \(configuration.confirmType)")
 
         return firstly {
@@ -263,7 +263,7 @@ extension WalletConnectCoordinator: WalletConnectProviderDelegate {
                 return .value(Data(_hex: transaction.id))
             case .sentRawTransaction:
                 //NOTE: Doesn't support sentRawTransaction for TransactionConfirmationCoordinator, for it we are using another function
-                throw PMKError.cancelled
+                throw DAppError.cancelled
             }
         }.publisher(queue: .main)
     }
@@ -273,7 +273,7 @@ extension WalletConnectCoordinator: WalletConnectProviderDelegate {
 
         delegate?.requestAddCustomChain(server: server, callbackId: callbackId, customChain: customChain)
 
-        return .fail(PromiseError(error: DelayWalletConnectResponseError()))
+        return .fail(PromiseError(error: WalletConnectError.delayedOperation))
     }
 
     func requestSwitchChain(server: RPCServer, currentUrl: URL?, callbackID: SwitchCustomChainCallbackId, targetChain: WalletSwitchEthereumChainObject) -> AnyPublisher<AlphaWallet.WalletConnect.Response, PromiseError> {
@@ -281,7 +281,7 @@ extension WalletConnectCoordinator: WalletConnectProviderDelegate {
 
         delegate?.requestSwitchChain(server: server, currentUrl: nil, callbackID: callbackID, targetChain: targetChain)
 
-        return .fail(PromiseError(error: DelayWalletConnectResponseError()))
+        return .fail(PromiseError(error: WalletConnectError.delayedOperation))
     }
 
     private func resetSessionsToRemoveLoadingIfNeeded() {
@@ -308,11 +308,8 @@ extension WalletConnectCoordinator: WalletConnectProviderDelegate {
     func provider(_ provider: WalletConnectProvider, didFail error: WalletConnectError) {
         infoLog("[WalletConnect] didFail error: \(error)")
 
-        if error.isCancellationError {
-            //no-op
-        } else {
-            displayErrorMessage(error.localizedDescription)
-        }
+        guard let description = error.localizedDescription else { return }
+        displayErrorMessage(description)
     }
 
     func provider(_ provider: WalletConnectProvider, tookTooLongToConnectToUrl url: AlphaWallet.WalletConnect.ConnectionUrl) {

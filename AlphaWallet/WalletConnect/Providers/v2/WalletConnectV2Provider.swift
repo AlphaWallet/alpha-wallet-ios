@@ -146,7 +146,7 @@ final class WalletConnectV2Provider: WalletConnectServer {
         })
     }
 
-    private func reject(request: WalletConnectSwiftV2.Request, error: AlphaWallet.WalletConnect.ResponseError) {
+    private func reject(request: WalletConnectSwiftV2.Request, error: JsonRpcError) {
         infoLog("[WalletConnect2] WC: Did reject session proposal: \(request) with error: \(error.message)")
 
         client.respond(topic: request.topic, requestId: request.id, response: .error(.init(code: error.code, message: error.message)))
@@ -169,7 +169,7 @@ final class WalletConnectV2Provider: WalletConnectServer {
             let request: AlphaWallet.WalletConnect.Session.Request = .v2(request: request)
             let action = AlphaWallet.WalletConnect.Action(type: try decoder.decode(request: request))
             self.delegate?.server(self, action: action, request: request, session: .init(multiServerSession: session))
-        } catch let error as AlphaWallet.WalletConnect.ResponseError {
+        } catch let error as JsonRpcError {
             self.delegate?.server(self, didFail: error)
             //NOTE: we need to reject request if there is some arrays
             self.reject(request: request, error: error)
