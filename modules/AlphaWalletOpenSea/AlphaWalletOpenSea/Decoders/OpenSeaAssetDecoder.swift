@@ -25,7 +25,7 @@ struct NftAssetsPage {
     let error: Error?
 }
 
-typealias NftCollectionsResponse = [NftCollectionIdentifier: NftCollection]
+typealias NftCollectionsResponse = [NftCollection]
 struct NftCollectionsPage {
     let collections: NftCollectionsResponse
     let count: Int

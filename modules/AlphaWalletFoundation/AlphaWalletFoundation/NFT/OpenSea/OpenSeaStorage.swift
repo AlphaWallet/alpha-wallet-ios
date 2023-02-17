@@ -12,6 +12,10 @@ import AlphaWalletOpenSea
 public protocol OpenSeaStorage: AnyObject {
     func hasNftCollection(contract: AlphaWallet.Address, server: RPCServer) -> Bool
     func nftCollection(contract: AlphaWallet.Address, server: RPCServer) -> NftCollection?
+    func nftCollections(excluding: [String]) -> [NftCollection]
+    func addOrUpdate(assets: [NftAssetResponse], server: RPCServer)
+//    func remove(collection: [AlphaWalletOpenSea.NftCollection])
+//    func removeAll()
 }
 
 extension RealmStore: OpenSeaStorage {
@@ -23,6 +27,73 @@ extension RealmStore: OpenSeaStorage {
     public func nftCollection(contract: AlphaWallet.Address, server: RPCServer) -> NftCollection? {
         return nil
     }
+
+    public func removeAll() {
+
+    }
+
+    public func addOrUpdate(assets: [NftAssetResponse], server: RPCServer) {
+        performSync { realm in
+            try? realm.safeWrite {
+//                for asset in assets {
+//                    let contractPk = PrimaryAssetContractObject.privateKey(address: asset.assetContract.address, server: server)
+//                    let contract: PrimaryAssetContractObject
+//
+//                    if let object = realm.object(ofType: PrimaryAssetContractObject.self, forPrimaryKey: contractPk) {
+//                        contract = object
+//                    } else {
+//                        let object = PrimaryAssetContractObject(primaryAssetContract: asset.assetContract, server: server)
+//                        realm.add(object, update: .all)
+//
+//                        contract = object
+//                    }
+//
+//                    let collection: OpenSeaNftCollectionObject
+//                    let collectionPk = OpenSeaNftCollectionObject.primaryKey(id: asset.collection.id, server: server)
+//                    if let object = realm.object(ofType: OpenSeaNftCollectionObject.self, forPrimaryKey: collectionPk) {
+//                        if object.contracts.contains(where: { $0.primaryKey == contract.primaryKey }) {
+//                            //no-op
+//                        } else {
+//                            object.contracts.append(contract)
+//                        }
+//                        collection = object
+//                    } else {
+//                        let object = OpenSeaNftCollectionObject(collection: asset.collection, server: server)
+//                        object.contracts.append(contract)
+//                        realm.add(object, update: .all)
+//
+//                        collection = object
+//                    }
+//
+//                    OpenSeaNftAssetObject(asset: <#T##NftAsset#>, server: <#T##RPCServer#>)
+//                }
+            }
+        }
+    }
+
+    public func nftCollections(excluding: [String]) -> [NftCollection] {
+        var collections: [NftCollection] = []
+        performSync { realm in
+            
+        }
+        return collections
+    }
+
+    public func remove(collection: [AlphaWalletOpenSea.NftCollection]) {
+
+    }
+
+//    public func addOrUpdate(collections: [NftCollectionAssetsResponse]) {
+//        guard !collections.isEmpty else { return }
+//
+//        performSync { realm in
+//            try? realm.safeWrite {
+//                for each in collections {
+//
+//                }
+//            }
+//        }
+//    }
 
 //    public func getEnjinToken(for tokenId: TokenId, owner: Wallet, server: RPCServer) -> EnjinToken? {
 //        var token: EnjinToken?
@@ -53,6 +124,10 @@ extension RealmStore: OpenSeaStorage {
 }
 
 class PrimaryAssetContractObject: Object {
+    static func privateKey(address: AlphaWallet.Address, server: RPCServer) -> String {
+        "\(address.eip55String)-\(server.chainID)"
+    }
+
     @objc dynamic var primaryKey: String = ""
     @objc dynamic var address: String = ""
     @objc dynamic var chainId: Int = 0
@@ -70,7 +145,7 @@ class PrimaryAssetContractObject: Object {
 
     init(primaryAssetContract: PrimaryAssetContract, server: RPCServer) {
         super.init()
-        primaryKey = "\(primaryAssetContract.address)-\(server.chainID)"
+        primaryKey = PrimaryAssetContractObject.privateKey(address: primaryAssetContract.address, server: server)
         self.chainId = server.chainID
         address = primaryAssetContract.address.eip55String
         assetContractType = primaryAssetContract.assetContractType
@@ -129,6 +204,7 @@ class OpenSeaNftAssetObject: Object {
     @objc dynamic var imageOriginalUrl: String = ""
     @objc dynamic var externalLink: String = ""
     @objc dynamic var backgroundColor: String?
+
     var traits = List<OpenSeaAssetTrait>()
 //    public var generationTrait: OpenSeaNonFungibleTrait? {
 //        return traits.first { $0.type == OpenSeaNonFungible.generationTraitName }
@@ -194,8 +270,8 @@ class OpenSeaNftAssetObject: Object {
 //        self.collection = collection
 //        self.creator = creator
 
-        traits.removeAll()
-        traits.append(objectsIn: asset.traits.map{ OpenSeaAssetTrait(trait: $0, primaryKey: primaryKey) })
+//        traits.removeAll()
+//        traits.append(objectsIn: asset.traits.map { OpenSeaAssetTrait(trait: $0, primaryKey: primaryKey) })
         self.collectionId = asset.collectionId
         self.previewUrl = asset.previewUrl
     }
@@ -263,6 +339,10 @@ class OpenSeaNftCollectionStatsObject: Object {
 }
 
 class OpenSeaNftCollectionObject: Object {
+    static func primaryKey(id: String, server: RPCServer) -> String {
+        return "\(id)-\(server.chainID)"
+    }
+
     @objc dynamic var primaryKey: String = ""
 
     @objc dynamic var id: String = ""
@@ -349,8 +429,8 @@ class OpenSeaNftCollectionObject: Object {
         externalUrl = collection.externalUrl
     //    @objc dynamic var contracts: [PrimaryAssetContract]
 //        var contracts = List<PrimaryAssetContractObject>()
-        contracts.removeAll()
-        contracts.append(objectsIn: collection.contracts.map { PrimaryAssetContractObject(primaryAssetContract: $0, server: server) })
+//        contracts.removeAll()
+//        contracts.append(objectsIn: collection.contracts.map { PrimaryAssetContractObject(primaryAssetContract: $0, server: server) })
         bannerUrl = collection.bannerUrl
 
 

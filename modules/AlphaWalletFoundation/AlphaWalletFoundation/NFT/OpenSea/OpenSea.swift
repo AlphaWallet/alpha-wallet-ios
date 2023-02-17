@@ -25,7 +25,7 @@ public final class OpenSea {
         self.analytics = analytics
         self.server = server
         self.openSea = AlphaWalletOpenSea.OpenSea(apiKeys: Self.openSeaApiKeys(config: config))
-        openSea.delegate = self
+//        openSea.delegate = self
         self.storage = storage
         self.openSea.delegate = self
     }
@@ -39,6 +39,7 @@ public final class OpenSea {
         }
     }
 
+    //NOTE: Crucial, wallet: Wallet, and storage related to same wallet address
     public func nonFungible(wallet: Wallet) -> AnyPublisher<OpenSeaAddressesToNonFungibles, Never> {
         guard !config.development.isOpenSeaFetchingDisabled else { return .empty() }
 
@@ -49,7 +50,7 @@ public final class OpenSea {
         }
 
         return openSea.fetchAssetsCollections(owner: wallet.address, chainId: server.chainID, excludeContracts: excludeContracts)
-            .map { [weak storage] result -> OpenSeaAddressesToNonFungibles in
+            .map { [storage] response -> OpenSeaAddressesToNonFungibles in
 //                if result.hasError {
 //                    let merged = (storage?.value[key] ?? [:])
 //                        .merging(result.result) { Array(Set($0 + $1)) }
@@ -64,6 +65,20 @@ public final class OpenSea {
 //                }
 
 //                return storage?.value[key] ?? result.result
+
+                if response.error != nil {
+//                    if response.result.isEmpty {
+//                        storage?.removeAll()
+//                    } else {
+//                        storage?.addOrUpdate(collections: response.result)
+//                    }
+                } else {
+                    let assets = response.result.assets
+                    let collections = response.result.assets.map { $0.collection }
+                    let ids = collections.map { $0.id }
+                    let collectionsToDelete = storage.nftCollections(excluding: ids)
+//                    storage.removeAll()
+                }
                 return [:]
             }.eraseToAnyPublisher()
     }
@@ -73,6 +88,10 @@ public final class OpenSea {
         guard !config.development.isOpenSeaFetchingDisabled else { return .empty() }
 
         return openSea.fetchAsset(asset: value.path, chainId: server.chainID)
+    }
+
+    public func collection(collectionId: String) -> AnyPublisher<NftCollection, PromiseError> {
+        fatalError()
     }
 
     public func collectionStats(collectionId: String) -> AnyPublisher<Stats, PromiseError> {

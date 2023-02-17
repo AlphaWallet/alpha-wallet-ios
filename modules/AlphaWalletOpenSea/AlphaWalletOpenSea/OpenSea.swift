@@ -159,9 +159,10 @@ public final class BaseOpenSeaNetworkingFactory: OpenSeaNetworkingFactory {
         return networking
     }
 }
-struct NftCollectionAssetsResponse {
-    let collection: AlphaWalletOpenSea.NftCollection
-    let assers: AlphaWalletOpenSea.NftAsset
+
+public struct NftCollectionsAssetsResponse {
+    //public let collections: [AlphaWalletOpenSea.NftCollection]
+    public let assets: [AlphaWalletOpenSea.NftAssetResponse]
 }
 
 public class OpenSea {
@@ -182,12 +183,12 @@ public class OpenSea {
 
     public func fetchAssetsCollections(owner: AlphaWallet.Address,
                                        chainId: ChainId,
-                                       excludeContracts: [(AlphaWallet.Address, ChainId)]) -> AnyPublisher<FetchResponse<OpenSeaAddressesToNonFungibles>, Never> {
+                                       excludeContracts: [(AlphaWallet.Address, ChainId)]) -> AnyPublisher<FetchResponse<NftCollectionsAssetsResponse>, Never> {
 
         //NOTE: some of OpenSea collections have an empty `primary_asset_contracts` array, so we are not able to identify each asset connection relates. it solves with `slug` field for collection. We match assets `slug` with collections `slug` values for identification
-        func findCollection(address: AlphaWallet.Address, asset: NftAsset, collections: [NftCollectionIdentifier: AlphaWalletOpenSea.NftCollection]) -> AlphaWalletOpenSea.NftCollection? {
-            return collections[.address(address)] ?? collections[.collectionId(asset.collectionId)]
-        }
+//        func findCollection(address: AlphaWallet.Address, asset: NftAsset, collections: [NftCollectionIdentifier: AlphaWalletOpenSea.NftCollection]) -> AlphaWalletOpenSea.NftCollection? {
+//            return collections[.address(address)] ?? collections[.collectionId(asset.collectionId)]
+//        }
 
         //NOTE: Due to OpenSea's policy of sending requests, (we are not able to sent multiple requests, the request trottled, and 1 sec delay is needed)
         //to send a new one. First we send fetch assets requests and then fetch collections requests
@@ -196,7 +197,42 @@ public class OpenSea {
         let collections = fetchCollections(owner: owner, chainId: chainId)
 
         return Publishers.CombineLatest(assets, collections)
-            .map { assets, collections in
+            .map { assets, collections -> FetchResponse<NftCollectionsAssetsResponse> in
+
+//                var result: [NftCollectionIdentifier: NftCollectionsAssetsResponse] = [:]
+
+//                for asset in assets.result {
+//                    if let collection = result[.collectionId(asset.collection.id)] {
+//                        result[.collectionId(asset.collection.id)] = NftCollectionAssetsResponse(
+//                            collection: collection.collection,
+//                            assets: collection.assets + [asset])
+//                    } else if let collection = result[.address(asset.assetContract.address)] {
+//                        result[.address(asset.assetContract.address)] = NftCollectionAssetsResponse(
+//                            collection: collection.collection,
+//                            assets: collection.assets + [asset])
+//                    } else {
+//                        if var collection = collections.result.first(where: { $0.id == asset.collection.id || $0.contracts.contains(where: { $0.address == asset.assetContract.address }) }) {
+//                            collection.contracts = asset.collection.contracts
+//
+//                            result[.collectionId(collection.id)] = NftCollectionAssetsResponse(
+//                                collection: collection,
+//                                assets: [asset])
+//                        } else {
+//                            result[.collectionId(asset.collection.id)] = NftCollectionAssetsResponse(
+//                                collection: asset.collection,
+//                                assets: [asset])
+//                        }
+//                    }
+//                }
+
+//                let results = result.map { $0.value }
+//                    var current: NftCollectionAssetsResponse
+//                    result.fi
+//                    if let collection = collections.result.first(where: { $0.id == asset.collection.id }) {
+//                        current = NftCollectionAssetsResponse(collection: collection, assets: [asset])
+//                    } else {
+//                        current = NftCollectionAssetsResponse(collection: asset.collection, assets: [asset])
+//                    }
 //                var result: [AlphaWallet.Address: [NftAsset]] = [:]
 //                for asset in assets.result {
 //                    let updatedElements = asset.value.map { _asset -> NftAsset in
@@ -209,9 +245,10 @@ public class OpenSea {
 //
 //                    result[asset.key] = updatedElements
 //                }
-//
-//                return .init(result: result, error: assets.error ?? collections.error)
-                fatalError()
+
+                let result = NftCollectionsAssetsResponse(/*collections: collections.result, */assets: assets.result)
+
+                return .init(result: result, error: assets.error ?? collections.error)
             }.print("xxx.fetchAssetsPublisher: \(owner) chainId: \(chainId)").eraseToAnyPublisher()
     }
 
@@ -241,7 +278,7 @@ public class OpenSea {
 
         return send(request: request, chainId: chainId)
             .mapError { PromiseError(error: $0) }
-            .flatMap { json -> AnyPublisher<NftAsset, PromiseError> in
+            .flatMap { _ -> AnyPublisher<NftAsset, PromiseError> in
 //                if let asset = NftAsset(json: json) {
 //                    return .just(asset)
 //                } else {
@@ -273,7 +310,7 @@ public class OpenSea {
     private func fetchCollections(owner: AlphaWallet.Address,
                                   chainId: ChainId,
                                   offset: Int = 0,
-                                  collections: [NftCollectionIdentifier: NftCollection] = [:]) -> AnyPublisher<FetchResponse<[NftCollectionIdentifier: NftCollection]>, Never> {
+                                  collections: [NftCollection] = []) -> AnyPublisher<FetchResponse<[NftCollection]>, Never> {
 
         let request = CollectionsRequest(
             baseUrl: Self.getBaseUrlForOpenSea(forChainId: chainId),
@@ -287,8 +324,8 @@ public class OpenSea {
         return send(request: request, chainId: chainId)
             .map { decoder.decode(json: $0) }
             .catch { error -> AnyPublisher<NftCollectionsPage, Never> in
-                return .just(.init(collections: [:], count: 0, hasNextPage: false, error: error))
-            }.flatMap { [weak self] result -> AnyPublisher<FetchResponse<[NftCollectionIdentifier: NftCollection]>, Never> in
+                return .just(.init(collections: [], count: 0, hasNextPage: false, error: error))
+            }.flatMap { [weak self] result -> AnyPublisher<FetchResponse<[NftCollection]>, Never> in
                 guard let strongSelf = self else { return .empty() }
 
                 if result.hasNextPage {

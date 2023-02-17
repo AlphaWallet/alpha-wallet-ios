@@ -25,7 +25,7 @@ public struct NftCollection: Codable {
     public var stats: NftCollectionStats?
     public let name: String
     public let externalUrl: String?
-    public let contracts: [PrimaryAssetContract]
+    public var contracts: [PrimaryAssetContract]
     public let bannerUrl: String?
 
     init(json: JSON, contracts: [PrimaryAssetContract]) {
