@@ -323,6 +323,7 @@ class AppCoordinator: NSObject, Coordinator {
             //Want to start as soon as possible
             TrackApiCalls.shared.start()
 
+            //TODO probably need to move out due to adding `main.swift` and skip running the app for tests, so we'll never reach here
             UserDefaults.standard.set(!isRunningTests(), forKey: "_UIConstraintBasedLayoutLogUnsatisfiable")
         }
 

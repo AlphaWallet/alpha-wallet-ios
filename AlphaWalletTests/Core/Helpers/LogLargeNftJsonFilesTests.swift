@@ -19,6 +19,10 @@ class LogLargeNftJsonFilesTests: XCTestCase {
 
         let uri = URL(string: "https://www.google.com/")!
         let asset_1 = NonFungibleBalance.NftAssetRawValue(json: largeImage, source: .uri(uri))
+
+        //This wouldn't be called otherwise if we skip running the app while running the test suite
+        crashlytics.register(AlphaWallet.FirebaseCrashlyticsReporter.instance)
+
         XCTAssertTrue(crashlytics.logLargeNftJsonFiles(for: [.update(token: token, field: .nonFungibleBalance(.assets([asset_1])))], fileSizeThreshold: 0.5))
 
         let asset_2 = NonFungibleBalance.NftAssetRawValue(json: "", source: .uri(uri))
