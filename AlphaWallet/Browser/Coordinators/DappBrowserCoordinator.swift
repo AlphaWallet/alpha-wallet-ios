@@ -499,7 +499,7 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
         func performDappAction(account: AlphaWallet.Address) {
             switch action {
             case .signTransaction(let unconfirmedTransaction):
-                executeTransaction(action: action, callbackID: callbackID, transaction: unconfirmedTransaction, type: .signThenSend)
+                executeTransaction(action: action, callbackID: callbackID, transaction: unconfirmedTransaction, type: .sign)
             case .sendTransaction(let unconfirmedTransaction):
                 executeTransaction(action: action, callbackID: callbackID, transaction: unconfirmedTransaction, type: .signThenSend)
             case .signMessage(let hexMessage):
