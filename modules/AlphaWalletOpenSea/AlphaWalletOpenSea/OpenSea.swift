@@ -289,6 +289,10 @@ fileprivate class CallCounter {
 }
 
 extension OpenSea {
+    //Better to throw a request error rather than receiving incorrect data
+    enum OpenSeaRequestError: Error {
+        case chainNotSupported
+    }
     enum ApiVersion: String {
         case v1
         case v2
@@ -300,7 +304,7 @@ extension OpenSea {
         let chainId: ChainId
         let asset: String
 
-        private func apiVersion(chainId: ChainId) -> ApiVersion {
+        private func apiVersion(chainId: ChainId) throws -> ApiVersion {
             switch chainId {
             case 1, 4: return .v1
             case 137: return .v2
@@ -308,11 +312,11 @@ extension OpenSea {
             case 0xa86a: return .v2
             case 8217: return .v2
             case 10: return .v2
-            default: return .v1
+            default: throw OpenSeaRequestError.chainNotSupported
             }
         }
 
-        private func pathToPlatform(chainId: ChainId) -> String {
+        private func pathToPlatform(chainId: ChainId) throws -> String {
             switch chainId {
             case 1, 4: return "/asset/"
             case 137: return "/metadata/matic/"
@@ -320,13 +324,13 @@ extension OpenSea {
             case 0xa86a: return "/metadata/avalanche/"
             case 8217: return "/metadata/klaytn/"
             case 10: return "/metadata/optimism/"
-            default: return "/asset/"
+            default: throw OpenSeaRequestError.chainNotSupported
             }
         }
 
         func asURLRequest() throws -> URLRequest {
             guard var components = URLComponents(url: baseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
-            components.path = "/api/\(apiVersion(chainId: chainId))\(pathToPlatform(chainId: chainId))\(asset)"
+            components.path = "/api/\(try apiVersion(chainId: chainId))\(try pathToPlatform(chainId: chainId))\(asset)"
 
             var request = try URLRequest(url: components.asURL(), method: .get)
             request.allHTTPHeaderFields = ["X-API-KEY": apiKey]
@@ -383,7 +387,7 @@ extension OpenSea {
         let apiKey: String
         let chainId: ChainId
 
-        private func apiVersion(chainId: ChainId) -> ApiVersion {
+        private func apiVersion(chainId: ChainId) throws -> ApiVersion {
             switch chainId {
             case 1, 4: return .v1
             case 137: return .v2
@@ -391,11 +395,11 @@ extension OpenSea {
             case 0xa86a: return .v2
             case 8217: return .v2
             case 10: return .v2
-            default: return .v1
+            default: throw OpenSeaRequestError.chainNotSupported
             }
         }
 
-        private func pathToPlatform(chainId: ChainId) -> String {
+        private func pathToPlatform(chainId: ChainId) throws -> String {
             switch chainId {
             case 1, 4: return ""
             case 137: return "matic"
@@ -403,21 +407,25 @@ extension OpenSea {
             case 0xa86a: return "avalanche"
             case 8217: return "klaytn"
             case 10: return "optimism"
-            default: return ""
+            default: throw OpenSeaRequestError.chainNotSupported
             }
         }
 
-        private func ownerParamKey(chainId: ChainId) -> String {
+        private func ownerParamKey(chainId: ChainId) throws -> String {
             switch chainId {
             case 1, 4: return "owner"
             case 137: return "owner_address"
-            default: return "owner"
+            case 42161: return "owner_address"
+            case 0xa86a: return "owner_address"
+            case 8217: return "owner_address"
+            case 10: return "owner_address"
+            default: throw OpenSeaRequestError.chainNotSupported
             }
         }
 
         func asURLRequest() throws -> URLRequest {
             guard var components = URLComponents(url: baseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
-            components.path = "/api/\(apiVersion(chainId: chainId))/assets/\(pathToPlatform(chainId: chainId))"
+            components.path = "/api/\(try apiVersion(chainId: chainId))/assets/\(try pathToPlatform(chainId: chainId))"
 
             var request = try URLRequest(url: components.asURL(), method: .get)
             request.allHTTPHeaderFields = ["X-API-KEY": apiKey]
