@@ -46,10 +46,6 @@ class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
         self.viewController = viewController
     }
 
-    deinit {
-        print("xxx.\(self).deinit")
-    }
-
     func start() -> AnyPublisher<SwitchCustomChainOperation, PromiseError> {
         guard let customChainId = Int(chainId0xString: customChain.chainId) else {
             return .fail(PromiseError(error: DAppError.nodeError(R.string.localizable.addCustomChainErrorInvalidChainId(customChain.chainId))))

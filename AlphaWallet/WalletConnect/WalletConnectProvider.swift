@@ -43,8 +43,7 @@ protocol WalletConnectProviderDelegate: AnyObject {
 
     func requestSwitchChain(server: RPCServer,
                             currentUrl: URL?,
-                            callbackID: SwitchCustomChainCallbackId,
-                            targetChain: WalletSwitchEthereumChainObject) -> AnyPublisher<AlphaWallet.WalletConnect.Response, PromiseError>
+                            targetChain: WalletSwitchEthereumChainObject) -> AnyPublisher<SwitchExistingChainOperation, PromiseError>
 
     func provider(_ provider: WalletConnectProvider, didFail error: WalletConnectError)
     func provider(_ provider: WalletConnectProvider, tookTooLongToConnectToUrl url: AlphaWallet.WalletConnect.ConnectionUrl)
@@ -269,9 +268,20 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
             return .fail(.internal(.unsupportedChain(chainId: targetChain.chainId)))
         }
 
-        let callbackID: SwitchCustomChainCallbackId = .walletConnect(request: request)
-
-        return dappRequestProvider.requestSwitchChain(server: server, currentUrl: nil, callbackID: callbackID, targetChain: targetChain)
+        return dappRequestProvider.requestSwitchChain(server: server, currentUrl: nil, targetChain: targetChain)
+            .map { [weak self] operation -> AlphaWallet.WalletConnect.Response in
+                switch operation {
+                case .notifySuccessful:
+                    try? self?.notifyUpdateServers(request: request, server: server)
+                    return .init(data: nil)
+                case .restartToEnableAndSwitchBrowserToServer:
+                    try? self?.notifyUpdateServers(request: request, server: server)
+                    return .init(data: nil)
+                case .switchBrowserToExistingServer:
+                    try? self?.notifyUpdateServers(request: request, server: server)
+                    return .init(data: nil)
+                }
+            }
             .mapError { WalletConnectError(error: $0) }
             .eraseToAnyPublisher()
     }

@@ -3,32 +3,30 @@
 import UIKit
 import PromiseKit
 import AlphaWalletFoundation
+import AlphaWalletCore
+import Combine
 
-protocol DappRequestSwitchExistingChainCoordinatorDelegate: AnyObject {
-    func notifySuccessful(withCallbackId callbackId: SwitchCustomChainCallbackId, inCoordinator coordinator: DappRequestSwitchExistingChainCoordinator)
-    func restartToEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappRequestSwitchExistingChainCoordinator)
-    func switchBrowserToExistingServer(_ server: RPCServer, callbackId: SwitchCustomChainCallbackId, url: URL?, inCoordinator coordinator: DappRequestSwitchExistingChainCoordinator)
-    func userCancelled(withCallbackId callbackId: SwitchCustomChainCallbackId, inCoordinator coordinator: DappRequestSwitchExistingChainCoordinator)
-    func failed(withErrorMessage errorMessage: String, withCallbackId callbackId: SwitchCustomChainCallbackId, inCoordinator coordinator: DappRequestSwitchExistingChainCoordinator)
+enum SwitchExistingChainOperation {
+    case notifySuccessful
+    case restartToEnableAndSwitchBrowserToServer
+    case switchBrowserToExistingServer(_ server: RPCServer, url: URL?)
 }
 
 class DappRequestSwitchExistingChainCoordinator: NSObject, Coordinator {
     private let config: Config
-    let server: RPCServer
-    let callbackId: SwitchCustomChainCallbackId
+    private let server: RPCServer
     private let targetChain: WalletSwitchEthereumChainObject
     private let restartQueue: RestartTaskQueue
     private let analytics: AnalyticsLogger
     private let currentUrl: URL?
     private let viewController: UIViewController
+    private let subject = PassthroughSubject<SwitchExistingChainOperation, PromiseError>()
 
     var coordinators: [Coordinator] = []
-    weak var delegate: DappRequestSwitchExistingChainCoordinatorDelegate?
 
-    init(config: Config, server: RPCServer, callbackId: SwitchCustomChainCallbackId, targetChain: WalletSwitchEthereumChainObject, restartQueue: RestartTaskQueue, analytics: AnalyticsLogger, currentUrl: URL?, inViewController viewController: UIViewController) {
+    init(config: Config, server: RPCServer, targetChain: WalletSwitchEthereumChainObject, restartQueue: RestartTaskQueue, analytics: AnalyticsLogger, currentUrl: URL?, inViewController viewController: UIViewController) {
         self.config = config
         self.server = server
-        self.callbackId = callbackId
         self.targetChain = targetChain
         self.restartQueue = restartQueue
         self.analytics = analytics
@@ -36,27 +34,29 @@ class DappRequestSwitchExistingChainCoordinator: NSObject, Coordinator {
         self.viewController = viewController
     }
 
-    func start() {
+    func start() -> AnyPublisher<SwitchExistingChainOperation, PromiseError> {
         guard let targetChainId = Int(chainId0xString: targetChain.chainId) else {
-            delegate?.failed(withErrorMessage: R.string.localizable.switchChainErrorInvalidChainId(targetChain.chainId), withCallbackId: callbackId, inCoordinator: self)
-            return
+            return .fail(PromiseError(error: DAppError.nodeError(R.string.localizable.switchChainErrorInvalidChainId(targetChain.chainId))))
         }
         if let existingServer = ServersCoordinator.serversOrdered.first(where: { $0.chainID == targetChainId }) {
             if config.enabledServers.contains(where: { $0.chainID == targetChainId }) {
                 if server.chainID == targetChainId {
-                    notifySwitchChainSucceededBecauseAlreadyActive(withCallbackId: callbackId)
+                    //This is really only (and should only be) fired when the chain is already enabled and activated in browser. i.e. we are not supposed to have restarted the app UI or browser. It's a no-op. If DApps detect that the browser is already connected to the right chain, they might not even trigger this
+                    return .just(.notifySuccessful)
                 } else {
-                    promptAndSwitchToExistingServerInBrowser(existingServer: existingServer, viewController: viewController, callbackID: callbackId)
+                    promptAndSwitchToExistingServerInBrowser(existingServer: existingServer, viewController: viewController)
                 }
             } else {
-                promptAndActivateExistingServer(existingServer: existingServer, inViewController: viewController, callbackID: callbackId)
+                promptAndActivateExistingServer(existingServer: existingServer, inViewController: viewController)
             }
         } else {
-            delegate?.failed(withErrorMessage: R.string.localizable.switchChainErrorNotSupportedChainId(targetChain.chainId), withCallbackId: callbackId, inCoordinator: self)
+            return .fail(PromiseError(error: DAppError.nodeError(R.string.localizable.switchChainErrorNotSupportedChainId(targetChain.chainId))))
         }
+
+        return subject.eraseToAnyPublisher()
     }
 
-    private func promptAndActivateExistingServer(existingServer: RPCServer, inViewController viewController: UIViewController, callbackID: SwitchCustomChainCallbackId) {
+    private func promptAndActivateExistingServer(existingServer: RPCServer, inViewController viewController: UIViewController) {
         func runEnableChain() {
             let enableChain = EnableChain(existingServer, restartQueue: restartQueue, url: currentUrl)
             enableChain.delegate = self
@@ -64,38 +64,35 @@ class DappRequestSwitchExistingChainCoordinator: NSObject, Coordinator {
         }
 
         let configuration: SwitchChainRequestConfiguration = .promptAndActivateExistingServer(existingServer: existingServer)
-        SwitchChainRequestViewController.promise(viewController, configuration: configuration).done { result in
+        SwitchChainRequestViewController.promise(viewController, configuration: configuration).done { [subject] result in
             // NOTE: here we pretty sure that there is only one action
             switch result {
             case .action:
                 runEnableChain()
             case .canceled:
-                self.delegate?.userCancelled(withCallbackId: callbackID, inCoordinator: self)
+                subject.send(completion: .failure(PromiseError(error: DAppError.cancelled)))
             }
         }.cauterize()
     }
 
-    private func promptAndSwitchToExistingServerInBrowser(existingServer: RPCServer, viewController: UIViewController, callbackID: SwitchCustomChainCallbackId) {
+    private func promptAndSwitchToExistingServerInBrowser(existingServer: RPCServer, viewController: UIViewController) {
         let configuration: SwitchChainRequestConfiguration = .promptAndSwitchToExistingServerInBrowser(existingServer: existingServer)
-        SwitchChainRequestViewController.promise(viewController, configuration: configuration).done { result in
+        SwitchChainRequestViewController.promise(viewController, configuration: configuration).done { [subject] result in
             // NOTE: here we pretty sure that there is only one action
             switch result {
             case .action:
-                self.delegate?.switchBrowserToExistingServer(existingServer, callbackId: callbackID, url: self.currentUrl, inCoordinator: self)
+                subject.send(.switchBrowserToExistingServer(existingServer, url: self.currentUrl))
+                subject.send(completion: .finished)
             case .canceled:
-                self.delegate?.userCancelled(withCallbackId: callbackID, inCoordinator: self)
+                subject.send(completion: .failure(PromiseError(error: DAppError.cancelled)))
             }
         }.cauterize()
-    }
-
-    //This is really only (and should only be) fired when the chain is already enabled and activated in browser. i.e. we are not supposed to have restarted the app UI or browser. It's a no-op. If DApps detect that the browser is already connected to the right chain, they might not even trigger this
-    private func notifySwitchChainSucceededBecauseAlreadyActive(withCallbackId callbackId: SwitchCustomChainCallbackId) {
-        delegate?.notifySuccessful(withCallbackId: callbackId, inCoordinator: self)
     }
 }
 extension DappRequestSwitchExistingChainCoordinator: EnableChainDelegate {
     //Don't need to notify browser/dapp since we are restarting UI
     func notifyEnableChainQueuedSuccessfully(in enableChain: EnableChain) {
-        delegate?.restartToEnableAndSwitchBrowserToServer(inCoordinator: self)
+        subject.send(.restartToEnableAndSwitchBrowserToServer)
+        subject.send(completion: .finished)
     }
 }

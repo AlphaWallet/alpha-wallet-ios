@@ -569,7 +569,6 @@
 		874ED68A27D9E4B4001AB374 /* AmountTextFieldPair.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874ED68927D9E4B4001AB374 /* AmountTextFieldPair.swift */; };
 		874ED68C27D9E4D1001AB374 /* AmountTextFieldViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874ED68B27D9E4D1001AB374 /* AmountTextFieldViewModel.swift */; };
 		874ED68E27DA1BA7001AB374 /* SwapOptionsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874ED68D27DA1BA7001AB374 /* SwapOptionsCoordinator.swift */; };
-		874ED69027DB48FE001AB374 /* DappRequestHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874ED68F27DB48FE001AB374 /* DappRequestHandler.swift */; };
 		874ED69527DF34C0001AB374 /* SwapOptionsHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874ED69427DF34C0001AB374 /* SwapOptionsHeaderView.swift */; };
 		874ED69727DF3685001AB374 /* SlippageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874ED69627DF3685001AB374 /* SlippageView.swift */; };
 		874ED69D27DF36D2001AB374 /* SlippageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874ED69C27DF36D2001AB374 /* SlippageViewModel.swift */; };
@@ -1446,7 +1445,6 @@
 		874ED68927D9E4B4001AB374 /* AmountTextFieldPair.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmountTextFieldPair.swift; sourceTree = "<group>"; };
 		874ED68B27D9E4D1001AB374 /* AmountTextFieldViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmountTextFieldViewModel.swift; sourceTree = "<group>"; };
 		874ED68D27DA1BA7001AB374 /* SwapOptionsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapOptionsCoordinator.swift; sourceTree = "<group>"; };
-		874ED68F27DB48FE001AB374 /* DappRequestHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DappRequestHandler.swift; sourceTree = "<group>"; };
 		874ED69427DF34C0001AB374 /* SwapOptionsHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapOptionsHeaderView.swift; sourceTree = "<group>"; };
 		874ED69627DF3685001AB374 /* SlippageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlippageView.swift; sourceTree = "<group>"; };
 		874ED69C27DF36D2001AB374 /* SlippageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlippageViewModel.swift; sourceTree = "<group>"; };
@@ -4099,7 +4097,6 @@
 				87B1B5F228C8715F0072A5E2 /* Analytics */,
 				5E7C7FC75FF544B1DF0B0D8B /* PushNotificationsService.swift */,
 				875CA90828BF2B720020FA48 /* LocalNotificationService.swift */,
-				874ED68F27DB48FE001AB374 /* DappRequestHandler.swift */,
 				87FBF2B428056B6F00616B7D /* FirebaseReportService.swift */,
 				87D175EC24AF1565002130D2 /* KeyboardChecker.swift */,
 			);
@@ -5432,7 +5429,6 @@
 				5E7C745ECFCAE8B1A52B7FAC /* EnabledServersViewModel.swift in Sources */,
 				5E7C76C8A983A91A82F646E5 /* TokenInstanceWebView.swift in Sources */,
 				87F15AF927F1EB9900EB9787 /* SwapStepViewModel.swift in Sources */,
-				874ED69027DB48FE001AB374 /* DappRequestHandler.swift in Sources */,
 				5E7C742DDE5C63804A2C420D /* Collection+UIView.swift in Sources */,
 				87D163A7242CD9A2002662D2 /* AddHideTokenSectionHeaderView.swift in Sources */,
 				5E7C7ACB2F44B820940EACEB /* TokenInstanceActionViewController.swift in Sources */,
