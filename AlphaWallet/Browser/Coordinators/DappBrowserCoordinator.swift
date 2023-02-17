@@ -376,8 +376,32 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         open(url: url, animated: false)
     }
 
-    private func addCustomChain(callbackID: Int, customChain: WalletAddEthereumChainObject, inViewController viewController: UIViewController) {
-        delegate?.requestAddCustomChain(server: server, callbackId: .dapp(requestId: callbackID), customChain: customChain)
+    private func requestAddCustomChain(_ callbackId: Int, customChain: WalletAddEthereumChainObject) {
+        guard let delegate = delegate else {
+            notifyFinish(callbackID: callbackId, value: .failure(.cancelled))
+            return
+        }
+
+        delegate.requestAddCustomChain(server: server, customChain: customChain)
+            .sink(receiveCompletion: { [weak self] result in
+                if case .failure(let e) = result {
+                    let error = e.embedded as? DAppError ?? .nodeError("Unknown Error")
+                    
+                    self?.notifyFinish(callbackID: callbackId, value: .failure(error))
+                }
+            }, receiveValue: { [weak self] operation in
+                switch operation {
+                case .notifySuccessful:
+                    let callback = DappCallback(id: callbackId, value: .walletAddEthereumChain)
+                    self?.notifyFinish(callbackID: callbackId, value: .success(callback))
+                case .switchBrowserToExistingServer:
+                    break //no-op handled in parent
+                case .restartToEnableAndSwitchBrowserToServer:
+                    break
+                case .restartToAddEnableAndSwitchBrowserToServer:
+                    break
+                }
+            }).store(in: &cancellable)
     }
 
     private func switchChain(callbackID: Int, targetChain: WalletSwitchEthereumChainObject, inViewController viewController: UIViewController) {
@@ -492,7 +516,7 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
                 let to = AlphaWallet.Address(uncheckedAgainstNullAddress: to)
                 ethCall(callbackID: callbackID, from: from, to: to, value: value, data: data)
             case .walletAddEthereumChain(let customChain):
-                addCustomChain(callbackID: callbackID, customChain: customChain, inViewController: viewController)
+                requestAddCustomChain(callbackID, customChain: customChain)
             case .walletSwitchEthereumChain(let targetChain):
                 switchChain(callbackID: callbackID, targetChain: targetChain, inViewController: viewController)
             case .unknown, .sendRawTransaction:

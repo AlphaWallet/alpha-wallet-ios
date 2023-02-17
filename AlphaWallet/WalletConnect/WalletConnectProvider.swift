@@ -39,8 +39,7 @@ protocol WalletConnectProviderDelegate: AnyObject {
                                 configuration: TransactionType.Configuration) -> AnyPublisher<AlphaWallet.WalletConnect.Response, PromiseError>
 
     func requestAddCustomChain(server: RPCServer,
-                               callbackId: SwitchCustomChainCallbackId,
-                               customChain: WalletAddEthereumChainObject) -> AnyPublisher<AlphaWallet.WalletConnect.Response, PromiseError>
+                               customChain: WalletAddEthereumChainObject) -> AnyPublisher<SwitchCustomChainOperation, PromiseError>
 
     func requestSwitchChain(server: RPCServer,
                             currentUrl: URL?,
@@ -217,6 +216,7 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
     private func addCustomChain(object customChain: WalletAddEthereumChainObject,
                                 request: AlphaWallet.WalletConnect.Session.Request,
                                 walletConnectSession: AlphaWallet.WalletConnect.Session) -> AnyPublisher<AlphaWallet.WalletConnect.Response, WalletConnectError> {
+
         guard let dappRequestProvider = delegate else { return .fail(.cancelled) }
 
         infoLog("[WalletConnect] addCustomChain: \(customChain)")
@@ -224,9 +224,27 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
             return .fail(.internal(.requestRejected))
         }
 
-        let callbackId: SwitchCustomChainCallbackId = .walletConnect(request: request)
-        return dappRequestProvider.requestAddCustomChain(server: server, callbackId: callbackId, customChain: customChain)
-            .mapError { WalletConnectError(error: $0) }
+        return dappRequestProvider.requestAddCustomChain(server: server, customChain: customChain)
+            .map { [weak self] operation -> AlphaWallet.WalletConnect.Response in
+                switch operation {
+                case .notifySuccessful:
+                    //NOTE: it was like this before
+                    //try? walletConnectProvider.responseServerChangeSucceed(request: request)
+                    //try? walletConnectProvider.notifyUpdateServers(request: request, server: server)
+
+                    try? self?.notifyUpdateServers(request: request, server: server)
+                    return .init(data: nil)
+                case .restartToEnableAndSwitchBrowserToServer:
+                    try? self?.notifyUpdateServers(request: request, server: server)
+                    return .init(data: nil)
+                case .restartToAddEnableAndSwitchBrowserToServer:
+                    try? self?.notifyUpdateServers(request: request, server: server)
+                    return .init(data: nil)
+                case .switchBrowserToExistingServer:
+                    try? self?.notifyUpdateServers(request: request, server: server)
+                    return .init(data: nil)
+                }
+            }.mapError { WalletConnectError(error: $0) }
             .eraseToAnyPublisher()
     }
 

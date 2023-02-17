@@ -15,8 +15,10 @@ import AlphaWalletLogger
 import AlphaWalletCore
 
 protocol RequestAddCustomChainProvider: NSObjectProtocol {
-    func requestAddCustomChain(server: RPCServer, callbackId: SwitchCustomChainCallbackId, customChain: WalletAddEthereumChainObject)
+    func requestAddCustomChain(server: RPCServer,
+                               customChain: WalletAddEthereumChainObject) -> AnyPublisher<SwitchCustomChainOperation, PromiseError>
 }
+
 protocol RequestSwitchChainProvider: NSObjectProtocol {
     func requestSwitchChain(server: RPCServer, currentUrl: URL?, callbackID: SwitchCustomChainCallbackId, targetChain: WalletSwitchEthereumChainObject)
 }
@@ -268,12 +270,11 @@ extension WalletConnectCoordinator: WalletConnectProviderDelegate {
         }.publisher(queue: .main)
     }
 
-    func requestAddCustomChain(server: RPCServer, callbackId: SwitchCustomChainCallbackId, customChain: WalletAddEthereumChainObject) -> AnyPublisher<AlphaWallet.WalletConnect.Response, PromiseError> {
+    func requestAddCustomChain(server: RPCServer, customChain: WalletAddEthereumChainObject) -> AnyPublisher<SwitchCustomChainOperation, PromiseError> {
         infoLog("[WalletConnect] addCustomChain: \(customChain)")
+        guard let delegate = delegate else { return .empty() }
 
-        delegate?.requestAddCustomChain(server: server, callbackId: callbackId, customChain: customChain)
-
-        return .fail(PromiseError(error: WalletConnectError.delayedOperation))
+        return delegate.requestAddCustomChain(server: server, customChain: customChain)
     }
 
     func requestSwitchChain(server: RPCServer, currentUrl: URL?, callbackID: SwitchCustomChainCallbackId, targetChain: WalletSwitchEthereumChainObject) -> AnyPublisher<AlphaWallet.WalletConnect.Response, PromiseError> {

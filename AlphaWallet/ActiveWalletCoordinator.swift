@@ -635,11 +635,12 @@ extension ActiveWalletCoordinator: WalletConnectCoordinatorDelegate {
         coordinator.start()
     }
 
-    func requestAddCustomChain(server: RPCServer, callbackId: SwitchCustomChainCallbackId, customChain: WalletAddEthereumChainObject) {
+    func requestAddCustomChain(server: RPCServer,
+                               customChain: WalletAddEthereumChainObject) -> AnyPublisher<SwitchCustomChainOperation, PromiseError> {
+
         let coordinator = DappRequestSwitchCustomChainCoordinator(
             config: config,
             server: server,
-            callbackId: callbackId,
             customChain: customChain,
             restartQueue: restartQueue,
             analytics: analytics,
@@ -647,9 +648,28 @@ extension ActiveWalletCoordinator: WalletConnectCoordinatorDelegate {
             viewController: presentationViewController,
             networkService: networkService)
 
-        coordinator.delegate = dappRequestHandler
-        dappRequestHandler.addCoordinator(coordinator)
-        coordinator.start()
+        addCoordinator(coordinator)
+
+        return coordinator.start()
+            .handleEvents(receiveOutput: { [weak self] operation in
+                //NOTE: we need this small delay to make sure source subscriber received event, e.g web browser or wallet connect, and then perform switching actions, because for processRestartQueueAndRestartUI recreates active wallet coordinator, will be removes when silent updated will be applied
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    switch operation {
+                    case .notifySuccessful:
+                        break
+                    case .restartToEnableAndSwitchBrowserToServer:
+                        self?.processRestartQueueAndRestartUI(reason: .serverChange)
+                    case .restartToAddEnableAndSwitchBrowserToServer:
+                        self?.processRestartQueueAndRestartUI(reason: .serverChange)
+                    case .switchBrowserToExistingServer(let server, url: let url):
+                        self?.dappBrowserCoordinator?.switch(toServer: server, url: url)
+                    }
+                }
+            }, receiveCompletion: { [weak self] _ in
+                self?.removeCoordinator(coordinator)
+            }, receiveCancel: { [weak self] in
+                self?.removeCoordinator(coordinator)
+            }).eraseToAnyPublisher()
     }
 
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: TransactionConfirmationCoordinator) {
