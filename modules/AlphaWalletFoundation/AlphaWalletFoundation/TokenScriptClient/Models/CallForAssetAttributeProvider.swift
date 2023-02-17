@@ -14,7 +14,7 @@ public class CallForAssetAttributeProvider {
         self.blockchainsProvider = blockchainsProvider
     }
 
-    public func getValue(forAttributeId attributeId: AttributeId, functionCall: AssetFunctionCall) -> Subscribable<AssetInternalValue> {
+    public func getValue(functionCall: AssetFunctionCall) -> Subscribable<AssetInternalValue> {
         let subscribable = Subscribable<AssetInternalValue>(nil)
         if let promise = inflightPromises[functionCall] {
             promise.done { result in
