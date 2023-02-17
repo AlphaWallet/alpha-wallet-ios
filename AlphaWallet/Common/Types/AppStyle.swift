@@ -99,9 +99,6 @@ extension UITabBarController {
     }
 }
 
-struct Colors {
-}
-
 struct Fonts {
     static func regular(size: CGFloat) -> UIFont {
         return UIFont(resource: R.font.sourceSansProRegular, size: size)!
