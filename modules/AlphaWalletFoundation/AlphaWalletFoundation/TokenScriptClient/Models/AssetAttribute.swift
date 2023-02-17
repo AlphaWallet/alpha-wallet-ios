@@ -92,7 +92,7 @@ public struct AssetAttribute {
                   ethereumFunctionElement["function"] != nil,
                   let attributeName = attribute["name"],
                   let contract = AssetAttribute.getContract(fromEthereumFunctionElement: ethereumFunctionElement, forTokenContract: tokenContract, server: server, contractNamesAndAddresses: contractNamesAndAddresses) {
-            originFound = Origin(forEthereumFunctionElement: ethereumFunctionElement, root: root, attributeName: attributeName, originContract: contract, xmlContext: xmlContext)
+            originFound = Origin(forEthereumFunctionElement: ethereumFunctionElement, root: root, originContract: contract, xmlContext: xmlContext)
         } else if let userEntryElement = XMLHandler.getOriginUserEntryElement(fromAttributeTypeElement: attribute, xmlContext: xmlContext),
                   let attributeName = attribute["name"] {
             originFound = Origin(forUserEntryElement: userEntryElement, attributeName: attributeName, xmlContext: xmlContext)

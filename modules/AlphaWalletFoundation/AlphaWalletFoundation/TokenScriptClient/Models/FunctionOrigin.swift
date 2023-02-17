@@ -92,7 +92,6 @@ public struct FunctionOrigin {
     }
 
     public let originContractOrRecipientAddress: AlphaWallet.Address
-    private let attributeId: AttributeId
     private let functionType: FunctionType
     private let bitmask: BigUInt?
     private let bitShift: Int
@@ -108,7 +107,7 @@ public struct FunctionOrigin {
         functionType.inputValue
     }
 
-    public init?(forEthereumFunctionTransactionElement ethereumFunctionElement: XMLElement, root: XMLDocument, attributeId: AttributeId, originContract: AlphaWallet.Address, xmlContext: XmlContext, bitmask: BigUInt?, bitShift: Int) {
+    public init?(forEthereumFunctionTransactionElement ethereumFunctionElement: XMLElement, root: XMLDocument, originContract: AlphaWallet.Address, xmlContext: XmlContext, bitmask: BigUInt?, bitShift: Int) {
         guard let functionName = ethereumFunctionElement["function"].nilIfEmpty else { return nil }
         let inputs: [AssetFunctionCall.Argument]
         if let dataElement = XMLHandler.getDataElement(fromFunctionElement: ethereumFunctionElement, xmlContext: xmlContext) {
@@ -118,19 +117,19 @@ public struct FunctionOrigin {
         }
         let value = XMLHandler.getValueElement(fromFunctionElement: ethereumFunctionElement, xmlContext: xmlContext).flatMap { FunctionOrigin.createInput(fromInputElement: $0, root: root, xmlContext: xmlContext, withInputType: .uint) }
         let functionType = FunctionType.functionTransaction(functionName: functionName, inputs: inputs, inputValue: value)
-        self = .init(originElement: ethereumFunctionElement, xmlContext: xmlContext, originalContractOrRecipientAddress: originContract, attributeId: attributeId, functionType: functionType, bitmask: bitmask, bitShift: bitShift)
+        self = .init(originElement: ethereumFunctionElement, xmlContext: xmlContext, originalContractOrRecipientAddress: originContract, functionType: functionType, bitmask: bitmask, bitShift: bitShift)
     }
 
-    public init?(forEthereumPaymentElement ethereumFunctionElement: XMLElement, root: XMLDocument, attributeId: AttributeId, recipientAddress: AlphaWallet.Address, xmlContext: XmlContext, bitmask: BigUInt?, bitShift: Int) {
+    public init?(forEthereumPaymentElement ethereumFunctionElement: XMLElement, root: XMLDocument, recipientAddress: AlphaWallet.Address, xmlContext: XmlContext, bitmask: BigUInt?, bitShift: Int) {
         if let valueElement = XMLHandler.getValueElement(fromFunctionElement: ethereumFunctionElement, xmlContext: xmlContext), let value = FunctionOrigin.createInput(fromInputElement: valueElement, root: root, xmlContext: xmlContext, withInputType: .uint) {
             let functionType = FunctionType.paymentTransaction(inputValue: value)
-            self = .init(originElement: ethereumFunctionElement, xmlContext: xmlContext, originalContractOrRecipientAddress: recipientAddress, attributeId: attributeId, functionType: functionType, bitmask: bitmask, bitShift: bitShift)
+            self = .init(originElement: ethereumFunctionElement, xmlContext: xmlContext, originalContractOrRecipientAddress: recipientAddress, functionType: functionType, bitmask: bitmask, bitShift: bitShift)
         } else {
             return nil
         }
     }
 
-    public init?(forEthereumFunctionCallElement ethereumFunctionElement: XMLElement, root: XMLDocument, attributeName: AttributeId, originContract: AlphaWallet.Address, xmlContext: XmlContext, bitmask: BigUInt?, bitShift: Int) {
+    public init?(forEthereumFunctionCallElement ethereumFunctionElement: XMLElement, root: XMLDocument, originContract: AlphaWallet.Address, xmlContext: XmlContext, bitmask: BigUInt?, bitShift: Int) {
         guard let functionName = ethereumFunctionElement["function"].nilIfEmpty else { return nil }
         guard let asType: OriginAsType = ethereumFunctionElement["as"].flatMap({ OriginAsType(rawValue: $0) }) else { return nil }
         let inputs: [AssetFunctionCall.Argument]
@@ -141,14 +140,13 @@ public struct FunctionOrigin {
             inputs = []
         }
         let functionType = FunctionType.functionCall(functionName: functionName, inputs: inputs, output: output)
-        self = .init(originElement: ethereumFunctionElement, xmlContext: xmlContext, originalContractOrRecipientAddress: originContract, attributeId: attributeName, functionType: functionType, bitmask: bitmask, bitShift: bitShift)
+        self = .init(originElement: ethereumFunctionElement, xmlContext: xmlContext, originalContractOrRecipientAddress: originContract, functionType: functionType, bitmask: bitmask, bitShift: bitShift)
     }
 
-    public init(originElement: XMLElement, xmlContext: XmlContext, originalContractOrRecipientAddress: AlphaWallet.Address, attributeId: AttributeId, functionType: FunctionType, bitmask: BigUInt?, bitShift: Int) {
+    public init(originElement: XMLElement, xmlContext: XmlContext, originalContractOrRecipientAddress: AlphaWallet.Address, functionType: FunctionType, bitmask: BigUInt?, bitShift: Int) {
         self.originElement = originElement
         self.xmlContext = xmlContext
         self.originContractOrRecipientAddress = originalContractOrRecipientAddress
-        self.attributeId = attributeId
         self.functionType = functionType
         self.bitmask = bitmask
         self.bitShift = bitShift
@@ -157,7 +155,6 @@ public struct FunctionOrigin {
     public func extractValue(withTokenId tokenId: TokenId, account: Wallet, server: RPCServer, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], assetAttributeProvider: CallForAssetAttributeProvider) -> AssetInternalValue? {
         guard let functionName = functionType.functionName else { return nil }
         guard let subscribable = callSmartContractFunction(
-                forAttributeId: attributeId,
                 tokenId: tokenId,
                 attributeAndValues: attributeAndValues,
                 localRefs: localRefs,
@@ -336,7 +333,6 @@ public struct FunctionOrigin {
     }
 
     private func callSmartContractFunction(
-            forAttributeId attributeId: AttributeId,
             tokenId: TokenId,
             attributeAndValues: [AttributeId: AssetInternalValue],
             localRefs: [AttributeId: AssetInternalValue],
@@ -357,7 +353,7 @@ public struct FunctionOrigin {
             return Subscribable<AssetInternalValue>(nil)
         }
 
-        return assetAttributeProvider.getValue(forAttributeId: attributeId, functionCall: functionCall)
+        return assetAttributeProvider.getValue(functionCall: functionCall)
     }
 }
 // swiftlint:enable type_body_length
