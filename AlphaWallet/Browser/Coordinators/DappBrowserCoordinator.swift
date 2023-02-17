@@ -386,7 +386,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
             .sink(receiveCompletion: { [weak self] result in
                 if case .failure(let e) = result {
                     let error = e.embedded as? DAppError ?? .nodeError("Unknown Error")
-                    
+
                     self?.notifyFinish(callbackID: callbackId, value: .failure(error))
                 }
             }, receiveValue: { [weak self] operation in
