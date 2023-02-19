@@ -13,9 +13,54 @@ public protocol OpenSeaStorage: AnyObject {
     func hasNftCollection(contract: AlphaWallet.Address, server: RPCServer) -> Bool
     func nftCollection(contract: AlphaWallet.Address, server: RPCServer) -> NftCollection?
     func nftCollections(excluding: [String]) -> [NftCollection]
-    func addOrUpdate(assets: [NftAssetResponse], server: RPCServer)
-//    func remove(collection: [AlphaWalletOpenSea.NftCollection])
-//    func removeAll()
+
+    func addOrUpdate(assets: [NftCollectionAssetsResponse], server: RPCServer)
+//    func addOrUpdate(collection: AlphaWalletOpenSea.NftCollection, server: RPCServer)
+    func deleteAllExcluding(assets: [NftCollectionAssetsResponse], server: RPCServer)
+}
+
+extension NftCollection {
+    init(object: OpenSeaNftCollectionObject) {
+        id = object.id
+        ownedAssetCount = object.ownedAssetCount
+        wikiUrl = object.wikiUrl
+        instagramUsername = object.instagramUsername
+        twitterUsername = object.twitterUsername
+        discordUrl = object.discordUrl
+        telegramUrl = object.telegramUrl
+        shortDescription = object.shortDescription
+        bannerImageUrl = object.bannerImageUrl
+        chatUrl = object.chatUrl
+        createdDate = object.createdDate
+        defaultToFiat = object.defaultToFiat
+        descriptionString = object.descriptionString
+        stats = object.stats.flatMap { NftCollectionStats(object: $0) }
+        name = object.name
+        externalUrl = object.externalUrl
+        contracts = object.contracts.map { PrimaryAssetContract(object: $0) }
+        bannerUrl = object.bannerUrl
+    }
+}
+
+extension NftAsset2_0 {
+    init?(object: OpenSeaNftAssetObject) {
+        guard let assetContract = object.assetContract else { return nil }
+        tokenId = object.tokenId
+        backgroundColor = object.backgroundColor
+        imageUrl = object.imageUrl
+        previewUrl = object.previewUrl
+        thumbnailUrl = object.thumbnailUrl
+        imageOriginalUrl = object.imageOriginalUrl
+        animationUrl = object.animationUrl
+        name = object.name
+        description = object.assetDescription
+        externalLink = object.externalLink
+        self.assetContract = PrimaryAssetContract(object: assetContract)
+//        collection = NftCollection(json: json["collection"], contracts: [assetContract])
+//        traits = json["traits"].arrayValue.compactMap { OpenSeaNonFungibleTrait(json: $0) }
+//        creator = AssetCreator(json: json["creator"])
+        fatalError()
+    }
 }
 
 extension RealmStore: OpenSeaStorage {
@@ -24,56 +69,186 @@ extension RealmStore: OpenSeaStorage {
         return false
     }
 
-    public func nftCollection(contract: AlphaWallet.Address, server: RPCServer) -> NftCollection? {
-        return nil
+    static func nftCollectionPredicate(server: RPCServer, contract: AlphaWallet.Address) -> NSPredicate {
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [
+            NSPredicate(format: "chainId = \(server.chainID)"),
+            NSPredicate(format: "ANY contracts.address == '\(contract.eip55String)'")
+        ])
     }
 
-    public func removeAll() {
-
+    static func nftAssetsPredicate(server: RPCServer, contract: AlphaWallet.Address) -> NSPredicate {
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [
+            NSPredicate(format: "assetContract != nil"),
+            NSPredicate(format: "assetContract.chainId = \(server.chainID)"),
+            NSPredicate(format: "assetContract.address == '\(contract.eip55String)'")
+        ])
     }
 
-    public func addOrUpdate(assets: [NftAssetResponse], server: RPCServer) {
+    public func nftAssets(contract: AlphaWallet.Address, server: RPCServer) -> [NftAsset2_0] {
+        var assets: [NftAsset2_0] = []
         performSync { realm in
             try? realm.safeWrite {
-//                for asset in assets {
-//                    let contractPk = PrimaryAssetContractObject.privateKey(address: asset.assetContract.address, server: server)
-//                    let contract: PrimaryAssetContractObject
+                assets = Array(realm.objects(OpenSeaNftAssetObject.self)
+                    .filter(RealmStore.nftAssetsPredicate(server: server, contract: contract))
+                    .compactMap { NftAsset2_0(object: $0) })
+            }
+        }
+
+        return assets
+    }
+
+    public func nftCollection(contract: AlphaWallet.Address, server: RPCServer) -> NftCollection? {
+        var collection: NftCollection?
+        performSync { realm in
+            try? realm.safeWrite {
+                collection = realm.objects(OpenSeaNftCollectionObject.self)
+                    .filter(RealmStore.nftCollectionPredicate(server: server, contract: contract))
+                    .first
+                    .flatMap { NftCollection(object: $0) }
+            }
+        }
+
+        return collection
+    }
+
+//    public func addOrUpdate(collection: AlphaWalletOpenSea.NftCollection, server: RPCServer) {
+//        performSync { realm in
+//            try? realm.safeWrite {
+//                var contracts: [PrimaryAssetContractObject] = []
+//                for contract in collection.contracts {
+//                    let object = PrimaryAssetContractObject(primaryAssetContract: contract, server: server)
+//                    realm.add(object, update: .all)
+//                    contracts += [object]
+//                }
 //
-//                    if let object = realm.object(ofType: PrimaryAssetContractObject.self, forPrimaryKey: contractPk) {
-//                        contract = object
-//                    } else {
-//                        let object = PrimaryAssetContractObject(primaryAssetContract: asset.assetContract, server: server)
-//                        realm.add(object, update: .all)
+//                let collectionObject = OpenSeaNftCollectionObject(collection: collection, server: server)
+//                collectionObject.contracts.removeAll()
+//                collectionObject.contracts.append(objectsIn: contracts)
+//                collectionObject.stats = collection.stats.flatMap {
+//                    OpenSeaNftCollectionStatsObject(stats: $0, primaryKey: collectionObject.primaryKey)
+//                }
 //
-//                        contract = object
-//                    }
+//                realm.add(collectionObject, update: .all)
+//            }
+//        }
+//    }
+
+    public func deleteAllExcluding(assets: [NftCollectionAssetsResponse], server: RPCServer) {
+        performSync { realm in
+            try? realm.safeWrite {
+                let collections = assets.map { OpenSeaNftCollectionObject.primaryKey(id: $0.collection.id, server: server) }
+                let contracts = assets.flatMap { $0.assets.map { PrimaryAssetContractObject.privateKey(address: $0.assetContract.address, server: server) } }
+                let assets = assets.flatMap { $0.assets.map { OpenSeaNftAssetObject.privateKey(address: $0.assetContract.address, tokenId: $0.tokenId, server: server) } }
+
+                let collectionsToDelete = realm.objects(OpenSeaNftCollectionObject.self)
+                    .filter { !collections.contains($0.primaryKey) }
+
+                let contractsToDelete = realm.objects(PrimaryAssetContractObject.self)
+                    .filter { !contracts.contains($0.primaryKey) }
+
+                let assetsToDelete = realm.objects(OpenSeaNftAssetObject.self)
+                    .filter { !assets.contains($0.primaryKey) }
+
+                realm.delete(collectionsToDelete)
+                realm.delete(contractsToDelete)
+                realm.delete(assetsToDelete)
+            }
+        }
+    }
+
+    public func addOrUpdate(assets: [NftCollectionAssetsResponse], server: RPCServer) {
+        performSync { realm in
+            try? realm.safeWrite {
+                for asset in assets {
+                    var contracts: [PrimaryAssetContractObject] = []
+                    for contract in asset.collection.contracts {
+//                        let contractPk = PrimaryAssetContractObject.privateKey(address: contract.address, server: server)
 //
+//                        if let object = realm.object(ofType: PrimaryAssetContractObject.self, forPrimaryKey: contractPk) {
+//                            contracts += [object]
+//                        } else {
+                        let object = PrimaryAssetContractObject(primaryAssetContract: contract, server: server)
+                        realm.add(object, update: .all)
+//                            contracts += [object]
+//                        }
+                    }
+
 //                    let collection: OpenSeaNftCollectionObject
 //                    let collectionPk = OpenSeaNftCollectionObject.primaryKey(id: asset.collection.id, server: server)
 //                    if let object = realm.object(ofType: OpenSeaNftCollectionObject.self, forPrimaryKey: collectionPk) {
-//                        if object.contracts.contains(where: { $0.primaryKey == contract.primaryKey }) {
-//                            //no-op
-//                        } else {
-//                            object.contracts.append(contract)
-//                        }
+////                        if object.contracts.contains(where: { $0.primaryKey == contract.primaryKey }) {
+////                            //no-op
+////                        } else {
+////                            object.contracts.append(contract)
+////                        }
 //                        collection = object
 //                    } else {
-//                        let object = OpenSeaNftCollectionObject(collection: asset.collection, server: server)
-//                        object.contracts.append(contract)
-//                        realm.add(object, update: .all)
+                    let collectionObject = OpenSeaNftCollectionObject(collection: asset.collection, server: server)
+                    collectionObject.contracts.removeAll()
+                    collectionObject.contracts.append(objectsIn: contracts)
+                    collectionObject.stats = asset.collection.stats.flatMap {
+                        OpenSeaNftCollectionStatsObject(stats: $0, primaryKey: collectionObject.primaryKey)
+                    }
+
+                    realm.add(collectionObject, update: .all)
+
+                    for asset in asset.assets {
+//                        let contractPk = PrimaryAssetContractObject.privateKey(address: asset.assetContract.address, server: server)
+//                        let contract: PrimaryAssetContractObject
+//                        if let object = realm.object(ofType: PrimaryAssetContractObject.self, forPrimaryKey: contractPk) {
+//                            contract = object
+//                        } else {
+//                            let object = PrimaryAssetContractObject(primaryAssetContract: asset.assetContract, server: server)
+//                            realm.add(object, update: .all)
+//                            contract = object
+//                        }
 //
-//                        collection = object
-//                    }
+//                        let collection: OpenSeaNftCollectionObject
+//                        let collectionPk = OpenSeaNftCollectionObject.primaryKey(id: asset.collection.id, server: server)
+//                        if let object = realm.object(ofType: OpenSeaNftCollectionObject.self, forPrimaryKey: collectionPk) {
+//                            collection = object
+//                        } else {
+//                            let object = OpenSeaNftCollectionObject(collection: asset.collection, server: server)
+////                            object.contracts.append(objectsIn: contracts)
+//                            realm.add(object, update: .all)
 //
-//                    OpenSeaNftAssetObject(asset: <#T##NftAsset#>, server: <#T##RPCServer#>)
-//                }
+//                            collection = object
+//                        }
+//
+//                        let assetPk = OpenSeaNftAssetObject.privateKey(address: asset.assetContract.address, tokenId: asset.tokenId, server: server)
+//                        if let object = realm.object(ofType: OpenSeaNftAssetObject.self, forPrimaryKey: assetPk) {
+////                            realm.add(<#T##object: Object##Object#>, update: <#T##Realm.UpdatePolicy#>)
+//                        } else {
+//                            let object = OpenSeaNftAssetObject(asset: asset, address: asset.assetContract.address, server: server)
+//                            realm.add(object, update: .all)
+//                        }
+
+//                        let assetContractObject = PrimaryAssetContractObject(primaryAssetContract: asset.assetContract, server: server)
+//                        realm.add(assetContractObject, update: .all)
+//
+//                        let collectionObject = OpenSeaNftCollectionObject(collection: asset.collection, server: server)
+//                        collectionObject.contracts.removeAll()
+//                        collectionObject.contracts.append(assetContractObject)
+//
+//                        realm.add(collectionObject, update: .all)
+
+                        let assetObject = OpenSeaNftAssetObject(asset: asset, address: asset.assetContract.address, server: server)
+                        if let assetContractObject = contracts.first(where: { $0.address == asset.assetContract.address.eip55String }) {
+                            assetObject.assetContract = assetContractObject
+                        } else {
+                            //can't be
+                        }
+
+                        realm.add(assetObject, update: .all)
+                    }
+                }
             }
         }
     }
 
     public func nftCollections(excluding: [String]) -> [NftCollection] {
         var collections: [NftCollection] = []
-        performSync { realm in
+        performSync { _ in
             
         }
         return collections
@@ -121,6 +296,23 @@ extension RealmStore: OpenSeaStorage {
 //            }
 //        }
 //    }
+}
+extension PrimaryAssetContract {
+
+    init(object: PrimaryAssetContractObject) {
+        address = AlphaWallet.Address(string: object.address)!
+        assetContractType = object.assetContractType
+        createdDate = object.createdDate
+        name = object.name
+        nftVersion = object.nftVersion
+        schemaName = object.schemaName
+        symbol = object.symbol
+        owner = object.owner
+        totalSupply = object.totalSupply
+        description = object.contractDescription
+        externalLink = object.externalLink
+        imageUrl = object.imageUrl
+    }
 }
 
 class PrimaryAssetContractObject: Object {
@@ -187,69 +379,56 @@ class OpenSeaAssetTrait: Object {
 }
 
 class OpenSeaNftAssetObject: Object {
-    @objc dynamic var primaryKey: String = ""
+    static func privateKey(address: AlphaWallet.Address, tokenId: String, server: RPCServer) -> String {
+        "\(address.eip55String)-\(tokenId)-\(server.chainID)"
+    }
 
+    @objc dynamic var primaryKey: String = ""
     @objc dynamic var tokenId: String = ""
-    @objc dynamic var tokenType: String = ""
-    @objc dynamic var value: String = ""
-    @objc dynamic var contractName: String = ""
-    @objc dynamic var decimals: Int = 0
-    @objc dynamic var symbol: String = ""
-    @objc dynamic var name: String = ""
-    @objc dynamic var assetDescription: String = ""
-    @objc dynamic var thumbnailUrl: String = ""
+    @objc dynamic var backgroundColor: String?
     @objc dynamic var imageUrl: String = ""
     @objc dynamic var previewUrl: String = ""
-    @objc dynamic var contractImageUrl: String = ""
-    @objc dynamic var imageOriginalUrl: String = ""
-    @objc dynamic var externalLink: String = ""
-    @objc dynamic var backgroundColor: String?
-
+    @objc dynamic var thumbnailUrl: String?
+    @objc dynamic var imageOriginalUrl: String?
+    @objc dynamic var animationUrl: String?
+    @objc dynamic var name: String = ""
+    @objc dynamic var assetDescription: String?
+    @objc dynamic var externalLink: String?
+    @objc var assetContract: PrimaryAssetContractObject?
     var traits = List<OpenSeaAssetTrait>()
-//    public var generationTrait: OpenSeaNonFungibleTrait? {
-//        return traits.first { $0.type == OpenSeaNonFungible.generationTraitName }
-//    }
 
-//    public let tokenId: String
-//    public let tokenType: NonFungibleFromJsonTokenType
-//    public var value: BigInt
-//    public let contractName: String
-//    public let decimals: Int
-//    public let symbol: String
-//    public let name: String
-//    public let description: String
-//    public let thumbnailUrl: String
-//    public let imageUrl: String
-//    public let previewUrl: String
-//    public let contractImageUrl: String
-//    public let imageOriginalUrl: String
-//    public let externalLink: String
-//    public let backgroundColor: String?
-//    public let traits: [OpenSeaNonFungibleTrait]
-//    public var generationTrait: OpenSeaNonFungibleTrait? {
-//        return traits.first { $0.type == OpenSeaNonFungible.generationTraitName }
-//    }
-
-//    public var creator: AssetCreator?
+//    @objc var creator: AssetCreator?
     @objc dynamic var collectionId: String = ""
 
-    init(asset: NftAsset, server: RPCServer) {
+    init(asset: AlphaWalletOpenSea.NftAssetResponse, address: AlphaWallet.Address, server: RPCServer) {
         super.init()
+        self.primaryKey = OpenSeaNftAssetObject.privateKey(address: address, tokenId: asset.tokenId, server: server)
 
-        self.imageOriginalUrl = asset.imageOriginalUrl
         self.tokenId = asset.tokenId
-        self.tokenType = asset.tokenType.rawValue
-        self.value = asset.value.description
-        self.contractName = asset.contractName
-        self.decimals = asset.decimals
-        self.symbol = asset.symbol
+        self.backgroundColor = asset.backgroundColor
+        self.imageUrl = asset.imageUrl
+        self.previewUrl = asset.previewUrl
+        self.thumbnailUrl = asset.thumbnailUrl
+        self.imageOriginalUrl = asset.imageOriginalUrl
+        self.animationUrl = asset.animationUrl
         self.name = asset.name
         self.assetDescription = asset.description
-        self.thumbnailUrl = asset.thumbnailUrl
-        self.imageUrl = asset.imageUrl
-        self.contractImageUrl = asset.contractImageUrl
         self.externalLink = asset.externalLink
-        self.backgroundColor = asset.backgroundColor
+
+        self.collectionId = asset.collection.id
+
+//        self.tokenType = asset.tokenType.rawValue
+//        self.value = asset.value.description
+//        self.contractName = asset.contractName
+//        self.decimals = asset.decimals
+//        self.symbol = asset.symbol
+
+
+
+
+//        self.contractImageUrl = asset.contractImageUrl
+
+
 //        self.traits = traits
 //        self.collectionCreatedDate = collectionCreatedDate
 //        self.collectionDescription = collectionDescription
@@ -272,8 +451,50 @@ class OpenSeaNftAssetObject: Object {
 
 //        traits.removeAll()
 //        traits.append(objectsIn: asset.traits.map { OpenSeaAssetTrait(trait: $0, primaryKey: primaryKey) })
-        self.collectionId = asset.collectionId
-        self.previewUrl = asset.previewUrl
+
+
+    }
+}
+
+//public struct AssetCreator: Codable {
+//    public let contractAddress: AlphaWallet.Address
+//    public let config: String
+//    public let profileImageUrl: URL?
+//    public let user: String?
+//
+//    init?(json: JSON) {
+//        guard let address = AlphaWallet.Address(string: json["address"].stringValue) else { return nil }
+//
+//        self.contractAddress = address
+//        self.config = json["config"].stringValue
+//        self.profileImageUrl = json["profile_img_url"].string.flatMap { URL(string: $0.trimmed) }
+//        self.user = json["user"]["username"].string
+//    }
+//}
+
+extension NftCollectionStats {
+    init(object: OpenSeaNftCollectionStatsObject) {
+        oneDayVolume = object.oneDayVolume
+        oneDayChange = object.oneDayChange
+        oneDaySales = object.oneDaySales
+        oneDayAveragePrice = object.oneDayAveragePrice
+        sevenDayVolume = object.sevenDayVolume
+        sevenDayChange = object.sevenDayChange
+        sevenDaySales = object.sevenDaySales
+        sevenDayAveragePrice = object.sevenDayAveragePrice
+        thirtyDayVolume = object.thirtyDayVolume
+        thirtyDayChange = object.thirtyDayChange
+        thirtyDaySales = object.thirtyDaySales
+        thirtyDayAveragePrice = object.thirtyDayAveragePrice
+        itemsCount = object.itemsCount
+        totalVolume = object.totalVolume
+        totalSales = object.totalSales
+        totalSupply = object.totalSupply
+        owners = object.owners
+        averagePrice = object.averagePrice
+        marketCap = object.marketCap
+        floorPrice = object.floorPrice.value
+        numReports = object.numReports
     }
 }
 
@@ -364,7 +585,6 @@ class OpenSeaNftCollectionObject: Object {
     var contracts = List<PrimaryAssetContractObject>()
     @objc dynamic var bannerUrl: String?
 
-
 //    public let id: String
 //    public let ownedAssetCount: Int
 //    public let wikiUrl: String?
@@ -406,7 +626,6 @@ class OpenSeaNftCollectionObject: Object {
 //    @objc dynamic var createdAt: String = ""
 //    @objc dynamic var transferFee: String = ""
 
-
     convenience init(collection: NftCollection, server: RPCServer) {
         self.init()
         primaryKey = "\(id)-\(server.chainID)"
@@ -432,26 +651,6 @@ class OpenSeaNftCollectionObject: Object {
 //        contracts.removeAll()
 //        contracts.append(objectsIn: collection.contracts.map { PrimaryAssetContractObject(primaryAssetContract: $0, server: server) })
         bannerUrl = collection.bannerUrl
-
-
-//        primaryKey = EnjinTokenObject.generatePrimaryKey(fromContract: owner, server: server, tokenId: token.tokenId)
-//        tokenId = token.tokenId.description
-//        name = token.name
-//        creator = token.creator
-//        meltValue = token.meltValue
-//        meltFeeRatio = token.meltFeeRatio
-//        meltFeeMaxRatio = token.meltFeeMaxRatio
-//        supplyModel = token.supplyModel
-//        totalSupply = token.totalSupply
-//        circulatingSupply = token.circulatingSupply
-//        reserve = token.reserve
-//        transferable = token.transferable
-//        nonFungible = token.nonFungible
-//        blockHeight = token.blockHeight
-//        mintableSupply = token.mintableSupply
-//        value = token.value
-//        createdAt = token.createdAt
-//        transferFee = token.transferFee
     }
 
     override static func primaryKey() -> String? {

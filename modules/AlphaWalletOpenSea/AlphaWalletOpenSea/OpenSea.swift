@@ -160,8 +160,8 @@ public final class BaseOpenSeaNetworkingFactory: OpenSeaNetworkingFactory {
     }
 }
 
-public struct NftCollectionsAssetsResponse {
-    //public let collections: [AlphaWalletOpenSea.NftCollection]
+public struct NftCollectionAssetsResponse {
+    public let collection: AlphaWalletOpenSea.NftCollection
     public let assets: [AlphaWalletOpenSea.NftAssetResponse]
 }
 
@@ -183,7 +183,7 @@ public class OpenSea {
 
     public func fetchAssetsCollections(owner: AlphaWallet.Address,
                                        chainId: ChainId,
-                                       excludeContracts: [(AlphaWallet.Address, ChainId)]) -> AnyPublisher<FetchResponse<NftCollectionsAssetsResponse>, Never> {
+                                       excludeContracts: [(AlphaWallet.Address, ChainId)]) -> AnyPublisher<FetchResponse<[NftCollectionAssetsResponse]>, Never> {
 
         //NOTE: some of OpenSea collections have an empty `primary_asset_contracts` array, so we are not able to identify each asset connection relates. it solves with `slug` field for collection. We match assets `slug` with collections `slug` values for identification
 //        func findCollection(address: AlphaWallet.Address, asset: NftAsset, collections: [NftCollectionIdentifier: AlphaWalletOpenSea.NftCollection]) -> AlphaWalletOpenSea.NftCollection? {
@@ -197,42 +197,33 @@ public class OpenSea {
         let collections = fetchCollections(owner: owner, chainId: chainId)
 
         return Publishers.CombineLatest(assets, collections)
-            .map { assets, collections -> FetchResponse<NftCollectionsAssetsResponse> in
+            .map { assets, collections -> FetchResponse<[NftCollectionAssetsResponse]> in
 
-//                var result: [NftCollectionIdentifier: NftCollectionsAssetsResponse] = [:]
+                var result: [NftCollectionIdentifier: NftCollectionAssetsResponse] = [:]
 
-//                for asset in assets.result {
-//                    if let collection = result[.collectionId(asset.collection.id)] {
-//                        result[.collectionId(asset.collection.id)] = NftCollectionAssetsResponse(
-//                            collection: collection.collection,
-//                            assets: collection.assets + [asset])
-//                    } else if let collection = result[.address(asset.assetContract.address)] {
-//                        result[.address(asset.assetContract.address)] = NftCollectionAssetsResponse(
-//                            collection: collection.collection,
-//                            assets: collection.assets + [asset])
-//                    } else {
-//                        if var collection = collections.result.first(where: { $0.id == asset.collection.id || $0.contracts.contains(where: { $0.address == asset.assetContract.address }) }) {
-//                            collection.contracts = asset.collection.contracts
-//
-//                            result[.collectionId(collection.id)] = NftCollectionAssetsResponse(
-//                                collection: collection,
-//                                assets: [asset])
-//                        } else {
-//                            result[.collectionId(asset.collection.id)] = NftCollectionAssetsResponse(
-//                                collection: asset.collection,
-//                                assets: [asset])
-//                        }
-//                    }
-//                }
+                for asset in assets.result {
+                    if let collection = result[.collectionId(asset.collection.id)] {
+                        result[.collectionId(asset.collection.id)] = NftCollectionAssetsResponse(
+                            collection: collection.collection,
+                            assets: collection.assets + [asset])
+                    } else if let collection = result[.address(asset.assetContract.address)] {
+                        result[.address(asset.assetContract.address)] = NftCollectionAssetsResponse(
+                            collection: collection.collection,
+                            assets: collection.assets + [asset])
+                    } else {
+                        var collection = asset.collection
+                        if let foundCollection = collections.result.first(where: { $0.id == collection.id }) {
+                            collection.stats = foundCollection.stats
+                        }
 
-//                let results = result.map { $0.value }
-//                    var current: NftCollectionAssetsResponse
-//                    result.fi
-//                    if let collection = collections.result.first(where: { $0.id == asset.collection.id }) {
-//                        current = NftCollectionAssetsResponse(collection: collection, assets: [asset])
-//                    } else {
-//                        current = NftCollectionAssetsResponse(collection: asset.collection, assets: [asset])
-//                    }
+                        result[.collectionId(collection.id)] = NftCollectionAssetsResponse(
+                            collection: collection,
+                            assets: [asset])
+                    }
+                }
+
+                let results = result.map { $0.value }
+
 //                var result: [AlphaWallet.Address: [NftAsset]] = [:]
 //                for asset in assets.result {
 //                    let updatedElements = asset.value.map { _asset -> NftAsset in
@@ -246,9 +237,9 @@ public class OpenSea {
 //                    result[asset.key] = updatedElements
 //                }
 
-                let result = NftCollectionsAssetsResponse(/*collections: collections.result, */assets: assets.result)
+//                let result = NftCollectionAssetsResponse(/*collections: collections.result, */assets: assets.result)
 
-                return .init(result: result, error: assets.error ?? collections.error)
+                return .init(result: results, error: assets.error/* ?? collections.error*/)
             }.print("xxx.fetchAssetsPublisher: \(owner) chainId: \(chainId)").eraseToAnyPublisher()
     }
 
@@ -285,6 +276,26 @@ public class OpenSea {
 //                    return .fail(PromiseError(error: OpenSeaApiError.invalidJson))
 //                }
                 fatalError()
+            }.eraseToAnyPublisher()
+    }
+
+    public func collection(collectionId: String,
+                           chainId: ChainId) -> AnyPublisher<NftCollection, PromiseError> {
+
+        let request = CollectionRequest(
+            baseUrl: Self.getBaseUrlForOpenSea(forChainId: chainId),
+            apiKey: openSeaKey(forChainId: chainId) ?? "",
+            collectionId: collectionId)
+
+        return send(request: request, chainId: chainId)
+            .mapError { PromiseError(error: $0) }
+            .flatMap { json -> AnyPublisher<NftCollection, PromiseError> in
+                if json["collection"] != .null {
+                    let contracts = json["primary_asset_contracts"].arrayValue.compactMap { PrimaryAssetContract(json: $0) }
+                    return .just(NftCollection(json: json["collection"], contracts: contracts))
+                } else {
+                    return .fail(PromiseError(error: OpenSeaApiError.invalidJson))
+                }
             }.eraseToAnyPublisher()
     }
 
@@ -515,6 +526,22 @@ extension OpenSea {
         func asURLRequest() throws -> URLRequest {
             guard var components = URLComponents(url: baseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
             components.path = "/api/v1/collection/\(collectionId)/stats"
+
+            var request = try URLRequest(url: components.asURL(), method: .get)
+            request.allHTTPHeaderFields = ["X-API-KEY": apiKey]
+
+            return request
+        }
+    }
+
+    private struct CollectionRequest: Alamofire.URLRequestConvertible {
+        let baseUrl: URL
+        let apiKey: String
+        let collectionId: String
+
+        func asURLRequest() throws -> URLRequest {
+            guard var components = URLComponents(url: baseUrl, resolvingAgainstBaseURL: false) else { throw URLError(.badURL) }
+            components.path = "/api/v1/collection/\(collectionId)"
 
             var request = try URLRequest(url: components.asURL(), method: .get)
             request.allHTTPHeaderFields = ["X-API-KEY": apiKey]

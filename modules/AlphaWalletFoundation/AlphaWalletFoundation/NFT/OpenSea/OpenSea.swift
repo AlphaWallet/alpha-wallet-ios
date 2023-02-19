@@ -50,7 +50,7 @@ public final class OpenSea {
         }
 
         return openSea.fetchAssetsCollections(owner: wallet.address, chainId: server.chainID, excludeContracts: excludeContracts)
-            .map { [storage] response -> OpenSeaAddressesToNonFungibles in
+            .map { [storage, server] response -> OpenSeaAddressesToNonFungibles in
 //                if result.hasError {
 //                    let merged = (storage?.value[key] ?? [:])
 //                        .merging(result.result) { Array(Set($0 + $1)) }
@@ -66,18 +66,16 @@ public final class OpenSea {
 
 //                return storage?.value[key] ?? result.result
 
+                let assets = response.result
                 if response.error != nil {
-//                    if response.result.isEmpty {
-//                        storage?.removeAll()
-//                    } else {
-//                        storage?.addOrUpdate(collections: response.result)
-//                    }
+                    if assets.isEmpty {
+                        //no-op
+                    } else {
+                        storage.addOrUpdate(assets: assets, server: server)
+                    }
                 } else {
-                    let assets = response.result.assets
-                    let collections = response.result.assets.map { $0.collection }
-                    let ids = collections.map { $0.id }
-                    let collectionsToDelete = storage.nftCollections(excluding: ids)
-//                    storage.removeAll()
+                    storage.deleteAllExcluding(assets: assets, server: server)
+                    storage.addOrUpdate(assets: assets, server: server)
                 }
                 return [:]
             }.eraseToAnyPublisher()
@@ -91,7 +89,9 @@ public final class OpenSea {
     }
 
     public func collection(collectionId: String) -> AnyPublisher<NftCollection, PromiseError> {
-        fatalError()
+        guard !config.development.isOpenSeaFetchingDisabled else { return .empty() }
+
+        return openSea.collection(collectionId: collectionId, chainId: server.chainID)
     }
 
     public func collectionStats(collectionId: String) -> AnyPublisher<Stats, PromiseError> {

@@ -179,3 +179,20 @@ public struct NftAssetResponse {
         creator = AssetCreator(json: json["creator"])
     }
 }
+
+public struct NftAsset2_0 {
+    public let tokenId: String
+    public let backgroundColor: String?
+    public let imageUrl: String
+    public let previewUrl: String
+    public let thumbnailUrl: String?
+    public let imageOriginalUrl: String?
+    public let animationUrl: String?
+    public let name: String
+    public let description: String?
+    public let externalLink: String?
+    public let assetContract: PrimaryAssetContract
+//    public let collection: NftCollection
+    public let traits: [OpenSeaNonFungibleTrait]
+    public let creator: AssetCreator?
+}
