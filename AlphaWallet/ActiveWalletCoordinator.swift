@@ -390,13 +390,10 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
     private func createBrowserCoordinator(browserOnly: Bool) -> DappBrowserCoordinator {
         let coordinator = DappBrowserCoordinator(
             sessionsProvider: sessionsProvider,
-            keystore: keystore,
             config: config,
             browserOnly: browserOnly,
             analytics: analytics,
             domainResolutionService: domainResolutionService,
-            assetDefinitionStore: assetDefinitionStore,
-            tokensService: tokenCollection,
             bookmarksStore: BookmarksStore(),
             browserHistoryStorage: BrowserHistoryStorage(ignoreUrls: [Constants.dappsBrowserURL]),
             wallet: wallet,
@@ -1168,6 +1165,137 @@ extension ActiveWalletCoordinator: PaymentCoordinatorDelegate {
 }
 
 extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
+
+    func requestSingTransaction(session: WalletSession,
+                                source: Analytics.TransactionConfirmationSource,
+                                requester: RequesterViewModel?,
+                                transaction: UnconfirmedTransaction,
+                                configuration: TransactionType.Configuration) -> AnyPublisher<Data, PromiseError> {
+
+        infoLog("[\(source)] singTransaction: \(transaction) type: \(configuration.confirmType)")
+
+        return firstly {
+            TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, source: source, delegate: self, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokenCollection, networkService: networkService)
+        }.map { data -> Data in
+            switch data {
+            case .signedTransaction(let data):
+                return data
+            case .sentRawTransaction, .sentTransaction:
+                throw PMKError.cancelled
+            }
+        }.publisher(queue: .main)
+    }
+
+    func requestSendRawTransaction(session: WalletSession,
+                                   source: Analytics.TransactionConfirmationSource,
+                                   requester: DappRequesterViewModel?,
+                                   transaction: String) -> AnyPublisher<String, PromiseError> {
+
+        infoLog("[\(source)] signRawTransaction: \(transaction)")
+        return firstly {
+            showAskSendRawTransaction(title: R.string.localizable.walletConnectSendRawTransactionTitle(), message: transaction)
+        }.then { shouldSend -> Promise<ConfirmResult> in
+            guard shouldSend else { return .init(error: DAppError.cancelled) }
+            let prompt = R.string.localizable.keystoreAccessKeySign()
+            let sender = SendTransaction(session: session, keystore: self.keystore, confirmType: .signThenSend, config: session.config, analytics: self.analytics, prompt: prompt)
+            return sender.send(rawTransaction: transaction)
+        }.map { data in
+            switch data {
+            case .signedTransaction, .sentTransaction:
+                throw DAppError.cancelled
+            case .sentRawTransaction(let transactionId, _):
+                return transactionId
+            }
+        }.then { callback -> Promise<String> in
+            return UINotificationFeedbackGenerator.showFeedbackPromise(value: callback, feedbackType: .success)
+        }.get { _ in
+            TransactionInProgressCoordinator.promise(self.navigationController, coordinator: self).done { _ in }.cauterize()
+        }.publisher(queue: .main)
+    }
+
+    private func showAskSendRawTransaction(title: String, message: String) -> Promise<Bool> {
+        return Promise { seal in
+            let style: UIAlertController.Style = UIDevice.current.userInterfaceIdiom == .pad ? .alert : .actionSheet
+
+            let alertViewController = UIAlertController(title: title, message: message, preferredStyle: style)
+            let startAction = UIAlertAction(title: R.string.localizable.oK(), style: .default) { _ in
+                seal.fulfill(true)
+            }
+
+            let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in
+                seal.fulfill(false)
+            }
+
+            alertViewController.addAction(startAction)
+            alertViewController.addAction(cancelAction)
+
+            navigationController.present(alertViewController, animated: true)
+        }
+    }
+
+    func requestSendTransaction(session: WalletSession,
+                                source: Analytics.TransactionConfirmationSource,
+                                requester: RequesterViewModel?,
+                                transaction: UnconfirmedTransaction,
+                                configuration: TransactionType.Configuration) -> AnyPublisher<SentTransaction, PromiseError> {
+
+        infoLog("[\(source)] sendTransaction: \(transaction) type: \(configuration.confirmType)")
+
+        return firstly {
+            TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, transaction: transaction, configuration: configuration, analytics: analytics, domainResolutionService: domainResolutionService, source: .walletConnect, delegate: self, keystore: keystore, assetDefinitionStore: assetDefinitionStore, tokensService: tokenCollection, networkService: networkService)
+        }.map { data -> SentTransaction in
+            switch data {
+            case .sentTransaction(let transaction):
+                return transaction
+            case .signedTransaction, .sentRawTransaction:
+                throw PMKError.cancelled
+            }
+        }.get { _ in
+            TransactionInProgressCoordinator.promise(self.navigationController, coordinator: self).done { _ in }.cauterize()
+        }.publisher(queue: .main)
+    }
+
+    func requestSignMessage(message: SignMessageType,
+                            session: WalletSession,
+                            source: Analytics.SignMessageRequestSource,
+                            requester: RequesterViewModel?) -> AnyPublisher<Data, PromiseError> {
+
+        infoLog("[\(source)] signMessage: \(message)")
+        return firstly {
+            SignMessageCoordinator.promise(analytics: analytics, navigationController: navigationController, keystore: keystore, coordinator: self, signType: message, account: session.account.address, source: source, requester: requester)
+        }.publisher(queue: .main)
+    }
+
+    func requestGetTransactionCount(session: WalletSession, source: Analytics.SignMessageRequestSource) -> AnyPublisher<Data, PromiseError> {
+        infoLog("[\(source)] getTransactionCount")
+        return session.blockchainProvider
+            .nextNonce(wallet: session.account.address)
+            .mapError { PromiseError(error: $0) }
+            .flatMap { nonce -> AnyPublisher<Data, PromiseError> in
+                if let data = Data(fromHexEncodedString: String(format: "%02X", nonce)) {
+                    return .just(data)
+                } else {
+                    return .fail(PromiseError(error: PMKError.badInput))
+                }
+            }.receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
+    }
+
+    func requestEthCall(from: AlphaWallet.Address?,
+                        to: AlphaWallet.Address?,
+                        value: String?,
+                        data: String,
+                        source: Analytics.SignMessageRequestSource,
+                        session: WalletSession) -> AnyPublisher<String, PromiseError> {
+
+        infoLog("[\(source)] ethCall")
+        return session.blockchainProvider
+            .call(from: from, to: to, value: value, data: data)
+            .receive(on: RunLoop.main)
+            .mapError { PromiseError(error: $0.unwrapped) }
+            .eraseToAnyPublisher()
+    }
+
     func didSentTransaction(transaction: SentTransaction, inCoordinator coordinator: DappBrowserCoordinator) {
         handlePendingTransaction(transaction: transaction)
     }

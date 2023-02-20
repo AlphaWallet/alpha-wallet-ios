@@ -11,40 +11,10 @@ import CombineExt
 import AlphaWalletFoundation
 import AlphaWalletLogger
 import AlphaWalletCore
-import PromiseKit
 
-protocol WalletConnectProviderDelegate: AnyObject {
+protocol WalletConnectProviderDelegate: AnyObject, DappRequesterDelegate {
     func provider(_ provider: WalletConnectProvider, didConnect session: AlphaWallet.WalletConnect.Session)
     func provider(_ provider: WalletConnectProvider, shouldConnectFor proposal: AlphaWallet.WalletConnect.Proposal, completion: @escaping (AlphaWallet.WalletConnect.ProposalResponse) -> Void)
-
-    func requestGetTransactionCount(session: WalletSession) -> AnyPublisher<AlphaWallet.WalletConnect.Response, PromiseError>
-
-    func requestSignMessage(message: SignMessageType,
-                            account: AlphaWallet.Address,
-                            requester: RequesterViewModel) -> AnyPublisher<AlphaWallet.WalletConnect.Response, PromiseError>
-
-    func requestSendRawTransaction(session: WalletSession,
-                                   requester: DappRequesterViewModel,
-                                   transaction: String,
-                                   configuration: TransactionType.Configuration) -> AnyPublisher<AlphaWallet.WalletConnect.Response, PromiseError>
-
-    func requestSendTransaction(session: WalletSession,
-                                requester: DappRequesterViewModel,
-                                transaction: UnconfirmedTransaction,
-                                configuration: TransactionType.Configuration) -> AnyPublisher<AlphaWallet.WalletConnect.Response, PromiseError>
-
-    func requestSingTransaction(session: WalletSession,
-                                requester: DappRequesterViewModel,
-                                transaction: UnconfirmedTransaction,
-                                configuration: TransactionType.Configuration) -> AnyPublisher<AlphaWallet.WalletConnect.Response, PromiseError>
-
-    func requestAddCustomChain(server: RPCServer,
-                               customChain: WalletAddEthereumChainObject) -> AnyPublisher<SwitchCustomChainOperation, PromiseError>
-
-    func requestSwitchChain(server: RPCServer,
-                            currentUrl: URL?,
-                            targetChain: WalletSwitchEthereumChainObject) -> AnyPublisher<SwitchExistingChainOperation, PromiseError>
-
     func provider(_ provider: WalletConnectProvider, didFail error: WalletConnectError)
     func provider(_ provider: WalletConnectProvider, tookTooLongToConnectToUrl url: AlphaWallet.WalletConnect.ConnectionUrl)
 }
@@ -299,59 +269,75 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
         case .signTransaction(let transaction):
             return dappRequestProvider.requestSingTransaction(
                 session: walletSession,
+                source: .walletConnect,
                 requester: requester,
                 transaction: transaction,
                 configuration: .walletConnect(confirmType: .sign, requester: requester))
             .mapError { WalletConnectError(error: $0) }
+            .map { .value($0) }
             .eraseToAnyPublisher()
         case .sendTransaction(let transaction):
             return dappRequestProvider.requestSendTransaction(
                 session: walletSession,
+                source: .walletConnect,
                 requester: requester,
                 transaction: transaction,
                 configuration: .walletConnect(confirmType: .signThenSend, requester: requester))
             .mapError { WalletConnectError(error: $0) }
+            .map { .value(Data(_hex: $0.id)) }
             .eraseToAnyPublisher()
         case .signMessage(let hexMessage):
             return dappRequestProvider.requestSignMessage(
                 message: .message(hexMessage.asSignableMessageData),
-                account: walletSession.account.address,
+                session: walletSession,
+                source: .walletConnect,
                 requester: requester)
             .mapError { WalletConnectError(error: $0) }
+            .map { .value($0) }
             .eraseToAnyPublisher()
         case .signPersonalMessage(let hexMessage):
             return dappRequestProvider.requestSignMessage(
                 message: .personalMessage(hexMessage.asSignableMessageData),
-                account: walletSession.account.address,
+                session: walletSession,
+                source: .walletConnect,
                 requester: requester)
             .mapError { WalletConnectError(error: $0) }
+            .map { .value($0) }
             .eraseToAnyPublisher()
         case .signEip712v3And4(let typedData):
             return dappRequestProvider.requestSignMessage(
                 message: .eip712v3And4(typedData),
-                account: walletSession.account.address,
+                session: walletSession,
+                source: .walletConnect,
                 requester: requester)
             .mapError { WalletConnectError(error: $0) }
+            .map { .value($0) }
             .eraseToAnyPublisher()
         case .typedMessage(let typedData):
             return dappRequestProvider.requestSignMessage(
                 message: .typedMessage(typedData),
-                account: walletSession.account.address,
+                session: walletSession,
+                source: .walletConnect,
                 requester: requester)
             .mapError { WalletConnectError(error: $0) }
+            .map { .value($0) }
             .eraseToAnyPublisher()
         case .sendRawTransaction(let transaction):
             return dappRequestProvider.requestSendRawTransaction(
                 session: walletSession,
+                source: .walletConnect,
                 requester: requester,
-                transaction: transaction,
-                configuration: .approve)
+                transaction: transaction)
             .mapError { WalletConnectError(error: $0) }
+            .map { .value(Data(_hex: $0)) }
             .eraseToAnyPublisher()
         case .getTransactionCount:
-            return dappRequestProvider.requestGetTransactionCount(session: walletSession)
-                .mapError { WalletConnectError(error: $0) }
-                .eraseToAnyPublisher()
+            return dappRequestProvider.requestGetTransactionCount(
+                session: walletSession,
+                source: .walletConnect)
+            .mapError { WalletConnectError(error: $0) }
+            .map { .value($0) }
+            .eraseToAnyPublisher()
         case .walletAddEthereumChain(let object):
             return addCustomChain(object: object, request: request, walletConnectSession: session)
         case .walletSwitchEthereumChain(let object):
