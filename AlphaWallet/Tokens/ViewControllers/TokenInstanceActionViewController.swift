@@ -185,7 +185,7 @@ extension TokenInstanceActionViewController: TokenInstanceWebViewDelegate {
                             server: RPCServer,
                             account: AlphaWallet.Address,
                             source: Analytics.SignMessageRequestSource,
-                            requester: RequesterViewModel?) -> AnyPublisher<DappCallbackValue, PromiseError> {
+                            requester: RequesterViewModel?) -> AnyPublisher<Data, PromiseError> {
 
         guard let delegate = delegate else { return .empty() }
 

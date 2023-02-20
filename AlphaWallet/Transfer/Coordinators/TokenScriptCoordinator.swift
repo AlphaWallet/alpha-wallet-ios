@@ -124,7 +124,7 @@ extension TokenScriptCoordinator: TokenInstanceActionViewControllerDelegate {
                             server: RPCServer,
                             account: AlphaWallet.Address,
                             source: Analytics.SignMessageRequestSource,
-                            requester: RequesterViewModel?) -> AnyPublisher<DappCallbackValue, PromiseError> {
+                            requester: RequesterViewModel?) -> AnyPublisher<Data, PromiseError> {
 
         return SignMessageCoordinator.promise(
             analytics: analytics,
@@ -136,18 +136,6 @@ extension TokenScriptCoordinator: TokenInstanceActionViewControllerDelegate {
             source: source,
             requester: requester)
             .publisher(queue: .main)
-            .map { data -> DappCallbackValue in
-                switch message {
-                case .message:
-                    return .signMessage(data)
-                case .personalMessage:
-                    return .signPersonalMessage(data)
-                case .typedMessage:
-                    return .signTypedMessage(data)
-                case .eip712v3And4:
-                    return .signEip712v3And4(data)
-                }
-            }.eraseToAnyPublisher()
     }
 
     func didClose(in viewController: TokenInstanceActionViewController) {

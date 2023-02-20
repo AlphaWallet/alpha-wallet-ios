@@ -255,7 +255,7 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
             .mapError { WalletConnectError(error: $0) }
             .eraseToAnyPublisher()
     }
-
+    // swiftlint:disable function_body_length
     private func buildOperation(for action: AlphaWallet.WalletConnect.Action,
                                 walletSession: WalletSession,
                                 dep: AppCoordinator.WalletDependencies,
@@ -289,7 +289,8 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
         case .signMessage(let hexMessage):
             return dappRequestProvider.requestSignMessage(
                 message: .message(hexMessage.asSignableMessageData),
-                session: walletSession,
+                server: walletSession.server,
+                account: walletSession.account.address,
                 source: .walletConnect,
                 requester: requester)
             .mapError { WalletConnectError(error: $0) }
@@ -298,7 +299,8 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
         case .signPersonalMessage(let hexMessage):
             return dappRequestProvider.requestSignMessage(
                 message: .personalMessage(hexMessage.asSignableMessageData),
-                session: walletSession,
+                server: walletSession.server,
+                account: walletSession.account.address,
                 source: .walletConnect,
                 requester: requester)
             .mapError { WalletConnectError(error: $0) }
@@ -307,7 +309,8 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
         case .signEip712v3And4(let typedData):
             return dappRequestProvider.requestSignMessage(
                 message: .eip712v3And4(typedData),
-                session: walletSession,
+                server: walletSession.server,
+                account: walletSession.account.address,
                 source: .walletConnect,
                 requester: requester)
             .mapError { WalletConnectError(error: $0) }
@@ -316,7 +319,8 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
         case .typedMessage(let typedData):
             return dappRequestProvider.requestSignMessage(
                 message: .typedMessage(typedData),
-                session: walletSession,
+                server: walletSession.server,
+                account: walletSession.account.address,
                 source: .walletConnect,
                 requester: requester)
             .mapError { WalletConnectError(error: $0) }
@@ -344,6 +348,7 @@ extension WalletConnectProvider: WalletConnectServerDelegate {
             return switchChain(object: object, request: request, walletConnectSession: session, dep: dep)
         }
     }
+    // swiftlint:enable function_body_length
 }
 
 class JumpBackToPreviousApp {

@@ -776,7 +776,9 @@ extension ActiveWalletCoordinator: ActivityViewControllerDelegate {
                             server: RPCServer,
                             account: AlphaWallet.Address,
                             source: Analytics.SignMessageRequestSource,
-                            requester: RequesterViewModel?) -> AnyPublisher<DappCallbackValue, PromiseError> {
+                            requester: RequesterViewModel?) -> AnyPublisher<Data, PromiseError> {
+
+        infoLog("[\(source)] signMessage: \(message)")
 
         return SignMessageCoordinator.promise(
             analytics: analytics,
@@ -788,18 +790,6 @@ extension ActiveWalletCoordinator: ActivityViewControllerDelegate {
             source: source,
             requester: requester)
             .publisher(queue: .main)
-            .map { data -> DappCallbackValue in
-                switch message {
-                case .message:
-                    return .signMessage(data)
-                case .personalMessage:
-                    return .signPersonalMessage(data)
-                case .typedMessage:
-                    return .signTypedMessage(data)
-                case .eip712v3And4:
-                    return .signEip712v3And4(data)
-                }
-            }.eraseToAnyPublisher()
     }
 
     func reinject(viewController: ActivityViewController) {
@@ -1252,17 +1242,6 @@ extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
             }
         }.get { _ in
             TransactionInProgressCoordinator.promise(self.navigationController, coordinator: self).done { _ in }.cauterize()
-        }.publisher(queue: .main)
-    }
-
-    func requestSignMessage(message: SignMessageType,
-                            session: WalletSession,
-                            source: Analytics.SignMessageRequestSource,
-                            requester: RequesterViewModel?) -> AnyPublisher<Data, PromiseError> {
-
-        infoLog("[\(source)] signMessage: \(message)")
-        return firstly {
-            SignMessageCoordinator.promise(analytics: analytics, navigationController: navigationController, keystore: keystore, coordinator: self, signType: message, account: session.account.address, source: source, requester: requester)
         }.publisher(queue: .main)
     }
 
