@@ -32,7 +32,7 @@ enum ButtonStyle {
         switch self {
         case .solid, .squared: return Configuration.Color.Semantic.appTint
         case .border, .borderless: return Configuration.Color.Semantic.defaultViewBackground
-        case .system: return .clear
+        case .system: return Configuration.Color.Semantic.buttonBackgroundSystem
         case .special: return Configuration.Color.Semantic.specialButton
         case .green: return ButtonsBarViewModel.primaryButton.buttonBackgroundColor
         }
@@ -43,7 +43,7 @@ enum ButtonStyle {
         case .solid, .squared: return Configuration.Color.Semantic.appTint
         case .border: return Configuration.Color.Semantic.appTint
         case .borderless: return Configuration.Color.Semantic.defaultViewBackground
-        case .system: return .clear
+        case .system: return Configuration.Color.Semantic.buttonBackgroundHighlighted
         case .special: return Configuration.Color.Semantic.specialButton
         case .green: return ButtonsBarViewModel.primaryButton.buttonBackgroundColor
         }
@@ -89,7 +89,7 @@ enum ButtonStyle {
     var borderColor: UIColor {
         switch self {
         case .solid, .squared, .border: return Configuration.Color.Semantic.defaultButtonBorder
-        case .borderless, .system, .special: return .clear
+        case .borderless, .system, .special: return Configuration.Color.Semantic.buttonBorderlessBorder
         case .green: return ButtonsBarViewModel.primaryButton.buttonBorderColor
         }
     }

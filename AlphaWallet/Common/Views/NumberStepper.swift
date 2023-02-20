@@ -35,7 +35,7 @@ class NumberStepper: UIControl {
     }
 
     @IBInspectable
-    public var buttonsBackgroundColor: UIColor = .clear {
+    public var buttonsBackgroundColor: UIColor = Configuration.Color.Semantic.numberStepperButtonsBackground {
         didSet {
             for button in [leftButton, rightButton] {
                 button.setBackgroundColor(buttonsBackgroundColor, forState: .normal)
@@ -60,7 +60,7 @@ class NumberStepper: UIControl {
     }
 
     @IBInspectable
-    public var labelBackgroundColor: UIColor = .clear {
+    public var labelBackgroundColor: UIColor = Configuration.Color.Semantic.numberStepperLabelBackground {
         didSet {
             label.backgroundColor = labelBackgroundColor
         }

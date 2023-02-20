@@ -15,7 +15,7 @@ class ContainerTableViewCell: UITableViewCell {
     private (set) lazy var viewContainerView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .clear
+        view.backgroundColor = Configuration.Color.Semantic.containerTableViewCellBackground
         return view
     }()
 

@@ -10,7 +10,7 @@ struct PromptBackupWalletAfterReceivingNativeCryptoCurrencyViewViewModel: Prompt
     let nativeCryptoCurrency: BigInt
 
     var backgroundColor: UIColor {
-        return .init(red: 97, green: 103, blue: 123)
+        return Configuration.Color.Semantic.promptBackupWalletAfterReceivingNativeCryptoCurrencyViewBackground
     }
 
     var title: String {
@@ -24,6 +24,6 @@ struct PromptBackupWalletAfterReceivingNativeCryptoCurrencyViewViewModel: Prompt
     }
 
     var backupButtonBackgroundColor: UIColor {
-        return UIColor(red: 65, green: 71, blue: 89)
+        return Configuration.Color.Semantic.promptBackupWalletAfterReceivingNativeCryptoCurrencyViewBackupButtonBackground
     }
 }

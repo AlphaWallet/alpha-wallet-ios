@@ -80,34 +80,34 @@ extension RPCServer {
 
     var blockChainNameColor: UIColor {
         switch self {
-        case .main: return .init(red: 41, green: 134, blue: 175)
-        case .classic: return .init(red: 55, green: 137, blue: 55)
-        case .callisto: return .init(red: 88, green: 56, blue: 163)
-        case .poa: return .init(red: 88, green: 56, blue: 163)
-        case .goerli: return .init(red: 187, green: 174, blue: 154)
-        case .xDai: return .init(red: 253, green: 176, blue: 61)
-        case .artis_sigma1: return .init(red: 83, green: 162, blue: 113)
-        case .artis_tau1: return .init(red: 255, green: 117, blue: 153)
-        case .binance_smart_chain, .binance_smart_chain_testnet: return .init(red: 255, green: 211, blue: 0)
-        case .heco, .heco_testnet: return .init(hex: "1253FC")
-        case .fantom: return .red
-        case .fantom_testnet: return .red
-        case .avalanche: return .red
-        case .avalanche_testnet: return .red
-        case .polygon, .mumbai_testnet: return .init(red: 130, green: 71, blue: 229)
-        case .optimistic: return .red
-        case .cronosMainnet: return .init(hex: "#002D74")
-        case .cronosTestnet: return .red
-        case .arbitrum: return .red
-        case .palm: return .red
-        case .palmTestnet: return .red
-        case .klaytnCypress: return .init(hex: "FE3300")
-        case .klaytnBaobabTestnet: return .init(hex: "313557")
-        case .ioTeX: return .init(hex: "00D4D5")
-        case .ioTeXTestnet: return .init(hex: "00D4D5")
-        case .optimismGoerli: return .red
-        case .arbitrumGoerli: return .red
-        case .custom: return .red
+        case .main: return Configuration.Color.Semantic.blockChainMain
+        case .classic: return Configuration.Color.Semantic.blockChainClassic
+        case .callisto: return Configuration.Color.Semantic.blockChainCallisto
+        case .poa: return Configuration.Color.Semantic.blockChainPoa
+        case .goerli: return Configuration.Color.Semantic.blockChainGoerli
+        case .xDai: return Configuration.Color.Semantic.blockChainXDai
+        case .artis_sigma1: return Configuration.Color.Semantic.blockChainArtisSigma1
+        case .artis_tau1: return Configuration.Color.Semantic.blockChainArtisTau1
+        case .binance_smart_chain, .binance_smart_chain_testnet: return Configuration.Color.Semantic.blockChainBinanceSmartChain
+        case .heco, .heco_testnet: return Configuration.Color.Semantic.blockChainHeco
+        case .fantom: return Configuration.Color.Semantic.blockChainFantom
+        case .fantom_testnet: return Configuration.Color.Semantic.blockChainFantomTestnet
+        case .avalanche: return Configuration.Color.Semantic.blockChainAvalanche
+        case .avalanche_testnet: return Configuration.Color.Semantic.blockChainAvalancheTestnet
+        case .polygon, .mumbai_testnet: return Configuration.Color.Semantic.blockChainPolygon
+        case .optimistic: return Configuration.Color.Semantic.blockChainOptimistic
+        case .cronosMainnet: return Configuration.Color.Semantic.blockChainCronosMainnet
+        case .cronosTestnet: return Configuration.Color.Semantic.blockChainCronosTestnet
+        case .arbitrum: return Configuration.Color.Semantic.blockChainArbitrum
+        case .palm: return Configuration.Color.Semantic.blockChainPalm
+        case .palmTestnet: return Configuration.Color.Semantic.blockChainPalmTestnet
+        case .klaytnCypress: return Configuration.Color.Semantic.blockChainKlaytnCypress
+        case .klaytnBaobabTestnet: return Configuration.Color.Semantic.blockChainKlaytnBaobabTestnet
+        case .ioTeX: return Configuration.Color.Semantic.blockChainIoTeX
+        case .ioTeXTestnet: return Configuration.Color.Semantic.blockChainIoTeXTestnet
+        case .optimismGoerli: return Configuration.Color.Semantic.blockChainOptimismGoerli
+        case .arbitrumGoerli: return Configuration.Color.Semantic.blockChainArbitrumGoerli
+        case .custom: return Configuration.Color.Semantic.blockChainCustom
         }
     }
 

@@ -51,7 +51,7 @@ extension UINavigationBarAppearance {
         ]
         //NOTE: Hides back button text
         appearance.backButtonAppearance.normal.titleTextAttributes = [
-            .foregroundColor: UIColor.clear
+            .foregroundColor: Configuration.Color.Semantic.backButtonText
         ]
 
         return appearance
@@ -135,7 +135,7 @@ enum DataEntry {
                 static let shadowOffset = CGSize(width: 0, height: 0)
                 static let shadowOpacity = Float(0.15)
                 static let shadowRadius = CGFloat(6)
-                static let shadowColor = UIColor.black
+                static let shadowColor = Configuration.Color.Semantic.dappsIconShadow
             }
         }
 

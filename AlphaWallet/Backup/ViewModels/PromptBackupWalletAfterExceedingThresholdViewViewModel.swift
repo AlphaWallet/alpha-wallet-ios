@@ -17,7 +17,7 @@ struct PromptBackupWalletAfterExceedingThresholdViewViewModel: PromptBackupWalle
     }
 
     var backgroundColor: UIColor {
-        return .init(red: 183, green: 80, blue: 70)
+        return Configuration.Color.Semantic.promptBackupWalletAfterExceedingThresholdViewBackground
     }
 
     var title: String {
@@ -30,6 +30,6 @@ struct PromptBackupWalletAfterExceedingThresholdViewViewModel: PromptBackupWalle
     }
 
     var backupButtonBackgroundColor: UIColor {
-        return UIColor(red: 119, green: 56, blue: 50)
+        return Configuration.Color.Semantic.promptBackupWalletAfterExceedingThresholdViewBackupButtonBackground
     }
 }
