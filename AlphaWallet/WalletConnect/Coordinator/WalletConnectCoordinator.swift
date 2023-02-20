@@ -202,7 +202,8 @@ extension WalletConnectCoordinator: WalletConnectProviderDelegate {
     }
 
     func requestSignMessage(message: SignMessageType,
-                            session: WalletSession,
+                            server: RPCServer,
+                            account: AlphaWallet.Address,
                             source: Analytics.SignMessageRequestSource,
                             requester: RequesterViewModel?) -> AnyPublisher<Data, PromiseError> {
 
@@ -210,7 +211,8 @@ extension WalletConnectCoordinator: WalletConnectProviderDelegate {
         
         return delegate.requestSignMessage(
             message: message,
-            session: session,
+            server: server,
+            account: account,
             source: source,
             requester: requester)
     }

@@ -10,7 +10,7 @@ import AlphaWalletCore
 import AlphaWalletFoundation
 import Combine
 
-protocol DappRequesterDelegate: AnyObject {
+protocol DappRequesterDelegate: AnyObject, RequestSignMessageDelegate {
 
     func requestGetTransactionCount(session: WalletSession,
                                     source: Analytics.SignMessageRequestSource) -> AnyPublisher<Data, PromiseError>
@@ -21,11 +21,6 @@ protocol DappRequesterDelegate: AnyObject {
                         data: String,
                         source: Analytics.SignMessageRequestSource,
                         session: WalletSession) -> AnyPublisher<String, PromiseError>
-
-    func requestSignMessage(message: SignMessageType,
-                            session: WalletSession,
-                            source: Analytics.SignMessageRequestSource,
-                            requester: RequesterViewModel?) -> AnyPublisher<Data, PromiseError>
 
     func requestSendTransaction(session: WalletSession,
                                 source: Analytics.TransactionConfirmationSource,

@@ -14,7 +14,7 @@ protocol RequestSignMessageDelegate: AnyObject {
                             server: RPCServer,
                             account: AlphaWallet.Address,
                             source: Analytics.SignMessageRequestSource,
-                            requester: RequesterViewModel?) -> AnyPublisher<DappCallbackValue, PromiseError>
+                            requester: RequesterViewModel?) -> AnyPublisher<Data, PromiseError>
 }
 
 protocol TokenInstanceWebViewDelegate: RequestSignMessageDelegate {
@@ -358,7 +358,7 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
                 .sinkAsync(receiveCompletion: { _ in
                     self.notifyFinish(callbackID: command.id, value: .failure(DAppError.cancelled))
                 }, receiveValue: { value in
-                    let callback = DappCallback(id: command.id, value: value)
+                    let callback = DappCallback(id: command.id, value: .signPersonalMessage(value))
                     self.notifyFinish(callbackID: command.id, value: .success(callback))
                 })
             case .signTransaction, .sendTransaction, .signMessage, .signTypedMessage, .unknown, .sendRawTransaction, .signEip712v3And4, .ethCall, .walletAddEthereumChain, .walletSwitchEthereumChain:

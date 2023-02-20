@@ -213,7 +213,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
                                     message: SignMessageType,
                                     callbackId: Int) {
 
-        delegate.requestSignMessage(message: message, session: session, source: .dappBrowser, requester: nil)
+        delegate.requestSignMessage(message: message, server: session.server, account: session.account.address, source: .dappBrowser, requester: nil)
             .sink(receiveCompletion: { [browserViewController] result in
                 guard case .failure = result else { return }
                 browserViewController.notifyFinish(callbackID: callbackId, value: .failure(DAppError.cancelled))
