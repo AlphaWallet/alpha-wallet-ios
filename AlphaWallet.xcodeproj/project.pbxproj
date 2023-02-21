@@ -41,7 +41,6 @@
 		028CFFA0284B06540089B551 /* UIColorExtensionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 028CFF9F284B06540089B551 /* UIColorExtensionTests.swift */; };
 		028D4E5A277309ED00E7418D /* EmptyTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 028D4E59277309ED00E7418D /* EmptyTableView.swift */; };
 		02988ACC282C85F100433F3B /* InitialNetworkSelectionCollectionModelTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02988ACB282C85F100433F3B /* InitialNetworkSelectionCollectionModelTestCase.swift */; };
-		02B01A6327B3CD6F00379A00 /* ButtonsBarStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02B01A6227B3CD6F00379A00 /* ButtonsBarStyle.swift */; };
 		02C7AF6F2770C405005367EE /* RpcNetworkTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C7AF6E2770C405005367EE /* RpcNetworkTestCase.swift */; };
 		02CEFAF82807FF7500CF8722 /* GetIsERC1155ContractCoordinatorTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CEFAF72807FF7500CF8722 /* GetIsERC1155ContractCoordinatorTestCase.swift */; };
 		02CEFAFB2808027E00CF8722 /* urlUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CEFAFA2808027E00CF8722 /* urlUtilities.swift */; };
@@ -908,7 +907,6 @@
 		028CFF9F284B06540089B551 /* UIColorExtensionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColorExtensionTests.swift; sourceTree = "<group>"; };
 		028D4E59277309ED00E7418D /* EmptyTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyTableView.swift; sourceTree = "<group>"; };
 		02988ACB282C85F100433F3B /* InitialNetworkSelectionCollectionModelTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialNetworkSelectionCollectionModelTestCase.swift; sourceTree = "<group>"; };
-		02B01A6227B3CD6F00379A00 /* ButtonsBarStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonsBarStyle.swift; sourceTree = "<group>"; };
 		02C7AF6E2770C405005367EE /* RpcNetworkTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RpcNetworkTestCase.swift; sourceTree = "<group>"; };
 		02CEFAF72807FF7500CF8722 /* GetIsERC1155ContractCoordinatorTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetIsERC1155ContractCoordinatorTestCase.swift; sourceTree = "<group>"; };
 		02CEFAFA2808027E00CF8722 /* urlUtilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = urlUtilities.swift; sourceTree = "<group>"; };
@@ -4047,7 +4045,6 @@
 				879F185B26E74507000602F2 /* ButtonsBar.swift */,
 				879F185D26E74512000602F2 /* ButtonsBarBackgroundView.swift */,
 				879F185F26E74543000602F2 /* ToolButtonsBarView.swift */,
-				02B01A6227B3CD6F00379A00 /* ButtonsBarStyle.swift */,
 				02D7F8CD27D8AAC900CA1140 /* VerticalButtonsBar.swift */,
 			);
 			path = ButtonsBar;
@@ -5094,7 +5091,6 @@
 				294DFBA91FE6EBFB004CEB56 /* NewTokenViewController.swift in Sources */,
 				872A987F2864604500196EA3 /* CancelTransactionViewModel.swift in Sources */,
 				732086B9201508690047F605 /* SplashCoordinator.swift in Sources */,
-				02B01A6327B3CD6F00379A00 /* ButtonsBarStyle.swift in Sources */,
 				29EB102A1F6CBD23000907A4 /* UIAlertController.swift in Sources */,
 				874D099625EE33B600A58EF2 /* ScrollableStackView.swift in Sources */,
 				29E9CFCD1FE7343C00017744 /* NewTokenViewModel.swift in Sources */,
