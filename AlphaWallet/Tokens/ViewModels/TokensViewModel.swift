@@ -100,7 +100,7 @@ final class TokensViewModel {
     }
 
     var headerBackgroundColor: UIColor {
-        return .white
+        return Configuration.Color.Semantic.defaultViewBackground
     }
 
     var buyCryptoTitle: String {

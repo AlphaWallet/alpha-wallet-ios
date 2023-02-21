@@ -50,7 +50,9 @@ struct Configuration {
             }
             static let loading = R.color.loadingBackground()!
             static let loadingIndicatorBorder = UIColor(red: 237, green: 237, blue: 237)
+            static let loadingIndicatorBackground = UIColor.white
             static let circularLoadingIndicatorLine = UIColor.red
+            static let activityStateViewPendingLoadingIndicatorViewBackground = UIColor.white
             static let backgroundLine = UIColor.lightGray
             static let checkmark = UIColor.red
             static let backButtonText = UIColor.clear
