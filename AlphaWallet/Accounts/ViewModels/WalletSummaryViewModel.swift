@@ -38,7 +38,7 @@ struct WalletSummaryViewModel: Hashable {
 
     private func createApprecationAttributedString(summary: WalletSummary) -> NSAttributedString {
         if areTestnetsEnabled {
-            return .init(string: "Testnet Mode", attributes: Self.functional.apprecation24HoursAttributes(alignment: alignment, foregroundColor: .gray))
+            return .init(string: "Testnet Mode", attributes: Self.functional.apprecation24HoursAttributes(alignment: alignment, foregroundColor: Configuration.Color.Semantic.walletSummaryApprecationForeground))
         } else {
             let apprecation = Self.functional.todaysApprecationColorAndStringValuePair(summary: summary)
             return .init(string: apprecation.0, attributes: Self.functional.apprecation24HoursAttributes(alignment: alignment, foregroundColor: apprecation.1))
