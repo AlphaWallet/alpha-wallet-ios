@@ -15,7 +15,7 @@ class ActivityLoadingIndicatorView: UIView {
             circleLayer.strokeColor = lineColor.cgColor
         }
     }
-    var backgroundLineColor: UIColor = .lightGray {
+    var backgroundLineColor: UIColor = Configuration.Color.Semantic.backgroundLine {
         didSet {
             backgroundLayer.strokeColor = backgroundLineColor.cgColor
         }
