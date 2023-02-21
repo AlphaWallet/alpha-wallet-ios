@@ -23,6 +23,7 @@ fileprivate func colorFrom(trait: UITraitCollection, lightColor: UIColor, darkCo
 struct Configuration {
     struct Color {
         struct Semantic {
+            static let walletSummaryApprecationForeground = UIColor.gray
             static let borderClear = UIColor.clear
             static let backgroundClear = UIColor.clear
             static let defaultViewBackground = UIColor { trait in
