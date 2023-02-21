@@ -49,7 +49,7 @@ class CircularLoadingIndicatorView: UIView {
 
     var lineWidth: CGFloat = 2
     var circleWidth: CGFloat = 15
-    var lineColor: UIColor = Configuration.Color.Semantic.loadingIndicatorLine {
+    var lineColor: UIColor = Configuration.Color.Semantic.circularLoadingIndicatorLine {
         didSet {
             fillLayer.strokeColor = lineColor.cgColor
             circleLayer.fillColor = lineColor.cgColor

@@ -24,6 +24,7 @@ struct Configuration {
     struct Color {
         struct Semantic {
             static let walletSummaryApprecationForeground = UIColor.gray
+            static let transitionButtonShrinkBorder = UIColor.lightGray
             static let borderClear = UIColor.clear
             static let backgroundClear = UIColor.clear
             static let defaultViewBackground = UIColor { trait in
@@ -49,7 +50,7 @@ struct Configuration {
             }
             static let loading = R.color.loadingBackground()!
             static let loadingIndicatorBorder = UIColor(red: 237, green: 237, blue: 237)
-            static let loadingIndicatorLine = UIColor.red
+            static let circularLoadingIndicatorLine = UIColor.red
             static let backgroundLine = UIColor.lightGray
             static let checkmark = UIColor.red
             static let backButtonText = UIColor.clear
