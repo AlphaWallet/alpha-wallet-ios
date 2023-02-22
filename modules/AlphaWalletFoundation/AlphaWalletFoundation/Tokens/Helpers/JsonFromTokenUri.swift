@@ -73,6 +73,7 @@ final class JsonFromTokenUri {
             jsonDictionary["imageUrl"] = ""
             jsonDictionary["thumbnailUrl"] = ""
             jsonDictionary["externalLink"] = ""
+            jsonDictionary["animationUrl"] = ""
         }
         let json = jsonDictionary.rawString()!
         return .just(.init(tokenId: tokenId, value: json, source: .fallback))
@@ -110,6 +111,7 @@ final class JsonFromTokenUri {
                             jsonDictionary["thumbnailUrl"] = jsonDictionary["imageUrl"]
                             //POAP tokens (https://blockscout.com/xdai/mainnet/address/0x22C1f6050E56d2876009903609a2cC3fEf83B415/transactions), eg. https://api.poap.xyz/metadata/2503/278569, use `home_url` as the key for what they should use `external_url` for and they use `external_url` to point back to the token URI
                             jsonDictionary["externalLink"] = JSON(jsonDictionary["home_url"].string ?? jsonDictionary["external_url"].string ?? "")
+                            jsonDictionary["animationUrl"] = JSON(jsonDictionary["animation_url"].stringValue)
                         }
 
                         if let jsonString = jsonDictionary.rawString() {

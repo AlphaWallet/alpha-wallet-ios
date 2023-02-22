@@ -35,6 +35,7 @@ public struct NftAsset: Codable, Equatable, Hashable, NonFungibleFromJson {
     public let description: String
     public let thumbnailUrl: String
     public let imageUrl: String
+    public let animationUrl: String?
     public let previewUrl: String
     public let contractImageUrl: String
     public let imageOriginalUrl: String
@@ -51,7 +52,7 @@ public struct NftAsset: Codable, Equatable, Hashable, NonFungibleFromJson {
     public var creator: AssetCreator?
     public let collectionId: String
 
-    public init(tokenId: String, tokenType: NonFungibleFromJsonTokenType, value: BigInt, contractName: String, decimals: Int, symbol: String, name: String, description: String, thumbnailUrl: String, imageUrl: String, contractImageUrl: String, externalLink: String, backgroundColor: String?, traits: [OpenSeaNonFungibleTrait], collectionCreatedDate: Date?, collectionDescription: String?, collection: AlphaWalletOpenSea.NftCollection? = nil, creator: AssetCreator?, collectionId: String, imageOriginalUrl: String, previewUrl: String) {
+    public init(tokenId: String, tokenType: NonFungibleFromJsonTokenType, value: BigInt, contractName: String, decimals: Int, symbol: String, name: String, description: String, thumbnailUrl: String, imageUrl: String, contractImageUrl: String, externalLink: String, backgroundColor: String?, traits: [OpenSeaNonFungibleTrait], collectionCreatedDate: Date?, collectionDescription: String?, collection: AlphaWalletOpenSea.NftCollection? = nil, creator: AssetCreator?, collectionId: String, imageOriginalUrl: String, previewUrl: String, animationUrl: String?) {
         self.imageOriginalUrl = imageOriginalUrl
         self.tokenId = tokenId
         self.tokenType = tokenType
@@ -73,5 +74,6 @@ public struct NftAsset: Codable, Equatable, Hashable, NonFungibleFromJson {
         self.creator = creator
         self.collectionId = collectionId
         self.previewUrl = previewUrl
+        self.animationUrl = animationUrl
     }
 }

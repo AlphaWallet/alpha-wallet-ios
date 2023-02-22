@@ -7,7 +7,10 @@ import AlphaWalletOpenSea
 
 extension NonFungibleFromJson {
     public func nonFungibleImageUrl(rewriteGoogleContentSizeUrl size: GoogleContentSize) -> WebImageURL? {
-        return WebImageURL(string: contractImageUrl, rewriteGoogleContentSizeUrl: size) ?? WebImageURL(string: thumbnailUrl, rewriteGoogleContentSizeUrl: size) ?? WebImageURL(string: imageUrl, rewriteGoogleContentSizeUrl: size)
+        return WebImageURL(string: contractImageUrl, rewriteGoogleContentSizeUrl: size) ??
+        WebImageURL(string: thumbnailUrl, rewriteGoogleContentSizeUrl: size) ??
+        animationUrl.flatMap { WebImageURL(string: $0, rewriteGoogleContentSizeUrl: size) } ??
+        WebImageURL(string: imageUrl, rewriteGoogleContentSizeUrl: size)
     }
 }
 

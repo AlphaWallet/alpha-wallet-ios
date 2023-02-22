@@ -41,13 +41,14 @@ struct OpenSeaNonFungibleBeforeErc1155Support: Codable {
     let contractImageUrl: String
     let externalLink: String
     let backgroundColor: String?
+    let animationUrl: String?
     let traits: [OpenSeaNonFungibleTrait]
     var generationTrait: OpenSeaNonFungibleTrait? {
         return traits.first { $0.type == NftAsset.generationTraitName }
     }
 
     func asPostErc1155Support(tokenType: NonFungibleFromJsonTokenType?) -> NonFungibleFromJson {
-        let result = NftAsset(tokenId: tokenId, tokenType: tokenType ?? .erc721, value: 1, contractName: contractName, decimals: 0, symbol: symbol, name: name, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, contractImageUrl: contractImageUrl, externalLink: externalLink, backgroundColor: backgroundColor, traits: traits, collectionCreatedDate: nil, collectionDescription: nil, creator: nil, collectionId: "", imageOriginalUrl: "", previewUrl: "")
+        let result = NftAsset(tokenId: tokenId, tokenType: tokenType ?? .erc721, value: 1, contractName: contractName, decimals: 0, symbol: symbol, name: name, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, contractImageUrl: contractImageUrl, externalLink: externalLink, backgroundColor: backgroundColor, traits: traits, collectionCreatedDate: nil, collectionDescription: nil, creator: nil, collectionId: "", imageOriginalUrl: "", previewUrl: "", animationUrl: animationUrl)
         return result
     }
 }
