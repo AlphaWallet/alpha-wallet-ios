@@ -146,7 +146,7 @@ class EthTokenViewCell: UITableViewCell {
         fiatValueLabel.attributedText = viewModel.fiatValueAttributedString
 
         viewsWithContent.forEach { $0.alpha = viewModel.alpha }
-        tokenImageView.subscribable = viewModel.iconImage
+        tokenImageView.set(imageSource: viewModel.iconImage)
 
         blockChainTagLabel.configure(viewModel: viewModel.blockChainTagViewModel)
         changeValueContainer.isHidden = !viewModel.blockChainTagViewModel.isHidden

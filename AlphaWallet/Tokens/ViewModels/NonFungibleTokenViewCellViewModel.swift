@@ -4,6 +4,7 @@ import Foundation
 import UIKit
 import BigInt
 import AlphaWalletFoundation
+import Combine
 
 struct NonFungibleTokenViewCellViewModel {
     private let safeShortTitleInPluralForm: String
@@ -13,13 +14,13 @@ struct NonFungibleTokenViewCellViewModel {
     private let nonZeroBalanceCount: Int
     private let isVisible: Bool
 
-    let iconImage: Subscribable<TokenImage>
+    let iconImage: TokenImagePublisher
     let accessoryType: UITableViewCell.AccessoryType
 
     init(token: TokenViewModel, isVisible: Bool = true, accessoryType: UITableViewCell.AccessoryType = .none) {
         self.contract = token.contractAddress
         self.server = token.server
-        self.iconImage = token.icon(withSize: .s750)
+        self.iconImage = TokenImageFetcher.instance.image(token: token, size: .s750)
         self.nonZeroBalanceCount = token.nonZeroBalance.count
         self.symbol = token.symbol
         self.safeShortTitleInPluralForm = token.tokenScriptOverrides?.safeShortTitleInPluralForm ?? ""

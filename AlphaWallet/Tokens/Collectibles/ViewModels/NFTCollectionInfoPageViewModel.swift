@@ -92,13 +92,14 @@ final class NFTCollectionInfoPageViewModel {
 
     private func previewViewParams(for helper: AnyPublisher<TokenInstanceViewConfigurationHelper?, Never>) -> AnyPublisher<NFTPreviewViewType.Params, Never> {
         helper.map { [token, previewViewType] helper in
-            guard let helper = helper else { return .image(iconImage: .init(nil)) }
+            guard let helper = helper else { return .image(iconImage: .just(nil)) }
 
             switch previewViewType {
             case .tokenCardView:
                 return .tokenScriptWebView(tokenHolder: helper.tokenHolder, tokenId: helper.tokenId)
             case .imageView:
-                return .image(iconImage: token.icon(withSize: .s750))
+                let iconImage = TokenImageFetcher.instance.image(token: token, size: .s750)
+                return .image(iconImage: iconImage )
             }
         }.eraseToAnyPublisher()
     }

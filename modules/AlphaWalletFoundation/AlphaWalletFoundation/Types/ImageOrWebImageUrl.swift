@@ -9,5 +9,11 @@ import UIKit
 
 public enum ImageOrWebImageUrl {
     case url(WebImageURL)
-    case image(UIImage?)
+    case image(RawImage)
+}
+
+public enum RawImage {
+    case generated(image: UIImage, symbol: String)
+    case loaded(image: UIImage)
+    case none
 }

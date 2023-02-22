@@ -8,6 +8,7 @@
 import UIKit
 import BigInt
 import AlphaWalletFoundation
+import Combine
 
 struct WalletTokenViewCellViewModel {
     private let token: TokenViewModel
@@ -36,8 +37,8 @@ struct WalletTokenViewCellViewModel {
         return isVisible ? 1.0 : 0.4
     }
 
-    var iconImage: Subscribable<TokenImage> {
-        token.icon(withSize: .s300)
+    var iconImage: TokenImagePublisher {
+        TokenImageFetcher.instance.image(token: token, size: .s300)
     }
 
     var blockChainTagViewModel: BlockchainTagLabelViewModel {

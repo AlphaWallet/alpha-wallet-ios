@@ -58,7 +58,7 @@ class NonFungibleTokenViewCell: UITableViewCell {
         tickersAmountLabel.attributedText = viewModel.tickersAmountAttributedString
 
         viewsWithContent.forEach { $0.alpha = viewModel.alpha }
-        tokenImageView.subscribable = viewModel.iconImage
+        tokenImageView.set(imageSource: viewModel.iconImage)
         blockChainTagLabel.configure(viewModel: viewModel.blockChainTagViewModel)
         accessoryType = viewModel.accessoryType
     }

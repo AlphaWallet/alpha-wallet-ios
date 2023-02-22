@@ -21,11 +21,7 @@ struct AmountTextFieldViewModelOutput {
     let errorState: AnyPublisher<AmountTextField.ErrorState, Never>
 }
 
-protocol EnterAmountSupportable {
-    var symbol: String { get }
-
-    func icon(withSize size: GoogleContentSize) -> Subscribable<TokenImage>
-}
+protocol EnterAmountSupportable: HasTokenImage { }
 
 final class AmountTextFieldViewModel {
     private static let atLeastOneWhiteSpaceToKeepTextFieldHeight = " "

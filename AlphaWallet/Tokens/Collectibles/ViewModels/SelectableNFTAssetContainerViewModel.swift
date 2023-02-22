@@ -7,6 +7,7 @@
 
 import UIKit
 import AlphaWalletFoundation
+import Combine
 
 struct SelectableNFTAssetContainerViewModel {
     private let token: TokenScript.Token?
@@ -38,8 +39,8 @@ struct SelectableNFTAssetContainerViewModel {
         ])
     }
 
-    var iconImage: Subscribable<TokenImage> {
-        .init(nil)
+    var iconImage: TokenImagePublisher {
+        .just(nil)
     }
 
     var selectionImage: UIImage? {

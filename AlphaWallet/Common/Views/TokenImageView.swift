@@ -2,6 +2,7 @@
 
 import UIKit
 import AlphaWalletFoundation
+import Combine
 
 class ImageView: UIImageView {
     private var subscriptionKey: Subscribable<Image>.SubscribableKey?
@@ -25,7 +26,6 @@ class ImageView: UIImageView {
 }
 
 final class TokenImageView: UIView, ViewRoundingSupportable, ViewLoadingCancelable {
-    private var subscriptionKey: Subscribable<TokenImage>.SubscribableKey?
     private let symbolLabel: UILabel = {
         let label = UILabel()
         label.textColor = Configuration.Color.Semantic.defaultInverseText
@@ -65,42 +65,10 @@ final class TokenImageView: UIView, ViewRoundingSupportable, ViewLoadingCancelab
 
     override var contentMode: UIView.ContentMode {
         didSet { imageView.contentMode = contentMode }
-    } 
-
-    var subscribable: Subscribable<TokenImage>? {
-        didSet {
-            if let previousSubscribable = oldValue, let subscriptionKey = subscriptionKey {
-                previousSubscribable.unsubscribe(subscriptionKey)
-            }
-
-            if let subscribable = subscribable {
-                if subscribable.value == nil {
-                    imageView.setImage(url: nil, placeholder: tokenImagePlaceholder)
-                    chainOverlayImageView.image = nil
-                }
-
-                subscriptionKey = subscribable.subscribe { [weak self] imageAndSymbol in
-                    guard let strongSelf = self else { return }
-                    switch imageAndSymbol?.image {
-                    case .image(let v):
-                        strongSelf.symbolLabel.text = imageAndSymbol?.symbol ?? ""
-                        strongSelf.imageView.setImage(image: v, placeholder: strongSelf.tokenImagePlaceholder)
-                    case .url(let v):
-                        strongSelf.symbolLabel.text = ""
-                        strongSelf.imageView.setImage(url: v, placeholder: strongSelf.tokenImagePlaceholder)
-                    case .none:
-                        strongSelf.symbolLabel.text = ""
-                        strongSelf.imageView.setImage(url: nil, placeholder: strongSelf.tokenImagePlaceholder)
-                    }
-                    strongSelf.chainOverlayImageView.image = imageAndSymbol?.overlayServerIcon
-                }
-            } else {
-                subscriptionKey = nil
-                imageView.setImage(url: nil, placeholder: tokenImagePlaceholder)
-                symbolLabel.text = ""
-            }
-        }
     }
+
+    private let imageSourceSubject = PassthroughSubject<TokenImagePublisher, Never>()
+    private var cancellable = Set<AnyCancellable>()
 
     init(edgeInsets: UIEdgeInsets = .zero) {
         super.init(frame: .zero)
@@ -124,14 +92,41 @@ final class TokenImageView: UIView, ViewRoundingSupportable, ViewLoadingCancelab
         ])
 
         chainOverlayImageView.isHidden = isChainOverlayHidden
+
+        imageSourceSubject.flatMapLatest { $0 }
+            .sink(receiveValue: { [weak self] imageAndSymbol in
+                self?.symbolLabel.text = ""
+
+                switch imageAndSymbol?.image {
+                case .image(let imageType):
+                    switch imageType {
+                    case .generated(let image, let symbol):
+                        self?.symbolLabel.text = symbol
+                        self?.imageView.setImage(image: image, placeholder: self?.tokenImagePlaceholder)
+                    case .loaded(let image):
+                        self?.imageView.setImage(image: image, placeholder: self?.tokenImagePlaceholder)
+                    case .none:
+                        self?.imageView.setImage(url: nil, placeholder: self?.tokenImagePlaceholder)
+                    }
+                case .url(let url):
+                    self?.imageView.setImage(url: url, placeholder: self?.tokenImagePlaceholder)
+                case .none:
+                    self?.imageView.setImage(url: nil, placeholder: self?.tokenImagePlaceholder)
+                }
+
+                self?.chainOverlayImageView.image = imageAndSymbol?.overlayServerIcon
+            }).store(in: &cancellable)
     }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func set(imageSource: TokenImagePublisher) {
+        imageSourceSubject.send(imageSource)
+    }
+
     func cancel() {
         imageView.cancel()
     }
 }
-

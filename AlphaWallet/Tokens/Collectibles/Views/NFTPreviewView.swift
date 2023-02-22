@@ -7,6 +7,7 @@
 
 import UIKit
 import AlphaWalletFoundation
+import Combine
 
 typealias NFTPreviewViewRepresentable = UIView & NFTPreviewConfigurable & ViewRoundingSupportable & ContentBackgroundSupportable & ViewLoadingCancelable
 
@@ -15,7 +16,7 @@ enum NFTPreviewViewType {
     case imageView
 
     enum Params {
-        case image(iconImage: Subscribable<TokenImage>)
+        case image(iconImage: TokenImagePublisher)
         case tokenScriptWebView(tokenHolder: TokenHolder, tokenId: TokenId)
     }
 }
@@ -98,8 +99,8 @@ extension TokenImageView: NFTPreviewConfigurable, ContentBackgroundSupportable {
     }
 
     func configure(params: NFTPreviewViewType.Params) {
-        guard case .image(let iconImage) = params else { subscribable = .none; return; }
-        subscribable = iconImage
+        guard case .image(let iconImage) = params else { set(imageSource: .just(nil)); return; }
+        set(imageSource: iconImage)
     }
 }
 

@@ -7,6 +7,7 @@
 
 import UIKit
 import AlphaWalletFoundation
+import Combine
 
 struct NonFungibleRowViewModel {
     private let tokenHolder: TokenHolder
@@ -56,10 +57,10 @@ struct NonFungibleRowViewModel {
         self.displayHelper = OpenSeaNonFungibleTokenDisplayHelper(contract: tokenHolder.contractAddress)
     } 
 
-    var assetImage: Subscribable<TokenImage> {
+    var assetImage: TokenImagePublisher {
         let tokenImage = tokenHolder.assetImageUrl(tokenId: tokenId, rewriteGoogleContentSizeUrl: .s300)
-            .flatMap { TokenImage(image: .url($0), symbol: "", isFinal: true, overlayServerIcon: nil) }
+            .flatMap { TokenImage(image: .url($0), isFinal: true, overlayServerIcon: nil) }
 
-        return .init(tokenImage)
+        return .just(tokenImage)
     }
 }

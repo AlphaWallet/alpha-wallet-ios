@@ -2,6 +2,7 @@
 
 import UIKit
 import AlphaWalletFoundation
+import Combine
 
 struct FungibleTokenViewCellViewModel {
     private let safeShortTitleInPluralForm: String
@@ -13,7 +14,7 @@ struct FungibleTokenViewCellViewModel {
     private let server: RPCServer
     private let isVisible: Bool
     
-    let iconImage: Subscribable<TokenImage>
+    let iconImage: TokenImagePublisher
     let accessoryType: UITableViewCell.AccessoryType
 
     init(token: TokenViewModel, isVisible: Bool = true, accessoryType: UITableViewCell.AccessoryType = .none) {
@@ -24,7 +25,7 @@ struct FungibleTokenViewCellViewModel {
         self.contract = token.contractAddress
         self.server = token.server
         self.valueDecimal = token.balance.valueDecimal
-        self.iconImage = token.icon(withSize: .s300)
+        self.iconImage = TokenImageFetcher.instance.image(token: token, size: .s300)
         self.isVisible = isVisible
         self.accessoryType = accessoryType
     }
