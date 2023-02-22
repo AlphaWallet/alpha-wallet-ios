@@ -54,7 +54,7 @@ final class TokensViewModel {
     private let deletionSubject = PassthroughSubject<[IndexPath], Never>()
     private let wallet: Wallet
     private let assetDefinitionStore: AssetDefinitionStore
-
+    private let tokenImageFetcher: TokenImageFetcher
     let config: Config
     let largeTitleDisplayMode: UINavigationItem.LargeTitleDisplayMode = .never
     var filterViewModel: (cells: [ScrollableSegmentedControlCell], configuration: ScrollableSegmentedControlConfiguration) {
@@ -166,8 +166,10 @@ final class TokensViewModel {
          config: Config,
          domainResolutionService: DomainResolutionServiceType,
          blockiesGenerator: BlockiesGenerator,
-         assetDefinitionStore: AssetDefinitionStore) {
+         assetDefinitionStore: AssetDefinitionStore,
+         tokenImageFetcher: TokenImageFetcher) {
 
+        self.tokenImageFetcher = tokenImageFetcher
         self.wallet = wallet
         self.tokenCollection = tokenCollection
         self.tokensFilter = tokensFilter
@@ -377,23 +379,23 @@ final class TokensViewModel {
             case .token(let token):
                 switch token.type {
                 case .nativeCryptocurrency:
-                    let viewModel = EthTokenViewCellViewModel(token: token)
+                    let viewModel = EthTokenViewCellViewModel(token: token, tokenImageFetcher: tokenImageFetcher)
 
                     return .nativeCryptocurrency(viewModel)
                 case .erc20:
-                    let viewModel = FungibleTokenViewCellViewModel(token: token)
+                    let viewModel = FungibleTokenViewCellViewModel(token: token, tokenImageFetcher: tokenImageFetcher)
 
                     return .fungibleToken(viewModel)
                 case .erc721, .erc721ForTickets, .erc1155, .erc875:
-                    let viewModel = NonFungibleTokenViewCellViewModel(token: token)
+                    let viewModel = NonFungibleTokenViewCellViewModel(token: token, tokenImageFetcher: tokenImageFetcher)
 
                     return .nonFungible(viewModel)
                 }
             }
         case .collectiblePairs:
             let pair = collectiblePairs[indexPath.row]
-            let left = OpenSeaNonFungibleTokenViewCellViewModel(token: pair.left)
-            let right: OpenSeaNonFungibleTokenViewCellViewModel? = pair.right.flatMap { token in .init(token: token) }
+            let left = OpenSeaNonFungibleTokenViewCellViewModel(token: pair.left, tokenImageFetcher: tokenImageFetcher)
+            let right: OpenSeaNonFungibleTokenViewCellViewModel? = pair.right.flatMap { token in .init(token: token, tokenImageFetcher: tokenImageFetcher) }
 
             let viewModel = OpenSeaNonFungibleTokenPairTableCellViewModel(leftViewModel: left, rightViewModel: right)
 

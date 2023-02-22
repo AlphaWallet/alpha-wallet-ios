@@ -77,7 +77,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
     private var tokenActionsService: TokenActionsService
     private let walletConnectCoordinator: WalletConnectCoordinator
     private let promptBackup: PromptBackup
-
+    private let tokenImageFetcher: TokenImageFetcher
     private lazy var promptBackupCoordinator: PromptBackupCoordinator = {
         return PromptBackupCoordinator(
             wallet: wallet,
@@ -166,8 +166,10 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
          tokenScriptOverridesFileManager: TokenScriptOverridesFileManager,
          networkService: NetworkService,
          promptBackup: PromptBackup,
-         caip10AccountProvidable: CAIP10AccountProvidable) {
+         caip10AccountProvidable: CAIP10AccountProvidable,
+         tokenImageFetcher: TokenImageFetcher) {
 
+        self.tokenImageFetcher = tokenImageFetcher
         self.promptBackup = promptBackup
         self.networkService = networkService
         self.currencyService = currencyService
@@ -333,7 +335,8 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
             blockiesGenerator: blockiesGenerator,
             domainResolutionService: domainResolutionService,
             tokensFilter: tokensFilter,
-            currencyService: currencyService)
+            currencyService: currencyService,
+            tokenImageFetcher: tokenImageFetcher)
 
         coordinator.rootViewController.tabBarItem = ActiveWalletViewModel.Tabs.tokens.tabBarItem
         coordinator.delegate = self
@@ -358,7 +361,8 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
             analytics: analytics,
             sessions: sessionsProvider.activeSessions,
             transactionsService: transactionsService,
-            tokensService: tokenCollection)
+            tokensService: tokenCollection,
+            tokenImageFetcher: tokenImageFetcher)
 
         coordinator.rootViewController.tabBarItem = ActiveWalletViewModel.Tabs.transactions.tabBarItem
         coordinator.navigationController.configureForLargeTitles()
@@ -376,7 +380,8 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
             activitiesService: activitiesPipeLine,
             keystore: keystore,
             wallet: wallet,
-            assetDefinitionStore: assetDefinitionStore)
+            assetDefinitionStore: assetDefinitionStore,
+            tokenImageFetcher: tokenImageFetcher)
 
         coordinator.delegate = self
         coordinator.start()
@@ -500,7 +505,8 @@ class ActiveWalletCoordinator: NSObject, Coordinator {
                 tokenSwapper: tokenSwapper,
                 tokensFilter: tokensFilter,
                 networkService: networkService,
-                transactionDataStore: transactionsDataStore)
+                transactionDataStore: transactionsDataStore,
+                tokenImageFetcher: tokenImageFetcher)
 
             coordinator.delegate = self
             coordinator.start()
@@ -930,8 +936,9 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
         let controller = ActivityViewController(
             wallet: wallet,
             assetDefinitionStore: assetDefinitionStore,
-            viewModel: .init(activity: activity),
-            service: activitiesPipeLine)
+            viewModel: .init(activity: activity, tokenImageFetcher: tokenImageFetcher),
+            service: activitiesPipeLine,
+            tokenImageFetcher: tokenImageFetcher)
 
         controller.delegate = self
 
@@ -967,7 +974,8 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
             tokenCollection: tokenCollection,
             tokensFilter: tokensFilter,
             navigationController: navigationController,
-            filter: .filter(NativeCryptoOrErc20TokenFilter()))
+            filter: .filter(NativeCryptoOrErc20TokenFilter()),
+            tokenImageFetcher: tokenImageFetcher)
 
         coordinator.delegate = self
         addCoordinator(coordinator)

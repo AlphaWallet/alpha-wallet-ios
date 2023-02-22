@@ -15,7 +15,7 @@ protocol EditPriceAlertViewControllerDelegate: AnyObject {
 }
 
 class EditPriceAlertViewController: UIViewController {
-
+    private let tokenImageFetcher: TokenImageFetcher
     private lazy var headerView: SendViewSectionHeader = {
         let view = SendViewSectionHeader()
         view.configure(viewModel: .init(text: R.string.localizable.priceAlertEnterTargetPrice().uppercased()))
@@ -24,7 +24,7 @@ class EditPriceAlertViewController: UIViewController {
     }()
 
     private lazy var amountTextField: AmountTextField = {
-        let textField = AmountTextField(token: viewModel.token)
+        let textField = AmountTextField(token: viewModel.token, tokenImageFetcher: tokenImageFetcher)
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.delegate = self
         textField.inputAccessoryButtonType = .done
@@ -59,8 +59,9 @@ class EditPriceAlertViewController: UIViewController {
 
     weak var delegate: EditPriceAlertViewControllerDelegate?
 
-    init(viewModel: EditPriceAlertViewModel) {
+    init(viewModel: EditPriceAlertViewModel, tokenImageFetcher: TokenImageFetcher) {
         self.viewModel = viewModel
+        self.tokenImageFetcher = tokenImageFetcher
         super.init(nibName: nil, bundle: nil)
 
         containerView.stackView.addArrangedSubviews([

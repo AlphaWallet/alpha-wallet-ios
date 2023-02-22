@@ -55,15 +55,31 @@ extension PopularToken: HasTokenImage {
     public var firstNftAsset: NonFungibleFromJson? { nil }
 }
 
-public class TokenImageFetcher {
+public protocol TokenImageFetcher {
+    func image(contractAddress: AlphaWallet.Address,
+               server: RPCServer,
+               name: String,
+               type: TokenType,
+               balance: NonFungibleFromJson?,
+               size: GoogleContentSize,
+               contractDefinedImage: UIImage?,
+               colors: [UIColor],
+               staticOverlayIcon: UIImage?,
+               blockChainNameColor: UIColor,
+               serverIconImage: UIImage?) -> TokenImagePublisher
+}
+
+public class TokenImageFetcherImpl: TokenImageFetcher {
+    private let networking: ImageFetcher
+    private let subscribables: AtomicDictionary<String, CurrentValueSubject<TokenImage?, Never>> = .init()
 
     enum ImageAvailabilityError: LocalizedError {
         case notAvailable
     }
-    //TODO: remove this later, remove static functions
-    public static var instance = TokenImageFetcher()
 
-    private static var subscribables: AtomicDictionary<String, CurrentValueSubject<TokenImage?, Never>> = .init()
+    public init(networking: ImageFetcher) {
+        self.networking = networking
+    }
 
     private static func programmaticallyGenerateIcon(for contractAddress: AlphaWallet.Address, type: TokenType, server: RPCServer, symbol: String, colors: [UIColor], staticOverlayIcon: UIImage?, blockChainNameColor: UIColor) -> TokenImage? {
         guard let i = [Constants.Image.numberOfCharactersOfSymbolToShowInIcon, symbol.count].min() else { return nil }
@@ -99,16 +115,9 @@ public class TokenImageFetcher {
             }
         }
 
-        return TokenImageFetcher.programmaticallyGenerateIcon(for: contractAddress, type: type, server: server, symbol: name, colors: colors, staticOverlayIcon: staticOverlayIcon, blockChainNameColor: blockChainNameColor)
+        return TokenImageFetcherImpl.programmaticallyGenerateIcon(for: contractAddress, type: type, server: server, symbol: name, colors: colors, staticOverlayIcon: staticOverlayIcon, blockChainNameColor: blockChainNameColor)
     }
 
-    private static var imageFetcher: ImageFetcher?
-    //TODO: remove this later
-    public static func register(imageFetcher obj: ImageFetcher?) {
-        imageFetcher = obj
-    }
-
-    //TODO: refactor and rename
     public func image(contractAddress: AlphaWallet.Address,
                       server: RPCServer,
                       name: String,
@@ -123,14 +132,14 @@ public class TokenImageFetcher {
         
         let subscribable: CurrentValueSubject<TokenImage?, Never>
         let key = "\(contractAddress.eip55String)-\(server.chainID)-\(size.rawValue)"
-        if let sub = TokenImageFetcher.subscribables[key] {
+        if let sub = subscribables[key] {
             subscribable = sub
             if let value = sub.value, value.isFinal {
                 return subscribable.eraseToAnyPublisher()
             }
         } else {
             let sub = CurrentValueSubject<TokenImage?, Never>(nil)
-            TokenImageFetcher.subscribables[key] = sub
+            subscribables[key] = sub
             subscribable = sub
         }
 
@@ -149,17 +158,15 @@ public class TokenImageFetcher {
         }
 
         firstly {
-            TokenImageFetcher
-                .fetchFromAssetGitHubRepo(.alphaWallet, contractAddress: contractAddress)
+            self.fetchFromAssetGitHubRepo(.alphaWallet, contractAddress: contractAddress)
                 .map { image -> TokenImage in
                     return .init(image: .image(.loaded(image: image)), isFinal: true, overlayServerIcon: staticOverlayIcon)
                 }
         }.recover { _ -> Promise<TokenImage> in
-            let url = try TokenImageFetcher.imageUrlFromOpenSea(type, balance: balance, size: size)
+            let url = try TokenImageFetcherImpl.imageUrlFromOpenSea(type, balance: balance, size: size)
             return .value(.init(image: url, isFinal: true, overlayServerIcon: staticOverlayIcon))
         }.recover { _ -> Promise<TokenImage> in
-            return TokenImageFetcher
-                .fetchFromAssetGitHubRepo(.thirdParty, contractAddress: contractAddress)
+            return self.fetchFromAssetGitHubRepo(.thirdParty, contractAddress: contractAddress)
                 .map { image -> TokenImage in
                     return .init(image: .image(.loaded(image: image)), isFinal: false, overlayServerIcon: staticOverlayIcon)
                 }
@@ -185,7 +192,8 @@ public class TokenImageFetcher {
         }
     }
 
-    private static func fetchFromAssetGitHubRepo(_ githubAssetsSource: GithubAssetsURLResolver.Source, contractAddress: AlphaWallet.Address) -> Promise<UIImage> {
+    //TODO: refactor
+    private func fetchFromAssetGitHubRepo(_ githubAssetsSource: GithubAssetsURLResolver.Source, contractAddress: AlphaWallet.Address) -> Promise<UIImage> {
         struct AnyError: Error { }
         let urlString = githubAssetsSource.url(forContract: contractAddress)
         guard let url = URL(string: urlString) else {
@@ -193,8 +201,7 @@ public class TokenImageFetcher {
             return .init(error: AnyError())
         }
 
-        guard let fetcher = imageFetcher else { return .init(error: AnyError()) }
-        return fetcher.retrieveImage(with: url)
+        return networking.retrieveImage(with: url)
     }
 }
 

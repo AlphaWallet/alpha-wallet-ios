@@ -21,6 +21,7 @@ class SendCoordinator: Coordinator {
     private var transactionConfirmationResult: ConfirmResult? = .none
     private let sessionsProvider: SessionsProvider
     private let networkService: NetworkService
+    private let tokenImageFetcher: TokenImageFetcher
 
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -39,8 +40,10 @@ class SendCoordinator: Coordinator {
          assetDefinitionStore: AssetDefinitionStore,
          analytics: AnalyticsLogger,
          domainResolutionService: DomainResolutionServiceType,
-         networkService: NetworkService) {
-        
+         networkService: NetworkService,
+         tokenImageFetcher: TokenImageFetcher) {
+
+        self.tokenImageFetcher = tokenImageFetcher
         self.networkService = networkService
         self.sessionsProvider = sessionsProvider
         self.transactionType = transactionType
@@ -66,7 +69,8 @@ class SendCoordinator: Coordinator {
 
         let controller = SendViewController(
             viewModel: viewModel,
-            domainResolutionService: domainResolutionService)
+            domainResolutionService: domainResolutionService,
+            tokenImageFetcher: tokenImageFetcher)
 
         controller.delegate = self
         controller.navigationItem.largeTitleDisplayMode = .never

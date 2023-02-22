@@ -13,8 +13,13 @@ import Combine
 struct WalletTokenViewCellViewModel {
     private let token: TokenViewModel
     private let isVisible: Bool
+    private let tokenImageFetcher: TokenImageFetcher
 
-    init(token: TokenViewModel, isVisible: Bool = true) {
+    init(token: TokenViewModel,
+         isVisible: Bool = true,
+         tokenImageFetcher: TokenImageFetcher) {
+
+        self.tokenImageFetcher = tokenImageFetcher
         self.token = token
         self.isVisible = isVisible
     }
@@ -38,7 +43,7 @@ struct WalletTokenViewCellViewModel {
     }
 
     var iconImage: TokenImagePublisher {
-        TokenImageFetcher.instance.image(token: token, size: .s300)
+        tokenImageFetcher.image(token: token, size: .s300)
     }
 
     var blockChainTagViewModel: BlockchainTagLabelViewModel {

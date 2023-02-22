@@ -14,7 +14,7 @@ struct FungibleTokenDetailsViewModelOutput {
 }
 
 final class FungibleTokenDetailsViewModel {
-    private var chartHistoriesSubject: CurrentValueSubject<[ChartHistoryPeriod: ChartHistory], Never> = .init([:])
+    private let chartHistoriesSubject: CurrentValueSubject<[ChartHistoryPeriod: ChartHistory], Never> = .init([:])
     private let coinTickersFetcher: CoinTickersFetcher
     private let tokensService: TokenViewModelState
     private var cancelable = Set<AnyCancellable>()
@@ -30,12 +30,27 @@ final class FungibleTokenDetailsViewModel {
     private let tokenActionsProvider: SupportedTokenActionsProvider
     private (set) var actions: [TokenInstanceAction] = []
     private let currencyService: CurrencyService
+    private let tokenImageFetcher: TokenImageFetcher
+
     let token: Token
     lazy var chartViewModel = TokenHistoryChartViewModel(chartHistories: chartHistoriesSubject.eraseToAnyPublisher(), coinTicker: coinTicker, currencyService: currencyService)
-    lazy var headerViewModel = FungibleTokenHeaderViewModel(token: token, tokensService: tokensService)
+    lazy var headerViewModel = FungibleTokenHeaderViewModel(
+        token: token,
+        tokensService: tokensService,
+        tokenImageFetcher: tokenImageFetcher)
+
     var wallet: Wallet { session.account }
 
-    init(token: Token, coinTickersFetcher: CoinTickersFetcher, tokensService: TokenViewModelState, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, tokenActionsProvider: SupportedTokenActionsProvider, currencyService: CurrencyService) {
+    init(token: Token,
+         coinTickersFetcher: CoinTickersFetcher,
+         tokensService: TokenViewModelState,
+         session: WalletSession,
+         assetDefinitionStore: AssetDefinitionStore,
+         tokenActionsProvider: SupportedTokenActionsProvider,
+         currencyService: CurrencyService,
+         tokenImageFetcher: TokenImageFetcher) {
+
+        self.tokenImageFetcher = tokenImageFetcher
         self.currencyService = currencyService
         self.tokenActionsProvider = tokenActionsProvider
         self.session = session

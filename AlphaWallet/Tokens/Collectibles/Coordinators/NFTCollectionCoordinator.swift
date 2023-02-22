@@ -32,9 +32,10 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
     private var cancelable = Set<AnyCancellable>()
     private let tokensService: TokenViewModelState & TokenHolderState
     private lazy var tokenCardViewFactory: TokenCardViewFactory = {
-        TokenCardViewFactory(token: token, assetDefinitionStore: assetDefinitionStore, wallet: session.account)
+        TokenCardViewFactory(token: token, assetDefinitionStore: assetDefinitionStore, wallet: session.account, tokenImageFetcher: tokenImageFetcher)
     }()
     private let currencyService: CurrencyService
+    private let tokenImageFetcher: TokenImageFetcher
 
     weak var delegate: NFTCollectionCoordinatorDelegate?
     let navigationController: UINavigationController
@@ -47,7 +48,8 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
             tokensService: tokensService,
             activitiesService: activitiesService,
             nftProvider: nftProvider,
-            config: session.config)
+            config: session.config,
+            tokenImageFetcher: tokenImageFetcher)
 
         let controller = NFTCollectionViewController(
             keystore: keystore,
@@ -56,7 +58,8 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
             analytics: analytics,
             viewModel: viewModel,
             sessions: sessions,
-            tokenCardViewFactory: tokenCardViewFactory)
+            tokenCardViewFactory: tokenCardViewFactory,
+            tokenImageFetcher: tokenImageFetcher)
         
         controller.hidesBottomBarWhenPushed = true
         controller.delegate = self
@@ -74,7 +77,10 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
          activitiesService: ActivitiesServiceType,
          tokensService: TokenViewModelState & TokenHolderState,
          sessions: ServerDictionary<WalletSession>,
-         currencyService: CurrencyService) {
+         currencyService: CurrencyService,
+         tokenImageFetcher: TokenImageFetcher) {
+
+        self.tokenImageFetcher = tokenImageFetcher
         self.currencyService = currencyService
         self.sessions = sessions
         self.tokensService = tokensService
@@ -202,7 +208,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
 
     private func makeEnterSellTokensCardPriceQuantityViewController(token: Token, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> EnterSellTokensCardPriceQuantityViewController {
         let viewModel = EnterSellTokensCardPriceQuantityViewModel(token: token, tokenHolder: tokenHolder, server: session.server, assetDefinitionStore: assetDefinitionStore, currencyService: currencyService)
-        let controller = EnterSellTokensCardPriceQuantityViewController(analytics: analytics, paymentFlow: paymentFlow, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, walletSession: session, keystore: keystore, service: tokensService, currencyService: currencyService)
+        let controller = EnterSellTokensCardPriceQuantityViewController(analytics: analytics, paymentFlow: paymentFlow, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, walletSession: session, keystore: keystore, service: tokensService, currencyService: currencyService, tokenImageFetcher: tokenImageFetcher)
         controller.configure()
         controller.delegate = self
         return controller

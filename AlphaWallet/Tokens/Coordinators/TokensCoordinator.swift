@@ -33,6 +33,7 @@ class TokensCoordinator: Coordinator {
     private let tokenActionsService: TokenActionsService
     private let tokensFilter: TokensFilter
     private let activitiesService: ActivitiesServiceType
+    private let tokenImageFetcher: TokenImageFetcher
     //NOTE: private (set) - `For test purposes only`
     private (set) lazy var tokensViewController: TokensViewController = {
         let viewModel = TokensViewModel(
@@ -44,7 +45,8 @@ class TokensCoordinator: Coordinator {
             config: config,
             domainResolutionService: domainResolutionService,
             blockiesGenerator: blockiesGenerator,
-            assetDefinitionStore: assetDefinitionStore)
+            assetDefinitionStore: assetDefinitionStore,
+            tokenImageFetcher: tokenImageFetcher)
 
         let controller = TokensViewController(viewModel: viewModel)
 
@@ -92,8 +94,10 @@ class TokensCoordinator: Coordinator {
          blockiesGenerator: BlockiesGenerator,
          domainResolutionService: DomainResolutionServiceType,
          tokensFilter: TokensFilter,
-         currencyService: CurrencyService) {
+         currencyService: CurrencyService,
+         tokenImageFetcher: TokenImageFetcher) {
 
+        self.tokenImageFetcher = tokenImageFetcher
         self.currencyService = currencyService
         self.wallet = sessionsProvider.activeSessions.anyValue.account
         self.tokensFilter = tokensFilter
@@ -168,7 +172,8 @@ class TokensCoordinator: Coordinator {
                 alertService: alertService,
                 tokensService: tokenCollection,
                 sessions: sessionsProvider.activeSessions,
-                currencyService: currencyService)
+                currencyService: currencyService,
+                tokenImageFetcher: tokenImageFetcher)
 
             coordinator.delegate = self
             addCoordinator(coordinator)
@@ -308,7 +313,8 @@ extension TokensCoordinator: TokensViewControllerDelegate {
             domainResolutionService: domainResolutionService,
             navigationController: navigationController,
             config: config,
-            sessionsProvider: sessionsProvider)
+            sessionsProvider: sessionsProvider,
+            tokenImageFetcher: tokenImageFetcher)
 
         coordinator.delegate = self
         addCoordinator(coordinator)
@@ -462,7 +468,8 @@ extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
             session: coordinator.session,
             tokensService: tokenCollection,
             alertService: alertService,
-            currencyService: currencyService)
+            currencyService: currencyService,
+            tokenImageFetcher: tokenImageFetcher)
 
         addCoordinator(coordinatorToAdd)
         coordinatorToAdd.delegate = self
@@ -477,7 +484,8 @@ extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
             session: coordinator.session,
             tokensService: tokenCollection,
             alertService: alertService,
-            currencyService: currencyService)
+            currencyService: currencyService,
+            tokenImageFetcher: tokenImageFetcher)
         
         addCoordinator(coordinatorToAdd)
         coordinatorToAdd.delegate = self

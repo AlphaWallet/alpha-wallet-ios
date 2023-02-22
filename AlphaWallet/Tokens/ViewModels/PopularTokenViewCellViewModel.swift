@@ -12,8 +12,13 @@ import Combine
 struct PopularTokenViewCellViewModel {
     private let token: PopularToken
     private let isVisible: Bool
+    private let tokenImageFetcher: TokenImageFetcher
 
-    init(token: PopularToken, isVisible: Bool = true) {
+    init(token: PopularToken,
+         isVisible: Bool = true,
+         tokenImageFetcher: TokenImageFetcher) {
+
+        self.tokenImageFetcher = tokenImageFetcher
         self.token = token
         self.isVisible = isVisible
     }
@@ -34,7 +39,7 @@ struct PopularTokenViewCellViewModel {
     }
 
     var iconImage: TokenImagePublisher {
-        TokenImageFetcher.instance.image(token: token, size: .s120)
+        tokenImageFetcher.image(token: token, size: .s120)
     }
 
     var blockChainTagViewModel: BlockchainTagLabelViewModel {

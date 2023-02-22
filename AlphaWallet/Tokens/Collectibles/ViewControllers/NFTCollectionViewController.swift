@@ -40,7 +40,7 @@ class NFTCollectionViewController: UIViewController {
 
     private lazy var activitiesPageView: ActivitiesPageView = {
         let viewModel: ActivityPageViewModel = .init(activitiesViewModel: .init(collection: .init()))
-        let view = ActivitiesPageView(analytics: analytics, keystore: keystore, wallet: self.viewModel.wallet, viewModel: viewModel, sessions: sessions, assetDefinitionStore: assetDefinitionStore)
+        let view = ActivitiesPageView(analytics: analytics, keystore: keystore, wallet: self.viewModel.wallet, viewModel: viewModel, sessions: sessions, assetDefinitionStore: assetDefinitionStore, tokenImageFetcher: tokenImageFetcher)
         view.delegate = self
 
         return view
@@ -63,11 +63,21 @@ class NFTCollectionViewController: UIViewController {
     private let keystore: Keystore
     private var cancellable = Set<AnyCancellable>()
     private let tokenCardViewFactory: TokenCardViewFactory
+    private let tokenImageFetcher: TokenImageFetcher
 
     let viewModel: NFTCollectionViewModel
     weak var delegate: NFTCollectionViewControllerDelegate?
 
-    init(keystore: Keystore, session: WalletSession, assetDefinition: AssetDefinitionStore, analytics: AnalyticsLogger, viewModel: NFTCollectionViewModel, sessions: ServerDictionary<WalletSession>, tokenCardViewFactory: TokenCardViewFactory) {
+    init(keystore: Keystore,
+         session: WalletSession,
+         assetDefinition: AssetDefinitionStore,
+         analytics: AnalyticsLogger,
+         viewModel: NFTCollectionViewModel,
+         sessions: ServerDictionary<WalletSession>,
+         tokenCardViewFactory: TokenCardViewFactory,
+         tokenImageFetcher: TokenImageFetcher) {
+
+        self.tokenImageFetcher = tokenImageFetcher
         self.tokenCardViewFactory = tokenCardViewFactory
         self.viewModel = viewModel
         self.sessions = sessions

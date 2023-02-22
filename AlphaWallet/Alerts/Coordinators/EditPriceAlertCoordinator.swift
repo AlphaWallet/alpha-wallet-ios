@@ -20,10 +20,21 @@ class EditPriceAlertCoordinator: Coordinator {
     private let alertService: PriceAlertServiceType
     private let tokensService: TokenViewModelState
     private let currencyService: CurrencyService
+    private let tokenImageFetcher: TokenImageFetcher
+
     var coordinators: [Coordinator] = []
     weak var delegate: EditPriceAlertCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, configuration: EditPriceAlertViewModel.Configuration, token: Token, session: WalletSession, tokensService: TokenViewModelState, alertService: PriceAlertServiceType, currencyService: CurrencyService) {
+    init(navigationController: UINavigationController,
+         configuration: EditPriceAlertViewModel.Configuration,
+         token: Token,
+         session: WalletSession,
+         tokensService: TokenViewModelState,
+         alertService: PriceAlertServiceType,
+         currencyService: CurrencyService,
+         tokenImageFetcher: TokenImageFetcher) {
+
+        self.tokenImageFetcher = tokenImageFetcher
         self.configuration = configuration
         self.currencyService = currencyService
         self.navigationController = navigationController
@@ -34,8 +45,14 @@ class EditPriceAlertCoordinator: Coordinator {
     }
 
     func start() {
-        let viewModel = EditPriceAlertViewModel(configuration: configuration, token: token, tokensService: tokensService, alertService: alertService, currencyService: currencyService)
-        let viewController = EditPriceAlertViewController(viewModel: viewModel)
+        let viewModel = EditPriceAlertViewModel(
+            configuration: configuration,
+            token: token,
+            tokensService: tokensService,
+            alertService: alertService,
+            currencyService: currencyService)
+        
+        let viewController = EditPriceAlertViewController(viewModel: viewModel, tokenImageFetcher: tokenImageFetcher)
         viewController.delegate = self
         viewController.hidesBottomBarWhenPushed = true
         viewController.navigationItem.largeTitleDisplayMode = .never

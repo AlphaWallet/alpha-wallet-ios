@@ -21,10 +21,24 @@ class ActivitiesViewController: UIViewController {
     private var activitiesView: ActivitiesView
     weak var delegate: ActivitiesViewControllerDelegate?
 
-    init(analytics: AnalyticsLogger, keystore: Keystore, wallet: Wallet, viewModel: ActivitiesViewModel, sessions: ServerDictionary<WalletSession>, assetDefinitionStore: AssetDefinitionStore) {
+    init(analytics: AnalyticsLogger,
+         keystore: Keystore,
+         wallet: Wallet,
+         viewModel: ActivitiesViewModel,
+         sessions: ServerDictionary<WalletSession>,
+         assetDefinitionStore: AssetDefinitionStore,
+         tokenImageFetcher: TokenImageFetcher) {
+
         self.viewModel = viewModel
         searchController = UISearchController(searchResultsController: nil)
-        activitiesView = ActivitiesView(analytics: analytics, keystore: keystore, wallet: wallet, viewModel: viewModel, sessions: sessions, assetDefinitionStore: assetDefinitionStore)
+        activitiesView = ActivitiesView(
+            analytics: analytics,
+            keystore: keystore,
+            wallet: wallet,
+            viewModel: viewModel,
+            sessions: sessions,
+            assetDefinitionStore: assetDefinitionStore,
+            tokenImageFetcher: tokenImageFetcher)
         super.init(nibName: nil, bundle: nil)
 
         activitiesView.delegate = self

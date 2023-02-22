@@ -29,6 +29,7 @@ final class NFTCollectionViewModel {
     private let nftProvider: NFTProvider
     private let config: Config
     private (set) lazy var tokenScriptFileStatusHandler: XMLHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
+    private let tokenImageFetcher: TokenImageFetcher
     
     let activitiesService: ActivitiesServiceType
     let tokenHolders: CurrentValueSubject<[TokenHolder], Never> = .init([])
@@ -51,7 +52,8 @@ final class NFTCollectionViewModel {
             previewViewType: previewViewType,
             tokenHolder: tokenHolders.map { $0.first }.eraseToAnyPublisher(),
             nftProvider: nftProvider,
-            assetDefinitionStore: assetDefinitionStore)
+            assetDefinitionStore: assetDefinitionStore,
+            tokenImageFetcher: tokenImageFetcher)
     }()
 
     private (set) lazy var nftAssetsPageViewModel = NFTAssetsPageViewModel(
@@ -66,7 +68,8 @@ final class NFTCollectionViewModel {
          tokensService: TokenViewModelState & TokenHolderState,
          activitiesService: ActivitiesServiceType,
          nftProvider: NFTProvider,
-         config: Config) {
+         config: Config,
+         tokenImageFetcher: TokenImageFetcher) {
 
         self.config = config
         self.activitiesService = activitiesService
@@ -75,6 +78,7 @@ final class NFTCollectionViewModel {
         self.token = token
         self.wallet = wallet
         self.assetDefinitionStore = assetDefinitionStore
+        self.tokenImageFetcher = tokenImageFetcher
     } 
     
     func transform(input: NFTCollectionViewModelInput) -> NFTCollectionViewModelOutput {

@@ -11,6 +11,7 @@ protocol SendViewControllerDelegate: AnyObject, CanOpenURL {
 }
 
 class SendViewController: UIViewController {
+    private let tokenImageFetcher: TokenImageFetcher
     private let recipientHeader = SendViewSectionHeader()
     private let amountHeader = SendViewSectionHeader()
     private let buttonsBar: HorizontalButtonsBar = {
@@ -45,7 +46,7 @@ class SendViewController: UIViewController {
     }()
 
     lazy var amountTextField: AmountTextField = {
-        let amountTextField = AmountTextField(viewModel: viewModel.amountTextFieldViewModel)
+        let amountTextField = AmountTextField(viewModel: viewModel.amountTextFieldViewModel, tokenImageFetcher: tokenImageFetcher)
         amountTextField.delegate = self
         amountTextField.inputAccessoryButtonType = .next
         amountTextField.viewModel.errorState = .none
@@ -57,7 +58,11 @@ class SendViewController: UIViewController {
     }()
     weak var delegate: SendViewControllerDelegate?
 
-    init(viewModel: SendViewModel, domainResolutionService: DomainResolutionServiceType) {
+    init(viewModel: SendViewModel,
+         domainResolutionService: DomainResolutionServiceType,
+         tokenImageFetcher: TokenImageFetcher) {
+
+        self.tokenImageFetcher = tokenImageFetcher
         self.domainResolutionService = domainResolutionService
         self.viewModel = viewModel
 

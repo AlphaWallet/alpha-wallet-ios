@@ -216,6 +216,8 @@ class AppCoordinator: NSObject, Coordinator {
     private lazy var serversProvider: ServersProvidable = {
         BaseServersProvider(config: config)
     }()
+    private let tokenImageFetcher: TokenImageFetcher = TokenImageFetcherImpl(networking: KingfisherImageFetcher())
+
     //Unfortunate to have to have a factory method and not be able to use an initializer (because we can't override `init()` to throw)
     static func create() throws -> AppCoordinator {
         crashlytics.register(AlphaWallet.FirebaseCrashlyticsReporter.instance)
@@ -459,7 +461,8 @@ class AppCoordinator: NSObject, Coordinator {
             tokenScriptOverridesFileManager: tokenScriptOverridesFileManager,
             networkService: networkService,
             promptBackup: promptBackup,
-            caip10AccountProvidable: caip10AccountProvidable)
+            caip10AccountProvidable: caip10AccountProvidable,
+            tokenImageFetcher: tokenImageFetcher)
 
         coordinator.delegate = self
 

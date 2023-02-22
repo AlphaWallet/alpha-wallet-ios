@@ -106,8 +106,9 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         return viewModel.token.server
     }
     let assetDefinitionStore: AssetDefinitionStore
+    private let tokenImageFetcher: TokenImageFetcher
     private lazy var pricePerTokenField: AmountTextField = {
-        let textField = AmountTextField(token: viewModel.ethToken)
+        let textField = AmountTextField(token: viewModel.ethToken, tokenImageFetcher: tokenImageFetcher)
         textField.selectCurrencyButton.isEnabled = false
         textField.selectCurrencyButton.hasToken = true
         textField.selectCurrencyButton.expandIconHidden = true
@@ -138,8 +139,10 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
          walletSession: WalletSession,
          keystore: Keystore,
          service: TokenViewModelState,
-         currencyService: CurrencyService) {
+         currencyService: CurrencyService,
+         tokenImageFetcher: TokenImageFetcher) {
 
+        self.tokenImageFetcher = tokenImageFetcher
         self.currencyService = currencyService
         self.service = service
         self.analytics = analytics

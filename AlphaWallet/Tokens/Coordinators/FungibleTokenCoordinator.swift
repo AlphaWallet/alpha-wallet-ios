@@ -36,6 +36,7 @@ class FungibleTokenCoordinator: Coordinator {
     private let navigationController: UINavigationController
     private var cancelable = Set<AnyCancellable>()
     private let currencyService: CurrencyService
+    private let tokenImageFetcher: TokenImageFetcher
     private lazy var rootViewController: FungibleTokenTabViewController = {
         let viewModel = FungibleTokenTabViewModel(token: token, session: session, tokensService: tokensService, assetDefinitionStore: assetDefinitionStore)
         let viewController = FungibleTokenTabViewController(viewModel: viewModel)
@@ -61,8 +62,10 @@ class FungibleTokenCoordinator: Coordinator {
          alertService: PriceAlertServiceType,
          tokensService: TokenBalanceRefreshable & TokenViewModelState & TokenHolderState,
          sessions: ServerDictionary<WalletSession>,
-         currencyService: CurrencyService) {
-        
+         currencyService: CurrencyService,
+         tokenImageFetcher: TokenImageFetcher) {
+
+        self.tokenImageFetcher = tokenImageFetcher
         self.currencyService = currencyService
         self.token = token
         self.navigationController = navigationController
@@ -97,7 +100,15 @@ class FungibleTokenCoordinator: Coordinator {
     }
 
     private func buildActivitiesViewController() -> UIViewController {
-        let viewController = ActivitiesViewController(analytics: analytics, keystore: keystore, wallet: session.account, viewModel: .init(collection: .init(activities: [])), sessions: sessions, assetDefinitionStore: assetDefinitionStore)
+        let viewController = ActivitiesViewController(
+            analytics: analytics,
+            keystore: keystore,
+            wallet: session.account,
+            viewModel: .init(collection: .init(activities: [])),
+            sessions: sessions,
+            assetDefinitionStore: assetDefinitionStore,
+            tokenImageFetcher: tokenImageFetcher)
+        
         viewController.delegate = self
 
         //FIXME: replace later with moving it to `ActivitiesViewController`
@@ -122,7 +133,16 @@ class FungibleTokenCoordinator: Coordinator {
     }
 
     private func buildDetailsViewController() -> UIViewController {
-        lazy var viewModel = FungibleTokenDetailsViewModel(token: token, coinTickersFetcher: coinTickersFetcher, tokensService: tokensService, session: session, assetDefinitionStore: assetDefinitionStore, tokenActionsProvider: tokenActionsProvider, currencyService: currencyService)
+        lazy var viewModel = FungibleTokenDetailsViewModel(
+            token: token,
+            coinTickersFetcher: coinTickersFetcher,
+            tokensService: tokensService,
+            session: session,
+            assetDefinitionStore: assetDefinitionStore,
+            tokenActionsProvider: tokenActionsProvider,
+            currencyService: currencyService,
+            tokenImageFetcher: tokenImageFetcher)
+        
         let viewController = FungibleTokenDetailsViewController(viewModel: viewModel)
         viewController.delegate = self
 
@@ -174,14 +194,32 @@ extension FungibleTokenCoordinator: FungibleTokenDetailsViewControllerDelegate {
 
 extension FungibleTokenCoordinator: PriceAlertsViewControllerDelegate {
     func editAlertSelected(in viewController: PriceAlertsViewController, alert: PriceAlert) {
-        let coordinator = EditPriceAlertCoordinator(navigationController: navigationController, configuration: .edit(alert), token: token, session: session, tokensService: tokensService, alertService: alertService, currencyService: currencyService)
+        let coordinator = EditPriceAlertCoordinator(
+            navigationController: navigationController,
+            configuration: .edit(alert),
+            token: token,
+            session: session,
+            tokensService: tokensService,
+            alertService: alertService,
+            currencyService: currencyService,
+            tokenImageFetcher: tokenImageFetcher)
+
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start()
     }
 
     func addAlertSelected(in viewController: PriceAlertsViewController) {
-        let coordinator = EditPriceAlertCoordinator(navigationController: navigationController, configuration: .create, token: token, session: session, tokensService: tokensService, alertService: alertService, currencyService: currencyService)
+        let coordinator = EditPriceAlertCoordinator(
+            navigationController: navigationController,
+            configuration: .create,
+            token: token,
+            session: session,
+            tokensService: tokensService,
+            alertService: alertService,
+            currencyService: currencyService,
+            tokenImageFetcher: tokenImageFetcher)
+
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start()
