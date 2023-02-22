@@ -143,6 +143,14 @@ extension Dictionary where Key == AttributeId, Value == AssetAttributeSyntaxValu
         self["imageUrl"] = .init(directoryString: string)
     }
 
+    public var animationUrlUrlValue: URL? {
+        self["animationUrl"]?.stringValue.flatMap { WebImageURL(string: $0)?.url }
+    }
+
+    public mutating func setAnimationUrl(string: String?) {
+        self["animationUrl"] = string.flatMap { .init(directoryString: $0) }
+    }
+
     public var thumbnailUrlUrlValue: URL? {
         self["thumbnailUrl"]?.stringValue.flatMap { WebImageURL(string: $0)?.url }
     }
@@ -366,10 +374,6 @@ extension Dictionary where Key == AttributeId, Value == AssetAttributeSyntaxValu
 
     public mutating func setTraits(value: [OpenSeaNonFungibleTrait]) {
         self["traits"] = .init(openSeaTraits: value)
-    }
-
-    public mutating func setDecimals(int: Int) {
-        self["decimals"] = .init(int: BigInt(int))
     }
 
     public mutating func setTokenType(string: String) {

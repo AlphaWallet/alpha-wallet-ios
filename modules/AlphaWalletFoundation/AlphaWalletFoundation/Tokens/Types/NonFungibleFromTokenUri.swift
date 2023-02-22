@@ -13,12 +13,12 @@ public struct NonFungibleFromTokenUri: Codable, NonFungibleFromJson {
     public let tokenType: NonFungibleFromJsonTokenType
     public var value: BigInt
     public let contractName: String
-    public let decimals: Int
     public let symbol: String
     public let name: String
     public var description: String { "" }
     public let thumbnailUrl: String
     public let imageUrl: String
+    public let animationUrl: String?
     public var contractImageUrl: String { "" }
     public let externalLink: String
     public var backgroundColor: String? { "" }
@@ -39,13 +39,14 @@ struct NonFungibleFromTokenUriBeforeErc1155Support: Codable {
     var contractImageUrl: String { "" }
     let externalLink: String
     var backgroundColor: String? { "" }
+    let animationUrl: String?
     var traits: [OpenSeaNonFungibleTrait] { [] }
     var generationTrait: OpenSeaNonFungibleTrait? { nil }
     let collectionCreatedDate: Date?
     let collectionDescription: String?
 
     func asPostErc1155Support(tokenType: NonFungibleFromJsonTokenType?) -> NonFungibleFromJson {
-        let result = NonFungibleFromTokenUri(tokenId: tokenId, tokenType: tokenType ?? .erc721, value: 1, contractName: contractName, decimals: 0, symbol: symbol, name: name, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, externalLink: externalLink, collectionCreatedDate: collectionCreatedDate, collectionDescription: collectionDescription)
+        let result = NonFungibleFromTokenUri(tokenId: tokenId, tokenType: tokenType ?? .erc721, value: 1, contractName: contractName/*, decimals: 0*/, symbol: symbol, name: name, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, animationUrl: animationUrl, externalLink: externalLink, collectionCreatedDate: collectionCreatedDate, collectionDescription: collectionDescription)
         return result
     }
 }

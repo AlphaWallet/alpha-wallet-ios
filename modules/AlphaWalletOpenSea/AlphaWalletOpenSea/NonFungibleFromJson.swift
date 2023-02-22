@@ -14,12 +14,12 @@ public protocol NonFungibleFromJson: Codable {
     var tokenType: NonFungibleFromJsonTokenType { get }
     var value: BigInt { get set }
     var contractName: String { get }
-    var decimals: Int { get }
     var symbol: String { get }
     var name: String { get }
     var description: String { get }
     var thumbnailUrl: String { get }
     var imageUrl: String { get }
+    var animationUrl: String? { get }
     var contractImageUrl: String { get }
     var externalLink: String { get }
     var backgroundColor: String? { get }

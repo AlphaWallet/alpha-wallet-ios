@@ -309,17 +309,18 @@ public struct TokenAdaptor {
             generalisedTime.date = date
             values.setCollectionCreatedDate(generalisedTime: generalisedTime)
         }
+
         values.collectionDescriptionStringValue = nonFungible.collectionDescription
         values.setName(string: nonFungible.name)
         values.setDescription(string: nonFungible.description)
         values.setImageUrl(string: nonFungible.imageUrl)
+        values.setAnimationUrl(string: nonFungible.animationUrl)
         values.setContractImageUrl(string: nonFungible.contractImageUrl)
         values.setThumbnailUrl(string: nonFungible.thumbnailUrl)
         values.setExternalLink(string: nonFungible.externalLink)
         values.backgroundColorStringValue = nonFungible.backgroundColor
         values.setTraits(value: nonFungible.traits)
         values.setValue(int: nonFungible.value)
-        values.setDecimals(int: nonFungible.decimals)
         values.setTokenType(string: nonFungible.tokenType.rawValue)
 
         if let token = nftProvider.enjinToken(tokenId: tokenIdOrEvent.tokenId) {

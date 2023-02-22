@@ -112,7 +112,7 @@ extension NftAsset {
         let contractImageUrl = assetContractJson["image_url"].stringValue
         let externalLink = json["external_link"].stringValue
         let backgroundColor = json["background_color"].stringValue
-
+        let animationUrl = json["animation_url"].string
         let traits = json["traits"].arrayValue.compactMap { OpenSeaNonFungibleTrait(json: $0) }
         let collectionId = collectionJson["slug"].stringValue
         let collectionCreatedDate = assetContractJson["created_date"].string
@@ -139,6 +139,7 @@ extension NftAsset {
                   creator: creator,
                   collectionId: collectionId,
                   imageOriginalUrl: imageOriginalUrl,
-                  previewUrl: previewUrl)
+                  previewUrl: previewUrl,
+                  animationUrl: animationUrl)
     }
 }
