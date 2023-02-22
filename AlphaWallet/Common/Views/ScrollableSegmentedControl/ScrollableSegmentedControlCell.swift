@@ -72,7 +72,6 @@ class ScrollableSegmentedControlCell: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .center
         label.numberOfLines = 0
-        label.textColor = .white
         return label
     }()
 

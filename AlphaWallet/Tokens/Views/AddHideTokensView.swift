@@ -30,7 +30,7 @@ class AddHideTokensView: UIView, ReusableTableHeaderViewType {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "0"
         label.textAlignment = .center
-        label.textColor = .white
+        label.textColor = Configuration.Color.Semantic.defaultInverseText
         label.font = .boldSystemFont(ofSize: 14)
 
         return label

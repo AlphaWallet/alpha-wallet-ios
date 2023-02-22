@@ -54,7 +54,7 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
     }
 
     var stateColor: UIColor {
-        return .white
+        return Configuration.Color.Semantic.defaultForegroundText
     }
 
     var stateFont: UIFont {

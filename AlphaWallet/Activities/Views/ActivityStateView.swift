@@ -25,7 +25,7 @@ class ActivityStateView: UIView {
         control.translatesAutoresizingMaskIntoConstraints = false
         control.duration = 1.1
         control.lineWidth = 3
-        control.backgroundFillColor = .white
+        control.backgroundFillColor = Configuration.Color.Semantic.activityStateViewPendingLoadingIndicatorViewBackground
         control.translatesAutoresizingMaskIntoConstraints = false
 
         return control

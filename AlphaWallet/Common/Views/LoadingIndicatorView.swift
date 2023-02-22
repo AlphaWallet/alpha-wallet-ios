@@ -21,7 +21,7 @@ class ActivityLoadingIndicatorView: UIView {
         }
     }
 
-    var backgroundFillColor: UIColor = .white {
+    var backgroundFillColor: UIColor = Configuration.Color.Semantic.loadingIndicatorBackground {
         didSet {
             backgroundLayer.fillColor = backgroundFillColor.cgColor
         }
