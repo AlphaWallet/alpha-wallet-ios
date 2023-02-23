@@ -130,7 +130,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
         button.setTitle(R.string.localizable.confirmPaymentConfirmButtonTitle(), for: .normal)
         button.addTarget(self, action: #selector(proceed), for: .touchUpInside)
 
-        tokenScriptRendererView.loadHtml(action.viewHtml(forTokenHolder: tokenHolder, tokenId: tokenHolder.tokenIds[0]))
+        tokenScriptRendererView.loadHtml(action.viewHtml(tokenId: tokenHolder.tokenIds[0]))
 
         //TODO this will only contain values that has been resolved and might not refresh properly when the values are 1st resolved or updated
         //TODO rename this. Not actually `existingAttributeValues`, but token attributes

@@ -26,7 +26,7 @@ struct TokenCardWebViewModel {
             (html, style) = xmlHandler.tokenViewIconifiedHtml
         }
 
-        return wrapWithHtmlViewport(html: html, style: style, forTokenHolder: tokenHolder)
+        return wrapWithHtmlViewport(html: html, style: style, forTokenId: tokenId)
     }
 
     var hasTokenScriptHtml: Bool {

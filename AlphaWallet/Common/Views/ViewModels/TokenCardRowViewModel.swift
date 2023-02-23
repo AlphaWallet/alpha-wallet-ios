@@ -153,7 +153,7 @@ struct TokenCardRowViewModel: TokenCardRowViewModelProtocol {
         case .viewIconified:
             (html, style) = xmlHandler.tokenViewIconifiedHtml
         }
-        return wrapWithHtmlViewport(html: html, style: style, forTokenHolder: tokenHolder)
+        return wrapWithHtmlViewport(html: html, style: style, forTokenId: tokenHolder.tokenId)
     }
 
     var hasTokenScriptHtml: Bool {
