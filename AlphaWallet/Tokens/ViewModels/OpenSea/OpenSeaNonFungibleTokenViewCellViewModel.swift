@@ -21,12 +21,13 @@ struct OpenSeaNonFungibleTokenViewCellViewModel {
             .foregroundColor: Configuration.Color.Semantic.defaultForegroundText
         ])
     }
-    var tokenIcon: TokenImagePublisher {
-        TokenImageFetcher.instance.image(token: token, size: .s750)
-    }
+    let tokenIcon: TokenImagePublisher
 
-    init(token: TokenViewModel) {
-        self.token = token 
+    init(token: TokenViewModel,
+         tokenImageFetcher: TokenImageFetcher) {
+        
+        self.token = token
+        self.tokenIcon = tokenImageFetcher.image(token: token, size: .s750)
     }
 
     var backgroundColor: UIColor {

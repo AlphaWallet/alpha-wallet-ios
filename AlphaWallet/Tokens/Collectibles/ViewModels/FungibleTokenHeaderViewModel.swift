@@ -24,17 +24,22 @@ final class FungibleTokenHeaderViewModel {
     private var isShowingValueSubject: CurrentValueSubject<Bool, Never> = .init(true)
     private let tokensService: TokenViewModelState
     private var cancelable = Set<AnyCancellable>()
+    private let tokenImageFetcher: TokenImageFetcher
 
     let backgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground
     var iconImage: TokenImagePublisher {
-        TokenImageFetcher.instance.image(token: token, size: .s300)
+        tokenImageFetcher.image(token: token, size: .s300)
     }
 
     var blockChainTagViewModel: BlockchainTagLabelViewModel {
         return .init(server: token.server)
     }
 
-    init(token: Token, tokensService: TokenViewModelState) {
+    init(token: Token,
+         tokensService: TokenViewModelState,
+         tokenImageFetcher: TokenImageFetcher) {
+
+        self.tokenImageFetcher = tokenImageFetcher
         self.token = token
         self.tokensService = tokensService
     }

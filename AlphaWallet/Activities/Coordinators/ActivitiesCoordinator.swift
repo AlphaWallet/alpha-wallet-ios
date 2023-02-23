@@ -16,9 +16,10 @@ class ActivitiesCoordinator: NSObject, Coordinator {
     private let wallet: Wallet
     private let analytics: AnalyticsLogger
     private let assetDefinitionStore: AssetDefinitionStore
-    weak var delegate: ActivitiesCoordinatorDelegate?
+    private let tokenImageFetcher: TokenImageFetcher
     private var cancelable = Set<AnyCancellable>()
 
+    weak var delegate: ActivitiesCoordinatorDelegate?
     lazy var rootViewController: ActivitiesViewController = {
         makeActivitiesViewController()
     }()
@@ -26,15 +27,16 @@ class ActivitiesCoordinator: NSObject, Coordinator {
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
 
-    init(
-        analytics: AnalyticsLogger,
-        sessions: ServerDictionary<WalletSession>,
-        navigationController: UINavigationController = .withOverridenBarAppearence(),
-        activitiesService: ActivitiesServiceType,
-        keystore: Keystore,
-        wallet: Wallet,
-        assetDefinitionStore: AssetDefinitionStore
-    ) {
+    init(analytics: AnalyticsLogger,
+         sessions: ServerDictionary<WalletSession>,
+         navigationController: UINavigationController = .withOverridenBarAppearence(),
+         activitiesService: ActivitiesServiceType,
+         keystore: Keystore,
+         wallet: Wallet,
+         assetDefinitionStore: AssetDefinitionStore,
+         tokenImageFetcher: TokenImageFetcher) {
+
+        self.tokenImageFetcher = tokenImageFetcher
         self.assetDefinitionStore = assetDefinitionStore
         self.analytics = analytics
         self.activitiesService = activitiesService
@@ -52,7 +54,7 @@ class ActivitiesCoordinator: NSObject, Coordinator {
 
     private func makeActivitiesViewController() -> ActivitiesViewController {
         let viewModel = ActivitiesViewModel(collection: .init())
-        let controller = ActivitiesViewController(analytics: analytics, keystore: keystore, wallet: wallet, viewModel: viewModel, sessions: sessions, assetDefinitionStore: assetDefinitionStore)
+        let controller = ActivitiesViewController(analytics: analytics, keystore: keystore, wallet: wallet, viewModel: viewModel, sessions: sessions, assetDefinitionStore: assetDefinitionStore, tokenImageFetcher: tokenImageFetcher)
         controller.delegate = self
         
         return controller

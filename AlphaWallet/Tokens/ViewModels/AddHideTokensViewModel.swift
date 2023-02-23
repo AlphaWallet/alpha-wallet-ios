@@ -31,6 +31,7 @@ final class AddHideTokensViewModel {
     private var searchText: String?
     private var isSearchActive: Bool = false
     private let tokensFilter: TokensFilter
+    private let tokenImageFetcher: TokenImageFetcher
 
     var sections: [Section] = [.sortingFilters, .displayedTokens, .hiddenTokens, .popularTokens]
     var title: String = R.string.localizable.walletsAddHideTokensTitle()
@@ -42,8 +43,10 @@ final class AddHideTokensViewModel {
     init(tokenCollection: TokenViewModelState & TokenHidable,
          tokensFilter: TokensFilter,
          sessionsProvider: SessionsProvider,
-         config: Config) {
+         config: Config,
+         tokenImageFetcher: TokenImageFetcher) {
 
+        self.tokenImageFetcher = tokenImageFetcher
         self.tokenCollection = tokenCollection
         self.sessionsProvider = sessionsProvider
         self.config = config
@@ -207,10 +210,10 @@ final class AddHideTokensViewModel {
 
         switch token {
         case .walletToken(let token):
-            let viewModel = WalletTokenViewCellViewModel(token: token, isVisible: isVisible)
+            let viewModel = WalletTokenViewCellViewModel(token: token, isVisible: isVisible, tokenImageFetcher: tokenImageFetcher)
             return .walletToken(viewModel)
         case .popularToken(let token):
-            let viewModel = PopularTokenViewCellViewModel(token: token, isVisible: isVisible)
+            let viewModel = PopularTokenViewCellViewModel(token: token, isVisible: isVisible, tokenImageFetcher: tokenImageFetcher)
             return .popularToken(viewModel)
         }
     }

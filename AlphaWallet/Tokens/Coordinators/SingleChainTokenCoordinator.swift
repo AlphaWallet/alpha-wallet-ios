@@ -35,6 +35,8 @@ class SingleChainTokenCoordinator: Coordinator {
     private let alertService: PriceAlertServiceType
     private let tokensService: TokenBalanceRefreshable & TokenViewModelState & TokenHolderState
     private let currencyService: CurrencyService
+    private let tokenImageFetcher: TokenImageFetcher
+
     let session: WalletSession
     weak var delegate: SingleChainTokenCoordinatorDelegate?
     var coordinators: [Coordinator] = []
@@ -54,7 +56,10 @@ class SingleChainTokenCoordinator: Coordinator {
          alertService: PriceAlertServiceType,
          tokensService: TokenBalanceRefreshable & TokenViewModelState & TokenHolderState,
          sessions: ServerDictionary<WalletSession>,
-         currencyService: CurrencyService) {
+         currencyService: CurrencyService,
+         tokenImageFetcher: TokenImageFetcher) {
+
+        self.tokenImageFetcher = tokenImageFetcher
         self.currencyService = currencyService
         self.sessions = sessions
         self.tokensService = tokensService
@@ -93,7 +98,8 @@ class SingleChainTokenCoordinator: Coordinator {
             activitiesService: activitiesService,
             tokensService: tokensService,
             sessions: sessions,
-            currencyService: currencyService)
+            currencyService: currencyService,
+            tokenImageFetcher: tokenImageFetcher)
 
         addCoordinator(coordinator)
         coordinator.delegate = self
@@ -105,7 +111,7 @@ class SingleChainTokenCoordinator: Coordinator {
         let activitiesFilterStrategy = token.activitiesFilterStrategy
         let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: TransactionDataStore.functional.transactionsFilter(for: activitiesFilterStrategy, token: token))
 
-        let coordinator = FungibleTokenCoordinator(token: token, navigationController: navigationController, session: session, keystore: keystore, assetDefinitionStore: assetDefinitionStore, analytics: analytics, tokenActionsProvider: tokenActionsProvider, coinTickersFetcher: coinTickersFetcher, activitiesService: activitiesService, alertService: alertService, tokensService: tokensService, sessions: sessions, currencyService: currencyService)
+        let coordinator = FungibleTokenCoordinator(token: token, navigationController: navigationController, session: session, keystore: keystore, assetDefinitionStore: assetDefinitionStore, analytics: analytics, tokenActionsProvider: tokenActionsProvider, coinTickersFetcher: coinTickersFetcher, activitiesService: activitiesService, alertService: alertService, tokensService: tokensService, sessions: sessions, currencyService: currencyService, tokenImageFetcher: tokenImageFetcher)
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start()

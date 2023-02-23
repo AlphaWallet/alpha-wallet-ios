@@ -40,22 +40,33 @@ class SelectTokenCoordinator: Coordinator {
 
     private let parentsNavigationController: UINavigationController
     private (set) lazy var rootViewController: SelectTokenViewController = {
-        let viewModel = SelectTokenViewModel(tokenCollection: tokenCollection, tokensFilter: tokensFilter, filter: filter)
+        let viewModel = SelectTokenViewModel(
+            tokenCollection: tokenCollection,
+            tokensFilter: tokensFilter,
+            filter: filter,
+            tokenImageFetcher: tokenImageFetcher)
         let viewController = SelectTokenViewController(viewModel: viewModel)
         viewController.navigationItem.rightBarButtonItem = UIBarButtonItem.closeBarButton(self, selector: #selector(closeDidSelect))
 
         return viewController
     }()
-
+    private let tokenImageFetcher: TokenImageFetcher
     private let tokenCollection: TokenCollection
     private let filter: WalletFilter
     private let tokensFilter: TokensFilter
+    
     lazy var navigationController = NavigationController(rootViewController: rootViewController)
     var coordinators: [Coordinator] = []
     weak var delegate: SelectTokenCoordinatorDelegate?
 
     //NOTE: `filter: WalletFilter` parameter allow us to to filter tokens we need
-    init(tokenCollection: TokenCollection, tokensFilter: TokensFilter, navigationController: UINavigationController, filter: WalletFilter) {
+    init(tokenCollection: TokenCollection,
+         tokensFilter: TokensFilter,
+         navigationController: UINavigationController,
+         filter: WalletFilter,
+         tokenImageFetcher: TokenImageFetcher) {
+
+        self.tokenImageFetcher = tokenImageFetcher
         self.tokensFilter = tokensFilter
         self.filter = filter
         self.parentsNavigationController = navigationController

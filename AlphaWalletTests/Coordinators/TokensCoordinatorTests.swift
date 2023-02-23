@@ -44,7 +44,8 @@ class TokensCoordinatorTests: XCTestCase {
             blockiesGenerator: .make(),
             domainResolutionService: FakeDomainResolutionService(),
             tokensFilter: .make(),
-            currencyService: .make())
+            currencyService: .make(),
+            tokenImageFetcher: FakeTokenImageFetcher())
 
         coordinator.start()
 

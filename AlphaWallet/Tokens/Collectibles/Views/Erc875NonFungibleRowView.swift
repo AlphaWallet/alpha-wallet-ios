@@ -48,6 +48,7 @@ class Erc875NonFungibleRowView: TokenCardViewRepresentable {
     private let assetDefinitionStore: AssetDefinitionStore
     private let wallet: Wallet
     private let token: Token
+    private let tokenImageFetcher: TokenImageFetcher
 
     init(token: Token,
          tokenType: OpenSeaBackedNonFungibleTokenHandling,
@@ -55,8 +56,10 @@ class Erc875NonFungibleRowView: TokenCardViewRepresentable {
          wallet: Wallet,
          layout: GridOrListLayout,
          gridEdgeInsets: UIEdgeInsets = .zero,
-         listEdgeInsets: UIEdgeInsets = .init(top: 0, left: 16, bottom: 0, right: 16)) {
-        
+         listEdgeInsets: UIEdgeInsets = .init(top: 0, left: 16, bottom: 0, right: 16),
+         tokenImageFetcher: TokenImageFetcher) {
+
+        self.tokenImageFetcher = tokenImageFetcher
         self.gridEdgeInsets = gridEdgeInsets
         self.listEdgeInsets = listEdgeInsets
         self.tokenType = tokenType
@@ -183,7 +186,7 @@ class Erc875NonFungibleRowView: TokenCardViewRepresentable {
         titleLabel.textColor = viewModel.titleTextForegroundColor
         titleLabel.text = viewModel.titleText
 
-        tokenIconImageView.set(imageSource: TokenImageFetcher.instance.image(token: token, size: .s300))
+        tokenIconImageView.set(imageSource: tokenImageFetcher.image(token: token, size: .s300))
     }
 
     func configure(tokenHolder: TokenHolder, tokenId: TokenId) {

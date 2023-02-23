@@ -23,7 +23,7 @@ final class SwapTokensCoordinator: Coordinator {
     private let navigationController: UINavigationController
     private lazy var rootViewController: SwapTokensViewController = {
         let viewModel = SwapTokensViewModel(configurator: configurator, tokensService: tokenCollection)
-        let viewController = SwapTokensViewController(viewModel: viewModel)
+        let viewController = SwapTokensViewController(viewModel: viewModel, tokenImageFetcher: tokenImageFetcher)
         viewController.navigationItem.rightBarButtonItems = [
             UIBarButtonItem.settingsBarButton(self, selector: #selector(swapConfiguratinSelected)),
             UIBarButtonItem(customView: viewController.loadingIndicatorView)
@@ -52,6 +52,7 @@ final class SwapTokensCoordinator: Coordinator {
     private let tokensFilter: TokensFilter
     private let networkService: NetworkService
     private let transactionDataStore: TransactionDataStore
+    private let tokenImageFetcher: TokenImageFetcher
 
     var coordinators: [Coordinator] = []
     weak var delegate: SwapTokensCoordinatorDelegate?
@@ -65,8 +66,10 @@ final class SwapTokensCoordinator: Coordinator {
          tokenCollection: TokenCollection,
          tokensFilter: TokensFilter,
          networkService: NetworkService,
-         transactionDataStore: TransactionDataStore) {
+         transactionDataStore: TransactionDataStore,
+         tokenImageFetcher: TokenImageFetcher) {
 
+        self.tokenImageFetcher = tokenImageFetcher
         self.transactionDataStore = transactionDataStore
         self.networkService = networkService
         self.tokensFilter = tokensFilter
@@ -99,7 +102,8 @@ final class SwapTokensCoordinator: Coordinator {
             tokenCollection: tokenCollection,
             tokensFilter: tokensFilter,
             navigationController: navigationController,
-            filter: .filter(tokenSelectionProvider))
+            filter: .filter(tokenSelectionProvider),
+            tokenImageFetcher: tokenImageFetcher)
 
         coordinator.rootViewController.navigationItem.leftBarButtonItem = UIBarButtonItem.logoBarButton()
         coordinator.delegate = self

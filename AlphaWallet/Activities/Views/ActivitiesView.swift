@@ -34,9 +34,19 @@ class ActivitiesView: UIView {
     private let wallet: Wallet
     private let analytics: AnalyticsLogger
     private let assetDefinitionStore: AssetDefinitionStore
+    private let tokenImageFetcher: TokenImageFetcher
+
     weak var delegate: ActivitiesViewDelegate?
 
-    init(analytics: AnalyticsLogger, keystore: Keystore, wallet: Wallet, viewModel: ActivitiesViewModel, sessions: ServerDictionary<WalletSession>, assetDefinitionStore: AssetDefinitionStore) {
+    init(analytics: AnalyticsLogger,
+         keystore: Keystore,
+         wallet: Wallet,
+         viewModel: ActivitiesViewModel,
+         sessions: ServerDictionary<WalletSession>,
+         assetDefinitionStore: AssetDefinitionStore,
+         tokenImageFetcher: TokenImageFetcher) {
+
+        self.tokenImageFetcher = tokenImageFetcher
         self.assetDefinitionStore = assetDefinitionStore
         self.viewModel = viewModel
         self.sessions = sessions
@@ -164,7 +174,7 @@ extension ActivitiesView: UITableViewDataSource {
             switch activity.nativeViewType {
             case .erc20Received, .erc20Sent, .erc20OwnerApproved, .erc20ApprovalObtained, .erc721Received, .erc721Sent, .erc721OwnerApproved, .erc721ApprovalObtained, .nativeCryptoSent, .nativeCryptoReceived:
                 let cell: DefaultActivityItemViewCell = tableView.dequeueReusableCell(for: indexPath)
-                cell.configure(viewModel: .init(activity: activity))
+                cell.configure(viewModel: .init(activity: activity, tokenImageFetcher: tokenImageFetcher))
                 return cell
             case .none:
                 let cell: ActivityViewCell = tableView.dequeueReusableCell(for: indexPath)
@@ -175,7 +185,7 @@ extension ActivitiesView: UITableViewDataSource {
         case .childTransaction(transaction: let transaction, operation: let operation, let activity):
             if let activity = activity {
                 let cell: DefaultActivityItemViewCell = tableView.dequeueReusableCell(for: indexPath)
-                cell.configure(viewModel: .init(activity: activity))
+                cell.configure(viewModel: .init(activity: activity, tokenImageFetcher: tokenImageFetcher))
                 return cell
             } else {
                 let cell: TransactionTableViewCell = tableView.dequeueReusableCell(for: indexPath)
@@ -186,7 +196,7 @@ extension ActivitiesView: UITableViewDataSource {
         case .standaloneTransaction(transaction: let transaction, let activity):
             if let activity = activity {
                 let cell: DefaultActivityItemViewCell = tableView.dequeueReusableCell(for: indexPath)
-                cell.configure(viewModel: .init(activity: activity))
+                cell.configure(viewModel: .init(activity: activity, tokenImageFetcher: tokenImageFetcher))
                 return cell
             } else {
                 let cell: TransactionTableViewCell = tableView.dequeueReusableCell(for: indexPath)
@@ -198,7 +208,7 @@ extension ActivitiesView: UITableViewDataSource {
             switch activity.nativeViewType {
             case .erc20Received, .erc20Sent, .erc20OwnerApproved, .erc20ApprovalObtained, .erc721Received, .erc721Sent, .erc721OwnerApproved, .erc721ApprovalObtained, .nativeCryptoSent, .nativeCryptoReceived:
                 let cell: DefaultActivityItemViewCell = tableView.dequeueReusableCell(for: indexPath)
-                cell.configure(viewModel: .init(activity: activity))
+                cell.configure(viewModel: .init(activity: activity, tokenImageFetcher: tokenImageFetcher))
                 return cell
             case .none:
                 let cell: ActivityViewCell = tableView.dequeueReusableCell(for: indexPath)

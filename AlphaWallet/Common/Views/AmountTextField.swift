@@ -25,6 +25,7 @@ final class AmountTextField: UIControl {
     private lazy var allFundsContainer: UIView = [allFundsButton].asStackView(axis: .horizontal)
     private lazy var alternativeAmountLabelContainer: UIView = [alternativeAmountLabel].asStackView(axis: .horizontal)
     private var cancelable = Set<AnyCancellable>()
+    private let tokenImageFetcher: TokenImageFetcher
 
     private(set) lazy var textField: UITextField = {
         let textField = UITextField()
@@ -132,12 +133,13 @@ final class AmountTextField: UIControl {
     weak var delegate: AmountTextFieldDelegate?
     let viewModel: AmountTextFieldViewModel
 
-    convenience init(token: Token?, debugName: String = "") {
-        self.init(viewModel: .init(token: token, debugName: debugName))
+    convenience init(token: Token?, debugName: String = "", tokenImageFetcher: TokenImageFetcher) {
+        self.init(viewModel: .init(token: token, debugName: debugName), tokenImageFetcher: tokenImageFetcher)
     }
 
-    init(viewModel: AmountTextFieldViewModel) {
+    init(viewModel: AmountTextFieldViewModel, tokenImageFetcher: TokenImageFetcher) {
         self.viewModel = viewModel
+        self.tokenImageFetcher = tokenImageFetcher
         super.init(frame: .zero)
 
         translatesAutoresizingMaskIntoConstraints = false
@@ -213,7 +215,7 @@ final class AmountTextField: UIControl {
                 if let pair = $0 {
                     selectCurrencyButton?.hasToken = true
                     selectCurrencyButton?.text = pair.symbol
-                    selectCurrencyButton?.set(imageSource: pair.icon)
+                    selectCurrencyButton?.set(imageSource: self.currencyOrTokenImage(for: pair))
                 } else {
                     selectCurrencyButton?.hasToken = false
                 }
@@ -248,6 +250,17 @@ final class AmountTextField: UIControl {
 
     @objc private func nextButtonTapped() {
         delegate?.nextButtonTapped(for: self)
+    }
+
+    private func currencyOrTokenImage(for pair: AmountTextField.Pair) -> TokenImagePublisher {
+        switch pair.left {
+        case .cryptoCurrency(let token):
+            return tokenImageFetcher.image(token: token, size: .s120)
+        case .fiatCurrency(let currency):
+            let imageSource = currency.icon.flatMap { RawImage.loaded(image: $0) } ?? .none
+
+            return .just(.init(image: .image(imageSource), isFinal: true, overlayServerIcon: nil))
+        }
     }
 
     ///We have to allow the text field the chance to update, so we have to use asyncAfter..

@@ -19,7 +19,5 @@ public final class ConfigureImageStorage: Initializer {
 
         // Constrain Disk Cache to 100 MB
         cache.diskStorage.config.sizeLimit = 1024 * 1024 * 300
-        
-        TokenImageFetcher.register(imageFetcher: KingfisherImageFetcher())
     }
 }

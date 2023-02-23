@@ -13,7 +13,8 @@ class TransactionsCoordinator: Coordinator {
     private let sessions: ServerDictionary<WalletSession>
     private let transactionsService: TransactionsService
     private let tokensService: TokenViewModelState
-    
+    private let tokenImageFetcher: TokenImageFetcher
+
     lazy var rootViewController: TransactionsViewController = {
         let viewModel = TransactionsViewModel(transactionsService: transactionsService, sessions: sessions)
         let controller = TransactionsViewController(viewModel: viewModel)
@@ -30,8 +31,10 @@ class TransactionsCoordinator: Coordinator {
          sessions: ServerDictionary<WalletSession>,
          navigationController: UINavigationController = .withOverridenBarAppearence(),
          transactionsService: TransactionsService,
-         tokensService: TokenViewModelState) {
+         tokensService: TokenViewModelState,
+         tokenImageFetcher: TokenImageFetcher) {
 
+        self.tokenImageFetcher = tokenImageFetcher
         self.tokensService = tokensService
         self.analytics = analytics
         self.sessions = sessions
@@ -56,7 +59,8 @@ class TransactionsCoordinator: Coordinator {
             blockNumberProvider: session.blockNumberProvider,
             wallet: session.account,
             tokensService: tokensService,
-            analytics: analytics)
+            analytics: analytics,
+            tokenImageFetcher: tokenImageFetcher)
 
         let controller = TransactionDetailsViewController(viewModel: viewModel)
         controller.delegate = self

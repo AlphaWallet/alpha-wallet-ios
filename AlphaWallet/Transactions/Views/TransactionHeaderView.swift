@@ -8,6 +8,7 @@ import Combine
 struct TransactionHeaderViewModel {
     private let transactionViewModel: TransactionViewModel
     private let tokensService: TokenViewModelState
+    private let tokenImageFetcher: TokenImageFetcher
 
     var server: RPCServer { transactionViewModel.server }
     var amount: NSAttributedString {
@@ -17,7 +18,11 @@ struct TransactionHeaderViewModel {
         ])
     }
 
-    init(transactionViewModel: TransactionViewModel, tokensService: TokenViewModelState) {
+    init(transactionViewModel: TransactionViewModel,
+         tokensService: TokenViewModelState,
+         tokenImageFetcher: TokenImageFetcher) {
+
+        self.tokenImageFetcher = tokenImageFetcher
         self.transactionViewModel = transactionViewModel
         self.tokensService = tokensService
     }
@@ -81,13 +86,13 @@ struct TransactionHeaderViewModel {
 
         guard let operation = operation, let contractAddress = operation.contractAddress else {
             let token = MultipleChainsTokensDataStore.functional.etherToken(forServer: server)
-            return TokenImageFetcher.instance.image(token: token, size: .s300)
+            return tokenImageFetcher.image(token: token, size: .s300)
         }
         guard let token = tokensService.tokenViewModel(for: contractAddress, server: server) else {
             return .just(nil)
         }
 
-        return TokenImageFetcher.instance.image(token: token, size: .s300)
+        return tokenImageFetcher.image(token: token, size: .s300)
     }
 
 }

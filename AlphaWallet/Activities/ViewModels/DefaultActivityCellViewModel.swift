@@ -15,7 +15,7 @@ struct DefaultActivityCellViewModel {
     }
 
     let activity: Activity
-
+    let tokenImageFetcher: TokenImageFetcher
     var contentsBackgroundColor: UIColor {
         if activityStateViewViewModel.isInPendingState {
             return Configuration.Color.Semantic.sendingState
@@ -190,7 +190,7 @@ struct DefaultActivityCellViewModel {
     }
 
     var iconImage: TokenImagePublisher {
-        TokenImageFetcher.instance.image(token: activity.token, size: .s120)
+        tokenImageFetcher.image(token: activity.token, size: .s120)
     }
 
     var activityStateViewViewModel: ActivityStateViewViewModel {

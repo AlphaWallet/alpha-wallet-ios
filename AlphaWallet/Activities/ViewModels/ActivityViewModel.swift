@@ -8,6 +8,7 @@ import Combine
 
 struct ActivityViewModel {
     let activity: Activity
+    let tokenImageFetcher: TokenImageFetcher
 
     private var cardAttributes: [AttributeId: AssetInternalValue] {
         activity.values.card
@@ -125,7 +126,7 @@ struct ActivityViewModel {
     }
 
     var iconImage: TokenImagePublisher {
-        TokenImageFetcher.instance.image(token: activity.token, size: .s300)
+        tokenImageFetcher.image(token: activity.token, size: .s300)
     }
 
     var stateImage: UIImage? {

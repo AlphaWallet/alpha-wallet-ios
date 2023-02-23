@@ -35,6 +35,7 @@ class PaymentCoordinator: Coordinator {
     private let tokensFilter: TokensFilter
     private let networkService: NetworkService
     private let transactionDataStore: TransactionDataStore
+    private let tokenImageFetcher: TokenImageFetcher
 
     let flow: PaymentFlow
     weak var delegate: PaymentCoordinatorDelegate?
@@ -54,8 +55,10 @@ class PaymentCoordinator: Coordinator {
          tokenSwapper: TokenSwapper,
          tokensFilter: TokensFilter,
          networkService: NetworkService,
-         transactionDataStore: TransactionDataStore) {
+         transactionDataStore: TransactionDataStore,
+         tokenImageFetcher: TokenImageFetcher) {
 
+        self.tokenImageFetcher = tokenImageFetcher
         self.transactionDataStore = transactionDataStore
         self.networkService = networkService
         self.tokensFilter = tokensFilter
@@ -86,7 +89,8 @@ class PaymentCoordinator: Coordinator {
             assetDefinitionStore: assetDefinitionStore,
             analytics: analytics,
             domainResolutionService: domainResolutionService,
-            networkService: networkService)
+            networkService: networkService,
+            tokenImageFetcher: tokenImageFetcher)
 
         coordinator.delegate = self
         coordinator.start()
@@ -104,7 +108,8 @@ class PaymentCoordinator: Coordinator {
             analytics: analytics,
             domainResolutionService: domainResolutionService,
             tokensService: tokenCollection,
-            networkService: networkService)
+            networkService: networkService,
+            tokenImageFetcher: tokenImageFetcher)
         
         coordinator.delegate = self
         coordinator.start()
@@ -123,7 +128,8 @@ class PaymentCoordinator: Coordinator {
             analytics: analytics,
             domainResolutionService: domainResolutionService,
             tokensService: tokenCollection,
-            networkService: networkService)
+            networkService: networkService,
+            tokenImageFetcher: tokenImageFetcher)
 
         coordinator.delegate = self
         coordinator.start()
@@ -166,7 +172,8 @@ class PaymentCoordinator: Coordinator {
             tokenCollection: tokenCollection,
             tokensFilter: tokensFilter,
             networkService: networkService,
-            transactionDataStore: transactionDataStore)
+            transactionDataStore: transactionDataStore,
+            tokenImageFetcher: tokenImageFetcher)
 
         coordinator.start()
         coordinator.delegate = self

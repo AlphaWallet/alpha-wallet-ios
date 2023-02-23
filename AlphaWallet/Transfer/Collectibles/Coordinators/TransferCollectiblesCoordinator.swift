@@ -29,6 +29,7 @@ class TransferCollectiblesCoordinator: Coordinator {
     private var transactionConfirmationResult: ConfirmResult? = .none
     private let tokensService: TokenViewModelState
     private let networkService: NetworkService
+    private let tokenImageFetcher: TokenImageFetcher
 
     weak var delegate: TransferCollectiblesCoordinatorDelegate?
     let navigationController: UINavigationController
@@ -43,8 +44,10 @@ class TransferCollectiblesCoordinator: Coordinator {
          analytics: AnalyticsLogger,
          domainResolutionService: DomainResolutionServiceType,
          tokensService: TokenViewModelState,
-         networkService: NetworkService) {
+         networkService: NetworkService,
+         tokenImageFetcher: TokenImageFetcher) {
 
+        self.tokenImageFetcher = tokenImageFetcher
         self.networkService = networkService
         self.tokensService = tokensService
         self.filteredTokenHolders = filteredTokenHolders
@@ -68,7 +71,8 @@ class TransferCollectiblesCoordinator: Coordinator {
         let tokenCardViewFactory = TokenCardViewFactory(
             token: token,
             assetDefinitionStore: assetDefinitionStore,
-            wallet: session.account)
+            wallet: session.account,
+            tokenImageFetcher: tokenImageFetcher)
 
         let controller = SendSemiFungibleTokenViewController(
             viewModel: viewModel,

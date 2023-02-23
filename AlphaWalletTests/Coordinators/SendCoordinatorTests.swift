@@ -17,7 +17,8 @@ class SendCoordinatorTests: XCTestCase {
             assetDefinitionStore: .make(),
             analytics: FakeAnalyticsService(),
             domainResolutionService: FakeDomainResolutionService(),
-            networkService: FakeNetworkService())
+            networkService: FakeNetworkService(),
+            tokenImageFetcher: FakeTokenImageFetcher())
 
         coordinator.start()
 
@@ -36,7 +37,8 @@ class SendCoordinatorTests: XCTestCase {
             assetDefinitionStore: .make(),
             analytics: FakeAnalyticsService(),
             domainResolutionService: FakeDomainResolutionService(),
-            networkService: FakeNetworkService())
+            networkService: FakeNetworkService(),
+            tokenImageFetcher: FakeTokenImageFetcher())
         coordinator.start()
 
         XCTAssertEqual(address.eip55String, coordinator.sendViewController.targetAddressTextField.value)

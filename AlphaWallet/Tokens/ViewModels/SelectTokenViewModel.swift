@@ -25,11 +25,17 @@ final class SelectTokenViewModel {
     private var filteredTokens: [TokenViewModel] = []
     private let tokensFilter: TokensFilter
     private let whenFilterHasChanged: AnyPublisher<Void, Never>
+    private let tokenImageFetcher: TokenImageFetcher
 
     var headerBackgroundColor: UIColor = Configuration.Color.Semantic.tableViewHeaderBackground
     var title: String = R.string.localizable.assetsSelectAssetTitle()
 
-    init(tokenCollection: TokenCollection, tokensFilter: TokensFilter, filter: WalletFilter) {
+    init(tokenCollection: TokenCollection,
+         tokensFilter: TokensFilter,
+         filter: WalletFilter,
+         tokenImageFetcher: TokenImageFetcher) {
+
+        self.tokenImageFetcher = tokenImageFetcher
         self.tokenCollection = tokenCollection
         self.tokensFilter = tokensFilter
         self.filter = filter
@@ -93,16 +99,16 @@ final class SelectTokenViewModel {
     }
 
     private func buildViewModels(for tokens: [TokenViewModel]) -> [SelectTokenViewModel.ViewModelType] {
-        return tokens.map { token -> SelectTokenViewModel.ViewModelType in
+        return tokens.map { [tokenImageFetcher] token -> SelectTokenViewModel.ViewModelType in
             switch token.type {
             case .nativeCryptocurrency:
-                let viewModel = EthTokenViewCellViewModel(token: token)
+                let viewModel = EthTokenViewCellViewModel(token: token, tokenImageFetcher: tokenImageFetcher)
                 return .nativeCryptocurrency(viewModel)
             case .erc20:
-                let viewModel = FungibleTokenViewCellViewModel(token: token)
+                let viewModel = FungibleTokenViewCellViewModel(token: token, tokenImageFetcher: tokenImageFetcher)
                 return .fungible(viewModel)
             case .erc721, .erc721ForTickets, .erc875, .erc1155:
-                let viewModel = NonFungibleTokenViewCellViewModel(token: token)
+                let viewModel = NonFungibleTokenViewCellViewModel(token: token, tokenImageFetcher: tokenImageFetcher)
                 return .nonFungible(viewModel)
             }
         }

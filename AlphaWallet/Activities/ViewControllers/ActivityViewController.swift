@@ -41,11 +41,18 @@ class ActivityViewController: UIViewController {
     private var server: RPCServer {
         viewModel.activity.token.server
     }
+    private let tokenImageFetcher: TokenImageFetcher
 
     var viewModel: ActivityViewModel
     weak var delegate: ActivityViewControllerDelegate?
 
-    init(wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, viewModel: ActivityViewModel, service: ActivitiesServiceType) {
+    init(wallet: Wallet,
+         assetDefinitionStore: AssetDefinitionStore,
+         viewModel: ActivityViewModel,
+         service: ActivitiesServiceType,
+         tokenImageFetcher: TokenImageFetcher) {
+
+        self.tokenImageFetcher = tokenImageFetcher
         self.service = service
         self.wallet = wallet
         self.assetDefinitionStore = assetDefinitionStore
@@ -116,10 +123,10 @@ class ActivityViewController: UIViewController {
 
         service.didUpdateActivityPublisher
             .receive(on: RunLoop.main)
-            .sink { [weak self] activity in
+            .sink { [weak self, tokenImageFetcher] activity in
                 guard let strongSelf = self, strongSelf.isForActivity(activity) else { return }
 
-                strongSelf.configure(viewModel: .init(activity: activity))
+                strongSelf.configure(viewModel: .init(activity: activity, tokenImageFetcher: tokenImageFetcher))
             }.store(in: &cancelable)
     }
 

@@ -25,6 +25,7 @@ class TransactionDetailsViewModel {
     private let transactionsService: TransactionsService
     private let tokensService: TokenViewModelState
     private let wallet: Wallet
+    private let tokenImageFetcher: TokenImageFetcher
     private var moreButtonTitle: String {
         if let name = ConfigExplorer(server: server).transactionUrl(for: transactionRow.id)?.name {
             return R.string.localizable.viewIn(name)
@@ -38,7 +39,15 @@ class TransactionDetailsViewModel {
     var server: RPCServer { transactionRow.server }
     var shareAvailable: Bool { detailsAvailable }
 
-    init(transactionsService: TransactionsService, transactionRow: TransactionRow, blockNumberProvider: BlockNumberProvider, wallet: Wallet, tokensService: TokenViewModelState, analytics: AnalyticsLogger) {
+    init(transactionsService: TransactionsService,
+         transactionRow: TransactionRow,
+         blockNumberProvider: BlockNumberProvider,
+         wallet: Wallet,
+         tokensService: TokenViewModelState,
+         analytics: AnalyticsLogger,
+         tokenImageFetcher: TokenImageFetcher) {
+
+        self.tokenImageFetcher = tokenImageFetcher
         self.wallet = wallet
         self.tokensService = tokensService
         self.transactionsService = transactionsService
@@ -88,7 +97,7 @@ class TransactionDetailsViewModel {
     }
 
     private func buildViewState(transactionRow: TransactionRow, transactionViewModel: TransactionViewModel, gasViewModel: GasViewModel) -> TransactionDetailsViewModel.ViewState {
-        let header = TransactionHeaderViewModel(transactionViewModel: transactionViewModel, tokensService: tokensService)
+        let header = TransactionHeaderViewModel(transactionViewModel: transactionViewModel, tokensService: tokensService, tokenImageFetcher: tokenImageFetcher)
 
         return .init(header: header, from: transactionRow.from, to: to, gasFee: gasViewModel.feeText, confirmation: confirmation, transactionId: transactionRow.id, createdAt: createdAt, blockNumber: String(transactionRow.blockNumber), nonce: String(transactionRow.nonce), barIsHidden: !detailsAvailable, server: server, moreButtonTitle: moreButtonTitle)
     }

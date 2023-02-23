@@ -24,6 +24,7 @@ final class NFTCollectionInfoPageViewModel {
     private let tokenHolder: AnyPublisher<TokenHolder?, Never>
     private let nftProvider: NFTProvider
     private let assetDefinitionStore: AssetDefinitionStore
+    private let tokenImageFetcher: TokenImageFetcher
 
     var tabTitle: String { return R.string.localizable.tokenTabInfo() }
     let token: Token
@@ -46,8 +47,10 @@ final class NFTCollectionInfoPageViewModel {
          previewViewType: NFTPreviewViewType,
          tokenHolder: AnyPublisher<TokenHolder?, Never>,
          nftProvider: NFTProvider,
-         assetDefinitionStore: AssetDefinitionStore) {
+         assetDefinitionStore: AssetDefinitionStore,
+         tokenImageFetcher: TokenImageFetcher) {
 
+        self.tokenImageFetcher = tokenImageFetcher
         self.previewViewType = previewViewType
         self.nftProvider = nftProvider
         self.tokenHolder = tokenHolder
@@ -91,14 +94,14 @@ final class NFTCollectionInfoPageViewModel {
     }
 
     private func previewViewParams(for helper: AnyPublisher<TokenInstanceViewConfigurationHelper?, Never>) -> AnyPublisher<NFTPreviewViewType.Params, Never> {
-        helper.map { [token, previewViewType] helper in
+        helper.map { [token, previewViewType, tokenImageFetcher] helper in
             guard let helper = helper else { return .image(iconImage: .just(nil)) }
 
             switch previewViewType {
             case .tokenCardView:
                 return .tokenScriptWebView(tokenHolder: helper.tokenHolder, tokenId: helper.tokenId)
             case .imageView:
-                let iconImage = TokenImageFetcher.instance.image(token: token, size: .s750)
+                let iconImage = tokenImageFetcher.image(token: token, size: .s750)
                 return .image(iconImage: iconImage )
             }
         }.eraseToAnyPublisher()

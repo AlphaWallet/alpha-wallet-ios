@@ -15,7 +15,8 @@ class TransferNFTCoordinator: Coordinator {
         let tokenCardViewFactory = TokenCardViewFactory(
             token: token,
             assetDefinitionStore: assetDefinitionStore,
-            wallet: session.account)
+            wallet: session.account,
+            tokenImageFetcher: tokenImageFetcher)
 
         let viewModel = SendSemiFungibleTokenViewModel(
             token: token,
@@ -33,6 +34,7 @@ class TransferNFTCoordinator: Coordinator {
         return controller
     }()
 
+    private let tokenImageFetcher: TokenImageFetcher
     private let keystore: Keystore
     private let token: Token
     private let session: WalletSession
@@ -59,8 +61,10 @@ class TransferNFTCoordinator: Coordinator {
          analytics: AnalyticsLogger,
          domainResolutionService: DomainResolutionServiceType,
          tokensService: TokenViewModelState,
-         networkService: NetworkService) {
+         networkService: NetworkService,
+         tokenImageFetcher: TokenImageFetcher) {
 
+        self.tokenImageFetcher = tokenImageFetcher
         self.networkService = networkService
         self.tokensService = tokensService
         self.transactionType = transactionType

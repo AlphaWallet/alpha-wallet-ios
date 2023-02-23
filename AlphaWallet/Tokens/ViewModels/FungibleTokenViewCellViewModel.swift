@@ -17,7 +17,11 @@ struct FungibleTokenViewCellViewModel {
     let iconImage: TokenImagePublisher
     let accessoryType: UITableViewCell.AccessoryType
 
-    init(token: TokenViewModel, isVisible: Bool = true, accessoryType: UITableViewCell.AccessoryType = .none) {
+    init(token: TokenViewModel,
+         isVisible: Bool = true,
+         accessoryType: UITableViewCell.AccessoryType = .none,
+         tokenImageFetcher: TokenImageFetcher) {
+
         self.safeShortTitleInPluralForm = token.tokenScriptOverrides?.safeShortTitleInPluralForm ?? ""
         self.amountShort = token.balance.amountShort
         self.symbolInPluralForm = token.tokenScriptOverrides?.symbolInPluralForm ?? ""
@@ -25,7 +29,7 @@ struct FungibleTokenViewCellViewModel {
         self.contract = token.contractAddress
         self.server = token.server
         self.valueDecimal = token.balance.valueDecimal
-        self.iconImage = TokenImageFetcher.instance.image(token: token, size: .s300)
+        self.iconImage = tokenImageFetcher.image(token: token, size: .s300)
         self.isVisible = isVisible
         self.accessoryType = accessoryType
     }

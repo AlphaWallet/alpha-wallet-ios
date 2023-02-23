@@ -112,7 +112,8 @@ class ActiveWalletViewTests: XCTestCase {
             tokenScriptOverridesFileManager: .fake(),
             networkService: FakeNetworkService(),
             promptBackup: .make(),
-            caip10AccountProvidable: AnyCAIP10AccountProvidable.make())
+            caip10AccountProvidable: AnyCAIP10AccountProvidable.make(),
+            tokenImageFetcher: FakeTokenImageFetcher())
 
         coordinator.start(animated: false)
 
@@ -194,7 +195,8 @@ class ActiveWalletViewTests: XCTestCase {
             tokenScriptOverridesFileManager: .fake(),
             networkService: FakeNetworkService(),
             promptBackup: .make(),
-            caip10AccountProvidable: AnyCAIP10AccountProvidable.make())
+            caip10AccountProvidable: AnyCAIP10AccountProvidable.make(),
+            tokenImageFetcher: FakeTokenImageFetcher())
 
         c1.start(animated: false)
 
@@ -230,7 +232,8 @@ class ActiveWalletViewTests: XCTestCase {
             tokenScriptOverridesFileManager: .fake(),
             networkService: FakeNetworkService(),
             promptBackup: .make(),
-            caip10AccountProvidable: AnyCAIP10AccountProvidable.make())
+            caip10AccountProvidable: AnyCAIP10AccountProvidable.make(),
+            tokenImageFetcher: FakeTokenImageFetcher())
 
         c1.start(animated: false)
 
@@ -284,7 +287,8 @@ class ActiveWalletViewTests: XCTestCase {
                 tokenScriptOverridesFileManager: .fake(),
                 networkService: FakeNetworkService(),
                 promptBackup: .make(),
-                caip10AccountProvidable: AnyCAIP10AccountProvidable.make())
+                caip10AccountProvidable: AnyCAIP10AccountProvidable.make(),
+                tokenImageFetcher: FakeTokenImageFetcher())
 
         coordinator.start(animated: false)
         coordinator.showPaymentFlow(
@@ -342,7 +346,8 @@ class ActiveWalletViewTests: XCTestCase {
             tokenScriptOverridesFileManager: .fake(),
             networkService: FakeNetworkService(),
             promptBackup: .make(),
-            caip10AccountProvidable: AnyCAIP10AccountProvidable.make())
+            caip10AccountProvidable: AnyCAIP10AccountProvidable.make(),
+            tokenImageFetcher: FakeTokenImageFetcher())
 
         coordinator.start(animated: false)
         coordinator.showPaymentFlow(for: .request, server: .main, navigationController: coordinator.navigationController)
@@ -397,7 +402,8 @@ class ActiveWalletViewTests: XCTestCase {
             tokenScriptOverridesFileManager: .fake(),
             networkService: FakeNetworkService(),
             promptBackup: .make(),
-            caip10AccountProvidable: AnyCAIP10AccountProvidable.make())
+            caip10AccountProvidable: AnyCAIP10AccountProvidable.make(),
+            tokenImageFetcher: FakeTokenImageFetcher())
         coordinator.start(animated: false)
 
         let viewController = (coordinator.tabBarController.selectedViewController as? UINavigationController)?.viewControllers[0]
@@ -474,7 +480,8 @@ class ActiveWalletViewTests: XCTestCase {
                         tokenScriptOverridesFileManager: .fake(),
                         networkService: FakeNetworkService(),
                         promptBackup: .make(),
-                        caip10AccountProvidable: AnyCAIP10AccountProvidable.make())
+                        caip10AccountProvidable: AnyCAIP10AccountProvidable.make(),
+                        tokenImageFetcher: FakeTokenImageFetcher())
 
                 coordinator.start(animated: false)
 

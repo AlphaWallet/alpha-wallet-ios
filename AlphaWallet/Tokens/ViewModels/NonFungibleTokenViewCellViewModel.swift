@@ -17,10 +17,14 @@ struct NonFungibleTokenViewCellViewModel {
     let iconImage: TokenImagePublisher
     let accessoryType: UITableViewCell.AccessoryType
 
-    init(token: TokenViewModel, isVisible: Bool = true, accessoryType: UITableViewCell.AccessoryType = .none) {
+    init(token: TokenViewModel,
+         isVisible: Bool = true,
+         accessoryType: UITableViewCell.AccessoryType = .none,
+         tokenImageFetcher: TokenImageFetcher) {
+
         self.contract = token.contractAddress
         self.server = token.server
-        self.iconImage = TokenImageFetcher.instance.image(token: token, size: .s750)
+        self.iconImage = tokenImageFetcher.image(token: token, size: .s750)
         self.nonZeroBalanceCount = token.nonZeroBalance.count
         self.symbol = token.symbol
         self.safeShortTitleInPluralForm = token.tokenScriptOverrides?.safeShortTitleInPluralForm ?? ""

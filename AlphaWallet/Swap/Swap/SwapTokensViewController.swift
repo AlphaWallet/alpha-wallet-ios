@@ -22,7 +22,7 @@ class SwapTokensViewController: UIViewController {
     private let toTokenHeaderView = SendViewSectionHeader()
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
     private lazy var fromAmountTextField: AmountTextField = {
-        let amountTextField = AmountTextField(token: viewModel.swapPair.value.from, debugName: "from")
+        let amountTextField = AmountTextField(token: viewModel.swapPair.value.from, debugName: "from", tokenImageFetcher: tokenImageFetcher)
         amountTextField.translatesAutoresizingMaskIntoConstraints = false
         amountTextField.delegate = self
         amountTextField.inputAccessoryButtonType = .done
@@ -33,7 +33,7 @@ class SwapTokensViewController: UIViewController {
         return amountTextField
     }()
     private lazy var toAmountTextField: AmountTextField = {
-        let amountTextField = AmountTextField(token: viewModel.swapPair.value.to, debugName: "to")
+        let amountTextField = AmountTextField(token: viewModel.swapPair.value.to, debugName: "to", tokenImageFetcher: tokenImageFetcher)
         amountTextField.translatesAutoresizingMaskIntoConstraints = false
         amountTextField.inputAccessoryButtonType = .none
         amountTextField.viewModel.errorState = .none
@@ -73,11 +73,15 @@ class SwapTokensViewController: UIViewController {
     }()
     private var cancelable = Set<AnyCancellable>()
     private let viewModel: SwapTokensViewModel
+    private let tokenImageFetcher: TokenImageFetcher
 
     weak var delegate: SwapTokensViewControllerDelegate?
 
-    init(viewModel: SwapTokensViewModel) {
+    init(viewModel: SwapTokensViewModel,
+         tokenImageFetcher: TokenImageFetcher) {
+
         self.viewModel = viewModel
+        self.tokenImageFetcher = tokenImageFetcher
         super.init(nibName: nil, bundle: nil)
 
         containerView.stackView.addArrangedSubviews([

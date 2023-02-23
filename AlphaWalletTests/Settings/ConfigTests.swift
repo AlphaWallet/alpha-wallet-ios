@@ -62,7 +62,8 @@ class ConfigTests: XCTestCase {
             blockiesGenerator: .make(),
             domainResolutionService: FakeDomainResolutionService(),
             tokensFilter: .make(),
-            currencyService: .make())
+            currencyService: .make(),
+            tokenImageFetcher: FakeTokenImageFetcher())
 
         coordinator.start()
         coordinator.tokensViewController.viewWillAppear(false)

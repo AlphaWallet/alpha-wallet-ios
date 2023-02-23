@@ -117,7 +117,8 @@ class PaymentCoordinatorTests: XCTestCase {
             tokenSwapper: TokenSwapper.make(),
             tokensFilter: .make(),
             networkService: FakeNetworkService(),
-            transactionDataStore: FakeTransactionsStorage(wallet: wallet))
+            transactionDataStore: FakeTransactionsStorage(wallet: wallet),
+            tokenImageFetcher: FakeTokenImageFetcher())
         coordinator.start()
 
         XCTAssertEqual(1, coordinator.coordinators.count)
@@ -142,11 +143,31 @@ class PaymentCoordinatorTests: XCTestCase {
             tokenSwapper: TokenSwapper.make(),
             tokensFilter: .make(),
             networkService: FakeNetworkService(),
-            transactionDataStore: FakeTransactionsStorage(wallet: wallet))
+            transactionDataStore: FakeTransactionsStorage(wallet: wallet),
+            tokenImageFetcher: FakeTokenImageFetcher())
 
         coordinator.start()
 
         XCTAssertEqual(1, coordinator.coordinators.count)
         XCTAssertTrue(coordinator.coordinators.first is RequestCoordinator)
+    }
+}
+
+import AlphaWalletOpenSea
+
+class FakeTokenImageFetcher: TokenImageFetcher {
+
+    func image(contractAddress: AlphaWallet.Address,
+               server: RPCServer,
+               name: String,
+               type: TokenType,
+               balance: NonFungibleFromJson?,
+               size: GoogleContentSize,
+               contractDefinedImage: UIImage?,
+               colors: [UIColor],
+               staticOverlayIcon: UIImage?,
+               blockChainNameColor: UIColor,
+               serverIconImage: UIImage?) -> TokenImagePublisher {
+        return .empty()
     }
 }
