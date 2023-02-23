@@ -10,7 +10,7 @@ protocol ImportMagicTokenViewControllerDelegate: AnyObject, CanOpenURL {
 
 class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableStatusViewController {
     private let analytics: AnalyticsLogger
-    lazy private var tokenCardRowView = TokenCardRowView(analytics: analytics, server: session.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: session.account)
+    lazy private var tokenCardRowView = TokenCardRowView(server: session.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, wallet: session.account)
     private let statusLabel = UILabel()
     private let activityIndicator: UIActivityIndicatorView = {
         let activityIndicator = UIActivityIndicatorView(style: .large)
@@ -138,7 +138,7 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
         self.viewModel = viewModel
         navigationItem.title = viewModel.headerTitle
 
-        tokenCardRowView.configure(viewModel: ImportMagicTokenCardRowViewModel(importMagicTokenViewModel: viewModel, assetDefinitionStore: assetDefinitionStore))
+        tokenCardRowView.configure(viewModel: ImportMagicTokenCardRowViewModel(viewModel: viewModel, assetDefinitionStore: assetDefinitionStore))
 
         tokenCardRowView.isHidden = !viewModel.showTokenRow
         tokenCardRowView.stateLabel.isHidden = true

@@ -5,10 +5,10 @@ import UIKit
 import AlphaWalletFoundation
 
 struct SetSellTokensCardExpiryDateViewModel {
-    private let ethCost: Double
     private let server: RPCServer
     private let assetDefinitionStore: AssetDefinitionStore
-    
+
+    let ethCost: Double
     let token: Token
     let tokenHolder: TokenHolder
     

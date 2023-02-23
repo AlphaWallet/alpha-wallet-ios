@@ -72,7 +72,6 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
     }()
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
     private var viewModel: SetTransferTokensCardExpiryDateViewModel
-    private let analytics: AnalyticsLogger
     private let tokenHolder: TokenHolder
 
     var contract: AlphaWallet.Address {
@@ -93,15 +92,12 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
         return view
     }()
 
-    init(analytics: AnalyticsLogger,
-         tokenHolder: TokenHolder,
+    init(tokenHolder: TokenHolder,
          paymentFlow: PaymentFlow,
          viewModel: SetTransferTokensCardExpiryDateViewModel,
          assetDefinitionStore: AssetDefinitionStore,
-         keystore: Keystore,
          session: WalletSession) {
-        
-        self.analytics = analytics
+
         self.tokenHolder = tokenHolder
         self.paymentFlow = paymentFlow
         self.viewModel = viewModel
@@ -112,7 +108,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
         case .backedByOpenSea:
             tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notBackedByOpenSea:
-            tokenRowView = TokenCardRowView(analytics: analytics, server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: session.account)
+            tokenRowView = TokenCardRowView(server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, wallet: session.account)
         }
 
         super.init(nibName: nil, bundle: nil)

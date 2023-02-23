@@ -15,8 +15,6 @@ protocol RedeemTokenCardQuantitySelectionViewControllerDelegate: AnyObject, CanO
 }
 
 class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVerifiableStatusViewController {
-    private let analytics: AnalyticsLogger
-    private let token: Token
     private let subtitleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -46,32 +44,27 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
     }()
 
     var contract: AlphaWallet.Address {
-        return token.contractAddress
+        return viewModel.token.contractAddress
     }
     var server: RPCServer {
-        return token.server
+        return viewModel.token.server
     }
     let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: RedeemTokenCardQuantitySelectionViewControllerDelegate?
 
-    init(analytics: AnalyticsLogger,
-         token: Token,
-         viewModel: RedeemTokenCardQuantitySelectionViewModel,
+    init(viewModel: RedeemTokenCardQuantitySelectionViewModel,
          assetDefinitionStore: AssetDefinitionStore,
-         keystore: Keystore,
          session: WalletSession) {
         
-        self.analytics = analytics
-        self.token = token
         self.viewModel = viewModel
         self.assetDefinitionStore = assetDefinitionStore
 
-        let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified)
+        let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified)
         switch tokenType {
         case .backedByOpenSea:
             tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notBackedByOpenSea:
-            tokenRowView = TokenCardRowView(analytics: analytics, server: token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: session.account)
+            tokenRowView = TokenCardRowView(server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, wallet: session.account)
         }
 
         super.init(nibName: nil, bundle: nil)
@@ -80,7 +73,6 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
 
         tokenRowView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(tokenRowView)
-
         view.addSubview(quantityStepper)
 
         containerView.stackView.addArrangedSubviews([
@@ -130,7 +122,7 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
 
     @objc func nextButtonTapped() {
         if quantityStepper.value == 0 {
-            let tokenTypeName = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
+            let tokenTypeName = XMLHandler(token: viewModel.token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
             UIAlertController.alert(
                 message: R.string.localizable.aWalletTokenRedeemSelectTokenQuantityAtLeastOneTitle(tokenTypeName),
                 alertButtonTitles: [R.string.localizable.oK()],

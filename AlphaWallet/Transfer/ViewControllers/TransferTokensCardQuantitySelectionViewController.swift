@@ -30,40 +30,33 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
     private let tokenRowView: TokenRowView & UIView
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
     private var viewModel: TransferTokensCardQuantitySelectionViewModel
-    private let token: Token
     private let containerView = ScrollableStackView()
 
     var contract: AlphaWallet.Address {
-        return token.contractAddress
+        return viewModel.token.contractAddress
     }
     var server: RPCServer {
-        return token.server
+        return viewModel.token.server
     }
     let assetDefinitionStore: AssetDefinitionStore
-    let analytics: AnalyticsLogger
     let paymentFlow: PaymentFlow
     weak var delegate: TransferTokenCardQuantitySelectionViewControllerDelegate?
 
-    init(analytics: AnalyticsLogger,
-         paymentFlow: PaymentFlow,
-         token: Token,
+    init(paymentFlow: PaymentFlow,
          viewModel: TransferTokensCardQuantitySelectionViewModel,
          assetDefinitionStore: AssetDefinitionStore,
-         keystore: Keystore,
          wallet: Wallet) {
 
-        self.analytics = analytics
         self.paymentFlow = paymentFlow
-        self.token = token
         self.viewModel = viewModel
         self.assetDefinitionStore = assetDefinitionStore
         
-        let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified)
+        let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified)
         switch tokenType {
         case .backedByOpenSea:
             tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notBackedByOpenSea:
-            tokenRowView = TokenCardRowView(analytics: analytics, server: token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: wallet)
+            tokenRowView = TokenCardRowView(server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, wallet: wallet)
         }
 
         super.init(nibName: nil, bundle: nil)
@@ -116,7 +109,7 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
 
     @objc private func nextButtonTapped() {
         if quantityStepper.value == 0 {
-            let tokenTypeName = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
+            let tokenTypeName = XMLHandler(token: viewModel.token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
             UIAlertController.alert(title: "",
                                     message: R.string.localizable.aWalletTokenTransferSelectTokenQuantityAtLeastOneTitle(tokenTypeName),
                                     alertButtonTitles: [R.string.localizable.oK()],

@@ -18,39 +18,33 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
     private let imageView = UIImageView()
     private let tokenRowView: TokenRowView & UIView
     private var session: WalletSession
-    private let token: Token
-    private let analytics: AnalyticsLogger
     private let keystore: Keystore
 
     var contract: AlphaWallet.Address {
-        return token.contractAddress
+        return viewModel.token.contractAddress
     }
     var server: RPCServer {
-        return token.server
+        return viewModel.token.server
     }
     let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: TokenCardRedemptionViewControllerDelegate?
 
     init(session: WalletSession,
-         token: Token,
          viewModel: TokenCardRedemptionViewModel,
          assetDefinitionStore: AssetDefinitionStore,
-         analytics: AnalyticsLogger,
          keystore: Keystore) {
         
         self.session = session
-        self.token = token
         self.viewModel = viewModel
         self.assetDefinitionStore = assetDefinitionStore
-        self.analytics = analytics
         self.keystore = keystore
 
-        let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified)
+        let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified)
         switch tokenType {
         case .backedByOpenSea:
             tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notBackedByOpenSea:
-            tokenRowView = TokenCardRowView(analytics: analytics, server: token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: session.account)
+            tokenRowView = TokenCardRowView(server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, wallet: session.account)
         }
 
         super.init(nibName: nil, bundle: nil)
@@ -103,9 +97,9 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
     }
 
     @objc private func configureUI() {
-        let redeem = CreateRedeem(token: token)
+        let redeem = CreateRedeem(token: viewModel.token)
         let redeemData: (message: String, qrCode: String)
-        switch token.type {
+        switch viewModel.token.type {
         case .nativeCryptocurrency, .erc20, .erc1155:
             return
         case .erc875:
