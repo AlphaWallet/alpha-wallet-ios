@@ -46,7 +46,6 @@ class NFTCollectionViewController: UIViewController {
         return view
     }()
     private let appear = PassthroughSubject<Void, Never>()
-    private let _pullToRefresh = PassthroughSubject<Void, Never>()
 
     private lazy var nftAssetsPageView: NFTAssetsPageView = {
         let view = NFTAssetsPageView(tokenCardViewFactory: tokenCardViewFactory, viewModel: viewModel.nftAssetsPageViewModel)
@@ -152,11 +151,6 @@ class NFTCollectionViewController: UIViewController {
 
         view.backgroundColor = Configuration.Color.Semantic.defaultViewBackground
         bind(viewModel: viewModel)
-        refreshControl.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
-    }
-
-    @objc private func pullToRefresh(_ sender: UIRefreshControl) {
-        _pullToRefresh.send(())
     }
 
     private func bind(viewModel: NFTCollectionViewModel) {
@@ -164,7 +158,7 @@ class NFTCollectionViewController: UIViewController {
 
         let input = NFTCollectionViewModelInput(
             appear: appear.eraseToAnyPublisher(),
-            pullToRefresh: _pullToRefresh.eraseToAnyPublisher())
+            pullToRefresh: refreshControl.publisher(forEvent: .valueChanged).eraseToAnyPublisher())
 
         let output = viewModel.transform(input: input)
 

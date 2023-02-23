@@ -16,7 +16,6 @@ protocol TokensViewControllerDelegate: AnyObject {
 final class TokensViewController: UIViewController {
     private var cancellable = Set<AnyCancellable>()
     private let appear = PassthroughSubject<Void, Never>()
-    private let _pullToRefresh = PassthroughSubject<Void, Never>()
     private let selection = PassthroughSubject<TokensViewModel.SelectionSource, Never>()
     let viewModel: TokensViewModel
 
@@ -189,7 +188,6 @@ final class TokensViewController: UIViewController {
 
         filterView.addTarget(self, action: #selector(didTapSegment), for: .touchUpInside)
         consoleButton.addTarget(self, action: #selector(openConsole), for: .touchUpInside)
-        refreshControl.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
 
         buttonsBar.configure(.primary(buttons: 1))
         buttonsBar.buttons[0].addTarget(self, action: #selector(buyCryptoSelected), for: .touchUpInside)
@@ -217,10 +215,6 @@ final class TokensViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         showNavigationBarTopSeparatorLine()
-    }
-
-    @objc func pullToRefresh() {
-        _pullToRefresh.send(())
     }
 
     @objc func openConsole() {
@@ -253,7 +247,7 @@ final class TokensViewController: UIViewController {
 
         let input = TokensViewModelInput(
             appear: appear.eraseToAnyPublisher(),
-            pullToRefresh: _pullToRefresh.eraseToAnyPublisher(),
+            pullToRefresh: refreshControl.publisher(forEvent: .valueChanged).eraseToAnyPublisher(),
             selection: selection.eraseToAnyPublisher(),
             keyboard: keyboardChecker.publisher)
 
