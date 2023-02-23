@@ -372,13 +372,13 @@ final class ImportMagicLinkController {
     struct ViewState {
         var url: URL?
         var contract: AlphaWallet.Address?
-        var state: ImportMagicTokenViewControllerViewModel.State
+        var state: ImportMagicTokenViewModel.State
         var tokenHolder: TokenHolder?
         var count: Decimal?
-        var cost: ImportMagicTokenViewControllerViewModel.Cost?
+        var cost: ImportMagicTokenViewModel.Cost?
     }
 
-    private func updateImportTokenState(with state: ImportMagicTokenViewControllerViewModel.State, cost: ImportMagicTokenViewControllerViewModel.Cost? = nil) {
+    private func updateImportTokenState(with state: ImportMagicTokenViewModel.State, cost: ImportMagicTokenViewModel.Cost? = nil) {
         guard !hasCompleted else { return }
 
         viewStateSubject.value.state = state
@@ -393,7 +393,7 @@ final class ImportMagicLinkController {
         hasCompleted = state.hasCompleted
     }
 
-    private func promptImportUniversalLink(cost: ImportMagicTokenViewControllerViewModel.Cost) {
+    private func promptImportUniversalLink(cost: ImportMagicTokenViewModel.Cost) {
         updateImportTokenState(with: .promptImport, cost: cost)
     }
 
@@ -401,7 +401,7 @@ final class ImportMagicLinkController {
         updateImportTokenState(with: .succeeded)
     }
 
-    private func showImportError(errorMessage: String, cost: ImportMagicTokenViewControllerViewModel.Cost? = nil) {
+    private func showImportError(errorMessage: String, cost: ImportMagicTokenViewModel.Cost? = nil) {
         updateImportTokenState(with: .failed(errorMessage: errorMessage), cost: cost)
     }
 

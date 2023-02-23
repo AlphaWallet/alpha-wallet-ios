@@ -93,15 +93,14 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
         return view
     }()
 
-    init(
-        analytics: AnalyticsLogger,
-        tokenHolder: TokenHolder,
-        paymentFlow: PaymentFlow,
-        viewModel: SetTransferTokensCardExpiryDateViewModel,
-        assetDefinitionStore: AssetDefinitionStore,
-        keystore: Keystore,
-        session: WalletSession
-    ) {
+    init(analytics: AnalyticsLogger,
+         tokenHolder: TokenHolder,
+         paymentFlow: PaymentFlow,
+         viewModel: SetTransferTokensCardExpiryDateViewModel,
+         assetDefinitionStore: AssetDefinitionStore,
+         keystore: Keystore,
+         session: WalletSession) {
+        
         self.analytics = analytics
         self.tokenHolder = tokenHolder
         self.paymentFlow = paymentFlow

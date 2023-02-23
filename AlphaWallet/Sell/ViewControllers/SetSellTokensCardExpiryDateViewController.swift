@@ -131,16 +131,15 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
     }
 
     // swiftlint:disable function_body_length
-    init(
-        analytics: AnalyticsLogger,
-        paymentFlow: PaymentFlow,
-        tokenHolder: TokenHolder,
-        ethCost: Double,
-        viewModel: SetSellTokensCardExpiryDateViewModel,
-        assetDefinitionStore: AssetDefinitionStore,
-        keystore: Keystore,
-        session: WalletSession
-    ) {
+    init(analytics: AnalyticsLogger,
+         paymentFlow: PaymentFlow,
+         tokenHolder: TokenHolder,
+         ethCost: Double,
+         viewModel: SetSellTokensCardExpiryDateViewModel,
+         assetDefinitionStore: AssetDefinitionStore,
+         keystore: Keystore,
+         session: WalletSession) {
+        
         self.analytics = analytics
         self.paymentFlow = paymentFlow
         self.tokenHolder = tokenHolder

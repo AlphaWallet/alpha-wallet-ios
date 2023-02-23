@@ -44,21 +44,20 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
     let paymentFlow: PaymentFlow
     weak var delegate: TransferTokenCardQuantitySelectionViewControllerDelegate?
 
-    init(
-        analytics: AnalyticsLogger,
-        paymentFlow: PaymentFlow,
-        token: Token,
-        viewModel: TransferTokensCardQuantitySelectionViewModel,
-        assetDefinitionStore: AssetDefinitionStore,
-        keystore: Keystore,
-        wallet: Wallet
-    ) {
+    init(analytics: AnalyticsLogger,
+         paymentFlow: PaymentFlow,
+         token: Token,
+         viewModel: TransferTokensCardQuantitySelectionViewModel,
+         assetDefinitionStore: AssetDefinitionStore,
+         keystore: Keystore,
+         wallet: Wallet) {
+
         self.analytics = analytics
         self.paymentFlow = paymentFlow
         self.token = token
         self.viewModel = viewModel
         self.assetDefinitionStore = assetDefinitionStore
-
+        
         let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified)
         switch tokenType {
         case .backedByOpenSea:
