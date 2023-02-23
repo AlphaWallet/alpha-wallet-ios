@@ -77,7 +77,7 @@ class OpenSeaNonFungibleTokenView: UIView {
         background.borderColor = Configuration.Color.Semantic.tableViewSeparator
 
         imageHolder.clipsToBounds = true
-        tokenImageView.subscribable = viewModel.tokenIcon
+        tokenImageView.set(imageSource: viewModel.tokenIcon)
 
         label.textAlignment = .center
         label.attributedText = viewModel.titleAttributedString

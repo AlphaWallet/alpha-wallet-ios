@@ -7,6 +7,7 @@
 
 import UIKit
 import AlphaWalletFoundation
+import Combine
 
 extension AmountTextField {
     enum AccessoryButtonTitle {
@@ -145,11 +146,13 @@ extension AmountTextField {
             }
         }
 
-        var icon: Subscribable<TokenImage> {
+        var icon: TokenImagePublisher {
             switch left {
-            case .cryptoCurrency(let token): return token.icon(withSize: .s120)
+            case .cryptoCurrency(let token): return TokenImageFetcher.instance.image(token: token, size: .s120)
             case .fiatCurrency(let currency):
-                return .init((image: .image(currency.icon), symbol: "", isFinal: true, overlayServerIcon: nil))
+                let imageSource = currency.icon.flatMap { RawImage.loaded(image: $0) } ?? .none
+                
+                return .just(.init(image: .image(imageSource), isFinal: true, overlayServerIcon: nil))
             }
         }
 

@@ -74,7 +74,7 @@ class FungibleTokenHeaderView: UIView {
     private func bind(viewModel: FungibleTokenHeaderViewModel) {
         backgroundColor = viewModel.backgroundColor
 
-        tokenIconImageView.subscribable = viewModel.iconImage
+        tokenIconImageView.set(imageSource: viewModel.iconImage)
         blockChainTagLabel.configure(viewModel: viewModel.blockChainTagViewModel)
 
         let input = FungibleTokenHeaderViewModelInput(toggleValue: toggleValue.eraseToAnyPublisher())

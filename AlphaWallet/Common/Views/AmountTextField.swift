@@ -213,7 +213,7 @@ final class AmountTextField: UIControl {
                 if let pair = $0 {
                     selectCurrencyButton?.hasToken = true
                     selectCurrencyButton?.text = pair.symbol
-                    selectCurrencyButton?.tokenIcon = pair.icon
+                    selectCurrencyButton?.set(imageSource: pair.icon)
                 } else {
                     selectCurrencyButton?.hasToken = false
                 }

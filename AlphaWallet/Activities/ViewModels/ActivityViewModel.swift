@@ -4,6 +4,7 @@ import Foundation
 import BigInt
 import AlphaWalletFoundation
 import UIKit
+import Combine
 
 struct ActivityViewModel {
     let activity: Activity
@@ -123,8 +124,8 @@ struct ActivityViewModel {
         }
     }
 
-    var iconImage: Subscribable<TokenImage> {
-        activity.token.icon(withSize: .s300)
+    var iconImage: TokenImagePublisher {
+        TokenImageFetcher.instance.image(token: activity.token, size: .s300)
     }
 
     var stateImage: UIImage? {
@@ -159,12 +160,23 @@ struct ActivityViewModel {
     }
 }
 
-extension HasTokenImage {
+extension TokenImageFetcher {
 
-    public func icon(withSize size: GoogleContentSize) -> Subscribable<TokenImage> {
-        let name = symbol.nilIfEmpty ?? name
+    public func image(token: HasTokenImage, size: GoogleContentSize) -> TokenImagePublisher {
+        let name = token.symbol.nilIfEmpty ?? token.name
         let colors = [R.color.radical()!, R.color.cerulean()!, R.color.emerald()!, R.color.indigo()!, R.color.azure()!, R.color.pumpkin()!]
-        let blockChainNameColor = server.blockChainNameColor
-        return TokenImageFetcher.instance.image(contractAddress: contractAddress, server: server, name: name, type: type, balance: firstNftAsset, size: size, contractDefinedImage: contractAddress.tokenImage, colors: colors, staticOverlayIcon: server.staticOverlayIcon, blockChainNameColor: blockChainNameColor, serverIconImage: server.iconImage)
+        let blockChainNameColor = token.server.blockChainNameColor
+
+        return image(contractAddress: token.contractAddress,
+                     server: token.server,
+                     name: name,
+                     type: token.type,
+                     balance: token.firstNftAsset,
+                     size: size,
+                     contractDefinedImage: token.contractAddress.tokenImage,
+                     colors: colors,
+                     staticOverlayIcon: token.server.staticOverlayIcon,
+                     blockChainNameColor: blockChainNameColor,
+                     serverIconImage: token.server.iconImage)
     }
 }

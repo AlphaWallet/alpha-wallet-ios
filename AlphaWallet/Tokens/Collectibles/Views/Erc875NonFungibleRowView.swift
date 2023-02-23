@@ -183,7 +183,7 @@ class Erc875NonFungibleRowView: TokenCardViewRepresentable {
         titleLabel.textColor = viewModel.titleTextForegroundColor
         titleLabel.text = viewModel.titleText
 
-        tokenIconImageView.subscribable = token.icon(withSize: .s300)
+        tokenIconImageView.set(imageSource: TokenImageFetcher.instance.image(token: token, size: .s300))
     }
 
     func configure(tokenHolder: TokenHolder, tokenId: TokenId) {

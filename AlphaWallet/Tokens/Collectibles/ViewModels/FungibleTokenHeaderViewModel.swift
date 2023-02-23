@@ -26,8 +26,8 @@ final class FungibleTokenHeaderViewModel {
     private var cancelable = Set<AnyCancellable>()
 
     let backgroundColor: UIColor = Configuration.Color.Semantic.defaultViewBackground
-    var iconImage: Subscribable<TokenImage> {
-        token.icon(withSize: .s300)
+    var iconImage: TokenImagePublisher {
+        TokenImageFetcher.instance.image(token: token, size: .s300)
     }
 
     var blockChainTagViewModel: BlockchainTagLabelViewModel {

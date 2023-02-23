@@ -57,7 +57,7 @@ class PopularTokenViewCell: UITableViewCell {
         titleLabel.baselineAdjustment = .alignCenters
 
         viewsWithContent.forEach { $0.alpha = viewModel.alpha }
-        tokenImageView.subscribable = viewModel.iconImage
+        tokenImageView.set(imageSource: viewModel.iconImage)
 
         blockChainTagLabel.configure(viewModel: viewModel.blockChainTagViewModel)
     }

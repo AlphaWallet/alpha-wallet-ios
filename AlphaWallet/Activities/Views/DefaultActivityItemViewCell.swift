@@ -101,7 +101,7 @@ class DefaultActivityItemViewCell: UITableViewCell {
 
         amountLabel.attributedText = viewModel.amount
 
-        tokenImageView.subscribable = viewModel.iconImage
+        tokenImageView.set(imageSource: viewModel.iconImage)
 
         stateView.configure(viewModel: viewModel.activityStateViewViewModel)
     }

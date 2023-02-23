@@ -150,7 +150,7 @@ class ActivityViewController: UIViewController {
         timestampLabel.font = viewModel.timestampFont
         timestampLabel.text = viewModel.timestamp
 
-        tokenImageView.subscribable = viewModel.iconImage
+        tokenImageView.set(imageSource: viewModel.iconImage)
         stateView.configure(viewModel: viewModel.activityStateViewViewModel)
 
         timestampLabel.textAlignment = .center

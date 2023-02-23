@@ -3,6 +3,7 @@
 import Foundation
 import UIKit
 import AlphaWalletFoundation
+import Combine
 
 struct TransactionHeaderViewModel {
     private let transactionViewModel: TransactionViewModel
@@ -75,14 +76,18 @@ struct TransactionHeaderViewModel {
         }
     }
 
-    var subscribable: Subscribable<TokenImage>? {
+    var tokenImageSource: TokenImagePublisher {
         let server = transactionViewModel.transactionRow.server
 
         guard let operation = operation, let contractAddress = operation.contractAddress else {
             let token = MultipleChainsTokensDataStore.functional.etherToken(forServer: server)
-            return token.icon(withSize: .s300)
+            return TokenImageFetcher.instance.image(token: token, size: .s300)
         }
-        return tokensService.tokenViewModel(for: contractAddress, server: server)?.icon(withSize: .s300)
+        guard let token = tokensService.tokenViewModel(for: contractAddress, server: server) else {
+            return .just(nil)
+        }
+
+        return TokenImageFetcher.instance.image(token: token, size: .s300)
     }
 
 }
@@ -170,6 +175,6 @@ class TransactionHeaderView: UIView {
         titleLabel.text = viewModel.title
         titleLabel.textColor = viewModel.titleTextColor
         toLabel.text = viewModel.subTitle
-        tokenIconImageView.subscribable = viewModel.subscribable
+        tokenIconImageView.set(imageSource: viewModel.tokenImageSource)
     }
 }
