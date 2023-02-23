@@ -125,10 +125,3 @@ public func wrapWithHtmlViewport(html: String, style: String, forTokenId tokenId
                """
     }
 }
-public func wrapWithHtmlViewport(html: String, style: String, forTokenHolder tokenHolder: TokenHolder) -> String {
-    return wrapWithHtmlViewport(html: html, style: style, forTokenHolder: tokenHolder, forTokenId: tokenHolder.tokenIds[0])
-}
-
-public func wrapWithHtmlViewport(html: String, style: String, forTokenHolder tokenHolder: TokenHolder, forTokenId: TokenId) -> String {
-    return wrapWithHtmlViewport(html: html, style: style, forTokenId: forTokenId)
-}

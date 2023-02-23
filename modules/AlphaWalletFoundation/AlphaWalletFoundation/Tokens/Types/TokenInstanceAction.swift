@@ -102,12 +102,12 @@ public struct TokenInstanceAction {
         self.type = type
     }
     //TODO we can live-reload the action view screen now if we observe for changes
-    public func viewHtml(forTokenHolder tokenHolder: TokenHolder, tokenId: TokenId) -> String {
+    public func viewHtml(tokenId: TokenId) -> String {
         switch type {
         case .erc20Send, .erc20Receive, .swap, .buy, .bridge, .nonFungibleTransfer, .nftRedeem, .nftSell:
             return ""
         case .tokenScript(_, _, (html: let html, style: let style), _, _, _):
-            return wrapWithHtmlViewport(html: html, style: style, forTokenHolder: tokenHolder)
+            return wrapWithHtmlViewport(html: html, style: style, forTokenId: tokenId)
         }
     }
 
