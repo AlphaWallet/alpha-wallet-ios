@@ -13,7 +13,6 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
     private let tokenRowView: TokenRowView & UIView
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 2))
     private var viewModel: ChooseTokenCardTransferModeViewModel
-    private let analytics: AnalyticsLogger
     private let tokenHolder: TokenHolder
     private let containerView = ScrollableStackView()
 
@@ -27,15 +26,12 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
     let paymentFlow: PaymentFlow
     weak var delegate: ChooseTokenCardTransferModeViewControllerDelegate?
 
-    init(analytics: AnalyticsLogger,
-         tokenHolder: TokenHolder,
+    init(tokenHolder: TokenHolder,
          paymentFlow: PaymentFlow,
          viewModel: ChooseTokenCardTransferModeViewModel,
          assetDefinitionStore: AssetDefinitionStore,
-         keystore: Keystore,
          session: WalletSession) {
-        
-        self.analytics = analytics
+
         self.tokenHolder = tokenHolder
         self.paymentFlow = paymentFlow
         self.viewModel = viewModel
@@ -46,7 +42,7 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
         case .backedByOpenSea:
             tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notBackedByOpenSea:
-            tokenRowView = TokenCardRowView(analytics: analytics, server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: session.account)
+            tokenRowView = TokenCardRowView(server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, wallet: session.account)
         }
 
         super.init(nibName: nil, bundle: nil)

@@ -7,7 +7,6 @@ import AlphaWalletCore
 import Combine
 
 class TokenCardRowView: UIView, TokenCardRowViewProtocol {
-    private let analytics: AnalyticsLogger
     private let server: RPCServer
     private let assetDefinitionStore: AssetDefinitionStore
     private let tokenCountLabel = UILabel()
@@ -86,12 +85,10 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
             tokenScriptRendererView.isStandalone = newValue
         }
     }
-    private let keystore: Keystore
+
     private let wallet: Wallet
 
-    init(analytics: AnalyticsLogger, server: RPCServer, tokenView: TokenView, showCheckbox: Bool = false, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore, wallet: Wallet) {
-        self.keystore = keystore
-        self.analytics = analytics
+    init(server: RPCServer, tokenView: TokenView, showCheckbox: Bool = false, assetDefinitionStore: AssetDefinitionStore, wallet: Wallet) {
         self.server = server
         self.tokenView = tokenView
         self.showCheckbox = showCheckbox

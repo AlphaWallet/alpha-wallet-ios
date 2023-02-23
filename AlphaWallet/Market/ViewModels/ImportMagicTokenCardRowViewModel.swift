@@ -4,64 +4,64 @@ import Foundation
 import AlphaWalletFoundation
 
 struct ImportMagicTokenCardRowViewModel: TokenCardRowViewModelProtocol {
-    private var importMagicTokenViewModel: ImportMagicTokenViewModel
+    private let viewModel: ImportMagicTokenViewModel
     private let assetDefinitionStore: AssetDefinitionStore
 
-    init(importMagicTokenViewModel: ImportMagicTokenViewModel, assetDefinitionStore: AssetDefinitionStore) {
-        self.importMagicTokenViewModel = importMagicTokenViewModel
+    init(viewModel: ImportMagicTokenViewModel, assetDefinitionStore: AssetDefinitionStore) {
+        self.viewModel = viewModel
         self.assetDefinitionStore = assetDefinitionStore
     }
 
     var tokenHolder: TokenHolder? {
-        return importMagicTokenViewModel.tokenHolder
+        return viewModel.tokenHolder
     }
 
     var tokenCount: String {
-        return importMagicTokenViewModel.tokenCount
+        return viewModel.tokenCount
     }
 
     var city: String {
-        return importMagicTokenViewModel.city
+        return viewModel.city
     }
 
     var category: String {
-        return importMagicTokenViewModel.category
+        return viewModel.category
     }
 
     var teams: String {
-        return importMagicTokenViewModel.teams
+        return viewModel.teams
     }
 
     var match: String {
-        return importMagicTokenViewModel.match
+        return viewModel.match
     }
 
     var venue: String {
-        return importMagicTokenViewModel.venue
+        return viewModel.venue
     }
 
     var date: String {
-        return importMagicTokenViewModel.date
+        return viewModel.date
     }
 
     var numero: String {
-        return importMagicTokenViewModel.numero
+        return viewModel.numero
     }
 
     var time: String {
-        return importMagicTokenViewModel.time
+        return viewModel.time
     }
 
     var onlyShowTitle: Bool {
-        return importMagicTokenViewModel.onlyShowTitle
+        return viewModel.onlyShowTitle
     }
 
     var isMeetupContract: Bool {
-        return importMagicTokenViewModel.tokenHolder?.isSpawnableMeetupContract ?? false
+        return viewModel.tokenHolder?.isSpawnableMeetupContract ?? false
     }
 
     func subscribeBuilding(withBlock block: @escaping (String) -> Void) {
-        if let subscribable = importMagicTokenViewModel.tokenHolder?.values.buildingSubscribableValue {
+        if let subscribable = viewModel.tokenHolder?.values.buildingSubscribableValue {
             subscribable.subscribe { value in
                 value?.stringValue.flatMap { block($0) }
             }
@@ -74,9 +74,10 @@ struct ImportMagicTokenCardRowViewModel: TokenCardRowViewModelProtocol {
             let string = values.joined(separator: ", ")
             block(string)
         }
-        if let subscribable = importMagicTokenViewModel.tokenHolder?.values.streetSubscribableValue {
+
+        if let subscribable = viewModel.tokenHolder?.values.streetSubscribableValue {
             subscribable.subscribe { value in
-                guard let tokenHolder = self.importMagicTokenViewModel.tokenHolder else { return }
+                guard let tokenHolder = self.viewModel.tokenHolder else { return }
                 if let value = value?.stringValue {
                     updateStreetLocalityStateCountry(
                             street: value,
@@ -87,9 +88,9 @@ struct ImportMagicTokenCardRowViewModel: TokenCardRowViewModelProtocol {
                 }
             }
         }
-        if let subscribable = importMagicTokenViewModel.tokenHolder?.values.stateSubscribableValue {
+        if let subscribable = viewModel.tokenHolder?.values.stateSubscribableValue {
             subscribable.subscribe { value in
-                guard let tokenHolder = self.importMagicTokenViewModel.tokenHolder else { return }
+                guard let tokenHolder = self.viewModel.tokenHolder else { return }
                 if let value = value?.stringValue {
                     updateStreetLocalityStateCountry(
                             street: tokenHolder.values.streetSubscribableStringValue,
@@ -100,9 +101,9 @@ struct ImportMagicTokenCardRowViewModel: TokenCardRowViewModelProtocol {
                 }
             }
         }
-        if let subscribable = importMagicTokenViewModel.tokenHolder?.values.localitySubscribableValue {
+        if let subscribable = viewModel.tokenHolder?.values.localitySubscribableValue {
             subscribable.subscribe { value in
-                guard let tokenHolder = self.importMagicTokenViewModel.tokenHolder else { return }
+                guard let tokenHolder = self.viewModel.tokenHolder else { return }
                 if let value = value?.stringValue {
                     updateStreetLocalityStateCountry(
                             street: tokenHolder.values.streetSubscribableStringValue,
@@ -113,8 +114,8 @@ struct ImportMagicTokenCardRowViewModel: TokenCardRowViewModelProtocol {
                 }
             }
         }
-        if let country = importMagicTokenViewModel.tokenHolder?.values.countryStringValue {
-            guard let tokenHolder = self.importMagicTokenViewModel.tokenHolder else { return }
+        if let country = viewModel.tokenHolder?.values.countryStringValue {
+            guard let tokenHolder = self.viewModel.tokenHolder else { return }
             updateStreetLocalityStateCountry(
                     street: tokenHolder.values.streetSubscribableStringValue,
                     locality: tokenHolder.values.localitySubscribableStringValue,
@@ -125,7 +126,7 @@ struct ImportMagicTokenCardRowViewModel: TokenCardRowViewModelProtocol {
     }
 
     var tokenScriptHtml: String {
-        guard let tokenHolder = importMagicTokenViewModel.tokenHolder else { return "" }
+        guard let tokenHolder = viewModel.tokenHolder else { return "" }
         let xmlHandler = XMLHandler(contract: tokenHolder.contractAddress, tokenType: tokenHolder.tokenType, assetDefinitionStore: assetDefinitionStore)
         let (html: html, style: style) = xmlHandler.tokenViewIconifiedHtml
 
