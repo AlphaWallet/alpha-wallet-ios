@@ -18,17 +18,12 @@ class GenerateTransferMagicLinkViewController: UIViewController {
     private let descriptionLabel = UILabel()
     private let actionButton = UIButton()
     private let cancelButton = UIButton()
-    private var viewModel: GenerateTransferMagicLinkViewModel?
+    private (set) var viewModel: GenerateTransferMagicLinkViewModel
 
-    let paymentFlow: PaymentFlow
-    let tokenHolder: TokenHolder
-    let linkExpiryDate: Date
     weak var delegate: GenerateTransferMagicLinkViewControllerDelegate?
 
-    init(paymentFlow: PaymentFlow, tokenHolder: TokenHolder, linkExpiryDate: Date) {
-        self.paymentFlow = paymentFlow
-        self.tokenHolder = tokenHolder
-        self.linkExpiryDate = linkExpiryDate
+    init(viewModel: GenerateTransferMagicLinkViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
         view.backgroundColor = .clear
 
@@ -92,45 +87,46 @@ class GenerateTransferMagicLinkViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(viewModel: GenerateTransferMagicLinkViewModel) {
-        self.viewModel = viewModel
-        if let viewModel = self.viewModel {
-            background.backgroundColor = viewModel.contentsBackgroundColor
-            background.layer.cornerRadius = DataEntry.Metric.CornerRadius.popups
-
-            header.configure(title: viewModel.headerTitle)
-
-            subtitleLabel.numberOfLines = 0
-            subtitleLabel.textColor = viewModel.subtitleColor
-            subtitleLabel.font = viewModel.subtitleFont
-            subtitleLabel.textAlignment = .center
-            subtitleLabel.text = viewModel.subtitleLabelText
-
-            tokenCountLabel.textAlignment = .center
-            tokenCountLabel.textColor = viewModel.tokenSaleDetailsLabelColor
-            tokenCountLabel.font = viewModel.tokenSaleDetailsLabelFont
-            tokenCountLabel.text = viewModel.tokenCountLabelText
-
-            descriptionLabel.textAlignment = .center
-            descriptionLabel.numberOfLines = 0
-            descriptionLabel.textColor = viewModel.tokenSaleDetailsLabelColor
-            descriptionLabel.font = viewModel.tokenSaleDetailsLabelFont
-            descriptionLabel.text = viewModel.descriptionLabelText
-
-            detailsBackground.backgroundColor = viewModel.detailsBackgroundBackgroundColor
-
-            actionButton.setTitleColor(viewModel.actionButtonTitleColor, for: .normal)
-            actionButton.setBackgroundColor(viewModel.actionButtonBackgroundColor, forState: .normal)
-            actionButton.titleLabel?.font = viewModel.actionButtonTitleFont
-            actionButton.setTitle(viewModel.actionButtonTitle, for: .normal)
-            actionButton.cornerRadius = DataEntry.Metric.CornerRadius.button
-
-            cancelButton.setTitleColor(viewModel.cancelButtonTitleColor, for: .normal)
-            cancelButton.setBackgroundColor(viewModel.cancelButtonBackgroundColor, forState: .normal)
-            cancelButton.titleLabel?.font = viewModel.cancelButtonTitleFont
-            cancelButton.setTitle(viewModel.cancelButtonTitle, for: .normal)
-            cancelButton.layer.masksToBounds = true
+    func configure(viewModel vm: GenerateTransferMagicLinkViewModel? = nil) {
+        if let vm = vm {
+            self.viewModel = vm
         }
+
+        background.backgroundColor = viewModel.contentsBackgroundColor
+        background.layer.cornerRadius = DataEntry.Metric.CornerRadius.popups
+
+        header.configure(title: viewModel.headerTitle)
+
+        subtitleLabel.numberOfLines = 0
+        subtitleLabel.textColor = viewModel.subtitleColor
+        subtitleLabel.font = viewModel.subtitleFont
+        subtitleLabel.textAlignment = .center
+        subtitleLabel.text = viewModel.subtitleLabelText
+
+        tokenCountLabel.textAlignment = .center
+        tokenCountLabel.textColor = viewModel.tokenSaleDetailsLabelColor
+        tokenCountLabel.font = viewModel.tokenSaleDetailsLabelFont
+        tokenCountLabel.text = viewModel.tokenCountLabelText
+
+        descriptionLabel.textAlignment = .center
+        descriptionLabel.numberOfLines = 0
+        descriptionLabel.textColor = viewModel.tokenSaleDetailsLabelColor
+        descriptionLabel.font = viewModel.tokenSaleDetailsLabelFont
+        descriptionLabel.text = viewModel.descriptionLabelText
+
+        detailsBackground.backgroundColor = viewModel.detailsBackgroundBackgroundColor
+
+        actionButton.setTitleColor(viewModel.actionButtonTitleColor, for: .normal)
+        actionButton.setBackgroundColor(viewModel.actionButtonBackgroundColor, forState: .normal)
+        actionButton.titleLabel?.font = viewModel.actionButtonTitleFont
+        actionButton.setTitle(viewModel.actionButtonTitle, for: .normal)
+        actionButton.cornerRadius = DataEntry.Metric.CornerRadius.button
+
+        cancelButton.setTitleColor(viewModel.cancelButtonTitleColor, for: .normal)
+        cancelButton.setBackgroundColor(viewModel.cancelButtonBackgroundColor, forState: .normal)
+        cancelButton.titleLabel?.font = viewModel.cancelButtonTitleFont
+        cancelButton.setTitle(viewModel.cancelButtonTitle, for: .normal)
+        cancelButton.layer.masksToBounds = true
     }
 
     @objc func share() {

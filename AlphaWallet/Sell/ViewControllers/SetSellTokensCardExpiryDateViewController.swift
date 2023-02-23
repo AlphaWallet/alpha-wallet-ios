@@ -98,7 +98,7 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
     private let datePicker = UIDatePicker.datePicker
     private let timePicker = UIDatePicker.timePicker
-    private var viewModel: SetSellTokensCardExpiryDateViewModel
+    private (set) var viewModel: SetSellTokensCardExpiryDateViewModel
     private let containerView: ScrollableStackView = {
         let view = ScrollableStackView()
         view.stackView.axis = .vertical
@@ -113,7 +113,7 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
         return viewModel.token.server
     }
     let assetDefinitionStore: AssetDefinitionStore
-    let paymentFlow: PaymentFlow
+
     weak var delegate: SetSellTokensCardExpiryDateViewControllerDelegate?
 
     private var linkExpiryDate: Date {
@@ -128,12 +128,10 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
     }
 
     // swiftlint:disable function_body_length
-    init(paymentFlow: PaymentFlow,
-         viewModel: SetSellTokensCardExpiryDateViewModel,
+    init(viewModel: SetSellTokensCardExpiryDateViewModel,
          assetDefinitionStore: AssetDefinitionStore,
          session: WalletSession) {
-        
-        self.paymentFlow = paymentFlow
+
         self.viewModel = viewModel
         self.assetDefinitionStore = assetDefinitionStore
 

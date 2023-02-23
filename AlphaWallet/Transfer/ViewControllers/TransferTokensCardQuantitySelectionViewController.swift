@@ -29,7 +29,7 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
     }()
     private let tokenRowView: TokenRowView & UIView
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
-    private var viewModel: TransferTokensCardQuantitySelectionViewModel
+    private (set) var viewModel: TransferTokensCardQuantitySelectionViewModel
     private let containerView = ScrollableStackView()
 
     var contract: AlphaWallet.Address {
@@ -39,15 +39,13 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
         return viewModel.token.server
     }
     let assetDefinitionStore: AssetDefinitionStore
-    let paymentFlow: PaymentFlow
+
     weak var delegate: TransferTokenCardQuantitySelectionViewControllerDelegate?
 
-    init(paymentFlow: PaymentFlow,
-         viewModel: TransferTokensCardQuantitySelectionViewModel,
+    init(viewModel: TransferTokensCardQuantitySelectionViewModel,
          assetDefinitionStore: AssetDefinitionStore,
          wallet: Wallet) {
 
-        self.paymentFlow = paymentFlow
         self.viewModel = viewModel
         self.assetDefinitionStore = assetDefinitionStore
         
@@ -139,7 +137,10 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
         let tokenHolder = viewModel.tokenHolder
         let tokens = Array(tokenHolder.tokens[..<quantity])
 
-        return TokenHolder(tokens: tokens, contractAddress: tokenHolder.contractAddress, hasAssetDefinition: tokenHolder.hasAssetDefinition)
+        return TokenHolder(
+            tokens: tokens,
+            contractAddress: tokenHolder.contractAddress,
+            hasAssetDefinition: tokenHolder.hasAssetDefinition)
     }
 }
 
