@@ -77,7 +77,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
 
     private let tokenRowView: TokenRowView & UIView
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
-    private var viewModel: EnterSellTokensCardPriceQuantityViewModel
+    private (set) var viewModel: EnterSellTokensCardPriceQuantityViewModel
     private var totalEthCost: Double {
         switch pricePerTokenField.cryptoValue {
         case .notSet:
@@ -123,7 +123,6 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
     }()
     private let currencyService: CurrencyService
 
-    let paymentFlow: PaymentFlow
     weak var delegate: EnterSellTokensCardPriceQuantityViewControllerDelegate?
     var contract: AlphaWallet.Address {
         return viewModel.token.contractAddress
@@ -133,8 +132,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
     }
     let assetDefinitionStore: AssetDefinitionStore
 
-    init(paymentFlow: PaymentFlow,
-         viewModel: EnterSellTokensCardPriceQuantityViewModel,
+    init(viewModel: EnterSellTokensCardPriceQuantityViewModel,
          assetDefinitionStore: AssetDefinitionStore,
          walletSession: WalletSession,
          service: TokenViewModelState,
@@ -144,7 +142,6 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         self.tokenImageFetcher = tokenImageFetcher
         self.currencyService = currencyService
         self.service = service
-        self.paymentFlow = paymentFlow
         self.walletSession = walletSession
         self.viewModel = viewModel
         self.assetDefinitionStore = assetDefinitionStore

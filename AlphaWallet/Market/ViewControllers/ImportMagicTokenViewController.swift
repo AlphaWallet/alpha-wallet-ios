@@ -9,7 +9,6 @@ protocol ImportMagicTokenViewControllerDelegate: AnyObject, CanOpenURL {
 }
 
 class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableStatusViewController {
-    private let analytics: AnalyticsLogger
     lazy private var tokenCardRowView = TokenCardRowView(server: session.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, wallet: session.account)
     private let statusLabel = UILabel()
     private let activityIndicator: UIActivityIndicatorView = {
@@ -40,7 +39,7 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
     var url: URL? {
         didSet { updateNavigationRightBarButtons(withTokenScriptFileStatus: nil, hasShowInfoButton: false) }
     }
-    private let keystore: Keystore
+
     private let session: WalletSession
     private lazy var containerView: ScrollableStackView = {
         let containerView = ScrollableStackView()
@@ -50,16 +49,12 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
         return containerView
     }()
 
-    init(analytics: AnalyticsLogger,
-         assetDefinitionStore: AssetDefinitionStore,
-         keystore: Keystore,
+    init(assetDefinitionStore: AssetDefinitionStore,
          session: WalletSession,
          viewModel: ImportMagicTokenViewModel) {
 
         self.viewModel = viewModel
-        self.analytics = analytics
         self.assetDefinitionStore = assetDefinitionStore
-        self.keystore = keystore
         self.session = session
 
         super.init(nibName: nil, bundle: nil)

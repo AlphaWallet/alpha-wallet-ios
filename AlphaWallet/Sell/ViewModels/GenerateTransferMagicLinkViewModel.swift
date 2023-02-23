@@ -4,8 +4,9 @@ import UIKit
 import AlphaWalletFoundation
 
 struct GenerateTransferMagicLinkViewModel {
-    private let tokenHolder: TokenHolder
-    private let linkExpiryDate: Date
+    let tokenHolder: TokenHolder
+    let linkExpiryDate: Date
+    let paymentFlow: PaymentFlow
     private let assetDefinitionStore: AssetDefinitionStore
 
     var contentsBackgroundColor: UIColor {
@@ -80,7 +81,12 @@ struct GenerateTransferMagicLinkViewModel {
         return tokenHolder.count
     }
 
-    init(tokenHolder: TokenHolder, linkExpiryDate: Date, assetDefinitionStore: AssetDefinitionStore) {
+    init(tokenHolder: TokenHolder,
+         linkExpiryDate: Date,
+         assetDefinitionStore: AssetDefinitionStore,
+         paymentFlow: PaymentFlow) {
+
+        self.paymentFlow = paymentFlow
         self.tokenHolder = tokenHolder
         self.linkExpiryDate = linkExpiryDate
         self.assetDefinitionStore = assetDefinitionStore

@@ -107,9 +107,7 @@ class ImportMagicLinkCoordinator: Coordinator {
         guard let presentingViewController = delegate?.viewControllerForPresenting(in: self) else { return }
 
         let viewController = ImportMagicTokenViewController(
-            analytics: analytics,
             assetDefinitionStore: assetDefinitionStore,
-            keystore: keystore,
             session: session,
             viewModel: .init(state: .validating, server: session.server))
         viewController.delegate = self

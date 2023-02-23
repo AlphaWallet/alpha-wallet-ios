@@ -71,8 +71,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
         return noteBorderView
     }()
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
-    private var viewModel: SetTransferTokensCardExpiryDateViewModel
-    private let tokenHolder: TokenHolder
+    private (set) var viewModel: SetTransferTokensCardExpiryDateViewModel
 
     var contract: AlphaWallet.Address {
         return viewModel.token.contractAddress
@@ -81,7 +80,6 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
         return viewModel.token.server
     }
     let assetDefinitionStore: AssetDefinitionStore
-    let paymentFlow: PaymentFlow
     weak var delegate: SetTransferTokensCardExpiryDateViewControllerDelegate?
 
     private let containerView: ScrollableStackView = {
@@ -92,14 +90,10 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
         return view
     }()
 
-    init(tokenHolder: TokenHolder,
-         paymentFlow: PaymentFlow,
-         viewModel: SetTransferTokensCardExpiryDateViewModel,
+    init(viewModel: SetTransferTokensCardExpiryDateViewModel,
          assetDefinitionStore: AssetDefinitionStore,
          session: WalletSession) {
 
-        self.tokenHolder = tokenHolder
-        self.paymentFlow = paymentFlow
         self.viewModel = viewModel
         self.assetDefinitionStore = assetDefinitionStore
 
@@ -212,7 +206,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
             return
         }
 
-        delegate?.didPressNext(tokenHolder: tokenHolder, linkExpiryDate: expiryDate, in: self)
+        delegate?.didPressNext(tokenHolder: viewModel.tokenHolder, linkExpiryDate: expiryDate, in: self)
     }
 
     private func linkExpiryDate() -> Date {
@@ -254,7 +248,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
         updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus)
 
         navigationItem.title = viewModel.headerTitle
-        tokenRowView.configure(tokenHolder: tokenHolder)
+        tokenRowView.configure(tokenHolder: viewModel.tokenHolder)
 
         tokenRowView.stateLabel.isHidden = true
         linkExpiryDateLabel.text = viewModel.linkExpiryDateLabelText

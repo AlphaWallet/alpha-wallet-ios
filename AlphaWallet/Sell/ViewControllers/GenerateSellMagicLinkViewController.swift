@@ -20,19 +20,20 @@ class GenerateSellMagicLinkViewController: UIViewController {
     private let descriptionLabel = UILabel()
     private let actionButton = UIButton()
     private let cancelButton = UIButton()
-    private var viewModel: GenerateSellMagicLinkViewModel?
+    private (set) var viewModel: GenerateSellMagicLinkViewModel
 
     weak var delegate: GenerateSellMagicLinkViewControllerDelegate?
-    let paymentFlow: PaymentFlow
-    let tokenHolder: TokenHolder
-    let ethCost: Double
-    let linkExpiryDate: Date
+//    let paymentFlow: PaymentFlow
+//    let tokenHolder: TokenHolder
+//    let ethCost: Double
+//    let linkExpiryDate: Date
 
-    init(paymentFlow: PaymentFlow, tokenHolder: TokenHolder, ethCost: Double, linkExpiryDate: Date) {
-        self.paymentFlow = paymentFlow
-        self.tokenHolder = tokenHolder
-        self.ethCost = ethCost
-        self.linkExpiryDate = linkExpiryDate
+    init(viewModel: GenerateSellMagicLinkViewModel) {
+        self.viewModel = viewModel
+//        self.paymentFlow = paymentFlow
+//        self.tokenHolder = tokenHolder
+//        self.ethCost = ethCost
+//        self.linkExpiryDate = linkExpiryDate
         super.init(nibName: nil, bundle: nil)
         view.backgroundColor = .clear
 
@@ -55,7 +56,7 @@ class GenerateSellMagicLinkViewController: UIViewController {
         cancelButton.addTarget(self, action: #selector(cancel), for: .touchUpInside)
 
         let stackView = [
-			header,
+            header,
             .spacer(height: 20),
             subtitleLabel,
             tokenCountLabel,
@@ -106,57 +107,58 @@ class GenerateSellMagicLinkViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(viewModel: GenerateSellMagicLinkViewModel) {
-        self.viewModel = viewModel
-        if let viewModel = self.viewModel {
-            background.backgroundColor = viewModel.contentsBackgroundColor
-            background.layer.cornerRadius = DataEntry.Metric.CornerRadius.popups
-
-            header.configure(title: viewModel.headerTitle)
-
-            subtitleLabel.numberOfLines = 0
-            subtitleLabel.textColor = viewModel.subtitleColor
-            subtitleLabel.font = viewModel.subtitleFont
-            subtitleLabel.textAlignment = .center
-            subtitleLabel.text = viewModel.subtitleLabelText
-
-            tokenCountLabel.textAlignment = .center
-            tokenCountLabel.textColor = viewModel.tokenSaleDetailsLabelColor
-            tokenCountLabel.font = viewModel.tokenSaleDetailsLabelFont
-            tokenCountLabel.text = viewModel.tokenCountLabelText
-
-            perTokenPriceLabel.textAlignment = .center
-            perTokenPriceLabel.textColor = viewModel.tokenSaleDetailsLabelColor
-            perTokenPriceLabel.font = viewModel.tokenSaleDetailsLabelFont
-            perTokenPriceLabel.text = viewModel.perTokenPriceLabelText
-            perTokenPriceLabel.adjustsFontSizeToFitWidth = true
-
-            totalEthLabel.textAlignment = .center
-            totalEthLabel.textColor = viewModel.tokenSaleDetailsLabelColor
-            totalEthLabel.font = viewModel.tokenSaleDetailsLabelFont
-            totalEthLabel.text = viewModel.totalEthLabelText
-            totalEthLabel.adjustsFontSizeToFitWidth = true
-
-            descriptionLabel.textAlignment = .center
-            descriptionLabel.numberOfLines = 0
-            descriptionLabel.textColor = viewModel.tokenSaleDetailsLabelColor
-            descriptionLabel.font = viewModel.tokenSaleDetailsLabelFont
-            descriptionLabel.text = viewModel.descriptionLabelText
-
-            detailsBackground.backgroundColor = viewModel.detailsBackgroundBackgroundColor
-
-            actionButton.setTitleColor(viewModel.actionButtonTitleColor, for: .normal)
-            actionButton.setBackgroundColor(viewModel.actionButtonBackgroundColor, forState: .normal)
-            actionButton.titleLabel?.font = viewModel.actionButtonTitleFont
-            actionButton.setTitle(viewModel.actionButtonTitle, for: .normal)
-            actionButton.cornerRadius = DataEntry.Metric.CornerRadius.button
-
-            cancelButton.setTitleColor(viewModel.cancelButtonTitleColor, for: .normal)
-            cancelButton.setBackgroundColor(viewModel.cancelButtonBackgroundColor, forState: .normal)
-            cancelButton.titleLabel?.font = viewModel.cancelButtonTitleFont
-            cancelButton.setTitle(viewModel.cancelButtonTitle, for: .normal)
-            cancelButton.layer.masksToBounds = true
+    func configure(viewModel vm: GenerateSellMagicLinkViewModel? = nil) {
+        if let vm = vm {
+            self.viewModel = vm
         }
+
+        background.backgroundColor = viewModel.contentsBackgroundColor
+        background.layer.cornerRadius = DataEntry.Metric.CornerRadius.popups
+
+        header.configure(title: viewModel.headerTitle)
+
+        subtitleLabel.numberOfLines = 0
+        subtitleLabel.textColor = viewModel.subtitleColor
+        subtitleLabel.font = viewModel.subtitleFont
+        subtitleLabel.textAlignment = .center
+        subtitleLabel.text = viewModel.subtitleLabelText
+
+        tokenCountLabel.textAlignment = .center
+        tokenCountLabel.textColor = viewModel.tokenSaleDetailsLabelColor
+        tokenCountLabel.font = viewModel.tokenSaleDetailsLabelFont
+        tokenCountLabel.text = viewModel.tokenCountLabelText
+
+        perTokenPriceLabel.textAlignment = .center
+        perTokenPriceLabel.textColor = viewModel.tokenSaleDetailsLabelColor
+        perTokenPriceLabel.font = viewModel.tokenSaleDetailsLabelFont
+        perTokenPriceLabel.text = viewModel.perTokenPriceLabelText
+        perTokenPriceLabel.adjustsFontSizeToFitWidth = true
+
+        totalEthLabel.textAlignment = .center
+        totalEthLabel.textColor = viewModel.tokenSaleDetailsLabelColor
+        totalEthLabel.font = viewModel.tokenSaleDetailsLabelFont
+        totalEthLabel.text = viewModel.totalEthLabelText
+        totalEthLabel.adjustsFontSizeToFitWidth = true
+
+        descriptionLabel.textAlignment = .center
+        descriptionLabel.numberOfLines = 0
+        descriptionLabel.textColor = viewModel.tokenSaleDetailsLabelColor
+        descriptionLabel.font = viewModel.tokenSaleDetailsLabelFont
+        descriptionLabel.text = viewModel.descriptionLabelText
+
+        detailsBackground.backgroundColor = viewModel.detailsBackgroundBackgroundColor
+
+        actionButton.setTitleColor(viewModel.actionButtonTitleColor, for: .normal)
+        actionButton.setBackgroundColor(viewModel.actionButtonBackgroundColor, forState: .normal)
+        actionButton.titleLabel?.font = viewModel.actionButtonTitleFont
+        actionButton.setTitle(viewModel.actionButtonTitle, for: .normal)
+        actionButton.cornerRadius = DataEntry.Metric.CornerRadius.button
+
+        cancelButton.setTitleColor(viewModel.cancelButtonTitleColor, for: .normal)
+        cancelButton.setBackgroundColor(viewModel.cancelButtonBackgroundColor, forState: .normal)
+        cancelButton.titleLabel?.font = viewModel.cancelButtonTitleFont
+        cancelButton.setTitle(viewModel.cancelButtonTitle, for: .normal)
+        cancelButton.layer.masksToBounds = true
     }
 
     @objc func share() {

@@ -12,8 +12,7 @@ protocol ChooseTokenCardTransferModeViewControllerDelegate: AnyObject, CanOpenUR
 class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiableStatusViewController {
     private let tokenRowView: TokenRowView & UIView
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 2))
-    private var viewModel: ChooseTokenCardTransferModeViewModel
-    private let tokenHolder: TokenHolder
+    private (set) var viewModel: ChooseTokenCardTransferModeViewModel
     private let containerView = ScrollableStackView()
 
     var contract: AlphaWallet.Address {
@@ -23,17 +22,13 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
         return viewModel.token.server
     }
     let assetDefinitionStore: AssetDefinitionStore
-    let paymentFlow: PaymentFlow
+
     weak var delegate: ChooseTokenCardTransferModeViewControllerDelegate?
 
-    init(tokenHolder: TokenHolder,
-         paymentFlow: PaymentFlow,
-         viewModel: ChooseTokenCardTransferModeViewModel,
+    init(viewModel: ChooseTokenCardTransferModeViewModel,
          assetDefinitionStore: AssetDefinitionStore,
          session: WalletSession) {
 
-        self.tokenHolder = tokenHolder
-        self.paymentFlow = paymentFlow
         self.viewModel = viewModel
         self.assetDefinitionStore = assetDefinitionStore
 
@@ -94,11 +89,11 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
     }
 
     @objc private func generateMagicLinkTapped() {
-        delegate?.didChooseTransferViaMagicLink(token: viewModel.token, tokenHolder: tokenHolder, in: self)
+        delegate?.didChooseTransferViaMagicLink(token: viewModel.token, tokenHolder: viewModel.tokenHolder, in: self)
     }
 
     @objc private func transferNowTapped() {
-        delegate?.didChooseTransferNow(token: viewModel.token, tokenHolder: tokenHolder, in: self)
+        delegate?.didChooseTransferNow(token: viewModel.token, tokenHolder: viewModel.tokenHolder, in: self)
     }
 
     func configure(viewModel newViewModel: ChooseTokenCardTransferModeViewModel? = nil) {
@@ -109,7 +104,7 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
 
         navigationItem.title = viewModel.headerTitle
 
-        tokenRowView.configure(tokenHolder: tokenHolder)
+        tokenRowView.configure(tokenHolder: viewModel.tokenHolder)
 
         tokenRowView.stateLabel.isHidden = true
     }
