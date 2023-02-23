@@ -3,7 +3,7 @@
 import UIKit
 import AlphaWalletFoundation
 
-struct ImportMagicTokenViewControllerViewModel {
+struct ImportMagicTokenViewModel {
     enum State {
         case validating
         case promptImport

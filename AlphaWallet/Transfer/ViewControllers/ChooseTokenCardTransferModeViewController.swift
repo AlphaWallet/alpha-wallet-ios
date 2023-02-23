@@ -27,15 +27,14 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
     let paymentFlow: PaymentFlow
     weak var delegate: ChooseTokenCardTransferModeViewControllerDelegate?
 
-    init(
-        analytics: AnalyticsLogger,
-        tokenHolder: TokenHolder,
-        paymentFlow: PaymentFlow,
-        viewModel: ChooseTokenCardTransferModeViewModel,
-        assetDefinitionStore: AssetDefinitionStore,
-        keystore: Keystore,
-        session: WalletSession
-    ) {
+    init(analytics: AnalyticsLogger,
+         tokenHolder: TokenHolder,
+         paymentFlow: PaymentFlow,
+         viewModel: ChooseTokenCardTransferModeViewModel,
+         assetDefinitionStore: AssetDefinitionStore,
+         keystore: Keystore,
+         session: WalletSession) {
+        
         self.analytics = analytics
         self.tokenHolder = tokenHolder
         self.paymentFlow = paymentFlow

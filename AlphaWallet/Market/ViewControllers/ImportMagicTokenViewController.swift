@@ -25,7 +25,7 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
     private let dollarCostLabelLabel = UILabel()
     private let dollarCostLabel = PaddedLabel()
     private let buttonsBar = HorizontalButtonsBar(configuration: .custom(types: [.primary, .secondary]))
-    private (set) var viewModel: ImportMagicTokenViewControllerViewModel
+    private (set) var viewModel: ImportMagicTokenViewModel
 
     let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: ImportMagicTokenViewControllerDelegate?
@@ -54,7 +54,7 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
          assetDefinitionStore: AssetDefinitionStore,
          keystore: Keystore,
          session: WalletSession,
-         viewModel: ImportMagicTokenViewControllerViewModel) {
+         viewModel: ImportMagicTokenViewModel) {
 
         self.viewModel = viewModel
         self.analytics = analytics
@@ -134,11 +134,11 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(viewModel: ImportMagicTokenViewControllerViewModel) {
+    func configure(viewModel: ImportMagicTokenViewModel) {
         self.viewModel = viewModel
         navigationItem.title = viewModel.headerTitle
 
-        tokenCardRowView.configure(viewModel: ImportMagicTokenCardRowViewModel(importMagicTokenViewControllerViewModel: viewModel, assetDefinitionStore: assetDefinitionStore))
+        tokenCardRowView.configure(viewModel: ImportMagicTokenCardRowViewModel(importMagicTokenViewModel: viewModel, assetDefinitionStore: assetDefinitionStore))
 
         tokenCardRowView.isHidden = !viewModel.showTokenRow
         tokenCardRowView.stateLabel.isHidden = true

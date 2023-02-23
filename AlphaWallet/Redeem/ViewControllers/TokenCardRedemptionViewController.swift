@@ -31,7 +31,13 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
     let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: TokenCardRedemptionViewControllerDelegate?
 
-    init(session: WalletSession, token: Token, viewModel: TokenCardRedemptionViewModel, assetDefinitionStore: AssetDefinitionStore, analytics: AnalyticsLogger, keystore: Keystore) {
+    init(session: WalletSession,
+         token: Token,
+         viewModel: TokenCardRedemptionViewModel,
+         assetDefinitionStore: AssetDefinitionStore,
+         analytics: AnalyticsLogger,
+         keystore: Keystore) {
+        
         self.session = session
         self.token = token
         self.viewModel = viewModel

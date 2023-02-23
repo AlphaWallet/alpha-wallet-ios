@@ -54,14 +54,13 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
     let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: RedeemTokenCardQuantitySelectionViewControllerDelegate?
 
-    init(
-        analytics: AnalyticsLogger,
-        token: Token,
-        viewModel: RedeemTokenCardQuantitySelectionViewModel,
-        assetDefinitionStore: AssetDefinitionStore,
-        keystore: Keystore,
-        session: WalletSession
-    ) {
+    init(analytics: AnalyticsLogger,
+         token: Token,
+         viewModel: RedeemTokenCardQuantitySelectionViewModel,
+         assetDefinitionStore: AssetDefinitionStore,
+         keystore: Keystore,
+         session: WalletSession) {
+        
         self.analytics = analytics
         self.token = token
         self.viewModel = viewModel
