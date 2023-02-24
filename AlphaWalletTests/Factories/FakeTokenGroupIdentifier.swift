@@ -17,4 +17,8 @@ final class FakeTokenGroupIdentifier: TokenGroupIdentifierProtocol {
     func identify(token: TokenGroupIdentifiable) -> TokenGroup {
         return .assets
     }
+
+    func hasContract(address: String, chainID: Int) -> Bool {
+        return false
+    }
 }

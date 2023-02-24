@@ -118,6 +118,7 @@ public enum TokenGroup: String {
     case defi
     case governance
     case collectibles
+    case spam
 }
 
 public protocol TokenGroupIdentifiable {
@@ -128,6 +129,7 @@ public protocol TokenGroupIdentifiable {
 public protocol TokenGroupIdentifierProtocol {
     static func identifier(fromFileName: String) -> TokenGroupIdentifierProtocol?
     func identify(token: TokenGroupIdentifiable) -> TokenGroup
+    func hasContract(address: String, chainID: Int) -> Bool
 }
 
 public class TokenGroupIdentifier: TokenGroupIdentifierProtocol {
@@ -145,7 +147,9 @@ public class TokenGroupIdentifier: TokenGroupIdentifierProtocol {
     }
 
     private init(decodedTokenEntries: TokenGroupDictionary) {
-        self.decodedTokenEntries = decodedTokenEntries
+        self.decodedTokenEntries = decodedTokenEntries.filter { _, group in
+            return group != TokenGroup.spam
+        }
     }
 
     public func identify(token: TokenGroupIdentifiable) -> TokenGroup {
@@ -155,6 +159,9 @@ public class TokenGroupIdentifier: TokenGroupIdentifierProtocol {
         return decodedTokenEntries[token.tokenGroupKey] ?? .assets
     }
 
+    public func hasContract(address: String, chainID: Int) -> Bool {
+        return decodedTokenEntries["\(address):\(chainID)"] != nil
+    }
 }
 
 public protocol TokenGroupIdentifieble {

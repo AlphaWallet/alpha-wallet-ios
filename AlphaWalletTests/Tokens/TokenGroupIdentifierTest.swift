@@ -53,7 +53,7 @@ class TokenGroupIdentifierTest: XCTestCase {
         let tokenGroupIdentifier: TokenGroupIdentifierProtocol? = TokenGroupIdentifier.identifier(fromFileName: "tokens")
         XCTAssert(tokenGroupIdentifier != nil)
         // match address and id in contract
-        let t1 = Token(contract: AlphaWallet.Address(string: "0xaaA62D9584Cbe8e4D68A43ec91BfF4fF1fAdB202")!, server: RPCServer.custom(chainId: 42161))
+        let t1 = Token(contract: AlphaWallet.Address(string: "0x596fa47043f99a4e0f122243b841e55375cde0d2")!, server: RPCServer.custom(chainId: 43114))
         XCTAssertEqual(tokenGroupIdentifier!.identify(token: t1), TokenGroup.governance)
         // match address only
         let t2 = Token(contract: AlphaWallet.Address(string: "0xaaA62D9584Cbe8e4D68A43ec91BfF4fF1fAdB202")!, server: RPCServer.custom(chainId: 4216154))
@@ -90,4 +90,10 @@ class TokenGroupIdentifierTest: XCTestCase {
         XCTAssertNotEqual(tokenGroupIdentifier!.identify(token: t3), TokenGroup.collectibles)
     }
 
+    func testDetectSpam() throws {
+        let tokenGroupIdentifier: TokenGroupIdentifierProtocol? = TokenGroupIdentifier.identifier(fromFileName: "tokens")
+        XCTAssert(tokenGroupIdentifier != nil)
+        XCTAssertFalse(tokenGroupIdentifier!.hasContract(address: "0xD7f1d4F5A1B44D827a7C3cC5dd46a80fADe55558", chainID: 137))
+        XCTAssertTrue(tokenGroupIdentifier!.hasContract(address: "0x596fa47043f99a4e0f122243b841e55375cde0d2", chainID: 43114))
+    }
 }
