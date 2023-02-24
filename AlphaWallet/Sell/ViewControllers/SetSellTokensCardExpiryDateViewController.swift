@@ -127,7 +127,6 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
         }
     }
 
-    // swiftlint:disable function_body_length
     init(viewModel: SetSellTokensCardExpiryDateViewModel,
          assetDefinitionStore: AssetDefinitionStore,
          session: WalletSession) {
@@ -235,7 +234,6 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
             footerBar.anchorsConstraint(to: view),
         ])
     }
-    // swiftlint:enable function_body_length
 
     override func viewDidLoad() {
         super.viewDidLoad()
